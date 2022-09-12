@@ -1,0 +1,23 @@
+// colors from tracker
+$colors: (
+    'black': #000,
+    'gray': #808080,
+    'yellow': #ffd700,
+    'orange': #f80,
+    'red': #c00,
+    'green': #080,
+    'blue': #04b,
+    'violet': #f0f,
+);
+
+:root {
+    @each $name, $value in $colors {
+        --yfm-colorify-#{$name}: #{$value};
+    }
+}
+
+@each $name, $_ in $colors {
+    .yfm-colorify--#{$name} {
+        color: var(--yfm-colorify-#{$name});
+    }
+}

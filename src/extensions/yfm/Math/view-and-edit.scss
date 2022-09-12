@@ -1,0 +1,50 @@
+.math-inline,
+.math-block {
+    color: var(--yc-color-text-complementary);
+    font-family: var(--yc-font-family-monospace);
+}
+
+.math-block-container {
+    margin-bottom: 15px;
+}
+
+.math-error {
+    color: var(--yc-color-base-danger-heavy);
+}
+
+.math-container.math-active .math-view {
+    display: none;
+}
+
+.math-inline-container.math-active .math-inline {
+    background-color: var(--yc-color-base-misc);
+    &::before,
+    &::after {
+        content: '$';
+        color: var(--yc-color-text-hint);
+    }
+}
+
+.math-block-container.math-active .math-block {
+    background-color: var(--yc-color-base-misc);
+    &::before,
+    &::after {
+        content: '$$';
+        display: block;
+        color: var(--yc-color-text-hint);
+    }
+}
+
+.math-container:not(.math-active) {
+    position: relative;
+
+    .math-inline,
+    .math-block {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        opacity: 0;
+    }
+}

@@ -1,0 +1,16 @@
+.ye-checkbox {
+    margin-bottom: 15px;
+    display: flex;
+
+    align-items: center;
+
+    &__label {
+        display: inline-block;
+    }
+
+    /* Повышение специфичности селектора чтобы перетереть yfm стили с нулевым отступом */
+    &__input {
+        /* stylelint-disable declaration-no-important */
+        margin-right: 5px !important;
+    }
+}

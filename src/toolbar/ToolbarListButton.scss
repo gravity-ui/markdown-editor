@@ -1,0 +1,28 @@
+.ye-toolbar-list-button {
+    // TODO: FIXME
+    // button with 2 icons
+    // 42px width
+    &_arrow {
+        .yc-button__text.yc-button__text.yc-button__text {
+            margin: 0px 21px;
+        }
+
+        .yc-button__icon_side_left {
+            left: -1px;
+        }
+
+        .yc-button__icon_side_right {
+            right: -1px;
+        }
+    }
+
+    &__item {
+        display: flex;
+        justify-content: space-between;
+        column-gap: 24px;
+    }
+
+    &__hotkey {
+        color: var(--yc-color-text-secondary);
+    }
+}

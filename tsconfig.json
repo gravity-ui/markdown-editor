@@ -1,0 +1,15 @@
+{
+  "extends": "@yandex-cloud/tsconfig/tsconfig",
+  "compilerOptions": {
+    "lib": ["DOM", "ESNext"],
+    "outDir": "build",
+    "module": "esnext",
+    "jsx": "react",
+    "baseUrl": ".",
+    "declaration": true,
+    "importHelpers": true,
+    "isolatedModules": true,
+    "resolveJsonModule": true
+  },
+  "include": ["src/**/*", "demo/**/*", "tests/**/*"]
+}

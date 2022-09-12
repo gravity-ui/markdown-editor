@@ -1,0 +1,30 @@
+@import '~@yandex-cloud/uikit/styles/mixins.scss';
+
+.playground {
+    max-width: 1296px;
+    margin: 0 auto;
+
+    &__header {
+        position: relative;
+        margin-top: 16px;
+        margin-bottom: 40px;
+        text-align: center;
+
+        @include text-header-2();
+    }
+
+    &__preview-type {
+        position: absolute;
+        right: 0;
+        bottom: 0;
+    }
+
+    &__markup {
+        background-color: var(--yc-color-base-generic);
+    }
+
+    &__editor-view {
+        margin: 20px 0;
+        min-height: 100px;
+    }
+}

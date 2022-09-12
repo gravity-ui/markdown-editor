@@ -1,0 +1,10 @@
+.ye-toolbar-button {
+    &__hotkey {
+        margin-left: 12px;
+        padding: 0 8px;
+
+        border-radius: 4px;
+        color: var(--yc-color-text-light-complementary);
+        background-color: var(--yc-color-base-generic-medium-hover);
+    }
+}

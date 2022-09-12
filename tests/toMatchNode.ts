@@ -1,0 +1,26 @@
+/* eslint-disable @typescript-eslint/no-namespace */
+
+import {eq} from 'prosemirror-test-builder';
+import type {Node} from 'prosemirror-model';
+
+const toJson = (node: Node) => JSON.stringify(node.toJSON());
+
+expect.extend({
+    toMatchNode: (received: Node, expect: Node) => {
+        return {
+            message: () =>
+                `nodes do not match.\n\nreceived: ${received}\n\tjson: ${toJson(
+                    received,
+                )}\n\nexpect: ${expect}\n\tjson: ${toJson(expect)}`,
+            pass: eq(received, expect),
+        };
+    },
+});
+
+declare global {
+    namespace jest {
+        interface Matchers<R> {
+            toMatchNode(expect: Node): R;
+        }
+    }
+}

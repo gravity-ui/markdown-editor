@@ -1,0 +1,18 @@
+// importing yfm.css in js
+// @use '~@doc-tools/transform/dist/css/yfm.css';
+
+.yfm.yfm-editor {
+    &,
+    code,
+    pre > code,
+    table code,
+    table th,
+    table td {
+        // override yfm white-space styles
+        // https://github.com/ProseMirror/prosemirror/issues/651#issuecomment-313436150
+        /* stylelint-disable */
+        white-space: pre-wrap;
+        white-space: break-spaces;
+        /* stylelint-enable */
+    }
+}

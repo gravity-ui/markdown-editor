@@ -1,0 +1,44 @@
+import type {Command} from 'prosemirror-state';
+import {history, redo, undo} from 'prosemirror-history';
+import type {Action, ActionSpec, ExtensionAuto, Keymap} from '../../../core';
+
+enum HistoryAction {
+    Undo = 'undo',
+    Redo = 'redo',
+}
+
+export type HistoryOptions = {
+    config?: Parameters<typeof history>[0];
+    undoKey?: string | null;
+    redoKey?: string | null;
+};
+
+export const History: ExtensionAuto<HistoryOptions> = (builder, opts) => {
+    builder.addPlugin(() => history(opts?.config));
+    builder.addKeymap(() => {
+        const {undoKey, redoKey} = opts ?? {};
+        const bindings: Keymap = {};
+        if (undoKey) bindings[undoKey] = undo;
+        if (redoKey) bindings[redoKey] = redo;
+        return bindings;
+    });
+    builder
+        .addAction(HistoryAction.Undo, createHistoryAction(undo))
+        .addAction(HistoryAction.Redo, createHistoryAction(redo));
+};
+
+declare global {
+    namespace YfmEditor {
+        interface Actions {
+            [HistoryAction.Undo]: Action;
+            [HistoryAction.Redo]: Action;
+        }
+    }
+}
+
+function createHistoryAction(command: Command) {
+    return (): ActionSpec => ({
+        isEnable: command,
+        run: command,
+    });
+}

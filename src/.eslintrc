@@ -1,0 +1,10 @@
+{
+    "extends": "@yandex-cloud/eslint-config/client",
+    "overrides": [{
+        "files": ["*"],
+        "rules": {
+            "new-cap": [2, { "capIsNew": false }],
+            "@typescript-eslint/no-namespace": [2, { "allowDeclarations": true }]
+        }
+    }]
+}

@@ -1,0 +1,8 @@
+@use '~prosemirror-view/style/prosemirror';
+
+.yfm-editor.ProseMirror,
+.yfm-editor .ProseMirror {
+    &:focus {
+        outline: none;
+    }
+}
