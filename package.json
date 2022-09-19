@@ -14,7 +14,8 @@
     "lint:styles": "stylelint \"{src,demo}/**/*.{css,scss}\"",
     "lint:prettier": "prettier --check \"{src,demo}/**/*.{js,jsx,ts,tsx,css,scss}\"",
     "test": "jest",
-    "test:cov": "jest --coverage"
+    "test:cov": "jest --coverage",
+    "prepublishOnly": "npm run lint && npm run build"
   },
   "repository": {
     "type": "git",
