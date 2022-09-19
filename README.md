@@ -5,7 +5,7 @@
 1. Install package
 
    ```
-   npm install @yandex-data-ui/yfm-editor-ext --registry=http://npm.yandex-team.ru
+   npm install @doc-tools/yfm-editor
    ```
 
 1. Install peer dependecies

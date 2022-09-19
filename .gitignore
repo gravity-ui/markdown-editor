@@ -1,0 +1,23 @@
+#npm
+npm-debug.log*
+node_modules
+
+#temporary
+tmp/
+temp/
+*~
+
+#personal
+.idea
+.vscode
+.DS_Store
+
+# git merge leftovers
+*.orig
+
+# build
+.cache
+build/
+coverage/
+storybook-static/
+.eslintcache

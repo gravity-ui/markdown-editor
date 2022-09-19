@@ -1,5 +1,5 @@
 {
-  "name": "@yandex-data-ui/yfm-editor-ext",
+  "name": "@doc-tools/yfm-editor",
   "version": "0.1.0",
   "description": "YFM wysiwyg editor",
   "scripts": {
@@ -17,8 +17,8 @@
     "test:cov": "jest --coverage"
   },
   "repository": {
-    "type": "arc",
-    "url": "https://a.yandex-team.ru/arc_vcs/data-ui/yfm-editor/opensource"
+    "type": "git",
+    "url": "https://github.com/yandex-cloud/yfm-editor"
   },
   "main": "build/cjs/index.js",
   "module": "build/esm/index.js",
@@ -33,7 +33,7 @@
     "prosemirror"
   ],
   "author": "Data UI Team <data-ui@yandex-team.ru>",
-  "license": "UNLICENSED",
+  "license": "MIT",
   "dependencies": {
     "@bem-react/classname": "^1.5.12",
     "@types/is-number": "^7.0.1",
