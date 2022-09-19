@@ -1,4 +1,3 @@
-import MarkdownIt from 'markdown-it';
 import {builders} from 'prosemirror-test-builder';
 import {createMarkupChecker} from '../../../../tests/sameMarkup';
 import {ExtensionsManager} from '../../../core';
@@ -7,8 +6,8 @@ import {HtmlE} from './index';
 import {HtmlAttr, HtmlNode} from './const';
 
 const {schema, parser, serializer} = new ExtensionsManager({
-    md: new MarkdownIt({html: true}),
     extensions: [BaseSchemaE(), HtmlE()],
+    options: {mdOpts: {html: true}},
 }).buildDeps();
 
 const {doc, p} = builders(schema, {

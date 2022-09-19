@@ -1,4 +1,3 @@
-import MarkdownIt from 'markdown-it';
 import {builders} from 'prosemirror-test-builder';
 import {createMarkupChecker} from '../../../../tests/sameMarkup';
 import {ExtensionsManager} from '../../../core';
@@ -8,7 +7,6 @@ import {CellAlign, TableAttrs, TableNode} from './const';
 import {TableE} from './index';
 
 const {schema, parser, serializer} = new ExtensionsManager({
-    md: new MarkdownIt(),
     extensions: [BaseSchemaE(), BlockquoteE(), TableE()],
 }).buildDeps();
 

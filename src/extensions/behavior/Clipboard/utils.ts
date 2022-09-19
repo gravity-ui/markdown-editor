@@ -2,6 +2,7 @@
 export enum DataTransferType {
     Text = 'text/plain',
     Html = 'text/html',
+    Yfm = 'text/yfm', // self
     UriList = 'text/uri-list',
     Files = 'Files',
 }

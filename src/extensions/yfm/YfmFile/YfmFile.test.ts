@@ -1,4 +1,3 @@
-import MarkdownIt from 'markdown-it';
 import {FILE_TOKEN} from '@doc-tools/transform/lib/plugins/file/const';
 import {builders} from 'prosemirror-test-builder';
 
@@ -8,7 +7,6 @@ import {BaseNode, BaseSchemaE} from '../../base/BaseSchema';
 import {YfmFileE} from './index';
 
 const {schema, parser, serializer} = new ExtensionsManager({
-    md: new MarkdownIt(),
     extensions: [BaseSchemaE(), YfmFileE({fileUploadHandler: () => Promise.reject()})],
 }).buildDeps();
 

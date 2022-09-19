@@ -1,4 +1,3 @@
-import MarkdownIt from 'markdown-it';
 import {builders} from 'prosemirror-test-builder';
 import {createMarkupChecker} from '../../../../tests/sameMarkup';
 import {createExtension, ExtensionsManager} from '../../../core';
@@ -10,7 +9,6 @@ import {YfmTable} from './index';
 const YfmTableE = createExtension((builder) => builder.use(YfmTable, {}));
 
 const {schema, parser, serializer} = new ExtensionsManager({
-    md: new MarkdownIt(),
     extensions: [BaseSchemaE(), BlockquoteE(), YfmTableE()],
 }).buildDeps();
 
