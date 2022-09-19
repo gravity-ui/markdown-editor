@@ -5,18 +5,26 @@ import '../../../types/spec';
 
 import {logger} from '../../../logger';
 import {tryCatch} from '../../../utils/helpers';
-import {ExtensionDeps, Serializer, trackTransactionMetrics} from '../../../core';
+import {Parser, Serializer, trackTransactionMetrics} from '../../../core';
 import {isTextSelection, isNodeSelection, isWholeSelection} from '../../../utils/selection';
 import {BaseNode, pType} from '../../base/BaseSchema';
 
 import {isInsideCode} from './code';
 import {DataTransferType, isIosSafariShare} from './utils';
 
-export type ClipboardPluginOptions = Pick<ExtensionDeps, 'parser' | 'serializer'> & {
+export type ClipboardPluginOptions = {
+    yfmParser: Parser;
+    textParser: Parser;
+    serializer: Serializer;
     pasteFileHandler?: (file: File) => void;
 };
 
-export const clipboard = ({parser, serializer, pasteFileHandler}: ClipboardPluginOptions) => {
+export const clipboard = ({
+    textParser,
+    yfmParser,
+    serializer,
+    pasteFileHandler,
+}: ClipboardPluginOptions) => {
     const copyTo = copyToFactory(serializer);
 
     return new Plugin({
@@ -76,7 +84,19 @@ export const clipboard = ({parser, serializer, pasteFileHandler}: ClipboardPlugi
                         return true;
                     }
 
-                    if ((data = e.clipboardData.getData(DataTransferType.Text))) {
+                    if (
+                        (data = e.clipboardData.getData(DataTransferType.Yfm)) ||
+                        (data = e.clipboardData.getData(DataTransferType.Text))
+                    ) {
+                        let parser: Parser;
+                        let dataFormat: string;
+                        if (e.clipboardData.types.includes(DataTransferType.Yfm)) {
+                            parser = yfmParser;
+                            dataFormat = DataTransferType.Yfm;
+                        } else {
+                            parser = textParser;
+                            dataFormat = DataTransferType.Text;
+                        }
                         const codeType = isInsideCode(view.state);
                         if (codeType) {
                             const schema: Schema = view.state.schema;
@@ -86,7 +106,7 @@ export const clipboard = ({parser, serializer, pasteFileHandler}: ClipboardPlugi
                                         schema.text(codeType === 'inline' ? data.trim() : data),
                                     ),
                                     'paste',
-                                    {clipboardDataFormat: DataTransferType.Text, code: codeType},
+                                    {clipboardDataFormat: dataFormat, code: codeType},
                                 ),
                             );
                             isPasteHandled = true;
@@ -99,7 +119,7 @@ export const clipboard = ({parser, serializer, pasteFileHandler}: ClipboardPlugi
                                     trackTransactionMetrics(
                                         view.state.tr.replaceSelection(slice),
                                         'paste',
-                                        {clipboardDataFormat: DataTransferType.Text},
+                                        {clipboardDataFormat: dataFormat},
                                     ),
                                 );
                                 isPasteHandled = true;
@@ -143,7 +163,9 @@ function getSliceFromMarkupFragment(fragment: Fragment) {
 
 function copyToFactory(serializer: Serializer) {
     return (data: DataTransfer, slice: Slice) => {
-        data.setData(DataTransferType.Text, serializer.serialize(slice.content));
+        const markup = serializer.serialize(slice.content);
+        data.setData(DataTransferType.Yfm, markup);
+        data.setData(DataTransferType.Text, markup);
     };
 }
 

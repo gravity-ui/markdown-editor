@@ -1,7 +1,5 @@
-import MarkdownIt from 'markdown-it';
 import {EditorView} from 'prosemirror-view';
 import {EditorState} from 'prosemirror-state';
-const attrs = require('markdown-it-attrs');
 
 import type {CommonEditor, ContentHandler, MarkupString} from '../common';
 import type {ExtensionSpec} from './types/extension';
@@ -58,14 +56,11 @@ export class YfmEditor implements CommonEditor, ActionStorage {
         onDocChange,
     }: YfmEditorOptions) {
         const {schema, parser, serializer, nodeViews, markViews, plugins, rawActions, actions} =
-            ExtensionsManager.process(
+            ExtensionsManager.process(extensions, {
                 // "breaks" option only affects the renderer, but not the parser
-                new MarkdownIt({html: allowHTML, linkify, breaks: true}).use(attrs, {
-                    ...attrsOpts,
-                    allowedAttributes: ['id'],
-                }),
-                extensions,
-            );
+                mdOpts: {html: allowHTML, linkify, breaks: true},
+                attrsOpts: {...attrsOpts, allowedAttributes: ['id']},
+            });
 
         const state = EditorState.create({
             schema,

@@ -44,6 +44,7 @@ export type YEMarkSpec = {
 export type ExtensionDeps = {
     readonly schema: Schema;
     readonly parser: Parser;
+    readonly parserWithoutAttrs: Parser;
     readonly serializer: Serializer;
     readonly actions: ActionStorage;
 };

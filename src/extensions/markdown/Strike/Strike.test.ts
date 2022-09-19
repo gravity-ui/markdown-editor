@@ -1,4 +1,3 @@
-import MarkdownIt from 'markdown-it';
 import {builders} from 'prosemirror-test-builder';
 import {createMarkupChecker} from '../../../../tests/sameMarkup';
 import {ExtensionsManager} from '../../../core';
@@ -6,7 +5,6 @@ import {BaseNode, BaseSchemaE} from '../../base/BaseSchema';
 import {strike, StrikeE} from './index';
 
 const {schema, parser, serializer} = new ExtensionsManager({
-    md: new MarkdownIt(),
     extensions: [BaseSchemaE(), StrikeE()],
 }).buildDeps();
 

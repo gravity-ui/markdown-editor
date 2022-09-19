@@ -1,4 +1,3 @@
-import MarkdownIt, {PluginWithParams} from 'markdown-it';
 import {builders} from 'prosemirror-test-builder';
 import {createMarkupChecker} from '../../../../tests/sameMarkup';
 import {ExtensionsManager} from '../../../core';
@@ -6,13 +5,10 @@ import {BaseNode, BaseSchemaE} from '../../base/BaseSchema';
 import {bold, BoldE} from '../../markdown/Bold';
 import {YfmHeadingE} from './index';
 import {heading, YfmHeadingAttr} from './const';
-const attrs: PluginWithParams = require('markdown-it-attrs');
 
 const {schema, parser, serializer} = new ExtensionsManager({
-    md: new MarkdownIt('commonmark').use(attrs, {
-        allowedAttributes: ['id'],
-    }),
     extensions: [BaseSchemaE(), YfmHeadingE(), BoldE()],
+    options: {attrsOpts: {allowedAttributes: ['id']}},
 }).buildDeps();
 
 const {doc, b, p, h1, h2, h3, h4, h5, h6} = builders(schema, {

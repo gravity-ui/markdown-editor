@@ -1,4 +1,3 @@
-import MarkdownIt from 'markdown-it';
 import {builders} from 'prosemirror-test-builder';
 import {createMarkupChecker} from '../../../../tests/sameMarkup';
 import {createExtension, ExtensionsManager} from '../../../core';
@@ -7,7 +6,6 @@ import {MathNode} from './const';
 import {Math} from './index';
 
 const {schema, parser, serializer} = new ExtensionsManager({
-    md: new MarkdownIt('commonmark'),
     extensions: [BaseSchemaE(), createExtension((b) => b.use(Math))()],
 }).buildDeps();
 

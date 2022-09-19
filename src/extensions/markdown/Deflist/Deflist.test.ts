@@ -1,4 +1,3 @@
-import MarkdownIt from 'markdown-it';
 import {builders} from 'prosemirror-test-builder';
 import {createMarkupChecker} from '../../../../tests/sameMarkup';
 import {ExtensionsManager} from '../../../core';
@@ -7,7 +6,6 @@ import {DeflistE} from './index';
 import {DeflistNode} from './const';
 
 const {schema, parser, serializer} = new ExtensionsManager({
-    md: new MarkdownIt('commonmark'),
     extensions: [BaseSchemaE(), DeflistE()],
 }).buildDeps();
 
