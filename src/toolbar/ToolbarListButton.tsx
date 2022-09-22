@@ -1,6 +1,6 @@
 import React from 'react';
 import {isFunction} from 'lodash';
-import {Button, Icon, Menu, Popup} from '@yandex-cloud/uikit';
+import {Button, HelpPopover, Icon, Menu, Popup} from '@yandex-cloud/uikit';
 
 import chevronIcon from '../../assets/icons/ye-chevron.svg';
 import {cn} from '../classname';
@@ -65,8 +65,9 @@ export function ToolbarListButton<E>({
             </Button>
             <Popup anchorRef={buttonRef} open={popupOpen} onClose={hide}>
                 <Menu size="l" className={b('menu')}>
-                    {data.map(({id, title, icon, hotkey, isActive, isEnable, exec}) => {
+                    {data.map(({id, title, icon, hotkey, isActive, isEnable, exec, hint}) => {
                         const titleText = isFunction(title) ? title() : title;
+                        const hintText = isFunction(hint) ? hint() : hint;
                         return (
                             <Menu.Item
                                 key={id}
@@ -83,7 +84,12 @@ export function ToolbarListButton<E>({
                             >
                                 <div className={b('item')}>
                                     {titleText}
-                                    {hotkey && <span className={b('hotkey')}>{hotkey}</span>}
+                                    <div className={b('extra')}>
+                                        {hotkey && <div className={b('hotkey')}>{hotkey}</div>}
+                                        {hintText && (
+                                            <HelpPopover className={b('hint')} content={hintText} />
+                                        )}
+                                    </div>
                                 </div>
                             </Menu.Item>
                         );

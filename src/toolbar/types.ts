@@ -14,6 +14,7 @@ export type ToolbarItemData<E> = {
     id: string;
     icon: ToolbarIconData;
     title: string | (() => string);
+    hint?: string | (() => string);
     hotkey?: string | null;
     exec(editor: E): void;
     isActive(editor: E): boolean;

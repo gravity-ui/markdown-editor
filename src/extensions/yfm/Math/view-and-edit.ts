@@ -8,7 +8,7 @@ import {MathNode} from './const';
 import 'katex/dist/katex.min.css';
 import './view-and-edit.scss';
 
-abstract class MathNodeView implements NodeView {
+export abstract class MathNodeView implements NodeView {
     dom: HTMLElement;
     contentDOM: HTMLElement;
     protected node: Node;
@@ -59,7 +59,7 @@ abstract class MathNodeView implements NodeView {
     }
 }
 
-class MathInlineNodeView extends MathNodeView {
+export class MathInlineNodeView extends MathNodeView {
     isDisplayMode(): boolean {
         return false;
     }
@@ -82,7 +82,7 @@ class MathInlineNodeView extends MathNodeView {
     }
 }
 
-class MathBlockNodeView extends MathNodeView {
+export class MathBlockNodeView extends MathNodeView {
     isDisplayMode(): boolean {
         return true;
     }
