@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.0](https://github.com/yandex-cloud/yfm-editor/compare/v1.0.0...v1.1.0) (2022-09-22)
+
+
+### Features
+
+* hints ([14360de](https://github.com/yandex-cloud/yfm-editor/commit/14360de3d7dc1b5838649eda3313759a77a36d8e))
+
 ## 1.0.0 (2022-09-21)
 
 
