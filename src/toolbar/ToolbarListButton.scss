@@ -25,4 +25,17 @@
     &__hotkey {
         color: var(--yc-color-text-secondary);
     }
+
+    &__extra {
+        display: flex;
+    }
+
+    &__hint {
+        display: flex;
+        align-items: center;
+
+        span {
+            display: flex;
+        }
+    }
 }
