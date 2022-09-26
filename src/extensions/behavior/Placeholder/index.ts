@@ -55,7 +55,8 @@ const addDecoration = (
     decorationsMap: Record<number, Decoration | PluginKey>,
     node: Node,
     pos: number,
-    cursorPos?: number | null,
+    cursorPos: number | null | undefined,
+    globalState: ApplyGlobalState,
 ) => {
     const placeholderSpec = node.type.spec.placeholder;
     const decorationPosition = pos + node.childCount + 1;
@@ -69,18 +70,49 @@ const addDecoration = (
         return;
     }
 
+    const focus = decorationPosition === cursorPos;
+    if (focus) {
+        globalState.hasFocus = true;
+    }
+
     decorationsMap[decorationPosition] = Decoration.widget(
         decorationPosition,
-        createPlaceholder(node, decorationPosition === cursorPos),
+        createPlaceholder(node, focus),
     );
 };
+
+type ApplyGlobalState = {hasFocus: boolean};
+
+type PlaceholderPluginState = {
+    decorations: Decoration[];
+    hasFocus: boolean;
+};
+
+const pluginKey = new PluginKey<PlaceholderPluginState>('placeholder_plugin');
 
 export const Placeholder: ExtensionAuto = (builder) => {
     builder.addPlugin(
         () =>
-            new Plugin({
+            new Plugin<PlaceholderPluginState>({
+                key: pluginKey,
                 props: {
-                    decorations: (state) => {
+                    attributes(state) {
+                        const attrs: Record<string, string> = {};
+                        if (pluginKey.getState(state)!.hasFocus) {
+                            // hide native cursor
+                            attrs.class = 'yfm-editor-hidecursor';
+                        }
+                        return attrs;
+                    },
+                    decorations(state) {
+                        const {decorations} = pluginKey.getState(state)!;
+                        return DecorationSet.create(state.doc, decorations);
+                    },
+                },
+                state: {
+                    init: () => ({decorations: [], hasFocus: false}),
+                    apply(_tr, _value, _oldState, state) {
+                        const globalState: ApplyGlobalState = {hasFocus: false};
                         const decorationsMap: Record<number, Decoration | PluginKey> = {};
                         const {selection} = state;
                         const cursorPos = isTextSelection(selection)
@@ -105,7 +137,7 @@ export const Placeholder: ExtensionAuto = (builder) => {
                                 placeholderSpec.alwaysVisible &&
                                 placeholderNeeded(node)
                             ) {
-                                addDecoration(decorationsMap, node, pos, cursorPos);
+                                addDecoration(decorationsMap, node, pos, cursorPos, globalState);
                             }
                         };
 
@@ -132,6 +164,7 @@ export const Placeholder: ExtensionAuto = (builder) => {
                                 parentNode.node,
                                 parentNode.pos,
                                 cursorPos,
+                                globalState,
                             );
                         }
 
@@ -139,7 +172,7 @@ export const Placeholder: ExtensionAuto = (builder) => {
                             (decoration) => !(decoration instanceof PluginKey),
                         ) as Decoration[];
 
-                        return DecorationSet.create(state.doc, decorations);
+                        return {decorations, hasFocus: globalState.hasFocus};
                     },
                 },
             }),
