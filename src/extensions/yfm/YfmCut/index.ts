@@ -8,7 +8,7 @@ import {CutNode, cutType} from './const';
 import {fromYfm} from './fromYfm';
 import {getSpec, YfmCutSpecOptions} from './spec';
 import {createYfmCut, toYfmCut} from './actions/toYfmCut';
-import {exitFromCutTitle, liftEmptyBlockFromCut} from './commands';
+import {exitFromCutTitle, liftEmptyBlockFromCut, removeCut} from './commands';
 
 const cutAction = 'toYfmCut';
 
@@ -53,6 +53,7 @@ export const YfmCut: ExtensionAuto<YfmCutOptions> = (builder, opts) => {
         }))
         .addAction(cutAction, () => toYfmCut)
         .addKeymap(() => ({
+            Backspace: chainCommands(removeCut),
             Enter: chainCommands(exitFromCutTitle, liftEmptyBlockFromCut),
         }))
         .addInputRules(({schema}) => ({

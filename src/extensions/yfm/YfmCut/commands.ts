@@ -1,4 +1,6 @@
+import {Fragment} from 'prosemirror-model';
 import {Command, TextSelection} from 'prosemirror-state';
+import {pType} from '../../base';
 import {isSameNodeType} from '../../../utils/schema';
 import {isTextSelection} from '../../../utils/selection';
 import {findFirstTextblockChild} from '../../../utils/nodes';
@@ -46,4 +48,37 @@ export const exitFromCutTitle: Command = (state, dispatch) => {
     const targetPos = cutContentPos + cutContentFirstTextblockChild.offset;
     dispatch?.(state.tr.setSelection(TextSelection.create(state.doc, targetPos)));
     return true;
+};
+
+/**
+ * Deletes the cut if the cursor is at the beginning of the title.
+ * Cut will be replaced with his title converted to paragraph and his content.
+ */
+export const removeCut: Command = (state, dispatch, view) => {
+    const {selection, schema} = state;
+    if (!isTextSelection(selection)) return false;
+    const {$cursor} = selection;
+    if (!$cursor) return false;
+    if (
+        !isSameNodeType($cursor.parent, cutTitleType(schema)) ||
+        !isSameNodeType($cursor.node(-1), cutType(schema))
+    ) {
+        return false;
+    }
+    if (view?.endOfTextblock('backward', state)) {
+        if (dispatch) {
+            const cutTitleNode = $cursor.parent;
+            const cutNode = $cursor.node(-1);
+            const cutContentNode = cutNode.lastChild!; // cut always have 2 child: title and content; see schema
+            const content = Fragment.from(pType(schema).create(null, cutTitleNode.content)).append(
+                cutContentNode.content,
+            );
+            const from = $cursor.before(-1);
+            const to = from + cutNode.nodeSize;
+            const tr = state.tr.replaceWith(from, to, content);
+            dispatch(tr.setSelection(TextSelection.create(tr.doc, from + 1)));
+        }
+        return true;
+    }
+    return false;
 };
