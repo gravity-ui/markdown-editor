@@ -2,9 +2,10 @@ import {Schema} from 'prosemirror-model';
 import {EditorView} from 'prosemirror-view';
 import {EditorState, TextSelection} from 'prosemirror-state';
 import {builders} from 'prosemirror-test-builder';
+
 import {CutNode} from './const';
 import {getSpec} from './spec';
-import {removeCut} from './commands';
+import {backToCutTitle, removeCut} from './commands';
 
 const schema = new Schema({
     nodes: {
@@ -26,7 +27,7 @@ const {
     yfm_cut: cut,
     yfm_cut_title: cutTitle,
     yfm_cut_content: cutContent,
-} = builders(schema, {}) as PMTestBuilderResult<
+} = builders(schema) as PMTestBuilderResult<
     'doc' | 'paragraph' | CutNode.Cut | CutNode.CutTitle | CutNode.CutContent
 >;
 
@@ -44,5 +45,20 @@ describe('YfmCut commands', () => {
         expect(res).toBe(true);
         expect(view.state.doc).toMatchNode(doc(p('cut title'), p('cut content in paragraph')));
         expect((view.state.selection as TextSelection).$cursor?.pos).toBe(1);
+    });
+
+    it("backToCutTitle: should move cursor to the end of cut's title", () => {
+        const pmDoc = doc(cut(cutTitle('cut title'), cutContent(p('cut content in paragraph'))));
+        const view = new EditorView(null, {
+            state: EditorState.create({
+                schema,
+                doc: pmDoc,
+                selection: TextSelection.create(pmDoc, 14),
+            }),
+        });
+        const res = backToCutTitle(view.state, view.dispatch, view);
+        expect(res).toBe(true);
+        expect(view.state.doc).toMatchNode(pmDoc);
+        expect((view.state.selection as TextSelection).$cursor?.pos).toBe(11);
     });
 });

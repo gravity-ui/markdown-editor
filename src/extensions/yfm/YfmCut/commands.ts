@@ -82,3 +82,36 @@ export const removeCut: Command = (state, dispatch, view) => {
     }
     return false;
 };
+
+/**
+ * If the cursor is at the beginning of the first paragraph in cut's content,
+ * moves the cursor to the end of the cut's title.
+ */
+export const backToCutTitle: Command = (state, dispatch, view) => {
+    const {selection, schema} = state;
+    if (!isTextSelection(selection)) return false;
+    const {$cursor} = selection;
+    if (!$cursor) return false;
+    if (
+        !isSameNodeType($cursor.parent, pType(schema)) ||
+        !isSameNodeType($cursor.node(-1), cutContentType(schema)) ||
+        !isSameNodeType($cursor.node(-2), cutType(schema))
+    ) {
+        return false;
+    }
+    const cutNode = $cursor.node(-2);
+    const cutContentNode = $cursor.node(-1);
+    if ($cursor.parent !== cutContentNode.firstChild) return false;
+    if (view?.endOfTextblock('backward', state)) {
+        if (dispatch) {
+            const cutTitleNode = cutNode.firstChild!;
+            dispatch(
+                state.tr.setSelection(
+                    TextSelection.create(state.doc, $cursor.before(-2) + cutTitleNode.nodeSize),
+                ),
+            );
+        }
+        return true;
+    }
+    return false;
+};
