@@ -68,3 +68,34 @@ export const removeNote: Command = (state, dispatch, view) => {
     }
     return false;
 };
+
+/**
+ * If the cursor is at the beginning of the first paragraph in note's content,
+ * moves the cursor to the end of the note's title.
+ */
+export const backToNoteTitle: Command = (state, dispatch, view) => {
+    const {selection, schema} = state;
+    if (!isTextSelection(selection)) return false;
+    const {$cursor} = selection;
+    if (!$cursor) return false;
+    if (
+        !isSameNodeType($cursor.parent, pType(schema)) ||
+        !isSameNodeType($cursor.node(-1), noteType(schema))
+    ) {
+        return false;
+    }
+    const noteNode = $cursor.node(-1);
+    if ($cursor.parent !== noteNode.maybeChild(1)) return false;
+    if (view?.endOfTextblock('backward', state)) {
+        if (dispatch) {
+            const noteTitleNode = noteNode.firstChild!;
+            dispatch(
+                state.tr.setSelection(
+                    TextSelection.create(state.doc, $cursor.before(-1) + noteTitleNode.nodeSize),
+                ),
+            );
+        }
+        return true;
+    }
+    return false;
+};

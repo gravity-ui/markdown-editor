@@ -5,7 +5,7 @@ import {builders} from 'prosemirror-test-builder';
 
 import {NoteNode} from './const';
 import {getSpec} from './spec';
-import {removeNote} from './commands';
+import {backToNoteTitle, removeNote} from './commands';
 
 const schema = new Schema({
     nodes: {
@@ -14,7 +14,6 @@ const schema = new Schema({
         paragraph: {
             group: 'block',
             content: 'inline*',
-            parseDOM: [{tag: 'p'}],
             toDOM: () => ['p', 0],
         },
         ...getSpec(),
@@ -44,5 +43,20 @@ describe('YfmNote commands', () => {
         expect(res).toBe(true);
         expect(view.state.doc).toMatchNode(doc(p('note title'), p('note content in paragraph')));
         expect((view.state.selection as TextSelection).$cursor?.pos).toBe(1);
+    });
+
+    it("backToNoteTitle: should move cursor to the end of note's title", () => {
+        const pmDoc = doc(note(noteTitle('note title'), p('note content in paragraph')));
+        const view = new EditorView(null, {
+            state: EditorState.create({
+                schema,
+                doc: pmDoc,
+                selection: TextSelection.create(pmDoc, 14),
+            }),
+        });
+        const res = backToNoteTitle(view.state, view.dispatch, view);
+        expect(res).toBe(true);
+        expect(view.state.doc).toMatchNode(pmDoc);
+        expect((view.state.selection as TextSelection).$cursor?.pos).toBe(12);
     });
 });

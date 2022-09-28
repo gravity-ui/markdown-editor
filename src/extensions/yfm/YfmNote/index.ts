@@ -8,7 +8,7 @@ import {fromYfm} from './fromYfm';
 import {getSpec, YfmNoteSpecOptions} from './spec';
 import {createYfmNote, toYfmNote} from './actions/toYfmNote';
 import {nodeInputRule} from '../../../utils/inputrules';
-import {exitFromNoteTitle, removeNote} from './commands';
+import {backToNoteTitle, exitFromNoteTitle, removeNote} from './commands';
 import {noteType} from './utils';
 
 import './index.scss';
@@ -42,7 +42,7 @@ export const YfmNote: ExtensionAuto<YfmNoteOptions> = (builder, opts) => {
         }))
         .addKeymap(() => ({
             Enter: exitFromNoteTitle,
-            Backspace: chainCommands(removeNote),
+            Backspace: chainCommands(backToNoteTitle, removeNote),
         }))
         .addAction(noteAction, () => toYfmNote)
         .addInputRules(({schema}) => ({
