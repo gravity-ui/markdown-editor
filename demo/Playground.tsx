@@ -1,6 +1,6 @@
 import React from 'react';
 import block from 'bem-cn-lite';
-import {RadioButton, TextInput} from '@yandex-cloud/uikit';
+import {RadioButton, TextInput} from '@gravity-ui/uikit';
 
 import {
     BasePreset,

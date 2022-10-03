@@ -63,6 +63,7 @@
   },
   "devDependencies": {
     "@doc-tools/transform": "2.11.0",
+    "@gravity-ui/uikit": "3.0.2",
     "@storybook/addon-essentials": "6.5.10",
     "@storybook/preset-scss": "1.0.3",
     "@storybook/react": "6.5.10",
@@ -71,16 +72,14 @@
     "@types/jest": "^27.0.3",
     "@types/katex": "0.5.0",
     "@types/lodash": "^4.14.177",
-    "@types/react": "^16.14.21",
-    "@types/react-dom": "^16.9.14",
+    "@types/react": "17.0.50",
+    "@types/react-dom": "17.0.17",
     "@types/rimraf": "3.0.2",
     "@types/sanitize-html": "^2.6.2",
     "@yandex-cloud/eslint-config": "^1.0.0",
-    "@yandex-cloud/i18n": "0.4.0",
     "@yandex-cloud/prettier-config": "^1.0.0",
     "@yandex-cloud/stylelint-config": "^1.0.0",
     "@yandex-cloud/tsconfig": "^1.0.0",
-    "@yandex-cloud/uikit": "^2.8.0",
     "eslint": "^8.3.0",
     "gulp": "4.0.2",
     "gulp-cli": "2.3.0",
@@ -95,8 +94,8 @@
     "npm-run-all": "^4.1.5",
     "prettier": "^2.4.1",
     "prosemirror-test-builder": "1.1.0",
-    "react": "^16.13.1",
-    "react-dom": "^16.13.1",
+    "react": "17.0.2",
+    "react-dom": "17.0.2",
     "rimraf": "3.0.2",
     "sass": "^1.43.4",
     "sass-loader": "10.2.1",
@@ -107,10 +106,10 @@
   },
   "peerDependencies": {
     "@doc-tools/transform": "^2.11.0",
-    "@yandex-cloud/uikit": "^2.8.0",
+    "@gravity-ui/uikit": "^3.0.0",
     "lodash": "^4.17.20",
-    "react": "^16.13.1",
-    "react-dom": "^16.13.1"
+    "react": "^16.8.0 || ^17.0.0",
+    "react-dom": "^16.8.0 || ^17.0.0"
   },
   "lint-staged": {
     "*.{css,scss}": [

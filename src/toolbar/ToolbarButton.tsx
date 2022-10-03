@@ -1,6 +1,6 @@
 import React from 'react';
 import {isFunction} from 'lodash';
-import {Button, Icon, Tooltip} from '@yandex-cloud/uikit';
+import {Button, Icon, Tooltip} from '@gravity-ui/uikit';
 import {cn} from '../classname';
 import type {ToolbarBaseProps, ToolbarItemData} from './types';
 

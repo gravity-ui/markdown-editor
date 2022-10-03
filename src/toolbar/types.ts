@@ -1,4 +1,4 @@
-import type {IconProps} from '@yandex-cloud/uikit';
+import type {IconProps} from '@gravity-ui/uikit';
 import type {ClassNameProps} from '../classname';
 import type {ToolbarListButtonData} from './ToolbarListButton';
 
