@@ -27,13 +27,17 @@
     }
 
     &::before {
-        caret-color: transparent;
-        display: inline-block;
-        content: ' ';
-        margin-right: -1px;
-        border-right: 1px solid transparent;
         position: relative;
         z-index: 1;
+
+        display: inline-block;
+
+        margin-right: -1px;
+
+        content: ' ';
+        caret-color: transparent;
+
+        border-right: 1px solid transparent;
     }
 
     .ProseMirror-focused &::before {

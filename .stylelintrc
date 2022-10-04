@@ -1,3 +1,7 @@
 {
-    "extends": ["@yandex-cloud/stylelint-config", "@yandex-cloud/stylelint-config/prettier"]
+    "extends": [
+        "@gravity-ui/stylelint-config",
+        "@gravity-ui/stylelint-config/order",
+        "@gravity-ui/stylelint-config/prettier"
+    ]
 }

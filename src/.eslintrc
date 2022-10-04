@@ -1,5 +1,5 @@
 {
-    "extends": "@yandex-cloud/eslint-config/client",
+    "extends": "@gravity-ui/eslint-config/client",
     "overrides": [{
         "files": ["*"],
         "rules": {

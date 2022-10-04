@@ -1,4 +1,4 @@
 {
-    "extends": ["@yandex-cloud/eslint-config", "@yandex-cloud/eslint-config/prettier"],
+    "extends": ["@gravity-ui/eslint-config", "@gravity-ui/eslint-config/prettier"],
     "root": true
 }
