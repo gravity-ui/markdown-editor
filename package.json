@@ -63,6 +63,7 @@
   },
   "devDependencies": {
     "@doc-tools/transform": "2.11.0",
+    "@gravity-ui/tsconfig": "1.0.0",
     "@gravity-ui/uikit": "3.0.2",
     "@storybook/addon-essentials": "6.5.10",
     "@storybook/preset-scss": "1.0.3",
@@ -79,7 +80,6 @@
     "@yandex-cloud/eslint-config": "^1.0.0",
     "@yandex-cloud/prettier-config": "^1.0.0",
     "@yandex-cloud/stylelint-config": "^1.0.0",
-    "@yandex-cloud/tsconfig": "^1.0.0",
     "eslint": "^8.3.0",
     "gulp": "4.0.2",
     "gulp-cli": "2.3.0",
