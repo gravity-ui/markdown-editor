@@ -1,6 +1,6 @@
+import sanitize from '@doc-tools/transform/lib/sanitize';
 import type {NodeSpec} from 'prosemirror-model';
 import {HtmlAttr, HtmlNode} from './const';
-import {sanitize} from './sanitize';
 
 enum DomAttr {
     Html = 'data-html',
