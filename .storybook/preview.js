@@ -1,5 +1,4 @@
 import {withTheme, withThemeProvider, backgrounds} from '../demo/utils/preview';
-import '@yandex-cloud/uikit/styles/styles.scss';
 
 export const parameters = {
     actions: {argTypesRegex: '^on[A-Z].*'},

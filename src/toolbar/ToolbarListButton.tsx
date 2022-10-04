@@ -1,6 +1,6 @@
 import React from 'react';
 import {isFunction} from 'lodash';
-import {Button, HelpPopover, Icon, Menu, Popup} from '@yandex-cloud/uikit';
+import {Button, HelpPopover, Icon, Menu, Popup} from '@gravity-ui/uikit';
 
 import chevronIcon from '../../assets/icons/ye-chevron.svg';
 import {cn} from '../classname';

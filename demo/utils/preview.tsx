@@ -1,8 +1,8 @@
 import React from 'react';
 import {Story, StoryContext} from '@storybook/react/types-6-0';
-import {useTheme, ThemeProvider, Theme} from '@yandex-cloud/uikit';
+import {useTheme, ThemeProvider, Theme} from '@gravity-ui/uikit';
 
-import '@yandex-cloud/uikit/styles/styles.scss';
+import '@gravity-ui/uikit/styles/styles.scss';
 
 const light = {name: 'light', value: '#FFFFFF'};
 const dark = {name: 'dark', value: '#2D2C33'};
