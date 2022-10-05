@@ -14,7 +14,9 @@ import './FlexToolbar.scss';
 
 const b = cn('flex-toolbar');
 
-export type FlexToolbarProps<E> = ToolbarProps<E>;
+export type FlexToolbarProps<E> = ToolbarProps<E> & {
+    dotsTitle: string | (() => string);
+};
 
 export function FlexToolbar<E>(props: FlexToolbarProps<E>) {
     useRenderTime((time) => {
@@ -40,6 +42,7 @@ export function FlexToolbar<E>(props: FlexToolbarProps<E>) {
                     <ToolbarListButton
                         data={dots}
                         icon={{data: dotsIcon}}
+                        title={props.dotsTitle}
                         editor={props.editor}
                         focus={props.focus}
                         onClick={props.onClick}
