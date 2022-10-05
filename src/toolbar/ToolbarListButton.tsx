@@ -5,6 +5,7 @@ import {Button, HelpPopover, Icon, Menu, Popup, Tooltip} from '@gravity-ui/uikit
 import chevronIcon from '../../assets/icons/ye-chevron.svg';
 import {cn} from '../classname';
 import {useBooleanState} from '../react-utils/hooks';
+import {ToolbarTooltipDelay} from './const';
 import {ToolbarBaseProps, ToolbarIconData, ToolbarItemData} from './types';
 
 import './ToolbarListButton.scss';
@@ -56,7 +57,12 @@ export function ToolbarListButton<E>({
 
     return (
         <>
-            <Tooltip content={titleText} disabled={popupOpen}>
+            <Tooltip
+                content={titleText}
+                disabled={popupOpen}
+                openDelay={ToolbarTooltipDelay.Open}
+                closeDelay={ToolbarTooltipDelay.Close}
+            >
                 <Button
                     size="m"
                     ref={buttonRef}
