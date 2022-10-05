@@ -82,7 +82,7 @@ const serializer = new MarkdownSerializer(
 const {doc, p, h1, h2, li, ul, ol, br, pre} = builder;
 const {em, strong, code} = builder;
 
-const {same, serialize} = createMarkupChecker({parser, serializer});
+const {same, parse, serialize} = createMarkupChecker({parser, serializer});
 
 describe('markdown', () => {
     it('parses a paragraph', () => same('hello!', doc(p('hello!')))); // TODO: move test to extensions?
@@ -151,7 +151,7 @@ describe('markdown', () => {
     it('parses a line break', () =>
         same('line one\\\nline two', doc(p('line one', br(), 'line two'))));
 
-    it('ignores HTML tags', () => same('Foo < img> bar', doc(p('Foo < img> bar'))));
+    it('ignores HTML tags', () => parse('Foo < img> bar', doc(p('Foo < img> bar'))));
 
     it("doesn't accidentally generate list markup", () => same('1\\. foo', doc(p('1. foo'))));
 
