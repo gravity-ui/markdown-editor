@@ -1,6 +1,6 @@
 import React from 'react';
 import {isFunction} from 'lodash';
-import {Button, HelpPopover, Icon, Menu, Popup} from '@gravity-ui/uikit';
+import {Button, HelpPopover, Icon, Menu, Popup, Tooltip} from '@gravity-ui/uikit';
 
 import chevronIcon from '../../assets/icons/ye-chevron.svg';
 import {cn} from '../classname';
@@ -13,6 +13,7 @@ const b = cn('toolbar-list-button');
 
 export type ToolbarListButtonData<E> = {
     icon: ToolbarIconData;
+    title: string | (() => string);
     withArrow?: boolean;
     data: ToolbarItemData<E>[];
 };
@@ -25,6 +26,7 @@ export function ToolbarListButton<E>({
     focus,
     onClick,
     icon,
+    title,
     withArrow,
     data,
 }: ToolbarListButtonProps<E>) {
@@ -50,19 +52,23 @@ export function ToolbarListButton<E>({
         buttonContent.push(<Icon key={3} data={chevronIcon} size={16} />);
     }
 
+    const titleText: string = isFunction(title) ? title() : title;
+
     return (
         <>
-            <Button
-                size="m"
-                ref={buttonRef}
-                view={someActive || popupOpen ? 'normal' : 'flat'}
-                selected={someActive}
-                disabled={everyDisabled}
-                className={b({arrow: withArrow}, [className])}
-                onClick={toggleOpen}
-            >
-                {buttonContent}
-            </Button>
+            <Tooltip content={titleText} disabled={popupOpen}>
+                <Button
+                    size="m"
+                    ref={buttonRef}
+                    view={someActive || popupOpen ? 'normal' : 'flat'}
+                    selected={someActive}
+                    disabled={everyDisabled}
+                    className={b({arrow: withArrow}, [className])}
+                    onClick={toggleOpen}
+                >
+                    {buttonContent}
+                </Button>
+            </Tooltip>
             <Popup anchorRef={buttonRef} open={popupOpen} onClose={hide}>
                 <Menu size="l" className={b('menu')}>
                     {data.map(({id, title, icon, hotkey, isActive, isEnable, exec, hint}) => {
