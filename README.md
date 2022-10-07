@@ -2,6 +2,8 @@
 
 [YFM](https://ydocs.tech/) WYSIWYG Editor
 
+Preview: https://preview.yandexcloud.dev/yfm-editor/
+
 ## Install
 
 ```shell
