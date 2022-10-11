@@ -1,5 +1,7 @@
 import {Node as PmNode} from 'prosemirror-model';
 import {findChildren, findParentNode, Predicate} from 'prosemirror-utils';
+import type {EditorView} from 'prosemirror-view';
+import {isTextSelection} from '../utils/selection';
 import {TableRole} from './const';
 
 export const isTableNode: Predicate = (node) => node.type.spec.tableRole === TableRole.Table;
@@ -28,3 +30,19 @@ export const getTableDimensions = (node: PmNode | Node) => {
 
     return {rows: rows || 1, cols: cols || 1};
 };
+
+export function atEndOfCell(view: EditorView, dir: number) {
+    if (!isTextSelection(view.state.selection)) return null;
+    const {$head} = view.state.selection;
+    for (let d = $head.depth - 1; d >= 0; d--) {
+        const parent = $head.node(d),
+            index = dir < 0 ? $head.index(d) : $head.indexAfter(d);
+        if (index !== (dir < 0 ? 0 : parent.childCount)) return null;
+        if (parent.type.spec.tableRole === TableRole.Cell) {
+            const cellPos = $head.before(d);
+            const dirStr = dir > 0 ? 'down' : 'up';
+            return view.endOfTextblock(dirStr) ? cellPos : null;
+        }
+    }
+    return null;
+}

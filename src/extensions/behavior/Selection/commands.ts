@@ -1,9 +1,10 @@
 import type {Node} from 'prosemirror-model';
-import {findChildren, findParentNodeClosestToPos, NodeWithPos} from 'prosemirror-utils';
+import {findChildren, findParentNodeClosestToPos} from 'prosemirror-utils';
 import {Command, EditorState, NodeSelection, TextSelection} from 'prosemirror-state';
 
 import {isCodeBlock} from '../../../utils/nodes';
 import {GapCursorSelection} from '../../behavior/Cursor/GapCursorSelection';
+import {createFakeParagraphNear} from '../../../utils/selection';
 
 export enum Direction {
     up = 'up',
@@ -45,28 +46,6 @@ const arrow =
         }
 
         return false;
-    };
-
-export const createFakeParagraphNear: (direction: 'up' | 'down', parent?: NodeWithPos) => Command =
-    (direction, parent) => (state, dispatch) => {
-        const paragraph = state.schema.nodes.paragraph;
-
-        if (!paragraph || !parent) {
-            return false;
-        }
-
-        const insertPos = direction === 'up' ? parent.pos : parent.pos + parent.node.nodeSize;
-
-        const tr = state.tr;
-        const sel = new GapCursorSelection(tr.doc.resolve(insertPos));
-
-        tr.setSelection(sel);
-
-        if (dispatch) {
-            dispatch(tr);
-        }
-
-        return true;
     };
 
 export const arrowLeft = arrow(Direction.left);

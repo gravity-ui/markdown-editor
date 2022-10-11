@@ -1,5 +1,7 @@
 import {Node, NodeType} from 'prosemirror-model';
-import {Selection, TextSelection, NodeSelection, AllSelection} from 'prosemirror-state';
+import {Selection, TextSelection, NodeSelection, AllSelection, Command} from 'prosemirror-state';
+import {NodeWithPos} from 'prosemirror-utils';
+import {GapCursorSelection} from '../extensions/behavior/Cursor/GapCursorSelection';
 
 NodeSelection.prototype.selectionName = 'NodeSelection';
 TextSelection.prototype.selectionName = 'TextSelection';
@@ -34,3 +36,25 @@ export const findSelectedNodeOfType = (nodeType: NodeType) => {
         return null;
     };
 };
+
+export const createFakeParagraphNear: (direction: 'up' | 'down', parent?: NodeWithPos) => Command =
+    (direction, parent) => (state, dispatch) => {
+        const paragraph = state.schema.nodes.paragraph;
+
+        if (!paragraph || !parent) {
+            return false;
+        }
+
+        const insertPos = direction === 'up' ? parent.pos : parent.pos + parent.node.nodeSize;
+
+        const tr = state.tr;
+        const sel = new GapCursorSelection(tr.doc.resolve(insertPos));
+
+        tr.setSelection(sel);
+
+        if (dispatch) {
+            dispatch(tr);
+        }
+
+        return true;
+    };
