@@ -1,5 +1,6 @@
 import type {NodeType} from 'prosemirror-model';
 import {chainCommands, exitCode} from 'prosemirror-commands';
+import {logger} from '../../../logger';
 import type {ExtensionAuto, Keymap} from '../../../core';
 import {isMac} from '../../../utils/platform';
 import {nodeTypeFactory} from '../../../utils/schema';
@@ -10,12 +11,25 @@ export const hbType = nodeTypeFactory(hardBreak);
 export const sbType = nodeTypeFactory(softBreak);
 
 export type BreaksOptions = {
-    // TODO: [builder context] get this parameter from builder context
-    /** @default 'hard' */
+    /**
+     * This option is used if the 'breaks' parameter is not specified via the context
+     * @default 'hard'
+     */
+    // TODO: [context] make this deprecated
     preferredBreak?: 'hard' | 'soft';
 };
 
 export const Breaks: ExtensionAuto<BreaksOptions> = (builder, opts) => {
+    let preferredBreak: 'hard' | 'soft';
+    if (builder.context.has('breaks')) {
+        preferredBreak = builder.context.get('breaks') ? 'soft' : 'hard';
+    } else {
+        preferredBreak = opts.preferredBreak ?? 'hard';
+        logger.info(
+            "[Breaks extension]: Parameter 'breaks' is not defined in context; value from options is used",
+        );
+    }
+
     builder.addNode(hardBreak, () => ({
         spec: {
             inline: true,
@@ -62,7 +76,7 @@ export const Breaks: ExtensionAuto<BreaksOptions> = (builder, opts) => {
     }));
 
     builder.addKeymap(({schema}) => {
-        const cmd = addBr((opts?.preferredBreak === 'soft' ? sbType : hbType)(schema));
+        const cmd = addBr((preferredBreak === 'soft' ? sbType : hbType)(schema));
         const keys: Keymap = {
             'Shift-Enter': cmd,
         };
@@ -80,3 +94,14 @@ const addBr = (br: NodeType) =>
         dispatch?.(state.tr.replaceSelectionWith(br.create()).scrollIntoView());
         return true;
     });
+
+declare global {
+    namespace YfmEditor {
+        interface Context {
+            /**
+             * Same as @type {MarkdownIt.Options.breaks}
+             */
+            breaks: boolean;
+        }
+    }
+}

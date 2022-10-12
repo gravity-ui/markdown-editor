@@ -38,7 +38,24 @@ enum PluginPriority {
 
 const DEFAULT_PRIORITY = PluginPriority.Medium;
 
+type BuilderContext<T extends object> = {
+    has(key: keyof T): boolean;
+    get<K extends keyof T>(key: K): T[K] | undefined;
+    set<K extends keyof T>(key: K, value: T[K]): BuilderContext<T>;
+};
+
+declare global {
+    namespace YfmEditor {
+        interface Context {}
+    }
+}
+
 export class ExtensionBuilder {
+    static createContext(): BuilderContext<YfmEditor.Context> {
+        return new Map();
+    }
+
+    // eslint-disable-next-line @typescript-eslint/member-ordering
     static readonly PluginPriority = PluginPriority;
     readonly PluginPriority = ExtensionBuilder.PluginPriority;
 
@@ -47,6 +64,12 @@ export class ExtensionBuilder {
     #markSpecs: [string, AddPmMarkCallback][] = [];
     #plugins: {cb: AddPmPluginCallback; priority: number}[] = [];
     #actions: [string, AddActionCallback][] = [];
+
+    readonly context: BuilderContext<YfmEditor.Context>;
+
+    constructor(context?: BuilderContext<YfmEditor.Context>) {
+        this.context = context ?? ExtensionBuilder.createContext();
+    }
 
     use(extension: Extension): this;
     use<T>(extension: ExtensionWithOptions<T>, options: T): this;
