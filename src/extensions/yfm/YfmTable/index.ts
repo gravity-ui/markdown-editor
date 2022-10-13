@@ -7,6 +7,7 @@ import {getSpec, YfmTableSpecOptions} from './spec';
 import {createYfmTable} from './actions';
 import {fromYfm} from './fromYfm';
 import {toYfm} from './toYfm';
+import {goToNextRow} from './commands/goToNextRow';
 
 const action = 'createYfmTable';
 
@@ -43,6 +44,8 @@ export const YfmTable: ExtensionWithOptions<YfmTableOptions> = (builder, options
         .addKeymap(() => ({
             Tab: goToNextCell('next'),
             'Shift-Tab': goToNextCell('prev'),
+            ArrowDown: goToNextRow('down'),
+            ArrowUp: goToNextRow('up'),
         }))
 
         .addAction(action, () => createYfmTable);
