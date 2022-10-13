@@ -2,7 +2,7 @@ import {chainCommands, wrapIn} from 'prosemirror-commands';
 import type {NodeType} from 'prosemirror-model';
 import {wrappingInputRule} from 'prosemirror-inputrules';
 import {hasParentNodeOfType} from 'prosemirror-utils';
-import {Action, createExtension, ExtensionAuto} from '../../../core';
+import type {Action, ExtensionAuto} from '../../../core';
 import {selectQuoteBeforeCursor, liftFromQuote, toggleQuote} from './commands';
 import {blockquote, bqType} from './const';
 
@@ -50,13 +50,6 @@ export const Blockquote: ExtensionAuto<BlockquoteOptions> = (builder, opts) => {
         };
     });
 };
-
-/**
- * @deprecated
- * For tests only.
- * Remove after WIKI-16660
- */
-export const BlockquoteE = createExtension<BlockquoteOptions>((b, o = {}) => b.use(Blockquote, o));
 
 declare global {
     namespace YfmEditor {

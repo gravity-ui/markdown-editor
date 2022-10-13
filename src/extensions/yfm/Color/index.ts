@@ -1,6 +1,6 @@
 import mdPlugin from 'markdown-it-color';
 import {toggleMark} from 'prosemirror-commands';
-import {Action, createExtension, ExtensionAuto} from '../../../core';
+import type {Action, ExtensionAuto} from '../../../core';
 import {isMarkActive} from '../../../utils/marks';
 import {markTypeFactory} from '../../../utils/schema';
 import {className, color, colorAction, Colors, domColorAttr} from './const';
@@ -99,13 +99,6 @@ export const Color: ExtensionAuto = (builder) => {
             };
         });
 };
-
-/**
- * @deprecated
- * For tests only.
- * Remove after WIKI-16660
- */
-export const ColorE = createExtension((b) => b.use(Color));
 
 declare global {
     namespace YfmEditor {

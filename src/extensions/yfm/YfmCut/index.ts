@@ -1,7 +1,7 @@
 import log from '@doc-tools/transform/lib/log';
 import yfmPlugin from '@doc-tools/transform/lib/plugins/cut';
 import {chainCommands} from 'prosemirror-commands';
-import {Action, createExtension, ExtensionAuto} from '../../../core';
+import type {Action, ExtensionAuto} from '../../../core';
 import {nodeInputRule} from '../../../utils/inputrules';
 import {toYfm} from './toYfm';
 import {CutNode, cutType} from './const';
@@ -65,13 +65,6 @@ export const YfmCut: ExtensionAuto<YfmCutOptions> = (builder, opts) => {
         builder.addKeymap(() => ({[yfmCutKey]: createYfmCut}));
     }
 };
-
-/**
- * @deprecated
- * For tests only.
- * Remove after WIKI-16660
- */
-export const YfmCutE = createExtension<YfmCutOptions>((b, o = {}) => b.use(YfmCut, o));
 
 declare global {
     namespace YfmEditor {

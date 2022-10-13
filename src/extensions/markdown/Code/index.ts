@@ -2,7 +2,7 @@ import type {Node} from 'prosemirror-model';
 import {toggleMark} from 'prosemirror-commands';
 import codemark from 'prosemirror-codemark';
 import {createToggleMarkAction} from '../../../utils/actions';
-import {Action, createExtension, ExtensionAuto} from '../../../core';
+import type {Action, ExtensionAuto} from '../../../core';
 import {markTypeFactory} from '../../../utils/schema';
 
 import './code.scss';
@@ -53,13 +53,6 @@ export const Code: ExtensionAuto<CodeOptions> = (builder, opts) => {
         // See demo: https://curvenote.github.io/prosemirror-codemark/
         .addPlugin(({schema}) => codemark({markType: codeType(schema)}));
 };
-
-/**
- * @deprecated
- * For tests only.
- * Remove after WIKI-16660
- */
-export const CodeE = createExtension<CodeOptions>((b, o = {}) => b.use(Code, o));
 
 declare global {
     namespace YfmEditor {

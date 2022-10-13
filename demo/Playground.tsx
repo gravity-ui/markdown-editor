@@ -5,13 +5,13 @@ import {RadioButton, TextInput} from '@gravity-ui/uikit';
 import {
     BasePreset,
     BehaviorPreset,
-    createExtension,
     MarkdownBlocksPreset,
     MarkdownMarksPreset,
     MarkupString,
     YfmEditorComponent,
     useYfmEditor,
     YfmPreset,
+    Extension,
 } from '../src';
 import {PlaygroundHtmlPreview} from './HtmlPreview';
 import {logger} from '../src/index';
@@ -43,33 +43,31 @@ export const Playground = React.memo<PlaygroundProps>((props) => {
     const [previewType, setPreviewType] = React.useState<string>(PreviewType.Markup);
     const [yfmRaw, setYfmRaw] = React.useState<MarkupString>(initial || '');
 
-    const extensions = React.useMemo(() => {
-        return [
-            createExtension((builder) =>
-                builder
-                    .use(BasePreset, {})
-                    .use(BehaviorPreset, {
-                        history: {
-                            undoKey: keys.undo,
-                            redoKey: keys.redo,
-                        },
-                    })
-                    .use(MarkdownBlocksPreset, {
-                        image: false,
-                        heading: false,
-                        breaks: {preferredBreak: breaks ? 'soft' : 'hard'},
-                    })
-                    .use(MarkdownMarksPreset, {
-                        bold: {boldKey: keys.bold},
-                        italic: {italicKey: keys.italic},
-                        strike: {strikeKey: keys.strike},
-                        underline: {underlineKey: keys.underline},
-                        code: {codeKey: keys.code},
-                    })
-                    .use(YfmPreset, {}),
-            )(),
-        ];
-    }, [breaks]);
+    const extensions = React.useMemo<Extension>(
+        () => (builder) =>
+            builder
+                .use(BasePreset, {})
+                .use(BehaviorPreset, {
+                    history: {
+                        undoKey: keys.undo,
+                        redoKey: keys.redo,
+                    },
+                })
+                .use(MarkdownBlocksPreset, {
+                    image: false,
+                    heading: false,
+                    breaks: {preferredBreak: breaks ? 'soft' : 'hard'},
+                })
+                .use(MarkdownMarksPreset, {
+                    bold: {boldKey: keys.bold},
+                    italic: {italicKey: keys.italic},
+                    strike: {strikeKey: keys.strike},
+                    underline: {underlineKey: keys.underline},
+                    code: {codeKey: keys.code},
+                })
+                .use(YfmPreset, {}),
+        [breaks],
+    );
 
     const editor = useYfmEditor({
         linkify,

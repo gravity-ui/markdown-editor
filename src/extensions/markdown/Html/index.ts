@@ -1,5 +1,5 @@
 import {logger} from '../../../logger';
-import {createExtension, ExtensionAuto} from '../../../core';
+import type {ExtensionAuto} from '../../../core';
 import {HtmlNode} from './const';
 import {fromYfm} from './fromYfm';
 import {spec} from './spec';
@@ -23,13 +23,6 @@ export const Html: ExtensionAuto = (builder) => {
         toYfm: toYfm[HtmlNode.Inline],
     }));
 };
-
-/**
- * @deprecated
- * For tests only.
- * Remove after WIKI-16660
- */
-export const HtmlE = createExtension((b, o = {}) => b.use(Html, o));
 
 declare global {
     namespace YfmEditor {

@@ -1,5 +1,5 @@
 import yfmPlugin from '@doc-tools/transform/lib/plugins/monospace';
-import {Action, createExtension, ExtensionAuto} from '../../../core';
+import type {Action, ExtensionAuto} from '../../../core';
 import {markTypeFactory} from '../../../utils/schema';
 import {createToggleMarkAction} from '../../../utils/actions';
 import {markInputRule} from '../../../utils/inputrules';
@@ -37,13 +37,6 @@ export const Monospace: ExtensionAuto = (builder) => {
             rules: [markInputRule({open: '##', close: '##', ignoreBetween: '#'}, monoType(schema))],
         }));
 };
-
-/**
- * @deprecated
- * For tests only.
- * Remove after WIKI-16660
- */
-export const MonospaceE = createExtension((b) => b.use(Monospace));
 
 declare global {
     namespace YfmEditor {

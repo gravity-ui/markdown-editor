@@ -3,11 +3,11 @@ import {builders} from 'prosemirror-test-builder';
 
 import {createMarkupChecker} from '../../../../tests/sameMarkup';
 import {ExtensionsManager} from '../../../core';
-import {BaseNode, BaseSchemaE} from '../../base/BaseSchema';
-import {YfmFileE} from './index';
+import {BaseNode, BaseSchema} from '../../base/BaseSchema';
+import {YfmFile} from './index';
 
 const {schema, parser, serializer} = new ExtensionsManager({
-    extensions: [BaseSchemaE(), YfmFileE({fileUploadHandler: () => Promise.reject()})],
+    extensions: (builder) => builder.use(BaseSchema, {}).use(YfmFile),
 }).buildDeps();
 
 const {same} = createMarkupChecker({parser, serializer});

@@ -1,7 +1,7 @@
 import log from '@doc-tools/transform/lib/log';
 import yfmPlugin from '@doc-tools/transform/lib/plugins/notes';
 import {chainCommands} from 'prosemirror-commands';
-import {Action, createExtension, ExtensionAuto} from '../../../core';
+import type {Action, ExtensionAuto} from '../../../core';
 import {toYfm} from './toYfm';
 import {NoteNode} from './const';
 import {fromYfm} from './fromYfm';
@@ -54,13 +54,6 @@ export const YfmNote: ExtensionAuto<YfmNoteOptions> = (builder, opts) => {
         builder.addKeymap(() => ({[yfmNoteKey]: createYfmNote}));
     }
 };
-
-/**
- * @deprecated
- * For tests only.
- * Remove after WIKI-16660
- */
-export const YfmNoteE = createExtension<YfmNoteOptions>((b, o = {}) => b.use(YfmNote, o));
 
 declare global {
     namespace YfmEditor {

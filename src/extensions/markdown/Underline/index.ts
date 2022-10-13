@@ -1,5 +1,5 @@
 import {toggleMark} from 'prosemirror-commands';
-import {Action, createExtension, ExtensionAuto} from '../../../core';
+import type {Action, ExtensionAuto} from '../../../core';
 import {createToggleMarkAction} from '../../../utils/actions';
 import {markTypeFactory} from '../../../utils/schema';
 import {markInputRule} from '../../../utils/inputrules';
@@ -36,13 +36,6 @@ export const Underline: ExtensionAuto<UnderlineOptions> = (builder, opts) => {
         builder.addKeymap(({schema}) => ({[underlineKey]: toggleMark(undType(schema))}));
     }
 };
-
-/**
- * @deprecated
- * For tests only.
- * Remove after WIKI-16660
- */
-export const UnderlineE = createExtension<UnderlineOptions>((b, o = {}) => b.use(Underline, o));
 
 declare global {
     namespace YfmEditor {

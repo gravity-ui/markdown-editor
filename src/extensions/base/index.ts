@@ -1,4 +1,4 @@
-import {createExtension, ExtensionAuto} from '../../core';
+import type {ExtensionAuto} from '../../core';
 
 import {BaseSchema, BaseSchemaOptions} from './BaseSchema';
 import {BaseInputRules} from './BaseInputRules';
@@ -21,6 +21,3 @@ export const BasePreset: ExtensionAuto<BasePresetOptions> = (builder, opts) => {
         .use(BaseInputRules)
         .use(BaseStyles);
 };
-
-/** @deprecated */
-export const BasePresetE = createExtension<BasePresetOptions>((b, o = {}) => b.use(BasePreset, o));

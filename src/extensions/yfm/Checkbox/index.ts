@@ -1,5 +1,5 @@
 import checkboxPlugin from '@doc-tools/transform/lib/plugins/checkbox';
-import {Action, createExtension, ExtensionAuto} from '../../../core';
+import type {Action, ExtensionAuto} from '../../../core';
 import {replaceParentNodeOfType} from 'prosemirror-utils';
 import {CheckboxNode} from './const';
 import {keymapPlugin} from './plugin';
@@ -107,13 +107,6 @@ export const Checkbox: ExtensionAuto<CheckboxOptions> = (builder, opts) => {
             ],
         }));
 };
-
-/**
- * @deprecated
- * For tests only.
- * Remove after WIKI-16660
- */
-export const CheckboxE = createExtension<CheckboxOptions>((b, o = {}) => b.use(Checkbox, o));
 
 declare global {
     namespace YfmEditor {

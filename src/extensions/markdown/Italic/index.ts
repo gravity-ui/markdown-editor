@@ -1,6 +1,6 @@
 import {toggleMark} from 'prosemirror-commands';
 import {createToggleMarkAction} from '../../../utils/actions';
-import {Action, createExtension, ExtensionAuto} from '../../../core';
+import type {Action, ExtensionAuto} from '../../../core';
 import {markTypeFactory} from '../../../utils/schema';
 import {markInputRule} from '../../../utils/inputrules';
 
@@ -38,13 +38,6 @@ export const Italic: ExtensionAuto<ItalicOptions> = (builder, opts) => {
         builder.addKeymap(({schema}) => ({[italicKey]: toggleMark(iType(schema))}));
     }
 };
-
-/**
- * @deprecated
- * For tests only.
- * Remove after WIKI-16660
- */
-export const ItalicE = createExtension<ItalicOptions>((b, o = {}) => b.use(Italic, o));
 
 declare global {
     namespace YfmEditor {

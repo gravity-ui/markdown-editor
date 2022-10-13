@@ -1,13 +1,13 @@
 import {builders} from 'prosemirror-test-builder';
 import {createMarkupChecker} from '../../../../tests/sameMarkup';
 import {ExtensionsManager} from '../../../core';
-import {BaseNode, BaseSchemaE} from '../../base/BaseSchema';
-import {blockquote, BlockquoteE} from '../Blockquote';
+import {BaseNode, BaseSchema} from '../../base/BaseSchema';
+import {blockquote, Blockquote} from '../Blockquote';
 import {CellAlign, TableAttrs, TableNode} from './const';
-import {TableE} from './index';
+import {Table} from './index';
 
 const {schema, parser, serializer} = new ExtensionsManager({
-    extensions: [BaseSchemaE(), BlockquoteE(), TableE()],
+    extensions: (builder) => builder.use(BaseSchema, {}).use(Blockquote, {}).use(Table),
 }).buildDeps();
 
 const {doc, bq, table, thead, tbody, tr, thL, thC, thR, tdL, tdC, tdR} = builders(schema, {

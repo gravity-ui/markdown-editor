@@ -1,5 +1,5 @@
 import type {PluginSimple} from 'markdown-it';
-import {Action, createExtension, ExtensionAuto} from '../../../core';
+import type {Action, ExtensionAuto} from '../../../core';
 import {DeflistNode, dlAction} from './const';
 import {splitDeflist, wrapToDeflist} from './commands';
 import {fromYfm} from './fromYfm';
@@ -39,13 +39,6 @@ export const Deflist: ExtensionAuto<DeflistOptions> = (builder, opts) => {
         };
     });
 };
-
-/**
- * @deprecated
- * For tests only.
- * Remove after WIKI-16660
- */
-export const DeflistE = createExtension<DeflistOptions>((b, o = {}) => b.use(Deflist, o));
 
 declare global {
     namespace YfmEditor {

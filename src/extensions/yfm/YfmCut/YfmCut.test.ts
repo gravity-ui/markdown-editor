@@ -1,13 +1,14 @@
 import {builders} from 'prosemirror-test-builder';
 import {createMarkupChecker} from '../../../../tests/sameMarkup';
 import {ExtensionsManager} from '../../../core';
-import {BaseNode, BaseSchemaE} from '../../base/BaseSchema';
-import {blockquote, BlockquoteE, italic, ItalicE} from '../../markdown';
+import {BaseNode, BaseSchema} from '../../base/BaseSchema';
+import {blockquote, Blockquote, italic, Italic} from '../../markdown';
 import {CutNode} from './const';
-import {YfmCutE} from './index';
+import {YfmCut} from './index';
 
 const {schema, parser, serializer} = new ExtensionsManager({
-    extensions: [BaseSchemaE(), ItalicE(), BlockquoteE(), YfmCutE()],
+    extensions: (builder) =>
+        builder.use(BaseSchema, {}).use(Italic, {}).use(Blockquote, {}).use(YfmCut, {}),
 }).buildDeps();
 
 const {doc, p, i, bq, cut, cutTitle, cutContent} = builders(schema, {

@@ -1,13 +1,13 @@
 import {builders} from 'prosemirror-test-builder';
 import {createMarkupChecker} from '../../../../tests/sameMarkup';
 import {ExtensionsManager} from '../../../core';
-import {BaseNode, BaseSchemaE} from '../../base/BaseSchema';
-import {VideoE} from './index';
+import {BaseNode, BaseSchema} from '../../base/BaseSchema';
+import {Video} from './index';
 import {video, VideoAttr} from './const';
 import {VideoService} from './md-video';
 
 const {schema, parser, serializer} = new ExtensionsManager({
-    extensions: [BaseSchemaE(), VideoE()],
+    extensions: (builder) => builder.use(BaseSchema, {}).use(Video, {}),
 }).buildDeps();
 
 const {doc, p} = builders(schema, {

@@ -1,4 +1,4 @@
-import {Action, createExtension, ExtensionAuto} from '../../../core';
+import type {Action, ExtensionAuto} from '../../../core';
 import {goToNextCell} from '../../../table-utils';
 import {TableNode} from './const';
 import {fromYfm} from './fromYfm';
@@ -50,13 +50,6 @@ export const Table: ExtensionAuto = (builder) => {
         .addAction('createTable', createTableAction)
         .addAction('deleteTable', () => deleteTableAction);
 };
-
-/**
- * @deprecated
- * For tests only.
- * Remove after WIKI-16660
- */
-export const TableE = createExtension((b, o = {}) => b.use(Table, o));
 
 declare global {
     namespace YfmEditor {

@@ -1,11 +1,11 @@
 import {builders} from 'prosemirror-test-builder';
 import {createMarkupChecker} from '../../../../tests/sameMarkup';
 import {ExtensionsManager} from '../../../core';
-import {BaseNode, BaseSchemaE} from '../../base/BaseSchema';
-import {horizontalRule, HorizontalRuleE, markupAttr} from './index';
+import {BaseNode, BaseSchema} from '../../base/BaseSchema';
+import {horizontalRule, HorizontalRule, markupAttr} from './index';
 
 const {schema, parser, serializer} = new ExtensionsManager({
-    extensions: [BaseSchemaE(), HorizontalRuleE()],
+    extensions: (builder) => builder.use(BaseSchema, {}).use(HorizontalRule),
 }).buildDeps();
 
 const {doc, p, hr, hr2, hr3} = builders(schema, {

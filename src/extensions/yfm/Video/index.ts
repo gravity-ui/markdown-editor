@@ -1,4 +1,4 @@
-import {Action, createExtension, ExtensionAuto} from '../../../core';
+import type {Action, ExtensionAuto} from '../../../core';
 import {vAction, video, VideoAttr} from './const';
 import {createViewStub, serializeNodeToString} from './utils';
 import {addVideo} from './actions';
@@ -104,13 +104,6 @@ export const Video: ExtensionAuto<VideoOptions> = (builder, opts) => {
 
     builder.addAction(vAction, () => addVideo);
 };
-
-/**
- * @deprecated
- * For tests only.
- * Remove after WIKI-16660
- */
-export const VideoE = createExtension<VideoOptions>((b, o = {}) => b.use(Video, o));
 
 declare global {
     namespace YfmEditor {

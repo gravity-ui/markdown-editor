@@ -2,7 +2,7 @@ import {setBlockType} from 'prosemirror-commands';
 import {textblockTypeInputRule} from 'prosemirror-inputrules';
 import {NodeType} from 'prosemirror-model';
 import {hasParentNodeOfType} from 'prosemirror-utils';
-import {Action, createExtension, ExtensionAuto, Keymap} from '../../../core';
+import type {Action, ExtensionAuto, Keymap} from '../../../core';
 import {resetCodeblock} from './commands';
 import {cbAction, cbType, codeBlock, langAttr} from './const';
 
@@ -84,13 +84,6 @@ export const CodeBlock: ExtensionAuto<CodeBlockOptions> = (builder, opts) => {
         };
     });
 };
-
-/**
- * @deprecated
- * For tests only.
- * Remove after WIKI-16660
- */
-export const CodeBlockE = createExtension<CodeBlockOptions>((b, o = {}) => b.use(CodeBlock, o));
 
 declare global {
     namespace YfmEditor {

@@ -1,12 +1,12 @@
 import {builders} from 'prosemirror-test-builder';
 import {createMarkupChecker} from '../../../../tests/sameMarkup';
 import {ExtensionsManager} from '../../../core';
-import {BaseNode, BaseSchemaE} from '../../base/BaseSchema';
+import {BaseNode, BaseSchema} from '../../base/BaseSchema';
 import {CheckboxNode} from './const';
-import {CheckboxE} from './index';
+import {Checkbox} from './index';
 
 const {schema, parser, serializer} = new ExtensionsManager({
-    extensions: [BaseSchemaE(), CheckboxE()],
+    extensions: (builder) => builder.use(BaseSchema, {}).use(Checkbox, {}),
 }).buildDeps();
 
 const {

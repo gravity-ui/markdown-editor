@@ -4,7 +4,7 @@ import imsize from '@doc-tools/transform/lib/plugins/imsize';
 import {ImsizeAttr} from '@doc-tools/transform/lib/plugins/imsize/const';
 import log from '@doc-tools/transform/lib/log';
 
-import {Action, createExtension, ExtensionAuto} from '../../../core';
+import type {Action, ExtensionAuto} from '../../../core';
 import {addImageAction, image} from './const';
 import {addImage, AddImageAttrs} from './actions';
 
@@ -87,13 +87,6 @@ export const ImgSize: ExtensionAuto<ImgSizeOptions> = (builder, opts) => {
 
     builder.addAction(addImageAction, ({schema}) => addImage(schema));
 };
-
-/**
- * @deprecated
- * For tests only.
- * Remove after WIKI-16660
- */
-export const ImgSizeE = createExtension<ImgSizeOptions>((b, o = {}) => b.use(ImgSize, o));
 
 declare global {
     namespace YfmEditor {

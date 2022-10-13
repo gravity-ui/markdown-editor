@@ -6,7 +6,7 @@ import {
     PREFIX,
 } from '@doc-tools/transform/lib/plugins/file/const';
 
-import {createExtension, Extension} from '../../../core';
+import type {Extension} from '../../../core';
 import {nodeTypeFactory} from '../../../utils/schema';
 import {fileNodeAttrsSpec, KNOWN_ATTRS, LINK_TO_FILE_ATTRS_MAP} from './const';
 
@@ -79,10 +79,3 @@ export const YfmFile: Extension = (builder) => {
         },
     }));
 };
-
-/**
- * @deprecated
- * For tests only.
- * Remove after WIKI-16660
- */
-export const YfmFileE = createExtension((b) => b.use(YfmFile));

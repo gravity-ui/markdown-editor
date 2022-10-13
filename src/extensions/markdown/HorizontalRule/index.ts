@@ -1,6 +1,6 @@
 import type {NodeType} from 'prosemirror-model';
 import {Command, NodeSelection, Selection} from 'prosemirror-state';
-import {Action, createExtension, ExtensionAuto} from '../../../core';
+import type {Action, ExtensionAuto} from '../../../core';
 import {nodeTypeFactory} from '../../../utils/schema';
 
 export const horizontalRule = 'horizontal_rule';
@@ -41,13 +41,6 @@ export const HorizontalRule: ExtensionAuto = (builder) => {
         };
     });
 };
-
-/**
- * @deprecated
- * For tests only.
- * Remove after WIKI-16660
- */
-export const HorizontalRuleE = createExtension((b, o = {}) => b.use(HorizontalRule, o));
 
 declare global {
     namespace YfmEditor {

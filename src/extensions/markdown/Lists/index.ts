@@ -1,5 +1,5 @@
 import {liftListItem, sinkListItem, splitListItem} from 'prosemirror-schema-list';
-import {Action, createExtension, ExtensionAuto, Keymap} from '../../../core';
+import type {Action, ExtensionAuto, Keymap} from '../../../core';
 import {actions} from './actions';
 import {ListAction, ListNode} from './const';
 import {fromYfm} from './fromYfm';
@@ -59,13 +59,6 @@ export const Lists: ExtensionAuto<ListsOptions> = (builder, opts) => {
         .addAction(ListAction.SinkListItem, actions.sinkListItem)
         .addAction(ListAction.LiftListItem, actions.liftListItem);
 };
-
-/**
- * @deprecated
- * For tests only.
- * Remove after WIKI-16660
- */
-export const ListsE = createExtension<ListsOptions>((b, o = {}) => b.use(Lists, o));
 
 declare global {
     namespace YfmEditor {

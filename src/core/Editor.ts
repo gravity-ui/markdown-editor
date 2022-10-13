@@ -2,7 +2,7 @@ import {EditorView} from 'prosemirror-view';
 import {EditorState} from 'prosemirror-state';
 
 import type {CommonEditor, ContentHandler, MarkupString} from '../common';
-import type {ExtensionSpec} from './types/extension';
+import type {Extension} from './types/extension';
 import {bindActions} from './utils/actions';
 import type {Serializer} from './types/serializer';
 import {ExtensionsManager} from './ExtensionsManager';
@@ -17,7 +17,7 @@ export type YfmEditorOptions = {
     domElem?: Element;
     /** yfm markup */
     initialContent?: string;
-    extensions?: ExtensionSpec[];
+    extensions?: Extension;
     allowHTML?: boolean;
     linkify?: boolean;
     /** markdown-it-attrs options */
@@ -48,7 +48,7 @@ export class YfmEditor implements CommonEditor, ActionStorage {
     constructor({
         domElem,
         initialContent = '',
-        extensions = [],
+        extensions = () => {},
         attrs: attrsOpts,
         allowHTML,
         linkify,

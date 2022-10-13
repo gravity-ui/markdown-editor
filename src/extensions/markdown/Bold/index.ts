@@ -1,6 +1,6 @@
 import {toggleMark} from 'prosemirror-commands';
 import {createToggleMarkAction} from '../../../utils/actions';
-import {Action, createExtension, ExtensionAuto} from '../../../core';
+import type {Action, ExtensionAuto} from '../../../core';
 import {markTypeFactory} from '../../../utils/schema';
 import {markInputRule} from '../../../utils/inputrules';
 
@@ -43,13 +43,6 @@ export const Bold: ExtensionAuto<BoldOptions> = (builder, opts) => {
         ],
     }));
 };
-
-/**
- * @deprecated
- * For tests only.
- * Remove after WIKI-16660
- */
-export const BoldE = createExtension<BoldOptions>((b, o = {}) => b.use(Bold, o));
 
 declare global {
     namespace YfmEditor {

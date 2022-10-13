@@ -1,12 +1,12 @@
 import {builders} from 'prosemirror-test-builder';
 import {createMarkupChecker} from '../../../../tests/sameMarkup';
 import {ExtensionsManager} from '../../../core';
-import {BaseNode, BaseSchemaE} from '../../base/BaseSchema';
-import {HtmlE} from './index';
+import {BaseNode, BaseSchema} from '../../base/BaseSchema';
+import {Html} from './index';
 import {HtmlAttr, HtmlNode} from './const';
 
 const {schema, parser, serializer} = new ExtensionsManager({
-    extensions: [BaseSchemaE(), HtmlE()],
+    extensions: (builder) => builder.use(BaseSchema, {}).use(Html),
     options: {mdOpts: {html: true}},
 }).buildDeps();
 

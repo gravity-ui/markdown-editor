@@ -2,7 +2,7 @@ import type {NodeSpec} from 'prosemirror-model';
 import type {Command} from 'prosemirror-state';
 import {setBlockType} from 'prosemirror-commands';
 import {hasParentNodeOfType} from 'prosemirror-utils';
-import {Action, createExtension, ExtensionAuto} from '../../../core';
+import type {Action, ExtensionAuto} from '../../../core';
 import {nodeTypeFactory} from '../../../utils/schema';
 
 export enum BaseNode {
@@ -81,13 +81,6 @@ export const BaseSchema: ExtensionAuto<BaseSchemaOptions> = (builder, opts) => {
         };
     });
 };
-
-/**
- * @deprecated
- * For tests only.
- * Remove after WIKI-16660
- */
-export const BaseSchemaE = createExtension<BaseSchemaOptions>((b, o) => b.use(BaseSchema, o ?? {}));
 
 declare global {
     namespace YfmEditor {
