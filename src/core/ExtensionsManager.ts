@@ -124,12 +124,8 @@ export class ExtensionsManager {
     }
 
     private createDerived() {
-        const plugins: {plugin: Plugin; priority: number}[] = [];
-        plugins.push(...this.#spec.plugins(this.#deps));
+        this.#plugins = this.#spec.plugins(this.#deps);
         Object.assign(this.#actions, this.#spec.actions(this.#deps));
-
-        // TODO: move sorting to ExtensionBuilder after WIKI-16660
-        this.#plugins = plugins.sort((a, b) => b.priority - a.priority).map((item) => item.plugin);
 
         for (const [name, view] of this.#nodeViewCreators) {
             this.#nodeViews[name] = view(this.#deps);

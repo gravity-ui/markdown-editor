@@ -146,17 +146,14 @@ export class ExtensionBuilder {
                 return map;
             },
             plugins: (deps) => {
-                // TODO: sort plugins here after WIKI-16660
-                return plugins.reduce<{plugin: Plugin; priority: number}[]>(
-                    (acc, {cb, priority}) => {
+                return plugins
+                    .sort((a, b) => b.priority - a.priority)
+                    .reduce<Plugin[]>((acc, {cb}) => {
                         const res = cb(deps);
-                        if (Array.isArray(res))
-                            acc.push(...res.map((plugin) => ({plugin, priority})));
-                        else acc.push({plugin: res, priority});
+                        if (Array.isArray(res)) acc.push(...res);
+                        else acc.push(res);
                         return acc;
-                    },
-                    [],
-                );
+                    }, []);
             },
             actions: (deps) =>
                 actions.reduce((obj, [name, cb]) => {

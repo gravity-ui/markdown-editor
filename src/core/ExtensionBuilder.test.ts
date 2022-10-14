@@ -74,6 +74,25 @@ describe('ExtensionBuilder', () => {
         expect(plugins.length).toBe(2);
     });
 
+    it('should sort plugins by priority', () => {
+        const plugin0 = new Plugin({});
+        const plugin1 = new Plugin({});
+        const plugin2 = new Plugin({});
+        const plugin3 = new Plugin({});
+        const plugins = new ExtensionBuilder()
+            .addPlugin(() => plugin3, ExtensionBuilder.PluginPriority.VeryLow)
+            .addPlugin(() => plugin1)
+            .addPlugin(() => plugin0, ExtensionBuilder.PluginPriority.VeryHigh)
+            .addPlugin(() => plugin2)
+            .build()
+            .plugins({} as ExtensionDeps);
+
+        expect(plugins.indexOf(plugin0)).toBe(0);
+        expect(plugins.indexOf(plugin1)).toBe(1);
+        expect(plugins.indexOf(plugin2)).toBe(2);
+        expect(plugins.indexOf(plugin3)).toBe(3);
+    });
+
     it('should add actions', () => {
         const actions = new ExtensionBuilder()
             .addAction('action1', () => ({
