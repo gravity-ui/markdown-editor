@@ -20,7 +20,6 @@ npm install react@17 react-dom@17 @doc-tools/transform@2 @gravity-ui/uikit@3 lod
 
 ```js
 import {
-    createExtension,
     YfmEditor,
     BasePreset,
     BehaviorPreset,
@@ -35,16 +34,13 @@ const editor = new YfmEditor({
     domElem,
     linkify: true,
     allowHTML: false,
-    extensions: [
-        createExtension((builder) =>
-            builder
-                .use(BasePreset, {})
-                .use(BehaviorPreset, {})
-                .use(MarkdownBlocksPreset, {image: false, heading: false})
-                .use(MarkdownMarksPreset, {})
-                .use(YfmPreset, {}),
-        )(),
-    ],
+    extensions: (builder) =>
+        builder
+            .use(BasePreset, {})
+            .use(BehaviorPreset, {})
+            .use(MarkdownBlocksPreset, {image: false, heading: false})
+            .use(MarkdownMarksPreset, {})
+            .use(YfmPreset, {}),
     onDocChange: () => {
         console.log('The contents of the editor have been changed');
     },
@@ -59,9 +55,9 @@ editor.getValue();
 ```jsx
 import React from 'react';
 import {
+    Extension,
     BasePreset,
     BehaviorPreset,
-    createExtension,
     MarkdownBlocksPreset,
     MarkdownMarksPreset,
     useYfmEditor,
@@ -70,18 +66,16 @@ import {
 } from '@doc-tools/yfm-editor';
 
 export function Editor({initialContent}) {
-    const extensions = React.useMemo(() => {
-        return [
-            createExtension((builder) =>
-                builder
-                    .use(BasePreset, {})
-                    .use(BehaviorPreset, {})
-                    .use(MarkdownBlocksPreset, {image: false, heading: false})
-                    .use(MarkdownMarksPreset, {})
-                    .use(YfmPreset, {}),
-            )(),
-        ];
-    }, []);
+    const extensions = React.useMemo<Extension>(
+        () => (builder) =>
+            builder
+                .use(BasePreset, {})
+                .use(BehaviorPreset, {})
+                .use(MarkdownBlocksPreset, {image: false, heading: false})
+                .use(MarkdownMarksPreset, {})
+                .use(YfmPreset, {}),
+        [],
+    );
 
     const editor = useYfmEditor({
         linkify: true,
