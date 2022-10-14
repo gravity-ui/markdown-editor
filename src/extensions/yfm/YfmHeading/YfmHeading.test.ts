@@ -1,13 +1,13 @@
 import {builders} from 'prosemirror-test-builder';
 import {createMarkupChecker} from '../../../../tests/sameMarkup';
 import {ExtensionsManager} from '../../../core';
-import {BaseNode, BaseSchemaE} from '../../base/BaseSchema';
-import {bold, BoldE} from '../../markdown/Bold';
-import {YfmHeadingE} from './index';
+import {BaseNode, BaseSchema} from '../../base/BaseSchema';
+import {bold, Bold} from '../../markdown/Bold';
+import {YfmHeading} from './index';
 import {heading, YfmHeadingAttr} from './const';
 
 const {schema, parser, serializer} = new ExtensionsManager({
-    extensions: [BaseSchemaE(), YfmHeadingE(), BoldE()],
+    extensions: (builder) => builder.use(BaseSchema, {}).use(YfmHeading, {}).use(Bold, {}),
     options: {attrsOpts: {allowedAttributes: ['id']}},
 }).buildDeps();
 

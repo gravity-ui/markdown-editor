@@ -1,4 +1,4 @@
-import {Action, createExtension, ExtensionAuto} from '../../../core';
+import type {Action, ExtensionAuto} from '../../../core';
 import {addImage, AddImageAttrs} from './actions';
 import {addImageAction, image, ImageAttr} from './const';
 
@@ -57,13 +57,6 @@ export const Image: ExtensionAuto = (builder) => {
 
     builder.addAction(addImageAction, ({schema}) => addImage(schema));
 };
-
-/**
- * @deprecated
- * For tests only.
- * Remove after WIKI-16660
- */
-export const ImageE = createExtension((b, o = {}) => b.use(Image, o));
 
 declare global {
     namespace YfmEditor {

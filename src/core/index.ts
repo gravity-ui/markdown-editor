@@ -1,7 +1,6 @@
 export * from './Editor';
 export * from './ExtensionBuilder';
 export * from './ExtensionsManager';
-export * from './createExtension';
 export {bindActions} from './utils/actions';
 export {trackTransactionMetrics} from './utils/metrics';
 export type {Keymap} from './types/keymap';
@@ -10,7 +9,6 @@ export type {
     Extension,
     ExtensionAuto,
     ExtensionWithOptions,
-    ExtensionSpec,
     ExtensionDeps,
     YENodeSpec,
     YEMarkSpec,

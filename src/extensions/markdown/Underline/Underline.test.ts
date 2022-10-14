@@ -1,11 +1,11 @@
 import {builders} from 'prosemirror-test-builder';
 import {createMarkupChecker} from '../../../../tests/sameMarkup';
 import {ExtensionsManager} from '../../../core';
-import {BaseNode, BaseSchemaE} from '../../base/BaseSchema';
-import {underline, UnderlineE} from './index';
+import {BaseNode, BaseSchema} from '../../base/BaseSchema';
+import {underline, Underline} from './index';
 
 const {schema, parser, serializer} = new ExtensionsManager({
-    extensions: [BaseSchemaE(), UnderlineE()],
+    extensions: (builder) => builder.use(BaseSchema, {}).use(Underline, {}),
 }).buildDeps();
 
 const {doc, p, u} = builders(schema, {

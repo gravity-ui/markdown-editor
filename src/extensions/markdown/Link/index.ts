@@ -1,7 +1,7 @@
 import {InputRule} from 'prosemirror-inputrules';
 import type {Fragment, Mark, MarkType} from 'prosemirror-model';
 
-import {Action, createExtension, ExtensionAuto} from '../../../core';
+import type {Action, ExtensionAuto} from '../../../core';
 import {markTypeFactory} from '../../../utils/schema';
 import {LinkActionMeta, LinkActionParams, linkCommand} from './actions';
 
@@ -86,13 +86,6 @@ export const Link: ExtensionAuto = (builder) => {
         .addAction(linkAction, (deps) => linkCommand(linkType(deps.schema), deps))
         .addInputRules(({schema}) => ({rules: [linkInputRule(linkType(schema))]}));
 };
-
-/**
- * @deprecated
- * For tests only.
- * Remove after WIKI-16660
- */
-export const LinkE = createExtension((b, o = {}) => b.use(Link, o));
 
 declare global {
     namespace YfmEditor {

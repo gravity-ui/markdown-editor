@@ -1,5 +1,5 @@
 import {toggleMark} from 'prosemirror-commands';
-import {Action, createExtension, ExtensionAuto} from '../../../core';
+import type {Action, ExtensionAuto} from '../../../core';
 import {createToggleMarkAction} from '../../../utils/actions';
 import {markTypeFactory} from '../../../utils/schema';
 import {markInputRule} from '../../../utils/inputrules';
@@ -40,13 +40,6 @@ export const Strike: ExtensionAuto<StrikeOptions> = (builder, opts) => {
         builder.addKeymap(({schema}) => ({[strikeKey]: toggleMark(sType(schema))}));
     }
 };
-
-/**
- * @deprecated
- * For tests only.
- * Remove after WIKI-16660
- */
-export const StrikeE = createExtension<StrikeOptions>((b, o = {}) => b.use(Strike, o));
 
 declare global {
     namespace YfmEditor {

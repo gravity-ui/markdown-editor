@@ -17,7 +17,7 @@ export type ExtensionSpec = {
     configureMd(md: MarkdownIt): MarkdownIt;
     nodes(): OrderedMap<YENodeSpec>;
     marks(): OrderedMap<YEMarkSpec>;
-    plugins(deps: ExtensionDeps): {plugin: Plugin; priority: number}[];
+    plugins(deps: ExtensionDeps): Plugin[];
     actions(deps: ExtensionDeps): Record<string, ActionSpec>;
 };
 

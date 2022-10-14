@@ -1,6 +1,6 @@
 import type {Node, NodeSpec} from 'prosemirror-model';
 import {setBlockType} from 'prosemirror-commands';
-import {Action, createExtension, ExtensionAuto, Keymap} from '../../../core';
+import type {Action, ExtensionAuto, Keymap} from '../../../core';
 import {headingAction} from './actions';
 import {HeadingAction, HeadingLevel, heading, lvlAttr} from './const';
 import {headingRule, hType} from './utils';
@@ -85,13 +85,6 @@ export const Heading: ExtensionAuto<HeadingOptions> = (builder, opts) => {
         .addAction(HeadingAction.ToH5, ({schema}) => headingAction(hType(schema), 5))
         .addAction(HeadingAction.ToH6, ({schema}) => headingAction(hType(schema), 6));
 };
-
-/**
- * @deprecated
- * For tests only.
- * Remove after WIKI-16660
- */
-export const HeadingE = createExtension<HeadingOptions>((b, o = {}) => b.use(Heading, o));
 
 declare global {
     namespace YfmEditor {

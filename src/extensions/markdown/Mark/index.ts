@@ -1,5 +1,5 @@
 import type {PluginSimple} from 'markdown-it';
-import {Action, createExtension, ExtensionAuto} from '../../../core';
+import type {Action, ExtensionAuto} from '../../../core';
 import {markTypeFactory} from '../../../utils/schema';
 import {createToggleMarkAction} from '../../../utils/actions';
 import {markInputRule} from '../../../utils/inputrules';
@@ -37,13 +37,6 @@ export const Mark: ExtensionAuto = (builder) => {
             rules: [markInputRule({open: '==', close: '==', ignoreBetween: '='}, mType(schema))],
         }));
 };
-
-/**
- * @deprecated
- * For tests only.
- * Remove after WIKI-16660
- */
-export const MarkE = createExtension((b) => b.use(Mark));
 
 declare global {
     namespace YfmEditor {

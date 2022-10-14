@@ -1,13 +1,13 @@
 import {builders} from 'prosemirror-test-builder';
 import {createMarkupChecker} from '../../../../tests/sameMarkup';
 import {ExtensionsManager} from '../../../core';
-import {BaseNode, BaseSchemaE} from '../../base/BaseSchema';
-import {bold, BoldE} from '../Bold';
-import {HeadingE} from './index';
+import {BaseNode, BaseSchema} from '../../base/BaseSchema';
+import {bold, Bold} from '../Bold';
+import {Heading} from './index';
 import {heading, lvlAttr} from './const';
 
 const {schema, parser, serializer} = new ExtensionsManager({
-    extensions: [BaseSchemaE(), HeadingE(), BoldE()],
+    extensions: (builder) => builder.use(BaseSchema, {}).use(Heading, {}).use(Bold, {}),
 }).buildDeps();
 
 const {doc, b, p, h1, h2, h3, h4, h5, h6} = builders(schema, {

@@ -1,17 +1,24 @@
 import MarkdownIt from 'markdown-it';
 import type {Plugin} from 'prosemirror-state';
 import {ActionsManager} from './ActionsManager';
+import {ExtensionBuilder} from './ExtensionBuilder';
 import {ParserTokensRegistry} from './ParserTokensRegistry';
 import {SchemaSpecRegistry} from './SchemaSpecRegistry';
 import {SerializerTokensRegistry} from './SerializerTokensRegistry';
 import type {ActionSpec} from './types/actions';
-import type {ExtensionDeps, ExtensionSpec, YEMarkSpec, YENodeSpec} from './types/extension';
+import type {
+    Extension,
+    ExtensionDeps,
+    ExtensionSpec,
+    YEMarkSpec,
+    YENodeSpec,
+} from './types/extension';
 import type {MarkViewConstructor, NodeViewConstructor} from './types/node-views';
 
 const attrs = require('markdown-it-attrs');
 
 type ExtensionsManagerParams = {
-    extensions: ExtensionSpec[];
+    extensions: Extension;
     options?: ExtensionsManagerOptions;
 };
 
@@ -25,7 +32,7 @@ type ExtensionsManagerOptions = {
 };
 
 export class ExtensionsManager {
-    static process(extensions: ExtensionSpec[], options: ExtensionsManagerOptions) {
+    static process(extensions: Extension, options: ExtensionsManagerOptions) {
         return new this({extensions, options}).build();
     }
 
@@ -38,8 +45,10 @@ export class ExtensionsManager {
 
     #md: MarkdownIt;
     #mdWithoutAttrs: MarkdownIt;
-    #extensions: ExtensionSpec[];
+    #extensions: Extension;
+    #builder: ExtensionBuilder;
 
+    #spec!: ExtensionSpec;
     #deps!: ExtensionDeps;
     #plugins: Plugin[] = [];
     #actions: Record<string, ActionSpec> = {};
@@ -51,6 +60,9 @@ export class ExtensionsManager {
 
         this.#md = new MarkdownIt(options.mdOpts ?? {}).use(attrs, options.attrsOpts ?? {});
         this.#mdWithoutAttrs = new MarkdownIt(options.mdOpts ?? {});
+
+        // TODO: add prefilled context
+        this.#builder = new ExtensionBuilder();
     }
 
     build() {
@@ -75,12 +87,11 @@ export class ExtensionsManager {
     }
 
     private processExtensions() {
-        for (const ext of this.#extensions) {
-            this.#md = ext.configureMd(this.#md);
-            this.#mdWithoutAttrs = ext.configureMd(this.#mdWithoutAttrs);
-            ext.nodes().forEach(this.processNode);
-            ext.marks().forEach(this.processMark);
-        }
+        this.#spec = this.#builder.use(this.#extensions).build();
+        this.#md = this.#spec.configureMd(this.#md);
+        this.#mdWithoutAttrs = this.#spec.configureMd(this.#mdWithoutAttrs);
+        this.#spec.nodes().forEach(this.processNode);
+        this.#spec.marks().forEach(this.processMark);
     }
 
     private processNode = (name: string, {spec, fromYfm, toYfm, view}: YENodeSpec) => {
@@ -113,14 +124,8 @@ export class ExtensionsManager {
     }
 
     private createDerived() {
-        const plugins: {plugin: Plugin; priority: number}[] = [];
-        for (const ext of this.#extensions) {
-            plugins.push(...ext.plugins(this.#deps));
-            Object.assign(this.#actions, ext.actions(this.#deps));
-        }
-
-        // TODO: move sorting to ExtensionBuilder after WIKI-16660
-        this.#plugins = plugins.sort((a, b) => b.priority - a.priority).map((item) => item.plugin);
+        this.#plugins = this.#spec.plugins(this.#deps);
+        Object.assign(this.#actions, this.#spec.actions(this.#deps));
 
         for (const [name, view] of this.#nodeViewCreators) {
             this.#nodeViews[name] = view(this.#deps);

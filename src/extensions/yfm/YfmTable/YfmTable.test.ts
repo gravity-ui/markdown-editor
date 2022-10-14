@@ -1,15 +1,13 @@
 import {builders} from 'prosemirror-test-builder';
 import {createMarkupChecker} from '../../../../tests/sameMarkup';
-import {createExtension, ExtensionsManager} from '../../../core';
-import {BaseNode, BaseSchemaE} from '../../base/BaseSchema';
-import {blockquote, BlockquoteE} from '../../markdown/Blockquote';
+import {ExtensionsManager} from '../../../core';
+import {BaseNode, BaseSchema} from '../../base/BaseSchema';
+import {blockquote, Blockquote} from '../../markdown/Blockquote';
 import {YfmTableNode} from './const';
 import {YfmTable} from './index';
 
-const YfmTableE = createExtension((builder) => builder.use(YfmTable, {}));
-
 const {schema, parser, serializer} = new ExtensionsManager({
-    extensions: [BaseSchemaE(), BlockquoteE(), YfmTableE()],
+    extensions: (builder) => builder.use(BaseSchema, {}).use(Blockquote, {}).use(YfmTable, {}),
 }).buildDeps();
 
 const {doc, p, bq, table, tbody, tr, td} = builders(schema, {
