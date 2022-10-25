@@ -21,6 +21,16 @@
         bottom: 0;
     }
 
+    &__controls {
+        display: flex;
+        align-items: center;
+        column-gap: 8px;
+
+        & > p {
+            margin: 0;
+        }
+    }
+
     &__markup {
         background-color: var(--yc-color-base-generic);
     }
