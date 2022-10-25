@@ -4,7 +4,7 @@ export interface CommonEditor extends ContentHandler {
     focus(): void;
     hasFocus(): boolean;
     getValue(): MarkupString;
-    isEmpty(): boolean;
+    isEmpty(): boolean; // TODO[major]: move isEmpty() to ContentHandler interface
 }
 
 export interface ContentHandler {
