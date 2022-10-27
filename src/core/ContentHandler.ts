@@ -34,7 +34,20 @@ export class WysiwygContentHandler implements ContentHandler {
     }
 
     append(markup: MarkupString): void {
-        this.#view.dispatch(this.appendContentTr(this.#view.state.tr, markup));
+        let tr = this.#view.state.tr;
+
+        if (tr.doc.lastChild?.type.name === 'paragraph' && tr.doc.lastChild.childCount === 0) {
+            const pos = tr.doc.nodeSize - 3;
+            tr = tr.replaceWith(pos - 1, pos + 1, this.#parser.parse(markup));
+        } else {
+            tr = this.appendContentTr(tr, markup);
+        }
+
+        if (tr.doc.lastChild?.type.name !== 'paragraph' || tr.doc.lastChild.childCount !== 0) {
+            tr = this.appendContentTr(tr, '');
+        }
+
+        this.#view.dispatch(tr);
     }
 
     moveCursor(position: 'start' | 'end'): void {

@@ -1,6 +1,6 @@
 import React from 'react';
 import block from 'bem-cn-lite';
-import {RadioButton, TextInput} from '@gravity-ui/uikit';
+import {Button, RadioButton, TextInput} from '@gravity-ui/uikit';
 
 import {
     BasePreset,
@@ -88,6 +88,64 @@ export const Playground = React.memo<PlaygroundProps>((props) => {
                     </RadioButton>
                 </span>
             </div>
+            <div className={b('controls')}>
+                <p>isEmpty: {String(editor.isEmpty())}</p>
+                <Button
+                    size="s"
+                    onClick={() => {
+                        editor.clear();
+                        editor.focus();
+                    }}
+                >
+                    Clear
+                </Button>
+                <Button
+                    size="s"
+                    onClick={() => {
+                        editor.append('> append');
+                        editor.focus();
+                    }}
+                >
+                    Append
+                </Button>
+                <Button
+                    size="s"
+                    onClick={() => {
+                        editor.prepend('> prepend');
+                        editor.focus();
+                    }}
+                >
+                    Prepend
+                </Button>
+                <Button
+                    size="s"
+                    onClick={() => {
+                        editor.replace('> replace');
+                        editor.focus();
+                    }}
+                >
+                    Replace
+                </Button>
+                <Button
+                    size="s"
+                    onClick={() => {
+                        editor.moveCursor('start');
+                        editor.focus();
+                    }}
+                >
+                    Move cursor to start
+                </Button>
+                <Button
+                    size="s"
+                    onClick={() => {
+                        editor.moveCursor('end');
+                        editor.focus();
+                    }}
+                >
+                    Move cursor to end
+                </Button>
+            </div>
+            <hr />
             <div className={b('editor')}>
                 <YfmEditorComponent editor={editor} autofocus className={b('editor')} />
             </div>
