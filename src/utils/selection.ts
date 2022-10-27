@@ -1,6 +1,6 @@
-import {Node, NodeType} from 'prosemirror-model';
+import type {Node, NodeType, ResolvedPos} from 'prosemirror-model';
 import {Selection, TextSelection, NodeSelection, AllSelection, Command} from 'prosemirror-state';
-import {NodeWithPos} from 'prosemirror-utils';
+import type {NodeWithPos} from 'prosemirror-utils';
 import {GapCursorSelection} from '../extensions/behavior/Cursor/GapCursorSelection';
 
 NodeSelection.prototype.selectionName = 'NodeSelection';
@@ -17,6 +17,10 @@ export const isNodeSelection = (selection: Selection): selection is NodeSelectio
 // maybe because AllSelection has same class type with different constructor
 export const isWholeSelection = (selection: Selection): boolean =>
     selection.selectionName === AllSelection.prototype.selectionName;
+
+export const get$Cursor = (selection: Selection): ResolvedPos | null => {
+    return isTextSelection(selection) ? selection.$cursor : null;
+};
 
 export const equalNodeType = function equalNodeType(nodeType: NodeType[] | NodeType, node: Node) {
     return (Array.isArray(nodeType) && nodeType.indexOf(node.type) > -1) || node.type === nodeType;
