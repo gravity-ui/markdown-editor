@@ -1,3 +1,4 @@
+import {chainCommands} from 'prosemirror-commands';
 import {liftListItem, sinkListItem, splitListItem} from 'prosemirror-schema-list';
 import type {Action, ExtensionAuto, Keymap} from '../../../core';
 import {actions} from './actions';
@@ -7,7 +8,11 @@ import {spec} from './spec';
 import {toYfm} from './toYfm';
 import {ListsInputRulesExtension, ListsInputRulesOptions} from './inputrules';
 import {blType, liType, olType} from './utils';
-import {toList} from './commands';
+import {
+    moveTextblockToEndOfLastItemOfPrevList,
+    liftIfCursorIsAtBeginningOfItem,
+    toList,
+} from './commands';
 
 export type ListsOptions = {
     ulKey?: string | null;
@@ -50,6 +55,15 @@ export const Lists: ExtensionAuto<ListsOptions> = (builder, opts) => {
             ...bindings,
         };
     });
+    builder.addKeymap(
+        () => ({
+            Backspace: chainCommands(
+                liftIfCursorIsAtBeginningOfItem,
+                moveTextblockToEndOfLastItemOfPrevList,
+            ),
+        }),
+        builder.PluginPriority.Low,
+    );
 
     builder.use(ListsInputRulesExtension, {bulletListInputRule: opts?.ulInputRules});
 
