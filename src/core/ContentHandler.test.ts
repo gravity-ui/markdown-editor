@@ -23,6 +23,9 @@ const fakeParser: Parser = {
     parse(markup) {
         return doc(p(markup));
     },
+    matchLinks(_text: string) {
+        throw new Error('Function not implemented.');
+    },
     validateLink(_url: string): boolean {
         throw new Error('Function not implemented.');
     },

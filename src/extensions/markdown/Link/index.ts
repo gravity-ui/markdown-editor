@@ -4,6 +4,7 @@ import type {Fragment, Mark, MarkType} from 'prosemirror-model';
 import type {Action, ExtensionAuto} from '../../../core';
 import {markTypeFactory} from '../../../utils/schema';
 import {LinkActionMeta, LinkActionParams, linkCommand} from './actions';
+import {linkPasteEnhance} from './paste-plugin';
 
 export type {LinkActionParams} from './actions';
 export {normalizeUrlFactory} from './utils';
@@ -83,6 +84,7 @@ export const Link: ExtensionAuto = (builder) => {
                 },
             },
         }))
+        .addPlugin(linkPasteEnhance, builder.PluginPriority.High)
         .addAction(linkAction, (deps) => linkCommand(linkType(deps.schema), deps))
         .addInputRules(({schema}) => ({rules: [linkInputRule(linkType(schema))]}));
 };
