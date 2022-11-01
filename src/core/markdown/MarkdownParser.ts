@@ -1,3 +1,4 @@
+import type {Match} from 'linkify-it';
 import type MarkdownIt from 'markdown-it';
 import type Token from 'markdown-it/lib/token';
 import {Mark, MarkType, Node, NodeType, Schema} from 'prosemirror-model';
@@ -38,6 +39,10 @@ export class MarkdownParser implements Parser {
 
     normalizeLinkText(url: string): string {
         return this.tokenizer.normalizeLinkText(url);
+    }
+
+    matchLinks(text: string): Readonly<Match>[] | null {
+        return this.tokenizer.linkify.match(text);
     }
 
     parse(text: string) {
