@@ -1,3 +1,4 @@
+import type {EditorView} from 'prosemirror-view';
 import {Fragment, Schema, Slice} from 'prosemirror-model';
 import {EditorState, Selection, Plugin} from 'prosemirror-state';
 
@@ -12,6 +13,13 @@ import {BaseNode, pType} from '../../base/BaseSchema';
 import {isInsideCode} from './code';
 import {DataTransferType, isIosSafariShare} from './utils';
 
+type SerializeForClipboard = (view: EditorView, slice: Slice) => {dom: HTMLElement; text: string};
+const serializeForClipboard: SerializeForClipboard =
+    // missed in prosemirror-view types
+    require('prosemirror-view').__serializeForClipboard;
+if (!serializeForClipboard)
+    throw new Error('serializeForClipboard not exported from prosemirror-view module.');
+
 export type ClipboardPluginOptions = {
     yfmParser: Parser;
     textParser: Parser;
@@ -25,32 +33,35 @@ export const clipboard = ({
     serializer,
     pasteFileHandler,
 }: ClipboardPluginOptions) => {
-    const copyTo = copyToFactory(serializer);
-
     return new Plugin({
         props: {
             // @ts-expect-error handleDOMEvents has broken types
             handleDOMEvents: {
                 copy(view, e) {
                     if (!e.clipboardData) return false;
-                    if (view.state.selection.empty) return false;
-
-                    const slice = getCopyContent(view.state);
-                    copyTo(e.clipboardData, slice);
-
-                    e.preventDefault();
-                    return true;
+                    const result = serializeSelected(view, serializer);
+                    if (result) {
+                        e.preventDefault();
+                        setClipboardData(e.clipboardData, result);
+                        return true;
+                    }
+                    return false;
                 },
                 cut(view, e) {
                     if (!e.clipboardData) return false;
-                    if (view.state.selection.empty) return false;
-
-                    const slice = getCopyContent(view.state);
-                    copyTo(e.clipboardData, slice);
-                    view.dispatch(view.state.tr.replaceSelection(Slice.empty));
-
-                    e.preventDefault();
-                    return true;
+                    const result = serializeSelected(view, serializer);
+                    if (result) {
+                        e.preventDefault();
+                        setClipboardData(e.clipboardData, result);
+                        view.dispatch(
+                            view.state.tr
+                                .deleteSelection()
+                                .scrollIntoView()
+                                .setMeta('uiEvent', 'cut'),
+                        );
+                        return true;
+                    }
+                    return false;
                 },
                 paste(view, e) {
                     if (!e.clipboardData) return false;
@@ -161,12 +172,23 @@ function getSliceFromMarkupFragment(fragment: Fragment) {
     return new Slice(fragment, start, end);
 }
 
-function copyToFactory(serializer: Serializer) {
-    return (data: DataTransfer, slice: Slice) => {
-        const markup = serializer.serialize(slice.content);
-        data.setData(DataTransferType.Yfm, markup);
-        data.setData(DataTransferType.Text, markup);
-    };
+type SerializeResult = {
+    text: string;
+    html: string;
+    markup: string;
+};
+function serializeSelected(view: EditorView, serializer: Serializer): SerializeResult | null {
+    if (view.state.selection.empty) return null;
+    const markup = serializer.serialize(getCopyContent(view.state).content);
+    const {dom, text} = serializeForClipboard(view, view.state.selection.content());
+    return {markup, text, html: dom.innerHTML};
+}
+
+function setClipboardData(data: DataTransfer, result: SerializeResult) {
+    data.clearData();
+    data.setData(DataTransferType.Yfm, result.markup);
+    data.setData(DataTransferType.Html, result.html);
+    data.setData(DataTransferType.Text, result.text);
 }
 
 function getCopyContent(state: EditorState): Slice {
