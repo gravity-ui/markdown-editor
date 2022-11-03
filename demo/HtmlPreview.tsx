@@ -9,10 +9,11 @@ type PlaygroundHtmlPreviewProps = ClassNameProps & {
     allowHTML?: boolean;
     breaks?: boolean;
     linkify?: boolean;
+    linkifyTlds?: string | string[];
 };
 
 export const PlaygroundHtmlPreview: React.FC<PlaygroundHtmlPreviewProps> =
-    function PlaygroundHtmlPreview({value, allowHTML, breaks, linkify, className}) {
+    function PlaygroundHtmlPreview({value, allowHTML, breaks, linkify, linkifyTlds, className}) {
         const divRef = React.useRef<HTMLDivElement>(null);
 
         const html = React.useMemo(() => {
@@ -21,9 +22,10 @@ export const PlaygroundHtmlPreview: React.FC<PlaygroundHtmlPreviewProps> =
                 breaks,
                 plugins,
                 linkify,
+                linkifyTlds,
                 defaultClassName: colorClassName, // markdown-it-color
             }).result.html;
-        }, [allowHTML, breaks, linkify, value]);
+        }, [allowHTML, breaks, linkify, linkifyTlds, value]);
 
         return <div ref={divRef} className={className} dangerouslySetInnerHTML={{__html: html}} />;
     };

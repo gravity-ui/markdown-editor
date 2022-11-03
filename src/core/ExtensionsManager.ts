@@ -29,6 +29,7 @@ type ExtensionsManagerOptions = {
         rightDelimiter?: string;
         allowedAttributes?: string[];
     };
+    linkifyTlds?: string | string[];
 };
 
 export class ExtensionsManager {
@@ -60,6 +61,11 @@ export class ExtensionsManager {
 
         this.#md = new MarkdownIt(options.mdOpts ?? {}).use(attrs, options.attrsOpts ?? {});
         this.#mdWithoutAttrs = new MarkdownIt(options.mdOpts ?? {});
+
+        if (options.linkifyTlds) {
+            this.#md.linkify.tlds(options.linkifyTlds, true);
+            this.#mdWithoutAttrs.linkify.tlds(options.linkifyTlds, true);
+        }
 
         // TODO: add prefilled context
         this.#builder = new ExtensionBuilder();

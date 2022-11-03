@@ -26,6 +26,7 @@ export type PlaygroundProps = {
     allowHTML?: boolean;
     breaks?: boolean;
     linkify?: boolean;
+    linkifyTlds?: string | string[];
 };
 
 const enum PreviewType {
@@ -39,7 +40,7 @@ logger.setLogger({
 });
 
 export const Playground = React.memo<PlaygroundProps>((props) => {
-    const {initial, allowHTML, breaks, linkify} = props;
+    const {initial, allowHTML, breaks, linkify, linkifyTlds} = props;
     const [previewType, setPreviewType] = React.useState<string>(PreviewType.Markup);
     const [yfmRaw, setYfmRaw] = React.useState<MarkupString>(initial || '');
 
@@ -71,6 +72,7 @@ export const Playground = React.memo<PlaygroundProps>((props) => {
 
     const editor = useYfmEditor({
         linkify,
+        linkifyTlds,
         allowHTML,
         extensions,
         initialContent: yfmRaw,
@@ -173,6 +175,7 @@ export const Playground = React.memo<PlaygroundProps>((props) => {
                         allowHTML={allowHTML}
                         breaks={breaks}
                         linkify={linkify}
+                        linkifyTlds={linkifyTlds}
                         value={yfmRaw}
                     />
                 )}
