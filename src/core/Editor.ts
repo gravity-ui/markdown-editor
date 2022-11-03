@@ -20,6 +20,7 @@ export type YfmEditorOptions = {
     extensions?: Extension;
     allowHTML?: boolean;
     linkify?: boolean;
+    linkifyTlds?: string | string[];
     /** markdown-it-attrs options */
     attrs?: {
         leftDelimiter?: string;
@@ -52,6 +53,7 @@ export class YfmEditor implements CommonEditor, ActionStorage {
         attrs: attrsOpts,
         allowHTML,
         linkify,
+        linkifyTlds,
         onChange,
         onDocChange,
     }: YfmEditorOptions) {
@@ -60,6 +62,7 @@ export class YfmEditor implements CommonEditor, ActionStorage {
                 // "breaks" option only affects the renderer, but not the parser
                 mdOpts: {html: allowHTML, linkify, breaks: true},
                 attrsOpts: {...attrsOpts, allowedAttributes: ['id']},
+                linkifyTlds,
             });
 
         const state = EditorState.create({

@@ -18,7 +18,7 @@ export function useYfmEditor(props: UseYfmEditorProps) {
                 rerender();
             },
         });
-    }, [props.extensions, props.allowHTML, props.linkify]);
+    }, [props.extensions, props.allowHTML, props.linkify, props.linkifyTlds]);
 
     React.useEffect(() => {
         return () => {
