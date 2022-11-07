@@ -226,10 +226,7 @@ function getCopyContent(state: EditorState): Slice {
         }
     }
 
-    // selection.content() get smart slice – it copy a structure of complex nodes
-    // e.g. if select part of cut title it creates slice with yfm-cut –> yfm-cut-title -> selected text
-    // it works well with simple nodes, but to handle cases as described above, custom logic nedded
-    let slice = sel.content();
+    let slice = getSelectionContent(sel);
 
     // replace first node with paragraph if needed
     if (
@@ -274,4 +271,17 @@ function createFragmentFromInlineSelection(state: EditorState) {
         return Fragment.from(state.schema.node(BaseNode.Paragraph, {}, inlineSlice.content));
     }
     return Fragment.from(sel.$from.parent.copy(inlineSlice.content));
+}
+
+/**
+ * Like `selection.content()`, but smarter.
+ * Copy a structure of complex nodes,
+ * e.g. if select part of cut title it creates slice with yfm-cut –> yfm-cut-title -> selected text
+ * it works well with simple nodes, but to handle cases as described above, custom logic needed
+ */
+function getSelectionContent({$from, to}: Selection) {
+    const sharedNodeType = $from.node($from.sharedDepth(to)).type;
+    const sharedNodeComplex = sharedNodeType.spec.complex;
+    const includeParents = sharedNodeComplex && sharedNodeComplex !== 'leaf';
+    return $from.doc.slice($from.pos, to, includeParents);
 }
