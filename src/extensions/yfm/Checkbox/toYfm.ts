@@ -14,7 +14,7 @@ export const toYfm: Record<CheckboxNode, SerializerNodeToken> = {
     },
 
     [CheckboxNode.Label]: (state, node) => {
-        if (!node.content.size) {
+        if (!node.content.size || node.textContent.trim().length === 0) {
             state.write(getPlaceholderContent(node));
             return;
         }
