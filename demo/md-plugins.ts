@@ -10,6 +10,7 @@ const color = require('markdown-it-color').colorPlugin;
 import math from 'markdown-it-katex';
 
 import meta from '@doc-tools/transform/lib/plugins/meta';
+import checkbox from '@doc-tools/transform/lib/plugins/checkbox';
 import deflist from '@doc-tools/transform/lib/plugins/deflist';
 import anchors from '@doc-tools/transform/lib/plugins/anchors';
 import cut from '@doc-tools/transform/lib/plugins/cut';
@@ -35,6 +36,7 @@ const defaultPlugins: PluginWithParams[] = [
     yfmTable,
     file,
     imsize,
+    checkbox,
 ];
 const extendedPlugins = defaultPlugins.concat(sub, ins, mark, math, color);
 
