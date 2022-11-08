@@ -2,6 +2,7 @@ import {builders} from 'prosemirror-test-builder';
 import {createMarkupChecker} from '../../../../tests/sameMarkup';
 import {ExtensionsManager} from '../../../core';
 import {BaseNode, BaseSchema} from '../../base/BaseSchema';
+import {Bold, bold} from '../../markdown/Bold';
 import {CheckboxNode} from './const';
 import {Checkbox} from './index';
 
@@ -9,11 +10,13 @@ const {schema, parser, serializer} = new ExtensionsManager({
     extensions: (builder) =>
         builder
             .use(BaseSchema, {})
+            .use(Bold, {})
             .use(Checkbox, {checkboxLabelPlaceholder: 'checkbox-placeholder'}),
 }).buildDeps();
 
 const {
     doc,
+    b,
     checkbox,
     cbInput,
     cbLabel,
@@ -26,6 +29,7 @@ const {
 } = builders(schema, {
     doc: {nodeType: BaseNode.Doc},
     p: {nodeType: BaseNode.Paragraph},
+    b: {nodeType: bold},
     checkbox: {nodeType: CheckboxNode.Checkbox},
     cbInput: {nodeType: CheckboxNode.Input},
     cbLabel: {nodeType: CheckboxNode.Label},
@@ -42,6 +46,7 @@ const {
 }) as PMTestBuilderResult<
     | 'doc'
     | 'p'
+    | 'b'
     | 'checkbox'
     | 'cbInput'
     | 'cbLabel'
@@ -64,6 +69,17 @@ describe('Checkbox extension', () => {
 
     it('should not escape characters', () =>
         same('[ ] abobo +', doc(checkbox(checkboxInput2(), checkboxLabel2('abobo +')))));
+
+    it('should parse and serialize inline markup in label', () =>
+        same(
+            '[X] **bold** text',
+            doc(
+                checkbox(
+                    cbInput({checked: 'true', id: 'yfm-editor-checkbox3'}),
+                    cbLabel({for: 'yfm-editor-checkbox3'}, b('bold'), ' text'),
+                ),
+            ),
+        ));
 
     it('should substitute placeholder when label is empty', () => {
         serialize(doc(checkbox(cbInput(), cbLabel())), '[ ] checkbox-placeholder');
