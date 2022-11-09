@@ -1,6 +1,6 @@
 import {Plugin} from 'prosemirror-state';
 import {ExtensionBuilder} from './ExtensionBuilder';
-import type {ExtensionDeps} from './types/extension';
+import type {ExtensionDeps, YEMarkSpec} from './types/extension';
 
 describe('ExtensionBuilder', () => {
     it('should build empty extension', () => {
@@ -62,6 +62,46 @@ describe('ExtensionBuilder', () => {
         expect(marks.size).toBe(2);
         expect(marks.get('mark1')).toBeTruthy();
         expect(marks.get('mark2')).toBeTruthy();
+    });
+
+    it('should sort marks by priority', () => {
+        const mark0: YEMarkSpec = {
+            spec: {},
+            fromYfm: {tokenSpec: {type: 'mark', name: 'mark0'}},
+            toYfm: {open: '', close: ''},
+        };
+        const mark1: YEMarkSpec = {
+            spec: {},
+            fromYfm: {tokenSpec: {type: 'mark', name: 'mark1'}},
+            toYfm: {open: '', close: ''},
+        };
+        const mark2: YEMarkSpec = {
+            spec: {},
+            fromYfm: {tokenSpec: {type: 'mark', name: 'mark2'}},
+            toYfm: {open: '', close: ''},
+        };
+        const mark3: YEMarkSpec = {
+            spec: {},
+            fromYfm: {tokenSpec: {type: 'mark', name: 'mark3'}},
+            toYfm: {open: '', close: ''},
+        };
+        const marksOrderedMap = new ExtensionBuilder()
+            .addMark('mark3', () => mark3, ExtensionBuilder.Priority.VeryLow)
+            .addMark('mark1', () => mark1)
+            .addMark('mark0', () => mark0, ExtensionBuilder.Priority.VeryHigh)
+            .addMark('mark2', () => mark2)
+            .build()
+            .marks();
+        const marksList: {name: string; spec: YEMarkSpec}[] = [];
+        marksOrderedMap.forEach((name, spec) => marksList.push({name, spec}));
+        expect(marksList[0].name).toBe('mark0');
+        expect(marksList[0].spec === mark0).toBe(true);
+        expect(marksList[1].name).toBe('mark1');
+        expect(marksList[1].spec === mark1).toBe(true);
+        expect(marksList[2].name).toBe('mark2');
+        expect(marksList[2].spec === mark2).toBe(true);
+        expect(marksList[3].name).toBe('mark3');
+        expect(marksList[3].spec === mark3).toBe(true);
     });
 
     it('should add plugins', () => {

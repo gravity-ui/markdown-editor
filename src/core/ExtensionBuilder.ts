@@ -26,7 +26,7 @@ type AddPmKeymapCallback = (deps: ExtensionDeps) => Keymap;
 type AddPmInputRulesCallback = (deps: ExtensionDeps) => InputRulesConfig;
 type AddActionCallback = (deps: ExtensionDeps) => ActionSpec;
 
-enum PluginPriority {
+enum Priority {
     Highest = 1_000_000,
     VeryHigh = 100_000,
     High = 10_000,
@@ -36,7 +36,7 @@ enum PluginPriority {
     Lowest = 0,
 }
 
-const DEFAULT_PRIORITY = PluginPriority.Medium;
+const DEFAULT_PRIORITY = Priority.Medium;
 
 type BuilderContext<T extends object> = {
     has(key: keyof T): boolean;
@@ -55,13 +55,18 @@ export class ExtensionBuilder {
         return new Map();
     }
 
-    // eslint-disable-next-line @typescript-eslint/member-ordering
-    static readonly PluginPriority = PluginPriority;
+    /* eslint-disable @typescript-eslint/member-ordering */
+    static readonly Priority = Priority;
+    readonly Priority = ExtensionBuilder.Priority;
+    /** @deprecated use `ExtensionBuilder.Priority` instead */
+    static readonly PluginPriority = ExtensionBuilder.Priority;
+    /** @deprecated use `builder.Priority` instead */
     readonly PluginPriority = ExtensionBuilder.PluginPriority;
+    /* eslint-enable @typescript-eslint/member-ordering */
 
     #confMdCbs: ConfigureMdCallback[] = [];
-    #nodeSpecs: [string, AddPmNodeCallback][] = [];
-    #markSpecs: [string, AddPmMarkCallback][] = [];
+    #nodeSpecs: Record<string, {name: string; cb: AddPmNodeCallback}> = {};
+    #markSpecs: Record<string, {name: string; cb: AddPmMarkCallback; priority: number}> = {};
     #plugins: {cb: AddPmPluginCallback; priority: number}[] = [];
     #actions: [string, AddActionCallback][] = [];
 
@@ -84,18 +89,18 @@ export class ExtensionBuilder {
     }
 
     addNode(name: string, cb: AddPmNodeCallback): this {
-        if (this.#nodeSpecs.some(([specName]) => specName === name)) {
+        if (this.#nodeSpecs[name]) {
             throw new Error(`ProseMirror node with this name "${name}" already exist`);
         }
-        this.#nodeSpecs.push([name, cb]);
+        this.#nodeSpecs[name] = {name, cb};
         return this;
     }
 
-    addMark(name: string, cb: AddPmMarkCallback): this {
-        if (this.#markSpecs.some(([specName]) => specName === name)) {
+    addMark(name: string, cb: AddPmMarkCallback, priority = DEFAULT_PRIORITY): this {
+        if (this.#markSpecs[name]) {
             throw new Error(`ProseMirror mark with this name "${name}" already exist`);
         }
-        this.#markSpecs.push([name, cb]);
+        this.#markSpecs[name] = {name, cb, priority};
         return this;
     }
 
@@ -124,8 +129,8 @@ export class ExtensionBuilder {
 
     build(): ExtensionSpec {
         const confMd = this.#confMdCbs.slice();
-        const nodes = this.#nodeSpecs.slice();
-        const marks = this.#markSpecs.slice();
+        const nodes = {...this.#nodeSpecs};
+        const marks = {...this.#markSpecs};
         const plugins = this.#plugins.slice();
         const actions = this.#actions.slice();
 
@@ -133,15 +138,18 @@ export class ExtensionBuilder {
             configureMd: (md) => confMd.reduce((pMd, cb) => cb(pMd), md),
             nodes: () => {
                 let map = OrderedMap.from<YENodeSpec>({});
-                for (const [key, cb] of nodes) {
-                    map = map.addToEnd(key, cb());
+                for (const {name, cb} of Object.values(nodes)) {
+                    map = map.addToEnd(name, cb());
                 }
                 return map;
             },
             marks: () => {
+                // The order of marks in schema is important when serializing pm-document to DOM or markup
+                // https://discuss.prosemirror.net/t/marks-priority/4463
+                const sortedMarks = Object.values(marks).sort((a, b) => b.priority - a.priority);
                 let map = OrderedMap.from<YEMarkSpec>({});
-                for (const [key, cb] of marks) {
-                    map = map.addToEnd(key, cb());
+                for (const {name, cb} of sortedMarks) {
+                    map = map.addToEnd(name, cb());
                 }
                 return map;
             },
