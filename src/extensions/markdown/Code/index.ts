@@ -17,28 +17,32 @@ export type CodeOptions = {
 
 export const Code: ExtensionAuto<CodeOptions> = (builder, opts) => {
     builder
-        .addMark(code, () => ({
-            spec: {
-                code: true,
-                parseDOM: [{tag: 'code'}],
-                toDOM() {
-                    return ['code'];
+        .addMark(
+            code,
+            () => ({
+                spec: {
+                    code: true,
+                    parseDOM: [{tag: 'code'}],
+                    toDOM() {
+                        return ['code'];
+                    },
                 },
-            },
-            toYfm: {
-                open(_state, _mark, parent, index) {
-                    return backticksFor(parent.child(index), -1);
+                toYfm: {
+                    open(_state, _mark, parent, index) {
+                        return backticksFor(parent.child(index), -1);
+                    },
+                    close(_state, _mark, parent, index) {
+                        return backticksFor(parent.child(index - 1), 1);
+                    },
+                    escape: false,
                 },
-                close(_state, _mark, parent, index) {
-                    return backticksFor(parent.child(index - 1), 1);
+                fromYfm: {
+                    tokenSpec: {name: code, type: 'mark', noCloseToken: true},
+                    tokenName: 'code_inline',
                 },
-                escape: false,
-            },
-            fromYfm: {
-                tokenSpec: {name: code, type: 'mark', noCloseToken: true},
-                tokenName: 'code_inline',
-            },
-        }))
+            }),
+            builder.Priority.Lowest,
+        )
         .addAction(codeAction, ({schema}) => createToggleMarkAction(codeType(schema)));
 
     if (opts?.codeKey) {
