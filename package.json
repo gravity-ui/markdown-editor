@@ -61,7 +61,7 @@
     "tslib": "^2.3.1"
   },
   "devDependencies": {
-    "@doc-tools/transform": "2.15.0",
+    "@doc-tools/transform": "2.16.0",
     "@gravity-ui/eslint-config": "1.0.2",
     "@gravity-ui/prettier-config": "1.0.1",
     "@gravity-ui/stylelint-config": "1.0.1",
@@ -104,7 +104,7 @@
     "typescript": "^4.5.2"
   },
   "peerDependencies": {
-    "@doc-tools/transform": "^2.14.0",
+    "@doc-tools/transform": "^2.16.0",
     "@gravity-ui/uikit": "^3.1.0",
     "lodash": "^4.17.20",
     "react": "^16.8.0 || ^17.0.0",
