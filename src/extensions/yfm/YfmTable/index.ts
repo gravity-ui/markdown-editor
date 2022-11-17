@@ -8,6 +8,7 @@ import {createYfmTable} from './actions';
 import {fromYfm} from './fromYfm';
 import {toYfm} from './toYfm';
 import {goToNextRow} from './commands/goToNextRow';
+import {backspaceCommand} from './commands/backspace';
 
 const action = 'createYfmTable';
 
@@ -46,6 +47,7 @@ export const YfmTable: ExtensionWithOptions<YfmTableOptions> = (builder, options
             'Shift-Tab': goToNextCell('prev'),
             ArrowDown: goToNextRow('down'),
             ArrowUp: goToNextRow('up'),
+            Backspace: backspaceCommand,
         }))
 
         .addAction(action, () => createYfmTable);

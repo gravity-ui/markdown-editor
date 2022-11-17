@@ -1,5 +1,10 @@
-import {Node as PmNode} from 'prosemirror-model';
-import {findChildren, findParentNode, Predicate} from 'prosemirror-utils';
+import {Node as PmNode, ResolvedPos} from 'prosemirror-model';
+import {
+    findChildren,
+    findParentNode,
+    findParentNodeClosestToPos,
+    Predicate,
+} from 'prosemirror-utils';
 import type {EditorView} from 'prosemirror-view';
 import {isTextSelection} from '../utils/selection';
 import {TableRole} from './const';
@@ -13,6 +18,15 @@ export const findParentTable = findParentNode(isTableNode);
 export const findParentTableBody = findParentNode(isTableBodyNode);
 export const findParentTableRow = findParentNode(isTableRowNode);
 export const findParentTableCell = findParentNode(isTableCellNode);
+
+export const findParentTableFromPos = ($pos: ResolvedPos) =>
+    findParentNodeClosestToPos($pos, isTableNode);
+export const findParentTableBodyFromPos = ($pos: ResolvedPos) =>
+    findParentNodeClosestToPos($pos, isTableBodyNode);
+export const findParentTableRowFromPos = ($pos: ResolvedPos) =>
+    findParentNodeClosestToPos($pos, isTableRowNode);
+export const findParentTableCellFromPos = ($pos: ResolvedPos) =>
+    findParentNodeClosestToPos($pos, isTableCellNode);
 
 export const findChildTableRows = (node: PmNode) => findChildren(node, isTableRowNode);
 export const findChildTableCells = (node: PmNode) => findChildren(node, isTableCellNode);
