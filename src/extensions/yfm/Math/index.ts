@@ -10,6 +10,9 @@ import {inlineNodeInputRule} from '../../../utils/inputrules';
 import {mathViewAndEditPlugin} from './view-and-edit';
 import {MathNode} from './const';
 
+export {MathNode} from './const';
+export {MathBlockNodeView, MathInlineNodeView} from './view-and-edit';
+
 const mathIType = nodeTypeFactory(MathNode.Inline);
 const mathBType = nodeTypeFactory(MathNode.Block);
 
