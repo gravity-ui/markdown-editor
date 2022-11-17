@@ -1,5 +1,6 @@
 import React from 'react';
 import block from 'bem-cn-lite';
+import {useUpdate} from 'react-use';
 import {Button, RadioButton, TextInput} from '@gravity-ui/uikit';
 
 import {
@@ -14,6 +15,8 @@ import {
     Extension,
 } from '../src';
 import {PlaygroundHtmlPreview} from './HtmlPreview';
+import {ProseMirrorDevTools} from './ProseMirrorDevTools';
+import {PMSelection} from './PMSelection';
 import {logger} from '../src/index';
 
 import './Playground.scss';
@@ -43,6 +46,7 @@ export const Playground = React.memo<PlaygroundProps>((props) => {
     const {initial, allowHTML, breaks, linkify, linkifyTlds} = props;
     const [previewType, setPreviewType] = React.useState<string>(PreviewType.Markup);
     const [yfmRaw, setYfmRaw] = React.useState<MarkupString>(initial || '');
+    const rerender = useUpdate();
 
     const extensions = React.useMemo<Extension>(
         () => (builder) =>
@@ -76,6 +80,7 @@ export const Playground = React.memo<PlaygroundProps>((props) => {
         allowHTML,
         extensions,
         initialContent: yfmRaw,
+        onChange: () => rerender(),
         onDocChange: (e) => setYfmRaw(e.getValue()),
     });
 
@@ -150,6 +155,8 @@ export const Playground = React.memo<PlaygroundProps>((props) => {
             <hr />
             <div className={b('editor')}>
                 <YfmEditorComponent editor={editor} autofocus className={b('editor')} />
+                <ProseMirrorDevTools view={editor.view} />
+                <PMSelection view={editor.view} className={b('pm-selection')} />
             </div>
 
             <hr />

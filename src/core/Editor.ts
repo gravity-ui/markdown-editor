@@ -46,6 +46,11 @@ export class YfmEditor implements CommonEditor, ActionStorage {
         return this.#actions.actions;
     }
 
+    /** @internal used for prosemirror-dev-tools in demo */
+    get view() {
+        return this.#view;
+    }
+
     constructor({
         domElem,
         initialContent = '',
