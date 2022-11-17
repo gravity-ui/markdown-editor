@@ -39,4 +39,10 @@
         min-height: 100px;
         margin: 20px 0;
     }
+
+    &__pm-selection {
+        position: absolute;
+        top: 8px;
+        left: 8px;
+    }
 }
