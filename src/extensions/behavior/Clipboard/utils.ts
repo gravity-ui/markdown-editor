@@ -4,6 +4,7 @@ export enum DataTransferType {
     Html = 'text/html',
     Yfm = 'text/yfm', // self
     UriList = 'text/uri-list',
+    VSCodeData = 'vscode-editor-data',
     Files = 'Files',
 }
 
