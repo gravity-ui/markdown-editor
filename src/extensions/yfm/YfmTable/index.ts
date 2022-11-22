@@ -1,3 +1,4 @@
+import {Plugin} from 'prosemirror-state';
 import log from '@doc-tools/transform/lib/log';
 import yfmTable from '@doc-tools/transform/lib/plugins/table';
 import {goToNextCell} from '../../../table-utils';
@@ -9,6 +10,7 @@ import {fromYfm} from './fromYfm';
 import {toYfm} from './toYfm';
 import {goToNextRow} from './commands/goToNextRow';
 import {backspaceCommand} from './commands/backspace';
+import {fixPastedTableBodies} from './paste';
 
 const action = 'createYfmTable';
 
@@ -51,6 +53,17 @@ export const YfmTable: ExtensionWithOptions<YfmTableOptions> = (builder, options
         }))
 
         .addAction(action, () => createYfmTable);
+
+    builder.addPlugin(
+        ({schema}) =>
+            new Plugin({
+                props: {
+                    transformPasted(slice) {
+                        return fixPastedTableBodies(slice, schema);
+                    },
+                },
+            }),
+    );
 };
 
 declare global {
