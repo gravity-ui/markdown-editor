@@ -1,7 +1,7 @@
 import type {NodeSpec} from 'prosemirror-model';
 import {NoteAttrs, NoteNode} from './const';
 
-const DEFAULT_TITLE_PLACEHOLDER = 'Note title';
+const DEFAULT_TITLE_PLACEHOLDER = 'Note';
 
 export type YfmNoteSpecOptions = {
     yfmNoteTitlePlaceholder?: NonNullable<NodeSpec['placeholder']>['content'];
