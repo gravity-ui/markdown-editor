@@ -1,5 +1,6 @@
 import {builders} from 'prosemirror-test-builder';
 import {createMarkupChecker} from '../../../../tests/sameMarkup';
+import {parseDOM} from '../../../../tests/parse-dom';
 import {ExtensionsManager} from '../../../core';
 import {BaseNode, BaseSchema} from '../../base/BaseSchema';
 import {horizontalRule, HorizontalRule, markupAttr} from './index';
@@ -35,5 +36,9 @@ world!
         `.trim();
 
         same(markup, doc(p('hello'), hr(), p('world!')));
+    });
+
+    it('should parse html - hr tag', () => {
+        parseDOM(schema, 'hello<hr>world!', doc(p('hello'), hr(), p('world!')));
     });
 });

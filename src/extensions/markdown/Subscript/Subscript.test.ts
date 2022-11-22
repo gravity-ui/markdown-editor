@@ -3,27 +3,27 @@ import {createMarkupChecker} from '../../../../tests/sameMarkup';
 import {parseDOM} from '../../../../tests/parse-dom';
 import {ExtensionsManager} from '../../../core';
 import {BaseNode, BaseSchema} from '../../base/BaseSchema';
-import {mark, Mark} from './index';
+import {subscript, Subscript} from './index';
 
 const {schema, parser, serializer} = new ExtensionsManager({
-    extensions: (builder) => builder.use(BaseSchema, {}).use(Mark),
+    extensions: (builder) => builder.use(BaseSchema, {}).use(Subscript, {}),
 }).buildDeps();
 
-const {doc, p, m} = builders(schema, {
+const {doc, p, s} = builders(schema, {
     doc: {nodeType: BaseNode.Doc},
     p: {nodeType: BaseNode.Paragraph},
-    m: {markType: mark},
-}) as PMTestBuilderResult<'doc' | 'p', 'm'>;
+    s: {markType: subscript},
+}) as PMTestBuilderResult<'doc' | 'p', 's'>;
 
 const {same} = createMarkupChecker({parser, serializer});
 
-describe('Mark extension', () => {
-    it('should parse mark', () => same('==hello!==', doc(p(m('hello!')))));
+describe('Subscript extension', () => {
+    it('should parse subscript', () => same('~hello~', doc(p(s('hello')))));
 
-    it('should parse mark inside text', () =>
-        same('he==llo wor==ld!', doc(p('he', m('llo wor'), 'ld!'))));
+    it('should parse subscript inside text', () =>
+        same('hello~world~!', doc(p('hello', s('world'), '!'))));
 
     it('should parse html - sub tag', () => {
-        parseDOM(schema, '<p><mark>marked text</mark></p>', doc(p(m('marked text'))));
+        parseDOM(schema, '<p><sub>subscript</sub></p>', doc(p(s('subscript'))));
     });
 });

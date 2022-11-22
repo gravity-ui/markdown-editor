@@ -1,5 +1,6 @@
 import {builders} from 'prosemirror-test-builder';
 import {createMarkupChecker} from '../../../../tests/sameMarkup';
+import {parseDOM} from '../../../../tests/parse-dom';
 import {ExtensionsManager} from '../../../core';
 import {BaseNode, BaseSchema} from '../../base/BaseSchema';
 import {Deflist} from './index';
@@ -61,6 +62,15 @@ Term 2
                     dd(p('Description 2')),
                 ),
             ),
+        );
+    });
+
+    // TODO: pasrsed to: doc(dt("Term"), dd(paragraph("Description")))
+    it.skip('should parse html', () => {
+        parseDOM(
+            schema,
+            '<div><dl><dt>Term</dt><dd>Description</dd></dl></div>',
+            doc(dl(dt('Term'), dd(p('Description')))),
         );
     });
 });

@@ -1,5 +1,6 @@
 import {builders} from 'prosemirror-test-builder';
 import {createMarkupChecker} from '../../../../tests/sameMarkup';
+import {parseDOM} from '../../../../tests/parse-dom';
 import {ExtensionsManager} from '../../../core';
 import {BaseNode, BaseSchema} from '../../base/BaseSchema';
 import {italic, Italic, blockquote, Blockquote} from '../../markdown';
@@ -83,5 +84,17 @@ note content
 
         // eslint-disable-next-line prettier/prettier
         same(markup, doc(note(noteTitle(i('note italic title')), p('note content'))));
+    });
+
+    // TODO: parsed: doc(paragraph("YfmNote title"), paragraph("YfmNote content"))
+    it.skip('should parse yfm-note from html', () => {
+        parseDOM(
+            schema,
+            '<div><div class="yfm-note yfm-accent-info" note-type="info">' +
+                '<p class="yfm-note-title">YfmNote title</p>' +
+                '<p>YfmNote content</p>' +
+                '</div></div>',
+            doc(note(noteTitle('YfmNote title'), p('YfmNote content'))),
+        );
     });
 });

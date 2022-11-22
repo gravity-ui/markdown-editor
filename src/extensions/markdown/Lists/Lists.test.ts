@@ -45,7 +45,10 @@ describe('Lists extension', () => {
             markup,
             doc(
                 ul(
-                    li(p('one'), ol(li(p('two'), ul(li(p('three')))), li(p('four')))),
+                    li(
+                        p('one'),
+                        ol(li(p('two'), ul({tight: true}, li(p('three')))), li(p('four'))),
+                    ),
                     li(p('five')),
                 ),
             ),

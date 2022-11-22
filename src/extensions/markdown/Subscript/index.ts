@@ -4,7 +4,7 @@ import {markTypeFactory} from '../../../utils/schema';
 import {markInputRule} from '../../../utils/inputrules';
 const sub = require('markdown-it-sub');
 
-const subscript = 'sub';
+export const subscript = 'sub';
 const subAction = 'subscript';
 const subType = markTypeFactory(subscript);
 

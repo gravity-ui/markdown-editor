@@ -1,5 +1,6 @@
 import {builders} from 'prosemirror-test-builder';
 import {createMarkupChecker} from '../../../../tests/sameMarkup';
+import {parseDOM} from '../../../../tests/parse-dom';
 import {ExtensionsManager} from '../../../core';
 import {BaseNode, BaseSchema} from '../../base/BaseSchema';
 import {blockquote, Blockquote, italic, Italic} from '../../markdown';
@@ -87,5 +88,16 @@ cut content
     `.trim();
 
         same(markup, doc(cut(cutTitle(i('cut italic title')), cutContent(p('cut content')))));
+    });
+
+    it('should parse yfm-note from html', () => {
+        parseDOM(
+            schema,
+            '<div class="yfm-cut">' +
+                '<div class="yfm-cut-title">YfmCut title</div>' +
+                '<div><p>YfmCut content</p></div' +
+                '</div>',
+            doc(cut(cutTitle('YfmCut title'), cutContent(p('YfmCut content')))),
+        );
     });
 });

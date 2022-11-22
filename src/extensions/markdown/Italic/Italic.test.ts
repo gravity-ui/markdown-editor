@@ -1,5 +1,6 @@
 import {builders} from 'prosemirror-test-builder';
 import {createMarkupChecker} from '../../../../tests/sameMarkup';
+import {parseDOM} from '../../../../tests/parse-dom';
 import {ExtensionsManager} from '../../../core';
 import {BaseNode, BaseSchema} from '../../base/BaseSchema';
 import {italic, Italic} from './index';
@@ -23,4 +24,20 @@ describe('Italic extension', () => {
 
     it('should parse italic inside text', () =>
         same('he*llo wor*ld!', doc(p('he', i('llo wor'), 'ld!'))));
+
+    it('should parse html - em tag', () => {
+        parseDOM(schema, '<p><em>text in em</em></p>', doc(p(i('text in em'))));
+    });
+
+    it('should parse html - i tag', () => {
+        parseDOM(schema, '<div><i>text in i</i></div>', doc(p(i('text in i'))));
+    });
+
+    it('should parse html - font-style:italic', () => {
+        parseDOM(
+            schema,
+            '<div style="font-style:italic">text with styles</div>',
+            doc(p(i('text with styles'))),
+        );
+    });
 });

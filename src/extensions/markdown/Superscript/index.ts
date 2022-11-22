@@ -5,7 +5,7 @@ import {markInputRule} from '../../../utils/inputrules';
 import log from '@doc-tools/transform/lib/log';
 const sup = require('@doc-tools/transform/lib/plugins/sup');
 
-const superscript = 'sup';
+export const superscript = 'sup';
 const supAction = 'supscript';
 const supType = markTypeFactory(superscript);
 

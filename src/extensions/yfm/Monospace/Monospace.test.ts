@@ -1,5 +1,6 @@
 import {builders} from 'prosemirror-test-builder';
 import {createMarkupChecker} from '../../../../tests/sameMarkup';
+import {parseDOM} from '../../../../tests/parse-dom';
 import {ExtensionsManager} from '../../../core';
 import {BaseNode, BaseSchema} from '../../base/BaseSchema';
 import {monospace, Monospace} from './index';
@@ -21,4 +22,8 @@ describe('Monospace extension', () => {
 
     it('should parse monospace inside text', () =>
         same('he##llo wor##ld!', doc(p('he', m('llo wor'), 'ld!'))));
+
+    it('should parse html - samp tag', () => {
+        parseDOM(schema, '<samp>hello world!</samp>', doc(p(m('hello world!'))));
+    });
 });
