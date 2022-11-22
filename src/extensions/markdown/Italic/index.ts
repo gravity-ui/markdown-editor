@@ -16,7 +16,11 @@ export const Italic: ExtensionAuto<ItalicOptions> = (builder, opts) => {
     builder
         .addMark(italic, () => ({
             spec: {
-                parseDOM: [{tag: 'em'}],
+                parseDOM: [
+                    {tag: 'i'},
+                    {tag: 'em'},
+                    {style: 'font-style', getAttrs: (value) => value === 'italic' && null},
+                ],
                 toDOM() {
                     return ['em'];
                 },

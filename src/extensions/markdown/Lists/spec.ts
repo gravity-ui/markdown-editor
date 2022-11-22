@@ -19,9 +19,15 @@ export const spec: Record<ListNode, NodeSpec> = {
     [ListNode.BulletList]: {
         content: `${ListNode.ListItem}+`,
         group: 'block',
-        parseDOM: [{tag: 'ul'}],
-        toDOM() {
-            return ['ul', 0];
+        attrs: {tight: {default: false}},
+        parseDOM: [
+            {
+                tag: 'ul',
+                getAttrs: (dom) => ({tight: (dom as HTMLElement).hasAttribute('data-tight')}),
+            },
+        ],
+        toDOM(node) {
+            return ['ul', {'data-tight': node.attrs.tight ? 'true' : null}, 0];
         },
         selectable: false,
         allowSelection: false,
@@ -37,15 +43,23 @@ export const spec: Record<ListNode, NodeSpec> = {
                 tag: 'ol',
                 getAttrs(dom) {
                     return {
-                        order: (dom as Element).hasAttribute('start')
-                            ? Number((dom as Element).getAttribute('start'))
+                        order: (dom as HTMLElement).hasAttribute('start')
+                            ? Number((dom as HTMLElement).getAttribute('start')!)
                             : 1,
+                        tight: (dom as HTMLElement).hasAttribute('data-tight'),
                     };
                 },
             },
         ],
         toDOM(node) {
-            return node.attrs.order === 1 ? ['ol', 0] : ['ol', {start: node.attrs.order}, 0];
+            return [
+                'ol',
+                {
+                    start: node.attrs.order === 1 ? null : node.attrs.order,
+                    'data-tight': node.attrs.tight ? 'true' : null,
+                },
+                0,
+            ];
         },
         selectable: false,
         allowSelection: false,

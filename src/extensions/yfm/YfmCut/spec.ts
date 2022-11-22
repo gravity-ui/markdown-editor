@@ -15,7 +15,7 @@ export const getSpec = (opts?: YfmCutSpecOptions): Record<CutNode, NodeSpec> => 
     [CutNode.Cut]: {
         attrs: {class: {default: 'yfm-cut'}},
         content: `${CutNode.CutTitle} ${CutNode.CutContent}`,
-        group: 'block',
+        group: 'block yfm-cut',
         parseDOM: [{tag: 'div.yfm-cut'}],
         toDOM(node) {
             return ['div', node.attrs, 0];
@@ -30,7 +30,7 @@ export const getSpec = (opts?: YfmCutSpecOptions): Record<CutNode, NodeSpec> => 
     [CutNode.CutTitle]: {
         attrs: {class: {default: 'yfm-cut-title'}},
         content: 'text*',
-        group: 'block',
+        group: 'block yfm-cut',
         parseDOM: [{tag: 'div.yfm-cut-title'}],
         toDOM(node) {
             return ['div', node.attrs, 0];
@@ -47,7 +47,7 @@ export const getSpec = (opts?: YfmCutSpecOptions): Record<CutNode, NodeSpec> => 
     [CutNode.CutContent]: {
         attrs: {class: {default: 'yfm-cut-content'}},
         content: '(block | paragraph)+',
-        group: 'block',
+        group: 'block yfm-cut',
         parseDOM: [{tag: 'div.yfm-cut-content'}],
         toDOM(node) {
             return ['div', node.attrs, 0];

@@ -16,7 +16,7 @@ export const Strike: ExtensionAuto<StrikeOptions> = (builder, opts) => {
     builder
         .addMark(strike, () => ({
             spec: {
-                parseDOM: [{tag: 'strike'}],
+                parseDOM: [{tag: 'strike'}, {tag: 's'}],
                 toDOM() {
                     return ['strike'];
                 },
