@@ -18,7 +18,7 @@ export const Underline: ExtensionAuto<UnderlineOptions> = (builder, opts) => {
         .configureMd((md) => md.use(ins))
         .addMark(underline, () => ({
             spec: {
-                parseDOM: [{tag: 'ins'}],
+                parseDOM: [{tag: 'ins'}, {tag: 'u'}],
                 toDOM() {
                     return ['ins'];
                 },

@@ -2,6 +2,7 @@ import {FILE_TOKEN} from '@doc-tools/transform/lib/plugins/file/const';
 import {builders} from 'prosemirror-test-builder';
 
 import {createMarkupChecker} from '../../../../tests/sameMarkup';
+import {parseDOM} from '../../../../tests/parse-dom';
 import {ExtensionsManager} from '../../../core';
 import {BaseNode, BaseSchema} from '../../base/BaseSchema';
 import {YfmFile} from './index';
@@ -67,6 +68,22 @@ describe('YFM File extension', () => {
                         rel: 'help',
                         target: '_top',
                         type: 'text/markdown',
+                    }),
+                ),
+            ),
+        );
+    });
+
+    it('should parse yfm-file from html', () => {
+        parseDOM(
+            schema,
+            '<div>File: <a class="yfm-file" href="path/to/readme" download="readme.md"></a><div>',
+            doc(
+                p(
+                    'File: ',
+                    file({
+                        href: 'path/to/readme',
+                        download: 'readme.md',
                     }),
                 ),
             ),

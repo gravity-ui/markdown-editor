@@ -47,7 +47,7 @@ export const BaseSchema: ExtensionAuto<BaseSchemaOptions> = (builder, opts) => {
         }))
         .addNode(BaseNode.Paragraph, () => ({
             spec: {
-                content: '(text | inline)*',
+                content: 'inline*',
                 group: 'block',
                 parseDOM: [{tag: 'p'}],
                 toDOM() {

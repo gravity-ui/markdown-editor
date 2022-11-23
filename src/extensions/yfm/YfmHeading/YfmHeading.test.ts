@@ -1,5 +1,6 @@
 import {builders} from 'prosemirror-test-builder';
 import {createMarkupChecker} from '../../../../tests/sameMarkup';
+import {parseDOM} from '../../../../tests/parse-dom';
 import {ExtensionsManager} from '../../../core';
 import {BaseNode, BaseSchema} from '../../base/BaseSchema';
 import {bold, Bold} from '../../markdown/Bold';
@@ -11,17 +12,18 @@ const {schema, parser, serializer} = new ExtensionsManager({
     options: {attrsOpts: {allowedAttributes: ['id']}},
 }).buildDeps();
 
-const {doc, b, p, h1, h2, h3, h4, h5, h6} = builders(schema, {
+const {doc, b, p, h, h1, h2, h3, h4, h5, h6} = builders(schema, {
     doc: {nodeType: BaseNode.Doc},
     b: {nodeType: bold},
     p: {nodeType: BaseNode.Paragraph},
+    h: {nodeType: heading},
     h1: {nodeType: heading, [YfmHeadingAttr.Id]: '', [YfmHeadingAttr.Level]: 1},
     h2: {nodeType: heading, [YfmHeadingAttr.Id]: '', [YfmHeadingAttr.Level]: 2},
     h3: {nodeType: heading, [YfmHeadingAttr.Id]: '', [YfmHeadingAttr.Level]: 3},
     h4: {nodeType: heading, [YfmHeadingAttr.Id]: '', [YfmHeadingAttr.Level]: 4},
     h5: {nodeType: heading, [YfmHeadingAttr.Id]: '', [YfmHeadingAttr.Level]: 5},
     h6: {nodeType: heading, [YfmHeadingAttr.Id]: '', [YfmHeadingAttr.Level]: 6},
-}) as PMTestBuilderResult<'doc' | 'p' | 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6', 'b'>;
+}) as PMTestBuilderResult<'doc' | 'p' | 'h' | 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6', 'b'>;
 
 const {same} = createMarkupChecker({parser, serializer});
 
@@ -85,6 +87,14 @@ para
                 h6({[YfmHeadingAttr.Id]: 'six'}, 'h6'),
                 p('para'),
             ),
+        );
+    });
+
+    it.each([1, 2, 3, 4, 5, 6])('should parse html - h%s tag', (lvl) => {
+        parseDOM(
+            schema,
+            `<h${lvl}>Heading ${lvl}</h${lvl}>`,
+            doc(h({[YfmHeadingAttr.Level]: lvl}, `Heading ${lvl}`)),
         );
     });
 });

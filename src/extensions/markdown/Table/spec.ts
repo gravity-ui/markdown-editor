@@ -76,6 +76,7 @@ function cellTemplate(tag: 'th' | 'td'): NodeSpec {
             {
                 tag,
                 getAttrs(dom) {
+                    if (!(dom as Element).hasAttribute(TableAttrs.CellAlign)) return null;
                     return {
                         [TableAttrs.CellAlign]: (dom as Element).getAttribute(TableAttrs.CellAlign),
                     };

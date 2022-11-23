@@ -4,6 +4,7 @@
 
 import {builders} from 'prosemirror-test-builder';
 import {createMarkupChecker} from '../../../../tests/sameMarkup';
+import {parseDOM} from '../../../../tests/parse-dom';
 import {ExtensionsManager} from '../../../core';
 import {BaseNode, BaseSchema} from '../../base/BaseSchema';
 import {CodeBlock} from './index';
@@ -39,4 +40,9 @@ describe('CodeBlock extension', () => {
             'foo\n\n```javascript\n1\n```',
             doc(p('foo'), schema.node(codeBlock, {[langAttr]: 'javascript'}, [schema.text('1\n')])),
         ));
+
+    // TODO: parsed: doc(paragraph("code\nblock"))
+    it.skip('should parse html - pre tag', () => {
+        parseDOM(schema, '<pre><code>code\nblock</code></pre>', doc(cb('code\nblock')));
+    });
 });

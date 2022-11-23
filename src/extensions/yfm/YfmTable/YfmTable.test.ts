@@ -1,14 +1,19 @@
+import {EditorState} from 'prosemirror-state';
+import {EditorView} from 'prosemirror-view';
 import {builders} from 'prosemirror-test-builder';
 import {createMarkupChecker} from '../../../../tests/sameMarkup';
+import {dispatchPasteEvent} from '../../../../tests/dispatch-event';
+import {parseDOM} from '../../../../tests/parse-dom';
 import {ExtensionsManager} from '../../../core';
 import {BaseNode, BaseSchema} from '../../base/BaseSchema';
 import {blockquote, Blockquote} from '../../markdown/Blockquote';
 import {YfmTableNode} from './const';
 import {YfmTable} from './index';
+import {fixPastedTableBodies} from './paste';
 
 const {schema, parser, serializer} = new ExtensionsManager({
     extensions: (builder) => builder.use(BaseSchema, {}).use(Blockquote, {}).use(YfmTable, {}),
-}).buildDeps();
+}).build();
 
 const {doc, p, bq, table, tbody, tr, td} = builders(schema, {
     doc: {nodeType: BaseNode.Doc},
@@ -121,5 +126,24 @@ nested table
                 ),
             ),
         );
+    });
+
+    it('should parse table from html', () => {
+        parseDOM(
+            schema,
+            '<table><tbody><tr><td>content in cell</td></tr></tbody></table>',
+            doc(table(tbody(tr(td(p('content in cell')))))),
+        );
+    });
+
+    it('should parse table from broken html', () => {
+        const text = 'content in thead content in tbody';
+        const html =
+            '<thead><tr><th>content in thead</th></tr></thead><tbody><tr><td>content in tbody</td></tr></tbody>';
+        const view = new EditorView(null, {
+            state: EditorState.create({schema}),
+            transformPasted: (slice) => fixPastedTableBodies(slice, schema),
+        });
+        dispatchPasteEvent(view, {'text/html': html, 'text/plain': text});
     });
 });

@@ -1,5 +1,6 @@
 import {builders} from 'prosemirror-test-builder';
 import {createMarkupChecker} from '../../../../tests/sameMarkup';
+import {parseDOM} from '../../../../tests/parse-dom';
 import {ExtensionsManager} from '../../../core';
 import {BaseNode, BaseSchema} from '../../base/BaseSchema';
 import {underline, Underline} from './index';
@@ -21,4 +22,12 @@ describe('Underline extension', () => {
 
     it('should parse underline inside text', () =>
         same('he++llo wor++ld!', doc(p('he', u('llo wor'), 'ld!'))));
+
+    it('should parse html - ins tag', () => {
+        parseDOM(schema, '<p><ins>underline</ins></p>', doc(p(u('underline'))));
+    });
+
+    it('should parse html - u tag', () => {
+        parseDOM(schema, '<div><u>underline</u></div>', doc(p(u('underline'))));
+    });
 });

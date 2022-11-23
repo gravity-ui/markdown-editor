@@ -1,10 +1,12 @@
 import {setBlockType} from 'prosemirror-commands';
 import {textblockTypeInputRule} from 'prosemirror-inputrules';
-import {NodeType} from 'prosemirror-model';
+import {NodeType, Slice} from 'prosemirror-model';
+import {Plugin} from 'prosemirror-state';
 import {hasParentNodeOfType} from 'prosemirror-utils';
 import type {Action, ExtensionAuto, Keymap} from '../../../core';
 import {resetCodeblock} from './commands';
 import {cbAction, cbType, codeBlock, langAttr} from './const';
+import {handlePaste} from './handle-paste';
 
 export type CodeBlockOptions = {
     codeBlockKey?: string | null;
@@ -83,6 +85,24 @@ export const CodeBlock: ExtensionAuto<CodeBlockOptions> = (builder, opts) => {
             run: cmd,
         };
     });
+
+    builder.addPlugin(
+        () =>
+            new Plugin({
+                props: {
+                    handleDOMEvents: {
+                        paste(view, e: Event) {
+                            if (handlePaste(view, e as ClipboardEvent, Slice.empty)) {
+                                e.preventDefault();
+                                return true;
+                            }
+                            return false;
+                        },
+                    },
+                },
+            }),
+        builder.Priority.High,
+    );
 };
 
 declare global {

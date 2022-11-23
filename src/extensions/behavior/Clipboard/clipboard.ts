@@ -96,6 +96,13 @@ export const clipboard = ({
                     }
 
                     if (
+                        !e.clipboardData.types.includes(DataTransferType.Yfm) &&
+                        (data = e.clipboardData.getData(DataTransferType.Html))
+                    ) {
+                        return false; // default html pasting
+                    }
+
+                    if (
                         (data = e.clipboardData.getData(DataTransferType.Yfm)) ||
                         (data = e.clipboardData.getData(DataTransferType.Text))
                     ) {

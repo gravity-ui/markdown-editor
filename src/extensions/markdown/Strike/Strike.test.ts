@@ -1,5 +1,6 @@
 import {builders} from 'prosemirror-test-builder';
 import {createMarkupChecker} from '../../../../tests/sameMarkup';
+import {parseDOM} from '../../../../tests/parse-dom';
 import {ExtensionsManager} from '../../../core';
 import {BaseNode, BaseSchema} from '../../base/BaseSchema';
 import {strike, Strike} from './index';
@@ -21,4 +22,12 @@ describe('Strike extension', () => {
 
     it('should parse strike inside text', () =>
         same('he~~llo wor~~ld!', doc(p('he', s('llo wor'), 'ld!'))));
+
+    it('should parse html - strike tag', () => {
+        parseDOM(schema, '<p><strike>strikethrough</strike></p>', doc(p(s('strikethrough'))));
+    });
+
+    it('should parse html - s tag', () => {
+        parseDOM(schema, '<div><s>strikethrough</s></div>', doc(p(s('strikethrough'))));
+    });
 });

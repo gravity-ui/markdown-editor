@@ -1,5 +1,6 @@
 import {builders} from 'prosemirror-test-builder';
 import {createMarkupChecker} from '../../../../tests/sameMarkup';
+import {parseDOM} from '../../../../tests/parse-dom';
 import {ExtensionsManager} from '../../../core';
 import {BaseNode, BaseSchema} from '../../base/BaseSchema';
 import {blockquote, Blockquote} from '../Blockquote';
@@ -87,6 +88,27 @@ describe('Table extension', () => {
                             tr(tdL('Text 4'), tdC('Text 5'), tdR('Text 6')),
                         ),
                     ),
+                ),
+            ),
+        );
+    });
+
+    it('should parse html', () => {
+        parseDOM(
+            schema,
+            '<table>' +
+                '<thead>' +
+                '<tr><th>1</th><th>2</th></tr>' +
+                '</thead>' +
+                '<tbody>' +
+                '<tr><td>3</td><td>4</td></tr>' +
+                '<tr><td>5</td><td>6</td></tr>' +
+                '</tbody>' +
+                '</tbody>',
+            doc(
+                table(
+                    thead(tr(thL('1'), thL('2'))),
+                    tbody(tr(tdL('3'), tdL('4')), tr(tdL('5'), tdL('6'))),
                 ),
             ),
         );

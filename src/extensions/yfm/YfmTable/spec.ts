@@ -10,10 +10,11 @@ export type YfmTableSpecOptions = {
 
 export const getSpec = (opts?: YfmTableSpecOptions): Record<YfmTableNode, NodeSpec> => ({
     [YfmTableNode.Table]: {
-        group: 'block',
+        group: 'block yfm-table',
         content: `${YfmTableNode.Body}`,
         isolating: true,
-        parseDOM: [{tag: 'table'}],
+        definingAsContext: true,
+        parseDOM: [{tag: 'table', priority: 200}],
         toDOM() {
             return ['table', 0];
         },
@@ -25,10 +26,14 @@ export const getSpec = (opts?: YfmTableSpecOptions): Record<YfmTableNode, NodeSp
     },
 
     [YfmTableNode.Body]: {
-        group: 'block',
+        group: 'block yfm-table',
         content: `${YfmTableNode.Row}+`,
         isolating: true,
-        parseDOM: [{tag: 'tbody'}],
+        definingAsContext: true,
+        parseDOM: [
+            {tag: 'tbody', priority: 200},
+            {tag: 'thead', priority: 200},
+        ],
         toDOM() {
             return ['tbody', 0];
         },
@@ -39,10 +44,11 @@ export const getSpec = (opts?: YfmTableSpecOptions): Record<YfmTableNode, NodeSp
     },
 
     [YfmTableNode.Row]: {
-        group: 'block',
+        group: 'block yfm-table',
         content: `${YfmTableNode.Cell}+`,
         isolating: true,
-        parseDOM: [{tag: 'tr'}],
+        definingAsContext: true,
+        parseDOM: [{tag: 'tr', priority: 200}],
         toDOM() {
             return ['tr', 0];
         },
@@ -54,10 +60,14 @@ export const getSpec = (opts?: YfmTableSpecOptions): Record<YfmTableNode, NodeSp
     },
 
     [YfmTableNode.Cell]: {
-        group: 'block',
+        group: 'block yfm-table',
         content: 'block+',
         isolating: true,
-        parseDOM: [{tag: 'td'}],
+        definingAsContext: true,
+        parseDOM: [
+            {tag: 'td', priority: 200},
+            {tag: 'th', priority: 200},
+        ],
         toDOM() {
             return ['td', 0];
         },

@@ -14,13 +14,14 @@ export const getSpec = (opts?: YfmNoteSpecOptions): Record<NoteNode, NodeSpec> =
             [NoteAttrs.Type]: {default: 'info'},
         },
         content: `${NoteNode.NoteTitle} block+`,
-        group: 'block',
+        group: 'block yfm-note',
         parseDOM: [
             {
                 tag: 'div.yfm-note',
+                priority: 100,
                 getAttrs: (node) => ({
                     [NoteAttrs.Class]: (node as Element).getAttribute(NoteAttrs.Class) || '',
-                    [NoteAttrs.Type]: (node as Element).getAttribute(NoteAttrs.Type) || '',
+                    [NoteAttrs.Type]: (node as Element).getAttribute(NoteAttrs.Type) || 'info',
                 }),
             },
         ],
@@ -35,15 +36,15 @@ export const getSpec = (opts?: YfmNoteSpecOptions): Record<NoteNode, NodeSpec> =
 
     [NoteNode.NoteTitle]: {
         content: 'text*',
-        group: 'block',
+        group: 'block yfm-note',
         parseDOM: [
             {
-                tag: 'p[yfm_block="yfm-note-title"]',
+                tag: 'p.yfm-note-title',
                 priority: 100,
             },
         ],
         toDOM() {
-            return ['p', {yfm_block: 'yfm-note-title'}, 0];
+            return ['p', {class: 'yfm-note-title'}, 0];
         },
         selectable: false,
         allowSelection: false,

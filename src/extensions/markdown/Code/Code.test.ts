@@ -1,5 +1,6 @@
 import {builders} from 'prosemirror-test-builder';
 import {createMarkupChecker} from '../../../../tests/sameMarkup';
+import {parseDOM} from '../../../../tests/parse-dom';
 import {ExtensionsManager} from '../../../core';
 import {BaseNode, BaseSchema} from '../../base/BaseSchema';
 import {bold, Bold} from '../Bold';
@@ -32,4 +33,8 @@ describe('Code extension', () => {
             'This is **strong *emphasized text with `code` in* it**',
             doc(p('This is ', b('strong ', i('emphasized text with ', c('code'), ' in'), ' it'))),
         ));
+
+    it('should parse html - code tag', () => {
+        parseDOM(schema, '<code>code inline</code>', doc(p(c('code inline'))));
+    });
 });
