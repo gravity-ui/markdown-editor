@@ -11,28 +11,13 @@ export function isInsideYfmNote(state: EditorState) {
 
 export type YfmNoteType = 'info' | 'tip' | 'alert' | 'warning';
 
-const titles = {
-    ru: {
-        info: 'Примечание',
-        tip: 'Совет',
-        alert: 'Внимание',
-        warning: 'Важно',
-    },
-    en: {
-        info: 'Note',
-        tip: 'Tip',
-        alert: 'Alert',
-        warning: 'Warning',
-    },
-};
-
 const createYfmNoteNode = (schema: Schema) => (type: YfmNoteType, content: Node | Node[]) => {
     return noteType(schema).create(
         {
             [NoteAttrs.Class]: `yfm-note yfm-accent-${type}`,
             [NoteAttrs.Type]: type,
         },
-        [noteTitleType(schema).create(null, schema.text(titles.ru[type]))].concat(content),
+        [noteTitleType(schema).createAndFill()!].concat(content),
     );
 };
 
