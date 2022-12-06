@@ -1,20 +1,23 @@
 import mathMdPlugin from 'markdown-it-katex';
-import {setBlockType} from 'prosemirror-commands';
+import {chainCommands, setBlockType} from 'prosemirror-commands';
 import {hasParentNodeOfType} from 'prosemirror-utils';
 import {Command, TextSelection} from 'prosemirror-state';
 import {textblockTypeInputRule} from 'prosemirror-inputrules';
 import type {Action, ExtensionAuto} from '../../../core';
-import {nodeTypeFactory} from '../../../utils/schema';
 import {isTextSelection} from '../../../utils/selection';
 import {inlineNodeInputRule} from '../../../utils/inputrules';
 import {mathViewAndEditPlugin} from './view-and-edit';
-import {MathNode} from './const';
+import {CLASSNAMES, mathBType, mathIType, MathNode} from './const';
+import {
+    ignoreIfCursorInsideMathInline,
+    moveCursorToEndOfMathInline,
+    removeEmptyMathInlineIfCursorIsAtBeginning,
+} from './commands';
+
+import './index.scss';
 
 export {MathNode} from './const';
 export {MathBlockNodeView, MathInlineNodeView} from './view-and-edit';
-
-const mathIType = nodeTypeFactory(MathNode.Inline);
-const mathBType = nodeTypeFactory(MathNode.Block);
 
 const mathIAction = 'addMathInline';
 const mathBAction = 'toMathBlock';
@@ -31,8 +34,14 @@ export const Math: ExtensionAuto = (builder) => {
                 inline: true,
                 marks: '',
                 code: true,
-                toDOM: () => ['span', {class: 'math-inline'}, 0],
-                parseDOM: [{tag: 'span.math-inline', priority: 200}],
+                toDOM: () => [
+                    'span',
+                    {class: CLASSNAMES.Inline.Container},
+                    ['span', {class: CLASSNAMES.Inline.Sharp, contenteditable: 'false'}, '$'],
+                    ['span', {class: CLASSNAMES.Inline.Content}, 0],
+                    ['span', {class: CLASSNAMES.Inline.Sharp, contenteditable: 'false'}, '$'],
+                ],
+                parseDOM: [{tag: `span.${CLASSNAMES.Inline.Content}`, priority: 200}],
             },
             fromYfm: {
                 tokenName: 'math_inline',
@@ -61,6 +70,15 @@ export const Math: ExtensionAuto = (builder) => {
                 state.closeBlock();
             },
         }));
+
+    builder.addKeymap(() => ({
+        Enter: ignoreIfCursorInsideMathInline, // ignore breaks in math inline
+        Backspace: chainCommands(
+            moveCursorToEndOfMathInline,
+            removeEmptyMathInlineIfCursorIsAtBeginning,
+        ),
+    }));
+
     builder.addPlugin(mathViewAndEditPlugin).addInputRules((deps) => ({
         rules: [
             textblockTypeInputRule(/^\$\$\s$/, mathBType(deps.schema)),
