@@ -9,6 +9,7 @@ import {fromYfm} from './fromYfm';
 import {getSpec, YfmCutSpecOptions} from './spec';
 import {createYfmCut, toYfmCut} from './actions/toYfmCut';
 import {backToCutTitle, exitFromCutTitle, liftEmptyBlockFromCut, removeCut} from './commands';
+import {YfmCutTitleNodeView} from './nodeviews/yfm-cut-title';
 
 const cutAction = 'toYfmCut';
 
@@ -43,6 +44,7 @@ export const YfmCut: ExtensionAuto<YfmCutOptions> = (builder, opts) => {
             fromYfm: {
                 tokenSpec: fromYfm[CutNode.CutTitle],
             },
+            view: () => (node) => new YfmCutTitleNodeView(node),
         }))
         .addNode(CutNode.CutContent, () => ({
             spec: spec[CutNode.CutContent],
