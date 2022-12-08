@@ -1,5 +1,5 @@
 import type {Node, Schema} from 'prosemirror-model';
-import {Plugin, PluginKey} from 'prosemirror-state';
+import {EditorState, Plugin, PluginKey} from 'prosemirror-state';
 import {Decoration, DecorationSet} from 'prosemirror-view';
 import {findChildren, findParentNodeClosestToPos} from 'prosemirror-utils';
 import {cn} from '../../../classname';
@@ -110,74 +110,61 @@ export const Placeholder: ExtensionAuto = (builder) => {
                     },
                 },
                 state: {
-                    init: () => ({decorations: [], hasFocus: false}),
-                    apply(_tr, _value, _oldState, state) {
-                        const globalState: ApplyGlobalState = {hasFocus: false};
-                        const decorationsMap: Record<number, Decoration | PluginKey> = {};
-                        const {selection} = state;
-                        const cursorPos = isTextSelection(selection)
-                            ? selection.$cursor?.pos
-                            : null;
-
-                        getPlaceholderPluginKeys(state.schema).forEach((f) => {
-                            // Используем find потому что при помощи него можно проитерировать по DecorationSet.
-                            f.getState(state)?.find(undefined, undefined, (spec) => {
-                                decorationsMap[spec.pos] = f;
-
-                                return false;
-                            });
-                        });
-
-                        // Рисуем плэйсхолдеры для всех нод у которых плэйсхолдер alwaysVisible
-                        const decorate = (node: Node, pos: number) => {
-                            const placeholderSpec = node.type.spec.placeholder;
-
-                            if (
-                                placeholderSpec &&
-                                placeholderSpec.alwaysVisible &&
-                                placeholderNeeded(node)
-                            ) {
-                                addDecoration(decorationsMap, node, pos, cursorPos, globalState);
-                            }
-                        };
-
-                        state.doc.descendants(decorate);
-
-                        const parentNode = findParentNodeClosestToPos(
-                            state.selection.$from,
-                            (node) => {
-                                return Boolean(node.type.spec.placeholder);
-                            },
-                        );
-
-                        const placeholderSpec = parentNode?.node.type.spec.placeholder;
-
-                        // Дорисовываем плэйсхолдер, если его нужно отрисовать на месте курсора
-                        if (
-                            parentNode &&
-                            placeholderNeeded(parentNode.node) &&
-                            placeholderSpec &&
-                            !placeholderSpec.alwaysVisible
-                        ) {
-                            addDecoration(
-                                decorationsMap,
-                                parentNode.node,
-                                parentNode.pos,
-                                cursorPos,
-                                globalState,
-                            );
-                        }
-
-                        const decorations = Object.values(decorationsMap).filter(
-                            (decoration) => !(decoration instanceof PluginKey),
-                        ) as Decoration[];
-
-                        return {decorations, hasFocus: globalState.hasFocus};
-                    },
+                    init: (_config, state) => applyState(state),
+                    apply: (_tr, _value, _oldState, state) => applyState(state),
                 },
             }),
     );
 };
+
+function applyState(state: EditorState): PlaceholderPluginState {
+    const globalState: ApplyGlobalState = {hasFocus: false};
+    const decorationsMap: Record<number, Decoration | PluginKey> = {};
+    const {selection} = state;
+    const cursorPos = isTextSelection(selection) ? selection.$cursor?.pos : null;
+
+    getPlaceholderPluginKeys(state.schema).forEach((f) => {
+        // Используем find потому что при помощи него можно проитерировать по DecorationSet.
+        f.getState(state)?.find(undefined, undefined, (spec) => {
+            decorationsMap[spec.pos] = f;
+
+            return false;
+        });
+    });
+
+    // Рисуем плэйсхолдеры для всех нод у которых плэйсхолдер alwaysVisible
+    const decorate = (node: Node, pos: number) => {
+        const placeholderSpec = node.type.spec.placeholder;
+
+        if (placeholderSpec && placeholderSpec.alwaysVisible && placeholderNeeded(node)) {
+            addDecoration(decorationsMap, node, pos, cursorPos, globalState);
+        }
+    };
+
+    state.doc.descendants(decorate);
+
+    const parentNode = findParentNodeClosestToPos(state.selection.$from, (node) => {
+        return Boolean(node.type.spec.placeholder);
+    });
+
+    const placeholderSpec = parentNode?.node.type.spec.placeholder;
+
+    // Дорисовываем плэйсхолдер, если его нужно отрисовать на месте курсора
+    if (
+        parentNode &&
+        placeholderNeeded(parentNode.node) &&
+        placeholderSpec &&
+        !placeholderSpec.alwaysVisible
+    ) {
+        addDecoration(decorationsMap, parentNode.node, parentNode.pos, cursorPos, globalState);
+    }
+
+    const decorations = Object.values(decorationsMap).filter(
+        (decoration) => !(decoration instanceof PluginKey),
+    ) as Decoration[];
+
+    return {decorations, hasFocus: globalState.hasFocus};
+}
 
 declare module 'prosemirror-model' {
     interface NodeSpec {
