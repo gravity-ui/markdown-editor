@@ -3,6 +3,7 @@
   "version": "3.3.0",
   "description": "YFM wysiwyg editor",
   "scripts": {
+    "start": "npm run storybook:start",
     "dev": "npm run storybook:start",
     "clean": "gulp clean",
     "build": "gulp",
