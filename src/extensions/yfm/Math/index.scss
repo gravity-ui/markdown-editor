@@ -1,0 +1,10 @@
+.math-inline {
+    font-family: var(--yc-font-family-monospace);
+
+    color: var(--yc-color-text-complementary);
+    background-color: var(--yc-color-base-misc);
+
+    &__sharp {
+        color: var(--yc-color-text-hint);
+    }
+}

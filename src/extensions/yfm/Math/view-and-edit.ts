@@ -1,9 +1,11 @@
 import katex from 'katex';
 import {Plugin} from 'prosemirror-state';
 import type {Node} from 'prosemirror-model';
+import {keydownHandler} from 'prosemirror-keymap';
 import {Decoration, DecorationSet, NodeView} from 'prosemirror-view';
 import {isTextSelection} from '../../../utils/selection';
-import {MathNode} from './const';
+import {moveCursorToEndOfMathInline} from './commands';
+import {CLASSNAMES, MathNode} from './const';
 
 import 'katex/dist/katex.min.css';
 import './view-and-edit.scss';
@@ -72,13 +74,32 @@ export class MathInlineNodeView extends MathNodeView {
         mathViewDOM.classList.add('math-view', 'math-inline-view');
         mathViewDOM.contentEditable = 'false';
 
-        const contentDOM = document.createElement('span');
-        contentDOM.classList.add('math-inline');
+        const mathInlineDOM = this.createMathInlineDOM();
 
         dom.appendChild(mathViewDOM);
-        dom.appendChild(contentDOM);
+        dom.appendChild(mathInlineDOM.container);
 
-        return {dom, contentDOM, mathViewDOM};
+        return {dom, contentDOM: mathInlineDOM.content, mathViewDOM};
+    }
+
+    // same as math-inline spec toDOM()
+    protected createMathInlineDOM() {
+        const container = document.createElement('span');
+        container.classList.add(CLASSNAMES.Inline.Container);
+
+        const sharpBefore = document.createElement('span');
+        sharpBefore.classList.add(CLASSNAMES.Inline.Sharp);
+        sharpBefore.contentEditable = 'false';
+        sharpBefore.textContent = '$';
+
+        const sharpAfter = sharpBefore.cloneNode(true);
+
+        const content = document.createElement('span');
+        content.classList.add(CLASSNAMES.Inline.Content);
+
+        container.replaceChildren(sharpBefore, content, sharpAfter);
+
+        return {container, content};
     }
 }
 
@@ -112,6 +133,9 @@ export const mathViewAndEditPlugin = () =>
                 [MathNode.Block]: (node) => new MathBlockNodeView(node),
                 [MathNode.Inline]: (node) => new MathInlineNodeView(node),
             },
+            handleKeyDown: keydownHandler({
+                ArrowLeft: moveCursorToEndOfMathInline,
+            }),
             decorations: (state) => {
                 const {selection} = state;
                 if (isTextSelection(selection)) {
