@@ -9,6 +9,7 @@ import {fromYfm} from './fromYfm';
 import {getSpec, YfmCutSpecOptions} from './spec';
 import {createYfmCut, toYfmCut} from './actions/toYfmCut';
 import {backToCutTitle, exitFromCutTitle, liftEmptyBlockFromCut, removeCut} from './commands';
+import {cutAutoOpenPlugin} from './plugins/auto-open';
 
 const cutAction = 'toYfmCut';
 
@@ -51,6 +52,7 @@ export const YfmCut: ExtensionAuto<YfmCutOptions> = (builder, opts) => {
                 tokenSpec: fromYfm[CutNode.CutContent],
             },
         }))
+        .addPlugin(cutAutoOpenPlugin)
         .addAction(cutAction, () => toYfmCut)
         .addKeymap(() => ({
             Backspace: chainCommands(backToCutTitle, removeCut),
