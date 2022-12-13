@@ -1,4 +1,5 @@
 import type {SerializerNodeToken} from '../../../core';
+import {getPlaceholderContent} from '../../behavior/Placeholder';
 import {NoteAttrs, NoteNode} from './const';
 
 export const toYfm: Record<NoteNode, SerializerNodeToken> = {
@@ -14,6 +15,9 @@ export const toYfm: Record<NoteNode, SerializerNodeToken> = {
             state.write('"');
             state.renderInline(node);
             state.write('"');
+        } else {
+            const placeholder = getPlaceholderContent(node);
+            if (placeholder) state.write(`"${placeholder}"`);
         }
         state.write(' %}\n');
         state.write('\n');
