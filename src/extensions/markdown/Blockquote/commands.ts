@@ -37,7 +37,7 @@ export const toggleQuote: Command = (state, dispatch) => {
     if (!isTextSelection(selection) || !selection.$cursor) return wrapIn(qType)(state, dispatch);
     const {$cursor} = selection;
     let {depth} = $cursor;
-    while (depth >= 0) {
+    while (depth > 0) {
         const node = $cursor.node(depth);
         const nodeSpec = node.type.spec;
         if (!nodeSpec.complex || nodeSpec.complex === 'root') {
