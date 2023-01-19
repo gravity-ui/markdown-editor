@@ -12,7 +12,7 @@ export const spec: Record<TabsNode, NodeSpec> = {
             tabindex: {default: 'unknown'},
         },
         marks: '',
-        content: 'inline*',
+        content: 'text*',
         group: 'block',
         parseDOM: [{tag: 'div.yfm-tab'}],
         toDOM(node) {
@@ -45,7 +45,7 @@ export const spec: Record<TabsNode, NodeSpec> = {
     [TabsNode.Tabs]: {
         allowGapCursor: true,
         attrs: {class: {default: 'unknown'}},
-        content: 'yfm_tabs_list* yfm_tab_panel*',
+        content: 'yfm_tabs_list yfm_tab_panel+',
         group: 'block',
         parseDOM: [{tag: 'div.yfm-tabs'}],
         toDOM(node) {

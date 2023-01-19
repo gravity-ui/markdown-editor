@@ -22,10 +22,10 @@ export const toYfm: Record<TabsNode, SerializerNodeToken> = {
 
         tabList.forEach((tab, _, i) => {
             state.write('- ' + tab.textContent + '\n\n');
-            state.renderList(children[i + 1], '  ', () => '  ');
+            if (children[i + 1]) state.renderList(children[i + 1], '  ', () => '  ');
         });
 
-        state.write('{% endlist %}');
+        state.write('{% endlist %}\n\n');
     },
     [TabsNode.TabsList]: (state, node) => {
         state.renderList(node, '  ', () => (node.attrs.bullet || '-') + ' ');
