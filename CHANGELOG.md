@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.4.4](https://github.com/yandex-cloud/yfm-editor/compare/v3.4.3...v3.4.4) (2023-01-23)
+
+
+### Bug Fixes
+
+* replace asterisk exports with named exports ([#55](https://github.com/yandex-cloud/yfm-editor/issues/55)) ([e46c512](https://github.com/yandex-cloud/yfm-editor/commit/e46c5129547bbfb6de989d2237e14643f46cbdd0))
+
 ## [3.4.3](https://github.com/yandex-cloud/yfm-editor/compare/v3.4.2...v3.4.3) (2023-01-23)
 
 
