@@ -5,10 +5,11 @@ import {fromYfm} from './fromYfm';
 import {spec} from './spec';
 import {toYfm} from './toYfm';
 import {createTableAction, deleteTableAction} from './actions';
+import * as TableHelpers from './helpers';
+import * as TableActions from './actions';
 
+export {TableHelpers, TableActions};
 export {TableNode, TableAttrs, CellAlign as TableCellAlign} from './const';
-export * as TableHelpers from './helpers';
-export * as TableActions from './actions';
 
 export const Table: ExtensionAuto = (builder) => {
     builder
