@@ -12,5 +12,11 @@ export {markInputRule, nodeInputRule, inlineNodeInputRule} from './utils/inputru
 export {findMark, isMarkActive} from './utils/marks';
 export {findFirstTextblockChild, isNodeEmpty, isCodeBlock, isSelectableNode} from './utils/nodes';
 export {nodeTypeFactory, markTypeFactory, isSameNodeType} from './utils/schema';
-export {isTextSelection, isNodeSelection, isWholeSelection, get$Cursor} from './utils/selection';
+export {
+    isTextSelection,
+    isNodeSelection,
+    isWholeSelection,
+    get$Cursor,
+    findSelectedNodeOfType,
+} from './utils/selection';
 export * from './table-utils';

@@ -15,6 +15,7 @@ import {fixPastedTableBodies} from './paste';
 const action = 'createYfmTable';
 
 export {YfmTableNode} from './const';
+export {convertToYfmTable} from './commands/convert-table';
 export {yfmTableType, yfmTableBodyType, yfmTableRowType, yfmTableCellType} from './utils';
 export type YfmTableOptions = YfmTableSpecOptions;
 export const YfmTable: ExtensionWithOptions<YfmTableOptions> = (builder, options) => {
