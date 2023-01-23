@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.4.3](https://github.com/yandex-cloud/yfm-editor/compare/v3.4.2...v3.4.3) (2023-01-23)
+
+
+### Bug Fixes
+
+* add missing exports from extensions ([#53](https://github.com/yandex-cloud/yfm-editor/issues/53)) ([25c3668](https://github.com/yandex-cloud/yfm-editor/commit/25c36684198d43af35156ad02cca662ff711e8da))
+
 ## [3.4.2](https://github.com/yandex-cloud/yfm-editor/compare/v3.4.1...v3.4.2) (2022-12-16)
 
 
