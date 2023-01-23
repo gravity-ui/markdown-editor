@@ -6,6 +6,8 @@ import {isCodeBlock} from '../../../utils/nodes';
 import {GapCursorSelection} from '../../behavior/Cursor/GapCursorSelection';
 import {createFakeParagraphNear} from '../../../utils/selection';
 
+export {createFakeParagraphNear};
+
 export enum Direction {
     up = 'up',
     right = 'right',

@@ -8,6 +8,13 @@ import {resetCodeblock} from './commands';
 import {cbAction, cbType, codeBlock, langAttr} from './const';
 import {handlePaste} from './handle-paste';
 
+export {resetCodeblock} from './commands';
+export {
+    codeBlock as codeBlockNodeName,
+    langAttr as codeBlockLangAttr,
+    cbType as codeBlockType,
+} from './const';
+
 export type CodeBlockOptions = {
     codeBlockKey?: string | null;
 };

@@ -6,8 +6,10 @@ import {markTypeFactory} from '../../../utils/schema';
 import {LinkActionMeta, LinkActionParams, linkCommand} from './actions';
 import {linkPasteEnhance} from './paste-plugin';
 
-export type {LinkActionParams} from './actions';
+export type {LinkActionParams, LinkActionMeta} from './actions';
+export {linkCommand} from './actions';
 export {normalizeUrlFactory} from './utils';
+export {removeLink} from './commands';
 
 export const link = 'link';
 const linkAction = 'link';
