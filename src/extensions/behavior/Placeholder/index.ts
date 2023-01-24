@@ -9,10 +9,10 @@ import {isTextSelection} from '../../../utils/selection';
 
 import './index.scss';
 
-export const getPlaceholderContent = (node: Node) => {
+export const getPlaceholderContent = (node: Node, parent?: Node | null) => {
     const content = node.type.spec.placeholder?.content || '';
 
-    return typeof content === 'function' ? content(node) : content;
+    return typeof content === 'function' ? content(node, parent) : content;
 };
 
 const getPlaceholderPluginKeys = (schema: Schema) => {
@@ -31,10 +31,10 @@ const getPlaceholderPluginKeys = (schema: Schema) => {
 
 const b = cn('placeholder');
 
-export const createPlaceholder = (node: Node, focus?: boolean) => {
+export const createPlaceholder = (node: Node, parent: Node | null, focus?: boolean) => {
     const placeholder = document.createElement('div');
     placeholder.classList.add(...b({focus}).split(' '));
-    placeholder.textContent = getPlaceholderContent(node);
+    placeholder.textContent = getPlaceholderContent(node, parent);
 
     return placeholder;
 };
@@ -55,6 +55,7 @@ const addDecoration = (
     decorationsMap: Record<number, Decoration | PluginKey>,
     node: Node,
     pos: number,
+    parent: Node | null,
     cursorPos: number | null | undefined,
     globalState: ApplyGlobalState,
 ) => {
@@ -77,7 +78,7 @@ const addDecoration = (
 
     decorationsMap[decorationPosition] = Decoration.widget(
         decorationPosition,
-        createPlaceholder(node, focus),
+        createPlaceholder(node, parent, focus),
     );
 };
 
@@ -133,11 +134,11 @@ function applyState(state: EditorState): PlaceholderPluginState {
     });
 
     // Рисуем плэйсхолдеры для всех нод у которых плэйсхолдер alwaysVisible
-    const decorate = (node: Node, pos: number) => {
+    const decorate = (node: Node, pos: number, parent: Node | null) => {
         const placeholderSpec = node.type.spec.placeholder;
 
         if (placeholderSpec && placeholderSpec.alwaysVisible && placeholderNeeded(node)) {
-            addDecoration(decorationsMap, node, pos, cursorPos, globalState);
+            addDecoration(decorationsMap, node, pos, parent, cursorPos, globalState);
         }
     };
 
@@ -156,7 +157,9 @@ function applyState(state: EditorState): PlaceholderPluginState {
         placeholderSpec &&
         !placeholderSpec.alwaysVisible
     ) {
-        addDecoration(decorationsMap, parentNode.node, parentNode.pos, cursorPos, globalState);
+        const {node, pos, depth} = parentNode;
+        const parent = depth > 0 ? state.selection.$from.node(depth - 1) : null;
+        addDecoration(decorationsMap, node, pos, parent, cursorPos, globalState);
     }
 
     const decorations = Object.values(decorationsMap).filter(
@@ -169,7 +172,7 @@ function applyState(state: EditorState): PlaceholderPluginState {
 declare module 'prosemirror-model' {
     interface NodeSpec {
         placeholder?: {
-            content: string | ((node: Node) => string);
+            content: string | ((node: Node, parent?: Node | null) => string);
             customPlugin?: PluginKey<DecorationSet>;
             alwaysVisible?: boolean;
         };
