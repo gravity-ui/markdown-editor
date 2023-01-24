@@ -4,6 +4,7 @@ import {useUpdate} from 'react-use';
 import {Button, RadioButton, TextInput} from '@gravity-ui/uikit';
 
 import {
+    BaseNode,
     BasePreset,
     BehaviorPreset,
     MarkdownBlocksPreset,
@@ -51,7 +52,15 @@ export const Playground = React.memo<PlaygroundProps>((props) => {
     const extensions = React.useMemo<Extension>(
         () => (builder) =>
             builder
-                .use(BasePreset, {})
+                .use(BasePreset, {
+                    baseSchema: {
+                        paragraphPlaceholder(_node, parent) {
+                            return parent?.type.name === BaseNode.Doc && parent.childCount === 1
+                                ? 'Now... start typing'
+                                : 'Empty paragraph';
+                        },
+                    },
+                })
                 .use(BehaviorPreset, {
                     history: {
                         undoKey: keys.undo,
