@@ -3,7 +3,7 @@ import {createToggleMarkAction} from '../../../utils/actions';
 import {markTypeFactory} from '../../../utils/schema';
 import {markInputRule} from '../../../utils/inputrules';
 import log from '@doc-tools/transform/lib/log';
-const sup = require('@doc-tools/transform/lib/plugins/sup');
+import sup from '@doc-tools/transform/lib/plugins/sup';
 
 export const superscript = 'sup';
 const supAction = 'supscript';
