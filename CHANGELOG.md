@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.5.0](https://github.com/yandex-cloud/yfm-editor/compare/v3.4.5...v3.5.0) (2023-01-24)
+
+
+### Features
+
+* **Placeholder:** pass the parent node to the placeholder's content callback ([#59](https://github.com/yandex-cloud/yfm-editor/issues/59)) ([96cf1d3](https://github.com/yandex-cloud/yfm-editor/commit/96cf1d3b741fdabe9a39de5a93c1644f33acf786))
+
 ## [3.4.5](https://github.com/yandex-cloud/yfm-editor/compare/v3.4.4...v3.4.5) (2023-01-24)
 
 
