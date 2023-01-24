@@ -2,6 +2,14 @@ import type {EditorView} from 'prosemirror-view';
 import {Fragment, Schema, Slice} from 'prosemirror-model';
 import {EditorState, Selection, Plugin} from 'prosemirror-state';
 
+// @ts-expect-error internal types
+import {__serializeForClipboard} from 'prosemirror-view';
+if (!__serializeForClipboard)
+    throw new Error('__serializeForClipboard not exported from prosemirror-view module.');
+
+type SerializeForClipboard = (view: EditorView, slice: Slice) => {dom: HTMLElement; text: string};
+const serializeForClipboard: SerializeForClipboard = __serializeForClipboard;
+
 import '../../../types/spec';
 
 import {logger} from '../../../logger';
@@ -12,13 +20,6 @@ import {BaseNode, pType} from '../../base/BaseSchema';
 
 import {isInsideCode} from './code';
 import {DataTransferType, isIosSafariShare} from './utils';
-
-type SerializeForClipboard = (view: EditorView, slice: Slice) => {dom: HTMLElement; text: string};
-const serializeForClipboard: SerializeForClipboard =
-    // missed in prosemirror-view types
-    require('prosemirror-view').__serializeForClipboard;
-if (!serializeForClipboard)
-    throw new Error('serializeForClipboard not exported from prosemirror-view module.');
 
 export type ClipboardPluginOptions = {
     yfmParser: Parser;
