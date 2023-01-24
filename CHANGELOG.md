@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.4.5](https://github.com/yandex-cloud/yfm-editor/compare/v3.4.4...v3.4.5) (2023-01-24)
+
+
+### Bug Fixes
+
+* **Clipboard:** replace require with es-import ([#57](https://github.com/yandex-cloud/yfm-editor/issues/57)) ([0347ed0](https://github.com/yandex-cloud/yfm-editor/commit/0347ed0556797670c25de9f207d8f8a68c381766))
+
 ## [3.4.4](https://github.com/yandex-cloud/yfm-editor/compare/v3.4.3...v3.4.4) (2023-01-23)
 
 
