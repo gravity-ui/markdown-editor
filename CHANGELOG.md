@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.6.0](https://github.com/yandex-cloud/yfm-editor/compare/v3.5.0...v3.6.0) (2023-01-25)
+
+
+### Features
+
+* improvements for tabs removement ([f21f6f5](https://github.com/yandex-cloud/yfm-editor/commit/f21f6f5d9818a1a8bd0faaa4f18a7c7a1008a5b6))
+
 ## [3.5.0](https://github.com/yandex-cloud/yfm-editor/compare/v3.4.5...v3.5.0) (2023-01-24)
 
 
