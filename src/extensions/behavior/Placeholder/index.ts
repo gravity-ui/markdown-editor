@@ -52,7 +52,7 @@ const placeholderNeeded = (node: Node) => {
 };
 
 const addDecoration = (
-    decorationsMap: Record<number, Decoration | PluginKey>,
+    widgetsMap: WidgetsMap,
     node: Node,
     pos: number,
     parent: Node | null,
@@ -63,10 +63,10 @@ const addDecoration = (
     const decorationPosition = pos + node.childCount + 1;
 
     // Не добавляем декорацию если на этой позиции уже есть плейсхолдер
-    if (!placeholderSpec || decorationsMap[decorationPosition]) return;
+    if (!placeholderSpec || widgetsMap[decorationPosition]) return;
 
     if (placeholderSpec.customPlugin) {
-        decorationsMap[decorationPosition] = placeholderSpec.customPlugin;
+        widgetsMap[decorationPosition] = placeholderSpec.customPlugin;
 
         return;
     }
@@ -76,18 +76,27 @@ const addDecoration = (
         globalState.hasFocus = true;
     }
 
-    decorationsMap[decorationPosition] = Decoration.widget(
-        decorationPosition,
-        createPlaceholder(node, parent, focus),
-    );
+    widgetsMap[decorationPosition] = {
+        pos: decorationPosition,
+        toDOM: createPlaceholder(node, parent, focus),
+    };
 };
 
 type ApplyGlobalState = {hasFocus: boolean};
 
+type DecoWidgetParameters = Parameters<typeof Decoration.widget>;
+type WidgetSpec = {
+    pos: DecoWidgetParameters[0];
+    toDOM: DecoWidgetParameters[1];
+    spec?: DecoWidgetParameters[2];
+};
+
 type PlaceholderPluginState = {
-    decorations: Decoration[];
+    widgets: WidgetSpec[];
     hasFocus: boolean;
 };
+
+type WidgetsMap = Record<number, WidgetSpec | PluginKey>;
 
 const pluginKey = new PluginKey<PlaceholderPluginState>('placeholder_plugin');
 
@@ -106,8 +115,13 @@ export const Placeholder: ExtensionAuto = (builder) => {
                         return attrs;
                     },
                     decorations(state) {
-                        const {decorations} = pluginKey.getState(state)!;
-                        return DecorationSet.create(state.doc, decorations);
+                        const {widgets} = pluginKey.getState(state)!;
+                        return DecorationSet.create(
+                            state.doc,
+                            widgets.map((widget) =>
+                                Decoration.widget(widget.pos, widget.toDOM, widget.spec),
+                            ),
+                        );
                     },
                 },
                 state: {
@@ -120,15 +134,14 @@ export const Placeholder: ExtensionAuto = (builder) => {
 
 function applyState(state: EditorState): PlaceholderPluginState {
     const globalState: ApplyGlobalState = {hasFocus: false};
-    const decorationsMap: Record<number, Decoration | PluginKey> = {};
+    const widgetsMap: WidgetsMap = {};
     const {selection} = state;
     const cursorPos = isTextSelection(selection) ? selection.$cursor?.pos : null;
 
     getPlaceholderPluginKeys(state.schema).forEach((f) => {
         // Используем find потому что при помощи него можно проитерировать по DecorationSet.
         f.getState(state)?.find(undefined, undefined, (spec) => {
-            decorationsMap[spec.pos] = f;
-
+            widgetsMap[spec.pos] = f;
             return false;
         });
     });
@@ -138,7 +151,7 @@ function applyState(state: EditorState): PlaceholderPluginState {
         const placeholderSpec = node.type.spec.placeholder;
 
         if (placeholderSpec && placeholderSpec.alwaysVisible && placeholderNeeded(node)) {
-            addDecoration(decorationsMap, node, pos, parent, cursorPos, globalState);
+            addDecoration(widgetsMap, node, pos, parent, cursorPos, globalState);
         }
     };
 
@@ -159,14 +172,14 @@ function applyState(state: EditorState): PlaceholderPluginState {
     ) {
         const {node, pos, depth} = parentNode;
         const parent = depth > 0 ? state.selection.$from.node(depth - 1) : null;
-        addDecoration(decorationsMap, node, pos, parent, cursorPos, globalState);
+        addDecoration(widgetsMap, node, pos, parent, cursorPos, globalState);
     }
 
-    const decorations = Object.values(decorationsMap).filter(
+    const widgets = Object.values(widgetsMap).filter(
         (decoration) => !(decoration instanceof PluginKey),
-    ) as Decoration[];
+    ) as WidgetSpec[];
 
-    return {decorations, hasFocus: globalState.hasFocus};
+    return {widgets, hasFocus: globalState.hasFocus};
 }
 
 declare module 'prosemirror-model' {
