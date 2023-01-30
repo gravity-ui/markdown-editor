@@ -5,7 +5,6 @@ import {
     findParentTable,
     findParentTableCell,
 } from '../../../../table-utils/utils';
-import {createFakeParagraphNear} from '../../../../utils/selection';
 
 export function goToNextRow(dir: 'up' | 'down'): Command {
     return (state, dispatch, view) => {
@@ -37,9 +36,7 @@ export function goToNextRow(dir: 'up' | 'down'): Command {
         const newRowIndex = rowIndex + (dir === 'up' ? -1 : 1);
 
         if (newRowIndex < 0 || newRowIndex >= allRows.length) {
-            createFakeParagraphNear(dir, parentTable)(state, dispatch);
-
-            return true;
+            return false;
         }
 
         const newRow = allRows[newRowIndex];

@@ -20,7 +20,6 @@ export const getSpec = (opts?: YfmCutSpecOptions): Record<CutNode, NodeSpec> => 
         toDOM(node) {
             return ['div', node.attrs, 0];
         },
-        allowGapCursor: true,
         selectable: true,
         allowSelection: true,
         defining: true,
