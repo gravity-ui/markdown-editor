@@ -5,6 +5,7 @@ import type {CommonEditor, ContentHandler, MarkupString} from '../common';
 import type {Extension} from './types/extension';
 import {bindActions} from './utils/actions';
 import type {Serializer} from './types/serializer';
+import type {Parser} from './types/parser';
 import {ExtensionsManager} from './ExtensionsManager';
 import type {ActionStorage} from './types/actions';
 import type {ActionsManager} from './ActionsManager';
@@ -35,11 +36,20 @@ export type YfmEditorOptions = {
 export class YfmEditor implements CommonEditor, ActionStorage {
     #view: EditorView;
     #serializer: Serializer;
+    #parser: Parser;
     #actions: ActionsManager;
     #contentHandler: ContentHandler;
 
     get dom() {
         return this.#view.dom;
+    }
+
+    get serializer() {
+        return this.#serializer;
+    }
+
+    get parser() {
+        return this.#parser;
     }
 
     get actions() {
@@ -97,6 +107,7 @@ export class YfmEditor implements CommonEditor, ActionStorage {
             bindActions<keyof YfmEditor.Actions>(rawActions)(this.#view) as YfmEditor.Actions,
         );
         this.#serializer = serializer;
+        this.#parser = parser;
         this.#contentHandler = new WysiwygContentHandler(this.#view, parser);
     }
 
