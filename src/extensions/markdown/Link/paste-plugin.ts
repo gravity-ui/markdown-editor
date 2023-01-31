@@ -7,7 +7,6 @@ import {LinkAttr, linkType} from './index';
 export function linkPasteEnhance({parser}: ExtensionDeps) {
     return new Plugin({
         props: {
-            // @ts-expect-error handleDOMEvents has broken types
             handleDOMEvents: {
                 paste(view, e): boolean {
                     const {state, dispatch} = view;
