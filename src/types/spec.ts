@@ -15,6 +15,13 @@ declare module 'prosemirror-model' {
          */
         complex?: 'root' | 'inner' | 'leaf';
         escapeText?: boolean;
+
+        /**
+         * Set `false` to disable gapcursor selection inside this node.
+         *
+         * @default true
+         */
+        gapcursor?: boolean;
     }
 
     interface MarkSpec {

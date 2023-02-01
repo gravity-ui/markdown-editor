@@ -30,7 +30,6 @@ export const getSpec = (opts?: YfmNoteSpecOptions): Record<NoteNode, NodeSpec> =
         },
         selectable: true,
         allowSelection: true,
-        allowGapCursor: true,
         complex: 'root',
     },
 

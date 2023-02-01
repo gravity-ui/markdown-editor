@@ -13,7 +13,6 @@ export const spec: Record<TableNode, NodeSpec> = {
         },
         selectable: true,
         allowSelection: true,
-        allowGapCursor: true,
         tableRole: TableRole.Table,
         complex: 'root',
     },
@@ -54,7 +53,6 @@ export const spec: Record<TableNode, NodeSpec> = {
         toDOM() {
             return ['tr', 0];
         },
-        allowGapCursor: false,
         tableRole: TableRole.Row,
         selectable: false,
         allowSelection: false,

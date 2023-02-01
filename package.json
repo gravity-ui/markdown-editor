@@ -16,6 +16,7 @@
     "lint:prettier": "prettier --check \"{src,demo}/**/*.{js,jsx,ts,tsx,css,scss}\"",
     "test": "jest",
     "test:cov": "jest --coverage",
+    "test:watch": "jest --watchAll",
     "prepublishOnly": "npm run lint && npm run build"
   },
   "repository": {
@@ -57,7 +58,7 @@
     "prosemirror-state": "1.4.1",
     "prosemirror-transform": "1.6.0",
     "prosemirror-utils": "1.0.0-0",
-    "prosemirror-view": "1.26.2",
+    "prosemirror-view": "1.30.0",
     "react-use": "^17.3.2",
     "tslib": "^2.3.1"
   },

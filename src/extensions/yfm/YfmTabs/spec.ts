@@ -43,7 +43,6 @@ export const spec: Record<TabsNode, NodeSpec> = {
     },
 
     [TabsNode.Tabs]: {
-        allowGapCursor: true,
         attrs: {class: {default: 'unknown'}},
         content: 'yfm_tabs_list yfm_tab_panel+',
         group: 'block',
@@ -53,6 +52,7 @@ export const spec: Record<TabsNode, NodeSpec> = {
         },
         complex: 'root',
     },
+
     [TabsNode.TabsList]: {
         attrs: {class: {default: 'unknown'}, role: {default: 'unknown'}},
         content: 'yfm_tab*',

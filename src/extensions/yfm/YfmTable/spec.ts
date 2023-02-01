@@ -20,7 +20,6 @@ export const getSpec = (opts?: YfmTableSpecOptions): Record<YfmTableNode, NodeSp
         },
         selectable: true,
         allowSelection: true,
-        allowGapCursor: true,
         tableRole: TableRole.Table,
         complex: 'root',
     },
@@ -52,7 +51,6 @@ export const getSpec = (opts?: YfmTableSpecOptions): Record<YfmTableNode, NodeSp
         toDOM() {
             return ['tr', 0];
         },
-        allowGapCursor: false,
         tableRole: TableRole.Row,
         selectable: false,
         allowSelection: false,

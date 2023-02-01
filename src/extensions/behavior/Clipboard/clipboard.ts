@@ -36,7 +36,6 @@ export const clipboard = ({
 }: ClipboardPluginOptions) => {
     return new Plugin({
         props: {
-            // @ts-expect-error handleDOMEvents has broken types
             handleDOMEvents: {
                 copy(view, e) {
                     if (!e.clipboardData) return false;
