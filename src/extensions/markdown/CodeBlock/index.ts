@@ -1,7 +1,7 @@
 import {setBlockType} from 'prosemirror-commands';
 import {textblockTypeInputRule} from 'prosemirror-inputrules';
-import {NodeType, Slice} from 'prosemirror-model';
-import {Plugin} from 'prosemirror-state';
+import {Fragment, NodeType, Slice} from 'prosemirror-model';
+import {Command, Plugin} from 'prosemirror-state';
 import {hasParentNodeOfType} from 'prosemirror-utils';
 import type {Action, ExtensionAuto, Keymap} from '../../../core';
 import {resetCodeblock} from './commands';
@@ -82,10 +82,23 @@ export const CodeBlock: ExtensionAuto<CodeBlockOptions> = (builder, opts) => {
     });
 
     builder.addInputRules(({schema}) => ({rules: [codeBlockRule(cbType(schema))]}));
-
-    builder.addAction(cbAction, ({schema}) => {
+    builder.addAction(cbAction, ({schema, serializer}) => {
         const cb = cbType(schema);
-        const cmd = setBlockType(cb);
+        const cmd: Command = (state, dispatch) => {
+            if (!setBlockType(cb)(state)) return false;
+            if (dispatch) {
+                const markup = serializer.serialize(
+                    Fragment.from(state.selection.content().content),
+                );
+                dispatch(
+                    state.tr.replaceSelectionWith(
+                        cb.createAndFill({}, markup ? state.schema.text(markup) : null)!,
+                    ),
+                );
+            }
+            return true;
+        };
+
         return {
             isActive: (state) => hasParentNodeOfType(cb)(state.selection),
             isEnable: cmd,
