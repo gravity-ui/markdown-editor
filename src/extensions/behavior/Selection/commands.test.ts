@@ -7,8 +7,13 @@ import {BaseNode, BaseSchema} from '../../base/BaseSchema';
 import {Blockquote, blockquote} from '../../markdown/Blockquote';
 import {CodeBlock, codeBlockNodeName} from '../../markdown/CodeBlock';
 import {YfmTable, YfmTableNode} from '../../yfm/YfmTable';
+import {GapCursorSelection} from '../Cursor/GapCursorSelection';
 
-import {Direction, findFakeParaPosForTextSelection} from './commands';
+import {
+    Direction,
+    findFakeParaPosForTextSelection,
+    findNextFakeParaPosForGapCursorSelection,
+} from './commands';
 
 const {schema} = new ExtensionsManager({
     extensions: (builder) =>
@@ -39,7 +44,7 @@ const {doc, p, bq, codeBlock, table, tbody, tr, td, testnode} = builders(schema,
 
 function shouldFindPos(doc: Node, dir: Direction, selPos: number, fakePos: number) {
     const sel = TextSelection.create(doc, selPos);
-    const $pos = findFakeParaPosForTextSelection(sel.$cursor!, dir);
+    const $pos = findFakeParaPosForTextSelection(sel, dir);
 
     expect($pos).toBeTruthy();
     expect($pos!.pos).toBe(fakePos);
@@ -47,7 +52,22 @@ function shouldFindPos(doc: Node, dir: Direction, selPos: number, fakePos: numbe
 
 function shouldReturnNull(doc: Node, dir: Direction, selPos: number) {
     const sel = TextSelection.create(doc, selPos);
-    const $pos = findFakeParaPosForTextSelection(sel.$cursor!, dir);
+    const $pos = findFakeParaPosForTextSelection(sel, dir);
+
+    expect($pos).toBeNull();
+}
+
+function shouldFindNextPos(doc: Node, dir: Direction, selPos: number, fakePos: number) {
+    const sel = new GapCursorSelection(doc.resolve(selPos));
+    const $pos = findNextFakeParaPosForGapCursorSelection(sel, dir);
+
+    expect($pos).toBeTruthy();
+    expect($pos!.pos).toBe(fakePos);
+}
+
+function shouldNotFindNextPos(doc: Node, dir: Direction, selPos: number) {
+    const sel = new GapCursorSelection(doc.resolve(selPos));
+    const $pos = findNextFakeParaPosForGapCursorSelection(sel, dir);
 
     expect($pos).toBeNull();
 }
@@ -67,29 +87,31 @@ describe('Selection arrow commands: findFakeParaPosForTextSelection', () => {
         },
     );
 
-    it.each([
-        ['before', 0],
-        ['after', 2],
-    ] as const)('should find fake paragraph position %s codeblock', (dir, fakePos) => {
-        shouldFindPos(doc(codeBlock()), dir, 1, fakePos);
+    describe('codeblock', () => {
+        it.each([
+            ['before', 0],
+            ['after', 2],
+        ] as const)('should find fake paragraph position %s codeblock', (dir, fakePos) => {
+            shouldFindPos(doc(codeBlock()), dir, 1, fakePos);
+        });
+
+        it.each(['before', 'after'] as const)(
+            'should not find fake paragraph position %s codeblock ',
+            (dir) => {
+                shouldReturnNull(doc(p(), codeBlock(), p()), dir, 3); // cursor in codeblock
+            },
+        );
+
+        it.each([
+            ['before', 3, 2],
+            ['after', 1, 2],
+        ] as const)(
+            'should find fake paragraph position between code blocks [%s]',
+            (dir, selPos, fakePos) => {
+                shouldFindPos(doc(codeBlock(), codeBlock()), dir, selPos, fakePos);
+            },
+        );
     });
-
-    it.each(['before', 'after'] as const)(
-        'should not find fake paragraph position %s codeblock ',
-        (dir) => {
-            shouldReturnNull(doc(p(), codeBlock(), p()), dir, 3); // cursor in codeblock
-        },
-    );
-
-    it.each([
-        ['before', 3, 2],
-        ['after', 1, 2],
-    ] as const)(
-        'should find fake paragraph position between code blocks [%s]',
-        (dir, selPos, fakePos) => {
-            shouldFindPos(doc(codeBlock(), codeBlock()), dir, selPos, fakePos);
-        },
-    );
 
     it.each([
         ['before', 0],
@@ -175,4 +197,47 @@ describe('Selection arrow commands: findFakeParaPosForTextSelection', () => {
     ] as const)('should skip nodes with `gapcursor: false` flag [%s]', (dir, selPos, fakePos) => {
         shouldFindPos(doc(testnode(bq(p()))), dir, selPos, fakePos);
     });
+
+    describe('pyramid of quotes', () => {
+        const initDoc = doc(bq(p('1'), bq(p('3')), p('2')));
+
+        it.each([
+            ['before', 6], // before '3'
+            ['after', 6], // before '3'
+        ] as const)('should ignore – top level', (dir, selPos) => {
+            shouldReturnNull(initDoc, dir, selPos);
+        });
+
+        it.each([
+            ['before', 2, 0], // after '1'
+            ['after', 10, 13], // after '2'
+        ] as const)('should find a position %s the base of the pyramid', (dir, selPos, fakePos) => {
+            shouldFindPos(initDoc, dir, selPos, fakePos);
+        });
+    });
+
+    describe('stack of quotes', () => {
+        const initDoc = doc(bq(bq(p('1'))));
+
+        it.each([
+            ['before', 1], // before nested quote
+            ['after', 6], // after nested quote
+        ] as const)('should find a position %s nested quote', (dir, fakePos) => {
+            shouldFindPos(initDoc, dir, 3, fakePos);
+        });
+
+        it.each([
+            ['before', 1, 0],
+            ['after', 6, 7],
+        ] as const)('should find next fake para position %s root quote', (dir, selPos, fakePos) => {
+            shouldFindNextPos(initDoc, dir, selPos, fakePos);
+        });
+    });
+
+    it.each(['before', 'after'] as const)(
+        'should not find next fake para pos if current fake pos located between two blocks [%s]',
+        (dir) => {
+            shouldNotFindNextPos(doc(bq(bq(p()), bq(p()))), dir, 5);
+        },
+    );
 });

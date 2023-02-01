@@ -1,15 +1,15 @@
-import {Node, ResolvedPos} from 'prosemirror-model';
-import type {Command, NodeSelection, Transaction} from 'prosemirror-state';
+import type {Node, ResolvedPos} from 'prosemirror-model';
+import type {Command, NodeSelection, TextSelection, Transaction} from 'prosemirror-state';
 
 import {isCodeBlock} from '../../../utils/nodes';
-import {get$Cursor, isNodeSelection} from '../../../utils/selection';
+import {isNodeSelection, isTextSelection} from '../../../utils/selection';
 
 import {GapCursorSelection, isGapCursorSelection} from '../Cursor/GapCursorSelection';
 
 export type Direction = 'before' | 'after';
 type ArrowDirection = 'up' | 'right' | 'down' | 'left';
 
-type TextSelectionFinder = ($cursor: ResolvedPos, dir: Direction) => ResolvedPos | null;
+type TextSelectionFinder = (selection: TextSelection, dir: Direction) => ResolvedPos | null;
 type NodeSelectionFinder = (selection: NodeSelection, dir: Direction) => ResolvedPos | null;
 type GapCursorSelectionFinder = (
     selection: GapCursorSelection,
@@ -31,7 +31,8 @@ function isEdgeTextblock($cursor: ResolvedPos, dir: Direction): boolean {
     return false;
 }
 
-const findNextFakeParaPosForGapCursorSelection: GapCursorSelectionFinder = ({$pos}, dir) => {
+export const findNextFakeParaPosForGapCursorSelection: GapCursorSelectionFinder = ({$pos}, dir) => {
+    if ($pos.pos !== $pos.start() && $pos.pos !== $pos.end()) return null;
     return findFakeParaPosClosestToPos($pos, $pos.depth, dir);
 };
 
@@ -55,7 +56,7 @@ export const findFakeParaPosForNodeSelection: NodeSelectionFinder = (selection, 
     return null;
 };
 
-export const findFakeParaPosForCodeBlock: TextSelectionFinder = ($cursor, dir) => {
+export const findFakeParaPosForCodeBlock = ($cursor: ResolvedPos, dir: Direction) => {
     if (!isCodeBlock($cursor.parent)) return null;
 
     let foundPos = -1;
@@ -74,7 +75,8 @@ export const findFakeParaPosForCodeBlock: TextSelectionFinder = ($cursor, dir) =
     return foundPos !== -1 ? $cursor.doc.resolve(foundPos) : null;
 };
 
-export const findFakeParaPosForTextSelection: TextSelectionFinder = ($cursor, dir) => {
+export const findFakeParaPosForTextSelection: TextSelectionFinder = (selection, dir) => {
+    const $cursor = dir === 'before' ? selection.$from : selection.$to;
     if ($cursor.parent.isInline) return null;
 
     const $pos = findFakeParaPosForCodeBlock($cursor, dir);
@@ -85,7 +87,7 @@ export const findFakeParaPosForTextSelection: TextSelectionFinder = ($cursor, di
     return findFakeParaPosClosestToPos($cursor, $cursor.depth - 1, dir);
 };
 
-function findFakeParaPosClosestToPos(
+export function findFakeParaPosClosestToPos(
     $pos: ResolvedPos,
     depth: number,
     dir: Direction,
@@ -113,6 +115,8 @@ function findFakeParaPosClosestToPos(
                 return $pos.doc.resolve($pos.after(depth));
             }
         }
+
+        return null;
     }
     return null;
 }
@@ -140,9 +144,8 @@ const arrow =
             $pos = findFakeParaPosForNodeSelection(selection, direction);
         }
 
-        const $cursor = get$Cursor(selection);
-        if ($cursor && view?.endOfTextblock(dir)) {
-            $pos = findFakeParaPosForTextSelection($cursor, direction);
+        if (isTextSelection(selection) && view?.endOfTextblock(dir)) {
+            $pos = findFakeParaPosForTextSelection(selection, direction);
         }
 
         if ($pos) {

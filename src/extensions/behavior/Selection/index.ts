@@ -1,7 +1,13 @@
 import type {ExtensionAuto} from '../../../core';
 import {selection} from './selection';
 
-export {createFakeParagraph, findFakeParaPosForCodeBlock} from './commands';
+export {
+    createFakeParagraph,
+    findFakeParaPosForNodeSelection,
+    findFakeParaPosForTextSelection,
+    findFakeParaPosForCodeBlock,
+    findFakeParaPosClosestToPos,
+} from './commands';
 
 export const Selection: ExtensionAuto = (builder) => {
     builder.addPlugin(selection);
