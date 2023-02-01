@@ -1,6 +1,6 @@
 import React from 'react';
 import {isFunction} from 'lodash';
-import {Button, HelpPopover, Icon, Menu, Popup, Tooltip} from '@gravity-ui/uikit';
+import {Button, HelpPopover, Hotkey, Icon, Menu, Popup, Tooltip} from '@gravity-ui/uikit';
 
 import chevronIcon from '../../assets/icons/ye-chevron.svg';
 import {cn} from '../classname';
@@ -97,7 +97,7 @@ export function ToolbarListButton<E>({
                                 <div className={b('item')}>
                                     {titleText}
                                     <div className={b('extra')}>
-                                        {hotkey && <div className={b('hotkey')}>{hotkey}</div>}
+                                        {hotkey && <Hotkey value={hotkey} />}
                                         {hintText && (
                                             <HelpPopover className={b('hint')} content={hintText} />
                                         )}
