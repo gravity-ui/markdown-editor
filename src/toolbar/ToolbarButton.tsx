@@ -1,11 +1,9 @@
 import React from 'react';
 import {isFunction} from 'lodash';
-import {Button, Icon, Tooltip} from '@gravity-ui/uikit';
+import {ActionTooltip, Button, Icon} from '@gravity-ui/uikit';
 import {cn} from '../classname';
 import {ToolbarTooltipDelay} from './const';
 import type {ToolbarBaseProps, ToolbarItemData} from './types';
-
-import './ToolbarButton.scss';
 
 const b = cn('toolbar-button');
 
@@ -31,15 +29,11 @@ export function ToolbarButton<E>({
     const titleText: string = isFunction(title) ? title() : title;
 
     return (
-        <Tooltip
+        <ActionTooltip
             openDelay={ToolbarTooltipDelay.Open}
             closeDelay={ToolbarTooltipDelay.Close}
-            content={
-                <>
-                    {titleText}
-                    {hotkey && <span className={b('hotkey')}>{hotkey}</span>}
-                </>
-            }
+            title={titleText}
+            hotkey={hotkey}
         >
             <Button
                 size="m"
@@ -56,6 +50,6 @@ export function ToolbarButton<E>({
             >
                 <Icon data={icon.data} size={icon.size ?? 16} />
             </Button>
-        </Tooltip>
+        </ActionTooltip>
     );
 }

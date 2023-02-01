@@ -68,7 +68,7 @@
     "@gravity-ui/prettier-config": "1.0.1",
     "@gravity-ui/stylelint-config": "1.0.1",
     "@gravity-ui/tsconfig": "1.0.0",
-    "@gravity-ui/uikit": "3.1.0",
+    "@gravity-ui/uikit": "3.18.2",
     "@storybook/addon-essentials": "6.5.10",
     "@storybook/preset-scss": "1.0.3",
     "@storybook/react": "6.5.10",
@@ -109,7 +109,7 @@
   },
   "peerDependencies": {
     "@doc-tools/transform": "^2.16.0",
-    "@gravity-ui/uikit": "^3.1.0",
+    "@gravity-ui/uikit": "^3.18.0",
     "lodash": "^4.17.20",
     "react": "^16.8.0 || ^17.0.0",
     "react-dom": "^16.8.0 || ^17.0.0"
