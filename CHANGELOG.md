@@ -1,5 +1,18 @@
 # Changelog
 
+## [4.0.0](https://github.com/yandex-cloud/yfm-editor/compare/v3.7.0...v4.0.0) (2023-02-01)
+
+
+### ⚠ BREAKING CHANGES
+
+* **toolbar:** update @gravity-ui/uikit@3.18 and use Hotkey and ActionTooltip components in Toolbar ([#66](https://github.com/yandex-cloud/yfm-editor/issues/66))
+* **Selection, Cursor:** rewrite code for fake-paragraph behaviour ([#65](https://github.com/yandex-cloud/yfm-editor/issues/65))
+
+### Features
+
+* **Selection, Cursor:** rewrite code for fake-paragraph behaviour ([#65](https://github.com/yandex-cloud/yfm-editor/issues/65)) ([991107a](https://github.com/yandex-cloud/yfm-editor/commit/991107a749d9572a414d39c4ce4af1231ee52386))
+* **toolbar:** update @gravity-ui/uikit@3.18 and use Hotkey and ActionTooltip components in Toolbar ([#66](https://github.com/yandex-cloud/yfm-editor/issues/66)) ([c67453f](https://github.com/yandex-cloud/yfm-editor/commit/c67453f2cbcafd1fced0130d1b86fa77e6613c35))
+
 ## [3.7.0](https://github.com/yandex-cloud/yfm-editor/compare/v3.6.0...v3.7.0) (2023-02-01)
 
 
