@@ -1,5 +1,18 @@
 # Changelog
 
+## [3.7.0](https://github.com/yandex-cloud/yfm-editor/compare/v3.6.0...v3.7.0) (2023-02-01)
+
+
+### Features
+
+* parser and serializer props ([190384b](https://github.com/yandex-cloud/yfm-editor/commit/190384b7b9b3aa0a90975b98a8f7d60067d7d235))
+* serialization of selection content when creating codeblock ([#67](https://github.com/yandex-cloud/yfm-editor/issues/67)) ([c170560](https://github.com/yandex-cloud/yfm-editor/commit/c170560df5f4669d9258726ca7ea273fda825dc7))
+
+
+### Bug Fixes
+
+* **Placeholder:** create new decorations on every EditorProps.decorations() call ([#62](https://github.com/yandex-cloud/yfm-editor/issues/62)) ([e6a8320](https://github.com/yandex-cloud/yfm-editor/commit/e6a83206988834565226a33ae8ef265967c8a791))
+
 ## [3.6.0](https://github.com/yandex-cloud/yfm-editor/compare/v3.5.0...v3.6.0) (2023-01-25)
 
 
