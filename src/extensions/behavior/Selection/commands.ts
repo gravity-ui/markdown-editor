@@ -98,20 +98,26 @@ export function findFakeParaPosClosestToPos(
         const index = $pos.index(depth - 1);
         const parent = $pos.node(depth - 1);
 
-        if (parent.type.spec.gapcursor === false) continue;
+        const isFirstChild = index === 0;
+        const isLastChild = index === parent.childCount - 1;
 
-        if (node.type.spec.complex === 'inner' || node.type.spec.complex === 'leaf') {
-            if (dir === 'before' && index === 0) continue;
-            if (dir === 'after' && index === parent.childCount - 1) continue;
+        const isComplexChild =
+            node.type.spec.complex === 'inner' || node.type.spec.complex === 'leaf';
+
+        const disabledGapCursor = parent.type.spec.gapcursor === false;
+
+        if (isComplexChild || disabledGapCursor) {
+            if (dir === 'before' && isFirstChild) continue;
+            if (dir === 'after' && isLastChild) continue;
             return null;
         }
 
         if (dir === 'before') {
-            if (index === 0 || !isTextblock(parent.child(index - 1))) {
+            if (isFirstChild || !isTextblock(parent.child(index - 1))) {
                 return $pos.doc.resolve($pos.before(depth));
             }
         } else if (dir === 'after') {
-            if (index === parent.childCount - 1 || !isTextblock(parent.child(index + 1))) {
+            if (isLastChild || !isTextblock(parent.child(index + 1))) {
                 return $pos.doc.resolve($pos.after(depth));
             }
         }
