@@ -15,4 +15,10 @@
         white-space: break-spaces;
         /* stylelint-enable */
     }
+
+    .yfm-cut-title {
+        /* stylelint-disable-next-line property-no-vendor-prefix */
+        -webkit-user-select: text;
+        user-select: text;
+    }
 }
