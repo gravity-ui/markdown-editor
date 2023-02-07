@@ -191,11 +191,23 @@ describe('Selection arrow commands: findFakeParaPosForTextSelection', () => {
         },
     );
 
-    it.each([
-        ['before', 3, 0],
-        ['after', 3, 6],
-    ] as const)('should skip nodes with `gapcursor: false` flag [%s]', (dir, selPos, fakePos) => {
-        shouldFindPos(doc(testnode(bq(p()))), dir, selPos, fakePos);
+    describe('gapcursor: false', () => {
+        it.each([
+            ['before', 3, 0],
+            ['after', 3, 6],
+        ] as const)(
+            'should skip nodes with `gapcursor: false` flag [%s] (1)',
+            (dir, selPos, fakePos) => {
+                shouldFindPos(doc(testnode(bq(p()))), dir, selPos, fakePos);
+            },
+        );
+
+        it.each([
+            ['before', 7],
+            ['after', 3],
+        ] as const)('should skip nodes with `gapcursor: false` flag [%s] (2)', (dir, selPos) => {
+            shouldReturnNull(doc(testnode(bq(p()), bq(p()))), dir, selPos);
+        });
     });
 
     describe('pyramid of quotes', () => {
