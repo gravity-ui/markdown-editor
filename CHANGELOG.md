@@ -1,5 +1,13 @@
 # Changelog
 
+## [4.0.1](https://github.com/yandex-cloud/yfm-editor/compare/v4.0.0...v4.0.1) (2023-02-07)
+
+
+### Bug Fixes
+
+* **Selection:** fix creation of fake cursor on edges of blocks with flag gapcursor:false ([#71](https://github.com/yandex-cloud/yfm-editor/issues/71)) ([63dcdf2](https://github.com/yandex-cloud/yfm-editor/commit/63dcdf23142b31191da27117984d834864cf0ee0))
+* **YfmCut:** allow editing of yfm-cut title ([#69](https://github.com/yandex-cloud/yfm-editor/issues/69)) ([b440844](https://github.com/yandex-cloud/yfm-editor/commit/b4408442386078be8356c3e577a51bb18771963a))
+
 ## [4.0.0](https://github.com/yandex-cloud/yfm-editor/compare/v3.7.0...v4.0.0) (2023-02-01)
 
 
