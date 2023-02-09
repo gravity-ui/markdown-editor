@@ -32,10 +32,12 @@ const getPlaceholderPluginKeys = (schema: Schema) => {
 const b = cn('placeholder');
 
 export const createPlaceholder = (node: Node, parent: Node | null, focus?: boolean) => {
+    const content = getPlaceholderContent(node, parent);
+    if (!content) return null;
+
     const placeholder = document.createElement('div');
     placeholder.classList.add(...b({focus}).split(' '));
-    placeholder.textContent = getPlaceholderContent(node, parent);
-
+    placeholder.textContent = content;
     return placeholder;
 };
 
@@ -67,18 +69,19 @@ const addDecoration = (
 
     if (placeholderSpec.customPlugin) {
         widgetsMap[decorationPosition] = placeholderSpec.customPlugin;
-
         return;
     }
 
     const focus = decorationPosition === cursorPos;
-    if (focus) {
-        globalState.hasFocus = true;
-    }
+
+    const placeholderDOM = createPlaceholder(node, parent, focus);
+    if (!placeholderDOM) return;
+
+    if (focus) globalState.hasFocus = true;
 
     widgetsMap[decorationPosition] = {
         pos: decorationPosition,
-        toDOM: createPlaceholder(node, parent, focus),
+        toDOM: placeholderDOM,
     };
 };
 
@@ -185,7 +188,7 @@ function applyState(state: EditorState): PlaceholderPluginState {
 declare module 'prosemirror-model' {
     interface NodeSpec {
         placeholder?: {
-            content: string | ((node: Node, parent?: Node | null) => string);
+            content: string | ((node: Node, parent?: Node | null) => string | null);
             customPlugin?: PluginKey<DecorationSet>;
             alwaysVisible?: boolean;
         };
