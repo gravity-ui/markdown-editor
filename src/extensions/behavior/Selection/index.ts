@@ -9,6 +9,8 @@ export {
     findFakeParaPosClosestToPos,
 } from './commands';
 
+export type {Direction as SelectionDirection} from './commands';
+
 export const Selection: ExtensionAuto = (builder) => {
     builder.addPlugin(selection);
 };
