@@ -1,5 +1,13 @@
 # Changelog
 
+## [4.1.0](https://github.com/yandex-cloud/yfm-editor/compare/v4.0.1...v4.1.0) (2023-02-09)
+
+
+### Features
+
+* add more items from Cursor and Selection extensions to root export ([#73](https://github.com/yandex-cloud/yfm-editor/issues/73)) ([8499232](https://github.com/yandex-cloud/yfm-editor/commit/8499232569e06dbd7257efa6a7ba1c58f3d16230))
+* **Placeholder:** don't render placeholder when content is null ([#72](https://github.com/yandex-cloud/yfm-editor/issues/72)) ([a91d1cd](https://github.com/yandex-cloud/yfm-editor/commit/a91d1cd9bb35611c96b157179592f02e10e1aeee))
+
 ## [4.0.1](https://github.com/yandex-cloud/yfm-editor/compare/v4.0.0...v4.0.1) (2023-02-07)
 
 
