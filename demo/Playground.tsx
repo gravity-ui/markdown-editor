@@ -57,7 +57,7 @@ export const Playground = React.memo<PlaygroundProps>((props) => {
                         paragraphPlaceholder(_node, parent) {
                             return parent?.type.name === BaseNode.Doc && parent.childCount === 1
                                 ? 'Now... start typing'
-                                : 'Empty paragraph';
+                                : null;
                         },
                     },
                 })
