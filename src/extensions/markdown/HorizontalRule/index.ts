@@ -2,6 +2,8 @@ import type {NodeType} from 'prosemirror-model';
 import {Command, NodeSelection, Selection} from 'prosemirror-state';
 import type {Action, ExtensionAuto} from '../../../core';
 import {nodeTypeFactory} from '../../../utils/schema';
+import {nodeInputRule} from '../../../utils/inputrules';
+import {pType} from '../../base/BaseSchema';
 
 export const horizontalRule = 'horizontal_rule';
 const hrAction = 'hRule';
@@ -30,6 +32,18 @@ export const HorizontalRule: ExtensionAuto = (builder) => {
             state.write(node.attrs[markupAttr]);
             state.closeBlock(node);
         },
+    }));
+
+    builder.addInputRules((deps) => ({
+        rules: [
+            // --- or ___ or *** at start of line are converted to horizontal line
+            // and add new empty paragraph after
+            nodeInputRule(
+                /^(---|___|\*\*\*)$/,
+                [hrType(deps.schema).create(), pType(deps.schema).create()],
+                1,
+            ),
+        ],
     }));
 
     builder.addAction(hrAction, ({schema}) => {

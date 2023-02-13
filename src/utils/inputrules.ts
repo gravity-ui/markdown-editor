@@ -103,7 +103,7 @@ export function markInputRule(
 
 export function nodeInputRule(
     regexp: RegExp,
-    fragment: Node | Fragment | null | undefined,
+    fragment: Node | Fragment | readonly Node[] | null | undefined,
     selectionOffset = 0,
 ): InputRule {
     return new InputRule(regexp, (state, match, start, end) => {
