@@ -1,6 +1,7 @@
 import type {Node} from 'prosemirror-model';
 import {toggleMark} from 'prosemirror-commands';
 import codemark from 'prosemirror-codemark';
+import {Plugin} from 'prosemirror-state';
 import {createToggleMarkAction} from '../../../utils/actions';
 import type {Action, ExtensionAuto} from '../../../core';
 import {markTypeFactory} from '../../../utils/schema';
@@ -56,6 +57,37 @@ export const Code: ExtensionAuto<CodeOptions> = (builder, opts) => {
         // wrap current selected text to inline_code when '`' was pressed.
         // See demo: https://curvenote.github.io/prosemirror-codemark/
         .addPlugin(({schema}) => codemark({markType: codeType(schema)}));
+
+    builder.addPlugin(
+        () =>
+            // apply codemark when typing text between ``
+            new Plugin({
+                props: {
+                    handleTextInput: (view, from, to, text) => {
+                        const {
+                            selection: {$anchor},
+                            tr,
+                            schema,
+                        } = view.state;
+                        if (
+                            $anchor.nodeBefore?.text?.endsWith('`') &&
+                            $anchor.nodeAfter?.text?.startsWith('`')
+                        ) {
+                            view.dispatch(
+                                tr.replaceRangeWith(
+                                    from - 1,
+                                    to + 1,
+                                    view.state.schema.text(text, [codeType(schema).create()]),
+                                ),
+                            );
+
+                            return true;
+                        }
+                        return false;
+                    },
+                },
+            }),
+    );
 };
 
 declare global {
