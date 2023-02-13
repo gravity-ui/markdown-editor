@@ -40,7 +40,10 @@ export const HorizontalRule: ExtensionAuto = (builder) => {
             // and add new empty paragraph after
             nodeInputRule(
                 /^(---|___|\*\*\*)$/,
-                [hrType(deps.schema).create(), pType(deps.schema).create()],
+                (markup) => [
+                    hrType(deps.schema).create({[markupAttr]: markup}),
+                    pType(deps.schema).create(),
+                ],
                 1,
             ),
         ],
