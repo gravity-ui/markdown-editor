@@ -1,5 +1,14 @@
 # Changelog
 
+## [4.2.0](https://github.com/yandex-cloud/yfm-editor/compare/v4.1.0...v4.2.0) (2023-02-15)
+
+
+### Features
+
+* apllying codemark when typing text between backticks ([#75](https://github.com/yandex-cloud/yfm-editor/issues/75)) ([50560f2](https://github.com/yandex-cloud/yfm-editor/commit/50560f2c06d827f5069ad074631431e16b215521))
+* **Clipboard:** get markup from html that has only text ([#78](https://github.com/yandex-cloud/yfm-editor/issues/78)) ([6a4628f](https://github.com/yandex-cloud/yfm-editor/commit/6a4628f6d06d14a445d507d8b2049d04c676a3ee))
+* **HorizontalRule:** add input rules for horizontal line ([#77](https://github.com/yandex-cloud/yfm-editor/issues/77)) ([d11e9e0](https://github.com/yandex-cloud/yfm-editor/commit/d11e9e037b712fc8530956978674dc4afb3e2f4b))
+
 ## [4.1.0](https://github.com/yandex-cloud/yfm-editor/compare/v4.0.1...v4.1.0) (2023-02-09)
 
 
