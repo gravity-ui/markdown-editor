@@ -33,3 +33,25 @@ export function isFilesFromHtml({types}: DataTransfer): boolean {
 export function isImageFile(file: File): boolean {
     return file.type.startsWith('image/');
 }
+
+export function extractTextContentFromHtml(html: string) {
+    const element = document.createElement('div');
+    element.innerHTML = html;
+    element.replaceChildren(...Array.from(element.children).filter((v) => v.nodeName !== 'META'));
+
+    // Look if all nodes are div or span. That they don't have any classname and have only text child.
+    if (
+        Array.from(element.children).every(({nodeName, classList, childNodes}) => {
+            return (
+                (nodeName === 'DIV' || nodeName === 'SPAN') &&
+                !classList.length &&
+                childNodes.length === 1 &&
+                (childNodes[0].nodeName === '#text' || childNodes[0].nodeName === 'BR')
+            );
+        })
+    ) {
+        return Array.from(element.children).reduce((a, v) => a + v.textContent + '\n', '');
+    }
+
+    return null;
+}

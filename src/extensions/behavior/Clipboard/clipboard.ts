@@ -19,7 +19,7 @@ import {isTextSelection, isNodeSelection, isWholeSelection} from '../../../utils
 import {BaseNode, pType} from '../../base/BaseSchema';
 
 import {isInsideCode} from './code';
-import {DataTransferType, isIosSafariShare} from './utils';
+import {DataTransferType, extractTextContentFromHtml, isIosSafariShare} from './utils';
 
 export type ClipboardPluginOptions = {
     yfmParser: Parser;
@@ -99,12 +99,31 @@ export const clipboard = ({
                         !e.clipboardData.types.includes(DataTransferType.Yfm) &&
                         (data = e.clipboardData.getData(DataTransferType.Html))
                     ) {
-                        return false; // default html pasting
+                        const textFromHtml = extractTextContentFromHtml(data);
+                        if (textFromHtml) {
+                            const res = tryCatch(() => textParser.parse(textFromHtml));
+                            if (res.success) {
+                                const docNode = res.result;
+                                const slice = getSliceFromMarkupFragment(docNode.content);
+                                view.dispatch(
+                                    trackTransactionMetrics(
+                                        view.state.tr.replaceSelection(slice),
+                                        'paste',
+                                        {clipboardDataFormat: DataTransferType.Html},
+                                    ),
+                                );
+                                isPasteHandled = true;
+                            } else {
+                                logger.error(res.error);
+                                console.error(res.error);
+                            }
+                        } else return false; // default html pasting
                     }
 
                     if (
-                        (data = e.clipboardData.getData(DataTransferType.Yfm)) ||
-                        (data = e.clipboardData.getData(DataTransferType.Text))
+                        !isPasteHandled &&
+                        ((data = e.clipboardData.getData(DataTransferType.Yfm)) ||
+                            (data = e.clipboardData.getData(DataTransferType.Text)))
                     ) {
                         let parser: Parser;
                         let dataFormat: string;
