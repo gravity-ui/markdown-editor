@@ -1,6 +1,6 @@
 import type {EditorProps} from 'prosemirror-view';
 import {DataTransferType} from '../../behavior/Clipboard/utils';
-import {cbType, langAttr} from './const';
+import {cbType, codeBlockLangAttr} from './const';
 
 export const handlePaste: NonNullable<EditorProps['handlePaste']> = (view, e) => {
     if (!e.clipboardData || view.state.selection.$from.parent.type.spec.code) return false;
@@ -8,7 +8,10 @@ export const handlePaste: NonNullable<EditorProps['handlePaste']> = (view, e) =>
     if (!code) return false;
     let tr = view.state.tr;
     const {schema} = tr.doc.type;
-    const codeBlockNode = cbType(schema).create({[langAttr]: code.mode}, schema.text(code.value));
+    const codeBlockNode = cbType(schema).create(
+        {[codeBlockLangAttr]: code.mode},
+        schema.text(code.value),
+    );
     tr = tr.replaceSelectionWith(codeBlockNode);
     view.dispatch(tr.scrollIntoView());
     return true;

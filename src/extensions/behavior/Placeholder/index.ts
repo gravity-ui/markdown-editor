@@ -6,14 +6,9 @@ import {cn} from '../../../classname';
 import type {ExtensionAuto} from '../../../core';
 import {isNodeEmpty} from '../../../utils/nodes';
 import {isTextSelection} from '../../../utils/selection';
+import {getPlaceholderContent} from '../../../utils/placeholder';
 
 import './index.scss';
-
-export const getPlaceholderContent = (node: Node, parent?: Node | null) => {
-    const content = node.type.spec.placeholder?.content || '';
-
-    return typeof content === 'function' ? content(node, parent) : content;
-};
 
 const getPlaceholderPluginKeys = (schema: Schema) => {
     const pluginKeys = [];

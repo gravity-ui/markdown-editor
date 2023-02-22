@@ -2,14 +2,15 @@ import {textblockTypeInputRule} from 'prosemirror-inputrules';
 import type {NodeType} from 'prosemirror-model';
 import type {EditorState} from 'prosemirror-state';
 import {hasParentNode} from 'prosemirror-utils';
-import {nodeTypeFactory} from '../../../utils/schema';
-import {HeadingLevel, heading, lvlAttr} from './const';
+import {HeadingLevel, headingLevelAttr} from './const';
+import {headingType} from './HeadingSpecs';
 
-export const hType = nodeTypeFactory(heading);
+/** @deprecated Use `headingType` instead */
+export const hType = headingType;
 
 export const hasParentHeading = (level: HeadingLevel) => (state: EditorState) =>
     hasParentNode((node) => {
-        return node.type === hType(state.schema) && node.attrs[lvlAttr] === level;
+        return node.type === headingType(state.schema) && node.attrs[headingLevelAttr] === level;
     })(state.selection);
 
 // Given a node type and a maximum level, creates an input rule that
@@ -20,6 +21,6 @@ export function headingRule(nodeType: NodeType, maxLevel: HeadingLevel) {
     return textblockTypeInputRule(
         new RegExp('^(#{1,' + maxLevel + '})\\s$'),
         nodeType,
-        (match) => ({[lvlAttr]: match[1].length}),
+        (match) => ({[headingLevelAttr]: match[1].length}),
     );
 }

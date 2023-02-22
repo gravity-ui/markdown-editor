@@ -1,30 +1,22 @@
 import type {Action, ExtensionAuto} from '../../../core';
 import {createToggleMarkAction} from '../../../utils/actions';
-import {markTypeFactory} from '../../../utils/schema';
 import {markInputRule} from '../../../utils/inputrules';
-const sub = require('markdown-it-sub');
+import {subscriptMarkName, SubscriptSpecs, subscriptType} from './SubscriptSpecs';
 
-export const subscript = 'sub';
+export {subscriptMarkName, subscriptType} from './SubscriptSpecs';
+/** @deprecated Use `subscriptMarkName` instead */
+export const subscript = subscriptMarkName;
 const subAction = 'subscript';
-const subType = markTypeFactory(subscript);
 
 export const Subscript: ExtensionAuto = (builder) => {
+    builder.use(SubscriptSpecs);
+
     builder
-        .configureMd((md) => md.use(sub))
-        .addMark(subscript, () => ({
-            spec: {
-                excludes: '_',
-                parseDOM: [{tag: 'sub'}],
-                toDOM() {
-                    return ['sub'];
-                },
-            },
-            toYfm: {open: '~', close: '~', mixable: false, expelEnclosingWhitespace: true},
-            fromYfm: {tokenSpec: {name: subscript, type: 'mark'}},
-        }))
-        .addAction(subAction, ({schema}) => createToggleMarkAction(subType(schema)))
+        .addAction(subAction, ({schema}) => createToggleMarkAction(subscriptType(schema)))
         .addInputRules(({schema}) => ({
-            rules: [markInputRule({open: '~', close: '~', ignoreBetween: '~'}, subType(schema))],
+            rules: [
+                markInputRule({open: '~', close: '~', ignoreBetween: '~'}, subscriptType(schema)),
+            ],
         }));
 };
 

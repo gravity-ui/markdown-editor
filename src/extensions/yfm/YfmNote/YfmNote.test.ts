@@ -2,21 +2,30 @@ import {builders} from 'prosemirror-test-builder';
 import {createMarkupChecker} from '../../../../tests/sameMarkup';
 import {parseDOM} from '../../../../tests/parse-dom';
 import {ExtensionsManager} from '../../../core';
-import {BaseNode, BaseSchema} from '../../base/BaseSchema';
-import {italic, Italic, blockquote, Blockquote} from '../../markdown';
+import {BaseNode, BaseSpecsPreset} from '../../base/specs';
+import {
+    ItalicSpecs,
+    BlockquoteSpecs,
+    italicMarkName,
+    blockquoteNodeName,
+} from '../../markdown/specs';
+import {YfmNoteSpecs} from './YfmNoteSpecs';
 import {NoteAttrs, NoteNode} from './const';
-import {YfmNote} from './index';
 
 const {schema, parser, serializer} = new ExtensionsManager({
     extensions: (builder) =>
-        builder.use(BaseSchema, {}).use(Italic, {}).use(Blockquote, {}).use(YfmNote, {}),
+        builder
+            .use(BaseSpecsPreset, {})
+            .use(ItalicSpecs)
+            .use(BlockquoteSpecs)
+            .use(YfmNoteSpecs, {}),
 }).buildDeps();
 
 const {doc, p, i, bq, note, noteTitle} = builders(schema, {
     doc: {nodeType: BaseNode.Doc},
     p: {nodeType: BaseNode.Paragraph},
-    i: {markType: italic},
-    bq: {nodeType: blockquote},
+    i: {markType: italicMarkName},
+    bq: {nodeType: blockquoteNodeName},
     note: {
         nodeType: NoteNode.Note,
         [NoteAttrs.Type]: 'info',

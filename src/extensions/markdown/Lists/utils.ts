@@ -1,12 +1,9 @@
 import {Schema} from 'prosemirror-model';
 import {EditorState} from 'prosemirror-state';
 import {findParentNodeOfType} from 'prosemirror-utils';
-import {nodeTypeFactory} from '../../../utils/schema';
-import {ListNode} from './const';
+import {blType, olType, ListNode} from './ListsSpecs';
 
-export const liType = nodeTypeFactory(ListNode.ListItem);
-export const blType = nodeTypeFactory(ListNode.BulletList);
-export const olType = nodeTypeFactory(ListNode.OrderedList);
+export {liType, blType, olType} from './ListsSpecs';
 
 export const findAnyParentList = (schema: Schema) =>
     findParentNodeOfType([blType(schema), olType(schema)]);

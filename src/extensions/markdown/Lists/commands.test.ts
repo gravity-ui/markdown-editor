@@ -1,21 +1,16 @@
-import {Schema} from 'prosemirror-model';
 import {EditorView} from 'prosemirror-view';
 import {EditorState, TextSelection} from 'prosemirror-state';
 import {builders} from 'prosemirror-test-builder';
+import {ExtensionsManager} from '../../../core';
 import {get$Cursor} from '../../../utils/selection';
-import {spec} from './spec';
+import {BaseNode, BaseSpecsPreset} from '../../base/specs';
+import {ListsSpecs} from './ListsSpecs';
 import {ListNode} from './const';
 import {liftIfCursorIsAtBeginningOfItem, moveTextblockToEndOfLastItemOfPrevList} from './commands';
 
-const schema = new Schema({
-    nodes: {
-        doc: {content: 'block+'},
-        text: {group: 'inline'},
-        paragraph: {group: 'block', content: 'text*', toDOM: () => ['p', 0]},
-        ...spec,
-    },
-    marks: {},
-});
+const {schema} = new ExtensionsManager({
+    extensions: (builder) => builder.use(BaseSpecsPreset, {}).use(ListsSpecs),
+}).buildDeps();
 
 const {
     doc,
@@ -23,7 +18,7 @@ const {
     list_item: li,
     bullet_list: bl,
     ordered_list: ol,
-} = builders(schema) as PMTestBuilderResult<'doc' | 'paragraph' | ListNode>;
+} = builders(schema) as PMTestBuilderResult<BaseNode | ListNode>;
 
 describe('Lists commands', () => {
     it.each([

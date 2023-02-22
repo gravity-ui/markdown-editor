@@ -5,20 +5,20 @@ import {createMarkupChecker} from '../../../../tests/sameMarkup';
 import {dispatchPasteEvent} from '../../../../tests/dispatch-event';
 import {parseDOM} from '../../../../tests/parse-dom';
 import {ExtensionsManager} from '../../../core';
-import {BaseNode, BaseSchema} from '../../base/BaseSchema';
-import {blockquote, Blockquote} from '../../markdown/Blockquote';
-import {YfmTableNode} from './const';
-import {YfmTable} from './index';
+import {BaseNode, BaseSpecsPreset} from '../../base/specs';
+import {blockquoteNodeName, BlockquoteSpecs} from '../../markdown/Blockquote/BlockquoteSpecs';
+import {YfmTableSpecs, YfmTableNode} from './YfmTableSpecs';
 import {fixPastedTableBodies} from './paste';
 
 const {schema, parser, serializer} = new ExtensionsManager({
-    extensions: (builder) => builder.use(BaseSchema, {}).use(Blockquote, {}).use(YfmTable, {}),
+    extensions: (builder) =>
+        builder.use(BaseSpecsPreset, {}).use(BlockquoteSpecs).use(YfmTableSpecs, {}),
 }).build();
 
 const {doc, p, bq, table, tbody, tr, td} = builders(schema, {
     doc: {nodeType: BaseNode.Doc},
     p: {nodeType: BaseNode.Paragraph},
-    bq: {nodeType: blockquote},
+    bq: {nodeType: blockquoteNodeName},
     table: {nodeType: YfmTableNode.Table},
     tbody: {nodeType: YfmTableNode.Body},
     tr: {nodeType: YfmTableNode.Row},

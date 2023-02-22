@@ -4,9 +4,9 @@ import {wrappingInputRule} from 'prosemirror-inputrules';
 import {hasParentNodeOfType} from 'prosemirror-utils';
 import type {Action, ExtensionAuto} from '../../../core';
 import {selectQuoteBeforeCursor, liftFromQuote, toggleQuote} from './commands';
-import {blockquote, bqType} from './const';
+import {BlockquoteSpecs, blockquoteType} from './BlockquoteSpecs';
 
-export {blockquote};
+export {blockquote, blockquoteNodeName, blockquoteType} from './const';
 const bqAction = 'quote';
 
 export type BlockquoteOptions = {
@@ -14,35 +14,21 @@ export type BlockquoteOptions = {
 };
 
 export const Blockquote: ExtensionAuto<BlockquoteOptions> = (builder, opts) => {
-    builder.addNode(blockquote, () => ({
-        spec: {
-            content: 'block+',
-            group: 'block',
-            defining: true,
-            parseDOM: [{tag: 'blockquote'}],
-            toDOM() {
-                return ['blockquote', 0];
-            },
-        },
-        fromYfm: {tokenSpec: {name: blockquote, type: 'block'}},
-        toYfm: (state, node) => {
-            state.wrapBlock('> ', null, node, () => state.renderContent(node));
-        },
-    }));
+    builder.use(BlockquoteSpecs);
 
     if (opts?.qouteKey) {
         const {qouteKey} = opts;
-        builder.addKeymap(({schema}) => ({[qouteKey]: wrapIn(bqType(schema))}));
+        builder.addKeymap(({schema}) => ({[qouteKey]: wrapIn(blockquoteType(schema))}));
     }
 
     builder.addKeymap(() => ({
         Backspace: chainCommands(liftFromQuote, selectQuoteBeforeCursor),
     }));
 
-    builder.addInputRules(({schema}) => ({rules: [blockQuoteRule(bqType(schema))]}));
+    builder.addInputRules(({schema}) => ({rules: [blockQuoteRule(blockquoteType(schema))]}));
 
     builder.addAction(bqAction, ({schema}) => {
-        const bq = bqType(schema);
+        const bq = blockquoteType(schema);
         return {
             isActive: (state) => hasParentNodeOfType(bq)(state.selection),
             isEnable: toggleQuote,

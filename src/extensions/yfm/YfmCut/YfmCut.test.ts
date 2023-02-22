@@ -2,21 +2,25 @@ import {builders} from 'prosemirror-test-builder';
 import {createMarkupChecker} from '../../../../tests/sameMarkup';
 import {parseDOM} from '../../../../tests/parse-dom';
 import {ExtensionsManager} from '../../../core';
-import {BaseNode, BaseSchema} from '../../base/BaseSchema';
-import {blockquote, Blockquote, italic, Italic} from '../../markdown';
-import {CutNode} from './const';
-import {YfmCut} from './index';
+import {BaseNode, BaseSpecsPreset} from '../../base/specs';
+import {
+    blockquoteNodeName,
+    BlockquoteSpecs,
+    italicMarkName,
+    ItalicSpecs,
+} from '../../markdown/specs';
+import {CutNode, YfmCutSpecs} from './YfmCutSpecs';
 
 const {schema, parser, serializer} = new ExtensionsManager({
     extensions: (builder) =>
-        builder.use(BaseSchema, {}).use(Italic, {}).use(Blockquote, {}).use(YfmCut, {}),
+        builder.use(BaseSpecsPreset, {}).use(ItalicSpecs).use(BlockquoteSpecs).use(YfmCutSpecs, {}),
 }).buildDeps();
 
 const {doc, p, i, bq, cut, cutTitle, cutContent} = builders(schema, {
     doc: {nodeType: BaseNode.Doc},
     p: {nodeType: BaseNode.Paragraph},
-    i: {markType: italic},
-    bq: {nodeType: blockquote},
+    i: {markType: italicMarkName},
+    bq: {nodeType: blockquoteNodeName},
     cut: {nodeType: CutNode.Cut},
     cutTitle: {nodeType: CutNode.CutTitle},
     cutContent: {nodeType: CutNode.CutContent},

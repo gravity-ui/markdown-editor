@@ -2,17 +2,16 @@ import {chainCommands} from 'prosemirror-commands';
 import {liftListItem, sinkListItem, splitListItem} from 'prosemirror-schema-list';
 import type {Action, ExtensionAuto, Keymap} from '../../../core';
 import {actions} from './actions';
-import {ListAction, ListNode} from './const';
-import {fromYfm} from './fromYfm';
-import {spec} from './spec';
-import {toYfm} from './toYfm';
+import {ListAction} from './const';
 import {ListsInputRulesExtension, ListsInputRulesOptions} from './inputrules';
-import {blType, liType, olType} from './utils';
+import {ListsSpecs, blType, liType, olType} from './ListsSpecs';
 import {
     moveTextblockToEndOfLastItemOfPrevList,
     liftIfCursorIsAtBeginningOfItem,
     toList,
 } from './commands';
+
+export {ListNode, blType, liType, olType} from './ListsSpecs';
 
 export type ListsOptions = {
     ulKey?: string | null;
@@ -21,22 +20,7 @@ export type ListsOptions = {
 };
 
 export const Lists: ExtensionAuto<ListsOptions> = (builder, opts) => {
-    builder
-        .addNode(ListNode.ListItem, () => ({
-            spec: spec[ListNode.ListItem],
-            toYfm: toYfm[ListNode.ListItem],
-            fromYfm: {tokenSpec: fromYfm[ListNode.ListItem]},
-        }))
-        .addNode(ListNode.BulletList, () => ({
-            spec: spec[ListNode.BulletList],
-            toYfm: toYfm[ListNode.BulletList],
-            fromYfm: {tokenSpec: fromYfm[ListNode.BulletList]},
-        }))
-        .addNode(ListNode.OrderedList, () => ({
-            spec: spec[ListNode.OrderedList],
-            toYfm: toYfm[ListNode.OrderedList],
-            fromYfm: {tokenSpec: fromYfm[ListNode.OrderedList]},
-        }));
+    builder.use(ListsSpecs);
 
     builder.addKeymap(({schema}) => {
         const {ulKey, olKey} = opts ?? {};
@@ -62,7 +46,7 @@ export const Lists: ExtensionAuto<ListsOptions> = (builder, opts) => {
                 moveTextblockToEndOfLastItemOfPrevList,
             ),
         }),
-        builder.PluginPriority.Low,
+        builder.Priority.Low,
     );
 
     builder.use(ListsInputRulesExtension, {bulletListInputRule: opts?.ulInputRules});

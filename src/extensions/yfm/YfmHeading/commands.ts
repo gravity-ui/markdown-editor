@@ -2,7 +2,7 @@ import {setBlockType} from 'prosemirror-commands';
 import type {Command} from 'prosemirror-state';
 import {findParentNodeOfType} from 'prosemirror-utils';
 import {YfmHeadingAttr, HeadingLevel} from './const';
-import {hType} from './utils';
+import {hType} from './YfmHeadingSpecs/utils';
 
 export {resetHeading} from '../../markdown/Heading/commands';
 

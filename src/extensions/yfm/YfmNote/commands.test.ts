@@ -4,7 +4,7 @@ import {EditorState, TextSelection} from 'prosemirror-state';
 import {builders} from 'prosemirror-test-builder';
 
 import {NoteNode} from './const';
-import {getSpec} from './spec';
+import {getSpec} from './YfmNoteSpecs/spec';
 import {backToNoteTitle, removeNote} from './commands';
 
 const schema = new Schema({
