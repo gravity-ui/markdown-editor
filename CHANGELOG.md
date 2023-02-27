@@ -1,5 +1,17 @@
 # Changelog
 
+## [4.3.0](https://github.com/yandex-cloud/yfm-editor/compare/v4.2.0...v4.3.0) (2023-02-27)
+
+
+### Features
+
+* move schema, parser and serializer specs to separate extensions ([#80](https://github.com/yandex-cloud/yfm-editor/issues/80)) ([38064ac](https://github.com/yandex-cloud/yfm-editor/commit/38064ac7f156cc8bf1d283b0b522818db4d73f71))
+
+
+### Bug Fixes
+
+* optimisation for large tables ([#79](https://github.com/yandex-cloud/yfm-editor/issues/79)) ([bf8d961](https://github.com/yandex-cloud/yfm-editor/commit/bf8d96122187369e58098c2821ece146013ce4f6))
+
 ## [4.2.0](https://github.com/yandex-cloud/yfm-editor/compare/v4.1.0...v4.2.0) (2023-02-15)
 
 
