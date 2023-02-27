@@ -1,5 +1,6 @@
 import type {Node, Schema} from 'prosemirror-model';
-import {EditorState, Plugin, PluginKey} from 'prosemirror-state';
+import {EditorState, Plugin, PluginKey, Transaction} from 'prosemirror-state';
+import {isEqual} from 'lodash';
 import {Decoration, DecorationSet} from 'prosemirror-view';
 import {findChildren, findParentNodeClosestToPos} from 'prosemirror-utils';
 import {cn} from '../../../classname';
@@ -82,6 +83,7 @@ const addDecoration = (
     widgetsMap[decorationPosition] = {
         pos: decorationPosition,
         toDOM: placeholderDOM,
+        spec: {focus},
     };
 };
 
@@ -94,10 +96,7 @@ type WidgetSpec = {
     spec?: DecoWidgetParameters[2];
 };
 
-type PlaceholderPluginState = {
-    widgets: WidgetSpec[];
-    hasFocus: boolean;
-};
+type PlaceholderPluginState = {decorationSet: DecorationSet; hasFocus: boolean};
 
 type WidgetsMap = Record<number, WidgetSpec | PluginKey>;
 
@@ -118,24 +117,18 @@ export const Placeholder: ExtensionAuto = (builder) => {
                         return attrs;
                     },
                     decorations(state) {
-                        const {widgets} = pluginKey.getState(state)!;
-                        return DecorationSet.create(
-                            state.doc,
-                            widgets.map((widget) =>
-                                Decoration.widget(widget.pos, widget.toDOM, widget.spec),
-                            ),
-                        );
+                        return pluginKey.getState(state)?.decorationSet;
                     },
                 },
                 state: {
-                    init: (_config, state) => applyState(state),
-                    apply: (_tr, _value, _oldState, state) => applyState(state),
+                    init: (_config, state) => initState(state),
+                    apply: applyState,
                 },
             }),
     );
 };
 
-function applyState(state: EditorState): PlaceholderPluginState {
+function getPlaceholderWidgetSpecs(state: EditorState) {
     const globalState: ApplyGlobalState = {hasFocus: false};
     const widgetsMap: WidgetsMap = {};
     const {selection} = state;
@@ -178,11 +171,60 @@ function applyState(state: EditorState): PlaceholderPluginState {
         addDecoration(widgetsMap, node, pos, parent, cursorPos, globalState);
     }
 
-    const widgets = Object.values(widgetsMap).filter(
+    const widgetSpecs = Object.values(widgetsMap).filter(
         (decoration) => !(decoration instanceof PluginKey),
     ) as WidgetSpec[];
 
-    return {widgets, hasFocus: globalState.hasFocus};
+    return {widgetSpecs, hasFocus: globalState.hasFocus};
+}
+
+function initState(state: EditorState): PlaceholderPluginState {
+    const {widgetSpecs, hasFocus} = getPlaceholderWidgetSpecs(state);
+    const decorationSet = DecorationSet.create(
+        state.doc,
+        widgetSpecs.map((widget) => Decoration.widget(widget.pos, widget.toDOM, widget.spec)),
+    );
+
+    return {decorationSet, hasFocus};
+}
+
+function applyState(
+    tr: Transaction,
+    oldPluginState: PlaceholderPluginState,
+    _oldState: EditorState,
+    newState: EditorState,
+): PlaceholderPluginState {
+    const {widgetSpecs, hasFocus} = getPlaceholderWidgetSpecs(newState);
+    const {decorationSet} = oldPluginState;
+    const oldMappedSet = decorationSet.map(tr.mapping, tr.doc);
+
+    // Find all decorations that are present in old and new set
+    const decorationsThatDidNotChange = widgetSpecs.reduce((a: Decoration[], {pos, spec}) => {
+        const deco = oldMappedSet.find(pos, pos);
+        if (deco.length && isEqual(deco[0].spec, spec)) a.push(...deco);
+        return a;
+    }, []);
+
+    // Those are decorations that are presenr only in new set
+    const newAddedDecorations = widgetSpecs.filter(
+        ({pos}) => !decorationsThatDidNotChange.map(({from}) => from).includes(pos),
+    );
+
+    // That is a set with decorations that are present in old set and absent in new set
+    const notRelevantDecorations = oldMappedSet.remove(decorationsThatDidNotChange);
+    let newSet = oldMappedSet;
+    // Remove decorations that are not present in new set
+    if (notRelevantDecorations.find().length) newSet = newSet.remove(notRelevantDecorations.find());
+    // Add new decorations
+    if (newAddedDecorations.length)
+        newSet = newSet.add(
+            tr.doc,
+            newAddedDecorations.map((widget) =>
+                Decoration.widget(widget.pos, widget.toDOM, widget.spec),
+            ),
+        );
+
+    return {decorationSet: newSet, hasFocus};
 }
 
 declare module 'prosemirror-model' {
