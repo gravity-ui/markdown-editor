@@ -1,38 +1,31 @@
 import type {NodeType} from 'prosemirror-model';
-import {Command, NodeSelection, Selection} from 'prosemirror-state';
+import type {Command, Selection} from 'prosemirror-state';
 import type {Action, ExtensionAuto} from '../../../core';
-import {nodeTypeFactory} from '../../../utils/schema';
 import {nodeInputRule} from '../../../utils/inputrules';
-import {pType} from '../../base/BaseSchema';
+import {isNodeSelection} from '../../../utils/selection';
+import {pType} from '../../base/BaseSchema/BaseSchemaSpecs';
+import {
+    horizontalRuleMarkupAttr,
+    horizontalRuleNodeName,
+    HorizontalRuleSpecs,
+    horizontalRuleType,
+} from './HorizontalRuleSpecs';
 
-export const horizontalRule = 'horizontal_rule';
+export {
+    horizontalRuleMarkupAttr,
+    horizontalRuleNodeName,
+    horizontalRuleType,
+} from './HorizontalRuleSpecs';
+/** @deprecated Use `horizontalRuleNodeName` instead */
+export const horizontalRule = horizontalRuleNodeName;
 const hrAction = 'hRule';
-export const markupAttr = 'markup';
-const hrType = nodeTypeFactory(horizontalRule);
+/** @deprecated Use `horizontalRuleMarkupAttr` instead */
+export const markupAttr = horizontalRuleMarkupAttr;
+/** @deprecated Use `horizontalRuleType` instead */
+const hrType = horizontalRuleType;
 
 export const HorizontalRule: ExtensionAuto = (builder) => {
-    builder.addNode(horizontalRule, () => ({
-        spec: {
-            attrs: {[markupAttr]: {default: '---'}},
-            group: 'block',
-            parseDOM: [{tag: 'hr'}],
-            toDOM() {
-                return ['div', ['hr']];
-            },
-        },
-        fromYfm: {
-            tokenName: 'hr',
-            tokenSpec: {
-                name: horizontalRule,
-                type: 'node',
-                getAttrs: (token) => ({[markupAttr]: token.markup}),
-            },
-        },
-        toYfm: (state, node) => {
-            state.write(node.attrs[markupAttr]);
-            state.closeBlock(node);
-        },
-    }));
+    builder.use(HorizontalRuleSpecs);
 
     builder.addInputRules((deps) => ({
         rules: [
@@ -41,7 +34,7 @@ export const HorizontalRule: ExtensionAuto = (builder) => {
             nodeInputRule(
                 /^(---|___|\*\*\*)$/,
                 (markup) => [
-                    hrType(deps.schema).create({[markupAttr]: markup}),
+                    hrType(deps.schema).create({[horizontalRuleMarkupAttr]: markup}),
                     pType(deps.schema).create(),
                 ],
                 1,
@@ -78,5 +71,5 @@ const addHr =
     };
 
 function isHrSelection(selection: Selection) {
-    return selection instanceof NodeSelection && selection.node.type.name === horizontalRule;
+    return isNodeSelection(selection) && selection.node.type.name === horizontalRuleNodeName;
 }

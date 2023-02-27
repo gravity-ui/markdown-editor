@@ -1,5 +1,4 @@
-export const heading = 'heading';
-export const lvlAttr = 'level';
+export {headingNodeName, headingLevelAttr} from './HeadingSpecs';
 
 export type HeadingLevel = 1 | 2 | 3 | 4 | 5 | 6;
 

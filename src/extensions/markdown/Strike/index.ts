@@ -1,43 +1,32 @@
 import {toggleMark} from 'prosemirror-commands';
 import type {Action, ExtensionAuto} from '../../../core';
 import {createToggleMarkAction} from '../../../utils/actions';
-import {markTypeFactory} from '../../../utils/schema';
 import {markInputRule} from '../../../utils/inputrules';
+import {strikeMarkName, StrikeSpecs, strikeType} from './StrikeSpecs';
 
-export const strike = 'strike';
+export {strikeMarkName, strikeType} from './StrikeSpecs';
+/** @deprecated Use `strikeMarkName` instead */
+export const strike = strikeMarkName;
 const sAction = 'strike';
-const sType = markTypeFactory(strike);
 
 export type StrikeOptions = {
     strikeKey?: string | null;
 };
 
 export const Strike: ExtensionAuto<StrikeOptions> = (builder, opts) => {
+    builder.use(StrikeSpecs);
+
     builder
-        .addMark(strike, () => ({
-            spec: {
-                parseDOM: [{tag: 'strike'}, {tag: 's'}],
-                toDOM() {
-                    return ['strike'];
-                },
-            },
-            fromYfm: {
-                tokenSpec: {
-                    name: strike,
-                    type: 'mark',
-                },
-                tokenName: 's',
-            },
-            toYfm: {open: '~~', close: '~~', mixable: true, expelEnclosingWhitespace: true},
-        }))
-        .addAction(sAction, ({schema}) => createToggleMarkAction(sType(schema)))
+        .addAction(sAction, ({schema}) => createToggleMarkAction(strikeType(schema)))
         .addInputRules(({schema}) => ({
-            rules: [markInputRule({open: '~~', close: '~~', ignoreBetween: '~'}, sType(schema))],
+            rules: [
+                markInputRule({open: '~~', close: '~~', ignoreBetween: '~'}, strikeType(schema)),
+            ],
         }));
 
     if (opts?.strikeKey) {
         const {strikeKey} = opts;
-        builder.addKeymap(({schema}) => ({[strikeKey]: toggleMark(sType(schema))}));
+        builder.addKeymap(({schema}) => ({[strikeKey]: toggleMark(strikeType(schema))}));
     }
 };
 

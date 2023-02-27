@@ -2,27 +2,27 @@ import {builders} from 'prosemirror-test-builder';
 import {createMarkupChecker} from '../../../../tests/sameMarkup';
 import {parseDOM} from '../../../../tests/parse-dom';
 import {ExtensionsManager} from '../../../core';
-import {BaseNode, BaseSchema} from '../../base/BaseSchema';
-import {bold, Bold} from '../../markdown/Bold';
-import {YfmHeading} from './index';
-import {heading, YfmHeadingAttr} from './const';
+import {BaseNode, BaseSpecsPreset} from '../../base/specs';
+import {boldMarkName, BoldSpecs, headingNodeName} from '../../markdown/specs';
+import {YfmHeadingSpecs, YfmHeadingAttr} from './YfmHeadingSpecs';
 
 const {schema, parser, serializer} = new ExtensionsManager({
-    extensions: (builder) => builder.use(BaseSchema, {}).use(YfmHeading, {}).use(Bold, {}),
+    extensions: (builder) =>
+        builder.use(BaseSpecsPreset, {}).use(YfmHeadingSpecs, {}).use(BoldSpecs),
     options: {attrsOpts: {allowedAttributes: ['id']}},
 }).buildDeps();
 
 const {doc, b, p, h, h1, h2, h3, h4, h5, h6} = builders(schema, {
     doc: {nodeType: BaseNode.Doc},
-    b: {nodeType: bold},
+    b: {nodeType: boldMarkName},
     p: {nodeType: BaseNode.Paragraph},
-    h: {nodeType: heading},
-    h1: {nodeType: heading, [YfmHeadingAttr.Id]: '', [YfmHeadingAttr.Level]: 1},
-    h2: {nodeType: heading, [YfmHeadingAttr.Id]: '', [YfmHeadingAttr.Level]: 2},
-    h3: {nodeType: heading, [YfmHeadingAttr.Id]: '', [YfmHeadingAttr.Level]: 3},
-    h4: {nodeType: heading, [YfmHeadingAttr.Id]: '', [YfmHeadingAttr.Level]: 4},
-    h5: {nodeType: heading, [YfmHeadingAttr.Id]: '', [YfmHeadingAttr.Level]: 5},
-    h6: {nodeType: heading, [YfmHeadingAttr.Id]: '', [YfmHeadingAttr.Level]: 6},
+    h: {nodeType: headingNodeName},
+    h1: {nodeType: headingNodeName, [YfmHeadingAttr.Id]: '', [YfmHeadingAttr.Level]: 1},
+    h2: {nodeType: headingNodeName, [YfmHeadingAttr.Id]: '', [YfmHeadingAttr.Level]: 2},
+    h3: {nodeType: headingNodeName, [YfmHeadingAttr.Id]: '', [YfmHeadingAttr.Level]: 3},
+    h4: {nodeType: headingNodeName, [YfmHeadingAttr.Id]: '', [YfmHeadingAttr.Level]: 4},
+    h5: {nodeType: headingNodeName, [YfmHeadingAttr.Id]: '', [YfmHeadingAttr.Level]: 5},
+    h6: {nodeType: headingNodeName, [YfmHeadingAttr.Id]: '', [YfmHeadingAttr.Level]: 6},
 }) as PMTestBuilderResult<'doc' | 'p' | 'h' | 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6', 'b'>;
 
 const {same} = createMarkupChecker({parser, serializer});

@@ -1,4 +1,7 @@
-import {nodeTypeFactory} from '../../../utils/schema';
+import {blockquoteNodeName, blockquoteType} from './BlockquoteSpecs';
 
-export const blockquote = 'blockquote';
-export const bqType = nodeTypeFactory(blockquote);
+export {blockquoteNodeName, blockquoteType} from './BlockquoteSpecs';
+/** @deprecated Use `blockquoteNodeName` instead */
+export const blockquote = blockquoteNodeName;
+/** @deprecated Use `blockquoteType` instead */
+export const bqType = blockquoteType;

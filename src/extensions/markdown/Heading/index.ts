@@ -1,70 +1,32 @@
-import type {Node, NodeSpec} from 'prosemirror-model';
 import {setBlockType} from 'prosemirror-commands';
 import type {Action, ExtensionAuto, Keymap} from '../../../core';
 import {headingAction} from './actions';
-import {HeadingAction, HeadingLevel, heading, lvlAttr} from './const';
+import {HeadingAction, HeadingLevel, headingLevelAttr} from './const';
 import {headingRule, hType} from './utils';
 import {resetHeading} from './commands';
+import {HeadingSpecs, HeadingSpecsOptions} from './HeadingSpecs';
 
+export {headingNodeName, headingType} from './HeadingSpecs';
 export {HeadingAction} from './const';
 export {hType} from './utils';
 
-const DEFAULT_PLACEHOLDER = (node: Node) => 'Heading ' + node.attrs[lvlAttr];
-
-export type HeadingOptions = {
+export type HeadingOptions = HeadingSpecsOptions & {
     h1Key?: string | null;
     h2Key?: string | null;
     h3Key?: string | null;
     h4Key?: string | null;
     h5Key?: string | null;
     h6Key?: string | null;
-    headingPlaceholder?: NonNullable<NodeSpec['placeholder']>['content'];
 };
 
 export const Heading: ExtensionAuto<HeadingOptions> = (builder, opts) => {
-    const {headingPlaceholder} = opts ?? {};
-
-    builder.addNode(heading, () => ({
-        spec: {
-            attrs: {[lvlAttr]: {default: 1}},
-            content: '(text | inline)*',
-            group: 'block',
-            defining: true,
-            parseDOM: [
-                {tag: 'h1', attrs: {[lvlAttr]: 1}},
-                {tag: 'h2', attrs: {[lvlAttr]: 2}},
-                {tag: 'h3', attrs: {[lvlAttr]: 3}},
-                {tag: 'h4', attrs: {[lvlAttr]: 4}},
-                {tag: 'h5', attrs: {[lvlAttr]: 5}},
-                {tag: 'h6', attrs: {[lvlAttr]: 6}},
-            ],
-            toDOM(node) {
-                return ['h' + node.attrs[lvlAttr], 0];
-            },
-            placeholder: {
-                content: headingPlaceholder ?? DEFAULT_PLACEHOLDER,
-                alwaysVisible: true,
-            },
-        },
-        fromYfm: {
-            tokenSpec: {
-                name: heading,
-                type: 'block',
-                getAttrs: (tok) => ({[lvlAttr]: Number(tok.tag.slice(1))}),
-            },
-        },
-        toYfm: (state, node) => {
-            state.write(state.repeat('#', node.attrs[lvlAttr]) + ' ');
-            state.renderInline(node);
-            state.closeBlock(node);
-        },
-    }));
+    builder.use(HeadingSpecs, opts);
 
     builder
         .addKeymap(({schema}) => {
             const {h1Key, h2Key, h3Key, h4Key, h5Key, h6Key} = opts ?? {};
             const cmd4lvl = (level: HeadingLevel) =>
-                setBlockType(hType(schema), {[lvlAttr]: level});
+                setBlockType(hType(schema), {[headingLevelAttr]: level});
 
             const bindings: Keymap = {Backspace: resetHeading};
             if (h1Key) bindings[h1Key] = cmd4lvl(1);

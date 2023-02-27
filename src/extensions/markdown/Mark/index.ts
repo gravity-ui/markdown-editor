@@ -1,40 +1,22 @@
-import type {PluginSimple} from 'markdown-it';
 import type {Action, ExtensionAuto} from '../../../core';
-import {markTypeFactory} from '../../../utils/schema';
 import {createToggleMarkAction} from '../../../utils/actions';
 import {markInputRule} from '../../../utils/inputrules';
-const mdPlugin: PluginSimple = require('markdown-it-mark');
+import {markMarkName, markMarkType, MarkSpecs} from './MarkSpecs';
 
-export const mark = 'mark';
+export {markMarkName, markMarkType} from './MarkSpecs';
+/** @deprecated Use `markMarkName` instead  */
+export const mark = markMarkName;
 const mAction = 'mark';
-const mType = markTypeFactory(mark);
 
 export const Mark: ExtensionAuto = (builder) => {
+    builder.use(MarkSpecs);
+
     builder
-        .configureMd((md) => md.use(mdPlugin))
-        .addMark(mark, () => ({
-            spec: {
-                parseDOM: [{tag: 'mark'}],
-                toDOM() {
-                    return ['mark'];
-                },
-            },
-            fromYfm: {
-                tokenSpec: {
-                    name: mark,
-                    type: 'mark',
-                },
-            },
-            toYfm: {
-                open: '==',
-                close: '==',
-                mixable: true,
-                expelEnclosingWhitespace: true,
-            },
-        }))
-        .addAction(mAction, ({schema}) => createToggleMarkAction(mType(schema)))
+        .addAction(mAction, ({schema}) => createToggleMarkAction(markMarkType(schema)))
         .addInputRules(({schema}) => ({
-            rules: [markInputRule({open: '==', close: '==', ignoreBetween: '='}, mType(schema))],
+            rules: [
+                markInputRule({open: '==', close: '==', ignoreBetween: '='}, markMarkType(schema)),
+            ],
         }));
 };
 

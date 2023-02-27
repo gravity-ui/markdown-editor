@@ -1,45 +1,25 @@
-import log from '@doc-tools/transform/lib/log';
-import yfmPlugin from '@doc-tools/transform/lib/plugins/notes';
 import {chainCommands} from 'prosemirror-commands';
 import type {Action, ExtensionAuto} from '../../../core';
-import {toYfm} from './toYfm';
-import {NoteNode} from './const';
-import {fromYfm} from './fromYfm';
-import {getSpec, YfmNoteSpecOptions} from './spec';
 import {createYfmNote, toYfmNote} from './actions/toYfmNote';
 import {nodeInputRule} from '../../../utils/inputrules';
 import {backToNoteTitle, exitFromNoteTitle, removeNote} from './commands';
 import {noteType} from './utils';
+import {YfmNoteSpecs, YfmNoteSpecsOptions} from './YfmNoteSpecs';
 
 import './index.scss';
 
 const noteAction = 'toYfmNote';
 
-export {noteType, noteTitleType} from './utils';
+export {YfmNoteNode, noteType, noteTitleType} from './YfmNoteSpecs';
 
-export type YfmNoteOptions = YfmNoteSpecOptions & {
+export type YfmNoteOptions = YfmNoteSpecsOptions & {
     yfmNoteKey?: string | null;
 };
 
 export const YfmNote: ExtensionAuto<YfmNoteOptions> = (builder, opts) => {
-    const spec = getSpec(opts);
+    builder.use(YfmNoteSpecs, opts);
 
     builder
-        .configureMd((md) => md.use(yfmPlugin, {log}))
-        .addNode(NoteNode.Note, () => ({
-            spec: spec[NoteNode.Note],
-            toYfm: toYfm[NoteNode.Note],
-            fromYfm: {
-                tokenSpec: fromYfm[NoteNode.Note],
-            },
-        }))
-        .addNode(NoteNode.NoteTitle, () => ({
-            spec: spec[NoteNode.NoteTitle],
-            toYfm: toYfm[NoteNode.NoteTitle],
-            fromYfm: {
-                tokenSpec: fromYfm[NoteNode.NoteTitle],
-            },
-        }))
         .addKeymap(() => ({
             Enter: exitFromNoteTitle,
             Backspace: chainCommands(backToNoteTitle, removeNote),

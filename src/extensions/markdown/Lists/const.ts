@@ -1,8 +1,4 @@
-export enum ListNode {
-    ListItem = 'list_item',
-    BulletList = 'bullet_list',
-    OrderedList = 'ordered_list',
-}
+export {ListNode} from './ListsSpecs';
 
 export enum ListAction {
     ToBulletList = 'toBulletList',

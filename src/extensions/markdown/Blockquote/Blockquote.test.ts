@@ -2,17 +2,17 @@ import {builders} from 'prosemirror-test-builder';
 import {createMarkupChecker} from '../../../../tests/sameMarkup';
 import {parseDOM} from '../../../../tests/parse-dom';
 import {ExtensionsManager} from '../../../core';
-import {BaseNode, BaseSchema} from '../../base/BaseSchema';
-import {blockquote, Blockquote} from './index';
+import {BaseNode, BaseSpecsPreset} from '../../base/specs';
+import {blockquoteNodeName, BlockquoteSpecs} from './BlockquoteSpecs';
 
 const {schema, parser, serializer} = new ExtensionsManager({
-    extensions: (builder) => builder.use(BaseSchema, {}).use(Blockquote, {}),
+    extensions: (builder) => builder.use(BaseSpecsPreset, {}).use(BlockquoteSpecs),
 }).buildDeps();
 
 const {doc, p, q} = builders(schema, {
     doc: {nodeType: BaseNode.Doc},
     p: {nodeType: BaseNode.Paragraph},
-    q: {nodeType: blockquote},
+    q: {nodeType: blockquoteNodeName},
 }) as PMTestBuilderResult<'doc' | 'p' | 'q'>;
 
 const {same} = createMarkupChecker({parser, serializer});

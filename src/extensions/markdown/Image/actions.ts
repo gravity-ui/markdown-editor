@@ -1,7 +1,7 @@
 import type {Schema} from 'prosemirror-model';
 import type {ActionSpec} from '../../../core';
+import {imageType} from './ImageSpecs';
 import {ImageAttr} from './const';
-import {imgType} from './utils';
 
 export type AddImageAttrs = {
     src: string;
@@ -23,7 +23,7 @@ export const addImage = (schema: Schema): ActionSpec => {
                     [ImageAttr.Alt]: alt ?? '',
                 };
 
-                dispatch(state.tr.insert(state.selection.from, imgType(schema).create(imgAttrs)));
+                dispatch(state.tr.insert(state.selection.from, imageType(schema).create(imgAttrs)));
             }
         },
     };

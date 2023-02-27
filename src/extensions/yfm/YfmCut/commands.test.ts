@@ -4,7 +4,7 @@ import {EditorState, TextSelection} from 'prosemirror-state';
 import {builders} from 'prosemirror-test-builder';
 
 import {CutNode} from './const';
-import {getSpec} from './spec';
+import {getSpec} from './YfmCutSpecs/spec';
 import {backToCutTitle, removeCut} from './commands';
 
 const schema = new Schema({

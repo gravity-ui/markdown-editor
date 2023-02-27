@@ -2,7 +2,7 @@ import isNumber from 'is-number';
 import type {Schema} from 'prosemirror-model';
 import type {ActionSpec} from '../../../core';
 import {AddImageAttrs as AddImageAttrsBase, imgType} from '../../markdown/Image';
-import {ImageAttr} from './const';
+import {ImgSizeAttr} from './const';
 
 export type AddImageAttrs = AddImageAttrsBase & {
     width?: string | number;
@@ -18,16 +18,16 @@ export const addImage = (schema: Schema): ActionSpec => {
             if (params?.src) {
                 const {src, title, alt, width, height} = params;
                 const imgAttrs: {[key: string]: string} = {
-                    [ImageAttr.Src]: src,
-                    [ImageAttr.Title]: title ?? '',
-                    [ImageAttr.Alt]: alt ?? '',
+                    [ImgSizeAttr.Src]: src,
+                    [ImgSizeAttr.Title]: title ?? '',
+                    [ImgSizeAttr.Alt]: alt ?? '',
                 };
 
                 if (isNumber(width)) {
-                    imgAttrs[ImageAttr.Width] = String(width);
+                    imgAttrs[ImgSizeAttr.Width] = String(width);
                 }
                 if (isNumber(height)) {
-                    imgAttrs[ImageAttr.Height] = String(height);
+                    imgAttrs[ImgSizeAttr.Height] = String(height);
                 }
 
                 dispatch(state.tr.insert(state.selection.from, imgType(schema).create(imgAttrs)));

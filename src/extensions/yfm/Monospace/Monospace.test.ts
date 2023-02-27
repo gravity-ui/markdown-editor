@@ -2,17 +2,17 @@ import {builders} from 'prosemirror-test-builder';
 import {createMarkupChecker} from '../../../../tests/sameMarkup';
 import {parseDOM} from '../../../../tests/parse-dom';
 import {ExtensionsManager} from '../../../core';
-import {BaseNode, BaseSchema} from '../../base/BaseSchema';
-import {monospace, Monospace} from './index';
+import {BaseNode, BaseSpecsPreset} from '../../base/specs';
+import {monospaceMarkName, MonospaceSpecs} from './MonospaceSpecs';
 
 const {schema, parser, serializer} = new ExtensionsManager({
-    extensions: (builder) => builder.use(BaseSchema, {}).use(Monospace),
+    extensions: (builder) => builder.use(BaseSpecsPreset, {}).use(MonospaceSpecs),
 }).buildDeps();
 
 const {doc, p, m} = builders(schema, {
     doc: {nodeType: BaseNode.Doc},
     p: {nodeType: BaseNode.Paragraph},
-    m: {markType: monospace},
+    m: {markType: monospaceMarkName},
 }) as PMTestBuilderResult<'doc' | 'p', 'm'>;
 
 const {same} = createMarkupChecker({parser, serializer});

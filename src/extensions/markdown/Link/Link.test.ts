@@ -1,20 +1,20 @@
 import {builders} from 'prosemirror-test-builder';
 import {createMarkupChecker} from '../../../../tests/sameMarkup';
 import {ExtensionsManager} from '../../../core';
-import {BaseNode, BaseSchema} from '../../base/BaseSchema';
-import {link, Link, LinkAttr} from './index';
+import {BaseNode, BaseSpecsPreset} from '../../base/specs';
+import {LinkSpecs, LinkAttr, linkMarkName} from './LinkSpecs';
 
 const {schema, parser, serializer} = new ExtensionsManager({
-    extensions: (builder) => builder.use(BaseSchema, {}).use(Link),
+    extensions: (builder) => builder.use(BaseSpecsPreset, {}).use(LinkSpecs),
 }).buildDeps();
 
 const {doc, p, a, lnk, lnk4} = builders(schema, {
     doc: {nodeType: BaseNode.Doc},
     p: {nodeType: BaseNode.Paragraph},
-    a: {nodeType: link},
-    lnk: {nodeType: link, [LinkAttr.Href]: 'ya.ru'},
+    a: {nodeType: linkMarkName},
+    lnk: {nodeType: linkMarkName, [LinkAttr.Href]: 'ya.ru'},
     lnk4: {
-        nodeType: link,
+        nodeType: linkMarkName,
         [LinkAttr.Href]: '4chan.org',
         [LinkAttr.Title]: '4chan',
     },

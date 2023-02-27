@@ -1,53 +1,31 @@
 import {toggleMark} from 'prosemirror-commands';
 import {createToggleMarkAction} from '../../../utils/actions';
 import type {Action, ExtensionAuto} from '../../../core';
-import {markTypeFactory} from '../../../utils/schema';
 import {markInputRule} from '../../../utils/inputrules';
+import {boldMarkName, BoldSpecs, boldType} from './BoldSpecs';
 
-export const bold = 'strong';
+export {boldMarkName, boldType} from './BoldSpecs';
+/** @deprecated Use `boldMarkName` instead */
+export const bold = boldMarkName;
 const bAction = 'bold';
-const bType = markTypeFactory(bold);
 
 export type BoldOptions = {
     boldKey?: string | null;
 };
 
 export const Bold: ExtensionAuto<BoldOptions> = (builder, opts) => {
-    builder
-        .addMark(bold, () => ({
-            spec: {
-                parseDOM: [
-                    {tag: 'b'},
-                    {tag: 'strong'},
-                    {
-                        style: 'font-weight',
-                        getAttrs: (value) =>
-                            /^(bold(er)?|[5-9]\d{2,})$/.test(value as string) && null,
-                    },
-                ],
-                toDOM() {
-                    return ['strong'];
-                },
-            },
-            fromYfm: {
-                tokenSpec: {
-                    name: bold,
-                    type: 'mark',
-                },
-            },
-            toYfm: {open: '**', close: '**', mixable: true, expelEnclosingWhitespace: true},
-        }))
-        .addAction(bAction, ({schema}) => createToggleMarkAction(bType(schema)));
+    builder.use(BoldSpecs);
+    builder.addAction(bAction, ({schema}) => createToggleMarkAction(boldType(schema)));
 
     if (opts?.boldKey) {
         const {boldKey} = opts;
-        builder.addKeymap(({schema}) => ({[boldKey]: toggleMark(bType(schema))}));
+        builder.addKeymap(({schema}) => ({[boldKey]: toggleMark(boldType(schema))}));
     }
 
     builder.addInputRules(({schema}) => ({
         rules: [
-            markInputRule({open: '**', close: '**', ignoreBetween: '*'}, bType(schema)),
-            markInputRule({open: '__', close: '__', ignoreBetween: '_'}, bType(schema)),
+            markInputRule({open: '**', close: '**', ignoreBetween: '*'}, boldType(schema)),
+            markInputRule({open: '__', close: '__', ignoreBetween: '_'}, boldType(schema)),
         ],
     }));
 };

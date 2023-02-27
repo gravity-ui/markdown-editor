@@ -1,13 +1,13 @@
 import {builders} from 'prosemirror-test-builder';
 import {createMarkupChecker} from '../../../../tests/sameMarkup';
 import {ExtensionsManager} from '../../../core';
-import {BaseNode, BaseSchema} from '../../base/BaseSchema';
-import {Video} from './index';
-import {video, VideoAttr} from './const';
-import {VideoService} from './md-video';
+import {BaseNode, BaseSpecsPreset} from '../../base/specs';
+import {VideoSpecs} from './VideoSpecs';
+import {VideoAttr, videoNodeName} from './VideoSpecs/const';
+import {VideoService} from './VideoSpecs/md-video';
 
 const {schema, parser, serializer} = new ExtensionsManager({
-    extensions: (builder) => builder.use(BaseSchema, {}).use(Video, {}),
+    extensions: (builder) => builder.use(BaseSpecsPreset, {}).use(VideoSpecs, {}),
 }).buildDeps();
 
 const {doc, p} = builders(schema, {
@@ -24,7 +24,7 @@ describe('Video extension', () => {
             doc(
                 p(
                     'YouTube ',
-                    schema.node(video, {
+                    schema.node(videoNodeName, {
                         [VideoAttr.Service]: VideoService.YouTube,
                         [VideoAttr.VideoID]: 'dQw4w9WgXcQ',
                     }),
@@ -39,7 +39,7 @@ describe('Video extension', () => {
             doc(
                 p(
                     'Vimeo ',
-                    schema.node(video, {
+                    schema.node(videoNodeName, {
                         [VideoAttr.Service]: VideoService.Vimeo,
                         [VideoAttr.VideoID]: '19706846',
                     }),
@@ -54,7 +54,7 @@ describe('Video extension', () => {
             doc(
                 p(
                     'Vine ',
-                    schema.node(video, {
+                    schema.node(videoNodeName, {
                         [VideoAttr.Service]: VideoService.Vine,
                         [VideoAttr.VideoID]: 'etVpwB7uHlw',
                     }),
@@ -69,7 +69,7 @@ describe('Video extension', () => {
             doc(
                 p(
                     'Prezi ',
-                    schema.node(video, {
+                    schema.node(videoNodeName, {
                         [VideoAttr.Service]: VideoService.Prezi,
                         [VideoAttr.VideoID]: '1kkxdtlp4241',
                     }),
@@ -84,7 +84,7 @@ describe('Video extension', () => {
             doc(
                 p(
                     'Osf ',
-                    schema.node(video, {
+                    schema.node(videoNodeName, {
                         [VideoAttr.Service]: VideoService.Osf,
                         [VideoAttr.VideoID]: 'kuvg9',
                     }),
@@ -105,27 +105,27 @@ describe('Video extension', () => {
             doc(
                 p(
                     'YouTube ',
-                    schema.node(video, {
+                    schema.node(videoNodeName, {
                         [VideoAttr.Service]: VideoService.YouTube,
                         [VideoAttr.VideoID]: 'yt-video-1',
                     }),
                     ' Vimeo ',
-                    schema.node(video, {
+                    schema.node(videoNodeName, {
                         [VideoAttr.Service]: VideoService.Vimeo,
                         [VideoAttr.VideoID]: 'vimeo-video-1',
                     }),
                     ' Vine ',
-                    schema.node(video, {
+                    schema.node(videoNodeName, {
                         [VideoAttr.Service]: VideoService.Vine,
                         [VideoAttr.VideoID]: 'vine-video-1',
                     }),
                     ' Prezi ',
-                    schema.node(video, {
+                    schema.node(videoNodeName, {
                         [VideoAttr.Service]: VideoService.Vine,
                         [VideoAttr.VideoID]: 'prezi-video-1',
                     }),
                     ' Osf ',
-                    schema.node(video, {
+                    schema.node(videoNodeName, {
                         [VideoAttr.Service]: VideoService.Osf,
                         [VideoAttr.VideoID]: 'osf-video-1',
                     }),

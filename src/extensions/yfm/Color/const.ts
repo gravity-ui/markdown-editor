@@ -1,7 +1,6 @@
-export const color = 'color';
+export * from './ColorSpecs/const';
+
 export const colorAction = 'colorify';
-export const className = 'yfm-colorify';
-export const domColorAttr = 'data-color';
 
 export enum Colors {
     Black = 'black',

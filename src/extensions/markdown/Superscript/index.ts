@@ -1,31 +1,22 @@
 import type {Action, ExtensionAuto} from '../../../core';
 import {createToggleMarkAction} from '../../../utils/actions';
-import {markTypeFactory} from '../../../utils/schema';
 import {markInputRule} from '../../../utils/inputrules';
-import log from '@doc-tools/transform/lib/log';
-import sup from '@doc-tools/transform/lib/plugins/sup';
+import {superscriptMarkName, SuperscriptSpecs, superscriptType} from './SuperscriptSpecs';
 
-export const superscript = 'sup';
+export {superscriptMarkName, superscriptType} from './SuperscriptSpecs';
+/** @deprecated Use `superscriptMarkName` instead */
+export const superscript = superscriptMarkName;
 const supAction = 'supscript';
-const supType = markTypeFactory(superscript);
 
 export const Superscript: ExtensionAuto = (builder) => {
+    builder.use(SuperscriptSpecs);
+
     builder
-        .configureMd((md) => md.use(sup, {log}))
-        .addMark(superscript, () => ({
-            spec: {
-                excludes: '_',
-                parseDOM: [{tag: 'sup'}],
-                toDOM() {
-                    return ['sup'];
-                },
-            },
-            toYfm: {open: '^', close: '^', mixable: true, expelEnclosingWhitespace: true},
-            fromYfm: {tokenSpec: {name: superscript, type: 'mark'}},
-        }))
-        .addAction(supAction, ({schema}) => createToggleMarkAction(supType(schema)))
+        .addAction(supAction, ({schema}) => createToggleMarkAction(superscriptType(schema)))
         .addInputRules(({schema}) => ({
-            rules: [markInputRule({open: '^', close: '^', ignoreBetween: '^'}, supType(schema))],
+            rules: [
+                markInputRule({open: '^', close: '^', ignoreBetween: '^'}, superscriptType(schema)),
+            ],
         }));
 };
 

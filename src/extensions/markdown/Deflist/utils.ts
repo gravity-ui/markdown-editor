@@ -1,6 +1,10 @@
-import {nodeTypeFactory} from '../../../utils/schema';
-import {DeflistNode} from './const';
+import {defDescType, defListType, defTermType} from './DeflistSpecs';
 
-export const listType = nodeTypeFactory(DeflistNode.List);
-export const termType = nodeTypeFactory(DeflistNode.Term);
-export const descType = nodeTypeFactory(DeflistNode.Desc);
+/** @deprecated Use `defListType` instead */
+export const listType = defListType;
+/** @deprecated Use `defTermType` instead */
+export const termType = defTermType;
+/** @deprecated Use `defDescType` instead */
+export const descType = defDescType;
+
+export {defDescType, defListType, defTermType} from './DeflistSpecs';

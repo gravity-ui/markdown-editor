@@ -1,17 +1,17 @@
 import {builders} from 'prosemirror-test-builder';
 import {parseDOM} from '../../../../tests/parse-dom';
 import {ExtensionsManager} from '../../../core';
-import {BaseNode, BaseSchema} from '../../base/BaseSchema';
-import {Breaks, hbType} from './index';
+import {BaseNode, BaseSpecsPreset} from '../../base/specs';
+import {BreakNodeName, BreaksSpecs} from './BreaksSpecs';
 
 const {schema} = new ExtensionsManager({
-    extensions: (builder) => builder.use(BaseSchema, {}).use(Breaks, {}),
+    extensions: (builder) => builder.use(BaseSpecsPreset, {}).use(BreaksSpecs, {}),
 }).buildDeps();
 
 const {doc, p, hb} = builders(schema, {
     doc: {nodeType: BaseNode.Doc},
     p: {nodeType: BaseNode.Paragraph},
-    hb: {nodeType: hbType(schema).name},
+    hb: {nodeType: BreakNodeName.HardBreak},
 }) as PMTestBuilderResult<'doc' | 'p' | 'hb'>;
 
 describe('Breaks extension', () => {

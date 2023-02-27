@@ -1,72 +1,24 @@
-import type {NodeSpec} from 'prosemirror-model';
 import type {Command} from 'prosemirror-state';
 import {setBlockType} from 'prosemirror-commands';
 import {hasParentNodeOfType} from 'prosemirror-utils';
 import type {Action, ExtensionAuto} from '../../../core';
-import {nodeTypeFactory} from '../../../utils/schema';
+import {BaseSchemaSpecs, BaseSchemaSpecsOptions, pType} from './BaseSchemaSpecs';
 
-export enum BaseNode {
-    Doc = 'doc',
-    Text = 'text',
-    Paragraph = 'paragraph',
-}
+export {BaseNode, pType} from './BaseSchemaSpecs';
 
-export const pType = nodeTypeFactory(BaseNode.Paragraph);
 const pAction = 'toParagraph';
 
 export const toParagraph: Command = (state, dispatch) =>
     setBlockType(pType(state.schema))(state, dispatch);
 
-export type BaseSchemaOptions = {
+export type BaseSchemaOptions = BaseSchemaSpecsOptions & {
     paragraphKey?: string | null;
-    paragraphPlaceholder?: NonNullable<NodeSpec['placeholder']>['content'];
 };
 
 export const BaseSchema: ExtensionAuto<BaseSchemaOptions> = (builder, opts) => {
-    const {paragraphKey, paragraphPlaceholder} = opts;
+    builder.use(BaseSchemaSpecs, opts);
 
-    builder
-        .addNode(BaseNode.Doc, () => ({
-            spec: {
-                content: 'block+',
-            },
-            fromYfm: {tokenSpec: {name: BaseNode.Doc, type: 'block', ignore: true}},
-            toYfm: () => {
-                throw new Error('Unexpected toYfm() call on doc node');
-            },
-        }))
-        .addNode(BaseNode.Text, () => ({
-            spec: {
-                group: 'inline',
-            },
-            fromYfm: {tokenSpec: {name: BaseNode.Text, type: 'node', ignore: true}},
-            toYfm: (state, node, parent) => {
-                const {escapeText} = parent.type.spec;
-                state.text(node.text, escapeText ?? !state.isAutolink);
-            },
-        }))
-        .addNode(BaseNode.Paragraph, () => ({
-            spec: {
-                content: 'inline*',
-                group: 'block',
-                parseDOM: [{tag: 'p'}],
-                toDOM() {
-                    return ['p', 0];
-                },
-                placeholder: paragraphPlaceholder
-                    ? {
-                          content: paragraphPlaceholder,
-                          alwaysVisible: false,
-                      }
-                    : undefined,
-            },
-            fromYfm: {tokenSpec: {name: BaseNode.Paragraph, type: 'block'}},
-            toYfm: (state, node) => {
-                state.renderInline(node);
-                state.closeBlock(node);
-            },
-        }));
-
+    const {paragraphKey} = opts;
     if (paragraphKey) {
         builder.addKeymap(({schema}) => ({[paragraphKey]: setBlockType(pType(schema))}));
     }

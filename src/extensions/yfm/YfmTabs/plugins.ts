@@ -3,7 +3,7 @@ import {findChildren, findParentNodeOfType} from 'prosemirror-utils';
 import {
     tabActiveClassname,
     tabInactiveClassname,
-    tabListType,
+    tabsListType,
     tabPanelActiveClassname,
     tabPanelInactiveClassname,
     tabPanelType,
@@ -35,7 +35,7 @@ export const tabBackspace: Command = (state, dispatch) => {
         state.selection.from === state.selection.to
     ) {
         const tabList = findChildren(tabsParentNode.node, (tabNode) => {
-            return tabNode.type.name === tabListType(state.schema).name;
+            return tabNode.type.name === tabsListType(state.schema).name;
         })[0];
         const tabToRemoveIdx = findChildIndex(tabList.node, tabToRemove.node);
 

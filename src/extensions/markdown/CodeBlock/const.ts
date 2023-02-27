@@ -1,6 +1,6 @@
-import {nodeTypeFactory} from '../../../utils/schema';
+import {codeBlockType} from './CodeBlockSpecs';
 
-export const codeBlock = 'code_block';
-export const langAttr = 'data-language';
+export {codeBlockNodeName, codeBlockLangAttr} from './CodeBlockSpecs';
 export const cbAction = 'toCodeBlock';
-export const cbType = nodeTypeFactory(codeBlock);
+/** @deprecated Use `codeBlockType` instead */
+export const cbType = codeBlockType;

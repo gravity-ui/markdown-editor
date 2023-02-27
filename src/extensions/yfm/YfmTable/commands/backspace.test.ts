@@ -4,7 +4,7 @@ import {builders} from 'prosemirror-test-builder';
 
 import {applyCommand} from '../../../../../tests/utils';
 
-import {getSpec} from '../spec';
+import {getSpec} from '../YfmTableSpecs/spec';
 import {clearSelectedCells} from './backspace';
 
 const schema = new Schema({
