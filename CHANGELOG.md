@@ -5,6 +5,7 @@
 
 ### Features
 
+* **deps:** support uikit@4 ([#82](https://github.com/yandex-cloud/yfm-editor/issues/82)) ([1964b59](https://github.com/yandex-cloud/yfm-editor/commit/1964b59602efca99aa1c86b948dd7fc8589c2171))
 * **deps:** support react@18 ([#83](https://github.com/yandex-cloud/yfm-editor/issues/83)) ([f77b68b](https://github.com/yandex-cloud/yfm-editor/commit/f77b68b758e669709f185315dca5b5b7ba77d396))
 
 ## [4.3.0](https://github.com/yandex-cloud/yfm-editor/compare/v4.2.0...v4.3.0) (2023-02-27)
