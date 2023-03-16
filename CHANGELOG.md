@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.4.1](https://github.com/yandex-cloud/yfm-editor/compare/v4.4.0...v4.4.1) (2023-03-16)
+
+
+### Bug Fixes
+
+* support react18 strict mode ([#85](https://github.com/yandex-cloud/yfm-editor/issues/85)) ([03832d6](https://github.com/yandex-cloud/yfm-editor/commit/03832d6a9fd5b89c43cca4f2ff093e828950beaa))
+
 ## [4.4.0](https://github.com/yandex-cloud/yfm-editor/compare/v4.3.0...v4.4.0) (2023-03-13)
 
 
