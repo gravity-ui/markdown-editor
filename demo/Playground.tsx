@@ -43,7 +43,7 @@ logger.setLogger({
     ...console,
 });
 
-export const Playground = React.memo<PlaygroundProps>((props) => {
+const Playground = React.memo<PlaygroundProps>((props) => {
     const {initial, allowHTML, breaks, linkify, linkifyTlds} = props;
     const [previewType, setPreviewType] = React.useState<string>(PreviewType.Markup);
     const [yfmRaw, setYfmRaw] = React.useState<MarkupString>(initial || '');
@@ -199,8 +199,16 @@ export const Playground = React.memo<PlaygroundProps>((props) => {
         </div>
     );
 });
-
 Playground.displayName = 'Playground';
+
+const PlaygroundStrict: React.FC<PlaygroundProps> = (props) => (
+    <React.StrictMode>
+        <Playground {...props} />
+    </React.StrictMode>
+);
+PlaygroundStrict.displayName = 'PlaygroundStrict';
+
+export {PlaygroundStrict as Playground};
 
 // const fileUploadHandler: FileUploadHandler = async (file) => {
 //     console.info('[Playground] Uploading file: ' + file.name);

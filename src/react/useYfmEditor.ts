@@ -20,11 +20,12 @@ export function useYfmEditor(props: UseYfmEditorProps) {
         });
     }, [props.extensions, props.allowHTML, props.linkify, props.linkifyTlds]);
 
-    React.useEffect(() => {
-        return () => {
-            editor.destroy();
-        };
-    }, [editor]);
+    // Commented out for support react@18 strict mode
+    // React.useEffect(() => {
+    //     return () => {
+    //         editor.destroy();
+    //     };
+    // }, [editor]);
 
     return editor;
 }
