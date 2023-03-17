@@ -30,13 +30,16 @@ export const getSpec = (
             id: {default: null},
             checked: {default: null},
         },
+        toDOM(node) {
+            return ['div', node.attrs];
+        },
         selectable: false,
         allowSelection: false,
         complex: 'leaf',
     },
 
     [CheckboxNode.Label]: {
-        content: 'text*',
+        content: 'inline*',
         group: 'block',
         parseDOM: [
             {
