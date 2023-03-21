@@ -1,5 +1,17 @@
 # Changelog
 
+## [4.5.0](https://github.com/yandex-cloud/yfm-editor/compare/v4.4.1...v4.5.0) (2023-03-21)
+
+
+### Features
+
+* **Lists:** return true from toList command when selection is in list with current list type ([#88](https://github.com/yandex-cloud/yfm-editor/issues/88)) ([74dd90c](https://github.com/yandex-cloud/yfm-editor/commit/74dd90c99e62413172830728d37ce52eee610e33))
+
+
+### Bug Fixes
+
+* improvements for checkbox behavior ([#87](https://github.com/yandex-cloud/yfm-editor/issues/87)) ([12d0702](https://github.com/yandex-cloud/yfm-editor/commit/12d070219f741f43c307fe8453ceef51cb9ad945))
+
 ## [4.4.1](https://github.com/yandex-cloud/yfm-editor/compare/v4.4.0...v4.4.1) (2023-03-16)
 
 
