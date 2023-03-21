@@ -9,7 +9,7 @@ export function toList(listType: NodeType): Command {
     return (state, dispatch) => {
         const parentList = findAnyParentList(state.schema)(state.selection);
         if (parentList) {
-            if (listType === parentList.node.type) return false;
+            if (listType === parentList.node.type) return true;
 
             dispatch?.(state.tr.setNodeMarkup(parentList.pos, listType));
             return true;
