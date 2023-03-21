@@ -70,6 +70,10 @@ const Playground = React.memo<PlaygroundProps>((props) => {
                 .use(MarkdownBlocksPreset, {
                     image: false,
                     heading: false,
+                    lists: {
+                        ulKey: keys.ulist,
+                        olKey: keys.olist,
+                    },
                     breaks: {preferredBreak: breaks ? 'soft' : 'hard'},
                 })
                 .use(MarkdownMarksPreset, {

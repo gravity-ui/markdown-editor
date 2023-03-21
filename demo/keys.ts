@@ -1,9 +1,11 @@
 export const keys = {
-    undo: 'cmd-z',
-    redo: 'shift-cmd-z',
-    bold: 'cmd-b',
-    italic: 'cmd-i',
-    underline: 'cmd-u',
-    strike: 'shift-cmd-s',
-    code: 'cmd-e',
+    undo: 'mod-z',
+    redo: 'shift-mod-z',
+    bold: 'mod-b',
+    italic: 'mod-i',
+    underline: 'mod-u',
+    strike: 'shift-mod-s',
+    code: 'mod-e',
+    ulist: 'mod-shift-l',
+    olist: 'mod-shift-m',
 };
