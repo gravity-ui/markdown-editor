@@ -67,7 +67,7 @@ export const Checkbox: ExtensionAuto<CheckboxOptions> = (builder, opts) => {
     });
 
     builder
-        .addPlugin(keymapPlugin)
+        .addPlugin(keymapPlugin, builder.Priority.High)
         .addAction(checkboxAction, () => addCheckbox())
         .addInputRules(({schema}) => ({
             rules: [
