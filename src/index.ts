@@ -22,3 +22,6 @@ export {
     findSelectedNodeOfType,
 } from './utils/selection';
 export * from './table-utils';
+
+export type {NodeChild} from './utils/nodes';
+export {getChildrenOfNode, getLastChildOfNode} from './utils/nodes';

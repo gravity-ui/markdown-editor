@@ -6,10 +6,7 @@ export function findFirstTextblockChild(
 ): {node: Node; offset: number} | null {
     if (parent instanceof Node && (!parent.isBlock || parent.isAtom)) return null;
 
-    const children: {node: Node; offset: number}[] = [];
-    parent.forEach((node, offset) => children.push({node, offset}));
-
-    for (const child of children) {
+    for (const child of getChildrenOfNode(parent)) {
         if (child.node.isTextblock) return child;
         const nestedTextBlockChild = findFirstTextblockChild(child.node);
         if (nestedTextBlockChild) {
@@ -47,4 +44,16 @@ export const isSelectableNode = (node: Node) => {
 
 export function isCodeBlock(node: Node): boolean {
     return node.isTextblock && Boolean(node.type.spec.code);
+}
+
+export type NodeChild = {node: Node; offset: number; index: number};
+export function getChildrenOfNode(node: Node | Fragment): NodeChild[] {
+    const children: NodeChild[] = [];
+    node.forEach((node, offset, index) => children.push({node, offset, index}));
+    return children;
+}
+
+export function getLastChildOfNode(node: Node | Fragment): NodeChild {
+    const children = getChildrenOfNode(node);
+    return children[children.length - 1];
 }
