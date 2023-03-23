@@ -5,7 +5,7 @@ import {fromYfm} from './fromYfm';
 import {spec} from './spec';
 import {toYfm} from './toYfm';
 
-export {HtmlNode} from './const';
+export {HtmlAttr, HtmlNode} from './const';
 
 export const Html: ExtensionAuto = (builder) => {
     if (builder.context.has('html') && builder.context.get('html') === false) {
