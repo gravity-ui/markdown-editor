@@ -5,11 +5,7 @@ import {actions} from './actions';
 import {ListAction} from './const';
 import {ListsInputRulesExtension, ListsInputRulesOptions} from './inputrules';
 import {ListsSpecs, blType, liType, olType} from './ListsSpecs';
-import {
-    moveTextblockToEndOfLastItemOfPrevList,
-    liftIfCursorIsAtBeginningOfItem,
-    toList,
-} from './commands';
+import {liftIfCursorIsAtBeginningOfItem, toList, joinPrevList} from './commands';
 
 export {ListNode, blType, liType, olType} from './ListsSpecs';
 
@@ -41,10 +37,7 @@ export const Lists: ExtensionAuto<ListsOptions> = (builder, opts) => {
     });
     builder.addKeymap(
         () => ({
-            Backspace: chainCommands(
-                liftIfCursorIsAtBeginningOfItem,
-                moveTextblockToEndOfLastItemOfPrevList,
-            ),
+            Backspace: chainCommands(liftIfCursorIsAtBeginningOfItem, joinPrevList),
         }),
         builder.Priority.Low,
     );
