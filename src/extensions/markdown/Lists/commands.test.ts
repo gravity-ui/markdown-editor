@@ -6,7 +6,7 @@ import {get$Cursor} from '../../../utils/selection';
 import {BaseNode, BaseSpecsPreset} from '../../base/specs';
 import {ListsSpecs} from './ListsSpecs';
 import {ListNode} from './const';
-import {liftIfCursorIsAtBeginningOfItem, moveTextblockToEndOfLastItemOfPrevList} from './commands';
+import {liftIfCursorIsAtBeginningOfItem} from './commands';
 
 const {schema} = new ExtensionsManager({
     extensions: (builder) => builder.use(BaseSpecsPreset, {}).use(ListsSpecs),
@@ -37,23 +37,5 @@ describe('Lists commands', () => {
         expect(res).toStrictEqual(true);
         expect(view.state.doc).toMatchNode(doc(list(li(p('111'))), p('222'), list(li(p('333')))));
         expect(cursorpos).toStrictEqual(10);
-    });
-
-    it.each([
-        ['bullet list', bl],
-        ['ordered list', ol],
-    ])('should move current textblock to end of last item of previous %s', (_0, list) => {
-        const document = doc(list(li(p('111'))), p('222'), list(li(p('333'))));
-        const view = new EditorView(null, {
-            state: EditorState.create({
-                doc: document,
-                selection: TextSelection.create(document, 10),
-            }),
-        });
-        const res = moveTextblockToEndOfLastItemOfPrevList(view.state, view.dispatch, view);
-        const cursorpos = get$Cursor(view.state.selection)?.pos;
-        expect(res).toStrictEqual(true);
-        expect(view.state.doc).toMatchNode(doc(list(li(p('111'), p('222'))), list(li(p('333')))));
-        expect(cursorpos).toStrictEqual(8);
     });
 });

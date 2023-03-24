@@ -20,6 +20,12 @@ export const get$Cursor = (selection: Selection): ResolvedPos | null => {
     return isTextSelection(selection) ? selection.$cursor : null;
 };
 
+export function get$CursorAtBlockStart(selection: Selection): ResolvedPos | null {
+    const $cursor = get$Cursor(selection);
+    if (!$cursor || $cursor.parentOffset > 0 || $cursor.parent.isInline) return null;
+    return $cursor;
+}
+
 export const equalNodeType = function equalNodeType(nodeType: NodeType[] | NodeType, node: Node) {
     return (Array.isArray(nodeType) && nodeType.indexOf(node.type) > -1) || node.type === nodeType;
 };
