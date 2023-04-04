@@ -1,11 +1,12 @@
 import log from '@doc-tools/transform/lib/log';
 import yfmPlugin from '@doc-tools/transform/lib/plugins/tabs';
+import {NodeSpec} from 'prosemirror-model';
 
 import type {ExtensionAuto, YENodeSpec} from '../../../../core';
 import {nodeTypeFactory} from '../../../../utils/schema';
 import {TabsNode} from './const';
 import {fromYfm} from './fromYfm';
-import {spec} from './spec';
+import {getSpec} from './spec';
 import {toYfm} from './toYfm';
 
 export {TabsNode} from './const';
@@ -15,6 +16,7 @@ export const tabsType = nodeTypeFactory(TabsNode.Tabs);
 export const tabsListType = nodeTypeFactory(TabsNode.TabsList);
 
 export type YfmTabsSpecsOptions = {
+    tabPlaceholder?: NonNullable<NodeSpec['placeholder']>['content'];
     tabView?: YENodeSpec['view'];
     tabsListView?: YENodeSpec['view'];
     tabPanelView?: YENodeSpec['view'];
@@ -22,6 +24,8 @@ export type YfmTabsSpecsOptions = {
 };
 
 export const YfmTabsSpecs: ExtensionAuto<YfmTabsSpecsOptions> = (builder, opts) => {
+    const spec = getSpec(opts);
+
     builder
         .configureMd((md) => md.use(yfmPlugin, {log}))
         .addNode(TabsNode.Tab, () => ({

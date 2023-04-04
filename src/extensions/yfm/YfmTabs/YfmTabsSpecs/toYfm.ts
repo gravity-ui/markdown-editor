@@ -1,4 +1,5 @@
 import type {Node} from 'prosemirror-model';
+import {getPlaceholderContent} from '../../../../utils/placeholder';
 import type {SerializerNodeToken} from '../../../../core';
 import {TabsNode} from './const';
 
@@ -21,11 +22,12 @@ export const toYfm: Record<TabsNode, SerializerNodeToken> = {
         const tabList = children[0].content;
 
         tabList.forEach((tab, _, i) => {
-            state.write('- ' + tab.textContent + '\n\n');
+            state.write('- ' + (tab.textContent || getPlaceholderContent(tab)) + '\n\n');
             if (children[i + 1]) state.renderList(children[i + 1], '  ', () => '  ');
         });
 
-        state.write('{% endlist %}\n\n');
+        state.write('{% endlist %}');
+        state.closeBlock(node);
     },
     [TabsNode.TabsList]: (state, node) => {
         state.renderList(node, '  ', () => (node.attrs.bullet || '-') + ' ');

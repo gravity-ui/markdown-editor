@@ -1,0 +1,85 @@
+.ProseMirror {
+    .yfm-tabs {
+        border-width: 1px;
+        border-style: dashed;
+        border-color: transparent;
+        border-radius: var(--yc-border-radius-s);
+
+        &:hover {
+            border-color: var(--yc-color-line-generic);
+        }
+    }
+
+    .yfm-tab {
+        position: relative;
+
+        display: flex;
+        align-items: center;
+
+        margin-right: 3px;
+        padding-bottom: 0;
+
+        border-bottom: none;
+
+        &-wrapper {
+            position: relative;
+
+            display: flex;
+            align-items: center;
+
+            height: 100%;
+            padding-bottom: 7px;
+
+            border-bottom: 2px solid transparent;
+            background-clip: padding-box;
+        }
+
+        &.active {
+            .yfm-tab-wrapper {
+                border-bottom-color: #027bf3;
+            }
+        }
+
+        &-remove-button {
+            display: flex;
+
+            width: 15px;
+            min-width: 15px;
+            height: 15px;
+            margin-left: 9px;
+
+            color: var(--yc-color-base-generic-medium);
+
+            &:hover {
+                color: var(--yc-color-text-primary);
+            }
+        }
+
+        &-create-button {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            width: 22px;
+            min-width: 22px;
+            height: 22px;
+            min-height: 22px;
+            margin-bottom: 9px;
+
+            opacity: 0;
+            color: var(--yc-color-text-primary);
+
+            &:hover {
+                border-radius: var(--yc-border-radius-xs);
+                background: var(--yc-color-base-generic-hover);
+            }
+        }
+
+        &:hover,
+        &:last-child {
+            .yfm-tab-create-button {
+                opacity: 1;
+            }
+        }
+    }
+}
