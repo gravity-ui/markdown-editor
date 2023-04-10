@@ -41,4 +41,26 @@
 
         opacity: 0;
     }
+
+    .ye-MathHint {
+        &__block-view {
+            display: none;
+        }
+
+        &__inline-view {
+            display: none;
+        }
+    }
+}
+
+.ye-MathHint {
+    &__block-view {
+        float: right;
+    }
+
+    &__inline-view {
+        display: inline-block;
+
+        margin-right: 6px;
+    }
 }

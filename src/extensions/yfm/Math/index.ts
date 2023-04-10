@@ -37,14 +37,18 @@ export const Math: ExtensionAuto = (builder) => {
         ),
     }));
 
-    builder.addPlugin(mathViewAndEditPlugin).addInputRules((deps) => ({
-        rules: [
-            textblockTypeInputRule(/^\$\$\s$/, mathBType(deps.schema)),
-            inlineNodeInputRule(/\$[^$\s]+\$$/, (match) =>
-                mathIType(deps.schema).create(null, deps.schema.text(match.replace(/\$/g, ''))),
-            ),
-        ],
-    }));
+    builder
+        .addPlugin(() =>
+            mathViewAndEditPlugin({reactRenderer: builder.context.get('reactrenderer')!}),
+        )
+        .addInputRules((deps) => ({
+            rules: [
+                textblockTypeInputRule(/^\$\$\s$/, mathBType(deps.schema)),
+                inlineNodeInputRule(/\$[^$\s]+\$$/, (match) =>
+                    mathIType(deps.schema).create(null, deps.schema.text(match.replace(/\$/g, ''))),
+                ),
+            ],
+        }));
     builder
         .addAction(mathIAction, (deps) => {
             const type = mathIType(deps.schema);
