@@ -1,6 +1,7 @@
 import React from 'react';
 import {Story, StoryContext} from '@storybook/react/types-6-0';
-import {useTheme, ThemeProvider, Theme} from '@gravity-ui/uikit';
+import {configure as configureUikit, useTheme, ThemeProvider, Theme} from '@gravity-ui/uikit';
+import {configure as configureYfmEditor} from '../../src';
 
 import '@gravity-ui/uikit/styles/styles.scss';
 
@@ -34,4 +35,12 @@ export function withThemeProvider(StoryItem: Story, context: StoryContext) {
             <StoryItem {...context} />
         </ThemeProvider>
     );
+}
+
+export function withLang(StoryItem: Story, context: StoryContext) {
+    const lang = context.globals.lang;
+    configureUikit({lang});
+    configureYfmEditor({lang});
+
+    return <StoryItem {...context} />;
 }

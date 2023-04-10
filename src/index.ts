@@ -8,6 +8,8 @@ export * from './logger';
 export * from './extensions';
 export * from './extensions/specs';
 
+export {Lang, configure} from './configure';
+
 export {isMac} from './utils/platform';
 export {markInputRule, nodeInputRule, inlineNodeInputRule} from './utils/inputrules';
 export {findMark, isMarkActive} from './utils/marks';
