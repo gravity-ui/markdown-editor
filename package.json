@@ -39,6 +39,7 @@
   "license": "MIT",
   "dependencies": {
     "@bem-react/classname": "^1.5.12",
+    "@gravity-ui/i18n": "1.0.0",
     "@types/is-number": "^7.0.1",
     "@types/markdown-it": "^12.2.3",
     "is-number": "^7.0.0",
