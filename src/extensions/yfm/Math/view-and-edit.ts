@@ -4,8 +4,10 @@ import type {Node} from 'prosemirror-model';
 import {keydownHandler} from 'prosemirror-keymap';
 import {Decoration, DecorationSet, NodeView} from 'prosemirror-view';
 import {isTextSelection} from '../../../utils/selection';
+import type {ReactRenderer, RendererItem} from '../../../extensions/behavior/ReactRenderer';
 import {moveCursorToEndOfMathInline} from './commands';
 import {CLASSNAMES, MathNode} from './const';
+import {b, renderMathHint} from './hint';
 
 import 'katex/dist/katex.min.css';
 import './view-and-edit.scss';
@@ -13,20 +15,31 @@ import './view-and-edit.scss';
 export abstract class MathNodeView implements NodeView {
     dom: HTMLElement;
     contentDOM: HTMLElement;
+
     protected node: Node;
     protected texContent: string;
     protected mathViewDOM: HTMLElement;
+    protected mathHintContainerDOM: HTMLElement;
 
-    abstract createDOM(): Record<'dom' | 'contentDOM' | 'mathViewDOM', HTMLElement>;
+    protected hintRendererItem: RendererItem;
+    protected readonly reactRenderer: ReactRenderer;
+
+    abstract createDOM(): Record<
+        'dom' | 'contentDOM' | 'mathViewDOM' | 'mathHintContainerDOM',
+        HTMLElement
+    > & {hintRendererItem: RendererItem};
     abstract isDisplayMode(): boolean;
 
-    constructor(node: Node) {
+    constructor(node: Node, reactRenderer: ReactRenderer) {
         this.node = node;
+        this.reactRenderer = reactRenderer;
         this.texContent = this.getTexContent();
         const elems = this.createDOM();
         this.dom = elems.dom;
         this.contentDOM = elems.contentDOM;
         this.mathViewDOM = elems.mathViewDOM;
+        this.mathHintContainerDOM = elems.mathHintContainerDOM;
+        this.hintRendererItem = elems.hintRendererItem;
         this.renderKatex();
     }
 
@@ -39,6 +52,14 @@ export abstract class MathNodeView implements NodeView {
             this.renderKatex();
         }
         return true;
+    }
+
+    ignoreMutation(mutation: MutationRecord): boolean {
+        return mutation.type === 'childList' && mutation.target === this.mathHintContainerDOM;
+    }
+
+    destroy() {
+        this.hintRendererItem.remove();
     }
 
     protected renderKatex() {
@@ -62,11 +83,15 @@ export abstract class MathNodeView implements NodeView {
 }
 
 export class MathInlineNodeView extends MathNodeView {
+    destroy() {
+        this.hintRendererItem?.remove();
+    }
+
     isDisplayMode(): boolean {
         return false;
     }
 
-    createDOM(): Record<'dom' | 'contentDOM' | 'mathViewDOM', HTMLElement> {
+    createDOM() {
         const dom = document.createElement('span');
         dom.classList.add('math-container', 'math-inline-container');
 
@@ -76,10 +101,25 @@ export class MathInlineNodeView extends MathNodeView {
 
         const mathInlineDOM = this.createMathInlineDOM();
 
+        const mathHintContainerDOM = document.createElement('div');
+        mathHintContainerDOM.contentEditable = 'false';
+        mathHintContainerDOM.classList.add(b('inline-view'));
+
         dom.appendChild(mathViewDOM);
         dom.appendChild(mathInlineDOM.container);
+        dom.appendChild(mathHintContainerDOM);
 
-        return {dom, contentDOM: mathInlineDOM.content, mathViewDOM};
+        const hintRendererItem = this.reactRenderer.createItem('math-inline-hint', () =>
+            renderMathHint({offset: {left: 3, top: -1}}, mathHintContainerDOM),
+        );
+
+        return {
+            dom,
+            contentDOM: mathInlineDOM.content,
+            mathViewDOM,
+            mathHintContainerDOM,
+            hintRendererItem,
+        };
     }
 
     // same as math-inline spec toDOM()
@@ -108,7 +148,7 @@ export class MathBlockNodeView extends MathNodeView {
         return true;
     }
 
-    createDOM(): Record<'dom' | 'contentDOM' | 'mathViewDOM', HTMLElement> {
+    createDOM() {
         const dom = document.createElement('div');
         dom.classList.add('math-container', 'math-block-container');
 
@@ -119,19 +159,28 @@ export class MathBlockNodeView extends MathNodeView {
         const contentDOM = document.createElement('div');
         contentDOM.classList.add('math-block');
 
+        const mathHintContainerDOM = document.createElement('div');
+        mathHintContainerDOM.contentEditable = 'false';
+        mathHintContainerDOM.classList.add(b('block-view'));
+
+        dom.appendChild(mathHintContainerDOM);
         dom.appendChild(mathViewDOM);
         dom.appendChild(contentDOM);
 
-        return {dom, contentDOM, mathViewDOM};
+        const hintRendererItem = this.reactRenderer.createItem('math-block-hint', () =>
+            renderMathHint({offset: {left: -3}}, mathHintContainerDOM),
+        );
+
+        return {dom, contentDOM, mathViewDOM, mathHintContainerDOM, hintRendererItem};
     }
 }
 
-export const mathViewAndEditPlugin = () =>
+export const mathViewAndEditPlugin = ({reactRenderer}: {reactRenderer: ReactRenderer}) =>
     new Plugin({
         props: {
             nodeViews: {
-                [MathNode.Block]: (node) => new MathBlockNodeView(node),
-                [MathNode.Inline]: (node) => new MathInlineNodeView(node),
+                [MathNode.Block]: (node) => new MathBlockNodeView(node, reactRenderer),
+                [MathNode.Inline]: (node) => new MathInlineNodeView(node, reactRenderer),
             },
             handleKeyDown: keydownHandler({
                 ArrowLeft: moveCursorToEndOfMathInline,
