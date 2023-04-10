@@ -14,6 +14,8 @@ import {
     useYfmEditor,
     YfmPreset,
     Extension,
+    ReactRenderStorage,
+    ReactRendererComponent,
 } from '../src';
 import {PlaygroundHtmlPreview} from './HtmlPreview';
 import {ProseMirrorDevTools} from './ProseMirrorDevTools';
@@ -49,6 +51,7 @@ const Playground = React.memo<PlaygroundProps>((props) => {
     const [yfmRaw, setYfmRaw] = React.useState<MarkupString>(initial || '');
     const rerender = useUpdate();
 
+    const renderStorage = React.useMemo(() => new ReactRenderStorage(), []);
     const extensions = React.useMemo<Extension>(
         () => (builder) =>
             builder
@@ -66,6 +69,7 @@ const Playground = React.memo<PlaygroundProps>((props) => {
                         undoKey: keys.undo,
                         redoKey: keys.redo,
                     },
+                    reactRenderer: renderStorage,
                 })
                 .use(MarkdownBlocksPreset, {
                     image: false,
@@ -84,7 +88,7 @@ const Playground = React.memo<PlaygroundProps>((props) => {
                     code: {codeKey: keys.code},
                 })
                 .use(YfmPreset, {}),
-        [breaks],
+        [breaks, renderStorage],
     );
 
     const editor = useYfmEditor({
@@ -167,7 +171,9 @@ const Playground = React.memo<PlaygroundProps>((props) => {
             </div>
             <hr />
             <div className={b('editor')}>
-                <YfmEditorComponent editor={editor} autofocus className={b('editor')} />
+                <YfmEditorComponent editor={editor} autofocus className={b('editor')}>
+                    <ReactRendererComponent storage={renderStorage} />
+                </YfmEditorComponent>
                 <ProseMirrorDevTools view={editor.view} />
                 <PMSelection view={editor.view} className={b('pm-selection')} />
             </div>
