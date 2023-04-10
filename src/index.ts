@@ -25,3 +25,5 @@ export * from './table-utils';
 
 export type {NodeChild} from './utils/nodes';
 export {getChildrenOfNode, getLastChildOfNode} from './utils/nodes';
+
+export * from './utils/event-emitter';
