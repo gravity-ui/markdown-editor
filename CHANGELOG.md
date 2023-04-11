@@ -1,5 +1,20 @@
 # Changelog
 
+## [5.0.0](https://github.com/yandex-cloud/yfm-editor/compare/v4.5.0...v5.0.0) (2023-04-11)
+
+
+### ⚠ BREAKING CHANGES
+
+* **Math:** add math hints
+
+### Features
+
+* add i18n ([4e2c49c](https://github.com/yandex-cloud/yfm-editor/commit/4e2c49c5f4a562738724f0739b7de359e697c56e))
+* add ReactRenderer extension ([d73eb8e](https://github.com/yandex-cloud/yfm-editor/commit/d73eb8e1afcf2dee3cc7c70f26ce99d9490dd681))
+* **Blockquote:** support for joining the previous blockquote ([#90](https://github.com/yandex-cloud/yfm-editor/issues/90)) ([9d055c4](https://github.com/yandex-cloud/yfm-editor/commit/9d055c41ef5df17a505399968f7e5e186f09ed2c))
+* **Lists:** support for joining the previous list ([#92](https://github.com/yandex-cloud/yfm-editor/issues/92)) ([3e38618](https://github.com/yandex-cloud/yfm-editor/commit/3e38618445165267979ab7489e1b0b5a338dad55))
+* **Math:** add math hints ([9d7293d](https://github.com/yandex-cloud/yfm-editor/commit/9d7293d928a2604322489b8fede5d2b826a44153))
+
 ## [4.5.0](https://github.com/yandex-cloud/yfm-editor/compare/v4.4.1...v4.5.0) (2023-03-21)
 
 
