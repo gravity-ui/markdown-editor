@@ -20,4 +20,6 @@ export interface ParserToken {
     // То есть контент лежит в поле content токена, а не между открывающим и закрывающим токенами.
     noCloseToken?: boolean;
     ignore?: boolean;
+    /** only for tokens with type=block */
+    prepareContent?: (content: string) => string;
 }

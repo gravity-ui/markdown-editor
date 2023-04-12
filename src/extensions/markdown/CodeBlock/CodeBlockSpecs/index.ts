@@ -39,12 +39,14 @@ export const CodeBlockSpecs: ExtensionAuto<CodeBlockSpecsOptions> = (builder, op
                 name: codeBlockNodeName,
                 type: 'block',
                 noCloseToken: true,
+                prepareContent: removeNewLineAtEnd, // content of code blocks contains extra \n at the end
             },
         },
         toYfm: (state, node) => {
             state.write('```' + (node.attrs[codeBlockLangAttr] || '') + '\n');
             state.text(node.textContent, false);
-            state.ensureNewLine();
+            // Add a newline to the current content before adding closing marker
+            state.write('\n');
             state.write('```');
             state.closeBlock(node);
         },
@@ -59,6 +61,7 @@ export const CodeBlockSpecs: ExtensionAuto<CodeBlockSpecsOptions> = (builder, op
                 type: 'block',
                 noCloseToken: true,
                 getAttrs: (tok) => ({[codeBlockLangAttr]: tok.info || ''}),
+                prepareContent: removeNewLineAtEnd, // content of fence blocks contains extra \n at the end
             },
         },
         toYfm: () => {
@@ -66,3 +69,7 @@ export const CodeBlockSpecs: ExtensionAuto<CodeBlockSpecsOptions> = (builder, op
         },
     }));
 };
+
+function removeNewLineAtEnd(content: string): string {
+    return content.endsWith('\n') ? content.slice(0, content.length - 1) : content;
+}

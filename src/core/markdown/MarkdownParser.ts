@@ -183,7 +183,11 @@ export class MarkdownParser implements Parser {
 
         if (tokenSpec.noCloseToken) {
             this.openNode(schemaSpec, attrs);
-            this.addText(yfmToken.content);
+            let {content} = yfmToken;
+            if (tokenSpec.prepareContent) {
+                content = tokenSpec.prepareContent(content);
+            }
+            this.addText(content);
             this.closeNode();
 
             return;

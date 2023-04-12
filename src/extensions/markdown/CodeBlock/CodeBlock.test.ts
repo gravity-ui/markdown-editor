@@ -22,29 +22,23 @@ describe('CodeBlock extension', () => {
     it('should parse a code block', () =>
         same(
             'Some code:\n\n```\nHere it is\n```\n\nPara',
-            doc(
-                p('Some code:'),
-                cb({[codeBlockLangAttr]: ''}, schema.text('Here it is\n')),
-                p('Para'),
-            ),
+            doc(p('Some code:'), cb({[codeBlockLangAttr]: ''}, 'Here it is'), p('Para')),
         ));
 
     it('parses an intended code block', () =>
         parse(
             'Some code:\n\n    Here it is\n\nPara',
-            doc(p('Some code:'), cb('Here it is\n'), p('Para')),
+            doc(p('Some code:'), cb('Here it is'), p('Para')),
         ));
 
     it('should parse a fenced code block with info string', () =>
         same(
             'foo\n\n```javascript\n1\n```',
-            doc(
-                p('foo'),
-                schema.node(codeBlockNodeName, {[codeBlockLangAttr]: 'javascript'}, [
-                    schema.text('1\n'),
-                ]),
-            ),
+            doc(p('foo'), cb({[codeBlockLangAttr]: 'javascript'}, '1')),
         ));
+
+    it('should parse a fenced code block with multiple new lines at the end', () =>
+        same('```\nsome code\n\n\n\n```', doc(cb({[codeBlockLangAttr]: ''}, 'some code\n\n\n'))));
 
     // TODO: parsed: doc(paragraph("code\nblock"))
     it.skip('should parse html - pre tag', () => {
