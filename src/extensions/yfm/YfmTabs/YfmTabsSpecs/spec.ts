@@ -1,15 +1,20 @@
 import type {NodeSpec} from 'prosemirror-model';
-import {TabsNode} from './const';
+import {YfmTabsSpecsOptions} from '.';
+import {TabAttrs, TabPanelAttrs, TabsAttrs, TabsListAttrs, TabsNode} from './const';
 
-export const spec: Record<TabsNode, NodeSpec> = {
+const DEFAULT_PLACEHOLDERS = {
+    TabTitle: 'Tab title',
+};
+
+export const getSpec: (opts: YfmTabsSpecsOptions) => Record<TabsNode, NodeSpec> = (opts) => ({
     [TabsNode.Tab]: {
         attrs: {
-            id: {default: 'unknown'},
-            class: {default: 'unknown'},
-            role: {default: 'unknown'},
-            'aria-controls': {default: 'unknown'},
-            'aria-selected': {default: 'unknown'},
-            tabindex: {default: 'unknown'},
+            [TabAttrs.id]: {default: 'unknown'},
+            [TabAttrs.class]: {default: 'unknown'},
+            [TabAttrs.role]: {default: 'unknown'},
+            [TabAttrs.ariaControls]: {default: 'unknown'},
+            [TabAttrs.ariaSelected]: {default: 'unknown'},
+            [TabAttrs.tabindex]: {default: 'unknown'},
         },
         marks: '',
         content: 'text*',
@@ -18,6 +23,10 @@ export const spec: Record<TabsNode, NodeSpec> = {
         toDOM(node) {
             return ['div', node.attrs, 0];
         },
+        placeholder: {
+            content: opts?.tabPlaceholder ?? DEFAULT_PLACEHOLDERS.TabTitle,
+            alwaysVisible: true,
+        },
         selectable: false,
         allowSelection: false,
         complex: 'leaf',
@@ -25,11 +34,11 @@ export const spec: Record<TabsNode, NodeSpec> = {
 
     [TabsNode.TabPanel]: {
         attrs: {
-            id: {default: 'unknown'},
-            class: {default: 'unknown'},
-            role: {default: 'unknown'},
-            'data-title': {default: 'unknown'},
-            'aria-labelledby': {default: 'unknown'},
+            [TabPanelAttrs.id]: {default: 'unknown'},
+            [TabPanelAttrs.class]: {default: 'unknown'},
+            [TabPanelAttrs.role]: {default: 'unknown'},
+            [TabPanelAttrs.dataTitle]: {default: 'unknown'},
+            [TabPanelAttrs.ariaLabelledby]: {default: 'unknown'},
         },
         content: 'block*',
         group: 'block',
@@ -40,10 +49,11 @@ export const spec: Record<TabsNode, NodeSpec> = {
         selectable: false,
         allowSelection: false,
         complex: 'leaf',
+        isolating: true,
     },
 
     [TabsNode.Tabs]: {
-        attrs: {class: {default: 'unknown'}},
+        attrs: {[TabsAttrs.class]: {default: 'unknown'}},
         content: 'yfm_tabs_list yfm_tab_panel+',
         group: 'block',
         parseDOM: [{tag: 'div.yfm-tabs'}],
@@ -54,7 +64,10 @@ export const spec: Record<TabsNode, NodeSpec> = {
     },
 
     [TabsNode.TabsList]: {
-        attrs: {class: {default: 'unknown'}, role: {default: 'unknown'}},
+        attrs: {
+            [TabsListAttrs.class]: {default: 'unknown'},
+            [TabsListAttrs.role]: {default: 'unknown'},
+        },
         content: 'yfm_tab*',
         group: 'block',
         parseDOM: [{tag: 'div.yfm-tab-list'}],
@@ -65,4 +78,4 @@ export const spec: Record<TabsNode, NodeSpec> = {
         allowSelection: false,
         complex: 'inner',
     },
-};
+});

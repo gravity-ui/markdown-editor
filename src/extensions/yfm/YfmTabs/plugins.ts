@@ -1,5 +1,10 @@
-import {Command, TextSelection} from 'prosemirror-state';
-import {findChildren, findParentNodeOfType} from 'prosemirror-utils';
+import {Command, TextSelection, Transaction} from 'prosemirror-state';
+import {
+    findChildren,
+    findParentNodeOfType,
+    findParentNodeOfTypeClosestToPos,
+    NodeWithPos,
+} from 'prosemirror-utils';
 import {
     tabActiveClassname,
     tabInactiveClassname,
@@ -11,29 +16,138 @@ import {
     tabType,
 } from './const';
 import {findChildIndex} from '../../../table-utils/helpers';
-import {get$Cursor} from '../../../utils/selection';
+import {get$Cursor, isTextSelection} from '../../../utils/selection';
+import {generateID} from '@doc-tools/transform/lib/plugins/utils';
+import {
+    createFakeParagraph,
+    findFakeParaPosClosestToPos,
+    findFakeParaPosForTextSelection,
+    isGapCursorSelection,
+    pType,
+} from '../../';
+import {atEndOfPanel} from './utils';
+import {TabAttrs, TabPanelAttrs} from './YfmTabsSpecs/const';
 
-export const tabPanelBackspace: Command = (state) => {
-    const $cursor = get$Cursor(state.selection);
-    if (
-        $cursor?.node($cursor.depth - 1).type === tabPanelType(state.schema) &&
-        $cursor.start($cursor.depth - 1) === $cursor.pos - 1
-    ) {
-        return true;
+export const tabPanelArrowDown: Command = (state, dispatch, view) => {
+    const {selection: sel} = state;
+    const tabsParentNode = findParentNodeOfType(tabsType(state.schema))(state.selection);
+
+    if (atEndOfPanel(view) && view?.endOfTextblock('down')) {
+        const [direction, $cursor] = ['after', sel.$to] as const;
+        let $pos;
+        if (isTextSelection(sel)) {
+            $pos =
+                findFakeParaPosForTextSelection(sel, direction) ??
+                findFakeParaPosClosestToPos($cursor, $cursor.depth - 2, direction);
+        }
+        if (isGapCursorSelection(sel) && tabsParentNode) {
+            $pos = state.doc.resolve(tabsParentNode.pos + tabsParentNode.node.nodeSize);
+        }
+        if ($pos) {
+            dispatch?.(createFakeParagraph(state.tr, $pos, direction).scrollIntoView());
+            return true;
+        }
     }
+
     return false;
 };
 
-export const tabBackspace: Command = (state, dispatch) => {
-    const tabToRemove = findParentNodeOfType(tabType(state.schema))(state.selection);
-    const tabsParentNode = findParentNodeOfType(tabsType(state.schema))(state.selection);
+export const tabEnter: Command = (state) => {
+    const $cursor = get$Cursor(state.selection);
+    return $cursor?.node($cursor.depth).type === tabType(state.schema);
+};
 
-    if (
-        tabsParentNode &&
-        tabToRemove &&
-        state.selection.from === tabToRemove.pos + 1 &&
-        state.selection.from === state.selection.to
-    ) {
+const makeTabsInactive = (tabNodes: NodeWithPos[], tabPanels: NodeWithPos[], tr: Transaction) => {
+    // Find all active tabs and make them inactive
+    const activeTabs = tabNodes.filter((v) => v.node.attrs[TabAttrs.class] === tabActiveClassname);
+
+    if (activeTabs.length) {
+        activeTabs.forEach((tab) => {
+            tr.setNodeMarkup(tab.pos, null, {
+                ...tab.node.attrs,
+                class: tabInactiveClassname,
+            });
+        });
+    }
+
+    // Find all active panels and make them inactive
+    const activePanels = tabPanels.filter(
+        (v) => v.node.attrs[TabPanelAttrs.class] === tabPanelActiveClassname,
+    );
+    if (activePanels.length) {
+        activePanels.forEach((tabPanel) => {
+            tr.setNodeMarkup(tr.mapping.map(tabPanel.pos), null, {
+                ...tabPanel.node.attrs,
+                class: tabPanelInactiveClassname,
+            });
+        });
+    }
+};
+
+export const createTab: (afterTab: NodeWithPos, tabsParentNode: NodeWithPos) => Command =
+    (afterTab, tabsParentNode) => (state, dispatch, view) => {
+        const tabNodes = findChildren(
+            tabsParentNode.node,
+            (node) => node.type.name === tabType(state.schema).name,
+        );
+
+        const tabPanels = findChildren(tabsParentNode.node, (tabNode) => {
+            return tabNode.type.name === tabPanelType(state.schema).name;
+        });
+
+        const afterPanelNode = tabPanels.filter(
+            (tabPanelNode) =>
+                tabPanelNode.node.attrs[TabPanelAttrs.ariaLabelledby] ===
+                afterTab.node.attrs[TabAttrs.id],
+        )[0];
+
+        const tabId = generateID();
+        const panelId = generateID();
+
+        const newPanel = tabPanelType(state.schema).create(
+            {
+                [TabPanelAttrs.ariaLabelledby]: tabId,
+                [TabPanelAttrs.id]: panelId,
+                [TabPanelAttrs.class]: tabPanelActiveClassname,
+            },
+            pType(state.schema).createAndFill(),
+        );
+        const newTab = tabType(state.schema).create({
+            [TabAttrs.id]: tabId,
+            [TabAttrs.class]: tabActiveClassname,
+            [TabAttrs.role]: 'tab',
+            [TabAttrs.ariaControls]: panelId,
+        });
+
+        const {tr} = state;
+
+        // Change relative pos to absolute
+        tabNodes.forEach((v) => {
+            v.pos = v.pos + tabsParentNode.pos + 1;
+        });
+
+        tabPanels.forEach((v) => {
+            v.pos = v.pos + tabsParentNode.pos + 1;
+        });
+
+        makeTabsInactive(tabNodes, tabPanels, tr);
+
+        dispatch?.(
+            tr
+                .insert(afterPanelNode.pos + afterPanelNode.node.nodeSize, newPanel)
+                .insert(afterTab.pos + afterTab.node.nodeSize, newTab)
+                .setSelection(
+                    TextSelection.create(tr.doc, afterTab.pos + afterTab.node.nodeSize + 1),
+                ),
+        );
+
+        view?.focus();
+
+        return true;
+    };
+
+export const removeTab: (tabToRemove: NodeWithPos, tabsParentNode: NodeWithPos) => Command =
+    (tabToRemove, tabsParentNode) => (state, dispatch, view) => {
         const tabList = findChildren(tabsParentNode.node, (tabNode) => {
             return tabNode.type.name === tabsListType(state.schema).name;
         })[0];
@@ -49,12 +163,12 @@ export const tabBackspace: Command = (state, dispatch) => {
         });
 
         const panelToRemove = tabPanels.filter(
-            (tabNode) => tabNode.node.attrs['aria-labelledby'] === tabToRemove.node.attrs['id'],
+            (tabPanelNode) =>
+                tabPanelNode.node.attrs[TabPanelAttrs.ariaLabelledby] ===
+                tabToRemove.node.attrs[TabAttrs.id],
         )[0];
 
         if (panelToRemove && dispatch) {
-            // Change relative pos to absolute
-            panelToRemove.pos = panelToRemove.pos + tabsParentNode.pos;
             const {tr} = state;
 
             if (tabNodes.length <= 1) {
@@ -67,42 +181,15 @@ export const tabBackspace: Command = (state, dispatch) => {
                     v.pos = v.pos + tabsParentNode.pos + 2;
                 });
 
+                tabPanels.forEach((v) => {
+                    v.pos = v.pos + tabsParentNode.pos + 1;
+                });
+
                 const newTabNode = tabNodes[newTabIdx];
 
                 const newTabPanelNode = tabPanels[newTabIdx];
-                // Change relative pos to absolute
-                newTabPanelNode.pos = newTabPanelNode.pos + tabsParentNode.pos + 1;
 
-                // Find all active tabs and make them inactive
-                const activeTabs = tabNodes.filter(
-                    (v) => v.node.attrs['class'] === tabActiveClassname,
-                );
-
-                if (activeTabs.length) {
-                    activeTabs.forEach((tab) => {
-                        tr.setNodeMarkup(tab.pos, null, {
-                            ...tab.node.attrs,
-                            class: tabInactiveClassname,
-                        });
-                    });
-                }
-
-                // Find all active panels and make them inactive
-                const activePanels = tabPanels.filter(
-                    (v) => v.node.attrs['class'] === tabPanelActiveClassname,
-                );
-                if (activePanels.length) {
-                    activePanels.forEach((tabPanel) => {
-                        tr.setNodeMarkup(
-                            tr.mapping.map(tabPanel.pos + tabsParentNode.pos + 1),
-                            null,
-                            {
-                                ...tabPanel.node.attrs,
-                                class: tabPanelInactiveClassname,
-                            },
-                        );
-                    });
-                }
+                makeTabsInactive(tabNodes, tabPanels, tr);
 
                 tr
                     // Delete panel
@@ -127,10 +214,63 @@ export const tabBackspace: Command = (state, dispatch) => {
                     );
             }
             dispatch(tr);
+            view?.focus();
 
             return true;
         }
+
+        return false;
+    };
+
+export const removeTabWhenCursorAtTheStartOfTab: Command = (state, dispatch) => {
+    const tabToRemove = findParentNodeOfType(tabType(state.schema))(state.selection);
+    const tabsParentNode = findParentNodeOfType(tabsType(state.schema))(state.selection);
+
+    if (
+        tabsParentNode &&
+        tabToRemove &&
+        state.selection.from === tabToRemove.pos + 1 &&
+        state.selection.from === state.selection.to
+    ) {
+        return removeTab(tabToRemove, tabsParentNode)(state, dispatch);
     }
 
     return false;
+};
+
+export const joinBackwardToOpenTab: Command = (state, dispatch) => {
+    const $cursor = get$Cursor(state.selection);
+    if (!$cursor || $cursor.parentOffset !== 0) return false;
+    // --> cursor at start of textblock
+    const textBlockIndex = $cursor.index($cursor.depth - 1);
+    if (textBlockIndex <= 0) return false;
+    const nodeBefore = $cursor.node($cursor.depth - 1).child(textBlockIndex - 1);
+
+    if (nodeBefore.type !== tabsType(state.schema)) {
+        return false;
+    }
+
+    const tabsParent = findParentNodeOfTypeClosestToPos(
+        state.doc.resolve($cursor.pos - 2),
+        tabsType(state.schema),
+    );
+
+    if (!tabsParent) {
+        return false;
+    }
+    const activePanel = findChildren(
+        tabsParent.node,
+        (n) => n.attrs.class === tabPanelActiveClassname,
+    )[0];
+
+    if (dispatch) {
+        const posEndOfLastLayoutCell = activePanel.pos + tabsParent.pos + activePanel.node.nodeSize;
+        const tr = state.tr;
+        tr.delete($cursor.before(), $cursor.after());
+        tr.insert(posEndOfLastLayoutCell, $cursor.parent);
+        tr.setSelection(TextSelection.create(tr.doc, posEndOfLastLayoutCell + 1));
+        dispatch(tr.scrollIntoView());
+    }
+
+    return true;
 };
