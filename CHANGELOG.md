@@ -1,5 +1,17 @@
 # Changelog
 
+## [5.1.0](https://github.com/yandex-cloud/yfm-editor/compare/v5.0.0...v5.1.0) (2023-04-12)
+
+
+### Features
+
+* improvements for tabs UX ([#93](https://github.com/yandex-cloud/yfm-editor/issues/93)) ([7d618c2](https://github.com/yandex-cloud/yfm-editor/commit/7d618c24f54f60196bd5e218c275a4957d03d000))
+
+
+### Bug Fixes
+
+* **CodeBlock:** fix parsing and serialization of code and fence blocks ([#96](https://github.com/yandex-cloud/yfm-editor/issues/96)) ([4824813](https://github.com/yandex-cloud/yfm-editor/commit/4824813f15886e45797003cbb96893c4e5ef1141))
+
 ## [5.0.0](https://github.com/yandex-cloud/yfm-editor/compare/v4.5.0...v5.0.0) (2023-04-11)
 
 
