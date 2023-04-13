@@ -1,41 +1,37 @@
-/**
- * @jest-environment jsdom
- */
-
 import {builders} from 'prosemirror-test-builder';
 import {createMarkupChecker} from '../../../../tests/sameMarkup';
 import {ExtensionsManager} from '../../../core';
 import {BaseNode, BaseSchema} from '../../base/BaseSchema';
-import {ImgSize} from './index';
-import {image, ImageAttr} from './const';
+import {ImgSizeSpecs} from './ImgSizeSpecs';
+import {imageNodeName, ImgSizeAttr} from './const';
 
 const {schema, parser, serializer} = new ExtensionsManager({
-    extensions: (builder) => builder.use(BaseSchema, {}).use(ImgSize, {}),
+    extensions: (builder) => builder.use(BaseSchema, {}).use(ImgSizeSpecs, {}),
 }).buildDeps();
 
 const {doc, p, img, img2, img3, img4} = builders(schema, {
     doc: {nodeType: BaseNode.Doc},
     p: {nodeType: BaseNode.Paragraph},
-    img: {nodeType: image, [ImageAttr.Src]: 'img.png'},
+    img: {nodeType: imageNodeName, [ImgSizeAttr.Src]: 'img.png'},
     img2: {
-        nodeType: image,
-        [ImageAttr.Src]: 'img2.png',
-        [ImageAttr.Alt]: 'alt text',
-        [ImageAttr.Title]: 'title text',
+        nodeType: imageNodeName,
+        [ImgSizeAttr.Src]: 'img2.png',
+        [ImgSizeAttr.Alt]: 'alt text',
+        [ImgSizeAttr.Title]: 'title text',
     },
     img3: {
-        nodeType: image,
-        [ImageAttr.Src]: 'img3.png',
-        [ImageAttr.Height]: '100',
-        [ImageAttr.Width]: '200',
+        nodeType: imageNodeName,
+        [ImgSizeAttr.Src]: 'img3.png',
+        [ImgSizeAttr.Height]: '100',
+        [ImgSizeAttr.Width]: '200',
     },
     img4: {
-        nodeType: image,
-        [ImageAttr.Src]: 'img4.png',
-        [ImageAttr.Height]: '300',
-        [ImageAttr.Width]: '400',
-        [ImageAttr.Alt]: 'alt text 2',
-        [ImageAttr.Title]: 'title text 2',
+        nodeType: imageNodeName,
+        [ImgSizeAttr.Src]: 'img4.png',
+        [ImgSizeAttr.Height]: '300',
+        [ImgSizeAttr.Width]: '400',
+        [ImgSizeAttr.Alt]: 'alt text 2',
+        [ImgSizeAttr.Title]: 'title text 2',
     },
 }) as PMTestBuilderResult<'doc' | 'p' | 'img' | 'img2' | 'img3' | 'img4'>;
 

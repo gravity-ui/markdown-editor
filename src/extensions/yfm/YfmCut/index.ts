@@ -1,56 +1,40 @@
-import log from '@doc-tools/transform/lib/log';
-import yfmPlugin from '@doc-tools/transform/lib/plugins/cut';
 import {chainCommands} from 'prosemirror-commands';
 import type {Action, ExtensionAuto} from '../../../core';
 import {nodeInputRule} from '../../../utils/inputrules';
-import {toYfm} from './toYfm';
-import {CutNode, cutType} from './const';
-import {fromYfm} from './fromYfm';
-import {getSpec, YfmCutSpecOptions} from './spec';
+import {cutType} from './const';
 import {createYfmCut, toYfmCut} from './actions/toYfmCut';
 import {backToCutTitle, exitFromCutTitle, liftEmptyBlockFromCut, removeCut} from './commands';
+import {YfmCutTitleNodeView} from './nodeviews/yfm-cut-title';
+import {cutAutoOpenPlugin} from './plugins/auto-open';
+import {YfmCutSpecs, YfmCutSpecsOptions} from './YfmCutSpecs';
 
 const cutAction = 'toYfmCut';
 
-export {CutNode, cutType, cutTitleType, cutContentType} from './const';
+export {CutNode, cutType, cutTitleType, cutContentType} from './YfmCutSpecs';
 
-export type YfmCutOptions = YfmCutSpecOptions & {
+export type YfmCutOptions = Pick<
+    YfmCutSpecsOptions,
+    'yfmCutTitlePlaceholder' | 'yfmCutContentPlaceholder'
+> & {
     yfmCutKey?: string | null;
 };
 
 export const YfmCut: ExtensionAuto<YfmCutOptions> = (builder, opts) => {
-    const spec = getSpec(opts);
-
-    builder
-        .configureMd((md) => md.use(yfmPlugin, {log}))
-        .addNode(CutNode.Cut, () => ({
-            spec: spec[CutNode.Cut],
-            toYfm: toYfm[CutNode.Cut],
-            fromYfm: {
-                tokenSpec: fromYfm[CutNode.Cut],
-            },
+    builder.use(YfmCutSpecs, {
+        ...opts,
+        // @ts-expect-error
+        cutView:
             // FIX: ignore mutation and don't rerender node when yfm.js open or close cut
-            // @ts-expect-error
-            view: () => () => ({
+            () => () => ({
                 ignoreMutation(mutation) {
                     return mutation instanceof MutationRecord && mutation.type === 'attributes';
                 },
             }),
-        }))
-        .addNode(CutNode.CutTitle, () => ({
-            spec: spec[CutNode.CutTitle],
-            toYfm: toYfm[CutNode.CutTitle],
-            fromYfm: {
-                tokenSpec: fromYfm[CutNode.CutTitle],
-            },
-        }))
-        .addNode(CutNode.CutContent, () => ({
-            spec: spec[CutNode.CutContent],
-            toYfm: toYfm[CutNode.CutContent],
-            fromYfm: {
-                tokenSpec: fromYfm[CutNode.CutContent],
-            },
-        }))
+        cutTitleView: () => (node) => new YfmCutTitleNodeView(node),
+    });
+
+    builder
+        .addPlugin(cutAutoOpenPlugin)
         .addAction(cutAction, () => toYfmCut)
         .addKeymap(() => ({
             Backspace: chainCommands(backToCutTitle, removeCut),

@@ -2,18 +2,18 @@ import {builders} from 'prosemirror-test-builder';
 import {createMarkupChecker} from '../../../../tests/sameMarkup';
 import {parseDOM} from '../../../../tests/parse-dom';
 import {ExtensionsManager} from '../../../core';
-import {BaseNode, BaseSchema} from '../../base/BaseSchema';
-import {blockquote, Blockquote} from '../Blockquote';
+import {BaseNode, BaseSpecsPreset} from '../../base/specs';
+import {blockquoteNodeName, BlockquoteSpecs} from '../Blockquote/BlockquoteSpecs';
 import {CellAlign, TableAttrs, TableNode} from './const';
-import {Table} from './index';
+import {TableSpecs} from './TableSpecs';
 
 const {schema, parser, serializer} = new ExtensionsManager({
-    extensions: (builder) => builder.use(BaseSchema, {}).use(Blockquote, {}).use(Table),
+    extensions: (builder) => builder.use(BaseSpecsPreset, {}).use(BlockquoteSpecs).use(TableSpecs),
 }).buildDeps();
 
 const {doc, bq, table, thead, tbody, tr, thL, thC, thR, tdL, tdC, tdR} = builders(schema, {
     doc: {nodeType: BaseNode.Doc},
-    bq: {nodeType: blockquote},
+    bq: {nodeType: blockquoteNodeName},
     table: {nodeType: TableNode.Table},
     thead: {nodeType: TableNode.Head},
     tbody: {nodeType: TableNode.Body},

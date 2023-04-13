@@ -2,6 +2,14 @@ import type {EditorView} from 'prosemirror-view';
 import {Fragment, Schema, Slice} from 'prosemirror-model';
 import {EditorState, Selection, Plugin} from 'prosemirror-state';
 
+// @ts-expect-error internal types
+import {__serializeForClipboard} from 'prosemirror-view';
+if (!__serializeForClipboard)
+    throw new Error('__serializeForClipboard not exported from prosemirror-view module.');
+
+type SerializeForClipboard = (view: EditorView, slice: Slice) => {dom: HTMLElement; text: string};
+const serializeForClipboard: SerializeForClipboard = __serializeForClipboard;
+
 import '../../../types/spec';
 
 import {logger} from '../../../logger';
@@ -11,14 +19,7 @@ import {isTextSelection, isNodeSelection, isWholeSelection} from '../../../utils
 import {BaseNode, pType} from '../../base/BaseSchema';
 
 import {isInsideCode} from './code';
-import {DataTransferType, isIosSafariShare} from './utils';
-
-type SerializeForClipboard = (view: EditorView, slice: Slice) => {dom: HTMLElement; text: string};
-const serializeForClipboard: SerializeForClipboard =
-    // missed in prosemirror-view types
-    require('prosemirror-view').__serializeForClipboard;
-if (!serializeForClipboard)
-    throw new Error('serializeForClipboard not exported from prosemirror-view module.');
+import {DataTransferType, extractTextContentFromHtml, isIosSafariShare} from './utils';
 
 export type ClipboardPluginOptions = {
     yfmParser: Parser;
@@ -35,7 +36,6 @@ export const clipboard = ({
 }: ClipboardPluginOptions) => {
     return new Plugin({
         props: {
-            // @ts-expect-error handleDOMEvents has broken types
             handleDOMEvents: {
                 copy(view, e) {
                     if (!e.clipboardData) return false;
@@ -99,12 +99,31 @@ export const clipboard = ({
                         !e.clipboardData.types.includes(DataTransferType.Yfm) &&
                         (data = e.clipboardData.getData(DataTransferType.Html))
                     ) {
-                        return false; // default html pasting
+                        const textFromHtml = extractTextContentFromHtml(data);
+                        if (textFromHtml) {
+                            const res = tryCatch(() => textParser.parse(textFromHtml));
+                            if (res.success) {
+                                const docNode = res.result;
+                                const slice = getSliceFromMarkupFragment(docNode.content);
+                                view.dispatch(
+                                    trackTransactionMetrics(
+                                        view.state.tr.replaceSelection(slice),
+                                        'paste',
+                                        {clipboardDataFormat: DataTransferType.Html},
+                                    ),
+                                );
+                                isPasteHandled = true;
+                            } else {
+                                logger.error(res.error);
+                                console.error(res.error);
+                            }
+                        } else return false; // default html pasting
                     }
 
                     if (
-                        (data = e.clipboardData.getData(DataTransferType.Yfm)) ||
-                        (data = e.clipboardData.getData(DataTransferType.Text))
+                        !isPasteHandled &&
+                        ((data = e.clipboardData.getData(DataTransferType.Yfm)) ||
+                            (data = e.clipboardData.getData(DataTransferType.Text)))
                     ) {
                         let parser: Parser;
                         let dataFormat: string;

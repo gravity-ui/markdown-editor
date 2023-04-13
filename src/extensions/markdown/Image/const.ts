@@ -1,9 +1,3 @@
-export const image = 'image';
+export {imageNodeName, ImageAttr} from './ImageSpecs';
 
 export const addImageAction = 'addImage';
-
-export const ImageAttr = {
-    Src: 'src',
-    Alt: 'alt',
-    Title: 'title',
-} as const;

@@ -4,6 +4,7 @@ import {useUpdate} from 'react-use';
 import {Button, RadioButton, TextInput} from '@gravity-ui/uikit';
 
 import {
+    BaseNode,
     BasePreset,
     BehaviorPreset,
     MarkdownBlocksPreset,
@@ -13,6 +14,8 @@ import {
     useYfmEditor,
     YfmPreset,
     Extension,
+    ReactRenderStorage,
+    ReactRendererComponent,
 } from '../src';
 import {PlaygroundHtmlPreview} from './HtmlPreview';
 import {ProseMirrorDevTools} from './ProseMirrorDevTools';
@@ -42,25 +45,39 @@ logger.setLogger({
     ...console,
 });
 
-export const Playground = React.memo<PlaygroundProps>((props) => {
+const Playground = React.memo<PlaygroundProps>((props) => {
     const {initial, allowHTML, breaks, linkify, linkifyTlds} = props;
     const [previewType, setPreviewType] = React.useState<string>(PreviewType.Markup);
     const [yfmRaw, setYfmRaw] = React.useState<MarkupString>(initial || '');
     const rerender = useUpdate();
 
+    const renderStorage = React.useMemo(() => new ReactRenderStorage(), []);
     const extensions = React.useMemo<Extension>(
         () => (builder) =>
             builder
-                .use(BasePreset, {})
+                .use(BasePreset, {
+                    baseSchema: {
+                        paragraphPlaceholder(_node, parent) {
+                            return parent?.type.name === BaseNode.Doc && parent.childCount === 1
+                                ? 'Now... start typing'
+                                : null;
+                        },
+                    },
+                })
                 .use(BehaviorPreset, {
                     history: {
                         undoKey: keys.undo,
                         redoKey: keys.redo,
                     },
+                    reactRenderer: renderStorage,
                 })
                 .use(MarkdownBlocksPreset, {
                     image: false,
                     heading: false,
+                    lists: {
+                        ulKey: keys.ulist,
+                        olKey: keys.olist,
+                    },
                     breaks: {preferredBreak: breaks ? 'soft' : 'hard'},
                 })
                 .use(MarkdownMarksPreset, {
@@ -71,7 +88,7 @@ export const Playground = React.memo<PlaygroundProps>((props) => {
                     code: {codeKey: keys.code},
                 })
                 .use(YfmPreset, {}),
-        [breaks],
+        [breaks, renderStorage],
     );
 
     const editor = useYfmEditor({
@@ -154,7 +171,9 @@ export const Playground = React.memo<PlaygroundProps>((props) => {
             </div>
             <hr />
             <div className={b('editor')}>
-                <YfmEditorComponent editor={editor} autofocus className={b('editor')} />
+                <YfmEditorComponent editor={editor} autofocus className={b('editor')}>
+                    <ReactRendererComponent storage={renderStorage} />
+                </YfmEditorComponent>
                 <ProseMirrorDevTools view={editor.view} />
                 <PMSelection view={editor.view} className={b('pm-selection')} />
             </div>
@@ -190,8 +209,16 @@ export const Playground = React.memo<PlaygroundProps>((props) => {
         </div>
     );
 });
-
 Playground.displayName = 'Playground';
+
+const PlaygroundStrict: React.FC<PlaygroundProps> = (props) => (
+    <React.StrictMode>
+        <Playground {...props} />
+    </React.StrictMode>
+);
+PlaygroundStrict.displayName = 'PlaygroundStrict';
+
+export {PlaygroundStrict as Playground};
 
 // const fileUploadHandler: FileUploadHandler = async (file) => {
 //     console.info('[Playground] Uploading file: ' + file.name);

@@ -1,7 +1,5 @@
 import type {Node, NodeType, ResolvedPos} from 'prosemirror-model';
-import {Selection, TextSelection, NodeSelection, AllSelection, Command} from 'prosemirror-state';
-import type {NodeWithPos} from 'prosemirror-utils';
-import {GapCursorSelection} from '../extensions/behavior/Cursor/GapCursorSelection';
+import {Selection, TextSelection, NodeSelection, AllSelection} from 'prosemirror-state';
 
 NodeSelection.prototype.selectionName = 'NodeSelection';
 TextSelection.prototype.selectionName = 'TextSelection';
@@ -22,6 +20,12 @@ export const get$Cursor = (selection: Selection): ResolvedPos | null => {
     return isTextSelection(selection) ? selection.$cursor : null;
 };
 
+export function get$CursorAtBlockStart(selection: Selection): ResolvedPos | null {
+    const $cursor = get$Cursor(selection);
+    if (!$cursor || $cursor.parentOffset > 0 || $cursor.parent.isInline) return null;
+    return $cursor;
+}
+
 export const equalNodeType = function equalNodeType(nodeType: NodeType[] | NodeType, node: Node) {
     return (Array.isArray(nodeType) && nodeType.indexOf(node.type) > -1) || node.type === nodeType;
 };
@@ -40,25 +44,3 @@ export const findSelectedNodeOfType = (nodeType: NodeType) => {
         return null;
     };
 };
-
-export const createFakeParagraphNear: (direction: 'up' | 'down', parent?: NodeWithPos) => Command =
-    (direction, parent) => (state, dispatch) => {
-        const paragraph = state.schema.nodes.paragraph;
-
-        if (!paragraph || !parent) {
-            return false;
-        }
-
-        const insertPos = direction === 'up' ? parent.pos : parent.pos + parent.node.nodeSize;
-
-        const tr = state.tr;
-        const sel = new GapCursorSelection(tr.doc.resolve(insertPos));
-
-        tr.setSelection(sel);
-
-        if (dispatch) {
-            dispatch(tr);
-        }
-
-        return true;
-    };

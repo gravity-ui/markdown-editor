@@ -2,17 +2,17 @@ import {builders} from 'prosemirror-test-builder';
 import {createMarkupChecker} from '../../../../tests/sameMarkup';
 import {parseDOM} from '../../../../tests/parse-dom';
 import {ExtensionsManager} from '../../../core';
-import {BaseNode, BaseSchema} from '../../base/BaseSchema';
-import {italic, Italic} from './index';
+import {BaseNode, BaseSpecsPreset} from '../../base/specs';
+import {italicMarkName, ItalicSpecs} from './ItalicSpecs';
 
 const {schema, parser, serializer} = new ExtensionsManager({
-    extensions: (builder) => builder.use(BaseSchema, {}).use(Italic, {}),
+    extensions: (builder) => builder.use(BaseSpecsPreset, {}).use(ItalicSpecs),
 }).buildDeps();
 
 const {doc, p, i} = builders(schema, {
     doc: {nodeType: BaseNode.Doc},
     p: {nodeType: BaseNode.Paragraph},
-    i: {markType: italic},
+    i: {markType: italicMarkName},
 }) as PMTestBuilderResult<'doc' | 'p', 'i'>;
 
 const {same} = createMarkupChecker({parser, serializer});

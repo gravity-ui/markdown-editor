@@ -1,4 +1,4 @@
-import type {IconProps} from '@gravity-ui/uikit';
+import type {HotkeyProps, IconProps} from '@gravity-ui/uikit';
 import type {ClassNameProps} from '../classname';
 import type {ToolbarListButtonData} from './ToolbarListButton';
 
@@ -15,7 +15,7 @@ export type ToolbarItemData<E> = {
     icon: ToolbarIconData;
     title: string | (() => string);
     hint?: string | (() => string);
-    hotkey?: string | null;
+    hotkey?: HotkeyProps['value'];
     exec(editor: E): void;
     isActive(editor: E): boolean;
     isEnable(editor: E): boolean;

@@ -1,14 +1,13 @@
-import {FILE_TOKEN} from '@doc-tools/transform/lib/plugins/file/const';
 import {builders} from 'prosemirror-test-builder';
 
 import {createMarkupChecker} from '../../../../tests/sameMarkup';
 import {parseDOM} from '../../../../tests/parse-dom';
 import {ExtensionsManager} from '../../../core';
-import {BaseNode, BaseSchema} from '../../base/BaseSchema';
-import {YfmFile} from './index';
+import {BaseNode, BaseSpecsPreset} from '../../base/specs';
+import {yfmFileNodeName, YfmFileSpecs} from './YfmFileSpecs';
 
 const {schema, parser, serializer} = new ExtensionsManager({
-    extensions: (builder) => builder.use(BaseSchema, {}).use(YfmFile),
+    extensions: (builder) => builder.use(BaseSpecsPreset, {}).use(YfmFileSpecs),
 }).buildDeps();
 
 const {same} = createMarkupChecker({parser, serializer});
@@ -16,7 +15,7 @@ const {same} = createMarkupChecker({parser, serializer});
 const {doc, p, file} = builders(schema, {
     doc: {nodeType: BaseNode.Doc},
     p: {nodeType: BaseNode.Paragraph},
-    file: {nodeType: FILE_TOKEN},
+    file: {nodeType: yfmFileNodeName},
 }) as PMTestBuilderResult<'doc' | 'p' | 'file'>;
 
 const defaultAttrs = {

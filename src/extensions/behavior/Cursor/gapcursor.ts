@@ -1,10 +1,11 @@
 import {DOMSerializer} from 'prosemirror-model';
 import {Decoration, DecorationSet, EditorView} from 'prosemirror-view';
-import {EditorState, NodeSelection, Plugin, PluginKey} from 'prosemirror-state';
+import {EditorState, Plugin, PluginKey} from 'prosemirror-state';
 
+import {isNodeSelection} from '../../../utils/selection';
 import {pType} from '../../base/BaseSchema';
 import {createPlaceholder} from '../../behavior/Placeholder';
-import {GapCursorSelection} from './GapCursorSelection';
+import {isGapCursorSelection} from './GapCursorSelection';
 
 import './gapcursor.scss';
 
@@ -16,10 +17,8 @@ export const gapCursor = () =>
         state: {
             init: () => false,
             apply: (_tr, _pluginState, _oldState, newState) => {
-                return (
-                    newState.selection instanceof GapCursorSelection ||
-                    newState.selection instanceof NodeSelection
-                );
+                const sel = newState.selection;
+                return isGapCursorSelection(sel) || isNodeSelection(sel);
             },
         },
         view() {
@@ -33,7 +32,7 @@ export const gapCursor = () =>
         },
         props: {
             decorations: ({doc, selection}: EditorState) => {
-                if (selection instanceof GapCursorSelection) {
+                if (isGapCursorSelection(selection)) {
                     const position = selection.head;
 
                     return DecorationSet.create(doc, [
@@ -58,7 +57,8 @@ const toDOM: WidgetConstructor = (view, getPos) => {
     const node = pType(view.state.schema).create();
 
     const element = DOMSerializer.fromSchema(view.state.schema).serializeNode(node);
-    element.appendChild(createPlaceholder(node, true));
+    const placeholderDOM = createPlaceholder(node, null, true);
+    if (placeholderDOM) element.appendChild(placeholderDOM);
     (element as Element).classList.add('ye-gapcursor');
     (element as HTMLElement).addEventListener('mousedown', () => {
         const pos = getPos();

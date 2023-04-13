@@ -1,71 +1,23 @@
 import {setBlockType} from 'prosemirror-commands';
 import {textblockTypeInputRule} from 'prosemirror-inputrules';
-import {NodeType, Slice} from 'prosemirror-model';
-import {Plugin} from 'prosemirror-state';
+import {Fragment, NodeType, Slice} from 'prosemirror-model';
+import {Command, Plugin} from 'prosemirror-state';
 import {hasParentNodeOfType} from 'prosemirror-utils';
 import type {Action, ExtensionAuto, Keymap} from '../../../core';
+import {CodeBlockSpecs, CodeBlockSpecsOptions} from './CodeBlockSpecs';
 import {resetCodeblock} from './commands';
-import {cbAction, cbType, codeBlock, langAttr} from './const';
+import {cbAction, cbType} from './const';
 import {handlePaste} from './handle-paste';
 
-export type CodeBlockOptions = {
+export {resetCodeblock} from './commands';
+export {codeBlockNodeName, codeBlockLangAttr, codeBlockType} from './CodeBlockSpecs';
+
+export type CodeBlockOptions = CodeBlockSpecsOptions & {
     codeBlockKey?: string | null;
 };
 
 export const CodeBlock: ExtensionAuto<CodeBlockOptions> = (builder, opts) => {
-    builder.addNode(codeBlock, () => ({
-        spec: {
-            attrs: {[langAttr]: {default: 'text'}},
-            content: 'text*',
-            group: 'block',
-            code: true,
-            marks: '',
-            selectable: true,
-            allowSelection: true,
-            parseDOM: [
-                {
-                    tag: 'pre',
-                    preserveWhitespace: 'full',
-                    getAttrs: (node) => ({
-                        [langAttr]: (node as Element).getAttribute(langAttr) || '',
-                    }),
-                },
-            ],
-            toDOM({attrs}) {
-                return ['pre', attrs[langAttr] ? attrs : {}, ['code', 0]];
-            },
-        },
-        fromYfm: {
-            tokenSpec: {
-                name: codeBlock,
-                type: 'block',
-                noCloseToken: true,
-            },
-        },
-        toYfm: (state, node) => {
-            state.write('```' + (node.attrs[langAttr] || '') + '\n');
-            state.text(node.textContent, false);
-            state.ensureNewLine();
-            state.write('```');
-            state.closeBlock(node);
-        },
-    }));
-    builder.addNode('fence', () => ({
-        //  we adding this node only for define specific 'fence' parser token,
-        //  which parse fence md token to code_block node
-        spec: {},
-        fromYfm: {
-            tokenSpec: {
-                name: codeBlock,
-                type: 'block',
-                noCloseToken: true,
-                getAttrs: (tok) => ({[langAttr]: tok.info || ''}),
-            },
-        },
-        toYfm: () => {
-            throw new Error('Unexpected toYfm() call on fence node');
-        },
-    }));
+    builder.use(CodeBlockSpecs, opts);
 
     builder.addKeymap((deps) => {
         const {codeBlockKey} = opts;
@@ -75,10 +27,23 @@ export const CodeBlock: ExtensionAuto<CodeBlockOptions> = (builder, opts) => {
     });
 
     builder.addInputRules(({schema}) => ({rules: [codeBlockRule(cbType(schema))]}));
-
-    builder.addAction(cbAction, ({schema}) => {
+    builder.addAction(cbAction, ({schema, serializer}) => {
         const cb = cbType(schema);
-        const cmd = setBlockType(cb);
+        const cmd: Command = (state, dispatch) => {
+            if (!setBlockType(cb)(state)) return false;
+            if (dispatch) {
+                const markup = serializer.serialize(
+                    Fragment.from(state.selection.content().content),
+                );
+                dispatch(
+                    state.tr.replaceSelectionWith(
+                        cb.createAndFill({}, markup ? state.schema.text(markup) : null)!,
+                    ),
+                );
+            }
+            return true;
+        };
+
         return {
             isActive: (state) => hasParentNodeOfType(cb)(state.selection),
             isEnable: cmd,

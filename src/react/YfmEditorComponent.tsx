@@ -5,6 +5,7 @@ export type YfmEditorComponentProps = {
     className?: string;
     autofocus?: boolean;
     editor: YfmEditor;
+    children?: React.ReactNode;
 };
 
 export const YfmEditorComponent: React.FC<YfmEditorComponentProps> = ({

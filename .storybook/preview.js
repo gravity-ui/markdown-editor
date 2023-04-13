@@ -1,4 +1,4 @@
-import {withTheme, withThemeProvider, backgrounds} from '../demo/utils/preview';
+import {withTheme, withThemeProvider, withLang, backgrounds} from '../demo/utils/preview';
 
 export const parameters = {
     actions: {argTypesRegex: '^on[A-Z].*'},
@@ -22,4 +22,18 @@ export const parameters = {
     },
 };
 
-export const decorators = [withTheme, withThemeProvider];
+export const globalTypes = {
+    lang: {
+        name: 'Language',
+        defaultValue: 'en',
+        toolbar: {
+            icon: 'globe',
+            items: [
+                {value: 'ru', right: '🇷🇺', title: 'Ru'},
+                {value: 'en', right: '🇺🇸', title: 'En'},
+            ],
+        },
+    },
+};
+
+export const decorators = [withTheme, withThemeProvider, withLang];

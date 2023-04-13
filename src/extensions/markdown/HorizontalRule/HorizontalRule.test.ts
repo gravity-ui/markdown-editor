@@ -2,19 +2,23 @@ import {builders} from 'prosemirror-test-builder';
 import {createMarkupChecker} from '../../../../tests/sameMarkup';
 import {parseDOM} from '../../../../tests/parse-dom';
 import {ExtensionsManager} from '../../../core';
-import {BaseNode, BaseSchema} from '../../base/BaseSchema';
-import {horizontalRule, HorizontalRule, markupAttr} from './index';
+import {BaseNode, BaseSpecsPreset} from '../../base/specs';
+import {
+    horizontalRuleMarkupAttr,
+    horizontalRuleNodeName,
+    HorizontalRuleSpecs,
+} from './HorizontalRuleSpecs';
 
 const {schema, parser, serializer} = new ExtensionsManager({
-    extensions: (builder) => builder.use(BaseSchema, {}).use(HorizontalRule),
+    extensions: (builder) => builder.use(BaseSpecsPreset, {}).use(HorizontalRuleSpecs),
 }).buildDeps();
 
 const {doc, p, hr, hr2, hr3} = builders(schema, {
     doc: {nodeType: BaseNode.Doc},
     p: {nodeType: BaseNode.Paragraph},
-    hr: {nodeType: horizontalRule},
-    hr2: {nodeType: horizontalRule, [markupAttr]: '___'},
-    hr3: {nodeType: horizontalRule, [markupAttr]: '***'},
+    hr: {nodeType: horizontalRuleNodeName},
+    hr2: {nodeType: horizontalRuleNodeName, [horizontalRuleMarkupAttr]: '___'},
+    hr3: {nodeType: horizontalRuleNodeName, [horizontalRuleMarkupAttr]: '***'},
 }) as PMTestBuilderResult<'doc' | 'p' | 'hr' | 'hr2' | 'hr3'>;
 
 const {same} = createMarkupChecker({parser, serializer});

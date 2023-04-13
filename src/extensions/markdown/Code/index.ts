@@ -1,49 +1,24 @@
-import type {Node} from 'prosemirror-model';
 import {toggleMark} from 'prosemirror-commands';
 import codemark from 'prosemirror-codemark';
+import {Plugin} from 'prosemirror-state';
 import {createToggleMarkAction} from '../../../utils/actions';
 import type {Action, ExtensionAuto} from '../../../core';
-import {markTypeFactory} from '../../../utils/schema';
+import {codeMarkName, CodeSpecs, codeType} from './CodeSpecs';
 
 import './code.scss';
 
-export const code = 'code';
+export {codeMarkName, codeType} from './CodeSpecs';
+/** @deprecated Use `codeMarkName` instead */
+export const code = codeMarkName;
 const codeAction = 'code';
-export const codeType = markTypeFactory(code);
 
 export type CodeOptions = {
     codeKey?: string | null;
 };
 
 export const Code: ExtensionAuto<CodeOptions> = (builder, opts) => {
-    builder
-        .addMark(
-            code,
-            () => ({
-                spec: {
-                    code: true,
-                    parseDOM: [{tag: 'code'}],
-                    toDOM() {
-                        return ['code'];
-                    },
-                },
-                toYfm: {
-                    open(_state, _mark, parent, index) {
-                        return backticksFor(parent.child(index), -1);
-                    },
-                    close(_state, _mark, parent, index) {
-                        return backticksFor(parent.child(index - 1), 1);
-                    },
-                    escape: false,
-                },
-                fromYfm: {
-                    tokenSpec: {name: code, type: 'mark', noCloseToken: true},
-                    tokenName: 'code_inline',
-                },
-            }),
-            builder.Priority.Lowest,
-        )
-        .addAction(codeAction, ({schema}) => createToggleMarkAction(codeType(schema)));
+    builder.use(CodeSpecs);
+    builder.addAction(codeAction, ({schema}) => createToggleMarkAction(codeType(schema)));
 
     if (opts?.codeKey) {
         const {codeKey} = opts;
@@ -56,6 +31,37 @@ export const Code: ExtensionAuto<CodeOptions> = (builder, opts) => {
         // wrap current selected text to inline_code when '`' was pressed.
         // See demo: https://curvenote.github.io/prosemirror-codemark/
         .addPlugin(({schema}) => codemark({markType: codeType(schema)}));
+
+    builder.addPlugin(
+        () =>
+            // apply codemark when typing text between ``
+            new Plugin({
+                props: {
+                    handleTextInput: (view, from, to, text) => {
+                        const {
+                            selection: {$anchor},
+                            tr,
+                            schema,
+                        } = view.state;
+                        if (
+                            $anchor.nodeBefore?.text?.endsWith('`') &&
+                            $anchor.nodeAfter?.text?.startsWith('`')
+                        ) {
+                            view.dispatch(
+                                tr.replaceRangeWith(
+                                    from - 1,
+                                    to + 1,
+                                    view.state.schema.text(text, [codeType(schema).create()]),
+                                ),
+                            );
+
+                            return true;
+                        }
+                        return false;
+                    },
+                },
+            }),
+    );
 };
 
 declare global {
@@ -64,18 +70,4 @@ declare global {
             [codeAction]: Action;
         }
     }
-}
-
-function backticksFor(node: Node, side: number) {
-    const ticks = /`+/g;
-    let m;
-    let len = 0;
-
-    if (node.isText) while ((m = ticks.exec(node.text || ''))) len = Math.max(len, m[0].length);
-
-    let result = len > 0 && side > 0 ? ' `' : '`';
-    for (let i = 0; i < len; i++) result += '`';
-    if (len > 0 && side < 0) result += ' ';
-
-    return result;
 }

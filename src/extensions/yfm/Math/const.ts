@@ -1,4 +1,2 @@
-export enum MathNode {
-    Inline = 'math_inline',
-    Block = 'math_display',
-}
+export * from './MathSpecs/const';
+export {mathBType, mathIType} from './MathSpecs';

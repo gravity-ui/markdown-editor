@@ -2,17 +2,17 @@ import {builders} from 'prosemirror-test-builder';
 import {createMarkupChecker} from '../../../../tests/sameMarkup';
 import {parseDOM} from '../../../../tests/parse-dom';
 import {ExtensionsManager} from '../../../core';
-import {BaseNode, BaseSchema} from '../../base/BaseSchema';
-import {superscript, Superscript} from './index';
+import {BaseNode, BaseSpecsPreset} from '../../base/specs';
+import {superscriptMarkName, SuperscriptSpecs} from './SuperscriptSpecs';
 
 const {schema, parser, serializer} = new ExtensionsManager({
-    extensions: (builder) => builder.use(BaseSchema, {}).use(Superscript, {}),
+    extensions: (builder) => builder.use(BaseSpecsPreset, {}).use(SuperscriptSpecs),
 }).buildDeps();
 
 const {doc, p, s} = builders(schema, {
     doc: {nodeType: BaseNode.Doc},
     p: {nodeType: BaseNode.Paragraph},
-    s: {markType: superscript},
+    s: {markType: superscriptMarkName},
 }) as PMTestBuilderResult<'doc' | 'p', 's'>;
 
 const {same} = createMarkupChecker({parser, serializer});

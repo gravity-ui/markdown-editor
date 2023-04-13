@@ -2,22 +2,22 @@ import {builders} from 'prosemirror-test-builder';
 import {createMarkupChecker} from '../../../../tests/sameMarkup';
 import {parseDOM} from '../../../../tests/parse-dom';
 import {ExtensionsManager} from '../../../core';
-import {BaseNode, BaseSchema} from '../../base/BaseSchema';
-import {bold, Bold} from '../Bold';
-import {italic, Italic} from '../Italic';
-import {code, Code} from './index';
+import {BaseNode, BaseSpecsPreset} from '../../base/specs';
+import {boldMarkName, BoldSpecs} from '../Bold/BoldSpecs';
+import {italicMarkName, ItalicSpecs} from '../Italic/ItalicSpecs';
+import {codeMarkName, CodeSpecs} from './CodeSpecs';
 
 const {schema, parser, serializer} = new ExtensionsManager({
     extensions: (builder) =>
-        builder.use(BaseSchema, {}).use(Bold, {}).use(Code, {}).use(Italic, {}),
+        builder.use(BaseSpecsPreset, {}).use(BoldSpecs).use(CodeSpecs).use(ItalicSpecs),
 }).buildDeps();
 
 const {doc, p, b, i, c} = builders(schema, {
     doc: {nodeType: BaseNode.Doc},
     p: {nodeType: BaseNode.Paragraph},
-    b: {nodeType: bold},
-    i: {nodeType: italic},
-    c: {nodeType: code},
+    b: {nodeType: boldMarkName},
+    i: {nodeType: italicMarkName},
+    c: {nodeType: codeMarkName},
 }) as PMTestBuilderResult<'doc' | 'p', 'b' | 'i' | 'c'>;
 
 const {same} = createMarkupChecker({parser, serializer});

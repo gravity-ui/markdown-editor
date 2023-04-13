@@ -2,7 +2,7 @@ import {Schema} from 'prosemirror-model';
 import {EditorState, TextSelection} from 'prosemirror-state';
 import {builders} from 'prosemirror-test-builder';
 
-import {getSpec} from './spec';
+import {getSpec} from './CheckboxSpecs/spec';
 import {addCheckboxCmd} from './actions';
 import {applyCommand} from '../../../../tests/utils';
 

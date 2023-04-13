@@ -1,45 +1,15 @@
 import type {Action, ExtensionAuto} from '../../../core';
 import {goToNextCell} from '../../../table-utils';
-import {TableNode} from './const';
-import {fromYfm} from './fromYfm';
-import {spec} from './spec';
-import {toYfm} from './toYfm';
+import {TableSpecs} from './TableSpecs';
 import {createTableAction, deleteTableAction} from './actions';
+import * as TableHelpers from './helpers';
+import * as TableActions from './actions';
 
-export {TableNode} from './const';
+export {TableHelpers, TableActions};
+export {TableNode, TableAttrs, CellAlign as TableCellAlign} from './const';
 
 export const Table: ExtensionAuto = (builder) => {
-    builder
-        .addNode(TableNode.Table, () => ({
-            spec: spec[TableNode.Table],
-            toYfm: toYfm[TableNode.Table],
-            fromYfm: {tokenSpec: fromYfm[TableNode.Table]},
-        }))
-        .addNode(TableNode.Head, () => ({
-            spec: spec[TableNode.Head],
-            toYfm: toYfm[TableNode.Head],
-            fromYfm: {tokenSpec: fromYfm[TableNode.Head]},
-        }))
-        .addNode(TableNode.Body, () => ({
-            spec: spec[TableNode.Body],
-            toYfm: toYfm[TableNode.Body],
-            fromYfm: {tokenSpec: fromYfm[TableNode.Body]},
-        }))
-        .addNode(TableNode.Row, () => ({
-            spec: spec[TableNode.Row],
-            toYfm: toYfm[TableNode.Row],
-            fromYfm: {tokenSpec: fromYfm[TableNode.Row]},
-        }))
-        .addNode(TableNode.HeaderCell, () => ({
-            spec: spec[TableNode.HeaderCell],
-            toYfm: toYfm[TableNode.HeaderCell],
-            fromYfm: {tokenSpec: fromYfm[TableNode.HeaderCell]},
-        }))
-        .addNode(TableNode.DataCell, () => ({
-            spec: spec[TableNode.DataCell],
-            toYfm: toYfm[TableNode.DataCell],
-            fromYfm: {tokenSpec: fromYfm[TableNode.DataCell]},
-        }));
+    builder.use(TableSpecs);
 
     builder.addKeymap(() => ({
         Tab: goToNextCell('next'),

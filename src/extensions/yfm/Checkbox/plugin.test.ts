@@ -2,7 +2,7 @@ import {Schema} from 'prosemirror-model';
 import {EditorState, TextSelection} from 'prosemirror-state';
 import {builders} from 'prosemirror-test-builder';
 
-import {getSpec} from './spec';
+import {getSpec} from './CheckboxSpecs/spec';
 import {splitCheckbox} from './plugin';
 import {applyCommand} from '../../../../tests/utils';
 
@@ -35,7 +35,7 @@ describe('checkbox', () => {
 
             state.selection = new TextSelection(state.doc.resolve(7));
 
-            const {res, tr} = applyCommand(state, splitCheckbox);
+            const {res, tr} = applyCommand(state, splitCheckbox());
 
             expect(res).toBe(true);
             expect(tr.doc).toMatchNode(
@@ -54,7 +54,7 @@ describe('checkbox', () => {
 
             state.selection = new TextSelection(state.doc.resolve(10));
 
-            const {res, tr} = applyCommand(state, splitCheckbox);
+            const {res, tr} = applyCommand(state, splitCheckbox());
 
             expect(res).toBe(true);
             expect(tr.doc).toMatchNode(
@@ -73,10 +73,26 @@ describe('checkbox', () => {
 
             state.selection = new TextSelection(state.doc.resolve(3));
 
-            const {res, tr} = applyCommand(state, splitCheckbox);
+            const {res, tr} = applyCommand(state, splitCheckbox());
 
             expect(res).toBe(true);
             expect(tr.doc).toMatchNode(doc(p()));
+        });
+
+        it('should create new paragraph when argument is true', () => {
+            const state = EditorState.create({
+                schema,
+                doc: doc(checkbox(checkboxInput(), checkboxLabel('text123'))),
+            });
+
+            state.selection = new TextSelection(state.doc.resolve(7));
+
+            const {res, tr} = applyCommand(state, splitCheckbox(true));
+
+            expect(res).toBe(true);
+            expect(tr.doc).toMatchNode(
+                doc(checkbox(checkboxInput(), checkboxLabel('text')), p('123')),
+            );
         });
     });
 });

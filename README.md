@@ -1,4 +1,4 @@
-# @doc-tools/yfm-editor &middot; [![npm package](https://img.shields.io/npm/v/@doc-tools/yfm-editor)](https://www.npmjs.com/package/@doc-tools/yfm-editor) [![CI](https://img.shields.io/github/workflow/status/yandex-cloud/yfm-editor/CI/master?label=CI&logo=github)](https://github.com/yandex-cloud/yfm-editor/actions/workflows/ci.yml?query=branch:master) [![storybook](https://img.shields.io/badge/Storybook-deployed-ff4685)](https://preview.yandexcloud.dev/yfm-editor/)
+# @doc-tools/yfm-editor &middot; [![npm package](https://img.shields.io/npm/v/@doc-tools/yfm-editor)](https://www.npmjs.com/package/@doc-tools/yfm-editor) [![CI](https://img.shields.io/github/actions/workflow/status/yandex-cloud/yfm-editor/ci.yml?branch=master&label=CI&logo=github)](https://github.com/yandex-cloud/yfm-editor/actions/workflows/ci.yml?query=branch:master) [![storybook](https://img.shields.io/badge/Storybook-deployed-ff4685)](https://preview.yandexcloud.dev/yfm-editor/)
 
 [YFM](https://ydocs.tech/) WYSIWYG Editor
 
@@ -13,7 +13,7 @@ npm install @doc-tools/yfm-editor
 Ensure that peer dependencies are installed in your project
 
 ```shell
-npm install react@17 react-dom@17 @doc-tools/transform@2 @gravity-ui/uikit@3 lodash@4
+npm install react@17 react-dom@17 @doc-tools/transform@2 @gravity-ui/uikit@4 lodash@4
 ```
 
 ## Usage

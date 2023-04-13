@@ -1,8 +1,8 @@
 import type {ActionSpec} from '../../../core';
-import {VideoActionAttrs} from '.';
-import {VideoAttr} from './const';
-import {parseVideoUrl} from './md-video';
-import {vType} from './utils';
+import type {VideoActionAttrs} from './index';
+import {VideoAttr} from './VideoSpecs/const';
+import {parseVideoUrl} from './VideoSpecs/md-video';
+import {videoType} from './VideoSpecs/utils';
 
 export const addVideo: ActionSpec = {
     isEnable(state) {
@@ -19,7 +19,7 @@ export const addVideo: ActionSpec = {
         dispatch(
             state.tr.insert(
                 state.selection.from,
-                vType(state.schema).create({
+                videoType(state.schema).create({
                     [VideoAttr.Service]: service,
                     [VideoAttr.VideoID]: videoID,
                 }),

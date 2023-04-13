@@ -1,39 +1,32 @@
 import {toggleMark} from 'prosemirror-commands';
 import type {Action, ExtensionAuto} from '../../../core';
 import {createToggleMarkAction} from '../../../utils/actions';
-import {markTypeFactory} from '../../../utils/schema';
 import {markInputRule} from '../../../utils/inputrules';
-const ins = require('markdown-it-ins');
+import {underlineMarkName, UnderlineSpecs, underlineType} from './UnderlineSpecs';
 
-export const underline = 'ins';
+export {underlineMarkName, underlineType} from './UnderlineSpecs';
+/** @deprecated Use `underlineMarkName` instead */
+export const underline = underlineMarkName;
 const undAction = 'underline';
-const undType = markTypeFactory(underline);
 
 export type UnderlineOptions = {
     underlineKey?: string | null;
 };
 
 export const Underline: ExtensionAuto<UnderlineOptions> = (builder, opts) => {
+    builder.use(UnderlineSpecs);
+
     builder
-        .configureMd((md) => md.use(ins))
-        .addMark(underline, () => ({
-            spec: {
-                parseDOM: [{tag: 'ins'}, {tag: 'u'}],
-                toDOM() {
-                    return ['ins'];
-                },
-            },
-            toYfm: {open: '++', close: '++', mixable: true, expelEnclosingWhitespace: true},
-            fromYfm: {tokenSpec: {name: underline, type: 'mark'}},
-        }))
-        .addAction(undAction, ({schema}) => createToggleMarkAction(undType(schema)))
+        .addAction(undAction, ({schema}) => createToggleMarkAction(underlineType(schema)))
         .addInputRules(({schema}) => ({
-            rules: [markInputRule({open: '++', close: '++', ignoreBetween: '+'}, undType(schema))],
+            rules: [
+                markInputRule({open: '++', close: '++', ignoreBetween: '+'}, underlineType(schema)),
+            ],
         }));
 
     if (opts?.underlineKey) {
         const {underlineKey} = opts;
-        builder.addKeymap(({schema}) => ({[underlineKey]: toggleMark(undType(schema))}));
+        builder.addKeymap(({schema}) => ({[underlineKey]: toggleMark(underlineType(schema))}));
     }
 };
 

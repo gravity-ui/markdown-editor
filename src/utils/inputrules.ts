@@ -1,3 +1,4 @@
+import isFunction from 'lodash/isFunction';
 import {InputRule} from 'prosemirror-inputrules';
 import {Fragment, Mark, MarkType, Node} from 'prosemirror-model';
 import {EditorState, TextSelection} from 'prosemirror-state';
@@ -101,9 +102,11 @@ export function markInputRule(
     });
 }
 
+type NodeInputRuleReplaceFragment = Node | Fragment | readonly Node[] | null | undefined;
+
 export function nodeInputRule(
     regexp: RegExp,
-    fragment: Node | Fragment | null | undefined,
+    fragment: NodeInputRuleReplaceFragment | ((match: string) => NodeInputRuleReplaceFragment),
     selectionOffset = 0,
 ): InputRule {
     return new InputRule(regexp, (state, match, start, end) => {
@@ -111,9 +114,13 @@ export function nodeInputRule(
         const {tr} = state;
 
         if (matchStr) {
-            tr.replaceWith(start - 1, end, fragment || Fragment.empty).setSelection(
-                new TextSelection(tr.doc.resolve(start + selectionOffset)),
-            );
+            tr.replaceWith(
+                start - 1,
+                end,
+                isFunction(fragment)
+                    ? fragment(matchStr) ?? Fragment.empty
+                    : fragment ?? Fragment.empty,
+            ).setSelection(new TextSelection(tr.doc.resolve(start + selectionOffset)));
         }
 
         return tr;
@@ -122,7 +129,7 @@ export function nodeInputRule(
 
 export function inlineNodeInputRule(
     regexp: RegExp,
-    fragment: (match: string) => Node | Fragment | null | undefined,
+    fragment: (match: string) => NodeInputRuleReplaceFragment,
 ): InputRule {
     return new InputRule(regexp, (state, match, start, end) => {
         const [matchStr] = match;

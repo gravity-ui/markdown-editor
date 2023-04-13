@@ -1,11 +1,18 @@
 import {Command, TextSelection} from 'prosemirror-state';
-import {atEndOfCell, findChildTableRows, findParentTableRow} from '../../../../table-utils';
 import {
+    atEndOfCell,
+    findChildTableRows,
     findChildTableCells,
     findParentTable,
+    findParentTableRow,
     findParentTableCell,
-} from '../../../../table-utils/utils';
-import {createFakeParagraphNear} from '../../../../utils/selection';
+} from '../../../../table-utils';
+import {isTextSelection} from '../../../../utils/selection';
+import {
+    createFakeParagraph,
+    findFakeParaPosClosestToPos,
+    findFakeParaPosForTextSelection,
+} from '../../../behavior/Selection';
 
 export function goToNextRow(dir: 'up' | 'down'): Command {
     return (state, dispatch, view) => {
@@ -37,9 +44,19 @@ export function goToNextRow(dir: 'up' | 'down'): Command {
         const newRowIndex = rowIndex + (dir === 'up' ? -1 : 1);
 
         if (newRowIndex < 0 || newRowIndex >= allRows.length) {
-            createFakeParagraphNear(dir, parentTable)(state, dispatch);
-
-            return true;
+            const sel = state.selection;
+            if (isTextSelection(sel) && view.endOfTextblock(dir)) {
+                const [direction, $cursor] =
+                    dir === 'up' ? (['before', sel.$from] as const) : (['after', sel.$to] as const);
+                const $pos =
+                    findFakeParaPosForTextSelection(sel, direction) ??
+                    findFakeParaPosClosestToPos($cursor, $cursor.depth - 2, direction);
+                if ($pos) {
+                    dispatch?.(createFakeParagraph(state.tr, $pos, direction).scrollIntoView());
+                    return true;
+                }
+            }
+            return false;
         }
 
         const newRow = allRows[newRowIndex];

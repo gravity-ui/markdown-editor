@@ -125,4 +125,35 @@ This *paragraph <span style="color: red;" onmouseenter="alert('XSS inline');"> h
 
 <div>This is another html_block</div>
 
+{% list tabs %}
+
+- The name of tab1
+
+  The text of tab1.
+
+  * You can use lists.
+  * And **other** markup.
+
+- The name of tab2
+
+  The text of tab2.
+
+- The name of tab3
+
+  The text of tab3.
+
+- The name of tab4
+
+  The text of tab4.
+
+- The name of tab5
+
+  The text of tab5.
+
+- The name of tab6
+
+  The text of tab6.
+
+{% endlist %}
+
 `.trim();

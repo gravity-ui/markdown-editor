@@ -1,122 +1,176 @@
-import type {Node} from 'prosemirror-model';
-import {findChildren, findParentNodeClosestToPos} from 'prosemirror-utils';
-import {Command, EditorState, NodeSelection, TextSelection} from 'prosemirror-state';
+import type {Node, ResolvedPos} from 'prosemirror-model';
+import type {Command, NodeSelection, TextSelection, Transaction} from 'prosemirror-state';
 
 import {isCodeBlock} from '../../../utils/nodes';
-import {GapCursorSelection} from '../../behavior/Cursor/GapCursorSelection';
-import {createFakeParagraphNear} from '../../../utils/selection';
+import {isNodeSelection, isTextSelection} from '../../../utils/selection';
 
-export enum Direction {
-    up = 'up',
-    right = 'right',
-    left = 'left',
-    down = 'down',
+import {GapCursorSelection, isGapCursorSelection} from '../Cursor/GapCursorSelection';
+
+export type Direction = 'before' | 'after';
+type ArrowDirection = 'up' | 'right' | 'down' | 'left';
+
+type TextSelectionFinder = (selection: TextSelection, dir: Direction) => ResolvedPos | null;
+type NodeSelectionFinder = (selection: NodeSelection, dir: Direction) => ResolvedPos | null;
+type GapCursorSelectionFinder = (
+    selection: GapCursorSelection,
+    dir: Direction,
+) => ResolvedPos | null;
+
+type GapCursorMeta = {direction: Direction};
+
+const isUp = (dir: ArrowDirection) => dir === 'left' || dir === 'up';
+
+function isTextblock(node: Node): boolean {
+    return node.isTextblock && !isCodeBlock(node);
 }
 
-const isUp = (dir: Direction) => [Direction.up, Direction.left].includes(dir);
+function isEdgeTextblock($cursor: ResolvedPos, dir: Direction): boolean {
+    const index = $cursor.index($cursor.depth - 1);
+    if (dir === 'before') return index === 0;
+    if (dir === 'after') return index === $cursor.node($cursor.depth - 1).childCount - 1;
+    return false;
+}
 
-const findEdgeNode = (n: Node) =>
-    n.type.spec.complex === 'root' || // code block is exceptional
-    isCodeBlock(n);
+export const findNextFakeParaPosForGapCursorSelection: GapCursorSelectionFinder = ({$pos}, dir) => {
+    if ($pos.pos !== $pos.start() && $pos.pos !== $pos.end()) return null;
+    return findFakeParaPosClosestToPos($pos, $pos.depth, dir);
+};
 
-const arrow =
-    (dir: Direction): Command =>
-    (state, dispatch) => {
-        const {selection} = state;
-        const pos = state.doc.resolve(selection.head);
+export const findFakeParaPosForNodeSelection: NodeSelectionFinder = (selection, dir) => {
+    const selectedNode = selection.node;
+    if (selectedNode.isInline || isTextblock(selectedNode)) return null;
 
-        if (selection instanceof TextSelection || selection instanceof GapCursorSelection) {
-            const parent = findParentNodeClosestToPos(pos, findEdgeNode);
+    const {$from} = selection;
+    const index = $from.index();
+    const parentNode = $from.parent;
+    if (dir === 'before') {
+        if (parentNode.firstChild === selectedNode || !isTextblock(parentNode.child(index - 1))) {
+            return $from;
+        }
+    } else if (dir === 'after') {
+        if (parentNode.lastChild === selectedNode || !isTextblock(parentNode.child(index + 1))) {
+            return selection.$to;
+        }
+    }
 
-            if (isUp(dir) && needParagraphBefore(state, dir)) {
-                return createFakeParagraphNear(Direction.up, parent)(state, dispatch);
+    return null;
+};
+
+export const findFakeParaPosForCodeBlock = ($cursor: ResolvedPos, dir: Direction) => {
+    if (!isCodeBlock($cursor.parent)) return null;
+
+    let foundPos = -1;
+    const index = $cursor.index($cursor.depth - 1);
+    const parent = $cursor.node($cursor.depth - 1);
+    if (dir === 'before') {
+        if (index === 0 || !isTextblock(parent.child(index - 1))) {
+            foundPos = $cursor.before();
+        }
+    } else if (dir === 'after') {
+        if (index === parent.childCount - 1 || !isTextblock(parent.child(index + 1))) {
+            foundPos = $cursor.after();
+        }
+    }
+
+    return foundPos !== -1 ? $cursor.doc.resolve(foundPos) : null;
+};
+
+export const findFakeParaPosForTextSelection: TextSelectionFinder = (selection, dir) => {
+    const $cursor = dir === 'before' ? selection.$from : selection.$to;
+    if ($cursor.parent.isInline) return null;
+
+    const $pos = findFakeParaPosForCodeBlock($cursor, dir);
+    if ($pos) return $pos;
+
+    if (!isEdgeTextblock($cursor, dir)) return null;
+
+    return findFakeParaPosClosestToPos($cursor, $cursor.depth - 1, dir);
+};
+
+export function findFakeParaPosClosestToPos(
+    $pos: ResolvedPos,
+    depth: number,
+    dir: Direction,
+): ResolvedPos | null {
+    depth++;
+    while (--depth > 0) {
+        const node = $pos.node(depth);
+        const index = $pos.index(depth - 1);
+        const parent = $pos.node(depth - 1);
+
+        const isFirstChild = index === 0;
+        const isLastChild = index === parent.childCount - 1;
+
+        const isComplexChild =
+            node.type.spec.complex === 'inner' || node.type.spec.complex === 'leaf';
+
+        const disabledGapCursor = parent.type.spec.gapcursor === false;
+
+        if (isComplexChild || disabledGapCursor) {
+            if (dir === 'before' && isFirstChild) continue;
+            if (dir === 'after' && isLastChild) continue;
+            return null;
+        }
+
+        if (dir === 'before') {
+            if (isFirstChild || !isTextblock(parent.child(index - 1))) {
+                return $pos.doc.resolve($pos.before(depth));
             }
-            if (!isUp(dir) && needParagraphAfter(state, dir)) {
-                return createFakeParagraphNear(Direction.down, parent)(state, dispatch);
+        } else if (dir === 'after') {
+            if (isLastChild || !isTextblock(parent.child(index + 1))) {
+                return $pos.doc.resolve($pos.after(depth));
             }
         }
 
-        if (selection instanceof NodeSelection) {
-            if (selection.node.isInline) return false;
+        return null;
+    }
+    return null;
+}
 
-            return createFakeParagraphNear(isUp(dir) ? Direction.up : Direction.down, {
-                pos: pos.pos - 1,
-                node: selection.$from.parent,
-            })(state, dispatch);
+const arrow =
+    (dir: ArrowDirection): Command =>
+    (state, dispatch, view) => {
+        const {selection} = state;
+        const direction: Direction = isUp(dir) ? 'before' : 'after';
+        let $pos: ResolvedPos | null = null;
+
+        if (isGapCursorSelection<GapCursorMeta>(selection)) {
+            if (selection.meta?.direction !== direction) {
+                return false;
+            }
+
+            // if gap selection is at start or end of doc
+            if (dir === 'up' && selection.pos === 0) return true;
+            if (dir === 'down' && selection.pos === state.doc.nodeSize - 2) return true;
+
+            $pos = findNextFakeParaPosForGapCursorSelection(selection, direction);
+        }
+
+        if (isNodeSelection(selection)) {
+            $pos = findFakeParaPosForNodeSelection(selection, direction);
+        }
+
+        if (isTextSelection(selection) && view?.endOfTextblock(dir)) {
+            $pos = findFakeParaPosForTextSelection(selection, direction);
+        }
+
+        if ($pos) {
+            dispatch?.(createFakeParagraph(state.tr, $pos, direction).scrollIntoView());
+            return true;
         }
 
         return false;
     };
 
-export const arrowLeft = arrow(Direction.left);
-export const arrowDown = arrow(Direction.down);
-export const arrowUp = arrow(Direction.up);
-export const arrowRight = arrow(Direction.right);
+export function createFakeParagraph(
+    tr: Transaction,
+    $pos: ResolvedPos,
+    direction: Direction,
+): Transaction {
+    return tr.setSelection(new GapCursorSelection<GapCursorMeta>($pos, {meta: {direction}}));
+}
 
-export const needParagraphBefore = (state: EditorState, dir: Direction) => {
-    if (!isUp(dir)) return false;
-
-    const {selection} = state;
-    const {$from} = selection;
-
-    const pos = state.doc.resolve(selection.head);
-
-    const disabledParent = findParentNodeClosestToPos(pos, (n) => n.type.spec.disableGapCursor);
-    if (disabledParent) {
-        return false;
-    }
-
-    const parent = findParentNodeClosestToPos(pos, findEdgeNode);
-
-    if (parent) {
-        if (state.doc.resolve(Math.max(parent.pos - 1, 0)).parent.type.name === 'paragraph') {
-            return false;
-        }
-
-        const firstTextBlock = findChildren(parent.node, (n) => n.isTextblock || n.isText)[0];
-
-        return (
-            parent.start === $from.pos - ($from.depth - parent.depth) ||
-            (dir === 'up' &&
-                $from.pos < parent.start + firstTextBlock.pos + firstTextBlock.node.nodeSize)
-        );
-    }
-
-    return false;
-};
-
-export const needParagraphAfter = (state: EditorState, dir: Direction) => {
-    if (isUp(dir)) return false;
-
-    const {selection} = state;
-    const {$from} = selection;
-
-    const pos = state.doc.resolve(selection.head);
-
-    const disabledParent = findParentNodeClosestToPos(pos, (n) => n.type.spec.disableGapCursor);
-
-    if (disabledParent) {
-        return false;
-    }
-
-    const parent = findParentNodeClosestToPos(pos, findEdgeNode);
-    if (parent) {
-        if (
-            state.doc.resolve(
-                Math.min(parent.pos + parent.node.nodeSize + 1, state.doc.nodeSize - 2),
-            ).parent.type.name === 'paragraph'
-        ) {
-            return false;
-        }
-
-        const children = findChildren(parent.node, (n) => n.isTextblock || n.isText);
-        const lastTextBlock = children[children.length - 1];
-
-        return (
-            parent.pos + parent.node.nodeSize === $from.pos + ($from.depth - parent.depth) + 1 ||
-            (dir === 'down' && $from.pos > parent.start + lastTextBlock.pos)
-        );
-    }
-
-    return false;
-};
+export const arrowLeft = arrow('left');
+export const arrowDown = arrow('down');
+export const arrowUp = arrow('up');
+export const arrowRight = arrow('right');

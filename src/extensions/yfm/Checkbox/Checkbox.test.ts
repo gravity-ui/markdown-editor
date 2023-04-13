@@ -1,17 +1,16 @@
 import {builders} from 'prosemirror-test-builder';
 import {createMarkupChecker} from '../../../../tests/sameMarkup';
 import {ExtensionsManager} from '../../../core';
-import {BaseNode, BaseSchema} from '../../base/BaseSchema';
-import {Bold, bold} from '../../markdown/Bold';
-import {CheckboxNode} from './const';
-import {Checkbox} from './index';
+import {BaseNode, BaseSpecsPreset} from '../../base/specs';
+import {boldMarkName, BoldSpecs} from '../../markdown/specs';
+import {CheckboxSpecs, CheckboxNode} from './CheckboxSpecs';
 
 const {schema, parser, serializer} = new ExtensionsManager({
     extensions: (builder) =>
         builder
-            .use(BaseSchema, {})
-            .use(Bold, {})
-            .use(Checkbox, {checkboxLabelPlaceholder: 'checkbox-placeholder'}),
+            .use(BaseSpecsPreset, {})
+            .use(BoldSpecs)
+            .use(CheckboxSpecs, {checkboxLabelPlaceholder: 'checkbox-placeholder'}),
 }).buildDeps();
 
 const {
@@ -29,7 +28,7 @@ const {
 } = builders(schema, {
     doc: {nodeType: BaseNode.Doc},
     p: {nodeType: BaseNode.Paragraph},
-    b: {nodeType: bold},
+    b: {nodeType: boldMarkName},
     checkbox: {nodeType: CheckboxNode.Checkbox},
     cbInput: {nodeType: CheckboxNode.Input},
     cbLabel: {nodeType: CheckboxNode.Label},

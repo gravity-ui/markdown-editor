@@ -22,12 +22,10 @@
         column-gap: 24px;
     }
 
-    &__hotkey {
-        color: var(--yc-color-text-secondary);
-    }
-
     &__extra {
         display: flex;
+        align-items: center;
+        column-gap: 8px;
     }
 
     &__hint {

@@ -1,7 +1,3 @@
-export const video = 'video';
-export const vAction = 'video';
+export * from './VideoSpecs/const';
 
-export enum VideoAttr {
-    Service = 'service',
-    VideoID = 'videoid',
-}
+export const vAction = 'video';

@@ -2,26 +2,26 @@ import {builders} from 'prosemirror-test-builder';
 import {createMarkupChecker} from '../../../../tests/sameMarkup';
 import {parseDOM} from '../../../../tests/parse-dom';
 import {ExtensionsManager} from '../../../core';
-import {BaseNode, BaseSchema} from '../../base/BaseSchema';
-import {bold, Bold} from '../Bold';
-import {Heading} from './index';
-import {heading, lvlAttr} from './const';
+import {BaseNode, BaseSpecsPreset} from '../../base/specs';
+import {boldMarkName, BoldSpecs} from '../Bold/BoldSpecs';
+import {HeadingSpecs} from './HeadingSpecs';
+import {headingNodeName, headingLevelAttr} from './const';
 
 const {schema, parser, serializer} = new ExtensionsManager({
-    extensions: (builder) => builder.use(BaseSchema, {}).use(Heading, {}).use(Bold, {}),
+    extensions: (builder) => builder.use(BaseSpecsPreset, {}).use(HeadingSpecs, {}).use(BoldSpecs),
 }).buildDeps();
 
 const {doc, b, p, h, h1, h2, h3, h4, h5, h6} = builders(schema, {
     doc: {nodeType: BaseNode.Doc},
-    b: {nodeType: bold},
+    b: {nodeType: boldMarkName},
     p: {nodeType: BaseNode.Paragraph},
-    h: {nodeType: heading},
-    h1: {nodeType: heading, [lvlAttr]: 1},
-    h2: {nodeType: heading, [lvlAttr]: 2},
-    h3: {nodeType: heading, [lvlAttr]: 3},
-    h4: {nodeType: heading, [lvlAttr]: 4},
-    h5: {nodeType: heading, [lvlAttr]: 5},
-    h6: {nodeType: heading, [lvlAttr]: 6},
+    h: {nodeType: headingNodeName},
+    h1: {nodeType: headingNodeName, [headingLevelAttr]: 1},
+    h2: {nodeType: headingNodeName, [headingLevelAttr]: 2},
+    h3: {nodeType: headingNodeName, [headingLevelAttr]: 3},
+    h4: {nodeType: headingNodeName, [headingLevelAttr]: 4},
+    h5: {nodeType: headingNodeName, [headingLevelAttr]: 5},
+    h6: {nodeType: headingNodeName, [headingLevelAttr]: 6},
 }) as PMTestBuilderResult<'doc' | 'p' | 'h' | 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6', 'b'>;
 
 const {same} = createMarkupChecker({parser, serializer});
@@ -79,7 +79,7 @@ describe('Heading extension', () => {
         parseDOM(
             schema,
             `<h${lvl}>Heading ${lvl}</h${lvl}>`,
-            doc(h({[lvlAttr]: lvl}, `Heading ${lvl}`)),
+            doc(h({[headingLevelAttr]: lvl}, `Heading ${lvl}`)),
         );
     });
 });

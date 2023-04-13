@@ -2,12 +2,11 @@ import {builders} from 'prosemirror-test-builder';
 import {createMarkupChecker} from '../../../../tests/sameMarkup';
 import {parseDOM} from '../../../../tests/parse-dom';
 import {ExtensionsManager} from '../../../core';
-import {BaseNode, BaseSchema} from '../../base/BaseSchema';
-import {Deflist} from './index';
-import {DeflistNode} from './const';
+import {BaseNode, BaseSpecsPreset} from '../../base/specs';
+import {DeflistNode, DeflistSpecs} from './DeflistSpecs';
 
 const {schema, parser, serializer} = new ExtensionsManager({
-    extensions: (builder) => builder.use(BaseSchema, {}).use(Deflist, {}),
+    extensions: (builder) => builder.use(BaseSpecsPreset, {}).use(DeflistSpecs, {}),
 }).buildDeps();
 
 const {doc, p, dl, dt, dd} = builders(schema, {

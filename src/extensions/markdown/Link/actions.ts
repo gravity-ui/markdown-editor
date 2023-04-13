@@ -3,7 +3,7 @@ import {TextSelection} from 'prosemirror-state';
 import type {MarkType} from 'prosemirror-model';
 import type {ActionSpec, ExtensionDeps} from '../../../core';
 import {isMarkActive} from '../../../utils/marks';
-import {LinkAttr} from '.';
+import {LinkAttr} from './LinkSpecs';
 import {removeLink} from './commands';
 import {normalizeUrlFactory} from './utils';
 
