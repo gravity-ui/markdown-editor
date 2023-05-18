@@ -24,7 +24,7 @@ export const getSpec = (opts?: YfmCutSpecsOptions): Record<CutNode, NodeSpec> =>
 
     [CutNode.CutTitle]: {
         attrs: {class: {default: 'yfm-cut-title'}},
-        content: 'text*',
+        content: 'inline*',
         group: 'block yfm-cut',
         parseDOM: [{tag: 'div.yfm-cut-title'}],
         toDOM(node) {

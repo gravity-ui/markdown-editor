@@ -8,23 +8,32 @@ import {
     BlockquoteSpecs,
     italicMarkName,
     ItalicSpecs,
+    ImageSpecs,
+    imageNodeName,
+    ImageAttr,
 } from '../../markdown/specs';
 import {CutNode, YfmCutSpecs} from './YfmCutSpecs';
 
 const {schema, parser, serializer} = new ExtensionsManager({
     extensions: (builder) =>
-        builder.use(BaseSpecsPreset, {}).use(ItalicSpecs).use(BlockquoteSpecs).use(YfmCutSpecs, {}),
+        builder
+            .use(BaseSpecsPreset, {})
+            .use(ItalicSpecs)
+            .use(BlockquoteSpecs)
+            .use(YfmCutSpecs, {})
+            .use(ImageSpecs),
 }).buildDeps();
 
-const {doc, p, i, bq, cut, cutTitle, cutContent} = builders(schema, {
+const {doc, p, i, bq, img, cut, cutTitle, cutContent} = builders(schema, {
     doc: {nodeType: BaseNode.Doc},
     p: {nodeType: BaseNode.Paragraph},
     i: {markType: italicMarkName},
     bq: {nodeType: blockquoteNodeName},
+    img: {nodeType: imageNodeName},
     cut: {nodeType: CutNode.Cut},
     cutTitle: {nodeType: CutNode.CutTitle},
     cutContent: {nodeType: CutNode.CutContent},
-}) as PMTestBuilderResult<'doc' | 'p' | 'bq' | 'cut' | 'cutTitle' | 'cutContent', 'i'>;
+}) as PMTestBuilderResult<'doc' | 'p' | 'bq' | 'img' | 'cut' | 'cutTitle' | 'cutContent', 'i'>;
 
 const {same} = createMarkupChecker({parser, serializer});
 
@@ -92,6 +101,31 @@ cut content
     `.trim();
 
         same(markup, doc(cut(cutTitle(i('cut italic title')), cutContent(p('cut content')))));
+    });
+
+    it('should parse yfm-cut with inline node in cut title', () => {
+        const markup = `
+{% cut "![img](path/to/img)" %}
+
+cut content
+
+{% endcut %}
+    `.trim();
+
+        same(
+            markup,
+            doc(
+                cut(
+                    cutTitle(
+                        img({
+                            [ImageAttr.Src]: 'path/to/img',
+                            [ImageAttr.Alt]: 'img',
+                        }),
+                    ),
+                    cutContent(p('cut content')),
+                ),
+            ),
+        );
     });
 
     it('should parse yfm-note from html', () => {
