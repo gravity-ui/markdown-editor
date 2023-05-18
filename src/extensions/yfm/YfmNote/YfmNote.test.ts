@@ -8,6 +8,9 @@ import {
     BlockquoteSpecs,
     italicMarkName,
     blockquoteNodeName,
+    ImageSpecs,
+    imageNodeName,
+    ImageAttr,
 } from '../../markdown/specs';
 import {YfmNoteSpecs} from './YfmNoteSpecs';
 import {NoteAttrs, NoteNode} from './const';
@@ -18,21 +21,23 @@ const {schema, parser, serializer} = new ExtensionsManager({
             .use(BaseSpecsPreset, {})
             .use(ItalicSpecs)
             .use(BlockquoteSpecs)
-            .use(YfmNoteSpecs, {}),
+            .use(YfmNoteSpecs, {})
+            .use(ImageSpecs),
 }).buildDeps();
 
-const {doc, p, i, bq, note, noteTitle} = builders(schema, {
+const {doc, p, i, bq, img, note, noteTitle} = builders(schema, {
     doc: {nodeType: BaseNode.Doc},
     p: {nodeType: BaseNode.Paragraph},
     i: {markType: italicMarkName},
     bq: {nodeType: blockquoteNodeName},
+    img: {nodeType: imageNodeName},
     note: {
         nodeType: NoteNode.Note,
         [NoteAttrs.Type]: 'info',
         [NoteAttrs.Class]: 'yfm-note yfm-accent-info',
     },
     noteTitle: {nodeType: NoteNode.NoteTitle},
-}) as PMTestBuilderResult<'doc' | 'p' | 'bq' | 'note' | 'noteTitle', 'i'>;
+}) as PMTestBuilderResult<'doc' | 'p' | 'bq' | 'img' | 'note' | 'noteTitle', 'i'>;
 
 const {same} = createMarkupChecker({parser, serializer});
 
@@ -91,8 +96,32 @@ note content
 {% endnote %}
     `.trim();
 
-        // eslint-disable-next-line prettier/prettier
         same(markup, doc(note(noteTitle(i('note italic title')), p('note content'))));
+    });
+
+    it('should parse yfm-note with inline node in note title', () => {
+        const markup = `
+{% note info "![img](path/to/img)" %}
+
+note content
+
+{% endnote %}
+    `.trim();
+
+        same(
+            markup,
+            doc(
+                note(
+                    noteTitle(
+                        img({
+                            [ImageAttr.Src]: 'path/to/img',
+                            [ImageAttr.Alt]: 'img',
+                        }),
+                    ),
+                    p('note content'),
+                ),
+            ),
+        );
     });
 
     // TODO: parsed: doc(paragraph("YfmNote title"), paragraph("YfmNote content"))

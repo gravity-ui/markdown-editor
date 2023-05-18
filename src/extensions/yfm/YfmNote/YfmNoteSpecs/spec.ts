@@ -31,7 +31,7 @@ export const getSpec = (opts?: YfmNoteSpecsOptions): Record<NoteNode, NodeSpec> 
     },
 
     [NoteNode.NoteTitle]: {
-        content: 'text*',
+        content: 'inline*',
         group: 'block yfm-note',
         parseDOM: [
             {

@@ -11,7 +11,7 @@ export const toYfm: Record<NoteNode, SerializerNodeToken> = {
 
     [NoteNode.NoteTitle]: (state, node, parent) => {
         state.write(`{% note ${parent.attrs[NoteAttrs.Type]} `);
-        if (node.textContent) {
+        if (node.nodeSize > 2) {
             state.write('"');
             state.renderInline(node);
             state.write('"');
