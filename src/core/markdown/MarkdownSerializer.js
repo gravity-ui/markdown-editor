@@ -189,12 +189,10 @@ export class MarkdownSerializerState {
         const progress = (node, _, index) => {
             let marks = node ? node.marks : [];
 
-            // Remove marks from `hard_break` that are the last node inside
+            // Remove marks from breaks (hard_break or soft_break) that are the last node inside
             // that mark to prevent parser edge cases with new lines just
             // before closing marks.
-            // (FIXME it'd be nice if we had a schema-agnostic way to
-            // identify nodes that serialize as hard breaks)
-            if (node && node.type.name === 'hard_break') {
+            if (node && node.type.spec.isBreak) {
                 marks = marks.filter(m => {
                     if (index + 1 == parent.childCount) return false;
                     const next = parent.child(index + 1);
