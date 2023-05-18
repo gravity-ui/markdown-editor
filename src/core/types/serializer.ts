@@ -30,3 +30,10 @@ export interface SerializerMarkToken {
     escape?: boolean;
     expelEnclosingWhitespace?: boolean;
 }
+
+declare module 'prosemirror-model' {
+    interface NodeSpec {
+        /** Default false */
+        isBreak?: boolean;
+    }
+}

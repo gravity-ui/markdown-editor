@@ -11,6 +11,7 @@ import {MarkdownParser} from './MarkdownParser';
 import {MarkdownSerializer} from './MarkdownSerializer';
 
 const {schema} = builder;
+schema.nodes['hard_break'].spec.isBreak = true;
 const parser: Parser = new MarkdownParser(schema, new MarkdownIt('commonmark'), {
     paragraph: {type: 'block', name: 'paragraph'},
     heading: {
@@ -159,6 +160,9 @@ describe('markdown', () => {
         same('**text1\ntext2**', doc(p(strong('text1\ntext2')))));
 
     it('drops trailing hard breaks', () => serialize(doc(p('a', br(), br())), 'a'));
+
+    it('should remove marks from edge break', () =>
+        serialize(doc(p(strong('text', br()), 'text2')), '**text**\\\ntext2'));
 
     it('expels enclosing whitespace from inside emphasis', () =>
         serialize(

@@ -13,7 +13,9 @@ export const BreaksSpecs: ExtensionAuto = (builder) => {
     builder.addNode(BreakNodeName.HardBreak, () => ({
         spec: {
             inline: true,
-            group: 'inline',
+            group: 'inline break',
+            marks: '',
+            isBreak: true,
             selectable: false,
             parseDOM: [{tag: 'br'}],
             toDOM() {
@@ -38,7 +40,9 @@ export const BreaksSpecs: ExtensionAuto = (builder) => {
     builder.addNode(BreakNodeName.SoftBreak, () => ({
         spec: {
             inline: true,
-            group: 'inline',
+            group: 'inline break',
+            marks: '',
+            isBreak: true,
             selectable: false,
             toDOM() {
                 return ['br'];
