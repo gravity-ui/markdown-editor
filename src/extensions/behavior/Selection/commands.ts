@@ -1,5 +1,6 @@
 import type {Node, ResolvedPos} from 'prosemirror-model';
 import type {Command, NodeSelection, TextSelection, Transaction} from 'prosemirror-state';
+import {Selection} from 'prosemirror-state';
 
 import {isCodeBlock} from '../../../utils/nodes';
 import {isNodeSelection, isTextSelection} from '../../../utils/selection';
@@ -174,3 +175,15 @@ export const arrowLeft = arrow('left');
 export const arrowDown = arrow('down');
 export const arrowUp = arrow('up');
 export const arrowRight = arrow('right');
+
+export const backspace: Command = (state, dispatch) => {
+    const sel = state.selection;
+    if (isGapCursorSelection(sel)) {
+        const newSel = Selection.findFrom(sel.$pos, -1);
+        if (newSel) {
+            dispatch?.(state.tr.setSelection(newSel).scrollIntoView());
+            return true;
+        }
+    }
+    return false;
+};

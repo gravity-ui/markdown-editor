@@ -14,7 +14,7 @@ import {
 
 import {isSelectableNode} from '../../../utils/nodes';
 import {isNodeSelection} from '../../../utils/selection';
-import {arrowDown, arrowLeft, arrowRight, arrowUp} from './commands';
+import {arrowDown, arrowLeft, arrowRight, arrowUp, backspace} from './commands';
 
 import './selection.scss';
 
@@ -26,6 +26,7 @@ export const selection = () =>
                 ArrowRight: arrowRight,
                 ArrowUp: arrowUp,
                 ArrowDown: arrowDown,
+                Backspace: backspace,
             }),
             decorations(state) {
                 return getDecorations(state.tr);
