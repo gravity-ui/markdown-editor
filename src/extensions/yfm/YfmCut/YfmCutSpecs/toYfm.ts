@@ -12,7 +12,7 @@ export const toYfm: Record<CutNode, SerializerNodeToken> = {
 
     [CutNode.CutTitle]: (state, node) => {
         state.write('{% cut "');
-        if (node.textContent) state.renderInline(node);
+        if (node.nodeSize > 2) state.renderInline(node);
         else state.write(getPlaceholderContent(node));
         state.write('" %}\n');
         state.write('\n');
