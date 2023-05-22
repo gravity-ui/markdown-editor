@@ -1,0 +1,8 @@
+@mixin block-border-hover() {
+    border: 1px dashed transparent;
+    border-radius: var(--yc-border-radius-s);
+
+    &:hover {
+        border-color: var(--yc-color-line-generic);
+    }
+}

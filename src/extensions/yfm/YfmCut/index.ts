@@ -8,6 +8,8 @@ import {YfmCutTitleNodeView} from './nodeviews/yfm-cut-title';
 import {cutAutoOpenPlugin} from './plugins/auto-open';
 import {YfmCutSpecs, YfmCutSpecsOptions} from './YfmCutSpecs';
 
+import './index.scss';
+
 const cutAction = 'toYfmCut';
 
 export {CutNode, cutType, cutTitleType, cutContentType} from './YfmCutSpecs';
