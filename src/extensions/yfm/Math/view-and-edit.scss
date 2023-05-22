@@ -9,7 +9,12 @@
 }
 
 .math-error {
-    color: var(--yc-color-base-danger-heavy);
+    color: var(--yc-color-text-danger);
+}
+
+.math-block-view.math-view-error {
+    display: flex;
+    justify-content: center;
 }
 
 .math-container.math-active .math-view {
@@ -29,7 +34,39 @@
 }
 
 .math-container:not(.math-active) {
+    --ye-math-back-color: transparent;
+    --ye-math-hover-color: var(--yc-color-base-simple-hover);
+
     position: relative;
+
+    &.math-container-error {
+        --ye-math-back-color: var(--yc-color-base-danger);
+        --ye-math-hover-color: var(--yc-color-base-danger-hover);
+    }
+
+    &::before {
+        position: absolute;
+        z-index: -1;
+        top: -2px;
+        right: -2px;
+        bottom: -2px;
+        left: -2px;
+
+        content: '';
+
+        border-radius: var(--yc-border-radius-s);
+        background-color: var(--ye-math-back-color);
+
+        transition: background-color 0.15s linear;
+    }
+
+    &:hover {
+        cursor: pointer;
+
+        &::before {
+            background-color: var(--ye-math-hover-color);
+        }
+    }
 
     .math-inline,
     .math-block {
@@ -38,6 +75,8 @@
         right: 0;
         bottom: 0;
         left: 0;
+
+        overflow: hidden;
 
         opacity: 0;
     }

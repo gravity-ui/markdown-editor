@@ -65,16 +65,23 @@ export abstract class MathNodeView implements NodeView {
     protected renderKatex() {
         try {
             katex.render(this.texContent, this.mathViewDOM, {
-                throwOnError: false,
+                throwOnError: true,
                 displayMode: this.isDisplayMode(),
             });
+            this.updateErrorView(false);
         } catch (err) {
             const errorElem = document.createElement('span');
             errorElem.classList.add('math-error');
             errorElem.innerText = `(error) ${this.texContent}`;
             errorElem.title = String(err);
             this.mathViewDOM.appendChild(errorElem);
+            this.updateErrorView(true);
         }
+    }
+
+    protected updateErrorView(isError: boolean) {
+        this.dom.classList.toggle('math-container-error', isError);
+        this.mathViewDOM.classList.toggle('math-view-error', isError);
     }
 
     protected getTexContent() {
