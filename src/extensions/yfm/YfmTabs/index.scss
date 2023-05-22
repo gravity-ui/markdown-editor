@@ -1,13 +1,8 @@
+@use '../../../styles/mixins.scss';
+
 .ProseMirror {
     .yfm-tabs {
-        border-width: 1px;
-        border-style: dashed;
-        border-color: transparent;
-        border-radius: var(--yc-border-radius-s);
-
-        &:hover {
-            border-color: var(--yc-color-line-generic);
-        }
+        @include mixins.block-border-hover();
     }
 
     .yfm-tab {

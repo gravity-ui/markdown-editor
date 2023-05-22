@@ -1,0 +1,5 @@
+@use '../../../styles/mixins.scss';
+
+.ProseMirror.yfm .yfm-cut {
+    @include mixins.block-border-hover();
+}
