@@ -1,5 +1,21 @@
 # Changelog
 
+## [5.2.0](https://github.com/yandex-cloud/yfm-editor/compare/v5.1.0...v5.2.0) (2023-05-22)
+
+
+### Features
+
+* **Math:** add background on hover ([#103](https://github.com/yandex-cloud/yfm-editor/issues/103)) ([ab869cd](https://github.com/yandex-cloud/yfm-editor/commit/ab869cd1deaf0315d9fc654bfec2414af97d397b))
+* **Selecion:** support backspace action for fake paragraph ([#100](https://github.com/yandex-cloud/yfm-editor/issues/100)) ([efaa359](https://github.com/yandex-cloud/yfm-editor/commit/efaa359842228b06f510f48033b1b0a20a115832))
+* **YfmCut:** add a border when hovering ([#102](https://github.com/yandex-cloud/yfm-editor/issues/102)) ([b316f08](https://github.com/yandex-cloud/yfm-editor/commit/b316f085f9d9cf8d68a4636ed5cd0fde0f13d0b4))
+* **YfmCut:** allow inline nodes in cut title ([1408cee](https://github.com/yandex-cloud/yfm-editor/commit/1408cee299e3cb910d4bad9311f958f90e363b85))
+* **YfmNote:** allow inline nodes in note title ([8b40679](https://github.com/yandex-cloud/yfm-editor/commit/8b40679b2a8e679cbdfaa90b3cd65b53bcaec6da))
+
+
+### Bug Fixes
+
+* remove marks from breaks that are the last node inside that mark ([#101](https://github.com/yandex-cloud/yfm-editor/issues/101)) ([88c3d1a](https://github.com/yandex-cloud/yfm-editor/commit/88c3d1a9f3a26e8e401553fdd776c3ba6a272683))
+
 ## [5.1.0](https://github.com/yandex-cloud/yfm-editor/compare/v5.0.0...v5.1.0) (2023-04-12)
 
 
