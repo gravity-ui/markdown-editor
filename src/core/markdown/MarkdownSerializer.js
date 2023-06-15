@@ -79,6 +79,8 @@ export class MarkdownSerializerState {
         this.noAutoBlank = false;
         /** @type {Boolean|undefined} */
         this.isAutolink = undefined;
+        /** @type {Boolean} */
+        this.escapeWhitespace = false;
         // :: Object
         // The options passed to the serializer.
         //   tightLists:: ?bool
@@ -162,7 +164,10 @@ export class MarkdownSerializerState {
         for (let i = 0; i < lines.length; i++) {
             const startOfLine = this.atBlank() || this.closed;
             this.write();
-            this.out += escape !== false ? this.esc(lines[i], startOfLine) : lines[i];
+            let text = lines[i];
+            if (escape !== false) text = this.esc(text, startOfLine)
+            if (this.escapeWhitespace) text = this.escWhitespace(text);
+            this.out += text
             if (i != lines.length - 1) this.out += '\n';
         }
     }
@@ -295,6 +300,10 @@ export class MarkdownSerializerState {
         str = str.replace(/[`\^+*\\\|~\[\]\{\}<>\$]/g, '\\$&');
         if (startOfLine) str = str.replace(/^[:#\-*+>]/, '\\$&').replace(/^(\s*\d+)\./, '$1\\.');
         return str;
+    }
+
+    escWhitespace(str) {
+        return str.replace(/ /g, '\\ ');
     }
 
     quote(str) {

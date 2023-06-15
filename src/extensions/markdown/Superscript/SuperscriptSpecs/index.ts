@@ -18,7 +18,18 @@ export const SuperscriptSpecs: ExtensionAuto = (builder) => {
                     return ['sup'];
                 },
             },
-            toYfm: {open: '^', close: '^', mixable: true, expelEnclosingWhitespace: true},
+            toYfm: {
+                open: (state) => {
+                    state.escapeWhitespace = true;
+                    return '^';
+                },
+                close: (state) => {
+                    state.escapeWhitespace = false;
+                    return '^';
+                },
+                mixable: true,
+                expelEnclosingWhitespace: true,
+            },
             fromYfm: {tokenSpec: {name: superscriptMarkName, type: 'mark'}},
         }));
 };
