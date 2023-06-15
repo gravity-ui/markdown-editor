@@ -26,4 +26,11 @@ describe('Superscript extension', () => {
     it('should parse html - sup tag', () => {
         parseDOM(schema, '<p><sup>superscript</sup></p>', doc(p(s('superscript'))));
     });
+
+    it('should escape whitespaces', () => {
+        same(
+            'Ok, hello^w\\ o\\ r\\ l\\ d^! This world is beautiful!',
+            doc(p('Ok, hello', s('w o r l d'), '! This world is beautiful!')),
+        );
+    });
 });

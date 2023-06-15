@@ -26,4 +26,11 @@ describe('Subscript extension', () => {
     it('should parse html - sub tag', () => {
         parseDOM(schema, '<p><sub>subscript</sub></p>', doc(p(s('subscript'))));
     });
+
+    it('should escape whitespaces', () => {
+        same(
+            'Ok, hello~w\\ o\\ r\\ l\\ d~! This world is beautiful!',
+            doc(p('Ok, hello', s('w o r l d'), '! This world is beautiful!')),
+        );
+    });
 });
