@@ -9,12 +9,19 @@ declare global {
             meta?: Record<string, any>;
         };
 
+        interface ActionData {
+            action: string;
+            source: string;
+            [key: string]: any;
+        }
+
         interface Logger {
             log(...data: any[]): void;
             info(...data: any[]): void;
             error(...data: any[]): void;
             warn(...data: any[]): void;
             metrics(data: MetricsData): void;
+            action(data: ActionData): void;
         }
 
         interface Settings extends Partial<Logger> {}
@@ -44,6 +51,10 @@ class Logger implements YfmEditorLogger.Logger {
         return this.#logger.metrics;
     }
 
+    get action() {
+        return this.#logger.action;
+    }
+
     setLogger(settings: YfmEditorLogger.Settings = {}) {
         this.#logger = this.createLogger(settings);
     }
@@ -60,6 +71,7 @@ class Logger implements YfmEditorLogger.Logger {
             warn: settings.warn ?? noop,
             error: settings.error ?? noop,
             metrics: settings.metrics ?? noop,
+            action: settings.action ?? noop,
         };
     }
 }

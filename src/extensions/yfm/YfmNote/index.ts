@@ -1,5 +1,6 @@
 import {chainCommands} from 'prosemirror-commands';
 import type {Action, ExtensionAuto} from '../../../core';
+import {withLogAction} from '../../../utils/keymap';
 import {createYfmNote, toYfmNote} from './actions/toYfmNote';
 import {nodeInputRule} from '../../../utils/inputrules';
 import {backToNoteTitle, exitFromNoteTitle, removeNote} from './commands';
@@ -31,7 +32,7 @@ export const YfmNote: ExtensionAuto<YfmNoteOptions> = (builder, opts) => {
 
     if (opts?.yfmNoteKey) {
         const {yfmNoteKey} = opts;
-        builder.addKeymap(() => ({[yfmNoteKey]: createYfmNote}));
+        builder.addKeymap(() => ({[yfmNoteKey]: withLogAction('yfm_note', createYfmNote)}));
     }
 };
 

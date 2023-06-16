@@ -1,6 +1,7 @@
 import type {Command} from 'prosemirror-state';
 import {history, redo, undo} from 'prosemirror-history';
 import type {Action, ActionSpec, ExtensionAuto, Keymap} from '../../../core';
+import {withLogAction} from '../../../utils/keymap';
 
 enum HistoryAction {
     Undo = 'undo',
@@ -18,8 +19,8 @@ export const History: ExtensionAuto<HistoryOptions> = (builder, opts) => {
     builder.addKeymap(() => {
         const {undoKey, redoKey} = opts ?? {};
         const bindings: Keymap = {};
-        if (undoKey) bindings[undoKey] = undo;
-        if (redoKey) bindings[redoKey] = redo;
+        if (undoKey) bindings[undoKey] = withLogAction('undo', undo);
+        if (redoKey) bindings[redoKey] = withLogAction('redo', redo);
         return bindings;
     });
     builder

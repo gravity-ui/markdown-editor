@@ -1,5 +1,6 @@
 import {setBlockType} from 'prosemirror-commands';
 import type {Action, ExtensionAuto, Keymap} from '../../../core';
+import {withLogAction} from '../../../utils/keymap';
 import {headingAction} from './actions';
 import {HeadingAction, HeadingLevel, headingLevelAttr} from './const';
 import {headingRule, hType} from './utils';
@@ -29,12 +30,12 @@ export const Heading: ExtensionAuto<HeadingOptions> = (builder, opts) => {
                 setBlockType(hType(schema), {[headingLevelAttr]: level});
 
             const bindings: Keymap = {Backspace: resetHeading};
-            if (h1Key) bindings[h1Key] = cmd4lvl(1);
-            if (h2Key) bindings[h2Key] = cmd4lvl(2);
-            if (h3Key) bindings[h3Key] = cmd4lvl(3);
-            if (h4Key) bindings[h4Key] = cmd4lvl(4);
-            if (h5Key) bindings[h5Key] = cmd4lvl(5);
-            if (h6Key) bindings[h6Key] = cmd4lvl(6);
+            if (h1Key) bindings[h1Key] = withLogAction('heading1', cmd4lvl(1));
+            if (h2Key) bindings[h2Key] = withLogAction('heading2', cmd4lvl(2));
+            if (h3Key) bindings[h3Key] = withLogAction('heading3', cmd4lvl(3));
+            if (h4Key) bindings[h4Key] = withLogAction('heading4', cmd4lvl(4));
+            if (h5Key) bindings[h5Key] = withLogAction('heading5', cmd4lvl(5));
+            if (h6Key) bindings[h6Key] = withLogAction('heading6', cmd4lvl(6));
             return bindings;
         })
         .addInputRules(({schema}) => ({rules: [headingRule(hType(schema), 6)]}));

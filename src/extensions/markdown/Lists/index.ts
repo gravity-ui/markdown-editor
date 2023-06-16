@@ -1,6 +1,7 @@
 import {chainCommands} from 'prosemirror-commands';
 import {liftListItem, sinkListItem, splitListItem} from 'prosemirror-schema-list';
 import type {Action, ExtensionAuto, Keymap} from '../../../core';
+import {withLogAction} from '../../../utils/keymap';
 import {actions} from './actions';
 import {ListAction} from './const';
 import {ListsInputRulesExtension, ListsInputRulesOptions} from './inputrules';
@@ -21,8 +22,8 @@ export const Lists: ExtensionAuto<ListsOptions> = (builder, opts) => {
     builder.addKeymap(({schema}) => {
         const {ulKey, olKey} = opts ?? {};
         const bindings: Keymap = {};
-        if (ulKey) bindings[ulKey] = toList(blType(schema));
-        if (olKey) bindings[olKey] = toList(olType(schema));
+        if (ulKey) bindings[ulKey] = withLogAction('bulletList', toList(blType(schema)));
+        if (olKey) bindings[olKey] = withLogAction('orderedList', toList(olType(schema)));
 
         return {
             Enter: splitListItem(liType(schema)),

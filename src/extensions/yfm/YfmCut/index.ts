@@ -1,5 +1,6 @@
 import {chainCommands} from 'prosemirror-commands';
 import type {Action, ExtensionAuto} from '../../../core';
+import {withLogAction} from '../../../utils/keymap';
 import {nodeInputRule} from '../../../utils/inputrules';
 import {cutType} from './const';
 import {createYfmCut, toYfmCut} from './actions/toYfmCut';
@@ -48,7 +49,7 @@ export const YfmCut: ExtensionAuto<YfmCutOptions> = (builder, opts) => {
 
     if (opts?.yfmCutKey) {
         const {yfmCutKey} = opts;
-        builder.addKeymap(() => ({[yfmCutKey]: createYfmCut}));
+        builder.addKeymap(() => ({[yfmCutKey]: withLogAction('yfm_cut', createYfmCut)}));
     }
 };
 
