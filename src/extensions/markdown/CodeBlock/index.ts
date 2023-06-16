@@ -3,6 +3,7 @@ import {textblockTypeInputRule} from 'prosemirror-inputrules';
 import {Fragment, NodeType, Slice} from 'prosemirror-model';
 import {Command, Plugin} from 'prosemirror-state';
 import {hasParentNodeOfType} from 'prosemirror-utils';
+import {withLogAction} from '../../../utils/keymap';
 import type {Action, ExtensionAuto, Keymap} from '../../../core';
 import {CodeBlockSpecs, CodeBlockSpecsOptions} from './CodeBlockSpecs';
 import {resetCodeblock} from './commands';
@@ -22,7 +23,9 @@ export const CodeBlock: ExtensionAuto<CodeBlockOptions> = (builder, opts) => {
     builder.addKeymap((deps) => {
         const {codeBlockKey} = opts;
         const bindings: Keymap = {Backspace: resetCodeblock};
-        if (codeBlockKey) bindings[codeBlockKey] = setBlockType(cbType(deps.schema));
+        if (codeBlockKey) {
+            bindings[codeBlockKey] = withLogAction('code_block', setBlockType(cbType(deps.schema)));
+        }
         return bindings;
     });
 

@@ -2,6 +2,7 @@ import type {Command} from 'prosemirror-state';
 import {setBlockType} from 'prosemirror-commands';
 import {hasParentNodeOfType} from 'prosemirror-utils';
 import type {Action, ExtensionAuto} from '../../../core';
+import {withLogAction} from '../../../utils/keymap';
 import {BaseSchemaSpecs, BaseSchemaSpecsOptions, pType} from './BaseSchemaSpecs';
 
 export {BaseNode, pType} from './BaseSchemaSpecs';
@@ -20,7 +21,9 @@ export const BaseSchema: ExtensionAuto<BaseSchemaOptions> = (builder, opts) => {
 
     const {paragraphKey} = opts;
     if (paragraphKey) {
-        builder.addKeymap(({schema}) => ({[paragraphKey]: setBlockType(pType(schema))}));
+        builder.addKeymap(({schema}) => ({
+            [paragraphKey]: withLogAction('paragraph', setBlockType(pType(schema))),
+        }));
     }
 
     builder.addAction(pAction, ({schema}) => {

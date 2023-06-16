@@ -1,4 +1,5 @@
 import type {Action, ExtensionAuto, Keymap} from '../../../core';
+import {withLogAction} from '../../../utils/keymap';
 import {HeadingAction} from './const';
 import {headingRule, hType} from './YfmHeadingSpecs/utils';
 import {headingAction} from './actions';
@@ -24,12 +25,12 @@ export const YfmHeading: ExtensionAuto<YfmHeadingOptions> = (builder, opts) => {
         .addKeymap(() => {
             const {h1Key, h2Key, h3Key, h4Key, h5Key, h6Key} = opts ?? {};
             const bindings: Keymap = {Backspace: resetHeading};
-            if (h1Key) bindings[h1Key] = toHeading(1);
-            if (h2Key) bindings[h2Key] = toHeading(2);
-            if (h3Key) bindings[h3Key] = toHeading(3);
-            if (h4Key) bindings[h4Key] = toHeading(4);
-            if (h5Key) bindings[h5Key] = toHeading(5);
-            if (h6Key) bindings[h6Key] = toHeading(6);
+            if (h1Key) bindings[h1Key] = withLogAction('heading1', toHeading(1));
+            if (h2Key) bindings[h2Key] = withLogAction('heading2', toHeading(2));
+            if (h3Key) bindings[h3Key] = withLogAction('heading3', toHeading(3));
+            if (h4Key) bindings[h4Key] = withLogAction('heading4', toHeading(4));
+            if (h5Key) bindings[h5Key] = withLogAction('heading5', toHeading(5));
+            if (h6Key) bindings[h6Key] = withLogAction('heading6', toHeading(6));
             return bindings;
         })
         .addInputRules(({schema}) => ({rules: [headingRule(hType(schema), 6)]}));

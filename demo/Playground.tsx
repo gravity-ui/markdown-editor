@@ -42,6 +42,7 @@ const enum PreviewType {
 
 logger.setLogger({
     metrics: console.info,
+    action: console.info,
     ...console,
 });
 

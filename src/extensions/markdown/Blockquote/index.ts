@@ -3,6 +3,7 @@ import type {NodeType} from 'prosemirror-model';
 import {wrappingInputRule} from 'prosemirror-inputrules';
 import {hasParentNodeOfType} from 'prosemirror-utils';
 import type {Action, ExtensionAuto} from '../../../core';
+import {withLogAction} from '../../../utils/keymap';
 import {liftFromQuote, toggleQuote, joinPrevQuote} from './commands';
 import {BlockquoteSpecs, blockquoteType} from './BlockquoteSpecs';
 
@@ -18,7 +19,9 @@ export const Blockquote: ExtensionAuto<BlockquoteOptions> = (builder, opts) => {
 
     if (opts?.qouteKey) {
         const {qouteKey} = opts;
-        builder.addKeymap(({schema}) => ({[qouteKey]: wrapIn(blockquoteType(schema))}));
+        builder.addKeymap(({schema}) => ({
+            [qouteKey]: withLogAction('blockquote', wrapIn(blockquoteType(schema))),
+        }));
     }
 
     builder.addKeymap(() => ({

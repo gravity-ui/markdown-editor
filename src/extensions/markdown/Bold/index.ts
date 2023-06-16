@@ -1,4 +1,5 @@
 import {toggleMark} from 'prosemirror-commands';
+import {withLogAction} from '../../../utils/keymap';
 import {createToggleMarkAction} from '../../../utils/actions';
 import type {Action, ExtensionAuto} from '../../../core';
 import {markInputRule} from '../../../utils/inputrules';
@@ -19,7 +20,9 @@ export const Bold: ExtensionAuto<BoldOptions> = (builder, opts) => {
 
     if (opts?.boldKey) {
         const {boldKey} = opts;
-        builder.addKeymap(({schema}) => ({[boldKey]: toggleMark(boldType(schema))}));
+        builder.addKeymap(({schema}) => ({
+            [boldKey]: withLogAction('bold', toggleMark(boldType(schema))),
+        }));
     }
 
     builder.addInputRules(({schema}) => ({
