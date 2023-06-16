@@ -1,5 +1,17 @@
 # Changelog
 
+## [5.3.0](https://github.com/yandex-cloud/yfm-editor/compare/v5.2.0...v5.3.0) (2023-06-16)
+
+
+### Features
+
+* add logging keymap actions ([#106](https://github.com/yandex-cloud/yfm-editor/issues/106)) ([20a2657](https://github.com/yandex-cloud/yfm-editor/commit/20a2657cab3ac1ff5199a0a4c8335bf19b22de8b))
+
+
+### Bug Fixes
+
+* escape whitespaces within superscript and subscript ([#104](https://github.com/yandex-cloud/yfm-editor/issues/104)) ([db35e5b](https://github.com/yandex-cloud/yfm-editor/commit/db35e5b13a6c7f9281927be1953a9e08b102969c))
+
 ## [5.2.0](https://github.com/yandex-cloud/yfm-editor/compare/v5.1.0...v5.2.0) (2023-05-22)
 
 
