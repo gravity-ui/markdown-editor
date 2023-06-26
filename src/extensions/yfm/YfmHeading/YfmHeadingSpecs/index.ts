@@ -24,7 +24,7 @@ export const YfmHeadingSpecs: ExtensionAuto<YfmHeadingSpecsOptions> = (builder, 
             content: '(text | inline)*',
             group: 'block',
             defining: true,
-            selectable: false,
+            selectable: true,
             parseDOM: [
                 {tag: 'h1', getAttrs: getNodeAttrs(1)},
                 {tag: 'h2', getAttrs: getNodeAttrs(2)},

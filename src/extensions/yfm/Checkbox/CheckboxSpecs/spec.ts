@@ -10,7 +10,7 @@ export const getSpec = (
     [CheckboxNode.Checkbox]: {
         group: 'block',
         content: `${CheckboxNode.Input} ${CheckboxNode.Label}`,
-        selectable: false,
+        selectable: true,
         allowSelection: false,
         parseDOM: [],
         attrs: {
