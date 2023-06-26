@@ -2,20 +2,13 @@ import type {EditorView} from 'prosemirror-view';
 import {Fragment, Schema, Slice} from 'prosemirror-model';
 import {EditorState, Selection, Plugin} from 'prosemirror-state';
 
-// @ts-expect-error internal types
-import {__serializeForClipboard} from 'prosemirror-view';
-if (!__serializeForClipboard)
-    throw new Error('__serializeForClipboard not exported from prosemirror-view module.');
-
-type SerializeForClipboard = (view: EditorView, slice: Slice) => {dom: HTMLElement; text: string};
-const serializeForClipboard: SerializeForClipboard = __serializeForClipboard;
-
 import '../../../types/spec';
 
 import {logger} from '../../../logger';
 import {tryCatch} from '../../../utils/helpers';
 import {Parser, Serializer, trackTransactionMetrics} from '../../../core';
 import {isTextSelection, isNodeSelection, isWholeSelection} from '../../../utils/selection';
+import {serializeForClipboard} from '../../../utils/serialize-for-clipboard';
 import {BaseNode, pType} from '../../base/BaseSchema';
 
 import {isInsideCode} from './code';
