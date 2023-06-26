@@ -28,4 +28,6 @@ export * from './table-utils';
 export type {NodeChild} from './utils/nodes';
 export {getChildrenOfNode, getLastChildOfNode} from './utils/nodes';
 
+export {serializeForClipboard} from './utils/serialize-for-clipboard';
+
 export * from './utils/event-emitter';
