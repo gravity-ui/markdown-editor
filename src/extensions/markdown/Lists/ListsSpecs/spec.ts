@@ -10,7 +10,7 @@ export const spec: Record<ListNode, NodeSpec> = {
         toDOM() {
             return ['li', 0];
         },
-        selectable: false,
+        selectable: true,
         allowSelection: false,
         disableGapCursor: true,
         complex: 'leaf',
