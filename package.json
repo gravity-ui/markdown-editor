@@ -1,6 +1,6 @@
 {
   "name": "@doc-tools/yfm-editor",
-  "version": "5.3.0",
+  "version": "5.4.0",
   "description": "YFM wysiwyg editor",
   "scripts": {
     "start": "npm run storybook:start",

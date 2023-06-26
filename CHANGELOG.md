@@ -1,5 +1,13 @@
 # Changelog
 
+## [5.4.0](https://github.com/yandex-cloud/yfm-editor/compare/v5.3.0...v5.4.0) (2023-06-26)
+
+
+### Features
+
+* add re-export serializeForClipboard function from prosemirror-view ([#107](https://github.com/yandex-cloud/yfm-editor/issues/107)) ([3574ea2](https://github.com/yandex-cloud/yfm-editor/commit/3574ea2cbaa5f97c08440946523ccfcfbe207a14))
+* allow selection for list-item, heading and checkbox ([#109](https://github.com/yandex-cloud/yfm-editor/issues/109)) ([e0ade05](https://github.com/yandex-cloud/yfm-editor/commit/e0ade05fed9fc9d4caabd6cf4f1f3d7e727c10c4))
+
 ## [5.3.0](https://github.com/yandex-cloud/yfm-editor/compare/v5.2.0...v5.3.0) (2023-06-16)
 
 
