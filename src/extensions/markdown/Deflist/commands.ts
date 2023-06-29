@@ -1,5 +1,6 @@
 import type {Command} from 'prosemirror-state';
-import {findParentNode, isNodeSelection, replaceParentNodeOfType} from 'prosemirror-utils';
+import {findParentNode, replaceParentNodeOfType} from 'prosemirror-utils';
+import {isNodeSelection} from '../../../utils/selection';
 import {descType, listType, termType} from './utils';
 
 export const wrapToDeflist: Command = (state, dispatch) => {
