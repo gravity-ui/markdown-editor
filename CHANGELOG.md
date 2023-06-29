@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.5.0](https://github.com/yandex-cloud/yfm-editor/compare/v5.4.0...v5.5.0) (2023-06-29)
+
+
+### Features
+
+* **deps:** support @doc-tools/transform@3 ([#110](https://github.com/yandex-cloud/yfm-editor/issues/110)) ([495ecf1](https://github.com/yandex-cloud/yfm-editor/commit/495ecf173d7098c553d621b2e426673d6cd66018))
+
 ## [5.4.0](https://github.com/yandex-cloud/yfm-editor/compare/v5.3.0...v5.4.0) (2023-06-26)
 
 
