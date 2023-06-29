@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.5.1](https://github.com/yandex-cloud/yfm-editor/compare/v5.5.0...v5.5.1) (2023-06-29)
+
+
+### Bug Fixes
+
+* **Deflist:** use internal isNodeSelection helper ([#112](https://github.com/yandex-cloud/yfm-editor/issues/112)) ([1eeb0c0](https://github.com/yandex-cloud/yfm-editor/commit/1eeb0c0752e5c6df59c89af7c0b0f1aa20abf116))
+
 ## [5.5.0](https://github.com/yandex-cloud/yfm-editor/compare/v5.4.0...v5.5.0) (2023-06-29)
 
 
