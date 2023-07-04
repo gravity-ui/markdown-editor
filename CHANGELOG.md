@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.6.0](https://github.com/yandex-cloud/yfm-editor/compare/v5.5.1...v5.6.0) (2023-07-04)
+
+
+### Features
+
+* tabs action ([#114](https://github.com/yandex-cloud/yfm-editor/issues/114)) ([ae45a72](https://github.com/yandex-cloud/yfm-editor/commit/ae45a729651eff01b31cab1a6ecdd03ccee9c215))
+
 ## [5.5.1](https://github.com/yandex-cloud/yfm-editor/compare/v5.5.0...v5.5.1) (2023-06-29)
 
 
