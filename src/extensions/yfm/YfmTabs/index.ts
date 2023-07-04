@@ -1,4 +1,4 @@
-import type {ExtensionAuto} from '../../../core';
+import type {Action, ExtensionAuto} from '../../../core';
 
 import {
     joinBackwardToOpenTab,
@@ -11,8 +11,11 @@ import {YfmTabsSpecs} from './YfmTabsSpecs';
 import {chainCommands} from 'prosemirror-commands';
 
 import {tabPanelView, tabView} from './views';
+import {createYfmTabs} from './actions';
 
 export {TabsNode, tabType, tabsType, tabsListType, tabPanelType} from './YfmTabsSpecs';
+
+const actionName = 'toYfmTabs';
 
 export const YfmTabs: ExtensionAuto = (builder) => {
     builder.use(YfmTabsSpecs, {
@@ -29,4 +32,14 @@ export const YfmTabs: ExtensionAuto = (builder) => {
         }),
         builder.Priority.High,
     );
+
+    builder.addAction(actionName, () => createYfmTabs);
 };
+
+declare global {
+    namespace YfmEditor {
+        interface Actions {
+            [actionName]: Action;
+        }
+    }
+}
