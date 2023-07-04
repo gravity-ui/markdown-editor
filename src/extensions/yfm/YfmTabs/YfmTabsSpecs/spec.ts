@@ -10,7 +10,7 @@ export const getSpec: (opts: YfmTabsSpecsOptions) => Record<TabsNode, NodeSpec> 
     [TabsNode.Tab]: {
         attrs: {
             [TabAttrs.id]: {default: 'unknown'},
-            [TabAttrs.class]: {default: 'unknown'},
+            [TabAttrs.class]: {default: 'yfm-tab'},
             [TabAttrs.role]: {default: 'unknown'},
             [TabAttrs.ariaControls]: {default: 'unknown'},
             [TabAttrs.ariaSelected]: {default: 'unknown'},
@@ -35,7 +35,7 @@ export const getSpec: (opts: YfmTabsSpecsOptions) => Record<TabsNode, NodeSpec> 
     [TabsNode.TabPanel]: {
         attrs: {
             [TabPanelAttrs.id]: {default: 'unknown'},
-            [TabPanelAttrs.class]: {default: 'unknown'},
+            [TabPanelAttrs.class]: {default: 'yfm-tab-panel'},
             [TabPanelAttrs.role]: {default: 'unknown'},
             [TabPanelAttrs.dataTitle]: {default: 'unknown'},
             [TabPanelAttrs.ariaLabelledby]: {default: 'unknown'},
@@ -53,7 +53,7 @@ export const getSpec: (opts: YfmTabsSpecsOptions) => Record<TabsNode, NodeSpec> 
     },
 
     [TabsNode.Tabs]: {
-        attrs: {[TabsAttrs.class]: {default: 'unknown'}},
+        attrs: {[TabsAttrs.class]: {default: 'yfm-tabs'}},
         content: 'yfm_tabs_list yfm_tab_panel+',
         group: 'block',
         parseDOM: [{tag: 'div.yfm-tabs'}],
@@ -65,7 +65,7 @@ export const getSpec: (opts: YfmTabsSpecsOptions) => Record<TabsNode, NodeSpec> 
 
     [TabsNode.TabsList]: {
         attrs: {
-            [TabsListAttrs.class]: {default: 'unknown'},
+            [TabsListAttrs.class]: {default: 'yfm-tab-list'},
             [TabsListAttrs.role]: {default: 'unknown'},
         },
         content: 'yfm_tab*',
