@@ -1,5 +1,16 @@
 # Changelog
 
+## [6.0.0](https://github.com/yandex-cloud/yfm-editor/compare/v5.6.0...v6.0.0) (2023-07-28)
+
+
+### ⚠ BREAKING CHANGES
+
+* update to uikit@5, node@18, storybook@7; remove assets ([#116](https://github.com/yandex-cloud/yfm-editor/issues/116))
+
+### Features
+
+* update to uikit@5, node@18, storybook@7; remove assets ([#116](https://github.com/yandex-cloud/yfm-editor/issues/116)) ([01e021f](https://github.com/yandex-cloud/yfm-editor/commit/01e021fcce856b6f47cb40442473dcc90b78cce8))
+
 ## [5.6.0](https://github.com/yandex-cloud/yfm-editor/compare/v5.5.1...v5.6.0) (2023-07-04)
 
 
