@@ -1,7 +1,6 @@
 import React from 'react';
 import {useMeasure} from 'react-use';
-
-import dotsIcon from '../../assets/icons/dots.svg';
+import {Ellipsis} from '@gravity-ui/icons';
 
 import {cn} from '../classname';
 import {Toolbar, ToolbarProps} from './Toolbar';
@@ -41,7 +40,7 @@ export function FlexToolbar<E>(props: FlexToolbarProps<E>) {
                 {dots?.length && (
                     <ToolbarListButton
                         data={dots}
-                        icon={{data: dotsIcon}}
+                        icon={{data: Ellipsis}}
                         title={props.dotsTitle}
                         editor={props.editor}
                         focus={props.focus}

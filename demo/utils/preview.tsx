@@ -1,6 +1,7 @@
 import React from 'react';
-import {Story, StoryContext} from '@storybook/react/types-6-0';
-import {configure as configureUikit, useTheme, ThemeProvider, Theme} from '@gravity-ui/uikit';
+import type {Decorator} from '@storybook/react';
+import {configure as configureUikit, ThemeProvider} from '@gravity-ui/uikit';
+import {configure as configureComponents} from '@gravity-ui/components';
 import {configure as configureYfmEditor} from '../../src';
 
 import '@gravity-ui/uikit/styles/styles.scss';
@@ -12,35 +13,19 @@ export const backgrounds = {
     values: [light, dark],
 };
 
-/* eslint-disable react-hooks/rules-of-hooks */
-export function withTheme(StoryItem: Story, context: StoryContext) {
-    const {value} = context.globals.backgrounds;
-    const themeValue = value === dark.value ? dark.name : light.name;
-
-    const [theme, setTheme] = useTheme();
-
-    React.useEffect(() => {
-        if (theme !== themeValue) {
-            setTheme((themeValue as Theme) || 'system');
-        }
-    }, [theme, themeValue, setTheme]);
-
-    return <StoryItem {...context} />;
-}
-/* eslint-enable react-hooks/rules-of-hooks */
-
-export function withThemeProvider(StoryItem: Story, context: StoryContext) {
+export const withThemeProvider: Decorator = (StoryItem, context) => {
     return (
-        <ThemeProvider>
+        <ThemeProvider theme={context.globals.theme}>
             <StoryItem {...context} />
         </ThemeProvider>
     );
-}
+};
 
-export function withLang(StoryItem: Story, context: StoryContext) {
+export const withLang: Decorator = (StoryItem, context) => {
     const lang = context.globals.lang;
     configureUikit({lang});
+    configureComponents({lang});
     configureYfmEditor({lang});
 
     return <StoryItem {...context} />;
-}
+};

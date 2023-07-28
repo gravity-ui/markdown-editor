@@ -1,7 +1,7 @@
 import React from 'react';
 import block from 'bem-cn-lite';
 import {useUpdate} from 'react-use';
-import {Button, RadioButton, TextInput} from '@gravity-ui/uikit';
+import {Button, RadioButton, TextArea} from '@gravity-ui/uikit';
 
 import {
     BaseNode,
@@ -183,9 +183,8 @@ const Playground = React.memo<PlaygroundProps>((props) => {
 
             <div className={b('preview')}>
                 {previewType === PreviewType.Markup && (
-                    <TextInput
+                    <TextArea
                         size="s"
-                        multiline
                         minRows={10}
                         value={yfmRaw}
                         onUpdate={(value) => {
