@@ -1,6 +1,6 @@
 import React from 'react';
-import {createPortal} from 'react-dom';
-import {HelpPopover, HelpPopoverProps, Link} from '@gravity-ui/uikit';
+import {Link, Portal} from '@gravity-ui/uikit';
+import {HelpPopover, HelpPopoverProps} from '@gravity-ui/components';
 
 import {cn} from '../../../classname';
 import {i18n} from '../../../i18n/math-hint';
@@ -30,6 +30,10 @@ const MathHint: React.FC<MathHintProps> = function MathHint(props) {
     );
 };
 
-export function renderMathHint(props: MathHintProps, container: Element): React.ReactNode {
-    return createPortal(<MathHint {...props} />, container);
+export function renderMathHint(props: MathHintProps, container: HTMLElement): React.ReactNode {
+    return (
+        <Portal container={container}>
+            <MathHint {...props} />
+        </Portal>
+    );
 }

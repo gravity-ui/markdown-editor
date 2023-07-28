@@ -43,10 +43,10 @@
             height: 15px;
             margin-left: 9px;
 
-            color: var(--yc-color-base-generic-medium);
+            color: var(--g-color-base-generic-medium);
 
             &:hover {
-                color: var(--yc-color-text-primary);
+                color: var(--g-color-text-primary);
             }
         }
 
@@ -62,11 +62,11 @@
             margin-bottom: 9px;
 
             opacity: 0;
-            color: var(--yc-color-text-primary);
+            color: var(--g-color-text-primary);
 
             &:hover {
-                border-radius: var(--yc-border-radius-xs);
-                background: var(--yc-color-base-generic-hover);
+                border-radius: var(--g-border-radius-xs);
+                background: var(--g-color-base-generic-hover);
             }
         }
 

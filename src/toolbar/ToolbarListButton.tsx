@@ -1,8 +1,9 @@
 import React from 'react';
 import {isFunction} from 'lodash';
-import {Button, HelpPopover, Hotkey, Icon, Menu, Popup, Tooltip} from '@gravity-ui/uikit';
+import {Button, Hotkey, Icon, Menu, Popup, Tooltip} from '@gravity-ui/uikit';
+import {HelpPopover} from '@gravity-ui/components';
+import {ChevronDown} from '@gravity-ui/icons';
 
-import chevronIcon from '../../assets/icons/ye-chevron.svg';
 import {cn} from '../classname';
 import {useBooleanState} from '../react-utils/hooks';
 import {ToolbarTooltipDelay} from './const';
@@ -50,7 +51,7 @@ export function ToolbarListButton<E>({
     const buttonContent = [<Icon key={1} data={icon.data} size={icon.size ?? 16} />];
     if (withArrow) {
         buttonContent.push(<React.Fragment key={2}>{''}</React.Fragment>);
-        buttonContent.push(<Icon key={3} data={chevronIcon} size={16} />);
+        buttonContent.push(<Icon key={3} data={ChevronDown} size={16} />);
     }
 
     const titleText: string = isFunction(title) ? title() : title;

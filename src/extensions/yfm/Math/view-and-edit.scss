@@ -1,7 +1,7 @@
 .math-block {
-    font-family: var(--yc-font-family-monospace);
+    font-family: var(--g-font-family-monospace);
 
-    color: var(--yc-color-text-complementary);
+    color: var(--g-color-text-complementary);
 }
 
 .math-block-container {
@@ -9,7 +9,7 @@
 }
 
 .math-error {
-    color: var(--yc-color-text-danger);
+    color: var(--g-color-text-danger);
 }
 
 .math-block-view.math-view-error {
@@ -22,26 +22,26 @@
 }
 
 .math-block-container.math-active .math-block {
-    background-color: var(--yc-color-base-misc);
+    background-color: var(--g-color-base-misc-light);
     &::before,
     &::after {
         display: block;
 
         content: '$$';
 
-        color: var(--yc-color-text-hint);
+        color: var(--g-color-text-hint);
     }
 }
 
 .math-container:not(.math-active) {
     --ye-math-back-color: transparent;
-    --ye-math-hover-color: var(--yc-color-base-simple-hover);
+    --ye-math-hover-color: var(--g-color-base-simple-hover);
 
     position: relative;
 
     &.math-container-error {
-        --ye-math-back-color: var(--yc-color-base-danger);
-        --ye-math-hover-color: var(--yc-color-base-danger-hover);
+        --ye-math-back-color: var(--g-color-base-danger-light);
+        --ye-math-hover-color: var(--g-color-base-danger-light-hover);
     }
 
     &::before {
@@ -54,7 +54,7 @@
 
         content: '';
 
-        border-radius: var(--yc-border-radius-s);
+        border-radius: var(--g-border-radius-s);
         background-color: var(--ye-math-back-color);
 
         transition: background-color 0.15s linear;

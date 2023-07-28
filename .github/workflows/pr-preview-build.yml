@@ -9,5 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: yandex-cloud/ui-preview-build-action@main
+      with:
+        node-version: 18
       env:
         TS_NODE_PROJECT: .storybook/tsconfig.json
