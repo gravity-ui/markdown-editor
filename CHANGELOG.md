@@ -1,5 +1,12 @@
 # Changelog
 
+## [6.1.1](https://github.com/yandex-cloud/yfm-editor/compare/v6.1.0...v6.1.1) (2023-09-04)
+
+
+### Bug Fixes
+
+* new attributes when creating tabs ([#123](https://github.com/yandex-cloud/yfm-editor/issues/123)) ([592fcdf](https://github.com/yandex-cloud/yfm-editor/commit/592fcdfc82da7b60563e63f0d2879a3e64686754))
+
 ## [6.1.0](https://github.com/yandex-cloud/yfm-editor/compare/v6.0.0...v6.1.0) (2023-09-04)
 
 
