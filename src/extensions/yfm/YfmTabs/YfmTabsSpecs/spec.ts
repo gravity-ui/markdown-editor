@@ -15,6 +15,9 @@ export const getSpec: (opts: YfmTabsSpecsOptions) => Record<TabsNode, NodeSpec> 
             [TabAttrs.ariaControls]: {default: 'unknown'},
             [TabAttrs.ariaSelected]: {default: 'unknown'},
             [TabAttrs.tabindex]: {default: 'unknown'},
+            [TabAttrs.dataDiplodocKey]: {default: 'unknown'},
+            [TabAttrs.dataDiplodocid]: {default: 'unknown'},
+            [TabAttrs.dataDiplodocIsActive]: {default: 'unknown'},
         },
         marks: '',
         content: 'text*',
@@ -53,7 +56,10 @@ export const getSpec: (opts: YfmTabsSpecsOptions) => Record<TabsNode, NodeSpec> 
     },
 
     [TabsNode.Tabs]: {
-        attrs: {[TabsAttrs.class]: {default: 'yfm-tabs'}},
+        attrs: {
+            [TabsAttrs.class]: {default: 'yfm-tabs'},
+            [TabsAttrs.dataDiplodocGroup]: {default: 'unknown'},
+        },
         content: 'yfm_tabs_list yfm_tab_panel+',
         group: 'block',
         parseDOM: [{tag: 'div.yfm-tabs'}],
