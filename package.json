@@ -64,7 +64,7 @@
     "tslib": "^2.3.1"
   },
   "devDependencies": {
-    "@doc-tools/transform": "3.10.2",
+    "@doc-tools/transform": "3.1.2",
     "@gravity-ui/components": "2.0.0",
     "@gravity-ui/eslint-config": "1.0.2",
     "@gravity-ui/prettier-config": "1.0.1",
