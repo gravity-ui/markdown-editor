@@ -7,6 +7,7 @@ export enum TabsNode {
 
 export enum TabsAttrs {
     class = 'class',
+    dataDiplodocGroup = 'data-diplodoc-group',
 }
 
 export enum TabsListAttrs {
@@ -21,6 +22,9 @@ export enum TabAttrs {
     ariaControls = 'aria-controls',
     ariaSelected = 'aria-selected',
     tabindex = 'tabindex',
+    dataDiplodocKey = 'data-diplodoc-key',
+    dataDiplodocid = 'data-diplodoc-id',
+    dataDiplodocIsActive = 'data-diplodoc-is-active',
 }
 
 export enum TabPanelAttrs {
