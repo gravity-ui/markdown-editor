@@ -3,7 +3,7 @@ import type {Command} from 'prosemirror-state';
 import {tabPanelType, tabsListType, tabsType, tabType} from '.';
 import {pType} from '../../base/BaseSchema';
 import {tabActiveClassname, tabPanelActiveClassname} from './const';
-import {TabAttrs, TabPanelAttrs} from './YfmTabsSpecs/const';
+import {TabAttrs, TabPanelAttrs, TabsAttrs} from './YfmTabsSpecs/const';
 
 export const createYfmTabsCommand: Command = (state, dispatch) => {
     if (dispatch) {
@@ -26,9 +26,15 @@ export const createYfmTabsCommand: Command = (state, dispatch) => {
             [TabAttrs.id]: tabId,
             [TabAttrs.class]: tabActiveClassname,
             [TabAttrs.ariaControls]: panelId,
+            [TabAttrs.dataDiplodocIsActive]: 'true',
+            [TabAttrs.dataDiplodocid]: tabId,
+            [TabAttrs.dataDiplodocKey]: tabId,
         });
 
-        const tabs = yfmTabs.create(null, [yfmTabsList.create(null, [yfmTab]), yfmTabPanel]);
+        const tabs = yfmTabs.create({[TabsAttrs.dataDiplodocGroup]: generateID()}, [
+            yfmTabsList.create(null, [yfmTab]),
+            yfmTabPanel,
+        ]);
 
         dispatch(state.tr.replaceSelectionWith(tabs).scrollIntoView());
     }
