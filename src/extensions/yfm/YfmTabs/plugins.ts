@@ -59,13 +59,16 @@ export const tabEnter: Command = (state) => {
 
 const makeTabsInactive = (tabNodes: NodeWithPos[], tabPanels: NodeWithPos[], tr: Transaction) => {
     // Find all active tabs and make them inactive
-    const activeTabs = tabNodes.filter((v) => v.node.attrs[TabAttrs.class] === tabActiveClassname);
+    const activeTabs = tabNodes.filter(
+        (v) => v.node.attrs[TabAttrs.dataDiplodocIsActive] === 'true',
+    );
 
     if (activeTabs.length) {
         activeTabs.forEach((tab) => {
             tr.setNodeMarkup(tab.pos, null, {
                 ...tab.node.attrs,
                 class: tabInactiveClassname,
+                [TabAttrs.dataDiplodocIsActive]: 'false',
             });
         });
     }
@@ -98,7 +101,7 @@ export const createTab: (afterTab: NodeWithPos, tabsParentNode: NodeWithPos) => 
         const afterPanelNode = tabPanels.filter(
             (tabPanelNode) =>
                 tabPanelNode.node.attrs[TabPanelAttrs.ariaLabelledby] ===
-                afterTab.node.attrs[TabAttrs.id],
+                afterTab.node.attrs[TabAttrs.dataDiplodocid],
         )[0];
 
         const tabId = generateID();
@@ -114,6 +117,9 @@ export const createTab: (afterTab: NodeWithPos, tabsParentNode: NodeWithPos) => 
         );
         const newTab = tabType(state.schema).create({
             [TabAttrs.id]: tabId,
+            [TabAttrs.dataDiplodocid]: tabId,
+            [TabAttrs.dataDiplodocKey]: tabId,
+            [TabAttrs.dataDiplodocIsActive]: 'true',
             [TabAttrs.class]: tabActiveClassname,
             [TabAttrs.role]: 'tab',
             [TabAttrs.ariaControls]: panelId,
@@ -165,7 +171,7 @@ export const removeTab: (tabToRemove: NodeWithPos, tabsParentNode: NodeWithPos) 
         const panelToRemove = tabPanels.filter(
             (tabPanelNode) =>
                 tabPanelNode.node.attrs[TabPanelAttrs.ariaLabelledby] ===
-                tabToRemove.node.attrs[TabAttrs.id],
+                tabToRemove.node.attrs[TabAttrs.dataDiplodocid],
         )[0];
 
         if (panelToRemove && dispatch) {
@@ -200,6 +206,7 @@ export const removeTab: (tabToRemove: NodeWithPos, tabsParentNode: NodeWithPos) 
                     .setNodeMarkup(tr.mapping.map(newTabNode.pos), null, {
                         ...newTabNode.node.attrs,
                         class: tabActiveClassname,
+                        [TabAttrs.dataDiplodocIsActive]: 'true',
                     })
                     // Set new active panel
                     .setNodeMarkup(tr.mapping.map(newTabPanelNode.pos), null, {
