@@ -5,12 +5,15 @@ import {BaseNode, BaseSpecsPreset} from '../../base/specs';
 import {blockquoteNodeName, italicMarkName} from '../../markdown/specs';
 import {TabsNode, YfmTabsSpecs} from './YfmTabsSpecs';
 
-const generatedId = 'generated_id';
+const mockRandomValue = 0.123456789;
+const generatedId = mockRandomValue.toString(36).substr(2, 8);
 
-jest.mock('@doc-tools/transform/lib/plugins/utils', () => {
-    return {
-        generateID: () => generatedId,
-    };
+beforeEach(() => {
+    jest.spyOn(global.Math, 'random').mockReturnValue(mockRandomValue);
+});
+
+afterEach(() => {
+    jest.spyOn(global.Math, 'random').mockRestore();
 });
 
 const {schema, parser, serializer} = new ExtensionsManager({
@@ -52,6 +55,7 @@ describe('YfmTabs extension', () => {
                 tabs(
                     {
                         class: 'yfm-tabs',
+                        'data-diplodoc-group': `defaultTabsGroup-${generatedId}`,
                     },
                     tabsList(
                         {
@@ -60,23 +64,29 @@ describe('YfmTabs extension', () => {
                         },
                         tab(
                             {
-                                id: generatedId,
+                                id: 'unknown',
                                 class: 'yfm-tab active',
                                 role: 'tab',
                                 'aria-controls': generatedId,
                                 'aria-selected': 'true',
                                 tabindex: '0',
+                                'data-diplodoc-is-active': 'true',
+                                'data-diplodoc-id': 'panel-title-1',
+                                'data-diplodoc-key': 'panel%20title%201',
                             },
                             'panel title 1',
                         ),
                         tab(
                             {
-                                id: generatedId,
+                                id: 'unknown',
                                 class: 'yfm-tab',
                                 role: 'tab',
                                 'aria-controls': generatedId,
                                 'aria-selected': 'false',
                                 tabindex: '-1',
+                                'data-diplodoc-is-active': 'false',
+                                'data-diplodoc-id': 'panel-title-2',
+                                'data-diplodoc-key': 'panel%20title%202',
                             },
                             'panel title 2',
                         ),
@@ -87,7 +97,7 @@ describe('YfmTabs extension', () => {
                             class: 'yfm-tab-panel active',
                             role: 'tabpanel',
                             'data-title': 'panel title 1',
-                            'aria-labelledby': generatedId,
+                            'aria-labelledby': 'panel-title-1',
                         },
                         p('panel content 1'),
                     ),
@@ -97,7 +107,7 @@ describe('YfmTabs extension', () => {
                             class: 'yfm-tab-panel',
                             role: 'tabpanel',
                             'data-title': 'panel title 2',
-                            'aria-labelledby': generatedId,
+                            'aria-labelledby': 'panel-title-2',
                         },
                         p('panel content 2'),
                     ),

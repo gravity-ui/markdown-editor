@@ -29,7 +29,7 @@
             background-clip: padding-box;
         }
 
-        &.active {
+        &[data-diplodoc-is-active='true'] {
             .yfm-tab-wrapper {
                 border-bottom-color: #027bf3;
             }
