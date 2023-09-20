@@ -1,5 +1,12 @@
 # Changelog
 
+## [6.1.2](https://github.com/yandex-cloud/yfm-editor/compare/v6.1.1...v6.1.2) (2023-09-20)
+
+
+### Bug Fixes
+
+* import lodash methods directly ([#126](https://github.com/yandex-cloud/yfm-editor/issues/126)) ([16c423b](https://github.com/yandex-cloud/yfm-editor/commit/16c423ba01c244ee892fd6b5799b79343dbe235c))
+
 ## [6.1.1](https://github.com/yandex-cloud/yfm-editor/compare/v6.1.0...v6.1.1) (2023-09-04)
 
 
