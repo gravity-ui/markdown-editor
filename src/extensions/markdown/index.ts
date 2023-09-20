@@ -1,4 +1,4 @@
-import {isFunction} from 'lodash';
+import isFunction from 'lodash/isFunction';
 import type {Extension, ExtensionAuto} from '../../core';
 
 import {Bold, BoldOptions} from './Bold';

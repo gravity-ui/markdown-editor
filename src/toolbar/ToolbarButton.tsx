@@ -1,5 +1,5 @@
 import React from 'react';
-import {isFunction} from 'lodash';
+import isFunction from 'lodash/isFunction';
 import {ActionTooltip, Button, Icon} from '@gravity-ui/uikit';
 import {cn} from '../classname';
 import {ToolbarTooltipDelay} from './const';
