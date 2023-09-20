@@ -1,6 +1,6 @@
 import type {Node, Schema} from 'prosemirror-model';
 import {EditorState, Plugin, PluginKey, Transaction} from 'prosemirror-state';
-import {isEqual} from 'lodash';
+import isEqual from 'lodash/isEqual';
 import {Decoration, DecorationSet} from 'prosemirror-view';
 import {findChildren, findParentNodeClosestToPos} from 'prosemirror-utils';
 import {cn} from '../../../classname';
