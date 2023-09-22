@@ -1,15 +1,13 @@
-import type {PluginSimple} from 'markdown-it';
+import subPlugin from 'markdown-it-sub';
 import type {ExtensionAuto} from '../../../../core';
 import {markTypeFactory} from '../../../../utils/schema';
-
-const sub: PluginSimple = require('markdown-it-sub');
 
 export const subscriptMarkName = 'sub';
 export const subscriptType = markTypeFactory(subscriptMarkName);
 
 export const SubscriptSpecs: ExtensionAuto = (builder) => {
     builder
-        .configureMd((md) => md.use(sub))
+        .configureMd((md) => md.use(subPlugin))
         .addMark(subscriptMarkName, () => ({
             spec: {
                 excludes: '_',
