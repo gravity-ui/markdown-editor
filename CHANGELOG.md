@@ -1,5 +1,12 @@
 # Changelog
 
+## [6.1.3](https://github.com/yandex-cloud/yfm-editor/compare/v6.1.2...v6.1.3) (2023-09-23)
+
+
+### Bug Fixes
+
+* replace require() with esm import ([#129](https://github.com/yandex-cloud/yfm-editor/issues/129)) ([fcb3422](https://github.com/yandex-cloud/yfm-editor/commit/fcb3422e58367f0cf638551773fc5ad49b1f7937))
+
 ## [6.1.2](https://github.com/yandex-cloud/yfm-editor/compare/v6.1.1...v6.1.2) (2023-09-20)
 
 
