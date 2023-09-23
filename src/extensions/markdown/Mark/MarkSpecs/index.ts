@@ -1,14 +1,13 @@
-import type {PluginSimple} from 'markdown-it';
+import markPlugin from 'markdown-it-mark';
 import type {ExtensionAuto} from '../../../../core';
 import {markTypeFactory} from '../../../../utils/schema';
-const mdPlugin: PluginSimple = require('markdown-it-mark');
 
 export const markMarkName = 'mark';
 export const markMarkType = markTypeFactory(markMarkName);
 
 export const MarkSpecs: ExtensionAuto = (builder) => {
     builder
-        .configureMd((md) => md.use(mdPlugin))
+        .configureMd((md) => md.use(markPlugin))
         .addMark(markMarkName, () => ({
             spec: {
                 parseDOM: [{tag: 'mark'}],

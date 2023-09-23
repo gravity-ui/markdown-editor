@@ -1,4 +1,5 @@
 import MarkdownIt from 'markdown-it';
+import attrsPlugin, {AttrsOptions} from 'markdown-it-attrs';
 import type {Plugin} from 'prosemirror-state';
 import {ActionsManager} from './ActionsManager';
 import {ExtensionBuilder} from './ExtensionBuilder';
@@ -14,8 +15,6 @@ import type {
     YENodeSpec,
 } from './types/extension';
 import type {MarkViewConstructor, NodeViewConstructor} from './types/node-views';
-
-const attrs = require('markdown-it-attrs');
 
 type ExtensionsManagerParams = {
     extensions: Extension;
@@ -59,7 +58,10 @@ export class ExtensionsManager {
     constructor({extensions, options = {}}: ExtensionsManagerParams) {
         this.#extensions = extensions;
 
-        this.#md = new MarkdownIt(options.mdOpts ?? {}).use(attrs, options.attrsOpts ?? {});
+        this.#md = new MarkdownIt(options.mdOpts ?? {}).use<AttrsOptions>(
+            attrsPlugin,
+            options.attrsOpts ?? {},
+        );
         this.#mdWithoutAttrs = new MarkdownIt(options.mdOpts ?? {});
 
         if (options.linkifyTlds) {

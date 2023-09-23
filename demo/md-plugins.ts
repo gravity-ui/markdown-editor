@@ -3,10 +3,10 @@ import type {PluginWithParams} from 'markdown-it/lib';
 import file from '@doc-tools/transform/lib/plugins/file';
 import imsize from '@doc-tools/transform/lib/plugins/imsize';
 
-const sub = require('markdown-it-sub');
-const ins = require('markdown-it-ins');
-const mark = require('markdown-it-mark');
-const color = require('markdown-it-color').colorPlugin;
+import sub from 'markdown-it-sub';
+import ins from 'markdown-it-ins';
+import mark from 'markdown-it-mark';
+import color from 'markdown-it-color';
 import math from 'markdown-it-katex';
 
 import meta from '@doc-tools/transform/lib/plugins/meta';
