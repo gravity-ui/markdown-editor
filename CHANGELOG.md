@@ -1,5 +1,12 @@
 # Changelog
 
+## [6.1.4](https://github.com/yandex-cloud/yfm-editor/compare/v6.1.3...v6.1.4) (2023-09-25)
+
+
+### Bug Fixes
+
+* **YfmTabs:** fix tab-panel content spec ([#131](https://github.com/yandex-cloud/yfm-editor/issues/131)) ([4e61d57](https://github.com/yandex-cloud/yfm-editor/commit/4e61d574346e488a02cb671585c17fdb3cf0efb8))
+
 ## [6.1.3](https://github.com/yandex-cloud/yfm-editor/compare/v6.1.2...v6.1.3) (2023-09-23)
 
 
