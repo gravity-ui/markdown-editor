@@ -3,8 +3,6 @@ import {addImageAction} from './const';
 import {addImage, AddImageAttrs} from './actions';
 import {ImgSizeSpecs, ImgSizeSpecsOptions} from './ImgSizeSpecs';
 
-export {ImgSizeAttr} from './ImgSizeSpecs';
-
 export type ImgSizeOptions = ImgSizeSpecsOptions & {};
 
 export const ImgSize: ExtensionAuto<ImgSizeOptions> = (builder, opts) => {
