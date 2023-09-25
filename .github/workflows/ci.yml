@@ -26,5 +26,7 @@ jobs:
         run: npm run lint
       - name: Tests
         run: npm run test
+      - name: Test esbuild compatability
+        run: npm run test:esbuild
       - name: Typecheck
         run: npm run typecheck
