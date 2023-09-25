@@ -43,7 +43,7 @@ export const getSpec: (opts: YfmTabsSpecsOptions) => Record<TabsNode, NodeSpec> 
             [TabPanelAttrs.dataTitle]: {default: 'unknown'},
             [TabPanelAttrs.ariaLabelledby]: {default: 'unknown'},
         },
-        content: 'block*',
+        content: '(block | paragraph)+',
         group: 'block',
         parseDOM: [{tag: 'div.yfm-tab-panel'}],
         toDOM(node) {
@@ -60,7 +60,7 @@ export const getSpec: (opts: YfmTabsSpecsOptions) => Record<TabsNode, NodeSpec> 
             [TabsAttrs.class]: {default: 'yfm-tabs'},
             [TabsAttrs.dataDiplodocGroup]: {default: 'unknown'},
         },
-        content: 'yfm_tabs_list yfm_tab_panel+',
+        content: `${TabsNode.TabsList} ${TabsNode.TabPanel}+`,
         group: 'block',
         parseDOM: [{tag: 'div.yfm-tabs'}],
         toDOM(node) {
@@ -74,7 +74,7 @@ export const getSpec: (opts: YfmTabsSpecsOptions) => Record<TabsNode, NodeSpec> 
             [TabsListAttrs.class]: {default: 'yfm-tab-list'},
             [TabsListAttrs.role]: {default: 'unknown'},
         },
-        content: 'yfm_tab*',
+        content: `${TabsNode.Tab}*`,
         group: 'block',
         parseDOM: [{tag: 'div.yfm-tab-list'}],
         toDOM(node) {
