@@ -1,5 +1,17 @@
 # Changelog
 
+## [6.2.0](https://github.com/yandex-cloud/yfm-editor/compare/v6.1.4...v6.2.0) (2023-09-29)
+
+
+### Features
+
+* add esbuild compatability tests ([#125](https://github.com/yandex-cloud/yfm-editor/issues/125)) ([58e1135](https://github.com/yandex-cloud/yfm-editor/commit/58e113597e34cf9c779eb0a241023945b469e3c7))
+
+
+### Bug Fixes
+
+* remove ambiguous export ([#134](https://github.com/yandex-cloud/yfm-editor/issues/134)) ([3a276e8](https://github.com/yandex-cloud/yfm-editor/commit/3a276e84202ad01b847f609526166e5ec498739f))
+
 ## [6.1.4](https://github.com/yandex-cloud/yfm-editor/compare/v6.1.3...v6.1.4) (2023-09-25)
 
 
