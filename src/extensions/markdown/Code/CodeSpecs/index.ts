@@ -26,7 +26,7 @@ export const CodeSpecs: ExtensionAuto = (builder) => {
                 escape: false,
             },
             fromYfm: {
-                tokenSpec: {name: codeMarkName, type: 'mark', noCloseToken: true},
+                tokenSpec: {name: codeMarkName, type: 'mark', code: true, noCloseToken: true},
                 tokenName: 'code_inline',
             },
         }),

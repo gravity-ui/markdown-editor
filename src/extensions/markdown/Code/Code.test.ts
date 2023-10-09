@@ -37,4 +37,8 @@ describe('Code extension', () => {
     it('should parse html - code tag', () => {
         parseDOM(schema, '<code>code inline</code>', doc(p(c('code inline'))));
     });
+
+    it('should parse new line in code', () => {
+        same('`\\n`', doc(p(c('\\n'))));
+    });
 });
