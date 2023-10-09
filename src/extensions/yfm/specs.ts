@@ -1,7 +1,7 @@
 import type {ExtensionAuto} from '../../core';
 
 import {CheckboxSpecs, CheckboxSpecsOptions} from './Checkbox/CheckboxSpecs';
-import {ColorSpecs} from './Color/ColorSpecs';
+import {ColorSpecs, ColorSpecsOptions} from './Color/ColorSpecs';
 import {MathSpecs} from './Math/MathSpecs';
 import {MonospaceSpecs} from './Monospace/MonospaceSpecs';
 import {ImgSizeSpecs, ImgSizeSpecsOptions} from './ImgSize/ImgSizeSpecs';
@@ -30,6 +30,7 @@ export * from './YfmTabs/YfmTabsSpecs';
 
 export type YfmSpecsPresetOptions = {
     checkbox?: CheckboxSpecsOptions;
+    color?: ColorSpecsOptions;
     video?: VideoSpecsOptions;
     imgSize?: ImgSizeSpecsOptions;
     yfmCut?: YfmCutSpecsOptions;
@@ -42,7 +43,7 @@ export type YfmSpecsPresetOptions = {
 export const YfmSpecsPreset: ExtensionAuto<YfmSpecsPresetOptions> = (builder, opts) => {
     builder
         .use(CheckboxSpecs, opts.checkbox ?? {})
-        .use(ColorSpecs)
+        .use(ColorSpecs, opts.color ?? {})
         .use(ImgSizeSpecs, opts.imgSize ?? {})
         .use(MathSpecs)
         .use(MonospaceSpecs)

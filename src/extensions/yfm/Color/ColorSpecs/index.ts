@@ -6,7 +6,19 @@ import {colorMarkName, colorClassName, domColorAttr} from './const';
 export {colorMarkName} from './const';
 export const colorType = markTypeFactory(colorMarkName);
 
-export const ColorSpecs: ExtensionAuto = (builder) => {
+function getColorName(className: string) {
+    const regexp = /^(yfm|md)-colorify--(\w+)$/;
+    return className.match(regexp)?.[2];
+}
+
+export type ColorSpecsOptions = {
+    validateClassNameColorName?: (colorName: string) => boolean;
+    parseStyleColorValue?: (color: string) => string | null;
+};
+
+export const ColorSpecs: ExtensionAuto<ColorSpecsOptions> = (builder, opts) => {
+    const {validateClassNameColorName, parseStyleColorValue} = opts;
+
     builder
         .configureMd((md) => md.use(mdPlugin, {defaultClassName: colorClassName, inline: false}))
         .addMark(colorMarkName, () => ({
@@ -14,11 +26,37 @@ export const ColorSpecs: ExtensionAuto = (builder) => {
                 attrs: {[colorMarkName]: {}},
                 parseDOM: [
                     {
-                        tag: `span[${domColorAttr}]`,
+                        tag: `span`,
+                        preserveWhitespace: false,
                         getAttrs(node) {
-                            return {
-                                [colorMarkName]: (node as HTMLElement).getAttribute(domColorAttr),
-                            };
+                            if (typeof node === 'string') return false;
+
+                            for (const className of Array.from(node.classList)) {
+                                const color = getColorName(className);
+                                if (color && (validateClassNameColorName?.(color) ?? true)) {
+                                    return {
+                                        [colorMarkName]: color,
+                                    };
+                                }
+                            }
+
+                            return false;
+                        },
+                    },
+                    {
+                        style: 'color',
+                        preserveWhitespace: false,
+                        getAttrs(node) {
+                            if (typeof node !== 'string') return false;
+
+                            const color = parseStyleColorValue?.(node);
+                            if (color) {
+                                return {
+                                    [colorMarkName]: color,
+                                };
+                            }
+
+                            return false;
                         },
                     },
                 ],

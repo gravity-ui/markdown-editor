@@ -1,4 +1,5 @@
 import type {Command} from 'prosemirror-state';
+import {Colors} from './const';
 
 export {chainCommands as chainOR} from 'prosemirror-commands';
 
@@ -38,4 +39,66 @@ export const chainAND = (...commands: Command[]): Command => {
 
         return true;
     };
+};
+
+// see styles
+const COLORS: readonly string[] = [
+    Colors.Black,
+    Colors.Gray,
+    Colors.Yellow,
+    Colors.Orange,
+    Colors.Red,
+    Colors.Green,
+    Colors.Blue,
+    Colors.Violet,
+];
+
+export const validateClassNameColorName = (color: string) => COLORS.includes(color);
+
+// eslint-disable-next-line complexity
+export const parseStyleColorValue = (color: string) => {
+    switch (color) {
+        case 'black':
+            return Colors.Black;
+
+        case 'gray':
+        case 'grey':
+        case 'lightgray':
+        case 'lightgrey':
+        case 'darkgray':
+        case 'darkgrey':
+            return Colors.Gray;
+
+        case 'yellow':
+        case 'lightyellow':
+            return Colors.Yellow;
+
+        case 'orange':
+        case 'darkorange':
+            return Colors.Orange;
+
+        case 'red':
+        case 'darkred':
+            return Colors.Red;
+
+        case 'green':
+        case 'lightgreen':
+        case 'darkgreen':
+            return Colors.Green;
+
+        case 'blue':
+        case 'lightblue':
+        case 'mediumblue':
+        case 'darkblue':
+            return Colors.Blue;
+
+        case 'violet':
+        case 'darkviolet':
+        case 'purple':
+        case 'mediumpurple':
+            return Colors.Violet;
+
+        default:
+            return null;
+    }
 };
