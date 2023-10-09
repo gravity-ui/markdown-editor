@@ -3,7 +3,7 @@ import type {Action, ExtensionAuto} from '../../../core';
 import {isMarkActive} from '../../../utils/marks';
 import {ColorSpecs, colorType} from './ColorSpecs';
 import {colorAction, colorMarkName, Colors} from './const';
-import {chainAND} from './utils';
+import {chainAND, parseStyleColorValue, validateClassNameColorName} from './utils';
 
 import './colors.scss';
 
@@ -15,7 +15,10 @@ export type ColorActionParams = {
 };
 
 export const Color: ExtensionAuto = (builder) => {
-    builder.use(ColorSpecs);
+    builder.use(ColorSpecs, {
+        validateClassNameColorName,
+        parseStyleColorValue,
+    });
 
     builder.addAction(colorAction, ({schema}) => {
         const type = colorType(schema);
