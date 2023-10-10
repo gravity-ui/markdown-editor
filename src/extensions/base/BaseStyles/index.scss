@@ -1,5 +1,25 @@
 @use '../../../../node_modules/prosemirror-view/style/prosemirror';
 
+// Make outline appear only if ProseMirror is focused
+
+.ProseMirror-selectednode {
+    outline: none;
+}
+
+.li.ProseMirror-selectednode:after {
+    border: none;
+}
+
+.yfm-editor.ProseMirror-focused {
+    .ProseMirror-selectednode {
+        outline: 2px solid #8cf;
+    }
+
+    li.ProseMirror-selectednode:after {
+        border: 2px solid #8cf;
+    }
+}
+
 .yfm-editor.ProseMirror,
 .yfm-editor .ProseMirror {
     &:focus {
