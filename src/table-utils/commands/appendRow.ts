@@ -1,6 +1,6 @@
 import {Fragment, Node} from 'prosemirror-model';
-import {findParentNodeClosestToPos} from 'prosemirror-utils';
-import {findChildTableBody, findChildTableRows, isTableNode} from '..';
+import {findChildren, findParentNodeClosestToPos} from 'prosemirror-utils';
+import {findChildTableRows, isTableBodyNode, isTableNode, isTableRowNode} from '..';
 import type {CommandWithAttrs} from '../../core';
 
 export const appendRow: CommandWithAttrs<{
@@ -15,16 +15,20 @@ export const appendRow: CommandWithAttrs<{
         state.doc.resolve(tablePos + 1),
         isTableNode,
     )?.node;
+
     if (!tableNode) return false;
+
+    const parentBody = findChildren(tableNode, isTableBodyNode, false).pop();
+    if (!parentBody) return false;
+
     let parentRow;
     if (rowNumber !== undefined) {
         parentRow = findChildTableRows(tableNode)[rowNumber];
     } else {
-        parentRow = findChildTableRows(tableNode).pop();
+        parentRow = findChildren(parentBody.node, isTableRowNode, false).pop();
     }
-    const parentBody = findChildTableBody(tableNode).pop();
 
-    if (!parentRow || !parentBody) {
+    if (!parentRow) {
         return false;
     }
 
@@ -35,7 +39,7 @@ export const appendRow: CommandWithAttrs<{
         });
 
         let position = tablePos + parentRow.pos;
-        position += direction === 'before' ? 1 : parentRow.node.nodeSize;
+        position += direction === 'before' ? 1 : parentRow.node.nodeSize + 2;
 
         dispatch(state.tr.insert(position, parentRow.node.copy(Fragment.from(newCellNodes))));
     }

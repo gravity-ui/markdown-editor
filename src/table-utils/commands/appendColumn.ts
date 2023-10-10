@@ -1,7 +1,7 @@
-import {findChildTableCells, findChildTableRows} from '../utils';
+import {findChildTableCells, isTableBodyNode, isTableCellNode} from '../utils';
 import {findChildIndex} from '../helpers';
 import type {CommandWithAttrs} from '../../core';
-import {findParentNodeClosestToPos} from 'prosemirror-utils';
+import {findChildren, findParentNodeClosestToPos} from 'prosemirror-utils';
 import {isTableNode, isTableRowNode} from '..';
 
 export const appendColumn: CommandWithAttrs<{
@@ -20,6 +20,9 @@ export const appendColumn: CommandWithAttrs<{
     let parentCell;
     let parentRow;
 
+    const tableBody = findChildren(parentTable, isTableBodyNode, false).pop();
+    if (!tableBody) return false;
+
     if (columnNumber !== undefined) {
         parentCell = findChildTableCells(parentTable)[columnNumber];
         parentRow = findParentNodeClosestToPos(
@@ -27,8 +30,10 @@ export const appendColumn: CommandWithAttrs<{
             isTableRowNode,
         );
     } else {
-        parentCell = findChildTableCells(parentTable).pop();
-        parentRow = findChildTableRows(parentTable).pop();
+        parentRow = findChildren(tableBody.node, isTableRowNode, false).pop();
+        if (!parentRow) return false;
+
+        parentCell = findChildren(parentRow.node, isTableCellNode, false).pop();
     }
 
     if (!parentCell || !parentRow || !parentTable) {
@@ -42,14 +47,14 @@ export const appendColumn: CommandWithAttrs<{
     }
 
     if (dispatch) {
-        const allRows = findChildTableRows(parentTable);
+        const allRows = findChildren(tableBody.node, isTableRowNode, false);
 
         let tr = state.tr;
         for (const row of allRows) {
-            const rowCells = findChildTableCells(row.node);
+            const rowCells = findChildren(row.node, isTableCellNode, false);
             const cell = rowCells[parentCellIndex];
 
-            let position = tablePos + row.pos + cell.pos + 2;
+            let position = tablePos + row.pos + cell.pos + 3;
             position += direction === 'before' ? 0 : cell.node.nodeSize;
 
             tr = tr.insert(
