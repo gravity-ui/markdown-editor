@@ -1,5 +1,19 @@
 # Changelog
 
+## [6.3.0](https://github.com/yandex-cloud/yfm-editor/compare/v6.2.0...v6.3.0) (2023-10-10)
+
+
+### Features
+
+* **Color:** add parseDOM rules to specs ([#137](https://github.com/yandex-cloud/yfm-editor/issues/137)) ([198f805](https://github.com/yandex-cloud/yfm-editor/commit/198f8059878d2970d2eee62918868232d4195e46))
+
+
+### Bug Fixes
+
+* correct parsing of `\n` in inline code ([#135](https://github.com/yandex-cloud/yfm-editor/issues/135)) ([ebf37d7](https://github.com/yandex-cloud/yfm-editor/commit/ebf37d71488afa554031af349fa5d835f92ee08c))
+* selected node styles appear only if ProseMirror is focused ([#138](https://github.com/yandex-cloud/yfm-editor/issues/138)) ([dd873de](https://github.com/yandex-cloud/yfm-editor/commit/dd873deae5f87cc80045067bd2a50934f2589ee5))
+* trying to add a row or column to an outer table caused it to be added into inner one ([#139](https://github.com/yandex-cloud/yfm-editor/issues/139)) ([41d4a46](https://github.com/yandex-cloud/yfm-editor/commit/41d4a46fad15e77368d08eeee231f5486faf2f9a))
+
 ## [6.2.0](https://github.com/yandex-cloud/yfm-editor/compare/v6.1.4...v6.2.0) (2023-09-29)
 
 
