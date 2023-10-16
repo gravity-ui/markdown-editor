@@ -1,6 +1,7 @@
 import type {NodeSpec} from 'prosemirror-model';
 import {YfmNoteSpecsOptions} from './index';
 import {NoteAttrs, NoteNode} from './const';
+import {processPlaceholderContent} from '../../../../utils/placeholder';
 
 const DEFAULT_TITLE_PLACEHOLDER = 'Note';
 
@@ -45,7 +46,10 @@ export const getSpec = (opts?: YfmNoteSpecsOptions): Record<NoteNode, NodeSpec> 
         selectable: false,
         allowSelection: false,
         placeholder: {
-            content: opts?.yfmNoteTitlePlaceholder ?? DEFAULT_TITLE_PLACEHOLDER,
+            content:
+                processPlaceholderContent(opts?.placeholderOptions?.[NoteNode.NoteTitle]) ??
+                opts?.yfmNoteTitlePlaceholder ??
+                DEFAULT_TITLE_PLACEHOLDER,
             alwaysVisible: true,
         },
         complex: 'leaf',

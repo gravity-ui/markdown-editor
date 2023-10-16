@@ -7,12 +7,17 @@ import {YfmTableNode} from './const';
 import {fromYfm} from './fromYfm';
 import {getSpec} from './spec';
 import {toYfm} from './toYfm';
+import {PlaceholderOptions} from '../../../../utils/placeholder';
 
 export {YfmTableNode} from './const';
 export {yfmTableType, yfmTableBodyType, yfmTableRowType, yfmTableCellType} from './utils';
 
 export type YfmTableSpecsOptions = {
+    /**
+     * @deprecated: use placeholderOptions instead.
+     */
     yfmTableCellPlaceholder?: NonNullable<NodeSpec['placeholder']>['content'];
+    placeholderOptions?: PlaceholderOptions;
 };
 
 export const YfmTableSpecs: ExtensionWithOptions<YfmTableSpecsOptions> = (builder, options) => {

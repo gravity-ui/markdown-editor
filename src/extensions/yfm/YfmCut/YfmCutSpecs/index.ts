@@ -8,6 +8,7 @@ import {CutNode} from './const';
 import {fromYfm} from './fromYfm';
 import {getSpec} from './spec';
 import {toYfm} from './toYfm';
+import {PlaceholderOptions} from '../../../../utils/placeholder';
 
 export {CutNode} from './const';
 export const cutType = nodeTypeFactory(CutNode.Cut);
@@ -18,8 +19,15 @@ export type YfmCutSpecsOptions = {
     cutView?: YENodeSpec['view'];
     cutTitleView?: YENodeSpec['view'];
     cutContentView?: YENodeSpec['view'];
+    /**
+     * @deprecated: use placeholderOptions instead.
+     */
     yfmCutTitlePlaceholder?: NonNullable<NodeSpec['placeholder']>['content'];
+    /**
+     * @deprecated: use placeholderOptions instead.
+     */
     yfmCutContentPlaceholder?: NonNullable<NodeSpec['placeholder']>['content'];
+    placeholderOptions?: PlaceholderOptions;
 };
 
 export const YfmCutSpecs: ExtensionAuto<YfmCutSpecsOptions> = (builder, opts) => {

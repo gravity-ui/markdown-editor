@@ -1,11 +1,12 @@
 import type {NodeSpec} from 'prosemirror-model';
 import type {CheckboxSpecsOptions} from './index';
 import {b, CheckboxNode} from '../const';
+import {processPlaceholderContent} from '../../../../utils/placeholder';
 
 const DEFAULT_LABEL_PLACEHOLDER = 'Checkbox';
 
 export const getSpec = (
-    opts?: Pick<CheckboxSpecsOptions, 'checkboxLabelPlaceholder'>,
+    opts?: Pick<CheckboxSpecsOptions, 'checkboxLabelPlaceholder' | 'placeholderOptions'>,
 ): Record<CheckboxNode, NodeSpec> => ({
     [CheckboxNode.Checkbox]: {
         group: 'block',
@@ -54,7 +55,10 @@ export const getSpec = (
         },
         escapeText: false,
         placeholder: {
-            content: opts?.checkboxLabelPlaceholder ?? DEFAULT_LABEL_PLACEHOLDER,
+            content:
+                processPlaceholderContent(opts?.placeholderOptions?.[CheckboxNode.Label]) ??
+                opts?.checkboxLabelPlaceholder ??
+                DEFAULT_LABEL_PLACEHOLDER,
             alwaysVisible: true,
         },
         toDOM(node) {

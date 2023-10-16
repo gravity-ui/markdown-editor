@@ -14,7 +14,10 @@ const checkboxAction = 'addCheckbox';
 
 export {CheckboxNode, checkboxType, checkboxLabelType, checkboxInputType} from './CheckboxSpecs';
 
-export type CheckboxOptions = Pick<CheckboxSpecsOptions, 'checkboxLabelPlaceholder'> & {};
+export type CheckboxOptions = Pick<
+    CheckboxSpecsOptions,
+    'checkboxLabelPlaceholder' | 'placeholderOptions'
+> & {};
 
 export const Checkbox: ExtensionAuto<CheckboxOptions> = (builder, opts) => {
     builder.use(CheckboxSpecs, {

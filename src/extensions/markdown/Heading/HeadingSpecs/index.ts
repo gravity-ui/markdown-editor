@@ -1,6 +1,7 @@
 import type {Node, NodeSpec} from 'prosemirror-model';
 import type {ExtensionAuto} from '../../../../core';
 import {nodeTypeFactory} from '../../../../utils/schema';
+import {processPlaceholderContent, PlaceholderOptions} from '../../../../utils/placeholder';
 
 export const headingNodeName = 'heading';
 export const headingLevelAttr = 'level';
@@ -10,10 +11,11 @@ const DEFAULT_PLACEHOLDER = (node: Node) => 'Heading ' + node.attrs[headingLevel
 
 export type HeadingSpecsOptions = {
     headingPlaceholder?: NonNullable<NodeSpec['placeholder']>['content'];
+    placeholderOptions?: PlaceholderOptions;
 };
 
 export const HeadingSpecs: ExtensionAuto<HeadingSpecsOptions> = (builder, opts) => {
-    const {headingPlaceholder} = opts ?? {};
+    const {headingPlaceholder, placeholderOptions} = opts ?? {};
 
     builder.addNode(headingNodeName, () => ({
         spec: {
@@ -33,7 +35,10 @@ export const HeadingSpecs: ExtensionAuto<HeadingSpecsOptions> = (builder, opts) 
                 return ['h' + node.attrs[headingLevelAttr], 0];
             },
             placeholder: {
-                content: headingPlaceholder ?? DEFAULT_PLACEHOLDER,
+                content:
+                    processPlaceholderContent(placeholderOptions?.heading) ??
+                    headingPlaceholder ??
+                    DEFAULT_PLACEHOLDER,
                 alwaysVisible: true,
             },
         },

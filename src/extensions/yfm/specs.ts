@@ -13,6 +13,7 @@ import {YfmHeadingSpecs, YfmHeadingSpecsOptions} from './YfmHeading/YfmHeadingSp
 import {YfmNoteSpecs, YfmNoteSpecsOptions} from './YfmNote/YfmNoteSpecs';
 import {YfmTableSpecs, YfmTableSpecsOptions} from './YfmTable/YfmTableSpecs';
 import {YfmTabsSpecs, YfmTabsSpecsOptions} from './YfmTabs/YfmTabsSpecs';
+import {PlaceholderOptions} from '../../utils/placeholder';
 
 export * from './Checkbox/CheckboxSpecs';
 export * from './Color/ColorSpecs';
@@ -38,6 +39,7 @@ export type YfmSpecsPresetOptions = {
     yfmTable?: YfmTableSpecsOptions;
     yfmTabs?: YfmTabsSpecsOptions;
     yfmHeading?: YfmHeadingSpecsOptions;
+    placeholderOptions?: PlaceholderOptions;
 };
 
 export const YfmSpecsPreset: ExtensionAuto<YfmSpecsPresetOptions> = (builder, opts) => {

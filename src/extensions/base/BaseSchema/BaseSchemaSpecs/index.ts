@@ -1,6 +1,7 @@
 import type {NodeSpec} from 'prosemirror-model';
 import type {ExtensionAuto} from '../../../../core';
 import {nodeTypeFactory} from '../../../../utils/schema';
+import {processPlaceholderContent, PlaceholderOptions} from '../../../../utils/placeholder';
 
 export enum BaseNode {
     Doc = 'doc',
@@ -11,12 +12,17 @@ export enum BaseNode {
 export const pType = nodeTypeFactory(BaseNode.Paragraph);
 
 export type BaseSchemaSpecsOptions = {
+    /**
+     * @deprecated: use placeholderOptions instead.
+     */
     paragraphPlaceholder?: NonNullable<NodeSpec['placeholder']>['content'];
+    placeholderOptions?: PlaceholderOptions;
 };
 
 export const BaseSchemaSpecs: ExtensionAuto<BaseSchemaSpecsOptions> = (builder, opts) => {
-    const {paragraphPlaceholder} = opts;
-
+    const {placeholderOptions, paragraphPlaceholder} = opts;
+    const placeholderContent =
+        processPlaceholderContent(placeholderOptions?.[BaseNode.Paragraph]) ?? paragraphPlaceholder;
     builder
         .addNode(BaseNode.Doc, () => ({
             spec: {
@@ -45,9 +51,9 @@ export const BaseSchemaSpecs: ExtensionAuto<BaseSchemaSpecsOptions> = (builder, 
                 toDOM() {
                     return ['p', 0];
                 },
-                placeholder: paragraphPlaceholder
+                placeholder: placeholderContent
                     ? {
-                          content: paragraphPlaceholder,
+                          content: placeholderContent,
                           alwaysVisible: false,
                       }
                     : undefined,

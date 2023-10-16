@@ -1,6 +1,7 @@
 import type {NodeSpec} from 'prosemirror-model';
 import type {DeflistSpecsOptions} from './index';
 import {DeflistNode} from './const';
+import {processPlaceholderContent} from '../../../../utils/placeholder';
 
 const DEFAULT_PLACEHOLDERS = {
     Term: 'Definition term',
@@ -29,7 +30,10 @@ export const getSpec = (opts?: DeflistSpecsOptions): Record<DeflistNode, NodeSpe
             return ['dt', 0];
         },
         placeholder: {
-            content: opts?.deflistTermPlaceholder ?? DEFAULT_PLACEHOLDERS.Term,
+            content:
+                processPlaceholderContent(opts?.placeholderOptions?.[DeflistNode.Term]) ??
+                opts?.deflistTermPlaceholder ??
+                DEFAULT_PLACEHOLDERS.Term,
             alwaysVisible: true,
         },
         selectable: false,
@@ -46,7 +50,10 @@ export const getSpec = (opts?: DeflistSpecsOptions): Record<DeflistNode, NodeSpe
             return ['dd', 0];
         },
         placeholder: {
-            content: opts?.deflistDescPlaceholder ?? DEFAULT_PLACEHOLDERS.Desc,
+            content:
+                processPlaceholderContent(opts?.placeholderOptions?.[DeflistNode.Desc]) ??
+                opts?.deflistDescPlaceholder ??
+                DEFAULT_PLACEHOLDERS.Desc,
             alwaysVisible: true,
         },
         selectable: false,

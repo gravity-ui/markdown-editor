@@ -2,6 +2,7 @@ import type {NodeSpec} from 'prosemirror-model';
 import {TableRole} from '../../../../table-utils';
 import type {YfmTableSpecsOptions} from './index';
 import {YfmTableNode} from './const';
+import {processPlaceholderContent} from '../../../../utils/placeholder';
 
 const DEFAULT_CELL_PLACEHOLDER = 'Table cell';
 
@@ -67,7 +68,10 @@ export const getSpec = (opts?: YfmTableSpecsOptions): Record<YfmTableNode, NodeS
             return ['td', 0];
         },
         placeholder: {
-            content: opts?.yfmTableCellPlaceholder ?? DEFAULT_CELL_PLACEHOLDER,
+            content:
+                processPlaceholderContent(opts?.placeholderOptions?.[YfmTableNode.Cell]) ??
+                opts?.yfmTableCellPlaceholder ??
+                DEFAULT_CELL_PLACEHOLDER,
             alwaysVisible: true,
         },
         tableRole: TableRole.Cell,

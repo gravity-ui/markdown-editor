@@ -6,6 +6,7 @@ import log from '@doc-tools/transform/lib/log';
 
 import type {ExtensionAuto} from '../../../../core';
 import {imageNodeName} from '../../../markdown/Image/const';
+import {processPlaceholderContent, PlaceholderOptions} from '../../../../utils/placeholder';
 
 type ImsizeTypedAttributes = {
     [ImgSizeAttr.Src]: string;
@@ -18,10 +19,16 @@ type ImsizeTypedAttributes = {
 export {ImgSizeAttr};
 
 export type ImgSizeSpecsOptions = {
+    /**
+     * @deprecated: use placeholderOptions instead.
+     */
     placeholder?: NodeSpec['placeholder'];
+    placeholderOptions?: PlaceholderOptions;
 };
 
 export const ImgSizeSpecs: ExtensionAuto<ImgSizeSpecsOptions> = (builder, opts) => {
+    const placeholderContent = processPlaceholderContent(opts?.placeholderOptions?.imgSize);
+
     builder.configureMd((md) => md.use(imsize, {log}));
     builder.addNode(imageNodeName, () => ({
         spec: {
@@ -33,7 +40,7 @@ export const ImgSizeSpecs: ExtensionAuto<ImgSizeSpecsOptions> = (builder, opts) 
                 [ImgSizeAttr.Height]: {default: null},
                 [ImgSizeAttr.Width]: {default: null},
             },
-            placeholder: opts.placeholder,
+            placeholder: placeholderContent ? {content: placeholderContent} : opts.placeholder,
             group: 'inline',
             draggable: true,
             parseDOM: [

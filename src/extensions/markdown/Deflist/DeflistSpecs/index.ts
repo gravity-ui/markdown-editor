@@ -6,6 +6,7 @@ import {DeflistNode} from './const';
 import {fromYfm} from './fromYfm';
 import {getSpec} from './spec';
 import {toYfm} from './toYfm';
+import {PlaceholderOptions} from '../../../../utils/placeholder';
 
 export {DeflistNode} from './const';
 export const defListType = nodeTypeFactory(DeflistNode.List);
@@ -13,8 +14,15 @@ export const defTermType = nodeTypeFactory(DeflistNode.Term);
 export const defDescType = nodeTypeFactory(DeflistNode.Desc);
 
 export type DeflistSpecsOptions = {
+    /**
+     * @deprecated: use placeholderOptions instead.
+     */
     deflistTermPlaceholder?: NonNullable<NodeSpec['placeholder']>['content'];
+    /**
+     * @deprecated: use placeholderOptions instead.
+     */
     deflistDescPlaceholder?: NonNullable<NodeSpec['placeholder']>['content'];
+    placeholderOptions?: PlaceholderOptions;
 };
 
 export const DeflistSpecs: ExtensionAuto<DeflistSpecsOptions> = (builder, opts) => {

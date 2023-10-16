@@ -1,6 +1,7 @@
 import type {NodeSpec} from 'prosemirror-model';
 import {YfmTabsSpecsOptions} from '.';
 import {TabAttrs, TabPanelAttrs, TabsAttrs, TabsListAttrs, TabsNode} from './const';
+import {processPlaceholderContent} from '../../../../utils/placeholder';
 
 const DEFAULT_PLACEHOLDERS = {
     TabTitle: 'Tab title',
@@ -27,7 +28,10 @@ export const getSpec: (opts: YfmTabsSpecsOptions) => Record<TabsNode, NodeSpec> 
             return ['div', node.attrs, 0];
         },
         placeholder: {
-            content: opts?.tabPlaceholder ?? DEFAULT_PLACEHOLDERS.TabTitle,
+            content:
+                processPlaceholderContent(opts?.placeholderOptions?.[TabsNode.Tab]) ??
+                opts?.tabPlaceholder ??
+                DEFAULT_PLACEHOLDERS.TabTitle,
             alwaysVisible: true,
         },
         selectable: false,

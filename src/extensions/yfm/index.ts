@@ -13,6 +13,7 @@ import {YfmHeading, YfmHeadingOptions} from './YfmHeading';
 import {YfmNote, YfmNoteOptions} from './YfmNote';
 import {YfmTable, YfmTableOptions} from './YfmTable';
 import {YfmTabs} from './YfmTabs';
+import {PlaceholderOptions} from '../../utils/placeholder';
 
 export * from './Checkbox';
 export * from './Color';
@@ -36,21 +37,25 @@ export type YfmPresetOptions = {
     yfmNote?: YfmNoteOptions;
     yfmTable?: YfmTableOptions;
     yfmHeading?: YfmHeadingOptions;
+    placeholderOptions?: PlaceholderOptions;
 };
 
-export const YfmPreset: ExtensionAuto<YfmPresetOptions> = (builder, opts) => {
+export const YfmPreset: ExtensionAuto<YfmPresetOptions> = (
+    builder,
+    {placeholderOptions, ...opts},
+) => {
     builder
-        .use(Checkbox, opts.checkbox ?? {})
+        .use(Checkbox, {...opts.checkbox, placeholderOptions})
         .use(Color)
-        .use(ImgSize, opts.imgSize ?? {})
+        .use(ImgSize, {...opts.imgSize, placeholderOptions})
         .use(Math)
         .use(Monospace)
         .use(Video, opts.video ?? {})
         .use(YfmDist)
-        .use(YfmCut, opts.yfmCut ?? {})
-        .use(YfmNote, opts.yfmNote ?? {})
+        .use(YfmCut, {...opts.yfmCut, placeholderOptions})
+        .use(YfmNote, {...opts.yfmNote, placeholderOptions})
         .use(YfmFile)
-        .use(YfmHeading, opts.yfmHeading ?? {})
-        .use(YfmTable, opts.yfmTable ?? {})
-        .use(YfmTabs);
+        .use(YfmHeading, {...opts.yfmHeading, placeholderOptions})
+        .use(YfmTable, {...opts.yfmTable, placeholderOptions})
+        .use(YfmTabs, {placeholderOptions});
 };

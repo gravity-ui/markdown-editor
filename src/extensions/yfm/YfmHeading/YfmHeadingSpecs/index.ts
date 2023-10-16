@@ -2,18 +2,23 @@ import type {Node, NodeSpec} from 'prosemirror-model';
 import type {ExtensionAuto} from '../../../../core';
 import {headingNodeName, YfmHeadingAttr} from './const';
 import {getNodeAttrs} from './utils';
+import {processPlaceholderContent, PlaceholderOptions} from '../../../../utils/placeholder';
 
 const DEFAULT_PLACEHOLDER = (node: Node) => 'Heading ' + node.attrs[YfmHeadingAttr.Level];
 
 export {YfmHeadingAttr} from './const';
 
 export type YfmHeadingSpecsOptions = {
+    /**
+     * @deprecated: use placeholderOptions instead.
+     */
     headingPlaceholder?: NonNullable<NodeSpec['placeholder']>['content'];
+    placeholderOptions?: PlaceholderOptions;
 };
 
 /** YfmHeading extension needs markdown-it-attrs plugin */
 export const YfmHeadingSpecs: ExtensionAuto<YfmHeadingSpecsOptions> = (builder, opts) => {
-    const {headingPlaceholder} = opts ?? {};
+    const {headingPlaceholder, placeholderOptions} = opts ?? {};
 
     builder.addNode(headingNodeName, () => ({
         spec: {
@@ -52,7 +57,10 @@ export const YfmHeadingSpecs: ExtensionAuto<YfmHeadingSpecsOptions> = (builder, 
                 ];
             },
             placeholder: {
-                content: headingPlaceholder ?? DEFAULT_PLACEHOLDER,
+                content:
+                    processPlaceholderContent(placeholderOptions?.heading) ??
+                    headingPlaceholder ??
+                    DEFAULT_PLACEHOLDER,
                 alwaysVisible: true,
             },
         },

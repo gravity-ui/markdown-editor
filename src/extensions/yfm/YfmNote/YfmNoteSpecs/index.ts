@@ -7,12 +7,17 @@ import {toYfm} from './toYfm';
 import {NoteNode} from './const';
 import {fromYfm} from './fromYfm';
 import {getSpec} from './spec';
+import {PlaceholderOptions} from '../../../../utils/placeholder';
 
 export {NoteNode as YfmNoteNode} from './const';
 export {noteType, noteTitleType} from './utils';
 
 export type YfmNoteSpecsOptions = {
+    /**
+     * @deprecated: use placeholderOptions instead.
+     */
     yfmNoteTitlePlaceholder?: NonNullable<NodeSpec['placeholder']>['content'];
+    placeholderOptions?: PlaceholderOptions;
 };
 
 export const YfmNoteSpecs: ExtensionAuto<YfmNoteSpecsOptions> = (builder, opts) => {

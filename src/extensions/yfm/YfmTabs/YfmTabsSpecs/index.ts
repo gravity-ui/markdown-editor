@@ -8,6 +8,7 @@ import {TabsNode} from './const';
 import {fromYfm} from './fromYfm';
 import {getSpec} from './spec';
 import {toYfm} from './toYfm';
+import {PlaceholderOptions} from '../../../../utils/placeholder';
 
 export {TabsNode} from './const';
 export const tabPanelType = nodeTypeFactory(TabsNode.TabPanel);
@@ -16,11 +17,15 @@ export const tabsType = nodeTypeFactory(TabsNode.Tabs);
 export const tabsListType = nodeTypeFactory(TabsNode.TabsList);
 
 export type YfmTabsSpecsOptions = {
+    /**
+     * @deprecated: use placeholderOptions instead.
+     */
     tabPlaceholder?: NonNullable<NodeSpec['placeholder']>['content'];
     tabView?: YENodeSpec['view'];
     tabsListView?: YENodeSpec['view'];
     tabPanelView?: YENodeSpec['view'];
     tabsView?: YENodeSpec['view'];
+    placeholderOptions?: PlaceholderOptions;
 };
 
 export const YfmTabsSpecs: ExtensionAuto<YfmTabsSpecsOptions> = (builder, opts) => {

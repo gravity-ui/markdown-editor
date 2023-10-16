@@ -21,6 +21,7 @@ import {HorizontalRule} from './HorizontalRule';
 import {Heading, HeadingOptions} from './Heading';
 import {CodeBlock, CodeBlockOptions} from './CodeBlock';
 import {Blockquote, BlockquoteOptions} from './Blockquote';
+import {PlaceholderOptions} from '../../utils/placeholder';
 
 export * from './Bold';
 export * from './Code';
@@ -72,16 +73,20 @@ export type MarkdownBlocksPresetOptions = {
     codeBlock?: CodeBlockOptions;
     blockquote?: BlockquoteOptions;
     heading?: false | Extension | HeadingOptions;
+    placeholderOptions?: PlaceholderOptions;
 };
 
-export const MarkdownBlocksPreset: ExtensionAuto<MarkdownBlocksPresetOptions> = (builder, opts) => {
+export const MarkdownBlocksPreset: ExtensionAuto<MarkdownBlocksPresetOptions> = (
+    builder,
+    {placeholderOptions, ...opts},
+) => {
     builder
         .use(Html)
         .use(Table)
         .use(HorizontalRule)
         .use(Lists, opts.lists ?? {})
         .use(Breaks, opts.breaks ?? {})
-        .use(Deflist, opts.deflist ?? {})
+        .use(Deflist, {...opts.deflist, placeholderOptions})
         .use(CodeBlock, opts.codeBlock ?? {})
         .use(Blockquote, opts.blockquote ?? {});
 
@@ -90,7 +95,7 @@ export const MarkdownBlocksPreset: ExtensionAuto<MarkdownBlocksPresetOptions> = 
     }
 
     if (opts.heading !== false) {
-        if (isFunction(opts.heading)) builder.use(opts.heading);
-        else builder.use(Heading, opts.heading ?? {});
+        if (isFunction(opts.heading)) builder.use(opts.heading, {placeholderOptions});
+        else builder.use(Heading, {...opts.heading, placeholderOptions});
     }
 };

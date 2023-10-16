@@ -7,6 +7,7 @@ import {b, CheckboxNode, idPrefix} from './const';
 import {fromYfm} from './fromYfm';
 import {getSpec} from './spec';
 import {toYfm} from './toYfm';
+import {PlaceholderOptions} from '../../../../utils/placeholder';
 
 export {CheckboxNode} from './const';
 export const checkboxType = nodeTypeFactory(CheckboxNode.Checkbox);
@@ -14,10 +15,14 @@ export const checkboxLabelType = nodeTypeFactory(CheckboxNode.Label);
 export const checkboxInputType = nodeTypeFactory(CheckboxNode.Input);
 
 export type CheckboxSpecsOptions = {
+    /**
+     * @deprecated: use placeholderOptions instead.
+     */
     checkboxLabelPlaceholder?: NonNullable<NodeSpec['placeholder']>['content'];
     inputView?: YENodeSpec['view'];
     labelView?: YENodeSpec['view'];
     checkboxView?: YENodeSpec['view'];
+    placeholderOptions?: PlaceholderOptions;
 };
 
 export const CheckboxSpecs: ExtensionAuto<CheckboxSpecsOptions> = (builder, opts) => {
