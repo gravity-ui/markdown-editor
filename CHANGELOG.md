@@ -1,5 +1,13 @@
 # Changelog
 
+## [6.4.0](https://github.com/yandex-cloud/yfm-editor/compare/v6.3.0...v6.4.0) (2023-10-25)
+
+
+### Features
+
+* **CodeBlock:** add custom tab key press handling in the codeblock ([fb3284c](https://github.com/yandex-cloud/yfm-editor/commit/fb3284c45bb980b9b86be73caa3a0179fad78203))
+* **CodeBlock:** do not select codeblock node when clicking on it ([67bad99](https://github.com/yandex-cloud/yfm-editor/commit/67bad99b18e6216e6e066810dc6700fc9d9f5a0c))
+
 ## [6.3.0](https://github.com/yandex-cloud/yfm-editor/compare/v6.2.0...v6.3.0) (2023-10-10)
 
 
