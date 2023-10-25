@@ -19,7 +19,7 @@ export const CodeBlockSpecs: ExtensionAuto<CodeBlockSpecsOptions> = (builder, op
             code: true,
             marks: '',
             selectable: true,
-            allowSelection: true,
+            allowSelection: false,
             parseDOM: [
                 {
                     tag: 'pre',
