@@ -68,6 +68,16 @@ export const CodeBlockSpecs: ExtensionAuto<CodeBlockSpecsOptions> = (builder, op
             throw new Error('Unexpected toYfm() call on fence node');
         },
     }));
+    builder.addKeymap(() => ({
+        Tab: (state, dispatch) => {
+            const {$anchor, $head} = state.selection;
+            if ($anchor.sameParent($head) && $anchor.parent.type.name === codeBlockNodeName) {
+                dispatch?.(state.tr.replaceSelectionWith(state.schema.text('\t')).scrollIntoView());
+                return true;
+            }
+            return false;
+        },
+    }));
 };
 
 function removeNewLineAtEnd(content: string): string {
