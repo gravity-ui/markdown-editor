@@ -8,6 +8,7 @@ import {ToolbarListButton} from './ToolbarListButton';
 import {shrinkToolbarData} from './flexible';
 import {logger} from '../logger';
 import {useRenderTime} from '../react-utils/hooks';
+import {ToolbarDataType, ToolbarItemData} from './types';
 
 import './FlexToolbar.scss';
 
@@ -15,6 +16,7 @@ const b = cn('flex-toolbar');
 
 export type FlexToolbarProps<E> = ToolbarProps<E> & {
     dotsTitle: string | (() => string);
+    hiddenActions?: ToolbarItemData<E>[];
 };
 
 export function FlexToolbar<E>(props: FlexToolbarProps<E>) {
@@ -26,12 +28,32 @@ export function FlexToolbar<E>(props: FlexToolbarProps<E>) {
         });
     });
 
-    const {data, className} = props;
+    const {data, className, hiddenActions} = props;
+
     const [ref, {width}] = useMeasure<HTMLDivElement>();
-    const {data: items, dots} = React.useMemo(
-        () => shrinkToolbarData({data, availableWidth: width}),
-        [data, width],
-    );
+    const {data: items, dots} = React.useMemo(() => {
+        const toolbarButtonIds = data.reduce((a: string[], toolbarGroup) => {
+            return [
+                ...a,
+                ...toolbarGroup
+                    .map((toolbarButton) => {
+                        if (toolbarButton.type === ToolbarDataType.ListButton) {
+                            return toolbarButton.data.map((v) => v.id);
+                        }
+                        return toolbarButton.id;
+                    })
+                    .flat(),
+            ];
+        }, []);
+
+        // Finding only actions tha are not present in the main toolbar config
+        const filteredHiddenAction = hiddenActions?.filter((a) => !toolbarButtonIds.includes(a.id));
+        return shrinkToolbarData({
+            data,
+            availableWidth: width,
+            hiddenActions: filteredHiddenAction,
+        });
+    }, [data, width, hiddenActions]);
 
     return (
         <div ref={ref} className={b(null, [className])}>
@@ -46,6 +68,8 @@ export function FlexToolbar<E>(props: FlexToolbarProps<E>) {
                         focus={props.focus}
                         onClick={props.onClick}
                         className={b('dots')}
+                        alwaysActive={true}
+                        hideDisabled={true}
                     />
                 )}
             </div>
