@@ -20,9 +20,14 @@ const dotsWidth = B_DOTS_LEFT_GAP + B_DOTS_WIDTH;
 export type ShrinkToolbarDataParams<E> = {
     data: ToolbarData<E>;
     availableWidth: number;
+    hiddenActions?: ToolbarItemData<E>[];
 };
 
-export function shrinkToolbarData<E>({availableWidth, data}: ShrinkToolbarDataParams<E>): {
+export function shrinkToolbarData<E>({
+    availableWidth,
+    data,
+    hiddenActions = [],
+}: ShrinkToolbarDataParams<E>): {
     data: ToolbarData<E>;
     dots?: ToolbarItemData<E>[];
 } {
@@ -63,6 +68,8 @@ export function shrinkToolbarData<E>({availableWidth, data}: ShrinkToolbarDataPa
 
         if (newGroup.length) fittingData.push(newGroup);
     });
+
+    dotsData.push(...hiddenActions);
 
     return {data: fittingData, dots: dotsData.length ? dotsData : undefined};
 }
