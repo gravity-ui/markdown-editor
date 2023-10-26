@@ -1,5 +1,12 @@
 # Changelog
 
+## [6.5.0](https://github.com/yandex-cloud/yfm-editor/compare/v6.4.0...v6.5.0) (2023-10-26)
+
+
+### Features
+
+* ability to add hidden action to toolbar ([#144](https://github.com/yandex-cloud/yfm-editor/issues/144)) ([d100d9b](https://github.com/yandex-cloud/yfm-editor/commit/d100d9bd8ef95a350b3d169c4cd288c92f0a768e))
+
 ## [6.4.0](https://github.com/yandex-cloud/yfm-editor/compare/v6.3.0...v6.4.0) (2023-10-25)
 
 
