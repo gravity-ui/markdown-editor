@@ -11,12 +11,11 @@ export enum BaseNode {
 export const pType = nodeTypeFactory(BaseNode.Paragraph);
 
 export type BaseSchemaSpecsOptions = {
+    // This cannot be passed through placeholder option of BehaviorPreset because BasePreset initializes first
     paragraphPlaceholder?: NonNullable<NodeSpec['placeholder']>['content'];
 };
 
 export const BaseSchemaSpecs: ExtensionAuto<BaseSchemaSpecsOptions> = (builder, opts) => {
-    const {paragraphPlaceholder} = opts;
-
     builder
         .addNode(BaseNode.Doc, () => ({
             spec: {
@@ -45,9 +44,9 @@ export const BaseSchemaSpecs: ExtensionAuto<BaseSchemaSpecsOptions> = (builder, 
                 toDOM() {
                     return ['p', 0];
                 },
-                placeholder: paragraphPlaceholder
+                placeholder: opts.paragraphPlaceholder
                     ? {
-                          content: paragraphPlaceholder,
+                          content: opts.paragraphPlaceholder,
                           alwaysVisible: false,
                       }
                     : undefined,

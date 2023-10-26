@@ -14,6 +14,9 @@ export const checkboxLabelType = nodeTypeFactory(CheckboxNode.Label);
 export const checkboxInputType = nodeTypeFactory(CheckboxNode.Input);
 
 export type CheckboxSpecsOptions = {
+    /**
+     * @deprecated: use placeholder option in BehaviorPreset instead.
+     */
     checkboxLabelPlaceholder?: NonNullable<NodeSpec['placeholder']>['content'];
     inputView?: YENodeSpec['view'];
     labelView?: YENodeSpec['view'];
@@ -21,7 +24,7 @@ export type CheckboxSpecsOptions = {
 };
 
 export const CheckboxSpecs: ExtensionAuto<CheckboxSpecsOptions> = (builder, opts) => {
-    const spec = getSpec(opts);
+    const spec = getSpec(opts, builder.context.get('placeholder'));
 
     builder
         .configureMd((md) => checkboxPlugin(md, {idPrefix, divClass: b()}))

@@ -16,6 +16,9 @@ export const tabsType = nodeTypeFactory(TabsNode.Tabs);
 export const tabsListType = nodeTypeFactory(TabsNode.TabsList);
 
 export type YfmTabsSpecsOptions = {
+    /**
+     * @deprecated: use placeholder option in BehaviorPreset instead.
+     */
     tabPlaceholder?: NonNullable<NodeSpec['placeholder']>['content'];
     tabView?: YENodeSpec['view'];
     tabsListView?: YENodeSpec['view'];

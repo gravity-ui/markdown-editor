@@ -8,13 +8,14 @@ const DEFAULT_PLACEHOLDER = (node: Node) => 'Heading ' + node.attrs[YfmHeadingAt
 export {YfmHeadingAttr} from './const';
 
 export type YfmHeadingSpecsOptions = {
+    /**
+     * @deprecated: use placeholder option in BehaviorPreset instead.
+     */
     headingPlaceholder?: NonNullable<NodeSpec['placeholder']>['content'];
 };
 
 /** YfmHeading extension needs markdown-it-attrs plugin */
 export const YfmHeadingSpecs: ExtensionAuto<YfmHeadingSpecsOptions> = (builder, opts) => {
-    const {headingPlaceholder} = opts ?? {};
-
     builder.addNode(headingNodeName, () => ({
         spec: {
             attrs: {
@@ -52,7 +53,10 @@ export const YfmHeadingSpecs: ExtensionAuto<YfmHeadingSpecsOptions> = (builder, 
                 ];
             },
             placeholder: {
-                content: headingPlaceholder ?? DEFAULT_PLACEHOLDER,
+                content:
+                    builder.context.get('placeholder')?.heading ??
+                    opts.headingPlaceholder ??
+                    DEFAULT_PLACEHOLDER,
                 alwaysVisible: true,
             },
         },

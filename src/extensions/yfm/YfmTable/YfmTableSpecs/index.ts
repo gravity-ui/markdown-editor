@@ -12,11 +12,14 @@ export {YfmTableNode} from './const';
 export {yfmTableType, yfmTableBodyType, yfmTableRowType, yfmTableCellType} from './utils';
 
 export type YfmTableSpecsOptions = {
+    /**
+     * @deprecated: use placeholder option in BehaviorPreset instead.
+     */
     yfmTableCellPlaceholder?: NonNullable<NodeSpec['placeholder']>['content'];
 };
 
 export const YfmTableSpecs: ExtensionWithOptions<YfmTableSpecsOptions> = (builder, options) => {
-    const spec = getSpec(options);
+    const spec = getSpec(options, builder.context.get('placeholder'));
 
     builder
         .configureMd((md) => md.use(yfmTable, {log}))

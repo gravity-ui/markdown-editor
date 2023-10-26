@@ -13,12 +13,18 @@ export const defTermType = nodeTypeFactory(DeflistNode.Term);
 export const defDescType = nodeTypeFactory(DeflistNode.Desc);
 
 export type DeflistSpecsOptions = {
+    /**
+     * @deprecated: use placeholder option in BehaviorPreset instead.
+     */
     deflistTermPlaceholder?: NonNullable<NodeSpec['placeholder']>['content'];
+    /**
+     * @deprecated: use placeholder option in BehaviorPreset instead.
+     */
     deflistDescPlaceholder?: NonNullable<NodeSpec['placeholder']>['content'];
 };
 
 export const DeflistSpecs: ExtensionAuto<DeflistSpecsOptions> = (builder, opts) => {
-    const spec = getSpec(opts);
+    const spec = getSpec(opts, builder.context.get('placeholder'));
 
     builder.configureMd((md) => md.use(deflistPlugin));
     builder

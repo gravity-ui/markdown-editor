@@ -18,12 +18,18 @@ export type YfmCutSpecsOptions = {
     cutView?: YENodeSpec['view'];
     cutTitleView?: YENodeSpec['view'];
     cutContentView?: YENodeSpec['view'];
+    /**
+     * @deprecated: use placeholder option in BehaviorPreset instead.
+     */
     yfmCutTitlePlaceholder?: NonNullable<NodeSpec['placeholder']>['content'];
+    /**
+     * @deprecated: use placeholder option in BehaviorPreset instead.
+     */
     yfmCutContentPlaceholder?: NonNullable<NodeSpec['placeholder']>['content'];
 };
 
 export const YfmCutSpecs: ExtensionAuto<YfmCutSpecsOptions> = (builder, opts) => {
-    const spec = getSpec(opts);
+    const spec = getSpec(opts, builder.context.get('placeholder'));
 
     builder
         .configureMd((md) => md.use(yfmPlugin, {log}))
