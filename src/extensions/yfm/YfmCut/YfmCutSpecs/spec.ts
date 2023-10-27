@@ -1,13 +1,17 @@
 import type {NodeSpec} from 'prosemirror-model';
 import type {YfmCutSpecsOptions} from './index';
 import {CutNode} from '../const';
+import {PlaceholderOptions} from '../../../../utils/placeholder';
 
 const DEFAULT_PLACEHOLDERS = {
     Title: 'Cut title',
     Content: 'Cut content',
 };
 
-export const getSpec = (opts?: YfmCutSpecsOptions): Record<CutNode, NodeSpec> => ({
+export const getSpec = (
+    opts?: YfmCutSpecsOptions,
+    placeholder?: PlaceholderOptions,
+): Record<CutNode, NodeSpec> => ({
     [CutNode.Cut]: {
         attrs: {class: {default: 'yfm-cut'}},
         content: `${CutNode.CutTitle} ${CutNode.CutContent}`,
@@ -31,7 +35,10 @@ export const getSpec = (opts?: YfmCutSpecsOptions): Record<CutNode, NodeSpec> =>
             return ['div', node.attrs, 0];
         },
         placeholder: {
-            content: opts?.yfmCutTitlePlaceholder ?? DEFAULT_PLACEHOLDERS.Title,
+            content:
+                placeholder?.[CutNode.CutTitle] ??
+                opts?.yfmCutTitlePlaceholder ??
+                DEFAULT_PLACEHOLDERS.Title,
             alwaysVisible: true,
         },
         selectable: false,
@@ -48,7 +55,10 @@ export const getSpec = (opts?: YfmCutSpecsOptions): Record<CutNode, NodeSpec> =>
             return ['div', node.attrs, 0];
         },
         placeholder: {
-            content: opts?.yfmCutContentPlaceholder ?? DEFAULT_PLACEHOLDERS.Content,
+            content:
+                placeholder?.[CutNode.CutContent] ??
+                opts?.yfmCutContentPlaceholder ??
+                DEFAULT_PLACEHOLDERS.Content,
             alwaysVisible: true,
         },
         selectable: false,

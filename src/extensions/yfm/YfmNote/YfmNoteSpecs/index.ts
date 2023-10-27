@@ -12,11 +12,14 @@ export {NoteNode as YfmNoteNode} from './const';
 export {noteType, noteTitleType} from './utils';
 
 export type YfmNoteSpecsOptions = {
+    /**
+     * @deprecated: use placeholder option in BehaviorPreset instead.
+     */
     yfmNoteTitlePlaceholder?: NonNullable<NodeSpec['placeholder']>['content'];
 };
 
 export const YfmNoteSpecs: ExtensionAuto<YfmNoteSpecsOptions> = (builder, opts) => {
-    const spec = getSpec(opts);
+    const spec = getSpec(opts, builder.context.get('placeholder'));
 
     builder
         .configureMd((md) => md.use(yfmPlugin, {log}))

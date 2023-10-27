@@ -7,7 +7,7 @@ import {cn} from '../../../classname';
 import type {ExtensionAuto} from '../../../core';
 import {isNodeEmpty} from '../../../utils/nodes';
 import {isTextSelection} from '../../../utils/selection';
-import {getPlaceholderContent} from '../../../utils/placeholder';
+import {getPlaceholderContent, PlaceholderOptions} from '../../../utils/placeholder';
 
 import './index.scss';
 
@@ -97,7 +97,8 @@ type WidgetsMap = Record<number, WidgetSpec | PluginKey>;
 
 const pluginKey = new PluginKey<PlaceholderPluginState>('placeholder_plugin');
 
-export const Placeholder: ExtensionAuto = (builder) => {
+export const Placeholder: ExtensionAuto<PlaceholderOptions> = (builder, opts) => {
+    builder.context.set('placeholder', opts);
     builder.addPlugin(
         () =>
             new Plugin<PlaceholderPluginState>({
@@ -120,6 +121,7 @@ export const Placeholder: ExtensionAuto = (builder) => {
                     apply: applyState,
                 },
             }),
+        builder.Priority.VeryHigh,
     );
 };
 
@@ -229,5 +231,13 @@ declare module 'prosemirror-model' {
             customPlugin?: PluginKey<DecorationSet>;
             alwaysVisible?: boolean;
         };
+    }
+}
+
+declare global {
+    namespace YfmEditor {
+        interface Context {
+            placeholder: PlaceholderOptions;
+        }
     }
 }

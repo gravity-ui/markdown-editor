@@ -18,10 +18,15 @@ type ImsizeTypedAttributes = {
 export {ImgSizeAttr};
 
 export type ImgSizeSpecsOptions = {
+    /**
+     * @deprecated: use placeholder option in BehaviorPreset instead.
+     */
     placeholder?: NodeSpec['placeholder'];
 };
 
 export const ImgSizeSpecs: ExtensionAuto<ImgSizeSpecsOptions> = (builder, opts) => {
+    const placeholderContent = builder.context.get('placeholder')?.imgSize;
+
     builder.configureMd((md) => md.use(imsize, {log}));
     builder.addNode(imageNodeName, () => ({
         spec: {
@@ -33,7 +38,7 @@ export const ImgSizeSpecs: ExtensionAuto<ImgSizeSpecsOptions> = (builder, opts) 
                 [ImgSizeAttr.Height]: {default: null},
                 [ImgSizeAttr.Width]: {default: null},
             },
-            placeholder: opts.placeholder,
+            placeholder: placeholderContent ? {content: placeholderContent} : opts.placeholder,
             group: 'inline',
             draggable: true,
             parseDOM: [

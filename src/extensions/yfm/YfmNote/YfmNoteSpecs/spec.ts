@@ -1,10 +1,14 @@
 import type {NodeSpec} from 'prosemirror-model';
 import {YfmNoteSpecsOptions} from './index';
 import {NoteAttrs, NoteNode} from './const';
+import {PlaceholderOptions} from '../../../../utils/placeholder';
 
 const DEFAULT_TITLE_PLACEHOLDER = 'Note';
 
-export const getSpec = (opts?: YfmNoteSpecsOptions): Record<NoteNode, NodeSpec> => ({
+export const getSpec = (
+    opts?: YfmNoteSpecsOptions,
+    placeholder?: PlaceholderOptions,
+): Record<NoteNode, NodeSpec> => ({
     [NoteNode.Note]: {
         attrs: {
             [NoteAttrs.Class]: {default: 'yfm-note yfm-accent-info'},
@@ -45,7 +49,10 @@ export const getSpec = (opts?: YfmNoteSpecsOptions): Record<NoteNode, NodeSpec> 
         selectable: false,
         allowSelection: false,
         placeholder: {
-            content: opts?.yfmNoteTitlePlaceholder ?? DEFAULT_TITLE_PLACEHOLDER,
+            content:
+                placeholder?.[NoteNode.NoteTitle] ??
+                opts?.yfmNoteTitlePlaceholder ??
+                DEFAULT_TITLE_PLACEHOLDER,
             alwaysVisible: true,
         },
         complex: 'leaf',

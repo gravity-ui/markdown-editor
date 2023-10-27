@@ -9,12 +9,13 @@ export const headingType = nodeTypeFactory(headingNodeName);
 const DEFAULT_PLACEHOLDER = (node: Node) => 'Heading ' + node.attrs[headingLevelAttr];
 
 export type HeadingSpecsOptions = {
+    /**
+     * @deprecated: use placeholder option in BehaviorPreset instead.
+     */
     headingPlaceholder?: NonNullable<NodeSpec['placeholder']>['content'];
 };
 
 export const HeadingSpecs: ExtensionAuto<HeadingSpecsOptions> = (builder, opts) => {
-    const {headingPlaceholder} = opts ?? {};
-
     builder.addNode(headingNodeName, () => ({
         spec: {
             attrs: {[headingLevelAttr]: {default: 1}},
@@ -33,7 +34,10 @@ export const HeadingSpecs: ExtensionAuto<HeadingSpecsOptions> = (builder, opts) 
                 return ['h' + node.attrs[headingLevelAttr], 0];
             },
             placeholder: {
-                content: headingPlaceholder ?? DEFAULT_PLACEHOLDER,
+                content:
+                    builder.context.get('placeholder')?.heading ??
+                    opts.headingPlaceholder ??
+                    DEFAULT_PLACEHOLDER,
                 alwaysVisible: true,
             },
         },
