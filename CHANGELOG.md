@@ -1,5 +1,12 @@
 # Changelog
 
+## [6.6.0](https://github.com/yandex-cloud/yfm-editor/compare/v6.5.0...v6.6.0) (2023-10-27)
+
+
+### Features
+
+* add options for placeholders ([#141](https://github.com/yandex-cloud/yfm-editor/issues/141)) ([875d025](https://github.com/yandex-cloud/yfm-editor/commit/875d0256f23565c3f81714d29fff25ba23a7d950))
+
 ## [6.5.0](https://github.com/yandex-cloud/yfm-editor/compare/v6.4.0...v6.5.0) (2023-10-26)
 
 
