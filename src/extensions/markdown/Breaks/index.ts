@@ -3,7 +3,7 @@ import {chainCommands, exitCode} from 'prosemirror-commands';
 import {logger} from '../../../logger';
 import type {ExtensionAuto, Keymap} from '../../../core';
 import {isMac} from '../../../utils/platform';
-import {BreaksSpecs, hbType, sbType} from './BreaksSpecs';
+import {BreaksSpecs, BreaksSpecsOptions, hbType, sbType} from './BreaksSpecs';
 
 export {BreaksSpecs, BreakNodeName, hbType, sbType} from './BreaksSpecs';
 
@@ -17,8 +17,6 @@ export type BreaksOptions = {
 };
 
 export const Breaks: ExtensionAuto<BreaksOptions> = (builder, opts) => {
-    builder.use(BreaksSpecs);
-
     let preferredBreak: 'hard' | 'soft';
     if (builder.context.has('breaks')) {
         preferredBreak = builder.context.get('breaks') ? 'soft' : 'hard';
@@ -28,6 +26,8 @@ export const Breaks: ExtensionAuto<BreaksOptions> = (builder, opts) => {
             "[Breaks extension]: Parameter 'breaks' is not defined in context; value from options is used",
         );
     }
+
+    builder.use<BreaksSpecsOptions>(BreaksSpecs, {preferredBreak});
 
     builder.addKeymap(({schema}) => {
         const cmd = addBr((preferredBreak === 'soft' ? sbType : hbType)(schema));

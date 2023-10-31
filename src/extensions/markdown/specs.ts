@@ -15,7 +15,7 @@ import {Html} from './Html';
 import {TableSpecs} from './Table/TableSpecs';
 import {ImageSpecs} from './Image/ImageSpecs';
 import {ListsSpecs} from './Lists/ListsSpecs';
-import {BreaksSpecs} from './Breaks/BreaksSpecs';
+import {BreaksSpecs, BreaksSpecsOptions} from './Breaks/BreaksSpecs';
 import {BlockquoteSpecs} from './Blockquote/BlockquoteSpecs';
 import {DeflistSpecs, DeflistSpecsOptions} from './Deflist/DeflistSpecs';
 import {HeadingSpecs, HeadingSpecsOptions} from './Heading/HeadingSpecs';
@@ -63,6 +63,7 @@ export const MarkdownMarksSpecsPreset: ExtensionAuto<MarkdownMarksSpecsPresetOpt
 
 export type MarkdownBlocksSpecsPresetOptions = {
     image?: false | Extension;
+    breaks?: BreaksSpecsOptions;
     codeBlock?: CodeBlockSpecsOptions;
     deflist?: DeflistSpecsOptions;
     heading?: false | Extension | HeadingSpecsOptions;
@@ -76,7 +77,7 @@ export const MarkdownBlocksSpecsPreset: ExtensionAuto<MarkdownBlocksSpecsPresetO
         .use(Html)
         .use(ListsSpecs)
         .use(TableSpecs)
-        .use(BreaksSpecs)
+        .use(BreaksSpecs, opts.breaks ?? {})
         .use(BlockquoteSpecs)
         .use(HorizontalRuleSpecs)
         .use(DeflistSpecs, opts.deflist ?? {})

@@ -1,3 +1,4 @@
+import type {ParseRule} from 'prosemirror-model';
 import type {ExtensionAuto} from '../../../../core';
 import {nodeTypeFactory} from '../../../../utils/schema';
 
@@ -9,7 +10,18 @@ export enum BreakNodeName {
 export const hbType = nodeTypeFactory(BreakNodeName.HardBreak);
 export const sbType = nodeTypeFactory(BreakNodeName.SoftBreak);
 
-export const BreaksSpecs: ExtensionAuto = (builder) => {
+export type BreaksSpecsOptions = {
+    /**
+     * @default 'hard'
+     */
+    preferredBreak?: 'hard' | 'soft';
+};
+
+export const BreaksSpecs: ExtensionAuto<BreaksSpecsOptions> = (builder, opts) => {
+    const {preferredBreak = 'hard'} = opts;
+
+    const parseDOM: ParseRule[] = [{tag: 'br'}];
+
     builder.addNode(BreakNodeName.HardBreak, () => ({
         spec: {
             inline: true,
@@ -17,7 +29,7 @@ export const BreaksSpecs: ExtensionAuto = (builder) => {
             marks: '',
             isBreak: true,
             selectable: false,
-            parseDOM: [{tag: 'br'}],
+            parseDOM: preferredBreak === 'hard' ? parseDOM : undefined,
             toDOM() {
                 return ['br'];
             },
@@ -44,6 +56,7 @@ export const BreaksSpecs: ExtensionAuto = (builder) => {
             marks: '',
             isBreak: true,
             selectable: false,
+            parseDOM: preferredBreak === 'soft' ? parseDOM : undefined,
             toDOM() {
                 return ['br'];
             },
