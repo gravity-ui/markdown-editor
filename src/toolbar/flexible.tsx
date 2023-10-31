@@ -48,7 +48,7 @@ export function shrinkToolbarData<E>({
 
             if (
                 hideAllNext ||
-                (isLastElement(i, j)
+                (!hiddenActions.length && isLastElement(i, j)
                     ? // Hide last element only if it doesn't fit
                       currentWidth > availableWidth
                     : // Hide other elements if they don't fit counting dots button width
