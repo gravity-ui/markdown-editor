@@ -1,5 +1,18 @@
 # Changelog
 
+## [6.7.0](https://github.com/yandex-cloud/yfm-editor/compare/v6.6.0...v6.7.0) (2023-10-31)
+
+
+### Features
+
+* **Breaks:** parse &lt;br/&gt; to preffered break ([#147](https://github.com/yandex-cloud/yfm-editor/issues/147)) ([8253496](https://github.com/yandex-cloud/yfm-editor/commit/82534968f743b37449ef38f411bc6cbfe054a692))
+* **Breaks:** replace double breaks with new paragraph ([#149](https://github.com/yandex-cloud/yfm-editor/issues/149)) ([2189de1](https://github.com/yandex-cloud/yfm-editor/commit/2189de1579be45656a1237663f08f86254746a21))
+
+
+### Bug Fixes
+
+* **toolbar:** correct calc of actions to show in presence of hiddenActions ([#150](https://github.com/yandex-cloud/yfm-editor/issues/150)) ([f91113d](https://github.com/yandex-cloud/yfm-editor/commit/f91113dcc2a204109997b43c040eee412adbe829))
+
 ## [6.6.0](https://github.com/yandex-cloud/yfm-editor/compare/v6.5.0...v6.6.0) (2023-10-27)
 
 
