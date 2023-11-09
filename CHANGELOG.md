@@ -1,5 +1,16 @@
 # Changelog
 
+## [7.0.0](https://github.com/yandex-cloud/yfm-editor/compare/v6.7.0...v7.0.0) (2023-11-09)
+
+
+### ⚠ BREAKING CHANGES
+
+* replace @doc-tools/transform@3.10.2 with @diplodoc/transform@4.2.1 ([#151](https://github.com/yandex-cloud/yfm-editor/issues/151))
+
+### Features
+
+* replace @doc-tools/transform@3.10.2 with @diplodoc/transform@4.2.1 ([#151](https://github.com/yandex-cloud/yfm-editor/issues/151)) ([b6c0c73](https://github.com/yandex-cloud/yfm-editor/commit/b6c0c73b5747a1f1424bb172d14bd510579a61d3))
+
 ## [6.7.0](https://github.com/yandex-cloud/yfm-editor/compare/v6.6.0...v6.7.0) (2023-10-31)
 
 
