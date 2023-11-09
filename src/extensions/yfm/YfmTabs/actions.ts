@@ -1,4 +1,4 @@
-import {generateID} from '@doc-tools/transform/lib/plugins/utils';
+import {generateID} from '@diplodoc/transform/lib/plugins/utils';
 import type {Command} from 'prosemirror-state';
 import {tabPanelType, tabsListType, tabsType, tabType} from '.';
 import {pType} from '../../base/BaseSchema';

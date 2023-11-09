@@ -1,7 +1,7 @@
 import {Plugin} from 'prosemirror-state';
 
-import '@doc-tools/transform/dist/js/yfm';
-import '@doc-tools/transform/dist/css/yfm.css';
+import '@diplodoc/transform/dist/js/yfm';
+import '@diplodoc/transform/dist/css/yfm.css';
 import './yfm.scss';
 
 import type {ExtensionAuto} from '../../../core';

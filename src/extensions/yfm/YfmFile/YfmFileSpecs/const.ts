@@ -6,7 +6,7 @@ import {
     FILE_TO_LINK_ATTRS_MAP,
     KNOWN_ATTRS as FILE_KNOWN_ATTRS,
     REQUIRED_ATTRS as FILE_REQUIRED_ATTRS,
-} from '@doc-tools/transform/lib/plugins/file/const';
+} from '@diplodoc/transform/lib/plugins/file/const';
 
 export const yfmFileNodeName = FILE_TOKEN;
 
