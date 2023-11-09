@@ -2,7 +2,7 @@ import type {ExtensionAuto} from '../../../../core';
 import {VideoAttr, videoNodeName} from './const';
 import {createViewStub, serializeNodeToString} from './utils';
 import {defaults, VideoPluginOptions, VideoService, videoPlugin, VideoToken} from './md-video';
-import log from '@doc-tools/transform/lib/log';
+import log from '@diplodoc/transform/lib/log';
 
 // we don't support osf service
 const availableServices: ReadonlySet<string> = new Set([

@@ -1,5 +1,5 @@
 import React from 'react';
-import transform from '@doc-tools/transform';
+import transform from '@diplodoc/transform';
 import type {ClassNameProps} from '../src/classname';
 import {colorClassName, MarkupString} from '../src';
 import {plugins} from './md-plugins';

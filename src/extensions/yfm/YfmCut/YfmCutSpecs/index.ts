@@ -1,5 +1,5 @@
-import log from '@doc-tools/transform/lib/log';
-import yfmPlugin from '@doc-tools/transform/lib/plugins/cut';
+import log from '@diplodoc/transform/lib/log';
+import yfmPlugin from '@diplodoc/transform/lib/plugins/cut';
 import type {NodeSpec} from 'prosemirror-model';
 
 import type {ExtensionAuto, YENodeSpec} from '../../../../core';

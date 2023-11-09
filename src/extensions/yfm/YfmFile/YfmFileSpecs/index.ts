@@ -1,5 +1,5 @@
-import yfmPlugin from '@doc-tools/transform/lib/plugins/file';
-import {FileClassName, LinkHtmlAttr, PREFIX} from '@doc-tools/transform/lib/plugins/file/const';
+import yfmPlugin from '@diplodoc/transform/lib/plugins/file';
+import {FileClassName, LinkHtmlAttr, PREFIX} from '@diplodoc/transform/lib/plugins/file/const';
 
 import type {Extension} from '../../../../core';
 import {nodeTypeFactory} from '../../../../utils/schema';

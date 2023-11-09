@@ -1,5 +1,5 @@
-import log from '@doc-tools/transform/lib/log';
-import yfmPlugin from '@doc-tools/transform/lib/plugins/monospace';
+import log from '@diplodoc/transform/lib/log';
+import yfmPlugin from '@diplodoc/transform/lib/plugins/monospace';
 
 import type {ExtensionAuto} from '../../../../core';
 import {markTypeFactory} from '../../../../utils/schema';

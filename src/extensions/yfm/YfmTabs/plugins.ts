@@ -17,7 +17,7 @@ import {
 } from './const';
 import {findChildIndex} from '../../../table-utils/helpers';
 import {get$Cursor, isTextSelection} from '../../../utils/selection';
-import {generateID} from '@doc-tools/transform/lib/plugins/utils';
+import {generateID} from '@diplodoc/transform/lib/plugins/utils';
 import {
     createFakeParagraph,
     findFakeParaPosClosestToPos,

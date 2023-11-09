@@ -1,5 +1,5 @@
-import log from '@doc-tools/transform/lib/log';
-import yfmTable from '@doc-tools/transform/lib/plugins/table';
+import log from '@diplodoc/transform/lib/log';
+import yfmTable from '@diplodoc/transform/lib/plugins/table';
 import type {NodeSpec} from 'prosemirror-model';
 
 import type {ExtensionWithOptions} from '../../../../core';

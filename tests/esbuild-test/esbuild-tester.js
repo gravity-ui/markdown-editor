@@ -6,7 +6,7 @@
 
 const esbuild = require('esbuild');
 const fs = require('fs');
-const fsPrmosises = require('fs/promises');
+const fsPromises = require('fs/promises');
 const path = require('path');
 const {sassPlugin} = require('esbuild-sass-plugin');
 
@@ -15,6 +15,7 @@ const paths = {
     tempTest: path.join(__dirname, './temp-test.mjs'),
     localBuild: path.join(__dirname, './build'),
     compiledEsBuildToTest: path.join(__dirname, './build/esbuild-to-test.mjs'),
+    aliases: path.join(__dirname, './node-module-alias-fallback.js'),
 };
 
 const esbuildOptions = {
@@ -32,6 +33,8 @@ const esbuildOptions = {
         '.js': '.mjs',
     },
     plugins: [sassPlugin()],
+    platform: 'browser',
+    alias: ['fs', 'path', 'stream'].reduce((acc, name) => ({...acc, [name]: paths.aliases}), {}),
 };
 
 esbuild
@@ -39,7 +42,7 @@ esbuild
     .then(async () => {
         const allExports = (await import(paths.compiledEsBuildToTest)).default;
         // Make a file that exports everything from src
-        await fsPrmosises.writeFile(paths.tempTest, `import {${allExports}} from '../../src'`);
+        await fsPromises.writeFile(paths.tempTest, `import {${allExports}} from '../../src'`);
         await esbuild.build({...esbuildOptions, entryPoints: [paths.tempTest]});
     })
     .finally(() => {

@@ -1,5 +1,5 @@
 import type {NodeSpec} from 'prosemirror-model';
-import checkboxPlugin from '@doc-tools/transform/lib/plugins/checkbox';
+import checkboxPlugin from '@diplodoc/transform/lib/plugins/checkbox';
 
 import type {ExtensionAuto, YENodeSpec} from '../../../../core';
 import {nodeTypeFactory} from '../../../../utils/schema';
