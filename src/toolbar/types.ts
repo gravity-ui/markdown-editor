@@ -16,6 +16,7 @@ export type ToolbarItemData<E> = {
     title: string | (() => string);
     hint?: string | (() => string);
     hotkey?: HotkeyProps['value'];
+    disabledPopoverVisible?: boolean;
     exec(editor: E): void;
     isActive(editor: E): boolean;
     isEnable(editor: E): boolean;
