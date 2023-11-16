@@ -4,6 +4,7 @@ import {nodeTypeFactory} from '../../../../utils/schema';
 
 export const headingNodeName = 'heading';
 export const headingLevelAttr = 'level';
+export const headingLineNumberAttr = 'data-line';
 export const headingType = nodeTypeFactory(headingNodeName);
 
 const DEFAULT_PLACEHOLDER = (node: Node) => 'Heading ' + node.attrs[headingLevelAttr];
@@ -18,7 +19,7 @@ export type HeadingSpecsOptions = {
 export const HeadingSpecs: ExtensionAuto<HeadingSpecsOptions> = (builder, opts) => {
     builder.addNode(headingNodeName, () => ({
         spec: {
-            attrs: {[headingLevelAttr]: {default: 1}},
+            attrs: {[headingLevelAttr]: {default: 1}, [headingLineNumberAttr]: {default: null}},
             content: '(text | inline)*',
             group: 'block',
             defining: true,
@@ -31,7 +32,13 @@ export const HeadingSpecs: ExtensionAuto<HeadingSpecsOptions> = (builder, opts) 
                 {tag: 'h6', attrs: {[headingLevelAttr]: 6}},
             ],
             toDOM(node) {
-                return ['h' + node.attrs[headingLevelAttr], 0];
+                const lineNumber = node.attrs[headingLineNumberAttr];
+
+                return [
+                    'h' + node.attrs[headingLevelAttr],
+                    lineNumber === undefined ? {} : {headingLineNumberAttr: lineNumber},
+                    0,
+                ];
             },
             placeholder: {
                 content:

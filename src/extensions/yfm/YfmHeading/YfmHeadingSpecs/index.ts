@@ -21,6 +21,7 @@ export const YfmHeadingSpecs: ExtensionAuto<YfmHeadingSpecsOptions> = (builder, 
             attrs: {
                 [YfmHeadingAttr.Id]: {default: ''},
                 [YfmHeadingAttr.Level]: {default: 1},
+                [YfmHeadingAttr.DataLine]: {default: null},
             },
             content: '(text | inline)*',
             group: 'block',
@@ -36,9 +37,13 @@ export const YfmHeadingSpecs: ExtensionAuto<YfmHeadingSpecsOptions> = (builder, 
             ],
             toDOM(node) {
                 const id = node.attrs[YfmHeadingAttr.Id];
+                const lineNumber = node.attrs[YfmHeadingAttr.DataLine];
                 return [
                     'h' + node.attrs[YfmHeadingAttr.Level],
-                    id ? {id} : {},
+                    {
+                        id: id || null,
+                        [YfmHeadingAttr.DataLine]: lineNumber === undefined ? null : lineNumber,
+                    },
                     0,
                     // [
                     //     'a',

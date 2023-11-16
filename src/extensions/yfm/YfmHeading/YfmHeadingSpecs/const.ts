@@ -6,4 +6,5 @@ export {headingLevelAttr, headingNodeName} from '../../../markdown/Heading/Headi
 export const YfmHeadingAttr = {
     Level: headingLevelAttr,
     Id: 'id',
+    DataLine: 'data-line',
 } as const;

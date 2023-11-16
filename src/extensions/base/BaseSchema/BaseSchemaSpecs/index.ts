@@ -8,6 +8,8 @@ export enum BaseNode {
     Paragraph = 'paragraph',
 }
 
+const headingLineNumberAttr = 'data-line';
+
 export const pType = nodeTypeFactory(BaseNode.Paragraph);
 
 export type BaseSchemaSpecsOptions = {
@@ -38,11 +40,18 @@ export const BaseSchemaSpecs: ExtensionAuto<BaseSchemaSpecsOptions> = (builder, 
         }))
         .addNode(BaseNode.Paragraph, () => ({
             spec: {
+                attrs: {[headingLineNumberAttr]: {default: null}},
                 content: 'inline*',
                 group: 'block',
                 parseDOM: [{tag: 'p'}],
-                toDOM() {
-                    return ['p', 0];
+                toDOM(node) {
+                    const lineNumber = node.attrs[headingLineNumberAttr];
+
+                    return [
+                        'p',
+                        lineNumber === undefined ? {} : {headingLineNumberAttr: lineNumber},
+                        0,
+                    ];
                 },
                 placeholder: opts.paragraphPlaceholder
                     ? {
