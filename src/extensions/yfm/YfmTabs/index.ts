@@ -1,6 +1,7 @@
 import type {Action, ExtensionAuto} from '../../../core';
 
 import {
+    dragAutoSwitch,
     joinBackwardToOpenTab,
     removeTabWhenCursorAtTheStartOfTab,
     tabEnter,
@@ -34,6 +35,8 @@ export const YfmTabs: ExtensionAuto = (builder) => {
     );
 
     builder.addAction(actionName, () => createYfmTabs);
+
+    builder.addPlugin(dragAutoSwitch);
 };
 
 declare global {
