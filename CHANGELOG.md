@@ -1,5 +1,12 @@
 # Changelog
 
+## [7.1.0](https://github.com/yandex-cloud/yfm-editor/compare/v7.0.0...v7.1.0) (2023-11-17)
+
+
+### Features
+
+* **YfmCut:** auto-opening yfm-cut when dragging over it ([#152](https://github.com/yandex-cloud/yfm-editor/issues/152)) ([a7612c3](https://github.com/yandex-cloud/yfm-editor/commit/a7612c3118866709a225db391ac999118c2a7ec9))
+
 ## [7.0.0](https://github.com/yandex-cloud/yfm-editor/compare/v6.7.0...v7.0.0) (2023-11-09)
 
 
