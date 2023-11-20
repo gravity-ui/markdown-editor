@@ -1,6 +1,9 @@
-import {Command, TextSelection, Transaction} from 'prosemirror-state';
+import {Command, Plugin, PluginView, TextSelection, Transaction} from 'prosemirror-state';
+import type {Transform} from 'prosemirror-transform';
+import type {EditorView} from 'prosemirror-view';
 import {
     findChildren,
+    findDomRefAtPos,
     findParentNodeOfType,
     findParentNodeOfTypeClosestToPos,
     NodeWithPos,
@@ -27,6 +30,162 @@ import {
 } from '../../';
 import {atEndOfPanel} from './utils';
 import {TabAttrs, TabPanelAttrs} from './YfmTabsSpecs/const';
+import throttle from 'lodash/throttle';
+
+export const dragAutoSwitch = () =>
+    new Plugin({
+        view: TabsAutoSwitchOnDragOver.view,
+    });
+
+class TabsAutoSwitchOnDragOver implements PluginView {
+    private static readonly TAB_SELECTOR = '.yfm-tab:not([data-diplodoc-is-active=true])';
+    private static readonly OPEN_TIMEOUT = 500; //ms
+    private static readonly THROTTLE_WAIT = 50; //ms
+
+    static readonly view = (view: EditorView): PluginView => new this(view);
+
+    private _tabElem: HTMLElement | null = null;
+    private _editorView: EditorView;
+    private _timeout: ReturnType<typeof setTimeout> | null = null;
+    private readonly _docListener;
+
+    constructor(view: EditorView) {
+        this._editorView = view;
+        this._docListener = throttle(
+            this._onDocEvent.bind(this),
+            TabsAutoSwitchOnDragOver.THROTTLE_WAIT,
+        );
+        document.addEventListener('mousemove', this._docListener);
+        document.addEventListener('dragover', this._docListener);
+    }
+
+    destroy(): void {
+        this._clear();
+        this._docListener.cancel();
+        document.removeEventListener('mousemove', this._docListener);
+        document.removeEventListener('dragover', this._docListener);
+    }
+
+    private _onDocEvent(event: MouseEvent) {
+        const view = this._editorView;
+        if (!view.dragging) return;
+        const pos = view.posAtCoords({left: event.clientX, top: event.clientY});
+        if (pos) {
+            const elem = findDomRefAtPos(pos.pos, view.domAtPos.bind(view)) as HTMLElement;
+            const cutElem = elem.closest(TabsAutoSwitchOnDragOver.TAB_SELECTOR);
+            if (cutElem === this._tabElem) return;
+            this._clear();
+            if (cutElem) this._setTabElem(cutElem as HTMLElement);
+        }
+    }
+
+    private _clear() {
+        if (this._timeout !== null) clearTimeout(this._timeout);
+        this._timeout = null;
+        this._tabElem = null;
+    }
+
+    private _setTabElem(elem: HTMLElement) {
+        this._tabElem = elem;
+        this._timeout = setTimeout(
+            this._switchTab.bind(this),
+            TabsAutoSwitchOnDragOver.OPEN_TIMEOUT,
+        );
+    }
+
+    private _switchTab() {
+        if (this._editorView.dragging && this._tabElem) {
+            const pos = this._editorView.posAtDOM(this._tabElem, 0, -1);
+            const $pos = this._editorView.state.doc.resolve(pos);
+            const {state} = this._editorView;
+
+            let {depth} = $pos;
+            let tabId = '';
+            let tabsNode: NodeWithPos | null = null;
+            do {
+                const node = $pos.node(depth);
+                if (node.type === tabType(state.schema)) {
+                    tabId = node.attrs[TabAttrs.dataDiplodocid];
+                    continue;
+                }
+
+                if (node.type === tabsType(state.schema)) {
+                    tabsNode = {node, pos: $pos.before(depth)};
+                    break;
+                }
+            } while (--depth >= 0);
+
+            if (tabId && tabsNode) {
+                const {tr} = state;
+                if (switchYfmTab(tabsNode, tabId, tr)) {
+                    this._editorView.dispatch(tr.setMeta('addToHistory', false));
+                }
+            }
+        }
+        this._clear();
+    }
+}
+
+function switchYfmTab(
+    {node: tabsNode, pos: tabsPos}: NodeWithPos,
+    tabId: string,
+    tr: Transform,
+): boolean {
+    const {schema} = tabsNode.type;
+    if (tabsNode.type !== tabsType(schema)) return false;
+
+    const tabsList = tabsNode.firstChild;
+    if (tabsList?.type !== tabsListType(schema)) return false;
+
+    const tabsListPos = tabsPos + 1;
+
+    let panelId: string | null = null;
+    tabsList.forEach((node, offset) => {
+        if (node.type !== tabType(schema)) return;
+
+        const tabPos = tabsListPos + 1 + offset;
+        const tabAttrs = {
+            ...node.attrs,
+            [TabAttrs.ariaSelected]: 'false',
+            [TabAttrs.dataDiplodocIsActive]: 'false',
+        };
+
+        if (node.attrs[TabAttrs.dataDiplodocid] === tabId) {
+            panelId = node.attrs[TabAttrs.ariaControls];
+            tabAttrs[TabAttrs.ariaSelected] = 'true';
+            tabAttrs[TabAttrs.dataDiplodocIsActive] = 'true';
+        }
+
+        tr.setNodeMarkup(tabPos, null, tabAttrs);
+    });
+
+    if (!panelId) return false;
+
+    tabsNode.forEach((node, offset) => {
+        if (node.type !== tabPanelType(schema)) return;
+
+        const tabPanelPos = tabsPos + 1 + offset;
+        const tabPanelAttrs = {
+            ...node.attrs,
+        };
+        const tabPanelClassList = new Set(
+            ((node.attrs[TabPanelAttrs.class] as string) ?? '')
+                .split(' ')
+                .filter((val) => Boolean(val.trim())),
+        );
+
+        if (node.attrs[TabPanelAttrs.id] === panelId) {
+            tabPanelClassList.add('active');
+        } else {
+            tabPanelClassList.delete('active');
+        }
+
+        tabPanelAttrs[TabPanelAttrs.class] = Array.from(tabPanelClassList).join(' ');
+        tr.setNodeMarkup(tabPanelPos, null, tabPanelAttrs);
+    });
+
+    return true;
+}
 
 export const tabPanelArrowDown: Command = (state, dispatch, view) => {
     const {selection: sel} = state;
