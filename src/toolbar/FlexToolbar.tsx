@@ -69,7 +69,6 @@ export function FlexToolbar<E>(props: FlexToolbarProps<E>) {
                         onClick={props.onClick}
                         className={b('dots')}
                         alwaysActive={true}
-                        hideDisabled={true}
                     />
                 )}
             </div>
