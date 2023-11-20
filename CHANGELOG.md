@@ -1,5 +1,17 @@
 # Changelog
 
+## [7.2.0](https://github.com/yandex-cloud/yfm-editor/compare/v7.1.0...v7.2.0) (2023-11-20)
+
+
+### Features
+
+* **YfmTabs:** auto-switching tabs in yfm-tabs when dragging over it ([#157](https://github.com/yandex-cloud/yfm-editor/issues/157)) ([c4fdcbc](https://github.com/yandex-cloud/yfm-editor/commit/c4fdcbc65e0d3a4cde44fa6f748411feff32da4a))
+
+
+### Bug Fixes
+
+* improvements for toolbar hidden actions ([#155](https://github.com/yandex-cloud/yfm-editor/issues/155)) ([d15839b](https://github.com/yandex-cloud/yfm-editor/commit/d15839b3dd04b5ea917f4ae86a03cad25a2f1fd4))
+
 ## [7.1.0](https://github.com/yandex-cloud/yfm-editor/compare/v7.0.0...v7.1.0) (2023-11-17)
 
 
