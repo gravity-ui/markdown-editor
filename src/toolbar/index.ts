@@ -5,3 +5,4 @@ export * from './ToolbarButton';
 export * from './ToolbarGroup';
 export * from './ToolbarListButton';
 export * from './FlexToolbar';
+export * from './config';
