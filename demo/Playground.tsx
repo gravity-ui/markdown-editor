@@ -16,7 +16,10 @@ import {
     Extension,
     ReactRenderStorage,
     ReactRendererComponent,
+    FlexToolbar,
 } from '../src';
+import {wHiddenData, wToolbarConfig} from '../src/toolbar/config/wysiwyg';
+
 import {PlaygroundHtmlPreview} from './HtmlPreview';
 import {ProseMirrorDevTools} from './ProseMirrorDevTools';
 import {PMSelection} from './PMSelection';
@@ -172,7 +175,14 @@ const Playground = React.memo<PlaygroundProps>((props) => {
             </div>
             <hr />
             <div className={b('editor')}>
-                <YfmEditorComponent editor={editor} autofocus className={b('editor')}>
+                <FlexToolbar
+                    editor={editor}
+                    dotsTitle={'More action'}
+                    focus={() => editor.focus()}
+                    data={wToolbarConfig}
+                    hiddenActions={wHiddenData}
+                />
+                <YfmEditorComponent editor={editor} autofocus className={b('editor-view')}>
                     <ReactRendererComponent storage={renderStorage} />
                 </YfmEditorComponent>
                 <ProseMirrorDevTools view={editor.view} />
