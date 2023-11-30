@@ -1,3 +1,4 @@
+import {isNodeEmpty} from '../../../../utils/nodes';
 import type {SerializerNodeToken} from '../../../../core';
 import {getPlaceholderContent} from '../../../../utils/placeholder';
 import {NoteAttrs, NoteNode} from './const';
@@ -22,5 +23,10 @@ export const toYfm: Record<NoteNode, SerializerNodeToken> = {
         state.write(' %}\n');
         state.write('\n');
         state.closeBlock();
+    },
+
+    [NoteNode.NoteContent]: (state, node) => {
+        if (!isNodeEmpty(node)) state.renderInline(node);
+        else state.write(getPlaceholderContent(node) + '\n\n');
     },
 };

@@ -36,5 +36,12 @@ export const YfmNoteSpecs: ExtensionAuto<YfmNoteSpecsOptions> = (builder, opts) 
             fromYfm: {
                 tokenSpec: fromYfm[NoteNode.NoteTitle],
             },
+        }))
+        .addNode(NoteNode.NoteContent, () => ({
+            spec: spec[NoteNode.NoteContent],
+            toYfm: toYfm[NoteNode.NoteContent],
+            fromYfm: {
+                tokenSpec: fromYfm[NoteNode.NoteContent],
+            },
         }));
 };
