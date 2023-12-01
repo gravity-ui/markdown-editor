@@ -3,7 +3,7 @@ import {Command, EditorState} from 'prosemirror-state';
 import {findParentNodeOfType, hasParentNodeOfType} from 'prosemirror-utils';
 import type {ActionSpec} from '../../../../core';
 import {NoteAttrs} from '../const';
-import {noteTitleType, noteType} from '../utils';
+import {noteContentType, noteTitleType, noteType} from '../utils';
 
 export function isInsideYfmNote(state: EditorState) {
     return hasParentNodeOfType(noteType(state.schema))(state.selection);
@@ -17,7 +17,10 @@ const createYfmNoteNode = (schema: Schema) => (type: YfmNoteType, content: Node 
             [NoteAttrs.Class]: `yfm-note yfm-accent-${type}`,
             [NoteAttrs.Type]: type,
         },
-        [noteTitleType(schema).createAndFill()!].concat(content),
+        [
+            noteTitleType(schema).createAndFill()!,
+            noteContentType(schema).createAndFill({}, content)!,
+        ],
     );
 };
 

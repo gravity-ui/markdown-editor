@@ -8,4 +8,5 @@ export const fromYfm: Record<NoteNode, ParserToken> = {
         getAttrs: (token) => (token.attrs ? Object.fromEntries(token.attrs) : {}),
     },
     [NoteNode.NoteTitle]: {name: NoteNode.NoteTitle, type: 'block'},
+    [NoteNode.NoteContent]: {name: NoteNode.NoteContent, type: 'block'},
 };

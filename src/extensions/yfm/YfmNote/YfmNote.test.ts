@@ -25,7 +25,7 @@ const {schema, parser, serializer} = new ExtensionsManager({
             .use(ImageSpecs),
 }).buildDeps();
 
-const {doc, p, i, bq, img, note, noteTitle} = builders(schema, {
+const {doc, p, i, bq, img, note, noteTitle, noteContent} = builders(schema, {
     doc: {nodeType: BaseNode.Doc},
     p: {nodeType: BaseNode.Paragraph},
     i: {markType: italicMarkName},
@@ -37,7 +37,8 @@ const {doc, p, i, bq, img, note, noteTitle} = builders(schema, {
         [NoteAttrs.Class]: 'yfm-note yfm-accent-info',
     },
     noteTitle: {nodeType: NoteNode.NoteTitle},
-}) as PMTestBuilderResult<'doc' | 'p' | 'bq' | 'img' | 'note' | 'noteTitle', 'i'>;
+    noteContent: {nodeType: NoteNode.NoteContent},
+}) as PMTestBuilderResult<'doc' | 'p' | 'bq' | 'img' | 'note' | 'noteTitle' | 'noteContent', 'i'>;
 
 const {same} = createMarkupChecker({parser, serializer});
 
@@ -53,7 +54,10 @@ note content 2
 {% endnote %}
 `.trim();
 
-        same(markup, doc(note(noteTitle('note title'), p('note content'), p('note content 2'))));
+        same(
+            markup,
+            doc(note(noteTitle('note title'), noteContent(p('note content'), p('note content 2')))),
+        );
     });
 
     it('should parse nested yfm-notes', () => {
@@ -71,7 +75,12 @@ note content
 
         same(
             markup,
-            doc(note(noteTitle('note title'), note(noteTitle('note title 2'), p('note content')))),
+            doc(
+                note(
+                    noteTitle('note title'),
+                    noteContent(note(noteTitle('note title 2'), noteContent(p('note content')))),
+                ),
+            ),
         );
     });
 
@@ -84,7 +93,7 @@ note content
 > {% endnote %}
 `.trim();
 
-        same(markup, doc(bq(note(noteTitle('note title'), p('note content')))));
+        same(markup, doc(bq(note(noteTitle('note title'), noteContent(p('note content'))))));
     });
 
     it('should parse yfm-note with inline markup in note title', () => {
@@ -96,7 +105,7 @@ note content
 {% endnote %}
     `.trim();
 
-        same(markup, doc(note(noteTitle(i('note italic title')), p('note content'))));
+        same(markup, doc(note(noteTitle(i('note italic title')), noteContent(p('note content')))));
     });
 
     it('should parse yfm-note with inline node in note title', () => {
@@ -118,7 +127,7 @@ note content
                             [ImageAttr.Alt]: 'img',
                         }),
                     ),
-                    p('note content'),
+                    noteContent(p('note content')),
                 ),
             ),
         );
@@ -132,7 +141,7 @@ note content
                 '<p class="yfm-note-title">YfmNote title</p>' +
                 '<p>YfmNote content</p>' +
                 '</div></div>',
-            doc(note(noteTitle('YfmNote title'), p('YfmNote content'))),
+            doc(note(noteTitle('YfmNote title'), noteContent(p('YfmNote content')))),
         );
     });
 });
