@@ -1,5 +1,16 @@
 # Changelog
 
+## [8.0.0](https://github.com/yandex-cloud/yfm-editor/compare/v7.2.0...v8.0.0) (2023-12-01)
+
+
+### ⚠ BREAKING CHANGES
+
+* content node for yfm note ([#161](https://github.com/yandex-cloud/yfm-editor/issues/161))
+
+### Features
+
+* content node for yfm note ([#161](https://github.com/yandex-cloud/yfm-editor/issues/161)) ([6566d78](https://github.com/yandex-cloud/yfm-editor/commit/6566d78460f93dea8b0378d044fff56250ed64ba))
+
 ## [7.2.0](https://github.com/yandex-cloud/yfm-editor/compare/v7.1.0...v7.2.0) (2023-11-20)
 
 
