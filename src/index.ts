@@ -3,6 +3,7 @@ export * from './core';
 export * from './toolbar';
 export * from './react';
 export * from './react-utils/hooks';
+export * from './react-utils/react-node-view';
 export * from './classname';
 export * from './logger';
 export * from './extensions';
