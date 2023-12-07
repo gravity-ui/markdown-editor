@@ -1,5 +1,12 @@
 # Changelog
 
+## [8.1.0](https://github.com/yandex-cloud/yfm-editor/compare/v8.0.0...v8.1.0) (2023-12-07)
+
+
+### Features
+
+* added a node view for rendering react block ([#163](https://github.com/yandex-cloud/yfm-editor/issues/163)) ([67a325a](https://github.com/yandex-cloud/yfm-editor/commit/67a325a048694dd44ce1e5da8b408e4c79ce70eb))
+
 ## [8.0.0](https://github.com/yandex-cloud/yfm-editor/compare/v7.2.0...v8.0.0) (2023-12-01)
 
 
