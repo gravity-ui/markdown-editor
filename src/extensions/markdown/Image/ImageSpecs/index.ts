@@ -8,6 +8,7 @@ export const ImageAttr = {
     Src: 'src',
     Alt: 'alt',
     Title: 'title',
+    Loading: 'loading',
 } as const;
 
 export const ImageSpecs: ExtensionAuto = (builder) => {
@@ -18,6 +19,7 @@ export const ImageSpecs: ExtensionAuto = (builder) => {
                 [ImageAttr.Src]: {},
                 [ImageAttr.Alt]: {default: null},
                 [ImageAttr.Title]: {default: null},
+                [ImageAttr.Loading]: {default: null},
             },
             group: 'inline',
             draggable: true,
@@ -29,6 +31,7 @@ export const ImageSpecs: ExtensionAuto = (builder) => {
                             [ImageAttr.Src]: (dom as Element).getAttribute(ImageAttr.Src),
                             [ImageAttr.Alt]: (dom as Element).getAttribute(ImageAttr.Alt),
                             [ImageAttr.Title]: (dom as Element).getAttribute(ImageAttr.Title),
+                            [ImageAttr.Loading]: (dom as Element).getAttribute(ImageAttr.Loading),
                         };
                     },
                 },
@@ -44,6 +47,7 @@ export const ImageSpecs: ExtensionAuto = (builder) => {
                 getAttrs: (tok) => ({
                     [ImageAttr.Src]: tok.attrGet('src'),
                     [ImageAttr.Title]: tok.attrGet('title') || null,
+                    [ImageAttr.Loading]: tok.attrGet(ImageAttr.Loading) || null,
                     [ImageAttr.Alt]: tok.children?.[0]?.content || null,
                 }),
             },
