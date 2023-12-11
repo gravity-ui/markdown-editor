@@ -1,11 +1,11 @@
 import isNumber from 'is-number';
 import type {NodeSpec} from 'prosemirror-model';
 import imsize from '@diplodoc/transform/lib/plugins/imsize';
-import {ImsizeAttr as ImgSizeAttr} from '@diplodoc/transform/lib/plugins/imsize/const';
 import log from '@diplodoc/transform/lib/log';
 
 import type {ExtensionAuto} from '../../../../core';
 import {imageNodeName} from '../../../markdown/Image/const';
+import {ImgSizeAttr} from './const';
 
 type ImsizeTypedAttributes = {
     [ImgSizeAttr.Src]: string;
@@ -13,6 +13,7 @@ type ImsizeTypedAttributes = {
     [ImgSizeAttr.Alt]: string | null;
     [ImgSizeAttr.Width]: string | null;
     [ImgSizeAttr.Height]: string | null;
+    [ImgSizeAttr.Loading]: string | null;
 };
 
 export {ImgSizeAttr};
@@ -37,6 +38,7 @@ export const ImgSizeSpecs: ExtensionAuto<ImgSizeSpecsOptions> = (builder, opts) 
                 [ImgSizeAttr.Title]: {default: null},
                 [ImgSizeAttr.Height]: {default: null},
                 [ImgSizeAttr.Width]: {default: null},
+                [ImgSizeAttr.Loading]: {default: null},
             },
             placeholder: placeholderContent ? {content: placeholderContent} : opts.placeholder,
             group: 'inline',
@@ -52,6 +54,9 @@ export const ImgSizeSpecs: ExtensionAuto<ImgSizeSpecsOptions> = (builder, opts) 
                             [ImgSizeAttr.Src]: (dom as Element).getAttribute(ImgSizeAttr.Src),
                             [ImgSizeAttr.Alt]: (dom as Element).getAttribute(ImgSizeAttr.Alt),
                             [ImgSizeAttr.Title]: (dom as Element).getAttribute(ImgSizeAttr.Title),
+                            [ImgSizeAttr.Loading]: (dom as Element).getAttribute(
+                                ImgSizeAttr.Loading,
+                            ),
                             [ImgSizeAttr.Height]: isNumber(height) ? height : null,
                             [ImgSizeAttr.Width]: isNumber(width) ? height : null,
                         };
@@ -71,6 +76,7 @@ export const ImgSizeSpecs: ExtensionAuto<ImgSizeSpecsOptions> = (builder, opts) 
                     [ImgSizeAttr.Title]: tok.attrGet(ImgSizeAttr.Title),
                     [ImgSizeAttr.Height]: tok.attrGet(ImgSizeAttr.Height),
                     [ImgSizeAttr.Width]: tok.attrGet(ImgSizeAttr.Width),
+                    [ImgSizeAttr.Loading]: tok.attrGet(ImgSizeAttr.Loading),
                     [ImgSizeAttr.Alt]: tok.children?.[0]?.content || null,
                 }),
             },
