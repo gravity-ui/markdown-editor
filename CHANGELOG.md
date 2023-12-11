@@ -1,5 +1,12 @@
 # Changelog
 
+## [8.2.0](https://github.com/yandex-cloud/yfm-editor/compare/v8.1.0...v8.2.0) (2023-12-11)
+
+
+### Features
+
+* support image loading attribute ([#165](https://github.com/yandex-cloud/yfm-editor/issues/165)) ([6750a3f](https://github.com/yandex-cloud/yfm-editor/commit/6750a3f654775b6244846b28d171202832970ae1))
+
 ## [8.1.0](https://github.com/yandex-cloud/yfm-editor/compare/v8.0.0...v8.1.0) (2023-12-07)
 
 
