@@ -39,7 +39,7 @@ export const appendRow: CommandWithAttrs<{
         });
 
         let position = tablePos + parentRow.pos;
-        position += direction === 'before' ? 1 : parentRow.node.nodeSize + 2;
+        position += direction === 'before' ? 1 : parentRow.node.nodeSize + 1;
 
         dispatch(state.tr.insert(position, parentRow.node.copy(Fragment.from(newCellNodes))));
     }
