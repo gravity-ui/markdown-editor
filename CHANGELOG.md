@@ -1,5 +1,12 @@
 # Changelog
 
+## [8.2.1](https://github.com/yandex-cloud/yfm-editor/compare/v8.2.0...v8.2.1) (2023-12-18)
+
+
+### Bug Fixes
+
+* wrong position when adding new row ([#167](https://github.com/yandex-cloud/yfm-editor/issues/167)) ([a40557a](https://github.com/yandex-cloud/yfm-editor/commit/a40557ac3873b7a7de538d796adc43d4a1260c15))
+
 ## [8.2.0](https://github.com/yandex-cloud/yfm-editor/compare/v8.1.0...v8.2.0) (2023-12-11)
 
 
