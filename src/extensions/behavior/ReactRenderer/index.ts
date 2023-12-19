@@ -10,7 +10,7 @@ import {
     RenderStorageItemEventMap,
 } from './types';
 
-export type {RendererItem} from './types';
+export type {RendererItem, RenderStorage} from './types';
 export {Renderer as ReactRendererComponent} from './react';
 export type {RendererProps as ReactRendererComponentProps} from './react';
 

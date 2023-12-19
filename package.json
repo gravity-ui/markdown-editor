@@ -24,9 +24,40 @@
     "type": "git",
     "url": "https://github.com/yandex-cloud/yfm-editor"
   },
+  "exports": {
+    ".": {
+      "types": "./build/esm/index.d.ts",
+      "require": "./build/cjs/index.js",
+      "import": "./build/esm/index.js"
+    },
+    "./specs": {
+      "types": "./build/esm/extensions/specs.d.ts",
+      "require": "./build/cjs/extensions/specs.js",
+      "import": "./build/esm/extensions/specs.js"
+    },
+    "./pm/*": {
+      "types": "./build/esm/pm/*",
+      "require": "./build/cjs/pm/*",
+      "import": "./build/esm/pm/*"
+    },
+    "./styles/*": "./build/esm/styles/*"
+  },
   "main": "build/cjs/index.js",
   "module": "build/esm/index.js",
   "types": "build/esm/index.d.ts",
+  "typesVersions": {
+    "*": {
+      "index.d.ts": [
+        "./build/esm/index.d.ts"
+      ],
+      "specs": [
+        "./build/esm/extensions/specs.d.ts"
+      ],
+      "pm/*": [
+        "./build/esm/pm/*"
+      ]
+    }
+  },
   "files": [
     "build"
   ],
