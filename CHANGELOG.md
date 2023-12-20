@@ -1,5 +1,16 @@
 # Changelog
 
+## [9.0.0](https://github.com/yandex-cloud/yfm-editor/compare/v8.2.1...v9.0.0) (2023-12-20)
+
+
+### ⚠ BREAKING CHANGES
+
+* add package exports ([#169](https://github.com/yandex-cloud/yfm-editor/issues/169))
+
+### Features
+
+* add package exports ([#169](https://github.com/yandex-cloud/yfm-editor/issues/169)) ([b312dc7](https://github.com/yandex-cloud/yfm-editor/commit/b312dc7934890c8304815d0f6e461d8f280812b3))
+
 ## [8.2.1](https://github.com/yandex-cloud/yfm-editor/compare/v8.2.0...v8.2.1) (2023-12-18)
 
 
