@@ -9,11 +9,11 @@ const {schema, parser, serializer} = new ExtensionsManager({
     extensions: (builder) => builder.use(BaseSpecsPreset, {}).use(SubscriptSpecs),
 }).buildDeps();
 
-const {doc, p, s} = builders(schema, {
+const {doc, p, s} = builders<'doc' | 'p', 's'>(schema, {
     doc: {nodeType: BaseNode.Doc},
     p: {nodeType: BaseNode.Paragraph},
     s: {markType: subscriptMarkName},
-}) as PMTestBuilderResult<'doc' | 'p', 's'>;
+});
 
 const {same} = createMarkupChecker({parser, serializer});
 

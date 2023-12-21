@@ -21,9 +21,7 @@ const {
     checkbox,
     checkbox_input: checkboxInput,
     checkbox_label: checkboxLabel,
-} = builders(schema) as PMTestBuilderResult<
-    'doc' | 'paragraph' | 'checkbox' | 'checkbox_input' | 'checkbox_label'
->;
+} = builders(schema);
 
 describe('checkbox', () => {
     describe('splitCheckbox', () => {

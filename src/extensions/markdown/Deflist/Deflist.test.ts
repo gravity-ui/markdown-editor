@@ -9,13 +9,13 @@ const {schema, parser, serializer} = new ExtensionsManager({
     extensions: (builder) => builder.use(BaseSpecsPreset, {}).use(DeflistSpecs, {}),
 }).buildDeps();
 
-const {doc, p, dl, dt, dd} = builders(schema, {
+const {doc, p, dl, dt, dd} = builders<'doc' | 'p' | 'dl' | 'dt' | 'dd'>(schema, {
     doc: {nodeType: BaseNode.Doc},
     p: {nodeType: BaseNode.Paragraph},
     dl: {nodeType: DeflistNode.List},
     dt: {nodeType: DeflistNode.Term},
     dd: {nodeType: DeflistNode.Desc},
-}) as PMTestBuilderResult<'doc' | 'p' | 'dl' | 'dt' | 'dd'>;
+});
 
 const {same} = createMarkupChecker({parser, serializer});
 

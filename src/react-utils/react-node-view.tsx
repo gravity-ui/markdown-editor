@@ -1,9 +1,9 @@
 import React from 'react';
 import {createPortal} from 'react-dom';
-import type {NodeView, EditorView} from 'prosemirror-view';
+import type {NodeView, EditorView, NodeViewConstructor} from 'prosemirror-view';
 import type {Node} from 'prosemirror-model';
 
-import {ExtensionDeps, NodeViewConstructor, Serializer} from '../core';
+import {ExtensionDeps, Serializer} from '../core';
 import {getReactRendererFromState} from '../extensions';
 
 type ReactNodeViewOptions<T> = {
@@ -18,7 +18,7 @@ export type ReactNodeViewProps<T extends object = {}> = {
     view: EditorView;
     updateAttributes: (attrs: object) => void;
     node: Node;
-    getPos: () => number;
+    getPos: () => number | undefined;
     serializer: Serializer;
     extensionOptions?: T;
 };
@@ -36,7 +36,7 @@ export class ReactNodeView<T extends object = {}> implements NodeView {
         opts: {
             node: Node;
             view: EditorView;
-            getPos: () => number;
+            getPos: () => number | undefined;
             serializer: Serializer;
             options?: ReactNodeViewOptions<T>;
         },
@@ -95,13 +95,13 @@ export class ReactNodeView<T extends object = {}> implements NodeView {
 
     updateAttributes(attributes: {}) {
         const pos = this.getPos();
-        const {tr} = this.view.state;
+        if (pos === undefined) return;
 
+        const {tr} = this.view.state;
         tr.setNodeMarkup(pos, undefined, {
             ...this.node.attrs,
             ...attributes,
         });
-
         this.view.dispatch(tr);
     }
 

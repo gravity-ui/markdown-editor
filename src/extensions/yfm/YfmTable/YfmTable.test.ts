@@ -15,7 +15,9 @@ const {schema, parser, serializer} = new ExtensionsManager({
         builder.use(BaseSpecsPreset, {}).use(BlockquoteSpecs).use(YfmTableSpecs, {}),
 }).build();
 
-const {doc, p, bq, table, tbody, tr, td} = builders(schema, {
+const {doc, p, bq, table, tbody, tr, td} = builders<
+    'doc' | 'p' | 'bq' | 'table' | 'tbody' | 'tr' | 'td'
+>(schema, {
     doc: {nodeType: BaseNode.Doc},
     p: {nodeType: BaseNode.Paragraph},
     bq: {nodeType: blockquoteNodeName},
@@ -23,7 +25,7 @@ const {doc, p, bq, table, tbody, tr, td} = builders(schema, {
     tbody: {nodeType: YfmTableNode.Body},
     tr: {nodeType: YfmTableNode.Row},
     td: {nodeType: YfmTableNode.Cell},
-}) as PMTestBuilderResult<'doc' | 'p' | 'bq' | 'table' | 'tbody' | 'tr' | 'td'>;
+});
 
 const {same} = createMarkupChecker({parser, serializer});
 

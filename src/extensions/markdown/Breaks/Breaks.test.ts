@@ -10,13 +10,13 @@ const {schema, parser, serializer} = new ExtensionsManager({
     extensions: (builder) => builder.use(BaseSpecsPreset, {}).use(BreaksSpecs, {}).use(BoldSpecs),
 }).buildDeps();
 
-const {doc, p, hb, sb, bold} = builders(schema, {
+const {doc, p, hb, sb, bold} = builders<'doc' | 'p' | 'hb' | 'sb', 'bold'>(schema, {
     doc: {nodeType: BaseNode.Doc},
     p: {nodeType: BaseNode.Paragraph},
     hb: {nodeType: BreakNodeName.HardBreak},
     sb: {nodeType: BreakNodeName.SoftBreak},
     bold: {markType: boldMarkName},
-}) as PMTestBuilderResult<'doc' | 'p' | 'hb' | 'sb', 'bold'>;
+});
 
 const {serialize} = createMarkupChecker({parser, serializer});
 

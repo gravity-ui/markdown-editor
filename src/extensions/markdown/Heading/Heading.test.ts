@@ -11,7 +11,10 @@ const {schema, parser, serializer} = new ExtensionsManager({
     extensions: (builder) => builder.use(BaseSpecsPreset, {}).use(HeadingSpecs, {}).use(BoldSpecs),
 }).buildDeps();
 
-const {doc, b, p, h, h1, h2, h3, h4, h5, h6} = builders(schema, {
+const {doc, b, p, h, h1, h2, h3, h4, h5, h6} = builders<
+    'doc' | 'p' | 'h' | 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6',
+    'b'
+>(schema, {
     doc: {nodeType: BaseNode.Doc},
     b: {nodeType: boldMarkName},
     p: {nodeType: BaseNode.Paragraph},
@@ -22,7 +25,7 @@ const {doc, b, p, h, h1, h2, h3, h4, h5, h6} = builders(schema, {
     h4: {nodeType: headingNodeName, [headingLevelAttr]: 4},
     h5: {nodeType: headingNodeName, [headingLevelAttr]: 5},
     h6: {nodeType: headingNodeName, [headingLevelAttr]: 6},
-}) as PMTestBuilderResult<'doc' | 'p' | 'h' | 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6', 'b'>;
+});
 
 const {same} = createMarkupChecker({parser, serializer});
 

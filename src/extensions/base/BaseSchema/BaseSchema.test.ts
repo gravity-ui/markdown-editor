@@ -7,10 +7,10 @@ const {schema, parser, serializer} = new ExtensionsManager({
     extensions: (builder) => builder.use(BaseSchemaSpecs, {}),
 }).buildDeps();
 
-const {doc, p} = builders(schema, {
+const {doc, p} = builders<'doc' | 'p'>(schema, {
     doc: {nodeType: BaseNode.Doc},
     p: {nodeType: BaseNode.Paragraph},
-}) as PMTestBuilderResult<'doc' | 'p'>;
+});
 
 const {same} = createMarkupChecker({parser, serializer});
 

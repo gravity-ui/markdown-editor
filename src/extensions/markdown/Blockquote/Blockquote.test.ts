@@ -9,11 +9,11 @@ const {schema, parser, serializer} = new ExtensionsManager({
     extensions: (builder) => builder.use(BaseSpecsPreset, {}).use(BlockquoteSpecs),
 }).buildDeps();
 
-const {doc, p, q} = builders(schema, {
+const {doc, p, q} = builders<'doc' | 'p' | 'q'>(schema, {
     doc: {nodeType: BaseNode.Doc},
     p: {nodeType: BaseNode.Paragraph},
     q: {nodeType: blockquoteNodeName},
-}) as PMTestBuilderResult<'doc' | 'p' | 'q'>;
+});
 
 const {same} = createMarkupChecker({parser, serializer});
 

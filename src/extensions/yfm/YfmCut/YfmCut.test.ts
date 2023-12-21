@@ -24,7 +24,10 @@ const {schema, parser, serializer} = new ExtensionsManager({
             .use(ImageSpecs),
 }).buildDeps();
 
-const {doc, p, i, bq, img, cut, cutTitle, cutContent} = builders(schema, {
+const {doc, p, i, bq, img, cut, cutTitle, cutContent} = builders<
+    'doc' | 'p' | 'bq' | 'img' | 'cut' | 'cutTitle' | 'cutContent',
+    'i'
+>(schema, {
     doc: {nodeType: BaseNode.Doc},
     p: {nodeType: BaseNode.Paragraph},
     i: {markType: italicMarkName},
@@ -33,7 +36,7 @@ const {doc, p, i, bq, img, cut, cutTitle, cutContent} = builders(schema, {
     cut: {nodeType: CutNode.Cut},
     cutTitle: {nodeType: CutNode.CutTitle},
     cutContent: {nodeType: CutNode.CutContent},
-}) as PMTestBuilderResult<'doc' | 'p' | 'bq' | 'img' | 'cut' | 'cutTitle' | 'cutContent', 'i'>;
+});
 
 const {same} = createMarkupChecker({parser, serializer});
 

@@ -3,7 +3,6 @@ import {EditorView} from 'prosemirror-view';
 import {EditorState, TextSelection} from 'prosemirror-state';
 import {builders} from 'prosemirror-test-builder';
 
-import {CutNode} from './const';
 import {getSpec} from './YfmCutSpecs/spec';
 import {backToCutTitle, removeCut} from './commands';
 
@@ -27,9 +26,7 @@ const {
     yfm_cut: cut,
     yfm_cut_title: cutTitle,
     yfm_cut_content: cutContent,
-} = builders(schema) as PMTestBuilderResult<
-    'doc' | 'paragraph' | CutNode.Cut | CutNode.CutTitle | CutNode.CutContent
->;
+} = builders(schema);
 
 describe('YfmCut commands', () => {
     it('removeCut: should replace cut with its content', () => {
