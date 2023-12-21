@@ -30,6 +30,11 @@
       "require": "./build/cjs/index.js",
       "import": "./build/esm/index.js"
     },
+    "./core": {
+      "types": "./build/esm/core/index.d.ts",
+      "require": "./build/cjs/core/index.js",
+      "import": "./build/esm/core/index.js"
+    },
     "./specs": {
       "types": "./build/esm/extensions/specs.d.ts",
       "require": "./build/cjs/extensions/specs.js",
@@ -49,6 +54,9 @@
     "*": {
       "index.d.ts": [
         "./build/esm/index.d.ts"
+      ],
+      "core": [
+        "./build/esm/core/index.d.ts"
       ],
       "specs": [
         "./build/esm/extensions/specs.d.ts"
