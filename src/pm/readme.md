@@ -14,3 +14,4 @@
 ### Also some other modules:
 
 - [prosemirror-utils](https://github.com/atlassian/prosemirror-utils)
+- [prosemirror-test-builder](https://github.com/ProseMirror/prosemirror-test-builder)
