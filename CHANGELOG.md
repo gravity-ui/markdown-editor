@@ -1,5 +1,14 @@
 # Changelog
 
+## [9.1.0](https://github.com/yandex-cloud/yfm-editor/compare/v9.0.0...v9.1.0) (2023-12-21)
+
+
+### Features
+
+* add core submodule to package exports ([#171](https://github.com/yandex-cloud/yfm-editor/issues/171)) ([2c967b5](https://github.com/yandex-cloud/yfm-editor/commit/2c967b5e5340766fbf0f0b642e3a106d9fba5d62))
+* add re-export of prosemirror-test-builder ([#174](https://github.com/yandex-cloud/yfm-editor/issues/174)) ([6eaf21b](https://github.com/yandex-cloud/yfm-editor/commit/6eaf21b26980d5348c385087c8f8f79bac2c575b))
+* update prosemirror packages ([#173](https://github.com/yandex-cloud/yfm-editor/issues/173)) ([bee420d](https://github.com/yandex-cloud/yfm-editor/commit/bee420d7af377a21146b8106eecacc156efcb83b))
+
 ## [9.0.0](https://github.com/yandex-cloud/yfm-editor/compare/v8.2.1...v9.0.0) (2023-12-20)
 
 
