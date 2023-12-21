@@ -29,7 +29,9 @@ const {schema} = new ExtensionsManager({
             })),
 }).buildDeps();
 
-const {doc, p, bq, codeBlock, table, tbody, tr, td, testnode} = builders(schema, {
+const {doc, p, bq, codeBlock, table, tbody, tr, td, testnode} = builders<
+    'doc' | 'p' | 'bq' | 'codeBlock' | 'table' | 'tbody' | 'tr' | 'td' | 'testnode'
+>(schema, {
     doc: {nodeType: BaseNode.Doc},
     p: {nodeType: BaseNode.Paragraph},
     bq: {nodeType: blockquote},
@@ -38,9 +40,7 @@ const {doc, p, bq, codeBlock, table, tbody, tr, td, testnode} = builders(schema,
     tbody: {nodeType: YfmTableNode.Body},
     tr: {nodeType: YfmTableNode.Row},
     td: {nodeType: YfmTableNode.Cell},
-}) as PMTestBuilderResult<
-    'doc' | 'p' | 'bq' | 'codeBlock' | 'table' | 'tbody' | 'tr' | 'td' | 'testnode'
->;
+});
 
 function shouldFindPos(doc: Node, dir: Direction, selPos: number, fakePos: number) {
     const sel = TextSelection.create(doc, selPos);

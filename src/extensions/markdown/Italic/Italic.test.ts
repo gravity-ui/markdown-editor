@@ -9,11 +9,11 @@ const {schema, parser, serializer} = new ExtensionsManager({
     extensions: (builder) => builder.use(BaseSpecsPreset, {}).use(ItalicSpecs),
 }).buildDeps();
 
-const {doc, p, i} = builders(schema, {
+const {doc, p, i} = builders<'doc' | 'p', 'i'>(schema, {
     doc: {nodeType: BaseNode.Doc},
     p: {nodeType: BaseNode.Paragraph},
     i: {markType: italicMarkName},
-}) as PMTestBuilderResult<'doc' | 'p', 'i'>;
+});
 
 const {same} = createMarkupChecker({parser, serializer});
 

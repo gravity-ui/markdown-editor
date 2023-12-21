@@ -15,9 +15,7 @@ const schema = new Schema({
     marks: {},
 });
 
-const {doc, p} = builders(schema, {
-    p: {nodeType: 'paragraph'},
-}) as PMTestBuilderResult<'doc' | 'p'>;
+const {doc, paragraph: p} = builders(schema);
 
 const fakeParser: Parser = {
     parse(markup) {

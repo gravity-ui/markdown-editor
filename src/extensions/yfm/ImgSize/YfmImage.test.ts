@@ -9,31 +9,34 @@ const {schema, parser, serializer} = new ExtensionsManager({
     extensions: (builder) => builder.use(BaseSchema, {}).use(ImgSizeSpecs, {}),
 }).buildDeps();
 
-const {doc, p, img, img2, img3, img4} = builders(schema, {
-    doc: {nodeType: BaseNode.Doc},
-    p: {nodeType: BaseNode.Paragraph},
-    img: {nodeType: imageNodeName, [ImgSizeAttr.Src]: 'img.png'},
-    img2: {
-        nodeType: imageNodeName,
-        [ImgSizeAttr.Src]: 'img2.png',
-        [ImgSizeAttr.Alt]: 'alt text',
-        [ImgSizeAttr.Title]: 'title text',
+const {doc, p, img, img2, img3, img4} = builders<'doc' | 'p' | 'img' | 'img2' | 'img3' | 'img4'>(
+    schema,
+    {
+        doc: {nodeType: BaseNode.Doc},
+        p: {nodeType: BaseNode.Paragraph},
+        img: {nodeType: imageNodeName, [ImgSizeAttr.Src]: 'img.png'},
+        img2: {
+            nodeType: imageNodeName,
+            [ImgSizeAttr.Src]: 'img2.png',
+            [ImgSizeAttr.Alt]: 'alt text',
+            [ImgSizeAttr.Title]: 'title text',
+        },
+        img3: {
+            nodeType: imageNodeName,
+            [ImgSizeAttr.Src]: 'img3.png',
+            [ImgSizeAttr.Height]: '100',
+            [ImgSizeAttr.Width]: '200',
+        },
+        img4: {
+            nodeType: imageNodeName,
+            [ImgSizeAttr.Src]: 'img4.png',
+            [ImgSizeAttr.Height]: '300',
+            [ImgSizeAttr.Width]: '400',
+            [ImgSizeAttr.Alt]: 'alt text 2',
+            [ImgSizeAttr.Title]: 'title text 2',
+        },
     },
-    img3: {
-        nodeType: imageNodeName,
-        [ImgSizeAttr.Src]: 'img3.png',
-        [ImgSizeAttr.Height]: '100',
-        [ImgSizeAttr.Width]: '200',
-    },
-    img4: {
-        nodeType: imageNodeName,
-        [ImgSizeAttr.Src]: 'img4.png',
-        [ImgSizeAttr.Height]: '300',
-        [ImgSizeAttr.Width]: '400',
-        [ImgSizeAttr.Alt]: 'alt text 2',
-        [ImgSizeAttr.Title]: 'title text 2',
-    },
-}) as PMTestBuilderResult<'doc' | 'p' | 'img' | 'img2' | 'img3' | 'img4'>;
+);
 
 const {same} = createMarkupChecker({parser, serializer});
 

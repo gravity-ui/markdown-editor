@@ -3,7 +3,6 @@ import {EditorView} from 'prosemirror-view';
 import {EditorState, TextSelection} from 'prosemirror-state';
 import {builders} from 'prosemirror-test-builder';
 
-import {NoteNode} from './const';
 import {getSpec} from './YfmNoteSpecs/spec';
 import {backToNoteTitle, removeNote} from './commands';
 
@@ -20,14 +19,7 @@ const schema = new Schema({
     },
 });
 
-const {
-    doc,
-    paragraph: p,
-    yfm_note: note,
-    yfm_note_title: noteTitle,
-} = builders(schema) as PMTestBuilderResult<
-    'doc' | 'paragraph' | NoteNode.Note | NoteNode.NoteTitle
->;
+const {doc, paragraph: p, yfm_note: note, yfm_note_title: noteTitle} = builders(schema);
 
 describe('YfmNote commands', () => {
     it('removeNote: should replace note with its content', () => {

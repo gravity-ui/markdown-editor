@@ -11,20 +11,7 @@ const {schema, parser, serializer} = new ExtensionsManager({
     extensions: (builder) => builder.use(BaseSpecsPreset, {}).use(BlockquoteSpecs).use(TableSpecs),
 }).buildDeps();
 
-const {doc, bq, table, thead, tbody, tr, thL, thC, thR, tdL, tdC, tdR} = builders(schema, {
-    doc: {nodeType: BaseNode.Doc},
-    bq: {nodeType: blockquoteNodeName},
-    table: {nodeType: TableNode.Table},
-    thead: {nodeType: TableNode.Head},
-    tbody: {nodeType: TableNode.Body},
-    tr: {nodeType: TableNode.Row},
-    thL: {nodeType: TableNode.HeaderCell, [TableAttrs.CellAlign]: CellAlign.Left},
-    thC: {nodeType: TableNode.HeaderCell, [TableAttrs.CellAlign]: CellAlign.Center},
-    thR: {nodeType: TableNode.HeaderCell, [TableAttrs.CellAlign]: CellAlign.Right},
-    tdL: {nodeType: TableNode.DataCell, [TableAttrs.CellAlign]: CellAlign.Left},
-    tdC: {nodeType: TableNode.DataCell, [TableAttrs.CellAlign]: CellAlign.Center},
-    tdR: {nodeType: TableNode.DataCell, [TableAttrs.CellAlign]: CellAlign.Right},
-}) as PMTestBuilderResult<
+const {doc, bq, table, thead, tbody, tr, thL, thC, thR, tdL, tdC, tdR} = builders<
     | 'doc'
     | 'bq'
     | 'table'
@@ -37,7 +24,20 @@ const {doc, bq, table, thead, tbody, tr, thL, thC, thR, tdL, tdC, tdR} = builder
     | 'tdL'
     | 'tdC'
     | 'tdR'
->;
+>(schema, {
+    doc: {nodeType: BaseNode.Doc},
+    bq: {nodeType: blockquoteNodeName},
+    table: {nodeType: TableNode.Table},
+    thead: {nodeType: TableNode.Head},
+    tbody: {nodeType: TableNode.Body},
+    tr: {nodeType: TableNode.Row},
+    thL: {nodeType: TableNode.HeaderCell, [TableAttrs.CellAlign]: CellAlign.Left},
+    thC: {nodeType: TableNode.HeaderCell, [TableAttrs.CellAlign]: CellAlign.Center},
+    thR: {nodeType: TableNode.HeaderCell, [TableAttrs.CellAlign]: CellAlign.Right},
+    tdL: {nodeType: TableNode.DataCell, [TableAttrs.CellAlign]: CellAlign.Left},
+    tdC: {nodeType: TableNode.DataCell, [TableAttrs.CellAlign]: CellAlign.Center},
+    tdR: {nodeType: TableNode.DataCell, [TableAttrs.CellAlign]: CellAlign.Right},
+});
 
 const {same} = createMarkupChecker({parser, serializer});
 

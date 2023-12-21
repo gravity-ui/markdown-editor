@@ -18,7 +18,7 @@ const {
     list_item: li,
     bullet_list: bl,
     ordered_list: ol,
-} = builders(schema) as PMTestBuilderResult<BaseNode | ListNode>;
+} = builders<BaseNode | ListNode>(schema);
 
 describe('Lists commands', () => {
     it.each([

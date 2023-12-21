@@ -16,7 +16,10 @@ const {schema} = new ExtensionsManager({
         builder.use(BaseSpecsPreset, {}).use(BlockquoteSpecs).use(Html).use(DeflistSpecs, {}),
 }).buildDeps();
 
-const {doc, p, bq, htmlBlock, dList, dTerm, dDesc} = builders(schema, {
+const {doc, p, bq, htmlBlock, dList, dTerm, dDesc} = builders<
+    'doc' | 'p' | 'bq' | 'htmlBlock',
+    'dList' | 'dTerm' | 'dDesc'
+>(schema, {
     doc: {nodeType: BaseNode.Doc},
     p: {nodeType: BaseNode.Paragraph},
     bq: {nodeType: blockquoteNodeName},
@@ -24,7 +27,7 @@ const {doc, p, bq, htmlBlock, dList, dTerm, dDesc} = builders(schema, {
     dList: {nodeType: DeflistNode.List},
     dTerm: {nodeType: DeflistNode.Term},
     dDesc: {nodeType: DeflistNode.Desc},
-}) as PMTestBuilderResult<'doc' | 'p' | 'bq' | 'htmlBlock', 'dList' | 'dTerm' | 'dDesc'>;
+});
 
 function shouldDispatch(
     cmd: Command,

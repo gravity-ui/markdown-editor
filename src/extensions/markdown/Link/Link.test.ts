@@ -8,7 +8,7 @@ const {schema, parser, serializer} = new ExtensionsManager({
     extensions: (builder) => builder.use(BaseSpecsPreset, {}).use(LinkSpecs),
 }).buildDeps();
 
-const {doc, p, a, lnk, lnk4} = builders(schema, {
+const {doc, p, a, lnk, lnk4} = builders<'doc' | 'p' | 'a' | 'lnk' | 'lnk4'>(schema, {
     doc: {nodeType: BaseNode.Doc},
     p: {nodeType: BaseNode.Paragraph},
     a: {nodeType: linkMarkName},
@@ -18,7 +18,7 @@ const {doc, p, a, lnk, lnk4} = builders(schema, {
         [LinkAttr.Href]: '4chan.org',
         [LinkAttr.Title]: '4chan',
     },
-}) as PMTestBuilderResult<'doc' | 'p' | 'a' | 'lnk' | 'lnk4'>;
+});
 
 const {same, serialize} = createMarkupChecker({parser, serializer});
 

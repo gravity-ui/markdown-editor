@@ -8,7 +8,7 @@ const {schema, parser, serializer} = new ExtensionsManager({
     extensions: (builder) => builder.use(BaseSpecsPreset, {}).use(ImageSpecs),
 }).buildDeps();
 
-const {doc, p, img, img2} = builders(schema, {
+const {doc, p, img, img2} = builders<'doc' | 'p' | 'img' | 'img2'>(schema, {
     doc: {nodeType: BaseNode.Doc},
     p: {nodeType: BaseNode.Paragraph},
     img: {nodeType: imageNodeName, [ImageAttr.Src]: 'img.png'},
@@ -18,7 +18,7 @@ const {doc, p, img, img2} = builders(schema, {
         [ImageAttr.Alt]: 'alt text',
         [ImageAttr.Title]: 'title text',
     },
-}) as PMTestBuilderResult<'doc' | 'p' | 'img' | 'img2'>;
+});
 
 const {same} = createMarkupChecker({parser, serializer});
 

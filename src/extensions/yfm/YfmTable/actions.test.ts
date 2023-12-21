@@ -15,16 +15,7 @@ const schema = new Schema({
     },
 });
 
-const {
-    doc,
-    paragraph: p,
-    yfm_table: t,
-    yfm_tbody: tb,
-    yfm_tr: trow,
-    yfm_td: td,
-} = builders(schema, {}) as PMTestBuilderResult<
-    'doc' | 'paragraph' | 'yfm_table' | 'yfm_tbody' | 'yfm_tr' | 'yfm_td'
->;
+const {doc, paragraph: p, yfm_table: t, yfm_tbody: tb, yfm_tr: trow, yfm_td: td} = builders(schema);
 
 describe('yfmTable', () => {
     describe('createYfmTableCommand', () => {

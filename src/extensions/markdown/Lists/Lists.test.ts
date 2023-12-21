@@ -8,13 +8,13 @@ const {schema, parser, serializer} = new ExtensionsManager({
     extensions: (builder) => builder.use(BaseSpecsPreset, {}).use(ListsSpecs),
 }).buildDeps();
 
-const {doc, p, li, ul, ol} = builders(schema, {
+const {doc, p, li, ul, ol} = builders<'doc' | 'p' | 'li' | 'ul' | 'ol'>(schema, {
     doc: {nodeType: BaseNode.Doc},
     p: {nodeType: BaseNode.Paragraph},
     li: {nodeType: ListNode.ListItem},
     ul: {nodeType: ListNode.BulletList},
     ol: {nodeType: ListNode.OrderedList},
-}) as PMTestBuilderResult<'doc' | 'p' | 'li' | 'ul' | 'ol'>;
+});
 
 const {same} = createMarkupChecker({parser, serializer});
 

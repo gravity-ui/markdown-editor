@@ -14,7 +14,8 @@ import './index.scss';
 const cnYfmTab = cn('yfm-tab');
 
 const ignoreMutation =
-    (node: Node, view: EditorView, getPos: () => number) => (mutation: MutationRecord) => {
+    (node: Node, view: EditorView, getPos: () => number | undefined) =>
+    (mutation: MutationRecord) => {
         if (
             mutation instanceof MutationRecord &&
             mutation.type === 'attributes' &&
@@ -23,7 +24,7 @@ const ignoreMutation =
             const newAttr = (mutation.target as HTMLElement).getAttribute(mutation.attributeName);
 
             view.dispatch(
-                view.state.tr.setNodeMarkup(getPos(), null, {
+                view.state.tr.setNodeMarkup(getPos()!, null, {
                     ...node.attrs,
                     [mutation.attributeName]: String(newAttr),
                 }),
@@ -34,13 +35,13 @@ const ignoreMutation =
         return false;
     };
 
-const getTabNodes = (state: EditorState, getPos: () => number) => {
+const getTabNodes = (state: EditorState, getPos: () => number | undefined) => {
     const currentTab = findParentNodeOfTypeClosestToPos(
-        state.tr.doc.resolve(getPos() + 1),
+        state.tr.doc.resolve(getPos()! + 1),
         tabType(state.schema),
     );
     const tabsParentNode = findParentNodeOfTypeClosestToPos(
-        state.tr.doc.resolve(getPos()),
+        state.tr.doc.resolve(getPos()!),
         tabsType(state.schema),
     );
 

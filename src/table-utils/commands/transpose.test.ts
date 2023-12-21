@@ -39,14 +39,7 @@ const schema = new Schema({
     },
 });
 
-const {
-    doc,
-    para: p,
-    table,
-    tbody,
-    trow,
-    tcell,
-} = builders(schema) as PMTestBuilderResult<'doc' | 'para' | 'table' | 'tbody' | 'trow' | 'tcell'>;
+const {doc, para: p, table, tbody, trow, tcell} = builders(schema);
 
 describe('table-utils: commands', () => {
     describe('transpose', () => {

@@ -12,11 +12,11 @@ const {schema, parser, serializer} = new ExtensionsManager({
 
 const {same} = createMarkupChecker({parser, serializer});
 
-const {doc, p, file} = builders(schema, {
+const {doc, p, file} = builders<'doc' | 'p' | 'file'>(schema, {
     doc: {nodeType: BaseNode.Doc},
     p: {nodeType: BaseNode.Paragraph},
     file: {nodeType: yfmFileNodeName},
-}) as PMTestBuilderResult<'doc' | 'p' | 'file'>;
+});
 
 const defaultAttrs = {
     href: 'path/to/readme',

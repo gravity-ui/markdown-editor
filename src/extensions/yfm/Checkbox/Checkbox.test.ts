@@ -25,7 +25,20 @@ const {
     checkboxLabel0,
     checkboxLabel1,
     checkboxLabel2,
-} = builders(schema, {
+} = builders<
+    | 'doc'
+    | 'p'
+    | 'b'
+    | 'checkbox'
+    | 'cbInput'
+    | 'cbLabel'
+    | 'checkboxInput0'
+    | 'checkboxInput1'
+    | 'checkboxInput2'
+    | 'checkboxLabel0'
+    | 'checkboxLabel1'
+    | 'checkboxLabel2'
+>(schema, {
     doc: {nodeType: BaseNode.Doc},
     p: {nodeType: BaseNode.Paragraph},
     b: {nodeType: boldMarkName},
@@ -42,20 +55,7 @@ const {
     checkboxLabel0: {nodeType: CheckboxNode.Label, for: 'yfm-editor-checkbox0'},
     checkboxLabel1: {nodeType: CheckboxNode.Label, for: 'yfm-editor-checkbox1'},
     checkboxLabel2: {nodeType: CheckboxNode.Label, for: 'yfm-editor-checkbox2'},
-}) as PMTestBuilderResult<
-    | 'doc'
-    | 'p'
-    | 'b'
-    | 'checkbox'
-    | 'cbInput'
-    | 'cbLabel'
-    | 'checkboxInput0'
-    | 'checkboxInput1'
-    | 'checkboxInput2'
-    | 'checkboxLabel0'
-    | 'checkboxLabel1'
-    | 'checkboxLabel2'
->;
+});
 
 const {same, serialize} = createMarkupChecker({parser, serializer});
 

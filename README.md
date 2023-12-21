@@ -13,7 +13,7 @@ npm install @doc-tools/yfm-editor
 Ensure that peer dependencies are installed in your project
 
 ```shell
-npm install react@17 react-dom@17 @doc-tools/transform@3 @gravity-ui/uikit@5 @gravity-ui/components@2 lodash@4
+npm install react@17 react-dom@17 @diplodoc/transform@4 @gravity-ui/uikit@5 @gravity-ui/components@2 lodash@4
 ```
 
 ## Usage

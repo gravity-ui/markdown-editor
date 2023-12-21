@@ -20,7 +20,9 @@ const {schema, parser, serializer} = new ExtensionsManager({
     extensions: (builder) => builder.use(BaseSpecsPreset, {}).use(YfmTabsSpecs, {}),
 }).buildDeps();
 
-const {doc, p, tab, tabs, tabPanel, tabsList} = builders(schema, {
+const {doc, p, tab, tabs, tabPanel, tabsList} = builders<
+    'doc' | 'p' | 'bq' | 'tab' | 'tabPanel' | 'tabs' | 'tabsList'
+>(schema, {
     doc: {nodeType: BaseNode.Doc},
     p: {nodeType: BaseNode.Paragraph},
     i: {markType: italicMarkName},
@@ -29,7 +31,7 @@ const {doc, p, tab, tabs, tabPanel, tabsList} = builders(schema, {
     tabPanel: {nodeType: TabsNode.TabPanel},
     tabs: {nodeType: TabsNode.Tabs},
     tabsList: {nodeType: TabsNode.TabsList},
-}) as PMTestBuilderResult<'doc' | 'p' | 'bq' | 'tab' | 'tabPanel' | 'tabs' | 'tabsList'>;
+});
 
 const {same} = createMarkupChecker({parser, serializer});
 

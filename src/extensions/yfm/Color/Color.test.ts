@@ -13,13 +13,13 @@ const {schema, parser, serializer} = new ExtensionsManager({
         }),
 }).buildDeps();
 
-const {doc, p, color, c1, c2} = builders(schema, {
+const {doc, p, color, c1, c2} = builders<'doc' | 'p', 'color' | 'c1' | 'c2'>(schema, {
     doc: {nodeType: BaseNode.Doc},
     p: {nodeType: BaseNode.Paragraph},
     color: {markType: colorMarkName},
     c1: {nodeType: colorMarkName, [colorMarkName]: 'c1'},
     c2: {nodeType: colorMarkName, [colorMarkName]: 'c2'},
-}) as PMTestBuilderResult<'doc' | 'p', 'color' | 'c1' | 'c2'>;
+});
 
 const {same} = createMarkupChecker({parser, serializer});
 

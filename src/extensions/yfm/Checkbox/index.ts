@@ -32,13 +32,16 @@ export const Checkbox: ExtensionAuto<CheckboxOptions> = (builder, opts) => {
                 const elem = e.target as HTMLElement;
                 const checkedAttr = elem.getAttribute('checked');
                 const checked = checkedAttr ? '' : 'true';
+                const pos = getPos();
 
-                view.dispatch(
-                    view.state.tr.setNodeMarkup(getPos(), undefined, {
-                        ...node.attrs,
-                        checked,
-                    }),
-                );
+                if (pos !== undefined) {
+                    view.dispatch(
+                        view.state.tr.setNodeMarkup(pos, undefined, {
+                            ...node.attrs,
+                            checked,
+                        }),
+                    );
+                }
 
                 elem.setAttribute('checked', checked);
             });
@@ -48,17 +51,22 @@ export const Checkbox: ExtensionAuto<CheckboxOptions> = (builder, opts) => {
                 ignoreMutation: () => true,
                 update: () => true,
                 destroy() {
-                    const resolved = view.state.doc.resolve(getPos());
-                    if (
-                        resolved.parent.type.name === CheckboxNode.Checkbox &&
-                        resolved.parent.lastChild
-                    ) {
-                        view.dispatch(
-                            replaceParentNodeOfType(
-                                resolved.parent.type,
-                                pType(view.state.schema).create(resolved.parent.lastChild.content),
-                            )(view.state.tr),
-                        );
+                    const pos = getPos();
+                    if (pos !== undefined) {
+                        const resolved = view.state.doc.resolve(pos);
+                        if (
+                            resolved.parent.type.name === CheckboxNode.Checkbox &&
+                            resolved.parent.lastChild
+                        ) {
+                            view.dispatch(
+                                replaceParentNodeOfType(
+                                    resolved.parent.type,
+                                    pType(view.state.schema).create(
+                                        resolved.parent.lastChild.content,
+                                    ),
+                                )(view.state.tr),
+                            );
+                        }
                     }
                     dom.remove();
                 },

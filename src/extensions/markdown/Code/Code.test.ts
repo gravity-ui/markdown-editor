@@ -12,13 +12,13 @@ const {schema, parser, serializer} = new ExtensionsManager({
         builder.use(BaseSpecsPreset, {}).use(BoldSpecs).use(CodeSpecs).use(ItalicSpecs),
 }).buildDeps();
 
-const {doc, p, b, i, c} = builders(schema, {
+const {doc, p, b, i, c} = builders<'doc' | 'p', 'b' | 'i' | 'c'>(schema, {
     doc: {nodeType: BaseNode.Doc},
     p: {nodeType: BaseNode.Paragraph},
     b: {nodeType: boldMarkName},
     i: {nodeType: italicMarkName},
     c: {nodeType: codeMarkName},
-}) as PMTestBuilderResult<'doc' | 'p', 'b' | 'i' | 'c'>;
+});
 
 const {same} = createMarkupChecker({parser, serializer});
 

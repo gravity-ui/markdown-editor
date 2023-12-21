@@ -9,11 +9,11 @@ const {schema, parser, serializer} = new ExtensionsManager({
     extensions: (builder) => builder.use(BaseSpecsPreset, {}).use(MonospaceSpecs),
 }).buildDeps();
 
-const {doc, p, m} = builders(schema, {
+const {doc, p, m} = builders<'doc' | 'p', 'm'>(schema, {
     doc: {nodeType: BaseNode.Doc},
     p: {nodeType: BaseNode.Paragraph},
     m: {markType: monospaceMarkName},
-}) as PMTestBuilderResult<'doc' | 'p', 'm'>;
+});
 
 const {same} = createMarkupChecker({parser, serializer});
 
