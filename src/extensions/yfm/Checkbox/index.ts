@@ -1,12 +1,14 @@
 import {replaceParentNodeOfType} from 'prosemirror-utils';
+
 import type {Action, ExtensionAuto} from '../../../core';
-import {b, CheckboxNode} from './const';
-import {keymapPlugin} from './plugin';
 import {nodeInputRule} from '../../../utils/inputrules';
-import {addCheckbox} from './actions';
-import {CheckboxSpecs, CheckboxSpecsOptions} from './CheckboxSpecs';
-import {checkboxInputType, checkboxType} from './utils';
 import {pType} from '../../base/BaseSchema';
+
+import {CheckboxSpecs, CheckboxSpecsOptions} from './CheckboxSpecs';
+import {addCheckbox} from './actions';
+import {CheckboxNode, b} from './const';
+import {keymapPlugin} from './plugin';
+import {checkboxInputType, checkboxType} from './utils';
 
 import './index.scss';
 

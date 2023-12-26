@@ -1,5 +1,6 @@
-import {logger} from '../../../logger';
 import type {ExtensionAuto} from '../../../core';
+import {logger} from '../../../logger';
+
 import {HtmlNode} from './const';
 import {fromYfm} from './fromYfm';
 import {spec} from './spec';

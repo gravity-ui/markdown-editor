@@ -1,12 +1,14 @@
 import {Node as PmNode, ResolvedPos} from 'prosemirror-model';
 import {
+    Predicate,
     findChildren,
     findParentNode,
     findParentNodeClosestToPos,
-    Predicate,
 } from 'prosemirror-utils';
 import type {EditorView} from 'prosemirror-view';
+
 import {isTextSelection} from '../utils/selection';
+
 import {TableRole} from './const';
 
 export const isTableNode: Predicate = (node) => node.type.spec.tableRole === TableRole.Table;

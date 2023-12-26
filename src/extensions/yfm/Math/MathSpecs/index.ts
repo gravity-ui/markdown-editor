@@ -2,6 +2,7 @@ import mathMdPlugin from 'markdown-it-katex';
 
 import type {ExtensionAuto} from '../../../../core';
 import {nodeTypeFactory} from '../../../../utils/schema';
+
 import {CLASSNAMES, MathNode} from './const';
 
 export {MathNode} from './const';

@@ -1,5 +1,7 @@
 import type {Command} from 'prosemirror-state';
+
 import {toParagraph} from '../../base/BaseSchema';
+
 import {cbType} from './const';
 
 export const resetCodeblock: Command = (state, dispatch, view) => {

@@ -3,6 +3,7 @@ import yfmTable from '@diplodoc/transform/lib/plugins/table';
 import type {NodeSpec} from 'prosemirror-model';
 
 import type {ExtensionWithOptions} from '../../../../core';
+
 import {YfmTableNode} from './const';
 import {fromYfm} from './fromYfm';
 import {getSpec} from './spec';

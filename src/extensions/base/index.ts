@@ -1,8 +1,8 @@
 import type {ExtensionAuto} from '../../core';
 
-import {BaseSchema, BaseSchemaOptions} from './BaseSchema';
 import {BaseInputRules} from './BaseInputRules';
 import {BaseKeymap} from './BaseKeymap';
+import {BaseSchema, BaseSchemaOptions} from './BaseSchema';
 import {BaseStyles} from './BaseStyles';
 
 export * from './BaseSchema';

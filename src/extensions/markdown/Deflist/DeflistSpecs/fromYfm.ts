@@ -1,4 +1,5 @@
 import type {ParserToken} from '../../../../core';
+
 import {DeflistNode} from './const';
 
 export const fromYfm: Record<DeflistNode, ParserToken> = {

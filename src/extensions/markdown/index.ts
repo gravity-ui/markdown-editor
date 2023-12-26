@@ -1,26 +1,26 @@
 import isFunction from 'lodash/isFunction';
+
 import type {Extension, ExtensionAuto} from '../../core';
 
+import {Blockquote, BlockquoteOptions} from './Blockquote';
 import {Bold, BoldOptions} from './Bold';
+import {Breaks, BreaksOptions} from './Breaks';
 import {Code, CodeOptions} from './Code';
+import {CodeBlock, CodeBlockOptions} from './CodeBlock';
+import {Deflist, DeflistOptions} from './Deflist';
+import {Heading, HeadingOptions} from './Heading';
+import {HorizontalRule} from './HorizontalRule';
+import {Html} from './Html';
+import {Image} from './Image';
 import {Italic, ItalicOptions} from './Italic';
-import {Strike, StrikeOptions} from './Strike';
-import {Underline, UnderlineOptions} from './Underline';
 import {Link} from './Link';
+import {Lists, ListsOptions} from './Lists';
 import {Mark} from './Mark';
+import {Strike, StrikeOptions} from './Strike';
 import {Subscript} from './Subscript';
 import {Superscript} from './Superscript';
-
-import {Html} from './Html';
 import {Table} from './Table';
-import {Image} from './Image';
-import {Lists, ListsOptions} from './Lists';
-import {Breaks, BreaksOptions} from './Breaks';
-import {Deflist, DeflistOptions} from './Deflist';
-import {HorizontalRule} from './HorizontalRule';
-import {Heading, HeadingOptions} from './Heading';
-import {CodeBlock, CodeBlockOptions} from './CodeBlock';
-import {Blockquote, BlockquoteOptions} from './Blockquote';
+import {Underline, UnderlineOptions} from './Underline';
 
 export * from './Bold';
 export * from './Code';

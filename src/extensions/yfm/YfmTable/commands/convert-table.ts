@@ -1,10 +1,11 @@
 import type {Node} from 'prosemirror-model';
 import type {Command} from 'prosemirror-state';
+
 import {pType} from '../../../base/BaseSchema';
 import {
-    findParentTable as findParentMdTable,
     findTableCells as findMdTableCells,
     findTableRows as findMdTableRows,
+    findParentTable as findParentMdTable,
 } from '../../../markdown/Table/helpers';
 import {yfmTableBodyType, yfmTableCellType, yfmTableRowType, yfmTableType} from '../utils';
 

@@ -1,13 +1,15 @@
 import {chainCommands} from 'prosemirror-commands';
+
 import type {Action, ExtensionAuto} from '../../../core';
-import {withLogAction} from '../../../utils/keymap';
 import {nodeInputRule} from '../../../utils/inputrules';
-import {cutType} from './const';
+import {withLogAction} from '../../../utils/keymap';
+
+import {YfmCutSpecs, YfmCutSpecsOptions} from './YfmCutSpecs';
 import {createYfmCut, toYfmCut} from './actions/toYfmCut';
 import {backToCutTitle, exitFromCutTitle, liftEmptyBlockFromCut, removeCut} from './commands';
+import {cutType} from './const';
 import {YfmCutTitleNodeView} from './nodeviews/yfm-cut-title';
 import {cutAutoOpenPlugin} from './plugins/auto-open';
-import {YfmCutSpecs, YfmCutSpecsOptions} from './YfmCutSpecs';
 
 import './index.scss';
 

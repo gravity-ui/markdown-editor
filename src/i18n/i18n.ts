@@ -1,5 +1,6 @@
 import {I18N, I18NFn} from '@gravity-ui/i18n';
-import {getConfig, Lang, subscribeConfigure} from '../configure';
+
+import {Lang, getConfig, subscribeConfigure} from '../configure';
 
 type KeysData = Record<string, string | string[]>; // @gravity-ui/i18n inner type
 

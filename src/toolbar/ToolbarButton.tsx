@@ -1,8 +1,11 @@
 import React, {useRef} from 'react';
-import isFunction from 'lodash/isFunction';
+
 import {ActionTooltip, Button, Icon, Popover} from '@gravity-ui/uikit';
+import isFunction from 'lodash/isFunction';
+
 import {cn} from '../classname';
 import {i18n} from '../i18n/common';
+
 import {ToolbarTooltipDelay} from './const';
 import type {ToolbarBaseProps, ToolbarItemData} from './types';
 

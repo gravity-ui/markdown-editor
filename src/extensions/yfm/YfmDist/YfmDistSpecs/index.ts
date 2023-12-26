@@ -1,4 +1,5 @@
 import noop from 'lodash/noop';
+
 import type {ExtensionAuto} from '../../../../core';
 
 export const YfmDistSpecs: ExtensionAuto = (builder) => {

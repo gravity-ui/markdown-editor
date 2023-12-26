@@ -1,4 +1,5 @@
 import React from 'react';
+
 import type {YfmEditor} from '../core';
 
 export type YfmEditorComponentProps = {

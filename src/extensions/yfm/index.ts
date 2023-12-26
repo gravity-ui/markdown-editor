@@ -2,12 +2,12 @@ import {ExtensionAuto} from '../../core';
 
 import {Checkbox, CheckboxOptions} from './Checkbox';
 import {Color} from './Color';
+import {ImgSize, ImgSizeOptions} from './ImgSize';
 import {Math} from './Math';
 import {Monospace} from './Monospace';
-import {ImgSize, ImgSizeOptions} from './ImgSize';
 import {Video, VideoOptions} from './Video';
-import {YfmDist} from './YfmDist';
 import {YfmCut, YfmCutOptions} from './YfmCut';
+import {YfmDist} from './YfmDist';
 import {YfmFile} from './YfmFile';
 import {YfmHeading, YfmHeadingOptions} from './YfmHeading';
 import {YfmNote, YfmNoteOptions} from './YfmNote';

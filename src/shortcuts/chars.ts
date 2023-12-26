@@ -1,5 +1,6 @@
 import {isMac} from '../utils/platform';
-import {ModKey as MK, Key as K} from './const';
+
+import {Key as K, ModKey as MK} from './const';
 import {Chars} from './types';
 
 const cmMac = {

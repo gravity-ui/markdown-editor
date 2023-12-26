@@ -1,9 +1,11 @@
 import {builders} from 'prosemirror-test-builder';
+
 import {createMarkupChecker} from '../../../../tests/sameMarkup';
 import {ExtensionsManager} from '../../../core';
 import {BaseNode, BaseSpecsPreset} from '../../base/specs';
-import {boldMarkName, BoldSpecs} from '../../markdown/specs';
-import {CheckboxSpecs, CheckboxNode} from './CheckboxSpecs';
+import {BoldSpecs, boldMarkName} from '../../markdown/specs';
+
+import {CheckboxNode, CheckboxSpecs} from './CheckboxSpecs';
 
 const {schema, parser, serializer} = new ExtensionsManager({
     extensions: (builder) =>

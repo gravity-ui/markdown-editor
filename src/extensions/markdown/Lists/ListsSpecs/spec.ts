@@ -1,4 +1,5 @@
 import type {NodeSpec} from 'prosemirror-model';
+
 import {ListNode} from './const';
 
 export const spec: Record<ListNode, NodeSpec> = {

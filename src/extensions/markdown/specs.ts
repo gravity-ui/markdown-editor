@@ -1,26 +1,26 @@
 import isFunction from 'lodash/isFunction';
+
 import type {Extension, ExtensionAuto} from '../../core';
 
-import {BoldSpecs} from './Bold/BoldSpecs';
-import {CodeSpecs} from './Code/CodeSpecs';
-import {ItalicSpecs} from './Italic/ItalicSpecs';
-import {StrikeSpecs} from './Strike/StrikeSpecs';
-import {UnderlineSpecs} from './Underline/UnderlineSpecs';
-import {LinkSpecs} from './Link/LinkSpecs';
-import {MarkSpecs} from './Mark/MarkSpecs';
-import {SubscriptSpecs} from './Subscript/SubscriptSpecs';
-import {SuperscriptSpecs} from './Superscript/SuperscriptSpecs';
-
-import {Html} from './Html';
-import {TableSpecs} from './Table/TableSpecs';
-import {ImageSpecs} from './Image/ImageSpecs';
-import {ListsSpecs} from './Lists/ListsSpecs';
-import {BreaksSpecs, BreaksSpecsOptions} from './Breaks/BreaksSpecs';
 import {BlockquoteSpecs} from './Blockquote/BlockquoteSpecs';
+import {BoldSpecs} from './Bold/BoldSpecs';
+import {BreaksSpecs, BreaksSpecsOptions} from './Breaks/BreaksSpecs';
+import {CodeSpecs} from './Code/CodeSpecs';
+import {CodeBlockSpecs, CodeBlockSpecsOptions} from './CodeBlock/CodeBlockSpecs';
 import {DeflistSpecs, DeflistSpecsOptions} from './Deflist/DeflistSpecs';
 import {HeadingSpecs, HeadingSpecsOptions} from './Heading/HeadingSpecs';
 import {HorizontalRuleSpecs} from './HorizontalRule/HorizontalRuleSpecs';
-import {CodeBlockSpecs, CodeBlockSpecsOptions} from './CodeBlock/CodeBlockSpecs';
+import {Html} from './Html';
+import {ImageSpecs} from './Image/ImageSpecs';
+import {ItalicSpecs} from './Italic/ItalicSpecs';
+import {LinkSpecs} from './Link/LinkSpecs';
+import {ListsSpecs} from './Lists/ListsSpecs';
+import {MarkSpecs} from './Mark/MarkSpecs';
+import {StrikeSpecs} from './Strike/StrikeSpecs';
+import {SubscriptSpecs} from './Subscript/SubscriptSpecs';
+import {SuperscriptSpecs} from './Superscript/SuperscriptSpecs';
+import {TableSpecs} from './Table/TableSpecs';
+import {UnderlineSpecs} from './Underline/UnderlineSpecs';
 
 export * from './Bold/BoldSpecs';
 export * from './Code/CodeSpecs';

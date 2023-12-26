@@ -1,12 +1,14 @@
-import {EditorView} from 'prosemirror-view';
 import {EditorState, TextSelection} from 'prosemirror-state';
 import {builders} from 'prosemirror-test-builder';
+import {EditorView} from 'prosemirror-view';
+
 import {ExtensionsManager} from '../../../core';
 import {get$Cursor} from '../../../utils/selection';
 import {BaseNode, BaseSpecsPreset} from '../../base/specs';
+
 import {ListsSpecs} from './ListsSpecs';
-import {ListNode} from './const';
 import {liftIfCursorIsAtBeginningOfItem} from './commands';
+import {ListNode} from './const';
 
 const {schema} = new ExtensionsManager({
     extensions: (builder) => builder.use(BaseSpecsPreset, {}).use(ListsSpecs),

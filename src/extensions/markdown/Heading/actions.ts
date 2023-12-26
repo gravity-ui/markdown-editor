@@ -1,6 +1,8 @@
 import {setBlockType} from 'prosemirror-commands';
 import type {NodeType} from 'prosemirror-model';
+
 import type {ActionSpec} from '../../../core';
+
 import {HeadingLevel, headingLevelAttr} from './const';
 import {hasParentHeading} from './utils';
 

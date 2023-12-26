@@ -1,5 +1,7 @@
 import {dropCursor} from 'prosemirror-dropcursor';
+
 import type {ExtensionAuto} from '../../../core';
+
 import {gapCursor} from './gapcursor';
 
 export {GapCursorSelection, isGapCursorSelection} from './GapCursorSelection';

@@ -47,10 +47,7 @@
     &::before {
         position: absolute;
         z-index: -1;
-        top: -2px;
-        right: -2px;
-        bottom: -2px;
-        left: -2px;
+        inset: -2px;
 
         content: '';
 
@@ -71,10 +68,7 @@
     .math-inline,
     .math-block {
         position: absolute;
-        top: 0;
-        right: 0;
-        bottom: 0;
-        left: 0;
+        inset: 0;
 
         overflow: hidden;
 

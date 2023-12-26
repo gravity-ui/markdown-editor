@@ -2,9 +2,10 @@ import {InputRule} from 'prosemirror-inputrules';
 import type {MarkType} from 'prosemirror-model';
 
 import type {Action, ExtensionAuto} from '../../../core';
+
+import {LinkSpecs, linkMarkName, linkType} from './LinkSpecs';
 import {LinkActionMeta, LinkActionParams, linkCommand} from './actions';
 import {linkPasteEnhance} from './paste-plugin';
-import {linkMarkName, LinkSpecs, linkType} from './LinkSpecs';
 
 export type {LinkActionParams, LinkActionMeta} from './actions';
 export {linkCommand} from './actions';

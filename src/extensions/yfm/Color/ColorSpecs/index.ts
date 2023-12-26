@@ -1,7 +1,9 @@
 import mdPlugin from 'markdown-it-color';
+
 import type {ExtensionAuto} from '../../../../core';
 import {markTypeFactory} from '../../../../utils/schema';
-import {colorMarkName, colorClassName, domColorAttr} from './const';
+
+import {colorClassName, colorMarkName, domColorAttr} from './const';
 
 export {colorMarkName} from './const';
 export const colorType = markTypeFactory(colorMarkName);

@@ -1,9 +1,11 @@
 import {toggleMark} from 'prosemirror-commands';
+
 import type {Action, ExtensionAuto} from '../../../core';
-import {withLogAction} from '../../../utils/keymap';
 import {createToggleMarkAction} from '../../../utils/actions';
 import {markInputRule} from '../../../utils/inputrules';
-import {underlineMarkName, UnderlineSpecs, underlineType} from './UnderlineSpecs';
+import {withLogAction} from '../../../utils/keymap';
+
+import {UnderlineSpecs, underlineMarkName, underlineType} from './UnderlineSpecs';
 
 export {underlineMarkName, underlineType} from './UnderlineSpecs';
 /** @deprecated Use `underlineMarkName` instead */

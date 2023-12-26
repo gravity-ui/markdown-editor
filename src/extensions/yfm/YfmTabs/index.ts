@@ -1,5 +1,9 @@
+import {chainCommands} from 'prosemirror-commands';
+
 import type {Action, ExtensionAuto} from '../../../core';
 
+import {YfmTabsSpecs} from './YfmTabsSpecs';
+import {createYfmTabs} from './actions';
 import {
     dragAutoSwitch,
     joinBackwardToOpenTab,
@@ -7,12 +11,7 @@ import {
     tabEnter,
     tabPanelArrowDown,
 } from './plugins';
-import {YfmTabsSpecs} from './YfmTabsSpecs';
-
-import {chainCommands} from 'prosemirror-commands';
-
 import {tabPanelView, tabView} from './views';
-import {createYfmTabs} from './actions';
 
 export {TabsNode, tabType, tabsType, tabsListType, tabPanelType} from './YfmTabsSpecs';
 

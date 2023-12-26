@@ -1,8 +1,9 @@
 import type {Action, ExtensionAuto} from '../../../core';
-import {vAction} from './const';
-import {addVideo} from './actions';
-import {VideoService} from './VideoSpecs/md-video';
+
 import {VideoSpecs, VideoSpecsOptions} from './VideoSpecs';
+import {VideoService} from './VideoSpecs/md-video';
+import {addVideo} from './actions';
+import {vAction} from './const';
 
 export {videoNodeName, videoType} from './VideoSpecs';
 

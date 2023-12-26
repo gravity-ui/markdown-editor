@@ -4,9 +4,11 @@
 
 import MarkdownIt from 'markdown-it';
 import * as builder from 'prosemirror-test-builder';
+
 import {createMarkupChecker} from '../../../tests/sameMarkup';
 import type {Parser} from '../types/parser';
 import type {SerializerNodeToken} from '../types/serializer';
+
 import {MarkdownParser} from './MarkdownParser';
 import {MarkdownSerializer} from './MarkdownSerializer';
 

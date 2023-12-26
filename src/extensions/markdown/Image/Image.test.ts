@@ -1,8 +1,10 @@
 import {builders} from 'prosemirror-test-builder';
+
 import {createMarkupChecker} from '../../../../tests/sameMarkup';
 import {ExtensionsManager} from '../../../core';
 import {BaseNode, BaseSpecsPreset} from '../../base/specs';
-import {ImageAttr, imageNodeName, ImageSpecs} from './ImageSpecs';
+
+import {ImageAttr, ImageSpecs, imageNodeName} from './ImageSpecs';
 
 const {schema, parser, serializer} = new ExtensionsManager({
     extensions: (builder) => builder.use(BaseSpecsPreset, {}).use(ImageSpecs),

@@ -2,8 +2,10 @@ import {keymap} from 'prosemirror-keymap';
 import {Fragment} from 'prosemirror-model';
 import {Command, TextSelection} from 'prosemirror-state';
 import {findParentNodeOfType} from 'prosemirror-utils';
+
 import {isWholeSelection} from '../../../utils/selection';
 import {pType} from '../../base/BaseSchema';
+
 import {checkboxInputType, checkboxLabelType, checkboxType} from './utils';
 
 export const splitCheckbox: (replaceWithParagraph?: boolean) => Command =

@@ -1,26 +1,23 @@
-import type {PluginWithParams} from 'markdown-it/lib';
-
+import anchors from '@diplodoc/transform/lib/plugins/anchors';
+import checkbox from '@diplodoc/transform/lib/plugins/checkbox';
+import code from '@diplodoc/transform/lib/plugins/code';
+import cut from '@diplodoc/transform/lib/plugins/cut';
+import deflist from '@diplodoc/transform/lib/plugins/deflist';
 import file from '@diplodoc/transform/lib/plugins/file';
 import imsize from '@diplodoc/transform/lib/plugins/imsize';
-
-import sub from 'markdown-it-sub';
-import ins from 'markdown-it-ins';
-import mark from 'markdown-it-mark';
-import color from 'markdown-it-color';
-import math from 'markdown-it-katex';
-
 import meta from '@diplodoc/transform/lib/plugins/meta';
-import checkbox from '@diplodoc/transform/lib/plugins/checkbox';
-import deflist from '@diplodoc/transform/lib/plugins/deflist';
-import anchors from '@diplodoc/transform/lib/plugins/anchors';
-import cut from '@diplodoc/transform/lib/plugins/cut';
-import notes from '@diplodoc/transform/lib/plugins/notes';
-import tabs from '@diplodoc/transform/lib/plugins/tabs';
-import code from '@diplodoc/transform/lib/plugins/code';
-import sup from '@diplodoc/transform/lib/plugins/sup';
-import video from '@diplodoc/transform/lib/plugins/video';
 import monospace from '@diplodoc/transform/lib/plugins/monospace';
+import notes from '@diplodoc/transform/lib/plugins/notes';
+import sup from '@diplodoc/transform/lib/plugins/sup';
 import yfmTable from '@diplodoc/transform/lib/plugins/table';
+import tabs from '@diplodoc/transform/lib/plugins/tabs';
+import video from '@diplodoc/transform/lib/plugins/video';
+import type {PluginWithParams} from 'markdown-it/lib';
+import color from 'markdown-it-color';
+import ins from 'markdown-it-ins';
+import math from 'markdown-it-katex';
+import mark from 'markdown-it-mark';
+import sub from 'markdown-it-sub';
 
 const defaultPlugins: PluginWithParams[] = [
     meta,

@@ -1,8 +1,10 @@
 import {Fragment, Node, Schema} from 'prosemirror-model';
 import {Command, TextSelection} from 'prosemirror-state';
 import {findChildrenByType, findParentNodeOfType} from 'prosemirror-utils';
+
 import type {ActionSpec} from '../../../core';
 import {pType} from '../../base/BaseSchema';
+
 import {checkboxInputType, checkboxLabelType, checkboxType} from './utils';
 
 const createCheckbox = (schema: Schema, content?: Fragment | Node | Node[]) =>

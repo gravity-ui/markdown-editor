@@ -1,8 +1,9 @@
-import {findChildTableCells, isTableBodyNode, isTableCellNode} from '../utils';
-import {findChildIndex} from '../helpers';
-import type {CommandWithAttrs} from '../../core';
 import {findChildren, findParentNodeClosestToPos} from 'prosemirror-utils';
+
 import {isTableNode, isTableRowNode} from '..';
+import type {CommandWithAttrs} from '../../core';
+import {findChildIndex} from '../helpers';
+import {findChildTableCells, isTableBodyNode, isTableCellNode} from '../utils';
 
 export const appendColumn: CommandWithAttrs<{
     tablePos: number;
@@ -11,10 +12,8 @@ export const appendColumn: CommandWithAttrs<{
 }> = (state, dispatch, _, attrs) => {
     if (!attrs) return false;
     const {tablePos, columnNumber, direction} = attrs;
-    const parentTable = findParentNodeClosestToPos(
-        state.doc.resolve(tablePos + 1),
-        isTableNode,
-    )?.node;
+    const parentTable = findParentNodeClosestToPos(state.doc.resolve(tablePos + 1), isTableNode)
+        ?.node;
 
     if (!parentTable) return false;
     let parentCell;

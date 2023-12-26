@@ -1,7 +1,9 @@
 import {Slice} from 'prosemirror-model';
 import {AllSelection, TextSelection, Transaction} from 'prosemirror-state';
 import type {EditorView} from 'prosemirror-view';
+
 import type {ContentHandler, MarkupString} from '../common';
+
 import type {Parser} from './types/parser';
 
 export class WysiwygContentHandler implements ContentHandler {

@@ -1,7 +1,8 @@
 import type {Action, ExtensionAuto} from '../../../core';
 import {createToggleMarkAction} from '../../../utils/actions';
 import {markInputRule} from '../../../utils/inputrules';
-import {subscriptMarkName, SubscriptSpecs, subscriptType} from './SubscriptSpecs';
+
+import {SubscriptSpecs, subscriptMarkName, subscriptType} from './SubscriptSpecs';
 
 export {subscriptMarkName, subscriptType} from './SubscriptSpecs';
 /** @deprecated Use `subscriptMarkName` instead */

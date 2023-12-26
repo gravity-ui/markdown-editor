@@ -2,9 +2,10 @@ import isFunction from 'lodash/isFunction';
 import {InputRule} from 'prosemirror-inputrules';
 import {Fragment, Mark, MarkType, Node} from 'prosemirror-model';
 import {EditorState, TextSelection} from 'prosemirror-state';
+
+import {codeType} from '../extensions';
 import {isMarkActive} from '../utils/marks';
 // TODO: remove explicit import from code extension
-import {codeType} from '../extensions';
 
 function getMarksBetween(start: number, end: number, state: EditorState) {
     let marks: {start: number; end: number; mark: Mark}[] = [];

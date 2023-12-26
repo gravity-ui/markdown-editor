@@ -1,5 +1,7 @@
 import {liftListItem, sinkListItem} from 'prosemirror-schema-list';
+
 import type {ActionSpec, ExtensionDeps} from '../../../core';
+
 import {toList} from './commands';
 import {ListNode} from './const';
 import {blType, isIntoListOfType, liType, olType} from './utils';

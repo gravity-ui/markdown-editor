@@ -1,12 +1,12 @@
 import type {ExtensionAuto} from '../../core';
+import {PlaceholderOptions} from '../../utils/placeholder';
 
-import {Selection} from './Selection';
-import {Placeholder} from './Placeholder';
+import {Clipboard, ClipboardOptions} from './Clipboard';
 import {Cursor, CursorOptions} from './Cursor';
 import {History, HistoryOptions} from './History';
-import {Clipboard, ClipboardOptions} from './Clipboard';
-import {ReactRendererExtension, ReactRenderer} from './ReactRenderer';
-import {PlaceholderOptions} from '../../utils/placeholder';
+import {Placeholder} from './Placeholder';
+import {ReactRenderer, ReactRendererExtension} from './ReactRenderer';
+import {Selection} from './Selection';
 
 export * from './Cursor';
 export * from './History';

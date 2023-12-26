@@ -1,11 +1,13 @@
 import {setBlockType} from 'prosemirror-commands';
+
 import type {Action, ExtensionAuto, Keymap} from '../../../core';
 import {withLogAction} from '../../../utils/keymap';
-import {headingAction} from './actions';
-import {HeadingAction, HeadingLevel, headingLevelAttr} from './const';
-import {headingRule, hType} from './utils';
-import {resetHeading} from './commands';
+
 import {HeadingSpecs, HeadingSpecsOptions} from './HeadingSpecs';
+import {headingAction} from './actions';
+import {resetHeading} from './commands';
+import {HeadingAction, HeadingLevel, headingLevelAttr} from './const';
+import {hType, headingRule} from './utils';
 
 export {headingNodeName, headingType} from './HeadingSpecs';
 export {HeadingAction} from './const';

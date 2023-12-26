@@ -1,6 +1,8 @@
 import {toggleMark} from 'prosemirror-commands';
 import type {MarkType} from 'prosemirror-model';
+
 import type {ActionSpec} from '../core';
+
 import {isMarkActive} from './marks';
 
 export function createToggleMarkAction(markType: MarkType): ActionSpec {

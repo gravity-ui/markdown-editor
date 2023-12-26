@@ -1,4 +1,5 @@
 import insPlugin from 'markdown-it-ins';
+
 import type {ExtensionAuto} from '../../../../core';
 import {markTypeFactory} from '../../../../utils/schema';
 

@@ -2,9 +2,10 @@ import {Schema} from 'prosemirror-model';
 import {EditorState} from 'prosemirror-state';
 import {builders} from 'prosemirror-test-builder';
 
+import {applyCommand} from '../../../../tests/utils';
+
 import {getSpec} from './YfmTableSpecs/spec';
 import {createYfmTableCommand} from './actions';
-import {applyCommand} from '../../../../tests/utils';
 
 const schema = new Schema({
     nodes: {

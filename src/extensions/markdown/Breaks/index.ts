@@ -1,12 +1,14 @@
+import {chainCommands, exitCode} from 'prosemirror-commands';
 import type {Node, NodeType} from 'prosemirror-model';
 import {TextSelection} from 'prosemirror-state';
-import {chainCommands, exitCode} from 'prosemirror-commands';
-import {logger} from '../../../logger';
+
 import type {ExtensionAuto, Keymap} from '../../../core';
+import {logger} from '../../../logger';
 import {isMac} from '../../../utils/platform';
 import {isTextSelection} from '../../../utils/selection';
-import {BreaksSpecs, BreaksSpecsOptions, hbType, sbType} from './BreaksSpecs';
 import {pType} from '../../base/BaseSchema/BaseSchemaSpecs';
+
+import {BreaksSpecs, BreaksSpecsOptions, hbType, sbType} from './BreaksSpecs';
 
 export {BreaksSpecs, BreakNodeName, hbType, sbType} from './BreaksSpecs';
 

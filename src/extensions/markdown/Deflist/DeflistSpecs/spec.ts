@@ -1,7 +1,10 @@
 import type {NodeSpec} from 'prosemirror-model';
-import type {DeflistSpecsOptions} from './index';
-import {DeflistNode} from './const';
+
 import {PlaceholderOptions} from '../../../../utils/placeholder';
+
+import {DeflistNode} from './const';
+
+import type {DeflistSpecsOptions} from './index';
 
 const DEFAULT_PLACEHOLDERS = {
     Term: 'Definition term',

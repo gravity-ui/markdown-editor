@@ -1,9 +1,12 @@
 import {generateID} from '@diplodoc/transform/lib/plugins/utils';
 import type {Command} from 'prosemirror-state';
-import {tabPanelType, tabsListType, tabsType, tabType} from '.';
+
 import {pType} from '../../base/BaseSchema';
-import {tabActiveClassname, tabPanelActiveClassname} from './const';
+
 import {TabAttrs, TabPanelAttrs, TabsAttrs} from './YfmTabsSpecs/const';
+import {tabActiveClassname, tabPanelActiveClassname} from './const';
+
+import {tabPanelType, tabType, tabsListType, tabsType} from '.';
 
 export const createYfmTabsCommand: Command = (state, dispatch) => {
     if (dispatch) {

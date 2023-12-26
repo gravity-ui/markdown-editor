@@ -1,7 +1,8 @@
 import React from 'react';
 
 import {cn} from '../classname';
-import {ToolbarGroupData, ToolbarButtonGroup} from './ToolbarGroup';
+
+import {ToolbarButtonGroup, ToolbarGroupData} from './ToolbarGroup';
 import {ToolbarBaseProps} from './types';
 
 import './Toolbar.scss';

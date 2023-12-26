@@ -1,4 +1,5 @@
 import {EditorView} from 'prosemirror-view';
+
 import {tabPanelType} from '.';
 
 export const atEndOfPanel = (view?: EditorView) => {

@@ -1,9 +1,10 @@
 import type {Action, ExtensionAuto} from '../../../core';
 import {goToNextCell} from '../../../table-utils';
+
 import {TableSpecs} from './TableSpecs';
 import {createTableAction, deleteTableAction} from './actions';
-import * as TableHelpers from './helpers';
 import * as TableActions from './actions';
+import * as TableHelpers from './helpers';
 
 export {TableHelpers, TableActions};
 export {TableNode, TableAttrs, CellAlign as TableCellAlign} from './const';

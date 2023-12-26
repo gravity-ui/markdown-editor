@@ -1,6 +1,8 @@
-import {i18n} from '../../i18n/menubar';
-import {i18n as i18nHint} from '../../i18n/hints';
 import type {ActionStorage} from '../../core';
+import {i18n as i18nHint} from '../../i18n/hints';
+import {i18n} from '../../i18n/menubar';
+import {icons} from '../../icons';
+import {Action as A, formatter as f} from '../../shortcuts';
 import type {ToolbarData} from '../Toolbar';
 import type {ToolbarGroupData} from '../ToolbarGroup';
 import type {ToolbarListButtonData} from '../ToolbarListButton';
@@ -10,9 +12,7 @@ import {
     type ToolbarItemData,
     type ToolbarSingleItemData,
 } from '../types';
-import {Action as A, formatter as f} from '../../shortcuts';
 
-import {icons} from '../../icons';
 import {ActionName} from './action-names';
 
 export type WToolbarData = ToolbarData<ActionStorage>;

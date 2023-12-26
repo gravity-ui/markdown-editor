@@ -1,5 +1,6 @@
 import sanitize from '@diplodoc/transform/lib/sanitize';
 import type {NodeSpec} from 'prosemirror-model';
+
 import {HtmlAttr, HtmlNode} from './const';
 
 enum DomAttr {

@@ -1,5 +1,5 @@
 import type {Node, NodeType, ResolvedPos} from 'prosemirror-model';
-import {Selection, TextSelection, NodeSelection, AllSelection} from 'prosemirror-state';
+import {AllSelection, NodeSelection, Selection, TextSelection} from 'prosemirror-state';
 
 NodeSelection.prototype.selectionName = 'NodeSelection';
 TextSelection.prototype.selectionName = 'TextSelection';

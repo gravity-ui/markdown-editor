@@ -1,4 +1,5 @@
 import subPlugin from 'markdown-it-sub';
+
 import type {ExtensionAuto} from '../../../../core';
 import {markTypeFactory} from '../../../../utils/schema';
 

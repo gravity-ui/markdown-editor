@@ -1,11 +1,13 @@
 import {builders} from 'prosemirror-test-builder';
-import {createMarkupChecker} from '../../../../tests/sameMarkup';
+
 import {parseDOM} from '../../../../tests/parse-dom';
+import {createMarkupChecker} from '../../../../tests/sameMarkup';
 import {ExtensionsManager} from '../../../core';
 import {BaseNode, BaseSpecsPreset} from '../../base/specs';
-import {boldMarkName, BoldSpecs} from '../Bold/BoldSpecs';
+import {BoldSpecs, boldMarkName} from '../Bold/BoldSpecs';
+
 import {HeadingSpecs} from './HeadingSpecs';
-import {headingNodeName, headingLevelAttr} from './const';
+import {headingLevelAttr, headingNodeName} from './const';
 
 const {schema, parser, serializer} = new ExtensionsManager({
     extensions: (builder) => builder.use(BaseSpecsPreset, {}).use(HeadingSpecs, {}).use(BoldSpecs),

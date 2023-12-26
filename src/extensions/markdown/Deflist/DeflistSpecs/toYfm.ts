@@ -1,4 +1,5 @@
 import type {SerializerNodeToken} from '../../../../core';
+
 import {DeflistNode} from './const';
 
 export const toYfm: Record<DeflistNode, SerializerNodeToken> = {

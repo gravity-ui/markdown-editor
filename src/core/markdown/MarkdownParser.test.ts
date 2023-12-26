@@ -1,8 +1,9 @@
 import MarkdownIt from 'markdown-it';
 import type {Node} from 'prosemirror-model';
-import {schema, doc, p, br as hardBreak} from 'prosemirror-test-builder';
+import {doc, br as hardBreak, p, schema} from 'prosemirror-test-builder';
 
 import type {Parser} from '../types/parser';
+
 import {MarkdownParser} from './MarkdownParser';
 
 const md = MarkdownIt('commonmark', {html: false, breaks: true});

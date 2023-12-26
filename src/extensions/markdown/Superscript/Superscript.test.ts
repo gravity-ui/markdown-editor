@@ -1,9 +1,11 @@
 import {builders} from 'prosemirror-test-builder';
-import {createMarkupChecker} from '../../../../tests/sameMarkup';
+
 import {parseDOM} from '../../../../tests/parse-dom';
+import {createMarkupChecker} from '../../../../tests/sameMarkup';
 import {ExtensionsManager} from '../../../core';
 import {BaseNode, BaseSpecsPreset} from '../../base/specs';
-import {superscriptMarkName, SuperscriptSpecs} from './SuperscriptSpecs';
+
+import {SuperscriptSpecs, superscriptMarkName} from './SuperscriptSpecs';
 
 const {schema, parser, serializer} = new ExtensionsManager({
     extensions: (builder) => builder.use(BaseSpecsPreset, {}).use(SuperscriptSpecs),

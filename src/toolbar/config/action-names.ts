@@ -32,9 +32,12 @@ const names = [
 
 type ItemsType<L extends readonly string[]> = L extends readonly (infer T)[] ? T : never;
 
-const namesObj = names.reduce<Record<ItemsType<typeof names>, string>>((obj, val) => {
-    obj[val] = val;
-    return obj;
-}, {} as Record<ItemsType<typeof names>, string>);
+const namesObj = names.reduce<Record<ItemsType<typeof names>, string>>(
+    (obj, val) => {
+        obj[val] = val;
+        return obj;
+    },
+    {} as Record<ItemsType<typeof names>, string>,
+);
 
 export const ActionName: Readonly<typeof namesObj> = namesObj;

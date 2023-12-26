@@ -1,9 +1,10 @@
 import type {ExtensionAuto} from '../../../../core';
 import {nodeTypeFactory} from '../../../../utils/schema';
+
 import {ListNode} from './const';
 import {fromYfm} from './fromYfm';
-import {toYfm} from './toYfm';
 import {spec} from './spec';
+import {toYfm} from './toYfm';
 
 export {ListNode} from './const';
 export const liType = nodeTypeFactory(ListNode.ListItem);

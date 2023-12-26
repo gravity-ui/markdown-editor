@@ -1,11 +1,12 @@
 import {Command, TextSelection} from 'prosemirror-state';
+
 import {
     atEndOfCell,
-    findChildTableRows,
     findChildTableCells,
+    findChildTableRows,
     findParentTable,
-    findParentTableRow,
     findParentTableCell,
+    findParentTableRow,
 } from '../../../../table-utils';
 import {isTextSelection} from '../../../../utils/selection';
 import {

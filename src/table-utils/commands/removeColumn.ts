@@ -1,8 +1,9 @@
 import {Fragment} from 'prosemirror-model';
 import type {Command} from 'prosemirror-state';
-import {findChildTableRows, findChildTableCells} from '../utils';
 import {findParentNodeClosestToPos} from 'prosemirror-utils';
+
 import {isTableNode} from '..';
+import {findChildTableCells, findChildTableRows} from '../utils';
 
 export const removeColumn: Command = (
     state,
@@ -14,10 +15,8 @@ export const removeColumn: Command = (
 
     if (tablePos === undefined || columnNumber === undefined) return false;
 
-    const tableNode = findParentNodeClosestToPos(
-        state.doc.resolve(tablePos + 1),
-        isTableNode,
-    )?.node;
+    const tableNode = findParentNodeClosestToPos(state.doc.resolve(tablePos + 1), isTableNode)
+        ?.node;
 
     if (!tableNode) return false;
 

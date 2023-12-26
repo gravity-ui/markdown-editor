@@ -1,10 +1,11 @@
 import {Fragment, Node} from 'prosemirror-model';
 import type {Command} from 'prosemirror-state';
+
 import {
     findParentTable,
     findParentTableBody,
-    findParentTableRow,
     findParentTableCell,
+    findParentTableRow,
 } from '../utils';
 
 export const transpose: Command = (state, dispatch) => {

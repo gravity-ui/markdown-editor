@@ -1,5 +1,6 @@
 import {Fragment, Node} from 'prosemirror-model';
 import {findChildren, findParentNodeClosestToPos} from 'prosemirror-utils';
+
 import {findChildTableRows, isTableBodyNode, isTableNode, isTableRowNode} from '..';
 import type {CommandWithAttrs} from '../../core';
 
@@ -11,10 +12,8 @@ export const appendRow: CommandWithAttrs<{
     if (!attrs) return false;
     const {tablePos, rowNumber, direction} = attrs;
 
-    const tableNode = findParentNodeClosestToPos(
-        state.doc.resolve(tablePos + 1),
-        isTableNode,
-    )?.node;
+    const tableNode = findParentNodeClosestToPos(state.doc.resolve(tablePos + 1), isTableNode)
+        ?.node;
 
     if (!tableNode) return false;
 

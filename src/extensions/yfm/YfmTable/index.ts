@@ -1,11 +1,13 @@
 import {Plugin} from 'prosemirror-state';
-import {goToNextCell} from '../../../table-utils';
+
 import type {Action, ExtensionWithOptions} from '../../../core';
-import {createYfmTable} from './actions';
-import {goToNextRow} from './commands/goToNextRow';
-import {backspaceCommand} from './commands/backspace';
-import {fixPastedTableBodies} from './paste';
+import {goToNextCell} from '../../../table-utils';
+
 import {YfmTableSpecs, YfmTableSpecsOptions} from './YfmTableSpecs';
+import {createYfmTable} from './actions';
+import {backspaceCommand} from './commands/backspace';
+import {goToNextRow} from './commands/goToNextRow';
+import {fixPastedTableBodies} from './paste';
 
 const action = 'createYfmTable';
 

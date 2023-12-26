@@ -1,13 +1,15 @@
 import {EditorState} from 'prosemirror-state';
-import {EditorView} from 'prosemirror-view';
 import {builders} from 'prosemirror-test-builder';
-import {createMarkupChecker} from '../../../../tests/sameMarkup';
+import {EditorView} from 'prosemirror-view';
+
 import {dispatchPasteEvent} from '../../../../tests/dispatch-event';
 import {parseDOM} from '../../../../tests/parse-dom';
+import {createMarkupChecker} from '../../../../tests/sameMarkup';
 import {ExtensionsManager} from '../../../core';
 import {BaseNode, BaseSpecsPreset} from '../../base/specs';
-import {blockquoteNodeName, BlockquoteSpecs} from '../../markdown/Blockquote/BlockquoteSpecs';
-import {YfmTableSpecs, YfmTableNode} from './YfmTableSpecs';
+import {BlockquoteSpecs, blockquoteNodeName} from '../../markdown/Blockquote/BlockquoteSpecs';
+
+import {YfmTableNode, YfmTableSpecs} from './YfmTableSpecs';
 import {fixPastedTableBodies} from './paste';
 
 const {schema, parser, serializer} = new ExtensionsManager({

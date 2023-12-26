@@ -1,4 +1,5 @@
 import type {Fragment, Mark, Node} from 'prosemirror-model';
+
 import type {MarkdownSerializerState as SerializerState} from '../markdown/MarkdownSerializer';
 
 export type {MarkdownSerializerState as SerializerState} from '../markdown/MarkdownSerializer';

@@ -1,8 +1,9 @@
 import type {ExtensionAuto} from '../../../../core';
-import {fromYfm} from './fromYfm';
-import {toYfm} from './toYfm';
-import {spec} from './spec';
+
 import {TableNode} from './const';
+import {fromYfm} from './fromYfm';
+import {spec} from './spec';
+import {toYfm} from './toYfm';
 
 export {TableNode} from './const';
 

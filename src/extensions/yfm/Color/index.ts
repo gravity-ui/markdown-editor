@@ -1,8 +1,10 @@
 import {toggleMark} from 'prosemirror-commands';
+
 import type {Action, ExtensionAuto} from '../../../core';
 import {isMarkActive} from '../../../utils/marks';
+
 import {ColorSpecs, colorType} from './ColorSpecs';
-import {colorAction, colorMarkName, Colors} from './const';
+import {Colors, colorAction, colorMarkName} from './const';
 import {chainAND, parseStyleColorValue, validateClassNameColorName} from './utils';
 
 import './colors.scss';

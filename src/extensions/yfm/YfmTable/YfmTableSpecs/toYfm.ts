@@ -1,4 +1,5 @@
 import type {SerializerNodeToken} from '../../../../core';
+
 import {YfmTableNode} from './const';
 
 export const toYfm: Record<YfmTableNode, SerializerNodeToken> = {

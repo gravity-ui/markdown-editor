@@ -1,20 +1,20 @@
 import {Node} from 'prosemirror-model';
-import {EditorState, TextSelection, Transaction, Selection, Command} from 'prosemirror-state';
+import {Command, EditorState, Selection, TextSelection, Transaction} from 'prosemirror-state';
 import {builders} from 'prosemirror-test-builder';
 
 import {ExtensionsManager} from '../core';
-import {get$Cursor, isNodeSelection} from '../utils/selection';
 import {BaseNode, BaseSpecsPreset} from '../extensions/base/specs';
 import {
-    blockquoteNodeName,
     BlockquoteSpecs,
-    isBlockqouteNode,
     DeflistNode,
     DeflistSpecs,
+    Html,
     HtmlAttr,
     HtmlNode,
-    Html,
+    blockquoteNodeName,
+    isBlockqouteNode,
 } from '../extensions/markdown/specs';
+import {get$Cursor, isNodeSelection} from '../utils/selection';
 
 import {joinPreviousBlock} from './join';
 

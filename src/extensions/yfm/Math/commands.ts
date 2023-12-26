@@ -1,5 +1,7 @@
 import {Command, NodeSelection, TextSelection} from 'prosemirror-state';
+
 import {get$Cursor} from '../../../utils/selection';
+
 import {mathIType} from './const';
 
 export const ignoreIfCursorInsideMathInline: Command = ({selection, schema}) => {

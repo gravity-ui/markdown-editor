@@ -1,5 +1,7 @@
 import type {HotkeyProps, IconProps} from '@gravity-ui/uikit';
+
 import type {ClassNameProps} from '../classname';
+
 import type {ToolbarListButtonData} from './ToolbarListButton';
 
 export type ToolbarBaseProps<E> = ClassNameProps & {

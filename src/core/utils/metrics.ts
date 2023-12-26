@@ -1,4 +1,5 @@
 import type {Transaction} from 'prosemirror-state';
+
 import {logger} from '../../logger';
 
 const METRICS_KEY = 'metrics';

@@ -1,7 +1,8 @@
 import type {Action, ExtensionAuto} from '../../../core';
-import {addImage, AddImageAttrs} from './actions';
-import {addImageAction} from './const';
+
 import {ImageSpecs, imageType} from './ImageSpecs';
+import {AddImageAttrs, addImage} from './actions';
+import {addImageAction} from './const';
 
 export {imageNodeName, imageType, ImageAttr} from './ImageSpecs';
 /** @deprecated Use `imageType` instead */

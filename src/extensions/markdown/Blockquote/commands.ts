@@ -1,10 +1,11 @@
-import type {ResolvedPos} from 'prosemirror-model';
 import {lift, wrapIn} from 'prosemirror-commands';
+import type {ResolvedPos} from 'prosemirror-model';
 import type {Command} from 'prosemirror-state';
 
-import '../../../types/spec';
 import {joinPreviousBlock} from '../../../commands/join';
+import '../../../types/spec';
 import {get$CursorAtBlockStart, isTextSelection} from '../../../utils/selection';
+
 import {bqType, isBlockqouteNode} from './const';
 
 export const liftFromQuote: Command = (state, dispatch) => {

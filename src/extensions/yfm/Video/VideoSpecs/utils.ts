@@ -1,6 +1,8 @@
 import type {Node} from 'prosemirror-model';
+
 import {nodeTypeFactory} from '../../../../utils/schema';
-import {videoNodeName, VideoAttr} from './const';
+
+import {VideoAttr, videoNodeName} from './const';
 
 export const videoType = nodeTypeFactory(videoNodeName);
 

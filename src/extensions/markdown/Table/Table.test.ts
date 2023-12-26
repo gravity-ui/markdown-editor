@@ -1,11 +1,13 @@
 import {builders} from 'prosemirror-test-builder';
-import {createMarkupChecker} from '../../../../tests/sameMarkup';
+
 import {parseDOM} from '../../../../tests/parse-dom';
+import {createMarkupChecker} from '../../../../tests/sameMarkup';
 import {ExtensionsManager} from '../../../core';
 import {BaseNode, BaseSpecsPreset} from '../../base/specs';
-import {blockquoteNodeName, BlockquoteSpecs} from '../Blockquote/BlockquoteSpecs';
-import {CellAlign, TableAttrs, TableNode} from './const';
+import {BlockquoteSpecs, blockquoteNodeName} from '../Blockquote/BlockquoteSpecs';
+
 import {TableSpecs} from './TableSpecs';
+import {CellAlign, TableAttrs, TableNode} from './const';
 
 const {schema, parser, serializer} = new ExtensionsManager({
     extensions: (builder) => builder.use(BaseSpecsPreset, {}).use(BlockquoteSpecs).use(TableSpecs),

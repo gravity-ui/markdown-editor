@@ -2,9 +2,9 @@
  * @jest-environment jsdom
  */
 
-import {EditorView} from 'prosemirror-view';
-import {schema} from 'prosemirror-test-builder';
 import {EditorState} from 'prosemirror-state';
+import {schema} from 'prosemirror-test-builder';
+import {EditorView} from 'prosemirror-view';
 
 import {bindActions} from './actions';
 

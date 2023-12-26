@@ -1,5 +1,6 @@
-import {undoInputRule} from 'prosemirror-inputrules';
 import {baseKeymap, joinDown, joinUp, lift, selectParentNode} from 'prosemirror-commands';
+import {undoInputRule} from 'prosemirror-inputrules';
+
 import type {ExtensionAuto} from '../../../core';
 
 /**

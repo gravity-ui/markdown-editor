@@ -1,50 +1,42 @@
-import TabsIcon from './Tabs';
-import MonoIcon from './Mono';
 import {
-    ArrowUturnCcwLeft as UndoIcon,
-    ArrowUturnCwRight as RedoIcon,
-    //
     Bold as BoldIcon,
-    Italic as ItalicIcon,
-    Underline as UnderlineIcon,
-    Strikethrough as StrikethroughIcon,
-    FontCursor as MarkIcon,
-    //
-    Heading as HeadingIcon,
+    SquareCheck as CheckListIcon,
+    FileCode as CodeBlockIcon,
+    Code as CodeInlineIcon,
+    Scissors as CutIcon,
+    CurlyBracketsFunction as FunctionBlockIcon,
+    Function as FunctionInlineIcon,
+    Minus as HRuleIcon,
     Heading1 as Heading1Icon,
     Heading2 as Heading2Icon,
     Heading3 as Heading3Icon,
     Heading4 as Heading4Icon,
     Heading5 as Heading5Icon,
     Heading6 as Heading6Icon,
-    //
+    Heading as HeadingIcon,
+    ChevronsExpandHorizontal as IframeIcon,
+    Picture as ImageIcon,
+    Italic as ItalicIcon,
+    TextOutdent as LiftIcon,
+    Link as LinkIcon,
     ListUl as ListBlIcon,
     ListOl as ListOlIcon,
-    //
-    TextOutdent as LiftIcon,
-    TextIndent as SinkIcon,
-    //
-    Font as TextColorIcon,
-    //
-    Link as LinkIcon,
-    QuoteClose as QuoteIcon,
-    Scissors as CutIcon,
+    FontCursor as MarkIcon,
     Sticker as NoteIcon,
-    Minus as HRuleIcon,
-    //
+    QuoteClose as QuoteIcon,
+    ArrowUturnCwRight as RedoIcon,
+    TextIndent as SinkIcon,
+    Strikethrough as StrikethroughIcon,
     LayoutList as TableIcon,
-    //
-    ChevronsExpandHorizontal as IframeIcon,
-    SquareCheck as CheckListIcon,
-    Picture as ImageIcon,
-    //
-    Code as CodeInlineIcon,
-    FileCode as CodeBlockIcon,
-    //
-    Function as FunctionInlineIcon,
-    CurlyBracketsFunction as FunctionBlockIcon,
+    Font as TextColorIcon,
+    Underline as UnderlineIcon,
+    ArrowUturnCcwLeft as UndoIcon,
 } from '@gravity-ui/icons';
+
 import {ToolbarIconData} from '../toolbar';
+
+import MonoIcon from './Mono';
+import TabsIcon from './Tabs';
 
 type Icon =
     | 'undo'

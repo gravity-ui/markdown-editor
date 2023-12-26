@@ -1,8 +1,10 @@
 import {Schema} from 'prosemirror-model';
-import {EditorView} from 'prosemirror-view';
 import {EditorState, TextSelection} from 'prosemirror-state';
 import {builders} from 'prosemirror-test-builder';
+import {EditorView} from 'prosemirror-view';
+
 import {get$Cursor} from '../utils/selection';
+
 import {WysiwygContentHandler} from './ContentHandler';
 import type {Parser} from './types/parser';
 

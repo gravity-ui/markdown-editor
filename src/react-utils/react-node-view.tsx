@@ -1,7 +1,8 @@
 import React from 'react';
-import {createPortal} from 'react-dom';
-import type {NodeView, EditorView, NodeViewConstructor} from 'prosemirror-view';
+
 import type {Node} from 'prosemirror-model';
+import type {EditorView, NodeView, NodeViewConstructor} from 'prosemirror-view';
+import {createPortal} from 'react-dom';
 
 import {ExtensionDeps, Serializer} from '../core';
 import {getReactRendererFromState} from '../extensions';

@@ -1,4 +1,5 @@
 import type {NodeSpec} from 'prosemirror-model';
+
 import type {ExtensionAuto} from '../../../../core';
 import {nodeTypeFactory} from '../../../../utils/schema';
 

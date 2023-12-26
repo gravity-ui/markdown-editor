@@ -1,4 +1,5 @@
 import type {Command} from 'prosemirror-state';
+
 import {logger} from '../logger';
 
 export function withLogAction(action: string, command: Command): Command {

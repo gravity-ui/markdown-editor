@@ -4,6 +4,7 @@ import {NodeSpec} from 'prosemirror-model';
 
 import type {ExtensionAuto, YENodeSpec} from '../../../../core';
 import {nodeTypeFactory} from '../../../../utils/schema';
+
 import {TabsNode} from './const';
 import {fromYfm} from './fromYfm';
 import {getSpec} from './spec';

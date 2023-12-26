@@ -1,4 +1,4 @@
-import type {Match} from 'linkify-it';
+import type {Match} from 'linkify-it'; // eslint-disable-line import/no-extraneous-dependencies
 import type Token from 'markdown-it/lib/token';
 import type {Node} from 'prosemirror-model';
 

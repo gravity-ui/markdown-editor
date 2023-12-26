@@ -1,7 +1,7 @@
 import {Schema} from 'prosemirror-model';
-import {EditorView} from 'prosemirror-view';
 import {EditorState, TextSelection} from 'prosemirror-state';
 import {builders} from 'prosemirror-test-builder';
+import {EditorView} from 'prosemirror-view';
 
 import {getSpec} from './YfmCutSpecs/spec';
 import {backToCutTitle, removeCut} from './commands';

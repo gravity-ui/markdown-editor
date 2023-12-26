@@ -1,20 +1,20 @@
 import {chainCommands, setBlockType} from 'prosemirror-commands';
-import {hasParentNodeOfType} from 'prosemirror-utils';
-import {Command, TextSelection} from 'prosemirror-state';
 import {textblockTypeInputRule} from 'prosemirror-inputrules';
+import {Command, TextSelection} from 'prosemirror-state';
+import {hasParentNodeOfType} from 'prosemirror-utils';
 
 import type {Action, ExtensionAuto} from '../../../core';
-import {isTextSelection} from '../../../utils/selection';
 import {inlineNodeInputRule} from '../../../utils/inputrules';
+import {isTextSelection} from '../../../utils/selection';
 
 import {MathSpecs} from './MathSpecs';
-import {mathViewAndEditPlugin} from './view-and-edit';
-import {mathBType, mathIType} from './const';
 import {
     ignoreIfCursorInsideMathInline,
     moveCursorToEndOfMathInline,
     removeEmptyMathInlineIfCursorIsAtBeginning,
 } from './commands';
+import {mathBType, mathIType} from './const';
+import {mathViewAndEditPlugin} from './view-and-edit';
 
 import './index.scss';
 

@@ -1,7 +1,8 @@
 import type MarkdownIt from 'markdown-it';
 import type {Schema} from 'prosemirror-model';
-import type {Parser, ParserToken} from './types/parser';
+
 import {MarkdownParser} from './markdown/MarkdownParser';
+import type {Parser, ParserToken} from './types/parser';
 
 export class ParserTokensRegistry {
     #tokens: Record<string, ParserToken> = {};

@@ -1,12 +1,14 @@
 import {chainCommands} from 'prosemirror-commands';
 import {liftListItem, sinkListItem, splitListItem} from 'prosemirror-schema-list';
+
 import type {Action, ExtensionAuto, Keymap} from '../../../core';
 import {withLogAction} from '../../../utils/keymap';
+
+import {ListsSpecs, blType, liType, olType} from './ListsSpecs';
 import {actions} from './actions';
+import {joinPrevList, liftIfCursorIsAtBeginningOfItem, toList} from './commands';
 import {ListAction} from './const';
 import {ListsInputRulesExtension, ListsInputRulesOptions} from './inputrules';
-import {ListsSpecs, blType, liType, olType} from './ListsSpecs';
-import {liftIfCursorIsAtBeginningOfItem, toList, joinPrevList} from './commands';
 
 export {ListNode, blType, liType, olType} from './ListsSpecs';
 

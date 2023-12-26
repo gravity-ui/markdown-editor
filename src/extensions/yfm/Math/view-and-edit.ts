@@ -1,16 +1,18 @@
 import katex from 'katex';
-import {Plugin} from 'prosemirror-state';
-import type {Node} from 'prosemirror-model';
 import {keydownHandler} from 'prosemirror-keymap';
+import type {Node} from 'prosemirror-model';
+import {Plugin} from 'prosemirror-state';
 import {Decoration, DecorationSet, NodeView} from 'prosemirror-view';
-import {isTextSelection} from '../../../utils/selection';
+
 import type {ReactRenderer, RendererItem} from '../../../extensions/behavior/ReactRenderer';
+import {isTextSelection} from '../../../utils/selection';
+
 import {moveCursorToEndOfMathInline} from './commands';
 import {CLASSNAMES, MathNode} from './const';
 import {b, renderMathHint} from './hint';
 
-import 'katex/dist/katex.min.css';
-import './view-and-edit.scss';
+import 'katex/dist/katex.min.css'; // eslint-disable-line import/no-extraneous-dependencies
+import './view-and-edit.scss'; // eslint-disable-line import/order
 
 export abstract class MathNodeView implements NodeView {
     dom: HTMLElement;

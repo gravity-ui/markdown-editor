@@ -1,32 +1,33 @@
 import React from 'react';
-import block from 'bem-cn-lite';
-import {useUpdate} from 'react-use';
+
 import {Button, RadioButton, TextArea} from '@gravity-ui/uikit';
+import block from 'bem-cn-lite'; // eslint-disable-line import/no-extraneous-dependencies
+import {useUpdate} from 'react-use';
 
 import {
     BaseNode,
     BasePreset,
     BehaviorPreset,
+    Extension,
+    FlexToolbar,
     MarkdownBlocksPreset,
     MarkdownMarksPreset,
     MarkupString,
-    YfmEditorComponent,
-    useYfmEditor,
-    YfmPreset,
-    Extension,
     ReactRenderStorage,
     ReactRendererComponent,
-    FlexToolbar,
+    YfmEditorComponent,
+    YfmPreset,
+    logger,
+    useYfmEditor,
 } from '../src';
 import {wHiddenData, wToolbarConfig} from '../src/toolbar/config/wysiwyg';
 
 import {PlaygroundHtmlPreview} from './HtmlPreview';
-import {ProseMirrorDevTools} from './ProseMirrorDevTools';
 import {PMSelection} from './PMSelection';
-import {logger} from '../src/index';
+import {ProseMirrorDevTools} from './ProseMirrorDevTools';
+import {keys} from './keys';
 
 import './Playground.scss';
-import {keys} from './keys';
 
 const b = block('playground');
 

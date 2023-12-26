@@ -1,7 +1,9 @@
 import isNumber from 'is-number';
 import type {Schema} from 'prosemirror-model';
+
 import type {ActionSpec} from '../../../core';
 import {AddImageAttrs as AddImageAttrsBase, imgType} from '../../markdown/Image';
+
 import {ImgSizeAttr} from './const';
 
 export type AddImageAttrs = AddImageAttrsBase & {

@@ -1,4 +1,5 @@
 import type {ExtensionAuto} from '../../../core';
+
 import {selection} from './selection';
 
 export {

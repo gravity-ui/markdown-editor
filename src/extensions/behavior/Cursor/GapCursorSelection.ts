@@ -1,5 +1,5 @@
-import {Selection} from 'prosemirror-state';
 import type {Node, ResolvedPos} from 'prosemirror-model';
+import {Selection} from 'prosemirror-state';
 import type {Mapping} from 'prosemirror-transform';
 
 export function isGapCursorSelection<T>(selection: Selection): selection is GapCursorSelection<T> {

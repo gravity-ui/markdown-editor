@@ -1,9 +1,10 @@
 import {Fragment} from 'prosemirror-model';
 import type {Command} from 'prosemirror-state';
 import {findChildren, findParentNodeClosestToPos} from 'prosemirror-utils';
+
+import {findChildTableBody, isTableNode, isTableRowNode} from '..';
 import {trackTransactionMetrics} from '../../core';
 import {findChildTableRows} from '../utils';
-import {findChildTableBody, isTableNode, isTableRowNode} from '..';
 
 export const removeRow: Command = (
     state,
@@ -15,10 +16,8 @@ export const removeRow: Command = (
 
     if (tablePos === undefined || rowNumber === undefined) return false;
 
-    const tableNode = findParentNodeClosestToPos(
-        state.doc.resolve(tablePos + 1),
-        isTableNode,
-    )?.node;
+    const tableNode = findParentNodeClosestToPos(state.doc.resolve(tablePos + 1), isTableNode)
+        ?.node;
 
     if (!tableNode) return false;
     const parentRows = findChildren(tableNode, isTableRowNode);
