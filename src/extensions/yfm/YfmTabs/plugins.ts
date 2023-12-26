@@ -1,26 +1,16 @@
+import {generateID} from '@diplodoc/transform/lib/plugins/utils';
+import throttle from 'lodash/throttle';
 import {Command, Plugin, PluginView, TextSelection, Transaction} from 'prosemirror-state';
 import type {Transform} from 'prosemirror-transform';
-import type {EditorView} from 'prosemirror-view';
 import {
+    NodeWithPos,
     findChildren,
     findDomRefAtPos,
     findParentNodeOfType,
     findParentNodeOfTypeClosestToPos,
-    NodeWithPos,
 } from 'prosemirror-utils';
-import {
-    tabActiveClassname,
-    tabInactiveClassname,
-    tabsListType,
-    tabPanelActiveClassname,
-    tabPanelInactiveClassname,
-    tabPanelType,
-    tabsType,
-    tabType,
-} from './const';
-import {findChildIndex} from '../../../table-utils/helpers';
-import {get$Cursor, isTextSelection} from '../../../utils/selection';
-import {generateID} from '@diplodoc/transform/lib/plugins/utils';
+import type {EditorView} from 'prosemirror-view';
+
 import {
     createFakeParagraph,
     findFakeParaPosClosestToPos,
@@ -28,9 +18,21 @@ import {
     isGapCursorSelection,
     pType,
 } from '../../';
-import {atEndOfPanel} from './utils';
+import {findChildIndex} from '../../../table-utils/helpers';
+import {get$Cursor, isTextSelection} from '../../../utils/selection';
+
 import {TabAttrs, TabPanelAttrs} from './YfmTabsSpecs/const';
-import throttle from 'lodash/throttle';
+import {
+    tabActiveClassname,
+    tabInactiveClassname,
+    tabPanelActiveClassname,
+    tabPanelInactiveClassname,
+    tabPanelType,
+    tabType,
+    tabsListType,
+    tabsType,
+} from './const';
+import {atEndOfPanel} from './utils';
 
 export const dragAutoSwitch = () =>
     new Plugin({

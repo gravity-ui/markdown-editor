@@ -1,6 +1,8 @@
 import {builders} from 'prosemirror-test-builder';
+
 import {createMarkupChecker} from '../../../../tests/sameMarkup';
 import {ExtensionsManager} from '../../../core';
+
 import {BaseNode, BaseSchemaSpecs} from './BaseSchemaSpecs';
 
 const {schema, parser, serializer} = new ExtensionsManager({

@@ -1,6 +1,7 @@
 import type {SerializerNodeToken} from '../../../../core';
-import {getPlaceholderContent} from '../../../../utils/placeholder';
 import {isNodeEmpty} from '../../../../utils/nodes';
+import {getPlaceholderContent} from '../../../../utils/placeholder';
+
 import {CutNode} from './const';
 
 export const toYfm: Record<CutNode, SerializerNodeToken> = {

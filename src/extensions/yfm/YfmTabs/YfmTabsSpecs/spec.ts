@@ -1,7 +1,10 @@
 import type {NodeSpec} from 'prosemirror-model';
-import {YfmTabsSpecsOptions} from '.';
-import {TabAttrs, TabPanelAttrs, TabsAttrs, TabsListAttrs, TabsNode} from './const';
+
 import {PlaceholderOptions} from '../../../../utils/placeholder';
+
+import {TabAttrs, TabPanelAttrs, TabsAttrs, TabsListAttrs, TabsNode} from './const';
+
+import {YfmTabsSpecsOptions} from '.';
 
 const DEFAULT_PLACEHOLDERS = {
     TabTitle: 'Tab title',

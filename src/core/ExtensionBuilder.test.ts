@@ -1,4 +1,5 @@
 import {Plugin} from 'prosemirror-state';
+
 import {ExtensionBuilder} from './ExtensionBuilder';
 import type {ExtensionDeps, YEMarkSpec} from './types/extension';
 

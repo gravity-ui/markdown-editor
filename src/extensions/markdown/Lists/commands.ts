@@ -1,9 +1,11 @@
 import type {NodeType} from 'prosemirror-model';
-import type {Command} from 'prosemirror-state';
 import {liftListItem, wrapInList} from 'prosemirror-schema-list';
-import {findAnyParentList, isListItemNode, isListNode, isListOrItemNode, liType} from './utils';
-import {get$CursorAtBlockStart} from '../../../utils/selection';
+import type {Command} from 'prosemirror-state';
+
 import {joinPreviousBlock} from '../../../commands/join';
+import {get$CursorAtBlockStart} from '../../../utils/selection';
+
+import {findAnyParentList, isListItemNode, isListNode, isListOrItemNode, liType} from './utils';
 
 export function toList(listType: NodeType): Command {
     return (state, dispatch) => {

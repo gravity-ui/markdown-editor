@@ -1,13 +1,15 @@
 import React from 'react';
-import {useMeasure} from 'react-use';
+
 import {Ellipsis} from '@gravity-ui/icons';
+import {useMeasure} from 'react-use';
 
 import {cn} from '../classname';
+import {logger} from '../logger';
+import {useRenderTime} from '../react-utils/hooks';
+
 import {Toolbar, ToolbarProps} from './Toolbar';
 import {ToolbarListButton} from './ToolbarListButton';
 import {shrinkToolbarData} from './flexible';
-import {logger} from '../logger';
-import {useRenderTime} from '../react-utils/hooks';
 import {ToolbarDataType, ToolbarItemData} from './types';
 
 import './FlexToolbar.scss';

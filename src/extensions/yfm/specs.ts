@@ -2,12 +2,12 @@ import type {ExtensionAuto} from '../../core';
 
 import {CheckboxSpecs, CheckboxSpecsOptions} from './Checkbox/CheckboxSpecs';
 import {ColorSpecs, ColorSpecsOptions} from './Color/ColorSpecs';
+import {ImgSizeSpecs, ImgSizeSpecsOptions} from './ImgSize/ImgSizeSpecs';
 import {MathSpecs} from './Math/MathSpecs';
 import {MonospaceSpecs} from './Monospace/MonospaceSpecs';
-import {ImgSizeSpecs, ImgSizeSpecsOptions} from './ImgSize/ImgSizeSpecs';
 import {VideoSpecs, VideoSpecsOptions} from './Video/VideoSpecs';
-import {YfmDistSpecs} from './YfmDist/YfmDistSpecs';
 import {YfmCutSpecs, YfmCutSpecsOptions} from './YfmCut/YfmCutSpecs';
+import {YfmDistSpecs} from './YfmDist/YfmDistSpecs';
 import {YfmFileSpecs} from './YfmFile/YfmFileSpecs';
 import {YfmHeadingSpecs, YfmHeadingSpecsOptions} from './YfmHeading/YfmHeadingSpecs';
 import {YfmNoteSpecs, YfmNoteSpecsOptions} from './YfmNote/YfmNoteSpecs';

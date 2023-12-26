@@ -1,5 +1,7 @@
 import type {Command} from 'prosemirror-state';
+
 import {toParagraph} from '../../base/BaseSchema';
+
 import {hType} from './utils';
 
 export const resetHeading: Command = (state, dispatch, view) => {

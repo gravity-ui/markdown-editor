@@ -1,6 +1,7 @@
-import {Command, TextSelection} from 'prosemirror-state';
 import {chainCommands} from 'prosemirror-commands';
-import {isNodeSelection, isTextSelection} from '../../../../utils/selection';
+import {Node} from 'prosemirror-model';
+import {Command, TextSelection} from 'prosemirror-state';
+
 import {
     findChildTableCells,
     findChildTableRows,
@@ -10,7 +11,7 @@ import {
     isTableCellNode,
     isTableRowNode,
 } from '../../../../table-utils';
-import {Node} from 'prosemirror-model';
+import {isNodeSelection, isTextSelection} from '../../../../utils/selection';
 
 const removeCellNodeContent: Command = (state, dispatch) => {
     const sel = state.selection;

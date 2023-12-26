@@ -4,6 +4,7 @@ import type {NodeSpec} from 'prosemirror-model';
 
 import type {ExtensionAuto, YENodeSpec} from '../../../../core';
 import {nodeTypeFactory} from '../../../../utils/schema';
+
 import {CutNode} from './const';
 import {fromYfm} from './fromYfm';
 import {getSpec} from './spec';

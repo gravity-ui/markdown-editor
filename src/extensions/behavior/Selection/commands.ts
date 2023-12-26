@@ -4,7 +4,6 @@ import {Selection} from 'prosemirror-state';
 
 import {isCodeBlock} from '../../../utils/nodes';
 import {isNodeSelection, isTextSelection} from '../../../utils/selection';
-
 import {GapCursorSelection, isGapCursorSelection} from '../Cursor/GapCursorSelection';
 
 export type Direction = 'before' | 'after';

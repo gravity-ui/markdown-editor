@@ -1,13 +1,15 @@
 import type {NodeType} from 'prosemirror-model';
 import type {Command, Selection} from 'prosemirror-state';
+
 import type {Action, ExtensionAuto} from '../../../core';
 import {nodeInputRule} from '../../../utils/inputrules';
 import {isNodeSelection} from '../../../utils/selection';
 import {pType} from '../../base/BaseSchema/BaseSchemaSpecs';
+
 import {
+    HorizontalRuleSpecs,
     horizontalRuleMarkupAttr,
     horizontalRuleNodeName,
-    HorizontalRuleSpecs,
     horizontalRuleType,
 } from './HorizontalRuleSpecs';
 

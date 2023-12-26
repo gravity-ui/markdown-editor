@@ -1,7 +1,9 @@
 import type {NodeSpec} from 'prosemirror-model';
-import type {YfmCutSpecsOptions} from './index';
-import {CutNode} from '../const';
+
 import {PlaceholderOptions} from '../../../../utils/placeholder';
+import {CutNode} from '../const';
+
+import type {YfmCutSpecsOptions} from './index';
 
 const DEFAULT_PLACEHOLDERS = {
     Title: 'Cut title',

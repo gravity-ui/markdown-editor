@@ -1,4 +1,5 @@
 import type {Command} from 'prosemirror-state';
+
 import {Colors} from './const';
 
 export {chainCommands as chainOR} from 'prosemirror-commands';

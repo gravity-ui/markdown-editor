@@ -1,4 +1,13 @@
 {
-    "extends": ["@gravity-ui/eslint-config", "@gravity-ui/eslint-config/prettier"],
-    "root": true
+    "root": true,
+    "extends": [
+        "@gravity-ui/eslint-config",
+        "@gravity-ui/eslint-config/a11y",
+        "@gravity-ui/eslint-config/prettier",
+        "@gravity-ui/eslint-config/import-order"
+    ],
+    "plugins": ["lodash"],
+    "rules": {
+        "lodash/import-scope": [2, "method"]
+    }
 }

@@ -1,4 +1,5 @@
 import type {NodeSpec} from 'prosemirror-model';
+
 import {TableRole} from '../../../../table-utils';
 import {CellAlign, TableAttrs, TableNode} from '../const';
 

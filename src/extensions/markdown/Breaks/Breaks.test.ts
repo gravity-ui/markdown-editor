@@ -1,9 +1,11 @@
 import {builders} from 'prosemirror-test-builder';
+
 import {parseDOM} from '../../../../tests/parse-dom';
 import {createMarkupChecker} from '../../../../tests/sameMarkup';
 import {ExtensionsManager} from '../../../core';
 import {BaseNode, BaseSpecsPreset} from '../../base/specs';
 import {BoldSpecs, boldMarkName} from '../../markdown/Bold/BoldSpecs';
+
 import {BreakNodeName, BreaksSpecs} from './BreaksSpecs';
 
 const {schema, parser, serializer} = new ExtensionsManager({

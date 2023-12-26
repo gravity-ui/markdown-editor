@@ -1,11 +1,13 @@
 import {Fragment, Node} from 'prosemirror-model';
 import type {Command} from 'prosemirror-state';
 import {TextSelection} from 'prosemirror-state';
-import {pType} from '../../base';
+
+import {findFirstTextblockChild} from '../../../utils/nodes';
 import {isSameNodeType} from '../../../utils/schema';
 import {isTextSelection} from '../../../utils/selection';
-import {findFirstTextblockChild} from '../../../utils/nodes';
-import {noteType, noteTitleType} from './utils';
+import {pType} from '../../base';
+
+import {noteTitleType, noteType} from './utils';
 
 export const exitFromNoteTitle: Command = (state, dispatch) => {
     const {selection, schema} = state;

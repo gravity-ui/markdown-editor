@@ -1,5 +1,7 @@
 import React, {memo, useEffect} from 'react';
+
 import {useUpdate} from 'react-use';
+
 import {RenderStorage, RenderStorageItem} from './types';
 
 export type RendererProps = {

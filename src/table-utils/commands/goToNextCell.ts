@@ -1,4 +1,5 @@
 import {Command, TextSelection} from 'prosemirror-state';
+
 import {findChildTableCells, findParentTable, findParentTableCell} from '../utils';
 
 export function goToNextCell(dir: 'prev' | 'next'): Command {

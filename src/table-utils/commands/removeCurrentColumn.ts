@@ -1,12 +1,13 @@
 import type {Command} from 'prosemirror-state';
-import {
-    findParentTable,
-    findParentTableRow,
-    findParentTableCell,
-    findChildTableRows,
-    findChildTableCells,
-} from '../utils';
+
 import {findChildIndex} from '../helpers';
+import {
+    findChildTableCells,
+    findChildTableRows,
+    findParentTable,
+    findParentTableCell,
+    findParentTableRow,
+} from '../utils';
 
 export const removeCurrentColumn: Command = (state, dispatch) => {
     const parentCell = findParentTableCell(state.selection);

@@ -1,4 +1,5 @@
 import type Token from 'markdown-it/lib/token';
+
 import type {ParserToken} from '../../../../core';
 import {CellAlign, TableAttrs, TableNode} from '../const';
 

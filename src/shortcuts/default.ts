@@ -1,4 +1,4 @@
-import {Action as A, ModKey as MK, Key as K} from './const';
+import {Action as A, Key as K, ModKey as MK} from './const';
 import {formatter} from './formatter';
 
 /* eslint-disable */

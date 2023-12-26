@@ -1,6 +1,8 @@
 import React from 'react';
+
 import type {EditorView} from 'prosemirror-view';
-import {isTextSelection, isNodeSelection, isWholeSelection, ClassNameProps} from '../src';
+
+import {ClassNameProps, isNodeSelection, isTextSelection, isWholeSelection} from '../src';
 
 export type PMSelectionProps = ClassNameProps & {
     view: EditorView;

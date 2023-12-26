@@ -1,7 +1,10 @@
 import React from 'react';
+
 import transform from '@diplodoc/transform';
+
+import {MarkupString, colorClassName} from '../src';
 import type {ClassNameProps} from '../src/classname';
-import {colorClassName, MarkupString} from '../src';
+
 import {plugins} from './md-plugins';
 
 type PlaygroundHtmlPreviewProps = ClassNameProps & {

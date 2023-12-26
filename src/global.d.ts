@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-duplicate-imports */
-
 declare module 'markdown-it-attrs' {
     import type {PluginWithOptions} from 'markdown-it';
     export type AttrsOptions = {

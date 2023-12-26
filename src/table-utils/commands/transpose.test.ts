@@ -2,10 +2,10 @@ import {Schema} from 'prosemirror-model';
 import {EditorState} from 'prosemirror-state';
 import {builders} from 'prosemirror-test-builder';
 
-import type {} from '../index';
-import {TableRole} from '../const';
-import {transpose} from './transpose';
 import {applyCommand} from '../../../tests/utils';
+import {TableRole} from '../const';
+
+import {transpose} from './transpose';
 
 const schema = new Schema({
     nodes: {

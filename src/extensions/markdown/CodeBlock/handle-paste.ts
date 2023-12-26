@@ -1,5 +1,7 @@
 import type {EditorProps} from 'prosemirror-view';
+
 import {DataTransferType} from '../../behavior/Clipboard/utils';
+
 import {cbType, codeBlockLangAttr} from './const';
 
 export const handlePaste: NonNullable<EditorProps['handlePaste']> = (view, e) => {
@@ -24,9 +26,8 @@ function getCodeData(data: DataTransfer): null | {editor: string; mode?: string;
 
         if (isVSCode(data)) {
             editor = 'vscode';
-            mode = tryCatch<VSCodeData>(() =>
-                JSON.parse(data.getData(DataTransferType.VSCodeData)),
-            )?.mode;
+            mode = tryCatch<VSCodeData>(() => JSON.parse(data.getData(DataTransferType.VSCodeData)))
+                ?.mode;
         } else return null;
 
         return {editor, mode, value: data.getData(DataTransferType.Text)};

@@ -1,7 +1,8 @@
 import type {Action, ExtensionAuto} from '../../../core';
 import {createToggleMarkAction} from '../../../utils/actions';
 import {markInputRule} from '../../../utils/inputrules';
-import {markMarkName, markMarkType, MarkSpecs} from './MarkSpecs';
+
+import {MarkSpecs, markMarkName, markMarkType} from './MarkSpecs';
 
 export {markMarkName, markMarkType} from './MarkSpecs';
 /** @deprecated Use `markMarkName` instead  */

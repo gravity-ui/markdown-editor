@@ -1,4 +1,5 @@
 import type {ParserToken} from '../../../../core';
+
 import {YfmTableNode} from './const';
 
 export const fromYfm: Record<YfmTableNode, ParserToken> = {

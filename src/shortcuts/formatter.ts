@@ -1,8 +1,10 @@
-import {ModKey as MK} from './const';
-import {cmChars} from './chars';
-import {Defs, PlatfrormDefs} from './types';
+import capitalize from 'lodash/capitalize';
+
 import {isMac} from '../utils/platform';
-import {capitalize} from 'lodash';
+
+import {cmChars} from './chars';
+import {ModKey as MK} from './const';
+import {Defs, PlatfrormDefs} from './types';
 
 class ShortCutFormatter {
     #map = new Map<string, Defs>();

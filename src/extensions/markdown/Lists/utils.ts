@@ -1,7 +1,8 @@
 import type {Node, Schema} from 'prosemirror-model';
 import {EditorState} from 'prosemirror-state';
 import {findParentNodeOfType} from 'prosemirror-utils';
-import {blType, olType, ListNode, liType} from './ListsSpecs';
+
+import {ListNode, blType, liType, olType} from './ListsSpecs';
 
 export {liType, blType, olType} from './ListsSpecs';
 

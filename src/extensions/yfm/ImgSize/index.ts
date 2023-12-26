@@ -1,7 +1,8 @@
 import type {Action, ExtensionAuto} from '../../../core';
-import {addImageAction} from './const';
-import {addImage, AddImageAttrs} from './actions';
+
 import {ImgSizeSpecs, ImgSizeSpecsOptions} from './ImgSizeSpecs';
+import {AddImageAttrs, addImage} from './actions';
+import {addImageAction} from './const';
 
 export type ImgSizeOptions = ImgSizeSpecsOptions & {};
 

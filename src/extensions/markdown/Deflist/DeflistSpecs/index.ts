@@ -1,7 +1,9 @@
-import deflistPlugin from 'markdown-it-deflist';
+import deflistPlugin from '@diplodoc/transform/lib/plugins/deflist';
 import type {NodeSpec} from 'prosemirror-model';
+
 import type {ExtensionAuto} from '../../../../core';
 import {nodeTypeFactory} from '../../../../utils/schema';
+
 import {DeflistNode} from './const';
 import {fromYfm} from './fromYfm';
 import {getSpec} from './spec';

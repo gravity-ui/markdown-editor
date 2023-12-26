@@ -1,7 +1,9 @@
 import {builders} from 'prosemirror-test-builder';
+
 import {createMarkupChecker} from '../../../../tests/sameMarkup';
 import {ExtensionsManager} from '../../../core';
 import {BaseNode, BaseSpecsPreset} from '../../base/specs';
+
 import {VideoSpecs} from './VideoSpecs';
 import {VideoAttr, videoNodeName} from './VideoSpecs/const';
 import {VideoService} from './VideoSpecs/md-video';

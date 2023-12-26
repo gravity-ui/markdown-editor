@@ -1,17 +1,19 @@
 import {builders} from 'prosemirror-test-builder';
-import {createMarkupChecker} from '../../../../tests/sameMarkup';
+
 import {parseDOM} from '../../../../tests/parse-dom';
+import {createMarkupChecker} from '../../../../tests/sameMarkup';
 import {ExtensionsManager} from '../../../core';
 import {BaseNode, BaseSpecsPreset} from '../../base/specs';
 import {
-    ItalicSpecs,
     BlockquoteSpecs,
-    italicMarkName,
-    blockquoteNodeName,
-    ImageSpecs,
-    imageNodeName,
     ImageAttr,
+    ImageSpecs,
+    ItalicSpecs,
+    blockquoteNodeName,
+    imageNodeName,
+    italicMarkName,
 } from '../../markdown/specs';
+
 import {YfmNoteSpecs} from './YfmNoteSpecs';
 import {NoteAttrs, NoteNode} from './const';
 

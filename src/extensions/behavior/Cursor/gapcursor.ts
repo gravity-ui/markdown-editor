@@ -1,10 +1,11 @@
 import {DOMSerializer} from 'prosemirror-model';
-import {Decoration, DecorationSet, EditorView} from 'prosemirror-view';
 import {EditorState, Plugin, PluginKey} from 'prosemirror-state';
+import {Decoration, DecorationSet, EditorView} from 'prosemirror-view';
 
 import {isNodeSelection} from '../../../utils/selection';
 import {pType} from '../../base/BaseSchema';
 import {createPlaceholder} from '../../behavior/Placeholder';
+
 import {isGapCursorSelection} from './GapCursorSelection';
 
 import './gapcursor.scss';

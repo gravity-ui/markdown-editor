@@ -2,8 +2,9 @@ import {textblockTypeInputRule} from 'prosemirror-inputrules';
 import type {NodeType} from 'prosemirror-model';
 import type {EditorState} from 'prosemirror-state';
 import {hasParentNode} from 'prosemirror-utils';
-import {HeadingLevel, headingLevelAttr} from './const';
+
 import {headingType} from './HeadingSpecs';
+import {HeadingLevel, headingLevelAttr} from './const';
 
 /** @deprecated Use `headingType` instead */
 export const hType = headingType;

@@ -1,7 +1,9 @@
 import {Plugin, TextSelection} from 'prosemirror-state';
-import {isTextSelection} from '../../../utils/selection';
+
 import type {ExtensionDeps, Parser} from '../../../core';
+import {isTextSelection} from '../../../utils/selection';
 import {DataTransferType, isIosSafariShare} from '../../behavior/Clipboard/utils';
+
 import {LinkAttr, linkType} from './index';
 
 export function linkPasteEnhance({parser}: ExtensionDeps) {

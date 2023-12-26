@@ -3,8 +3,10 @@ import {textblockTypeInputRule} from 'prosemirror-inputrules';
 import {Fragment, NodeType, Slice} from 'prosemirror-model';
 import {Command, Plugin} from 'prosemirror-state';
 import {hasParentNodeOfType} from 'prosemirror-utils';
-import {withLogAction} from '../../../utils/keymap';
+
 import type {Action, ExtensionAuto, Keymap} from '../../../core';
+import {withLogAction} from '../../../utils/keymap';
+
 import {CodeBlockSpecs, CodeBlockSpecsOptions} from './CodeBlockSpecs';
 import {resetCodeblock} from './commands';
 import {cbAction, cbType} from './const';

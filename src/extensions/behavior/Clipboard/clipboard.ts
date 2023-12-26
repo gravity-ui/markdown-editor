@@ -1,13 +1,12 @@
-import type {EditorView} from 'prosemirror-view';
 import {Fragment, Schema, Slice} from 'prosemirror-model';
-import {EditorState, Selection, Plugin} from 'prosemirror-state';
+import {EditorState, Plugin, Selection} from 'prosemirror-state';
+import type {EditorView} from 'prosemirror-view';
 
-import '../../../types/spec';
-
-import {logger} from '../../../logger';
-import {tryCatch} from '../../../utils/helpers';
 import {Parser, Serializer, trackTransactionMetrics} from '../../../core';
-import {isTextSelection, isNodeSelection, isWholeSelection} from '../../../utils/selection';
+import {logger} from '../../../logger';
+import '../../../types/spec';
+import {tryCatch} from '../../../utils/helpers';
+import {isNodeSelection, isTextSelection, isWholeSelection} from '../../../utils/selection';
 import {serializeForClipboard} from '../../../utils/serialize-for-clipboard';
 import {BaseNode, pType} from '../../base/BaseSchema';
 

@@ -1,10 +1,11 @@
+import log from '@diplodoc/transform/lib/log';
+import imsize from '@diplodoc/transform/lib/plugins/imsize';
 import isNumber from 'is-number';
 import type {NodeSpec} from 'prosemirror-model';
-import imsize from '@diplodoc/transform/lib/plugins/imsize';
-import log from '@diplodoc/transform/lib/log';
 
 import type {ExtensionAuto} from '../../../../core';
 import {imageNodeName} from '../../../markdown/Image/const';
+
 import {ImgSizeAttr} from './const';
 
 type ImsizeTypedAttributes = {

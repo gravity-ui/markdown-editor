@@ -1,8 +1,10 @@
 import {builders} from 'prosemirror-test-builder';
+
 import {createMarkupChecker} from '../../../../tests/sameMarkup';
 import {ExtensionsManager} from '../../../core';
 import {BaseNode, BaseSpecsPreset} from '../../base/specs';
-import {LinkSpecs, LinkAttr, linkMarkName} from './LinkSpecs';
+
+import {LinkAttr, LinkSpecs, linkMarkName} from './LinkSpecs';
 
 const {schema, parser, serializer} = new ExtensionsManager({
     extensions: (builder) => builder.use(BaseSpecsPreset, {}).use(LinkSpecs),

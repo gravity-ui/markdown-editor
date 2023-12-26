@@ -1,7 +1,9 @@
 import React from 'react';
-import type {Decorator} from '@storybook/react';
-import {configure as configureUikit, ThemeProvider} from '@gravity-ui/uikit';
+
 import {configure as configureComponents} from '@gravity-ui/components';
+import {ThemeProvider, configure as configureUikit} from '@gravity-ui/uikit';
+import type {Decorator} from '@storybook/react'; // eslint-disable-line import/no-extraneous-dependencies
+
 import {configure as configureYfmEditor} from '../../src';
 
 import '@gravity-ui/uikit/styles/styles.scss';

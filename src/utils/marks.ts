@@ -1,5 +1,5 @@
-import type {EditorState} from 'prosemirror-state';
 import type {Mark, MarkType, Node} from 'prosemirror-model';
+import type {EditorState} from 'prosemirror-state';
 
 export const findMark = (node: Node, markType: MarkType): Mark | undefined => {
     return node.marks.find((mark) => mark.type.name === markType.name);

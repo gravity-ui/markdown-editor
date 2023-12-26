@@ -1,13 +1,15 @@
 import {EditorState, Plugin, PluginKey} from 'prosemirror-state';
+
 import type {ExtensionAuto} from '../../../core';
 import {EventEmitter} from '../../../utils/event-emitter';
+
 import {
-    Renderer,
-    RendererItem,
     RenderStorage,
     RenderStorageEventMap,
     RenderStorageItem,
     RenderStorageItemEventMap,
+    Renderer,
+    RendererItem,
 } from './types';
 
 export type {RendererItem, RenderStorage} from './types';

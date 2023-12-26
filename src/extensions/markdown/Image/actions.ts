@@ -1,5 +1,7 @@
 import type {Schema} from 'prosemirror-model';
+
 import type {ActionSpec} from '../../../core';
+
 import {imageType} from './ImageSpecs';
 import {ImageAttr} from './const';
 

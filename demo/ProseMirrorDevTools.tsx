@@ -1,6 +1,7 @@
 import {useEffect} from 'react';
-import type {EditorView} from 'prosemirror-view';
+
 import {applyDevTools, removeDevTools} from 'prosemirror-dev-toolkit';
+import type {EditorView} from 'prosemirror-view';
 
 export type ProseMirrorDevToolsProps = {
     view: EditorView;

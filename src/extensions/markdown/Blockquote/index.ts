@@ -1,11 +1,13 @@
 import {chainCommands, wrapIn} from 'prosemirror-commands';
-import type {NodeType} from 'prosemirror-model';
 import {wrappingInputRule} from 'prosemirror-inputrules';
+import type {NodeType} from 'prosemirror-model';
 import {hasParentNodeOfType} from 'prosemirror-utils';
+
 import type {Action, ExtensionAuto} from '../../../core';
 import {withLogAction} from '../../../utils/keymap';
-import {liftFromQuote, toggleQuote, joinPrevQuote} from './commands';
+
 import {BlockquoteSpecs, blockquoteType} from './BlockquoteSpecs';
+import {joinPrevQuote, liftFromQuote, toggleQuote} from './commands';
 
 export {blockquote, blockquoteNodeName, blockquoteType} from './const';
 const bqAction = 'quote';

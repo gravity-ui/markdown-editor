@@ -1,13 +1,14 @@
-import type OrderedMap from 'orderedmap';
 import type MarkdownIt from 'markdown-it';
-import type {Plugin} from 'prosemirror-state';
+import type OrderedMap from 'orderedmap'; // eslint-disable-line import/no-extraneous-dependencies
 import type {MarkSpec, NodeSpec, Schema} from 'prosemirror-model';
+import type {Plugin} from 'prosemirror-state';
 
 import type {ExtensionBuilder} from '../ExtensionBuilder';
+
 import type {ActionSpec, ActionStorage} from './actions';
 import type {MarkViewConstructor, NodeViewConstructor} from './node-views';
 import type {Parser, ParserToken} from './parser';
-import type {Serializer, SerializerNodeToken, SerializerMarkToken} from './serializer';
+import type {Serializer, SerializerMarkToken, SerializerNodeToken} from './serializer';
 
 export type Extension = (builder: ExtensionBuilder) => void;
 export type ExtensionWithOptions<T> = (builder: ExtensionBuilder, options: T) => void;

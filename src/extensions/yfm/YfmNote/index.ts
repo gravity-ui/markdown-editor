@@ -1,11 +1,13 @@
 import {chainCommands} from 'prosemirror-commands';
+
 import type {Action, ExtensionAuto} from '../../../core';
-import {withLogAction} from '../../../utils/keymap';
-import {createYfmNote, toYfmNote} from './actions/toYfmNote';
 import {nodeInputRule} from '../../../utils/inputrules';
+import {withLogAction} from '../../../utils/keymap';
+
+import {YfmNoteSpecs, YfmNoteSpecsOptions} from './YfmNoteSpecs';
+import {createYfmNote, toYfmNote} from './actions/toYfmNote';
 import {backToNoteTitle, exitFromNoteTitle, removeNote} from './commands';
 import {noteType} from './utils';
-import {YfmNoteSpecs, YfmNoteSpecsOptions} from './YfmNoteSpecs';
 
 import './index.scss';
 

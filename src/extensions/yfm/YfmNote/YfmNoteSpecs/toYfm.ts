@@ -1,6 +1,7 @@
-import {isNodeEmpty} from '../../../../utils/nodes';
 import type {SerializerNodeToken} from '../../../../core';
+import {isNodeEmpty} from '../../../../utils/nodes';
 import {getPlaceholderContent} from '../../../../utils/placeholder';
+
 import {NoteAttrs, NoteNode} from './const';
 
 export const toYfm: Record<NoteNode, SerializerNodeToken> = {

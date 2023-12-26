@@ -1,10 +1,12 @@
 import {Fragment} from 'prosemirror-model';
 import {Command, TextSelection} from 'prosemirror-state';
-import {pType} from '../../base';
+
+import {findFirstTextblockChild} from '../../../utils/nodes';
 import {isSameNodeType} from '../../../utils/schema';
 import {isTextSelection} from '../../../utils/selection';
-import {findFirstTextblockChild} from '../../../utils/nodes';
-import {cutType, cutContentType, cutTitleType} from './const';
+import {pType} from '../../base';
+
+import {cutContentType, cutTitleType, cutType} from './const';
 
 export const liftEmptyBlockFromCut: Command = (state, dispatch) => {
     const {selection, schema} = state;

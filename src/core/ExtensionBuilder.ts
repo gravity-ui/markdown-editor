@@ -1,19 +1,19 @@
-import OrderedMap from 'orderedmap';
 import type MarkdownIt from 'markdown-it';
-import type {Plugin} from 'prosemirror-state';
-import {keymap} from 'prosemirror-keymap';
+import OrderedMap from 'orderedmap'; // eslint-disable-line import/no-extraneous-dependencies
 import {inputRules} from 'prosemirror-inputrules';
+import {keymap} from 'prosemirror-keymap';
+import type {Plugin} from 'prosemirror-state';
 
-import type {Keymap} from './types/keymap';
 import type {ActionSpec} from './types/actions';
 import type {
     Extension,
-    ExtensionWithOptions,
     ExtensionDeps,
     ExtensionSpec,
+    ExtensionWithOptions,
     YEMarkSpec,
     YENodeSpec,
 } from './types/extension';
+import type {Keymap} from './types/keymap';
 
 type InputRulesConfig = Parameters<typeof inputRules>[0];
 type ExtensionWithParams = (builder: ExtensionBuilder, ...params: any[]) => void;
@@ -164,10 +164,13 @@ export class ExtensionBuilder {
                     }, []);
             },
             actions: (deps) =>
-                actions.reduce((obj, [name, cb]) => {
-                    obj[name] = cb(deps);
-                    return obj;
-                }, {} as Record<string, ActionSpec>),
+                actions.reduce(
+                    (obj, [name, cb]) => {
+                        obj[name] = cb(deps);
+                        return obj;
+                    },
+                    {} as Record<string, ActionSpec>,
+                ),
         };
     }
 }

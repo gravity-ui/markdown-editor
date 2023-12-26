@@ -1,15 +1,16 @@
-import {EditorView} from 'prosemirror-view';
 import {EditorState} from 'prosemirror-state';
+import {EditorView} from 'prosemirror-view';
 
 import type {CommonEditor, ContentHandler, MarkupString} from '../common';
-import type {Extension} from './types/extension';
-import {bindActions} from './utils/actions';
-import type {Serializer} from './types/serializer';
-import type {Parser} from './types/parser';
-import {ExtensionsManager} from './ExtensionsManager';
-import type {ActionStorage} from './types/actions';
+
 import type {ActionsManager} from './ActionsManager';
 import {WysiwygContentHandler} from './ContentHandler';
+import {ExtensionsManager} from './ExtensionsManager';
+import type {ActionStorage} from './types/actions';
+import type {Extension} from './types/extension';
+import type {Parser} from './types/parser';
+import type {Serializer} from './types/serializer';
+import {bindActions} from './utils/actions';
 import {logTransactionMetrics} from './utils/metrics';
 
 type OnChange = (editor: YfmEditor) => void;

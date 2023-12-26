@@ -6,6 +6,7 @@ import {
     findParentNodeOfType,
     hasParentNodeOfType,
 } from 'prosemirror-utils';
+
 import {TableNode} from './const';
 
 export const isIntoTable = (state: EditorState) =>

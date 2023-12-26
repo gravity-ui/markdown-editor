@@ -1,10 +1,11 @@
 import {toggleMark} from 'prosemirror-commands';
-import {withLogAction} from '../../../utils/keymap';
-import {createToggleMarkAction} from '../../../utils/actions';
-import type {Action, ExtensionAuto} from '../../../core';
-import {markInputRule} from '../../../utils/inputrules';
 
-import {italicMarkName, ItalicSpecs, italicType} from './ItalicSpecs';
+import type {Action, ExtensionAuto} from '../../../core';
+import {createToggleMarkAction} from '../../../utils/actions';
+import {markInputRule} from '../../../utils/inputrules';
+import {withLogAction} from '../../../utils/keymap';
+
+import {ItalicSpecs, italicMarkName, italicType} from './ItalicSpecs';
 
 export {italicMarkName, italicType} from './ItalicSpecs';
 /** @deprecated Use `italicMarkName` instead */

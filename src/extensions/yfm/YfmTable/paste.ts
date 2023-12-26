@@ -1,5 +1,7 @@
 import {Fragment, Node, Schema, Slice} from 'prosemirror-model';
+
 import {getChildrenOfNode} from '../../../utils/nodes';
+
 import {yfmTableBodyType, yfmTableType} from './utils';
 
 export function fixPastedTableBodies(slice: Slice, schema: Schema): Slice {

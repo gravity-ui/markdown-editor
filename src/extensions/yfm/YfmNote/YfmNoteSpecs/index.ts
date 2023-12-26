@@ -3,10 +3,11 @@ import yfmPlugin from '@diplodoc/transform/lib/plugins/notes';
 import type {NodeSpec} from 'prosemirror-model';
 
 import type {ExtensionAuto} from '../../../../core';
-import {toYfm} from './toYfm';
+
 import {NoteNode} from './const';
 import {fromYfm} from './fromYfm';
 import {getSpec} from './spec';
+import {toYfm} from './toYfm';
 
 export {NoteNode as YfmNoteNode} from './const';
 export {noteType, noteTitleType} from './utils';

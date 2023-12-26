@@ -1,6 +1,7 @@
 import MarkdownIt from 'markdown-it';
-import attrsPlugin, {AttrsOptions} from 'markdown-it-attrs';
+import attrsPlugin, {AttrsOptions} from 'markdown-it-attrs'; // eslint-disable-line import/no-extraneous-dependencies
 import type {Plugin} from 'prosemirror-state';
+
 import {ActionsManager} from './ActionsManager';
 import {ExtensionBuilder} from './ExtensionBuilder';
 import {ParserTokensRegistry} from './ParserTokensRegistry';

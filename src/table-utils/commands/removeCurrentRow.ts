@@ -1,6 +1,7 @@
 import type {Command} from 'prosemirror-state';
 import {removeParentNodeOfType} from 'prosemirror-utils';
-import {findParentTableBody, findParentTableRow, findChildTableRows} from '../utils';
+
+import {findChildTableRows, findParentTableBody, findParentTableRow} from '../utils';
 
 export const removeCurrentRow: Command = (state, dispatch) => {
     const parentRow = findParentTableRow(state.selection);

@@ -1,4 +1,5 @@
-import {useState, useCallback, useRef} from 'react';
+import {useCallback, useRef, useState} from 'react';
+
 import {useEffectOnce} from 'react-use';
 
 type SetTrue = () => void;

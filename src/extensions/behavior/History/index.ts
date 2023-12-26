@@ -1,5 +1,6 @@
-import type {Command} from 'prosemirror-state';
 import {history, redo, undo} from 'prosemirror-history';
+import type {Command} from 'prosemirror-state';
+
 import type {Action, ActionSpec, ExtensionAuto, Keymap} from '../../../core';
 import {withLogAction} from '../../../utils/keymap';
 

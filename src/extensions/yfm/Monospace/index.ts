@@ -2,7 +2,7 @@ import type {Action, ExtensionAuto} from '../../../core';
 import {createToggleMarkAction} from '../../../utils/actions';
 import {markInputRule} from '../../../utils/inputrules';
 
-import {monospaceMarkName, MonospaceSpecs, monospaceType} from './MonospaceSpecs';
+import {MonospaceSpecs, monospaceMarkName, monospaceType} from './MonospaceSpecs';
 
 export {monospaceMarkName, monospaceType} from './MonospaceSpecs';
 /** @deprecated Use `monospaceMarkName` instead */

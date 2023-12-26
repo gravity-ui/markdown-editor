@@ -1,6 +1,7 @@
 import React from 'react';
-import {Link, Portal} from '@gravity-ui/uikit';
+
 import {HelpPopover, HelpPopoverProps} from '@gravity-ui/components';
+import {Link, Portal} from '@gravity-ui/uikit';
 
 import {cn} from '../../../classname';
 import {i18n} from '../../../i18n/math-hint';

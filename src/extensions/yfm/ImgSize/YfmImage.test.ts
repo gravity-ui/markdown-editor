@@ -1,9 +1,11 @@
 import {builders} from 'prosemirror-test-builder';
+
 import {createMarkupChecker} from '../../../../tests/sameMarkup';
 import {ExtensionsManager} from '../../../core';
 import {BaseNode, BaseSchema} from '../../base/BaseSchema';
+
 import {ImgSizeSpecs} from './ImgSizeSpecs';
-import {imageNodeName, ImgSizeAttr} from './const';
+import {ImgSizeAttr, imageNodeName} from './const';
 
 const {schema, parser, serializer} = new ExtensionsManager({
     extensions: (builder) => builder.use(BaseSchema, {}).use(ImgSizeSpecs, {}),

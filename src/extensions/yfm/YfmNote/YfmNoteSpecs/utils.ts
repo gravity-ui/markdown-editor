@@ -1,4 +1,5 @@
 import {nodeTypeFactory} from '../../../../utils/schema';
+
 import {NoteNode} from './const';
 
 export const noteType = nodeTypeFactory(NoteNode.Note);

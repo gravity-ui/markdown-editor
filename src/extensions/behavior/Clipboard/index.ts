@@ -1,5 +1,6 @@
 import type {ExtensionAuto} from '../../../core';
-import {clipboard, ClipboardPluginOptions} from './clipboard';
+
+import {ClipboardPluginOptions, clipboard} from './clipboard';
 import * as clipboardUtils from './utils';
 
 export {clipboardUtils};

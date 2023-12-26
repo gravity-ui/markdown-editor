@@ -1,12 +1,13 @@
 import type {Command} from 'prosemirror-state';
+
+import {findChildIndex} from '../helpers';
 import {
-    findParentTable,
-    findParentTableRow,
-    findParentTableCell,
     findChildTableCells,
     findChildTableRows,
+    findParentTable,
+    findParentTableCell,
+    findParentTableRow,
 } from '../utils';
-import {findChildIndex} from '../helpers';
 
 export const addColumnAfter: Command = (state, dispatch) => {
     const parentCell = findParentTableCell(state.selection);

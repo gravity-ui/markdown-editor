@@ -1,5 +1,7 @@
 import type Token from 'markdown-it/lib/token';
+
 import type {ParserToken} from '../../../../core';
+
 import {TabsNode} from './const';
 
 const attrsFromEntries = (token: Token) => (token.attrs ? Object.fromEntries(token.attrs) : {});

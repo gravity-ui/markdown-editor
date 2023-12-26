@@ -1,6 +1,8 @@
 import type {Node} from 'prosemirror-model';
-import {getPlaceholderContent} from '../../../../utils/placeholder';
+
 import type {SerializerNodeToken} from '../../../../core';
+import {getPlaceholderContent} from '../../../../utils/placeholder';
+
 import {TabsNode} from './const';
 
 export const toYfm: Record<TabsNode, SerializerNodeToken> = {

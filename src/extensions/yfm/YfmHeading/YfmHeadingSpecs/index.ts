@@ -1,6 +1,8 @@
 import type {Node, NodeSpec} from 'prosemirror-model';
+
 import type {ExtensionAuto} from '../../../../core';
-import {headingNodeName, YfmHeadingAttr} from './const';
+
+import {YfmHeadingAttr, headingNodeName} from './const';
 import {getNodeAttrs} from './utils';
 
 const DEFAULT_PLACEHOLDER = (node: Node) => 'Heading ' + node.attrs[YfmHeadingAttr.Level];

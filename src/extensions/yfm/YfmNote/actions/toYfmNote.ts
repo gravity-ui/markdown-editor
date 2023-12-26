@@ -1,6 +1,7 @@
 import type {Node, Schema} from 'prosemirror-model';
 import {Command, EditorState} from 'prosemirror-state';
 import {findParentNodeOfType, hasParentNodeOfType} from 'prosemirror-utils';
+
 import type {ActionSpec} from '../../../../core';
 import {NoteAttrs} from '../const';
 import {noteContentType, noteTitleType, noteType} from '../utils';

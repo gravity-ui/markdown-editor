@@ -1,8 +1,11 @@
 import type {NodeSpec} from 'prosemirror-model';
+
 import {TableRole} from '../../../../table-utils';
-import type {YfmTableSpecsOptions} from './index';
-import {YfmTableNode} from './const';
 import {PlaceholderOptions} from '../../../../utils/placeholder';
+
+import {YfmTableNode} from './const';
+
+import type {YfmTableSpecsOptions} from './index';
 
 const DEFAULT_CELL_PLACEHOLDER = 'Table cell';
 

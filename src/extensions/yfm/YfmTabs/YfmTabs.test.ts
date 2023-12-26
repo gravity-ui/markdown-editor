@@ -1,8 +1,10 @@
 import {builders} from 'prosemirror-test-builder';
+
 import {createMarkupChecker} from '../../../../tests/sameMarkup';
 import {ExtensionsManager} from '../../../core';
 import {BaseNode, BaseSpecsPreset} from '../../base/specs';
 import {blockquoteNodeName, italicMarkName} from '../../markdown/specs';
+
 import {TabsNode, YfmTabsSpecs} from './YfmTabsSpecs';
 
 const mockRandomValue = 0.123456789;

@@ -3,7 +3,8 @@ import {FileClassName, LinkHtmlAttr, PREFIX} from '@diplodoc/transform/lib/plugi
 
 import type {Extension} from '../../../../core';
 import {nodeTypeFactory} from '../../../../utils/schema';
-import {fileNodeAttrsSpec, KNOWN_ATTRS, LINK_TO_FILE_ATTRS_MAP, yfmFileNodeName} from './const';
+
+import {KNOWN_ATTRS, LINK_TO_FILE_ATTRS_MAP, fileNodeAttrsSpec, yfmFileNodeName} from './const';
 
 export {yfmFileNodeName} from './const';
 export const fileType = nodeTypeFactory(yfmFileNodeName);

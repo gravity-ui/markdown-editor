@@ -1,5 +1,6 @@
 import type {Slice} from 'prosemirror-model';
 import type {EditorView} from 'prosemirror-view';
+import {__serializeForClipboard} from 'prosemirror-view';
 
 declare module 'prosemirror-view' {
     type SerializeForClipboard = (
@@ -10,8 +11,6 @@ declare module 'prosemirror-view' {
     // internal export
     export const __serializeForClipboard: SerializeForClipboard;
 }
-
-import {__serializeForClipboard} from 'prosemirror-view';
 
 if (!__serializeForClipboard)
     throw new Error('__serializeForClipboard not exported from prosemirror-view module.');

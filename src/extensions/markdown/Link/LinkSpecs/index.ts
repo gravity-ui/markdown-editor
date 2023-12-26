@@ -1,4 +1,5 @@
 import type {Fragment, Mark} from 'prosemirror-model';
+
 import type {ExtensionAuto} from '../../../../core';
 import {markTypeFactory} from '../../../../utils/schema';
 

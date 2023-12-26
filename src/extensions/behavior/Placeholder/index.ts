@@ -1,13 +1,14 @@
+import isEqual from 'lodash/isEqual';
 import type {Node, Schema} from 'prosemirror-model';
 import {EditorState, Plugin, PluginKey, Transaction} from 'prosemirror-state';
-import isEqual from 'lodash/isEqual';
-import {Decoration, DecorationSet} from 'prosemirror-view';
 import {findChildren, findParentNodeClosestToPos} from 'prosemirror-utils';
+import {Decoration, DecorationSet} from 'prosemirror-view';
+
 import {cn} from '../../../classname';
 import type {ExtensionAuto} from '../../../core';
 import {isNodeEmpty} from '../../../utils/nodes';
+import {PlaceholderOptions, getPlaceholderContent} from '../../../utils/placeholder';
 import {isTextSelection} from '../../../utils/selection';
-import {getPlaceholderContent, PlaceholderOptions} from '../../../utils/placeholder';
 
 import './index.scss';
 

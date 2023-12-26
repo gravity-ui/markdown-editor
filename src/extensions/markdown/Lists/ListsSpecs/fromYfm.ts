@@ -1,5 +1,7 @@
 import type Token from 'markdown-it/lib/token';
+
 import type {ParserToken} from '../../../../core';
+
 import {ListNode} from './const';
 
 export const fromYfm: Record<ListNode, ParserToken> = {

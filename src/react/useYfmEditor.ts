@@ -1,5 +1,7 @@
 import React from 'react';
+
 import {useUpdate} from 'react-use';
+
 import {YfmEditor, YfmEditorOptions} from '../core';
 
 export type UseYfmEditorProps = YfmEditorOptions & {};

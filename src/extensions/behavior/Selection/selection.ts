@@ -1,7 +1,6 @@
-import type {Node} from 'prosemirror-model';
-import {keydownHandler} from 'prosemirror-keymap';
 import {selectParentNode} from 'prosemirror-commands';
-import {Decoration, DecorationSet, EditorView} from 'prosemirror-view';
+import {keydownHandler} from 'prosemirror-keymap';
+import type {Node} from 'prosemirror-model';
 import {
     AllSelection,
     Command,
@@ -11,9 +10,11 @@ import {
     TextSelection,
     Transaction,
 } from 'prosemirror-state';
+import {Decoration, DecorationSet, EditorView} from 'prosemirror-view';
 
 import {isSelectableNode} from '../../../utils/nodes';
 import {isNodeSelection} from '../../../utils/selection';
+
 import {arrowDown, arrowLeft, arrowRight, arrowUp, backspace} from './commands';
 
 import './selection.scss';

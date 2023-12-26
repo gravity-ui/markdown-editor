@@ -1,8 +1,10 @@
 import type {ActionSpec} from '../../../core';
-import type {VideoActionAttrs} from './index';
+
 import {VideoAttr} from './VideoSpecs/const';
 import {parseVideoUrl} from './VideoSpecs/md-video';
 import {videoType} from './VideoSpecs/utils';
+
+import type {VideoActionAttrs} from './index';
 
 export const addVideo: ActionSpec = {
     isEnable(state) {

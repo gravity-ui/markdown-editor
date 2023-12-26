@@ -1,6 +1,7 @@
 import type {Node, Schema} from 'prosemirror-model';
 import type {Command} from 'prosemirror-state';
 import {findParentNodeOfType} from 'prosemirror-utils';
+
 import type {ActionSpec} from '../../../../core';
 import {nodeTypeFactory} from '../../../../utils/schema';
 import {CutNode} from '../const';

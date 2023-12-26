@@ -1,9 +1,11 @@
 import {toggleMark} from 'prosemirror-commands';
+
 import type {Action, ExtensionAuto} from '../../../core';
-import {withLogAction} from '../../../utils/keymap';
 import {createToggleMarkAction} from '../../../utils/actions';
 import {markInputRule} from '../../../utils/inputrules';
-import {strikeMarkName, StrikeSpecs, strikeType} from './StrikeSpecs';
+import {withLogAction} from '../../../utils/keymap';
+
+import {StrikeSpecs, strikeMarkName, strikeType} from './StrikeSpecs';
 
 export {strikeMarkName, strikeType} from './StrikeSpecs';
 /** @deprecated Use `strikeMarkName` instead */

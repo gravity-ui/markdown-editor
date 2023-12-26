@@ -1,4 +1,5 @@
 import type {ParserToken} from '../../../../core';
+
 import {CutNode} from './const';
 
 const getAttrs: ParserToken['getAttrs'] = (tok) => (tok.attrs ? Object.fromEntries(tok.attrs) : {});

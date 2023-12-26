@@ -1,10 +1,11 @@
 import type {Action, ExtensionAuto, Keymap} from '../../../core';
 import {withLogAction} from '../../../utils/keymap';
-import {HeadingAction} from './const';
-import {headingRule, hType} from './YfmHeadingSpecs/utils';
+
+import {YfmHeadingSpecs, YfmHeadingSpecsOptions} from './YfmHeadingSpecs';
+import {hType, headingRule} from './YfmHeadingSpecs/utils';
 import {headingAction} from './actions';
 import {resetHeading, toHeading} from './commands';
-import {YfmHeadingSpecs, YfmHeadingSpecsOptions} from './YfmHeadingSpecs';
+import {HeadingAction} from './const';
 
 export {YfmHeadingAttr} from './const';
 

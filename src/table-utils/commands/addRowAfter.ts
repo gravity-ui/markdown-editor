@@ -1,5 +1,6 @@
 import {Fragment, Node} from 'prosemirror-model';
 import type {Command} from 'prosemirror-state';
+
 import {findParentTableBody, findParentTableRow} from '../utils';
 
 export const addRowAfter: Command = (state, dispatch) => {

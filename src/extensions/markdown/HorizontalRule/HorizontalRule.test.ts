@@ -1,12 +1,14 @@
 import {builders} from 'prosemirror-test-builder';
-import {createMarkupChecker} from '../../../../tests/sameMarkup';
+
 import {parseDOM} from '../../../../tests/parse-dom';
+import {createMarkupChecker} from '../../../../tests/sameMarkup';
 import {ExtensionsManager} from '../../../core';
 import {BaseNode, BaseSpecsPreset} from '../../base/specs';
+
 import {
+    HorizontalRuleSpecs,
     horizontalRuleMarkupAttr,
     horizontalRuleNodeName,
-    HorizontalRuleSpecs,
 } from './HorizontalRuleSpecs';
 
 const {schema, parser, serializer} = new ExtensionsManager({

@@ -1,4 +1,5 @@
 import {nodeTypeFactory} from '../../../../utils/schema';
+
 import {YfmTableNode} from './const';
 
 export const yfmTableType = nodeTypeFactory(YfmTableNode.Table);

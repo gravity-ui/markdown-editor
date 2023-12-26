@@ -1,9 +1,11 @@
 import {toggleMark} from 'prosemirror-commands';
-import {withLogAction} from '../../../utils/keymap';
-import {createToggleMarkAction} from '../../../utils/actions';
+
 import type {Action, ExtensionAuto} from '../../../core';
+import {createToggleMarkAction} from '../../../utils/actions';
 import {markInputRule} from '../../../utils/inputrules';
-import {boldMarkName, BoldSpecs, boldType} from './BoldSpecs';
+import {withLogAction} from '../../../utils/keymap';
+
+import {BoldSpecs, boldMarkName, boldType} from './BoldSpecs';
 
 export {boldMarkName, boldType} from './BoldSpecs';
 /** @deprecated Use `boldMarkName` instead */

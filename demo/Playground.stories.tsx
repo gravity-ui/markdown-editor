@@ -1,5 +1,6 @@
 import React from 'react';
-import {ComponentMeta, Story} from '@storybook/react';
+
+import type {ComponentMeta, Story} from '@storybook/react'; // eslint-disable-line import/no-extraneous-dependencies
 
 import {Playground as PlaygroundComponent, PlaygroundProps} from './Playground';
 import {initialMdContent} from './md-content';

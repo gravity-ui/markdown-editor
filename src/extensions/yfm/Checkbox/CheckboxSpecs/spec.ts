@@ -1,7 +1,9 @@
 import type {NodeSpec} from 'prosemirror-model';
-import type {CheckboxSpecsOptions} from './index';
-import {b, CheckboxNode} from '../const';
+
 import {PlaceholderOptions} from '../../../../utils/placeholder';
+import {CheckboxNode, b} from '../const';
+
+import type {CheckboxSpecsOptions} from './index';
 
 const DEFAULT_LABEL_PLACEHOLDER = 'Checkbox';
 

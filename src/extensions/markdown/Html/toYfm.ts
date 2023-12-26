@@ -1,4 +1,5 @@
 import type {SerializerNodeToken} from '../../../core';
+
 import {HtmlAttr, HtmlNode} from './const';
 
 export const toYfm: Record<HtmlNode, SerializerNodeToken> = {

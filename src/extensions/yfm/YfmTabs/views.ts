@@ -1,13 +1,13 @@
 import {cn} from '@bem-react/classname';
-
 import {Node} from 'prosemirror-model';
+import {EditorState} from 'prosemirror-state';
 import {findParentNodeOfTypeClosestToPos} from 'prosemirror-utils';
 import {EditorView, NodeViewConstructor} from 'prosemirror-view';
-import {EditorState} from 'prosemirror-state';
 
-import {tabsType, tabType} from '.';
 import {crossSvg, plusSvg} from './icons';
 import {createTab, removeTab} from './plugins';
+
+import {tabType, tabsType} from '.';
 
 import './index.scss';
 

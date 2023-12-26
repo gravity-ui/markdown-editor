@@ -1,5 +1,5 @@
 import {MarkdownSerializer} from './markdown/MarkdownSerializer';
-import type {SerializerMarkToken, SerializerNodeToken, Serializer} from './types/serializer';
+import type {Serializer, SerializerMarkToken, SerializerNodeToken} from './types/serializer';
 
 export class SerializerTokensRegistry {
     #nodes: Record<string, SerializerNodeToken> = {};

@@ -1,10 +1,12 @@
-import {toggleMark} from 'prosemirror-commands';
 import codemark from 'prosemirror-codemark';
+import {toggleMark} from 'prosemirror-commands';
 import {Plugin} from 'prosemirror-state';
-import {withLogAction} from '../../../utils/keymap';
-import {createToggleMarkAction} from '../../../utils/actions';
+
 import type {Action, ExtensionAuto} from '../../../core';
-import {codeMarkName, CodeSpecs, codeType} from './CodeSpecs';
+import {createToggleMarkAction} from '../../../utils/actions';
+import {withLogAction} from '../../../utils/keymap';
+
+import {CodeSpecs, codeMarkName, codeType} from './CodeSpecs';
 
 import './code.scss';
 

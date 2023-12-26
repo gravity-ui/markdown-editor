@@ -2,9 +2,10 @@ import {Schema} from 'prosemirror-model';
 import {EditorState, TextSelection} from 'prosemirror-state';
 import {builders} from 'prosemirror-test-builder';
 
+import {applyCommand} from '../../../../tests/utils';
+
 import {getSpec} from './CheckboxSpecs/spec';
 import {splitCheckbox} from './plugin';
-import {applyCommand} from '../../../../tests/utils';
 
 const schema = new Schema({
     nodes: {
