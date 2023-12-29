@@ -1,5 +1,12 @@
 # Changelog
 
+## [9.1.1](https://github.com/yandex-cloud/yfm-editor/compare/v9.1.0...v9.1.1) (2023-12-26)
+
+
+### Bug Fixes
+
+* update lint rules and remove import of lodash global object ([#175](https://github.com/yandex-cloud/yfm-editor/issues/175)) ([64c83fb](https://github.com/yandex-cloud/yfm-editor/commit/64c83fb163906c7b3e390367023ee58f5f3da5ea))
+
 ## [9.1.0](https://github.com/yandex-cloud/yfm-editor/compare/v9.0.0...v9.1.0) (2023-12-21)
 
 
