@@ -45,6 +45,11 @@
       "require": "./build/cjs/pm/*",
       "import": "./build/esm/pm/*"
     },
+    "./markdown-it/*": {
+      "types": "./build/esm/markdown-it/*",
+      "require": "./build/cjs/markdown-it/*",
+      "import": "./build/esm/markdown-it/*"
+    },
     "./styles/*": "./build/esm/styles/*"
   },
   "main": "build/cjs/index.js",
@@ -63,6 +68,9 @@
       ],
       "pm/*": [
         "./build/esm/pm/*"
+      ],
+      "markdown-it/*": [
+        "./build/esm/markdown-it/*"
       ]
     }
   },
