@@ -23,4 +23,9 @@ export interface ParserToken {
     code?: boolean;
     /** only for tokens with type=block */
     prepareContent?: (content: string) => string;
+    /**
+     * only for tokens with type=block and noCloseToken=true
+     * @default 'content'
+     */
+    contentField?: 'content' | 'children';
 }
