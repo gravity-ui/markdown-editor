@@ -1,6 +1,6 @@
 import React from 'react';
 
-import type {Node} from 'prosemirror-model';
+import type {Mark, Node} from 'prosemirror-model';
 import type {EditorView, NodeView, NodeViewConstructor} from 'prosemirror-view';
 import {createPortal} from 'react-dom';
 
@@ -17,7 +17,7 @@ export const ReactNodeStopEventCn = 'prosemirror-stop-event';
 export type ReactNodeViewProps<T extends object = {}> = {
     dom: HTMLElement;
     view: EditorView;
-    updateAttributes: (attrs: object) => void;
+    updateAttributes: (attrs: object, marks?: Mark[]) => void;
     node: Node;
     getPos: () => number | undefined;
     serializer: Serializer;
@@ -94,15 +94,20 @@ export class ReactNodeView<T extends object = {}> implements NodeView {
         return true;
     }
 
-    updateAttributes(attributes: {}) {
+    updateAttributes(attributes: {}, marks: Mark[] = []) {
         const pos = this.getPos();
         if (pos === undefined) return;
 
         const {tr} = this.view.state;
-        tr.setNodeMarkup(pos, undefined, {
-            ...this.node.attrs,
-            ...attributes,
-        });
+        tr.setNodeMarkup(
+            pos,
+            undefined,
+            {
+                ...this.node.attrs,
+                ...attributes,
+            },
+            marks,
+        );
         this.view.dispatch(tr);
     }
 
