@@ -1,5 +1,13 @@
 # Changelog
 
+## [9.2.0](https://github.com/yandex-cloud/yfm-editor/compare/v9.1.1...v9.2.0) (2024-01-25)
+
+
+### Features
+
+* add re-export of markdown-it plugins ([#179](https://github.com/yandex-cloud/yfm-editor/issues/179)) ([affd462](https://github.com/yandex-cloud/yfm-editor/commit/affd462578a1a4158fd209fbddcdc3d1c6806dc3))
+* added ability to pass marks to updateAttributes method of ReactNodeView ([#177](https://github.com/yandex-cloud/yfm-editor/issues/177)) ([93e63de](https://github.com/yandex-cloud/yfm-editor/commit/93e63de452f1743a99e5e60ab3364cc84bccb9e0))
+
 ## [9.1.1](https://github.com/yandex-cloud/yfm-editor/compare/v9.1.0...v9.1.1) (2023-12-26)
 
 
