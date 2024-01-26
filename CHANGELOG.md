@@ -1,5 +1,12 @@
 # Changelog
 
+## [9.3.0](https://github.com/yandex-cloud/yfm-editor/compare/v9.2.0...v9.3.0) (2024-01-26)
+
+
+### Features
+
+* **core:** allow to parse blocks with noCloseToken=true with content from children tokens ([#180](https://github.com/yandex-cloud/yfm-editor/issues/180)) ([d362717](https://github.com/yandex-cloud/yfm-editor/commit/d36271755e96a0807bcf64d75014a4fc6f599f78))
+
 ## [9.2.0](https://github.com/yandex-cloud/yfm-editor/compare/v9.1.1...v9.2.0) (2024-01-25)
 
 
