@@ -37,7 +37,7 @@ export const Lists: ExtensionAuto<ListsOptions> = (builder, opts) => {
 
             ...bindings,
         };
-    });
+    }, builder.Priority.High);
     builder.addKeymap(
         () => ({
             Backspace: chainCommands(liftIfCursorIsAtBeginningOfItem, joinPrevList),
