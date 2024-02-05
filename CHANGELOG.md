@@ -1,5 +1,12 @@
 # Changelog
 
+## [9.3.1](https://github.com/yandex-cloud/yfm-editor/compare/v9.3.0...v9.3.1) (2024-02-01)
+
+
+### Bug Fixes
+
+* increased priority of list keymap ([#182](https://github.com/yandex-cloud/yfm-editor/issues/182)) ([96fed08](https://github.com/yandex-cloud/yfm-editor/commit/96fed08bdb1841ea81979bcff6d805ee9323bf15))
+
 ## [9.3.0](https://github.com/yandex-cloud/yfm-editor/compare/v9.2.0...v9.3.0) (2024-01-26)
 
 
