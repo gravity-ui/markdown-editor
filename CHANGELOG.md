@@ -1,5 +1,45 @@
 # Changelog
 
+## [10.0.0](https://github.com/yandex-cloud/yfm-editor/compare/v9.3.1...v10.0.0) (2024-02-06)
+
+### ⚠ BREAKING CHANGES
+
+* feat!: use diplodoc/latex-extension instead of markdown-it-katex ([#184](https://github.com/yandex-cloud/yfm-editor/issues/184))
+  > - added packages to peerDependencies: `@diplodoc/latex-extension`, `katex`, `markdown-it`
+  > - editor's Math extension now use `@diplodoc/latex-extension` instead of `markdown-it-katex`
+  > - Math extension removed from YfmPreset/YfmSpecsPreset and package root export
+  > - added options to Math extension
+  >
+  > Example of using a Math extension:
+  >
+  > ```js
+  > import {Math} from '@doc-tools/yfm-editor/_/extensions/yfm/Math';
+  >
+  > // ...
+  >
+  > builder.use(Math, {
+  > // required
+  > loadRuntimeScript: async () => {
+  >     await Promise.all([
+  >     import('@diplodoc/latex-extension/runtime'),
+  >     import('@diplodoc/latex-extension/runtime/styles'),
+  >     ]);
+  > },
+  > // optional; if you need custom sanitizing
+  > sanitize: (html) => /* sanitize html */ html,
+  > // optional; options to be passed to katex
+  > katexOptions: {},
+  > });
+  > ```
+
+### Features
+
+* feat!: use diplodoc/latex-extension instead of markdown-it-katex ([#184](https://github.com/yandex-cloud/yfm-editor/issues/184)) ([80ad40f](https://github.com/yandex-cloud/yfm-editor/commit/80ad40f822a92eebc7215a6adb21f1f1007f32c8))
+
+### Bug Fixes
+
+* **YfmCut:** reduce code duplication ([#185](https://github.com/yandex-cloud/yfm-editor/issues/185)) ([76974ce](https://github.com/yandex-cloud/yfm-editor/commit/76974ceede9d2345980b7d11dcd6dc3deccf3b49))
+
 ## [9.3.1](https://github.com/yandex-cloud/yfm-editor/compare/v9.3.0...v9.3.1) (2024-02-01)
 
 
