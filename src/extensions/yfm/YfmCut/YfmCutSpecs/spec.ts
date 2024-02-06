@@ -1,6 +1,6 @@
 import type {NodeSpec} from 'prosemirror-model';
 
-import {PlaceholderOptions} from '../../../../utils/placeholder';
+import type {PlaceholderOptions} from '../../../../utils/placeholder';
 import {CutNode} from '../const';
 
 import type {YfmCutSpecsOptions} from './index';
@@ -43,6 +43,7 @@ export const getSpec = (
                 DEFAULT_PLACEHOLDERS.Title,
             alwaysVisible: true,
         },
+        definingAsContext: true,
         selectable: false,
         allowSelection: false,
         complex: 'leaf',
@@ -63,6 +64,7 @@ export const getSpec = (
                 DEFAULT_PLACEHOLDERS.Content,
             alwaysVisible: true,
         },
+        definingAsContext: true,
         selectable: false,
         allowSelection: false,
         complex: 'leaf',
