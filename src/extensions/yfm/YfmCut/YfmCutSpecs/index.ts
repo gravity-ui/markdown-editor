@@ -3,17 +3,13 @@ import yfmPlugin from '@diplodoc/transform/lib/plugins/cut';
 import type {NodeSpec} from 'prosemirror-model';
 
 import type {ExtensionAuto, YENodeSpec} from '../../../../core';
-import {nodeTypeFactory} from '../../../../utils/schema';
 
 import {CutNode} from './const';
 import {fromYfm} from './fromYfm';
 import {getSpec} from './spec';
 import {toYfm} from './toYfm';
 
-export {CutNode} from './const';
-export const cutType = nodeTypeFactory(CutNode.Cut);
-export const cutTitleType = nodeTypeFactory(CutNode.CutTitle);
-export const cutContentType = nodeTypeFactory(CutNode.CutContent);
+export {CutNode, cutType, cutTitleType, cutContentType} from './const';
 
 export type YfmCutSpecsOptions = {
     cutView?: YENodeSpec['view'];

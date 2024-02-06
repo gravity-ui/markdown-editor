@@ -3,17 +3,12 @@ import type {Command} from 'prosemirror-state';
 import {findParentNodeOfType} from 'prosemirror-utils';
 
 import type {ActionSpec} from '../../../../core';
-import {nodeTypeFactory} from '../../../../utils/schema';
-import {CutNode} from '../const';
-
-const yfmCutType = nodeTypeFactory(CutNode.Cut);
-const yfmCutTitleType = nodeTypeFactory(CutNode.CutTitle);
-const yfmCutContentType = nodeTypeFactory(CutNode.CutContent);
+import {cutContentType, cutTitleType, cutType} from '../const';
 
 const createYfmCutNode = (schema: Schema) => (content?: Node | Node[]) => {
-    return yfmCutType(schema).create(null, [
-        yfmCutTitleType(schema).create(null),
-        yfmCutContentType(schema).create(null, content),
+    return cutType(schema).create(null, [
+        cutTitleType(schema).create(null),
+        cutContentType(schema).create(null, content),
     ]);
 };
 
