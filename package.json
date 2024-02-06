@@ -50,6 +50,11 @@
       "require": "./build/cjs/markdown-it/*",
       "import": "./build/esm/markdown-it/*"
     },
+    "./_/*": {
+      "types": "./build/esm/*",
+      "require": "./build/cjs/*",
+      "import": "./build/esm/*"
+    },
     "./styles/*": "./build/esm/styles/*"
   },
   "main": "build/cjs/index.js",
@@ -71,6 +76,9 @@
       ],
       "markdown-it/*": [
         "./build/esm/markdown-it/*"
+      ],
+      "_/*": [
+        "./build/esm/*"
       ]
     }
   },
@@ -93,7 +101,6 @@
     "is-number": "^7.0.0",
     "markdown-it-color": "^2.1.1",
     "markdown-it-ins": "^3.0.1",
-    "markdown-it-katex": "2.0.3",
     "markdown-it-mark": "^3.0.1",
     "markdown-it-sub": "^1.0.0",
     "prosemirror-codemark": "0.4.2",
@@ -113,6 +120,7 @@
     "tslib": "^2.3.1"
   },
   "devDependencies": {
+    "@diplodoc/latex-extension": "1.0.3",
     "@diplodoc/transform": "4.5.0",
     "@gravity-ui/components": "2.0.0",
     "@gravity-ui/eslint-config": "3.1.1",
@@ -127,7 +135,7 @@
     "@types/gulp": "4.0.9",
     "@types/gulp-sass": "5.0.0",
     "@types/jest": "^27.0.3",
-    "@types/katex": "0.5.0",
+    "@types/katex": "0.16.7",
     "@types/lodash": "^4.14.177",
     "@types/react": "18.0.28",
     "@types/react-dom": "18.0.11",
@@ -160,9 +168,12 @@
   },
   "peerDependencies": {
     "@diplodoc/transform": "^4.5.0",
+    "@diplodoc/latex-extension": "^1.0.3",
     "@gravity-ui/components": "^2.0.0",
     "@gravity-ui/uikit": "^5.0.0",
+    "katex": "^0.16.9",
     "lodash": "^4.17.20",
+    "markdown-it": "^13.0.0",
     "react": "^16.8.0 || ^17.0.0 || ^18.0.0",
     "react-dom": "^16.8.0 || ^17.0.0 || ^18.0.0"
   },

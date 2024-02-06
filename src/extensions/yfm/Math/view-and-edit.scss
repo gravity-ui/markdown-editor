@@ -76,22 +76,16 @@
     }
 
     .ye-MathHint {
-        &__block-view {
-            display: none;
-        }
-
-        &__inline-view {
-            display: none;
-        }
+        display: none;
     }
 }
 
-.ye-MathHint {
-    &__block-view {
+.ye-MathHint_view {
+    &_block {
         float: right;
     }
 
-    &__inline-view {
+    &_inline {
         display: inline-block;
 
         margin-right: 6px;

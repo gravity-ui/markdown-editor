@@ -1,4 +1,4 @@
-import mathMdPlugin from 'markdown-it-katex';
+import {transform} from '@diplodoc/latex-extension';
 
 import type {ExtensionAuto} from '../../../../core';
 import {nodeTypeFactory} from '../../../../utils/schema';
@@ -10,7 +10,7 @@ export const mathIType = nodeTypeFactory(MathNode.Inline);
 export const mathBType = nodeTypeFactory(MathNode.Block);
 
 export const MathSpecs: ExtensionAuto = (builder) => {
-    builder.configureMd((md) => md.use(mathMdPlugin));
+    builder.configureMd((md) => md.use(transform({bundle: false, validate: false}), {output: ''}));
     builder
         .addNode(MathNode.Inline, () => ({
             spec: {
