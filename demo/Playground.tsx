@@ -20,6 +20,7 @@ import {
     logger,
     useYfmEditor,
 } from '../src';
+import {Math} from '../src/extensions/yfm/Math';
 import {wHiddenData, wToolbarConfig} from '../src/toolbar/config/wysiwyg';
 
 import {PlaygroundHtmlPreview} from './HtmlPreview';
@@ -92,7 +93,15 @@ const Playground = React.memo<PlaygroundProps>((props) => {
                     underline: {underlineKey: keys.underline},
                     code: {codeKey: keys.code},
                 })
-                .use(YfmPreset, {}),
+                .use(YfmPreset, {})
+                .use(Math, {
+                    loadRuntimeScript: async () => {
+                        await Promise.all([
+                            import('@diplodoc/latex-extension/runtime'), // @ts-expect-error
+                            import('@diplodoc/latex-extension/runtime/styles'),
+                        ]);
+                    },
+                }),
         [breaks, renderStorage],
     );
 

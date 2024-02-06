@@ -1,4 +1,3 @@
-import katex from 'katex';
 import {keydownHandler} from 'prosemirror-keymap';
 import type {Node} from 'prosemirror-model';
 import {Plugin} from 'prosemirror-state';
@@ -10,9 +9,17 @@ import {isTextSelection} from '../../../utils/selection';
 import {moveCursorToEndOfMathInline} from './commands';
 import {CLASSNAMES, MathNode} from './const';
 import {b, renderMathHint} from './hint';
+import type {KatexOptions, RunOptions} from './types';
 
-import 'katex/dist/katex.min.css'; // eslint-disable-line import/no-extraneous-dependencies
 import './view-and-edit.scss'; // eslint-disable-line import/order
+
+const MATH_ACTIVE_DECO = 'math_active_decoration';
+
+export type MathNodeViewOptions = Pick<RunOptions, 'sanitize'> & {
+    katexOptions?: KatexOptions;
+    loadRuntimeScript: () => void;
+    reactRenderer: ReactRenderer;
+};
 
 export abstract class MathNodeView implements NodeView {
     dom: HTMLElement;
@@ -25,6 +32,10 @@ export abstract class MathNodeView implements NodeView {
 
     protected hintRendererItem: RendererItem;
     protected readonly reactRenderer: ReactRenderer;
+    protected readonly loadRuntimeScript: () => void;
+    protected readonly katexRunOptions: RunOptions;
+
+    protected hasActiveDeco = false;
 
     abstract createDOM(): Record<
         'dom' | 'contentDOM' | 'mathViewDOM' | 'mathHintContainerDOM',
@@ -32,32 +43,58 @@ export abstract class MathNodeView implements NodeView {
     > & {hintRendererItem: RendererItem};
     abstract isDisplayMode(): boolean;
 
-    constructor(node: Node, reactRenderer: ReactRenderer) {
+    constructor(node: Node, opts: MathNodeViewOptions) {
         this.node = node;
-        this.reactRenderer = reactRenderer;
         this.texContent = this.getTexContent();
+        this.katexRunOptions = {
+            ...opts.katexOptions,
+            sanitize: opts.sanitize,
+        };
+
+        this.reactRenderer = opts.reactRenderer;
+        this.loadRuntimeScript = opts.loadRuntimeScript;
+
         const elems = this.createDOM();
         this.dom = elems.dom;
         this.contentDOM = elems.contentDOM;
         this.mathViewDOM = elems.mathViewDOM;
         this.mathHintContainerDOM = elems.mathHintContainerDOM;
         this.hintRendererItem = elems.hintRendererItem;
+
+        window.latexJsonp ??= [];
+        this.loadRuntimeScript();
         this.renderKatex();
     }
 
-    update(node: Node): boolean {
+    update(node: Node, decos: readonly Decoration[]): boolean {
         if (this.node.type !== node.type) return false;
         this.node = node;
-        const newTexContent = this.getTexContent();
-        if (this.texContent !== newTexContent) {
-            this.texContent = newTexContent;
-            this.renderKatex();
+
+        const isActive = decos.some((deco) => deco.spec[MATH_ACTIVE_DECO]);
+        if (isActive === this.hasActiveDeco) return true;
+
+        if (!isActive) {
+            const newTexContent = this.getTexContent();
+            if (this.texContent !== newTexContent) {
+                this.texContent = newTexContent;
+                this.renderKatex();
+            }
         }
+
+        this.hasActiveDeco = isActive;
+
         return true;
     }
 
     ignoreMutation(mutation: MutationRecord): boolean {
-        return mutation.type === 'childList' && mutation.target === this.mathHintContainerDOM;
+        // @ts-expect-error
+        if (mutation.type === 'selection') return true;
+
+        return (
+            mutation.type === 'childList' &&
+            (mutation.target === this.mathHintContainerDOM ||
+                this.mathViewDOM.contains(mutation.target))
+        );
     }
 
     destroy() {
@@ -65,23 +102,40 @@ export abstract class MathNodeView implements NodeView {
     }
 
     protected renderKatex() {
-        try {
-            katex.render(this.texContent, this.mathViewDOM, {
-                throwOnError: true,
-                displayMode: this.isDisplayMode(),
-            });
-            this.updateErrorView(false);
-        } catch (err) {
-            const errorElem = document.createElement('span');
-            errorElem.classList.add('math-error');
-            errorElem.innerText = `(error) ${this.texContent}`;
-            errorElem.title = String(err);
-            this.mathViewDOM.appendChild(errorElem);
-            this.updateErrorView(true);
-        }
+        const displayMode = this.isDisplayMode();
+        const runOptions: RunOptions = {displayMode};
+
+        const econtent = encodeURIComponent(this.texContent);
+        const eoptions = encodeURIComponent(JSON.stringify(runOptions));
+
+        const elem = document.createElement(displayMode ? 'p' : 'span');
+        elem.classList.add('yfm-latex');
+        elem.setAttribute('data-content', econtent);
+        elem.setAttribute('data-options', eoptions);
+        this.mathViewDOM.replaceChildren(elem);
+
+        this.toggleErrorView(false);
+
+        window.latexJsonp.push(async (api) => {
+            try {
+                await api.run({
+                    ...this.katexRunOptions,
+                    ...runOptions,
+                    nodes: [elem],
+                    throwOnError: true,
+                });
+            } catch (err) {
+                const errorElem = document.createElement('span');
+                errorElem.classList.add('math-error');
+                errorElem.innerText = `(error) ${this.texContent}`;
+                errorElem.title = String(err);
+                this.mathViewDOM.replaceChildren(errorElem);
+                this.toggleErrorView(true);
+            }
+        });
     }
 
-    protected updateErrorView(isError: boolean) {
+    protected toggleErrorView(isError: boolean) {
         this.dom.classList.toggle('math-container-error', isError);
         this.mathViewDOM.classList.toggle('math-view-error', isError);
     }
@@ -112,7 +166,7 @@ export class MathInlineNodeView extends MathNodeView {
 
         const mathHintContainerDOM = document.createElement('div');
         mathHintContainerDOM.contentEditable = 'false';
-        mathHintContainerDOM.classList.add(b('inline-view'));
+        mathHintContainerDOM.classList.add(...b({view: 'inline'}).split(' '));
 
         dom.appendChild(mathViewDOM);
         dom.appendChild(mathInlineDOM.container);
@@ -170,7 +224,7 @@ export class MathBlockNodeView extends MathNodeView {
 
         const mathHintContainerDOM = document.createElement('div');
         mathHintContainerDOM.contentEditable = 'false';
-        mathHintContainerDOM.classList.add(b('block-view'));
+        mathHintContainerDOM.classList.add(...b({view: 'block'}).split(' '));
 
         dom.appendChild(mathHintContainerDOM);
         dom.appendChild(mathViewDOM);
@@ -184,12 +238,14 @@ export class MathBlockNodeView extends MathNodeView {
     }
 }
 
-export const mathViewAndEditPlugin = ({reactRenderer}: {reactRenderer: ReactRenderer}) =>
+export type MathViewAndEditPluginOptions = MathNodeViewOptions;
+
+export const mathViewAndEditPlugin = (options: MathViewAndEditPluginOptions) =>
     new Plugin({
         props: {
             nodeViews: {
-                [MathNode.Block]: (node) => new MathBlockNodeView(node, reactRenderer),
-                [MathNode.Inline]: (node) => new MathInlineNodeView(node, reactRenderer),
+                [MathNode.Block]: (node) => new MathBlockNodeView(node, options),
+                [MathNode.Inline]: (node) => new MathInlineNodeView(node, options),
             },
             handleKeyDown: keydownHandler({
                 ArrowLeft: moveCursorToEndOfMathInline,
@@ -202,9 +258,14 @@ export const mathViewAndEditPlugin = ({reactRenderer}: {reactRenderer: ReactRend
                         const typeName = node.type.name;
                         if (typeName === MathNode.Inline || typeName === MathNode.Block) {
                             decorations.push(
-                                Decoration.node(pos, pos + node.nodeSize, {
-                                    class: 'math-active',
-                                }),
+                                Decoration.node(
+                                    pos,
+                                    pos + node.nodeSize,
+                                    {
+                                        class: 'math-active',
+                                    },
+                                    {[MATH_ACTIVE_DECO]: true},
+                                ),
                             );
                         }
                     });

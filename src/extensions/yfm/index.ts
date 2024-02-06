@@ -3,7 +3,6 @@ import {ExtensionAuto} from '../../core';
 import {Checkbox, CheckboxOptions} from './Checkbox';
 import {Color} from './Color';
 import {ImgSize, ImgSizeOptions} from './ImgSize';
-import {Math} from './Math';
 import {Monospace} from './Monospace';
 import {Video, VideoOptions} from './Video';
 import {YfmCut, YfmCutOptions} from './YfmCut';
@@ -17,7 +16,6 @@ import {YfmTabs} from './YfmTabs';
 export * from './Checkbox';
 export * from './Color';
 export * from './ImgSize';
-export * from './Math';
 export * from './Monospace';
 export * from './Video';
 export * from './YfmDist';
@@ -43,7 +41,6 @@ export const YfmPreset: ExtensionAuto<YfmPresetOptions> = (builder, opts) => {
         .use(Checkbox, opts.checkbox ?? {})
         .use(Color)
         .use(ImgSize, opts.imgSize ?? {})
-        .use(Math)
         .use(Monospace)
         .use(Video, opts.video ?? {})
         .use(YfmDist)

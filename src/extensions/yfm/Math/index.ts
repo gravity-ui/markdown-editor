@@ -14,7 +14,7 @@ import {
     removeEmptyMathInlineIfCursorIsAtBeginning,
 } from './commands';
 import {mathBType, mathIType} from './const';
-import {mathViewAndEditPlugin} from './view-and-edit';
+import {MathNodeViewOptions, mathViewAndEditPlugin} from './view-and-edit';
 
 import './index.scss';
 
@@ -26,7 +26,14 @@ const mathBAction = 'toMathBlock';
 
 const mathITemplate = 'f(x)=';
 
-export const Math: ExtensionAuto = (builder) => {
+// !!! YfmPreset/YfmSpecsPreset does not use or re-export the Math extension
+
+export type MathOptions = Pick<
+    MathNodeViewOptions,
+    'loadRuntimeScript' | 'sanitize' | 'katexOptions'
+>;
+
+export const Math: ExtensionAuto<MathOptions> = (builder, opts) => {
     builder.use(MathSpecs);
 
     builder.addKeymap(() => ({
@@ -39,7 +46,10 @@ export const Math: ExtensionAuto = (builder) => {
 
     builder
         .addPlugin(() =>
-            mathViewAndEditPlugin({reactRenderer: builder.context.get('reactrenderer')!}),
+            mathViewAndEditPlugin({
+                ...opts,
+                reactRenderer: builder.context.get('reactrenderer')!,
+            }),
         )
         .addInputRules((deps) => ({
             rules: [

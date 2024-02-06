@@ -3,7 +3,6 @@ import type {ExtensionAuto} from '../../core';
 import {CheckboxSpecs, CheckboxSpecsOptions} from './Checkbox/CheckboxSpecs';
 import {ColorSpecs, ColorSpecsOptions} from './Color/ColorSpecs';
 import {ImgSizeSpecs, ImgSizeSpecsOptions} from './ImgSize/ImgSizeSpecs';
-import {MathSpecs} from './Math/MathSpecs';
 import {MonospaceSpecs} from './Monospace/MonospaceSpecs';
 import {VideoSpecs, VideoSpecsOptions} from './Video/VideoSpecs';
 import {YfmCutSpecs, YfmCutSpecsOptions} from './YfmCut/YfmCutSpecs';
@@ -17,7 +16,6 @@ import {YfmTabsSpecs, YfmTabsSpecsOptions} from './YfmTabs/YfmTabsSpecs';
 export * from './Checkbox/CheckboxSpecs';
 export * from './Color/ColorSpecs';
 export * from './ImgSize/ImgSizeSpecs';
-export * from './Math/MathSpecs';
 export * from './Monospace/MonospaceSpecs';
 export * from './Video/VideoSpecs';
 export * from './YfmDist/YfmDistSpecs';
@@ -45,7 +43,6 @@ export const YfmSpecsPreset: ExtensionAuto<YfmSpecsPresetOptions> = (builder, op
         .use(CheckboxSpecs, opts.checkbox ?? {})
         .use(ColorSpecs, opts.color ?? {})
         .use(ImgSizeSpecs, opts.imgSize ?? {})
-        .use(MathSpecs)
         .use(MonospaceSpecs)
         .use(VideoSpecs, opts.video ?? {})
         .use(YfmDistSpecs)

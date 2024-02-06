@@ -1,3 +1,4 @@
+import {transform as latex} from '@diplodoc/latex-extension';
 import anchors from '@diplodoc/transform/lib/plugins/anchors';
 import checkbox from '@diplodoc/transform/lib/plugins/checkbox';
 import code from '@diplodoc/transform/lib/plugins/code';
@@ -15,9 +16,10 @@ import video from '@diplodoc/transform/lib/plugins/video';
 import type {PluginWithParams} from 'markdown-it/lib';
 import color from 'markdown-it-color';
 import ins from 'markdown-it-ins';
-import math from 'markdown-it-katex';
 import mark from 'markdown-it-mark';
 import sub from 'markdown-it-sub';
+
+export const LATEX_RUNTIME = 'extension:latex';
 
 const defaultPlugins: PluginWithParams[] = [
     meta,
@@ -35,6 +37,12 @@ const defaultPlugins: PluginWithParams[] = [
     imsize,
     checkbox,
 ];
-const extendedPlugins = defaultPlugins.concat(sub, ins, mark, math, color);
+const extendedPlugins = defaultPlugins.concat(
+    sub,
+    ins,
+    mark,
+    latex({bundle: false, validate: false, runtime: LATEX_RUNTIME}),
+    color,
+);
 
 export {extendedPlugins as plugins};
