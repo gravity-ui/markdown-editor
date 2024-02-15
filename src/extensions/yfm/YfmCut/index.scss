@@ -2,4 +2,8 @@
 
 .ProseMirror.yfm .yfm-cut {
     @include mixins.block-border-hover();
+
+    &.yfm-cut-active {
+        border-color: var(--g-color-line-generic);
+    }
 }
