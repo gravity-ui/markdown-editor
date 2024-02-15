@@ -2,24 +2,19 @@ import {setBlockType} from 'prosemirror-commands';
 import type {Command} from 'prosemirror-state';
 import {findParentNodeOfType} from 'prosemirror-utils';
 
+import {toParagraph} from '../../../extensions/base';
+
 import {hType} from './YfmHeadingSpecs/utils';
-import {HeadingLevel, YfmHeadingAttr} from './const';
+import {HeadingLevel, YfmHeadingAttr, headingLevelAttr} from './const';
 
 export {resetHeading} from '../../markdown/Heading/commands';
 
 export const toHeading =
     (level: HeadingLevel): Command =>
-    (state, dispatch) => {
+    (state, dispatch, view) => {
         const parentHeading = findParentNodeOfType(hType(state.schema))(state.selection);
-        if (parentHeading) {
-            dispatch?.(
-                state.tr.setNodeMarkup(parentHeading.pos, undefined, {
-                    ...parentHeading.node.attrs,
-                    [YfmHeadingAttr.Level]: level,
-                }),
-            );
-
-            return true;
+        if (parentHeading && parentHeading.node.attrs[headingLevelAttr] === level) {
+            return toParagraph(state, dispatch, view);
         }
 
         // const text = state.selection.$head.parent.textContent;
