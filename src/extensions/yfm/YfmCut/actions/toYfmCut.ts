@@ -1,32 +1,62 @@
-import type {Node, Schema} from 'prosemirror-model';
-import type {Command} from 'prosemirror-state';
-import {findParentNodeOfType} from 'prosemirror-utils';
+import type {Fragment, Node, Schema} from 'prosemirror-model';
+import {Command, TextSelection} from 'prosemirror-state';
+import {findParentNodeClosestToPos} from 'prosemirror-utils';
 
 import type {ActionSpec} from '../../../../core';
 import {cutContentType, cutTitleType, cutType} from '../const';
 
-const createYfmCutNode = (schema: Schema) => (content?: Node | Node[]) => {
-    return cutType(schema).create(null, [
+const createYfmCutNode = (schema: Schema) => (content?: Node | Node[] | Fragment) => {
+    return cutType(schema).create({class: 'yfm-cut open'}, [
         cutTitleType(schema).create(null),
         cutContentType(schema).create(null, content),
     ]);
 };
 
 export const createYfmCut: Command = (state, dispatch) => {
-    const {schema} = state;
+    const {schema, selection: sel} = state;
 
-    const parent = findParentNodeOfType(schema.nodes.paragraph)(state.selection);
-    if (parent) {
-        if (dispatch) {
-            const yfmCut = createYfmCutNode(schema)(parent.node);
+    const textblock = findParentNodeClosestToPos(
+        sel.$from,
+        (node) => node.isTextblock && !node.type.spec.complex,
+    );
 
-            dispatch?.(state.tr.replaceWith(parent.pos, parent.pos + parent.node.nodeSize, yfmCut));
-        }
+    if (!textblock) return false;
 
-        return true;
+    if (dispatch) {
+        const sliceFromPos = textblock.pos;
+        let sliceToPos = sliceFromPos + textblock.node.nodeSize;
+
+        const tbIndex = sel.$from.index(textblock.depth - 1);
+        const tbParent = sel.$from.node(textblock.depth - 1);
+        const tbParentStartPos = sel.$from.start(textblock.depth - 1);
+
+        let flag = false;
+        // find appropriate sliceToPos
+        tbParent.forEach((node, offset, index) => {
+            if (index < tbIndex || flag) return;
+            if (node.type.spec.complex && node.type.spec.complex !== 'root') {
+                flag = true;
+                return;
+            }
+
+            const absoluteAfterPos = tbParentStartPos + offset + node.nodeSize;
+            sliceToPos = absoluteAfterPos;
+
+            if (sel.to < sliceToPos) flag = true;
+        });
+
+        const tr = state.tr;
+        tr.replaceWith(
+            sliceFromPos,
+            sliceToPos,
+            createYfmCutNode(schema)(tr.doc.slice(sliceFromPos, sliceToPos, false).content),
+        );
+        // set selection to start of cut title
+        tr.setSelection(TextSelection.create(tr.doc, sliceFromPos + 2));
+        dispatch(tr.scrollIntoView());
     }
 
-    return false;
+    return true;
 };
 
 export const toYfmCut: ActionSpec = {
