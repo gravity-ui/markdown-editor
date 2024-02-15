@@ -9,6 +9,7 @@ import {createYfmCut, toYfmCut} from './actions/toYfmCut';
 import {backToCutTitle, exitFromCutTitle, liftEmptyBlockFromCut, removeCut} from './commands';
 import {cutType} from './const';
 import {YfmCutTitleNodeView} from './nodeviews/yfm-cut-title';
+import {cutActivePlugin} from './plugins/active';
 import {cutAutoOpenPlugin} from './plugins/auto-open';
 
 import './index.scss';
@@ -39,6 +40,7 @@ export const YfmCut: ExtensionAuto<YfmCutOptions> = (builder, opts) => {
     });
 
     builder
+        .addPlugin(cutActivePlugin)
         .addPlugin(cutAutoOpenPlugin)
         .addAction(cutAction, () => toYfmCut)
         .addKeymap(() => ({
