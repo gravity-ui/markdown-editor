@@ -1,5 +1,21 @@
 # Changelog
 
+## [10.1.0](https://github.com/yandex-cloud/yfm-editor/compare/v10.0.0...v10.1.0) (2024-02-16)
+
+
+### Features
+
+* heading button that resets heading back to paragraph ([#190](https://github.com/yandex-cloud/yfm-editor/issues/190)) ([475c879](https://github.com/yandex-cloud/yfm-editor/commit/475c87942897e775f6a8dd922373aa0f746879f7))
+* **toolbar:** add property to show custom hint when action is disabled ([#193](https://github.com/yandex-cloud/yfm-editor/issues/193)) ([f08366a](https://github.com/yandex-cloud/yfm-editor/commit/f08366a2efcd1564ad01fcd6add3af80a411e8b1))
+* **YfmCut:** add border to editable yfm-cut nodes ([#189](https://github.com/yandex-cloud/yfm-editor/issues/189)) ([03a1ad2](https://github.com/yandex-cloud/yfm-editor/commit/03a1ad257b4439ec2b30339ff7d13bc45feb8839))
+* **YfmCut:** improve the behavior when creating yfm-cut ([#191](https://github.com/yandex-cloud/yfm-editor/issues/191)) ([67c2300](https://github.com/yandex-cloud/yfm-editor/commit/67c230025cea5c763d7754e7805c1b4783c23db7))
+* **YfmTabs:** change text color of yfm-tabs tab placeholder ([#192](https://github.com/yandex-cloud/yfm-editor/issues/192)) ([42be1aa](https://github.com/yandex-cloud/yfm-editor/commit/42be1aa7bc89a3a194da82e3f31efd57030487be))
+
+
+### Bug Fixes
+
+* **deps:** add markdown-it-attrs to deps ([#187](https://github.com/yandex-cloud/yfm-editor/issues/187)) ([21fdd74](https://github.com/yandex-cloud/yfm-editor/commit/21fdd74e3cdc2566e5cb49543014392da3afb07d))
+
 ## [10.0.0](https://github.com/yandex-cloud/yfm-editor/compare/v9.3.1...v10.0.0) (2024-02-06)
 
 ### ⚠ BREAKING CHANGES
