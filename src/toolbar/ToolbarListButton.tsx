@@ -93,17 +93,40 @@ export function ToolbarListButton<E>({
             <Popup anchorRef={buttonRef} open={popupOpen} onClose={hide}>
                 <Menu size="l" className={b('menu')}>
                     {data
-                        .map(({id, title, icon, hotkey, isActive, isEnable, exec, hint}) => {
+                        .map((data) => {
+                            const {
+                                id,
+                                title,
+                                icon,
+                                hotkey,
+                                isActive,
+                                isEnable,
+                                exec,
+                                hint,
+                                hintWhenDisabled,
+                                disabledPopoverVisible = true,
+                            } = data;
+
                             const titleText = isFunction(title) ? title() : title;
                             const hintText = isFunction(hint) ? hint() : hint;
                             const disabled = !isEnable(editor);
+
+                            const hideHintWhenDisabled =
+                                hintWhenDisabled === false || !disabledPopoverVisible || !disabled;
+                            const hintWhenDisabledText =
+                                typeof hintWhenDisabled === 'string'
+                                    ? hintWhenDisabled
+                                    : typeof hintWhenDisabled === 'function'
+                                      ? hintWhenDisabled()
+                                      : i18n('toolbar_action_disabled');
+
                             return (
                                 <Popover
                                     className={b('action-disabled-popover')}
                                     tooltipContentClassName={b('action-disabled-tooltip')}
-                                    content={i18n('toolbar_action_disabled')}
+                                    content={hintWhenDisabledText}
                                     placement={'left'}
-                                    disabled={!disabled}
+                                    disabled={hideHintWhenDisabled}
                                     key={id}
                                 >
                                     <Menu.Item

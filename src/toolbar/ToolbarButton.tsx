@@ -23,6 +23,7 @@ export function ToolbarButton<E>({
     editor,
     icon,
     disabledPopoverVisible = true,
+    hintWhenDisabled,
     exec,
     focus,
     onClick,
@@ -35,11 +36,18 @@ export function ToolbarButton<E>({
     const buttonRef = useRef<HTMLElement>(null);
 
     const titleText: string = isFunction(title) ? title() : title;
+    const hideHintWhenDisabled = hintWhenDisabled === false || !disabledPopoverVisible || !disabled;
+    const hintWhenDisabledText =
+        typeof hintWhenDisabled === 'string'
+            ? hintWhenDisabled
+            : typeof hintWhenDisabled === 'function'
+              ? hintWhenDisabled()
+              : i18n('toolbar_action_disabled');
 
     return (
         <Popover
-            content={i18n('toolbar_action_disabled')}
-            disabled={!disabledPopoverVisible || !disabled}
+            content={hintWhenDisabledText}
+            disabled={hideHintWhenDisabled}
             tooltipContentClassName={b('action-disabled-tooltip')}
             placement={['bottom']}
         >

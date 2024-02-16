@@ -19,6 +19,7 @@
   "olist": "Ordered list",
   "list__action_sink": "Sink item",
   "list__action_lift": "Lift item",
+  "list_action_disabled": "Contradicts the logic of the list",
   "checkbox": "Checkbox",
   "quote": "Quote",
   "cut": "Cut",
