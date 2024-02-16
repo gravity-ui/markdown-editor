@@ -18,7 +18,20 @@ export type ToolbarItemData<E> = {
     title: string | (() => string);
     hint?: string | (() => string);
     hotkey?: HotkeyProps['value'];
+    /** @deprecated Use _hintWhenDisabled_ setting instead */
     disabledPopoverVisible?: boolean;
+    /**
+     * Show hint when _isEnable()_ returns false
+     *
+     * `false` – don't show hint;
+     *
+     * `true` – show default hint;
+     *
+     * `string` or `() => string` – show hint with custom message.
+     *
+     * @default true
+     */
+    hintWhenDisabled?: boolean | string | (() => string);
     exec(editor: E): void;
     isActive(editor: E): boolean;
     isEnable(editor: E): boolean;
