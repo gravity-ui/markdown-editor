@@ -16,6 +16,10 @@
 
         border-bottom: none;
 
+        .ye-placeholder {
+            color: var(--g-color-text-hint);
+        }
+
         &-wrapper {
             position: relative;
 
