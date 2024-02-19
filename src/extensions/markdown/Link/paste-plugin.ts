@@ -1,8 +1,9 @@
 import {Plugin, TextSelection} from 'prosemirror-state';
 
 import type {ExtensionDeps, Parser} from '../../../core';
-import {isTextSelection} from '../../../utils/selection';
+import {isNodeSelection, isTextSelection} from '../../../utils/selection';
 import {DataTransferType, isIosSafariShare} from '../../behavior/Clipboard/utils';
+import {imageType} from '../Image';
 
 import {LinkAttr, linkType} from './index';
 
@@ -13,23 +14,28 @@ export function linkPasteEnhance({parser}: ExtensionDeps) {
                 paste(view, e): boolean {
                     const {state, dispatch} = view;
                     const sel = state.selection;
-                    if (!isTextSelection(sel)) return false;
-                    const {$from, $to} = sel;
-                    if ($from.pos !== $to.pos && $from.sameParent($to)) {
-                        const url = getUrl(e.clipboardData, parser);
-                        if (url) {
-                            const tr = state.tr.addMark(
-                                $from.pos,
-                                $to.pos,
-                                linkType(state.schema).create({
-                                    [LinkAttr.Href]: url,
-                                }),
-                            );
-                            dispatch(tr.setSelection(TextSelection.create(tr.doc, $to.pos)));
-                            e.preventDefault();
-                            return true;
+                    if (
+                        isTextSelection(sel) ||
+                        (isNodeSelection(sel) && sel.node.type === imageType(state.schema))
+                    ) {
+                        const {$from, $to} = sel;
+                        if ($from.pos !== $to.pos && $from.sameParent($to)) {
+                            const url = getUrl(e.clipboardData, parser);
+                            if (url) {
+                                const tr = state.tr.addMark(
+                                    $from.pos,
+                                    $to.pos,
+                                    linkType(state.schema).create({
+                                        [LinkAttr.Href]: url,
+                                    }),
+                                );
+                                dispatch(tr.setSelection(TextSelection.create(tr.doc, $to.pos)));
+                                e.preventDefault();
+                                return true;
+                            }
                         }
                     }
+
                     return false;
                 },
             },
