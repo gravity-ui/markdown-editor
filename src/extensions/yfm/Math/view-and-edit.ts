@@ -88,7 +88,7 @@ export abstract class MathNodeView implements NodeView {
 
     ignoreMutation(mutation: MutationRecord): boolean {
         // @ts-expect-error
-        if (mutation.type === 'selection') return true;
+        if (mutation.type === 'selection' || mutation.type === 'attributes') return true;
 
         return (
             mutation.type === 'childList' &&
