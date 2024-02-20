@@ -10,7 +10,7 @@ import {i18n} from '../i18n/common';
 import {useBooleanState} from '../react-utils/hooks';
 
 import {ToolbarTooltipDelay} from './const';
-import {ToolbarBaseProps, ToolbarIconData, ToolbarItemData} from './types';
+import {ToolbarBaseProps, ToolbarIconData, ToolbarListButtonItemData} from './types';
 
 import './ToolbarListButton.scss';
 
@@ -20,7 +20,7 @@ export type ToolbarListButtonData<E> = {
     icon: ToolbarIconData;
     title: string | (() => string);
     withArrow?: boolean;
-    data: ToolbarItemData<E>[];
+    data: ToolbarListButtonItemData<E>[];
     alwaysActive?: boolean;
     hideDisabled?: boolean;
 };
@@ -41,7 +41,9 @@ export function ToolbarListButton<E>({
     const buttonRef = React.useRef<HTMLButtonElement>(null);
     const [open, , hide, toggleOpen] = useBooleanState(false);
 
-    const someActive = alwaysActive ? false : data.some((item) => item.isActive(editor));
+    const someActive = alwaysActive
+        ? false
+        : data.some((item) => item.isActive(editor) && !item.doNotActivateList);
     const everyDisabled = alwaysActive ? false : data.every((item) => !item.isEnable(editor));
 
     const popupOpen = everyDisabled ? false : open;

@@ -72,6 +72,10 @@ export type ToolbarReactComponentData<E> = {
     component: React.ComponentType<ToolbarBaseProps<E>>;
 };
 
+export type ToolbarListButtonItemData<E> = ToolbarItemData<E> & {
+    doNotActivateList?: boolean;
+};
+
 export type ToolbarReactNodeData = {
     id: string;
     type: ToolbarDataType.ReactNode;
