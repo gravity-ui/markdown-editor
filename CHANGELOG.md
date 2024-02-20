@@ -1,5 +1,12 @@
 # Changelog
 
+## [10.2.1](https://github.com/yandex-cloud/yfm-editor/compare/v10.2.0...v10.2.1) (2024-02-20)
+
+
+### Bug Fixes
+
+* **Math:** allow to modify dom-attributes of math nodes ([#197](https://github.com/yandex-cloud/yfm-editor/issues/197)) ([c7fd967](https://github.com/yandex-cloud/yfm-editor/commit/c7fd96764e61f4d086b431c87901f0ed2331c8ba))
+
 ## [10.2.0](https://github.com/yandex-cloud/yfm-editor/compare/v10.1.0...v10.2.0) (2024-02-20)
 
 
