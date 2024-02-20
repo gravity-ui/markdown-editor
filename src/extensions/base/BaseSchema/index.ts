@@ -1,4 +1,4 @@
-import {setBlockType} from 'prosemirror-commands';
+import {chainCommands, setBlockType} from 'prosemirror-commands';
 import type {Command} from 'prosemirror-state';
 import {hasParentNodeOfType} from 'prosemirror-utils';
 
@@ -31,9 +31,11 @@ export const BaseSchema: ExtensionAuto<BaseSchemaOptions> = (builder, opts) => {
     builder.addAction(pAction, ({schema}) => {
         const p = pType(schema);
         const cmd = setBlockType(p);
+        const isParagraph: Command = (state) => hasParentNodeOfType(p)(state.selection);
+
         return {
-            isActive: (state) => hasParentNodeOfType(p)(state.selection),
-            isEnable: cmd,
+            isActive: isParagraph,
+            isEnable: chainCommands(isParagraph, cmd),
             run: cmd,
         };
     });
