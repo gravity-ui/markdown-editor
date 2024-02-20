@@ -1,5 +1,13 @@
 # Changelog
 
+## [10.2.0](https://github.com/yandex-cloud/yfm-editor/compare/v10.1.0...v10.2.0) (2024-02-20)
+
+
+### Features
+
+* adding a link to image when pasting a link on selected image node ([#194](https://github.com/yandex-cloud/yfm-editor/issues/194)) ([c64dd68](https://github.com/yandex-cloud/yfm-editor/commit/c64dd68e4b46551903894d73fdae9a13e99b2d89))
+* option to not highlighting active list button and toParagraph action improvement ([#196](https://github.com/yandex-cloud/yfm-editor/issues/196)) ([35d0219](https://github.com/yandex-cloud/yfm-editor/commit/35d0219b8414ec210c5442497f24ba982c512991))
+
 ## [10.1.0](https://github.com/yandex-cloud/yfm-editor/compare/v10.0.0...v10.1.0) (2024-02-16)
 
 
