@@ -68,10 +68,10 @@ describe('Table extension', () => {
         );
     });
 
-    // TODO: fix it
-    it.skip('should parse table under blockquoute', () => {
+    it('should parse table under blockquoute', () => {
         const markup = [
-            '',
+            '> ',
+            '> ',
             '> |Header 1|Header 2|Header 3|',
             '> |:---|:---:|---:|',
             '> |Text 1|Text 2|Text 3|',
