@@ -4,7 +4,7 @@ import {CellAlign, TableAttrs, TableNode} from '../const';
 export const toYfm: Record<TableNode, SerializerNodeToken> = {
     [TableNode.Table]: (state, node) => {
         state.ensureNewLine();
-        state.out += '\n';
+        state.write('\n');
 
         state.setNoAutoBlank();
         state.renderContent(node);
@@ -36,7 +36,8 @@ export const toYfm: Record<TableNode, SerializerNodeToken> = {
             }
         }
 
-        state.write('|\n');
+        state.write('|');
+        state.ensureNewLine();
 
         state.closeBlock(node);
     },
@@ -49,17 +50,18 @@ export const toYfm: Record<TableNode, SerializerNodeToken> = {
     [TableNode.Row]: (state, node) => {
         state.renderContent(node);
         state.closeBlock(node);
-        state.out += '|\n';
+        state.write('|');
+        state.ensureNewLine();
     },
 
     [TableNode.HeaderCell]: (state, node) => {
-        state.out += '|';
+        state.write('|');
         state.renderInline(node);
         state.closeBlock(node);
     },
 
     [TableNode.DataCell]: (state, node) => {
-        state.out += '|';
+        state.write('|');
 
         state.renderInline(node);
         state.closeBlock(node);
