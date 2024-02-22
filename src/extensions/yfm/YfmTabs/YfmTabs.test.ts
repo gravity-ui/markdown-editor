@@ -3,7 +3,7 @@ import {builders} from 'prosemirror-test-builder';
 import {createMarkupChecker} from '../../../../tests/sameMarkup';
 import {ExtensionsManager} from '../../../core';
 import {BaseNode, BaseSpecsPreset} from '../../base/specs';
-import {blockquoteNodeName, italicMarkName} from '../../markdown/specs';
+import {BlockquoteSpecs, blockquoteNodeName, italicMarkName} from '../../markdown/specs';
 
 import {TabsNode, YfmTabsSpecs} from './YfmTabsSpecs';
 
@@ -19,10 +19,11 @@ afterEach(() => {
 });
 
 const {schema, parser, serializer} = new ExtensionsManager({
-    extensions: (builder) => builder.use(BaseSpecsPreset, {}).use(YfmTabsSpecs, {}),
+    extensions: (builder) =>
+        builder.use(BaseSpecsPreset, {}).use(BlockquoteSpecs).use(YfmTabsSpecs, {}),
 }).buildDeps();
 
-const {doc, p, tab, tabs, tabPanel, tabsList} = builders<
+const {doc, p, bq, tab, tabs, tabPanel, tabsList} = builders<
     'doc' | 'p' | 'bq' | 'tab' | 'tabPanel' | 'tabs' | 'tabsList'
 >(schema, {
     doc: {nodeType: BaseNode.Doc},
@@ -114,6 +115,61 @@ describe('YfmTabs extension', () => {
                             'aria-labelledby': 'panel-title-2',
                         },
                         p('panel content 2'),
+                    ),
+                ),
+            ),
+        );
+    });
+
+    it('should correct parse and serialize yfm-tabs inside blockqute', () => {
+        const markup = `
+> {% list tabs %}
+> 
+> - Tab
+> 
+>   Content
+>
+> {% endlist %}`.trim();
+
+        same(
+            markup,
+            doc(
+                bq(
+                    tabs(
+                        {
+                            class: 'yfm-tabs',
+                            'data-diplodoc-group': `defaultTabsGroup-${generatedId}`,
+                        },
+                        tabsList(
+                            {
+                                class: 'yfm-tab-list',
+                                role: 'tablist',
+                            },
+                            tab(
+                                {
+                                    id: 'unknown',
+                                    class: 'yfm-tab active',
+                                    role: 'tab',
+                                    'aria-controls': generatedId,
+                                    'aria-selected': 'true',
+                                    tabindex: '-1',
+                                    'data-diplodoc-is-active': 'true',
+                                    'data-diplodoc-id': 'tab',
+                                    'data-diplodoc-key': 'tab',
+                                },
+                                'Tab',
+                            ),
+                        ),
+                        tabPanel(
+                            {
+                                id: generatedId,
+                                class: 'yfm-tab-panel active',
+                                role: 'tabpanel',
+                                'data-title': 'Tab',
+                                'aria-labelledby': 'tab',
+                            },
+                            p('Content'),
+                        ),
                     ),
                 ),
             ),
