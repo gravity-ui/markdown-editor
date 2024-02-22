@@ -15,7 +15,10 @@ export const toYfm: Record<TabsNode, SerializerNodeToken> = {
     },
 
     [TabsNode.Tabs]: (state, node) => {
-        state.write('{% list tabs %}\n\n');
+        state.write('{% list tabs %}');
+        state.write('\n');
+        state.write('\n');
+
         const children: Node[] = [];
         node.content.forEach((a) => {
             children.push(a);
@@ -24,7 +27,10 @@ export const toYfm: Record<TabsNode, SerializerNodeToken> = {
         const tabList = children[0].content;
 
         tabList.forEach((tab, _, i) => {
-            state.write('- ' + (tab.textContent || getPlaceholderContent(tab)) + '\n\n');
+            state.write('- ' + (tab.textContent || getPlaceholderContent(tab)));
+            state.write('\n');
+            state.write('\n');
+
             if (children[i + 1]) state.renderList(children[i + 1], '  ', () => '  ');
         });
 
