@@ -1,5 +1,13 @@
 # Changelog
 
+## [10.2.2](https://github.com/yandex-cloud/yfm-editor/compare/v10.2.1...v10.2.2) (2024-02-22)
+
+
+### Bug Fixes
+
+* **Table:** correct serialization of the table inside blockquote ([#199](https://github.com/yandex-cloud/yfm-editor/issues/199)) ([9d27a3f](https://github.com/yandex-cloud/yfm-editor/commit/9d27a3fcf381894c009b676916911d3fc232eb95))
+* **YfmTabs:** correct serialization of yfm-tabs inside blockqoute ([#201](https://github.com/yandex-cloud/yfm-editor/issues/201)) ([e2f5d27](https://github.com/yandex-cloud/yfm-editor/commit/e2f5d2792f1646eae48252bca3bb26e7831bd27b))
+
 ## [10.2.1](https://github.com/yandex-cloud/yfm-editor/compare/v10.2.0...v10.2.1) (2024-02-20)
 
 
