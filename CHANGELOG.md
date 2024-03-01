@@ -1,5 +1,13 @@
 # Changelog
 
+## [10.2.3](https://github.com/yandex-cloud/yfm-editor/compare/v10.2.2...v10.2.3) (2024-03-01)
+
+
+### Bug Fixes
+
+* **Clipboard:** copy only text content from codeblock ([#204](https://github.com/yandex-cloud/yfm-editor/issues/204)) ([67e55fc](https://github.com/yandex-cloud/yfm-editor/commit/67e55fc1bbe1b52cf407a340efbd43534c0957c8))
+* **CodeBlock:** fixed parsing of language from token.info and added support for different code_block markup ([#202](https://github.com/yandex-cloud/yfm-editor/issues/202)) ([85509ff](https://github.com/yandex-cloud/yfm-editor/commit/85509ff30bf91b3ec9afa6b0f987f45f3f6ebf7f))
+
 ## [10.2.2](https://github.com/yandex-cloud/yfm-editor/compare/v10.2.1...v10.2.2) (2024-02-22)
 
 
