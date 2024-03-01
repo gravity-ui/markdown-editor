@@ -5,8 +5,7 @@ import {createMarkupChecker} from '../../../../tests/sameMarkup';
 import {ExtensionsManager} from '../../../core';
 import {BaseNode, BaseSpecsPreset} from '../../base/specs';
 
-import {CodeBlockSpecs} from './CodeBlockSpecs';
-import {codeBlockLangAttr, codeBlockNodeName} from './const';
+import {CodeBlockNodeAttr, CodeBlockSpecs, codeBlockNodeName} from './CodeBlockSpecs';
 
 const {schema, parser, serializer} = new ExtensionsManager({
     extensions: (builder) => builder.use(BaseSpecsPreset, {}).use(CodeBlockSpecs, {}),
@@ -24,7 +23,7 @@ describe('CodeBlock extension', () => {
     it('should parse a code block', () =>
         same(
             'Some code:\n\n```\nHere it is\n```\n\nPara',
-            doc(p('Some code:'), cb({[codeBlockLangAttr]: ''}, 'Here it is'), p('Para')),
+            doc(p('Some code:'), cb('Here it is'), p('Para')),
         ));
 
     it('parses an intended code block', () =>
@@ -36,14 +35,17 @@ describe('CodeBlock extension', () => {
     it('should parse a fenced code block with info string', () =>
         same(
             'foo\n\n```javascript\n1\n```',
-            doc(p('foo'), cb({[codeBlockLangAttr]: 'javascript'}, '1')),
+            doc(p('foo'), cb({[CodeBlockNodeAttr.Lang]: 'javascript'}, '1')),
         ));
 
     it('should parse a fenced code block with multiple new lines at the end', () =>
-        same('```\nsome code\n\n\n\n```', doc(cb({[codeBlockLangAttr]: ''}, 'some code\n\n\n'))));
+        same('```\nsome code\n\n\n\n```', doc(cb('some code\n\n\n'))));
 
     // TODO: parsed: doc(paragraph("code\nblock"))
     it.skip('should parse html - pre tag', () => {
         parseDOM(schema, '<pre><code>code\nblock</code></pre>', doc(cb('code\nblock')));
     });
+
+    it('should support different markup', () =>
+        same('~~~\n123\n~~~', doc(cb({[CodeBlockNodeAttr.Markup]: '~~~'}, '123'))));
 });
