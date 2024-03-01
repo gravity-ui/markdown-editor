@@ -13,7 +13,12 @@ import {cbAction, cbType} from './const';
 import {handlePaste} from './handle-paste';
 
 export {resetCodeblock} from './commands';
-export {codeBlockNodeName, codeBlockLangAttr, codeBlockType} from './CodeBlockSpecs';
+export {
+    codeBlockNodeName,
+    CodeBlockNodeAttr,
+    codeBlockLangAttr,
+    codeBlockType,
+} from './CodeBlockSpecs';
 
 export type CodeBlockOptions = CodeBlockSpecsOptions & {
     codeBlockKey?: string | null;

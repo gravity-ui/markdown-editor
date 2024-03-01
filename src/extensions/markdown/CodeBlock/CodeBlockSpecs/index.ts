@@ -1,8 +1,14 @@
 import type {ExtensionAuto, YENodeSpec} from '../../../../core';
 import {nodeTypeFactory} from '../../../../utils/schema';
 
+export const CodeBlockNodeAttr = {
+    Lang: 'data-language',
+    Markup: 'data-markup',
+} as const;
+
 export const codeBlockNodeName = 'code_block';
-export const codeBlockLangAttr = 'data-language';
+/** @deprecated Use __CodeBlockNodeAttr__ instead */
+export const codeBlockLangAttr = CodeBlockNodeAttr.Lang;
 export const codeBlockType = nodeTypeFactory(codeBlockNodeName);
 
 export type CodeBlockSpecsOptions = {
@@ -13,7 +19,10 @@ export const CodeBlockSpecs: ExtensionAuto<CodeBlockSpecsOptions> = (builder, op
     builder.addNode(codeBlockNodeName, () => ({
         view: opts.nodeview,
         spec: {
-            attrs: {[codeBlockLangAttr]: {default: 'text'}},
+            attrs: {
+                [CodeBlockNodeAttr.Lang]: {default: ''},
+                [CodeBlockNodeAttr.Markup]: {default: '```'},
+            },
             content: 'text*',
             group: 'block',
             code: true,
@@ -25,13 +34,13 @@ export const CodeBlockSpecs: ExtensionAuto<CodeBlockSpecsOptions> = (builder, op
                     tag: 'pre',
                     preserveWhitespace: 'full',
                     getAttrs: (node) => ({
-                        [codeBlockLangAttr]:
-                            (node as Element).getAttribute(codeBlockLangAttr) || '',
+                        [CodeBlockNodeAttr.Lang]:
+                            (node as Element).getAttribute(CodeBlockNodeAttr.Lang) || '',
                     }),
                 },
             ],
             toDOM({attrs}) {
-                return ['pre', attrs[codeBlockLangAttr] ? attrs : {}, ['code', 0]];
+                return ['pre', attrs, ['code', 0]];
             },
         },
         fromYfm: {
@@ -43,11 +52,14 @@ export const CodeBlockSpecs: ExtensionAuto<CodeBlockSpecsOptions> = (builder, op
             },
         },
         toYfm: (state, node) => {
-            state.write('```' + (node.attrs[codeBlockLangAttr] || '') + '\n');
+            const lang: string = node.attrs[CodeBlockNodeAttr.Lang];
+            const markup: string = node.attrs[CodeBlockNodeAttr.Markup];
+
+            state.write(markup + lang + '\n');
             state.text(node.textContent, false);
             // Add a newline to the current content before adding closing marker
             state.write('\n');
-            state.write('```');
+            state.write(markup);
             state.closeBlock(node);
         },
     }));
@@ -60,7 +72,17 @@ export const CodeBlockSpecs: ExtensionAuto<CodeBlockSpecsOptions> = (builder, op
                 name: codeBlockNodeName,
                 type: 'block',
                 noCloseToken: true,
-                getAttrs: (tok) => ({[codeBlockLangAttr]: tok.info || ''}),
+                getAttrs: (tok) => {
+                    const attrs: Record<string, string> = {
+                        [CodeBlockNodeAttr.Markup]: tok.markup,
+                    };
+                    if (tok.info) {
+                        // like in markdown-it
+                        // https://github.com/markdown-it/markdown-it/blob/d07d585b6b15aaee2bc8f7a54b994526dad4dbc5/lib/renderer.mjs#L36-L37
+                        attrs[CodeBlockNodeAttr.Lang] = tok.info.split(/(\s+)/g)[0];
+                    }
+                    return attrs;
+                },
                 prepareContent: removeNewLineAtEnd, // content of fence blocks contains extra \n at the end
             },
         },
