@@ -1,4 +1,4 @@
-import {Fragment, Schema, Slice} from 'prosemirror-model';
+import {Fragment, Node, ResolvedPos, Schema, Slice} from 'prosemirror-model';
 import {EditorState, Plugin, Selection} from 'prosemirror-state';
 import type {EditorView} from 'prosemirror-view';
 
@@ -192,20 +192,28 @@ function getSliceFromMarkupFragment(fragment: Fragment) {
 
 type SerializeResult = {
     text: string;
-    html: string;
-    markup: string;
+    html?: string;
+    markup?: string;
 };
 function serializeSelected(view: EditorView, serializer: Serializer): SerializeResult | null {
-    if (view.state.selection.empty) return null;
+    const sel = view.state.selection;
+
+    if (sel.empty) return null;
+
+    if (getSharedDepthNode(sel).type.spec.code) {
+        const fragment = sel.content().content;
+        return {text: fragment.textBetween(0, fragment.size)};
+    }
+
     const markup = serializer.serialize(getCopyContent(view.state).content);
-    const {dom, text} = serializeForClipboard(view, view.state.selection.content());
+    const {dom, text} = serializeForClipboard(view, sel.content());
     return {markup, text, html: dom.innerHTML};
 }
 
 function setClipboardData(data: DataTransfer, result: SerializeResult) {
     data.clearData();
-    data.setData(DataTransferType.Yfm, result.markup);
-    data.setData(DataTransferType.Html, result.html);
+    if (typeof result.markup === 'string') data.setData(DataTransferType.Yfm, result.markup);
+    if (typeof result.html === 'string') data.setData(DataTransferType.Html, result.html);
     data.setData(DataTransferType.Text, result.text);
 }
 
@@ -297,9 +305,13 @@ function createFragmentFromInlineSelection(state: EditorState) {
  * e.g. if select part of cut title it creates slice with yfm-cut –> yfm-cut-title -> selected text
  * it works well with simple nodes, but to handle cases as described above, custom logic needed
  */
-function getSelectionContent({$from, to}: Selection) {
-    const sharedNodeType = $from.node($from.sharedDepth(to)).type;
+function getSelectionContent(sel: Selection) {
+    const sharedNodeType = getSharedDepthNode(sel).type;
     const sharedNodeComplex = sharedNodeType.spec.complex;
     const includeParents = sharedNodeComplex && sharedNodeComplex !== 'leaf';
-    return $from.doc.slice($from.pos, to, includeParents);
+    return sel.$from.doc.slice(sel.$from.pos, sel.to, includeParents);
+}
+
+function getSharedDepthNode({$from, $to}: {$from: ResolvedPos; $to: ResolvedPos}): Node {
+    return $from.node($from.sharedDepth($to.pos));
 }
