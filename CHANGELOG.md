@@ -1,5 +1,16 @@
 # Changelog
 
+## [11.0.0](https://github.com/yandex-cloud/yfm-editor/compare/v10.2.3...v11.0.0) (2024-03-04)
+
+
+### ⚠ BREAKING CHANGES
+
+* update @gravity-ui/uikit to verison 6 ([#205](https://github.com/yandex-cloud/yfm-editor/issues/205))
+
+### Features
+
+* update @gravity-ui/uikit to verison 6 ([#205](https://github.com/yandex-cloud/yfm-editor/issues/205)) ([7cf7347](https://github.com/yandex-cloud/yfm-editor/commit/7cf7347740392e53520d9940d753c6a9cf356421))
+
 ## [10.2.3](https://github.com/yandex-cloud/yfm-editor/compare/v10.2.2...v10.2.3) (2024-03-01)
 
 
