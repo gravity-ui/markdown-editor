@@ -2,7 +2,7 @@ import React from 'react';
 
 import {HelpPopover} from '@gravity-ui/components';
 import {ChevronDown} from '@gravity-ui/icons';
-import {Button, Hotkey, Icon, Menu, Popover, Popup, Tooltip} from '@gravity-ui/uikit';
+import {ActionTooltip, Button, Hotkey, Icon, Menu, Popover, Popup} from '@gravity-ui/uikit';
 import isFunction from 'lodash/isFunction';
 
 import {cn} from '../classname';
@@ -73,8 +73,8 @@ export function ToolbarListButton<E>({
                 placement={'bottom'}
                 disabled={!everyDisabled}
             >
-                <Tooltip
-                    content={titleText}
+                <ActionTooltip
+                    title={titleText}
                     disabled={popupOpen}
                     openDelay={ToolbarTooltipDelay.Open}
                     closeDelay={ToolbarTooltipDelay.Close}
@@ -90,7 +90,7 @@ export function ToolbarListButton<E>({
                     >
                         {buttonContent}
                     </Button>
-                </Tooltip>
+                </ActionTooltip>
             </Popover>
             <Popup anchorRef={buttonRef} open={popupOpen} onClose={hide}>
                 <Menu size="l" className={b('menu')}>
