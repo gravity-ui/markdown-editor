@@ -2,15 +2,15 @@
     &_arrow {
         width: 42px;
 
-        .yc-button__text.yc-button__text.yc-button__text {
+        .g-button__text.g-button__text.g-button__text {
             margin: 0px 21px;
         }
 
-        .yc-button__icon_side_left {
+        .g-button__icon_side_start {
             left: -1px;
         }
 
-        .yc-button__icon_side_right {
+        .g-button__icon_side_end {
             right: -1px;
         }
     }
@@ -26,7 +26,7 @@
         align-items: center;
         column-gap: 8px;
 
-        .yc-icon {
+        .g-icon {
             display: block;
         }
     }
@@ -43,7 +43,7 @@
     &__action-disabled-popover {
         display: block;
 
-        .yc-popover__handler {
+        .g-popover__handler {
             display: block;
         }
     }

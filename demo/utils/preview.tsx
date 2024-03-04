@@ -1,7 +1,6 @@
 import React from 'react';
 
-import {configure as configureComponents} from '@gravity-ui/components';
-import {ThemeProvider, configure as configureUikit} from '@gravity-ui/uikit';
+import {ThemeProvider, configure} from '@gravity-ui/uikit';
 import type {Decorator} from '@storybook/react'; // eslint-disable-line import/no-extraneous-dependencies
 
 import {configure as configureYfmEditor} from '../../src';
@@ -25,8 +24,7 @@ export const withThemeProvider: Decorator = (StoryItem, context) => {
 
 export const withLang: Decorator = (StoryItem, context) => {
     const lang = context.globals.lang;
-    configureUikit({lang});
-    configureComponents({lang});
+    configure({lang});
     configureYfmEditor({lang});
 
     return <StoryItem {...context} />;
