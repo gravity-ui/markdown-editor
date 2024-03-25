@@ -21,7 +21,7 @@ export const chainAND = (...commands: Command[]): Command => {
                 !cmd(
                     // @ts-expect-error – missing the following properties: apply, applyTransaction, reconfigure, toJSON
                     // @d3m1d0v: probably these props should not be used inside commands
-                    // TODO: придумать способ чейнить команды без подобных хаков
+                    // TODO: think about way of chaining commads fithout such hacks
                     {...state, ...tr, tr},
                     dispatch
                         ? // eslint-disable-next-line @typescript-eslint/no-loop-func

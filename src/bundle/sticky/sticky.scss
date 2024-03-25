@@ -1,0 +1,47 @@
+@use '../../styles/zindex' as zIndexVars;
+
+$block: 'ye-editor-sticky';
+
+.#{$block} {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-rows: 1fr;
+
+    &_sticky {
+        position: sticky;
+        top: calc(var(--ye-toolbar-sticky-offset, 0px) + 8px);
+    }
+
+    &_sticky-active:not(.#{$block}_clear) {
+        z-index: zIndexVars.$sticky-toolbar;
+
+        &::before {
+            position: absolute;
+            inset: -4px;
+
+            content: '';
+
+            border: 1px solid var(--g-color-line-generic-solid);
+            border-radius: 4px;
+            background-color: var(--g-color-base-background);
+        }
+    }
+
+    &_part {
+        &_left:not(.#{$block}_clear).#{$block}_sticky::before {
+            right: 0;
+
+            border-right: none;
+            border-top-right-radius: 0;
+            border-bottom-right-radius: 0;
+        }
+
+        &_right:not(.#{$block}_clear).#{$block}_sticky::before {
+            left: 0;
+
+            border-left: none;
+            border-top-left-radius: 0;
+            border-bottom-left-radius: 0;
+        }
+    }
+}

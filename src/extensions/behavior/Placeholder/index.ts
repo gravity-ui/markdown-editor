@@ -1,4 +1,3 @@
-import isEqual from 'lodash/isEqual';
 import type {Node, Schema} from 'prosemirror-model';
 import {EditorState, Plugin, PluginKey, Transaction} from 'prosemirror-state';
 import {findChildren, findParentNodeClosestToPos} from 'prosemirror-utils';
@@ -6,6 +5,7 @@ import {Decoration, DecorationSet} from 'prosemirror-view';
 
 import {cn} from '../../../classname';
 import type {ExtensionAuto} from '../../../core';
+import {isEqual} from '../../../lodash';
 import {isNodeEmpty} from '../../../utils/nodes';
 import {PlaceholderOptions, getPlaceholderContent} from '../../../utils/placeholder';
 import {isTextSelection} from '../../../utils/selection';
@@ -45,7 +45,7 @@ const placeholderNeeded = (node: Node) => {
 
     return (
         isNodeEmpty(node) &&
-        // Если есть дочерние ноды у которых есть постоянный плейсхолдер - отдаем им приоритет
+        // If there are child nodes with constant placeholder - give them the priority
         !childrenWithPlaceholderVisible.length
     );
 };
@@ -61,7 +61,7 @@ const addDecoration = (
     const placeholderSpec = node.type.spec.placeholder;
     const decorationPosition = pos + node.childCount + 1;
 
-    // Не добавляем декорацию если на этой позиции уже есть плейсхолдер
+    // We do not add decoration if there is already a placeholder at this position
     if (!placeholderSpec || widgetsMap[decorationPosition]) return;
 
     if (placeholderSpec.customPlugin) {
@@ -133,14 +133,14 @@ function getPlaceholderWidgetSpecs(state: EditorState) {
     const cursorPos = isTextSelection(selection) ? selection.$cursor?.pos : null;
 
     getPlaceholderPluginKeys(state.schema).forEach((f) => {
-        // Используем find потому что при помощи него можно проитерировать по DecorationSet.
+        // We use find because it can be used to iterate over the DecorationSet.
         f.getState(state)?.find(undefined, undefined, (spec) => {
             widgetsMap[spec.pos] = f;
             return false;
         });
     });
 
-    // Рисуем плэйсхолдеры для всех нод у которых плэйсхолдер alwaysVisible
+    // Fraw placeholder for all nodes where placeholder is alwaysVisible
     const decorate = (node: Node, pos: number, parent: Node | null) => {
         const placeholderSpec = node.type.spec.placeholder;
 
@@ -157,7 +157,7 @@ function getPlaceholderWidgetSpecs(state: EditorState) {
 
     const placeholderSpec = parentNode?.node.type.spec.placeholder;
 
-    // Дорисовываем плэйсхолдер, если его нужно отрисовать на месте курсора
+    // Draw placeholder if it needs to be draw in the place of cursor
     if (
         parentNode &&
         placeholderNeeded(parentNode.node) &&

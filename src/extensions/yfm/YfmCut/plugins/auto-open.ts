@@ -1,9 +1,9 @@
-import throttle from 'lodash/throttle';
 import type {ResolvedPos} from 'prosemirror-model';
 import {Plugin, PluginKey, PluginView} from 'prosemirror-state';
 import {findDomRefAtPos} from 'prosemirror-utils';
 import type {EditorView} from 'prosemirror-view';
 
+import {throttle} from '../../../../lodash';
 import {isTextSelection} from '../../../../utils/selection';
 import {cutContentType, cutType} from '../const';
 

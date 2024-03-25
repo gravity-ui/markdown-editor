@@ -1,0 +1,15 @@
+{
+  "action.template.1": "Две ячейки",
+  "action.template.2": "Большая справа",
+  "action.template.3": "Большая слева",
+  "action.template.4": "Три ячейки",
+  "action.align.left": "Вся секция по левому краю",
+  "action.align.center": "Вся секция по центру",
+  "action.align.right": "Вся секция по правому краю",
+  "action.align.stretch": "Растягивать секцию на всю ширину",
+  "action.remove": "Удалить",
+  "cell.preview": "Превью",
+  "cell.width": "Ширина",
+  "cell.width.auto": "Автоматически",
+  "cell.remove": "Удалить ячейку"
+}

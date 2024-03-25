@@ -1,0 +1,20 @@
+$colors: (
+    'black': '#313538',
+    'gray': '#969a9e',
+    'yellow': '#ebb409',
+    'orange': '#ffab3b',
+    'red': '#ff5958',
+    'green': '#5ecf71',
+    'blue': '#49a0f6',
+    'violet': '#9f6fee',
+);
+
+.g-root {
+    // todo: dark theme
+    &_theme_light {
+        // promo text colors exists only in light theme
+        @each $name, $value in $colors {
+            --yfm-colorify-#{$name}: #{$value};
+        }
+    }
+}

@@ -1,0 +1,35 @@
+@use '~@gravity-ui/uikit/styles/mixins.scss';
+
+.ye-upload-widget {
+    display: flex;
+    justify-content: space-between;
+
+    padding: 4px 6px;
+
+    border-radius: var(--g-border-radius-xs);
+    background-color: var(--g-color-base-misc-light);
+
+    &__labels {
+        display: inline-flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 2px;
+    }
+
+    &__close-button {
+        margin-left: 4px;
+    }
+}
+
+.ye-upload-label {
+    &__content {
+        display: flex;
+        align-items: center;
+        column-gap: 4px;
+    }
+
+    &__filename {
+        display: inline-block;
+        @include mixins.max-text-width(128px);
+    }
+}

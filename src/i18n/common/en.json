@@ -1,3 +1,5 @@
 {
-  "toolbar_action_disabled": "Incompatible markup element"
+  "toolbar_action_disabled": "Incompatible markup element",
+  "edit": "Edit",
+  "delete": "Delete"
 }

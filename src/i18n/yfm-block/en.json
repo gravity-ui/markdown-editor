@@ -1,0 +1,9 @@
+{
+  "align": "Alignment",
+  "width": "Width (px)",
+  "padding": "Paddings",
+  "border": "Border type",
+  "border-size": "Border size",
+  "border-color": "Border color",
+  "remove": "Remove block"
+}

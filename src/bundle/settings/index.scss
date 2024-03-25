@@ -1,0 +1,65 @@
+@import '~@gravity-ui/uikit/styles/mixins';
+
+.ye-editor-settings {
+    display: flex;
+    flex-wrap: nowrap;
+
+    &__mode-button {
+        margin-right: 1px;
+    }
+
+    &__preview-button {
+        margin: 0 2px;
+    }
+
+    &__separator {
+        z-index: 0;
+
+        margin: 6px 4px;
+
+        border-left: 1px solid var(--g-color-line-generic);
+    }
+}
+
+.ye-settings-content {
+    width: 300px;
+
+    &__mode-help {
+        float: right;
+
+        & > div {
+            position: relative;
+            top: 6px;
+
+            display: inline;
+        }
+    }
+
+    &__separator {
+        border-bottom: 1px solid var(--g-color-line-generic);
+    }
+
+    &__toolbar,
+    &__split-mode {
+        padding: 8px 16px 12px;
+    }
+
+    &__toolbar-hint {
+        margin-top: 3px;
+        padding-left: 19px;
+
+        color: var(--g-color-text-secondary);
+    }
+
+    &__version {
+        position: absolute;
+        bottom: 0px;
+        left: 50%;
+
+        opacity: 0.03;
+
+        transform: translateX(-50%);
+
+        @include text-code-inline-1();
+    }
+}

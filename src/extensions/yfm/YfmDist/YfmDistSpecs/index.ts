@@ -1,6 +1,5 @@
-import noop from 'lodash/noop';
-
 import type {ExtensionAuto} from '../../../../core';
+import {noop} from '../../../../lodash';
 
 export const YfmDistSpecs: ExtensionAuto = (builder) => {
     // ignore yfm lint token

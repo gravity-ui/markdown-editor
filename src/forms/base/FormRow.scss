@@ -1,0 +1,28 @@
+@import '~@gravity-ui/uikit/styles/mixins';
+
+.ye-form-row {
+    display: flex;
+    gap: 0 12px;
+
+    &__label {
+        display: flex;
+        flex-shrink: 0;
+        align-items: center;
+
+        min-width: 128px;
+    }
+
+    &__label-text {
+        @include overflow-ellipsis();
+    }
+
+    &__label-help {
+        margin-left: 6px;
+    }
+
+    &__control {
+        flex-grow: 1;
+
+        min-width: 200px;
+    }
+}

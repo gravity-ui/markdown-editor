@@ -16,8 +16,8 @@ export interface ParserToken {
     type: 'node' | 'block' | 'mark';
     attrs?: {[name: string]: unknown};
     getAttrs?: (token: Token, tokens: Token[], index: number) => NonNullable<ParserToken['attrs']>;
-    // Значит что нет закрывающего токена.
-    // То есть контент лежит в поле content токена, а не между открывающим и закрывающим токенами.
+    // It means that there is no closing token
+    // That is, the content lies in the content field of the token, and not between the opening and closing tokens.
     noCloseToken?: boolean;
     ignore?: boolean;
     code?: boolean;

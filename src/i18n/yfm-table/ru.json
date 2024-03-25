@@ -1,0 +1,9 @@
+{
+  "column.add.before": "Добавить столбец до",
+  "column.add.after": "Добавить столбец после",
+  "column.remove": "Удалить столбец",
+  "row.add.before": "Добавить строку до",
+  "row.add.after": "Добавить строку после",
+  "row.remove": "Удалить строку",
+  "table.remove": "Удалить таблицу"
+}

@@ -1,0 +1,46 @@
+.Mermaid {
+    display: flex;
+    justify-content: space-between;
+
+    margin-bottom: 15px;
+    padding: 2px;
+
+    border: 1px solid var(--g-color-line-generic);
+    border-radius: var(--g-border-radius-m);
+
+    &_edit {
+        display: flex;
+    }
+
+    &-Preview {
+        flex: 1;
+    }
+
+    &-Error {
+        flex: 1;
+
+        font-family: var(--g-font-family-monospace);
+
+        color: var(--g-color-text-danger);
+    }
+
+    &-Editor {
+        flex: 1;
+
+        white-space: nowrap;
+        caret-color: auto;
+    }
+
+    &-EditorPopover {
+        z-index: 1;
+
+        float: right;
+    }
+
+    &-Controls {
+        display: flex;
+        justify-content: end;
+
+        margin-top: 5px;
+    }
+}

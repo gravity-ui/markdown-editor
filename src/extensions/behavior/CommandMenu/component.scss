@@ -1,0 +1,59 @@
+@import '~@gravity-ui/uikit/styles/mixins.scss';
+
+$itemHeight: 28px;
+$listWidth: 312px;
+
+.ye-command-menu {
+    &__list.g-list {
+        width: $listWidth;
+
+        .g-list__empty-placeholder {
+            height: $itemHeight;
+            padding-right: 12px;
+            padding-left: 12px;
+        }
+    }
+
+    &__list-item {
+        cursor: pointer;
+    }
+
+    &__item {
+        display: flex;
+        align-items: center;
+
+        width: 100%;
+        padding: 0 16px;
+    }
+
+    &__item-icon {
+        display: flex;
+        flex: 0 0 auto;
+
+        margin-right: 8px;
+    }
+
+    &__item-body {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        column-gap: 12px;
+
+        width: 100%;
+    }
+
+    &__item-title {
+        @include overflow-ellipsis();
+    }
+
+    &__item-extra {
+        display: flex;
+        flex: 0 0 auto;
+        align-items: center;
+        column-gap: 8px;
+    }
+
+    &__item-hotkey {
+        align-self: center;
+    }
+}

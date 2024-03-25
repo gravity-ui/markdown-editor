@@ -1,5 +1,4 @@
 import {generateID} from '@diplodoc/transform/lib/plugins/utils';
-import throttle from 'lodash/throttle';
 import {Command, Plugin, PluginView, TextSelection, Transaction} from 'prosemirror-state';
 import type {Transform} from 'prosemirror-transform';
 import {
@@ -18,6 +17,7 @@ import {
     isGapCursorSelection,
     pType,
 } from '../../';
+import {throttle} from '../../../lodash';
 import {findChildIndex} from '../../../table-utils/helpers';
 import {get$Cursor, isTextSelection} from '../../../utils/selection';
 

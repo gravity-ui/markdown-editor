@@ -1,0 +1,32 @@
+.ye-wysiwyg-editor {
+    display: flex;
+    flex-direction: column;
+
+    &__toolbar {
+        flex-shrink: 0;
+    }
+
+    &__editor {
+        overflow-y: scroll;
+        flex-grow: 1;
+
+        .g-root_theme_dark & .pm-iframe-container {
+            background-color: var(--g-color-base-light);
+        }
+    }
+
+    .yfm-editor {
+        $paddingTop: 4px;
+        $paddingBottom: 4px;
+        height: calc(100% - #{$paddingTop} - #{$paddingBottom});
+        padding: $paddingTop 4px $paddingBottom;
+    }
+
+    &_toolbar .yfm-editor {
+        $paddingTop: 16px;
+        $paddingBottom: 16px;
+        height: calc(100% - #{$paddingTop} - #{$paddingBottom});
+        padding-top: $paddingTop;
+        padding-bottom: $paddingBottom;
+    }
+}

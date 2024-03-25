@@ -1,0 +1,122 @@
+$buttons-size: 18px;
+
+.ye-table-view {
+    &__hack-strip {
+        position: absolute;
+        left: -13px;
+
+        display: block;
+
+        width: 13px;
+        height: 100%;
+
+        background: transparent;
+    }
+
+    &__wrapper {
+        position: relative;
+
+        display: inline-block;
+
+        max-width: calc(100% - $buttons-size);
+        margin-right: $buttons-size;
+        /* stylelint-disable declaration-no-important */
+        margin-bottom: $buttons-size !important;
+    }
+
+    &__buttons-visible {
+        .ye-table-view__plus-button-controls {
+            pointer-events: initial;
+
+            opacity: 1;
+        }
+    }
+
+    &__plus-button-controls {
+        pointer-events: none;
+
+        opacity: 0;
+
+        transition: opacity 150ms ease 50ms;
+
+        &_right {
+            position: absolute;
+            z-index: 100;
+            top: 0;
+            right: -$buttons-size;
+
+            display: flex;
+            align-items: center;
+
+            width: 16px;
+            height: 100%;
+        }
+
+        &_bottom {
+            position: absolute;
+            z-index: 100;
+            bottom: -$buttons-size;
+
+            display: flex;
+            justify-content: center;
+
+            width: 100%;
+            height: 16px;
+        }
+    }
+
+    &__plus-button {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        height: 100%;
+
+        &_right {
+            width: 16px;
+            height: 100%;
+        }
+        &_bottom {
+            width: 100%;
+            height: 16px;
+        }
+    }
+}
+
+// So that cell controls stay inside table and overflow scroll remains
+// we move table content to the bottom left and the table itself is moved upper left on the same distance
+// In that case butoons do not get cropped with overflow and scroll remains. And we draw a line with big z-index so that
+// it overlaps content and content doesn't overflow to the left
+
+.ye-table-view.ye-table-view {
+    z-index: unset;
+
+    display: block;
+    overflow: auto;
+
+    box-sizing: content-box;
+    width: fit-content;
+    // move the table to the upper left on 13px so that it stays in place
+    margin: -13px 0 0 -13px;
+    // move the table to the bottom right on 13px
+    padding: 13px 0 0 13px;
+
+    border: none;
+    border-radius: 0;
+    background: transparent !important;
+
+    // now borders are drawn not in the table but in tbody
+    tbody {
+        display: block;
+
+        border-radius: 8px;
+        background: var(--g-color-base-background);
+        box-shadow: inset 0 0 0 1px var(--g-color-line-generic);
+    }
+}
+
+.ye-table-wrapper {
+    display: inline-block;
+
+    margin-right: 2px;
+}

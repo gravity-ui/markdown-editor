@@ -15,30 +15,26 @@
         @include text-header-2();
     }
 
-    &__preview-type {
+    &__version {
         position: absolute;
         right: 0;
         bottom: 0;
-    }
 
-    &__controls {
-        display: flex;
-        align-items: center;
-        column-gap: 8px;
-
-        & > p {
-            margin: 0;
-        }
+        @include text-code-inline-1();
     }
 
     &__markup {
+        overflow-y: auto;
+
+        margin: 0;
+        padding: 5px 10px;
+
         background-color: var(--g-color-base-generic);
     }
 
     &__editor-view {
-        min-height: 100px;
+        min-height: 150px;
         margin: 20px 0;
-        padding-left: 4px;
     }
 
     &__pm-selection {
