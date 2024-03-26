@@ -1,0 +1,12 @@
+{
+  "error-title": "Error in YFM editor",
+  "settings_wysiwyg": "Visual Editor (wysiwyg)",
+  "settings_markup": "Markdown markup",
+  "settings_menubar": "Toolbar",
+  "settings_hint": "You can disable the top menu and invoke all commands with ‘/’ or the «+» button.",
+  "settings_split-mode": "Split mode",
+  "split-mode-text": "Preview",
+  "settings_split-mode-hint": "Splitting the editor into two windows: preview and editing",
+  "markup_placeholder": "Add your markup here",
+  "preview_hint": "Preview"
+}

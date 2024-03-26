@@ -1,0 +1,15 @@
+{
+  "action.template.1": "Two cells",
+  "action.template.2": "Large cell on the right",
+  "action.template.3": "Large cell on the left",
+  "action.template.4": "Three cells",
+  "action.align.left": "Left alignment",
+  "action.align.center": "Center alignment",
+  "action.align.right": "Right alignment",
+  "action.align.stretch": "Stretch to the full width",
+  "action.remove": "Remove",
+  "cell.preview": "Preview",
+  "cell.width": "Width",
+  "cell.width.auto": "Auto",
+  "cell.remove": "Remove cell"
+}

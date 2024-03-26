@@ -1,0 +1,16 @@
+{
+  "doc_empty": "Enter your text or type '/' to open the list of commands",
+  "checkbox": "Add a description of the task or check point",
+  "codeblock": "Add code or text to the block",
+  "deflist_term": "Definition term",
+  "deflist_desc": "Definition description",
+  "heading": "Heading",
+  "cut_title": "Cut title",
+  "cut_content": "Add text to be displayed on click",
+  "note_title": "Note title",
+  "note_content": "Add content for note",
+  "block": "Block with decoration",
+  "layout_cell": "Text",
+  "table_cell": "Cell content",
+  "select_filter": "Search"
+}

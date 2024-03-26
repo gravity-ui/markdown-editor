@@ -1,0 +1,68 @@
+@import '~@gravity-ui/uikit/styles/mixins.scss';
+
+$itemHeight: 28px;
+$listWidth: 256px;
+
+.ye-emoji-suggest {
+    &__list.g-list {
+        width: $listWidth;
+
+        .g-list__empty-placeholder {
+            height: $itemHeight;
+            padding-right: 12px;
+            padding-left: 12px;
+        }
+    }
+
+    &__list-item {
+        cursor: pointer;
+    }
+
+    &__item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+
+        width: 100%;
+        padding: 0 16px;
+    }
+
+    &__item-info {
+        display: flex;
+        align-items: center;
+    }
+
+    &__item-icon {
+        display: flex;
+        flex: 0 0 auto;
+        justify-content: center;
+
+        width: 20px;
+        margin-right: 8px;
+
+        @include text-body-3();
+    }
+
+    &__item-name {
+        margin-right: 12px;
+
+        white-space: nowrap;
+    }
+
+    &__item-shortcuts {
+        display: inline-flex;
+        align-items: center;
+        column-gap: 4px;
+    }
+
+    &__item-shortcut {
+        padding: 1px 2px;
+
+        white-space: nowrap;
+
+        border-radius: var(--g-border-radius-xs);
+        background-color: var(--g-color-base-generic);
+
+        @include text-code-inline-1();
+    }
+}

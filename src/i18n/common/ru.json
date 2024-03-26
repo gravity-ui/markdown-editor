@@ -1,3 +1,5 @@
 {
-  "toolbar_action_disabled": "Несовместимый элемент разметки"
+  "toolbar_action_disabled": "Несовместимый элемент разметки",
+  "edit": "Редактировать",
+  "delete": "Удалить"
 }

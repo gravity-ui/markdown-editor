@@ -1,0 +1,23 @@
+{
+  "header_title": "Header",
+  "header_hint": "# Your text",
+  "italic_title": "Italic",
+  "italic_hint": "_Your text_",
+  "bold_title": "Bold",
+  "bold_hint": "**Your text**",
+  "strikethrough_title": "Strikethrough",
+  "strikethrough_hint": "~~Your text~~",
+  "blockquote_title": "Blockquote",
+  "blockquote_hint": "> Your text",
+  "code_title": "Code",
+  "code_hint": "```Your text```",
+  "link_title": "Link",
+  "link_hint": "[Your text](url)",
+  "image_title": "Image",
+  "image_hint": "![Your text](url)",
+  "list_title": "List item",
+  "list_hint": "- Your text",
+  "numbered-list_title": "Numbered list",
+  "numbered-list_hint": "1. Your text",
+  "documentation": "Documentation"
+}

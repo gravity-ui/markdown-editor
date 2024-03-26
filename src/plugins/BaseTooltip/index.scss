@@ -1,0 +1,46 @@
+.ye-base-tooltip {
+    display: flex;
+
+    max-width: fit-content;
+    padding: 0;
+
+    &__vertical-line {
+        min-height: 100%;
+        max-height: 100vh;
+        margin: 0 7px;
+
+        border-style: ridge;
+    }
+
+    &__remove-button {
+        display: flex;
+        align-items: center;
+
+        min-height: 100%;
+    }
+
+    &-content {
+        &__row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+
+            &:not(:last-child) {
+                margin-bottom: 4px;
+            }
+        }
+
+        &__input {
+            width: 180px;
+            margin-left: 8px;
+        }
+
+        &__number {
+            max-width: 150px;
+        }
+
+        &__switch {
+            margin-right: 28px;
+        }
+    }
+}

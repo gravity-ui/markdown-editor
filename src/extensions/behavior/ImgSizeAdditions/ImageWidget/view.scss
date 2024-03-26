@@ -1,0 +1,15 @@
+@import '~@gravity-ui/uikit/styles/mixins';
+
+.ye-image-placeholder {
+    display: inline-flex;
+    align-items: center;
+    column-gap: 8px;
+
+    min-width: 300px;
+    padding: 12px 20px;
+
+    border-radius: 4px;
+    background-color: var(--g-color-base-simple-hover-solid);
+
+    @include text-body-2();
+}

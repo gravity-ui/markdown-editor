@@ -1,0 +1,9 @@
+{
+  "column.add.before": "Add column before",
+  "column.add.after": "Add column after",
+  "column.remove": "Remove column",
+  "row.add.before": "Add row before",
+  "row.add.after": "Add row after",
+  "row.remove": "Remove row",
+  "table.remove": "Remove table"
+}

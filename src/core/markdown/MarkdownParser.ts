@@ -64,7 +64,7 @@ export class MarkdownParser implements Parser {
 
             let doc;
 
-            // Если после парсинга остались незакрытые ноды - закрываем их, вытаскивая из стэка.
+            // If after parsing there are still unclosed nodes, close them by removing them from the stack.
             do {
                 doc = this.closeNode();
             } while (this.stack.length);
@@ -98,10 +98,10 @@ export class MarkdownParser implements Parser {
     }
 
     private getTokenSpec(yfmToken: Token) {
-        // Матчимся на мета-аттрибут pm-node который проставляется в плагине для markdown-it
+        // Matching the pm-node meta-attribute which is set in the plugin for markdown-it
         let tokName = (yfmToken.meta?.['pm-node'] as string) || yfmToken.type;
 
-        // Отрезаем _open и _close с конца названия
+        // Cropping _open and _close from node name end
         // e.g. paragraph_open -> paragraph
         tokName = tokName.replace(new RegExp(`(${openSuffix})$|(${closeSuffix})$`), '');
 
@@ -115,8 +115,8 @@ export class MarkdownParser implements Parser {
         return tokenSpec;
     }
 
-    // Получаем тип токена из его названия
-    // Например "paragraph_open" - открывающий токен для paragraph
+    // Getting token type from its name
+    // e.g. "paragraph_open" - is opening token for paragraph
     private getTokenType({type}: Token): keyof typeof TokenType {
         if (type.endsWith(openSuffix)) return TokenType.open;
         if (type.endsWith(closeSuffix)) return TokenType.close;
@@ -177,7 +177,7 @@ export class MarkdownParser implements Parser {
     private handleNode(_yfmToken: Token, tokenSpec: ParserToken, attrs?: TokenAttrs) {
         const schemaSpec = this.schema.nodes[tokenSpec.name];
 
-        // Ноду добавляем as is, потому что у нее нет вложенного контента.
+        // Adding node as is, becasuse it doesn't contain content.
         this.addNode(schemaSpec, attrs);
     }
 
@@ -246,7 +246,7 @@ export class MarkdownParser implements Parser {
     }
 
     private closeNode() {
-        // Марки действуют в рамках ноды. Поэтому когда закрываем ноду - обнуляем действующие марки.
+        // Marks operate within a node. Therefore, when we close the node, we reset the existing marks.
         if (this.marks.length) this.marks = Mark.none;
         const info = this.stack.pop();
         if (info) return this.addNode(info.type, info.attrs, info.content);
@@ -264,7 +264,7 @@ export class MarkdownParser implements Parser {
         else nodes.push(node);
     }
 
-    // Добавляем марку к сету активных
+    // Adding mark to a set of open marks
     private openMark(mark: Mark) {
         this.marks = mark.addToSet(this.marks);
     }
@@ -292,10 +292,10 @@ export class MarkdownParser implements Parser {
     }
 }
 
-// Проверяет - если это две текстовые ноды и у них одинаковые марки то мерджит их в одну.
+// Checking if these are two text nodes and they have the same marks, then it merges them into one.
 function maybeMerge(a: Node, b: Node) {
     if (a.isText && b.isText && Mark.sameSet(a.marks, b.marks)) {
-        // Почему-то этот метод не прописан в тайпингах, однако он существует.
+        // Somehow this method is not in typings but it exists.
         // @ts-expect-error
         return a.withText(a.text + b.text);
     }

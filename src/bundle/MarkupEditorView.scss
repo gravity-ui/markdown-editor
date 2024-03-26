@@ -1,0 +1,141 @@
+@import '~@gravity-ui/uikit/styles/mixins';
+
+$selection-color: rgba(98, 146, 255, 0.2);
+$toolbar-height: 28px;
+
+.ye-markup-editor,
+.ye-markup-preview {
+    display: flex;
+    flex: 1 0 0;
+    flex-direction: column;
+
+    &__toolbar {
+        flex-shrink: 0;
+    }
+
+    &__editor {
+        flex-basis: 100%;
+        // Height of one line + margin. Because where there is no toolbar and there is a small space, the markup editor is not visible.
+        min-height: 36px;
+        max-height: 100%;
+
+        cursor: text;
+        // We subtract the height of the toolbar only when it is drawn.
+        &_toolbar-visible {
+            max-height: calc(100% - $toolbar-height);
+        }
+    }
+
+    .CodeMirror-lines {
+        padding: 4px 0 0;
+    }
+
+    &_toolbar .CodeMirror-lines {
+        padding-top: 16px;
+    }
+
+    .CodeMirror-focused .CodeMirror-selected,
+    .focus::selection {
+        background: $selection-color;
+    }
+
+    .CodeMirror-selected,
+    ::selection {
+        background: darken($selection-color, 50%);
+    }
+
+    .CodeMirror {
+        height: 100%;
+        min-height: 100%;
+
+        color: var(--g-color-text-primary);
+
+        @include text-code-2();
+
+        .CodeMirror-cursor {
+            border-color: var(--g-color-text-primary);
+        }
+
+        .cm-m-markdown {
+            &.cm-header {
+                color: inherit;
+            }
+
+            &.cm-quote {
+                color: var(--g-color-text-positive);
+            }
+
+            &.cm-link {
+                color: var(--g-color-text-link);
+            }
+
+            &.cm-string {
+                color: var(--g-color-text-warning-heavy);
+            }
+
+            &.cm-comment {
+                color: var(--g-color-text-misc);
+            }
+
+            // reset list items color
+            &.cm-variable-2,
+            &.cm-variable-3,
+            &.cm-keyword {
+                color: unset;
+            }
+        }
+
+        // override default theme
+        // TODO: use own theme
+        &.cm-s-default {
+            background-color: var(--g-color-base-background);
+
+            .CodeMirror-placeholder {
+                color: var(--g-color-text-secondary);
+            }
+
+            // .CodeMirror-linenumber,
+            // .CodeMirror-guttermarker-subtle {
+            //     color: var(--g-color-text-secondary);
+            // }
+
+            // .CodeMirror-gutters {
+            //     border-color: var(--g-color-line-solid);
+            //     background-color: var(--g-color-base-generic-ultralight);
+            // }
+
+            // .CodeMirror-activeline-gutter {
+            //     background-color: var(--g-color-base-generic);
+            // }
+
+            // .CodeMirror-activeline-background {
+            //     background-color: var(--g-color-base-selection);
+            // }
+        }
+    }
+}
+
+.ye-markup-preview {
+    &__outer {
+        overflow-y: scroll;
+        flex: 1 0 0;
+
+        height: 100%;
+
+        &_vertical {
+            box-sizing: border-box;
+            margin-top: 6px;
+            padding-top: 12px;
+
+            border-top: 8px solid var(--g-color-base-generic-ultralight);
+        }
+    }
+
+    &__html {
+        position: relative;
+    }
+
+    &__preview-sign {
+        margin-bottom: 8px;
+    }
+}

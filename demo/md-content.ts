@@ -18,11 +18,9 @@ export const initialMdContent = `
 А это блочная формула:
 
 $$
-
 f(\\relax{x}) = \\int_{-\\infty}^\\infty
     \\hat f(\\xi)\\,e^{2 \\pi i \\xi x}
     \\,d\\xi
-
 $$
 
 _Кликни в формулу, чтобы отредактировать её_
@@ -111,46 +109,17 @@ _Кликни в формулу, чтобы отредактировать её_
 
 ---
 
+## Это заголовок 2 уровня
+
 [ссылка](https://ya.ru)
 
 Colored text: {black}(black) {gray}(gray) {yellow}(yellow) {orange}(orange) {red}(red) {green}(green) {blue}(blue) {violet}(violet)
 
-This *paragraph <span style="color: red;" onmouseenter="alert('XSS inline');"> has* </span> inline html
+This *paragraph <span style="color: red;"> has* </span> inline html
 
 <div style="color: green;">This text inside custom html.</div> This is text after custom html, but inside html_block too
-<main onmouseenter="alert('XSS block');">This is main</main>
+<main>This is main</main>
 
 <div>This is another html_block</div>
-
-{% list tabs %}
-
-- The name of tab1
-
-  The text of tab1.
-
-  * You can use lists.
-  * And **other** markup.
-
-- The name of tab2
-
-  The text of tab2.
-
-- The name of tab3
-
-  The text of tab3.
-
-- The name of tab4
-
-  The text of tab4.
-
-- The name of tab5
-
-  The text of tab5.
-
-- The name of tab6
-
-  The text of tab6.
-
-{% endlist %}
 
 `.trim();

@@ -1,0 +1,20 @@
+@import '~@diplodoc/transform/src/scss/_note.scss';
+
+.ye-yfm-note-toolbar {
+    margin: 2px 8px;
+}
+
+.ye-toolbar-group__s-button_id_ {
+    &note-type-tip {
+        color: $tipColor;
+    }
+    &note-type-info {
+        color: $infoColor;
+    }
+    &note-type-alert {
+        color: $importantColor;
+    }
+    &note-type-warning {
+        color: $warningColor;
+    }
+}

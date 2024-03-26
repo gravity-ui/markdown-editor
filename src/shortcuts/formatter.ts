@@ -1,5 +1,4 @@
-import capitalize from 'lodash/capitalize';
-
+import {capitalize} from '../lodash';
 import {isMac} from '../utils/platform';
 
 import {cmChars} from './chars';

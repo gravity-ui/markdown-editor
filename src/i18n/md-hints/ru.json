@@ -1,0 +1,23 @@
+{
+  "header_title": "Заголовок",
+  "header_hint": "# Ваш текст",
+  "italic_title": "Курсивный",
+  "italic_hint": "_Ваш текст_",
+  "bold_title": "Жирный",
+  "bold_hint": "**Ваш текст**",
+  "strikethrough_title": "Зачеркнутый",
+  "strikethrough_hint": "~~Ваш текст~~",
+  "blockquote_title": "Цитата",
+  "blockquote_hint": "> Ваш текст",
+  "code_title": "Код",
+  "code_hint": "```Ваш текст```",
+  "link_title": "Ссылка",
+  "link_hint": "[Ваш текст](веб-адрес)",
+  "image_title": "Изображение",
+  "image_hint": "![Ваш текст](веб-адрес)",
+  "list_title": "Список",
+  "list_hint": "- Ваш текст",
+  "numbered-list_title": "Нумерованный список",
+  "numbered-list_hint": "1. Ваш текст",
+  "documentation": "Документация"
+}

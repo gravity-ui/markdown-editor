@@ -1,0 +1,30 @@
+.ye-code-block-toolbar {
+    margin: 2px 8px;
+}
+
+.ye-code-tooltip-menu {
+    min-width: 150px;
+
+    border-radius: 4px;
+}
+
+.ye-code-block__select-popup {
+    width: 175px;
+    max-height: 200px;
+
+    .g-select-filter {
+        border-bottom: 1px solid var(--g-color-line-generic);
+
+        .g-text-input__content {
+            border: none;
+        }
+    }
+
+    .ye-code-block__select-empty {
+        margin-left: 4px;
+    }
+}
+
+.ye-code-block__select-button {
+    margin: auto 0;
+}

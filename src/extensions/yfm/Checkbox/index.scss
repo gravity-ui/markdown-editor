@@ -6,7 +6,7 @@
         display: inline-block;
     }
 
-    /* Повышение специфичности селектора чтобы перетереть yfm стили с нулевым отступом */
+    /* Increasing selector specificity to override yfm styles with zero padding */
     &__input {
         /* stylelint-disable declaration-no-important */
         margin-right: 5px !important;

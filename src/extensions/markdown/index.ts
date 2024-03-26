@@ -1,6 +1,5 @@
-import isFunction from 'lodash/isFunction';
-
 import type {Extension, ExtensionAuto} from '../../core';
+import {isFunction} from '../../lodash';
 
 import {Blockquote, BlockquoteOptions} from './Blockquote';
 import {Bold, BoldOptions} from './Bold';

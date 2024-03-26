@@ -1,0 +1,34 @@
+.ye-markdown-hints {
+    min-width: 210px;
+
+    line-height: var(--g-text-code-1-line-height);
+
+    &__grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 4px;
+    }
+
+    &__title {
+        font-weight: 500;
+    }
+
+    &__hint {
+        white-space: nowrap;
+
+        color: var(--g-color-text-complementary);
+    }
+
+    &__title,
+    &__hint {
+        flex: 1;
+
+        text-align: left;
+    }
+
+    &__docs-link {
+        display: inline-block;
+
+        margin-top: 8px;
+    }
+}

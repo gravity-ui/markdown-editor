@@ -1,0 +1,39 @@
+.ye-toolbar-select {
+    &__item {
+        display: flex;
+        align-items: center;
+
+        width: 100%;
+        height: 100%;
+    }
+
+    &__item-icon {
+        display: flex;
+        flex-shrink: 0;
+
+        margin-right: 6px;
+    }
+
+    &__item-content {
+        display: flex;
+        justify-content: space-between;
+        column-gap: 16px;
+
+        width: 100%;
+    }
+
+    &__item-extra {
+        display: flex;
+        align-items: center;
+        column-gap: 8px;
+    }
+
+    &__item-hint {
+        display: flex;
+        align-items: center;
+
+        span {
+            display: flex;
+        }
+    }
+}

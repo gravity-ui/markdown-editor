@@ -1,3 +1,5 @@
+declare const __VERSION__: string;
+
 declare module 'markdown-it-attrs' {
     import type {PluginWithOptions} from 'markdown-it';
     export type AttrsOptions = {

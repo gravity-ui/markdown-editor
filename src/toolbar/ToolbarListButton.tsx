@@ -3,10 +3,10 @@ import React from 'react';
 import {HelpPopover} from '@gravity-ui/components';
 import {ChevronDown} from '@gravity-ui/icons';
 import {ActionTooltip, Button, Hotkey, Icon, Menu, Popover, Popup} from '@gravity-ui/uikit';
-import isFunction from 'lodash/isFunction';
 
 import {cn} from '../classname';
 import {i18n} from '../i18n/common';
+import {isFunction} from '../lodash';
 import {useBooleanState} from '../react-utils/hooks';
 
 import {ToolbarTooltipDelay} from './const';

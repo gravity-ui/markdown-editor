@@ -30,7 +30,7 @@ export const removeCurrentColumn: Command = (state, dispatch) => {
     }
 
     if (parentCellIndex === 0) {
-        return false; // TODO: удалять первый столбец
+        return false; // TODO: remove first column
     }
 
     if (dispatch) {

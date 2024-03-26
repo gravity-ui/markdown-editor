@@ -1,6 +1,8 @@
-import {useCallback, useRef, useState} from 'react';
+import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 
-import {useEffectOnce} from 'react-use';
+import {useEffectOnce, useLatest} from 'react-use';
+
+import {debounce} from '../lodash';
 
 type SetTrue = () => void;
 type SetFalse = () => void;
@@ -36,3 +38,21 @@ export const useRenderTime = (cb: (time: number) => void) => {
         cb(Date.now() - time);
     });
 };
+
+type AnyFunction = (...args: any[]) => any;
+export function useDebounce<Fn extends AnyFunction>(cb: Fn, wait: number) {
+    const latestCb = useLatest(cb);
+
+    const debouncedFn = useMemo(
+        () =>
+            debounce((...args: Parameters<Fn>) => {
+                latestCb.current.apply(null, args);
+            }, wait),
+        [latestCb, wait],
+    );
+
+    // cancel function on unmount
+    useEffect(() => () => debouncedFn.cancel(), [debouncedFn]);
+
+    return debouncedFn;
+}

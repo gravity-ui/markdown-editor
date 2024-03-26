@@ -1,18 +1,48 @@
-import {useEffect} from 'react';
+import React from 'react';
 
 import {applyDevTools, removeDevTools} from 'prosemirror-dev-toolkit';
-import type {EditorView} from 'prosemirror-view';
+import {EditorView} from 'prosemirror-view';
+import {useEffectOnce, useUpdate} from 'react-use';
 
-export type ProseMirrorDevToolsProps = {
+import type {Editor} from '../src/bundle';
+
+export type WysiwygDevToolsProps = {
+    editorRef: React.RefObject<Editor>;
+};
+
+export function WysiwygDevTools({editorRef}: WysiwygDevToolsProps) {
+    const rerender = useUpdate();
+    useEffectOnce(() => {
+        rerender();
+    });
+
+    const editor = editorRef.current;
+    const view = editor?.currentType === 'wysiwyg' && editor._wysiwygView;
+
+    React.useLayoutEffect(() => {
+        if (!editor) return undefined;
+        editor.on('change-editor-type', rerender);
+        return () => {
+            editor.off('change-editor-type', rerender);
+        };
+    }, [editor, rerender]);
+
+    if (!view) return null;
+
+    return <ProseMirrorDevTools view={view} />;
+}
+
+type ProseMirrorDevToolsProps = {
     view: EditorView;
 };
 
-export function ProseMirrorDevTools({view}: ProseMirrorDevToolsProps) {
-    useEffect(() => {
+function ProseMirrorDevTools({view}: ProseMirrorDevToolsProps) {
+    React.useEffect(() => {
         applyDevTools(view);
         return () => {
             removeDevTools();
         };
     }, [view]);
+
     return null;
 }

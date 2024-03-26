@@ -1,0 +1,68 @@
+.ye-editor-component {
+    display: flex;
+
+    height: 100%;
+
+    &_split {
+        &_vertical {
+            display: grid;
+            grid-template-rows: 1fr auto 1fr;
+            gap: 2px;
+        }
+    }
+
+    &__editor {
+        flex-grow: 1;
+        gap: 2px;
+
+        min-width: 0;
+    }
+
+    &__editor-wrapper {
+        display: flex;
+
+        width: 100%;
+    }
+
+    &__preview-wrapper {
+        overflow-y: scroll;
+
+        width: 100%;
+    }
+
+    &__resizer {
+        margin: 0 5px;
+        &_horizontal {
+            display: flex;
+            justify-content: space-evenly;
+            align-items: center;
+
+            min-width: 8px;
+            min-height: 100%;
+            margin: 0 8px;
+
+            cursor: col-resize;
+
+            background: var(--g-color-base-generic-ultralight);
+        }
+    }
+
+    &__gutter {
+        top: 50%;
+        bottom: 50%;
+
+        width: 2px;
+        height: 24px;
+
+        background: var(--g-color-line-generic);
+    }
+
+    // TODO: fixme
+    .ye-toolbar-list-button_arrow {
+        width: 42px;
+    }
+
+    .in-resize {
+        pointer-events: none;
+    }
+}

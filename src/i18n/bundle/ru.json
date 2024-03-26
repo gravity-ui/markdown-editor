@@ -1,0 +1,12 @@
+{
+  "error-title": "Ошибка в редакторе YFM",
+  "settings_wysiwyg": "Визуальный редактор (wysiwyg)",
+  "settings_markup": "Разметка Markdown",
+  "settings_menubar": "Панель инструментов",
+  "settings_hint": "Можно отключить верхнее меню и вызывать все команды ‘/’ или кнопкой «+»",
+  "settings_split-mode": "Сплит-режим",
+  "settings_split-mode-hint": "Разделение редактора на два окна: предпросмотр и редактирование",
+  "split-mode-text": "Предпросмотр",
+  "markup_placeholder": "Добавьте вашу разметку",
+  "preview_hint": "Предпросмотр"
+}

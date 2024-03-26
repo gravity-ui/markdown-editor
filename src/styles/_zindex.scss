@@ -1,0 +1,6 @@
+// so that cursor is always cursor:grabbing
+$dnd-cursor-back: 100500;
+// ghost for drag and drop. has to be always above other elements
+$dnd-ghost: 100499;
+
+$sticky-toolbar: 2000; // more than has popup

@@ -1,0 +1,14 @@
+.ye-image-tooltip-form {
+    &__input {
+        &_type_width,
+        &_type_height {
+            max-width: 112px;
+        }
+    }
+
+    &__size-controls {
+        display: flex;
+        align-items: center;
+        gap: 0 16px;
+    }
+}

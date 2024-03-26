@@ -1,4 +1,6 @@
+/* eslint-disable import/no-extraneous-dependencies */
 import {transform as latex} from '@diplodoc/latex-extension';
+import {transform as mermaid} from '@diplodoc/mermaid-extension';
 import anchors from '@diplodoc/transform/lib/plugins/anchors';
 import checkbox from '@diplodoc/transform/lib/plugins/checkbox';
 import code from '@diplodoc/transform/lib/plugins/code';
@@ -14,12 +16,16 @@ import yfmTable from '@diplodoc/transform/lib/plugins/table';
 import tabs from '@diplodoc/transform/lib/plugins/tabs';
 import video from '@diplodoc/transform/lib/plugins/video';
 import type {PluginWithParams} from 'markdown-it/lib';
-import color from 'markdown-it-color';
-import ins from 'markdown-it-ins';
-import mark from 'markdown-it-mark';
-import sub from 'markdown-it-sub';
+
+import {emojiDefs} from '../src/bundle/emoji';
+import color from '../src/markdown-it/color';
+import {bare as emoji} from '../src/markdown-it/emoji';
+import ins from '../src/markdown-it/ins';
+import mark from '../src/markdown-it/mark';
+import sub from '../src/markdown-it/sub';
 
 export const LATEX_RUNTIME = 'extension:latex';
+export const MERMAID_RUNTIME = 'extension:mermaid';
 
 const defaultPlugins: PluginWithParams[] = [
     meta,
@@ -35,7 +41,6 @@ const defaultPlugins: PluginWithParams[] = [
     yfmTable,
     file,
     imsize,
-    checkbox,
 ];
 const extendedPlugins = defaultPlugins.concat(
     sub,
@@ -43,6 +48,9 @@ const extendedPlugins = defaultPlugins.concat(
     mark,
     latex({bundle: false, validate: false, runtime: LATEX_RUNTIME}),
     color,
+    checkbox,
+    mermaid({bundle: false, runtime: MERMAID_RUNTIME}),
+    (md) => md.use(emoji, {defs: emojiDefs}),
 );
 
 export {extendedPlugins as plugins};

@@ -1,0 +1,9 @@
+$colors: ('black', 'gray', 'yellow', 'orange', 'red', 'green', 'blue', 'violet');
+
+.ye-toolbar-colors {
+    @each $name in $colors {
+        &__item-icon_color_#{$name} {
+            color: var(--yfm-colorify-#{$name});
+        }
+    }
+}
