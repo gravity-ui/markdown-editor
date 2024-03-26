@@ -1,5 +1,16 @@
 # Changelog
 
+## [12.0.0](https://github.com/yandex-cloud/yfm-editor/compare/v11.0.0...v12.0.0) (2024-03-26)
+
+
+### ⚠ BREAKING CHANGES
+
+* added more functionality ([#207](https://github.com/yandex-cloud/yfm-editor/issues/207))
+
+### Features
+
+* added more functionality ([#207](https://github.com/yandex-cloud/yfm-editor/issues/207)) ([de54991](https://github.com/yandex-cloud/yfm-editor/commit/de549914279be23f6b45dda50aec5ba7fdb7c439))
+
 ## [11.0.0](https://github.com/yandex-cloud/yfm-editor/compare/v10.2.3...v11.0.0) (2024-03-04)
 
 
