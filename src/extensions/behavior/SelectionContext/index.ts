@@ -20,8 +20,13 @@ export const SelectionContext: ExtensionAuto<SelectionContextOptions> = (builder
 };
 
 class SelectionTooltip implements PluginSpec<unknown> {
+    private destroyed = false;
+
     private tooltip: TooltipView;
     private hideTimeoutRef: ReturnType<typeof setTimeout> | null = null;
+
+    private _prevState?: EditorState | null;
+    private _isMousePressed = false;
 
     constructor(actions: ActionStorage, menuConfig: ContextConfig) {
         this.tooltip = new TooltipView(actions, menuConfig);
@@ -40,6 +45,21 @@ class SelectionTooltip implements PluginSpec<unknown> {
                     return false;
                 },
             }),
+            handleDOMEvents: {
+                mousedown: (view) => {
+                    this._isMousePressed = true;
+                    this.cancelTooltipHiding();
+                    this.tooltip.hide(view);
+
+                    const onMouseUp = () => {
+                        if (this.destroyed) return;
+                        this._isMousePressed = false;
+                        this.update(view, this._prevState);
+                    };
+
+                    document.addEventListener('mouseup', onMouseUp, {once: true});
+                },
+            },
         };
     }
 
@@ -48,6 +68,7 @@ class SelectionTooltip implements PluginSpec<unknown> {
         return {
             update: this.update.bind(this),
             destroy: () => {
+                this.destroyed = true;
                 this.cancelTooltipHiding();
                 this.tooltip.destroy();
             },
@@ -55,6 +76,10 @@ class SelectionTooltip implements PluginSpec<unknown> {
     }
 
     private update(view: EditorView, prevState?: EditorState | null) {
+        this._prevState = prevState;
+        if (this._isMousePressed) return;
+
+        this._prevState = null;
         this.cancelTooltipHiding();
 
         // Don't show tooltip if editor not mounted to the DOM
