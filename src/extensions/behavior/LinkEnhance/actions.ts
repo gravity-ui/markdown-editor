@@ -38,7 +38,9 @@ export const addEmptyLink: Command = (state, dispatch) => {
             tr.setMeta(imageRendererKey, meta);
         }
     } else {
-        tr.setSelection(TextSelection.create(tr.doc, $to.pos - 1));
+        const selectedText = state.doc.textBetween($from.pos, $to.pos);
+        const countOfWhitespacesAtEnd = selectedText.length - selectedText.trimEnd().length;
+        tr.setSelection(TextSelection.create(tr.doc, $to.pos - countOfWhitespacesAtEnd - 1));
     }
     dispatch?.(tr);
     return true;

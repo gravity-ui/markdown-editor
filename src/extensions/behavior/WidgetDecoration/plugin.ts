@@ -1,5 +1,5 @@
 import {Plugin, PluginKey} from 'prosemirror-state';
-import {DecorationSet} from 'prosemirror-view';
+import {Decoration, DecorationSet} from 'prosemirror-view';
 
 import type {Meta, WidgetSpec} from './types';
 
@@ -30,11 +30,16 @@ export const WidgetDecorationPlugin = () => {
 
                 if (meta?.type === 'add') {
                     const {descriptor} = meta;
-                    // @ts-expect-error // TODO
-                    const deco = Decoration.widget<WidgetSpec>(
+                    const spec: WidgetSpec = {
+                        id: descriptor.id,
+                        pos: descriptor.initPos,
+                        descriptor,
+                    };
+                    const deco = Decoration.widget(
                         descriptor.initPos,
+                        // @ts-expect-error
                         descriptor.render.bind(descriptor),
-                        {id: descriptor.id, pos: descriptor.initPos, descriptor},
+                        spec,
                     );
 
                     set = set.add(tr.doc, [deco]);
