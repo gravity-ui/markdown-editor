@@ -33,8 +33,17 @@ export const createPlaceholder = (node: Node, parent: Node | null, focus?: boole
     if (!content) return null;
 
     const placeholder = document.createElement('div');
-    placeholder.classList.add(...b({focus}).split(' '));
-    placeholder.textContent = content;
+    placeholder.className = b({focus});
+
+    const placeholderCursor = document.createElement('span');
+    placeholderCursor.className = b('cursor');
+
+    const placeholderText = document.createElement('span');
+    placeholderText.className = b('text');
+    placeholderText.textContent = content;
+
+    placeholder.append(placeholderCursor, placeholderText);
+
     return placeholder;
 };
 
