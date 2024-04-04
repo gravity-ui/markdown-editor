@@ -1,4 +1,4 @@
-.Mermaid {
+.ye-Mermaid {
     display: flex;
     justify-content: space-between;
 
@@ -12,11 +12,11 @@
         display: flex;
     }
 
-    &-Preview {
+    &__Preview {
         flex: 1;
     }
 
-    &-Error {
+    &__Error {
         flex: 1;
 
         font-family: var(--g-font-family-monospace);
@@ -24,20 +24,20 @@
         color: var(--g-color-text-danger);
     }
 
-    &-Editor {
+    &__Editor {
         flex: 1;
 
         white-space: nowrap;
         caret-color: auto;
     }
 
-    &-EditorPopover {
+    &__EditorPopover {
         z-index: 1;
 
         float: right;
     }
 
-    &-Controls {
+    &__Controls {
         display: flex;
         justify-content: end;
 

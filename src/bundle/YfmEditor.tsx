@@ -27,7 +27,7 @@ export type YfmEditorRef = Editor & {
  * The `YfmEditor` component will be removed soon.
  * Use `useYfmEditor` hook and `YfmEditorView` component instead.
  */
-export type YfmEditorProps = ClassNameProps &
+export type YfmEditorProps<T extends object = {}> = ClassNameProps &
     Pick<
         YfmEditorViewProps,
         'settingsVisible' | 'toaster' | 'wysiwygHiddenActionsConfig' | 'markupHiddenActionsConfig'
@@ -107,7 +107,7 @@ export type YfmEditorProps = ClassNameProps &
         onCancel?(editor: YfmEditorRef): boolean;
 
         onFileUpload?: UseYfmEditorProps['fileUploadHandler'];
-        extensionOptions?: UseYfmEditorProps['extensionOptions'];
+        extensionOptions?: UseYfmEditorProps<T>['extensionOptions'];
 
         /**
          * If we need to set dimensions for uploaded images
@@ -122,7 +122,7 @@ export type YfmEditorProps = ClassNameProps &
  * The `YfmEditor` component will be removed soon.
  * Use `useYfmEditor` hook and `YfmEditorView` component instead.
  */
-export const YfmEditor = React.forwardRef<YfmEditorRef, YfmEditorProps>(function YfmEditor(
+export const YfmEditor = React.forwardRef(function YfmEditor<T extends object>(
     {
         className,
         splitMode,
@@ -156,8 +156,8 @@ export const YfmEditor = React.forwardRef<YfmEditorRef, YfmEditorProps>(function
         wysiwygHiddenActionsConfig,
         markupHiddenActionsConfig,
         stickyToolbar = true,
-    },
-    ref,
+    }: YfmEditorProps<T>,
+    ref: React.Ref<YfmEditorRef>,
 ) {
     const editor = useYfmEditor({
         splitMode,
@@ -279,4 +279,6 @@ export const YfmEditor = React.forwardRef<YfmEditorRef, YfmEditorProps>(function
             stickyToolbar={stickyToolbar}
         />
     );
-});
+}) as <T extends object = {}>(
+    props: YfmEditorProps<T> & {ref?: React.Ref<YfmEditorRef>},
+) => JSX.Element;

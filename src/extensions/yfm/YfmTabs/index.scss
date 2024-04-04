@@ -4,23 +4,8 @@
     .yfm-tabs {
         @include mixins.block-border-hover();
     }
-
-    .yfm-tab {
-        position: relative;
-
-        display: flex;
-        align-items: center;
-
-        margin-right: 3px;
-        padding-bottom: 0;
-
-        border-bottom: none;
-
-        .ye-placeholder {
-            color: var(--g-color-text-hint);
-        }
-
-        &-wrapper {
+    .ye-yfm-tab {
+        &__wrapper {
             position: relative;
 
             display: flex;
@@ -33,13 +18,7 @@
             background-clip: padding-box;
         }
 
-        &[data-diplodoc-is-active='true'] {
-            .yfm-tab-wrapper {
-                border-bottom-color: #027bf3;
-            }
-        }
-
-        &-remove-button {
+        &__remove-button {
             display: flex;
 
             width: 15px;
@@ -54,7 +33,7 @@
             }
         }
 
-        &-create-button {
+        &__create-button {
             display: flex;
             justify-content: center;
             align-items: center;
@@ -73,10 +52,31 @@
                 background: var(--g-color-base-generic-hover);
             }
         }
+    }
+    .yfm-tab {
+        position: relative;
+
+        display: flex;
+        align-items: center;
+
+        margin-right: 3px;
+        padding-bottom: 0;
+
+        border-bottom: none;
+
+        .ye-placeholder {
+            color: var(--g-color-text-hint);
+        }
+
+        &[data-diplodoc-is-active='true'] {
+            .ye-yfm-tab__wrapper {
+                border-bottom-color: #027bf3;
+            }
+        }
 
         &:hover,
         &:last-child {
-            .yfm-tab-create-button {
+            .ye-yfm-tab__create-button {
                 opacity: 1;
             }
         }
