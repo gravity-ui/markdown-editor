@@ -11,9 +11,6 @@
 }
 
 @keyframes placeholder_blink {
-    1% {
-        border-color: unset;
-    }
     49% {
         border-color: unset;
     }
@@ -28,22 +25,18 @@
 .ye-placeholder {
     caret-color: transparent;
 
-    &::before {
-        position: relative;
-        z-index: 1;
+    .ProseMirror-focused &_focus {
+        .ye-placeholder__cursor {
+            position: relative;
+            z-index: 1;
 
-        display: inline-block;
+            margin-right: -1px;
 
-        margin-right: -1px;
+            border-left-width: 1px;
+            border-left-style: solid;
 
-        content: ' ';
-        caret-color: transparent;
-
-        border-right: 1px solid transparent;
-    }
-
-    .ProseMirror-focused &_focus::before {
-        animation: placeholder_blink 1s;
-        animation-iteration-count: infinite;
+            animation: placeholder_blink 1s;
+            animation-iteration-count: infinite;
+        }
     }
 }
