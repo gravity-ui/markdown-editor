@@ -1,5 +1,15 @@
 # Changelog
 
+## [12.0.1](https://github.com/yandex-cloud/yfm-editor/compare/v12.0.0...v12.0.1) (2024-04-04)
+
+
+### Bug Fixes
+
+* fixed style, exports and typings after adding more functionality ([#213](https://github.com/yandex-cloud/yfm-editor/issues/213)) ([ad320a7](https://github.com/yandex-cloud/yfm-editor/commit/ad320a7dfed28d94c578a39296208cfabdd9e668))
+* **LinkEnhance:** show creation widget when create link with whitespaces at end of selected text ([#211](https://github.com/yandex-cloud/yfm-editor/issues/211)) ([978a828](https://github.com/yandex-cloud/yfm-editor/commit/978a828784ed829689a3266f14bbf4b325530bba))
+* **Placeholder:** fixed issue with displaying a fake cursor in Safari ([#212](https://github.com/yandex-cloud/yfm-editor/issues/212)) ([c9c6fb5](https://github.com/yandex-cloud/yfm-editor/commit/c9c6fb581ac00198504c9d8425b3656c924e3fdd))
+* **SelectionContext:** dont show selection menu until mouse is pressed ([#209](https://github.com/yandex-cloud/yfm-editor/issues/209)) ([cde768c](https://github.com/yandex-cloud/yfm-editor/commit/cde768c66c291970b4b7104b38fce1be3b3fb613))
+
 ## [12.0.0](https://github.com/yandex-cloud/yfm-editor/compare/v11.0.0...v12.0.0) (2024-03-26)
 
 
