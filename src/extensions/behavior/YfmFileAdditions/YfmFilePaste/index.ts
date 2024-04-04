@@ -1,9 +1,11 @@
-import {Node} from 'prosemirror-model';
+import {Fragment, Node, Schema, Slice} from 'prosemirror-model';
 import {Plugin} from 'prosemirror-state';
+import {dropPoint} from 'prosemirror-transform';
 import {EditorView} from 'prosemirror-view';
 
 import {ExtensionAuto} from '../../../../core';
 import {imageType} from '../../../../extensions/markdown';
+import {fileType} from '../../../../extensions/yfm/YfmFile';
 import {isFunction} from '../../../../lodash';
 import {FileUploadHandler, UploadSuccessItem} from '../../../../utils/upload';
 import {clipboardUtils} from '../../Clipboard';
@@ -40,6 +42,35 @@ export const YfmFilePaste: ExtensionAuto<YfmFilePasteOptions> = (builder, opts) 
                             }
                             return false;
                         },
+                        drop(view, e) {
+                            // handle drop files from device
+                            if (view.dragging) return false;
+
+                            const files = getPastedFiles(e.dataTransfer);
+                            if (!files) return false;
+
+                            const dropPos =
+                                view.posAtCoords({left: e.clientX, top: e.clientY})?.pos ?? -1;
+                            if (dropPos === -1) return false;
+
+                            const posToInsert = dropPoint(
+                                view.state.doc,
+                                dropPos,
+                                createFakeFileSlice(view.state.schema),
+                            );
+
+                            if (posToInsert !== null) {
+                                new YfmFilesPasteUploadProcess(view, files, {
+                                    pos: posToInsert,
+                                    uploadHandler: opts.fileUploadHandler,
+                                    needToSetDimensionsForUploadedImages:
+                                        opts.needToSetDimensionsForUploadedImages,
+                                }).run();
+                            }
+
+                            e.preventDefault();
+                            return true;
+                        },
                     },
                 },
             }),
@@ -53,16 +84,33 @@ function getPastedFiles(data: DataTransfer | null): File[] | null {
     return Array.from(data.files);
 }
 
+function createFakeFileSlice(schema: Schema): Slice {
+    return new Slice(
+        Fragment.from(
+            fileType(schema).create({
+                href: 'fake',
+                download: 'file',
+            }),
+        ),
+        0,
+        0,
+    );
+}
+
 type YfmFilesPasteUploadProcessOptions = {
+    pos?: number;
     uploadHandler: FileUploadHandler;
     needToSetDimensionsForUploadedImages: boolean;
 };
 
 class YfmFilesPasteUploadProcess extends YfmFilesUploadProcessBase {
+    protected readonly pos?: number;
     protected readonly createImage?;
 
     constructor(view: EditorView, files: readonly File[], opts: YfmFilesPasteUploadProcessOptions) {
         super(view, files, opts.uploadHandler);
+
+        this.pos = opts.pos;
 
         const {schema} = this.view.state;
         if (imageType(schema)) {
@@ -73,7 +121,7 @@ class YfmFilesPasteUploadProcess extends YfmFilesUploadProcessBase {
     }
 
     protected getSkeletonInitPos(): number {
-        return this.view.state.tr.selection.from;
+        return this.pos ?? this.view.state.tr.selection.from;
     }
 
     protected async createPMNode(res: UploadSuccessItem): Promise<Node> {
