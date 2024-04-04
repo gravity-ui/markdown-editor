@@ -50,6 +50,11 @@
       "require": "./build/cjs/view/*",
       "import": "./build/esm/view/*"
     },
+    "./bundle/*": {
+      "types": "./build/esm/bundle/*",
+      "require": "./build/cjs/bundle/*",
+      "import": "./build/esm/bundle/*"
+    },
     "./pm/*": {
       "types": "./build/esm/pm/*",
       "require": "./build/cjs/pm/*",
@@ -89,6 +94,15 @@
       ],
       "_/*": [
         "./build/esm/*"
+      ],
+      "./extensions": [
+        "./build/esm/extensions/index.js"
+      ],
+      "./view/*": [
+        "./build/esm/view/*"
+      ],
+      "./bundle/*": [
+        "./build/esm/bundle/*"
       ]
     }
   },

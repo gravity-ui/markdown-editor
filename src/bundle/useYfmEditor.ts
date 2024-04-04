@@ -7,15 +7,21 @@ import {logger} from '../logger';
 import {Editor, EditorImpl, EditorInt, EditorOptions, EditorType} from './Editor';
 import {BundlePreset, ExtensionsOptions} from './wysiwyg-preset';
 
-export type UseYfmEditorProps = Omit<EditorOptions, 'extensions' | 'renderStorage'> & {
+export type UseYfmEditorProps<T extends object = {}> = Omit<
+    EditorOptions,
+    'extensions' | 'renderStorage'
+> & {
     breaks?: boolean;
     /** Used only first value. Сhanging the value will not lead to anything */
-    extensionOptions?: Omit<ExtensionsOptions, 'reactRenderer'>;
+    extensionOptions?: Omit<ExtensionsOptions, 'reactRenderer'> & T;
     /** Used only first value. Сhanging the value will not lead to anything */
     extraExtensions?: Extension;
 };
 
-export function useYfmEditor(props: UseYfmEditorProps, deps: React.DependencyList = []): Editor {
+export function useYfmEditor<T extends object = {}>(
+    props: UseYfmEditorProps<T>,
+    deps: React.DependencyList = [],
+): Editor {
     const editor = useMemo<EditorInt>(
         () => {
             const renderStorage = new ReactRenderStorage();
@@ -37,7 +43,7 @@ export function useYfmEditor(props: UseYfmEditorProps, deps: React.DependencyLis
                         props.needToSetDimensionsForUploadedImages,
                 });
                 if (props.extraExtensions) {
-                    builder.use(props.extraExtensions);
+                    builder.use(props.extraExtensions, props.extensionOptions);
                 }
             };
             return new EditorImpl({...props, extensions, renderStorage});
