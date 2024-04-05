@@ -1,9 +1,10 @@
 import {decode as base64ToBuffer} from 'base64-arraybuffer';
-import {Node, Slice} from 'prosemirror-model';
+import {Fragment, Node, Schema, Slice} from 'prosemirror-model';
 import {Plugin} from 'prosemirror-state';
+import {dropPoint} from 'prosemirror-transform';
 
 import {ExtensionAuto} from '../../../../core';
-import {ImgSizeAttr} from '../../../../extensions/specs';
+import {ImageAttr, ImgSizeAttr, imageType} from '../../../../extensions/specs';
 import {isFunction} from '../../../../lodash';
 import {FileUploadHandler} from '../../../../utils/upload';
 import {clipboardUtils} from '../../Clipboard';
@@ -41,6 +42,36 @@ export const ImagePaste: ExtensionAuto<ImagePasteOptions> = (builder, opts) => {
                             }
                             return false;
                         },
+                        drop(view, e) {
+                            // handle drop images from device
+                            if (view.dragging) return false;
+
+                            const files = getPastedImages(e.dataTransfer);
+                            if (!files) return false;
+
+                            const dropPos =
+                                view.posAtCoords({left: e.clientX, top: e.clientY})?.pos ?? -1;
+                            if (dropPos === -1) return false;
+
+                            const posToInsert = dropPoint(
+                                view.state.doc,
+                                dropPos,
+                                createFakeImageSlice(view.state.schema),
+                            );
+
+                            if (posToInsert !== null) {
+                                new ImagesUploadProcess(
+                                    view,
+                                    files,
+                                    opts.imageUploadHandler,
+                                    posToInsert,
+                                    opts,
+                                ).run();
+                            }
+
+                            e.preventDefault();
+                            return true;
+                        },
                     },
                     handlePaste(view, _event, slice) {
                         const node = sliceSingleNode(slice);
@@ -71,6 +102,19 @@ function getPastedImages(data: DataTransfer | null): File[] | null {
     if (!isFilesOnly(data) && !isFilesFromHtml(data)) return null;
     const files = Array.from(data.files);
     return files.every(isImageFile) ? files : null;
+}
+
+function createFakeImageSlice(schema: Schema): Slice {
+    return new Slice(
+        Fragment.from(
+            imageType(schema).create({
+                [ImageAttr.Src]: 'fake',
+                [ImageAttr.Title]: 'image',
+            }),
+        ),
+        0,
+        0,
+    );
 }
 
 // copied from prosemirror-view input.ts
