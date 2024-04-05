@@ -13,7 +13,7 @@ import type {Serializer} from './types/serializer';
 import {bindActions} from './utils/actions';
 import {logTransactionMetrics} from './utils/metrics';
 
-type OnChange = (editor: YfmEditor) => void;
+type OnChange = (editor: YfmEditorImpl) => void;
 
 export type YfmEditorOptions = {
     domElem?: Element;
@@ -34,7 +34,7 @@ export type YfmEditorOptions = {
     onDocChange?: OnChange;
 };
 
-export class YfmEditor implements CommonEditor, ActionStorage {
+export class YfmEditorImpl implements CommonEditor, ActionStorage {
     #view: EditorView;
     #serializer: Serializer;
     #parser: Parser;

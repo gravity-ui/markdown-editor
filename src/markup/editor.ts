@@ -7,7 +7,7 @@ export interface CodeEditor {
     readonly cm: CodeMirror.Editor;
 }
 
-export class Editor implements CommonEditor, CodeEditor {
+export class MarkupEditor implements CommonEditor, CodeEditor {
     #cm: CodeMirror.Editor;
     #contentHandler: ContentHandler;
 

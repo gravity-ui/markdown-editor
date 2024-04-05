@@ -26,6 +26,7 @@ export const WToolbarColors: React.FC<WToolbarColorsProps> = ({
             className={className}
             focus={focus}
             onClick={onClick}
+            withDefault
         />
     );
 };

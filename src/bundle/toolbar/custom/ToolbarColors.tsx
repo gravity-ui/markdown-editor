@@ -5,7 +5,7 @@ import {Colors} from '../../../extensions';
 import {i18n} from '../../../i18n/menubar';
 import {ToolbarBaseProps} from '../../../toolbar';
 import {icons} from '../../config/icons';
-import {ToolbarButtonWithPopupMenu} from '../ToolbarButtonWithPopupMenu';
+import {MenuItem, ToolbarButtonWithPopupMenu} from '../ToolbarButtonWithPopupMenu';
 
 import './ToolbarColors.scss';
 
@@ -16,18 +16,21 @@ export type ToolbarColorsProps = Omit<ToolbarBaseProps<never>, 'editor'> & {
     active?: boolean;
     enable?: boolean;
     currentColor?: string;
+    withDefault?: boolean;
     exec(color: string): void;
 };
 
 export const ToolbarColors: React.FC<ToolbarColorsProps> = (props) => {
-    const {exec, onClick, enable, currentColor} = props;
+    const {exec, onClick, enable, currentColor, withDefault} = props;
+    const isDefault = currentColor === undefined;
+
     const onItemClick = (color: string) => () => {
-        exec(color);
-        onClick?.('colorify', {color});
+        // do not exec when current color is default and clicked to default item
+        if (!(isDefault && color === '')) exec(color);
+        onClick?.('colorify', {color: color === '' ? 'default' : color});
     };
 
     const items = [
-        Colors.Black,
         Colors.Gray,
         Colors.Yellow,
         Colors.Orange,
@@ -35,10 +38,10 @@ export const ToolbarColors: React.FC<ToolbarColorsProps> = (props) => {
         Colors.Green,
         Colors.Blue,
         Colors.Violet,
-    ].map((color) => ({
+    ].map<MenuItem>((color) => ({
         id: color,
         icon: textColorIcon.data,
-        size: textColorIcon.size ?? 16,
+        iconSize: textColorIcon.size ?? 16,
         text: i18n(`colorify__color_${color}`),
         iconClassname: b('item-icon', {color}),
         action: {
@@ -49,6 +52,24 @@ export const ToolbarColors: React.FC<ToolbarColorsProps> = (props) => {
         },
         group: i18n(`colorify__group_text`),
     }));
+
+    if (withDefault) {
+        items.unshift({
+            id: 'default',
+            icon: textColorIcon.data,
+            iconSize: textColorIcon.size ?? 16,
+            text: i18n(`colorify__color_default`),
+            iconClassname: b('item-icon', {color: 'default'}),
+            group: i18n(`colorify__group_text`),
+            ignoreActive: true,
+            action: {
+                run: onItemClick(''),
+                isEnable: () => Boolean(enable),
+                isActive: () => isDefault,
+                meta() {},
+            },
+        });
+    }
 
     return (
         <ToolbarButtonWithPopupMenu

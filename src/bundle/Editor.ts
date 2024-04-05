@@ -7,13 +7,13 @@ import {EditorView as PMEditorView} from 'prosemirror-view';
 import {CommonEditor, MarkupString} from '../common';
 import {
     ActionStorage,
-    YfmEditor as WysiwygEditor,
+    YfmEditorImpl as WysiwygEditor,
     YfmEditorOptions as WysiwygOptions,
 } from '../core';
 import {ReactRenderStorage, RenderStorage} from '../extensions';
 import {i18n} from '../i18n/bundle';
 import {logger} from '../logger';
-import {CodeEditor, Editor as MarkupEditor} from '../markup/editor';
+import {CodeEditor, MarkupEditor} from '../markup/editor';
 import {Action as A, formatter as f} from '../shortcuts';
 import {DataTransferType, isFilesFromHtml, isFilesOnly} from '../utils/clipboard';
 import {Emitter, Receiver, SafeEventEmitter} from '../utils/event-emitter';

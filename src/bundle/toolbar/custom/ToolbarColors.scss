@@ -1,9 +1,12 @@
-$colors: ('black', 'gray', 'yellow', 'orange', 'red', 'green', 'blue', 'violet');
+$colors: ('gray', 'yellow', 'orange', 'red', 'green', 'blue', 'violet');
 
 .ye-toolbar-colors {
     @each $name in $colors {
         &__item-icon_color_#{$name} {
             color: var(--yfm-colorify-#{$name});
         }
+    }
+    &__item-icon_color_default {
+        color: var(--g-color-text-primary);
     }
 }
