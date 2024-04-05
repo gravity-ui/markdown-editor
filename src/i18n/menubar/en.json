@@ -39,7 +39,7 @@
   "math_block": "Math block",
   "colorify": "Text color",
   "colorify__group_text": "Text",
-  "colorify__color_black": "Black",
+  "colorify__color_default": "Default",
   "colorify__color_gray": "Gray",
   "colorify__color_yellow": "Yellow",
   "colorify__color_orange": "Orange",

@@ -44,7 +44,6 @@ export const chainAND = (...commands: Command[]): Command => {
 
 // see styles
 const COLORS: readonly string[] = [
-    Colors.Black,
     Colors.Gray,
     Colors.Yellow,
     Colors.Orange,
@@ -59,9 +58,6 @@ export const validateClassNameColorName = (color: string) => COLORS.includes(col
 // eslint-disable-next-line complexity
 export const parseStyleColorValue = (color: string) => {
     switch (color) {
-        case 'black':
-            return Colors.Black;
-
         case 'gray':
         case 'grey':
         case 'lightgray':
