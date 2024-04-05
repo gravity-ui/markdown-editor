@@ -1,5 +1,13 @@
 # Changelog
 
+## [12.1.0](https://github.com/yandex-cloud/yfm-editor/compare/v12.0.1...v12.1.0) (2024-04-05)
+
+
+### Features
+
+* added colors from uikit, added nore exports ([#216](https://github.com/yandex-cloud/yfm-editor/issues/216)) ([feefd82](https://github.com/yandex-cloud/yfm-editor/commit/feefd820a8051c45f08ce9e6cd337f4844a864dc))
+* support uploading files dragged and dropped from device ([#214](https://github.com/yandex-cloud/yfm-editor/issues/214)) ([3367f4b](https://github.com/yandex-cloud/yfm-editor/commit/3367f4b83143d6b370e08d931cfdbabf393788d5))
+
 ## [12.0.1](https://github.com/yandex-cloud/yfm-editor/compare/v12.0.0...v12.0.1) (2024-04-04)
 
 
