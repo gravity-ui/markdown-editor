@@ -7,7 +7,7 @@
     }
 
     &__editor {
-        overflow-y: scroll;
+        overflow-y: auto;
         flex-grow: 1;
 
         .g-root_theme_dark & .pm-iframe-container {

@@ -88,7 +88,7 @@ $toolbar-height: 28px;
         // override default theme
         // TODO: use own theme
         &.cm-s-default {
-            background-color: var(--g-color-base-background);
+            background-color: transparent;
 
             .CodeMirror-placeholder {
                 color: var(--g-color-text-secondary);
@@ -117,10 +117,8 @@ $toolbar-height: 28px;
 
 .ye-markup-preview {
     &__outer {
-        overflow-y: scroll;
+        overflow-y: auto;
         flex: 1 0 0;
-
-        height: 100%;
 
         &_vertical {
             box-sizing: border-box;

@@ -39,7 +39,7 @@
   "math_block": "Блок с формулой",
   "colorify": "Цвет текста",
   "colorify__group_text": "Текст",
-  "colorify__color_black": "Чёрный",
+  "colorify__color_default": "Стандартный",
   "colorify__color_gray": "Серый",
   "colorify__color_yellow": "Жёлтый",
   "colorify__color_orange": "Оранжевый",

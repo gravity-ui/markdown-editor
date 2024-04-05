@@ -1,7 +1,6 @@
 export * from './common';
 export * from './core';
 export * from './toolbar';
-export * from './react';
 export * from './react-utils';
 export * from './classname';
 export * from './logger';
@@ -9,6 +8,9 @@ export * from './extensions';
 export * from './plugins';
 export * from './extensions/specs';
 export * from './forms';
+export * from './view';
+export * from './utils';
+export * from './markup';
 
 export {Lang, configure} from './configure';
 

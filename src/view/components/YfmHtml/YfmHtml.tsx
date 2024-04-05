@@ -8,10 +8,11 @@ export type YfmHtmlProps = ClassNameProps & {
     html: string;
     linksVisited?: boolean;
     noListReset?: boolean;
+    qa?: string;
 };
 
 export const YfmHtml = forwardRef<HTMLDivElement, YfmHtmlProps>(function YfmHtml(props, ref) {
-    const {html, linksVisited, noListReset, className} = props;
+    const {html, linksVisited, noListReset, className, qa} = props;
 
     return (
         <div
@@ -23,6 +24,7 @@ export const YfmHtml = forwardRef<HTMLDivElement, YfmHtmlProps>(function YfmHtml
                 noListReset ? 'yfm_no-list-reset' : undefined,
                 className,
             )}
+            data-qa={qa}
         />
     );
 });

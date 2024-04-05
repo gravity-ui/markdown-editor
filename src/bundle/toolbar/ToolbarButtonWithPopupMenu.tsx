@@ -12,19 +12,22 @@ import {ToolbarBaseProps, ToolbarIconData, ToolbarTooltipDelay} from '../../tool
 import './ToolbarButtonWithPopupMenu.scss';
 const b = cn('toolbar-button-with-popup-menu');
 
+export type MenuItem = {
+    id: string;
+    action: Action;
+    icon: IconProps['data'];
+    text: string;
+    iconSize?: IconProps['size'];
+    iconClassname?: string;
+    group?: string;
+    ignoreActive?: boolean;
+};
+
 export type ToolbarButtonWithPopupMenuProps = Omit<
     ToolbarBaseProps<ActionStorage> & {
         icon: ToolbarIconData;
         title: string | (() => string);
-        menuItems: {
-            id: string;
-            action: Action;
-            icon: IconProps['data'];
-            text: string;
-            iconSize?: number;
-            iconClassname?: string;
-            group?: string;
-        }[];
+        menuItems: MenuItem[];
     },
     'editor'
 >;
@@ -48,7 +51,9 @@ export const ToolbarButtonWithPopupMenu: React.FC<ToolbarButtonWithPopupMenuProp
         [menuItems, groupBy],
     );
 
-    const someActive = menuItems.some((item) => item.action.isActive() === true);
+    const someActive = menuItems.some(
+        (item) => !item.ignoreActive && item.action.isActive() === true,
+    );
     const everyDisabled = menuItems.every((item) => item.action.isEnable() === false);
 
     const popupOpen = everyDisabled ? false : open;
