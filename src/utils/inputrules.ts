@@ -2,7 +2,7 @@ import {InputRule} from 'prosemirror-inputrules';
 import {Fragment, Mark, MarkType, Node} from 'prosemirror-model';
 import {EditorState, TextSelection} from 'prosemirror-state';
 
-import {codeType} from '../extensions';
+import {codeType} from '../extensions/markdown/specs';
 import {isFunction} from '../lodash';
 import {isMarkActive} from '../utils/marks';
 // TODO: remove explicit import from code extension
