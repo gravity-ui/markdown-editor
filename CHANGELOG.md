@@ -1,5 +1,18 @@
 # Changelog
 
+## [12.2.0](https://github.com/yandex-cloud/yfm-editor/compare/v12.1.0...v12.2.0) (2024-04-08)
+
+
+### Features
+
+* **Checkbox:** improve checkbox insertion ([#220](https://github.com/yandex-cloud/yfm-editor/issues/220)) ([cbcebf3](https://github.com/yandex-cloud/yfm-editor/commit/cbcebf3f60c8a8583422499b146b61dcb7cb07de))
+* **HorizontalRule:** improve horizontal line insertion ([#218](https://github.com/yandex-cloud/yfm-editor/issues/218)) ([71813a2](https://github.com/yandex-cloud/yfm-editor/commit/71813a294e97fd1e5262da043a4d20dfccf9a8dc))
+
+
+### Bug Fixes
+
+* fixed `typesVersions` field in package.json ([#221](https://github.com/yandex-cloud/yfm-editor/issues/221)) ([66dbcc5](https://github.com/yandex-cloud/yfm-editor/commit/66dbcc5fbc0fc0193b478f708c6676a4d91d0594))
+
 ## [12.1.0](https://github.com/yandex-cloud/yfm-editor/compare/v12.0.1...v12.1.0) (2024-04-05)
 
 
