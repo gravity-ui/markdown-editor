@@ -95,13 +95,13 @@
       "_/*": [
         "./build/esm/*"
       ],
-      "./extensions": [
+      "extensions": [
         "./build/esm/extensions/index.js"
       ],
-      "./view/*": [
+      "view/*": [
         "./build/esm/view/*"
       ],
-      "./bundle/*": [
+      "bundle/*": [
         "./build/esm/bundle/*"
       ]
     }
