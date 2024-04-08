@@ -1,9 +1,9 @@
 import type {NodeType} from 'prosemirror-model';
-import type {Command, Selection} from 'prosemirror-state';
+import {Command, Selection, TextSelection} from 'prosemirror-state';
 
 import type {Action, ExtensionAuto} from '../../../core';
 import {nodeInputRule} from '../../../utils/inputrules';
-import {isNodeSelection} from '../../../utils/selection';
+import {get$Cursor, isNodeSelection} from '../../../utils/selection';
 import {pType} from '../../base/BaseSchema/BaseSchemaSpecs';
 
 import {
@@ -65,9 +65,32 @@ declare global {
 const addHr =
     (hr: NodeType): Command =>
     (state, dispatch) => {
-        if (!isHrSelection(state.selection)) {
+        if (isHrSelection(state.selection)) return true;
+
+        if (isNodeSelection(state.selection)) {
             dispatch?.(state.tr.replaceSelectionWith(hr.create()).scrollIntoView());
+            return true;
         }
+
+        const $cursor = get$Cursor(state.selection);
+        if (!$cursor || $cursor.parent.type.spec.complex) return false;
+
+        if (!dispatch) return true;
+
+        const {tr} = state;
+        const isEmptyParagraph =
+            $cursor.parent.type === pType(state.schema) && $cursor.parent.nodeSize === 2;
+
+        if (isEmptyParagraph) {
+            const pos = $cursor.before();
+            tr.insert(pos, hr.create());
+        } else {
+            const pos = $cursor.after();
+            tr.insert(pos, [hr.create(), pType(state.schema).create()]);
+            tr.setSelection(TextSelection.create(tr.doc, pos + 2)); // set cursor to paragraph after hr
+        }
+
+        dispatch(tr.scrollIntoView());
 
         return true;
     };
