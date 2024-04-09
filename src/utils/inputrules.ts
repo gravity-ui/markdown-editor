@@ -7,6 +7,21 @@ import {isFunction} from '../lodash';
 import {isMarkActive} from '../utils/marks';
 // TODO: remove explicit import from code extension
 
+export function hasCodeMark(
+    state: EditorState,
+    _match: RegExpMatchArray,
+    start: number,
+    end: number,
+): boolean {
+    // TODO: remove explicit import from code extension
+    const codeMarkType = codeType(state.schema);
+    if (isMarkActive(state, codeMarkType)) return true;
+    if (state.doc.rangeHasMark(start, end, codeMarkType)) return true;
+    return false;
+}
+
+export {textblockTypeInputRule, wrappingInputRule} from './rulebuilders';
+
 function getMarksBetween(start: number, end: number, state: EditorState) {
     let marks: {start: number; end: number; mark: Mark}[] = [];
 
@@ -55,11 +70,7 @@ export function markInputRule(
             if (re.input![re.index! - 1] !== ' ') return null;
         }
 
-        // TODO: remove explicit import from code extension
-        const codeMarkType = codeType(state.schema);
-        if (isMarkActive(state, codeMarkType)) {
-            return null;
-        }
+        if (hasCodeMark(state, match, start, end)) return null;
 
         const attrs = getAttrs instanceof Function ? getAttrs(match) : getAttrs;
         const {tr} = state;
@@ -74,11 +85,6 @@ export function markInputRule(
             const textEnd = textStart + match[m].length;
 
             const marksBetween = getMarksBetween(start, end, state);
-
-            if (marksBetween.some((item) => item.mark.type === codeMarkType)) {
-                return null;
-            }
-
             const excludedMarks = marksBetween
                 .filter((item) => item.mark.type.excludes(markType))
                 .filter((item) => item.end > matchStart);
@@ -111,6 +117,8 @@ export function nodeInputRule(
     selectionOffset = 0,
 ): InputRule {
     return new InputRule(regexp, (state, match, start, end) => {
+        if (hasCodeMark(state, match, start, end)) return null;
+
         const [matchStr] = match;
         const {tr} = state;
 
@@ -133,6 +141,8 @@ export function inlineNodeInputRule(
     fragment: (match: string) => NodeInputRuleReplaceFragment,
 ): InputRule {
     return new InputRule(regexp, (state, match, start, end) => {
+        if (hasCodeMark(state, match, start, end)) return null;
+
         const [matchStr] = match;
         const {tr} = state;
 

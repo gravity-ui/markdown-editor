@@ -2,6 +2,7 @@ import {InputRule} from 'prosemirror-inputrules';
 import type {MarkType} from 'prosemirror-model';
 
 import type {Action, ExtensionAuto} from '../../../core';
+import {hasCodeMark} from '../../../utils/inputrules';
 
 import {LinkSpecs, linkMarkName, linkType} from './LinkSpecs';
 import {LinkActionMeta, LinkActionParams, linkCommand} from './actions';
@@ -37,6 +38,8 @@ declare global {
 // TODO: think about generalizing with markInputRule
 function linkInputRule(markType: MarkType): InputRule {
     return new InputRule(/\[(.+)]\((\S+)\)\s$/, (state, match, start, end) => {
+        if (hasCodeMark(state, match, start, end)) return null;
+
         // handle the rule only if is start of line or there is a space before "open" symbols
         if ((match as RegExpMatchArray).index! > 0) {
             const re = match as RegExpMatchArray;
