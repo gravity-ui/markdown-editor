@@ -1,9 +1,9 @@
 import {chainCommands, wrapIn} from 'prosemirror-commands';
-import {wrappingInputRule} from 'prosemirror-inputrules';
 import type {NodeType} from 'prosemirror-model';
 import {hasParentNodeOfType} from 'prosemirror-utils';
 
 import type {Action, ExtensionAuto} from '../../../core';
+import {wrappingInputRule} from '../../../utils/inputrules';
 import {withLogAction} from '../../../utils/keymap';
 
 import {BlockquoteSpecs, blockquoteType} from './BlockquoteSpecs';

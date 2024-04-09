@@ -1,7 +1,7 @@
-import {wrappingInputRule} from 'prosemirror-inputrules';
 import type {NodeType} from 'prosemirror-model';
 
 import type {ExtensionWithOptions} from '../../../core';
+import {wrappingInputRule} from '../../../utils/inputrules';
 
 import {blType, olType} from './utils';
 

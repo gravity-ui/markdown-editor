@@ -5,7 +5,13 @@ export * from './clipboard';
 export * from './ecapeRegexp';
 export * from './event-emitter';
 export * from './helpers';
-export * from './inputrules';
+export {
+    markInputRule,
+    nodeInputRule,
+    inlineNodeInputRule,
+    textblockTypeInputRule,
+    wrappingInputRule,
+} from './inputrules';
 export * from './keymap';
 export * from './marks';
 export * from './node-children';

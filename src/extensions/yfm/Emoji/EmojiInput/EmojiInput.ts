@@ -2,6 +2,7 @@ import {InputRule} from 'prosemirror-inputrules';
 
 import type {ExtensionAuto} from '../../../../core';
 import {escapeRegExp} from '../../../../utils/ecapeRegexp';
+import {hasCodeMark} from '../../../../utils/inputrules';
 import {EmojiConsts, EmojiSpecsOptions} from '../EmojiSpecs';
 
 export const EmojiInput: ExtensionAuto<EmojiSpecsOptions> = (builder, opts) => {
@@ -24,6 +25,8 @@ export const EmojiInput: ExtensionAuto<EmojiSpecsOptions> = (builder, opts) => {
             builder.addInputRules(() => ({
                 rules: [
                     new InputRule(regex, (state, match, start, end) => {
+                        if (hasCodeMark(state, match, start, end)) return null;
+
                         const pattern = match[1];
                         const markup = mapPatternToMarkup[pattern];
                         const content = defs[markup];

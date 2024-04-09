@@ -1,7 +1,8 @@
-import {textblockTypeInputRule} from 'prosemirror-inputrules';
 import type {NodeType} from 'prosemirror-model';
 import type {EditorState} from 'prosemirror-state';
 import {hasParentNode} from 'prosemirror-utils';
+
+import {textblockTypeInputRule} from '../../../utils/inputrules';
 
 import {headingType} from './HeadingSpecs';
 import {HeadingLevel, headingLevelAttr} from './const';

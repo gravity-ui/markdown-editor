@@ -1,10 +1,9 @@
 import {chainCommands, setBlockType} from 'prosemirror-commands';
-import {textblockTypeInputRule} from 'prosemirror-inputrules';
 import {Command, TextSelection} from 'prosemirror-state';
 import {hasParentNodeOfType} from 'prosemirror-utils';
 
 import type {Action, ExtensionAuto} from '../../../core';
-import {inlineNodeInputRule} from '../../../utils/inputrules';
+import {inlineNodeInputRule, textblockTypeInputRule} from '../../../utils/inputrules';
 import {isTextSelection} from '../../../utils/selection';
 
 import {MathSpecs} from './MathSpecs';
