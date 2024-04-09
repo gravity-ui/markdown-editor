@@ -1,5 +1,12 @@
 # Changelog
 
+## [12.2.1](https://github.com/yandex-cloud/yfm-editor/compare/v12.2.0...v12.2.1) (2024-04-09)
+
+
+### Bug Fixes
+
+* added more exports to package.json ([#222](https://github.com/yandex-cloud/yfm-editor/issues/222)) ([87817ae](https://github.com/yandex-cloud/yfm-editor/commit/87817ae81291f284a9f2bde77df593216930ad59))
+
 ## [12.2.0](https://github.com/yandex-cloud/yfm-editor/compare/v12.1.0...v12.2.0) (2024-04-08)
 
 
