@@ -45,10 +45,25 @@
       "require": "./build/cjs/extensions/index.js",
       "import": "./build/esm/extensions/index.js"
     },
+    "./extensions/*": {
+      "types": "./build/esm/extensions/*",
+      "require": "./build/cjs/extensions/*",
+      "import": "./build/esm/extensions/*"
+    },
+    "./view": {
+      "types": "./build/esm/view/index.d.ts",
+      "require": "./build/cjs/view/index.js",
+      "import": "./build/esm/view/index.js"
+    },
     "./view/*": {
       "types": "./build/esm/view/*",
       "require": "./build/cjs/view/*",
       "import": "./build/esm/view/*"
+    },
+    "./bundle": {
+      "types": "./build/esm/bundle/index.d.ts",
+      "require": "./build/cjs/bundle/index.js",
+      "import": "./build/esm/bundle/index.js"
     },
     "./bundle/*": {
       "types": "./build/esm/bundle/*",
@@ -95,14 +110,23 @@
       "_/*": [
         "./build/esm/*"
       ],
+      "extensions/*": [
+        "./build/esm/extensions/*"
+      ],
       "extensions": [
-        "./build/esm/extensions/index.js"
+        "./build/esm/extensions/index.d.ts"
       ],
       "view/*": [
         "./build/esm/view/*"
       ],
+      "view": [
+        "./build/esm/view/index.d.ts"
+      ],
       "bundle/*": [
         "./build/esm/bundle/*"
+      ],
+      "bundle": [
+        "./build/esm/bundle/index.d.ts"
       ]
     }
   },
