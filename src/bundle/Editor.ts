@@ -289,6 +289,7 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
             this.#markupEditor.codemirror.on('changes', this.onCMChanges);
             this.#markupEditor.codemirror.on('cursorActivity', this.onCMCursorActivity);
             this.#markupEditor.codemirror.on('paste', this.onCMPaste);
+            this.#markupEditor.codemirror.on('drop', this.onCMDrop);
             this.#markupEditor.codemirror.on('beforeChange', this.onCMBeforeChange);
 
             if (this.#fileUploadHandler) {
@@ -362,6 +363,7 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
             this.#markupEditor.codemirror.off('changes', this.onCMChanges);
             this.#markupEditor.codemirror.off('cursorActivity', this.onCMCursorActivity);
             this.#markupEditor.codemirror.off('paste', this.onCMPaste);
+            this.#markupEditor.codemirror.off('drop', this.onCMDrop);
             this.#markupEditor.codemirror.off('beforeChange', this.onCMBeforeChange);
             this.#markupEditor.codemirror.getWrapperElement().remove();
         }
@@ -493,6 +495,21 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
 
         if (isFilesOnly(clipboardData) || isFilesFromHtml(clipboardData)) {
             event.preventDefault();
+        }
+    };
+
+    private onCMDrop = (cm: CodeMirror.Editor, event: DragEvent) => {
+        if (!event.dataTransfer) return;
+
+        const {
+            dataTransfer: {files},
+        } = event;
+
+        if (files.length) {
+            event.preventDefault();
+            const pos = cm.coordsChar({left: event.pageX, top: event.pageY}, 'page');
+            cm.setCursor(pos);
+            this.#cmFilesUploader?.upload(files);
         }
     };
 
