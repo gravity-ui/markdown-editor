@@ -1,22 +1,9 @@
 @import '~@gravity-ui/uikit/styles/mixins';
 
 .ye-toolbar-button-with-popup-menu {
-    // TODO: FIXME
-    // button with 2 icons
-    // 42px width
     width: 42px;
-
-    .g-button__text.g-button__text.g-button__text {
-        margin: 0px 21px;
-    }
-
-    .g-button__icon_side_start {
-        left: -1px;
-    }
-
-    .g-button__icon_side_end {
-        right: -1px;
-    }
+    --g-button-icon-offset: 0px;
+    --g-button-padding: 2px;
 
     &__menu-group {
         .g-menu__group-label {

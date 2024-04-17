@@ -57,9 +57,10 @@
         background: var(--g-color-line-generic);
     }
 
-    // TODO: fixme
     .ye-toolbar-list-button_arrow {
         width: 42px;
+        --g-button-icon-offset: 0px;
+        --g-button-padding: 2px;
     }
 
     .in-resize {

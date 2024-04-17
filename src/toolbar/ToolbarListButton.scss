@@ -1,18 +1,8 @@
 .ye-toolbar-list-button {
     &_arrow {
         width: 42px;
-
-        .g-button__text.g-button__text.g-button__text {
-            margin: 0px 21px;
-        }
-
-        .g-button__icon_side_start {
-            left: -1px;
-        }
-
-        .g-button__icon_side_end {
-            right: -1px;
-        }
+        --g-button-icon-offset: 0px;
+        --g-button-padding: 2px;
     }
 
     &__item {
