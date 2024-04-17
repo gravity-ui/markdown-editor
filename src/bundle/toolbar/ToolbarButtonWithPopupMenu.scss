@@ -1,9 +1,9 @@
 @import '~@gravity-ui/uikit/styles/mixins';
 
 .ye-toolbar-button-with-popup-menu {
-    width: 42px;
     --g-button-icon-offset: 0px;
     --g-button-padding: 2px;
+    width: 42px;
 
     &__menu-group {
         .g-menu__group-label {
