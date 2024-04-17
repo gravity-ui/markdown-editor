@@ -1,5 +1,18 @@
 # Changelog
 
+## [12.3.0](https://github.com/yandex-cloud/yfm-editor/compare/v12.2.1...v12.3.0) (2024-04-17)
+
+
+### Features
+
+* support button changes in uikit 6.11.0 ([#227](https://github.com/yandex-cloud/yfm-editor/issues/227)) ([cdbc022](https://github.com/yandex-cloud/yfm-editor/commit/cdbc022b9bb2275ffa5a96d46bdb206af88b618b))
+* support uploading files dragged and dropped from device in markup mode ([#226](https://github.com/yandex-cloud/yfm-editor/issues/226)) ([c60f72e](https://github.com/yandex-cloud/yfm-editor/commit/c60f72e2d0a5b1285b10b5cee585b90a79177d04))
+
+
+### Bug Fixes
+
+* do not apply input rule to text with code mark ([#224](https://github.com/yandex-cloud/yfm-editor/issues/224)) ([237c77c](https://github.com/yandex-cloud/yfm-editor/commit/237c77c3a096f80eb30b5be32672ed5944475409))
+
 ## [12.2.1](https://github.com/yandex-cloud/yfm-editor/compare/v12.2.0...v12.2.1) (2024-04-09)
 
 
