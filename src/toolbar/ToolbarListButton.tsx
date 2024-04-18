@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 
 import {HelpPopover} from '@gravity-ui/components';
 import {ChevronDown} from '@gravity-ui/icons';
@@ -10,7 +10,13 @@ import {isFunction} from '../lodash';
 import {useBooleanState} from '../react-utils/hooks';
 
 import {ToolbarTooltipDelay} from './const';
-import {ToolbarBaseProps, ToolbarIconData, ToolbarListButtonItemData} from './types';
+import {
+    ToolbarBaseProps,
+    ToolbarButtonPopupData,
+    ToolbarIconData,
+    ToolbarItemData,
+    ToolbarListButtonItemData,
+} from './types';
 
 import './ToolbarListButton.scss';
 
@@ -40,6 +46,7 @@ export function ToolbarListButton<E>({
 }: ToolbarListButtonProps<E>) {
     const buttonRef = React.useRef<HTMLButtonElement>(null);
     const [open, , hide, toggleOpen] = useBooleanState(false);
+    const [popupItem, setPopupItem] = useState<ToolbarButtonPopupData<E>>();
 
     const someActive = alwaysActive
         ? false
@@ -75,7 +82,7 @@ export function ToolbarListButton<E>({
             >
                 <ActionTooltip
                     title={titleText}
-                    disabled={popupOpen}
+                    disabled={Boolean(popupItem) || popupOpen}
                     openDelay={ToolbarTooltipDelay.Open}
                     closeDelay={ToolbarTooltipDelay.Close}
                 >
@@ -86,7 +93,10 @@ export function ToolbarListButton<E>({
                         selected={someActive}
                         disabled={everyDisabled}
                         className={b({arrow: withArrow}, [className])}
-                        onClick={toggleOpen}
+                        onClick={() => {
+                            if (popupItem) setPopupItem(undefined);
+                            else toggleOpen();
+                        }}
                     >
                         {buttonContent}
                     </Button>
@@ -137,9 +147,15 @@ export function ToolbarListButton<E>({
                                         disabled={!isEnable(editor)}
                                         onClick={() => {
                                             hide();
-                                            focus();
-                                            exec(editor);
-                                            onClick?.(id);
+
+                                            if (isPopupItem(data)) {
+                                                setPopupItem(data);
+                                            } else {
+                                                setPopupItem(undefined);
+                                                focus();
+                                                exec(editor);
+                                                onClick?.(id);
+                                            }
                                         }}
                                         icon={<Icon data={icon.data} size={icon.size ?? 16} />}
                                         extraProps={{'aria-label': titleText}}
@@ -163,6 +179,20 @@ export function ToolbarListButton<E>({
                         .filter(Boolean)}
                 </Menu>
             </Popup>
+            {popupItem
+                ? popupItem.renderPopup({
+                      ...popupItem,
+                      editor,
+                      focus,
+                      onClick,
+                      anchorRef: buttonRef,
+                      hide: () => setPopupItem(undefined),
+                  })
+                : null}
         </>
     );
+}
+
+function isPopupItem<E>(item: ToolbarItemData<E>): item is ToolbarButtonPopupData<E> {
+    return Boolean((item as ToolbarButtonPopupData<E>).renderPopup);
 }

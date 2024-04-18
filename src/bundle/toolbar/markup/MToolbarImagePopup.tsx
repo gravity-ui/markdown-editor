@@ -1,14 +1,14 @@
-import React from 'react';
+import React, {RefObject} from 'react';
 
 import isNumber from 'is-number';
 
 import {ImageItem, insertImages} from '../../../markup/commands';
 import type {CodeEditor} from '../../../markup/editor';
-import {ToolbarBaseProps} from '../../../toolbar';
+import type {ToolbarBaseProps} from '../../../toolbar';
 import type {UploadSuccessItem} from '../../../utils/upload';
 import {IMG_MAX_HEIGHT} from '../../cm-upload/const';
 import {getImageDimensions} from '../../cm-upload/utils';
-import {ToolbarImage} from '../custom/ToolbarImage';
+import {ToolbarImagePopup} from '../custom/ToolbarImagePopup';
 
 import {useMarkupToolbarContext} from './context';
 
@@ -16,23 +16,28 @@ const noop = (err: any) => {
     console.error(err);
 };
 
-export type MToolbarImageProps = ToolbarBaseProps<CodeEditor> & {};
+export type MToolbarImagePopupProps = ToolbarBaseProps<CodeEditor> & {
+    hide: () => void;
+    anchorRef: RefObject<HTMLElement>;
+};
 
-export const MToolbarImage: React.FC<MToolbarImageProps> = ({
+export const MToolbarImagePopup: React.FC<MToolbarImagePopupProps> = ({
     focus,
     onClick,
+    hide,
+    anchorRef,
     editor,
     className,
 }) => {
     const {uploadHandler, needToSetDimensionsForUploadedImages} = useMarkupToolbarContext();
 
     return (
-        <ToolbarImage
+        <ToolbarImagePopup
+            hide={hide}
+            anchorRef={anchorRef}
             focus={focus}
             onClick={onClick}
             className={className}
-            active={false}
-            enable={true}
             onSubmit={({url, name, alt, width, height}) => {
                 insertImages(editor.cm, [
                     {

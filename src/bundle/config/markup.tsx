@@ -1,3 +1,5 @@
+import React from 'react';
+
 import {i18n} from '../../i18n/menubar';
 import {
     isBoldActive,
@@ -10,6 +12,7 @@ import {
     isItalicActive,
 } from '../../markup/active';
 import {
+    insertLink,
     insertTable,
     liftListItem,
     sinkListItem,
@@ -45,19 +48,21 @@ import {ToolbarData} from '../../toolbar/Toolbar';
 import {ToolbarGroupData} from '../../toolbar/ToolbarGroup';
 import {ToolbarListButtonData} from '../../toolbar/ToolbarListButton';
 import {
+    ToolbarButtonPopupData,
     ToolbarDataType,
     ToolbarListItemData,
     ToolbarReactComponentData,
     ToolbarSingleItemData,
 } from '../../toolbar/types';
+import {ToolbarLinkPopup} from '../toolbar/custom/ToolbarLinkPopup';
 import {MToolbarColors} from '../toolbar/markup/MToolbarColors';
-import {MToolbarFile} from '../toolbar/markup/MToolbarFile';
-import {MToolbarImage} from '../toolbar/markup/MToolbarImage';
-import {MToolbarLink} from '../toolbar/markup/MToolbarLink';
+import {MToolbarFilePopup} from '../toolbar/markup/MToolbarFilePopup';
+import {MToolbarImagePopup} from '../toolbar/markup/MToolbarImagePopup';
 
 import {ActionName} from './action-names';
 import {icons} from './icons';
 
+const noop = () => {};
 const isActiveFn = () => false;
 const isEnableFn = () => true;
 
@@ -278,11 +283,29 @@ export const mListMoveListConfig: MToolbarListButtonData = {
     ],
 };
 
-export const mLinkButton: MToolbarReactComponentData = {
+export const mLinkButton: ToolbarButtonPopupData<CodeEditor> = {
     id: ActionName.link,
-    type: ToolbarDataType.ReactComponent,
-    component: MToolbarLink,
-    width: 28,
+    type: ToolbarDataType.ButtonPopup,
+    icon: icons.link,
+    title: i18n('link'),
+    exec: noop,
+    isActive: isActiveFn,
+    isEnable: isEnableFn,
+    renderPopup: (props) => {
+        const {editor} = props;
+        const selection = editor.cm.getSelection();
+
+        return (
+            <ToolbarLinkPopup
+                {...props}
+                formInitialText={selection}
+                formReadOnlyText={Boolean(selection)}
+                onSubmit={(url, text) => {
+                    insertLink({url, text})(editor.cm);
+                }}
+            />
+        );
+    },
 };
 
 export const mNoteButton: MToolbarSingleItemData = {
@@ -427,15 +450,23 @@ export const mToolbarConfig: MToolbarData = [
     [
         {
             id: 'image',
-            type: ToolbarDataType.ReactComponent,
-            component: MToolbarImage,
-            width: 28,
+            type: ToolbarDataType.ButtonPopup,
+            icon: icons.image,
+            title: i18n('image'),
+            exec: noop,
+            isActive: isActiveFn,
+            isEnable: isEnableFn,
+            renderPopup: (props) => <MToolbarImagePopup {...props} />,
         },
         {
             id: 'file',
-            type: ToolbarDataType.ReactComponent,
-            component: MToolbarFile,
-            width: 28,
+            type: ToolbarDataType.ButtonPopup,
+            icon: icons.file,
+            title: i18n('file'),
+            exec: noop,
+            isActive: isActiveFn,
+            isEnable: isEnableFn,
+            renderPopup: (props) => <MToolbarFilePopup {...props} />,
         },
         mTableButton,
         mCheckboxButton,
