@@ -56,7 +56,10 @@ export function shrinkToolbarData<E>({
             ) {
                 // We found first button that doesn't fit. It means that everything after it doesn't fit too.
                 hideAllNext = true;
-                if (item.type === ToolbarDataType.SingleButton) {
+                if (
+                    item.type === ToolbarDataType.SingleButton ||
+                    item.type === ToolbarDataType.ButtonPopup
+                ) {
                     dotsData.push(item);
                 } else if (item.type === ToolbarDataType.ListButton) {
                     dotsData.push(...item.data);
@@ -88,7 +91,8 @@ function getItemWidth<E>(
     // Add horizontal gapbetween buttons to all items except first
     if (j > 0 && j < rowLength) additionalWidth += BG_H_GAP;
 
-    if (item.type === ToolbarDataType.SingleButton) return B_WIDTH + additionalWidth;
+    if (item.type === ToolbarDataType.SingleButton || item.type === ToolbarDataType.ButtonPopup)
+        return B_WIDTH + additionalWidth;
     else if (item.type === ToolbarDataType.ListButton) return B_WITH_ARROW_WIDTH + additionalWidth;
     else return (item.width || 0) + additionalWidth;
 }

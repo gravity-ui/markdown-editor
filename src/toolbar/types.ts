@@ -1,3 +1,5 @@
+import type {RefObject} from 'react';
+
 import type {HotkeyProps, IconProps} from '@gravity-ui/uikit';
 
 import type {ClassNameProps} from '../classname';
@@ -40,6 +42,7 @@ export type ToolbarItemData<E> = {
 export enum ToolbarDataType {
     SingleButton = 's-button',
     ListButton = 'list-b',
+    ButtonPopup = 'b-popup',
     ReactNode = 'r-node',
     ReactNodeFn = 'r-node-fn',
     ReactComponent = 'r-component',
@@ -47,6 +50,7 @@ export enum ToolbarDataType {
 
 export type ToolbarGroupItemData<E> =
     | ToolbarSingleItemData<E>
+    | ToolbarButtonPopupData<E>
     | ToolbarListItemData<E>
     | ToolbarReactNodeData
     | ToolbarReactNodeFnData<E>
@@ -70,6 +74,16 @@ export type ToolbarReactComponentData<E> = {
     width: number;
     className?: string;
     component: React.ComponentType<ToolbarBaseProps<E>>;
+};
+
+export type ToolbarButtonPopupData<E> = ToolbarItemData<E> & {
+    /** not used, may be an empty function */
+    exec: ToolbarItemData<E>['exec'];
+    type: ToolbarDataType.ButtonPopup;
+    renderPopup: (
+        props: ToolbarBaseProps<E> & {hide: () => void; anchorRef: RefObject<HTMLElement>},
+    ) => React.ReactNode;
+    className?: string;
 };
 
 export type ToolbarListButtonItemData<E> = ToolbarItemData<E> & {

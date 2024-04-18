@@ -3,6 +3,7 @@ import React from 'react';
 import {cn} from '../classname';
 
 import {ToolbarButton} from './ToolbarButton';
+import {ToolbarButtonPopup} from './ToolbarButtonPopup';
 import {ToolbarListButton} from './ToolbarListButton';
 import {ToolbarBaseProps, ToolbarDataType, ToolbarGroupItemData} from './types';
 
@@ -35,6 +36,19 @@ export function ToolbarButtonGroup<E>({
                             focus={focus}
                             onClick={onClick}
                             className={b(item.type, {id: item.id}, [item.className])}
+                        />
+                    );
+                }
+
+                if (item.type === ToolbarDataType.ButtonPopup) {
+                    return (
+                        <ToolbarButtonPopup
+                            {...item}
+                            key={item.id}
+                            editor={editor}
+                            focus={focus}
+                            onClick={onClick}
+                            className={b(item.type, {id: item.id}, item.className)}
                         />
                     );
                 }
