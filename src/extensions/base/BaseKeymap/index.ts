@@ -1,4 +1,4 @@
-import {baseKeymap, joinDown, joinUp, lift, selectParentNode} from 'prosemirror-commands';
+import {baseKeymap, lift, selectParentNode} from 'prosemirror-commands';
 import {undoInputRule} from 'prosemirror-inputrules';
 
 import type {ExtensionAuto} from '../../../core';
@@ -11,8 +11,6 @@ export const BaseKeymap: ExtensionAuto = (builder) => {
         .addKeymap(
             () => ({
                 Backspace: undoInputRule,
-                'Alt-ArrowUp': joinUp,
-                'Alt-ArrowDown': joinDown,
                 'Mod-BracketLeft': lift,
                 'Alt-Shift-Escape': selectParentNode,
             }),
