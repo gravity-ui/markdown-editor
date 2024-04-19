@@ -1,9 +1,7 @@
-import {Fragment} from 'prosemirror-model';
 import type {Command} from 'prosemirror-state';
-import {findParentNodeClosestToPos} from 'prosemirror-utils';
 
 import {isTableNode} from '..';
-import {findChildTableCells, findChildTableRows} from '../utils';
+import {isTableBodyNode, isTableCellNode, isTableRowNode} from '../utils';
 
 export const removeColumn: Command = (
     state,
@@ -13,40 +11,36 @@ export const removeColumn: Command = (
 ) => {
     const {tablePos, columnNumber} = attrs;
 
-    if (tablePos === undefined || columnNumber === undefined) return false;
+    if (typeof tablePos !== 'number' || typeof columnNumber !== 'number') return false;
+    if (Number.isNaN(tablePos) || Number.isNaN(columnNumber)) return false;
+    if (tablePos < 0 || columnNumber < 0) return false;
 
-    const tableNode = findParentNodeClosestToPos(state.doc.resolve(tablePos + 1), isTableNode)
-        ?.node;
+    const tableNode = state.doc.nodeAt(tablePos);
+    if (!tableNode || tableNode.nodeSize <= 2 || !isTableNode(tableNode)) return false;
 
-    if (!tableNode) return false;
-
-    if (!tableNode.firstChild || !tableNode) {
+    const tableBodyNode = tableNode.firstChild;
+    if (!tableBodyNode || tableBodyNode.nodeSize <= 2 || !isTableBodyNode(tableBodyNode))
         return false;
-    }
 
-    const allRows = findChildTableRows(tableNode);
-
-    if (allRows[0].node.childCount < 2) {
-        // there is one column left
-        return false;
-    }
-
-    if (columnNumber < 0) {
-        return false;
-    }
+    // there is one column left
+    if (tableBodyNode.firstChild && tableBodyNode.firstChild.childCount < 2) return false;
 
     if (dispatch) {
-        let tr = state.tr;
+        const {tr} = state;
 
-        for (const row of allRows) {
-            const rowCells = findChildTableCells(row.node);
-            const cell = rowCells[columnNumber];
+        tableBodyNode.forEach((rowNode, rowOffset) => {
+            if (!isTableRowNode(rowNode)) return;
 
-            const from = tablePos + row.pos + cell.pos + 2;
-            const to = from + cell.node.nodeSize;
+            rowNode.forEach((cellNode, cellOffset, cellIndex) => {
+                if (!isTableCellNode(cellNode)) return;
 
-            tr = tr.replaceWith(tr.mapping.map(from), tr.mapping.map(to), Fragment.empty);
-        }
+                if (cellIndex === columnNumber) {
+                    const from = tablePos + 1 + rowOffset + 1 + cellOffset;
+                    const to = from + cellNode.nodeSize;
+                    tr.delete(tr.mapping.map(from), tr.mapping.map(to));
+                }
+            });
+        });
 
         dispatch(tr);
     }
