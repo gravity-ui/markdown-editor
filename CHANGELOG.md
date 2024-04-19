@@ -1,5 +1,20 @@
 # Changelog
 
+## [12.4.0](https://github.com/yandex-cloud/yfm-editor/compare/v12.3.0...v12.4.0) (2024-04-19)
+
+
+### Features
+
+* **BaseKeymap:** remove keymap for joinUp and joinDown commands ([#233](https://github.com/yandex-cloud/yfm-editor/issues/233)) ([c34ef8a](https://github.com/yandex-cloud/yfm-editor/commit/c34ef8ab7b02cb02feee3c8896844c896a744271))
+* **toolbar, bundle:** add ToolbarButtonPopup type and use it for link, image and file actions in murkup mode ([#228](https://github.com/yandex-cloud/yfm-editor/issues/228)) ([0040e2a](https://github.com/yandex-cloud/yfm-editor/commit/0040e2a0d1c91b39cf5c50a270abdc37d435d3af))
+
+
+### Bug Fixes
+
+* fixed position of HelpPopover ([#230](https://github.com/yandex-cloud/yfm-editor/issues/230)) ([bb9c9b6](https://github.com/yandex-cloud/yfm-editor/commit/bb9c9b6ddf7056bb612124b460a6331bc632c281))
+* **table-utils:** fix deleting columns in tables with nested tables ([#231](https://github.com/yandex-cloud/yfm-editor/issues/231)) ([64d81a6](https://github.com/yandex-cloud/yfm-editor/commit/64d81a65dc5ff245f543d68294328419dac9a01a))
+* **YfmTableAdditions:** fix positioning of floating buttons of yfm-table ([#232](https://github.com/yandex-cloud/yfm-editor/issues/232)) ([52ef503](https://github.com/yandex-cloud/yfm-editor/commit/52ef503862c0ee1e59da4eccada71761bca247ec))
+
 ## [12.3.0](https://github.com/yandex-cloud/yfm-editor/compare/v12.2.1...v12.3.0) (2024-04-17)
 
 
