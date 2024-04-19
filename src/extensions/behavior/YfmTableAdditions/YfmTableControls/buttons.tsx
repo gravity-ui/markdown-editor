@@ -1,6 +1,6 @@
+import {Fragment} from 'prosemirror-model';
 import {Plugin, PluginKey} from 'prosemirror-state';
 import {
-    findChildren,
     findParentNode,
     findParentNodeClosestToPos,
     findSelectedNodeOfType,
@@ -14,6 +14,7 @@ import {
     isTableNode,
     isTableRowNode,
 } from '../../../../table-utils';
+import {getChildrenOfNode} from '../../../../utils';
 import {YfmTableNode} from '../const';
 
 import {viewB, yfmTableView} from './view';
@@ -88,43 +89,33 @@ export const tableControlsPlugin = () =>
                     const pos = view.posAtCoords({left: e.x, top: e.y});
                     if (!pos) return false;
 
-                    const cell = findParentNodeClosestToPos(
-                        view.state.doc.resolve(pos.pos),
-                        isTableCellNode,
-                    );
-                    const table = findParentNodeClosestToPos(
-                        view.state.doc.resolve(pos.pos),
-                        isTableBodyNode,
-                    );
+                    const $pos = view.state.doc.resolve(pos.pos);
+                    const cell = findParentNodeClosestToPos($pos, isTableCellNode);
+                    const row = findParentNodeClosestToPos($pos, isTableRowNode);
+                    const tbody = findParentNodeClosestToPos($pos, isTableBodyNode);
 
                     let state: State = null;
 
-                    if (cell && table) {
-                        const contentDom = view.domAtPos(cell.pos + 1).node as HTMLElement;
-                        const rowNumber = contentDom.getAttribute('data-row-number');
-                        const colNumber = contentDom.getAttribute('data-col-number');
+                    if (cell && row && tbody) {
+                        const cellIndex = getChildrenOfNode(row.node).findIndex(
+                            (child) => child.node === cell.node,
+                        );
+                        const firstRowCell = getChildrenOfNode(
+                            tbody.node.firstChild || Fragment.empty,
+                        )[cellIndex];
 
-                        const rows = findChildren(table.node, isTableRowNode);
-                        const parentRow = rows[Number(rowNumber)];
-                        const firstRow = rows[0];
-                        const parentCol = findChildren(rows[0].node, isTableCellNode)[
-                            Number(colNumber)
-                        ];
+                        if (firstRowCell) {
+                            const upperFrom = tbody.pos + 2 + firstRowCell.offset;
+                            const upperTo = upperFrom + firstRowCell.node.nodeSize;
 
-                        const rowFrom = parentRow.pos + table.start;
-                        const rowTo = parentRow.pos + parentRow.node.nodeSize + table.start;
-                        const firstRowFrom = firstRow.pos + table.start;
+                            const leftFrom = row.pos;
+                            const leftTo = row.pos + row.node.nodeSize;
 
-                        state = {
-                            upper: {
-                                from: parentCol.pos + firstRowFrom + 1,
-                                to: parentCol.pos + firstRowFrom + 1 + parentCol.node.nodeSize,
-                            },
-                            left: {
-                                from: rowFrom,
-                                to: rowTo,
-                            },
-                        };
+                            state = {
+                                upper: {from: upperFrom, to: upperTo},
+                                left: {from: leftFrom, to: leftTo},
+                            };
+                        }
                     }
 
                     if (shouldUpdateState(prevState, state)) {
