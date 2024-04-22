@@ -1,4 +1,3 @@
-import {capitalize} from '../lodash';
 import {isMac} from '../utils/platform';
 
 import {cmChars} from './chars';
@@ -32,7 +31,6 @@ class ShortCutFormatter {
         return defs
             .map((str) => cmChars[str] ?? str)
             .sort((a) => (a === MK.Shift ? -1 : 0))
-            .map(capitalize)
             .join('-');
     }
 

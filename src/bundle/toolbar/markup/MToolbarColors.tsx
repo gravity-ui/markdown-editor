@@ -1,7 +1,7 @@
 import React from 'react';
 
+import type {CodeEditor} from '../../../markup';
 import {colorify} from '../../../markup/commands';
-import type {CodeEditor} from '../../../markup/editor';
 import {ToolbarBaseProps} from '../../../toolbar';
 import {ToolbarColors} from '../custom/ToolbarColors';
 
@@ -17,7 +17,7 @@ export const MToolbarColors: React.FC<MToolbarColorsProps> = ({
         <ToolbarColors
             enable
             exec={(color) => {
-                colorify(editor.cm, color);
+                colorify(color)(editor.cm);
             }}
             className={className}
             focus={focus}

@@ -29,17 +29,16 @@ export const MToolbarFilePopup: React.FC<MToolbarFilePopupProps> = ({
             onClick={onClick}
             anchorRef={anchorRef}
             className={className}
-            onSubmit={(fileParams) => insertFiles(editor.cm, [fileParams])}
+            onSubmit={(fileParams) => insertFiles([fileParams])(editor.cm)}
             uploadHandler={uploadHandler}
             onSuccessUpload={(res) => {
                 insertFiles(
-                    editor.cm,
                     res.success.map<FileItem>(({result, file}) => ({
                         src: result.url,
                         name: result.name ?? file.name,
                         type: result.type ?? file.type,
                     })),
-                );
+                )(editor.cm);
             }}
         />
     );

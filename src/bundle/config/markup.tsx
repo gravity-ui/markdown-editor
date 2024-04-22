@@ -2,45 +2,39 @@ import React from 'react';
 
 import {i18n} from '../../i18n/menubar';
 import {
-    isBoldActive,
-    isH1Active,
-    isH2Active,
-    isH3Active,
-    isH4Active,
-    isH5Active,
-    isH6Active,
-    isItalicActive,
-} from '../../markup/active';
-import {
+    insertHRule,
     insertLink,
-    insertTable,
+    insertMermaidDiagram,
+    insertYfmTable,
+    insertYfmTabs,
     liftListItem,
+    redo,
+    redoDepth,
     sinkListItem,
+    toBlockquote,
     toBulletList,
     toCheckbox,
-    toCodeBlock,
     toH1,
     toH2,
     toH3,
     toH4,
     toH5,
     toH6,
-    toHr,
-    toInlineCode,
-    toMermaid,
     toOrderedList,
-    toQuote,
-    toTabs,
-    wrapToBold,
-    wrapToCut,
-    wrapToItalic,
-    wrapToMark,
+    toggleBold,
+    toggleItalic,
+    toggleMarked,
+    toggleMonospace,
+    toggleStrikethrough,
+    toggleUnderline,
+    undo,
+    undoDepth,
+    wrapToCodeBlock,
+    wrapToInlineCode,
     wrapToMathBlock,
     wrapToMathInline,
-    wrapToMonospace,
-    wrapToNote,
-    wrapToStrike,
-    wrapToUnderline,
+    wrapToYfmCut,
+    wrapToYfmNote,
 } from '../../markup/commands';
 import {CodeEditor} from '../../markup/editor';
 import {Action as A, formatter as f} from '../../shortcuts';
@@ -48,13 +42,11 @@ import {ToolbarData} from '../../toolbar/Toolbar';
 import {ToolbarGroupData} from '../../toolbar/ToolbarGroup';
 import {ToolbarListButtonData} from '../../toolbar/ToolbarListButton';
 import {
-    ToolbarButtonPopupData,
     ToolbarDataType,
     ToolbarListItemData,
     ToolbarReactComponentData,
     ToolbarSingleItemData,
 } from '../../toolbar/types';
-import {ToolbarLinkPopup} from '../toolbar/custom/ToolbarLinkPopup';
 import {MToolbarColors} from '../toolbar/markup/MToolbarColors';
 import {MToolbarFilePopup} from '../toolbar/markup/MToolbarFilePopup';
 import {MToolbarImagePopup} from '../toolbar/markup/MToolbarImagePopup';
@@ -80,9 +72,9 @@ export const mHistoryGroupConfig: MToolbarGroupData = [
         title: i18n.bind(null, 'undo'),
         icon: icons.undo,
         hotkey: f.toView(A.Undo),
-        exec: (e) => e.cm.undo(),
+        exec: (e) => undo(e.cm),
         isActive: isActiveFn,
-        isEnable: (e) => e.cm.historySize().undo > 0,
+        isEnable: (e) => undoDepth(e.cm.state) > 0,
     },
     {
         id: ActionName.redo,
@@ -90,9 +82,9 @@ export const mHistoryGroupConfig: MToolbarGroupData = [
         title: i18n.bind(null, 'redo'),
         icon: icons.redo,
         hotkey: f.toView(A.Redo),
-        exec: (e) => e.cm.redo(),
+        exec: (e) => redo(e.cm),
         isActive: isActiveFn,
-        isEnable: (e) => e.cm.historySize().redo > 0,
+        isEnable: (e) => redoDepth(e.cm.state) > 0,
     },
 ];
 
@@ -104,8 +96,8 @@ export const mBoldGroupItem: MToolbarSingleItemData = {
     title: i18n.bind(null, 'bold'),
     icon: icons.bold,
     hotkey: f.toView(A.Bold),
-    exec: (e) => wrapToBold(e.cm),
-    isActive: (e) => isBoldActive(e.cm),
+    exec: (e) => toggleBold(e.cm),
+    isActive: isActiveFn,
     isEnable: isEnableFn,
 };
 
@@ -115,8 +107,8 @@ export const mItalicGroupItem: MToolbarSingleItemData = {
     title: i18n.bind(null, 'italic'),
     icon: icons.italic,
     hotkey: f.toView(A.Italic),
-    exec: (e) => wrapToItalic(e.cm),
-    isActive: (e) => isItalicActive(e.cm),
+    exec: (e) => toggleItalic(e.cm),
+    isActive: isActiveFn,
     isEnable: isEnableFn,
 };
 
@@ -129,7 +121,7 @@ export const mBiusGroupConfig: MToolbarGroupData = [
         title: i18n.bind(null, 'underline'),
         icon: icons.underline,
         hotkey: f.toView(A.Underline),
-        exec: (e) => wrapToUnderline(e.cm),
+        exec: (e) => toggleUnderline(e.cm),
         isActive: isActiveFn,
         isEnable: isEnableFn,
     },
@@ -139,7 +131,7 @@ export const mBiusGroupConfig: MToolbarGroupData = [
         title: i18n.bind(null, 'strike'),
         icon: icons.strikethrough,
         hotkey: f.toView(A.Strike),
-        exec: (e) => wrapToStrike(e.cm),
+        exec: (e) => toggleStrikethrough(e.cm),
         isActive: isActiveFn,
         isEnable: isEnableFn,
     },
@@ -148,7 +140,7 @@ export const mBiusGroupConfig: MToolbarGroupData = [
         type: ToolbarDataType.SingleButton,
         title: i18n.bind(null, 'mono'),
         icon: icons.mono,
-        exec: (e) => wrapToMonospace(e.cm),
+        exec: (e) => toggleMonospace(e.cm),
         isActive: isActiveFn,
         isEnable: isEnableFn,
     },
@@ -157,7 +149,7 @@ export const mBiusGroupConfig: MToolbarGroupData = [
         type: ToolbarDataType.SingleButton,
         title: i18n.bind(null, 'mark'),
         icon: icons.mark,
-        exec: (e) => wrapToMark(e.cm),
+        exec: (e) => toggleMarked(e.cm),
         isActive: isActiveFn,
         isEnable: isEnableFn,
     },
@@ -174,7 +166,7 @@ export const mHeadingListConfig: MToolbarListButtonData = {
             icon: icons.h1,
             hotkey: f.toView(A.Heading1),
             exec: (e) => toH1(e.cm),
-            isActive: (e) => isH1Active(e.cm),
+            isActive: isActiveFn,
             isEnable: isEnableFn,
         },
         {
@@ -183,7 +175,7 @@ export const mHeadingListConfig: MToolbarListButtonData = {
             icon: icons.h2,
             hotkey: f.toView(A.Heading2),
             exec: (e) => toH2(e.cm),
-            isActive: (e) => isH2Active(e.cm),
+            isActive: isActiveFn,
             isEnable: isEnableFn,
         },
         {
@@ -192,7 +184,7 @@ export const mHeadingListConfig: MToolbarListButtonData = {
             icon: icons.h3,
             hotkey: f.toView(A.Heading3),
             exec: (e) => toH3(e.cm),
-            isActive: (e) => isH3Active(e.cm),
+            isActive: isActiveFn,
             isEnable: isEnableFn,
         },
         {
@@ -201,7 +193,7 @@ export const mHeadingListConfig: MToolbarListButtonData = {
             icon: icons.h4,
             hotkey: f.toView(A.Heading4),
             exec: (e) => toH4(e.cm),
-            isActive: (e) => isH4Active(e.cm),
+            isActive: isActiveFn,
             isEnable: isEnableFn,
         },
         {
@@ -210,7 +202,7 @@ export const mHeadingListConfig: MToolbarListButtonData = {
             icon: icons.h5,
             hotkey: f.toView(A.Heading5),
             exec: (e) => toH5(e.cm),
-            isActive: (e) => isH5Active(e.cm),
+            isActive: isActiveFn,
             isEnable: isEnableFn,
         },
         {
@@ -219,7 +211,7 @@ export const mHeadingListConfig: MToolbarListButtonData = {
             icon: icons.h6,
             hotkey: f.toView(A.Heading6),
             exec: (e) => toH6(e.cm),
-            isActive: (e) => isH6Active(e.cm),
+            isActive: isActiveFn,
             isEnable: isEnableFn,
         },
     ],
@@ -283,29 +275,14 @@ export const mListMoveListConfig: MToolbarListButtonData = {
     ],
 };
 
-export const mLinkButton: ToolbarButtonPopupData<CodeEditor> = {
+export const mLinkButton: MToolbarSingleItemData = {
     id: ActionName.link,
-    type: ToolbarDataType.ButtonPopup,
+    type: ToolbarDataType.SingleButton,
     icon: icons.link,
     title: i18n('link'),
-    exec: noop,
+    exec: (e) => insertLink(e.cm),
     isActive: isActiveFn,
     isEnable: isEnableFn,
-    renderPopup: (props) => {
-        const {editor} = props;
-        const selection = editor.cm.getSelection();
-
-        return (
-            <ToolbarLinkPopup
-                {...props}
-                formInitialText={selection}
-                formReadOnlyText={Boolean(selection)}
-                onSubmit={(url, text) => {
-                    insertLink({url, text})(editor.cm);
-                }}
-            />
-        );
-    },
 };
 
 export const mNoteButton: MToolbarSingleItemData = {
@@ -314,7 +291,7 @@ export const mNoteButton: MToolbarSingleItemData = {
     title: i18n.bind(null, 'note'),
     icon: icons.note,
     hotkey: f.toView(A.Note),
-    exec: (e) => wrapToNote(e.cm),
+    exec: (e) => wrapToYfmNote(e.cm),
     isActive: isActiveFn,
     isEnable: isEnableFn,
 };
@@ -324,7 +301,7 @@ export const mQuoteButton: MToolbarSingleItemData = {
     type: ToolbarDataType.SingleButton,
     title: i18n.bind(null, 'quote'),
     icon: icons.quote,
-    exec: (e) => toQuote(e.cm),
+    exec: (e) => toBlockquote(e.cm),
     isActive: isActiveFn,
     isEnable: isEnableFn,
 };
@@ -335,7 +312,7 @@ export const mCutButton: MToolbarSingleItemData = {
     title: i18n.bind(null, 'cut'),
     icon: icons.cut,
     hotkey: f.toView(A.Cut),
-    exec: (e) => wrapToCut(e.cm),
+    exec: (e) => wrapToYfmCut(e.cm),
     isActive: isActiveFn,
     isEnable: isEnableFn,
 };
@@ -345,7 +322,7 @@ export const mTableButton: MToolbarSingleItemData = {
     type: ToolbarDataType.SingleButton,
     title: i18n.bind(null, 'table'),
     icon: icons.table,
-    exec: (e) => insertTable(e.cm),
+    exec: (e) => insertYfmTable(e.cm),
     isActive: isActiveFn,
     isEnable: isEnableFn,
 };
@@ -360,7 +337,7 @@ export const mCodeListConfig: MToolbarListButtonData = {
             title: i18n.bind(null, 'code_inline'),
             icon: icons.code,
             hotkey: f.toView(A.Code),
-            exec: (e) => toInlineCode(e.cm),
+            exec: (e) => wrapToInlineCode(e.cm),
             isActive: isActiveFn,
             isEnable: isEnableFn,
         },
@@ -369,7 +346,7 @@ export const mCodeListConfig: MToolbarListButtonData = {
             title: i18n.bind(null, 'codeblock'),
             icon: icons.codeBlock,
             hotkey: f.toView(A.CodeBlock),
-            exec: (e) => toCodeBlock(e.cm),
+            exec: (e) => wrapToCodeBlock(e.cm),
             isActive: isActiveFn,
             isEnable: isEnableFn,
         },
@@ -411,7 +388,7 @@ export const mMermaidButton: MToolbarSingleItemData = {
     type: ToolbarDataType.SingleButton,
     title: i18n.bind(null, 'mermaid'),
     icon: icons.mermaid,
-    exec: (e) => toMermaid(e.cm),
+    exec: (e) => insertMermaidDiagram(e.cm),
     isActive: isActiveFn,
     isEnable: isEnableFn,
 };
@@ -478,8 +455,8 @@ export const mHruleItemData: MToolbarSingleItemData = {
     title: i18n.bind(null, 'hrule'),
     icon: icons.horizontalRule,
     type: ToolbarDataType.SingleButton,
-    exec: (e) => toHr(e.cm),
-    isActive: (e) => isBoldActive(e.cm),
+    exec: (e) => insertHRule(e.cm),
+    isActive: isActiveFn,
     isEnable: isEnableFn,
 };
 
@@ -488,8 +465,8 @@ export const mTabsItemData: MToolbarSingleItemData = {
     title: i18n.bind(null, 'tabs'),
     icon: icons.tabs,
     type: ToolbarDataType.SingleButton,
-    exec: (e) => toTabs(e.cm),
-    isActive: (e) => isBoldActive(e.cm),
+    exec: (e) => insertYfmTabs(e.cm),
+    isActive: isActiveFn,
     isEnable: isEnableFn,
 };
 

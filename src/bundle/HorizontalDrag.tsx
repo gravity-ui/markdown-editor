@@ -89,6 +89,8 @@ const HorizontalDrag: React.FC<HorizontalDragProps> = ({
     wrapperRef,
     editor,
 }) => {
+    const cm = editor.cm;
+
     const [lCardWidth, lSetCardWidth] = useState((wrapperRef.current?.clientWidth ?? 0) / 2);
     const [rCardWidth, rSetCardWidth] = useState((wrapperRef.current?.clientWidth ?? 0) / 2);
 
@@ -119,7 +121,7 @@ const HorizontalDrag: React.FC<HorizontalDragProps> = ({
     // Set initially calculated width
     useEffect(() => {
         updateWidth(lCardWidth, rCardWidth);
-        editor.cm.refresh();
+        cm.requestMeasure();
     }, []);
 
     useEffect(() => {
@@ -157,12 +159,12 @@ const HorizontalDrag: React.FC<HorizontalDragProps> = ({
             updateWidth(lNewWidth, rNewWidth);
 
             wrapperRef.current?.style.removeProperty('user-select');
-            editor.cm.refresh();
+            cm.requestMeasure();
 
             rightElRef.current?.classList.remove(IN_RESIZE_CLASSNAME);
             leftElRef.current?.classList.remove(IN_RESIZE_CLASSNAME);
         },
-        [calculateWidth, editor.cm, leftElRef, rightElRef, updateWidth, wrapperRef],
+        [calculateWidth, cm, leftElRef, rightElRef, updateWidth, wrapperRef],
     );
 
     const {listeners} = useColResize({onStart, onMove, onEnd});

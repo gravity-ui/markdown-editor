@@ -1,0 +1,20 @@
+@use '~@gravity-ui/uikit/styles/mixins.scss';
+
+.ye-upload-label {
+    &__content {
+        display: flex;
+        align-items: center;
+        column-gap: 4px;
+    }
+
+    &__filename {
+        display: inline-block;
+        @include mixins.max-text-width(128px);
+    }
+}
+
+.cm6-file-upload-widget {
+    & + & {
+        margin-left: 2px;
+    }
+}

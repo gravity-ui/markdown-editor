@@ -2,12 +2,11 @@ import React, {RefObject} from 'react';
 
 import isNumber from 'is-number';
 
+import {IMG_MAX_HEIGHT, getImageDimensions} from '../../../markup';
 import {ImageItem, insertImages} from '../../../markup/commands';
 import type {CodeEditor} from '../../../markup/editor';
 import type {ToolbarBaseProps} from '../../../toolbar';
 import type {UploadSuccessItem} from '../../../utils/upload';
-import {IMG_MAX_HEIGHT} from '../../cm-upload/const';
-import {getImageDimensions} from '../../cm-upload/utils';
 import {ToolbarImagePopup} from '../custom/ToolbarImagePopup';
 
 import {useMarkupToolbarContext} from './context';
@@ -39,7 +38,7 @@ export const MToolbarImagePopup: React.FC<MToolbarImagePopupProps> = ({
             onClick={onClick}
             className={className}
             onSubmit={({url, name, alt, width, height}) => {
-                insertImages(editor.cm, [
+                insertImages([
                     {
                         url,
                         alt,
@@ -47,7 +46,7 @@ export const MToolbarImagePopup: React.FC<MToolbarImagePopupProps> = ({
                         width: isNumber(width) ? String(width) : '',
                         height: isNumber(height) ? String(height) : '',
                     },
-                ]);
+                ])(editor.cm);
             }}
             uploadImages={uploadHandler}
             onSuccessUpload={async (res) => {
@@ -55,7 +54,7 @@ export const MToolbarImagePopup: React.FC<MToolbarImagePopupProps> = ({
                     res.success,
                     Boolean(needToSetDimensionsForUploadedImages),
                 );
-                insertImages(editor.cm, images);
+                insertImages(images)(editor.cm);
             }}
         />
     );
