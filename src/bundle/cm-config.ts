@@ -42,6 +42,8 @@ export const config: CodeMirror.EditorConfiguration = {
     // gutters: ['CodeMirror-linenumbers', 'CodeMirror-foldgutter'],
     extraKeys: {
         Enter: 'newlineAndIndentContinueMarkdownList',
+        Home: 'goLineLeft',
+        End: 'goLineRight',
         [f.toCM(A.Bold)!]: withLogger(ActionName.bold, wrapToBold),
         [f.toCM(A.Italic)!]: withLogger(ActionName.italic, wrapToItalic),
         [f.toCM(A.Strike)!]: withLogger(ActionName.strike, wrapToStrike),
