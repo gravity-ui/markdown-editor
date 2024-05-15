@@ -21,6 +21,7 @@ export const TextInputFixed = React.forwardRef<HTMLSpanElement, TextInputProps>(
         }
     });
 
+    // eslint-disable-next-line jsx-a11y/no-autofocus
     return <TextInputUIKit ref={ref} {...props} controlRef={controlRef} autoFocus={false} />;
 });
 

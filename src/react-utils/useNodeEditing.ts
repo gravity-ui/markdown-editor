@@ -15,6 +15,7 @@ export const useNodeEditing = ({
     const [, , unsetEdit, toggleEdit] = state;
 
     useEffect(() => {
+        // TODO: @makhnatkin is used current?
         const {current: anchor} = nodeRef;
         anchor?.addEventListener('dblclick', toggleEdit);
         view.dom.addEventListener('focus', unsetEdit);

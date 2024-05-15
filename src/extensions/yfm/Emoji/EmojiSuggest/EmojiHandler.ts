@@ -1,9 +1,9 @@
 import {Schema} from 'prosemirror-model';
 import {EditorView} from 'prosemirror-view';
 
-import {RendererItem, getReactRendererFromState} from '../../../../extensions/behavior';
 import {AutocompletePopupCloser} from '../../../../utils/autocomplete-popup';
 import {ArrayCarousel} from '../../../../utils/carousel';
+import {RendererItem, getReactRendererFromState} from '../../../behavior';
 import {
     AutocompleteAction,
     AutocompleteActionKind,

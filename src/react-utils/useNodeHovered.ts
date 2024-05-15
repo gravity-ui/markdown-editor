@@ -6,6 +6,7 @@ export const useNodeHovered = (nodeRef: RefObject<HTMLElement>) => {
     const [nodeHovered, setNodeHovered, unsetNodeHovered] = useBooleanState(false);
 
     useEffect(() => {
+        // TODO: @makhnatkin is used current?
         const {current: anchor} = nodeRef;
         anchor?.addEventListener('mouseenter', setNodeHovered);
         anchor?.addEventListener('mouseleave', unsetNodeHovered);
