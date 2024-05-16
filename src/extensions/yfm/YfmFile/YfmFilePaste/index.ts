@@ -7,8 +7,8 @@ import {ExtensionAuto} from '../../../../core';
 import {isFunction} from '../../../../lodash';
 import {FileUploadHandler, UploadSuccessItem} from '../../../../utils/upload';
 import {clipboardUtils} from '../../../behavior/Clipboard';
-import {createImageNode} from '../../../behavior/ImgSizeAdditions/utils'; // TODO: remove hard import
 import {imageType} from '../../../markdown';
+import {createImageNode} from '../../ImgSize/utils'; // TODO: remove hard import
 import {fileType} from '../YfmFileSpecs';
 
 import {YfmFilesUploadProcessBase} from './upload';

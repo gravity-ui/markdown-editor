@@ -4,10 +4,10 @@ import {Plugin} from 'prosemirror-state';
 import {dropPoint} from 'prosemirror-transform';
 
 import {ExtensionAuto} from '../../../../core';
-import {ImageAttr, ImgSizeAttr, imageType} from '../../../../extensions/specs';
 import {isFunction} from '../../../../lodash';
 import {FileUploadHandler} from '../../../../utils/upload';
-import {clipboardUtils} from '../../Clipboard';
+import {clipboardUtils} from '../../../behavior/Clipboard';
+import {ImageAttr, ImgSizeAttr, imageType} from '../../../specs';
 import {CreateImageNodeOptions, isImageNode} from '../utils';
 
 import {ImagesUploadProcess} from './upload';

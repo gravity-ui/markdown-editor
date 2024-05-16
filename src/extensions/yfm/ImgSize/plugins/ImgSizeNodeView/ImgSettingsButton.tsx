@@ -5,12 +5,12 @@ import {Button, Icon, Menu, Popup, PopupPlacement} from '@gravity-ui/uikit';
 import {Node} from 'prosemirror-model';
 import {EditorView} from 'prosemirror-view';
 
-import {i18n as i18nCommon} from '../../../../i18n/common';
-import {useBooleanState} from '../../../../react-utils/hooks';
-import {useNodeEditing} from '../../../../react-utils/useNodeEditing';
-import {useNodeHovered} from '../../../../react-utils/useNodeHovered';
-import {removeNode} from '../../../../utils/remove-node';
-import {imageRendererKey} from '../const';
+import {i18n as i18nCommon} from '../../../../../i18n/common';
+import {useBooleanState} from '../../../../../react-utils/hooks';
+import {useNodeEditing} from '../../../../../react-utils/useNodeEditing';
+import {useNodeHovered} from '../../../../../react-utils/useNodeHovered';
+import {removeNode} from '../../../../../utils/remove-node';
+import {imageRendererKey} from '../../const';
 
 import {ImageForm} from './ImageForm';
 

@@ -5,13 +5,13 @@ import isNumber from 'is-number';
 import {Mark, Node} from 'prosemirror-model';
 import {EditorView} from 'prosemirror-view';
 
-import {cn} from '../../../../../classname';
-import {LinkAttr, linkType} from '../../../../../extensions/markdown';
-import {ImgSizeAttr} from '../../../../../extensions/specs';
-import Form from '../../../../../forms/base';
-import {NumberInput} from '../../../../../forms/components';
-import {enterKeyHandler} from '../../../../../forms/utils';
-import {i18n} from '../../../../../i18n/forms';
+import {cn} from '../../../../../../classname';
+import Form from '../../../../../../forms/base';
+import {NumberInput} from '../../../../../../forms/components';
+import {enterKeyHandler} from '../../../../../../forms/utils';
+import {i18n} from '../../../../../../i18n/forms';
+import {LinkAttr, linkType} from '../../../../../markdown';
+import {ImgSizeAttr} from '../../../../../specs';
 
 import './ImageForm.scss';
 

@@ -6,10 +6,10 @@ import {Transaction} from 'prosemirror-state';
 import {EditorView} from 'prosemirror-view';
 
 import {ExtensionDeps} from '../../../../core';
-import {imageType, normalizeUrlFactory} from '../../../../extensions/markdown';
-import {ImgSizeAttr} from '../../../../extensions/specs';
 import {FileUploadHandler} from '../../../../utils/upload';
-import {ReactWidgetDescriptor, removeDecoration} from '../../WidgetDecoration';
+import {ReactWidgetDescriptor, removeDecoration} from '../../../behavior/WidgetDecoration';
+import {imageType, normalizeUrlFactory} from '../../../markdown';
+import {ImgSizeAttr} from '../../../specs';
 import {ImagesUploadProcess} from '../ImagePaste/upload';
 
 import {FilePlaceholder, FilePlaceholderProps} from './view';

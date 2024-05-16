@@ -5,7 +5,7 @@ import {isNodeSelection} from 'prosemirror-utils';
 import {ActionSpec, ExtensionDeps} from '../../../core';
 import {LinkAttr, imageType, linkType, removeLink} from '../../../extensions/markdown';
 import {isMarkActive} from '../../../utils/marks';
-import {ImageRendererState, imageRendererKey} from '../ImgSizeAdditions/const';
+import {ImageRendererState, imageRendererKey} from '../../yfm/ImgSize/const';
 
 import {addLinkPlaceholder} from './PlaceholderWidget/commands';
 

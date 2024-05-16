@@ -1,10 +1,10 @@
 import {Node} from 'prosemirror-model';
 import {EditorView} from 'prosemirror-view';
 
-import {imageType} from '../../../../extensions/markdown';
 import {logger} from '../../../../logger';
 import {FileUploadHandler, UploadSuccessItem} from '../../../../utils/upload';
-import {FilesBatchUploadProcess} from '../../utils/upload';
+import {FilesBatchUploadProcess} from '../../../behavior/utils/upload';
+import {imageType} from '../../../markdown';
 import {IMG_MAX_HEIGHT} from '../const';
 import {CreateImageNodeOptions, createImageNode, loadImage} from '../utils';
 

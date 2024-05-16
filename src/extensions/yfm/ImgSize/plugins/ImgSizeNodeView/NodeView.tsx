@@ -1,7 +1,7 @@
 import React, {useRef} from 'react';
 
-import {cn} from '../../../../classname';
-import {ReactNodeViewProps} from '../../../../react-utils/react-node-view';
+import {cn} from '../../../../../classname';
+import {ReactNodeViewProps} from '../../../../../react-utils/react-node-view';
 
 import {ImgSettingsButton} from './ImgSettingsButton';
 

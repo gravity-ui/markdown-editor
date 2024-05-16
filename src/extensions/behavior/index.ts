@@ -10,7 +10,6 @@ import {CommandMenu, CommandMenuOptions} from './CommandMenu';
 import {Cursor, CursorOptions} from './Cursor';
 import {FilePaste} from './FilePaste';
 import {History, HistoryOptions} from './History';
-import {ImgSizeAdditions, ImgSizeAdditionsOptions} from './ImgSizeAdditions';
 import {LinkEnhance, LinkEnhanceOptions} from './LinkEnhance';
 import {Placeholder} from './Placeholder';
 import {ReactRenderer, ReactRendererExtension} from './ReactRenderer';
@@ -37,8 +36,6 @@ export type BehaviorPresetOptions = {
     link?: LinkEnhanceOptions;
     codeBlock?: CodeBlockHighlightOptions;
 
-    imgSize?: ImgSizeAdditionsOptions;
-
     commandMenu?: CommandMenuOptions;
 
     emoji?: EmojiOptions;
@@ -62,8 +59,6 @@ export const BehaviorPreset: ExtensionAuto<BehaviorPresetOptions> = (builder, op
     } else {
         builder.use(CodeBlockHighlight, opts.codeBlock ?? {});
     }
-
-    builder.use(ImgSizeAdditions, opts.imgSize ?? {});
 
     if (opts.emoji) {
         builder.use(Emoji, opts.emoji);

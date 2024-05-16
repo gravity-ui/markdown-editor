@@ -1,9 +1,9 @@
 import {Node, NodeType} from 'prosemirror-model';
 
-import {imageNodeName} from '../../../extensions/markdown';
-import {ImgSizeAttr} from '../../../extensions/specs';
 import {logger} from '../../../logger';
 import {UploadSuccessItem} from '../../../utils/upload';
+import {imageNodeName} from '../../markdown';
+import {ImgSizeAttr} from '../../specs';
 
 import {IMG_MAX_HEIGHT} from './const';
 
