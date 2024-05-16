@@ -7,15 +7,15 @@ import {
 } from 'prosemirror-utils';
 import {Decoration, DecorationSet, EditorView} from 'prosemirror-view';
 
-import {throttle} from '../../../../lodash';
+import {throttle} from '../../../../../lodash';
 import {
     isTableBodyNode,
     isTableCellNode,
     isTableNode,
     isTableRowNode,
-} from '../../../../table-utils';
-import {getChildrenOfNode} from '../../../../utils';
-import {YfmTableNode} from '../const';
+} from '../../../../../table-utils';
+import {getChildrenOfNode} from '../../../../../utils';
+import {YfmTableNode} from '../../YfmTableSpecs';
 
 import {viewB, yfmTableView} from './view';
 import {yfmTableCellCn, yfmTableCellView} from './yfmTableCellView';
@@ -41,6 +41,7 @@ function shouldUpdateState(prev: State, curr: State): boolean {
     return true;
 }
 
+// TODO: split: plus buttons extension & cell controls extension
 export const tableControlsPlugin = () =>
     new Plugin<State>({
         key: tableControlsPluginKey,

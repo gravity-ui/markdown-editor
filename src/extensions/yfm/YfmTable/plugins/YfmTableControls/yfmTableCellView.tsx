@@ -14,17 +14,17 @@ import {NodeWithPos, findChildren, findParentNodeClosestToPos} from 'prosemirror
 import {EditorView, NodeView, NodeViewConstructor} from 'prosemirror-view';
 import {createPortal} from 'react-dom';
 
-import {cn} from '../../../../classname';
-import {bindActions} from '../../../../core';
-import {i18n} from '../../../../i18n/yfm-table';
-import {ErrorLoggerBoundary} from '../../../../react-utils/ErrorBoundary';
+import {cn} from '../../../../../classname';
+import {bindActions} from '../../../../../core';
+import {i18n} from '../../../../../i18n/yfm-table';
+import {ErrorLoggerBoundary} from '../../../../../react-utils/ErrorBoundary';
 import {
     getTableDimensions,
     isTableCellNode,
     isTableNode,
     isTableRowNode,
-} from '../../../../table-utils';
-import {getReactRendererFromState} from '../../ReactRenderer';
+} from '../../../../../table-utils';
+import {getReactRendererFromState} from '../../../../behavior/ReactRenderer';
 
 import {controlActions} from './actions';
 

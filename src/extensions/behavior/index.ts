@@ -20,7 +20,6 @@ import {TableContextExtension} from './TableContext';
 import {WidgetDecoration} from './WidgetDecoration';
 import {YfmFileAdditions, YfmFileAdditionsOptions} from './YfmFileAdditions';
 import {YfmNoteTooltip} from './YfmNoteTooltip';
-import {YfmTableAdditions} from './YfmTableAdditions';
 
 export * from './Cursor';
 export * from './History';
@@ -71,8 +70,7 @@ export const BehaviorPreset: ExtensionAuto<BehaviorPresetOptions> = (builder, op
         .use(ImgSizeAdditions, opts.imgSize ?? {})
         // .use(YfmHeadingAdditions)
         .use(YfmNoteTooltip)
-        .use(YfmFileAdditions, opts.yfmFile ?? {})
-        .use(YfmTableAdditions);
+        .use(YfmFileAdditions, opts.yfmFile ?? {});
 
     if (opts.emoji) {
         builder.use(Emoji, opts.emoji);

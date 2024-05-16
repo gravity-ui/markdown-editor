@@ -3,11 +3,11 @@ import React from 'react';
 import {Button} from '@gravity-ui/uikit';
 import {createPortal} from 'react-dom';
 
-import {cn} from '../../../../classname';
-import {NodeViewConstructor, bindActions} from '../../../../core';
-import {ErrorLoggerBoundary} from '../../../../react-utils/ErrorBoundary';
-import {getTableDimensions} from '../../../../table-utils';
-import {getReactRendererFromState} from '../../ReactRenderer';
+import {cn} from '../../../../../classname';
+import {NodeViewConstructor, bindActions} from '../../../../../core';
+import {ErrorLoggerBoundary} from '../../../../../react-utils/ErrorBoundary';
+import {getTableDimensions} from '../../../../../table-utils';
+import {getReactRendererFromState} from '../../../../behavior/ReactRenderer';
 
 import {controlActions} from './actions';
 

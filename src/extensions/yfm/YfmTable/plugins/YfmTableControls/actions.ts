@@ -1,6 +1,6 @@
 import {Node} from 'prosemirror-model';
 
-import {CommandWithAttrs} from '../../../../core';
+import {CommandWithAttrs} from '../../../../../core';
 import {
     addColumnAfter,
     addRowAfter,
@@ -8,9 +8,9 @@ import {
     appendRow,
     removeColumn,
     removeRow,
-} from '../../../../table-utils';
-import {defineActions} from '../../../../utils/actions';
-import {removeNode} from '../../../../utils/remove-node';
+} from '../../../../../table-utils';
+import {defineActions} from '../../../../../utils/actions';
+import {removeNode} from '../../../../../utils/remove-node';
 
 import {tableControlsPluginKey} from './buttons';
 
