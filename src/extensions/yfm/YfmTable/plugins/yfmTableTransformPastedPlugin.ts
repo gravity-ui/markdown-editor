@@ -6,7 +6,7 @@ import {fixPastedTableBodies} from '../paste';
 interface Args {
     schema: Schema;
 }
-export const tableTransformPastedPlugin = ({schema}: Args) =>
+export const yfmTableTransformPastedPlugin = ({schema}: Args) =>
     new Plugin({
         props: {
             transformPasted(slice) {

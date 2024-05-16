@@ -19,7 +19,6 @@ import {SelectionContext, SelectionContextOptions} from './SelectionContext';
 import {TableContextExtension} from './TableContext';
 import {WidgetDecoration} from './WidgetDecoration';
 import {YfmFileAdditions, YfmFileAdditionsOptions} from './YfmFileAdditions';
-import {YfmNoteTooltip} from './YfmNoteTooltip';
 
 export * from './Cursor';
 export * from './History';
@@ -69,7 +68,6 @@ export const BehaviorPreset: ExtensionAuto<BehaviorPresetOptions> = (builder, op
     builder
         .use(ImgSizeAdditions, opts.imgSize ?? {})
         // .use(YfmHeadingAdditions)
-        .use(YfmNoteTooltip)
         .use(YfmFileAdditions, opts.yfmFile ?? {});
 
     if (opts.emoji) {

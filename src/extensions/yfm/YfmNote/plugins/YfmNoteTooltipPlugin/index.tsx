@@ -5,12 +5,12 @@ import {Node, Schema} from 'prosemirror-model';
 import {Plugin, Transaction} from 'prosemirror-state';
 import {EditorView} from 'prosemirror-view';
 
-import {ExtensionDeps} from '../../../../core';
-import {noteType} from '../../../../extensions/yfm';
-import {i18n} from '../../../../i18n/yfm-note';
-import {BaseTooltipPluginView} from '../../../../plugins/BaseTooltip';
-import {Toolbar, ToolbarDataType} from '../../../../toolbar';
-import {removeNode} from '../../../../utils/remove-node';
+import {ExtensionDeps} from '../../../../../core';
+import {i18n} from '../../../../../i18n/yfm-note';
+import {BaseTooltipPluginView} from '../../../../../plugins/BaseTooltip';
+import {Toolbar, ToolbarDataType} from '../../../../../toolbar';
+import {removeNode} from '../../../../../utils/remove-node';
+import {noteType} from '../../../index';
 
 import './index.scss';
 

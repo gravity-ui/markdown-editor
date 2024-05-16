@@ -5,8 +5,8 @@ import {YfmTableSpecs, YfmTableSpecsOptions} from './YfmTableSpecs';
 import {createYfmTable} from './actions';
 import {backspaceCommand} from './commands/backspace';
 import {goToNextRow} from './commands/goToNextRow';
-import {tableControlsPlugin} from './plugins/YfmTableControls/buttons';
-import {tableTransformPastedPlugin} from './plugins/tableTransformPastedPlugin';
+import {yfmTableControlsPlugin} from './plugins/YfmTableControls/buttons';
+import {yfmTableTransformPastedPlugin} from './plugins/yfmTableTransformPastedPlugin';
 
 const action = 'createYfmTable';
 
@@ -32,8 +32,8 @@ export const YfmTable: ExtensionWithOptions<YfmTableOptions> = (builder, options
         Backspace: backspaceCommand,
     }));
     builder.addAction(action, () => createYfmTable);
-    builder.addPlugin(tableTransformPastedPlugin);
-    builder.addPlugin(tableControlsPlugin);
+    builder.addPlugin(yfmTableTransformPastedPlugin);
+    builder.addPlugin(yfmTableControlsPlugin);
 };
 
 declare global {

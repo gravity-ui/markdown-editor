@@ -42,7 +42,7 @@ function shouldUpdateState(prev: State, curr: State): boolean {
 }
 
 // TODO: split: plus buttons extension & cell controls extension
-export const tableControlsPlugin = () =>
+export const yfmTableControlsPlugin = () =>
     new Plugin<State>({
         key: tableControlsPluginKey,
         state: {
