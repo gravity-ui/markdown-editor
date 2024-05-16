@@ -14,20 +14,14 @@ export function getBlockExtraLineBreaks(
     {from: fromLine, to: toLine}: {from: Line; to: Line},
 ) {
     let lineBreaksBefore = 0;
-    if (fromLine.number === 1) lineBreaksBefore = 2;
-    else if (state.doc.line(fromLine.number - 1).length === 0) {
-        if (fromLine.number > 2 && state.doc.line(fromLine.number - 2).length === 0)
-            lineBreaksBefore = 0;
-        else lineBreaksBefore = 1;
-    } else lineBreaksBefore = 2;
+    if (fromLine.number === 1 || state.doc.line(fromLine.number - 1).length === 0)
+        lineBreaksBefore = 0;
+    else lineBreaksBefore = 1;
 
     let lineBreaksAfter = 0;
-    if (toLine.number === state.doc.lines) lineBreaksAfter = 2;
-    else if (state.doc.line(fromLine.number + 1).length === 0) {
-        if (toLine.number + 2 <= state.doc.lines && state.doc.line(toLine.number + 2).length === 0)
-            lineBreaksAfter = 0;
-        else lineBreaksAfter = 1;
-    } else lineBreaksAfter = 2;
+    if (toLine.number === state.doc.lines || state.doc.line(fromLine.number + 1).length === 0)
+        lineBreaksAfter = 0;
+    else lineBreaksAfter = 1;
 
     return {before: lineBreaksBefore, after: lineBreaksAfter};
 }
@@ -73,12 +67,23 @@ export const wrapToBlock = (
         const toLine = state.doc.lineAt(selrange.to);
         const extraBreaks = getBlockExtraLineBreaks(state, {from: fromLine, to: toLine});
 
+        const beforeInsertion = state.lineBreak.repeat(extraBreaks.before) + beforeText;
+        const afterInsertion = afterText + state.lineBreak.repeat(extraBreaks.after);
         const changes = state.changes([
-            {from: toLine.to, insert: afterText + state.lineBreak.repeat(extraBreaks.after)},
-            {from: fromLine.from, insert: state.lineBreak.repeat(extraBreaks.before) + beforeText},
+            {from: fromLine.from, insert: beforeInsertion},
+            {from: toLine.to, insert: afterInsertion},
         ]);
 
-        dispatch(state.update({changes, selection: state.selection.map(changes)}));
+        const isEmptyLine = fromLine.number === toLine.number && fromLine.length === 0;
+
+        dispatch(
+            state.update({
+                changes,
+                selection: isEmptyLine
+                    ? EditorSelection.single(selrange.head + beforeInsertion.length)
+                    : state.selection.map(changes),
+            }),
+        );
 
         return true;
     };
