@@ -3,7 +3,7 @@ import React from 'react';
 import {Skeleton} from '@gravity-ui/uikit';
 
 import {cn} from '../../../../classname';
-import {ReactWidgetDescriptor} from '../../WidgetDecoration';
+import {ReactWidgetDescriptor} from '../../../behavior/WidgetDecoration';
 
 import './skeleton.scss';
 

@@ -18,7 +18,6 @@ import {Selection} from './Selection';
 import {SelectionContext, SelectionContextOptions} from './SelectionContext';
 import {TableContextExtension} from './TableContext';
 import {WidgetDecoration} from './WidgetDecoration';
-import {YfmFileAdditions, YfmFileAdditionsOptions} from './YfmFileAdditions';
 
 export * from './Cursor';
 export * from './History';
@@ -39,7 +38,6 @@ export type BehaviorPresetOptions = {
     codeBlock?: CodeBlockHighlightOptions;
 
     imgSize?: ImgSizeAdditionsOptions;
-    yfmFile?: YfmFileAdditionsOptions;
 
     commandMenu?: CommandMenuOptions;
 
@@ -65,10 +63,7 @@ export const BehaviorPreset: ExtensionAuto<BehaviorPresetOptions> = (builder, op
         builder.use(CodeBlockHighlight, opts.codeBlock ?? {});
     }
 
-    builder
-        .use(ImgSizeAdditions, opts.imgSize ?? {})
-        // .use(YfmHeadingAdditions)
-        .use(YfmFileAdditions, opts.yfmFile ?? {});
+    builder.use(ImgSizeAdditions, opts.imgSize ?? {});
 
     if (opts.emoji) {
         builder.use(Emoji, opts.emoji);

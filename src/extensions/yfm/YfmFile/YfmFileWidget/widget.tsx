@@ -5,11 +5,11 @@ import {Transaction} from 'prosemirror-state';
 import {EditorView} from 'prosemirror-view';
 
 import {ExtensionDeps} from '../../../../core';
-import {normalizeUrlFactory} from '../../../../extensions/markdown';
-import {fileType} from '../../../../extensions/yfm';
 import {FileUploadHandler} from '../../../../utils/upload';
-import {ReactWidgetDescriptor, removeDecoration} from '../../WidgetDecoration';
+import {ReactWidgetDescriptor, removeDecoration} from '../../../behavior/WidgetDecoration';
+import {normalizeUrlFactory} from '../../../markdown';
 import {YfmFilesUploadProcessBase} from '../YfmFilePaste/upload';
+import {fileType} from '../YfmFileSpecs';
 
 import {FilePlaceholder, FilePlaceholderProps} from './view';
 

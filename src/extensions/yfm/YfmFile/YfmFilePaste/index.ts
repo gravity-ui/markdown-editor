@@ -4,12 +4,12 @@ import {dropPoint} from 'prosemirror-transform';
 import {EditorView} from 'prosemirror-view';
 
 import {ExtensionAuto} from '../../../../core';
-import {imageType} from '../../../../extensions/markdown';
-import {fileType} from '../../../../extensions/yfm/YfmFile';
 import {isFunction} from '../../../../lodash';
 import {FileUploadHandler, UploadSuccessItem} from '../../../../utils/upload';
-import {clipboardUtils} from '../../Clipboard';
-import {createImageNode} from '../../ImgSizeAdditions/utils'; // TODO: remove hard import
+import {clipboardUtils} from '../../../behavior/Clipboard';
+import {createImageNode} from '../../../behavior/ImgSizeAdditions/utils'; // TODO: remove hard import
+import {imageType} from '../../../markdown';
+import {fileType} from '../YfmFileSpecs';
 
 import {YfmFilesUploadProcessBase} from './upload';
 
