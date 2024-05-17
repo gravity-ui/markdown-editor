@@ -1,11 +1,9 @@
 import type {ExtensionAuto} from '../../core';
-import {isFunction} from '../../lodash';
 import {PlaceholderOptions} from '../../utils/placeholder';
 import {Emoji, EmojiOptions} from '../yfm/Emoji';
 
 import {ClicksOnEdges} from './ClicksOnEdges';
 import {Clipboard, ClipboardOptions} from './Clipboard';
-import {CodeBlockHighlight, CodeBlockHighlightOptions} from './CodeBlockHighlight';
 import {CommandMenu, CommandMenuOptions} from './CommandMenu';
 import {Cursor, CursorOptions} from './Cursor';
 import {FilePaste} from './FilePaste';
@@ -31,8 +29,6 @@ export type BehaviorPresetOptions = {
     reactRenderer: ReactRenderer;
     selectionContext?: SelectionContextOptions;
 
-    codeBlock?: CodeBlockHighlightOptions;
-
     commandMenu?: CommandMenuOptions;
 
     emoji?: EmojiOptions;
@@ -48,12 +44,6 @@ export const BehaviorPreset: ExtensionAuto<BehaviorPresetOptions> = (builder, op
         .use(ReactRendererExtension, opts.reactRenderer)
         .use(WidgetDecoration)
         .use(SelectionContext, opts.selectionContext ?? {})
-
-    if (isFunction(opts.codeBlock)) {
-        builder.use(opts.codeBlock);
-    } else {
-        builder.use(CodeBlockHighlight, opts.codeBlock ?? {});
-    }
 
     if (opts.emoji) {
         builder.use(Emoji, opts.emoji);

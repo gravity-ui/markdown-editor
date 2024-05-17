@@ -11,11 +11,11 @@ import {Step} from 'prosemirror-transform';
 import {findChildrenByType} from 'prosemirror-utils';
 import {Decoration, DecorationSet} from 'prosemirror-view';
 
-import {ExtensionAuto} from '../../../core';
-import {codeBlockLangAttr, codeBlockNodeName, codeBlockType} from '../../../extensions/markdown';
-import {capitalize} from '../../../lodash';
-import {logger} from '../../../logger';
-import {codeLangSelectTooltipViewCreator} from '../CodeMirrorView/TooltipPlugin';
+import {ExtensionAuto} from '../../../../core';
+import {codeBlockLangAttr, codeBlockNodeName, codeBlockType} from '../CodeBlockSpecs/index';
+import {capitalize} from '../../../../lodash';
+import {logger} from '../../../../logger';
+import {codeLangSelectTooltipViewCreator} from '../../../behavior/CodeMirrorView/TooltipPlugin';
 
 export type HighlightLangMap = Options['highlightLangs'];
 
