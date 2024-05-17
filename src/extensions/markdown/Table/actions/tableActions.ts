@@ -1,10 +1,9 @@
 import type {Command} from 'prosemirror-state';
 import {removeParentNodeOfType} from 'prosemirror-utils';
 
-import type {ActionSpec, ExtensionDeps, Parser} from '../../../core';
-
-import {TableNode} from './const';
-import {isIntoTable} from './helpers';
+import type {ActionSpec, ExtensionDeps, Parser} from '../../../../core';
+import {TableNode} from '../const';
+import {isIntoTable} from '../helpers';
 
 const mdTamplate = `
 

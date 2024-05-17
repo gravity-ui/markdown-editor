@@ -15,7 +15,6 @@ import {Placeholder} from './Placeholder';
 import {ReactRenderer, ReactRendererExtension} from './ReactRenderer';
 import {Selection} from './Selection';
 import {SelectionContext, SelectionContextOptions} from './SelectionContext';
-import {TableContextExtension} from './TableContext';
 import {WidgetDecoration} from './WidgetDecoration';
 
 export * from './Cursor';
@@ -48,11 +47,10 @@ export const BehaviorPreset: ExtensionAuto<BehaviorPresetOptions> = (builder, op
         .use(Cursor, opts.cursor ?? {})
         .use(History, opts.history ?? {})
         .use(Clipboard, opts.clipboard ?? {})
-        .use(ReactRendererExtension, opts.reactRenderer);
-
-    builder.use(WidgetDecoration).use(SelectionContext, opts.selectionContext ?? {});
-
-    builder.use(TableContextExtension).use(LinkEnhance, opts.link ?? {});
+        .use(ReactRendererExtension, opts.reactRenderer)
+        .use(WidgetDecoration)
+        .use(SelectionContext, opts.selectionContext ?? {})
+        .use(LinkEnhance, opts.link ?? {});
 
     if (isFunction(opts.codeBlock)) {
         builder.use(opts.codeBlock);

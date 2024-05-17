@@ -3,7 +3,7 @@ import React from 'react';
 import {Ellipsis} from '@gravity-ui/icons';
 import {DropdownMenu, DropdownMenuItemMixed, Icon, Popup} from '@gravity-ui/uikit';
 
-import {Action} from '../../../../core';
+import {Action} from '../../../../../core';
 
 import './floating.scss';
 

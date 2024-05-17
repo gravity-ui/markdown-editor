@@ -5,8 +5,8 @@ import {PluginView} from 'prosemirror-state';
 import {findParentDomRefOfType} from 'prosemirror-utils';
 import {EditorView} from 'prosemirror-view';
 
-import {ErrorLoggerBoundary} from '../../../../react-utils/ErrorBoundary';
-import {getReactRendererFromState} from '../../ReactRenderer';
+import {ErrorLoggerBoundary} from '../../../../../react-utils/ErrorBoundary';
+import {getReactRendererFromState} from '../../../../behavior/ReactRenderer';
 
 import {TableCellFloatingButton, TableCellFloatingButtonActions} from './floating';
 

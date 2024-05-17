@@ -1,9 +1,10 @@
 import {Plugin} from 'prosemirror-state';
 
-import {bindActions} from '../../../../core';
-import {TableNode} from '../../../../extensions/markdown';
-import {convertToYfmTable} from '../../../../extensions/yfm';
-import {innerActions} from '../actions';
+import {bindActions} from '../../../../../core';
+import {convertToYfmTable} from '../../../../yfm';
+import {TableNode} from '../../TableSpecs';
+import {innerActions} from '../../actions/innerActions';
+import {deleteTableAction} from '../../actions/tableActions';
 
 import {TableCellContextView} from './view';
 
@@ -13,6 +14,7 @@ export const tableCellContextPlugin = () =>
             const {schema} = view.state;
             const actions = bindActions({
                 ...innerActions,
+                deleteTable: deleteTableAction,
                 convert: {
                     isEnable: convertToYfmTable,
                     run: convertToYfmTable,

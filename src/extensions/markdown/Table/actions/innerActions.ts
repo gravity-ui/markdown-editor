@@ -1,7 +1,6 @@
 import {Command} from 'prosemirror-state';
 
 import {ActionSpec} from '../../../../core';
-import {TableActions, TableHelpers} from '../../../../extensions/markdown';
 import {
     addColumnAfter,
     addRowAfter as addRowAfterOrig,
@@ -9,11 +8,12 @@ import {
     removeCurrentRow,
 } from '../../../../table-utils';
 import {defineActions} from '../../../../utils/actions';
+import {findParentBody} from '../helpers';
 
 import {setCellCenterAlign, setCellLeftAlign, setCellRightAlign} from './cellAlign';
 
 const addRowAfter: Command = (state, dispatch, view) => {
-    if (!TableHelpers.findParentBody(state)) {
+    if (!findParentBody(state)) {
         return false; // TODO: process when cursor is inside thead
     }
 
@@ -48,5 +48,4 @@ export const innerActions = defineActions({
     deleteRow,
     addColumn,
     deleteColumn,
-    deleteTable: TableActions.deleteTableAction,
 });

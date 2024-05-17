@@ -1,24 +1,28 @@
 import {ActionSpec} from '../../../../core';
-import {TableAttrs, TableCellAlign, TableHelpers} from '../../../../extensions/markdown';
+import {CellAlign, TableAttrs} from '../TableSpecs/const';
+import {
+    findParentCell,
+    findParentRow,
+    findParentTable,
+    findTableCells,
+    findTableRows,
+    isIntoTable,
+} from '../helpers';
 
-export const setCellLeftAlign = factory(TableCellAlign.Left);
-export const setCellCenterAlign = factory(TableCellAlign.Center);
-export const setCellRightAlign = factory(TableCellAlign.Right);
-
-function factory(align: TableCellAlign): ActionSpec {
+function factory(align: CellAlign): ActionSpec {
     return {
         isActive(state) {
-            const cell = TableHelpers.findParentCell(state);
+            const cell = findParentCell(state);
 
             return cell?.node.attrs[TableAttrs.CellAlign] === align;
         },
         isEnable(state) {
-            return TableHelpers.isIntoTable(state);
+            return isIntoTable(state);
         },
         run(state, dispatch) {
-            const table = TableHelpers.findParentTable(state);
-            const row = TableHelpers.findParentRow(state);
-            const cell = TableHelpers.findParentCell(state);
+            const table = findParentTable(state);
+            const row = findParentRow(state);
+            const cell = findParentCell(state);
 
             if (!cell || !row || !table) {
                 return;
@@ -36,9 +40,9 @@ function factory(align: TableCellAlign): ActionSpec {
             }
 
             const tr = state.tr;
-            const allRows = TableHelpers.findTableRows(table.node, state.schema);
+            const allRows = findTableRows(table.node, state.schema);
             for (const row of allRows) {
-                const rowCells = TableHelpers.findTableCells(row.node, state.schema);
+                const rowCells = findTableCells(row.node, state.schema);
                 const cell = rowCells[cellIndex];
 
                 // mmm, magic numbers ^_^
@@ -54,3 +58,7 @@ function factory(align: TableCellAlign): ActionSpec {
         },
     };
 }
+
+export const setCellLeftAlign = factory(CellAlign.Left);
+export const setCellCenterAlign = factory(CellAlign.Center);
+export const setCellRightAlign = factory(CellAlign.Right);
