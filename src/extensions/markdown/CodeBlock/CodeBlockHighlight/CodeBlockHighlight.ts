@@ -14,6 +14,7 @@ import {Decoration, DecorationSet} from 'prosemirror-view';
 import {ExtensionAuto} from '../../../../core';
 import {capitalize} from '../../../../lodash';
 import {logger} from '../../../../logger';
+// TODO: check cycle imports
 import {codeLangSelectTooltipViewCreator} from '../../../behavior/CodeMirrorView/TooltipPlugin';
 import {codeBlockLangAttr, codeBlockNodeName, codeBlockType} from '../CodeBlockSpecs/index';
 
