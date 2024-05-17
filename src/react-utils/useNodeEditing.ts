@@ -14,16 +14,15 @@ export const useNodeEditing = ({
     const state = useBooleanState(false);
     const [, , unsetEdit, toggleEdit] = state;
 
+    const anchor = nodeRef.current;
     useEffect(() => {
-        // TODO: @makhnatkin is used current?
-        const {current: anchor} = nodeRef;
         anchor?.addEventListener('dblclick', toggleEdit);
         view.dom.addEventListener('focus', unsetEdit);
         return () => {
             anchor?.removeEventListener('dblclick', toggleEdit);
             view.dom.removeEventListener('focus', unsetEdit);
         };
-    }, [nodeRef.current, view.dom, toggleEdit, unsetEdit]);
+    }, [anchor, view.dom, toggleEdit, unsetEdit]);
 
     return state;
 };
