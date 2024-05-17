@@ -10,7 +10,6 @@ import {CommandMenu, CommandMenuOptions} from './CommandMenu';
 import {Cursor, CursorOptions} from './Cursor';
 import {FilePaste} from './FilePaste';
 import {History, HistoryOptions} from './History';
-import {LinkEnhance, LinkEnhanceOptions} from './LinkEnhance';
 import {Placeholder} from './Placeholder';
 import {ReactRenderer, ReactRendererExtension} from './ReactRenderer';
 import {Selection} from './Selection';
@@ -32,7 +31,6 @@ export type BehaviorPresetOptions = {
     reactRenderer: ReactRenderer;
     selectionContext?: SelectionContextOptions;
 
-    link?: LinkEnhanceOptions;
     codeBlock?: CodeBlockHighlightOptions;
 
     commandMenu?: CommandMenuOptions;
@@ -50,7 +48,6 @@ export const BehaviorPreset: ExtensionAuto<BehaviorPresetOptions> = (builder, op
         .use(ReactRendererExtension, opts.reactRenderer)
         .use(WidgetDecoration)
         .use(SelectionContext, opts.selectionContext ?? {})
-        .use(LinkEnhance, opts.link ?? {});
 
     if (isFunction(opts.codeBlock)) {
         builder.use(opts.codeBlock);

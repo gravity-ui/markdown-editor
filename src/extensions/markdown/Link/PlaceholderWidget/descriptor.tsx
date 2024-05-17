@@ -4,9 +4,9 @@ import {Transaction} from 'prosemirror-state';
 import {EditorView} from 'prosemirror-view';
 
 import {ExtensionDeps} from '../../../../core';
-import {LinkAttr, linkType, normalizeUrlFactory} from '../../../../extensions/markdown';
-import {removeDecoration} from '../../WidgetDecoration';
-import {ReactWidgetDescriptor} from '../../WidgetDecoration/ReactWidgetDescriptor';
+import {LinkAttr, linkType, normalizeUrlFactory} from '../../index';
+import {removeDecoration} from '../../../behavior/WidgetDecoration';
+import {ReactWidgetDescriptor} from '../../../behavior/WidgetDecoration/ReactWidgetDescriptor';
 
 import {LinkPlaceholderWidget, LinkPlaceholderWidgetProps} from './widget';
 

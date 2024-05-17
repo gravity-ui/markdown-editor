@@ -2,12 +2,11 @@ import {toggleMark} from 'prosemirror-commands';
 import type {MarkType} from 'prosemirror-model';
 import {TextSelection} from 'prosemirror-state';
 
-import type {ActionSpec, ExtensionDeps} from '../../../core';
-import {isMarkActive} from '../../../utils/marks';
-
-import {LinkAttr} from './LinkSpecs';
-import {removeLink} from './commands';
-import {normalizeUrlFactory} from './utils';
+import type {ActionSpec, ExtensionDeps} from '../../../../core';
+import {isMarkActive} from '../../../../utils/marks';
+import {LinkAttr} from '../LinkSpecs';
+import {removeLink} from '../commands';
+import {normalizeUrlFactory} from '../utils';
 
 export type LinkActionParams = {
     href: string;

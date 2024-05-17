@@ -6,11 +6,11 @@ import {EditorState, Plugin, PluginView, TextSelection} from 'prosemirror-state'
 import {findChildrenByMark, findParentNode} from 'prosemirror-utils';
 import {Decoration, DecorationSet, EditorView} from 'prosemirror-view';
 
-import {ExtensionDeps} from '../../../../core';
-import {LinkAttr, linkType, normalizeUrlFactory} from '../../../../extensions/markdown';
-import {ErrorLoggerBoundary} from '../../../../react-utils/ErrorBoundary';
-import {findMark, isMarkActive} from '../../../../utils/marks';
-import {RendererItem, getReactRendererFromState} from '../../ReactRenderer';
+import {ExtensionDeps} from '../../../../../core';
+import {ErrorLoggerBoundary} from '../../../../../react-utils/ErrorBoundary';
+import {findMark, isMarkActive} from '../../../../../utils/marks';
+import {RendererItem, getReactRendererFromState} from '../../../../behavior/ReactRenderer';
+import {LinkAttr, linkType, normalizeUrlFactory} from '../../../index';
 
 import {LinkForm} from './TooltipView';
 
