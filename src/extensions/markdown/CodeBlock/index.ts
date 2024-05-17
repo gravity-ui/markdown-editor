@@ -4,14 +4,14 @@ import {Command} from 'prosemirror-state';
 import {hasParentNodeOfType} from 'prosemirror-utils';
 
 import type {Action, ExtensionAuto, Keymap} from '../../../core';
+import {isFunction} from '../../../lodash';
 import {textblockTypeInputRule} from '../../../utils/inputrules';
 import {withLogAction} from '../../../utils/keymap';
 
+import {CodeBlockHighlight, HighlightLangMap} from './CodeBlockHighlight/CodeBlockHighlight';
 import {CodeBlockSpecs, CodeBlockSpecsOptions} from './CodeBlockSpecs';
 import {resetCodeblock} from './commands';
 import {cbAction, cbType} from './const';
-import {isFunction} from '../../../lodash';
-import {CodeBlockHighlight, HighlightLangMap} from './CodeBlockHighlight/CodeBlockHighlight';
 import {codeBlockPastePlugin} from './plugins/codeBlockPastePlugin';
 
 export {resetCodeblock} from './commands';
@@ -64,10 +64,7 @@ export const CodeBlock: ExtensionAuto<CodeBlockOptions> = (builder, opts) => {
         };
     });
 
-    builder.addPlugin(
-        codeBlockPastePlugin,
-        builder.Priority.High,
-    );
+    builder.addPlugin(codeBlockPastePlugin, builder.Priority.High);
 
     if (isFunction(opts.langs)) {
         builder.use(opts.langs);
