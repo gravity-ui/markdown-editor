@@ -43,7 +43,7 @@ export const BehaviorPreset: ExtensionAuto<BehaviorPresetOptions> = (builder, op
         .use(Clipboard, opts.clipboard ?? {})
         .use(ReactRendererExtension, opts.reactRenderer)
         .use(WidgetDecoration)
-        .use(SelectionContext, opts.selectionContext ?? {})
+        .use(SelectionContext, opts.selectionContext ?? {});
 
     if (opts.emoji) {
         builder.use(Emoji, opts.emoji);

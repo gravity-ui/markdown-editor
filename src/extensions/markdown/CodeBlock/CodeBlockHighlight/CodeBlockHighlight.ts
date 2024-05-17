@@ -12,10 +12,10 @@ import {findChildrenByType} from 'prosemirror-utils';
 import {Decoration, DecorationSet} from 'prosemirror-view';
 
 import {ExtensionAuto} from '../../../../core';
-import {codeBlockLangAttr, codeBlockNodeName, codeBlockType} from '../CodeBlockSpecs/index';
 import {capitalize} from '../../../../lodash';
 import {logger} from '../../../../logger';
 import {codeLangSelectTooltipViewCreator} from '../../../behavior/CodeMirrorView/TooltipPlugin';
+import {codeBlockLangAttr, codeBlockNodeName, codeBlockType} from '../CodeBlockSpecs/index';
 
 export type HighlightLangMap = Options['highlightLangs'];
 
