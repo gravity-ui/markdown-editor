@@ -10,8 +10,7 @@ import {i18n as i18nPlaceholder} from '../../../../../i18n/placeholder';
 import {BaseTooltipPluginView} from '../../../../../plugins/BaseTooltip';
 import {Toolbar, ToolbarDataType} from '../../../../../toolbar';
 import {removeNode} from '../../../../../utils/remove-node';
-import {codeBlockType} from '../../../../markdown';
-import {CodeBlockNodeAttr} from '../../CodeBlockSpecs';
+import {CodeBlockNodeAttr, codeBlockType} from '../../CodeBlockSpecs';
 
 import './TooltipView.scss';
 
