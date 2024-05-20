@@ -41,24 +41,6 @@ export const insertHRule: StateCommand = ({state, dispatch}) => {
     return true;
 };
 
-// TODO: remove
-export const insertIframe = (args: {
-    src: string;
-    width?: number;
-    height?: number;
-}): StateCommand => {
-    return ({state, dispatch}) => {
-        const argsMarkup = Object.entries(args)
-            .map(([k, v]) => `${k}=${v}`)
-            .join(' ');
-        const markup = `/iframe/(${argsMarkup})`;
-
-        const tr = replaceOrInsertAfter(state, markup);
-        dispatch(state.update(tr));
-        return true;
-    };
-};
-
 export const insertMermaidDiagram: StateCommand = ({state, dispatch}) => {
     const markup = `\`\`\`mermaid
 sequenceDiagram

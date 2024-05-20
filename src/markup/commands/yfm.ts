@@ -12,20 +12,6 @@ export const wrapToYfmNote = wrapToBlock(
     ({lineBreak}) => lineBreak.repeat(2) + '{% endnote %}',
 );
 
-// todo: remove
-export const wrapToYfmBlock = wrapToBlock(
-    ({lineBreak}) => '{% block %}' + lineBreak.repeat(2),
-    ({lineBreak}) => lineBreak.repeat(2) + '{% endblock %}',
-);
-
-// todo: remove
-export const wrapToYfmLayout = wrapToBlock(
-    ({lineBreak}) =>
-        '{% layout gap=l %}' + lineBreak.repeat(2) + '{% block %}' + lineBreak.repeat(2),
-    ({lineBreak}) =>
-        lineBreak.repeat(2) + '{% endblock %}' + lineBreak.repeat(2) + '{% endlayout %}',
-);
-
 export const insertYfmTabs = wrapToBlock(
     ({lineBreak}) => '{% list tabs %}' + lineBreak.repeat(2) + '- Tab name' + lineBreak.repeat(2),
     ({lineBreak}) => lineBreak.repeat(2) + '{% endlist %}',
