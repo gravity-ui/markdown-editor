@@ -39,12 +39,10 @@ export function replaceOrInsertAfter(state: EditorState, markup: string): Transa
                 state.lineBreak.repeat(extraBreaks.after),
         );
     } else {
-        return {
-            changes: {
-                from: state.doc.lineAt(selrange.to).to,
-                insert: state.lineBreak.repeat(2) + markup + state.lineBreak.repeat(2),
-            },
-        };
+        const insert = state.lineBreak.repeat(2) + markup + state.lineBreak.repeat(2);
+        const from = state.doc.lineAt(selrange.to).to;
+        const selAnchor = from + insert.length - 2;
+        return {changes: {from, insert}, selection: {anchor: selAnchor}};
     }
 }
 
@@ -75,12 +73,10 @@ export const wrapToBlock = (
 
         const beforeInsertion = state.lineBreak.repeat(extraBreaks.before) + beforeText;
         const afterInsertion = afterText + state.lineBreak.repeat(extraBreaks.after);
-        const changeSpec: ChangeSpec[] = [
-            {from: fromLine.from, insert: beforeInsertion},
-            {from: toLine.to, insert: afterInsertion},
-        ];
+        const changeSpec: ChangeSpec[] = [{from: fromLine.from, insert: beforeInsertion}];
 
         const isEmptyLine = fromLine.number === toLine.number && fromLine.length === 0;
+        let cursorShift = selrange.head + beforeInsertion.length;
 
         if (perLine) {
             const lineBeforeText =
@@ -90,17 +86,22 @@ export const wrapToBlock = (
 
             iterateOverRangeLines(state.doc, selrange, (line) => {
                 if (perLine.skipEmptyLine && line.length === 0) return;
-                if (lineBeforeText) changeSpec.push({from: line.from, insert: lineBeforeText});
+                if (lineBeforeText) {
+                    changeSpec.push({from: line.from, insert: lineBeforeText});
+                    if (isEmptyLine) cursorShift += lineBeforeText.length;
+                }
                 if (lineAfterText) changeSpec.push({from: line.to, insert: lineAfterText});
             });
         }
+
+        changeSpec.push({from: toLine.to, insert: afterInsertion});
 
         const changes = state.changes(changeSpec);
         dispatch(
             state.update({
                 changes,
                 selection: isEmptyLine
-                    ? EditorSelection.single(selrange.head + beforeInsertion.length)
+                    ? EditorSelection.single(cursorShift)
                     : state.selection.map(changes),
             }),
         );
@@ -206,13 +207,19 @@ export const wrapPerLine =
         const tr = state.changeByRange((range) => {
             const changes: ChangeSpec[] = [];
 
-            iterateOverRangeLines(state.doc, range, (line) => {
-                if (skipEmptyLine && line.length === 0) return;
-                changes.push({from: line.from, insert: before});
-            });
+            const isSingleEmptyLine =
+                range.anchor === range.head && state.doc.lineAt(range.head).length === 0;
+            if (isSingleEmptyLine) {
+                changes.push({from: range.head, insert: before});
+            } else {
+                iterateOverRangeLines(state.doc, range, (line) => {
+                    if (skipEmptyLine && line.length === 0) return;
+                    changes.push({from: line.from, insert: before});
+                });
+            }
 
             const changeSet = state.changes(changes);
-            return {changes: changeSet, range: range.map(changeSet)};
+            return {changes: changeSet, range: range.map(changeSet, 1)};
         });
 
         dispatch(state.update(tr));

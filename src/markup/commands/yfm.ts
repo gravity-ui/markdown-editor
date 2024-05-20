@@ -15,7 +15,7 @@ export const wrapToYfmNote = wrapToBlock(
 export const insertYfmTabs = wrapToBlock(
     ({lineBreak}) => '{% list tabs %}' + lineBreak.repeat(2) + '- Tab name' + lineBreak.repeat(2),
     ({lineBreak}) => lineBreak.repeat(2) + '{% endlist %}',
-    {before: '  ', after: '', skipEmptyLine: true},
+    {before: '  ', after: ''},
 );
 
 export const insertYfmTable = wrapToBlock(

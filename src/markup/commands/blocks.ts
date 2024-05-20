@@ -1,4 +1,4 @@
-import type {ChangeSpec, StateCommand} from '@codemirror/state';
+import type {StateCommand} from '@codemirror/state';
 
 import {replaceOrInsertAfter, wrapPerLine} from './helpers';
 
@@ -7,37 +7,8 @@ export const wrapToCheckbox = wrapPerLine({beforeText: '[ ] '});
 
 export const insertHRule: StateCommand = ({state, dispatch}) => {
     const hrMarkup = '---';
-    const {lineBreak} = state;
-    const trSpec = state.changeByRange((range) => {
-        const {anchor} = range;
-        if (range.empty && state.doc.lineAt(anchor).length === 0) {
-            const currLine = state.doc.lineAt(anchor);
-            const changes: ChangeSpec[] = [];
-            if (currLine.number > 1 && state.doc.line(currLine.number - 1).length !== 0) {
-                changes.push({from: anchor - 1, insert: lineBreak});
-            }
-            if (
-                state.doc.lines > currLine.number &&
-                state.doc.line(currLine.number - 1).length !== 0
-            ) {
-                changes.push({from: anchor, insert: lineBreak});
-            }
-            changes.push({from: anchor, insert: hrMarkup});
-            return {changes, range: range.map(state.changes(changes))};
-        }
-
-        const toLine = state.doc.lineAt(range.to);
-        const nextLineIsEmpty =
-            state.doc.lines > toLine.number && state.doc.line(toLine.number + 1).length === 0;
-        const changes = state.changes([
-            {
-                from: toLine.to,
-                insert: lineBreak + lineBreak + hrMarkup + (nextLineIsEmpty ? '' : lineBreak),
-            },
-        ]);
-        return {changes, range: range.map(changes)};
-    });
-    dispatch(state.update(trSpec));
+    const tr = replaceOrInsertAfter(state, hrMarkup);
+    dispatch(state.update(tr));
     return true;
 };
 
