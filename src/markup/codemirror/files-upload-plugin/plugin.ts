@@ -34,7 +34,7 @@ class FileUploadWidget extends WidgetType {
 
     toDOM(view: EditorView): HTMLElement {
         const dom = document.createElement('div');
-        dom.className = 'cm6-file-upload-widget';
+        dom.className = 'cm-file-upload-widget';
         dom.style.display = 'inline-block';
         this.renderer?.remove();
         this.createRenderItem(dom, view);
