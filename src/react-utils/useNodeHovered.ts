@@ -5,8 +5,8 @@ import {useBooleanState} from './hooks';
 export const useNodeHovered = (nodeRef: RefObject<HTMLElement>) => {
     const [nodeHovered, setNodeHovered, unsetNodeHovered] = useBooleanState(false);
 
+    const anchor = nodeRef.current;
     useEffect(() => {
-        const {current: anchor} = nodeRef;
         anchor?.addEventListener('mouseenter', setNodeHovered);
         anchor?.addEventListener('mouseleave', unsetNodeHovered);
 
@@ -14,7 +14,7 @@ export const useNodeHovered = (nodeRef: RefObject<HTMLElement>) => {
             anchor?.removeEventListener('mouseenter', setNodeHovered);
             anchor?.removeEventListener('mouseleave', unsetNodeHovered);
         };
-    }, [nodeRef.current, setNodeHovered, unsetNodeHovered]);
+    }, [anchor, setNodeHovered, unsetNodeHovered]);
 
     return nodeHovered;
 };

@@ -6,7 +6,7 @@ import {EditorView, NodeView} from 'prosemirror-view';
 import {createPortal} from 'react-dom';
 
 import type {MermaidOptions} from '..';
-import {getReactRendererFromState} from '../../../../extensions/behavior';
+import {getReactRendererFromState} from '../../../behavior';
 import {MermaidConsts} from '../MermaidSpecs/const';
 
 import {MermaidView} from './MermaidView';

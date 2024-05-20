@@ -7,60 +7,6 @@ export interface CodeEditor {
     readonly cm: CodeMirror.Editor;
 }
 
-export class Editor implements CommonEditor, CodeEditor {
-    #cm: CodeMirror.Editor;
-    #contentHandler: ContentHandler;
-
-    get cm() {
-        return this.#cm;
-    }
-
-    get codemirror() {
-        return this.#cm;
-    }
-
-    constructor(cm: CodeMirror.Editor) {
-        this.#cm = cm;
-        this.#contentHandler = new MarkupContentHandler(cm);
-    }
-
-    focus(): void {
-        return this.#cm.focus();
-    }
-
-    hasFocus(): boolean {
-        return this.#cm.hasFocus();
-    }
-
-    getValue(): MarkupString {
-        return this.#cm.getValue();
-    }
-
-    isEmpty(): boolean {
-        return this.#cm.lineCount() === 1 && this.#cm.getLine(0).trim().length === 0;
-    }
-
-    clear(): void {
-        return this.#contentHandler.clear();
-    }
-
-    replace(newMarkup: MarkupString): void {
-        return this.#contentHandler.replace(newMarkup);
-    }
-
-    prepend(markup: MarkupString): void {
-        return this.#contentHandler.prepend(markup);
-    }
-
-    append(markup: MarkupString): void {
-        return this.#contentHandler.append(markup);
-    }
-
-    moveCursor(position: 'start' | 'end'): void {
-        this.#contentHandler.moveCursor(position);
-    }
-}
-
 export class MarkupContentHandler implements ContentHandler {
     #cm: CodeMirror.Editor;
 
@@ -117,5 +63,59 @@ export class MarkupContentHandler implements ContentHandler {
                 throw new Error('The "position" argument must be "start" or "end"');
         }
         this.#cm.setSelection(pos);
+    }
+}
+
+export class Editor implements CommonEditor, CodeEditor {
+    #cm: CodeMirror.Editor;
+    #contentHandler: ContentHandler;
+
+    get cm() {
+        return this.#cm;
+    }
+
+    get codemirror() {
+        return this.#cm;
+    }
+
+    constructor(cm: CodeMirror.Editor) {
+        this.#cm = cm;
+        this.#contentHandler = new MarkupContentHandler(cm);
+    }
+
+    focus(): void {
+        return this.#cm.focus();
+    }
+
+    hasFocus(): boolean {
+        return this.#cm.hasFocus();
+    }
+
+    getValue(): MarkupString {
+        return this.#cm.getValue();
+    }
+
+    isEmpty(): boolean {
+        return this.#cm.lineCount() === 1 && this.#cm.getLine(0).trim().length === 0;
+    }
+
+    clear(): void {
+        return this.#contentHandler.clear();
+    }
+
+    replace(newMarkup: MarkupString): void {
+        return this.#contentHandler.replace(newMarkup);
+    }
+
+    prepend(markup: MarkupString): void {
+        return this.#contentHandler.prepend(markup);
+    }
+
+    append(markup: MarkupString): void {
+        return this.#contentHandler.append(markup);
+    }
+
+    moveCursor(position: 'start' | 'end'): void {
+        this.#contentHandler.moveCursor(position);
     }
 }

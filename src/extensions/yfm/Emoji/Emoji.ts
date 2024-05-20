@@ -9,7 +9,9 @@ export {EmojiConsts} from './EmojiSpecs';
 export type EmojiOptions = EmojiSpecsOptions & {};
 
 const EmojiExtension: ExtensionAuto<EmojiOptions> = (builder, options) => {
-    builder.use(EmojiSpecs, options).use(EmojiInput, options).use(EmojiSuggest, options);
+    builder.use(EmojiSpecs, options);
+    builder.use(EmojiInput, options);
+    builder.use(EmojiSuggest, options);
 };
 
 export const Emoji = Object.assign(EmojiExtension, EmojiConsts);

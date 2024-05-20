@@ -1,9 +1,5 @@
 import type {Action, ExtensionAuto} from '../../../../core';
-import {
-    Autocomplete,
-    AutocompleteItem,
-    openAutocomplete,
-} from '../../../../extensions/behavior/Autocomplete';
+import {Autocomplete, AutocompleteItem, openAutocomplete} from '../../../behavior/Autocomplete';
 import type {EmojiSpecsOptions} from '../EmojiSpecs';
 
 import {EmojiHandler} from './EmojiHandler';

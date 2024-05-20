@@ -1,16 +1,18 @@
 import {setBlockType} from 'prosemirror-commands';
-import {Fragment, NodeType, Slice} from 'prosemirror-model';
-import {Command, Plugin} from 'prosemirror-state';
+import {Fragment, NodeType} from 'prosemirror-model';
+import {Command} from 'prosemirror-state';
 import {hasParentNodeOfType} from 'prosemirror-utils';
 
 import type {Action, ExtensionAuto, Keymap} from '../../../core';
+import {isFunction} from '../../../lodash';
 import {textblockTypeInputRule} from '../../../utils/inputrules';
 import {withLogAction} from '../../../utils/keymap';
 
+import {CodeBlockHighlight, HighlightLangMap} from './CodeBlockHighlight/CodeBlockHighlight';
 import {CodeBlockSpecs, CodeBlockSpecsOptions} from './CodeBlockSpecs';
 import {resetCodeblock} from './commands';
 import {cbAction, cbType} from './const';
-import {handlePaste} from './handle-paste';
+import {codeBlockPastePlugin} from './plugins/codeBlockPastePlugin';
 
 export {resetCodeblock} from './commands';
 export {
@@ -22,6 +24,7 @@ export {
 
 export type CodeBlockOptions = CodeBlockSpecsOptions & {
     codeBlockKey?: string | null;
+    langs?: HighlightLangMap;
 };
 
 export const CodeBlock: ExtensionAuto<CodeBlockOptions> = (builder, opts) => {
@@ -61,23 +64,13 @@ export const CodeBlock: ExtensionAuto<CodeBlockOptions> = (builder, opts) => {
         };
     });
 
-    builder.addPlugin(
-        () =>
-            new Plugin({
-                props: {
-                    handleDOMEvents: {
-                        paste(view, e: Event) {
-                            if (handlePaste(view, e as ClipboardEvent, Slice.empty)) {
-                                e.preventDefault();
-                                return true;
-                            }
-                            return false;
-                        },
-                    },
-                },
-            }),
-        builder.Priority.High,
-    );
+    builder.addPlugin(codeBlockPastePlugin, builder.Priority.High);
+
+    if (isFunction(opts.langs)) {
+        builder.use(opts.langs);
+    } else {
+        builder.use(CodeBlockHighlight, opts.langs ?? {});
+    }
 };
 
 declare global {

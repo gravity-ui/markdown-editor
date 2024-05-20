@@ -5,11 +5,13 @@ import type {Action, ExtensionAuto} from '../../../core';
 import {hasCodeMark} from '../../../utils/inputrules';
 
 import {LinkSpecs, linkMarkName, linkType} from './LinkSpecs';
-import {LinkActionMeta, LinkActionParams, linkCommand} from './actions';
+import {LinkActionMeta, LinkActionParams, linkCommand} from './actions/linkActions';
+import {addLinkCmd2, linkActionSpec2} from './actions/linkEnhanceActions';
 import {linkPasteEnhance} from './paste-plugin';
+import {linkTooltipPlugin} from './plugins/LinkTooltipPlugin';
 
-export type {LinkActionParams, LinkActionMeta} from './actions';
-export {linkCommand} from './actions';
+export type {LinkActionParams, LinkActionMeta} from './actions/linkActions';
+export {linkCommand} from './actions/linkActions';
 export {normalizeUrlFactory} from './utils';
 export {removeLink} from './commands';
 
@@ -17,9 +19,24 @@ export {LinkAttr, linkMarkName, linkType} from './LinkSpecs';
 /** @deprecated Use `linkMarkName` instead */
 export const link = linkMarkName;
 const linkAction = 'link';
+const linkAction2 = 'addLink';
 
-export const Link: ExtensionAuto = (builder) => {
+export type LinkOptions = {
+    linkKey?: string | null;
+};
+
+export const Link: ExtensionAuto<LinkOptions> = (builder, opts) => {
     builder.use(LinkSpecs);
+
+    builder.addAction(linkAction2, linkActionSpec2);
+    builder.addPlugin(linkTooltipPlugin);
+
+    if (opts?.linkKey) {
+        const {linkKey} = opts;
+        builder.addKeymap((deps) => ({
+            [linkKey]: addLinkCmd2(deps),
+        }));
+    }
 
     builder
         .addPlugin(linkPasteEnhance, builder.Priority.High)
@@ -31,6 +48,7 @@ declare global {
     namespace YfmEditor {
         interface Actions {
             [linkAction]: Action<LinkActionParams, LinkActionMeta>;
+            [linkAction2]: Action;
         }
     }
 }
