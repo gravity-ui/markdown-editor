@@ -7,6 +7,7 @@ import {withLogAction} from '../../../utils/keymap';
 import {YfmNoteSpecs, YfmNoteSpecsOptions} from './YfmNoteSpecs';
 import {createYfmNote, toYfmNote} from './actions/toYfmNote';
 import {backToNoteTitle, exitFromNoteTitle, removeNote} from './commands';
+import {yfmNoteTooltipPlugin} from './plugins/YfmNoteTooltipPlugin';
 import {noteType} from './utils';
 
 import './index.scss';
@@ -36,6 +37,7 @@ export const YfmNote: ExtensionAuto<YfmNoteOptions> = (builder, opts) => {
         const {yfmNoteKey} = opts;
         builder.addKeymap(() => ({[yfmNoteKey]: withLogAction('yfm_note', createYfmNote)}));
     }
+    builder.addPlugin(yfmNoteTooltipPlugin);
 };
 
 declare global {

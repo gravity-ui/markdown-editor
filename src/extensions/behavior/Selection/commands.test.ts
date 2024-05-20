@@ -5,7 +5,7 @@ import {builders} from 'prosemirror-test-builder';
 import {ExtensionsManager} from '../../../core';
 import {BaseNode, BaseSchema} from '../../base/BaseSchema';
 import {Blockquote, blockquote} from '../../markdown/Blockquote';
-import {CodeBlock, codeBlockNodeName} from '../../markdown/CodeBlock';
+import {CodeBlockSpecs, codeBlockNodeName} from '../../markdown/CodeBlock/CodeBlockSpecs';
 import {YfmTable, YfmTableNode} from '../../yfm/YfmTable';
 import {GapCursorSelection} from '../Cursor/GapCursorSelection';
 
@@ -20,7 +20,7 @@ const {schema} = new ExtensionsManager({
         builder
             .use(BaseSchema, {})
             .use(Blockquote, {})
-            .use(CodeBlock, {})
+            .use(CodeBlockSpecs, {})
             .use(YfmTable, {})
             .addNode('testnode', () => ({
                 spec: {content: `block*`, group: 'block', gapcursor: false},

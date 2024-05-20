@@ -12,7 +12,7 @@ import {HorizontalRule} from './HorizontalRule';
 import {Html} from './Html';
 import {Image} from './Image';
 import {Italic, ItalicOptions} from './Italic';
-import {Link} from './Link';
+import {Link, LinkOptions} from './Link';
 import {Lists, ListsOptions} from './Lists';
 import {Mark} from './Mark';
 import {Strike, StrikeOptions} from './Strike';
@@ -48,6 +48,7 @@ export type MarkdownMarksPresetOptions = {
     strike?: StrikeOptions;
     underline?: UnderlineOptions;
     code?: CodeOptions;
+    link?: LinkOptions;
 };
 
 export const MarkdownMarksPreset: ExtensionAuto<MarkdownMarksPresetOptions> = (builder, opts) => {
@@ -57,7 +58,7 @@ export const MarkdownMarksPreset: ExtensionAuto<MarkdownMarksPresetOptions> = (b
         .use(Italic, opts.italic ?? {})
         .use(Strike, opts.strike ?? {})
         .use(Underline, opts.underline ?? {})
-        .use(Link)
+        .use(Link, opts.link ?? {})
         .use(Mark)
         .use(Subscript)
         .use(Superscript);

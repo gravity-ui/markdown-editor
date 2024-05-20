@@ -33,6 +33,7 @@ export const addColumnAfter: Command = (state, dispatch) => {
 
             tr = tr.insert(
                 tr.mapping.map(parentTable.pos + row.pos + cell.pos + cell.node.nodeSize + 2),
+                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
                 cell.node.type.createAndFill(cell.node.attrs)!,
             );
         }

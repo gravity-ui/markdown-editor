@@ -15,26 +15,6 @@ const b = cn('toolbar-button');
 
 export type ToolbarButtonProps<E> = ToolbarBaseProps<E> & ToolbarItemData<E>;
 
-export function ToolbarButton<E>(props: ToolbarButtonProps<E>) {
-    const {id, editor, focus, isActive, isEnable, exec, onClick} = props;
-
-    const active = isActive(editor);
-    const enabled = isEnable(editor);
-
-    return (
-        <ToolbarButtonView
-            {...props}
-            active={active}
-            enabled={enabled}
-            onClick={() => {
-                focus();
-                exec(editor);
-                onClick?.(id);
-            }}
-        />
-    );
-}
-
 export type ToolbarButtonViewProps = Pick<
     ToolbarItemData<unknown>,
     'icon' | 'title' | 'hint' | 'hotkey' | 'disabledPopoverVisible' | 'hintWhenDisabled'
@@ -101,3 +81,23 @@ export const ToolbarButtonView = React.forwardRef<HTMLElement, ToolbarButtonView
         );
     },
 );
+
+export function ToolbarButton<E>(props: ToolbarButtonProps<E>) {
+    const {id, editor, focus, isActive, isEnable, exec, onClick} = props;
+
+    const active = isActive(editor);
+    const enabled = isEnable(editor);
+
+    return (
+        <ToolbarButtonView
+            {...props}
+            active={active}
+            enabled={enabled}
+            onClick={() => {
+                focus();
+                exec(editor);
+                onClick?.(id);
+            }}
+        />
+    );
+}
