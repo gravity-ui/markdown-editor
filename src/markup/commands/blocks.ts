@@ -2,8 +2,8 @@ import type {ChangeSpec, StateCommand} from '@codemirror/state';
 
 import {replaceOrInsertAfter, wrapPerLine} from './helpers';
 
-export const toBlockquote = wrapPerLine({beforeText: '> ', skipEmptyLine: false});
-export const toCheckbox = wrapPerLine({beforeText: '[ ] '});
+export const wrapToBlockquote = wrapPerLine({beforeText: '> ', skipEmptyLine: false});
+export const wrapToCheckbox = wrapPerLine({beforeText: '[ ] '});
 
 export const insertHRule: StateCommand = ({state, dispatch}) => {
     const hrMarkup = '---';
