@@ -87,28 +87,29 @@ export function yfmLang(): Extension {
 
     const mdAutocomplete: {autocomplete: CompletionSource} = {
         autocomplete: (context) => {
-            let word = context.matchBefore(/\/.*/);
-            if (word) {
-                return {
-                    from: word.from,
-                    options: [
-                        ...yfmNoteTypes.map<Completion>((type, index) => ({
-                            label: `/yfm note ${type}`,
-                            displayLabel: `YFM Note ${capitalize(type)}`,
-                            type: 'text',
-                            apply: yfmNoteSnippets[type],
-                            boost: -index,
-                        })),
-                        {
-                            label: '/yfm cut',
-                            displayLabel: 'YFM Cut',
-                            type: 'text',
-                            apply: yfmCutSnippet,
-                        },
-                    ],
-                };
-            }
-            word = context.matchBefore(/^.*/);
+            // TODO: add more actions and re-enable
+            // let word = context.matchBefore(/\/.*/);
+            // if (word) {
+            //     return {
+            //         from: word.from,
+            //         options: [
+            //             ...yfmNoteTypes.map<Completion>((type, index) => ({
+            //                 label: `/yfm note ${type}`,
+            //                 displayLabel: `YFM Note ${capitalize(type)}`,
+            //                 type: 'text',
+            //                 apply: yfmNoteSnippets[type],
+            //                 boost: -index,
+            //             })),
+            //             {
+            //                 label: '/yfm cut',
+            //                 displayLabel: 'YFM Cut',
+            //                 type: 'text',
+            //                 apply: yfmCutSnippet,
+            //             },
+            //         ],
+            //     };
+            // }
+            const word = context.matchBefore(/^.*/);
             if (word?.text.startsWith('{%')) {
                 return {
                     from: word.from,
