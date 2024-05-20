@@ -390,7 +390,7 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
 
     moveCursor(position: 'start' | 'end' | {line: number}): void {
         if (typeof position === 'object') {
-            return this.moveCursorToLine(position.line - 1); // line is zero-based
+            return this.moveCursorToLine(position.line);
         }
 
         return this.currentEditor.moveCursor(position);
@@ -401,8 +401,11 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
 
         switch (type) {
             case 'markup': {
+                const lineNumber = line + 1;
                 const view = this.markupEditor.cm;
-                view.dispatch({selection: {anchor: view.state.doc.line(line).from}});
+                if (lineNumber > 0 && lineNumber <= view.state.doc.lines) {
+                    view.dispatch({selection: {anchor: view.state.doc.line(lineNumber).from}});
+                }
 
                 break;
             }
