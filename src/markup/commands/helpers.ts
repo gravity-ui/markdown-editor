@@ -57,6 +57,12 @@ function isFullLinesSelection(doc: Text, range: SelectionRange): boolean {
 export const wrapToBlock = (
     before: string | ((arg: Pick<EditorState, 'lineBreak'>) => string),
     after: string | ((arg: Pick<EditorState, 'lineBreak'>) => string),
+    perLine?: {
+        before: string | ((arg: Pick<EditorState, 'lineBreak'>) => string);
+        after: string | ((arg: Pick<EditorState, 'lineBreak'>) => string);
+        /** @default false */
+        skipEmptyLine?: boolean;
+    },
 ): StateCommand => {
     return ({state, dispatch}) => {
         const beforeText = typeof before === 'function' ? before(state) : before;
@@ -69,13 +75,27 @@ export const wrapToBlock = (
 
         const beforeInsertion = state.lineBreak.repeat(extraBreaks.before) + beforeText;
         const afterInsertion = afterText + state.lineBreak.repeat(extraBreaks.after);
-        const changes = state.changes([
+        const changeSpec: ChangeSpec[] = [
             {from: fromLine.from, insert: beforeInsertion},
             {from: toLine.to, insert: afterInsertion},
-        ]);
+        ];
 
         const isEmptyLine = fromLine.number === toLine.number && fromLine.length === 0;
 
+        if (perLine) {
+            const lineBeforeText =
+                typeof perLine.before === 'function' ? perLine.before(state) : perLine.before;
+            const lineAfterText =
+                typeof perLine.after === 'function' ? perLine.after(state) : perLine.after;
+
+            iterateOverRangeLines(state.doc, selrange, (line) => {
+                if (perLine.skipEmptyLine && line.length === 0) return;
+                if (lineBeforeText) changeSpec.push({from: line.from, insert: lineBeforeText});
+                if (lineAfterText) changeSpec.push({from: line.to, insert: lineAfterText});
+            });
+        }
+
+        const changes = state.changes(changeSpec);
         dispatch(
             state.update({
                 changes,
