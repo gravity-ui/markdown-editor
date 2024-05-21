@@ -5,8 +5,8 @@ import {useBooleanState} from './hooks';
 export const useNodeHovered = (nodeRef: RefObject<HTMLElement>) => {
     const [nodeHovered, setNodeHovered, unsetNodeHovered] = useBooleanState(false);
 
-    const anchor = nodeRef.current;
     useEffect(() => {
+        const {current: anchor} = nodeRef;
         anchor?.addEventListener('mouseenter', setNodeHovered);
         anchor?.addEventListener('mouseleave', unsetNodeHovered);
 
@@ -14,7 +14,9 @@ export const useNodeHovered = (nodeRef: RefObject<HTMLElement>) => {
             anchor?.removeEventListener('mouseenter', setNodeHovered);
             anchor?.removeEventListener('mouseleave', unsetNodeHovered);
         };
-    }, [anchor, setNodeHovered, unsetNodeHovered]);
+        // https://github.com/facebook/react/issues/23392#issuecomment-1055610198
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [nodeRef.current, setNodeHovered, unsetNodeHovered]);
 
     return nodeHovered;
 };
