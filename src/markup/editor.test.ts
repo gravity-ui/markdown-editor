@@ -1,99 +1,96 @@
-import CodeMirror from 'codemirror';
+import {EditorView} from '@codemirror/view';
 
-import {MarkupContentHandler} from './editor';
+import {Editor} from './editor';
 
 describe('MarkupContentHandler', () => {
     it('should clear the document', () => {
-        const cm = CodeMirror(() => {}, {
-            value: 'codemirror\n\ncontent\n',
+        const cm = new EditorView({
+            doc: 'codemirror\n\ncontent\n',
         });
-        const contentHandler = new MarkupContentHandler(cm);
+        const contentHandler = new Editor(cm);
         contentHandler.clear();
-        expect(cm.getValue()).toBe('');
+        expect(cm.state.sliceDoc()).toBe('');
     });
 
     it('should append markup to empty document', () => {
-        const cm = CodeMirror(() => {});
-        const contentHandler = new MarkupContentHandler(cm);
+        const cm = new EditorView();
+        const contentHandler = new Editor(cm);
         contentHandler.append('appended\n\ncontent\n');
-        const cursorPos = cm.getCursor();
-        expect(cm.getValue()).toBe('appended\n\ncontent\n\n');
-        expect(cursorPos.line).toBe(4);
-        expect(cursorPos.ch).toBe(0);
+        const selrange = cm.state.selection.main;
+        expect(cm.state.sliceDoc()).toBe('appended\n\ncontent\n\n');
+        expect(selrange.from).toBe(19);
+        expect(selrange.empty).toBe(true);
     });
 
     it('should append markup to not empty document', () => {
-        const cm = CodeMirror(() => {}, {
-            value: 'codemirror\ncontent',
+        const cm = new EditorView({
+            doc: 'codemirror\ncontent',
+            selection: {anchor: 16},
         });
-        cm.setCursor({line: 1, ch: 5});
-        const contentHandler = new MarkupContentHandler(cm);
+        const contentHandler = new Editor(cm);
         contentHandler.append('appended\ncontent');
-        const cursorPos = cm.getCursor();
-        expect(cm.getValue()).toBe('codemirror\ncontent\n\nappended\ncontent');
-        expect(cursorPos.line).toBe(1);
-        expect(cursorPos.ch).toBe(5);
+        const selrange = cm.state.selection.main;
+        expect(cm.state.sliceDoc()).toBe('codemirror\ncontent\n\nappended\ncontent');
+        expect(selrange.from).toBe(16);
     });
 
     it('should prepend markup to empty document', () => {
-        const cm = CodeMirror(() => {});
-        const contentHandler = new MarkupContentHandler(cm);
+        const cm = new EditorView();
+        const contentHandler = new Editor(cm);
         contentHandler.prepend('prepended\n\ncontent\n');
-        const cursorPos = cm.getCursor();
-        expect(cm.getValue()).toBe('prepended\n\ncontent\n\n');
-        expect(cursorPos.line).toBe(4);
-        expect(cursorPos.ch).toBe(0);
+        const selrange = cm.state.selection.main;
+        expect(cm.state.sliceDoc()).toBe('prepended\n\ncontent\n\n');
+        expect(selrange.from).toBe(20);
     });
 
     it('should prepend markup to not empty document', () => {
-        const cm = CodeMirror(() => {}, {
-            value: 'codemirror\ncontent',
+        const cm = new EditorView({
+            doc: 'codemirror\ncontent',
+            selection: {anchor: 16},
         });
-        cm.setCursor({line: 1, ch: 5});
-        const contentHandler = new MarkupContentHandler(cm);
+        const contentHandler = new Editor(cm);
         contentHandler.prepend('prepended\ncontent');
-        const cursorPos = cm.getCursor();
-        expect(cm.getValue()).toBe('prepended\ncontent\n\ncodemirror\ncontent');
-        expect(cursorPos.line).toBe(4);
-        expect(cursorPos.ch).toBe(5);
+        const selrange = cm.state.selection.main;
+        expect(cm.state.sliceDoc()).toBe('prepended\ncontent\n\ncodemirror\ncontent');
+        expect(selrange.from).toBe(35);
     });
 
     it('should replace markup', () => {
-        const cm = CodeMirror(() => {}, {
-            value: 'codemirror\ncontent',
+        const cm = new EditorView({
+            doc: 'codemirror\ncontent',
         });
-        const contentHandler = new MarkupContentHandler(cm);
+        const contentHandler = new Editor(cm);
         contentHandler.replace('replaced\ncontent');
-        expect(cm.getValue()).toBe('replaced\ncontent');
+        expect(cm.state.sliceDoc()).toBe('replaced\ncontent');
     });
 
     it('should move cursor to start of document', () => {
-        const cm = CodeMirror(() => {}, {
-            value: 'codemirror\ncontent',
+        const cm = new EditorView({
+            doc: 'codemirror\ncontent', // length=18
+            selection: {anchor: 15},
         });
-        cm.setCursor({line: 2, ch: 5});
-        const contentHandler = new MarkupContentHandler(cm);
+        const contentHandler = new Editor(cm);
         contentHandler.moveCursor('start');
-        expect(cm.getCursor()).toStrictEqual({line: 0, ch: 0});
+        const selrange = cm.state.selection.main;
+        expect(selrange.from).toBe(0);
     });
 
     it('should move cursor to end of document', () => {
-        const cm = CodeMirror(() => {}, {
-            value: 'codemirror\ncontent',
+        const cm = new EditorView({
+            doc: 'codemirror\ncontent', // length=18
+            selection: {anchor: 0},
         });
-        cm.setCursor({line: 0, ch: 0});
-        const contentHandler = new MarkupContentHandler(cm);
+        const contentHandler = new Editor(cm);
         contentHandler.moveCursor('end');
-        const cursor = cm.getCursor();
-        expect(cursor.line).toBe(1);
-        expect(cursor.ch).toBe(7);
+        const selrange = cm.state.selection.main;
+        expect(selrange.from).toBe(18);
     });
 
     it('should throw an error when calling moveCursor with an unknown position', () => {
-        const cm = CodeMirror(() => {}, {
-            value: 'codemirror\ncontent',
+        const cm = new EditorView({
+            doc: 'codemirror\ncontent',
         });
-        const contentHandler = new MarkupContentHandler(cm);
+        const contentHandler = new Editor(cm);
         const fn = jest.fn(() => {
             contentHandler.moveCursor('test' as 'start');
         });

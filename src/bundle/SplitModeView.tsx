@@ -2,7 +2,6 @@ import React, {useEffect, useImperativeHandle, useMemo, useReducer, useRef} from
 
 import {Eye} from '@gravity-ui/icons';
 import {Label} from '@gravity-ui/uikit';
-import {Editor} from 'codemirror';
 
 import {cn} from '../classname';
 import {i18n} from '../i18n/bundle';
@@ -13,7 +12,7 @@ import {
     scrollToRevealSourceLine,
 } from '../utils/sync-scroll';
 
-import {EditorInt} from './Editor';
+import type {EditorInt} from './Editor';
 
 const b = cn('markup-preview');
 
@@ -22,10 +21,11 @@ export type SplitModeProps = {
 };
 
 const SplitModeView = React.forwardRef<HTMLDivElement, SplitModeProps>(({editor}, ref) => {
+    const cm = editor.cm;
+
     const [, forceUpdate] = useReducer((x) => x + 1, 0);
     const outerRef = useRef<HTMLDivElement>(null);
     const lineElements = useRef<CodeLineElement[]>([]);
-    const shouldScroll = useRef(true);
 
     const updateLineElements = () => {
         if (!outerRef.current) return;
@@ -41,61 +41,55 @@ const SplitModeView = React.forwardRef<HTMLDivElement, SplitModeProps>(({editor}
 
     const handleEditorScroll = useMemo(
         () =>
-            throttle((instance: Editor) => {
+            throttle(() => {
                 if (!outerRef.current) return;
-                if (!shouldScroll.current) {
-                    shouldScroll.current = true;
-                    return;
-                }
-                shouldScroll.current = false;
-                const line = instance.lineAtHeight(instance.getScrollInfo().top, 'local');
+                if (!cm.dom.matches(':hover')) return;
+
+                const {range} = cm.scrollSnapshot().value;
+                const line = cm.state.doc.lineAt(range.from).number - 1;
+
                 updateLineElements();
-                scrollToRevealSourceLine(
-                    Math.min(line === 0 ? 0 : line + 1, instance.lineCount() - 1),
-                    lineElements.current,
-                    outerRef,
-                );
+                scrollToRevealSourceLine(line, lineElements.current, outerRef);
             }, 30),
-        [],
+        [cm],
     );
 
     const handlePreviewScroll = useMemo(
         () =>
             throttle(() => {
                 if (!outerRef.current) return;
-                if (!shouldScroll.current) {
-                    shouldScroll.current = true;
-                    return;
-                }
-                shouldScroll.current = false;
+                if (!outerRef.current.matches(':hover')) return;
+
                 updateLineElements();
-                let line = getEditorLineNumberForOffset(
+                let lineNumber = getEditorLineNumberForOffset(
                     outerRef.current.scrollTop,
                     lineElements.current,
                     outerRef,
                 );
-                if (line === null || isNaN(line)) return;
-                line = Math.max(Math.floor(line) - 1, 0);
-                const scrollTo = editor.markupEditor.cm.heightAtLine(line, 'local');
-                editor.markupEditor.cm.scrollTo(null, scrollTo);
+
+                if (lineNumber === null || isNaN(lineNumber)) return;
+                lineNumber = Math.max(Math.floor(lineNumber), 0) + 1;
+
+                const line = cm.state.doc.line(lineNumber);
+                const {top} = cm.lineBlockAt(line.from);
+                cm.scrollDOM.scrollTo({top});
             }, 30),
-        [editor.markupEditor.cm],
+        [cm],
     );
 
     useEffect(() => {
         const outer = outerRef.current;
 
         editor.on('change', forceUpdate);
-
-        editor.markupEditor.cm.on('scroll', handleEditorScroll);
+        editor.on('cm-scroll', handleEditorScroll);
 
         outer?.addEventListener('scroll', handlePreviewScroll);
 
-        editor.markupEditor.cm.refresh();
+        editor.cm.requestMeasure();
 
         return () => {
             editor.off('change', forceUpdate);
-            editor.markupEditor.cm.off('scroll', handleEditorScroll);
+            editor.off('cm-scroll', handleEditorScroll);
             outer?.removeEventListener('scroll', handlePreviewScroll);
         };
     }, [editor, handleEditorScroll, handlePreviewScroll]);

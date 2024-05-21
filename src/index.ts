@@ -10,7 +10,10 @@ export * from './extensions/specs';
 export * from './forms';
 export * from './view';
 export * from './utils';
-export * from './markup';
+
+export {ReactRendererFacet, getImageDimensions} from './markup';
+export * as MarkupCommands from './markup/commands';
+export * as MarkupHelpers from './markup/commands/helpers';
 
 export {Lang, configure} from './configure';
 

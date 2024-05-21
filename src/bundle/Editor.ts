@@ -1,6 +1,5 @@
 import type {ReactNode} from 'react';
 
-import CodeMirror from 'codemirror';
 import {TextSelection} from 'prosemirror-state';
 import {EditorView as PMEditorView} from 'prosemirror-view';
 
@@ -13,14 +12,10 @@ import {
 import {ReactRenderStorage, RenderStorage} from '../extensions';
 import {i18n} from '../i18n/bundle';
 import {logger} from '../logger';
+import {createCodemirror} from '../markup/codemirror';
 import {CodeEditor, Editor as MarkupEditor} from '../markup/editor';
-import {Action as A, formatter as f} from '../shortcuts';
-import {DataTransferType, isFilesFromHtml, isFilesOnly} from '../utils/clipboard';
 import {Emitter, Receiver, SafeEventEmitter} from '../utils/event-emitter';
 import type {FileUploadHandler} from '../utils/upload';
-
-import {config as cmBaseConfig} from './cm-config';
-import {CMFilesUploadManager, CMFilesUploader} from './cm-upload';
 
 export type EditorType = 'wysiwyg' | 'markup';
 export type SplitMode = false | 'horizontal' | 'vertical';
@@ -31,20 +26,6 @@ export type RenderPreview = ({
     getValue: () => MarkupString;
     mode: 'preview' | 'split';
 }) => ReactNode;
-
-const PAIRING_CHARS = new Map([
-    ['(', ')'],
-    ['{', '}'],
-    ['[', ']'],
-    ['<', '>'],
-
-    ['*', '*'],
-    ['~', '~'],
-
-    ['"', '"'],
-    ["'", "'"],
-    ['`', '`'],
-]);
 
 interface EventMap {
     change: null;
@@ -66,6 +47,7 @@ interface EventMap {
 interface EventMapInt extends EventMap {
     rerender: null;
     'rerender-toolbar': null;
+    'cm-scroll': {event: Event};
 }
 
 export interface Editor extends Receiver<EventMap>, CommonEditor {
@@ -175,8 +157,6 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
     #needToSetDimensionsForUploadedImages: boolean;
     #prepareRawMarkup?: (value: MarkupString) => MarkupString;
 
-    #cmFilesUploader?: CMFilesUploader;
-
     get _wysiwygView(): PMEditorView {
         // @ts-expect-error internal typing
         return this.#wysiwygEditor?.view;
@@ -270,36 +250,20 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
 
     get markupEditor(): MarkupEditor {
         if (!this.#markupEditor) {
-            const config: CodeMirror.EditorConfiguration = {
-                ...cmBaseConfig,
-                placeholder: i18n('markup_placeholder'),
-                extraKeys: {
-                    ...(cmBaseConfig.extraKeys as {}),
-                    [f.toCM(A.Cancel)!]: () => {
-                        this.emit('cancel', null);
-                    },
-                    [f.toCM(A.Submit)!]: () => {
-                        this.emit('submit', null);
-                    },
-                },
-            };
             this.#markupEditor = new MarkupEditor(
-                CodeMirror(() => {}, {value: this.#markup, ...config}),
-            );
-            this.#markupEditor.codemirror.on('changes', this.onCMChanges);
-            this.#markupEditor.codemirror.on('cursorActivity', this.onCMCursorActivity);
-            this.#markupEditor.codemirror.on('paste', this.onCMPaste);
-            this.#markupEditor.codemirror.on('drop', this.onCMDrop);
-            this.#markupEditor.codemirror.on('beforeChange', this.onCMBeforeChange);
-
-            if (this.#fileUploadHandler) {
-                this.#cmFilesUploader = new CMFilesUploadManager({
-                    cm: this.cm,
+                createCodemirror({
+                    doc: this.#markup,
+                    placeholderText: i18n('markup_placeholder'),
+                    onCancel: () => this.emit('cancel', null),
+                    onSubmit: () => this.emit('submit', null),
+                    onChange: () => this.emit('rerender-toolbar', null),
+                    onDocChange: () => this.emit('change', null),
+                    onScroll: (event) => this.emit('cm-scroll', {event}),
                     reactRenderer: this.#renderStorage,
-                    uploadHandler: this.#fileUploadHandler,
-                    needDimmensionsForImages: this.needToSetDimensionsForUploadedImages,
-                });
-            }
+                    uploadHandler: this.fileUploadHandler,
+                    needImgDimms: this.needToSetDimensionsForUploadedImages,
+                }),
+            );
         }
         return this.#markupEditor;
     }
@@ -341,6 +305,7 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
     }
 
     // ---> implements CodeEditor
+
     get cm() {
         return this.markupEditor.cm;
     }
@@ -359,22 +324,12 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
     // <--- implements ActionStorage
 
     destroy() {
-        if (this.#markupEditor) {
-            this.#markupEditor.codemirror.off('changes', this.onCMChanges);
-            this.#markupEditor.codemirror.off('cursorActivity', this.onCMCursorActivity);
-            this.#markupEditor.codemirror.off('paste', this.onCMPaste);
-            this.#markupEditor.codemirror.off('drop', this.onCMDrop);
-            this.#markupEditor.codemirror.off('beforeChange', this.onCMBeforeChange);
-            this.#markupEditor.codemirror.getWrapperElement().remove();
-        }
-
         this.#wysiwygEditor?.destroy();
+        this.#markupEditor?.codemirror.destroy();
 
         this.#markupEditor = undefined;
+        this.#markupEditor = undefined;
         this.#wysiwygEditor = undefined;
-
-        this.#cmFilesUploader?.destroy();
-        this.#cmFilesUploader = undefined;
     }
 
     setEditorType(type: EditorType): void {
@@ -446,7 +401,12 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
 
         switch (type) {
             case 'markup': {
-                this.cm.setCursor(line, 0, {scroll: true});
+                const lineNumber = line + 1;
+                const view = this.markupEditor.cm;
+                if (lineNumber > 0 && lineNumber <= view.state.doc.lines) {
+                    view.dispatch({selection: {anchor: view.state.doc.line(lineNumber).from}});
+                }
+
                 break;
             }
             case 'wysiwyg': {
@@ -468,88 +428,6 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
                 throw new Error('Unknown editor type: ' + type);
         }
     }
-
-    private onCMCursorActivity = () => {
-        this.emit('rerender-toolbar', null);
-    };
-
-    private onCMChanges = () => {
-        this.emit('change', null);
-    };
-
-    private onCMPaste = (cm: CodeMirror.Editor, event: ClipboardEvent) => {
-        if (!event.clipboardData) return;
-        const {clipboardData} = event;
-
-        const fromWysiwyg = clipboardData.types.includes(DataTransferType.Yfm);
-        if (fromWysiwyg) {
-            const markup = clipboardData.getData(DataTransferType.Yfm);
-            cm.replaceSelection(markup);
-            event.preventDefault();
-            return;
-        }
-
-        if (clipboardData.files.length) {
-            this.#cmFilesUploader?.upload(clipboardData.files);
-        }
-
-        if (isFilesOnly(clipboardData) || isFilesFromHtml(clipboardData)) {
-            event.preventDefault();
-        }
-    };
-
-    private onCMDrop = (cm: CodeMirror.Editor, event: DragEvent) => {
-        if (!event.dataTransfer) return;
-
-        const {
-            dataTransfer: {files},
-        } = event;
-
-        if (files.length) {
-            event.preventDefault();
-            const pos = cm.coordsChar({left: event.pageX, top: event.pageY}, 'page');
-            cm.setCursor(pos);
-            this.#cmFilesUploader?.upload(files);
-        }
-    };
-
-    private onCMBeforeChange = (
-        _cm: CodeMirror.Editor,
-        event: CodeMirror.EditorChangeCancellable,
-    ) => {
-        const {text, to, from, cancel} = event;
-        const selection = this.cm.getSelection();
-        const sameLine = from.line === to.line;
-        const newLine = selection.endsWith('\n');
-
-        if (
-            !PAIRING_CHARS.has(text[0]) ||
-            event.origin !== '+input' ||
-            selection.trim().length <= 0
-        )
-            return;
-
-        cancel();
-
-        const replacement =
-            text[0] +
-            // If there was a line break at the end, remove it and place it behind the closing paired character
-            (newLine ? selection.replace(/\n+$/, '') : selection) +
-            PAIRING_CHARS.get(text[0]) +
-            (newLine ? '\n' : '');
-
-        this.cm.replaceSelection(replacement);
-
-        // If paired characters were inserted on the same line, then 2 characters will be added
-        // if not, then one closing.
-        let ch = sameLine ? to.ch + 2 : to.ch + 1;
-        if (to.ch === 0) ch = 0;
-
-        this.cm.addSelection(from, {
-            line: to.line,
-            ch,
-        });
-    };
 
     private shouldReplaceMarkupEditorValue(markupValue: string, wysiwygValue: string) {
         const serializedEditorMarkup = this.#wysiwygEditor?.serializer.serialize(

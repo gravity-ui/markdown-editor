@@ -15,7 +15,7 @@ export const MarkupEditorComponent: React.FC<MarkupEditorComponentProps> =
 
         // insert editor to dom
         React.useLayoutEffect(() => {
-            const domElem = editor.markupEditor.cm.getWrapperElement();
+            const domElem = editor.markupEditor.cm.dom;
             if (ref.current) {
                 ref.current.appendChild(domElem);
             }
@@ -26,7 +26,7 @@ export const MarkupEditorComponent: React.FC<MarkupEditorComponentProps> =
 
         // update editor after connecting to dom
         React.useEffect(() => {
-            editor.markupEditor.cm.refresh();
+            editor.markupEditor.cm.requestMeasure();
             if (autofocus) {
                 editor.markupEditor.focus();
             }
@@ -40,7 +40,7 @@ export const MarkupEditorComponent: React.FC<MarkupEditorComponentProps> =
                 onClick={(event) => {
                     const target = event.target;
 
-                    if (target instanceof Element && target.classList.contains('CodeMirror')) {
+                    if (target instanceof Element && target.classList.contains('cm-editor')) {
                         editor.markupEditor.focus();
                     }
                 }}

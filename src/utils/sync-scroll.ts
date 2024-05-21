@@ -1,4 +1,4 @@
-import React from 'react';
+import type {RefObject} from 'react';
 
 export type CodeLineElement = {el: HTMLElement; line: number};
 
@@ -76,7 +76,7 @@ export function scrollToRevealSourceLine(
 export function getEditorLineNumberForOffset(
     offset: number,
     lines: CodeLineElement[],
-    outerRef: React.RefObject<HTMLElement>,
+    outerRef: RefObject<HTMLElement>,
 ): number | null {
     if (!outerRef.current) return null;
     const {previous, next} = getLineElementsAtPageOffset(offset, lines, outerRef);
@@ -101,7 +101,7 @@ export function getEditorLineNumberForOffset(
 export function getLineElementsAtPageOffset(
     offset: number,
     lines: CodeLineElement[],
-    outerRef: React.RefObject<HTMLElement>,
+    outerRef: RefObject<HTMLElement>,
 ): {
     previous: CodeLineElement | null;
     next?: CodeLineElement;
