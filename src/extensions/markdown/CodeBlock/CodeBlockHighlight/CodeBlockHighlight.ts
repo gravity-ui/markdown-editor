@@ -1,8 +1,6 @@
 import type {Options} from '@diplodoc/transform';
 // importing only type, because lowlight and highlight.js is optional deps
-// eslint-disable-next-line import/no-extraneous-dependencies
 import type HLJS from 'highlight.js/lib/core';
-// eslint-disable-next-line import/no-extraneous-dependencies
 import type {createLowlight} from 'lowlight';
 import type {Root} from 'lowlight/lib/core';
 import {Node} from 'prosemirror-model';
@@ -11,12 +9,12 @@ import {Step} from 'prosemirror-transform';
 import {findChildrenByType} from 'prosemirror-utils';
 import {Decoration, DecorationSet} from 'prosemirror-view';
 
-import {ExtensionAuto} from '../../../../core';
+import type {ExtensionAuto} from '../../../../core';
 import {capitalize} from '../../../../lodash';
 import {logger} from '../../../../logger';
-// TODO: check cycle imports
-import {codeLangSelectTooltipViewCreator} from '../../../behavior/CodeMirrorView/TooltipPlugin';
-import {codeBlockLangAttr, codeBlockNodeName, codeBlockType} from '../CodeBlockSpecs/index';
+import {codeBlockLangAttr, codeBlockNodeName, codeBlockType} from '../CodeBlockSpecs';
+
+import {codeLangSelectTooltipViewCreator} from './TooltipPlugin';
 
 export type HighlightLangMap = Options['highlightLangs'];
 

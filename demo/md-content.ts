@@ -1,6 +1,17 @@
 export const initialMdContent = `
 # Это заголовок  {#якорь}
 
+{% cut "Заголовки" %}
+
+# Heading 1
+## Heading 2
+### Heading 3
+#### Heading 4
+##### Heading 5
+###### Heading 6
+
+{% endcut %}
+
 {% cut "Это заголовок ката" %}
 
 **А** *здесь* ~~его~~ ++крутой++ ^к^~о~^н^~т~^е^~н~^т^

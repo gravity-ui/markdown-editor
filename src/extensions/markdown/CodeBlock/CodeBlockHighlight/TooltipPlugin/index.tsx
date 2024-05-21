@@ -5,13 +5,12 @@ import {Select, SelectOption} from '@gravity-ui/uikit';
 import {Node} from 'prosemirror-model';
 import {EditorView} from 'prosemirror-view';
 
-import {codeBlockType} from '../../../../extensions/markdown';
-import {i18n} from '../../../../i18n/codeblock';
-import {i18n as i18nPlaceholder} from '../../../../i18n/placeholder';
-import {BaseTooltipPluginView} from '../../../../plugins/BaseTooltip';
-import {Toolbar, ToolbarDataType} from '../../../../toolbar';
-import {removeNode} from '../../../../utils/remove-node';
-import {langAttr} from '../const';
+import {i18n} from '../../../../../i18n/codeblock';
+import {i18n as i18nPlaceholder} from '../../../../../i18n/placeholder';
+import {BaseTooltipPluginView} from '../../../../../plugins/BaseTooltip';
+import {Toolbar, ToolbarDataType} from '../../../../../toolbar';
+import {removeNode} from '../../../../../utils/remove-node';
+import {CodeBlockNodeAttr, codeBlockType} from '../../CodeBlockSpecs';
 
 import './TooltipView.scss';
 
@@ -24,7 +23,7 @@ type CodeMenuProps = {
 };
 
 const CodeMenu: React.FC<CodeMenuProps> = ({view, pos, node, selectItems, mapping}) => {
-    const lang = node.attrs[langAttr];
+    const lang = node.attrs[CodeBlockNodeAttr.Lang];
     const value = mapping[lang] ?? lang;
 
     const handleClick = (type: string) => {
@@ -33,7 +32,7 @@ const CodeMenu: React.FC<CodeMenuProps> = ({view, pos, node, selectItems, mappin
 
         view.dispatch(
             view.state.tr.setNodeMarkup(pos, null, {
-                [langAttr]: type,
+                [CodeBlockNodeAttr.Lang]: type,
             }),
         );
     };
