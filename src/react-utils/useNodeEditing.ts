@@ -22,7 +22,9 @@ export const useNodeEditing = ({
             anchor?.removeEventListener('dblclick', toggleEdit);
             view.dom.removeEventListener('focus', unsetEdit);
         };
-    }, [view.dom, toggleEdit, unsetEdit, nodeRef]);
+        // https://github.com/facebook/react/issues/23392#issuecomment-1055610198
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [view.dom, toggleEdit, unsetEdit, nodeRef.current]);
 
     return state;
 };
