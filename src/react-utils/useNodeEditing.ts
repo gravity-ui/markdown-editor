@@ -14,15 +14,15 @@ export const useNodeEditing = ({
     const state = useBooleanState(false);
     const [, , unsetEdit, toggleEdit] = state;
 
-    const anchor = nodeRef.current;
     useEffect(() => {
+        const {current: anchor} = nodeRef;
         anchor?.addEventListener('dblclick', toggleEdit);
         view.dom.addEventListener('focus', unsetEdit);
         return () => {
             anchor?.removeEventListener('dblclick', toggleEdit);
             view.dom.removeEventListener('focus', unsetEdit);
         };
-    }, [anchor, view.dom, toggleEdit, unsetEdit]);
+    }, [view.dom, toggleEdit, unsetEdit, nodeRef]);
 
     return state;
 };
