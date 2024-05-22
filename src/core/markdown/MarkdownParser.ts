@@ -6,6 +6,9 @@ import {Mark, MarkType, Node, NodeType, Schema} from 'prosemirror-model';
 import {logger} from '../../logger';
 import type {Parser, ParserToken} from '../types/parser';
 
+import {mdTransformer} from './MarkdownTransformer';
+import {pmTransformer} from './ProseMirrorTransformer';
+
 type TokenAttrs = {[name: string]: unknown};
 
 const openSuffix = '_open';
@@ -46,14 +49,14 @@ export class MarkdownParser implements Parser {
         return this.tokenizer.linkify.match(text);
     }
 
-    parse(text: string) {
+    parse(text: string): Node {
         const time = Date.now();
         try {
             this.stack = [{type: this.schema.topNodeType, content: []}];
 
             let yfmTokens;
             try {
-                yfmTokens = this.tokenizer.parse(text, {});
+                yfmTokens = this.tokenizer.parse(mdTransformer.transform(text), {});
             } catch (err) {
                 const e = err as Error;
                 e.message = 'Unable to parse your markup. Please check for errors. ' + e.message;
@@ -69,7 +72,7 @@ export class MarkdownParser implements Parser {
                 doc = this.closeNode();
             } while (this.stack.length);
 
-            return (doc || this.schema.topNodeType.createAndFill()) as Node;
+            return doc ? pmTransformer.transform(doc) : this.schema.topNodeType.createAndFill()!;
         } finally {
             logger.metrics({component: 'parser', event: 'parse', duration: Date.now() - time});
         }

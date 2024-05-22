@@ -63,7 +63,8 @@ export const BaseSchemaSpecs: ExtensionAuto<BaseSchemaSpecsOptions> = (builder, 
             },
             fromYfm: {tokenSpec: {name: BaseNode.Paragraph, type: 'block'}},
             toYfm: (state, node) => {
-                state.renderInline(node);
+                if (node.content.size) state.renderInline(node);
+                else state.write('\n');
                 state.closeBlock(node);
             },
         }));
