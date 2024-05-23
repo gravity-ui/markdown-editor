@@ -6,8 +6,6 @@
   "common_tab_link": "Add by link",
   "common_link": "Link",
   "common_sizes": "Size, px",
-  "iframe_link_help": "URL of the resource displayed in the frame.",
-  "iframe_sizes_help": "Width and height of the frame in pixels.",
   "image_name": "Title",
   "image_link_href": "Image link",
   "image_link_href_help": "Adress the image link leads to.",
