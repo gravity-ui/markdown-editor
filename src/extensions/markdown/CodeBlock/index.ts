@@ -1,4 +1,4 @@
-import {setBlockType} from 'prosemirror-commands';
+import {newlineInCode, setBlockType} from 'prosemirror-commands';
 import {Fragment, NodeType} from 'prosemirror-model';
 import {Command} from 'prosemirror-state';
 import {hasParentNodeOfType} from 'prosemirror-utils';
@@ -32,7 +32,7 @@ export const CodeBlock: ExtensionAuto<CodeBlockOptions> = (builder, opts) => {
 
     builder.addKeymap((deps) => {
         const {codeBlockKey} = opts;
-        const bindings: Keymap = {Backspace: resetCodeblock};
+        const bindings: Keymap = {Enter: newlineInCode, Backspace: resetCodeblock};
         if (codeBlockKey) {
             bindings[codeBlockKey] = withLogAction('code_block', setBlockType(cbType(deps.schema)));
         }
