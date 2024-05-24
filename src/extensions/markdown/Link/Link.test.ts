@@ -70,4 +70,16 @@ describe('Link extension', () => {
             'https://example.com/+_file/#~anchor',
         );
     });
+
+    it('should escape parentheses in url', () =>
+        same(
+            '[parentheses](https://example.com/example=?qwe\\(asd)',
+            doc(p(a({[LinkAttr.Href]: 'https://example.com/example=?qwe(asd'}, 'parentheses'))),
+        ));
+
+    it('should escape parentheses in url', () =>
+        same(
+            '[parentheses2](https://example.com/example=?qwe\\(asd\\)\\))',
+            doc(p(a({[LinkAttr.Href]: 'https://example.com/example=?qwe(asd))'}, 'parentheses2'))),
+        ));
 });

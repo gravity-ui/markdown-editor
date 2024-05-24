@@ -58,7 +58,7 @@ export const LinkSpecs: ExtensionAuto = (builder) => {
                 state.isAutolink = undefined;
                 return (
                     '](' +
-                    mark.attrs[LinkAttr.Href] +
+                    escapeParenthesesInUrl(mark.attrs[LinkAttr.Href]) +
                     (mark.attrs[LinkAttr.Title]
                         ? ' ' + state.quote(mark.attrs[LinkAttr.Title])
                         : '') +
@@ -96,4 +96,8 @@ function isPlainURL(link: Mark, parent: Fragment, index: number, side: number) {
     const next = parent.child(index + (side < 0 ? -2 : 1));
 
     return !link.isInSet(next.marks);
+}
+
+function escapeParenthesesInUrl(url: string): string {
+    return url.replaceAll(/\(|\)/g, (p) => '\\' + p);
 }
