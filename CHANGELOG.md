@@ -1,5 +1,26 @@
 # Changelog
 
+## [13.0.0](https://github.com/yandex-cloud/yfm-editor/compare/v12.4.0...v13.0.0) (2024-05-27)
+
+
+### ⚠ BREAKING CHANGES
+
+* update markup mode to codemirror6 ([#234](https://github.com/yandex-cloud/yfm-editor/issues/234))
+
+### Features
+
+* **Lists:** add auto merging of adjacent list of same type ([#241](https://github.com/yandex-cloud/yfm-editor/issues/241)) ([c02de80](https://github.com/yandex-cloud/yfm-editor/commit/c02de80168cdc492106efc34c6485a0002feb165))
+* update markup mode to codemirror6 ([#234](https://github.com/yandex-cloud/yfm-editor/issues/234)) ([5b416b2](https://github.com/yandex-cloud/yfm-editor/commit/5b416b295396ff3791192ecbd45f842f6294cfd7))
+
+
+### Bug Fixes
+
+* don't split code_block in lists when pressing enter key ([#243](https://github.com/yandex-cloud/yfm-editor/issues/243)) ([c494301](https://github.com/yandex-cloud/yfm-editor/commit/c4943018be617bdfc8eaf7024e792937a8e56411))
+* **forms:** deleted unused iframe_ keysets ([#242](https://github.com/yandex-cloud/yfm-editor/issues/242)) ([e6d6ba4](https://github.com/yandex-cloud/yfm-editor/commit/e6d6ba443db4856036d0d637a0cf50cd4894e7e8))
+* **ImageForm:** updated autofocus logic, added useAutoFocus ([#245](https://github.com/yandex-cloud/yfm-editor/issues/245)) ([c4da6bd](https://github.com/yandex-cloud/yfm-editor/commit/c4da6bd98a6279dc9a2326f304d0a3a99cc39480))
+* **Link:** ascape parentheses in link url ([#244](https://github.com/yandex-cloud/yfm-editor/issues/244)) ([046dd2e](https://github.com/yandex-cloud/yfm-editor/commit/046dd2e21265958e56b594e897f475a47e8f39ee))
+* **react-utils:** fix for useNodeEditing and useNodeHover hooks ([#239](https://github.com/yandex-cloud/yfm-editor/issues/239)) ([48d018d](https://github.com/yandex-cloud/yfm-editor/commit/48d018d05de01ab30b75cc0cc03b36a99c5f5e83))
+
 ## [12.4.0](https://github.com/yandex-cloud/yfm-editor/compare/v12.3.0...v12.4.0) (2024-04-19)
 
 
