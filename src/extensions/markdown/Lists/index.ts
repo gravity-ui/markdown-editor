@@ -9,6 +9,7 @@ import {actions} from './actions';
 import {joinPrevList, liftIfCursorIsAtBeginningOfItem, toList} from './commands';
 import {ListAction} from './const';
 import {ListsInputRulesExtension, ListsInputRulesOptions} from './inputrules';
+import {mergeListsPlugin} from './plugins/MergeListsPlugin';
 
 export {ListNode, blType, liType, olType} from './ListsSpecs';
 
@@ -47,6 +48,8 @@ export const Lists: ExtensionAuto<ListsOptions> = (builder, opts) => {
     );
 
     builder.use(ListsInputRulesExtension, {bulletListInputRule: opts?.ulInputRules});
+
+    builder.addPlugin(mergeListsPlugin);
 
     builder
         .addAction(ListAction.ToBulletList, actions.toBulletList)
