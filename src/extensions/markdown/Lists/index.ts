@@ -28,7 +28,6 @@ export const Lists: ExtensionAuto<ListsOptions> = (builder, opts) => {
         if (olKey) bindings[olKey] = withLogAction('orderedList', toList(olType(schema)));
 
         return {
-            Enter: splitListItem(liType(schema)),
             Tab: sinkListItem(liType(schema)),
             'Shift-Tab': liftListItem(liType(schema)),
 
@@ -38,8 +37,10 @@ export const Lists: ExtensionAuto<ListsOptions> = (builder, opts) => {
             ...bindings,
         };
     }, builder.Priority.High);
+
     builder.addKeymap(
-        () => ({
+        ({schema}) => ({
+            Enter: splitListItem(liType(schema)),
             Backspace: chainCommands(liftIfCursorIsAtBeginningOfItem, joinPrevList),
         }),
         builder.Priority.Low,
