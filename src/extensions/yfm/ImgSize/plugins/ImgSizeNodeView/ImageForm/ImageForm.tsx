@@ -10,6 +10,7 @@ import Form from '../../../../../../forms/base';
 import {NumberInput} from '../../../../../../forms/components';
 import {enterKeyHandler} from '../../../../../../forms/utils';
 import {i18n} from '../../../../../../i18n/forms';
+import {useAutoFocus} from '../../../../../../react-utils/useAutoFocus';
 import {LinkAttr, linkType} from '../../../../../markdown';
 import {ImgSizeAttr} from '../../../../../specs';
 
@@ -51,6 +52,10 @@ export const ImageForm: React.FC<{
         );
         unsetEdit();
     };
+    const linkRef = React.useRef<HTMLInputElement>(null);
+    const imageNameRef = React.useRef<HTMLInputElement>(null);
+
+    useAutoFocus(link ? linkRef : imageNameRef);
 
     const inputEnterKeyHandler: TextInputProps['onKeyPress'] = enterKeyHandler(handleSubmit);
 
@@ -69,7 +74,7 @@ export const ImageForm: React.FC<{
                             help={i18n('image_link_href_help')}
                             control={
                                 <TextInput
-                                    autoFocus
+                                    controlRef={linkRef}
                                     size="s"
                                     view="normal"
                                     value={linkHref}
@@ -84,7 +89,7 @@ export const ImageForm: React.FC<{
                         label={i18n('image_name')}
                         control={
                             <TextInput
-                                autoFocus={Boolean(!link)}
+                                controlRef={imageNameRef}
                                 size="s"
                                 view="normal"
                                 value={name}
