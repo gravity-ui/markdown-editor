@@ -7,6 +7,7 @@ import {createYfmTabs} from './actions';
 import {
     dragAutoSwitch,
     joinBackwardToOpenTab,
+    liftEmptyBlockFromTabPanel,
     removeTabWhenCursorAtTheStartOfTab,
     tabEnter,
     tabPanelArrowDown,
@@ -27,7 +28,7 @@ export const YfmTabs: ExtensionAuto = (builder) => {
         () => ({
             Backspace: chainCommands(removeTabWhenCursorAtTheStartOfTab, joinBackwardToOpenTab),
             ArrowDown: tabPanelArrowDown,
-            Enter: tabEnter,
+            Enter: chainCommands(tabEnter, liftEmptyBlockFromTabPanel),
             'Shift-Enter': tabEnter,
         }),
         builder.Priority.High,

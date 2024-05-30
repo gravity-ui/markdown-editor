@@ -19,6 +19,7 @@ import {
 } from '../../';
 import {throttle} from '../../../lodash';
 import {findChildIndex} from '../../../table-utils/helpers';
+import {isSameNodeType} from '../../../utils';
 import {get$Cursor, isTextSelection} from '../../../utils/selection';
 
 import {TabAttrs, TabPanelAttrs} from './YfmTabsSpecs/const';
@@ -216,6 +217,40 @@ export const tabPanelArrowDown: Command = (state, dispatch, view) => {
 export const tabEnter: Command = (state) => {
     const $cursor = get$Cursor(state.selection);
     return $cursor?.node($cursor.depth).type === tabType(state.schema);
+};
+
+export const liftEmptyBlockFromTabPanel: Command = (state, dispatch) => {
+    const {selection, schema} = state;
+    if (!isTextSelection(selection)) return false;
+
+    const {$cursor} = selection;
+
+    // cursor should be inside an empty textblock
+    if (!$cursor || $cursor.parent.content.size) return false;
+
+    if (
+        $cursor.depth > 2 && // depth must be at least 3
+        isSameNodeType($cursor.node(-1), tabPanelType(schema)) &&
+        isSameNodeType($cursor.node(-2), tabsType(schema))
+    ) {
+        // current texblock is last child
+        if ($cursor.after() === $cursor.end(-1)) {
+            if (dispatch) {
+                const copedNode = $cursor.parent.copy();
+                const tabsAfter = $cursor.after(-2);
+
+                const {tr} = state;
+
+                tr.insert(tabsAfter, copedNode)
+                    .delete($cursor.before(), $cursor.after())
+                    .setSelection(TextSelection.create(tr.doc, tr.mapping.map(tabsAfter)));
+
+                dispatch(tr.scrollIntoView());
+            }
+            return true;
+        }
+    }
+    return false;
 };
 
 const makeTabsInactive = (tabNodes: NodeWithPos[], tabPanels: NodeWithPos[], tr: Transaction) => {

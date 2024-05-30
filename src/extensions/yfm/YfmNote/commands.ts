@@ -1,4 +1,4 @@
-import {Fragment, Node} from 'prosemirror-model';
+import {Fragment, Node, NodeRange} from 'prosemirror-model';
 import type {Command} from 'prosemirror-state';
 import {TextSelection} from 'prosemirror-state';
 
@@ -7,7 +7,7 @@ import {isSameNodeType} from '../../../utils/schema';
 import {isTextSelection} from '../../../utils/selection';
 import {pType} from '../../base';
 
-import {noteTitleType, noteType} from './utils';
+import {noteContentType, noteTitleType, noteType} from './utils';
 
 export const exitFromNoteTitle: Command = (state, dispatch) => {
     const {selection, schema} = state;
@@ -29,6 +29,37 @@ export const exitFromNoteTitle: Command = (state, dispatch) => {
     const targetPos = noteContentPos + noteContentFirstTextblockChild.offset;
     dispatch?.(state.tr.setSelection(TextSelection.create(state.doc, targetPos)));
     return true;
+};
+
+export const liftEmptyBlockFromNote: Command = (state, dispatch) => {
+    const {selection, schema} = state;
+    if (!isTextSelection(selection)) return false;
+
+    const {$cursor} = selection;
+    // cursor should be inside an empty textblock
+    if (!$cursor || $cursor.parent.content.size) return false;
+
+    if (
+        $cursor.depth > 2 && // depth must be at least 3
+        isSameNodeType($cursor.node(-1), noteContentType(schema)) &&
+        isSameNodeType($cursor.node(-2), noteType(schema)) &&
+        $cursor.node(-1).childCount > 1 // note content should have only one child (empty textblock)
+    ) {
+        // current texblock is last child
+        if ($cursor.after() === $cursor.end(-1)) {
+            const nodeRange = new NodeRange(
+                state.doc.resolve($cursor.before()),
+                state.doc.resolve($cursor.after()),
+                $cursor.depth - 1,
+            );
+
+            if (dispatch) {
+                dispatch(state.tr.lift(nodeRange, $cursor.depth - 3).scrollIntoView());
+            }
+            return true;
+        }
+    }
+    return false;
 };
 
 function getNoteContent(noteNode: Node): Fragment {
