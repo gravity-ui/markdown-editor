@@ -43,7 +43,7 @@ export const liftEmptyBlockFromNote: Command = (state, dispatch) => {
         $cursor.depth > 2 && // depth must be at least 3
         isSameNodeType($cursor.node(-1), noteContentType(schema)) &&
         isSameNodeType($cursor.node(-2), noteType(schema)) &&
-        $cursor.node(-1).childCount > 1 // note content should have only one child (empty textblock)
+        $cursor.node(-1).childCount > 1
     ) {
         // current texblock is last child
         if ($cursor.after() === $cursor.end(-1)) {
