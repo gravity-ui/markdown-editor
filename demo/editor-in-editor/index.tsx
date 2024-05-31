@@ -43,7 +43,7 @@ export const PlaygroundEditorInEditor: React.FC = () => {
     return (
         <div className={b()}>
             <div className={b('header')}>
-                YFM Editor Playground
+                Markdown Editor Playground
                 <span className={b('version')}>{VERSION}</span>
             </div>
             <hr />

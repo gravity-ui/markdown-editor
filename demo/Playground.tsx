@@ -90,15 +90,15 @@ export const Playground = React.memo<PlaygroundProps>((props) => {
         height,
     } = props;
     const [editorType, setEditorType] = React.useState<YfmEditorType>(initialEditor ?? 'wysiwyg');
-    const [yfmRaw, setYfmRaw] = React.useState<MarkupString>(initial || '');
+    const [mdRaw, setMdRaw] = React.useState<MarkupString>(initial || '');
     const editorRef = React.useRef<YfmEditorRef>(null);
 
     React.useEffect(() => {
-        updateLocation(yfmRaw);
-    }, [yfmRaw]);
+        updateLocation(mdRaw);
+    }, [mdRaw]);
 
     React.useEffect(() => {
-        console.log('[Playground] YfmEditor domElem:', editorRef.current?.domElem());
+        console.log('[Playground] MarkdownEditor domElem:', editorRef.current?.domElem());
     }, []);
 
     const renderPreview = useCallback<RenderPreview>(
@@ -119,7 +119,7 @@ export const Playground = React.memo<PlaygroundProps>((props) => {
     return (
         <div className={b()}>
             <div className={b('header')}>
-                YFM Editor Playground
+                Markdown Editor Playground
                 <span className={b('version')}>{VERSION}</span>
             </div>
             <DropdownMenu
@@ -191,7 +191,7 @@ export const Playground = React.memo<PlaygroundProps>((props) => {
                         toaster={toaster}
                         stickyToolbar={stickyToolbar}
                         className={b('editor-view')}
-                        initialContent={yfmRaw}
+                        initialContent={mdRaw}
                         initialEditorType={editorType}
                         initialSplitModeEnabled={initialSplitModeEnabled}
                         wysiwygAllowHTML={allowHTML}
@@ -200,7 +200,7 @@ export const Playground = React.memo<PlaygroundProps>((props) => {
                         wysiwygBreaks={breaks}
                         wysiwygMenubarData={wToolbarConfig}
                         markupMenubarData={mToolbarConfig}
-                        onMarkupChange={(e) => setYfmRaw(e.getValue())}
+                        onMarkupChange={(e) => setMdRaw(e.getValue())}
                         onEditorTypeChange={setEditorType}
                         onMenuBarAction={onAction}
                         onFileUpload={fileUploadHandler}
@@ -257,7 +257,7 @@ export const Playground = React.memo<PlaygroundProps>((props) => {
             <hr />
 
             <div className={b('preview')}>
-                {editorType === 'wysiwyg' && <pre className={b('markup')}>{yfmRaw}</pre>}
+                {editorType === 'wysiwyg' && <pre className={b('markup')}>{mdRaw}</pre>}
             </div>
         </div>
     );

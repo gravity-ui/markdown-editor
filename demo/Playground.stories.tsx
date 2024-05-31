@@ -8,7 +8,7 @@ import {parseLocation} from './location';
 import {initialMdContent} from './md-content';
 
 export default {
-    title: 'YFM Editor',
+    title: 'Markdown Editor',
     component: PlaygroundComponent,
 } as ComponentMeta<any>;
 
