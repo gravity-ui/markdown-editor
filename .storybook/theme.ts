@@ -26,8 +26,8 @@ export const ThemeLight = create({
     inputTextColor: 'black',
     inputBorderRadius: 4,
 
-    brandUrl: 'https://github.com/yandex-cloud/yfm-editor',
-    brandTitle: `<div style="font-size: 18px; color: #027bf3; font-weight: 600; margin-top: -6px; margin-bottom: 2px;">YFM Editor</div>
+    brandUrl: 'https://github.com/gravity-ui/markdown-editor',
+    brandTitle: `<div style="font-size: 18px; color: #027bf3; font-weight: 600; margin-top: -6px; margin-bottom: 2px;">Markdown Editor</div>
                 <div style="font-size: 14px;color: #7d7d7d;font-weight: 400;">Wysiwyg editor</div>`,
 });
 
