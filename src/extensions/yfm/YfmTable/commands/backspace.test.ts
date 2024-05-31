@@ -3,7 +3,7 @@ import {EditorState, TextSelection} from 'prosemirror-state';
 import {builders} from 'prosemirror-test-builder';
 
 import {applyCommand} from '../../../../../tests/utils';
-import {getSpec} from '../YfmTableSpecs/spec';
+import {getSchemaSpecs} from '../YfmTableSpecs/schema';
 
 import {clearSelectedCells} from './backspace';
 
@@ -12,7 +12,7 @@ const schema = new Schema({
         doc: {content: 'block+'},
         text: {group: 'inline'},
         paragraph: {group: 'block', content: 'inline*'},
-        ...getSpec(),
+        ...getSchemaSpecs(),
     },
 });
 

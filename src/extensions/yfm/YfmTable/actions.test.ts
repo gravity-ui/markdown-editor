@@ -4,7 +4,7 @@ import {builders} from 'prosemirror-test-builder';
 
 import {applyCommand} from '../../../../tests/utils';
 
-import {getSpec} from './YfmTableSpecs/spec';
+import {getSchemaSpecs} from './YfmTableSpecs/schema';
 import {createYfmTableCommand} from './actions';
 
 const schema = new Schema({
@@ -12,7 +12,7 @@ const schema = new Schema({
         doc: {content: 'block+'},
         text: {group: 'inline'},
         paragraph: {group: 'block', content: 'inline*'},
-        ...getSpec(),
+        ...getSchemaSpecs(),
     },
 });
 

@@ -2,9 +2,9 @@ import type {ExtensionAuto} from '../../../core';
 import {logger} from '../../../logger';
 
 import {HtmlNode} from './const';
-import {fromYfm} from './fromYfm';
-import {spec} from './spec';
-import {toYfm} from './toYfm';
+import {parserTokens} from './parser';
+import {schemaSpecs} from './schema';
+import {serializerTokens} from './serializer';
 
 export {HtmlAttr, HtmlNode} from './const';
 
@@ -15,15 +15,15 @@ export const Html: ExtensionAuto = (builder) => {
     }
 
     builder.addNode(HtmlNode.Block, () => ({
-        spec: spec[HtmlNode.Block],
-        fromMd: {tokenSpec: fromYfm[HtmlNode.Block]},
-        toMd: toYfm[HtmlNode.Block],
+        spec: schemaSpecs[HtmlNode.Block],
+        fromMd: {tokenSpec: parserTokens[HtmlNode.Block]},
+        toMd: serializerTokens[HtmlNode.Block],
     }));
 
     builder.addNode(HtmlNode.Inline, () => ({
-        spec: spec[HtmlNode.Inline],
-        fromMd: {tokenSpec: fromYfm[HtmlNode.Inline]},
-        toMd: toYfm[HtmlNode.Inline],
+        spec: schemaSpecs[HtmlNode.Inline],
+        fromMd: {tokenSpec: parserTokens[HtmlNode.Inline]},
+        toMd: serializerTokens[HtmlNode.Inline],
     }));
 };
 

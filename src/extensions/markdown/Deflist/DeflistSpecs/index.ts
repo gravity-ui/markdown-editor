@@ -5,9 +5,9 @@ import type {ExtensionAuto} from '../../../../core';
 import {nodeTypeFactory} from '../../../../utils/schema';
 
 import {DeflistNode} from './const';
-import {fromYfm} from './fromYfm';
-import {getSpec} from './spec';
-import {toYfm} from './toYfm';
+import {parserTokens} from './parser';
+import {getSchemaSpecs} from './schema';
+import {serializerTokens} from './serializer';
 
 export {DeflistNode} from './const';
 export const defListType = nodeTypeFactory(DeflistNode.List);
@@ -26,23 +26,23 @@ export type DeflistSpecsOptions = {
 };
 
 export const DeflistSpecs: ExtensionAuto<DeflistSpecsOptions> = (builder, opts) => {
-    const spec = getSpec(opts, builder.context.get('placeholder'));
+    const schemaSpecs = getSchemaSpecs(opts, builder.context.get('placeholder'));
 
     builder.configureMd((md) => md.use(deflistPlugin));
     builder
         .addNode(DeflistNode.List, () => ({
-            spec: spec[DeflistNode.List],
-            fromMd: {tokenSpec: fromYfm[DeflistNode.List]},
-            toMd: toYfm[DeflistNode.List],
+            spec: schemaSpecs[DeflistNode.List],
+            fromMd: {tokenSpec: parserTokens[DeflistNode.List]},
+            toMd: serializerTokens[DeflistNode.List],
         }))
         .addNode(DeflistNode.Term, () => ({
-            spec: spec[DeflistNode.Term],
-            fromMd: {tokenSpec: fromYfm[DeflistNode.Term]},
-            toMd: toYfm[DeflistNode.Term],
+            spec: schemaSpecs[DeflistNode.Term],
+            fromMd: {tokenSpec: parserTokens[DeflistNode.Term]},
+            toMd: serializerTokens[DeflistNode.Term],
         }))
         .addNode(DeflistNode.Desc, () => ({
-            spec: spec[DeflistNode.Desc],
-            fromMd: {tokenSpec: fromYfm[DeflistNode.Desc]},
-            toMd: toYfm[DeflistNode.Desc],
+            spec: schemaSpecs[DeflistNode.Desc],
+            fromMd: {tokenSpec: parserTokens[DeflistNode.Desc]},
+            toMd: serializerTokens[DeflistNode.Desc],
         }));
 };

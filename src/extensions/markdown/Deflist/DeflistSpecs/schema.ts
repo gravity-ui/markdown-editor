@@ -11,7 +11,7 @@ const DEFAULT_PLACEHOLDERS = {
     Desc: 'Definition description',
 };
 
-export const getSpec = (
+export const getSchemaSpecs = (
     opts?: DeflistSpecsOptions,
     placeholder?: PlaceholderOptions,
 ): Record<DeflistNode, NodeSpec> => ({

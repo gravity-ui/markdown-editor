@@ -10,7 +10,7 @@ const DEFAULT_PLACEHOLDERS = {
     TabTitle: 'Tab title',
 };
 
-export const getSpec: (
+export const getSchemaSpecs: (
     opts: YfmTabsSpecsOptions,
     placeholder?: PlaceholderOptions,
 ) => Record<TabsNode, NodeSpec> = (opts, placeholder) => ({

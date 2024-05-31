@@ -2,7 +2,7 @@ import type {SerializerNodeToken} from '../../../core';
 
 import {HtmlAttr, HtmlNode} from './const';
 
-export const toYfm: Record<HtmlNode, SerializerNodeToken> = {
+export const serializerTokens: Record<HtmlNode, SerializerNodeToken> = {
     [HtmlNode.Block]: (state, node) => {
         state.write(node.attrs[HtmlAttr.Content]);
         state.ensureNewLine();

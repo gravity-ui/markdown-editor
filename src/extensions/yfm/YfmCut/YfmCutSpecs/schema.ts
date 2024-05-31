@@ -10,7 +10,7 @@ const DEFAULT_PLACEHOLDERS = {
     Content: 'Cut content',
 };
 
-export const getSpec = (
+export const getSchemaSpecs = (
     opts?: YfmCutSpecsOptions,
     placeholder?: PlaceholderOptions,
 ): Record<CutNode, NodeSpec> => ({

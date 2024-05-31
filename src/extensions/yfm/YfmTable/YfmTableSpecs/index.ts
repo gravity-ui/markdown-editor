@@ -5,9 +5,9 @@ import type {NodeSpec} from 'prosemirror-model';
 import type {ExtensionWithOptions} from '../../../../core';
 
 import {YfmTableNode} from './const';
-import {fromYfm} from './fromYfm';
-import {getSpec} from './spec';
-import {toYfm} from './toYfm';
+import {parserTokens} from './parser';
+import {getSchemaSpecs} from './schema';
+import {serializerTokens} from './serializer';
 
 export {YfmTableNode} from './const';
 export {yfmTableType, yfmTableBodyType, yfmTableRowType, yfmTableCellType} from './utils';
@@ -20,28 +20,28 @@ export type YfmTableSpecsOptions = {
 };
 
 export const YfmTableSpecs: ExtensionWithOptions<YfmTableSpecsOptions> = (builder, options) => {
-    const spec = getSpec(options, builder.context.get('placeholder'));
+    const schemaSpecs = getSchemaSpecs(options, builder.context.get('placeholder'));
 
     builder
         .configureMd((md) => md.use(yfmTable, {log}))
         .addNode(YfmTableNode.Table, () => ({
-            spec: spec[YfmTableNode.Table],
-            toMd: toYfm[YfmTableNode.Table],
-            fromMd: {tokenSpec: fromYfm[YfmTableNode.Table]},
+            spec: schemaSpecs[YfmTableNode.Table],
+            toMd: serializerTokens[YfmTableNode.Table],
+            fromMd: {tokenSpec: parserTokens[YfmTableNode.Table]},
         }))
         .addNode(YfmTableNode.Body, () => ({
-            spec: spec[YfmTableNode.Body],
-            toMd: toYfm[YfmTableNode.Body],
-            fromMd: {tokenSpec: fromYfm[YfmTableNode.Body]},
+            spec: schemaSpecs[YfmTableNode.Body],
+            toMd: serializerTokens[YfmTableNode.Body],
+            fromMd: {tokenSpec: parserTokens[YfmTableNode.Body]},
         }))
         .addNode(YfmTableNode.Row, () => ({
-            spec: spec[YfmTableNode.Row],
-            toMd: toYfm[YfmTableNode.Row],
-            fromMd: {tokenSpec: fromYfm[YfmTableNode.Row]},
+            spec: schemaSpecs[YfmTableNode.Row],
+            toMd: serializerTokens[YfmTableNode.Row],
+            fromMd: {tokenSpec: parserTokens[YfmTableNode.Row]},
         }))
         .addNode(YfmTableNode.Cell, () => ({
-            spec: spec[YfmTableNode.Cell],
-            toMd: toYfm[YfmTableNode.Cell],
-            fromMd: {tokenSpec: fromYfm[YfmTableNode.Cell]},
+            spec: schemaSpecs[YfmTableNode.Cell],
+            toMd: serializerTokens[YfmTableNode.Cell],
+            fromMd: {tokenSpec: parserTokens[YfmTableNode.Cell]},
         }));
 };

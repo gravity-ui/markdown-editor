@@ -2,7 +2,7 @@ import type {SerializerNodeToken} from '../../../../core';
 
 import {YfmTableNode} from './const';
 
-export const toYfm: Record<YfmTableNode, SerializerNodeToken> = {
+export const serializerTokens: Record<YfmTableNode, SerializerNodeToken> = {
     [YfmTableNode.Table]: (state, node) => {
         state.ensureNewLine();
         state.write('#|');

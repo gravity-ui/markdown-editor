@@ -9,7 +9,7 @@ import type {YfmTableSpecsOptions} from './index';
 
 const DEFAULT_CELL_PLACEHOLDER = 'Table cell';
 
-export const getSpec = (
+export const getSchemaSpecs = (
     opts?: YfmTableSpecsOptions,
     placeholder?: PlaceholderOptions,
 ): Record<YfmTableNode, NodeSpec> => ({

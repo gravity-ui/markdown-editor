@@ -4,7 +4,7 @@ import {getPlaceholderContent} from '../../../../utils/placeholder';
 
 import {CutNode} from './const';
 
-export const toYfm: Record<CutNode, SerializerNodeToken> = {
+export const serializerTokens: Record<CutNode, SerializerNodeToken> = {
     [CutNode.Cut]: (state, node) => {
         state.renderContent(node);
         state.write('{% endcut %}');

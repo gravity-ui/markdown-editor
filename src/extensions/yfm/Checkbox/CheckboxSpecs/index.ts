@@ -5,9 +5,9 @@ import type {ExtensionAuto, ExtensionNodeSpec} from '../../../../core';
 import {nodeTypeFactory} from '../../../../utils/schema';
 
 import {CheckboxNode, b, idPrefix} from './const';
-import {fromYfm} from './fromYfm';
-import {getSpec} from './spec';
-import {toYfm} from './toYfm';
+import {parserTokens} from './parser';
+import {getSchemaSpecs} from './schema';
+import {serializerTokens} from './serializer';
 
 export {CheckboxNode} from './const';
 export const checkboxType = nodeTypeFactory(CheckboxNode.Checkbox);
@@ -25,31 +25,31 @@ export type CheckboxSpecsOptions = {
 };
 
 export const CheckboxSpecs: ExtensionAuto<CheckboxSpecsOptions> = (builder, opts) => {
-    const spec = getSpec(opts, builder.context.get('placeholder'));
+    const schemaSpecs = getSchemaSpecs(opts, builder.context.get('placeholder'));
 
     builder
         .configureMd((md) => checkboxPlugin(md, {idPrefix, divClass: b()}))
         .addNode(CheckboxNode.Checkbox, () => ({
-            spec: spec[CheckboxNode.Checkbox],
-            toMd: toYfm[CheckboxNode.Checkbox],
+            spec: schemaSpecs[CheckboxNode.Checkbox],
+            toMd: serializerTokens[CheckboxNode.Checkbox],
             fromMd: {
-                tokenSpec: fromYfm[CheckboxNode.Checkbox],
+                tokenSpec: parserTokens[CheckboxNode.Checkbox],
             },
             view: opts.checkboxView,
         }))
         .addNode(CheckboxNode.Input, () => ({
-            spec: spec[CheckboxNode.Input],
-            toMd: toYfm[CheckboxNode.Input],
+            spec: schemaSpecs[CheckboxNode.Input],
+            toMd: serializerTokens[CheckboxNode.Input],
             fromMd: {
-                tokenSpec: fromYfm[CheckboxNode.Input],
+                tokenSpec: parserTokens[CheckboxNode.Input],
             },
             view: opts.inputView,
         }))
         .addNode(CheckboxNode.Label, () => ({
-            spec: spec[CheckboxNode.Label],
-            toMd: toYfm[CheckboxNode.Label],
+            spec: schemaSpecs[CheckboxNode.Label],
+            toMd: serializerTokens[CheckboxNode.Label],
             fromMd: {
-                tokenSpec: fromYfm[CheckboxNode.Label],
+                tokenSpec: parserTokens[CheckboxNode.Label],
                 tokenName: 'checkbox_label',
             },
             view: opts.labelView,

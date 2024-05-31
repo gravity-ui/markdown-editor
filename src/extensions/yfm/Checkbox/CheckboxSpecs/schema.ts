@@ -7,7 +7,7 @@ import type {CheckboxSpecsOptions} from './index';
 
 const DEFAULT_LABEL_PLACEHOLDER = 'Checkbox';
 
-export const getSpec = (
+export const getSchemaSpecs = (
     opts?: Pick<CheckboxSpecsOptions, 'checkboxLabelPlaceholder'>,
     placeholder?: PlaceholderOptions,
 ): Record<CheckboxNode, NodeSpec> => ({

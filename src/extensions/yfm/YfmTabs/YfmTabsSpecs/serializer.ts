@@ -5,7 +5,7 @@ import {getPlaceholderContent} from '../../../../utils/placeholder';
 
 import {TabsNode} from './const';
 
-export const toYfm: Record<TabsNode, SerializerNodeToken> = {
+export const serializerTokens: Record<TabsNode, SerializerNodeToken> = {
     [TabsNode.Tab]: (state, node) => {
         state.renderInline(node);
     },

@@ -9,7 +9,7 @@ import {YfmNoteSpecsOptions} from './index';
 const DEFAULT_TITLE_PLACEHOLDER = 'Note';
 const DEFAULT_CONTENT_PLACEHOLDER = 'Note content';
 
-export const getSpec = (
+export const getSchemaSpecs = (
     opts?: YfmNoteSpecsOptions,
     placeholder?: PlaceholderOptions,
 ): Record<NoteNode, NodeSpec> => ({

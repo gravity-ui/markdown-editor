@@ -6,7 +6,7 @@ import {TabsNode} from './const';
 
 const attrsFromEntries = (token: Token) => (token.attrs ? Object.fromEntries(token.attrs) : {});
 
-export const fromYfm: Record<TabsNode, ParserToken> = {
+export const parserTokens: Record<TabsNode, ParserToken> = {
     [TabsNode.Tab]: {
         name: TabsNode.Tab,
         type: 'block',

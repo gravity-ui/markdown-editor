@@ -3,7 +3,7 @@ import type {NodeSpec} from 'prosemirror-model';
 import {TableRole} from '../../../../table-utils';
 import {CellAlign, TableAttrs, TableNode} from '../const';
 
-export const spec: Record<TableNode, NodeSpec> = {
+export const schemaSpecs: Record<TableNode, NodeSpec> = {
     [TableNode.Table]: {
         group: 'block',
         content: `${TableNode.Head} ${TableNode.Body}`,
