@@ -3,7 +3,7 @@ name: Release
 on:
   push:
     branches:
-      - master
+      - main
       - release/v*
 
 jobs:
@@ -16,5 +16,5 @@ jobs:
           github-token: ${{ secrets.GRAVITY_UI_BOT_GITHUB_TOKEN }}
           npm-token: ${{ secrets.GRAVITY_UI_BOT_NPM_TOKEN }}
           node-version: 18
-          default-branch: ${{ github.ref_name != 'master' && github.ref_name || null }}
-          npm-dist-tag: ${{ github.ref_name != 'master' && 'untagged' || 'latest' }}
+          default-branch: ${{ github.ref_name != 'main' && github.ref_name || null }}
+          npm-dist-tag: ${{ github.ref_name != 'main' && 'untagged' || 'latest' }}
