@@ -15,6 +15,14 @@ export type CodeBlockSpecsOptions = {
     nodeview?: ExtensionNodeSpec['view'];
 };
 
+const getLangOfNode = (node: Element) => {
+    return (
+        node.getAttribute(CodeBlockNodeAttr.Lang) ||
+        node.firstElementChild?.getAttribute('class')?.split(' ')?.[1] ||
+        ''
+    );
+};
+
 export const CodeBlockSpecs: ExtensionAuto<CodeBlockSpecsOptions> = (builder, opts) => {
     builder.addNode(codeBlockNodeName, () => ({
         view: opts.nodeview,
@@ -33,13 +41,16 @@ export const CodeBlockSpecs: ExtensionAuto<CodeBlockSpecsOptions> = (builder, op
                 {
                     tag: 'pre',
                     preserveWhitespace: 'full',
-                    getAttrs: (node) => ({
-                        [CodeBlockNodeAttr.Lang]:
-                            (node as Element).getAttribute(CodeBlockNodeAttr.Lang) || '',
-                    }),
+                    getAttrs: (node) => {
+                        console.log('node', node);
+                        return {
+                            [CodeBlockNodeAttr.Lang]: getLangOfNode(node as Element),
+                        };
+                    },
                 },
             ],
             toDOM({attrs}) {
+                console.log('attrs', attrs);
                 return ['pre', attrs, ['code', 0]];
             },
         },
