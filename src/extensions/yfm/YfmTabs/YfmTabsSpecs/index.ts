@@ -6,9 +6,9 @@ import type {ExtensionAuto, ExtensionNodeSpec} from '../../../../core';
 import {nodeTypeFactory} from '../../../../utils/schema';
 
 import {TabsNode} from './const';
-import {fromYfm} from './fromYfm';
-import {getSpec} from './spec';
-import {toYfm} from './toYfm';
+import {parserTokens} from './parser';
+import {getSchemaSpecs} from './schema';
+import {serializerTokens} from './serializer';
 
 export {TabsNode} from './const';
 export const tabPanelType = nodeTypeFactory(TabsNode.TabPanel);
@@ -28,42 +28,42 @@ export type YfmTabsSpecsOptions = {
 };
 
 export const YfmTabsSpecs: ExtensionAuto<YfmTabsSpecsOptions> = (builder, opts) => {
-    const spec = getSpec(opts);
+    const schemaSpecs = getSchemaSpecs(opts);
 
     builder
         .configureMd((md) => md.use(yfmPlugin, {log}))
         .addNode(TabsNode.Tab, () => ({
-            spec: spec[TabsNode.Tab],
-            toMd: toYfm[TabsNode.Tab],
+            spec: schemaSpecs[TabsNode.Tab],
+            toMd: serializerTokens[TabsNode.Tab],
             fromMd: {
-                tokenSpec: fromYfm[TabsNode.Tab],
+                tokenSpec: parserTokens[TabsNode.Tab],
                 tokenName: 'tab',
             },
             view: opts.tabView,
         }))
         .addNode(TabsNode.TabsList, () => ({
-            spec: spec[TabsNode.TabsList],
-            toMd: toYfm[TabsNode.TabsList],
+            spec: schemaSpecs[TabsNode.TabsList],
+            toMd: serializerTokens[TabsNode.TabsList],
             fromMd: {
-                tokenSpec: fromYfm[TabsNode.TabsList],
+                tokenSpec: parserTokens[TabsNode.TabsList],
                 tokenName: 'tab-list',
             },
             view: opts.tabsListView,
         }))
         .addNode(TabsNode.TabPanel, () => ({
-            spec: spec[TabsNode.TabPanel],
-            toMd: toYfm[TabsNode.TabPanel],
+            spec: schemaSpecs[TabsNode.TabPanel],
+            toMd: serializerTokens[TabsNode.TabPanel],
             fromMd: {
-                tokenSpec: fromYfm[TabsNode.TabPanel],
+                tokenSpec: parserTokens[TabsNode.TabPanel],
                 tokenName: 'tab-panel',
             },
             view: opts.tabPanelView,
         }))
         .addNode(TabsNode.Tabs, () => ({
-            spec: spec[TabsNode.Tabs],
-            toMd: toYfm[TabsNode.Tabs],
+            spec: schemaSpecs[TabsNode.Tabs],
+            toMd: serializerTokens[TabsNode.Tabs],
             fromMd: {
-                tokenSpec: fromYfm[TabsNode.Tabs],
+                tokenSpec: parserTokens[TabsNode.Tabs],
                 tokenName: 'tabs',
             },
             view: opts.tabsView,

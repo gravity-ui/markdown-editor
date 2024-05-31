@@ -2,7 +2,7 @@ import type {SerializerNodeToken} from '../../../../core';
 
 import {DeflistNode} from './const';
 
-export const toYfm: Record<DeflistNode, SerializerNodeToken> = {
+export const serializerTokens: Record<DeflistNode, SerializerNodeToken> = {
     [DeflistNode.List]: (state, node) => {
         state.renderContent(node);
     },

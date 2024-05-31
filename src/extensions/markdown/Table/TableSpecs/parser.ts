@@ -3,7 +3,7 @@ import type Token from 'markdown-it/lib/token';
 import type {ParserToken} from '../../../../core';
 import {CellAlign, TableAttrs, TableNode} from '../const';
 
-export const fromYfm: Record<TableNode, ParserToken> = {
+export const parserTokens: Record<TableNode, ParserToken> = {
     [TableNode.Table]: {name: TableNode.Table, type: 'block'},
 
     [TableNode.Head]: {name: TableNode.Head, type: 'block'},

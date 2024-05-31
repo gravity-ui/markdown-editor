@@ -3,7 +3,7 @@ import {EditorState, TextSelection} from 'prosemirror-state';
 import {builders} from 'prosemirror-test-builder';
 import {EditorView} from 'prosemirror-view';
 
-import {getSpec} from './YfmNoteSpecs/spec';
+import {getSchemaSpecs} from './YfmNoteSpecs/schema';
 import {backToNoteTitle, removeNote} from './commands';
 
 const schema = new Schema({
@@ -15,7 +15,7 @@ const schema = new Schema({
             content: 'inline*',
             toDOM: () => ['p', 0],
         },
-        ...getSpec(),
+        ...getSchemaSpecs(),
     },
 });
 

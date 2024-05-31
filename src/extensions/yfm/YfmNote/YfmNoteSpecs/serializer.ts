@@ -4,7 +4,7 @@ import {getPlaceholderContent} from '../../../../utils/placeholder';
 
 import {NoteAttrs, NoteNode} from './const';
 
-export const toYfm: Record<NoteNode, SerializerNodeToken> = {
+export const serializerTokens: Record<NoteNode, SerializerNodeToken> = {
     [NoteNode.Note]: (state, node) => {
         state.renderContent(node);
         state.write('{% endnote %}');

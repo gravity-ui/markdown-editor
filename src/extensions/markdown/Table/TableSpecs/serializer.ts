@@ -1,7 +1,7 @@
 import type {SerializerNodeToken} from '../../../../core';
 import {CellAlign, TableAttrs, TableNode} from '../const';
 
-export const toYfm: Record<TableNode, SerializerNodeToken> = {
+export const serializerTokens: Record<TableNode, SerializerNodeToken> = {
     [TableNode.Table]: (state, node) => {
         state.ensureNewLine();
         state.write('\n');

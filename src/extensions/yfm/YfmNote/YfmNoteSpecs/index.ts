@@ -5,9 +5,9 @@ import type {NodeSpec} from 'prosemirror-model';
 import type {ExtensionAuto} from '../../../../core';
 
 import {NoteNode} from './const';
-import {fromYfm} from './fromYfm';
-import {getSpec} from './spec';
-import {toYfm} from './toYfm';
+import {parserTokens} from './parser';
+import {getSchemaSpecs} from './schema';
+import {serializerTokens} from './serializer';
 
 export {NoteNode as YfmNoteNode} from './const';
 export {noteType, noteTitleType} from './utils';
@@ -20,29 +20,29 @@ export type YfmNoteSpecsOptions = {
 };
 
 export const YfmNoteSpecs: ExtensionAuto<YfmNoteSpecsOptions> = (builder, opts) => {
-    const spec = getSpec(opts, builder.context.get('placeholder'));
+    const schemaSpecs = getSchemaSpecs(opts, builder.context.get('placeholder'));
 
     builder
         .configureMd((md) => md.use(yfmPlugin, {log}))
         .addNode(NoteNode.Note, () => ({
-            spec: spec[NoteNode.Note],
-            toMd: toYfm[NoteNode.Note],
+            spec: schemaSpecs[NoteNode.Note],
+            toMd: serializerTokens[NoteNode.Note],
             fromMd: {
-                tokenSpec: fromYfm[NoteNode.Note],
+                tokenSpec: parserTokens[NoteNode.Note],
             },
         }))
         .addNode(NoteNode.NoteTitle, () => ({
-            spec: spec[NoteNode.NoteTitle],
-            toMd: toYfm[NoteNode.NoteTitle],
+            spec: schemaSpecs[NoteNode.NoteTitle],
+            toMd: serializerTokens[NoteNode.NoteTitle],
             fromMd: {
-                tokenSpec: fromYfm[NoteNode.NoteTitle],
+                tokenSpec: parserTokens[NoteNode.NoteTitle],
             },
         }))
         .addNode(NoteNode.NoteContent, () => ({
-            spec: spec[NoteNode.NoteContent],
-            toMd: toYfm[NoteNode.NoteContent],
+            spec: schemaSpecs[NoteNode.NoteContent],
+            toMd: serializerTokens[NoteNode.NoteContent],
             fromMd: {
-                tokenSpec: fromYfm[NoteNode.NoteContent],
+                tokenSpec: parserTokens[NoteNode.NoteContent],
             },
         }));
 };

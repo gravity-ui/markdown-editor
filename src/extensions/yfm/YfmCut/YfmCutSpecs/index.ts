@@ -5,9 +5,9 @@ import type {NodeSpec} from 'prosemirror-model';
 import type {ExtensionAuto, ExtensionNodeSpec} from '../../../../core';
 
 import {CutNode} from './const';
-import {fromYfm} from './fromYfm';
-import {getSpec} from './spec';
-import {toYfm} from './toYfm';
+import {parserTokens} from './parser';
+import {getSchemaSpecs} from './schema';
+import {serializerTokens} from './serializer';
 
 export {CutNode, cutType, cutTitleType, cutContentType} from './const';
 
@@ -26,31 +26,31 @@ export type YfmCutSpecsOptions = {
 };
 
 export const YfmCutSpecs: ExtensionAuto<YfmCutSpecsOptions> = (builder, opts) => {
-    const spec = getSpec(opts, builder.context.get('placeholder'));
+    const schemaSpecs = getSchemaSpecs(opts, builder.context.get('placeholder'));
 
     builder
         .configureMd((md) => md.use(yfmPlugin, {log}))
         .addNode(CutNode.Cut, () => ({
-            spec: spec[CutNode.Cut],
-            toMd: toYfm[CutNode.Cut],
+            spec: schemaSpecs[CutNode.Cut],
+            toMd: serializerTokens[CutNode.Cut],
             fromMd: {
-                tokenSpec: fromYfm[CutNode.Cut],
+                tokenSpec: parserTokens[CutNode.Cut],
             },
             view: opts.cutView,
         }))
         .addNode(CutNode.CutTitle, () => ({
-            spec: spec[CutNode.CutTitle],
-            toMd: toYfm[CutNode.CutTitle],
+            spec: schemaSpecs[CutNode.CutTitle],
+            toMd: serializerTokens[CutNode.CutTitle],
             fromMd: {
-                tokenSpec: fromYfm[CutNode.CutTitle],
+                tokenSpec: parserTokens[CutNode.CutTitle],
             },
             view: opts.cutTitleView,
         }))
         .addNode(CutNode.CutContent, () => ({
-            spec: spec[CutNode.CutContent],
-            toMd: toYfm[CutNode.CutContent],
+            spec: schemaSpecs[CutNode.CutContent],
+            toMd: serializerTokens[CutNode.CutContent],
             fromMd: {
-                tokenSpec: fromYfm[CutNode.CutContent],
+                tokenSpec: parserTokens[CutNode.CutContent],
             },
             view: opts.cutContentView,
         }));

@@ -2,7 +2,7 @@ import type {ParserToken} from '../../../../core';
 
 import {YfmTableNode} from './const';
 
-export const fromYfm: Record<YfmTableNode, ParserToken> = {
+export const parserTokens: Record<YfmTableNode, ParserToken> = {
     [YfmTableNode.Table]: {name: YfmTableNode.Table, type: 'block'},
 
     [YfmTableNode.Body]: {name: YfmTableNode.Body, type: 'block'},

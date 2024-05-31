@@ -8,7 +8,7 @@ enum DomAttr {
     HtmlRaw = 'data-html-raw',
 }
 
-export const spec: Record<HtmlNode, NodeSpec> = {
+export const schemaSpecs: Record<HtmlNode, NodeSpec> = {
     [HtmlNode.Block]: {
         atom: true,
         group: 'block',

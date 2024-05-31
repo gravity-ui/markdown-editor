@@ -2,7 +2,7 @@ import type {ParserToken} from '../../../core';
 
 import {HtmlAttr, HtmlNode} from './const';
 
-export const fromYfm: Record<HtmlNode, ParserToken> = {
+export const parserTokens: Record<HtmlNode, ParserToken> = {
     [HtmlNode.Block]: {
         name: HtmlNode.Block,
         type: 'node',

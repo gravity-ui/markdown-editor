@@ -2,7 +2,7 @@ import type {NodeSpec} from 'prosemirror-model';
 
 import {ListNode} from './const';
 
-export const spec: Record<ListNode, NodeSpec> = {
+export const schemaSpecs: Record<ListNode, NodeSpec> = {
     [ListNode.ListItem]: {
         attrs: {tight: {default: false}},
         content: '(paragraph|block)+',

@@ -2,7 +2,7 @@ import type {ParserToken} from '../../../../core';
 
 import {NoteNode} from './const';
 
-export const fromYfm: Record<NoteNode, ParserToken> = {
+export const parserTokens: Record<NoteNode, ParserToken> = {
     [NoteNode.Note]: {
         name: NoteNode.Note,
         type: 'block',

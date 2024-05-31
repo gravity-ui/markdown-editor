@@ -2,7 +2,7 @@ import {SerializerNodeToken} from '../../../../core';
 import {getPlaceholderContent} from '../../../../utils/placeholder';
 import {CheckboxNode} from '../const';
 
-export const toYfm: Record<CheckboxNode, SerializerNodeToken> = {
+export const serializerTokens: Record<CheckboxNode, SerializerNodeToken> = {
     [CheckboxNode.Checkbox]: (state, node) => {
         state.renderInline(node);
         state.closeBlock(node);
