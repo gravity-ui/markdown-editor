@@ -2,7 +2,7 @@ name: Main Preview
 
 on:
   push:
-    branches: [master]
+    branches: [main]
 
 jobs:
   main:
@@ -10,13 +10,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
-      uses: actions/checkout@v2
-      with:
-        fetch-depth: 0
+      uses: actions/checkout@v3
     - name: Setup Node
-      uses: actions/setup-node@v2
+      uses: actions/setup-node@v3
       with:
         node-version: 18
+        cache: npm
     - name: Install Packages
       run: npm ci
       shell: bash
@@ -24,9 +23,9 @@ jobs:
       run: npm run storybook:build
       shell: bash
     - name: Upload to S3
-      uses: yandex-cloud/ui-preview-upload-to-s3-action@main
+      uses: gravity-ui/preview-upload-to-s3-action@v1
       with:
         src-path: storybook-static
-        dest-path: /yfm-editor/main/
+        dest-path: /md-editor/main/
         s3-key-id: ${{ secrets.STORYBOOK_S3_KEY_ID }}
         s3-secret-key: ${{ secrets.STORYBOOK_S3_SECRET_KEY }}

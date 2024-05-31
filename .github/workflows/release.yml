@@ -1,15 +1,20 @@
+name: Release
+
 on:
   push:
-    branches: [master]
-
-name: release
+    branches:
+      - main
+      - release/v*
 
 jobs:
   release:
     runs-on: ubuntu-latest
     steps:
-      - uses: yandex-cloud/ui-release-action@main
+      - name: Release from ${{ github.ref_name }}
+        uses: gravity-ui/release-action@v1
         with:
-          github-token: ${{ secrets.YC_UI_BOT_GITHUB_TOKEN }}
-          npm-token: ${{ secrets.YC_UI_BOT_NPM_TOKEN }}
+          github-token: ${{ secrets.GRAVITY_UI_BOT_GITHUB_TOKEN }}
+          npm-token: ${{ secrets.GRAVITY_UI_BOT_NPM_TOKEN }}
           node-version: 18
+          default-branch: ${{ github.ref_name != 'main' && github.ref_name || null }}
+          npm-dist-tag: ${{ github.ref_name != 'main' && 'untagged' || 'latest' }}
