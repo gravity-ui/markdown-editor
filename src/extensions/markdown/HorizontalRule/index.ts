@@ -55,7 +55,7 @@ export const HorizontalRule: ExtensionAuto = (builder) => {
 };
 
 declare global {
-    namespace YfmEditor {
+    namespace WysiwygEditor {
         interface Actions {
             [hrAction]: Action;
         }

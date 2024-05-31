@@ -245,7 +245,7 @@ declare module 'prosemirror-model' {
 }
 
 declare global {
-    namespace YfmEditor {
+    namespace WysiwygEditor {
         interface Context {
             placeholder: PlaceholderOptions;
         }

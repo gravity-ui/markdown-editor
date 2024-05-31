@@ -42,7 +42,7 @@ export const BaseSchema: ExtensionAuto<BaseSchemaOptions> = (builder, opts) => {
 };
 
 declare global {
-    namespace YfmEditor {
+    namespace WysiwygEditor {
         interface Actions {
             [pAction]: Action;
         }

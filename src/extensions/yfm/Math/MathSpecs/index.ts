@@ -28,11 +28,11 @@ export const MathSpecs: ExtensionAuto = (builder) => {
                 ],
                 parseDOM: [{tag: `span.${CLASSNAMES.Inline.Content}`, priority: 200}],
             },
-            fromYfm: {
+            fromMd: {
                 tokenName: 'math_inline',
                 tokenSpec: {name: MathNode.Inline, type: 'block', noCloseToken: true},
             },
-            toYfm: (state, node) => {
+            toMd: (state, node) => {
                 state.text(`$${node.textContent}$`, false);
                 state.closeBlock();
             },
@@ -46,11 +46,11 @@ export const MathSpecs: ExtensionAuto = (builder) => {
                 toDOM: () => ['div', {class: 'math-block'}, 0],
                 parseDOM: [{tag: 'div.math-block', priority: 200}],
             },
-            fromYfm: {
+            fromMd: {
                 tokenName: 'math_block',
                 tokenSpec: {name: MathNode.Block, type: 'block', noCloseToken: true},
             },
-            toYfm: (state, node) => {
+            toMd: (state, node) => {
                 state.text(`$$${node.textContent}$$\n\n`, false);
                 state.closeBlock();
             },

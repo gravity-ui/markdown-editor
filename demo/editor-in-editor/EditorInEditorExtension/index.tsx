@@ -30,13 +30,13 @@ export const EditorInEditor: ExtensionAuto<EditorInEditorOptions> = (builder, op
             toDOM: (node) => ['div', {class: CONTAINER_CLASSNAME, ...node.attrs}, 0],
             parseDOM: [{tag: `div.${CONTAINER_CLASSNAME}`, priority: 100}],
         },
-        fromYfm: {
+        fromMd: {
             tokenSpec: {
                 name: editorInEditorNodeName,
                 type: 'block',
             },
         },
-        toYfm: (state, node) => {
+        toMd: (state, node) => {
             state.closeBlock(node);
         },
         view: () => (node, view) => new EditorInEditorNodeView(node, view, opts),

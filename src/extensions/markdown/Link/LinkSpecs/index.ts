@@ -39,7 +39,7 @@ export const LinkSpecs: ExtensionAuto = (builder) => {
                 return ['a', node.attrs];
             },
         },
-        toYfm: {
+        toMd: {
             open(state, mark, parent, index) {
                 state.isAutolink = isPlainURL(mark, parent, index, 1);
                 if (state.isAutolink) {
@@ -66,7 +66,7 @@ export const LinkSpecs: ExtensionAuto = (builder) => {
                 );
             },
         },
-        fromYfm: {
+        fromMd: {
             tokenSpec: {
                 name: linkMarkName,
                 type: 'mark',

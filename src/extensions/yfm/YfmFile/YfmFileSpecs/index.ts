@@ -47,7 +47,7 @@ export const YfmFileSpecs: Extension = (builder) => {
                 return a;
             },
         },
-        fromYfm: {
+        fromMd: {
             tokenName: yfmFileNodeName,
             tokenSpec: {
                 name: yfmFileNodeName,
@@ -57,7 +57,7 @@ export const YfmFileSpecs: Extension = (builder) => {
                 },
             },
         },
-        toYfm: (state, node) => {
+        toMd: (state, node) => {
             const attrsStr = Object.entries(node.attrs)
                 .reduce<string[]>((arr, [key, value]) => {
                     if (value) {

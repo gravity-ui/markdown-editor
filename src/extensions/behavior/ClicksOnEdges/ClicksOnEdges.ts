@@ -50,7 +50,7 @@ export const ClicksOnEdges: Extension = (builder) => {
 };
 
 declare global {
-    namespace YfmEditor {
+    namespace WysiwygEditor {
         interface Actions {
             [startActionName]: Action;
             [endActionName]: Action;

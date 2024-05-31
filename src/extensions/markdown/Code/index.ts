@@ -70,7 +70,7 @@ export const Code: ExtensionAuto<CodeOptions> = (builder, opts) => {
 };
 
 declare global {
-    namespace YfmEditor {
+    namespace WysiwygEditor {
         interface Actions {
             [codeAction]: Action;
         }

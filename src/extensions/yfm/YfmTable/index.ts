@@ -37,7 +37,7 @@ export const YfmTable: ExtensionWithOptions<YfmTableOptions> = (builder, options
 };
 
 declare global {
-    namespace YfmEditor {
+    namespace WysiwygEditor {
         interface Actions {
             [action]: Action;
         }

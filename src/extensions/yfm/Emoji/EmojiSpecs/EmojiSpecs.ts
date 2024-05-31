@@ -42,7 +42,7 @@ const EmojiSpecsExtension: ExtensionAuto<EmojiSpecsOptions> = (builder, opts) =>
                 return ['span', {contentEditable: false, [markupDataAttribute]: markup}, 0];
             },
         },
-        fromYfm: {
+        fromMd: {
             tokenName: emojiTokenName,
             tokenSpec: {
                 name: EmojiConsts.NodeName,
@@ -53,7 +53,7 @@ const EmojiSpecsExtension: ExtensionAuto<EmojiSpecsOptions> = (builder, opts) =>
                 }),
             },
         },
-        toYfm: (state, node) => {
+        toMd: (state, node) => {
             state.text(`:${node.attrs[EmojiConsts.NodeAttrs.Markup]}:`, false);
         },
     }));

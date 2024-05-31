@@ -30,7 +30,7 @@ export const History: ExtensionAuto<HistoryOptions> = (builder, opts) => {
 };
 
 declare global {
-    namespace YfmEditor {
+    namespace WysiwygEditor {
         interface Actions {
             [HistoryAction.Undo]: Action;
             [HistoryAction.Redo]: Action;

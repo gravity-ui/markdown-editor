@@ -39,7 +39,7 @@ export const YfmTabs: ExtensionAuto = (builder) => {
 };
 
 declare global {
-    namespace YfmEditor {
+    namespace WysiwygEditor {
         interface Actions {
             [actionName]: Action;
         }

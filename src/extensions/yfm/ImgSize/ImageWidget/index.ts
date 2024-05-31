@@ -23,7 +23,7 @@ export const ImageWidget: ExtensionAuto<ImageWidgetOptions> = (builder, opts) =>
 };
 
 declare global {
-    namespace YfmEditor {
+    namespace WysiwygEditor {
         interface Actions {
             [addImageWidgetAction]: Action;
         }

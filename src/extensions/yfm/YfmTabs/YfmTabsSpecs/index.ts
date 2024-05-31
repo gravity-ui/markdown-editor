@@ -2,7 +2,7 @@ import log from '@diplodoc/transform/lib/log';
 import yfmPlugin from '@diplodoc/transform/lib/plugins/tabs';
 import {NodeSpec} from 'prosemirror-model';
 
-import type {ExtensionAuto, YENodeSpec} from '../../../../core';
+import type {ExtensionAuto, WENodeSpec} from '../../../../core';
 import {nodeTypeFactory} from '../../../../utils/schema';
 
 import {TabsNode} from './const';
@@ -21,10 +21,10 @@ export type YfmTabsSpecsOptions = {
      * @deprecated: use placeholder option in BehaviorPreset instead.
      */
     tabPlaceholder?: NonNullable<NodeSpec['placeholder']>['content'];
-    tabView?: YENodeSpec['view'];
-    tabsListView?: YENodeSpec['view'];
-    tabPanelView?: YENodeSpec['view'];
-    tabsView?: YENodeSpec['view'];
+    tabView?: WENodeSpec['view'];
+    tabsListView?: WENodeSpec['view'];
+    tabPanelView?: WENodeSpec['view'];
+    tabsView?: WENodeSpec['view'];
 };
 
 export const YfmTabsSpecs: ExtensionAuto<YfmTabsSpecsOptions> = (builder, opts) => {
@@ -34,8 +34,8 @@ export const YfmTabsSpecs: ExtensionAuto<YfmTabsSpecsOptions> = (builder, opts) 
         .configureMd((md) => md.use(yfmPlugin, {log}))
         .addNode(TabsNode.Tab, () => ({
             spec: spec[TabsNode.Tab],
-            toYfm: toYfm[TabsNode.Tab],
-            fromYfm: {
+            toMd: toYfm[TabsNode.Tab],
+            fromMd: {
                 tokenSpec: fromYfm[TabsNode.Tab],
                 tokenName: 'tab',
             },
@@ -43,8 +43,8 @@ export const YfmTabsSpecs: ExtensionAuto<YfmTabsSpecsOptions> = (builder, opts) 
         }))
         .addNode(TabsNode.TabsList, () => ({
             spec: spec[TabsNode.TabsList],
-            toYfm: toYfm[TabsNode.TabsList],
-            fromYfm: {
+            toMd: toYfm[TabsNode.TabsList],
+            fromMd: {
                 tokenSpec: fromYfm[TabsNode.TabsList],
                 tokenName: 'tab-list',
             },
@@ -52,8 +52,8 @@ export const YfmTabsSpecs: ExtensionAuto<YfmTabsSpecsOptions> = (builder, opts) 
         }))
         .addNode(TabsNode.TabPanel, () => ({
             spec: spec[TabsNode.TabPanel],
-            toYfm: toYfm[TabsNode.TabPanel],
-            fromYfm: {
+            toMd: toYfm[TabsNode.TabPanel],
+            fromMd: {
                 tokenSpec: fromYfm[TabsNode.TabPanel],
                 tokenName: 'tab-panel',
             },
@@ -61,8 +61,8 @@ export const YfmTabsSpecs: ExtensionAuto<YfmTabsSpecsOptions> = (builder, opts) 
         }))
         .addNode(TabsNode.Tabs, () => ({
             spec: spec[TabsNode.Tabs],
-            toYfm: toYfm[TabsNode.Tabs],
-            fromYfm: {
+            toMd: toYfm[TabsNode.Tabs],
+            fromMd: {
                 tokenSpec: fromYfm[TabsNode.Tabs],
                 tokenName: 'tabs',
             },

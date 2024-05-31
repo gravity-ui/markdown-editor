@@ -41,7 +41,7 @@ export const EmojiSuggest: ExtensionAuto<EmojiSpecsOptions> = (builder, {defs, s
 };
 
 declare global {
-    namespace YfmEditor {
+    namespace WysiwygEditor {
         interface Actions {
             [emojiSuggestActionName]: Action<EmojiSuggestActionAttrs>;
         }

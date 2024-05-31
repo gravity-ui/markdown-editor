@@ -16,19 +16,19 @@ export const Html: ExtensionAuto = (builder) => {
 
     builder.addNode(HtmlNode.Block, () => ({
         spec: spec[HtmlNode.Block],
-        fromYfm: {tokenSpec: fromYfm[HtmlNode.Block]},
-        toYfm: toYfm[HtmlNode.Block],
+        fromMd: {tokenSpec: fromYfm[HtmlNode.Block]},
+        toMd: toYfm[HtmlNode.Block],
     }));
 
     builder.addNode(HtmlNode.Inline, () => ({
         spec: spec[HtmlNode.Inline],
-        fromYfm: {tokenSpec: fromYfm[HtmlNode.Inline]},
-        toYfm: toYfm[HtmlNode.Inline],
+        fromMd: {tokenSpec: fromYfm[HtmlNode.Inline]},
+        toMd: toYfm[HtmlNode.Inline],
     }));
 };
 
 declare global {
-    namespace YfmEditor {
+    namespace WysiwygEditor {
         interface Context {
             /**
              * Same as @type {MarkdownIt.Options.html}

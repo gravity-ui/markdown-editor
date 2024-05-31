@@ -12,8 +12,8 @@ import type {
     Extension,
     ExtensionDeps,
     ExtensionSpec,
-    YEMarkSpec,
-    YENodeSpec,
+    WEMarkSpec,
+    WENodeSpec,
 } from './types/extension';
 import type {MarkViewConstructor, NodeViewConstructor} from './types/node-views';
 
@@ -103,19 +103,19 @@ export class ExtensionsManager {
         this.#spec.marks().forEach(this.processMark);
     }
 
-    private processNode = (name: string, {spec, fromYfm, toYfm, view}: YENodeSpec) => {
+    private processNode = (name: string, {spec, fromMd, toMd: toMd, view}: WENodeSpec) => {
         this.#schemaRegistry.addNode(name, spec);
-        this.#parserRegistry.addToken(fromYfm.tokenName || name, fromYfm.tokenSpec);
-        this.#serializerRegistry.addNode(name, toYfm);
+        this.#parserRegistry.addToken(fromMd.tokenName || name, fromMd.tokenSpec);
+        this.#serializerRegistry.addNode(name, toMd);
         if (view) {
             this.#nodeViewCreators.set(name, view);
         }
     };
 
-    private processMark = (name: string, {spec, fromYfm, toYfm, view}: YEMarkSpec) => {
+    private processMark = (name: string, {spec, fromMd, toMd, view}: WEMarkSpec) => {
         this.#schemaRegistry.addMark(name, spec);
-        this.#parserRegistry.addToken(fromYfm.tokenName || name, fromYfm.tokenSpec);
-        this.#serializerRegistry.addMark(name, toYfm);
+        this.#parserRegistry.addToken(fromMd.tokenName || name, fromMd.tokenSpec);
+        this.#serializerRegistry.addMark(name, toMd);
         if (view) {
             this.#markViewCreators.set(name, view);
         }

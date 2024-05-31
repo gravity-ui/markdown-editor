@@ -16,7 +16,7 @@ export const UnderlineSpecs: ExtensionAuto = (builder) => {
                     return ['ins'];
                 },
             },
-            toYfm: {open: '++', close: '++', mixable: true, expelEnclosingWhitespace: true},
-            fromYfm: {tokenSpec: {name: underlineMarkName, type: 'mark'}},
+            toMd: {open: '++', close: '++', mixable: true, expelEnclosingWhitespace: true},
+            fromMd: {tokenSpec: {name: underlineMarkName, type: 'mark'}},
         }));
 };

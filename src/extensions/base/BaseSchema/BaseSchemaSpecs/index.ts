@@ -24,17 +24,17 @@ export const BaseSchemaSpecs: ExtensionAuto<BaseSchemaSpecsOptions> = (builder, 
             spec: {
                 content: 'block+',
             },
-            fromYfm: {tokenSpec: {name: BaseNode.Doc, type: 'block', ignore: true}},
-            toYfm: () => {
-                throw new Error('Unexpected toYfm() call on doc node');
+            fromMd: {tokenSpec: {name: BaseNode.Doc, type: 'block', ignore: true}},
+            toMd: () => {
+                throw new Error('Unexpected toMd() call on doc node');
             },
         }))
         .addNode(BaseNode.Text, () => ({
             spec: {
                 group: 'inline',
             },
-            fromYfm: {tokenSpec: {name: BaseNode.Text, type: 'node', ignore: true}},
-            toYfm: (state, node, parent) => {
+            fromMd: {tokenSpec: {name: BaseNode.Text, type: 'node', ignore: true}},
+            toMd: (state, node, parent) => {
                 const {escapeText} = parent.type.spec;
                 state.text(node.text, escapeText ?? !state.isAutolink);
             },
@@ -61,8 +61,8 @@ export const BaseSchemaSpecs: ExtensionAuto<BaseSchemaSpecsOptions> = (builder, 
                       }
                     : undefined,
             },
-            fromYfm: {tokenSpec: {name: BaseNode.Paragraph, type: 'block'}},
-            toYfm: (state, node) => {
+            fromMd: {tokenSpec: {name: BaseNode.Paragraph, type: 'block'}},
+            toMd: (state, node) => {
                 state.renderInline(node);
                 state.closeBlock(node);
             },

@@ -25,7 +25,7 @@ const MermaidNodeViewFactory: (
     };
 
 declare global {
-    namespace YfmEditor {
+    namespace WysiwygEditor {
         interface Actions {
             [MermaidAction]: Action;
         }

@@ -74,7 +74,7 @@ export const CodeBlock: ExtensionAuto<CodeBlockOptions> = (builder, opts) => {
 };
 
 declare global {
-    namespace YfmEditor {
+    namespace WysiwygEditor {
         interface Actions {
             [cbAction]: Action;
         }

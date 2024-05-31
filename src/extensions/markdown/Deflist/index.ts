@@ -22,7 +22,7 @@ export const Deflist: ExtensionAuto<DeflistOptions> = (builder, opts) => {
 };
 
 declare global {
-    namespace YfmEditor {
+    namespace WysiwygEditor {
         interface Actions {
             [dlAction]: Action;
         }

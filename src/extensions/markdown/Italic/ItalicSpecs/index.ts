@@ -16,7 +16,7 @@ export const ItalicSpecs: ExtensionAuto = (builder) => {
                 return ['em'];
             },
         },
-        toYfm: {open: '*', close: '*', mixable: true, expelEnclosingWhitespace: true},
-        fromYfm: {tokenSpec: {name: italicMarkName, type: 'mark'}},
+        toMd: {open: '*', close: '*', mixable: true, expelEnclosingWhitespace: true},
+        fromMd: {tokenSpec: {name: italicMarkName, type: 'mark'}},
     }));
 };

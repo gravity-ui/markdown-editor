@@ -1,7 +1,7 @@
 const noop = () => {};
 
 declare global {
-    namespace YfmEditorLogger {
+    namespace MdEditorLogger {
         type MetricsData = {
             component: string;
             event: string;
@@ -28,8 +28,8 @@ declare global {
     }
 }
 
-class Logger implements YfmEditorLogger.Logger {
-    #logger: YfmEditorLogger.Logger = this.createLogger({});
+class Logger implements MdEditorLogger.Logger {
+    #logger: MdEditorLogger.Logger = this.createLogger({});
 
     get log() {
         return this.#logger.log;
@@ -55,7 +55,7 @@ class Logger implements YfmEditorLogger.Logger {
         return this.#logger.action;
     }
 
-    setLogger(settings: YfmEditorLogger.Settings = {}) {
+    setLogger(settings: MdEditorLogger.Settings = {}) {
         this.#logger = this.createLogger(settings);
     }
 
@@ -64,7 +64,7 @@ class Logger implements YfmEditorLogger.Logger {
      *
      * To override the default logger, use setLogger
      */
-    createLogger(settings: YfmEditorLogger.Settings): YfmEditorLogger.Logger {
+    createLogger(settings: MdEditorLogger.Settings): MdEditorLogger.Logger {
         return {
             log: settings.log ?? noop,
             info: settings.info ?? noop,

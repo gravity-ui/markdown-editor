@@ -51,16 +51,16 @@ export class MarkdownParser implements Parser {
         try {
             this.stack = [{type: this.schema.topNodeType, content: []}];
 
-            let yfmTokens;
+            let mdItTokens;
             try {
-                yfmTokens = this.tokenizer.parse(text, {});
+                mdItTokens = this.tokenizer.parse(text, {});
             } catch (err) {
                 const e = err as Error;
                 e.message = 'Unable to parse your markup. Please check for errors. ' + e.message;
                 throw e;
             }
 
-            this.parseTokens(yfmTokens);
+            this.parseTokens(mdItTokens);
 
             let doc;
 
@@ -86,20 +86,20 @@ export class MarkdownParser implements Parser {
     //#region helpers
 
     private getTokenAttrs(
-        yfmToken: Token,
+        token: Token,
         tokenSpec: ParserToken,
         tokenStream: Token[],
         i: number,
     ): TokenAttrs | undefined {
-        if (tokenSpec.getAttrs) return tokenSpec.getAttrs(yfmToken, tokenStream, i);
-        else if (tokenSpec.attrs instanceof Function) return tokenSpec.attrs(yfmToken);
+        if (tokenSpec.getAttrs) return tokenSpec.getAttrs(token, tokenStream, i);
+        else if (tokenSpec.attrs instanceof Function) return tokenSpec.attrs(token);
 
         return tokenSpec.attrs;
     }
 
-    private getTokenSpec(yfmToken: Token) {
+    private getTokenSpec(token: Token) {
         // Matching the pm-node meta-attribute which is set in the plugin for markdown-it
-        let tokName = (yfmToken.meta?.['pm-node'] as string) || yfmToken.type;
+        let tokName = (token.meta?.['pm-node'] as string) || token.type;
 
         // Cropping _open and _close from node name end
         // e.g. paragraph_open -> paragraph
@@ -109,8 +109,7 @@ export class MarkdownParser implements Parser {
 
         if (tokName in this.tokens) tokenSpec = this.tokens[tokName];
 
-        if (!tokenSpec)
-            throw new RangeError(`No token spec for token: ${JSON.stringify(yfmToken)}`);
+        if (!tokenSpec) throw new RangeError(`No token spec for token: ${JSON.stringify(token)}`);
 
         return tokenSpec;
     }
@@ -129,13 +128,13 @@ export class MarkdownParser implements Parser {
     //#region token handlers
 
     // Self-explanatory
-    private handlePrimitiveToken(yfmToken: Token) {
-        switch (yfmToken.type) {
+    private handlePrimitiveToken(token: Token) {
+        switch (token.type) {
             case 'text':
-                this.addText(withoutTrailingNewline(yfmToken.content));
+                this.addText(withoutTrailingNewline(token.content));
                 return true;
             case 'inline':
-                this.parseTokens(yfmToken.children || []);
+                this.parseTokens(token.children || []);
                 return true;
             case 'softbreak':
                 // TODO: move all primitive token's handlers to extensions
@@ -147,12 +146,12 @@ export class MarkdownParser implements Parser {
         return false;
     }
 
-    private handleMark(yfmToken: Token, tokenSpec: ParserToken, attrs?: TokenAttrs) {
+    private handleMark(token: Token, tokenSpec: ParserToken, attrs?: TokenAttrs) {
         const schemaSpec = this.schema.marks[tokenSpec.name];
 
         if (tokenSpec.noCloseToken) {
             this.openMark(schemaSpec.create(attrs));
-            let {content} = yfmToken;
+            let {content} = token;
             if (!tokenSpec.code) content = withoutTrailingNewline(content);
             this.addText(content);
             this.closeMark(schemaSpec);
@@ -160,7 +159,7 @@ export class MarkdownParser implements Parser {
             return;
         }
 
-        switch (this.getTokenType(yfmToken)) {
+        switch (this.getTokenType(token)) {
             case 'open': {
                 this.openMark(schemaSpec.create(attrs));
 
@@ -174,23 +173,23 @@ export class MarkdownParser implements Parser {
         }
     }
 
-    private handleNode(_yfmToken: Token, tokenSpec: ParserToken, attrs?: TokenAttrs) {
+    private handleNode(_token: Token, tokenSpec: ParserToken, attrs?: TokenAttrs) {
         const schemaSpec = this.schema.nodes[tokenSpec.name];
 
         // Adding node as is, becasuse it doesn't contain content.
         this.addNode(schemaSpec, attrs);
     }
 
-    private handleBlock(yfmToken: Token, tokenSpec: ParserToken, attrs?: TokenAttrs) {
+    private handleBlock(token: Token, tokenSpec: ParserToken, attrs?: TokenAttrs) {
         const schemaSpec = this.schema.nodes[tokenSpec.name];
 
         if (tokenSpec.noCloseToken) {
             this.openNode(schemaSpec, attrs);
 
-            if (tokenSpec.contentField === 'children' && yfmToken.children?.length) {
-                this.parseTokens(yfmToken.children);
+            if (tokenSpec.contentField === 'children' && token.children?.length) {
+                this.parseTokens(token.children);
             } else {
-                let {content} = yfmToken;
+                let {content} = token;
                 if (tokenSpec.prepareContent) {
                     content = tokenSpec.prepareContent(content);
                 }
@@ -201,7 +200,7 @@ export class MarkdownParser implements Parser {
             return;
         }
 
-        switch (this.getTokenType(yfmToken)) {
+        switch (this.getTokenType(token)) {
             case 'open': {
                 this.openNode(schemaSpec, attrs);
 
@@ -215,16 +214,16 @@ export class MarkdownParser implements Parser {
         }
     }
 
-    private handleToken(yfmToken: Token, tokenSpec: ParserToken, attrs?: TokenAttrs) {
+    private handleToken(token: Token, tokenSpec: ParserToken, attrs?: TokenAttrs) {
         switch (tokenSpec.type) {
             case 'mark':
-                this.handleMark(yfmToken, tokenSpec, attrs);
+                this.handleMark(token, tokenSpec, attrs);
                 break;
             case 'node':
-                this.handleNode(yfmToken, tokenSpec, attrs);
+                this.handleNode(token, tokenSpec, attrs);
                 break;
             case 'block':
-                this.handleBlock(yfmToken, tokenSpec, attrs);
+                this.handleBlock(token, tokenSpec, attrs);
                 break;
         }
     }
@@ -275,19 +274,19 @@ export class MarkdownParser implements Parser {
 
     //#endregion
 
-    private parseTokens(yfmTokens: Token[]) {
-        for (let i = 0; i < yfmTokens.length; i++) {
-            const yfmToken = yfmTokens[i];
+    private parseTokens(tokens: Token[]) {
+        for (let i = 0; i < tokens.length; i++) {
+            const token = tokens[i];
 
-            if (this.handlePrimitiveToken(yfmToken)) continue;
+            if (this.handlePrimitiveToken(token)) continue;
 
-            const tokenSpec = this.getTokenSpec(yfmToken);
+            const tokenSpec = this.getTokenSpec(token);
 
             if (tokenSpec.ignore) continue;
 
-            const attrs = this.getTokenAttrs(yfmToken, tokenSpec, yfmTokens, i);
+            const attrs = this.getTokenAttrs(token, tokenSpec, tokens, i);
 
-            this.handleToken(yfmToken, tokenSpec, attrs);
+            this.handleToken(token, tokenSpec, attrs);
         }
     }
 }

@@ -100,7 +100,7 @@ export const Math: ExtensionAuto<MathOptions> = (builder, opts) => {
 };
 
 declare global {
-    namespace YfmEditor {
+    namespace WysiwygEditor {
         interface Actions {
             [mathIAction]: Action;
             [mathBAction]: Action;

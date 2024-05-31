@@ -19,12 +19,12 @@ export const BoldSpecs: ExtensionAuto = (builder) => {
                 return ['strong'];
             },
         },
-        fromYfm: {
+        fromMd: {
             tokenSpec: {
                 name: boldMarkName,
                 type: 'mark',
             },
         },
-        toYfm: {open: '**', close: '**', mixable: true, expelEnclosingWhitespace: true},
+        toMd: {open: '**', close: '**', mixable: true, expelEnclosingWhitespace: true},
     }));
 };

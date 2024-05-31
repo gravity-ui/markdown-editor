@@ -75,7 +75,7 @@ export const ColorSpecs: ExtensionAuto<ColorSpecsOptions> = (builder, opts) => {
                     ];
                 },
             },
-            fromYfm: {
+            fromMd: {
                 tokenSpec: {
                     name: colorMarkName,
                     type: 'mark',
@@ -86,7 +86,7 @@ export const ColorSpecs: ExtensionAuto<ColorSpecsOptions> = (builder, opts) => {
                     },
                 },
             },
-            toYfm: {
+            toMd: {
                 open: (_state, mark) => {
                     return `{${mark.attrs[colorMarkName]}}(`;
                 },

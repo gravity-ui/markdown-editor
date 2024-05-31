@@ -12,13 +12,13 @@ export const StrikeSpecs: ExtensionAuto = (builder) => {
                 return ['strike'];
             },
         },
-        fromYfm: {
+        fromMd: {
             tokenSpec: {
                 name: strikeMarkName,
                 type: 'mark',
             },
             tokenName: 's',
         },
-        toYfm: {open: '~~', close: '~~', mixable: true, expelEnclosingWhitespace: true},
+        toMd: {open: '~~', close: '~~', mixable: true, expelEnclosingWhitespace: true},
     }));
 };

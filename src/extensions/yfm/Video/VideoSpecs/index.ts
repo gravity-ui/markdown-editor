@@ -84,7 +84,7 @@ export const VideoSpecs: ExtensionAuto<VideoSpecsOptions> = (builder, opts) => {
                 return createViewStub(node);
             },
         },
-        fromYfm: {
+        fromMd: {
             tokenSpec: {
                 name: videoNodeName,
                 type: 'node',
@@ -94,7 +94,7 @@ export const VideoSpecs: ExtensionAuto<VideoSpecsOptions> = (builder, opts) => {
                 }),
             },
         },
-        toYfm: (state, node) => {
+        toMd: (state, node) => {
             state.write(serializeNodeToString(node));
         },
     }));

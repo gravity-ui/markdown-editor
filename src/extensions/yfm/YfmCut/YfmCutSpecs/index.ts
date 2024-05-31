@@ -2,7 +2,7 @@ import log from '@diplodoc/transform/lib/log';
 import yfmPlugin from '@diplodoc/transform/lib/plugins/cut';
 import type {NodeSpec} from 'prosemirror-model';
 
-import type {ExtensionAuto, YENodeSpec} from '../../../../core';
+import type {ExtensionAuto, WENodeSpec} from '../../../../core';
 
 import {CutNode} from './const';
 import {fromYfm} from './fromYfm';
@@ -12,9 +12,9 @@ import {toYfm} from './toYfm';
 export {CutNode, cutType, cutTitleType, cutContentType} from './const';
 
 export type YfmCutSpecsOptions = {
-    cutView?: YENodeSpec['view'];
-    cutTitleView?: YENodeSpec['view'];
-    cutContentView?: YENodeSpec['view'];
+    cutView?: WENodeSpec['view'];
+    cutTitleView?: WENodeSpec['view'];
+    cutContentView?: WENodeSpec['view'];
     /**
      * @deprecated: use placeholder option in BehaviorPreset instead.
      */
@@ -32,24 +32,24 @@ export const YfmCutSpecs: ExtensionAuto<YfmCutSpecsOptions> = (builder, opts) =>
         .configureMd((md) => md.use(yfmPlugin, {log}))
         .addNode(CutNode.Cut, () => ({
             spec: spec[CutNode.Cut],
-            toYfm: toYfm[CutNode.Cut],
-            fromYfm: {
+            toMd: toYfm[CutNode.Cut],
+            fromMd: {
                 tokenSpec: fromYfm[CutNode.Cut],
             },
             view: opts.cutView,
         }))
         .addNode(CutNode.CutTitle, () => ({
             spec: spec[CutNode.CutTitle],
-            toYfm: toYfm[CutNode.CutTitle],
-            fromYfm: {
+            toMd: toYfm[CutNode.CutTitle],
+            fromMd: {
                 tokenSpec: fromYfm[CutNode.CutTitle],
             },
             view: opts.cutTitleView,
         }))
         .addNode(CutNode.CutContent, () => ({
             spec: spec[CutNode.CutContent],
-            toYfm: toYfm[CutNode.CutContent],
-            fromYfm: {
+            toMd: toYfm[CutNode.CutContent],
+            fromMd: {
                 tokenSpec: fromYfm[CutNode.CutContent],
             },
             view: opts.cutContentView,

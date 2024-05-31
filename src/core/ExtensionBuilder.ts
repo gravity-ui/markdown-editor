@@ -10,8 +10,8 @@ import type {
     ExtensionDeps,
     ExtensionSpec,
     ExtensionWithOptions,
-    YEMarkSpec,
-    YENodeSpec,
+    WEMarkSpec,
+    WENodeSpec,
 } from './types/extension';
 import type {Keymap} from './types/keymap';
 
@@ -19,8 +19,8 @@ type InputRulesConfig = Parameters<typeof inputRules>[0];
 type ExtensionWithParams = (builder: ExtensionBuilder, ...params: any[]) => void;
 
 type ConfigureMdCallback = (md: MarkdownIt) => MarkdownIt;
-type AddPmNodeCallback = () => YENodeSpec;
-type AddPmMarkCallback = () => YEMarkSpec;
+type AddPmNodeCallback = () => WENodeSpec;
+type AddPmMarkCallback = () => WEMarkSpec;
 type AddPmPluginCallback = (deps: ExtensionDeps) => Plugin | Plugin[];
 type AddPmKeymapCallback = (deps: ExtensionDeps) => Keymap;
 type AddPmInputRulesCallback = (deps: ExtensionDeps) => InputRulesConfig;
@@ -45,13 +45,13 @@ type BuilderContext<T extends object> = {
 };
 
 declare global {
-    namespace YfmEditor {
+    namespace WysiwygEditor {
         interface Context {}
     }
 }
 
 export class ExtensionBuilder {
-    static createContext(): BuilderContext<YfmEditor.Context> {
+    static createContext(): BuilderContext<WysiwygEditor.Context> {
         return new Map();
     }
 
@@ -70,9 +70,9 @@ export class ExtensionBuilder {
     #plugins: {cb: AddPmPluginCallback; priority: number}[] = [];
     #actions: [string, AddActionCallback][] = [];
 
-    readonly context: BuilderContext<YfmEditor.Context>;
+    readonly context: BuilderContext<WysiwygEditor.Context>;
 
-    constructor(context?: BuilderContext<YfmEditor.Context>) {
+    constructor(context?: BuilderContext<WysiwygEditor.Context>) {
         this.context = context ?? ExtensionBuilder.createContext();
     }
 
@@ -121,7 +121,9 @@ export class ExtensionBuilder {
 
     addAction(name: string, cb: AddActionCallback): this {
         if (this.#actions.some(([actionName]) => actionName === name)) {
-            throw new Error(`[YFM Editor] action with this name "${name}" already exist`);
+            throw new Error(
+                `[Markdown Wysiwyg Editor] action with this name "${name}" already exist`,
+            );
         }
         this.#actions.push([name, cb]);
         return this;
@@ -137,7 +139,7 @@ export class ExtensionBuilder {
         return {
             configureMd: (md) => confMd.reduce((pMd, cb) => cb(pMd), md),
             nodes: () => {
-                let map = OrderedMap.from<YENodeSpec>({});
+                let map = OrderedMap.from<WENodeSpec>({});
                 for (const {name, cb} of Object.values(nodes)) {
                     map = map.addToEnd(name, cb());
                 }
@@ -147,7 +149,7 @@ export class ExtensionBuilder {
                 // The order of marks in schema is important when serializing pm-document to DOM or markup
                 // https://discuss.prosemirror.net/t/marks-priority/4463
                 const sortedMarks = Object.values(marks).sort((a, b) => b.priority - a.priority);
-                let map = OrderedMap.from<YEMarkSpec>({});
+                let map = OrderedMap.from<WEMarkSpec>({});
                 for (const {name, cb} of sortedMarks) {
                     map = map.addToEnd(name, cb());
                 }

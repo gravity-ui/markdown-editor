@@ -68,7 +68,7 @@ export const ImgSizeSpecs: ExtensionAuto<ImgSizeSpecsOptions> = (builder, opts) 
                 return ['img', node.attrs];
             },
         },
-        fromYfm: {
+        fromMd: {
             tokenSpec: {
                 name: imageNodeName,
                 type: 'node',
@@ -82,7 +82,7 @@ export const ImgSizeSpecs: ExtensionAuto<ImgSizeSpecsOptions> = (builder, opts) 
                 }),
             },
         },
-        toYfm: (state, node) => {
+        toMd: (state, node) => {
             const attrs = node.attrs as ImsizeTypedAttributes;
             state.write(
                 '![' +

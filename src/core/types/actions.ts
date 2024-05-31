@@ -35,6 +35,6 @@ export interface Action<A extends {} = never, M = unknown> {
 }
 
 export interface ActionStorage {
-    actions: YfmEditor.Actions;
-    action<T extends keyof YfmEditor.Actions>(actionName: T): YfmEditor.Actions[T];
+    actions: WysiwygEditor.Actions;
+    action<T extends keyof WysiwygEditor.Actions>(actionName: T): WysiwygEditor.Actions[T];
 }
