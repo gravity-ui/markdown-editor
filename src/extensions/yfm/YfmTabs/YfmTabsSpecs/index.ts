@@ -2,7 +2,7 @@ import log from '@diplodoc/transform/lib/log';
 import yfmPlugin from '@diplodoc/transform/lib/plugins/tabs';
 import {NodeSpec} from 'prosemirror-model';
 
-import type {ExtensionAuto, WENodeSpec} from '../../../../core';
+import type {ExtensionAuto, ExtensionNodeSpec} from '../../../../core';
 import {nodeTypeFactory} from '../../../../utils/schema';
 
 import {TabsNode} from './const';
@@ -21,10 +21,10 @@ export type YfmTabsSpecsOptions = {
      * @deprecated: use placeholder option in BehaviorPreset instead.
      */
     tabPlaceholder?: NonNullable<NodeSpec['placeholder']>['content'];
-    tabView?: WENodeSpec['view'];
-    tabsListView?: WENodeSpec['view'];
-    tabPanelView?: WENodeSpec['view'];
-    tabsView?: WENodeSpec['view'];
+    tabView?: ExtensionNodeSpec['view'];
+    tabsListView?: ExtensionNodeSpec['view'];
+    tabPanelView?: ExtensionNodeSpec['view'];
+    tabsView?: ExtensionNodeSpec['view'];
 };
 
 export const YfmTabsSpecs: ExtensionAuto<YfmTabsSpecsOptions> = (builder, opts) => {

@@ -1,7 +1,7 @@
 import checkboxPlugin from '@diplodoc/transform/lib/plugins/checkbox';
 import type {NodeSpec} from 'prosemirror-model';
 
-import type {ExtensionAuto, WENodeSpec} from '../../../../core';
+import type {ExtensionAuto, ExtensionNodeSpec} from '../../../../core';
 import {nodeTypeFactory} from '../../../../utils/schema';
 
 import {CheckboxNode, b, idPrefix} from './const';
@@ -19,9 +19,9 @@ export type CheckboxSpecsOptions = {
      * @deprecated: use placeholder option in BehaviorPreset instead.
      */
     checkboxLabelPlaceholder?: NonNullable<NodeSpec['placeholder']>['content'];
-    inputView?: WENodeSpec['view'];
-    labelView?: WENodeSpec['view'];
-    checkboxView?: WENodeSpec['view'];
+    inputView?: ExtensionNodeSpec['view'];
+    labelView?: ExtensionNodeSpec['view'];
+    checkboxView?: ExtensionNodeSpec['view'];
 };
 
 export const CheckboxSpecs: ExtensionAuto<CheckboxSpecsOptions> = (builder, opts) => {

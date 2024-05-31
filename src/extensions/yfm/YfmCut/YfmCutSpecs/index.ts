@@ -2,7 +2,7 @@ import log from '@diplodoc/transform/lib/log';
 import yfmPlugin from '@diplodoc/transform/lib/plugins/cut';
 import type {NodeSpec} from 'prosemirror-model';
 
-import type {ExtensionAuto, WENodeSpec} from '../../../../core';
+import type {ExtensionAuto, ExtensionNodeSpec} from '../../../../core';
 
 import {CutNode} from './const';
 import {fromYfm} from './fromYfm';
@@ -12,9 +12,9 @@ import {toYfm} from './toYfm';
 export {CutNode, cutType, cutTitleType, cutContentType} from './const';
 
 export type YfmCutSpecsOptions = {
-    cutView?: WENodeSpec['view'];
-    cutTitleView?: WENodeSpec['view'];
-    cutContentView?: WENodeSpec['view'];
+    cutView?: ExtensionNodeSpec['view'];
+    cutTitleView?: ExtensionNodeSpec['view'];
+    cutContentView?: ExtensionNodeSpec['view'];
     /**
      * @deprecated: use placeholder option in BehaviorPreset instead.
      */

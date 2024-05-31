@@ -8,10 +8,10 @@ import type {ActionSpec} from './types/actions';
 import type {
     Extension,
     ExtensionDeps,
+    ExtensionMarkSpec,
+    ExtensionNodeSpec,
     ExtensionSpec,
     ExtensionWithOptions,
-    WEMarkSpec,
-    WENodeSpec,
 } from './types/extension';
 import type {Keymap} from './types/keymap';
 
@@ -19,8 +19,8 @@ type InputRulesConfig = Parameters<typeof inputRules>[0];
 type ExtensionWithParams = (builder: ExtensionBuilder, ...params: any[]) => void;
 
 type ConfigureMdCallback = (md: MarkdownIt) => MarkdownIt;
-type AddPmNodeCallback = () => WENodeSpec;
-type AddPmMarkCallback = () => WEMarkSpec;
+type AddPmNodeCallback = () => ExtensionNodeSpec;
+type AddPmMarkCallback = () => ExtensionMarkSpec;
 type AddPmPluginCallback = (deps: ExtensionDeps) => Plugin | Plugin[];
 type AddPmKeymapCallback = (deps: ExtensionDeps) => Keymap;
 type AddPmInputRulesCallback = (deps: ExtensionDeps) => InputRulesConfig;
@@ -139,7 +139,7 @@ export class ExtensionBuilder {
         return {
             configureMd: (md) => confMd.reduce((pMd, cb) => cb(pMd), md),
             nodes: () => {
-                let map = OrderedMap.from<WENodeSpec>({});
+                let map = OrderedMap.from<ExtensionNodeSpec>({});
                 for (const {name, cb} of Object.values(nodes)) {
                     map = map.addToEnd(name, cb());
                 }
@@ -149,7 +149,7 @@ export class ExtensionBuilder {
                 // The order of marks in schema is important when serializing pm-document to DOM or markup
                 // https://discuss.prosemirror.net/t/marks-priority/4463
                 const sortedMarks = Object.values(marks).sort((a, b) => b.priority - a.priority);
-                let map = OrderedMap.from<WEMarkSpec>({});
+                let map = OrderedMap.from<ExtensionMarkSpec>({});
                 for (const {name, cb} of sortedMarks) {
                     map = map.addToEnd(name, cb());
                 }

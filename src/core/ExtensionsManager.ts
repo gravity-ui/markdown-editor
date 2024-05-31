@@ -11,9 +11,9 @@ import type {ActionSpec} from './types/actions';
 import type {
     Extension,
     ExtensionDeps,
+    ExtensionMarkSpec,
+    ExtensionNodeSpec,
     ExtensionSpec,
-    WEMarkSpec,
-    WENodeSpec,
 } from './types/extension';
 import type {MarkViewConstructor, NodeViewConstructor} from './types/node-views';
 
@@ -103,7 +103,7 @@ export class ExtensionsManager {
         this.#spec.marks().forEach(this.processMark);
     }
 
-    private processNode = (name: string, {spec, fromMd, toMd: toMd, view}: WENodeSpec) => {
+    private processNode = (name: string, {spec, fromMd, toMd: toMd, view}: ExtensionNodeSpec) => {
         this.#schemaRegistry.addNode(name, spec);
         this.#parserRegistry.addToken(fromMd.tokenName || name, fromMd.tokenSpec);
         this.#serializerRegistry.addNode(name, toMd);
@@ -112,7 +112,7 @@ export class ExtensionsManager {
         }
     };
 
-    private processMark = (name: string, {spec, fromMd, toMd, view}: WEMarkSpec) => {
+    private processMark = (name: string, {spec, fromMd, toMd, view}: ExtensionMarkSpec) => {
         this.#schemaRegistry.addMark(name, spec);
         this.#parserRegistry.addToken(fromMd.tokenName || name, fromMd.tokenSpec);
         this.#serializerRegistry.addMark(name, toMd);

@@ -1,7 +1,7 @@
 import {Plugin} from 'prosemirror-state';
 
 import {ExtensionBuilder} from './ExtensionBuilder';
-import type {ExtensionDeps, WEMarkSpec} from './types/extension';
+import type {ExtensionDeps, ExtensionMarkSpec} from './types/extension';
 
 describe('ExtensionBuilder', () => {
     it('should build empty extension', () => {
@@ -66,22 +66,22 @@ describe('ExtensionBuilder', () => {
     });
 
     it('should sort marks by priority', () => {
-        const mark0: WEMarkSpec = {
+        const mark0: ExtensionMarkSpec = {
             spec: {},
             fromMd: {tokenSpec: {type: 'mark', name: 'mark0'}},
             toMd: {open: '', close: ''},
         };
-        const mark1: WEMarkSpec = {
+        const mark1: ExtensionMarkSpec = {
             spec: {},
             fromMd: {tokenSpec: {type: 'mark', name: 'mark1'}},
             toMd: {open: '', close: ''},
         };
-        const mark2: WEMarkSpec = {
+        const mark2: ExtensionMarkSpec = {
             spec: {},
             fromMd: {tokenSpec: {type: 'mark', name: 'mark2'}},
             toMd: {open: '', close: ''},
         };
-        const mark3: WEMarkSpec = {
+        const mark3: ExtensionMarkSpec = {
             spec: {},
             fromMd: {tokenSpec: {type: 'mark', name: 'mark3'}},
             toMd: {open: '', close: ''},
@@ -93,7 +93,7 @@ describe('ExtensionBuilder', () => {
             .addMark('mark2', () => mark2)
             .build()
             .marks();
-        const marksList: {name: string; spec: WEMarkSpec}[] = [];
+        const marksList: {name: string; spec: ExtensionMarkSpec}[] = [];
         marksOrderedMap.forEach((name, spec) => marksList.push({name, spec}));
         expect(marksList[0].name).toBe('mark0');
         expect(marksList[0].spec === mark0).toBe(true);

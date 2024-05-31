@@ -1,4 +1,4 @@
-import type {ExtensionAuto, WENodeSpec} from '../../../../core';
+import type {ExtensionAuto, ExtensionNodeSpec} from '../../../../core';
 import {nodeTypeFactory} from '../../../../utils/schema';
 
 export const CodeBlockNodeAttr = {
@@ -12,7 +12,7 @@ export const codeBlockLangAttr = CodeBlockNodeAttr.Lang;
 export const codeBlockType = nodeTypeFactory(codeBlockNodeName);
 
 export type CodeBlockSpecsOptions = {
-    nodeview?: WENodeSpec['view'];
+    nodeview?: ExtensionNodeSpec['view'];
 };
 
 export const CodeBlockSpecs: ExtensionAuto<CodeBlockSpecsOptions> = (builder, opts) => {

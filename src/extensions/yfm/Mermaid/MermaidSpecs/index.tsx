@@ -1,13 +1,13 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
 import {transform} from '@diplodoc/mermaid-extension';
 
-import {ExtensionAuto, WENodeSpec} from '../../../../core';
+import type {ExtensionAuto, ExtensionNodeSpec} from '../../../../core';
 
 import {MermaidConsts, mermaidNodeName as mermaidNodeName} from './const';
 export {mermaidNodeName} from './const';
 
 export type MermaidSpecsOptions = {
-    nodeView?: WENodeSpec['view'];
+    nodeView?: ExtensionNodeSpec['view'];
 };
 
 const MermaidSpecsExtension: ExtensionAuto<MermaidSpecsOptions> = (builder, {nodeView}) => {

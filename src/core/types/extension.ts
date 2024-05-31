@@ -16,13 +16,13 @@ export type ExtensionAuto<T = void> = T extends void ? Extension : ExtensionWith
 
 export type ExtensionSpec = {
     configureMd(md: MarkdownIt): MarkdownIt;
-    nodes(): OrderedMap<WENodeSpec>;
-    marks(): OrderedMap<WEMarkSpec>;
+    nodes(): OrderedMap<ExtensionNodeSpec>;
+    marks(): OrderedMap<ExtensionMarkSpec>;
     plugins(deps: ExtensionDeps): Plugin[];
     actions(deps: ExtensionDeps): Record<string, ActionSpec>;
 };
 
-export type WENodeSpec = {
+export type ExtensionNodeSpec = {
     spec: NodeSpec;
     view?: (deps: ExtensionDeps) => NodeViewConstructor;
     fromMd: {
@@ -32,7 +32,7 @@ export type WENodeSpec = {
     toMd: SerializerNodeToken;
 };
 
-export type WEMarkSpec = {
+export type ExtensionMarkSpec = {
     spec: MarkSpec;
     view?: (deps: ExtensionDeps) => MarkViewConstructor;
     fromMd: {
