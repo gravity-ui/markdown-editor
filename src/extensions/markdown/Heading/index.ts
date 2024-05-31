@@ -52,7 +52,7 @@ export const Heading: ExtensionAuto<HeadingOptions> = (builder, opts) => {
 };
 
 declare global {
-    namespace YfmEditor {
+    namespace WysiwygEditor {
         interface Actions {
             [HeadingAction.ToH1]: Action;
             [HeadingAction.ToH2]: Action;

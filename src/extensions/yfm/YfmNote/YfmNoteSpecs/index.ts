@@ -26,22 +26,22 @@ export const YfmNoteSpecs: ExtensionAuto<YfmNoteSpecsOptions> = (builder, opts) 
         .configureMd((md) => md.use(yfmPlugin, {log}))
         .addNode(NoteNode.Note, () => ({
             spec: spec[NoteNode.Note],
-            toYfm: toYfm[NoteNode.Note],
-            fromYfm: {
+            toMd: toYfm[NoteNode.Note],
+            fromMd: {
                 tokenSpec: fromYfm[NoteNode.Note],
             },
         }))
         .addNode(NoteNode.NoteTitle, () => ({
             spec: spec[NoteNode.NoteTitle],
-            toYfm: toYfm[NoteNode.NoteTitle],
-            fromYfm: {
+            toMd: toYfm[NoteNode.NoteTitle],
+            fromMd: {
                 tokenSpec: fromYfm[NoteNode.NoteTitle],
             },
         }))
         .addNode(NoteNode.NoteContent, () => ({
             spec: spec[NoteNode.NoteContent],
-            toYfm: toYfm[NoteNode.NoteContent],
-            fromYfm: {
+            toMd: toYfm[NoteNode.NoteContent],
+            fromMd: {
                 tokenSpec: fromYfm[NoteNode.NoteContent],
             },
         }));

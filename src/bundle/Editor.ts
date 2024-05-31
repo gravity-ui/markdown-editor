@@ -4,11 +4,7 @@ import {TextSelection} from 'prosemirror-state';
 import {EditorView as PMEditorView} from 'prosemirror-view';
 
 import {CommonEditor, MarkupString} from '../common';
-import {
-    ActionStorage,
-    YfmEditor as WysiwygEditor,
-    YfmEditorOptions as WysiwygOptions,
-} from '../core';
+import {ActionStorage, WysiwygEditor, WysiwygEditorOptions} from '../core';
 import {ReactRenderStorage, RenderStorage} from '../extensions';
 import {i18n} from '../i18n/bundle';
 import {logger} from '../logger';
@@ -107,7 +103,7 @@ type ChangeEditorTypeOptions = {
 };
 
 export type EditorOptions = Pick<
-    WysiwygOptions,
+    WysiwygEditorOptions,
     'allowHTML' | 'linkify' | 'linkifyTlds' | 'attrs' | 'extensions'
 > & {
     initialMarkup?: MarkupString;
@@ -150,8 +146,8 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
     #allowHTML?: boolean;
     #linkify?: boolean;
     #linkifyTlds?: string | string[];
-    #attrs?: WysiwygOptions['attrs'];
-    #extensions?: WysiwygOptions['extensions'];
+    #attrs?: WysiwygEditorOptions['attrs'];
+    #extensions?: WysiwygEditorOptions['extensions'];
     #renderStorage: ReactRenderStorage;
     #fileUploadHandler?: FileUploadHandler;
     #needToSetDimensionsForUploadedImages: boolean;
@@ -313,11 +309,11 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
     // <--- implements CodeEditor
 
     // ---> implements ActionStorage
-    get actions(): YfmEditor.Actions {
+    get actions(): WysiwygEditor.Actions {
         return this.wysiwygEditor.actions;
     }
 
-    action<T extends keyof YfmEditor.Actions>(actionName: T): YfmEditor.Actions[T] {
+    action<T extends keyof WysiwygEditor.Actions>(actionName: T): WysiwygEditor.Actions[T] {
         return this.wysiwygEditor.action(actionName);
     }
 

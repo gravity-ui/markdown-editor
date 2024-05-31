@@ -15,7 +15,7 @@ export const HorizontalRuleSpecs: ExtensionAuto = (builder) => {
                 return ['div', ['hr']];
             },
         },
-        fromYfm: {
+        fromMd: {
             tokenName: 'hr',
             tokenSpec: {
                 name: horizontalRuleNodeName,
@@ -23,7 +23,7 @@ export const HorizontalRuleSpecs: ExtensionAuto = (builder) => {
                 getAttrs: (token) => ({[horizontalRuleMarkupAttr]: token.markup}),
             },
         },
-        toYfm: (state, node) => {
+        toMd: (state, node) => {
             state.write(node.attrs[horizontalRuleMarkupAttr]);
             state.closeBlock(node);
         },

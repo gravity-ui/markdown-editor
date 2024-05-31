@@ -14,7 +14,7 @@ export const YfmFileWidget: ExtensionAuto<YfmFileWidgetOptions> = (builder, opts
 };
 
 declare global {
-    namespace YfmEditor {
+    namespace WysiwygEditor {
         interface Actions {
             [addFileAction]: Action;
         }

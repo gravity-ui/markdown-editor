@@ -22,7 +22,7 @@ export const Monospace: ExtensionAuto = (builder) => {
 };
 
 declare global {
-    namespace YfmEditor {
+    namespace WysiwygEditor {
         interface Actions {
             [monoAction]: Action;
         }

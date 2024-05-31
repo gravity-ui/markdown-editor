@@ -59,7 +59,7 @@ export const Lists: ExtensionAuto<ListsOptions> = (builder, opts) => {
 };
 
 declare global {
-    namespace YfmEditor {
+    namespace WysiwygEditor {
         interface Actions {
             [ListAction.ToBulletList]: Action;
             [ListAction.ToOrderedList]: Action;

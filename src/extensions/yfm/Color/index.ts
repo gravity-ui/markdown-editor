@@ -54,7 +54,7 @@ export const Color: ExtensionAuto = (builder) => {
 };
 
 declare global {
-    namespace YfmEditor {
+    namespace WysiwygEditor {
         interface Actions {
             [colorAction]: Action<ColorActionParams, Colors>;
         }

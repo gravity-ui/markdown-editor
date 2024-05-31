@@ -35,8 +35,8 @@ export const BreaksSpecs: ExtensionAuto<BreaksSpecsOptions> = (builder, opts) =>
                 return ['br'];
             },
         },
-        fromYfm: {tokenName: 'hardbreak', tokenSpec: {name: BreakNodeName.HardBreak, type: 'node'}},
-        toYfm: (state, node, parent, index) => {
+        fromMd: {tokenName: 'hardbreak', tokenSpec: {name: BreakNodeName.HardBreak, type: 'node'}},
+        toMd: (state, node, parent, index) => {
             for (let i = index + 1; i < parent.childCount; i++) {
                 if (parent.child(i).type !== node.type) {
                     state.write('\\\n');
@@ -62,8 +62,8 @@ export const BreaksSpecs: ExtensionAuto<BreaksSpecsOptions> = (builder, opts) =>
                 return ['br'];
             },
         },
-        fromYfm: {tokenName: 'softbreak', tokenSpec: {name: BreakNodeName.SoftBreak, type: 'node'}},
-        toYfm: (state, node, parent, index) => {
+        fromMd: {tokenName: 'softbreak', tokenSpec: {name: BreakNodeName.SoftBreak, type: 'node'}},
+        toMd: (state, node, parent, index) => {
             for (let i = index + 1; i < parent.childCount; i++) {
                 if (parent.child(i).type !== node.type) {
                     state.write('\n');

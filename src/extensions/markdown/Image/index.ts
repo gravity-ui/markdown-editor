@@ -16,7 +16,7 @@ export const Image: ExtensionAuto = (builder) => {
 };
 
 declare global {
-    namespace YfmEditor {
+    namespace WysiwygEditor {
         interface Actions {
             [addImageAction]: Action<AddImageAttrs>;
         }

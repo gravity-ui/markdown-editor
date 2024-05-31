@@ -16,30 +16,30 @@ export type ExtensionAuto<T = void> = T extends void ? Extension : ExtensionWith
 
 export type ExtensionSpec = {
     configureMd(md: MarkdownIt): MarkdownIt;
-    nodes(): OrderedMap<YENodeSpec>;
-    marks(): OrderedMap<YEMarkSpec>;
+    nodes(): OrderedMap<ExtensionNodeSpec>;
+    marks(): OrderedMap<ExtensionMarkSpec>;
     plugins(deps: ExtensionDeps): Plugin[];
     actions(deps: ExtensionDeps): Record<string, ActionSpec>;
 };
 
-export type YENodeSpec = {
+export type ExtensionNodeSpec = {
     spec: NodeSpec;
     view?: (deps: ExtensionDeps) => NodeViewConstructor;
-    fromYfm: {
+    fromMd: {
         tokenName?: string;
         tokenSpec: ParserToken;
     };
-    toYfm: SerializerNodeToken;
+    toMd: SerializerNodeToken;
 };
 
-export type YEMarkSpec = {
+export type ExtensionMarkSpec = {
     spec: MarkSpec;
     view?: (deps: ExtensionDeps) => MarkViewConstructor;
-    fromYfm: {
+    fromMd: {
         tokenName?: string;
         tokenSpec: ParserToken;
     };
-    toYfm: SerializerMarkToken;
+    toMd: SerializerMarkToken;
 };
 
 export type ExtensionDeps = {

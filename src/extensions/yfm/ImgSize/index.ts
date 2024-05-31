@@ -39,7 +39,7 @@ export const ImgSize: ExtensionAuto<ImgSizeOptions> = (builder, opts) => {
 };
 
 declare global {
-    namespace YfmEditor {
+    namespace WysiwygEditor {
         interface Actions {
             // @ts-expect-error
             [addImageAction]: Action<AddImageAttrs>;

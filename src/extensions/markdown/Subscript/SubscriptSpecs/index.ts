@@ -17,7 +17,7 @@ export const SubscriptSpecs: ExtensionAuto = (builder) => {
                     return ['sub'];
                 },
             },
-            toYfm: {
+            toMd: {
                 open: (state) => {
                     state.escapeWhitespace = true;
                     return '~';
@@ -29,6 +29,6 @@ export const SubscriptSpecs: ExtensionAuto = (builder) => {
                 mixable: false,
                 expelEnclosingWhitespace: true,
             },
-            fromYfm: {tokenSpec: {name: subscriptMarkName, type: 'mark'}},
+            fromMd: {tokenSpec: {name: subscriptMarkName, type: 'mark'}},
         }));
 };

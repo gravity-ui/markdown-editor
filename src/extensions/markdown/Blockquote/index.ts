@@ -43,7 +43,7 @@ export const Blockquote: ExtensionAuto<BlockquoteOptions> = (builder, opts) => {
 };
 
 declare global {
-    namespace YfmEditor {
+    namespace WysiwygEditor {
         interface Actions {
             [bqAction]: Action;
         }

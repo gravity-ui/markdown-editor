@@ -1,21 +1,21 @@
 import type {ActionStorage} from './types/actions';
 
 export class ActionsManager implements ActionStorage {
-    #actions: YfmEditor.Actions;
+    #actions: WysiwygEditor.Actions;
 
     get actions() {
         return this.#actions;
     }
 
-    constructor(actions?: YfmEditor.Actions) {
-        this.#actions = actions ?? ({} as YfmEditor.Actions);
+    constructor(actions?: WysiwygEditor.Actions) {
+        this.#actions = actions ?? ({} as WysiwygEditor.Actions);
     }
 
-    action<T extends keyof YfmEditor.Actions>(actionName: T): YfmEditor.Actions[T] {
+    action<T extends keyof WysiwygEditor.Actions>(actionName: T): WysiwygEditor.Actions[T] {
         return this.#actions[actionName];
     }
 
-    setActions(actions: YfmEditor.Actions) {
+    setActions(actions: WysiwygEditor.Actions) {
         this.#actions = actions;
         return this;
     }

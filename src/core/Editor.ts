@@ -13,11 +13,11 @@ import type {Serializer} from './types/serializer';
 import {bindActions} from './utils/actions';
 import {logTransactionMetrics} from './utils/metrics';
 
-type OnChange = (editor: YfmEditor) => void;
+type OnChange = (editor: WysiwygEditor) => void;
 
-export type YfmEditorOptions = {
+export type WysiwygEditorOptions = {
     domElem?: Element;
-    /** yfm markup */
+    /** markdown markup */
     initialContent?: string;
     extensions?: Extension;
     allowHTML?: boolean;
@@ -34,7 +34,7 @@ export type YfmEditorOptions = {
     onDocChange?: OnChange;
 };
 
-export class YfmEditor implements CommonEditor, ActionStorage {
+export class WysiwygEditor implements CommonEditor, ActionStorage {
     #view: EditorView;
     #serializer: Serializer;
     #parser: Parser;
@@ -72,7 +72,7 @@ export class YfmEditor implements CommonEditor, ActionStorage {
         linkifyTlds,
         onChange,
         onDocChange,
-    }: YfmEditorOptions) {
+    }: WysiwygEditorOptions) {
         const {schema, parser, serializer, nodeViews, markViews, plugins, rawActions, actions} =
             ExtensionsManager.process(extensions, {
                 // "breaks" option only affects the renderer, but not the parser
@@ -105,14 +105,16 @@ export class YfmEditor implements CommonEditor, ActionStorage {
             },
         });
         this.#actions = actions.setActions(
-            bindActions<keyof YfmEditor.Actions>(rawActions)(this.#view) as YfmEditor.Actions,
+            bindActions<keyof WysiwygEditor.Actions>(rawActions)(
+                this.#view,
+            ) as WysiwygEditor.Actions,
         );
         this.#serializer = serializer;
         this.#parser = parser;
         this.#contentHandler = new WysiwygContentHandler(this.#view, parser);
     }
 
-    action<T extends keyof YfmEditor.Actions>(actionName: T): YfmEditor.Actions[T] {
+    action<T extends keyof WysiwygEditor.Actions>(actionName: T): WysiwygEditor.Actions[T] {
         return this.#actions.action(actionName);
     }
 
@@ -173,7 +175,7 @@ export class YfmEditor implements CommonEditor, ActionStorage {
 }
 
 declare global {
-    namespace YfmEditor {
+    namespace WysiwygEditor {
         // eslint-disable-next-line @typescript-eslint/no-empty-interface
         interface Actions {}
     }

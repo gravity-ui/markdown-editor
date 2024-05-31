@@ -36,7 +36,7 @@ export const Bold: ExtensionAuto<BoldOptions> = (builder, opts) => {
 };
 
 declare global {
-    namespace YfmEditor {
+    namespace WysiwygEditor {
         interface Actions {
             [bAction]: Action;
         }

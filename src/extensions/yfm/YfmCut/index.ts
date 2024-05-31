@@ -58,7 +58,7 @@ export const YfmCut: ExtensionAuto<YfmCutOptions> = (builder, opts) => {
 };
 
 declare global {
-    namespace YfmEditor {
+    namespace WysiwygEditor {
         interface Actions {
             [cutAction]: Action;
         }

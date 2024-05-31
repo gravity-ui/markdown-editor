@@ -87,7 +87,7 @@ const addBr = (br: NodeType) =>
     });
 
 declare global {
-    namespace YfmEditor {
+    namespace WysiwygEditor {
         interface Context {
             /**
              * Same as @type {MarkdownIt.Options.breaks}

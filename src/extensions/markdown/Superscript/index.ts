@@ -22,7 +22,7 @@ export const Superscript: ExtensionAuto = (builder) => {
 };
 
 declare global {
-    namespace YfmEditor {
+    namespace WysiwygEditor {
         interface Actions {
             [supAction]: Action;
         }

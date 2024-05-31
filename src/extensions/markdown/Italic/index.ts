@@ -37,7 +37,7 @@ export const Italic: ExtensionAuto<ItalicOptions> = (builder, opts) => {
 };
 
 declare global {
-    namespace YfmEditor {
+    namespace WysiwygEditor {
         interface Actions {
             [iAction]: Action;
         }

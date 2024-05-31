@@ -41,7 +41,7 @@ export const YfmNote: ExtensionAuto<YfmNoteOptions> = (builder, opts) => {
 };
 
 declare global {
-    namespace YfmEditor {
+    namespace WysiwygEditor {
         interface Actions {
             [noteAction]: Action;
         }

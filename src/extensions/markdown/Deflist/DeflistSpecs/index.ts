@@ -32,17 +32,17 @@ export const DeflistSpecs: ExtensionAuto<DeflistSpecsOptions> = (builder, opts) 
     builder
         .addNode(DeflistNode.List, () => ({
             spec: spec[DeflistNode.List],
-            fromYfm: {tokenSpec: fromYfm[DeflistNode.List]},
-            toYfm: toYfm[DeflistNode.List],
+            fromMd: {tokenSpec: fromYfm[DeflistNode.List]},
+            toMd: toYfm[DeflistNode.List],
         }))
         .addNode(DeflistNode.Term, () => ({
             spec: spec[DeflistNode.Term],
-            fromYfm: {tokenSpec: fromYfm[DeflistNode.Term]},
-            toYfm: toYfm[DeflistNode.Term],
+            fromMd: {tokenSpec: fromYfm[DeflistNode.Term]},
+            toMd: toYfm[DeflistNode.Term],
         }))
         .addNode(DeflistNode.Desc, () => ({
             spec: spec[DeflistNode.Desc],
-            fromYfm: {tokenSpec: fromYfm[DeflistNode.Desc]},
-            toYfm: toYfm[DeflistNode.Desc],
+            fromMd: {tokenSpec: fromYfm[DeflistNode.Desc]},
+            toMd: toYfm[DeflistNode.Desc],
         }));
 };

@@ -40,7 +40,7 @@ export const ImageSpecs: ExtensionAuto = (builder) => {
                 return ['img', node.attrs];
             },
         },
-        fromYfm: {
+        fromMd: {
             tokenSpec: {
                 name: imageNodeName,
                 type: 'node',
@@ -52,7 +52,7 @@ export const ImageSpecs: ExtensionAuto = (builder) => {
                 }),
             },
         },
-        toYfm: (state, {attrs}) => {
+        toMd: (state, {attrs}) => {
             state.write(
                 '![' +
                     state.esc(attrs.alt || '') +

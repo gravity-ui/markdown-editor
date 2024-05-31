@@ -1,7 +1,7 @@
 import checkboxPlugin from '@diplodoc/transform/lib/plugins/checkbox';
 import type {NodeSpec} from 'prosemirror-model';
 
-import type {ExtensionAuto, YENodeSpec} from '../../../../core';
+import type {ExtensionAuto, ExtensionNodeSpec} from '../../../../core';
 import {nodeTypeFactory} from '../../../../utils/schema';
 
 import {CheckboxNode, b, idPrefix} from './const';
@@ -19,9 +19,9 @@ export type CheckboxSpecsOptions = {
      * @deprecated: use placeholder option in BehaviorPreset instead.
      */
     checkboxLabelPlaceholder?: NonNullable<NodeSpec['placeholder']>['content'];
-    inputView?: YENodeSpec['view'];
-    labelView?: YENodeSpec['view'];
-    checkboxView?: YENodeSpec['view'];
+    inputView?: ExtensionNodeSpec['view'];
+    labelView?: ExtensionNodeSpec['view'];
+    checkboxView?: ExtensionNodeSpec['view'];
 };
 
 export const CheckboxSpecs: ExtensionAuto<CheckboxSpecsOptions> = (builder, opts) => {
@@ -31,24 +31,24 @@ export const CheckboxSpecs: ExtensionAuto<CheckboxSpecsOptions> = (builder, opts
         .configureMd((md) => checkboxPlugin(md, {idPrefix, divClass: b()}))
         .addNode(CheckboxNode.Checkbox, () => ({
             spec: spec[CheckboxNode.Checkbox],
-            toYfm: toYfm[CheckboxNode.Checkbox],
-            fromYfm: {
+            toMd: toYfm[CheckboxNode.Checkbox],
+            fromMd: {
                 tokenSpec: fromYfm[CheckboxNode.Checkbox],
             },
             view: opts.checkboxView,
         }))
         .addNode(CheckboxNode.Input, () => ({
             spec: spec[CheckboxNode.Input],
-            toYfm: toYfm[CheckboxNode.Input],
-            fromYfm: {
+            toMd: toYfm[CheckboxNode.Input],
+            fromMd: {
                 tokenSpec: fromYfm[CheckboxNode.Input],
             },
             view: opts.inputView,
         }))
         .addNode(CheckboxNode.Label, () => ({
             spec: spec[CheckboxNode.Label],
-            toYfm: toYfm[CheckboxNode.Label],
-            fromYfm: {
+            toMd: toYfm[CheckboxNode.Label],
+            fromMd: {
                 tokenSpec: fromYfm[CheckboxNode.Label],
                 tokenName: 'checkbox_label',
             },

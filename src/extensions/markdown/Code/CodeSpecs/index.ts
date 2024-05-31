@@ -17,7 +17,7 @@ export const CodeSpecs: ExtensionAuto = (builder) => {
                     return ['code'];
                 },
             },
-            toYfm: {
+            toMd: {
                 open(_state, _mark, parent, index) {
                     return backticksFor(parent.child(index), -1);
                 },
@@ -26,7 +26,7 @@ export const CodeSpecs: ExtensionAuto = (builder) => {
                 },
                 escape: false,
             },
-            fromYfm: {
+            fromMd: {
                 tokenSpec: {name: codeMarkName, type: 'mark', code: true, noCloseToken: true},
                 tokenName: 'code_inline',
             },

@@ -1,20 +1,20 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
 import {transform} from '@diplodoc/mermaid-extension';
 
-import {ExtensionAuto, YENodeSpec} from '../../../../core';
+import type {ExtensionAuto, ExtensionNodeSpec} from '../../../../core';
 
 import {MermaidConsts, mermaidNodeName as mermaidNodeName} from './const';
 export {mermaidNodeName} from './const';
 
 export type MermaidSpecsOptions = {
-    nodeView?: YENodeSpec['view'];
+    nodeView?: ExtensionNodeSpec['view'];
 };
 
 const MermaidSpecsExtension: ExtensionAuto<MermaidSpecsOptions> = (builder, {nodeView}) => {
     builder
         .configureMd((md) => md.use(transform({runtime: 'mermaid', bundle: false}), {}))
         .addNode(mermaidNodeName, () => ({
-            fromYfm: {
+            fromMd: {
                 tokenSpec: {
                     name: mermaidNodeName,
                     type: 'node',
@@ -36,7 +36,7 @@ const MermaidSpecsExtension: ExtensionAuto<MermaidSpecsOptions> = (builder, {nod
                 },
                 dnd: {props: {offset: [8, 1]}},
             },
-            toYfm: (state, node) => {
+            toMd: (state, node) => {
                 state.write('```mermaid\n');
                 state.ensureNewLine();
                 state.write(node.attrs.content);

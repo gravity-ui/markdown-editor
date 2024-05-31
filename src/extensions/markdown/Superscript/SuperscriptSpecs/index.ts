@@ -18,7 +18,7 @@ export const SuperscriptSpecs: ExtensionAuto = (builder) => {
                     return ['sup'];
                 },
             },
-            toYfm: {
+            toMd: {
                 open: (state) => {
                     state.escapeWhitespace = true;
                     return '^';
@@ -30,6 +30,6 @@ export const SuperscriptSpecs: ExtensionAuto = (builder) => {
                 mixable: true,
                 expelEnclosingWhitespace: true,
             },
-            fromYfm: {tokenSpec: {name: superscriptMarkName, type: 'mark'}},
+            fromMd: {tokenSpec: {name: superscriptMarkName, type: 'mark'}},
         }));
 };

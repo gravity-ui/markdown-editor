@@ -91,7 +91,7 @@ export const Checkbox: ExtensionAuto<CheckboxOptions> = (builder, opts) => {
 };
 
 declare global {
-    namespace YfmEditor {
+    namespace WysiwygEditor {
         interface Actions {
             [checkboxAction]: Action;
         }

@@ -26,22 +26,22 @@ export const YfmTableSpecs: ExtensionWithOptions<YfmTableSpecsOptions> = (builde
         .configureMd((md) => md.use(yfmTable, {log}))
         .addNode(YfmTableNode.Table, () => ({
             spec: spec[YfmTableNode.Table],
-            toYfm: toYfm[YfmTableNode.Table],
-            fromYfm: {tokenSpec: fromYfm[YfmTableNode.Table]},
+            toMd: toYfm[YfmTableNode.Table],
+            fromMd: {tokenSpec: fromYfm[YfmTableNode.Table]},
         }))
         .addNode(YfmTableNode.Body, () => ({
             spec: spec[YfmTableNode.Body],
-            toYfm: toYfm[YfmTableNode.Body],
-            fromYfm: {tokenSpec: fromYfm[YfmTableNode.Body]},
+            toMd: toYfm[YfmTableNode.Body],
+            fromMd: {tokenSpec: fromYfm[YfmTableNode.Body]},
         }))
         .addNode(YfmTableNode.Row, () => ({
             spec: spec[YfmTableNode.Row],
-            toYfm: toYfm[YfmTableNode.Row],
-            fromYfm: {tokenSpec: fromYfm[YfmTableNode.Row]},
+            toMd: toYfm[YfmTableNode.Row],
+            fromMd: {tokenSpec: fromYfm[YfmTableNode.Row]},
         }))
         .addNode(YfmTableNode.Cell, () => ({
             spec: spec[YfmTableNode.Cell],
-            toYfm: toYfm[YfmTableNode.Cell],
-            fromYfm: {tokenSpec: fromYfm[YfmTableNode.Cell]},
+            toMd: toYfm[YfmTableNode.Cell],
+            fromMd: {tokenSpec: fromYfm[YfmTableNode.Cell]},
         }));
 };

@@ -62,7 +62,7 @@ export const Autocomplete: ExtensionAuto = (builder) => {
 };
 
 declare global {
-    namespace YfmEditor {
+    namespace WysiwygEditor {
         interface Context {
             autocomplete: Storage;
         }

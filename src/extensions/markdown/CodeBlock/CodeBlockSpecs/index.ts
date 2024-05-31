@@ -1,4 +1,4 @@
-import type {ExtensionAuto, YENodeSpec} from '../../../../core';
+import type {ExtensionAuto, ExtensionNodeSpec} from '../../../../core';
 import {nodeTypeFactory} from '../../../../utils/schema';
 
 export const CodeBlockNodeAttr = {
@@ -12,7 +12,7 @@ export const codeBlockLangAttr = CodeBlockNodeAttr.Lang;
 export const codeBlockType = nodeTypeFactory(codeBlockNodeName);
 
 export type CodeBlockSpecsOptions = {
-    nodeview?: YENodeSpec['view'];
+    nodeview?: ExtensionNodeSpec['view'];
 };
 
 export const CodeBlockSpecs: ExtensionAuto<CodeBlockSpecsOptions> = (builder, opts) => {
@@ -43,7 +43,7 @@ export const CodeBlockSpecs: ExtensionAuto<CodeBlockSpecsOptions> = (builder, op
                 return ['pre', attrs, ['code', 0]];
             },
         },
-        fromYfm: {
+        fromMd: {
             tokenSpec: {
                 name: codeBlockNodeName,
                 type: 'block',
@@ -51,7 +51,7 @@ export const CodeBlockSpecs: ExtensionAuto<CodeBlockSpecsOptions> = (builder, op
                 prepareContent: removeNewLineAtEnd, // content of code blocks contains extra \n at the end
             },
         },
-        toYfm: (state, node) => {
+        toMd: (state, node) => {
             const lang: string = node.attrs[CodeBlockNodeAttr.Lang];
             const markup: string = node.attrs[CodeBlockNodeAttr.Markup];
 
@@ -67,7 +67,7 @@ export const CodeBlockSpecs: ExtensionAuto<CodeBlockSpecsOptions> = (builder, op
         //  we adding this node only for define specific 'fence' parser token,
         //  which parse fence md token to code_block node
         spec: {},
-        fromYfm: {
+        fromMd: {
             tokenSpec: {
                 name: codeBlockNodeName,
                 type: 'block',
@@ -86,8 +86,8 @@ export const CodeBlockSpecs: ExtensionAuto<CodeBlockSpecsOptions> = (builder, op
                 prepareContent: removeNewLineAtEnd, // content of fence blocks contains extra \n at the end
             },
         },
-        toYfm: () => {
-            throw new Error('Unexpected toYfm() call on fence node');
+        toMd: () => {
+            throw new Error('Unexpected toMd() call on fence node');
         },
     }));
     builder.addKeymap(() => ({

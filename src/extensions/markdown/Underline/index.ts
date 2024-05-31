@@ -36,7 +36,7 @@ export const Underline: ExtensionAuto<UnderlineOptions> = (builder, opts) => {
 };
 
 declare global {
-    namespace YfmEditor {
+    namespace WysiwygEditor {
         interface Actions {
             [undAction]: Action;
         }

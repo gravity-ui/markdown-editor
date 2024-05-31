@@ -21,7 +21,7 @@ export const Video: ExtensionAuto<VideoOptions> = (builder, opts) => {
 };
 
 declare global {
-    namespace YfmEditor {
+    namespace WysiwygEditor {
         interface Actions {
             [vAction]: Action<VideoActionAttrs>;
         }

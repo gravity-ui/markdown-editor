@@ -36,7 +36,7 @@ export const Strike: ExtensionAuto<StrikeOptions> = (builder, opts) => {
 };
 
 declare global {
-    namespace YfmEditor {
+    namespace WysiwygEditor {
         interface Actions {
             [sAction]: Action;
         }

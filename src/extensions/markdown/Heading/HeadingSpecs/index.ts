@@ -49,14 +49,14 @@ export const HeadingSpecs: ExtensionAuto<HeadingSpecsOptions> = (builder, opts) 
                 alwaysVisible: true,
             },
         },
-        fromYfm: {
+        fromMd: {
             tokenSpec: {
                 name: headingNodeName,
                 type: 'block',
                 getAttrs: (tok) => ({[headingLevelAttr]: Number(tok.tag.slice(1))}),
             },
         },
-        toYfm: (state, node) => {
+        toMd: (state, node) => {
             state.write(state.repeat('#', node.attrs[headingLevelAttr]) + ' ');
             state.renderInline(node);
             state.closeBlock(node);

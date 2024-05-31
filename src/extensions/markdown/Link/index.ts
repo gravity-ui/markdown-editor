@@ -45,7 +45,7 @@ export const Link: ExtensionAuto<LinkOptions> = (builder, opts) => {
 };
 
 declare global {
-    namespace YfmEditor {
+    namespace WysiwygEditor {
         interface Actions {
             [linkAction]: Action<LinkActionParams, LinkActionMeta>;
             [linkAction2]: Action;

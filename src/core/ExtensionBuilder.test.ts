@@ -1,7 +1,7 @@
 import {Plugin} from 'prosemirror-state';
 
 import {ExtensionBuilder} from './ExtensionBuilder';
-import type {ExtensionDeps, YEMarkSpec} from './types/extension';
+import type {ExtensionDeps, ExtensionMarkSpec} from './types/extension';
 
 describe('ExtensionBuilder', () => {
     it('should build empty extension', () => {
@@ -29,13 +29,13 @@ describe('ExtensionBuilder', () => {
         const nodes = new ExtensionBuilder()
             .addNode('node1', () => ({
                 spec: {},
-                fromYfm: {tokenSpec: {type: 'block', name: 'node1'}},
-                toYfm: () => {},
+                fromMd: {tokenSpec: {type: 'block', name: 'node1'}},
+                toMd: () => {},
             }))
             .addNode('node2', () => ({
                 spec: {},
-                fromYfm: {tokenSpec: {type: 'block', name: 'node2'}},
-                toYfm: () => {},
+                fromMd: {tokenSpec: {type: 'block', name: 'node2'}},
+                toMd: () => {},
             }))
             .build()
             .nodes();
@@ -49,13 +49,13 @@ describe('ExtensionBuilder', () => {
         const marks = new ExtensionBuilder()
             .addMark('mark1', () => ({
                 spec: {},
-                fromYfm: {tokenSpec: {type: 'mark', name: 'mark1'}},
-                toYfm: {open: '', close: ''},
+                fromMd: {tokenSpec: {type: 'mark', name: 'mark1'}},
+                toMd: {open: '', close: ''},
             }))
             .addMark('mark2', () => ({
                 spec: {},
-                fromYfm: {tokenSpec: {type: 'mark', name: 'mark2'}},
-                toYfm: {open: '', close: ''},
+                fromMd: {tokenSpec: {type: 'mark', name: 'mark2'}},
+                toMd: {open: '', close: ''},
             }))
             .build()
             .marks();
@@ -66,25 +66,25 @@ describe('ExtensionBuilder', () => {
     });
 
     it('should sort marks by priority', () => {
-        const mark0: YEMarkSpec = {
+        const mark0: ExtensionMarkSpec = {
             spec: {},
-            fromYfm: {tokenSpec: {type: 'mark', name: 'mark0'}},
-            toYfm: {open: '', close: ''},
+            fromMd: {tokenSpec: {type: 'mark', name: 'mark0'}},
+            toMd: {open: '', close: ''},
         };
-        const mark1: YEMarkSpec = {
+        const mark1: ExtensionMarkSpec = {
             spec: {},
-            fromYfm: {tokenSpec: {type: 'mark', name: 'mark1'}},
-            toYfm: {open: '', close: ''},
+            fromMd: {tokenSpec: {type: 'mark', name: 'mark1'}},
+            toMd: {open: '', close: ''},
         };
-        const mark2: YEMarkSpec = {
+        const mark2: ExtensionMarkSpec = {
             spec: {},
-            fromYfm: {tokenSpec: {type: 'mark', name: 'mark2'}},
-            toYfm: {open: '', close: ''},
+            fromMd: {tokenSpec: {type: 'mark', name: 'mark2'}},
+            toMd: {open: '', close: ''},
         };
-        const mark3: YEMarkSpec = {
+        const mark3: ExtensionMarkSpec = {
             spec: {},
-            fromYfm: {tokenSpec: {type: 'mark', name: 'mark3'}},
-            toYfm: {open: '', close: ''},
+            fromMd: {tokenSpec: {type: 'mark', name: 'mark3'}},
+            toMd: {open: '', close: ''},
         };
         const marksOrderedMap = new ExtensionBuilder()
             .addMark('mark3', () => mark3, ExtensionBuilder.Priority.VeryLow)
@@ -93,7 +93,7 @@ describe('ExtensionBuilder', () => {
             .addMark('mark2', () => mark2)
             .build()
             .marks();
-        const marksList: {name: string; spec: YEMarkSpec}[] = [];
+        const marksList: {name: string; spec: ExtensionMarkSpec}[] = [];
         marksOrderedMap.forEach((name, spec) => marksList.push({name, spec}));
         expect(marksList[0].name).toBe('mark0');
         expect(marksList[0].spec === mark0).toBe(true);
@@ -157,15 +157,15 @@ describe('ExtensionBuilder', () => {
     it('should throw error when add nodes with the same names', () => {
         const builder = new ExtensionBuilder().addNode('node', () => ({
             spec: {},
-            toYfm: () => {},
-            fromYfm: {tokenSpec: {type: 'block', name: 'node'}},
+            toMd: () => {},
+            fromMd: {tokenSpec: {type: 'block', name: 'node'}},
         }));
 
         const fn = () => {
             builder.addNode('node', () => ({
                 spec: {},
-                toYfm: () => {},
-                fromYfm: {tokenSpec: {type: 'block', name: 'node'}},
+                toMd: () => {},
+                fromMd: {tokenSpec: {type: 'block', name: 'node'}},
             }));
         };
 
@@ -175,15 +175,15 @@ describe('ExtensionBuilder', () => {
     it('should throw error when add marks with the same names', () => {
         const builder = new ExtensionBuilder().addMark('mark', () => ({
             spec: {},
-            toYfm: {open: '', close: ''},
-            fromYfm: {tokenSpec: {type: 'mark', name: 'mark'}},
+            toMd: {open: '', close: ''},
+            fromMd: {tokenSpec: {type: 'mark', name: 'mark'}},
         }));
 
         const fn = () => {
             builder.addMark('mark', () => ({
                 spec: {},
-                toYfm: {open: '', close: ''},
-                fromYfm: {tokenSpec: {type: 'mark', name: 'mark'}},
+                toMd: {open: '', close: ''},
+                fromMd: {tokenSpec: {type: 'mark', name: 'mark'}},
             }));
         };
 

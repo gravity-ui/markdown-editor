@@ -22,7 +22,7 @@ export const Mark: ExtensionAuto = (builder) => {
 };
 
 declare global {
-    namespace YfmEditor {
+    namespace WysiwygEditor {
         interface Actions {
             [mAction]: Action;
         }

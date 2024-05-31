@@ -24,7 +24,7 @@ export const Table: ExtensionAuto = (builder) => {
 };
 
 declare global {
-    namespace YfmEditor {
+    namespace WysiwygEditor {
         interface Actions {
             createTable: Action;
             deleteTable: Action;

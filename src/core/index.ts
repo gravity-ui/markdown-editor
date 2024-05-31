@@ -10,8 +10,8 @@ export type {
     ExtensionAuto,
     ExtensionWithOptions,
     ExtensionDeps,
-    YENodeSpec,
-    YEMarkSpec,
+    ExtensionNodeSpec,
+    ExtensionMarkSpec,
 } from './types/extension';
 export type {Parser, ParserToken} from './types/parser';
 export type {

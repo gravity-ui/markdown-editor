@@ -15,17 +15,17 @@ export const ListsSpecs: ExtensionAuto = (builder) => {
     builder
         .addNode(ListNode.ListItem, () => ({
             spec: spec[ListNode.ListItem],
-            toYfm: toYfm[ListNode.ListItem],
-            fromYfm: {tokenSpec: fromYfm[ListNode.ListItem]},
+            toMd: toYfm[ListNode.ListItem],
+            fromMd: {tokenSpec: fromYfm[ListNode.ListItem]},
         }))
         .addNode(ListNode.BulletList, () => ({
             spec: spec[ListNode.BulletList],
-            toYfm: toYfm[ListNode.BulletList],
-            fromYfm: {tokenSpec: fromYfm[ListNode.BulletList]},
+            toMd: toYfm[ListNode.BulletList],
+            fromMd: {tokenSpec: fromYfm[ListNode.BulletList]},
         }))
         .addNode(ListNode.OrderedList, () => ({
             spec: spec[ListNode.OrderedList],
-            toYfm: toYfm[ListNode.OrderedList],
-            fromYfm: {tokenSpec: fromYfm[ListNode.OrderedList]},
+            toMd: toYfm[ListNode.OrderedList],
+            fromMd: {tokenSpec: fromYfm[ListNode.OrderedList]},
         }));
 };

@@ -24,8 +24,8 @@ const {schema} = new ExtensionsManager({
             .use(YfmTable, {})
             .addNode('testnode', () => ({
                 spec: {content: `block*`, group: 'block', gapcursor: false},
-                fromYfm: {tokenSpec: {name: 'testnode', type: 'block', ignore: true}},
-                toYfm: () => {},
+                fromMd: {tokenSpec: {name: 'testnode', type: 'block', ignore: true}},
+                toMd: () => {},
             })),
 }).buildDeps();
 

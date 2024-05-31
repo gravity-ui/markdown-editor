@@ -67,7 +67,7 @@ export const YfmHeadingSpecs: ExtensionAuto<YfmHeadingSpecsOptions> = (builder, 
                 alwaysVisible: true,
             },
         },
-        fromYfm: {
+        fromMd: {
             tokenSpec: {
                 name: headingNodeName,
                 type: 'block',
@@ -89,7 +89,7 @@ export const YfmHeadingSpecs: ExtensionAuto<YfmHeadingSpecsOptions> = (builder, 
                 },
             },
         },
-        toYfm: (state, node) => {
+        toMd: (state, node) => {
             state.write(state.repeat('#', node.attrs[YfmHeadingAttr.Level]) + ' ');
             state.renderInline(node);
 

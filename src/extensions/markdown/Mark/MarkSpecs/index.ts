@@ -16,13 +16,13 @@ export const MarkSpecs: ExtensionAuto = (builder) => {
                     return ['mark'];
                 },
             },
-            fromYfm: {
+            fromMd: {
                 tokenSpec: {
                     name: markMarkName,
                     type: 'mark',
                 },
             },
-            toYfm: {
+            toMd: {
                 open: '==',
                 close: '==',
                 mixable: true,

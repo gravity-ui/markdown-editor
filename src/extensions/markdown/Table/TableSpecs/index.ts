@@ -11,32 +11,32 @@ export const TableSpecs: ExtensionAuto = (builder) => {
     builder
         .addNode(TableNode.Table, () => ({
             spec: spec[TableNode.Table],
-            toYfm: toYfm[TableNode.Table],
-            fromYfm: {tokenSpec: fromYfm[TableNode.Table]},
+            toMd: toYfm[TableNode.Table],
+            fromMd: {tokenSpec: fromYfm[TableNode.Table]},
         }))
         .addNode(TableNode.Head, () => ({
             spec: spec[TableNode.Head],
-            toYfm: toYfm[TableNode.Head],
-            fromYfm: {tokenSpec: fromYfm[TableNode.Head]},
+            toMd: toYfm[TableNode.Head],
+            fromMd: {tokenSpec: fromYfm[TableNode.Head]},
         }))
         .addNode(TableNode.Body, () => ({
             spec: spec[TableNode.Body],
-            toYfm: toYfm[TableNode.Body],
-            fromYfm: {tokenSpec: fromYfm[TableNode.Body]},
+            toMd: toYfm[TableNode.Body],
+            fromMd: {tokenSpec: fromYfm[TableNode.Body]},
         }))
         .addNode(TableNode.Row, () => ({
             spec: spec[TableNode.Row],
-            toYfm: toYfm[TableNode.Row],
-            fromYfm: {tokenSpec: fromYfm[TableNode.Row]},
+            toMd: toYfm[TableNode.Row],
+            fromMd: {tokenSpec: fromYfm[TableNode.Row]},
         }))
         .addNode(TableNode.HeaderCell, () => ({
             spec: spec[TableNode.HeaderCell],
-            toYfm: toYfm[TableNode.HeaderCell],
-            fromYfm: {tokenSpec: fromYfm[TableNode.HeaderCell]},
+            toMd: toYfm[TableNode.HeaderCell],
+            fromMd: {tokenSpec: fromYfm[TableNode.HeaderCell]},
         }))
         .addNode(TableNode.DataCell, () => ({
             spec: spec[TableNode.DataCell],
-            toYfm: toYfm[TableNode.DataCell],
-            fromYfm: {tokenSpec: fromYfm[TableNode.DataCell]},
+            toMd: toYfm[TableNode.DataCell],
+            fromMd: {tokenSpec: fromYfm[TableNode.DataCell]},
         }));
 };

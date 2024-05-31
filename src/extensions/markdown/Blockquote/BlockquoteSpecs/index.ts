@@ -18,8 +18,8 @@ export const BlockquoteSpecs: ExtensionAuto = (builder) => {
                 return ['blockquote', 0];
             },
         },
-        fromYfm: {tokenSpec: {name: blockquoteNodeName, type: 'block'}},
-        toYfm: (state, node) => {
+        fromMd: {tokenSpec: {name: blockquoteNodeName, type: 'block'}},
+        toMd: (state, node) => {
             state.wrapBlock('> ', null, node, () => state.renderContent(node));
         },
     }));

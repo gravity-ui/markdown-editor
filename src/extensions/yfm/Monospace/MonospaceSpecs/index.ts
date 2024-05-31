@@ -17,13 +17,13 @@ export const MonospaceSpecs: ExtensionAuto = (builder) => {
                     return ['samp'];
                 },
             },
-            fromYfm: {
+            fromMd: {
                 tokenSpec: {
                     name: monospaceMarkName,
                     type: 'mark',
                 },
             },
-            toYfm: {
+            toMd: {
                 open: '##',
                 close: '##',
                 mixable: true,

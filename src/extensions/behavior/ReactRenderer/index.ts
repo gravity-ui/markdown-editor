@@ -44,7 +44,7 @@ export const ReactRendererExtension: ExtensionAuto<ReactRenderer> = (builder, re
 };
 
 declare global {
-    namespace YfmEditor {
+    namespace WysiwygEditor {
         interface Context {
             reactrenderer: ReactRenderer;
         }
