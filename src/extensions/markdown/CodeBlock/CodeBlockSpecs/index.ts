@@ -42,7 +42,6 @@ export const CodeBlockSpecs: ExtensionAuto<CodeBlockSpecsOptions> = (builder, op
                     tag: 'pre',
                     preserveWhitespace: 'full',
                     getAttrs: (node) => {
-                        console.log('node', node);
                         return {
                             [CodeBlockNodeAttr.Lang]: getLangOfNode(node as Element),
                         };
@@ -50,7 +49,6 @@ export const CodeBlockSpecs: ExtensionAuto<CodeBlockSpecsOptions> = (builder, op
                 },
             ],
             toDOM({attrs}) {
-                console.log('attrs', attrs);
                 return ['pre', attrs, ['code', 0]];
             },
         },
