@@ -236,7 +236,7 @@ export const liftEmptyBlockFromTabPanel: Command = (state, dispatch) => {
         // current texblock is last child
         if ($cursor.after() === $cursor.end(-1)) {
             if (dispatch) {
-                const copedNode = $cursor.parent.copy();
+                const copiedNode = $cursor.parent.copy();
                 const tabsAfter = $cursor.after(-2);
 
                 const {tr} = state;
