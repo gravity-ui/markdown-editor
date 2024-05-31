@@ -1,4 +1,4 @@
-import {Fragment, Node, NodeRange} from 'prosemirror-model';
+import {Fragment, Node} from 'prosemirror-model';
 import type {Command} from 'prosemirror-state';
 import {TextSelection} from 'prosemirror-state';
 
@@ -47,14 +47,8 @@ export const liftEmptyBlockFromNote: Command = (state, dispatch) => {
     ) {
         // current texblock is last child
         if ($cursor.after() === $cursor.end(-1)) {
-            const nodeRange = new NodeRange(
-                state.doc.resolve($cursor.before()),
-                state.doc.resolve($cursor.after()),
-                $cursor.depth - 1,
-            );
-
             if (dispatch) {
-                dispatch(state.tr.lift(nodeRange, $cursor.depth - 3).scrollIntoView());
+                dispatch(state.tr.lift($cursor.blockRange()!, $cursor.depth - 3).scrollIntoView());
             }
             return true;
         }
