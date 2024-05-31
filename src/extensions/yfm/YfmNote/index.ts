@@ -6,7 +6,7 @@ import {withLogAction} from '../../../utils/keymap';
 
 import {YfmNoteSpecs, YfmNoteSpecsOptions} from './YfmNoteSpecs';
 import {createYfmNote, toYfmNote} from './actions/toYfmNote';
-import {backToNoteTitle, exitFromNoteTitle, removeNote} from './commands';
+import {backToNoteTitle, exitFromNoteTitle, liftEmptyBlockFromNote, removeNote} from './commands';
 import {yfmNoteTooltipPlugin} from './plugins/YfmNoteTooltipPlugin';
 import {noteType} from './utils';
 
@@ -25,7 +25,7 @@ export const YfmNote: ExtensionAuto<YfmNoteOptions> = (builder, opts) => {
 
     builder
         .addKeymap(() => ({
-            Enter: exitFromNoteTitle,
+            Enter: chainCommands(exitFromNoteTitle, liftEmptyBlockFromNote),
             Backspace: chainCommands(backToNoteTitle, removeNote),
         }))
         .addAction(noteAction, () => toYfmNote)

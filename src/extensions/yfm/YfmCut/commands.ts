@@ -17,7 +17,8 @@ export const liftEmptyBlockFromCut: Command = (state, dispatch) => {
     if (
         $cursor.depth > 2 && // yfm_cut -> yfm_cut_content -> <textblock>, depth must be at least 3
         isSameNodeType($cursor.node(-1), cutContentType(schema)) &&
-        isSameNodeType($cursor.node(-2), cutType(schema))
+        isSameNodeType($cursor.node(-2), cutType(schema)) &&
+        $cursor.node(-1).childCount > 1
     ) {
         // current texblock is last child of yfm_cut_content
         if ($cursor.after() === $cursor.end(-1)) {
