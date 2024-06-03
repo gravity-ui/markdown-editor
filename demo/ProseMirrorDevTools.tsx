@@ -16,13 +16,13 @@ export function WysiwygDevTools({editor}: WysiwygDevToolsProps) {
         rerender();
     });
 
-    const view = editor?.currentType === 'wysiwyg' && editor._wysiwygView;
+    const view = editor?.currentMode === 'wysiwyg' && editor._wysiwygView;
 
     React.useLayoutEffect(() => {
         if (!editor) return undefined;
-        editor.on('change-editor-type', rerender);
+        editor.on('change-editor-mode', rerender);
         return () => {
-            editor.off('change-editor-type', rerender);
+            editor.off('change-editor-mode', rerender);
         };
     }, [editor, rerender]);
 

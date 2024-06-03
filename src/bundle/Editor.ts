@@ -13,7 +13,7 @@ import {CodeEditor, Editor as MarkupEditor} from '../markup/editor';
 import {Emitter, Receiver, SafeEventEmitter} from '../utils/event-emitter';
 import type {FileUploadHandler} from '../utils/upload';
 
-export type EditorType = 'wysiwyg' | 'markup';
+export type EditorMode = 'wysiwyg' | 'markup';
 export type SplitMode = false | 'horizontal' | 'vertical';
 export type RenderPreview = ({
     getValue,
@@ -24,7 +24,7 @@ export type RenderPreview = ({
 }) => ReactNode;
 
 export type ToolbarActionData = {
-    editorType: EditorType;
+    editorMode: EditorMode;
     id: string;
     attrs?: {[key: string]: any};
 };
@@ -36,7 +36,7 @@ interface EventMap {
 
     'toolbar-action': ToolbarActionData;
 
-    'change-editor-type': {type: EditorType};
+    'change-editor-mode': {mode: EditorMode};
     'change-toolbar-visibility': {visible: boolean};
     'change-split-mode-enabled': {splitModeEnabled: boolean};
 }
@@ -49,10 +49,10 @@ interface EventMapInt extends EventMap {
 }
 
 export interface Editor extends Receiver<EventMap>, CommonEditor {
-    readonly currentType: EditorType;
+    readonly currentMode: EditorMode;
     readonly toolbarVisible: boolean;
 
-    setEditorType(type: EditorType): void;
+    setEditorMode(mode: EditorMode): void;
 
     moveCursor(position: 'start' | 'end' | {line: number}): void;
 
@@ -67,7 +67,7 @@ export interface EditorInt
         Receiver<EventMapInt>,
         ActionStorage,
         CodeEditor {
-    readonly currentType: EditorType;
+    readonly currentMode: EditorMode;
     readonly toolbarVisible: boolean;
     readonly splitModeEnabled: boolean;
     readonly splitMode: SplitMode;
@@ -85,9 +85,9 @@ export interface EditorInt
 
     readonly renderPreview?: RenderPreview;
 
-    changeEditorType(opts: ChangeEditorTypeOptions): void;
+    changeEditorMode(opts: ChangeEditorModeOptions): void;
 
-    setEditorType(type: EditorType): void;
+    setEditorMode(mode: EditorMode): void;
 
     moveCursor(position: 'start' | 'end' | {line: number}): void;
 
@@ -99,8 +99,8 @@ export interface EditorInt
 }
 
 /** @internal */
-type ChangeEditorTypeOptions = {
-    type: EditorType;
+type ChangeEditorModeOptions = {
+    mode: EditorMode;
     reason: 'error-boundary' | 'settings' | 'manually';
 };
 
@@ -110,7 +110,7 @@ export type EditorOptions = Pick<
 > & {
     initialMarkup?: MarkupString;
     /** @default 'wysiwyg' */
-    initialEditorType?: EditorType;
+    initialEditorMode?: EditorMode;
     /** @default true */
     initialToolbarVisible?: boolean;
     /** @default false
@@ -137,7 +137,7 @@ export type EditorOptions = Pick<
 /** @internal */
 export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorInt {
     #markup: MarkupString;
-    #editorType: EditorType;
+    #editorMode: EditorMode;
     #toolbarVisible: boolean;
     #splitModeEnabled: boolean;
     #splitMode: SplitMode;
@@ -160,14 +160,14 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
         return this.#wysiwygEditor?.view;
     }
 
-    get currentType(): EditorType {
-        return this.#editorType;
+    get currentMode(): EditorMode {
+        return this.#editorMode;
     }
 
-    private set currentType(newType: EditorType) {
-        switch (newType) {
+    private set currentMode(newMode: EditorMode) {
+        switch (newMode) {
             case 'markup': {
-                this.#editorType = newType;
+                this.#editorMode = newMode;
                 if (this.#wysiwygEditor) {
                     const markupEditorValue = this.#markupEditor?.getValue();
                     const wysiwygEditorValue = this.#wysiwygEditor.getValue();
@@ -184,7 +184,7 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
                 break;
             }
             case 'wysiwyg': {
-                this.#editorType = newType;
+                this.#editorMode = newMode;
                 if (this.#markupEditor) {
                     const value = this.#markupEditor.getValue();
                     this.#markup = this.#prepareRawMarkup?.(value) ?? value;
@@ -195,7 +195,7 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
                 break;
             }
             default:
-                throw new Error('Unknown editor type: ' + newType);
+                throw new Error('Unknown editor mode: ' + newMode);
         }
         setTimeout(() => {
             this.currentEditor.focus();
@@ -219,14 +219,14 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
     }
 
     get currentEditor(): CommonEditor {
-        const type = this.currentType;
-        switch (type) {
+        const mode = this.currentMode;
+        switch (mode) {
             case 'markup':
                 return this.markupEditor;
             case 'wysiwyg':
                 return this.wysiwygEditor;
             default:
-                throw new Error('Unknown editor type: ' + type);
+                throw new Error('Unknown editor mode: ' + mode);
         }
     }
 
@@ -280,7 +280,7 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
 
     constructor(opts: EditorOptions) {
         super({onError: logger.error.bind(logger)});
-        this.#editorType = (opts.initialEditorType as EditorType) ?? 'wysiwyg';
+        this.#editorMode = opts.initialEditorMode ?? 'wysiwyg';
         this.#toolbarVisible = Boolean(opts.initialToolbarVisible);
         this.#splitMode = (opts.renderPreview && opts.splitMode) ?? false;
         this.#splitModeEnabled = (this.#splitMode && opts.initialSplitModeEnabled) ?? false;
@@ -330,16 +330,16 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
         this.#wysiwygEditor = undefined;
     }
 
-    setEditorType(type: EditorType): void {
-        this.changeEditorType({type, reason: 'manually'});
+    setEditorMode(mode: EditorMode): void {
+        this.changeEditorMode({mode, reason: 'manually'});
     }
 
-    changeEditorType(opts: ChangeEditorTypeOptions): void {
-        if (this.#editorType === opts.type) return;
-        this.currentType = opts.type;
+    changeEditorMode(opts: ChangeEditorModeOptions): void {
+        if (this.#editorMode === opts.mode) return;
+        this.currentMode = opts.mode;
         this.emit('rerender', null);
         if (opts.reason !== 'error-boundary') {
-            this.emit('change-editor-type', opts);
+            this.emit('change-editor-mode', opts);
         }
     }
 
@@ -395,9 +395,9 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
     }
 
     private moveCursorToLine(line: number): void {
-        const type = this.currentType;
+        const mode = this.currentMode;
 
-        switch (type) {
+        switch (mode) {
             case 'markup': {
                 const lineNumber = line + 1;
                 const view = this.markupEditor.cm;
@@ -423,7 +423,7 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
                 break;
             }
             default:
-                throw new Error('Unknown editor type: ' + type);
+                throw new Error('Unknown editor mode: ' + mode);
         }
     }
 

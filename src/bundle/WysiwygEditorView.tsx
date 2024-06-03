@@ -51,7 +51,7 @@ export const WysiwygEditorView = React.memo<WysiwygEditorViewProps>((props) => {
             {toolbarVisible ? (
                 <ToolbarView
                     editor={editor}
-                    editorType="wysiwyg"
+                    editorMode="wysiwyg"
                     toolbarEditor={editor}
                     stickyToolbar={stickyToolbar}
                     toolbarConfig={toolbarConfig}

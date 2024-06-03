@@ -62,7 +62,7 @@ export const MarkupEditorView = React.memo<MarkupEditorViewProps>((props) => {
                 >
                     <ToolbarView
                         editor={editor}
-                        editorType="markup"
+                        editorMode="markup"
                         toolbarEditor={editor}
                         hiddenActionsConfig={hiddenActionsConfig}
                         stickyToolbar={stickyToolbar}
