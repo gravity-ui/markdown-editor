@@ -16,11 +16,21 @@ export type CodeBlockSpecsOptions = {
 };
 
 const getLangOfNode = (node: Element) => {
-    return (
-        node.getAttribute(CodeBlockNodeAttr.Lang) ||
-        node.firstElementChild?.getAttribute('class')?.split(' ')?.[1] ||
-        ''
-    );
+    let result = node.getAttribute(CodeBlockNodeAttr.Lang) || '';
+
+    if (!result) {
+        const firstElementChild = node.firstElementChild;
+
+        if (
+            firstElementChild &&
+            firstElementChild.nodeName.toLowerCase() === 'code' &&
+            firstElementChild.classList.contains('hljs')
+        ) {
+            result = firstElementChild.getAttribute('class')?.split(' ')?.[1] || '';
+        }
+    }
+
+    return result;
 };
 
 export const CodeBlockSpecs: ExtensionAuto<CodeBlockSpecsOptions> = (builder, opts) => {
