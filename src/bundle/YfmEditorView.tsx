@@ -1,8 +1,8 @@
-import React, {useEffect, useMemo, useRef, useState} from 'react';
+import React, {MutableRefObject, useEffect, useMemo, useRef, useState} from 'react';
 
 import type {ToasterPublicMethods} from '@gravity-ui/uikit';
 import {ErrorBoundary} from 'react-error-boundary';
-import {useKey, useUpdate} from 'react-use';
+import {useEnsuredForwardedRef, useKey, useUpdate} from 'react-use';
 
 import {ClassNameProps, cn} from '../classname';
 import {i18n} from '../i18n/bundle';
@@ -43,6 +43,8 @@ export type YfmEditorViewProps = ClassNameProps & {
 };
 
 export const YfmEditorView = React.forwardRef<HTMLDivElement, YfmEditorViewProps>((props, ref) => {
+    const divRef = useEnsuredForwardedRef(ref as MutableRefObject<HTMLDivElement>);
+
     const [isMounted, setIsMounted] = useState(false);
     useEffect(() => {
         setIsMounted(true);
@@ -174,7 +176,7 @@ export const YfmEditorView = React.forwardRef<HTMLDivElement, YfmEditorViewProps
         >
             <ToasterContext.Provider value={toaster}>
                 <div
-                    ref={ref}
+                    ref={divRef}
                     className={b(
                         {
                             settings: settingsVisible,
@@ -241,7 +243,7 @@ export const YfmEditorView = React.forwardRef<HTMLDivElement, YfmEditorViewProps
                                     isMounted={isMounted}
                                     leftElRef={editorWrapperRef}
                                     rightElRef={splitModeViewWrapperRef}
-                                    wrapperRef={ref as React.RefObject<HTMLDivElement>}
+                                    wrapperRef={divRef}
                                 />
                             ) : (
                                 <div className={b('resizer')} />

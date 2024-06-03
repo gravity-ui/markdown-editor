@@ -23,16 +23,18 @@ export type RenderPreview = ({
     mode: 'preview' | 'split';
 }) => ReactNode;
 
+export type ToolbarActionData = {
+    editorType: EditorType;
+    id: string;
+    attrs?: {[key: string]: any};
+};
+
 interface EventMap {
     change: null;
     cancel: null;
     submit: null;
 
-    'toolbar-action': {
-        editorType: EditorType;
-        id: string;
-        attrs?: {[key: string]: any};
-    };
+    'toolbar-action': ToolbarActionData;
 
     'change-editor-type': {type: EditorType};
     'change-toolbar-visibility': {visible: boolean};

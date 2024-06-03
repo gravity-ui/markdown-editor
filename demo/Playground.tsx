@@ -1,18 +1,17 @@
-import React, {CSSProperties, useCallback} from 'react';
+import React, {CSSProperties, useCallback, useEffect} from 'react';
 
 import {Button, DropdownMenu} from '@gravity-ui/uikit';
 import {toaster} from '@gravity-ui/uikit/toaster-singleton-react-18';
 
 import {MarkupString, logger} from '../src';
 import {
-    YfmEditor,
-    YfmEditorProps,
-    YfmEditorRef,
     YfmEditorType,
+    YfmEditorView,
     markupToolbarConfigs,
+    useYfmEditor,
     wysiwygToolbarConfigs,
 } from '../src/bundle';
-import {RenderPreview} from '../src/bundle/Editor';
+import {RenderPreview, ToolbarActionData} from '../src/bundle/Editor';
 import {Math} from '../src/extensions/yfm/Math';
 import {Mermaid} from '../src/extensions/yfm/Mermaid';
 import {cloneDeep} from '../src/lodash';
@@ -30,8 +29,10 @@ import {plugins} from './md-plugins';
 import './Playground.scss';
 
 const b = block('playground');
-const onAction: YfmEditorProps['onMenuBarAction'] = ({action, editorType}) => {
-    console.info(`The '${action}' action is performed in the ${editorType}-editor.`);
+const fileUploadHandler: FileUploadHandler = async (file) => {
+    console.info('[Playground] Uploading file: ' + file.name);
+    await randomDelay(1000, 3000);
+    return {url: URL.createObjectURL(file)};
 };
 
 const mToolbarConfig = [
@@ -91,15 +92,10 @@ export const Playground = React.memo<PlaygroundProps>((props) => {
     } = props;
     const [editorType, setEditorType] = React.useState<YfmEditorType>(initialEditor ?? 'wysiwyg');
     const [mdRaw, setMdRaw] = React.useState<MarkupString>(initial || '');
-    const editorRef = React.useRef<YfmEditorRef>(null);
 
     React.useEffect(() => {
         updateLocation(mdRaw);
     }, [mdRaw]);
-
-    React.useEffect(() => {
-        console.log('[Playground] MarkdownEditor domElem:', editorRef.current?.domElem());
-    }, []);
 
     const renderPreview = useCallback<RenderPreview>(
         ({getValue}) => (
@@ -116,6 +112,90 @@ export const Playground = React.memo<PlaygroundProps>((props) => {
         [allowHTML, breaks, linkify, linkifyTlds, sanitizeHtml],
     );
 
+    const mdEditor = useYfmEditor({
+        allowHTML,
+        linkify,
+        linkifyTlds,
+        initialMarkup: mdRaw,
+        breaks: breaks ?? true,
+        initialEditorType: editorType,
+        initialSplitModeEnabled: initialSplitModeEnabled,
+        initialToolbarVisible: true,
+        splitMode: splitModeOrientation,
+        renderPreview: renderPreviewDefined ? renderPreview : undefined,
+        fileUploadHandler,
+        prepareRawMarkup: prepareRawMarkup
+            ? (value) => '**prepare raw markup**\n\n' + value
+            : undefined,
+        extensionOptions: {
+            commandMenu: {actions: wCommandMenuConfig},
+        },
+        extraExtensions: (builder) =>
+            builder
+                .use(Math, {
+                    loadRuntimeScript: () => {
+                        import(
+                            /* webpackChunkName: "latex-runtime" */ '@diplodoc/latex-extension/runtime'
+                        );
+                        import(
+                            // @ts-expect-error // no types for styles
+                            /* webpackChunkName: "latex-styles" */ '@diplodoc/latex-extension/runtime/styles'
+                        );
+                    },
+                })
+                .use(Mermaid, {
+                    loadRuntimeScript: () => {
+                        import(
+                            /* webpackChunkName: "mermaid-runtime" */ '@diplodoc/mermaid-extension/runtime'
+                        );
+                    },
+                }),
+    });
+
+    useEffect(() => {
+        function onCancel() {
+            alert('Editor: cancel');
+            return true;
+        }
+        function onSubmit() {
+            alert('Editor: submit');
+            return true;
+        }
+        function onChange() {
+            setMdRaw(mdEditor.getValue());
+        }
+        function onChangeEditorType({type}: {type: YfmEditorType}) {
+            setEditorType(type);
+        }
+        const onToolbarAction = ({id, editorType: type}: ToolbarActionData) => {
+            console.info(`The '${id}' action is performed in the ${type}-editor.`);
+        };
+        function onChangeSplitModeEnabled({splitModeEnabled}: {splitModeEnabled: boolean}) {
+            console.info(`Split mode enabled: ${splitModeEnabled}`);
+        }
+        function onChangeToolbarVisibility({visible}: {visible: boolean}) {
+            console.info('Toolbar visible: ' + visible);
+        }
+
+        mdEditor.on('cancel', onCancel);
+        mdEditor.on('submit', onSubmit);
+        mdEditor.on('change', onChange);
+        mdEditor.on('toolbar-action', onToolbarAction);
+        mdEditor.on('change-editor-type', onChangeEditorType);
+        mdEditor.on('change-split-mode-enabled', onChangeSplitModeEnabled);
+        mdEditor.on('change-toolbar-visibility', onChangeToolbarVisibility);
+
+        return () => {
+            mdEditor.off('cancel', onCancel);
+            mdEditor.off('submit', onSubmit);
+            mdEditor.off('change', onChange);
+            mdEditor.off('toolbar-action', onToolbarAction);
+            mdEditor.off('change-editor-type', onChangeEditorType);
+            mdEditor.off('change-split-mode-enabled', onChangeSplitModeEnabled);
+            mdEditor.off('change-toolbar-visibility', onChangeToolbarVisibility);
+        };
+    }, [mdEditor]);
+
     return (
         <div className={b()}>
             <div className={b('header')}>
@@ -126,131 +206,75 @@ export const Playground = React.memo<PlaygroundProps>((props) => {
                 size="s"
                 switcher={
                     <Button size="s" view="flat">
-                        isEmpty: {String(editorRef.current?.isEmpty())}
+                        isEmpty: {String(mdEditor.isEmpty())}
                     </Button>
                 }
             >
                 <DropdownMenu.Item
                     text="Clear"
                     action={() => {
-                        editorRef.current?.clear();
-                        editorRef.current?.focus();
+                        mdEditor.clear();
+                        mdEditor.focus();
                     }}
                 />
                 <DropdownMenu.Item
                     text="Append"
                     action={() => {
-                        editorRef.current?.append('> append');
-                        editorRef.current?.focus();
+                        mdEditor.append('> append');
+                        mdEditor.focus();
                     }}
                 />
                 <DropdownMenu.Item
                     text="Prepend"
                     action={() => {
-                        editorRef.current?.prepend('> prepend');
-                        editorRef.current?.focus();
+                        mdEditor.prepend('> prepend');
+                        mdEditor.focus();
                     }}
                 />
                 <DropdownMenu.Item
                     text="Replace"
                     action={() => {
-                        editorRef.current?.replace('> replace');
-                        editorRef.current?.focus();
+                        mdEditor.replace('> replace');
+                        mdEditor.focus();
                     }}
                 />
                 <DropdownMenu.Item
                     text="Move cursor to start"
                     action={() => {
-                        editorRef.current?.moveCursor('start');
-                        editorRef.current?.focus();
+                        mdEditor.moveCursor('start');
+                        mdEditor.focus();
                     }}
                 />
                 <DropdownMenu.Item
                     text="Move cursor to end"
                     action={() => {
-                        editorRef.current?.moveCursor('end');
-                        editorRef.current?.focus();
+                        mdEditor.moveCursor('end');
+                        mdEditor.focus();
                     }}
                 />
                 <DropdownMenu.Item
                     text="Move to line"
                     action={() => {
-                        editorRef.current?.moveCursor({line: 115});
-                        editorRef.current?.focus();
+                        mdEditor.moveCursor({line: 115});
+                        mdEditor.focus();
                     }}
                 />
             </DropdownMenu>
             <hr />
             <React.StrictMode>
                 <div className={b('editor')} style={{height: height ?? 'initial'}}>
-                    <YfmEditor
+                    <YfmEditorView
                         autofocus
-                        splitMode={splitModeOrientation}
-                        ref={editorRef}
-                        renderPreview={renderPreviewDefined ? renderPreview : undefined}
                         toaster={toaster}
-                        stickyToolbar={stickyToolbar}
                         className={b('editor-view')}
-                        initialContent={mdRaw}
-                        initialEditorType={editorType}
-                        initialSplitModeEnabled={initialSplitModeEnabled}
-                        wysiwygAllowHTML={allowHTML}
-                        wysiwygLinkify={linkify}
-                        wysiwygLinkifyTlds={linkifyTlds}
-                        wysiwygBreaks={breaks}
-                        wysiwygMenubarData={wToolbarConfig}
-                        markupMenubarData={mToolbarConfig}
-                        onMarkupChange={(e) => setMdRaw(e.getValue())}
-                        onEditorTypeChange={setEditorType}
-                        onMenuBarAction={onAction}
-                        onFileUpload={fileUploadHandler}
+                        stickyToolbar={Boolean(stickyToolbar)}
+                        wysiwygToolbarConfig={wToolbarConfig}
+                        markupToolbarConfig={mToolbarConfig}
                         settingsVisible={settingsVisible}
-                        onSplitModeEnabledChange={(splitModeEnabled) => {
-                            console.log(`Split mode enabled: ${splitModeEnabled}`);
-                        }}
-                        onMenuVisibleChange={(isMenuVisible) => {
-                            console.log('Menubar visible: ' + isMenuVisible);
-                        }}
-                        prepareRawMarkup={
-                            prepareRawMarkup
-                                ? (value) => '**prepare raw markup**\n\n' + value
-                                : undefined
-                        }
-                        onCancel={() => {
-                            alert('Editor: cancel');
-                            return true;
-                        }}
-                        onSubmit={() => {
-                            alert('Editor: submit');
-                            return true;
-                        }}
-                        extensionOptions={{
-                            commandMenu: {actions: wCommandMenuConfig},
-                        }}
-                        wysiwygExtraExtensions={(builder) =>
-                            builder
-                                .use(Math, {
-                                    loadRuntimeScript: () => {
-                                        import(
-                                            /* webpackChunkName: "latex-runtime" */ '@diplodoc/latex-extension/runtime'
-                                        );
-                                        import(
-                                            // @ts-expect-error // no types for styles
-                                            /* webpackChunkName: "latex-styles" */ '@diplodoc/latex-extension/runtime/styles'
-                                        );
-                                    },
-                                })
-                                .use(Mermaid, {
-                                    loadRuntimeScript: () => {
-                                        import(
-                                            /* webpackChunkName: "mermaid-runtime" */ '@diplodoc/mermaid-extension/runtime'
-                                        );
-                                    },
-                                })
-                        }
+                        editor={mdEditor}
                     />
-                    <WysiwygDevTools editorRef={editorRef} />
-                    <WysiwygSelection editorRef={editorRef} className={b('pm-selection')} />
+                    <WysiwygDevTools editor={mdEditor} />
+                    <WysiwygSelection editor={mdEditor} className={b('pm-selection')} />
                 </div>
             </React.StrictMode>
 
@@ -264,9 +288,3 @@ export const Playground = React.memo<PlaygroundProps>((props) => {
 });
 
 Playground.displayName = 'Playground';
-
-const fileUploadHandler: FileUploadHandler = async (file) => {
-    console.info('[Playground] Uploading file: ' + file.name);
-    await randomDelay(1000, 3000);
-    return {url: URL.createObjectURL(file)};
-};

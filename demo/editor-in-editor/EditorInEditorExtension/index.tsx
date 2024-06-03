@@ -6,7 +6,7 @@ import {EditorView, NodeView} from 'prosemirror-view';
 import {createPortal} from 'react-dom';
 
 import {ExtensionAuto, getReactRendererFromState} from '../../../src';
-import {YfmEditor} from '../../../src/bundle';
+import {YfmEditorView, YfmEditorViewProps, useYfmEditor} from '../../../src/bundle';
 
 import './index.scss';
 
@@ -91,16 +91,35 @@ class EditorInEditorNodeView implements NodeView {
     private renderEditor(): React.ReactNode {
         const {toaster} = this;
         return createPortal(
-            <YfmEditor
+            <InnerEditor
                 toaster={toaster}
                 initialContent={this.node.attrs[EditorInEditorAttr.Markup]}
-                initialEditorType="wysiwyg"
-                wysiwygLinkify={true}
-                wysiwygBreaks={true}
-                wysiwygAllowHTML={false}
-                settingsVisible={false}
             />,
             this.dom,
         );
     }
+}
+
+type YfmEditorProps = {
+    initialContent: string;
+    toaster: YfmEditorViewProps['toaster'];
+};
+
+function InnerEditor({initialContent, toaster}: YfmEditorProps) {
+    const mdEditor = useYfmEditor({
+        initialMarkup: initialContent,
+        initialEditorType: 'wysiwyg',
+        initialToolbarVisible: true,
+        linkify: true,
+        breaks: true,
+        allowHTML: false,
+    });
+    return (
+        <YfmEditorView
+            editor={mdEditor}
+            toaster={toaster}
+            settingsVisible={false}
+            stickyToolbar={false}
+        />
+    );
 }

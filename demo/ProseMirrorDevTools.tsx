@@ -7,16 +7,15 @@ import {useEffectOnce, useUpdate} from 'react-use';
 import type {Editor} from '../src/bundle';
 
 export type WysiwygDevToolsProps = {
-    editorRef: React.RefObject<Editor>;
+    editor: Editor;
 };
 
-export function WysiwygDevTools({editorRef}: WysiwygDevToolsProps) {
+export function WysiwygDevTools({editor}: WysiwygDevToolsProps) {
     const rerender = useUpdate();
     useEffectOnce(() => {
         rerender();
     });
 
-    const editor = editorRef.current;
     const view = editor?.currentType === 'wysiwyg' && editor._wysiwygView;
 
     React.useLayoutEffect(() => {

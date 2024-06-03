@@ -7,16 +7,15 @@ import {type ClassNameProps, isNodeSelection, isTextSelection, isWholeSelection}
 import type {Editor} from '../src/bundle';
 
 export type WysiwygSelectionProps = ClassNameProps & {
-    editorRef: React.RefObject<Editor>;
+    editor: Editor;
 };
 
-export function WysiwygSelection({editorRef, className}: WysiwygSelectionProps) {
+export function WysiwygSelection({editor, className}: WysiwygSelectionProps) {
     const rerender = useUpdate();
     useEffectOnce(() => {
         rerender();
     });
 
-    const editor = editorRef.current;
     const view = editor?.currentType === 'wysiwyg' && editor._wysiwygView;
 
     React.useLayoutEffect(() => {
