@@ -3,7 +3,7 @@ import React, {EventHandler, useCallback, useEffect, useRef, useState} from 'rea
 import {clamp} from '../lodash';
 
 import {EditorInt} from './Editor';
-import {cnEditorComponent} from './YfmEditorView';
+import {cnEditorComponent} from './MarkdownEditorView';
 
 export const IN_RESIZE_CLASSNAME = 'in-resize';
 

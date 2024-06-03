@@ -85,4 +85,4 @@ export const MarkupEditorView = React.memo<MarkupEditorViewProps>((props) => {
         </div>
     );
 });
-MarkupEditorView.displayName = 'YfmMarkupEditorView';
+MarkupEditorView.displayName = 'MarkdownMarkupEditorView';

@@ -4,7 +4,7 @@ import {Editor} from './Editor';
 
 const EditorContext = createContext<Editor | null>(null);
 
-export const YfmEditorProvider = EditorContext.Provider;
-export function useYfmEditorContext() {
+export const MarkdownEditorProvider = EditorContext.Provider;
+export function useMarkdownEditorContext() {
     return useContext(EditorContext);
 }
