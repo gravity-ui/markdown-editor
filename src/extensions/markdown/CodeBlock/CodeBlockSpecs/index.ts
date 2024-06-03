@@ -15,6 +15,24 @@ export type CodeBlockSpecsOptions = {
     nodeview?: ExtensionNodeSpec['view'];
 };
 
+const getLangOfNode = (node: Element) => {
+    let result = node.getAttribute(CodeBlockNodeAttr.Lang) || '';
+
+    if (!result) {
+        const firstElementChild = node.firstElementChild;
+
+        if (
+            firstElementChild &&
+            firstElementChild.nodeName.toLowerCase() === 'code' &&
+            firstElementChild.classList.contains('hljs')
+        ) {
+            result = firstElementChild.getAttribute('class')?.split(' ')?.[1] || '';
+        }
+    }
+
+    return result;
+};
+
 export const CodeBlockSpecs: ExtensionAuto<CodeBlockSpecsOptions> = (builder, opts) => {
     builder.addNode(codeBlockNodeName, () => ({
         view: opts.nodeview,
@@ -33,10 +51,11 @@ export const CodeBlockSpecs: ExtensionAuto<CodeBlockSpecsOptions> = (builder, op
                 {
                     tag: 'pre',
                     preserveWhitespace: 'full',
-                    getAttrs: (node) => ({
-                        [CodeBlockNodeAttr.Lang]:
-                            (node as Element).getAttribute(CodeBlockNodeAttr.Lang) || '',
-                    }),
+                    getAttrs: (node) => {
+                        return {
+                            [CodeBlockNodeAttr.Lang]: getLangOfNode(node as Element),
+                        };
+                    },
                 },
             ],
             toDOM({attrs}) {
