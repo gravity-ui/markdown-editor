@@ -1,6 +1,6 @@
 $buttons-size: 18px;
 
-.ye-table-view {
+.g-md-table-view {
     &__hack-strip {
         position: absolute;
         left: -13px;
@@ -25,7 +25,7 @@ $buttons-size: 18px;
     }
 
     &__buttons-visible {
-        .ye-table-view__plus-button-controls {
+        .g-md-table-view__plus-button-controls {
             pointer-events: initial;
 
             opacity: 1;
@@ -88,7 +88,7 @@ $buttons-size: 18px;
 // In that case butoons do not get cropped with overflow and scroll remains. And we draw a line with big z-index so that
 // it overlaps content and content doesn't overflow to the left
 
-.ye-table-view.ye-table-view {
+.g-md-table-view.g-md-table-view {
     z-index: unset;
 
     display: block;
@@ -115,7 +115,7 @@ $buttons-size: 18px;
     }
 }
 
-.ye-table-wrapper {
+.g-md-table-wrapper {
     display: inline-block;
 
     margin-right: 2px;

@@ -4,7 +4,7 @@
     .yfm-tabs {
         @include mixins.block-border-hover();
     }
-    .ye-yfm-tab {
+    .g-md-yfm-tab {
         &__wrapper {
             position: relative;
 
@@ -64,19 +64,19 @@
 
         border-bottom: none;
 
-        .ye-placeholder {
+        .g-md-placeholder {
             color: var(--g-color-text-hint);
         }
 
         &[data-diplodoc-is-active='true'] {
-            .ye-yfm-tab__wrapper {
+            .g-md-yfm-tab__wrapper {
                 border-bottom-color: #027bf3;
             }
         }
 
         &:hover,
         &:last-child {
-            .ye-yfm-tab__create-button {
+            .g-md-yfm-tab__create-button {
                 opacity: 1;
             }
         }

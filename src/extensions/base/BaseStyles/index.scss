@@ -10,7 +10,7 @@
     border: none;
 }
 
-.yfm-editor.ProseMirror-focused {
+.g-md-editor.ProseMirror-focused {
     .ProseMirror-selectednode {
         outline: 2px solid #8cf;
     }
@@ -20,8 +20,8 @@
     }
 }
 
-.yfm-editor.ProseMirror,
-.yfm-editor .ProseMirror {
+.g-md-editor.ProseMirror,
+.g-md-editor .ProseMirror {
     &:focus {
         outline: none;
     }

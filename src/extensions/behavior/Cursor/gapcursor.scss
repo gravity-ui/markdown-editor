@@ -17,12 +17,12 @@
     }
 }
 
-.ye-gapcursor {
+.g-md-gapcursor {
     cursor: text;
 
     // override placeholder's fake cursor for FF
     // see src/extensions/Placeholder/index.scss
-    .ye-placeholder::before {
+    .g-md-placeholder::before {
         display: none;
     }
 

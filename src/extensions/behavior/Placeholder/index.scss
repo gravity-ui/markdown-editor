@@ -1,4 +1,4 @@
-.ProseMirror .ye-placeholder {
+.ProseMirror .g-md-placeholder {
     display: inline-block;
 
     pointer-events: none;
@@ -6,7 +6,7 @@
     color: var(--g-color-text-secondary);
 }
 
-.ProseMirror.yfm-editor-hidecursor {
+.ProseMirror.g-md-editor-hidecursor {
     caret-color: transparent;
 }
 
@@ -22,11 +22,11 @@
     }
 }
 
-.ye-placeholder {
+.g-md-placeholder {
     caret-color: transparent;
 
     .ProseMirror-focused &_focus {
-        .ye-placeholder__cursor {
+        .g-md-placeholder__cursor {
             position: relative;
             z-index: 1;
 

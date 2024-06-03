@@ -3,8 +3,8 @@
 $selection-color: rgba(98, 146, 255, 0.2);
 $toolbar-height: 28px;
 
-.ye-markup-editor,
-.ye-markup-preview {
+.g-md-markup-editor,
+.g-md-markup-preview {
     display: flex;
     flex: 1 0 0;
     flex-direction: column;
@@ -115,7 +115,7 @@ $toolbar-height: 28px;
     }
 }
 
-.ye-markup-preview {
+.g-md-markup-preview {
     &__outer {
         overflow-y: auto;
         flex: 1 0 0;
