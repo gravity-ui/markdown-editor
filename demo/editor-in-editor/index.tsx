@@ -17,7 +17,7 @@ const b = block('playground');
 
 export const PlaygroundEditorInEditor: React.FC = () => {
     const mdEditor = useMarkdownEditor({
-        initialEditorType: 'wysiwyg',
+        initialEditorMode: 'wysiwyg',
         initialToolbarVisible: true,
         allowHTML: false,
         linkify: true,

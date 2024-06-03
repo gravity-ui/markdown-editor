@@ -4,7 +4,7 @@ import {Extension} from '../core';
 import {ReactRenderStorage} from '../extensions';
 import {logger} from '../logger';
 
-import {Editor, EditorImpl, EditorInt, EditorOptions, EditorType} from './Editor';
+import {Editor, EditorImpl, EditorInt, EditorMode, EditorOptions} from './Editor';
 import {BundlePreset, ExtensionsOptions} from './wysiwyg-preset';
 
 export type UseMarkdownEditorProps<T extends object = {}> = Omit<
@@ -59,8 +59,8 @@ export function useMarkdownEditor<T extends object = {}>(
     );
 
     useLayoutEffect(() => {
-        function onToolbarAction({editorType, id}: {editorType: EditorType; id: string}) {
-            logger.action({mode: editorType, source: 'toolbar', action: id});
+        function onToolbarAction({editorMode, id}: {editorMode: EditorMode; id: string}) {
+            logger.action({mode: editorMode, source: 'toolbar', action: id});
         }
 
         editor.on('toolbar-action', onToolbarAction);

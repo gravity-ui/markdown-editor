@@ -5,7 +5,7 @@ import {toaster} from '@gravity-ui/uikit/toaster-singleton-react-18';
 
 import {MarkupString, logger} from '../src';
 import {
-    MarkdownEditorType,
+    MarkdownEditorMode,
     MarkdownEditorView,
     markupToolbarConfigs,
     useMarkdownEditor,
@@ -54,7 +54,7 @@ export type PlaygroundProps = {
     initial?: MarkupString;
     allowHTML?: boolean;
     settingsVisible?: boolean;
-    initialEditor?: MarkdownEditorType;
+    initialEditor?: MarkdownEditorMode;
     breaks?: boolean;
     linkify?: boolean;
     linkifyTlds?: string | string[];
@@ -90,7 +90,7 @@ export const Playground = React.memo<PlaygroundProps>((props) => {
         renderPreviewDefined,
         height,
     } = props;
-    const [editorType, setEditorType] = React.useState<MarkdownEditorType>(
+    const [editorMode, setEditorMode] = React.useState<MarkdownEditorMode>(
         initialEditor ?? 'wysiwyg',
     );
     const [mdRaw, setMdRaw] = React.useState<MarkupString>(initial || '');
@@ -120,7 +120,7 @@ export const Playground = React.memo<PlaygroundProps>((props) => {
         linkifyTlds,
         initialMarkup: mdRaw,
         breaks: breaks ?? true,
-        initialEditorType: editorType,
+        initialEditorMode: editorMode,
         initialSplitModeEnabled: initialSplitModeEnabled,
         initialToolbarVisible: true,
         splitMode: splitModeOrientation,
@@ -166,10 +166,10 @@ export const Playground = React.memo<PlaygroundProps>((props) => {
         function onChange() {
             setMdRaw(mdEditor.getValue());
         }
-        function onChangeEditorType({type}: {type: MarkdownEditorType}) {
-            setEditorType(type);
+        function onChangeEditorType({mode}: {mode: MarkdownEditorMode}) {
+            setEditorMode(mode);
         }
-        const onToolbarAction = ({id, editorType: type}: ToolbarActionData) => {
+        const onToolbarAction = ({id, editorMode: type}: ToolbarActionData) => {
             console.info(`The '${id}' action is performed in the ${type}-editor.`);
         };
         function onChangeSplitModeEnabled({splitModeEnabled}: {splitModeEnabled: boolean}) {
@@ -183,7 +183,7 @@ export const Playground = React.memo<PlaygroundProps>((props) => {
         mdEditor.on('submit', onSubmit);
         mdEditor.on('change', onChange);
         mdEditor.on('toolbar-action', onToolbarAction);
-        mdEditor.on('change-editor-type', onChangeEditorType);
+        mdEditor.on('change-editor-mode', onChangeEditorType);
         mdEditor.on('change-split-mode-enabled', onChangeSplitModeEnabled);
         mdEditor.on('change-toolbar-visibility', onChangeToolbarVisibility);
 
@@ -192,7 +192,7 @@ export const Playground = React.memo<PlaygroundProps>((props) => {
             mdEditor.off('submit', onSubmit);
             mdEditor.off('change', onChange);
             mdEditor.off('toolbar-action', onToolbarAction);
-            mdEditor.off('change-editor-type', onChangeEditorType);
+            mdEditor.off('change-editor-mode', onChangeEditorType);
             mdEditor.off('change-split-mode-enabled', onChangeSplitModeEnabled);
             mdEditor.off('change-toolbar-visibility', onChangeToolbarVisibility);
         };
@@ -283,7 +283,7 @@ export const Playground = React.memo<PlaygroundProps>((props) => {
             <hr />
 
             <div className={b('preview')}>
-                {editorType === 'wysiwyg' && <pre className={b('markup')}>{mdRaw}</pre>}
+                {editorMode === 'wysiwyg' && <pre className={b('markup')}>{mdRaw}</pre>}
             </div>
         </div>
     );

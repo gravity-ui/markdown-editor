@@ -21,7 +21,7 @@ import {noop} from '../../lodash';
 import {useBooleanState} from '../../react-utils/hooks';
 import {ToolbarTooltipDelay} from '../../toolbar';
 import {VERSION} from '../../version';
-import type {EditorType, SplitMode} from '../Editor';
+import type {EditorMode, SplitMode} from '../Editor';
 
 import {MarkdownHints} from './MarkdownHints';
 
@@ -86,8 +86,8 @@ export const EditorSettings = React.memo<EditorSettingsProps>(function EditorSet
 });
 
 type SettingsContentProps = ClassNameProps & {
-    mode: EditorType;
-    onModeChange: (mode: EditorType) => void;
+    mode: EditorMode;
+    onModeChange: (mode: EditorMode) => void;
     onShowPreviewChange: (showPreview: boolean) => void;
     showPreview: boolean;
     toolbarVisibility: boolean;

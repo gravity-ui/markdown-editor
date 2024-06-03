@@ -7,12 +7,12 @@ import {i18n} from '../i18n/menubar';
 import {useSticky} from '../react-utils/useSticky';
 import {FlexToolbar, ToolbarData, ToolbarItemData} from '../toolbar';
 
-import type {EditorInt, EditorType} from './Editor';
+import type {EditorInt, EditorMode} from './Editor';
 import {stickyCn} from './sticky';
 
 export type ToolbarViewProps<T> = ClassNameProps & {
     editor: EditorInt;
-    editorType: EditorType;
+    editorMode: EditorMode;
     toolbarEditor: T;
     toolbarFocus: () => void;
     toolbarConfig: ToolbarData<T>;
@@ -24,7 +24,7 @@ export type ToolbarViewProps<T> = ClassNameProps & {
 
 export function ToolbarView<T>({
     editor,
-    editorType,
+    editorMode,
     toolbarEditor,
     toolbarFocus,
     toolbarConfig,
@@ -63,7 +63,7 @@ export function ToolbarView<T>({
                 editor={toolbarEditor}
                 focus={toolbarFocus}
                 dotsTitle={i18n('more_action')}
-                onClick={(id, attrs) => editor.emit('toolbar-action', {id, attrs, editorType})}
+                onClick={(id, attrs) => editor.emit('toolbar-action', {id, attrs, editorMode})}
             />
             {children}
         </div>

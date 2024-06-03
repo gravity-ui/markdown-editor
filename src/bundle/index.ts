@@ -1,5 +1,5 @@
 export type {ExtensionsOptions} from './wysiwyg-preset';
-export type {Editor, EditorType as MarkdownEditorType, RenderPreview, SplitMode} from './Editor';
+export type {Editor, EditorMode as MarkdownEditorMode, RenderPreview, SplitMode} from './Editor';
 export * from './context';
 export * from './useMarkdownEditor';
 export * from './MarkdownEditorView';

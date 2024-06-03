@@ -16,7 +16,7 @@ export function WysiwygSelection({editor, className}: WysiwygSelectionProps) {
         rerender();
     });
 
-    const view = editor?.currentType === 'wysiwyg' && editor._wysiwygView;
+    const view = editor?.currentMode === 'wysiwyg' && editor._wysiwygView;
 
     React.useLayoutEffect(() => {
         if (!editor) return undefined;
@@ -25,14 +25,14 @@ export function WysiwygSelection({editor, className}: WysiwygSelectionProps) {
             'rerender-toolbar',
             rerender,
         );
-        editor.on('change-editor-type', rerender);
+        editor.on('change-editor-mode', rerender);
         return () => {
             editor.off(
                 // @ts-expect-error TODO: add public event for selection change
                 'rerender-toolbar',
                 rerender,
             );
-            editor.off('change-editor-type', rerender);
+            editor.off('change-editor-mode', rerender);
         };
     }, [editor, rerender]);
 

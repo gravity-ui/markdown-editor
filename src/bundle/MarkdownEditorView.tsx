@@ -12,7 +12,7 @@ import {ToasterContext} from '../react-utils/toaster';
 import {useSticky} from '../react-utils/useSticky';
 import {isMac} from '../utils/platform';
 
-import type {Editor, EditorInt, EditorType} from './Editor';
+import type {Editor, EditorInt, EditorMode} from './Editor';
 import {HorizontalDrag} from './HorizontalDrag';
 import {MarkupEditorView} from './MarkupEditorView';
 import {SplitModeView} from './SplitModeView';
@@ -81,8 +81,8 @@ export const MarkdownEditorView = React.forwardRef<HTMLDivElement, MarkdownEdito
         }, [editor, rerender]);
 
         const onModeChange = React.useCallback(
-            (type: EditorType) => {
-                editor.changeEditorType({type, reason: 'settings'});
+            (type: EditorMode) => {
+                editor.changeEditorMode({mode: type, reason: 'settings'});
                 unsetShowPreview();
             },
             [editor, unsetShowPreview],
@@ -109,18 +109,18 @@ export const MarkdownEditorView = React.forwardRef<HTMLDivElement, MarkdownEdito
             [editor, showPreview, toggleShowPreview],
         );
 
-        const editorType = editor.currentType;
+        const editorMode = editor.currentMode;
         const markupSplitMode =
-            editor.splitModeEnabled && editor.splitMode && editorType === 'markup';
+            editor.splitModeEnabled && editor.splitMode && editorMode === 'markup';
         const canRenderPreview = Boolean(
-            editor.renderPreview && editorType === 'markup' && !editor.splitModeEnabled,
+            editor.renderPreview && editorMode === 'markup' && !editor.splitModeEnabled,
         );
 
         useKey(
             (e) => canRenderPreview && isPreviewKeyDown(e),
             () => onShowPreviewChange(!showPreview),
             {event: 'keydown'},
-            [showPreview, editorType, onShowPreviewChange, canRenderPreview],
+            [showPreview, editorMode, onShowPreviewChange, canRenderPreview],
         );
 
         const editorWrapperRef = useRef(null);
@@ -129,7 +129,7 @@ export const MarkdownEditorView = React.forwardRef<HTMLDivElement, MarkdownEdito
         const settings = useMemo(
             () => (
                 <Settings
-                    mode={editorType}
+                    mode={editorMode}
                     onModeChange={onModeChange}
                     toolbarVisibility={editor.toolbarVisible && !showPreview}
                     onToolbarVisibilityChange={onToolbarVisibilityChange}
@@ -148,7 +148,7 @@ export const MarkdownEditorView = React.forwardRef<HTMLDivElement, MarkdownEdito
                 editor.splitMode,
                 editor.splitModeEnabled,
                 editor.toolbarVisible,
-                editorType,
+                editorMode,
                 onModeChange,
                 onShowPreviewChange,
                 onSplitModeChange,
@@ -171,7 +171,7 @@ export const MarkdownEditorView = React.forwardRef<HTMLDivElement, MarkdownEdito
                     });
                     setTimeout(() => {
                         resetErrorBoundary();
-                        editor.changeEditorType({type: 'markup', reason: 'error-boundary'});
+                        editor.changeEditorMode({mode: 'markup', reason: 'error-boundary'});
                     });
                     return null;
                 }}
@@ -200,7 +200,7 @@ export const MarkdownEditorView = React.forwardRef<HTMLDivElement, MarkdownEdito
                                 </>
                             ) : (
                                 <>
-                                    {editorType === 'wysiwyg' && (
+                                    {editorMode === 'wysiwyg' && (
                                         <WysiwygEditorView
                                             editor={editor}
                                             autofocus={autofocus}
@@ -208,14 +208,14 @@ export const MarkdownEditorView = React.forwardRef<HTMLDivElement, MarkdownEdito
                                             toolbarConfig={wysiwygToolbarConfig}
                                             toolbarVisible={editor.toolbarVisible}
                                             hiddenActionsConfig={wysiwygHiddenActionsConfig}
-                                            className={b('editor', {type: editorType})}
+                                            className={b('editor', {mode: editorMode})}
                                             toolbarClassName={b('toolbar')}
                                             stickyToolbar={stickyToolbar}
                                         >
                                             {editor.toolbarVisible && settingsVisible && settings}
                                         </WysiwygEditorView>
                                     )}
-                                    {editorType === 'markup' && (
+                                    {editorMode === 'markup' && (
                                         <MarkupEditorView
                                             editor={editor}
                                             autofocus={autofocus}
@@ -225,7 +225,7 @@ export const MarkdownEditorView = React.forwardRef<HTMLDivElement, MarkdownEdito
                                             splitMode={editor.splitMode}
                                             splitModeEnabled={editor.splitModeEnabled}
                                             hiddenActionsConfig={markupHiddenActionsConfig}
-                                            className={b('editor', {type: editorType})}
+                                            className={b('editor', {mode: editorMode})}
                                             toolbarClassName={b('toolbar')}
                                             stickyToolbar={stickyToolbar}
                                         >
