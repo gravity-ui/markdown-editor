@@ -69,4 +69,4 @@ export const WysiwygEditorView = React.memo<WysiwygEditorViewProps>((props) => {
         </div>
     );
 });
-WysiwygEditorView.displayName = 'YfmWysiwgEditorView';
+WysiwygEditorView.displayName = 'MarkdownWysiwgEditorView';

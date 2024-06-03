@@ -5,10 +5,10 @@ import {toaster} from '@gravity-ui/uikit/toaster-singleton-react-18';
 
 import {MarkupString, logger} from '../src';
 import {
-    YfmEditorType,
-    YfmEditorView,
+    MarkdownEditorType,
+    MarkdownEditorView,
     markupToolbarConfigs,
-    useYfmEditor,
+    useMarkdownEditor,
     wysiwygToolbarConfigs,
 } from '../src/bundle';
 import {RenderPreview, ToolbarActionData} from '../src/bundle/Editor';
@@ -54,7 +54,7 @@ export type PlaygroundProps = {
     initial?: MarkupString;
     allowHTML?: boolean;
     settingsVisible?: boolean;
-    initialEditor?: YfmEditorType;
+    initialEditor?: MarkdownEditorType;
     breaks?: boolean;
     linkify?: boolean;
     linkifyTlds?: string | string[];
@@ -90,7 +90,9 @@ export const Playground = React.memo<PlaygroundProps>((props) => {
         renderPreviewDefined,
         height,
     } = props;
-    const [editorType, setEditorType] = React.useState<YfmEditorType>(initialEditor ?? 'wysiwyg');
+    const [editorType, setEditorType] = React.useState<MarkdownEditorType>(
+        initialEditor ?? 'wysiwyg',
+    );
     const [mdRaw, setMdRaw] = React.useState<MarkupString>(initial || '');
 
     React.useEffect(() => {
@@ -112,7 +114,7 @@ export const Playground = React.memo<PlaygroundProps>((props) => {
         [allowHTML, breaks, linkify, linkifyTlds, sanitizeHtml],
     );
 
-    const mdEditor = useYfmEditor({
+    const mdEditor = useMarkdownEditor({
         allowHTML,
         linkify,
         linkifyTlds,
@@ -164,7 +166,7 @@ export const Playground = React.memo<PlaygroundProps>((props) => {
         function onChange() {
             setMdRaw(mdEditor.getValue());
         }
-        function onChangeEditorType({type}: {type: YfmEditorType}) {
+        function onChangeEditorType({type}: {type: MarkdownEditorType}) {
             setEditorType(type);
         }
         const onToolbarAction = ({id, editorType: type}: ToolbarActionData) => {
@@ -263,7 +265,7 @@ export const Playground = React.memo<PlaygroundProps>((props) => {
             <hr />
             <React.StrictMode>
                 <div className={b('editor')} style={{height: height ?? 'initial'}}>
-                    <YfmEditorView
+                    <MarkdownEditorView
                         autofocus
                         toaster={toaster}
                         className={b('editor-view')}

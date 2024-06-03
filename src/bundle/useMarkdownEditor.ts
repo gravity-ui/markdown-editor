@@ -7,7 +7,7 @@ import {logger} from '../logger';
 import {Editor, EditorImpl, EditorInt, EditorOptions, EditorType} from './Editor';
 import {BundlePreset, ExtensionsOptions} from './wysiwyg-preset';
 
-export type UseYfmEditorProps<T extends object = {}> = Omit<
+export type UseMarkdownEditorProps<T extends object = {}> = Omit<
     EditorOptions,
     'extensions' | 'renderStorage'
 > & {
@@ -18,8 +18,8 @@ export type UseYfmEditorProps<T extends object = {}> = Omit<
     extraExtensions?: Extension;
 };
 
-export function useYfmEditor<T extends object = {}>(
-    props: UseYfmEditorProps<T>,
+export function useMarkdownEditor<T extends object = {}>(
+    props: UseMarkdownEditorProps<T>,
     deps: React.DependencyList = [],
 ): Editor {
     const editor = useMemo<EditorInt>(

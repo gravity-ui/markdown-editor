@@ -6,7 +6,7 @@ import {EditorView, NodeView} from 'prosemirror-view';
 import {createPortal} from 'react-dom';
 
 import {ExtensionAuto, getReactRendererFromState} from '../../../src';
-import {YfmEditorView, YfmEditorViewProps, useYfmEditor} from '../../../src/bundle';
+import {MarkdownEditorView, MarkdownEditorViewProps, useMarkdownEditor} from '../../../src/bundle';
 
 import './index.scss';
 
@@ -102,11 +102,11 @@ class EditorInEditorNodeView implements NodeView {
 
 type YfmEditorProps = {
     initialContent: string;
-    toaster: YfmEditorViewProps['toaster'];
+    toaster: MarkdownEditorViewProps['toaster'];
 };
 
 function InnerEditor({initialContent, toaster}: YfmEditorProps) {
-    const mdEditor = useYfmEditor({
+    const mdEditor = useMarkdownEditor({
         initialMarkup: initialContent,
         initialEditorType: 'wysiwyg',
         initialToolbarVisible: true,
@@ -115,7 +115,7 @@ function InnerEditor({initialContent, toaster}: YfmEditorProps) {
         allowHTML: false,
     });
     return (
-        <YfmEditorView
+        <MarkdownEditorView
             editor={mdEditor}
             toaster={toaster}
             settingsVisible={false}
