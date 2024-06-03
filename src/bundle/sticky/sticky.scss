@@ -1,6 +1,6 @@
 @use '../../styles/zindex' as zIndexVars;
 
-$block: 'ye-editor-sticky';
+$block: 'g-md-editor-sticky';
 
 .#{$block} {
     display: grid;
@@ -9,7 +9,7 @@ $block: 'ye-editor-sticky';
 
     &_sticky {
         position: sticky;
-        top: calc(var(--ye-toolbar-sticky-offset, 0px) + 8px);
+        top: calc(var(--g-md-toolbar-sticky-offset, 0px) + 8px);
     }
 
     &_sticky-active:not(.#{$block}_clear) {

@@ -10,7 +10,7 @@ export const BaseStyles: ExtensionAuto = (builder) => {
             new Plugin({
                 props: {
                     attributes: {
-                        class: 'yfm-editor',
+                        class: 'g-md-editor',
                     },
                 },
             }),

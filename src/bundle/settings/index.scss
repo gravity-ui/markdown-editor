@@ -1,6 +1,6 @@
 @import '~@gravity-ui/uikit/styles/mixins';
 
-.ye-editor-settings {
+.g-md-editor-settings {
     display: flex;
     flex-wrap: nowrap;
 
@@ -21,7 +21,7 @@
     }
 }
 
-.ye-settings-content {
+.g-md-settings-content {
     width: 300px;
 
     &__mode-help {

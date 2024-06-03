@@ -60,7 +60,7 @@ const toDOM: WidgetConstructor = (view, getPos) => {
     const element = DOMSerializer.fromSchema(view.state.schema).serializeNode(node);
     const placeholderDOM = createPlaceholder(node, null, true);
     if (placeholderDOM) element.appendChild(placeholderDOM);
-    (element as Element).classList.add('ye-gapcursor');
+    (element as Element).classList.add('g-md-gapcursor');
     (element as HTMLElement).addEventListener('mousedown', () => {
         const pos = getPos();
         if (pos !== undefined) {

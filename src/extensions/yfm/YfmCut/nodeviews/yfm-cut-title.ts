@@ -15,7 +15,7 @@ export class YfmCutTitleNodeView implements NodeView {
         this.dom = document.createElement('div');
         this.dom.classList.add('yfm-cut-title');
         this.dom.replaceChildren((this.contentDOM = document.createElement('div')));
-        this.contentDOM.classList.add('ye-yfm-cut-title-inner');
+        this.contentDOM.classList.add('g-md-yfm-cut-title-inner');
         this.contentDOM.addEventListener('click', (e) => {
             // ignore clicking on the title content
             // you can open/close yfm-cut by clicking on the arrow icon

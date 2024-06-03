@@ -17,7 +17,7 @@ export const YfmDist: ExtensionAuto = (builder) => {
             new Plugin({
                 props: {
                     attributes: {
-                        class: 'yfm yfm_no-list-reset',
+                        class: 'yfm yfm_no-list-reset yfm-editor',
                     },
                 },
             }),

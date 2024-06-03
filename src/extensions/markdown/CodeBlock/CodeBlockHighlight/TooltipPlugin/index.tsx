@@ -46,10 +46,10 @@ const CodeMenu: React.FC<CodeMenuProps> = ({view, pos, node, selectItems, mappin
             options={selectItems}
             filterable
             filterPlaceholder={i18nPlaceholder('select_filter')}
-            popupClassName="ye-code-block__select-popup"
-            className="ye-code-block__select-button"
+            popupClassName="g-md-code-block__select-popup"
+            className="g-md-code-block__select-button"
             renderEmptyOptions={() => (
-                <div className="ye-code-block__select-empty">{i18n('empty_option')}</div>
+                <div className="g-md-code-block__select-empty">{i18n('empty_option')}</div>
             )}
         />
     );
@@ -68,7 +68,7 @@ export const codeLangSelectTooltipViewCreator = (
             <Toolbar
                 editor={{}}
                 focus={() => view.focus()}
-                className="ye-code-block-toolbar"
+                className="g-md-code-block-toolbar"
                 data={[
                     [
                         {

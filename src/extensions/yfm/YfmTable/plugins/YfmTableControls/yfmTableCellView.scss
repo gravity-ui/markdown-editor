@@ -1,4 +1,4 @@
-.ye-table-cell-view {
+.g-md-table-cell-view {
     &__left-button {
         position: absolute;
         z-index: 110;
@@ -40,14 +40,14 @@
     }
 
     &__upper-visible {
-        .ye-table-cell-view__upper-button {
+        .g-md-table-cell-view__upper-button {
             pointer-events: initial;
 
             opacity: 1;
         }
     }
     &__left-visible {
-        .ye-table-cell-view__left-button {
+        .g-md-table-cell-view__left-button {
             pointer-events: initial;
 
             opacity: 1;

@@ -118,7 +118,7 @@ export const Placeholder: ExtensionAuto<PlaceholderOptions> = (builder, opts) =>
                         const attrs: Record<string, string> = {};
                         if (pluginKey.getState(state)!.hasFocus) {
                             // hide native cursor
-                            attrs.class = 'yfm-editor-hidecursor';
+                            attrs.class = 'g-md-editor-hidecursor';
                         }
                         return attrs;
                     },

@@ -34,14 +34,14 @@
 }
 
 .math-container:not(.math-active) {
-    --ye-math-back-color: transparent;
-    --ye-math-hover-color: var(--g-color-base-simple-hover);
+    --g-md-math-back-color: transparent;
+    --g-md-math-hover-color: var(--g-color-base-simple-hover);
 
     position: relative;
 
     &.math-container-error {
-        --ye-math-back-color: var(--g-color-base-danger-light);
-        --ye-math-hover-color: var(--g-color-base-danger-light-hover);
+        --g-md-math-back-color: var(--g-color-base-danger-light);
+        --g-md-math-hover-color: var(--g-color-base-danger-light-hover);
     }
 
     &::before {
@@ -52,7 +52,7 @@
         content: '';
 
         border-radius: var(--g-border-radius-s);
-        background-color: var(--ye-math-back-color);
+        background-color: var(--g-md-math-back-color);
 
         transition: background-color 0.15s linear;
     }
@@ -61,7 +61,7 @@
         cursor: pointer;
 
         &::before {
-            background-color: var(--ye-math-hover-color);
+            background-color: var(--g-md-math-hover-color);
         }
     }
 
@@ -75,12 +75,12 @@
         opacity: 0;
     }
 
-    .ye-MathHint {
+    .g-md-MathHint {
         display: none;
     }
 }
 
-.ye-MathHint_view {
+.g-md-MathHint_view {
     &_block {
         float: right;
     }
