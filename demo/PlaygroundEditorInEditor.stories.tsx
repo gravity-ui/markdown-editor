@@ -6,7 +6,7 @@ import type {ComponentMeta, Story} from '@storybook/react';
 import {PlaygroundEditorInEditor} from './editor-in-editor';
 
 export default {
-    title: 'Editor-in-Editor',
+    title: 'Experiments / Editor-in-Editor',
     component: PlaygroundEditorInEditor,
 } as ComponentMeta<any>;
 
