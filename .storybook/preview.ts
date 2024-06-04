@@ -1,7 +1,7 @@
 import type {Preview} from '@storybook/react';
 import {MINIMAL_VIEWPORTS} from '@storybook/addon-viewport';
 
-import {withThemeProvider, withLang, backgrounds} from '../demo/utils/preview';
+import {withThemeProvider, withLang} from '../demo/utils/preview';
 
 const preview: Preview = {
     decorators: [withThemeProvider, withLang],
@@ -9,6 +9,11 @@ const preview: Preview = {
         jsx: {showFunctions: true}, // To show functions in sources
         viewport: {
             viewports: MINIMAL_VIEWPORTS,
+        },
+        options: {
+            storySort: {
+                order: ['Markdown Editor', ['Playground', '*'], '*'],
+            }
         },
     },
     globalTypes: {
