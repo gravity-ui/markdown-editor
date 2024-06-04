@@ -2,9 +2,12 @@
 
 ## Markdown wysiwyg and markup editor 
 
-Extendable markdown editor with wysiwyg and markup modes.\
-Implements the basic syntax of markdown and [YFM](https://ydocs.tech) syntax.\
-It is based on the ProseMirror and CodeMirror engines.
+MarkdownEditor is a powerful tool for working with Markdown, which combines WYSIWYG and Markup modes. This means that you can create and edit content in a convenient visual mode, as well as have full control over the markup.
+
+🔧 **Main features:**
+- Support for the basic Markdown and [YFM](https://ydocs.tech) syntax.
+- Extensibility through the use of ProseMirror and CodeMirror engines.
+- The ability to work in WYSIWYG and Markup modes for maximum flexibility.
 
 ## Install
 
