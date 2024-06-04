@@ -1,95 +1,68 @@
-# @doc-tools/yfm-editor &middot; [![npm package](https://img.shields.io/npm/v/@doc-tools/yfm-editor)](https://www.npmjs.com/package/@doc-tools/yfm-editor) [![CI](https://img.shields.io/github/actions/workflow/status/yandex-cloud/yfm-editor/ci.yml?branch=master&label=CI&logo=github)](https://github.com/yandex-cloud/yfm-editor/actions/workflows/ci.yml?query=branch:master) [![storybook](https://img.shields.io/badge/Storybook-deployed-ff4685)](https://preview.yandexcloud.dev/yfm-editor/)
+# @gravity-ui/markdown-editor &middot; [![npm package](https://img.shields.io/npm/v/@gravity-ui/markdown-editor)](https://www.npmjs.com/package/@gravity-ui/markdown-editor) [![CI](https://img.shields.io/github/actions/workflow/status/gravity-ui/markdown-editor/ci.yml?branch=main&label=CI)](https://github.com/gravity-ui/markdown-editor/actions/workflows/ci.yml?query=branch:main) [![Release](https://img.shields.io/github/actions/workflow/status/gravity-ui/markdown-editor/release.yml?branch=main&label=Release)](https://github.com/gravity-ui/markdown-editor/actions/workflows/release.yml?query=branch:main) [![storybook](https://img.shields.io/badge/Storybook-deployed-ff4685)](https://preview.gravity-ui.com/md-editor/)
 
-[YFM](https://ydocs.tech/) WYSIWYG Editor
+## Markdown wysiwyg and markup editor 
 
-Preview: https://preview.yandexcloud.dev/yfm-editor/
+MarkdownEditor is a powerful tool for working with Markdown, which combines WYSIWYG and Markup modes. This means that you can create and edit content in a convenient visual mode, as well as have full control over the markup.
+
+### 🔧 Main features
+
+- Support for the basic Markdown and [YFM](https://ydocs.tech) syntax.
+- Extensibility through the use of ProseMirror and CodeMirror engines.
+- The ability to work in WYSIWYG and Markup modes for maximum flexibility.
 
 ## Install
 
 ```shell
-npm install @doc-tools/yfm-editor
+npm install @gravity-ui/markdown-editor
 ```
 
-Ensure that peer dependencies are installed in your project
+### Required dependencies
 
-```shell
-npm install react@17 react-dom@17 @diplodoc/transform@4 @gravity-ui/uikit@5 @gravity-ui/components@2 lodash@4
-```
+Please note that to start using the package, your project must also have the following installed: `@diplodoc/transform`, `react`, `react-dom`, `@gravity-ui/uikit`, `@gravity-ui/components` and some others. Check out the `peerDependencies` section of `package.json` for accurate information.
 
-## Usage
+## Getting started
 
-```js
-import {
-    YfmEditor,
-    BasePreset,
-    BehaviorPreset,
-    MarkdownBlocksPreset,
-    MarkdownMarksPreset,
-    YfmPreset,
-} from '@doc-tools/yfm-editor';
+The markdown editor is supplied as a React hook to create an instance of editor and a component for rendering the view.\
+To set up styling and theme see [UIKit docs](https://github.com/gravity-ui/uikit?tab=readme-ov-file#styles).
 
-const domElem = document.querySelector('#editor');
-
-const editor = new YfmEditor({
-    domElem,
-    linkify: true,
-    allowHTML: false,
-    extensions: (builder) =>
-        builder
-            .use(BasePreset, {})
-            .use(BehaviorPreset, {})
-            .use(MarkdownBlocksPreset, {image: false, heading: false})
-            .use(MarkdownMarksPreset, {})
-            .use(YfmPreset, {}),
-    onDocChange: () => {
-        console.log('The contents of the editor have been changed');
-    },
-});
-
-// Serialize current content in YFM
-editor.getValue();
-```
-
-### Usage with React
-
-```jsx
+```tsx
 import React from 'react';
-import {
-    Extension,
-    BasePreset,
-    BehaviorPreset,
-    MarkdownBlocksPreset,
-    MarkdownMarksPreset,
-    useYfmEditor,
-    YfmEditorComponent,
-    YfmPreset,
-} from '@doc-tools/yfm-editor';
+import {useMarkdownEditor, MarkdownEditorView} from '@gravity-ui/markdown-editor';
+import {toaster} from '@gravity-ui/uikit/toaster-singleton-react-18';
 
-export function Editor({initialContent}) {
-    const extensions = React.useMemo<Extension>(
-        () => (builder) =>
-            builder
-                .use(BasePreset, {})
-                .use(BehaviorPreset, {})
-                .use(MarkdownBlocksPreset, {image: false, heading: false})
-                .use(MarkdownMarksPreset, {})
-                .use(YfmPreset, {}),
-        [],
-    );
+function Editor({onSubmit}) {
+  const editor = useMarkdownEditor({allowHTML: false});
 
-    const editor = useYfmEditor({
-        linkify: true,
-        allowHTML: false,
-        extensions,
-        initialContent,
-    });
+  React.useEffect(() => {
+    function submitHandler() {
+      // Serialize current content to markdown markup
+      const value = editor.getValue();
+      onSubmit(value);
+    }
 
-    // Serialize current content in YFM
-    editor.getValue();
+    editor.on('submit', submitHandler);
+    return () => {
+      editor.off('submit', submitHandler);
+    };
+  }, [onSubmit]);
 
-    return <YfmEditorComponent autofocus editor={editor} />;
+  return <MarkdownEditorView autofocus toaster={toaster} editor={editor} />;
 }
 ```
+
+### i18n
+
+To set up internationalization, you just need to use the `configure`:
+
+```typescript
+import {configure} from '@gravity-ui/markdown-editor';
+
+configure({
+  lang: 'ru',
+});
+```
+
+Don't forget to call `configure()` from [UIKit](https://github.com/gravity-ui/uikit?tab=readme-ov-file#i18n) and other UI libraries.
 
 ## Development
 
