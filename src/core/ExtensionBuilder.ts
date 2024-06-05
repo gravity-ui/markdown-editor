@@ -17,6 +17,20 @@ import type {Keymap} from './types/keymap';
 
 type InputRulesConfig = Parameters<typeof inputRules>[0];
 type ExtensionWithParams = (builder: ExtensionBuilder, ...params: any[]) => void;
+type ConfigureMdParams = {
+    /**
+     * Apply this configurtion to text parser
+     *
+     * @default true
+     */
+    text?: boolean;
+    /**
+     * Apply this configurtion to markup parser
+     *
+     * @default true
+     */
+    markup?: boolean;
+};
 
 type ConfigureMdCallback = (md: MarkdownIt) => MarkdownIt;
 type AddPmNodeCallback = () => ExtensionNodeSpec;
@@ -64,7 +78,7 @@ export class ExtensionBuilder {
     readonly PluginPriority = ExtensionBuilder.PluginPriority;
     /* eslint-enable @typescript-eslint/member-ordering */
 
-    #confMdCbs: ConfigureMdCallback[] = [];
+    #confMdCbs: {cb: ConfigureMdCallback; params: Required<ConfigureMdParams>}[] = [];
     #nodeSpecs: Record<string, {name: string; cb: AddPmNodeCallback}> = {};
     #markSpecs: Record<string, {name: string; cb: AddPmMarkCallback; priority: number}> = {};
     #plugins: {cb: AddPmPluginCallback; priority: number}[] = [];
@@ -83,8 +97,14 @@ export class ExtensionBuilder {
         return this;
     }
 
-    configureMd(cb: ConfigureMdCallback): this {
-        this.#confMdCbs.push(cb);
+    configureMd(cb: ConfigureMdCallback, params: ConfigureMdParams = {}): this {
+        this.#confMdCbs.push({
+            cb,
+            params: {
+                text: params.text ?? true,
+                markup: params.markup ?? true,
+            },
+        });
         return this;
     }
 
@@ -137,7 +157,16 @@ export class ExtensionBuilder {
         const actions = this.#actions.slice();
 
         return {
-            configureMd: (md) => confMd.reduce((pMd, cb) => cb(pMd), md),
+            configureMd: (md, parserType) =>
+                confMd.reduce((pMd, {cb, params}) => {
+                    if (parserType === 'text' && params.text) {
+                        return cb(pMd);
+                    }
+                    if (parserType === 'markup' && params.markup) {
+                        return cb(pMd);
+                    }
+                    return pMd;
+                }, md),
             nodes: () => {
                 let map = OrderedMap.from<ExtensionNodeSpec>({});
                 for (const {name, cb} of Object.values(nodes)) {

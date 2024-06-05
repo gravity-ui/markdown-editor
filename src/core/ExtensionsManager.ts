@@ -44,8 +44,8 @@ export class ExtensionsManager {
     #nodeViewCreators = new Map<string, (deps: ExtensionDeps) => NodeViewConstructor>();
     #markViewCreators = new Map<string, (deps: ExtensionDeps) => MarkViewConstructor>();
 
-    #md: MarkdownIt;
-    #mdWithoutAttrs: MarkdownIt;
+    #mdForMarkup: MarkdownIt;
+    #mdForText: MarkdownIt;
     #extensions: Extension;
     #builder: ExtensionBuilder;
 
@@ -59,15 +59,15 @@ export class ExtensionsManager {
     constructor({extensions, options = {}}: ExtensionsManagerParams) {
         this.#extensions = extensions;
 
-        this.#md = new MarkdownIt(options.mdOpts ?? {}).use<AttrsOptions>(
+        this.#mdForMarkup = new MarkdownIt(options.mdOpts ?? {}).use<AttrsOptions>(
             attrsPlugin,
             options.attrsOpts ?? {},
         );
-        this.#mdWithoutAttrs = new MarkdownIt(options.mdOpts ?? {});
+        this.#mdForText = new MarkdownIt(options.mdOpts ?? {});
 
         if (options.linkifyTlds) {
-            this.#md.linkify.tlds(options.linkifyTlds, true);
-            this.#mdWithoutAttrs.linkify.tlds(options.linkifyTlds, true);
+            this.#mdForMarkup.linkify.tlds(options.linkifyTlds, true);
+            this.#mdForText.linkify.tlds(options.linkifyTlds, true);
         }
 
         // TODO: add prefilled context
@@ -97,8 +97,8 @@ export class ExtensionsManager {
 
     private processExtensions() {
         this.#spec = this.#builder.use(this.#extensions).build();
-        this.#md = this.#spec.configureMd(this.#md);
-        this.#mdWithoutAttrs = this.#spec.configureMd(this.#mdWithoutAttrs);
+        this.#mdForMarkup = this.#spec.configureMd(this.#mdForMarkup, 'markup');
+        this.#mdForText = this.#spec.configureMd(this.#mdForText, 'text');
         this.#spec.nodes().forEach(this.processNode);
         this.#spec.marks().forEach(this.processMark);
     }
@@ -126,8 +126,8 @@ export class ExtensionsManager {
         this.#deps = {
             schema,
             actions: new ActionsManager(),
-            markupParser: this.#parserRegistry.createParser(schema, this.#md),
-            textParser: this.#parserRegistry.createParser(schema, this.#mdWithoutAttrs),
+            markupParser: this.#parserRegistry.createParser(schema, this.#mdForMarkup),
+            textParser: this.#parserRegistry.createParser(schema, this.#mdForText),
             serializer: this.#serializerRegistry.createSerializer(),
         };
     }
