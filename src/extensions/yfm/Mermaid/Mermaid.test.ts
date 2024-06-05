@@ -7,7 +7,11 @@ import {BaseNode, BaseSpecsPreset} from '../../../extensions/specs';
 import {MermaidSpecs} from './MermaidSpecs';
 import {MermaidAttrs, mermaidNodeName} from './const';
 
-const {schema, parser, serializer} = new ExtensionsManager({
+const {
+    schema,
+    markupParser: parser,
+    serializer,
+} = new ExtensionsManager({
     extensions: (builder) => builder.use(BaseSpecsPreset, {}).use(MermaidSpecs, {}),
 }).buildDeps();
 

@@ -3,14 +3,16 @@ import {Plugin} from 'prosemirror-state';
 
 import type {ExtensionAuto} from '../../../core';
 
-import {YfmDistSpecs} from './YfmDistSpecs';
+import {YfmConfigsSpecs, YfmConfigsSpecsOptions} from './YfmConfigsSpecs';
 
 import '@diplodoc/transform/dist/css/yfm.css';
 import './yfm.scss'; // eslint-disable-line import/order
 
-export const YfmDist: ExtensionAuto = (builder) => {
-    // ignore yfm lint token
-    builder.use(YfmDistSpecs);
+export type YfmConfigsOptions = YfmConfigsSpecsOptions & {};
+
+export const YfmConfigs: ExtensionAuto<YfmConfigsOptions> = (builder, opts) => {
+    // apply md-it-attrs plugin and ignore yfm lint token
+    builder.use(YfmConfigsSpecs, opts);
 
     builder.addPlugin(
         () =>

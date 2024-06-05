@@ -18,7 +18,11 @@ afterEach(() => {
     jest.spyOn(global.Math, 'random').mockRestore();
 });
 
-const {schema, parser, serializer} = new ExtensionsManager({
+const {
+    schema,
+    markupParser: parser,
+    serializer,
+} = new ExtensionsManager({
     extensions: (builder) =>
         builder.use(BaseSpecsPreset, {}).use(BlockquoteSpecs).use(YfmTabsSpecs, {}),
 }).buildDeps();

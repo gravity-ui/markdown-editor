@@ -9,7 +9,11 @@ import {BlockquoteSpecs, blockquoteNodeName} from '../Blockquote/BlockquoteSpecs
 import {TableSpecs} from './TableSpecs';
 import {CellAlign, TableAttrs, TableNode} from './const';
 
-const {schema, parser, serializer} = new ExtensionsManager({
+const {
+    schema,
+    markupParser: parser,
+    serializer,
+} = new ExtensionsManager({
     extensions: (builder) => builder.use(BaseSpecsPreset, {}).use(BlockquoteSpecs).use(TableSpecs),
 }).buildDeps();
 

@@ -4,7 +4,7 @@ const isString = (str: unknown): str is string => typeof str === 'string';
 const notEmpty = (str: string): boolean => str.length > 0;
 
 export const normalizeUrlFactory =
-    ({parser}: ExtensionDeps) =>
+    ({markupParser: parser}: ExtensionDeps) =>
     (url: string) => {
         if (isString(url)) {
             url = url.trim();

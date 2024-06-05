@@ -8,7 +8,11 @@ import {HtmlAttr, HtmlNode} from './const';
 
 import {Html} from './index';
 
-const {schema, parser, serializer} = new ExtensionsManager({
+const {
+    schema,
+    markupParser: parser,
+    serializer,
+} = new ExtensionsManager({
     extensions: (builder) => builder.use(BaseSchema, {}).use(Html),
     options: {mdOpts: {html: true}},
 }).buildDeps();

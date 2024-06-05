@@ -8,7 +8,11 @@ import {BoldSpecs, boldMarkName} from '../../markdown/Bold/BoldSpecs';
 
 import {BreakNodeName, BreaksSpecs} from './BreaksSpecs';
 
-const {schema, parser, serializer} = new ExtensionsManager({
+const {
+    schema,
+    markupParser: parser,
+    serializer,
+} = new ExtensionsManager({
     extensions: (builder) => builder.use(BaseSpecsPreset, {}).use(BreaksSpecs, {}).use(BoldSpecs),
 }).buildDeps();
 

@@ -11,8 +11,8 @@ export const Clipboard: ExtensionAuto<ClipboardOptions> = (builder, opts) => {
     builder.addPlugin(
         (deps) =>
             clipboard({
-                yfmParser: deps.parser,
-                textParser: deps.parserWithoutAttrs,
+                mdParser: deps.markupParser,
+                textParser: deps.textParser,
                 serializer: deps.serializer,
                 pasteFileHandler: opts.pasteFileHandler,
             }),

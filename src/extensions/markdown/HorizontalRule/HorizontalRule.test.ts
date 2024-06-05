@@ -11,7 +11,11 @@ import {
     horizontalRuleNodeName,
 } from './HorizontalRuleSpecs';
 
-const {schema, parser, serializer} = new ExtensionsManager({
+const {
+    schema,
+    markupParser: parser,
+    serializer,
+} = new ExtensionsManager({
     extensions: (builder) => builder.use(BaseSpecsPreset, {}).use(HorizontalRuleSpecs),
 }).buildDeps();
 

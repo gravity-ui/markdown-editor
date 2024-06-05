@@ -106,7 +106,7 @@ type ChangeEditorModeOptions = {
 
 export type EditorOptions = Pick<
     WysiwygEditorOptions,
-    'allowHTML' | 'linkify' | 'linkifyTlds' | 'attrs' | 'extensions'
+    'allowHTML' | 'linkify' | 'linkifyTlds' | 'extensions'
 > & {
     initialMarkup?: MarkupString;
     /** @default 'wysiwyg' */
@@ -148,7 +148,6 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
     #allowHTML?: boolean;
     #linkify?: boolean;
     #linkifyTlds?: string | string[];
-    #attrs?: WysiwygEditorOptions['attrs'];
     #extensions?: WysiwygEditorOptions['extensions'];
     #renderStorage: ReactRenderStorage;
     #fileUploadHandler?: FileUploadHandler;
@@ -238,7 +237,6 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
                 allowHTML: this.#allowHTML,
                 linkify: this.#linkify,
                 linkifyTlds: this.#linkifyTlds,
-                attrs: this.#attrs,
                 onChange: () => this.emit('rerender-toolbar', null),
                 onDocChange: () => this.emit('change', null),
             });
@@ -288,7 +286,6 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
 
         this.#markup = opts.initialMarkup ?? '';
 
-        this.#attrs = opts.attrs;
         this.#linkify = opts.linkify;
         this.#linkifyTlds = opts.linkifyTlds;
         this.#allowHTML = opts.allowHTML;

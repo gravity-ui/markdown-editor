@@ -14,7 +14,7 @@ import {isInsideCode} from './code';
 import {DataTransferType, extractTextContentFromHtml, isIosSafariShare} from './utils';
 
 export type ClipboardPluginOptions = {
-    yfmParser: Parser;
+    mdParser: Parser;
     textParser: Parser;
     serializer: Serializer;
     pasteFileHandler?: (file: File) => void;
@@ -22,7 +22,7 @@ export type ClipboardPluginOptions = {
 
 export const clipboard = ({
     textParser,
-    yfmParser,
+    mdParser,
     serializer,
     pasteFileHandler,
 }: ClipboardPluginOptions) => {
@@ -120,7 +120,7 @@ export const clipboard = ({
                         let parser: Parser;
                         let dataFormat: string;
                         if (e.clipboardData.types.includes(DataTransferType.Yfm)) {
-                            parser = yfmParser;
+                            parser = mdParser;
                             dataFormat = DataTransferType.Yfm;
                         } else {
                             parser = textParser;

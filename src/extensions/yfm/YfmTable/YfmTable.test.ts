@@ -12,7 +12,11 @@ import {BlockquoteSpecs, blockquoteNodeName} from '../../markdown/Blockquote/Blo
 import {YfmTableNode, YfmTableSpecs} from './YfmTableSpecs';
 import {fixPastedTableBodies} from './paste';
 
-const {schema, parser, serializer} = new ExtensionsManager({
+const {
+    schema,
+    markupParser: parser,
+    serializer,
+} = new ExtensionsManager({
     extensions: (builder) =>
         builder.use(BaseSpecsPreset, {}).use(BlockquoteSpecs).use(YfmTableSpecs, {}),
 }).build();

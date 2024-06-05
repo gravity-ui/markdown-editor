@@ -16,7 +16,11 @@ import {
 
 import {CutNode, YfmCutSpecs} from './YfmCutSpecs';
 
-const {schema, parser, serializer} = new ExtensionsManager({
+const {
+    schema,
+    markupParser: parser,
+    serializer,
+} = new ExtensionsManager({
     extensions: (builder) =>
         builder
             .use(BaseSpecsPreset, {})

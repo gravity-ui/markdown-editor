@@ -5,7 +5,11 @@ import {ExtensionsManager} from '../../../core';
 
 import {BaseNode, BaseSchemaSpecs} from './BaseSchemaSpecs';
 
-const {schema, parser, serializer} = new ExtensionsManager({
+const {
+    schema,
+    markupParser: parser,
+    serializer,
+} = new ExtensionsManager({
     extensions: (builder) => builder.use(BaseSchemaSpecs, {}),
 }).buildDeps();
 
