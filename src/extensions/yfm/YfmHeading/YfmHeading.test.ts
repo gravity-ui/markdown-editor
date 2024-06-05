@@ -3,7 +3,7 @@ import {builders} from 'prosemirror-test-builder';
 import {parseDOM} from '../../../../tests/parse-dom';
 import {createMarkupChecker} from '../../../../tests/sameMarkup';
 import {ExtensionsManager} from '../../../core';
-import {BaseNode, BaseSpecsPreset} from '../../base/specs';
+import {BaseNode, BaseSchemaSpecs} from '../../base/specs';
 import {BoldSpecs, boldMarkName, headingNodeName} from '../../markdown/specs';
 import {YfmConfigsSpecs} from '../specs';
 
@@ -16,7 +16,7 @@ const {
 } = new ExtensionsManager({
     extensions: (builder) =>
         builder
-            .use(BaseSpecsPreset, {})
+            .use(BaseSchemaSpecs, {})
             .use(YfmConfigsSpecs, {attrs: {allowedAttributes: ['id']}})
             .use(YfmHeadingSpecs, {})
             .use(BoldSpecs),

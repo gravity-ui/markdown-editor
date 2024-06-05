@@ -4,7 +4,7 @@ import {builders} from 'prosemirror-test-builder';
 
 import {ExtensionsManager} from '../../../core';
 import {get$Cursor, isNodeSelection} from '../../../utils/selection';
-import {BaseNode, BaseSpecsPreset} from '../../base/specs';
+import {BaseNode, BaseSchemaSpecs} from '../../base/specs';
 import {DeflistNode, DeflistSpecs} from '../Deflist/DeflistSpecs';
 import {Html, HtmlAttr, HtmlNode} from '../Html';
 
@@ -13,7 +13,7 @@ import {joinPrevQuote} from './commands';
 
 const {schema} = new ExtensionsManager({
     extensions: (builder) =>
-        builder.use(BaseSpecsPreset, {}).use(BlockquoteSpecs).use(Html).use(DeflistSpecs, {}),
+        builder.use(BaseSchemaSpecs, {}).use(BlockquoteSpecs).use(Html).use(DeflistSpecs, {}),
 }).buildDeps();
 
 const {doc, p, bq, htmlBlock, dList, dTerm, dDesc} = builders<

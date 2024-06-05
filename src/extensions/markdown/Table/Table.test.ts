@@ -3,7 +3,7 @@ import {builders} from 'prosemirror-test-builder';
 import {parseDOM} from '../../../../tests/parse-dom';
 import {createMarkupChecker} from '../../../../tests/sameMarkup';
 import {ExtensionsManager} from '../../../core';
-import {BaseNode, BaseSpecsPreset} from '../../base/specs';
+import {BaseNode, BaseSchemaSpecs} from '../../base/specs';
 import {BlockquoteSpecs, blockquoteNodeName} from '../Blockquote/BlockquoteSpecs';
 
 import {TableSpecs} from './TableSpecs';
@@ -14,7 +14,7 @@ const {
     markupParser: parser,
     serializer,
 } = new ExtensionsManager({
-    extensions: (builder) => builder.use(BaseSpecsPreset, {}).use(BlockquoteSpecs).use(TableSpecs),
+    extensions: (builder) => builder.use(BaseSchemaSpecs, {}).use(BlockquoteSpecs).use(TableSpecs),
 }).buildDeps();
 
 const {doc, bq, table, thead, tbody, tr, thL, thC, thR, tdL, tdC, tdR} = builders<

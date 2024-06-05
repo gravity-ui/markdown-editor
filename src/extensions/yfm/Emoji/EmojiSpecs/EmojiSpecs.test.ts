@@ -2,7 +2,7 @@ import {builders} from 'prosemirror-test-builder';
 
 import {createMarkupChecker} from '../../../../../tests/sameMarkup';
 import {ExtensionsManager} from '../../../../core';
-import {BaseNode, BaseSpecsPreset} from '../../../../extensions/specs';
+import {BaseNode, BaseSchemaSpecs} from '../../../../extensions/specs';
 
 import {EmojiSpecs} from './EmojiSpecs';
 
@@ -11,7 +11,7 @@ const {
     markupParser: parser,
     serializer,
 } = new ExtensionsManager({
-    extensions: (builder) => builder.use(BaseSpecsPreset, {}).use(EmojiSpecs, {defs: {ddd: 'x'}}),
+    extensions: (builder) => builder.use(BaseSchemaSpecs, {}).use(EmojiSpecs, {defs: {ddd: 'x'}}),
 }).buildDeps();
 
 const {doc, p, emoji} = builders<'doc' | 'p' | 'emoji'>(schema, {

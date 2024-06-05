@@ -3,7 +3,7 @@ import {Command, EditorState, Selection, TextSelection, Transaction} from 'prose
 import {builders} from 'prosemirror-test-builder';
 
 import {ExtensionsManager} from '../core';
-import {BaseNode, BaseSpecsPreset} from '../extensions/base/specs';
+import {BaseNode, BaseSchemaSpecs} from '../extensions/base/specs';
 import {
     BlockquoteSpecs,
     DeflistNode,
@@ -20,7 +20,7 @@ import {joinPreviousBlock} from './join';
 
 const {schema} = new ExtensionsManager({
     extensions: (builder) =>
-        builder.use(BaseSpecsPreset, {}).use(BlockquoteSpecs).use(Html).use(DeflistSpecs, {}),
+        builder.use(BaseSchemaSpecs, {}).use(BlockquoteSpecs).use(Html).use(DeflistSpecs, {}),
 }).buildDeps();
 
 const {doc, p, bq, htmlBlock, dList, dTerm, dDesc} = builders<

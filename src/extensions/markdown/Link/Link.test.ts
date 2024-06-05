@@ -2,7 +2,7 @@ import {builders} from 'prosemirror-test-builder';
 
 import {createMarkupChecker} from '../../../../tests/sameMarkup';
 import {ExtensionsManager} from '../../../core';
-import {BaseNode, BaseSpecsPreset} from '../../base/specs';
+import {BaseNode, BaseSchemaSpecs} from '../../base/specs';
 
 import {LinkAttr, LinkSpecs, linkMarkName} from './LinkSpecs';
 
@@ -11,7 +11,7 @@ const {
     markupParser: parser,
     serializer,
 } = new ExtensionsManager({
-    extensions: (builder) => builder.use(BaseSpecsPreset, {}).use(LinkSpecs),
+    extensions: (builder) => builder.use(BaseSchemaSpecs, {}).use(LinkSpecs),
 }).buildDeps();
 
 const {doc, p, a, lnk, lnk4} = builders<'doc' | 'p' | 'a' | 'lnk' | 'lnk4'>(schema, {

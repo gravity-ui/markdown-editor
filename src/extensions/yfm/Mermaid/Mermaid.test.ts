@@ -2,7 +2,7 @@ import {builders} from 'prosemirror-test-builder';
 
 import {createMarkupChecker} from '../../../../tests/sameMarkup';
 import {ExtensionsManager} from '../../../core';
-import {BaseNode, BaseSpecsPreset} from '../../../extensions/specs';
+import {BaseNode, BaseSchemaSpecs} from '../../../extensions/specs';
 
 import {MermaidSpecs} from './MermaidSpecs';
 import {MermaidAttrs, mermaidNodeName} from './const';
@@ -12,7 +12,7 @@ const {
     markupParser: parser,
     serializer,
 } = new ExtensionsManager({
-    extensions: (builder) => builder.use(BaseSpecsPreset, {}).use(MermaidSpecs, {}),
+    extensions: (builder) => builder.use(BaseSchemaSpecs, {}).use(MermaidSpecs, {}),
 }).buildDeps();
 
 const {doc, mermaid} = builders<'doc' | 'mermaid'>(schema, {
