@@ -5,7 +5,7 @@ import {createMarkupChecker} from '../../../../tests/sameMarkup';
 import {ExtensionsManager} from '../../../core';
 import {BaseNode, BaseSpecsPreset} from '../../base/specs';
 import {BoldSpecs, boldMarkName, headingNodeName} from '../../markdown/specs';
-import {YfmDistSpecs} from '../specs';
+import {YfmConfigsSpecs} from '../specs';
 
 import {YfmHeadingAttr, YfmHeadingSpecs} from './YfmHeadingSpecs';
 
@@ -17,7 +17,7 @@ const {
     extensions: (builder) =>
         builder
             .use(BaseSpecsPreset, {})
-            .use(YfmDistSpecs, {attrs: {allowedAttributes: ['id']}})
+            .use(YfmConfigsSpecs, {attrs: {allowedAttributes: ['id']}})
             .use(YfmHeadingSpecs, {})
             .use(BoldSpecs),
 }).buildDeps();

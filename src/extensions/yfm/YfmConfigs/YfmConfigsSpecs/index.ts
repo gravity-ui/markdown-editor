@@ -7,12 +7,12 @@ const defaultAttrsOpts: AttrsOptions = {
     allowedAttributes: ['id'],
 };
 
-export type YfmDistSpecsOptions = {
+export type YfmConfigsSpecsOptions = {
     /** markdown-it-attrs options */
     attrs?: AttrsOptions;
 };
 
-export const YfmDistSpecs: ExtensionAuto<YfmDistSpecsOptions> = (builder, opts) => {
+export const YfmConfigsSpecs: ExtensionAuto<YfmConfigsSpecsOptions> = (builder, opts) => {
     const attrsOpts = {...defaultAttrsOpts, ...opts.attrs};
 
     builder.configureMd((md) => md.use<AttrsOptions>(attrsPlugin, attrsOpts), {text: false});
