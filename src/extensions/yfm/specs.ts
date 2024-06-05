@@ -6,7 +6,7 @@ import {ImgSizeSpecs, ImgSizeSpecsOptions} from './ImgSize/ImgSizeSpecs';
 import {MonospaceSpecs} from './Monospace/MonospaceSpecs';
 import {VideoSpecs, VideoSpecsOptions} from './Video/VideoSpecs';
 import {YfmCutSpecs, YfmCutSpecsOptions} from './YfmCut/YfmCutSpecs';
-import {YfmDistSpecs} from './YfmDist/YfmDistSpecs';
+import {YfmDistSpecs, YfmDistSpecsOptions} from './YfmDist/YfmDistSpecs';
 import {YfmFileSpecs} from './YfmFile/YfmFileSpecs';
 import {YfmHeadingSpecs, YfmHeadingSpecsOptions} from './YfmHeading/YfmHeadingSpecs';
 import {YfmNoteSpecs, YfmNoteSpecsOptions} from './YfmNote/YfmNoteSpecs';
@@ -31,6 +31,7 @@ export type YfmSpecsPresetOptions = {
     color?: ColorSpecsOptions;
     video?: VideoSpecsOptions;
     imgSize?: ImgSizeSpecsOptions;
+    yfmDist?: YfmDistSpecsOptions;
     yfmCut?: YfmCutSpecsOptions;
     yfmNote?: YfmNoteSpecsOptions;
     yfmTable?: YfmTableSpecsOptions;
@@ -45,7 +46,7 @@ export const YfmSpecsPreset: ExtensionAuto<YfmSpecsPresetOptions> = (builder, op
         .use(ImgSizeSpecs, opts.imgSize ?? {})
         .use(MonospaceSpecs)
         .use(VideoSpecs, opts.video ?? {})
-        .use(YfmDistSpecs)
+        .use(YfmDistSpecs, opts.yfmDist ?? {})
         .use(YfmCutSpecs, opts.yfmCut ?? {})
         .use(YfmNoteSpecs, opts.yfmNote ?? {})
         .use(YfmFileSpecs)

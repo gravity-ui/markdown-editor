@@ -1,5 +1,4 @@
 import MarkdownIt from 'markdown-it';
-import attrsPlugin, {AttrsOptions} from 'markdown-it-attrs'; // eslint-disable-line import/no-extraneous-dependencies
 import type {Plugin} from 'prosemirror-state';
 
 import {ActionsManager} from './ActionsManager';
@@ -24,11 +23,6 @@ type ExtensionsManagerParams = {
 
 type ExtensionsManagerOptions = {
     mdOpts?: MarkdownIt.Options;
-    attrsOpts?: {
-        leftDelimiter?: string;
-        rightDelimiter?: string;
-        allowedAttributes?: string[];
-    };
     linkifyTlds?: string | string[];
 };
 
@@ -59,10 +53,7 @@ export class ExtensionsManager {
     constructor({extensions, options = {}}: ExtensionsManagerParams) {
         this.#extensions = extensions;
 
-        this.#mdForMarkup = new MarkdownIt(options.mdOpts ?? {}).use<AttrsOptions>(
-            attrsPlugin,
-            options.attrsOpts ?? {},
-        );
+        this.#mdForMarkup = new MarkdownIt(options.mdOpts ?? {});
         this.#mdForText = new MarkdownIt(options.mdOpts ?? {});
 
         if (options.linkifyTlds) {

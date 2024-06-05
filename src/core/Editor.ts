@@ -23,11 +23,6 @@ export type WysiwygEditorOptions = {
     allowHTML?: boolean;
     linkify?: boolean;
     linkifyTlds?: string | string[];
-    /** markdown-it-attrs options */
-    attrs?: {
-        leftDelimiter?: string;
-        rightDelimiter?: string;
-    };
     /** Call on any state change (move cursor, change selection, etc...) */
     onChange?: OnChange;
     /** Call only if document change */
@@ -66,7 +61,6 @@ export class WysiwygEditor implements CommonEditor, ActionStorage {
         domElem,
         initialContent = '',
         extensions = () => {},
-        attrs: attrsOpts,
         allowHTML,
         linkify,
         linkifyTlds,
@@ -85,7 +79,6 @@ export class WysiwygEditor implements CommonEditor, ActionStorage {
         } = ExtensionsManager.process(extensions, {
             // "breaks" option only affects the renderer, but not the parser
             mdOpts: {html: allowHTML, linkify, breaks: true},
-            attrsOpts: {...attrsOpts, allowedAttributes: ['id']},
             linkifyTlds,
         });
 

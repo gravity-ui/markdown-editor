@@ -6,7 +6,7 @@ import {ImgSize, ImgSizeOptions} from './ImgSize';
 import {Monospace} from './Monospace';
 import {Video, VideoOptions} from './Video';
 import {YfmCut, YfmCutOptions} from './YfmCut';
-import {YfmDist} from './YfmDist';
+import {YfmDist, YfmDistOptions} from './YfmDist';
 import {YfmFile, YfmFileOptions} from './YfmFile';
 import {YfmHeading, YfmHeadingOptions} from './YfmHeading';
 import {YfmNote, YfmNoteOptions} from './YfmNote';
@@ -30,6 +30,7 @@ export type YfmPresetOptions = {
     checkbox?: CheckboxOptions;
     imgSize?: ImgSizeOptions;
     video?: VideoOptions;
+    yfmDist?: YfmDistOptions;
     yfmCut?: YfmCutOptions;
     yfmFile?: YfmFileOptions;
     yfmHeading?: YfmHeadingOptions;
@@ -44,7 +45,7 @@ export const YfmPreset: ExtensionAuto<YfmPresetOptions> = (builder, opts) => {
         .use(ImgSize, opts.imgSize ?? {})
         .use(Monospace)
         .use(Video, opts.video ?? {})
-        .use(YfmDist)
+        .use(YfmDist, opts.yfmDist ?? {})
         .use(YfmCut, opts.yfmCut ?? {})
         .use(YfmNote, opts.yfmNote ?? {})
         .use(YfmFile, opts.yfmFile ?? {})

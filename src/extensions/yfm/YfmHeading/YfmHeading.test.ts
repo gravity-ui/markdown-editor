@@ -5,6 +5,7 @@ import {createMarkupChecker} from '../../../../tests/sameMarkup';
 import {ExtensionsManager} from '../../../core';
 import {BaseNode, BaseSpecsPreset} from '../../base/specs';
 import {BoldSpecs, boldMarkName, headingNodeName} from '../../markdown/specs';
+import {YfmDistSpecs} from '../specs';
 
 import {YfmHeadingAttr, YfmHeadingSpecs} from './YfmHeadingSpecs';
 
@@ -14,8 +15,11 @@ const {
     serializer,
 } = new ExtensionsManager({
     extensions: (builder) =>
-        builder.use(BaseSpecsPreset, {}).use(YfmHeadingSpecs, {}).use(BoldSpecs),
-    options: {attrsOpts: {allowedAttributes: ['id']}},
+        builder
+            .use(BaseSpecsPreset, {})
+            .use(YfmDistSpecs, {attrs: {allowedAttributes: ['id']}})
+            .use(YfmHeadingSpecs, {})
+            .use(BoldSpecs),
 }).buildDeps();
 
 const {doc, b, p, h, h1, h2, h3, h4, h5, h6} = builders<
