@@ -44,8 +44,8 @@ export type ExtensionMarkSpec = {
 
 export type ExtensionDeps = {
     readonly schema: Schema;
-    readonly parser: Parser;
-    readonly parserWithoutAttrs: Parser;
+    readonly textParser: Parser;
+    readonly markupParser: Parser;
     readonly serializer: Serializer;
     readonly actions: ActionStorage;
 };

@@ -7,7 +7,11 @@ import {BaseNode, BaseSchema} from '../../base/BaseSchema';
 import {ImgSizeSpecs} from './ImgSizeSpecs';
 import {ImgSizeAttr, imageNodeName} from './const';
 
-const {schema, parser, serializer} = new ExtensionsManager({
+const {
+    schema,
+    markupParser: parser,
+    serializer,
+} = new ExtensionsManager({
     extensions: (builder) => builder.use(BaseSchema, {}).use(ImgSizeSpecs, {}),
 }).buildDeps();
 

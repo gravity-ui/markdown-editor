@@ -6,7 +6,11 @@ import {BaseNode, BaseSpecsPreset} from '../../base/specs';
 
 import {ImageAttr, ImageSpecs, imageNodeName} from './ImageSpecs';
 
-const {schema, parser, serializer} = new ExtensionsManager({
+const {
+    schema,
+    markupParser: parser,
+    serializer,
+} = new ExtensionsManager({
     extensions: (builder) => builder.use(BaseSpecsPreset, {}).use(ImageSpecs),
 }).buildDeps();
 

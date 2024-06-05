@@ -7,7 +7,11 @@ import {BaseNode, BaseSpecsPreset} from '../../base/specs';
 
 import {DeflistNode, DeflistSpecs} from './DeflistSpecs';
 
-const {schema, parser, serializer} = new ExtensionsManager({
+const {
+    schema,
+    markupParser: parser,
+    serializer,
+} = new ExtensionsManager({
     extensions: (builder) => builder.use(BaseSpecsPreset, {}).use(DeflistSpecs, {}),
 }).buildDeps();
 

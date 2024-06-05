@@ -39,10 +39,10 @@ const removeTable: Command = (state, dispatch) => {
     return false;
 };
 
-export const createTableAction = ({parser}: ExtensionDeps): ActionSpec => ({
+export const createTableAction = ({markupParser}: ExtensionDeps): ActionSpec => ({
     isActive: isIntoTable,
-    isEnable: createTableFactory(parser),
-    run: createTableFactory(parser),
+    isEnable: createTableFactory(markupParser),
+    run: createTableFactory(markupParser),
 });
 
 export const deleteTableAction: ActionSpec = {

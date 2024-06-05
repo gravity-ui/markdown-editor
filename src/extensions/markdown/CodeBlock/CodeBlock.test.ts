@@ -7,7 +7,11 @@ import {BaseNode, BaseSpecsPreset} from '../../base/specs';
 
 import {CodeBlockNodeAttr, CodeBlockSpecs, codeBlockNodeName} from './CodeBlockSpecs';
 
-const {schema, parser, serializer} = new ExtensionsManager({
+const {
+    schema,
+    markupParser: parser,
+    serializer,
+} = new ExtensionsManager({
     extensions: (builder) => builder.use(BaseSpecsPreset, {}).use(CodeBlockSpecs, {}),
 }).buildDeps();
 

@@ -8,7 +8,11 @@ import {VideoSpecs} from './VideoSpecs';
 import {VideoAttr, videoNodeName} from './VideoSpecs/const';
 import {VideoService} from './VideoSpecs/md-video';
 
-const {schema, parser, serializer} = new ExtensionsManager({
+const {
+    schema,
+    markupParser: parser,
+    serializer,
+} = new ExtensionsManager({
     extensions: (builder) => builder.use(BaseSpecsPreset, {}).use(VideoSpecs, {}),
 }).buildDeps();
 

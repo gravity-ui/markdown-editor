@@ -8,7 +8,11 @@ import {BoldSpecs, boldMarkName, headingNodeName} from '../../markdown/specs';
 
 import {YfmHeadingAttr, YfmHeadingSpecs} from './YfmHeadingSpecs';
 
-const {schema, parser, serializer} = new ExtensionsManager({
+const {
+    schema,
+    markupParser: parser,
+    serializer,
+} = new ExtensionsManager({
     extensions: (builder) =>
         builder.use(BaseSpecsPreset, {}).use(YfmHeadingSpecs, {}).use(BoldSpecs),
     options: {attrsOpts: {allowedAttributes: ['id']}},

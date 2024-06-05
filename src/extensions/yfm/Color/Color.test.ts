@@ -7,7 +7,11 @@ import {BaseNode, BaseSpecsPreset} from '../../base/specs';
 
 import {ColorSpecs, colorMarkName} from './ColorSpecs';
 
-const {schema, parser, serializer} = new ExtensionsManager({
+const {
+    schema,
+    markupParser: parser,
+    serializer,
+} = new ExtensionsManager({
     extensions: (builder) =>
         builder.use(BaseSpecsPreset, {}).use(ColorSpecs, {
             validateClassNameColorName: (color) => color !== 'something',

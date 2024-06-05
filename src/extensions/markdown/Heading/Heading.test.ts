@@ -9,7 +9,11 @@ import {BoldSpecs, boldMarkName} from '../Bold/BoldSpecs';
 import {HeadingSpecs} from './HeadingSpecs';
 import {headingLevelAttr, headingNodeName} from './const';
 
-const {schema, parser, serializer} = new ExtensionsManager({
+const {
+    schema,
+    markupParser: parser,
+    serializer,
+} = new ExtensionsManager({
     extensions: (builder) => builder.use(BaseSpecsPreset, {}).use(HeadingSpecs, {}).use(BoldSpecs),
 }).buildDeps();
 

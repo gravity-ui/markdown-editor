@@ -7,7 +7,7 @@ import {imageType} from '../Image';
 
 import {LinkAttr, linkType} from './index';
 
-export function linkPasteEnhance({parser}: ExtensionDeps) {
+export function linkPasteEnhance({markupParser: parser}: ExtensionDeps) {
     return new Plugin({
         props: {
             handleDOMEvents: {

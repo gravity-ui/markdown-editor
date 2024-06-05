@@ -7,7 +7,11 @@ import {BoldSpecs, boldMarkName} from '../../markdown/specs';
 
 import {CheckboxNode, CheckboxSpecs} from './CheckboxSpecs';
 
-const {schema, parser, serializer} = new ExtensionsManager({
+const {
+    schema,
+    markupParser: parser,
+    serializer,
+} = new ExtensionsManager({
     extensions: (builder) =>
         builder
             .use(BaseSpecsPreset, {})

@@ -73,13 +73,21 @@ export class WysiwygEditor implements CommonEditor, ActionStorage {
         onChange,
         onDocChange,
     }: WysiwygEditorOptions) {
-        const {schema, parser, serializer, nodeViews, markViews, plugins, rawActions, actions} =
-            ExtensionsManager.process(extensions, {
-                // "breaks" option only affects the renderer, but not the parser
-                mdOpts: {html: allowHTML, linkify, breaks: true},
-                attrsOpts: {...attrsOpts, allowedAttributes: ['id']},
-                linkifyTlds,
-            });
+        const {
+            schema,
+            markupParser: parser,
+            serializer,
+            nodeViews,
+            markViews,
+            plugins,
+            rawActions,
+            actions,
+        } = ExtensionsManager.process(extensions, {
+            // "breaks" option only affects the renderer, but not the parser
+            mdOpts: {html: allowHTML, linkify, breaks: true},
+            attrsOpts: {...attrsOpts, allowedAttributes: ['id']},
+            linkifyTlds,
+        });
 
         const state = EditorState.create({
             schema,

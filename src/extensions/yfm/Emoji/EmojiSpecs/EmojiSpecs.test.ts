@@ -6,7 +6,11 @@ import {BaseNode, BaseSpecsPreset} from '../../../../extensions/specs';
 
 import {EmojiSpecs} from './EmojiSpecs';
 
-const {schema, parser, serializer} = new ExtensionsManager({
+const {
+    schema,
+    markupParser: parser,
+    serializer,
+} = new ExtensionsManager({
     extensions: (builder) => builder.use(BaseSpecsPreset, {}).use(EmojiSpecs, {defs: {ddd: 'x'}}),
 }).buildDeps();
 

@@ -126,8 +126,8 @@ export class ExtensionsManager {
         this.#deps = {
             schema,
             actions: new ActionsManager(),
-            parser: this.#parserRegistry.createParser(schema, this.#md),
-            parserWithoutAttrs: this.#parserRegistry.createParser(schema, this.#mdWithoutAttrs),
+            markupParser: this.#parserRegistry.createParser(schema, this.#md),
+            textParser: this.#parserRegistry.createParser(schema, this.#mdWithoutAttrs),
             serializer: this.#serializerRegistry.createSerializer(),
         };
     }
