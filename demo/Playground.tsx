@@ -3,15 +3,17 @@ import React, {CSSProperties, useCallback, useEffect} from 'react';
 import {Button, DropdownMenu} from '@gravity-ui/uikit';
 import {toaster} from '@gravity-ui/uikit/toaster-singleton-react-18';
 
-import {MarkupString, logger} from '../src';
 import {
     MarkdownEditorMode,
     MarkdownEditorView,
+    MarkupString,
+    RenderPreview,
+    logger,
     markupToolbarConfigs,
     useMarkdownEditor,
     wysiwygToolbarConfigs,
-} from '../src/bundle';
-import {RenderPreview, ToolbarActionData} from '../src/bundle/Editor';
+} from '../src';
+import type {ToolbarActionData} from '../src/bundle/Editor';
 import {Math} from '../src/extensions/yfm/Math';
 import {Mermaid} from '../src/extensions/yfm/Mermaid';
 import {cloneDeep} from '../src/lodash';

@@ -2,14 +2,15 @@ import React, {CSSProperties, useCallback, useEffect} from 'react';
 
 import {toaster} from '@gravity-ui/uikit/toaster-singleton-react-18';
 
-import {MarkupString, logger} from '../src';
 import {
     MarkdownEditorMode,
     MarkdownEditorPreset,
     MarkdownEditorView,
+    MarkupString,
+    RenderPreview,
+    logger,
     useMarkdownEditor,
-} from '../src/bundle';
-import type {RenderPreview} from '../src/bundle/Editor';
+} from '../src';
 import type {FileUploadHandler} from '../src/utils/upload';
 import {VERSION} from '../src/version';
 
