@@ -271,7 +271,7 @@ export const MarkdownEditorView = React.forwardRef<HTMLDivElement, MarkdownEdito
 );
 MarkdownEditorView.displayName = 'MarkdownEditorView';
 
-export function Settings(props: EditorSettingsProps & {stickyToolbar: boolean}) {
+function Settings(props: EditorSettingsProps & {stickyToolbar: boolean}) {
     const wrapperRef = useRef<HTMLDivElement>(null);
     const isSticky = useSticky(wrapperRef) && props.toolbarVisibility && props.stickyToolbar;
     return (

@@ -4,10 +4,10 @@ import {applyDevTools, removeDevTools} from 'prosemirror-dev-toolkit';
 import {EditorView} from 'prosemirror-view';
 import {useEffectOnce, useUpdate} from 'react-use';
 
-import type {Editor} from '../src/bundle';
+import type {MarkdownEditorInstance} from '../src';
 
 export type WysiwygDevToolsProps = {
-    editor: Editor;
+    editor: MarkdownEditorInstance;
 };
 
 export function WysiwygDevTools({editor}: WysiwygDevToolsProps) {
