@@ -78,6 +78,11 @@
       "require": "./build/cjs/bundle/*",
       "import": "./build/esm/bundle/*"
     },
+    "./cm/*": {
+      "types": "./build/esm/cm/*",
+      "require": "./build/cjs/cm/*",
+      "import": "./build/esm/cm/*"
+    },
     "./pm/*": {
       "types": "./build/esm/pm/*",
       "require": "./build/cjs/pm/*",
@@ -108,6 +113,9 @@
       ],
       "specs": [
         "./build/esm/extensions/specs.d.ts"
+      ],
+      "cm/*": [
+        "./build/esm/cm/*"
       ],
       "pm/*": [
         "./build/esm/pm/*"
