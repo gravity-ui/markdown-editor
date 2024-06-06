@@ -5,17 +5,23 @@ import {BehaviorPreset, BehaviorPresetOptions} from '../extensions/behavior';
 import {EditorModeKeymap, EditorModeKeymapOptions} from '../extensions/behavior/EditorModeKeymap';
 import {BaseNode, YfmHeadingAttr, YfmNoteNode} from '../extensions/specs';
 import {i18n as i18nPlaceholder} from '../i18n/placeholder';
+import {CommonMarkPreset, CommonMarkPresetOptions} from '../presets/commonmark';
+import {DefaultPreset, DefaultPresetOptions} from '../presets/default';
 import {FullPreset, FullPresetOptions} from '../presets/full';
+import {YfmPreset, YfmPresetOptions} from '../presets/yfm';
+import {ZeroPreset, ZeroPresetOptions} from '../presets/zero';
 import {Action as A, formatter as f} from '../shortcuts';
 import type {FileUploadHandler} from '../utils/upload';
 
-import {wCommandMenuConfig, wSelectionMenuConfig} from './config/wysiwyg';
+import {EditorPreset} from './Editor';
+import {wCommandMenuConfigByPreset, wSelectionMenuConfigByPreset} from './config/wysiwyg';
 import {emojiDefs} from './emoji';
 
 export type ExtensionsOptions = BehaviorPresetOptions & FullPresetOptions;
 
 export type BundlePresetOptions = ExtensionsOptions &
     EditorModeKeymapOptions & {
+        preset: EditorPreset;
         mdBreaks?: boolean;
         fileUploadHandler?: FileUploadHandler;
         /**
@@ -31,12 +37,14 @@ export const BundlePreset: ExtensionAuto<BundlePresetOptions> = (builder, opts) 
         color: 'var(--g-color-line-brand)',
         width: 2,
     };
-    const options = {
+
+    const zeroOptions: BehaviorPresetOptions & ZeroPresetOptions = {
         ...opts,
         cursor: {dropOptions: dropCursor},
         clipboard: {pasteFileHandler: opts.fileUploadHandler, ...opts.clipboard},
-        selectionContext: {config: wSelectionMenuConfig, ...opts.selectionContext},
-        commandMenu: {actions: wCommandMenuConfig, ...opts.commandMenu},
+        selectionContext: {config: wSelectionMenuConfigByPreset.zero, ...opts.selectionContext},
+        commandMenu: {actions: wCommandMenuConfigByPreset.zero, ...opts.commandMenu},
+        history: {undoKey: f.toPM(A.Undo), redoKey: f.toPM(A.Redo), ...opts.history},
         baseSchema: {
             paragraphKey: f.toPM(A.Text),
             paragraphPlaceholder: (node: Node, parent?: Node | null) => {
@@ -46,15 +54,20 @@ export const BundlePreset: ExtensionAuto<BundlePresetOptions> = (builder, opts) 
             },
             ...opts.baseSchema,
         },
+    };
+    const commonMarkOptions: BehaviorPresetOptions & CommonMarkPresetOptions = {
+        ...zeroOptions,
+        selectionContext: {
+            config: wSelectionMenuConfigByPreset.commonmark,
+            ...opts.selectionContext,
+        },
+        commandMenu: {actions: wCommandMenuConfigByPreset.commonmark, ...opts.commandMenu},
         breaks: {
             preferredBreak: (opts.mdBreaks ? 'soft' : 'hard') as 'soft' | 'hard',
             ...opts.breaks,
         },
-        history: {undoKey: f.toPM(A.Undo), redoKey: f.toPM(A.Redo), ...opts.history},
         bold: {boldKey: f.toPM(A.Bold), ...opts.bold},
         italic: {italicKey: f.toPM(A.Italic), ...opts.italic},
-        strike: {strikeKey: f.toPM(A.Strike), ...opts.strike},
-        underline: {underlineKey: f.toPM(A.Underline), ...opts.underline},
         code: {codeKey: f.toPM(A.Code), ...opts.code},
         codeBlock: {
             codeBlockKey: f.toPM(A.CodeBlock),
@@ -68,6 +81,18 @@ export const BundlePreset: ExtensionAuto<BundlePresetOptions> = (builder, opts) 
             ulInputRules: {plus: false},
             ...opts.lists,
         },
+    };
+    const defaultOptions: BehaviorPresetOptions & DefaultPresetOptions = {
+        ...commonMarkOptions,
+        selectionContext: {config: wSelectionMenuConfigByPreset.default, ...opts.selectionContext},
+        commandMenu: {actions: wCommandMenuConfigByPreset.default, ...opts.commandMenu},
+        strike: {strikeKey: f.toPM(A.Strike), ...opts.strike},
+    };
+    const yfmOptions: BehaviorPresetOptions & YfmPresetOptions = {
+        ...defaultOptions,
+        selectionContext: {config: wSelectionMenuConfigByPreset.yfm, ...opts.selectionContext},
+        commandMenu: {actions: wCommandMenuConfigByPreset.yfm, ...opts.commandMenu},
+        underline: {underlineKey: f.toPM(A.Underline), ...opts.underline},
         imgSize: {
             imageUploadHandler: opts.fileUploadHandler,
             needToSetDimensionsForUploadedImages: opts.needToSetDimensionsForUploadedImages,
@@ -106,22 +131,21 @@ export const BundlePreset: ExtensionAuto<BundlePresetOptions> = (builder, opts) 
                 `${i18nPlaceholder('heading')} ${node.attrs[YfmHeadingAttr.Level]}`, // todo: remove attrs import
             ...opts.yfmHeading,
         },
-        emoji: {defs: emojiDefs, ...opts.emoji},
         placeholder: {
             [YfmNoteNode.NoteContent]: () => i18nPlaceholder('note_content'),
         },
     };
+    const fullOptions: BehaviorPresetOptions & FullPresetOptions = {
+        ...yfmOptions,
+        selectionContext: {config: wSelectionMenuConfigByPreset.full, ...opts.selectionContext},
+        commandMenu: {actions: wCommandMenuConfigByPreset.full, ...opts.commandMenu},
+        emoji: {defs: emojiDefs, ...opts.emoji},
+    };
 
-    builder.use(BehaviorPreset, options).use(FullPreset, options);
-
-    const ignoreActions = [
-        A.Undo,
-        A.Redo,
-
+    const zeroIgnoreActions = [A.Undo, A.Redo];
+    const commonMarkIgnoreActions = zeroIgnoreActions.concat(
         A.Bold,
         A.Italic,
-        A.Underline,
-        A.Strike,
         A.Code,
         A.Link,
 
@@ -138,10 +162,45 @@ export const BundlePreset: ExtensionAuto<BundlePresetOptions> = (builder, opts) 
 
         A.Quote,
         A.CodeBlock,
+    );
+    const defaultIgnoreActions = commonMarkIgnoreActions.concat(A.Strike);
+    const yfmIgnoreActions = defaultIgnoreActions.concat(
+        A.Underline,
 
         A.Note,
         A.Cut,
-    ];
+    );
+    const fullIgnoreActions = yfmIgnoreActions.concat();
+
+    let ignoreActions;
+
+    switch (opts.preset) {
+        case 'zero': {
+            ignoreActions = zeroIgnoreActions;
+            builder.use(BehaviorPreset, zeroOptions).use(ZeroPreset, zeroOptions);
+            break;
+        }
+        case 'commonmark': {
+            ignoreActions = commonMarkIgnoreActions;
+            builder.use(BehaviorPreset, commonMarkOptions).use(CommonMarkPreset, commonMarkOptions);
+            break;
+        }
+        case 'default': {
+            ignoreActions = defaultIgnoreActions;
+            builder.use(BehaviorPreset, defaultOptions).use(DefaultPreset, defaultOptions);
+            break;
+        }
+        case 'yfm': {
+            ignoreActions = yfmIgnoreActions;
+            builder.use(BehaviorPreset, yfmOptions).use(YfmPreset, yfmOptions);
+            break;
+        }
+        default: {
+            ignoreActions = fullIgnoreActions;
+            builder.use(BehaviorPreset, fullOptions).use(FullPreset, fullOptions);
+            break;
+        }
+    }
 
     const ignoreKeysList = opts.ignoreKeysList?.slice() ?? [];
     for (const action of ignoreActions) {

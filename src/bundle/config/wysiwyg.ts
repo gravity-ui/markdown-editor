@@ -1,7 +1,10 @@
 import {ActionStorage} from 'src/core';
 
 import {headingType, pType} from '../../extensions';
-import {SelectionContextConfig} from '../../extensions/behavior/SelectionContext';
+import type {
+    SelectionContextConfig,
+    SelectionContextItemData,
+} from '../../extensions/behavior/SelectionContext';
 // for typings from Math
 import type {} from '../../extensions/yfm/Math';
 import {i18n as i18nHint} from '../../i18n/hints';
@@ -18,6 +21,7 @@ import {
     ToolbarListItemData,
     ToolbarSingleItemData,
 } from '../../toolbar/types';
+import type {EditorPreset} from '../Editor';
 import {WToolbarColors} from '../toolbar/wysiwyg/WToolbarColors';
 import {WToolbarTextSelect} from '../toolbar/wysiwyg/WToolbarTextSelect';
 
@@ -82,47 +86,55 @@ export const wItalicItemData: WToolbarSingleItemData = {
     isEnable: (e) => e.actions.italic.isEnable(),
 };
 
+export const wUnderlineItemData: WToolbarSingleItemData = {
+    id: ActionName.underline,
+    type: ToolbarDataType.SingleButton,
+    title: i18n.bind(null, 'underline'),
+    icon: icons.underline,
+    hotkey: f.toView(A.Underline),
+    exec: (e) => e.actions.underline.run(),
+    isActive: (e) => e.actions.underline.isActive(),
+    isEnable: (e) => e.actions.underline.isEnable(),
+};
+
+export const wStrikethroughItemData: WToolbarSingleItemData = {
+    id: ActionName.strike,
+    type: ToolbarDataType.SingleButton,
+    title: i18n.bind(null, 'strike'),
+    icon: icons.strikethrough,
+    hotkey: f.toView(A.Strike),
+    exec: (e) => e.actions.strike.run(),
+    isActive: (e) => e.actions.strike.isActive(),
+    isEnable: (e) => e.actions.strike.isEnable(),
+};
+
+export const wMonospaceItemData: WToolbarSingleItemData = {
+    id: ActionName.mono,
+    type: ToolbarDataType.SingleButton,
+    title: i18n.bind(null, 'mono'),
+    icon: icons.mono,
+    exec: (e) => e.actions.mono.run(),
+    isActive: (e) => e.actions.mono.isActive(),
+    isEnable: (e) => e.actions.mono.isEnable(),
+};
+
+export const wMarkedItemData: WToolbarSingleItemData = {
+    id: ActionName.mark,
+    type: ToolbarDataType.SingleButton,
+    title: i18n.bind(null, 'mark'),
+    icon: icons.mark,
+    exec: (e) => e.actions.mark.run(),
+    isActive: (e) => e.actions.mark.isActive(),
+    isEnable: (e) => e.actions.mark.isEnable(),
+};
+
 export const wBiusGroupConfig: WToolbarGroupData = [
     wBoldItemData,
     wItalicItemData,
-    {
-        id: ActionName.underline,
-        type: ToolbarDataType.SingleButton,
-        title: i18n.bind(null, 'underline'),
-        icon: icons.underline,
-        hotkey: f.toView(A.Underline),
-        exec: (e) => e.actions.underline.run(),
-        isActive: (e) => e.actions.underline.isActive(),
-        isEnable: (e) => e.actions.underline.isEnable(),
-    },
-    {
-        id: ActionName.strike,
-        type: ToolbarDataType.SingleButton,
-        title: i18n.bind(null, 'strike'),
-        icon: icons.strikethrough,
-        hotkey: f.toView(A.Strike),
-        exec: (e) => e.actions.strike.run(),
-        isActive: (e) => e.actions.strike.isActive(),
-        isEnable: (e) => e.actions.strike.isEnable(),
-    },
-    {
-        id: ActionName.mono,
-        type: ToolbarDataType.SingleButton,
-        title: i18n.bind(null, 'mono'),
-        icon: icons.mono,
-        exec: (e) => e.actions.mono.run(),
-        isActive: (e) => e.actions.mono.isActive(),
-        isEnable: (e) => e.actions.mono.isEnable(),
-    },
-    {
-        id: ActionName.mark,
-        type: ToolbarDataType.SingleButton,
-        title: i18n.bind(null, 'mark'),
-        icon: icons.mark,
-        exec: (e) => e.actions.mark.run(),
-        isActive: (e) => e.actions.mark.isActive(),
-        isEnable: (e) => e.actions.mark.isEnable(),
-    },
+    wUnderlineItemData,
+    wStrikethroughItemData,
+    wMonospaceItemData,
+    wMarkedItemData,
 ];
 
 export const wTextItemData: WToolbarListButtonItemData = {
@@ -499,20 +511,20 @@ export const wToolbarConfig: WToolbarData = [
     [wImageItemData, wFileItemData, wTableItemData, wCheckboxItemData],
 ];
 
+const textContextItemData: SelectionContextItemData = {
+    id: 'text',
+    type: ToolbarDataType.ReactComponent,
+    component: WToolbarTextSelect,
+    width: 0,
+    condition: ({selection: {$from, $to}, schema}) => {
+        if (!$from.sameParent($to)) return false;
+        const {parent} = $from;
+        return parent.type === pType(schema) || parent.type === headingType(schema);
+    },
+};
+
 export const wSelectionMenuConfig: SelectionContextConfig = [
-    [
-        {
-            id: 'text',
-            type: ToolbarDataType.ReactComponent,
-            component: WToolbarTextSelect,
-            width: 0,
-            condition: ({selection: {$from, $to}, schema}) => {
-                if (!$from.sameParent($to)) return false;
-                const {parent} = $from;
-                return parent.type === pType(schema) || parent.type === headingType(schema);
-            },
-        },
-    ],
+    [textContextItemData],
     [...wBiusGroupConfig, wCodeItemData],
     [
         {
@@ -533,4 +545,139 @@ export const wMermaidItemData: WToolbarSingleItemData = {
     exec: (e) => e.actions.createMermaid.run(),
     isActive: (e) => e.actions.createMermaid.isActive(),
     isEnable: (e) => e.actions.createMermaid.isEnable(),
+};
+
+export const wToolbarConfigByPreset: Record<EditorPreset, WToolbarData> = {
+    zero: [wHistoryGroupConfig],
+    commonmark: [
+        wHistoryGroupConfig,
+        [wBoldItemData, wItalicItemData],
+        [
+            {id: 'heading', type: ToolbarDataType.ListButton, ...wHeadingListConfig},
+            {id: 'list', type: ToolbarDataType.ListButton, ...wListsListConfig},
+            wLinkItemData,
+            wQuoteItemData,
+            {id: 'code', type: ToolbarDataType.ListButton, ...wCodeListConfig},
+        ],
+    ],
+    default: [
+        wHistoryGroupConfig,
+        [wBoldItemData, wItalicItemData, wStrikethroughItemData],
+        [
+            {
+                id: 'heading',
+                type: ToolbarDataType.ListButton,
+                ...wHeadingListConfig,
+            },
+            {
+                id: 'list',
+                type: ToolbarDataType.ListButton,
+                ...wListsListConfig,
+            },
+            wLinkItemData,
+            wQuoteItemData,
+            {
+                id: 'code',
+                type: ToolbarDataType.ListButton,
+                ...wCodeListConfig,
+            },
+        ],
+    ],
+    yfm: [
+        wHistoryGroupConfig,
+        [
+            wBoldItemData,
+            wItalicItemData,
+            wUnderlineItemData,
+            wStrikethroughItemData,
+            wMonospaceItemData,
+        ],
+        [
+            {
+                id: 'heading',
+                type: ToolbarDataType.ListButton,
+                ...wHeadingListConfig,
+            },
+            {
+                id: 'list',
+                type: ToolbarDataType.ListButton,
+                ...wListsListConfig,
+            },
+            wLinkItemData,
+            wNoteItemData,
+            wCutItemData,
+            wQuoteItemData,
+            {
+                id: 'code',
+                type: ToolbarDataType.ListButton,
+                ...wCodeListConfig,
+            },
+        ],
+        [wImageItemData, wFileItemData, wTableItemData, wCheckboxItemData],
+    ],
+    full: wToolbarConfig.slice(),
+};
+
+export const wCommandMenuConfigByPreset: Record<EditorPreset, WToolbarItemData[]> = {
+    zero: [],
+    commonmark: [
+        ...wHeadingListConfig.data,
+        ...wListsListConfig.data,
+        wLinkItemData,
+        wQuoteItemData,
+        wCodeBlockItemData,
+        wHruleItemData,
+    ],
+    default: [
+        ...wHeadingListConfig.data,
+        ...wListsListConfig.data,
+        wLinkItemData,
+        wQuoteItemData,
+        wCodeBlockItemData,
+        wHruleItemData,
+    ],
+    yfm: [
+        ...wHeadingListConfig.data,
+        ...wListsListConfig.data,
+        wLinkItemData,
+        wQuoteItemData,
+        wNoteItemData,
+        wCutItemData,
+        wCodeBlockItemData,
+        wCheckboxItemData,
+        wTableItemData,
+        wImageItemData,
+        wHruleItemData,
+        wFileItemData,
+        wTabsItemData,
+    ],
+    full: wCommandMenuConfig.slice(),
+};
+
+export const wHiddenDataByPreset: Record<EditorPreset, WToolbarItemData[]> = {
+    zero: wCommandMenuConfigByPreset.zero.slice(),
+    commonmark: wCommandMenuConfigByPreset.commonmark.slice(),
+    default: wCommandMenuConfigByPreset.default.slice(),
+    yfm: wCommandMenuConfigByPreset.yfm.slice(),
+    full: wCommandMenuConfigByPreset.full.slice(),
+};
+
+export const wSelectionMenuConfigByPreset: Record<EditorPreset, SelectionContextConfig> = {
+    zero: [],
+    commonmark: [
+        [textContextItemData],
+        [wBoldItemData, wItalicItemData, wCodeItemData],
+        [wLinkItemData],
+    ],
+    default: [
+        [textContextItemData],
+        [wBoldItemData, wItalicItemData, wStrikethroughItemData, wCodeItemData],
+        [wLinkItemData],
+    ],
+    yfm: [
+        [textContextItemData],
+        [wBoldItemData, wItalicItemData, wStrikethroughItemData, wMonospaceItemData, wCodeItemData],
+        [wLinkItemData],
+    ],
+    full: wSelectionMenuConfig.slice(),
 };

@@ -42,11 +42,14 @@ import {ToolbarData} from '../../toolbar/Toolbar';
 import {ToolbarGroupData} from '../../toolbar/ToolbarGroup';
 import {ToolbarListButtonData} from '../../toolbar/ToolbarListButton';
 import {
+    ToolbarButtonPopupData,
     ToolbarDataType,
+    ToolbarItemData,
     ToolbarListItemData,
     ToolbarReactComponentData,
     ToolbarSingleItemData,
 } from '../../toolbar/types';
+import type {EditorPreset} from '../Editor';
 import {MToolbarColors} from '../toolbar/markup/MToolbarColors';
 import {MToolbarFilePopup} from '../toolbar/markup/MToolbarFilePopup';
 import {MToolbarImagePopup} from '../toolbar/markup/MToolbarImagePopup';
@@ -59,11 +62,13 @@ const isActiveFn = () => false;
 const isEnableFn = () => true;
 
 export type MToolbarData = ToolbarData<CodeEditor>;
+export type MToolbarItemData = ToolbarItemData<CodeEditor>;
 export type MToolbarSingleItemData = ToolbarSingleItemData<CodeEditor>;
 export type MToolbarGroupData = ToolbarGroupData<CodeEditor>;
 export type MToolbarReactComponentData = ToolbarReactComponentData<CodeEditor>;
 export type MToolbarListButtonData = ToolbarListButtonData<CodeEditor>;
 export type MToolbarListItemData = ToolbarListItemData<CodeEditor>;
+export type MToolbarButtonPopupData = ToolbarButtonPopupData<CodeEditor>;
 
 export const mHistoryGroupConfig: MToolbarGroupData = [
     {
@@ -90,7 +95,7 @@ export const mHistoryGroupConfig: MToolbarGroupData = [
 
 /** Bold, Italic, Underline, Strike buttons group */
 
-export const mBoldGroupItem: MToolbarSingleItemData = {
+export const mBoldItemData: MToolbarSingleItemData = {
     id: ActionName.bold,
     type: ToolbarDataType.SingleButton,
     title: i18n.bind(null, 'bold'),
@@ -101,7 +106,7 @@ export const mBoldGroupItem: MToolbarSingleItemData = {
     isEnable: isEnableFn,
 };
 
-export const mItalicGroupItem: MToolbarSingleItemData = {
+export const mItalicItemData: MToolbarSingleItemData = {
     id: ActionName.italic,
     type: ToolbarDataType.SingleButton,
     title: i18n.bind(null, 'italic'),
@@ -112,9 +117,51 @@ export const mItalicGroupItem: MToolbarSingleItemData = {
     isEnable: isEnableFn,
 };
 
+export const mUnderlineItemData: MToolbarSingleItemData = {
+    id: ActionName.underline,
+    type: ToolbarDataType.SingleButton,
+    title: i18n.bind(null, 'underline'),
+    icon: icons.underline,
+    hotkey: f.toView(A.Underline),
+    exec: (e) => toggleUnderline(e.cm),
+    isActive: isActiveFn,
+    isEnable: isEnableFn,
+};
+
+export const mStrikethroughItemData: MToolbarSingleItemData = {
+    id: ActionName.strike,
+    type: ToolbarDataType.SingleButton,
+    title: i18n.bind(null, 'strike'),
+    icon: icons.strikethrough,
+    hotkey: f.toView(A.Strike),
+    exec: (e) => toggleStrikethrough(e.cm),
+    isActive: isActiveFn,
+    isEnable: isEnableFn,
+};
+
+export const mMonospaceItemData: MToolbarSingleItemData = {
+    id: ActionName.mono,
+    type: ToolbarDataType.SingleButton,
+    title: i18n.bind(null, 'mono'),
+    icon: icons.mono,
+    exec: (e) => toggleMonospace(e.cm),
+    isActive: isActiveFn,
+    isEnable: isEnableFn,
+};
+
+export const mMarkedItemData: MToolbarSingleItemData = {
+    id: ActionName.mark,
+    type: ToolbarDataType.SingleButton,
+    title: i18n.bind(null, 'mark'),
+    icon: icons.mark,
+    exec: (e) => toggleMarked(e.cm),
+    isActive: isActiveFn,
+    isEnable: isEnableFn,
+};
+
 export const mBiusGroupConfig: MToolbarGroupData = [
-    mBoldGroupItem,
-    mItalicGroupItem,
+    mBoldItemData,
+    mItalicItemData,
     {
         id: ActionName.underline,
         type: ToolbarDataType.SingleButton,
@@ -327,6 +374,16 @@ export const mTableButton: MToolbarSingleItemData = {
     isEnable: isEnableFn,
 };
 
+export const mCodeblockItemData: MToolbarItemData = {
+    id: ActionName.code_block,
+    title: i18n.bind(null, 'codeblock'),
+    icon: icons.codeBlock,
+    hotkey: f.toView(A.CodeBlock),
+    exec: (e) => wrapToCodeBlock(e.cm),
+    isActive: isActiveFn,
+    isEnable: isEnableFn,
+};
+
 export const mCodeListConfig: MToolbarListButtonData = {
     icon: icons.code,
     withArrow: true,
@@ -341,15 +398,7 @@ export const mCodeListConfig: MToolbarListButtonData = {
             isActive: isActiveFn,
             isEnable: isEnableFn,
         },
-        {
-            id: ActionName.code_block,
-            title: i18n.bind(null, 'codeblock'),
-            icon: icons.codeBlock,
-            hotkey: f.toView(A.CodeBlock),
-            exec: (e) => wrapToCodeBlock(e.cm),
-            isActive: isActiveFn,
-            isEnable: isEnableFn,
-        },
+        mCodeblockItemData,
     ],
 };
 
@@ -393,6 +442,28 @@ export const mMermaidButton: MToolbarSingleItemData = {
     isEnable: isEnableFn,
 };
 
+export const mImagePopupData: MToolbarButtonPopupData = {
+    id: 'image',
+    type: ToolbarDataType.ButtonPopup,
+    icon: icons.image,
+    title: i18n('image'),
+    exec: noop,
+    isActive: isActiveFn,
+    isEnable: isEnableFn,
+    renderPopup: (props) => <MToolbarImagePopup {...props} />,
+};
+
+export const mFilePopupData: MToolbarButtonPopupData = {
+    id: 'file',
+    type: ToolbarDataType.ButtonPopup,
+    icon: icons.file,
+    title: i18n('file'),
+    exec: noop,
+    isActive: isActiveFn,
+    isEnable: isEnableFn,
+    renderPopup: (props) => <MToolbarFilePopup {...props} />,
+};
+
 /** prepared markup toolbar config */
 export const mToolbarConfig: MToolbarData = [
     mHistoryGroupConfig,
@@ -425,16 +496,7 @@ export const mToolbarConfig: MToolbarData = [
         },
     ],
     [
-        {
-            id: 'image',
-            type: ToolbarDataType.ButtonPopup,
-            icon: icons.image,
-            title: i18n('image'),
-            exec: noop,
-            isActive: isActiveFn,
-            isEnable: isEnableFn,
-            renderPopup: (props) => <MToolbarImagePopup {...props} />,
-        },
+        mImagePopupData,
         {
             id: 'file',
             type: ToolbarDataType.ButtonPopup,
@@ -471,3 +533,100 @@ export const mTabsItemData: MToolbarSingleItemData = {
 };
 
 export const mHiddenData = [mHruleItemData, mTabsItemData];
+
+export const mToolbarConfigByPreset: Record<EditorPreset, MToolbarData> = {
+    zero: [mHistoryGroupConfig],
+    commonmark: [
+        mHistoryGroupConfig,
+        [mBoldItemData, mItalicItemData],
+        [
+            {id: 'heading', type: ToolbarDataType.ListButton, ...mHeadingListConfig},
+            {id: 'list', type: ToolbarDataType.ListButton, ...mListsListConfig},
+            mLinkButton,
+            mQuoteButton,
+            {id: 'code', type: ToolbarDataType.ListButton, ...mCodeListConfig},
+        ],
+    ],
+    default: [
+        mHistoryGroupConfig,
+        [mBoldItemData, mItalicItemData, mStrikethroughItemData],
+        [
+            {id: 'heading', type: ToolbarDataType.ListButton, ...mHeadingListConfig},
+            {id: 'list', type: ToolbarDataType.ListButton, ...mListsListConfig},
+            mLinkButton,
+            mQuoteButton,
+            {id: 'code', type: ToolbarDataType.ListButton, ...mCodeListConfig},
+        ],
+    ],
+    yfm: [
+        mHistoryGroupConfig,
+        [
+            mBoldItemData,
+            mItalicItemData,
+            mUnderlineItemData,
+            mStrikethroughItemData,
+            mMonospaceItemData,
+        ],
+        [
+            {id: 'heading', type: ToolbarDataType.ListButton, ...mHeadingListConfig},
+            {id: 'list', type: ToolbarDataType.ListButton, ...mListsListConfig},
+            mLinkButton,
+            mNoteButton,
+            mCutButton,
+            mQuoteButton,
+            {id: 'code', type: ToolbarDataType.ListButton, ...mCodeListConfig},
+        ],
+        [mImagePopupData, mFilePopupData, mTableButton, mCheckboxButton],
+    ],
+    full: mToolbarConfig.slice(),
+};
+
+export const mHiddenDataByPreset: Record<EditorPreset, MToolbarItemData[]> = {
+    zero: [],
+    commonmark: [
+        ...mHeadingListConfig.data,
+        ...mListsListConfig.data,
+        mLinkButton,
+        mQuoteButton,
+        mCodeblockItemData,
+        mHruleItemData,
+    ],
+    default: [
+        ...mHeadingListConfig.data,
+        ...mListsListConfig.data,
+        mLinkButton,
+        mQuoteButton,
+        mCodeblockItemData,
+        mHruleItemData,
+    ],
+    yfm: [
+        ...mHeadingListConfig.data,
+        ...mListsListConfig.data,
+        mLinkButton,
+        mQuoteButton,
+        mNoteButton,
+        mCutButton,
+        mCodeblockItemData,
+        mCheckboxButton,
+        mTableButton,
+        mImagePopupData,
+        mHruleItemData,
+        mFilePopupData,
+        mTabsItemData,
+    ],
+    full: [
+        ...mHeadingListConfig.data,
+        ...mListsListConfig.data,
+        mLinkButton,
+        mQuoteButton,
+        mNoteButton,
+        mCutButton,
+        mCodeblockItemData,
+        mCheckboxButton,
+        mTableButton,
+        mImagePopupData,
+        mHruleItemData,
+        mFilePopupData,
+        mTabsItemData,
+    ],
+};
