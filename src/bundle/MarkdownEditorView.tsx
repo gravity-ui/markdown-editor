@@ -17,8 +17,18 @@ import {HorizontalDrag} from './HorizontalDrag';
 import {MarkupEditorView} from './MarkupEditorView';
 import {SplitModeView} from './SplitModeView';
 import {WysiwygEditorView} from './WysiwygEditorView';
-import {MToolbarData, MToolbarSingleItemData, mHiddenData, mToolbarConfig} from './config/markup';
-import {WToolbarData, WToolbarItemData, wHiddenData, wToolbarConfig} from './config/wysiwyg';
+import {
+    MToolbarData,
+    MToolbarItemData,
+    mHiddenDataByPreset,
+    mToolbarConfigByPreset,
+} from './config/markup';
+import {
+    WToolbarData,
+    WToolbarItemData,
+    wHiddenDataByPreset,
+    wToolbarConfigByPreset,
+} from './config/wysiwyg';
 import {useMarkdownEditorContext} from './context';
 import {EditorSettings, EditorSettingsProps} from './settings';
 import {stickyCn} from './sticky';
@@ -34,7 +44,7 @@ export type MarkdownEditorViewProps = ClassNameProps & {
     autofocus?: boolean;
     markupToolbarConfig?: MToolbarData;
     wysiwygToolbarConfig?: WToolbarData;
-    markupHiddenActionsConfig?: MToolbarSingleItemData[];
+    markupHiddenActionsConfig?: MToolbarItemData[];
     wysiwygHiddenActionsConfig?: WToolbarItemData[];
     /** @default true */
     settingsVisible?: boolean;
@@ -64,10 +74,10 @@ export const MarkdownEditorView = React.forwardRef<HTMLDivElement, MarkdownEdito
             autofocus,
             className,
             settingsVisible = true,
-            markupToolbarConfig = mToolbarConfig,
-            wysiwygToolbarConfig = wToolbarConfig,
-            markupHiddenActionsConfig = mHiddenData,
-            wysiwygHiddenActionsConfig = wHiddenData,
+            markupToolbarConfig = mToolbarConfigByPreset[editor.preset],
+            wysiwygToolbarConfig = wToolbarConfigByPreset[editor.preset],
+            markupHiddenActionsConfig = mHiddenDataByPreset[editor.preset],
+            wysiwygHiddenActionsConfig = wHiddenDataByPreset[editor.preset],
             toaster,
             stickyToolbar,
         } = props;

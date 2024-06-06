@@ -4,13 +4,19 @@ import {Extension} from '../core';
 import {ReactRenderStorage} from '../extensions';
 import {logger} from '../logger';
 
-import {Editor, EditorImpl, EditorInt, EditorMode, EditorOptions} from './Editor';
+import {Editor, EditorImpl, EditorInt, EditorMode, EditorOptions, EditorPreset} from './Editor';
 import {BundlePreset, ExtensionsOptions} from './wysiwyg-preset';
 
 export type UseMarkdownEditorProps<T extends object = {}> = Omit<
     EditorOptions,
-    'extensions' | 'renderStorage'
+    'extensions' | 'renderStorage' | 'preset'
 > & {
+    /**
+     * A set of plug-in extensions.
+     *
+     * @default 'full'
+     */
+    preset?: EditorPreset;
     breaks?: boolean;
     /** Used only first value. Сhanging the value will not lead to anything */
     extensionOptions?: Omit<ExtensionsOptions, 'reactRenderer'> & T;
@@ -24,10 +30,12 @@ export function useMarkdownEditor<T extends object = {}>(
 ): Editor {
     const editor = useMemo<EditorInt>(
         () => {
+            const preset: EditorPreset = props.preset ?? 'full';
             const renderStorage = new ReactRenderStorage();
             const extensions: Extension = (builder) => {
                 builder.use(BundlePreset, {
                     ...props.extensionOptions,
+                    preset,
                     reactRenderer: renderStorage,
                     onCancel: () => {
                         editor.emit('cancel', null);
@@ -46,7 +54,7 @@ export function useMarkdownEditor<T extends object = {}>(
                     builder.use(props.extraExtensions, props.extensionOptions);
                 }
             };
-            return new EditorImpl({...props, extensions, renderStorage});
+            return new EditorImpl({...props, extensions, renderStorage, preset});
         },
         deps.concat(
             props.allowHTML,

@@ -15,6 +15,7 @@ import type {FileUploadHandler} from '../utils/upload';
 
 export type EditorMode = 'wysiwyg' | 'markup';
 export type SplitMode = false | 'horizontal' | 'vertical';
+export type EditorPreset = 'zero' | 'commonmark' | 'default' | 'yfm' | 'full';
 export type RenderPreview = ({
     getValue,
     mode,
@@ -71,6 +72,7 @@ export interface EditorInt
     readonly toolbarVisible: boolean;
     readonly splitModeEnabled: boolean;
     readonly splitMode: SplitMode;
+    readonly preset: EditorPreset;
 
     /** @internal used in demo for dev-tools */
     readonly _wysiwygView?: PMEditorView;
@@ -132,6 +134,7 @@ export type EditorOptions = Pick<
     prepareRawMarkup?: (value: MarkupString) => MarkupString;
     splitMode?: SplitMode;
     renderPreview?: RenderPreview;
+    preset: EditorPreset;
 };
 
 /** @internal */
@@ -145,6 +148,7 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
     #wysiwygEditor?: WysiwygEditor;
     #markupEditor?: MarkupEditor;
 
+    readonly #preset: EditorPreset;
     #allowHTML?: boolean;
     #linkify?: boolean;
     #linkifyTlds?: string | string[];
@@ -213,6 +217,10 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
         return this.#splitMode;
     }
 
+    get preset(): EditorPreset {
+        return this.#preset;
+    }
+
     get renderPreview(): RenderPreview | undefined {
         return this.#renderPreview;
     }
@@ -231,7 +239,10 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
 
     get wysiwygEditor(): WysiwygEditor {
         if (!this.#wysiwygEditor) {
+            const mdPreset: NonNullable<WysiwygEditorOptions['mdPreset']> =
+                this.#preset === 'zero' || this.#preset === 'commonmark' ? this.#preset : 'default';
             this.#wysiwygEditor = new WysiwygEditor({
+                mdPreset,
                 initialContent: this.#markup,
                 extensions: this.#extensions,
                 allowHTML: this.#allowHTML,
@@ -286,6 +297,7 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
 
         this.#markup = opts.initialMarkup ?? '';
 
+        this.#preset = opts.preset ?? 'full';
         this.#linkify = opts.linkify;
         this.#linkifyTlds = opts.linkifyTlds;
         this.#allowHTML = opts.allowHTML;

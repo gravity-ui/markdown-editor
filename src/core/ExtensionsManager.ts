@@ -1,4 +1,4 @@
-import MarkdownIt from 'markdown-it';
+import MarkdownIt, {PresetName} from 'markdown-it';
 import type {Plugin} from 'prosemirror-state';
 
 import {ActionsManager} from './ActionsManager';
@@ -22,7 +22,7 @@ type ExtensionsManagerParams = {
 };
 
 type ExtensionsManagerOptions = {
-    mdOpts?: MarkdownIt.Options;
+    mdOpts?: MarkdownIt.Options & {preset?: PresetName};
     linkifyTlds?: string | string[];
 };
 
@@ -53,8 +53,9 @@ export class ExtensionsManager {
     constructor({extensions, options = {}}: ExtensionsManagerParams) {
         this.#extensions = extensions;
 
-        this.#mdForMarkup = new MarkdownIt(options.mdOpts ?? {});
-        this.#mdForText = new MarkdownIt(options.mdOpts ?? {});
+        const mdPreset: PresetName = options.mdOpts?.preset ?? 'default';
+        this.#mdForMarkup = new MarkdownIt(mdPreset, options.mdOpts ?? {});
+        this.#mdForText = new MarkdownIt(mdPreset, options.mdOpts ?? {});
 
         if (options.linkifyTlds) {
             this.#mdForMarkup.linkify.tlds(options.linkifyTlds, true);
