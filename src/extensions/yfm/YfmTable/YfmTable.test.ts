@@ -6,7 +6,7 @@ import {dispatchPasteEvent} from '../../../../tests/dispatch-event';
 import {parseDOM} from '../../../../tests/parse-dom';
 import {createMarkupChecker} from '../../../../tests/sameMarkup';
 import {ExtensionsManager} from '../../../core';
-import {BaseNode, BaseSpecsPreset} from '../../base/specs';
+import {BaseNode, BaseSchemaSpecs} from '../../base/specs';
 import {BlockquoteSpecs, blockquoteNodeName} from '../../markdown/Blockquote/BlockquoteSpecs';
 
 import {YfmTableNode, YfmTableSpecs} from './YfmTableSpecs';
@@ -18,7 +18,7 @@ const {
     serializer,
 } = new ExtensionsManager({
     extensions: (builder) =>
-        builder.use(BaseSpecsPreset, {}).use(BlockquoteSpecs).use(YfmTableSpecs, {}),
+        builder.use(BaseSchemaSpecs, {}).use(BlockquoteSpecs).use(YfmTableSpecs, {}),
 }).build();
 
 const {doc, p, bq, table, tbody, tr, td} = builders<

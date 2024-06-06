@@ -1,32 +1,18 @@
 import {Node} from 'prosemirror-model';
 
 import {ExtensionAuto} from '../core';
-import {
-    BasePreset,
-    BasePresetOptions,
-    BehaviorPreset,
-    BehaviorPresetOptions,
-    MarkdownBlocksPreset,
-    MarkdownBlocksPresetOptions,
-    MarkdownMarksPreset,
-    MarkdownMarksPresetOptions,
-    YfmPreset,
-    YfmPresetOptions,
-} from '../extensions';
+import {BehaviorPreset, BehaviorPresetOptions} from '../extensions/behavior';
 import {EditorModeKeymap, EditorModeKeymapOptions} from '../extensions/behavior/EditorModeKeymap';
 import {BaseNode, YfmHeadingAttr, YfmNoteNode} from '../extensions/specs';
 import {i18n as i18nPlaceholder} from '../i18n/placeholder';
+import {FullPreset, FullPresetOptions} from '../presets/full';
 import {Action as A, formatter as f} from '../shortcuts';
 import type {FileUploadHandler} from '../utils/upload';
 
 import {wCommandMenuConfig, wSelectionMenuConfig} from './config/wysiwyg';
 import {emojiDefs} from './emoji';
 
-export type ExtensionsOptions = BasePresetOptions &
-    MarkdownMarksPresetOptions &
-    Omit<MarkdownBlocksPresetOptions, 'image' | 'heading'> &
-    YfmPresetOptions &
-    BehaviorPresetOptions;
+export type ExtensionsOptions = BehaviorPresetOptions & FullPresetOptions;
 
 export type BundlePresetOptions = ExtensionsOptions &
     EditorModeKeymapOptions & {
@@ -126,12 +112,7 @@ export const BundlePreset: ExtensionAuto<BundlePresetOptions> = (builder, opts) 
         },
     };
 
-    builder
-        .use(BehaviorPreset, options)
-        .use(BasePreset, options)
-        .use(MarkdownMarksPreset, options)
-        .use(MarkdownBlocksPreset, {...options, image: false, heading: false})
-        .use(YfmPreset, options);
+    builder.use(BehaviorPreset, options).use(FullPreset, options);
 
     const ignoreActions = [
         A.Undo,
