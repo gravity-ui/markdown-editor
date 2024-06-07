@@ -2,7 +2,7 @@ import {builders} from 'prosemirror-test-builder';
 
 import {createMarkupChecker} from '../../../../tests/sameMarkup';
 import {ExtensionsManager} from '../../../core';
-import {BaseNode, BaseSpecsPreset} from '../../base/specs';
+import {BaseNode, BaseSchemaSpecs} from '../../base/specs';
 import {BlockquoteSpecs, blockquoteNodeName, italicMarkName} from '../../markdown/specs';
 
 import {TabsNode, YfmTabsSpecs} from './YfmTabsSpecs';
@@ -24,7 +24,7 @@ const {
     serializer,
 } = new ExtensionsManager({
     extensions: (builder) =>
-        builder.use(BaseSpecsPreset, {}).use(BlockquoteSpecs).use(YfmTabsSpecs, {}),
+        builder.use(BaseSchemaSpecs, {}).use(BlockquoteSpecs).use(YfmTabsSpecs, {}),
 }).buildDeps();
 
 const {doc, p, bq, tab, tabs, tabPanel, tabsList} = builders<

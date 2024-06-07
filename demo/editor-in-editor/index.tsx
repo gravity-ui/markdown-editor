@@ -2,8 +2,7 @@ import React, {useEffect} from 'react';
 
 import {toaster} from '@gravity-ui/uikit/toaster-singleton-react-18';
 
-import {BaseNode} from '../../src';
-import {MarkdownEditorView, useMarkdownEditor} from '../../src/bundle';
+import {BaseNode, MarkdownEditorView, useMarkdownEditor} from '../../src';
 import {VERSION} from '../../src/version';
 import {block} from '../cn';
 

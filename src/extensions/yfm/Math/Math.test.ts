@@ -2,7 +2,7 @@ import {builders} from 'prosemirror-test-builder';
 
 import {createMarkupChecker} from '../../../../tests/sameMarkup';
 import {ExtensionsManager} from '../../../core';
-import {BaseNode, BaseSpecsPreset} from '../../base/specs';
+import {BaseNode, BaseSchemaSpecs} from '../../base/specs';
 
 import {MathNode, MathSpecs} from './MathSpecs';
 
@@ -11,7 +11,7 @@ const {
     markupParser: parser,
     serializer,
 } = new ExtensionsManager({
-    extensions: (builder) => builder.use(BaseSpecsPreset, {}).use(MathSpecs),
+    extensions: (builder) => builder.use(BaseSchemaSpecs, {}).use(MathSpecs),
 }).buildDeps();
 
 const {doc, p, mathB, mathI} = builders<'doc' | 'p' | 'mathB' | 'mathI'>(schema, {

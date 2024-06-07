@@ -3,7 +3,7 @@ import {builders} from 'prosemirror-test-builder';
 import {parseDOM} from '../../../../tests/parse-dom';
 import {createMarkupChecker} from '../../../../tests/sameMarkup';
 import {ExtensionsManager} from '../../../core';
-import {BaseNode, BaseSpecsPreset} from '../../base/specs';
+import {BaseNode, BaseSchemaSpecs} from '../../base/specs';
 
 import {YfmFileSpecs, yfmFileNodeName} from './YfmFileSpecs';
 
@@ -12,7 +12,7 @@ const {
     markupParser: parser,
     serializer,
 } = new ExtensionsManager({
-    extensions: (builder) => builder.use(BaseSpecsPreset, {}).use(YfmFileSpecs),
+    extensions: (builder) => builder.use(BaseSchemaSpecs, {}).use(YfmFileSpecs),
 }).buildDeps();
 
 const {same} = createMarkupChecker({parser, serializer});

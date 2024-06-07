@@ -3,7 +3,7 @@ import {builders} from 'prosemirror-test-builder';
 import {parseDOM} from '../../../../tests/parse-dom';
 import {createMarkupChecker} from '../../../../tests/sameMarkup';
 import {ExtensionsManager} from '../../../core';
-import {BaseNode, BaseSpecsPreset} from '../../base/specs';
+import {BaseNode, BaseSchemaSpecs} from '../../base/specs';
 
 import {BoldSpecs, boldMarkName} from './BoldSpecs';
 
@@ -12,7 +12,7 @@ const {
     markupParser: parser,
     serializer,
 } = new ExtensionsManager({
-    extensions: (builder) => builder.use(BaseSpecsPreset, {}).use(BoldSpecs),
+    extensions: (builder) => builder.use(BaseSchemaSpecs, {}).use(BoldSpecs),
 }).buildDeps();
 
 const {doc, p, b} = builders<'doc' | 'p', 'b'>(schema, {

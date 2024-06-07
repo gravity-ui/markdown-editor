@@ -15,3 +15,9 @@
 
 - [prosemirror-utils](https://github.com/atlassian/prosemirror-utils)
 - [prosemirror-test-builder](https://github.com/ProseMirror/prosemirror-test-builder)
+
+### Usage
+
+```js
+import {EditorView} from '@gravity-ui/markdown-editor/pm/view';
+```

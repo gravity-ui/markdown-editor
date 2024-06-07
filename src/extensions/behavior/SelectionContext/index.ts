@@ -7,7 +7,10 @@ import {isCodeBlock} from '../../../utils/nodes';
 
 import {ContextConfig, TooltipView} from './tooltip';
 
-export type {ContextConfig as SelectionContextConfig} from './tooltip';
+export type {
+    ContextConfig as SelectionContextConfig,
+    ContextGroupItemData as SelectionContextItemData,
+} from './tooltip';
 
 export type SelectionContextOptions = {
     config?: ContextConfig;

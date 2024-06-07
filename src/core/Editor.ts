@@ -1,3 +1,4 @@
+import type {PresetName} from 'markdown-it';
 import {EditorState} from 'prosemirror-state';
 import {EditorView} from 'prosemirror-view';
 
@@ -20,6 +21,8 @@ export type WysiwygEditorOptions = {
     /** markdown markup */
     initialContent?: string;
     extensions?: Extension;
+    /** @default 'default' */
+    mdPreset?: PresetName;
     allowHTML?: boolean;
     linkify?: boolean;
     linkifyTlds?: string | string[];
@@ -62,6 +65,7 @@ export class WysiwygEditor implements CommonEditor, ActionStorage {
         initialContent = '',
         extensions = () => {},
         allowHTML,
+        mdPreset,
         linkify,
         linkifyTlds,
         onChange,
@@ -78,7 +82,7 @@ export class WysiwygEditor implements CommonEditor, ActionStorage {
             actions,
         } = ExtensionsManager.process(extensions, {
             // "breaks" option only affects the renderer, but not the parser
-            mdOpts: {html: allowHTML, linkify, breaks: true},
+            mdOpts: {html: allowHTML, linkify, breaks: true, preset: mdPreset},
             linkifyTlds,
         });
 

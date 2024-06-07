@@ -3,7 +3,7 @@ import {builders} from 'prosemirror-test-builder';
 import {parseDOM} from '../../../../tests/parse-dom';
 import {createMarkupChecker} from '../../../../tests/sameMarkup';
 import {ExtensionsManager} from '../../../core';
-import {BaseNode, BaseSpecsPreset} from '../../base/specs';
+import {BaseNode, BaseSchemaSpecs} from '../../base/specs';
 
 import {
     HorizontalRuleSpecs,
@@ -16,7 +16,7 @@ const {
     markupParser: parser,
     serializer,
 } = new ExtensionsManager({
-    extensions: (builder) => builder.use(BaseSpecsPreset, {}).use(HorizontalRuleSpecs),
+    extensions: (builder) => builder.use(BaseSchemaSpecs, {}).use(HorizontalRuleSpecs),
 }).buildDeps();
 
 const {doc, p, hr, hr2, hr3} = builders<'doc' | 'p' | 'hr' | 'hr2' | 'hr3'>(schema, {

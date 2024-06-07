@@ -3,7 +3,7 @@ import {builders} from 'prosemirror-test-builder';
 import {parseDOM} from '../../../../tests/parse-dom';
 import {createMarkupChecker} from '../../../../tests/sameMarkup';
 import {ExtensionsManager} from '../../../core';
-import {BaseNode, BaseSpecsPreset} from '../../base/specs';
+import {BaseNode, BaseSchemaSpecs} from '../../base/specs';
 import {
     BlockquoteSpecs,
     ImageAttr,
@@ -24,7 +24,7 @@ const {
 } = new ExtensionsManager({
     extensions: (builder) =>
         builder
-            .use(BaseSpecsPreset, {})
+            .use(BaseSchemaSpecs, {})
             .use(ItalicSpecs)
             .use(BlockquoteSpecs)
             .use(YfmNoteSpecs, {})

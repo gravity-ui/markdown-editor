@@ -2,7 +2,7 @@ import {builders} from 'prosemirror-test-builder';
 
 import {createMarkupChecker} from '../../../../tests/sameMarkup';
 import {ExtensionsManager} from '../../../core';
-import {BaseNode, BaseSpecsPreset} from '../../base/specs';
+import {BaseNode, BaseSchemaSpecs} from '../../base/specs';
 
 import {VideoSpecs} from './VideoSpecs';
 import {VideoAttr, videoNodeName} from './VideoSpecs/const';
@@ -13,7 +13,7 @@ const {
     markupParser: parser,
     serializer,
 } = new ExtensionsManager({
-    extensions: (builder) => builder.use(BaseSpecsPreset, {}).use(VideoSpecs, {}),
+    extensions: (builder) => builder.use(BaseSchemaSpecs, {}).use(VideoSpecs, {}),
 }).buildDeps();
 
 const {doc, p} = builders<'doc' | 'p'>(schema, {

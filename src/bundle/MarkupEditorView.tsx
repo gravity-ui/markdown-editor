@@ -8,7 +8,7 @@ import {useRenderTime} from '../react-utils/hooks';
 import type {EditorInt, SplitMode} from './Editor';
 import {MarkupEditorComponent} from './MarkupEditorComponent';
 import {ToolbarView} from './ToolbarView';
-import type {MToolbarData, MToolbarSingleItemData} from './config/markup';
+import type {MToolbarData, MToolbarItemData} from './config/markup';
 import {MarkupToolbarContextProvider} from './toolbar/markup/context';
 
 import './MarkupEditorView.scss';
@@ -25,7 +25,7 @@ export type MarkupEditorViewProps = ClassNameProps & {
     toolbarClassName?: string;
     splitMode?: SplitMode;
     splitModeEnabled: boolean;
-    hiddenActionsConfig?: MToolbarSingleItemData[];
+    hiddenActionsConfig?: MToolbarItemData[];
     children?: React.ReactNode;
 };
 

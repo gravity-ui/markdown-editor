@@ -3,11 +3,16 @@ import React from 'react';
 import {EditorView} from 'prosemirror-view';
 import {useEffectOnce, useUpdate} from 'react-use';
 
-import {type ClassNameProps, isNodeSelection, isTextSelection, isWholeSelection} from '../src';
-import type {Editor} from '../src/bundle';
+import {
+    type ClassNameProps,
+    type MarkdownEditorInstance,
+    isNodeSelection,
+    isTextSelection,
+    isWholeSelection,
+} from '../src';
 
 export type WysiwygSelectionProps = ClassNameProps & {
-    editor: Editor;
+    editor: MarkdownEditorInstance;
 };
 
 export function WysiwygSelection({editor, className}: WysiwygSelectionProps) {

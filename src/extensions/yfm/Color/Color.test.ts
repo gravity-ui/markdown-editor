@@ -3,7 +3,7 @@ import {builders} from 'prosemirror-test-builder';
 import {parseDOM} from '../../../../tests/parse-dom';
 import {createMarkupChecker} from '../../../../tests/sameMarkup';
 import {ExtensionsManager} from '../../../core';
-import {BaseNode, BaseSpecsPreset} from '../../base/specs';
+import {BaseNode, BaseSchemaSpecs} from '../../base/specs';
 
 import {ColorSpecs, colorMarkName} from './ColorSpecs';
 
@@ -13,7 +13,7 @@ const {
     serializer,
 } = new ExtensionsManager({
     extensions: (builder) =>
-        builder.use(BaseSpecsPreset, {}).use(ColorSpecs, {
+        builder.use(BaseSchemaSpecs, {}).use(ColorSpecs, {
             validateClassNameColorName: (color) => color !== 'something',
             parseStyleColorValue: (value: string) => (value === 'darkred' ? 'red' : null),
         }),
