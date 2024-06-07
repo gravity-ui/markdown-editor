@@ -1,5 +1,44 @@
 # Changelog
 
+## [13.0.0](https://github.com/gravity-ui/markdown-editor/compare/v12.4.0...v13.0.0) (2024-06-07)
+
+
+### ⚠ BREAKING CHANGES
+
+* transfer connection of markdown-it-attrs plugin to YfmConfigs extension ([#263](https://github.com/gravity-ui/markdown-editor/issues/263))
+* **bundle:** rename editorType ––> editorMode ([#260](https://github.com/gravity-ui/markdown-editor/issues/260))
+* **bundle:** rename yfm ––> markdown in variable and file names ([#259](https://github.com/gravity-ui/markdown-editor/issues/259))
+* **bundle:** remove deprecated YfmEditor component ([#258](https://github.com/gravity-ui/markdown-editor/issues/258))
+* change package name ([#254](https://github.com/gravity-ui/markdown-editor/issues/254))
+* rename yfm -> md in core and dependent modules ([#249](https://github.com/gravity-ui/markdown-editor/issues/249))
+* update markup mode to codemirror6 ([#234](https://github.com/gravity-ui/markdown-editor/issues/234))
+
+### Features
+
+* add editor presets ([#265](https://github.com/gravity-ui/markdown-editor/issues/265)) ([a2d8153](https://github.com/gravity-ui/markdown-editor/commit/a2d815346b230ae1d593fe499dd76f7e7b4f14d3))
+* add g-md-editor classname to editor dom elem, change default prefix for internal classnames ([#257](https://github.com/gravity-ui/markdown-editor/issues/257)) ([82b42ce](https://github.com/gravity-ui/markdown-editor/commit/82b42ceb1d8e450b3697c98c9b8b4a2210beb085))
+* add re-export from bundle to root export ([#267](https://github.com/gravity-ui/markdown-editor/issues/267)) ([86fcb00](https://github.com/gravity-ui/markdown-editor/commit/86fcb00f776edaf022e620b21c03bdb6285e9f34))
+* add re-export of codemirror core modules ([#266](https://github.com/gravity-ui/markdown-editor/issues/266)) ([9ccf3b1](https://github.com/gravity-ui/markdown-editor/commit/9ccf3b1a6d0207c0587ffda58f84318670993e3b))
+* **bundle:** remove deprecated YfmEditor component ([#258](https://github.com/gravity-ui/markdown-editor/issues/258)) ([db3749a](https://github.com/gravity-ui/markdown-editor/commit/db3749ae150686a33ee1b07ce8b5129535dca292))
+* **bundle:** rename editorType ––&gt; editorMode ([#260](https://github.com/gravity-ui/markdown-editor/issues/260)) ([bd0afe8](https://github.com/gravity-ui/markdown-editor/commit/bd0afe8093120d27857d553d149f81676dc55634))
+* **bundle:** rename yfm ––&gt; markdown in variable and file names ([#259](https://github.com/gravity-ui/markdown-editor/issues/259)) ([c63381f](https://github.com/gravity-ui/markdown-editor/commit/c63381f6990a1f1bd6b708f09f31ae38e46c9c83))
+* change package name ([#254](https://github.com/gravity-ui/markdown-editor/issues/254)) ([85cc2af](https://github.com/gravity-ui/markdown-editor/commit/85cc2affc4b52a3dacfd02995e5d8e02221fe260))
+* **Lists:** add auto merging of adjacent list of same type ([#241](https://github.com/gravity-ui/markdown-editor/issues/241)) ([c02de80](https://github.com/gravity-ui/markdown-editor/commit/c02de80168cdc492106efc34c6485a0002feb165))
+* **note, tabs:** added leave block logic for second enter ([#248](https://github.com/gravity-ui/markdown-editor/issues/248)) ([ed8ba66](https://github.com/gravity-ui/markdown-editor/commit/ed8ba6617d20ed7e7a31034a1e94697a4f4dc55d))
+* rename yfm -&gt; md in core and dependent modules ([#249](https://github.com/gravity-ui/markdown-editor/issues/249)) ([e12abda](https://github.com/gravity-ui/markdown-editor/commit/e12abdaef26a1c5624183cdfae40c61bdf5e5e91))
+* transfer connection of markdown-it-attrs plugin to YfmConfigs extension ([#263](https://github.com/gravity-ui/markdown-editor/issues/263)) ([2816c18](https://github.com/gravity-ui/markdown-editor/commit/2816c18f2176edccb9e3523ecbf1dad76105da5a))
+* update markup mode to codemirror6 ([#234](https://github.com/gravity-ui/markdown-editor/issues/234)) ([5b416b2](https://github.com/gravity-ui/markdown-editor/commit/5b416b295396ff3791192ecbd45f842f6294cfd7))
+
+
+### Bug Fixes
+
+* **CodeBlock:** Fixed code insert ([#251](https://github.com/gravity-ui/markdown-editor/issues/251)) ([df9848e](https://github.com/gravity-ui/markdown-editor/commit/df9848eb23c045f87803444db2bbb1b7a645022c))
+* don't split code_block in lists when pressing enter key ([#243](https://github.com/gravity-ui/markdown-editor/issues/243)) ([c494301](https://github.com/gravity-ui/markdown-editor/commit/c4943018be617bdfc8eaf7024e792937a8e56411))
+* **forms:** deleted unused iframe_ keysets ([#242](https://github.com/gravity-ui/markdown-editor/issues/242)) ([e6d6ba4](https://github.com/gravity-ui/markdown-editor/commit/e6d6ba443db4856036d0d637a0cf50cd4894e7e8))
+* **ImageForm:** updated autofocus logic, added useAutoFocus ([#245](https://github.com/gravity-ui/markdown-editor/issues/245)) ([c4da6bd](https://github.com/gravity-ui/markdown-editor/commit/c4da6bd98a6279dc9a2326f304d0a3a99cc39480))
+* **Link:** ascape parentheses in link url ([#244](https://github.com/gravity-ui/markdown-editor/issues/244)) ([046dd2e](https://github.com/gravity-ui/markdown-editor/commit/046dd2e21265958e56b594e897f475a47e8f39ee))
+* **react-utils:** fix for useNodeEditing and useNodeHover hooks ([#239](https://github.com/gravity-ui/markdown-editor/issues/239)) ([48d018d](https://github.com/gravity-ui/markdown-editor/commit/48d018d05de01ab30b75cc0cc03b36a99c5f5e83))
+
 ## [12.4.0](https://github.com/yandex-cloud/yfm-editor/compare/v12.3.0...v12.4.0) (2024-04-19)
 
 
