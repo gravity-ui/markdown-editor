@@ -65,6 +65,8 @@ export type PlaygroundProps = {
     initialSplitModeEnabled?: boolean;
     renderPreviewDefined?: boolean;
     height?: CSSProperties['height'];
+    onChangeEditorType?: (mode: MarkdownEditorMode) => void;
+    onChangeSplitModeEnabled?: (splitModeEnabled: boolean) => void;
 };
 
 logger.setLogger({
@@ -167,12 +169,14 @@ export const Playground = React.memo<PlaygroundProps>((props) => {
             setMdRaw(mdEditor.getValue());
         }
         function onChangeEditorType({mode}: {mode: MarkdownEditorMode}) {
+            props.onChangeEditorType?.(mode);
             setEditorMode(mode);
         }
         const onToolbarAction = ({id, editorMode: type}: ToolbarActionData) => {
             console.info(`The '${id}' action is performed in the ${type}-editor.`);
         };
         function onChangeSplitModeEnabled({splitModeEnabled}: {splitModeEnabled: boolean}) {
+            props.onChangeSplitModeEnabled?.(splitModeEnabled);
             console.info(`Split mode enabled: ${splitModeEnabled}`);
         }
         function onChangeToolbarVisibility({visible}: {visible: boolean}) {
