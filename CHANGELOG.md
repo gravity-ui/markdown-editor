@@ -1,5 +1,13 @@
 # Changelog
 
+## [13.1.0](https://github.com/gravity-ui/markdown-editor/compare/v13.0.0...v13.1.0) (2024-06-10)
+
+
+### Features
+
+* add i18n submodule ([#270](https://github.com/gravity-ui/markdown-editor/issues/270)) ([23f71f1](https://github.com/gravity-ui/markdown-editor/commit/23f71f1374cad86ed30c6961d8188b38a67dd887))
+* **deps:** update prosemirror dependencies ([#272](https://github.com/gravity-ui/markdown-editor/issues/272)) ([c1ae1e2](https://github.com/gravity-ui/markdown-editor/commit/c1ae1e272a51779258b818bdd2fcdfcf173d4338))
+
 ## [13.0.0](https://github.com/gravity-ui/markdown-editor/compare/v12.4.0...v13.0.0) (2024-06-07)
 
 
