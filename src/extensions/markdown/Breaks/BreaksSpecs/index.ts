@@ -1,4 +1,4 @@
-import type {ParseRule} from 'prosemirror-model';
+import type {TagParseRule} from 'prosemirror-model';
 
 import type {ExtensionAuto} from '../../../../core';
 import {nodeTypeFactory} from '../../../../utils/schema';
@@ -21,7 +21,7 @@ export type BreaksSpecsOptions = {
 export const BreaksSpecs: ExtensionAuto<BreaksSpecsOptions> = (builder, opts) => {
     const {preferredBreak = 'hard'} = opts;
 
-    const parseDOM: ParseRule[] = [{tag: 'br'}];
+    const parseDOM: TagParseRule[] = [{tag: 'br'}];
 
     builder.addNode(BreakNodeName.HardBreak, () => ({
         spec: {
