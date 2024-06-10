@@ -43,6 +43,11 @@
       "require": "./build/cjs/core/index.js",
       "import": "./build/esm/core/index.js"
     },
+    "./i18n": {
+      "types": "./build/esm/i18n/i18n.d.ts",
+      "require": "./build/cjs/i18n/i18n.js",
+      "import": "./build/esm/i18n/i18n.js"
+    },
     "./specs": {
       "types": "./build/esm/extensions/specs.d.ts",
       "require": "./build/cjs/extensions/specs.js",
@@ -110,6 +115,9 @@
       ],
       "core": [
         "./build/esm/core/index.d.ts"
+      ],
+      "i18n": [
+        "./build/esm/i18n/i18n.d.ts"
       ],
       "specs": [
         "./build/esm/extensions/specs.d.ts"
