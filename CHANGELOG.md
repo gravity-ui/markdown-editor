@@ -1,5 +1,12 @@
 # Changelog
 
+## [13.1.1](https://github.com/gravity-ui/markdown-editor/compare/v13.1.0...v13.1.1) (2024-06-21)
+
+
+### Bug Fixes
+
+* **YfmTable:** fix runtime error in table cell nodeView ([#274](https://github.com/gravity-ui/markdown-editor/issues/274)) ([15e0cd4](https://github.com/gravity-ui/markdown-editor/commit/15e0cd4fbbfe3bd75a0138daf5b98e949f602a2a))
+
 ## [13.1.0](https://github.com/gravity-ui/markdown-editor/compare/v13.0.0...v13.1.0) (2024-06-10)
 
 
