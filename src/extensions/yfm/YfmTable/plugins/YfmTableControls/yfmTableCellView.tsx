@@ -9,21 +9,18 @@ import {
     TrashBin,
     Xmark,
 } from '@gravity-ui/icons';
-import {Button, DropdownMenu, Icon} from '@gravity-ui/uikit';
-import {NodeWithPos, findChildren, findParentNodeClosestToPos} from 'prosemirror-utils';
-import {EditorView, NodeView, NodeViewConstructor} from 'prosemirror-view';
-import {createPortal} from 'react-dom';
+import {Button, DropdownMenu, Icon, Portal} from '@gravity-ui/uikit';
+import type {Node} from 'prosemirror-model';
+import {NodeWithPos, findParentNodeClosestToPos} from 'prosemirror-utils';
+import type {EditorView, NodeView, NodeViewConstructor} from 'prosemirror-view';
 
 import {cn} from '../../../../../classname';
 import {bindActions} from '../../../../../core';
 import {i18n} from '../../../../../i18n/yfm-table';
 import {ErrorLoggerBoundary} from '../../../../../react-utils/ErrorBoundary';
-import {
-    getTableDimensions,
-    isTableCellNode,
-    isTableNode,
-    isTableRowNode,
-} from '../../../../../table-utils';
+import {getTableDimensions, isTableNode} from '../../../../../table-utils';
+import {getChildByNode} from '../../../../../utils/node-children';
+import {getChildrenOfNode} from '../../../../../utils/nodes';
 import {getReactRendererFromState} from '../../../../behavior/ReactRenderer';
 
 import {controlActions} from './actions';
@@ -204,59 +201,52 @@ const Controls: React.FC<Props> = function Controls({
 };
 
 export const yfmTableCellView: NodeViewConstructor = (node, view, getPos): NodeView => {
+    const getParentTable = () =>
+        findParentNodeClosestToPos(view.state.doc.resolve(getPos()!), isTableNode);
+
+    const parentTable = getParentTable();
+
+    const cellCoords = parentTable ? findCellCoords(parentTable.node, node) : null;
+
+    // @ts-expect-error
+    if (!cellCoords) return {};
+
+    const {cellIndex, rowIndex} = cellCoords;
+    const isFirstRow = rowIndex === 0;
+    const isFirstColumn = cellIndex === 0;
+
+    if (!isFirstRow && !isFirstColumn) {
+        // in this case, we don't need custom nodeView.
+        // @ts-expect-error
+        return {};
+    }
+
     const dom = document.createElement('td');
     const contentDOM = document.createElement('div');
     const control = document.createElement('span');
     control.setAttribute('style', 'width: 0; height: 0; float: left;');
-
     dom.setAttribute('style', 'position: relative; overflow: visible;');
-
-    const getParentTable = () =>
-        findParentNodeClosestToPos(view.state.doc.resolve(getPos()!), isTableNode);
-    const parentTable = getParentTable();
-
-    // @ts-expect-error
-    if (!parentTable) return {};
-
-    const rowNodes = findChildren(parentTable?.node, isTableRowNode);
-
-    const relativeCelPos = getPos()! - parentTable?.pos;
-
-    const rowNumber = rowNodes.findIndex(
-        (_v, i) =>
-            relativeCelPos > rowNodes[i].pos &&
-            relativeCelPos < (rowNodes[i + 1]?.pos || Number.MAX_SAFE_INTEGER),
-    );
-
-    const parentRow = rowNodes[rowNumber];
-
-    const columnNumber = findChildren(parentRow.node, isTableCellNode).findIndex((c) => {
-        return c.pos === relativeCelPos - parentRow.pos - 2;
-    });
-
-    const isFirstInRow = rowNodes.findIndex((r) => r.pos === relativeCelPos - 2) >= 0;
 
     dom.appendChild(contentDOM);
     dom.appendChild(control);
 
-    const renderItem = getReactRendererFromState(view.state).createItem('yfm-table-cell-view', () =>
-        createPortal(
-            <ErrorLoggerBoundary>
-                <Controls
-                    columnNumber={columnNumber}
-                    rowNumber={rowNumber}
-                    isFirstInRow={isFirstInRow}
-                    isInFirstRow={rowNumber === 0}
-                    getParentTable={getParentTable}
-                    view={view}
-                />
-            </ErrorLoggerBoundary>,
-            control,
+    const renderItem = getReactRendererFromState(view.state).createItem(
+        'yfm-table-cell-view',
+        () => (
+            <Portal container={control}>
+                <ErrorLoggerBoundary>
+                    <Controls
+                        columnNumber={cellIndex}
+                        rowNumber={rowIndex}
+                        isFirstInRow={isFirstColumn}
+                        isInFirstRow={isFirstRow}
+                        getParentTable={getParentTable}
+                        view={view}
+                    />
+                </ErrorLoggerBoundary>
+            </Portal>
         ),
     );
-
-    contentDOM.setAttribute('data-row-number', String(rowNumber));
-    contentDOM.setAttribute('data-col-number', String(columnNumber));
 
     return {
         dom,
@@ -275,3 +265,18 @@ export const yfmTableCellView: NodeViewConstructor = (node, view, getPos): NodeV
         },
     };
 };
+
+function findCellCoords(table: Node, cell: Node) {
+    if (!table.lastChild) return null;
+    const rows = getChildrenOfNode(table.lastChild); // children of tBody
+    for (const row of rows) {
+        const node = getChildByNode(row.node, cell);
+        if (node) {
+            return {
+                rowIndex: row.index,
+                cellIndex: node.index,
+            };
+        }
+    }
+    return null;
+}
