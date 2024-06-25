@@ -11,7 +11,7 @@ import {ListAction} from './const';
 import {ListsInputRulesExtension, ListsInputRulesOptions} from './inputrules';
 import {mergeListsPlugin} from './plugins/MergeListsPlugin';
 
-export {ListNode, blType, liType, olType} from './ListsSpecs';
+export {ListNode, ListsAttr, blType, liType, olType} from './ListsSpecs';
 
 export type ListsOptions = {
     ulKey?: string | null;

@@ -2,23 +2,30 @@ import type Token from 'markdown-it/lib/token';
 
 import type {ParserToken} from '../../../../core';
 
-import {ListNode} from './const';
+import {ListNode, ListsAttr} from './const';
 
 export const parserTokens: Record<ListNode, ParserToken> = {
-    [ListNode.ListItem]: {name: ListNode.ListItem, type: 'block'},
+    [ListNode.ListItem]: {
+        name: ListNode.ListItem,
+        type: 'block',
+        getAttrs: (token) => ({[ListsAttr.Markup]: token.markup}),
+    },
 
     [ListNode.BulletList]: {
         name: ListNode.BulletList,
         type: 'block',
-        getAttrs: (_, tokens, i) => ({tight: listIsTight(tokens, i)}),
+        getAttrs: (token, tokens, i) => ({
+            [ListsAttr.Tight]: listIsTight(tokens, i),
+            [ListsAttr.Bullet]: token.markup,
+        }),
     },
 
     [ListNode.OrderedList]: {
         name: ListNode.OrderedList,
         type: 'block',
-        getAttrs: (tok, tokens, i) => ({
-            order: Number(tok.attrGet('start')) || 1,
-            tight: listIsTight(tokens, i),
+        getAttrs: (token, tokens, i) => ({
+            [ListsAttr.Order]: Number(token.attrGet('start')) || 1,
+            [ListsAttr.Tight]: listIsTight(tokens, i),
         }),
     },
 };

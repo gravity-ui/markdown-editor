@@ -4,7 +4,7 @@ import {createMarkupChecker} from '../../../../tests/sameMarkup';
 import {ExtensionsManager} from '../../../core';
 import {BaseNode, BaseSchemaSpecs} from '../../base/specs';
 
-import {ListNode, ListsSpecs} from './ListsSpecs';
+import {ListNode, ListsAttr, ListsSpecs} from './ListsSpecs';
 
 const {
     schema,
@@ -26,35 +26,94 @@ const {same} = createMarkupChecker({parser, serializer});
 
 describe('Lists extension', () => {
     it('should parse bullet list', () => {
-        same('* one\n\n* two', doc(ul(li(p('one')), li(p('two')))));
+        same(
+            '* one\n\n* two',
+            doc(
+                ul(
+                    {[ListsAttr.Bullet]: '*'},
+                    li({[ListsAttr.Markup]: '*'}, p('one')),
+                    li({[ListsAttr.Markup]: '*'}, p('two')),
+                ),
+            ),
+        );
     });
 
     it('should parse ordered list', () => {
-        same('1. one\n\n2. two', doc(ol(li(p('one')), li(p('two')))));
+        same(
+            '1. one\n\n2. two',
+            doc(
+                ol(
+                    li({[ListsAttr.Markup]: '.'}, p('one')),
+                    li({[ListsAttr.Markup]: '.'}, p('two')),
+                ),
+            ),
+        );
     });
 
     it('should parse nested lists', () => {
         const markup = `
-* one
+- one
 
   1. two
 
-     * three
+     + three
 
   2. four
 
-* five
+- five
         `.trim();
 
         same(
             markup,
             doc(
                 ul(
+                    {[ListsAttr.Bullet]: '-'},
                     li(
+                        {[ListsAttr.Markup]: '-'},
                         p('one'),
-                        ol(li(p('two'), ul({tight: true}, li(p('three')))), li(p('four'))),
+                        ol(
+                            li(
+                                {[ListsAttr.Markup]: '.'},
+                                p('two'),
+                                ul(
+                                    {[ListsAttr.Tight]: true, [ListsAttr.Bullet]: '+'},
+                                    li({[ListsAttr.Markup]: '+'}, p('three')),
+                                ),
+                            ),
+                            li({[ListsAttr.Markup]: '.'}, p('four')),
+                        ),
                     ),
-                    li(p('five')),
+                    li({[ListsAttr.Markup]: '-'}, p('five')),
+                ),
+            ),
+        );
+    });
+
+    it('should parse nested lists 2', () => {
+        same(
+            '- + * 2. item',
+            doc(
+                ul(
+                    {[ListsAttr.Bullet]: '-'},
+                    li(
+                        {[ListsAttr.Markup]: '-'},
+                        ul(
+                            {[ListsAttr.Bullet]: '+'},
+                            li(
+                                {[ListsAttr.Markup]: '+'},
+                                ul(
+                                    {[ListsAttr.Bullet]: '*'},
+                                    li(
+                                        {[ListsAttr.Markup]: '*'},
+                                        ol(
+                                            {[ListsAttr.Order]: 2, [ListsAttr.Tight]: true},
+                                            li({[ListsAttr.Markup]: '.'}, p('item')),
+                                        ),
+                                    ),
+                                ),
+                            ),
+                        ),
+                    ),
                 ),
             ),
         );

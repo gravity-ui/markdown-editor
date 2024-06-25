@@ -5,7 +5,7 @@ import {EditorView} from 'prosemirror-view';
 import {ExtensionsManager} from '../../../../core';
 import {BaseNode, BaseSchemaSpecs} from '../../../base/specs';
 import {CodeSpecs, codeMarkName} from '../../Code/CodeSpecs';
-import {ListNode, ListsSpecs} from '../ListsSpecs';
+import {ListNode, ListsAttr, ListsSpecs} from '../ListsSpecs';
 
 import {mergeListsPlugin} from './MergeListsPlugin';
 
@@ -48,8 +48,12 @@ describe('Lists extension', () => {
             expect(view.state.doc).toMatchNode(
                 doc(
                     ul(
-                        {tight: true},
+                        {
+                            [ListsAttr.Tight]: true,
+                            [ListsAttr.Bullet]: '+',
+                        },
                         li(
+                            {[ListsAttr.Markup]: '+'},
                             p(
                                 'Create a list by starting a line with ',
                                 c('+'),
@@ -60,17 +64,33 @@ describe('Lists extension', () => {
                             ),
                         ),
                         li(
+                            {[ListsAttr.Markup]: '-'},
                             p('Sub-lists are made by indenting 2 spaces:'),
                             ul(
-                                {tight: true},
-                                li(p('Marker character change forces new list start:')),
-                                li(p('Ac tristique libero volutpat at')),
-                                li(p('Facilisis in pretium nisl aliquet')),
-                                li(p('Nulla volutpat aliquam velit')),
+                                {
+                                    [ListsAttr.Tight]: true,
+                                    [ListsAttr.Bullet]: '-',
+                                },
+                                li(
+                                    {[ListsAttr.Markup]: '-'},
+                                    p('Marker character change forces new list start:'),
+                                ),
+                                li({[ListsAttr.Markup]: '*'}, p('Ac tristique libero volutpat at')),
+                                li(
+                                    {[ListsAttr.Markup]: '+'},
+                                    p('Facilisis in pretium nisl aliquet'),
+                                ),
+                                li({[ListsAttr.Markup]: '-'}, p('Nulla volutpat aliquam velit')),
                             ),
                         ),
                     ),
-                    ul({tight: true}, li(p('Very easy!'))),
+                    ul(
+                        {
+                            [ListsAttr.Tight]: true,
+                            [ListsAttr.Bullet]: '*',
+                        },
+                        li({[ListsAttr.Markup]: '*'}, p('Very easy!')),
+                    ),
                 ),
             );
         });
