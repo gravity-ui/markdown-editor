@@ -1,10 +1,10 @@
 import type {NodeSpec} from 'prosemirror-model';
 
-import {ListNode} from './const';
+import {ListNode, ListsAttr} from './const';
 
 export const schemaSpecs: Record<ListNode, NodeSpec> = {
     [ListNode.ListItem]: {
-        attrs: {tight: {default: false}},
+        attrs: {[ListsAttr.Tight]: {default: false}, [ListsAttr.Markup]: {default: null}},
         content: '(paragraph|block)+',
         defining: true,
         parseDOM: [{tag: 'li'}],
@@ -20,15 +20,17 @@ export const schemaSpecs: Record<ListNode, NodeSpec> = {
     [ListNode.BulletList]: {
         content: `${ListNode.ListItem}+`,
         group: 'block',
-        attrs: {tight: {default: false}},
+        attrs: {[ListsAttr.Tight]: {default: false}, [ListsAttr.Bullet]: {default: '*'}},
         parseDOM: [
             {
                 tag: 'ul',
-                getAttrs: (dom) => ({tight: (dom as HTMLElement).hasAttribute('data-tight')}),
+                getAttrs: (dom) => ({
+                    [ListsAttr.Tight]: (dom as HTMLElement).hasAttribute('data-tight'),
+                }),
             },
         ],
         toDOM(node) {
-            return ['ul', {'data-tight': node.attrs.tight ? 'true' : null}, 0];
+            return ['ul', {'data-tight': node.attrs[ListsAttr.Tight] ? 'true' : null}, 0];
         },
         selectable: false,
         allowSelection: false,
@@ -36,7 +38,7 @@ export const schemaSpecs: Record<ListNode, NodeSpec> = {
     },
 
     [ListNode.OrderedList]: {
-        attrs: {order: {default: 1}, tight: {default: false}},
+        attrs: {[ListsAttr.Order]: {default: 1}, [ListsAttr.Tight]: {default: false}},
         content: `${ListNode.ListItem}+`,
         group: 'block',
         parseDOM: [
@@ -44,10 +46,10 @@ export const schemaSpecs: Record<ListNode, NodeSpec> = {
                 tag: 'ol',
                 getAttrs(dom) {
                     return {
-                        order: (dom as HTMLElement).hasAttribute('start')
+                        [ListsAttr.Order]: (dom as HTMLElement).hasAttribute('start')
                             ? Number((dom as HTMLElement).getAttribute('start')!)
                             : 1,
-                        tight: (dom as HTMLElement).hasAttribute('data-tight'),
+                        [ListsAttr.Tight]: (dom as HTMLElement).hasAttribute('data-tight'),
                     };
                 },
             },
@@ -56,8 +58,8 @@ export const schemaSpecs: Record<ListNode, NodeSpec> = {
             return [
                 'ol',
                 {
-                    start: node.attrs.order === 1 ? null : node.attrs.order,
-                    'data-tight': node.attrs.tight ? 'true' : null,
+                    start: node.attrs[ListsAttr.Order] === 1 ? null : node.attrs[ListsAttr.Order],
+                    'data-tight': node.attrs[ListsAttr.Tight] ? 'true' : null,
                 },
                 0,
             ];

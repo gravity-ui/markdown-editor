@@ -6,7 +6,7 @@ import {parserTokens} from './parser';
 import {schemaSpecs} from './schema';
 import {serializerTokens} from './serializer';
 
-export {ListNode} from './const';
+export {ListsAttr, ListNode} from './const';
 export const liType = nodeTypeFactory(ListNode.ListItem);
 export const blType = nodeTypeFactory(ListNode.BulletList);
 export const olType = nodeTypeFactory(ListNode.OrderedList);

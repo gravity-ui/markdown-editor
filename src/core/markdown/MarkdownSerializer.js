@@ -286,7 +286,7 @@ export class MarkdownSerializerState {
         this.inTightList = isTight;
         node.forEach((child, _, i) => {
             if (i && isTight) this.flushClose(1);
-            this.wrapBlock(delim, firstDelim(i), node, () => this.render(child, node, i));
+            this.wrapBlock(delim, firstDelim(i, child), node, () => this.render(child, node, i));
         });
         this.inTightList = prevTight;
     }

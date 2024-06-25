@@ -3,6 +3,7 @@ import type {NodeType} from 'prosemirror-model';
 import type {ExtensionWithOptions} from '../../../core';
 import {wrappingInputRule} from '../../../utils/inputrules';
 
+import {ListsAttr} from './ListsSpecs';
 import {blType, olType} from './utils';
 
 export type ListsInputRulesOptions = {
@@ -31,8 +32,8 @@ export function orderedListRule(nodeType: NodeType) {
     return wrappingInputRule(
         /^(\d+)\.\s$/,
         nodeType,
-        (match) => ({order: Number(match[1])}),
-        (match, node) => node.childCount + node.attrs.order === Number(match[1]),
+        (match) => ({[ListsAttr.Order]: Number(match[1])}),
+        (match, node) => node.childCount + node.attrs[ListsAttr.Order] === Number(match[1]),
     );
 }
 
@@ -58,5 +59,5 @@ export function bulletListRule(nodeType: NodeType, config?: BulletListInputRuleC
     if (bullets.length === 0) return null;
 
     const regexp = new RegExp(`^\\s*([${bullets.join('')}])\\s$`); // same as /^\s*([-+*])\s$/
-    return wrappingInputRule(regexp, nodeType);
+    return wrappingInputRule(regexp, nodeType, (match) => ({[ListsAttr.Bullet]: match[1]}));
 }
