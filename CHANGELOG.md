@@ -1,5 +1,13 @@
 # Changelog
 
+## [13.1.2](https://github.com/gravity-ui/markdown-editor/compare/v13.1.1...v13.1.2) (2024-06-25)
+
+
+### Bug Fixes
+
+* **Lists:** fixed merging of nested lists ([#276](https://github.com/gravity-ui/markdown-editor/issues/276)) ([2c435bd](https://github.com/gravity-ui/markdown-editor/commit/2c435bd42d603e97c6849e67538c5d7790660fe8))
+* **Lists:** preserve markup of list items ([#278](https://github.com/gravity-ui/markdown-editor/issues/278)) ([70ee410](https://github.com/gravity-ui/markdown-editor/commit/70ee410f8eb52c93a601253fec8f68e233672899))
+
 ## [13.1.1](https://github.com/gravity-ui/markdown-editor/compare/v13.1.0...v13.1.1) (2024-06-21)
 
 
