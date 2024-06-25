@@ -27,14 +27,11 @@ function mergeAdjacentNodesWithSameType(
     tr: Transaction,
     nodes: ReturnType<typeof findChildren>,
 ): void {
-    for (let i = 0; i < nodes.length - 1; i++) {
-        const current = nodes[i];
-        const next = nodes[i + 1];
+    for (let i = nodes.length - 1; i > 0; i--) {
+        const prev = nodes[i - 1];
+        const next = nodes[i];
 
-        if (
-            current.node.type === next.node.type &&
-            current.pos + current.node.nodeSize === next.pos
-        ) {
+        if (prev.node.type === next.node.type && prev.pos + prev.node.nodeSize === next.pos) {
             tr.join(next.pos);
         }
     }
