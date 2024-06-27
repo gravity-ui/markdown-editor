@@ -48,4 +48,31 @@ export const gravityTheme = EditorView.baseTheme({
     '&.cm-focused .cm-selectionBackground, &.cm-focused ::selection': {
         background: 'var(--g-color-base-misc-medium)',
     },
+    '.cm-tooltip.cm-tooltip-autocomplete': {
+        padding: '4px 0',
+        lineHeight: '24px',
+        color: 'var(--g-color-text-primary)',
+        fontFamily: 'var(--g-font-family-monospace)',
+        fontSize: 'var(--g-text-body-1-font-size)',
+        backgroundColor: 'var(--g-color-base-float)',
+        border: '1px solid var(--g-color-line-generic-solid)',
+        borderRadius: '4px',
+
+        '& > ul': {
+            '& > completion-section': {
+                color: 'var(--g-color-text-hint)',
+                fontWeight: 'var(--g-text-accent-font-weight)',
+                borderBottom: '1px solid var(--g-color-line-generic)',
+            },
+
+            '& > li:hover': {
+                backgroundColor: 'var(--g-color-base-simple-hover)',
+            },
+
+            '& > li[aria-selected]': {
+                backgroundColor: 'var(--g-color-base-selection)',
+                color: 'revert',
+            },
+        },
+    },
 });
