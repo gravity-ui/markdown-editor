@@ -1,5 +1,12 @@
 # Changelog
 
+## [13.1.3](https://github.com/gravity-ui/markdown-editor/compare/v13.1.2...v13.1.3) (2024-06-27)
+
+
+### Bug Fixes
+
+* **markup:** add gravity theme to autocomplete snippet ([#279](https://github.com/gravity-ui/markdown-editor/issues/279)) ([0836bce](https://github.com/gravity-ui/markdown-editor/commit/0836bcefdfcb86cf97ea6bb86cbed6a1e4d14262))
+
 ## [13.1.2](https://github.com/gravity-ui/markdown-editor/compare/v13.1.1...v13.1.2) (2024-06-25)
 
 
