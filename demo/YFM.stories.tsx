@@ -75,6 +75,17 @@ Content displayed when clicked.
 {% endlist %}
 `.trim(),
 
+    yfmHtml: `
+## YFM HTML
+
+::: html
+
+<h1>Заголовок</h1>
+<p>Текст</p>>
+
+:::
+`.trim(),
+
     yfmFile: `
 ## YFM File
 
@@ -210,6 +221,10 @@ export const YfmTabs: StoryFn<PlaygroundStoryProps> = (props) => (
     <PlaygroundComponent {...props} initial={markup.yfmTabs} />
 );
 
+export const YfmHtml: StoryFn<PlaygroundStoryProps> = (props) => (
+    <PlaygroundComponent {...props} initial={markup.yfmHtml} sanitizeHtml={false} />
+);
+
 export const YfmFile: StoryFn<PlaygroundStoryProps> = (props) => (
     <PlaygroundComponent {...props} initial={markup.yfmFile} />
 );
@@ -233,6 +248,8 @@ YfmCut.args = args;
 YfmCut.storyName = 'YFM Cut';
 YfmTabs.args = args;
 YfmTabs.storyName = 'YFM Tabs';
+YfmHtml.args = args;
+YfmHtml.storyName = 'YFM HTML';
 YfmFile.args = args;
 YfmFile.storyName = 'YFM File';
 YfmTable.args = args;

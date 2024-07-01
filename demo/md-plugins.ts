@@ -1,6 +1,7 @@
 /* eslint-disable import/no-extraneous-dependencies */
 import {transform as latex} from '@diplodoc/latex-extension';
 import {transform as mermaid} from '@diplodoc/mermaid-extension';
+import {transform as html} from '@diplodoc/html-extension';
 import anchors from '@diplodoc/transform/lib/plugins/anchors';
 import checkbox from '@diplodoc/transform/lib/plugins/checkbox';
 import code from '@diplodoc/transform/lib/plugins/code';
@@ -28,29 +29,30 @@ export const LATEX_RUNTIME = 'extension:latex';
 export const MERMAID_RUNTIME = 'extension:mermaid';
 
 const defaultPlugins: PluginWithParams[] = [
-    meta,
-    deflist,
-    cut,
-    notes,
     anchors,
-    tabs,
     code,
-    sup,
-    video,
-    monospace,
-    yfmTable,
+    cut,
+    deflist,
     file,
+    html,
     imsize,
+    meta,
+    monospace,
+    notes,
+    sup,
+    tabs,
+    video,
+    yfmTable,
 ];
 const extendedPlugins = defaultPlugins.concat(
-    sub,
-    ins,
-    mark,
-    latex({bundle: false, validate: false, runtime: LATEX_RUNTIME}),
-    color,
-    checkbox,
-    mermaid({bundle: false, runtime: MERMAID_RUNTIME}),
     (md) => md.use(emoji, {defs: emojiDefs}),
+    checkbox,
+    color,
+    ins,
+    latex({bundle: false, validate: false, runtime: LATEX_RUNTIME}),
+    mark,
+    mermaid({bundle: false, runtime: MERMAID_RUNTIME}),
+    sub,
 );
 
 export {extendedPlugins as plugins};

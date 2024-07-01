@@ -11,7 +11,7 @@ export type YfmHtmlProps = ClassNameProps & {
     qa?: string;
 };
 
-export const YfmHtml = forwardRef<HTMLDivElement, YfmHtmlProps>(function YfmHtml(props, ref) {
+export const HtmlView = forwardRef<HTMLDivElement, YfmHtmlProps>(function YfmHtml(props, ref) {
     const {html, linksVisited, noListReset, className, qa} = props;
 
     return (
