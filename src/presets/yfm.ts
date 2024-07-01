@@ -23,6 +23,7 @@ import {
     YfmFileOptions,
     YfmHeading,
     YfmHeadingOptions,
+    YfmHtml,
     YfmNote,
     YfmNoteOptions,
     YfmTable,
@@ -64,5 +65,6 @@ export const YfmPreset: ExtensionAuto<YfmPresetOptions> = (builder, opts) => {
         .use(YfmFile, opts.yfmFile ?? {})
         .use(YfmHeading, opts.yfmHeading ?? {})
         .use(YfmTable, opts.yfmTable ?? {})
-        .use(YfmTabs);
+        .use(YfmTabs)
+        .use(YfmHtml);
 };

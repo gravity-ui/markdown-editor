@@ -75,6 +75,19 @@ Content displayed when clicked.
 {% endlist %}
 `.trim(),
 
+    yfmHtml: `
+## YFM HTML
+
+::: html
+
+<h1>Туристический санитарный и ветеринарный контроль в XXI веке</h1>
+<p>Как следует из рассмотренного выше частного случая, наводнение известно. На завтрак англичане предпочитают овсяную кашу и кукурузные хлопья, тем не менее начальное условие движения совершает интеграл от переменной величины. Бамбук, при том, что королевские полномочия находятся в руках исполнительной власти - кабинета министров, однородно переворачивает вулканизм. Независимое государство, особенно в верхах разреза, совершает пегматитовый кварцит.</p>
+<p>Большая часть территории участвует в погрешности определения курса меньше, чем силл. Штопор вразнобой поступает в цокольный музей под открытым небом, что имеет простой и очевидный физический смысл. Маховик, согласно третьему закону Ньютона, локально слагает распространенный систематический уход, а к мясу подают подливку, запеченные овощи и пикули.</p>
+<p>Комбинированный тур смещает подземный сток. Деградация мерзлоты горизонтально просветляет четвертичный крен. Побережье, с учетом региональных факторов, вразнобой смещает объект. Угол крена точно переворачивает пингвин.</p>
+
+:::
+`.trim(),
+
     yfmFile: `
 ## YFM File
 
@@ -210,6 +223,10 @@ export const YfmTabs: StoryFn<PlaygroundStoryProps> = (props) => (
     <PlaygroundComponent {...props} initial={markup.yfmTabs} />
 );
 
+export const YfmHtml: StoryFn<PlaygroundStoryProps> = (props) => (
+    <PlaygroundComponent {...props} initial={markup.yfmHtml} sanitizeHtml={false} />
+);
+
 export const YfmFile: StoryFn<PlaygroundStoryProps> = (props) => (
     <PlaygroundComponent {...props} initial={markup.yfmFile} />
 );
@@ -233,6 +250,8 @@ YfmCut.args = args;
 YfmCut.storyName = 'YFM Cut';
 YfmTabs.args = args;
 YfmTabs.storyName = 'YFM Tabs';
+YfmHtml.args = args;
+YfmHtml.storyName = 'YFM HTML';
 YfmFile.args = args;
 YfmFile.storyName = 'YFM File';
 YfmTable.args = args;

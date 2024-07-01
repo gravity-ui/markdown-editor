@@ -1,20 +1,24 @@
 import React, {useEffect, useMemo, useRef, useState} from 'react';
 
+import {useDiplodocHtml} from '@diplodoc/html-extension/react';
 import transform from '@diplodoc/transform';
 import {useThemeValue} from '@gravity-ui/uikit';
 
 import {MarkupString, colorClassName} from '../src';
 import {debounce} from '../src/lodash';
-import {YfmHtml} from '../src/view/components/YfmHtml';
+import {HtmlView} from '../src/view/components/HtmlView';
 import {withLatex} from '../src/view/hocs/withLatex';
 import {MermaidConfig, withMermaid} from '../src/view/hocs/withMermaid';
+import {withYfmHtml} from '../src/view/hocs/withYfmHtml';
 
 import {LATEX_RUNTIME, MERMAID_RUNTIME} from './md-plugins';
 
 const ML_ATTR = 'data-ml';
 const mermaidConfig: MermaidConfig = {theme: 'forest'};
 
-const Html = withMermaid({runtime: MERMAID_RUNTIME})(withLatex({runtime: LATEX_RUNTIME})(YfmHtml));
+const Preview = withMermaid({runtime: MERMAID_RUNTIME})(
+    withLatex({runtime: LATEX_RUNTIME})(withYfmHtml()(HtmlView)),
+);
 
 export type SplitModePreviewProps = {
     plugins?: import('markdown-it').PluginSimple[];
@@ -33,6 +37,26 @@ export const SplitModePreview: React.FC<SplitModePreviewProps> = (props) => {
     const divRef = useRef<HTMLDivElement>(null);
 
     const theme = useThemeValue();
+    const yfmHtml = useDiplodocHtml();
+
+    useEffect(() => {
+        const bodyStyles = window.getComputedStyle(document.body);
+        // TODO: add background style
+        const color = bodyStyles.getPropertyValue('--g-color-text-primary');
+        const background = bodyStyles.getPropertyValue('--g-color-base-background');
+
+        // TODO: export HTMLControllerForEachCallback
+        // FIXME: useDiplodocHtml should wait window[GLOBAL_SYMBOL]
+        setTimeout(() => {
+            yfmHtml?.forEach((yfmHtmlBlock: any) => {
+                yfmHtmlBlock.setStyles({
+                    // TODO: use css vars
+                    color,
+                    background,
+                });
+            });
+        }, 1000);
+    }, [theme, yfmHtml]);
 
     const render = useMemo(
         () =>
@@ -58,7 +82,7 @@ export const SplitModePreview: React.FC<SplitModePreviewProps> = (props) => {
     }, [props, render]);
 
     return (
-        <Html
+        <Preview
             ref={divRef}
             html={html}
             meta={meta}
