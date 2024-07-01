@@ -16,7 +16,6 @@
   ],
   "scripts": {
     "start": "npm run storybook:start",
-    "dev": "npm run storybook:start",
     "clean": "gulp clean",
     "build": "gulp",
     "typecheck": "tsc -p tsconfig.json --noEmit",
