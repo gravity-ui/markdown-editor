@@ -7,7 +7,7 @@ export enum YfmHtmlAttrs {
     style = 'style',
 }
 
-export const yfmHtmlNodeName = 'yfm-html';
+export const yfmHtmlNodeName = 'yfm_html_block';
 export const yfmHtmlNodeType = nodeTypeFactory(yfmHtmlNodeName);
 
 export const YfmHtml = {
