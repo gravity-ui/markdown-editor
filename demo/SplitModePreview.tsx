@@ -8,13 +8,16 @@ import {debounce} from '../src/lodash';
 import {HtmlView} from '../src/view/components/HtmlView';
 import {withLatex} from '../src/view/hocs/withLatex';
 import {MermaidConfig, withMermaid} from '../src/view/hocs/withMermaid';
+import {withYfmHtml} from '../src/view/hocs/withYfmHtml';
 
 import {LATEX_RUNTIME, MERMAID_RUNTIME} from './md-plugins';
 
 const ML_ATTR = 'data-ml';
 const mermaidConfig: MermaidConfig = {theme: 'forest'};
 
-const MermaidHtml = withMermaid({runtime: MERMAID_RUNTIME})(withLatex({runtime: LATEX_RUNTIME})(HtmlView));
+const Preview = withMermaid({runtime: MERMAID_RUNTIME})(
+    withLatex({runtime: LATEX_RUNTIME})(withYfmHtml()(HtmlView)),
+);
 
 export type SplitModePreviewProps = {
     plugins?: import('markdown-it').PluginSimple[];
@@ -58,7 +61,7 @@ export const SplitModePreview: React.FC<SplitModePreviewProps> = (props) => {
     }, [props, render]);
 
     return (
-        <MermaidHtml
+        <Preview
             ref={divRef}
             html={html}
             meta={meta}

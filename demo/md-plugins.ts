@@ -1,7 +1,7 @@
 /* eslint-disable import/no-extraneous-dependencies */
+import {transform as yfmHtml} from '@diplodoc/html-extension';
 import {transform as latex} from '@diplodoc/latex-extension';
 import {transform as mermaid} from '@diplodoc/mermaid-extension';
-import {transform as html} from '@diplodoc/html-extension';
 import anchors from '@diplodoc/transform/lib/plugins/anchors';
 import checkbox from '@diplodoc/transform/lib/plugins/checkbox';
 import code from '@diplodoc/transform/lib/plugins/code';
@@ -34,7 +34,6 @@ const defaultPlugins: PluginWithParams[] = [
     cut,
     deflist,
     file,
-    html,
     imsize,
     meta,
     monospace,
@@ -53,6 +52,7 @@ const extendedPlugins = defaultPlugins.concat(
     mark,
     mermaid({bundle: false, runtime: MERMAID_RUNTIME}),
     sub,
+    yfmHtml({bundle: false}),
 );
 
 export {extendedPlugins as plugins};
