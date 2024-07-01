@@ -22,6 +22,7 @@ export function withYfmHtml() {
                 // FIXME:
                 // temp code for https://github.com/diplodoc-platform/html-extension/blob/67432ef4b3cf439320689863c3d540f2daf5651d/src/react/useDiplodocHtml.ts#L6
                 setTimeout(() => {
+                    console.log('reinitialize');
                     yfmHtml?.reinitialize();
                 }, 100);
             }, [yfmHtml]);
