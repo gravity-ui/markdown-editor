@@ -68,6 +68,7 @@ export class WMermaidNodeView implements NodeView {
     }
 
     stopEvent(e: Event) {
+        console.log('stopEvent Mermaid')
         const target = e.target as Element;
         if (
             typeof target.className === 'string' &&

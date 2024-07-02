@@ -133,6 +133,13 @@ export const BundlePreset: ExtensionAuto<BundlePresetOptions> = (builder, opts) 
                 `${i18nPlaceholder('heading')} ${node.attrs[YfmHeadingAttr.Level]}`, // todo: remove attrs import
             ...opts.yfmHeading,
         },
+        yfmHtml: {
+            loadRuntimeScript: () => {
+                import(
+                    /* webpackChunkName: "yfm-html-runtime" */ '@diplodoc/html-extension/runtime'
+                    );
+            },
+        },
         placeholder: {
             [YfmNoteNode.NoteContent]: () => i18nPlaceholder('note_content'),
         },

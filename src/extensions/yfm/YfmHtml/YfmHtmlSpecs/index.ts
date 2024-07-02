@@ -1,10 +1,10 @@
 import {transform} from '@diplodoc/html-extension';
 
-import type {ExtensionAuto} from '../../../../core';
+import type {ExtensionAuto, ExtensionNodeSpec} from '../../../../core';
 
 import {YfmHtml} from './const';
 
-const YfmHtmlSpecsExtension: ExtensionAuto = (builder) => {
+const YfmHtmlSpecsExtension: ExtensionAuto<Pick<ExtensionNodeSpec, 'view'>> = (builder, {view}) => {
     builder
         .configureMd((md) => md.use(transform({bundle: false}), {}))
         .addNode(YfmHtml.NodeName, () => ({
@@ -34,6 +34,7 @@ const YfmHtmlSpecsExtension: ExtensionAuto = (builder) => {
                 state.write(':::');
                 state.closeBlock(node);
             },
+            view,
         }));
 };
 
