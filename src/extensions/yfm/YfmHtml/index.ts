@@ -1,9 +1,13 @@
 import {Action, ExtensionAuto, ExtensionDeps, NodeViewConstructor} from '../../../core';
 
 import {YfmHtmlSpecs} from './YfmHtmlSpecs';
+import {YfmHtml as YfmHtmlConst} from './YfmHtmlSpecs/const';
 import {YfmHtmlAction} from './const';
 import {addYfmHtml} from './actions';
 import {YfmHtmlNodeView} from './YfmHtmlNodeView/YfmHtmlNodeView';
+import {yfmHtmlTooltipPlugin} from './plugins/YfmHtmlTooltip';
+import {NodeType} from 'prosemirror-model';
+import {textblockTypeInputRule} from '../../../utils';
 
 export type YfmHtmlOptions = {loadRuntimeScript?: () => void};
 
@@ -13,6 +17,9 @@ export const YfmHtml: ExtensionAuto<YfmHtmlOptions> = (builder, {loadRuntimeScri
     });
 
     builder.addAction(YfmHtmlAction, () => addYfmHtml);
+    builder.addPlugin(yfmHtmlTooltipPlugin);
+
+    builder.addInputRules(({schema}) => ({rules: [codeBlockRule(YfmHtmlConst.nodeType(schema))]}));
 };
 
 const YfmHtmlNodeViewFactory: (
@@ -31,4 +38,10 @@ declare global {
             [YfmHtmlAction]: Action;
         }
     }
+}
+
+// Given a code block node type, returns an input rule that turns a
+// textblock starting with ::: html into a code block.
+function codeBlockRule(nodeType: NodeType) {
+    return textblockTypeInputRule(/^::: html$/, nodeType);
 }

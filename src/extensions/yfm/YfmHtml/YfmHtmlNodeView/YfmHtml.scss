@@ -1,5 +1,21 @@
-.g-md-YfmHtml {
-    .prosemirror-stop-event {
-
+.g-md-editor.ProseMirror-focused {
+    .yfmHtml-container.ProseMirror-selectednode {
+        border-radius: 10px;
+        box-shadow: none;
     }
 }
+
+.g-md-YfmHtml {
+    &_selected {
+        position: relative;
+        padding: 10px;
+    }
+
+    &__edit {
+        border: 0;
+        outline: 0;
+        font-family: monospace;
+        font-size: 16px;
+    }
+}
+

@@ -1,17 +1,16 @@
-import React, {useRef, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 
-import {EditorView} from 'prosemirror-view';
 import {Node} from 'prosemirror-model';
+import {EditorView} from 'prosemirror-view';
+
+import {cn} from '../../../../classname';
+import {TextAreaFixed as TextArea} from '../../../../forms/TextInput';
 import {YfmHtml} from '../YfmHtmlSpecs/const';
 
-import debounce from 'lodash/debounce';
-import {TextAreaFixed as TextArea} from '../../../../forms/TextInput';
-import {cn} from '../../../../classname';
-
 import './YfmHtml.scss';
+import {useOutsideClick} from '@gravity-ui/uikit';
 
 const cnYfmHtml = cn('YfmHtml');
-
 
 interface YfmHtmlViewProps {
     view?: EditorView;
@@ -20,73 +19,85 @@ interface YfmHtmlViewProps {
     getPos?: () => number | undefined;
 }
 
-// useEffect(() => {
-//     console.log('yfmHtml', yfmHtml, node, view)
-// }, [yfmHtml]);
-
 // node.attrs.srcdoc
 // node, view
 // const yfmHtml = useDiplodocHtml();
 
 interface ViewProps {
+    className: string;
     html: string;
     onClick: () => void;
-    onMouseOver: () => void;
-    onMouseLeave: () => void;
-    hover: boolean;
 }
 
-export const View: React.FC<ViewProps> = ({html, onClick, onMouseOver, onMouseLeave, hover}) =>
+export const View: React.FC<ViewProps> = ({
+    className,
+    html,
+    onClick,
+}) => (
     <div
         dangerouslySetInnerHTML={{__html: html}}
-        className={hover ? 'hovered' : ''}
+        className={className}
         tabIndex={1}
         onClick={onClick}
-        onMouseOver={onMouseOver}
-        onMouseLeave={onMouseLeave}
-    />;
+    />
+);
 
 export const YfmHtmlBlockView: React.FC<YfmHtmlViewProps> = ({node}) => {
     const ref = useRef<HTMLIFrameElement>(null);
     // const textareaRef = useRef<HTMLTextAreaElement>(null);
+    const interval = useRef<any>(null);
+
     const htmlText = node.attrs.srcdoc;
     const [text, setText] = useState(htmlText || '');
 
-
     const [editing, setEditing] = useState(false);
-    const [hover, setHover] = useState(false);
-
-    const handleMouseOver = () => {
-        setHover(() => true);
-    };
-
-    const handleMouseLeave = () => {
-        debounce(() => {
-            setHover(() => true);
-        }, 1000);
-    };
+    const [selected, setSelected] = useState(false);
 
     const handleClick = () => {
-        setEditing(() => true);
+        setSelected(() => true);
     };
 
-    return <div ref={ref}>
-        {editing ?
-            <TextArea
-                controlProps={{
-                    className: cnYfmHtml({'prosemirror-stop-event': true}),
-                }}
-                value={text}
-                onUpdate={(value) => {
-                    setText(value);
-                }}
-                autoFocus
-            /> : <View
-                hover={hover}
-                onMouseOver={handleMouseOver}
-                onMouseLeave={handleMouseLeave}
-                onClick={handleClick}
-                html={text} />
+    const handleClickOutside = () => {
+        setEditing(() => false);
+        setSelected(() => false);
+    };
+
+    useEffect(() => {
+        if (editing === false && !interval.current) {
+            interval.current = setInterval(() => {
+                console.log('window.yfmHtmlEditable', (window as any).yfmHtmlEditable);
+                if ((window as any).yfmHtmlEditable === 'true') {
+                    console.log('yfmHtmlEditable')
+                    setEditing(true);
+                    (window as any).yfmHtmlEditable = 'false';
+                    clearInterval(interval.current);
+                }
+            }, 100);
         }
-    </div>;
+    }, [editing]);
+
+    useOutsideClick({ref, handler: handleClickOutside});
+
+    return (
+        <div ref={ref} className={cnYfmHtml()}>
+            {editing ? (
+                <TextArea
+                    controlProps={{
+                        className: cnYfmHtml('edit', {'prosemirror-stop-event': true}, 'hljs'),
+                    }}
+                    value={text}
+                    onUpdate={(value) => {
+                        setText(value);
+                    }}
+                    autoFocus
+                />
+            ) : (
+                <View
+                    className={cnYfmHtml({'selected': Boolean(selected)})}
+                    onClick={handleClick}
+                    html={text}
+                />
+            )}
+        </div>
+    );
 };

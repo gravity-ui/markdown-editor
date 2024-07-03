@@ -21,7 +21,7 @@ const YfmHtmlSpecsExtension: ExtensionAuto<Pick<ExtensionNodeSpec, 'view'>> = (b
                 attrs: {
                     [YfmHtml.NodeAttrs.class]: {default: 'yfm-html'},
                     [YfmHtml.NodeAttrs.frameborder]: {default: ''},
-                    [YfmHtml.NodeAttrs.srcdoc]: {},
+                    [YfmHtml.NodeAttrs.srcdoc]: {default: ''},
                     [YfmHtml.NodeAttrs.style]: {default: null},
                 },
                 toDOM: (node) => ['iframe', node.attrs],

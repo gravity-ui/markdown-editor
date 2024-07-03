@@ -1,18 +1,18 @@
 import React from 'react';
 
+import {Node} from 'prosemirror-model';
 import {EditorView, NodeView} from 'prosemirror-view';
 import {createPortal} from 'react-dom';
 
 import type {YfmHtmlOptions} from '..';
+import {getReactRendererFromState} from '../../../behavior';
 
 import {YfmHtmlBlockView} from './YfmHtmlBlockView';
-import {getReactRendererFromState} from '../../../behavior';
-import {Node} from 'prosemirror-model';
 
 interface Constructor {
-    node: Node,
-    options: YfmHtmlOptions,
-    view: EditorView,
+    node: Node;
+    options: YfmHtmlOptions;
+    view: EditorView;
 }
 
 export class YfmHtmlNodeView implements NodeView {
@@ -24,11 +24,7 @@ export class YfmHtmlNodeView implements NodeView {
     private readonly renderItem;
     private readonly loadRuntimeScript?: () => void;
 
-    constructor({
-        node,
-        view,
-        options: {loadRuntimeScript},
-    }: Constructor) {
+    constructor({node, view, options: {loadRuntimeScript}}: Constructor) {
         this.dom = document.createElement('div');
         this.dom.classList.add('yfmHtml-container');
         this.dom.contentEditable = 'false';
@@ -60,7 +56,7 @@ export class YfmHtmlNodeView implements NodeView {
     }
 
     stopEvent(event: Event) {
-        console.log('stopEvent YfmHtml')
+        console.log('stopEvent YfmHtml');
         const target = event.target as Element;
         if (
             typeof target.className === 'string' &&
@@ -77,12 +73,6 @@ export class YfmHtmlNodeView implements NodeView {
     }
 
     private renderYfmHtml() {
-        return createPortal(
-            <YfmHtmlBlockView
-                node={this.node}
-                view={this.view}
-            />,
-            this.dom,
-        );
+        return createPortal(<YfmHtmlBlockView node={this.node} view={this.view} />, this.dom);
     }
 }
