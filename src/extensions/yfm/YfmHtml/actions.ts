@@ -12,9 +12,9 @@ export const addYfmHtml: ActionSpec = {
                 state.selection.from,
                 yfmHtmlNodeType(state.schema).create({
                     content: [
-                        '::: html',
-                        '\t',
-                        ':::',
+                        'sequenceDiagram',
+                        '\tAlice->>Bob: Hi Bob',
+                        '\tBob->>Alice: Hi Alice',
                     ].join('\n'),
                     newCreated: true,
                 }),

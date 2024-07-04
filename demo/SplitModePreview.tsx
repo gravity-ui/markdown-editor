@@ -30,6 +30,9 @@ export type SplitModePreviewProps = {
     needToSanitizeHtml?: boolean;
 };
 
+// TODO: export HTMLControllerForEachCallback
+type HTMLControllerForEachCallback = any;
+
 export const SplitModePreview: React.FC<SplitModePreviewProps> = (props) => {
     const {plugins, getValue, allowHTML, breaks, linkify, linkifyTlds, needToSanitizeHtml} = props;
     const [html, setHtml] = useState('');
@@ -45,17 +48,13 @@ export const SplitModePreview: React.FC<SplitModePreviewProps> = (props) => {
         const color = bodyStyles.getPropertyValue('--g-color-text-primary');
         const background = bodyStyles.getPropertyValue('--g-color-base-background');
 
-        // TODO: export HTMLControllerForEachCallback
-        // FIXME: useDiplodocHtml should wait window[GLOBAL_SYMBOL]
-        setTimeout(() => {
-            yfmHtml?.forEach((yfmHtmlBlock: any) => {
-                yfmHtmlBlock.setStyles({
-                    // TODO: use css vars
-                    color,
-                    background,
-                });
+        yfmHtml.forEach((yfmHtmlBlock: HTMLControllerForEachCallback) => {
+            yfmHtmlBlock.setStyles({
+                // TODO: use css vars
+                color,
+                background,
             });
-        }, 1000);
+        });
     }, [theme, yfmHtml]);
 
     const render = useMemo(

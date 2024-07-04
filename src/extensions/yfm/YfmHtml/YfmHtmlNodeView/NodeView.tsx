@@ -6,38 +6,41 @@ import {createPortal} from 'react-dom';
 
 import type {YfmHtmlOptions} from '..';
 import {getReactRendererFromState} from '../../../behavior';
+import {YfmHtmlConsts} from '../YfmHtmlSpecs/const';
 
-import {YfmHtmlBlockView} from './YfmHtmlBlockView';
+import {YfmHtmlView} from './YfmHtmlView';
 
-interface Constructor {
-    node: Node;
-    options: YfmHtmlOptions;
-    view: EditorView;
-}
-
-export class YfmHtmlNodeView implements NodeView {
+export class WYfmHtmlNodeView implements NodeView {
     readonly dom: HTMLElement;
     private node: Node;
     private readonly view;
-    // private readonly getPos;
-
+    private readonly getPos;
     private readonly renderItem;
-    private readonly loadRuntimeScript?: () => void;
+    private readonly loadRuntimeScript: () => void;
 
-    constructor({node, view, options: {loadRuntimeScript}}: Constructor) {
+    constructor(
+        node: Node,
+        view: EditorView,
+        getPos: () => number | undefined,
+        opts: YfmHtmlOptions,
+    ) {
+        const {loadRuntimeScript} = opts;
+        this.node = node;
         this.dom = document.createElement('div');
         this.dom.classList.add('yfmHtml-container');
         this.dom.contentEditable = 'false';
-        this.node = node;
         this.view = view;
-
+        this.getPos = getPos;
         this.loadRuntimeScript = loadRuntimeScript;
         this.initializeYfmHtml();
-
         this.renderItem = getReactRendererFromState(view.state).createItem(
-            'yfm-html-view',
+            'yfmHtml-view',
             this.renderYfmHtml.bind(this),
         );
+    }
+
+    initializeYfmHtml() {
+        this.loadRuntimeScript();
     }
 
     update(node: Node) {
@@ -55,9 +58,8 @@ export class YfmHtmlNodeView implements NodeView {
         return true;
     }
 
-    stopEvent(event: Event) {
-        console.log('stopEvent YfmHtml');
-        const target = event.target as Element;
+    stopEvent(e: Event) {
+        const target = e.target as Element;
         if (
             typeof target.className === 'string' &&
             target.className.includes('prosemirror-stop-event')
@@ -68,11 +70,32 @@ export class YfmHtmlNodeView implements NodeView {
         return false;
     }
 
-    initializeYfmHtml() {
-        this.loadRuntimeScript?.();
+    private onChange(attrs: {[YfmHtmlConsts.NodeAttrs.srcdoc]: string}) {
+        const pos = this.getPos();
+        if (pos === undefined) return;
+
+        const tr = this.view.state.tr.setNodeMarkup(
+            pos,
+            undefined,
+            {
+                ...this.node.attrs,
+                ...attrs,
+            },
+            [],
+        );
+
+        this.view.dispatch(tr);
     }
 
     private renderYfmHtml() {
-        return createPortal(<YfmHtmlBlockView node={this.node} view={this.view} />, this.dom);
+        return createPortal(
+            <YfmHtmlView
+                view={this.view}
+                onChange={this.onChange.bind(this)}
+                node={this.node}
+                getPos={this.getPos}
+            />,
+            this.dom,
+        );
     }
 }

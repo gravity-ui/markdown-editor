@@ -33,9 +33,10 @@ import {useMarkdownEditorContext} from './context';
 import {EditorSettings, EditorSettingsProps} from './settings';
 import {stickyCn} from './sticky';
 
-import '../styles/styles.scss';
-import './MarkdownEditorView.scss';
 import {useDiplodocHtml} from '@diplodoc/html-extension/react'; // eslint-disable-line import/order
+
+import './MarkdownEditorView.scss';
+import '../styles/styles.scss';
 
 export const cnEditorComponent = cn('editor-component');
 const b = cnEditorComponent;

@@ -1,21 +1,46 @@
-.g-md-editor.ProseMirror-focused {
-    .yfmHtml-container.ProseMirror-selectednode {
-        border-radius: 10px;
-        box-shadow: none;
-    }
-}
-
 .g-md-YfmHtml {
-    &_selected {
-        position: relative;
-        padding: 10px;
+    display: flex;
+    justify-content: space-between;
+
+    margin-bottom: 15px;
+    padding: 2px;
+
+    border: 1px solid var(--g-color-line-generic);
+    border-radius: var(--g-border-radius-m);
+
+    &_edit {
+        display: flex;
     }
 
-    &__edit {
-        border: 0;
-        outline: 0;
-        font-family: monospace;
-        font-size: 16px;
+    &__Preview {
+        flex: 1;
+    }
+
+    &__Error {
+        flex: 1;
+
+        font-family: var(--g-font-family-monospace);
+
+        color: var(--g-color-text-danger);
+    }
+
+    &__Editor {
+        flex: 1;
+
+        white-space: nowrap;
+        caret-color: auto;
+    }
+
+    &__EditorPopover {
+        z-index: 1;
+
+        float: right;
+    }
+
+    &__Controls {
+        display: flex;
+        justify-content: end;
+
+        margin-top: 5px;
     }
 }
-

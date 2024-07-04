@@ -10,7 +10,9 @@ export enum YfmHtmlAttrs {
 export const yfmHtmlNodeName = 'yfm_html_block';
 export const yfmHtmlNodeType = nodeTypeFactory(yfmHtmlNodeName);
 
-export const YfmHtml = {
+export const YfmHtmlAction = 'createYfmHtml';
+
+export const YfmHtmlConsts = {
     NodeName: yfmHtmlNodeName,
     NodeAttrs: YfmHtmlAttrs,
     nodeType: yfmHtmlNodeType,
