@@ -6,14 +6,13 @@ import {Plugin, Transaction} from 'prosemirror-state';
 import {EditorView} from 'prosemirror-view';
 
 import {ExtensionDeps} from '../../../../../core';
-// import {i18n} from '../../../../../i18n/yfm-html';
 
-const i18n = (value: string) => value;
+const i18n = (value: string) => value; // import {i18n} from '../../../../../i18n/yfm-html';
 
 import {BaseTooltipPluginView} from '../../../../../plugins/BaseTooltip';
 import {Toolbar, ToolbarDataType} from '../../../../../toolbar';
 import {removeNode} from '../../../../../utils/remove-node';
-import {YfmHtml as YfmHtmlConst} from '../../YfmHtmlSpecs/const';
+import {YfmHtmlConsts} from '../../YfmHtmlSpecs/const';
 
 import './index.scss';
 
@@ -33,18 +32,16 @@ const changeMode: () => (params: {
     pos: number;
     dispatch: EditorView['dispatch'];
     tr: Transaction;
-}) => void =
-    () =>
-    () => {
-        (window as any).yfmHtmlEditable = 'true';
-    };
+}) => void = () => () => {
+    (window as any).yfmHtmlEditable = 'true';
+};
 
 export const yfmHtmlTooltipPlugin = ({actions, schema}: ExtensionDeps) =>
     new Plugin({
         view(view) {
             return new BaseTooltipPluginView(view, {
                 idPrefix: 'yfm-html-tooltip',
-                nodeType: YfmHtmlConst.nodeType(view.state.schema),
+                nodeType: YfmHtmlConsts.nodeType(view.state.schema),
                 popupPlacement: ['bottom', 'top'],
                 content: (view, {node, pos}) => (
                     <Toolbar
@@ -52,9 +49,7 @@ export const yfmHtmlTooltipPlugin = ({actions, schema}: ExtensionDeps) =>
                         focus={() => view.focus()}
                         className="g-md-yfm-html-toolbar"
                         data={[
-                            [
-                                YfmHtmlType.info,
-                            ].map((type) => ({
+                            [YfmHtmlType.info].map((type) => ({
                                 id: `html-type-${type}`,
                                 icon: {data: Pencil},
                                 title: i18n(type),

@@ -137,7 +137,7 @@ export const BundlePreset: ExtensionAuto<BundlePresetOptions> = (builder, opts) 
             loadRuntimeScript: () => {
                 import(
                     /* webpackChunkName: "yfm-html-runtime" */ '@diplodoc/html-extension/runtime'
-                    );
+                );
             },
         },
         placeholder: {

@@ -5,11 +5,11 @@ import {YfmHtmlSpecs} from './YfmHtmlSpecs';
 import {YfmHtmlAction} from './YfmHtmlSpecs/const';
 import {addYfmHtml} from './actions';
 
-export type YfmHtmlOptions = {loadRuntimeScript: () => void};
+export type YfmHtmlOptions = {};
 
-export const YfmHtml: ExtensionAuto<YfmHtmlOptions> = (builder, {loadRuntimeScript}) => {
+export const YfmHtml: ExtensionAuto<YfmHtmlOptions> = (builder) => {
     builder.use(YfmHtmlSpecs, {
-        nodeView: YfmHtmlNodeViewFactory({loadRuntimeScript}),
+        nodeView: YfmHtmlNodeViewFactory({}),
     });
 
     builder.addAction(YfmHtmlAction, () => addYfmHtml);
@@ -17,12 +17,9 @@ export const YfmHtml: ExtensionAuto<YfmHtmlOptions> = (builder, {loadRuntimeScri
 
 const YfmHtmlNodeViewFactory: (
     opts: YfmHtmlOptions,
-) => (deps: ExtensionDeps) => NodeViewConstructor =
-    ({loadRuntimeScript}) =>
-    () =>
-    (node, view, getPos) => {
-        return new WYfmHtmlNodeView(node, view, getPos, {loadRuntimeScript});
-    };
+) => (deps: ExtensionDeps) => NodeViewConstructor = () => () => (node, view, getPos) => {
+    return new WYfmHtmlNodeView(node, view, getPos);
+};
 
 declare global {
     namespace WysiwygEditor {

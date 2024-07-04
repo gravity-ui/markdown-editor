@@ -4,7 +4,6 @@ import {Node} from 'prosemirror-model';
 import {EditorView, NodeView} from 'prosemirror-view';
 import {createPortal} from 'react-dom';
 
-import type {YfmHtmlOptions} from '..';
 import {getReactRendererFromState} from '../../../behavior';
 import {YfmHtmlConsts} from '../YfmHtmlSpecs/const';
 
@@ -16,22 +15,15 @@ export class WYfmHtmlNodeView implements NodeView {
     private readonly view;
     private readonly getPos;
     private readonly renderItem;
-    private readonly loadRuntimeScript: () => void;
 
-    constructor(
-        node: Node,
-        view: EditorView,
-        getPos: () => number | undefined,
-        opts: YfmHtmlOptions,
-    ) {
-        const {loadRuntimeScript} = opts;
+    constructor(node: Node, view: EditorView, getPos: () => number | undefined) {
         this.node = node;
         this.dom = document.createElement('div');
         this.dom.classList.add('yfmHtml-container');
         this.dom.contentEditable = 'false';
         this.view = view;
         this.getPos = getPos;
-        this.loadRuntimeScript = loadRuntimeScript;
+
         this.initializeYfmHtml();
         this.renderItem = getReactRendererFromState(view.state).createItem(
             'yfmHtml-view',
@@ -39,9 +31,7 @@ export class WYfmHtmlNodeView implements NodeView {
         );
     }
 
-    initializeYfmHtml() {
-        this.loadRuntimeScript();
-    }
+    initializeYfmHtml() {}
 
     update(node: Node) {
         if (node.type !== this.node.type) return false;
