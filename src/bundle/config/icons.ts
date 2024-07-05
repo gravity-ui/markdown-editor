@@ -6,6 +6,7 @@ import {
     CutIcon,
     EmojiIcon,
     FileIcon,
+    FolderCodeIcon,
     FunctionBlockIcon,
     FunctionInlineIcon,
     HRuleIcon,
@@ -76,7 +77,8 @@ type Icon =
     | 'functionBlock'
     | 'emoji'
     | 'tabs'
-    | 'mermaid';
+    | 'mermaid'
+    | 'html';
 
 type Icons = Record<Icon, ToolbarIconData>;
 
@@ -120,6 +122,8 @@ export const icons: Icons = {
     table: {data: TableIcon},
     quote: {data: QuoteIcon},
     checklist: {data: CheckListIcon},
+
+    html: {data: FolderCodeIcon},
     horizontalRule: {data: HRuleIcon},
 
     file: {data: FileIcon},

@@ -1,7 +1,7 @@
-import React, {useRef, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 
-import {Ellipsis as DotsIcon} from '@gravity-ui/icons';
-import {Button, Icon, Menu, Popup} from '@gravity-ui/uikit';
+import {Ellipsis as DotsIcon, Eye} from '@gravity-ui/icons';
+import {Button, Icon, Label, Menu, Popup} from '@gravity-ui/uikit';
 import {Node} from 'prosemirror-model';
 import {EditorView} from 'prosemirror-view';
 
@@ -12,7 +12,7 @@ import {removeNode} from '../../../../utils/remove-node';
 import {YfmHtmlConsts} from '../YfmHtmlSpecs/const';
 
 export const cnYfmHtml = cn('YfmHtml');
-export const cnDiagramHelper = cn('YfmHtmlHelper');
+export const cnHelper = cn('YfmHtmlHelper');
 
 import './YfmHtml.scss';
 
@@ -20,17 +20,54 @@ const b = cnYfmHtml;
 
 interface YfmHtmlViewProps {
     html: string;
+    onСlick: () => void;
 }
 
 export function generateID() {
     return Math.random().toString(36).substr(2, 8);
 }
 
-const YfmHtmlPreview: React.FC<YfmHtmlViewProps> = ({html}) => {
-    return <iframe title={generateID()} srcDoc={html} />;
+const PADDING = 20;
+
+const YfmHtmlPreview: React.FC<YfmHtmlViewProps> = ({html, onСlick}) => {
+    const ref = useRef<HTMLIFrameElement>(null);
+    const [height, setHeight] = useState('100%');
+
+    const handleLoadIFrameHandler = () => {
+        const contentWindow = ref.current?.contentWindow;
+
+        if (contentWindow) {
+            const height = contentWindow.document.documentElement.scrollHeight + PADDING + 'px';
+            setHeight(height);
+
+            contentWindow.document.addEventListener('dblclick', () => {
+                onСlick();
+            });
+        }
+    };
+
+    useEffect(() => {
+        ref.current?.addEventListener('load', handleLoadIFrameHandler);
+        return () => {
+            ref.current?.removeEventListener('load', handleLoadIFrameHandler);
+        };
+    }, [html]);
+
+    return (
+        <iframe
+            style={{
+                height,
+            }}
+            ref={ref}
+            title={generateID()}
+            frameBorder={0}
+            className={b('Content')}
+            srcDoc={html}
+        />
+    );
 };
 
-const DiagramEditMode: React.FC<{
+const CodeEditMode: React.FC<{
     initialText: string;
     onSave: (v: string) => void;
     onCancel: () => void;
@@ -38,13 +75,13 @@ const DiagramEditMode: React.FC<{
     const [text, setText] = useState(initialText || '');
 
     return (
-        <div className={b()}>
-            <YfmHtmlPreview html={initialText} />
+        <div className={b({editing: true})}>
             <div className={b('Editor')}>
                 <div>
                     <TextArea
+                        className={b('CodeEditor')}
                         controlProps={{
-                            className: cnDiagramHelper({'prosemirror-stop-event': true}),
+                            className: cnHelper({'prosemirror-stop-event': true}),
                         }}
                         value={text}
                         onUpdate={(v) => {
@@ -53,17 +90,16 @@ const DiagramEditMode: React.FC<{
                         autoFocus
                     />
                 </div>
+
                 <div className={b('Controls')}>
                     <div>
                         <Button onClick={onCancel} view={'flat'}>
-                            <span className={cnDiagramHelper({'prosemirror-stop-event': true})}>
+                            <span className={cnHelper({'prosemirror-stop-event': true})}>
                                 Cancel
                             </span>
                         </Button>
                         <Button onClick={() => onSave(text)} view={'action'}>
-                            <span className={cnDiagramHelper({'prosemirror-stop-event': true})}>
-                                Save
-                            </span>
+                            <span className={cnHelper({'prosemirror-stop-event': true})}>Save</span>
                         </Button>
                     </div>
                 </div>
@@ -82,9 +118,13 @@ export const YfmHtmlView: React.FC<{
     const [menuOpen, , , toggleMenuOpen] = useBooleanState(false);
     const buttonRef = useRef<HTMLDivElement>(null);
 
+    const handleClick = () => {
+        setEditing();
+    };
+
     if (editing) {
         return (
-            <DiagramEditMode
+            <CodeEditMode
                 initialText={node.attrs[YfmHtmlConsts.NodeAttrs.srcdoc]}
                 onCancel={unsetEditing}
                 onSave={(v) => {
@@ -97,18 +137,19 @@ export const YfmHtmlView: React.FC<{
 
     return (
         <div className={b()} onDoubleClick={setEditing}>
-            <YfmHtmlPreview html={node.attrs[YfmHtmlConsts.NodeAttrs.srcdoc]} />
+            <Label icon={<Icon size={16} data={Eye} />}>Preview</Label>
+            <YfmHtmlPreview
+                html={node.attrs[YfmHtmlConsts.NodeAttrs.srcdoc]}
+                onСlick={handleClick}
+            />
             <div>
                 <Button
                     onClick={toggleMenuOpen}
                     ref={buttonRef}
                     size={'s'}
-                    className={cnDiagramHelper({'prosemirror-stop-event': true})}
+                    className={cnHelper({'prosemirror-stop-event': true})}
                 >
-                    <Icon
-                        data={DotsIcon}
-                        className={cnDiagramHelper({'prosemirror-stop-event': true})}
-                    />
+                    <Icon data={DotsIcon} className={cnHelper({'prosemirror-stop-event': true})} />
                 </Button>
                 <Popup
                     anchorRef={buttonRef}

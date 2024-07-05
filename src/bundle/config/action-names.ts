@@ -24,6 +24,7 @@ const names = [
     'yfm_cut',
     'yfm_note',
     'yfm_block',
+    'yfm_html',
     'yfm_layout',
     'table',
     'code_inline',

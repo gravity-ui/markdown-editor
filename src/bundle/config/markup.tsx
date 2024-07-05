@@ -5,6 +5,7 @@ import {
     insertHRule,
     insertLink,
     insertMermaidDiagram,
+    insertYfmHtml,
     insertYfmTable,
     insertYfmTabs,
     liftListItem,
@@ -438,6 +439,16 @@ export const mMermaidButton: MToolbarSingleItemData = {
     title: i18n.bind(null, 'mermaid'),
     icon: icons.mermaid,
     exec: (e) => insertMermaidDiagram(e.cm),
+    isActive: isActiveFn,
+    isEnable: isEnableFn,
+};
+
+export const mYfmHtmlButton: MToolbarSingleItemData = {
+    id: ActionName.yfm_html,
+    type: ToolbarDataType.SingleButton,
+    title: 'HTML',
+    icon: icons.html,
+    exec: (e) => insertYfmHtml(e.cm),
     isActive: isActiveFn,
     isEnable: isEnableFn,
 };

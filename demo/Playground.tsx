@@ -39,17 +39,19 @@ const fileUploadHandler: FileUploadHandler = async (file) => {
 
 const mToolbarConfig = [
     ...markupToolbarConfigs.mToolbarConfig,
-    [markupToolbarConfigs.mMermaidButton],
+    [markupToolbarConfigs.mMermaidButton, markupToolbarConfigs.mYfmHtmlButton],
 ];
 mToolbarConfig[2].push(markupToolbarConfigs.mMathListItem);
 
 const wToolbarConfig = cloneDeep(wysiwygToolbarConfigs.wToolbarConfig);
 wToolbarConfig[2].push(wysiwygToolbarConfigs.wMathListItem);
+wToolbarConfig[2].push(wysiwygToolbarConfigs.wYfmHtmlItemData);
 
 const wCommandMenuConfig = wysiwygToolbarConfigs.wCommandMenuConfig.concat(
     wysiwygToolbarConfigs.wMathInlineItemData,
     wysiwygToolbarConfigs.wMathBlockItemData,
     wysiwygToolbarConfigs.wMermaidItemData,
+    wysiwygToolbarConfigs.wYfmHtmlItemData,
 );
 
 export type PlaygroundProps = {

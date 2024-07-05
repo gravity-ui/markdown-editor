@@ -547,6 +547,16 @@ export const wMermaidItemData: WToolbarSingleItemData = {
     isEnable: (e) => e.actions.createMermaid.isEnable(),
 };
 
+export const wYfmHtmlItemData: WToolbarSingleItemData = {
+    id: ActionName.yfm_html,
+    type: ToolbarDataType.SingleButton,
+    title: i18n.bind(null, 'html'),
+    icon: icons.html,
+    exec: (e) => e.actions.createYfmHtml.run(),
+    isActive: (e) => e.actions.createYfmHtml.isActive(),
+    isEnable: (e) => e.actions.createYfmHtml.isEnable(),
+};
+
 export const wToolbarConfigByPreset: Record<EditorPreset, WToolbarData> = {
     zero: [wHistoryGroupConfig],
     commonmark: [
