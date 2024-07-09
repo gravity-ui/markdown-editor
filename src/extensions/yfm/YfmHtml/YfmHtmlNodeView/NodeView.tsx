@@ -35,6 +35,11 @@ export class WYfmHtmlNodeView implements NodeView {
 
     update(node: Node) {
         if (node.type !== this.node.type) return false;
+        if (
+            node.attrs[YfmHtmlConsts.NodeAttrs.newCreated] !==
+            this.node.attrs[YfmHtmlConsts.NodeAttrs.newCreated]
+        )
+            return false;
         this.node = node;
         this.renderItem.rerender();
         return true;

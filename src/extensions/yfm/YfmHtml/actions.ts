@@ -1,6 +1,6 @@
 import {ActionSpec} from '../../../core';
 
-import {yfmHtmlNodeType} from './YfmHtmlSpecs/const';
+import {YfmHtmlConsts, yfmHtmlNodeType} from './YfmHtmlSpecs/const';
 
 export const addYfmHtml: ActionSpec = {
     isEnable(state) {
@@ -11,12 +11,8 @@ export const addYfmHtml: ActionSpec = {
             state.tr.insert(
                 state.selection.from,
                 yfmHtmlNodeType(state.schema).create({
-                    content: [
-                        'sequenceDiagram',
-                        '\tAlice->>Bob: Hi Bob',
-                        '\tBob->>Alice: Hi Alice',
-                    ].join('\n'),
-                    newCreated: true,
+                    [YfmHtmlConsts.NodeAttrs.srcdoc]: '\n',
+                    [YfmHtmlConsts.NodeAttrs.newCreated]: true,
                 }),
             ),
         );

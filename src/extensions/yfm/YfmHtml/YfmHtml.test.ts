@@ -22,7 +22,16 @@ const {doc, yfmHtml} = builders<'doc' | 'yfmHtml'>(schema, {
 
 const {same} = createMarkupChecker({parser, serializer});
 
-describe('MErmaid extension', () => {
+describe('YfmHtml extension', () => {
     it('should parse yfmHtml', () =>
-        same('```yfmHtml\ncontent\n```\n', doc(yfmHtml({[YfmHtmlAttrs.srcdoc]: 'content\n'}))));
+        same(
+            '::: html\ncontent\n:::',
+            doc(
+                yfmHtml({
+                    [YfmHtmlAttrs.srcdoc]: 'content\n',
+                    [YfmHtmlAttrs.style]: 'width:100%',
+                    [YfmHtmlAttrs.frameborder]: '0',
+                }),
+            ),
+        ));
 });
