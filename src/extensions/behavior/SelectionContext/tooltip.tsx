@@ -8,7 +8,13 @@ import {ActionStorage} from '../../../core';
 import {isFunction} from '../../../lodash';
 import {logger} from '../../../logger';
 import {ErrorLoggerBoundary} from '../../../react-utils/ErrorBoundary';
-import {Toolbar, ToolbarGroupItemData, ToolbarProps} from '../../../toolbar';
+import {
+    Toolbar,
+    ToolbarButtonPopupData,
+    ToolbarGroupItemData,
+    ToolbarProps,
+    ToolbarSingleItemData,
+} from '../../../toolbar';
 import {RendererItem, getReactRendererFromState} from '../ReactRenderer';
 
 type SelectionTooltipBaseProps = {
@@ -30,9 +36,14 @@ const SelectionTooltip: React.FC<SelectionTooltipProps> = ({
     );
 };
 
-export type ContextGroupItemData = ToolbarGroupItemData<ActionStorage> & {
-    condition?: (state: EditorState) => void;
-};
+export type ContextGroupItemData =
+    | (ToolbarGroupItemData<ActionStorage> & {
+          condition?: (state: EditorState) => void;
+      })
+    | ((ToolbarSingleItemData<ActionStorage> | ToolbarButtonPopupData<ActionStorage>) & {
+          condition?: 'enabled';
+      });
+
 export type ContextGroupData = ContextGroupItemData[];
 export type ContextConfig = ContextGroupData[];
 
@@ -94,9 +105,16 @@ export class TooltipView {
         return this.baseProps.show
             ? this.menuConfig
                   .map((groupData) =>
-                      groupData.filter(({condition}) =>
-                          isFunction(condition) ? condition(this.view.state) : true,
-                      ),
+                      groupData.filter((item) => {
+                          const {condition} = item;
+                          if (condition === 'enabled') {
+                              return item.isEnable(this.actions);
+                          }
+                          if (isFunction(condition)) {
+                              return condition(this.view.state);
+                          }
+                          return true;
+                      }),
                   )
                   .filter((groupData) => Boolean(groupData.length))
             : [];
