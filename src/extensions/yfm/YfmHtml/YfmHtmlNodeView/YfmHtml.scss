@@ -1,17 +1,20 @@
 .g-md-YfmHtml {
     position: relative;
-    padding-top: 28px;
+
     display: flex;
     justify-content: space-between;
 
     margin-bottom: 15px;
+    padding-top: 28px;
 
     border: 1px solid var(--g-color-line-generic);
     border-radius: var(--g-border-radius-m);
 
     &_editing {
-        padding-top: 0;
         display: flex;
+
+        padding-top: 0;
+
         border: 0;
     }
 
@@ -42,23 +45,24 @@
     &__Editor {
         flex: 1;
 
-        white-space: nowrap;
-        caret-color: auto;
         width: 50%;
 
+        white-space: nowrap;
+        caret-color: auto;
+
         .g-text-area__content {
-            border: 0;
             font-size: 1em;
-            font-feature-settings: normal;
-            background: var(--yfm-color-hljs-background);
+
             color: var(--yfm-color-hljs-subst);
+            border: 0;
             border-radius: var(--g-border-radius-m);
+            background: var(--yfm-color-hljs-background);
+            font-feature-settings: normal;
         }
         .g-text-area__control.g-md-YfmHtmlHelper {
             font-family: var(--yfm-font-family-monospace);
         }
     }
-
 
     &__EditorPopover {
         z-index: 1;
