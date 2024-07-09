@@ -7,6 +7,7 @@ import {EditorView} from 'prosemirror-view';
 
 import {cn} from '../../../../classname';
 import {TextAreaFixed as TextArea} from '../../../../forms/TextInput';
+import {i18n} from '../../../../i18n/common';
 import {useBooleanState} from '../../../../react-utils/hooks';
 import {removeNode} from '../../../../utils/remove-node';
 import {YfmHtmlConsts} from '../YfmHtmlSpecs/const';
@@ -72,34 +73,34 @@ const CodeEditMode: React.FC<{
     onSave: (v: string) => void;
     onCancel: () => void;
 }> = ({initialText, onSave, onCancel}) => {
-    const [text, setText] = useState(initialText || '');
+    const [text, setText] = useState(initialText || '\n');
 
     return (
         <div className={b({editing: true})}>
             <div className={b('Editor')}>
-                <div>
-                    <TextArea
-                        className={b('CodeEditor')}
-                        controlProps={{
-                            className: cnHelper({'prosemirror-stop-event': true}),
-                        }}
-                        value={text}
-                        onUpdate={(v) => {
-                            setText(v);
-                        }}
-                        autoFocus
-                    />
-                </div>
+                <TextArea
+                    className={b('CodeEditor')}
+                    controlProps={{
+                        className: cnHelper({'prosemirror-stop-event': true}),
+                    }}
+                    value={text}
+                    onUpdate={(v) => {
+                        setText(v);
+                    }}
+                    autoFocus
+                />
 
                 <div className={b('Controls')}>
                     <div>
                         <Button onClick={onCancel} view={'flat'}>
                             <span className={cnHelper({'prosemirror-stop-event': true})}>
-                                Cancel
+                                {i18n('cancel')}
                             </span>
                         </Button>
                         <Button onClick={() => onSave(text)} view={'action'}>
-                            <span className={cnHelper({'prosemirror-stop-event': true})}>Save</span>
+                            <span className={cnHelper({'prosemirror-stop-event': true})}>
+                                {i18n('save')}
+                            </span>
                         </Button>
                     </div>
                 </div>
@@ -114,7 +115,10 @@ export const YfmHtmlView: React.FC<{
     node: Node;
     getPos: () => number | undefined;
 }> = ({onChange, node, getPos, view}) => {
-    const [editing, setEditing, unsetEditing, toggleEditing] = useBooleanState(false);
+    const [editing, setEditing, unsetEditing, toggleEditing] = useBooleanState(
+        Boolean(node.attrs[YfmHtmlConsts.NodeAttrs.newCreated]),
+    );
+
     const [menuOpen, , , toggleMenuOpen] = useBooleanState(false);
     const buttonRef = useRef<HTMLDivElement>(null);
 
@@ -137,12 +141,14 @@ export const YfmHtmlView: React.FC<{
 
     return (
         <div className={b()} onDoubleClick={setEditing}>
-            <Label icon={<Icon size={16} data={Eye} />}>Preview</Label>
+            <Label className={b('Label')} icon={<Icon size={16} data={Eye} />}>
+                {i18n('preview')}
+            </Label>
             <YfmHtmlPreview
                 html={node.attrs[YfmHtmlConsts.NodeAttrs.srcdoc]}
                 onСlick={handleClick}
             />
-            <div>
+            <div className={b('Menu')}>
                 <Button
                     onClick={toggleMenuOpen}
                     ref={buttonRef}
@@ -164,7 +170,7 @@ export const YfmHtmlView: React.FC<{
                                 toggleMenuOpen();
                             }}
                         >
-                            Edit
+                            {i18n('edit')}
                         </Menu.Item>
                         <Menu.Item
                             onClick={() => {
@@ -178,7 +184,7 @@ export const YfmHtmlView: React.FC<{
                                 });
                             }}
                         >
-                            Remove
+                            {i18n('remove')}
                         </Menu.Item>
                     </Menu>
                 </Popup>

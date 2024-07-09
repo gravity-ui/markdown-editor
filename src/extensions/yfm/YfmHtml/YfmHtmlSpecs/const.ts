@@ -3,6 +3,7 @@ import {nodeTypeFactory} from '../../../../utils/schema';
 export enum YfmHtmlAttrs {
     class = 'class',
     frameborder = 'frameborder',
+    newCreated = 'newCreated',
     srcdoc = 'srcdoc',
     style = 'style',
 }

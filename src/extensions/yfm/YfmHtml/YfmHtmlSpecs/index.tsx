@@ -30,6 +30,7 @@ const YfmHtmlSpecsExtension: ExtensionAuto<YfmHtmlSpecsOptions> = (builder, {nod
                     [YfmHtmlConsts.NodeAttrs.frameborder]: {default: ''},
                     [YfmHtmlConsts.NodeAttrs.srcdoc]: {default: ''},
                     [YfmHtmlConsts.NodeAttrs.style]: {default: null},
+                    [YfmHtmlConsts.NodeAttrs.newCreated]: {default: null},
                 },
                 toDOM: (node) => ['iframe', node.attrs],
             },

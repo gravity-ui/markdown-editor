@@ -446,7 +446,7 @@ export const mMermaidButton: MToolbarSingleItemData = {
 export const mYfmHtmlButton: MToolbarSingleItemData = {
     id: ActionName.yfm_html,
     type: ToolbarDataType.SingleButton,
-    title: 'HTML',
+    title: i18n.bind(null, 'html'),
     icon: icons.html,
     exec: (e) => insertYfmHtml(e.cm),
     isActive: isActiveFn,

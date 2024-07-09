@@ -1,4 +1,6 @@
 .g-md-YfmHtml {
+    position: relative;
+    padding-top: 28px;
     display: flex;
     justify-content: space-between;
 
@@ -8,8 +10,21 @@
     border-radius: var(--g-border-radius-m);
 
     &_editing {
+        padding-top: 0;
         display: flex;
         border: 0;
+    }
+
+    &__Label {
+        position: absolute;
+        top: 8px;
+        left: 8px;
+    }
+
+    &__Menu {
+        position: absolute;
+        top: 0;
+        right: 0;
     }
 
     &__Preview {

@@ -456,6 +456,16 @@ export const wMathListItem: WToolbarListItemData = {
     ...wMathListConfig,
 };
 
+export const wYfmHtmlItemData: WToolbarSingleItemData = {
+    id: ActionName.yfm_html,
+    type: ToolbarDataType.SingleButton,
+    title: i18n.bind(null, 'html'),
+    icon: icons.html,
+    exec: (e) => e.actions.createYfmHtml.run(),
+    isActive: (e) => e.actions.createYfmHtml.isActive(),
+    isEnable: (e) => e.actions.createYfmHtml.isEnable(),
+};
+
 export const wCommandMenuConfig: WToolbarItemData[] = [
     ...wHeadingListConfig.data,
     ...wListsListConfig.data,
@@ -473,6 +483,7 @@ export const wCommandMenuConfig: WToolbarItemData[] = [
     // wMathInlineItemData,
     // wMathBlockItemData,
     wTabsItemData,
+    wYfmHtmlItemData,
 ];
 
 export const wHiddenData = wCommandMenuConfig;
@@ -545,16 +556,6 @@ export const wMermaidItemData: WToolbarSingleItemData = {
     exec: (e) => e.actions.createMermaid.run(),
     isActive: (e) => e.actions.createMermaid.isActive(),
     isEnable: (e) => e.actions.createMermaid.isEnable(),
-};
-
-export const wYfmHtmlItemData: WToolbarSingleItemData = {
-    id: ActionName.yfm_html,
-    type: ToolbarDataType.SingleButton,
-    title: i18n.bind(null, 'html'),
-    icon: icons.html,
-    exec: (e) => e.actions.createYfmHtml.run(),
-    isActive: (e) => e.actions.createYfmHtml.isActive(),
-    isEnable: (e) => e.actions.createYfmHtml.isEnable(),
 };
 
 export const wToolbarConfigByPreset: Record<EditorPreset, WToolbarData> = {
@@ -660,6 +661,7 @@ export const wCommandMenuConfigByPreset: Record<EditorPreset, WToolbarItemData[]
         wHruleItemData,
         wFileItemData,
         wTabsItemData,
+        wYfmHtmlItemData,
     ],
     full: wCommandMenuConfig.slice(),
 };
