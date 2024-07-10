@@ -1,5 +1,11 @@
 import {autocompletion} from '@codemirror/autocomplete';
-import {defaultKeymap, history, historyKeymap, indentWithTab} from '@codemirror/commands';
+import {
+    defaultKeymap,
+    history,
+    historyKeymap,
+    indentWithTab,
+    insertTab,
+} from '@codemirror/commands';
 import {syntaxHighlighting} from '@codemirror/language';
 import type {Extension, StateCommand} from '@codemirror/state';
 import {EditorView, EditorViewConfig, keymap, placeholder} from '@codemirror/view';
@@ -94,6 +100,7 @@ export function createCodemirror(params: CreateCodemirrorParams) {
                     return true;
                 },
             },
+            {key: 'Tab', preventDefault: true, run: insertTab},
             indentWithTab,
             ...defaultKeymap,
             ...historyKeymap,
