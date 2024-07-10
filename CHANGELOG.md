@@ -1,5 +1,18 @@
 # Changelog
 
+## [13.2.0](https://github.com/gravity-ui/markdown-editor/compare/v13.1.2...v13.2.0) (2024-07-10)
+
+
+### Features
+
+* **SelectionContext:** support for hiding menu items when action in selection menu is disabled ([#283](https://github.com/gravity-ui/markdown-editor/issues/283)) ([6948cc4](https://github.com/gravity-ui/markdown-editor/commit/6948cc49d4f3208382572d95157b67612a8d9255))
+* **YfmHeading:** support folding attribute ([#285](https://github.com/gravity-ui/markdown-editor/issues/285)) ([100a548](https://github.com/gravity-ui/markdown-editor/commit/100a5488b3a8fde8489677d60cf36c049cf8515a))
+
+
+### Bug Fixes
+
+* **markup:** add gravity theme to autocomplete snippet ([#279](https://github.com/gravity-ui/markdown-editor/issues/279)) ([0836bce](https://github.com/gravity-ui/markdown-editor/commit/0836bcefdfcb86cf97ea6bb86cbed6a1e4d14262))
+
 ## [13.1.2](https://github.com/gravity-ui/markdown-editor/compare/v13.1.1...v13.1.2) (2024-06-25)
 
 
