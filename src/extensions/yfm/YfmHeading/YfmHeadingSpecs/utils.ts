@@ -8,7 +8,8 @@ export const getNodeAttrs =
     (level: HeadingLevel): TagParseRule['getAttrs'] =>
     (node) => ({
         [YfmHeadingAttr.Level]: level,
-        [YfmHeadingAttr.Id]: (node as Element).getAttribute('id') || '',
+        [YfmHeadingAttr.Id]: node.getAttribute('id') || '',
+        [YfmHeadingAttr.Folding]: node.hasAttribute(`data-${YfmHeadingAttr.Folding}`),
     });
 
 // export const slugify = (str: string) =>
