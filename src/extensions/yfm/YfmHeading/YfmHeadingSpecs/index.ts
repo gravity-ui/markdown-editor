@@ -24,6 +24,7 @@ export const YfmHeadingSpecs: ExtensionAuto<YfmHeadingSpecsOptions> = (builder, 
                 [YfmHeadingAttr.Id]: {default: ''},
                 [YfmHeadingAttr.Level]: {default: 1},
                 [YfmHeadingAttr.DataLine]: {default: null},
+                [YfmHeadingAttr.Folding]: {default: false},
             },
             content: '(text | inline)*',
             group: 'block',
@@ -40,11 +41,13 @@ export const YfmHeadingSpecs: ExtensionAuto<YfmHeadingSpecsOptions> = (builder, 
             toDOM(node) {
                 const id = node.attrs[YfmHeadingAttr.Id];
                 const lineNumber = node.attrs[YfmHeadingAttr.DataLine];
+                const folding = node.attrs[YfmHeadingAttr.Folding];
                 return [
                     'h' + node.attrs[YfmHeadingAttr.Level],
                     {
                         id: id || null,
                         [YfmHeadingAttr.DataLine]: lineNumber,
+                        [`data-${YfmHeadingAttr.Folding}`]: folding ? '' : null,
                     },
                     0,
                     // [
@@ -84,13 +87,17 @@ export const YfmHeadingSpecs: ExtensionAuto<YfmHeadingSpecsOptions> = (builder, 
                     // attrs have id only if it explicitly specified manually
                     return {
                         [YfmHeadingAttr.Level]: Number(token.tag.slice(1)),
+                        [YfmHeadingAttr.Folding]: token.meta?.folding,
                         ...attrs,
                     };
                 },
             },
         },
         toMd: (state, node) => {
-            state.write(state.repeat('#', node.attrs[YfmHeadingAttr.Level]) + ' ');
+            const folding = node.attrs[YfmHeadingAttr.Folding];
+            const level = node.attrs[YfmHeadingAttr.Level];
+
+            state.write(state.repeat('#', level) + (folding ? '+' : '') + ' ');
             state.renderInline(node);
 
             const anchor = node.attrs[YfmHeadingAttr.Id];
