@@ -1,6 +1,5 @@
 import React, {useEffect, useMemo, useRef, useState} from 'react';
 
-import {useDiplodocHtml} from '@diplodoc/html-extension/react';
 import transform from '@diplodoc/transform';
 import {useThemeValue} from '@gravity-ui/uikit';
 
@@ -30,9 +29,6 @@ export type SplitModePreviewProps = {
     needToSanitizeHtml?: boolean;
 };
 
-// TODO: export HTMLControllerForEachCallback
-type HTMLControllerForEachCallback = any;
-
 export const SplitModePreview: React.FC<SplitModePreviewProps> = (props) => {
     const {plugins, getValue, allowHTML, breaks, linkify, linkifyTlds, needToSanitizeHtml} = props;
     const [html, setHtml] = useState('');
@@ -40,22 +36,6 @@ export const SplitModePreview: React.FC<SplitModePreviewProps> = (props) => {
     const divRef = useRef<HTMLDivElement>(null);
 
     const theme = useThemeValue();
-    const yfmHtml = useDiplodocHtml();
-
-    useEffect(() => {
-        const bodyStyles = window.getComputedStyle(document.body);
-        // TODO: add background style
-        const color = bodyStyles.getPropertyValue('--g-color-text-primary');
-        const background = bodyStyles.getPropertyValue('--g-color-base-background');
-
-        yfmHtml.forEach((yfmHtmlBlock: HTMLControllerForEachCallback) => {
-            yfmHtmlBlock.setStyles({
-                // TODO: use css vars
-                color,
-                background,
-            });
-        });
-    }, [theme, yfmHtml]);
 
     const render = useMemo(
         () =>

@@ -1,6 +1,5 @@
 /* eslint-disable import/no-extraneous-dependencies */
 import {transform as yfmHtml} from '@diplodoc/html-extension';
-import '@diplodoc/html-extension/runtime';
 import {transform as latex} from '@diplodoc/latex-extension';
 import {transform as mermaid} from '@diplodoc/mermaid-extension';
 import anchors from '@diplodoc/transform/lib/plugins/anchors';

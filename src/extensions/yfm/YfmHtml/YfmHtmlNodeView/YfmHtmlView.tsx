@@ -1,7 +1,7 @@
 import React, {useEffect, useRef, useState} from 'react';
 
 import {Ellipsis as DotsIcon, Eye} from '@gravity-ui/icons';
-import {Button, Icon, Label, Menu, Popup} from '@gravity-ui/uikit';
+import {Button, Icon, Label, Menu, Popup, useThemeValue} from '@gravity-ui/uikit';
 import {Node} from 'prosemirror-model';
 import {EditorView} from 'prosemirror-view';
 
@@ -10,6 +10,7 @@ import {TextAreaFixed as TextArea} from '../../../../forms/TextInput';
 import {i18n} from '../../../../i18n/common';
 import {useBooleanState} from '../../../../react-utils/hooks';
 import {removeNode} from '../../../../utils/remove-node';
+import {getYfmHtmlCssVariables} from '../../../../view/hocs/withYfmHtml/utils';
 import {YfmHtmlConsts} from '../YfmHtmlSpecs/const';
 
 export const cnYfmHtml = cn('YfmHtml');
@@ -22,6 +23,8 @@ const b = cnYfmHtml;
 interface YfmHtmlViewProps {
     html: string;
     onСlick: () => void;
+    styles?: Record<string, string>;
+    innerClassName?: string;
 }
 
 export function generateID() {
@@ -30,7 +33,14 @@ export function generateID() {
 
 const PADDING = 20;
 
-const YfmHtmlPreview: React.FC<YfmHtmlViewProps> = ({html, onСlick}) => {
+const empty = {};
+
+const YfmHtmlPreview: React.FC<YfmHtmlViewProps> = ({
+    html,
+    innerClassName,
+    onСlick,
+    styles = empty,
+}) => {
     const ref = useRef<HTMLIFrameElement>(null);
     const [height, setHeight] = useState('100%');
 
@@ -58,11 +68,12 @@ const YfmHtmlPreview: React.FC<YfmHtmlViewProps> = ({html, onСlick}) => {
         <iframe
             style={{
                 height,
+                ...styles,
             }}
             ref={ref}
             title={generateID()}
             frameBorder={0}
-            className={b('Content')}
+            className={b('Content', innerClassName)}
             srcDoc={html}
         />
     );
@@ -119,6 +130,17 @@ export const YfmHtmlView: React.FC<{
         Boolean(node.attrs[YfmHtmlConsts.NodeAttrs.newCreated]),
     );
 
+    const theme = useThemeValue();
+
+    const bodyStyles = window.getComputedStyle(document.body);
+    const colorTextPrimary = bodyStyles.getPropertyValue('--g-color-text-primary');
+    const colorBackground = bodyStyles.getPropertyValue('--g-color-base-background');
+
+    const styles = getYfmHtmlCssVariables({
+        colorTextPrimary,
+        colorBackground,
+    });
+
     const [menuOpen, , , toggleMenuOpen] = useBooleanState(false);
     const buttonRef = useRef<HTMLDivElement>(null);
 
@@ -147,6 +169,8 @@ export const YfmHtmlView: React.FC<{
             <YfmHtmlPreview
                 html={node.attrs[YfmHtmlConsts.NodeAttrs.srcdoc]}
                 onСlick={handleClick}
+                innerClassName={theme}
+                styles={styles}
             />
             <div className={b('Menu')}>
                 <Button

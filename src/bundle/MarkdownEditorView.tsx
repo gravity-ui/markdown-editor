@@ -33,8 +33,6 @@ import {useMarkdownEditorContext} from './context';
 import {EditorSettings, EditorSettingsProps} from './settings';
 import {stickyCn} from './sticky';
 
-import {useDiplodocHtml} from '@diplodoc/html-extension/react'; // eslint-disable-line import/order
-
 import './MarkdownEditorView.scss';
 import '../styles/styles.scss';
 
@@ -83,8 +81,6 @@ export const MarkdownEditorView = React.forwardRef<HTMLDivElement, MarkdownEdito
             toaster,
             stickyToolbar,
         } = props;
-
-        const yfmHtml = useDiplodocHtml();
 
         const rerender = useUpdate();
         React.useLayoutEffect(() => {
@@ -260,11 +256,6 @@ export const MarkdownEditorView = React.forwardRef<HTMLDivElement, MarkdownEdito
                                         leftElRef={editorWrapperRef}
                                         rightElRef={splitModeViewWrapperRef}
                                         wrapperRef={divRef}
-                                        onEndMove={() => {
-                                            // TODO: move onEndMove to demo
-                                            // FIXME: fix resize (from tall to small)
-                                            yfmHtml?.reinitialize();
-                                        }}
                                     />
                                 ) : (
                                     <div className={b('resizer')} />
