@@ -1,7 +1,7 @@
 import React, {useEffect, useRef, useState} from 'react';
 
 import {Ellipsis as DotsIcon, Eye} from '@gravity-ui/icons';
-import {Button, Icon, Label, Menu, Popup, useThemeValue} from '@gravity-ui/uikit';
+import {Button, Icon, Label, Menu, Popup} from '@gravity-ui/uikit';
 import {Node} from 'prosemirror-model';
 import {EditorView} from 'prosemirror-view';
 
@@ -10,7 +10,7 @@ import {TextAreaFixed as TextArea} from '../../../../forms/TextInput';
 import {i18n} from '../../../../i18n/common';
 import {useBooleanState} from '../../../../react-utils/hooks';
 import {removeNode} from '../../../../utils/remove-node';
-import {getYfmHtmlCssVariables} from '../../../../view/hocs/withYfmHtml/utils';
+// import {getYfmHtmlCssVariables} from '../../../../view/hocs/withYfmHtml/utils';
 import {YfmHtmlConsts} from '../YfmHtmlSpecs/const';
 
 export const cnYfmHtml = cn('YfmHtml');
@@ -37,7 +37,7 @@ const empty = {};
 
 const YfmHtmlPreview: React.FC<YfmHtmlViewProps> = ({
     html,
-    innerClassName,
+    // innerClassName,
     onСlick,
     styles = empty,
 }) => {
@@ -48,12 +48,14 @@ const YfmHtmlPreview: React.FC<YfmHtmlViewProps> = ({
         const contentWindow = ref.current?.contentWindow;
 
         if (contentWindow) {
-            const height = contentWindow.document.documentElement.scrollHeight + PADDING + 'px';
+            const frameDocument = contentWindow.document;
+            const height = frameDocument.documentElement.scrollHeight + PADDING + 'px';
             setHeight(height);
 
-            contentWindow.document.addEventListener('dblclick', () => {
+            frameDocument.addEventListener('dblclick', () => {
                 onСlick();
             });
+            // frameDocument.body.scrollHeight + padding + 'px';
         }
     };
 
@@ -73,7 +75,7 @@ const YfmHtmlPreview: React.FC<YfmHtmlViewProps> = ({
             ref={ref}
             title={generateID()}
             frameBorder={0}
-            className={b('Content', innerClassName)}
+            className={b('Content')}
             srcDoc={html}
         />
     );
@@ -130,16 +132,20 @@ export const YfmHtmlView: React.FC<{
         Boolean(node.attrs[YfmHtmlConsts.NodeAttrs.newCreated]),
     );
 
-    const theme = useThemeValue();
+    // TODO: @makhnatkin move code
+    // const theme = useThemeValue();
+    // const styles = useMemo(() => {
+    //     const bodyStyles = window.getComputedStyle(document.body);
+    //     const colorTextPrimary = bodyStyles.getPropertyValue('--g-color-text-primary');
+    //     const colorBackground = bodyStyles.getPropertyValue('--g-color-base-background');
+    //
+    //     return getYfmHtmlCssVariables({
+    //         colorTextPrimary,
+    //         colorBackground,
+    //     });
+    // }, [theme]);
 
-    const bodyStyles = window.getComputedStyle(document.body);
-    const colorTextPrimary = bodyStyles.getPropertyValue('--g-color-text-primary');
-    const colorBackground = bodyStyles.getPropertyValue('--g-color-base-background');
-
-    const styles = getYfmHtmlCssVariables({
-        colorTextPrimary,
-        colorBackground,
-    });
+    // const {innerClassName, style} = onCreate();
 
     const [menuOpen, , , toggleMenuOpen] = useBooleanState(false);
     const buttonRef = useRef<HTMLDivElement>(null);
@@ -169,8 +175,8 @@ export const YfmHtmlView: React.FC<{
             <YfmHtmlPreview
                 html={node.attrs[YfmHtmlConsts.NodeAttrs.srcdoc]}
                 onСlick={handleClick}
-                innerClassName={theme}
-                styles={styles}
+                // innerClassName={theme}
+                // styles={styles}
             />
             <div className={b('Menu')}>
                 <Button

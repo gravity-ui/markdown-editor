@@ -1,7 +1,3 @@
-import {ForEachCallback} from '@diplodoc/html-extension/react/useDiplodocHtml';
-import {IHtmlController} from '@diplodoc/html-extension/runtime';
-
-export type RealTheme = 'light' | 'light-hc' | 'dark' | 'dark-hc' | (string & {});
 type Colors = Partial<Record<keyof typeof YfmHtmlColors, string>>;
 
 const YfmHtmlColors = {
@@ -55,30 +51,3 @@ export const getYfmHtmlCssVariables = ({
     ...(colorInputBorder && {[YfmHtmlColors.colorInputBorder]: colorInputBorder}),
     ...(colorInputBackground && {[YfmHtmlColors.colorInputBackground]: colorInputBackground}),
 });
-
-export const setYfmHtmlColors = (controller: IHtmlController, colors: Colors) => {
-    const callback: ForEachCallback = (iframeController) => {
-        iframeController.setStyles(getYfmHtmlCssVariables(colors));
-    };
-    controller.forEach(callback);
-};
-
-export const setIFrameTheme = (iframe: HTMLIFrameElement, theme: RealTheme): void => {
-    const body = iframe.contentDocument?.body;
-
-    if (body) {
-        body.classList.remove('dark');
-        body.classList.remove('light');
-        body.classList.remove('dark-hc');
-        body.classList.remove('light-hc');
-
-        body.classList.add(theme);
-    }
-};
-
-export const setYfmHtmlTheme = (controller: IHtmlController, theme: RealTheme) => {
-    const callback: ForEachCallback = (iframeController) => {
-        setIFrameTheme(iframeController.block, theme);
-    };
-    controller.forEach(callback);
-};

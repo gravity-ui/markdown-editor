@@ -1,14 +1,12 @@
 import React, {ComponentType, RefAttributes, forwardRef, useEffect} from 'react';
 
 import {useDiplodocHtml} from '@diplodoc/html-extension/react';
-import {useThemeValue} from '@gravity-ui/uikit';
+import {SetConfigArgs} from '@diplodoc/html-extension/runtime';
 
-import type {TransformMeta} from './types';
 import {useYfmHtmlRuntime} from './useYfmHtmlRuntime';
-import {setYfmHtmlColors, setYfmHtmlTheme} from './utils';
 
 export type WithYfmHtmlProps = {
-    meta: TransformMeta;
+    yfmHtmlConfig: SetConfigArgs;
 };
 
 export function withYfmHtml() {
@@ -16,33 +14,18 @@ export function withYfmHtml() {
         Component: ComponentType<T & RefAttributes<HTMLDivElement>>,
     ) =>
         forwardRef<HTMLDivElement, T & WithYfmHtmlProps>(function WithYfmHtml(props, ref) {
-            const {html} = props;
+            const {html, yfmHtmlConfig} = props;
 
             useYfmHtmlRuntime();
 
             const yfmHtml = useDiplodocHtml();
-            const theme = useThemeValue();
 
             useEffect(() => {
                 if (yfmHtml) {
-                    yfmHtml.setConfig({
-                        resizePadding: 50,
-                    });
+                    yfmHtml.setConfig(yfmHtmlConfig);
                     yfmHtml.reinitialize();
-
-                    const bodyStyles = window.getComputedStyle(document.body);
-                    const colorTextPrimary = bodyStyles.getPropertyValue('--g-color-text-primary');
-                    const colorBackground = bodyStyles.getPropertyValue(
-                        '--g-color-base-background',
-                    );
-
-                    setYfmHtmlColors(yfmHtml, {
-                        colorTextPrimary,
-                        colorBackground,
-                    });
-                    setYfmHtmlTheme(yfmHtml, theme);
                 }
-            }, [yfmHtml, html, theme]);
+            }, [yfmHtml, html]);
 
             return <Component {...props} ref={ref} />;
         });

@@ -9,7 +9,12 @@ export type YfmHtmlOptions = {};
 
 export const YfmHtml: ExtensionAuto<YfmHtmlOptions> = (builder) => {
     builder.use(YfmHtmlSpecs, {
-        nodeView: YfmHtmlNodeViewFactory({}),
+        nodeView: YfmHtmlNodeViewFactory({
+            onCreate: () => ({
+                innerClassName: 'yfm-html',
+                style: {},
+            }),
+        }),
     });
 
     builder.addAction(YfmHtmlAction, () => addYfmHtml);
