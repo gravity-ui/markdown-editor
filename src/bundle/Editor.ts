@@ -1,5 +1,6 @@
 import type {ReactNode} from 'react';
 
+import type {Extension as CodemirrorExtension} from '@codemirror/state';
 import {TextSelection} from 'prosemirror-state';
 import {EditorView as PMEditorView} from 'prosemirror-view';
 
@@ -135,6 +136,7 @@ export type EditorOptions = Pick<
     splitMode?: SplitMode;
     renderPreview?: RenderPreview;
     preset: EditorPreset;
+    extraMarkupExtensions?: CodemirrorExtension[];
 };
 
 /** @internal */
@@ -147,6 +149,7 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
     #renderPreview?: RenderPreview;
     #wysiwygEditor?: WysiwygEditor;
     #markupEditor?: MarkupEditor;
+    #extraMarkupExtensions?: CodemirrorExtension[];
 
     readonly #preset: EditorPreset;
     #allowHTML?: boolean;
@@ -269,6 +272,7 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
                     reactRenderer: this.#renderStorage,
                     uploadHandler: this.fileUploadHandler,
                     needImgDimms: this.needToSetDimensionsForUploadedImages,
+                    extraMarkupExtensions: this.#extraMarkupExtensions,
                 }),
             );
         }
@@ -302,6 +306,7 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
         this.#linkifyTlds = opts.linkifyTlds;
         this.#allowHTML = opts.allowHTML;
         this.#extensions = opts.extensions;
+        this.#extraMarkupExtensions = opts.extraMarkupExtensions;
 
         this.#renderStorage = opts.renderStorage;
         this.#fileUploadHandler = opts.fileUploadHandler;
