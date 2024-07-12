@@ -17,6 +17,8 @@ import {EditorPreset} from './Editor';
 import {wCommandMenuConfigByPreset, wSelectionMenuConfigByPreset} from './config/wysiwyg';
 import {emojiDefs} from './emoji';
 
+const DEFAULT_IGNORED_KEYS = ['Tab', 'Shift-Tab'] as const;
+
 export type ExtensionsOptions = BehaviorPresetOptions & FullPresetOptions;
 
 export type BundlePresetOptions = ExtensionsOptions &
@@ -203,6 +205,7 @@ export const BundlePreset: ExtensionAuto<BundlePresetOptions> = (builder, opts) 
     }
 
     const ignoreKeysList = opts.ignoreKeysList?.slice() ?? [];
+    ignoreKeysList.push(...DEFAULT_IGNORED_KEYS);
     for (const action of ignoreActions) {
         const key = f.toPM(action);
         if (key) ignoreKeysList.push(key);
