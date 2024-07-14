@@ -4,14 +4,14 @@ import {classnames} from '@bem-react/classnames';
 
 import {ClassNameProps} from '../../../classname';
 
-export type YfmHtmlProps = ClassNameProps & {
+export type HtmlViewProps = ClassNameProps & {
     html: string;
     linksVisited?: boolean;
     noListReset?: boolean;
     qa?: string;
 };
 
-export const HtmlView = forwardRef<HTMLDivElement, YfmHtmlProps>(function YfmHtml(props, ref) {
+export const HtmlView = forwardRef<HTMLDivElement, HtmlViewProps>(function HtmlView(props, ref) {
     const {html, linksVisited, noListReset, className, qa} = props;
 
     return (

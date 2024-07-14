@@ -8,16 +8,16 @@ import {debounce} from '../src/lodash';
 import {HtmlView} from '../src/view/components/HtmlView';
 import {withLatex} from '../src/view/hocs/withLatex';
 import {MermaidConfig, withMermaid} from '../src/view/hocs/withMermaid';
-import {withYfmHtml} from '../src/view/hocs/withYfmHtml';
+import {withYfmHtmlBlock} from '../src/view/hocs/withYfmHtml';
 
-import {useYfmHtmlStyles} from './hooks/useYfmHtmlStyles';
+import {useYfmHtmlBlockStyles} from './hooks/useYfmHtmlBlockStyles';
 import {LATEX_RUNTIME, MERMAID_RUNTIME} from './md-plugins';
 
 const ML_ATTR = 'data-ml';
 const mermaidConfig: MermaidConfig = {theme: 'forest'};
 
 const Preview = withMermaid({runtime: MERMAID_RUNTIME})(
-    withLatex({runtime: LATEX_RUNTIME})(withYfmHtml()(HtmlView)),
+    withLatex({runtime: LATEX_RUNTIME})(withYfmHtmlBlock()(HtmlView)),
 );
 
 export type SplitModePreviewProps = {
@@ -61,7 +61,7 @@ export const SplitModePreview: React.FC<SplitModePreviewProps> = (props) => {
         render();
     }, [props, render]);
 
-    const yfmHtmlConfig = useYfmHtmlStyles();
+    const yfmHtmlBlockConfig = useYfmHtmlBlockStyles();
 
     return (
         <Preview
@@ -70,7 +70,7 @@ export const SplitModePreview: React.FC<SplitModePreviewProps> = (props) => {
             meta={meta}
             noListReset
             mermaidConfig={mermaidConfig}
-            yfmHtmlConfig={yfmHtmlConfig}
+            yfmHtmlBlockConfig={yfmHtmlBlockConfig}
             className="demo-preview"
         />
     );

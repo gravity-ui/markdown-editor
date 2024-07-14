@@ -3,21 +3,24 @@ import {transform} from '@diplodoc/html-extension';
 
 import type {ExtensionAuto, ExtensionNodeSpec} from '../../../../core';
 
-import {YfmHtmlConsts} from './const';
+import {YfmHtmlBlockConsts} from './const';
 
-export {yfmHtmlNodeName} from './const';
+export {yfmHtmlBlockNodeName} from './const';
 
-export type YfmHtmlSpecsOptions = {
+export type YfmHtmlBlockSpecsOptions = {
     nodeView?: ExtensionNodeSpec['view'];
 };
 
-const YfmHtmlSpecsExtension: ExtensionAuto<YfmHtmlSpecsOptions> = (builder, {nodeView}) => {
+const YfmHtmlBlockSpecsExtension: ExtensionAuto<YfmHtmlBlockSpecsOptions> = (
+    builder,
+    {nodeView},
+) => {
     builder
         .configureMd((md) => md.use(transform({bundle: false}), {}))
-        .addNode(YfmHtmlConsts.NodeName, () => ({
+        .addNode(YfmHtmlBlockConsts.NodeName, () => ({
             fromMd: {
                 tokenSpec: {
-                    name: YfmHtmlConsts.NodeName,
+                    name: YfmHtmlBlockConsts.NodeName,
                     type: 'node',
                     noCloseToken: true,
                     getAttrs: (token) => Object.fromEntries(token.attrs ?? []),
@@ -26,18 +29,18 @@ const YfmHtmlSpecsExtension: ExtensionAuto<YfmHtmlSpecsOptions> = (builder, {nod
             spec: {
                 group: 'block',
                 attrs: {
-                    [YfmHtmlConsts.NodeAttrs.class]: {default: 'yfm-html'},
-                    [YfmHtmlConsts.NodeAttrs.frameborder]: {default: ''},
-                    [YfmHtmlConsts.NodeAttrs.srcdoc]: {default: ''},
-                    [YfmHtmlConsts.NodeAttrs.style]: {default: null},
-                    [YfmHtmlConsts.NodeAttrs.newCreated]: {default: null},
+                    [YfmHtmlBlockConsts.NodeAttrs.class]: {default: 'yfm-html'},
+                    [YfmHtmlBlockConsts.NodeAttrs.frameborder]: {default: ''},
+                    [YfmHtmlBlockConsts.NodeAttrs.srcdoc]: {default: ''},
+                    [YfmHtmlBlockConsts.NodeAttrs.style]: {default: null},
+                    [YfmHtmlBlockConsts.NodeAttrs.newCreated]: {default: null},
                 },
                 toDOM: (node) => ['iframe', node.attrs],
             },
             toMd: (state, node) => {
                 state.write('::: html');
                 state.write('\n');
-                state.write(node.attrs[YfmHtmlConsts.NodeAttrs.srcdoc]);
+                state.write(node.attrs[YfmHtmlBlockConsts.NodeAttrs.srcdoc]);
                 state.ensureNewLine();
                 state.write(':::');
                 state.closeBlock(node);
@@ -46,4 +49,4 @@ const YfmHtmlSpecsExtension: ExtensionAuto<YfmHtmlSpecsOptions> = (builder, {nod
         }));
 };
 
-export const YfmHtmlSpecs = Object.assign(YfmHtmlSpecsExtension, YfmHtmlConsts);
+export const YfmHtmlBlockSpecs = Object.assign(YfmHtmlBlockSpecsExtension, YfmHtmlBlockConsts);

@@ -1,6 +1,6 @@
 import {Node} from 'prosemirror-model';
 
-import {useYfmHtmlStyles} from '../../demo/hooks/useYfmHtmlStyles';
+import {useYfmHtmlBlockStyles} from '../../demo/hooks/useYfmHtmlBlockStyles';
 import {ExtensionAuto} from '../core';
 import {BehaviorPreset, BehaviorPresetOptions} from '../extensions/behavior';
 import {EditorModeKeymap, EditorModeKeymapOptions} from '../extensions/behavior/EditorModeKeymap';
@@ -134,8 +134,8 @@ export const BundlePreset: ExtensionAuto<BundlePresetOptions> = (builder, opts) 
                 `${i18nPlaceholder('heading')} ${node.attrs[YfmHeadingAttr.Level]}`, // todo: remove attrs import
             ...opts.yfmHeading,
         },
-        yfmHtml: {
-            onCreate: () => useYfmHtmlStyles(),
+        yfmHtmlBlock: {
+            onCreate: () => useYfmHtmlBlockStyles(),
         },
         placeholder: {
             [YfmNoteNode.NoteContent]: () => i18nPlaceholder('note_content'),

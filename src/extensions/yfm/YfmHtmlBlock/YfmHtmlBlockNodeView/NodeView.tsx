@@ -5,17 +5,17 @@ import {EditorView, NodeView} from 'prosemirror-view';
 import {createPortal} from 'react-dom';
 
 import {getReactRendererFromState} from '../../../behavior';
-import {YfmHtmlConsts} from '../YfmHtmlSpecs/const';
-import {YfmHtmlOptions} from '../index';
+import {YfmHtmlBlockConsts} from '../YfmHtmlBlockSpecs/const';
+import {YfmHtmlBlockOptions} from '../index';
 
-import {YfmHtmlView} from './YfmHtmlView';
+import {YfmHtmlBlockView} from './YfmHtmlBlockView';
 
-export class WYfmHtmlNodeView implements NodeView {
+export class WYfmHtmlBlockNodeView implements NodeView {
     readonly dom: HTMLElement;
     private node: Node;
     private readonly view;
     private readonly getPos;
-    private readonly options: YfmHtmlOptions = {};
+    private readonly options: YfmHtmlBlockOptions = {};
     private readonly renderItem;
 
     constructor({
@@ -27,30 +27,27 @@ export class WYfmHtmlNodeView implements NodeView {
         node: Node;
         view: EditorView;
         getPos: () => number | undefined;
-        options: YfmHtmlOptions;
+        options: YfmHtmlBlockOptions;
     }) {
         this.node = node;
         this.dom = document.createElement('div');
-        this.dom.classList.add('yfmHtml-container');
+        this.dom.classList.add('yfmHtmlBlock-container');
         this.dom.contentEditable = 'false';
         this.view = view;
         this.getPos = getPos;
         this.options = options;
 
-        this.initializeYfmHtml();
         this.renderItem = getReactRendererFromState(view.state).createItem(
-            'yfmHtml-view',
-            this.renderYfmHtml.bind(this),
+            'yfmHtmlBlock-view',
+            this.renderYfmHtmlBlock.bind(this),
         );
     }
-
-    initializeYfmHtml() {}
 
     update(node: Node) {
         if (node.type !== this.node.type) return false;
         if (
-            node.attrs[YfmHtmlConsts.NodeAttrs.newCreated] !==
-            this.node.attrs[YfmHtmlConsts.NodeAttrs.newCreated]
+            node.attrs[YfmHtmlBlockConsts.NodeAttrs.newCreated] !==
+            this.node.attrs[YfmHtmlBlockConsts.NodeAttrs.newCreated]
         )
             return false;
         this.node = node;
@@ -78,7 +75,7 @@ export class WYfmHtmlNodeView implements NodeView {
         return false;
     }
 
-    private onChange(attrs: {[YfmHtmlConsts.NodeAttrs.srcdoc]: string}) {
+    private onChange(attrs: {[YfmHtmlBlockConsts.NodeAttrs.srcdoc]: string}) {
         const pos = this.getPos();
         if (pos === undefined) return;
 
@@ -95,9 +92,9 @@ export class WYfmHtmlNodeView implements NodeView {
         this.view.dispatch(tr);
     }
 
-    private renderYfmHtml() {
+    private renderYfmHtmlBlock() {
         return createPortal(
-            <YfmHtmlView
+            <YfmHtmlBlockView
                 onCreate={this.options.onCreate}
                 view={this.view}
                 onChange={this.onChange.bind(this)}

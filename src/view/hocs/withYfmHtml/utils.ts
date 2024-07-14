@@ -1,4 +1,4 @@
-const YfmHtmlStyles = {
+const YfmHtmlBlockStyles = {
     colorTextPrimary: '--yfm-html-color-text-primary', // Color of the primary text
     colorTextSecondary: '--yfm-html-color-text-secondary', // Color of the secondary text
 
@@ -15,9 +15,9 @@ const YfmHtmlStyles = {
     lineHeight: '--yfm-html-line-height', // Line height of the text
 };
 
-type Styles = Partial<Record<keyof typeof YfmHtmlStyles, string>>;
+type Styles = Partial<Record<keyof typeof YfmHtmlBlockStyles, string>>;
 
-export const getYfmHtmlCssVariables = ({
+export const getYfmHtmlBlockCssVariables = ({
     colorTextPrimary,
     colorTextSecondary,
     colorBackground,
@@ -30,17 +30,17 @@ export const getYfmHtmlCssVariables = ({
     fontFamily,
     lineHeight,
 }: Styles) => ({
-    ...(colorTextPrimary && {[YfmHtmlStyles.colorTextPrimary]: colorTextPrimary}),
-    ...(colorTextSecondary && {[YfmHtmlStyles.colorTextSecondary]: colorTextSecondary}),
-    ...(colorBackground && {[YfmHtmlStyles.colorBackground]: colorBackground}),
+    ...(colorTextPrimary && {[YfmHtmlBlockStyles.colorTextPrimary]: colorTextPrimary}),
+    ...(colorTextSecondary && {[YfmHtmlBlockStyles.colorTextSecondary]: colorTextSecondary}),
+    ...(colorBackground && {[YfmHtmlBlockStyles.colorBackground]: colorBackground}),
     ...(colorBackgroundSecondary && {
-        [YfmHtmlStyles.colorBackgroundSecondary]: colorBackgroundSecondary,
+        [YfmHtmlBlockStyles.colorBackgroundSecondary]: colorBackgroundSecondary,
     }),
-    ...(colorLink && {[YfmHtmlStyles.colorLink]: colorLink}),
-    ...(colorLinkHover && {[YfmHtmlStyles.colorLinkHover]: colorLinkHover}),
-    ...(colorLinkVisited && {[YfmHtmlStyles.colorLinkVisited]: colorLinkVisited}),
-    ...(font && {[YfmHtmlStyles.font]: font}),
-    ...(fontSize && {[YfmHtmlStyles.fontSize]: fontSize}),
-    ...(fontFamily && {[YfmHtmlStyles.fontFamily]: fontFamily}),
-    ...(lineHeight && {[YfmHtmlStyles.lineHeight]: lineHeight}),
+    ...(colorLink && {[YfmHtmlBlockStyles.colorLink]: colorLink}),
+    ...(colorLinkHover && {[YfmHtmlBlockStyles.colorLinkHover]: colorLinkHover}),
+    ...(colorLinkVisited && {[YfmHtmlBlockStyles.colorLinkVisited]: colorLinkVisited}),
+    ...(font && {[YfmHtmlBlockStyles.font]: font}),
+    ...(fontSize && {[YfmHtmlBlockStyles.fontSize]: fontSize}),
+    ...(fontFamily && {[YfmHtmlBlockStyles.fontFamily]: fontFamily}),
+    ...(lineHeight && {[YfmHtmlBlockStyles.lineHeight]: lineHeight}),
 });

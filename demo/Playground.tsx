@@ -39,7 +39,7 @@ const fileUploadHandler: FileUploadHandler = async (file) => {
 
 const mToolbarConfig = [
     ...markupToolbarConfigs.mToolbarConfig,
-    [markupToolbarConfigs.mMermaidButton, markupToolbarConfigs.mYfmHtmlButton],
+    [markupToolbarConfigs.mMermaidButton, markupToolbarConfigs.mYfmHtmlBlockButton],
 ];
 mToolbarConfig[2].push(markupToolbarConfigs.mMathListItem);
 

@@ -75,7 +75,7 @@ Content displayed when clicked.
 {% endlist %}
 `.trim(),
 
-    yfmHtml: `
+    yfmHtmlBlock: `
 Some text here
 
 ## Next is YFM HTML block
@@ -345,8 +345,8 @@ export const YfmTabs: StoryFn<PlaygroundStoryProps> = (props) => (
     <PlaygroundComponent {...props} initial={markup.yfmTabs} />
 );
 
-export const YfmHtml: StoryFn<PlaygroundStoryProps> = (props) => (
-    <PlaygroundComponent {...props} initial={markup.yfmHtml} sanitizeHtml={false} />
+export const YfmHtmlBlock: StoryFn<PlaygroundStoryProps> = (props) => (
+    <PlaygroundComponent {...props} initial={markup.yfmHtmlBlock} sanitizeHtml={false} />
 );
 
 export const YfmFile: StoryFn<PlaygroundStoryProps> = (props) => (
@@ -373,8 +373,8 @@ YfmCut.storyName = 'YFM Cut';
 YfmCut.args = args;
 YfmTabs.storyName = 'YFM Tabs';
 YfmTabs.args = args;
-YfmHtml.storyName = 'YFM HTML';
-YfmHtml.args = args;
+YfmHtmlBlock.storyName = 'YFM HTML';
+YfmHtmlBlock.args = args;
 YfmFile.storyName = 'YFM File';
 YfmFile.args = args;
 YfmTable.storyName = 'YFM Table';

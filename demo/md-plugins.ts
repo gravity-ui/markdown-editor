@@ -1,5 +1,5 @@
 /* eslint-disable import/no-extraneous-dependencies */
-import {transform as yfmHtml} from '@diplodoc/html-extension';
+import {transform as yfmHtmlBlock} from '@diplodoc/html-extension';
 import {transform as latex} from '@diplodoc/latex-extension';
 import {transform as mermaid} from '@diplodoc/mermaid-extension';
 import anchors from '@diplodoc/transform/lib/plugins/anchors';
@@ -52,7 +52,7 @@ const extendedPlugins = defaultPlugins.concat(
     mark,
     mermaid({bundle: false, runtime: MERMAID_RUNTIME}),
     sub,
-    yfmHtml({bundle: false}),
+    yfmHtmlBlock({bundle: false}),
 );
 
 export {extendedPlugins as plugins};

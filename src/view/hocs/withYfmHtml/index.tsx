@@ -1,31 +1,34 @@
 import React, {ComponentType, RefAttributes, forwardRef, useEffect} from 'react';
 
 import {useDiplodocHtml} from '@diplodoc/html-extension/react';
-import {SetConfigArgs} from '@diplodoc/html-extension/runtime';
 
-import {useYfmHtmlRuntime} from './useYfmHtmlRuntime';
+import {IHTMLIFrameElementConfig} from '../../../extensions';
 
-export type WithYfmHtmlProps = {
-    yfmHtmlConfig: SetConfigArgs;
+import {useYfmHtmlBlockRuntime} from './useYfmHtmlBlockRuntime';
+
+export type WithYfmHtmlBlockProps = {
+    yfmHtmlBlockConfig?: IHTMLIFrameElementConfig;
 };
 
-export function withYfmHtml() {
+export function withYfmHtmlBlock() {
     return <T extends {html: string}>(
         Component: ComponentType<T & RefAttributes<HTMLDivElement>>,
     ) =>
-        forwardRef<HTMLDivElement, T & WithYfmHtmlProps>(function WithYfmHtml(props, ref) {
-            const {html, yfmHtmlConfig} = props;
+        forwardRef<HTMLDivElement, T & WithYfmHtmlBlockProps>(function WithYfmHtml(props, ref) {
+            const {html, yfmHtmlBlockConfig} = props;
 
-            useYfmHtmlRuntime();
+            useYfmHtmlBlockRuntime();
 
-            const yfmHtml = useDiplodocHtml();
+            const yfmHtmlBlock = useDiplodocHtml();
 
             useEffect(() => {
-                if (yfmHtml) {
-                    yfmHtml.setConfig(yfmHtmlConfig);
-                    yfmHtml.reinitialize();
+                if (yfmHtmlBlock) {
+                    if (yfmHtmlBlockConfig) {
+                        yfmHtmlBlock.setConfig(yfmHtmlBlockConfig);
+                    }
+                    yfmHtmlBlock.reinitialize();
                 }
-            }, [yfmHtml, html, yfmHtmlConfig]);
+            }, [yfmHtmlBlock, html, yfmHtmlBlockConfig]);
 
             return <Component {...props} ref={ref} />;
         });

@@ -5,7 +5,7 @@ import {
     insertHRule,
     insertLink,
     insertMermaidDiagram,
-    insertYfmHtml,
+    insertYfmHtmlBlock,
     insertYfmTable,
     insertYfmTabs,
     liftListItem,
@@ -443,12 +443,12 @@ export const mMermaidButton: MToolbarSingleItemData = {
     isEnable: isEnableFn,
 };
 
-export const mYfmHtmlButton: MToolbarSingleItemData = {
-    id: ActionName.yfm_html,
+export const mYfmHtmlBlockButton: MToolbarSingleItemData = {
+    id: ActionName.yfm_html_block,
     type: ToolbarDataType.SingleButton,
     title: i18n.bind(null, 'html'),
     icon: icons.html,
-    exec: (e) => insertYfmHtml(e.cm),
+    exec: (e) => insertYfmHtmlBlock(e.cm),
     isActive: isActiveFn,
     isEnable: isEnableFn,
 };

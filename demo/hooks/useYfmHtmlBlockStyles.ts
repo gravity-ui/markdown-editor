@@ -2,11 +2,12 @@ import {useEffect, useState} from 'react';
 
 import {useThemeValue} from '@gravity-ui/uikit';
 
-import {getYfmHtmlCssVariables} from '../../src/view/hocs/withYfmHtml/utils';
+import {IHTMLIFrameElementConfig} from '../../src';
+import {getYfmHtmlBlockCssVariables} from '../../src/view/hocs/withYfmHtml/utils';
 
-export const useYfmHtmlStyles = () => {
+export const useYfmHtmlBlockStyles = () => {
     const theme = useThemeValue();
-    const [config, setConfig] = useState<Record<string, any> | undefined>();
+    const [config, setConfig] = useState<IHTMLIFrameElementConfig | undefined>();
 
     useEffect(() => {
         const bodyStyles = window.getComputedStyle(document.body);
@@ -18,7 +19,7 @@ export const useYfmHtmlStyles = () => {
         const fontSize = bodyStyles.getPropertyValue('--g-text-body-1-font-size');
 
         setConfig({
-            styles: getYfmHtmlCssVariables({
+            styles: getYfmHtmlBlockCssVariables({
                 colorTextPrimary,
                 colorTextSecondary,
                 colorBackground,

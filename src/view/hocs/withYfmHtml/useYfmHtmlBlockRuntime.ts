@@ -1,4 +1,4 @@
 /** @internal */
-export function useYfmHtmlRuntime() {
+export function useYfmHtmlBlockRuntime() {
     import(/* webpackChunkName: "yfm-html-runtime" */ '@diplodoc/html-extension/runtime');
 }

@@ -24,7 +24,7 @@ sequenceDiagram
     return true;
 };
 
-export const insertYfmHtml: StateCommand = ({state, dispatch}) => {
+export const insertYfmHtmlBlock: StateCommand = ({state, dispatch}) => {
     const markup = `::: html
 
 <div>Add HTML code here</div>

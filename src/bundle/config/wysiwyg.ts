@@ -456,14 +456,14 @@ export const wMathListItem: WToolbarListItemData = {
     ...wMathListConfig,
 };
 
-export const wYfmHtmlItemData: WToolbarSingleItemData = {
-    id: ActionName.yfm_html,
+export const wYfmHtmlBlockItemData: WToolbarSingleItemData = {
+    id: ActionName.yfm_html_block,
     type: ToolbarDataType.SingleButton,
     title: i18n.bind(null, 'html'),
     icon: icons.html,
-    exec: (e) => e.actions.createYfmHtml.run(),
-    isActive: (e) => e.actions.createYfmHtml.isActive(),
-    isEnable: (e) => e.actions.createYfmHtml.isEnable(),
+    exec: (e) => e.actions.createYfmHtmlBlock.run(),
+    isActive: (e) => e.actions.createYfmHtmlBlock.isActive(),
+    isEnable: (e) => e.actions.createYfmHtmlBlock.isEnable(),
 };
 
 export const wCommandMenuConfig: WToolbarItemData[] = [
@@ -483,7 +483,7 @@ export const wCommandMenuConfig: WToolbarItemData[] = [
     // wMathInlineItemData,
     // wMathBlockItemData,
     wTabsItemData,
-    wYfmHtmlItemData,
+    wYfmHtmlBlockItemData,
 ];
 
 export const wHiddenData = wCommandMenuConfig;
@@ -661,7 +661,7 @@ export const wCommandMenuConfigByPreset: Record<EditorPreset, WToolbarItemData[]
         wHruleItemData,
         wFileItemData,
         wTabsItemData,
-        wYfmHtmlItemData,
+        wYfmHtmlBlockItemData,
     ],
     full: wCommandMenuConfig.slice(),
 };

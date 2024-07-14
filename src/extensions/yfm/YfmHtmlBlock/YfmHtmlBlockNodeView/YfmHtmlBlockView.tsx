@@ -10,18 +10,18 @@ import {TextAreaFixed as TextArea} from '../../../../forms/TextInput';
 import {i18n} from '../../../../i18n/common';
 import {useBooleanState} from '../../../../react-utils/hooks';
 import {removeNode} from '../../../../utils/remove-node';
-import {YfmHtmlConsts} from '../YfmHtmlSpecs/const';
+import {YfmHtmlBlockConsts} from '../YfmHtmlBlockSpecs/const';
 
-export const cnYfmHtml = cn('YfmHtml');
-export const cnHelper = cn('YfmHtmlHelper');
+export const cnYfmHtmlBlock = cn('YfmHtmlBlock');
+export const cnHelper = cn('YfmHtmlBlockHelper');
 
-import './YfmHtml.scss';
+import './YfmHtmlBlock.scss';
 
 import {IHTMLIFrameElementConfig} from '../index';
 
-const b = cnYfmHtml;
+const b = cnYfmHtmlBlock;
 
-interface YfmHtmlViewProps {
+interface YfmHtmlBlockViewProps {
     html: string;
     onСlick: () => void;
     config?: IHTMLIFrameElementConfig;
@@ -33,7 +33,7 @@ export function generateID() {
 
 const DEFAULT_PADDING = 20;
 
-const YfmHtmlPreview: React.FC<YfmHtmlViewProps> = ({html, onСlick, config}) => {
+const YfmHtmlBlockPreview: React.FC<YfmHtmlBlockViewProps> = ({html, onСlick, config}) => {
     const ref = useRef<HTMLIFrameElement>(null);
     const styles = useRef<Record<string, string>>({});
     const classNames = useRef<string[]>([]);
@@ -171,15 +171,15 @@ const CodeEditMode: React.FC<{
     );
 };
 
-export const YfmHtmlView: React.FC<{
+export const YfmHtmlBlockView: React.FC<{
     view: EditorView;
-    onChange: (attrs: {[YfmHtmlConsts.NodeAttrs.srcdoc]: string}) => void;
+    onChange: (attrs: {[YfmHtmlBlockConsts.NodeAttrs.srcdoc]: string}) => void;
     node: Node;
     getPos: () => number | undefined;
-    onCreate?: () => IHTMLIFrameElementConfig;
+    onCreate?: () => IHTMLIFrameElementConfig | undefined;
 }> = ({onChange, node, getPos, view, onCreate}) => {
     const [editing, setEditing, unsetEditing, toggleEditing] = useBooleanState(
-        Boolean(node.attrs[YfmHtmlConsts.NodeAttrs.newCreated]),
+        Boolean(node.attrs[YfmHtmlBlockConsts.NodeAttrs.newCreated]),
     );
 
     const config = onCreate?.();
@@ -194,10 +194,10 @@ export const YfmHtmlView: React.FC<{
     if (editing) {
         return (
             <CodeEditMode
-                initialText={node.attrs[YfmHtmlConsts.NodeAttrs.srcdoc]}
+                initialText={node.attrs[YfmHtmlBlockConsts.NodeAttrs.srcdoc]}
                 onCancel={unsetEditing}
                 onSave={(v) => {
-                    onChange({[YfmHtmlConsts.NodeAttrs.srcdoc]: v});
+                    onChange({[YfmHtmlBlockConsts.NodeAttrs.srcdoc]: v});
                     unsetEditing();
                 }}
             />
@@ -209,8 +209,8 @@ export const YfmHtmlView: React.FC<{
             <Label className={b('Label')} icon={<Icon size={16} data={Eye} />}>
                 {i18n('preview')}
             </Label>
-            <YfmHtmlPreview
-                html={node.attrs[YfmHtmlConsts.NodeAttrs.srcdoc]}
+            <YfmHtmlBlockPreview
+                html={node.attrs[YfmHtmlBlockConsts.NodeAttrs.srcdoc]}
                 onСlick={handleClick}
                 config={config}
             />
