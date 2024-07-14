@@ -1,5 +1,6 @@
 import {Node} from 'prosemirror-model';
 
+import {useYfmHtmlStyles} from '../../demo/hooks/useYfmHtmlStyles';
 import {ExtensionAuto} from '../core';
 import {BehaviorPreset, BehaviorPresetOptions} from '../extensions/behavior';
 import {EditorModeKeymap, EditorModeKeymapOptions} from '../extensions/behavior/EditorModeKeymap';
@@ -134,11 +135,7 @@ export const BundlePreset: ExtensionAuto<BundlePresetOptions> = (builder, opts) 
             ...opts.yfmHeading,
         },
         yfmHtml: {
-            loadRuntimeScript: () => {
-                import(
-                    /* webpackChunkName: "yfm-html-runtime" */ '@diplodoc/html-extension/runtime'
-                );
-            },
+            onCreate: () => useYfmHtmlStyles(),
         },
         placeholder: {
             [YfmNoteNode.NoteContent]: () => i18nPlaceholder('note_content'),

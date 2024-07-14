@@ -25,7 +25,7 @@ export function withYfmHtml() {
                     yfmHtml.setConfig(yfmHtmlConfig);
                     yfmHtml.reinitialize();
                 }
-            }, [yfmHtml, html]);
+            }, [yfmHtml, html, yfmHtmlConfig]);
 
             return <Component {...props} ref={ref} />;
         });

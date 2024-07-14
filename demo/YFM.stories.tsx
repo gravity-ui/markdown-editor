@@ -82,6 +82,15 @@ Some text here
 
 ::: html
 
+<style>
+html, body {
+    background-color: var(--yfm-html-color-background);
+    color: var(--yfm-html-color-text-primary);
+    font-size: var(--yfm-html-font-size);
+    font-family: var(--yfm-html-font-family);
+}
+</style>
+
 <h1>Duis faucibus dignissim posuere</h1>
 <p>Nam dui purus, imperdiet ut eros a, volutpat blandit lectus. Morbi tincidunt ipsum erat, non mollis augue gravida ac. Morbi mi ligula, blandit quis magna at, porttitor dapibus nisl. Maecenas vestibulum dolor id sem faucibus rutrum. Nullam lacinia ac purus non auctor. Donec rutrum gravida neque, ac viverra nisi molestie et. Curabitur non mi vitae felis mollis rutrum. Phasellus ornare sem vel nunc pulvinar aliquet. Etiam id viverra libero, a accumsan felis. Interdum et malesuada fames ac ante ipsum primis in faucibus.</p>
 <p>Mauris nisi nunc, elementum non ornare sit amet, vehicula nec dui. Cras rhoncus dui ut sagittis placerat. Integer eu augue sed risus faucibus mattis. Nulla vitae dapibus lectus. Suspendisse nibh lacus, porttitor in posuere at, elementum non ligula. Phasellus porttitor egestas mi non lacinia. Nunc volutpat nisl sit amet venenatis tincidunt. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Vivamus malesuada tortor nec feugiat euismod. Etiam molestie pretium odio, egestas venenatis eros efficitur eget. Ut at dignissim elit.</p>
@@ -98,6 +107,12 @@ Simple text again
 ::: html
 
 <style>
+html, body {
+    background-color: var(--yfm-html-color-background);
+    color: var(--yfm-html-color-text-primary);
+    font-size: var(--yfm-html-font-size);
+    font-family: var(--yfm-html-font-family);
+}
 .container {
     display: flex;
     margin: 20px;
@@ -105,9 +120,6 @@ Simple text again
 .main {
     flex: 2;
     padding: 20px;
-}
-.main p, .main ul {
-    color: var(--yfm-html-color-text-primary);
 }
 
 .main ul {
@@ -118,13 +130,12 @@ Simple text again
 aside {
     flex: 1;
     padding: 20px;
-    background-color: var(--yfm-html-color-background-secondary);
 }
 
 aside blockquote {
     font-style: italic;
-    color: var(--yfm-html-color-text-secondary);
-    border-left: 4px solid var(--yfm-html-color-text-secondary);
+    color: var(--yfm-html-color-text-primary);
+    border-left: 4px solid var(--yfm-html-color-text-primary);
     padding-left: 10px;
 }
 
@@ -141,17 +152,13 @@ aside blockquote {
     margin-left: 20px;
 }
 
-a {
-    color: var(--yfm-html-color-link);
+.dark a {
+    color: red;
     text-decoration: none;
 }
-
-a:hover {
-    color: var(--yfm-html-color-link-hover);
-}
-
-a:visited {
-    color: var(--yfm-html-color-link-visited);
+.light a {
+    color: blue;
+    text-decoration: none;
 }
 
 </style>

@@ -10,7 +10,6 @@ import {TextAreaFixed as TextArea} from '../../../../forms/TextInput';
 import {i18n} from '../../../../i18n/common';
 import {useBooleanState} from '../../../../react-utils/hooks';
 import {removeNode} from '../../../../utils/remove-node';
-// import {getYfmHtmlCssVariables} from '../../../../view/hocs/withYfmHtml/utils';
 import {YfmHtmlConsts} from '../YfmHtmlSpecs/const';
 
 export const cnYfmHtml = cn('YfmHtml');
@@ -18,30 +17,32 @@ export const cnHelper = cn('YfmHtmlHelper');
 
 import './YfmHtml.scss';
 
+import {IHTMLIFrameElementConfig} from '../index';
+
 const b = cnYfmHtml;
 
 interface YfmHtmlViewProps {
     html: string;
     onСlick: () => void;
-    styles?: Record<string, string>;
-    innerClassName?: string;
+    config?: IHTMLIFrameElementConfig;
 }
 
 export function generateID() {
     return Math.random().toString(36).substr(2, 8);
 }
 
-const PADDING = 20;
+const DEFAULT_PADDING = 20;
 
-const empty = {};
-
-const YfmHtmlPreview: React.FC<YfmHtmlViewProps> = ({
-    html,
-    // innerClassName,
-    onСlick,
-    styles = empty,
-}) => {
+const YfmHtmlPreview: React.FC<YfmHtmlViewProps> = ({html, onСlick, config}) => {
     const ref = useRef<HTMLIFrameElement>(null);
+    const styles = useRef<Record<string, string>>({});
+    const classNames = useRef<string[]>([]);
+
+    useEffect(() => {
+        setStyles(config?.styles);
+        setClassNames(config?.classNames);
+    }, [config, ref.current?.contentWindow?.document?.body]);
+
     const [height, setHeight] = useState('100%');
 
     const handleLoadIFrameHandler = () => {
@@ -49,13 +50,62 @@ const YfmHtmlPreview: React.FC<YfmHtmlViewProps> = ({
 
         if (contentWindow) {
             const frameDocument = contentWindow.document;
-            const height = frameDocument.documentElement.scrollHeight + PADDING + 'px';
+            const height =
+                frameDocument.documentElement.scrollHeight +
+                (config?.resizePadding || DEFAULT_PADDING) +
+                'px';
             setHeight(height);
 
             frameDocument.addEventListener('dblclick', () => {
                 onСlick();
             });
-            // frameDocument.body.scrollHeight + padding + 'px';
+        }
+    };
+
+    const setClassNames = (newClassNames: string[] | undefined) => {
+        const body = ref.current?.contentWindow?.document.body;
+
+        if (body && newClassNames) {
+            const previousClassNames = classNames.current;
+
+            // remove all classes that were in previousClassNames but are not in classNames
+            previousClassNames.forEach((className) => {
+                if (!newClassNames.includes(className)) {
+                    body.classList.remove(className);
+                }
+            });
+
+            // add classes that are in classNames
+            newClassNames.forEach((className) => {
+                if (!body.classList.contains(className)) {
+                    body.classList.add(className);
+                }
+            });
+
+            classNames.current = newClassNames;
+        }
+    };
+
+    const setStyles = (newStyles: Record<string, string> | undefined) => {
+        const body = ref.current?.contentWindow?.document.body;
+
+        if (body && newStyles) {
+            const previousStyles = styles.current;
+
+            // remove all styles that are in previousStyles but not in styles
+            Object.keys(previousStyles).forEach((property) => {
+                if (!Object.prototype.hasOwnProperty.call(newStyles, property)) {
+                    body.style.removeProperty(property);
+                }
+            });
+
+            // sdd or update styles that are in styles
+            Object.keys(newStyles).forEach((property) => {
+                body.style.setProperty(property, newStyles[property]);
+            });
+
+            // update current styles to the new styles
+            styles.current = newStyles;
         }
     };
 
@@ -70,7 +120,6 @@ const YfmHtmlPreview: React.FC<YfmHtmlViewProps> = ({
         <iframe
             style={{
                 height,
-                ...styles,
             }}
             ref={ref}
             title={generateID()}
@@ -127,25 +176,13 @@ export const YfmHtmlView: React.FC<{
     onChange: (attrs: {[YfmHtmlConsts.NodeAttrs.srcdoc]: string}) => void;
     node: Node;
     getPos: () => number | undefined;
-}> = ({onChange, node, getPos, view}) => {
+    onCreate?: () => IHTMLIFrameElementConfig;
+}> = ({onChange, node, getPos, view, onCreate}) => {
     const [editing, setEditing, unsetEditing, toggleEditing] = useBooleanState(
         Boolean(node.attrs[YfmHtmlConsts.NodeAttrs.newCreated]),
     );
 
-    // TODO: @makhnatkin move code
-    // const theme = useThemeValue();
-    // const styles = useMemo(() => {
-    //     const bodyStyles = window.getComputedStyle(document.body);
-    //     const colorTextPrimary = bodyStyles.getPropertyValue('--g-color-text-primary');
-    //     const colorBackground = bodyStyles.getPropertyValue('--g-color-base-background');
-    //
-    //     return getYfmHtmlCssVariables({
-    //         colorTextPrimary,
-    //         colorBackground,
-    //     });
-    // }, [theme]);
-
-    // const {innerClassName, style} = onCreate();
+    const config = onCreate?.();
 
     const [menuOpen, , , toggleMenuOpen] = useBooleanState(false);
     const buttonRef = useRef<HTMLDivElement>(null);
@@ -175,9 +212,9 @@ export const YfmHtmlView: React.FC<{
             <YfmHtmlPreview
                 html={node.attrs[YfmHtmlConsts.NodeAttrs.srcdoc]}
                 onСlick={handleClick}
-                // innerClassName={theme}
-                // styles={styles}
+                config={config}
             />
+
             <div className={b('Menu')}>
                 <Button
                     onClick={toggleMenuOpen}

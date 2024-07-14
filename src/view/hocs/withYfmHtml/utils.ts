@@ -1,24 +1,21 @@
-type Colors = Partial<Record<keyof typeof YfmHtmlColors, string>>;
+const YfmHtmlStyles = {
+    colorTextPrimary: '--yfm-html-color-text-primary', // Color of the primary text
+    colorTextSecondary: '--yfm-html-color-text-secondary', // Color of the secondary text
 
-const YfmHtmlColors = {
-    colorTextPrimary: '--yfm-html-color-text-primary', // Цвет основного текста
-    colorTextSecondary: '--yfm-html-color-text-secondary', // Цвет вторичного текста
+    colorBackground: '--yfm-html-color-background', // Color of the background
+    colorBackgroundSecondary: '--yfm-html-color-background-secondary', // Color of the secondary background
 
-    colorBackground: '--yfm-html-color-background', // Цвет фона
-    colorBackgroundSecondary: '--yfm-html-color-background-secondary', // Цвет вторичного фона
+    colorLink: '--yfm-html-color-link', // Color of the link
+    colorLinkHover: '--yfm-html-color-link-hover', // Color of the link when hovered
+    colorLinkVisited: '--yfm-html-color-link-visited', // Color of the visited link
 
-    colorLink: '--yfm-html-color-link', // Цвет ссылки
-    colorLinkHover: '--yfm-html-color-link-hover', // Цвет ссылки при наведении
-    colorLinkVisited: '--yfm-html-color-link-visited', // Цвет посещенной ссылки
-
-    colorButton: '--yfm-html-color-button', // Цвет кнопок
-    colorButtonHover: '--yfm-html-color-button-hover', // Цвет кнопок при наведении
-    colorButtonActive: '--yfm-html-color-button-active', // Цвет кнопок в активном состоянии (при нажатии)
-    colorButtonDisabled: '--yfm-html-color-button-disabled', // Цвет неактивных кнопок
-
-    colorInputBorder: '--yfm-html-color-input-border', // Цвет границ инпутов
-    colorInputBackground: '--yfm-html-color-input-background', // Цвет фона инпутов
+    font: '--yfm-html-font', // Font for the text
+    fontSize: '--yfm-html-font-size', // Size of the text
+    fontFamily: '--yfm-html-font-family', // Family of the text
+    lineHeight: '--yfm-html-line-height', // Line height of the text
 };
+
+type Styles = Partial<Record<keyof typeof YfmHtmlStyles, string>>;
 
 export const getYfmHtmlCssVariables = ({
     colorTextPrimary,
@@ -28,26 +25,22 @@ export const getYfmHtmlCssVariables = ({
     colorLink,
     colorLinkHover,
     colorLinkVisited,
-    colorButton,
-    colorButtonHover,
-    colorButtonActive,
-    colorButtonDisabled,
-    colorInputBorder,
-    colorInputBackground,
-}: Colors) => ({
-    ...(colorTextPrimary && {[YfmHtmlColors.colorTextPrimary]: colorTextPrimary}),
-    ...(colorTextSecondary && {[YfmHtmlColors.colorTextSecondary]: colorTextSecondary}),
-    ...(colorBackground && {[YfmHtmlColors.colorBackground]: colorBackground}),
+    font,
+    fontSize,
+    fontFamily,
+    lineHeight,
+}: Styles) => ({
+    ...(colorTextPrimary && {[YfmHtmlStyles.colorTextPrimary]: colorTextPrimary}),
+    ...(colorTextSecondary && {[YfmHtmlStyles.colorTextSecondary]: colorTextSecondary}),
+    ...(colorBackground && {[YfmHtmlStyles.colorBackground]: colorBackground}),
     ...(colorBackgroundSecondary && {
-        [YfmHtmlColors.colorBackgroundSecondary]: colorBackgroundSecondary,
+        [YfmHtmlStyles.colorBackgroundSecondary]: colorBackgroundSecondary,
     }),
-    ...(colorLink && {[YfmHtmlColors.colorLink]: colorLink}),
-    ...(colorLinkHover && {[YfmHtmlColors.colorLinkHover]: colorLinkHover}),
-    ...(colorLinkVisited && {[YfmHtmlColors.colorLinkVisited]: colorLinkVisited}),
-    ...(colorButton && {[YfmHtmlColors.colorButton]: colorButton}),
-    ...(colorButtonHover && {[YfmHtmlColors.colorButtonHover]: colorButtonHover}),
-    ...(colorButtonActive && {[YfmHtmlColors.colorButtonActive]: colorButtonActive}),
-    ...(colorButtonDisabled && {[YfmHtmlColors.colorButtonDisabled]: colorButtonDisabled}),
-    ...(colorInputBorder && {[YfmHtmlColors.colorInputBorder]: colorInputBorder}),
-    ...(colorInputBackground && {[YfmHtmlColors.colorInputBackground]: colorInputBackground}),
+    ...(colorLink && {[YfmHtmlStyles.colorLink]: colorLink}),
+    ...(colorLinkHover && {[YfmHtmlStyles.colorLinkHover]: colorLinkHover}),
+    ...(colorLinkVisited && {[YfmHtmlStyles.colorLinkVisited]: colorLinkVisited}),
+    ...(font && {[YfmHtmlStyles.font]: font}),
+    ...(fontSize && {[YfmHtmlStyles.fontSize]: fontSize}),
+    ...(fontFamily && {[YfmHtmlStyles.fontFamily]: fontFamily}),
+    ...(lineHeight && {[YfmHtmlStyles.lineHeight]: lineHeight}),
 });

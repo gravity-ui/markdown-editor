@@ -24,6 +24,12 @@ For this example, the settings are saved in localStorage, but you can use other 
 ::: html
 
 <style>
+html, body {
+    background-color: var(--yfm-html-color-background);
+    color: var(--yfm-html-color-text-primary);
+    font-size: var(--yfm-html-font-size);
+    font-family: var(--yfm-html-font-family);
+}
 .container {
     display: flex;
     margin: 20px;
@@ -31,9 +37,6 @@ For this example, the settings are saved in localStorage, but you can use other 
 .main {
     flex: 2;
     padding: 20px;
-}
-.main p, .main ul {
-    color: var(--yfm-html-color-text-primary);
 }
 
 .main ul {
@@ -44,13 +47,12 @@ For this example, the settings are saved in localStorage, but you can use other 
 aside {
     flex: 1;
     padding: 20px;
-    background-color: var(--yfm-html-color-background-secondary);
 }
 
 aside blockquote {
     font-style: italic;
-    color: var(--yfm-html-color-text-secondary);
-    border-left: 4px solid var(--yfm-html-color-text-secondary);
+    color: var(--yfm-html-color-text-primary);
+    border-left: 4px solid var(--yfm-html-color-text-primary);
     padding-left: 10px;
 }
 
@@ -67,17 +69,13 @@ aside blockquote {
     margin-left: 20px;
 }
 
-a {
-    color: var(--yfm-html-color-link);
+.dark a {
+    color: red;
     text-decoration: none;
 }
-
-a:hover {
-    color: var(--yfm-html-color-link-hover);
-}
-
-a:visited {
-    color: var(--yfm-html-color-link-visited);
+.light a {
+    color: blue;
+    text-decoration: none;
 }
 
 </style>

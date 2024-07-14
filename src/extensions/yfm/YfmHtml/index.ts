@@ -5,25 +5,30 @@ import {YfmHtmlSpecs} from './YfmHtmlSpecs';
 import {YfmHtmlAction} from './YfmHtmlSpecs/const';
 import {addYfmHtml} from './actions';
 
-export type YfmHtmlOptions = {};
+// TODO: import type from @diplodoc/html-extension
+export interface IHTMLIFrameElementConfig {
+    classNames?: string[];
+    resizeDelay?: number;
+    resizePadding?: number;
+    styles?: Record<string, string>;
+}
 
-export const YfmHtml: ExtensionAuto<YfmHtmlOptions> = (builder) => {
+export type YfmHtmlOptions = {
+    onCreate?: () => IHTMLIFrameElementConfig;
+};
+
+export const YfmHtml: ExtensionAuto<YfmHtmlOptions> = (builder, options) => {
     builder.use(YfmHtmlSpecs, {
-        nodeView: YfmHtmlNodeViewFactory({
-            onCreate: () => ({
-                innerClassName: 'yfm-html',
-                style: {},
-            }),
-        }),
+        nodeView: YfmHtmlNodeViewFactory(options),
     });
 
     builder.addAction(YfmHtmlAction, () => addYfmHtml);
 };
 
 const YfmHtmlNodeViewFactory: (
-    opts: YfmHtmlOptions,
-) => (deps: ExtensionDeps) => NodeViewConstructor = () => () => (node, view, getPos) => {
-    return new WYfmHtmlNodeView(node, view, getPos);
+    options: YfmHtmlOptions,
+) => (deps: ExtensionDeps) => NodeViewConstructor = (options) => () => (node, view, getPos) => {
+    return new WYfmHtmlNodeView({node, view, getPos, options});
 };
 
 declare global {

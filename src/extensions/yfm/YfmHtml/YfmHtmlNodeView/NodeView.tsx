@@ -6,6 +6,7 @@ import {createPortal} from 'react-dom';
 
 import {getReactRendererFromState} from '../../../behavior';
 import {YfmHtmlConsts} from '../YfmHtmlSpecs/const';
+import {YfmHtmlOptions} from '../index';
 
 import {YfmHtmlView} from './YfmHtmlView';
 
@@ -14,15 +15,27 @@ export class WYfmHtmlNodeView implements NodeView {
     private node: Node;
     private readonly view;
     private readonly getPos;
+    private readonly options: YfmHtmlOptions = {};
     private readonly renderItem;
 
-    constructor(node: Node, view: EditorView, getPos: () => number | undefined) {
+    constructor({
+        node,
+        view,
+        getPos,
+        options,
+    }: {
+        node: Node;
+        view: EditorView;
+        getPos: () => number | undefined;
+        options: YfmHtmlOptions;
+    }) {
         this.node = node;
         this.dom = document.createElement('div');
         this.dom.classList.add('yfmHtml-container');
         this.dom.contentEditable = 'false';
         this.view = view;
         this.getPos = getPos;
+        this.options = options;
 
         this.initializeYfmHtml();
         this.renderItem = getReactRendererFromState(view.state).createItem(
@@ -85,6 +98,7 @@ export class WYfmHtmlNodeView implements NodeView {
     private renderYfmHtml() {
         return createPortal(
             <YfmHtmlView
+                onCreate={this.options.onCreate}
                 view={this.view}
                 onChange={this.onChange.bind(this)}
                 node={this.node}
