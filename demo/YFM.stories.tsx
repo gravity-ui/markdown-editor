@@ -76,22 +76,24 @@ Content displayed when clicked.
 `.trim(),
 
     yfmHtml: `
-Обычный текст
+Some text here
 
-## Далее идет YFM HTML
+## Next is YFM HTML block
 
 ::: html
 
-<h1>Туристический санитарный и ветеринарный контроль в XXI веке</h1>
-<p>Как следует из рассмотренного выше частного случая, наводнение известно. На завтрак англичане предпочитают овсяную кашу и кукурузные хлопья, тем не менее начальное условие движения совершает интеграл от переменной величины. Бамбук, при том, что королевские полномочия находятся в руках исполнительной власти - кабинета министров, однородно переворачивает вулканизм. Независимое государство, особенно в верхах разреза, совершает пегматитовый кварцит.</p>
-<p>Большая часть территории участвует в погрешности определения курса меньше, чем силл. Штопор вразнобой поступает в цокольный музей под открытым небом, что имеет простой и очевидный физический смысл. Маховик, согласно третьему закону Ньютона, локально слагает распространенный систематический уход, а к мясу подают подливку, запеченные овощи и пикули.</p>
-<p>Комбинированный тур смещает подземный сток. Деградация мерзлоты горизонтально просветляет четвертичный крен. Побережье, с учетом региональных факторов, вразнобой смещает объект. Угол крена точно переворачивает пингвин.</p>
+<h1>Duis faucibus dignissim posuere</h1>
+<p>Nam dui purus, imperdiet ut eros a, volutpat blandit lectus. Morbi tincidunt ipsum erat, non mollis augue gravida ac. Morbi mi ligula, blandit quis magna at, porttitor dapibus nisl. Maecenas vestibulum dolor id sem faucibus rutrum. Nullam lacinia ac purus non auctor. Donec rutrum gravida neque, ac viverra nisi molestie et. Curabitur non mi vitae felis mollis rutrum. Phasellus ornare sem vel nunc pulvinar aliquet. Etiam id viverra libero, a accumsan felis. Interdum et malesuada fames ac ante ipsum primis in faucibus.</p>
+<p>Mauris nisi nunc, elementum non ornare sit amet, vehicula nec dui. Cras rhoncus dui ut sagittis placerat. Integer eu augue sed risus faucibus mattis. Nulla vitae dapibus lectus. Suspendisse nibh lacus, porttitor in posuere at, elementum non ligula. Phasellus porttitor egestas mi non lacinia. Nunc volutpat nisl sit amet venenatis tincidunt. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Vivamus malesuada tortor nec feugiat euismod. Etiam molestie pretium odio, egestas venenatis eros efficitur eget. Ut at dignissim elit.</p>
+<p>Sed congue rhoncus tincidunt. Donec porttitor diam vehicula diam vehicula, vel imperdiet mauris mollis. Sed tincidunt aliquam est eu fermentum. Proin vestibulum bibendum scelerisque. Quisque facilisis neque diam, in aliquam nisl aliquam auctor. Ut at elementum diam, eget tincidunt nulla. Quisque ac ligula eget velit tempor tristique. Aliquam blandit diam magna, et accumsan leo fringilla eget. Phasellus ut lectus urna. Proin ac est et risus elementum consequat. Mauris maximus porttitor massa, in rutrum odio blandit non. Curabitur posuere sem eu nulla efficitur, in placerat diam consectetur. Duis ipsum libero, convallis vel hendrerit sed, bibendum id ipsum. Sed sollicitudin maximus diam, at facilisis ipsum vulputate nec. Morbi eu risus ultricies, bibendum tortor non, interdum sem.</p>
+<p>Suspendisse tellus nulla, eleifend in libero id, tristique ultricies odio. Vivamus vel ex laoreet, scelerisque ligula ut, vehicula elit. Ut commodo enim at semper finibus. In at vestibulum ante. Praesent bibendum dolor eget metus semper faucibus. Duis luctus feugiat neque, eu blandit elit molestie in. Quisque laoreet consectetur felis. Suspendisse non turpis id sapien rutrum placerat ac nec dolor. Donec maximus justo ac vestibulum ullamcorper.</p>
+<p>Cras tristique dolor magna, quis consectetur odio aliquet at. In eu enim at nisl ultricies ultrices nec et est. Praesent at velit in mi posuere hendrerit nec eu sapien. Fusce sed porta mauris, vitae vehicula mi. Cras facilisis mauris a turpis vehicula fermentum. Suspendisse potenti. Maecenas a odio non neque egestas blandit ac vitae dui. Mauris suscipit turpis efficitur turpis volutpat scelerisque. Proin sit amet lacinia sapien. Donec at metus nec tortor dictum rutrum vehicula at turpis. Etiam consectetur odio in felis sollicitudin mattis.</p>
 
 :::
 
-Снова обычный текст
+Simple text again
 
-## Далее идет YFM HTML
+## Next is another YFM HTML block with styles
 
 ::: html
 

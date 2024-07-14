@@ -19,34 +19,111 @@ MarkdownEditor API provides access to flexible configuration, in this demo, when
 
 For this example, the settings are saved in localStorage, but you can use other methods
 
-## YFM HTML
+## Next is another YFM HTML block with styles
 
 ::: html
 
-<h1>Туристический санитарный и ветеринарный контроль в XXI веке</h1>
-<p>Как следует из рассмотренного выше частного случая, наводнение известно. На завтрак англичане предпочитают овсяную кашу и кукурузные хлопья, тем не менее начальное условие движения совершает интеграл от переменной величины. Бамбук, при том, что королевские полномочия находятся в руках исполнительной власти - кабинета министров, однородно переворачивает вулканизм. Независимое государство, особенно в верхах разреза, совершает пегматитовый кварцит.</p>
-<p>Большая часть территории участвует в погрешности определения курса меньше, чем силл. Штопор вразнобой поступает в цокольный музей под открытым небом, что имеет простой и очевидный физический смысл. Маховик, согласно третьему закону Ньютона, локально слагает распространенный систематический уход, а к мясу подают подливку, запеченные овощи и пикули.</p>
-<p>Комбинированный тур смещает подземный сток. Деградация мерзлоты горизонтально просветляет четвертичный крен. Побережье, с учетом региональных факторов, вразнобой смещает объект. Угол крена точно переворачивает пингвин.</p>
+<style>
+.container {
+    display: flex;
+    margin: 20px;
+}
+.main {
+    flex: 2;
+    padding: 20px;
+}
+.main p, .main ul {
+    color: var(--yfm-html-color-text-primary);
+}
 
-:::
+.main ul {
+    list-style-type: disc;
+    margin-left: 20px;
+}
 
-## Remember the мode
+aside {
+    flex: 1;
+    padding: 20px;
+    background-color: var(--yfm-html-color-background-secondary);
+}
 
-MarkdownEditor API provides access to flexible configuration, in this demo, when the page is reloaded, the editor's mode of operation does not change.
+aside blockquote {
+    font-style: italic;
+    color: var(--yfm-html-color-text-secondary);
+    border-left: 4px solid var(--yfm-html-color-text-secondary);
+    padding-left: 10px;
+}
 
-For this example, the settings are saved in localStorage, but you can use other methods
+.info-block {
+    margin-top: 20px;
+}
 
-## YFM HTML 2
+.info-block h3 {
+    color: var(--yfm-html-color-text-primary);
+}
 
-::: html
+.info-block ul {
+    list-style-type: circle;
+    margin-left: 20px;
+}
 
-<h1>Cанитарный и ветеринарный контроль в 2 веке</h1>
-<p>Как следует из рассмотренного выше частного случая, наводнение известно. На завтрак англичане предпочитают овсяную кашу и кукурузные хлопья, тем не менее начальное условие движения совершает интеграл от переменной величины. Бамбук, при том, что королевские полномочия находятся в руках исполнительной власти - кабинета министров, однородно переворачивает вулканизм. Независимое государство, особенно в верхах разреза, совершает пегматитовый кварцит.</p>
-<p>Большая часть территории участвует в погрешности определения курса меньше, чем силл. Штопор вразнобой поступает в цокольный музей под открытым небом, что имеет простой и очевидный физический смысл. Маховик, согласно третьему закону Ньютона, локально слагает распространенный систематический уход, а к мясу подают подливку, запеченные овощи и пикули.</p>
-<p>Комбинированный тур смещает подземный сток. Деградация мерзлоты горизонтально просветляет четвертичный крен. Побережье, с учетом региональных факторов, вразнобой смещает объект. Угол крена точно переворачивает пингвин.</p>
-<p>Как следует из рассмотренного выше частного случая, наводнение известно. На завтрак англичане предпочитают овсяную кашу и кукурузные хлопья, тем не менее начальное условие движения совершает интеграл от переменной величины. Бамбук, при том, что королевские полномочия находятся в руках исполнительной власти - кабинета министров, однородно переворачивает вулканизм. Независимое государство, особенно в верхах разреза, совершает пегматитовый кварцит.</p>
-<p>Большая часть территории участвует в погрешности определения курса меньше, чем силл. Штопор вразнобой поступает в цокольный музей под открытым небом, что имеет простой и очевидный физический смысл. Маховик, согласно третьему закону Ньютона, локально слагает распространенный систематический уход, а к мясу подают подливку, запеченные овощи и пикули.</p>
-<p>Комбинированный тур смещает подземный сток. Деградация мерзлоты горизонтально просветляет четвертичный крен. Побережье, с учетом региональных факторов, вразнобой смещает объект. Угол крена точно переворачивает пингвин.</p>
+a {
+    color: var(--yfm-html-color-link);
+    text-decoration: none;
+}
+
+a:hover {
+    color: var(--yfm-html-color-link-hover);
+}
+
+a:visited {
+    color: var(--yfm-html-color-link-visited);
+}
+
+</style>
+
+    <header>
+        <h1>Understanding HTML: The Backbone of Web Development</h1>
+    </header>
+
+    <div class="container">
+        <div class="main">
+            <p>HTML, or HyperText Markup Language, is the standard language used to create web pages. It allows developers to structure content and make it accessible and attractive to users.</p>
+
+            <p>HTML was first developed by Tim Berners-Lee in 1991, and since then, it has gone through numerous iterations to become the versatile tool it is today. One of the core tenets of HTML is its simplicity and accessibility. By using a series of tags, you can define various elements on a webpage, such as headings, paragraphs, links, images, and more.</p>
+
+            <p>HTML documents are plain text files that can be created and edited with any text editor. When opened in a web browser, the HTML code is parsed and rendered to display the structured content. This is achieved through the use of various HTML elements, each represented by tags.</p>
+
+            <p>Some of the most commonly used HTML tags include:</p>
+            <ul>
+                <li><strong>&lt;h1&gt; to &lt;h6&gt;</strong> – Define headings.</li>
+                <li><strong>&lt;p&gt;</strong> – Defines a paragraph.</li>
+                <li><strong>&lt;a&gt;</strong> – Defines a hyperlink.</li>
+                <li><strong>&lt;img&gt;</strong> – Embeds an image.</li>
+                <li><strong>&lt;div&gt;</strong> – Defines a division or a section in a document.</li>
+            </ul>
+
+            <p>HTML also supports multimedia, allowing you to embed videos, audio, and interactive content. Modern HTML (HTML5) introduces several new elements and APIs to enhance functionality, making it easier for developers to create rich, interactive web experiences.</p>
+
+            <p>In conclusion, understanding HTML is fundamental for web development. Its role in structuring and presenting content on the web is indispensable. Whether you are a beginner or a seasoned developer, mastering HTML opens the door to creating engaging and effective web pages.</p>
+        </div>
+
+        <aside>
+            <blockquote>
+                "HTML is the skeleton of the web, essential and foundational. Every web page owes its structure to HTML."
+            </blockquote>
+
+            <div class="info-block">
+                <h3>Quick Facts:</h3>
+                <ul>
+                    <li>Released in 1991 by Tim Berners-Lee.</li>
+                    <li>The latest version is HTML5.</li>
+                    <li>HTML stands for HyperText Markup Language.</li>
+                </ul>
+            </div>
+        </aside>
+    </div>
+
 
 :::
 

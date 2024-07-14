@@ -200,7 +200,7 @@
   "devDependencies": {
     "@diplodoc/latex-extension": "1.0.3",
     "@diplodoc/mermaid-extension": "1.2.1",
-    "@diplodoc/html-extension": "file:/Users/makhnatkin/dev/temp/diplodoc-html-extension-1.2.11.tgz",
+    "@diplodoc/html-extension": "1.2.6",
     "@diplodoc/transform": "4.5.0",
     "@gravity-ui/components": "3.0.0",
     "@gravity-ui/eslint-config": "3.1.1",
