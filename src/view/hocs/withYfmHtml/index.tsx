@@ -1,8 +1,8 @@
 import React, {ComponentType, RefAttributes, forwardRef, useEffect} from 'react';
 
 import {useDiplodocHtml} from '@diplodoc/html-extension/react';
+import {IHTMLIFrameElementConfig} from '@diplodoc/html-extension/runtime';
 
-import {IHTMLIFrameElementConfig} from '../../../extensions';
 import type {PluginRuntime, TransformMeta} from '../withMermaid/types';
 
 import {useYfmHtmlBlockRuntime} from './useYfmHtmlBlockRuntime';

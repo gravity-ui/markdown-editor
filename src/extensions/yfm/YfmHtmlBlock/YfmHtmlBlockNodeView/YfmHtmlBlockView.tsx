@@ -1,5 +1,6 @@
 import React, {useEffect, useRef, useState} from 'react';
 
+import {IHTMLIFrameElementConfig} from '@diplodoc/html-extension/runtime';
 import {Ellipsis as DotsIcon, Eye} from '@gravity-ui/icons';
 import {Button, Icon, Label, Menu, Popup} from '@gravity-ui/uikit';
 import debounce from 'lodash/debounce';
@@ -12,7 +13,6 @@ import {i18n} from '../../../../i18n/common';
 import {useBooleanState} from '../../../../react-utils/hooks';
 import {removeNode} from '../../../../utils/remove-node';
 import {YfmHtmlBlockConsts} from '../YfmHtmlBlockSpecs/const';
-import {IHTMLIFrameElementConfig} from '../index';
 
 export const cnYfmHtmlBlock = cn('yfm-html-block');
 export const cnHelper = cn('yfm-html-block-helper');

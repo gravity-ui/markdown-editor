@@ -1,8 +1,8 @@
 import {useEffect, useState} from 'react';
 
+import {IHTMLIFrameElementConfig} from '@diplodoc/html-extension/runtime';
 import {useThemeValue} from '@gravity-ui/uikit';
 
-import {IHTMLIFrameElementConfig} from '../../src/extensions';
 import {getYfmHtmlBlockCssVariables} from '../../src/view/hocs/withYfmHtml/utils';
 
 const variablesMapping = {

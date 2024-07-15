@@ -1,17 +1,11 @@
+import {IHTMLIFrameElementConfig} from '@diplodoc/html-extension/runtime';
+
 import {Action, ExtensionAuto, ExtensionDeps, NodeViewConstructor} from '../../../core';
 
 import {WYfmHtmlBlockNodeView} from './YfmHtmlBlockNodeView';
 import {YfmHtmlBlockSpecs} from './YfmHtmlBlockSpecs';
 import {YfmHtmlBlockAction} from './YfmHtmlBlockSpecs/const';
 import {addYfmHtmlBlock} from './actions';
-
-// TODO: import type from @diplodoc/html-extension
-export interface IHTMLIFrameElementConfig {
-    classNames?: string[];
-    resizeDelay?: number;
-    resizePadding?: number;
-    styles?: Record<string, string>;
-}
 
 export type YfmHtmlBlockOptions = {
     useConfig?: () => IHTMLIFrameElementConfig | undefined;
