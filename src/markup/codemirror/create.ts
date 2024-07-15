@@ -49,6 +49,7 @@ export type CreateCodemirrorParams = {
     reactRenderer: ReactRenderStorage;
     uploadHandler?: FileUploadHandler;
     needImgDimms?: boolean;
+    extraMarkupExtensions?: Extension[];
 };
 
 export function createCodemirror(params: CreateCodemirrorParams) {
@@ -61,6 +62,7 @@ export function createCodemirror(params: CreateCodemirrorParams) {
         onSubmit,
         onChange,
         onDocChange,
+        extraMarkupExtensions,
     } = params;
 
     const extensions: Extension[] = [
@@ -124,6 +126,9 @@ export function createCodemirror(params: CreateCodemirrorParams) {
                 imgWithDimms: params.needImgDimms,
             }),
         );
+    }
+    if (extraMarkupExtensions) {
+        extensions.push(...extraMarkupExtensions);
     }
 
     return new EditorView({
