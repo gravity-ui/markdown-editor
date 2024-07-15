@@ -33,8 +33,8 @@ import {useMarkdownEditorContext} from './context';
 import {EditorSettings, EditorSettingsProps} from './settings';
 import {stickyCn} from './sticky';
 
-import './MarkdownEditorView.scss';
 import '../styles/styles.scss';
+import './MarkdownEditorView.scss'; // eslint-disable-line import/order
 
 export const cnEditorComponent = cn('editor-component');
 const b = cnEditorComponent;
