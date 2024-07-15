@@ -2,8 +2,8 @@ import {useEffect, useState} from 'react';
 
 import {useThemeValue} from '@gravity-ui/uikit';
 
-import {IHTMLIFrameElementConfig} from '../../src';
-import {getYfmHtmlBlockCssVariables} from '../../src/view/hocs/withYfmHtml/utils';
+import {IHTMLIFrameElementConfig} from '../../extensions';
+import {getYfmHtmlBlockCssVariables} from '../hocs/withYfmHtml/utils';
 
 export const useYfmHtmlBlockStyles = () => {
     const theme = useThemeValue();
@@ -37,3 +37,5 @@ export const useYfmHtmlBlockStyles = () => {
 
     return config;
 };
+
+export default useYfmHtmlBlockStyles;

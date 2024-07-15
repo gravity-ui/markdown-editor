@@ -1,6 +1,5 @@
 import {Node} from 'prosemirror-model';
 
-import {useYfmHtmlBlockStyles} from '../../demo/hooks/useYfmHtmlBlockStyles';
 import {ExtensionAuto} from '../core';
 import {BehaviorPreset, BehaviorPresetOptions} from '../extensions/behavior';
 import {EditorModeKeymap, EditorModeKeymapOptions} from '../extensions/behavior/EditorModeKeymap';
@@ -13,6 +12,7 @@ import {YfmPreset, YfmPresetOptions} from '../presets/yfm';
 import {ZeroPreset, ZeroPresetOptions} from '../presets/zero';
 import {Action as A, formatter as f} from '../shortcuts';
 import type {FileUploadHandler} from '../utils/upload';
+import useYfmHtmlBlockStyles from '../view/hooks/useYfmHtmlBlockStyles';
 
 import {EditorPreset} from './Editor';
 import {wCommandMenuConfigByPreset, wSelectionMenuConfigByPreset} from './config/wysiwyg';
