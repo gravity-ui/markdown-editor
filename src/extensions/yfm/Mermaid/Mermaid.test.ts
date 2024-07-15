@@ -22,7 +22,7 @@ const {doc, mermaid} = builders<'doc' | 'mermaid'>(schema, {
 
 const {same} = createMarkupChecker({parser, serializer});
 
-describe('MErmaid extension', () => {
+describe('Mermaid extension', () => {
     it('should parse mermaid', () =>
         same('```mermaid\ncontent\n```\n', doc(mermaid({[MermaidAttrs.content]: 'content\n'}))));
 });

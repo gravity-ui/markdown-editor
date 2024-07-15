@@ -1,4 +1,5 @@
 /* eslint-disable import/no-extraneous-dependencies */
+import {transform as yfmHtmlBlock} from '@diplodoc/html-extension';
 import {transform as latex} from '@diplodoc/latex-extension';
 import {transform as mermaid} from '@diplodoc/mermaid-extension';
 import anchors from '@diplodoc/transform/lib/plugins/anchors';
@@ -26,31 +27,33 @@ import sub from '../src/markdown-it/sub';
 
 export const LATEX_RUNTIME = 'extension:latex';
 export const MERMAID_RUNTIME = 'extension:mermaid';
+export const YFM_HTML_BLOCK_RUNTIME = 'extension:yfm-html-block';
 
 const defaultPlugins: PluginWithParams[] = [
-    meta,
-    deflist,
-    cut,
-    notes,
     anchors,
-    tabs,
     code,
-    sup,
-    video,
-    monospace,
-    yfmTable,
+    cut,
+    deflist,
     file,
     imsize,
+    meta,
+    monospace,
+    notes,
+    sup,
+    tabs,
+    video,
+    yfmTable,
 ];
 const extendedPlugins = defaultPlugins.concat(
-    sub,
-    ins,
-    mark,
-    latex({bundle: false, validate: false, runtime: LATEX_RUNTIME}),
-    color,
-    checkbox,
-    mermaid({bundle: false, runtime: MERMAID_RUNTIME}),
     (md) => md.use(emoji, {defs: emojiDefs}),
+    checkbox,
+    color,
+    ins,
+    latex({bundle: false, validate: false, runtime: LATEX_RUNTIME}),
+    mark,
+    mermaid({bundle: false, runtime: MERMAID_RUNTIME}),
+    sub,
+    yfmHtmlBlock({bundle: false, runtimeJsPath: YFM_HTML_BLOCK_RUNTIME}),
 );
 
 export {extendedPlugins as plugins};

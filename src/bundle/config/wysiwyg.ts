@@ -456,6 +456,16 @@ export const wMathListItem: WToolbarListItemData = {
     ...wMathListConfig,
 };
 
+export const wYfmHtmlBlockItemData: WToolbarSingleItemData = {
+    id: ActionName.yfm_html_block,
+    type: ToolbarDataType.SingleButton,
+    title: i18n.bind(null, 'html'),
+    icon: icons.html,
+    exec: (e) => e.actions.createYfmHtmlBlock.run(),
+    isActive: (e) => e.actions.createYfmHtmlBlock.isActive(),
+    isEnable: (e) => e.actions.createYfmHtmlBlock.isEnable(),
+};
+
 export const wCommandMenuConfig: WToolbarItemData[] = [
     ...wHeadingListConfig.data,
     ...wListsListConfig.data,
@@ -473,6 +483,7 @@ export const wCommandMenuConfig: WToolbarItemData[] = [
     // wMathInlineItemData,
     // wMathBlockItemData,
     wTabsItemData,
+    wYfmHtmlBlockItemData,
 ];
 
 export const wHiddenData = wCommandMenuConfig;
@@ -650,6 +661,7 @@ export const wCommandMenuConfigByPreset: Record<EditorPreset, WToolbarItemData[]
         wHruleItemData,
         wFileItemData,
         wTabsItemData,
+        wYfmHtmlBlockItemData,
     ],
     full: wCommandMenuConfig.slice(),
 };

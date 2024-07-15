@@ -16,6 +16,7 @@ import {
     Heading5Icon,
     Heading6Icon,
     HeadingIcon,
+    HtmlBlockIcon,
     ImageIcon,
     ItalicIcon,
     LiftIcon,
@@ -76,7 +77,8 @@ type Icon =
     | 'functionBlock'
     | 'emoji'
     | 'tabs'
-    | 'mermaid';
+    | 'mermaid'
+    | 'html';
 
 type Icons = Record<Icon, ToolbarIconData>;
 
@@ -120,6 +122,8 @@ export const icons: Icons = {
     table: {data: TableIcon},
     quote: {data: QuoteIcon},
     checklist: {data: CheckListIcon},
+
+    html: {data: HtmlBlockIcon},
     horizontalRule: {data: HRuleIcon},
 
     file: {data: FileIcon},

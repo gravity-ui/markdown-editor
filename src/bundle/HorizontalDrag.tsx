@@ -81,6 +81,7 @@ export type HorizontalDragProps = {
     rightElRef: React.RefObject<HTMLDivElement>;
     wrapperRef: React.RefObject<HTMLDivElement>;
     editor: EditorInt;
+    onEndMove?: (right: HTMLDivElement | null, left: HTMLDivElement | null) => any;
 };
 
 const HorizontalDrag: React.FC<HorizontalDragProps> = ({
@@ -88,6 +89,7 @@ const HorizontalDrag: React.FC<HorizontalDragProps> = ({
     rightElRef,
     wrapperRef,
     editor,
+    onEndMove,
 }) => {
     const cm = editor.cm;
 
@@ -163,6 +165,8 @@ const HorizontalDrag: React.FC<HorizontalDragProps> = ({
 
             rightElRef.current?.classList.remove(IN_RESIZE_CLASSNAME);
             leftElRef.current?.classList.remove(IN_RESIZE_CLASSNAME);
+
+            onEndMove?.(rightElRef.current, leftElRef.current);
         },
         [calculateWidth, cm, leftElRef, rightElRef, updateWidth, wrapperRef],
     );

@@ -5,16 +5,22 @@ import {useThemeValue} from '@gravity-ui/uikit';
 
 import {MarkupString, colorClassName} from '../src';
 import {debounce} from '../src/lodash';
-import {YfmHtml} from '../src/view/components/YfmHtml';
+import {YfmStaticView} from '../src/view/components/YfmHtml';
 import {withLatex} from '../src/view/hocs/withLatex';
 import {MermaidConfig, withMermaid} from '../src/view/hocs/withMermaid';
+import {withYfmHtmlBlock} from '../src/view/hocs/withYfmHtml';
 
-import {LATEX_RUNTIME, MERMAID_RUNTIME} from './md-plugins';
+import useYfmHtmlBlockStyles from './hooks/useYfmHtmlBlockStyles';
+import {LATEX_RUNTIME, MERMAID_RUNTIME, YFM_HTML_BLOCK_RUNTIME} from './md-plugins';
 
 const ML_ATTR = 'data-ml';
 const mermaidConfig: MermaidConfig = {theme: 'forest'};
 
-const Html = withMermaid({runtime: MERMAID_RUNTIME})(withLatex({runtime: LATEX_RUNTIME})(YfmHtml));
+const Preview = withMermaid({runtime: MERMAID_RUNTIME})(
+    withLatex({runtime: LATEX_RUNTIME})(
+        withYfmHtmlBlock({runtime: YFM_HTML_BLOCK_RUNTIME})(YfmStaticView),
+    ),
+);
 
 export type SplitModePreviewProps = {
     plugins?: import('markdown-it').PluginSimple[];
@@ -57,13 +63,16 @@ export const SplitModePreview: React.FC<SplitModePreviewProps> = (props) => {
         render();
     }, [props, render]);
 
+    const yfmHtmlBlockConfig = useYfmHtmlBlockStyles();
+
     return (
-        <Html
+        <Preview
             ref={divRef}
             html={html}
             meta={meta}
             noListReset
             mermaidConfig={mermaidConfig}
+            yfmHtmlBlockConfig={yfmHtmlBlockConfig}
             className="demo-preview"
         />
     );

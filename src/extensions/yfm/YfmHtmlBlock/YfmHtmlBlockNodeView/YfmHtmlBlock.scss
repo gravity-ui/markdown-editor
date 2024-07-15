@@ -1,0 +1,88 @@
+.g-md-yfm-html-block {
+    position: relative;
+
+    display: flex;
+    justify-content: space-between;
+
+    margin-bottom: 15px;
+    padding-top: 28px;
+
+    border: 1px solid var(--g-color-line-generic);
+    border-radius: var(--g-border-radius-m);
+
+    &_editing {
+        display: flex;
+
+        padding-top: 0;
+
+        border: 0;
+    }
+
+    &__label {
+        position: absolute;
+        top: 8px;
+        left: 8px;
+    }
+
+    &__menu {
+        position: absolute;
+        top: 0;
+        right: 0;
+    }
+
+    &__preview {
+        flex: 1;
+    }
+
+    &__error {
+        flex: 1;
+
+        font-family: var(--g-font-family-monospace);
+
+        color: var(--g-color-text-danger);
+    }
+
+    &__editor {
+        flex: 1;
+
+        width: 50%;
+
+        white-space: nowrap;
+        caret-color: auto;
+
+        .g-text-area__content {
+            font-size: 1em;
+
+            color: var(--yfm-color-hljs-subst);
+            border: 0;
+            border-radius: var(--g-border-radius-m);
+            background: var(--yfm-color-hljs-background);
+            font-feature-settings: normal;
+        }
+        .g-text-area__control.g-md-YfmHtmlBlockHelper {
+            font-family: var(--yfm-font-family-monospace);
+        }
+    }
+
+    &__editor-popover {
+        z-index: 1;
+
+        float: right;
+    }
+
+    &__controls {
+        display: flex;
+        justify-content: end;
+
+        margin-top: 5px;
+    }
+
+    &__content {
+        flex-grow: 1;
+    }
+}
+
+.g-root_theme_dark-hc .g-md-yfm-html-block_editing .g-text-area__content,
+.g-root_theme_dark .g-md-yfm-html-block_editing .g-text-area__content {
+    color: var(--g-color-text-primary);
+}

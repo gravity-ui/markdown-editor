@@ -1,5 +1,9 @@
 {
-  "toolbar_action_disabled": "Incompatible markup element",
+  "cancel": "Cancel",
+  "delete": "Delete",
   "edit": "Edit",
-  "delete": "Delete"
+  "preview": "Preview",
+  "remove": "Remove",
+  "save": "Save",
+  "toolbar_action_disabled": "Incompatible markup element"
 }

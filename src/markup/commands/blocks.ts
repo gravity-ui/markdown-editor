@@ -23,3 +23,15 @@ sequenceDiagram
     dispatch(state.update(tr));
     return true;
 };
+
+export const insertYfmHtmlBlock: StateCommand = ({state, dispatch}) => {
+    const markup = `::: html
+
+<div>Add HTML code here</div>
+
+:::`;
+
+    const tr = replaceOrInsertAfter(state, markup);
+    dispatch(state.update(tr));
+    return true;
+};
