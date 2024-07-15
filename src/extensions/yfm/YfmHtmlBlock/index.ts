@@ -14,7 +14,7 @@ export interface IHTMLIFrameElementConfig {
 }
 
 export type YfmHtmlBlockOptions = {
-    onCreate?: () => IHTMLIFrameElementConfig | undefined;
+    useConfig?: () => IHTMLIFrameElementConfig | undefined;
 };
 
 export const YfmHtmlBlock: ExtensionAuto<YfmHtmlBlockOptions> = (builder, options) => {

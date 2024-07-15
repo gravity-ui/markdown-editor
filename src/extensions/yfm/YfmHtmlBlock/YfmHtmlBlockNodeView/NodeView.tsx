@@ -95,7 +95,7 @@ export class WYfmHtmlBlockNodeView implements NodeView {
     private renderYfmHtmlBlock() {
         return createPortal(
             <YfmHtmlBlockView
-                onCreate={this.options.onCreate}
+                useConfig={this.options.useConfig}
                 view={this.view}
                 onChange={this.onChange.bind(this)}
                 node={this.node}

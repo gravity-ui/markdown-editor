@@ -13,7 +13,10 @@ export const useYfmHtmlBlockStyles = () => {
         const bodyStyles = window.getComputedStyle(document.body);
 
         const colorTextPrimary = bodyStyles.getPropertyValue('--g-color-text-primary');
-        const colorTextSecondary = bodyStyles.getPropertyValue('--g-color-text-secondary');
+        const colorTextSecondary =
+            theme === 'light' || theme === 'light-hc'
+                ? bodyStyles.getPropertyValue('--yfm-color-hljs-subst')
+                : bodyStyles.getPropertyValue('--g-color-text-primary');
         const colorBackground = bodyStyles.getPropertyValue('--g-color-base-background');
         const fontFamily = bodyStyles.getPropertyValue('--g-font-family-sans');
         const fontSize = bodyStyles.getPropertyValue('--g-text-body-1-font-size');
@@ -27,6 +30,8 @@ export const useYfmHtmlBlockStyles = () => {
                 fontSize,
             }),
             classNames: [theme],
+            resizePadding: 50,
+            resizeDelay: 100,
         });
     }, [theme]);
 

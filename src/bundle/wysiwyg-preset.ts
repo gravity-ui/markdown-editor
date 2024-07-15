@@ -135,7 +135,7 @@ export const BundlePreset: ExtensionAuto<BundlePresetOptions> = (builder, opts) 
             ...opts.yfmHeading,
         },
         yfmHtmlBlock: {
-            onCreate: () => useYfmHtmlBlockStyles(),
+            useConfig: useYfmHtmlBlockStyles,
         },
         placeholder: {
             [YfmNoteNode.NoteContent]: () => i18nPlaceholder('note_content'),

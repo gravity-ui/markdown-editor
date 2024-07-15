@@ -2,6 +2,7 @@ import React, {useEffect, useRef, useState} from 'react';
 
 import {Ellipsis as DotsIcon, Eye} from '@gravity-ui/icons';
 import {Button, Icon, Label, Menu, Popup} from '@gravity-ui/uikit';
+import debounce from 'lodash/debounce';
 import {Node} from 'prosemirror-model';
 import {EditorView} from 'prosemirror-view';
 
@@ -11,13 +12,12 @@ import {i18n} from '../../../../i18n/common';
 import {useBooleanState} from '../../../../react-utils/hooks';
 import {removeNode} from '../../../../utils/remove-node';
 import {YfmHtmlBlockConsts} from '../YfmHtmlBlockSpecs/const';
+import {IHTMLIFrameElementConfig} from '../index';
 
 export const cnYfmHtmlBlock = cn('YfmHtmlBlock');
 export const cnHelper = cn('YfmHtmlBlockHelper');
 
 import './YfmHtmlBlock.scss';
-
-import {IHTMLIFrameElementConfig} from '../index';
 
 const b = cnYfmHtmlBlock;
 
@@ -32,33 +32,52 @@ export function generateID() {
 }
 
 const DEFAULT_PADDING = 20;
+const DEFAULT_DELAY = 100;
 
 const YfmHtmlBlockPreview: React.FC<YfmHtmlBlockViewProps> = ({html, onСlick, config}) => {
     const ref = useRef<HTMLIFrameElement>(null);
     const styles = useRef<Record<string, string>>({});
     const classNames = useRef<string[]>([]);
+    const resizeConfig = useRef<Record<string, number>>({});
+
+    const [height, setHeight] = useState('100%');
 
     useEffect(() => {
+        resizeConfig.current = {
+            padding: config?.resizePadding ?? DEFAULT_PADDING,
+            delay: config?.resizeDelay ?? DEFAULT_DELAY,
+        };
         setStyles(config?.styles);
         setClassNames(config?.classNames);
     }, [config, ref.current?.contentWindow?.document?.body]);
 
-    const [height, setHeight] = useState('100%');
-
-    const handleLoadIFrameHandler = () => {
+    const handleLoadIFrame = () => {
         const contentWindow = ref.current?.contentWindow;
+
+        handleResizeIFrame();
 
         if (contentWindow) {
             const frameDocument = contentWindow.document;
-            const height =
-                frameDocument.documentElement.scrollHeight +
-                (config?.resizePadding || DEFAULT_PADDING) +
-                'px';
-            setHeight(height);
-
             frameDocument.addEventListener('dblclick', () => {
                 onСlick();
             });
+        }
+    };
+
+    const handleResizeIFrame = () => {
+        if (ref.current) {
+            const contentWindow = ref.current?.contentWindow;
+            if (contentWindow) {
+                const body = contentWindow.document.body;
+                if (body) {
+                    const height =
+                        body.scrollHeight +
+                        (resizeConfig.current?.padding || DEFAULT_PADDING) +
+                        'px';
+
+                    setHeight(height);
+                }
+            }
         }
     };
 
@@ -110,11 +129,20 @@ const YfmHtmlBlockPreview: React.FC<YfmHtmlBlockViewProps> = ({html, onСlick, c
     };
 
     useEffect(() => {
-        ref.current?.addEventListener('load', handleLoadIFrameHandler);
+        ref.current?.addEventListener('load', handleLoadIFrame);
         return () => {
-            ref.current?.removeEventListener('load', handleLoadIFrameHandler);
+            ref.current?.removeEventListener('load', handleLoadIFrame);
         };
     }, [html]);
+
+    useEffect(() => {
+        if (ref.current) {
+            const resizeObserver = new window.ResizeObserver(
+                debounce(handleResizeIFrame, resizeConfig.current?.delay ?? DEFAULT_DELAY),
+            );
+            resizeObserver.observe(ref.current);
+        }
+    }, [ref.current?.contentWindow?.document?.body]);
 
     return (
         <iframe
@@ -134,14 +162,16 @@ const CodeEditMode: React.FC<{
     initialText: string;
     onSave: (v: string) => void;
     onCancel: () => void;
-}> = ({initialText, onSave, onCancel}) => {
+    config?: IHTMLIFrameElementConfig;
+}> = ({initialText, onSave, onCancel, config}) => {
     const [text, setText] = useState(initialText || '\n');
 
     return (
         <div className={b({editing: true})}>
             <div className={b('Editor')}>
                 <TextArea
-                    className={b('CodeEditor')}
+                    style={config?.styles}
+                    className={b('CodeEditor', config?.classNames?.join())}
                     controlProps={{
                         className: cnHelper({'prosemirror-stop-event': true}),
                     }}
@@ -176,13 +206,13 @@ export const YfmHtmlBlockView: React.FC<{
     onChange: (attrs: {[YfmHtmlBlockConsts.NodeAttrs.srcdoc]: string}) => void;
     node: Node;
     getPos: () => number | undefined;
-    onCreate?: () => IHTMLIFrameElementConfig | undefined;
-}> = ({onChange, node, getPos, view, onCreate}) => {
+    useConfig?: () => IHTMLIFrameElementConfig | undefined;
+}> = ({onChange, node, getPos, view, useConfig}) => {
     const [editing, setEditing, unsetEditing, toggleEditing] = useBooleanState(
         Boolean(node.attrs[YfmHtmlBlockConsts.NodeAttrs.newCreated]),
     );
 
-    const config = onCreate?.();
+    const config = useConfig?.();
 
     const [menuOpen, , , toggleMenuOpen] = useBooleanState(false);
     const buttonRef = useRef<HTMLDivElement>(null);
@@ -194,6 +224,7 @@ export const YfmHtmlBlockView: React.FC<{
     if (editing) {
         return (
             <CodeEditMode
+                config={config}
                 initialText={node.attrs[YfmHtmlBlockConsts.NodeAttrs.srcdoc]}
                 onCancel={unsetEditing}
                 onSave={(v) => {
