@@ -27,6 +27,7 @@ import sub from '../src/markdown-it/sub';
 
 export const LATEX_RUNTIME = 'extension:latex';
 export const MERMAID_RUNTIME = 'extension:mermaid';
+export const YFM_HTML_BLOCK_RUNTIME = 'extension:yfm-html-block';
 
 const defaultPlugins: PluginWithParams[] = [
     anchors,
@@ -52,7 +53,7 @@ const extendedPlugins = defaultPlugins.concat(
     mark,
     mermaid({bundle: false, runtime: MERMAID_RUNTIME}),
     sub,
-    yfmHtmlBlock({bundle: false}),
+    yfmHtmlBlock({bundle: false, runtimeJsPath: YFM_HTML_BLOCK_RUNTIME}),
 );
 
 export {extendedPlugins as plugins};

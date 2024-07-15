@@ -23,8 +23,6 @@ import {
     YfmFileOptions,
     YfmHeading,
     YfmHeadingOptions,
-    YfmHtmlBlock,
-    YfmHtmlBlockOptions,
     YfmNote,
     YfmNoteOptions,
     YfmTable,
@@ -46,7 +44,6 @@ export type YfmPresetOptions = Omit<DefaultPresetOptions, 'heading' | 'image'> &
     yfmHeading?: YfmHeadingOptions;
     yfmNote?: YfmNoteOptions;
     yfmTable?: YfmTableOptions;
-    yfmHtmlBlock?: YfmHtmlBlockOptions;
 };
 
 export const YfmPreset: ExtensionAuto<YfmPresetOptions> = (builder, opts) => {
@@ -67,6 +64,5 @@ export const YfmPreset: ExtensionAuto<YfmPresetOptions> = (builder, opts) => {
         .use(YfmFile, opts.yfmFile ?? {})
         .use(YfmHeading, opts.yfmHeading ?? {})
         .use(YfmTable, opts.yfmTable ?? {})
-        .use(YfmTabs)
-        .use(YfmHtmlBlock, opts.yfmHtmlBlock ?? {});
+        .use(YfmTabs);
 };

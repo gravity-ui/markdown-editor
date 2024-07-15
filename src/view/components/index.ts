@@ -1,1 +1,1 @@
-export * from './HtmlView';
+export * from './YFMStaticView';

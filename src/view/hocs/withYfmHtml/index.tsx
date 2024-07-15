@@ -3,21 +3,27 @@ import React, {ComponentType, RefAttributes, forwardRef, useEffect} from 'react'
 import {useDiplodocHtml} from '@diplodoc/html-extension/react';
 
 import {IHTMLIFrameElementConfig} from '../../../extensions';
+import type {PluginRuntime, TransformMeta} from '../withMermaid/types';
 
 import {useYfmHtmlBlockRuntime} from './useYfmHtmlBlockRuntime';
 
+export type WithYfmHtmlBlockOptions = {
+    runtime: PluginRuntime;
+};
+
 export type WithYfmHtmlBlockProps = {
+    meta: TransformMeta;
     yfmHtmlBlockConfig?: IHTMLIFrameElementConfig;
 };
 
-export function withYfmHtmlBlock() {
+export function withYfmHtmlBlock(opts: WithYfmHtmlBlockOptions) {
     return <T extends {html: string}>(
         Component: ComponentType<T & RefAttributes<HTMLDivElement>>,
     ) =>
         forwardRef<HTMLDivElement, T & WithYfmHtmlBlockProps>(function WithYfmHtml(props, ref) {
-            const {html, yfmHtmlBlockConfig} = props;
+            const {meta, html, yfmHtmlBlockConfig} = props;
 
-            useYfmHtmlBlockRuntime();
+            useYfmHtmlBlockRuntime(meta, opts.runtime);
 
             const yfmHtmlBlock = useDiplodocHtml();
 

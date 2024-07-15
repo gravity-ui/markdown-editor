@@ -12,7 +12,6 @@ import {YfmPreset, YfmPresetOptions} from '../presets/yfm';
 import {ZeroPreset, ZeroPresetOptions} from '../presets/zero';
 import {Action as A, formatter as f} from '../shortcuts';
 import type {FileUploadHandler} from '../utils/upload';
-import useYfmHtmlBlockStyles from '../view/hooks/useYfmHtmlBlockStyles';
 
 import {EditorPreset} from './Editor';
 import {wCommandMenuConfigByPreset, wSelectionMenuConfigByPreset} from './config/wysiwyg';
@@ -133,9 +132,6 @@ export const BundlePreset: ExtensionAuto<BundlePresetOptions> = (builder, opts) 
             headingPlaceholder: (node: Node) =>
                 `${i18nPlaceholder('heading')} ${node.attrs[YfmHeadingAttr.Level]}`, // todo: remove attrs import
             ...opts.yfmHeading,
-        },
-        yfmHtmlBlock: {
-            useConfig: useYfmHtmlBlockStyles,
         },
         placeholder: {
             [YfmNoteNode.NoteContent]: () => i18nPlaceholder('note_content'),

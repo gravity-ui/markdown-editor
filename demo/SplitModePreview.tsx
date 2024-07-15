@@ -5,19 +5,21 @@ import {useThemeValue} from '@gravity-ui/uikit';
 
 import {MarkupString, colorClassName} from '../src';
 import {debounce} from '../src/lodash';
-import {HtmlView} from '../src/view/components/HtmlView';
+import {YFMStaticView} from '../src/view/components/YFMStaticView';
 import {withLatex} from '../src/view/hocs/withLatex';
 import {MermaidConfig, withMermaid} from '../src/view/hocs/withMermaid';
 import {withYfmHtmlBlock} from '../src/view/hocs/withYfmHtml';
-import useYfmHtmlBlockStyles from '../src/view/hooks/useYfmHtmlBlockStyles';
 
-import {LATEX_RUNTIME, MERMAID_RUNTIME} from './md-plugins';
+import useYfmHtmlBlockStyles from './hooks/useYfmHtmlBlockStyles';
+import {LATEX_RUNTIME, MERMAID_RUNTIME, YFM_HTML_BLOCK_RUNTIME} from './md-plugins';
 
 const ML_ATTR = 'data-ml';
 const mermaidConfig: MermaidConfig = {theme: 'forest'};
 
 const Preview = withMermaid({runtime: MERMAID_RUNTIME})(
-    withLatex({runtime: LATEX_RUNTIME})(withYfmHtmlBlock()(HtmlView)),
+    withLatex({runtime: LATEX_RUNTIME})(
+        withYfmHtmlBlock({runtime: YFM_HTML_BLOCK_RUNTIME})(YFMStaticView),
+    ),
 );
 
 export type SplitModePreviewProps = {

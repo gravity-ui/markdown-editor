@@ -17,30 +17,13 @@ const YfmHtmlBlockStyles = {
 
 type Styles = Partial<Record<keyof typeof YfmHtmlBlockStyles, string>>;
 
-export const getYfmHtmlBlockCssVariables = ({
-    colorTextPrimary,
-    colorTextSecondary,
-    colorBackground,
-    colorBackgroundSecondary,
-    colorLink,
-    colorLinkHover,
-    colorLinkVisited,
-    font,
-    fontSize,
-    fontFamily,
-    lineHeight,
-}: Styles) => ({
-    ...(colorTextPrimary && {[YfmHtmlBlockStyles.colorTextPrimary]: colorTextPrimary}),
-    ...(colorTextSecondary && {[YfmHtmlBlockStyles.colorTextSecondary]: colorTextSecondary}),
-    ...(colorBackground && {[YfmHtmlBlockStyles.colorBackground]: colorBackground}),
-    ...(colorBackgroundSecondary && {
-        [YfmHtmlBlockStyles.colorBackgroundSecondary]: colorBackgroundSecondary,
-    }),
-    ...(colorLink && {[YfmHtmlBlockStyles.colorLink]: colorLink}),
-    ...(colorLinkHover && {[YfmHtmlBlockStyles.colorLinkHover]: colorLinkHover}),
-    ...(colorLinkVisited && {[YfmHtmlBlockStyles.colorLinkVisited]: colorLinkVisited}),
-    ...(font && {[YfmHtmlBlockStyles.font]: font}),
-    ...(fontSize && {[YfmHtmlBlockStyles.fontSize]: fontSize}),
-    ...(fontFamily && {[YfmHtmlBlockStyles.fontFamily]: fontFamily}),
-    ...(lineHeight && {[YfmHtmlBlockStyles.lineHeight]: lineHeight}),
-});
+export const getYfmHtmlBlockCssVariables = (styles: Styles) => {
+    const obj: Record<string, string> = {};
+
+    for (const key of Object.keys(styles) as (keyof typeof YfmHtmlBlockStyles)[]) {
+        if (YfmHtmlBlockStyles[key]) {
+            obj[YfmHtmlBlockStyles[key]] = styles[key]!;
+        }
+    }
+    return obj;
+};

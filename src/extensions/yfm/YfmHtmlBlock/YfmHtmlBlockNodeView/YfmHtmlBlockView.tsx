@@ -14,8 +14,8 @@ import {removeNode} from '../../../../utils/remove-node';
 import {YfmHtmlBlockConsts} from '../YfmHtmlBlockSpecs/const';
 import {IHTMLIFrameElementConfig} from '../index';
 
-export const cnYfmHtmlBlock = cn('YfmHtmlBlock');
-export const cnHelper = cn('YfmHtmlBlockHelper');
+export const cnYfmHtmlBlock = cn('yfm-html-block');
+export const cnHelper = cn('yfm-html-block-helper');
 
 import './YfmHtmlBlock.scss';
 
@@ -152,7 +152,7 @@ const YfmHtmlBlockPreview: React.FC<YfmHtmlBlockViewProps> = ({html, onСlick, c
             ref={ref}
             title={generateID()}
             frameBorder={0}
-            className={b('Content')}
+            className={b('content')}
             srcDoc={html}
         />
     );
@@ -162,16 +162,13 @@ const CodeEditMode: React.FC<{
     initialText: string;
     onSave: (v: string) => void;
     onCancel: () => void;
-    config?: IHTMLIFrameElementConfig;
-}> = ({initialText, onSave, onCancel, config}) => {
+}> = ({initialText, onSave, onCancel}) => {
     const [text, setText] = useState(initialText || '\n');
 
     return (
         <div className={b({editing: true})}>
-            <div className={b('Editor')}>
+            <div className={b('editor')}>
                 <TextArea
-                    style={config?.styles}
-                    className={b('CodeEditor', config?.classNames?.join())}
                     controlProps={{
                         className: cnHelper({'prosemirror-stop-event': true}),
                     }}
@@ -182,7 +179,7 @@ const CodeEditMode: React.FC<{
                     autoFocus
                 />
 
-                <div className={b('Controls')}>
+                <div className={b('controls')}>
                     <div>
                         <Button onClick={onCancel} view={'flat'}>
                             <span className={cnHelper({'prosemirror-stop-event': true})}>
@@ -224,7 +221,6 @@ export const YfmHtmlBlockView: React.FC<{
     if (editing) {
         return (
             <CodeEditMode
-                config={config}
                 initialText={node.attrs[YfmHtmlBlockConsts.NodeAttrs.srcdoc]}
                 onCancel={unsetEditing}
                 onSave={(v) => {
@@ -237,7 +233,7 @@ export const YfmHtmlBlockView: React.FC<{
 
     return (
         <div className={b()} onDoubleClick={setEditing}>
-            <Label className={b('Label')} icon={<Icon size={16} data={Eye} />}>
+            <Label className={b('label')} icon={<Icon size={16} data={Eye} />}>
                 {i18n('preview')}
             </Label>
             <YfmHtmlBlockPreview
@@ -246,7 +242,7 @@ export const YfmHtmlBlockView: React.FC<{
                 config={config}
             />
 
-            <div className={b('Menu')}>
+            <div className={b('menu')}>
                 <Button
                     onClick={toggleMenuOpen}
                     ref={buttonRef}

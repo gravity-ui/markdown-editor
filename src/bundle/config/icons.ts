@@ -6,7 +6,6 @@ import {
     CutIcon,
     EmojiIcon,
     FileIcon,
-    FolderCodeIcon,
     FunctionBlockIcon,
     FunctionInlineIcon,
     HRuleIcon,
@@ -17,6 +16,7 @@ import {
     Heading5Icon,
     Heading6Icon,
     HeadingIcon,
+    HtmlBlockIcon,
     ImageIcon,
     ItalicIcon,
     LiftIcon,
@@ -123,7 +123,7 @@ export const icons: Icons = {
     quote: {data: QuoteIcon},
     checklist: {data: CheckListIcon},
 
-    html: {data: FolderCodeIcon},
+    html: {data: HtmlBlockIcon},
     horizontalRule: {data: HRuleIcon},
 
     file: {data: FileIcon},

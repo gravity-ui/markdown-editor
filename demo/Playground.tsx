@@ -16,6 +16,7 @@ import {
 import type {ToolbarActionData} from '../src/bundle/Editor';
 import {Math} from '../src/extensions/yfm/Math';
 import {Mermaid} from '../src/extensions/yfm/Mermaid';
+import {YfmHtmlBlock} from '../src/extensions/yfm/YfmHtmlBlock';
 import {cloneDeep} from '../src/lodash';
 import type {FileUploadHandler} from '../src/utils/upload';
 import {VERSION} from '../src/version';
@@ -25,6 +26,7 @@ import {WysiwygDevTools} from './ProseMirrorDevTools';
 import {SplitModePreview} from './SplitModePreview';
 import {block} from './cn';
 import {randomDelay} from './delay';
+import useYfmHtmlBlockStyles from './hooks/useYfmHtmlBlockStyles';
 import {debouncedUpdateLocation as updateLocation} from './location';
 import {plugins} from './md-plugins';
 
@@ -155,6 +157,9 @@ export const Playground = React.memo<PlaygroundProps>((props) => {
                             /* webpackChunkName: "mermaid-runtime" */ '@diplodoc/mermaid-extension/runtime'
                         );
                     },
+                })
+                .use(YfmHtmlBlock, {
+                    useConfig: useYfmHtmlBlockStyles,
                 }),
     });
 
