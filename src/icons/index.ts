@@ -57,5 +57,5 @@ export {
     LayoutColumns3 as LayoutIcon,
     //
     Pencil as DrawIoIcon,
-    FolderCode as FolderCodeIcon,
+    FolderCode as HtmlBlockIcon,
 } from '@gravity-ui/icons';
