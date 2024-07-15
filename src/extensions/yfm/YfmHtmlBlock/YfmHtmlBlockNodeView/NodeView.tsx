@@ -31,7 +31,7 @@ export class WYfmHtmlBlockNodeView implements NodeView {
     }) {
         this.node = node;
         this.dom = document.createElement('div');
-        this.dom.classList.add('yfmHtmlBlock-container');
+        this.dom.classList.add('yfm-html-block-container');
         this.dom.contentEditable = 'false';
         this.view = view;
         this.getPos = getPos;
