@@ -9,8 +9,8 @@ import {HtmlView} from '../src/view/components/HtmlView';
 import {withLatex} from '../src/view/hocs/withLatex';
 import {MermaidConfig, withMermaid} from '../src/view/hocs/withMermaid';
 import {withYfmHtmlBlock} from '../src/view/hocs/withYfmHtml';
+import useYfmHtmlBlockStyles from '../src/view/hooks/useYfmHtmlBlockStyles';
 
-import {useYfmHtmlBlockStyles} from './hooks/useYfmHtmlBlockStyles';
 import {LATEX_RUNTIME, MERMAID_RUNTIME} from './md-plugins';
 
 const ML_ATTR = 'data-ml';
