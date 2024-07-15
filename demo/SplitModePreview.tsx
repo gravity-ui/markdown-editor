@@ -5,7 +5,7 @@ import {useThemeValue} from '@gravity-ui/uikit';
 
 import {MarkupString, colorClassName} from '../src';
 import {debounce} from '../src/lodash';
-import {YFMStaticView} from '../src/view/components/YFMStaticView';
+import {YFMStaticView} from '../src/view/components/YFMHtml';
 import {withLatex} from '../src/view/hocs/withLatex';
 import {MermaidConfig, withMermaid} from '../src/view/hocs/withMermaid';
 import {withYfmHtmlBlock} from '../src/view/hocs/withYfmHtml';
