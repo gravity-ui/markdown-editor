@@ -1,4 +1,4 @@
-import {IHTMLIFrameElementConfig} from '@diplodoc/html-extension/runtime';
+import type {IHTMLIFrameElementConfig} from '@diplodoc/html-extension/runtime';
 
 import {Action, ExtensionAuto, ExtensionDeps, NodeViewConstructor} from '../../../core';
 
