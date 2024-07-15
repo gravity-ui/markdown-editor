@@ -4,14 +4,14 @@ import {classnames} from '@bem-react/classnames';
 
 import {ClassNameProps} from '../../../classname';
 
-export type YFMStaticViewProps = ClassNameProps & {
+export type YfmStaticViewProps = ClassNameProps & {
     html: string;
     linksVisited?: boolean;
     noListReset?: boolean;
     qa?: string;
 };
 
-export const YFMStaticView = forwardRef<HTMLDivElement, YFMStaticViewProps>(
+export const YfmStaticView = forwardRef<HTMLDivElement, YfmStaticViewProps>(
     function YFMStaticView(props, ref) {
         const {html, linksVisited, noListReset, className, qa} = props;
 

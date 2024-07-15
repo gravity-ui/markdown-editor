@@ -5,7 +5,7 @@ import {useThemeValue} from '@gravity-ui/uikit';
 
 import {MarkupString, colorClassName} from '../src';
 import {debounce} from '../src/lodash';
-import {YFMStaticView} from '../src/view/components/YFMHtml';
+import {YfmStaticView} from '../src/view/components/YfmHtml';
 import {withLatex} from '../src/view/hocs/withLatex';
 import {MermaidConfig, withMermaid} from '../src/view/hocs/withMermaid';
 import {withYfmHtmlBlock} from '../src/view/hocs/withYfmHtml';
@@ -18,7 +18,7 @@ const mermaidConfig: MermaidConfig = {theme: 'forest'};
 
 const Preview = withMermaid({runtime: MERMAID_RUNTIME})(
     withLatex({runtime: LATEX_RUNTIME})(
-        withYfmHtmlBlock({runtime: YFM_HTML_BLOCK_RUNTIME})(YFMStaticView),
+        withYfmHtmlBlock({runtime: YFM_HTML_BLOCK_RUNTIME})(YfmStaticView),
     ),
 );
 
