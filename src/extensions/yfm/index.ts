@@ -8,7 +8,6 @@ export * from './YfmConfigs';
 export * from './YfmCut';
 export * from './YfmFile';
 export * from './YfmHeading';
-export * from './YfmHtmlBlock';
 export * from './YfmNote';
 export * from './YfmTable';
 export * from './YfmTabs';
