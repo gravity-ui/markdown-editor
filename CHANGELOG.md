@@ -1,5 +1,18 @@
 # Changelog
 
+## [13.3.0](https://github.com/gravity-ui/markdown-editor/compare/v13.2.0...v13.3.0) (2024-07-15)
+
+
+### Features
+
+* **bundle:** prevent loss of focus after pressing tab or shift+tab ([#287](https://github.com/gravity-ui/markdown-editor/issues/287)) ([63feec2](https://github.com/gravity-ui/markdown-editor/commit/63feec2ffbe46d540f9003698be887511f84f725))
+* pass extra codemirror extensions ([#289](https://github.com/gravity-ui/markdown-editor/issues/289)) ([4996b12](https://github.com/gravity-ui/markdown-editor/commit/4996b122da55a9505af591353d33484af30b66d9))
+
+
+### Bug Fixes
+
+* **markup:** insert tab when selection is empty ([#286](https://github.com/gravity-ui/markdown-editor/issues/286)) ([cba9f28](https://github.com/gravity-ui/markdown-editor/commit/cba9f286ba7def9211a3038b263c6c7c779541d3))
+
 ## [13.2.0](https://github.com/gravity-ui/markdown-editor/compare/v13.1.2...v13.2.0) (2024-07-10)
 
 
