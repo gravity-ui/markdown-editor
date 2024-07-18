@@ -35,7 +35,8 @@ export const removeColumn: Command = (
                 if (!isTableCellNode(cellNode)) return;
 
                 if (cellIndex === columnNumber) {
-                    const from = tablePos + 1 + rowOffset + 1 + cellOffset;
+                    // table -> tbody -> tr -> td
+                    const from = tablePos + 2 + rowOffset + 1 + cellOffset;
                     const to = from + cellNode.nodeSize;
                     tr.delete(tr.mapping.map(from), tr.mapping.map(to));
                 }
