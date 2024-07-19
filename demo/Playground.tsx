@@ -52,6 +52,7 @@ const wCommandMenuConfig = wysiwygToolbarConfigs.wCommandMenuConfig.concat(
     wysiwygToolbarConfigs.wMathInlineItemData,
     wysiwygToolbarConfigs.wMathBlockItemData,
     wysiwygToolbarConfigs.wMermaidItemData,
+    wysiwygToolbarConfigs.wYfmHtmlBlockItemData,
 );
 
 export type PlaygroundProps = {
