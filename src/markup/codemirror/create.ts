@@ -7,6 +7,7 @@ import {
     insertTab,
 } from '@codemirror/commands';
 import {syntaxHighlighting} from '@codemirror/language';
+import {searchKeymap} from '@codemirror/search';
 import type {Extension, StateCommand} from '@codemirror/state';
 import {EditorView, EditorViewConfig, keymap, placeholder} from '@codemirror/view';
 
@@ -36,6 +37,7 @@ import {FileUploadHandler, FileUploadHandlerFacet} from './files-upload-facet';
 import {gravityHighlightStyle, gravityTheme} from './gravity';
 import {PairingCharactersExtension} from './pairing-chars';
 import {ReactRendererFacet} from './react-facet';
+import {customSearch} from './search';
 import {yfmLang} from './yfm';
 
 export type CreateCodemirrorParams = {
@@ -106,6 +108,7 @@ export function createCodemirror(params: CreateCodemirrorParams) {
             indentWithTab,
             ...defaultKeymap,
             ...historyKeymap,
+            ...searchKeymap,
         ]),
         autocompletion(),
         yfmLang(),
@@ -118,6 +121,7 @@ export function createCodemirror(params: CreateCodemirrorParams) {
                 onScroll(event);
             },
         }),
+        customSearch(),
     ];
     if (params.uploadHandler) {
         extensions.push(
