@@ -11,11 +11,11 @@ export const customSearch = () =>
     search({
         caseSensitive: false, // Ignore case sensitivity
         scrollToMatch: (range) => EditorView.scrollIntoView(range), // Scroll to the match
-        createPanel: () => {
+        createPanel: (view) => {
             const dom = document.createElement('div');
             const root = createRoot(dom);
 
-            root.render(React.createElement(SearchPanel, {onSearch: () => {}}));
+            root.render(React.createElement(SearchPanel, {view, onSearch: () => {}}));
 
             return {dom};
         },
