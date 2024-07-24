@@ -15,6 +15,7 @@ import {
 } from '@gravity-ui/uikit';
 
 import {cn} from '../../../../classname';
+import {i18n} from '../../../../i18n/search';
 import {Key} from '../../../../shortcuts';
 import {combinedKeyHandler} from '../../../../utils/handlers';
 
@@ -37,6 +38,8 @@ interface SearchCardProps {
 const b = cn('search-card');
 
 const noop = () => {};
+
+const i18nSearch = i18n.bind(null);
 
 export const SearchCard: React.FC<SearchCardProps> = ({
     onChange = noop,
@@ -105,7 +108,7 @@ export const SearchCard: React.FC<SearchCardProps> = ({
     return (
         <Card className={b()}>
             <div className={b('header')}>
-                <span className={b('title')}>Search in code</span>
+                <span className={b('title')}> {i18nSearch('title')}</span>
                 <Button onClick={handleClose} size="s" view="flat">
                     <Icon data={Xmark} size={14} />
                 </Button>
@@ -135,10 +138,10 @@ export const SearchCard: React.FC<SearchCardProps> = ({
                 checked={isCaseSensitive}
                 className={sp({mr: 4})}
             >
-                Case sensitive
+                {i18nSearch('label_case-sensitive')}
             </Checkbox>
             <Checkbox size="m" onUpdate={handleIsWholeWord} checked={isWholeWord}>
-                Whole word
+                {i18nSearch('label_whole-word')}
             </Checkbox>
         </Card>
     );
