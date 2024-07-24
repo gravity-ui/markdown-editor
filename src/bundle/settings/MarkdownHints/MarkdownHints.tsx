@@ -8,7 +8,6 @@ import {cn} from '../../../classname';
 import './MarkdownHints.scss';
 
 const b = cn('markdown-hints');
-const YFM_DOCS_HREF = 'https://ydocs.tech';
 
 export const MarkdownHints = React.memo(function MarkdownHints() {
     const hints = [
@@ -35,7 +34,7 @@ export const MarkdownHints = React.memo(function MarkdownHints() {
                 ))}
             </div>
 
-            <Link href={YFM_DOCS_HREF} target="_blank" className={b('docs-link')}>
+            <Link href={i18n('documentation_link')} target="_blank" className={b('docs-link')}>
                 {i18n('documentation')}
             </Link>
         </div>
