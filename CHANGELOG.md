@@ -1,5 +1,13 @@
 # Changelog
 
+## [13.4.1](https://github.com/gravity-ui/markdown-editor/compare/v13.4.0...v13.4.1) (2024-07-19)
+
+
+### Bug Fixes
+
+* **presets:** fixed yfm and full presets ([#294](https://github.com/gravity-ui/markdown-editor/issues/294)) ([1cc1881](https://github.com/gravity-ui/markdown-editor/commit/1cc1881c048c0634db42728104c3fd01e0b76d79))
+* **table-utils:** fixed remove first column ([#291](https://github.com/gravity-ui/markdown-editor/issues/291)) ([a27d454](https://github.com/gravity-ui/markdown-editor/commit/a27d454f3a29671f5707805fc23bd1c0746ac192))
+
 ## [13.4.0](https://github.com/gravity-ui/markdown-editor/compare/v13.3.0...v13.4.0) (2024-07-15)
 
 

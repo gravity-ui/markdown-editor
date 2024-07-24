@@ -483,7 +483,6 @@ export const wCommandMenuConfig: WToolbarItemData[] = [
     // wMathInlineItemData,
     // wMathBlockItemData,
     wTabsItemData,
-    wYfmHtmlBlockItemData,
 ];
 
 export const wHiddenData = wCommandMenuConfig;
@@ -661,7 +660,6 @@ export const wCommandMenuConfigByPreset: Record<EditorPreset, WToolbarItemData[]
         wHruleItemData,
         wFileItemData,
         wTabsItemData,
-        wYfmHtmlBlockItemData,
     ],
     full: wCommandMenuConfig.slice(),
 };
