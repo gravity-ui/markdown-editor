@@ -10,6 +10,7 @@ import {
     setSearchQuery,
 } from '@codemirror/search';
 import {EditorView, PluginValue, ViewPlugin, ViewUpdate} from '@codemirror/view';
+import debounce from 'lodash/debounce';
 
 import type {RendererItem} from '../../../extensions';
 import {ReactRendererFacet} from '../react-facet';
@@ -26,6 +27,8 @@ interface SearchQueryParams {
     wholeWord?: boolean;
 }
 
+const INPUT_DELAY = 200;
+
 export const SearchPanelPlugin = ViewPlugin.fromClass(
     class implements PluginValue {
         readonly view: EditorView;
@@ -37,6 +40,7 @@ export const SearchPanelPlugin = ViewPlugin.fromClass(
             caseSensitive: false,
             wholeWord: false,
         };
+        setViewSearchWithDelay: (config: Partial<SearchQueryParams>) => void;
 
         constructor(view: EditorView) {
             this.view = view;
@@ -48,6 +52,7 @@ export const SearchPanelPlugin = ViewPlugin.fromClass(
             this.handleSearchNext = this.handleSearchNext.bind(this);
             this.handleSearchPrev = this.handleSearchPrev.bind(this);
             this.handleSearchConfigChange = this.handleSearchConfigChange.bind(this);
+            this.setViewSearchWithDelay = debounce(this.setViewSearch, INPUT_DELAY);
         }
 
         update(update: ViewUpdate): void {
@@ -90,8 +95,7 @@ export const SearchPanelPlugin = ViewPlugin.fromClass(
         }
 
         handleChange(search: string) {
-            // TODO: @makhnatkin add debounce
-            this.setViewSearch({search});
+            this.setViewSearchWithDelay({search});
         }
 
         handleClose() {
