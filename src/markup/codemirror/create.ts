@@ -37,7 +37,7 @@ import {FileUploadHandler, FileUploadHandlerFacet} from './files-upload-facet';
 import {gravityHighlightStyle, gravityTheme} from './gravity';
 import {PairingCharactersExtension} from './pairing-chars';
 import {ReactRendererFacet} from './react-facet';
-import {customSearch} from './search';
+import {SearchPanelPlugin, removeDefaultSearch} from './search-plugin/plugin';
 import {yfmLang} from './yfm';
 
 export type CreateCodemirrorParams = {
@@ -121,7 +121,8 @@ export function createCodemirror(params: CreateCodemirrorParams) {
                 onScroll(event);
             },
         }),
-        customSearch(),
+        removeDefaultSearch,
+        SearchPanelPlugin,
     ];
     if (params.uploadHandler) {
         extensions.push(

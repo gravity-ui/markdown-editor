@@ -5,11 +5,11 @@ import {Tabs, TextInput, TextInputProps} from '@gravity-ui/uikit';
 import {ClassNameProps, cn} from '../classname';
 import {i18n} from '../i18n/forms';
 import {isFunction} from '../lodash';
+import {enterKeyHandler} from '../utils/handlers';
 
 import {TextInputFixed} from './TextInput';
 import Form from './base';
 import {ButtonAttach, NumberInput} from './components';
-import {enterKeyHandler} from './utils';
 
 import './ImageForm.scss';
 

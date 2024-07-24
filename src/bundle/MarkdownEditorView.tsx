@@ -284,6 +284,7 @@ function Settings(props: EditorSettingsProps & {stickyToolbar: boolean}) {
                 })}
             >
                 <EditorSettings {...props} />
+                <div className="g-md-search-anchor"></div>
             </div>
         </div>
     );

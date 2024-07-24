@@ -4,11 +4,11 @@ import {TextInput, TextInputProps} from '@gravity-ui/uikit';
 
 import {ClassNameProps} from '../classname';
 import {i18n} from '../i18n/forms';
+import {enterKeyHandler} from '../utils/handlers';
 
 import {TextInputFixed} from './TextInput';
 import {UrlInputRow} from './UrlInputRow';
 import Form from './base';
-import {enterKeyHandler} from './utils';
 
 export type LinkFormSubmitParams = {
     url: string;
