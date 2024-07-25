@@ -271,6 +271,12 @@ export const MarkdownEditorView = React.forwardRef<HTMLDivElement, MarkdownEdito
 );
 MarkdownEditorView.displayName = 'MarkdownEditorView';
 
+interface MarkupSearchAnchorProps extends Pick<EditorSettingsProps, 'mode'> {}
+
+const MarkupSearchAnchor: React.FC<MarkupSearchAnchorProps> = ({mode}) => (
+    <>{mode === 'markup' && <div className="g-md-search-anchor"></div>}</>
+);
+
 function Settings(props: EditorSettingsProps & {stickyToolbar: boolean}) {
     const wrapperRef = useRef<HTMLDivElement>(null);
     const isSticky = useSticky(wrapperRef) && props.toolbarVisibility && props.stickyToolbar;
@@ -284,7 +290,7 @@ function Settings(props: EditorSettingsProps & {stickyToolbar: boolean}) {
                 })}
             >
                 <EditorSettings {...props} />
-                <div className="g-md-search-anchor"></div>
+                <MarkupSearchAnchor {...props} />
             </div>
         </div>
     );

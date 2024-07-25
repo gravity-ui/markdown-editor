@@ -37,8 +37,6 @@ const b = cn('search-card');
 
 const noop = () => {};
 
-const i18nSearch = i18n.bind(null);
-
 export const SearchCard: React.FC<SearchCardProps> = ({
     onChange = noop,
     onClose = noop,
@@ -103,7 +101,7 @@ export const SearchCard: React.FC<SearchCardProps> = ({
     return (
         <Card className={b()}>
             <div className={b('header')}>
-                <span className={b('title')}> {i18nSearch('title')}</span>
+                <span className={b('title')}> {i18n('title')}</span>
                 <Button onClick={handleClose} size="s" view="flat">
                     <Icon data={Xmark} size={14} />
                 </Button>
@@ -133,10 +131,10 @@ export const SearchCard: React.FC<SearchCardProps> = ({
                 checked={isCaseSensitive}
                 className={sp({mr: 4})}
             >
-                {i18nSearch('label_case-sensitive')}
+                {i18n('label_case-sensitive')}
             </Checkbox>
             <Checkbox size="m" onUpdate={handleIsWholeWord} checked={isWholeWord}>
-                {i18nSearch('label_whole-word')}
+                {i18n('label_whole-word')}
             </Checkbox>
         </Card>
     );
@@ -156,18 +154,14 @@ export const SearchPopup: React.FC<SearchPopupProps> = ({open, anchor, onClose, 
     const anchorRef = useRef<HTMLElement>(anchor);
 
     return (
-        <>
-            {anchorRef && (
-                <Popup
-                    onEscapeKeyDown={onClose}
-                    open={open}
-                    anchorRef={anchorRef as PopoverAnchorRef}
-                    placement="bottom-end"
-                >
-                    <SearchCard onClose={onClose} {...props} />
-                </Popup>
-            )}
-        </>
+        <Popup
+            onEscapeKeyDown={onClose}
+            open={anchorRef.current && open}
+            anchorRef={anchorRef as PopoverAnchorRef}
+            placement="bottom-end"
+        >
+            <SearchCard onClose={onClose} {...props} />
+        </Popup>
     );
 };
 
