@@ -1,5 +1,13 @@
 # Changelog
 
+## [13.4.2](https://github.com/gravity-ui/markdown-editor/compare/v13.4.1...v13.4.2) (2024-07-25)
+
+
+### Bug Fixes
+
+* **main:** fix en yfm syntax documentation link ([#300](https://github.com/gravity-ui/markdown-editor/issues/300)) ([9b80812](https://github.com/gravity-ui/markdown-editor/commit/9b808128a2042a91cfeead70a2d1113c4fe55961))
+* **table:** fixed scroll for wide table inside the cut ([#296](https://github.com/gravity-ui/markdown-editor/issues/296)) ([33970cd](https://github.com/gravity-ui/markdown-editor/commit/33970cd23fd1230c5a43a32a2fe37fb3340dbcf5))
+
 ## [13.4.1](https://github.com/gravity-ui/markdown-editor/compare/v13.4.0...v13.4.1) (2024-07-19)
 
 
