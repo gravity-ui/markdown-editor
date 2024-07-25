@@ -19,5 +19,6 @@
   "list_hint": "- Ваш текст",
   "numbered-list_title": "Нумерованный список",
   "numbered-list_hint": "1. Ваш текст",
-  "documentation": "Документация"
+  "documentation": "Документация",
+  "documentation_link": " https://diplodoc.com/docs/ru/syntax/"
 }
