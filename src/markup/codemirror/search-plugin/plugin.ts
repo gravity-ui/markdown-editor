@@ -64,6 +64,7 @@ export const SearchPanelPlugin = ViewPlugin.fromClass(
                     .facet(ReactRendererFacet)
                     .createItem('cm-search', () =>
                         React.createElement(PortalWithPopup, {
+                            open: true,
                             anchor: this.anchor,
                             onChange: this.handleChange,
                             onClose: this.handleClose,

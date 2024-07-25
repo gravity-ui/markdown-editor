@@ -8,7 +8,6 @@ import {
     Icon,
     PopoverAnchorRef,
     Popup,
-    Portal,
     TextInput,
     TextInputProps,
     sp,
@@ -16,8 +15,7 @@ import {
 
 import {cn} from '../../../../classname';
 import {i18n} from '../../../../i18n/search';
-import {Key} from '../../../../shortcuts';
-import {combinedKeyHandler} from '../../../../utils/handlers';
+import {enterKeyHandler} from '../../../../utils/handlers';
 
 import './SearchPopup.scss';
 
@@ -100,10 +98,7 @@ export const SearchCard: React.FC<SearchCardProps> = ({
         setInputFocus();
     };
 
-    const handleSearchKeyPress: TextInputProps['onKeyPress'] = combinedKeyHandler({
-        [Key.Enter]: handleNext,
-        [Key.Esc]: handleClose,
-    });
+    const handleSearchKeyPress: TextInputProps['onKeyPress'] = enterKeyHandler(handleNext);
 
     return (
         <Card className={b()}>
@@ -157,14 +152,19 @@ export interface SearchPopupProps {
     open: boolean;
 }
 
-export const SearchPopup: React.FC<SearchPopupProps> = ({open, anchor, ...props}) => {
+export const SearchPopup: React.FC<SearchPopupProps> = ({open, anchor, onClose, ...props}) => {
     const anchorRef = useRef<HTMLElement>(anchor);
 
     return (
         <>
             {anchorRef && (
-                <Popup open={open} anchorRef={anchorRef as PopoverAnchorRef} placement="bottom-end">
-                    <SearchCard {...props} />
+                <Popup
+                    onEscapeKeyDown={onClose}
+                    open={open}
+                    anchorRef={anchorRef as PopoverAnchorRef}
+                    placement="bottom-end"
+                >
+                    <SearchCard onClose={onClose} {...props} />
                 </Popup>
             )}
         </>
@@ -173,24 +173,11 @@ export const SearchPopup: React.FC<SearchPopupProps> = ({open, anchor, ...props}
 
 SearchPopup.displayName = 'SearchPopup';
 
-interface PopupWithRefProps extends Omit<SearchPopupProps, 'open' | 'anchor'> {
+interface PopupWithRefProps extends Omit<SearchPopupProps, 'anchor'> {
     anchor: HTMLElement | null;
 }
-export const PortalWithPopup: React.FC<PopupWithRefProps> = ({anchor, onClose, ...props}) => {
-    const [open, setOpen] = useState(true);
-
-    const handleClose = () => {
-        setOpen(false);
-        onClose();
-    };
-
+export const PortalWithPopup: React.FC<PopupWithRefProps> = ({anchor, open, onClose, ...props}) => {
     return (
-        <>
-            {anchor && (
-                <Portal container={anchor}>
-                    <SearchPopup open={open} onClose={handleClose} anchor={anchor} {...props} />
-                </Portal>
-            )}
-        </>
+        <>{anchor && <SearchPopup open={open} onClose={onClose} anchor={anchor} {...props} />}</>
     );
 };
