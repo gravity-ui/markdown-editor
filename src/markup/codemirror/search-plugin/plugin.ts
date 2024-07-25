@@ -6,10 +6,11 @@ import {
     findNext,
     findPrevious,
     search,
+    searchKeymap,
     searchPanelOpen,
     setSearchQuery,
 } from '@codemirror/search';
-import {EditorView, PluginValue, ViewPlugin, ViewUpdate} from '@codemirror/view';
+import {EditorView, PluginValue, ViewPlugin, ViewUpdate, keymap} from '@codemirror/view';
 import debounce from 'lodash/debounce';
 
 import type {RendererItem} from '../../../extensions';
@@ -125,12 +126,15 @@ export const SearchPanelPlugin = ViewPlugin.fromClass(
             });
         }
     },
-    {},
+    {
+        provide: () => [
+            keymap.of(searchKeymap),
+            search({
+                createPanel: () => ({
+                    // Create an empty search panel
+                    dom: document.createElement('div'),
+                }),
+            }),
+        ],
+    },
 );
-
-export const removeDefaultSearch = search({
-    createPanel: () => ({
-        // Create an empty search panel
-        dom: document.createElement('div'),
-    }),
-});
