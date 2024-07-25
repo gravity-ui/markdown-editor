@@ -19,5 +19,6 @@
   "list_hint": "- Your text",
   "numbered-list_title": "Numbered list",
   "numbered-list_hint": "1. Your text",
-  "documentation": "Documentation"
+  "documentation": "Documentation",
+  "documentation_link": " https://diplodoc.com/docs/en/syntax/"
 }
