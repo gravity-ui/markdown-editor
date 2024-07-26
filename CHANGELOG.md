@@ -1,5 +1,13 @@
 # Changelog
 
+## [13.5.1](https://github.com/gravity-ui/markdown-editor/compare/v13.5.0...v13.5.1) (2024-07-26)
+
+
+### Bug Fixes
+
+* **yfmHtmlBlock:** added sanitize prop to YfmHtmlBlock wysiwyg extension ([#304](https://github.com/gravity-ui/markdown-editor/issues/304)) ([d620fe7](https://github.com/gravity-ui/markdown-editor/commit/d620fe7c8f4d7aba37883b11bcfbfa235870dec6))
+* **yfmHtmlBlock:** added sanitize prop to YfmHtmlBlock wysiwyg extension ([#306](https://github.com/gravity-ui/markdown-editor/issues/306)) ([f3a480e](https://github.com/gravity-ui/markdown-editor/commit/f3a480e84b0a16146257f8d31f6d7826dbdca925))
+
 ## [13.5.0](https://github.com/gravity-ui/markdown-editor/compare/v13.4.2...v13.5.0) (2024-07-26)
 
 
