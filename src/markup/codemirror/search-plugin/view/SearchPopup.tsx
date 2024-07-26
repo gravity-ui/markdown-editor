@@ -167,11 +167,12 @@ export const SearchPopup: React.FC<SearchPopupProps> = ({open, anchor, onClose, 
 
 SearchPopup.displayName = 'SearchPopup';
 
-interface PopupWithRefProps extends Omit<SearchPopupProps, 'anchor'> {
+interface SearchPopupWithRefProps extends Omit<SearchPopupProps, 'anchor'> {
     anchor: HTMLElement | null;
 }
-export const PortalWithPopup: React.FC<PopupWithRefProps> = ({anchor, open, onClose, ...props}) => {
+
+export function renderSearchPopup({anchor, open, onClose, ...props}: SearchPopupWithRefProps) {
     return (
         <>{anchor && <SearchPopup open={open} onClose={onClose} anchor={anchor} {...props} />}</>
     );
-};
+}

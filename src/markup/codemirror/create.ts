@@ -10,10 +10,12 @@ import {syntaxHighlighting} from '@codemirror/language';
 import type {Extension, StateCommand} from '@codemirror/state';
 import {EditorView, EditorViewConfig, keymap, placeholder} from '@codemirror/view';
 
+import {EventMap} from '../../bundle/Editor';
 import {ActionName} from '../../bundle/config/action-names';
 import {ReactRenderStorage} from '../../extensions';
 import {logger} from '../../logger';
 import {Action as A, formatter as f} from '../../shortcuts';
+import {Receiver} from '../../utils';
 import {
     insertLink,
     toH1,
@@ -51,6 +53,7 @@ export type CreateCodemirrorParams = {
     uploadHandler?: FileUploadHandler;
     needImgDimms?: boolean;
     extraMarkupExtensions?: Extension[];
+    receiver?: Receiver<EventMap>;
 };
 
 export function createCodemirror(params: CreateCodemirrorParams) {
@@ -64,6 +67,7 @@ export function createCodemirror(params: CreateCodemirrorParams) {
         onChange,
         onDocChange,
         extraMarkupExtensions,
+        receiver,
     } = params;
 
     const extensions: Extension[] = [
@@ -119,7 +123,10 @@ export function createCodemirror(params: CreateCodemirrorParams) {
                 onScroll(event);
             },
         }),
-        SearchPanelPlugin,
+        SearchPanelPlugin({
+            anchorSelector: '.g-md-search-anchor',
+            receiver,
+        }),
     ];
     if (params.uploadHandler) {
         extensions.push(

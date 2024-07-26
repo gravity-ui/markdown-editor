@@ -1,5 +1,3 @@
-import React from 'react';
-
 import {
     SearchQuery,
     closeSearchPanel,
@@ -12,11 +10,13 @@ import {
 } from '@codemirror/search';
 import {EditorView, PluginValue, ViewPlugin, ViewUpdate, keymap} from '@codemirror/view';
 
+import {EditorMode, EventMap} from '../../../bundle/Editor';
 import type {RendererItem} from '../../../extensions';
 import {debounce} from '../../../lodash';
+import {Receiver} from '../../../utils';
 import {ReactRendererFacet} from '../react-facet';
 
-import {PortalWithPopup} from './view/SearchPopup';
+import {renderSearchPopup} from './view/SearchPopup';
 
 interface SearchQueryParams {
     search: string;
@@ -30,20 +30,17 @@ interface SearchQueryParams {
 
 const INPUT_DELAY = 200;
 
-export interface Options {
+export interface SearchPanelPluginParams {
+    anchorSelector: string;
     inputDelay?: number;
-    anchorSelector?: string;
+    receiver?: Receiver<EventMap>;
 }
 
-const defaultOptions: Options = {
-    inputDelay: 200,
-};
-
-export const SearchPanelPlugin = (options: Options = defaultOptions) =>
+export const SearchPanelPlugin = (params: SearchPanelPluginParams) =>
     ViewPlugin.fromClass(
         class implements PluginValue {
             readonly view: EditorView;
-            readonly options: Options;
+            readonly params: SearchPanelPluginParams;
 
             anchor: HTMLElement | null;
             renderer: RendererItem | null;
@@ -52,35 +49,40 @@ export const SearchPanelPlugin = (options: Options = defaultOptions) =>
                 caseSensitive: false,
                 wholeWord: false,
             };
+            receiver: Receiver<EventMap> | undefined;
+
             setViewSearchWithDelay: (config: Partial<SearchQueryParams>) => void;
 
             constructor(view: EditorView) {
                 this.view = view;
                 this.anchor = null;
                 this.renderer = null;
-                this.options = options;
+                this.params = params;
+                this.receiver = params.receiver;
 
                 this.handleClose = this.handleClose.bind(this);
                 this.handleChange = this.handleChange.bind(this);
                 this.handleSearchNext = this.handleSearchNext.bind(this);
                 this.handleSearchPrev = this.handleSearchPrev.bind(this);
                 this.handleSearchConfigChange = this.handleSearchConfigChange.bind(this);
+                this.handleEditorModeChange = this.handleEditorModeChange.bind(this);
+
                 this.setViewSearchWithDelay = debounce(
                     this.setViewSearch,
-                    this.options.inputDelay ?? INPUT_DELAY,
+                    this.params.inputDelay ?? INPUT_DELAY,
                 );
+                this.receiver?.on('change-editor-mode', this.handleEditorModeChange);
             }
 
             update(update: ViewUpdate): void {
                 const isPanelOpen = searchPanelOpen(update.state);
 
                 if (isPanelOpen && !this.renderer) {
-                    this.anchor =
-                        this.anchor ?? document.querySelector(this.options.anchorSelector ?? '');
+                    this.anchor = document.querySelector(this.params.anchorSelector);
                     this.renderer = this.view.state
                         .facet(ReactRendererFacet)
                         .createItem('cm-search', () =>
-                            React.createElement(PortalWithPopup, {
+                            renderSearchPopup({
                                 open: true,
                                 anchor: this.anchor,
                                 onChange: this.handleChange,
@@ -99,6 +101,7 @@ export const SearchPanelPlugin = (options: Options = defaultOptions) =>
             destroy() {
                 this.renderer?.remove();
                 this.renderer = null;
+                this.receiver?.off('change-editor-mode', this.handleEditorModeChange);
             }
 
             setViewSearch(config: Partial<SearchQueryParams>) {
@@ -111,6 +114,12 @@ export const SearchPanelPlugin = (options: Options = defaultOptions) =>
                 });
 
                 this.view.dispatch({effects: setSearchQuery.of(searchQuery)});
+            }
+
+            handleEditorModeChange({mode}: {mode: EditorMode}) {
+                if (mode === 'wysiwyg') {
+                    closeSearchPanel(this.view);
+                }
             }
 
             handleChange(search: string) {
