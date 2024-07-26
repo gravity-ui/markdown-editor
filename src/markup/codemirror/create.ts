@@ -10,10 +10,12 @@ import {syntaxHighlighting} from '@codemirror/language';
 import type {Extension, StateCommand} from '@codemirror/state';
 import {EditorView, EditorViewConfig, keymap, placeholder} from '@codemirror/view';
 
+import {EventMap} from '../../bundle/Editor';
 import {ActionName} from '../../bundle/config/action-names';
 import {ReactRenderStorage} from '../../extensions';
 import {logger} from '../../logger';
 import {Action as A, formatter as f} from '../../shortcuts';
+import {Receiver} from '../../utils';
 import {
     insertLink,
     toH1,
@@ -36,6 +38,7 @@ import {FileUploadHandler, FileUploadHandlerFacet} from './files-upload-facet';
 import {gravityHighlightStyle, gravityTheme} from './gravity';
 import {PairingCharactersExtension} from './pairing-chars';
 import {ReactRendererFacet} from './react-facet';
+import {SearchPanelPlugin} from './search-plugin/plugin';
 import {yfmLang} from './yfm';
 
 export type CreateCodemirrorParams = {
@@ -51,6 +54,7 @@ export type CreateCodemirrorParams = {
     needImgDimms?: boolean;
     extraMarkupExtensions?: Extension[];
     autocompletionConfig?: Parameters<typeof autocompletion>[0];
+    receiver?: Receiver<EventMap>;
 };
 
 export function createCodemirror(params: CreateCodemirrorParams) {
@@ -65,6 +69,7 @@ export function createCodemirror(params: CreateCodemirrorParams) {
         onDocChange,
         extraMarkupExtensions,
         autocompletionConfig,
+        receiver,
     } = params;
 
     const extensions: Extension[] = [
@@ -119,6 +124,10 @@ export function createCodemirror(params: CreateCodemirrorParams) {
             scroll(event) {
                 onScroll(event);
             },
+        }),
+        SearchPanelPlugin({
+            anchorSelector: '.g-md-search-anchor',
+            receiver,
         }),
     ];
     if (params.uploadHandler) {

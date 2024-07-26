@@ -31,7 +31,7 @@ export type ToolbarActionData = {
     attrs?: {[key: string]: any};
 };
 
-interface EventMap {
+export interface EventMap {
     change: null;
     cancel: null;
     submit: null;
@@ -276,6 +276,7 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
                     needImgDimms: this.needToSetDimensionsForUploadedImages,
                     extraMarkupExtensions: this.#extraMarkupExtensions,
                     autocompletionConfig: this.#autocompletionConfig,
+                    receiver: this,
                 }),
             );
         }
