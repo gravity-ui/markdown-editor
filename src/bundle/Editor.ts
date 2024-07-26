@@ -9,7 +9,7 @@ import {ActionStorage, WysiwygEditor, WysiwygEditorOptions} from '../core';
 import {ReactRenderStorage, RenderStorage} from '../extensions';
 import {i18n} from '../i18n/bundle';
 import {logger} from '../logger';
-import {createCodemirror} from '../markup/codemirror';
+import {CreateCodemirrorParams, createCodemirror} from '../markup/codemirror';
 import {CodeEditor, Editor as MarkupEditor} from '../markup/editor';
 import {Emitter, Receiver, SafeEventEmitter} from '../utils/event-emitter';
 import type {FileUploadHandler} from '../utils/upload';
@@ -137,6 +137,7 @@ export type EditorOptions = Pick<
     renderPreview?: RenderPreview;
     preset: EditorPreset;
     extraMarkupExtensions?: CodemirrorExtension[];
+    autocompletionConfig?: CreateCodemirrorParams['autocompletionConfig'];
 };
 
 /** @internal */
@@ -150,6 +151,7 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
     #wysiwygEditor?: WysiwygEditor;
     #markupEditor?: MarkupEditor;
     #extraMarkupExtensions?: CodemirrorExtension[];
+    #autocompletionConfig?: CreateCodemirrorParams['autocompletionConfig'];
 
     readonly #preset: EditorPreset;
     #allowHTML?: boolean;
@@ -273,6 +275,7 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
                     uploadHandler: this.fileUploadHandler,
                     needImgDimms: this.needToSetDimensionsForUploadedImages,
                     extraMarkupExtensions: this.#extraMarkupExtensions,
+                    autocompletionConfig: this.#autocompletionConfig,
                 }),
             );
         }
@@ -307,6 +310,7 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
         this.#allowHTML = opts.allowHTML;
         this.#extensions = opts.extensions;
         this.#extraMarkupExtensions = opts.extraMarkupExtensions;
+        this.#autocompletionConfig = opts.autocompletionConfig;
 
         this.#renderStorage = opts.renderStorage;
         this.#fileUploadHandler = opts.fileUploadHandler;

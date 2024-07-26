@@ -50,6 +50,7 @@ export type CreateCodemirrorParams = {
     uploadHandler?: FileUploadHandler;
     needImgDimms?: boolean;
     extraMarkupExtensions?: Extension[];
+    autocompletionConfig?: Parameters<typeof autocompletion>[0];
 };
 
 export function createCodemirror(params: CreateCodemirrorParams) {
@@ -63,6 +64,7 @@ export function createCodemirror(params: CreateCodemirrorParams) {
         onChange,
         onDocChange,
         extraMarkupExtensions,
+        autocompletionConfig,
     } = params;
 
     const extensions: Extension[] = [
@@ -107,7 +109,7 @@ export function createCodemirror(params: CreateCodemirrorParams) {
             ...defaultKeymap,
             ...historyKeymap,
         ]),
-        autocompletion(),
+        autocompletion(autocompletionConfig),
         yfmLang(),
         ReactRendererFacet.of(reactRenderer),
         PairingCharactersExtension,
