@@ -1,5 +1,12 @@
 # Changelog
 
+## [13.5.0](https://github.com/gravity-ui/markdown-editor/compare/v13.4.2...v13.5.0) (2024-07-26)
+
+
+### Features
+
+* **markup:** added markup search ([#295](https://github.com/gravity-ui/markdown-editor/issues/295)) ([48372a6](https://github.com/gravity-ui/markdown-editor/commit/48372a62db3da4ec92bd09e89ff5aee688cacdd7))
+
 ## [13.4.2](https://github.com/gravity-ui/markdown-editor/compare/v13.4.1...v13.4.2) (2024-07-25)
 
 
