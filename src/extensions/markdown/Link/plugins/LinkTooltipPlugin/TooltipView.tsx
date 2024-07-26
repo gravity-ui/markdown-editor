@@ -5,8 +5,8 @@ import type {TextInputProps} from '@gravity-ui/uikit';
 import {TextInputFixed} from '../../../../../forms/TextInput';
 import {UrlInputRow} from '../../../../../forms/UrlInputRow';
 import Form from '../../../../../forms/base';
-import {enterKeyHandler} from '../../../../../forms/utils';
 import {i18n} from '../../../../../i18n/forms';
+import {enterKeyHandler} from '../../../../../utils/handlers';
 
 type LinkFormProps = {
     href: string;

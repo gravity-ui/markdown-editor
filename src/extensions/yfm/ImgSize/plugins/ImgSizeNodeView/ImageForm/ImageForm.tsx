@@ -8,9 +8,9 @@ import {EditorView} from 'prosemirror-view';
 import {cn} from '../../../../../../classname';
 import Form from '../../../../../../forms/base';
 import {NumberInput} from '../../../../../../forms/components';
-import {enterKeyHandler} from '../../../../../../forms/utils';
 import {i18n} from '../../../../../../i18n/forms';
 import {useAutoFocus} from '../../../../../../react-utils/useAutoFocus';
+import {enterKeyHandler} from '../../../../../../utils/handlers';
 import {LinkAttr, linkType} from '../../../../../markdown';
 import {ImgSizeAttr} from '../../../../../specs';
 
