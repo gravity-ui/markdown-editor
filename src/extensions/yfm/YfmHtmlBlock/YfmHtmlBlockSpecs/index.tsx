@@ -9,14 +9,15 @@ export {yfmHtmlBlockNodeName} from './const';
 
 export type YfmHtmlBlockSpecsOptions = {
     nodeView?: ExtensionNodeSpec['view'];
+    sanitize?: (dirtyHtml: string) => string;
 };
 
 const YfmHtmlBlockSpecsExtension: ExtensionAuto<YfmHtmlBlockSpecsOptions> = (
     builder,
-    {nodeView},
+    {nodeView, sanitize},
 ) => {
     builder
-        .configureMd((md) => md.use(transform({bundle: false}), {}))
+        .configureMd((md) => md.use(transform({bundle: false, sanitize}), {}))
         .addNode(YfmHtmlBlockConsts.NodeName, () => ({
             fromMd: {
                 tokenSpec: {
