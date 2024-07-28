@@ -95,11 +95,12 @@ export class WYfmHtmlBlockNodeView implements NodeView {
     private renderYfmHtmlBlock() {
         return createPortal(
             <YfmHtmlBlockView
+                getPos={this.getPos}
+                node={this.node}
+                onChange={this.onChange.bind(this)}
+                sanitize={this.options.sanitize}
                 useConfig={this.options.useConfig}
                 view={this.view}
-                onChange={this.onChange.bind(this)}
-                node={this.node}
-                getPos={this.getPos}
             />,
             this.dom,
         );
