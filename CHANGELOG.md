@@ -1,5 +1,12 @@
 # Changelog
 
+## [13.5.3](https://github.com/gravity-ui/markdown-editor/compare/v13.5.2...v13.5.3) (2024-07-29)
+
+
+### Bug Fixes
+
+* **toolbar:** show hint in ToolbarButton tooltip ([#311](https://github.com/gravity-ui/markdown-editor/issues/311)) ([0b9000b](https://github.com/gravity-ui/markdown-editor/commit/0b9000bf8afb0e55fc9bd7d43a7bb97c42805adc))
+
 ## [13.5.2](https://github.com/gravity-ui/markdown-editor/compare/v13.5.1...v13.5.2) (2024-07-29)
 
 
