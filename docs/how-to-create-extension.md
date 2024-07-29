@@ -1,4 +1,4 @@
-## How To Create Extension
+## How to Create Extension
 
 Let us examine the process of creating an extension based on the Mermaid extension, which enables the insertion and manipulation of Mermaid diagrams.
 
@@ -9,7 +9,7 @@ In our example with the `mermaid` plugin, the code for the markup mode [can be f
 
 > The development of a markdown plugin is not the focus of this discussion, but we would like to draw your attention to the extensions [we have implemented for YFM](https://github.com/diplodoc-platform?q=-extension&type=all&language=&sort=). It has recently endorsed the syntax of [directives](https://github.com/makhnatkin/markdown-it-directive), which is a [proposal within the CommonMark specification](https://talk.commonmark.org/t/generic-directives-plugins-syntax/444). We recommend incorporating this syntax into new Markdown plugins.
 
-### Step By Step Guide
+### Step by Step Guide
 
 #### 1. Create a Specification
 
