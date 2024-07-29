@@ -30,6 +30,7 @@ export const ToolbarButtonView = React.forwardRef<HTMLElement, ToolbarButtonView
         {
             icon,
             title,
+            hint,
             hotkey,
             disabledPopoverVisible = true,
             hintWhenDisabled,
@@ -42,6 +43,7 @@ export const ToolbarButtonView = React.forwardRef<HTMLElement, ToolbarButtonView
     ) {
         const disabled = !active && !enabled;
         const titleText: string = isFunction(title) ? title() : title;
+        const hintText: string | undefined = isFunction(hint) ? hint() : hint;
         const hideHintWhenDisabled =
             hintWhenDisabled === false || !disabledPopoverVisible || !disabled;
         const hintWhenDisabledText =
@@ -61,6 +63,7 @@ export const ToolbarButtonView = React.forwardRef<HTMLElement, ToolbarButtonView
                 <ActionTooltip
                     openDelay={ToolbarTooltipDelay.Open}
                     closeDelay={ToolbarTooltipDelay.Close}
+                    description={hintText}
                     title={titleText}
                     hotkey={hotkey}
                 >
