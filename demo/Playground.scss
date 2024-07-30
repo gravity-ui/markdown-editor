@@ -42,4 +42,18 @@
         top: 8px;
         left: 8px;
     }
+
+    &__actions {
+        display: flex;
+        gap: 8px;
+    }
+
+    &__move-to-line {
+        display: flex;
+        column-gap: 4px;
+    }
+
+    &__move-to-line-input {
+        width: 56px;
+    }
 }
