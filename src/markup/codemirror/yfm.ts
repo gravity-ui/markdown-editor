@@ -76,16 +76,15 @@ export const yfmNoteSnippets: Record<YfmNoteType, ReturnType<typeof snippet>> = 
 export const yfmCutSnippetTemplate = '{% cut "#{title}" %}\n\n#{}\n\n{% endcut %}\n\n';
 export const yfmCutSnippet = snippet(yfmCutSnippetTemplate);
 
-export function yfmLang(): Extension {
-    const mdSupport = markdown({
-        // defaultCodeLanguage: markdownLanguage,
-        base: markdownLanguage,
-        addKeymap: true,
-        completeHTMLTags: false,
-        extensions: [UnderlineExtension, MonospaceExtension, MarkedExtension],
-    });
+export interface Autocomplete {
+    autocomplete: CompletionSource;
+}
+interface YfmLangOptions {
+    autocompletes?: Autocomplete[];
+}
 
-    const mdAutocomplete: {autocomplete: CompletionSource} = {
+const baseAutocompletes: Autocomplete[] = [
+    {
         autocomplete: (context) => {
             // TODO: add more actions and re-enable
             // let word = context.matchBefore(/\/.*/);
@@ -133,7 +132,27 @@ export function yfmLang(): Extension {
             }
             return null;
         },
-    };
+    },
+];
 
-    return [mdSupport, mdSupport.language.data.of(mdAutocomplete)];
+const defaultOptions = {};
+const defaultAutocompletes: Autocomplete[] = [];
+
+export function yfmLang({
+    autocompletes = defaultAutocompletes,
+}: YfmLangOptions = defaultOptions): Extension {
+    const mdSupport = markdown({
+        // defaultCodeLanguage: markdownLanguage,
+        base: markdownLanguage,
+        addKeymap: true,
+        completeHTMLTags: false,
+        extensions: [UnderlineExtension, MonospaceExtension, MarkedExtension],
+    });
+
+    return [
+        mdSupport,
+        ...autocompletes
+            .concat(baseAutocompletes)
+            .map((autocomplete) => mdSupport.language.data.of(autocomplete)),
+    ];
 }
