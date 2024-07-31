@@ -61,7 +61,7 @@ const MermaidSpecsExtension: ExtensionAuto<MermaidSpecsOptions> = (builder, {nod
 
 #### 2. Add NodeView
 
-To implement a custom [NodeView](https://prosemirror.net/docs/guide/#view.node_views), you need to implement the NodeView interface.
+To implement a custom NodeView, you need to implement the [prosemirror NodeView](https://prosemirror.net/docs/guide/#view.node_views) interface.
 
 ```ts
 import {EditorView, NodeView} from 'prosemirror-view';
