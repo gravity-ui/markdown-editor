@@ -76,11 +76,13 @@ export const yfmNoteSnippets: Record<YfmNoteType, ReturnType<typeof snippet>> = 
 export const yfmCutSnippetTemplate = '{% cut "#{title}" %}\n\n#{}\n\n{% endcut %}\n\n';
 export const yfmCutSnippet = snippet(yfmCutSnippetTemplate);
 
-export interface Autocomplete {
+export interface LanguageData {
     autocomplete: CompletionSource;
+    [key: string]: any;
 }
-interface YfmLangOptions {
-    autocompletes?: Autocomplete[];
+
+export interface YfmLangOptions {
+    languageData?: LanguageData[];
 }
 
 const baseAutocompletes: Autocomplete[] = [
