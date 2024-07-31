@@ -1,5 +1,20 @@
 # Changelog
 
+## [13.5.3](https://github.com/gravity-ui/markdown-editor/compare/v13.5.2...v13.5.3) (2024-07-29)
+
+
+### Bug Fixes
+
+* **toolbar:** show hint in ToolbarButton tooltip ([#311](https://github.com/gravity-ui/markdown-editor/issues/311)) ([0b9000b](https://github.com/gravity-ui/markdown-editor/commit/0b9000bf8afb0e55fc9bd7d43a7bb97c42805adc))
+
+## [13.5.2](https://github.com/gravity-ui/markdown-editor/compare/v13.5.1...v13.5.2) (2024-07-29)
+
+
+### Bug Fixes
+
+* **forms:** added utils re-export ([#310](https://github.com/gravity-ui/markdown-editor/issues/310)) ([13733ed](https://github.com/gravity-ui/markdown-editor/commit/13733ed2d53c8561305b2e2475f77f95751488c8))
+* **yfmHtmlBlock:** added sanitize prop to YfmHtmlBlockView ([#307](https://github.com/gravity-ui/markdown-editor/issues/307)) ([a4ad5cd](https://github.com/gravity-ui/markdown-editor/commit/a4ad5cdc3bf6a4641882870a45b3bf4d00b3bbb9))
+
 ## [13.5.1](https://github.com/gravity-ui/markdown-editor/compare/v13.5.0...v13.5.1) (2024-07-26)
 
 

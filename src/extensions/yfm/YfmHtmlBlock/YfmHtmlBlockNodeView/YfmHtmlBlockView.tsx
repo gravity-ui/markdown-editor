@@ -199,12 +199,13 @@ const CodeEditMode: React.FC<{
 };
 
 export const YfmHtmlBlockView: React.FC<{
-    view: EditorView;
-    onChange: (attrs: {[YfmHtmlBlockConsts.NodeAttrs.srcdoc]: string}) => void;
-    node: Node;
     getPos: () => number | undefined;
+    node: Node;
+    onChange: (attrs: {[YfmHtmlBlockConsts.NodeAttrs.srcdoc]: string}) => void;
+    sanitize?: (dirtyHtml: string) => string;
     useConfig?: () => IHTMLIFrameElementConfig | undefined;
-}> = ({onChange, node, getPos, view, useConfig}) => {
+    view: EditorView;
+}> = ({onChange, node, getPos, view, useConfig, sanitize}) => {
     const [editing, setEditing, unsetEditing, toggleEditing] = useBooleanState(
         Boolean(node.attrs[YfmHtmlBlockConsts.NodeAttrs.newCreated]),
     );
@@ -231,16 +232,15 @@ export const YfmHtmlBlockView: React.FC<{
         );
     }
 
+    const dirtyHtml = node.attrs[YfmHtmlBlockConsts.NodeAttrs.srcdoc];
+    const html = sanitize ? sanitize(dirtyHtml) : dirtyHtml;
+
     return (
         <div className={b()} onDoubleClick={setEditing}>
             <Label className={b('label')} icon={<Icon size={16} data={Eye} />}>
                 {i18n('preview')}
             </Label>
-            <YfmHtmlBlockPreview
-                html={node.attrs[YfmHtmlBlockConsts.NodeAttrs.srcdoc]}
-                onСlick={handleClick}
-                config={config}
-            />
+            <YfmHtmlBlockPreview html={html} onСlick={handleClick} config={config} />
 
             <div className={b('menu')}>
                 <Button

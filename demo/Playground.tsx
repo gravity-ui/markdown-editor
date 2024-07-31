@@ -1,5 +1,6 @@
 import React, {CSSProperties, useCallback, useEffect} from 'react';
 
+import sanitize from '@diplodoc/transform/lib/sanitize';
 import {Button, DropdownMenu} from '@gravity-ui/uikit';
 import {toaster} from '@gravity-ui/uikit/toaster-singleton-react-18';
 
@@ -161,6 +162,7 @@ export const Playground = React.memo<PlaygroundProps>((props) => {
                 })
                 .use(YfmHtmlBlock, {
                     useConfig: useYfmHtmlBlockStyles,
+                    sanitize,
                 }),
     });
 
