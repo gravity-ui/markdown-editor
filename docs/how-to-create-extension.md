@@ -61,7 +61,7 @@ const MermaidSpecsExtension: ExtensionAuto<MermaidSpecsOptions> = (builder, {nod
 
 #### 2. Add NodeView
 
-To implement a custom NodeView, you need to implement the NodeView interface.
+To implement a custom [NodeView](https://prosemirror.net/docs/guide/#view.node_views), you need to implement the NodeView interface.
 
 ```ts
 import {EditorView, NodeView} from 'prosemirror-view';
@@ -76,6 +76,6 @@ See the [full example of the extension](https://github.com/gravity-ui/markdown-e
 
 #### 3. Add Plugins
 
-The extension can be enhanced with plugins as needed. Check out the [YfmTable extension](https://github.com/gravity-ui/markdown-editor/tree/main/src/extensions/yfm/YfmTable/plugins/YfmTableControls) example, where plugins add a panel (a pop-up window) for working with columns and rows.
+The extension can be enhanced with [plugins](https://prosemirror.net/docs/guide/#state.plugins) as needed. Check out the [YfmTable extension](https://github.com/gravity-ui/markdown-editor/tree/main/src/extensions/yfm/YfmTable/plugins/YfmTableControls) example, where plugins add a panel (a pop-up window) for working with columns and rows.
 
 

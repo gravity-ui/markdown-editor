@@ -31,16 +31,10 @@ To install the dependencies, use:
 npm install @diplodoc/transform react react-dom @gravity-ui/uikit @gravity-ui/components
 ```
 
-### 4. Configuring Webpack 5 with Create React App
-To work with Webpack 5, install and configure the following packages:
+### 4. Configuring Webpack
+In order for the `diplodoc/transform` process to function correctly, please add the [webpack resolve-fallbacks](https://webpack.js.org/configuration/resolve/#resolvefallback).
 
-#### a. Installing process, path, fs:
-
-```bash
-npm install process path fs
-```
-#### b. Configuring webpack for fs using CRACO:
-To work correctly with the file system, install CRACO and configure it for the project:
+To accomplish this, please install CRACO and configure it follow the instructions below:
 
 1. Install CRACO:
 
@@ -54,7 +48,9 @@ module.exports = {
   webpack: {
     configure: (webpackConfig) => {
       webpackConfig.resolve.fallback = {
-          fs: false
+        fs: false,
+        process: false,
+        path: false,
       };
       return webpackConfig;
     },

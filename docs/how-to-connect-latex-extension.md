@@ -112,7 +112,15 @@ import {
   wMathBlockItemData,
   wMathInlineItemData,
 } from '@gravity-ui/markdown-editor';
-// ...
+
+// add to useMarkdownEditor
+const mdEditor = useMarkdownEditor({
+  // ...
+  extensionOptions: {
+    commandMenu: {actions: [wMathInlineItemData, wMathBlockItemData]},
+  },
+});
+
 
 ```
 

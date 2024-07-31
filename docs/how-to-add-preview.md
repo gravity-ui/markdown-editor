@@ -2,34 +2,7 @@
 
 ### Create a Preview component
 
-```ts
-export type YfmStaticViewProps = {
-    className?: string;
-    html: string;
-    linksVisited?: boolean;
-    noListReset?: boolean;
-    qa?: string;
-};
-
-export const YfmStaticView = forwardRef<HTMLDivElement, YfmStaticViewProps>(
-    function YFMStaticView(props, ref) {
-        const {html, linksVisited, noListReset, className, qa} = props;
-
-        return (
-            <div
-                ref={ref}
-                dangerouslySetInnerHTML={{__html: html}}
-                className={classnames(
-                    'yfm',
-                    linksVisited ? 'yfm_links-visited' : undefined,
-                    noListReset ? 'yfm_no-list-reset' : undefined,
-                    className,
-                )}
-                data-qa={qa}
-            />
-        );
-    },
-);
+You can use the component `YfmStaticView` that [provides the editor bundle](https://github.com/gravity-ui/markdown-editor/blob/main/src/view/components/YfmHtml/YfmStaticView.tsx)
 
 ```
 ### Add a handler for re-renders

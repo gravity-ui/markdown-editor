@@ -136,7 +136,14 @@ import {
 import {
   wMermaidItemData,
 } from '@gravity-ui/markdown-editor';
-// ...
+
+// add to useMarkdownEditor
+const mdEditor = useMarkdownEditor({
+  // ...
+  extensionOptions: {
+    commandMenu: {actions: [wMermaidItemData]},
+  },
+});
 
 ```
 
