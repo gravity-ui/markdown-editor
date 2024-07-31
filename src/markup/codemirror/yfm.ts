@@ -140,9 +140,7 @@ const baseAutocompletes: Autocomplete[] = [
 const defaultOptions = {};
 const defaultAutocompletes: Autocomplete[] = [];
 
-export function yfmLang({
-    autocompletes = defaultAutocompletes,
-}: YfmLangOptions = defaultOptions): Extension {
+export function yfmLang({languageData = []}: YfmLangOptions = {}): Extension {
     const mdSupport = markdown({
         // defaultCodeLanguage: markdownLanguage,
         base: markdownLanguage,
