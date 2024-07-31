@@ -1,8 +1,8 @@
 ## How to Add Preview for Markup Mode
 
-### Create a Preview component
+### Add a Preview component
 
-You can use the component `YfmStaticView` that [provides the editor bundle](https://github.com/gravity-ui/markdown-editor/blob/main/src/view/components/YfmHtml/YfmStaticView.tsx)
+You can create own component or use the component `YfmStaticView` that [provides the editor bundle](https://github.com/gravity-ui/markdown-editor/blob/main/src/view/components/YfmHtml/YfmStaticView.tsx)
 
 ### Add a handler for re-renders
 
