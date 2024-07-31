@@ -2,7 +2,7 @@
 
 ### Add a Preview component
 
-You can create own component or use the component `YfmStaticView` that [provides the editor bundle](https://github.com/gravity-ui/markdown-editor/blob/main/src/view/components/YfmHtml/YfmStaticView.tsx)
+You can create your own component or use the component `YfmStaticView` that [provides the editor bundle](https://github.com/gravity-ui/markdown-editor/blob/main/src/view/components/YfmHtml/YfmStaticView.tsx)
 
 ### Add a handler for re-renders
 
