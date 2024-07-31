@@ -13,9 +13,9 @@ In our example with the `mermaid` plugin, the code for the markup mode [can be f
 
 #### 1. Create a Specification
 
-The specification should include the fields fromMd, toMd, and spec.
+The specification should include the fields `fromMd`, `toMd`, and `spec`.
 
-You can also add a view section, for example, if rendering through React is required.
+You can also add a `view` field, for example, if rendering through React is required.
 
 
 ```ts
