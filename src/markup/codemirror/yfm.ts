@@ -85,60 +85,55 @@ export interface YfmLangOptions {
     languageData?: LanguageData[];
 }
 
-const baseAutocompletes: Autocomplete[] = [
-    {
-        autocomplete: (context) => {
-            // TODO: add more actions and re-enable
-            // let word = context.matchBefore(/\/.*/);
-            // if (word) {
-            //     return {
-            //         from: word.from,
-            //         options: [
-            //             ...yfmNoteTypes.map<Completion>((type, index) => ({
-            //                 label: `/yfm note ${type}`,
-            //                 displayLabel: `YFM Note ${capitalize(type)}`,
-            //                 type: 'text',
-            //                 apply: yfmNoteSnippets[type],
-            //                 boost: -index,
-            //             })),
-            //             {
-            //                 label: '/yfm cut',
-            //                 displayLabel: 'YFM Cut',
-            //                 type: 'text',
-            //                 apply: yfmCutSnippet,
-            //             },
-            //         ],
-            //     };
-            // }
-            const word = context.matchBefore(/^.*/);
-            if (word?.text.startsWith('{%')) {
-                return {
-                    from: word.from,
-                    options: [
-                        ...yfmNoteTypes.map<Completion>((type, index) => ({
-                            label: `{% note ${type}`,
-                            displayLabel: capitalize(type),
-                            type: 'text',
-                            section: 'YFM Note',
-                            apply: yfmNoteSnippets[type],
-                            boost: -index,
-                        })),
-                        {
-                            label: '{% cut',
-                            displayLabel: 'YFM Cut',
-                            type: 'text',
-                            apply: yfmCutSnippet,
-                        },
-                    ],
-                };
-            }
-            return null;
-        },
+const mdAutocomplete: LanguageData = {
+    autocomplete: (context) => {
+        // TODO: add more actions and re-enable
+        // let word = context.matchBefore(/\/.*/);
+        // if (word) {
+        //     return {
+        //         from: word.from,
+        //         options: [
+        //             ...yfmNoteTypes.map<Completion>((type, index) => ({
+        //                 label: `/yfm note ${type}`,
+        //                 displayLabel: `YFM Note ${capitalize(type)}`,
+        //                 type: 'text',
+        //                 apply: yfmNoteSnippets[type],
+        //                 boost: -index,
+        //             })),
+        //             {
+        //                 label: '/yfm cut',
+        //                 displayLabel: 'YFM Cut',
+        //                 type: 'text',
+        //                 apply: yfmCutSnippet,
+        //             },
+        //         ],
+        //     };
+        // }
+        const word = context.matchBefore(/^.*/);
+        if (word?.text.startsWith('{%')) {
+            return {
+                from: word.from,
+                options: [
+                    ...yfmNoteTypes.map<Completion>((type, index) => ({
+                        label: `{% note ${type}`,
+                        displayLabel: capitalize(type),
+                        type: 'text',
+                        section: 'YFM Note',
+                        apply: yfmNoteSnippets[type],
+                        boost: -index,
+                    })),
+                    {
+                        label: '{% cut',
+                        displayLabel: 'YFM Cut',
+                        type: 'text',
+                        apply: yfmCutSnippet,
+                    },
+                ],
+            };
+        }
+        return null;
     },
-];
-
-const defaultOptions = {};
-const defaultAutocompletes: Autocomplete[] = [];
+};
 
 export function yfmLang({languageData = []}: YfmLangOptions = {}): Extension {
     const mdSupport = markdown({
