@@ -153,8 +153,7 @@ export function yfmLang({
 
     return [
         mdSupport,
-        ...autocompletes
-            .concat(baseAutocompletes)
-            .map((autocomplete) => mdSupport.language.data.of(autocomplete)),
+        mdSupport.language.data.of(mdAutocomplete),
+        languageData.map((item) => mdSupport.language.data.of(item)),
     ];
 }
