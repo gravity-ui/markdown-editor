@@ -1,4 +1,4 @@
-import {RefObject, useEffect} from 'react';
+import {type RefObject, useEffect} from 'react';
 
 const YfmCutCN = {
     Open: 'open',
@@ -13,6 +13,11 @@ const YfmTabsCN = {
     TabPanel: 'yfm-tab-panel',
 } as const;
 
+const FoldingHeadingsCN = {
+    Open: 'open',
+    Section: 'heading-section',
+} as const;
+
 export function useYfmShowElemWithId(ref: RefObject<HTMLElement>, id: string) {
     useEffect(() => {
         const {current: containerDom} = ref;
@@ -23,7 +28,7 @@ export function useYfmShowElemWithId(ref: RefObject<HTMLElement>, id: string) {
 
         while (elem && elem !== containerDom) {
             // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-            openYfmCut(elem) || switchYfmTabs(elem);
+            openYfmCut(elem) || openFoldingHeadings(elem, id) || switchYfmTabs(elem);
             elem = elem.parentElement;
         }
     }, [id]);
@@ -67,4 +72,16 @@ function switchYfmTabs(tabPanelElem: Element): boolean {
         panelElem.classList.toggle(YfmTabsCN.Active, isDesiredElem);
     }
     return true;
+}
+
+function openFoldingHeadings(elem: Element, id: string): boolean {
+    if (
+        elem.classList.contains(FoldingHeadingsCN.Section) &&
+        !elem.classList.contains(FoldingHeadingsCN.Open) &&
+        id !== elem.firstElementChild?.id
+    ) {
+        elem.classList.add(FoldingHeadingsCN.Open);
+        return true;
+    }
+    return false;
 }
