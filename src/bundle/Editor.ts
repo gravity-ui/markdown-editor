@@ -10,6 +10,7 @@ import {ReactRenderStorage, RenderStorage} from '../extensions';
 import {i18n} from '../i18n/bundle';
 import {logger} from '../logger';
 import {createCodemirror} from '../markup/codemirror';
+import type {YfmLangOptions} from '../markup/codemirror/yfm';
 import {CodeEditor, Editor as MarkupEditor} from '../markup/editor';
 import {Emitter, Receiver, SafeEventEmitter} from '../utils/event-emitter';
 import type {FileUploadHandler} from '../utils/upload';
@@ -137,6 +138,7 @@ export type EditorOptions = Pick<
     renderPreview?: RenderPreview;
     preset: EditorPreset;
     extraMarkupExtensions?: CodemirrorExtension[];
+    yfmLangOptions?: YfmLangOptions;
 };
 
 /** @internal */
@@ -150,6 +152,7 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
     #wysiwygEditor?: WysiwygEditor;
     #markupEditor?: MarkupEditor;
     #extraMarkupExtensions?: CodemirrorExtension[];
+    #yfmLangOptions?: YfmLangOptions;
 
     readonly #preset: EditorPreset;
     #allowHTML?: boolean;
@@ -273,6 +276,7 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
                     uploadHandler: this.fileUploadHandler,
                     needImgDimms: this.needToSetDimensionsForUploadedImages,
                     extraMarkupExtensions: this.#extraMarkupExtensions,
+                    yfmLangOptions: this.#yfmLangOptions,
                     receiver: this,
                 }),
             );
@@ -308,6 +312,7 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
         this.#allowHTML = opts.allowHTML;
         this.#extensions = opts.extensions;
         this.#extraMarkupExtensions = opts.extraMarkupExtensions;
+        this.#yfmLangOptions = opts.yfmLangOptions;
 
         this.#renderStorage = opts.renderStorage;
         this.#fileUploadHandler = opts.fileUploadHandler;
