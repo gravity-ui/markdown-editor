@@ -142,7 +142,8 @@ function buildDecosSet(doc: Node): DecorationSet {
             const childPos = $pos.posAtIndex(idx, depth);
 
             if (isHeading(child)) {
-                if (isFoldingHeading(child)) {
+                const hasFolding = isFoldingHeading(child);
+                if (hasFolding) {
                     nextFoldingHeadingFound = true;
                 }
 
@@ -153,11 +154,13 @@ function buildDecosSet(doc: Node): DecorationSet {
                     lastNonHiddenChild = {node: child, pos: childPos, level: hLevel};
                 }
 
-                if (isUnfoldedHeading(child)) {
-                    hLevel = level;
-                    hidden = false;
-                } else {
-                    hidden = true;
+                if (hasFolding) {
+                    if (isUnfoldedHeading(child)) {
+                        hLevel = level;
+                        hidden = false;
+                    } else {
+                        hidden = true;
+                    }
                 }
             }
 
