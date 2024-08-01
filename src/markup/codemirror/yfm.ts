@@ -76,7 +76,66 @@ export const yfmNoteSnippets: Record<YfmNoteType, ReturnType<typeof snippet>> = 
 export const yfmCutSnippetTemplate = '{% cut "#{title}" %}\n\n#{}\n\n{% endcut %}\n\n';
 export const yfmCutSnippet = snippet(yfmCutSnippetTemplate);
 
-export function yfmLang(): Extension {
+export interface LanguageData {
+    autocomplete: CompletionSource;
+    [key: string]: any;
+}
+
+export interface YfmLangOptions {
+    languageData?: LanguageData[];
+}
+
+const mdAutocomplete: LanguageData = {
+    autocomplete: (context) => {
+        // TODO: add more actions and re-enable
+        // let word = context.matchBefore(/\/.*/);
+        // if (word) {
+        //     return {
+        //         from: word.from,
+        //         options: [
+        //             ...yfmNoteTypes.map<Completion>((type, index) => ({
+        //                 label: `/yfm note ${type}`,
+        //                 displayLabel: `YFM Note ${capitalize(type)}`,
+        //                 type: 'text',
+        //                 apply: yfmNoteSnippets[type],
+        //                 boost: -index,
+        //             })),
+        //             {
+        //                 label: '/yfm cut',
+        //                 displayLabel: 'YFM Cut',
+        //                 type: 'text',
+        //                 apply: yfmCutSnippet,
+        //             },
+        //         ],
+        //     };
+        // }
+        const word = context.matchBefore(/^.*/);
+        if (word?.text.startsWith('{%')) {
+            return {
+                from: word.from,
+                options: [
+                    ...yfmNoteTypes.map<Completion>((type, index) => ({
+                        label: `{% note ${type}`,
+                        displayLabel: capitalize(type),
+                        type: 'text',
+                        section: 'YFM Note',
+                        apply: yfmNoteSnippets[type],
+                        boost: -index,
+                    })),
+                    {
+                        label: '{% cut',
+                        displayLabel: 'YFM Cut',
+                        type: 'text',
+                        apply: yfmCutSnippet,
+                    },
+                ],
+            };
+        }
+        return null;
+    },
+};
+
+export function yfmLang({languageData = []}: YfmLangOptions = {}): Extension {
     const mdSupport = markdown({
         // defaultCodeLanguage: markdownLanguage,
         base: markdownLanguage,
@@ -85,55 +144,9 @@ export function yfmLang(): Extension {
         extensions: [UnderlineExtension, MonospaceExtension, MarkedExtension],
     });
 
-    const mdAutocomplete: {autocomplete: CompletionSource} = {
-        autocomplete: (context) => {
-            // TODO: add more actions and re-enable
-            // let word = context.matchBefore(/\/.*/);
-            // if (word) {
-            //     return {
-            //         from: word.from,
-            //         options: [
-            //             ...yfmNoteTypes.map<Completion>((type, index) => ({
-            //                 label: `/yfm note ${type}`,
-            //                 displayLabel: `YFM Note ${capitalize(type)}`,
-            //                 type: 'text',
-            //                 apply: yfmNoteSnippets[type],
-            //                 boost: -index,
-            //             })),
-            //             {
-            //                 label: '/yfm cut',
-            //                 displayLabel: 'YFM Cut',
-            //                 type: 'text',
-            //                 apply: yfmCutSnippet,
-            //             },
-            //         ],
-            //     };
-            // }
-            const word = context.matchBefore(/^.*/);
-            if (word?.text.startsWith('{%')) {
-                return {
-                    from: word.from,
-                    options: [
-                        ...yfmNoteTypes.map<Completion>((type, index) => ({
-                            label: `{% note ${type}`,
-                            displayLabel: capitalize(type),
-                            type: 'text',
-                            section: 'YFM Note',
-                            apply: yfmNoteSnippets[type],
-                            boost: -index,
-                        })),
-                        {
-                            label: '{% cut',
-                            displayLabel: 'YFM Cut',
-                            type: 'text',
-                            apply: yfmCutSnippet,
-                        },
-                    ],
-                };
-            }
-            return null;
-        },
-    };
-
-    return [mdSupport, mdSupport.language.data.of(mdAutocomplete)];
+    return [
+        mdSupport,
+        mdSupport.language.data.of(mdAutocomplete),
+        languageData.map((item) => mdSupport.language.data.of(item)),
+    ];
 }

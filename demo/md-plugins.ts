@@ -1,4 +1,6 @@
 /* eslint-disable import/no-extraneous-dependencies */
+import {transform as foldingHeadings} from '@diplodoc/folding-headings-extension';
+import '@diplodoc/folding-headings-extension/runtime';
 import {transform as yfmHtmlBlock} from '@diplodoc/html-extension';
 import {transform as latex} from '@diplodoc/latex-extension';
 import {transform as mermaid} from '@diplodoc/mermaid-extension';
@@ -54,6 +56,7 @@ const extendedPlugins = defaultPlugins.concat(
     mermaid({bundle: false, runtime: MERMAID_RUNTIME}),
     sub,
     yfmHtmlBlock({bundle: false, runtimeJsPath: YFM_HTML_BLOCK_RUNTIME}),
+    foldingHeadings({bundle: false}),
 );
 
 export {extendedPlugins as plugins};

@@ -521,6 +521,18 @@ export const wToolbarConfig: WToolbarData = [
     [wImageItemData, wFileItemData, wTableItemData, wCheckboxItemData],
 ];
 
+export const wToggleHeadingFoldingItemData: SelectionContextItemData = {
+    id: 'folding-heading',
+    type: ToolbarDataType.SingleButton,
+    icon: icons.foldingHeading,
+    title: () => i18n('folding-heading'),
+    hint: () => i18n('folding-heading_hint'),
+    isActive: (editor) => editor.actions.toggleHeadingFolding?.isActive() ?? false,
+    isEnable: (editor) => editor.actions.toggleHeadingFolding?.isEnable() ?? false,
+    exec: (editor) => editor.actions.toggleHeadingFolding.run(),
+    condition: 'enabled',
+};
+
 const textContextItemData: SelectionContextItemData = {
     id: 'text',
     type: ToolbarDataType.ReactComponent,
@@ -534,7 +546,7 @@ const textContextItemData: SelectionContextItemData = {
 };
 
 export const wSelectionMenuConfig: SelectionContextConfig = [
-    [textContextItemData],
+    [wToggleHeadingFoldingItemData, textContextItemData],
     [...wBiusGroupConfig, wCodeItemData],
     [
         {

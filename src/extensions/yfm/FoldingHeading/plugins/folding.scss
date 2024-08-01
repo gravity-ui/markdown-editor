@@ -1,0 +1,69 @@
+@use 'node_modules/@gravity-ui/uikit/styles/mixins.scss' as uikit;
+
+.pm-h-folding-hidden {
+    display: none;
+}
+
+.pm-h-folding-content {
+    padding-left: 28px;
+}
+
+.pm-h-folding-separator {
+    position: relative;
+
+    &::before {
+        position: absolute;
+        z-index: 1;
+        bottom: -4px;
+        left: 0;
+
+        width: 12px;
+        height: 12px;
+
+        content: '';
+
+        background-color: var(--g-color-text-secondary);
+        mask-image: url('data:image/svg+xml;svg,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 16 16"><path fill="currentColor" fill-rule="evenodd" d="M2 7.25a.75.75 0 0 0 0 1.5h5.69l-2.72 2.72a.75.75 0 1 0 1.06 1.06l4-4a.75.75 0 0 0 0-1.06l-4-4a.75.75 0 0 0-1.06 1.06l2.72 2.72zm7.47 4.22a.75.75 0 1 0 1.06 1.06l4-4a.75.75 0 0 0 0-1.06l-4-4a.75.75 0 1 0-1.06 1.06L12.94 8z" clip-rule="evenodd"/></svg>');
+        mask-size: 12px;
+
+        transform: translateY(80%);
+    }
+
+    &::after {
+        position: absolute;
+        z-index: 1;
+        bottom: -8px;
+        left: 16px;
+
+        display: block;
+
+        width: calc(100% - 16px - 56px - 6px); // left icon + right label + right offset of label
+
+        content: '';
+
+        border-top: 1px dashed var(--g-color-line-generic);
+    }
+}
+
+.pm-h-folding-label {
+    &::after {
+        position: absolute;
+        z-index: 1;
+        right: 2px;
+        bottom: -6px;
+
+        display: block;
+
+        padding: 0 8px;
+
+        content: attr(data-value);
+
+        color: var(--g-color-text-misc);
+        border-radius: 4px;
+        background-color: var(--g-color-base-misc-medium-hover);
+
+        transform: translate(0, 50%);
+
+        @include uikit.text-body-1();
+    }
+}

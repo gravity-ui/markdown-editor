@@ -6,6 +6,7 @@ import {
     CutIcon,
     EmojiIcon,
     FileIcon,
+    FoldingHeadingIcon,
     FunctionBlockIcon,
     FunctionInlineIcon,
     HRuleIcon,
@@ -78,7 +79,8 @@ type Icon =
     | 'emoji'
     | 'tabs'
     | 'mermaid'
-    | 'html';
+    | 'html'
+    | 'foldingHeading';
 
 type Icons = Record<Icon, ToolbarIconData>;
 
@@ -135,4 +137,6 @@ export const icons: Icons = {
 
     tabs: {data: TabsIcon},
     mermaid: {data: MermaidIcon},
+
+    foldingHeading: {data: FoldingHeadingIcon},
 };
