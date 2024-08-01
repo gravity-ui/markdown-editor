@@ -1,5 +1,61 @@
 # Changelog
 
+## [13.7.0](https://github.com/gravity-ui/markdown-editor/compare/v13.6.1...v13.7.0) (2024-08-01)
+
+
+### Features
+
+* **markup:** added yfmLang autocomplete options ([#315](https://github.com/gravity-ui/markdown-editor/issues/315)) ([31e2a79](https://github.com/gravity-ui/markdown-editor/commit/31e2a79a9d6b35dfd93f4088525514d5fc283ec8))
+
+## [13.6.1](https://github.com/gravity-ui/markdown-editor/compare/v13.6.0...v13.6.1) (2024-08-01)
+
+
+### Bug Fixes
+
+* **build:** fixed build of styles ([#317](https://github.com/gravity-ui/markdown-editor/issues/317)) ([0349c71](https://github.com/gravity-ui/markdown-editor/commit/0349c71b597cab9ce72679d1854bb7e0357daaec))
+
+## [13.6.0](https://github.com/gravity-ui/markdown-editor/compare/v13.5.3...v13.6.0) (2024-08-01)
+
+
+### Features
+
+* add FoldingHeading extension ([#314](https://github.com/gravity-ui/markdown-editor/issues/314)) ([b904704](https://github.com/gravity-ui/markdown-editor/commit/b9047045c77656e4721eb1852f8d2ec018d9f5db))
+
+
+### Bug Fixes
+
+* **bundle:** scroll to current line after moving cursor in markup mode ([#313](https://github.com/gravity-ui/markdown-editor/issues/313)) ([dd56733](https://github.com/gravity-ui/markdown-editor/commit/dd567333865914d7be1de734cb4413737e2a9b62))
+
+## [13.5.3](https://github.com/gravity-ui/markdown-editor/compare/v13.5.2...v13.5.3) (2024-07-29)
+
+
+### Bug Fixes
+
+* **toolbar:** show hint in ToolbarButton tooltip ([#311](https://github.com/gravity-ui/markdown-editor/issues/311)) ([0b9000b](https://github.com/gravity-ui/markdown-editor/commit/0b9000bf8afb0e55fc9bd7d43a7bb97c42805adc))
+
+## [13.5.2](https://github.com/gravity-ui/markdown-editor/compare/v13.5.1...v13.5.2) (2024-07-29)
+
+
+### Bug Fixes
+
+* **forms:** added utils re-export ([#310](https://github.com/gravity-ui/markdown-editor/issues/310)) ([13733ed](https://github.com/gravity-ui/markdown-editor/commit/13733ed2d53c8561305b2e2475f77f95751488c8))
+* **yfmHtmlBlock:** added sanitize prop to YfmHtmlBlockView ([#307](https://github.com/gravity-ui/markdown-editor/issues/307)) ([a4ad5cd](https://github.com/gravity-ui/markdown-editor/commit/a4ad5cdc3bf6a4641882870a45b3bf4d00b3bbb9))
+
+## [13.5.1](https://github.com/gravity-ui/markdown-editor/compare/v13.5.0...v13.5.1) (2024-07-26)
+
+
+### Bug Fixes
+
+* **yfmHtmlBlock:** added sanitize prop to YfmHtmlBlock wysiwyg extension ([#304](https://github.com/gravity-ui/markdown-editor/issues/304)) ([d620fe7](https://github.com/gravity-ui/markdown-editor/commit/d620fe7c8f4d7aba37883b11bcfbfa235870dec6))
+* **yfmHtmlBlock:** added sanitize prop to YfmHtmlBlock wysiwyg extension ([#306](https://github.com/gravity-ui/markdown-editor/issues/306)) ([f3a480e](https://github.com/gravity-ui/markdown-editor/commit/f3a480e84b0a16146257f8d31f6d7826dbdca925))
+
+## [13.5.0](https://github.com/gravity-ui/markdown-editor/compare/v13.4.2...v13.5.0) (2024-07-26)
+
+
+### Features
+
+* **markup:** added markup search ([#295](https://github.com/gravity-ui/markdown-editor/issues/295)) ([48372a6](https://github.com/gravity-ui/markdown-editor/commit/48372a62db3da4ec92bd09e89ff5aee688cacdd7))
+
 ## [13.4.2](https://github.com/gravity-ui/markdown-editor/compare/v13.4.1...v13.4.2) (2024-07-25)
 
 

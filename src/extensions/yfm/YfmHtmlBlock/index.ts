@@ -9,11 +9,13 @@ import {addYfmHtmlBlock} from './actions';
 
 export type YfmHtmlBlockOptions = {
     useConfig?: () => IHTMLIFrameElementConfig | undefined;
+    sanitize?: (dirtyHtml: string) => string;
 };
 
 export const YfmHtmlBlock: ExtensionAuto<YfmHtmlBlockOptions> = (builder, options) => {
     builder.use(YfmHtmlBlockSpecs, {
         nodeView: YfmHtmlBlockNodeViewFactory(options),
+        sanitize: options.sanitize,
     });
 
     builder.addAction(YfmHtmlBlockAction, () => addYfmHtmlBlock);

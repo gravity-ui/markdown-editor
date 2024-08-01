@@ -405,7 +405,15 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
         return this.currentEditor.append(markup);
     }
 
-    moveCursor(position: 'start' | 'end' | {line: number}): void {
+    moveCursor(
+        position:
+            | 'start'
+            | 'end'
+            | {
+                  /** 0-based line number */
+                  line: number;
+              },
+    ): void {
         if (typeof position === 'object') {
             return this.moveCursorToLine(position.line);
         }
@@ -413,16 +421,21 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
         return this.currentEditor.moveCursor(position);
     }
 
-    private moveCursorToLine(line: number): void {
+    private moveCursorToLine(/** 0-based line number */ line: number): void {
         const mode = this.currentMode;
 
         switch (mode) {
             case 'markup': {
-                const lineNumber = line + 1;
                 const view = this.markupEditor.cm;
-                if (lineNumber > 0 && lineNumber <= view.state.doc.lines) {
-                    view.dispatch({selection: {anchor: view.state.doc.line(lineNumber).from}});
-                }
+
+                let cmLine = line + 1; // lines in codemirror is 1-based
+                cmLine = Math.max(cmLine, 1);
+                cmLine = Math.min(cmLine, view.state.doc.lines);
+
+                view.dispatch({
+                    scrollIntoView: true,
+                    selection: {anchor: view.state.doc.line(cmLine).from},
+                });
 
                 break;
             }

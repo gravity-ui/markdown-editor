@@ -9,8 +9,15 @@ export const getNodeAttrs =
     (node) => ({
         [YfmHeadingAttr.Level]: level,
         [YfmHeadingAttr.Id]: node.getAttribute('id') || '',
-        [YfmHeadingAttr.Folding]: node.hasAttribute(`data-${YfmHeadingAttr.Folding}`),
+        [YfmHeadingAttr.Folding]: getFoldingAttr(node),
     });
+
+function getFoldingAttr(node: HTMLElement): boolean | null {
+    const value = node.getAttribute(`data-${YfmHeadingAttr.Folding}`);
+    if (value === 'true') return true;
+    if (value === 'false') return false;
+    return null;
+}
 
 // export const slugify = (str: string) =>
 //     // same config as in yfm-transform
