@@ -1,5 +1,17 @@
 # Changelog
 
+## [13.6.0](https://github.com/gravity-ui/markdown-editor/compare/v13.5.3...v13.6.0) (2024-08-01)
+
+
+### Features
+
+* add FoldingHeading extension ([#314](https://github.com/gravity-ui/markdown-editor/issues/314)) ([b904704](https://github.com/gravity-ui/markdown-editor/commit/b9047045c77656e4721eb1852f8d2ec018d9f5db))
+
+
+### Bug Fixes
+
+* **bundle:** scroll to current line after moving cursor in markup mode ([#313](https://github.com/gravity-ui/markdown-editor/issues/313)) ([dd56733](https://github.com/gravity-ui/markdown-editor/commit/dd567333865914d7be1de734cb4413737e2a9b62))
+
 ## [13.5.3](https://github.com/gravity-ui/markdown-editor/compare/v13.5.2...v13.5.3) (2024-07-29)
 
 
