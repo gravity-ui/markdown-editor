@@ -39,7 +39,7 @@ import {gravityHighlightStyle, gravityTheme} from './gravity';
 import {PairingCharactersExtension} from './pairing-chars';
 import {ReactRendererFacet} from './react-facet';
 import {SearchPanelPlugin} from './search-plugin/plugin';
-import {yfmLang} from './yfm';
+import {type YfmLangOptions, yfmLang} from './yfm';
 
 export type CreateCodemirrorParams = {
     doc: EditorViewConfig['doc'];
@@ -53,8 +53,8 @@ export type CreateCodemirrorParams = {
     uploadHandler?: FileUploadHandler;
     needImgDimms?: boolean;
     extraMarkupExtensions?: Extension[];
-    autocompletionConfig?: Parameters<typeof autocompletion>[0];
     receiver?: Receiver<EventMap>;
+    yfmLangOptions?: YfmLangOptions;
 };
 
 export function createCodemirror(params: CreateCodemirrorParams) {
@@ -68,8 +68,8 @@ export function createCodemirror(params: CreateCodemirrorParams) {
         onChange,
         onDocChange,
         extraMarkupExtensions,
-        autocompletionConfig,
         receiver,
+        yfmLangOptions,
     } = params;
 
     const extensions: Extension[] = [
@@ -114,8 +114,8 @@ export function createCodemirror(params: CreateCodemirrorParams) {
             ...defaultKeymap,
             ...historyKeymap,
         ]),
-        autocompletion(autocompletionConfig),
-        yfmLang(),
+        autocompletion(),
+        yfmLang(yfmLangOptions),
         ReactRendererFacet.of(reactRenderer),
         PairingCharactersExtension,
         EditorView.lineWrapping,

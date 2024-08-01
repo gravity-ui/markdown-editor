@@ -4,6 +4,8 @@ import type {Extension as CodemirrorExtension} from '@codemirror/state';
 import {TextSelection} from 'prosemirror-state';
 import {EditorView as PMEditorView} from 'prosemirror-view';
 
+import type {YfmLangOptions} from 'src/markup/codemirror/yfm';
+
 import {CommonEditor, MarkupString} from '../common';
 import {ActionStorage, WysiwygEditor, WysiwygEditorOptions} from '../core';
 import {ReactRenderStorage, RenderStorage} from '../extensions';
@@ -137,7 +139,7 @@ export type EditorOptions = Pick<
     renderPreview?: RenderPreview;
     preset: EditorPreset;
     extraMarkupExtensions?: CodemirrorExtension[];
-    autocompletionConfig?: CreateCodemirrorParams['autocompletionConfig'];
+    yfmLangOptions?: CreateCodemirrorParams['yfmLangOptions'];
 };
 
 /** @internal */
@@ -151,7 +153,7 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
     #wysiwygEditor?: WysiwygEditor;
     #markupEditor?: MarkupEditor;
     #extraMarkupExtensions?: CodemirrorExtension[];
-    #autocompletionConfig?: CreateCodemirrorParams['autocompletionConfig'];
+    #yfmLangOptions?: YfmLangOptions;
 
     readonly #preset: EditorPreset;
     #allowHTML?: boolean;
@@ -275,7 +277,7 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
                     uploadHandler: this.fileUploadHandler,
                     needImgDimms: this.needToSetDimensionsForUploadedImages,
                     extraMarkupExtensions: this.#extraMarkupExtensions,
-                    autocompletionConfig: this.#autocompletionConfig,
+                    yfmLangOptions: this.#yfmLangOptions,
                     receiver: this,
                 }),
             );
@@ -311,7 +313,7 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
         this.#allowHTML = opts.allowHTML;
         this.#extensions = opts.extensions;
         this.#extraMarkupExtensions = opts.extraMarkupExtensions;
-        this.#autocompletionConfig = opts.autocompletionConfig;
+        this.#yfmLangOptions = opts.yfmLangOptions;
 
         this.#renderStorage = opts.renderStorage;
         this.#fileUploadHandler = opts.fileUploadHandler;
