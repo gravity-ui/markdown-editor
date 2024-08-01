@@ -32,7 +32,7 @@ gulp.task('scss', () => {
     return gulp
         .src('src/**/*.scss')
         .pipe(replace(/@(import|use) '~.+';/g, (match) => match.replace('~', 'node_modules/')))
-        .pipe(sass().on('error', sass.logError))
+        .pipe(sass())
         .pipe(gulp.dest(BUILD_DIR_CJS))
         .pipe(gulp.dest(BUILD_DIR_ESM))
         .pipe(concat('styles.css')) // also bundle all css to single file
