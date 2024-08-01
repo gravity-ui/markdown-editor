@@ -1,5 +1,19 @@
 # Changelog
 
+## [13.8.0](https://github.com/gravity-ui/markdown-editor/compare/v13.7.0...v13.8.0) (2024-08-01)
+
+
+### Features
+
+* **bundle:** improve drilling of codemirror config ([#323](https://github.com/gravity-ui/markdown-editor/issues/323)) ([9bf6d5d](https://github.com/gravity-ui/markdown-editor/commit/9bf6d5d6fb05b20a3091cfba30562dc08f7b9eea))
+* support YfmLangOptions drilling to markup editor ([#303](https://github.com/gravity-ui/markdown-editor/issues/303)) ([4564256](https://github.com/gravity-ui/markdown-editor/commit/4564256e34183f0081afedb841de0f1fe8349535))
+
+
+### Bug Fixes
+
+* **FoldingHeading:** correct position of separator on bottom edge of section ([#322](https://github.com/gravity-ui/markdown-editor/issues/322)) ([5fff3ca](https://github.com/gravity-ui/markdown-editor/commit/5fff3caa3e94ca19f6a7177bb1c1f2b4e8fad5cd))
+* **view:** add support for opening folding-headings in useYfmShowElemWithId() hook ([#320](https://github.com/gravity-ui/markdown-editor/issues/320)) ([05c363b](https://github.com/gravity-ui/markdown-editor/commit/05c363b2b6e8a35fbe20dcd33ece8918c64ba441))
+
 ## [13.7.0](https://github.com/gravity-ui/markdown-editor/compare/v13.6.1...v13.7.0) (2024-08-01)
 
 
