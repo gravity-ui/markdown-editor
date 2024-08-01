@@ -1,5 +1,12 @@
 # Changelog
 
+## [13.6.1](https://github.com/gravity-ui/markdown-editor/compare/v13.6.0...v13.6.1) (2024-08-01)
+
+
+### Bug Fixes
+
+* **build:** fixed build of styles ([#317](https://github.com/gravity-ui/markdown-editor/issues/317)) ([0349c71](https://github.com/gravity-ui/markdown-editor/commit/0349c71b597cab9ce72679d1854bb7e0357daaec))
+
 ## [13.6.0](https://github.com/gravity-ui/markdown-editor/compare/v13.5.3...v13.6.0) (2024-08-01)
 
 
