@@ -15,6 +15,7 @@ import {
     wysiwygToolbarConfigs,
 } from '../src';
 import type {ToolbarActionData} from '../src/bundle/Editor';
+import {FoldingHeading} from '../src/extensions/yfm/FoldingHeading';
 import {Math} from '../src/extensions/yfm/Math';
 import {Mermaid} from '../src/extensions/yfm/Mermaid';
 import {YfmHtmlBlock} from '../src/extensions/yfm/YfmHtmlBlock';
@@ -163,7 +164,8 @@ export const Playground = React.memo<PlaygroundProps>((props) => {
                 .use(YfmHtmlBlock, {
                     useConfig: useYfmHtmlBlockStyles,
                     sanitize,
-                }),
+                })
+                .use(FoldingHeading),
     });
 
     useEffect(() => {

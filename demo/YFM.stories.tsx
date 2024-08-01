@@ -290,6 +290,41 @@ sequenceDiagram
 	Bob->>Alice: Hi Alice
 \`\`\`
 `.trim(),
+
+    foldingHeadings: `
+#+ Heading 1
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum euismod, nulla sit amet sodales porttitor, ligula arcu consectetur justo, sit amet varius orci lorem a augue.
+
+##+ Heading 2
+
+Aenean lobortis rutrum eleifend. Aenean pulvinar orci eros, vitae porta justo interdum at. Proin metus nulla, porta tincidunt tempus eget, faucibus quis nisi.
+
+###+ Heading 3
+
+Praesent ut scelerisque tellus, condimentum iaculis massa. Integer a ante eu eros luctus vestibulum. Phasellus non laoreet lacus, non bibendum dui.
+
+####+ Heading 4
+
+Nunc pellentesque mollis tortor, ut dictum lectus consequat id. Aenean aliquet enim ac facilisis ornare. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos.
+
+
+#####+ Heading 5
+
+Maecenas nec nisl eu dui lacinia consequat. Nulla non lacus varius risus lacinia vulputate. Interdum et malesuada fames ac ante ipsum primis in faucibus.
+
+######+ Heading 6
+
+Nulla facilisi. Pellentesque eu neque tincidunt odio viverra bibendum. Morbi consequat ac nibh id sagittis. Cras fermentum molestie urna vitae viverra.
+
+## Heading 2
+
+Mauris sed sem lorem. Maecenas vitae augue dui. In tempus vitae sem sed ultrices. Sed hendrerit mauris a ultrices rhoncus. Sed eget nibh nec turpis dignissim hendrerit non nec dolor.
+
+# Heading 1
+
+Duis id risus sit amet nunc ornare lobortis sed ut ipsum. Cras tempus ultricies nisl in auctor. Sed nec dui eget odio laoreet commodo at nec libero.
+`.trim(),
 };
 
 type PlaygroundStoryProps = Pick<
@@ -333,6 +368,10 @@ export const Tasklist: StoryFn<PlaygroundStoryProps> = (props) => (
     <PlaygroundComponent {...props} initial={markup.tasklist} />
 );
 
+export const FoldingHeadings: StoryFn<PlaygroundProps> = (props) => (
+    <PlaygroundComponent {...props} initial={markup.foldingHeadings} />
+);
+
 export const YfmNote: StoryFn<PlaygroundStoryProps> = (props) => (
     <PlaygroundComponent {...props} initial={markup.yfmNotes} />
 );
@@ -367,6 +406,7 @@ export const MermaidDiagram: StoryFn<PlaygroundStoryProps> = (props) => (
 
 TextMarks.storyName = 'Text';
 TextMarks.args = args;
+FoldingHeadings.args = args;
 YfmNote.storyName = 'YFM Note';
 YfmNote.args = args;
 YfmCut.storyName = 'YFM Cut';
