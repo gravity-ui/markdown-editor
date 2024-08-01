@@ -9,7 +9,7 @@ import {ActionStorage, WysiwygEditor, WysiwygEditorOptions} from '../core';
 import {ReactRenderStorage, RenderStorage} from '../extensions';
 import {i18n} from '../i18n/bundle';
 import {logger} from '../logger';
-import {createCodemirror} from '../markup/codemirror';
+import {type CreateCodemirrorParams, createCodemirror} from '../markup/codemirror';
 import type {YfmLangOptions} from '../markup/codemirror/yfm';
 import {CodeEditor, Editor as MarkupEditor} from '../markup/editor';
 import {Emitter, Receiver, SafeEventEmitter} from '../utils/event-emitter';
@@ -108,6 +108,17 @@ type ChangeEditorModeOptions = {
     reason: 'error-boundary' | 'settings' | 'manually';
 };
 
+export type MarkupConfig = {
+    /** Additional extensions for codemirror instance. */
+    extensions?: CreateCodemirrorParams['extensions'];
+    /**
+     * Additional language data for markdown language in codemirror.
+     * Can be used to configure additional autocompletions and others.
+     * See more https://codemirror.net/docs/ref/#state.EditorState.languageDataAt
+     */
+    languageData?: YfmLangOptions['languageData'];
+};
+
 export type EditorOptions = Pick<
     WysiwygEditorOptions,
     'allowHTML' | 'linkify' | 'linkifyTlds' | 'extensions'
@@ -137,8 +148,9 @@ export type EditorOptions = Pick<
     splitMode?: SplitMode;
     renderPreview?: RenderPreview;
     preset: EditorPreset;
+    /** @deprecated Put extra extensions via MarkdownEditorMarkupConfig */
     extraMarkupExtensions?: CodemirrorExtension[];
-    yfmLangOptions?: YfmLangOptions;
+    markupConfig?: MarkupConfig;
 };
 
 /** @internal */
@@ -151,8 +163,7 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
     #renderPreview?: RenderPreview;
     #wysiwygEditor?: WysiwygEditor;
     #markupEditor?: MarkupEditor;
-    #extraMarkupExtensions?: CodemirrorExtension[];
-    #yfmLangOptions?: YfmLangOptions;
+    #markupConfig: MarkupConfig;
 
     readonly #preset: EditorPreset;
     #allowHTML?: boolean;
@@ -275,8 +286,8 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
                     reactRenderer: this.#renderStorage,
                     uploadHandler: this.fileUploadHandler,
                     needImgDimms: this.needToSetDimensionsForUploadedImages,
-                    extraMarkupExtensions: this.#extraMarkupExtensions,
-                    yfmLangOptions: this.#yfmLangOptions,
+                    extensions: this.#markupConfig.extensions,
+                    yfmLangOptions: {languageData: this.#markupConfig.languageData},
                     receiver: this,
                 }),
             );
@@ -311,8 +322,8 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
         this.#linkifyTlds = opts.linkifyTlds;
         this.#allowHTML = opts.allowHTML;
         this.#extensions = opts.extensions;
-        this.#extraMarkupExtensions = opts.extraMarkupExtensions;
-        this.#yfmLangOptions = opts.yfmLangOptions;
+        this.#markupConfig = {...opts.markupConfig};
+        this.#markupConfig.extensions ??= opts.extraMarkupExtensions;
 
         this.#renderStorage = opts.renderStorage;
         this.#fileUploadHandler = opts.fileUploadHandler;

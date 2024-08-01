@@ -41,6 +41,8 @@ import {ReactRendererFacet} from './react-facet';
 import {SearchPanelPlugin} from './search-plugin/plugin';
 import {type YfmLangOptions, yfmLang} from './yfm';
 
+export type {YfmLangOptions};
+
 export type CreateCodemirrorParams = {
     doc: EditorViewConfig['doc'];
     placeholderText: string;
@@ -52,7 +54,7 @@ export type CreateCodemirrorParams = {
     reactRenderer: ReactRenderStorage;
     uploadHandler?: FileUploadHandler;
     needImgDimms?: boolean;
-    extraMarkupExtensions?: Extension[];
+    extensions?: Extension[];
     receiver?: Receiver<EventMap>;
     yfmLangOptions?: YfmLangOptions;
 };
@@ -67,7 +69,7 @@ export function createCodemirror(params: CreateCodemirrorParams) {
         onSubmit,
         onChange,
         onDocChange,
-        extraMarkupExtensions,
+        extensions: extraExtensions,
         receiver,
         yfmLangOptions,
     } = params;
@@ -138,8 +140,8 @@ export function createCodemirror(params: CreateCodemirrorParams) {
             }),
         );
     }
-    if (extraMarkupExtensions) {
-        extensions.push(...extraMarkupExtensions);
+    if (extraExtensions) {
+        extensions.push(...extraExtensions);
     }
 
     return new EditorView({

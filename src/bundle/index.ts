@@ -2,6 +2,7 @@ export type {
     Editor as MarkdownEditorInstance,
     EditorMode as MarkdownEditorMode,
     EditorPreset as MarkdownEditorPreset,
+    MarkupConfig as MarkdownEditorMarkupConfig,
     RenderPreview,
     SplitMode,
 } from './Editor';
