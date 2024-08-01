@@ -1,5 +1,12 @@
 # Changelog
 
+## [13.7.0](https://github.com/gravity-ui/markdown-editor/compare/v13.6.1...v13.7.0) (2024-08-01)
+
+
+### Features
+
+* **markup:** added yfmLang autocomplete options ([#315](https://github.com/gravity-ui/markdown-editor/issues/315)) ([31e2a79](https://github.com/gravity-ui/markdown-editor/commit/31e2a79a9d6b35dfd93f4088525514d5fc283ec8))
+
 ## [13.6.1](https://github.com/gravity-ui/markdown-editor/compare/v13.6.0...v13.6.1) (2024-08-01)
 
 
