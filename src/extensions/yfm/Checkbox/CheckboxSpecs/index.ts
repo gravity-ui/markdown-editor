@@ -28,7 +28,7 @@ export const CheckboxSpecs: ExtensionAuto<CheckboxSpecsOptions> = (builder, opts
     const schemaSpecs = getSchemaSpecs(opts, builder.context.get('placeholder'));
 
     builder
-        .configureMd((md) => checkboxPlugin(md, {idPrefix, divClass: b()}))
+        .configureMd((md) => md.use(checkboxPlugin, {idPrefix, divClass: b()}))
         .addNode(CheckboxNode.Checkbox, () => ({
             spec: schemaSpecs[CheckboxNode.Checkbox],
             toMd: serializerTokens[CheckboxNode.Checkbox],
