@@ -22,6 +22,7 @@ import {getTableDimensions, isTableNode} from '../../../../../table-utils';
 import {getChildByNode} from '../../../../../utils/node-children';
 import {getChildrenOfNode} from '../../../../../utils/nodes';
 import {getReactRendererFromState} from '../../../../behavior/ReactRenderer';
+import {YfmTableAttr} from '../../const';
 
 import {controlActions} from './actions';
 
@@ -222,6 +223,15 @@ export const yfmTableCellView: NodeViewConstructor = (node, view, getPos): NodeV
     }
 
     const dom = document.createElement('td');
+    if (node.attrs[YfmTableAttr.Colspan])
+        dom.setAttribute('colspan', node.attrs[YfmTableAttr.Colspan]);
+    if (node.attrs[YfmTableAttr.Rowspan])
+        dom.setAttribute('rowspan', node.attrs[YfmTableAttr.Rowspan]);
+    if (node.attrs[YfmTableAttr.CellAlign]) {
+        dom.classList.add(node.attrs[YfmTableAttr.CellAlign]);
+        dom.setAttribute(YfmTableAttr.CellAlign, node.attrs[YfmTableAttr.Rowspan]);
+    }
+
     const contentDOM = document.createElement('div');
     const control = document.createElement('span');
     control.setAttribute('style', 'width: 0; height: 0; float: left;');

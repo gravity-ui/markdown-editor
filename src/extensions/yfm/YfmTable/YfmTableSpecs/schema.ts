@@ -3,7 +3,7 @@ import type {NodeSpec} from 'prosemirror-model';
 import {TableRole} from '../../../../table-utils';
 import {PlaceholderOptions} from '../../../../utils/placeholder';
 
-import {YfmTableNode} from './const';
+import {YfmTableAttr, YfmTableNode} from './const';
 
 import type {YfmTableSpecsOptions} from './index';
 
@@ -66,12 +66,17 @@ export const getSchemaSpecs = (
         content: 'block+',
         isolating: true,
         definingAsContext: true,
+        attrs: {
+            [YfmTableAttr.Colspan]: {default: null},
+            [YfmTableAttr.Rowspan]: {default: null},
+            [YfmTableAttr.CellAlign]: {default: null},
+        },
         parseDOM: [
             {tag: 'td', priority: 200},
             {tag: 'th', priority: 200},
         ],
-        toDOM() {
-            return ['td', 0];
+        toDOM(node) {
+            return ['td', node.attrs, 0];
         },
         placeholder: {
             content:
