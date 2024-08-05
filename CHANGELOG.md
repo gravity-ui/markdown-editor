@@ -1,5 +1,12 @@
 # Changelog
 
+## [13.9.0](https://github.com/gravity-ui/markdown-editor/compare/v13.8.0...v13.9.0) (2024-08-05)
+
+
+### Features
+
+* **YfmTable:** added support of colspan, rowspan and cell-align in yfm-tables ([#324](https://github.com/gravity-ui/markdown-editor/issues/324)) ([14dd054](https://github.com/gravity-ui/markdown-editor/commit/14dd0544ed445629b3802e0f1ce00e9ea9b044b8))
+
 ## [13.8.0](https://github.com/gravity-ui/markdown-editor/compare/v13.7.0...v13.8.0) (2024-08-01)
 
 
