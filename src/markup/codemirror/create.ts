@@ -57,6 +57,7 @@ export type CreateCodemirrorParams = {
     extensions?: Extension[];
     receiver?: Receiver<EventMap>;
     yfmLangOptions?: YfmLangOptions;
+    autocompletionConfig?: Parameters<typeof autocompletion>[0];
 };
 
 export function createCodemirror(params: CreateCodemirrorParams) {
@@ -72,6 +73,7 @@ export function createCodemirror(params: CreateCodemirrorParams) {
         extensions: extraExtensions,
         receiver,
         yfmLangOptions,
+        autocompletionConfig,
     } = params;
 
     const extensions: Extension[] = [
@@ -116,7 +118,7 @@ export function createCodemirror(params: CreateCodemirrorParams) {
             ...defaultKeymap,
             ...historyKeymap,
         ]),
-        autocompletion(),
+        autocompletion(autocompletionConfig),
         yfmLang(yfmLangOptions),
         ReactRendererFacet.of(reactRenderer),
         PairingCharactersExtension,
