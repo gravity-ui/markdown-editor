@@ -55,7 +55,11 @@ const extendedPlugins = defaultPlugins.concat(
     mark,
     mermaid({bundle: false, runtime: MERMAID_RUNTIME}),
     sub,
-    yfmHtmlBlock({bundle: false, runtimeJsPath: YFM_HTML_BLOCK_RUNTIME}),
+    yfmHtmlBlock({
+        bundle: false,
+        runtimeJsPath: YFM_HTML_BLOCK_RUNTIME,
+        styles: 'https://meyerweb.com/eric/tools/css/reset/reset200802.css',
+    }),
     foldingHeadings({bundle: false}),
 );
 

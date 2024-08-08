@@ -1,5 +1,6 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
 import {transform} from '@diplodoc/html-extension';
+import {BaseTarget, StylesObject} from '@diplodoc/html-extension/plugin';
 
 import type {ExtensionAuto, ExtensionNodeSpec} from '../../../../core';
 
@@ -10,14 +11,16 @@ export {yfmHtmlBlockNodeName} from './const';
 export type YfmHtmlBlockSpecsOptions = {
     nodeView?: ExtensionNodeSpec['view'];
     sanitize?: (dirtyHtml: string) => string;
+    styles?: string | StylesObject;
+    baseTarget?: BaseTarget;
 };
 
 const YfmHtmlBlockSpecsExtension: ExtensionAuto<YfmHtmlBlockSpecsOptions> = (
     builder,
-    {nodeView, sanitize},
+    {nodeView, ...options},
 ) => {
     builder
-        .configureMd((md) => md.use(transform({bundle: false, sanitize}), {}))
+        .configureMd((md) => md.use(transform({bundle: false, ...options}), {}))
         .addNode(YfmHtmlBlockConsts.NodeName, () => ({
             fromMd: {
                 tokenSpec: {
