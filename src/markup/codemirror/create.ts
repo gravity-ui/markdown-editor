@@ -1,14 +1,14 @@
 import {autocompletion} from '@codemirror/autocomplete';
 import {
+    historyKeymap as defaultHistoryKeymap,
     defaultKeymap,
     history,
-    historyKeymap,
     indentWithTab,
     insertTab,
 } from '@codemirror/commands';
 import {syntaxHighlighting} from '@codemirror/language';
 import type {Extension, StateCommand} from '@codemirror/state';
-import {EditorView, EditorViewConfig, keymap, placeholder} from '@codemirror/view';
+import {EditorView, EditorViewConfig, KeyBinding, keymap, placeholder} from '@codemirror/view';
 
 import {EventMap} from '../../bundle/Editor';
 import {ActionName} from '../../bundle/config/action-names';
@@ -55,6 +55,8 @@ export type CreateCodemirrorParams = {
     uploadHandler?: FileUploadHandler;
     needImgDimms?: boolean;
     extensions?: Extension[];
+    historyExtension?: Extension | false;
+    historyKeymap?: readonly KeyBinding[];
     receiver?: Receiver<EventMap>;
     yfmLangOptions?: YfmLangOptions;
 };
@@ -70,14 +72,19 @@ export function createCodemirror(params: CreateCodemirrorParams) {
         onChange,
         onDocChange,
         extensions: extraExtensions,
+        historyExtension = history(),
+        historyKeymap = defaultHistoryKeymap,
         receiver,
         yfmLangOptions,
     } = params;
 
-    const extensions: Extension[] = [
-        gravityTheme,
-        placeholder(placeholderText),
-        history(),
+    const extensions: Extension[] = [gravityTheme, placeholder(placeholderText)];
+
+    if (historyExtension) {
+        extensions.push(historyExtension);
+    }
+
+    extensions.push(
         syntaxHighlighting(gravityHighlightStyle),
         keymap.of([
             {key: f.toCM(A.Bold)!, run: withLogger(ActionName.bold, toggleBold)},
@@ -131,7 +138,8 @@ export function createCodemirror(params: CreateCodemirrorParams) {
             anchorSelector: '.g-md-search-anchor',
             receiver,
         }),
-    ];
+    );
+
     if (params.uploadHandler) {
         extensions.push(
             FileUploadHandlerFacet.of({
@@ -140,6 +148,7 @@ export function createCodemirror(params: CreateCodemirrorParams) {
             }),
         );
     }
+
     if (extraExtensions) {
         extensions.push(...extraExtensions);
     }
