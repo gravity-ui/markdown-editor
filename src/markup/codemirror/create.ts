@@ -1,8 +1,8 @@
 import {autocompletion} from '@codemirror/autocomplete';
 import {
-    historyKeymap as defaultHistoryKeymap,
     defaultKeymap,
     history,
+    historyKeymap,
     indentWithTab,
     insertTab,
 } from '@codemirror/commands';
@@ -55,8 +55,10 @@ export type CreateCodemirrorParams = {
     uploadHandler?: FileUploadHandler;
     needImgDimms?: boolean;
     extensions?: Extension[];
-    historyExtension?: Extension | false;
-    historyKeymap?: readonly KeyBinding[];
+    disabledExtensions?: {
+        history?: boolean;
+    };
+    keymaps?: readonly KeyBinding[];
     receiver?: Receiver<EventMap>;
     yfmLangOptions?: YfmLangOptions;
 };
@@ -72,16 +74,16 @@ export function createCodemirror(params: CreateCodemirrorParams) {
         onChange,
         onDocChange,
         extensions: extraExtensions,
-        historyExtension = history(),
-        historyKeymap = defaultHistoryKeymap,
+        disabledExtensions = {},
+        keymaps = [],
         receiver,
         yfmLangOptions,
     } = params;
 
     const extensions: Extension[] = [gravityTheme, placeholder(placeholderText)];
 
-    if (historyExtension) {
-        extensions.push(historyExtension);
+    if (!disabledExtensions.history) {
+        extensions.push(history());
     }
 
     extensions.push(
@@ -121,7 +123,8 @@ export function createCodemirror(params: CreateCodemirrorParams) {
             {key: 'Tab', preventDefault: true, run: insertTab},
             indentWithTab,
             ...defaultKeymap,
-            ...historyKeymap,
+            ...(disabledExtensions.history ? [] : historyKeymap),
+            ...keymaps,
         ]),
         autocompletion(),
         yfmLang(yfmLangOptions),
