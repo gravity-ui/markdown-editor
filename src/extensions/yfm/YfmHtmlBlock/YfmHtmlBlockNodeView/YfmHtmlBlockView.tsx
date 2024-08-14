@@ -1,5 +1,6 @@
 import React, {useEffect, useRef, useState} from 'react';
 
+import {getStyles} from '@diplodoc/html-extension';
 import type {IHTMLIFrameElementConfig} from '@diplodoc/html-extension/runtime';
 import {Ellipsis as DotsIcon, Eye} from '@gravity-ui/icons';
 import {Button, Icon, Label, Menu, Popup} from '@gravity-ui/uikit';
@@ -13,11 +14,12 @@ import {i18n} from '../../../../i18n/common';
 import {useBooleanState} from '../../../../react-utils/hooks';
 import {removeNode} from '../../../../utils/remove-node';
 import {YfmHtmlBlockConsts} from '../YfmHtmlBlockSpecs/const';
+import {YfmHtmlBlockOptions} from '../index';
+
+import './YfmHtmlBlock.scss';
 
 export const cnYfmHtmlBlock = cn('yfm-html-block');
 export const cnHelper = cn('yfm-html-block-helper');
-
-import './YfmHtmlBlock.scss';
 
 const b = cnYfmHtmlBlock;
 
@@ -202,10 +204,15 @@ export const YfmHtmlBlockView: React.FC<{
     getPos: () => number | undefined;
     node: Node;
     onChange: (attrs: {[YfmHtmlBlockConsts.NodeAttrs.srcdoc]: string}) => void;
-    sanitize?: (dirtyHtml: string) => string;
-    useConfig?: () => IHTMLIFrameElementConfig | undefined;
+    options: YfmHtmlBlockOptions;
     view: EditorView;
-}> = ({onChange, node, getPos, view, useConfig, sanitize}) => {
+}> = ({
+    onChange,
+    node,
+    getPos,
+    view,
+    options: {useConfig, sanitize, styles, baseTarget = '_parent'},
+}) => {
     const [editing, setEditing, unsetEditing, toggleEditing] = useBooleanState(
         Boolean(node.attrs[YfmHtmlBlockConsts.NodeAttrs.newCreated]),
     );
@@ -232,7 +239,17 @@ export const YfmHtmlBlockView: React.FC<{
         );
     }
 
-    const dirtyHtml = node.attrs[YfmHtmlBlockConsts.NodeAttrs.srcdoc];
+    let dirtyHtml =
+        `<base target="${baseTarget}">` + node.attrs[YfmHtmlBlockConsts.NodeAttrs.srcdoc];
+
+    if (styles) {
+        const stylesContent =
+            typeof styles === 'string'
+                ? `<link rel="stylesheet" href="${styles}" />`
+                : `<style>${getStyles(styles)}</style>`;
+        dirtyHtml = stylesContent + dirtyHtml;
+    }
+
     const html = sanitize ? sanitize(dirtyHtml) : dirtyHtml;
 
     return (
