@@ -206,13 +206,7 @@ export const YfmHtmlBlockView: React.FC<{
     onChange: (attrs: {[YfmHtmlBlockConsts.NodeAttrs.srcdoc]: string}) => void;
     options: YfmHtmlBlockOptions;
     view: EditorView;
-}> = ({
-    onChange,
-    node,
-    getPos,
-    view,
-    options: {useConfig, sanitize, styles, baseTarget = '_parent'},
-}) => {
+}> = ({onChange, node, getPos, view, options: {useConfig, sanitize, styles, baseTarget = '_'}}) => {
     const [editing, setEditing, unsetEditing, toggleEditing] = useBooleanState(
         Boolean(node.attrs[YfmHtmlBlockConsts.NodeAttrs.newCreated]),
     );

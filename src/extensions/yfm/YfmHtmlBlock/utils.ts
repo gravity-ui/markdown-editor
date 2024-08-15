@@ -1,10 +1,4 @@
-import diplodocSanitize, {defaultOptions} from '@diplodoc/transform/lib/sanitize';
-
-type AllowedAttributesType = Record<
-    string,
-    (string | {name: string; multiple?: boolean | undefined; values: string[]})[]
->;
-const defaultAllowedAttributes = defaultOptions.allowedAttributes as AllowedAttributesType;
+import diplodocSanitize, {SanitizeOptions} from '@diplodoc/transform/lib/sanitize';
 
 // yfmHtmlBlock additional css properties white list
 const getYfmHtmlBlockWhiteList = () => {
@@ -13,6 +7,7 @@ const getYfmHtmlBlockWhiteList = () => {
     whiteList['align-content'] = true; // default: auto
     whiteList['align-items'] = true; // default: auto
     whiteList['align-self'] = true; // default: auto
+    whiteList.columns = true; // default: depending on individual properties
     whiteList['column-count'] = true; // default: auto
     whiteList['column-fill'] = true; // default: balance
     whiteList['column-gap'] = true; // default: normal
@@ -22,7 +17,6 @@ const getYfmHtmlBlockWhiteList = () => {
     whiteList['column-rule-width'] = true; // default: medium
     whiteList['column-span'] = true; // default: none
     whiteList['column-width'] = true; // default: auto
-    whiteList.columns = true; // default: depending on individual properties
     whiteList.flex = true; // default: depending on individual properties
     whiteList['flex-basis'] = true; // default: auto
     whiteList['flex-direction'] = true; // default: row
@@ -30,6 +24,7 @@ const getYfmHtmlBlockWhiteList = () => {
     whiteList['flex-grow'] = true; // default: 0
     whiteList['flex-shrink'] = true; // default: 1
     whiteList['flex-wrap'] = true; // default: nowrap
+    whiteList.gap = true; // default: normal normal
     whiteList.grid = true; // default: depending on individual properties
     whiteList['grid-area'] = true; // default: depending on individual properties
     whiteList['grid-auto-columns'] = true; // default: auto
@@ -48,6 +43,7 @@ const getYfmHtmlBlockWhiteList = () => {
     whiteList['justify-content'] = true; // default: auto
     whiteList['justify-items'] = true; // default: auto
     whiteList['justify-self'] = true; // default: auto
+    whiteList['line-height'] = true; // default: normal
     whiteList['object-fit'] = true; // default: fill
     whiteList['object-position'] = true; // default: 50% 50%
     whiteList.order = true; // default: 0
@@ -67,21 +63,35 @@ const yfmHtmlBlockAllowedAttributes = {
     style: [],
 };
 
-const yfmHtmlBlockOptions = {
-    ...defaultOptions,
-    allowedAttributes: {
-        ...defaultAllowedAttributes,
-        ...yfmHtmlBlockAllowedAttributes,
-    },
-    allowedTags:
-        typeof defaultOptions.allowedTags === 'boolean'
-            ? defaultOptions.allowedTags
-            : [...(defaultOptions.allowedTags ?? []), ...yfmHtmlBlockAllowedTags],
-    cssWhiteList: {
-        ...defaultOptions.cssWhiteList,
-        ...getYfmHtmlBlockWhiteList(),
-    },
+export const getYfmHtmlBlockOptions = (defaultOptions: SanitizeOptions): SanitizeOptions => {
+    type AllowedAttributesType = Record<
+        string,
+        (string | {name: string; multiple?: boolean | undefined; values: string[]})[]
+    >;
+    const defaultAllowedAttributes = defaultOptions.allowedAttributes as AllowedAttributesType;
+
+    return {
+        ...defaultOptions,
+        allowedAttributes: {
+            ...defaultAllowedAttributes,
+            ...yfmHtmlBlockAllowedAttributes,
+        },
+        allowedTags:
+            typeof defaultOptions.allowedTags === 'boolean'
+                ? defaultOptions.allowedTags
+                : [...(defaultOptions.allowedTags ?? []), ...yfmHtmlBlockAllowedTags],
+        cssWhiteList: {
+            ...defaultOptions.cssWhiteList,
+            ...getYfmHtmlBlockWhiteList(),
+        },
+    };
 };
 
-export const sanitizeYfmHtmlBlock = (content: string) =>
-    diplodocSanitize(content, yfmHtmlBlockOptions);
+export interface GetSanitizeYfmHtmlBlockArgs {
+    options: SanitizeOptions;
+    sanitize?: (html: string, options?: SanitizeOptions) => string;
+}
+export const getSanitizeYfmHtmlBlock =
+    ({options, sanitize = diplodocSanitize}: GetSanitizeYfmHtmlBlockArgs) =>
+    (content: string) =>
+        sanitize(content, getYfmHtmlBlockOptions(options));
