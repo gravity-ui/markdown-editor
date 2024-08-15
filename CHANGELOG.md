@@ -1,5 +1,12 @@
 # Changelog
 
+## [13.12.1](https://github.com/gravity-ui/markdown-editor/compare/v13.12.0...v13.12.1) (2024-08-15)
+
+
+### Bug Fixes
+
+* **YfmHtmlBlock:** added YfmHtmlBlockOptions, added getSanitizeYfmHtmlBlock ([#332](https://github.com/gravity-ui/markdown-editor/issues/332)) ([999ba68](https://github.com/gravity-ui/markdown-editor/commit/999ba68ee6004fe732f380428b4188f081b5ba3e))
+
 ## [13.12.0](https://github.com/gravity-ui/markdown-editor/compare/v13.11.0...v13.12.0) (2024-08-15)
 
 
