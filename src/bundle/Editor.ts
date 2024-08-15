@@ -111,6 +111,10 @@ type ChangeEditorModeOptions = {
 export type MarkupConfig = {
     /** Additional extensions for codemirror instance. */
     extensions?: CreateCodemirrorParams['extensions'];
+    /** Can be used to disable some of the default extensions */
+    disabledExtensions?: CreateCodemirrorParams['disabledExtensions'];
+    /** Additional keymaps for codemirror instance */
+    keymaps?: CreateCodemirrorParams['keymaps'];
     /**
      * Additional language data for markdown language in codemirror.
      * Can be used to configure additional autocompletions and others.
@@ -287,6 +291,8 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
                     uploadHandler: this.fileUploadHandler,
                     needImgDimms: this.needToSetDimensionsForUploadedImages,
                     extensions: this.#markupConfig.extensions,
+                    disabledExtensions: this.#markupConfig.disabledExtensions,
+                    keymaps: this.#markupConfig.keymaps,
                     yfmLangOptions: {languageData: this.#markupConfig.languageData},
                     receiver: this,
                 }),
