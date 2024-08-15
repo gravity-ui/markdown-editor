@@ -1,6 +1,6 @@
 import React, {CSSProperties, useCallback, useEffect, useState} from 'react';
 
-import sanitize from '@diplodoc/transform/lib/sanitize';
+import {defaultOptions} from '@diplodoc/transform/lib/sanitize';
 import {Button, DropdownMenu} from '@gravity-ui/uikit';
 import {toaster} from '@gravity-ui/uikit/toaster-singleton-react-18';
 
@@ -20,6 +20,7 @@ import {FoldingHeading} from '../src/extensions/yfm/FoldingHeading';
 import {Math} from '../src/extensions/yfm/Math';
 import {Mermaid} from '../src/extensions/yfm/Mermaid';
 import {YfmHtmlBlock} from '../src/extensions/yfm/YfmHtmlBlock';
+import {getSanitizeYfmHtmlBlock} from '../src/extensions/yfm/YfmHtmlBlock/utils';
 import {cloneDeep} from '../src/lodash';
 import type {FileUploadHandler} from '../src/utils/upload';
 import {VERSION} from '../src/version';
@@ -164,7 +165,13 @@ export const Playground = React.memo<PlaygroundProps>((props) => {
                 })
                 .use(YfmHtmlBlock, {
                     useConfig: useYfmHtmlBlockStyles,
-                    sanitize,
+                    sanitize: getSanitizeYfmHtmlBlock({options: defaultOptions}),
+                    baseTarget: '_blank',
+                    styles: {
+                        body: {
+                            margin: 0,
+                        },
+                    },
                 })
                 .use(FoldingHeading),
     });

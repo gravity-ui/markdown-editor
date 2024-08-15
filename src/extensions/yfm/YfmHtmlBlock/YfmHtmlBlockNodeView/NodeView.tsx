@@ -98,8 +98,7 @@ export class WYfmHtmlBlockNodeView implements NodeView {
                 getPos={this.getPos}
                 node={this.node}
                 onChange={this.onChange.bind(this)}
-                sanitize={this.options.sanitize}
-                useConfig={this.options.useConfig}
+                options={this.options}
                 view={this.view}
             />,
             this.dom,
