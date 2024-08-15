@@ -2,6 +2,9 @@ import {SanitizeOptions} from '@diplodoc/transform/lib/sanitize';
 
 import {getSanitizeYfmHtmlBlock, getYfmHtmlBlockOptions} from './utils'; // update the path accordingly
 
+// remove all whitespaces and newline characters
+const normalizeWhitespace = (str: string) => str.replace(/\s+/g, ' ').trim();
+
 describe('sanitize options functions', () => {
     const defaultOptions: SanitizeOptions = {
         allowedTags: ['b', 'i', 'strong', 'em'],
@@ -106,11 +109,13 @@ describe('sanitize HTML function', () => {
         `;
 
         const sanitizeYfmHtmlBlock = getSanitizeYfmHtmlBlock({options});
-        const sanitizedContent = sanitizeYfmHtmlBlock(htmlContent);
+        const sanitizedContent = normalizeWhitespace(sanitizeYfmHtmlBlock(htmlContent));
 
         expect(sanitizedContent).toContain('<link href="styles.css" rel="stylesheet" />');
         expect(sanitizedContent).toContain('<base target="_blank" />');
-        expect(sanitizedContent).toContain('<style>.example { flex: 1; columns: 1; }</style>');
+        expect(sanitizedContent).toContain(
+            normalizeWhitespace('<style>.example { flex: 1; columns: 1; }</style>'),
+        );
     });
 
     it('should sanitize HTML content using a custom sanitize function', () => {
