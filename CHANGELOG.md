@@ -1,5 +1,12 @@
 # Changelog
 
+## [13.12.0](https://github.com/gravity-ui/markdown-editor/compare/v13.11.0...v13.12.0) (2024-08-15)
+
+
+### Features
+
+* emit flag for setEditorMode ([#334](https://github.com/gravity-ui/markdown-editor/issues/334)) ([e633ab4](https://github.com/gravity-ui/markdown-editor/commit/e633ab413b57ba1aef6a002fb5f5a1b0c38c8b99))
+
 ## [13.11.0](https://github.com/gravity-ui/markdown-editor/compare/v13.10.0...v13.11.0) (2024-08-15)
 
 
