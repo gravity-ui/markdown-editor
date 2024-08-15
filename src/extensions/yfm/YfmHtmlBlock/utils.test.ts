@@ -100,16 +100,16 @@ describe('sanitize HTML function', () => {
         const htmlContent = `
             <b>Bold</b>
             <i>Italic</i>
-            <link href="styles.css" rel="stylesheet">
-            <base target="_blank">
+            <link href="styles.css" rel="stylesheet" />
+            <base target="_blank" />
             <style>.example { flex: 1; columns: 1; }</style>
         `;
 
         const sanitizeYfmHtmlBlock = getSanitizeYfmHtmlBlock({options});
         const sanitizedContent = sanitizeYfmHtmlBlock(htmlContent);
 
-        expect(sanitizedContent).toContain('<link href="styles.css" rel="stylesheet">');
-        expect(sanitizedContent).toContain('<base target="_blank">');
+        expect(sanitizedContent).toContain('<link href="styles.css" rel="stylesheet" />');
+        expect(sanitizedContent).toContain('<base target="_blank" />');
         expect(sanitizedContent).toContain('<style>.example { flex: 1; columns: 1; }</style>');
     });
 
