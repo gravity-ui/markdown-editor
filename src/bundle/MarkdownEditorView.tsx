@@ -181,7 +181,11 @@ export const MarkdownEditorView = React.forwardRef<HTMLDivElement, MarkdownEdito
                     });
                     setTimeout(() => {
                         resetErrorBoundary();
-                        editor.changeEditorMode({mode: 'markup', reason: 'error-boundary'});
+                        editor.changeEditorMode({
+                            mode: 'markup',
+                            reason: 'error-boundary',
+                            emit: false,
+                        });
                     });
                     return null;
                 }}
