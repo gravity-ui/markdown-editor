@@ -126,6 +126,11 @@ export type MarkupConfig = {
     languageData?: YfmLangOptions['languageData'];
 };
 
+export type EscapeConfig = {
+        commonEscape?: RegExp
+        startOfLineEscape?: RegExp;
+    }
+
 export type EditorOptions = Pick<
     WysiwygEditorOptions,
     'allowHTML' | 'linkify' | 'linkifyTlds' | 'extensions'
@@ -158,6 +163,7 @@ export type EditorOptions = Pick<
     /** @deprecated Put extra extensions via MarkdownEditorMarkupConfig */
     extraMarkupExtensions?: CodemirrorExtension[];
     markupConfig?: MarkupConfig;
+    escapeConfig?: EscapeConfig;
 };
 
 /** @internal */
@@ -171,6 +177,7 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
     #wysiwygEditor?: WysiwygEditor;
     #markupEditor?: MarkupEditor;
     #markupConfig: MarkupConfig;
+    #escapeConfig?: EscapeConfig;
 
     readonly #preset: EditorPreset;
     #allowHTML?: boolean;
@@ -262,6 +269,7 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
     }
 
     get wysiwygEditor(): WysiwygEditor {
+
         if (!this.#wysiwygEditor) {
             const mdPreset: NonNullable<WysiwygEditorOptions['mdPreset']> =
                 this.#preset === 'zero' || this.#preset === 'commonmark' ? this.#preset : 'default';
@@ -272,6 +280,7 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
                 allowHTML: this.#allowHTML,
                 linkify: this.#linkify,
                 linkifyTlds: this.#linkifyTlds,
+                escapeConfig: this.#escapeConfig,
                 onChange: () => this.emit('rerender-toolbar', null),
                 onDocChange: () => this.emit('change', null),
             });
@@ -340,6 +349,7 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
             opts.needToSetDimensionsForUploadedImages,
         );
         this.#prepareRawMarkup = opts.prepareRawMarkup;
+        this.#escapeConfig = opts.escapeConfig;
     }
 
     // ---> implements CodeEditor
@@ -483,6 +493,7 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
     private shouldReplaceMarkupEditorValue(markupValue: string, wysiwygValue: string) {
         const serializedEditorMarkup = this.#wysiwygEditor?.serializer.serialize(
             this.#wysiwygEditor.parser.parse(markupValue),
+            this.#escapeConfig
         );
         return serializedEditorMarkup?.trim() !== wysiwygValue.trim();
     }

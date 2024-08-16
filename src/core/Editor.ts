@@ -16,6 +16,11 @@ import {logTransactionMetrics} from './utils/metrics';
 
 type OnChange = (editor: WysiwygEditor) => void;
 
+type EscapeConfig = {
+        commonEscape?: RegExp
+        startOfLineEscape?: RegExp;
+    }
+
 export type WysiwygEditorOptions = {
     domElem?: Element;
     /** markdown markup */
@@ -26,6 +31,7 @@ export type WysiwygEditorOptions = {
     allowHTML?: boolean;
     linkify?: boolean;
     linkifyTlds?: string | string[];
+    escapeConfig?:  EscapeConfig;
     /** Call on any state change (move cursor, change selection, etc...) */
     onChange?: OnChange;
     /** Call only if document change */
@@ -38,6 +44,7 @@ export class WysiwygEditor implements CommonEditor, ActionStorage {
     #parser: Parser;
     #actions: ActionsManager;
     #contentHandler: ContentHandler;
+    #escapeConfig?: EscapeConfig;
 
     get dom() {
         return this.#view.dom;
@@ -68,6 +75,7 @@ export class WysiwygEditor implements CommonEditor, ActionStorage {
         mdPreset,
         linkify,
         linkifyTlds,
+        escapeConfig,
         onChange,
         onDocChange,
     }: WysiwygEditorOptions) {
@@ -117,6 +125,7 @@ export class WysiwygEditor implements CommonEditor, ActionStorage {
         this.#serializer = serializer;
         this.#parser = parser;
         this.#contentHandler = new WysiwygContentHandler(this.#view, parser);
+        this.#escapeConfig = escapeConfig;
     }
 
     action<T extends keyof WysiwygEditor.Actions>(actionName: T): WysiwygEditor.Actions[T] {
@@ -132,7 +141,7 @@ export class WysiwygEditor implements CommonEditor, ActionStorage {
     }
 
     getValue(): MarkupString {
-        return this.#serializer.serialize(this.#view.state.doc);
+        return this.#serializer.serialize(this.#view.state.doc, this.#escapeConfig);
     }
 
     isEmpty(): boolean {

@@ -15,7 +15,7 @@ import {
     useMarkdownEditor,
     wysiwygToolbarConfigs,
 } from '../src';
-import type {ToolbarActionData} from '../src/bundle/Editor';
+import type {EscapeConfig, ToolbarActionData} from '../src/bundle/Editor';
 import {FoldingHeading} from '../src/extensions/yfm/FoldingHeading';
 import {Math} from '../src/extensions/yfm/Math';
 import {Mermaid} from '../src/extensions/yfm/Mermaid';
@@ -74,6 +74,7 @@ export type PlaygroundProps = {
     initialSplitModeEnabled?: boolean;
     renderPreviewDefined?: boolean;
     height?: CSSProperties['height'];
+    escapeConfig?: EscapeConfig;
     onChangeEditorType?: (mode: MarkdownEditorMode) => void;
     onChangeSplitModeEnabled?: (splitModeEnabled: boolean) => void;
 };
@@ -100,6 +101,7 @@ export const Playground = React.memo<PlaygroundProps>((props) => {
         stickyToolbar,
         renderPreviewDefined,
         height,
+        escapeConfig,
     } = props;
     const [editorMode, setEditorMode] = React.useState<MarkdownEditorMode>(
         initialEditor ?? 'wysiwyg',
@@ -135,6 +137,7 @@ export const Playground = React.memo<PlaygroundProps>((props) => {
         initialSplitModeEnabled: initialSplitModeEnabled,
         initialToolbarVisible: true,
         splitMode: splitModeOrientation,
+        escapeConfig: escapeConfig ?? undefined,
         renderPreview: renderPreviewDefined ? renderPreview : undefined,
         fileUploadHandler,
         prepareRawMarkup: prepareRawMarkup
