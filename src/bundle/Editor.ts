@@ -127,9 +127,9 @@ export type MarkupConfig = {
 };
 
 export type EscapeConfig = {
-        commonEscape?: RegExp
-        startOfLineEscape?: RegExp;
-    }
+    commonEscape?: RegExp;
+    startOfLineEscape?: RegExp;
+};
 
 export type EditorOptions = Pick<
     WysiwygEditorOptions,
@@ -269,7 +269,6 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
     }
 
     get wysiwygEditor(): WysiwygEditor {
-
         if (!this.#wysiwygEditor) {
             const mdPreset: NonNullable<WysiwygEditorOptions['mdPreset']> =
                 this.#preset === 'zero' || this.#preset === 'commonmark' ? this.#preset : 'default';
@@ -493,7 +492,7 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
     private shouldReplaceMarkupEditorValue(markupValue: string, wysiwygValue: string) {
         const serializedEditorMarkup = this.#wysiwygEditor?.serializer.serialize(
             this.#wysiwygEditor.parser.parse(markupValue),
-            this.#escapeConfig
+            this.#escapeConfig,
         );
         return serializedEditorMarkup?.trim() !== wysiwygValue.trim();
     }

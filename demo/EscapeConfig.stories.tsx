@@ -12,13 +12,23 @@ export default {
     component: PlaygroundComponent,
 } as ComponentMeta<any>;
 
-type PlaygroundStoryProps = Pick<
-    PlaygroundProps,
-    | 'initialEditor'
-> & {commonEscapeRegexp: string, startOfLineEscapeRegexp: string};
-export const EscapeConfig: Story<PlaygroundStoryProps> = ({commonEscapeRegexp, startOfLineEscapeRegexp, ...props}) => (
-    <PlaygroundComponent {...props} initial={parseLocation() || initialMdContent}
-    escapeConfig={{commonEscape: new RegExp(commonEscapeRegexp), startOfLineEscape: new RegExp(startOfLineEscapeRegexp)}} />
+type PlaygroundStoryProps = Pick<PlaygroundProps, 'initialEditor'> & {
+    commonEscapeRegexp: string;
+    startOfLineEscapeRegexp: string;
+};
+export const EscapeConfig: Story<PlaygroundStoryProps> = ({
+    commonEscapeRegexp,
+    startOfLineEscapeRegexp,
+    ...props
+}) => (
+    <PlaygroundComponent
+        {...props}
+        initial={parseLocation() || initialMdContent}
+        escapeConfig={{
+            commonEscape: new RegExp(commonEscapeRegexp),
+            startOfLineEscape: new RegExp(startOfLineEscapeRegexp),
+        }}
+    />
 );
 
 EscapeConfig.args = {

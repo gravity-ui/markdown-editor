@@ -17,9 +17,9 @@ import {logTransactionMetrics} from './utils/metrics';
 type OnChange = (editor: WysiwygEditor) => void;
 
 type EscapeConfig = {
-        commonEscape?: RegExp
-        startOfLineEscape?: RegExp;
-    }
+    commonEscape?: RegExp;
+    startOfLineEscape?: RegExp;
+};
 
 export type WysiwygEditorOptions = {
     domElem?: Element;
@@ -31,7 +31,7 @@ export type WysiwygEditorOptions = {
     allowHTML?: boolean;
     linkify?: boolean;
     linkifyTlds?: string | string[];
-    escapeConfig?:  EscapeConfig;
+    escapeConfig?: EscapeConfig;
     /** Call on any state change (move cursor, change selection, etc...) */
     onChange?: OnChange;
     /** Call only if document change */
