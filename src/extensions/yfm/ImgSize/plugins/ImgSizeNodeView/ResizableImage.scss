@@ -2,13 +2,16 @@
     position: relative;
 
     &__resizer {
-        bottom: -1px;
-        cursor: nwse-resize;
-        display: none;
-        height: 101%;
         position: absolute;
         right: -1px;
+        bottom: -1px;
+
+        display: none;
+
         width: 101%;
+        height: 101%;
+
+        cursor: nwse-resize;
     }
 
     &:hover &__resizer {
