@@ -137,7 +137,7 @@ export const Playground = React.memo<PlaygroundProps>((props) => {
         initialSplitModeEnabled: initialSplitModeEnabled,
         initialToolbarVisible: true,
         splitMode: splitModeOrientation,
-        escapeConfig: escapeConfig ?? undefined,
+        escapeConfig: escapeConfig,
         renderPreview: renderPreviewDefined ? renderPreview : undefined,
         fileUploadHandler,
         prepareRawMarkup: prepareRawMarkup
