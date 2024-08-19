@@ -124,8 +124,8 @@ export type MarkupConfig = {
      * See more https://codemirror.net/docs/ref/#state.EditorState.languageDataAt
      */
     languageData?: YfmLangOptions['languageData'];
-    /** Config for autocompletion. Can be used to style tooltip */
-    autocompletionConfig?: CreateCodemirrorParams['autocompletionConfig'];
+    /** Part of autocompletion config. Can be used to style tooltip */
+    autocompletionAddToOptions?: CreateCodemirrorParams['autocompletionAddToOptions'];
 };
 
 export type EditorOptions = Pick<
@@ -299,7 +299,7 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
                     disabledExtensions: this.#markupConfig.disabledExtensions,
                     keymaps: this.#markupConfig.keymaps,
                     yfmLangOptions: {languageData: this.#markupConfig.languageData},
-                    autocompletionConfig: this.#markupConfig.autocompletionConfig,
+                    autocompletionAddToOptions: this.#markupConfig.autocompletionAddToOptions,
                     receiver: this,
                 }),
             );
