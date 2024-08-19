@@ -55,7 +55,7 @@ export interface Editor extends Receiver<EventMap>, CommonEditor {
     readonly currentMode: EditorMode;
     readonly toolbarVisible: boolean;
 
-    setEditorMode(mode: EditorMode): void;
+    setEditorMode(mode: EditorMode, opts?: SetEditorModeOptions): void;
 
     moveCursor(position: 'start' | 'end' | {line: number}): void;
 
@@ -91,7 +91,7 @@ export interface EditorInt
 
     changeEditorMode(opts: ChangeEditorModeOptions): void;
 
-    setEditorMode(mode: EditorMode): void;
+    setEditorMode(mode: EditorMode, opts?: SetEditorModeOptions): void;
 
     moveCursor(position: 'start' | 'end' | {line: number}): void;
 
@@ -102,15 +102,22 @@ export interface EditorInt
     destroy(): void;
 }
 
+type SetEditorModeOptions = Pick<ChangeEditorModeOptions, 'emit'>;
+
 /** @internal */
 type ChangeEditorModeOptions = {
     mode: EditorMode;
     reason: 'error-boundary' | 'settings' | 'manually';
+    emit?: boolean;
 };
 
 export type MarkupConfig = {
     /** Additional extensions for codemirror instance. */
     extensions?: CreateCodemirrorParams['extensions'];
+    /** Can be used to disable some of the default extensions */
+    disabledExtensions?: CreateCodemirrorParams['disabledExtensions'];
+    /** Additional keymaps for codemirror instance */
+    keymaps?: CreateCodemirrorParams['keymaps'];
     /**
      * Additional language data for markdown language in codemirror.
      * Can be used to configure additional autocompletions and others.
@@ -289,6 +296,8 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
                     uploadHandler: this.fileUploadHandler,
                     needImgDimms: this.needToSetDimensionsForUploadedImages,
                     extensions: this.#markupConfig.extensions,
+                    disabledExtensions: this.#markupConfig.disabledExtensions,
+                    keymaps: this.#markupConfig.keymaps,
                     yfmLangOptions: {languageData: this.#markupConfig.languageData},
                     autocompletionConfig: this.#markupConfig.autocompletionConfig,
                     receiver: this,
@@ -364,15 +373,15 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
         this.#wysiwygEditor = undefined;
     }
 
-    setEditorMode(mode: EditorMode): void {
-        this.changeEditorMode({mode, reason: 'manually'});
+    setEditorMode(mode: EditorMode, opts?: SetEditorModeOptions): void {
+        this.changeEditorMode({mode, reason: 'manually', emit: opts?.emit});
     }
 
-    changeEditorMode(opts: ChangeEditorModeOptions): void {
+    changeEditorMode({emit = true, ...opts}: ChangeEditorModeOptions): void {
         if (this.#editorMode === opts.mode) return;
         this.currentMode = opts.mode;
         this.emit('rerender', null);
-        if (opts.reason !== 'error-boundary') {
+        if (emit) {
             this.emit('change-editor-mode', opts);
         }
     }

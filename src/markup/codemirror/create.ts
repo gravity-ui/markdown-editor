@@ -8,7 +8,7 @@ import {
 } from '@codemirror/commands';
 import {syntaxHighlighting} from '@codemirror/language';
 import type {Extension, StateCommand} from '@codemirror/state';
-import {EditorView, EditorViewConfig, keymap, placeholder} from '@codemirror/view';
+import {EditorView, EditorViewConfig, KeyBinding, keymap, placeholder} from '@codemirror/view';
 
 import {EventMap} from '../../bundle/Editor';
 import {ActionName} from '../../bundle/config/action-names';
@@ -55,6 +55,10 @@ export type CreateCodemirrorParams = {
     uploadHandler?: FileUploadHandler;
     needImgDimms?: boolean;
     extensions?: Extension[];
+    disabledExtensions?: {
+        history?: boolean;
+    };
+    keymaps?: readonly KeyBinding[];
     receiver?: Receiver<EventMap>;
     yfmLangOptions?: YfmLangOptions;
     autocompletionConfig?: Parameters<typeof autocompletion>[0];
@@ -71,15 +75,20 @@ export function createCodemirror(params: CreateCodemirrorParams) {
         onChange,
         onDocChange,
         extensions: extraExtensions,
+        disabledExtensions = {},
+        keymaps = [],
         receiver,
         yfmLangOptions,
         autocompletionConfig,
     } = params;
 
-    const extensions: Extension[] = [
-        gravityTheme,
-        placeholder(placeholderText),
-        history(),
+    const extensions: Extension[] = [gravityTheme, placeholder(placeholderText)];
+
+    if (!disabledExtensions.history) {
+        extensions.push(history());
+    }
+
+    extensions.push(
         syntaxHighlighting(gravityHighlightStyle),
         keymap.of([
             {key: f.toCM(A.Bold)!, run: withLogger(ActionName.bold, toggleBold)},
@@ -116,7 +125,8 @@ export function createCodemirror(params: CreateCodemirrorParams) {
             {key: 'Tab', preventDefault: true, run: insertTab},
             indentWithTab,
             ...defaultKeymap,
-            ...historyKeymap,
+            ...(disabledExtensions.history ? [] : historyKeymap),
+            ...keymaps,
         ]),
         autocompletion(autocompletionConfig),
         yfmLang(yfmLangOptions),
@@ -133,7 +143,8 @@ export function createCodemirror(params: CreateCodemirrorParams) {
             anchorSelector: '.g-md-search-anchor',
             receiver,
         }),
-    ];
+    );
+
     if (params.uploadHandler) {
         extensions.push(
             FileUploadHandlerFacet.of({
@@ -142,6 +153,7 @@ export function createCodemirror(params: CreateCodemirrorParams) {
             }),
         );
     }
+
     if (extraExtensions) {
         extensions.push(...extraExtensions);
     }

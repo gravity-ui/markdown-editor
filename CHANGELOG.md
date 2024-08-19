@@ -1,5 +1,40 @@
 # Changelog
 
+## [13.12.1](https://github.com/gravity-ui/markdown-editor/compare/v13.12.0...v13.12.1) (2024-08-15)
+
+
+### Bug Fixes
+
+* **YfmHtmlBlock:** added YfmHtmlBlockOptions, added getSanitizeYfmHtmlBlock ([#332](https://github.com/gravity-ui/markdown-editor/issues/332)) ([999ba68](https://github.com/gravity-ui/markdown-editor/commit/999ba68ee6004fe732f380428b4188f081b5ba3e))
+
+## [13.12.0](https://github.com/gravity-ui/markdown-editor/compare/v13.11.0...v13.12.0) (2024-08-15)
+
+
+### Features
+
+* emit flag for setEditorMode ([#334](https://github.com/gravity-ui/markdown-editor/issues/334)) ([e633ab4](https://github.com/gravity-ui/markdown-editor/commit/e633ab413b57ba1aef6a002fb5f5a1b0c38c8b99))
+
+## [13.11.0](https://github.com/gravity-ui/markdown-editor/compare/v13.10.0...v13.11.0) (2024-08-15)
+
+
+### Features
+
+* support overriding codemirror history extension ([#331](https://github.com/gravity-ui/markdown-editor/issues/331)) ([333a816](https://github.com/gravity-ui/markdown-editor/commit/333a8163cb33ef01399916396c664ae663e55111))
+
+## [13.10.0](https://github.com/gravity-ui/markdown-editor/compare/v13.9.0...v13.10.0) (2024-08-09)
+
+
+### Features
+
+* **yfHtmlBlock:** updated YfmHtmlBlock options ([#327](https://github.com/gravity-ui/markdown-editor/issues/327)) ([1b6b9e0](https://github.com/gravity-ui/markdown-editor/commit/1b6b9e028f57f182aa73223efb8e6dfbf94a2a86))
+
+## [13.9.0](https://github.com/gravity-ui/markdown-editor/compare/v13.8.0...v13.9.0) (2024-08-05)
+
+
+### Features
+
+* **YfmTable:** added support of colspan, rowspan and cell-align in yfm-tables ([#324](https://github.com/gravity-ui/markdown-editor/issues/324)) ([14dd054](https://github.com/gravity-ui/markdown-editor/commit/14dd0544ed445629b3802e0f1ce00e9ea9b044b8))
+
 ## [13.8.0](https://github.com/gravity-ui/markdown-editor/compare/v13.7.0...v13.8.0) (2024-08-01)
 
 

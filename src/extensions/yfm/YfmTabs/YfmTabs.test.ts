@@ -74,11 +74,11 @@ describe('YfmTabs extension', () => {
                         tab(
                             {
                                 id: 'unknown',
-                                class: 'yfm-tab active',
+                                class: 'yfm-tab yfm-tab-group active',
                                 role: 'tab',
                                 'aria-controls': generatedId,
                                 'aria-selected': 'true',
-                                tabindex: '-1',
+                                tabindex: '0',
                                 'data-diplodoc-is-active': 'true',
                                 'data-diplodoc-id': 'panel-title-1',
                                 'data-diplodoc-key': 'panel%20title%201',
@@ -88,11 +88,11 @@ describe('YfmTabs extension', () => {
                         tab(
                             {
                                 id: 'unknown',
-                                class: 'yfm-tab',
+                                class: 'yfm-tab yfm-tab-group',
                                 role: 'tab',
                                 'aria-controls': generatedId,
                                 'aria-selected': 'false',
-                                tabindex: '0',
+                                tabindex: '-1',
                                 'data-diplodoc-is-active': 'false',
                                 'data-diplodoc-id': 'panel-title-2',
                                 'data-diplodoc-key': 'panel%20title%202',
@@ -152,11 +152,11 @@ describe('YfmTabs extension', () => {
                             tab(
                                 {
                                     id: 'unknown',
-                                    class: 'yfm-tab active',
+                                    class: 'yfm-tab yfm-tab-group active',
                                     role: 'tab',
                                     'aria-controls': generatedId,
                                     'aria-selected': 'true',
-                                    tabindex: '-1',
+                                    tabindex: '0',
                                     'data-diplodoc-is-active': 'true',
                                     'data-diplodoc-id': 'tab',
                                     'data-diplodoc-key': 'tab',
