@@ -54,7 +54,6 @@ export function useMarkdownEditor<T extends object = {}>(
                     builder.use(props.extraExtensions, props.extensionOptions);
                 }
             };
-
             return new EditorImpl({...props, extensions, renderStorage, preset});
         },
         deps.concat(
