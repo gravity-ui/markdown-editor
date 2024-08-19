@@ -1,0 +1,17 @@
+.g-md-resizable-image {
+    position: relative;
+
+    &__resizer {
+        bottom: -1px;
+        cursor: nwse-resize;
+        display: none;
+        height: 101%;
+        position: absolute;
+        right: -1px;
+        width: 101%;
+    }
+
+    &:hover &__resizer {
+        display: block;
+    }
+}
