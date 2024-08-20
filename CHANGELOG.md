@@ -1,5 +1,12 @@
 # Changelog
 
+## [13.13.0](https://github.com/gravity-ui/markdown-editor/compare/v13.12.1...v13.13.0) (2024-08-20)
+
+
+### Features
+
+* support custom escape regexp ([#337](https://github.com/gravity-ui/markdown-editor/issues/337)) ([a6dd38e](https://github.com/gravity-ui/markdown-editor/commit/a6dd38ed78f90984a3054e6fc0470fb715cf82ec))
+
 ## [13.12.1](https://github.com/gravity-ui/markdown-editor/compare/v13.12.0...v13.12.1) (2024-08-15)
 
 
