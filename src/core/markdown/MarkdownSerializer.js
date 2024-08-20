@@ -296,9 +296,11 @@ export class MarkdownSerializerState {
     // content. If `startOfLine` is true, also escape characters that
     // have special meaning only at the start of the line.
     esc(str, startOfLine) {
-        // TODO: add a setting which characters need to be escaped
-        str = str.replace(/[`\^+*\\\|~\[\]\{\}<>\$]/g, '\\$&');
-        if (startOfLine) str = str.replace(/^[:#\-*+>]/, '\\$&').replace(/^(\s*\d+)\./, '$1\\.');
+        const escRegexp = this.options?.commonEscape || /[`\^+*\\\|~\[\]\{\}<>\$]/g;
+        const startOfLineEscRegexp = this.options?.startOfLineEscape || /^[:#\-*+>]/;
+
+        str = str.replace(escRegexp, '\\$&');
+        if (startOfLine) str = str.replace(startOfLineEscRegexp, '\\$&').replace(/^(\s*\d+)\./, '$1\\.');
         return str;
     }
 
