@@ -1,4 +1,4 @@
-import {BaseTarget, StylesObject} from '@diplodoc/html-extension/plugin';
+import {PluginOptions} from '@diplodoc/html-extension/plugin/transform';
 import type {IHTMLIFrameElementConfig} from '@diplodoc/html-extension/runtime';
 
 import {Action, ExtensionAuto, ExtensionDeps, NodeViewConstructor} from '../../../core';
@@ -8,13 +8,10 @@ import {YfmHtmlBlockSpecs} from './YfmHtmlBlockSpecs';
 import {YfmHtmlBlockAction} from './YfmHtmlBlockSpecs/const';
 import {addYfmHtmlBlock} from './actions';
 
-export type YfmHtmlBlockOptions = {
+export interface YfmHtmlBlockOptions
+    extends Omit<PluginOptions, 'runtimeJsPath' | 'containerClasses' | 'bundle'> {
     useConfig?: () => IHTMLIFrameElementConfig | undefined;
-    sanitize?: (dirtyHtml: string) => string;
-    styles?: string | StylesObject;
-    baseTarget?: BaseTarget;
-    head?: string;
-};
+}
 
 export const YfmHtmlBlock: ExtensionAuto<YfmHtmlBlockOptions> = (
     builder,
