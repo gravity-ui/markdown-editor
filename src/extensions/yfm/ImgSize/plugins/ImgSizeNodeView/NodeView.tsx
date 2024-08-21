@@ -1,4 +1,4 @@
-import React, {useRef} from 'react';
+import React, {useCallback, useRef} from 'react';
 
 import isNumber from 'is-number';
 
@@ -20,8 +20,22 @@ export const ImageNodeView: React.FC<ReactNodeViewProps> = ({
     updateAttributes,
 }) => {
     const ref = useRef<HTMLImageElement>(null);
+    const title = node.attrs[ImgSizeAttr.Title] || '';
+    const alt = node.attrs[ImgSizeAttr.Alt] || '';
 
-    console.log('ref', ref);
+    const handleResize = useCallback(
+        ({width}: {width: number}) => {
+            const updatedWidth = Math.round(width);
+
+            updateAttributes({
+                width: isNumber(updatedWidth) && updatedWidth >= 0 ? String(updatedWidth) : '',
+                height: '',
+                name: title,
+                alt,
+            });
+        },
+        [alt, title, updateAttributes],
+    );
 
     return (
         <>
@@ -33,23 +47,7 @@ export const ImageNodeView: React.FC<ReactNodeViewProps> = ({
                 nodeRef={ref}
             />
             <ResizableImage
-                onResize={({width, height}) => {
-                    const updatedWidth = Math.round(width);
-                    const updatedHeight = Math.round(height);
-
-                    updateAttributes({
-                        width:
-                            isNumber(updatedWidth) && Number(updatedWidth) >= 0
-                                ? String(updatedWidth)
-                                : '',
-                        height:
-                            isNumber(updatedHeight) && Number(updatedHeight) >= 0
-                                ? String(updatedHeight)
-                                : '',
-                        name: node.attrs[ImgSizeAttr.Title] || '',
-                        alt: node.attrs[ImgSizeAttr.Alt] || '',
-                    });
-                }}
+                onResize={handleResize}
                 alt={node.attrs[ImgSizeAttr.Alt]}
                 height={node.attrs[ImgSizeAttr.Height]}
                 ref={ref}

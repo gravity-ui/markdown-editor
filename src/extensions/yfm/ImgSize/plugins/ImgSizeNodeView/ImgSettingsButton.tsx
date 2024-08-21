@@ -55,7 +55,7 @@ export const ImgSettingsButton: React.FC<{
                 ref={buttonRef}
                 size="s"
                 view={'raised'}
-                style={{position: 'absolute', right: '3px', top: '3px'}}
+                style={{position: 'absolute', right: '3px', top: '3px', zIndex: '2'}}
             >
                 <Icon data={Ellipsis} />
             </Button>

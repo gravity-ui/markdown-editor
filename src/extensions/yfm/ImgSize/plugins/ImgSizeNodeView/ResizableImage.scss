@@ -1,20 +1,43 @@
 .g-md-resizable-image {
     position: relative;
 
-    &__resizer {
+    &__resizer-wrapper {
         position: absolute;
-        right: -1px;
-        bottom: -1px;
+        z-index: 1;
+        top: 0;
 
-        display: none;
+        display: flex;
+        justify-content: center;
+        align-items: center;
 
-        width: 101%;
-        height: 101%;
+        width: 15px;
+        height: 100%;
 
-        cursor: nwse-resize;
+        cursor: col-resize;
+        pointer-events: auto;
+
+        &_left {
+            left: 0;
+        }
+
+        &_right {
+            right: 0;
+        }
     }
 
-    &:hover &__resizer {
-        display: block;
+    &__resizer {
+        box-sizing: content-box;
+        width: 4px;
+        height: 50px;
+        max-height: 50%;
+
+        opacity: 0;
+        border-radius: 6px;
+        background: rgba(255, 255, 255, 0.5);
+
+        transition: opacity 300ms ease-in 0s;
+    }
+    &__resizer-wrapper:hover &__resizer {
+        opacity: 1;
     }
 }
