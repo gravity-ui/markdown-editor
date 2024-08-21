@@ -104,7 +104,6 @@ export interface EditorInt
 
 type SetEditorModeOptions = Pick<ChangeEditorModeOptions, 'emit'>;
 
-/** @internal */
 type ChangeEditorModeOptions = {
     mode: EditorMode;
     reason: 'error-boundary' | 'settings' | 'manually';
@@ -157,6 +156,9 @@ export type EditorOptions = Pick<
      * You can use it to pre-process the value from the markup editor before it gets into the wysiwyg editor.
      */
     prepareRawMarkup?: (value: MarkupString) => MarkupString;
+    experimental_beforeEditorModeChange?: (
+        options: Pick<ChangeEditorModeOptions, 'mode' | 'reason'>,
+    ) => boolean | undefined;
     splitMode?: SplitMode;
     renderPreview?: RenderPreview;
     preset: EditorPreset;
@@ -188,6 +190,9 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
     #fileUploadHandler?: FileUploadHandler;
     #needToSetDimensionsForUploadedImages: boolean;
     #prepareRawMarkup?: (value: MarkupString) => MarkupString;
+    #beforeEditorModeChange?: (
+        options: Pick<ChangeEditorModeOptions, 'mode' | 'reason'>,
+    ) => boolean | undefined;
 
     get _wysiwygView(): PMEditorView {
         // @ts-expect-error internal typing
@@ -349,6 +354,7 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
         );
         this.#prepareRawMarkup = opts.prepareRawMarkup;
         this.#escapeConfig = opts.escapeConfig;
+        this.#beforeEditorModeChange = opts.experimental_beforeEditorModeChange;
     }
 
     // ---> implements CodeEditor
@@ -385,8 +391,14 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
 
     changeEditorMode({emit = true, ...opts}: ChangeEditorModeOptions): void {
         if (this.#editorMode === opts.mode) return;
+
+        if (this.#beforeEditorModeChange?.({mode: opts.mode, reason: opts.reason}) === false) {
+            return;
+        }
+
         this.currentMode = opts.mode;
         this.emit('rerender', null);
+
         if (emit) {
             this.emit('change-editor-mode', opts);
         }
