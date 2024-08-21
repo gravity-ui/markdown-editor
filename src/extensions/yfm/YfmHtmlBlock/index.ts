@@ -13,6 +13,7 @@ export type YfmHtmlBlockOptions = {
     sanitize?: (dirtyHtml: string) => string;
     styles?: string | StylesObject;
     baseTarget?: BaseTarget;
+    head?: string;
 };
 
 export const YfmHtmlBlock: ExtensionAuto<YfmHtmlBlockOptions> = (

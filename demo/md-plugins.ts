@@ -58,7 +58,15 @@ const extendedPlugins = defaultPlugins.concat(
     yfmHtmlBlock({
         bundle: false,
         runtimeJsPath: YFM_HTML_BLOCK_RUNTIME,
-        styles: 'https://meyerweb.com/eric/tools/css/reset/reset200802.css',
+        head: `
+            <base target="_blank" />
+            <style>
+                html, body {
+                    margin: 0;
+                    padding: 0;
+                }
+            </style
+        `,
     }),
     foldingHeadings({bundle: false}),
 );

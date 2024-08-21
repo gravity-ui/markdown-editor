@@ -169,12 +169,15 @@ export const Playground = React.memo<PlaygroundProps>((props) => {
                 .use(YfmHtmlBlock, {
                     useConfig: useYfmHtmlBlockStyles,
                     sanitize: getSanitizeYfmHtmlBlock({options: defaultOptions}),
-                    baseTarget: '_blank',
-                    styles: {
-                        body: {
-                            margin: 0,
-                        },
-                    },
+                    head: `
+                        <base target="_blank" />
+                        <style>
+                            html, body {
+                                margin: 0;
+                                padding: 0;
+                            }
+                        </style
+                    `,
                 })
                 .use(FoldingHeading),
     });
