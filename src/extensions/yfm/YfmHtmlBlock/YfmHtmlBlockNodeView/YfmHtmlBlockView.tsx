@@ -206,7 +206,13 @@ export const YfmHtmlBlockView: React.FC<{
     onChange: (attrs: {[YfmHtmlBlockConsts.NodeAttrs.srcdoc]: string}) => void;
     options: YfmHtmlBlockOptions;
     view: EditorView;
-}> = ({onChange, node, getPos, view, options: {useConfig, sanitize, styles, baseTarget = '_'}}) => {
+}> = ({
+    onChange,
+    node,
+    getPos,
+    view,
+    options: {useConfig, sanitize, styles, baseTarget = '_parent', head: headContent = ''},
+}) => {
     const [editing, setEditing, unsetEditing, toggleEditing] = useBooleanState(
         Boolean(node.attrs[YfmHtmlBlockConsts.NodeAttrs.newCreated]),
     );
@@ -233,25 +239,27 @@ export const YfmHtmlBlockView: React.FC<{
         );
     }
 
-    let dirtyHtml =
-        `<base target="${baseTarget}">` + node.attrs[YfmHtmlBlockConsts.NodeAttrs.srcdoc];
-
+    let additional = baseTarget ? `<base target="${baseTarget}">` : '';
     if (styles) {
         const stylesContent =
             typeof styles === 'string'
                 ? `<link rel="stylesheet" href="${styles}" />`
                 : `<style>${getStyles(styles)}</style>`;
-        dirtyHtml = stylesContent + dirtyHtml;
+        additional += stylesContent;
     }
 
-    const html = sanitize ? sanitize(dirtyHtml) : dirtyHtml;
+    const head = `<head>${headContent || additional}</head>`;
+    const body = `<body>${node.attrs[YfmHtmlBlockConsts.NodeAttrs.srcdoc] ?? ''}</body>`;
+    const html = `<!DOCTYPE html><html>${head}${body}</html>`;
+
+    const resultHtml = sanitize ? sanitize(html) : html;
 
     return (
         <div className={b()} onDoubleClick={setEditing}>
             <Label className={b('label')} icon={<Icon size={16} data={Eye} />}>
                 {i18n('preview')}
             </Label>
-            <YfmHtmlBlockPreview html={html} onСlick={handleClick} config={config} />
+            <YfmHtmlBlockPreview html={resultHtml} onСlick={handleClick} config={config} />
 
             <div className={b('menu')}>
                 <Button

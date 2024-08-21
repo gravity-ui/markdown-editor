@@ -200,7 +200,7 @@
   },
   "devDependencies": {
     "@diplodoc/folding-headings-extension": "0.1.0",
-    "@diplodoc/html-extension": "1.3.3",
+    "@diplodoc/html-extension": "1.5.0",
     "@diplodoc/latex-extension": "1.0.3",
     "@diplodoc/mermaid-extension": "1.2.1",
     "@diplodoc/transform": "4.22.0",
