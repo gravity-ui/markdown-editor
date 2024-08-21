@@ -8,7 +8,7 @@ import {parseLocation} from './location';
 import {initialMdContent} from './md-content';
 
 export default {
-    title: 'Markdown Editor',
+    title: 'Experiments / Escape config',
     component: PlaygroundComponent,
 } as ComponentMeta<any>;
 
