@@ -1,6 +1,6 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
 import {transform} from '@diplodoc/html-extension';
-import {BaseTarget, StylesObject} from '@diplodoc/html-extension/plugin';
+import {PluginOptions} from '@diplodoc/html-extension/plugin/transform';
 
 import type {ExtensionAuto, ExtensionNodeSpec} from '../../../../core';
 
@@ -8,12 +8,10 @@ import {YfmHtmlBlockConsts} from './const';
 
 export {yfmHtmlBlockNodeName} from './const';
 
-export type YfmHtmlBlockSpecsOptions = {
+export interface YfmHtmlBlockSpecsOptions
+    extends Omit<PluginOptions, 'runtimeJsPath' | 'containerClasses' | 'bundle'> {
     nodeView?: ExtensionNodeSpec['view'];
-    sanitize?: (dirtyHtml: string) => string;
-    styles?: string | StylesObject;
-    baseTarget?: BaseTarget;
-};
+}
 
 const YfmHtmlBlockSpecsExtension: ExtensionAuto<YfmHtmlBlockSpecsOptions> = (
     builder,
