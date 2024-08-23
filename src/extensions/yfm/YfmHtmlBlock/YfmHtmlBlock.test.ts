@@ -12,7 +12,10 @@ const {
     markupParser: parser,
     serializer,
 } = new ExtensionsManager({
-    extensions: (builder) => builder.use(BaseSchemaSpecs, {}).use(YfmHtmlBlockSpecs, {}),
+    extensions: (builder) =>
+        builder.use(BaseSchemaSpecs, {}).use(YfmHtmlBlockSpecs, {
+            embeddingMode: 'srcdoc',
+        }),
 }).buildDeps();
 
 const {doc, yfmHtmlBlock} = builders<'doc' | 'yfmHtmlBlock'>(schema, {

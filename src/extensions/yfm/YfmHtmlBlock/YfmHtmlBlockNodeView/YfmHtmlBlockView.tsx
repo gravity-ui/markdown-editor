@@ -45,10 +45,6 @@ const YfmHtmlBlockPreview: React.FC<YfmHtmlBlockViewProps> = ({html, onСlick, c
     const [height, setHeight] = useState('100%');
 
     useEffect(() => {
-        resizeConfig.current = {
-            padding: config?.resizePadding ?? DEFAULT_PADDING,
-            delay: config?.resizeDelay ?? DEFAULT_DELAY,
-        };
         setStyles(config?.styles);
         setClassNames(config?.classNames);
     }, [config, ref.current?.contentWindow?.document?.body]);

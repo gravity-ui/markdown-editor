@@ -15,7 +15,9 @@ export class WYfmHtmlBlockNodeView implements NodeView {
     private node: Node;
     private readonly view;
     private readonly getPos;
-    private readonly options: YfmHtmlBlockOptions = {};
+    private readonly options: YfmHtmlBlockOptions = {
+        embeddingMode: 'srcdoc',
+    };
     private readonly renderItem;
 
     constructor({
