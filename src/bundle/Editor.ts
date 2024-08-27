@@ -124,7 +124,7 @@ export type MarkupConfig = {
      */
     languageData?: YfmLangOptions['languageData'];
     /** Autocompletion config. Can be used to style tooltip */
-    autocompletionConfig?: CreateCodemirrorParams['autocompletionConfig'];
+    autocompletion?: CreateCodemirrorParams['autocompletion'];
 };
 
 export type EscapeConfig = {
@@ -312,7 +312,7 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
                     disabledExtensions: this.#markupConfig.disabledExtensions,
                     keymaps: this.#markupConfig.keymaps,
                     yfmLangOptions: {languageData: this.#markupConfig.languageData},
-                    autocompletionConfig: this.#markupConfig.autocompletionConfig,
+                    autocompletion: this.#markupConfig.autocompletion,
                     receiver: this,
                 }),
             );
