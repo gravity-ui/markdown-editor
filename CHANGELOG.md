@@ -1,5 +1,25 @@
 # Changelog
 
+## [13.14.0](https://github.com/gravity-ui/markdown-editor/compare/v13.13.0...v13.14.0) (2024-08-21)
+
+
+### Features
+
+* beforeEditorModeChange (experimental) ([#341](https://github.com/gravity-ui/markdown-editor/issues/341)) ([7a0bdcb](https://github.com/gravity-ui/markdown-editor/commit/7a0bdcb7ce69f7d72af4d82345a6ebf8b351558c))
+* **yfmHtmlBlock:** updated @diplodoc/html-extension ([#343](https://github.com/gravity-ui/markdown-editor/issues/343)) ([4a6df56](https://github.com/gravity-ui/markdown-editor/commit/4a6df5662aa19b759653eef2e095a6e46874604c))
+
+
+### Bug Fixes
+
+* move escape config story to experiment ([#340](https://github.com/gravity-ui/markdown-editor/issues/340)) ([14d4d3e](https://github.com/gravity-ui/markdown-editor/commit/14d4d3e9357c1d1a0b7310fcae184b3b1f08dc4a))
+
+## [13.13.0](https://github.com/gravity-ui/markdown-editor/compare/v13.12.1...v13.13.0) (2024-08-20)
+
+
+### Features
+
+* support custom escape regexp ([#337](https://github.com/gravity-ui/markdown-editor/issues/337)) ([a6dd38e](https://github.com/gravity-ui/markdown-editor/commit/a6dd38ed78f90984a3054e6fc0470fb715cf82ec))
+
 ## [13.12.1](https://github.com/gravity-ui/markdown-editor/compare/v13.12.0...v13.12.1) (2024-08-15)
 
 
