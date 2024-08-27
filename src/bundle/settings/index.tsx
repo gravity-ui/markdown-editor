@@ -32,7 +32,9 @@ const placement: PopupPlacement = ['bottom-end', 'top-end'];
 const bSettings = cn('editor-settings');
 const bContent = cn('settings-content');
 
-export type EditorSettingsProps = SettingsContentProps & {renderPreviewButton?: boolean};
+export type EditorSettingsProps = Omit<SettingsContentProps, 'onClose'> & {
+    renderPreviewButton?: boolean;
+};
 
 export const EditorSettings = React.memo<EditorSettingsProps>(function EditorSettings(props) {
     const {className, onShowPreviewChange, showPreview, renderPreviewButton} = props;
@@ -79,7 +81,7 @@ export const EditorSettings = React.memo<EditorSettingsProps>(function EditorSet
                 placement={placement}
                 onClose={hidePopup}
             >
-                <SettingsContent {...props} className={bSettings('content')} />
+                <SettingsContent {...props} onClose={hidePopup} className={bSettings('content')} />
             </Popup>
         </div>
     );
@@ -87,6 +89,7 @@ export const EditorSettings = React.memo<EditorSettingsProps>(function EditorSet
 
 type SettingsContentProps = ClassNameProps & {
     mode: EditorMode;
+    onClose: () => void;
     onModeChange: (mode: EditorMode) => void;
     onShowPreviewChange: (showPreview: boolean) => void;
     showPreview: boolean;
@@ -101,6 +104,7 @@ const mdHelpPlacement: PopupPlacement = ['bottom', 'bottom-end', 'right-start', 
 
 const SettingsContent: React.FC<SettingsContentProps> = function SettingsContent({
     mode,
+    onClose,
     onModeChange,
     toolbarVisibility,
     onToolbarVisibilityChange,
@@ -115,14 +119,20 @@ const SettingsContent: React.FC<SettingsContentProps> = function SettingsContent
             <Menu size="l" className={bContent('mode')}>
                 <Menu.Item
                     active={mode === 'wysiwyg'}
-                    onClick={() => onModeChange('wysiwyg')}
+                    onClick={() => {
+                        onModeChange('wysiwyg');
+                        onClose();
+                    }}
                     icon={<Icon data={WysiwygModeIcon} />}
                 >
                     {i18n('settings_wysiwyg')}
                 </Menu.Item>
                 <Menu.Item
                     active={mode === 'markup'}
-                    onClick={() => onModeChange('markup')}
+                    onClick={() => {
+                        onModeChange('markup');
+                        onClose();
+                    }}
                     icon={<Icon data={LogoMarkdown} />}
                 >
                     {i18n('settings_markup')}
