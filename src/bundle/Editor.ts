@@ -123,7 +123,7 @@ export type MarkupConfig = {
      * See more https://codemirror.net/docs/ref/#state.EditorState.languageDataAt
      */
     languageData?: YfmLangOptions['languageData'];
-    /** Config  for @codemirror/autocomplete https://codemirror.net/docs/ref/#autocomplete.autocompletion%5Econfig */
+    /** Config for @codemirror/autocomplete https://codemirror.net/docs/ref/#autocomplete.autocompletion%5Econfig */
     autocompletion?: CreateCodemirrorParams['autocompletion'];
 };
 
