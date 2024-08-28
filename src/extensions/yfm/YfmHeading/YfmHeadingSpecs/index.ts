@@ -31,12 +31,20 @@ export const YfmHeadingSpecs: ExtensionAuto<YfmHeadingSpecsOptions> = (builder, 
             defining: true,
             selectable: true,
             parseDOM: [
-                {tag: 'h1', getAttrs: getNodeAttrs(1)},
-                {tag: 'h2', getAttrs: getNodeAttrs(2)},
-                {tag: 'h3', getAttrs: getNodeAttrs(3)},
-                {tag: 'h4', getAttrs: getNodeAttrs(4)},
-                {tag: 'h5', getAttrs: getNodeAttrs(5)},
-                {tag: 'h6', getAttrs: getNodeAttrs(6)},
+                {tag: 'h1', getAttrs: getNodeAttrs(1), priority: 100, consuming: true},
+                {tag: 'h2', getAttrs: getNodeAttrs(2), priority: 100, consuming: true},
+                {tag: 'h3', getAttrs: getNodeAttrs(3), priority: 100, consuming: true},
+                {tag: 'h4', getAttrs: getNodeAttrs(4), priority: 100, consuming: true},
+                {tag: 'h5', getAttrs: getNodeAttrs(5), priority: 100, consuming: true},
+                {tag: 'h6', getAttrs: getNodeAttrs(6), priority: 100, consuming: true},
+                {
+                    // ignore anchor link inside headings
+                    tag: 'a.yfm-anchor',
+                    context: `${headingNodeName}/`,
+                    skip: true,
+                    ignore: true,
+                    priority: 1000,
+                },
             ],
             toDOM(node) {
                 const id = node.attrs[YfmHeadingAttr.Id];
