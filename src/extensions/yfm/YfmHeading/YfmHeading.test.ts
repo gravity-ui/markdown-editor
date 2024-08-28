@@ -110,4 +110,20 @@ para
             doc(h({[YfmHeadingAttr.Level]: lvl}, `Heading ${lvl}`)),
         );
     });
+
+    it.each([1, 2, 3, 4, 5, 6])(
+        'should parse html and ignore yfm-anchors inside headings - h%s tag',
+        (lvl) => {
+            parseDOM(
+                schema,
+                `<h${lvl} id="zagolovok-${lvl}" data-line="0" class="line"><a href="#zagolovok-${lvl}" class="yfm-anchor" aria-hidden="true"><span class="visually-hidden">Заголовок ${lvl}</span></a>Заголовок ${lvl}</h${lvl}>`,
+                doc(
+                    h(
+                        {[YfmHeadingAttr.Level]: lvl, [YfmHeadingAttr.Id]: `zagolovok-${lvl}`},
+                        `Заголовок ${lvl}`,
+                    ),
+                ),
+            );
+        },
+    );
 });
