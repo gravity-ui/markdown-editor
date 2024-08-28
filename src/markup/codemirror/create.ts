@@ -81,7 +81,7 @@ export function createCodemirror(params: CreateCodemirrorParams) {
         keymaps = [],
         receiver,
         yfmLangOptions,
-        autocompletion,
+        autocompletion: autocompletionConfig,
     } = params;
 
     const extensions: Extension[] = [gravityTheme, placeholder(placeholderText)];
@@ -130,7 +130,7 @@ export function createCodemirror(params: CreateCodemirrorParams) {
             ...(disabledExtensions.history ? [] : historyKeymap),
             ...keymaps,
         ]),
-        autocompletion({override: []}),
+        autocompletion(autocompletionConfig),
         yfmLang(yfmLangOptions),
         ReactRendererFacet.of(reactRenderer),
         PairingCharactersExtension,
