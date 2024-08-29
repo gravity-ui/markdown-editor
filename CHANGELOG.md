@@ -1,5 +1,18 @@
 # Changelog
 
+## [13.15.0](https://github.com/gravity-ui/markdown-editor/compare/v13.14.0...v13.15.0) (2024-08-29)
+
+
+### Features
+
+* add autocompletionConfig to markupConfig ([#325](https://github.com/gravity-ui/markdown-editor/issues/325)) ([ad9ce27](https://github.com/gravity-ui/markdown-editor/commit/ad9ce271620bf5fcf4d47e164eed944bfa9d334e))
+
+
+### Bug Fixes
+
+* **YfmHeading:** ignore anchor links inside headings when parse dom ([#348](https://github.com/gravity-ui/markdown-editor/issues/348)) ([a50d8a7](https://github.com/gravity-ui/markdown-editor/commit/a50d8a7a18c4c6375324f45a54fd58c274034ea5))
+* **yfmHtmlBlock:** fixed types ([#344](https://github.com/gravity-ui/markdown-editor/issues/344)) ([a762690](https://github.com/gravity-ui/markdown-editor/commit/a762690bf3c76dd2dae8be373ffac31ff2607e1d))
+
 ## [13.14.0](https://github.com/gravity-ui/markdown-editor/compare/v13.13.0...v13.14.0) (2024-08-21)
 
 
