@@ -1,5 +1,13 @@
 # Changelog
 
+## [13.16.0](https://github.com/gravity-ui/markdown-editor/compare/v13.15.0...v13.16.0) (2024-08-29)
+
+
+### Features
+
+* **bundle:** scroll to top of screen when scrolling to line in markup mode ([#350](https://github.com/gravity-ui/markdown-editor/issues/350)) ([bd85a1c](https://github.com/gravity-ui/markdown-editor/commit/bd85a1c4c073c665c7fa9b8c7277a8441c6f378b))
+* **yfmHtmlBlock:** updated css white list ([#349](https://github.com/gravity-ui/markdown-editor/issues/349)) ([049dc29](https://github.com/gravity-ui/markdown-editor/commit/049dc293b9831e022206c3399a2d942da108054b))
+
 ## [13.15.0](https://github.com/gravity-ui/markdown-editor/compare/v13.14.0...v13.15.0) (2024-08-29)
 
 
