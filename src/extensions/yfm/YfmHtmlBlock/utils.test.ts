@@ -83,6 +83,23 @@ describe('sanitize options functions', () => {
             order: true,
             orphans: true,
             'row-gap': true,
+            all: true,
+            bottom: true,
+            content: true,
+            cursor: true,
+            direction: true,
+            left: true,
+            'line-break': true,
+            opacity: true,
+            overflow: true,
+            'overflow-wrap': true,
+            'overflow-x': true,
+            'overflow-y': true,
+            position: true,
+            right: true,
+            top: true,
+            'white-space': true,
+            'z-index': true,
         });
     });
 });
