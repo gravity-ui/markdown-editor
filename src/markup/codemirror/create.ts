@@ -43,6 +43,8 @@ import {type YfmLangOptions, yfmLang} from './yfm';
 
 export type {YfmLangOptions};
 
+type Autocompletion = Parameters<typeof autocompletion>[0];
+
 export type CreateCodemirrorParams = {
     doc: EditorViewConfig['doc'];
     placeholderText: string;
@@ -61,6 +63,7 @@ export type CreateCodemirrorParams = {
     keymaps?: readonly KeyBinding[];
     receiver?: Receiver<EventMap>;
     yfmLangOptions?: YfmLangOptions;
+    autocompletion?: Autocompletion;
 };
 
 export function createCodemirror(params: CreateCodemirrorParams) {
@@ -78,6 +81,7 @@ export function createCodemirror(params: CreateCodemirrorParams) {
         keymaps = [],
         receiver,
         yfmLangOptions,
+        autocompletion: autocompletionConfig,
     } = params;
 
     const extensions: Extension[] = [gravityTheme, placeholder(placeholderText)];
@@ -126,7 +130,7 @@ export function createCodemirror(params: CreateCodemirrorParams) {
             ...(disabledExtensions.history ? [] : historyKeymap),
             ...keymaps,
         ]),
-        autocompletion(),
+        autocompletion(autocompletionConfig),
         yfmLang(yfmLangOptions),
         ReactRendererFacet.of(reactRenderer),
         PairingCharactersExtension,

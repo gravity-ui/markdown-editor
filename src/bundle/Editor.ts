@@ -123,6 +123,8 @@ export type MarkupConfig = {
      * See more https://codemirror.net/docs/ref/#state.EditorState.languageDataAt
      */
     languageData?: YfmLangOptions['languageData'];
+    /** Config for @codemirror/autocomplete https://codemirror.net/docs/ref/#autocomplete.autocompletion%5Econfig */
+    autocompletion?: CreateCodemirrorParams['autocompletion'];
 };
 
 export type EscapeConfig = {
@@ -310,6 +312,7 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
                     disabledExtensions: this.#markupConfig.disabledExtensions,
                     keymaps: this.#markupConfig.keymaps,
                     yfmLangOptions: {languageData: this.#markupConfig.languageData},
+                    autocompletion: this.#markupConfig.autocompletion,
                     receiver: this,
                 }),
             );
