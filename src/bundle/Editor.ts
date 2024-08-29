@@ -1,6 +1,7 @@
 import type {ReactNode} from 'react';
 
 import type {Extension as CodemirrorExtension} from '@codemirror/state';
+import {EditorView as CMEditorView} from '@codemirror/view';
 import {TextSelection} from 'prosemirror-state';
 import {EditorView as PMEditorView} from 'prosemirror-view';
 
@@ -474,12 +475,33 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
                 cmLine = Math.max(cmLine, 1);
                 cmLine = Math.min(cmLine, view.state.doc.lines);
 
+                const yMargin = getTopOffset();
+                const anchor = view.state.doc.line(cmLine).from;
                 view.dispatch({
                     scrollIntoView: true,
-                    selection: {anchor: view.state.doc.line(cmLine).from},
+                    selection: {anchor},
+                    effects: [
+                        CMEditorView.scrollIntoView(anchor, {y: 'start', x: 'start', yMargin}),
+                    ],
                 });
 
                 break;
+
+                // eslint-disable-next-line no-inner-declarations
+                function getTopOffset() {
+                    const TOOLBAR_HEIGHT = 36; //px
+                    const TOOLBAR_BOTTOM_OFFSET = 8; // px
+                    const TOOLBAR_TOP_ADDITIONAL_OFFSET = 8; // px
+                    const TOOLBAR_TOP_OFFSET_VAR = '--g-md-toolbar-sticky-offset';
+
+                    const topOffsetValue = window
+                        .getComputedStyle(view.dom)
+                        .getPropertyValue(TOOLBAR_TOP_OFFSET_VAR);
+                    const toolbarTopOffset =
+                        calculateCSSNumberValue(topOffsetValue) + TOOLBAR_TOP_ADDITIONAL_OFFSET;
+
+                    return toolbarTopOffset + TOOLBAR_HEIGHT + TOOLBAR_BOTTOM_OFFSET;
+                }
             }
             case 'wysiwyg': {
                 const node = this.wysiwygEditor.dom.querySelector(`[data-line="${line}"]`);
@@ -508,4 +530,18 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
         );
         return serializedEditorMarkup?.trim() !== wysiwygValue.trim();
     }
+}
+
+function calculateCSSNumberValue(cssValue: string): number {
+    const tmp = document.createElement('div');
+    tmp.style.position = 'absolute';
+    tmp.style.top = '-99999px';
+    tmp.style.left = '-99999px';
+    tmp.style.width = `calc(${cssValue})`;
+
+    document.body.appendChild(tmp);
+    const value = tmp.getBoundingClientRect().width;
+    tmp.remove();
+
+    return value;
 }
