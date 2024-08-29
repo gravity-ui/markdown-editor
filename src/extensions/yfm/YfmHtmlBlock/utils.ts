@@ -4,6 +4,7 @@ import diplodocSanitize, {SanitizeOptions} from '@diplodoc/transform/lib/sanitiz
 const getYfmHtmlBlockWhiteList = () => {
     const whiteList: Record<string, boolean> = {};
 
+    // flex, grid, column
     whiteList['align-content'] = true; // default: auto
     whiteList['align-items'] = true; // default: auto
     whiteList['align-self'] = true; // default: auto
@@ -49,6 +50,25 @@ const getYfmHtmlBlockWhiteList = () => {
     whiteList.order = true; // default: 0
     whiteList.orphans = true; // default: 2
     whiteList['row-gap'] = true;
+
+    // position, opacity, overflow
+    whiteList['all'] = true; // default: depending on individual properties
+    whiteList['bottom'] = true; // default: auto
+    whiteList['content'] = true; // default: normal
+    whiteList['cursor'] = true; // default: auto
+    whiteList['direction'] = true; // default: ltr
+    whiteList['left'] = true; // default: auto
+    whiteList['line-break'] = true; // default: auto
+    whiteList['opacity'] = true; // default: 1
+    whiteList['overflow'] = true; // default: depending on individual properties
+    whiteList['overflow-wrap'] = true; // default: normal
+    whiteList['overflow-x'] = true; // default: visible
+    whiteList['overflow-y'] = true; // default: visible
+    whiteList['position'] = true; // default: static
+    whiteList['right'] = true; // default: auto
+    whiteList['top'] = true; // default: auto
+    whiteList['white-space'] = true; // default: normal
+    whiteList['z-index'] = true; // default: auto
 
     return whiteList;
 };
