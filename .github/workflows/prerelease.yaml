@@ -1,0 +1,21 @@
+on: workflow_dispatch
+
+name: prerelease
+
+jobs:
+    prerelease:
+        runs-on: ubuntu-latest
+        if: github.ref_protected != true
+        steps:
+            - uses: actions/checkout@v4
+            - name: Setup Node 18
+              uses: actions/setup-node@v3
+              with:
+                  node-version: 18
+                  registry-url: 'https://registry.npmjs.org'
+                  cache: 'npm'
+            - run: npm ci
+            - run: npm version --no-git-tag-version 0.0.0-rc-$(git branch --show-current)-$(date "+%Y%m%d%H%M")
+            - run: npm publish --no-tag
+              env:
+                  NODE_AUTH_TOKEN: ${{secrets.ROBOT_DATAUI_NPM_TOKEN}}
