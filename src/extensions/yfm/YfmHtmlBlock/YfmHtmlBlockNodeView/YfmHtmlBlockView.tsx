@@ -4,7 +4,6 @@ import {getStyles} from '@diplodoc/html-extension';
 import type {IHTMLIFrameElementConfig} from '@diplodoc/html-extension/runtime';
 import {Ellipsis as DotsIcon, Eye} from '@gravity-ui/icons';
 import {Button, Icon, Label, Menu, Popup} from '@gravity-ui/uikit';
-import debounce from 'lodash/debounce';
 import {Node} from 'prosemirror-model';
 import {EditorView} from 'prosemirror-view';
 
@@ -34,7 +33,6 @@ export function generateID() {
 }
 
 const DEFAULT_PADDING = 20;
-const DEFAULT_DELAY = 100;
 
 const YfmHtmlBlockPreview: React.FC<YfmHtmlBlockViewProps> = ({html, onСlick, config}) => {
     const ref = useRef<HTMLIFrameElement>(null);
@@ -45,10 +43,6 @@ const YfmHtmlBlockPreview: React.FC<YfmHtmlBlockViewProps> = ({html, onСlick, c
     const [height, setHeight] = useState('100%');
 
     useEffect(() => {
-        resizeConfig.current = {
-            padding: config?.resizePadding ?? DEFAULT_PADDING,
-            delay: config?.resizeDelay ?? DEFAULT_DELAY,
-        };
         setStyles(config?.styles);
         setClassNames(config?.classNames);
     }, [config, ref.current?.contentWindow?.document?.body]);
@@ -136,15 +130,6 @@ const YfmHtmlBlockPreview: React.FC<YfmHtmlBlockViewProps> = ({html, onСlick, c
             ref.current?.removeEventListener('load', handleLoadIFrame);
         };
     }, [html]);
-
-    useEffect(() => {
-        if (ref.current) {
-            const resizeObserver = new window.ResizeObserver(
-                debounce(handleResizeIFrame, resizeConfig.current?.delay ?? DEFAULT_DELAY),
-            );
-            resizeObserver.observe(ref.current);
-        }
-    }, [ref.current?.contentWindow?.document?.body]);
 
     return (
         <iframe

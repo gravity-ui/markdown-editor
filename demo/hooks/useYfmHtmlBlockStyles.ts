@@ -31,8 +31,6 @@ export const useYfmHtmlBlockStyles = () => {
         setConfig({
             styles: getYfmHtmlBlockCssVariables(styles),
             classNames: [theme],
-            resizePadding: 50,
-            resizeDelay: 100,
         });
     }, [theme]);
 
