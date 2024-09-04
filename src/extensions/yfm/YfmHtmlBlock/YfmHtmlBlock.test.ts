@@ -12,10 +12,7 @@ const {
     markupParser: parser,
     serializer,
 } = new ExtensionsManager({
-    extensions: (builder) =>
-        builder.use(BaseSchemaSpecs, {}).use(YfmHtmlBlockSpecs, {
-            embeddingMode: 'srcdoc',
-        }),
+    extensions: (builder) => builder.use(BaseSchemaSpecs, {}).use(YfmHtmlBlockSpecs, {}),
 }).buildDeps();
 
 const {doc, yfmHtmlBlock} = builders<'doc' | 'yfmHtmlBlock'>(schema, {
@@ -32,8 +29,6 @@ describe('YfmHtmlBlock extension', () => {
             doc(
                 yfmHtmlBlock({
                     [YfmHtmlBlockAttrs.srcdoc]: 'content\n',
-                    [YfmHtmlBlockAttrs.style]: 'width:100%',
-                    [YfmHtmlBlockAttrs.frameborder]: '0',
                 }),
             ),
         ));
