@@ -1,3 +1,4 @@
+import isNumber from 'is-number';
 import {Node as PmNode, ResolvedPos} from 'prosemirror-model';
 import {
     Predicate,
@@ -34,17 +35,28 @@ export const findChildTableRows = (node: PmNode) => findChildren(node, isTableRo
 export const findChildTableCells = (node: PmNode) => findChildren(node, isTableCellNode);
 export const findChildTableBody = (node: PmNode) => findChildren(node, isTableBodyNode);
 
-export const getTableDimensions = (node: PmNode | Node) => {
-    let rows, cols;
-    if (node instanceof PmNode) {
-        rows = node.firstChild?.childCount;
-        cols = node.firstChild?.firstChild?.childCount;
-    } else {
-        rows = node.firstChild?.childNodes.length;
-        cols = node.firstChild?.firstChild?.childNodes.length;
-    }
+export const getTableDimensions = (node: PmNode) => {
+    let rows = 0,
+        cols = 0;
 
-    return {rows: rows || 1, cols: cols || 1};
+    const tbody = node.firstChild;
+    tbody?.forEach((trow, _1, trowIndex) => {
+        rows++;
+
+        if (trowIndex === 0) {
+            trow.forEach((tcell, _2) => {
+                const cellAttrs = tcell.attrs;
+
+                if (isNumber(cellAttrs['colspan'])) {
+                    cols += parseInt(cellAttrs['colspan'], 10);
+                } else {
+                    cols++;
+                }
+            });
+        }
+    });
+
+    return {rows, cols};
 };
 
 export function atEndOfCell(view: EditorView, dir: number) {
