@@ -167,7 +167,6 @@ export const Playground = React.memo<PlaygroundProps>((props) => {
                     },
                 })
                 .use(YfmHtmlBlock, {
-                    embeddingMode: 'srcdoc',
                     useConfig: useYfmHtmlBlockStyles,
                     sanitize: getSanitizeYfmHtmlBlock({options: defaultOptions}),
                     head: `
