@@ -86,7 +86,10 @@ aside blockquote {
 
     <div class="container">
         <div class="main">
+            <h3 id="top">Top</h3>
             <p>HTML, or HyperText Markup Language, is the standard language used to create web pages. It allows developers to structure content and make it accessible and attractive to users.</p>
+
+            <a href="http://yandex.com">Yandex site</a>
 
             <p>HTML was first developed by Tim Berners-Lee in 1991, and since then, it has gone through numerous iterations to become the versatile tool it is today. One of the core tenets of HTML is its simplicity and accessibility. By using a series of tags, you can define various elements on a webpage, such as headings, paragraphs, links, images, and more.</p>
 
@@ -102,6 +105,8 @@ aside blockquote {
             </ul>
 
             <p>HTML also supports multimedia, allowing you to embed videos, audio, and interactive content. Modern HTML (HTML5) introduces several new elements and APIs to enhance functionality, making it easier for developers to create rich, interactive web experiences.</p>
+
+            <a href="#top">to top</a>
 
             <p>In conclusion, understanding HTML is fundamental for web development. Its role in structuring and presenting content on the web is indispensable. Whether you are a beginner or a seasoned developer, mastering HTML opens the door to creating engaging and effective web pages.</p>
         </div>

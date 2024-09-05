@@ -4,6 +4,7 @@ import {getStyles} from '@diplodoc/html-extension';
 import type {IHTMLIFrameElementConfig} from '@diplodoc/html-extension/runtime';
 import {Ellipsis as DotsIcon, Eye} from '@gravity-ui/icons';
 import {Button, Icon, Label, Menu, Popup} from '@gravity-ui/uikit';
+import debounce from 'lodash/debounce';
 import {Node} from 'prosemirror-model';
 import {EditorView} from 'prosemirror-view';
 
@@ -33,6 +34,19 @@ export function generateID() {
 }
 
 const DEFAULT_PADDING = 20;
+const DEFAULT_DELAY = 100;
+
+const createLinkCLickHandler = (value: Element, document: Document) => (event: Event) => {
+    event.preventDefault();
+    const targetId = value.getAttribute('href');
+
+    if (targetId) {
+        const targetElement = document.querySelector(targetId);
+        if (targetElement) {
+            targetElement.scrollIntoView({behavior: 'smooth'});
+        }
+    }
+};
 
 const YfmHtmlBlockPreview: React.FC<YfmHtmlBlockViewProps> = ({html, onСlick, config}) => {
     const ref = useRef<HTMLIFrameElement>(null);
@@ -124,12 +138,39 @@ const YfmHtmlBlockPreview: React.FC<YfmHtmlBlockViewProps> = ({html, onСlick, c
         }
     };
 
+    // finds all relative links (href^="#") and changes their click behavior
+    const createAnchorLinkHandlers = (type: 'add' | 'remove') => () => {
+        const document = ref.current?.contentWindow!.document;
+
+        if (document) {
+            document.querySelectorAll('a[href^="#"]').forEach((value: Element) => {
+                const handler = createLinkCLickHandler(value, document);
+                if (type === 'add') {
+                    value.addEventListener('click', handler);
+                } else {
+                    value.removeEventListener('click', handler);
+                }
+            });
+        }
+    };
+
     useEffect(() => {
         ref.current?.addEventListener('load', handleLoadIFrame);
+        ref.current?.addEventListener('load', createAnchorLinkHandlers('add'));
         return () => {
             ref.current?.removeEventListener('load', handleLoadIFrame);
+            ref.current?.removeEventListener('load', createAnchorLinkHandlers('remove'));
         };
     }, [html]);
+
+    useEffect(() => {
+        if (ref.current) {
+            const resizeObserver = new window.ResizeObserver(
+                debounce(handleResizeIFrame, DEFAULT_DELAY),
+            );
+            resizeObserver.observe(ref.current);
+        }
+    }, [ref.current?.contentWindow?.document?.body]);
 
     return (
         <iframe
