@@ -6,6 +6,7 @@ import type {ExtensionAuto, ExtensionNodeSpec} from '../../../../core';
 import {nodeTypeFactory} from '../../../../utils/schema';
 
 import {TabsNode} from './const';
+import {tabsPostPlugin} from './md-plugin';
 import {parserTokens} from './parser';
 import {getSchemaSpecs} from './schema';
 import {serializerTokens} from './serializer';
@@ -25,13 +26,15 @@ export type YfmTabsSpecsOptions = {
     tabsListView?: ExtensionNodeSpec['view'];
     tabPanelView?: ExtensionNodeSpec['view'];
     tabsView?: ExtensionNodeSpec['view'];
+    vtabView?: ExtensionNodeSpec['view'];
+    vtabInputView?: ExtensionNodeSpec['view'];
 };
 
 export const YfmTabsSpecs: ExtensionAuto<YfmTabsSpecsOptions> = (builder, opts) => {
     const schemaSpecs = getSchemaSpecs(opts);
 
     builder
-        .configureMd((md) => md.use(yfmPlugin, {log}))
+        .configureMd((md) => md.use(yfmPlugin, {log}).use(tabsPostPlugin))
         .addNode(TabsNode.Tab, () => ({
             spec: schemaSpecs[TabsNode.Tab],
             toMd: serializerTokens[TabsNode.Tab],
@@ -67,5 +70,41 @@ export const YfmTabsSpecs: ExtensionAuto<YfmTabsSpecsOptions> = (builder, opts) 
                 tokenName: 'tabs',
             },
             view: opts.tabsView,
+        }));
+
+    builder
+        .addNode(TabsNode.RadioTabs, () => ({
+            spec: schemaSpecs[TabsNode.RadioTabs],
+            toMd: serializerTokens[TabsNode.RadioTabs],
+            fromMd: {
+                tokenSpec: parserTokens[TabsNode.RadioTabs],
+                tokenName: 'r-tabs',
+            },
+        }))
+        .addNode(TabsNode.RadioTab, () => ({
+            spec: schemaSpecs[TabsNode.RadioTab],
+            toMd: serializerTokens[TabsNode.RadioTab],
+            fromMd: {
+                tokenSpec: parserTokens[TabsNode.RadioTab],
+                tokenName: 'r-tab',
+            },
+            view: opts.vtabView,
+        }))
+        .addNode(TabsNode.RadioTabInput, () => ({
+            spec: schemaSpecs[TabsNode.RadioTabInput],
+            toMd: serializerTokens[TabsNode.RadioTabInput],
+            fromMd: {
+                tokenSpec: parserTokens[TabsNode.RadioTabInput],
+                tokenName: 'r-tab-input',
+            },
+            view: opts.vtabInputView,
+        }))
+        .addNode(TabsNode.RadioTabLabel, () => ({
+            spec: schemaSpecs[TabsNode.RadioTabLabel],
+            toMd: serializerTokens[TabsNode.RadioTabLabel],
+            fromMd: {
+                tokenSpec: parserTokens[TabsNode.RadioTabLabel],
+                tokenName: 'r-tab-label',
+            },
         }));
 };

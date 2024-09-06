@@ -1,8 +1,15 @@
 export enum TabsNode {
+    // tabs panel is common for tabs and radio tabs
+    TabPanel = 'yfm_tab_panel',
+
     Tab = 'yfm_tab',
     TabsList = 'yfm_tabs_list',
-    TabPanel = 'yfm_tab_panel',
     Tabs = 'yfm_tabs',
+
+    RadioTabs = 'yfm_radio_tabs',
+    RadioTab = 'yfm_radio_tab',
+    RadioTabInput = 'yfm_radio_tab_input',
+    RadioTabLabel = 'yfm_radio_tab_label',
 }
 
 export enum TabsAttrs {
@@ -25,6 +32,7 @@ export enum TabAttrs {
     dataDiplodocKey = 'data-diplodoc-key',
     dataDiplodocid = 'data-diplodoc-id',
     dataDiplodocIsActive = 'data-diplodoc-is-active',
+    dataDiplodocVerticalTab = 'data-diplodoc-vertical-tab',
 }
 
 export enum TabPanelAttrs {

@@ -8,6 +8,7 @@ import {YfmTabsSpecsOptions} from '.';
 
 const DEFAULT_PLACEHOLDERS = {
     TabTitle: 'Tab title',
+    RadioTabLabelTitle: 'Radio title',
 };
 
 export const getSchemaSpecs: (
@@ -93,5 +94,70 @@ export const getSchemaSpecs: (
         selectable: false,
         allowSelection: false,
         complex: 'inner',
+    },
+
+    [TabsNode.RadioTabs]: {
+        attrs: {
+            [TabsAttrs.class]: {default: 'yfm-tabs yfm-tabs-vertical'},
+            [TabsAttrs.dataDiplodocGroup]: {default: 'unknown'},
+        },
+        content: `(${TabsNode.RadioTab} ${TabsNode.TabPanel})+`,
+        group: 'block',
+        toDOM(node) {
+            return ['div', node.attrs, 0];
+        },
+        complex: 'root',
+    },
+    [TabsNode.RadioTab]: {
+        attrs: {
+            [TabAttrs.id]: {default: null},
+            [TabAttrs.class]: {default: 'yfm-tab yfm-vertical-tab'},
+            [TabAttrs.role]: {default: 'unknown'},
+            [TabAttrs.ariaControls]: {default: 'unknown'},
+            [TabAttrs.ariaSelected]: {default: 'unknown'},
+            [TabAttrs.tabindex]: {default: 'unknown'},
+            [TabAttrs.dataDiplodocKey]: {default: 'unknown'},
+            [TabAttrs.dataDiplodocid]: {default: 'unknown'},
+            [TabAttrs.dataDiplodocIsActive]: {default: 'false'},
+            [TabAttrs.dataDiplodocVerticalTab]: {default: 'true'},
+        },
+        content: `${TabsNode.RadioTabInput} ${TabsNode.RadioTabLabel}`,
+        group: 'block',
+        toDOM(node) {
+            return ['div', node.attrs, 0];
+        },
+        selectable: false,
+        allowSelection: false,
+        complex: 'inner',
+    },
+    [TabsNode.RadioTabInput]: {
+        attrs: {
+            [TabAttrs.class]: {default: 'radio'},
+            type: {default: 'radio'},
+            checked: {default: null},
+        },
+        group: 'block',
+        toDOM(node) {
+            return ['input', node.attrs];
+        },
+        selectable: false,
+        allowSelection: false,
+        complex: 'leaf',
+    },
+    [TabsNode.RadioTabLabel]: {
+        attrs: {},
+        marks: '',
+        content: 'text*',
+        group: 'block',
+        toDOM(node) {
+            return ['label', node.attrs, 0];
+        },
+        placeholder: {
+            content: placeholder?.[TabsNode.RadioTab] ?? DEFAULT_PLACEHOLDERS.RadioTabLabelTitle,
+            alwaysVisible: true,
+        },
+        selectable: false,
+        allowSelection: false,
+        complex: 'leaf',
     },
 });

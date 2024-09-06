@@ -12,7 +12,7 @@ import {
     tabEnter,
     tabPanelArrowDown,
 } from './plugins';
-import {tabPanelView, tabView} from './views';
+import {tabPanelView, tabView, vtabInputView, vtabView} from './views';
 
 export {TabsNode, tabType, tabsType, tabsListType, tabPanelType} from './YfmTabsSpecs';
 
@@ -22,6 +22,8 @@ export const YfmTabs: ExtensionAuto = (builder) => {
     builder.use(YfmTabsSpecs, {
         tabView: () => tabView,
         tabPanelView: () => tabPanelView,
+        vtabView: () => vtabView,
+        vtabInputView: () => vtabInputView,
     });
 
     builder.addKeymap(
