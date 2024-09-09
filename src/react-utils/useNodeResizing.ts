@@ -13,7 +13,7 @@ const THRESHOLD = 4;
 export interface UseNodeResizingArgs {
     width?: number;
     height?: number;
-    onResize?: ({width, height}: {width: number; height: number}) => void;
+    onResize?: ({width, height}: {width?: number; height?: number}) => void;
     ref: RefObject<HTMLImageElement | HTMLDivElement> | null;
     delay?: number;
     threshold?: number;
@@ -82,7 +82,11 @@ export const useNodeResizing = ({
 
                     setCurrentWidth(newWidth);
                     setCurrentHeight(newHeight);
-                    onResize?.({width: newWidth, height: newHeight});
+
+                    onResize?.({
+                        width: !initialWidth && initialWidth !== 0 ? undefined : newWidth,
+                        height: !initialHeight && initialHeight !== 0 ? undefined : newHeight,
+                    });
                 }
             });
         }, delay);
@@ -106,8 +110,8 @@ export const useNodeResizing = ({
         startResizing,
         state: {
             resizing,
-            width: initialWidth === undefined ? undefined : currentWidth,
-            height: initialHeight === undefined ? undefined : currentHeight,
+            width: !initialWidth && initialWidth !== 0 ? undefined : currentWidth,
+            height: !initialHeight && initialHeight !== 0 ? undefined : currentHeight,
         },
     };
 };

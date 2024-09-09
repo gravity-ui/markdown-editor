@@ -1,16 +1,14 @@
 import React, {useCallback, useEffect, useRef} from 'react';
 
-import isNumber from 'is-number';
-
 import {cn} from '../../../../../classname';
 import {ReactNodeViewProps, useNodeEditing, useNodeHovered} from '../../../../../react-utils';
 import {ResizeDirection, useNodeResizing} from '../../../../../react-utils/useNodeResizing';
 import {removeNode} from '../../../../../utils';
+import {Resizable} from '../../../../behavior/Resizable/Resizable';
 import {ImgSizeAttr} from '../../ImgSizeSpecs';
 import {imageRendererKey} from '../../const';
 
 import {ImgSettingsButton} from './ImgSettingsButton';
-import {Resizable} from './Resizable';
 
 import './ImgNodeView.scss';
 
@@ -38,13 +36,10 @@ export const ImageNodeView: React.FC<ReactNodeViewProps> = ({
     });
 
     const handleResize = useCallback(
-        ({width, height}: {width: number; height: number}) => {
-            const updatedWidth = Math.round(width);
-            const updatedHeight = Math.round(height);
-
+        ({width, height}: {width?: number; height?: number}) => {
             updateAttributes({
-                width: isNumber(updatedWidth) && updatedWidth >= 0 ? String(updatedWidth) : '',
-                height: isNumber(updatedHeight) && updatedHeight >= 0 ? String(updatedHeight) : '',
+                width: width === undefined ? undefined : String(Math.round(width)),
+                height: height === undefined ? undefined : String(Math.round(height)),
                 name: title,
                 alt,
             });
