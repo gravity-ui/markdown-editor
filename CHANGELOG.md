@@ -1,5 +1,12 @@
 # Changelog
 
+## [13.17.0](https://github.com/gravity-ui/markdown-editor/compare/v13.16.0...v13.17.0) (2024-09-05)
+
+
+### Features
+
+* **yfmHtmlBlock:** updated yfm-html-block ([#354](https://github.com/gravity-ui/markdown-editor/issues/354)) ([c63eadb](https://github.com/gravity-ui/markdown-editor/commit/c63eadbd2104a419a1a941ce510f2799e43765b0))
+
 ## [13.16.0](https://github.com/gravity-ui/markdown-editor/compare/v13.15.0...v13.16.0) (2024-08-29)
 
 

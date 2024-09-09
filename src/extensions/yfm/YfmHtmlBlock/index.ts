@@ -9,7 +9,7 @@ import {YfmHtmlBlockAction} from './YfmHtmlBlockSpecs/const';
 import {addYfmHtmlBlock} from './actions';
 
 export interface YfmHtmlBlockOptions
-    extends Omit<PluginOptions, 'runtimeJsPath' | 'containerClasses' | 'bundle'> {
+    extends Omit<PluginOptions, 'runtimeJsPath' | 'containerClasses' | 'bundle' | 'embeddingMode'> {
     useConfig?: () => IHTMLIFrameElementConfig | undefined;
 }
 

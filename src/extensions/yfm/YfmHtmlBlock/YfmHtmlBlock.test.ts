@@ -29,8 +29,6 @@ describe('YfmHtmlBlock extension', () => {
             doc(
                 yfmHtmlBlock({
                     [YfmHtmlBlockAttrs.srcdoc]: 'content\n',
-                    [YfmHtmlBlockAttrs.style]: 'width:100%',
-                    [YfmHtmlBlockAttrs.frameborder]: '0',
                 }),
             ),
         ));

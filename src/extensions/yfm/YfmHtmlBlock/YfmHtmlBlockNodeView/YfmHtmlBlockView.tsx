@@ -36,6 +36,18 @@ export function generateID() {
 const DEFAULT_PADDING = 20;
 const DEFAULT_DELAY = 100;
 
+const createLinkCLickHandler = (value: Element, document: Document) => (event: Event) => {
+    event.preventDefault();
+    const targetId = value.getAttribute('href');
+
+    if (targetId) {
+        const targetElement = document.querySelector(targetId);
+        if (targetElement) {
+            targetElement.scrollIntoView({behavior: 'smooth'});
+        }
+    }
+};
+
 const YfmHtmlBlockPreview: React.FC<YfmHtmlBlockViewProps> = ({html, onСlick, config}) => {
     const ref = useRef<HTMLIFrameElement>(null);
     const styles = useRef<Record<string, string>>({});
@@ -45,10 +57,6 @@ const YfmHtmlBlockPreview: React.FC<YfmHtmlBlockViewProps> = ({html, onСlick, c
     const [height, setHeight] = useState('100%');
 
     useEffect(() => {
-        resizeConfig.current = {
-            padding: config?.resizePadding ?? DEFAULT_PADDING,
-            delay: config?.resizeDelay ?? DEFAULT_DELAY,
-        };
         setStyles(config?.styles);
         setClassNames(config?.classNames);
     }, [config, ref.current?.contentWindow?.document?.body]);
@@ -130,17 +138,35 @@ const YfmHtmlBlockPreview: React.FC<YfmHtmlBlockViewProps> = ({html, onСlick, c
         }
     };
 
+    // finds all relative links (href^="#") and changes their click behavior
+    const createAnchorLinkHandlers = (type: 'add' | 'remove') => () => {
+        const document = ref.current?.contentWindow!.document;
+
+        if (document) {
+            document.querySelectorAll('a[href^="#"]').forEach((value: Element) => {
+                const handler = createLinkCLickHandler(value, document);
+                if (type === 'add') {
+                    value.addEventListener('click', handler);
+                } else {
+                    value.removeEventListener('click', handler);
+                }
+            });
+        }
+    };
+
     useEffect(() => {
         ref.current?.addEventListener('load', handleLoadIFrame);
+        ref.current?.addEventListener('load', createAnchorLinkHandlers('add'));
         return () => {
             ref.current?.removeEventListener('load', handleLoadIFrame);
+            ref.current?.removeEventListener('load', createAnchorLinkHandlers('remove'));
         };
     }, [html]);
 
     useEffect(() => {
         if (ref.current) {
             const resizeObserver = new window.ResizeObserver(
-                debounce(handleResizeIFrame, resizeConfig.current?.delay ?? DEFAULT_DELAY),
+                debounce(handleResizeIFrame, DEFAULT_DELAY),
             );
             resizeObserver.observe(ref.current);
         }
