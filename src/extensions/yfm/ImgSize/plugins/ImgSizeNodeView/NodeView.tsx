@@ -1,13 +1,16 @@
-import React, {useCallback, useRef} from 'react';
+import React, {useCallback, useEffect, useRef} from 'react';
 
 import isNumber from 'is-number';
 
 import {cn} from '../../../../../classname';
-import {ReactNodeViewProps} from '../../../../../react-utils/react-node-view';
+import {ReactNodeViewProps, useNodeEditing, useNodeHovered} from '../../../../../react-utils';
+import {ResizeDirection, useNodeResizing} from '../../../../../react-utils/useNodeResizing';
+import {removeNode} from '../../../../../utils';
 import {ImgSizeAttr} from '../../ImgSizeSpecs';
+import {imageRendererKey} from '../../const';
 
 import {ImgSettingsButton} from './ImgSettingsButton';
-import {ResizableImage} from './ResizableImage';
+import {Resizable} from './Resizable';
 
 import './ImgNodeView.scss';
 
@@ -19,17 +22,29 @@ export const ImageNodeView: React.FC<ReactNodeViewProps> = ({
     getPos,
     updateAttributes,
 }) => {
-    const ref = useRef<HTMLImageElement>(null);
-    const title = node.attrs[ImgSizeAttr.Title] || '';
+    const imageContainerRef = useRef<HTMLDivElement>(null);
+    const imageRef = useRef<HTMLImageElement>(null);
+
     const alt = node.attrs[ImgSizeAttr.Alt] || '';
+    const initialHeight = node.attrs[ImgSizeAttr.Height];
+    const initialWidth = node.attrs[ImgSizeAttr.Width];
+    const src = node.attrs[ImgSizeAttr.Src] || '';
+    const title = node.attrs[ImgSizeAttr.Title] || '';
+
+    const isNodeHovered = useNodeHovered(imageContainerRef);
+    const [edit, setEditing, unsetEdit, toggleEdit] = useNodeEditing({
+        nodeRef: imageContainerRef,
+        view,
+    });
 
     const handleResize = useCallback(
-        ({width}: {width: number}) => {
+        ({width, height}: {width: number; height: number}) => {
             const updatedWidth = Math.round(width);
+            const updatedHeight = Math.round(height);
 
             updateAttributes({
                 width: isNumber(updatedWidth) && updatedWidth >= 0 ? String(updatedWidth) : '',
-                height: '',
+                height: isNumber(updatedHeight) && updatedHeight >= 0 ? String(updatedHeight) : '',
                 name: title,
                 alt,
             });
@@ -37,23 +52,64 @@ export const ImageNodeView: React.FC<ReactNodeViewProps> = ({
         [alt, title, updateAttributes],
     );
 
+    const {state, startResizing} = useNodeResizing({
+        width: initialWidth,
+        height: initialHeight,
+        ref: imageRef,
+        onResize: handleResize,
+    });
+
+    const style = {
+        width: state.width ? `${state.width}px` : '',
+        height: state.height ? `${state.height}px` : '',
+        transition: 'width 0.15s ease-out, height 0.15s ease-out',
+    };
+
+    const handleDelete = useCallback(() => {
+        const pos = getPos();
+        if (pos === undefined) return;
+        removeNode({
+            node,
+            pos,
+            tr: view.state.tr,
+            dispatch: view.dispatch,
+        });
+        view.focus();
+    }, [getPos, node, view]);
+
+    const createHandleResize =
+        (direction: ResizeDirection) => (event: React.MouseEvent<HTMLElement>) => {
+            startResizing(event, direction);
+        };
+
+    useEffect(() => {
+        if (imageRendererKey.getState(view.state)?.linkAdded) {
+            setEditing();
+        }
+    }, [view, setEditing]);
+
     return (
-        <>
-            <ImgSettingsButton
-                node={node}
-                view={view}
-                getPos={getPos}
-                updateAttributes={updateAttributes}
-                nodeRef={ref}
-            />
-            <ResizableImage
-                onResize={handleResize}
-                alt={node.attrs[ImgSizeAttr.Alt]}
-                height={node.attrs[ImgSizeAttr.Height]}
-                ref={ref}
-                src={node.attrs[ImgSizeAttr.Src]}
-                width={node.attrs[ImgSizeAttr.Width]}
-            />
-        </>
+        <div ref={imageContainerRef}>
+            <Resizable
+                hover={isNodeHovered}
+                resizing={state.resizing}
+                onResizeLeft={createHandleResize('left')}
+                onResizeRight={createHandleResize('right')}
+            >
+                <ImgSettingsButton
+                    node={node}
+                    view={view}
+                    getPos={getPos}
+                    updateAttributes={updateAttributes}
+                    visible={isNodeHovered && !edit && !state.resizing}
+                    edit={edit}
+                    toggleEdit={toggleEdit}
+                    nodeRef={imageRef}
+                    onDelete={handleDelete}
+                    unsetEdit={unsetEdit}
+                />
+                <img ref={imageRef} src={src} alt={alt} style={style} />
+            </Resizable>
+        </div>
     );
 };
