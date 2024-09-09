@@ -9,7 +9,7 @@ import {YfmHtmlBlockConsts} from './const';
 export {yfmHtmlBlockNodeName} from './const';
 
 export interface YfmHtmlBlockSpecsOptions
-    extends Omit<PluginOptions, 'runtimeJsPath' | 'containerClasses' | 'bundle'> {
+    extends Omit<PluginOptions, 'runtimeJsPath' | 'containerClasses' | 'bundle' | 'embeddingMode'> {
     nodeView?: ExtensionNodeSpec['view'];
 }
 
@@ -18,14 +18,23 @@ const YfmHtmlBlockSpecsExtension: ExtensionAuto<YfmHtmlBlockSpecsOptions> = (
     {nodeView, ...options},
 ) => {
     builder
-        .configureMd((md) => md.use(transform({bundle: false, ...options}), {}))
+        .configureMd((md) =>
+            md.use(
+                transform({
+                    bundle: false,
+                    embeddingMode: 'srcdoc',
+                    ...options,
+                }),
+                {},
+            ),
+        )
         .addNode(YfmHtmlBlockConsts.NodeName, () => ({
             fromMd: {
                 tokenSpec: {
                     name: YfmHtmlBlockConsts.NodeName,
                     type: 'node',
                     noCloseToken: true,
-                    getAttrs: (token) => Object.fromEntries(token.attrs ?? []),
+                    getAttrs: ({content}) => ({srcdoc: content}),
                 },
             },
             spec: {

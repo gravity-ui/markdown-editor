@@ -1,6 +1,6 @@
 import React, {ComponentType, RefAttributes, forwardRef, useEffect} from 'react';
 
-import {useDiplodocHtml} from '@diplodoc/html-extension/react';
+import {useDiplodocEmbeddedContentController} from '@diplodoc/html-extension/react';
 import {IHTMLIFrameElementConfig} from '@diplodoc/html-extension/runtime';
 
 import type {PluginRuntime, TransformMeta} from '../withMermaid/types';
@@ -25,14 +25,14 @@ export function withYfmHtmlBlock(opts: WithYfmHtmlBlockOptions) {
 
             useYfmHtmlBlockRuntime(meta, opts.runtime);
 
-            const yfmHtmlBlock = useDiplodocHtml();
+            const yfmHtmlBlock = useDiplodocEmbeddedContentController();
 
             useEffect(() => {
                 if (yfmHtmlBlock) {
                     if (yfmHtmlBlockConfig) {
                         yfmHtmlBlock.setConfig(yfmHtmlBlockConfig);
                     }
-                    yfmHtmlBlock.reinitialize();
+                    yfmHtmlBlock.initialize();
                 }
             }, [yfmHtmlBlock, html, yfmHtmlBlockConfig]);
 
