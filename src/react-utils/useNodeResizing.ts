@@ -39,15 +39,11 @@ export const useNodeResizing = ({
     // The dimensions specified as arguments take primacy over
     // the dimensions detected during the mouse movement.
     useEffect(() => {
-        console.log('width', width, initialWidth);
         if (width !== initialWidth) {
-            console.log('width changed');
             setCurrentWidth(width);
             setInitialWidth(width);
         }
-        console.log('height', height, initialHeight);
         if (height !== initialHeight) {
-            console.log('height changed');
             setCurrentHeight(height);
             setInitialHeight(height);
         }
@@ -56,8 +52,6 @@ export const useNodeResizing = ({
     const startResizing = (event: React.MouseEvent<HTMLElement>, direction: ResizeDirection) => {
         // prohibit the selection of text and other artifacts when resizing.
         event.preventDefault();
-
-        console.log('startResizing');
 
         const element = ref?.current;
 
