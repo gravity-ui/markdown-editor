@@ -1,9 +1,7 @@
 import type {FC} from 'react';
 import React, {useCallback, useRef, useState} from 'react';
 
-// import {cn} from '@bem-react/classname';
 import {ArrowRight, ArrowRotateLeft, ThumbsDown, ThumbsUp} from '@gravity-ui/icons';
-// import {cn} from '@gravity-ui/markdown-editor/_/classname.js';
 import {ActionTooltip, Alert, AlertProps, Button, Icon, TextInput} from '@gravity-ui/uikit';
 
 import {cn} from '../../../../classname';

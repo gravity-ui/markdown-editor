@@ -1,7 +1,6 @@
 import React from 'react';
 import type {FC} from 'react';
 
-// import {cn} from '@gravity-ui/markdown-editor/_/classname.js';
 import {cn} from '@bem-react/classname';
 import {Skeleton} from '@gravity-ui/uikit';
 
