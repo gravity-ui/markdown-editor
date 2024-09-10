@@ -7,9 +7,11 @@ import {toaster} from '@gravity-ui/uikit/toaster-singleton-react-18';
 import {
     MarkdownEditorMode,
     MarkdownEditorView,
+    MarkdownEditorViewProps,
     MarkupString,
     NumberInput,
     RenderPreview,
+    UseMarkdownEditorProps,
     logger,
     markupToolbarConfigs,
     useMarkdownEditor,
@@ -59,6 +61,8 @@ const wCommandMenuConfig = wysiwygToolbarConfigs.wCommandMenuConfig.concat(
     wysiwygToolbarConfigs.wYfmHtmlBlockItemData,
 );
 
+wCommandMenuConfig.unshift(wysiwygToolbarConfigs.wGptItemData);
+
 export type PlaygroundProps = {
     initial?: MarkupString;
     allowHTML?: boolean;
@@ -77,7 +81,20 @@ export type PlaygroundProps = {
     escapeConfig?: EscapeConfig;
     onChangeEditorType?: (mode: MarkdownEditorMode) => void;
     onChangeSplitModeEnabled?: (splitModeEnabled: boolean) => void;
-};
+} & Pick<
+    UseMarkdownEditorProps,
+    | 'needToSetDimensionsForUploadedImages'
+    | 'extraExtensions'
+    | 'renderPreview'
+    | 'extensionOptions'
+> &
+    Pick<
+        MarkdownEditorViewProps,
+        | 'markupHiddenActionsConfig'
+        | 'wysiwygHiddenActionsConfig'
+        | 'markupToolbarConfig'
+        | 'wysiwygToolbarConfig'
+    >;
 
 logger.setLogger({
     metrics: console.info,
@@ -101,6 +118,9 @@ export const Playground = React.memo<PlaygroundProps>((props) => {
         stickyToolbar,
         renderPreviewDefined,
         height,
+        extraExtensions,
+        extensionOptions,
+        wysiwygToolbarConfig,
         escapeConfig,
     } = props;
     const [editorMode, setEditorMode] = React.useState<MarkdownEditorMode>(
@@ -145,8 +165,9 @@ export const Playground = React.memo<PlaygroundProps>((props) => {
             : undefined,
         extensionOptions: {
             commandMenu: {actions: wCommandMenuConfig},
+            ...extensionOptions,
         },
-        extraExtensions: (builder) =>
+        extraExtensions: (builder) => {
             builder
                 .use(Math, {
                     loadRuntimeScript: () => {
@@ -166,6 +187,7 @@ export const Playground = React.memo<PlaygroundProps>((props) => {
                         );
                     },
                 })
+                .use(FoldingHeading)
                 .use(YfmHtmlBlock, {
                     useConfig: useYfmHtmlBlockStyles,
                     sanitize: getSanitizeYfmHtmlBlock({options: defaultOptions}),
@@ -178,8 +200,9 @@ export const Playground = React.memo<PlaygroundProps>((props) => {
                             }
                         </style
                     `,
-                })
-                .use(FoldingHeading),
+                });
+            if (extraExtensions) builder.use(extraExtensions);
+        },
     });
 
     useEffect(() => {
@@ -311,7 +334,7 @@ export const Playground = React.memo<PlaygroundProps>((props) => {
                         toaster={toaster}
                         className={b('editor-view')}
                         stickyToolbar={Boolean(stickyToolbar)}
-                        wysiwygToolbarConfig={wToolbarConfig}
+                        wysiwygToolbarConfig={wysiwygToolbarConfig ?? wToolbarConfig}
                         markupToolbarConfig={mToolbarConfig}
                         settingsVisible={settingsVisible}
                         editor={mdEditor}

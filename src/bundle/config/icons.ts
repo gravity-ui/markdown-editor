@@ -39,6 +39,7 @@ import {
     UnderlineIcon,
     UndoIcon,
 } from '../../icons';
+import GPTIcon from '../../icons/GPT';
 import {ToolbarIconData} from '../../toolbar/types';
 
 type Icon =
@@ -80,7 +81,8 @@ type Icon =
     | 'tabs'
     | 'mermaid'
     | 'html'
-    | 'foldingHeading';
+    | 'foldingHeading'
+    | 'gpt';
 
 type Icons = Record<Icon, ToolbarIconData>;
 
@@ -139,4 +141,6 @@ export const icons: Icons = {
     mermaid: {data: MermaidIcon},
 
     foldingHeading: {data: FoldingHeadingIcon},
+
+    gpt: {data: GPTIcon},
 };

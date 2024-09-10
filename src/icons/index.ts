@@ -1,8 +1,9 @@
+import GPTIcon from './GPT';
 import MermaidIcon from './Mermaid';
 import MonoIcon from './Mono';
 import TabsIcon from './Tabs';
 
-export {MermaidIcon, MonoIcon, TabsIcon};
+export {MermaidIcon, MonoIcon, TabsIcon, GPTIcon};
 
 export {
     ArrowUturnCcwLeft as UndoIcon,

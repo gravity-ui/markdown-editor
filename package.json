@@ -195,6 +195,7 @@
     "prosemirror-utils": "1.2.0",
     "prosemirror-view": "1.33.6",
     "react-error-boundary": "^3.1.4",
+    "react-hotkeys-hook": "4.5.0",
     "react-use": "^17.3.2",
     "tslib": "^2.3.1"
   },

@@ -1,0 +1,25 @@
+.g-md-gpt-dialog-error-screen {
+    &__content {
+        display: flex;
+        align-items: center;
+
+        margin-bottom: 8px;
+    }
+
+    &__icon {
+        color: var(--g-color-base-danger-heavy);
+    }
+
+    &__text {
+        flex: auto;
+
+        font-size: var(--g-text-body-2-font-size);
+        font-weight: 500;
+    }
+
+    &__buttons {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+}

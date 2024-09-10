@@ -1,0 +1,100 @@
+.g-md-gpt-dialog {
+    &__header-top {
+        display: flex;
+        align-items: center;
+    }
+
+    &__custom-prompt-input {
+        margin-right: 8px;
+
+        .g-text-input__control {
+            font-size: var(--g-text-body-2-font-size);
+        }
+    }
+
+    &__header-bottom {
+        margin-top: 8px;
+    }
+
+    &__custom-prompt {
+        display: flex;
+        flex: auto;
+        align-items: center;
+    }
+
+    &__alone-presets-text {
+        margin-right: 32px;
+    }
+
+    &__alone-presets {
+        display: flex;
+        flex: auto;
+        align-items: center;
+
+        width: 100%;
+
+        font-size: var(--g-text-body-2-font-size);
+        font-weight: 500;
+
+        .g-md-gpt-dialog-preset-list {
+            flex: auto;
+        }
+    }
+
+    &__answer-title {
+        font-size: var(--g-text-body-2-font-size);
+        font-weight: 500;
+    }
+
+    &__gpt-icon {
+        margin-right: 4px;
+    }
+
+    &__try-again-button {
+        margin-right: 8px;
+    }
+
+    &__body {
+        margin: 8px calc(-1 * 12px);
+        padding: 16px 12px;
+
+        border-top: 1px solid var(--g-color-line-generic);
+    }
+
+    &__answer {
+        overflow: auto;
+
+        max-height: 300px;
+    }
+
+    &__answer-actions {
+        display: flex;
+        align-items: center;
+    }
+
+    &__feedback-message {
+        margin-left: 8px;
+    }
+
+    &__like-button {
+        margin-right: 8px;
+    }
+
+    &__close-button {
+        margin-right: 8px;
+        margin-left: auto;
+    }
+
+    &__footer {
+        display: flex;
+        align-items: center;
+
+        margin-top: 8px;
+    }
+
+    &__description-alert {
+        min-height: 34px;
+        margin-top: var(--g-spacing-3);
+        padding: var(--g-spacing-1) var(--g-spacing-2);
+    }
+}
