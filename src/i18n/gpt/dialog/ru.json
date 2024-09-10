@@ -1,0 +1,16 @@
+{
+  "answer-title": "Что вы хотите сделать с ответом?",
+  "close-button": "Закрыть",
+  "dislike": "Плохой ответ",
+  "error": "Произошла ошибка",
+  "feedback-message": "Ваш голос учтён!",
+  "fresh-start-button": "Начать сначала",
+  "like": "Хороший ответ",
+  "more": "Ещё",
+  "only-presets-title": "Помощь с текстом",
+  "refetch": "Попробовать ещё",
+  "replace": "Заменить выделенный текст",
+  "replace-disabled": "Вставить текст",
+  "try-again": "Иначе",
+  "alert-gpt-presets-info": "Выделите текст, чтобы увидеть пресеты Yandex GPT"
+}

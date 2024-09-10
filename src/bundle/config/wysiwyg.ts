@@ -6,6 +6,7 @@ import type {
     SelectionContextItemData,
 } from '../../extensions/behavior/SelectionContext';
 // for typings from Math
+import {gptHotKeys} from '../../extensions/markdown/GPT/constants';
 import type {} from '../../extensions/yfm/Math';
 import {i18n as i18nHint} from '../../i18n/hints';
 import {i18n} from '../../i18n/menubar';
@@ -464,6 +465,17 @@ export const wYfmHtmlBlockItemData: WToolbarSingleItemData = {
     exec: (e) => e.actions.createYfmHtmlBlock.run(),
     isActive: (e) => e.actions.createYfmHtmlBlock.isActive(),
     isEnable: (e) => e.actions.createYfmHtmlBlock.isEnable(),
+};
+
+export const wGptItemData: WToolbarSingleItemData = {
+    id: ActionName.gpt,
+    type: ToolbarDataType.SingleButton,
+    title: i18n.bind(null, 'gpt'),
+    hotkey: gptHotKeys.openGptKeyTooltip,
+    icon: icons.gpt,
+    exec: (e) => e.actions.addGptWidget.run({}),
+    isActive: (e) => e.actions.addGptWidget.isActive(),
+    isEnable: (e) => e.actions.addGptWidget.isEnable(),
 };
 
 export const wCommandMenuConfig: WToolbarItemData[] = [

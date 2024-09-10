@@ -1,0 +1,23 @@
+.g-md-gpt-widget-deco {
+    background-color: var(--g-color-base-info-light-hover);
+}
+
+.g-md-gpt-popup {
+    --layer-navigation-bar: 900;
+    pointer-events: initial;
+
+    &[class] {
+        border-radius: 8px;
+    }
+
+    &__content {
+        width: 720px;
+        padding: 12px;
+
+        pointer-events: all;
+
+        box-shadow:
+            -8px 2px 16px -4px var(--g-color-private-purple-150),
+            8px 2px 16px -4px var(--g-color-private-blue-150);
+    }
+}
