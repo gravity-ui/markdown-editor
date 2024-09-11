@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-namespace */
 
-import {eq} from 'prosemirror-test-builder';
 import type {Node} from 'prosemirror-model';
+import {eq} from 'prosemirror-test-builder';
 
 const toJson = (node: Node) => JSON.stringify(node.toJSON());
 
