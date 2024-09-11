@@ -2,16 +2,16 @@ import React, {useEffect, useRef, useState} from 'react';
 
 import {Ellipsis as DotsIcon} from '@gravity-ui/icons';
 import {Button, Icon, Loader, Menu, Popup} from '@gravity-ui/uikit';
-import type {Mermaid} from 'mermaid'; // eslint-disable-line import/no-extraneous-dependencies
+import type {Mermaid} from 'mermaid';
 import {Node} from 'prosemirror-model';
 import {EditorView} from 'prosemirror-view';
 
 import {cn} from '../../../../classname';
 import {TextAreaFixed as TextArea} from '../../../../forms/TextInput';
-import {useBooleanState} from '../../../../react-utils/hooks';
-import {removeNode} from '../../../../utils/remove-node';
+import {i18n} from '../../../../i18n/common';
+import {useBooleanState} from '../../../../react-utils';
+import {removeNode} from '../../../../utils';
 import {MermaidConsts} from '../MermaidSpecs/const';
-
 export const cnMermaid = cn('Mermaid');
 export const cnDiagramHelper = cn('MermaidHelper');
 
@@ -175,7 +175,7 @@ export const MermaidView: React.FC<{
                                 toggleMenuOpen();
                             }}
                         >
-                            Edit
+                            {i18n('edit')}
                         </Menu.Item>
                         <Menu.Item
                             onClick={() => {
@@ -189,7 +189,7 @@ export const MermaidView: React.FC<{
                                 });
                             }}
                         >
-                            Remove
+                            {i18n('remove')}
                         </Menu.Item>
                     </Menu>
                 </Popup>
