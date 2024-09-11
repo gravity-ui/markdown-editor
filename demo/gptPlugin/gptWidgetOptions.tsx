@@ -38,8 +38,8 @@ export const gptWidgetProps = (
 ): GptWidgetOptions => {
     return {
         answerRender: (data) => <div>{data.rawText}</div>,
-        customPromptPlaceholder: 'Ask Yandex GPT to edit the text highlighted text',
-        disabledPromptPlaceholder: 'Ask Yandex GPT to generate the text',
+        customPromptPlaceholder: 'Ask GPT to edit the text highlighted text',
+        disabledPromptPlaceholder: 'Ask GPT to generate the text',
         gptAlertProps: gptAlertProps,
         promptPresets: [
             {

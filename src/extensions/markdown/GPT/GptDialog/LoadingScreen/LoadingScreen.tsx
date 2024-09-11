@@ -5,8 +5,8 @@ import {cn} from '@bem-react/classname';
 import {Skeleton} from '@gravity-ui/uikit';
 
 import {i18n} from '../../../../../i18n/gpt/loading';
+import GPTLoading from '../../../../../icons/GPTLoading';
 import {IconRefuge} from '../../IconRefuge/IconRefuge';
-import GPTLoading from '../assets/GPTLoading';
 
 import './LoadingScreen.scss';
 
