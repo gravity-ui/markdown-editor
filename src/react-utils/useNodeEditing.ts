@@ -4,13 +4,12 @@ import {EditorView} from 'prosemirror-view';
 
 import {useBooleanState} from './hooks';
 
-export const useNodeEditing = ({
-    nodeRef,
-    view,
-}: {
+export interface UseNodeEditingArgs {
     nodeRef: RefObject<HTMLElement>;
     view: EditorView;
-}) => {
+}
+
+export const useNodeEditing = ({nodeRef, view}: UseNodeEditingArgs) => {
     const state = useBooleanState(false);
     const [, , unsetEdit, toggleEdit] = state;
 

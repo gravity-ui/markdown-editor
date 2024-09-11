@@ -1,0 +1,50 @@
+body :has(.g-md-resizable_resizing) {
+    cursor: col-resize;
+}
+
+.g-md-resizable {
+    position: relative;
+
+    &_resizing &__resizer-wrapper,
+    &_hover &__resizer-wrapper {
+        position: absolute;
+        z-index: 1;
+        top: 0;
+
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        width: 20px;
+        height: 100%;
+
+        cursor: col-resize;
+        pointer-events: auto;
+
+        &_left {
+            left: 0;
+        }
+
+        &_right {
+            right: 0;
+        }
+    }
+
+    &__resizer {
+        opacity: 0;
+    }
+
+    &_resizing &__resizer,
+    &_hover &__resizer {
+        box-sizing: content-box;
+        width: 4px;
+        height: 50px;
+        max-height: 50%;
+
+        opacity: 1;
+        border-radius: 6px;
+        background: rgba(127, 127, 127, 0.8);
+
+        transition: opacity 300ms ease-in 0s;
+    }
+}
