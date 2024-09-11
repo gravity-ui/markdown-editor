@@ -2,8 +2,7 @@ import React, {useState} from 'react';
 
 import cloneDeep from 'lodash/cloneDeep';
 
-import {type MarkupString, logger, wysiwygToolbarConfigs} from '../../src';
-import {gptExtension} from '../../src/extensions/markdown/GPT/gptExtension/gptExtension';
+import {type MarkupString, gptExtension, logger, wysiwygToolbarConfigs} from '../../src';
 import {wGptToolbarItem} from '../../src/extensions/markdown/GPT/toolbar';
 import {Playground} from '../Playground';
 

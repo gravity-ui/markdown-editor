@@ -6,7 +6,7 @@ import type {StoryFn} from '@storybook/react';
 import {PlaygroundGPT} from './PlaygroundGPT';
 
 export default {
-    title: 'GPT Plugin',
+    title: 'Markdown Editor / GPT Plugin',
     component: PlaygroundGPT,
 };
 

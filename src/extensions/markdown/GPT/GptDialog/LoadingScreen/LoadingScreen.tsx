@@ -6,7 +6,7 @@ import {Skeleton} from '@gravity-ui/uikit';
 
 import {i18n} from '../../../../../i18n/gpt/loading';
 import {IconRefuge} from '../../IconRefuge/IconRefuge';
-import GPTLoading from '../assets/icons/GPTLoading';
+import GPTLoading from '../assets/GPTLoading';
 
 import './LoadingScreen.scss';
 
