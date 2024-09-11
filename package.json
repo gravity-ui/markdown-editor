@@ -278,7 +278,7 @@
     "@diplodoc/html-extension": "2.1.0",
     "@diplodoc/latex-extension": "^1.0.3",
     "@diplodoc/mermaid-extension": "^1.0.0",
-    "@diplodoc/transform": "^4.5.0",
+    "@diplodoc/transform": ">=4.5.0 <4.19.0",
     "@gravity-ui/components": "^3.0.0",
     "@gravity-ui/uikit": "^6.11.0",
     "highlight.js": "^11.8.0",
