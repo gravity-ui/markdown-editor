@@ -5,5 +5,14 @@
   "row.add.before": "Add row before",
   "row.add.after": "Add row after",
   "row.remove": "Remove row",
-  "table.remove": "Remove table"
+  "table.remove": "Remove table",
+  "table.menu.cell.align.left": "Align cell content to the left",
+  "table.menu.cell.align.right": "Align cell content to the right",
+  "table.menu.cell.align.center": "Align cell content to the center",
+  "table.menu.row.add": "Add row after",
+  "table.menu.row.remove": "Remove row",
+  "table.menu.column.add": "Add column after",
+  "table.menu.column.remove": "Remove column",
+  "table.menu.convert.yfm": "Convert to YFM table",
+  "table.menu.table.remove": "Remove table"
 }

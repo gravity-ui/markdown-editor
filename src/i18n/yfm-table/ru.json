@@ -5,5 +5,14 @@
   "row.add.before": "Добавить строку до",
   "row.add.after": "Добавить строку после",
   "row.remove": "Удалить строку",
-  "table.remove": "Удалить таблицу"
+  "table.remove": "Удалить таблицу",
+  "table.menu.cell.align.left": "Выровнять контент ячейки по левому краю",
+  "table.menu.cell.align.right": "Выровнять контент ячейки по правому краю",
+  "table.menu.cell.align.center": "Выровнять контент ячейки по центру",
+  "table.menu.row.add": "Добавить строку после",
+  "table.menu.row.remove": "Удалить строку",
+  "table.menu.column.add": "Добавить столбец после",
+  "table.menu.column.remove": "Удалить столбец",
+  "table.menu.convert.yfm": "Преобразовать в таблицу YFM",
+  "table.menu.table.remove": "Удалить таблицу"
 }

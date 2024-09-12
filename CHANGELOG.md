@@ -1,5 +1,13 @@
 # Changelog
 
+## [13.17.1](https://github.com/gravity-ui/markdown-editor/compare/v13.17.0...v13.17.1) (2024-09-12)
+
+
+### Bug Fixes
+
+* **ImgSize:** added ResizableImage ([#338](https://github.com/gravity-ui/markdown-editor/issues/338)) ([66ca04d](https://github.com/gravity-ui/markdown-editor/commit/66ca04d82f0b75752613edf5abee37fb4d9c9cd6))
+* **packages:** fixed @diplodoc/transform version ([#364](https://github.com/gravity-ui/markdown-editor/issues/364)) ([054611a](https://github.com/gravity-ui/markdown-editor/commit/054611aad77f97cfbf3bc6192bbfcb5fd492d46a))
+
 ## [13.17.0](https://github.com/gravity-ui/markdown-editor/compare/v13.16.0...v13.17.0) (2024-09-05)
 
 
