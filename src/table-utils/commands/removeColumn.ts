@@ -1,7 +1,7 @@
 import type {Command} from 'prosemirror-state';
 
-import {isTableNode} from '..';
-import {isTableBodyNode, isTableCellNode, isTableRowNode} from '../utils';
+import {TableDesc} from '../table-desc';
+import {isTableNode} from '../utils';
 
 export const removeColumn: Command = (
     state,
@@ -18,30 +18,29 @@ export const removeColumn: Command = (
     const tableNode = state.doc.nodeAt(tablePos);
     if (!tableNode || tableNode.nodeSize <= 2 || !isTableNode(tableNode)) return false;
 
-    const tableBodyNode = tableNode.firstChild;
-    if (!tableBodyNode || tableBodyNode.nodeSize <= 2 || !isTableBodyNode(tableBodyNode))
-        return false;
+    const tableDesc = TableDesc.create(tableNode);
+    if (!tableDesc) return false;
 
-    // there is one column left
-    if (tableBodyNode.firstChild && tableBodyNode.firstChild.childCount < 2) return false;
+    if (
+        !tableDesc ||
+        // there is one column left
+        tableDesc.cols < 2 ||
+        tableDesc.cols <= columnNumber ||
+        !tableDesc.isSafeColumn(columnNumber)
+    )
+        return false;
 
     if (dispatch) {
         const {tr} = state;
-
-        tableBodyNode.forEach((rowNode, rowOffset) => {
-            if (!isTableRowNode(rowNode)) return;
-
-            rowNode.forEach((cellNode, cellOffset, cellIndex) => {
-                if (!isTableCellNode(cellNode)) return;
-
-                if (cellIndex === columnNumber) {
-                    // table -> tbody -> tr -> td
-                    const from = tablePos + 2 + rowOffset + 1 + cellOffset;
-                    const to = from + cellNode.nodeSize;
-                    tr.delete(tr.mapping.map(from), tr.mapping.map(to));
-                }
-            });
-        });
+        const pos = tableDesc.getRelativePosForColumn(columnNumber);
+        for (const item of pos) {
+            if (item.type === 'real') {
+                let {from, to} = item;
+                from += tablePos;
+                to += tablePos;
+                tr.delete(tr.mapping.map(from), tr.mapping.map(to));
+            }
+        }
 
         dispatch(tr);
     }
