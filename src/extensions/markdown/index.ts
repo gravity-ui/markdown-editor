@@ -18,4 +18,3 @@ export * from './Image';
 export * from './Table';
 export * from './Heading';
 export * from './HorizontalRule';
-export * from './GPT';

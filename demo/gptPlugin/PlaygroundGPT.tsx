@@ -2,8 +2,13 @@ import React, {useState} from 'react';
 
 import cloneDeep from 'lodash/cloneDeep';
 
-import {type MarkupString, gptExtension, logger, wysiwygToolbarConfigs} from '../../src';
-import {wGptToolbarItem} from '../../src/extensions/markdown/GPT/toolbar';
+import {
+    type MarkupString,
+    gptExtension,
+    logger,
+    wGptToolbarItem,
+    wysiwygToolbarConfigs,
+} from '../../src';
 import {Playground} from '../Playground';
 
 import {gptWidgetProps} from './gptWidgetOptions';
@@ -47,4 +52,4 @@ export const PlaygroundGPT = React.memo(() => {
     );
 });
 
-PlaygroundGPT.displayName = 'PlaygroundGPT';
+PlaygroundGPT.displayName = 'GPT';

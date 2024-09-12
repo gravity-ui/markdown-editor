@@ -11,3 +11,4 @@ export * from './YfmHeading';
 export * from './YfmNote';
 export * from './YfmTable';
 export * from './YfmTabs';
+export * from './GPT';

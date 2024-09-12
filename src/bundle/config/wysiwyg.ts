@@ -6,7 +6,7 @@ import type {
     SelectionContextItemData,
 } from '../../extensions/behavior/SelectionContext';
 // for typings from Math
-import {gptHotKeys} from '../../extensions/markdown/GPT/constants';
+import {gptHotKeys} from '../../extensions/yfm/GPT/constants';
 import type {} from '../../extensions/yfm/Math';
 import {i18n as i18nHint} from '../../i18n/hints';
 import {i18n} from '../../i18n/menubar';

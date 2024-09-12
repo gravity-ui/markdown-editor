@@ -425,3 +425,4 @@ LaTeXFormulas.storyName = 'LaTeX Formulas';
 LaTeXFormulas.args = args;
 MermaidDiagram.storyName = 'Mermaid diagram';
 MermaidDiagram.args = args;
+

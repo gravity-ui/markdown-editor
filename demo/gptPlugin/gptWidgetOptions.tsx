@@ -1,6 +1,6 @@
 import React from 'react';
 
-import type {GptWidgetOptions} from '../../src/extensions/markdown/GPT/gptExtension/gptExtension';
+import type {GptWidgetOptions} from '../../src/extensions/yfm/GPT/gptExtension/gptExtension';
 
 const gptRequestHandler = async ({
     markup,

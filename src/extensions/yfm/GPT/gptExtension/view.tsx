@@ -11,7 +11,7 @@ import {useMount} from 'react-use';
 import {Parser, Serializer} from 'src/core';
 
 import {cn} from '../../../../classname';
-import {getReactRendererFromState} from '../../../../extensions/behavior';
+import {getReactRendererFromState} from '../../../behavior';
 import type {CommonAnswer} from '../ErrorScreen/types';
 import type {GptDialogProps} from '../GptDialog/GptDialog';
 import {GptDialog} from '../GptDialog/GptDialog';
