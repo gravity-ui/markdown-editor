@@ -1,5 +1,3 @@
-// import {registerKeyset} from '../../../../i18n/i18n';
-
 import {registerKeyset} from '../../i18n';
 
 import en from './en.json';

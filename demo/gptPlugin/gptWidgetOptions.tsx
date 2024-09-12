@@ -11,9 +11,6 @@ const gptRequestHandler = async ({
     customPrompt?: string;
     promptData: unknown;
 }) => {
-    // eslint-disable-next-line no-console
-    console.log(markup, customPrompt, promptData);
-
     await new Promise((resolve) => setTimeout(resolve, 1000));
 
     let gptResponseMarkup = markup;

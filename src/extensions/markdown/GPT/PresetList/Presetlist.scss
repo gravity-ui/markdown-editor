@@ -1,9 +1,9 @@
 .g-md-gpt-dialog-preset-list {
     &__preset + &__preset {
-        margin-left: 8px;
+        margin-left: var(--g-spacing-2);
     }
 
     &__more-button-wrapper {
-        margin-left: 8px;
+        margin-left: var(--g-spacing-2);
     }
 }

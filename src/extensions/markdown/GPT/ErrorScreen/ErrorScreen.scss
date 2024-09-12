@@ -3,7 +3,7 @@
         display: flex;
         align-items: center;
 
-        margin-bottom: 8px;
+        margin-bottom: var(--g-spacing-2);
     }
 
     &__icon {
@@ -20,6 +20,6 @@
     &__buttons {
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: var(--g-spacing-2);
     }
 }

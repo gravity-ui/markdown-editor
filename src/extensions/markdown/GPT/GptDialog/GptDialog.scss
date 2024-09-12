@@ -5,7 +5,7 @@
     }
 
     &__custom-prompt-input {
-        margin-right: 8px;
+        margin-right: var(--g-spacing-2);
 
         .g-text-input__control {
             font-size: var(--g-text-body-2-font-size);
@@ -13,7 +13,7 @@
     }
 
     &__header-bottom {
-        margin-top: 8px;
+        margin-top: var(--g-spacing-2);
     }
 
     &__custom-prompt {
@@ -23,7 +23,7 @@
     }
 
     &__alone-presets-text {
-        margin-right: 32px;
+        margin-right: var(--g-spacing-8);
     }
 
     &__alone-presets {
@@ -47,16 +47,16 @@
     }
 
     &__gpt-icon {
-        margin-right: 4px;
+        margin-right: var(--g-spacing-1);
     }
 
     &__try-again-button {
-        margin-right: 8px;
+        margin-right: var(--g-spacing-2);
     }
 
     &__body {
-        margin: 8px calc(-1 * 12px);
-        padding: 16px 12px;
+        margin: var(--g-spacing-2) calc(-1 * var(--g-spacing-3));
+        padding: var(--g-spacing-4) var(--g-spacing-3);
 
         border-top: 1px solid var(--g-color-line-generic);
     }
@@ -73,15 +73,15 @@
     }
 
     &__feedback-message {
-        margin-left: 8px;
+        margin-left: var(--g-spacing-2);
     }
 
     &__like-button {
-        margin-right: 8px;
+        margin-right: var(--g-spacing-2);
     }
 
     &__close-button {
-        margin-right: 8px;
+        margin-right: var(--g-spacing-2);
         margin-left: auto;
     }
 
@@ -89,7 +89,7 @@
         display: flex;
         align-items: center;
 
-        margin-top: 8px;
+        margin-top: var(--g-spacing-2);
     }
 
     &__description-alert {

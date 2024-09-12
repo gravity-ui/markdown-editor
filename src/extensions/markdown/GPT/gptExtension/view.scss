@@ -7,12 +7,12 @@
     pointer-events: initial;
 
     &[class] {
-        border-radius: 8px;
+        border-radius: var(--g-spacing-2);
     }
 
     &__content {
         width: 720px;
-        padding: 12px;
+        padding: var(--g-spacing-3);
 
         pointer-events: all;
 

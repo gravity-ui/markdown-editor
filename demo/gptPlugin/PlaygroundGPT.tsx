@@ -25,8 +25,6 @@ export const PlaygroundGPT = React.memo(() => {
 
     const [showedAlertGpt, setShowedAlertGpt] = useState(true);
 
-    console.log(wGptToolbarItem);
-
     const wSelectionMenuConfig = [[wGptToolbarItem], ...wysiwygToolbarConfigs.wSelectionMenuConfig];
     return (
         <Playground

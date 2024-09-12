@@ -1,8 +1,10 @@
 ## How to add GPT extensions to editor
 
-### 1. Add extension usage to extension builder 
+First to integrate this extension, you need to use the following versions of the packages:
 
-    gptExtension - import from current library.
+    @gravity-ui/markdown-editor version 13.18.0 or higher
+
+### 1. Add extension usage to extension builder 
 
 ```ts
     import {gptExtension} from '@gravity-ui/markdown-editor';
@@ -14,23 +16,8 @@
 ```
 ### 2. Add gpt extensions props
 
-    gptWidgetProps - list of props that the extension accepts
-
 ```ts
     import {gptExtension, type GptWidgetOptions} from '@gravity-ui/markdown-editor';
-
-    // GptWidgetOptions: {
-    //     answerRender: (data: CommonAnswer) => JSX.Element,
-    //     customPromptPlaceholder?: string | undefined,
-    //     disabledPromptPlaceholder?: string | undefined,
-    //     promptPresets?: PromptPreset<unknown>[] | undefined,
-    //     onCustomPromptApply?: ((data: GptRequestData<unknown>) => Promise<CommonAnswer | undefined>) | undefined,
-    //     onPromptPresetClick?: ((data: GptRequestData<unknown>) => Promise<CommonAnswer | undefined>) | undefined,
-    //     onTryAgain?: ((data: GptRequestData<unknown>) => Promise<CommonAnswer | undefined>) | undefined,
-    //     onLike?: ((data: GptRequestData<unknown>) => Promise<void>) | undefined,
-    //     onDislike?: ((data: GptRequestData<unknown>) => Promise<void>) | undefined
-    //     onUpdate?: ((value: CommonAnswer | undefined) => void) | undefined,
-    // }
 
     const gptWidgetProps: GptWidgetOptions = {
         // add params
@@ -42,11 +29,12 @@
     )        
 ```
 
-#### Example of implementation.
+#### Example of implementation
 
     setYfmRaw - a setter to change the text in the editor
 
     gptRequestHandler - your function to implement GPT response
+    
 ```ts
     import {gptExtension, type GptWidgetOptions} from '@gravity-ui/markdown-editor';
 
@@ -84,11 +72,8 @@
         customPromptPlaceholder: 'Ask Yandex GPT to edit the text highlighted text',
         disabledPromptPlaceholder: 'Ask Yandex GPT to generate the text',
         gptAlertProps: {
-            showedGptAlert: boolean;
-            onCloseGptAlert?: () => void;
-            message?: string;
-            theme?: AlertProps["theme"];
-            className?: string;
+            showedGptAlert: true;
+            onCloseGptAlert: () => {};
         },
         promptPresets: [
             {
@@ -113,12 +98,8 @@
         onTryAgain: async ({markup, customPrompt, promptData}) => {
             return gptRequestHandler({markup, customPrompt, promptData});
         },
-        onLike: async () => {
-            console.log('Like');
-        },
-        onDislike: async () => {
-            console.log('Disike');
-        },
+        onLike: async () => {/* ... */},
+        onDislike: async () => {/* ... */},
         onApplyResult: (markup) => {
             setYfmRaw(markup);
         },
@@ -137,7 +118,7 @@
 
 ### 3. Add extension to menubar and toolbar and command menu config for editor
 
-#### add in tool bar
+#### Add in tool bar
 
 ```ts
     import {
@@ -160,7 +141,7 @@
         ...
     />
 ```
-#### add in menu bar
+#### Add in menu bar
 ```ts
     import {
         wGptToolbarItem, 
@@ -187,7 +168,7 @@
     />
 ```
 
-#### add in command menu config (/)
+#### Add in command menu config (/)
 ```ts
     import {  
         wysiwygToolbarConfigs, 
