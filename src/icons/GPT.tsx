@@ -3,6 +3,7 @@ import React from 'react';
 import {useTheme} from '@gravity-ui/uikit';
 
 const GPTIcon = () => {
+    // It may be worth taking the hook outside the icon
     const theme = useTheme();
 
     const gradient =

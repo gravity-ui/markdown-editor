@@ -61,14 +61,8 @@ export const gptWidgetProps = (
         onTryAgain: async ({markup, customPrompt, promptData}) => {
             return gptRequestHandler({markup, customPrompt, promptData});
         },
-        onLike: async () => {
-            // eslint-disable-next-line no-console
-            console.log('Like');
-        },
-        onDislike: async () => {
-            // eslint-disable-next-line no-console
-            console.log('Disike');
-        },
+        onLike: async () => {},
+        onDislike: async () => {},
         onApplyResult: (markup) => {
             setYfmRaw(markup);
         },

@@ -7,12 +7,12 @@ import {ActionTooltip, Alert, AlertProps, Button, Icon, TextInput} from '@gravit
 import {cn} from '../../../../classname';
 import {i18n} from '../../../../i18n/gpt/dialog';
 import gptIcon from '../../../../icons/GPT';
+import {useAutoFocus} from '../../../../react-utils/useAutoFocus';
 import {ErrorScreen} from '../ErrorScreen/ErrorScreen';
 import type {CommonAnswer, GptRequestData, PromptPreset} from '../ErrorScreen/types';
 import {IconRefuge} from '../IconRefuge/IconRefuge';
 import {PresetList} from '../PresetList/PresetList';
 import {gptHotKeys} from '../constants';
-import {useAutoFocus} from '../hooks/useAutoFocus';
 import {useGpt} from '../hooks/useGpt';
 import {useGptHotKeys} from '../hooks/useGptHotKeys';
 import {getAlertGptInfo, getDisableReplaceButtonText, getInputPlaceHolder} from '../utils';
@@ -101,7 +101,7 @@ export const GptDialog: FC<GptDialogProps> = ({
 
     const gptAlert = gptAlertProps;
 
-    const customPromptContainerRef = useRef<HTMLDivElement>(null);
+    const customPromptContainerRef = useRef<HTMLInputElement>(null);
 
     const [showedGptAlert, setShowedGptAlert] = useState(gptAlert?.showedGptAlert);
 
@@ -116,10 +116,7 @@ export const GptDialog: FC<GptDialogProps> = ({
         setShowedGptAlert(false);
     }, [gptAlert]);
 
-    useAutoFocus({
-        containerRef: customPromptContainerRef,
-        elementSelector: 'input',
-    });
+    useAutoFocus(customPromptContainerRef);
 
     useGptHotKeys(gptHotKeys.tryAgainGpt, handleTryAgain);
     useGptHotKeys(gptHotKeys.freshStartGpt, handleFreshStart);
@@ -170,11 +167,9 @@ export const GptDialog: FC<GptDialogProps> = ({
                                     {i18n('answer-title')}
                                 </span>
                             ) : (
-                                <div
-                                    className={cnGptDialog('custom-prompt')}
-                                    ref={customPromptContainerRef}
-                                >
+                                <div className={cnGptDialog('custom-prompt')}>
                                     <TextInput
+                                        controlRef={customPromptContainerRef}
                                         view="clear"
                                         size="m"
                                         className={cnGptDialog('custom-prompt-input')}

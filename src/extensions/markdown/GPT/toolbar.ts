@@ -10,7 +10,7 @@ export const cnGptButton = cn('gpt-button');
 
 export const wGptToolbarItem: WToolbarSingleItemData = {
     type: ToolbarDataType.SingleButton,
-    id: 'inline-comment',
+    id: 'gpt',
     title: () => `${i18n('help-with-text')}`,
     hotkey: gptHotKeys.openGptKeyTooltip,
     icon: {data: gptIcon},

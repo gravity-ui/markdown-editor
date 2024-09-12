@@ -1,4 +1,4 @@
-## How to add GPT extensions to editor
+## How to connect GPT extensions to editor
 
 First to integrate this extension, you need to use the following versions of the packages:
 
@@ -31,7 +31,7 @@ First to integrate this extension, you need to use the following versions of the
 
 #### Example of implementation
 
-    setYfmRaw - a setter to change the text in the editor
+    setYfmRaw - a setter to change the text in an editor
 
     gptRequestHandler - your function to implement GPT response
     
@@ -98,8 +98,6 @@ First to integrate this extension, you need to use the following versions of the
         onTryAgain: async ({markup, customPrompt, promptData}) => {
             return gptRequestHandler({markup, customPrompt, promptData});
         },
-        onLike: async () => {/* ... */},
-        onDislike: async () => {/* ... */},
         onApplyResult: (markup) => {
             setYfmRaw(markup);
         },
