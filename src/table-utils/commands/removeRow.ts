@@ -1,10 +1,10 @@
 import {Fragment} from 'prosemirror-model';
 import type {Command} from 'prosemirror-state';
-import {findChildren, findParentNodeClosestToPos} from 'prosemirror-utils';
+import {findParentNodeClosestToPos} from 'prosemirror-utils';
 
-import {findChildTableBody, isTableNode, isTableRowNode} from '..';
+import {isTableNode} from '..';
 import {trackTransactionMetrics} from '../../core';
-import {findChildTableRows} from '../utils';
+import {TableDesc} from '../table-desc';
 
 export const removeRow: Command = (
     state,
@@ -20,31 +20,22 @@ export const removeRow: Command = (
         ?.node;
 
     if (!tableNode) return false;
-    const parentRows = findChildren(tableNode, isTableRowNode);
 
-    const parentBody = findChildTableBody(tableNode)[0];
-    const parentRow = parentRows[rowNumber];
+    const tableDesc = TableDesc.create(tableNode);
+    if (!tableDesc || rowNumber >= tableDesc.rows) return false;
+    if (!tableDesc.isSafeRow(rowNumber)) return false;
 
-    if (!parentRows.length || !parentBody) {
-        return false;
+    if (dispatch) {
+        let {from, to} = tableDesc.getRelativePosForRow(rowNumber);
+        from += tablePos;
+        to += tablePos;
+        dispatch(
+            trackTransactionMetrics(state.tr.replaceWith(from, to, Fragment.empty), 'removeRow', {
+                rows: tableDesc.rows,
+                cols: tableDesc.cols,
+            }),
+        );
     }
-
-    if (findChildTableRows(parentBody.node).length < 2) {
-        // there is one row left
-        return false;
-    }
-
-    dispatch?.(
-        trackTransactionMetrics(
-            state.tr.replaceWith(
-                tablePos + parentRow.pos,
-                tablePos + parentRow.pos + parentRow.node.nodeSize + 1,
-                Fragment.empty,
-            ),
-            'removeRow',
-            {rows: parentRows.length, cols: parentRow.node.childCount},
-        ),
-    );
 
     return true;
 };

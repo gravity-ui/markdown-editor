@@ -1,14 +1,7 @@
 import {Node} from 'prosemirror-model';
 
 import {CommandWithAttrs} from '../../../../../core';
-import {
-    addColumnAfter,
-    addRowAfter,
-    appendColumn,
-    appendRow,
-    removeColumn,
-    removeRow,
-} from '../../../../../table-utils';
+import {appendColumn, appendRow, removeColumn, removeRow} from '../../../../../table-utils';
 import {defineActions} from '../../../../../utils/actions';
 import {removeNode} from '../../../../../utils/remove-node';
 
@@ -36,17 +29,9 @@ const removeYfmTable: CommandWithAttrs<{
     return true;
 };
 export const controlActions = defineActions({
-    addRow: {
-        isEnable: addRowAfter,
-        run: addRowAfter,
-    },
     deleteRow: {
         isEnable: removeRow,
         run: removeRow,
-    },
-    addColumn: {
-        isEnable: addColumnAfter,
-        run: addColumnAfter,
     },
     deleteColumn: {
         isEnable: removeColumn,
