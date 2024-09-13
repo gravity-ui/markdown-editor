@@ -65,7 +65,6 @@ export const useGpt = <
 
                 result = await requestFunction(data);
 
-                // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                 if (result) {
                     setAnswer(result);
                     setFeedbackType(undefined);

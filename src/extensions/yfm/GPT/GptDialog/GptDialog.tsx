@@ -116,7 +116,7 @@ export const GptDialog: FC<GptDialogProps> = ({
         setShowedGptAlert(false);
     }, [gptAlert]);
 
-    useAutoFocus(customPromptContainerRef);
+    useAutoFocus(customPromptContainerRef, [showAnswer]);
 
     useGptHotKeys(gptHotKeys.tryAgainGpt, handleTryAgain);
     useGptHotKeys(gptHotKeys.freshStartGpt, handleFreshStart);

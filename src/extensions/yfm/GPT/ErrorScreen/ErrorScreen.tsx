@@ -1,10 +1,10 @@
 import React from 'react';
 import type {FC} from 'react';
 
-import {cn} from '@bem-react/classname';
 import {CircleXmarkFill} from '@gravity-ui/icons';
 import {Button} from '@gravity-ui/uikit';
 
+import {cn} from '../../../../classname';
 import {i18n} from '../../../../i18n/gpt/errors';
 import {IconRefuge} from '../IconRefuge/IconRefuge';
 

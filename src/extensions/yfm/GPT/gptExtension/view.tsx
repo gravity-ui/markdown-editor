@@ -277,10 +277,6 @@ function Widget({
     const handleUpdate = useCallback(
         (result?: CommonAnswer) => {
             onUpdate?.(result);
-            requestAnimationFrame(() => {
-                // rerender the popup
-                window.dispatchEvent(new CustomEvent('scroll'));
-            });
         },
         [onUpdate],
     );
