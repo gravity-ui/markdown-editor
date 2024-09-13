@@ -1,0 +1,16 @@
+{
+  "answer-title": "What do you want to do with the response?",
+  "close-button": "Close",
+  "dislike": "Bad response",
+  "error": "An error occurred",
+  "feedback-message": "Thanks for your feedback!",
+  "fresh-start-button": "Start again",
+  "like": "Good response",
+  "more": "More",
+  "only-presets-title": "Help with text",
+  "refetch": "Try again",
+  "replace": "Replace the selected text",
+  "replace-disabled": "Insert text",
+  "try-again": "Try again",
+  "alert-gpt-presets-info": "Highlight text to see Yandex GPT presets"
+}
