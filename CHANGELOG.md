@@ -1,5 +1,13 @@
 # Changelog
 
+## [13.18.0](https://github.com/gravity-ui/markdown-editor/compare/v13.17.1...v13.18.0) (2024-09-13)
+
+
+### Features
+
+* support colspan and rowspan in table actions ([#356](https://github.com/gravity-ui/markdown-editor/issues/356)) ([65e4327](https://github.com/gravity-ui/markdown-editor/commit/65e43271ea524f58fbab55e39b62c762fda188cf))
+* **yfm:** add GPT extensions ([#361](https://github.com/gravity-ui/markdown-editor/issues/361)) ([74d6e67](https://github.com/gravity-ui/markdown-editor/commit/74d6e67c3bcbcb980818a7445b6fd3eee9d52b73))
+
 ## [13.17.1](https://github.com/gravity-ui/markdown-editor/compare/v13.17.0...v13.17.1) (2024-09-12)
 
 
