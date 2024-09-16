@@ -34,7 +34,7 @@ const PresetItem: FC<PresetItemType> = ({preset, onPresetClick, disablePromptPre
         () => {
             onPresetClick(preset.data);
         },
-        {enableOnFormTags: true},
+        {enableOnFormTags: true, enableOnContentEditable: true},
     );
 
     return (

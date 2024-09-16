@@ -291,6 +291,7 @@ function Widget({
                 placement={gptPopupPlacement}
                 onOutsideClick={onClose}
                 focusTrap
+                autoFocus={!onCustomPromptApply && true}
                 strategy="absolute"
                 container={container}
                 onEscapeKeyDown={onClose}

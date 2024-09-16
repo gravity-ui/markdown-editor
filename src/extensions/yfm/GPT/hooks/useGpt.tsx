@@ -75,7 +75,10 @@ export const useGpt = <
                 setError(true);
             } finally {
                 setLoading(false);
-
+                setTimeout(() => {
+                    // rerender the popup
+                    window.dispatchEvent(new CustomEvent('scroll'));
+                });
                 onUpdate?.(result);
             }
         },
