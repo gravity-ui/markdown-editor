@@ -76,7 +76,7 @@ export const useGpt = <
             } finally {
                 setLoading(false);
                 setTimeout(() => {
-                    // rerender the popup
+                    // hack for popup rerender
                     window.dispatchEvent(new CustomEvent('scroll'));
                 });
                 onUpdate?.(result);
