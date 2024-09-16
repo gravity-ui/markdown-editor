@@ -7,11 +7,9 @@ First to integrate this extension, you need to use the following versions of the
 
 Features:
 
-<img src="./assets/gifs/custom-prompt-preset-gpt.gif" width="470"
-style="margin: 8px auto;"/>
+<img src="./assets/gifs/custom-prompt-preset-gpt.gif" width="470"/>
 
-<img src="./assets/gifs/prompt-preset-gpt.gif" width="470"
-style="margin: 8px auto;"/>
+<img src="./assets/gifs/prompt-preset-gpt.gif" width="470"/>
 
 ### 1. Add extension usage and extensions props
 
