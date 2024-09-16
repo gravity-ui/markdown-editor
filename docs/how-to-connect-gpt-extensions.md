@@ -11,6 +11,12 @@ Features:
 
 <img src="./assets/gifs/prompt-preset-gpt.gif" width="470"/>
 
+<img src="./assets/gifs/prompt.gif" width="470"
+style="margin: 8px auto;"/>
+
+<img src="./assets/gifs/custom.gif" width="470"
+style="margin: 8px auto;"/>
+
 ### 1. Add extension usage and extensions props
 
 ```ts
