@@ -28,7 +28,7 @@ export const Editor: React.FC<EditorProps> = (props) => {
         extraExtensions: (builder) =>
             builder.use(
                 ...
-                // add gpt extension
+                // add GPT extension
                 gptExtension,
                 // The next step we show implementation gptWidgetProps
                 gptWidgetProps,
@@ -112,7 +112,7 @@ export const gptWidgetProps: GptWidgetOptions = {
         return gptRequestHandler({markup, customPrompt, promptData});
     },
     onApplyResult: (markup) => {
-        // add your callback for apply Gpt result text
+        // add your callback for apply GPT result text
         console.log(markup);
     },
     onUpdate: (event) => {
@@ -122,7 +122,7 @@ export const gptWidgetProps: GptWidgetOptions = {
         }
     },
     onLike: async () => {}, // function to track feedback for good
-    onDislike: async () => {}, // and bad Gpt answers
+    onDislike: async () => {}, // and bad GPT answers
 };          
 ```
 ### 3. Add extension to menubar and toolbar and command menu config for editor
@@ -176,7 +176,7 @@ Add in command menu config (/)
 export const Editor: React.FC<EditorProps> = (props) => {
     ...
     const wCommandMenuConfig = wysiwygToolbarConfigs.wCommandMenuConfig // main commands
-    wCommandMenuConfig.unshift(wysiwygToolbarConfigs.wGptItemData); // add gpt command
+    wCommandMenuConfig.unshift(wysiwygToolbarConfigs.wGptItemData); // add GPT command
 
     const mdEditor = useMarkdownEditor({
         ...
@@ -213,14 +213,14 @@ export const Editor: React.FC<EditorProps> = (props) => {
     const wSelectionMenuConfig = [[wGptToolbarItem], ...wysiwygToolbarConfigs.wSelectionMenuConfig];
 
     const wCommandMenuConfig = wysiwygToolbarConfigs.wCommandMenuConfig // main commands
-    wCommandMenuConfig.unshift(wysiwygToolbarConfigs.wGptItemData); // add gpt command
+    wCommandMenuConfig.unshift(wysiwygToolbarConfigs.wGptItemData); // add GPT command
 
     const mdEditor = useMarkdownEditor({
         // ...
         extraExtensions: (builder) => {
             builder.use(
                 ...
-                // Add gpt extension
+                // Add GPT extension
                 gptExtension,
                 // How to make gptWidgetProps, we will tell you in the next chapter
                 gptWidgetProps,

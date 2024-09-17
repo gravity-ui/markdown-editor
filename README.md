@@ -58,7 +58,7 @@ Read more:
 - [How to add Latex extension](docs/how-to-connect-latex-extension.md)
 - [How to add Mermaid extension](docs/how-to-connect-mermaid-extension.md)
 - [How to write extension](docs/how-to-create-extension.md)
-- [How to add gpt extension](docs/how-to-connect-gpt-extensions.md)
+- [How to add GPT extension](docs/how-to-connect-gpt-extensions.md)
 
 
 ### i18n
