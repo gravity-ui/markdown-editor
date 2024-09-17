@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect} from 'react';
+import React, {useCallback} from 'react';
 
 import {Popup} from '@gravity-ui/uikit';
 import type {PopupProps} from '@gravity-ui/uikit';
@@ -260,11 +260,6 @@ function Widget({
     container,
     gptAlertProps,
 }: WidgetProps) {
-    useEffect(() => {
-        // rerender the popup
-        window.dispatchEvent(new CustomEvent('scroll'));
-    }, [anchorRef]);
-
     useMount(() => {
         if (anchorRef?.current && 'scrollIntoView' in anchorRef.current) {
             anchorRef.current.scrollIntoView({
@@ -291,6 +286,7 @@ function Widget({
                 placement={gptPopupPlacement}
                 onOutsideClick={onClose}
                 focusTrap
+                autoFocus={!onCustomPromptApply && true}
                 strategy="absolute"
                 container={container}
                 onEscapeKeyDown={onClose}

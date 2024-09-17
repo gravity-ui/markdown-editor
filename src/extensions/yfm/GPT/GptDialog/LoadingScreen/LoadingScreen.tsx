@@ -1,9 +1,9 @@
 import React from 'react';
 import type {FC} from 'react';
 
-import {cn} from '@bem-react/classname';
 import {Skeleton} from '@gravity-ui/uikit';
 
+import {cn} from '../../../../../classname';
 import {i18n} from '../../../../../i18n/gpt/loading';
 import GPTLoading from '../../../../../icons/GPTLoading';
 import {IconRefuge} from '../../IconRefuge/IconRefuge';
