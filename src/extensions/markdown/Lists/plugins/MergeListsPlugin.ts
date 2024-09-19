@@ -27,30 +27,34 @@ function mergeAdjacentNodesWithSameType(
     tr: Transaction,
     nodes: ReturnType<typeof findChildren>,
 ): void {
-    const prevNodes = [];
+    const lowerNodes = [];
+
+    // сache node depths to avoid multiple resolve calls
+    const nodeDepths = nodes.map((node) => tr.doc.resolve(node.pos).depth);
+
+    // еraverse the nodes array from the end for optimization purposes
     for (let i = nodes.length - 1; i > 0; i--) {
-        const prev = nodes[i - 1];
-        const next = nodes[i];
+        const upperNode = nodes[i - 1];
+        const currentNode = nodes[i];
 
-        const prevDepth = tr.doc.resolve(prev.pos).depth;
-        const nextDepth = tr.doc.resolve(next.pos).depth;
+        const upperNodeDepth = nodeDepths[i - 1];
+        const currentNodeDepth = nodeDepths[i];
 
-        if (prevDepth > nextDepth) {
-            prevNodes.push({
-                node: {
-                    type: prev.node.type,
-                    nodeSize: prev.node.nodeSize,
-                },
-                pos: prev.pos,
-            });
+        if (upperNodeDepth > currentNodeDepth) {
+            // save the current node for potential later merging
+            // when we encounter nodes at the same level
+            lowerNodes.push(currentNode);
         } else {
-            const compareNode = prevDepth === nextDepth ? prev : prevNodes.pop();
+            // compare nodes only at the same level of nesting
+            const lowerNode = upperNodeDepth === currentNodeDepth ? currentNode : lowerNodes.pop();
+
             if (
-                compareNode &&
-                compareNode.node.type === next.node.type &&
-                compareNode.pos + compareNode.node.nodeSize === next.pos
+                lowerNode &&
+                upperNode.node.type === lowerNode.node.type &&
+                upperNode.pos + upperNode.node.nodeSize === lowerNode.pos &&
+                upperNode.node.attrs.bullet === lowerNode.node.attrs.bullet
             ) {
-                tr.join(next.pos);
+                tr.join(lowerNode.pos);
             }
         }
     }
