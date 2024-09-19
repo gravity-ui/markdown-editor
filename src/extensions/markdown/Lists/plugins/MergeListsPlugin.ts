@@ -27,12 +27,31 @@ function mergeAdjacentNodesWithSameType(
     tr: Transaction,
     nodes: ReturnType<typeof findChildren>,
 ): void {
+    const prevNodes = [];
     for (let i = nodes.length - 1; i > 0; i--) {
         const prev = nodes[i - 1];
         const next = nodes[i];
 
-        if (prev.node.type === next.node.type && prev.pos + prev.node.nodeSize === next.pos) {
-            tr.join(next.pos);
+        const prevDepth = tr.doc.resolve(prev.pos).depth;
+        const nextDepth = tr.doc.resolve(next.pos).depth;
+
+        if (prevDepth > nextDepth) {
+            prevNodes.push({
+                node: {
+                    type: prev.node.type,
+                    nodeSize: prev.node.nodeSize,
+                },
+                pos: prev.pos,
+            });
+        } else {
+            const compareNode = prevDepth === nextDepth ? prev : prevNodes.pop();
+            if (
+                compareNode &&
+                compareNode.node.type === next.node.type &&
+                compareNode.pos + compareNode.node.nodeSize === next.pos
+            ) {
+                tr.join(next.pos);
+            }
         }
     }
 }
