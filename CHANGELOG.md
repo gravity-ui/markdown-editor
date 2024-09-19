@@ -1,5 +1,14 @@
 # Changelog
 
+## [13.18.1](https://github.com/gravity-ui/markdown-editor/compare/v13.18.0...v13.18.1) (2024-09-19)
+
+
+### Bug Fixes
+
+* **code:** fixed paste in code and block code ([#370](https://github.com/gravity-ui/markdown-editor/issues/370)) ([f1f0068](https://github.com/gravity-ui/markdown-editor/commit/f1f00684ea37813ba41620c0a036bd357721ca92))
+* **react-utils:** fixed useNodeResizing ([#372](https://github.com/gravity-ui/markdown-editor/issues/372)) ([4f8977a](https://github.com/gravity-ui/markdown-editor/commit/4f8977adeb60a823ca8530555da62abaa6f57823))
+* **yfm:** correction of the gpt popup ([#367](https://github.com/gravity-ui/markdown-editor/issues/367)) ([2adfe7f](https://github.com/gravity-ui/markdown-editor/commit/2adfe7fbe94d1c31626d9695b9e2b623dedf5d51))
+
 ## [13.18.0](https://github.com/gravity-ui/markdown-editor/compare/v13.17.1...v13.18.0) (2024-09-13)
 
 
