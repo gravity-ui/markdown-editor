@@ -83,9 +83,16 @@ export const useNodeResizing = ({
                     setCurrentWidth(newWidth);
                     setCurrentHeight(newHeight);
 
+                    // If neither width nor height are provided, the width is set automatically.
+                    const shouldSetWidth =
+                        !initialWidth &&
+                        initialWidth !== 0 &&
+                        !(initialWidth === null && initialHeight === null);
+                    const shouldSetHeight = !initialHeight && initialHeight !== 0;
+
                     onResize?.({
-                        width: !initialWidth && initialWidth !== 0 ? undefined : newWidth,
-                        height: !initialHeight && initialHeight !== 0 ? undefined : newHeight,
+                        width: shouldSetWidth ? undefined : newWidth,
+                        height: shouldSetHeight ? undefined : newHeight,
                     });
                 }
             });
