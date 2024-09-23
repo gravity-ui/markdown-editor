@@ -1,4 +1,3 @@
-import {chainCommands} from 'prosemirror-commands';
 import {liftListItem, sinkListItem, splitListItem} from 'prosemirror-schema-list';
 
 import type {Action, ExtensionAuto, Keymap} from '../../../core';
@@ -6,7 +5,7 @@ import {withLogAction} from '../../../utils/keymap';
 
 import {ListsSpecs, blType, liType, olType} from './ListsSpecs';
 import {actions} from './actions';
-import {joinPrevList, liftIfCursorIsAtBeginningOfItem, toList} from './commands';
+import {joinPrevList, toList} from './commands';
 import {ListAction} from './const';
 import {ListsInputRulesExtension, ListsInputRulesOptions} from './inputrules';
 import {mergeListsPlugin} from './plugins/MergeListsPlugin';
@@ -42,7 +41,7 @@ export const Lists: ExtensionAuto<ListsOptions> = (builder, opts) => {
     builder.addKeymap(
         ({schema}) => ({
             Enter: splitListItem(liType(schema)),
-            Backspace: chainCommands(liftIfCursorIsAtBeginningOfItem, joinPrevList),
+            Backspace: joinPrevList,
         }),
         builder.Priority.Low,
     );
