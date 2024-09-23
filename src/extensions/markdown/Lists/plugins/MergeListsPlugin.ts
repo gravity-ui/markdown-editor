@@ -1,3 +1,4 @@
+import type {Node} from 'prosemirror-model';
 import {Plugin, Transaction} from 'prosemirror-state';
 import {findChildren, hasParentNode} from 'prosemirror-utils';
 
@@ -27,35 +28,18 @@ function mergeAdjacentNodesWithSameType(
     tr: Transaction,
     nodes: ReturnType<typeof findChildren>,
 ): void {
-    const lowerNodes = [];
+    const posAfterMap: Partial<Record<number, Node>> = {};
 
-    // сache node depths to avoid multiple resolve calls
-    const nodeDepths = nodes.map((node) => tr.doc.resolve(node.pos).depth);
+    for (const item of nodes) {
+        const posBefore = item.pos;
+        const posAfter = posBefore + item.node.nodeSize;
 
-    // еraverse the nodes array from the end for optimization purposes
-    for (let i = nodes.length - 1; i > 0; i--) {
-        const upperNode = nodes[i - 1];
-        const currentNode = nodes[i];
+        posAfterMap[posAfter] = item.node;
 
-        const upperNodeDepth = nodeDepths[i - 1];
-        const currentNodeDepth = nodeDepths[i];
-
-        if (upperNodeDepth > currentNodeDepth) {
-            // save the current node for potential later merging
-            // when we encounter nodes at the same level
-            lowerNodes.push(currentNode);
-        } else {
-            // compare nodes only at the same level of nesting
-            const lowerNode = upperNodeDepth === currentNodeDepth ? currentNode : lowerNodes.pop();
-
-            if (
-                lowerNode &&
-                upperNode.node.type === lowerNode.node.type &&
-                upperNode.pos + upperNode.node.nodeSize === lowerNode.pos &&
-                upperNode.node.attrs.bullet === lowerNode.node.attrs.bullet
-            ) {
-                tr.join(lowerNode.pos);
-            }
+        const nodeBefore = posAfterMap[posBefore];
+        if (nodeBefore?.type === item.node.type) {
+            tr.join(tr.mapping.map(posBefore));
+            posAfterMap[posBefore] = undefined;
         }
     }
 }

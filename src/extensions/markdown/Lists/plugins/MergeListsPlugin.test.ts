@@ -46,7 +46,7 @@ const orderedListMarkup = `
 
 describe('Lists extension', () => {
     describe('MergeListsPlugin', () => {
-        it('should not merge lists', () => {
+        it('should merge bullet lists', () => {
             const view = new EditorView(null, {
                 state: EditorState.create({schema, plugins: [mergeListsPlugin()]}),
             });
@@ -75,12 +75,6 @@ describe('Lists extension', () => {
                                 c('*'),
                             ),
                         ),
-                    ),
-                    ul(
-                        {
-                            [ListsAttr.Tight]: true,
-                            [ListsAttr.Bullet]: '-',
-                        },
                         li(
                             {[ListsAttr.Markup]: '-'},
                             p('Sub-lists are made by indenting 2 spaces:'),
@@ -93,38 +87,14 @@ describe('Lists extension', () => {
                                     {[ListsAttr.Markup]: '-'},
                                     p('Marker character change forces new list start:'),
                                 ),
-                            ),
-                            ul(
-                                {
-                                    [ListsAttr.Tight]: true,
-                                    [ListsAttr.Bullet]: '*',
-                                },
                                 li({[ListsAttr.Markup]: '*'}, p('Ac tristique libero volutpat at')),
-                            ),
-                            ul(
-                                {
-                                    [ListsAttr.Tight]: true,
-                                    [ListsAttr.Bullet]: '+',
-                                },
                                 li(
                                     {[ListsAttr.Markup]: '+'},
                                     p('Facilisis in pretium nisl aliquet'),
                                 ),
-                            ),
-                            ul(
-                                {
-                                    [ListsAttr.Tight]: true,
-                                    [ListsAttr.Bullet]: '-',
-                                },
                                 li({[ListsAttr.Markup]: '-'}, p('Nulla volutpat aliquam velit')),
                             ),
                         ),
-                    ),
-                    ul(
-                        {
-                            [ListsAttr.Tight]: true,
-                            [ListsAttr.Bullet]: '*',
-                        },
                         li({[ListsAttr.Markup]: '*'}, p('Very easy!')),
                     ),
                 ),
