@@ -1,5 +1,12 @@
 # Changelog
 
+## [13.18.2](https://github.com/gravity-ui/markdown-editor/compare/v13.18.1...v13.18.2) (2024-09-23)
+
+
+### Bug Fixes
+
+* **lists:** fixed merge list ([#373](https://github.com/gravity-ui/markdown-editor/issues/373)) ([94917ee](https://github.com/gravity-ui/markdown-editor/commit/94917ee7b0ce240150ac58d736dbf2b4ded61901))
+
 ## [13.18.1](https://github.com/gravity-ui/markdown-editor/compare/v13.18.0...v13.18.1) (2024-09-19)
 
 
