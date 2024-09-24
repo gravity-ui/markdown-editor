@@ -47,7 +47,7 @@ type Autocompletion = Parameters<typeof autocompletion>[0];
 
 export type CreateCodemirrorParams = {
     doc: EditorViewConfig['doc'];
-    placeholderText: string;
+    placeholder: Parameters<typeof placeholder>[0];
     onCancel: () => void;
     onSubmit: () => void;
     onChange: () => void;
@@ -69,22 +69,22 @@ export type CreateCodemirrorParams = {
 export function createCodemirror(params: CreateCodemirrorParams) {
     const {
         doc,
-        placeholderText,
         reactRenderer,
         onCancel,
         onScroll,
         onSubmit,
         onChange,
         onDocChange,
-        extensions: extraExtensions,
         disabledExtensions = {},
         keymaps = [],
         receiver,
         yfmLangOptions,
+        extensions: extraExtensions,
+        placeholder: placeholderContent,
         autocompletion: autocompletionConfig,
     } = params;
 
-    const extensions: Extension[] = [gravityTheme, placeholder(placeholderText)];
+    const extensions: Extension[] = [gravityTheme, placeholder(placeholderContent)];
 
     if (!disabledExtensions.history) {
         extensions.push(history());
