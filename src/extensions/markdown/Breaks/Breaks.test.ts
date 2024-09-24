@@ -33,10 +33,22 @@ describe('Breaks extension', () => {
             'Lorem **ipsum**\\\ndolor sit amet',
         ));
 
+    it('should serialize hard break 2', () =>
+        serialize(
+            doc(p('Lorem', bold(hb(), 'ipsum'), ' dolor sit amet')),
+            'Lorem\\\n**ipsum** dolor sit amet',
+        ));
+
     it('should serialize soft break', () =>
         serialize(
             doc(p('Lorem ', bold('ipsum', sb()), 'dolor sit amet')),
             'Lorem **ipsum**\ndolor sit amet',
+        ));
+
+    it('should serialize soft break 2', () =>
+        serialize(
+            doc(p('Lorem', bold(sb(), 'ipsum'), ' dolor sit amet')),
+            'Lorem\n**ipsum** dolor sit amet',
         ));
 
     it('should parse html - br tag', () => {
