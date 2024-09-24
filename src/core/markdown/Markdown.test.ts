@@ -163,7 +163,10 @@ describe('markdown', () => {
 
     it('drops trailing hard breaks', () => serialize(doc(p('a', br(), br())), 'a'));
 
-    it('should remove marks from edge break', () =>
+    it('should remove marks from edge break (before)', () =>
+        serialize(doc(p('text', strong(br(), 'text2'))), 'text\\\n**text2**'));
+
+    it('should remove marks from edge break (after)', () =>
         serialize(doc(p(strong('text', br()), 'text2')), '**text**\\\ntext2'));
 
     it('expels enclosing whitespace from inside emphasis', () =>
