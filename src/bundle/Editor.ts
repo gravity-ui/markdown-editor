@@ -118,6 +118,8 @@ export type MarkupConfig = {
     disabledExtensions?: CreateCodemirrorParams['disabledExtensions'];
     /** Additional keymaps for codemirror instance */
     keymaps?: CreateCodemirrorParams['keymaps'];
+    /** Overrides the default placeholder content. */
+    placeholder?: CreateCodemirrorParams['placeholder'];
     /**
      * Additional language data for markdown language in codemirror.
      * Can be used to configure additional autocompletions and others.
@@ -300,7 +302,7 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
             this.#markupEditor = new MarkupEditor(
                 createCodemirror({
                     doc: this.#markup,
-                    placeholderText: i18n('markup_placeholder'),
+                    placeholder: this.#markupConfig.placeholder ?? i18n('markup_placeholder'),
                     onCancel: () => this.emit('cancel', null),
                     onSubmit: () => this.emit('submit', null),
                     onChange: () => this.emit('rerender-toolbar', null),
