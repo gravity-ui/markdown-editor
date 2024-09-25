@@ -1,5 +1,34 @@
 # Changelog
 
+## [13.19.0](https://github.com/gravity-ui/markdown-editor/compare/v13.18.2...v13.19.0) (2024-09-25)
+
+
+### Features
+
+* **markup:** added ability to override default placeholder in markup mode ([#376](https://github.com/gravity-ui/markdown-editor/issues/376)) ([b6b61f8](https://github.com/gravity-ui/markdown-editor/commit/b6b61f8137f9b8ac1f4ea0ba0cb390fe07876e88))
+
+
+### Bug Fixes
+
+* remove marks from breaks that are first node inside that mark ([#378](https://github.com/gravity-ui/markdown-editor/issues/378)) ([6b148fd](https://github.com/gravity-ui/markdown-editor/commit/6b148fd8adc023d2cf31d0cf982aa428f4d28c74))
+* **YfmTable:** revert serialization logic for yfm-table row and cell ([#380](https://github.com/gravity-ui/markdown-editor/issues/380)) ([5d0e931](https://github.com/gravity-ui/markdown-editor/commit/5d0e9316d774b3d41ddbbd63b2dfc50ef04d2d98))
+
+## [13.18.2](https://github.com/gravity-ui/markdown-editor/compare/v13.18.1...v13.18.2) (2024-09-23)
+
+
+### Bug Fixes
+
+* **lists:** fixed merge list ([#373](https://github.com/gravity-ui/markdown-editor/issues/373)) ([94917ee](https://github.com/gravity-ui/markdown-editor/commit/94917ee7b0ce240150ac58d736dbf2b4ded61901))
+
+## [13.18.1](https://github.com/gravity-ui/markdown-editor/compare/v13.18.0...v13.18.1) (2024-09-19)
+
+
+### Bug Fixes
+
+* **code:** fixed paste in code and block code ([#370](https://github.com/gravity-ui/markdown-editor/issues/370)) ([f1f0068](https://github.com/gravity-ui/markdown-editor/commit/f1f00684ea37813ba41620c0a036bd357721ca92))
+* **react-utils:** fixed useNodeResizing ([#372](https://github.com/gravity-ui/markdown-editor/issues/372)) ([4f8977a](https://github.com/gravity-ui/markdown-editor/commit/4f8977adeb60a823ca8530555da62abaa6f57823))
+* **yfm:** correction of the gpt popup ([#367](https://github.com/gravity-ui/markdown-editor/issues/367)) ([2adfe7f](https://github.com/gravity-ui/markdown-editor/commit/2adfe7fbe94d1c31626d9695b9e2b623dedf5d51))
+
 ## [13.18.0](https://github.com/gravity-ui/markdown-editor/compare/v13.17.1...v13.18.0) (2024-09-13)
 
 

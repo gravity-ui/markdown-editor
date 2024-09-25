@@ -75,11 +75,27 @@ export const serializerTokens: Record<YfmTableNode, SerializerNodeToken> = {
         });
     },
 
-    [YfmTableNode.Row]: (_state, node) => {
-        throw new Error(`Should not serialize ${node.type.name} node via serialize-token`);
+    [YfmTableNode.Row]: (state, node) => {
+        console.warn(`Should not serialize ${node.type.name} node via serialize-token`);
+
+        state.write('||');
+        state.ensureNewLine();
+        state.write('\n');
+        state.renderContent(node);
+        state.write('||');
+        state.ensureNewLine();
     },
 
-    [YfmTableNode.Cell]: (_state, node) => {
-        throw new Error(`Should not serialize ${node.type.name} node via serialize-token`);
+    [YfmTableNode.Cell]: (state, node, parent) => {
+        console.warn(`Should not serialize ${node.type.name} node via serialize-token`);
+
+        state.renderContent(node);
+
+        const isLastCellInRow = parent.lastChild === node;
+        if (!isLastCellInRow) {
+            state.write('|');
+            state.ensureNewLine();
+            state.write('\n');
+        }
     },
 };

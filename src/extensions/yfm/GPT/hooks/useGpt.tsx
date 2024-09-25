@@ -75,7 +75,13 @@ export const useGpt = <
                 setError(true);
             } finally {
                 setLoading(false);
-
+                setTimeout(() => {
+                    // hack for popup rerender
+                    // When a lot of text is entered into the GPT popup,
+                    // it expands and goes beyond the boundaries. However,
+                    // the popup does not handle height changes.
+                    window.dispatchEvent(new CustomEvent('scroll'));
+                });
                 onUpdate?.(result);
             }
         },

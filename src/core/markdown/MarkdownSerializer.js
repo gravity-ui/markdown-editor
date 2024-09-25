@@ -194,14 +194,19 @@ export class MarkdownSerializerState {
         const progress = (node, _, index) => {
             let marks = node ? node.marks : [];
 
-            // Remove marks from breaks (hard_break or soft_break) that are the last node inside
+            // Remove marks from breaks (hard_break or soft_break) that are the edge node inside
             // that mark to prevent parser edge cases with new lines just
-            // before closing marks.
+            // before closing or after opening marks.
             if (node && node.type.spec.isBreak) {
                 marks = marks.filter(m => {
+                    if (index === 0) return false;
                     if (index + 1 == parent.childCount) return false;
+                    const prev = parent.child(index - 1);
                     const next = parent.child(index + 1);
-                    return m.isInSet(next.marks) && (!next.isText || /\S/.test(next.text));
+                    return (
+                        (m.isInSet(prev.marks) && (!prev.isText || /\S/.test(prev.text))) &&
+                        (m.isInSet(next.marks) && (!next.isText || /\S/.test(next.text)))
+                    );
                 });
             }
 

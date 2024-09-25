@@ -1,4 +1,4 @@
-![Markdown Editor](https://github.com/user-attachments/assets/40be2902-a683-4167-bd8d-ffd8bff26e69)
+![Markdown Editor](https://github.com/user-attachments/assets/0b4e5f65-54cf-475f-9c68-557a4e9edb46)
 
 # @gravity-ui/markdown-editor &middot; [![npm package](https://img.shields.io/npm/v/@gravity-ui/markdown-editor)](https://www.npmjs.com/package/@gravity-ui/markdown-editor) [![CI](https://img.shields.io/github/actions/workflow/status/gravity-ui/markdown-editor/ci.yml?branch=main&label=CI)](https://github.com/gravity-ui/markdown-editor/actions/workflows/ci.yml?query=branch:main) [![Release](https://img.shields.io/github/actions/workflow/status/gravity-ui/markdown-editor/release.yml?branch=main&label=Release)](https://github.com/gravity-ui/markdown-editor/actions/workflows/release.yml?query=branch:main) [![storybook](https://img.shields.io/badge/Storybook-deployed-ff4685)](https://preview.gravity-ui.com/md-editor/)
 
@@ -58,7 +58,7 @@ Read more:
 - [How to add Latex extension](docs/how-to-connect-latex-extension.md)
 - [How to add Mermaid extension](docs/how-to-connect-mermaid-extension.md)
 - [How to write extension](docs/how-to-create-extension.md)
-- [How to add gpt extension](docs/how-to-connect-gpt-extensions.md)
+- [How to add GPT extension](docs/how-to-connect-gpt-extensions.md)
 
 
 ### i18n

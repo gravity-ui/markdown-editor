@@ -129,13 +129,19 @@ export const clipboard = ({
                         const codeType = isInsideCode(view.state);
                         if (codeType) {
                             const schema: Schema = view.state.schema;
+                            const insideCodeData = e.clipboardData.getData(DataTransferType.Text);
+
                             view.dispatch(
                                 trackTransactionMetrics(
                                     view.state.tr.replaceSelectionWith(
-                                        schema.text(codeType === 'inline' ? data.trim() : data),
+                                        schema.text(
+                                            codeType === 'inline'
+                                                ? insideCodeData.trim()
+                                                : insideCodeData,
+                                        ),
                                     ),
                                     'paste',
-                                    {clipboardDataFormat: dataFormat, code: codeType},
+                                    {clipboardDataFormat: DataTransferType.Text, code: codeType},
                                 ),
                             );
                             isPasteHandled = true;

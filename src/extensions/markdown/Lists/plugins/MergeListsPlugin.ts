@@ -1,3 +1,4 @@
+import type {Node} from 'prosemirror-model';
 import {Plugin, Transaction} from 'prosemirror-state';
 import {findChildren, hasParentNode} from 'prosemirror-utils';
 
@@ -27,12 +28,18 @@ function mergeAdjacentNodesWithSameType(
     tr: Transaction,
     nodes: ReturnType<typeof findChildren>,
 ): void {
-    for (let i = nodes.length - 1; i > 0; i--) {
-        const prev = nodes[i - 1];
-        const next = nodes[i];
+    const posAfterMap: Partial<Record<number, Node>> = {};
 
-        if (prev.node.type === next.node.type && prev.pos + prev.node.nodeSize === next.pos) {
-            tr.join(next.pos);
+    for (const item of nodes) {
+        const posBefore = item.pos;
+        const posAfter = posBefore + item.node.nodeSize;
+
+        posAfterMap[posAfter] = item.node;
+
+        const nodeBefore = posAfterMap[posBefore];
+        if (nodeBefore?.type === item.node.type) {
+            tr.join(tr.mapping.map(posBefore));
+            posAfterMap[posBefore] = undefined;
         }
     }
 }
