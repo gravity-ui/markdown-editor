@@ -8,3 +8,4 @@ export {
 export const cbAction = 'toCodeBlock';
 /** @deprecated Use `codeBlockType` instead */
 export const cbType = codeBlockType;
+export {codeBlockType};

@@ -1,6 +1,4 @@
-import {newlineInCode, setBlockType} from 'prosemirror-commands';
-import {Fragment, NodeType} from 'prosemirror-model';
-import {Command} from 'prosemirror-state';
+import type {NodeType} from 'prosemirror-model';
 import {hasParentNodeOfType} from 'prosemirror-utils';
 
 import type {Action, ExtensionAuto, Keymap} from '../../../core';
@@ -10,8 +8,8 @@ import {withLogAction} from '../../../utils/keymap';
 
 import {CodeBlockHighlight, HighlightLangMap} from './CodeBlockHighlight/CodeBlockHighlight';
 import {CodeBlockSpecs, CodeBlockSpecsOptions} from './CodeBlockSpecs';
-import {resetCodeblock} from './commands';
-import {cbAction, cbType} from './const';
+import {newlineInCode, resetCodeblock, setCodeBlockType} from './commands';
+import {cbAction, codeBlockType} from './const';
 import {codeBlockPastePlugin} from './plugins/codeBlockPastePlugin';
 
 export {resetCodeblock} from './commands';
@@ -34,33 +32,18 @@ export const CodeBlock: ExtensionAuto<CodeBlockOptions> = (builder, opts) => {
         const {codeBlockKey} = opts;
         const bindings: Keymap = {Enter: newlineInCode, Backspace: resetCodeblock};
         if (codeBlockKey) {
-            bindings[codeBlockKey] = withLogAction('code_block', setBlockType(cbType(deps.schema)));
+            bindings[codeBlockKey] = withLogAction('code_block', setCodeBlockType(deps));
         }
         return bindings;
     });
 
-    builder.addInputRules(({schema}) => ({rules: [codeBlockRule(cbType(schema))]}));
-    builder.addAction(cbAction, ({schema, serializer}) => {
-        const cb = cbType(schema);
-        const cmd: Command = (state, dispatch) => {
-            if (!setBlockType(cb)(state)) return false;
-            if (dispatch) {
-                const markup = serializer.serialize(
-                    Fragment.from(state.selection.content().content),
-                );
-                dispatch(
-                    state.tr.replaceSelectionWith(
-                        cb.createAndFill({}, markup ? state.schema.text(markup) : null)!,
-                    ),
-                );
-            }
-            return true;
-        };
-
+    builder.addInputRules(({schema}) => ({rules: [codeBlockRule(codeBlockType(schema))]}));
+    builder.addAction(cbAction, (deps) => {
+        const cb = codeBlockType(deps.schema);
         return {
             isActive: (state) => hasParentNodeOfType(cb)(state.selection),
-            isEnable: cmd,
-            run: cmd,
+            isEnable: setCodeBlockType(deps),
+            run: setCodeBlockType(deps),
         };
     });
 
