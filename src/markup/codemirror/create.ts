@@ -4,6 +4,7 @@ import {
     history,
     historyKeymap,
     indentWithTab,
+    insertNewlineKeepIndent,
     insertTab,
 } from '@codemirror/commands';
 import {syntaxHighlighting} from '@codemirror/language';
@@ -125,6 +126,10 @@ export function createCodemirror(params: CreateCodemirrorParams) {
                 },
             },
             {key: 'Tab', preventDefault: true, run: insertTab},
+            {
+                key: 'Enter',
+                shift: insertNewlineKeepIndent,
+            },
             indentWithTab,
             ...defaultKeymap,
             ...(disabledExtensions.history ? [] : historyKeymap),
