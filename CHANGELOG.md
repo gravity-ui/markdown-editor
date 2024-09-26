@@ -1,5 +1,13 @@
 # Changelog
 
+## [13.21.0](https://github.com/gravity-ui/markdown-editor/compare/v13.20.0...v13.21.0) (2024-09-26)
+
+
+### Features
+
+* **CodeBlock:** unification of code block creation logic ([#384](https://github.com/gravity-ui/markdown-editor/issues/384)) ([d139318](https://github.com/gravity-ui/markdown-editor/commit/d139318500baa4b60c633191daf73204035dcfac))
+* **markup:** update codemirror and add correct enter hotkeys ([#382](https://github.com/gravity-ui/markdown-editor/issues/382)) ([eef229a](https://github.com/gravity-ui/markdown-editor/commit/eef229a1befb8b2d57d81d2ca561cdaf231b18a4))
+
 ## [13.20.0](https://github.com/gravity-ui/markdown-editor/compare/v13.19.0...v13.20.0) (2024-09-26)
 
 
