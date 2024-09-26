@@ -27,7 +27,7 @@ const ignoreMutation =
             view.dispatch(
                 view.state.tr.setNodeMarkup(getPos()!, null, {
                     ...node.attrs,
-                    [mutation.attributeName]: String(newAttr),
+                    [mutation.attributeName]: newAttr,
                 }),
             );
             return true;
@@ -111,6 +111,18 @@ export const tabView: NodeViewConstructor = (node, view, getPos) => {
 
 // @ts-expect-error
 export const tabPanelView: NodeViewConstructor = (node, view, getPos) => ({
-    // FIX: ignore mutation and don't rerender node when yfm.js switch tab
+    // FIXME: ignore mutation and don't rerender node when yfm.js switch tab
+    ignoreMutation: ignoreMutation(node, view, getPos),
+});
+
+// @ts-expect-error
+export const vtabView: NodeViewConstructor = (node, view, getPos) => ({
+    // FIXME: ignore mutation and don't rerender node when yfm.js switch tab
+    ignoreMutation: ignoreMutation(node, view, getPos),
+});
+
+// @ts-expect-error
+export const vtabInputView: NodeViewConstructor = (node, view, getPos) => ({
+    // FIXME: ignore mutation and don't rerender node when yfm.js switch tab
     ignoreMutation: ignoreMutation(node, view, getPos),
 });

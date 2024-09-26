@@ -7,18 +7,17 @@ import {TabsNode} from './const';
 const attrsFromEntries = (token: Token) => (token.attrs ? Object.fromEntries(token.attrs) : {});
 
 export const parserTokens: Record<TabsNode, ParserToken> = {
-    [TabsNode.Tab]: {
-        name: TabsNode.Tab,
-        type: 'block',
-        getAttrs: attrsFromEntries,
-    },
-
     [TabsNode.TabPanel]: {
         name: TabsNode.TabPanel,
         type: 'block',
         getAttrs: attrsFromEntries,
     },
 
+    [TabsNode.Tab]: {
+        name: TabsNode.Tab,
+        type: 'block',
+        getAttrs: attrsFromEntries,
+    },
     [TabsNode.Tabs]: {
         name: TabsNode.Tabs,
         type: 'block',
@@ -26,6 +25,27 @@ export const parserTokens: Record<TabsNode, ParserToken> = {
     },
     [TabsNode.TabsList]: {
         name: TabsNode.TabsList,
+        type: 'block',
+        getAttrs: attrsFromEntries,
+    },
+
+    [TabsNode.RadioTabs]: {
+        name: TabsNode.RadioTabs,
+        type: 'block',
+        getAttrs: attrsFromEntries,
+    },
+    [TabsNode.RadioTab]: {
+        name: TabsNode.RadioTab,
+        type: 'block',
+        getAttrs: attrsFromEntries,
+    },
+    [TabsNode.RadioTabInput]: {
+        name: TabsNode.RadioTabInput,
+        type: 'node',
+        getAttrs: attrsFromEntries,
+    },
+    [TabsNode.RadioTabLabel]: {
+        name: TabsNode.RadioTabLabel,
         type: 'block',
         getAttrs: attrsFromEntries,
     },
