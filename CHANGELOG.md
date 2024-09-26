@@ -1,5 +1,12 @@
 # Changelog
 
+## [13.20.0](https://github.com/gravity-ui/markdown-editor/compare/v13.19.0...v13.20.0) (2024-09-26)
+
+
+### Features
+
+* **YfmTabs:** support vertical (radio) tabs ([#357](https://github.com/gravity-ui/markdown-editor/issues/357)) ([4baff56](https://github.com/gravity-ui/markdown-editor/commit/4baff5661f9dfdd83825545d3ce868d7a8e0110d))
+
 ## [13.19.0](https://github.com/gravity-ui/markdown-editor/compare/v13.18.2...v13.19.0) (2024-09-25)
 
 
