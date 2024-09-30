@@ -1,13 +1,14 @@
 export const initialMdContent = `
+&nbsp;
 
 Welcome to the editor! Start typing the character \`/\`
 
-![nature](https://cdn.pixabay.com/photo/2020/08/29/09/26/beach-5526592_1280.jpg =700x)
+![nature](https://github.com/user-attachments/assets/e2cdda03-fa1d-48fd-91e7-88d935f8bb9b =700x)
 
 ## Markdown WYSIWYG and markup editor
 
 MarkdownEditor is a powerful tool for working with Markdown, which combines WYSIWYG and Markup modes. This means that you can create and edit content in a convenient visual mode, as well as have full control over the markup.
- 
+
 The editor supports following formats:
 
 * WYSIWYG
