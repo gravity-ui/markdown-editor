@@ -25,6 +25,15 @@ logger.setLogger({
     ...console,
 });
 
+const wCommandMenuConfig = wysiwygToolbarConfigs.wCommandMenuConfig.concat(
+    wysiwygToolbarConfigs.wMathInlineItemData,
+    wysiwygToolbarConfigs.wMathBlockItemData,
+    wysiwygToolbarConfigs.wMermaidItemData,
+    wysiwygToolbarConfigs.wYfmHtmlBlockItemData,
+);
+
+wCommandMenuConfig.unshift(wysiwygToolbarConfigs.wGptItemData);
+
 export const PlaygroundGPT = React.memo(() => {
     const [yfmRaw, setYfmRaw] = React.useState<MarkupString>(initialMdContent);
 
@@ -46,6 +55,7 @@ export const PlaygroundGPT = React.memo(() => {
                     }),
                 )
             }
+            wysiwygCommandMenuConfig={wCommandMenuConfig}
             extensionOptions={{selectionContext: {config: wSelectionMenuConfig}}}
             wysiwygToolbarConfig={wToolbarConfig}
         />

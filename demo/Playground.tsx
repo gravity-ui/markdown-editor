@@ -61,8 +61,6 @@ const wCommandMenuConfig = wysiwygToolbarConfigs.wCommandMenuConfig.concat(
     wysiwygToolbarConfigs.wYfmHtmlBlockItemData,
 );
 
-wCommandMenuConfig.unshift(wysiwygToolbarConfigs.wGptItemData);
-
 export type PlaygroundProps = {
     initial?: MarkupString;
     allowHTML?: boolean;
@@ -79,6 +77,7 @@ export type PlaygroundProps = {
     renderPreviewDefined?: boolean;
     height?: CSSProperties['height'];
     escapeConfig?: EscapeConfig;
+    wysiwygCommandMenuConfig?: wysiwygToolbarConfigs.WToolbarItemData[];
     onChangeEditorType?: (mode: MarkdownEditorMode) => void;
     onChangeSplitModeEnabled?: (splitModeEnabled: boolean) => void;
 } & Pick<
@@ -121,6 +120,7 @@ export const Playground = React.memo<PlaygroundProps>((props) => {
         extraExtensions,
         extensionOptions,
         wysiwygToolbarConfig,
+        wysiwygCommandMenuConfig,
         escapeConfig,
     } = props;
     const [editorMode, setEditorMode] = React.useState<MarkdownEditorMode>(
@@ -164,7 +164,7 @@ export const Playground = React.memo<PlaygroundProps>((props) => {
             ? (value) => '**prepare raw markup**\n\n' + value
             : undefined,
         extensionOptions: {
-            commandMenu: {actions: wCommandMenuConfig},
+            commandMenu: {actions: wysiwygCommandMenuConfig ?? wCommandMenuConfig},
             ...extensionOptions,
         },
         extraExtensions: (builder) => {
