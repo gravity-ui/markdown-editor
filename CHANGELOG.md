@@ -1,5 +1,12 @@
 # Changelog
 
+## [13.21.1](https://github.com/gravity-ui/markdown-editor/compare/v13.21.0...v13.21.1) (2024-09-30)
+
+
+### Bug Fixes
+
+* **YfmTable:** fixed styles of table ([#389](https://github.com/gravity-ui/markdown-editor/issues/389)) ([81cbe57](https://github.com/gravity-ui/markdown-editor/commit/81cbe57864143e109903b80a1cf2ae7ddfaa81ca))
+
 ## [13.21.0](https://github.com/gravity-ui/markdown-editor/compare/v13.20.0...v13.21.0) (2024-09-26)
 
 
