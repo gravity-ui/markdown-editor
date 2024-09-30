@@ -107,8 +107,6 @@ $buttons-size: 18px;
 
     // now borders are drawn not in the table but in tbody
     tbody {
-        display: block;
-
         border-radius: 8px;
         background: var(--g-color-base-background);
         box-shadow: inset 0 0 0 1px var(--g-color-line-generic);
