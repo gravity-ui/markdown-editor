@@ -1,5 +1,12 @@
 # Changelog
 
+## [13.21.2](https://github.com/gravity-ui/markdown-editor/compare/v13.21.1...v13.21.2) (2024-09-30)
+
+
+### Bug Fixes
+
+* command menu config ([#392](https://github.com/gravity-ui/markdown-editor/issues/392)) ([909ab9c](https://github.com/gravity-ui/markdown-editor/commit/909ab9c26a71565cc44a879019ae0006fe121b4f))
+
 ## [13.21.1](https://github.com/gravity-ui/markdown-editor/compare/v13.21.0...v13.21.1) (2024-09-30)
 
 
