@@ -282,13 +282,13 @@ $$
 `.trim(),
 
     mermaidDiagram: `
-## Mermaid diagram (optional feature)
-
 \`\`\`mermaid
 sequenceDiagram
 	Alice->>Bob: Hi Bob
 	Bob->>Alice: Hi Alice
 \`\`\`
+
+## Mermaid diagram (optional feature)
 `.trim(),
 
     foldingHeadings: `
