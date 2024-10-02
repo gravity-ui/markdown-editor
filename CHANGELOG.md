@@ -1,5 +1,12 @@
 # Changelog
 
+## [13.21.3](https://github.com/gravity-ui/markdown-editor/compare/v13.21.2...v13.21.3) (2024-10-02)
+
+
+### Bug Fixes
+
+* **SelectionContext:** save editor state when start to select content with mouse ([#395](https://github.com/gravity-ui/markdown-editor/issues/395)) ([74d3b80](https://github.com/gravity-ui/markdown-editor/commit/74d3b80a2beb96cb04fb74f9d956e78ee7158d68))
+
 ## [13.21.2](https://github.com/gravity-ui/markdown-editor/compare/v13.21.1...v13.21.2) (2024-09-30)
 
 
