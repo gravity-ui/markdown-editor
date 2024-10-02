@@ -1,5 +1,12 @@
 # Changelog
 
+## [13.21.4](https://github.com/gravity-ui/markdown-editor/compare/v13.21.3...v13.21.4) (2024-10-02)
+
+
+### Bug Fixes
+
+* **bundle:** scroll to top of screen after calling moveCursorToLine method in wysiwyg mode ([#397](https://github.com/gravity-ui/markdown-editor/issues/397)) ([bf570b6](https://github.com/gravity-ui/markdown-editor/commit/bf570b646d141fdbfbfa84251268e7560de9f0b0))
+
 ## [13.21.3](https://github.com/gravity-ui/markdown-editor/compare/v13.21.2...v13.21.3) (2024-10-02)
 
 
