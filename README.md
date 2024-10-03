@@ -52,13 +52,13 @@ function Editor({onSubmit}) {
 }
 ```
 Read more:
-- [How to connect the editor in the Create React App](docs/how-to-add-editor-with-create-react-app.md)
-- [How to add preview for markup mode](docs/how-to-add-preview.md)
-- [How to add HTML extension](docs/how-to-connect-html-extension.md)
-- [How to add Latex extension](docs/how-to-connect-latex-extension.md)
-- [How to add Mermaid extension](docs/how-to-connect-mermaid-extension.md)
-- [How to write extension](docs/how-to-create-extension.md)
-- [How to add GPT extension](docs/how-to-connect-gpt-extensions.md)
+- [How to connect the editor in the Create React App](https://github.com/gravity-ui/markdown-editor/blob/main/docs/how-to-add-editor-with-create-react-app.md)
+- [How to add preview for markup mode](https://github.com/gravity-ui/markdown-editor/blob/main/docs/how-to-add-preview.md)
+- [How to add HTML extension](https://github.com/gravity-ui/markdown-editor/blob/main/docs/how-to-connect-html-extension.md)
+- [How to add Latex extension](https://github.com/gravity-ui/markdown-editor/blob/main/docs/how-to-connect-latex-extension.md)
+- [How to add Mermaid extension](https://github.com/gravity-ui/markdown-editor/blob/main/docs/how-to-connect-mermaid-extension.md)
+- [How to write extension](https://github.com/gravity-ui/markdown-editor/blob/main/docs/how-to-create-extension.md)
+- [How to add GPT extension](https://github.com/gravity-ui/markdown-editor/blob/main/docs/how-to-connect-gpt-extensions.md)
 
 
 ### i18n
