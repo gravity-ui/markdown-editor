@@ -1,11 +1,11 @@
 import type {EditorView} from '../../../../cm/view';
 
-import {HideMarkupGptExampleEffect, ShowMarkupGptExampleEffect} from './effects';
+import {HideMarkupGptEffect, ShowMarkupGptEffect} from './effects';
 
-export const showMarkupGptExample = (view: EditorView) => {
-    view.dispatch({effects: [ShowMarkupGptExampleEffect.of(null)]});
+export const showMarkupGpt = (view: EditorView) => {
+    view.dispatch({effects: [ShowMarkupGptEffect.of(null)]});
 };
 
-export const hideMarkupGptExample = (view: EditorView) => {
-    view.dispatch({effects: [HideMarkupGptExampleEffect.of(null)]});
+export const hideMarkupGpt = (view: EditorView) => {
+    view.dispatch({effects: [HideMarkupGptEffect.of(null)]});
 };

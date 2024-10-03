@@ -1,4 +1,3 @@
-import {EditorState} from '@codemirror/state';
 import {WidgetType} from '@codemirror/view';
 
 import {GptWidgetOptions} from '../../..';
@@ -11,12 +10,11 @@ import {
     type ViewUpdate,
 } from '../../../../cm/view';
 import {ReactRendererFacet} from '../../../../markup';
+import {WIDGET_DECO_CLASS_NAME} from '../constants';
 
-import {hideMarkupGptExample} from './commands';
-import {HideMarkupGptExampleEffect, ShowMarkupGptExampleEffect} from './effects';
+import {hideMarkupGpt} from './commands';
+import {HideMarkupGptEffect, ShowMarkupGptEffect} from './effects';
 import {renderPopup} from './popup';
-
-const DECO_CLASS_NAME = 'react-popup-example-deco';
 
 class SpanWidget extends WidgetType {
     private className = '';
@@ -36,17 +34,17 @@ class SpanWidget extends WidgetType {
     }
 }
 
-export function mGptExamplePlugin(gptProps: GptWidgetOptions) {
+export function mGptPlugin(gptProps: GptWidgetOptions) {
     return ViewPlugin.fromClass(
         class implements PluginValue {
             readonly _view: EditorView;
             readonly _renderItem;
 
-            decos: DecorationSet = Decoration.none;
             _anchor: Element | null = null;
+
+            decos: DecorationSet = Decoration.none;
             disablePromptPresets = true;
             markup: string | null = null;
-            state: null | EditorState = null;
 
             selectedPosition = {
                 from: 0,
@@ -57,7 +55,7 @@ export function mGptExamplePlugin(gptProps: GptWidgetOptions) {
                 this._view = view;
                 this._renderItem = view.state
                     .facet(ReactRendererFacet)
-                    .createItem('react-popup-example-in-markup-mode', () => this.renderPopup());
+                    .createItem('gpt-in-markup-mode', () => this.renderPopup());
             }
 
             update(update: ViewUpdate) {
@@ -67,20 +65,22 @@ export function mGptExamplePlugin(gptProps: GptWidgetOptions) {
                 }
 
                 this.decos = this.decos.map(update.changes);
-                this.state = update.state;
 
                 const {from, to} = update.state.selection.main;
 
+                this.selectedPosition.from = from;
+                this.selectedPosition.to = to;
+
                 for (const tr of update.transactions) {
                     for (const eff of tr.effects) {
-                        if (eff.is(ShowMarkupGptExampleEffect)) {
+                        if (eff.is(ShowMarkupGptEffect)) {
                             this._setSelectedText(this._getDecorationText(update));
 
                             if (from === to) {
                                 this.disablePromptPresets = true;
 
                                 const decorationWidget = Decoration.widget({
-                                    widget: new SpanWidget(DECO_CLASS_NAME, ' '),
+                                    widget: new SpanWidget(WIDGET_DECO_CLASS_NAME, ' '),
                                 });
 
                                 this.decos = Decoration.set([decorationWidget.range(from)]);
@@ -94,12 +94,12 @@ export function mGptExamplePlugin(gptProps: GptWidgetOptions) {
                                 {
                                     from,
                                     to,
-                                    value: Decoration.mark({class: DECO_CLASS_NAME}),
+                                    value: Decoration.mark({class: WIDGET_DECO_CLASS_NAME}),
                                 },
                             ]);
                         }
 
-                        if (eff.is(HideMarkupGptExampleEffect)) {
+                        if (eff.is(HideMarkupGptEffect)) {
                             this.decos = Decoration.none;
                         }
                     }
@@ -107,7 +107,9 @@ export function mGptExamplePlugin(gptProps: GptWidgetOptions) {
             }
 
             docViewUpdate() {
-                this._anchor = this._view.dom.getElementsByClassName(DECO_CLASS_NAME).item(0);
+                this._anchor = this._view.dom
+                    .getElementsByClassName(WIDGET_DECO_CLASS_NAME)
+                    .item(0);
                 this._renderItem.rerender();
             }
 
@@ -124,7 +126,7 @@ export function mGptExamplePlugin(gptProps: GptWidgetOptions) {
                 return renderPopup(this._anchor as HTMLElement, {
                     ...gptProps,
                     disablePromptPresets: this.disablePromptPresets,
-                    onClose: () => hideMarkupGptExample(this._view),
+                    onClose: () => hideMarkupGpt(this._view),
                     markup: this.markup,
                     onApplyResult: (changedMarkup) => this._onApplyResult(changedMarkup),
                 });
@@ -144,18 +146,15 @@ export function mGptExamplePlugin(gptProps: GptWidgetOptions) {
             }
 
             _onApplyResult(changedMarkup: string) {
-                if (!this.state) {
-                    hideMarkupGptExample(this._view);
-                    return;
-                }
-                const {from, to} = this.state.selection.main;
+                const {from, to} = this.selectedPosition;
                 const changes = [{from: from, to: to, insert: changedMarkup}];
-                const transaction = this.state.update({
+
+                const transaction = this._view.state.update({
                     changes: changes,
                 });
 
                 this._view.dispatch(transaction);
-                hideMarkupGptExample(this._view);
+                hideMarkupGpt(this._view);
             }
         },
         {

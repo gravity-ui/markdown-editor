@@ -1,10 +1,10 @@
 import {GptWidgetOptions} from '../../..';
 
-import {mGptExamplePlugin} from './plugin';
+import {mGptPlugin} from './plugin';
 
-export {mGptExampleToolbarItem} from './toolbar';
-export {showMarkupGptExample, hideMarkupGptExample} from './commands';
+export {mGptToolbarItem} from './toolbar';
+export {showMarkupGpt, hideMarkupGpt} from './commands';
 
-export function mGptExampleExtension(props: GptWidgetOptions) {
-    return mGptExamplePlugin(props).extension;
+export function mGptExtension(props: GptWidgetOptions) {
+    return mGptPlugin(props).extension;
 }

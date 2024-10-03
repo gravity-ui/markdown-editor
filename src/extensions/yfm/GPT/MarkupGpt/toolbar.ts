@@ -1,17 +1,18 @@
 import {MToolbarSingleItemData} from '../../../../bundle/config/markup';
+import {i18n} from '../../../../i18n/gpt/extension';
 import {GPTIcon} from '../../../../icons';
 import {ToolbarDataType} from '../../../../toolbar';
 import {gptHotKeys} from '../constants';
 
-import {showMarkupGptExample} from './commands';
+import {showMarkupGpt} from './commands';
 
-export const mGptExampleToolbarItem: MToolbarSingleItemData = {
-    id: 'react-popup-example',
+export const mGptToolbarItem: MToolbarSingleItemData = {
+    id: 'gpt',
     type: ToolbarDataType.SingleButton,
     hotkey: gptHotKeys.openGptKeyTooltip,
-    title: 'Help with text',
+    title: () => `${i18n('help-with-text')}`,
     icon: {data: GPTIcon},
-    exec: (e) => showMarkupGptExample(e.cm),
+    exec: (e) => showMarkupGpt(e.cm),
     isActive: () => false,
     isEnable: () => true,
 };

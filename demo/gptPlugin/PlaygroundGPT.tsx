@@ -10,7 +10,7 @@ import {
     wGptToolbarItem,
     wysiwygToolbarConfigs,
 } from '../../src';
-import {mGptExampleExtension, mGptExampleToolbarItem} from '../../src/extensions/yfm/GPT/MarkupGpt';
+import {mGptExtension, mGptToolbarItem} from '../../src/extensions/yfm/GPT/MarkupGpt';
 import {Playground} from '../Playground';
 
 import {gptWidgetProps} from './gptWidgetOptions';
@@ -43,7 +43,7 @@ mToolbarConfig.push([
     markupToolbarConfigs.mYfmHtmlBlockButton,
 ]);
 
-mToolbarConfig.unshift([mGptExampleToolbarItem]);
+mToolbarConfig.unshift([mGptToolbarItem]);
 
 export const PlaygroundGPT = React.memo(() => {
     const [yfmRaw, setYfmRaw] = React.useState<MarkupString>(initialMdContent);
@@ -57,7 +57,7 @@ export const PlaygroundGPT = React.memo(() => {
         },
     });
 
-    const markupExtension = [mGptExampleExtension(widgetProps)];
+    const markupExtension = [mGptExtension(widgetProps)];
     const wSelectionMenuConfig = [[wGptToolbarItem], ...wysiwygToolbarConfigs.wSelectionMenuConfig];
 
     return (
