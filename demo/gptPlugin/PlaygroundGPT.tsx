@@ -6,9 +6,11 @@ import {
     type MarkupString,
     gptExtension,
     logger,
+    markupToolbarConfigs,
     wGptToolbarItem,
     wysiwygToolbarConfigs,
 } from '../../src';
+import {mGptExampleExtension, mGptExampleToolbarItem} from '../../src/extensions/yfm/GPT/MarkupGpt';
 import {Playground} from '../Playground';
 
 import {gptWidgetProps} from './gptWidgetOptions';
@@ -34,30 +36,40 @@ const wCommandMenuConfig = wysiwygToolbarConfigs.wCommandMenuConfig.concat(
 
 wCommandMenuConfig.unshift(wysiwygToolbarConfigs.wGptItemData);
 
+const mToolbarConfig = cloneDeep(markupToolbarConfigs.mToolbarConfig);
+
+mToolbarConfig.push([
+    markupToolbarConfigs.mMermaidButton,
+    markupToolbarConfigs.mYfmHtmlBlockButton,
+]);
+
+mToolbarConfig.unshift([mGptExampleToolbarItem]);
+
 export const PlaygroundGPT = React.memo(() => {
     const [yfmRaw, setYfmRaw] = React.useState<MarkupString>(initialMdContent);
 
     const [showedAlertGpt, setShowedAlertGpt] = useState(true);
 
+    const widgetProps = gptWidgetProps(setYfmRaw, {
+        showedGptAlert: Boolean(showedAlertGpt),
+        onCloseGptAlert: () => {
+            setShowedAlertGpt(false);
+        },
+    });
+
+    const markupExtension = [mGptExampleExtension(widgetProps)];
     const wSelectionMenuConfig = [[wGptToolbarItem], ...wysiwygToolbarConfigs.wSelectionMenuConfig];
+
     return (
         <Playground
             settingsVisible
             initial={yfmRaw}
-            extraExtensions={(builder) =>
-                builder.use(
-                    gptExtension,
-                    gptWidgetProps(setYfmRaw, {
-                        showedGptAlert: Boolean(showedAlertGpt),
-                        onCloseGptAlert: () => {
-                            setShowedAlertGpt(false);
-                        },
-                    }),
-                )
-            }
+            extraExtensions={(builder) => builder.use(gptExtension, widgetProps)}
             wysiwygCommandMenuConfig={wCommandMenuConfig}
             extensionOptions={{selectionContext: {config: wSelectionMenuConfig}}}
             wysiwygToolbarConfig={wToolbarConfig}
+            markupConfigExtensions={markupExtension}
+            markupToolbarConfig={mToolbarConfig}
         />
     );
 });
