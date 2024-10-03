@@ -1,6 +1,6 @@
 import {keydownHandler} from 'prosemirror-keymap';
-import {EditorState, Plugin, PluginSpec, TextSelection} from 'prosemirror-state';
-import {EditorProps, EditorView} from 'prosemirror-view';
+import {type EditorState, Plugin, type PluginSpec, TextSelection} from 'prosemirror-state';
+import type {EditorProps, EditorView} from 'prosemirror-view';
 
 import {ActionStorage, ExtensionAuto} from '../../../core';
 import {isCodeBlock} from '../../../utils/nodes';
@@ -22,13 +22,14 @@ export const SelectionContext: ExtensionAuto<SelectionContextOptions> = (builder
     }
 };
 
+type TinyState = Pick<EditorState, 'doc' | 'selection'>;
+
 class SelectionTooltip implements PluginSpec<unknown> {
     private destroyed = false;
 
     private tooltip: TooltipView;
     private hideTimeoutRef: ReturnType<typeof setTimeout> | null = null;
 
-    private _prevState?: EditorState | null;
     private _isMousePressed = false;
 
     constructor(actions: ActionStorage, menuConfig: ContextConfig) {
@@ -50,6 +51,10 @@ class SelectionTooltip implements PluginSpec<unknown> {
             }),
             handleDOMEvents: {
                 mousedown: (view) => {
+                    const startState: TinyState = {
+                        doc: view.state.doc,
+                        selection: view.state.selection,
+                    };
                     this._isMousePressed = true;
                     this.cancelTooltipHiding();
                     this.tooltip.hide(view);
@@ -57,7 +62,7 @@ class SelectionTooltip implements PluginSpec<unknown> {
                     const onMouseUp = () => {
                         if (this.destroyed) return;
                         this._isMousePressed = false;
-                        this.update(view, this._prevState);
+                        this.update(view, startState);
                     };
 
                     document.addEventListener('mouseup', onMouseUp, {once: true});
@@ -78,11 +83,9 @@ class SelectionTooltip implements PluginSpec<unknown> {
         };
     }
 
-    private update(view: EditorView, prevState?: EditorState | null) {
-        this._prevState = prevState;
+    private update(view: EditorView, prevState?: TinyState) {
         if (this._isMousePressed) return;
 
-        this._prevState = null;
         this.cancelTooltipHiding();
 
         // Don't show tooltip if editor not mounted to the DOM

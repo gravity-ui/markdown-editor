@@ -1,5 +1,33 @@
 # Changelog
 
+## [13.21.4](https://github.com/gravity-ui/markdown-editor/compare/v13.21.3...v13.21.4) (2024-10-02)
+
+
+### Bug Fixes
+
+* **bundle:** scroll to top of screen after calling moveCursorToLine method in wysiwyg mode ([#397](https://github.com/gravity-ui/markdown-editor/issues/397)) ([bf570b6](https://github.com/gravity-ui/markdown-editor/commit/bf570b646d141fdbfbfa84251268e7560de9f0b0))
+
+## [13.21.3](https://github.com/gravity-ui/markdown-editor/compare/v13.21.2...v13.21.3) (2024-10-02)
+
+
+### Bug Fixes
+
+* **SelectionContext:** save editor state when start to select content with mouse ([#395](https://github.com/gravity-ui/markdown-editor/issues/395)) ([74d3b80](https://github.com/gravity-ui/markdown-editor/commit/74d3b80a2beb96cb04fb74f9d956e78ee7158d68))
+
+## [13.21.2](https://github.com/gravity-ui/markdown-editor/compare/v13.21.1...v13.21.2) (2024-09-30)
+
+
+### Bug Fixes
+
+* command menu config ([#392](https://github.com/gravity-ui/markdown-editor/issues/392)) ([909ab9c](https://github.com/gravity-ui/markdown-editor/commit/909ab9c26a71565cc44a879019ae0006fe121b4f))
+
+## [13.21.1](https://github.com/gravity-ui/markdown-editor/compare/v13.21.0...v13.21.1) (2024-09-30)
+
+
+### Bug Fixes
+
+* **YfmTable:** fixed styles of table ([#389](https://github.com/gravity-ui/markdown-editor/issues/389)) ([81cbe57](https://github.com/gravity-ui/markdown-editor/commit/81cbe57864143e109903b80a1cf2ae7ddfaa81ca))
+
 ## [13.21.0](https://github.com/gravity-ui/markdown-editor/compare/v13.20.0...v13.21.0) (2024-09-26)
 
 

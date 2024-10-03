@@ -480,7 +480,7 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
                 cmLine = Math.max(cmLine, 1);
                 cmLine = Math.min(cmLine, view.state.doc.lines);
 
-                const yMargin = getTopOffset();
+                const yMargin = getTopOffset(view.dom);
                 const anchor = view.state.doc.line(cmLine).from;
                 view.dispatch({
                     scrollIntoView: true,
@@ -493,31 +493,19 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
                 break;
 
                 // eslint-disable-next-line no-inner-declarations
-                function getTopOffset() {
-                    const TOOLBAR_HEIGHT = 36; //px
-                    const TOOLBAR_BOTTOM_OFFSET = 8; // px
-                    const TOOLBAR_TOP_ADDITIONAL_OFFSET = 8; // px
-                    const TOOLBAR_TOP_OFFSET_VAR = '--g-md-toolbar-sticky-offset';
-
-                    const topOffsetValue = window
-                        .getComputedStyle(view.dom)
-                        .getPropertyValue(TOOLBAR_TOP_OFFSET_VAR);
-                    const toolbarTopOffset =
-                        calculateCSSNumberValue(topOffsetValue) + TOOLBAR_TOP_ADDITIONAL_OFFSET;
-
-                    return toolbarTopOffset + TOOLBAR_HEIGHT + TOOLBAR_BOTTOM_OFFSET;
-                }
             }
             case 'wysiwyg': {
-                const node = this.wysiwygEditor.dom.querySelector(`[data-line="${line}"]`);
+                const elem = this.wysiwygEditor.dom.querySelector(`[data-line="${line}"]`);
 
-                if (node) {
-                    const position = this._wysiwygView.posAtDOM(node, 0);
+                if (elem) {
+                    const elemTop = elem.getBoundingClientRect().top;
+                    const topOffset = getTopOffset(this.wysiwygEditor.dom);
+                    window.scrollTo({top: elemTop + window.scrollY - topOffset});
 
+                    const position = this._wysiwygView.posAtDOM(elem, 0);
                     const {tr} = this._wysiwygView.state;
-
                     this._wysiwygView.dispatch(
-                        tr.setSelection(TextSelection.create(tr.doc, position)).scrollIntoView(),
+                        tr.setSelection(TextSelection.create(tr.doc, position)),
                     );
                 }
 
@@ -535,6 +523,19 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
         );
         return serializedEditorMarkup?.trim() !== wysiwygValue.trim();
     }
+}
+
+function getTopOffset(elem: Element) {
+    const TOOLBAR_HEIGHT = 36; //px
+    const TOOLBAR_BOTTOM_OFFSET = 8; // px
+    const TOOLBAR_TOP_ADDITIONAL_OFFSET = 8; // px
+    const TOOLBAR_TOP_OFFSET_VAR = '--g-md-toolbar-sticky-offset';
+
+    const topOffsetValue = window.getComputedStyle(elem).getPropertyValue(TOOLBAR_TOP_OFFSET_VAR);
+    const toolbarTopOffset =
+        calculateCSSNumberValue(topOffsetValue) + TOOLBAR_TOP_ADDITIONAL_OFFSET;
+
+    return toolbarTopOffset + TOOLBAR_HEIGHT + TOOLBAR_BOTTOM_OFFSET;
 }
 
 function calculateCSSNumberValue(cssValue: string): number {
