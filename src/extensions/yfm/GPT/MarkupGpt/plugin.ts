@@ -11,6 +11,7 @@ import {
 } from '../../../../cm/view';
 import {ReactRendererFacet} from '../../../../markup';
 import {WIDGET_DECO_CLASS_NAME} from '../constants';
+import {isEmptyGptPrompts} from '../utils';
 
 import {hideMarkupGpt} from './commands';
 import {HideMarkupGptEffect, ShowMarkupGptEffect} from './effects';
@@ -79,6 +80,8 @@ export function mGptPlugin(gptProps: GptWidgetOptions) {
                             if (from === to) {
                                 this.disablePromptPresets = true;
 
+                                if (isEmptyGptPrompts(gptProps, true)) return;
+
                                 const decorationWidget = Decoration.widget({
                                     widget: new SpanWidget(WIDGET_DECO_CLASS_NAME, ' '),
                                 });
@@ -89,6 +92,8 @@ export function mGptPlugin(gptProps: GptWidgetOptions) {
                             }
 
                             this.disablePromptPresets = false;
+
+                            if (isEmptyGptPrompts(gptProps, false)) return;
 
                             this.decos = Decoration.set([
                                 {
