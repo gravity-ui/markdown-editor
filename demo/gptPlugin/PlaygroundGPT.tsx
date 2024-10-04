@@ -57,7 +57,7 @@ export const PlaygroundGPT = React.memo(() => {
         },
     });
 
-    const markupExtension = [mGptExtension(widgetProps)];
+    const markupExtension = mGptExtension(widgetProps);
     const wSelectionMenuConfig = [[wGptToolbarItem], ...wysiwygToolbarConfigs.wSelectionMenuConfig];
 
     return (
