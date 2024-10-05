@@ -6,11 +6,12 @@ import {
     type MarkupString,
     gptExtension,
     logger,
+    mGptExtension,
+    mGptToolbarItem,
     markupToolbarConfigs,
     wGptToolbarItem,
     wysiwygToolbarConfigs,
 } from '../../src';
-import {mGptExtension, mGptToolbarItem} from '../../src/extensions/yfm/GPT/MarkupGpt';
 import {Playground} from '../Playground';
 
 import {gptWidgetProps} from './gptWidgetOptions';
@@ -50,21 +51,21 @@ export const PlaygroundGPT = React.memo(() => {
 
     const [showedAlertGpt, setShowedAlertGpt] = useState(true);
 
-    const widgetProps = gptWidgetProps(setYfmRaw, {
+    const gptExtensionProps = gptWidgetProps(setYfmRaw, {
         showedGptAlert: Boolean(showedAlertGpt),
         onCloseGptAlert: () => {
             setShowedAlertGpt(false);
         },
     });
 
-    const markupExtension = mGptExtension(widgetProps);
+    const markupExtension = mGptExtension(gptExtensionProps);
     const wSelectionMenuConfig = [[wGptToolbarItem], ...wysiwygToolbarConfigs.wSelectionMenuConfig];
 
     return (
         <Playground
             settingsVisible
             initial={yfmRaw}
-            extraExtensions={(builder) => builder.use(gptExtension, widgetProps)}
+            extraExtensions={(builder) => builder.use(gptExtension, gptExtensionProps)}
             wysiwygCommandMenuConfig={wCommandMenuConfig}
             extensionOptions={{selectionContext: {config: wSelectionMenuConfig}}}
             wysiwygToolbarConfig={wToolbarConfig}
