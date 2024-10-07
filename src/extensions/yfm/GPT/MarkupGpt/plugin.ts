@@ -75,7 +75,7 @@ export function mGptPlugin(gptProps: GptWidgetOptions) {
                 for (const tr of update.transactions) {
                     for (const eff of tr.effects) {
                         if (eff.is(ShowMarkupGptEffect)) {
-                            this._setSelectedText(this._getDecorationText(update));
+                            this._setSelectedText(this._getDecorationText(update, from, to));
 
                             if (from === to) {
                                 this.disablePromptPresets = true;
@@ -137,8 +137,7 @@ export function mGptPlugin(gptProps: GptWidgetOptions) {
                 });
             }
 
-            _getDecorationText(update: ViewUpdate): string {
-                const {from, to} = update.state.selection.main;
+            _getDecorationText(update: ViewUpdate, from: number, to: number): string {
                 return update.state.doc.sliceString(from, to);
             }
 
