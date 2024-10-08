@@ -1,4 +1,4 @@
-import {Command, NodeSelection, TextSelection} from 'prosemirror-state';
+import {Command, NodeSelection} from 'prosemirror-state';
 
 import {get$Cursor} from '../../../utils/selection';
 
@@ -23,18 +23,6 @@ export const removeEmptyMathInlineIfCursorIsAtBeginning: Command = ({tr, schema}
         } else {
             dispatch?.(tr.setSelection(NodeSelection.create(tr.doc, $cursor.before())));
         }
-        return true;
-    }
-    return false;
-};
-
-/**
- * If MathInline is before cursor – move cursor to the end of the math
- */
-export const moveCursorToEndOfMathInline: Command = ({tr, schema}, dispatch) => {
-    const $cursor = get$Cursor(tr.selection);
-    if ($cursor?.nodeBefore?.type === mathIType(schema)) {
-        dispatch?.(tr.setSelection(TextSelection.create(tr.doc, $cursor.pos - 1)));
         return true;
     }
     return false;
