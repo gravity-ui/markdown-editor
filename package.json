@@ -201,7 +201,7 @@
   },
   "devDependencies": {
     "@diplodoc/folding-headings-extension": "0.1.0",
-    "@diplodoc/html-extension": "2.1.0",
+    "@diplodoc/html-extension": "2.3.2",
     "@diplodoc/latex-extension": "1.0.3",
     "@diplodoc/mermaid-extension": "1.2.1",
     "@diplodoc/transform": "4.22.0",
@@ -276,7 +276,7 @@
   },
   "peerDependencies": {
     "@diplodoc/folding-headings-extension": "^0.1.0",
-    "@diplodoc/html-extension": "2.1.0",
+    "@diplodoc/html-extension": "2.3.2",
     "@diplodoc/latex-extension": "^1.0.3",
     "@diplodoc/mermaid-extension": "^1.0.0",
     "@diplodoc/transform": ">=4.5.0 <4.19.0",

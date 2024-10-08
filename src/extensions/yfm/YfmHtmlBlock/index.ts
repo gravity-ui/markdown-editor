@@ -1,4 +1,4 @@
-import {PluginOptions} from '@diplodoc/html-extension/plugin/transform';
+import {PluginOptions} from '@diplodoc/html-extension/plugin';
 import type {IHTMLIFrameElementConfig} from '@diplodoc/html-extension/runtime';
 
 import {Action, ExtensionAuto, ExtensionDeps, NodeViewConstructor} from '../../../core';
