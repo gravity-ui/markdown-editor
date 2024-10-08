@@ -1,5 +1,17 @@
 # Changelog
 
+## [13.22.0](https://github.com/gravity-ui/markdown-editor/compare/v13.21.4...v13.22.0) (2024-10-08)
+
+
+### Features
+
+* **yfmHTMLBlock:** updated html-extension ([#407](https://github.com/gravity-ui/markdown-editor/issues/407)) ([54dfd2d](https://github.com/gravity-ui/markdown-editor/commit/54dfd2d947f17be19f2e756d23891b0855df6733))
+
+
+### Bug Fixes
+
+* updated README.md read more links ([#400](https://github.com/gravity-ui/markdown-editor/issues/400)) ([ae80119](https://github.com/gravity-ui/markdown-editor/commit/ae80119e578567222fde05a851e0e2b1948c05ac))
+
 ## [13.21.4](https://github.com/gravity-ui/markdown-editor/compare/v13.21.3...v13.21.4) (2024-10-02)
 
 
