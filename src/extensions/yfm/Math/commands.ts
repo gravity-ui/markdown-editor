@@ -28,13 +28,13 @@ export const removeEmptyMathInlineIfCursorIsAtBeginning: Command = ({tr, schema}
 
 // Handle cursor movement at the boundary of a MathInline block
 export const handleArrowKey = (direction: 'right' | 'left'): Command => {
-    return (state, dispatch) => {
-        const {$cursor} = state.selection as TextSelection;
+    return ({tr, schema}, dispatch) => {
+        const $cursor = get$Cursor(tr.selection);
 
         if ($cursor) {
             const moveRight = direction === 'right';
 
-            const mathType = mathIType(state.schema);
+            const mathType = mathIType(schema);
             const parentNodeType = $cursor.parent.type;
             const nextNodeType = moveRight ? $cursor.nodeAfter?.type : $cursor.nodeBefore?.type;
 
@@ -45,7 +45,7 @@ export const handleArrowKey = (direction: 'right' | 'left'): Command => {
 
             if (shouldMove && dispatch) {
                 const newPos = $cursor.pos + (moveRight ? 1 : -1);
-                dispatch(state.tr.setSelection(TextSelection.create(state.doc, newPos)));
+                dispatch(tr.setSelection(TextSelection.create(tr.doc, newPos)));
                 return true;
             }
         }
