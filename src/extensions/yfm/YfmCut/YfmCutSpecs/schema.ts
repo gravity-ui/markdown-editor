@@ -15,7 +15,7 @@ export const getSchemaSpecs = (
     placeholder?: PlaceholderOptions,
 ): Record<CutNode, NodeSpec> => ({
     [CutNode.Cut]: {
-        attrs: {class: {default: 'yfm-cut'}},
+        attrs: {class: {default: 'yfm-cut'}, open: {default: null}},
         content: `${CutNode.CutTitle} ${CutNode.CutContent}`,
         group: 'block yfm-cut',
         parseDOM: [{tag: '.yfm-cut'}],
