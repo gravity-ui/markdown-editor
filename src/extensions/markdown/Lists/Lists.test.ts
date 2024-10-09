@@ -30,7 +30,7 @@ describe('Lists extension', () => {
             '* one\n\n* two',
             doc(
                 ul(
-                    {[ListsAttr.Bullet]: '*'},
+                    {[ListsAttr.Markup]: '*'},
                     li({[ListsAttr.Markup]: '*'}, p('one')),
                     li({[ListsAttr.Markup]: '*'}, p('two')),
                 ),
@@ -38,13 +38,26 @@ describe('Lists extension', () => {
         );
     });
 
-    it('should parse ordered list', () => {
+    it('should parse ordered list with dots', () => {
         same(
             '1. one\n\n2. two',
             doc(
                 ol(
                     li({[ListsAttr.Markup]: '.'}, p('one')),
                     li({[ListsAttr.Markup]: '.'}, p('two')),
+                ),
+            ),
+        );
+    });
+
+    it('should parse ordered list with parenthesis', () => {
+        same(
+            '1) one\n\n2) two',
+            doc(
+                ol(
+                    {[ListsAttr.Markup]: ')'},
+                    li({[ListsAttr.Markup]: ')'}, p('one')),
+                    li({[ListsAttr.Markup]: ')'}, p('two')),
                 ),
             ),
         );
@@ -67,7 +80,7 @@ describe('Lists extension', () => {
             markup,
             doc(
                 ul(
-                    {[ListsAttr.Bullet]: '-'},
+                    {[ListsAttr.Bullet]: '-', [ListsAttr.Markup]: '-'},
                     li(
                         {[ListsAttr.Markup]: '-'},
                         p('one'),
@@ -76,7 +89,11 @@ describe('Lists extension', () => {
                                 {[ListsAttr.Markup]: '.'},
                                 p('two'),
                                 ul(
-                                    {[ListsAttr.Tight]: true, [ListsAttr.Bullet]: '+'},
+                                    {
+                                        [ListsAttr.Tight]: true,
+                                        [ListsAttr.Bullet]: '+',
+                                        [ListsAttr.Markup]: '+',
+                                    },
                                     li({[ListsAttr.Markup]: '+'}, p('three')),
                                 ),
                             ),
@@ -94,19 +111,23 @@ describe('Lists extension', () => {
             '- + * 2. item',
             doc(
                 ul(
-                    {[ListsAttr.Bullet]: '-'},
+                    {[ListsAttr.Bullet]: '-', [ListsAttr.Markup]: '-'},
                     li(
                         {[ListsAttr.Markup]: '-'},
                         ul(
-                            {[ListsAttr.Bullet]: '+'},
+                            {[ListsAttr.Bullet]: '+', [ListsAttr.Markup]: '+'},
                             li(
                                 {[ListsAttr.Markup]: '+'},
                                 ul(
-                                    {[ListsAttr.Bullet]: '*'},
+                                    {[ListsAttr.Bullet]: '*', [ListsAttr.Markup]: '*'},
                                     li(
                                         {[ListsAttr.Markup]: '*'},
                                         ol(
-                                            {[ListsAttr.Order]: 2, [ListsAttr.Tight]: true},
+                                            {
+                                                [ListsAttr.Order]: 2,
+                                                [ListsAttr.Tight]: true,
+                                                [ListsAttr.Markup]: '.',
+                                            },
                                             li({[ListsAttr.Markup]: '.'}, p('item')),
                                         ),
                                     ),
