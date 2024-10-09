@@ -7,10 +7,8 @@ import {useEnsuredForwardedRef, useKey, useUpdate} from 'react-use';
 import {ClassNameProps, cn} from '../classname';
 import {i18n} from '../i18n/bundle';
 import {logger} from '../logger';
-import {useBooleanState} from '../react-utils/hooks';
-import {ToasterContext} from '../react-utils/toaster';
-import {useSticky} from '../react-utils/useSticky';
-import {isMac} from '../utils/platform';
+import {ToasterContext, useBooleanState, useSticky} from '../react-utils';
+import {isMac} from '../utils';
 
 import type {Editor, EditorInt, EditorMode} from './Editor';
 import {HorizontalDrag} from './HorizontalDrag';
@@ -20,15 +18,13 @@ import {WysiwygEditorView} from './WysiwygEditorView';
 import {
     MToolbarData,
     MToolbarItemData,
-    mHiddenDataByPreset,
-    mToolbarConfigByPreset,
-} from './config/markup';
-import {
     WToolbarData,
     WToolbarItemData,
+    mHiddenDataByPreset,
+    mToolbarConfigByPreset,
     wHiddenDataByPreset,
     wToolbarConfigByPreset,
-} from './config/wysiwyg';
+} from './config';
 import {useMarkdownEditorContext} from './context';
 import {EditorSettings, EditorSettingsProps} from './settings';
 import {stickyCn} from './sticky';
@@ -136,6 +132,19 @@ export const MarkdownEditorView = React.forwardRef<HTMLDivElement, MarkdownEdito
         const editorWrapperRef = useRef(null);
         const splitModeViewWrapperRef = useRef(null);
 
+        useEffect(() => {
+            if (showPreview) {
+                divRef.current.focus();
+            }
+        }, [divRef, showPreview]);
+
+        useKey(
+            (e) => showPreview && isWrapperFocused(divRef) && isSubmitKeyDown(e),
+            () => editor.emit('submit', null),
+            {event: 'keydown'},
+            [showPreview],
+        );
+
         const settings = useMemo(
             () => (
                 <Settings
@@ -200,6 +209,8 @@ export const MarkdownEditorView = React.forwardRef<HTMLDivElement, MarkdownEdito
                             },
                             [className],
                         )}
+                        role="button"
+                        tabIndex={0}
                     >
                         <div className={b('editor-wrapper')} ref={editorWrapperRef}>
                             {showPreview ? (
@@ -303,4 +314,13 @@ function Settings(props: EditorSettingsProps & {stickyToolbar: boolean}) {
 function isPreviewKeyDown(e: KeyboardEvent) {
     const modKey = isMac() ? e.metaKey : e.ctrlKey;
     return modKey && e.shiftKey && e.code === 'KeyP';
+}
+
+function isWrapperFocused(divRef: React.RefObject<HTMLDivElement>) {
+    return document.activeElement === divRef.current;
+}
+
+function isSubmitKeyDown(e: KeyboardEvent) {
+    const modKey = isMac() ? e.metaKey : e.ctrlKey;
+    return modKey && e.code === 'Enter';
 }
