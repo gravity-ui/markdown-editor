@@ -1,6 +1,6 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
 import {transform} from '@diplodoc/html-extension';
-import {PluginOptions} from '@diplodoc/html-extension/plugin/transform';
+import {PluginOptions} from '@diplodoc/html-extension/plugin';
 
 import type {ExtensionAuto, ExtensionNodeSpec} from '../../../../core';
 
