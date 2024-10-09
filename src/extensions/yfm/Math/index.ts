@@ -9,7 +9,6 @@ import {isTextSelection} from '../../../utils/selection';
 import {MathSpecs} from './MathSpecs';
 import {
     ignoreIfCursorInsideMathInline,
-    moveCursorToEndOfMathInline,
     removeEmptyMathInlineIfCursorIsAtBeginning,
 } from './commands';
 import {mathBType, mathIType} from './const';
@@ -37,10 +36,7 @@ export const Math: ExtensionAuto<MathOptions> = (builder, opts) => {
 
     builder.addKeymap(() => ({
         Enter: ignoreIfCursorInsideMathInline, // ignore breaks in math inline
-        Backspace: chainCommands(
-            moveCursorToEndOfMathInline,
-            removeEmptyMathInlineIfCursorIsAtBeginning,
-        ),
+        Backspace: chainCommands(removeEmptyMathInlineIfCursorIsAtBeginning),
     }));
 
     builder

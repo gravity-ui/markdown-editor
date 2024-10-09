@@ -1,15 +1,17 @@
+import {keydownHandler} from 'prosemirror-keymap';
 import type {Node} from 'prosemirror-model';
-import {Plugin, TextSelection} from 'prosemirror-state';
+import {Plugin} from 'prosemirror-state';
 import {Decoration, DecorationSet, NodeView} from 'prosemirror-view';
 
 import type {ReactRenderer, RendererItem} from '../../../extensions/behavior/ReactRenderer';
 import {isTextSelection} from '../../../utils/selection';
 
+import {handleArrowKey} from './commands';
 import {CLASSNAMES, MathNode} from './const';
 import {b, renderMathHint} from './hint';
 import type {KatexOptions, RunOptions} from './types';
 
-import './view-and-edit.scss'; // eslint-disable-line import/order
+import './view-and-edit.scss';
 
 const MATH_ACTIVE_DECO = 'math_active_decoration';
 
@@ -240,55 +242,11 @@ export type MathViewAndEditPluginOptions = MathNodeViewOptions;
 
 export const mathViewAndEditPlugin = (options: MathViewAndEditPluginOptions) =>
     new Plugin({
-        appendTransaction(_, oldState, newState) {
-            const {selection: prevSelection} = oldState;
-            const {selection: currentSelection, doc} = newState;
-
-            const prevPos = prevSelection.from;
-            const currentPos = currentSelection.from;
-            // TODO: add direction
-
-            const prevNode = doc.nodeAt(prevPos);
-            const currentNode = doc.nodeAt(currentPos);
-
-            if (currentNode?.type.name === 'math_inline') {
-                let textNodePosition = -1;
-                currentNode.forEach((childNode, offset) => {
-                    if (childNode.type.name === 'text') {
-                        textNodePosition = currentPos + offset;
-                    }
-                });
-
-                if (textNodePosition !== -1) {
-                    const newCursorPos = textNodePosition + 1;
-                    const newSelection = TextSelection.create(doc, newCursorPos);
-                    return newState.tr.setSelection(newSelection);
-                }
-            }
-
-            if (!prevNode && !currentNode) {
-                let parentNodePos = currentPos;
-                let foundMathInline = false;
-                let endPos = 0;
-
-                while (parentNodePos > 0 && !foundMathInline) {
-                    const parentNode = doc.nodeAt(parentNodePos);
-                    if (parentNode && parentNode.type.name === 'math_inline') {
-                        foundMathInline = true;
-                        endPos = parentNodePos + parentNode.nodeSize;
-                    }
-                    parentNodePos--;
-                }
-
-                if (foundMathInline) {
-                    const newSelection = TextSelection.create(doc, endPos);
-                    return newState.tr.setSelection(newSelection);
-                }
-            }
-
-            return null;
-        },
         props: {
+            handleKeyDown: keydownHandler({
+                ArrowRight: handleArrowKey('right'),
+                ArrowLeft: handleArrowKey('left'),
+            }),
             nodeViews: {
                 [MathNode.Block]: (node) => new MathBlockNodeView(node, options),
                 [MathNode.Inline]: (node) => new MathInlineNodeView(node, options),
