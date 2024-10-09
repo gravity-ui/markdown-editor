@@ -1,4 +1,4 @@
-import type {PluginOptions} from '@diplodoc/html-extension/plugin/transform';
+import type {PluginOptions} from '@diplodoc/html-extension/plugin';
 
 export type {TransformMeta} from '../../types';
 
