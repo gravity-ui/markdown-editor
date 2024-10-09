@@ -59,6 +59,8 @@ Read more:
 - [How to add Mermaid extension](https://github.com/gravity-ui/markdown-editor/blob/main/docs/how-to-connect-mermaid-extension.md)
 - [How to write extension](https://github.com/gravity-ui/markdown-editor/blob/main/docs/how-to-create-extension.md)
 - [How to add GPT extension](https://github.com/gravity-ui/markdown-editor/blob/main/docs/how-to-connect-gpt-extensions.md)
+- [How to add text binding extension in markdown](https://github.com/gravity-ui/markdown-editor/blob/main/docs/how-to-add-text-binding-extension-in-markdown.md)
+
 
 
 ### i18n
