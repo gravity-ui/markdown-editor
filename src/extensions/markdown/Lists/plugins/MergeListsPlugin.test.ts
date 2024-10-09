@@ -63,6 +63,7 @@ describe('Lists extension', () => {
                         {
                             [ListsAttr.Tight]: true,
                             [ListsAttr.Bullet]: '+',
+                            [ListsAttr.Markup]: '+',
                         },
                         li(
                             {[ListsAttr.Markup]: '+'},
@@ -82,6 +83,7 @@ describe('Lists extension', () => {
                                 {
                                     [ListsAttr.Tight]: true,
                                     [ListsAttr.Bullet]: '-',
+                                    [ListsAttr.Markup]: '-',
                                 },
                                 li(
                                     {[ListsAttr.Markup]: '-'},
@@ -116,7 +118,7 @@ describe('Lists extension', () => {
                 doc(
                     ol(
                         {
-                            [ListsAttr.Bullet]: '.',
+                            [ListsAttr.Markup]: '.',
                         },
                         li(
                             {
@@ -139,7 +141,7 @@ describe('Lists extension', () => {
                             ol(
                                 {
                                     [ListsAttr.Tight]: true,
-                                    [ListsAttr.Bullet]: '.',
+                                    [ListsAttr.Markup]: '.',
                                 },
                                 li(
                                     {[ListsAttr.Markup]: '.'},

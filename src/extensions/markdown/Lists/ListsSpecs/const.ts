@@ -6,10 +6,20 @@ export enum ListNode {
 
 export enum ListsAttr {
     Tight = 'tight',
-    /** used in bullet list only */
+    /** @deprecated Use `ListsAttr.Markup` instead */
     Bullet = 'bullet',
     /** used in ordered list only */
     Order = 'order',
-    /** used in list item only */
     Markup = 'markup',
 }
+
+export const Markup = {
+    bullet: {
+        values: ['-', '+', '*'],
+        default: '*',
+    },
+    ordered: {
+        values: ['.', ')'],
+        default: '.',
+    },
+};
