@@ -1,10 +1,13 @@
 import type {NodeSpec} from 'prosemirror-model';
 
-import {ListNode, ListsAttr} from './const';
+import {ListNode, ListsAttr, Markup} from './const';
 
 export const schemaSpecs: Record<ListNode, NodeSpec> = {
     [ListNode.ListItem]: {
-        attrs: {[ListsAttr.Tight]: {default: false}, [ListsAttr.Markup]: {default: null}},
+        attrs: {
+            [ListsAttr.Tight]: {default: false},
+            [ListsAttr.Markup]: {default: null},
+        },
         content: '(paragraph|block)+',
         defining: true,
         parseDOM: [{tag: 'li'}],
@@ -20,7 +23,11 @@ export const schemaSpecs: Record<ListNode, NodeSpec> = {
     [ListNode.BulletList]: {
         content: `${ListNode.ListItem}+`,
         group: 'block',
-        attrs: {[ListsAttr.Tight]: {default: false}, [ListsAttr.Bullet]: {default: '*'}},
+        attrs: {
+            [ListsAttr.Tight]: {default: false},
+            [ListsAttr.Bullet]: {default: Markup.bullet.default},
+            [ListsAttr.Markup]: {default: Markup.bullet.default},
+        },
         parseDOM: [
             {
                 tag: 'ul',
@@ -38,7 +45,11 @@ export const schemaSpecs: Record<ListNode, NodeSpec> = {
     },
 
     [ListNode.OrderedList]: {
-        attrs: {[ListsAttr.Order]: {default: 1}, [ListsAttr.Tight]: {default: false}},
+        attrs: {
+            [ListsAttr.Order]: {default: 1},
+            [ListsAttr.Tight]: {default: false},
+            [ListsAttr.Markup]: {default: Markup.ordered.default},
+        },
         content: `${ListNode.ListItem}+`,
         group: 'block',
         parseDOM: [

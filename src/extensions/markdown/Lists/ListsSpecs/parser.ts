@@ -17,6 +17,7 @@ export const parserTokens: Record<ListNode, ParserToken> = {
         getAttrs: (token, tokens, i) => ({
             [ListsAttr.Tight]: listIsTight(tokens, i),
             [ListsAttr.Bullet]: token.markup,
+            [ListsAttr.Markup]: token.markup,
         }),
     },
 
@@ -26,6 +27,7 @@ export const parserTokens: Record<ListNode, ParserToken> = {
         getAttrs: (token, tokens, i) => ({
             [ListsAttr.Order]: Number(token.attrGet('start')) || 1,
             [ListsAttr.Tight]: listIsTight(tokens, i),
+            [ListsAttr.Markup]: token.markup,
         }),
     },
 };

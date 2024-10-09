@@ -1,5 +1,17 @@
 # Changelog
 
+## [13.23.0](https://github.com/gravity-ui/markdown-editor/compare/v13.22.0...v13.23.0) (2024-10-09)
+
+
+### Features
+
+* **bundle:** add submit in preview mode ([#411](https://github.com/gravity-ui/markdown-editor/issues/411)) ([019084a](https://github.com/gravity-ui/markdown-editor/commit/019084a4f117660cfdbeef0eadde27bbd3674942))
+
+
+### Bug Fixes
+
+* **Lists:** check that list items are being serialized with correct markup ([#412](https://github.com/gravity-ui/markdown-editor/issues/412)) ([9bf88d0](https://github.com/gravity-ui/markdown-editor/commit/9bf88d03ba967636b961b85c35352c1a20b5bdc2))
+
 ## [13.22.0](https://github.com/gravity-ui/markdown-editor/compare/v13.21.4...v13.22.0) (2024-10-08)
 
 
