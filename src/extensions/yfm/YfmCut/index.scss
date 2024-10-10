@@ -6,4 +6,17 @@
     &.yfm-cut-active {
         border-color: var(--g-color-line-generic);
     }
+    .yfm-cut-title:focus {
+        outline: 0;
+    }
+
+    /* TODO: Remove this after updating @diplodoc/transform to version 4.19.0 or higher */
+    /* This ensures backward compatibility with earlier versions of cut-extension */
+    .yfm-cut-title {
+        list-style: none;
+    }
+    .yfm-cut-title::-webkit-details-marker,
+    .yfm-cut-title::marker {
+        display: none;
+    }
 }
