@@ -9,7 +9,9 @@
     .yfm-cut-title:focus {
         outline: 0;
     }
-    /* backward compatibility with earlier versions of cut-extension  */
+
+    /* TODO: Remove this after updating @diplodoc/transform to version 4.19.0 or higher */
+    /* This ensures backward compatibility with earlier versions of cut-extension */
     .yfm-cut-title {
         list-style: none;
     }
