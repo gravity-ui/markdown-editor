@@ -36,16 +36,12 @@ export const moveCursorRightOfMathInline: Command = ({tr, schema}, dispatch) => 
 
     if ($cursor) {
         const mathType = mathIType(schema);
-        const parentNodeType = $cursor.parent.type;
-        const nextNodeType = $cursor.nodeAfter?.type;
-        const isAtBoundary = $cursor.parentOffset === $cursor.parent.content.size;
+        const isOnBeforeOfMathInline = $cursor.nodeAfter?.type === mathType;
+        const isOnStartOfMathInline =
+            $cursor.parentOffset === $cursor.parent.content.size &&
+            $cursor.parent.type === mathType;
 
-        // when moving the cursor, the entry into the block and
-        // exit from the block are taken into account.
-        const shouldMove =
-            nextNodeType === mathType || (isAtBoundary && parentNodeType === mathType);
-
-        if (shouldMove) {
+        if (isOnBeforeOfMathInline || isOnStartOfMathInline) {
             const newPos = $cursor.pos + 1;
             dispatch?.(tr.setSelection(TextSelection.create(tr.doc, newPos)));
             return true;
@@ -63,16 +59,11 @@ export const moveCursorLeftOfMathInline: Command = ({tr, schema}, dispatch) => {
 
     if ($cursor) {
         const mathType = mathIType(schema);
-        const parentNodeType = $cursor.parent.type;
-        const nextNodeType = $cursor.nodeBefore?.type;
-        const isAtBoundary = $cursor.parentOffset === 0;
+        const isOnAfterOfMathInline = $cursor.nodeBefore?.type === mathType;
+        const isOnStartOfMathInline =
+            $cursor.parentOffset === 0 && $cursor.parent.type === mathType;
 
-        // when moving the cursor, the entry into the block and
-        // exit from the block are taken into account.
-        const shouldMove =
-            nextNodeType === mathType || (isAtBoundary && parentNodeType === mathType);
-
-        if (shouldMove) {
+        if (isOnAfterOfMathInline || isOnStartOfMathInline) {
             const newPos = $cursor.pos - 1;
             dispatch?.(tr.setSelection(TextSelection.create(tr.doc, newPos)));
             return true;

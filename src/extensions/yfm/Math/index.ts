@@ -38,8 +38,8 @@ export const Math: ExtensionAuto<MathOptions> = (builder, opts) => {
     builder.addKeymap(() => ({
         Enter: ignoreIfCursorInsideMathInline, // ignore breaks in math inline
         Backspace: chainCommands(
-            moveCursorLeftOfMathInline,
             removeEmptyMathInlineIfCursorIsAtBeginning,
+            moveCursorLeftOfMathInline,
         ),
     }));
 
