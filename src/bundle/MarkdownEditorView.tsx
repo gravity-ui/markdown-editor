@@ -298,21 +298,23 @@ function Settings(props: EditorSettingsProps & {stickyToolbar: boolean}) {
     const wrapperRef = useRef<HTMLDivElement>(null);
     const isSticky = useSticky(wrapperRef) && props.toolbarVisibility && props.stickyToolbar;
 
-    if (!props.renderPreviewButton && !props.settingsVisible) return null;
-
     return (
-        <div className={b('settings-wrapper')}>
-            <div
-                ref={wrapperRef}
-                className={stickyCn.settings({
-                    withToolbar: props.toolbarVisibility,
-                    stickyActive: isSticky,
-                })}
-            >
-                <EditorSettings {...props} />
-                <MarkupSearchAnchor {...props} />
-            </div>
-        </div>
+        <>
+            {(props.renderPreviewButton || props.settingsVisible) && (
+                <div className={b('settings-wrapper')}>
+                    <div
+                        ref={wrapperRef}
+                        className={stickyCn.settings({
+                            withToolbar: props.toolbarVisibility,
+                            stickyActive: isSticky,
+                        })}
+                    >
+                        <EditorSettings {...props} />
+                        <MarkupSearchAnchor {...props} />
+                    </div>
+                </div>
+            )}
+        </>
     );
 }
 
