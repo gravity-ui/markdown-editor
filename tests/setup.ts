@@ -1,4 +1,12 @@
+import {TextDecoder as TextDecoderUtil, TextEncoder as TextEncoderUtil} from 'util';
+
+import {ReadableStream as ReadableStreamPolyfill} from 'web-streams-polyfill';
+
 import './toMatchNode';
+
+global.TextDecoder = TextDecoderUtil as any; // TS error in global.TextDecoder
+global.TextEncoder = TextEncoderUtil;
+global.ReadableStream = ReadableStreamPolyfill;
 
 // fix from https://github.com/jsdom/jsdom/issues/3002
 document.createRange = () => {
