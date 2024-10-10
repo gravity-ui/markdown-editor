@@ -9,9 +9,11 @@ export const ignoreIfCursorInsideMathInline: Command = ({selection, schema}) => 
     return $cursor?.parent.type === mathIType(schema);
 };
 
-// If cursor at the beginning of MathInline:
-// - if math is empty – remove anchor
-// - if math has content – select node with NodeSelection
+/**
+ * If cursor at the beginning of MathInline:
+ * - if math is empty – remove anchor
+ * - if math has content – select node with NodeSelection
+ */
 export const removeEmptyMathInlineIfCursorIsAtBeginning: Command = ({tr, schema}, dispatch) => {
     const $cursor = get$Cursor(tr.selection);
     if ($cursor?.parent.type === mathIType(schema) && $cursor.start() === $cursor.pos) {
@@ -26,30 +28,56 @@ export const removeEmptyMathInlineIfCursorIsAtBeginning: Command = ({tr, schema}
     return false;
 };
 
-// Handle cursor movement at the boundary of a MathInline block
-export const handleArrowKey = (direction: 'right' | 'left'): Command => {
-    return ({tr, schema}, dispatch) => {
-        const $cursor = get$Cursor(tr.selection);
+/**
+ * Handle cursor movement to the right at the boundary of a MathInline block
+ */
+export const moveCursorRightOfMathInline: Command = ({tr, schema}, dispatch) => {
+    const $cursor = get$Cursor(tr.selection);
 
-        if ($cursor) {
-            const moveRight = direction === 'right';
+    if ($cursor) {
+        const mathType = mathIType(schema);
+        const parentNodeType = $cursor.parent.type;
+        const nextNodeType = $cursor.nodeAfter?.type;
+        const isAtBoundary = $cursor.parentOffset === $cursor.parent.content.size;
 
-            const mathType = mathIType(schema);
-            const parentNodeType = $cursor.parent.type;
-            const nextNodeType = moveRight ? $cursor.nodeAfter?.type : $cursor.nodeBefore?.type;
+        // when moving the cursor, the entry into the block and
+        // exit from the block are taken into account.
+        const shouldMove =
+            nextNodeType === mathType || (isAtBoundary && parentNodeType === mathType);
 
-            const isAtBoundary =
-                $cursor.parentOffset === (moveRight ? $cursor.parent.content.size : 0);
-            const shouldMove =
-                nextNodeType === mathType || (isAtBoundary && parentNodeType === mathType);
-
-            if (shouldMove && dispatch) {
-                const newPos = $cursor.pos + (moveRight ? 1 : -1);
-                dispatch(tr.setSelection(TextSelection.create(tr.doc, newPos)));
-                return true;
-            }
+        if (shouldMove) {
+            const newPos = $cursor.pos + 1;
+            dispatch?.(tr.setSelection(TextSelection.create(tr.doc, newPos)));
+            return true;
         }
+    }
 
-        return false;
-    };
+    return false;
+};
+
+/**
+ * Handle cursor movement to the left at the boundary of a MathInline block
+ */
+export const moveCursorLeftOfMathInline: Command = ({tr, schema}, dispatch) => {
+    const $cursor = get$Cursor(tr.selection);
+
+    if ($cursor) {
+        const mathType = mathIType(schema);
+        const parentNodeType = $cursor.parent.type;
+        const nextNodeType = $cursor.nodeBefore?.type;
+        const isAtBoundary = $cursor.parentOffset === 0;
+
+        // when moving the cursor, the entry into the block and
+        // exit from the block are taken into account.
+        const shouldMove =
+            nextNodeType === mathType || (isAtBoundary && parentNodeType === mathType);
+
+        if (shouldMove) {
+            const newPos = $cursor.pos - 1;
+            dispatch?.(tr.setSelection(TextSelection.create(tr.doc, newPos)));
+            return true;
+        }
+    }
+
+    return false;
 };

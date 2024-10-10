@@ -6,7 +6,7 @@ import {Decoration, DecorationSet, NodeView} from 'prosemirror-view';
 import type {ReactRenderer, RendererItem} from '../../../extensions/behavior/ReactRenderer';
 import {isTextSelection} from '../../../utils/selection';
 
-import {handleArrowKey} from './commands';
+import {moveCursorLeftOfMathInline, moveCursorRightOfMathInline} from './commands';
 import {CLASSNAMES, MathNode} from './const';
 import {b, renderMathHint} from './hint';
 import type {KatexOptions, RunOptions} from './types';
@@ -244,8 +244,8 @@ export const mathViewAndEditPlugin = (options: MathViewAndEditPluginOptions) =>
     new Plugin({
         props: {
             handleKeyDown: keydownHandler({
-                ArrowRight: handleArrowKey('right'),
-                ArrowLeft: handleArrowKey('left'),
+                ArrowRight: moveCursorRightOfMathInline,
+                ArrowLeft: moveCursorLeftOfMathInline,
             }),
             nodeViews: {
                 [MathNode.Block]: (node) => new MathBlockNodeView(node, options),
