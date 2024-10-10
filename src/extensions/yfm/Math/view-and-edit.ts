@@ -6,12 +6,12 @@ import {Decoration, DecorationSet, NodeView} from 'prosemirror-view';
 import type {ReactRenderer, RendererItem} from '../../../extensions/behavior/ReactRenderer';
 import {isTextSelection} from '../../../utils/selection';
 
-import {moveCursorToEndOfMathInline} from './commands';
+import {moveCursorLeftOfMathInline, moveCursorRightOfMathInline} from './commands';
 import {CLASSNAMES, MathNode} from './const';
 import {b, renderMathHint} from './hint';
 import type {KatexOptions, RunOptions} from './types';
 
-import './view-and-edit.scss'; // eslint-disable-line import/order
+import './view-and-edit.scss';
 
 const MATH_ACTIVE_DECO = 'math_active_decoration';
 
@@ -243,13 +243,14 @@ export type MathViewAndEditPluginOptions = MathNodeViewOptions;
 export const mathViewAndEditPlugin = (options: MathViewAndEditPluginOptions) =>
     new Plugin({
         props: {
+            handleKeyDown: keydownHandler({
+                ArrowRight: moveCursorRightOfMathInline,
+                ArrowLeft: moveCursorLeftOfMathInline,
+            }),
             nodeViews: {
                 [MathNode.Block]: (node) => new MathBlockNodeView(node, options),
                 [MathNode.Inline]: (node) => new MathInlineNodeView(node, options),
             },
-            handleKeyDown: keydownHandler({
-                ArrowLeft: moveCursorToEndOfMathInline,
-            }),
             decorations: (state) => {
                 const {selection} = state;
                 if (isTextSelection(selection)) {
