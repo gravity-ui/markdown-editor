@@ -149,6 +149,7 @@ export const MarkdownEditorView = React.forwardRef<HTMLDivElement, MarkdownEdito
             () => (
                 <Settings
                     mode={editorMode}
+                    settingsVisible={settingsVisible}
                     onModeChange={onModeChange}
                     toolbarVisibility={editor.toolbarVisible && !showPreview}
                     onToolbarVisibilityChange={onToolbarVisibilityChange}
@@ -162,17 +163,18 @@ export const MarkdownEditorView = React.forwardRef<HTMLDivElement, MarkdownEdito
                 />
             ),
             [
-                canRenderPreview,
-                stickyToolbar,
-                editor.splitMode,
-                editor.splitModeEnabled,
-                editor.toolbarVisible,
                 editorMode,
+                settingsVisible,
+                editor.toolbarVisible,
+                editor.splitModeEnabled,
+                editor.splitMode,
                 onModeChange,
-                onShowPreviewChange,
-                onSplitModeChange,
-                onToolbarVisibilityChange,
                 showPreview,
+                onToolbarVisibilityChange,
+                onSplitModeChange,
+                stickyToolbar,
+                onShowPreviewChange,
+                canRenderPreview,
             ],
         );
 
@@ -254,10 +256,10 @@ export const MarkdownEditorView = React.forwardRef<HTMLDivElement, MarkdownEdito
                                             toolbarClassName={b('toolbar')}
                                             stickyToolbar={stickyToolbar}
                                         >
-                                            {editor.toolbarVisible && settingsVisible && settings}
+                                            {editor.toolbarVisible && settings}
                                         </MarkupEditorView>
                                     )}
-                                    {!editor.toolbarVisible && settingsVisible && settings}
+                                    {!editor.toolbarVisible && settings}
                                 </>
                             )}
                         </div>
@@ -295,6 +297,9 @@ const MarkupSearchAnchor: React.FC<MarkupSearchAnchorProps> = ({mode}) => (
 function Settings(props: EditorSettingsProps & {stickyToolbar: boolean}) {
     const wrapperRef = useRef<HTMLDivElement>(null);
     const isSticky = useSticky(wrapperRef) && props.toolbarVisibility && props.stickyToolbar;
+
+    if (!props.renderPreviewButton && !props.settingsVisible) return null;
+
     return (
         <div className={b('settings-wrapper')}>
             <div

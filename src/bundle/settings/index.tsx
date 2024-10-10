@@ -34,10 +34,12 @@ const bContent = cn('settings-content');
 
 export type EditorSettingsProps = Omit<SettingsContentProps, 'onClose'> & {
     renderPreviewButton?: boolean;
+    settingsVisible?: boolean;
 };
 
 export const EditorSettings = React.memo<EditorSettingsProps>(function EditorSettings(props) {
-    const {className, onShowPreviewChange, showPreview, renderPreviewButton} = props;
+    const {className, onShowPreviewChange, showPreview, renderPreviewButton, settingsVisible} =
+        props;
     const chevronRef = React.useRef<HTMLButtonElement>(null);
     const [popupShown, , hidePopup, togglePopup] = useBooleanState(false);
 
@@ -62,27 +64,35 @@ export const EditorSettings = React.memo<EditorSettingsProps>(function EditorSet
                             <Icon data={Eye} />
                         </Button>
                     </ActionTooltip>
-                    <div className={bSettings('separator')} />
+                    {settingsVisible && <div className={bSettings('separator')} />}
                 </>
             )}
-            <Button
-                size="m"
-                view="flat"
-                ref={chevronRef}
-                pin="round-round"
-                onClick={togglePopup}
-                className={bSettings('dropdown-button')}
-            >
-                <Icon data={Gear} />
-            </Button>
-            <Popup
-                open={popupShown}
-                anchorRef={chevronRef}
-                placement={placement}
-                onClose={hidePopup}
-            >
-                <SettingsContent {...props} onClose={hidePopup} className={bSettings('content')} />
-            </Popup>
+            {settingsVisible && (
+                <>
+                    <Button
+                        size="m"
+                        view="flat"
+                        ref={chevronRef}
+                        pin="round-round"
+                        onClick={togglePopup}
+                        className={bSettings('dropdown-button')}
+                    >
+                        <Icon data={Gear} />
+                    </Button>
+                    <Popup
+                        open={popupShown}
+                        anchorRef={chevronRef}
+                        placement={placement}
+                        onClose={hidePopup}
+                    >
+                        <SettingsContent
+                            {...props}
+                            onClose={hidePopup}
+                            className={bSettings('content')}
+                        />
+                    </Popup>
+                </>
+            )}
         </div>
     );
 });
