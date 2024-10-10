@@ -6,7 +6,7 @@ import type {ActionSpec} from '../../../../core';
 import {cutContentType, cutTitleType, cutType} from '../const';
 
 const createYfmCutNode = (schema: Schema) => (content?: Node | Node[] | Fragment) => {
-    return cutType(schema).create({class: 'yfm-cut open'}, [
+    return cutType(schema).create({class: 'yfm-cut open', open: true}, [
         cutTitleType(schema).create(null),
         cutContentType(schema).create(null, content),
     ]);

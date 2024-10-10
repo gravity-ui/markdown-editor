@@ -15,12 +15,12 @@ export const getSchemaSpecs = (
     placeholder?: PlaceholderOptions,
 ): Record<CutNode, NodeSpec> => ({
     [CutNode.Cut]: {
-        attrs: {class: {default: 'yfm-cut'}},
+        attrs: {class: {default: 'yfm-cut'}, open: {default: null}},
         content: `${CutNode.CutTitle} ${CutNode.CutContent}`,
         group: 'block yfm-cut',
-        parseDOM: [{tag: 'div.yfm-cut'}],
+        parseDOM: [{tag: '.yfm-cut'}],
         toDOM(node) {
-            return ['div', node.attrs, 0];
+            return ['details', node.attrs, 0];
         },
         selectable: true,
         allowSelection: true,
@@ -32,9 +32,9 @@ export const getSchemaSpecs = (
         attrs: {class: {default: 'yfm-cut-title'}},
         content: 'inline*',
         group: 'block yfm-cut',
-        parseDOM: [{tag: 'div.yfm-cut-title'}],
+        parseDOM: [{tag: '.yfm-cut-title'}],
         toDOM(node) {
-            return ['div', node.attrs, 0];
+            return ['summary', node.attrs, 0];
         },
         placeholder: {
             content:
@@ -53,7 +53,7 @@ export const getSchemaSpecs = (
         attrs: {class: {default: 'yfm-cut-content'}},
         content: '(block | paragraph)+',
         group: 'block yfm-cut',
-        parseDOM: [{tag: 'div.yfm-cut-content'}],
+        parseDOM: [{tag: '.yfm-cut-content'}],
         toDOM(node) {
             return ['div', node.attrs, 0];
         },
