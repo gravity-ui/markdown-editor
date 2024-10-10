@@ -37,11 +37,11 @@ export const moveCursorRightOfMathInline: Command = ({tr, schema}, dispatch) => 
     if ($cursor) {
         const mathType = mathIType(schema);
         const isOnBeforeOfMathInline = $cursor.nodeAfter?.type === mathType;
-        const isOnStartOfMathInline =
+        const isOnEndOfMathInline =
             $cursor.parentOffset === $cursor.parent.content.size &&
             $cursor.parent.type === mathType;
 
-        if (isOnBeforeOfMathInline || isOnStartOfMathInline) {
+        if (isOnBeforeOfMathInline || isOnEndOfMathInline) {
             const newPos = $cursor.pos + 1;
             dispatch?.(tr.setSelection(TextSelection.create(tr.doc, newPos)));
             return true;
