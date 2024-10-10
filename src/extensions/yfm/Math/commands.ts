@@ -29,13 +29,46 @@ export const removeEmptyMathInlineIfCursorIsAtBeginning: Command = ({tr, schema}
 };
 
 /**
- * If MathInline is before cursor – move cursor to the end of the math
+ * Handle cursor movement to the right at the boundary of a MathInline block
  */
-export const moveCursorToEndOfMathInline: Command = ({tr, schema}, dispatch) => {
+export const moveCursorRightOfMathInline: Command = ({tr, schema}, dispatch) => {
     const $cursor = get$Cursor(tr.selection);
-    if ($cursor?.nodeBefore?.type === mathIType(schema)) {
-        dispatch?.(tr.setSelection(TextSelection.create(tr.doc, $cursor.pos - 1)));
-        return true;
+
+    if ($cursor) {
+        const mathType = mathIType(schema);
+        const isOnBeforeOfMathInline = $cursor.nodeAfter?.type === mathType;
+        const isOnEndOfMathInline =
+            $cursor.parentOffset === $cursor.parent.content.size &&
+            $cursor.parent.type === mathType;
+
+        if (isOnBeforeOfMathInline || isOnEndOfMathInline) {
+            const newPos = $cursor.pos + 1;
+            dispatch?.(tr.setSelection(TextSelection.create(tr.doc, newPos)));
+            return true;
+        }
     }
+
+    return false;
+};
+
+/**
+ * Handle cursor movement to the left at the boundary of a MathInline block
+ */
+export const moveCursorLeftOfMathInline: Command = ({tr, schema}, dispatch) => {
+    const $cursor = get$Cursor(tr.selection);
+
+    if ($cursor) {
+        const mathType = mathIType(schema);
+        const isOnAfterOfMathInline = $cursor.nodeBefore?.type === mathType;
+        const isOnStartOfMathInline =
+            $cursor.parentOffset === 0 && $cursor.parent.type === mathType;
+
+        if (isOnAfterOfMathInline || isOnStartOfMathInline) {
+            const newPos = $cursor.pos - 1;
+            dispatch?.(tr.setSelection(TextSelection.create(tr.doc, newPos)));
+            return true;
+        }
+    }
+
     return false;
 };
