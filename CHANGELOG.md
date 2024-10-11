@@ -1,5 +1,18 @@
 # Changelog
 
+## [13.24.0](https://github.com/gravity-ui/markdown-editor/compare/v13.23.0...v13.24.0) (2024-10-11)
+
+
+### Features
+
+* **yfmCut:** updated yfmCut ([#408](https://github.com/gravity-ui/markdown-editor/issues/408)) ([3be1e41](https://github.com/gravity-ui/markdown-editor/commit/3be1e41c4540b14a6ed068a14954fa6af1b2e846))
+
+
+### Bug Fixes
+
+* **bundle:** submit in preview mode: remove outline and return edit mode on submit ([#418](https://github.com/gravity-ui/markdown-editor/issues/418)) ([e8ed1ba](https://github.com/gravity-ui/markdown-editor/commit/e8ed1bae5955b6562db9fcb4cac2ce3b9e4f46ea))
+* **math:** fixed right direction ([#406](https://github.com/gravity-ui/markdown-editor/issues/406)) ([f01277f](https://github.com/gravity-ui/markdown-editor/commit/f01277f7ab33757d7a47a988341c88450ff4e6da))
+
 ## [13.23.0](https://github.com/gravity-ui/markdown-editor/compare/v13.22.0...v13.23.0) (2024-10-09)
 
 
