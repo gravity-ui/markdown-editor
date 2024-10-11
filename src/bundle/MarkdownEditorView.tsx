@@ -46,6 +46,8 @@ export type MarkdownEditorViewProps = ClassNameProps & {
     settingsVisible?: boolean;
     toaster: ToasterPublicMethods;
     stickyToolbar: boolean;
+    enableSubmitInPreview?: boolean;
+    clearPreviewOnSubmit?: boolean;
 };
 
 export const MarkdownEditorView = React.forwardRef<HTMLDivElement, MarkdownEditorViewProps>(
@@ -76,6 +78,8 @@ export const MarkdownEditorView = React.forwardRef<HTMLDivElement, MarkdownEdito
             wysiwygHiddenActionsConfig = wHiddenDataByPreset[editor.preset],
             toaster,
             stickyToolbar,
+            enableSubmitInPreview = false,
+            clearPreviewOnSubmit = false,
         } = props;
 
         const rerender = useUpdate();
@@ -139,10 +143,20 @@ export const MarkdownEditorView = React.forwardRef<HTMLDivElement, MarkdownEdito
         }, [divRef, showPreview]);
 
         useKey(
-            (e) => showPreview && isWrapperFocused(divRef) && isSubmitKeyDown(e),
-            () => editor.emit('submit', null),
+            (e) =>
+                enableSubmitInPreview &&
+                showPreview &&
+                isWrapperFocused(divRef) &&
+                isSubmitKeyDown(e),
+            () => {
+                editor.emit('submit', null);
+
+                if (clearPreviewOnSubmit) {
+                    onShowPreviewChange(false);
+                }
+            },
             {event: 'keydown'},
-            [showPreview],
+            [showPreview, clearPreviewOnSubmit],
         );
 
         const settings = useMemo(

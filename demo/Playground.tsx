@@ -93,6 +93,8 @@ export type PlaygroundProps = {
         | 'wysiwygHiddenActionsConfig'
         | 'markupToolbarConfig'
         | 'wysiwygToolbarConfig'
+        | 'enableSubmitInPreview'
+        | 'clearPreviewOnSubmit'
     >;
 
 logger.setLogger({
@@ -122,6 +124,8 @@ export const Playground = React.memo<PlaygroundProps>((props) => {
         wysiwygToolbarConfig,
         wysiwygCommandMenuConfig,
         escapeConfig,
+        enableSubmitInPreview,
+        clearPreviewOnSubmit,
     } = props;
     const [editorMode, setEditorMode] = React.useState<MarkdownEditorMode>(
         initialEditor ?? 'wysiwyg',
@@ -338,6 +342,8 @@ export const Playground = React.memo<PlaygroundProps>((props) => {
                         markupToolbarConfig={mToolbarConfig}
                         settingsVisible={settingsVisible}
                         editor={mdEditor}
+                        enableSubmitInPreview={enableSubmitInPreview}
+                        clearPreviewOnSubmit={clearPreviewOnSubmit}
                     />
                     <WysiwygDevTools editor={mdEditor} />
                     <WysiwygSelection editor={mdEditor} className={b('pm-selection')} />
