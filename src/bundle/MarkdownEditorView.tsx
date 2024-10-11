@@ -156,7 +156,7 @@ export const MarkdownEditorView = React.forwardRef<HTMLDivElement, MarkdownEdito
                 }
             },
             {event: 'keydown'},
-            [showPreview, clearPreviewOnSubmit],
+            [clearPreviewOnSubmit, enableSubmitInPreview, showPreview, showPreview],
         );
 
         const settings = useMemo(
