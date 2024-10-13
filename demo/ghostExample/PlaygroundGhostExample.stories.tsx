@@ -6,7 +6,7 @@ import type {StoryFn} from '@storybook/react';
 import {PlaygroundGhostExample} from './PlaygroundGhostExample';
 
 export default {
-    title: 'Markdown Editor / Docs example',
+    title: 'Experiments / Popup in markup mode',
     component: PlaygroundGhostExample,
 };
 

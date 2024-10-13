@@ -6,6 +6,7 @@ import {logger, markupToolbarConfigs} from '../../src';
 import {Playground} from '../Playground';
 
 import {ghostPopupExtension, ghostPopupToolbarItem} from './ghostExtension';
+import {initialMdContent} from './md-content';
 
 import '../Playground.scss';
 
@@ -25,7 +26,7 @@ export const PlaygroundGhostExample = React.memo(() => {
             settingsVisible
             markupToolbarConfig={mToolbarConfig}
             markupConfigExtensions={[ghostPopupExtension]}
-            initial={'Ghost example with markup'}
+            initial={initialMdContent}
         />
     );
 });
