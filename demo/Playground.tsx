@@ -11,6 +11,7 @@ import {
     MarkupString,
     NumberInput,
     RenderPreview,
+    ToolbarGroupData,
     UseMarkdownEditorProps,
     logger,
     markupToolbarConfigs,
@@ -18,12 +19,14 @@ import {
     wysiwygToolbarConfigs,
 } from '../src';
 import type {EscapeConfig, ToolbarActionData} from '../src/bundle/Editor';
+import {Extension} from '../src/cm/state';
 import {FoldingHeading} from '../src/extensions/yfm/FoldingHeading';
 import {Math} from '../src/extensions/yfm/Math';
 import {Mermaid} from '../src/extensions/yfm/Mermaid';
 import {YfmHtmlBlock} from '../src/extensions/yfm/YfmHtmlBlock';
 import {getSanitizeYfmHtmlBlock} from '../src/extensions/yfm/YfmHtmlBlock/utils';
 import {cloneDeep} from '../src/lodash';
+import {CodeEditor} from '../src/markup/editor';
 import type {FileUploadHandler} from '../src/utils/upload';
 import {VERSION} from '../src/version';
 
@@ -76,8 +79,10 @@ export type PlaygroundProps = {
     initialSplitModeEnabled?: boolean;
     renderPreviewDefined?: boolean;
     height?: CSSProperties['height'];
+    markupConfigExtensions?: Extension[];
     escapeConfig?: EscapeConfig;
     wysiwygCommandMenuConfig?: wysiwygToolbarConfigs.WToolbarItemData[];
+    markupToolbarConfig?: ToolbarGroupData<CodeEditor>[];
     onChangeEditorType?: (mode: MarkdownEditorMode) => void;
     onChangeSplitModeEnabled?: (splitModeEnabled: boolean) => void;
 } & Pick<
@@ -123,6 +128,8 @@ export const Playground = React.memo<PlaygroundProps>((props) => {
         extensionOptions,
         wysiwygToolbarConfig,
         wysiwygCommandMenuConfig,
+        markupConfigExtensions,
+        markupToolbarConfig,
         escapeConfig,
         enableSubmitInPreview,
         hidePreviewAfterSubmit,
@@ -170,6 +177,9 @@ export const Playground = React.memo<PlaygroundProps>((props) => {
         extensionOptions: {
             commandMenu: {actions: wysiwygCommandMenuConfig ?? wCommandMenuConfig},
             ...extensionOptions,
+        },
+        markupConfig: {
+            extensions: markupConfigExtensions,
         },
         extraExtensions: (builder) => {
             builder
@@ -339,7 +349,7 @@ export const Playground = React.memo<PlaygroundProps>((props) => {
                         className={b('editor-view')}
                         stickyToolbar={Boolean(stickyToolbar)}
                         wysiwygToolbarConfig={wysiwygToolbarConfig ?? wToolbarConfig}
-                        markupToolbarConfig={mToolbarConfig}
+                        markupToolbarConfig={markupToolbarConfig ?? mToolbarConfig}
                         settingsVisible={settingsVisible}
                         editor={mdEditor}
                         enableSubmitInPreview={enableSubmitInPreview}
