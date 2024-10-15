@@ -55,7 +55,7 @@ export const yfmNoteTooltipPlugin = ({actions, schema}: ExtensionDeps) =>
                     <Toolbar
                         editor={actions}
                         focus={() => view.focus()}
-                        className="g-md-yfm-note-toolbar"
+                        className="yfm g-md-yfm-note-toolbar"
                         data={[
                             [
                                 YfmNoteType.info,
