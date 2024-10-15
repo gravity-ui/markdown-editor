@@ -4,6 +4,7 @@ import {Decoration, DecorationSet} from 'prosemirror-view';
 import {WIDGET_DECO_CLASS_NAME, WIDGET_DECO_SPEC_FLAG} from './constants';
 import type {GptWidgetDecoViewParams} from './gptExtension/view';
 import {GptWidgetDecoView} from './gptExtension/view';
+import {isEmptyGptPrompts} from './utils';
 
 export type GptWidgetMeta =
     | {
@@ -28,6 +29,8 @@ export const gptWidgetPlugin = (params: GptWidgetDecoViewParams): Plugin => {
                 const meta = tr.getMeta(key) as GptWidgetMeta | undefined;
                 const paramsGpt = params;
 
+                paramsGpt.disablePromptPresets = false;
+
                 if (meta?.action === 'show') {
                     if (meta.to === meta.from) {
                         const spanElem = document.createElement('span');
@@ -36,12 +39,16 @@ export const gptWidgetPlugin = (params: GptWidgetDecoViewParams): Plugin => {
 
                         paramsGpt.disablePromptPresets = true;
 
+                        if (isEmptyGptPrompts(paramsGpt, true)) return DecorationSet.empty;
+
                         return DecorationSet.create(tr.doc, [
                             Decoration.widget(meta.from, spanElem, {
                                 [WIDGET_DECO_SPEC_FLAG]: true,
                             }),
                         ]);
                     }
+
+                    if (isEmptyGptPrompts(paramsGpt, false)) return DecorationSet.empty;
 
                     return DecorationSet.create(tr.doc, [
                         Decoration.inline(

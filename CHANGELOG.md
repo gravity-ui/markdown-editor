@@ -1,5 +1,19 @@
 # Changelog
 
+## [13.25.0](https://github.com/gravity-ui/markdown-editor/compare/v13.24.0...v13.25.0) (2024-10-15)
+
+
+### Features
+
+* add GPT in markup mode ([#404](https://github.com/gravity-ui/markdown-editor/issues/404)) ([c2e06b3](https://github.com/gravity-ui/markdown-editor/commit/c2e06b36f86b4af1f466faf2019c121d2d3428ea))
+* Update editor settings ([#416](https://github.com/gravity-ui/markdown-editor/issues/416)) ([e4b3ac0](https://github.com/gravity-ui/markdown-editor/commit/e4b3ac024581a802a8c62ecaf9b70225d8efcc43))
+
+
+### Bug Fixes
+
+* hotKey cmd + a shows the tooltip ([#422](https://github.com/gravity-ui/markdown-editor/issues/422)) ([7dd24ef](https://github.com/gravity-ui/markdown-editor/commit/7dd24ef95176bc2ac724189aaf93c4748763413a))
+* **MarkdownEditorView:** prevent the default preview shortcut behaviour ([#421](https://github.com/gravity-ui/markdown-editor/issues/421)) ([1fa5c90](https://github.com/gravity-ui/markdown-editor/commit/1fa5c905ab09204ab3c066e091e7707a61a3da8d))
+
 ## [13.24.0](https://github.com/gravity-ui/markdown-editor/compare/v13.23.0...v13.24.0) (2024-10-11)
 
 

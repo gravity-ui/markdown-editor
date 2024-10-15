@@ -20,11 +20,21 @@ import {
     gptExtension,
     MarkdownEditorView,
     useMarkdownEditor,
+    markupToolbarConfigs,
+    mGptExtension,
 } from '@gravity-ui/markdown-editor';
 
 export const Editor: React.FC<EditorProps> = (props) => {
+    // add a plugin to the markup mode
+    const markupGptExtension = mGptExtension(gptWidgetProps);
+
     const mdEditor = useMarkdownEditor({
         // ...
+
+        markupConfig: {
+            extensions: markupGptExtension,
+        },
+
         extraExtensions: (builder) =>
             builder.use(
                 ...
@@ -35,9 +45,15 @@ export const Editor: React.FC<EditorProps> = (props) => {
             ),
     });
 
+    // add a plugin to the markup toolbar mode
+    const mToolbarConfig = markupToolbarConfigs.mToolbarConfig;
+
+    mToolbarConfig.push([mGptToolbarItem]);
+
     return <MarkdownEditorView
         ...
         editor={mdEditor}
+        markupToolbarConfig={mToolbarConfig}
     />
 };         
 ```

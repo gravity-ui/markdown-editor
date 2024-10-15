@@ -1,12 +1,12 @@
 import {ActionStorage} from 'src/core';
 
 import {headingType, pType} from '../../extensions';
+import {gptHotKeys} from '../../extensions/additional/GPT/constants';
 import type {
     SelectionContextConfig,
     SelectionContextItemData,
 } from '../../extensions/behavior/SelectionContext';
 // for typings from Math
-import {gptHotKeys} from '../../extensions/yfm/GPT/constants';
 import type {} from '../../extensions/yfm/Math';
 import {i18n as i18nHint} from '../../i18n/hints';
 import {i18n} from '../../i18n/menubar';
