@@ -128,7 +128,10 @@ export const MarkdownEditorView = React.forwardRef<HTMLDivElement, MarkdownEdito
 
         useKey(
             (e) => canRenderPreview && isPreviewKeyDown(e),
-            () => onShowPreviewChange(!showPreview),
+            (e) => {
+                e.preventDefault();
+                onShowPreviewChange(!showPreview);
+            },
             {event: 'keydown'},
             [showPreview, editorMode, onShowPreviewChange, canRenderPreview],
         );

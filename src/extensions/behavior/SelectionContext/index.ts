@@ -1,5 +1,11 @@
 import {keydownHandler} from 'prosemirror-keymap';
-import {type EditorState, Plugin, type PluginSpec, TextSelection} from 'prosemirror-state';
+import {
+    AllSelection,
+    type EditorState,
+    Plugin,
+    type PluginSpec,
+    TextSelection,
+} from 'prosemirror-state';
 import type {EditorProps, EditorView} from 'prosemirror-view';
 
 import {ActionStorage, ExtensionAuto} from '../../../core';
@@ -102,7 +108,10 @@ class SelectionTooltip implements PluginSpec<unknown> {
 
         const {selection} = state;
         // Hide the tooltip if the selection is empty
-        if (selection.empty || !(selection instanceof TextSelection)) {
+        if (
+            selection.empty ||
+            !(selection instanceof TextSelection || selection instanceof AllSelection)
+        ) {
             this.tooltip.hide(view);
             return;
         }
