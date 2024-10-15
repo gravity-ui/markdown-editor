@@ -155,10 +155,10 @@ export function mGptPlugin(gptProps: GptWidgetOptions) {
 
                 const transaction = this._view.state.update({
                     changes: changes,
+                    effects: [HideMarkupGptEffect.of(null)],
                 });
 
                 this._view.dispatch(transaction);
-                hideMarkupGpt(this._view);
             }
         },
         {
