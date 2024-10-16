@@ -150,7 +150,7 @@ export const useGpt = <
         [handleCustomPromptApply],
     );
 
-    const handlePresetClick = useCallback<PresetListProps<PromptData>['onPresetClick']>(
+    const handlePresetClick = useCallback<PresetListProps<AnswerData, PromptData>['onPresetClick']>(
         async (data) => {
             const gptRequestData: GptRequestData<PromptData> = {
                 markup,

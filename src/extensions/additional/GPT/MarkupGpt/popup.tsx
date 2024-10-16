@@ -6,16 +6,19 @@ import {CommonAnswer} from '../ErrorScreen/types';
 import {GptDialog, GptDialogProps} from '../GptDialog/GptDialog';
 import {cnGptPopup} from '../gptExtension/view';
 
-type Props = {
+type Props<AnswerData extends CommonAnswer = CommonAnswer, PromptData extends unknown = unknown> = {
     onClose: () => void;
     markup: string;
     onConfirmOk?: () => void;
     onConfirmCancel?: () => void;
-} & GptDialogProps &
+} & GptDialogProps<AnswerData, PromptData> &
     Pick<PopupProps, 'anchorRef' | 'container'>;
 
-export function renderPopup(anchor: HTMLElement, props: Props) {
-    const handleUpdate = (result?: CommonAnswer) => props.onUpdate?.(result);
+export function renderPopup<
+    AnswerData extends CommonAnswer = CommonAnswer,
+    PromptData extends unknown = unknown,
+>(anchor: HTMLElement, props: Props<AnswerData, PromptData>) {
+    const handleUpdate = (result?: AnswerData) => props.onUpdate?.(result);
 
     return (
         <Popup

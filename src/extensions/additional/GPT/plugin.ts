@@ -1,6 +1,7 @@
 import {Plugin, PluginKey} from 'prosemirror-state';
 import {Decoration, DecorationSet} from 'prosemirror-view';
 
+import {CommonAnswer} from './ErrorScreen/types';
 import {WIDGET_DECO_CLASS_NAME, WIDGET_DECO_SPEC_FLAG} from './constants';
 import type {GptWidgetDecoViewParams} from './gptExtension/view';
 import {GptWidgetDecoView} from './gptExtension/view';
@@ -20,7 +21,12 @@ const key = new PluginKey<DecorationSet>('gpt-widget');
 
 export {key as pluginKey};
 
-export const gptWidgetPlugin = (params: GptWidgetDecoViewParams): Plugin => {
+export const gptWidgetPlugin = <
+    AnswerData extends CommonAnswer = CommonAnswer,
+    PromptData extends unknown = unknown,
+>(
+    params: GptWidgetDecoViewParams<AnswerData, PromptData>,
+): Plugin => {
     return new Plugin({
         key,
         state: {

@@ -10,6 +10,7 @@ import {
     type ViewUpdate,
 } from '../../../../cm/view';
 import {ReactRendererFacet} from '../../../../markup';
+import {CommonAnswer} from '../ErrorScreen/types';
 import {WIDGET_DECO_CLASS_NAME} from '../constants';
 import {isEmptyGptPrompts} from '../utils';
 
@@ -35,7 +36,10 @@ class SpanWidget extends WidgetType {
     }
 }
 
-export function mGptPlugin(gptProps: GptWidgetOptions) {
+export function mGptPlugin<
+    AnswerData extends CommonAnswer = CommonAnswer,
+    PromptData extends unknown = unknown,
+>(gptProps: GptWidgetOptions<AnswerData, PromptData>) {
     return ViewPlugin.fromClass(
         class implements PluginValue {
             readonly _view: EditorView;
