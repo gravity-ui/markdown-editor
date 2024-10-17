@@ -20,11 +20,11 @@ import {
 } from '../src';
 import type {EscapeConfig, ToolbarActionData} from '../src/bundle/Editor';
 import {Extension} from '../src/cm/state';
-import {FoldingHeading} from '../src/extensions/yfm/FoldingHeading';
-import {Math} from '../src/extensions/yfm/Math';
-import {Mermaid} from '../src/extensions/yfm/Mermaid';
-import {YfmHtmlBlock} from '../src/extensions/yfm/YfmHtmlBlock';
-import {getSanitizeYfmHtmlBlock} from '../src/extensions/yfm/YfmHtmlBlock/utils';
+import {FoldingHeading} from '../src/extensions/additional/FoldingHeading';
+import {Math} from '../src/extensions/additional/Math';
+import {Mermaid} from '../src/extensions/additional/Mermaid';
+import {YfmHtmlBlock} from '../src/extensions/additional/YfmHtmlBlock';
+import {getSanitizeYfmHtmlBlock} from '../src/extensions/additional/YfmHtmlBlock/utils';
 import {cloneDeep} from '../src/lodash';
 import {CodeEditor} from '../src/markup/editor';
 import type {FileUploadHandler} from '../src/utils/upload';

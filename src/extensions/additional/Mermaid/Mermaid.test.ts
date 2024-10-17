@@ -2,7 +2,7 @@ import {builders} from 'prosemirror-test-builder';
 
 import {createMarkupChecker} from '../../../../tests/sameMarkup';
 import {ExtensionsManager} from '../../../core';
-import {BaseNode, BaseSchemaSpecs} from '../../../extensions/specs';
+import {BaseNode, BaseSchemaSpecs} from '../../specs';
 
 import {MermaidSpecs} from './MermaidSpecs';
 import {MermaidAttrs, mermaidNodeName} from './const';
