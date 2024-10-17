@@ -21,9 +21,9 @@ import {
 } from '../src';
 import type {ToolbarActionData} from '../src/bundle/Editor';
 import {Extension} from '../src/cm/state';
+import {FoldingHeading} from '../src/extensions/additional/FoldingHeading';
 import {Math} from '../src/extensions/additional/Math';
 import {Mermaid} from '../src/extensions/additional/Mermaid';
-import {FoldingHeading} from '../src/extensions/yfm/FoldingHeading';
 import {YfmHtmlBlock} from '../src/extensions/yfm/YfmHtmlBlock';
 import {getSanitizeYfmHtmlBlock} from '../src/extensions/yfm/YfmHtmlBlock/utils';
 import {cloneDeep} from '../src/lodash';
