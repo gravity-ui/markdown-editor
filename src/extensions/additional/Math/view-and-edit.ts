@@ -3,8 +3,8 @@ import type {Node} from 'prosemirror-model';
 import {Plugin} from 'prosemirror-state';
 import {Decoration, DecorationSet, NodeView} from 'prosemirror-view';
 
-import type {ReactRenderer, RendererItem} from '../../../extensions/behavior/ReactRenderer';
 import {isTextSelection} from '../../../utils/selection';
+import type {ReactRenderer, RendererItem} from '../../behavior/ReactRenderer';
 
 import {moveCursorLeftOfMathInline, moveCursorRightOfMathInline} from './commands';
 import {CLASSNAMES, MathNode} from './const';
