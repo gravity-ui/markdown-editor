@@ -44,7 +44,6 @@ function openParentYfmCuts($pos: ResolvedPos, domAtPos: EditorView['domAtPos']):
             if ($pos.node(depth - 1).type === cutType(schema)) {
                 const {node: cutDomNode} = domAtPos($pos.start(depth - 1), 0);
                 (cutDomNode as Element).classList.add('open');
-                (cutDomNode as Element).setAttribute('open', 'true');
                 depth--;
             }
         }
@@ -105,7 +104,6 @@ class CutAutoOpenOnDragOver implements PluginView {
     private _openCut() {
         if (this._editorView.dragging) {
             this._cutElem?.classList.add('open');
-            this._cutElem?.setAttribute('open', 'true');
         }
         this._clear();
     }

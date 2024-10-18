@@ -1,11 +1,10 @@
 import React from 'react';
-import type {FC} from 'react';
 
 import {ActionTooltip, Button, DropdownMenu} from '@gravity-ui/uikit';
 
 import {cn} from '../../../../classname';
 import {i18n} from '../../../../i18n/gpt/dialog';
-import {type PromptPreset} from '../ErrorScreen/types';
+import {CommonAnswer, type PromptPreset} from '../ErrorScreen/types';
 import type {GptDialogProps} from '../GptDialog/GptDialog';
 import {gptHotKeys} from '../constants';
 import {useGptHotKeys} from '../hooks/useGptHotKeys';
@@ -13,22 +12,36 @@ import {usePresetList} from '../hooks/usePresetList';
 
 import './Presetlist.scss';
 
-export type PresetListProps<PromptData extends unknown = unknown> = {
-    disablePromptPresets: GptDialogProps['disablePromptPresets'];
-    promptPresets: GptDialogProps['promptPresets'];
-    onPresetClick: (data: PromptData) => void;
+export type PresetListProps<
+    AnswerData extends CommonAnswer = CommonAnswer,
+    PromptData extends unknown = unknown,
+> = {
+    disablePromptPresets: GptDialogProps<AnswerData, PromptData>['disablePromptPresets'];
+    promptPresets: GptDialogProps<AnswerData, PromptData>['promptPresets'];
+    onPresetClick: (data?: PromptData) => void;
 };
 
-type PresetItemType = {
-    preset: PromptPreset<unknown>;
-    onPresetClick: PresetListProps['onPresetClick'];
+type PresetItemType<
+    AnswerData extends CommonAnswer = CommonAnswer,
+    PromptData extends unknown = unknown,
+> = {
+    preset: PromptPreset<PromptData>;
+    onPresetClick: PresetListProps<AnswerData, PromptData>['onPresetClick'];
     disablePromptPresets?: PresetListProps['disablePromptPresets'];
     hotKey: string;
 };
 
 export const cnGptDialogPresetList = cn('gpt-dialog-preset-list');
 
-const PresetItem: FC<PresetItemType> = ({preset, onPresetClick, disablePromptPresets, hotKey}) => {
+const PresetItem = <
+    AnswerData extends CommonAnswer = CommonAnswer,
+    PromptData extends unknown = unknown,
+>({
+    preset,
+    onPresetClick,
+    disablePromptPresets,
+    hotKey,
+}: PresetItemType<AnswerData, PromptData>) => {
     useGptHotKeys(
         hotKey,
         () => {
@@ -52,13 +65,16 @@ const PresetItem: FC<PresetItemType> = ({preset, onPresetClick, disablePromptPre
     );
 };
 
-export const PresetList: FC<PresetListProps> = ({
+export const PresetList = <
+    AnswerData extends CommonAnswer = CommonAnswer,
+    PromptData extends unknown = unknown,
+>({
     disablePromptPresets,
     promptPresets,
     onPresetClick,
-}) => {
+}: PresetListProps<AnswerData, PromptData>) => {
     const {presetsContainerRef, visiblePresets, hiddenPresets, showMoreButton, measured} =
-        usePresetList({
+        usePresetList<AnswerData, PromptData>({
             promptPresets,
             onPresetClick,
         });
