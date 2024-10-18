@@ -142,9 +142,9 @@ describe('YfmTabs extension', () => {
     it('should correct parse and serialize yfm-tabs inside blockqute', () => {
         const markup = `
 > {% list tabs %}
-> 
+>${' '}
 > - Tab
-> 
+>${' '}
 >   Content
 >
 > {% endlist %}`.trim();
@@ -205,13 +205,13 @@ describe('YfmTabs extension', () => {
   You can paste nested radio tabs
 
   {% list tabs radio %}
-  
+${'  '}
   - Nested radio button 1
-  
+${'  '}
     Text of nested radio button 1
 
   - Nested radio button 2
-  
+${'  '}
     Text of nested radio button 2
 
   {% endlist %}
@@ -239,21 +239,21 @@ describe('YfmTabs extension', () => {
                             'aria-controls': generatedId,
                             'aria-selected': 'false',
                             tabindex: '0',
-                            'data-diplodoc-is-active': 'true',
+                            'data-diplodoc-is-active': 'false',
                             'data-diplodoc-id': 'radio-button-1',
                             'data-diplodoc-key': 'radio%20button%201',
                         },
                         rtabInput({
                             class: 'radio',
                             type: 'radio',
-                            checked: 'true',
+                            checked: null,
                         }),
                         rtabLabel('Radio button 1'),
                     ),
                     tabPanel(
                         {
                             id: generatedId,
-                            class: 'yfm-tab-panel active',
+                            class: 'yfm-tab-panel',
                             role: 'tabpanel',
                             'data-title': 'Radio button 1',
                             'aria-labelledby': 'radio-button-1',
@@ -273,21 +273,21 @@ describe('YfmTabs extension', () => {
                                     'aria-controls': generatedId,
                                     'aria-selected': 'false',
                                     tabindex: '0',
-                                    'data-diplodoc-is-active': 'true',
+                                    'data-diplodoc-is-active': 'false',
                                     'data-diplodoc-id': 'nested-radio-button-1',
                                     'data-diplodoc-key': 'nested%20radio%20button%201',
                                 },
                                 rtabInput({
                                     class: 'radio',
                                     type: 'radio',
-                                    checked: 'true',
+                                    checked: null,
                                 }),
                                 rtabLabel('Nested radio button 1'),
                             ),
                             tabPanel(
                                 {
                                     id: generatedId,
-                                    class: 'yfm-tab-panel active',
+                                    class: 'yfm-tab-panel',
                                     role: 'tabpanel',
                                     'data-title': 'Nested radio button 1',
                                     'aria-labelledby': 'nested-radio-button-1',
