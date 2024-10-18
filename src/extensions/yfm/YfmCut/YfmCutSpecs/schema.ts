@@ -20,7 +20,7 @@ export const getSchemaSpecs = (
         group: 'block yfm-cut',
         parseDOM: [{tag: '.yfm-cut'}],
         toDOM(node) {
-            return ['details', node.attrs, 0];
+            return ['div', node.attrs, 0];
         },
         selectable: true,
         allowSelection: true,
@@ -34,7 +34,7 @@ export const getSchemaSpecs = (
         group: 'block yfm-cut',
         parseDOM: [{tag: '.yfm-cut-title'}],
         toDOM(node) {
-            return ['summary', node.attrs, 0];
+            return ['div', node.attrs, 0];
         },
         placeholder: {
             content:
