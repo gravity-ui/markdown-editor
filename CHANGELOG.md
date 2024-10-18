@@ -1,5 +1,13 @@
 # Changelog
 
+## [13.25.1](https://github.com/gravity-ui/markdown-editor/compare/v13.25.0...v13.25.1) (2024-10-18)
+
+
+### Bug Fixes
+
+* generics in GPT ([#425](https://github.com/gravity-ui/markdown-editor/issues/425)) ([e24aa27](https://github.com/gravity-ui/markdown-editor/commit/e24aa274c15edfb8a0d6ee3e10282ceeb098bbad))
+* **yfmCut:** reverted details, summary tags ([#431](https://github.com/gravity-ui/markdown-editor/issues/431)) ([8be5211](https://github.com/gravity-ui/markdown-editor/commit/8be5211001bd3023bd9fb9472239466b9a8199d0))
+
 ## [13.25.0](https://github.com/gravity-ui/markdown-editor/compare/v13.24.0...v13.25.0) (2024-10-15)
 
 
