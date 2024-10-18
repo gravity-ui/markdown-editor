@@ -3,7 +3,7 @@ import React, {useEffect, useState} from 'react';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import type {Meta, StoryFn} from '@storybook/react';
 
-import {EditorMode} from '../src/bundle/Editor';
+import type {MarkdownEditorMode} from '../src/bundle';
 
 import {Playground as PlaygroundComponent, PlaygroundProps} from './Playground';
 
@@ -167,10 +167,10 @@ const args: Partial<PlaygroundStoryProps> = {
 };
 
 export const RememberMode: StoryFn<PlaygroundStoryProps> = (props) => {
-    const [mode, setMode] = useState<EditorMode>();
+    const [mode, setMode] = useState<MarkdownEditorMode>();
     const [splitModeEnabled, setSplitModeEnabled] = useState<boolean>();
 
-    const handleChangeEditorType = (mode: EditorMode) => {
+    const handleChangeEditorType = (mode: MarkdownEditorMode) => {
         localStorage.setItem('markdownEditorMode', mode);
     };
 
@@ -183,7 +183,7 @@ export const RememberMode: StoryFn<PlaygroundStoryProps> = (props) => {
         const storedSplitModeEnabled = localStorage.getItem('markdownEditorSplitModeEnabled');
 
         if (storedMode) {
-            setMode(storedMode as EditorMode);
+            setMode(storedMode as MarkdownEditorMode);
             setSplitModeEnabled(storedSplitModeEnabled === 'true');
         }
     }, []);

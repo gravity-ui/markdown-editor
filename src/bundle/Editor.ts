@@ -1,31 +1,32 @@
 import type {ReactNode} from 'react';
 
-import type {Extension as CodemirrorExtension} from '@codemirror/state';
 import {EditorView as CMEditorView} from '@codemirror/view';
 import {TextSelection} from 'prosemirror-state';
 import {EditorView as PMEditorView} from 'prosemirror-view';
 
-import {CommonEditor, MarkupString} from '../common';
-import {ActionStorage, WysiwygEditor, WysiwygEditorOptions} from '../core';
-import {ReactRenderStorage, RenderStorage} from '../extensions';
+import type {CommonEditor, MarkupString} from '../common';
+import {
+    type ActionStorage,
+    type EscapeConfig,
+    WysiwygEditor,
+    type WysiwygEditorOptions,
+} from '../core';
+import {ReactRenderStorage, type RenderStorage} from '../extensions';
 import {i18n} from '../i18n/bundle';
 import {logger} from '../logger';
-import {type CreateCodemirrorParams, createCodemirror} from '../markup/codemirror';
-import type {YfmLangOptions} from '../markup/codemirror/yfm';
-import {CodeEditor, Editor as MarkupEditor} from '../markup/editor';
-import {Emitter, Receiver, SafeEventEmitter} from '../utils/event-emitter';
+import {createCodemirror} from '../markup/codemirror';
+import {type CodeEditor, Editor as MarkupEditor} from '../markup/editor';
+import {type Emitter, type Receiver, SafeEventEmitter} from '../utils/event-emitter';
 import type {FileUploadHandler} from '../utils/upload';
 
-export type EditorMode = 'wysiwyg' | 'markup';
-export type SplitMode = false | 'horizontal' | 'vertical';
-export type EditorPreset = 'zero' | 'commonmark' | 'default' | 'yfm' | 'full';
-export type RenderPreview = ({
-    getValue,
-    mode,
-}: {
-    getValue: () => MarkupString;
-    mode: 'preview' | 'split';
-}) => ReactNode;
+import type {
+    MarkdownEditorMode as EditorMode,
+    MarkdownEditorPreset as EditorPreset,
+    MarkdownEditorOptions,
+    MarkdownEditorMarkupConfig as MarkupConfig,
+    RenderPreview,
+    MarkdownEditorSplitMode as SplitMode,
+} from './types';
 
 export type ToolbarActionData = {
     editorMode: EditorMode;
@@ -105,72 +106,18 @@ export interface EditorInt
 
 type SetEditorModeOptions = Pick<ChangeEditorModeOptions, 'emit'>;
 
-type ChangeEditorModeOptions = {
+export type ChangeEditorModeOptions = {
     mode: EditorMode;
     reason: 'error-boundary' | 'settings' | 'manually';
     emit?: boolean;
 };
 
-export type MarkupConfig = {
-    /** Additional extensions for codemirror instance. */
-    extensions?: CreateCodemirrorParams['extensions'];
-    /** Can be used to disable some of the default extensions */
-    disabledExtensions?: CreateCodemirrorParams['disabledExtensions'];
-    /** Additional keymaps for codemirror instance */
-    keymaps?: CreateCodemirrorParams['keymaps'];
-    /** Overrides the default placeholder content. */
-    placeholder?: CreateCodemirrorParams['placeholder'];
-    /**
-     * Additional language data for markdown language in codemirror.
-     * Can be used to configure additional autocompletions and others.
-     * See more https://codemirror.net/docs/ref/#state.EditorState.languageDataAt
-     */
-    languageData?: YfmLangOptions['languageData'];
-    /** Config for @codemirror/autocomplete https://codemirror.net/docs/ref/#autocomplete.autocompletion%5Econfig */
-    autocompletion?: CreateCodemirrorParams['autocompletion'];
-};
-
-export type EscapeConfig = {
-    commonEscape?: RegExp;
-    startOfLineEscape?: RegExp;
-};
-
 export type EditorOptions = Pick<
-    WysiwygEditorOptions,
-    'allowHTML' | 'linkify' | 'linkifyTlds' | 'extensions'
+    MarkdownEditorOptions,
+    'md' | 'initial' | 'handlers' | 'experimental' | 'markupConfig' | 'wysiwygConfig'
 > & {
-    initialMarkup?: MarkupString;
-    /** @default 'wysiwyg' */
-    initialEditorMode?: EditorMode;
-    /** @default true */
-    initialToolbarVisible?: boolean;
-    /** @default false
-     * Has no effect if splitMode is false or undefined
-     */
-    initialSplitModeEnabled?: boolean;
     renderStorage: ReactRenderStorage;
-    fileUploadHandler?: FileUploadHandler;
-    /**
-     * If we need to set dimensions for uploaded images
-     *
-     * @default false
-     */
-    needToSetDimensionsForUploadedImages?: boolean;
-    /**
-     * Called before switching from the markup editor to the wysiwyg editor.
-     * You can use it to pre-process the value from the markup editor before it gets into the wysiwyg editor.
-     */
-    prepareRawMarkup?: (value: MarkupString) => MarkupString;
-    experimental_beforeEditorModeChange?: (
-        options: Pick<ChangeEditorModeOptions, 'mode' | 'reason'>,
-    ) => boolean | undefined;
-    splitMode?: SplitMode;
-    renderPreview?: RenderPreview;
     preset: EditorPreset;
-    /** @deprecated Put extra extensions via MarkdownEditorMarkupConfig */
-    extraMarkupExtensions?: CodemirrorExtension[];
-    markupConfig?: MarkupConfig;
-    escapeConfig?: EscapeConfig;
 };
 
 /** @internal */
@@ -337,30 +284,39 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
 
     constructor(opts: EditorOptions) {
         super({onError: logger.error.bind(logger)});
-        this.#editorMode = opts.initialEditorMode ?? 'wysiwyg';
-        this.#toolbarVisible = Boolean(opts.initialToolbarVisible);
-        this.#splitMode = (opts.renderPreview && opts.splitMode) ?? false;
-        this.#splitModeEnabled = (this.#splitMode && opts.initialSplitModeEnabled) ?? false;
-        this.#renderPreview = opts.renderPreview;
 
-        this.#markup = opts.initialMarkup ?? '';
+        const {
+            md = {},
+            initial = {},
+            handlers = {},
+            experimental = {},
+            markupConfig = {},
+            wysiwygConfig = {},
+        } = opts;
+
+        this.#editorMode = initial.mode ?? 'wysiwyg';
+        this.#toolbarVisible = initial.toolbarVisible ?? true;
+        this.#splitMode = (markupConfig.renderPreview && markupConfig.splitMode) ?? false;
+        this.#splitModeEnabled = (this.#splitMode && initial.splitModeEnabled) ?? false;
+        this.#renderPreview = markupConfig.renderPreview;
+
+        this.#markup = initial.markup ?? '';
 
         this.#preset = opts.preset ?? 'full';
-        this.#linkify = opts.linkify;
-        this.#linkifyTlds = opts.linkifyTlds;
-        this.#allowHTML = opts.allowHTML;
-        this.#extensions = opts.extensions;
+        this.#linkify = md.linkify;
+        this.#linkifyTlds = md.linkifyTlds;
+        this.#allowHTML = md.html;
+        this.#extensions = wysiwygConfig.extensions;
         this.#markupConfig = {...opts.markupConfig};
-        this.#markupConfig.extensions ??= opts.extraMarkupExtensions;
 
         this.#renderStorage = opts.renderStorage;
-        this.#fileUploadHandler = opts.fileUploadHandler;
+        this.#fileUploadHandler = handlers.uploadFile;
         this.#needToSetDimensionsForUploadedImages = Boolean(
-            opts.needToSetDimensionsForUploadedImages,
+            experimental.needToSetDimensionsForUploadedImages,
         );
-        this.#prepareRawMarkup = opts.prepareRawMarkup;
-        this.#escapeConfig = opts.escapeConfig;
-        this.#beforeEditorModeChange = opts.experimental_beforeEditorModeChange;
+        this.#prepareRawMarkup = experimental.prepareRawMarkup;
+        this.#escapeConfig = wysiwygConfig.escapeConfig;
+        this.#beforeEditorModeChange = experimental.beforeEditorModeChange;
     }
 
     // ---> implements CodeEditor

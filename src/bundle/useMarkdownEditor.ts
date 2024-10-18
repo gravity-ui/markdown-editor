@@ -1,40 +1,49 @@
 import {useLayoutEffect, useMemo} from 'react';
 
-import {Extension} from '../core';
+import type {Extension} from '../core';
 import {ReactRenderStorage} from '../extensions';
 import {logger} from '../logger';
 
-import {Editor, EditorImpl, EditorInt, EditorMode, EditorOptions, EditorPreset} from './Editor';
-import {BundlePreset, ExtensionsOptions} from './wysiwyg-preset';
+import {EditorImpl, type EditorInt} from './Editor';
+import type {
+    MarkdownEditorInstance,
+    MarkdownEditorMode,
+    MarkdownEditorOptions,
+    MarkdownEditorPreset,
+} from './types';
+import {BundlePreset} from './wysiwyg-preset';
 
-export type UseMarkdownEditorProps<T extends object = {}> = Omit<
-    EditorOptions,
-    'extensions' | 'renderStorage' | 'preset'
-> & {
-    /**
-     * A set of plug-in extensions.
-     *
-     * @default 'full'
-     */
-    preset?: EditorPreset;
-    breaks?: boolean;
-    /** Used only first value. Сhanging the value will not lead to anything */
-    extensionOptions?: Omit<ExtensionsOptions, 'reactRenderer'> & T;
-    /** Used only first value. Сhanging the value will not lead to anything */
-    extraExtensions?: Extension;
-};
+// [major] TODO: remove generic type
+export type UseMarkdownEditorProps<T extends object = {}> = MarkdownEditorOptions<T>;
 
+// [major] TODO: remove generic type
 export function useMarkdownEditor<T extends object = {}>(
     props: UseMarkdownEditorProps<T>,
     deps: React.DependencyList = [],
-): Editor {
+): MarkdownEditorInstance {
     const editor = useMemo<EditorInt>(
         () => {
-            const preset: EditorPreset = props.preset ?? 'full';
+            const {
+                md = {},
+                initial = {},
+                handlers = {},
+                experimental = {},
+                markupConfig = {},
+                wysiwygConfig = {},
+            } = props;
+
+            const breaks = md.breaks ?? props.breaks;
+            const preset: MarkdownEditorPreset = props.preset ?? 'full';
             const renderStorage = new ReactRenderStorage();
+            const needToSetDimensionsForUploadedImages =
+                experimental.needToSetDimensionsForUploadedImages ??
+                props.needToSetDimensionsForUploadedImages;
+
             const extensions: Extension = (builder) => {
+                const extensionOptions = wysiwygConfig.extensionOptions ?? props.extensionOptions;
+
                 builder.use(BundlePreset, {
-                    ...props.extensionOptions,
+                    ...extensionOptions,
                     preset,
                     reactRenderer: renderStorage,
                     onCancel: () => {
@@ -45,29 +54,79 @@ export function useMarkdownEditor<T extends object = {}>(
                         editor.emit('submit', null);
                         return true;
                     },
-                    mdBreaks: props.breaks,
+                    mdBreaks: breaks,
                     fileUploadHandler: props.fileUploadHandler,
-                    needToSetDimensionsForUploadedImages:
-                        props.needToSetDimensionsForUploadedImages,
+                    needToSetDimensionsForUploadedImages,
                 });
-                if (props.extraExtensions) {
-                    builder.use(props.extraExtensions, props.extensionOptions);
+                {
+                    const extraExtensions = wysiwygConfig.extensions || props.extraExtensions;
+                    if (extraExtensions) {
+                        builder.use(extraExtensions, props.extensionOptions);
+                    }
                 }
             };
-            return new EditorImpl({...props, extensions, renderStorage, preset});
+            return new EditorImpl({
+                ...props,
+                preset,
+                renderStorage,
+                md: {
+                    ...md,
+                    breaks,
+                    html: md.html ?? props.allowHTML,
+                    linkify: md.linkify ?? props.linkify,
+                    linkifyTlds: md.linkifyTlds ?? props.linkifyTlds,
+                },
+                initial: {
+                    ...initial,
+                    markup: initial.markup ?? props.initialMarkup,
+                    mode: initial.mode ?? props.initialEditorMode,
+                    toolbarVisible: initial.toolbarVisible ?? props.initialToolbarVisible,
+                    splitModeEnabled: initial.splitModeEnabled ?? props.initialSplitModeEnabled,
+                },
+                handlers: {
+                    ...handlers,
+                    uploadFile: handlers.uploadFile ?? props.fileUploadHandler,
+                },
+                experimental: {
+                    ...experimental,
+                    needToSetDimensionsForUploadedImages,
+                    prepareRawMarkup: experimental.prepareRawMarkup ?? props.prepareRawMarkup,
+                    beforeEditorModeChange:
+                        experimental.beforeEditorModeChange ??
+                        props.experimental_beforeEditorModeChange,
+                },
+                markupConfig: {
+                    ...markupConfig,
+                    splitMode: markupConfig.splitMode ?? props.splitMode,
+                    renderPreview: markupConfig.renderPreview ?? props.renderPreview,
+                    extensions: markupConfig.extensions ?? props.extraMarkupExtensions,
+                },
+                wysiwygConfig: {
+                    ...wysiwygConfig,
+                    extensions,
+                    escapeConfig: wysiwygConfig.escapeConfig ?? props.escapeConfig,
+                },
+            });
         },
+        // [major] TODO: use empty deps by default
         deps.concat(
+            props.md?.html,
             props.allowHTML,
+            props.md?.linkify,
             props.linkify,
+            props.md?.linkifyTlds,
             props.linkifyTlds,
+            props.md?.breaks,
             props.breaks,
+            props.markupConfig?.splitMode,
             props.splitMode,
+            props.experimental?.needToSetDimensionsForUploadedImages,
             props.needToSetDimensionsForUploadedImages,
         ),
     );
 
     useLayoutEffect(() => {
-        function onToolbarAction({editorMode, id}: {editorMode: EditorMode; id: string}) {
+        function onToolbarAction({editorMode, id}: {editorMode: MarkdownEditorMode; id: string}) {
             logger.action({mode: editorMode, source: 'toolbar', action: id});
         }
 

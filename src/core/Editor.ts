@@ -16,7 +16,7 @@ import {logTransactionMetrics} from './utils/metrics';
 
 type OnChange = (editor: WysiwygEditor) => void;
 
-type EscapeConfig = {
+export type EscapeConfig = {
     commonEscape?: RegExp;
     startOfLineEscape?: RegExp;
 };

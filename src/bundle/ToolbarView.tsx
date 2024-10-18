@@ -7,12 +7,13 @@ import {i18n} from '../i18n/menubar';
 import {useSticky} from '../react-utils/useSticky';
 import {FlexToolbar, ToolbarData, ToolbarItemData} from '../toolbar';
 
-import type {EditorInt, EditorMode} from './Editor';
+import type {EditorInt} from './Editor';
 import {stickyCn} from './sticky';
+import type {MarkdownEditorMode} from './types';
 
 export type ToolbarViewProps<T> = ClassNameProps & {
     editor: EditorInt;
-    editorMode: EditorMode;
+    editorMode: MarkdownEditorMode;
     toolbarEditor: T;
     toolbarFocus: () => void;
     toolbarConfig: ToolbarData<T>;

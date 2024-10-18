@@ -10,7 +10,8 @@ import {
 } from '@codemirror/search';
 import {EditorView, PluginValue, ViewPlugin, ViewUpdate, keymap} from '@codemirror/view';
 
-import {EditorMode, EventMap} from '../../../bundle/Editor';
+import type {MarkdownEditorMode} from '../../../bundle';
+import type {EventMap} from '../../../bundle/Editor';
 import type {RendererItem} from '../../../extensions';
 import {debounce} from '../../../lodash';
 import {Receiver} from '../../../utils';
@@ -116,7 +117,7 @@ export const SearchPanelPlugin = (params: SearchPanelPluginParams) =>
                 this.view.dispatch({effects: setSearchQuery.of(searchQuery)});
             }
 
-            handleEditorModeChange({mode}: {mode: EditorMode}) {
+            handleEditorModeChange({mode}: {mode: MarkdownEditorMode}) {
                 if (mode === 'wysiwyg') {
                     closeSearchPanel(this.view);
                 }

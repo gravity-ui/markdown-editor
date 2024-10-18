@@ -50,10 +50,10 @@ import {
     ToolbarReactComponentData,
     ToolbarSingleItemData,
 } from '../../toolbar/types';
-import type {EditorPreset} from '../Editor';
 import {MToolbarColors} from '../toolbar/markup/MToolbarColors';
 import {MToolbarFilePopup} from '../toolbar/markup/MToolbarFilePopup';
 import {MToolbarImagePopup} from '../toolbar/markup/MToolbarImagePopup';
+import type {MarkdownEditorPreset} from '../types';
 
 import {ActionName} from './action-names';
 import {icons} from './icons';
@@ -545,7 +545,7 @@ export const mTabsItemData: MToolbarSingleItemData = {
 
 export const mHiddenData = [mHruleItemData, mTabsItemData];
 
-export const mToolbarConfigByPreset: Record<EditorPreset, MToolbarData> = {
+export const mToolbarConfigByPreset: Record<MarkdownEditorPreset, MToolbarData> = {
     zero: [mHistoryGroupConfig],
     commonmark: [
         mHistoryGroupConfig,
@@ -592,7 +592,7 @@ export const mToolbarConfigByPreset: Record<EditorPreset, MToolbarData> = {
     full: mToolbarConfig.slice(),
 };
 
-export const mHiddenDataByPreset: Record<EditorPreset, MToolbarItemData[]> = {
+export const mHiddenDataByPreset: Record<MarkdownEditorPreset, MToolbarItemData[]> = {
     zero: [],
     commonmark: [
         ...mHeadingListConfig.data,

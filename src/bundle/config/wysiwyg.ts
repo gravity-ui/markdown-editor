@@ -22,9 +22,9 @@ import {
     ToolbarListItemData,
     ToolbarSingleItemData,
 } from '../../toolbar/types';
-import type {EditorPreset} from '../Editor';
 import {WToolbarColors} from '../toolbar/wysiwyg/WToolbarColors';
 import {WToolbarTextSelect} from '../toolbar/wysiwyg/WToolbarTextSelect';
+import type {MarkdownEditorPreset} from '../types';
 
 import {ActionName} from './action-names';
 import {icons} from './icons';
@@ -581,7 +581,7 @@ export const wMermaidItemData: WToolbarSingleItemData = {
     isEnable: (e) => e.actions.createMermaid.isEnable(),
 };
 
-export const wToolbarConfigByPreset: Record<EditorPreset, WToolbarData> = {
+export const wToolbarConfigByPreset: Record<MarkdownEditorPreset, WToolbarData> = {
     zero: [wHistoryGroupConfig],
     commonmark: [
         wHistoryGroupConfig,
@@ -652,7 +652,7 @@ export const wToolbarConfigByPreset: Record<EditorPreset, WToolbarData> = {
     full: wToolbarConfig.slice(),
 };
 
-export const wCommandMenuConfigByPreset: Record<EditorPreset, WToolbarItemData[]> = {
+export const wCommandMenuConfigByPreset: Record<MarkdownEditorPreset, WToolbarItemData[]> = {
     zero: [],
     commonmark: [
         ...wHeadingListConfig.data,
@@ -688,7 +688,7 @@ export const wCommandMenuConfigByPreset: Record<EditorPreset, WToolbarItemData[]
     full: wCommandMenuConfig.slice(),
 };
 
-export const wHiddenDataByPreset: Record<EditorPreset, WToolbarItemData[]> = {
+export const wHiddenDataByPreset: Record<MarkdownEditorPreset, WToolbarItemData[]> = {
     zero: wCommandMenuConfigByPreset.zero.slice(),
     commonmark: wCommandMenuConfigByPreset.commonmark.slice(),
     default: wCommandMenuConfigByPreset.default.slice(),
@@ -696,7 +696,7 @@ export const wHiddenDataByPreset: Record<EditorPreset, WToolbarItemData[]> = {
     full: wCommandMenuConfigByPreset.full.slice(),
 };
 
-export const wSelectionMenuConfigByPreset: Record<EditorPreset, SelectionContextConfig> = {
+export const wSelectionMenuConfigByPreset: Record<MarkdownEditorPreset, SelectionContextConfig> = {
     zero: [],
     commonmark: [
         [textContextItemData],

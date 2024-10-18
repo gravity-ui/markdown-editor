@@ -13,9 +13,9 @@ import {ZeroPreset, ZeroPresetOptions} from '../presets/zero';
 import {Action as A, formatter as f} from '../shortcuts';
 import type {FileUploadHandler} from '../utils/upload';
 
-import {EditorPreset} from './Editor';
 import {wCommandMenuConfigByPreset, wSelectionMenuConfigByPreset} from './config/wysiwyg';
 import {emojiDefs} from './emoji';
+import {MarkdownEditorPreset} from './types';
 
 const DEFAULT_IGNORED_KEYS = ['Tab', 'Shift-Tab'] as const;
 
@@ -23,7 +23,7 @@ export type ExtensionsOptions = BehaviorPresetOptions & FullPresetOptions;
 
 export type BundlePresetOptions = ExtensionsOptions &
     EditorModeKeymapOptions & {
-        preset: EditorPreset;
+        preset: MarkdownEditorPreset;
         mdBreaks?: boolean;
         fileUploadHandler?: FileUploadHandler;
         /**
