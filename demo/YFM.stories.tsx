@@ -54,6 +54,17 @@ This is an alert.
 Content displayed when clicked.
 
 {% endcut %}
+
+{% cut "Cut with nested сut header" %}
+
+{% cut "Cut header" %}
+
+Content displayed when clicked.
+
+{% endcut %}
+
+{% endcut %}
+
 `.trim(),
 
     yfmTabs: `
