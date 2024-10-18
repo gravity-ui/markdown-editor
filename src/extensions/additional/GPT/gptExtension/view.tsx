@@ -34,17 +34,21 @@ export type GptWidgetDecoViewParams<
     gptPopupContainer?: PopupProps['container'];
 };
 
-export class GptWidgetDecoView implements Required<PluginView> {
+export class GptWidgetDecoView<
+    AnswerData extends CommonAnswer = CommonAnswer,
+    PromptData extends unknown = unknown,
+> implements Required<PluginView>
+{
     private readonly _view;
     private readonly _renderer;
 
     private _decoElem: Element | null = null;
-    private _params: GptWidgetDecoViewParams;
+    private _params: GptWidgetDecoViewParams<AnswerData, PromptData>;
     private _serializer: Serializer;
     private _parser: Parser;
     private _confirmOpen: boolean;
 
-    constructor(view: EditorView, params: GptWidgetDecoViewParams) {
+    constructor(view: EditorView, params: GptWidgetDecoViewParams<AnswerData, PromptData>) {
         this._view = view;
 
         this._params = params;
@@ -144,7 +148,9 @@ export class GptWidgetDecoView implements Required<PluginView> {
         );
     }
 
-    private _onGptAnswerUpdate: NonNullable<WidgetProps['onUpdate']> = (answer) => {
+    private _onGptAnswerUpdate: NonNullable<WidgetProps<AnswerData, PromptData>['onUpdate']> = (
+        answer,
+    ) => {
         this._params.onUpdate?.(answer);
     };
 
@@ -233,15 +239,21 @@ export class GptWidgetDecoView implements Required<PluginView> {
     }
 }
 
-type WidgetProps = Pick<PopupProps, 'anchorRef' | 'container'> & {
+type WidgetProps<
+    AnswerData extends CommonAnswer = CommonAnswer,
+    PromptData extends unknown = unknown,
+> = Pick<PopupProps, 'anchorRef' | 'container'> & {
     markup: string;
     onClose: () => void;
     confirmOpen: boolean;
     onConfirmOk: () => void;
     onConfirmCancel: () => void;
-} & GptDialogProps;
+} & GptDialogProps<AnswerData, PromptData>;
 
-function Widget({
+function Widget<
+    AnswerData extends CommonAnswer = CommonAnswer,
+    PromptData extends unknown = unknown,
+>({
     markup,
     anchorRef,
     answerRender,
@@ -259,7 +271,7 @@ function Widget({
     onUpdate,
     container,
     gptAlertProps,
-}: WidgetProps) {
+}: WidgetProps<AnswerData, PromptData>) {
     useMount(() => {
         if (anchorRef?.current && 'scrollIntoView' in anchorRef.current) {
             anchorRef.current.scrollIntoView({
@@ -270,7 +282,7 @@ function Widget({
     });
 
     const handleUpdate = useCallback(
-        (result?: CommonAnswer) => {
+        (result?: AnswerData) => {
             onUpdate?.(result);
         },
         [onUpdate],
