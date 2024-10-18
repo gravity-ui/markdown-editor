@@ -1,4 +1,3 @@
-import type {FC} from 'react';
 import React, {useCallback, useRef, useState} from 'react';
 
 import {ArrowRight, ArrowRotateLeft, ThumbsDown, ThumbsUp} from '@gravity-ui/icons';
@@ -50,7 +49,10 @@ export type GptDialogProps<
 
 export const cnGptDialog = cn('gpt-dialog');
 
-export const GptDialog: FC<GptDialogProps> = ({
+export const GptDialog = <
+    AnswerData extends CommonAnswer = CommonAnswer,
+    PromptData extends unknown = unknown,
+>({
     markup,
     answerRender,
     promptPresets,
@@ -66,7 +68,7 @@ export const GptDialog: FC<GptDialogProps> = ({
     onDislike,
     onUpdate,
     gptAlertProps,
-}) => {
+}: GptDialogProps<AnswerData, PromptData>) => {
     const {
         answer,
         customPrompt,

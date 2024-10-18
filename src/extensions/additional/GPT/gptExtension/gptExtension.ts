@@ -1,5 +1,4 @@
-import {Action, ExtensionWithOptions} from 'src/core';
-
+import {Action, ExtensionBuilder} from '../../../../core';
 import type {CommonAnswer} from '../ErrorScreen/types';
 import {showGptWidget} from '../actions';
 import {runGpt} from '../commands';
@@ -31,7 +30,13 @@ export type GptWidgetOptions<
     | 'gptAlertProps'
 >;
 
-export const gptExtension: ExtensionWithOptions<GptWidgetOptions> = (builder, options) => {
+export const gptExtension = <
+    AnswerData extends CommonAnswer = CommonAnswer,
+    PromptData extends unknown = unknown,
+>(
+    builder: ExtensionBuilder,
+    options: GptWidgetOptions<AnswerData, PromptData>,
+) => {
     builder.addAction(gptActionName, showGptWidget);
     builder.addPlugin(({serializer, markupParser}) => {
         return gptWidgetPlugin({

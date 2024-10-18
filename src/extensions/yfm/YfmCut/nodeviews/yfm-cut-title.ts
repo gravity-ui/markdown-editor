@@ -12,7 +12,7 @@ export class YfmCutTitleNodeView implements NodeView {
     constructor(node: Node) {
         this.node = node;
 
-        this.dom = document.createElement('summary');
+        this.dom = document.createElement('div');
         this.dom.classList.add('yfm-cut-title');
         this.dom.replaceChildren((this.contentDOM = document.createElement('div')));
         this.contentDOM.classList.add('g-md-yfm-cut-title-inner');

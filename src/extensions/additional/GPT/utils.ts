@@ -2,6 +2,7 @@ import type React from 'react';
 
 import {i18n} from '../../../i18n/gpt/dialog';
 
+import {CommonAnswer} from './ErrorScreen/types';
 import {GptDialogProps} from './GptDialog/GptDialog';
 import {GptWidgetOptions} from './gptExtension/gptExtension';
 
@@ -41,10 +42,10 @@ export function focusWithoutScroll(element?: HTMLElement | null) {
     window.scrollTo(x, y);
 }
 
-export function isEmptyGptPrompts(
-    gptWidgetOptions: GptWidgetOptions,
-    disablePromptPresets: boolean,
-) {
+export function isEmptyGptPrompts<
+    AnswerData extends CommonAnswer = CommonAnswer,
+    PromptData extends unknown = unknown,
+>(gptWidgetOptions: GptWidgetOptions<AnswerData, PromptData>, disablePromptPresets: boolean) {
     if (disablePromptPresets && !gptWidgetOptions.onCustomPromptApply) return true;
 
     if (
