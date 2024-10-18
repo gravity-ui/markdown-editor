@@ -5,20 +5,21 @@ import {Button, DropdownMenu} from '@gravity-ui/uikit';
 import {toaster} from '@gravity-ui/uikit/toaster-singleton-react-18';
 
 import {
-    MarkdownEditorMode,
+    type EscapeConfig,
+    type MarkdownEditorMode,
     MarkdownEditorView,
-    MarkdownEditorViewProps,
-    MarkupString,
+    type MarkdownEditorViewProps,
+    type MarkupString,
     NumberInput,
-    RenderPreview,
-    ToolbarGroupData,
-    UseMarkdownEditorProps,
+    type RenderPreview,
+    type ToolbarGroupData,
+    type UseMarkdownEditorProps,
     logger,
     markupToolbarConfigs,
     useMarkdownEditor,
     wysiwygToolbarConfigs,
 } from '../src';
-import type {EscapeConfig, ToolbarActionData} from '../src/bundle/Editor';
+import type {ToolbarActionData} from '../src/bundle/Editor';
 import {Extension} from '../src/cm/state';
 import {FoldingHeading} from '../src/extensions/yfm/FoldingHeading';
 import {Math} from '../src/extensions/yfm/Math';
