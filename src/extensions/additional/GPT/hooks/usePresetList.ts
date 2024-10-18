@@ -2,17 +2,27 @@ import {useMemo, useRef} from 'react';
 
 import type {DropdownMenuItem} from '@gravity-ui/uikit';
 
+import {CommonAnswer} from '../ErrorScreen/types';
 import type {GptDialogProps} from '../GptDialog/GptDialog';
 import type {PresetListProps} from '../PresetList/PresetList';
 import {cnGptDialogPresetList} from '../PresetList/PresetList';
 
 import {useOverflowingHorizontalItems} from './useOverflowingHorizontalItems';
 
-type UsePresetListProps = Pick<GptDialogProps, 'promptPresets'> & {
-    onPresetClick: PresetListProps['onPresetClick'];
+type UsePresetListProps<
+    AnswerData extends CommonAnswer = CommonAnswer,
+    PromptData extends unknown = unknown,
+> = Pick<GptDialogProps<AnswerData, PromptData>, 'promptPresets'> & {
+    onPresetClick: PresetListProps<AnswerData, PromptData>['onPresetClick'];
 };
 
-export const usePresetList = ({promptPresets, onPresetClick}: UsePresetListProps) => {
+export const usePresetList = <
+    AnswerData extends CommonAnswer = CommonAnswer,
+    PromptData extends unknown = unknown,
+>({
+    promptPresets,
+    onPresetClick,
+}: UsePresetListProps<AnswerData, PromptData>) => {
     const presetsContainerRef = useRef<HTMLDivElement>(null);
 
     const {visibleItems, hiddenItems, measured} = useOverflowingHorizontalItems({
