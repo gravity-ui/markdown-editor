@@ -106,7 +106,11 @@ const SplitModeView = React.forwardRef<HTMLDivElement, SplitModeProps>(({editor}
             <Label icon={<Eye />} className={b('preview-sign')} size={'m'}>
                 {i18n('split-mode-text')}
             </Label>
-            {editor.renderPreview?.({getValue: editor.getValue, mode: 'split'})}
+            {editor.renderPreview?.({
+                getValue: editor.getValue,
+                mode: 'split',
+                md: editor.mdOptions,
+            })}
         </div>
     );
 });
