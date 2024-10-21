@@ -10,7 +10,7 @@ import {logger} from '../logger';
 import {ToasterContext, useBooleanState, useSticky} from '../react-utils';
 import {isMac} from '../utils';
 
-import type {Editor, EditorInt, EditorMode} from './Editor';
+import type {Editor, EditorInt} from './Editor';
 import {HorizontalDrag} from './HorizontalDrag';
 import {MarkupEditorView} from './MarkupEditorView';
 import {SplitModeView} from './SplitModeView';
@@ -28,6 +28,7 @@ import {
 import {useMarkdownEditorContext} from './context';
 import {EditorSettings, EditorSettingsProps} from './settings';
 import {stickyCn} from './sticky';
+import type {MarkdownEditorMode} from './types';
 
 import '../styles/styles.scss';
 import './MarkdownEditorView.scss'; // eslint-disable-line import/order
@@ -91,7 +92,7 @@ export const MarkdownEditorView = React.forwardRef<HTMLDivElement, MarkdownEdito
         }, [editor, rerender]);
 
         const onModeChange = React.useCallback(
-            (type: EditorMode) => {
+            (type: MarkdownEditorMode) => {
                 editor.changeEditorMode({mode: type, reason: 'settings'});
                 unsetShowPreview();
             },

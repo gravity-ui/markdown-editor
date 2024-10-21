@@ -1,11 +1,4 @@
-export type {
-    Editor as MarkdownEditorInstance,
-    EditorMode as MarkdownEditorMode,
-    EditorPreset as MarkdownEditorPreset,
-    MarkupConfig as MarkdownEditorMarkupConfig,
-    RenderPreview,
-    SplitMode,
-} from './Editor';
+export * from './types';
 export {MarkdownEditorProvider, useMarkdownEditorContext} from './context';
 export {useMarkdownEditor} from './useMarkdownEditor';
 export type {UseMarkdownEditorProps} from './useMarkdownEditor';
