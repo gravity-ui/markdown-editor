@@ -64,18 +64,18 @@ export const PresetDemo = React.memo<PresetDemoProps>((props) => {
     const [mdRaw, setMdRaw] = React.useState<MarkupString>('');
 
     const renderPreview = useCallback<RenderPreview>(
-        ({getValue}) => (
+        ({getValue, md}) => (
             <SplitModePreview
                 getValue={getValue}
-                allowHTML={allowHTML}
-                linkify={linkify}
-                linkifyTlds={linkifyTlds}
-                breaks={breaks}
+                allowHTML={md.html}
+                linkify={md.linkify}
+                linkifyTlds={md.linkifyTlds}
+                breaks={md.breaks}
                 needToSanitizeHtml
                 plugins={plugins}
             />
         ),
-        [allowHTML, breaks, linkify, linkifyTlds],
+        [],
     );
 
     const mdEditor = useMarkdownEditor({

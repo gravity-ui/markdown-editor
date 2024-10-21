@@ -18,6 +18,7 @@ export type MarkdownEditorSplitMode = false | 'horizontal' | 'vertical';
 export type RenderPreviewParams = {
     getValue: () => MarkupString;
     mode: 'preview' | 'split';
+    md: Readonly<MarkdownEditorMdOptions>;
 };
 export type RenderPreview = (params: RenderPreviewParams) => ReactNode;
 

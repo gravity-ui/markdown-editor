@@ -22,6 +22,7 @@ import type {FileUploadHandler} from '../utils/upload';
 import type {
     MarkdownEditorMode as EditorMode,
     MarkdownEditorPreset as EditorPreset,
+    MarkdownEditorMdOptions,
     MarkdownEditorOptions,
     MarkdownEditorMarkupConfig as MarkupConfig,
     RenderPreview,
@@ -77,6 +78,7 @@ export interface EditorInt
     readonly splitModeEnabled: boolean;
     readonly splitMode: SplitMode;
     readonly preset: EditorPreset;
+    readonly mdOptions: Readonly<MarkdownEditorMdOptions>;
 
     /** @internal used in demo for dev-tools */
     readonly _wysiwygView?: PMEditorView;
@@ -132,11 +134,9 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
     #markupEditor?: MarkupEditor;
     #markupConfig: MarkupConfig;
     #escapeConfig?: EscapeConfig;
+    #mdOptions: Readonly<MarkdownEditorMdOptions>;
 
     readonly #preset: EditorPreset;
-    #allowHTML?: boolean;
-    #linkify?: boolean;
-    #linkifyTlds?: string | string[];
     #extensions?: WysiwygEditorOptions['extensions'];
     #renderStorage: ReactRenderStorage;
     #fileUploadHandler?: FileUploadHandler;
@@ -209,6 +209,10 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
         return this.#preset;
     }
 
+    get mdOptions(): Readonly<MarkdownEditorMdOptions> {
+        return this.#mdOptions;
+    }
+
     get renderPreview(): RenderPreview | undefined {
         return this.#renderPreview;
     }
@@ -233,9 +237,9 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
                 mdPreset,
                 initialContent: this.#markup,
                 extensions: this.#extensions,
-                allowHTML: this.#allowHTML,
-                linkify: this.#linkify,
-                linkifyTlds: this.#linkifyTlds,
+                allowHTML: this.#mdOptions.html,
+                linkify: this.#mdOptions.linkify,
+                linkifyTlds: this.#mdOptions.linkifyTlds,
                 escapeConfig: this.#escapeConfig,
                 onChange: () => this.emit('rerender-toolbar', null),
                 onDocChange: () => this.emit('change', null),
@@ -303,9 +307,7 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
         this.#markup = initial.markup ?? '';
 
         this.#preset = opts.preset ?? 'full';
-        this.#linkify = md.linkify;
-        this.#linkifyTlds = md.linkifyTlds;
-        this.#allowHTML = md.html;
+        this.#mdOptions = md;
         this.#extensions = wysiwygConfig.extensions;
         this.#markupConfig = {...opts.markupConfig};
 
