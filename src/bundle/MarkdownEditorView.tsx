@@ -239,6 +239,7 @@ export const MarkdownEditorView = React.forwardRef<HTMLDivElement, MarkdownEdito
                                         {editor.renderPreview?.({
                                             getValue: editor.getValue,
                                             mode: 'preview',
+                                            md: editor.mdOptions,
                                         })}
                                     </div>
                                     {settings}
