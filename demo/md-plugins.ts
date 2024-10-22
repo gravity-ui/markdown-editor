@@ -1,4 +1,5 @@
 /* eslint-disable import/no-extraneous-dependencies */
+import {transform as yfmCut} from '@diplodoc/cut-extension';
 import {transform as foldingHeadings} from '@diplodoc/folding-headings-extension';
 import '@diplodoc/folding-headings-extension/runtime';
 import {transform as yfmHtmlBlock} from '@diplodoc/html-extension';
@@ -7,7 +8,6 @@ import {transform as mermaid} from '@diplodoc/mermaid-extension';
 import anchors from '@diplodoc/transform/lib/plugins/anchors';
 import checkbox from '@diplodoc/transform/lib/plugins/checkbox';
 import code from '@diplodoc/transform/lib/plugins/code';
-import cut from '@diplodoc/transform/lib/plugins/cut';
 import deflist from '@diplodoc/transform/lib/plugins/deflist';
 import file from '@diplodoc/transform/lib/plugins/file';
 import imsize from '@diplodoc/transform/lib/plugins/imsize';
@@ -34,7 +34,7 @@ export const YFM_HTML_BLOCK_RUNTIME = 'extension:yfm-html-block';
 const defaultPlugins: PluginWithParams[] = [
     anchors,
     code,
-    cut,
+    yfmCut({bundle: false}) as PluginWithParams,
     deflist,
     file,
     imsize,
