@@ -1,12 +1,14 @@
-import '@diplodoc/transform/dist/js/yfm';
+import '@diplodoc/transform/dist/js/_yfm-only';
+import '@diplodoc/transform/dist/js/base';
 import {Plugin} from 'prosemirror-state';
 
 import type {ExtensionAuto} from '../../../core';
 
 import {YfmConfigsSpecs, YfmConfigsSpecsOptions} from './YfmConfigsSpecs';
 
-// TODO: @makhnatkin update transform after https://github.com/diplodoc-platform/transform/pull/540
-import '@diplodoc/transform/dist/css/yfm.css';
+import '@diplodoc/tabs-extension/runtime/index.css';
+import '@diplodoc/transform/dist/css/_yfm-only.css';
+import '@diplodoc/transform/dist/css/base.css';
 import './yfm.scss'; // eslint-disable-line import/order
 
 export type YfmConfigsOptions = YfmConfigsSpecsOptions & {};

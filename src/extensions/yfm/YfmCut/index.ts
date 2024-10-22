@@ -12,7 +12,8 @@ import {YfmCutTitleNodeView} from './nodeviews/yfm-cut-title';
 import {cutActivePlugin} from './plugins/active';
 import {cutAutoOpenPlugin} from './plugins/auto-open';
 
-import './index.scss';
+import '@diplodoc/cut-extension/runtime/index.css';
+import './index.scss'; // eslint-disable-line import/order
 
 const cutAction = 'toYfmCut';
 

@@ -1,5 +1,6 @@
 // importing yfm.css in js
-// @use '~@doc-tools/transform/dist/css/yfm.css';
+// @use '~@diplodoc/transform/dist/css/_yfm-only.css';
+// @use '~@diplodoc/transform/dist/css/base.css';
 
 .yfm.yfm-editor {
     &,
