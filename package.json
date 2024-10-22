@@ -205,7 +205,7 @@
     "@diplodoc/html-extension": "2.3.2",
     "@diplodoc/latex-extension": "1.0.3",
     "@diplodoc/mermaid-extension": "1.2.1",
-    "@diplodoc/transform": "4.26.0",
+    "@diplodoc/transform": "^4.32.2",
     "@gravity-ui/components": "3.0.0",
     "@gravity-ui/eslint-config": "3.1.1",
     "@gravity-ui/prettier-config": "1.1.0",
@@ -253,7 +253,8 @@
     "sass-loader": "^13.3.2",
     "stylelint": "15.11.0",
     "ts-jest": "^27.0.7",
-    "typescript": "^4.5.2"
+    "typescript": "^4.5.2",
+    "web-streams-polyfill": "4.0.0"
   },
   "peerDependenciesMeta": {
     "@diplodoc/cut-extension": {
@@ -284,7 +285,7 @@
     "@diplodoc/html-extension": "2.3.2",
     "@diplodoc/latex-extension": "^1.0.3",
     "@diplodoc/mermaid-extension": "^1.0.0",
-    "@diplodoc/transform": ">=4.5.0 <=4.26.0",
+    "@diplodoc/transform": "^4.32.2",
     "@gravity-ui/components": "^3.0.0",
     "@gravity-ui/uikit": "^6.11.0",
     "highlight.js": "^11.8.0",

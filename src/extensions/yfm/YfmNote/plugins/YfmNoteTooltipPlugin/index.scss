@@ -6,15 +6,15 @@
 
 .g-md-toolbar-group__s-button_id_ {
     &note-type-tip {
-        color: $tipColor;
+        color: var(--yfm-color-note-tip);
     }
     &note-type-info {
-        color: $infoColor;
+        color: var(--yfm-color-note-info);
     }
     &note-type-alert {
-        color: $importantColor;
+        color: var(--yfm-color-note-important);
     }
     &note-type-warning {
-        color: $warningColor;
+        color: var(--yfm-color-note-warning);
     }
 }
