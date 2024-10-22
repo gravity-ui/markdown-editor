@@ -1,5 +1,5 @@
+import {transform as yfmCut} from '@diplodoc/cut-extension';
 import log from '@diplodoc/transform/lib/log';
-import yfmPlugin from '@diplodoc/transform/lib/plugins/cut';
 import type {NodeSpec} from 'prosemirror-model';
 
 import type {ExtensionAuto, ExtensionNodeSpec} from '../../../../core';
@@ -29,7 +29,7 @@ export const YfmCutSpecs: ExtensionAuto<YfmCutSpecsOptions> = (builder, opts) =>
     const schemaSpecs = getSchemaSpecs(opts, builder.context.get('placeholder'));
 
     builder
-        .configureMd((md) => md.use(yfmPlugin, {log}))
+        .configureMd((md) => md.use(yfmCut({bundle: false}), {log}))
         .addNode(CutNode.Cut, () => ({
             spec: schemaSpecs[CutNode.Cut],
             toMd: serializerTokens[CutNode.Cut],
