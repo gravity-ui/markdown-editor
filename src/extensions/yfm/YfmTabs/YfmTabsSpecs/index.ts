@@ -1,5 +1,4 @@
-import log from '@diplodoc/transform/lib/log';
-import yfmPlugin from '@diplodoc/transform/lib/plugins/tabs';
+import {transform as yfmTabs} from '@diplodoc/tabs-extension';
 import {NodeSpec} from 'prosemirror-model';
 
 import type {ExtensionAuto, ExtensionNodeSpec} from '../../../../core';
@@ -34,7 +33,23 @@ export const YfmTabsSpecs: ExtensionAuto<YfmTabsSpecsOptions> = (builder, opts) 
     const schemaSpecs = getSchemaSpecs(opts);
 
     builder
-        .configureMd((md) => md.use(yfmPlugin, {log}).use(tabsPostPlugin))
+        .configureMd((md) =>
+            md
+                .use(
+                    yfmTabs({
+                        bundle: false,
+                        features: {
+                            enabledVariants: {
+                                regular: true,
+                                radio: true,
+                                dropdown: false,
+                                accordion: false,
+                            },
+                        },
+                    }),
+                )
+                .use(tabsPostPlugin),
+        )
         .addNode(TabsNode.Tab, () => ({
             spec: schemaSpecs[TabsNode.Tab],
             toMd: serializerTokens[TabsNode.Tab],
