@@ -1,3 +1,4 @@
+import '@diplodoc/tabs-extension/runtime';
 import {chainCommands} from 'prosemirror-commands';
 
 import type {Action, ExtensionAuto} from '../../../core';
@@ -13,6 +14,8 @@ import {
     tabPanelArrowDown,
 } from './plugins';
 import {tabPanelView, tabView, vtabInputView, vtabView} from './views';
+
+import '@diplodoc/tabs-extension/runtime/styles.css';
 
 export {TabsNode, tabType, tabsType, tabsListType, tabPanelType} from './YfmTabsSpecs';
 

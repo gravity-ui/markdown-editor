@@ -1,10 +1,10 @@
-/* eslint-disable import/no-extraneous-dependencies */
 import {transform as yfmCut} from '@diplodoc/cut-extension';
 import {transform as foldingHeadings} from '@diplodoc/folding-headings-extension';
 import '@diplodoc/folding-headings-extension/runtime';
 import {transform as yfmHtmlBlock} from '@diplodoc/html-extension';
 import {transform as latex} from '@diplodoc/latex-extension';
 import {transform as mermaid} from '@diplodoc/mermaid-extension';
+import {transform as yfmTabs} from '@diplodoc/tabs-extension';
 import anchors from '@diplodoc/transform/lib/plugins/anchors';
 import checkbox from '@diplodoc/transform/lib/plugins/checkbox';
 import code from '@diplodoc/transform/lib/plugins/code';
@@ -16,7 +16,6 @@ import monospace from '@diplodoc/transform/lib/plugins/monospace';
 import notes from '@diplodoc/transform/lib/plugins/notes';
 import sup from '@diplodoc/transform/lib/plugins/sup';
 import yfmTable from '@diplodoc/transform/lib/plugins/table';
-import tabs from '@diplodoc/transform/lib/plugins/tabs';
 import video from '@diplodoc/transform/lib/plugins/video';
 import type {PluginWithParams} from 'markdown-it/lib';
 
@@ -42,7 +41,17 @@ const defaultPlugins: PluginWithParams[] = [
     monospace,
     notes,
     sup,
-    tabs,
+    yfmTabs({
+        bundle: false,
+        features: {
+            enabledVariants: {
+                regular: true,
+                radio: true,
+                dropdown: false,
+                accordion: false,
+            },
+        },
+    }),
     video,
     yfmTable,
 ];
