@@ -55,7 +55,9 @@ export const yfmNoteTooltipPlugin = ({actions, schema}: ExtensionDeps) =>
                     <Toolbar
                         editor={actions}
                         focus={() => view.focus()}
-                        className="g-md-yfm-note-toolbar"
+                        // the yfm class allows to access css variables
+                        // https://github.com/diplodoc-platform/transform/blob/master/src/scss/_common.scss#L17
+                        className="yfm g-md-yfm-note-toolbar"
                         data={[
                             [
                                 YfmNoteType.info,
