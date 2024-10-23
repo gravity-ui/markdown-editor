@@ -15,6 +15,7 @@ export enum TabsNode {
 export enum TabsAttrs {
     class = 'class',
     dataDiplodocGroup = 'data-diplodoc-group',
+    dataDiplodocVariant = 'data-diplodoc-variant',
 }
 
 export enum TabsListAttrs {

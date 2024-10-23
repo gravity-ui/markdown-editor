@@ -70,6 +70,7 @@ export const getSchemaSpecs: (
         attrs: {
             [TabsAttrs.class]: {default: 'yfm-tabs'},
             [TabsAttrs.dataDiplodocGroup]: {default: 'unknown'},
+            [TabsAttrs.dataDiplodocVariant]: {default: 'regular'},
         },
         content: `${TabsNode.TabsList} ${TabsNode.TabPanel}+`,
         group: 'block',
@@ -100,6 +101,7 @@ export const getSchemaSpecs: (
         attrs: {
             [TabsAttrs.class]: {default: 'yfm-tabs yfm-tabs-vertical'},
             [TabsAttrs.dataDiplodocGroup]: {default: 'unknown'},
+            [TabsAttrs.dataDiplodocVariant]: {default: 'radio'},
         },
         content: `(${TabsNode.RadioTab} ${TabsNode.TabPanel})+`,
         group: 'block',
