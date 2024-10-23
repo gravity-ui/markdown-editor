@@ -134,6 +134,7 @@ export const Playground = React.memo<PlaygroundProps>((props) => {
         escapeConfig,
         enableSubmitInPreview,
         hidePreviewAfterSubmit,
+        needToSetDimensionsForUploadedImages,
     } = props;
     const [editorMode, setEditorMode] = React.useState<MarkdownEditorMode>(
         initialEditor ?? 'wysiwyg',
@@ -159,54 +160,56 @@ export const Playground = React.memo<PlaygroundProps>((props) => {
         [sanitizeHtml],
     );
 
-    const mdEditor = useMarkdownEditor({
-        allowHTML,
-        linkify,
-        linkifyTlds,
-        initialMarkup: mdRaw,
-        breaks: breaks ?? true,
-        initialEditorMode: editorMode,
-        initialSplitModeEnabled: initialSplitModeEnabled,
-        initialToolbarVisible: true,
-        splitMode: splitModeOrientation,
-        escapeConfig: escapeConfig,
-        renderPreview: renderPreviewDefined ? renderPreview : undefined,
-        fileUploadHandler,
-        prepareRawMarkup: prepareRawMarkup
-            ? (value) => '**prepare raw markup**\n\n' + value
-            : undefined,
-        extensionOptions: {
-            commandMenu: {actions: wysiwygCommandMenuConfig ?? wCommandMenuConfig},
-            ...extensionOptions,
-        },
-        markupConfig: {
-            extensions: markupConfigExtensions,
-        },
-        extraExtensions: (builder) => {
-            builder
-                .use(Math, {
-                    loadRuntimeScript: () => {
-                        import(
-                            /* webpackChunkName: "latex-runtime" */ '@diplodoc/latex-extension/runtime'
-                        );
-                        import(
-                            // @ts-expect-error // no types for styles
-                            /* webpackChunkName: "latex-styles" */ '@diplodoc/latex-extension/runtime/styles'
-                        );
-                    },
-                })
-                .use(Mermaid, {
-                    loadRuntimeScript: () => {
-                        import(
-                            /* webpackChunkName: "mermaid-runtime" */ '@diplodoc/mermaid-extension/runtime'
-                        );
-                    },
-                })
-                .use(FoldingHeading)
-                .use(YfmHtmlBlock, {
-                    useConfig: useYfmHtmlBlockStyles,
-                    sanitize: getSanitizeYfmHtmlBlock({options: defaultOptions}),
-                    head: `
+    const mdEditor = useMarkdownEditor(
+        {
+            allowHTML,
+            linkify,
+            linkifyTlds,
+            initialMarkup: mdRaw,
+            breaks: breaks ?? true,
+            initialEditorMode: editorMode,
+            initialSplitModeEnabled: initialSplitModeEnabled,
+            initialToolbarVisible: true,
+            splitMode: splitModeOrientation,
+            escapeConfig: escapeConfig,
+            needToSetDimensionsForUploadedImages,
+            renderPreview: renderPreviewDefined ? renderPreview : undefined,
+            fileUploadHandler,
+            prepareRawMarkup: prepareRawMarkup
+                ? (value) => '**prepare raw markup**\n\n' + value
+                : undefined,
+            extensionOptions: {
+                commandMenu: {actions: wysiwygCommandMenuConfig ?? wCommandMenuConfig},
+                ...extensionOptions,
+            },
+            markupConfig: {
+                extensions: markupConfigExtensions,
+            },
+            extraExtensions: (builder) => {
+                builder
+                    .use(Math, {
+                        loadRuntimeScript: () => {
+                            import(
+                                /* webpackChunkName: "latex-runtime" */ '@diplodoc/latex-extension/runtime'
+                            );
+                            import(
+                                // @ts-expect-error // no types for styles
+                                /* webpackChunkName: "latex-styles" */ '@diplodoc/latex-extension/runtime/styles'
+                            );
+                        },
+                    })
+                    .use(Mermaid, {
+                        loadRuntimeScript: () => {
+                            import(
+                                /* webpackChunkName: "mermaid-runtime" */ '@diplodoc/mermaid-extension/runtime'
+                            );
+                        },
+                    })
+                    .use(FoldingHeading)
+                    .use(YfmHtmlBlock, {
+                        useConfig: useYfmHtmlBlockStyles,
+                        sanitize: getSanitizeYfmHtmlBlock({options: defaultOptions}),
+                        head: `
                         <base target="_blank" />
                         <style>
                             html, body {
@@ -215,10 +218,22 @@ export const Playground = React.memo<PlaygroundProps>((props) => {
                             }
                         </style
                     `,
-                });
-            if (extraExtensions) builder.use(extraExtensions);
+                    });
+                if (extraExtensions) builder.use(extraExtensions);
+            },
         },
-    });
+        [
+            allowHTML,
+            linkify,
+            linkifyTlds,
+            breaks,
+            splitModeOrientation,
+            renderPreviewDefined,
+            renderPreview,
+            extraExtensions,
+            needToSetDimensionsForUploadedImages,
+        ],
+    );
 
     useEffect(() => {
         function onCancel() {
