@@ -1,5 +1,45 @@
 # Changelog
 
+## [14.0.0](https://github.com/gravity-ui/markdown-editor/compare/v13.25.1...v14.0.0) (2024-10-23)
+
+
+### ⚠ BREAKING CHANGES
+
+* **bundle:** remove default deps for useMemo inside useMarkdownEditor ([#438](https://github.com/gravity-ui/markdown-editor/issues/438))
+* import yfmTabs plugin from separate tabs-extension package
+* import yfmCut plugin from separate cut-extension package
+* bump diplodoc/transform to v4.33.0 and update import of runtime styles and scripts
+* **deps:** updated transform version 4.32.2 ([#417](https://github.com/gravity-ui/markdown-editor/issues/417))
+* **extensions:** move YfmHtmlBlock extension from yfm to additional folder
+* **extensions:** move FoldingHeading extension from yfm to additional folder
+* **extensions:** move Math extension from yfm to additional folder
+* **extensions:** move Mermaid extension from yfm to additional folder
+
+### refactor
+
+* **extensions:** move FoldingHeading extension from yfm to additional folder ([e5f34d5](https://github.com/gravity-ui/markdown-editor/commit/e5f34d503aa81eee12d408394e03125a05c06a8f))
+* **extensions:** move Math extension from yfm to additional folder ([f6531ac](https://github.com/gravity-ui/markdown-editor/commit/f6531ace38928ccf84303b1e66c61f7bc2c00601))
+* **extensions:** move Mermaid extension from yfm to additional folder ([79eb06b](https://github.com/gravity-ui/markdown-editor/commit/79eb06bfb1312f4af9537876d963bc4540f4691a))
+* **extensions:** move YfmHtmlBlock extension from yfm to additional folder ([8499538](https://github.com/gravity-ui/markdown-editor/commit/849953829d13e4e2fc4003fe34e228c7d5e81c33))
+
+
+### Features
+
+* bump diplodoc/transform to v4.33.0 and update import of runtime styles and scripts ([6dbbc52](https://github.com/gravity-ui/markdown-editor/commit/6dbbc52e7e3e187a0ad980182881edc747d6462d))
+* **bundle:** group editor settings by scope ([#433](https://github.com/gravity-ui/markdown-editor/issues/433)) ([d4097c2](https://github.com/gravity-ui/markdown-editor/commit/d4097c2253e1d815c4547db3eb3195c5d0e2762c))
+* **bundle:** pass md options to renderPreview callback ([#435](https://github.com/gravity-ui/markdown-editor/issues/435)) ([2676b45](https://github.com/gravity-ui/markdown-editor/commit/2676b45dce71cb1083757f876564f99949454c2b))
+* **bundle:** remove default deps for useMemo inside useMarkdownEditor ([#438](https://github.com/gravity-ui/markdown-editor/issues/438)) ([573c82e](https://github.com/gravity-ui/markdown-editor/commit/573c82e0236508354bfc6ad6b961b6d794eab5cd))
+* **deps:** updated transform version 4.32.2 ([#417](https://github.com/gravity-ui/markdown-editor/issues/417)) ([56e53fb](https://github.com/gravity-ui/markdown-editor/commit/56e53fb291e23d1681fc7ad7f7fc3906179920fc))
+* import yfmCut plugin from separate cut-extension package ([fd43a36](https://github.com/gravity-ui/markdown-editor/commit/fd43a36ebecc3012e61d16021a1dc5ed326aabb5))
+* import yfmTabs plugin from separate tabs-extension package ([6f229f1](https://github.com/gravity-ui/markdown-editor/commit/6f229f1f8b16b00076a5bdcb2e37a38b2896e9f1))
+* update codemirror deps ([#430](https://github.com/gravity-ui/markdown-editor/issues/430)) ([40d4a98](https://github.com/gravity-ui/markdown-editor/commit/40d4a98d57a74d01b948b1dd84c076a69bf44fa8))
+* update prosemirror deps ([#429](https://github.com/gravity-ui/markdown-editor/issues/429)) ([27ce483](https://github.com/gravity-ui/markdown-editor/commit/27ce48340ed266a7f6e93296cdabb5c6ae53ebf7))
+
+
+### Bug Fixes
+
+* **YfmTabs:** fixed switching between tabs in wysiwyg mode ([736fc0a](https://github.com/gravity-ui/markdown-editor/commit/736fc0a3285ad500a89a311699ba8b6abeab8467))
+
 ## [13.25.1](https://github.com/gravity-ui/markdown-editor/compare/v13.25.0...v13.25.1) (2024-10-18)
 
 
