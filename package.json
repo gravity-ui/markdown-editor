@@ -254,8 +254,7 @@
     "sass-loader": "^13.3.2",
     "stylelint": "15.11.0",
     "ts-jest": "^27.0.7",
-    "typescript": "^4.5.2",
-    "web-streams-polyfill": "4.0.0"
+    "typescript": "^4.5.2"
   },
   "peerDependenciesMeta": {
     "@diplodoc/folding-headings-extension": {
