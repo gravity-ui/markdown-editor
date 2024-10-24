@@ -1,4 +1,7 @@
+import webpack from 'webpack';
 import type {StorybookConfig} from '@storybook/react-webpack5';
+
+import pkg from '../package.json';
 
 const config:StorybookConfig = {
     framework: {
@@ -12,6 +15,14 @@ const config:StorybookConfig = {
     ],
     typescript: {
         check: true,
+    },
+    webpackFinal(config) {
+        config.plugins?.push(
+            new webpack.DefinePlugin({
+                __VERSION__: `'${pkg.version}-storybook'`,
+            }),
+        );
+        return config;
     },
 };
 
