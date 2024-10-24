@@ -197,7 +197,7 @@
     "react-error-boundary": "^3.1.4",
     "react-hotkeys-hook": "4.5.0",
     "react-use": "^17.3.2",
-    "tslib": "2.3.1"
+    "tslib": "^2.3.1"
   },
   "devDependencies": {
     "@diplodoc/folding-headings-extension": "0.1.0",
