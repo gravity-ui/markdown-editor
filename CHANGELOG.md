@@ -1,5 +1,12 @@
 # Changelog
 
+## [14.0.1](https://github.com/gravity-ui/markdown-editor/compare/v14.0.0...v14.0.1) (2024-10-25)
+
+
+### Bug Fixes
+
+* **note:** deleted unused import (_note.scss was used before for scss variables) ([#441](https://github.com/gravity-ui/markdown-editor/issues/441)) ([3615444](https://github.com/gravity-ui/markdown-editor/commit/3615444c17fe3cc0ffff1a0f2f656e4b87888a8c))
+
 ## [14.0.0](https://github.com/gravity-ui/markdown-editor/compare/v13.25.1...v14.0.0) (2024-10-23)
 
 
