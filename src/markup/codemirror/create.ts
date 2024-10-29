@@ -40,7 +40,7 @@ import {gravityHighlightStyle, gravityTheme} from './gravity';
 import {PairingCharactersExtension} from './pairing-chars';
 import {ReactRendererFacet} from './react-facet';
 import {SearchPanelPlugin} from './search-plugin/plugin';
-import {type YfmLangOptions, yfmLang} from './yfm';
+import {type YfmLangOptions /* yfmLang */} from './yfm';
 
 export type {YfmLangOptions};
 
@@ -79,7 +79,7 @@ export function createCodemirror(params: CreateCodemirrorParams) {
         disabledExtensions = {},
         keymaps = [],
         receiver,
-        yfmLangOptions,
+        // yfmLangOptions,
         extensions: extraExtensions,
         placeholder: placeholderContent,
         autocompletion: autocompletionConfig,
@@ -136,7 +136,7 @@ export function createCodemirror(params: CreateCodemirrorParams) {
             ...keymaps,
         ]),
         autocompletion(autocompletionConfig),
-        yfmLang(yfmLangOptions),
+        // yfmLang(yfmLangOptions),
         ReactRendererFacet.of(reactRenderer),
         PairingCharactersExtension,
         EditorView.lineWrapping,
