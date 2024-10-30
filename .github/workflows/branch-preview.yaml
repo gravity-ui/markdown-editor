@@ -26,6 +26,6 @@ jobs:
               uses: gravity-ui/preview-upload-to-s3-action@v1
               with:
                   src-path: storybook-static
-                  dest-path: /md-editor/${{ github.ref_name }}/
+                  dest-path: /md-editor/branches/${{ github.ref_name }}/
                   s3-key-id: ${{ secrets.STORYBOOK_S3_KEY_ID }}
                   s3-secret-key: ${{ secrets.STORYBOOK_S3_SECRET_KEY }}
