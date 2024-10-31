@@ -1,6 +1,6 @@
-on: workflow_dispatch
+name: Prerelease
 
-name: prerelease
+on: workflow_dispatch
 
 jobs:
     prerelease:
@@ -18,4 +18,4 @@ jobs:
             - run: npm version --no-git-tag-version 0.0.0-rc-$(git branch --show-current)-$(date "+%Y%m%d%H%M")
             - run: npm publish --no-tag
               env:
-                  NODE_AUTH_TOKEN: ${{secrets.ROBOT_DATAUI_NPM_TOKEN}}
+                  NODE_AUTH_TOKEN: ${{secrets.GRAVITY_UI_BOT_NPM_TOKEN}}
