@@ -12,6 +12,6 @@ const cmPC = {
 };
 
 export const cmChars: Chars = {
-    [K.Esc]: 'Esc',
+    [K.Esc]: 'Escape',
     ...(isMac() ? cmMac : cmPC),
 };
