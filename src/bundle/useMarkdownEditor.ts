@@ -34,6 +34,7 @@ export function useMarkdownEditor<T extends object = {}>(
         const breaks = md.breaks ?? props.breaks;
         const preset: MarkdownEditorPreset = props.preset ?? 'full';
         const renderStorage = new ReactRenderStorage();
+        const uploadFile = handlers.uploadFile ?? props.fileUploadHandler;
         const needToSetDimensionsForUploadedImages =
             experimental.needToSetDimensionsForUploadedImages ??
             props.needToSetDimensionsForUploadedImages;
@@ -54,7 +55,7 @@ export function useMarkdownEditor<T extends object = {}>(
                     return true;
                 },
                 mdBreaks: breaks,
-                fileUploadHandler: props.fileUploadHandler,
+                fileUploadHandler: uploadFile,
                 needToSetDimensionsForUploadedImages,
             });
             {
@@ -84,7 +85,7 @@ export function useMarkdownEditor<T extends object = {}>(
             },
             handlers: {
                 ...handlers,
-                uploadFile: handlers.uploadFile ?? props.fileUploadHandler,
+                uploadFile,
             },
             experimental: {
                 ...experimental,
