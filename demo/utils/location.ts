@@ -1,4 +1,4 @@
-import {debounce} from '../src/lodash';
+import {debounce} from '../../src/lodash';
 
 const QKEY = 'markup';
 

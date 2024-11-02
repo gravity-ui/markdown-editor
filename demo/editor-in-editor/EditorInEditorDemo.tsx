@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React, {FC, useEffect} from 'react';
 
 import {toaster} from '@gravity-ui/uikit/toaster-singleton-react-18';
 
@@ -14,7 +14,7 @@ import {
 
 const b = block('playground');
 
-export const PlaygroundEditorInEditor: React.FC = () => {
+export const EditorInEditorDemo: FC = () => {
     const mdEditor = useMarkdownEditor({
         initialEditorMode: 'wysiwyg',
         initialToolbarVisible: true,

@@ -15,6 +15,15 @@ const preview: Preview = {
                 order: ['Markdown Editor', ['Playground', '*'], '*'],
             }
         },
+        controls: {
+            exclude: [
+                'withDefaultInitialContent',
+                'initial',
+                'onChangeEditorType',
+                'onChangeSplitModeEnabled',
+                'escapeConfig',
+            ]
+        }
     },
     globalTypes: {
         theme: {

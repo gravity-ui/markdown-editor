@@ -1,16 +1,14 @@
-import React from 'react';
+import type {Meta, StoryObj} from '@storybook/react';
 
-// eslint-disable-next-line import/no-extraneous-dependencies
-import type {StoryFn} from '@storybook/react';
+import {PlaygroundGPTDemo} from './PlaygroundGPTDemo';
 
-import {PlaygroundGPT} from './PlaygroundGPT';
-
-export default {
+const meta: Meta = {
     title: 'Experiments / GPT',
-    component: PlaygroundGPT,
+    component: PlaygroundGPTDemo,
 };
 
-type PlaygroundStoryProps = {};
-export const Playground: StoryFn<PlaygroundStoryProps> = (props) => <PlaygroundGPT {...props} />;
+export default meta;
 
-Playground.storyName = 'Playground GPT';
+type Story = StoryObj<typeof PlaygroundGPTDemo>;
+
+export const PlaygroundGPT: Story = {};

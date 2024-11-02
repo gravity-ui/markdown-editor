@@ -12,12 +12,10 @@ import {
     wGptToolbarItem,
     wysiwygToolbarConfigs,
 } from '../../src';
-import {Playground} from '../Playground';
+import {Playground} from '../playground/Playground';
 
 import {gptWidgetProps} from './gptWidgetOptions';
 import {initialMdContent} from './md-content';
-
-import '../Playground.scss';
 
 const wToolbarConfig = cloneDeep(wysiwygToolbarConfigs.wToolbarConfig);
 wToolbarConfig.unshift([wGptToolbarItem]);
@@ -46,7 +44,7 @@ mToolbarConfig.push([
 
 mToolbarConfig.unshift([mGptToolbarItem]);
 
-export const PlaygroundGPT = React.memo(() => {
+export const PlaygroundGPTDemo = React.memo(() => {
     const [yfmRaw, setYfmRaw] = React.useState<MarkupString>(initialMdContent);
 
     const [showedAlertGpt, setShowedAlertGpt] = useState(true);
@@ -75,4 +73,4 @@ export const PlaygroundGPT = React.memo(() => {
     );
 });
 
-PlaygroundGPT.displayName = 'GPT';
+PlaygroundGPTDemo.displayName = 'GPT';

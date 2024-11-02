@@ -3,12 +3,10 @@ import React from 'react';
 import cloneDeep from 'lodash/cloneDeep';
 
 import {logger, markupToolbarConfigs} from '../../src';
-import {Playground} from '../Playground';
+import {Playground} from '../playground/Playground';
 
 import {ghostPopupExtension, ghostPopupToolbarItem} from './ghostExtension';
 import {initialMdContent} from './md-content';
-
-import '../Playground.scss';
 
 logger.setLogger({
     metrics: console.info,
@@ -20,15 +18,16 @@ const mToolbarConfig = cloneDeep(markupToolbarConfigs.mToolbarConfig);
 
 mToolbarConfig[2].unshift(ghostPopupToolbarItem);
 
-export const PlaygroundGhostExample = React.memo(() => {
+export const GhostDemo = React.memo(() => {
     return (
         <Playground
             settingsVisible
             markupToolbarConfig={mToolbarConfig}
             markupConfigExtensions={[ghostPopupExtension]}
             initial={initialMdContent}
+            initialEditor="markup"
         />
     );
 });
 
-PlaygroundGhostExample.displayName = 'Ghost-example';
+GhostDemo.displayName = 'Ghost';
