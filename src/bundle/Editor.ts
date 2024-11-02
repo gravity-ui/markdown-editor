@@ -14,10 +14,9 @@ import {
 import {ReactRenderStorage, type RenderStorage} from '../extensions';
 import {i18n} from '../i18n/bundle';
 import {logger} from '../logger';
-import {createCodemirror} from '../markup/codemirror';
+import {createCodemirror} from '../markup';
 import {type CodeEditor, Editor as MarkupEditor} from '../markup/editor';
-import {type Emitter, type Receiver, SafeEventEmitter} from '../utils/event-emitter';
-import type {FileUploadHandler} from '../utils/upload';
+import {type Emitter, FileUploadHandler, type Receiver, SafeEventEmitter} from '../utils';
 
 import type {
     MarkdownEditorMode as EditorMode,

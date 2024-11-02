@@ -2,11 +2,10 @@ import React, {RefObject} from 'react';
 
 import isNumber from 'is-number';
 
-import {IMG_MAX_HEIGHT, getImageDimensions} from '../../../markup';
-import {ImageItem, insertImages} from '../../../markup/commands';
-import type {CodeEditor} from '../../../markup/editor';
+import {IMG_MAX_HEIGHT, ImageItem, getImageDimensions, insertImages} from '../../../markup';
+import type {CodeEditor} from '../../../markup';
 import type {ToolbarBaseProps} from '../../../toolbar';
-import type {UploadSuccessItem} from '../../../utils/upload';
+import type {UploadSuccessItem} from '../../../utils';
 import {ToolbarImagePopup} from '../custom/ToolbarImagePopup';
 
 import {useMarkupToolbarContext} from './context';
