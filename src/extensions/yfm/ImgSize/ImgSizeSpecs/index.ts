@@ -84,15 +84,26 @@ export const ImgSizeSpecs: ExtensionAuto<ImgSizeSpecsOptions> = (builder, opts) 
         },
         toMd: (state, node) => {
             const attrs = node.attrs as ImsizeTypedAttributes;
-            state.write(
-                '![' +
-                    state.esc(attrs.alt || '') +
-                    '](' +
-                    state.esc(attrs.src) +
-                    (attrs.title ? ' ' + state.quote(attrs.title) : '') +
-                    getSize(attrs) +
-                    ')',
-            );
+            let result = '![';
+
+            if (attrs.alt) {
+                result += state.esc(attrs.alt);
+            }
+
+            result += '](';
+
+            if (attrs.src) {
+                result += state.esc(attrs.src);
+            }
+
+            if (attrs.title) {
+                result += ` ${state.quote(attrs.title)}`;
+            }
+
+            result += getSize(attrs);
+            result += ')';
+
+            state.write(result);
         },
     }));
 };
