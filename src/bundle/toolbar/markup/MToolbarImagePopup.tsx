@@ -11,7 +11,7 @@ import {ToolbarImagePopup} from '../custom/ToolbarImagePopup';
 
 import {useMarkupToolbarContext} from './context';
 
-const noop = (err: any) => {
+const noop = (err: unknown) => {
     console.error(err);
 };
 

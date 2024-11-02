@@ -74,7 +74,7 @@ class FileUploadPresenter {
     readonly widget: FileUploadWidget;
 
     private readonly file: File;
-    private readonly view: Pick<EditorView, 'dispatch'>;
+    private readonly view: EditorView;
     private readonly uploader: FileUploadHandler;
     private readonly needDimensionsForImages: boolean;
 
@@ -84,7 +84,7 @@ class FileUploadPresenter {
         file: File;
         widget: FileUploadWidget;
         uploader: FileUploadHandler;
-        view: Pick<EditorView, 'dispatch'>;
+        view: EditorView;
         needDimensionsForImages: boolean;
     }) {
         this.file = params.file;
