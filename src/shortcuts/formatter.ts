@@ -1,6 +1,5 @@
 import {isMac} from '../utils/platform';
 
-import {cmChars} from './chars';
 import {ModKey as MK} from './const';
 import {Defs, PlatfrormDefs} from './types';
 
@@ -28,10 +27,7 @@ class ShortCutFormatter {
     toCM(name: string): string | null {
         const defs = this.#map.get(name);
         if (!defs) return null;
-        return defs
-            .map((str) => cmChars[str] ?? str)
-            .sort((a) => (a === MK.Shift ? -1 : 0))
-            .join('-');
+        return defs.sort((a) => (a === MK.Shift ? -1 : 0)).join('-');
     }
 
     toView(name: string): string | undefined {
