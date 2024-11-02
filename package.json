@@ -174,7 +174,7 @@
     "@types/markdown-it": "^12.2.3",
     "base64-arraybuffer": "1.0.2",
     "is-number": "^7.0.0",
-    "markdown-it-attrs": "4.1.4",
+    "markdown-it-attrs": "^4.2.0",
     "markdown-it-color": "^2.1.1",
     "markdown-it-emoji": "2.0.2",
     "markdown-it-ins": "^3.0.1",
