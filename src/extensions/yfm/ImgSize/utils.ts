@@ -12,7 +12,7 @@ export function isImageNode(node: Node): boolean {
 }
 
 export type CreateImageNodeOptions = {
-    needDimmensions: boolean;
+    needDimensions: boolean;
 };
 
 export const createImageNode =
@@ -22,7 +22,7 @@ export const createImageNode =
             [ImgSizeAttr.Src]: result.url,
             [ImgSizeAttr.Alt]: result.name ?? file.name,
         };
-        if (opts.needDimmensions) {
+        if (opts.needDimensions) {
             try {
                 const sizes = await loadImage(file).then(getImageSize);
                 Object.assign(attrs, sizes);

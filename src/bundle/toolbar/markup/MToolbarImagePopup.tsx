@@ -62,7 +62,7 @@ export const MToolbarImagePopup: React.FC<MToolbarImagePopupProps> = ({
 
 async function toImageItems(
     items: readonly UploadSuccessItem[],
-    withDimmensions: boolean,
+    withDimensions: boolean,
 ): Promise<ImageItem[]> {
     const imgItems: ImageItem[] = [];
 
@@ -71,7 +71,7 @@ async function toImageItems(
             const imgItem: ImageItem = {url: result.url, alt: result.name ?? file.name};
             imgItems.push(imgItem);
 
-            if (withDimmensions) {
+            if (withDimensions) {
                 return getImageDimensions(file).then(({height}) => {
                     imgItem.height = String(Math.min(height, IMG_MAX_HEIGHT));
                 }, noop);

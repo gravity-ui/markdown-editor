@@ -27,7 +27,7 @@ export const ImgSize: ExtensionAuto<ImgSizeOptions> = (builder, opts) => {
     if (opts.imageUploadHandler || opts.parseInsertedUrlAsImage) {
         builder.use(ImagePaste, {
             imageUploadHandler: opts.imageUploadHandler,
-            needDimmensions: Boolean(opts.needToSetDimensionsForUploadedImages),
+            needDimensions: Boolean(opts.needToSetDimensionsForUploadedImages),
             parseInsertedUrlAsImage: opts.parseInsertedUrlAsImage,
         });
     }

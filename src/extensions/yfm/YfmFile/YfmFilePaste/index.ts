@@ -115,7 +115,7 @@ class YfmFilesPasteUploadProcess extends YfmFilesUploadProcessBase {
         const {schema} = this.view.state;
         if (imageType(schema)) {
             this.createImage = createImageNode(imageType(schema), {
-                needDimmensions: opts.needToSetDimensionsForUploadedImages,
+                needDimensions: opts.needToSetDimensionsForUploadedImages,
             });
         }
     }

@@ -16,7 +16,7 @@ import {ImagesUploadProcess} from './upload';
 
 const {isFilesFromHtml, isFilesOnly, isImageFile} = clipboardUtils;
 
-export type ImagePasteOptions = Pick<CreateImageNodeOptions, 'needDimmensions'> & {
+export type ImagePasteOptions = Pick<CreateImageNodeOptions, 'needDimensions'> & {
     imageUploadHandler?: FileUploadHandler;
     /**
      * The function, used to determine if the pasted text is the image url and should be inserted as an image

@@ -76,7 +76,7 @@ class FileUploadPresenter {
     private readonly file: File;
     private readonly view: Pick<EditorView, 'dispatch'>;
     private readonly uploader: FileUploadHandler;
-    private readonly needDimmensionsForImages: boolean;
+    private readonly needDimensionsForImages: boolean;
 
     private state: 'initial' | 'uploading' | 'success' | 'error' | 'canceled' = 'initial';
 
@@ -85,13 +85,13 @@ class FileUploadPresenter {
         widget: FileUploadWidget;
         uploader: FileUploadHandler;
         view: Pick<EditorView, 'dispatch'>;
-        needDimmensionsForImages: boolean;
+        needDimensionsForImages: boolean;
     }) {
         this.file = params.file;
         this.view = params.view;
         this.widget = params.widget;
         this.uploader = params.uploader;
-        this.needDimmensionsForImages = params.needDimmensionsForImages;
+        this.needDimensionsForImages = params.needDimensionsForImages;
         this.widget.setPresenter(this);
         this.run();
     }
@@ -151,7 +151,7 @@ class FileUploadPresenter {
         let markup = `![${fileName}](${res.url}`;
 
         if (isImageFile(this.file)) {
-            if (this.needDimmensionsForImages) {
+            if (this.needDimensionsForImages) {
                 try {
                     const fileSize = await getImageDimensions(this.file);
                     const {width, height} = getProportionalSize({
@@ -199,7 +199,9 @@ export const FilesUploadPlugin = ViewPlugin.fromClass(
                                     file,
                                     view: this.view,
                                     uploader: uploadFacet.fn,
-                                    needDimmensionsForImages: Boolean(uploadFacet.imgWithDimms),
+                                    needDimensionsForImages: Boolean(
+                                        uploadFacet.imageWithDimensions,
+                                    ),
                                     widget: new FileUploadWidget(uniqueId('__file_widget_id')),
                                 });
                                 return Decoration.widget({

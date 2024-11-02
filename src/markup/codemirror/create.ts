@@ -60,7 +60,7 @@ export type CreateCodemirrorParams = {
     reactRenderer: ReactRenderStorage;
     uploadHandler?: FileUploadHandler;
     parseInsertedUrlAsImage?: ParseInsertedUrlAsImage;
-    needImgDimms?: boolean;
+    needImageDimensions?: boolean;
     extensions?: Extension[];
     disabledExtensions?: {
         history?: boolean;
@@ -183,7 +183,7 @@ export function createCodemirror(params: CreateCodemirrorParams) {
         extensions.push(
             FileUploadHandlerFacet.of({
                 fn: params.uploadHandler,
-                imgWithDimms: params.needImgDimms,
+                imageWithDimensions: params.needImageDimensions,
             }),
         );
     }

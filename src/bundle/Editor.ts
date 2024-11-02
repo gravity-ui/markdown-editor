@@ -264,7 +264,7 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
                     reactRenderer: this.#renderStorage,
                     uploadHandler: this.fileUploadHandler,
                     parseInsertedUrlAsImage: this.parseInsertedUrlAsImage,
-                    needImgDimms: this.needToSetDimensionsForUploadedImages,
+                    needImageDimensions: this.needToSetDimensionsForUploadedImages,
                     extensions: this.#markupConfig.extensions,
                     disabledExtensions: this.#markupConfig.disabledExtensions,
                     keymaps: this.#markupConfig.keymaps,
