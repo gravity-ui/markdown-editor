@@ -24,3 +24,4 @@ export * from './selection';
 export * from './serialize-for-clipboard';
 export * from './sync-scroll';
 export * from './upload';
+export * from './get-proportional-size';

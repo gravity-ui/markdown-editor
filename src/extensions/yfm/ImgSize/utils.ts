@@ -1,7 +1,7 @@
 import {Node, NodeType} from 'prosemirror-model';
 
 import {logger} from '../../../logger';
-import {UploadSuccessItem} from '../../../utils/upload';
+import {UploadSuccessItem, getProportionalSize} from '../../../utils';
 import {imageNodeName} from '../../markdown';
 import {ImgSizeAttr} from '../../specs';
 
@@ -45,9 +45,14 @@ export async function loadImage(imgFile: File) {
     });
 }
 
-export function getImageSize(img: HTMLImageElement): {
+export function getImageSize({width, height}: HTMLImageElement): {
     [ImgSizeAttr.Width]?: string;
     [ImgSizeAttr.Height]?: string;
 } {
-    return {height: String(Math.min(IMG_MAX_HEIGHT, img.height))};
+    const size = getProportionalSize({
+        width,
+        height,
+        imgMaxHeight: IMG_MAX_HEIGHT,
+    });
+    return {width: String(size.width), height: String(size.height)};
 }

@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useRef} from 'react';
+import React, {HTMLAttributes, useCallback, useEffect, useRef} from 'react';
 
 import {cn} from '../../../../../classname';
 import {ReactNodeViewProps, useNodeEditing, useNodeHovered} from '../../../../../react-utils';
@@ -54,11 +54,20 @@ export const ImageNodeView: React.FC<ReactNodeViewProps> = ({
         onResize: handleResize,
     });
 
-    const style = {
-        width: state.width ? `${state.width}px` : '',
-        height: state.height ? `${state.height}px` : '',
+    const style: HTMLAttributes<HTMLImageElement>['style'] = {
         transition: 'width 0.15s ease-out, height 0.15s ease-out',
     };
+
+    if (state.width) {
+        style.width = `${state.width}px`;
+
+        if (state.height) {
+            style.aspectRatio = state.width / state.height;
+            style.height = 'auto;';
+        }
+    } else if (state.height) {
+        style.height = `${state.height}px`;
+    }
 
     const handleDelete = useCallback(() => {
         const pos = getPos();

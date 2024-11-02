@@ -10,7 +10,7 @@ import {
 } from '@codemirror/view';
 
 import type {RendererItem} from '../../../extensions';
-import type {FileUploadHandler, FileUploadResult} from '../../../utils/upload';
+import {FileUploadHandler, FileUploadResult, getProportionalSize} from '../../../utils';
 import {FileUploadHandlerFacet} from '../files-upload-facet';
 import {ReactRendererFacet} from '../react-facet';
 
@@ -148,19 +148,25 @@ class FileUploadPresenter {
     private async formatFileMarkup(res: FileUploadResult) {
         const fileName = res.name ?? this.file.name ?? '';
 
-        let markup: string;
+        let markup = `![${fileName}](${res.url}`;
+
         if (isImageFile(this.file)) {
             if (this.needDimmensionsForImages) {
                 try {
-                    let {height} = await getImageDimensions(this.file);
-                    height = Math.min(height, IMG_MAX_HEIGHT);
-                    markup = `![${fileName}](${res.url} =x${height})`;
+                    const fileSize = await getImageDimensions(this.file);
+                    const {width, height} = getProportionalSize({
+                        width: fileSize.width,
+                        height: fileSize.height,
+                        imgMaxHeight: IMG_MAX_HEIGHT,
+                    });
+
+                    markup += ` =${width}x${height}`;
                 } catch (err) {
-                    markup = `![${fileName}](${res.url})`;
+                    console.error(err);
                 }
-            } else {
-                markup = `![${fileName}](${res.url})`;
             }
+
+            markup += `)`;
         } else {
             markup = `{% file src="${res.url}" name="${fileName.replace('"', '')}" %}`;
         }

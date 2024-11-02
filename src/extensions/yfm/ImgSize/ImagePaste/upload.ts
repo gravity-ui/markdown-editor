@@ -2,7 +2,7 @@ import {Node} from 'prosemirror-model';
 import {EditorView} from 'prosemirror-view';
 
 import {logger} from '../../../../logger';
-import {FileUploadHandler, UploadSuccessItem} from '../../../../utils/upload';
+import {FileUploadHandler, UploadSuccessItem, getProportionalSize} from '../../../../utils';
 import {FilesBatchUploadProcess} from '../../../behavior/utils/upload';
 import {imageType} from '../../../markdown';
 import {IMG_MAX_HEIGHT} from '../const';
@@ -51,10 +51,10 @@ async function getSkeletonSize(files: readonly File[]) {
     return skeletonSize;
 }
 
-function calcSkeletonSize(img: HTMLImageElement): {width: number; height: number} {
-    const {width, height} = img;
-    if (height <= IMG_MAX_HEIGHT) return {width, height};
-
-    const ratio = IMG_MAX_HEIGHT / height; // ratio<1
-    return {height: IMG_MAX_HEIGHT, width: width * ratio};
+function calcSkeletonSize({width, height}: HTMLImageElement): {width: number; height: number} {
+    return getProportionalSize({
+        width,
+        height,
+        imgMaxHeight: IMG_MAX_HEIGHT,
+    });
 }
