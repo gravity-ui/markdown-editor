@@ -30,7 +30,7 @@ export const ListsInputRulesExtension: ExtensionWithOptions<ListsInputRulesOptio
  */
 export function orderedListRule(nodeType: NodeType) {
     return wrappingInputRule(
-        /^(\d+)\.\s$/,
+        /^(\d+)([.)])\s$/,
         nodeType,
         (match) => ({[ListsAttr.Order]: Number(match[1])}),
         (match, node) => node.childCount + node.attrs[ListsAttr.Order] === Number(match[1]),
