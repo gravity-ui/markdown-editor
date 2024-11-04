@@ -44,6 +44,22 @@ const orderedListMarkup = `
 2. Very easy!
 `;
 
+const orderedListWithDifferentMarkup = `
+1. First item
+2. Second item
+
+1) Third item
+2) Fourth item
+`;
+
+const orderedListWithSameMarkup = `
+1. First item
+2. Second item
+
+1. Third item
+2. Fourth item
+`;
+
 describe('Lists extension', () => {
     describe('MergeListsPlugin', () => {
         it('should merge bullet lists', () => {
@@ -157,6 +173,107 @@ describe('Lists extension', () => {
                         ),
                         li({[ListsAttr.Markup]: '.'}, p('Very easy!')),
                         li({[ListsAttr.Markup]: '.'}, p('Very easy!')),
+                    ),
+                ),
+            );
+        });
+
+        it('should merge ordered lists with the same markup', () => {
+            const view = new EditorView(null, {
+                state: EditorState.create({schema, plugins: [mergeListsPlugin()]}),
+            });
+            view.dispatch(
+                view.state.tr.replaceWith(
+                    0,
+                    view.state.doc.nodeSize - 2,
+                    markupParser.parse(orderedListWithSameMarkup).content,
+                ),
+            );
+            expect(view.state.doc).toMatchNode(
+                doc(
+                    ol(
+                        {
+                            [ListsAttr.Markup]: '.',
+                        },
+                        li(
+                            {
+                                [ListsAttr.Markup]: '.',
+                            },
+                            p('First item'),
+                        ),
+                        li(
+                            {
+                                [ListsAttr.Markup]: '.',
+                            },
+                            p('Second item'),
+                        ),
+                        li(
+                            {
+                                [ListsAttr.Markup]: '.',
+                            },
+                            p('Third item'),
+                        ),
+                        li(
+                            {
+                                [ListsAttr.Markup]: '.',
+                            },
+                            p('Fourth item'),
+                        ),
+                    ),
+                ),
+            );
+        });
+
+        it('should not merge ordered lists with different markups', () => {
+            const view = new EditorView(null, {
+                state: EditorState.create({schema, plugins: [mergeListsPlugin()]}),
+            });
+            view.dispatch(
+                view.state.tr.replaceWith(
+                    0,
+                    view.state.doc.nodeSize - 2,
+                    markupParser.parse(orderedListWithDifferentMarkup).content,
+                ),
+            );
+            expect(view.state.doc).toMatchNode(
+                doc(
+                    ol(
+                        {
+                            [ListsAttr.Order]: 1,
+                            [ListsAttr.Tight]: true,
+                            [ListsAttr.Markup]: '.',
+                        },
+                        li(
+                            {
+                                [ListsAttr.Markup]: '.',
+                            },
+                            p('First item'),
+                        ),
+                        li(
+                            {
+                                [ListsAttr.Markup]: '.',
+                            },
+                            p('Second item'),
+                        ),
+                    ),
+                    ol(
+                        {
+                            [ListsAttr.Order]: 1,
+                            [ListsAttr.Tight]: true,
+                            [ListsAttr.Markup]: ')',
+                        },
+                        li(
+                            {
+                                [ListsAttr.Markup]: ')',
+                            },
+                            p('Third item'),
+                        ),
+                        li(
+                            {
+                                [ListsAttr.Markup]: ')',
+                            },
+                            p('Fourth item'),
+                        ),
                     ),
                 ),
             );

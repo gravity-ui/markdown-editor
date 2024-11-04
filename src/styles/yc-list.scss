@@ -1,0 +1,14 @@
+// styles rewriting from '~@diplodoc/transform/dist/css/base.css'
+
+.yfm ol[data-markup=')'] {
+    list-style-type: none;
+    counter-reset: list;
+}
+
+.yfm ol[data-markup=')'] > li {
+    counter-increment: list;
+}
+
+.yfm ol[data-markup=')'] > li::marker {
+    content: counter(list) ') ';
+}
