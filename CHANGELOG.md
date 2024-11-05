@@ -1,5 +1,15 @@
 # Changelog
 
+## [14.0.2](https://github.com/gravity-ui/markdown-editor/compare/v14.0.1...v14.0.2) (2024-11-02)
+
+
+### Bug Fixes
+
+* **bundle:** file upload handler is not passed in wysiwyg mode ([#453](https://github.com/gravity-ui/markdown-editor/issues/453)) ([46fbe46](https://github.com/gravity-ui/markdown-editor/commit/46fbe46c0c0a7eeb85305d1a8fe8f33ef1257df0))
+* **deps:** sync version of markdown-it-attrs with @diplodoc/transform ([#457](https://github.com/gravity-ui/markdown-editor/issues/457)) ([3f7e260](https://github.com/gravity-ui/markdown-editor/commit/3f7e2603761be8ed184c57aa14138fb45e8d0202))
+* **markup:** correct key formatting for codemirror keymap ([#456](https://github.com/gravity-ui/markdown-editor/issues/456)) ([2f8f91d](https://github.com/gravity-ui/markdown-editor/commit/2f8f91df2a6c19b060667a495b496ed713fefa00))
+* **markup:** fix hotkey Esc not working in markup mode ([#455](https://github.com/gravity-ui/markdown-editor/issues/455)) ([28bc59f](https://github.com/gravity-ui/markdown-editor/commit/28bc59f77356464b7aa81f9c89fa8d96bacf3ed1))
+
 ## [14.0.1](https://github.com/gravity-ui/markdown-editor/compare/v14.0.0...v14.0.1) (2024-10-25)
 
 
