@@ -15,6 +15,9 @@ const preview: Preview = {
                 order: ['Markdown Editor', ['Playground', '*'], '*'],
             }
         },
+        controls: {
+            exclude: ['withDefaultInitialContent', 'initial']
+        }
     },
     globalTypes: {
         theme: {

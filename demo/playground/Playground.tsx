@@ -6,6 +6,7 @@ import {toaster} from '@gravity-ui/uikit/toaster-singleton-react-18';
 
 import {
     type EscapeConfig,
+    FileUploadHandler,
     type MarkdownEditorMode,
     MarkdownEditorView,
     type MarkdownEditorViewProps,
@@ -18,27 +19,26 @@ import {
     markupToolbarConfigs,
     useMarkdownEditor,
     wysiwygToolbarConfigs,
-} from '../src';
-import type {ToolbarActionData} from '../src/bundle/Editor';
-import {Extension} from '../src/cm/state';
-import {FoldingHeading} from '../src/extensions/additional/FoldingHeading';
-import {Math} from '../src/extensions/additional/Math';
-import {Mermaid} from '../src/extensions/additional/Mermaid';
-import {YfmHtmlBlock} from '../src/extensions/additional/YfmHtmlBlock';
-import {getSanitizeYfmHtmlBlock} from '../src/extensions/additional/YfmHtmlBlock/utils';
-import {cloneDeep} from '../src/lodash';
-import {CodeEditor} from '../src/markup/editor';
-import type {FileUploadHandler} from '../src/utils/upload';
-import {VERSION} from '../src/version';
-
-import {WysiwygSelection} from './PMSelection';
-import {WysiwygDevTools} from './ProseMirrorDevTools';
-import {SplitModePreview} from './SplitModePreview';
-import {block} from './cn';
-import {randomDelay} from './delay';
-import useYfmHtmlBlockStyles from './hooks/useYfmHtmlBlockStyles';
-import {debouncedUpdateLocation as updateLocation} from './location';
-import {plugins} from './md-plugins';
+} from '../../src';
+import type {ToolbarActionData} from '../../src/bundle/Editor';
+import {Extension} from '../../src/cm/state';
+import {FoldingHeading} from '../../src/extensions/additional/FoldingHeading';
+import {Math} from '../../src/extensions/additional/Math';
+import {Mermaid} from '../../src/extensions/additional/Mermaid';
+import {YfmHtmlBlock} from '../../src/extensions/additional/YfmHtmlBlock';
+import {getSanitizeYfmHtmlBlock} from '../../src/extensions/additional/YfmHtmlBlock/utils';
+import {cloneDeep} from '../../src/lodash';
+import {CodeEditor} from '../../src/markup';
+import {VERSION} from '../../src/version';
+// ---
+import {WysiwygSelection} from '../PMSelection';
+import {WysiwygDevTools} from '../ProseMirrorDevTools';
+import {SplitModePreview} from '../SplitModePreview';
+import {block} from '../cn';
+import {plugins} from '../constants/md-plugins';
+import {randomDelay} from '../delay';
+import useYfmHtmlBlockStyles from '../hooks/useYfmHtmlBlockStyles';
+import {debouncedUpdateLocation as updateLocation} from '../utils/location';
 
 import './Playground.scss';
 
@@ -232,6 +232,7 @@ export const Playground = React.memo<PlaygroundProps>((props) => {
             renderPreview,
             extraExtensions,
             needToSetDimensionsForUploadedImages,
+            initial,
         ],
     );
 

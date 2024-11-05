@@ -196,4 +196,15 @@ describe('markdown', () => {
         same('* list item\n\n```\ncode\n```', doc(ul(li(p('list item'))), pre('code\n'))));
 
     it("doesn't escape characters in code", () => same('foo`*`', doc(p('foo', code('*')))));
+
+    it('escapes special characters in a text', () => {
+        same(
+            'Markdown special characters: \\_underscore\\_, \\*asterisk\\*, \\`backtick\\`, \\$dollar\\$, \\{curly\\} brace, \\[square\\] bracket, and a \\|vertical\\| bar.',
+            doc(
+                p(
+                    'Markdown special characters: _underscore_, *asterisk*, `backtick`, $dollar$, {curly} brace, [square] bracket, and a |vertical| bar.',
+                ),
+            ),
+        );
+    });
 });

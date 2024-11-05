@@ -10,8 +10,8 @@ import {withLatex} from '../src/view/hocs/withLatex';
 import {MermaidConfig, withMermaid} from '../src/view/hocs/withMermaid';
 import {withYfmHtmlBlock} from '../src/view/hocs/withYfmHtml';
 
+import {LATEX_RUNTIME, MERMAID_RUNTIME, YFM_HTML_BLOCK_RUNTIME} from './constants/md-plugins';
 import useYfmHtmlBlockStyles from './hooks/useYfmHtmlBlockStyles';
-import {LATEX_RUNTIME, MERMAID_RUNTIME, YFM_HTML_BLOCK_RUNTIME} from './md-plugins';
 
 const ML_ATTR = 'data-ml';
 const mermaidConfig: MermaidConfig = {theme: 'forest'};
