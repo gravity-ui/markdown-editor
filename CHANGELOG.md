@@ -1,5 +1,12 @@
 # Changelog
 
+## [14.0.3](https://github.com/gravity-ui/markdown-editor/compare/v14.0.2...v14.0.3) (2024-11-05)
+
+
+### Bug Fixes
+
+* **core:** added escaping the underscore character via serializing ([#452](https://github.com/gravity-ui/markdown-editor/issues/452)) ([d9d7279](https://github.com/gravity-ui/markdown-editor/commit/d9d72791a309a8ef68560f4472ac19717eadacf7))
+
 ## [14.0.2](https://github.com/gravity-ui/markdown-editor/compare/v14.0.1...v14.0.2) (2024-11-02)
 
 
