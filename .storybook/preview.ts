@@ -16,13 +16,7 @@ const preview: Preview = {
             }
         },
         controls: {
-            exclude: [
-                'withDefaultInitialContent',
-                'initial',
-                'onChangeEditorType',
-                'onChangeSplitModeEnabled',
-                'escapeConfig',
-            ]
+            exclude: ['withDefaultInitialContent', 'initial']
         }
     },
     globalTypes: {

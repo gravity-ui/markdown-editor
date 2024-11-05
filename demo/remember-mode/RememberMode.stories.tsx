@@ -4,6 +4,7 @@ import type {Meta, StoryObj} from '@storybook/react';
 
 import type {MarkdownEditorMode} from '../../src/bundle';
 import {defaultArgs} from '../constants/default-args';
+import {excludedControls} from '../constants/excluded-controls';
 import {markup} from '../constants/rememberModeMarkup';
 import {PlaygroundMini, PlaygroundMiniProps} from '../playground/PlaygroundMini';
 
@@ -11,6 +12,11 @@ const meta: Meta<PlaygroundMiniProps> = {
     title: 'Experiments / Remember the mode',
     component: PlaygroundMini,
     args: defaultArgs,
+    parameters: {
+        controls: {
+            exclude: excludedControls,
+        },
+    },
 };
 
 export default meta;

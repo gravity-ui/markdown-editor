@@ -2,16 +2,16 @@ import type {Meta, StoryObj} from '@storybook/react';
 
 import {defaultArgs} from '../constants/default-args';
 
-import {PlaygroundMini, PlaygroundMiniProps} from './PlaygroundMini';
+import {Playground as PlaygroundComponent, PlaygroundProps} from './Playground';
 
-const meta: Meta<PlaygroundMiniProps> = {
+const meta: Meta<PlaygroundProps> = {
     title: 'Markdown Editor',
-    component: PlaygroundMini,
-    args: {...defaultArgs, withDefaultInitialContent: true},
+    component: PlaygroundComponent,
+    args: defaultArgs,
 };
 
 export default meta;
 
-type Story = StoryObj<typeof PlaygroundMini>;
+type Story = StoryObj<typeof PlaygroundComponent>;
 
 export const Playground: Story = {};

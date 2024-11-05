@@ -1,6 +1,7 @@
 import type {Meta, StoryObj} from '@storybook/react';
 
 import {defaultArgs} from '../constants/default-args';
+import {excludedControls} from '../constants/excluded-controls';
 import {PlaygroundMini, PlaygroundMiniProps} from '../playground/PlaygroundMini';
 
 import {markup} from './markup';
@@ -9,6 +10,11 @@ const meta: Meta<PlaygroundMiniProps> = {
     title: 'Markdown Editor / Markdown examples',
     component: PlaygroundMini,
     args: defaultArgs,
+    parameters: {
+        controls: {
+            exclude: excludedControls,
+        },
+    },
 };
 
 export default meta;
