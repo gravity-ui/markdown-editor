@@ -10,18 +10,18 @@ import {
     RenderPreview,
     logger,
     useMarkdownEditor,
-} from '../src';
-import type {FileUploadHandler} from '../src/utils/upload';
-import {VERSION} from '../src/version';
+} from '../../src';
+import type {FileUploadHandler} from '../../src/utils/upload';
+import {VERSION} from '../../src/version';
+// ---
+import {WysiwygSelection} from '../PMSelection';
+import {WysiwygDevTools} from '../ProseMirrorDevTools';
+import {SplitModePreview} from '../SplitModePreview';
+import {block} from '../cn';
+import {plugins} from '../constants/md-plugins';
+import {randomDelay} from '../delay';
 
-import {WysiwygSelection} from './PMSelection';
-import {WysiwygDevTools} from './ProseMirrorDevTools';
-import {SplitModePreview} from './SplitModePreview';
-import {block} from './cn';
-import {randomDelay} from './delay';
-import {plugins} from './md-plugins';
-
-import './Playground.scss';
+import '../playground/Playground.scss';
 
 const b = block('playground');
 const fileUploadHandler: FileUploadHandler = async (file) => {
