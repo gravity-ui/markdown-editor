@@ -1,3 +1,5 @@
+// @ts-ignore
+import defaultShortcuts from 'markdown-it-emoji/lib/data/shortcuts';
 import {Schema} from 'prosemirror-model';
 import {EditorView} from 'prosemirror-view';
 
@@ -36,7 +38,7 @@ export class EmojiHandler implements AutocompleteHandler {
     private _suggestProps?: EmojiSuggestComponentProps;
     private _suggestRenderItem?: RendererItem;
 
-    constructor({defs, shortcuts = {}}: EmojiHandlerParams) {
+    constructor({defs, shortcuts = defaultShortcuts}: EmojiHandlerParams) {
         this._emojis = Object.entries(defs).map(([name, symbol]) => {
             const def: EmojiDef = {symbol, origName: name, name: name.toLowerCase()};
             const short = shortcuts[name];
