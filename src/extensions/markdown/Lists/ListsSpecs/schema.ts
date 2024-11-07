@@ -70,8 +70,7 @@ export const schemaSpecs: Record<ListNode, NodeSpec> = {
                 'ol',
                 {
                     start: node.attrs[ListsAttr.Order] === 1 ? null : node.attrs[ListsAttr.Order],
-                    'data-tight': node.attrs[ListsAttr.Tight] ? 'true' : null,
-                    'data-markup': node.attrs[ListsAttr.Markup] || Markup.ordered.default,
+                    'data-tight': node.attrs[ListsAttr.Tight] ? 'true' : null
                 },
                 0,
             ];

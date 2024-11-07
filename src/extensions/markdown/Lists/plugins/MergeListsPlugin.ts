@@ -2,7 +2,6 @@ import type {Node} from 'prosemirror-model';
 import {Plugin, Transaction} from 'prosemirror-state';
 import {findChildren, hasParentNode} from 'prosemirror-utils';
 
-import {ListNode, ListsAttr} from '../ListsSpecs';
 import {isListNode} from '../utils';
 
 export const mergeListsPlugin = () =>
@@ -39,15 +38,8 @@ function mergeAdjacentNodesWithSameType(
 
         const nodeBefore = posAfterMap[posBefore];
         if (nodeBefore?.type === item.node.type) {
-            const isOrderedList = item.node.type.name === ListNode.OrderedList;
-
-            if (
-                !isOrderedList ||
-                nodeBefore.attrs[ListsAttr.Markup] === item.node.attrs[ListsAttr.Markup]
-            ) {
-                tr.join(tr.mapping.map(posBefore));
-                posAfterMap[posBefore] = undefined;
-            }
+            tr.join(tr.mapping.map(posBefore));
+            posAfterMap[posBefore] = undefined;
         }
     }
 }
