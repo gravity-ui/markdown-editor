@@ -3,18 +3,20 @@ import type {StorybookConfig} from '@storybook/react-webpack5';
 
 import pkg from '../package.json';
 
-const config:StorybookConfig = {
+const config: StorybookConfig = {
     framework: {
         name: '@storybook/react-webpack5',
-        options: {fastRefresh: true},
+        options: {},
     },
     stories: ['../demo/**/*.stories.@(js|jsx|ts|tsx)'],
     addons: [
         '@storybook/preset-scss',
         {name: '@storybook/addon-essentials', options: {backgrounds: false}},
+        '@storybook/addon-webpack5-compiler-babel',
     ],
     typescript: {
         check: true,
+        reactDocgen: 'react-docgen-typescript'
     },
     webpackFinal(config) {
         config.plugins?.push(
