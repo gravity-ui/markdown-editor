@@ -3,7 +3,6 @@ import React from 'react';
 import {List, Popup, PopupPlacement} from '@gravity-ui/uikit';
 
 import {cn} from '../../../../classname';
-import {i18n} from '../../../../i18n/suggest';
 import {ErrorLoggerBoundary} from '../../../../react-utils/ErrorBoundary';
 import {AutocompletePopupProps} from '../../../../utils/autocomplete-popup';
 
@@ -41,7 +40,7 @@ export const EmojiSuggestComponent: React.FC<EmojiSuggestComponentProps> = ({
 
     return (
         <Popup
-            open
+            open={Boolean(items.length)}
             anchorRef={{current: anchor}}
             placement={placement}
             onEnterKeyDown={onEnterKeyDown}
@@ -54,7 +53,6 @@ export const EmojiSuggestComponent: React.FC<EmojiSuggestComponentProps> = ({
                     items={items as EmojiDef[]}
                     sortable={false}
                     filterable={false}
-                    emptyPlaceholder={i18n('empty-msg')}
                     itemHeight={ITEM_HEIGHT}
                     itemsHeight={calcListHeight(items.length)}
                     renderItem={renderItem}
