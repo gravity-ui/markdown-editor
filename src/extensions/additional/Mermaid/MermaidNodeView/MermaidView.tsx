@@ -85,12 +85,12 @@ const DiagramEditMode: React.FC<{
                     <div>
                         <Button onClick={onCancel} view={'flat'}>
                             <span className={cnDiagramHelper({'prosemirror-stop-event': true})}>
-                                Cancel
+                                {i18n('cancel')}
                             </span>
                         </Button>
                         <Button onClick={() => onSave(text)} view={'action'}>
                             <span className={cnDiagramHelper({'prosemirror-stop-event': true})}>
-                                Save
+                                {i18n('save')}
                             </span>
                         </Button>
                     </div>
