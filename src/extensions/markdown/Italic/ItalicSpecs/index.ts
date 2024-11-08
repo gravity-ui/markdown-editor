@@ -16,7 +16,7 @@ export const ItalicSpecs: ExtensionAuto = (builder) => {
                 return ['em'];
             },
         },
-        toMd: {open: '*', close: '*', mixable: true, expelEnclosingWhitespace: true},
+        toMd: {open: '_', close: '_', mixable: true, expelEnclosingWhitespace: true},
         fromMd: {tokenSpec: {name: italicMarkName, type: 'mark'}},
     }));
 };
