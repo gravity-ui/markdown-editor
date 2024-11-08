@@ -26,13 +26,16 @@ export const ListsInputRulesExtension: ExtensionWithOptions<ListsInputRulesOptio
 
 /**
  * Given a list node type, returns an input rule that turns a number
- * followed by a dot at the start of a textblock into an ordered list.
+ * followed by a dot or parenthesis at the start of a textblock into an ordered list.
  */
 export function orderedListRule(nodeType: NodeType) {
     return wrappingInputRule(
-        /^(\d+)\.\s$/,
+        /^(\d+)([.)])\s$/,
         nodeType,
-        (match) => ({[ListsAttr.Order]: Number(match[1])}),
+        (match) => ({
+            [ListsAttr.Order]: Number(match[1]),
+            [ListsAttr.Markup]: match[2],
+        }),
         (match, node) => node.childCount + node.attrs[ListsAttr.Order] === Number(match[1]),
     );
 }
