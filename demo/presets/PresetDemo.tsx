@@ -20,6 +20,7 @@ import {SplitModePreview} from '../SplitModePreview';
 import {block} from '../cn';
 import {plugins} from '../constants/md-plugins';
 import {randomDelay} from '../delay';
+import {parseInsertedUrlAsImage} from '../utils/imageUrl';
 
 import '../playground/Playground.scss';
 
@@ -89,6 +90,13 @@ export const PresetDemo = React.memo<PresetDemoProps>((props) => {
         splitMode: splitModeOrientation,
         renderPreview,
         fileUploadHandler,
+        wysiwygConfig: {
+            extensionOptions: {
+                imgSize: {
+                    parseInsertedUrlAsImage,
+                },
+            },
+        },
     });
 
     useEffect(() => {

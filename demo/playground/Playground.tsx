@@ -38,6 +38,7 @@ import {block} from '../cn';
 import {plugins} from '../constants/md-plugins';
 import {randomDelay} from '../delay';
 import useYfmHtmlBlockStyles from '../hooks/useYfmHtmlBlockStyles';
+import {parseInsertedUrlAsImage} from '../utils/imageUrl';
 import {debouncedUpdateLocation as updateLocation} from '../utils/location';
 
 import './Playground.scss';
@@ -180,6 +181,9 @@ export const Playground = React.memo<PlaygroundProps>((props) => {
                 : undefined,
             extensionOptions: {
                 commandMenu: {actions: wysiwygCommandMenuConfig ?? wCommandMenuConfig},
+                imgSize: {
+                    parseInsertedUrlAsImage,
+                },
                 ...extensionOptions,
             },
             markupConfig: {

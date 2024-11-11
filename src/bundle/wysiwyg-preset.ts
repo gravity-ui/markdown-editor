@@ -83,6 +83,9 @@ export const BundlePreset: ExtensionAuto<BundlePresetOptions> = (builder, opts) 
             ulInputRules: {plus: false},
             ...opts.lists,
         },
+        image: {
+            parseInsertedUrlAsImage: opts.imgSize?.parseInsertedUrlAsImage,
+        },
     };
     const defaultOptions: BehaviorPresetOptions & DefaultPresetOptions = {
         ...commonMarkOptions,
