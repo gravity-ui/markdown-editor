@@ -26,6 +26,7 @@ export type BundlePresetOptions = ExtensionsOptions &
         preset: MarkdownEditorPreset;
         mdBreaks?: boolean;
         fileUploadHandler?: FileUploadHandler;
+        emptyRowPlaceholder?: boolean;
         /**
          * If we need to set dimensions for uploaded images
          *
@@ -51,7 +52,9 @@ export const BundlePreset: ExtensionAuto<BundlePresetOptions> = (builder, opts) 
             paragraphKey: f.toPM(A.Text),
             paragraphPlaceholder: (node: Node, parent?: Node | null) => {
                 const isDocEmpty =
-                    !node.text && parent?.type.name === BaseNode.Doc && parent.childCount === 1;
+                    !node.text &&
+                    (opts.emptyRowPlaceholder ||
+                        (parent?.type.name === BaseNode.Doc && parent.childCount === 1));
                 return isDocEmpty ? i18nPlaceholder('doc_empty') : null;
             },
             ...opts.baseSchema,
