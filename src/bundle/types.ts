@@ -24,6 +24,7 @@ export type RenderPreview = (params: RenderPreviewParams) => ReactNode;
 
 export type MarkdownEditorMdOptions = {
     html?: boolean;
+    emptyRowPlaceholder?: boolean;
     breaks?: boolean;
     linkify?: boolean;
     linkifyTlds?: string | string[];
