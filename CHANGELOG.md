@@ -1,5 +1,18 @@
 # Changelog
 
+## [14.1.0](https://github.com/gravity-ui/markdown-editor/compare/v14.0.3...v14.1.0) (2024-11-11)
+
+
+### Features
+
+* **emoji:** updated emoji suggest popup logic ([#462](https://github.com/gravity-ui/markdown-editor/issues/462)) ([844667d](https://github.com/gravity-ui/markdown-editor/commit/844667d5f1365f4c2df5318d0a621ef0e18db88c))
+* **lists:** added input rule for ordered lists with parenthesis ([#461](https://github.com/gravity-ui/markdown-editor/issues/461)) ([05ba62d](https://github.com/gravity-ui/markdown-editor/commit/05ba62deb68d1a0fb558c2672e48d26db617b6bc))
+
+
+### Bug Fixes
+
+* **Mermaid:** fix MermaidView edit buttons texts ([#465](https://github.com/gravity-ui/markdown-editor/issues/465)) ([0a16c61](https://github.com/gravity-ui/markdown-editor/commit/0a16c612e822e70e4bcc39e27bfd4fdcd3318c91))
+
 ## [14.0.3](https://github.com/gravity-ui/markdown-editor/compare/v14.0.2...v14.0.3) (2024-11-05)
 
 
