@@ -15,6 +15,7 @@ import {
     HorizontalRule,
     Html,
     Image,
+    ImageOptions,
     Italic,
     ItalicOptions,
     Link,
@@ -33,7 +34,7 @@ export type CommonMarkPresetOptions = ZeroPresetOptions & {
     lists?: ListsOptions;
     italic?: ItalicOptions;
     breaks?: BreaksOptions;
-    image?: false | Extension;
+    image?: false | Extension | ImageOptions;
     codeBlock?: CodeBlockOptions;
     blockquote?: BlockquoteOptions;
     heading?: false | Extension | HeadingOptions;
@@ -55,7 +56,10 @@ export const CommonMarkPreset: ExtensionAuto<CommonMarkPresetOptions> = (builder
         .use(Blockquote, opts.blockquote ?? {});
 
     if (opts.image !== false) {
-        builder.use(isFunction(opts.image) ? opts.image : Image);
+        builder.use(
+            isFunction(opts.image) ? opts.image : Image,
+            isFunction(opts.image) ? undefined : opts.image,
+        );
     }
 
     if (opts.heading !== false) {
