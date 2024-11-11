@@ -36,7 +36,7 @@ const defaultPlugins: PluginWithParams[] = [
     yfmCut({bundle: false}) as PluginWithParams,
     deflist,
     file,
-    imsize,
+    (md) => md.use(imsize, {enableInlineStyling: true}),
     meta,
     monospace,
     notes,

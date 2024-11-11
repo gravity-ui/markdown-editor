@@ -29,7 +29,7 @@ export type ImgSizeSpecsOptions = {
 export const ImgSizeSpecs: ExtensionAuto<ImgSizeSpecsOptions> = (builder, opts) => {
     const placeholderContent = builder.context.get('placeholder')?.imgSize;
 
-    builder.configureMd((md) => md.use(imsize, {log}));
+    builder.configureMd((md) => md.use(imsize, {log, enableInlineStyling: true}));
     builder.addNode(imageNodeName, () => ({
         spec: {
             inline: true,
