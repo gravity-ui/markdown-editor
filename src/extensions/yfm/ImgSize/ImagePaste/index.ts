@@ -3,6 +3,7 @@ import {Fragment, Node, Schema, Slice} from 'prosemirror-model';
 import {Plugin} from 'prosemirror-state';
 import {dropPoint} from 'prosemirror-transform';
 
+import type {ParseInsertedUrlAsImage} from '../../../../bundle';
 import {ExtensionAuto} from '../../../../core';
 import {isFunction} from '../../../../lodash';
 import {FileUploadHandler} from '../../../../utils/upload';
@@ -20,7 +21,7 @@ export type ImagePasteOptions = Pick<CreateImageNodeOptions, 'needDimmensions'> 
     /**
      * The function, used to determine if the pasted text is the image url and should be inserted as an image
      */
-    parseInsertedUrlAsImage?: (text: string) => {imageUrl: string; title?: string} | null;
+    parseInsertedUrlAsImage?: ParseInsertedUrlAsImage;
 };
 
 export const ImagePaste: ExtensionAuto<ImagePasteOptions> = (builder, opts) => {

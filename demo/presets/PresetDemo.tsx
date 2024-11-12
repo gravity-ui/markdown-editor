@@ -97,6 +97,9 @@ export const PresetDemo = React.memo<PresetDemoProps>((props) => {
                 },
             },
         },
+        markupConfig: {
+            parseInsertedUrlAsImage,
+        },
     });
 
     useEffect(() => {

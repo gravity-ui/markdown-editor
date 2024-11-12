@@ -1,5 +1,6 @@
 import {Plugin} from 'prosemirror-state';
 
+import type {ParseInsertedUrlAsImage} from '../../../../bundle';
 import {ExtensionAuto} from '../../../../core';
 import {DataTransferType} from '../../../behavior/Clipboard/utils';
 import {imageType} from '../ImageSpecs';
@@ -8,7 +9,7 @@ export type ImageUrlPasteOptions = {
     /**
      * The function, used to determine if the pasted text is the image url and should be inserted as an image
      */
-    parseInsertedUrlAsImage?: (text: string) => {imageUrl: string; title?: string} | null;
+    parseInsertedUrlAsImage?: ParseInsertedUrlAsImage;
 };
 
 export const imageUrlPaste: ExtensionAuto<ImageUrlPasteOptions> = (builder, opts) => {

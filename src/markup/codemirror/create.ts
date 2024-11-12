@@ -11,13 +11,16 @@ import {syntaxHighlighting} from '@codemirror/language';
 import type {Extension, StateCommand} from '@codemirror/state';
 import {EditorView, EditorViewConfig, KeyBinding, keymap, placeholder} from '@codemirror/view';
 
+import type {ParseInsertedUrlAsImage} from '../../bundle';
 import {EventMap} from '../../bundle/Editor';
 import {ActionName} from '../../bundle/config/action-names';
 import {ReactRenderStorage} from '../../extensions';
+import {DataTransferType} from '../../extensions/behavior/Clipboard/utils';
 import {logger} from '../../logger';
 import {Action as A, formatter as f} from '../../shortcuts';
 import {Receiver} from '../../utils';
 import {
+    insertImages,
     insertLink,
     toH1,
     toH2,
@@ -56,6 +59,7 @@ export type CreateCodemirrorParams = {
     onScroll: (event: Event) => void;
     reactRenderer: ReactRenderStorage;
     uploadHandler?: FileUploadHandler;
+    parseInsertedUrlAsImage?: ParseInsertedUrlAsImage;
     needImgDimms?: boolean;
     extensions?: Extension[];
     disabledExtensions?: {
@@ -83,6 +87,7 @@ export function createCodemirror(params: CreateCodemirrorParams) {
         extensions: extraExtensions,
         placeholder: placeholderContent,
         autocompletion: autocompletionConfig,
+        parseInsertedUrlAsImage,
     } = params;
 
     const extensions: Extension[] = [gravityTheme, placeholder(placeholderContent)];
@@ -144,6 +149,28 @@ export function createCodemirror(params: CreateCodemirrorParams) {
         EditorView.domEventHandlers({
             scroll(event) {
                 onScroll(event);
+            },
+            paste(event, editor) {
+                if (event.clipboardData && parseInsertedUrlAsImage) {
+                    const {imageUrl, title} =
+                        parseInsertedUrlAsImage(
+                            event.clipboardData.getData(DataTransferType.Text) ?? '',
+                        ) || {};
+
+                    if (!imageUrl) {
+                        return;
+                    }
+
+                    event.preventDefault();
+
+                    insertImages([
+                        {
+                            url: imageUrl,
+                            alt: title,
+                            title,
+                        },
+                    ])(editor);
+                }
             },
         }),
         SearchPanelPlugin({

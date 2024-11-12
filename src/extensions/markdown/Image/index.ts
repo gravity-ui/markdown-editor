@@ -28,6 +28,7 @@ export const Image: ExtensionAuto<ImageOptions | undefined> = (builder, opts) =>
 declare global {
     namespace WysiwygEditor {
         interface Actions {
+            // @ts-expect-error
             [addImageAction]: Action<AddImageAttrs>;
         }
     }
