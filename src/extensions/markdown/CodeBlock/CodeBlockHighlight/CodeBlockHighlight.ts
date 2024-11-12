@@ -169,9 +169,7 @@ export const CodeBlockHighlight: ExtensionAuto<CodeBlockHighlightOptions> = (bui
             let nodes: Root['children'];
 
             const lang: string | undefined = node.attrs[codeBlockLangAttr];
-            if (!lang) {
-                nodes = lowlight.highlightAuto(node.textContent).children;
-            } else if (lowlight.registered(lang)) {
+            if (lang && lowlight.registered(lang)) {
                 nodes = lowlight.highlight(lang, node.textContent).children;
             } else {
                 continue;
