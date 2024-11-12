@@ -25,6 +25,7 @@ import type {
     MarkdownEditorMdOptions,
     MarkdownEditorOptions,
     MarkdownEditorMarkupConfig as MarkupConfig,
+    ParseInsertedUrlAsImage,
     RenderPreview,
     MarkdownEditorSplitMode as SplitMode,
 } from './types';
@@ -140,6 +141,7 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
     #extensions?: WysiwygEditorOptions['extensions'];
     #renderStorage: ReactRenderStorage;
     #fileUploadHandler?: FileUploadHandler;
+    #parseInsertedUrlAsImage?: ParseInsertedUrlAsImage;
     #needToSetDimensionsForUploadedImages: boolean;
     #prepareRawMarkup?: (value: MarkupString) => MarkupString;
     #beforeEditorModeChange?: (
@@ -261,6 +263,7 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
                     onScroll: (event) => this.emit('cm-scroll', {event}),
                     reactRenderer: this.#renderStorage,
                     uploadHandler: this.fileUploadHandler,
+                    parseInsertedUrlAsImage: this.parseInsertedUrlAsImage,
                     needImgDimms: this.needToSetDimensionsForUploadedImages,
                     extensions: this.#markupConfig.extensions,
                     disabledExtensions: this.#markupConfig.disabledExtensions,
@@ -280,6 +283,10 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
 
     get fileUploadHandler(): FileUploadHandler | undefined {
         return this.#fileUploadHandler;
+    }
+
+    get parseInsertedUrlAsImage() {
+        return this.#parseInsertedUrlAsImage;
     }
 
     get needToSetDimensionsForUploadedImages(): boolean {
@@ -313,6 +320,7 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
 
         this.#renderStorage = opts.renderStorage;
         this.#fileUploadHandler = handlers.uploadFile;
+        this.#parseInsertedUrlAsImage = markupConfig.parseInsertedUrlAsImage;
         this.#needToSetDimensionsForUploadedImages = Boolean(
             experimental.needToSetDimensionsForUploadedImages,
         );

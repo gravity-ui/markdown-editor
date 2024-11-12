@@ -188,6 +188,7 @@ export const Playground = React.memo<PlaygroundProps>((props) => {
             },
             markupConfig: {
                 extensions: markupConfigExtensions,
+                parseInsertedUrlAsImage,
             },
             extraExtensions: (builder) => {
                 builder
