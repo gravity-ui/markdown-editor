@@ -1,5 +1,14 @@
 # Changelog
 
+## [14.2.0](https://github.com/gravity-ui/markdown-editor/compare/v14.1.0...v14.2.0) (2024-11-13)
+
+
+### Features
+
+* **CodeBlock:** removed automatic language identification for performance optimization ([#468](https://github.com/gravity-ui/markdown-editor/issues/468)) ([031504b](https://github.com/gravity-ui/markdown-editor/commit/031504baa06f108657fae7a0098c6ecf19e758c1))
+* **ImgSize, markup:** rework image styling to get more control  ([#451](https://github.com/gravity-ui/markdown-editor/issues/451)) ([526074d](https://github.com/gravity-ui/markdown-editor/commit/526074dc9f0cc38c067a8b38925c830e675d9701))
+* **markup:** convert pasted urls to images ([#469](https://github.com/gravity-ui/markdown-editor/issues/469)) ([720215b](https://github.com/gravity-ui/markdown-editor/commit/720215b11f52d7005428c469caead3db05eac230))
+
 ## [14.1.0](https://github.com/gravity-ui/markdown-editor/compare/v14.0.3...v14.1.0) (2024-11-11)
 
 
