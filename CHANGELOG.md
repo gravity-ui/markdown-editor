@@ -1,5 +1,12 @@
 # Changelog
 
+## [14.2.1](https://github.com/gravity-ui/markdown-editor/compare/v14.2.0...v14.2.1) (2024-11-13)
+
+
+### Bug Fixes
+
+* **deps:** removed @storybook/react from dependencies ([#472](https://github.com/gravity-ui/markdown-editor/issues/472)) ([d8e30bd](https://github.com/gravity-ui/markdown-editor/commit/d8e30bd33c3e94d4168c3ec82c1bd9eee669cab6))
+
 ## [14.2.0](https://github.com/gravity-ui/markdown-editor/compare/v14.1.0...v14.2.0) (2024-11-13)
 
 
