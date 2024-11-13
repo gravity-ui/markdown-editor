@@ -1,6 +1,6 @@
 {
   "name": "@gravity-ui/markdown-editor",
-  "version": "14.1.0",
+  "version": "14.2.0",
   "description": "Markdown wysiwyg and markup editor",
   "license": "MIT",
   "repository": {
@@ -206,7 +206,7 @@
     "@diplodoc/latex-extension": "1.0.3",
     "@diplodoc/mermaid-extension": "1.2.1",
     "@diplodoc/tabs-extension": "^3.5.1",
-    "@diplodoc/transform": "^4.33.0",
+    "@diplodoc/transform": "^4.36.0",
     "@gravity-ui/components": "3.0.0",
     "@gravity-ui/eslint-config": "3.1.1",
     "@gravity-ui/prettier-config": "1.1.0",

@@ -158,7 +158,7 @@ class ImageWidgetHandler {
 
         const {view} = this;
         new ImagesUploadProcess(view, files, this.uploadImages, this.getPos(), {
-            needDimmensions: this.needToSetDimensionsForUploadedImages,
+            needDimensions: this.needToSetDimensionsForUploadedImages,
         }).run();
         view.dispatch(removeWidget(view.state.tr, this.decoId));
         view.focus();

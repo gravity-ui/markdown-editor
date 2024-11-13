@@ -14,7 +14,10 @@ export type ImgSizeOptions = ImgSizeSpecsOptions & {
      * @default false
      */
     needToSetDimensionsForUploadedImages?: boolean;
-} & Pick<ImagePasteOptions, 'imageUploadHandler' | 'parseInsertedUrlAsImage'>;
+} & Pick<
+        ImagePasteOptions,
+        'imageUploadHandler' | 'parseInsertedUrlAsImage' | 'enableNewImageSizeCalculation'
+    >;
 
 export const ImgSize: ExtensionAuto<ImgSizeOptions> = (builder, opts) => {
     builder.use(ImgSizeSpecs, opts);
@@ -27,8 +30,9 @@ export const ImgSize: ExtensionAuto<ImgSizeOptions> = (builder, opts) => {
     if (opts.imageUploadHandler || opts.parseInsertedUrlAsImage) {
         builder.use(ImagePaste, {
             imageUploadHandler: opts.imageUploadHandler,
-            needDimmensions: Boolean(opts.needToSetDimensionsForUploadedImages),
+            needDimensions: Boolean(opts.needToSetDimensionsForUploadedImages),
             parseInsertedUrlAsImage: opts.parseInsertedUrlAsImage,
+            enableNewImageSizeCalculation: opts.enableNewImageSizeCalculation,
         });
     }
 
@@ -40,7 +44,6 @@ export const ImgSize: ExtensionAuto<ImgSizeOptions> = (builder, opts) => {
 declare global {
     namespace WysiwygEditor {
         interface Actions {
-            // @ts-expect-error
             [addImageAction]: Action<AddImageAttrs>;
         }
     }

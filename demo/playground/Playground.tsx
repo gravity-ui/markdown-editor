@@ -93,6 +93,7 @@ export type PlaygroundProps = {
     | 'extraExtensions'
     | 'renderPreview'
     | 'extensionOptions'
+    | 'experimental'
 > &
     Pick<
         MarkdownEditorViewProps,
@@ -136,6 +137,7 @@ export const Playground = React.memo<PlaygroundProps>((props) => {
         enableSubmitInPreview,
         hidePreviewAfterSubmit,
         needToSetDimensionsForUploadedImages,
+        experimental,
     } = props;
     const [editorMode, setEditorMode] = React.useState<MarkdownEditorMode>(
         initialEditor ?? 'wysiwyg',
@@ -176,6 +178,7 @@ export const Playground = React.memo<PlaygroundProps>((props) => {
             needToSetDimensionsForUploadedImages,
             renderPreview: renderPreviewDefined ? renderPreview : undefined,
             fileUploadHandler,
+            experimental,
             prepareRawMarkup: prepareRawMarkup
                 ? (value) => '**prepare raw markup**\n\n' + value
                 : undefined,
@@ -188,6 +191,7 @@ export const Playground = React.memo<PlaygroundProps>((props) => {
             },
             markupConfig: {
                 extensions: markupConfigExtensions,
+                parseInsertedUrlAsImage,
             },
             extraExtensions: (builder) => {
                 builder
@@ -237,6 +241,10 @@ export const Playground = React.memo<PlaygroundProps>((props) => {
             extraExtensions,
             needToSetDimensionsForUploadedImages,
             initial,
+            experimental?.enableNewImageSizeCalculation,
+            experimental?.needToSetDimensionsForUploadedImages,
+            experimental?.beforeEditorModeChange,
+            experimental?.prepareRawMarkup,
         ],
     );
 

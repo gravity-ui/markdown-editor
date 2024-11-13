@@ -1,4 +1,4 @@
-import {isFilesFromHtml, isFilesOnly} from '../../../utils/clipboard';
+import {isFilesFromHtml, isFilesOnly} from '../../../utils';
 
 export {uniqueId} from '../../../lodash';
 export {isImageFile} from '../../../utils/clipboard';

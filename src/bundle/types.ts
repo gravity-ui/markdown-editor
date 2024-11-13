@@ -4,8 +4,8 @@ import type {ReactNode} from 'react';
 
 import type {MarkupString} from '../common';
 import type {EscapeConfig, Extension} from '../core';
-import type {CreateCodemirrorParams, YfmLangOptions} from '../markup/codemirror';
-import type {FileUploadHandler} from '../utils/upload';
+import type {CreateCodemirrorParams, YfmLangOptions} from '../markup';
+import type {FileUploadHandler} from '../utils';
 
 import type {ChangeEditorModeOptions} from './Editor';
 import type {ExtensionsOptions as WysiwygPresetExtensionsOptions} from './wysiwyg-preset';
@@ -21,6 +21,8 @@ export type RenderPreviewParams = {
     md: Readonly<MarkdownEditorMdOptions>;
 };
 export type RenderPreview = (params: RenderPreviewParams) => ReactNode;
+
+export type ParseInsertedUrlAsImage = (text: string) => {imageUrl: string; title?: string} | null;
 
 export type MarkdownEditorMdOptions = {
     html?: boolean;
@@ -55,6 +57,12 @@ export type MarkdownEditorExperimentalOptions = {
      * @default false
      */
     needToSetDimensionsForUploadedImages?: boolean;
+    /**
+     * If we need to enable new image size calculations
+     *
+     * @default false
+     */
+    enableNewImageSizeCalculation?: boolean;
     /**
      * Called before switching from the markup editor to the wysiwyg editor.
      * You can use it to pre-process the value from the markup editor before it gets into the wysiwyg editor.
@@ -98,6 +106,10 @@ export type MarkdownEditorMarkupConfig = {
     languageData?: YfmLangOptions['languageData'];
     /** Config for @codemirror/autocomplete https://codemirror.net/docs/ref/#autocomplete.autocompletion%5Econfig */
     autocompletion?: CreateCodemirrorParams['autocompletion'];
+    /**
+     * The function, used to determine if the pasted text is the image url and should be inserted as an image
+     */
+    parseInsertedUrlAsImage?: ParseInsertedUrlAsImage;
 };
 
 // do not export this type
