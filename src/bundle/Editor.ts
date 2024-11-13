@@ -14,10 +14,9 @@ import {
 import {ReactRenderStorage, type RenderStorage} from '../extensions';
 import {i18n} from '../i18n/bundle';
 import {logger} from '../logger';
-import {createCodemirror} from '../markup/codemirror';
+import {createCodemirror} from '../markup';
 import {type CodeEditor, Editor as MarkupEditor} from '../markup/editor';
-import {type Emitter, type Receiver, SafeEventEmitter} from '../utils/event-emitter';
-import type {FileUploadHandler} from '../utils/upload';
+import {type Emitter, FileUploadHandler, type Receiver, SafeEventEmitter} from '../utils';
 
 import type {
     MarkdownEditorMode as EditorMode,
@@ -143,6 +142,7 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
     #fileUploadHandler?: FileUploadHandler;
     #parseInsertedUrlAsImage?: ParseInsertedUrlAsImage;
     #needToSetDimensionsForUploadedImages: boolean;
+    #enableNewImageSizeCalculation: boolean;
     #prepareRawMarkup?: (value: MarkupString) => MarkupString;
     #beforeEditorModeChange?: (
         options: Pick<ChangeEditorModeOptions, 'mode' | 'reason'>,
@@ -264,7 +264,8 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
                     reactRenderer: this.#renderStorage,
                     uploadHandler: this.fileUploadHandler,
                     parseInsertedUrlAsImage: this.parseInsertedUrlAsImage,
-                    needImgDimms: this.needToSetDimensionsForUploadedImages,
+                    needImageDimensions: this.needToSetDimensionsForUploadedImages,
+                    enableNewImageSizeCalculation: this.enableNewImageSizeCalculation,
                     extensions: this.#markupConfig.extensions,
                     disabledExtensions: this.#markupConfig.disabledExtensions,
                     keymaps: this.#markupConfig.keymaps,
@@ -291,6 +292,10 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
 
     get needToSetDimensionsForUploadedImages(): boolean {
         return this.#needToSetDimensionsForUploadedImages;
+    }
+
+    get enableNewImageSizeCalculation(): boolean {
+        return this.#enableNewImageSizeCalculation;
     }
 
     constructor(opts: EditorOptions) {
@@ -324,6 +329,7 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
         this.#needToSetDimensionsForUploadedImages = Boolean(
             experimental.needToSetDimensionsForUploadedImages,
         );
+        this.#enableNewImageSizeCalculation = Boolean(experimental.enableNewImageSizeCalculation);
         this.#prepareRawMarkup = experimental.prepareRawMarkup;
         this.#escapeConfig = wysiwygConfig.escapeConfig;
         this.#beforeEditorModeChange = experimental.beforeEditorModeChange;

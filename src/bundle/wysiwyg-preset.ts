@@ -32,6 +32,7 @@ export type BundlePresetOptions = ExtensionsOptions &
          * @default false
          */
         needToSetDimensionsForUploadedImages?: boolean;
+        enableNewImageSizeCalculation?: boolean;
     };
 
 export const BundlePreset: ExtensionAuto<BundlePresetOptions> = (builder, opts) => {
@@ -101,6 +102,7 @@ export const BundlePreset: ExtensionAuto<BundlePresetOptions> = (builder, opts) 
         imgSize: {
             imageUploadHandler: opts.fileUploadHandler,
             needToSetDimensionsForUploadedImages: opts.needToSetDimensionsForUploadedImages,
+            enableNewImageSizeCalculation: opts.enableNewImageSizeCalculation,
             ...opts.imgSize,
         },
         checkbox: {checkboxLabelPlaceholder: () => i18nPlaceholder('checkbox'), ...opts.checkbox},

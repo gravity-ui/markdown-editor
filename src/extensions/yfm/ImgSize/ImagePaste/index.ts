@@ -6,7 +6,7 @@ import {dropPoint} from 'prosemirror-transform';
 import type {ParseInsertedUrlAsImage} from '../../../../bundle';
 import {ExtensionAuto} from '../../../../core';
 import {isFunction} from '../../../../lodash';
-import {FileUploadHandler} from '../../../../utils/upload';
+import {FileUploadHandler} from '../../../../utils';
 import {clipboardUtils} from '../../../behavior/Clipboard';
 import {DataTransferType} from '../../../behavior/Clipboard/utils';
 import {ImageAttr, ImgSizeAttr, imageType} from '../../../specs';
@@ -16,7 +16,10 @@ import {ImagesUploadProcess} from './upload';
 
 const {isFilesFromHtml, isFilesOnly, isImageFile} = clipboardUtils;
 
-export type ImagePasteOptions = Pick<CreateImageNodeOptions, 'needDimmensions'> & {
+export type ImagePasteOptions = Pick<
+    CreateImageNodeOptions,
+    'needDimensions' | 'enableNewImageSizeCalculation'
+> & {
     imageUploadHandler?: FileUploadHandler;
     /**
      * The function, used to determine if the pasted text is the image url and should be inserted as an image

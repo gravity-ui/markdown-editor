@@ -5,13 +5,7 @@ export * from './clipboard';
 export * from './ecapeRegexp';
 export * from './event-emitter';
 export * from './helpers';
-export {
-    markInputRule,
-    nodeInputRule,
-    inlineNodeInputRule,
-    textblockTypeInputRule,
-    wrappingInputRule,
-} from './inputrules';
+export * from './inputrules';
 export * from './keymap';
 export * from './marks';
 export * from './node-children';
@@ -24,3 +18,4 @@ export * from './selection';
 export * from './serialize-for-clipboard';
 export * from './sync-scroll';
 export * from './upload';
+export * from './get-proportional-size';
