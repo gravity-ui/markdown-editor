@@ -38,6 +38,7 @@ export function useMarkdownEditor<T extends object = {}>(
         const needToSetDimensionsForUploadedImages =
             experimental.needToSetDimensionsForUploadedImages ??
             props.needToSetDimensionsForUploadedImages;
+        const enableNewImageSizeCalculation = experimental.enableNewImageSizeCalculation;
 
         const extensions: Extension = (builder) => {
             const extensionOptions = wysiwygConfig.extensionOptions ?? props.extensionOptions;
@@ -57,6 +58,7 @@ export function useMarkdownEditor<T extends object = {}>(
                 mdBreaks: breaks,
                 fileUploadHandler: uploadFile,
                 needToSetDimensionsForUploadedImages,
+                enableNewImageSizeCalculation,
             });
             {
                 const extraExtensions = wysiwygConfig.extensions || props.extraExtensions;
@@ -90,6 +92,7 @@ export function useMarkdownEditor<T extends object = {}>(
             experimental: {
                 ...experimental,
                 needToSetDimensionsForUploadedImages,
+                enableNewImageSizeCalculation,
                 prepareRawMarkup: experimental.prepareRawMarkup ?? props.prepareRawMarkup,
                 beforeEditorModeChange:
                     experimental.beforeEditorModeChange ??

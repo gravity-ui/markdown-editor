@@ -58,6 +58,12 @@ export type MarkdownEditorExperimentalOptions = {
      */
     needToSetDimensionsForUploadedImages?: boolean;
     /**
+     * If we need to enable new image size calculations
+     *
+     * @default false
+     */
+    enableNewImageSizeCalculation?: boolean;
+    /**
      * Called before switching from the markup editor to the wysiwyg editor.
      * You can use it to pre-process the value from the markup editor before it gets into the wysiwyg editor.
      */

@@ -142,6 +142,7 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
     #fileUploadHandler?: FileUploadHandler;
     #parseInsertedUrlAsImage?: ParseInsertedUrlAsImage;
     #needToSetDimensionsForUploadedImages: boolean;
+    #enableNewImageSizeCalculation: boolean;
     #prepareRawMarkup?: (value: MarkupString) => MarkupString;
     #beforeEditorModeChange?: (
         options: Pick<ChangeEditorModeOptions, 'mode' | 'reason'>,
@@ -264,6 +265,7 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
                     uploadHandler: this.fileUploadHandler,
                     parseInsertedUrlAsImage: this.parseInsertedUrlAsImage,
                     needImageDimensions: this.needToSetDimensionsForUploadedImages,
+                    enableNewImageSizeCalculation: this.enableNewImageSizeCalculation,
                     extensions: this.#markupConfig.extensions,
                     disabledExtensions: this.#markupConfig.disabledExtensions,
                     keymaps: this.#markupConfig.keymaps,
@@ -290,6 +292,10 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
 
     get needToSetDimensionsForUploadedImages(): boolean {
         return this.#needToSetDimensionsForUploadedImages;
+    }
+
+    get enableNewImageSizeCalculation(): boolean {
+        return this.#enableNewImageSizeCalculation;
     }
 
     constructor(opts: EditorOptions) {
@@ -323,6 +329,7 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
         this.#needToSetDimensionsForUploadedImages = Boolean(
             experimental.needToSetDimensionsForUploadedImages,
         );
+        this.#enableNewImageSizeCalculation = Boolean(experimental.enableNewImageSizeCalculation);
         this.#prepareRawMarkup = experimental.prepareRawMarkup;
         this.#escapeConfig = wysiwygConfig.escapeConfig;
         this.#beforeEditorModeChange = experimental.beforeEditorModeChange;

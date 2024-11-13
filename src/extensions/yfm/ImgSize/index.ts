@@ -14,7 +14,10 @@ export type ImgSizeOptions = ImgSizeSpecsOptions & {
      * @default false
      */
     needToSetDimensionsForUploadedImages?: boolean;
-} & Pick<ImagePasteOptions, 'imageUploadHandler' | 'parseInsertedUrlAsImage'>;
+} & Pick<
+        ImagePasteOptions,
+        'imageUploadHandler' | 'parseInsertedUrlAsImage' | 'enableNewImageSizeCalculation'
+    >;
 
 export const ImgSize: ExtensionAuto<ImgSizeOptions> = (builder, opts) => {
     builder.use(ImgSizeSpecs, opts);
@@ -29,6 +32,7 @@ export const ImgSize: ExtensionAuto<ImgSizeOptions> = (builder, opts) => {
             imageUploadHandler: opts.imageUploadHandler,
             needDimensions: Boolean(opts.needToSetDimensionsForUploadedImages),
             parseInsertedUrlAsImage: opts.parseInsertedUrlAsImage,
+            enableNewImageSizeCalculation: opts.enableNewImageSizeCalculation,
         });
     }
 

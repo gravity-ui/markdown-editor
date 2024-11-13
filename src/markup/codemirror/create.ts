@@ -61,6 +61,7 @@ export type CreateCodemirrorParams = {
     uploadHandler?: FileUploadHandler;
     parseInsertedUrlAsImage?: ParseInsertedUrlAsImage;
     needImageDimensions?: boolean;
+    enableNewImageSizeCalculation?: boolean;
     extensions?: Extension[];
     disabledExtensions?: {
         history?: boolean;
@@ -184,6 +185,7 @@ export function createCodemirror(params: CreateCodemirrorParams) {
             FileUploadHandlerFacet.of({
                 fn: params.uploadHandler,
                 imageWithDimensions: params.needImageDimensions,
+                enableNewImageSizeCalculation: params.enableNewImageSizeCalculation,
             }),
         );
     }

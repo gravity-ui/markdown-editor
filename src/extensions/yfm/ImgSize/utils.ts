@@ -13,6 +13,7 @@ export function isImageNode(node: Node): boolean {
 
 export type CreateImageNodeOptions = {
     needDimensions: boolean;
+    enableNewImageSizeCalculation?: boolean;
 };
 
 export const createImageNode =
@@ -24,7 +25,9 @@ export const createImageNode =
         };
         if (opts.needDimensions) {
             try {
-                const sizes = await loadImage(file).then(getImageSize);
+                const sizes = await loadImage(file).then(
+                    opts.enableNewImageSizeCalculation ? getImageSizeNew : getImageSize,
+                );
                 Object.assign(attrs, sizes);
             } catch (err) {
                 logger.error(err);
@@ -45,7 +48,11 @@ export async function loadImage(imgFile: File) {
     });
 }
 
-export function getImageSize({width, height}: HTMLImageElement): {
+export function getImageSize(img: HTMLImageElement): {[ImgSizeAttr.Height]?: string} {
+    return {height: String(Math.min(IMG_MAX_HEIGHT, img.height))};
+}
+
+export function getImageSizeNew({width, height}: HTMLImageElement): {
     [ImgSizeAttr.Width]?: string;
     [ImgSizeAttr.Height]?: string;
 } {

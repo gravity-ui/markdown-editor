@@ -77,6 +77,7 @@ class FileUploadPresenter {
     private readonly view: EditorView;
     private readonly uploader: FileUploadHandler;
     private readonly needDimensionsForImages: boolean;
+    private readonly enableNewImageSizeCalculation: boolean;
 
     private state: 'initial' | 'uploading' | 'success' | 'error' | 'canceled' = 'initial';
 
@@ -86,12 +87,14 @@ class FileUploadPresenter {
         uploader: FileUploadHandler;
         view: EditorView;
         needDimensionsForImages: boolean;
+        enableNewImageSizeCalculation: boolean;
     }) {
         this.file = params.file;
         this.view = params.view;
         this.widget = params.widget;
         this.uploader = params.uploader;
         this.needDimensionsForImages = params.needDimensionsForImages;
+        this.enableNewImageSizeCalculation = params.enableNewImageSizeCalculation;
         this.widget.setPresenter(this);
         this.run();
     }
@@ -154,13 +157,19 @@ class FileUploadPresenter {
             if (this.needDimensionsForImages) {
                 try {
                     const fileSize = await getImageDimensions(this.file);
-                    const {width, height} = getProportionalSize({
-                        width: fileSize.width,
-                        height: fileSize.height,
-                        imgMaxHeight: IMG_MAX_HEIGHT,
-                    });
 
-                    markup += ` =${width}x${height}`;
+                    if (this.enableNewImageSizeCalculation) {
+                        const {width, height} = getProportionalSize({
+                            width: fileSize.width,
+                            height: fileSize.height,
+                            imgMaxHeight: IMG_MAX_HEIGHT,
+                        });
+
+                        markup += ` =${width}x${height}`;
+                    } else {
+                        const height = Math.min(fileSize.height, IMG_MAX_HEIGHT);
+                        markup += ` =x${height}`;
+                    }
                 } catch (err) {
                     console.error(err);
                 }
@@ -201,6 +210,9 @@ export const FilesUploadPlugin = ViewPlugin.fromClass(
                                     uploader: uploadFacet.fn,
                                     needDimensionsForImages: Boolean(
                                         uploadFacet.imageWithDimensions,
+                                    ),
+                                    enableNewImageSizeCalculation: Boolean(
+                                        uploadFacet.enableNewImageSizeCalculation,
                                     ),
                                     widget: new FileUploadWidget(uniqueId('__file_widget_id')),
                                 });
