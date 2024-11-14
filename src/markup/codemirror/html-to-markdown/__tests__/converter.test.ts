@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
-import { JSDOM } from 'jsdom';
-import { MarkdownConverter } from '../converters';
+import {JSDOM} from 'jsdom';
+import {MarkdownConverter} from '../converters';
 
 describe('HTML to Markdown Converter', () => {
     const fixturesPath = path.join(__dirname, '../fixtures');
@@ -12,11 +12,11 @@ describe('HTML to Markdown Converter', () => {
         converter = new MarkdownConverter();
     });
 
-    testCases.forEach(testCase => {
+    testCases.forEach((testCase) => {
         it(`should convert ${testCase} correctly`, () => {
             const inputPath = path.join(fixturesPath, testCase, 'input.html');
             const outputPath = path.join(fixturesPath, testCase, 'output.md');
-            
+
             const inputHtml = fs.readFileSync(inputPath, 'utf-8');
             const expectedOutput = fs.readFileSync(outputPath, 'utf-8').trim();
 

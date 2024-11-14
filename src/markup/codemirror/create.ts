@@ -168,14 +168,14 @@ export function createCodemirror(params: CreateCodemirrorParams) {
                         const parser = new DOMParser();
                         const doc = parser.parseFromString(htmlContent, 'text/html');
                         const links = Array.from(doc.getElementsByTagName('a'));
-    
+
                         if (links.length > 0) {
                             event.preventDefault();
-                            
+
                             const converter = new MarkdownConverter();
                             const result = converter.processNode(doc.body).trim();
                             console.log(result);
-                            
+
                             editor.dispatch(editor.state.replaceSelection(result));
                             return;
                         }

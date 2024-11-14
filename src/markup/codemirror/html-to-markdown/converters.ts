@@ -1,5 +1,14 @@
-import { CodeHandler, FormattingHandler, HeaderHandler, LinkHandler, NodeHandler, ParagraphHandler, TextNodeHandler, GenericHandler } from "./handlers";
-import { FormattingHelper } from "./helpers";
+import {
+    CodeHandler,
+    FormattingHandler,
+    HeaderHandler,
+    LinkHandler,
+    NodeHandler,
+    ParagraphHandler,
+    TextNodeHandler,
+    GenericHandler,
+} from './handlers';
+import {FormattingHelper} from './helpers';
 
 /**
  * Interface defining methods for visiting different types of HTML nodes.
@@ -80,14 +89,20 @@ export class MarkdownConverter implements HTMLNodeVisitor {
         const linkText = this.collectTextContent(node);
         const url = node.href || '';
         // Handle links with formatted content vs plain text differently
-        const formattedText = node.childNodes.length === 1 && node.firstChild?.nodeType === Node.TEXT_NODE
-            ? this.formatHelper.applyFormatting(linkText, node) // Plain text link
-            : Array.from(node.childNodes).map((child) => {
-                if (child.nodeType === Node.ELEMENT_NODE) {
-                    return this.formatHelper.applyFormatting(child.textContent || '', child as HTMLElement);
-                }
-                return child.textContent || '';
-            }).join(''); // Apply formatting for each formatted child node
+        const formattedText =
+            node.childNodes.length === 1 && node.firstChild?.nodeType === Node.TEXT_NODE
+                ? this.formatHelper.applyFormatting(linkText, node) // Plain text link
+                : Array.from(node.childNodes)
+                      .map((child) => {
+                          if (child.nodeType === Node.ELEMENT_NODE) {
+                              return this.formatHelper.applyFormatting(
+                                  child.textContent || '',
+                                  child as HTMLElement,
+                              );
+                          }
+                          return child.textContent || '';
+                      })
+                      .join(''); // Apply formatting for each formatted child node
         return `[${formattedText}](${url} "${linkText.replace(/"/g, '\\"')}")`;
     }
 
@@ -154,7 +169,7 @@ export class MarkdownConverter implements HTMLNodeVisitor {
             return this.visitText(node as Text);
         }
         return Array.from(node.childNodes)
-            .map(child => this.collectTextContent(child))
+            .map((child) => this.collectTextContent(child))
             .join('');
     }
 
@@ -166,10 +181,10 @@ export class MarkdownConverter implements HTMLNodeVisitor {
      */
     private collectCodeContent(node: Node): string {
         if (node.nodeType === Node.TEXT_NODE) {
-            return (node.textContent || '');
+            return node.textContent || '';
         }
         return Array.from(node.childNodes)
-            .map(child => this.collectCodeContent(child))
+            .map((child) => this.collectCodeContent(child))
             .join('');
     }
 
@@ -181,7 +196,7 @@ export class MarkdownConverter implements HTMLNodeVisitor {
      */
     private processChildren(node: Node): string {
         return Array.from(node.childNodes)
-            .map(child => this.processNode(child))
+            .map((child) => this.processNode(child))
             .join('');
     }
 
@@ -203,4 +218,4 @@ export class MarkdownConverter implements HTMLNodeVisitor {
     private getHandler(): NodeHandler {
         return this.handler;
     }
-} 
+}

@@ -1,4 +1,4 @@
-import { HTMLNodeVisitor } from "./converters";
+import {HTMLNodeVisitor} from './converters';
 
 /**
  * Base handler class implementing the Chain of Responsibility pattern for HTML node processing.
@@ -61,7 +61,10 @@ export class TextNodeHandler extends NodeHandler {
  */
 export class LinkHandler extends NodeHandler {
     handle(node: Node, visitor: HTMLNodeVisitor): string {
-        if (node.nodeType === Node.ELEMENT_NODE && (node as Element).tagName.toLowerCase() === 'a') {
+        if (
+            node.nodeType === Node.ELEMENT_NODE &&
+            (node as Element).tagName.toLowerCase() === 'a'
+        ) {
             return visitor.visitLink(node as HTMLAnchorElement);
         }
         return this.handleNext(node, visitor);
@@ -122,8 +125,10 @@ export class FormattingHandler extends NodeHandler {
         const element = node as Element;
         const tagName = element.tagName.toLowerCase();
         const formattingTags = ['b', 'strong', 'i', 'em', 'span'];
-        if (formattingTags.includes(tagName) &&
-            !['a', 'code'].includes(element.parentElement?.tagName.toLowerCase() || '')) {
+        if (
+            formattingTags.includes(tagName) &&
+            !['a', 'code'].includes(element.parentElement?.tagName.toLowerCase() || '')
+        ) {
             return visitor.visitFormatting(element as HTMLElement);
         }
         return this.handleNext(node, visitor);
