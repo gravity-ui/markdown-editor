@@ -46,6 +46,7 @@ import {PairingCharactersExtension} from './pairing-chars';
 import {ReactRendererFacet} from './react-facet';
 import {SearchPanelPlugin} from './search-plugin/plugin';
 import {type YfmLangOptions, yfmLang} from './yfm';
+import {MarkdownConverter} from './html-to-markdown/converters';
 
 export type {YfmLangOptions};
 
@@ -157,7 +158,33 @@ export function createCodemirror(params: CreateCodemirrorParams) {
                 onScroll(event);
             },
             paste(event, editor) {
-                if (event.clipboardData && parseInsertedUrlAsImage) {
+                console.log(event.clipboardData);
+                if (!event.clipboardData) return;
+
+                // Handle HTML insertion
+                try {
+                    const htmlContent = event.clipboardData.getData(DataTransferType.Html);
+                    if (htmlContent) {
+                        const parser = new DOMParser();
+                        const doc = parser.parseFromString(htmlContent, 'text/html');
+                        const links = Array.from(doc.getElementsByTagName('a'));
+    
+                        if (links.length > 0) {
+                            event.preventDefault();
+                            
+                            const converter = new MarkdownConverter();
+                            const result = converter.processNode(doc.body).trim();
+                            console.log(result);
+                            
+                            editor.dispatch(editor.state.replaceSelection(result));
+                            return;
+                        }
+                    }
+                } catch {
+                    // it may throw error if html is not valid, then we will handle it as default pasting
+                }
+
+                if (parseInsertedUrlAsImage) {
                     const {imageUrl, title} =
                         parseInsertedUrlAsImage(
                             event.clipboardData.getData(DataTransferType.Text) ?? '',
