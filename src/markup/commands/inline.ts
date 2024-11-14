@@ -35,10 +35,13 @@ export function insertImages(images: ImageItem[]): StateCommand {
                 let result = `![${alt ?? ''}](${url ?? ''}`;
 
                 if (title) {
-                    result += ` "${title}`;
+                    result += ` "${title}"`;
                 }
 
-                if (width !== undefined || height !== undefined) {
+                if (
+                    (width !== undefined && width.length > 0) ||
+                    (height !== undefined && height.length > 0)
+                ) {
                     result += ` =${width ?? ''}x${height ?? ''}`;
                 }
 
