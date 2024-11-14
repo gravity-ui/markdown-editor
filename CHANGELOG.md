@@ -1,5 +1,12 @@
 # Changelog
 
+## [14.2.2](https://github.com/gravity-ui/markdown-editor/compare/v14.2.1...v14.2.2) (2024-11-14)
+
+
+### Bug Fixes
+
+* **markup:** fix image paste by link with title from popup ([#474](https://github.com/gravity-ui/markdown-editor/issues/474)) ([a291ae9](https://github.com/gravity-ui/markdown-editor/commit/a291ae9786fc952a04eff831466833ac053df5de))
+
 ## [14.2.1](https://github.com/gravity-ui/markdown-editor/compare/v14.2.0...v14.2.1) (2024-11-13)
 
 
