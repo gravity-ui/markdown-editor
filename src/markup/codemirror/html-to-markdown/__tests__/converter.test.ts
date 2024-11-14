@@ -1,10 +1,10 @@
-import fs from 'fs';
-import path from 'path';
+import fs from 'node:fs';
+import path from 'node:path';
 import {JSDOM} from 'jsdom';
 import {MarkdownConverter} from '../converters';
 
 describe('HTML to Markdown Converter', () => {
-    const fixturesPath = path.join(__dirname, '../fixtures');
+    const fixturesPath = path.join(__dirname, './fixtures');
     const testCases = fs.readdirSync(fixturesPath);
     let converter: MarkdownConverter;
 
