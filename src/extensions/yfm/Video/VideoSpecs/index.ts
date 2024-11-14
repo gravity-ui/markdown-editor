@@ -57,6 +57,11 @@ export const VideoSpecs: ExtensionAuto<VideoSpecsOptions> = (builder, opts) => {
                 const videoId = node.attrs[VideoAttr.VideoID];
 
                 if (availableServices.has(service) || !videoId) {
+                    let src = '';
+                    if (typeof (options as any).url === 'function')
+                        src = (options as any).url(service, videoId, options);
+                    else if (typeof (options as any).videoUrl === 'function')
+                        src = (options as any).videoUrl(service, videoId, options);
                     return [
                         'div',
                         {
@@ -69,7 +74,7 @@ export const VideoSpecs: ExtensionAuto<VideoSpecsOptions> = (builder, opts) => {
                                 type: 'text/html',
                                 width: String(options[service as VideoService].width),
                                 height: String(options[service as VideoService].height),
-                                src: options.videoUrl(service, videoId, options),
+                                src: src,
                                 frameborder: '0',
                                 webkitallowfullscreen: '',
                                 mozallowfullscreen: '',
