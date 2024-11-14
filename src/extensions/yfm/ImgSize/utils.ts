@@ -1,7 +1,7 @@
 import {Node, NodeType} from 'prosemirror-model';
 
 import {logger} from '../../../logger';
-import {UploadSuccessItem} from '../../../utils/upload';
+import {UploadSuccessItem, getProportionalSize} from '../../../utils';
 import {imageNodeName} from '../../markdown';
 import {ImgSizeAttr} from '../../specs';
 
@@ -12,7 +12,8 @@ export function isImageNode(node: Node): boolean {
 }
 
 export type CreateImageNodeOptions = {
-    needDimmensions: boolean;
+    needDimensions: boolean;
+    enableNewImageSizeCalculation?: boolean;
 };
 
 export const createImageNode =
@@ -22,9 +23,11 @@ export const createImageNode =
             [ImgSizeAttr.Src]: result.url,
             [ImgSizeAttr.Alt]: result.name ?? file.name,
         };
-        if (opts.needDimmensions) {
+        if (opts.needDimensions) {
             try {
-                const sizes = await loadImage(file).then(getImageSize);
+                const sizes = await loadImage(file).then(
+                    opts.enableNewImageSizeCalculation ? getImageSizeNew : getImageSize,
+                );
                 Object.assign(attrs, sizes);
             } catch (err) {
                 logger.error(err);
@@ -45,9 +48,18 @@ export async function loadImage(imgFile: File) {
     });
 }
 
-export function getImageSize(img: HTMLImageElement): {
+export function getImageSize(img: HTMLImageElement): {[ImgSizeAttr.Height]?: string} {
+    return {height: String(Math.min(IMG_MAX_HEIGHT, img.height))};
+}
+
+export function getImageSizeNew({width, height}: HTMLImageElement): {
     [ImgSizeAttr.Width]?: string;
     [ImgSizeAttr.Height]?: string;
 } {
-    return {height: String(Math.min(IMG_MAX_HEIGHT, img.height))};
+    const size = getProportionalSize({
+        width,
+        height,
+        imgMaxHeight: IMG_MAX_HEIGHT,
+    });
+    return {width: String(size.width), height: String(size.height)};
 }

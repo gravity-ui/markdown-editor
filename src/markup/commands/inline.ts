@@ -32,9 +32,22 @@ export function insertImages(images: ImageItem[]): StateCommand {
     return ({state, dispatch}) => {
         const markup = images
             .map(({title, url, alt, width, height}) => {
-                const titleStr = title ? ` "${title}"` : '';
-                const sizeStr = width ?? height ? ` =${width ?? ''}x${height ?? ''}` : '';
-                return `![${alt ?? ''}](${url ?? ''}${titleStr}${sizeStr})`;
+                let result = `![${alt ?? ''}](${url ?? ''}`;
+
+                if (title) {
+                    result += ` "${title}"`;
+                }
+
+                if (
+                    (width !== undefined && width.length > 0) ||
+                    (height !== undefined && height.length > 0)
+                ) {
+                    result += ` =${width ?? ''}x${height ?? ''}`;
+                }
+
+                result += ')';
+
+                return result;
             })
             .join(' ');
 

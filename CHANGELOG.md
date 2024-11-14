@@ -1,5 +1,42 @@
 # Changelog
 
+## [14.2.2](https://github.com/gravity-ui/markdown-editor/compare/v14.2.1...v14.2.2) (2024-11-14)
+
+
+### Bug Fixes
+
+* **markup:** fix image paste by link with title from popup ([#474](https://github.com/gravity-ui/markdown-editor/issues/474)) ([a291ae9](https://github.com/gravity-ui/markdown-editor/commit/a291ae9786fc952a04eff831466833ac053df5de))
+
+## [14.2.1](https://github.com/gravity-ui/markdown-editor/compare/v14.2.0...v14.2.1) (2024-11-13)
+
+
+### Bug Fixes
+
+* **deps:** removed @storybook/react from dependencies ([#472](https://github.com/gravity-ui/markdown-editor/issues/472)) ([d8e30bd](https://github.com/gravity-ui/markdown-editor/commit/d8e30bd33c3e94d4168c3ec82c1bd9eee669cab6))
+
+## [14.2.0](https://github.com/gravity-ui/markdown-editor/compare/v14.1.0...v14.2.0) (2024-11-13)
+
+
+### Features
+
+* **CodeBlock:** removed automatic language identification for performance optimization ([#468](https://github.com/gravity-ui/markdown-editor/issues/468)) ([031504b](https://github.com/gravity-ui/markdown-editor/commit/031504baa06f108657fae7a0098c6ecf19e758c1))
+* **ImgSize, markup:** rework image styling to get more control  ([#451](https://github.com/gravity-ui/markdown-editor/issues/451)) ([526074d](https://github.com/gravity-ui/markdown-editor/commit/526074dc9f0cc38c067a8b38925c830e675d9701))
+* **markup:** convert pasted urls to images ([#469](https://github.com/gravity-ui/markdown-editor/issues/469)) ([720215b](https://github.com/gravity-ui/markdown-editor/commit/720215b11f52d7005428c469caead3db05eac230))
+* **Image**: convert pasted image urls to images ([#464](https://github.com/gravity-ui/markdown-editor/pull/464)) ([64d389e](https://github.com/gravity-ui/markdown-editor/commit/64d389e592109db642daeabee5a086566ee320ca))
+
+## [14.1.0](https://github.com/gravity-ui/markdown-editor/compare/v14.0.3...v14.1.0) (2024-11-11)
+
+
+### Features
+
+* **emoji:** updated emoji suggest popup logic ([#462](https://github.com/gravity-ui/markdown-editor/issues/462)) ([844667d](https://github.com/gravity-ui/markdown-editor/commit/844667d5f1365f4c2df5318d0a621ef0e18db88c))
+* **lists:** added input rule for ordered lists with parenthesis ([#461](https://github.com/gravity-ui/markdown-editor/issues/461)) ([05ba62d](https://github.com/gravity-ui/markdown-editor/commit/05ba62deb68d1a0fb558c2672e48d26db617b6bc))
+
+
+### Bug Fixes
+
+* **Mermaid:** fix MermaidView edit buttons texts ([#465](https://github.com/gravity-ui/markdown-editor/issues/465)) ([0a16c61](https://github.com/gravity-ui/markdown-editor/commit/0a16c612e822e70e4bcc39e27bfd4fdcd3318c91))
+
 ## [14.0.3](https://github.com/gravity-ui/markdown-editor/compare/v14.0.2...v14.0.3) (2024-11-05)
 
 

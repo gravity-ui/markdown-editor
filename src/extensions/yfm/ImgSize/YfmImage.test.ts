@@ -2,7 +2,7 @@ import {builders} from 'prosemirror-test-builder';
 
 import {createMarkupChecker} from '../../../../tests/sameMarkup';
 import {ExtensionsManager} from '../../../core';
-import {BaseNode, BaseSchema} from '../../base/BaseSchema';
+import {BaseNode, BaseSchema} from '../../base';
 
 import {ImgSizeSpecs} from './ImgSizeSpecs';
 import {ImgSizeAttr, imageNodeName} from './const';

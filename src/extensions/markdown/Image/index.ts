@@ -1,23 +1,34 @@
 import type {Action, ExtensionAuto} from '../../../core';
+import {isFunction} from '../../../lodash';
 
 import {ImageSpecs, imageType} from './ImageSpecs';
 import {AddImageAttrs, addImage} from './actions';
 import {addImageAction} from './const';
+import {ImageUrlPasteOptions, imageUrlPaste} from './imageUrlPaste';
 
 export {imageNodeName, imageType, ImageAttr} from './ImageSpecs';
 /** @deprecated Use `imageType` instead */
 export const imgType = imageType;
 export type {AddImageAttrs} from './actions';
 
-export const Image: ExtensionAuto = (builder) => {
+export type ImageOptions = ImageUrlPasteOptions;
+
+export const Image: ExtensionAuto<ImageOptions | undefined> = (builder, opts) => {
     builder.use(ImageSpecs);
 
     builder.addAction(addImageAction, ({schema}) => addImage(schema));
+
+    if (isFunction(opts?.parseInsertedUrlAsImage)) {
+        builder.use(imageUrlPaste, {
+            parseInsertedUrlAsImage: opts.parseInsertedUrlAsImage,
+        });
+    }
 };
 
 declare global {
     namespace WysiwygEditor {
         interface Actions {
+            // @ts-expect-error
             [addImageAction]: Action<AddImageAttrs>;
         }
     }

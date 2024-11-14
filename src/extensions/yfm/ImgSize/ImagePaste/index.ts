@@ -3,10 +3,12 @@ import {Fragment, Node, Schema, Slice} from 'prosemirror-model';
 import {Plugin} from 'prosemirror-state';
 import {dropPoint} from 'prosemirror-transform';
 
+import type {ParseInsertedUrlAsImage} from '../../../../bundle';
 import {ExtensionAuto} from '../../../../core';
 import {isFunction} from '../../../../lodash';
-import {FileUploadHandler} from '../../../../utils/upload';
+import {FileUploadHandler} from '../../../../utils';
 import {clipboardUtils} from '../../../behavior/Clipboard';
+import {DataTransferType} from '../../../behavior/Clipboard/utils';
 import {ImageAttr, ImgSizeAttr, imageType} from '../../../specs';
 import {CreateImageNodeOptions, isImageNode} from '../utils';
 
@@ -14,13 +16,26 @@ import {ImagesUploadProcess} from './upload';
 
 const {isFilesFromHtml, isFilesOnly, isImageFile} = clipboardUtils;
 
-export type ImagePasteOptions = Pick<CreateImageNodeOptions, 'needDimmensions'> & {
-    imageUploadHandler: FileUploadHandler;
+export type ImagePasteOptions = Pick<
+    CreateImageNodeOptions,
+    'needDimensions' | 'enableNewImageSizeCalculation'
+> & {
+    imageUploadHandler?: FileUploadHandler;
+    /**
+     * The function, used to determine if the pasted text is the image url and should be inserted as an image
+     */
+    parseInsertedUrlAsImage?: ParseInsertedUrlAsImage;
 };
 
 export const ImagePaste: ExtensionAuto<ImagePasteOptions> = (builder, opts) => {
-    if (!opts || !isFunction(opts.imageUploadHandler))
-        throw new Error('ImagePaste extension: imageUploadHandler is not a function');
+    const {parseInsertedUrlAsImage, imageUploadHandler} = opts ?? {};
+
+    if (!isFunction(imageUploadHandler ?? parseInsertedUrlAsImage))
+        throw new Error(
+            `ImagePaste extension: ${
+                opts.imageUploadHandler ? 'imageUploadHandler' : 'parseInsertedUrlAsImage'
+            } is not a function`,
+        );
 
     builder.addPlugin(
         () =>
@@ -29,20 +44,46 @@ export const ImagePaste: ExtensionAuto<ImagePasteOptions> = (builder, opts) => {
                     handleDOMEvents: {
                         paste(view, e) {
                             const files = getPastedImages(e.clipboardData);
-                            if (files) {
+                            if (imageUploadHandler && files) {
                                 e.preventDefault();
                                 new ImagesUploadProcess(
                                     view,
                                     files,
-                                    opts.imageUploadHandler,
+                                    imageUploadHandler,
                                     view.state.tr.selection.from,
                                     opts,
                                 ).run();
                                 return true;
+                            } else if (parseInsertedUrlAsImage) {
+                                const {imageUrl, title} =
+                                    parseInsertedUrlAsImage(
+                                        e.clipboardData?.getData(DataTransferType.Text) ?? '',
+                                    ) || {};
+
+                                if (!imageUrl) {
+                                    return false;
+                                }
+
+                                e.preventDefault();
+
+                                const imageNode = imageType(view.state.schema).create({
+                                    src: imageUrl,
+                                    alt: title,
+                                });
+
+                                const tr = view.state.tr.replaceSelectionWith(imageNode);
+                                view.dispatch(tr.scrollIntoView());
+
+                                return true;
                             }
+
                             return false;
                         },
                         drop(view, e) {
+                            if (!imageUploadHandler) {
+                                return false;
+                            }
+
                             // handle drop images from device
                             if (view.dragging) return false;
 
@@ -63,7 +104,7 @@ export const ImagePaste: ExtensionAuto<ImagePasteOptions> = (builder, opts) => {
                                 new ImagesUploadProcess(
                                     view,
                                     files,
-                                    opts.imageUploadHandler,
+                                    imageUploadHandler,
                                     posToInsert,
                                     opts,
                                 ).run();
@@ -74,6 +115,10 @@ export const ImagePaste: ExtensionAuto<ImagePasteOptions> = (builder, opts) => {
                         },
                     },
                     handlePaste(view, _event, slice) {
+                        if (!imageUploadHandler) {
+                            return false;
+                        }
+
                         const node = sliceSingleNode(slice);
                         if (node && isImageNode(node)) {
                             const imgUrl = node.attrs[ImgSizeAttr.Src];
@@ -82,7 +127,7 @@ export const ImagePaste: ExtensionAuto<ImagePasteOptions> = (builder, opts) => {
                                 new ImagesUploadProcess(
                                     view,
                                     [imgFile],
-                                    opts.imageUploadHandler,
+                                    imageUploadHandler,
                                     view.state.tr.selection.from,
                                     opts,
                                 ).run();

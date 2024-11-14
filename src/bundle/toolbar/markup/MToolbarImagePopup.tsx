@@ -2,16 +2,15 @@ import React, {RefObject} from 'react';
 
 import isNumber from 'is-number';
 
-import {IMG_MAX_HEIGHT, getImageDimensions} from '../../../markup';
-import {ImageItem, insertImages} from '../../../markup/commands';
-import type {CodeEditor} from '../../../markup/editor';
+import {IMG_MAX_HEIGHT, ImageItem, getImageDimensions, insertImages} from '../../../markup';
+import type {CodeEditor} from '../../../markup';
 import type {ToolbarBaseProps} from '../../../toolbar';
-import type {UploadSuccessItem} from '../../../utils/upload';
+import type {UploadSuccessItem} from '../../../utils';
 import {ToolbarImagePopup} from '../custom/ToolbarImagePopup';
 
 import {useMarkupToolbarContext} from './context';
 
-const noop = (err: any) => {
+const noop = (err: unknown) => {
     console.error(err);
 };
 
@@ -62,7 +61,7 @@ export const MToolbarImagePopup: React.FC<MToolbarImagePopupProps> = ({
 
 async function toImageItems(
     items: readonly UploadSuccessItem[],
-    withDimmensions: boolean,
+    withDimensions: boolean,
 ): Promise<ImageItem[]> {
     const imgItems: ImageItem[] = [];
 
@@ -71,7 +70,7 @@ async function toImageItems(
             const imgItem: ImageItem = {url: result.url, alt: result.name ?? file.name};
             imgItems.push(imgItem);
 
-            if (withDimmensions) {
+            if (withDimensions) {
                 return getImageDimensions(file).then(({height}) => {
                     imgItem.height = String(Math.min(height, IMG_MAX_HEIGHT));
                 }, noop);

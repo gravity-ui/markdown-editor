@@ -38,6 +38,7 @@ import {block} from '../cn';
 import {plugins} from '../constants/md-plugins';
 import {randomDelay} from '../delay';
 import useYfmHtmlBlockStyles from '../hooks/useYfmHtmlBlockStyles';
+import {parseInsertedUrlAsImage} from '../utils/imageUrl';
 import {debouncedUpdateLocation as updateLocation} from '../utils/location';
 
 import './Playground.scss';
@@ -92,6 +93,7 @@ export type PlaygroundProps = {
     | 'extraExtensions'
     | 'renderPreview'
     | 'extensionOptions'
+    | 'experimental'
 > &
     Pick<
         MarkdownEditorViewProps,
@@ -135,6 +137,7 @@ export const Playground = React.memo<PlaygroundProps>((props) => {
         enableSubmitInPreview,
         hidePreviewAfterSubmit,
         needToSetDimensionsForUploadedImages,
+        experimental,
     } = props;
     const [editorMode, setEditorMode] = React.useState<MarkdownEditorMode>(
         initialEditor ?? 'wysiwyg',
@@ -175,15 +178,20 @@ export const Playground = React.memo<PlaygroundProps>((props) => {
             needToSetDimensionsForUploadedImages,
             renderPreview: renderPreviewDefined ? renderPreview : undefined,
             fileUploadHandler,
+            experimental,
             prepareRawMarkup: prepareRawMarkup
                 ? (value) => '**prepare raw markup**\n\n' + value
                 : undefined,
             extensionOptions: {
                 commandMenu: {actions: wysiwygCommandMenuConfig ?? wCommandMenuConfig},
+                imgSize: {
+                    parseInsertedUrlAsImage,
+                },
                 ...extensionOptions,
             },
             markupConfig: {
                 extensions: markupConfigExtensions,
+                parseInsertedUrlAsImage,
             },
             extraExtensions: (builder) => {
                 builder
@@ -233,6 +241,10 @@ export const Playground = React.memo<PlaygroundProps>((props) => {
             extraExtensions,
             needToSetDimensionsForUploadedImages,
             initial,
+            experimental?.enableNewImageSizeCalculation,
+            experimental?.needToSetDimensionsForUploadedImages,
+            experimental?.beforeEditorModeChange,
+            experimental?.prepareRawMarkup,
         ],
     );
 

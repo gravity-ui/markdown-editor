@@ -1,7 +1,6 @@
 import type {Action, ExtensionAuto} from '../../../core';
-import type {FileUploadHandler} from '../../../utils';
 
-import {ImagePaste} from './ImagePaste';
+import {ImagePaste, ImagePasteOptions} from './ImagePaste';
 import {ImageWidget} from './ImageWidget';
 import {ImgSizeSpecs, ImgSizeSpecsOptions} from './ImgSizeSpecs';
 import {AddImageAttrs, addImage} from './actions';
@@ -9,14 +8,16 @@ import {addImageAction} from './const';
 import {imgSizeNodeViewPlugin} from './plugins/ImgSizeNodeView';
 
 export type ImgSizeOptions = ImgSizeSpecsOptions & {
-    imageUploadHandler?: FileUploadHandler;
     /**
      * If we need to set dimensions for uploaded images
      *
      * @default false
      */
     needToSetDimensionsForUploadedImages?: boolean;
-};
+} & Pick<
+        ImagePasteOptions,
+        'imageUploadHandler' | 'parseInsertedUrlAsImage' | 'enableNewImageSizeCalculation'
+    >;
 
 export const ImgSize: ExtensionAuto<ImgSizeOptions> = (builder, opts) => {
     builder.use(ImgSizeSpecs, opts);
@@ -26,10 +27,12 @@ export const ImgSize: ExtensionAuto<ImgSizeOptions> = (builder, opts) => {
         needToSetDimensionsForUploadedImages: Boolean(opts.needToSetDimensionsForUploadedImages),
     });
 
-    if (opts.imageUploadHandler) {
+    if (opts.imageUploadHandler || opts.parseInsertedUrlAsImage) {
         builder.use(ImagePaste, {
             imageUploadHandler: opts.imageUploadHandler,
-            needDimmensions: Boolean(opts.needToSetDimensionsForUploadedImages),
+            needDimensions: Boolean(opts.needToSetDimensionsForUploadedImages),
+            parseInsertedUrlAsImage: opts.parseInsertedUrlAsImage,
+            enableNewImageSizeCalculation: opts.enableNewImageSizeCalculation,
         });
     }
 
@@ -41,7 +44,6 @@ export const ImgSize: ExtensionAuto<ImgSizeOptions> = (builder, opts) => {
 declare global {
     namespace WysiwygEditor {
         interface Actions {
-            // @ts-expect-error
             [addImageAction]: Action<AddImageAttrs>;
         }
     }

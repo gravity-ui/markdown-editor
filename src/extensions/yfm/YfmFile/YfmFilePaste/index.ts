@@ -5,7 +5,7 @@ import {EditorView} from 'prosemirror-view';
 
 import {ExtensionAuto} from '../../../../core';
 import {isFunction} from '../../../../lodash';
-import {FileUploadHandler, UploadSuccessItem} from '../../../../utils/upload';
+import {FileUploadHandler, UploadSuccessItem} from '../../../../utils';
 import {clipboardUtils} from '../../../behavior/Clipboard';
 import {imageType} from '../../../markdown';
 import {createImageNode} from '../../ImgSize/utils'; // TODO: remove hard import
@@ -115,7 +115,7 @@ class YfmFilesPasteUploadProcess extends YfmFilesUploadProcessBase {
         const {schema} = this.view.state;
         if (imageType(schema)) {
             this.createImage = createImageNode(imageType(schema), {
-                needDimmensions: opts.needToSetDimensionsForUploadedImages,
+                needDimensions: opts.needToSetDimensionsForUploadedImages,
             });
         }
     }
