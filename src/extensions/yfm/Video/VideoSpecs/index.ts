@@ -57,6 +57,7 @@ export const VideoSpecs: ExtensionAuto<VideoSpecsOptions> = (builder, opts) => {
                 const videoId = node.attrs[VideoAttr.VideoID];
 
                 if (availableServices.has(service) || !videoId) {
+                    // TODO: remove in next major
                     let src = '';
                     if (typeof (options as any).url === 'function')
                         src = (options as any).url(service, videoId, options);
