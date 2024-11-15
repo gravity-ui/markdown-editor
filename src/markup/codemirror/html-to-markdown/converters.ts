@@ -73,8 +73,6 @@ export class MarkdownConverter implements HTMLNodeVisitor {
 
     /**
      * Converts a text node to Markdown, escaping special characters.
-     * @param node The text node to convert
-     * @returns Escaped text content
      */
     visitText(node: Text): string {
         return (node.textContent || '').replace(/\n+/g, '').replace(/([<>])/g, '\\$1');
@@ -82,8 +80,6 @@ export class MarkdownConverter implements HTMLNodeVisitor {
 
     /**
      * Converts an HTML anchor element to Markdown link syntax.
-     * @param node The anchor element to convert
-     * @returns Markdown link representation
      */
     visitLink(node: HTMLAnchorElement): string {
         const linkText = this.collectTextContent(node);
@@ -108,9 +104,6 @@ export class MarkdownConverter implements HTMLNodeVisitor {
 
     /**
      * Converts an HTML heading element to Markdown heading syntax.
-     * @param node The heading element to convert
-     * @param level The heading level (1-6)
-     * @returns Markdown heading representation
      */
     visitHeader(node: HTMLElement, level: number): string {
         const headerContent = this.collectTextContent(node);
@@ -119,8 +112,6 @@ export class MarkdownConverter implements HTMLNodeVisitor {
 
     /**
      * Converts an HTML paragraph to Markdown format.
-     * @param node The paragraph element to convert
-     * @returns Markdown paragraph representation
      */
     visitParagraph(node: HTMLElement): string {
         const content = this.processChildren(node);
@@ -129,8 +120,6 @@ export class MarkdownConverter implements HTMLNodeVisitor {
 
     /**
      * Applies Markdown formatting (bold, italic, etc.) to text content.
-     * @param node The formatting element to convert
-     * @returns Formatted text in Markdown
      */
     visitFormatting(node: HTMLElement): string {
         if (node.childNodes.length === 1 && node.firstChild?.nodeType === Node.TEXT_NODE) {
@@ -142,8 +131,6 @@ export class MarkdownConverter implements HTMLNodeVisitor {
 
     /**
      * Converts HTML code elements to Markdown inline code syntax.
-     * @param node The code element to convert
-     * @returns Markdown code representation
      */
     visitCode(node: HTMLElement): string {
         return `\`${this.collectCodeContent(node)}\``;
@@ -151,8 +138,6 @@ export class MarkdownConverter implements HTMLNodeVisitor {
 
     /**
      * Handles generic HTML elements by processing their children.
-     * @param node The HTML element to process
-     * @returns Processed content of child nodes
      */
     visitGeneric(node: HTMLElement): string {
         return this.processChildren(node);
@@ -160,9 +145,6 @@ export class MarkdownConverter implements HTMLNodeVisitor {
 
     /**
      * Recursively collects and processes text content from a node and its children.
-     * @param node The node to process
-     * @returns Processed text content
-     * @private
      */
     private collectTextContent(node: Node): string {
         if (node.nodeType === Node.TEXT_NODE) {
@@ -175,9 +157,6 @@ export class MarkdownConverter implements HTMLNodeVisitor {
 
     /**
      * Collects raw text content from code elements.
-     * @param node The code node to process
-     * @returns Raw code content
-     * @private
      */
     private collectCodeContent(node: Node): string {
         if (node.nodeType === Node.TEXT_NODE) {
@@ -190,9 +169,6 @@ export class MarkdownConverter implements HTMLNodeVisitor {
 
     /**
      * Processes all child nodes of a given node.
-     * @param node The parent node
-     * @returns Combined processed content of all children
-     * @private
      */
     private processChildren(node: Node): string {
         return Array.from(node.childNodes)
@@ -202,8 +178,6 @@ export class MarkdownConverter implements HTMLNodeVisitor {
 
     /**
      * Processes a single node using the handler chain.
-     * @param node The node to process
-     * @returns Processed node content in Markdown
      */
     processNode(node: Node): string {
         const result = this.getHandler().handle(node, this);
@@ -212,8 +186,6 @@ export class MarkdownConverter implements HTMLNodeVisitor {
 
     /**
      * Gets the first handler in the chain.
-     * @returns The root handler
-     * @private
      */
     private getHandler(): NodeHandler {
         return this.handler;

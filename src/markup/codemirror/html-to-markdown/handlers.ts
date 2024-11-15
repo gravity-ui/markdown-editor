@@ -9,8 +9,6 @@ export abstract class NodeHandler {
 
     /**
      * Sets up the next handler in the chain
-     * @param handler - The next handler to process nodes
-     * @returns The handler that was set as next
      */
     setNext(handler: NodeHandler): NodeHandler {
         this.next = handler;
@@ -19,17 +17,11 @@ export abstract class NodeHandler {
 
     /**
      * Process the given node or delegate to the next handler
-     * @param node - The DOM node to process
-     * @param visitor - The visitor containing node processing logic
-     * @returns Processed markdown string
      */
     abstract handle(node: Node, visitor: HTMLNodeVisitor): string;
 
     /**
      * Delegates processing to the next handler in the chain
-     * @param node - The DOM node to process
-     * @param visitor - The visitor containing node processing logic
-     * @returns Processed markdown string or empty string if no next handler
      */
     protected handleNext(node: Node, visitor: HTMLNodeVisitor): string {
         if (this.next) {
@@ -43,11 +35,6 @@ export abstract class NodeHandler {
  * Handles text nodes, converting them to markdown text
  */
 export class TextNodeHandler extends NodeHandler {
-    /**
-     * @param node - The DOM node to process
-     * @param visitor - The visitor containing node processing logic
-     * @returns Processed markdown string
-     */
     handle(node: Node, visitor: HTMLNodeVisitor): string {
         if (node.nodeType === Node.TEXT_NODE) {
             return visitor.visitText(node as Text);
@@ -75,11 +62,6 @@ export class LinkHandler extends NodeHandler {
  * Handles header elements (h1-h6), converting them to markdown headers
  */
 export class HeaderHandler extends NodeHandler {
-    /**
-     * @param node - The DOM node to process
-     * @param visitor - The visitor containing node processing logic
-     * @returns Processed markdown string
-     */
     handle(node: Node, visitor: HTMLNodeVisitor): string {
         if (node.nodeType !== Node.ELEMENT_NODE) {
             return this.handleNext(node, visitor);
@@ -113,11 +95,6 @@ export class ParagraphHandler extends NodeHandler {
  * Handles text formatting elements (b, strong, i, em), converting them to markdown formatting
  */
 export class FormattingHandler extends NodeHandler {
-    /**
-     * @param node - The DOM node to process
-     * @param visitor - The visitor containing node processing logic
-     * @returns Processed markdown string
-     */
     handle(node: Node, visitor: HTMLNodeVisitor): string {
         if (node.nodeType !== Node.ELEMENT_NODE) {
             return this.handleNext(node, visitor);

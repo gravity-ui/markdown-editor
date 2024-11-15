@@ -2,9 +2,6 @@
 export class FormattingHelper {
     /**
      * Converts HTML formatting elements to Markdown syntax
-     * @param {string} text - The text content to be formatted
-     * @param {HTMLElement} element - The HTML element containing formatting information
-     * @returns {string} The text formatted with Markdown syntax
      */
     applyFormatting(text: string, element: HTMLElement): string {
         // Check for italic formatting (either through tags or CSS)
