@@ -42,11 +42,11 @@ import {
 import {DirectiveSyntaxFacet} from './directive-facet';
 import {type FileUploadHandler, FileUploadHandlerFacet} from './files-upload-facet';
 import {gravityHighlightStyle, gravityTheme} from './gravity';
+import {MarkdownConverter} from './html-to-markdown/converters';
 import {PairingCharactersExtension} from './pairing-chars';
 import {ReactRendererFacet} from './react-facet';
 import {SearchPanelPlugin} from './search-plugin/plugin';
 import {type YfmLangOptions, yfmLang} from './yfm';
-import {MarkdownConverter} from './html-to-markdown/converters';
 
 export type {YfmLangOptions};
 
@@ -176,7 +176,7 @@ export function createCodemirror(params: CreateCodemirrorParams) {
 
                         if (links.length > 0) {
                             event.preventDefault();
-                            
+
                             const converter = new MarkdownConverter();
                             const result = converter.processNode(doc.body).trim();
 

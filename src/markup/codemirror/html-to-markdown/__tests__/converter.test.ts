@@ -1,6 +1,8 @@
 import fs from 'node:fs';
 import path from 'node:path';
+
 import {JSDOM} from 'jsdom';
+
 import {MarkdownConverter} from '../converters';
 
 describe('HTML to Markdown Converter', () => {

@@ -1,12 +1,12 @@
 import {
     CodeHandler,
     FormattingHandler,
+    GenericHandler,
     HeaderHandler,
     LinkHandler,
     NodeHandler,
     ParagraphHandler,
     TextNodeHandler,
-    GenericHandler,
 } from './handlers';
 import {FormattingHelper} from './helpers';
 
@@ -43,32 +43,6 @@ export class MarkdownConverter implements HTMLNodeVisitor {
         this.formatHelper = new FormattingHelper();
         // Set up the chain of responsibility for handling different node types
         this.handler = this.setupHandlerChain();
-    }
-
-    /**
-     * Creates and links together handlers in a specific order implementing the Chain of Responsibility pattern.
-     * @returns The first handler in the chain
-     */
-    private setupHandlerChain(): NodeHandler {
-        // Create handlers for each type of node
-        const textHandler = new TextNodeHandler();
-        const linkHandler = new LinkHandler();
-        const headerHandler = new HeaderHandler();
-        const paragraphHandler = new ParagraphHandler();
-        const formattingHandler = new FormattingHandler();
-        const codeHandler = new CodeHandler();
-        const genericHandler = new GenericHandler();
-
-        // Chain handlers together in priority order
-        textHandler
-            .setNext(linkHandler)
-            .setNext(headerHandler)
-            .setNext(paragraphHandler)
-            .setNext(formattingHandler)
-            .setNext(codeHandler)
-            .setNext(genericHandler);
-
-        return textHandler;
     }
 
     /**
@@ -144,6 +118,40 @@ export class MarkdownConverter implements HTMLNodeVisitor {
     }
 
     /**
+     * Processes a single node using the handler chain.
+     */
+    processNode(node: Node): string {
+        const result = this.getHandler().handle(node, this);
+        return result;
+    }
+
+    /**
+     * Creates and links together handlers in a specific order implementing the Chain of Responsibility pattern.
+     * @returns The first handler in the chain
+     */
+    private setupHandlerChain(): NodeHandler {
+        // Create handlers for each type of node
+        const textHandler = new TextNodeHandler();
+        const linkHandler = new LinkHandler();
+        const headerHandler = new HeaderHandler();
+        const paragraphHandler = new ParagraphHandler();
+        const formattingHandler = new FormattingHandler();
+        const codeHandler = new CodeHandler();
+        const genericHandler = new GenericHandler();
+
+        // Chain handlers together in priority order
+        textHandler
+            .setNext(linkHandler)
+            .setNext(headerHandler)
+            .setNext(paragraphHandler)
+            .setNext(formattingHandler)
+            .setNext(codeHandler)
+            .setNext(genericHandler);
+
+        return textHandler;
+    }
+
+    /**
      * Recursively collects and processes text content from a node and its children.
      */
     private collectTextContent(node: Node): string {
@@ -174,14 +182,6 @@ export class MarkdownConverter implements HTMLNodeVisitor {
         return Array.from(node.childNodes)
             .map((child) => this.processNode(child))
             .join('');
-    }
-
-    /**
-     * Processes a single node using the handler chain.
-     */
-    processNode(node: Node): string {
-        const result = this.getHandler().handle(node, this);
-        return result;
     }
 
     /**
