@@ -158,11 +158,16 @@ export function createCodemirror(params: CreateCodemirrorParams) {
                 onScroll(event);
             },
             paste(event, editor) {
-                console.log(event.clipboardData);
                 if (!event.clipboardData) return;
 
-                // Handle HTML insertion
+                // Note: I have editor.dispatch() in the try-catch on purpose.
+                // The code's pretty new and there might be random issues we haven't caught yet,
+                // especially with invalid HTML or weird DOM parsing errors.
+                // If something goes wrong, I just want to fall back to the "default pasting"
+                // rather than break the entire experience for the user.
+                // It’s kind of like a temporary safety net right now until things are more stable.
                 try {
+                    // Handle HTML insertion
                     const htmlContent = event.clipboardData.getData(DataTransferType.Html);
                     if (htmlContent) {
                         const parser = new DOMParser();
@@ -171,17 +176,17 @@ export function createCodemirror(params: CreateCodemirrorParams) {
 
                         if (links.length > 0) {
                             event.preventDefault();
-
+                            
                             const converter = new MarkdownConverter();
                             const result = converter.processNode(doc.body).trim();
-                            console.log(result);
 
                             editor.dispatch(editor.state.replaceSelection(result));
                             return;
                         }
                     }
-                } catch {
-                    // it may throw error if html is not valid, then we will handle it as default pasting
+                } catch (e) {
+                    // it may throw an error if html is invalid, then we will fallback to "default pasting"
+                    logger.error(e);
                 }
 
                 if (parseInsertedUrlAsImage) {
