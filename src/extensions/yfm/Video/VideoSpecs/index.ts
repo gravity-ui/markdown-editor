@@ -7,6 +7,7 @@ import {VideoPluginOptions, VideoService, VideoToken, defaults, videoPlugin} fro
 import {createViewStub, serializeNodeToString} from './utils';
 
 // we don't support osf service
+// we don't support youtube service
 const availableServices: ReadonlySet<string> = new Set([
     VideoService.YouTube,
     VideoService.Vimeo,
