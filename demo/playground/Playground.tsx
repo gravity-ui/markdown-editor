@@ -58,6 +58,10 @@ mToolbarConfig[2].push(markupToolbarConfigs.mMathListItem);
 
 const wToolbarConfig = cloneDeep(wysiwygToolbarConfigs.wToolbarConfig);
 wToolbarConfig[2].push(wysiwygToolbarConfigs.wMathListItem);
+wToolbarConfig.push([
+    wysiwygToolbarConfigs.wMermaidItemData,
+    wysiwygToolbarConfigs.wYfmHtmlBlockItemData,
+]);
 
 const wCommandMenuConfig = wysiwygToolbarConfigs.wCommandMenuConfig.concat(
     wysiwygToolbarConfigs.wMathInlineItemData,
