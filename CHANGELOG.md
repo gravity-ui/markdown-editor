@@ -1,5 +1,12 @@
 # Changelog
 
+## [14.2.3](https://github.com/gravity-ui/markdown-editor/compare/v14.2.2...v14.2.3) (2024-11-15)
+
+
+### Bug Fixes
+
+* **Video:** backward compability between diferent versions of `@diplodoc/transform` ([#478](https://github.com/gravity-ui/markdown-editor/issues/478)) ([602e2c0](https://github.com/gravity-ui/markdown-editor/commit/602e2c0a92d895b7a263a032768415be4f8dc63e))
+
 ## [14.2.2](https://github.com/gravity-ui/markdown-editor/compare/v14.2.1...v14.2.2) (2024-11-14)
 
 
