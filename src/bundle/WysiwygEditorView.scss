@@ -4,11 +4,15 @@
 
     &__toolbar {
         flex-shrink: 0;
+
+        padding: var(--g-md-toolbar-padding);
     }
 
     &__editor {
         overflow-y: auto;
         flex-grow: 1;
+
+        padding: var(--g-md-editor-padding);
 
         .g-root_theme_dark & .pm-iframe-container {
             background-color: var(--g-color-base-light);
