@@ -538,7 +538,7 @@ export const wToggleHeadingFoldingItemData: SelectionContextItemData = {
     type: ToolbarDataType.SingleButton,
     icon: icons.foldingHeading,
     title: () => i18n('folding-heading'),
-    hint: () => i18n('folding-heading_hint'),
+    hint: () => i18n('folding-heading__hint'),
     isActive: (editor) => editor.actions.toggleHeadingFolding?.isActive() ?? false,
     isEnable: (editor) => editor.actions.toggleHeadingFolding?.isEnable() ?? false,
     exec: (editor) => editor.actions.toggleHeadingFolding.run(),

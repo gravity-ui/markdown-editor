@@ -540,6 +540,7 @@ export const mEmojiItemData: MToolbarSingleItemData = {
     icon: icons.emoji,
     type: ToolbarDataType.SingleButton,
     exec: noop,
+    hintWhenDisabled: i18n.bind(null, 'emoji__hint'),
     isActive: inactive,
     isEnable: disable,
 };
