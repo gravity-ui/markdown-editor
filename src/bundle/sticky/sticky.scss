@@ -15,7 +15,7 @@ $block: 'g-md-editor-sticky';
     &_sticky-active:not(.#{$block}_clear) {
         z-index: zIndexVars.$sticky-toolbar;
 
-        padding: 0;
+        padding: var(--g-md-toolbar-sticky-padding);
 
         &::before {
             position: absolute;

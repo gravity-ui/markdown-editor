@@ -17,6 +17,10 @@ export const CustomCSSVariables: Story = {
             control: {type: 'text'},
             description: 'Toolbar padding',
         },
+        '--g-md-toolbar-sticky-padding': {
+            control: {type: 'text'},
+            description: 'Toolbar padding in sticky mode',
+        },
         '--g-md-toolbar-sticky-inset': {
             control: {type: 'text'},
             description: 'Toolbar inset in sticky mode',
