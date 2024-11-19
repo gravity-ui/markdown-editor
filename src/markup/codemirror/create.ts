@@ -152,7 +152,38 @@ export function createCodemirror(params: CreateCodemirrorParams) {
                 onScroll(event);
             },
             paste(event, editor) {
-                if (event.clipboardData && parseInsertedUrlAsImage) {
+                if (!event.clipboardData) return false;
+
+                const {state, dispatch} = editor;
+                const {from} = state.selection.main;
+                const line = state.doc.lineAt(from);
+                const lineStart = line.text;
+
+                const markers = parseMarkers(lineStart);
+                if (markers.length > 0) {
+                    const pastedText = event.clipboardData.getData('text/plain');
+                    const lines = pastedText.split('\n');
+                    
+                    const prefix = markers.reduce((acc, marker) => {
+                        if (marker === '> ') return acc + '> ';
+                        return acc + '  ';
+                    }, '');
+
+                    const modifiedText = [
+                        lines[0],
+                        ...lines.slice(1).map(line => prefix + line)
+                    ].join('\n');
+
+                    dispatch({
+                        changes: {from, to: from, insert: modifiedText},
+                        selection: {anchor: from + modifiedText.length}
+                    });
+
+                    event.preventDefault();
+                    return true;
+                }
+
+                if (parseInsertedUrlAsImage) {
                     const {imageUrl, title} =
                         parseInsertedUrlAsImage(
                             event.clipboardData.getData(DataTransferType.Text) ?? '',
@@ -171,7 +202,11 @@ export function createCodemirror(params: CreateCodemirrorParams) {
                             title,
                         },
                     ])(editor);
+
+                    return true;
                 }
+
+                return true;
             },
         }),
         SearchPanelPlugin({
@@ -212,4 +247,29 @@ export function withLogger(action: string, command: StateCommand): StateCommand 
         logger.action({mode: 'markup', source: 'keymap', action});
         return command(...args);
     };
+}
+
+function parseMarkers(text: string): string[] {
+    const markers: string[] = [];
+    let pos = 0;
+    
+    while (pos < text.length) {
+        if (pos + 1 < text.length && text[pos] === ' ' && text[pos + 1] === ' ') {
+            markers.push('  ');
+            pos += 2;
+            continue;
+        }
+        
+        if (text[pos] === '>' || text[pos] === '-' || text[pos] === '*') {
+            if (pos + 1 < text.length && text[pos + 1] === ' ') {
+                markers.push(text[pos] + ' ');
+                pos += 2;
+                continue;
+            }
+        }
+        
+        break;
+    }
+    
+    return markers;
 }
