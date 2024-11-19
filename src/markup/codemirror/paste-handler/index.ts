@@ -1,4 +1,5 @@
 import type {EditorView} from '@codemirror/view';
+
 import {parseMarkers} from './utils';
 
 /**
@@ -27,17 +28,21 @@ export function handleMarkdownPaste(pastedText: string, editor: EditorView): boo
 
             if (prevMarkers.length !== currentMarkers.length) break;
 
+            const markersToCompare = [...currentMarkers];
             const allButLastMatch = prevMarkers
                 .slice(0, -1)
-                .every((marker, i) => marker === currentMarkers[i]);
+                .every((marker, i) => marker === markersToCompare[i]);
 
             const lastPrevMarker = prevMarkers[prevMarkers.length - 1];
 
-            if (allButLastMatch && lastPrevMarker !== currentMarkers[currentMarkers.length - 1]) {
+            if (
+                allButLastMatch &&
+                lastPrevMarker !== markersToCompare[markersToCompare.length - 1]
+            ) {
                 break;
             }
 
-            if (prevMarkers.every((marker, i) => marker === currentMarkers[i])) {
+            if (prevMarkers.every((marker, i) => marker === markersToCompare[i])) {
                 currentLine--;
                 currentMarkers = prevMarkers;
                 continue;

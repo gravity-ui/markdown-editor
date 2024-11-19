@@ -1,5 +1,6 @@
 import {EditorState} from '@codemirror/state';
 import {EditorView} from '@codemirror/view';
+
 import {handleMarkdownPaste} from '../index';
 
 describe('handleMarkdownPaste', () => {

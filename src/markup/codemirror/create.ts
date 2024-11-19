@@ -41,10 +41,10 @@ import {
 import {FileUploadHandler, FileUploadHandlerFacet} from './files-upload-facet';
 import {gravityHighlightStyle, gravityTheme} from './gravity';
 import {PairingCharactersExtension} from './pairing-chars';
+import {handleMarkdownPaste} from './paste-handler';
 import {ReactRendererFacet} from './react-facet';
 import {SearchPanelPlugin} from './search-plugin/plugin';
 import {type YfmLangOptions, yfmLang} from './yfm';
-import {handleMarkdownPaste} from './paste-handler';
 
 export type {YfmLangOptions};
 
