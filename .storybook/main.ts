@@ -19,7 +19,7 @@ const config: StorybookConfig = {
         check: true,
         reactDocgen: 'react-docgen-typescript',
     },
-    webpackFinal: async (config) => {
+    webpackFinal: (config) => {
         config.plugins?.push(
             new webpack.DefinePlugin({
                 __VERSION__: `'${pkg.version}-storybook'`,

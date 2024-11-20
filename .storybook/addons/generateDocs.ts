@@ -12,24 +12,6 @@ const kebabToCamelCase = (str: string): string => {
 };
 
 /**
- * Replaces image paths in the Markdown content to make them relative to the output file
- */
-const replaceImagePaths = (
-    content: string,
-    inputFilePath: string,
-    outputFilePath: string,
-): string => {
-    const inputDirPath = path.dirname(inputFilePath);
-    const outputDirPath = path.dirname(outputFilePath);
-
-    return content.replace(/<img\s+src=["'](.+?)["']/g, (_, srcPath) => {
-        const absolutePath = path.resolve(inputDirPath, srcPath);
-        const relativePath = path.relative(outputDirPath, absolutePath);
-        return `<img src="${relativePath.replace(/\\/g, '/')}"`;
-    });
-};
-
-/**
  * Generates the content for the MDX file
  */
 const getContent = (title: string, updatedContent: string): string => `
@@ -99,8 +81,7 @@ const generateDocs = async (): Promise<void> => {
                 const baseName = kebabToCamelCase(file.replace(/\.md$/, ''));
                 const outputFilePath = path.join(outputDir, `${baseName}.mdx`);
 
-                const updatedContent = replaceImagePaths(content, inputFilePath, outputFilePath);
-                await generateMdxFile(inputFilePath, outputFilePath, title, updatedContent);
+                await generateMdxFile(inputFilePath, outputFilePath, title, content);
             }
         }
     } catch (error) {
