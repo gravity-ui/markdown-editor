@@ -1,5 +1,17 @@
 # Changelog
 
+## [14.3.0](https://github.com/gravity-ui/markdown-editor/compare/v14.2.3...v14.3.0) (2024-11-20)
+
+
+### Features
+
+* **EditorView:** add padding variables ([#477](https://github.com/gravity-ui/markdown-editor/issues/477)) ([ef7851f](https://github.com/gravity-ui/markdown-editor/commit/ef7851f0dae70834b57d3d95f1fc479b824b9e47))
+
+
+### Bug Fixes
+
+* **bundle:** added emoji to toolbar actions for full preset in markup mode ([#483](https://github.com/gravity-ui/markdown-editor/issues/483)) ([3c8fe45](https://github.com/gravity-ui/markdown-editor/commit/3c8fe453d42ebadf65bef99586b0743e5c59eb84))
+
 ## [14.2.3](https://github.com/gravity-ui/markdown-editor/compare/v14.2.2...v14.2.3) (2024-11-15)
 
 
