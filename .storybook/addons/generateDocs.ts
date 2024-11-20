@@ -1,0 +1,125 @@
+import * as fs from 'fs/promises';
+import * as path from 'path';
+
+const inputDir = path.join(__dirname, '../../docs');
+const outputDir = path.join(__dirname, '../../demo/docs');
+
+/**
+ * Converts a kebab-case string to camelCase
+ */
+const kebabToCamelCase = (str: string): string => {
+    return str.replace(/-./g, (match) => match.charAt(1).toUpperCase());
+};
+
+/**
+ * Replaces image paths in the Markdown content to make them relative to the output file
+ */
+const replaceImagePaths = (
+    content: string,
+    inputFilePath: string,
+    outputFilePath: string,
+): string => {
+    const inputDirPath = path.dirname(inputFilePath);
+    const outputDirPath = path.dirname(outputFilePath);
+
+    return content.replace(/<img\s+src=["'](.+?)["']/g, (_, srcPath) => {
+        const absolutePath = path.resolve(inputDirPath, srcPath);
+        const relativePath = path.relative(outputDirPath, absolutePath);
+        return `<img src="${relativePath.replace(/\\/g, '/')}"`;
+    });
+};
+
+/**
+ * Generates the content for the MDX file
+ */
+const getContent = (title: string, updatedContent: string): string => `
+{/*
+This file is auto-generated. Any changes made to this file will be overwritten
+*/}
+
+import { Meta, Markdown } from '@storybook/blocks';
+
+<Meta title="Docs / ${title}" />
+
+<Markdown>{${JSON.stringify(updatedContent)}}</Markdown>
+`;
+
+/**
+ * Writes the MDX file to the specified path
+ */
+const generateMdxFile = async (
+    _: string,
+    outputFilePath: string,
+    title: string,
+    updatedContent: string,
+): Promise<void> => {
+    const content = getContent(title, updatedContent);
+    await fs.writeFile(outputFilePath, content, 'utf8');
+    console.log(`Generated: ${outputFilePath}`);
+};
+
+const TITLE_MATCH = /^#####\s+(.*)$/m;
+
+/**
+ * Clears the output directory
+ */
+const clearOutputDir = async (): Promise<void> => {
+    try {
+        await fs.rm(outputDir, {recursive: true, force: true});
+        console.log(`Cleared directory: ${outputDir}`);
+    } catch (error) {
+        console.error(`Failed to clear directory: ${outputDir}`, error);
+        throw error;
+    }
+};
+
+/**
+ * Generate MDX files from Markdown
+ */
+const generateDocs = async (): Promise<void> => {
+    console.log('Running docs:generate...');
+    try {
+        await clearOutputDir();
+        await fs.mkdir(outputDir, {recursive: true});
+
+        const files = await fs.readdir(inputDir);
+
+        for (const file of files) {
+            if (path.extname(file) === '.md') {
+                const inputFilePath = path.join(inputDir, file);
+                const content = await fs.readFile(inputFilePath, 'utf8');
+
+                const titleMatch = content.match(TITLE_MATCH);
+                if (!titleMatch) {
+                    console.warn(`No title found in ${file}, skipping.`);
+                    continue;
+                }
+
+                const title = titleMatch[1].trim();
+                const baseName = kebabToCamelCase(file.replace(/\.md$/, ''));
+                const outputFilePath = path.join(outputDir, `${baseName}.mdx`);
+
+                const updatedContent = replaceImagePaths(content, inputFilePath, outputFilePath);
+                await generateMdxFile(inputFilePath, outputFilePath, title, updatedContent);
+            }
+        }
+    } catch (error) {
+        console.error('Error generating docs:', error);
+        throw error;
+    }
+};
+
+/**
+ * Custom storybook addon for generate docs
+ */
+export default {
+    name: 'generate-docs',
+    async managerEntries(entries: string[] = []): Promise<string[]> {
+        try {
+            await generateDocs();
+        } catch (error) {
+            console.error('Error running docs:generate:', error);
+        }
+        return entries;
+    },
+};
