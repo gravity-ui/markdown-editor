@@ -1,47 +1,39 @@
-import {Meta as SBMeta, StoryObj} from '@storybook/react';
+import {StoryObj} from '@storybook/react';
 
-import {PresetDemo, PresetDemoProps} from './PresetDemo';
+import {Preset as component} from './Preset';
 
-type Meta = SBMeta<PresetDemoProps>;
-
-const args: Meta['args'] = {
-    settingsVisible: true,
-    allowHTML: true,
-    breaks: true,
-    linkify: true,
-    linkifyTlds: [],
-    splitModeOrientation: 'horizontal',
-    stickyToolbar: true,
-    height: 'initial',
-};
-
-const meta: Meta = {
-    component: PresetDemo,
-    title: 'Markdown Editor / Presets',
-    args,
-    parameters: {controls: {exclude: ['preset']}},
-};
-
-export default meta;
-
-type Story = StoryObj<typeof PresetDemo>;
-
-export const Zero: Story = {
+export const Zero: StoryObj<typeof component> = {
     args: {preset: 'zero'},
 };
 
-export const CommonMark: Story = {
+export const CommonMark: StoryObj<typeof component> = {
     args: {preset: 'commonmark'},
 };
 
-export const Default: Story = {
+export const Default: StoryObj<typeof component> = {
     args: {preset: 'default'},
 };
 
-export const YFM: Story = {
+export const YFM: StoryObj<typeof component> = {
     args: {preset: 'yfm'},
 };
 
-export const Full: Story = {
+export const Full: StoryObj<typeof component> = {
     args: {preset: 'full'},
+};
+
+export default {
+    component,
+    title: 'Markdown Editor / Presets',
+    args: {
+        settingsVisible: true,
+        allowHTML: true,
+        breaks: true,
+        linkify: true,
+        linkifyTlds: [],
+        splitModeOrientation: 'horizontal',
+        stickyToolbar: true,
+        height: 'initial',
+    },
+    parameters: {controls: {exclude: ['preset']}},
 };

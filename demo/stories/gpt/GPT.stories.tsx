@@ -1,11 +1,11 @@
 import type {StoryObj} from '@storybook/react';
 
-import {Ghost as component} from './Ghost';
+import {GPT as component} from './GPT';
 
 export const Story: StoryObj<typeof component> = {};
-Story.storyName = 'Popup in markup mode';
+Story.storyName = 'GPT';
 
 export default {
-    title: 'Experiments / Popup in markup mode',
+    title: 'Experiments / GPT',
     component,
 };

@@ -1,12 +1,15 @@
 import type {Meta, StoryObj} from '@storybook/react';
 
-import {Playground as PlaygroundComponent, PlaygroundProps} from '../../Playground';
+import {PlaygroundProps, Playground as component} from '../../components/Playground';
 import {args} from '../../defaults/args';
 import {getInitialMd} from '../../utils/getInitialMd';
 
+export const Story: StoryObj<typeof component> = {};
+Story.storyName = 'Playground';
+
 const meta: Meta<PlaygroundProps> = {
-    title: 'Markdown Editor',
-    component: PlaygroundComponent,
+    title: 'Markdown Editor / Playground',
+    component: component,
     args: args,
     beforeEach: (context) => {
         /* eslint-disable no-param-reassign */
@@ -14,9 +17,4 @@ const meta: Meta<PlaygroundProps> = {
         /* eslint-enable no-param-reassign */
     },
 };
-
 export default meta;
-
-type Story = StoryObj<typeof PlaygroundComponent>;
-
-export const Playground: Story = {};

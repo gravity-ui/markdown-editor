@@ -1,17 +1,8 @@
-import type {Meta, StoryObj} from '@storybook/react';
+import type {StoryObj} from '@storybook/react';
 
-import {CustomCSSVariablesDemo} from './CSSVariablesDemo';
+import {CustomCSSVariablesDemo as component} from './CSSVariables';
 
-const meta: Meta = {
-    title: 'Experiments / Custom CSS Variables',
-    component: CustomCSSVariablesDemo,
-};
-
-export default meta;
-
-type Story = StoryObj<typeof CustomCSSVariablesDemo>;
-
-export const CustomCSSVariables: Story = {
+export const Story: StoryObj<typeof component> = {
     argTypes: {
         '--g-md-toolbar-padding': {
             control: {type: 'text'},
@@ -34,4 +25,10 @@ export const CustomCSSVariables: Story = {
             description: 'Editor contents padding',
         },
     },
+};
+Story.storyName = 'Custom CSS Variables';
+
+export default {
+    title: 'Experiments / Custom CSS Variables',
+    component,
 };

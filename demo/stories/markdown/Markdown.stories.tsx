@@ -1,71 +1,67 @@
-import type {Meta, StoryObj} from '@storybook/react';
+import type {StoryObj} from '@storybook/react';
 
-import {PlaygroundMini, PlaygroundMiniProps} from '../../PlaygroundMini';
+import {PlaygroundMini as component} from '../../components/PlaygroundMini';
 import {args} from '../../defaults/args';
 import {excludedControls} from '../../defaults/excluded-controls';
 
 import {markup} from './markup';
 
-const meta: Meta<PlaygroundMiniProps> = {
+export const Heading: StoryObj<typeof component> = {
+    args: {initial: markup.heading},
+};
+
+export const Blockquote: StoryObj<typeof component> = {
+    args: {initial: markup.blockquote},
+};
+
+export const Emphasis: StoryObj<typeof component> = {
+    args: {initial: markup.emphasis},
+};
+
+export const HorizontalRules: StoryObj<typeof component> = {
+    args: {initial: markup.horizontalRules},
+};
+
+export const Lists: StoryObj<typeof component> = {
+    args: {initial: markup.lists},
+};
+
+export const Code: StoryObj<typeof component> = {
+    args: {initial: markup.code},
+};
+
+export const Tables: StoryObj<typeof component> = {
+    args: {initial: markup.tables},
+};
+
+export const Links: StoryObj<typeof component> = {
+    args: {initial: markup.links},
+};
+
+export const Images: StoryObj<typeof component> = {
+    args: {initial: markup.images},
+};
+
+export const SubSup: StoryObj<typeof component> = {
+    name: 'Subscript & Superscript',
+    args: {initial: markup.subAndSub},
+};
+
+export const Emojis: StoryObj<typeof component> = {
+    args: {initial: markup.emojis},
+};
+
+export const DefinitionList: StoryObj<typeof component> = {
+    args: {initial: markup.deflist},
+};
+
+export default {
     title: 'Markdown Editor / Markdown examples',
-    component: PlaygroundMini,
+    component,
     args: args,
     parameters: {
         controls: {
             exclude: excludedControls,
         },
     },
-};
-
-export default meta;
-
-type Story = StoryObj<typeof PlaygroundMini>;
-
-export const Heading: Story = {
-    args: {initial: markup.heading},
-};
-
-export const Blockquote: Story = {
-    args: {initial: markup.blockquote},
-};
-
-export const Emphasis: Story = {
-    args: {initial: markup.emphasis},
-};
-
-export const HorizontalRules: Story = {
-    args: {initial: markup.horizontalRules},
-};
-
-export const Lists: Story = {
-    args: {initial: markup.lists},
-};
-
-export const Code: Story = {
-    args: {initial: markup.code},
-};
-
-export const Tables: Story = {
-    args: {initial: markup.tables},
-};
-
-export const Links: Story = {
-    args: {initial: markup.links},
-};
-
-export const Images: Story = {
-    args: {initial: markup.images},
-};
-
-export const SubSup: Story = {
-    name: 'Subscript & Superscript',
-    args: {initial: markup.subAndSub},
-};
-
-export const Emojis: Story = {
-    args: {initial: markup.emojis},
-};
-
-export const DefinitionList: Story = {
-    args: {initial: markup.deflist},
 };

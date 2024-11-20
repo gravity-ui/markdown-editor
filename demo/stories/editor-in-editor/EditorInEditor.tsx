@@ -7,14 +7,14 @@ import {VERSION} from '../../../src/version';
 import {block} from '../../utils/cn';
 
 import {
-    EditorInEditor,
     EditorInEditorAttr,
     editorInEditorNodeName,
+    EditorInEditor as extension,
 } from './EditorInEditorExtension';
 
 const b = block('playground');
 
-export const EditorInEditorDemo: FC = () => {
+export const EditorInEditor: FC = () => {
     const mdEditor = useMarkdownEditor({
         initialEditorMode: 'wysiwyg',
         initialToolbarVisible: true,
@@ -22,7 +22,7 @@ export const EditorInEditorDemo: FC = () => {
         linkify: true,
         breaks: true,
         extraExtensions: (builder) =>
-            builder.use(EditorInEditor, {
+            builder.use(extension, {
                 toaster,
             }),
     });

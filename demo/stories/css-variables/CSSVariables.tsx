@@ -1,6 +1,6 @@
 import React from 'react';
 
-import {PlaygroundMini} from '../playground/PlaygroundMini';
+import {PlaygroundMini} from '../../components/PlaygroundMini';
 
 export const CustomCSSVariablesDemo = React.memo((styles) => {
     return (

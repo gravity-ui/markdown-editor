@@ -1,14 +1,11 @@
-import {Meta, StoryObj} from '@storybook/react';
+import {StoryObj} from '@storybook/react';
 
-import {EditorInEditorDemo} from './EditorInEditorDemo';
+import {EditorInEditor as component} from './EditorInEditor';
 
-const meta: Meta = {
-    component: EditorInEditorDemo,
-    title: 'Experiments / Editor-in-Editor',
+export const Story: StoryObj<typeof component> = {};
+Story.storyName = 'Editor in editor';
+
+export default {
+    component,
+    title: 'Experiments / Editor in editor',
 };
-
-export default meta;
-
-type Story = StoryObj<typeof EditorInEditorDemo>;
-
-export const Playground: Story = {};

@@ -1,8 +1,8 @@
 import React, {FC} from 'react';
 
-import {PlaygroundMini, PlaygroundMiniProps} from '../../PlaygroundMini';
+import {PlaygroundMini, PlaygroundMiniProps} from '../../components/PlaygroundMini';
 
-export type EscapeConfigDemoProps = Pick<
+export type EscapeConfigProps = Pick<
     PlaygroundMiniProps,
     'initialEditor' | 'withDefaultInitialContent'
 > & {
@@ -10,7 +10,7 @@ export type EscapeConfigDemoProps = Pick<
     startOfLineEscapeRegexp: string;
 };
 
-export const EscapeConfigDemo: FC<EscapeConfigDemoProps> = ({
+export const EscapeConfig: FC<EscapeConfigProps> = ({
     startOfLineEscapeRegexp,
     commonEscapeRegexp,
     ...props

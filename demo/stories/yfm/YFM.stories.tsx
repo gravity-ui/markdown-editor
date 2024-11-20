@@ -1,6 +1,6 @@
 import type {Meta, StoryObj} from '@storybook/react';
 
-import {PlaygroundMini, PlaygroundMiniProps} from '../../PlaygroundMini';
+import {PlaygroundMini, PlaygroundMiniProps} from '../../components/PlaygroundMini';
 import {args} from '../../defaults/args';
 import {excludedControls} from '../../defaults/excluded-controls';
 

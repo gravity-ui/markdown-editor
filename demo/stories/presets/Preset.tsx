@@ -14,15 +14,15 @@ import {
 import type {FileUploadHandler} from '../../../src/utils/upload';
 import {VERSION} from '../../../src/version';
 // ---
-import {WysiwygSelection} from '../../PMSelection';
-import {WysiwygDevTools} from '../../ProseMirrorDevTools';
-import {SplitModePreview} from '../../SplitModePreview';
+import {WysiwygSelection} from '../../components/PMSelection';
+import {WysiwygDevTools} from '../../components/ProseMirrorDevTools';
+import {SplitModePreview} from '../../components/SplitModePreview';
 import {plugins} from '../../defaults/md-plugins';
 import {block} from '../../utils/cn';
 import {randomDelay} from '../../utils/delay';
 import {parseInsertedUrlAsImage} from '../../utils/imageUrl';
 
-import '../../Playground.scss';
+import '../../components/Playground.scss';
 
 const b = block('playground');
 const fileUploadHandler: FileUploadHandler = async (file) => {
@@ -49,7 +49,7 @@ logger.setLogger({
     ...console,
 });
 
-export const PresetDemo = React.memo<PresetDemoProps>((props) => {
+export const Preset = React.memo<PresetDemoProps>((props) => {
     const {
         preset,
         settingsVisible,
@@ -150,4 +150,4 @@ export const PresetDemo = React.memo<PresetDemoProps>((props) => {
     );
 });
 
-PresetDemo.displayName = 'PresetDemo';
+Preset.displayName = 'PresetDemo';

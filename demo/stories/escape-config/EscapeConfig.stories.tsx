@@ -1,22 +1,17 @@
-import type {Meta, StoryObj} from '@storybook/react';
+import type {StoryObj} from '@storybook/react';
 
-import {EscapeConfigDemo, EscapeConfigDemoProps} from './EscapeConfigDemo';
+import {EscapeConfig as component} from './EscapeConfig';
 
-const args: Meta<EscapeConfigDemoProps>['args'] = {
-    initialEditor: 'wysiwyg',
-    commonEscapeRegexp: '^$',
-    startOfLineEscapeRegexp: '^$',
-    withDefaultInitialContent: true,
-};
+export const Story: StoryObj<typeof component> = {};
+Story.storyName = 'Escape config';
 
-const meta: Meta<EscapeConfigDemoProps> = {
-    component: EscapeConfigDemo,
+export default {
+    args: {
+        initialEditor: 'wysiwyg',
+        commonEscapeRegexp: '^$',
+        startOfLineEscapeRegexp: '^$',
+        withDefaultInitialContent: true,
+    },
+    component,
     title: 'Experiments / Escape config',
-    args,
 };
-
-export default meta;
-
-type Story = StoryObj<typeof EscapeConfigDemo>;
-
-export const EscapeConfig: Story = {};
