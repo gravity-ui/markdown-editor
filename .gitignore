@@ -21,3 +21,4 @@ build/
 coverage/
 storybook-static/
 .eslintcache
+demo/docs
