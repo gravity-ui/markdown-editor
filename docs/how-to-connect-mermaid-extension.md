@@ -1,4 +1,4 @@
-##### Mermaid Extension
+##### Connect / Mermaid Extension
 
 ## How to Connect the Mermaid Extension in the Editor
 

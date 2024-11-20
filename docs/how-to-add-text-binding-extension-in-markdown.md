@@ -1,4 +1,4 @@
-##### Extension with popup
+##### Develop / Extension with popup
 
 ## How to create an extension with popup for Markdown mode with text binding
 
@@ -142,6 +142,7 @@ export const GhostPopupPlugin = ViewPlugin.fromClass(
 Let's create a popup that will be linked to the text.
 
 This is a simple component that takes a link and renders a popup in its place
+
 ```ts
 // popup.ts
 import React from 'react';

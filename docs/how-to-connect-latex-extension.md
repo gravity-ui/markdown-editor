@@ -1,4 +1,4 @@
-##### Latex extension
+##### Connect / Latex extension
 
 ## How to Connect the Latex Extension in the Editor
 
