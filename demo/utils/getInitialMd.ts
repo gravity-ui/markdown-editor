@@ -1,5 +1,5 @@
-import {initialMdContent} from '../constants/md-content';
+import {markup} from '../defaults/content';
 
 import {parseLocation} from './location';
 
-export const getInitialMd = () => parseLocation() || initialMdContent;
+export const getInitialMd = () => parseLocation() || markup;
