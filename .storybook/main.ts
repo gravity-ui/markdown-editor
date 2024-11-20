@@ -8,15 +8,16 @@ const config: StorybookConfig = {
         name: '@storybook/react-webpack5',
         options: {},
     },
-    stories: ['../demo/**/*.stories.@(js|jsx|ts|tsx)'],
+    stories: ['../demo/**/*.mdx', '../demo/**/*.stories.@(js|jsx|ts|tsx)'],
     addons: [
         '@storybook/preset-scss',
         {name: '@storybook/addon-essentials', options: {backgrounds: false}},
         '@storybook/addon-webpack5-compiler-babel',
+        '@storybook/addon-docs',
     ],
     typescript: {
         check: true,
-        reactDocgen: 'react-docgen-typescript'
+        reactDocgen: 'react-docgen-typescript',
     },
     webpackFinal(config) {
         config.plugins?.push(
