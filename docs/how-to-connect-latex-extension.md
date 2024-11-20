@@ -1,4 +1,6 @@
-## How to Connect the Latex Extensions in the Editor
+##### Latex extension
+
+## How to Connect the Latex Extension in the Editor
 
 To integrate the LaTeX extension in your editor, you will use the specified versions of the necessary packages. Here’s a detailed guide:
 

@@ -1,4 +1,6 @@
-## How to Connect the Mermaid Extensions in the Editor
+##### Mermaid Extension
+
+## How to Connect the Mermaid Extension in the Editor
 
 To integrate the Mermaid extension in your editor, you will use the specified versions of the necessary packages. Here’s a detailed guide.
 

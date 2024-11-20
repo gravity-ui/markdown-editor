@@ -1,3 +1,5 @@
+##### GPT
+
 ## How to connect GPT extensions to editor
 
 First to integrate this extension, you need to use the following versions of the packages:
@@ -55,7 +57,7 @@ export const Editor: React.FC<EditorProps> = (props) => {
         editor={mdEditor}
         markupToolbarConfig={mToolbarConfig}
     />
-};         
+};
 ```
 ### 2. Implementation ```gptWidgetProps```
 
@@ -139,7 +141,7 @@ export const gptWidgetProps: GptWidgetOptions = {
     },
     onLike: async () => {}, // function to track feedback for good
     onDislike: async () => {}, // and bad GPT answers
-};          
+};
 ```
 ### 3. Add extension to menubar and toolbar and command menu config for editor
 
