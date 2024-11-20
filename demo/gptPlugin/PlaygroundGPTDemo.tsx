@@ -19,6 +19,10 @@ import {initialMdContent} from './md-content';
 
 const wToolbarConfig = cloneDeep(wysiwygToolbarConfigs.wToolbarConfig);
 wToolbarConfig.unshift([wGptToolbarItem]);
+wToolbarConfig.push([
+    wysiwygToolbarConfigs.wMermaidItemData,
+    wysiwygToolbarConfigs.wYfmHtmlBlockItemData,
+]);
 
 logger.setLogger({
     metrics: console.info,
