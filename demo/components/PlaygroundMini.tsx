@@ -1,7 +1,8 @@
 import React from 'react';
 
+import {getInitialMd} from '../utils/getInitialMd';
+
 import {Playground, PlaygroundProps} from './Playground';
-import {getInitialMd} from './utils/getInitialMd';
 
 export type PlaygroundMiniProps = Pick<
     PlaygroundProps,

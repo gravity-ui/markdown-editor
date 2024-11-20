@@ -3,15 +3,14 @@ import React, {useEffect, useMemo, useRef, useState} from 'react';
 import transform from '@diplodoc/transform';
 import {useThemeValue} from '@gravity-ui/uikit';
 
-import {MarkupString, colorClassName} from '../src';
-import {debounce} from '../src/lodash';
-import {YfmStaticView} from '../src/view/components/YfmHtml';
-import {withLatex} from '../src/view/hocs/withLatex';
-import {MermaidConfig, withMermaid} from '../src/view/hocs/withMermaid';
-import {withYfmHtmlBlock} from '../src/view/hocs/withYfmHtml';
-
-import {LATEX_RUNTIME, MERMAID_RUNTIME, YFM_HTML_BLOCK_RUNTIME} from './defaults/md-plugins';
-import useYfmHtmlBlockStyles from './hooks/useYfmHtmlBlockStyles';
+import {MarkupString, colorClassName} from '../../src';
+import {debounce} from '../../src/lodash';
+import {YfmStaticView} from '../../src/view/components/YfmHtml';
+import {withLatex} from '../../src/view/hocs/withLatex';
+import {MermaidConfig, withMermaid} from '../../src/view/hocs/withMermaid';
+import {withYfmHtmlBlock} from '../../src/view/hocs/withYfmHtml';
+import {LATEX_RUNTIME, MERMAID_RUNTIME, YFM_HTML_BLOCK_RUNTIME} from '../defaults/md-plugins';
+import useYfmHtmlBlockStyles from '../hooks/useYfmHtmlBlockStyles';
 
 const ML_ATTR = 'data-ml';
 const mermaidConfig: MermaidConfig = {theme: 'forest'};

@@ -19,28 +19,27 @@ import {
     markupToolbarConfigs,
     useMarkdownEditor,
     wysiwygToolbarConfigs,
-} from '../src';
-import type {ToolbarActionData} from '../src/bundle/Editor';
-import {Extension} from '../src/cm/state';
-import {FoldingHeading} from '../src/extensions/additional/FoldingHeading';
-import {Math} from '../src/extensions/additional/Math';
-import {Mermaid} from '../src/extensions/additional/Mermaid';
-import {YfmHtmlBlock} from '../src/extensions/additional/YfmHtmlBlock';
-import {getSanitizeYfmHtmlBlock} from '../src/extensions/additional/YfmHtmlBlock/utils';
-import {cloneDeep} from '../src/lodash';
-import {CodeEditor} from '../src/markup';
-import {VERSION} from '../src/version';
+} from '../../src';
+import type {ToolbarActionData} from '../../src/bundle/Editor';
+import {Extension} from '../../src/cm/state';
+import {FoldingHeading} from '../../src/extensions/additional/FoldingHeading';
+import {Math} from '../../src/extensions/additional/Math';
+import {Mermaid} from '../../src/extensions/additional/Mermaid';
+import {YfmHtmlBlock} from '../../src/extensions/additional/YfmHtmlBlock';
+import {getSanitizeYfmHtmlBlock} from '../../src/extensions/additional/YfmHtmlBlock/utils';
+import {cloneDeep} from '../../src/lodash';
+import {CodeEditor} from '../../src/markup';
+import {VERSION} from '../../src/version';
+import {plugins} from '../defaults/md-plugins';
+import useYfmHtmlBlockStyles from '../hooks/useYfmHtmlBlockStyles';
+import {block} from '../utils/cn';
+import {randomDelay} from '../utils/delay';
+import {parseInsertedUrlAsImage} from '../utils/imageUrl';
+import {debouncedUpdateLocation as updateLocation} from '../utils/location';
 
-// ---
 import {WysiwygSelection} from './PMSelection';
 import {WysiwygDevTools} from './ProseMirrorDevTools';
 import {SplitModePreview} from './SplitModePreview';
-import {plugins} from './defaults/md-plugins';
-import useYfmHtmlBlockStyles from './hooks/useYfmHtmlBlockStyles';
-import {block} from './utils/cn';
-import {randomDelay} from './utils/delay';
-import {parseInsertedUrlAsImage} from './utils/imageUrl';
-import {debouncedUpdateLocation as updateLocation} from './utils/location';
 
 import './Playground.scss';
 

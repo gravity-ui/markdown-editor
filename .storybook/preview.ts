@@ -1,7 +1,7 @@
 import type {Preview} from '@storybook/react';
 import {MINIMAL_VIEWPORTS} from '@storybook/addon-viewport';
-
-import {withThemeProvider, withLang} from '../demo/utils/preview';
+import {withThemeProvider} from '../demo/hocs/withThemeProvider';
+import {withLang} from '../demo/hocs/withLang';
 
 const preview: Preview = {
     decorators: [withThemeProvider, withLang],
@@ -12,12 +12,12 @@ const preview: Preview = {
         },
         options: {
             storySort: {
-                order: ['Markdown Editor', ['Playground', '*'], '*'],
-            }
+                order: ['Markdown Editor', ['Playground', 'Presets', '*'], '*'],
+            },
         },
         controls: {
-            exclude: ['withDefaultInitialContent', 'initial']
-        }
+            exclude: ['withDefaultInitialContent', 'initial'],
+        },
     },
     globalTypes: {
         theme: {

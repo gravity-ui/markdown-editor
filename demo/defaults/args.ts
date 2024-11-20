@@ -1,6 +1,6 @@
 import {Meta} from '@storybook/react';
 
-import {PlaygroundMiniProps} from '../PlaygroundMini';
+import {PlaygroundMiniProps} from '../components/PlaygroundMini';
 
 export const args: Meta<PlaygroundMiniProps>['args'] = {
     initialEditor: 'wysiwyg',

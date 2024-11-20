@@ -9,7 +9,7 @@ import {
     isNodeSelection,
     isTextSelection,
     isWholeSelection,
-} from '../src';
+} from '../../src';
 
 export type WysiwygSelectionProps = ClassNameProps & {
     editor: MarkdownEditorInstance;

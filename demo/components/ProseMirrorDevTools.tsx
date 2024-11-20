@@ -4,7 +4,7 @@ import {applyDevTools, removeDevTools} from 'prosemirror-dev-toolkit';
 import {EditorView} from 'prosemirror-view';
 import {useEffectOnce, useUpdate} from 'react-use';
 
-import type {MarkdownEditorInstance} from '../src';
+import type {MarkdownEditorInstance} from '../../src';
 
 export type WysiwygDevToolsProps = {
     editor: MarkdownEditorInstance;
