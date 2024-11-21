@@ -1,4 +1,6 @@
-## How to Connect the HTML Extensions in the Editor
+##### Connect / Html block
+
+## How to Connect the HTML Extension in the Editor
 
 To integrate the HTML extensions in your editor, you will use the specified versions of the necessary packages. Here’s a detailed guide:
 

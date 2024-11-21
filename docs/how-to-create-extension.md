@@ -1,3 +1,5 @@
+##### Develop / Extension creation
+
 ## How to Create Extension
 
 Let us examine the process of creating an extension based on the Mermaid extension, which enables the insertion and manipulation of Mermaid diagrams.

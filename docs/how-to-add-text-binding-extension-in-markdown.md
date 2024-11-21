@@ -1,6 +1,8 @@
+##### Develop / Extension with popup
+
 ## How to create an extension with popup for Markdown mode with text binding
 
-Let's consider connecting an extension with text binding based on the Ghost extension — this is a test extension. 
+Let's consider connecting an extension with text binding based on the Ghost extension — this is a test extension.
 
 To begin with, we need the plugin itself, which we can implement as follows:
 
@@ -49,7 +51,7 @@ class SpanWidget extends WidgetType {
 export const GhostPopupPlugin = ViewPlugin.fromClass(
     class implements PluginValue {
         // The class allows you to implement the following methods: update, docViewUpdate, destroy.
-        
+
         decos: DecorationSet = Decoration.none;
         readonly _view: EditorView;
         readonly _renderItem;
@@ -63,7 +65,7 @@ export const GhostPopupPlugin = ViewPlugin.fromClass(
                 .createItem('ghost-popup-example-in-markup-mode', () => this.renderPopup());
         }
 
-            
+
         // Called when transactions want to be applied to the view
         update(update: ViewUpdate) {
             if (update.docChanged || update.selectionSet) {
@@ -140,6 +142,7 @@ export const GhostPopupPlugin = ViewPlugin.fromClass(
 Let's create a popup that will be linked to the text.
 
 This is a simple component that takes a link and renders a popup in its place
+
 ```ts
 // popup.ts
 import React from 'react';
