@@ -200,7 +200,7 @@
     "tslib": "^2.3.1"
   },
   "devDependencies": {
-    "@diplodoc/cut-extension": "^0.3.1",
+    "@diplodoc/cut-extension": "^0.4.0",
     "@diplodoc/folding-headings-extension": "0.1.0",
     "@diplodoc/html-extension": "2.3.2",
     "@diplodoc/latex-extension": "1.0.3",
@@ -258,6 +258,7 @@
     "sass": "^1.64.1",
     "sass-loader": "^13.3.2",
     "stylelint": "15.11.0",
+    "ts-dedent": "2.2.0",
     "ts-jest": "^27.0.7",
     "typescript": "^4.5.2"
   },
@@ -282,7 +283,7 @@
     }
   },
   "peerDependencies": {
-    "@diplodoc/cut-extension": "^0.3.1",
+    "@diplodoc/cut-extension": "^0.3.1 || ^0.4.0",
     "@diplodoc/folding-headings-extension": "^0.1.0",
     "@diplodoc/html-extension": "2.3.2",
     "@diplodoc/latex-extension": "^1.0.3",

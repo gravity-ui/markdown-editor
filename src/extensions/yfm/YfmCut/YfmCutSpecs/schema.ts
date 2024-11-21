@@ -1,7 +1,8 @@
 import type {NodeSpec} from 'prosemirror-model';
 
 import type {PlaceholderOptions} from '../../../../utils/placeholder';
-import {CutNode} from '../const';
+
+import {CutAttr, CutNode} from './const';
 
 import type {YfmCutSpecsOptions} from './index';
 
@@ -15,10 +16,15 @@ export const getSchemaSpecs = (
     placeholder?: PlaceholderOptions,
 ): Record<CutNode, NodeSpec> => ({
     [CutNode.Cut]: {
-        attrs: {class: {default: 'yfm-cut'}},
+        attrs: {class: {default: 'yfm-cut'}, [CutAttr.Markup]: {default: null}},
         content: `${CutNode.CutTitle} ${CutNode.CutContent}`,
         group: 'block yfm-cut',
-        parseDOM: [{tag: '.yfm-cut'}],
+        parseDOM: [
+            {
+                tag: '.yfm-cut',
+                getAttrs: (node) => ({[CutAttr.Markup]: node.getAttribute(CutAttr.Markup)}),
+            },
+        ],
         toDOM(node) {
             return ['div', node.attrs, 0];
         },
