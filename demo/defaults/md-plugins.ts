@@ -35,11 +35,16 @@ type GetPluginsOptions = {
     directiveSyntax?: RenderPreviewParams['directiveSyntax'];
 };
 
-export function getPlugins(_opts: GetPluginsOptions = {}): markdownit.PluginWithParams[] {
+export function getPlugins({
+    directiveSyntax,
+}: GetPluginsOptions = {}): markdownit.PluginWithParams[] {
     const defaultPlugins: PluginWithParams[] = [
         anchors,
         code,
-        yfmCut({bundle: false}),
+        yfmCut({
+            bundle: false,
+            directiveSyntax: directiveSyntax?.mdPluginValueFor('yfmCut'),
+        }),
         deflist,
         file,
         (md) => md.use(imsize, {enableInlineStyling: true}),

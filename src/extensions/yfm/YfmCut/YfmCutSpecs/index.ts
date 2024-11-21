@@ -6,9 +6,18 @@ import type {ExtensionAuto, ExtensionNodeSpec} from '../../../../core';
 import {CutNode} from './const';
 import {parserTokens} from './parser';
 import {getSchemaSpecs} from './schema';
-import {serializerTokens} from './serializer';
+import {getSerializerTokens} from './serializer';
 
-export {CutNode, cutType, cutTitleType, cutContentType} from './const';
+export {CutAttr, CutNode, cutType, cutTitleType, cutContentType} from './const';
+
+declare global {
+    namespace MarkdownEditor {
+        interface DirectiveSyntaxAdditionalSupportedExtensions {
+            // Mark in global types that YfmCut has support for directive syntax
+            yfmCut: true;
+        }
+    }
+}
 
 export type YfmCutSpecsOptions = {
     cutView?: ExtensionNodeSpec['view'];
@@ -26,9 +35,18 @@ export type YfmCutSpecsOptions = {
 
 export const YfmCutSpecs: ExtensionAuto<YfmCutSpecsOptions> = (builder, opts) => {
     const schemaSpecs = getSchemaSpecs(opts, builder.context.get('placeholder'));
+    const directiveSyntax = builder.context.get('directiveSyntax');
+    const serializerTokens = getSerializerTokens({directiveSyntax});
 
     builder
-        .configureMd((md) => md.use(yfmCut({bundle: false})))
+        .configureMd((md) =>
+            md.use(
+                yfmCut({
+                    bundle: false,
+                    directiveSyntax: directiveSyntax?.mdPluginValueFor('yfmCut'),
+                }),
+            ),
+        )
         .addNode(CutNode.Cut, () => ({
             spec: schemaSpecs[CutNode.Cut],
             toMd: serializerTokens[CutNode.Cut],

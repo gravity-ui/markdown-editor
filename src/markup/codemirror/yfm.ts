@@ -6,6 +6,8 @@ import type {DelimiterType, MarkdownConfig} from '@lezer/markdown';
 
 import {capitalize} from '../../lodash';
 
+import {DirectiveSyntaxFacet} from './directive-facet';
+
 export const customTags = {
     underline: Tag.define(),
     monospace: Tag.define(),
@@ -76,6 +78,9 @@ export const yfmNoteSnippets: Record<YfmNoteType, ReturnType<typeof snippet>> = 
 export const yfmCutSnippetTemplate = '{% cut "#{title}" %}\n\n#{}\n\n{% endcut %}\n\n';
 export const yfmCutSnippet = snippet(yfmCutSnippetTemplate);
 
+export const yfmCutDirectiveSnippetTemplate = ':::cut [#{title}]\n#{}\n:::\n\n';
+export const yfmCutDirectiveSnippet = snippet(yfmCutDirectiveSnippetTemplate);
+
 export interface LanguageData {
     autocomplete: CompletionSource;
     [key: string]: any;
@@ -87,6 +92,8 @@ export interface YfmLangOptions {
 
 const mdAutocomplete: LanguageData = {
     autocomplete: (context) => {
+        const directiveContext = context.state.facet(DirectiveSyntaxFacet);
+
         // TODO: add more actions and re-enable
         // let word = context.matchBefore(/\/.*/);
         // if (word) {
@@ -104,13 +111,16 @@ const mdAutocomplete: LanguageData = {
         //                 label: '/yfm cut',
         //                 displayLabel: 'YFM Cut',
         //                 type: 'text',
-        //                 apply: yfmCutSnippet,
+        //                 apply: directiveFacet.shouldInsertDirectiveMarkup('yfmCut')
+        //                      ? yfmCutDirectiveSnippet
+        //                      : yfmCutSnippet,
         //             },
         //         ],
         //     };
         // }
+
         const word = context.matchBefore(/^.*/);
-        if (word?.text.startsWith('{%')) {
+        if (directiveContext.option !== 'only' && word?.text.startsWith('{%')) {
             return {
                 from: word.from,
                 options: [
@@ -126,10 +136,28 @@ const mdAutocomplete: LanguageData = {
                         label: '{% cut',
                         displayLabel: 'YFM Cut',
                         type: 'text',
-                        apply: yfmCutSnippet,
+                        apply: directiveContext.shouldInsertDirectiveMarkup('yfmCut')
+                            ? yfmCutDirectiveSnippet
+                            : yfmCutSnippet,
                     },
                 ],
             };
+        }
+        if (directiveContext.option !== 'disabled' && word?.text.startsWith(':')) {
+            const options: Completion[] = [];
+
+            if (directiveContext.valueFor('yfmCut') !== 'disabled') {
+                options.push({
+                    label: ':::cut',
+                    displayLabel: 'YFM Cut',
+                    type: 'text',
+                    apply: yfmCutDirectiveSnippet,
+                });
+            }
+
+            if (options.length) {
+                return {from: word.from, options};
+            }
         }
         return null;
     },

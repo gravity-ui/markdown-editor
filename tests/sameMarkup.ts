@@ -1,7 +1,8 @@
 /* eslint-disable no-implicit-globals */
 
 import type {Node} from 'prosemirror-model';
-import {Parser, Serializer} from '../src/core';
+
+import type {Parser, Serializer} from '../src/core';
 
 export function createMarkupChecker({
     parser,
@@ -10,8 +11,9 @@ export function createMarkupChecker({
     parser: Parser;
     serializer: Serializer;
 }) {
-    function parse(text: string, doc: Node) {
-        expect(parser.parse(text)).toMatchNode(doc);
+    function parse(text: string, doc: Node, {json}: {json?: boolean} = {}) {
+        if (json) expect(parser.parse(text)).toMatchNodeJson(doc);
+        else expect(parser.parse(text)).toMatchNode(doc);
     }
 
     function serialize(doc: Node, text: string) {
