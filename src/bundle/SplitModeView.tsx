@@ -110,6 +110,7 @@ const SplitModeView = React.forwardRef<HTMLDivElement, SplitModeProps>(({editor}
                 getValue: editor.getValue,
                 mode: 'split',
                 md: editor.mdOptions,
+                directiveSyntax: editor.directiveSyntax,
             })}
         </div>
     );

@@ -16,4 +16,5 @@ export const args: Meta<PlaygroundMiniProps>['args'] = {
     initialSplitModeEnabled: false,
     renderPreviewDefined: true,
     height: 'initial',
+    directiveSyntax: 'disabled',
 };

@@ -19,6 +19,7 @@ import yfmTable from '@diplodoc/transform/lib/plugins/table';
 import video from '@diplodoc/transform/lib/plugins/video';
 import type {PluginWithParams} from 'markdown-it/lib';
 
+import type {RenderPreviewParams} from '../../src';
 import {emojiDefs} from '../../src/bundle/emoji';
 import color from '../../src/markdown-it/color';
 import {bare as emoji} from '../../src/markdown-it/emoji';
@@ -30,54 +31,62 @@ export const LATEX_RUNTIME = 'extension:latex';
 export const MERMAID_RUNTIME = 'extension:mermaid';
 export const YFM_HTML_BLOCK_RUNTIME = 'extension:yfm-html-block';
 
-const defaultPlugins: PluginWithParams[] = [
-    anchors,
-    code,
-    yfmCut({bundle: false}) as PluginWithParams,
-    deflist,
-    file,
-    (md) => md.use(imsize, {enableInlineStyling: true}),
-    meta,
-    monospace,
-    notes,
-    sup,
-    yfmTabs({
-        bundle: false,
-        features: {
-            enabledVariants: {
-                regular: true,
-                radio: true,
-                dropdown: false,
-                accordion: false,
-            },
-        },
-    }),
-    video,
-    yfmTable,
-];
-const extendedPlugins = defaultPlugins.concat(
-    (md) => md.use(emoji, {defs: emojiDefs}),
-    checkbox,
-    color,
-    ins,
-    latex({bundle: false, validate: false, runtime: LATEX_RUNTIME}),
-    mark,
-    mermaid({bundle: false, runtime: MERMAID_RUNTIME}),
-    sub,
-    yfmHtmlBlock({
-        bundle: false,
-        runtimeJsPath: YFM_HTML_BLOCK_RUNTIME,
-        head: `
-            <base target="_blank" />
-            <style>
-                html, body {
-                    margin: 0;
-                    padding: 0;
-                }
-            </style
-        `,
-    }),
-    foldingHeadings({bundle: false}),
-);
+type GetPluginsOptions = {
+    directiveSyntax?: RenderPreviewParams['directiveSyntax'];
+};
 
-export {extendedPlugins as plugins};
+export function getPlugins(_opts: GetPluginsOptions = {}): markdownit.PluginWithParams[] {
+    const defaultPlugins: PluginWithParams[] = [
+        anchors,
+        code,
+        yfmCut({bundle: false}),
+        deflist,
+        file,
+        (md) => md.use(imsize, {enableInlineStyling: true}),
+        meta,
+        monospace,
+        notes,
+        sup,
+        yfmTabs({
+            bundle: false,
+            features: {
+                enabledVariants: {
+                    regular: true,
+                    radio: true,
+                    dropdown: false,
+                    accordion: false,
+                },
+            },
+        }),
+        video,
+        yfmTable,
+    ];
+    const extendedPlugins = defaultPlugins.concat(
+        (md) => md.use(emoji, {defs: emojiDefs}),
+        checkbox,
+        color,
+        ins,
+        latex({bundle: false, validate: false, runtime: LATEX_RUNTIME}),
+        mark,
+        mermaid({bundle: false, runtime: MERMAID_RUNTIME}),
+        sub,
+        yfmHtmlBlock({
+            bundle: false,
+            runtimeJsPath: YFM_HTML_BLOCK_RUNTIME,
+            head: `
+                        <base target="_blank" />
+                        <style>
+                            html, body {
+                                margin: 0;
+                                padding: 0;
+                            }
+                        </style
+                    `,
+        }),
+        foldingHeadings({bundle: false}),
+    );
+
+    return extendedPlugins;
+}
+
+export const plugins = getPlugins();

@@ -19,3 +19,4 @@ export * from './serialize-for-clipboard';
 export * from './sync-scroll';
 export * from './upload';
 export * from './get-proportional-size';
+export type {DirectiveSyntaxValue, DirectiveSyntaxOption} from './directive';

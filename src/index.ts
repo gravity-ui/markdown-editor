@@ -12,7 +12,7 @@ export * from './view';
 export * from './utils';
 export * from './bundle';
 
-export {ReactRendererFacet, getImageDimensions} from './markup';
+export {DirectiveSyntaxFacet, ReactRendererFacet, getImageDimensions} from './markup';
 export * as MarkupCommands from './markup/commands';
 export * as MarkupHelpers from './markup/commands/helpers';
 

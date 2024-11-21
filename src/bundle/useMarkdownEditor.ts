@@ -3,6 +3,7 @@ import {useLayoutEffect, useMemo} from 'react';
 import type {Extension} from '../core';
 import {ReactRenderStorage} from '../extensions';
 import {logger} from '../logger';
+import {DirectiveSyntaxContext} from '../utils/directive';
 
 import {EditorImpl, type EditorInt} from './Editor';
 import type {
@@ -40,11 +41,14 @@ export function useMarkdownEditor<T extends object = {}>(
             props.needToSetDimensionsForUploadedImages;
         const enableNewImageSizeCalculation = experimental.enableNewImageSizeCalculation;
 
+        const directiveSyntax = new DirectiveSyntaxContext(experimental.directiveSyntax);
+
         const extensions: Extension = (builder) => {
             const extensionOptions = wysiwygConfig.extensionOptions ?? props.extensionOptions;
 
             builder.use(BundlePreset, {
                 ...extensionOptions,
+                directiveSyntax,
                 preset,
                 reactRenderer: renderStorage,
                 onCancel: () => {
@@ -71,6 +75,7 @@ export function useMarkdownEditor<T extends object = {}>(
             ...props,
             preset,
             renderStorage,
+            directiveSyntax,
             md: {
                 ...md,
                 breaks,

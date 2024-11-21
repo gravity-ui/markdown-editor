@@ -61,7 +61,7 @@ export default {
     args: args,
     parameters: {
         controls: {
-            exclude: excludedControls,
+            exclude: excludedControls.concat('directiveSyntax'),
         },
     },
 };
