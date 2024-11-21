@@ -62,6 +62,7 @@ export type CreateCodemirrorParams = {
     onScroll: (event: Event) => void;
     reactRenderer: ReactRenderStorage;
     uploadHandler?: FileUploadHandler;
+    disableHTMLParsingInMd?: boolean;
     parseInsertedUrlAsImage?: ParseInsertedUrlAsImage;
     needImageDimensions?: boolean;
     enableNewImageSizeCalculation?: boolean;
@@ -92,6 +93,7 @@ export function createCodemirror(params: CreateCodemirrorParams) {
         extensions: extraExtensions,
         placeholder: placeholderContent,
         autocompletion: autocompletionConfig,
+        disableHTMLParsingInMd,
         parseInsertedUrlAsImage,
         directiveSyntax,
     } = params;
@@ -160,33 +162,35 @@ export function createCodemirror(params: CreateCodemirrorParams) {
             paste(event, editor) {
                 if (!event.clipboardData) return;
 
-                // Note: I have editor.dispatch() in the try-catch on purpose.
-                // The code's pretty new and there might be random issues we haven't caught yet,
-                // especially with invalid HTML or weird DOM parsing errors.
-                // If something goes wrong, I just want to fall back to the "default pasting"
-                // rather than break the entire experience for the user.
-                // It’s kind of like a temporary safety net right now until things are more stable.
-                try {
-                    // Handle HTML insertion
-                    const htmlContent = event.clipboardData.getData(DataTransferType.Html);
-                    if (htmlContent) {
+                // if clipboard contains YFM content - avoid any meddling with paste content
+                // since text/plain will contain valid markdown
+                if (event.clipboardData.getData(DataTransferType.Yfm)) {
+                    return;
+                }
+
+                // if we have text/html inside copy/paste buffer
+                const htmlContent = event.clipboardData.getData(DataTransferType.Html);
+                if (htmlContent && !disableHTMLParsingInMd) {
+                    let parsedMarkdownMarkup: string | undefined;
+                    try {
                         const parser = new DOMParser();
-                        const doc = parser.parseFromString(htmlContent, 'text/html');
-                        const links = Array.from(doc.getElementsByTagName('a'));
+                        const htmlDoc = parser.parseFromString(htmlContent, 'text/html');
 
-                        if (links.length > 0) {
-                            event.preventDefault();
-
-                            const converter = new MarkdownConverter();
-                            const result = converter.processNode(doc.body).trim();
-
-                            editor.dispatch(editor.state.replaceSelection(result));
-                            return;
-                        }
+                        const converter = new MarkdownConverter();
+                        parsedMarkdownMarkup = converter.processNode(htmlDoc.body).trim();
+                    } catch (e) {
+                        // The code is pretty new and there might be random issues we haven't caught yet,
+                        // especially with invalid HTML or weird DOM parsing errors.
+                        // If something goes wrong, I just want to fall back to the "default pasting"
+                        // rather than break the entire experience for the user.
+                        logger.error(e);
                     }
-                } catch (e) {
-                    // it may throw an error if html is invalid, then we will fallback to "default pasting"
-                    logger.error(e);
+
+                    if (parsedMarkdownMarkup !== undefined) {
+                        event.preventDefault();
+                        editor.dispatch(editor.state.replaceSelection(parsedMarkdownMarkup));
+                        return;
+                    }
                 }
 
                 if (parseInsertedUrlAsImage) {

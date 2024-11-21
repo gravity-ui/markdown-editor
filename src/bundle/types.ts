@@ -54,6 +54,13 @@ export type MarkdownEditorHandlers = {
 
 export type MarkdownEditorExperimentalOptions = {
     /**
+     * Ability to disable html parsing when pasting html content in markdown mode
+     * If set to true we will fallback to default promisemirror text/plain paste
+     *
+     * @default false
+     */
+    disableHTMLParsingInMd?: boolean;
+    /**
      * If we need to set dimensions for uploaded images
      *
      * @default false
