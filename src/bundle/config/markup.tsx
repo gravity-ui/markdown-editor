@@ -59,8 +59,9 @@ import {ActionName} from './action-names';
 import {icons} from './icons';
 
 const noop = () => {};
-const isActiveFn = () => false;
-const isEnableFn = () => true;
+const inactive = () => false;
+const enable = () => true;
+const disable = () => false;
 
 export type MToolbarData = ToolbarData<CodeEditor>;
 export type MToolbarItemData = ToolbarItemData<CodeEditor>;
@@ -79,7 +80,7 @@ export const mHistoryGroupConfig: MToolbarGroupData = [
         icon: icons.undo,
         hotkey: f.toView(A.Undo),
         exec: (e) => undo(e.cm),
-        isActive: isActiveFn,
+        isActive: inactive,
         isEnable: (e) => undoDepth(e.cm.state) > 0,
     },
     {
@@ -89,7 +90,7 @@ export const mHistoryGroupConfig: MToolbarGroupData = [
         icon: icons.redo,
         hotkey: f.toView(A.Redo),
         exec: (e) => redo(e.cm),
-        isActive: isActiveFn,
+        isActive: inactive,
         isEnable: (e) => redoDepth(e.cm.state) > 0,
     },
 ];
@@ -103,8 +104,8 @@ export const mBoldItemData: MToolbarSingleItemData = {
     icon: icons.bold,
     hotkey: f.toView(A.Bold),
     exec: (e) => toggleBold(e.cm),
-    isActive: isActiveFn,
-    isEnable: isEnableFn,
+    isActive: inactive,
+    isEnable: enable,
 };
 
 export const mItalicItemData: MToolbarSingleItemData = {
@@ -114,8 +115,8 @@ export const mItalicItemData: MToolbarSingleItemData = {
     icon: icons.italic,
     hotkey: f.toView(A.Italic),
     exec: (e) => toggleItalic(e.cm),
-    isActive: isActiveFn,
-    isEnable: isEnableFn,
+    isActive: inactive,
+    isEnable: enable,
 };
 
 export const mUnderlineItemData: MToolbarSingleItemData = {
@@ -125,8 +126,8 @@ export const mUnderlineItemData: MToolbarSingleItemData = {
     icon: icons.underline,
     hotkey: f.toView(A.Underline),
     exec: (e) => toggleUnderline(e.cm),
-    isActive: isActiveFn,
-    isEnable: isEnableFn,
+    isActive: inactive,
+    isEnable: enable,
 };
 
 export const mStrikethroughItemData: MToolbarSingleItemData = {
@@ -136,8 +137,8 @@ export const mStrikethroughItemData: MToolbarSingleItemData = {
     icon: icons.strikethrough,
     hotkey: f.toView(A.Strike),
     exec: (e) => toggleStrikethrough(e.cm),
-    isActive: isActiveFn,
-    isEnable: isEnableFn,
+    isActive: inactive,
+    isEnable: enable,
 };
 
 export const mMonospaceItemData: MToolbarSingleItemData = {
@@ -146,8 +147,8 @@ export const mMonospaceItemData: MToolbarSingleItemData = {
     title: i18n.bind(null, 'mono'),
     icon: icons.mono,
     exec: (e) => toggleMonospace(e.cm),
-    isActive: isActiveFn,
-    isEnable: isEnableFn,
+    isActive: inactive,
+    isEnable: enable,
 };
 
 export const mMarkedItemData: MToolbarSingleItemData = {
@@ -156,8 +157,8 @@ export const mMarkedItemData: MToolbarSingleItemData = {
     title: i18n.bind(null, 'mark'),
     icon: icons.mark,
     exec: (e) => toggleMarked(e.cm),
-    isActive: isActiveFn,
-    isEnable: isEnableFn,
+    isActive: inactive,
+    isEnable: enable,
 };
 
 export const mBiusGroupConfig: MToolbarGroupData = [
@@ -170,8 +171,8 @@ export const mBiusGroupConfig: MToolbarGroupData = [
         icon: icons.underline,
         hotkey: f.toView(A.Underline),
         exec: (e) => toggleUnderline(e.cm),
-        isActive: isActiveFn,
-        isEnable: isEnableFn,
+        isActive: inactive,
+        isEnable: enable,
     },
     {
         id: ActionName.strike,
@@ -180,8 +181,8 @@ export const mBiusGroupConfig: MToolbarGroupData = [
         icon: icons.strikethrough,
         hotkey: f.toView(A.Strike),
         exec: (e) => toggleStrikethrough(e.cm),
-        isActive: isActiveFn,
-        isEnable: isEnableFn,
+        isActive: inactive,
+        isEnable: enable,
     },
     {
         id: ActionName.mono,
@@ -189,8 +190,8 @@ export const mBiusGroupConfig: MToolbarGroupData = [
         title: i18n.bind(null, 'mono'),
         icon: icons.mono,
         exec: (e) => toggleMonospace(e.cm),
-        isActive: isActiveFn,
-        isEnable: isEnableFn,
+        isActive: inactive,
+        isEnable: enable,
     },
     {
         id: ActionName.mark,
@@ -198,8 +199,8 @@ export const mBiusGroupConfig: MToolbarGroupData = [
         title: i18n.bind(null, 'mark'),
         icon: icons.mark,
         exec: (e) => toggleMarked(e.cm),
-        isActive: isActiveFn,
-        isEnable: isEnableFn,
+        isActive: inactive,
+        isEnable: enable,
     },
 ];
 
@@ -214,8 +215,8 @@ export const mHeadingListConfig: MToolbarListButtonData = {
             icon: icons.h1,
             hotkey: f.toView(A.Heading1),
             exec: (e) => toH1(e.cm),
-            isActive: isActiveFn,
-            isEnable: isEnableFn,
+            isActive: inactive,
+            isEnable: enable,
         },
         {
             id: ActionName.heading2,
@@ -223,8 +224,8 @@ export const mHeadingListConfig: MToolbarListButtonData = {
             icon: icons.h2,
             hotkey: f.toView(A.Heading2),
             exec: (e) => toH2(e.cm),
-            isActive: isActiveFn,
-            isEnable: isEnableFn,
+            isActive: inactive,
+            isEnable: enable,
         },
         {
             id: ActionName.heading3,
@@ -232,8 +233,8 @@ export const mHeadingListConfig: MToolbarListButtonData = {
             icon: icons.h3,
             hotkey: f.toView(A.Heading3),
             exec: (e) => toH3(e.cm),
-            isActive: isActiveFn,
-            isEnable: isEnableFn,
+            isActive: inactive,
+            isEnable: enable,
         },
         {
             id: ActionName.heading4,
@@ -241,8 +242,8 @@ export const mHeadingListConfig: MToolbarListButtonData = {
             icon: icons.h4,
             hotkey: f.toView(A.Heading4),
             exec: (e) => toH4(e.cm),
-            isActive: isActiveFn,
-            isEnable: isEnableFn,
+            isActive: inactive,
+            isEnable: enable,
         },
         {
             id: ActionName.heading5,
@@ -250,8 +251,8 @@ export const mHeadingListConfig: MToolbarListButtonData = {
             icon: icons.h5,
             hotkey: f.toView(A.Heading5),
             exec: (e) => toH5(e.cm),
-            isActive: isActiveFn,
-            isEnable: isEnableFn,
+            isActive: inactive,
+            isEnable: enable,
         },
         {
             id: ActionName.heading6,
@@ -259,8 +260,8 @@ export const mHeadingListConfig: MToolbarListButtonData = {
             icon: icons.h6,
             hotkey: f.toView(A.Heading6),
             exec: (e) => toH6(e.cm),
-            isActive: isActiveFn,
-            isEnable: isEnableFn,
+            isActive: inactive,
+            isEnable: enable,
         },
     ],
 };
@@ -275,16 +276,16 @@ export const mListsListConfig: MToolbarListButtonData = {
             title: i18n.bind(null, 'ulist'),
             icon: icons.bulletList,
             exec: (e) => toBulletList(e.cm),
-            isActive: isActiveFn,
-            isEnable: isEnableFn,
+            isActive: inactive,
+            isEnable: enable,
         },
         {
             id: ActionName.orderedList,
             title: i18n.bind(null, 'olist'),
             icon: icons.orderedList,
             exec: (e) => toOrderedList(e.cm),
-            isActive: isActiveFn,
-            isEnable: isEnableFn,
+            isActive: inactive,
+            isEnable: enable,
         },
     ],
 };
@@ -295,8 +296,8 @@ export const mCheckboxButton: MToolbarSingleItemData = {
     title: i18n.bind(null, 'checkbox'),
     icon: icons.checklist,
     exec: (e) => wrapToCheckbox(e.cm),
-    isActive: isActiveFn,
-    isEnable: isEnableFn,
+    isActive: inactive,
+    isEnable: enable,
 };
 
 export const mListMoveListConfig: MToolbarListButtonData = {
@@ -309,16 +310,16 @@ export const mListMoveListConfig: MToolbarListButtonData = {
             title: i18n.bind(null, 'list__action_sink'),
             icon: icons.sink,
             exec: (e) => sinkListItem(e.cm),
-            isActive: isActiveFn,
-            isEnable: isEnableFn,
+            isActive: inactive,
+            isEnable: enable,
         },
         {
             id: ActionName.liftListItem,
             title: i18n.bind(null, 'list__action_lift'),
             icon: icons.lift,
             exec: (e) => liftListItem(e.cm),
-            isActive: isActiveFn,
-            isEnable: isEnableFn,
+            isActive: inactive,
+            isEnable: enable,
         },
     ],
 };
@@ -329,8 +330,8 @@ export const mLinkButton: MToolbarSingleItemData = {
     icon: icons.link,
     title: i18n('link'),
     exec: (e) => insertLink(e.cm),
-    isActive: isActiveFn,
-    isEnable: isEnableFn,
+    isActive: inactive,
+    isEnable: enable,
 };
 
 export const mNoteButton: MToolbarSingleItemData = {
@@ -340,8 +341,8 @@ export const mNoteButton: MToolbarSingleItemData = {
     icon: icons.note,
     hotkey: f.toView(A.Note),
     exec: (e) => wrapToYfmNote(e.cm),
-    isActive: isActiveFn,
-    isEnable: isEnableFn,
+    isActive: inactive,
+    isEnable: enable,
 };
 
 export const mQuoteButton: MToolbarSingleItemData = {
@@ -350,8 +351,8 @@ export const mQuoteButton: MToolbarSingleItemData = {
     title: i18n.bind(null, 'quote'),
     icon: icons.quote,
     exec: (e) => wrapToBlockquote(e.cm),
-    isActive: isActiveFn,
-    isEnable: isEnableFn,
+    isActive: inactive,
+    isEnable: enable,
 };
 
 export const mCutButton: MToolbarSingleItemData = {
@@ -361,8 +362,8 @@ export const mCutButton: MToolbarSingleItemData = {
     icon: icons.cut,
     hotkey: f.toView(A.Cut),
     exec: (e) => wrapToYfmCut(e.cm),
-    isActive: isActiveFn,
-    isEnable: isEnableFn,
+    isActive: inactive,
+    isEnable: enable,
 };
 
 export const mTableButton: MToolbarSingleItemData = {
@@ -371,8 +372,8 @@ export const mTableButton: MToolbarSingleItemData = {
     title: i18n.bind(null, 'table'),
     icon: icons.table,
     exec: (e) => insertYfmTable(e.cm),
-    isActive: isActiveFn,
-    isEnable: isEnableFn,
+    isActive: inactive,
+    isEnable: enable,
 };
 
 export const mCodeblockItemData: MToolbarItemData = {
@@ -381,8 +382,8 @@ export const mCodeblockItemData: MToolbarItemData = {
     icon: icons.codeBlock,
     hotkey: f.toView(A.CodeBlock),
     exec: (e) => wrapToCodeBlock(e.cm),
-    isActive: isActiveFn,
-    isEnable: isEnableFn,
+    isActive: inactive,
+    isEnable: enable,
 };
 
 export const mCodeListConfig: MToolbarListButtonData = {
@@ -396,8 +397,8 @@ export const mCodeListConfig: MToolbarListButtonData = {
             icon: icons.code,
             hotkey: f.toView(A.Code),
             exec: (e) => wrapToInlineCode(e.cm),
-            isActive: isActiveFn,
-            isEnable: isEnableFn,
+            isActive: inactive,
+            isEnable: enable,
         },
         mCodeblockItemData,
     ],
@@ -413,16 +414,16 @@ export const mMathListConfig: MToolbarListButtonData = {
             title: i18n.bind(null, 'math_inline'),
             icon: icons.functionInline,
             exec: (e) => wrapToMathInline(e.cm),
-            isActive: isActiveFn,
-            isEnable: isEnableFn,
+            isActive: inactive,
+            isEnable: enable,
         },
         {
             id: ActionName.math_block,
             title: i18n.bind(null, 'math_block'),
             icon: icons.functionBlock,
             exec: (e) => wrapToMathBlock(e.cm),
-            isActive: isActiveFn,
-            isEnable: isEnableFn,
+            isActive: inactive,
+            isEnable: enable,
         },
     ],
 };
@@ -439,8 +440,8 @@ export const mMermaidButton: MToolbarSingleItemData = {
     title: i18n.bind(null, 'mermaid'),
     icon: icons.mermaid,
     exec: (e) => insertMermaidDiagram(e.cm),
-    isActive: isActiveFn,
-    isEnable: isEnableFn,
+    isActive: inactive,
+    isEnable: enable,
 };
 
 export const mYfmHtmlBlockButton: MToolbarSingleItemData = {
@@ -449,8 +450,8 @@ export const mYfmHtmlBlockButton: MToolbarSingleItemData = {
     title: i18n.bind(null, 'html'),
     icon: icons.html,
     exec: (e) => insertYfmHtmlBlock(e.cm),
-    isActive: isActiveFn,
-    isEnable: isEnableFn,
+    isActive: inactive,
+    isEnable: enable,
 };
 
 export const mImagePopupData: MToolbarButtonPopupData = {
@@ -459,8 +460,8 @@ export const mImagePopupData: MToolbarButtonPopupData = {
     icon: icons.image,
     title: i18n('image'),
     exec: noop,
-    isActive: isActiveFn,
-    isEnable: isEnableFn,
+    isActive: inactive,
+    isEnable: enable,
     renderPopup: (props) => <MToolbarImagePopup {...props} />,
 };
 
@@ -470,8 +471,8 @@ export const mFilePopupData: MToolbarButtonPopupData = {
     icon: icons.file,
     title: i18n('file'),
     exec: noop,
-    isActive: isActiveFn,
-    isEnable: isEnableFn,
+    isActive: inactive,
+    isEnable: enable,
     renderPopup: (props) => <MToolbarFilePopup {...props} />,
 };
 
@@ -514,8 +515,8 @@ export const mToolbarConfig: MToolbarData = [
             icon: icons.file,
             title: i18n('file'),
             exec: noop,
-            isActive: isActiveFn,
-            isEnable: isEnableFn,
+            isActive: inactive,
+            isEnable: enable,
             renderPopup: (props) => <MToolbarFilePopup {...props} />,
         },
         mTableButton,
@@ -529,8 +530,19 @@ export const mHruleItemData: MToolbarSingleItemData = {
     icon: icons.horizontalRule,
     type: ToolbarDataType.SingleButton,
     exec: (e) => insertHRule(e.cm),
-    isActive: isActiveFn,
-    isEnable: isEnableFn,
+    isActive: inactive,
+    isEnable: enable,
+};
+
+export const mEmojiItemData: MToolbarSingleItemData = {
+    id: 'emoji',
+    title: i18n.bind(null, 'emoji'),
+    icon: icons.emoji,
+    type: ToolbarDataType.SingleButton,
+    exec: noop,
+    hintWhenDisabled: i18n.bind(null, 'emoji__hint'),
+    isActive: inactive,
+    isEnable: disable,
 };
 
 export const mTabsItemData: MToolbarSingleItemData = {
@@ -539,11 +551,11 @@ export const mTabsItemData: MToolbarSingleItemData = {
     icon: icons.tabs,
     type: ToolbarDataType.SingleButton,
     exec: (e) => insertYfmTabs(e.cm),
-    isActive: isActiveFn,
-    isEnable: isEnableFn,
+    isActive: inactive,
+    isEnable: enable,
 };
 
-export const mHiddenData = [mHruleItemData, mTabsItemData];
+export const mHiddenData = [mHruleItemData, mEmojiItemData, mTabsItemData];
 
 export const mToolbarConfigByPreset: Record<MarkdownEditorPreset, MToolbarData> = {
     zero: [mHistoryGroupConfig],
@@ -637,6 +649,7 @@ export const mHiddenDataByPreset: Record<MarkdownEditorPreset, MToolbarItemData[
         mTableButton,
         mImagePopupData,
         mHruleItemData,
+        mEmojiItemData,
         mFilePopupData,
         mTabsItemData,
     ],
