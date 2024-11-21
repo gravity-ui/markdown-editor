@@ -1,5 +1,12 @@
 # Changelog
 
+## [14.3.1](https://github.com/gravity-ui/markdown-editor/compare/v14.3.0...v14.3.1) (2024-11-21)
+
+
+### Bug Fixes
+
+* **base:** disabled smart quotes ([#491](https://github.com/gravity-ui/markdown-editor/issues/491)) ([fbc977c](https://github.com/gravity-ui/markdown-editor/commit/fbc977c6d60d15205594ddb6f5d5eb23b08d0041))
+
 ## [14.3.0](https://github.com/gravity-ui/markdown-editor/compare/v14.2.3...v14.3.0) (2024-11-20)
 
 
