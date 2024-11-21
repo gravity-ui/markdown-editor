@@ -9,16 +9,17 @@ import {
 } from '@codemirror/commands';
 import {syntaxHighlighting} from '@codemirror/language';
 import type {Extension, StateCommand} from '@codemirror/state';
-import {EditorView, EditorViewConfig, KeyBinding, keymap, placeholder} from '@codemirror/view';
+import {EditorView, type EditorViewConfig, KeyBinding, keymap, placeholder} from '@codemirror/view';
 
 import type {ParseInsertedUrlAsImage} from '../../bundle';
-import {EventMap} from '../../bundle/Editor';
+import type {EventMap} from '../../bundle/Editor';
 import {ActionName} from '../../bundle/config/action-names';
-import {ReactRenderStorage} from '../../extensions';
+import type {ReactRenderStorage} from '../../extensions';
 import {DataTransferType} from '../../extensions/behavior/Clipboard/utils';
 import {logger} from '../../logger';
 import {Action as A, formatter as f} from '../../shortcuts';
-import {Receiver} from '../../utils';
+import type {Receiver} from '../../utils';
+import type {DirectiveSyntaxContext} from '../../utils/directive';
 import {
     insertImages,
     insertLink,
@@ -38,7 +39,8 @@ import {
     wrapToYfmNote,
 } from '../commands';
 
-import {FileUploadHandler, FileUploadHandlerFacet} from './files-upload-facet';
+import {DirectiveSyntaxFacet} from './directive-facet';
+import {type FileUploadHandler, FileUploadHandlerFacet} from './files-upload-facet';
 import {gravityHighlightStyle, gravityTheme} from './gravity';
 import {PairingCharactersExtension} from './pairing-chars';
 import {ReactRendererFacet} from './react-facet';
@@ -70,6 +72,7 @@ export type CreateCodemirrorParams = {
     receiver?: Receiver<EventMap>;
     yfmLangOptions?: YfmLangOptions;
     autocompletion?: Autocompletion;
+    directiveSyntax: DirectiveSyntaxContext;
 };
 
 export function createCodemirror(params: CreateCodemirrorParams) {
@@ -89,6 +92,7 @@ export function createCodemirror(params: CreateCodemirrorParams) {
         placeholder: placeholderContent,
         autocompletion: autocompletionConfig,
         parseInsertedUrlAsImage,
+        directiveSyntax,
     } = params;
 
     const extensions: Extension[] = [gravityTheme, placeholder(placeholderContent)];
@@ -144,6 +148,7 @@ export function createCodemirror(params: CreateCodemirrorParams) {
         autocompletion(autocompletionConfig),
         yfmLang(yfmLangOptions),
         ReactRendererFacet.of(reactRenderer),
+        DirectiveSyntaxFacet.of(directiveSyntax),
         PairingCharactersExtension,
         EditorView.lineWrapping,
         EditorView.contentAttributes.of({spellcheck: 'true'}),

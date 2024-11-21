@@ -5,8 +5,9 @@ import {Button, DropdownMenu} from '@gravity-ui/uikit';
 import {toaster} from '@gravity-ui/uikit/toaster-singleton-react-18';
 
 import {
+    type DirectiveSyntaxValue,
     type EscapeConfig,
-    FileUploadHandler,
+    type FileUploadHandler,
     type MarkdownEditorMode,
     MarkdownEditorView,
     type MarkdownEditorViewProps,
@@ -21,16 +22,16 @@ import {
     wysiwygToolbarConfigs,
 } from '../../src';
 import type {ToolbarActionData} from '../../src/bundle/Editor';
-import {Extension} from '../../src/cm/state';
+import type {Extension} from '../../src/cm/state';
 import {FoldingHeading} from '../../src/extensions/additional/FoldingHeading';
 import {Math} from '../../src/extensions/additional/Math';
 import {Mermaid} from '../../src/extensions/additional/Mermaid';
 import {YfmHtmlBlock} from '../../src/extensions/additional/YfmHtmlBlock';
 import {getSanitizeYfmHtmlBlock} from '../../src/extensions/additional/YfmHtmlBlock/utils';
 import {cloneDeep} from '../../src/lodash';
-import {CodeEditor} from '../../src/markup';
+import type {CodeEditor} from '../../src/markup';
 import {VERSION} from '../../src/version';
-import {plugins} from '../defaults/md-plugins';
+import {getPlugins} from '../defaults/md-plugins';
 import useYfmHtmlBlockStyles from '../hooks/useYfmHtmlBlockStyles';
 import {block} from '../utils/cn';
 import {randomDelay} from '../utils/delay';
@@ -91,6 +92,7 @@ export type PlaygroundProps = {
     markupToolbarConfig?: ToolbarGroupData<CodeEditor>[];
     onChangeEditorType?: (mode: MarkdownEditorMode) => void;
     onChangeSplitModeEnabled?: (splitModeEnabled: boolean) => void;
+    directiveSyntax?: DirectiveSyntaxValue;
 } & Pick<
     UseMarkdownEditorProps,
     | 'needToSetDimensionsForUploadedImages'
@@ -142,6 +144,7 @@ export const Playground = React.memo<PlaygroundProps>((props) => {
         hidePreviewAfterSubmit,
         needToSetDimensionsForUploadedImages,
         experimental,
+        directiveSyntax,
     } = props;
     const [editorMode, setEditorMode] = React.useState<MarkdownEditorMode>(
         initialEditor ?? 'wysiwyg',
@@ -153,7 +156,7 @@ export const Playground = React.memo<PlaygroundProps>((props) => {
     }, [mdRaw]);
 
     const renderPreview = useCallback<RenderPreview>(
-        ({getValue, md}) => (
+        ({getValue, md, directiveSyntax}) => (
             <SplitModePreview
                 getValue={getValue}
                 allowHTML={md.html}
@@ -161,7 +164,7 @@ export const Playground = React.memo<PlaygroundProps>((props) => {
                 linkifyTlds={md.linkifyTlds}
                 breaks={md.breaks}
                 needToSanitizeHtml={sanitizeHtml}
-                plugins={plugins}
+                plugins={getPlugins({directiveSyntax})}
             />
         ),
         [sanitizeHtml],
@@ -182,7 +185,10 @@ export const Playground = React.memo<PlaygroundProps>((props) => {
             needToSetDimensionsForUploadedImages,
             renderPreview: renderPreviewDefined ? renderPreview : undefined,
             fileUploadHandler,
-            experimental,
+            experimental: {
+                ...experimental,
+                directiveSyntax,
+            },
             prepareRawMarkup: prepareRawMarkup
                 ? (value) => '**prepare raw markup**\n\n' + value
                 : undefined,
@@ -249,6 +255,7 @@ export const Playground = React.memo<PlaygroundProps>((props) => {
             experimental?.needToSetDimensionsForUploadedImages,
             experimental?.beforeEditorModeChange,
             experimental?.prepareRawMarkup,
+            directiveSyntax,
         ],
     );
 

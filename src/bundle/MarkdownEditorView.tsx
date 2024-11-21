@@ -240,6 +240,7 @@ export const MarkdownEditorView = React.forwardRef<HTMLDivElement, MarkdownEdito
                                             getValue: editor.getValue,
                                             mode: 'preview',
                                             md: editor.mdOptions,
+                                            directiveSyntax: editor.directiveSyntax,
                                         })}
                                     </div>
                                     {settings}

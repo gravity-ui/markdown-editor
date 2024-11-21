@@ -1,6 +1,6 @@
 import {Node} from 'prosemirror-model';
 
-import {ExtensionAuto} from '../core';
+import type {ExtensionAuto} from '../core';
 import {BehaviorPreset, BehaviorPresetOptions} from '../extensions/behavior';
 import {EditorModeKeymap, EditorModeKeymapOptions} from '../extensions/behavior/EditorModeKeymap';
 import {BaseNode, YfmHeadingAttr, YfmNoteNode} from '../extensions/specs';
@@ -11,11 +11,12 @@ import {FullPreset, FullPresetOptions} from '../presets/full';
 import {YfmPreset, YfmPresetOptions} from '../presets/yfm';
 import {ZeroPreset, ZeroPresetOptions} from '../presets/zero';
 import {Action as A, formatter as f} from '../shortcuts';
+import type {DirectiveSyntaxContext} from '../utils/directive';
 import type {FileUploadHandler} from '../utils/upload';
 
 import {wCommandMenuConfigByPreset, wSelectionMenuConfigByPreset} from './config/wysiwyg';
 import {emojiDefs} from './emoji';
-import {MarkdownEditorPreset} from './types';
+import type {MarkdownEditorPreset} from './types';
 
 const DEFAULT_IGNORED_KEYS = ['Tab', 'Shift-Tab'] as const;
 
@@ -33,9 +34,20 @@ export type BundlePresetOptions = ExtensionsOptions &
          */
         needToSetDimensionsForUploadedImages?: boolean;
         enableNewImageSizeCalculation?: boolean;
+        directiveSyntax: DirectiveSyntaxContext;
     };
 
+declare global {
+    namespace WysiwygEditor {
+        interface Context {
+            directiveSyntax: DirectiveSyntaxContext;
+        }
+    }
+}
+
 export const BundlePreset: ExtensionAuto<BundlePresetOptions> = (builder, opts) => {
+    builder.context.set('directiveSyntax', opts.directiveSyntax);
+
     const dropCursor: NonNullable<BundlePresetOptions['cursor']>['dropOptions'] = {
         color: 'var(--g-color-line-brand)',
         width: 2,

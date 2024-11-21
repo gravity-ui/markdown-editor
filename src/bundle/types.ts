@@ -6,6 +6,7 @@ import type {MarkupString} from '../common';
 import type {EscapeConfig, Extension} from '../core';
 import type {CreateCodemirrorParams, YfmLangOptions} from '../markup';
 import type {FileUploadHandler} from '../utils';
+import type {DirectiveSyntaxContext, DirectiveSyntaxOption} from '../utils/directive';
 
 import type {ChangeEditorModeOptions} from './Editor';
 import type {ExtensionsOptions as WysiwygPresetExtensionsOptions} from './wysiwyg-preset';
@@ -19,6 +20,7 @@ export type RenderPreviewParams = {
     getValue: () => MarkupString;
     mode: 'preview' | 'split';
     md: Readonly<MarkdownEditorMdOptions>;
+    directiveSyntax: Pick<DirectiveSyntaxContext, 'option' | 'valueFor' | 'mdPluginValueFor'>;
 };
 export type RenderPreview = (params: RenderPreviewParams) => ReactNode;
 
@@ -71,6 +73,26 @@ export type MarkdownEditorExperimentalOptions = {
     beforeEditorModeChange?: (
         options: Pick<ChangeEditorModeOptions, 'mode' | 'reason'>,
     ) => boolean | undefined;
+    /**
+     * Enables support of directive syntax for diplodoc (YFM) extensions.
+     *
+     * **Note:** This setting affects parsing of markdown markup and serializing to markdown markup.
+     * Be careful with it and use it in consistency with diplodoc/transform and diplodoc-extensions.
+     *
+     * Before enabling this option, make sure that appropriate versions of diplodoc/transform and diplodoc-extensions are installed.
+     *
+     * You can pass an object in `key:value` format to provide different behaviour for each extension individually.
+     *
+     * Values:
+     * - 'disabled' – directive syntax is disabled;
+     * - 'enabled' – directive syntax is enabled. Syntax of existing blocks is preserved. New blocks will be serialized using old syntax;
+     * - 'preserve' – directive syntax is enabled. Syntax of existing blocks is preserved. New blocks will be serialized using directive syntax;
+     * - 'overwrite' – existing blocks will be overwritten using directive syntax through serialization;
+     * - 'only' – old syntax is disabled, only directive syntax available. Blocks in old syntax will not be parsed.
+     *
+     * Default value is 'disabled'.
+     */
+    directiveSyntax?: DirectiveSyntaxOption;
 };
 
 export type MarkdownEditorMarkupConfig = {
