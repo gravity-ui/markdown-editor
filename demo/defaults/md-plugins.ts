@@ -1,4 +1,5 @@
 import {transform as yfmCut} from '@diplodoc/cut-extension';
+import {transform as yfmFile} from '@diplodoc/file-extension';
 import {transform as foldingHeadings} from '@diplodoc/folding-headings-extension';
 import '@diplodoc/folding-headings-extension/runtime';
 import {transform as yfmHtmlBlock} from '@diplodoc/html-extension';
@@ -9,7 +10,6 @@ import anchors from '@diplodoc/transform/lib/plugins/anchors';
 import checkbox from '@diplodoc/transform/lib/plugins/checkbox';
 import code from '@diplodoc/transform/lib/plugins/code';
 import deflist from '@diplodoc/transform/lib/plugins/deflist';
-import file from '@diplodoc/transform/lib/plugins/file';
 import imsize from '@diplodoc/transform/lib/plugins/imsize';
 import meta from '@diplodoc/transform/lib/plugins/meta';
 import monospace from '@diplodoc/transform/lib/plugins/monospace';
@@ -46,7 +46,7 @@ export function getPlugins({
             directiveSyntax: directiveSyntax?.mdPluginValueFor('yfmCut'),
         }),
         deflist,
-        file,
+        yfmFile({bundle: false}),
         (md) => md.use(imsize, {enableInlineStyling: true}),
         meta,
         monospace,

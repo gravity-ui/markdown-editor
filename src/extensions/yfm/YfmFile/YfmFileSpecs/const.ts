@@ -1,10 +1,10 @@
 import {
-    KNOWN_ATTRS as FILE_KNOWN_ATTRS,
-    REQUIRED_ATTRS as FILE_REQUIRED_ATTRS,
+    FILE_KNOWN_ATTRS,
+    FILE_REQUIRED_ATTRS,
     FILE_TOKEN,
     FILE_TO_LINK_ATTRS_MAP,
     FileSpecialAttr,
-} from '@diplodoc/transform/lib/plugins/file/const';
+} from '@diplodoc/file-extension';
 import type {AttributeSpec} from 'prosemirror-model';
 
 export const yfmFileNodeName = FILE_TOKEN;
