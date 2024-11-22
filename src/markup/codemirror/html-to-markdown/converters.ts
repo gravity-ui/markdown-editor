@@ -1,14 +1,21 @@
 import {
+    BrHandler,
     CodeHandler,
+    DivHandler,
     FormattingHandler,
     GenericHandler,
     HeaderHandler,
+    ImageHandler,
     LinkHandler,
     NodeHandler,
+    OrderedListHandler,
     ParagraphHandler,
+    TableHandler,
+    TableRowHandler,
     TextNodeHandler,
+    UnorderedListHandler,
 } from './handlers';
-import {FormattingHelper} from './helpers';
+import {applyFormatting} from './helpers';
 
 /**
  * Interface defining methods for visiting different types of HTML nodes.
@@ -29,6 +36,16 @@ export interface HTMLNodeVisitor {
     visitCode(node: HTMLElement): string;
     /** Handles generic HTML elements with no specific Markdown conversion */
     visitGeneric(node: HTMLElement): string;
+    /** Converts an HTML div element to Markdown format, adding a single newline */
+    visitDiv(node: HTMLElement): string;
+    /** Converts an HTML br element to a newline in Markdown */
+    visitBr(): string;
+    /** Converts a table row element to Markdown */
+    visitTableRow(node: HTMLTableRowElement): string;
+    /** Converts an HTML table element to Markdown table format */
+    visitTable(node: HTMLTableElement): string;
+    /** Convert img tag to Markdown image format */
+    visitImage(node: HTMLImageElement): string;
 }
 
 /**
@@ -36,11 +53,9 @@ export interface HTMLNodeVisitor {
  * Uses the Chain of Responsibility pattern for handling different node types.
  */
 export class MarkdownConverter implements HTMLNodeVisitor {
-    private formatHelper: FormattingHelper;
     private handler: NodeHandler;
 
     constructor() {
-        this.formatHelper = new FormattingHelper();
         // Set up the chain of responsibility for handling different node types
         this.handler = this.setupHandlerChain();
     }
@@ -61,14 +76,11 @@ export class MarkdownConverter implements HTMLNodeVisitor {
         // Handle links with formatted content vs plain text differently
         const formattedText =
             node.childNodes.length === 1 && node.firstChild?.nodeType === Node.TEXT_NODE
-                ? this.formatHelper.applyFormatting(linkText, node) // Plain text link
+                ? applyFormatting(linkText, node) // Plain text link
                 : Array.from(node.childNodes)
                       .map((child) => {
                           if (child.nodeType === Node.ELEMENT_NODE) {
-                              return this.formatHelper.applyFormatting(
-                                  child.textContent || '',
-                                  child as HTMLElement,
-                              );
+                              return applyFormatting(child.textContent || '', child as HTMLElement);
                           }
                           return child.textContent || '';
                       })
@@ -98,16 +110,23 @@ export class MarkdownConverter implements HTMLNodeVisitor {
     visitFormatting(node: HTMLElement): string {
         if (node.childNodes.length === 1 && node.firstChild?.nodeType === Node.TEXT_NODE) {
             const text = this.collectTextContent(node);
-            return this.formatHelper.applyFormatting(text, node);
+            return applyFormatting(text, node);
         }
-        return this.formatHelper.applyFormatting(this.visitGeneric(node), node);
+        return applyFormatting(this.visitGeneric(node), node);
     }
 
     /**
      * Converts HTML code elements to Markdown inline code syntax.
      */
     visitCode(node: HTMLElement): string {
-        return `\`${this.collectCodeContent(node)}\``;
+        const codeContent = this.collectCodeContent(node);
+        if (codeContent.includes('\n')) {
+            return '```\n' + codeContent + '\n```\n';
+        } else if (codeContent.includes('`')) {
+            return '`` ' + codeContent + ' ``';
+        } else {
+            return `\`${codeContent}\``;
+        }
     }
 
     /**
@@ -118,10 +137,59 @@ export class MarkdownConverter implements HTMLNodeVisitor {
     }
 
     /**
+     * Converts an HTML div element to Markdown format, adding a single newline.
+     */
+    visitDiv(node: HTMLElement): string {
+        const content = this.processChildren(node);
+        return content + '\n'; // Add a single newline for <div>
+    }
+
+    /**
+     * Converts an HTML br element to a newline in Markdown.
+     */
+    visitBr(): string {
+        return '\n'; // Single newline for <br>
+    }
+
+    /**
+     * Converts an HTML table row element to Markdown table row format.
+     */
+    visitTableRow(node: HTMLTableRowElement): string {
+        const cells = Array.from(node.children).map((cell) => {
+            return this.visitGeneric(cell as HTMLElement).trim() || '';
+        });
+        return '||\n' + cells.join('\n|\n') + '\n||';
+    }
+
+    /**
+     * Converts an HTML table element to Markdown table format.
+     */
+    visitTable(node: HTMLTableElement): string {
+        const rows: string[] = [];
+
+        const tableRows = Array.from(node.querySelectorAll('tr'));
+        tableRows.forEach((row) => {
+            rows.push(this.visitTableRow(row as HTMLTableRowElement));
+        });
+
+        return '\n\n#|\n' + rows.join('\n') + '\n|#\n\n';
+    }
+
+    /**
+     * Converts img tag to Markdown image format
+     */
+    visitImage(node: HTMLImageElement): string {
+        const imgElement = node as HTMLImageElement;
+        const altText = imgElement.alt || '';
+        const src = imgElement.src || '';
+        return `![${altText}](${src})`;
+    }
+
+    /**
      * Processes a single node using the handler chain.
      */
     processNode(node: Node): string {
-        const result = this.getHandler().handle(node, this);
+        const result = this.getHandler().handle(node, this as HTMLNodeVisitor);
         return result;
     }
 
@@ -138,14 +206,28 @@ export class MarkdownConverter implements HTMLNodeVisitor {
         const formattingHandler = new FormattingHandler();
         const codeHandler = new CodeHandler();
         const genericHandler = new GenericHandler();
+        const orderedListHandler = new OrderedListHandler();
+        const unorderedListHandler = new UnorderedListHandler();
+        const divHandler = new DivHandler();
+        const brHandler = new BrHandler();
+        const tableRowHandler = new TableRowHandler();
+        const tableHandler = new TableHandler();
+        const imageHandler = new ImageHandler(); // New handler for <img>
 
         // Chain handlers together in priority order
         textHandler
             .setNext(linkHandler)
             .setNext(headerHandler)
             .setNext(paragraphHandler)
+            .setNext(divHandler)
+            .setNext(brHandler)
+            .setNext(orderedListHandler)
+            .setNext(unorderedListHandler)
             .setNext(formattingHandler)
             .setNext(codeHandler)
+            .setNext(imageHandler) // Add image handler
+            .setNext(tableHandler)
+            .setNext(tableRowHandler)
             .setNext(genericHandler);
 
         return textHandler;
@@ -155,6 +237,10 @@ export class MarkdownConverter implements HTMLNodeVisitor {
      * Recursively collects and processes text content from a node and its children.
      */
     private collectTextContent(node: Node): string {
+        // handle seo elements (hide it's content)
+        if ((node as HTMLElement).className === 'visually-hidden') {
+            return '';
+        }
         if (node.nodeType === Node.TEXT_NODE) {
             return this.visitText(node as Text);
         }

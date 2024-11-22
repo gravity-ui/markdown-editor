@@ -43,6 +43,7 @@ import {DirectiveSyntaxFacet} from './directive-facet';
 import {type FileUploadHandler, FileUploadHandlerFacet} from './files-upload-facet';
 import {gravityHighlightStyle, gravityTheme} from './gravity';
 import {MarkdownConverter} from './html-to-markdown/converters';
+import {shouldSkipHtmlConversionBasedOnClipboard} from './html-to-markdown/helpers';
 import {PairingCharactersExtension} from './pairing-chars';
 import {ReactRendererFacet} from './react-facet';
 import {SearchPanelPlugin} from './search-plugin/plugin';
@@ -162,15 +163,24 @@ export function createCodemirror(params: CreateCodemirrorParams) {
             paste(event, editor) {
                 if (!event.clipboardData) return;
 
-                // if clipboard contains YFM content - avoid any meddling with paste content
-                // since text/plain will contain valid markdown
-                if (event.clipboardData.getData(DataTransferType.Yfm)) {
+                // if clipboard contains YFM content - avoid any meddling with pasted content
+                // since text/yfm will contain valid markdown
+                const yfmContent = event.clipboardData.getData(DataTransferType.Yfm);
+                if (yfmContent) {
+                    event.preventDefault();
+                    editor.dispatch(editor.state.replaceSelection(yfmContent));
                     return;
                 }
 
+                // checking if a copy buffer content is suitable for convertion
+                const shouldSkipHtmlConversion = shouldSkipHtmlConversionBasedOnClipboard(
+                    event.clipboardData,
+                );
+
                 // if we have text/html inside copy/paste buffer
                 const htmlContent = event.clipboardData.getData(DataTransferType.Html);
-                if (htmlContent && !disableHTMLParsingInMd) {
+                // if we pasting markdown from VsCode we need skip html transformation
+                if (htmlContent && !disableHTMLParsingInMd && !shouldSkipHtmlConversion) {
                     let parsedMarkdownMarkup: string | undefined;
                     try {
                         const parser = new DOMParser();

@@ -104,7 +104,7 @@ export class FormattingHandler extends NodeHandler {
         const formattingTags = ['b', 'strong', 'i', 'em', 'span'];
         if (
             formattingTags.includes(tagName) &&
-            !['a', 'code'].includes(element.parentElement?.tagName.toLowerCase() || '')
+            !['a', 'code', 'pre'].includes(element.parentElement?.tagName.toLowerCase() || '')
         ) {
             return visitor.visitFormatting(element as HTMLElement);
         }
@@ -120,7 +120,10 @@ export class CodeHandler extends NodeHandler {
         if (node.nodeType !== Node.ELEMENT_NODE) {
             return this.handleNext(node, visitor);
         }
-        if ((node as HTMLElement).tagName.toLowerCase() === 'code') {
+        if (
+            (node as HTMLElement).tagName.toLowerCase() === 'code' ||
+            (node as HTMLElement).tagName.toLowerCase() === 'pre'
+        ) {
             return visitor.visitCode(node as HTMLElement);
         }
         return this.handleNext(node, visitor);
@@ -133,5 +136,126 @@ export class CodeHandler extends NodeHandler {
 export class GenericHandler extends NodeHandler {
     handle(node: Node, visitor: HTMLNodeVisitor): string {
         return visitor.visitGeneric(node as HTMLElement);
+    }
+}
+
+/**
+ * Handles ordered list elements, converting them to markdown ordered lists
+ */
+export class OrderedListHandler extends NodeHandler {
+    handle(node: Node, visitor: HTMLNodeVisitor): string {
+        if (
+            node.nodeType === Node.ELEMENT_NODE &&
+            (node as Element).tagName.toLowerCase() === 'ol'
+        ) {
+            const items = Array.from(node.childNodes)
+                .filter(
+                    (child) =>
+                        child.nodeType === Node.ELEMENT_NODE &&
+                        (child as Element).tagName.toLowerCase() === 'li',
+                )
+                .map((item, index) => `${index + 1}. ${visitor.visitGeneric(item as HTMLElement)}`)
+                .join('\n');
+            return items + '\n';
+        }
+        return this.handleNext(node, visitor);
+    }
+}
+
+/**
+ * Handles unordered list elements, converting them to markdown unordered lists
+ */
+export class UnorderedListHandler extends NodeHandler {
+    handle(node: Node, visitor: HTMLNodeVisitor): string {
+        if (
+            node.nodeType === Node.ELEMENT_NODE &&
+            (node as Element).tagName.toLowerCase() === 'ul'
+        ) {
+            const items = Array.from(node.childNodes)
+                .filter(
+                    (child) =>
+                        child.nodeType === Node.ELEMENT_NODE &&
+                        (child as Element).tagName.toLowerCase() === 'li',
+                )
+                .map((item) => `- ${visitor.visitGeneric(item as HTMLElement)}`)
+                .join('\n');
+            return items + '\n';
+        }
+        return this.handleNext(node, visitor);
+    }
+}
+
+/**
+ * Handles div elements, converting them to markdown paragraphs
+ */
+export class DivHandler extends NodeHandler {
+    handle(node: Node, visitor: HTMLNodeVisitor): string {
+        if (
+            node.nodeType === Node.ELEMENT_NODE &&
+            (node as Element).tagName.toLowerCase() === 'div'
+        ) {
+            return visitor.visitDiv(node as HTMLElement);
+        }
+        return this.handleNext(node, visitor);
+    }
+}
+
+/**
+ * Handles br elements, converting them to markdown newlines
+ */
+export class BrHandler extends NodeHandler {
+    handle(node: Node, visitor: HTMLNodeVisitor): string {
+        if (
+            node.nodeType === Node.ELEMENT_NODE &&
+            (node as Element).tagName.toLowerCase() === 'br'
+        ) {
+            return visitor.visitBr();
+        }
+        return this.handleNext(node, visitor);
+    }
+}
+
+/**
+ * Handles table row elements, converting them to markdown table rows
+ */
+export class TableRowHandler extends NodeHandler {
+    handle(node: Node, visitor: HTMLNodeVisitor): string {
+        if (
+            node.nodeType === Node.ELEMENT_NODE &&
+            (node as Element).tagName.toLowerCase() === 'tr'
+        ) {
+            return visitor.visitTableRow(node as HTMLTableRowElement);
+        }
+        return this.handleNext(node, visitor);
+    }
+}
+
+/**
+ * Handles table elements, converting them to markdown tables
+ */
+export class TableHandler extends NodeHandler {
+    handle(node: Node, visitor: HTMLNodeVisitor): string {
+        if (
+            node.nodeType === Node.ELEMENT_NODE &&
+            (node as Element).tagName.toLowerCase() === 'table'
+        ) {
+            return visitor.visitTable(node as HTMLTableElement);
+        }
+        return this.handleNext(node, visitor);
+    }
+}
+
+/**
+ * Handles image elements, converting them to markdown images
+ */
+export class ImageHandler extends NodeHandler {
+    handle(node: Node, visitor: HTMLNodeVisitor): string {
+        if (
+            node.nodeType === Node.ELEMENT_NODE &&
+            (node as Element).tagName.toLowerCase() === 'img'
+        ) {
+            return visitor.visitImage(node as HTMLImageElement);
+        }
+        return this.handleNext(node, visitor);
     }
 }
