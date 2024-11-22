@@ -1,5 +1,14 @@
 # Changelog
 
+## [14.4.0](https://github.com/gravity-ui/markdown-editor/compare/v14.3.1...v14.4.0) (2024-11-22)
+
+
+### Features
+
+* add directiveSyntax experiment ([ed85f71](https://github.com/gravity-ui/markdown-editor/commit/ed85f7116e419451bb7bad19ac4c96d88d0ee7cc))
+* **YfmCut:** support directiveSyntax experiment ([da8fef7](https://github.com/gravity-ui/markdown-editor/commit/da8fef765e3eb35e4e19d92491d089c583099a6f))
+* **YfmFile:** import plugin and consts from file-extension ([#488](https://github.com/gravity-ui/markdown-editor/issues/488)) ([3d68c53](https://github.com/gravity-ui/markdown-editor/commit/3d68c5353b25e91fcb5088a33d66b3a05a516b43))
+
 ## [14.3.1](https://github.com/gravity-ui/markdown-editor/compare/v14.3.0...v14.3.1) (2024-11-21)
 
 
