@@ -24,7 +24,7 @@ export const Full: StoryObj<typeof component> = {
 
 export default {
     component,
-    title: 'Markdown Editor / Presets',
+    title: 'Extensions / Presets',
     args: {
         settingsVisible: true,
         allowHTML: true,

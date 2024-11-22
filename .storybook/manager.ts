@@ -3,4 +3,7 @@ import {themes} from './theme';
 
 addons.setConfig({
     theme: themes.light,
+    sidebar: {
+        collapsedRoots: ['docs'],
+    },
 });
