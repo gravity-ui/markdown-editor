@@ -56,7 +56,7 @@ export const DefinitionList: StoryObj<typeof component> = {
 };
 
 export default {
-    title: 'Markdown Editor / Markdown examples',
+    title: 'Extensions / Markdown',
     component,
     args: args,
     parameters: {
