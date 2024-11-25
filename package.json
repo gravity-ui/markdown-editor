@@ -1,6 +1,6 @@
 {
   "name": "@gravity-ui/markdown-editor",
-  "version": "14.3.1",
+  "version": "14.4.0",
   "description": "Markdown wysiwyg and markup editor",
   "license": "MIT",
   "repository": {
@@ -166,6 +166,7 @@
     "@codemirror/search": "~6.5.6",
     "@codemirror/state": "~6.4.1",
     "@codemirror/view": "~6.34.1",
+    "@diplodoc/file-extension": "^0.1.0",
     "@gravity-ui/i18n": "^1.1.0",
     "@gravity-ui/icons": "^2.10.0",
     "@lezer/highlight": "~1.2.1",
