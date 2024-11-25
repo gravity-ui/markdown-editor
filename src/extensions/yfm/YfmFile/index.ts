@@ -5,7 +5,8 @@ import {YfmFilePaste} from './YfmFilePaste';
 import {YfmFileSpecs} from './YfmFileSpecs';
 import {YfmFileWidget} from './YfmFileWidget';
 
-import './index.scss';
+import '@diplodoc/file-extension/runtime/styles.css';
+import './index.scss'; // eslint-disable-line import/order
 
 export type YfmFileOptions = {
     fileUploadHandler?: FileUploadHandler;

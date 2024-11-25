@@ -1,5 +1,9 @@
-import yfmPlugin from '@diplodoc/transform/lib/plugins/file';
-import {FileClassName, LinkHtmlAttr, PREFIX} from '@diplodoc/transform/lib/plugins/file/const';
+import {
+    FILE_MARKUP_PREFIX,
+    FileClassName,
+    FileHtmlAttr,
+    transform as fileTransform,
+} from '@diplodoc/file-extension';
 
 import type {Extension} from '../../../../core';
 import {nodeTypeFactory} from '../../../../utils/schema';
@@ -10,7 +14,7 @@ export {yfmFileNodeName} from './const';
 export const fileType = nodeTypeFactory(yfmFileNodeName);
 
 export const YfmFileSpecs: Extension = (builder) => {
-    builder.configureMd((md) => md.use(yfmPlugin));
+    builder.configureMd((md) => md.use(fileTransform({bundle: false})));
     builder.addNode(yfmFileNodeName, () => ({
         spec: {
             group: 'inline',
@@ -43,7 +47,7 @@ export const YfmFileSpecs: Extension = (builder) => {
                 const span = document.createElement('span');
                 span.classList.add(FileClassName.Icon);
                 a.appendChild(span);
-                a.append(node.attrs[LinkHtmlAttr.Download]);
+                a.append(node.attrs[FileHtmlAttr.Download]);
                 return a;
             },
         },
@@ -70,7 +74,7 @@ export const YfmFileSpecs: Extension = (builder) => {
                 }, [])
                 .join(' ');
 
-            state.write(`${PREFIX}${attrsStr} %}`);
+            state.write(`${FILE_MARKUP_PREFIX}${attrsStr} %}`);
         },
     }));
 };
