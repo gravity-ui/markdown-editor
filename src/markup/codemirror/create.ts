@@ -43,6 +43,7 @@ import {DirectiveSyntaxFacet} from './directive-facet';
 import {type FileUploadHandler, FileUploadHandlerFacet} from './files-upload-facet';
 import {gravityHighlightStyle, gravityTheme} from './gravity';
 import {PairingCharactersExtension} from './pairing-chars';
+import {handleMarkdownPaste} from './paste-handler';
 import {ReactRendererFacet} from './react-facet';
 import {SearchPanelPlugin} from './search-plugin/plugin';
 import {type YfmLangOptions, yfmLang} from './yfm';
@@ -157,7 +158,18 @@ export function createCodemirror(params: CreateCodemirrorParams) {
                 onScroll(event);
             },
             paste(event, editor) {
-                if (event.clipboardData && parseInsertedUrlAsImage) {
+                if (!event.clipboardData) return false;
+
+                const pastedText = event.clipboardData.getData('text/plain');
+
+                // Handle markdown-aware pasting
+                if (handleMarkdownPaste(pastedText, editor)) {
+                    event.preventDefault();
+                    return true;
+                }
+
+                // Handle image URL pasting
+                if (parseInsertedUrlAsImage) {
                     const {imageUrl, title} =
                         parseInsertedUrlAsImage(
                             event.clipboardData.getData(DataTransferType.Text) ?? '',
@@ -176,7 +188,11 @@ export function createCodemirror(params: CreateCodemirrorParams) {
                             title,
                         },
                     ])(editor);
+
+                    return true;
                 }
+
+                return true;
             },
         }),
         SearchPanelPlugin({
