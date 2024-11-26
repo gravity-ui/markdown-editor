@@ -54,13 +54,6 @@ export type MarkdownEditorHandlers = {
 
 export type MarkdownEditorExperimentalOptions = {
     /**
-     * Ability to disable html parsing when pasting html content in markdown mode
-     * If set to true we will fallback to default promisemirror text/plain paste
-     *
-     * @default false
-     */
-    disableHTMLParsingInMd?: boolean;
-    /**
      * If we need to set dimensions for uploaded images
      *
      * @default false
@@ -127,6 +120,8 @@ export type MarkdownEditorMarkupConfig = {
     keymaps?: CreateCodemirrorParams['keymaps'];
     /** Overrides the default placeholder content. */
     placeholder?: CreateCodemirrorParams['placeholder'];
+    /** Enable HTML parsing when pasting content. */
+    parseHtmlOnPaste?: boolean;
     /**
      * Additional language data for markdown language in codemirror.
      * Can be used to configure additional autocompletions and others.

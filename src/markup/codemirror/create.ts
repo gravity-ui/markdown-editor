@@ -15,10 +15,10 @@ import type {ParseInsertedUrlAsImage} from '../../bundle';
 import type {EventMap} from '../../bundle/Editor';
 import {ActionName} from '../../bundle/config/action-names';
 import type {ReactRenderStorage} from '../../extensions';
-import {DataTransferType} from '../../extensions/behavior/Clipboard/utils';
 import {logger} from '../../logger';
 import {Action as A, formatter as f} from '../../shortcuts';
 import type {Receiver} from '../../utils';
+import {DataTransferType, shouldSkipHtmlConversion} from '../../utils/clipboard';
 import type {DirectiveSyntaxContext} from '../../utils/directive';
 import {
     insertImages,
@@ -43,7 +43,6 @@ import {DirectiveSyntaxFacet} from './directive-facet';
 import {type FileUploadHandler, FileUploadHandlerFacet} from './files-upload-facet';
 import {gravityHighlightStyle, gravityTheme} from './gravity';
 import {MarkdownConverter} from './html-to-markdown/converters';
-import {shouldSkipHtmlConversionBasedOnClipboard} from './html-to-markdown/helpers';
 import {PairingCharactersExtension} from './pairing-chars';
 import {ReactRendererFacet} from './react-facet';
 import {SearchPanelPlugin} from './search-plugin/plugin';
@@ -63,7 +62,7 @@ export type CreateCodemirrorParams = {
     onScroll: (event: Event) => void;
     reactRenderer: ReactRenderStorage;
     uploadHandler?: FileUploadHandler;
-    disableHTMLParsingInMd?: boolean;
+    parseHtmlOnPaste?: boolean;
     parseInsertedUrlAsImage?: ParseInsertedUrlAsImage;
     needImageDimensions?: boolean;
     enableNewImageSizeCalculation?: boolean;
@@ -94,7 +93,7 @@ export function createCodemirror(params: CreateCodemirrorParams) {
         extensions: extraExtensions,
         placeholder: placeholderContent,
         autocompletion: autocompletionConfig,
-        disableHTMLParsingInMd,
+        parseHtmlOnPaste,
         parseInsertedUrlAsImage,
         directiveSyntax,
     } = params;
@@ -173,14 +172,12 @@ export function createCodemirror(params: CreateCodemirrorParams) {
                 }
 
                 // checking if a copy buffer content is suitable for convertion
-                const shouldSkipHtmlConversion = shouldSkipHtmlConversionBasedOnClipboard(
-                    event.clipboardData,
-                );
+                const shouldSkipHtml = shouldSkipHtmlConversion(event.clipboardData);
 
                 // if we have text/html inside copy/paste buffer
                 const htmlContent = event.clipboardData.getData(DataTransferType.Html);
                 // if we pasting markdown from VsCode we need skip html transformation
-                if (htmlContent && !disableHTMLParsingInMd && !shouldSkipHtmlConversion) {
+                if (htmlContent && parseHtmlOnPaste && !shouldSkipHtml) {
                     let parsedMarkdownMarkup: string | undefined;
                     try {
                         const parser = new DOMParser();

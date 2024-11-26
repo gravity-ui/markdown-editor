@@ -146,7 +146,6 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
     #fileUploadHandler?: FileUploadHandler;
     #parseInsertedUrlAsImage?: ParseInsertedUrlAsImage;
     #needToSetDimensionsForUploadedImages: boolean;
-    #disableHTMLParsingInMd = false;
     #enableNewImageSizeCalculation: boolean;
     #directiveSyntax: DirectiveSyntaxContext;
     #prepareRawMarkup?: (value: MarkupString) => MarkupString;
@@ -275,7 +274,7 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
                     uploadHandler: this.fileUploadHandler,
                     parseInsertedUrlAsImage: this.parseInsertedUrlAsImage,
                     needImageDimensions: this.needToSetDimensionsForUploadedImages,
-                    disableHTMLParsingInMd: this.disableHTMLParsingInMd,
+                    parseHtmlOnPaste: this.#markupConfig.parseHtmlOnPaste,
                     enableNewImageSizeCalculation: this.enableNewImageSizeCalculation,
                     extensions: this.#markupConfig.extensions,
                     disabledExtensions: this.#markupConfig.disabledExtensions,
@@ -304,10 +303,6 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
 
     get needToSetDimensionsForUploadedImages(): boolean {
         return this.#needToSetDimensionsForUploadedImages;
-    }
-
-    get disableHTMLParsingInMd(): boolean {
-        return this.#disableHTMLParsingInMd;
     }
 
     get enableNewImageSizeCalculation(): boolean {
@@ -346,7 +341,6 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
             experimental.needToSetDimensionsForUploadedImages,
         );
         this.#directiveSyntax = opts.directiveSyntax;
-        this.#disableHTMLParsingInMd = Boolean(experimental.disableHTMLParsingInMd);
         this.#enableNewImageSizeCalculation = Boolean(experimental.enableNewImageSizeCalculation);
         this.#prepareRawMarkup = experimental.prepareRawMarkup;
         this.#escapeConfig = wysiwygConfig.escapeConfig;
