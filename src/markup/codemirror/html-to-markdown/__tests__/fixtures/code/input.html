@@ -1,0 +1,24 @@
+<p>Inline code with escape <code>test`</code></p>
+
+<pre data-language="plaintext"><code class="hljs plaintext">import React from 'react';
+    import { useMarkdownEditor, MarkdownEditorView } from '@gravity-ui/markdown-editor';
+    import { toaster } from '@gravity-ui/uikit/toaster-singleton-react-18';
+
+    function Editor({ onSubmit }) {
+      const editor = useMarkdownEditor({ allowHTML: false });
+
+      React.useEffect(() =&gt; {
+        function submitHandler() {
+          // Serialize current content to markdown markup
+          const value = editor.getValue();
+          onSubmit(value);
+        }
+
+        editor.on('submit', submitHandler);
+        return () =&gt; {
+          editor.off('submit', submitHandler);
+        };
+      }, [onSubmit]);
+
+      return &lt;MarkdownEditorView stickyToolbar autofocus toaster={toaster} editor={editor} /&gt;;
+}</code></pre>

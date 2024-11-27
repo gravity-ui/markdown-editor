@@ -120,6 +120,8 @@ export type MarkdownEditorMarkupConfig = {
     keymaps?: CreateCodemirrorParams['keymaps'];
     /** Overrides the default placeholder content. */
     placeholder?: CreateCodemirrorParams['placeholder'];
+    /** Enable HTML parsing when pasting content. */
+    parseHtmlOnPaste?: boolean;
     /**
      * Additional language data for markdown language in codemirror.
      * Can be used to configure additional autocompletions and others.

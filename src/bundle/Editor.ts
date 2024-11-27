@@ -92,6 +92,7 @@ export interface EditorInt
     readonly renderStorage: RenderStorage<ReactNode>;
     readonly fileUploadHandler?: FileUploadHandler;
     readonly needToSetDimensionsForUploadedImages: boolean;
+    readonly disableHTMLParsingInMd?: boolean;
 
     readonly renderPreview?: RenderPreview;
 
@@ -273,6 +274,7 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
                     uploadHandler: this.fileUploadHandler,
                     parseInsertedUrlAsImage: this.parseInsertedUrlAsImage,
                     needImageDimensions: this.needToSetDimensionsForUploadedImages,
+                    parseHtmlOnPaste: this.#markupConfig.parseHtmlOnPaste,
                     enableNewImageSizeCalculation: this.enableNewImageSizeCalculation,
                     extensions: this.#markupConfig.extensions,
                     disabledExtensions: this.#markupConfig.disabledExtensions,

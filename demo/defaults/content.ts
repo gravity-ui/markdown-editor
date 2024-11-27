@@ -3,7 +3,7 @@ export const markup = `
 
 Welcome to the editor! Start typing the character \`/\`
 
-![nature](https://github.com/user-attachments/assets/e2cdda03-fa1d-48fd-91e7-88d935f8bb9b =700x)
+![Markdown Editor](https://github.com/user-attachments/assets/0b4e5f65-54cf-475f-9c68-557a4e9edb46 =700x)
 
 ## Markdown WYSIWYG and markup editor
 

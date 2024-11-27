@@ -1,6 +1,6 @@
 import type {EditorProps} from 'prosemirror-view';
 
-import {DataTransferType} from '../../behavior/Clipboard/utils';
+import {DataTransferType, isVSCode, tryParseVSCodeData} from '../../../utils/clipboard';
 
 import {cbType, codeBlockLangAttr} from './const';
 
@@ -26,32 +26,10 @@ function getCodeData(data: DataTransfer): null | {editor: string; mode?: string;
 
         if (isVSCode(data)) {
             editor = 'vscode';
-            mode = tryCatch<VSCodeData>(() => JSON.parse(data.getData(DataTransferType.VSCodeData)))
-                ?.mode;
+            mode = tryParseVSCodeData(data)?.mode;
         } else return null;
 
         return {editor, mode, value: data.getData(DataTransferType.Text)};
     }
     return null;
-}
-
-type VSCodeData = {
-    version: number;
-    isFromEmptySelection: boolean;
-    multicursorText: null | string;
-    mode: string;
-    [key: string]: unknown;
-};
-
-function isVSCode(data: DataTransfer): boolean {
-    return data.types.includes(DataTransferType.VSCodeData);
-}
-
-function tryCatch<R>(fn: () => R): R | undefined {
-    try {
-        return fn();
-    } catch (e) {
-        console.error(e);
-    }
-    return undefined;
 }
