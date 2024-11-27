@@ -54,10 +54,11 @@ export const BundlePreset: ExtensionAuto<BundlePresetOptions> = (builder, opts) 
             paragraphPlaceholder: (node: Node, parent?: Node | null) => {
                 const isDocEmpty =
                     !node.text &&
-                    (opts.emptyRowPlaceholder ||
+                    ((opts.emptyRowPlaceholder && parent?.type.name === 'doc') ||
                         (parent?.type.name === BaseNode.Doc && parent.childCount === 1));
                 return isDocEmpty ? i18nPlaceholder('doc_empty') : null;
             },
+            allowEmptyRows: opts.allowEmptyRows,
             ...opts.baseSchema,
         },
     };

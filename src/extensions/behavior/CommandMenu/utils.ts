@@ -6,6 +6,7 @@ export function findDecoElem(targetElem?: Element) {
     const target = targetElem ?? document;
     return (
         target.getElementsByClassName(DecoClassName).item(0) ??
-        target.getElementsByClassName(AutocompleteDecoClassName).item(0)
+        target.getElementsByClassName(AutocompleteDecoClassName).item(0) ??
+        target.getElementsByClassName('ActionButtonButton').item(0)
     );
 }

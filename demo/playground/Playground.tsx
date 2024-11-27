@@ -69,6 +69,8 @@ const wCommandMenuConfig = wysiwygToolbarConfigs.wCommandMenuConfig.concat(
 export type PlaygroundProps = {
     initial?: MarkupString;
     allowHTML?: boolean;
+    emptyRowPlaceholder?: boolean;
+    allowEmptyRows?: boolean;
     settingsVisible?: boolean;
     initialEditor?: MarkdownEditorMode;
     breaks?: boolean;
@@ -118,6 +120,8 @@ export const Playground = React.memo<PlaygroundProps>((props) => {
         initialSplitModeEnabled,
         settingsVisible,
         allowHTML,
+        allowEmptyRows,
+        emptyRowPlaceholder,
         breaks,
         linkify,
         linkifyTlds,
@@ -179,6 +183,10 @@ export const Playground = React.memo<PlaygroundProps>((props) => {
             renderPreview: renderPreviewDefined ? renderPreview : undefined,
             fileUploadHandler,
             experimental,
+            md: {
+                emptyRowPlaceholder: emptyRowPlaceholder,
+                allowEmptyRows: allowEmptyRows,
+            },
             prepareRawMarkup: prepareRawMarkup
                 ? (value) => '**prepare raw markup**\n\n' + value
                 : undefined,

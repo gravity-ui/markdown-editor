@@ -56,6 +56,7 @@ export function useMarkdownEditor<T extends object = {}>(
                     return true;
                 },
                 emptyRowPlaceholder: md.emptyRowPlaceholder,
+                allowEmptyRows: md.allowEmptyRows,
                 mdBreaks: breaks,
                 fileUploadHandler: uploadFile,
                 needToSetDimensionsForUploadedImages,

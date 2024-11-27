@@ -27,6 +27,7 @@ export type ParseInsertedUrlAsImage = (text: string) => {imageUrl: string; title
 export type MarkdownEditorMdOptions = {
     html?: boolean;
     emptyRowPlaceholder?: boolean;
+    allowEmptyRows?: boolean;
     breaks?: boolean;
     linkify?: boolean;
     linkifyTlds?: string | string[];

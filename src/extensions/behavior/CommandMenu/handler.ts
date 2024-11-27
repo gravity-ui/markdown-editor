@@ -51,8 +51,13 @@ export class CommandHandler implements AutocompleteHandler {
         this.#nodesIgnoreList = nodesIgnoreList;
     }
 
-    onOpen(action: AutocompleteAction): boolean {
-        this.findAnchor();
+    onOpen(action: AutocompleteAction, node?: Element): boolean {
+        if (node) {
+            this.#anchor = node;
+        } else {
+            this.findAnchor();
+        }
+
         if (!this.#anchor || this.shouldIgnore(action)) {
             this.closeAutocomplete(action.view);
             return true;
@@ -61,7 +66,7 @@ export class CommandHandler implements AutocompleteHandler {
         this.#popupCloser = new AutocompletePopupCloser(action.view);
         this.updateState(action);
         this.filterActions();
-        this.render();
+        this.render(Boolean(node));
 
         return true;
     }
@@ -197,8 +202,10 @@ export class CommandHandler implements AutocompleteHandler {
         return needToClose;
     }
 
-    private render() {
-        this.findAnchor();
+    private render(notFindAnchor?: boolean) {
+        if (!notFindAnchor) {
+            this.findAnchor();
+        }
         const viewItems = this.#filteredActionsCarousel?.array ?? [];
         this.#menuProps = {
             anchor: this.#anchor,
