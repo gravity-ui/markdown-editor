@@ -240,6 +240,7 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
                 initialContent: this.#markup,
                 extensions: this.#extensions,
                 allowHTML: this.#mdOptions.html,
+                allowEmptyRows: this.#mdOptions.allowEmptyRows,
                 linkify: this.#mdOptions.linkify,
                 linkifyTlds: this.#mdOptions.linkifyTlds,
                 escapeConfig: this.#escapeConfig,
