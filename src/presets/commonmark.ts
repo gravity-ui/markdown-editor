@@ -1,3 +1,5 @@
+import {CommandMenuOptions} from 'src/extensions/behavior/CommandMenu';
+
 import type {Extension, ExtensionAuto} from '../core';
 import {
     Blockquote,
@@ -10,6 +12,7 @@ import {
     CodeBlock,
     CodeBlockOptions,
     CodeOptions,
+    EmptyRow,
     Heading,
     HeadingOptions,
     HorizontalRule,
@@ -38,6 +41,9 @@ export type CommonMarkPresetOptions = ZeroPresetOptions & {
     codeBlock?: CodeBlockOptions;
     blockquote?: BlockquoteOptions;
     heading?: false | Extension | HeadingOptions;
+    commandMenu?: CommandMenuOptions;
+    allowEmptyRows?: boolean;
+    emptyRowPlaceholder?: boolean;
 };
 
 export const CommonMarkPreset: ExtensionAuto<CommonMarkPresetOptions> = (builder, opts) => {
@@ -54,6 +60,10 @@ export const CommonMarkPreset: ExtensionAuto<CommonMarkPresetOptions> = (builder
         .use(Breaks, opts.breaks ?? {})
         .use(CodeBlock, opts.codeBlock ?? {})
         .use(Blockquote, opts.blockquote ?? {});
+
+    if (opts.commandMenu && opts.allowEmptyRows) {
+        builder.use(EmptyRow, opts.commandMenu ?? {});
+    }
 
     if (opts.image !== false) {
         builder.use(
