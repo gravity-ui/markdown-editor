@@ -23,7 +23,7 @@ $block: 'g-md-editor-sticky';
 
             content: '';
 
-            border: 1px solid var(--g-color-line-generic-solid);
+            border: var(--g-md-toolbar-sticky-border, 1px solid var(--g-color-line-generic-solid));
             border-radius: 4px;
             background-color: var(--g-color-base-background);
         }
