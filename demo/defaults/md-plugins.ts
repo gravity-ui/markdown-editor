@@ -46,7 +46,10 @@ export function getPlugins({
             directiveSyntax: directiveSyntax?.mdPluginValueFor('yfmCut'),
         }),
         deflist,
-        yfmFile({bundle: false}),
+        yfmFile({
+            bundle: false,
+            directiveSyntax: directiveSyntax?.mdPluginValueFor('yfmFile'),
+        }),
         (md) => md.use(imsize, {enableInlineStyling: true}),
         meta,
         monospace,
