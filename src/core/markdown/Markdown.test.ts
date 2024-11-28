@@ -14,23 +14,28 @@ import {MarkdownSerializer} from './MarkdownSerializer';
 
 const {schema} = builder;
 schema.nodes['hard_break'].spec.isBreak = true;
-const parser: Parser = new MarkdownParser(schema, new MarkdownIt('commonmark'), {
-    paragraph: {type: 'block', name: 'paragraph'},
-    heading: {
-        type: 'block',
-        name: 'heading',
-        getAttrs: (tok) => ({level: Number(tok.tag.slice(1))}),
-    },
-    list_item: {type: 'block', name: 'list_item'},
-    bullet_list: {type: 'block', name: 'bullet_list'},
-    ordered_list: {type: 'block', name: 'ordered_list'},
-    hardbreak: {type: 'node', name: 'hard_break'},
-    fence: {type: 'block', name: 'code_block', noCloseToken: true},
+const parser: Parser = new MarkdownParser(
+    schema,
+    new MarkdownIt('commonmark'),
+    {
+        paragraph: {type: 'block', name: 'paragraph'},
+        heading: {
+            type: 'block',
+            name: 'heading',
+            getAttrs: (tok) => ({level: Number(tok.tag.slice(1))}),
+        },
+        list_item: {type: 'block', name: 'list_item'},
+        bullet_list: {type: 'block', name: 'bullet_list'},
+        ordered_list: {type: 'block', name: 'ordered_list'},
+        hardbreak: {type: 'node', name: 'hard_break'},
+        fence: {type: 'block', name: 'code_block', noCloseToken: true},
 
-    em: {type: 'mark', name: 'em'},
-    strong: {type: 'mark', name: 'strong'},
-    code_inline: {type: 'mark', name: 'code', noCloseToken: true},
-});
+        em: {type: 'mark', name: 'em'},
+        strong: {type: 'mark', name: 'strong'},
+        code_inline: {type: 'mark', name: 'code', noCloseToken: true},
+    },
+    false,
+);
 const serializer = new MarkdownSerializer(
     {
         text: ((state, node) => {
