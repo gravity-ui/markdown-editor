@@ -3,8 +3,8 @@ import dd from 'ts-dedent';
 
 import {parseDOM} from '../../../../tests/parse-dom';
 import {createMarkupChecker} from '../../../../tests/sameMarkup';
+import {DirectiveContext} from '../../../../tests/utils';
 import {ExtensionsManager} from '../../../core';
-import {DirectiveSyntaxContext, type DirectiveSyntaxOption} from '../../../utils/directive';
 import {BaseNode, BaseSchemaSpecs} from '../../base/specs';
 import {
     BlockquoteSpecs,
@@ -18,11 +18,6 @@ import {
 
 import {CutAttr, CutNode, YfmCutSpecs} from './YfmCutSpecs';
 
-class DirectiveContext extends DirectiveSyntaxContext {
-    setOption(option: DirectiveSyntaxOption | undefined) {
-        this.option = option;
-    }
-}
 const directiveContext = new DirectiveContext(undefined);
 
 function buildDeps() {

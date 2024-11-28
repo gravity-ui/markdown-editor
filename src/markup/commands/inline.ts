@@ -1,6 +1,8 @@
 import {snippet} from '@codemirror/autocomplete';
 import type {StateCommand} from '@codemirror/state';
 
+import {DirectiveSyntaxFacet} from '../codemirror';
+
 const defaultLinkSnippet = snippet(`[#{2:link}](#{1:url} "#{3:title}")`);
 export const insertLink: StateCommand = ({state, dispatch}) => {
     const {from, to, empty} = state.selection.main;
@@ -61,17 +63,25 @@ export function insertImages(images: ImageItem[]): StateCommand {
 }
 
 export type FileItem = {src: string; name: string; type?: string};
+const fileToCurlySyntax = (file: FileItem): string => {
+    const attrsStr = Object.entries(file)
+        .map(([key, value]) => `${key}="${value.replace('"', '')}"`)
+        .join(' ');
+    return `{% file ${attrsStr} %}`;
+};
+const fileToDirectiveSyntax = (file: FileItem): string => {
+    const {src, name, type} = file;
+    let markup = `:file[${name}](${src})`;
+    if (type) markup += `{type="${type}"}`;
+    return markup;
+};
 export const insertFiles = (files: FileItem[]): StateCommand => {
     return ({state, dispatch}) => {
-        const markup = files
-            .map((attrs) => {
-                const attrsStr = Object.entries(attrs)
-                    .map(([key, value]) => `${key}="${value.replace('"', '')}"`)
-                    .join(' ');
-                return `{% file ${attrsStr} %}`;
-            })
-            .join(' ');
+        const serializer = state.facet(DirectiveSyntaxFacet).shouldInsertDirectiveMarkup('yfmFile')
+            ? fileToDirectiveSyntax
+            : fileToCurlySyntax;
 
+        const markup = files.map(serializer).join(' ');
         const tr = state.changeByRange((range) => {
             const changes = state.changes({from: range.from, to: range.to, insert: markup});
             return {changes, range: range.map(changes)};

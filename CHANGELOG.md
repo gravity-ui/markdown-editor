@@ -1,5 +1,15 @@
 # Changelog
 
+## [14.5.0](https://github.com/gravity-ui/markdown-editor/compare/v14.4.0...v14.5.0) (2024-11-28)
+
+
+### Features
+
+* **core:** autoconvert html to md when pasting in markdown mode ([#476](https://github.com/gravity-ui/markdown-editor/issues/476)) ([e3f6fbc](https://github.com/gravity-ui/markdown-editor/commit/e3f6fbc4b033cc109d503a1ca1ce21bcc915ccf0))
+* **deps:** update diplodoc packages ([#504](https://github.com/gravity-ui/markdown-editor/issues/504)) ([5186fab](https://github.com/gravity-ui/markdown-editor/commit/5186fab62ca28a76ff5bc7db879c8517de34e86a))
+* **EditorView:** add sticky toolbar border variable ([#499](https://github.com/gravity-ui/markdown-editor/issues/499)) ([3e1d2e2](https://github.com/gravity-ui/markdown-editor/commit/3e1d2e25d5d37fc4b21a1ba1ab6626639255cf69))
+* **YfmFile:** support directive syntax ([#503](https://github.com/gravity-ui/markdown-editor/issues/503)) ([0340dce](https://github.com/gravity-ui/markdown-editor/commit/0340dce6ec00e8ab28cdf666e55bea9f46bfaccc))
+
 ## [14.4.0](https://github.com/gravity-ui/markdown-editor/compare/v14.3.1...v14.4.0) (2024-11-22)
 
 

@@ -1,6 +1,6 @@
 {
   "name": "@gravity-ui/markdown-editor",
-  "version": "14.4.0",
+  "version": "14.5.0",
   "description": "Markdown wysiwyg and markup editor",
   "license": "MIT",
   "repository": {
@@ -166,7 +166,7 @@
     "@codemirror/search": "~6.5.6",
     "@codemirror/state": "~6.4.1",
     "@codemirror/view": "~6.34.1",
-    "@diplodoc/file-extension": "^0.1.0",
+    "@diplodoc/file-extension": "^0.2.1",
     "@gravity-ui/i18n": "^1.1.0",
     "@gravity-ui/icons": "^2.10.0",
     "@lezer/highlight": "~1.2.1",
@@ -201,13 +201,13 @@
     "tslib": "^2.3.1"
   },
   "devDependencies": {
-    "@diplodoc/cut-extension": "^0.4.0",
+    "@diplodoc/cut-extension": "^0.5.0",
     "@diplodoc/folding-headings-extension": "0.1.0",
-    "@diplodoc/html-extension": "2.3.2",
+    "@diplodoc/html-extension": "^2.5.0",
     "@diplodoc/latex-extension": "1.0.3",
     "@diplodoc/mermaid-extension": "1.2.1",
     "@diplodoc/tabs-extension": "^3.5.1",
-    "@diplodoc/transform": "^4.36.0",
+    "@diplodoc/transform": "^4.40.0",
     "@gravity-ui/components": "3.0.0",
     "@gravity-ui/eslint-config": "3.1.1",
     "@gravity-ui/prettier-config": "1.1.0",
@@ -286,9 +286,9 @@
     }
   },
   "peerDependencies": {
-    "@diplodoc/cut-extension": "^0.3.1 || ^0.4.0",
+    "@diplodoc/cut-extension": "^0.3.1 || ^0.4.0 || ^0.5.0",
     "@diplodoc/folding-headings-extension": "^0.1.0",
-    "@diplodoc/html-extension": "2.3.2",
+    "@diplodoc/html-extension": "^2.3.2",
     "@diplodoc/latex-extension": "^1.0.3",
     "@diplodoc/mermaid-extension": "^1.0.0",
     "@diplodoc/tabs-extension": "^3.5.1",
