@@ -59,7 +59,7 @@ export function useMarkdownEditor<T extends object = {}>(
                     editor.emit('submit', null);
                     return true;
                 },
-                emptyRowPlaceholder: md.emptyRowPlaceholder,
+                placeholderOptions: wysiwygConfig.placeholderOptions,
                 mdBreaks: breaks,
                 fileUploadHandler: uploadFile,
                 needToSetDimensionsForUploadedImages,

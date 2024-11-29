@@ -26,9 +26,13 @@ export type RenderPreview = (params: RenderPreviewParams) => ReactNode;
 
 export type ParseInsertedUrlAsImage = (text: string) => {imageUrl: string; title?: string} | null;
 
+export type WysywigPlaceholderOptions = {
+    value?: string | (() => string);
+    behavior: 'empty-doc' | 'empty-row';
+};
+
 export type MarkdownEditorMdOptions = {
     html?: boolean;
-    emptyRowPlaceholder?: boolean;
     breaks?: boolean;
     linkify?: boolean;
     linkifyTlds?: string | string[];
@@ -149,6 +153,7 @@ export type MarkdownEditorWysiwygConfig = {
     extensions?: Extension;
     extensionOptions?: ExtensionsOptions;
     escapeConfig?: EscapeConfig;
+    placeholderOptions?: WysywigPlaceholderOptions;
 };
 
 // [major] TODO: remove generic type

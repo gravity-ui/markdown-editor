@@ -16,7 +16,7 @@ import type {FileUploadHandler} from '../utils/upload';
 
 import {wCommandMenuConfigByPreset, wSelectionMenuConfigByPreset} from './config/wysiwyg';
 import {emojiDefs} from './emoji';
-import type {MarkdownEditorPreset} from './types';
+import type {MarkdownEditorPreset, WysywigPlaceholderOptions} from './types';
 
 const DEFAULT_IGNORED_KEYS = ['Tab', 'Shift-Tab'] as const;
 
@@ -27,7 +27,7 @@ export type BundlePresetOptions = ExtensionsOptions &
         preset: MarkdownEditorPreset;
         mdBreaks?: boolean;
         fileUploadHandler?: FileUploadHandler;
-        emptyRowPlaceholder?: boolean;
+        placeholderOptions?: WysywigPlaceholderOptions;
         /**
          * If we need to set dimensions for uploaded images
          *
@@ -64,12 +64,26 @@ export const BundlePreset: ExtensionAuto<BundlePresetOptions> = (builder, opts) 
         baseSchema: {
             paragraphKey: f.toPM(A.Text),
             paragraphPlaceholder: (node: Node, parent?: Node | null) => {
-                const isDocEmpty =
-                    !node.text &&
-                    ((opts.emptyRowPlaceholder && parent?.type.name === 'doc') ||
-                        (parent?.type.name === BaseNode.Doc && parent.childCount === 1));
+                let isPlaceholderShown = false;
 
-                return isDocEmpty ? i18nPlaceholder('doc_empty') : null;
+                if (opts.placeholderOptions?.behavior === 'empty-row') {
+                    isPlaceholderShown = !node.text && parent?.type.name === 'doc';
+                } else {
+                    isPlaceholderShown =
+                        !node.text && parent?.type.name === BaseNode.Doc && parent.childCount === 1;
+                }
+
+                let text = i18nPlaceholder('doc_empty');
+
+                if (opts.placeholderOptions?.value) {
+                    if (typeof opts.placeholderOptions?.value === 'string') {
+                        text = opts.placeholderOptions?.value;
+                    } else {
+                        text = opts.placeholderOptions?.value();
+                    }
+                }
+
+                return isPlaceholderShown ? text : null;
             },
             ...opts.baseSchema,
         },
