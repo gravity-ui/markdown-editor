@@ -79,6 +79,7 @@ export type PlaygroundProps = {
     breaks?: boolean;
     linkify?: boolean;
     linkifyTlds?: string | string[];
+    emptyRowPlaceholder?: boolean;
     sanitizeHtml?: boolean;
     prepareRawMarkup?: boolean;
     splitModeOrientation?: 'horizontal' | 'vertical' | false;
@@ -124,6 +125,7 @@ export const Playground = React.memo<PlaygroundProps>((props) => {
         initialSplitModeEnabled,
         settingsVisible,
         allowHTML,
+        emptyRowPlaceholder,
         breaks,
         linkify,
         linkifyTlds,
@@ -185,6 +187,9 @@ export const Playground = React.memo<PlaygroundProps>((props) => {
             needToSetDimensionsForUploadedImages,
             renderPreview: renderPreviewDefined ? renderPreview : undefined,
             fileUploadHandler,
+            md: {
+                emptyRowPlaceholder: emptyRowPlaceholder,
+            },
             experimental: {
                 ...experimental,
                 directiveSyntax,
