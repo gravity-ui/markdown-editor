@@ -1,6 +1,7 @@
 import {SerializerNodeToken} from '../../../../core';
 import {getPlaceholderContent} from '../../../../utils/placeholder';
-import {CheckboxNode} from '../const';
+
+import {CheckboxAttr, CheckboxNode} from './const';
 
 export const serializerTokens: Record<CheckboxNode, SerializerNodeToken> = {
     [CheckboxNode.Checkbox]: (state, node) => {
@@ -9,7 +10,7 @@ export const serializerTokens: Record<CheckboxNode, SerializerNodeToken> = {
     },
 
     [CheckboxNode.Input]: (state, node) => {
-        const checked = node.attrs.checked === 'true';
+        const checked = node.attrs[CheckboxAttr.Checked] === 'true';
         state.write(`[${checked ? 'X' : ' '}] `);
     },
 

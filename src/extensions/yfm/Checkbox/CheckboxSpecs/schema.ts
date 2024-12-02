@@ -1,7 +1,8 @@
 import type {NodeSpec} from 'prosemirror-model';
 
 import {PlaceholderOptions} from '../../../../utils/placeholder';
-import {CheckboxNode, b} from '../const';
+
+import {CheckboxAttr, CheckboxNode, b} from './const';
 
 import type {CheckboxSpecsOptions} from './index';
 
@@ -18,7 +19,7 @@ export const getSchemaSpecs = (
         allowSelection: false,
         parseDOM: [],
         attrs: {
-            class: {default: b()},
+            [CheckboxAttr.Class]: {default: b()},
         },
         toDOM(node) {
             return ['div', node.attrs, 0];
@@ -30,9 +31,9 @@ export const getSchemaSpecs = (
         group: 'block',
         parseDOM: [],
         attrs: {
-            type: {default: 'checkbox'},
-            id: {default: null},
-            checked: {default: null},
+            [CheckboxAttr.Type]: {default: 'checkbox'},
+            [CheckboxAttr.Id]: {default: null},
+            [CheckboxAttr.Checked]: {default: null},
         },
         toDOM(node) {
             return ['div', node.attrs];
@@ -49,12 +50,12 @@ export const getSchemaSpecs = (
             {
                 tag: `span[class="${b('label')}"]`,
                 getAttrs: (node) => ({
-                    for: (node as Element).getAttribute('for') || '',
+                    [CheckboxAttr.For]: (node as Element).getAttribute(CheckboxAttr.For) || '',
                 }),
             },
         ],
         attrs: {
-            for: {default: null},
+            [CheckboxAttr.For]: {default: null},
         },
         escapeText: false,
         placeholder: {
