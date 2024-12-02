@@ -5,6 +5,7 @@ import {BehaviorPreset, BehaviorPresetOptions} from '../extensions/behavior';
 import {EditorModeKeymap, EditorModeKeymapOptions} from '../extensions/behavior/EditorModeKeymap';
 import {BaseNode, YfmHeadingAttr, YfmNoteNode} from '../extensions/specs';
 import {i18n as i18nPlaceholder} from '../i18n/placeholder';
+import {ToolbarsPreset} from '../modules/toolbars/types';
 import {CommonMarkPreset, CommonMarkPresetOptions} from '../presets/commonmark';
 import {DefaultPreset, DefaultPresetOptions} from '../presets/default';
 import {FullPreset, FullPresetOptions} from '../presets/full';
@@ -24,7 +25,7 @@ export type ExtensionsOptions = BehaviorPresetOptions & FullPresetOptions;
 
 export type BundlePresetOptions = ExtensionsOptions &
     EditorModeKeymapOptions & {
-        preset: MarkdownEditorPreset;
+        preset: MarkdownEditorPreset | ToolbarsPreset;
         mdBreaks?: boolean;
         fileUploadHandler?: FileUploadHandler;
         /**

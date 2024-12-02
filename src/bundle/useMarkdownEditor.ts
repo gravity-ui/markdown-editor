@@ -3,6 +3,7 @@ import {useLayoutEffect, useMemo} from 'react';
 import type {Extension} from '../core';
 import {ReactRenderStorage} from '../extensions';
 import {logger} from '../logger';
+import {ToolbarsPreset} from '../modules/toolbars/types';
 import {DirectiveSyntaxContext} from '../utils/directive';
 
 import {EditorImpl, type EditorInt} from './Editor';
@@ -33,7 +34,7 @@ export function useMarkdownEditor<T extends object = {}>(
         } = props;
 
         const breaks = md.breaks ?? props.breaks;
-        const preset: MarkdownEditorPreset = props.preset ?? 'full';
+        const preset: MarkdownEditorPreset | ToolbarsPreset = props.preset ?? 'full';
         const renderStorage = new ReactRenderStorage();
         const uploadFile = handlers.uploadFile ?? props.fileUploadHandler;
         const needToSetDimensionsForUploadedImages =

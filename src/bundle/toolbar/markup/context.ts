@@ -5,6 +5,7 @@ import type {FileUploadHandler} from '../../../utils/upload';
 export type MarkupToolbarContextProps = {
     uploadHandler?: FileUploadHandler;
     needToSetDimensionsForUploadedImages?: boolean;
+    enableNewToolbarOptions?: boolean;
 };
 
 const defaultValue: MarkupToolbarContextProps = {};

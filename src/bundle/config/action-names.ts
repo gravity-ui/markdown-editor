@@ -39,6 +39,8 @@ const names = [
     'tabs',
     'mermaid',
     'gpt',
+    'foldingHeading',
+    'math',
 ] as const;
 
 type ItemsType<L extends readonly string[]> = L extends readonly (infer T)[] ? T : never;

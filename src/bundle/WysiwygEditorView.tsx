@@ -3,6 +3,7 @@ import React from 'react';
 import {ClassNameProps, cn} from '../classname';
 import {ReactRendererComponent} from '../extensions';
 import {logger} from '../logger';
+import {ToolbarsPreset} from '../modules/toolbars/types';
 import {useRenderTime} from '../react-utils/hooks';
 
 import type {EditorInt} from './Editor';
@@ -50,6 +51,11 @@ export const WysiwygEditorView = React.memo<WysiwygEditorViewProps>((props) => {
         <div className={b({toolbar: toolbarVisible}, [className])}>
             {toolbarVisible ? (
                 <ToolbarView
+                    toolbarOrders={
+                        editor.enableNewToolbarOptions
+                            ? (editor.preset as ToolbarsPreset).toolbarsOrders.wysiwygMain
+                            : undefined
+                    }
                     editor={editor}
                     editorMode="wysiwyg"
                     toolbarEditor={editor}
