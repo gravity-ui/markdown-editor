@@ -280,7 +280,10 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
                     extensions: this.#markupConfig.extensions,
                     disabledExtensions: this.#markupConfig.disabledExtensions,
                     keymaps: this.#markupConfig.keymaps,
-                    yfmLangOptions: {languageData: this.#markupConfig.languageData},
+                    yfmLangOptions: {
+                        languageData: this.#markupConfig.languageData,
+                        allowEmptyRows: this.#mdOptions.allowEmptyRows,
+                    },
                     autocompletion: this.#markupConfig.autocompletion,
                     directiveSyntax: this.directiveSyntax,
                     receiver: this,

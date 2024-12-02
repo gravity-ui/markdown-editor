@@ -38,6 +38,8 @@ export enum Action {
     Heading5 = 'h5',
     Heading6 = 'h6',
 
+    EmptyRow = 'EmptyRow',
+
     BulletList = 'ulist',
     OrderedList = 'olist',
 

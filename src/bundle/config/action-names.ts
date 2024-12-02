@@ -14,6 +14,7 @@ const names = [
     'heading4',
     'heading5',
     'heading6',
+    'emptyRow',
     'bulletList',
     'orderedList',
     'liftListItem',

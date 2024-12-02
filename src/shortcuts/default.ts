@@ -26,6 +26,8 @@ formatter
     .set(A.Heading5, {pc: [MK.Ctrl, MK.Shift, '5'], mac: [MK.Cmd, MK.Option, '5']})
     .set(A.Heading6, {pc: [MK.Ctrl, MK.Shift, '6'], mac: [MK.Cmd, MK.Option, '6']})
 
+    .set(A.EmptyRow, {pc: [MK.Ctrl, MK.Shift, K.Enter], mac: [MK.Cmd, MK.Option, K.Enter]})
+
     .set(A.BulletList, [MK.Mod, MK.Shift, 'l'])
     .set(A.OrderedList, [MK.Mod, MK.Shift, 'm'])
 

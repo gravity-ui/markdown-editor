@@ -21,6 +21,7 @@ import type {Receiver} from '../../utils';
 import {DataTransferType, shouldSkipHtmlConversion} from '../../utils/clipboard';
 import type {DirectiveSyntaxContext} from '../../utils/directive';
 import {
+    insertEmptyRow,
     insertImages,
     insertLink,
     toH1,
@@ -122,6 +123,7 @@ export function createCodemirror(params: CreateCodemirrorParams) {
             {key: f.toCM(A.CodeBlock)!, run: withLogger(ActionName.code_block, wrapToCodeBlock)},
             {key: f.toCM(A.Cut)!, run: withLogger(ActionName.yfm_cut, wrapToYfmCut)},
             {key: f.toCM(A.Note)!, run: withLogger(ActionName.yfm_note, wrapToYfmNote)},
+            {key: f.toCM(A.EmptyRow)!, run: withLogger(ActionName.emptyRow, insertEmptyRow)},
             {
                 key: f.toCM(A.Cancel)!,
                 preventDefault: true,
