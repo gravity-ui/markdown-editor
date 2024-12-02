@@ -1,5 +1,12 @@
 # Changelog
 
+## [14.5.1](https://github.com/gravity-ui/markdown-editor/compare/v14.5.0...v14.5.1) (2024-12-02)
+
+
+### Bug Fixes
+
+* **Checkbox:** correct handling of checkbox click ([#510](https://github.com/gravity-ui/markdown-editor/issues/510)) ([c214076](https://github.com/gravity-ui/markdown-editor/commit/c2140766a32f9820498345d4eab907fcb803c9fc))
+
 ## [14.5.0](https://github.com/gravity-ui/markdown-editor/compare/v14.4.0...v14.5.0) (2024-11-28)
 
 
