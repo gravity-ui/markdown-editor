@@ -23,6 +23,7 @@ export type PlaygroundMiniProps = Pick<
     | 'onChangeEditorType'
     | 'onChangeSplitModeEnabled'
     | 'escapeConfig'
+    | 'directiveSyntax'
 > & {withDefaultInitialContent?: boolean};
 
 export const PlaygroundMini = React.memo<PlaygroundMiniProps>(

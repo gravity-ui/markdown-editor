@@ -1,3 +1,5 @@
+##### Connect / GPT
+
 ## How to connect GPT extensions to editor
 
 First to integrate this extension, you need to use the following versions of the packages:
@@ -7,9 +9,10 @@ First to integrate this extension, you need to use the following versions of the
 
 Features:
 
-<img src="./assets/gifs/custom-prompt-preset-gpt.gif" width="470"/>
+<img src="https://raw.githubusercontent.com/gravity-ui/markdown-editor/refs/heads/main/docs/assets/gifs/custom-prompt-preset-gpt.gif" width="470"/>
 
-<img src="./assets/gifs/prompt-preset-gpt.gif" width="470"/>
+
+<img src="https://raw.githubusercontent.com/gravity-ui/markdown-editor/refs/heads/main/docs/assets/gifs/prompt-preset-gpt.gif" width="470"/>
 
 ### 1. Add extension usage and extensions props
 
@@ -55,7 +58,7 @@ export const Editor: React.FC<EditorProps> = (props) => {
         editor={mdEditor}
         markupToolbarConfig={mToolbarConfig}
     />
-};         
+};
 ```
 ### 2. Implementation ```gptWidgetProps```
 
@@ -139,7 +142,7 @@ export const gptWidgetProps: GptWidgetOptions = {
     },
     onLike: async () => {}, // function to track feedback for good
     onDislike: async () => {}, // and bad GPT answers
-};          
+};
 ```
 ### 3. Add extension to menubar and toolbar and command menu config for editor
 

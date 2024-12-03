@@ -8,7 +8,7 @@ export const Story: StoryObj<typeof component> = {};
 Story.storyName = 'Playground';
 
 const meta: Meta<PlaygroundProps> = {
-    title: 'Markdown Editor / Playground',
+    title: 'Playground',
     component: component,
     args: args,
     beforeEach: (context) => {

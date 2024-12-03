@@ -1,5 +1,38 @@
 # Changelog
 
+## [14.5.1](https://github.com/gravity-ui/markdown-editor/compare/v14.5.0...v14.5.1) (2024-12-02)
+
+
+### Bug Fixes
+
+* **Checkbox:** correct handling of checkbox click ([#510](https://github.com/gravity-ui/markdown-editor/issues/510)) ([c214076](https://github.com/gravity-ui/markdown-editor/commit/c2140766a32f9820498345d4eab907fcb803c9fc))
+
+## [14.5.0](https://github.com/gravity-ui/markdown-editor/compare/v14.4.0...v14.5.0) (2024-11-28)
+
+
+### Features
+
+* **core:** autoconvert html to md when pasting in markdown mode ([#476](https://github.com/gravity-ui/markdown-editor/issues/476)) ([e3f6fbc](https://github.com/gravity-ui/markdown-editor/commit/e3f6fbc4b033cc109d503a1ca1ce21bcc915ccf0))
+* **deps:** update diplodoc packages ([#504](https://github.com/gravity-ui/markdown-editor/issues/504)) ([5186fab](https://github.com/gravity-ui/markdown-editor/commit/5186fab62ca28a76ff5bc7db879c8517de34e86a))
+* **EditorView:** add sticky toolbar border variable ([#499](https://github.com/gravity-ui/markdown-editor/issues/499)) ([3e1d2e2](https://github.com/gravity-ui/markdown-editor/commit/3e1d2e25d5d37fc4b21a1ba1ab6626639255cf69))
+* **YfmFile:** support directive syntax ([#503](https://github.com/gravity-ui/markdown-editor/issues/503)) ([0340dce](https://github.com/gravity-ui/markdown-editor/commit/0340dce6ec00e8ab28cdf666e55bea9f46bfaccc))
+
+## [14.4.0](https://github.com/gravity-ui/markdown-editor/compare/v14.3.1...v14.4.0) (2024-11-22)
+
+
+### Features
+
+* add directiveSyntax experiment ([ed85f71](https://github.com/gravity-ui/markdown-editor/commit/ed85f7116e419451bb7bad19ac4c96d88d0ee7cc))
+* **YfmCut:** support directiveSyntax experiment ([da8fef7](https://github.com/gravity-ui/markdown-editor/commit/da8fef765e3eb35e4e19d92491d089c583099a6f))
+* **YfmFile:** import plugin and consts from file-extension ([#488](https://github.com/gravity-ui/markdown-editor/issues/488)) ([3d68c53](https://github.com/gravity-ui/markdown-editor/commit/3d68c5353b25e91fcb5088a33d66b3a05a516b43))
+
+## [14.3.1](https://github.com/gravity-ui/markdown-editor/compare/v14.3.0...v14.3.1) (2024-11-21)
+
+
+### Bug Fixes
+
+* **base:** disabled smart quotes ([#491](https://github.com/gravity-ui/markdown-editor/issues/491)) ([fbc977c](https://github.com/gravity-ui/markdown-editor/commit/fbc977c6d60d15205594ddb6f5d5eb23b08d0041))
+
 ## [14.3.0](https://github.com/gravity-ui/markdown-editor/compare/v14.2.3...v14.3.0) (2024-11-20)
 
 

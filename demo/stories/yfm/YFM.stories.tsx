@@ -7,7 +7,7 @@ import {excludedControls} from '../../defaults/excluded-controls';
 import {markup} from './content';
 
 const meta: Meta<PlaygroundMiniProps> = {
-    title: 'Markdown Editor / YFM examples',
+    title: 'Extensions / YFM',
     component: PlaygroundMini,
     args: args,
     parameters: {

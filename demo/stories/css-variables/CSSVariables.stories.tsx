@@ -20,6 +20,10 @@ export const Story: StoryObj<typeof component> = {
             control: {type: 'text'},
             description: 'Toolbar padding in sticky mode',
         },
+        '--g-md-toolbar-sticky-border': {
+            control: {type: 'text'},
+            description: 'Toolbar border in sticky mode',
+        },
         '--g-md-editor-padding': {
             control: {type: 'text'},
             description: 'Editor contents padding',

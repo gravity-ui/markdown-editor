@@ -17,6 +17,7 @@ import {logger} from '../logger';
 import {createCodemirror} from '../markup';
 import {type CodeEditor, Editor as MarkupEditor} from '../markup/editor';
 import {type Emitter, FileUploadHandler, type Receiver, SafeEventEmitter} from '../utils';
+import type {DirectiveSyntaxContext} from '../utils/directive';
 
 import type {
     MarkdownEditorMode as EditorMode,
@@ -79,6 +80,7 @@ export interface EditorInt
     readonly splitMode: SplitMode;
     readonly preset: EditorPreset;
     readonly mdOptions: Readonly<MarkdownEditorMdOptions>;
+    readonly directiveSyntax: DirectiveSyntaxContext;
 
     /** @internal used in demo for dev-tools */
     readonly _wysiwygView?: PMEditorView;
@@ -90,6 +92,7 @@ export interface EditorInt
     readonly renderStorage: RenderStorage<ReactNode>;
     readonly fileUploadHandler?: FileUploadHandler;
     readonly needToSetDimensionsForUploadedImages: boolean;
+    readonly disableHTMLParsingInMd?: boolean;
 
     readonly renderPreview?: RenderPreview;
 
@@ -120,6 +123,7 @@ export type EditorOptions = Pick<
 > & {
     renderStorage: ReactRenderStorage;
     preset: EditorPreset;
+    directiveSyntax: DirectiveSyntaxContext;
 };
 
 /** @internal */
@@ -143,6 +147,7 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
     #parseInsertedUrlAsImage?: ParseInsertedUrlAsImage;
     #needToSetDimensionsForUploadedImages: boolean;
     #enableNewImageSizeCalculation: boolean;
+    #directiveSyntax: DirectiveSyntaxContext;
     #prepareRawMarkup?: (value: MarkupString) => MarkupString;
     #beforeEditorModeChange?: (
         options: Pick<ChangeEditorModeOptions, 'mode' | 'reason'>,
@@ -215,6 +220,10 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
         return this.#mdOptions;
     }
 
+    get directiveSyntax(): DirectiveSyntaxContext {
+        return this.#directiveSyntax;
+    }
+
     get renderPreview(): RenderPreview | undefined {
         return this.#renderPreview;
     }
@@ -265,12 +274,14 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
                     uploadHandler: this.fileUploadHandler,
                     parseInsertedUrlAsImage: this.parseInsertedUrlAsImage,
                     needImageDimensions: this.needToSetDimensionsForUploadedImages,
+                    parseHtmlOnPaste: this.#markupConfig.parseHtmlOnPaste,
                     enableNewImageSizeCalculation: this.enableNewImageSizeCalculation,
                     extensions: this.#markupConfig.extensions,
                     disabledExtensions: this.#markupConfig.disabledExtensions,
                     keymaps: this.#markupConfig.keymaps,
                     yfmLangOptions: {languageData: this.#markupConfig.languageData},
                     autocompletion: this.#markupConfig.autocompletion,
+                    directiveSyntax: this.directiveSyntax,
                     receiver: this,
                 }),
             );
@@ -329,6 +340,7 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
         this.#needToSetDimensionsForUploadedImages = Boolean(
             experimental.needToSetDimensionsForUploadedImages,
         );
+        this.#directiveSyntax = opts.directiveSyntax;
         this.#enableNewImageSizeCalculation = Boolean(experimental.enableNewImageSizeCalculation);
         this.#prepareRawMarkup = experimental.prepareRawMarkup;
         this.#escapeConfig = wysiwygConfig.escapeConfig;

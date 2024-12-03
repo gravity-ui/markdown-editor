@@ -1,5 +1,7 @@
+##### Install / NextJS
+
 ## Connection and Configuration
-This document provides instructions for configuring Webpack and Turbopack to avoid issues related to the 'fs' module and for connecting the editor on the nextjs client side. 
+This document provides instructions for configuring Webpack and Turbopack to avoid issues related to the 'fs' module and for connecting the editor on the nextjs client side.
 
 ### Issue with 'fs' Module Not Found
 In order for the `diplodoc/transform` process to function correctly, please add the [webpack resolve-fallbacks](https://webpack.js.org/configuration/resolve/#resolvefallback).

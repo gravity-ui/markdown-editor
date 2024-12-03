@@ -1,1 +1,1 @@
-export {CheckboxNode, b} from './CheckboxSpecs/const';
+export {CheckboxAttr, CheckboxNode, b} from './CheckboxSpecs/const';

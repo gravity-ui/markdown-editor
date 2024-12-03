@@ -9,16 +9,17 @@ import {
 } from '@codemirror/commands';
 import {syntaxHighlighting} from '@codemirror/language';
 import type {Extension, StateCommand} from '@codemirror/state';
-import {EditorView, EditorViewConfig, KeyBinding, keymap, placeholder} from '@codemirror/view';
+import {EditorView, type EditorViewConfig, KeyBinding, keymap, placeholder} from '@codemirror/view';
 
 import type {ParseInsertedUrlAsImage} from '../../bundle';
-import {EventMap} from '../../bundle/Editor';
+import type {EventMap} from '../../bundle/Editor';
 import {ActionName} from '../../bundle/config/action-names';
-import {ReactRenderStorage} from '../../extensions';
-import {DataTransferType} from '../../extensions/behavior/Clipboard/utils';
+import type {ReactRenderStorage} from '../../extensions';
 import {logger} from '../../logger';
 import {Action as A, formatter as f} from '../../shortcuts';
-import {Receiver} from '../../utils';
+import type {Receiver} from '../../utils';
+import {DataTransferType, shouldSkipHtmlConversion} from '../../utils/clipboard';
+import type {DirectiveSyntaxContext} from '../../utils/directive';
 import {
     insertImages,
     insertLink,
@@ -38,8 +39,10 @@ import {
     wrapToYfmNote,
 } from '../commands';
 
-import {FileUploadHandler, FileUploadHandlerFacet} from './files-upload-facet';
+import {DirectiveSyntaxFacet} from './directive-facet';
+import {type FileUploadHandler, FileUploadHandlerFacet} from './files-upload-facet';
 import {gravityHighlightStyle, gravityTheme} from './gravity';
+import {MarkdownConverter} from './html-to-markdown/converters';
 import {PairingCharactersExtension} from './pairing-chars';
 import {ReactRendererFacet} from './react-facet';
 import {SearchPanelPlugin} from './search-plugin/plugin';
@@ -59,6 +62,7 @@ export type CreateCodemirrorParams = {
     onScroll: (event: Event) => void;
     reactRenderer: ReactRenderStorage;
     uploadHandler?: FileUploadHandler;
+    parseHtmlOnPaste?: boolean;
     parseInsertedUrlAsImage?: ParseInsertedUrlAsImage;
     needImageDimensions?: boolean;
     enableNewImageSizeCalculation?: boolean;
@@ -70,6 +74,7 @@ export type CreateCodemirrorParams = {
     receiver?: Receiver<EventMap>;
     yfmLangOptions?: YfmLangOptions;
     autocompletion?: Autocompletion;
+    directiveSyntax: DirectiveSyntaxContext;
 };
 
 export function createCodemirror(params: CreateCodemirrorParams) {
@@ -88,7 +93,9 @@ export function createCodemirror(params: CreateCodemirrorParams) {
         extensions: extraExtensions,
         placeholder: placeholderContent,
         autocompletion: autocompletionConfig,
+        parseHtmlOnPaste,
         parseInsertedUrlAsImage,
+        directiveSyntax,
     } = params;
 
     const extensions: Extension[] = [gravityTheme, placeholder(placeholderContent)];
@@ -144,6 +151,7 @@ export function createCodemirror(params: CreateCodemirrorParams) {
         autocompletion(autocompletionConfig),
         yfmLang(yfmLangOptions),
         ReactRendererFacet.of(reactRenderer),
+        DirectiveSyntaxFacet.of(directiveSyntax),
         PairingCharactersExtension,
         EditorView.lineWrapping,
         EditorView.contentAttributes.of({spellcheck: 'true'}),
@@ -152,7 +160,47 @@ export function createCodemirror(params: CreateCodemirrorParams) {
                 onScroll(event);
             },
             paste(event, editor) {
-                if (event.clipboardData && parseInsertedUrlAsImage) {
+                if (!event.clipboardData) return;
+
+                // if clipboard contains YFM content - avoid any meddling with pasted content
+                // since text/yfm will contain valid markdown
+                const yfmContent = event.clipboardData.getData(DataTransferType.Yfm);
+                if (yfmContent) {
+                    event.preventDefault();
+                    editor.dispatch(editor.state.replaceSelection(yfmContent));
+                    return;
+                }
+
+                // checking if a copy buffer content is suitable for convertion
+                const shouldSkipHtml = shouldSkipHtmlConversion(event.clipboardData);
+
+                // if we have text/html inside copy/paste buffer
+                const htmlContent = event.clipboardData.getData(DataTransferType.Html);
+                // if we pasting markdown from VsCode we need skip html transformation
+                if (htmlContent && parseHtmlOnPaste && !shouldSkipHtml) {
+                    let parsedMarkdownMarkup: string | undefined;
+                    try {
+                        const parser = new DOMParser();
+                        const htmlDoc = parser.parseFromString(htmlContent, 'text/html');
+
+                        const converter = new MarkdownConverter();
+                        parsedMarkdownMarkup = converter.processNode(htmlDoc.body).trim();
+                    } catch (e) {
+                        // The code is pretty new and there might be random issues we haven't caught yet,
+                        // especially with invalid HTML or weird DOM parsing errors.
+                        // If something goes wrong, I just want to fall back to the "default pasting"
+                        // rather than break the entire experience for the user.
+                        logger.error(e);
+                    }
+
+                    if (parsedMarkdownMarkup !== undefined) {
+                        event.preventDefault();
+                        editor.dispatch(editor.state.replaceSelection(parsedMarkdownMarkup));
+                        return;
+                    }
+                }
+
+                if (parseInsertedUrlAsImage) {
                     const {imageUrl, title} =
                         parseInsertedUrlAsImage(
                             event.clipboardData.getData(DataTransferType.Text) ?? '',
