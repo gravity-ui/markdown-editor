@@ -29,7 +29,7 @@ export type ParseInsertedUrlAsImage = (text: string) => {imageUrl: string; title
 export type WysiwygPlaceholderOptions = {
     value?: string | (() => string);
     /** Default – empty-doc */
-    behavior?: 'empty-doc' | 'empty-row';
+    behavior?: 'empty-doc' | 'empty-doc-row' | 'empty-row';
 };
 
 export type MarkdownEditorMdOptions = {

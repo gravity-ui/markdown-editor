@@ -66,9 +66,14 @@ export const BundlePreset: ExtensionAuto<BundlePresetOptions> = (builder, opts) 
             paragraphPlaceholder: (node: Node, parent?: Node | null) => {
                 const {value, behavior} = opts.placeholderOptions || {};
 
-                const isRowEmpty = !node.text && parent?.type.name === BaseNode.Doc;
-                const isDocEmpty = isRowEmpty && parent.childCount === 1;
-                const showPlaceholder = behavior === 'empty-row' ? isRowEmpty : isDocEmpty;
+                const emptyList = {
+                    'empty-row': !node.text,
+                    'empty-doc-row': !node.text && parent?.type.name === BaseNode.Doc,
+                    'empty-doc':
+                        !node.text && parent?.type.name === BaseNode.Doc && parent.childCount === 1,
+                };
+
+                const showPlaceholder = emptyList[behavior || 'empty-doc'];
 
                 if (!showPlaceholder) return null;
 
