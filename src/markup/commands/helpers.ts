@@ -26,7 +26,11 @@ export function getBlockExtraLineBreaks(
     return {before: lineBreaksBefore, after: lineBreaksAfter};
 }
 
-export function replaceOrInsertAfter(state: EditorState, markup: string): TransactionSpec {
+export function replaceOrInsertAfter(
+    state: EditorState,
+    markup: string,
+    shouldGetBreaks?: boolean,
+): TransactionSpec {
     const selrange = state.selection.main;
     if (isFullLinesSelection(state.doc, selrange)) {
         const extraBreaks = getBlockExtraLineBreaks(state, {
@@ -39,7 +43,19 @@ export function replaceOrInsertAfter(state: EditorState, markup: string): Transa
                 state.lineBreak.repeat(extraBreaks.after),
         );
     } else {
-        const insert = state.lineBreak.repeat(2) + markup + state.lineBreak.repeat(2);
+        let breaksAfter = state.lineBreak.repeat(2);
+
+        if (shouldGetBreaks) {
+            const extraBreaks = getBlockExtraLineBreaks(state, {
+                from: state.doc.lineAt(selrange.from),
+                to: state.doc.lineAt(selrange.to),
+            });
+
+            breaksAfter = state.lineBreak.repeat(extraBreaks.after);
+        }
+
+        const insert = state.lineBreak.repeat(2) + markup + breaksAfter;
+
         const from = state.doc.lineAt(selrange.to).to;
         const selAnchor = from + insert.length - 2;
         return {changes: {from, insert}, selection: {anchor: selAnchor}};
