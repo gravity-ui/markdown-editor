@@ -26,6 +26,7 @@ export type MenuItem = {
 export type ToolbarButtonWithPopupMenuProps = Omit<
     ToolbarBaseProps<ActionStorage> & {
         icon: ToolbarIconData;
+        iconClassName?: string;
         title: string | (() => string);
         menuItems: MenuItem[];
     },
@@ -37,6 +38,7 @@ export const ToolbarButtonWithPopupMenu: React.FC<ToolbarButtonWithPopupMenuProp
     focus,
     onClick,
     icon,
+    iconClassName,
     title,
     menuItems,
 }) => {
@@ -48,7 +50,7 @@ export const ToolbarButtonWithPopupMenu: React.FC<ToolbarButtonWithPopupMenuProp
                 menuItems.map((i) => ({...i, group: i.group || ''})),
                 'group',
             ),
-        [menuItems, groupBy],
+        [menuItems],
     );
 
     const someActive = menuItems.some(
@@ -81,7 +83,7 @@ export const ToolbarButtonWithPopupMenu: React.FC<ToolbarButtonWithPopupMenuProp
                     className={b(null, [className])}
                     onClick={toggleOpen}
                 >
-                    <Icon data={icon.data} size={icon.size} />
+                    <Icon data={icon.data} size={icon.size} className={iconClassName} />
                     {''}
                     <Icon data={ChevronDown} />
                 </Button>
