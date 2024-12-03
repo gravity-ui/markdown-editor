@@ -16,7 +16,7 @@ import {
     type RenderPreview,
     type ToolbarGroupData,
     type UseMarkdownEditorProps,
-    WysywigPlaceholderOptions,
+    WysiwygPlaceholderOptions,
     logger,
     markupToolbarConfigs,
     useMarkdownEditor,
@@ -80,7 +80,7 @@ export type PlaygroundProps = {
     breaks?: boolean;
     linkify?: boolean;
     linkifyTlds?: string | string[];
-    placeholderOptions?: WysywigPlaceholderOptions;
+    placeholderOptions?: WysiwygPlaceholderOptions;
     sanitizeHtml?: boolean;
     prepareRawMarkup?: boolean;
     splitModeOrientation?: 'horizontal' | 'vertical' | false;

@@ -16,7 +16,7 @@ import type {FileUploadHandler} from '../utils/upload';
 
 import {wCommandMenuConfigByPreset, wSelectionMenuConfigByPreset} from './config/wysiwyg';
 import {emojiDefs} from './emoji';
-import type {MarkdownEditorPreset, WysywigPlaceholderOptions} from './types';
+import type {MarkdownEditorPreset, WysiwygPlaceholderOptions} from './types';
 
 const DEFAULT_IGNORED_KEYS = ['Tab', 'Shift-Tab'] as const;
 
@@ -27,7 +27,7 @@ export type BundlePresetOptions = ExtensionsOptions &
         preset: MarkdownEditorPreset;
         mdBreaks?: boolean;
         fileUploadHandler?: FileUploadHandler;
-        placeholderOptions?: WysywigPlaceholderOptions;
+        placeholderOptions?: WysiwygPlaceholderOptions;
         /**
          * If we need to set dimensions for uploaded images
          *
@@ -64,26 +64,17 @@ export const BundlePreset: ExtensionAuto<BundlePresetOptions> = (builder, opts) 
         baseSchema: {
             paragraphKey: f.toPM(A.Text),
             paragraphPlaceholder: (node: Node, parent?: Node | null) => {
-                let isPlaceholderShown = false;
+                const {value, behavior} = opts.placeholderOptions || {};
 
-                if (opts.placeholderOptions?.behavior === 'empty-row') {
-                    isPlaceholderShown = !node.text && parent?.type.name === 'doc';
-                } else {
-                    isPlaceholderShown =
-                        !node.text && parent?.type.name === BaseNode.Doc && parent.childCount === 1;
-                }
+                const isRowEmpty = !node.text && parent?.type.name === BaseNode.Doc;
+                const isDocEmpty = isRowEmpty && parent.childCount === 1;
+                const showPlaceholder = behavior === 'empty-row' ? isRowEmpty : isDocEmpty;
 
-                let text = i18nPlaceholder('doc_empty');
+                if (!showPlaceholder) return null;
 
-                if (opts.placeholderOptions?.value) {
-                    if (typeof opts.placeholderOptions?.value === 'string') {
-                        text = opts.placeholderOptions?.value;
-                    } else {
-                        text = opts.placeholderOptions?.value();
-                    }
-                }
-
-                return isPlaceholderShown ? text : null;
+                return typeof value === 'function'
+                    ? value()
+                    : value ?? i18nPlaceholder('doc_empty');
             },
             ...opts.baseSchema,
         },
