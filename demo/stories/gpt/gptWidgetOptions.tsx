@@ -11,7 +11,7 @@ const gptRequestHandler = async ({
     customPrompt?: string;
     promptData: unknown;
 }) => {
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    await new Promise((resolve) => setTimeout(resolve, 300));
 
     let gptResponseMarkup = markup;
     if (customPrompt) {
