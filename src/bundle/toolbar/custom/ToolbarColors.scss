@@ -12,7 +12,8 @@ $colors: ('gray', 'yellow', 'orange', 'red', 'green', 'blue', 'violet');
 
     @each $name in $colors {
         &__menu-icon_color_#{$name} {
-            --g-md-text-color-icon-color: var(--yfm-colorify-#{$name});
+            color: var(--yfm-colorify-#{$name});
+            // --g-md-text-color-icon-color: var(--yfm-colorify-#{$name});
         }
     }
 }
