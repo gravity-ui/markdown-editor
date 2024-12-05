@@ -23,22 +23,28 @@ export const insertEmptyRow: StateCommand = ({state, dispatch}) => {
     return true;
 };
 
-function getBlockExtraLineBreaks(state: EditorState, from: Line) {
+function getBlockExtraLineBreaks(state: EditorState, line: Line) {
     let before = 0;
     let after = 0;
     let selection = 2;
 
-    if (from.text) {
+    if (line.text) {
         before = 2;
-    } else if (from.number > 1 && state.doc.line(from.number - 1).text) {
+    } else if (line.number > 1 && state.doc.line(line.number - 1).text) {
         before = 1;
     }
 
-    if (from.number + 1 <= state.doc.lines && state.doc.line(from.number + 1).text) {
+    if (line.number + 1 <= state.doc.lines && state.doc.line(line.number + 1).text) {
         after = 1;
         selection = 1;
-    }
-    if (from.number === state.doc.lines) {
+    } else if (
+        line.number + 1 <= state.doc.lines &&
+        !state.doc.line(line.number + 1).text &&
+        line.number + 2 > state.doc.lines
+    ) {
+        after = 1;
+        selection = 1;
+    } else if (line.number === state.doc.lines) {
         after = 2;
         selection = 0;
     }
