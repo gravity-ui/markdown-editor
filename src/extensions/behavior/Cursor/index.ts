@@ -11,6 +11,6 @@ export type CursorOptions = {
 };
 
 export const Cursor: ExtensionAuto<CursorOptions> = (builder, opts) => {
-    builder.addPlugin(() => gapCursor());
+    builder.addPlugin(() => gapCursor(), builder.Priority.Highest);
     builder.addPlugin(() => dropCursor(opts.dropOptions));
 };
