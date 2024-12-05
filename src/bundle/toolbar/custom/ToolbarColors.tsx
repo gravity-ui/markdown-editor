@@ -77,6 +77,7 @@ export const ToolbarColors: React.FC<ToolbarColorsProps> = (props) => {
             title={i18n('colorify')}
             menuItems={items}
             icon={textColorIcon}
+            _selectionType="light"
             iconClassName={b('menu-icon', {color: currentColor})}
             chevronIconClassName={b('chevron-icon', {color: currentColor})}
         />
