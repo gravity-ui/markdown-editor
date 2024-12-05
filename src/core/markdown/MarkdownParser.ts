@@ -8,9 +8,6 @@ import type {Parser, ParserToken} from '../types/parser';
 
 import {pmTransformer} from './ProseMirrorTransformer';
 
-// for a solution with map
-// import {parseEmptyRow} from './emptyRowParser/emptyRowParser';
-
 type TokenAttrs = {[name: string]: unknown};
 
 const openSuffix = '_open';
@@ -72,10 +69,6 @@ export class MarkdownParser implements Parser {
                 throw e;
             }
 
-            // for a solution with map
-            // if (this.allowEmptyRow) {
-            //     mdItTokens = parseEmptyRow(mdItTokens);
-            // }
             this.parseTokens(mdItTokens);
 
             let doc;

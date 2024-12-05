@@ -4,6 +4,7 @@ import {EditorView as CMEditorView} from '@codemirror/view';
 import {TextSelection} from 'prosemirror-state';
 import {EditorView as PMEditorView} from 'prosemirror-view';
 
+import {getAutocompleteConfig} from '../../src/markup/codemirror/autocomplete';
 import type {CommonEditor, MarkupString} from '../common';
 import {
     type ActionStorage,
@@ -281,8 +282,9 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
                     disabledExtensions: this.#markupConfig.disabledExtensions,
                     keymaps: this.#markupConfig.keymaps,
                     yfmLangOptions: {
-                        languageData: this.#markupConfig.languageData,
-                        allowEmptyRows: this.#mdOptions.allowEmptyRows,
+                        languageData: getAutocompleteConfig({
+                            allowEmptyRows: this.#mdOptions.allowEmptyRows,
+                        }),
                     },
                     autocompletion: this.#markupConfig.autocompletion,
                     directiveSyntax: this.directiveSyntax,

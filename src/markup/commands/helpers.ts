@@ -43,7 +43,7 @@ export function replaceOrInsertAfter(
                 state.lineBreak.repeat(extraBreaks.after),
         );
     } else {
-        let breaksAfter = state.lineBreak.repeat(2);
+        let breaksAfter = 2;
 
         if (shouldGetBreaks) {
             const extraBreaks = getBlockExtraLineBreaks(state, {
@@ -51,18 +51,18 @@ export function replaceOrInsertAfter(
                 to: state.doc.lineAt(selrange.to),
             });
 
-            breaksAfter = state.lineBreak.repeat(extraBreaks.after);
+            breaksAfter = extraBreaks.after;
         }
 
-        const insert = state.lineBreak.repeat(2) + markup + breaksAfter;
+        const insert = state.lineBreak.repeat(2) + markup + state.lineBreak.repeat(breaksAfter);
 
         const from = state.doc.lineAt(selrange.to).to;
-        const selAnchor = from + insert.length - 2;
+        const selAnchor = from + insert.length + breaksAfter;
         return {changes: {from, insert}, selection: {anchor: selAnchor}};
     }
 }
 
-function isFullLinesSelection(doc: Text, range: SelectionRange): boolean {
+export function isFullLinesSelection(doc: Text, range: SelectionRange): boolean {
     const fromLine = doc.lineAt(range.from);
     const toLine = doc.lineAt(range.to);
     return range.from <= fromLine.from && range.to >= toLine.to;

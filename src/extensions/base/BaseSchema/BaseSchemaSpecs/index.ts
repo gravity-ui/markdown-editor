@@ -63,9 +63,12 @@ export const BaseSchemaSpecs: ExtensionAuto<BaseSchemaSpecsOptions> = (builder, 
                     : undefined,
             },
             fromMd: {tokenSpec: {name: BaseNode.Paragraph, type: 'block'}},
-            toMd: (state, node) => {
+            toMd: (state, node, parent) => {
                 if (opts.allowEmptyRows && !node.content.size) {
-                    state.write('&nbsp;\n\n');
+                    const isParentEmpty = parent.content.size % parent.content.childCount === 0;
+                    if (!isParentEmpty) {
+                        state.write('&nbsp;\n\n');
+                    }
                 } else {
                     state.renderInline(node);
                     state.closeBlock(node);
