@@ -3,9 +3,9 @@ import GPTLoading from './GPTLoading';
 import MermaidIcon from './Mermaid';
 import MonoIcon from './Mono';
 import TabsIcon from './Tabs';
-// import TextColorIcon from './TextColor';
+import TextColorIcon from './TextColor';
 
-export {MermaidIcon, MonoIcon, TabsIcon, GPTIcon, GPTLoading};
+export {MermaidIcon, MonoIcon, TabsIcon, GPTIcon, GPTLoading, TextColorIcon};
 
 export {
     ArrowUturnCcwLeft as UndoIcon,
@@ -32,7 +32,7 @@ export {
     TextOutdent as LiftIcon,
     TextIndent as SinkIcon,
     //
-    Font as TextColorIcon,
+    // Font as TextColorIcon,
     //
     Link as LinkIcon,
     QuoteClose as QuoteIcon,
