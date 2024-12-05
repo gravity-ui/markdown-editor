@@ -30,6 +30,7 @@ export type WysiwygEditorOptions = {
     mdPreset?: PresetName;
     allowHTML?: boolean;
     linkify?: boolean;
+    allowEmptyRows?: boolean;
     linkifyTlds?: string | string[];
     escapeConfig?: EscapeConfig;
     /** Call on any state change (move cursor, change selection, etc...) */
@@ -74,6 +75,7 @@ export class WysiwygEditor implements CommonEditor, ActionStorage {
         allowHTML,
         mdPreset,
         linkify,
+        allowEmptyRows,
         linkifyTlds,
         escapeConfig,
         onChange,
@@ -90,7 +92,7 @@ export class WysiwygEditor implements CommonEditor, ActionStorage {
             actions,
         } = ExtensionsManager.process(extensions, {
             // "breaks" option only affects the renderer, but not the parser
-            mdOpts: {html: allowHTML, linkify, breaks: true, preset: mdPreset},
+            mdOpts: {allowEmptyRows, html: allowHTML, linkify, breaks: true, preset: mdPreset},
             linkifyTlds,
         });
 

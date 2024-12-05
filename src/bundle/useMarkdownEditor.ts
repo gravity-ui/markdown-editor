@@ -33,6 +33,7 @@ export function useMarkdownEditor<T extends object = {}>(
         } = props;
 
         const breaks = md.breaks ?? props.breaks;
+        const allowEmptyRows = md.allowEmptyRows;
         const preset: MarkdownEditorPreset = props.preset ?? 'full';
         const renderStorage = new ReactRenderStorage();
         const uploadFile = handlers.uploadFile ?? props.fileUploadHandler;
@@ -59,6 +60,7 @@ export function useMarkdownEditor<T extends object = {}>(
                     editor.emit('submit', null);
                     return true;
                 },
+                allowEmptyRows: allowEmptyRows,
                 mdBreaks: breaks,
                 fileUploadHandler: uploadFile,
                 needToSetDimensionsForUploadedImages,

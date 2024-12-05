@@ -22,7 +22,7 @@ type ExtensionsManagerParams = {
 };
 
 type ExtensionsManagerOptions = {
-    mdOpts?: MarkdownIt.Options & {preset?: PresetName};
+    mdOpts?: MarkdownIt.Options & {preset?: PresetName; allowEmptyRows?: boolean};
     linkifyTlds?: string | string[];
 };
 
@@ -49,6 +49,7 @@ export class ExtensionsManager {
     #actions: Record<string, ActionSpec> = {};
     #nodeViews: Record<string, NodeViewConstructor> = {};
     #markViews: Record<string, MarkViewConstructor> = {};
+    #allowEmptyRows = false;
 
     constructor({extensions, options = {}}: ExtensionsManagerParams) {
         this.#extensions = extensions;
@@ -60,6 +61,10 @@ export class ExtensionsManager {
         if (options.linkifyTlds) {
             this.#mdForMarkup.linkify.tlds(options.linkifyTlds, true);
             this.#mdForText.linkify.tlds(options.linkifyTlds, true);
+        }
+
+        if (options.mdOpts?.allowEmptyRows) {
+            this.#allowEmptyRows = options.mdOpts?.allowEmptyRows;
         }
 
         // TODO: add prefilled context
@@ -118,8 +123,16 @@ export class ExtensionsManager {
         this.#deps = {
             schema,
             actions: new ActionsManager(),
-            markupParser: this.#parserRegistry.createParser(schema, this.#mdForMarkup),
-            textParser: this.#parserRegistry.createParser(schema, this.#mdForText),
+            markupParser: this.#parserRegistry.createParser(
+                schema,
+                this.#mdForMarkup,
+                this.#allowEmptyRows,
+            ),
+            textParser: this.#parserRegistry.createParser(
+                schema,
+                this.#mdForText,
+                this.#allowEmptyRows,
+            ),
             serializer: this.#serializerRegistry.createSerializer(),
         };
     }

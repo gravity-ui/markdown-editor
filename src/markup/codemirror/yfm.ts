@@ -4,6 +4,7 @@ import type {Extension} from '@codemirror/state';
 import {Tag, tags} from '@lezer/highlight';
 import type {DelimiterType, MarkdownConfig} from '@lezer/markdown';
 
+import {i18n} from '../../../src/i18n/empty-row';
 import {capitalize} from '../../lodash';
 
 import {DirectiveSyntaxFacet} from './directive-facet';
@@ -81,6 +82,9 @@ export const yfmCutSnippet = snippet(yfmCutSnippetTemplate);
 export const yfmCutDirectiveSnippetTemplate = ':::cut [#{title}]\n#{}\n:::\n\n';
 export const yfmCutDirectiveSnippet = snippet(yfmCutDirectiveSnippetTemplate);
 
+export const emptyRowSnippetTemplate = '&nbsp;\n\n';
+export const emptyRowSnippet = snippet(emptyRowSnippetTemplate);
+
 export interface LanguageData {
     autocomplete: CompletionSource;
     [key: string]: any;
@@ -88,9 +92,10 @@ export interface LanguageData {
 
 export interface YfmLangOptions {
     languageData?: LanguageData[];
+    allowEmptyRows?: boolean;
 }
 
-const mdAutocomplete: LanguageData = {
+const mdAutocomplete: (allowEmptyRows?: boolean) => LanguageData = (allowEmptyRows) => ({
     autocomplete: (context) => {
         const directiveContext = context.state.facet(DirectiveSyntaxFacet);
 
@@ -120,6 +125,21 @@ const mdAutocomplete: LanguageData = {
         // }
 
         const word = context.matchBefore(/^.*/);
+
+        if (allowEmptyRows && word?.text.startsWith('&')) {
+            return {
+                from: word.from,
+                options: [
+                    {
+                        label: '&nbsp;',
+                        displayLabel: i18n('snippet.text'),
+                        type: 'text',
+                        apply: emptyRowSnippet,
+                    },
+                ],
+            };
+        }
+
         if (directiveContext.option !== 'only' && word?.text.startsWith('{%')) {
             return {
                 from: word.from,
@@ -161,9 +181,9 @@ const mdAutocomplete: LanguageData = {
         }
         return null;
     },
-};
+});
 
-export function yfmLang({languageData = []}: YfmLangOptions = {}): Extension {
+export function yfmLang({languageData = [], allowEmptyRows}: YfmLangOptions = {}): Extension {
     const mdSupport = markdown({
         // defaultCodeLanguage: markdownLanguage,
         base: markdownLanguage,
@@ -174,7 +194,7 @@ export function yfmLang({languageData = []}: YfmLangOptions = {}): Extension {
 
     return [
         mdSupport,
-        mdSupport.language.data.of(mdAutocomplete),
+        mdSupport.language.data.of(mdAutocomplete(allowEmptyRows)),
         languageData.map((item) => mdSupport.language.data.of(item)),
     ];
 }

@@ -12,7 +12,7 @@ export class ParserTokensRegistry {
         return this;
     }
 
-    createParser(schema: Schema, tokenizer: MarkdownIt): Parser {
-        return new MarkdownParser(schema, tokenizer, this.#tokens);
+    createParser(schema: Schema, tokenizer: MarkdownIt, allowEmptyRows: boolean): Parser {
+        return new MarkdownParser(schema, tokenizer, this.#tokens, allowEmptyRows);
     }
 }
