@@ -26,8 +26,12 @@ export type MenuItem = {
 export type ToolbarButtonWithPopupMenuProps = Omit<
     ToolbarBaseProps<ActionStorage> & {
         icon: ToolbarIconData;
+        iconClassName?: string;
+        chevronIconClassName?: string;
         title: string | (() => string);
         menuItems: MenuItem[];
+        /** @default 'classic' */
+        _selectionType?: 'classic' | 'light';
     },
     'editor'
 >;
@@ -37,8 +41,11 @@ export const ToolbarButtonWithPopupMenu: React.FC<ToolbarButtonWithPopupMenuProp
     focus,
     onClick,
     icon,
+    iconClassName,
+    chevronIconClassName,
     title,
     menuItems,
+    _selectionType,
 }) => {
     const buttonRef = React.useRef<HTMLButtonElement>(null);
     const [open, , hide, toggleOpen] = useBooleanState(false);
@@ -48,7 +55,7 @@ export const ToolbarButtonWithPopupMenu: React.FC<ToolbarButtonWithPopupMenuProp
                 menuItems.map((i) => ({...i, group: i.group || ''})),
                 'group',
             ),
-        [menuItems, groupBy],
+        [menuItems],
     );
 
     const someActive = menuItems.some(
@@ -64,6 +71,14 @@ export const ToolbarButtonWithPopupMenu: React.FC<ToolbarButtonWithPopupMenuProp
         }
     }, [hide, shouldForceHide]);
 
+    const [btnView, btnSelected] =
+        _selectionType === 'light'
+            ? ([
+                  popupOpen ? 'normal' : someActive ? 'flat-action' : 'flat',
+                  popupOpen && someActive,
+              ] as const)
+            : ([someActive || popupOpen ? 'normal' : 'flat', someActive] as const);
+
     return (
         <>
             <ActionTooltip
@@ -75,15 +90,15 @@ export const ToolbarButtonWithPopupMenu: React.FC<ToolbarButtonWithPopupMenuProp
                 <Button
                     size="m"
                     ref={buttonRef}
-                    view={someActive || popupOpen ? 'normal' : 'flat'}
-                    selected={someActive}
+                    view={btnView}
+                    selected={btnSelected}
                     disabled={everyDisabled}
                     className={b(null, [className])}
                     onClick={toggleOpen}
                 >
-                    <Icon data={icon.data} size={icon.size} />
+                    <Icon data={icon.data} size={icon.size} className={iconClassName} />
                     {''}
-                    <Icon data={ChevronDown} />
+                    <Icon data={ChevronDown} className={chevronIconClassName} />
                 </Button>
             </ActionTooltip>
             <Popup anchorRef={buttonRef} open={popupOpen} onClose={hide}>
