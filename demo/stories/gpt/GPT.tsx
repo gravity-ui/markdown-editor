@@ -3,7 +3,6 @@ import React, {useState} from 'react';
 import cloneDeep from 'lodash/cloneDeep';
 
 import {
-    type MarkupString,
     gptExtension,
     logger,
     mGptExtension,
@@ -49,11 +48,9 @@ mToolbarConfig.push([
 mToolbarConfig.unshift([mGptToolbarItem]);
 
 export const GPT = React.memo(() => {
-    const [yfmRaw, setYfmRaw] = React.useState<MarkupString>(initialMdContent);
-
     const [showedAlertGpt, setShowedAlertGpt] = useState(true);
 
-    const gptExtensionProps = gptWidgetProps(setYfmRaw, {
+    const gptExtensionProps = gptWidgetProps({
         showedGptAlert: Boolean(showedAlertGpt),
         onCloseGptAlert: () => {
             setShowedAlertGpt(false);
@@ -66,7 +63,7 @@ export const GPT = React.memo(() => {
     return (
         <Playground
             settingsVisible
-            initial={yfmRaw}
+            initial={initialMdContent}
             extraExtensions={(builder) => builder.use(gptExtension, gptExtensionProps)}
             wysiwygCommandMenuConfig={wCommandMenuConfig}
             extensionOptions={{selectionContext: {config: wSelectionMenuConfig}}}

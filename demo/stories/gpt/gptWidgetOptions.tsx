@@ -11,7 +11,7 @@ const gptRequestHandler = async ({
     customPrompt?: string;
     promptData: unknown;
 }) => {
-    await new Promise((resolve) => setTimeout(resolve, 300));
+    await new Promise((resolve) => setTimeout(resolve, 1000));
 
     let gptResponseMarkup = markup;
     if (customPrompt) {
@@ -30,7 +30,6 @@ const gptRequestHandler = async ({
 };
 
 export const gptWidgetProps = (
-    setYfmRaw: (yfmRaw: string) => void,
     gptAlertProps?: GptWidgetOptions['gptAlertProps'],
 ): GptWidgetOptions => {
     return {
@@ -64,12 +63,10 @@ export const gptWidgetProps = (
         onLike: async () => {},
         onDislike: async () => {},
         onApplyResult: (markup) => {
-            setYfmRaw(markup);
+            console.log('onApplyResult:', markup);
         },
         onUpdate: (event) => {
-            if (event?.rawText) {
-                setYfmRaw(event.rawText);
-            }
+            console.log('update:', event);
         },
     };
 };
