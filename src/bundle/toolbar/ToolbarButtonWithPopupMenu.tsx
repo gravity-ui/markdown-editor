@@ -75,8 +75,10 @@ export const ToolbarButtonWithPopupMenu: React.FC<ToolbarButtonWithPopupMenuProp
                 <Button
                     size="m"
                     ref={buttonRef}
-                    view={someActive || popupOpen ? 'normal' : 'flat'}
-                    selected={someActive}
+                    // view={someActive || popupOpen ? 'normal' : 'flat'}
+                    view={popupOpen || someActive ? 'flat-action' : 'flat'}
+                    selected={popupOpen}
+                    // selected={someActive}
                     disabled={everyDisabled}
                     className={b(null, [className])}
                     onClick={toggleOpen}

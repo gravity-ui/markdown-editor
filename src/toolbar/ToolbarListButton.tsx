@@ -89,8 +89,10 @@ export function ToolbarListButton<E>({
                     <Button
                         size="m"
                         ref={buttonRef}
-                        view={someActive || popupOpen ? 'normal' : 'flat'}
-                        selected={someActive}
+                        // view={someActive || popupOpen ? 'normal' : 'flat'}
+                        view={popupOpen ? 'normal' : someActive ? 'flat-action' : 'flat'}
+                        selected={popupOpen && someActive}
+                        // selected={someActive}
                         disabled={everyDisabled}
                         className={b({arrow: withArrow}, [className])}
                         onClick={() => {

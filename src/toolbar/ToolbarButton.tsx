@@ -70,9 +70,10 @@ export const ToolbarButtonView = React.forwardRef<HTMLElement, ToolbarButtonView
                     <Button
                         size="m"
                         ref={ref}
-                        selected={active}
+                        // selected={active}
                         disabled={disabled}
-                        view={active ? 'normal' : 'flat'}
+                        // view={active ? 'normal' : 'flat'}
+                        view={active ? 'flat-action' : 'flat'}
                         onClick={onClick}
                         className={b(null, [className])}
                         extraProps={{'aria-label': titleText}}
