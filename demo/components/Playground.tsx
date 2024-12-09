@@ -16,6 +16,7 @@ import {
     type RenderPreview,
     type ToolbarGroupData,
     type UseMarkdownEditorProps,
+    WysiwygPlaceholderOptions,
     logger,
     markupToolbarConfigs,
     useMarkdownEditor,
@@ -79,6 +80,7 @@ export type PlaygroundProps = {
     breaks?: boolean;
     linkify?: boolean;
     linkifyTlds?: string | string[];
+    placeholderOptions?: WysiwygPlaceholderOptions;
     sanitizeHtml?: boolean;
     prepareRawMarkup?: boolean;
     splitModeOrientation?: 'horizontal' | 'vertical' | false;
@@ -139,6 +141,7 @@ export const Playground = React.memo<PlaygroundProps>((props) => {
         wysiwygCommandMenuConfig,
         markupConfigExtensions,
         markupToolbarConfig,
+        placeholderOptions,
         escapeConfig,
         enableSubmitInPreview,
         hidePreviewAfterSubmit,
@@ -185,6 +188,9 @@ export const Playground = React.memo<PlaygroundProps>((props) => {
             needToSetDimensionsForUploadedImages,
             renderPreview: renderPreviewDefined ? renderPreview : undefined,
             fileUploadHandler,
+            wysiwygConfig: {
+                placeholderOptions: placeholderOptions,
+            },
             experimental: {
                 ...experimental,
                 directiveSyntax,
