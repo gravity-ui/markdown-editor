@@ -15,7 +15,7 @@ const testParser: Parser = new MarkdownParser(
         paragraph: {type: 'block', name: 'paragraph'},
         softbreak: {type: 'node', name: 'hard_break'},
     },
-    false,
+    [],
 );
 
 function parseWith(parser: Parser) {

@@ -34,7 +34,7 @@ const parser: Parser = new MarkdownParser(
         strong: {type: 'mark', name: 'strong'},
         code_inline: {type: 'mark', name: 'code', noCloseToken: true},
     },
-    false,
+    [],
 );
 const serializer = new MarkdownSerializer(
     {

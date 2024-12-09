@@ -7,6 +7,7 @@ import type {CommonEditor, ContentHandler, MarkupString} from '../common';
 import type {ActionsManager} from './ActionsManager';
 import {WysiwygContentHandler} from './ContentHandler';
 import {ExtensionsManager} from './ExtensionsManager';
+import {TransformFn} from './markdown/ProseMirrorTransformer';
 import type {ActionStorage} from './types/actions';
 import type {Extension} from './types/extension';
 import type {Parser} from './types/parser';
@@ -30,7 +31,7 @@ export type WysiwygEditorOptions = {
     mdPreset?: PresetName;
     allowHTML?: boolean;
     linkify?: boolean;
-    allowEmptyRows?: boolean;
+    pmTransformers?: TransformFn[];
     linkifyTlds?: string | string[];
     escapeConfig?: EscapeConfig;
     /** Call on any state change (move cursor, change selection, etc...) */
@@ -75,7 +76,7 @@ export class WysiwygEditor implements CommonEditor, ActionStorage {
         allowHTML,
         mdPreset,
         linkify,
-        allowEmptyRows,
+        pmTransformers,
         linkifyTlds,
         escapeConfig,
         onChange,
@@ -92,7 +93,7 @@ export class WysiwygEditor implements CommonEditor, ActionStorage {
             actions,
         } = ExtensionsManager.process(extensions, {
             // "breaks" option only affects the renderer, but not the parser
-            mdOpts: {allowEmptyRows, html: allowHTML, linkify, breaks: true, preset: mdPreset},
+            mdOpts: {pmTransformers, html: allowHTML, linkify, breaks: true, preset: mdPreset},
             linkifyTlds,
         });
 

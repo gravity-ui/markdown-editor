@@ -2,6 +2,7 @@ import type MarkdownIt from 'markdown-it';
 import type {Schema} from 'prosemirror-model';
 
 import {MarkdownParser} from './markdown/MarkdownParser';
+import {TransformFn} from './markdown/ProseMirrorTransformer';
 import type {Parser, ParserToken} from './types/parser';
 
 export class ParserTokensRegistry {
@@ -12,7 +13,7 @@ export class ParserTokensRegistry {
         return this;
     }
 
-    createParser(schema: Schema, tokenizer: MarkdownIt, allowEmptyRows: boolean): Parser {
-        return new MarkdownParser(schema, tokenizer, this.#tokens, allowEmptyRows);
+    createParser(schema: Schema, tokenizer: MarkdownIt, pmTransformers: TransformFn[]): Parser {
+        return new MarkdownParser(schema, tokenizer, this.#tokens, pmTransformers);
     }
 }

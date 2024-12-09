@@ -7,12 +7,12 @@ type PMNodeJSON = {
     text?: string;
 };
 
-type TranformFn = (node: PMNodeJSON) => void;
+export type TransformFn = (node: PMNodeJSON) => void;
 
-class ProseMirrorTransformer {
-    private readonly _transformers: TranformFn[];
+export class ProseMirrorTransformer {
+    private readonly _transformers: TransformFn[];
 
-    constructor(...fns: TranformFn[]) {
+    constructor(fns: TransformFn[]) {
         this._transformers = fns;
     }
 
@@ -33,12 +33,3 @@ class ProseMirrorTransformer {
         }
     }
 }
-
-const transformEmptyParagraph: TranformFn = (node) => {
-    if (node.type !== 'paragraph') return;
-    if (node.content?.length !== 1) return;
-    if (node.content[0]?.type !== 'text') return;
-    if (node.content[0].text === String.fromCharCode(160)) delete node.content;
-};
-
-export const pmTransformer = new ProseMirrorTransformer(transformEmptyParagraph);

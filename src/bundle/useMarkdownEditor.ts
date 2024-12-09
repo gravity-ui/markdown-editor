@@ -1,6 +1,7 @@
 import {useLayoutEffect, useMemo} from 'react';
 
 import type {Extension} from '../core';
+import {getPMTransformers} from '../core/markdown/ProseMirrorTransformer/getTransformers';
 import {ReactRenderStorage} from '../extensions';
 import {logger} from '../logger';
 import {DirectiveSyntaxContext} from '../utils/directive';
@@ -41,6 +42,10 @@ export function useMarkdownEditor<T extends object = {}>(
             experimental.needToSetDimensionsForUploadedImages ??
             props.needToSetDimensionsForUploadedImages;
         const enableNewImageSizeCalculation = experimental.enableNewImageSizeCalculation;
+
+        const pmTransformers = getPMTransformers({
+            emptyRowTransformer: allowEmptyRows,
+        });
 
         const directiveSyntax = new DirectiveSyntaxContext(experimental.directiveSyntax);
 
@@ -84,6 +89,7 @@ export function useMarkdownEditor<T extends object = {}>(
                 html: md.html ?? props.allowHTML,
                 linkify: md.linkify ?? props.linkify,
                 linkifyTlds: md.linkifyTlds ?? props.linkifyTlds,
+                pmTransformers: pmTransformers,
             },
             initial: {
                 ...initial,

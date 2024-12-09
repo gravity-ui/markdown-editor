@@ -6,6 +6,7 @@ import {ExtensionBuilder} from './ExtensionBuilder';
 import {ParserTokensRegistry} from './ParserTokensRegistry';
 import {SchemaSpecRegistry} from './SchemaSpecRegistry';
 import {SerializerTokensRegistry} from './SerializerTokensRegistry';
+import {TransformFn} from './markdown/ProseMirrorTransformer';
 import type {ActionSpec} from './types/actions';
 import type {
     Extension,
@@ -22,7 +23,7 @@ type ExtensionsManagerParams = {
 };
 
 type ExtensionsManagerOptions = {
-    mdOpts?: MarkdownIt.Options & {preset?: PresetName; allowEmptyRows?: boolean};
+    mdOpts?: MarkdownIt.Options & {preset?: PresetName; pmTransformers?: TransformFn[]};
     linkifyTlds?: string | string[];
 };
 
@@ -38,6 +39,8 @@ export class ExtensionsManager {
     #nodeViewCreators = new Map<string, (deps: ExtensionDeps) => NodeViewConstructor>();
     #markViewCreators = new Map<string, (deps: ExtensionDeps) => MarkViewConstructor>();
 
+    #pmTransformers: TransformFn[] = [];
+
     #mdForMarkup: MarkdownIt;
     #mdForText: MarkdownIt;
     #extensions: Extension;
@@ -49,7 +52,6 @@ export class ExtensionsManager {
     #actions: Record<string, ActionSpec> = {};
     #nodeViews: Record<string, NodeViewConstructor> = {};
     #markViews: Record<string, MarkViewConstructor> = {};
-    #allowEmptyRows = false;
 
     constructor({extensions, options = {}}: ExtensionsManagerParams) {
         this.#extensions = extensions;
@@ -63,8 +65,8 @@ export class ExtensionsManager {
             this.#mdForText.linkify.tlds(options.linkifyTlds, true);
         }
 
-        if (options.mdOpts?.allowEmptyRows) {
-            this.#allowEmptyRows = options.mdOpts?.allowEmptyRows;
+        if (options.mdOpts?.pmTransformers) {
+            this.#pmTransformers = options.mdOpts?.pmTransformers;
         }
 
         // TODO: add prefilled context
@@ -126,12 +128,12 @@ export class ExtensionsManager {
             markupParser: this.#parserRegistry.createParser(
                 schema,
                 this.#mdForMarkup,
-                this.#allowEmptyRows,
+                this.#pmTransformers,
             ),
             textParser: this.#parserRegistry.createParser(
                 schema,
                 this.#mdForText,
-                this.#allowEmptyRows,
+                this.#pmTransformers,
             ),
             serializer: this.#serializerRegistry.createSerializer(),
         };
