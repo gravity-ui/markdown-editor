@@ -3,6 +3,7 @@ import React from 'react';
 import {ClassNameProps, cn} from '../classname';
 import {ReactRendererComponent} from '../extensions';
 import {logger} from '../logger';
+import {ToolbarsPreset} from '../modules/toolbars/types';
 import {useRenderTime} from '../react-utils/hooks';
 
 import type {EditorInt} from './Editor';
@@ -62,6 +63,11 @@ export const MarkupEditorView = React.memo<MarkupEditorViewProps>((props) => {
                     }}
                 >
                     <ToolbarView
+                        toolbarOrders={
+                            editor.enableNewToolbarOptions
+                                ? (editor.preset as ToolbarsPreset).toolbarsOrders.markupMain
+                                : undefined
+                        }
                         editor={editor}
                         editorMode="markup"
                         toolbarEditor={editor}

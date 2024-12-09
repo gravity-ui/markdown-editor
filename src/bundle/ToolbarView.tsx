@@ -4,10 +4,12 @@ import {useUpdate} from 'react-use';
 
 import {ClassNameProps} from '../classname';
 import {i18n} from '../i18n/menubar';
+import {ToolbarsPreset} from '../modules/toolbars/types';
 import {useSticky} from '../react-utils/useSticky';
 import {FlexToolbar, ToolbarData, ToolbarItemData} from '../toolbar';
 
 import type {EditorInt} from './Editor';
+import {ActionName} from './config/action-names';
 import {stickyCn} from './sticky';
 import type {MarkdownEditorMode} from './types';
 
@@ -21,6 +23,7 @@ export type ToolbarViewProps<T> = ClassNameProps & {
     hiddenActionsConfig?: ToolbarItemData<T>[];
     children?: React.ReactNode;
     stickyToolbar: boolean;
+    toolbarOrders?: (keyof typeof ActionName)[] | (keyof typeof ActionName)[][];
 };
 
 export function ToolbarView<T>({
@@ -34,6 +37,7 @@ export function ToolbarView<T>({
     className,
     children,
     stickyToolbar,
+    toolbarOrders,
 }: ToolbarViewProps<T>) {
     const rerender = useUpdate();
     useLayoutEffect(() => {
@@ -59,6 +63,14 @@ export function ToolbarView<T>({
             )}
         >
             <FlexToolbar
+                editorMode={editorMode}
+                toolbarOrders={toolbarOrders}
+                toolbarsNodes={
+                    editor.enableNewToolbarOptions
+                        ? (editor.preset as ToolbarsPreset).toolbarsNodes
+                        : undefined
+                }
+                enableNewToolbarOptions={editor.enableNewToolbarOptions}
                 data={toolbarConfig}
                 hiddenActions={hiddenActionsConfig}
                 editor={toolbarEditor}

@@ -16,14 +16,15 @@ import {i18n} from '../i18n/bundle';
 import {logger} from '../logger';
 import {createCodemirror} from '../markup';
 import {type CodeEditor, Editor as MarkupEditor} from '../markup/editor';
+import {ToolbarsPreset} from '../modules/toolbars/types';
 import {type Emitter, FileUploadHandler, type Receiver, SafeEventEmitter} from '../utils';
 import type {DirectiveSyntaxContext} from '../utils/directive';
 
-import type {
+import {
     MarkdownEditorMode as EditorMode,
-    MarkdownEditorPreset as EditorPreset,
     MarkdownEditorMdOptions,
     MarkdownEditorOptions,
+    MarkdownEditorPreset,
     MarkdownEditorMarkupConfig as MarkupConfig,
     ParseInsertedUrlAsImage,
     RenderPreview,
@@ -61,6 +62,9 @@ export interface Editor extends Receiver<EventMap>, CommonEditor {
 
     setEditorMode(mode: EditorMode, opts?: SetEditorModeOptions): void;
 
+    // [major] TODO: remove updatePreset
+    updatePreset(preset: MarkdownEditorPreset | ToolbarsPreset): void;
+
     moveCursor(position: 'start' | 'end' | {line: number}): void;
 
     /** @internal used in demo for dev-tools */
@@ -78,7 +82,7 @@ export interface EditorInt
     readonly toolbarVisible: boolean;
     readonly splitModeEnabled: boolean;
     readonly splitMode: SplitMode;
-    readonly preset: EditorPreset;
+    readonly preset: MarkdownEditorPreset | ToolbarsPreset;
     readonly mdOptions: Readonly<MarkdownEditorMdOptions>;
     readonly directiveSyntax: DirectiveSyntaxContext;
 
@@ -92,13 +96,19 @@ export interface EditorInt
     readonly renderStorage: RenderStorage<ReactNode>;
     readonly fileUploadHandler?: FileUploadHandler;
     readonly needToSetDimensionsForUploadedImages: boolean;
+
     readonly disableHTMLParsingInMd?: boolean;
 
     readonly renderPreview?: RenderPreview;
 
+    readonly enableNewToolbarOptions: boolean;
+
     changeEditorMode(opts: ChangeEditorModeOptions): void;
 
     setEditorMode(mode: EditorMode, opts?: SetEditorModeOptions): void;
+
+    // [major] TODO: remove updatePreset
+    updatePreset(preset: MarkdownEditorPreset | ToolbarsPreset): void;
 
     moveCursor(position: 'start' | 'end' | {line: number}): void;
 
@@ -122,7 +132,7 @@ export type EditorOptions = Pick<
     'md' | 'initial' | 'handlers' | 'experimental' | 'markupConfig' | 'wysiwygConfig'
 > & {
     renderStorage: ReactRenderStorage;
-    preset: EditorPreset;
+    preset: MarkdownEditorPreset | ToolbarsPreset;
     directiveSyntax: DirectiveSyntaxContext;
 };
 
@@ -140,7 +150,7 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
     #escapeConfig?: EscapeConfig;
     #mdOptions: Readonly<MarkdownEditorMdOptions>;
 
-    readonly #preset: EditorPreset;
+    #preset: MarkdownEditorPreset | ToolbarsPreset;
     #extensions?: WysiwygEditorOptions['extensions'];
     #renderStorage: ReactRenderStorage;
     #fileUploadHandler?: FileUploadHandler;
@@ -152,6 +162,7 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
     #beforeEditorModeChange?: (
         options: Pick<ChangeEditorModeOptions, 'mode' | 'reason'>,
     ) => boolean | undefined;
+    #enableNewToolbarOptions: boolean;
 
     get _wysiwygView(): PMEditorView {
         // @ts-expect-error internal typing
@@ -212,7 +223,7 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
         return this.#splitMode;
     }
 
-    get preset(): EditorPreset {
+    get preset(): MarkdownEditorPreset | ToolbarsPreset {
         return this.#preset;
     }
 
@@ -309,6 +320,10 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
         return this.#enableNewImageSizeCalculation;
     }
 
+    get enableNewToolbarOptions(): boolean {
+        return this.#enableNewToolbarOptions;
+    }
+
     constructor(opts: EditorOptions) {
         super({onError: logger.error.bind(logger)});
 
@@ -345,6 +360,7 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
         this.#prepareRawMarkup = experimental.prepareRawMarkup;
         this.#escapeConfig = wysiwygConfig.escapeConfig;
         this.#beforeEditorModeChange = experimental.beforeEditorModeChange;
+        this.#enableNewToolbarOptions = Boolean(experimental.enableNewToolbarOptions);
     }
 
     // ---> implements CodeEditor
@@ -451,6 +467,10 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
         }
 
         return this.currentEditor.moveCursor(position);
+    }
+
+    updatePreset(preset: MarkdownEditorPreset | ToolbarsPreset) {
+        this.#preset = preset;
     }
 
     private moveCursorToLine(/** 0-based line number */ line: number): void {

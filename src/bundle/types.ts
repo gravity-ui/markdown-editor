@@ -5,6 +5,7 @@ import type {ReactNode} from 'react';
 import type {MarkupString} from '../common';
 import type {EscapeConfig, Extension} from '../core';
 import type {CreateCodemirrorParams, YfmLangOptions} from '../markup';
+import {ToolbarsPreset} from '../modules/toolbars/types';
 import type {FileUploadHandler} from '../utils';
 import type {DirectiveSyntaxContext, DirectiveSyntaxOption} from '../utils/directive';
 
@@ -13,6 +14,7 @@ import type {ExtensionsOptions as WysiwygPresetExtensionsOptions} from './wysiwy
 
 export type {Editor as MarkdownEditorInstance} from './Editor';
 export type MarkdownEditorMode = 'wysiwyg' | 'markup';
+// [major] TODO: MarkdownEditorPreset = 'zero' | 'commonmark' | 'default' | 'yfm' | 'full' | ToolbarsPreset;
 export type MarkdownEditorPreset = 'zero' | 'commonmark' | 'default' | 'yfm' | 'full';
 export type MarkdownEditorSplitMode = false | 'horizontal' | 'vertical';
 
@@ -53,6 +55,12 @@ export type MarkdownEditorHandlers = {
 };
 
 export type MarkdownEditorExperimentalOptions = {
+    /**
+     * TODO: @makhnatkin
+     *
+     * @default false
+     */
+    enableNewToolbarOptions?: boolean;
     /**
      * If we need to set dimensions for uploaded images
      *
@@ -157,7 +165,7 @@ export type MarkdownEditorOptions<T extends object = {}> = {
      *
      * @default 'full'
      */
-    preset?: MarkdownEditorPreset;
+    preset?: MarkdownEditorPreset | ToolbarsPreset;
     /** Markdown parser options */
     md?: MarkdownEditorMdOptions;
     /** Initial values */

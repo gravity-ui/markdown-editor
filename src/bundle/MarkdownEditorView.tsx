@@ -7,6 +7,7 @@ import {useEnsuredForwardedRef, useKey, useUpdate} from 'react-use';
 import {ClassNameProps, cn} from '../classname';
 import {i18n} from '../i18n/bundle';
 import {logger} from '../logger';
+import {getToolbarConfigByPreset} from '../modules/toolbars/presets';
 import {ToasterContext, useBooleanState, useSticky} from '../react-utils';
 import {isMac} from '../utils';
 
@@ -28,7 +29,7 @@ import {
 import {useMarkdownEditorContext} from './context';
 import {EditorSettings, EditorSettingsProps} from './settings';
 import {stickyCn} from './sticky';
-import type {MarkdownEditorMode} from './types';
+import type {MarkdownEditorMode, MarkdownEditorPreset} from './types';
 
 import '../styles/styles.scss';
 import './MarkdownEditorView.scss'; // eslint-disable-line import/order
@@ -73,15 +74,29 @@ export const MarkdownEditorView = React.forwardRef<HTMLDivElement, MarkdownEdito
             autofocus,
             className,
             settingsVisible = true,
-            markupToolbarConfig = mToolbarConfigByPreset[editor.preset],
-            wysiwygToolbarConfig = wToolbarConfigByPreset[editor.preset],
-            markupHiddenActionsConfig = mHiddenDataByPreset[editor.preset],
-            wysiwygHiddenActionsConfig = wHiddenDataByPreset[editor.preset],
+            markupToolbarConfig = editor.enableNewToolbarOptions
+                ? []
+                : mToolbarConfigByPreset[editor.preset as MarkdownEditorPreset],
+            wysiwygToolbarConfig = editor.enableNewToolbarOptions
+                ? []
+                : wToolbarConfigByPreset[editor.preset as MarkdownEditorPreset],
+            markupHiddenActionsConfig = editor.enableNewToolbarOptions
+                ? []
+                : mHiddenDataByPreset[editor.preset as MarkdownEditorPreset],
+            wysiwygHiddenActionsConfig = editor.enableNewToolbarOptions
+                ? []
+                : wHiddenDataByPreset[editor.preset as MarkdownEditorPreset],
             toaster,
             stickyToolbar,
             enableSubmitInPreview = true,
             hidePreviewAfterSubmit = false,
         } = props;
+
+        if (editor.enableNewToolbarOptions) {
+            // TODO: @makhnatkin fix types errors
+            // @ts-ignore
+            editor.updatePreset(getToolbarConfigByPreset(editor.preset));
+        }
 
         const rerender = useUpdate();
         React.useLayoutEffect(() => {
@@ -196,6 +211,17 @@ export const MarkdownEditorView = React.forwardRef<HTMLDivElement, MarkdownEdito
             ],
         );
 
+        // const preset = editor.preset;
+        const updatedEditor = editor;
+        //     useMemo(() => {
+        //     return {
+        //         ...editor,
+        //         // preset: editor.enableNewToolbarOptions
+        //         //     ? preset //getToolbarConfigByPreset(editor.preset)
+        //         //     : preset,
+        //     };
+        // }, []);
+
         return (
             <ErrorBoundary
                 onError={(e) => {
@@ -249,7 +275,7 @@ export const MarkdownEditorView = React.forwardRef<HTMLDivElement, MarkdownEdito
                                 <>
                                     {editorMode === 'wysiwyg' && (
                                         <WysiwygEditorView
-                                            editor={editor}
+                                            editor={updatedEditor}
                                             autofocus={autofocus}
                                             settingsVisible={settingsVisible}
                                             toolbarConfig={wysiwygToolbarConfig}
@@ -264,7 +290,7 @@ export const MarkdownEditorView = React.forwardRef<HTMLDivElement, MarkdownEdito
                                     )}
                                     {editorMode === 'markup' && (
                                         <MarkupEditorView
-                                            editor={editor}
+                                            editor={updatedEditor}
                                             autofocus={autofocus}
                                             settingsVisible={settingsVisible}
                                             toolbarConfig={markupToolbarConfig}
