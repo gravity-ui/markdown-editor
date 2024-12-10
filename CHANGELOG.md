@@ -1,5 +1,19 @@
 # Changelog
 
+## [14.6.0](https://github.com/gravity-ui/markdown-editor/compare/v14.5.1...v14.6.0) (2024-12-10)
+
+
+### Features
+
+* **bundle:** update view of text color action item in toolbar ([#514](https://github.com/gravity-ui/markdown-editor/issues/514)) ([54ac0d3](https://github.com/gravity-ui/markdown-editor/commit/54ac0d36499e572844e42cfff8f7781387731b00))
+
+
+### Bug Fixes
+
+* **Cursor:** input-rules does not work when cursor in virtual selection (GapCursorSelection) ([#515](https://github.com/gravity-ui/markdown-editor/issues/515)) ([9126756](https://github.com/gravity-ui/markdown-editor/commit/9126756fe5e241c6ab2badec4689b1df8f0009c3))
+* **deps:** bumped @lezer/markdown to fix large text hang ([#512](https://github.com/gravity-ui/markdown-editor/issues/512)) ([8a8fce8](https://github.com/gravity-ui/markdown-editor/commit/8a8fce8ff5f9603f6e755264fc474c03a36d6bb7))
+* Gpt extension render ([#519](https://github.com/gravity-ui/markdown-editor/issues/519)) ([89c9881](https://github.com/gravity-ui/markdown-editor/commit/89c9881331df2b0fae5968258a29b9c9eed179ef))
+
 ## [14.5.1](https://github.com/gravity-ui/markdown-editor/compare/v14.5.0...v14.5.1) (2024-12-02)
 
 
