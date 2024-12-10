@@ -4,7 +4,8 @@ $active-node-default-indent-left: calc(-1 * var(--g-spacing-2));
 $active-node-default-indent-right: calc(-1 * var(--g-spacing-2));
 
 $active-node-selector: '.pm-node-selected';
-$basic-elements: h1, h2, h3, h4, h5, h6, p, ul, ol, span, pre, '*[data-html]', '.g-md-checkbox', '.g-md-table-wrapper';
+$basic-elements: h1, h2, h3, h4, h5, h6, p, ul, ol, span, pre, '*[data-html]', '.g-md-checkbox',
+    '.g-md-table-wrapper';
 $yfm-elements: 'div[class^="yfm-"]';
 
 $default-selection-border: none;
@@ -22,16 +23,16 @@ $default-li-marker-width: var(--g-spacing-4);
     border: $default-selection-border;
     border-radius: $default-selection-border-radius;
     outline: $default-selection-outline;
-    background: var(--g-selection-background, $default-selection-background);
+    background: var(--g-md-wysiwyg-selection-background, $default-selection-background);
     box-shadow: $default-selection-box-shadow;
 }
 
 @mixin selection-props {
-    border: var(--g-selection-border, $default-selection-border);
-    border-radius: var(--g-selection-border-radius, $default-selection-border-radius);
-    outline: var(--g-selection-outline, $default-selection-outline);
-    background: var(--g-selection-background, $default-selection-background);
-    box-shadow: var(--g-selection-box-shadow, $default-selection-box-shadow);
+    border: var(--g-md-wysiwyg-selection-border, $default-selection-border);
+    border-radius: var(--g-md-wysiwyg-selection-border-radius, $default-selection-border-radius);
+    outline: var(--g-md-wysiwyg-selection-outline, $default-selection-outline);
+    background: var(--g-md-wysiwyg-selection-background, $default-selection-background);
+    box-shadow: var(--g-md-wysiwyg-selection-box-shadow, $default-selection-box-shadow);
 }
 
 [class].g-md-editor {
@@ -56,7 +57,6 @@ $default-li-marker-width: var(--g-spacing-4);
                 mix-blend-mode: multiply;
             }
         }
-
     }
 
     & #{$yfm-elements}#{$active-node-selector} {
@@ -65,10 +65,8 @@ $default-li-marker-width: var(--g-spacing-4);
         &::after {
             position: absolute;
             z-index: -1;
-            inset: $active-node-default-indent-top
-                $active-node-default-indent-right
-                $active-node-default-indent-bottom
-                $active-node-default-indent-left;
+            inset: $active-node-default-indent-top $active-node-default-indent-right
+                $active-node-default-indent-bottom $active-node-default-indent-left;
 
             content: '';
 

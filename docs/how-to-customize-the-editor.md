@@ -15,8 +15,9 @@ You can use CSS variables to make editor contents fit your own needs
 
 ### Selection styles
 | **Variable** | **Description** | **CSS Property Type** | **Default** |
-| `--g-selection-border` | Editor selection border | border | none |
-| `--g-selection-border-radius` | Editor selection border radius | border-radius | 6px |
-| `--g-selection-outline` | Editor selection outline | outline | none |
-| `--g-selection-background` | Editor selection background | background | #e6e6e6 |
-| `--g-selection-box-shadow` | Editor selection box shadow | box-shadow | none |
+| :---:  | :---: | :---: | :---: |
+| `--g-md-wysiwyg-selection-border` | Editor selection border | border | none |
+| `--g-md-wysiwyg-selection-border-radius` | Editor selection border radius | border-radius | 6px |
+| `--g-md-wysiwyg-selection-outline` | Editor selection outline | outline | none |
+| `--g-md-wysiwyg-selection-background` | Editor selection background | background | #e6e6e6 |
+| `--g-md-wysiwyg-selection-box-shadow` | Editor selection box shadow | box-shadow | none |

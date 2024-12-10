@@ -28,27 +28,23 @@ export const Story: StoryObj<typeof component> = {
             control: {type: 'text'},
             description: 'Editor contents padding',
         },
-        '--g-selection-bg-color': {
-            control: {type: 'text'},
-            description: 'Editor selection bg color',
-        },
-        '--g-selection-border': {
+        '--g-md-wysiwyg-selection-border': {
             control: {type: 'text'},
             description: 'Editor selection border',
         },
-        '--g-selection-border-radius': {
+        '--g-md-wysiwyg-selection-border-radius': {
             control: {type: 'text'},
             description: 'Editor selection border radius',
         },
-        '--g-selection-outline': {
+        '--g-md-wysiwyg-selection-outline': {
             control: {type: 'text'},
             description: 'Editor selection outline',
         },
-        '--g-selection-background': {
+        '--g-md-wysiwyg-selection-background': {
             control: {type: 'text'},
             description: 'Editor selection background',
         },
-        '--g-selection-box-shadow': {
+        '--g-md-wysiwyg-selection-box-shadow': {
             control: {type: 'text'},
             description: 'Editor selection box-shadow',
         },
