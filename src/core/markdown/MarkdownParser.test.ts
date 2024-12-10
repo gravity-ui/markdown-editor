@@ -7,11 +7,16 @@ import type {Parser} from '../types/parser';
 import {MarkdownParser} from './MarkdownParser';
 
 const md = MarkdownIt('commonmark', {html: false, breaks: true});
-const testParser: Parser = new MarkdownParser(schema, md, {
-    blockquote: {name: 'blockquote', type: 'block', ignore: true},
-    paragraph: {type: 'block', name: 'paragraph'},
-    softbreak: {type: 'node', name: 'hard_break'},
-});
+const testParser: Parser = new MarkdownParser(
+    schema,
+    md,
+    {
+        blockquote: {name: 'blockquote', type: 'block', ignore: true},
+        paragraph: {type: 'block', name: 'paragraph'},
+        softbreak: {type: 'node', name: 'hard_break'},
+    },
+    [],
+);
 
 function parseWith(parser: Parser) {
     return (text: string, node: Node) => {
