@@ -54,6 +54,7 @@ export const BaseSchemaSpecs: ExtensionAuto<BaseSchemaSpecsOptions> = (builder, 
                         0,
                     ];
                 },
+                selectable: true,
                 placeholder: opts.paragraphPlaceholder
                     ? {
                           content: opts.paragraphPlaceholder,
