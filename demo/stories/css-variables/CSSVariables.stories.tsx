@@ -28,6 +28,30 @@ export const Story: StoryObj<typeof component> = {
             control: {type: 'text'},
             description: 'Editor contents padding',
         },
+        '--g-selection-bg-color': {
+            control: {type: 'text'},
+            description: 'Editor selection bg color',
+        },
+        '--g-selection-border': {
+            control: {type: 'text'},
+            description: 'Editor selection border',
+        },
+        '--g-selection-border-radius': {
+            control: {type: 'text'},
+            description: 'Editor selection border radius',
+        },
+        '--g-selection-outline': {
+            control: {type: 'text'},
+            description: 'Editor selection outline',
+        },
+        '--g-selection-background': {
+            control: {type: 'text'},
+            description: 'Editor selection background',
+        },
+        '--g-selection-box-shadow': {
+            control: {type: 'text'},
+            description: 'Editor selection box-shadow',
+        },
     },
 };
 Story.storyName = 'Custom CSS Variables';

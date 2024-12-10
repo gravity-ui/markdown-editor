@@ -17,6 +17,27 @@ export const ListsSpecs: ExtensionAuto = (builder) => {
             spec: schemaSpecs[ListNode.ListItem],
             toMd: serializerTokens[ListNode.ListItem],
             fromMd: {tokenSpec: parserTokens[ListNode.ListItem]},
+            // @ts-expect-error
+            view: () => (node, view, getPos) => {
+                return {
+                    update: (node_) => {
+                        node = node_;
+
+                        const pos = getPos();
+                        if (pos === undefined) return false;
+
+                        const dom = view.domAtPos(pos + 1).node as HTMLElement;
+
+                        const markerWidth = Math.max(
+                            Math.floor(parseFloat(getComputedStyle(dom, '::marker').width)),
+                        );
+
+                        dom.style.setProperty('--li-marker-width', `${markerWidth}px`);
+
+                        return true;
+                    },
+                };
+            },
         }))
         .addNode(ListNode.BulletList, () => ({
             spec: schemaSpecs[ListNode.BulletList],

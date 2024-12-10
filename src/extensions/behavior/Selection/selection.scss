@@ -1,3 +1,103 @@
-.g-md-editor.ProseMirror-focused .pm-node-selected {
-    box-shadow: var(--g-color-text-info) 0 0 0 1px;
+$active-node-default-indent-top: calc(-1 * var(--g-spacing-1));
+$active-node-default-indent-bottom: calc(-1 * var(--g-spacing-1));
+$active-node-default-indent-left: calc(-1 * var(--g-spacing-2));
+$active-node-default-indent-right: calc(-1 * var(--g-spacing-2));
+
+$active-node-selector: '.pm-node-selected';
+$basic-elements: h1, h2, h3, h4, h5, h6, p, ul, ol, span, pre, '*[data-html]', '.g-md-checkbox', '.g-md-table-wrapper';
+$yfm-elements: 'div[class^="yfm-"]';
+
+$default-selection-border: none;
+$default-selection-border-radius: var(--g-border-radius-m);
+$default-selection-outline: none;
+// TODO: CHANGE TO TOKEN
+$default-selection-background: #e6e6e6;
+$default-selection-box-shadow: none;
+
+$default-li-marker-width: var(--g-spacing-4);
+
+@mixin node-props {
+    position: relative;
+
+    border: $default-selection-border;
+    border-radius: $default-selection-border-radius;
+    outline: $default-selection-outline;
+    background: var(--g-selection-background, $default-selection-background);
+    box-shadow: $default-selection-box-shadow;
+}
+
+@mixin selection-props {
+    border: var(--g-selection-border, $default-selection-border);
+    border-radius: var(--g-selection-border-radius, $default-selection-border-radius);
+    outline: var(--g-selection-outline, $default-selection-outline);
+    background: var(--g-selection-background, $default-selection-background);
+    box-shadow: var(--g-selection-box-shadow, $default-selection-box-shadow);
+}
+
+[class].g-md-editor {
+    @each $basic-element in $basic-elements {
+        & #{$basic-element}#{$active-node-selector} {
+            @include node-props;
+
+            &::after {
+                position: absolute;
+                z-index: -1;
+                inset: $active-node-default-indent-top
+                    $active-node-default-indent-right
+                    $active-node-default-indent-bottom
+                    $active-node-default-indent-left;
+
+                content: '';
+
+                @include selection-props;
+            }
+
+            & img {
+                mix-blend-mode: multiply;
+            }
+        }
+
+    }
+
+    & #{$yfm-elements}#{$active-node-selector} {
+        position: relative;
+
+        &::after {
+            position: absolute;
+            z-index: -1;
+            inset: $active-node-default-indent-top
+                $active-node-default-indent-right
+                $active-node-default-indent-bottom
+                $active-node-default-indent-left;
+
+            content: '';
+
+            @include selection-props;
+        }
+    }
+
+    & li#{$active-node-selector} {
+        @include node-props;
+
+        &::marker {
+            @include selection-props;
+        }
+
+        &::after {
+            position: absolute;
+            z-index: -1;
+            inset: $active-node-default-indent-top $active-node-default-indent-right
+                $active-node-default-indent-bottom
+                calc(
+                    $active-node-default-indent-left - max(
+                            var(--li-marker-width, 0),
+                            $default-li-marker-width
+                        )
+                );
+
+            content: '';
+
+            @include selection-props;
+        }
+    }
 }
