@@ -1,30 +1,48 @@
 $active-node-default-indent-top: calc(-1 * var(--g-spacing-1));
 $active-node-default-indent-bottom: calc(-1 * var(--g-spacing-1));
 $active-node-default-indent-left: calc(-1 * var(--g-spacing-2));
-$active-node-default-indent-right: calc(-1 * var(--g-spacing-2));
+$active-node-default-indent-right: 0;
+
+$offset-elements: h1, h2, h3, h4, h5, h6, p, span, '.g-md-checkbox', 'div:has(> hr)';
+
+@mixin set-elements-margins {
+    $margin-map: (
+        p: 0 0 calc(var(--g-spacing-2) + var(--g-spacing-half)),
+        '.g-md-checkbox': 0 0 calc(var(--g-spacing-2) + var(--g-spacing-half)),
+        '.g-md-checkbox__label': 0 0 0 calc(var(--g-spacing-2) - var(--g-spacing-half)),
+        // '.yfm-cut:has(+ *)': 0 0 5px, // ?
+        '.yfm-cut:has(+ .yfm-cut)': 0 0 calc(var(--g-spacing-half)),
+    );
+
+    @each $selector, $margin-values in $margin-map {
+        & #{$selector} {
+            margin: $margin-values;
+        }
+    }
+}
 
 $active-node-selector: '.pm-node-selected';
-$basic-elements: h1, h2, h3, h4, h5, h6, p, ul, ol, span, pre, '*[data-html]', '.g-md-checkbox',
-    '.g-md-table-wrapper';
-$yfm-elements: 'div[class^="yfm-"]';
+$highlight-elements: h1, h2, h3, h4, h5, h6, p, ul, ol, blockquote, span, 'div:has(> hr)',
+    '.g-md-checkbox';
+$highlight-elements-no-inset: pre, '*[data-html]', '.g-md-table-wrapper', 'div[class^="yfm-"]',
+    'p:has(img)';
 
 $default-selection-border: none;
 $default-selection-border-radius: var(--g-border-radius-m);
 $default-selection-outline: none;
-// TODO: CHANGE TO TOKEN
-$default-selection-background: #e6e6e6;
+$default-selection-background: var(--g-color-base-generic);
 $default-selection-box-shadow: none;
 
-$default-li-marker-width: var(--g-spacing-4);
+$marker-width: 24px;
 
 @mixin node-props {
     position: relative;
 
-    border: $default-selection-border;
-    border-radius: $default-selection-border-radius;
-    outline: $default-selection-outline;
-    background: var(--g-md-wysiwyg-selection-background, $default-selection-background);
-    box-shadow: $default-selection-box-shadow;
+    box-sizing: border-box;
+
+    // &::selection {
+    //     color: var(--g-color-text-primary);
+    // }
 }
 
 @mixin selection-props {
@@ -35,9 +53,74 @@ $default-li-marker-width: var(--g-spacing-4);
     box-shadow: var(--g-md-wysiwyg-selection-box-shadow, $default-selection-box-shadow);
 }
 
+@mixin custom-lists {
+    & ol {
+        counter-reset: li-count;
+
+        & li {
+            position: relative;
+
+            list-style-type: decimal;
+
+            counter-increment: li-count;
+
+            &::marker {
+                content: '';
+            }
+
+            &::before {
+                position: absolute;
+                right: 100%;
+
+                display: flex;
+                justify-content: center;
+
+                width: $marker-width;
+                height: 100%;
+
+                content: counter(li-count) '.';
+            }
+        }
+    }
+
+    & ul {
+        & li {
+            position: relative;
+
+            list-style-type: disc;
+
+            &::marker {
+                content: '';
+            }
+
+            &::before {
+                position: absolute;
+                right: 100%;
+
+                display: flex;
+                justify-content: center;
+
+                width: $marker-width;
+                height: 100%;
+
+                content: '•';
+            }
+        }
+    }
+}
+
 [class].g-md-editor {
-    @each $basic-element in $basic-elements {
-        & #{$basic-element}#{$active-node-selector} {
+    // @include custom-lists;
+    @include set-elements-margins;
+
+    @each $offset-element in $offset-elements {
+        & #{$offset-element} {
+            margin-left: var(--g-spacing-2);
+        }
+    }
+
+    @each $highlight-element in $highlight-elements {
+        & #{$highlight-element}#{$active-node-selector} {
             @include node-props;
 
             &::after {
@@ -59,43 +142,187 @@ $default-li-marker-width: var(--g-spacing-4);
         }
     }
 
-    & #{$yfm-elements}#{$active-node-selector} {
-        position: relative;
+    @each $highlight-element-no-inset in $highlight-elements-no-inset {
+        & #{$highlight-element-no-inset} {
+            &#{$active-node-selector} {
+                @include node-props;
 
-        &::after {
-            position: absolute;
-            z-index: -1;
-            inset: $active-node-default-indent-top $active-node-default-indent-right
-                $active-node-default-indent-bottom $active-node-default-indent-left;
+                &::after {
+                    position: absolute;
+                    z-index: -1;
+                    inset: 0;
 
-            content: '';
+                    content: '';
+                    @include selection-props;
+                }
 
-            @include selection-props;
+                & img {
+                    mix-blend-mode: multiply;
+                }
+            }
         }
     }
 
-    & li#{$active-node-selector} {
+    // REMOVE
+    &.ProseMirror {
+        padding: 40px;
+    }
+
+    & div:has(> hr) {
+        margin-right: var(--g-spacing-2);
+
+        &#{$active-node-selector} {
+            @include node-props;
+
+            &::after {
+                top: calc(-1 * var(--g-spacing-3));
+                right: calc(-1 * var(--g-spacing-2));
+                bottom: calc(-1 * var(--g-spacing-3));
+            }
+        }
+    }
+
+    & span:has(+ img) {
+        margin-left: $active-node-default-indent-left;
+    }
+
+    & .yfm-cut {
+        border: none;
+
         @include node-props;
 
-        &::marker {
-            @include selection-props;
-        }
-
-        &::after {
+        &:hover::before {
             position: absolute;
             z-index: -1;
-            inset: $active-node-default-indent-top $active-node-default-indent-right
-                $active-node-default-indent-bottom
-                calc(
-                    $active-node-default-indent-left - max(
-                            var(--li-marker-width, 0),
-                            $default-li-marker-width
-                        )
-                );
+            inset: 0;
 
             content: '';
 
-            @include selection-props;
+            border: 1px dashed var(--g-color-line-generic);
+            border-radius: var(
+                --g-md-wysiwyg-selection-border-radius,
+                $default-selection-border-radius
+            );
+        }
+
+        &-title {
+            left: calc(var(--g-spacing-2) - var(--g-spacing-half));
+
+            &::before {
+                left: var(--g-spacing-half);
+
+                width: 16px;
+                height: 16px;
+            }
+        }
+    }
+
+    & .yfm-tabs {
+        padding-left: var(--g-spacing-2);
+
+        border: none;
+
+        @include node-props;
+
+        &:hover::before {
+            position: absolute;
+            z-index: -1;
+            inset: 0;
+
+            content: '';
+
+            border: 1px dashed var(--g-color-line-generic);
+            border-radius: var(
+                --g-md-wysiwyg-selection-border-radius,
+                $default-selection-border-radius
+            );
+        }
+    }
+
+    & .yfm-note {
+        padding-left: var(--g-spacing-9);
+
+        &-title {
+            margin-left: 0;
+
+            &::before {
+                margin-left: calc(-1 * (var(--g-spacing-7) + var(--g-spacing-half)));
+                padding-right: 0px;
+                scale: 0.7;
+            }
+        }
+    }
+
+    & .g-md-checkbox {
+        &__input {
+            width: 17px;
+            height: 17px;
+        }
+    }
+
+    & pre {
+        & code {
+            padding: var(--g-spacing-2);
+        }
+    }
+
+    & blockquote {
+        position: relative;
+
+        border: none;
+
+        &::before {
+            position: absolute;
+            z-index: -1;
+            left: 15px;
+
+            height: 100%;
+
+            content: '';
+
+            border-left: 3px solid var(--yfm-color-accent);
+            border-top-left-radius: 0;
+            border-bottom-left-radius: 0;
+        }
+
+        &#{$active-node-selector} {
+            &::after {
+                left: 0;
+            }
+        }
+    }
+
+    & li {
+        &#{$active-node-selector} {
+            @include node-props;
+
+            &::marker {
+                @include selection-props;
+            }
+
+            &::after {
+                position: absolute;
+                z-index: -1;
+                inset: $active-node-default-indent-top $active-node-default-indent-right
+                    $active-node-default-indent-bottom calc(-#{$marker-width} - var(--g-spacing-1));
+
+                content: '';
+
+                @include selection-props;
+            }
+        }
+    }
+
+    & ul,
+    ol,
+    blockquote {
+        padding-left: var(--g-spacing-7);
+    }
+
+    & li,
+    blockquote {
+        & > * {
+            margin: 0 0 calc(var(--g-spacing-2) + var(--g-spacing-half)) var(--g-spacing-2);
         }
     }
 }

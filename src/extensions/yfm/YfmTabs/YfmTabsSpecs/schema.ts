@@ -78,6 +78,7 @@ export const getSchemaSpecs: (
         toDOM(node) {
             return ['div', node.attrs, 0];
         },
+        selectable: true,
         complex: 'root',
     },
 

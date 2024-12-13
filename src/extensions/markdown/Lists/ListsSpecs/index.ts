@@ -17,27 +17,27 @@ export const ListsSpecs: ExtensionAuto = (builder) => {
             spec: schemaSpecs[ListNode.ListItem],
             toMd: serializerTokens[ListNode.ListItem],
             fromMd: {tokenSpec: parserTokens[ListNode.ListItem]},
-            // @ts-expect-error
-            view: () => (node, view, getPos) => {
-                return {
-                    update: (node_) => {
-                        node = node_;
+            // // @ts-expect-error
+            // view: () => (node, view, getPos) => {
+            //     return {
+            //         update: (node_) => {
+            //             node = node_;
 
-                        const pos = getPos();
-                        if (pos === undefined) return false;
+            //             const pos = getPos();
+            //             if (pos === undefined) return false;
 
-                        const dom = view.domAtPos(pos + 1).node as HTMLElement;
+            //             const dom = view.domAtPos(pos + 1).node as HTMLElement;
 
-                        const markerWidth = Math.max(
-                            Math.floor(parseFloat(getComputedStyle(dom, '::marker').width)),
-                        );
+            //             const markerWidth = Math.max(
+            //                 Math.floor(parseFloat(getComputedStyle(dom, '::marker').width)),
+            //             );
 
-                        dom.style.setProperty('--li-marker-width', `${markerWidth}px`);
+            //             dom.style.setProperty('--li-marker-width', `${markerWidth}px`);
 
-                        return true;
-                    },
-                };
-            },
+            //             return true;
+            //         },
+            //     };
+            // },
         }))
         .addNode(ListNode.BulletList, () => ({
             spec: schemaSpecs[ListNode.BulletList],

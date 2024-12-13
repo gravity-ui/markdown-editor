@@ -14,6 +14,7 @@ export const HorizontalRuleSpecs: ExtensionAuto = (builder) => {
             toDOM() {
                 return ['div', ['hr']];
             },
+            selectable: true,
         },
         fromMd: {
             tokenName: 'hr',
