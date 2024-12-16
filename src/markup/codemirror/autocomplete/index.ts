@@ -1,18 +1,19 @@
-import {directiveAutocomplete} from './directive';
+import {mdAutocomplete} from '../yfm';
+
 import {emptyRowAutocomplete} from './emptyRow';
 
 type GetAutocompleteConfig = {
-    allowEmptyRows?: boolean;
+    preserveEmptyRows?: boolean;
 };
 
-export const getAutocompleteConfig = ({allowEmptyRows}: GetAutocompleteConfig) => {
+export const getAutocompleteConfig = ({preserveEmptyRows}: GetAutocompleteConfig) => {
     const autocompleteItems = [];
 
-    if (allowEmptyRows) {
+    if (preserveEmptyRows) {
         autocompleteItems.push(emptyRowAutocomplete);
     }
 
-    autocompleteItems.push(directiveAutocomplete);
+    autocompleteItems.push(mdAutocomplete);
 
     return autocompleteItems;
 };

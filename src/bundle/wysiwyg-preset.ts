@@ -26,7 +26,7 @@ export type BundlePresetOptions = ExtensionsOptions &
     EditorModeKeymapOptions & {
         preset: MarkdownEditorPreset;
         mdBreaks?: boolean;
-        allowEmptyRows?: boolean;
+        preserveEmptyRows?: boolean;
         fileUploadHandler?: FileUploadHandler;
         /**
          * If we need to set dimensions for uploaded images
@@ -68,7 +68,7 @@ export const BundlePreset: ExtensionAuto<BundlePresetOptions> = (builder, opts) 
                     !node.text && parent?.type.name === BaseNode.Doc && parent.childCount === 1;
                 return isDocEmpty ? i18nPlaceholder('doc_empty') : null;
             },
-            allowEmptyRows: opts.allowEmptyRows,
+            preserveEmptyRows: opts.preserveEmptyRows,
             ...opts.baseSchema,
         },
     };

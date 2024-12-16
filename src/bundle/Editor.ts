@@ -283,7 +283,7 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
                     keymaps: this.#markupConfig.keymaps,
                     yfmLangOptions: {
                         languageData: getAutocompleteConfig({
-                            allowEmptyRows: this.#mdOptions.allowEmptyRows,
+                            preserveEmptyRows: this.#mdOptions.preserveEmptyRows,
                         }),
                     },
                     autocompletion: this.#markupConfig.autocompletion,

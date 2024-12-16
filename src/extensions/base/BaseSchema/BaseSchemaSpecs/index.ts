@@ -16,7 +16,7 @@ export const pType = nodeTypeFactory(BaseNode.Paragraph);
 export type BaseSchemaSpecsOptions = {
     // This cannot be passed through placeholder option of BehaviorPreset because BasePreset initializes first
     paragraphPlaceholder?: NonNullable<NodeSpec['placeholder']>['content'];
-    allowEmptyRows?: boolean;
+    preserveEmptyRows?: boolean;
 };
 
 export const BaseSchemaSpecs: ExtensionAuto<BaseSchemaSpecsOptions> = (builder, opts) => {
@@ -64,8 +64,19 @@ export const BaseSchemaSpecs: ExtensionAuto<BaseSchemaSpecsOptions> = (builder, 
             },
             fromMd: {tokenSpec: {name: BaseNode.Paragraph, type: 'block'}},
             toMd: (state, node, parent) => {
-                if (opts.allowEmptyRows && !node.content.size) {
-                    const isParentEmpty = parent.content.size / parent.content.childCount === 2;
+                if (opts.preserveEmptyRows && !node.content.size) {
+                    let isParentEmpty = true;
+
+                    for (let index = 0; index < parent.content.childCount; index++) {
+                        const parentChild = parent.content.child(index);
+                        if (
+                            parentChild.content.size !== 0 ||
+                            parentChild.type.name !== 'paragraph'
+                        ) {
+                            isParentEmpty = false;
+                        }
+                    }
+
                     if (!isParentEmpty) {
                         state.write('&nbsp;\n\n');
                     }

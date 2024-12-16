@@ -76,7 +76,7 @@ export type PlaygroundProps = {
     allowHTML?: boolean;
     settingsVisible?: boolean;
     initialEditor?: MarkdownEditorMode;
-    allowEmptyRows?: boolean;
+    preserveEmptyRows?: boolean;
     breaks?: boolean;
     linkify?: boolean;
     linkifyTlds?: string | string[];
@@ -127,7 +127,7 @@ export const Playground = React.memo<PlaygroundProps>((props) => {
         allowHTML,
         breaks,
         linkify,
-        allowEmptyRows,
+        preserveEmptyRows,
         linkifyTlds,
         sanitizeHtml,
         prepareRawMarkup,
@@ -192,7 +192,7 @@ export const Playground = React.memo<PlaygroundProps>((props) => {
                 directiveSyntax,
             },
             md: {
-                allowEmptyRows: allowEmptyRows,
+                preserveEmptyRows: preserveEmptyRows,
             },
             prepareRawMarkup: prepareRawMarkup
                 ? (value) => '**prepare raw markup**\n\n' + value

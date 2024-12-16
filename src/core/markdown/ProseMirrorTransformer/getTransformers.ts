@@ -1,3 +1,4 @@
+// TODO: add a new method to the ExtensionBuilder
 import {transformEmptyParagraph} from './emptyRowParser';
 
 import {TransformFn} from '.';

@@ -34,7 +34,7 @@ export function useMarkdownEditor<T extends object = {}>(
         } = props;
 
         const breaks = md.breaks ?? props.breaks;
-        const allowEmptyRows = md.allowEmptyRows;
+        const preserveEmptyRows = md.preserveEmptyRows;
         const preset: MarkdownEditorPreset = props.preset ?? 'full';
         const renderStorage = new ReactRenderStorage();
         const uploadFile = handlers.uploadFile ?? props.fileUploadHandler;
@@ -44,7 +44,7 @@ export function useMarkdownEditor<T extends object = {}>(
         const enableNewImageSizeCalculation = experimental.enableNewImageSizeCalculation;
 
         const pmTransformers = getPMTransformers({
-            emptyRowTransformer: allowEmptyRows,
+            emptyRowTransformer: preserveEmptyRows,
         });
 
         const directiveSyntax = new DirectiveSyntaxContext(experimental.directiveSyntax);
@@ -65,7 +65,7 @@ export function useMarkdownEditor<T extends object = {}>(
                     editor.emit('submit', null);
                     return true;
                 },
-                allowEmptyRows: allowEmptyRows,
+                preserveEmptyRows: preserveEmptyRows,
                 mdBreaks: breaks,
                 fileUploadHandler: uploadFile,
                 needToSetDimensionsForUploadedImages,
@@ -89,7 +89,7 @@ export function useMarkdownEditor<T extends object = {}>(
                 html: md.html ?? props.allowHTML,
                 linkify: md.linkify ?? props.linkify,
                 linkifyTlds: md.linkifyTlds ?? props.linkifyTlds,
-                pmTransformers: pmTransformers,
+                pmTransformers,
             },
             initial: {
                 ...initial,
