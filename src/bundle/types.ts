@@ -28,8 +28,13 @@ export type ParseInsertedUrlAsImage = (text: string) => {imageUrl: string; title
 
 export type WysiwygPlaceholderOptions = {
     value?: string | (() => string);
-    /** Default – empty-doc */
-    behavior?: 'empty-doc' | 'empty-doc-row' | 'empty-row';
+    /** Default – empty-doc 
+    Values:
+    - 'empty-doc' – the placeholder will only be shown in an empty document;
+    - 'empty-row-top-level' – the placeholder will be displayed in an empty line, which is located at the top level of the document;
+    - 'empty-row' – Заполнитель будет отображаться в любой пустой строке документа;
+    */
+    behavior?: 'empty-doc' | 'empty-row-top-level' | 'empty-row';
 };
 
 export type MarkdownEditorMdOptions = {
