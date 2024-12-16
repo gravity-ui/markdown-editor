@@ -45,6 +45,7 @@ export const MathSpecs: ExtensionAuto = (builder) => {
                 code: true,
                 toDOM: () => ['div', {class: 'math-block'}, 0],
                 parseDOM: [{tag: 'div.math-block', priority: 200}],
+                selectable: true,
             },
             fromMd: {
                 tokenName: 'math_block',
