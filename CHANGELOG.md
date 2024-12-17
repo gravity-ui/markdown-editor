@@ -1,5 +1,17 @@
 # Changelog
 
+## [14.7.0](https://github.com/gravity-ui/markdown-editor/compare/v14.6.0...v14.7.0) (2024-12-17)
+
+
+### Features
+
+* **bundle:** added empty row placeholder ([#506](https://github.com/gravity-ui/markdown-editor/issues/506)) ([dc049af](https://github.com/gravity-ui/markdown-editor/commit/dc049af1c5d3a1016406afec3237b85bad2211c0))
+
+
+### Bug Fixes
+
+* **Checkbox:** added parse dom rules and fixed pasting of checkboxes ([#523](https://github.com/gravity-ui/markdown-editor/issues/523)) ([a7c23b5](https://github.com/gravity-ui/markdown-editor/commit/a7c23b59af7f2d7a8fd52e3cdb927468854f6c09))
+
 ## [14.6.0](https://github.com/gravity-ui/markdown-editor/compare/v14.5.1...v14.6.0) (2024-12-10)
 
 
