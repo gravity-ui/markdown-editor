@@ -316,6 +316,10 @@
   },
   "sideEffects": [
     "*.css",
-    "*.scss"
+    "*.scss",
+    "src/shortcuts/index.ts",
+    "src/shortcuts/default.ts",
+    "build/**/shortcuts/index.js",
+    "build/**/shortcuts/default.js"
   ]
 }
