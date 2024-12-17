@@ -66,6 +66,7 @@ export function useMarkdownEditor<T extends object = {}>(
                     return true;
                 },
                 preserveEmptyRows: preserveEmptyRows,
+                placeholderOptions: wysiwygConfig.placeholderOptions,
                 mdBreaks: breaks,
                 fileUploadHandler: uploadFile,
                 needToSetDimensionsForUploadedImages,
