@@ -5,6 +5,7 @@ import {CheckboxSpecs, type CheckboxSpecsOptions} from './CheckboxSpecs';
 import {addCheckbox} from './actions';
 import {CheckboxInputView} from './nodeviews';
 import {keymapPlugin} from './plugin';
+import {fixPastePlugin} from './plugins/fix-paste';
 import {checkboxInputType, checkboxType} from './utils';
 
 import './index.scss';
@@ -29,6 +30,7 @@ export const Checkbox: ExtensionAuto<CheckboxOptions> = (builder, opts) => {
 
     builder
         .addPlugin(keymapPlugin, builder.Priority.High)
+        .addPlugin(fixPastePlugin)
         .addAction(checkboxAction, () => addCheckbox())
         .addInputRules(({schema}) => ({
             rules: [
