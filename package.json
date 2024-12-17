@@ -313,5 +313,13 @@
       "prettier --write"
     ],
     "*.{md,json,yaml,yml}": "prettier --write"
-  }
+  },
+  "sideEffects": [
+    "*.css",
+    "*.scss",
+    "src/shortcuts/index.ts",
+    "src/shortcuts/default.ts",
+    "build/**/shortcuts/index.js",
+    "build/**/shortcuts/default.js"
+  ]
 }
