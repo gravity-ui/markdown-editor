@@ -30,9 +30,9 @@ export type WysiwygPlaceholderOptions = {
     value?: string | (() => string);
     /** Default – empty-doc 
     Values:
-    - 'empty-doc' – the placeholder will only be shown in an empty document;
-    - 'empty-row-top-level' – the placeholder will be displayed in an empty line, which is located at the top level of the document;
-    - 'empty-row' – Заполнитель будет отображаться в любой пустой строке документа;
+    - 'empty-doc' – The placeholder will only be shown when the document is completely empty;
+    - 'empty-row-top-level' – The placeholder will be displayed in an empty line that is at the top level of the document structure;
+    - 'empty-row' – The placeholder will be shown in any empty line within the document, regardless of its nesting level.
     */
     behavior?: 'empty-doc' | 'empty-row-top-level' | 'empty-row';
 };
