@@ -1,5 +1,12 @@
 # Changelog
 
+## [14.8.0](https://github.com/gravity-ui/markdown-editor/compare/v14.7.0...v14.8.0) (2024-12-17)
+
+
+### Features
+
+* **build:** added a sideEffects property for tree shaking package ([#522](https://github.com/gravity-ui/markdown-editor/issues/522)) ([03b3962](https://github.com/gravity-ui/markdown-editor/commit/03b39624c32adde84adae74c4e320ce389d0eddb))
+
 ## [14.7.0](https://github.com/gravity-ui/markdown-editor/compare/v14.6.0...v14.7.0) (2024-12-17)
 
 
