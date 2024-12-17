@@ -9,7 +9,7 @@ import {parserTokens} from './parser';
 import {getSchemaSpecs} from './schema';
 import {serializerTokens} from './serializer';
 
-export {CheckboxNode} from './const';
+export {CheckboxAttr, CheckboxNode} from './const';
 export const checkboxType = nodeTypeFactory(CheckboxNode.Checkbox);
 export const checkboxLabelType = nodeTypeFactory(CheckboxNode.Label);
 export const checkboxInputType = nodeTypeFactory(CheckboxNode.Input);

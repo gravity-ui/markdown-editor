@@ -8,7 +8,7 @@ import {gptHotKeys} from './constants';
 
 export const cnGptButton = cn('gpt-button');
 
-export const wGptToolbarItem: WToolbarSingleItemData = {
+export const wGptItemData: WToolbarSingleItemData = {
     type: ToolbarDataType.SingleButton,
     id: 'gpt',
     title: () => `${i18n('help-with-text')}`,
