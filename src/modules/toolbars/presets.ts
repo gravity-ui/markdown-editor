@@ -70,9 +70,6 @@ import {
     markedItemMarkup,
     markedItemView,
     markedItemWysiwyg,
-    mermaidItemMarkup,
-    mermaidItemView,
-    mermaidItemWysiwyg,
     monospaceItemMarkup,
     monospaceItemView,
     monospaceItemWysiwyg,
@@ -105,9 +102,6 @@ import {
     undoItemMarkup,
     undoItemView,
     undoItemWysiwyg,
-    yfmHtmlBlockItemMarkup,
-    yfmHtmlBlockItemView,
-    yfmHtmlBlockItemWysiwyg,
 } from './items';
 import {ToolbarsPreset} from './types';
 
@@ -533,16 +527,6 @@ export const full: ToolbarsPreset = {
             wysiwyg: colorifyItemWysiwyg,
             markup: colorifyItemMarkup,
         },
-        [Action.mermaid]: {
-            view: mermaidItemView,
-            wysiwyg: mermaidItemWysiwyg,
-            markup: mermaidItemMarkup,
-        },
-        [Action.htmlBlock]: {
-            view: yfmHtmlBlockItemView,
-            wysiwyg: yfmHtmlBlockItemWysiwyg,
-            markup: yfmHtmlBlockItemMarkup,
-        },
         [Action.emoji]: {
             view: emojiItemView,
             wysiwyg: emojiItemWysiwyg,
@@ -586,7 +570,6 @@ export const full: ToolbarsPreset = {
                 },
             ],
             [Action.image, Action.file, Action.table, Action.checkbox],
-            [Action.mermaid, Action.htmlBlock],
         ],
         [Toolbar.markupMain]: [
             [Action.undo, Action.redo],
@@ -624,9 +607,8 @@ export const full: ToolbarsPreset = {
                 },
             ],
             [Action.imagePopup, Action.filePopup, Action.table, Action.checkbox],
-            [Action.mermaid, Action.htmlBlock],
         ],
-        [Toolbar.wysiwygHidden]: [[Action.horizontalRule, Action.tabs, Action.emoji]],
-        [Toolbar.markupHidden]: [[Action.horizontalRule, Action.tabs, Action.emoji]],
+        [Toolbar.wysiwygHidden]: [[Action.horizontalRule, Action.emoji, Action.tabs]],
+        [Toolbar.markupHidden]: [[Action.horizontalRule, Action.emoji, Action.tabs]],
     },
 };

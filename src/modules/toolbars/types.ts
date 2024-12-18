@@ -20,15 +20,20 @@ export type ToolbarItemView<T extends ToolbarDataType = ToolbarDataType.SingleBu
     className?: string;
     hint?: string | (() => string);
     hotkey?: HotkeyProps['value'];
-    icon?: ToolbarIconData;
-    title?: string | (() => string);
     type?: ToolbarDataType;
     doNotActivateList?: boolean;
-} & (T extends ToolbarDataType.ListButton
+} & (T extends ToolbarDataType.SingleButton
     ? {
-          withArrow?: boolean;
+          icon: ToolbarIconData;
+          title: string | (() => string);
       }
-    : {});
+    : T extends ToolbarDataType.ListButton
+      ? {
+            withArrow?: boolean;
+            icon: ToolbarIconData;
+            title: string | (() => string);
+        }
+      : {});
 
 export interface EditorActions<E> {
     exec(editor: E): void;
@@ -60,12 +65,12 @@ export type ToolbarItemWysiwyg<T extends ToolbarDataType = ToolbarDataType.Singl
 export type ToolbarItemMarkup<T extends ToolbarDataType = ToolbarDataType.SingleButton> =
     ToolbarItemEditor<T, CodeEditor>;
 
-export type ToolbarItem<T extends ToolbarDataType = ToolbarDataType.SingleButton> = {
+export type ToolbarItem<T extends ToolbarDataType> = {
     view: ToolbarItemView<T>;
     wysiwyg?: ToolbarItemWysiwyg<T>;
     markup?: ToolbarItemMarkup<T>;
 };
-export type ToolbarsItems = Record<ToolbarItemId, ToolbarItem>;
+export type ToolbarsItems = Record<ToolbarItemId, ToolbarItem<ToolbarDataType>>;
 
 // Orders
 export type ToolbarId = string;

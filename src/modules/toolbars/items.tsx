@@ -709,7 +709,7 @@ export const toggleHeadingFoldingItemWysiwyg: ToolbarItemWysiwyg = {
 };
 
 // ---- Text Context ----
-export const textContextItemView: ToolbarItemView = {
+export const textContextItemView: ToolbarItemView<ToolbarDataType.ReactComponent> = {
     type: ToolbarDataType.ReactComponent,
 };
 export const textContextItemWisywig: ToolbarItemWysiwyg<ToolbarDataType.ReactComponent> = {
@@ -742,7 +742,7 @@ export const paragraphItemMarkup: ToolbarItemMarkup = {
 };
 
 // --- Colorify ----
-export const colorifyItemView: ToolbarItemView = {
+export const colorifyItemView: ToolbarItemView<ToolbarDataType.ReactComponent> = {
     type: ToolbarDataType.ReactComponent,
 };
 export const colorifyItemWysiwyg: ToolbarItemWysiwyg<ToolbarDataType.ReactComponent> = {
