@@ -1,5 +1,6 @@
 import React, {CSSProperties, useCallback, useEffect} from 'react';
 
+import {defaultOptions} from '@diplodoc/transform/lib/sanitize';
 import {toaster} from '@gravity-ui/uikit/toaster-singleton-react-18';
 
 import {
@@ -11,6 +12,12 @@ import {
     logger,
     useMarkdownEditor,
 } from '../../../src';
+import {FoldingHeading} from '../../../src/extensions/additional/FoldingHeading';
+import {Math} from '../../../src/extensions/additional/Math';
+import {Mermaid} from '../../../src/extensions/additional/Mermaid';
+import {YfmHtmlBlock} from '../../../src/extensions/additional/YfmHtmlBlock';
+import {getSanitizeYfmHtmlBlock} from '../../../src/extensions/additional/YfmHtmlBlock/utils';
+import {ToolbarsPreset} from '../../../src/modules/toolbars/types';
 import type {FileUploadHandler} from '../../../src/utils/upload';
 import {VERSION} from '../../../src/version';
 // ---
@@ -18,6 +25,7 @@ import {WysiwygSelection} from '../../components/PMSelection';
 import {WysiwygDevTools} from '../../components/ProseMirrorDevTools';
 import {SplitModePreview} from '../../components/SplitModePreview';
 import {plugins} from '../../defaults/md-plugins';
+import useYfmHtmlBlockStyles from '../../hooks/useYfmHtmlBlockStyles';
 import {block} from '../../utils/cn';
 import {randomDelay} from '../../utils/delay';
 import {parseInsertedUrlAsImage} from '../../utils/imageUrl';
@@ -41,6 +49,7 @@ export type PresetDemoProps = {
     splitModeOrientation?: 'horizontal' | 'vertical' | false;
     stickyToolbar?: boolean;
     height?: CSSProperties['height'];
+    toolbarsPreset?: ToolbarsPreset;
 };
 
 logger.setLogger({
@@ -60,6 +69,7 @@ export const Preset = React.memo<PresetDemoProps>((props) => {
         splitModeOrientation,
         stickyToolbar,
         height,
+        toolbarsPreset,
     } = props;
     const [editorMode, setEditorMode] = React.useState<MarkdownEditorMode>('wysiwyg');
     const [mdRaw, setMdRaw] = React.useState<MarkupString>('');
@@ -96,6 +106,41 @@ export const Preset = React.memo<PresetDemoProps>((props) => {
                     parseInsertedUrlAsImage,
                 },
             },
+            extensions: (builder) => {
+                builder
+                    .use(Math, {
+                        loadRuntimeScript: () => {
+                            import(
+                                /* webpackChunkName: "latex-runtime" */ '@diplodoc/latex-extension/runtime'
+                            );
+                            import(
+                                // @ts-expect-error // no types for styles
+                                /* webpackChunkName: "latex-styles" */ '@diplodoc/latex-extension/runtime/styles'
+                            );
+                        },
+                    })
+                    .use(Mermaid, {
+                        loadRuntimeScript: () => {
+                            import(
+                                /* webpackChunkName: "mermaid-runtime" */ '@diplodoc/mermaid-extension/runtime'
+                            );
+                        },
+                    })
+                    .use(FoldingHeading)
+                    .use(YfmHtmlBlock, {
+                        useConfig: useYfmHtmlBlockStyles,
+                        sanitize: getSanitizeYfmHtmlBlock({options: defaultOptions}),
+                        head: `
+                        <base target="_blank" />
+                        <style>
+                            html, body {
+                                margin: 0;
+                                padding: 0;
+                            }
+                        </style
+                    `,
+                    });
+            },
         },
         markupConfig: {
             parseInsertedUrlAsImage,
@@ -130,6 +175,7 @@ export const Preset = React.memo<PresetDemoProps>((props) => {
                 <div className={b('editor')} style={{height: height ?? 'initial'}}>
                     <MarkdownEditorView
                         autofocus
+                        toolbarsPreset={toolbarsPreset}
                         toaster={toaster}
                         className={b('editor-view')}
                         stickyToolbar={Boolean(stickyToolbar)}

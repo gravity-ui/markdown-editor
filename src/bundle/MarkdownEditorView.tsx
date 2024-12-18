@@ -7,7 +7,11 @@ import {useEnsuredForwardedRef, useKey, useUpdate} from 'react-use';
 import {ClassNameProps, cn} from '../classname';
 import {i18n} from '../i18n/bundle';
 import {logger} from '../logger';
+import {ToolbarName} from '../modules/toolbars/constants';
+import {commonmark, defaultPreset, full, yfm, zero} from '../modules/toolbars/presets';
+import {EditorPreset, ToolbarItem, ToolbarsPresetOrEditorPreset} from '../modules/toolbars/types';
 import {ToasterContext, useBooleanState, useSticky} from '../react-utils';
+import {ToolbarDataType} from '../toolbar';
 import {isMac} from '../utils';
 
 import type {Editor, EditorInt} from './Editor';
@@ -15,16 +19,7 @@ import {HorizontalDrag} from './HorizontalDrag';
 import {MarkupEditorView} from './MarkupEditorView';
 import {SplitModeView} from './SplitModeView';
 import {WysiwygEditorView} from './WysiwygEditorView';
-import {
-    MToolbarData,
-    MToolbarItemData,
-    WToolbarData,
-    WToolbarItemData,
-    mHiddenDataByPreset,
-    mToolbarConfigByPreset,
-    wHiddenDataByPreset,
-    wToolbarConfigByPreset,
-} from './config';
+import {MToolbarData, MToolbarItemData, WToolbarData, WToolbarItemData} from './config';
 import {useMarkdownEditorContext} from './context';
 import {EditorSettings, EditorSettingsProps} from './settings';
 import {stickyCn} from './sticky';
@@ -39,9 +34,22 @@ const b = cnEditorComponent;
 export type MarkdownEditorViewProps = ClassNameProps & {
     editor?: Editor;
     autofocus?: boolean;
+    toolbarsPreset?: ToolbarsPresetOrEditorPreset;
+    /**
+     * @deprecated use `toolbarsPreset` instead
+     */
     markupToolbarConfig?: MToolbarData;
+    /**
+     * @deprecated use `toolbarsPreset` instead
+     */
     wysiwygToolbarConfig?: WToolbarData;
+    /**
+     * @deprecated use `toolbarsPreset` instead
+     */
     markupHiddenActionsConfig?: MToolbarItemData[];
+    /**
+     * @deprecated use `toolbarsPreset` instead
+     */
     wysiwygHiddenActionsConfig?: WToolbarItemData[];
     /** @default true */
     settingsVisible?: boolean;
@@ -49,6 +57,68 @@ export type MarkdownEditorViewProps = ClassNameProps & {
     stickyToolbar: boolean;
     enableSubmitInPreview?: boolean;
     hidePreviewAfterSubmit?: boolean;
+};
+
+const defaultPresets = {
+    zero,
+    commonmark,
+    default: defaultPreset,
+    yfm,
+    full,
+};
+
+const transformItem = (
+    type: 'wysiwyg' | 'markup',
+    item?: ToolbarItem<ToolbarDataType.SingleButton | ToolbarDataType.ListButton>,
+    id = 'unknown',
+) => {
+    if (!item) return null;
+    const isListButton = item.view.type === ToolbarDataType.ListButton;
+
+    return {
+        type: item.view.type || 's-button',
+        id,
+        title: item.view.title,
+        hint: item.view.hint,
+        icon: item.view.icon,
+        hotkey: item.view.hotkey,
+        ...(isListButton && {withArrow: (item.view as any).withArrow}),
+        ...(type === 'wysiwyg' && item.wysiwyg && {...item.wysiwyg}),
+        ...(type === 'markup' && item.markup && {...item.markup}),
+    };
+};
+
+export const createConfig = <
+    T extends WToolbarData | MToolbarData | WToolbarItemData[][] | MToolbarItemData[][],
+>(
+    editorType: 'wysiwyg' | 'markup',
+    toolbarPreset: ToolbarsPresetOrEditorPreset,
+    toolbarName: string,
+): T => {
+    const preset =
+        typeof toolbarPreset === 'string' ? getDefaultPresetByName(toolbarPreset) : toolbarPreset;
+    const orders = preset.orders[toolbarName] ?? [[]];
+    const {items} = preset;
+
+    const toolbarData = orders.map((group) =>
+        group.map((item) => {
+            return typeof item === 'string'
+                ? transformItem(editorType, items[item], item)
+                : {
+                      ...transformItem(editorType, items[item.id], item.id),
+                      data: item.items.map((id) => transformItem(editorType, items[id], id)),
+                  };
+        }),
+    );
+
+    return toolbarData as T;
+};
+
+const getDefaultPresetByName = (initialPreset: EditorPreset) => {
+    const presetName = ['zero', 'commonmark', 'default', 'yfm', 'full'].includes(initialPreset)
+        ? initialPreset
+        : 'default';
+    return defaultPresets[presetName];
 };
 
 export const MarkdownEditorView = React.forwardRef<HTMLDivElement, MarkdownEditorViewProps>(
@@ -73,15 +143,49 @@ export const MarkdownEditorView = React.forwardRef<HTMLDivElement, MarkdownEdito
             autofocus,
             className,
             settingsVisible = true,
-            markupToolbarConfig = mToolbarConfigByPreset[editor.preset],
-            wysiwygToolbarConfig = wToolbarConfigByPreset[editor.preset],
-            markupHiddenActionsConfig = mHiddenDataByPreset[editor.preset],
-            wysiwygHiddenActionsConfig = wHiddenDataByPreset[editor.preset],
+            toolbarsPreset,
             toaster,
             stickyToolbar,
             enableSubmitInPreview = true,
             hidePreviewAfterSubmit = false,
         } = props;
+
+        const wysiwygToolbarConfig = toolbarsPreset
+            ? createConfig<WToolbarData>('wysiwyg', toolbarsPreset, ToolbarName.wysiwygMain)
+            : props.wysiwygToolbarConfig ??
+              createConfig<WToolbarData>('wysiwyg', editor.preset, ToolbarName.wysiwygMain);
+
+        const markupToolbarConfig = toolbarsPreset
+            ? createConfig<MToolbarData>('markup', toolbarsPreset, ToolbarName.markupMain)
+            : props.markupToolbarConfig ??
+              createConfig<MToolbarData>('markup', editor.preset, ToolbarName.markupMain);
+
+        // TODO: @makhnatkin add getToolbarItemDataFromToolbarData
+        const wysiwygHiddenActionsConfig = toolbarsPreset
+            ? createConfig<WToolbarItemData[][]>(
+                  'wysiwyg',
+                  toolbarsPreset,
+                  ToolbarName.wysiwygHidden,
+              )[0]
+            : props.wysiwygHiddenActionsConfig ??
+              createConfig<WToolbarItemData[][]>(
+                  'wysiwyg',
+                  editor.preset,
+                  ToolbarName.wysiwygHidden,
+              )[0];
+
+        const markupHiddenActionsConfig = toolbarsPreset
+            ? createConfig<MToolbarItemData[][]>(
+                  'markup',
+                  toolbarsPreset,
+                  ToolbarName.markupHidden,
+              )[0]
+            : props.markupHiddenActionsConfig ??
+              createConfig<MToolbarItemData[][]>(
+                  'markup',
+                  editor.preset,
+                  ToolbarName.markupHidden,
+              )[0];
 
         const rerender = useUpdate();
         React.useLayoutEffect(() => {

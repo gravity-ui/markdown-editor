@@ -1,0 +1,82 @@
+import {RefObject} from 'react';
+
+import {HotkeyProps} from '@gravity-ui/uikit';
+import {EditorState} from 'prosemirror-state';
+
+import {ActionStorage} from '../../core';
+import {CodeEditor} from '../../markup';
+import {ToolbarBaseProps, ToolbarDataType, ToolbarIconData} from '../../toolbar';
+
+// Items
+export type ToolbarItemId = string & {};
+export type ToolbarListId = string & {};
+
+export interface ToolbarList {
+    id: ToolbarListId;
+    items: ToolbarItemId[];
+}
+
+export type ToolbarItemView<T extends ToolbarDataType = ToolbarDataType.SingleButton> = {
+    className?: string;
+    hint?: string | (() => string);
+    hotkey?: HotkeyProps['value'];
+    icon?: ToolbarIconData;
+    title?: string | (() => string);
+    type?: ToolbarDataType;
+    doNotActivateList?: boolean;
+} & (T extends ToolbarDataType.ListButton
+    ? {
+          withArrow?: boolean;
+      }
+    : {});
+
+export interface EditorActions<E> {
+    exec(editor: E): void;
+    isActive(editor: E): boolean;
+    isEnable(editor: E): boolean;
+}
+
+type ToolbarItemEditor<T, E> = Partial<EditorActions<E>> & {
+    hintWhenDisabled?: boolean | string | (() => string);
+} & (T extends ToolbarDataType.ButtonPopup
+        ? {
+              renderPopup: (
+                  props: ToolbarBaseProps<E> & {
+                      hide: () => void;
+                      anchorRef: RefObject<HTMLElement>;
+                  },
+              ) => React.ReactNode;
+          }
+        : T extends ToolbarDataType.ReactComponent
+          ? {
+                width: number;
+                component: React.ComponentType<ToolbarBaseProps<E>>;
+                condition?: ((state: EditorState) => void) | 'enabled';
+            }
+          : {});
+
+export type ToolbarItemWysiwyg<T extends ToolbarDataType = ToolbarDataType.SingleButton> =
+    ToolbarItemEditor<T, ActionStorage>;
+export type ToolbarItemMarkup<T extends ToolbarDataType = ToolbarDataType.SingleButton> =
+    ToolbarItemEditor<T, CodeEditor>;
+
+export type ToolbarItem<T extends ToolbarDataType = ToolbarDataType.SingleButton> = {
+    view: ToolbarItemView<T>;
+    wysiwyg?: ToolbarItemWysiwyg<T>;
+    markup?: ToolbarItemMarkup<T>;
+};
+export type ToolbarsItems = Record<ToolbarItemId, ToolbarItem>;
+
+// Orders
+export type ToolbarId = string;
+export type ToolbarOrders = (ToolbarList | ToolbarItemId)[][];
+export type ToolbarsOrders = Record<ToolbarId, ToolbarOrders>;
+
+export interface ToolbarsPreset {
+    items: ToolbarsItems;
+    orders: ToolbarsOrders;
+}
+
+export type EditorPreset = 'zero' | 'commonmark' | 'default' | 'yfm' | 'full';
+
+export type ToolbarsPresetOrEditorPreset = ToolbarsPreset | EditorPreset;
