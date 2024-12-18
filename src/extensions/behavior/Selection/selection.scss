@@ -62,9 +62,14 @@ $offset-elements: h1, h2, h3, h4, h5, h6, 'p:not(:has(img))', 'span:not(+ img)',
         );
     }
 
-    // &::selection {
-    //     color: var(--g-color-text-primary);
-    // }
+    &#{$active-node-selector} {
+        &,
+        * {
+            &::selection {
+                color: inherit;
+            }
+        }
+    }
 }
 
 /* default selection properties */
