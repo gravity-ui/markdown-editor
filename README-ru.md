@@ -52,14 +52,14 @@ function Editor({onSubmit}) {
 }
 ```
 Полезные ссылки:
-- [Как подключить редактор в Create React App](https://github.com/gravity-ui/markdown-editor/blob/main/docs/how-to-add-editor-with-create-react-app.md)
-- [Как добавить предварительный просмотр для режима разметки](https://github.com/gravity-ui/markdown-editor/blob/main/docs/how-to-add-preview.md)
-- [Как добавить расширение HTML](https://github.com/gravity-ui/markdown-editor/blob/main/docs/how-to-connect-html-extension.md)
-- [Как добавить расширение Latex](https://github.com/gravity-ui/markdown-editor/blob/main/docs/how-to-connect-latex-extension.md)
-- [Как добавить расширение Mermaid](https://github.com/gravity-ui/markdown-editor/blob/main/docs/how-to-connect-mermaid-extension.md)
-- [Как создать собственное расширение](https://github.com/gravity-ui/markdown-editor/blob/main/docs/how-to-create-extension.md)
-- [Как добавить расширение GPT](https://github.com/gravity-ui/markdown-editor/blob/main/docs/how-to-connect-gpt-extensions.md)
-- [Как добавить расширение привязки текста в Markdown](https://github.com/gravity-ui/markdown-editor/blob/main/docs/how-to-add-text-binding-extension-in-markdown.md)
+- [Как подключить редактор в Create React App](https://preview.gravity-ui.com/md-editor/?path=/docs/docs-install-create-react-app--docs)
+- [Как добавить предварительный просмотр для режима разметки](https://preview.gravity-ui.com/md-editor/?path=/docs/docs-develop-preview--docs)
+- [Как добавить расширение HTML](https://preview.gravity-ui.com/md-editor/?path=/docs/docs-connect-html-block--docs)
+- [Как добавить расширение Latex](https://preview.gravity-ui.com/md-editor/?path=/docs/docs-connect-latex-extension--docs)
+- [Как добавить расширение Mermaid](https://preview.gravity-ui.com/md-editor/?path=/docs/docs-connect-mermaid-extension--docs)
+- [Как создать собственное расширение](https://preview.gravity-ui.com/md-editor/?path=/docs/docs-develop-extension-creation--docs)
+- [Как добавить расширение GPT](https://preview.gravity-ui.com/md-editor/?path=/docs/docs-connect-gpt--docs)
+- [Как добавить расширение привязки текста в Markdown](https://preview.gravity-ui.com/md-editor/?path=/docs/docs-develop-extension-with-popup--docs)
 
 
 
