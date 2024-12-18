@@ -1,3 +1,18 @@
+@use '../../../../node_modules/prosemirror-view/style/prosemirror';
+
+// Make outline appear only if ProseMirror is focused
+
+.ProseMirror-selectednode {
+    outline: none;
+}
+
+.g-md-editor.ProseMirror,
+.g-md-editor .ProseMirror {
+    &:focus {
+        outline: none;
+    }
+}
+
 $marker-space: var(--g-spacing-7);
 $active-node-indent-top: calc(-1 * var(--g-spacing-1));
 $active-node-indent-bottom: calc(-1 * var(--g-spacing-1));
@@ -16,7 +31,7 @@ $default-selection-box-shadow: none;
 $active-node-selector: '.pm-node-selected';
 $highlight-elements: h1, h2, h3, h4, h5, h6, p, ul, ol, blockquote, 'span:not(+ img)',
     'div:has(> hr)', '.g-md-checkbox';
-$highlight-elements-no-inset: pre, 'p:has(img)', '*[data-html]', '.math-block-container',
+$highlight-elements-no-inset: pre, 'p:has(img)', '*[data-html]', '.math-container',
     '.g-md-table-wrapper', '.mermaid-container', 'div[class^="yfm-"]';
 $offset-elements: h1, h2, h3, h4, h5, h6, 'p:not(:has(img))', 'span:not(+ img)', 'div:has(> hr)',
     '.g-md-checkbox';
@@ -140,6 +155,13 @@ $offset-elements: h1, h2, h3, h4, h5, h6, 'p:not(:has(img))', 'span:not(+ img)',
 // }
 
 [class].g-md-editor {
+    // REMOVE
+    &.ProseMirror {
+        padding: 40px;
+    }
+}
+
+[class].g-md-editor-component {
     // @include custom-lists;
     /* ⬇ basic styles ⬇ */
 
@@ -188,11 +210,6 @@ $offset-elements: h1, h2, h3, h4, h5, h6, 'p:not(:has(img))', 'span:not(+ img)',
                 }
             }
         }
-    }
-
-    // REMOVE
-    &.ProseMirror {
-        padding: 40px;
     }
 
     // REMOVE ?
