@@ -52,14 +52,14 @@ function Editor({onSubmit}) {
 }
 ```
 Read more:
-- [How to connect the editor in the Create React App](https://github.com/gravity-ui/markdown-editor/blob/main/docs/how-to-add-editor-with-create-react-app.md)
-- [How to add preview for markup mode](https://github.com/gravity-ui/markdown-editor/blob/main/docs/how-to-add-preview.md)
-- [How to add HTML extension](https://github.com/gravity-ui/markdown-editor/blob/main/docs/how-to-connect-html-extension.md)
-- [How to add Latex extension](https://github.com/gravity-ui/markdown-editor/blob/main/docs/how-to-connect-latex-extension.md)
-- [How to add Mermaid extension](https://github.com/gravity-ui/markdown-editor/blob/main/docs/how-to-connect-mermaid-extension.md)
-- [How to write extension](https://github.com/gravity-ui/markdown-editor/blob/main/docs/how-to-create-extension.md)
-- [How to add GPT extension](https://github.com/gravity-ui/markdown-editor/blob/main/docs/how-to-connect-gpt-extensions.md)
-- [How to add text binding extension in markdown](https://github.com/gravity-ui/markdown-editor/blob/main/docs/how-to-add-text-binding-extension-in-markdown.md)
+- [How to connect the editor in the Create React App](https://preview.gravity-ui.com/md-editor/?path=/docs/docs-install-create-react-app--docs)
+- [How to add preview for markup mode](https://preview.gravity-ui.com/md-editor/?path=/docs/docs-develop-preview--docs)
+- [How to add HTML extension](https://preview.gravity-ui.com/md-editor/?path=/docs/docs-connect-html-block--docs)
+- [How to add Latex extension](https://preview.gravity-ui.com/md-editor/?path=/docs/docs-connect-latex-extension--docs)
+- [How to add Mermaid extension](https://preview.gravity-ui.com/md-editor/?path=/docs/docs-connect-mermaid-extension--docs)
+- [How to write extension](https://preview.gravity-ui.com/md-editor/?path=/docs/docs-develop-extension-creation--docs)
+- [How to add GPT extension](https://preview.gravity-ui.com/md-editor/?path=/docs/docs-connect-gpt--docs)
+- [How to add text binding extension in markdown](https://preview.gravity-ui.com/md-editor/?path=/docs/docs-develop-extension-with-popup--docs)
 
 
 
