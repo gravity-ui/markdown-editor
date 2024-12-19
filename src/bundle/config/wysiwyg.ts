@@ -1,3 +1,6 @@
+/**
+ * @deprecated This file is deprecated. Use ToolbarsPreset instead.
+ */
 import {ActionStorage} from 'src/core';
 
 import {headingType, pType} from '../../extensions';

@@ -11,6 +11,7 @@ import {
     logger,
     useMarkdownEditor,
 } from '../../../src';
+import {ToolbarsPreset} from '../../../src/modules/toolbars/types';
 import type {FileUploadHandler} from '../../../src/utils/upload';
 import {VERSION} from '../../../src/version';
 // ---
@@ -41,6 +42,7 @@ export type PresetDemoProps = {
     splitModeOrientation?: 'horizontal' | 'vertical' | false;
     stickyToolbar?: boolean;
     height?: CSSProperties['height'];
+    toolbarsPreset?: ToolbarsPreset;
 };
 
 logger.setLogger({
@@ -60,6 +62,7 @@ export const Preset = React.memo<PresetDemoProps>((props) => {
         splitModeOrientation,
         stickyToolbar,
         height,
+        toolbarsPreset,
     } = props;
     const [editorMode, setEditorMode] = React.useState<MarkdownEditorMode>('wysiwyg');
     const [mdRaw, setMdRaw] = React.useState<MarkupString>('');
@@ -130,6 +133,7 @@ export const Preset = React.memo<PresetDemoProps>((props) => {
                 <div className={b('editor')} style={{height: height ?? 'initial'}}>
                     <MarkdownEditorView
                         autofocus
+                        toolbarsPreset={toolbarsPreset}
                         toaster={toaster}
                         className={b('editor-view')}
                         stickyToolbar={Boolean(stickyToolbar)}

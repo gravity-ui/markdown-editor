@@ -1,3 +1,6 @@
+/**
+ * @deprecated This file is deprecated. Use ToolbarsPreset instead.
+ */
 import React from 'react';
 
 import {i18n} from '../../i18n/menubar';

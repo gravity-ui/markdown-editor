@@ -43,7 +43,9 @@ export enum ToolbarDataType {
     SingleButton = 's-button',
     ListButton = 'list-b',
     ButtonPopup = 'b-popup',
+    /** @deprecated Use ReactComponent type instead */
     ReactNode = 'r-node',
+    /** @deprecated Use ReactComponent type instead */
     ReactNodeFn = 'r-node-fn',
     ReactComponent = 'r-component',
 }
@@ -90,6 +92,9 @@ export type ToolbarListButtonItemData<E> = ToolbarItemData<E> & {
     doNotActivateList?: boolean;
 };
 
+/**
+ * @deprecated Use ReactComponent type instead
+ * */
 export type ToolbarReactNodeData = {
     id: string;
     type: ToolbarDataType.ReactNode;
@@ -97,6 +102,9 @@ export type ToolbarReactNodeData = {
     content: React.ReactNode;
 };
 
+/**
+ * @deprecated Use ReactComponent type instead
+ * */
 export type ToolbarReactNodeFnData<E> = {
     id: string;
     type: ToolbarDataType.ReactNodeFn;
