@@ -12,7 +12,7 @@ const preview: Preview = {
         },
         options: {
             storySort: {
-                order: ['Playground', 'Docs', 'Extensions', ['Presets', '*'], '*'],
+                order: ['Playground', 'Docs', 'Extensions', 'Settings', ['Presets', '*'], '*'],
             },
         },
         controls: {

@@ -1,4 +1,4 @@
-##### Connect / GPT
+##### Extensions / GPT
 
 ## How to connect GPT extensions to editor
 

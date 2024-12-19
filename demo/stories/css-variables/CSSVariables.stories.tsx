@@ -33,6 +33,6 @@ export const Story: StoryObj<typeof component> = {
 Story.storyName = 'Custom CSS Variables';
 
 export default {
-    title: 'Experiments / Custom CSS Variables',
+    title: 'Settings / Custom CSS Variables',
     component,
 };

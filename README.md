@@ -61,6 +61,12 @@ Read more:
 - [How to add GPT extension](https://preview.gravity-ui.com/md-editor/?path=/docs/docs-connect-gpt--docs)
 - [How to add text binding extension in markdown](https://preview.gravity-ui.com/md-editor/?path=/docs/docs-develop-extension-with-popup--docs)
 
+### Development
+To start the dev storybook
+
+```shell
+npm start
+```
 
 
 ### i18n
@@ -77,10 +83,6 @@ configure({
 
 Don't forget to call `configure()` from [UIKit](https://github.com/gravity-ui/uikit?tab=readme-ov-file#i18n) and other UI libraries.
 
-## Development
+### Contributing
 
-To start the dev storybook
-
-```shell
-npm start
-```
+- [Contributor Guidelines](https://preview.gravity-ui.com/md-editor/?path=/docs/docs-contributing--docs)

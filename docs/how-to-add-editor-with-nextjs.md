@@ -1,4 +1,4 @@
-##### Install / NextJS
+##### Getting started / NextJS
 
 ## Connection and Configuration
 This document provides instructions for configuring Webpack and Turbopack to avoid issues related to the 'fs' module and for connecting the editor on the nextjs client side.
