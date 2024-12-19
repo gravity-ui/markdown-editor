@@ -44,9 +44,9 @@ import {type FileUploadHandler, FileUploadHandlerFacet} from './files-upload-fac
 import {gravityHighlightStyle, gravityTheme} from './gravity';
 import {MarkdownConverter} from './html-to-markdown/converters';
 import {PairingCharactersExtension} from './pairing-chars';
-import {smartReindent} from './paste-handler';
 import {ReactRendererFacet} from './react-facet';
 import {SearchPanelPlugin} from './search-plugin/plugin';
+import {smartReindent} from './smart-reindent';
 import {type YfmLangOptions, yfmLang} from './yfm';
 
 export type {YfmLangOptions};
