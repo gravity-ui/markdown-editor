@@ -705,7 +705,7 @@ export const toggleHeadingFoldingItemWysiwyg: ToolbarItemWysiwyg = {
     isActive: (editor) => editor.actions.toggleHeadingFolding?.isActive() ?? false,
     isEnable: (editor) => editor.actions.toggleHeadingFolding?.isEnable() ?? false,
     exec: (editor) => editor.actions.toggleHeadingFolding.run(),
-    // condition: 'enabled', // FIXME: @makhnatkin
+    condition: 'enabled',
 };
 
 // ---- Text Context ----

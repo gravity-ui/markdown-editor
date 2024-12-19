@@ -1,11 +1,11 @@
-import {RefObject} from 'react';
+import type {RefObject} from 'react';
 
-import {HotkeyProps} from '@gravity-ui/uikit';
-import {EditorState} from 'prosemirror-state';
+import type {HotkeyProps} from '@gravity-ui/uikit';
+import type {EditorState} from 'prosemirror-state';
 
-import {ActionStorage} from '../../core';
-import {CodeEditor} from '../../markup';
-import {ToolbarBaseProps, ToolbarDataType, ToolbarIconData} from '../../toolbar';
+import type {ActionStorage} from '../../core';
+import type {CodeEditor} from '../../markup';
+import type {ToolbarBaseProps, ToolbarDataType, ToolbarIconData} from '../../toolbar';
 
 // Items
 export type ToolbarItemId = string & {};
@@ -43,6 +43,7 @@ export interface EditorActions<E> {
 
 type ToolbarItemEditor<T, E> = Partial<EditorActions<E>> & {
     hintWhenDisabled?: boolean | string | (() => string);
+    condition?: ((state: EditorState) => void) | 'enabled';
 } & (T extends ToolbarDataType.ButtonPopup
         ? {
               renderPopup: (
@@ -56,7 +57,6 @@ type ToolbarItemEditor<T, E> = Partial<EditorActions<E>> & {
           ? {
                 width: number;
                 component: React.ComponentType<ToolbarBaseProps<E>>;
-                condition?: ((state: EditorState) => void) | 'enabled';
             }
           : {});
 
@@ -83,5 +83,3 @@ export interface ToolbarsPreset {
 }
 
 export type EditorPreset = 'zero' | 'commonmark' | 'default' | 'yfm' | 'full';
-
-export type ToolbarsPresetOrEditorPreset = ToolbarsPreset | EditorPreset;

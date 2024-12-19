@@ -7,7 +7,7 @@ import {useEnsuredForwardedRef, useKey, useUpdate} from 'react-use';
 import {ClassNameProps, cn} from '../classname';
 import {i18n} from '../i18n/bundle';
 import {logger} from '../logger';
-import {ToolbarsPresetOrEditorPreset} from '../modules/toolbars/types';
+import type {ToolbarsPreset} from '../modules/toolbars/types';
 import {ToasterContext, useBooleanState, useSticky} from '../react-utils';
 import {isMac} from '../utils';
 
@@ -32,7 +32,7 @@ const b = cnEditorComponent;
 export type MarkdownEditorViewProps = ClassNameProps & {
     editor?: Editor;
     autofocus?: boolean;
-    toolbarsPreset?: ToolbarsPresetOrEditorPreset;
+    toolbarsPreset?: ToolbarsPreset;
     /**
      * @deprecated use `toolbarsPreset` instead
      */

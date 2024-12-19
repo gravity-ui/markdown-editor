@@ -1,20 +1,17 @@
 import {ToolbarName} from '../../modules/toolbars/constants';
 import {commonmark, defaultPreset, full, yfm, zero} from '../../modules/toolbars/presets';
-import {
+import type {
     EditorPreset,
     ToolbarItem,
-    ToolbarsPresetOrEditorPreset,
+    ToolbarItemMarkup,
+    ToolbarItemWysiwyg,
+    ToolbarsPreset,
 } from '../../modules/toolbars/types';
-import {
-    MToolbarData,
-    MToolbarItemData,
-    ToolbarDataType,
-    WToolbarData,
-    WToolbarItemData,
-} from '../../toolbar';
-import {MarkdownEditorViewProps} from '../MarkdownEditorView';
+import type {MToolbarData, MToolbarItemData, WToolbarData, WToolbarItemData} from '../../toolbar';
+import {ToolbarDataType, ToolbarIconData} from '../../toolbar';
+import type {MarkdownEditorViewProps} from '../MarkdownEditorView';
 
-const defaultPresets = {
+const defaultPresets: Record<EditorPreset, ToolbarsPreset> = {
     zero,
     commonmark,
     default: defaultPreset,
@@ -22,24 +19,34 @@ const defaultPresets = {
     full,
 };
 
+interface TransformedItem {
+    type: ToolbarDataType;
+    id: string;
+    title?: string | (() => string);
+    hint?: string | (() => string);
+    icon?: ToolbarIconData;
+    hotkey?: string;
+    withArrow?: boolean;
+    wysiwyg?: ToolbarItemWysiwyg<ToolbarDataType>;
+    markup?: ToolbarItemMarkup<ToolbarDataType>;
+}
+
 const transformItem = (
     type: 'wysiwyg' | 'markup',
     item?: ToolbarItem<ToolbarDataType.SingleButton | ToolbarDataType.ListButton>,
     id = 'unknown',
-) => {
-    console.log('item', item, id);
-
+): TransformedItem => {
     if (!item) {
         console.warn(
             `Toolbar item "${id}" not found, it might not have been added to the items dictionary.`,
         );
-        return {};
+        return {} as TransformedItem;
     }
 
     const isListButton = item.view.type === ToolbarDataType.ListButton;
 
     return {
-        type: item.view.type || 's-button',
+        type: item.view.type ?? ToolbarDataType.SingleButton,
         id,
         title: item.view.title,
         hint: item.view.hint,
@@ -53,11 +60,13 @@ const transformItem = (
 
 export const createConfig = <T extends WToolbarData | MToolbarData>(
     editorType: 'wysiwyg' | 'markup',
-    toolbarPreset: ToolbarsPresetOrEditorPreset,
+    toolbarPreset: ToolbarsPreset | EditorPreset,
     toolbarName: string,
 ): T => {
     const preset =
-        typeof toolbarPreset === 'string' ? getDefaultPresetByName(toolbarPreset) : toolbarPreset;
+        typeof toolbarPreset === 'string'
+            ? defaultPresets[toolbarPreset] || defaultPresets.default
+            : toolbarPreset;
     const orders = preset.orders[toolbarName] ?? [[]];
     const {items} = preset;
 
@@ -75,13 +84,6 @@ export const createConfig = <T extends WToolbarData | MToolbarData>(
     return toolbarData as T;
 };
 
-const getDefaultPresetByName = (initialPreset: EditorPreset) => {
-    const presetName = ['zero', 'commonmark', 'default', 'yfm', 'full'].includes(initialPreset)
-        ? initialPreset
-        : 'default';
-    return defaultPresets[presetName];
-};
-
 const flattenPreset = <T extends WToolbarData | MToolbarData>(config: T) => {
     // TODO: @makhnatkin add logic for flatten
     return (config[0] ?? []) as unknown as T extends WToolbarData
@@ -90,8 +92,14 @@ const flattenPreset = <T extends WToolbarData | MToolbarData>(config: T) => {
 };
 
 interface GetToolbarsConfigsArgs {
-    toolbarsPreset?: ToolbarsPresetOrEditorPreset;
-    props: MarkdownEditorViewProps;
+    toolbarsPreset?: ToolbarsPreset;
+    props: Pick<
+        MarkdownEditorViewProps,
+        | 'markupToolbarConfig'
+        | 'wysiwygToolbarConfig'
+        | 'wysiwygHiddenActionsConfig'
+        | 'markupHiddenActionsConfig'
+    >;
     preset: EditorPreset;
 }
 export const getToolbarsConfigs = ({toolbarsPreset, props, preset}: GetToolbarsConfigsArgs) => {
