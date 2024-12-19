@@ -94,7 +94,7 @@ export function createCodemirror(params: CreateCodemirrorParams) {
         extensions: extraExtensions,
         placeholder: placeholderContent,
         autocompletion: autocompletionConfig,
-        parseHtmlOnPaste = true,
+        parseHtmlOnPaste,
         parseInsertedUrlAsImage,
         directiveSyntax,
     } = params;
