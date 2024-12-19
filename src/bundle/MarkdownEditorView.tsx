@@ -82,6 +82,10 @@ export const MarkdownEditorView = React.forwardRef<HTMLDivElement, MarkdownEdito
             toolbarsPreset,
             toaster,
             stickyToolbar,
+            wysiwygToolbarConfig: initialWysiwygToolbarConfig,
+            markupToolbarConfig: initialMarkupToolbarConfig,
+            wysiwygHiddenActionsConfig: initialWysiwygHiddenActionsConfig,
+            markupHiddenActionsConfig: initialMarkupHiddenActionsConfig,
             enableSubmitInPreview = true,
             hidePreviewAfterSubmit = false,
         } = props;
@@ -91,11 +95,27 @@ export const MarkdownEditorView = React.forwardRef<HTMLDivElement, MarkdownEdito
             markupToolbarConfig,
             wysiwygHiddenActionsConfig,
             markupHiddenActionsConfig,
-        } = getToolbarsConfigs({
-            toolbarsPreset,
-            props,
-            preset: editor.preset,
-        });
+        } = useMemo(
+            () =>
+                getToolbarsConfigs({
+                    toolbarsPreset,
+                    props: {
+                        wysiwygToolbarConfig: initialWysiwygToolbarConfig,
+                        markupToolbarConfig: initialMarkupToolbarConfig,
+                        wysiwygHiddenActionsConfig: initialWysiwygHiddenActionsConfig,
+                        markupHiddenActionsConfig: initialMarkupHiddenActionsConfig,
+                    },
+                    preset: editor.preset,
+                }),
+            [
+                toolbarsPreset,
+                initialWysiwygToolbarConfig,
+                initialMarkupToolbarConfig,
+                initialWysiwygHiddenActionsConfig,
+                initialMarkupHiddenActionsConfig,
+                editor.preset,
+            ],
+        );
 
         const rerender = useUpdate();
         React.useLayoutEffect(() => {

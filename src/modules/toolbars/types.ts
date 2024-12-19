@@ -16,6 +16,9 @@ export interface ToolbarList {
     items: ToolbarItemId[];
 }
 
+/**
+ * The default value for the `type` property is `ToolbarDataType.SingleButton`.
+ */
 export type ToolbarItemView<T extends ToolbarDataType = ToolbarDataType.SingleButton> = {
     className?: string;
     hint?: string | (() => string);
@@ -81,5 +84,3 @@ export interface ToolbarsPreset {
     items: ToolbarsItems;
     orders: ToolbarsOrders;
 }
-
-export type EditorPreset = 'zero' | 'commonmark' | 'default' | 'yfm' | 'full';

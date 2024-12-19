@@ -1,7 +1,6 @@
 import {ToolbarName} from '../../modules/toolbars/constants';
 import {commonmark, defaultPreset, full, yfm, zero} from '../../modules/toolbars/presets';
 import type {
-    EditorPreset,
     ToolbarItem,
     ToolbarItemMarkup,
     ToolbarItemWysiwyg,
@@ -10,8 +9,9 @@ import type {
 import type {MToolbarData, MToolbarItemData, WToolbarData, WToolbarItemData} from '../../toolbar';
 import {ToolbarDataType, ToolbarIconData} from '../../toolbar';
 import type {MarkdownEditorViewProps} from '../MarkdownEditorView';
+import {MarkdownEditorPreset} from '../types';
 
-const defaultPresets: Record<EditorPreset, ToolbarsPreset> = {
+const defaultPresets: Record<MarkdownEditorPreset, ToolbarsPreset> = {
     zero,
     commonmark,
     default: defaultPreset,
@@ -60,7 +60,7 @@ const transformItem = (
 
 export const createConfig = <T extends WToolbarData | MToolbarData>(
     editorType: 'wysiwyg' | 'markup',
-    toolbarPreset: ToolbarsPreset | EditorPreset,
+    toolbarPreset: ToolbarsPreset | MarkdownEditorPreset,
     toolbarName: string,
 ): T => {
     const preset =
@@ -100,7 +100,7 @@ interface GetToolbarsConfigsArgs {
         | 'wysiwygHiddenActionsConfig'
         | 'markupHiddenActionsConfig'
     >;
-    preset: EditorPreset;
+    preset: MarkdownEditorPreset;
 }
 export const getToolbarsConfigs = ({toolbarsPreset, props, preset}: GetToolbarsConfigsArgs) => {
     const wysiwygToolbarConfig = toolbarsPreset

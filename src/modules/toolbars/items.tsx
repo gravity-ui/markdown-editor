@@ -793,7 +793,7 @@ export const moveListItemView: ToolbarItemView<ToolbarDataType.ListButton> = {
     type: ToolbarDataType.ListButton,
     icon: icons.lift,
     withArrow: true,
-    title: 'Move list item', // TODO: @makhnatkin add i18n
+    title: i18n.bind(null, 'move_list'),
 };
 
 // ---- Code list ----
