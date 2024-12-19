@@ -8,6 +8,11 @@ module.exports = {
     moduleNameMapper: {
         '\\.(css|less|scss|sss|styl)$': '<rootDir>/node_modules/jest-css-modules',
         '.+\\.(svg|png|jpg)$': 'identity-obj-proxy',
+        '^@gravity-ui/uikit/i18n$': '<rootDir>/node_modules/@gravity-ui/uikit/build/cjs/i18n',
+        '^@diplodoc/cut-extension/runtime$':
+            '<rootDir>/node_modules/@diplodoc/cut-extension/build/runtime',
+        '^@diplodoc/tabs-extension/runtime$':
+            '<rootDir>/node_modules/@diplodoc/tabs-extension/build/runtime',
     },
     moduleFileExtensions: ['tsx', 'ts', 'js'],
     globals: {
