@@ -1,4 +1,4 @@
-import {Plugin, TextSelection} from 'prosemirror-state';
+import {Plugin, TextSelection, type Transaction} from 'prosemirror-state';
 
 import type {ExtensionDeps, Parser} from '../../../core';
 import {isNodeSelection, isTextSelection} from '../../../utils/selection';
@@ -14,26 +14,46 @@ export function linkPasteEnhance({markupParser: parser}: ExtensionDeps) {
                 paste(view, e): boolean {
                     const {state, dispatch} = view;
                     const sel = state.selection;
+                    let tr: Transaction | null = null;
+
                     if (
                         isTextSelection(sel) ||
                         (isNodeSelection(sel) && sel.node.type === imageType(state.schema))
                     ) {
                         const {$from, $to} = sel;
-                        if ($from.pos !== $to.pos && $from.sameParent($to)) {
+                        if ($from.pos === $to.pos) {
                             const url = getUrl(e.clipboardData, parser);
                             if (url) {
-                                const tr = state.tr.addMark(
+                                const linkMarkType = linkType(state.schema);
+                                tr = state.tr.replaceSelectionWith(
+                                    state.schema.text(url, [
+                                        ...$from
+                                            .marks()
+                                            .filter((mark) => mark.type !== linkMarkType),
+                                        linkMarkType.create({[LinkAttr.Href]: url}),
+                                    ]),
+                                    false,
+                                );
+                            }
+                        } else if ($from.sameParent($to)) {
+                            const url = getUrl(e.clipboardData, parser);
+                            if (url) {
+                                tr = state.tr.addMark(
                                     $from.pos,
                                     $to.pos,
                                     linkType(state.schema).create({
                                         [LinkAttr.Href]: url,
                                     }),
                                 );
-                                dispatch(tr.setSelection(TextSelection.create(tr.doc, $to.pos)));
-                                e.preventDefault();
-                                return true;
+                                tr.setSelection(TextSelection.create(tr.doc, $to.pos));
                             }
                         }
+                    }
+
+                    if (tr) {
+                        dispatch(tr.scrollIntoView());
+                        e.preventDefault();
+                        return true;
                     }
 
                     return false;
