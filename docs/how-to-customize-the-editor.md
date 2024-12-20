@@ -1,4 +1,4 @@
-##### Develop / Editor customization
+##### Getting started / Editor customization
 
 ## How to customize the editor
 You can use CSS variables to make editor contents fit your own needs
