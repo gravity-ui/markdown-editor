@@ -1,5 +1,18 @@
 # Changelog
 
+## [14.9.0](https://github.com/gravity-ui/markdown-editor/compare/v14.8.0...v14.9.0) (2024-12-20)
+
+
+### Features
+
+* **markup:** smart re-indent on paste ([#530](https://github.com/gravity-ui/markdown-editor/issues/530)) ([15767d7](https://github.com/gravity-ui/markdown-editor/commit/15767d7d3b0334126e34149d811ce6b6d62909d2))
+* **toolbars:** restructured toolbar configuration and presets ([#509](https://github.com/gravity-ui/markdown-editor/issues/509)) ([3ebf14f](https://github.com/gravity-ui/markdown-editor/commit/3ebf14fd580ce29dc0133715cd2cb6bb6ea4ca8a))
+
+
+### Bug Fixes
+
+* **Link:** fixed pasting link to empty selection ([#528](https://github.com/gravity-ui/markdown-editor/issues/528)) ([bd52bee](https://github.com/gravity-ui/markdown-editor/commit/bd52bee93aceaf0af5bd9b8da284e93338b89a32))
+
 ## [14.8.0](https://github.com/gravity-ui/markdown-editor/compare/v14.7.0...v14.8.0) (2024-12-17)
 
 
