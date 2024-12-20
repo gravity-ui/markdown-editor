@@ -17,6 +17,7 @@ export const BlockquoteSpecs: ExtensionAuto = (builder) => {
             toDOM() {
                 return ['blockquote', 0];
             },
+            selectable: true,
         },
         fromMd: {tokenSpec: {name: blockquoteNodeName, type: 'block'}},
         toMd: (state, node) => {
