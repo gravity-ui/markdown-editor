@@ -1,5 +1,38 @@
 # Changelog
 
+## [14.8.0](https://github.com/gravity-ui/markdown-editor/compare/v14.7.0...v14.8.0) (2024-12-17)
+
+
+### Features
+
+* **build:** added a sideEffects property for tree shaking package ([#522](https://github.com/gravity-ui/markdown-editor/issues/522)) ([03b3962](https://github.com/gravity-ui/markdown-editor/commit/03b39624c32adde84adae74c4e320ce389d0eddb))
+
+## [14.7.0](https://github.com/gravity-ui/markdown-editor/compare/v14.6.0...v14.7.0) (2024-12-17)
+
+
+### Features
+
+* **bundle:** added empty row placeholder ([#506](https://github.com/gravity-ui/markdown-editor/issues/506)) ([dc049af](https://github.com/gravity-ui/markdown-editor/commit/dc049af1c5d3a1016406afec3237b85bad2211c0))
+
+
+### Bug Fixes
+
+* **Checkbox:** added parse dom rules and fixed pasting of checkboxes ([#523](https://github.com/gravity-ui/markdown-editor/issues/523)) ([a7c23b5](https://github.com/gravity-ui/markdown-editor/commit/a7c23b59af7f2d7a8fd52e3cdb927468854f6c09))
+
+## [14.6.0](https://github.com/gravity-ui/markdown-editor/compare/v14.5.1...v14.6.0) (2024-12-10)
+
+
+### Features
+
+* **bundle:** update view of text color action item in toolbar ([#514](https://github.com/gravity-ui/markdown-editor/issues/514)) ([54ac0d3](https://github.com/gravity-ui/markdown-editor/commit/54ac0d36499e572844e42cfff8f7781387731b00))
+
+
+### Bug Fixes
+
+* **Cursor:** input-rules does not work when cursor in virtual selection (GapCursorSelection) ([#515](https://github.com/gravity-ui/markdown-editor/issues/515)) ([9126756](https://github.com/gravity-ui/markdown-editor/commit/9126756fe5e241c6ab2badec4689b1df8f0009c3))
+* **deps:** bumped @lezer/markdown to fix large text hang ([#512](https://github.com/gravity-ui/markdown-editor/issues/512)) ([8a8fce8](https://github.com/gravity-ui/markdown-editor/commit/8a8fce8ff5f9603f6e755264fc474c03a36d6bb7))
+* Gpt extension render ([#519](https://github.com/gravity-ui/markdown-editor/issues/519)) ([89c9881](https://github.com/gravity-ui/markdown-editor/commit/89c9881331df2b0fae5968258a29b9c9eed179ef))
+
 ## [14.5.1](https://github.com/gravity-ui/markdown-editor/compare/v14.5.0...v14.5.1) (2024-12-02)
 
 

@@ -1,6 +1,6 @@
 import {DOMSerializer} from 'prosemirror-model';
-import {EditorState, Plugin, PluginKey} from 'prosemirror-state';
-import {Decoration, DecorationSet, EditorView} from 'prosemirror-view';
+import {type EditorState, Plugin, PluginKey, TextSelection} from 'prosemirror-state';
+import {Decoration, DecorationSet, type EditorView} from 'prosemirror-view';
 
 import {isNodeSelection} from '../../../utils/selection';
 import {pType} from '../../base/BaseSchema';
@@ -32,6 +32,21 @@ export const gapCursor = () =>
             };
         },
         props: {
+            handleKeyPress(view) {
+                const {
+                    state,
+                    state: {selection: sel},
+                } = view;
+                if (isGapCursorSelection(sel)) {
+                    // Replace GapCursorSelection with empty textblock before run all other handlers.
+                    // This should be done before all inputRules and other handlers, that handle text input.
+                    // Thus, entering text into a native textblock and into a "virtual" one – GapCursor – will be the same.
+                    const tr = state.tr.replaceSelectionWith(pType(state.schema).create());
+                    tr.setSelection(TextSelection.create(tr.doc, sel.pos + 1));
+                    view.dispatch(tr.scrollIntoView());
+                }
+                return false;
+            },
             decorations: ({doc, selection}: EditorState) => {
                 if (isGapCursorSelection(selection)) {
                     const position = selection.head;

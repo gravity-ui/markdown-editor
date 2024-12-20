@@ -46,6 +46,7 @@ import {MarkdownConverter} from './html-to-markdown/converters';
 import {PairingCharactersExtension} from './pairing-chars';
 import {ReactRendererFacet} from './react-facet';
 import {SearchPanelPlugin} from './search-plugin/plugin';
+import {smartReindent} from './smart-reindent';
 import {type YfmLangOptions, yfmLang} from './yfm';
 
 export type {YfmLangOptions};
@@ -162,12 +163,17 @@ export function createCodemirror(params: CreateCodemirrorParams) {
             paste(event, editor) {
                 if (!event.clipboardData) return;
 
+                const {from} = editor.state.selection.main;
+                const line = editor.state.doc.lineAt(from);
+                const currentLine = line.text;
+
                 // if clipboard contains YFM content - avoid any meddling with pasted content
                 // since text/yfm will contain valid markdown
                 const yfmContent = event.clipboardData.getData(DataTransferType.Yfm);
                 if (yfmContent) {
                     event.preventDefault();
-                    editor.dispatch(editor.state.replaceSelection(yfmContent));
+                    const reindentedYfmContent = smartReindent(yfmContent, currentLine);
+                    editor.dispatch(editor.state.replaceSelection(reindentedYfmContent));
                     return;
                 }
 
@@ -195,7 +201,11 @@ export function createCodemirror(params: CreateCodemirrorParams) {
 
                     if (parsedMarkdownMarkup !== undefined) {
                         event.preventDefault();
-                        editor.dispatch(editor.state.replaceSelection(parsedMarkdownMarkup));
+                        const reindentedHtmlContent = smartReindent(
+                            parsedMarkdownMarkup,
+                            currentLine,
+                        );
+                        editor.dispatch(editor.state.replaceSelection(reindentedHtmlContent));
                         return;
                     }
                 }
@@ -206,19 +216,26 @@ export function createCodemirror(params: CreateCodemirrorParams) {
                             event.clipboardData.getData(DataTransferType.Text) ?? '',
                         ) || {};
 
-                    if (!imageUrl) {
-                        return;
+                    if (imageUrl) {
+                        event.preventDefault();
+
+                        insertImages([
+                            {
+                                url: imageUrl,
+                                alt: title,
+                                title,
+                            },
+                        ])(editor);
                     }
+                }
 
+                // Reindenting pasted plain text
+                const pastedText = event.clipboardData.getData(DataTransferType.Text);
+                const reindentedText = smartReindent(pastedText, currentLine);
+                // but only if there is a need for reindentation
+                if (pastedText !== reindentedText) {
+                    editor.dispatch(editor.state.replaceSelection(reindentedText));
                     event.preventDefault();
-
-                    insertImages([
-                        {
-                            url: imageUrl,
-                            alt: title,
-                            title,
-                        },
-                    ])(editor);
                 }
             },
         }),

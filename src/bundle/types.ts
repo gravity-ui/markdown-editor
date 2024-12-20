@@ -26,6 +26,17 @@ export type RenderPreview = (params: RenderPreviewParams) => ReactNode;
 
 export type ParseInsertedUrlAsImage = (text: string) => {imageUrl: string; title?: string} | null;
 
+export type WysiwygPlaceholderOptions = {
+    value?: string | (() => string);
+    /** Default – empty-doc 
+    Values:
+    - 'empty-doc' – The placeholder will only be shown when the document is completely empty;
+    - 'empty-row-top-level' – The placeholder will be displayed in an empty line that is at the top level of the document structure;
+    - 'empty-row' – The placeholder will be shown in any empty line within the document, regardless of its nesting level.
+    */
+    behavior?: 'empty-doc' | 'empty-row-top-level' | 'empty-row';
+};
+
 export type MarkdownEditorMdOptions = {
     html?: boolean;
     breaks?: boolean;
@@ -148,6 +159,7 @@ export type MarkdownEditorWysiwygConfig = {
     extensions?: Extension;
     extensionOptions?: ExtensionsOptions;
     escapeConfig?: EscapeConfig;
+    placeholderOptions?: WysiwygPlaceholderOptions;
 };
 
 // [major] TODO: remove generic type

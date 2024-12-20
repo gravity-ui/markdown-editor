@@ -1,4 +1,4 @@
-##### Connect / GPT
+##### Extensions / GPT
 
 ## How to connect GPT extensions to editor
 
@@ -151,7 +151,7 @@ Add in tool bar
 ```ts
 import {
     ...
-    wGptToolbarItem,
+    wGptItemData,
     wysiwygToolbarConfigs,
 } from '@gravity-ui/markdown-editor';
 
@@ -160,7 +160,7 @@ import {cloneDeep} from '@gravity-ui/markdown-editor/_/lodash';
 export const Editor: React.FC<EditorProps> = (props) => {
     ...
     const wToolbarConfig = cloneDeep(wysiwygToolbarConfigs.wToolbarConfig);
-    wToolbarConfig.unshift([wGptToolbarItem]);
+    wToolbarConfig.unshift([wGptItemData]);
 
     ...
 
@@ -176,7 +176,7 @@ Add in menu bar
 ```ts
 export const Editor: React.FC<EditorProps> = (props) => {
     ...
-    const wSelectionMenuConfig = [[wGptToolbarItem], ...wysiwygToolbarConfigs.wSelectionMenuConfig];
+    const wSelectionMenuConfig = [[wGptItemData], ...wysiwygToolbarConfigs.wSelectionMenuConfig];
 
     const mdEditor = useMarkdownEditor({
         ...
@@ -195,7 +195,7 @@ Add in command menu config (/)
 export const Editor: React.FC<EditorProps> = (props) => {
     ...
     const wCommandMenuConfig = wysiwygToolbarConfigs.wCommandMenuConfig // main commands
-    wCommandMenuConfig.unshift(wysiwygToolbarConfigs.wGptItemData); // add GPT command
+    wCommandMenuConfig.unshift(wGptItemData); // add GPT command
 
     const mdEditor = useMarkdownEditor({
         ...
@@ -217,7 +217,6 @@ import React from 'react';
 import {
     gptExtension,
     MarkdownEditorView,
-    wGptToolbarItem,
     wysiwygToolbarConfigs,
     useMarkdownEditor,
 } from '@gravity-ui/markdown-editor';
@@ -227,12 +226,12 @@ import {gptWidgetProps} from './gptWidgetProps';
 
 export const Editor: React.FC<EditorProps> = (props) => {
     const wToolbarConfig = cloneDeep(wysiwygToolbarConfigs.wToolbarConfig);
-    wToolbarConfig.unshift([wGptToolbarItem]);
+    wToolbarConfig.unshift([wGptItemData]);
 
-    const wSelectionMenuConfig = [[wGptToolbarItem], ...wysiwygToolbarConfigs.wSelectionMenuConfig];
+    const wSelectionMenuConfig = [[wGptItemData], ...wysiwygToolbarConfigs.wSelectionMenuConfig];
 
     const wCommandMenuConfig = wysiwygToolbarConfigs.wCommandMenuConfig // main commands
-    wCommandMenuConfig.unshift(wysiwygToolbarConfigs.wGptItemData); // add GPT command
+    wCommandMenuConfig.unshift(wGptItemData); // add GPT command
 
     const mdEditor = useMarkdownEditor({
         // ...

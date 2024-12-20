@@ -2,17 +2,19 @@ import checkboxPlugin from '@diplodoc/transform/lib/plugins/checkbox';
 import type {NodeSpec} from 'prosemirror-model';
 
 import type {ExtensionAuto, ExtensionNodeSpec} from '../../../../core';
-import {nodeTypeFactory} from '../../../../utils/schema';
 
 import {CheckboxNode, b, idPrefix} from './const';
 import {parserTokens} from './parser';
 import {getSchemaSpecs} from './schema';
 import {serializerTokens} from './serializer';
 
-export {CheckboxAttr, CheckboxNode} from './const';
-export const checkboxType = nodeTypeFactory(CheckboxNode.Checkbox);
-export const checkboxLabelType = nodeTypeFactory(CheckboxNode.Label);
-export const checkboxInputType = nodeTypeFactory(CheckboxNode.Input);
+export {
+    CheckboxAttr,
+    CheckboxNode,
+    checkboxType,
+    checkboxLabelType,
+    checkboxInputType,
+} from './const';
 
 export type CheckboxSpecsOptions = {
     /**

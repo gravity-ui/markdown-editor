@@ -1,7 +1,9 @@
+/**
+ * @deprecated This file is deprecated. Use ToolbarsPreset instead.
+ */
 import {ActionStorage} from 'src/core';
 
 import {headingType, pType} from '../../extensions';
-import {gptHotKeys} from '../../extensions/additional/GPT/constants';
 // for typings from Math
 import type {} from '../../extensions/additional/Math';
 import type {
@@ -244,16 +246,7 @@ export const wYfmHtmlBlockItemData: WToolbarSingleItemData = {
     isActive: (e) => e.actions.createYfmHtmlBlock.isActive(),
     isEnable: (e) => e.actions.createYfmHtmlBlock.isEnable(),
 };
-export const wGptItemData: WToolbarSingleItemData = {
-    id: ActionName.gpt,
-    type: ToolbarDataType.SingleButton,
-    title: i18n.bind(null, 'gpt'),
-    hotkey: gptHotKeys.openGptKeyTooltip,
-    icon: icons.gpt,
-    exec: (e) => e.actions.addGptWidget.run({}),
-    isActive: (e) => e.actions.addGptWidget.isActive(),
-    isEnable: (e) => e.actions.addGptWidget.isEnable(),
-};
+
 export const wMermaidItemData: WToolbarSingleItemData = {
     id: ActionName.mermaid,
     type: ToolbarDataType.SingleButton,
