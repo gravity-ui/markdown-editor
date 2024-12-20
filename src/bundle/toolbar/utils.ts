@@ -84,11 +84,17 @@ export const createConfig = <T extends WToolbarData | MToolbarData>(
     return toolbarData as T;
 };
 
-const flattenPreset = <T extends WToolbarData | MToolbarData>(config: T) => {
-    // TODO: @makhnatkin add logic for flatten
-    return (config[0] ?? []) as unknown as T extends WToolbarData
-        ? WToolbarItemData[]
-        : MToolbarItemData[];
+export const flattenPreset = <T extends WToolbarData | MToolbarData>(
+    config: T,
+): T extends WToolbarData ? WToolbarItemData[] : MToolbarItemData[] => {
+    return config.flat().reduce<(WToolbarItemData | MToolbarItemData)[]>((acc, item) => {
+        if (item.type === ToolbarDataType.ListButton && Array.isArray(item.data)) {
+            return acc.concat(item.data);
+        }
+
+        acc.push(item as WToolbarItemData | MToolbarItemData);
+        return acc;
+    }, []) as unknown as T extends WToolbarData ? WToolbarItemData[] : MToolbarItemData[];
 };
 
 interface GetToolbarsConfigsArgs {
@@ -112,6 +118,8 @@ export const getToolbarsConfigs = ({toolbarsPreset, props, preset}: GetToolbarsC
         ? createConfig<MToolbarData>('markup', toolbarsPreset, ToolbarName.markupMain)
         : props.markupToolbarConfig ??
           createConfig<MToolbarData>('markup', preset, ToolbarName.markupMain);
+
+    console.log('flattenPreset', JSON.stringify(wysiwygToolbarConfig));
 
     const wysiwygHiddenActionsConfig = toolbarsPreset
         ? flattenPreset(
