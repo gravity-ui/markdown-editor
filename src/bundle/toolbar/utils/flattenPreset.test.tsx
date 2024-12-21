@@ -1,25 +1,26 @@
-import {FileIcon} from '../../icons';
-import {ToolbarDataType} from '../../toolbar';
-import {WToolbarData} from '../config';
+import React from 'react';
 
-import {flattenPreset} from './utils';
-import {WToolbarColors} from './wysiwyg/WToolbarColors';
+import {ToolbarDataType} from '../../../toolbar/types';
+import type {WToolbarData} from '../../config/wysiwyg';
 
-jest.mock('@gravity-ui/uikit/i18n', () => ({
-    addComponentKeysets: jest.fn(),
-    t: jest.fn((key: string) => `mocked_${key}`),
-    i18n: {
-        registerKeyset: jest.fn(),
-        keyset: jest.fn(),
-    },
-}));
+import {flattenPreset} from './flattenPreset';
+
+interface IconProps {}
+const Icon: React.FC<IconProps> = () => {
+    return <div />;
+};
+
+interface WToolbarColorsProps {}
+const WToolbarColors: React.FC<WToolbarColorsProps> = () => {
+    return <div />;
+};
 
 const input: WToolbarData = [
     [
         {
             type: ToolbarDataType.SingleButton,
             id: 'undo',
-            icon: {data: FileIcon},
+            icon: {data: Icon},
             hotkey: 'mod+z',
             hintWhenDisabled: false,
             exec: () => {},
@@ -30,7 +31,7 @@ const input: WToolbarData = [
         {
             type: ToolbarDataType.SingleButton,
             id: 'redo',
-            icon: {data: FileIcon},
+            icon: {data: Icon},
             hotkey: 'mod+shift+z',
             hintWhenDisabled: false,
             exec: () => {},
@@ -43,7 +44,7 @@ const input: WToolbarData = [
         {
             type: ToolbarDataType.SingleButton,
             id: 'bold',
-            icon: {data: FileIcon},
+            icon: {data: Icon},
             hotkey: 'mod+b',
             exec: () => {},
             isActive: () => false,
@@ -53,7 +54,7 @@ const input: WToolbarData = [
         {
             type: ToolbarDataType.SingleButton,
             id: 'italic',
-            icon: {data: FileIcon},
+            icon: {data: Icon},
             hotkey: 'mod+i',
             exec: () => {},
             isActive: () => false,
@@ -63,7 +64,7 @@ const input: WToolbarData = [
         {
             type: ToolbarDataType.SingleButton,
             id: 'underline',
-            icon: {data: FileIcon},
+            icon: {data: Icon},
             hotkey: 'mod+u',
             exec: () => {},
             isActive: () => false,
@@ -73,7 +74,7 @@ const input: WToolbarData = [
         {
             type: ToolbarDataType.SingleButton,
             id: 'strike',
-            icon: {data: FileIcon},
+            icon: {data: Icon},
             hotkey: 'mod+shift+s',
             exec: () => {},
             isActive: () => false,
@@ -83,7 +84,7 @@ const input: WToolbarData = [
         {
             type: ToolbarDataType.SingleButton,
             id: 'mono',
-            icon: {data: FileIcon},
+            icon: {data: Icon},
             exec: () => {},
             isActive: () => false,
             isEnable: () => false,
@@ -92,7 +93,7 @@ const input: WToolbarData = [
         {
             type: ToolbarDataType.SingleButton,
             id: 'mark',
-            icon: {data: FileIcon},
+            icon: {data: Icon},
             exec: () => {},
             isActive: () => false,
             isEnable: () => false,
@@ -103,13 +104,13 @@ const input: WToolbarData = [
         {
             type: ToolbarDataType.ListButton,
             id: 'heading',
-            icon: {data: FileIcon},
+            icon: {data: Icon},
             withArrow: true,
             title: '',
             data: [
                 {
                     id: 'paragraph',
-                    icon: {data: FileIcon},
+                    icon: {data: Icon},
                     hotkey: 'cmd+alt+0',
                     exec: () => {},
                     isActive: () => false,
@@ -118,7 +119,7 @@ const input: WToolbarData = [
                 },
                 {
                     id: 'heading1',
-                    icon: {data: FileIcon},
+                    icon: {data: Icon},
                     hotkey: 'cmd+alt+1',
                     exec: () => {},
                     isActive: () => false,
@@ -127,7 +128,7 @@ const input: WToolbarData = [
                 },
                 {
                     id: 'heading2',
-                    icon: {data: FileIcon},
+                    icon: {data: Icon},
                     hotkey: 'cmd+alt+2',
                     exec: () => {},
                     isActive: () => false,
@@ -136,7 +137,7 @@ const input: WToolbarData = [
                 },
                 {
                     id: 'heading3',
-                    icon: {data: FileIcon},
+                    icon: {data: Icon},
                     hotkey: 'cmd+alt+3',
                     exec: () => {},
                     isActive: () => false,
@@ -145,7 +146,7 @@ const input: WToolbarData = [
                 },
                 {
                     id: 'heading4',
-                    icon: {data: FileIcon},
+                    icon: {data: Icon},
                     hotkey: 'cmd+alt+4',
                     exec: () => {},
                     isActive: () => false,
@@ -154,7 +155,7 @@ const input: WToolbarData = [
                 },
                 {
                     id: 'heading5',
-                    icon: {data: FileIcon},
+                    icon: {data: Icon},
                     hotkey: 'cmd+alt+5',
                     exec: () => {},
                     isActive: () => false,
@@ -163,7 +164,7 @@ const input: WToolbarData = [
                 },
                 {
                     id: 'heading6',
-                    icon: {data: FileIcon},
+                    icon: {data: Icon},
                     hotkey: 'cmd+alt+6',
                     exec: () => {},
                     isActive: () => false,
@@ -175,13 +176,13 @@ const input: WToolbarData = [
         {
             type: ToolbarDataType.ListButton,
             id: 'lists',
-            icon: {data: FileIcon},
+            icon: {data: Icon},
             withArrow: true,
             title: '',
             data: [
                 {
                     id: 'bulletList',
-                    icon: {data: FileIcon},
+                    icon: {data: Icon},
                     hotkey: 'mod+shift+l',
                     exec: () => {},
                     isActive: () => false,
@@ -190,7 +191,7 @@ const input: WToolbarData = [
                 },
                 {
                     id: 'orderedList',
-                    icon: {data: FileIcon},
+                    icon: {data: Icon},
                     hotkey: 'mod+shift+m',
                     exec: () => {},
                     isActive: () => false,
@@ -199,7 +200,7 @@ const input: WToolbarData = [
                 },
                 {
                     id: 'sinkListItem',
-                    icon: {data: FileIcon},
+                    icon: {data: Icon},
                     hotkey: 'tab',
                     exec: () => {},
                     isActive: () => false,
@@ -208,7 +209,7 @@ const input: WToolbarData = [
                 },
                 {
                     id: 'liftListItem',
-                    icon: {data: FileIcon},
+                    icon: {data: Icon},
                     hotkey: 'shift+tab',
                     exec: () => {},
                     isActive: () => false,
@@ -226,7 +227,7 @@ const input: WToolbarData = [
         {
             type: ToolbarDataType.SingleButton,
             id: 'link',
-            icon: {data: FileIcon},
+            icon: {data: Icon},
             hotkey: 'mod+k',
             exec: () => {},
             isActive: () => false,
@@ -236,7 +237,7 @@ const input: WToolbarData = [
         {
             type: ToolbarDataType.SingleButton,
             id: 'note',
-            icon: {data: FileIcon},
+            icon: {data: Icon},
             hotkey: 'cmd+alt+8',
             exec: () => {},
             isActive: () => false,
@@ -246,7 +247,7 @@ const input: WToolbarData = [
         {
             type: ToolbarDataType.SingleButton,
             id: 'cut',
-            icon: {data: FileIcon},
+            icon: {data: Icon},
             hotkey: 'cmd+alt+7',
             exec: () => {},
             isActive: () => false,
@@ -256,7 +257,7 @@ const input: WToolbarData = [
         {
             type: ToolbarDataType.SingleButton,
             id: 'quote',
-            icon: {data: FileIcon},
+            icon: {data: Icon},
             hotkey: 'mod+shift+.',
             exec: () => {},
             isActive: () => false,
