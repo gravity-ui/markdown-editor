@@ -1,4 +1,4 @@
-##### Connect / Html block
+##### Extensions / Html block
 
 ## How to Connect the HTML Extension in the Editor
 

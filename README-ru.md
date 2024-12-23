@@ -51,6 +51,7 @@ function Editor({onSubmit}) {
   return <MarkdownEditorView stickyToolbar autofocus toaster={toaster} editor={editor} />;
 }
 ```
+
 Полезные ссылки:
 - [Как подключить редактор в Create React App](https://preview.gravity-ui.com/md-editor/?path=/docs/docs-install-create-react-app--docs)
 - [Как добавить предварительный просмотр для режима разметки](https://preview.gravity-ui.com/md-editor/?path=/docs/docs-develop-preview--docs)
@@ -61,7 +62,13 @@ function Editor({onSubmit}) {
 - [Как добавить расширение GPT](https://preview.gravity-ui.com/md-editor/?path=/docs/docs-connect-gpt--docs)
 - [Как добавить расширение привязки текста в Markdown](https://preview.gravity-ui.com/md-editor/?path=/docs/docs-develop-extension-with-popup--docs)
 
+### Разработка
 
+Для запуска Storybook в режиме разработки выполните следующую команду:
+
+```shell
+npm start
+```
 
 ### i18n
 
@@ -77,10 +84,7 @@ configure({
 
 Обязательно сделайте вызов `configure()` из [UIKit](https://github.com/gravity-ui/uikit?tab=readme-ov-file#i18n) и других UI-библиотек.
 
-## Разработка
 
-Для запуска Storybook в режиме разработки выполните следующую команду:
+### Участие в разработке
 
-```shell
-npm start
-```
+- [Информация для контрибьюетров](https://preview.gravity-ui.com/md-editor/?path=/docs/docs-contributing--docs)

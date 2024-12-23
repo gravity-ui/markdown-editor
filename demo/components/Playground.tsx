@@ -18,7 +18,6 @@ import {
     type UseMarkdownEditorProps,
     WysiwygPlaceholderOptions,
     logger,
-    markupToolbarConfigs,
     useMarkdownEditor,
     wysiwygToolbarConfigs,
 } from '../../src';
@@ -29,8 +28,8 @@ import {Math} from '../../src/extensions/additional/Math';
 import {Mermaid} from '../../src/extensions/additional/Mermaid';
 import {YfmHtmlBlock} from '../../src/extensions/additional/YfmHtmlBlock';
 import {getSanitizeYfmHtmlBlock} from '../../src/extensions/additional/YfmHtmlBlock/utils';
-import {cloneDeep} from '../../src/lodash';
 import type {CodeEditor} from '../../src/markup';
+import {ToolbarsPreset} from '../../src/modules/toolbars/types';
 import {VERSION} from '../../src/version';
 import {getPlugins} from '../defaults/md-plugins';
 import useYfmHtmlBlockStyles from '../hooks/useYfmHtmlBlockStyles';
@@ -51,19 +50,6 @@ const fileUploadHandler: FileUploadHandler = async (file) => {
     await randomDelay(1000, 3000);
     return {url: URL.createObjectURL(file)};
 };
-
-const mToolbarConfig = [
-    ...markupToolbarConfigs.mToolbarConfig,
-    [markupToolbarConfigs.mMermaidButton, markupToolbarConfigs.mYfmHtmlBlockButton],
-];
-mToolbarConfig[2].push(markupToolbarConfigs.mMathListItem);
-
-const wToolbarConfig = cloneDeep(wysiwygToolbarConfigs.wToolbarConfig);
-wToolbarConfig[2].push(wysiwygToolbarConfigs.wMathListItem);
-wToolbarConfig.push([
-    wysiwygToolbarConfigs.wMermaidItemData,
-    wysiwygToolbarConfigs.wYfmHtmlBlockItemData,
-]);
 
 const wCommandMenuConfig = wysiwygToolbarConfigs.wCommandMenuConfig.concat(
     wysiwygToolbarConfigs.wMathInlineItemData,
@@ -93,6 +79,7 @@ export type PlaygroundProps = {
     escapeConfig?: EscapeConfig;
     wysiwygCommandMenuConfig?: wysiwygToolbarConfigs.WToolbarItemData[];
     markupToolbarConfig?: ToolbarGroupData<CodeEditor>[];
+    toolbarsPreset?: ToolbarsPreset;
     onChangeEditorType?: (mode: MarkdownEditorMode) => void;
     onChangeSplitModeEnabled?: (splitModeEnabled: boolean) => void;
     directiveSyntax?: DirectiveSyntaxValue;
@@ -139,6 +126,7 @@ export const Playground = React.memo<PlaygroundProps>((props) => {
         height,
         extraExtensions,
         extensionOptions,
+        toolbarsPreset,
         wysiwygToolbarConfig,
         wysiwygCommandMenuConfig,
         markupConfigExtensions,
@@ -177,6 +165,47 @@ export const Playground = React.memo<PlaygroundProps>((props) => {
 
     const mdEditor = useMarkdownEditor(
         {
+            preset: 'full',
+            wysiwygConfig: {
+                escapeConfig,
+                placeholderOptions: placeholderOptions,
+                extensions: (builder) => {
+                    builder
+                        .use(Math, {
+                            loadRuntimeScript: () => {
+                                import(
+                                    /* webpackChunkName: "latex-runtime" */ '@diplodoc/latex-extension/runtime'
+                                );
+                                import(
+                                    // @ts-expect-error // no types for styles
+                                    /* webpackChunkName: "latex-styles" */ '@diplodoc/latex-extension/runtime/styles'
+                                );
+                            },
+                        })
+                        .use(Mermaid, {
+                            loadRuntimeScript: () => {
+                                import(
+                                    /* webpackChunkName: "mermaid-runtime" */ '@diplodoc/mermaid-extension/runtime'
+                                );
+                            },
+                        })
+                        .use(FoldingHeading)
+                        .use(YfmHtmlBlock, {
+                            useConfig: useYfmHtmlBlockStyles,
+                            sanitize: getSanitizeYfmHtmlBlock({options: defaultOptions}),
+                            head: `
+                        <base target="_blank" />
+                        <style>
+                            html, body {
+                                margin: 0;
+                                padding: 0;
+                            }
+                        </style
+                    `,
+                        });
+                    if (extraExtensions) builder.use(extraExtensions);
+                },
+            },
             allowHTML,
             linkify,
             linkifyTlds,
@@ -186,13 +215,9 @@ export const Playground = React.memo<PlaygroundProps>((props) => {
             initialSplitModeEnabled: initialSplitModeEnabled,
             initialToolbarVisible: true,
             splitMode: splitModeOrientation,
-            escapeConfig: escapeConfig,
             needToSetDimensionsForUploadedImages,
             renderPreview: renderPreviewDefined ? renderPreview : undefined,
             fileUploadHandler,
-            wysiwygConfig: {
-                placeholderOptions: placeholderOptions,
-            },
             experimental: {
                 ...experimental,
                 directiveSyntax,
@@ -211,42 +236,6 @@ export const Playground = React.memo<PlaygroundProps>((props) => {
             markupConfig: {
                 extensions: markupConfigExtensions,
                 parseInsertedUrlAsImage,
-            },
-            extraExtensions: (builder) => {
-                builder
-                    .use(Math, {
-                        loadRuntimeScript: () => {
-                            import(
-                                /* webpackChunkName: "latex-runtime" */ '@diplodoc/latex-extension/runtime'
-                            );
-                            import(
-                                // @ts-expect-error // no types for styles
-                                /* webpackChunkName: "latex-styles" */ '@diplodoc/latex-extension/runtime/styles'
-                            );
-                        },
-                    })
-                    .use(Mermaid, {
-                        loadRuntimeScript: () => {
-                            import(
-                                /* webpackChunkName: "mermaid-runtime" */ '@diplodoc/mermaid-extension/runtime'
-                            );
-                        },
-                    })
-                    .use(FoldingHeading)
-                    .use(YfmHtmlBlock, {
-                        useConfig: useYfmHtmlBlockStyles,
-                        sanitize: getSanitizeYfmHtmlBlock({options: defaultOptions}),
-                        head: `
-                        <base target="_blank" />
-                        <style>
-                            html, body {
-                                margin: 0;
-                                padding: 0;
-                            }
-                        </style
-                    `,
-                    });
-                if (extraExtensions) builder.use(extraExtensions);
             },
         },
         [
@@ -397,8 +386,9 @@ export const Playground = React.memo<PlaygroundProps>((props) => {
                         toaster={toaster}
                         className={b('editor-view')}
                         stickyToolbar={Boolean(stickyToolbar)}
-                        wysiwygToolbarConfig={wysiwygToolbarConfig ?? wToolbarConfig}
-                        markupToolbarConfig={markupToolbarConfig ?? mToolbarConfig}
+                        toolbarsPreset={toolbarsPreset}
+                        wysiwygToolbarConfig={wysiwygToolbarConfig}
+                        markupToolbarConfig={markupToolbarConfig}
                         settingsVisible={settingsVisible}
                         editor={mdEditor}
                         enableSubmitInPreview={enableSubmitInPreview}

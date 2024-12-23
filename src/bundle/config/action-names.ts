@@ -1,13 +1,19 @@
 const names = [
-    'undo',
-    'redo',
+    'anchor',
     'bold',
-    'italic',
-    'underline',
-    'strike',
-    'mono',
-    'mark',
-    'paragraph',
+    'bulletList',
+    'checkbox',
+    /** @deprecated use codeBlock */
+    'code_block',
+    'codeBlock',
+    /** @deprecated use codeInline */
+    'code_inline',
+    'codeInline',
+    'colorify',
+    'emoji',
+    'file',
+    'filePopup',
+    'gpt',
     'heading1',
     'heading2',
     'heading3',
@@ -31,15 +37,48 @@ const names = [
     'code_inline',
     'code_block',
     'image',
+    /** @deprecated use horizontalRule */
     'horizontalrule',
-    'emoji',
-    'file',
-    'anchor',
-    'math_inline',
+    'horizontalRule',
+    'image',
+    'imagePopup',
+    'italic',
+    'liftListItem',
+    'link',
+    'mark',
+    /** @deprecated use mathBlock */
     'math_block',
-    'tabs',
+    'mathBlock',
+    /** @deprecated use mathInline */
+    'math_inline',
+    'mathInline',
     'mermaid',
-    'gpt',
+    'mono',
+    'orderedList',
+    'paragraph',
+    'quote',
+    'redo',
+    'sinkListItem',
+    'strike',
+    'table',
+    'tabs',
+    'underline',
+    'undo',
+    /** @deprecated use block */
+    'yfm_block',
+    'block',
+    /** @deprecated use cut */
+    'yfm_cut',
+    'cut',
+    /** @deprecated use htmlBlock */
+    'yfm_html_block',
+    'htmlBlock',
+    /** @deprecated use layout */
+    'yfm_layout',
+    'layout',
+    /** @deprecated use note */
+    'yfm_note',
+    'note',
 ] as const;
 
 type ItemsType<L extends readonly string[]> = L extends readonly (infer T)[] ? T : never;
