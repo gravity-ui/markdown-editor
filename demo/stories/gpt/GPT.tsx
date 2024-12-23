@@ -1,27 +1,23 @@
 import React, {useState} from 'react';
 
+import {toaster} from '@gravity-ui/uikit/toaster-singleton-react-18';
 import cloneDeep from 'lodash/cloneDeep';
 
 import {
+    MarkdownEditorView,
     gptExtension,
     logger,
     mGptExtension,
     mGptToolbarItem,
     markupToolbarConfigs,
+    useMarkdownEditor,
     wGptItemData,
     wysiwygToolbarConfigs,
 } from '../../../src';
-import {Playground} from '../../components/Playground';
+import {PlaygroundLayout} from '../../components/PlaygroundLayout';
 
 import {initialMdContent} from './content';
 import {gptWidgetProps} from './gptWidgetOptions';
-
-const wToolbarConfig = cloneDeep(wysiwygToolbarConfigs.wToolbarConfig);
-wToolbarConfig.unshift([wGptItemData]);
-wToolbarConfig.push([
-    wysiwygToolbarConfigs.wMermaidItemData,
-    wysiwygToolbarConfigs.wYfmHtmlBlockItemData,
-]);
 
 logger.setLogger({
     metrics: console.info,
@@ -29,22 +25,13 @@ logger.setLogger({
     ...console,
 });
 
-const wCommandMenuConfig = wysiwygToolbarConfigs.wCommandMenuConfig.concat(
-    wysiwygToolbarConfigs.wMathInlineItemData,
-    wysiwygToolbarConfigs.wMathBlockItemData,
-    wysiwygToolbarConfigs.wMermaidItemData,
-    wysiwygToolbarConfigs.wYfmHtmlBlockItemData,
-);
+const wToolbarConfig = cloneDeep(wysiwygToolbarConfigs.wToolbarConfig);
+wToolbarConfig.unshift([wGptItemData]);
 
+const wCommandMenuConfig = cloneDeep(wysiwygToolbarConfigs.wCommandMenuConfig);
 wCommandMenuConfig.unshift(wGptItemData);
 
 const mToolbarConfig = cloneDeep(markupToolbarConfigs.mToolbarConfig);
-
-mToolbarConfig.push([
-    markupToolbarConfigs.mMermaidButton,
-    markupToolbarConfigs.mYfmHtmlBlockButton,
-]);
-
 mToolbarConfig.unshift([mGptToolbarItem]);
 
 export const GPT = React.memo(() => {
@@ -60,16 +47,37 @@ export const GPT = React.memo(() => {
     const markupExtension = mGptExtension(gptExtensionProps);
     const wSelectionMenuConfig = [[wGptItemData], ...wysiwygToolbarConfigs.wSelectionMenuConfig];
 
+    const editor = useMarkdownEditor({
+        initial: {markup: initialMdContent},
+        markupConfig: {extensions: markupExtension},
+        wysiwygConfig: {
+            extensions: (builder) => builder.use(gptExtension, gptExtensionProps),
+            extensionOptions: {
+                commandMenu: {
+                    actions: wCommandMenuConfig,
+                },
+                selectionContext: {
+                    config: wSelectionMenuConfig,
+                },
+            },
+        },
+    });
+
     return (
-        <Playground
-            settingsVisible
-            initial={initialMdContent}
-            extraExtensions={(builder) => builder.use(gptExtension, gptExtensionProps)}
-            wysiwygCommandMenuConfig={wCommandMenuConfig}
-            extensionOptions={{selectionContext: {config: wSelectionMenuConfig}}}
-            wysiwygToolbarConfig={wToolbarConfig}
-            markupConfigExtensions={markupExtension}
-            markupToolbarConfig={mToolbarConfig}
+        <PlaygroundLayout
+            editor={editor}
+            view={({className}) => (
+                <MarkdownEditorView
+                    autofocus
+                    stickyToolbar
+                    settingsVisible
+                    editor={editor}
+                    toaster={toaster}
+                    className={className}
+                    markupToolbarConfig={mToolbarConfig}
+                    wysiwygToolbarConfig={wToolbarConfig}
+                />
+            )}
         />
     );
 });

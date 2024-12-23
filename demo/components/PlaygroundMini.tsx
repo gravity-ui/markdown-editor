@@ -22,7 +22,6 @@ export type PlaygroundMiniProps = Pick<
     | 'initial'
     | 'onChangeEditorType'
     | 'onChangeSplitModeEnabled'
-    | 'escapeConfig'
     | 'directiveSyntax'
 > & {withDefaultInitialContent?: boolean};
 

@@ -3,8 +3,7 @@ import React, {FC, useEffect} from 'react';
 import {toaster} from '@gravity-ui/uikit/toaster-singleton-react-18';
 
 import {BaseNode, MarkdownEditorView, useMarkdownEditor} from '../../../src';
-import {VERSION} from '../../../src/version';
-import {block} from '../../utils/cn';
+import {PlaygroundLayout} from '../../components/PlaygroundLayout';
 
 import {
     EditorInEditorAttr,
@@ -12,10 +11,8 @@ import {
     EditorInEditor as extension,
 } from './EditorInEditorExtension';
 
-const b = block('playground');
-
 export const EditorInEditor: FC = () => {
-    const mdEditor = useMarkdownEditor({
+    const editor = useMarkdownEditor({
         initialEditorMode: 'wysiwyg',
         initialToolbarVisible: true,
         allowHTML: false,
@@ -28,7 +25,7 @@ export const EditorInEditor: FC = () => {
     });
 
     useEffect(() => {
-        const view = mdEditor._wysiwygView;
+        const view = editor._wysiwygView;
         if (view) {
             const {schema} = view.state;
             const tr = view.state.tr;
@@ -44,21 +41,18 @@ export const EditorInEditor: FC = () => {
     }, []);
 
     return (
-        <div className={b()}>
-            <div className={b('header')}>
-                Editor In Editor Playground
-                <span className={b('version')}>{VERSION}</span>
-            </div>
-            <hr />
-            <div className={b('editor')}>
+        <PlaygroundLayout
+            editor={editor}
+            title="Editor In Editor Playground"
+            view={({className}) => (
                 <MarkdownEditorView
                     stickyToolbar
                     settingsVisible
-                    editor={mdEditor}
+                    editor={editor}
                     toaster={toaster}
-                    className={b('editor-view')}
+                    className={className}
                 />
-            </div>
-        </div>
+            )}
+        />
     );
 };
