@@ -3,5 +3,4 @@ export const excludedControls = [
     'withDefaultInitialContent',
     'onChangeEditorType',
     'onChangeSplitModeEnabled',
-    'escapeConfig',
 ];

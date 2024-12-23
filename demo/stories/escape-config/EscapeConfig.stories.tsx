@@ -7,11 +7,9 @@ Story.storyName = 'Escape config';
 
 export default {
     args: {
-        initialEditor: 'wysiwyg',
         commonEscapeRegexp: '^$',
         startOfLineEscapeRegexp: '^$',
-        withDefaultInitialContent: true,
     },
     component,
-    title: 'Experiments / Escape config',
+    title: 'Settings / Wysiwyg / Escape config',
 };
