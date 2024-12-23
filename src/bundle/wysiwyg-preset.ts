@@ -26,6 +26,7 @@ export type BundlePresetOptions = ExtensionsOptions &
     EditorModeKeymapOptions & {
         preset: MarkdownEditorPreset;
         mdBreaks?: boolean;
+        preserveEmptyRows?: boolean;
         fileUploadHandler?: FileUploadHandler;
         placeholderOptions?: WysiwygPlaceholderOptions;
         /**
@@ -81,6 +82,7 @@ export const BundlePreset: ExtensionAuto<BundlePresetOptions> = (builder, opts) 
                     ? value()
                     : value ?? i18nPlaceholder('doc_empty');
             },
+            preserveEmptyRows: opts.preserveEmptyRows,
             ...opts.baseSchema,
         },
     };

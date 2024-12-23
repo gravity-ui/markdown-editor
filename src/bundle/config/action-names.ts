@@ -20,6 +20,7 @@ const names = [
     'heading4',
     'heading5',
     'heading6',
+    'emptyRow',
     /** @deprecated use horizontalRule */
     'horizontalrule',
     'horizontalRule',

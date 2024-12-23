@@ -6,6 +6,8 @@ import {Mark, MarkType, Node, NodeType, Schema} from 'prosemirror-model';
 import {logger} from '../../logger';
 import type {Parser, ParserToken} from '../types/parser';
 
+import {ProseMirrorTransformer, TransformFn} from './ProseMirrorTransformer';
+
 type TokenAttrs = {[name: string]: unknown};
 
 const openSuffix = '_open';
@@ -22,12 +24,19 @@ export class MarkdownParser implements Parser {
     marks: readonly Mark[];
     tokens: Record<string, ParserToken>;
     tokenizer: MarkdownIt;
+    pmTransformers: TransformFn[];
 
-    constructor(schema: Schema, tokenizer: MarkdownIt, tokens: Record<string, ParserToken>) {
+    constructor(
+        schema: Schema,
+        tokenizer: MarkdownIt,
+        tokens: Record<string, ParserToken>,
+        pmTransformers: TransformFn[],
+    ) {
         this.schema = schema;
         this.marks = Mark.none;
         this.tokens = tokens;
         this.tokenizer = tokenizer;
+        this.pmTransformers = pmTransformers;
     }
 
     validateLink(url: string): boolean {
@@ -69,7 +78,9 @@ export class MarkdownParser implements Parser {
                 doc = this.closeNode();
             } while (this.stack.length);
 
-            return (doc || this.schema.topNodeType.createAndFill()) as Node;
+            const pmTransformer = new ProseMirrorTransformer(this.pmTransformers);
+
+            return doc ? pmTransformer.transform(doc) : this.schema.topNodeType.createAndFill()!;
         } finally {
             logger.metrics({component: 'parser', event: 'parse', duration: Date.now() - time});
         }
