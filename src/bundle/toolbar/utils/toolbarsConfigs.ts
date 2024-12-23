@@ -108,8 +108,6 @@ export const getToolbarsConfigs = ({toolbarsPreset, props, preset}: GetToolbarsC
         : props.markupToolbarConfig ??
           createToolbarConfig<MToolbarData>('markup', preset, ToolbarName.markupMain);
 
-    console.log('flattenPreset', JSON.stringify(wysiwygToolbarConfig));
-
     const wysiwygHiddenActionsConfig = toolbarsPreset
         ? flattenPreset(
               createToolbarConfig<WToolbarData>(
