@@ -93,8 +93,9 @@ export class WysiwygEditor implements CommonEditor, ActionStorage {
             actions,
         } = ExtensionsManager.process(extensions, {
             // "breaks" option only affects the renderer, but not the parser
-            mdOpts: {pmTransformers, html: allowHTML, linkify, breaks: true, preset: mdPreset},
+            mdOpts: {html: allowHTML, linkify, breaks: true, preset: mdPreset},
             linkifyTlds,
+            pmTransformers,
         });
 
         const state = EditorState.create({

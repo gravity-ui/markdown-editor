@@ -1,5 +1,5 @@
 // TODO: add a new method to the ExtensionBuilder
-import {transformEmptyParagraph} from './emptyRowParser';
+import {transformEmptyParagraph} from './emptyRowTransformer';
 
 import {TransformFn} from '.';
 

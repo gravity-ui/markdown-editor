@@ -23,8 +23,9 @@ type ExtensionsManagerParams = {
 };
 
 type ExtensionsManagerOptions = {
-    mdOpts?: MarkdownIt.Options & {preset?: PresetName; pmTransformers?: TransformFn[]};
+    mdOpts?: MarkdownIt.Options & {preset?: PresetName};
     linkifyTlds?: string | string[];
+    pmTransformers?: TransformFn[];
 };
 
 export class ExtensionsManager {
@@ -65,8 +66,8 @@ export class ExtensionsManager {
             this.#mdForText.linkify.tlds(options.linkifyTlds, true);
         }
 
-        if (options.mdOpts?.pmTransformers) {
-            this.#pmTransformers = options.mdOpts?.pmTransformers;
+        if (options.pmTransformers) {
+            this.#pmTransformers = options.pmTransformers;
         }
 
         // TODO: add prefilled context

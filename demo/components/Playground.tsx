@@ -196,8 +196,6 @@ export const Playground = React.memo<PlaygroundProps>((props) => {
             experimental: {
                 ...experimental,
                 directiveSyntax,
-            },
-            md: {
                 preserveEmptyRows: preserveEmptyRows,
             },
             prepareRawMarkup: prepareRawMarkup

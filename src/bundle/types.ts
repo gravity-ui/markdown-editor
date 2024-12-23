@@ -2,8 +2,6 @@
 
 import type {ReactNode} from 'react';
 
-import {TransformFn} from 'src/core/markdown/ProseMirrorTransformer';
-
 import type {MarkupString} from '../common';
 import type {EscapeConfig, Extension} from '../core';
 import type {CreateCodemirrorParams, YfmLangOptions} from '../markup';
@@ -41,11 +39,9 @@ export type WysiwygPlaceholderOptions = {
 
 export type MarkdownEditorMdOptions = {
     html?: boolean;
-    preserveEmptyRows?: boolean;
     breaks?: boolean;
     linkify?: boolean;
     linkifyTlds?: string | string[];
-    pmTransformers?: TransformFn[];
 };
 
 export type MarkdownEditorInitialOptions = {
@@ -108,6 +104,12 @@ export type MarkdownEditorExperimentalOptions = {
      * Default value is 'disabled'.
      */
     directiveSyntax?: DirectiveSyntaxOption;
+    /**
+     * If we need support for empty strings
+     *
+     * @default false
+     */
+    preserveEmptyRows?: boolean;
 };
 
 export type MarkdownEditorMarkupConfig = {
