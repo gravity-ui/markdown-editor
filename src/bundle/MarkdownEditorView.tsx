@@ -20,7 +20,7 @@ import {MToolbarData, MToolbarItemData, WToolbarData, WToolbarItemData} from './
 import {useMarkdownEditorContext} from './context';
 import {EditorSettings, EditorSettingsProps} from './settings';
 import {stickyCn} from './sticky';
-import {getToolbarsConfigs} from './toolbar/utils';
+import {getToolbarsConfigs} from './toolbar/utils/toolbarsConfigs';
 import type {MarkdownEditorMode} from './types';
 
 import '../styles/styles.scss';

@@ -1,6 +1,7 @@
 export * from './common';
 export * from './core';
 export * from './toolbar';
+export * from './modules/toolbars/types';
 export * from './react-utils';
 export * from './classname';
 export * from './logger';
