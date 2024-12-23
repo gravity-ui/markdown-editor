@@ -28,7 +28,7 @@ export const setCodeBlockType =
         if (!setBlockType(nodeType)(state)) return false;
 
         if (dispatch) {
-            const markup = serializer.serialize(state.selection.content().content);
+            const markup = serializer.serialize(state.selection.content().content, {escape: false});
             dispatch(
                 state.tr.replaceSelectionWith(
                     nodeType.createAndFill({}, markup ? state.schema.text(markup) : null)!,
