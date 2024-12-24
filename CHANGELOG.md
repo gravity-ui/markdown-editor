@@ -1,5 +1,20 @@
 # Changelog
 
+## [14.10.0](https://github.com/gravity-ui/markdown-editor/compare/v14.9.0...v14.10.0) (2024-12-24)
+
+
+### Features
+
+* added support for an empty string ([#505](https://github.com/gravity-ui/markdown-editor/issues/505)) ([a3f8b50](https://github.com/gravity-ui/markdown-editor/commit/a3f8b50c7fd973c3db6bfa7e92f981db8d6a11c6))
+* **Selection:** made all top-level nodes selectable ([#533](https://github.com/gravity-ui/markdown-editor/issues/533)) ([09e8e55](https://github.com/gravity-ui/markdown-editor/commit/09e8e5537d86bdfe991ed42addcbda70882c6537))
+* **toolbars:** updated flattenPreset ([#531](https://github.com/gravity-ui/markdown-editor/issues/531)) ([deafe20](https://github.com/gravity-ui/markdown-editor/commit/deafe20cc364474580d993801e32fee227cc8832))
+
+
+### Bug Fixes
+
+* disable escaping when serializing content for code_block ([#537](https://github.com/gravity-ui/markdown-editor/issues/537)) ([617a1cc](https://github.com/gravity-ui/markdown-editor/commit/617a1ccf50c83e4deddc495162c86023f9be4760))
+* **toolbars:** add reexport /modules/toolbars/types ([#534](https://github.com/gravity-ui/markdown-editor/issues/534)) ([cc026a3](https://github.com/gravity-ui/markdown-editor/commit/cc026a3923dd87c0d519df2d7c53bfae910887b6))
+
 ## [14.9.0](https://github.com/gravity-ui/markdown-editor/compare/v14.8.0...v14.9.0) (2024-12-20)
 
 
