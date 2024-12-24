@@ -1,6 +1,7 @@
 import {useLayoutEffect, useMemo} from 'react';
 
 import type {Extension} from '../core';
+import {getPMTransformers} from '../core/markdown/ProseMirrorTransformer/getTransformers';
 import {ReactRenderStorage} from '../extensions';
 import {logger} from '../logger';
 import {DirectiveSyntaxContext} from '../utils/directive';
@@ -33,6 +34,7 @@ export function useMarkdownEditor<T extends object = {}>(
         } = props;
 
         const breaks = md.breaks ?? props.breaks;
+        const preserveEmptyRows = experimental.preserveEmptyRows;
         const preset: MarkdownEditorPreset = props.preset ?? 'full';
         const renderStorage = new ReactRenderStorage();
         const uploadFile = handlers.uploadFile ?? props.fileUploadHandler;
@@ -40,6 +42,10 @@ export function useMarkdownEditor<T extends object = {}>(
             experimental.needToSetDimensionsForUploadedImages ??
             props.needToSetDimensionsForUploadedImages;
         const enableNewImageSizeCalculation = experimental.enableNewImageSizeCalculation;
+
+        const pmTransformers = getPMTransformers({
+            emptyRowTransformer: preserveEmptyRows,
+        });
 
         const directiveSyntax = new DirectiveSyntaxContext(experimental.directiveSyntax);
 
@@ -59,6 +65,8 @@ export function useMarkdownEditor<T extends object = {}>(
                     editor.emit('submit', null);
                     return true;
                 },
+                preserveEmptyRows: preserveEmptyRows,
+                placeholderOptions: wysiwygConfig.placeholderOptions,
                 mdBreaks: breaks,
                 fileUploadHandler: uploadFile,
                 needToSetDimensionsForUploadedImages,
@@ -71,11 +79,13 @@ export function useMarkdownEditor<T extends object = {}>(
                 }
             }
         };
+
         return new EditorImpl({
             ...props,
             preset,
             renderStorage,
             directiveSyntax,
+            pmTransformers,
             md: {
                 ...md,
                 breaks,

@@ -1,17 +1,29 @@
 import React from 'react';
 
-import {PlaygroundMini} from '../../components/PlaygroundMini';
+import {toaster} from '@gravity-ui/uikit/toaster-singleton-react-18';
+
+import {MarkdownEditorView, useMarkdownEditor} from '../../../src';
+import {PlaygroundLayout} from '../../components/PlaygroundLayout';
+import {markup} from '../../defaults/content';
 
 export const CustomCSSVariablesDemo = React.memo((styles) => {
+    const editor = useMarkdownEditor({initial: {markup}});
+
     return (
-        <div style={styles}>
-            <PlaygroundMini
-                initialEditor="wysiwyg"
-                settingsVisible
-                withDefaultInitialContent
-                stickyToolbar
-            />
-        </div>
+        <PlaygroundLayout
+            editor={editor}
+            style={styles}
+            view={({className}) => (
+                <MarkdownEditorView
+                    autofocus
+                    stickyToolbar
+                    settingsVisible
+                    editor={editor}
+                    toaster={toaster}
+                    className={className}
+                />
+            )}
+        />
     );
 });
 

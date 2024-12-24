@@ -1,4 +1,5 @@
 import {cn} from '../../../../classname';
+import {nodeTypeFactory} from '../../../../utils/schema';
 
 export enum CheckboxNode {
     Checkbox = 'checkbox',
@@ -17,3 +18,7 @@ export const CheckboxAttr = {
 export const idPrefix = 'yfm-editor-checkbox';
 
 export const b = cn('checkbox');
+
+export const checkboxType = nodeTypeFactory(CheckboxNode.Checkbox);
+export const checkboxLabelType = nodeTypeFactory(CheckboxNode.Label);
+export const checkboxInputType = nodeTypeFactory(CheckboxNode.Input);

@@ -90,7 +90,7 @@ export interface YfmLangOptions {
     languageData?: LanguageData[];
 }
 
-const mdAutocomplete: LanguageData = {
+export const mdAutocomplete: LanguageData = {
     autocomplete: (context) => {
         const directiveContext = context.state.facet(DirectiveSyntaxFacet);
 

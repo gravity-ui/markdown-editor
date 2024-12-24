@@ -16,6 +16,7 @@ export const pType = nodeTypeFactory(BaseNode.Paragraph);
 export type BaseSchemaSpecsOptions = {
     // This cannot be passed through placeholder option of BehaviorPreset because BasePreset initializes first
     paragraphPlaceholder?: NonNullable<NodeSpec['placeholder']>['content'];
+    preserveEmptyRows?: boolean;
 };
 
 export const BaseSchemaSpecs: ExtensionAuto<BaseSchemaSpecsOptions> = (builder, opts) => {
@@ -63,9 +64,31 @@ export const BaseSchemaSpecs: ExtensionAuto<BaseSchemaSpecsOptions> = (builder, 
                     : undefined,
             },
             fromMd: {tokenSpec: {name: BaseNode.Paragraph, type: 'block'}},
-            toMd: (state, node) => {
-                state.renderInline(node);
-                state.closeBlock(node);
+            toMd: (state, node, parent) => {
+                /*
+                    An empty line is added only if there is some content in the parent element. 
+                    This is necessary in order to prevent an empty document with empty lines
+                */
+                if (opts.preserveEmptyRows && !node.content.size) {
+                    let isParentEmpty = true;
+
+                    for (let index = 0; index < parent.content.childCount; index++) {
+                        const parentChild = parent.content.child(index);
+                        if (
+                            parentChild.content.size !== 0 ||
+                            parentChild.type.name !== 'paragraph'
+                        ) {
+                            isParentEmpty = false;
+                        }
+                    }
+
+                    if (!isParentEmpty) {
+                        state.write('&nbsp;\n\n');
+                    }
+                } else {
+                    state.renderInline(node);
+                    state.closeBlock(node);
+                }
             },
         }));
 };

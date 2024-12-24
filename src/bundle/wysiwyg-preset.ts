@@ -16,7 +16,7 @@ import type {FileUploadHandler} from '../utils/upload';
 
 import {wCommandMenuConfigByPreset, wSelectionMenuConfigByPreset} from './config/wysiwyg';
 import {emojiDefs} from './emoji';
-import type {MarkdownEditorPreset} from './types';
+import type {MarkdownEditorPreset, WysiwygPlaceholderOptions} from './types';
 
 const DEFAULT_IGNORED_KEYS = ['Tab', 'Shift-Tab'] as const;
 
@@ -26,7 +26,9 @@ export type BundlePresetOptions = ExtensionsOptions &
     EditorModeKeymapOptions & {
         preset: MarkdownEditorPreset;
         mdBreaks?: boolean;
+        preserveEmptyRows?: boolean;
         fileUploadHandler?: FileUploadHandler;
+        placeholderOptions?: WysiwygPlaceholderOptions;
         /**
          * If we need to set dimensions for uploaded images
          *
@@ -63,10 +65,24 @@ export const BundlePreset: ExtensionAuto<BundlePresetOptions> = (builder, opts) 
         baseSchema: {
             paragraphKey: f.toPM(A.Text),
             paragraphPlaceholder: (node: Node, parent?: Node | null) => {
-                const isDocEmpty =
-                    !node.text && parent?.type.name === BaseNode.Doc && parent.childCount === 1;
-                return isDocEmpty ? i18nPlaceholder('doc_empty') : null;
+                const {value, behavior} = opts.placeholderOptions || {};
+
+                const emptyEntries = {
+                    'empty-row': !node.text,
+                    'empty-row-top-level': !node.text && parent?.type.name === BaseNode.Doc,
+                    'empty-doc':
+                        !node.text && parent?.type.name === BaseNode.Doc && parent.childCount === 1,
+                };
+
+                const showPlaceholder = emptyEntries[behavior || 'empty-doc'];
+
+                if (!showPlaceholder) return null;
+
+                return typeof value === 'function'
+                    ? value()
+                    : value ?? i18nPlaceholder('doc_empty');
             },
+            preserveEmptyRows: opts.preserveEmptyRows,
             ...opts.baseSchema,
         },
     };

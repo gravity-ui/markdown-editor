@@ -7,6 +7,7 @@ import {useEnsuredForwardedRef, useKey, useUpdate} from 'react-use';
 import {ClassNameProps, cn} from '../classname';
 import {i18n} from '../i18n/bundle';
 import {logger} from '../logger';
+import type {ToolbarsPreset} from '../modules/toolbars/types';
 import {ToasterContext, useBooleanState, useSticky} from '../react-utils';
 import {isMac} from '../utils';
 
@@ -15,19 +16,11 @@ import {HorizontalDrag} from './HorizontalDrag';
 import {MarkupEditorView} from './MarkupEditorView';
 import {SplitModeView} from './SplitModeView';
 import {WysiwygEditorView} from './WysiwygEditorView';
-import {
-    MToolbarData,
-    MToolbarItemData,
-    WToolbarData,
-    WToolbarItemData,
-    mHiddenDataByPreset,
-    mToolbarConfigByPreset,
-    wHiddenDataByPreset,
-    wToolbarConfigByPreset,
-} from './config';
+import {MToolbarData, MToolbarItemData, WToolbarData, WToolbarItemData} from './config';
 import {useMarkdownEditorContext} from './context';
 import {EditorSettings, EditorSettingsProps} from './settings';
 import {stickyCn} from './sticky';
+import {getToolbarsConfigs} from './toolbar/utils/toolbarsConfigs';
 import type {MarkdownEditorMode} from './types';
 
 import '../styles/styles.scss';
@@ -39,9 +32,22 @@ const b = cnEditorComponent;
 export type MarkdownEditorViewProps = ClassNameProps & {
     editor?: Editor;
     autofocus?: boolean;
+    toolbarsPreset?: ToolbarsPreset;
+    /**
+     * @deprecated use `toolbarsPreset` instead
+     */
     markupToolbarConfig?: MToolbarData;
+    /**
+     * @deprecated use `toolbarsPreset` instead
+     */
     wysiwygToolbarConfig?: WToolbarData;
+    /**
+     * @deprecated use `toolbarsPreset` instead
+     */
     markupHiddenActionsConfig?: MToolbarItemData[];
+    /**
+     * @deprecated use `toolbarsPreset` instead
+     */
     wysiwygHiddenActionsConfig?: WToolbarItemData[];
     /** @default true */
     settingsVisible?: boolean;
@@ -73,15 +79,43 @@ export const MarkdownEditorView = React.forwardRef<HTMLDivElement, MarkdownEdito
             autofocus,
             className,
             settingsVisible = true,
-            markupToolbarConfig = mToolbarConfigByPreset[editor.preset],
-            wysiwygToolbarConfig = wToolbarConfigByPreset[editor.preset],
-            markupHiddenActionsConfig = mHiddenDataByPreset[editor.preset],
-            wysiwygHiddenActionsConfig = wHiddenDataByPreset[editor.preset],
+            toolbarsPreset,
             toaster,
             stickyToolbar,
+            wysiwygToolbarConfig: initialWysiwygToolbarConfig,
+            markupToolbarConfig: initialMarkupToolbarConfig,
+            wysiwygHiddenActionsConfig: initialWysiwygHiddenActionsConfig,
+            markupHiddenActionsConfig: initialMarkupHiddenActionsConfig,
             enableSubmitInPreview = true,
             hidePreviewAfterSubmit = false,
         } = props;
+
+        const {
+            wysiwygToolbarConfig,
+            markupToolbarConfig,
+            wysiwygHiddenActionsConfig,
+            markupHiddenActionsConfig,
+        } = useMemo(
+            () =>
+                getToolbarsConfigs({
+                    toolbarsPreset,
+                    props: {
+                        wysiwygToolbarConfig: initialWysiwygToolbarConfig,
+                        markupToolbarConfig: initialMarkupToolbarConfig,
+                        wysiwygHiddenActionsConfig: initialWysiwygHiddenActionsConfig,
+                        markupHiddenActionsConfig: initialMarkupHiddenActionsConfig,
+                    },
+                    preset: editor.preset,
+                }),
+            [
+                toolbarsPreset,
+                initialWysiwygToolbarConfig,
+                initialMarkupToolbarConfig,
+                initialWysiwygHiddenActionsConfig,
+                initialMarkupHiddenActionsConfig,
+                editor.preset,
+            ],
+        );
 
         const rerender = useUpdate();
         React.useLayoutEffect(() => {

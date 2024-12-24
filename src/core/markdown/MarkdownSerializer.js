@@ -165,7 +165,7 @@ export class MarkdownSerializerState {
             const startOfLine = this.atBlank() || this.closed;
             this.write();
             let text = lines[i];
-            if (escape !== false) text = this.esc(text, startOfLine)
+            if (escape !== false && this.options.escape !== false) text = this.esc(text, startOfLine)
             if (this.escapeWhitespace) text = this.escWhitespace(text);
             this.out += text
             if (i != lines.length - 1) this.out += '\n';

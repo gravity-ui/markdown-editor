@@ -1,11 +1,13 @@
 import {builders} from 'prosemirror-test-builder';
 
+import {parseDOM} from '../../../../tests/parse-dom';
 import {createMarkupChecker} from '../../../../tests/sameMarkup';
 import {ExtensionsManager} from '../../../core';
 import {BaseNode, BaseSchemaSpecs} from '../../base/specs';
 import {BoldSpecs, boldMarkName} from '../../markdown/specs';
 
-import {CheckboxNode, CheckboxSpecs} from './CheckboxSpecs';
+import {CheckboxAttr, CheckboxNode, CheckboxSpecs} from './CheckboxSpecs';
+import {fixPastePlugin} from './plugins/fix-paste';
 
 const {
     schema,
@@ -94,6 +96,33 @@ describe('Checkbox extension', () => {
         serialize(
             doc(checkbox(cbInput(), cbLabel('    \t    \n    '))),
             '[ ] checkbox-placeholder',
+        );
+    });
+
+    it('should parse dom with checkbox', () => {
+        parseDOM(
+            schema,
+            `
+<meta charset='utf-8'>
+<div class="checkbox">
+<input type="checkbox" id="checkbox1" disabled="" checked="true">
+<label for="checkbox1">два</label>
+</div>`,
+            doc(checkbox(cbInput({[CheckboxAttr.Checked]: 'true'}), cbLabel('два'))),
+            [fixPastePlugin()],
+        );
+    });
+
+    it('should parse dom with input[type=checkbox]', () => {
+        parseDOM(
+            schema,
+            `
+<input type="checkbox" id="checkbox2" disabled="">
+<span></span>
+<label for="checkbox2">todo2</label>
+`,
+            doc(checkbox(cbInput(), cbLabel('todo2'))),
+            [fixPastePlugin()],
         );
     });
 });

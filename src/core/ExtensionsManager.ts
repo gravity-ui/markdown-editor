@@ -6,6 +6,7 @@ import {ExtensionBuilder} from './ExtensionBuilder';
 import {ParserTokensRegistry} from './ParserTokensRegistry';
 import {SchemaSpecRegistry} from './SchemaSpecRegistry';
 import {SerializerTokensRegistry} from './SerializerTokensRegistry';
+import {TransformFn} from './markdown/ProseMirrorTransformer';
 import type {ActionSpec} from './types/actions';
 import type {
     Extension,
@@ -24,6 +25,7 @@ type ExtensionsManagerParams = {
 type ExtensionsManagerOptions = {
     mdOpts?: MarkdownIt.Options & {preset?: PresetName};
     linkifyTlds?: string | string[];
+    pmTransformers?: TransformFn[];
 };
 
 export class ExtensionsManager {
@@ -37,6 +39,8 @@ export class ExtensionsManager {
 
     #nodeViewCreators = new Map<string, (deps: ExtensionDeps) => NodeViewConstructor>();
     #markViewCreators = new Map<string, (deps: ExtensionDeps) => MarkViewConstructor>();
+
+    #pmTransformers: TransformFn[] = [];
 
     #mdForMarkup: MarkdownIt;
     #mdForText: MarkdownIt;
@@ -60,6 +64,10 @@ export class ExtensionsManager {
         if (options.linkifyTlds) {
             this.#mdForMarkup.linkify.tlds(options.linkifyTlds, true);
             this.#mdForText.linkify.tlds(options.linkifyTlds, true);
+        }
+
+        if (options.pmTransformers) {
+            this.#pmTransformers = options.pmTransformers;
         }
 
         // TODO: add prefilled context
@@ -118,8 +126,16 @@ export class ExtensionsManager {
         this.#deps = {
             schema,
             actions: new ActionsManager(),
-            markupParser: this.#parserRegistry.createParser(schema, this.#mdForMarkup),
-            textParser: this.#parserRegistry.createParser(schema, this.#mdForText),
+            markupParser: this.#parserRegistry.createParser(
+                schema,
+                this.#mdForMarkup,
+                this.#pmTransformers,
+            ),
+            textParser: this.#parserRegistry.createParser(
+                schema,
+                this.#mdForText,
+                this.#pmTransformers,
+            ),
             serializer: this.#serializerRegistry.createSerializer(),
         };
     }
