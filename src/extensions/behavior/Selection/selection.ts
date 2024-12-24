@@ -99,18 +99,16 @@ const getTopLevelNodesFromSelection = (selection: Selection, doc: Node) => {
     const nodes: {node: Node; pos: number}[] = [];
     if (selection.from !== selection.to) {
         const {from, to} = selection;
+
         doc.nodesBetween(from, to, (node, pos) => {
             const withinSelection = from <= pos && pos + node.nodeSize <= to;
-            if (
-                node &&
-                node.type.name !== 'paragraph' &&
-                !node.isText &&
-                node.type.spec.selectable &&
-                withinSelection
-            ) {
+
+            if (node && !node.isText && node.type.spec.selectable !== false && withinSelection) {
                 nodes.push({node, pos});
+
                 return false;
             }
+
             return true;
         });
     }
