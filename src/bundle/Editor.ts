@@ -4,9 +4,6 @@ import {EditorView as CMEditorView} from '@codemirror/view';
 import {TextSelection} from 'prosemirror-state';
 import {EditorView as PMEditorView} from 'prosemirror-view';
 
-import {TransformFn} from 'src/core/markdown/ProseMirrorTransformer';
-
-import {getAutocompleteConfig} from '../../src/markup/codemirror/autocomplete';
 import type {CommonEditor, MarkupString} from '../common';
 import {
     type ActionStorage,
@@ -14,10 +11,12 @@ import {
     WysiwygEditor,
     type WysiwygEditorOptions,
 } from '../core';
+import {TransformFn} from '../core/markdown/ProseMirrorTransformer';
 import {ReactRenderStorage, type RenderStorage} from '../extensions';
 import {i18n} from '../i18n/bundle';
 import {logger} from '../logger';
 import {createCodemirror} from '../markup';
+import {getAutocompleteConfig} from '../markup/codemirror/autocomplete';
 import {type CodeEditor, Editor as MarkupEditor} from '../markup/editor';
 import {type Emitter, FileUploadHandler, type Receiver, SafeEventEmitter} from '../utils';
 import type {DirectiveSyntaxContext} from '../utils/directive';
