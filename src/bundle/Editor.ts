@@ -11,7 +11,7 @@ import {
     WysiwygEditor,
     type WysiwygEditorOptions,
 } from '../core';
-import {TransformFn} from '../core/markdown/ProseMirrorTransformer';
+import type {TransformFn} from '../core/markdown/ProseMirrorTransformer';
 import {ReactRenderStorage, type RenderStorage} from '../extensions';
 import {i18n} from '../i18n/bundle';
 import {logger} from '../logger';

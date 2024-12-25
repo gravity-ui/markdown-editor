@@ -1,6 +1,6 @@
 import {CompletionContext, CompletionResult, snippet} from '@codemirror/autocomplete';
 
-import {i18n} from '../../../../src/i18n/empty-row';
+import {i18n} from '../../../i18n/empty-row';
 
 export const emptyRowSnippetTemplate = '&nbsp;\n\n';
 export const emptyRowSnippet = snippet(emptyRowSnippetTemplate);

@@ -1,8 +1,7 @@
 /**
  * @deprecated This file is deprecated. Use ToolbarsPreset instead.
  */
-import {ActionStorage} from 'src/core';
-
+import type {ActionStorage} from '../../core';
 import {headingType, pType} from '../../extensions';
 // for typings from Math
 import type {} from '../../extensions/additional/Math';

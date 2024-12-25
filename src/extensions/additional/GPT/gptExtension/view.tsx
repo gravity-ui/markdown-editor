@@ -8,9 +8,8 @@ import {TextSelection} from 'prosemirror-state';
 import {EditorView} from 'prosemirror-view';
 import {useMount} from 'react-use';
 
-import {Parser, Serializer} from 'src/core';
-
 import {cn} from '../../../../classname';
+import type {Parser, Serializer} from '../../../../core';
 import {getReactRendererFromState} from '../../../behavior';
 import type {CommonAnswer} from '../ErrorScreen/types';
 import type {GptDialogProps} from '../GptDialog/GptDialog';
