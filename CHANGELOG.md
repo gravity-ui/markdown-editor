@@ -1,5 +1,12 @@
 # Changelog
 
+## [14.10.1](https://github.com/gravity-ui/markdown-editor/compare/v14.10.0...v14.10.1) (2024-12-25)
+
+
+### Bug Fixes
+
+* **bundle:** fixed imports with relative paths ([#538](https://github.com/gravity-ui/markdown-editor/issues/538)) ([747a3fd](https://github.com/gravity-ui/markdown-editor/commit/747a3fdc1b76c8eed3ad975d06d852fdf5bc2a6b))
+
 ## [14.10.0](https://github.com/gravity-ui/markdown-editor/compare/v14.9.0...v14.10.0) (2024-12-24)
 
 
