@@ -1,4 +1,6 @@
 @use 'node_modules/@gravity-ui/uikit/styles/mixins.scss' as uikit;
+@use '../../../../styles/mixins.scss';
+
 
 .pm-h-folding-hidden {
     display: none;
@@ -12,8 +14,9 @@
     position: relative;
 
     &::before {
+        @include mixins.z-index('forefront');
+        
         position: absolute;
-        z-index: 1;
         bottom: -4px;
         left: 0;
 
@@ -30,8 +33,9 @@
     }
 
     &::after {
+        @include mixins.z-index('forefront');
+        
         position: absolute;
-        z-index: 1;
         bottom: -8px;
         left: 16px;
 
@@ -47,8 +51,9 @@
 
 .pm-h-folding-label {
     &::after {
+        @include mixins.z-index('forefront');
+
         position: absolute;
-        z-index: 1;
         right: 2px;
         bottom: -6px;
 

@@ -1,3 +1,5 @@
+@use '../../../styles/mixins.scss';
+
 .math-block {
     font-family: var(--g-font-family-monospace);
 
@@ -45,8 +47,9 @@
     }
 
     &::before {
+        @include mixins.z-index('background');
+        
         position: absolute;
-        z-index: -1;
         inset: -2px;
 
         content: '';
