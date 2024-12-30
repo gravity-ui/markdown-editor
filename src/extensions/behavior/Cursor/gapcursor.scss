@@ -1,3 +1,5 @@
+@use '../../../styles//mixins.scss';
+
 .Prosemirror-hide-cursor {
     caret-color: transparent;
 }
@@ -27,8 +29,9 @@
     }
 
     &::before {
+        @include mixins.z-index('forefront');
+
         position: relative;
-        z-index: 1;
 
         display: inline-block;
 

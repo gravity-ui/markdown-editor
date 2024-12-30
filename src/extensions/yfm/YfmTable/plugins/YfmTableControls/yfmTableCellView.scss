@@ -1,7 +1,10 @@
+@use '../../../../../styles/mixins.scss';
+
 .g-md-table-cell-view {
     &__left-button {
+        @include mixins.z-index('table-cell-button');
+
         position: absolute;
-        z-index: 110;
         top: calc(50% - 14px);
         left: -13px;
 
@@ -19,8 +22,9 @@
     }
 
     &__upper-button {
+        @include mixins.z-index('table-cell-button');
+
         position: absolute;
-        z-index: 110;
         top: -13px;
         left: calc(50% - 14px);
 

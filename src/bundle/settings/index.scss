@@ -1,3 +1,4 @@
+@use '../../styles/mixins.scss';
 @import '~@gravity-ui/uikit/styles/mixins';
 
 .g-md-editor-settings {
@@ -13,7 +14,7 @@
     }
 
     &__separator {
-        z-index: 0;
+        @include mixins.z-index('default');
 
         margin: 6px 4px;
 
@@ -26,6 +27,10 @@
 
     &__mode-help {
         float: right;
+    }
+
+    &__tooltip {
+        @include mixins.z-index('tooltip');
     }
 
     &__separator {

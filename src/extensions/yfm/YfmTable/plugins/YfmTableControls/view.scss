@@ -1,3 +1,5 @@
+@use '../../../../../styles/mixins.scss';
+
 $buttons-size: 16px;
 $buttons-offset: 2px;
 
@@ -41,8 +43,9 @@ $buttons-offset: 2px;
         transition: opacity 150ms ease 50ms;
 
         &_right {
+            @include mixins.z-index('table-view-button');
+
             position: absolute;
-            z-index: 100;
             top: 0;
             right: -$buttons-size - $buttons-offset;
 
@@ -54,8 +57,9 @@ $buttons-offset: 2px;
         }
 
         &_bottom {
+            @include mixins.z-index('table-view-button');
+
             position: absolute;
-            z-index: 100;
             bottom: -$buttons-size - $buttons-offset;
 
             display: flex;

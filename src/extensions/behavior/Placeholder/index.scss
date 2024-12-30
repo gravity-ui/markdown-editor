@@ -1,3 +1,5 @@
+@use '../../../styles/mixins.scss';
+
 .ProseMirror .g-md-placeholder {
     display: inline-block;
 
@@ -27,8 +29,9 @@
 
     .ProseMirror-focused &_focus {
         .g-md-placeholder__cursor {
+            @include mixins.z-index('forefront');
+
             position: relative;
-            z-index: 1;
 
             margin-right: -1px;
 

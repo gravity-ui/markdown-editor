@@ -1,3 +1,5 @@
+@use '../../../styles/mixins.scss';
+
 body :has(.g-md-resizable_resizing) {
     cursor: col-resize;
 }
@@ -7,8 +9,9 @@ body :has(.g-md-resizable_resizing) {
 
     &_resizing &__resizer-wrapper,
     &_hover &__resizer-wrapper {
+        @include mixins.z-index('forefront');
+        
         position: absolute;
-        z-index: 1;
         top: 0;
 
         display: flex;
