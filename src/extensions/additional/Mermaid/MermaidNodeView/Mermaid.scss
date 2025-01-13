@@ -34,9 +34,9 @@
     }
 
     &__EditorPopover {
-        @include mixins.z-index('forefront');
-
         float: right;
+
+        @include mixins.z-index('forefront');
     }
 
     &__Controls {

@@ -9,8 +9,6 @@ body :has(.g-md-resizable_resizing) {
 
     &_resizing &__resizer-wrapper,
     &_hover &__resizer-wrapper {
-        @include mixins.z-index('forefront');
-        
         position: absolute;
         top: 0;
 
@@ -23,6 +21,8 @@ body :has(.g-md-resizable_resizing) {
 
         cursor: col-resize;
         pointer-events: auto;
+
+        @include mixins.z-index('forefront');
 
         &_left {
             left: 0;

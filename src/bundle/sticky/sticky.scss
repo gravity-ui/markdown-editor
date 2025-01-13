@@ -13,9 +13,9 @@ $block: 'g-md-editor-sticky';
     }
 
     &_sticky-active:not(.#{$block}_clear) {
-        @include mixins.z-index('sticky-toolbar');
-
         padding: var(--g-md-toolbar-sticky-padding);
+
+        @include mixins.z-index('sticky-toolbar');
 
         &::before {
             position: absolute;

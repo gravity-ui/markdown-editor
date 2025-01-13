@@ -19,8 +19,6 @@
 }
 
 .ProseMirror-focused .fake-cursor {
-    @include mixins.z-index('forefront');
-
     position: relative;
 
     margin-right: -1px;
@@ -30,4 +28,6 @@
 
     animation: code_fake_blink 1s;
     animation-iteration-count: infinite;
+
+    @include mixins.z-index('forefront');
 }

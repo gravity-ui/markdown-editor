@@ -1,7 +1,6 @@
 @use 'node_modules/@gravity-ui/uikit/styles/mixins.scss' as uikit;
 @use '../../../../styles/mixins.scss';
 
-
 .pm-h-folding-hidden {
     display: none;
 }
@@ -14,8 +13,6 @@
     position: relative;
 
     &::before {
-        @include mixins.z-index('forefront');
-        
         position: absolute;
         bottom: -4px;
         left: 0;
@@ -30,11 +27,11 @@
         mask-size: 12px;
 
         transform: translateY(80%);
+
+        @include mixins.z-index('forefront');
     }
 
     &::after {
-        @include mixins.z-index('forefront');
-        
         position: absolute;
         bottom: -8px;
         left: 16px;
@@ -46,13 +43,13 @@
         content: '';
 
         border-top: 1px dashed var(--g-color-line-generic);
+
+        @include mixins.z-index('forefront');
     }
 }
 
 .pm-h-folding-label {
     &::after {
-        @include mixins.z-index('forefront');
-
         position: absolute;
         right: 2px;
         bottom: -6px;
@@ -70,5 +67,7 @@
         transform: translate(0, 50%);
 
         @include uikit.text-body-1();
+
+        @include mixins.z-index('forefront');
     }
 }

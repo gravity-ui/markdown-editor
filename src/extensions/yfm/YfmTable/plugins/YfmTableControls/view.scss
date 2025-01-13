@@ -43,8 +43,6 @@ $buttons-offset: 2px;
         transition: opacity 150ms ease 50ms;
 
         &_right {
-            @include mixins.z-index('table-view-button');
-
             position: absolute;
             top: 0;
             right: -$buttons-size - $buttons-offset;
@@ -54,11 +52,11 @@ $buttons-offset: 2px;
 
             width: $buttons-size;
             height: 100%;
+
+            @include mixins.z-index('table-view-button');
         }
 
         &_bottom {
-            @include mixins.z-index('table-view-button');
-
             position: absolute;
             bottom: -$buttons-size - $buttons-offset;
 
@@ -67,6 +65,8 @@ $buttons-offset: 2px;
 
             width: 100%;
             height: $buttons-size;
+
+            @include mixins.z-index('table-view-button');
         }
     }
 

@@ -47,8 +47,6 @@
     }
 
     &::before {
-        @include mixins.z-index('background');
-        
         position: absolute;
         inset: -2px;
 
@@ -58,6 +56,8 @@
         background-color: var(--g-md-math-back-color);
 
         transition: background-color 0.15s linear;
+
+        @include mixins.z-index('background');
     }
 
     &:hover {

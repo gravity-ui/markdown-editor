@@ -29,8 +29,6 @@
     }
 
     &::before {
-        @include mixins.z-index('forefront');
-
         position: relative;
 
         display: inline-block;
@@ -41,6 +39,8 @@
         caret-color: transparent;
 
         border-right: 1px solid transparent;
+
+        @include mixins.z-index('forefront');
     }
 
     .ProseMirror-focused &::before {

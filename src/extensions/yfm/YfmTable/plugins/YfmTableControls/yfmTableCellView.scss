@@ -2,8 +2,6 @@
 
 .g-md-table-cell-view {
     &__left-button {
-        @include mixins.z-index('table-cell-button');
-
         position: absolute;
         top: calc(50% - 14px);
         left: -13px;
@@ -14,6 +12,8 @@
         border-radius: var(--g-border-radius-s);
         background: var(--g-color-base-background);
 
+        @include mixins.z-index('table-cell-button');
+
         &:hover {
             pointer-events: initial;
 
@@ -22,8 +22,6 @@
     }
 
     &__upper-button {
-        @include mixins.z-index('table-cell-button');
-
         position: absolute;
         top: -13px;
         left: calc(50% - 14px);
@@ -35,6 +33,8 @@
         background: var(--g-color-base-background);
 
         transform: rotate(90deg);
+
+        @include mixins.z-index('table-cell-button');
 
         &:hover {
             pointer-events: initial;
