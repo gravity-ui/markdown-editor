@@ -10,6 +10,6 @@ export const Story: StoryObj<typeof component> = {
 Story.storyName = 'Preserve Empty Rows';
 
 export default {
-    title: 'Experiments',
+    title: 'Experiments / Preserve Empty Rows',
     component,
 };
