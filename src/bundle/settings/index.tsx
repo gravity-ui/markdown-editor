@@ -158,6 +158,7 @@ const SettingsContent: React.FC<SettingsContentProps> = function SettingsContent
                                 <MarkdownHints />
                             </div>
                         }
+                        tooltipClassName={bContent('tooltip')}
                         placement={mdHelpPlacement}
                         className={bContent('mode-help')}
                     />
