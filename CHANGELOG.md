@@ -1,5 +1,13 @@
 # Changelog
 
+## [14.10.3](https://github.com/gravity-ui/markdown-editor/compare/v14.10.2...v14.10.3) (2025-01-14)
+
+
+### Bug Fixes
+
+* fixed serialization of empty nodes ([#545](https://github.com/gravity-ui/markdown-editor/issues/545)) ([26a4b6b](https://github.com/gravity-ui/markdown-editor/commit/26a4b6b37139ba76aa98ca48183ff227f9ba8419))
+* **toolbars:** added math to ListName ([#547](https://github.com/gravity-ui/markdown-editor/issues/547)) ([c8bfa70](https://github.com/gravity-ui/markdown-editor/commit/c8bfa702aebe53bdf87d6c6fb6fb1a7634c5d83a))
+
 ## [14.10.2](https://github.com/gravity-ui/markdown-editor/compare/v14.10.1...v14.10.2) (2024-12-25)
 
 

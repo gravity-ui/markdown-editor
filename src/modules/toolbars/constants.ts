@@ -1,7 +1,8 @@
 export enum ListName {
+    code = 'code',
     heading = 'heading',
     lists = 'lists',
-    code = 'code',
+    math = 'math',
 }
 
 export enum ToolbarName {
