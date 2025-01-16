@@ -8,13 +8,13 @@ import {ActionStorage} from '../../../core';
 import {isFunction} from '../../../lodash';
 import {logger} from '../../../logger';
 import {ErrorLoggerBoundary} from '../../../react-utils/ErrorBoundary';
+import {Toolbar} from '../../../toolbar/Toolbar';
 import {
-    Toolbar,
     ToolbarButtonPopupData,
     ToolbarGroupItemData,
     ToolbarProps,
     ToolbarSingleItemData,
-} from '../../../toolbar';
+} from '../../../toolbar/types';
 import {RendererItem, getReactRendererFromState} from '../ReactRenderer';
 
 type SelectionTooltipBaseProps = {

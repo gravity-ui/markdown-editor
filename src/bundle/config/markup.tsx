@@ -42,11 +42,10 @@ import {
 } from '../../markup/commands';
 import {CodeEditor} from '../../markup/editor';
 import {Action as A, formatter as f} from '../../shortcuts';
-import {ToolbarData} from '../../toolbar/Toolbar';
-import {ToolbarGroupData} from '../../toolbar/ToolbarGroup';
 import {ToolbarListButtonData} from '../../toolbar/ToolbarListButton';
 import {
     ToolbarButtonPopupData,
+    ToolbarData,
     ToolbarDataType,
     ToolbarItemData,
     ToolbarListButtonItemData,
@@ -57,6 +56,7 @@ import {
 import {MToolbarColors} from '../toolbar/markup/MToolbarColors';
 import {MToolbarFilePopup} from '../toolbar/markup/MToolbarFilePopup';
 import {MToolbarImagePopup} from '../toolbar/markup/MToolbarImagePopup';
+import type {ToolbarGroupData} from '../toolbar/types';
 import type {MarkdownEditorPreset} from '../types';
 
 import {ActionName} from './action-names';

@@ -2,6 +2,8 @@ import type {RefObject} from 'react';
 
 import type {HotkeyProps, IconProps} from '@gravity-ui/uikit';
 
+import {ActionStorage} from 'src/core/types/actions';
+
 import type {ClassNameProps} from '../classname';
 
 import type {ToolbarListButtonData} from './ToolbarListButton';
@@ -12,7 +14,16 @@ export type ToolbarBaseProps<E> = ClassNameProps & {
     onClick?(id: string, attrs?: {[key: string]: any}): void;
 };
 
+export type ToolbarProps<E> = ClassNameProps & {
+    editor: E;
+    focus(): void;
+    onClick?(id: string, attrs?: {[key: string]: any}): void;
+    data: ToolbarData<E>;
+};
+
 export type ToolbarIconData = Pick<IconProps, 'data' | 'size'>;
+export type ToolbarGroupData<E> = Array<ToolbarGroupItemData<E>>;
+export type ToolbarData<E> = ToolbarGroupData<E>[];
 
 export type ToolbarItemData<E> = {
     id: string;
@@ -26,9 +37,7 @@ export type ToolbarItemData<E> = {
      * Show hint when _isEnable()_ returns false
      *
      * `false` – don't show hint;
-     *
      * `true` – show default hint;
-     *
      * `string` or `() => string` – show hint with custom message.
      *
      * @default true
@@ -111,3 +120,12 @@ export type ToolbarReactNodeFnData<E> = {
     width: number;
     content: (e: E) => React.ReactNode;
 };
+
+export type WToolbarData = ToolbarData<ActionStorage>;
+export type WToolbarItemData = ToolbarItemData<ActionStorage>;
+export type WToolbarSingleItemData = ToolbarSingleItemData<ActionStorage>;
+export type WToolbarGroupData = ToolbarGroupData<ActionStorage>;
+export type WToolbarGroupItemData = ToolbarGroupItemData<ActionStorage>;
+export type WToolbarListButtonData = ToolbarListButtonData<ActionStorage>;
+export type WToolbarListItemData = ToolbarListItemData<ActionStorage>;
+export type WToolbarListButtonItemData = ToolbarListButtonItemData<ActionStorage>;

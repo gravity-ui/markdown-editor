@@ -1,5 +1,6 @@
 import {ToolbarDataType} from '../../../toolbar/types';
-import type {MToolbarData, MToolbarItemData, WToolbarData, WToolbarItemData} from '../../config';
+import type {MToolbarData, MToolbarItemData} from '../../config';
+import type {WToolbarData, WToolbarItemData} from '../types';
 
 export const flattenPreset = <T extends WToolbarData | MToolbarData>(
     config: T,

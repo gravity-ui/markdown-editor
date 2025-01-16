@@ -5,13 +5,11 @@ import {cn} from '../classname';
 import {ToolbarButton} from './ToolbarButton';
 import {ToolbarButtonPopup} from './ToolbarButtonPopup';
 import {ToolbarListButton} from './ToolbarListButton';
-import {ToolbarBaseProps, ToolbarDataType, ToolbarGroupItemData} from './types';
+import {ToolbarBaseProps, ToolbarDataType, ToolbarGroupData} from './types';
 
 import './ToolbarGroup.scss';
 
 const b = cn('toolbar-group');
-
-export type ToolbarGroupData<E> = ToolbarGroupItemData<E>[];
 
 export type ToolbarGroupProps<E> = ToolbarBaseProps<E> & {
     data: ToolbarGroupData<E>;

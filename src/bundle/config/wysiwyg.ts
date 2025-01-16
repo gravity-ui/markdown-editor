@@ -1,7 +1,6 @@
 /**
  * @deprecated This file is deprecated. Use ToolbarsPreset instead.
  */
-import type {ActionStorage} from '../../core';
 import {headingType, pType} from '../../extensions';
 // for typings from Math
 import type {} from '../../extensions/additional/Math';
@@ -12,17 +11,16 @@ import type {
 import {i18n as i18nHint} from '../../i18n/hints';
 import {i18n} from '../../i18n/menubar';
 import {Action as A, formatter as f} from '../../shortcuts';
-import {
-    ToolbarDataType,
-    ToolbarGroupItemData,
-    ToolbarItemData,
-    ToolbarListButtonItemData,
-    ToolbarListItemData,
-    ToolbarSingleItemData,
-} from '../../toolbar';
-import {ToolbarData} from '../../toolbar/Toolbar';
-import {ToolbarGroupData} from '../../toolbar/ToolbarGroup';
-import {ToolbarListButtonData} from '../../toolbar/ToolbarListButton';
+import {ToolbarDataType} from '../toolbar/types';
+import type {
+    WToolbarData,
+    WToolbarGroupData,
+    WToolbarItemData,
+    WToolbarListButtonData,
+    WToolbarListButtonItemData,
+    WToolbarListItemData,
+    WToolbarSingleItemData,
+} from '../toolbar/types';
 import {WToolbarColors} from '../toolbar/wysiwyg/WToolbarColors';
 import {WToolbarTextSelect} from '../toolbar/wysiwyg/WToolbarTextSelect';
 import type {MarkdownEditorPreset} from '../types';
@@ -30,14 +28,7 @@ import type {MarkdownEditorPreset} from '../types';
 import {ActionName} from './action-names';
 import {icons} from './icons';
 
-export type WToolbarData = ToolbarData<ActionStorage>;
-export type WToolbarItemData = ToolbarItemData<ActionStorage>;
-export type WToolbarSingleItemData = ToolbarSingleItemData<ActionStorage>;
-export type WToolbarGroupData = ToolbarGroupData<ActionStorage>;
-export type WToolbarGroupItemData = ToolbarGroupItemData<ActionStorage>;
-export type WToolbarListButtonData = ToolbarListButtonData<ActionStorage>;
-export type WToolbarListItemData = ToolbarListItemData<ActionStorage>;
-export type WToolbarListButtonItemData = ToolbarListButtonItemData<ActionStorage>;
+export type {WToolbarItemData} from '../toolbar/types';
 
 export const wUndoItemData: WToolbarSingleItemData = {
     id: ActionName.undo,

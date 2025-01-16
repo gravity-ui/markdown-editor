@@ -1,6 +1,11 @@
-import type {ToolbarData} from './Toolbar';
-import {ToolbarGroupData} from './ToolbarGroup';
-import {ToolbarDataType, ToolbarGroupItemData, ToolbarItemData} from './types';
+import type {
+    ToolbarData,
+    ToolbarGroupData,
+    ToolbarGroupItemData,
+    ToolbarItemData,
+} from '../toolbar/types';
+
+import {ToolbarDataType} from './types';
 
 /** horizontal gap between item groups in toolbar, px */
 const H_GAP = 17;

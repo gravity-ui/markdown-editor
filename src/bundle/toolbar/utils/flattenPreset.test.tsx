@@ -1,7 +1,7 @@
 import React from 'react';
 
 import {ToolbarDataType} from '../../../toolbar/types';
-import type {WToolbarData} from '../../config/wysiwyg';
+import type {WToolbarData} from '../types';
 
 import {flattenPreset} from './flattenPreset';
 

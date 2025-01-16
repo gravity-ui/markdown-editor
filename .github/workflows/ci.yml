@@ -41,3 +41,19 @@ jobs:
       run: npm run test
     - name: ESBuild compatability
       run: npm run test:esbuild
+
+  check_circular_deps:
+    name: Check Circular Dependencies
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+    - name: Setup Node
+      uses: actions/setup-node@v3
+      with:
+        node-version: 18
+        cache: npm
+    - name: Install Packages
+      run: npm ci
+    - name: Check circular dependencies
+      run: npm run check-circular-deps
