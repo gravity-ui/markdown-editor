@@ -15,21 +15,13 @@ import './index.scss';
 const cnYfmTab = cn('yfm-tab');
 
 const ignoreMutation =
-    (node: Node, view: EditorView, getPos: () => number | undefined) =>
+    (_node: Node, _view: EditorView, _getPos: () => number | undefined) =>
     (mutation: MutationRecord) => {
         if (
             mutation instanceof MutationRecord &&
             mutation.type === 'attributes' &&
             mutation.attributeName
         ) {
-            const newAttr = (mutation.target as HTMLElement).getAttribute(mutation.attributeName);
-
-            view.dispatch(
-                view.state.tr.setNodeMarkup(getPos()!, null, {
-                    ...node.attrs,
-                    [mutation.attributeName]: newAttr,
-                }),
-            );
             return true;
         }
 

@@ -1,4 +1,5 @@
-export {TabsNode, tabType, tabPanelType, tabsListType, tabsType} from './YfmTabsSpecs';
+export * from './YfmTabsSpecs/const';
+export {tabType, tabPanelType, tabsListType, tabsType} from './YfmTabsSpecs';
 
 export const tabActiveClassname = 'yfm-tab active';
 export const tabInactiveClassname = 'yfm-tab';
