@@ -6,9 +6,9 @@ import type {
     ToolbarItemWysiwyg,
     ToolbarsPreset,
 } from '../../../modules/toolbars/types';
-import type {MToolbarData} from '../../../toolbar';
 import {ToolbarDataType, ToolbarIconData} from '../../../toolbar';
 import type {MarkdownEditorViewProps} from '../../MarkdownEditorView';
+import type {MToolbarData} from '../../config/markup';
 import {MarkdownEditorPreset} from '../../types';
 import type {WToolbarData} from '../types';
 

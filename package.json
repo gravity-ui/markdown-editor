@@ -26,7 +26,7 @@
     "lint:styles": "stylelint \"{src,demo}/**/*.{css,scss}\"",
     "lint:prettier": "prettier --check \"{src,demo}/**/*.{js,jsx,ts,tsx,css,scss}\"",
     "test": "jest",
-    "check-circular-deps": "node scripts/check-circular-deps.js 99",
+    "check-circular-deps": "node scripts/check-circular-deps.js 71",
     "test:cov": "jest --coverage",
     "test:watch": "jest --watchAll",
     "test:esbuild": "node tests/esbuild-test/esbuild-tester.js",

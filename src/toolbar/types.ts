@@ -2,8 +2,6 @@ import type {RefObject} from 'react';
 
 import type {HotkeyProps, IconProps} from '@gravity-ui/uikit';
 
-import {ActionStorage} from 'src/core/types/actions';
-
 import type {ClassNameProps} from '../classname';
 
 import type {ToolbarListButtonData} from './ToolbarListButton';
@@ -120,12 +118,3 @@ export type ToolbarReactNodeFnData<E> = {
     width: number;
     content: (e: E) => React.ReactNode;
 };
-
-export type WToolbarData = ToolbarData<ActionStorage>;
-export type WToolbarItemData = ToolbarItemData<ActionStorage>;
-export type WToolbarSingleItemData = ToolbarSingleItemData<ActionStorage>;
-export type WToolbarGroupData = ToolbarGroupData<ActionStorage>;
-export type WToolbarGroupItemData = ToolbarGroupItemData<ActionStorage>;
-export type WToolbarListButtonData = ToolbarListButtonData<ActionStorage>;
-export type WToolbarListItemData = ToolbarListItemData<ActionStorage>;
-export type WToolbarListButtonItemData = ToolbarListButtonItemData<ActionStorage>;

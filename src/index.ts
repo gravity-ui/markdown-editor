@@ -12,6 +12,7 @@ export * from './forms';
 export * from './view';
 export * from './utils';
 export * from './bundle';
+export * from './bundle/config';
 
 export {DirectiveSyntaxFacet, ReactRendererFacet, getImageDimensions} from './markup';
 export * as MarkupCommands from './markup/commands';

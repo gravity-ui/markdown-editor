@@ -1,10 +1,4 @@
-import type {
-    ToolbarData,
-    ToolbarGroupData,
-    ToolbarGroupItemData,
-    ToolbarItemData,
-} from '../toolbar/types';
-
+import type {ToolbarData, ToolbarGroupData, ToolbarGroupItemData, ToolbarItemData} from './types';
 import {ToolbarDataType} from './types';
 
 /** horizontal gap between item groups in toolbar, px */
