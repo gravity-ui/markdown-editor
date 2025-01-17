@@ -1,6 +1,5 @@
-import type {ActionStorage} from 'src/core';
-import type {ToolbarListButtonData} from 'src/toolbar';
-
+import type {ActionStorage} from '../../core';
+import type {ToolbarListButtonData} from '../../toolbar';
 import type {
     ToolbarData,
     ToolbarGroupData,

@@ -1,7 +1,6 @@
 import {cn} from '@bem-react/classname';
 
-import {WToolbarSingleItemData} from 'src/bundle/toolbar/types';
-
+import {WToolbarSingleItemData} from '../../../bundle/toolbar/types';
 import {i18n} from '../../../i18n/gpt/extension';
 import gptIcon from '../../../icons/GPT';
 import {ToolbarDataType} from '../../../toolbar';
