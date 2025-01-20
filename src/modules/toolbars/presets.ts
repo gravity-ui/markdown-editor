@@ -96,6 +96,9 @@ import {
     tableItemMarkup,
     tableItemView,
     tableItemWysiwyg,
+    tabsItemMarkup,
+    tabsItemView,
+    tabsItemWysiwyg,
     underlineItemMarkup,
     underlineItemView,
     underlineItemWysiwyg,
@@ -431,9 +434,9 @@ export const yfm: ToolbarsPreset = {
             markup: checkboxItemMarkup,
         },
         [Action.tabs]: {
-            view: tableItemView,
-            wysiwyg: tableItemWysiwyg,
-            markup: tableItemMarkup,
+            view: tabsItemView,
+            wysiwyg: tabsItemWysiwyg,
+            markup: tabsItemMarkup,
         },
     },
     orders: {
