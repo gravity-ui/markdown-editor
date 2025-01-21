@@ -1,5 +1,12 @@
 # Changelog
 
+## [14.10.4](https://github.com/gravity-ui/markdown-editor/compare/v14.10.3...v14.10.4) (2025-01-20)
+
+
+### Bug Fixes
+
+* **modules/toolbars:** fixed tabs actions in yfm toolbar preset [#551](https://github.com/gravity-ui/markdown-editor/issues/551) ([b2dd0f3](https://github.com/gravity-ui/markdown-editor/commit/b2dd0f369b4d48839c822a524d5cfc6a8bca2f35))
+
 ## [14.10.3](https://github.com/gravity-ui/markdown-editor/compare/v14.10.2...v14.10.3) (2025-01-14)
 
 
