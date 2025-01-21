@@ -7,7 +7,7 @@ import {Action} from '../../../../../core';
 
 import './floating.scss';
 
-export type TableCellFloatingButtonAction = {action: Action; text: string};
+export type TableCellFloatingButtonAction = {action: Action<Record<string, unknown>>; text: string};
 export type TableCellFloatingButtonMixed =
     | TableCellFloatingButtonAction
     | TableCellFloatingButtonAction[];
@@ -54,7 +54,7 @@ function buildMenuItem(floatingAction: TableCellFloatingButtonMixed): DropdownMe
 
     return {
         text,
-        action: () => action.run(),
+        action: () => action.run({}),
         active,
         disabled,
     };
