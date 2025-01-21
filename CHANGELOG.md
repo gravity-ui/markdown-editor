@@ -1,5 +1,12 @@
 # Changelog
 
+## [14.10.5](https://github.com/gravity-ui/markdown-editor/compare/v14.10.4...v14.10.5) (2025-01-21)
+
+
+### Bug Fixes
+
+* **modules/toolbars:** fixed strikethrough action in default toolbar preset ([#555](https://github.com/gravity-ui/markdown-editor/issues/555)) ([221b0ef](https://github.com/gravity-ui/markdown-editor/commit/221b0efc70be69ae8332ef71a083eb193b658e7b))
+
 ## [14.10.4](https://github.com/gravity-ui/markdown-editor/compare/v14.10.3...v14.10.4) (2025-01-20)
 
 
