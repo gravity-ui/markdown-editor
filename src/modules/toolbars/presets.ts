@@ -93,6 +93,7 @@ import {
     sinkListItemWysiwyg,
     strikethroughItemMarkup,
     strikethroughItemView,
+    strikethroughItemWysiwyg,
     tableItemMarkup,
     tableItemView,
     tableItemWysiwyg,
@@ -308,7 +309,7 @@ export const defaultPreset: ToolbarsPreset = {
         ...commonmark.items,
         [Action.strike]: {
             view: strikethroughItemView,
-            wysiwyg: sinkListItemWysiwyg,
+            wysiwyg: strikethroughItemWysiwyg,
             markup: strikethroughItemMarkup,
         },
     },
