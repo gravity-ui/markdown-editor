@@ -13,7 +13,7 @@ export type {AddImageAttrs} from './actions';
 
 export type ImageOptions = ImageUrlPasteOptions;
 
-export const Image: ExtensionAuto<ImageOptions | undefined> = (builder, opts) => {
+export const Image: ExtensionAuto<ImageOptions> = (builder, opts) => {
     builder.use(ImageSpecs);
 
     builder.addAction(addImageAction, ({schema}) => addImage(schema));
