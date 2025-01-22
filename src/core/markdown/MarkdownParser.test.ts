@@ -5,8 +5,11 @@ import {doc, br as hardBreak, p, schema} from 'prosemirror-test-builder';
 import type {Parser} from '../types/parser';
 
 import {MarkdownParser} from './MarkdownParser';
+import {MarkupManager} from './MarkupManager';
 
 const md = MarkdownIt('commonmark', {html: false, breaks: true});
+const markupManager = new MarkupManager();
+
 const testParser: Parser = new MarkdownParser(
     schema,
     md,
@@ -16,6 +19,7 @@ const testParser: Parser = new MarkdownParser(
         softbreak: {type: 'node', name: 'hard_break'},
     },
     [],
+    markupManager,
 );
 
 function parseWith(parser: Parser) {
