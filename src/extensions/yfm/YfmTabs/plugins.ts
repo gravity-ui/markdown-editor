@@ -31,7 +31,7 @@ import {
     tabsListType,
     tabsType,
 } from './const';
-import {atEndOfPanel, rAF, switchTabByElem, switchTabById} from './utils';
+import {atEndOfPanel, execAfterPaint, switchTabByElem, switchTabById} from './utils';
 
 export const dragAutoSwitch = () =>
     new Plugin({
@@ -226,7 +226,7 @@ export const createTab: (afterTab: NodeWithPos, tabsParentNode: NodeWithPos) => 
         view?.focus();
 
         if (view) {
-            rAF(() => switchTabById(view.dom, tabId));
+            execAfterPaint(() => switchTabById(view.dom, tabId));
         }
 
         return true;
@@ -287,7 +287,7 @@ export const removeTab: (tabToRemove: NodeWithPos, tabsParentNode: NodeWithPos) 
                     );
 
                 // Set new active tab
-                if (view) rAF(() => switchTabById(view.dom, newActiveTabId));
+                if (view) execAfterPaint(() => switchTabById(view.dom, newActiveTabId));
             }
             dispatch(tr);
             view?.focus();

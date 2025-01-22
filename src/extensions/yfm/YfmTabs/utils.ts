@@ -1,8 +1,8 @@
 import type {EditorView} from 'prosemirror-view';
 
-import {tabPanelType} from './const';
+import {DIPLODOC_ID_ATTR, YFM_TAB_CLASSNAME, tabPanelType} from './const';
 
-export const rAF = (fn: () => void) => {
+export const execAfterPaint = (fn: () => void) => {
     requestAnimationFrame(() => {
         requestAnimationFrame(fn);
     });
@@ -25,13 +25,13 @@ export const atEndOfPanel = (view?: EditorView) => {
 };
 
 export const switchTabByElem = (tabElem: HTMLElement) => {
-    if (tabElem.classList.contains('yfm-tab')) {
+    if (tabElem.classList.contains(YFM_TAB_CLASSNAME)) {
         tabElem.click();
     }
 };
 
 export const switchTabById = (container: HTMLElement, tabId: string) => {
-    const selector = `.yfm-tab[data-diplodoc-id=${tabId}]`;
+    const selector = `.${YFM_TAB_CLASSNAME}[${DIPLODOC_ID_ATTR}="${tabId}"]`;
     const tabElem = container.querySelector<HTMLDivElement>(selector);
     if (tabElem) {
         switchTabByElem(tabElem);
