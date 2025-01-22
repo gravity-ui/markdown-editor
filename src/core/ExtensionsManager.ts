@@ -6,6 +6,7 @@ import {ExtensionBuilder} from './ExtensionBuilder';
 import {ParserTokensRegistry} from './ParserTokensRegistry';
 import {SchemaSpecRegistry} from './SchemaSpecRegistry';
 import {SerializerTokensRegistry} from './SerializerTokensRegistry';
+import {MarkupManager} from './markdown/MarkupManager';
 import {TransformFn} from './markdown/ProseMirrorTransformer';
 import type {ActionSpec} from './types/actions';
 import type {
@@ -122,24 +123,32 @@ export class ExtensionsManager {
     };
 
     private createDeps() {
+        const actions = new ActionsManager();
+        const markupManager = new MarkupManager();
+
         const schema = this.#schemaRegistry.createSchema();
+        const markupParser = this.#parserRegistry.createParser(
+            schema,
+            this.#mdForMarkup,
+            this.#pmTransformers,
+            markupManager,
+        );
+        const textParser = this.#parserRegistry.createParser(
+            schema,
+            this.#mdForText,
+            this.#pmTransformers,
+            markupManager,
+        );
+        const serializer = this.#serializerRegistry.createSerializer(markupManager);
+
         this.#deps = {
             schema,
-            actions: new ActionsManager(),
-            markupParser: this.#parserRegistry.createParser(
-                schema,
-                this.#mdForMarkup,
-                this.#pmTransformers,
-            ),
-            textParser: this.#parserRegistry.createParser(
-                schema,
-                this.#mdForText,
-                this.#pmTransformers,
-            ),
-            serializer: this.#serializerRegistry.createSerializer(),
+            actions,
+            markupParser,
+            textParser,
+            serializer,
         };
     }
-
     private createDerived() {
         this.#plugins = this.#spec.plugins(this.#deps);
         Object.assign(this.#actions, this.#spec.actions(this.#deps));

@@ -1,4 +1,5 @@
 import {MarkdownSerializer} from './markdown/MarkdownSerializer';
+import {MarkupManager} from './markdown/MarkupManager';
 import type {Serializer, SerializerMarkToken, SerializerNodeToken} from './types/serializer';
 
 export class SerializerTokensRegistry {
@@ -15,7 +16,7 @@ export class SerializerTokensRegistry {
         return this;
     }
 
-    createSerializer(): Serializer {
-        return new MarkdownSerializer(this.#nodes, this.#marks);
+    createSerializer(markupManager: MarkupManager): Serializer {
+        return new MarkdownSerializer(this.#nodes, this.#marks, markupManager);
     }
 }
