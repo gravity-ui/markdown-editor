@@ -1,35 +1,27 @@
-import {Node} from 'prosemirror-model';
-import {EditorState} from 'prosemirror-state';
+import type {Node} from 'prosemirror-model';
+import {type EditorState, TextSelection} from 'prosemirror-state';
 import {findParentNodeOfTypeClosestToPos} from 'prosemirror-utils';
-import {EditorView, NodeViewConstructor} from 'prosemirror-view';
+import {EditorView, type NodeViewConstructor} from 'prosemirror-view';
 
 import {cn} from '../../../classname';
 
+import {tabType, tabsType} from './const';
 import {crossSvg, plusSvg} from './icons';
 import {createTab, removeTab} from './plugins';
-
-import {tabType, tabsType} from '.';
+import {execAfterPaint} from './utils';
 
 import './index.scss';
 
 const cnYfmTab = cn('yfm-tab');
 
 const ignoreMutation =
-    (node: Node, view: EditorView, getPos: () => number | undefined) =>
+    (_node: Node, _view: EditorView, _getPos: () => number | undefined) =>
     (mutation: MutationRecord) => {
         if (
             mutation instanceof MutationRecord &&
             mutation.type === 'attributes' &&
             mutation.attributeName
         ) {
-            const newAttr = (mutation.target as HTMLElement).getAttribute(mutation.attributeName);
-
-            view.dispatch(
-                view.state.tr.setNodeMarkup(getPos()!, null, {
-                    ...node.attrs,
-                    [mutation.attributeName]: newAttr,
-                }),
-            );
             return true;
         }
 
@@ -60,6 +52,31 @@ export const tabView: NodeViewConstructor = (node, view, getPos) => {
     wrapperElem.addEventListener('click', () => {
         // Click on parent node to trigger event listener that selects current tab
         tabElem.click();
+
+        {
+            /**
+             * Hack for empty tabs
+             *
+             * Problem: when clicking on an empty tab (without text content) it focuses, and selection doesn't move to beginning of tab
+             *
+             * Temporary fix: manually return focus to pm-view, move text selection to beginning of tab
+             */
+
+            view.focus();
+
+            // tab is empty
+            if (node.nodeSize < 3) {
+                execAfterPaint(() => {
+                    const pos = getPos();
+                    if (pos !== undefined) {
+                        const {tr} = view.state;
+                        view.dispatch(
+                            tr.setSelection(TextSelection.create(tr.doc, pos + 1)).scrollIntoView(),
+                        );
+                    }
+                });
+            }
+        }
     });
 
     const removeTabButton = document.createElement('div');
