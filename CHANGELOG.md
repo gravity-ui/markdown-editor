@@ -1,5 +1,12 @@
 # Changelog
 
+## [14.11.0](https://github.com/gravity-ui/markdown-editor/compare/v14.10.5...v14.11.0) (2025-01-22)
+
+
+### Features
+
+* **YfmTabs:** switch between tabs using tabs-extension runtime ([#550](https://github.com/gravity-ui/markdown-editor/issues/550)) ([3d223cc](https://github.com/gravity-ui/markdown-editor/commit/3d223cc9617d73c8e31e282a9f716b0f7ef663df))
+
 ## [14.10.5](https://github.com/gravity-ui/markdown-editor/compare/v14.10.4...v14.10.5) (2025-01-21)
 
 
