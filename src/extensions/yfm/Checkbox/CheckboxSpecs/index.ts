@@ -1,10 +1,11 @@
-import checkboxPlugin from '@diplodoc/transform/lib/plugins/checkbox';
+// import checkboxPlugin from '@diplodoc/transform/lib/plugins/checkbox';
 import type {NodeSpec} from 'prosemirror-model';
 
 import type {ExtensionAuto, ExtensionNodeSpec} from '../../../../core';
 
 import {CheckboxNode, b, idPrefix} from './const';
 import {parserTokens} from './parser';
+import checkboxPlugin from './parsetTest';
 import {getSchemaSpecs} from './schema';
 import {serializerTokens} from './serializer';
 

@@ -315,6 +315,28 @@ export class MarkdownSerializerState {
         this.inTightList = prevTight;
     }
 
+    renderCheckbox(node){
+        let canSetBreak = false
+        node.forEach((child, _, i) => {
+
+            if(child.type.name === "soft_break" || (child.type.name === 'text' && child.text === String.fromCharCode(160))){
+                if(canSetBreak){
+                    const delim = i === 0 ? '' : '    &nbsp;'
+                    this.flushClose(1);
+                    this.wrapBlock(delim, null, node, () => {});
+                    return
+                }
+                canSetBreak = true
+                return 
+            }
+            
+            canSetBreak = false
+            const delim = i === 0 ? '' : '    '
+            this.flushClose(1);
+            this.wrapBlock(delim, null, node, () => this.render(child, node, i));
+        });
+    }
+
     // :: (string, ?bool) → string
     // Escape the given string so that it can safely appear in Markdown
     // content. If `startOfLine` is true, also escape characters that

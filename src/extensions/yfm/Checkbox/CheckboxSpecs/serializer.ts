@@ -24,6 +24,6 @@ export const serializerTokens: Record<CheckboxNode, SerializerNodeToken> = {
             state.write('[ ] ');
         }
 
-        state.renderInline(node);
+        state.renderCheckbox(node);
     },
 };

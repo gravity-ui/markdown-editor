@@ -94,5 +94,4 @@ export const keymapPlugin = () =>
     keymap({
         Enter: splitCheckbox(),
         Backspace: removeCheckbox,
-        'Shift-Enter': splitCheckbox(true),
     });

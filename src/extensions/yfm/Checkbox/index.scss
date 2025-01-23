@@ -1,6 +1,6 @@
 .g-md-checkbox {
     display: flex;
-    align-items: center;
+    align-items: start;
 
     &__label {
         display: inline-block;
@@ -11,4 +11,9 @@
         /* stylelint-disable declaration-no-important */
         margin-right: 5px !important;
     }
+}
+
+// Доработка в diplodoc/transform
+.yfm input[type=checkbox]{
+    top: 4px !important;
 }

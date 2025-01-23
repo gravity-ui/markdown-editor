@@ -7,6 +7,7 @@ import {logger} from '../../../logger';
 import {isMac} from '../../../utils/platform';
 import {isTextSelection} from '../../../utils/selection';
 import {pType} from '../../base/BaseSchema/BaseSchemaSpecs';
+import {checkboxLabelType} from '../../yfm/Checkbox/CheckboxSpecs/const';
 
 import {BreaksSpecs, BreaksSpecsOptions, hbType, sbType} from './BreaksSpecs';
 
@@ -55,7 +56,8 @@ const addBr = (br: NodeType) =>
             !isTextSelection(sel) ||
             !sel.empty ||
             // breaks can only be in the paragraph
-            sel.$cursor?.parent.type !== pType(schema)
+            (sel.$cursor?.parent.type !== pType(schema) &&
+                sel.$cursor?.parent.type !== checkboxLabelType(schema))
         )
             return false;
 
