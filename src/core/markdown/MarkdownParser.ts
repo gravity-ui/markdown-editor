@@ -19,6 +19,18 @@ enum TokenType {
     default = 'default',
 }
 
+/**
+ * Generate a unique token ID
+ */
+export function createUniqueId(prefix: string): string {
+    const randomLetters = Array.from(
+        {length: 5},
+        () => String.fromCharCode(97 + Math.floor(Math.random() * 26)), // a-z
+    ).join('');
+
+    return `${prefix}-${randomLetters}${Date.now()}`;
+}
+
 export class MarkdownParser implements Parser {
     schema: Schema;
     stack: Array<{type: NodeType; attrs?: TokenAttrs; content: Array<Node>}> = [];
@@ -69,6 +81,13 @@ export class MarkdownParser implements Parser {
             let mdItTokens;
             try {
                 mdItTokens = this.tokenizer.parse(text, {});
+                mdItTokens.forEach((token) => {
+                    if (this.markupManager.isTrackedTokenType(token.type) && token.map) {
+                        const tokenId = createUniqueId(token.type);
+                        token.attrSet('tokenId', tokenId);
+                        this.markupManager.setPos(tokenId, token.map);
+                    }
+                });
             } catch (err) {
                 const e = err as Error;
                 e.message = 'Unable to parse your markup. Please check for errors. ' + e.message;
@@ -108,10 +127,25 @@ export class MarkdownParser implements Parser {
         tokenStream: Token[],
         i: number,
     ): TokenAttrs | undefined {
-        if (tokenSpec.getAttrs) return tokenSpec.getAttrs(token, tokenStream, i);
-        else if (tokenSpec.attrs instanceof Function) return tokenSpec.attrs(token);
+        let attrs: TokenAttrs | undefined = {};
 
-        return tokenSpec.attrs;
+        if (tokenSpec.getAttrs) {
+            attrs = tokenSpec.getAttrs(token, tokenStream, i);
+        } else if (tokenSpec.attrs instanceof Function) {
+            attrs = tokenSpec.attrs(token);
+        } else {
+            attrs = tokenSpec.attrs;
+        }
+
+        // Inject nodeId attr if the markdown token has tokenId
+        const tokdenId = token.attrGet('tokenId');
+        if (tokdenId) {
+            attrs = attrs ?? {};
+            attrs.nodeId = tokdenId;
+        }
+
+        // TODO: @makhnatkin add cache
+        return attrs;
     }
 
     private getTokenSpec(token: Token) {

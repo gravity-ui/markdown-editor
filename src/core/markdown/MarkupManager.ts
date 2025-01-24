@@ -26,11 +26,45 @@ export class MarkupManager extends EventEmitter implements IMarkupManager {
     private _rawMarkdown = '';
     private _poses: Map<string, [number, number]> = new Map();
     private _parser: Parser | null = null;
+    // TODO: move to _trackedTokens: {types: Set<string>, nodes: Set<string>}
+    private _trackedTokensTypes: Set<string> = new Set();
+    private _trackedNodesTypes: Set<string> = new Set();
+
     private readonly logger: Logger;
 
     constructor(logger?: Logger) {
         super();
         this.logger = logger ?? console;
+    }
+
+    /**
+     * Set the list of tokens types to track
+     */
+    setTrackedTokensTypes(tokensTypes: string[]): void {
+        this._trackedTokensTypes = new Set(tokensTypes);
+        this.logger.log(`[MarkupManager] Tracked tokens types set to: ${tokensTypes.join(', ')}`);
+    }
+
+    /**
+     * Set the list of tokens types to track
+     */
+    setTrackedNodesTypes(nodesTypes: string[]): void {
+        this._trackedNodesTypes = new Set(nodesTypes);
+        this.logger.log(`[MarkupManager] Tracked nodes types set to: ${nodesTypes.join(', ')}`);
+    }
+
+    /**
+     * Check if a token type is being tracked
+     */
+    isTrackedTokenType(tokenType: string): boolean {
+        return this._trackedTokensTypes.has(tokenType);
+    }
+
+    /**
+     * Check if a token type is being tracked
+     */
+    isTrackedNodeType(nodeType: string): boolean {
+        return this._trackedNodesTypes.has(nodeType);
     }
 
     /**
@@ -46,6 +80,23 @@ export class MarkupManager extends EventEmitter implements IMarkupManager {
         this.emit('markupManager.markupChanged', {data: rawMarkdown});
         this.logger.log('[MarkupManager] Raw markdown set successfully');
     }
+
+    /**
+     * Get raw markdown for a specific token by its unique ID
+     */
+    getMarkupByTokenId(tokenId: string): string | null {
+        const pos = this._poses.get(tokenId);
+
+        if (!pos) {
+            this.logger.error(`[MarkupManager] No position found for ID: ${tokenId}`);
+            return null;
+        }
+
+        const [start, end] = pos;
+
+        return this._rawMarkdown.slice(start, end);
+    }
+
     /**
      * Get the stored raw markdown text
      */
@@ -56,16 +107,16 @@ export class MarkupManager extends EventEmitter implements IMarkupManager {
     /**
      * Set the position of a token
      */
-    setPos(tokenId: string, pos: [number, number]): void {
+    setPos(id: string, pos: [number, number] | null): void {
         if (!isPosArray(pos)) {
             this.logger.error(
                 '[MarkupManager] Invalid position format. Must be [start, end] with numbers',
             );
             return;
         }
-        this._poses.set(tokenId, pos);
+        this._poses.set(id, pos);
 
-        this.logger.log(`[MarkupManager] Position for token ${tokenId} set to ${pos}`);
+        this.logger.log(`[MarkupManager] Position for ID ${id} set to ${pos}`);
     }
 
     /**
