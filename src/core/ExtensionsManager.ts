@@ -29,6 +29,10 @@ type ExtensionsManagerOptions = {
     pmTransformers?: TransformFn[];
 };
 
+// TODO: move to props
+const RAW_MARKUP_TRACKED_TOKENS = ['yfm_table_open'];
+const TRACKED_NODES_TYPES = ['yfm_table'];
+
 export class ExtensionsManager {
     static process(extensions: Extension, options: ExtensionsManagerOptions) {
         return new this({extensions, options}).build();
@@ -54,6 +58,7 @@ export class ExtensionsManager {
     #actions: Record<string, ActionSpec> = {};
     #nodeViews: Record<string, NodeViewConstructor> = {};
     #markViews: Record<string, MarkViewConstructor> = {};
+    #markupManager: MarkupManager = new MarkupManager();
 
     constructor({extensions, options = {}}: ExtensionsManagerParams) {
         this.#extensions = extensions;
@@ -73,6 +78,9 @@ export class ExtensionsManager {
 
         // TODO: add prefilled context
         this.#builder = new ExtensionBuilder();
+
+        this.#markupManager.setTrackedTokensTypes(RAW_MARKUP_TRACKED_TOKENS);
+        this.#markupManager.setTrackedNodesTypes(TRACKED_NODES_TYPES);
     }
 
     build() {
@@ -106,6 +114,13 @@ export class ExtensionsManager {
 
     private processNode = (name: string, {spec, fromMd, toMd: toMd, view}: ExtensionNodeSpec) => {
         this.#schemaRegistry.addNode(name, spec);
+
+        // Inject nodeId attr for tracked nodes types
+        if (this.#markupManager.isTrackedNodeType(name)) {
+            spec.attrs = spec.attrs || {};
+            spec.attrs.nodeId = {default: null};
+        }
+
         this.#parserRegistry.addToken(fromMd.tokenName || name, fromMd.tokenSpec);
         this.#serializerRegistry.addNode(name, toMd);
         if (view) {
@@ -124,22 +139,21 @@ export class ExtensionsManager {
 
     private createDeps() {
         const actions = new ActionsManager();
-        const markupManager = new MarkupManager();
 
         const schema = this.#schemaRegistry.createSchema();
         const markupParser = this.#parserRegistry.createParser(
             schema,
             this.#mdForMarkup,
             this.#pmTransformers,
-            markupManager,
+            this.#markupManager,
         );
         const textParser = this.#parserRegistry.createParser(
             schema,
             this.#mdForText,
             this.#pmTransformers,
-            markupManager,
+            this.#markupManager,
         );
-        const serializer = this.#serializerRegistry.createSerializer(markupManager);
+        const serializer = this.#serializerRegistry.createSerializer(this.#markupManager);
 
         this.#deps = {
             schema,
