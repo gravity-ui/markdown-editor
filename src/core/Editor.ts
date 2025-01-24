@@ -7,6 +7,7 @@ import type {CommonEditor, ContentHandler, MarkupString} from '../common';
 import type {ActionsManager} from './ActionsManager';
 import {WysiwygContentHandler} from './ContentHandler';
 import {ExtensionsManager} from './ExtensionsManager';
+import {MarkupManagerOptions} from './markdown/MarkupManager';
 import {TransformFn} from './markdown/ProseMirrorTransformer';
 import type {ActionStorage} from './types/actions';
 import type {Extension} from './types/extension';
@@ -38,6 +39,17 @@ export type WysiwygEditorOptions = {
     onChange?: OnChange;
     /** Call only if document change */
     onDocChange?: OnChange;
+    /**
+     * Configures MarkupManager to control storing and processing
+     * raw markup, including tracked tokens, nodes, and attributes.
+     */
+    markupManagerOpts?: MarkupManagerOptions;
+};
+
+const defaultMarkupManagerOpts: MarkupManagerOptions = {
+    allowDynamicAttributesForTrackedEntities: true,
+    trackedTokensTypes: ['yfm_table_open'],
+    trackedNodesTypes: ['yfm_table'],
 };
 
 export class WysiwygEditor implements CommonEditor, ActionStorage {
@@ -77,6 +89,7 @@ export class WysiwygEditor implements CommonEditor, ActionStorage {
         mdPreset,
         linkify,
         pmTransformers,
+        markupManagerOpts = defaultMarkupManagerOpts,
         linkifyTlds,
         escapeConfig,
         onChange,
@@ -96,6 +109,7 @@ export class WysiwygEditor implements CommonEditor, ActionStorage {
             mdOpts: {html: allowHTML, linkify, breaks: true, preset: mdPreset},
             linkifyTlds,
             pmTransformers,
+            markupManagerOpts,
         });
 
         const state = EditorState.create({
