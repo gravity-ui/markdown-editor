@@ -81,13 +81,15 @@ export class MarkdownParser implements Parser {
             let mdItTokens;
             try {
                 mdItTokens = this.tokenizer.parse(text, {});
-                mdItTokens.forEach((token) => {
-                    if (this.markupManager.isTrackedTokenType(token.type) && token.map) {
-                        const tokenId = createUniqueId(token.type);
-                        token.attrSet('tokenId', tokenId);
-                        this.markupManager.setPos(tokenId, token.map);
-                    }
-                });
+                if (this.markupManager.isAllowDynamicAttributesForTrackedEntities()) {
+                    mdItTokens.forEach((token) => {
+                        if (this.markupManager.isTrackedTokenType(token.type) && token.map) {
+                            const tokenId = createUniqueId(token.type);
+                            token.attrSet('tokenId', tokenId);
+                            this.markupManager.setPos(tokenId, token.map);
+                        }
+                    });
+                }
             } catch (err) {
                 const e = err as Error;
                 e.message = 'Unable to parse your markup. Please check for errors. ' + e.message;

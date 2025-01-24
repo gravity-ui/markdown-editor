@@ -22,18 +22,28 @@ function isPosArray(pos: unknown): pos is [number, number] {
     return Array.isArray(pos) && pos.length === 2 && pos.every((v) => typeof v === 'number');
 }
 
+export interface MarkupManagerOptions {
+    trackedTokensTypes?: string[];
+    trackedNodesTypes?: string[];
+    allowDynamicAttributesForTrackedEntities?: boolean;
+}
+
 export class MarkupManager extends EventEmitter implements IMarkupManager {
     private _rawMarkdown = '';
     private _poses: Map<string, [number, number]> = new Map();
     private _parser: Parser | null = null;
-    // TODO: move to _trackedTokens: {types: Set<string>, nodes: Set<string>}
     private _trackedTokensTypes: Set<string> = new Set();
     private _trackedNodesTypes: Set<string> = new Set();
+    private _allowDynamicAttributesForTrackedEntities = false;
 
     private readonly logger: Logger;
 
-    constructor(logger?: Logger) {
+    constructor(options: MarkupManagerOptions = {}, logger?: Logger) {
         super();
+        this._trackedTokensTypes = new Set(options.trackedTokensTypes ?? []);
+        this._trackedNodesTypes = new Set(options.trackedNodesTypes ?? []);
+        this._allowDynamicAttributesForTrackedEntities =
+            options.allowDynamicAttributesForTrackedEntities ?? true;
         this.logger = logger ?? console;
     }
 
@@ -65,6 +75,13 @@ export class MarkupManager extends EventEmitter implements IMarkupManager {
      */
     isTrackedNodeType(nodeType: string): boolean {
         return this._trackedNodesTypes.has(nodeType);
+    }
+
+    /**
+     * Check if a token type is being tracked
+     */
+    isAllowDynamicAttributesForTrackedEntities(): boolean {
+        return this._allowDynamicAttributesForTrackedEntities;
     }
 
     /**

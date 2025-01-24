@@ -6,7 +6,7 @@ import {ExtensionBuilder} from './ExtensionBuilder';
 import {ParserTokensRegistry} from './ParserTokensRegistry';
 import {SchemaSpecRegistry} from './SchemaSpecRegistry';
 import {SerializerTokensRegistry} from './SerializerTokensRegistry';
-import {MarkupManager} from './markdown/MarkupManager';
+import {MarkupManager, MarkupManagerOptions} from './markdown/MarkupManager';
 import {TransformFn} from './markdown/ProseMirrorTransformer';
 import type {ActionSpec} from './types/actions';
 import type {
@@ -27,11 +27,8 @@ type ExtensionsManagerOptions = {
     mdOpts?: MarkdownIt.Options & {preset?: PresetName};
     linkifyTlds?: string | string[];
     pmTransformers?: TransformFn[];
+    markupManagerOpts?: MarkupManagerOptions;
 };
-
-// TODO: move to props
-const RAW_MARKUP_TRACKED_TOKENS = ['yfm_table_open'];
-const TRACKED_NODES_TYPES = ['yfm_table'];
 
 export class ExtensionsManager {
     static process(extensions: Extension, options: ExtensionsManagerOptions) {
@@ -58,7 +55,7 @@ export class ExtensionsManager {
     #actions: Record<string, ActionSpec> = {};
     #nodeViews: Record<string, NodeViewConstructor> = {};
     #markViews: Record<string, MarkViewConstructor> = {};
-    #markupManager: MarkupManager = new MarkupManager();
+    #markupManager: MarkupManager;
 
     constructor({extensions, options = {}}: ExtensionsManagerParams) {
         this.#extensions = extensions;
@@ -79,8 +76,7 @@ export class ExtensionsManager {
         // TODO: add prefilled context
         this.#builder = new ExtensionBuilder();
 
-        this.#markupManager.setTrackedTokensTypes(RAW_MARKUP_TRACKED_TOKENS);
-        this.#markupManager.setTrackedNodesTypes(TRACKED_NODES_TYPES);
+        this.#markupManager = new MarkupManager(options.markupManagerOpts);
     }
 
     build() {
@@ -116,7 +112,10 @@ export class ExtensionsManager {
         this.#schemaRegistry.addNode(name, spec);
 
         // Inject nodeId attr for tracked nodes types
-        if (this.#markupManager.isTrackedNodeType(name)) {
+        if (
+            this.#markupManager.isAllowDynamicAttributesForTrackedEntities() &&
+            this.#markupManager.isTrackedNodeType(name)
+        ) {
             spec.attrs = spec.attrs || {};
             spec.attrs.nodeId = {default: null};
         }
