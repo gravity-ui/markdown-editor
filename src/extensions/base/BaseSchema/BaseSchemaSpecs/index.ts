@@ -66,7 +66,7 @@ export const BaseSchemaSpecs: ExtensionAuto<BaseSchemaSpecsOptions> = (builder, 
             fromMd: {tokenSpec: {name: BaseNode.Paragraph, type: 'block'}},
             toMd: (state, node, parent) => {
                 /*
-                    An empty line is added only if there is some content in the parent element. 
+                    An empty line is added only if there is some content in the parent element.
                     This is necessary in order to prevent an empty document with empty lines
                 */
                 if (opts.preserveEmptyRows && isEmptyString(node)) {

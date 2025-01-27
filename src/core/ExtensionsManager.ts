@@ -1,4 +1,5 @@
 import MarkdownIt, {PresetName} from 'markdown-it';
+import type Token from 'markdown-it/lib/token';
 import type {Plugin} from 'prosemirror-state';
 
 import {ActionsManager} from './ActionsManager';
@@ -6,6 +7,11 @@ import {ExtensionBuilder} from './ExtensionBuilder';
 import {ParserTokensRegistry} from './ParserTokensRegistry';
 import {SchemaSpecRegistry} from './SchemaSpecRegistry';
 import {SerializerTokensRegistry} from './SerializerTokensRegistry';
+import {
+    MarkdownParserDynamicModifier,
+    MarkdownParserDynamicModifierConfig,
+    TokenAttrs,
+} from './markdown/MarkdownParser';
 import {MarkupManager, MarkupManagerOptions} from './markdown/MarkupManager';
 import {TransformFn} from './markdown/ProseMirrorTransformer';
 import type {ActionSpec} from './types/actions';
@@ -28,6 +34,41 @@ type ExtensionsManagerOptions = {
     linkifyTlds?: string | string[];
     pmTransformers?: TransformFn[];
     markupManagerOpts?: MarkupManagerOptions;
+};
+
+/**
+ * Generate a unique token ID
+ */
+export function createUniqueId(prefix: string): string {
+    const randomLetters = Array.from(
+        {length: 5},
+        () => String.fromCharCode(97 + Math.floor(Math.random() * 26)), // a-z
+    ).join('');
+
+    return `${prefix}-${randomLetters}${Date.now()}`;
+}
+
+const dynamicModifierConfig: MarkdownParserDynamicModifierConfig = {
+    tokensTypesFilter: ['paragraph_open'],
+    tokensTypesProcesses: [
+        (token: Token) => {
+            if (token.type === 'yfm_table_open') {
+                token.attrSet('tokenId', createUniqueId(token.type));
+            }
+            return token;
+        },
+    ],
+    attrsProcesses: [
+        (token: Token, attrs: TokenAttrs) => {
+            if (token.type === 'yfm_table_open') {
+                attrs['nodeId'] = token.attrGet('tokenId');
+            }
+            if (token.type === 'yfm_table_close') {
+                attrs['nodeId'] = token.attrGet('tokenId');
+            }
+            return attrs;
+        },
+    ],
 };
 
 export class ExtensionsManager {
@@ -111,15 +152,15 @@ export class ExtensionsManager {
     private processNode = (name: string, {spec, fromMd, toMd: toMd, view}: ExtensionNodeSpec) => {
         this.#schemaRegistry.addNode(name, spec);
 
-        // Inject nodeId attr for tracked nodes types
-        if (
-            this.#markupManager.isAllowDynamicAttributesForTrackedEntities() &&
-            this.#markupManager.isTrackedNodeType(name)
-        ) {
-            spec.attrs = spec.attrs || {};
-            spec.attrs.nodeId = {default: null};
-        }
-
+        // // Inject nodeId attr for tracked nodes types
+        // if (
+        //     this.#markupManager.isAllowDynamicAttributesForTrackedEntities() &&
+        //     this.#markupManager.isTrackedNodeType(name)
+        // ) {
+        //     spec.attrs = spec.attrs || {};
+        //     spec.attrs.nodeId = {default: null};
+        // }
+        //
         this.#parserRegistry.addToken(fromMd.tokenName || name, fromMd.tokenSpec);
         this.#serializerRegistry.addNode(name, toMd);
         if (view) {
@@ -138,19 +179,20 @@ export class ExtensionsManager {
 
     private createDeps() {
         const actions = new ActionsManager();
+        const dynamicModifier = new MarkdownParserDynamicModifier(dynamicModifierConfig);
 
         const schema = this.#schemaRegistry.createSchema();
         const markupParser = this.#parserRegistry.createParser(
             schema,
             this.#mdForMarkup,
             this.#pmTransformers,
-            this.#markupManager,
+            dynamicModifier,
         );
         const textParser = this.#parserRegistry.createParser(
             schema,
             this.#mdForText,
             this.#pmTransformers,
-            this.#markupManager,
+            dynamicModifier,
         );
         const serializer = this.#serializerRegistry.createSerializer(this.#markupManager);
 

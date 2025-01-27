@@ -1,8 +1,7 @@
 import type MarkdownIt from 'markdown-it';
 import type {Schema} from 'prosemirror-model';
 
-import {MarkdownParser} from './markdown/MarkdownParser';
-import {MarkupManager} from './markdown/MarkupManager';
+import {MarkdownParser, MarkdownParserDynamicModifier} from './markdown/MarkdownParser';
 import {TransformFn} from './markdown/ProseMirrorTransformer';
 import type {Parser, ParserToken} from './types/parser';
 
@@ -18,8 +17,8 @@ export class ParserTokensRegistry {
         schema: Schema,
         tokenizer: MarkdownIt,
         pmTransformers: TransformFn[],
-        markupManager: MarkupManager,
+        dynamicModifier?: MarkdownParserDynamicModifier,
     ): Parser {
-        return new MarkdownParser(schema, tokenizer, this.#tokens, pmTransformers, markupManager);
+        return new MarkdownParser(schema, tokenizer, this.#tokens, pmTransformers, dynamicModifier);
     }
 }

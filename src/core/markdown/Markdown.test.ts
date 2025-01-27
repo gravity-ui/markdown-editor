@@ -11,12 +11,10 @@ import type {SerializerNodeToken} from '../types/serializer';
 
 import {MarkdownParser} from './MarkdownParser';
 import {MarkdownSerializer} from './MarkdownSerializer';
-import {MarkupManager} from './MarkupManager';
 
 const {schema} = builder;
 schema.nodes['hard_break'].spec.isBreak = true;
 
-const markupManager = new MarkupManager();
 const parser: Parser = new MarkdownParser(
     schema,
     new MarkdownIt('commonmark'),
@@ -38,7 +36,6 @@ const parser: Parser = new MarkdownParser(
         code_inline: {type: 'mark', name: 'code', noCloseToken: true},
     },
     [],
-    markupManager,
 );
 const serializer = new MarkdownSerializer(
     {
@@ -89,7 +86,6 @@ const serializer = new MarkdownSerializer(
         strong: {open: '**', close: '**', mixable: true, expelEnclosingWhitespace: true},
         code: {open: '`', close: '`', escape: false, expelEnclosingWhitespace: true},
     },
-    markupManager,
 );
 
 const {doc, p, h1, h2, li, ul, ol, br, pre} = builder;
