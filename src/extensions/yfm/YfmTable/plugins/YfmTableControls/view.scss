@@ -1,3 +1,5 @@
+@use '../../../../../styles/mixins.scss';
+
 $buttons-size: 16px;
 $buttons-offset: 2px;
 
@@ -42,7 +44,6 @@ $buttons-offset: 2px;
 
         &_right {
             position: absolute;
-            z-index: 100;
             top: 0;
             right: -$buttons-size - $buttons-offset;
 
@@ -51,11 +52,12 @@ $buttons-offset: 2px;
 
             width: $buttons-size;
             height: 100%;
+
+            @include mixins.z-index('table-view-button');
         }
 
         &_bottom {
             position: absolute;
-            z-index: 100;
             bottom: -$buttons-size - $buttons-offset;
 
             display: flex;
@@ -63,6 +65,8 @@ $buttons-offset: 2px;
 
             width: 100%;
             height: $buttons-size;
+
+            @include mixins.z-index('table-view-button');
         }
     }
 
