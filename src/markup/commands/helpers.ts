@@ -209,12 +209,86 @@ export const wrapPerLine =
 
             const isSingleEmptyLine =
                 range.anchor === range.head && state.doc.lineAt(range.head).length === 0;
+
             if (isSingleEmptyLine) {
-                changes.push({from: range.head, insert: before});
+                // Get markers from previous line for empty line case
+                if (range.head > 1) {
+                    const prevLine = state.doc.line(range.head - 1);
+                    const markers = parseMarkers(prevLine.text);
+                    const indentation = markers.join('');
+                    changes.push({from: range.head + indentation.length, insert: before});
+                } else {
+                    changes.push({from: range.head, insert: before});
+                }
             } else {
+                // Calculate indentation from the first line
+                const firstLine = state.doc.lineAt(range.from);
+                let indentation = '';
+
+                if (firstLine.number === 1) {
+                    // First line of document - no indentation
+                    indentation = '';
+                } else {
+                    const markers = parseMarkers(firstLine.text);
+
+                    if (markers[markers.length - 1] === '  ') {
+                        let currentLine = firstLine.number;
+                        let currentMarkers = markers;
+                        let lastMatchingLine = currentLine;
+
+                        while (currentLine > 1) {
+                            const prevLine = state.doc.line(currentLine - 1);
+                            const prevMarkers = parseMarkers(prevLine.text);
+
+                            if (prevMarkers.length !== currentMarkers.length) break;
+
+                            const markersToCompare = [...currentMarkers];
+                            const allButLastMatch = prevMarkers
+                                .slice(0, -1)
+                                .every((marker, i) => marker === markersToCompare[i]);
+
+                            const lastPrevMarker = prevMarkers[prevMarkers.length - 1];
+
+                            if (
+                                allButLastMatch &&
+                                lastPrevMarker !== markersToCompare[markersToCompare.length - 1]
+                            ) {
+                                // Use indentation from the line before this boundary
+                                indentation = currentMarkers
+                                    .slice(0, currentMarkers.length - 1)
+                                    .join('');
+                                break;
+                            }
+
+                            if (prevMarkers.every((marker, i) => marker === markersToCompare[i])) {
+                                lastMatchingLine = currentLine - 1;
+                                currentLine--;
+                                currentMarkers = prevMarkers;
+                                continue;
+                            }
+
+                            break;
+                        }
+
+                        // If we didn't find a boundary, use the last matching line's indentation
+                        if (!indentation) {
+                            const lastMatchingLineMarkers = parseMarkers(
+                                state.doc.line(lastMatchingLine).text,
+                            );
+                            indentation = lastMatchingLineMarkers.join('');
+                        }
+                    } else {
+                        // For non-double-space markers, look one line up
+                        const prevLine = state.doc.line(firstLine.number);
+                        const prevMarkers = parseMarkers(prevLine.text);
+                        indentation = prevMarkers.join('');
+                    }
+                }
+
+                // Apply the indentation to all lines
                 iterateOverRangeLines(state.doc, range, (line) => {
                     if (skipEmptyLine && line.length === 0) return;
-                    changes.push({from: line.from, insert: before});
+                    changes.push({from: line.from + indentation.length, insert: before});
                 });
             }
 
@@ -233,4 +307,32 @@ export function iterateOverRangeLines(doc: Text, range: SelectionRange, fn: (lin
     for (let i = from; i <= to; i++) {
         fn(doc.line(i));
     }
+}
+
+// Add the parseMarkers function here
+function parseMarkers(text: string): string[] {
+    const markers: string[] = [];
+    let pos = 0;
+
+    while (pos < text.length) {
+        // Handle double-space indentation
+        if (pos + 1 < text.length && text[pos] === ' ' && text[pos + 1] === ' ') {
+            markers.push('  ');
+            pos += 2;
+            continue;
+        }
+
+        // Handle block quotes and list markers
+        if (text[pos] === '>' || text[pos] === '-' || text[pos] === '*') {
+            if (pos + 1 < text.length && text[pos + 1] === ' ') {
+                markers.push(text[pos] + ' ');
+                pos += 2;
+                continue;
+            }
+        }
+
+        break;
+    }
+
+    return markers;
 }
