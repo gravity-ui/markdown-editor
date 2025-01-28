@@ -3,7 +3,6 @@
 // ::- A specification for serializing a ProseMirror document as
 // Markdown/CommonMark text.
 // prettier-ignore
-import {MarkupManager} from "./MarkupManager";
 
 export class MarkdownSerializer {
     // :: (Object<(state: MarkdownSerializerState, node: Node, parent: Node, index: number)>, Object)
@@ -39,23 +38,18 @@ export class MarkdownSerializer {
     // outside the marks. This is necessary for emphasis marks as
     // CommonMark does not permit enclosing whitespace inside emphasis
     // marks, see: http://spec.commonmark.org/0.26/#example-330
-    constructor(nodes, marks, markupManager) {
+    constructor(nodes, marks) {
         // :: Object<(MarkdownSerializerState, Node)> The node serializer
         // functions for this serializer.
         this.nodes = nodes;
         // :: Object The mark serializer info.
         this.marks = marks;
-
-        this.markupManager = markupManager;
     }
 
     // :: (Node, ?Object) → string
     // Serialize the content of the given node to
     // [CommonMark](http://commonmark.org/).
     serialize(content, options) {
-        if (!this.markupManager.rawMarkdown) {
-            console.warn('[MarkdownSerializer] No raw markdown is set');
-        }
         const state = new MarkdownSerializerState(this.nodes, this.marks, options);
         state.renderContent(content);
         return state.out;

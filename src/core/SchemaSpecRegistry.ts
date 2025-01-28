@@ -1,5 +1,7 @@
 import {MarkSpec, NodeSpec, Schema} from 'prosemirror-model';
 
+import {MarkdownParserDynamicModifier} from './markdown/MarkdownParser';
+
 export class SchemaSpecRegistry {
     #spec: {
         topNode?: string;
@@ -21,7 +23,10 @@ export class SchemaSpecRegistry {
         return this;
     }
 
-    createSchema() {
-        return new Schema(this.#spec);
+    createSchema(dynamicModifier?: MarkdownParserDynamicModifier) {
+        const spec = dynamicModifier
+            ? dynamicModifier.processNodeAttrsSpec(this.#spec)
+            : this.#spec;
+        return new Schema(spec);
     }
 }

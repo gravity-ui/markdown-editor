@@ -53,25 +53,25 @@ describe('MarkdownParser with MarkdownParserDynamicModifier', () => {
             marks: baseSchema.spec.marks,
         });
 
-        const dynamicModifier = new MarkdownParserDynamicModifier({
-            tokensTypesFilter: ['paragraph_open'],
-            tokensTypesProcesses: [
-                (token: Token) => {
-                    if (token.type === 'paragraph_open') {
+        const dynamicModifierConfig = {
+            paragraph: {
+                processToken: [
+                    (token: Token) => {
                         token.attrSet('data-some', 'custom-attr');
-                    }
-                    return token;
-                },
-            ],
-            attrsProcesses: [
-                (token: Token, attrs: TokenAttrs) => {
-                    if (token.type === 'paragraph_open') {
+                        return token;
+                    },
+                ],
+                processNodeAttrs: [
+                    (token: Token, attrs: TokenAttrs) => {
                         attrs['data-some'] = token.attrGet('data-some');
-                    }
-                    return attrs;
-                },
-            ],
-        });
+                        return attrs;
+                    },
+                ],
+                allowedAttrs: ['data-some'],
+            },
+        };
+
+        const dynamicModifier = new MarkdownParserDynamicModifier(dynamicModifierConfig);
 
         const testParser = createTestParser(extendedSchema, dynamicModifier);
 

@@ -1,11 +1,12 @@
 import {EventEmitter} from 'events';
 
-import type {Parser} from '../types/parser';
+import {Node} from 'prosemirror-model';
 
 export interface IMarkupManager {
-    setMarkup(rawMarkdown: string): void;
-    setPos(tokenId: string, pos: [number, number]): void;
-    setParser(parser: Parser): void;
+    setMarkup(id: string, rawMarkup: string): void;
+    setNode(id: string, node: Node): void;
+    getMarkup(id: string): string | null;
+    getNode(id: string): Node | null;
     reset(): void;
     on(event: string, listener: (...args: any[]) => void): void;
 }
@@ -15,166 +16,67 @@ export interface Logger {
     error(message: string): void;
 }
 
-/**
- * Validate if a value is a valid position array
- */
-function isPosArray(pos: unknown): pos is [number, number] {
-    return Array.isArray(pos) && pos.length === 2 && pos.every((v) => typeof v === 'number');
-}
-
-export interface MarkupManagerOptions {
-    trackedTokensTypes?: string[];
-    trackedNodesTypes?: string[];
-    allowDynamicAttributesForTrackedEntities?: boolean;
-}
-
 export class MarkupManager extends EventEmitter implements IMarkupManager {
-    private _rawMarkdown = '';
-    private _poses: Map<string, [number, number]> = new Map();
-    private _parser: Parser | null = null;
-    private _trackedTokensTypes: Set<string> = new Set();
-    private _trackedNodesTypes: Set<string> = new Set();
-    private _allowDynamicAttributesForTrackedEntities = false;
+    private _markups: Map<string, string> = new Map();
+    private _nodes: Map<string, Node> = new Map();
 
     private readonly logger: Logger;
 
-    constructor(options: MarkupManagerOptions = {}, logger?: Logger) {
+    constructor(logger?: Logger) {
         super();
-        this._trackedTokensTypes = new Set(options.trackedTokensTypes ?? []);
-        this._trackedNodesTypes = new Set(options.trackedNodesTypes ?? []);
-        this._allowDynamicAttributesForTrackedEntities =
-            options.allowDynamicAttributesForTrackedEntities ?? true;
         this.logger = logger ?? console;
     }
 
     /**
-     * Set the list of tokens types to track
+     * Set raw markup for a specific id
      */
-    setTrackedTokensTypes(tokensTypes: string[]): void {
-        this._trackedTokensTypes = new Set(tokensTypes);
-        this.logger.log(`[MarkupManager] Tracked tokens types set to: ${tokensTypes.join(', ')}`);
-    }
-
-    /**
-     * Set the list of tokens types to track
-     */
-    setTrackedNodesTypes(nodesTypes: string[]): void {
-        this._trackedNodesTypes = new Set(nodesTypes);
-        this.logger.log(`[MarkupManager] Tracked nodes types set to: ${nodesTypes.join(', ')}`);
-    }
-
-    /**
-     * Check if a token type is being tracked
-     */
-    isTrackedTokenType(tokenType: string): boolean {
-        return this._trackedTokensTypes.has(tokenType);
-    }
-
-    /**
-     * Check if a token type is being tracked
-     */
-    isTrackedNodeType(nodeType: string): boolean {
-        return this._trackedNodesTypes.has(nodeType);
-    }
-
-    /**
-     * Check if a token type is being tracked
-     */
-    isAllowDynamicAttributesForTrackedEntities(): boolean {
-        return this._allowDynamicAttributesForTrackedEntities;
-    }
-
-    /**
-     * Set raw markdown text and emit an event
-     */
-    setMarkup(rawMarkdown: string): void {
-        if (typeof rawMarkdown !== 'string') {
-            this.logger.error('[MarkupManager] rawMarkdown must be a string');
+    setMarkup(id: string, rawMarkup: string): void {
+        if (typeof rawMarkup !== 'string') {
+            this.logger.error('[MarkupManager] rawMarkup must be a string');
             return;
         }
-        this._rawMarkdown = rawMarkdown;
+        this._markups.set(id, rawMarkup);
 
-        this.emit('markupManager.markupChanged', {data: rawMarkdown});
-        this.logger.log('[MarkupManager] Raw markdown set successfully');
+        this.emit('markupManager.markupChanged', {id, rawMarkup});
+        this.logger.log(`[MarkupManager] Raw markup for ID ${id} set successfully`);
     }
 
     /**
-     * Get raw markdown for a specific token by its unique ID
+     * Set a node for a specific id
      */
-    getMarkupByTokenId(tokenId: string): string | null {
-        const pos = this._poses.get(tokenId);
-
-        if (!pos) {
-            this.logger.error(`[MarkupManager] No position found for ID: ${tokenId}`);
-            return null;
-        }
-
-        const [start, end] = pos;
-
-        return this._rawMarkdown.slice(start, end);
-    }
-
-    /**
-     * Get the stored raw markdown text
-     */
-    get rawMarkdown(): string {
-        return this._rawMarkdown;
-    }
-
-    /**
-     * Set the position of a token
-     */
-    setPos(id: string, pos: [number, number] | null): void {
-        if (!isPosArray(pos)) {
-            this.logger.error(
-                '[MarkupManager] Invalid position format. Must be [start, end] with numbers',
-            );
+    setNode(id: string, node: Node): void {
+        if (!node) {
+            this.logger.error('[MarkupManager] Node must be a valid ProseMirror Node');
             return;
         }
-        this._poses.set(id, pos);
+        this._nodes.set(id, node);
 
-        this.logger.log(`[MarkupManager] Position for ID ${id} set to ${pos}`);
+        this.emit('markupManager.nodeChanged', {id, node});
+        this.logger.log(`[MarkupManager] Node for ID ${id} set successfully`);
     }
 
     /**
-     * Get the positions map
+     * Get raw markup for a specific id
      */
-    get poses(): Map<string, [number, number]> {
-        return this._poses;
+    getMarkup(id: string): string | null {
+        return this._markups.get(id) ?? null;
     }
 
     /**
-     * Set the parser instance
+     * Get a node for a specific id
      */
-    setParser(parser: Parser): void {
-        this._parser = parser;
-
-        this.logger.log('[MarkupManager] Parser instance set successfully');
+    getNode(id: string): Node | null {
+        return this._nodes.get(id) ?? null;
     }
 
     /**
-     * Get the parser instance
-     */
-    get parser(): Parser {
-        if (!this._parser) {
-            const error = new Error('[MarkupManager] Markdown Parser is not set');
-            this.logger.error(`[MarkupManager] ${error.message}`);
-            this.emit('markupManager.error', {error});
-            throw error;
-        }
-
-        return this._parser;
-    }
-
-    /**
-     * Reset the stored raw markdown, positions, and parser, and emit an event
+     * Reset the stored markups and nodes
      */
     reset(): void {
-        this._rawMarkdown = '';
-        this._poses.clear();
-        this._parser = null;
+        this._markups.clear();
+        this._nodes.clear();
 
-        this.emit('markupManager.markupChanged', {data: null});
+        this.emit('markupManager.reset');
         this.logger.log('[MarkupManager] MarkupManager has been reset');
     }
 }

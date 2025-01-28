@@ -1,7 +1,7 @@
 import type {Match} from 'linkify-it'; // eslint-disable-line import/no-extraneous-dependencies
 import type MarkdownIt from 'markdown-it';
 import type Token from 'markdown-it/lib/token';
-import {Mark, MarkType, Node, NodeType, Schema} from 'prosemirror-model';
+import {Mark, MarkSpec, MarkType, Node, NodeSpec, NodeType, Schema} from 'prosemirror-model';
 
 import {logger} from '../../logger';
 import type {Parser, ParserToken} from '../types/parser';
@@ -22,7 +22,7 @@ enum TokenType {
  * Remove suffixes from the node name.
  * Crops specified `openSuffix` and `closeSuffix` from the end of the given `tokName`.
  */
-function cropNodeName(tokName: string, openSuffix: string, closeSuffix: string) {
+function cropNodeName(tokName: string, openSuffix: string, closeSuffix: string): string {
     const regex = new RegExp(`(${openSuffix})$|(${closeSuffix})$`);
     return tokName.replace(regex, '');
 }
@@ -217,9 +217,6 @@ export class MarkdownParser implements Parser {
 
     private getNodeSchema(tokenSpec: ParserToken) {
         const spec = this.schema.nodes[tokenSpec.name];
-
-        console.log('getNodeSchema', tokenSpec.name, this.schema.nodes[tokenSpec.name]);
-
         return spec;
     }
 
@@ -283,10 +280,15 @@ export class MarkdownParser implements Parser {
     //#region state methods
 
     private addNode(type: NodeType, attrs?: Object, content?: Node[]) {
-        const node = type.createAndFill(attrs, content, this.marks);
+        let node = type.createAndFill(attrs, content, this.marks);
         if (!node) {
             return null;
         }
+
+        if (this.dynamicModifier) {
+            node = this.dynamicModifier.processNodes(node);
+        }
+
         this.push(node);
 
         return node;
@@ -361,103 +363,170 @@ function withoutTrailingNewline(str: string) {
     return str[str.length - 1] === '\n' || str.endsWith('\\n') ? str.slice(0, str.length - 1) : str;
 }
 
-type TokensTypesProcessesCallback = (
-    token: Token,
-    index?: number,
-    tokens?: Token[],
-    rawMarkup?: string,
-) => Token;
-type AttrProcessCallback = (token: Token, attrs: TokenAttrs) => TokenAttrs;
-
 /**
  * Class MarkdownParserDynamicModifier
  *
- * This class provides a mechanism for dynamic modification of token and attribute processing in `MarkdownParser`.
- * It implements sequential processing of specified token types and attributes, allowing customization of the parser
- * for advanced scenarios without altering its core structure.
+ * This class provides a mechanism for dynamic modification of tokens and attributes processing in a `MarkdownParser`.
+ * It implements sequential processing of specified element types, allowing customization of the parser
+ * without altering its core structure.
  *
  * Features:
  * 1. Token Processing:
- *    - `tokensTypesFilter`: Filters token types to be processed.
- *    - `tokensTypesProcesses`: An array of handlers applied sequentially. Each handler modifies a token
- *      and passes it to the next one.
+ *    - `processToken`: An array of handlers applied sequentially. Each handler processes a token
+ *      and passes the result to the next one.
  *
  * 2. Attribute Processing:
- *    - `attrsProcesses`: An array of handlers applied sequentially to modify token attributes.
- *    - `attrsSpecProcesses`: An array of handlers used to modify the attribute specifications of a `NodeType` in the schema.
+ *    - `processNodeAttrs`: An array of handlers applied sequentially to process and modify attributes of node.
+ *
+ * 2. Attribute Processing:
+ *    - `processNode`: An array of handlers applied sequentially to process and modify nodes.
+ *
+ * 4. Allowed Attributes:
+ *    - `allowedAttrs`: A list of attributes to include in the schema with default values.
+ *      If specified, these attributes are added to the schema and won't be ignored during processing.
  *
  * Example:
  * ```ts
- * const modifier = new MarkdownParserDynamicModifier({
- *     tokensTypesFilter: ['text', 'paragraph_open'],
- *     tokensTypesProcesses: [
- *         (token) => {
- *             token.meta.processedBy = 'first';
- *             return token;
+ * const dynamicModifier = new MarkdownParserDynamicModifier({
+ *     elementProcessors: {
+ *         paragraph: {
+ *             processToken: [
+ *                 (token, prefix) => {
+ *                     token.attrSet('data-prefix', prefix);
+ *                     return token;
+ *                 },
+ *                 (token) => {
+ *                     console.log(`Processing token: ${token.type}`);
+ *                     return token;
+ *                 },
+ *             ],
+ *             processNodeAttrs: [
+ *                 (token, attrs) => {
+ *                     attrs['data-paragraph'] = token.attrGet('data-prefix');
+ *                     return attrs;
+ *                 },
+ *                 (token, attrs) => {
+ *                     console.log(`Processing attrs for token: ${token.type}`);
+ *                     return attrs;
+ *                 },
+ *             ],
+ *             processNode: [
+ *                 (node) => {
+ *                     console.log(`Processing node: ${node.type}`);
+ *                     return node;
+ *                 },
+ *             ],
+ *             allowedAttrs: ['data-paragraph'],
  *         },
- *         (token) => {
- *             token.meta.processedBy = 'second';
- *             return token;
- *         },
- *     ],
- *     attrsProcesses: [
- *         (token, attrs) => {
- *             attrs.modifiedBy = 'handler';
- *             return attrs;
- *         },
- *     ],
+ *     },
  * });
  * ```
  *
- * This class extends the functionality of `MarkdownParser` for scenarios such as:
+ * This class extends the functionality of a `MarkdownParser` for scenarios such as:
+ * - Adding default attributes to specific elements;
  * - Modifying token metadata;
- * - Normalizing content;
- * - Processing and adding specific attributes.
+ * - Logging or customizing processing steps for debugging.
  */
 
+export type ProcessToken = (
+    token: Token,
+    index: number,
+    rawMarkup: string,
+    allowedAttrs?: string[],
+) => Token;
+export type ProcessNodeAttrs = (
+    token: Token,
+    attrs: TokenAttrs,
+    allowedAttrs?: string[],
+) => TokenAttrs;
+export type ProcessNode = (node: Node) => Node;
+
+export interface ElementProcessor {
+    processToken?: ProcessToken[];
+    processNodeAttrs?: ProcessNodeAttrs[];
+    processNode?: ProcessNode[];
+    allowedAttrs?: string[]; // Array of attributes to include for the element type
+}
+
 export interface MarkdownParserDynamicModifierConfig {
-    attrsProcesses?: AttrProcessCallback[];
-    tokensTypesFilter?: string[];
-    tokensTypesProcesses?: TokensTypesProcessesCallback[];
+    [elementType: string]: ElementProcessor;
+}
+
+export interface SchemaSpec {
+    topNode?: string;
+    nodes: Record<string, NodeSpec>;
+    marks: Record<string, MarkSpec>;
 }
 
 export class MarkdownParserDynamicModifier {
-    private attrsProcesses: AttrProcessCallback[];
-    private tokensTypesFilter: Set<string>;
-    private tokensTypesProcesses: TokensTypesProcessesCallback[];
+    private elementProcessors: Map<string, ElementProcessor>;
 
-    constructor({
-        attrsProcesses,
-        tokensTypesFilter,
-        tokensTypesProcesses,
-    }: MarkdownParserDynamicModifierConfig = {}) {
-        this.attrsProcesses = Array.isArray(attrsProcesses) ? attrsProcesses : [];
-        this.tokensTypesFilter = new Set(tokensTypesFilter ?? []);
-        this.tokensTypesProcesses = Array.isArray(tokensTypesProcesses) ? tokensTypesProcesses : [];
+    constructor(config: MarkdownParserDynamicModifierConfig) {
+        this.elementProcessors = new Map(Object.entries(config));
     }
 
     processTokens(tokens: Token[], rawMarkup: string): Token[] {
-        return this.tokensTypesProcesses.length === 0 || this.tokensTypesFilter.size === 0
-            ? tokens
-            : tokens.map((token, index) => {
-                  return this.tokensTypesFilter.has(token.type)
-                      ? this.tokensTypesProcesses.reduce(
-                            (processedToken, process) =>
-                                process(processedToken, index, tokens, rawMarkup),
-                            token,
-                        )
-                      : token;
-              });
+        return tokens.map((token, index) => {
+            const processor = this.elementProcessors.get(cropNodeName(token.type, openSuffix, ''));
+            if (!processor || !processor.processToken || processor.processToken.length === 0) {
+                return token;
+            }
+
+            return processor.processToken.reduce((currentToken, process) => {
+                return process(currentToken, index, rawMarkup, processor.allowedAttrs);
+            }, token);
+        });
     }
 
     processAttrs(token: Token, attrs: TokenAttrs): TokenAttrs {
-        return this.tokensTypesFilter.size === 0 ||
-            this.attrsProcesses.length === 0 ||
-            !this.tokensTypesFilter.has(token.type)
-            ? attrs
-            : this.attrsProcesses.reduce(
-                  (processedAttrs, process) => process(token, processedAttrs),
-                  attrs,
-              );
+        const processor = this.elementProcessors.get(cropNodeName(token.type, openSuffix, ''));
+        if (!processor || !processor.processNodeAttrs || processor.processNodeAttrs.length === 0) {
+            return attrs;
+        }
+
+        return processor.processNodeAttrs.reduce((currentAttrs, process) => {
+            return process(token, currentAttrs, processor.allowedAttrs);
+        }, attrs);
+    }
+
+    processNodeAttrsSpec(baseSchema: SchemaSpec): SchemaSpec {
+        const updatedNodes = {...baseSchema.nodes};
+
+        this.elementProcessors.forEach((processor, elementType) => {
+            if (processor.allowedAttrs && processor.allowedAttrs.length > 0) {
+                const nodeSpec = baseSchema.nodes[elementType];
+                if (nodeSpec) {
+                    updatedNodes[elementType] = {
+                        ...nodeSpec,
+                        attrs: {
+                            ...nodeSpec.attrs,
+                            ...processor.allowedAttrs.reduce(
+                                (acc, key) => {
+                                    acc[key] = {default: null};
+                                    return acc;
+                                },
+                                {} as Record<string, any>,
+                            ),
+                        },
+                    };
+                }
+            }
+        });
+
+        return {
+            ...baseSchema,
+            nodes: updatedNodes,
+        };
+    }
+
+    processNodes(node: Node): Node {
+        const processor = this.elementProcessors.get(node.type.name);
+        if (!processor || !processor.processNode || processor.processNode.length === 0) {
+            return node;
+        }
+
+        return processor.processNode.reduce((currentNode, process) => {
+            return process(currentNode);
+        }, node);
     }
 }

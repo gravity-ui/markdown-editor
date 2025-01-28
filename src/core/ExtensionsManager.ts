@@ -1,5 +1,6 @@
 import MarkdownIt, {PresetName} from 'markdown-it';
 import type Token from 'markdown-it/lib/token';
+import {Node} from 'prosemirror-model';
 import type {Plugin} from 'prosemirror-state';
 
 import {ActionsManager} from './ActionsManager';
@@ -7,12 +8,8 @@ import {ExtensionBuilder} from './ExtensionBuilder';
 import {ParserTokensRegistry} from './ParserTokensRegistry';
 import {SchemaSpecRegistry} from './SchemaSpecRegistry';
 import {SerializerTokensRegistry} from './SerializerTokensRegistry';
-import {
-    MarkdownParserDynamicModifier,
-    MarkdownParserDynamicModifierConfig,
-    TokenAttrs,
-} from './markdown/MarkdownParser';
-import {MarkupManager, MarkupManagerOptions} from './markdown/MarkupManager';
+import {MarkdownParserDynamicModifier, TokenAttrs} from './markdown/MarkdownParser';
+import {MarkupManager} from './markdown/MarkupManager';
 import {TransformFn} from './markdown/ProseMirrorTransformer';
 import type {ActionSpec} from './types/actions';
 import type {
@@ -33,7 +30,6 @@ type ExtensionsManagerOptions = {
     mdOpts?: MarkdownIt.Options & {preset?: PresetName};
     linkifyTlds?: string | string[];
     pmTransformers?: TransformFn[];
-    markupManagerOpts?: MarkupManagerOptions;
 };
 
 /**
@@ -48,28 +44,53 @@ export function createUniqueId(prefix: string): string {
     return `${prefix}-${randomLetters}${Date.now()}`;
 }
 
-const dynamicModifierConfig: MarkdownParserDynamicModifierConfig = {
-    tokensTypesFilter: ['paragraph_open'],
-    tokensTypesProcesses: [
-        (token: Token) => {
-            if (token.type === 'yfm_table_open') {
-                token.attrSet('tokenId', createUniqueId(token.type));
-            }
-            return token;
-        },
-    ],
-    attrsProcesses: [
-        (token: Token, attrs: TokenAttrs) => {
-            if (token.type === 'yfm_table_open') {
-                attrs['nodeId'] = token.attrGet('tokenId');
-            }
-            if (token.type === 'yfm_table_close') {
-                attrs['nodeId'] = token.attrGet('tokenId');
-            }
-            return attrs;
-        },
-    ],
-};
+const getDynamicModifierConfig = (markupManager: MarkupManager) => ({
+    ['yfm_table']: {
+        processToken: [
+            (token: Token) => {
+                token.attrSet('data-token-id', createUniqueId(token.type));
+                return token;
+            },
+            (token: Token, _: number, rawMarkup: string) => {
+                const tokenId = token.attrGet('data-token-id');
+                const {map} = token;
+
+                if (tokenId && map) {
+                    const [lineBegin, lineEnd] = map;
+                    const lines = rawMarkup.split('\n');
+                    const selectedMarkup = lines.slice(lineBegin, lineEnd).join('\n');
+                    console.log('selectedMarkup', selectedMarkup);
+                    markupManager.setMarkup(tokenId, selectedMarkup);
+                }
+                return token;
+            },
+            (token: Token, _: number, rawMarkup: string) => {
+                const tokenId = token.attrGet('data-token-;id');
+                if (tokenId) {
+                    markupManager.setMarkup(tokenId, rawMarkup);
+                }
+                return token;
+            },
+        ],
+        processNodeAttrs: [
+            (token: Token, attrs: TokenAttrs) => {
+                attrs['data-node-id'] = token.attrGet('data-token-id');
+                return attrs;
+            },
+        ],
+        processNode: [
+            (node: Node) => {
+                const nodeId = node.attrs['data-node-id'];
+                if (nodeId) {
+                    markupManager.setNode(nodeId, node);
+                }
+
+                return node;
+            },
+        ],
+        allowedAttrs: ['data-node-id'],
+    },
+});
 
 export class ExtensionsManager {
     static process(extensions: Extension, options: ExtensionsManagerOptions) {
@@ -96,7 +117,6 @@ export class ExtensionsManager {
     #actions: Record<string, ActionSpec> = {};
     #nodeViews: Record<string, NodeViewConstructor> = {};
     #markViews: Record<string, MarkViewConstructor> = {};
-    #markupManager: MarkupManager;
 
     constructor({extensions, options = {}}: ExtensionsManagerParams) {
         this.#extensions = extensions;
@@ -116,8 +136,6 @@ export class ExtensionsManager {
 
         // TODO: add prefilled context
         this.#builder = new ExtensionBuilder();
-
-        this.#markupManager = new MarkupManager(options.markupManagerOpts);
     }
 
     build() {
@@ -152,15 +170,6 @@ export class ExtensionsManager {
     private processNode = (name: string, {spec, fromMd, toMd: toMd, view}: ExtensionNodeSpec) => {
         this.#schemaRegistry.addNode(name, spec);
 
-        // // Inject nodeId attr for tracked nodes types
-        // if (
-        //     this.#markupManager.isAllowDynamicAttributesForTrackedEntities() &&
-        //     this.#markupManager.isTrackedNodeType(name)
-        // ) {
-        //     spec.attrs = spec.attrs || {};
-        //     spec.attrs.nodeId = {default: null};
-        // }
-        //
         this.#parserRegistry.addToken(fromMd.tokenName || name, fromMd.tokenSpec);
         this.#serializerRegistry.addNode(name, toMd);
         if (view) {
@@ -179,9 +188,12 @@ export class ExtensionsManager {
 
     private createDeps() {
         const actions = new ActionsManager();
+
+        const markupManager = new MarkupManager();
+        const dynamicModifierConfig = getDynamicModifierConfig(markupManager);
         const dynamicModifier = new MarkdownParserDynamicModifier(dynamicModifierConfig);
 
-        const schema = this.#schemaRegistry.createSchema();
+        const schema = this.#schemaRegistry.createSchema(dynamicModifier);
         const markupParser = this.#parserRegistry.createParser(
             schema,
             this.#mdForMarkup,
@@ -194,7 +206,8 @@ export class ExtensionsManager {
             this.#pmTransformers,
             dynamicModifier,
         );
-        const serializer = this.#serializerRegistry.createSerializer(this.#markupManager);
+
+        const serializer = this.#serializerRegistry.createSerializer();
 
         this.#deps = {
             schema,
