@@ -3,6 +3,7 @@
  */
 
 import MarkdownIt from 'markdown-it';
+import Token from 'markdown-it/lib/token';
 import {Schema} from 'prosemirror-model';
 import * as builder from 'prosemirror-test-builder';
 import {builders} from 'prosemirror-test-builder';
@@ -32,7 +33,7 @@ const parser: Parser = new MarkdownParser(
         heading: {
             type: 'block',
             name: 'heading',
-            getAttrs: (tok) => ({level: Number(tok.tag.slice(1))}),
+            getAttrs: (tok: Token) => ({level: Number(tok.tag.slice(1))}),
         },
         list_item: {type: 'block', name: 'list_item'},
         bullet_list: {type: 'block', name: 'bullet_list'},

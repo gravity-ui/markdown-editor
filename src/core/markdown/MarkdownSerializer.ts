@@ -1,5 +1,44 @@
 /* eslint-disable */
 
+import {type Fragment, Mark, Node} from 'prosemirror-model';
+
+import {SerializerState} from '../types/serializer';
+
+function isNode(value: Node | Fragment): value is Node {
+    return (value as Node).type !== undefined;
+}
+
+export interface MarkdownSerializerOptions {
+    tightLists?: boolean;
+    escape?: boolean;
+    commonEscape?: RegExp;
+    startOfLineEscape?: RegExp;
+}
+
+type Nodes = {
+    [key: string]: SerializerNodeToken;
+};
+
+type Marks = {
+    [key: string]: SerializerMarkToken;
+};
+
+export interface SerializerNodeToken {
+    (state: SerializerState, node: Node, parent: Node, index: number): void;
+}
+
+export interface SerializerMarkToken {
+    open:
+        | string
+        | ((state: SerializerState, node: Mark, parent: Fragment, index: number) => string);
+    close:
+        | string
+        | ((state: SerializerState, node: Mark, parent: Fragment, index: number) => string);
+    mixable?: boolean;
+    escape?: boolean;
+    expelEnclosingWhitespace?: boolean;
+}
+
 // ::- A specification for serializing a ProseMirror document as
 // Markdown/CommonMark text.
 // prettier-ignore
@@ -36,31 +75,34 @@ export class MarkdownSerializer {
     // serializer to move enclosing whitespace from inside the marks to
     // outside the marks. This is necessary for emphasis marks as
     // CommonMark does not permit enclosing whitespace inside emphasis
-    // marks, see: http://spec.commonmark.org/0.26/#example-330
-    constructor(nodes, marks) {
-        // :: Object<(MarkdownSerializerState, Node)> The node serializer
-        // functions for this serializer.
+    // marks, see: http://spec.commonmark.org/0.26/#example-330private
+    private nodes: Nodes;
+    private marks: Marks;
+
+    constructor(
+        nodes: Nodes,
+        marks: Marks
+    ) {
         this.nodes = nodes;
-        // :: Object The mark serializer info.
         this.marks = marks;
     }
 
     // :: (Node, ?Object) → string
     // Serialize the content of the given node to
     // [CommonMark](http://commonmark.org/).
-    serialize(content, options) {
+    serialize(content: Node, options?: MarkdownSerializerOptions): string {
         const state = new MarkdownSerializerState(this.nodes, this.marks, options);
         state.renderContent(content);
         return state.out;
     }
 
     // for tests (implements SerializerTests interface)
-    containsNode(nodeName) {
+    containsNode(nodeName: string): boolean {
         return nodeName in this.nodes;
     }
 
     // for tests (implements SerializerTests interface)
-    containsMark(markName) {
+    containsMark(markName: string): boolean {
         return markName in this.marks;
     }
 }
@@ -70,36 +112,33 @@ export class MarkdownSerializer {
 // node and mark serialization methods (see `toMarkdown`).
 // prettier-ignore
 export class MarkdownSerializerState {
-    constructor(nodes, marks, options) {
-        this.nodes = nodes;
-        this.marks = marks;
-        this.delim = this.out = '';
-        this.closed = false;
-        this.inTightList = false;
-        this.noAutoBlank = false;
-        /** @type {Boolean|undefined} */
-        this.isAutolink = undefined;
-        /** @type {Boolean} */
-        this.escapeWhitespace = false;
-        // :: Object
-        // The options passed to the serializer.
-        //   tightLists:: ?bool
-        //   Whether to render lists in a tight style. This can be overridden
-        //   on a node level by specifying a tight attribute on the node.
-        //   Defaults to false.
+    public delim: string = '';
+    public out: string = '';
+    public closed: Node | false = false;
+    public inTightList: boolean = false;
+    public noAutoBlank: boolean = false;
+    public isAutolink: boolean | undefined = undefined;
+    public escapeWhitespace: boolean = false;
+    public options: MarkdownSerializerOptions;
+
+    constructor(
+        public nodes: Nodes,
+        public marks: Marks,
+        options?: MarkdownSerializerOptions
+    ) {
         this.options = options || {};
         if (typeof this.options.tightLists === 'undefined') { this.options.tightLists = false }
     }
 
-    setNoAutoBlank() {
+    setNoAutoBlank(): void {
         this.noAutoBlank = true;
     }
 
-    unsetNoAutoBlank() {
+    unsetNoAutoBlank(): void {
         this.noAutoBlank = false;
     }
 
-    flushClose(size) {
+    flushClose(size?: number): void {
         if (this.closed) {
             if (!this.atBlank() && !this.noAutoBlank) this.out += '\n';
             if (size == null) size = 2;
@@ -121,7 +160,7 @@ export class MarkdownSerializerState {
     // line in `firstDelim`. `node` should be the node that is closed at
     // the end of the block, and `f` is a function that renders the
     // content of the block.
-    wrapBlock(delim, firstDelim, node, f) {
+    wrapBlock(delim: string, firstDelim: string | null, node: Node, f: () => void): void {
         const old = this.delim;
         this.write(firstDelim || delim);
         this.delim += delim;
@@ -130,13 +169,13 @@ export class MarkdownSerializerState {
         this.closeBlock(node);
     }
 
-    atBlank() {
+    atBlank(): boolean {
         return /(^|\n)$/.test(this.out);
     }
 
     // :: ()
     // Ensure the current content ends with a newline.
-    ensureNewLine() {
+    ensureNewLine(): void {
         if (!this.atBlank()) this.out += '\n';
     }
 
@@ -144,7 +183,7 @@ export class MarkdownSerializerState {
     // Prepare the state for writing output (closing closed paragraphs,
     // adding delimiters, and so on), and then optionally add content
     // (unescaped) to the output.
-    write(content) {
+    write(content?: string | null): void {
         this.flushClose();
         if (this.delim && this.atBlank()) { this.out += this.delim }
         if (content) this.out += content;
@@ -152,15 +191,15 @@ export class MarkdownSerializerState {
 
     // :: (Node)
     // Close the block for the given node.
-    closeBlock(node) {
-        this.closed = node;
+    closeBlock(node?: Node): void {
+        this.closed = node ?? false;
     }
 
     // :: (string, ?bool)
     // Add the given text to the document. When escape is not `false`,
     // it will be escaped.
-    text(text, escape) {
-        const lines = text.split('\n');
+    text(text?: string, escape?: boolean): void {
+        const lines = text?.split('\n') ?? '';
         for (let i = 0; i < lines.length; i++) {
             const startOfLine = this.atBlank() || this.closed;
             this.write();
@@ -174,7 +213,7 @@ export class MarkdownSerializerState {
 
     // :: (Node)
     // Render the given node as a block.
-    render(node, parent, index) {
+    render(node: Node, parent: Node, index: number): void {
         if (typeof parent === 'number') throw new Error('!');
         if (!this.nodes[node.type.name]) throw new Error('Token type `' + node.type.name + '` not supported by Markdown renderer');
         this.nodes[node.type.name](this, node, parent, index);
@@ -182,17 +221,17 @@ export class MarkdownSerializerState {
 
     // :: (Node)
     // Render the contents of `parent` as block nodes.
-    renderContent(parent) {
+    renderContent(parent: Node): void {
         parent.forEach((node, _, i) => this.render(node, parent, i));
     }
 
     // :: (Node)
     // Render the contents of `parent` as inline content.
-    renderInline(parent) {
-        const active = []; let
-            trailing = '';
-        const progress = (node, _, index) => {
-            let marks = node ? node.marks : [];
+    renderInline(parent: Node) {
+        const active: Mark[] = [];
+        let trailing = '';
+        const progress = (node: Node | null, _: number | null, index: number) => {
+            let marks = node ? node.marks : [];_
 
             // Remove marks from breaks (hard_break or soft_break) that are the edge node inside
             // that mark to prevent parser edge cases with new lines just
@@ -204,8 +243,8 @@ export class MarkdownSerializerState {
                     const prev = parent.child(index - 1);
                     const next = parent.child(index + 1);
                     return (
-                        (m.isInSet(prev.marks) && (!prev.isText || /\S/.test(prev.text))) &&
-                        (m.isInSet(next.marks) && (!next.isText || /\S/.test(next.text)))
+                        (m.isInSet(prev.marks) && (!prev.isText || prev.text && /\S/.test(prev.text))) &&
+                        (m.isInSet(next.marks) && (!next.isText || next.text && /\S/.test(next.text)))
                     );
                 });
             }
@@ -218,17 +257,23 @@ export class MarkdownSerializerState {
                 const info = this.marks[mark.type.name];
                 return info && info.expelEnclosingWhitespace;
             })) {
-                const [_, lead, inner, trail] = /^(\s*)(.*?)(\s*)$/m.exec(node.text);
-                leading += lead;
-                trailing = trail;
-                if (lead || trail) {
-                    node = inner ? node.withText(inner) : null;
-                    if (!node) marks = active;
+                if (node.text) {
+                    const result = /^(\s*)(.*?)(\s*)$/m.exec(node.text);
+                    if (result) {
+                        const [_, lead, inner, trail] = result;
+                        leading += lead;
+                        trailing = trail;
+                        if (lead || trail) {
+                            // FIXME: There is no withText method in type Node
+                            node = inner ? (node as any).withText(inner) : null;
+                            if (!node) marks = active;
+                        }
+                    }
                 }
             }
 
-            const inner = marks.length && marks[marks.length - 1]; const
-                noEsc = inner && this.marks[inner.type.name].escape === false;
+            const inner = marks.length && marks[marks.length - 1];
+            const noEsc = inner && this.marks[inner.type.name].escape === false;
             const len = marks.length - (noEsc ? 1 : 0);
 
             // Try to reorder 'mixable' marks, such as em and strong, which
@@ -253,7 +298,12 @@ export class MarkdownSerializerState {
             while (keep < Math.min(active.length, len) && marks[keep].eq(active[keep])) ++keep;
 
             // Close the marks that need to be closed
-            while (keep < active.length) { this.text(this.markString(active.pop(), false, parent, index), false) }
+            while (keep < active.length) {
+                const mark = active.pop();
+                if (mark) {
+                    this.text(this.markString(mark, false, parent, index), false)
+                }
+            }
 
             // Output any previously expelled trailing whitespace outside the marks
             if (leading) this.text(leading);
@@ -283,7 +333,7 @@ export class MarkdownSerializerState {
     // indentation added to all lines except the first in an item,
     // `firstDelim` is a function going from an item index to a
     // delimiter for the first line of the item.
-    renderList(node, delim, firstDelim) {
+    renderList(node: Node, delim: string, firstDelim: (index: number, node: Node) => string): void {
         if (this.closed && this.closed.type == node.type) { this.flushClose(3) } else if (this.inTightList) { this.flushClose(1) }
 
         const isTight = typeof node.attrs.tight !== 'undefined' ? node.attrs.tight : this.options.tightLists;
@@ -300,7 +350,7 @@ export class MarkdownSerializerState {
     // Escape the given string so that it can safely appear in Markdown
     // content. If `startOfLine` is true, also escape characters that
     // have special meaning only at the start of the line.
-    esc(str, startOfLine) {
+    esc(str: string, startOfLine?: boolean | Node): string {
         const escRegexp = this.options?.commonEscape || /[`\^+*\\\|~\[\]\{\}<>\$_]/g;
         const startOfLineEscRegexp = this.options?.startOfLineEscape || /^[:#\-*+>]/;
 
@@ -309,18 +359,18 @@ export class MarkdownSerializerState {
         return str;
     }
 
-    escWhitespace(str) {
+    escWhitespace(str: string): string {
         return str.replace(/ /g, '\\ ');
     }
 
-    quote(str) {
+    quote(str: string): string {
         const wrap = str.indexOf('"') == -1 ? '""' : str.indexOf("'") == -1 ? "''" : '()';
         return wrap[0] + str + wrap[1];
     }
 
     // :: (string, number) → string
     // Repeat the given string `n` times.
-    repeat(str, n) {
+    repeat(str: string, n: number): string {
         let out = '';
         for (let i = 0; i < n; i++) out += str;
         return out;
@@ -328,17 +378,20 @@ export class MarkdownSerializerState {
 
     // : (Mark, bool, string?) → string
     // Get the markdown string for a given opening or closing mark.
-    markString(mark, open, parent, index) {
+    markString(mark: Mark, open: boolean, parent: Fragment | Node, index: number): string {
         const info = this.marks[mark.type.name];
         const value = open ? info.open : info.close;
-        return typeof value === 'string' ? value : value(this, mark, parent, index);
+
+        const actualParent = isNode(parent) ? parent.content : parent;
+
+        return typeof value === 'string' ? value : value(this, mark, actualParent, index);
     }
 
     // :: (string) → { leading: ?string, trailing: ?string }
     // Get leading and trailing whitespace from a string. Values of
     // leading or trailing property of the return object will be undefined
     // if there is no match.
-    getEnclosingWhitespace(text) {
+    getEnclosingWhitespace(text: string): { leading?: string, trailing?: string } {
         return {
             leading: (text.match(/^(\s+)/) || [])[0],
             trailing: (text.match(/(\s+)$/) || [])[0],
