@@ -1,12 +1,10 @@
-import type {RefObject} from 'react';
-
 import isNumber from 'is-number';
 
-import {IMG_MAX_HEIGHT, ImageItem, getImageDimensions, insertImages} from '../../../markup';
+import {IMG_MAX_HEIGHT, type ImageItem, getImageDimensions, insertImages} from '../../../markup';
 import type {CodeEditor} from '../../../markup/editor';
 import type {ToolbarBaseProps} from '../../../toolbar';
 import type {UploadSuccessItem} from '../../../utils';
-import {ToolbarImagePopup} from '../custom/ToolbarImagePopup';
+import {type ToolbarImagePopuProps, ToolbarImagePopup} from '../custom/ToolbarImagePopup';
 
 import {useMarkupToolbarContext} from './context';
 
@@ -14,16 +12,16 @@ const noop = (err: unknown) => {
     console.error(err);
 };
 
-export type MToolbarImagePopupProps = ToolbarBaseProps<CodeEditor> & {
-    hide: () => void;
-    anchorRef: RefObject<HTMLElement>;
-};
+export type MToolbarImagePopupProps = ToolbarBaseProps<CodeEditor> &
+    Pick<ToolbarImagePopuProps, 'anchorElement'> & {
+        hide: () => void;
+    };
 
 export const MToolbarImagePopup: React.FC<MToolbarImagePopupProps> = ({
     focus,
     onClick,
     hide,
-    anchorRef,
+    anchorElement,
     editor,
     className,
 }) => {
@@ -32,7 +30,7 @@ export const MToolbarImagePopup: React.FC<MToolbarImagePopupProps> = ({
     return (
         <ToolbarImagePopup
             hide={hide}
-            anchorRef={anchorRef}
+            anchorElement={anchorElement}
             focus={focus}
             onClick={onClick}
             className={className}

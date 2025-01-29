@@ -14,7 +14,6 @@ export type GptWidgetOptions<
     PromptData extends unknown = unknown,
 > = Pick<
     GptWidgetDecoViewParams<AnswerData, PromptData>,
-    | 'gptPopupContainer'
     | 'answerRender'
     | 'onApplyResult'
     | 'promptPresets'

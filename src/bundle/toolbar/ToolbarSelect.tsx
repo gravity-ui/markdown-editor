@@ -1,5 +1,11 @@
-import {HelpPopover} from '@gravity-ui/components';
-import {Hotkey, Icon, Select, SelectOption} from '@gravity-ui/uikit';
+import {
+    HelpMark,
+    Hotkey,
+    Icon,
+    Select,
+    type SelectOption,
+    type SelectProps,
+} from '@gravity-ui/uikit';
 
 import {cn} from '../../classname';
 import type {ActionStorage} from '../../core';
@@ -11,11 +17,13 @@ import './ToolbarSelect.scss';
 
 const b = cn('toolbar-select');
 
-export type ToolbarSelectProps = ToolbarBaseProps<ActionStorage> & {
-    items: WToolbarItemData[];
-};
+export type ToolbarSelectProps = ToolbarBaseProps<ActionStorage> &
+    Pick<SelectProps, 'disablePortal'> & {
+        items: WToolbarItemData[];
+    };
 
 export const ToolbarSelect: React.FC<ToolbarSelectProps> = ({
+    disablePortal,
     className,
     editor,
     focus,
@@ -30,9 +38,8 @@ export const ToolbarSelect: React.FC<ToolbarSelectProps> = ({
                 size="m"
                 view="clear"
                 className={className}
-                onOpenChange={() => {
-                    focus();
-                }}
+                disablePortal={disablePortal}
+                onOpenChange={focus}
                 value={activeItem ? [activeItem.id] : undefined}
                 options={items.map<SelectOption>((item) => ({
                     data: item,
@@ -52,10 +59,12 @@ export const ToolbarSelect: React.FC<ToolbarSelectProps> = ({
                                 <div className={b('item-extra')}>
                                     {hotkey && <Hotkey value={hotkey} />}
                                     {hintText && (
-                                        <HelpPopover
-                                            content={hintText}
+                                        <HelpMark
+                                            popoverProps={{modal: false}}
                                             className={b('item-hint')}
-                                        />
+                                        >
+                                            {hintText}
+                                        </HelpMark>
                                     )}
                                 </div>
                             </div>

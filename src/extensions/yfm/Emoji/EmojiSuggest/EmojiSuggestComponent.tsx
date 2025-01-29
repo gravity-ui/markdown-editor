@@ -26,24 +26,20 @@ export type EmojiSuggestComponentProps = AutocompletePopupProps & {
 };
 
 export const EmojiSuggestComponent: React.FC<EmojiSuggestComponentProps> = ({
-    anchor,
+    anchorElement,
     currentIndex,
     items,
     onClick,
-    onEnterKeyDown,
-    onEscapeKeyDown,
-    onOutsideClick,
+    onOpenChange,
 }) => {
-    if (!anchor) return null;
+    if (!anchorElement) return null;
 
     return (
         <Popup
             open={Boolean(items.length)}
-            anchorRef={{current: anchor}}
+            anchorElement={anchorElement}
             placement={placement}
-            onEnterKeyDown={onEnterKeyDown}
-            onEscapeKeyDown={onEscapeKeyDown}
-            onOutsideClick={onOutsideClick}
+            onOpenChange={onOpenChange}
         >
             <div className={b()}>
                 <List<EmojiDef>

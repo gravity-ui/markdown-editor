@@ -1,7 +1,7 @@
 import {Ellipsis} from '@gravity-ui/icons';
-import {DropdownMenu, DropdownMenuItemMixed, Icon, Popup} from '@gravity-ui/uikit';
+import {DropdownMenu, type DropdownMenuItemMixed, Icon, Popup} from '@gravity-ui/uikit';
 
-import {Action} from '../../../../../core';
+import type {Action} from '../../../../../core';
 
 import './floating.scss';
 
@@ -26,8 +26,8 @@ export const TableCellFloatingButton: React.FC<TableCellFloatingButtonProps> = (
             open
             keepMounted={false}
             hasArrow={false}
-            anchorRef={{current: dom}}
-            offset={[2, -12]}
+            anchorElement={dom}
+            offset={{crossAxis: 2, mainAxis: -12}}
             placement="left-start"
         >
             <DropdownMenu

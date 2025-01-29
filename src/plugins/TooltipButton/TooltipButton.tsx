@@ -1,49 +1,46 @@
-import {type ReactNode, useLayoutEffect, useRef, useState} from 'react';
+import {useLayoutEffect, useState} from 'react';
 
 import {Ellipsis} from '@gravity-ui/icons';
 import {Button, Icon, Popup, PopupPlacement, PopupProps} from '@gravity-ui/uikit';
 
-import {useBooleanState} from '../../react-utils';
+import {useBooleanState, useElementState} from '../../react-utils';
 
 type TooltipButtonProps = Pick<PopupProps, 'onOutsideClick'> & {
-    domRef: HTMLElement | null;
+    domElem: HTMLElement | null;
     children?: React.ReactNode;
 };
 
-export const TooltipButton: React.FC<TooltipButtonProps> = ({domRef, onOutsideClick, children}) => {
+export const TooltipButton: React.FC<TooltipButtonProps> = ({
+    domElem,
+    children,
+    onOutsideClick,
+}) => {
     const [width, setWidth] = useState(0);
     const [open, , hide, toggleOpen] = useBooleanState(false);
     const placement: PopupPlacement = ['bottom-end', 'bottom-start'];
-    const ref = useRef<HTMLDivElement>(null);
-    const childrenRef = useRef<ReactNode>(children);
+    const [anchor, setAnchor] = useElementState();
 
     useLayoutEffect(() => {
-        if (ref.current?.clientWidth) {
-            setWidth(ref.current?.clientWidth);
+        if (anchor?.clientWidth) {
+            setWidth(anchor.clientWidth);
         }
-    }, [ref.current?.clientWidth]);
+    }, [anchor?.clientWidth]);
 
     return (
         <Popup
             open
             keepMounted={false}
             hasArrow={false}
-            anchorRef={{current: domRef}}
+            anchorElement={domElem}
             placement={'right-start'}
-            offset={[3, -(width + 3)]}
+            offset={{crossAxis: 3, mainAxis: -(width + 3)}}
             onOutsideClick={onOutsideClick}
-            modifiers={[
-                {
-                    name: 'preventOverflow',
-                    enabled: false,
-                },
-            ]}
         >
-            <Button onClick={toggleOpen} ref={ref} size="s" view={open ? 'normal' : 'raised'}>
+            <Button onClick={toggleOpen} ref={setAnchor} size="s" view={open ? 'normal' : 'raised'}>
                 <Icon data={Ellipsis} />
             </Button>
-            <Popup open={open} anchorRef={ref} onClose={hide} placement={placement}>
-                {childrenRef.current}
+            <Popup open={open} anchorElement={anchor} onClose={hide} placement={placement}>
+                {children}
             </Popup>
         </Popup>
     );

@@ -70,6 +70,7 @@ export function ToolbarButtonGroup<E>({
                     const Component = item.component;
                     return (
                         <Component
+                            {...item.props}
                             key={item.id}
                             editor={editor}
                             focus={focus}

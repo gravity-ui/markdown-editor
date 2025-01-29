@@ -136,7 +136,7 @@ class SelectionTooltip implements PluginView {
                 onCancel: () => this.cancelPopup(),
                 attrs: this.getMarkAttrs(),
                 onChange: this.changeAttrs.bind(this),
-                onOutsideClick: this.onOutisdeClick,
+                onOpenChange: this.onOpenChange,
             });
         }
     }
@@ -180,6 +180,15 @@ class SelectionTooltip implements PluginView {
         this.renderItem = this.renderItem ?? this.createRenderItem();
         this.renderItem.rerender();
     }
+
+    private onOpenChange: NonNullable<PopupProps['onOpenChange']> = (open, _e, reason) => {
+        if (open) return;
+        if (reason === 'escape-key') {
+            this.cancelPopup();
+        } else {
+            this.onOutisdeClick();
+        }
+    };
 
     private onOutisdeClick = () => {
         // after all updates of the editor state
@@ -252,7 +261,7 @@ type SelectionTooltipViewBaseProps<T = boolean> = T extends false
           onCancel: () => void;
           onChange: (opts: {href: string}) => void;
           attrs?: {[LinkAttr.Href]?: string; [LinkAttr.IsPlaceholder]?: boolean};
-      } & Pick<PopupProps, 'onOutsideClick'>;
+      } & Pick<PopupProps, 'onOpenChange'>;
 
 type SelectionTooltipViewProps = SelectionTooltipViewBaseProps;
 
@@ -261,18 +270,17 @@ const SelectionTooltipView: React.FC<SelectionTooltipViewProps> = (props) => {
 
     if (!show) return null;
 
-    const {domElem, onChange, onCancel, onOutsideClick, attrs = {}} = props;
+    const {domElem, onChange, onCancel, onOpenChange, attrs = {}} = props;
     const href = attrs[LinkAttr.Href];
     const autoFocus = attrs[LinkAttr.IsPlaceholder];
 
     return (
         <Popup
-            key={href}
             open
-            anchorRef={{current: domElem}}
+            key={href}
+            anchorElement={domElem}
             placement={placement}
-            onEscapeKeyDown={onCancel}
-            onOutsideClick={onOutsideClick}
+            onOpenChange={onOpenChange}
         >
             <LinkForm
                 href={href ?? ''}

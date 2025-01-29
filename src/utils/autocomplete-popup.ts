@@ -3,10 +3,7 @@ import type {EditorView} from 'prosemirror-view';
 
 import {closeAutocomplete} from '../extensions/behavior/Autocomplete';
 
-export type AutocompletePopupProps = Pick<
-    PopupProps,
-    'onOutsideClick' | 'onEscapeKeyDown' | 'onEnterKeyDown'
-> & {anchor?: Element | null};
+export type AutocompletePopupProps = Pick<PopupProps, 'onOpenChange' | 'anchorElement'>;
 
 export class AutocompletePopupCloser {
     readonly #view: EditorView;
@@ -16,11 +13,12 @@ export class AutocompletePopupCloser {
         this.#view = view;
     }
 
-    popupEscapeKeyHandler: NonNullable<PopupProps['onEscapeKeyDown']> = () => {
-        this.closeAutocomplete();
-    };
+    popupOpenChangeHandler: NonNullable<PopupProps['onOpenChange']> = (_open, _event, reason) => {
+        if (reason === 'escape-key') {
+            this.closeAutocomplete();
+            return;
+        }
 
-    popupOutsideClickHandler: NonNullable<PopupProps['onOutsideClick']> = () => {
         if (!this.#view.hasFocus()) {
             this.#timer = setTimeout(() => {
                 this.#timer = undefined;

@@ -123,8 +123,8 @@ class SelectionTooltip implements PluginSpec<unknown> {
         }
 
         this.tooltip.show(view, {
-            onOutsideClick: () => {
-                this.scheduleTooltipHiding(view);
+            onOpenChange: (_open, _event, reason) => {
+                if (reason !== 'escape-key') this.scheduleTooltipHiding(view);
             },
         });
     }

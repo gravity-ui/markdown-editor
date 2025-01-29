@@ -1,6 +1,6 @@
 import {forwardRef} from 'react';
 
-import {ActionTooltip, Button, Icon, Popover} from '@gravity-ui/uikit';
+import {ActionTooltip, Button, Icon, Popover, setRef} from '@gravity-ui/uikit';
 
 import {cn} from '../classname';
 import {i18n} from '../i18n/common';
@@ -25,7 +25,7 @@ export type ToolbarButtonViewProps = Pick<
     className?: string;
 };
 
-export const ToolbarButtonView = forwardRef<HTMLElement, ToolbarButtonViewProps>(
+export const ToolbarButtonView = forwardRef<HTMLButtonElement, ToolbarButtonViewProps>(
     function ToolbarButtonView(
         {icon, title, hint, hotkey, hintWhenDisabled, active, enabled, onClick, className},
         ref,
@@ -43,31 +43,38 @@ export const ToolbarButtonView = forwardRef<HTMLElement, ToolbarButtonViewProps>
 
         return (
             <Popover
-                content={hintWhenDisabledText}
+                content={<div className={b('action-disabled-tooltip')}>{hintWhenDisabledText}</div>}
                 disabled={hideHintWhenDisabled}
-                tooltipContentClassName={b('action-disabled-tooltip')}
                 placement={['bottom']}
             >
-                <ActionTooltip
-                    openDelay={ToolbarTooltipDelay.Open}
-                    closeDelay={ToolbarTooltipDelay.Close}
-                    description={hintText}
-                    title={titleText}
-                    hotkey={hotkey}
-                >
-                    <Button
-                        size="m"
-                        ref={ref}
-                        selected={active}
-                        disabled={disabled}
-                        view={active ? 'normal' : 'flat'}
-                        onClick={onClick}
-                        className={b(null, [className])}
-                        extraProps={{'aria-label': titleText}}
+                {(_, refForPopover) => (
+                    <ActionTooltip
+                        openDelay={ToolbarTooltipDelay.Open}
+                        closeDelay={ToolbarTooltipDelay.Close}
+                        description={hintText}
+                        title={titleText}
+                        hotkey={hotkey}
                     >
-                        <Icon data={icon.data} size={icon.size ?? 16} />
-                    </Button>
-                </ActionTooltip>
+                        {(_, refForTooltip) => (
+                            <Button
+                                size="m"
+                                ref={(elem: HTMLButtonElement) => {
+                                    setRef(ref, elem);
+                                    setRef(refForPopover, elem);
+                                    setRef(refForTooltip, elem);
+                                }}
+                                selected={active}
+                                disabled={disabled}
+                                view={active ? 'normal' : 'flat'}
+                                onClick={onClick}
+                                className={b(null, [className])}
+                                aria-label={titleText}
+                            >
+                                <Icon data={icon.data} size={icon.size ?? 16} />
+                            </Button>
+                        )}
+                    </ActionTooltip>
+                )}
             </Popover>
         );
     },

@@ -1,6 +1,5 @@
 import {memo, useState} from 'react';
 
-import {toaster} from '@gravity-ui/uikit/toaster-singleton-react-18';
 import cloneDeep from 'lodash/cloneDeep';
 
 import {
@@ -15,6 +14,7 @@ import {
     wysiwygToolbarConfigs,
 } from '../../../src';
 import {PlaygroundLayout} from '../../components/PlaygroundLayout';
+import {toaster} from '../../utils/toaster';
 
 import {initialMdContent} from './content';
 import {gptWidgetProps} from './gptWidgetOptions';

@@ -1,7 +1,5 @@
 import {CSSProperties, StrictMode, memo, useCallback, useEffect, useState} from 'react';
 
-import {toaster} from '@gravity-ui/uikit/toaster-singleton-react-18';
-
 import {
     MarkdownEditorMode,
     MarkdownEditorPreset,
@@ -22,6 +20,7 @@ import {plugins} from '../../defaults/md-plugins';
 import {block} from '../../utils/cn';
 import {randomDelay} from '../../utils/delay';
 import {parseInsertedUrlAsImage} from '../../utils/imageUrl';
+import {toaster} from '../../utils/toaster';
 
 import '../../components/Playground.scss';
 

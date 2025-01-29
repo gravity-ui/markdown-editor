@@ -1,8 +1,8 @@
-import {EditorView} from 'prosemirror-view';
-import {createPortal} from 'react-dom';
+import {Portal} from '@gravity-ui/uikit';
+import type {EditorView} from 'prosemirror-view';
 
 import {ErrorLoggerBoundary} from '../../../react-utils/ErrorBoundary';
-import {RendererItem, getReactRendererFromState} from '../ReactRenderer';
+import {type RendererItem, getReactRendererFromState} from '../ReactRenderer';
 
 import {WidgetDescriptor} from './WidgetDescriptor';
 
@@ -24,13 +24,12 @@ export abstract class ReactWidgetDescriptor extends WidgetDescriptor {
     }
 
     protected createRenderItem() {
-        return getReactRendererFromState(this.view!.state).createItem('widget', () =>
-            createPortal(
+        return getReactRendererFromState(this.view!.state).createItem('widget', () => (
+            <Portal container={this.getDomElem()}>
                 <ErrorLoggerBoundary>
                     {this.renderReactElement(this.view!, this.getPos!)}
-                </ErrorLoggerBoundary>,
-                this.getDomElem(),
-            ),
-        );
+                </ErrorLoggerBoundary>
+            </Portal>
+        ));
     }
 }

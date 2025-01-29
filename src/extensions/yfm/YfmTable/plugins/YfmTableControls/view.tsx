@@ -1,8 +1,7 @@
-import {Button} from '@gravity-ui/uikit';
-import {createPortal} from 'react-dom';
+import {Button, Portal} from '@gravity-ui/uikit';
 
 import {cn} from '../../../../../classname';
-import {NodeViewConstructor, bindActions} from '../../../../../core';
+import {type NodeViewConstructor, bindActions} from '../../../../../core';
 import {ErrorLoggerBoundary} from '../../../../../react-utils/ErrorBoundary';
 import {getTableDimensions} from '../../../../../table-utils';
 import {getReactRendererFromState} from '../../../../behavior/ReactRenderer';
@@ -66,7 +65,11 @@ export const yfmTableView: NodeViewConstructor = (node, view, getPos) => {
 
     const renderItem = getReactRendererFromState(view.state).createItem(
         'yfm-table-plus-buttons',
-        () => createPortal(<ErrorLoggerBoundary>{components}</ErrorLoggerBoundary>, controls),
+        () => (
+            <Portal container={controls}>
+                <ErrorLoggerBoundary>{components}</ErrorLoggerBoundary>
+            </Portal>
+        ),
     );
 
     return {
@@ -82,7 +85,10 @@ export const yfmTableView: NodeViewConstructor = (node, view, getPos) => {
             return !(rows !== nRows || cols !== nCols);
         },
         ignoreMutation(mutation) {
-            return mutation.type === 'childList' && mutation.target === controls;
+            return (
+                mutation.type === 'childList' &&
+                (mutation.target === controls || controls.contains(mutation.target))
+            );
         },
     };
 };

@@ -1,12 +1,12 @@
-import {useEffect, useMemo, useRef} from 'react';
+import {useEffect, useMemo} from 'react';
 
 import {ChevronDown} from '@gravity-ui/icons';
-import {ActionTooltip, Button, Icon, IconProps, Menu, Popup} from '@gravity-ui/uikit';
+import {ActionTooltip, Button, Icon, IconProps, Menu, Popup, PopupProps} from '@gravity-ui/uikit';
 
 import {cn} from '../../classname';
 import {Action, ActionStorage} from '../../core';
 import {groupBy, isFunction} from '../../lodash';
-import {useBooleanState} from '../../react-utils/hooks';
+import {useBooleanState, useElementState} from '../../react-utils/hooks';
 import {ToolbarBaseProps, ToolbarIconData, ToolbarTooltipDelay} from '../../toolbar';
 
 import './ToolbarButtonWithPopupMenu.scss';
@@ -24,19 +24,21 @@ export type MenuItem = {
 };
 
 export type ToolbarButtonWithPopupMenuProps = Omit<
-    ToolbarBaseProps<ActionStorage> & {
-        icon: ToolbarIconData;
-        iconClassName?: string;
-        chevronIconClassName?: string;
-        title: string | (() => string);
-        menuItems: MenuItem[];
-        /** @default 'classic' */
-        _selectionType?: 'classic' | 'light';
-    },
+    ToolbarBaseProps<ActionStorage> &
+        Pick<PopupProps, 'disablePortal'> & {
+            icon: ToolbarIconData;
+            iconClassName?: string;
+            chevronIconClassName?: string;
+            title: string | (() => string);
+            menuItems: MenuItem[];
+            /** @default 'classic' */
+            _selectionType?: 'classic' | 'light';
+        },
     'editor'
 >;
 
 export const ToolbarButtonWithPopupMenu: React.FC<ToolbarButtonWithPopupMenuProps> = ({
+    disablePortal,
     className,
     focus,
     onClick,
@@ -47,7 +49,7 @@ export const ToolbarButtonWithPopupMenu: React.FC<ToolbarButtonWithPopupMenuProp
     menuItems,
     _selectionType,
 }) => {
-    const buttonRef = useRef<HTMLButtonElement>(null);
+    const [anchorElement, setAnchorElement] = useElementState();
     const [open, , hide, toggleOpen] = useBooleanState(false);
     const groups = useMemo(
         () =>
@@ -89,7 +91,7 @@ export const ToolbarButtonWithPopupMenu: React.FC<ToolbarButtonWithPopupMenuProp
             >
                 <Button
                     size="m"
-                    ref={buttonRef}
+                    ref={setAnchorElement}
                     view={btnView}
                     selected={btnSelected}
                     disabled={everyDisabled}
@@ -101,7 +103,14 @@ export const ToolbarButtonWithPopupMenu: React.FC<ToolbarButtonWithPopupMenuProp
                     <Icon data={ChevronDown} className={chevronIconClassName} />
                 </Button>
             </ActionTooltip>
-            <Popup anchorRef={buttonRef} open={popupOpen} onClose={hide}>
+            <Popup
+                open={popupOpen}
+                disablePortal={disablePortal}
+                anchorElement={anchorElement}
+                onOpenChange={(open) => {
+                    if (!open) hide();
+                }}
+            >
                 <Menu size="l">
                     {Object.entries(groups).map(([label, items], key) => {
                         return (
@@ -110,7 +119,7 @@ export const ToolbarButtonWithPopupMenu: React.FC<ToolbarButtonWithPopupMenuProp
                                     ({id, icon, iconSize = 16, action, text, iconClassname}) => (
                                         <Menu.Item
                                             key={id}
-                                            icon={
+                                            iconStart={
                                                 <Icon
                                                     data={icon}
                                                     size={iconSize}
