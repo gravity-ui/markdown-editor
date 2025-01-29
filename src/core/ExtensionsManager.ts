@@ -47,8 +47,12 @@ export function createUniqueId(prefix: string): string {
 }
 
 const getParserDynamicModifierConfig = (markupManager: MarkupManager) => ({
-    ['yfm_table']: {
+    ['yfm_table,paragraph']: {
         processToken: [
+            (token: Token) => {
+                console.log('processToken', token);
+                return token;
+            },
             (token: Token) => {
                 token.attrSet('data-token-id', createUniqueId(token.type));
                 return token;
@@ -66,7 +70,7 @@ const getParserDynamicModifierConfig = (markupManager: MarkupManager) => ({
                 return token;
             },
             (token: Token, _: number, rawMarkup: string) => {
-                const tokenId = token.attrGet('data-token-;id');
+                const tokenId = token.attrGet('data-token-id');
                 if (tokenId) {
                     markupManager.setMarkup(tokenId, rawMarkup);
                 }
@@ -76,6 +80,10 @@ const getParserDynamicModifierConfig = (markupManager: MarkupManager) => ({
         processNodeAttrs: [
             (token: Token, attrs: TokenAttrs) => {
                 attrs['data-node-id'] = token.attrGet('data-token-id');
+                return attrs;
+            },
+            (token: Token, attrs: TokenAttrs) => {
+                console.log('processNodeAttrs', token, attrs);
                 return attrs;
             },
         ],
@@ -88,11 +96,14 @@ const getParserDynamicModifierConfig = (markupManager: MarkupManager) => ({
 
                 return node;
             },
+            (node: Node) => {
+                console.log('processNode', node);
+                return node;
+            },
         ],
         allowedAttrs: ['data-node-id'],
     },
 });
-
 const getSerializerDynamicModifierConfig = (markupManager: MarkupManager) => ({
     ['yfm_table']: {
         processNode: [

@@ -458,40 +458,65 @@ export interface SchemaSpec {
 
 export class MarkdownParserDynamicModifier {
     private elementProcessors: Map<string, ElementProcessor>;
+    private keyMapping: Map<string, string[]>;
 
     constructor(config: MarkdownParserDynamicModifierConfig) {
-        this.elementProcessors = new Map(Object.entries(config));
+        this.elementProcessors = new Map();
+        this.keyMapping = new Map();
+
+        Object.entries(config).forEach(([key, processor]) => {
+            const keys = key.includes(',') ? key.split(',').map((k) => k.trim()) : [key];
+
+            this.elementProcessors.set(keys.join(','), processor);
+
+            keys.forEach((elementType) => {
+                this.keyMapping.set(elementType, [
+                    ...(this.keyMapping.get(elementType) || []),
+                    keys.join(','),
+                ]);
+            });
+        });
     }
 
     processTokens(tokens: Token[], rawMarkup: string): Token[] {
         return tokens.map((token, index) => {
-            const processor = this.elementProcessors.get(cropNodeName(token.type, openSuffix, ''));
-            if (!processor || !processor.processToken || processor.processToken.length === 0) {
-                return token;
-            }
+            const processors = this.findProcessors(cropNodeName(token.type, openSuffix, ''));
 
-            return processor.processToken.reduce((currentToken, process) => {
-                return process(currentToken, index, rawMarkup, processor.allowedAttrs);
-            }, token);
+            processors.forEach((processor) => {
+                if (processor.processToken) {
+                    processor.processToken.forEach((process) => {
+                        token = process(token, index, rawMarkup, processor.allowedAttrs);
+                    });
+                }
+            });
+
+            return token;
         });
     }
 
     processAttrs(token: Token, attrs: TokenAttrs): TokenAttrs {
-        const processor = this.elementProcessors.get(cropNodeName(token.type, openSuffix, ''));
-        if (!processor || !processor.processNodeAttrs || processor.processNodeAttrs.length === 0) {
-            return attrs;
-        }
+        const processors = this.findProcessors(cropNodeName(token.type, openSuffix, ''));
 
-        return processor.processNodeAttrs.reduce((currentAttrs, process) => {
-            return process(token, currentAttrs, processor.allowedAttrs);
-        }, attrs);
+        processors.forEach((processor) => {
+            if (processor.processNodeAttrs) {
+                processor.processNodeAttrs.forEach((process) => {
+                    attrs = process(token, attrs, processor.allowedAttrs);
+                });
+            }
+        });
+
+        return attrs;
     }
 
     processNodeAttrsSpec(baseSchema: SchemaSpec): SchemaSpec {
         const updatedNodes = {...baseSchema.nodes};
 
-        this.elementProcessors.forEach((processor, elementType) => {
-            if (processor.allowedAttrs && processor.allowedAttrs.length > 0) {
+        this.keyMapping.forEach((keys, elementType) => {
+            keys.forEach((key) => {
+                const processor = this.elementProcessors.get(key);
+                if (!processor || !processor.allowedAttrs || processor.allowedAttrs.length === 0)
+                    return;
+
                 const nodeSpec = baseSchema.nodes[elementType];
                 if (nodeSpec) {
                     updatedNodes[elementType] = {
@@ -508,7 +533,7 @@ export class MarkdownParserDynamicModifier {
                         },
                     };
                 }
-            }
+            });
         });
 
         return {
@@ -518,13 +543,24 @@ export class MarkdownParserDynamicModifier {
     }
 
     processNodes(node: Node): Node {
-        const processor = this.elementProcessors.get(node.type.name);
-        if (!processor || !processor.processNode || processor.processNode.length === 0) {
-            return node;
-        }
+        const processors = this.findProcessors(node.type.name);
 
-        return processor.processNode.reduce((currentNode, process) => {
-            return process(currentNode);
-        }, node);
+        processors.forEach((processor) => {
+            if (processor.processNode) {
+                processor.processNode.forEach((process) => {
+                    node = process(node);
+                });
+            }
+        });
+
+        return node;
+    }
+
+    private findProcessors(elementType: string): ElementProcessor[] {
+        const elementTypes = this.keyMapping.get(elementType) || [];
+
+        return elementTypes
+            .map((key) => this.elementProcessors.get(key))
+            .filter((processor): processor is ElementProcessor => Boolean(processor));
     }
 }
