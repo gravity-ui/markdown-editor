@@ -12,7 +12,7 @@ type Props<AnswerData extends CommonAnswer = CommonAnswer, PromptData extends un
     onConfirmOk?: () => void;
     onConfirmCancel?: () => void;
 } & GptDialogProps<AnswerData, PromptData> &
-    Pick<PopupProps, 'anchorRef' | 'container'>;
+    Pick<PopupProps, 'anchorRef'>;
 
 export function renderPopup<
     AnswerData extends CommonAnswer = CommonAnswer,
@@ -23,31 +23,34 @@ export function renderPopup<
     return (
         <Popup
             className={cnGptPopup()}
-            contentClassName={cnGptPopup('content')}
+            // contentClassName={cnGptPopup('content')}
             open
-            anchorRef={{current: anchor}}
-            onOutsideClick={props.onClose}
-            focusTrap
+            // anchorRef={{current: anchor}}
+            anchorElement={anchor}
+            // onOutsideClick={props.onClose} // TODO
+            // focusTrap
             strategy="absolute"
-            onEscapeKeyDown={props.onClose}
+            // onEscapeKeyDown={props.onClose} // TODO
         >
-            <GptDialog
-                markup={props.markup}
-                answerRender={props.answerRender}
-                promptPresets={props.promptPresets}
-                disablePromptPresets={props.disablePromptPresets}
-                customPromptPlaceholder={props.customPromptPlaceholder}
-                disabledPromptPlaceholder={props.disabledPromptPlaceholder}
-                onApplyResult={props.onApplyResult}
-                onCustomPromptApply={props.onCustomPromptApply}
-                onPromptPresetClick={props.onPromptPresetClick}
-                onTryAgain={props.onTryAgain}
-                onLike={props.onLike}
-                onDislike={props.onDislike}
-                onClose={props.onClose}
-                onUpdate={handleUpdate}
-                gptAlertProps={props.gptAlertProps}
-            />
+            <div className={cnGptPopup('content')}>
+                <GptDialog
+                    markup={props.markup}
+                    answerRender={props.answerRender}
+                    promptPresets={props.promptPresets}
+                    disablePromptPresets={props.disablePromptPresets}
+                    customPromptPlaceholder={props.customPromptPlaceholder}
+                    disabledPromptPlaceholder={props.disabledPromptPlaceholder}
+                    onApplyResult={props.onApplyResult}
+                    onCustomPromptApply={props.onCustomPromptApply}
+                    onPromptPresetClick={props.onPromptPresetClick}
+                    onTryAgain={props.onTryAgain}
+                    onLike={props.onLike}
+                    onDislike={props.onDislike}
+                    onClose={props.onClose}
+                    onUpdate={handleUpdate}
+                    gptAlertProps={props.gptAlertProps}
+                />
+            </div>
         </Popup>
     );
 }

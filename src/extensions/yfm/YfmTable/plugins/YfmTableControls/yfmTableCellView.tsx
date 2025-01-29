@@ -202,6 +202,8 @@ const Controls: React.FC<Props> = function Controls({
 };
 
 export const yfmTableCellView: NodeViewConstructor = (node, view, getPos): NodeView => {
+    console.log('@@yfmTableCellView create');
+
     const getParentTable = () =>
         findParentNodeClosestToPos(view.state.doc.resolve(getPos()!), isTableNode);
 
@@ -265,15 +267,22 @@ export const yfmTableCellView: NodeViewConstructor = (node, view, getPos): NodeV
             renderItem.remove();
         },
         ignoreMutation(mutation) {
-            return (
-                mutation.type === 'childList' &&
-                (mutation.target === control || control.contains(mutation.target))
-            );
+            // const result =
+            //     (mutation.type === 'childList' &&
+            //         (mutation.target === control || control.contains(mutation.target))) ||
+            //     (mutation.type === 'attributes' &&
+            //         (control.contains(mutation.target) ||
+            //             mutation.target === dom ||
+            //             mutation.target === contentDOM));
+            const result = mutation.target === control || control.contains(mutation.target);
+            console.log('@@yfmTableCellView ignoreMutation', result, mutation);
+            // return result;
+            return true;
         },
         update(n) {
             const {rows: nRows, cols: nCols} = getTableDimensions(n);
             const {rows, cols} = getTableDimensions(node);
-
+            console.log('@@yfmTableCellView update', !(rows !== nRows || cols !== nCols));
             return !(rows !== nRows || cols !== nCols);
         },
     };

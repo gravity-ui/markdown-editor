@@ -1,4 +1,4 @@
-import React, {RefObject, useRef} from 'react';
+import React from 'react';
 
 import {Ellipsis} from '@gravity-ui/icons';
 import {Button, Icon, Menu, Popup, PopupPlacement} from '@gravity-ui/uikit';
@@ -7,7 +7,7 @@ import {EditorView} from 'prosemirror-view';
 
 import {cn} from '../../../../../classname';
 import {i18n as i18nCommon} from '../../../../../i18n/common';
-import {useBooleanState} from '../../../../../react-utils/hooks';
+import {useBooleanState, useElementState} from '../../../../../react-utils/hooks';
 
 import {ImageForm} from './ImageForm';
 
@@ -20,7 +20,7 @@ export const ImgSettingsButton: React.FC<{
     view: EditorView;
     getPos: () => number | undefined;
     updateAttributes: (o: object) => void;
-    nodeRef: RefObject<HTMLDivElement>;
+    nodeElement: HTMLElement | null;
     visible: boolean;
     toggleEdit: () => void;
     edit: boolean;
@@ -33,13 +33,13 @@ export const ImgSettingsButton: React.FC<{
     visible,
     edit,
     toggleEdit,
-    nodeRef,
+    nodeElement,
     unsetEdit,
     onDelete,
 }) {
+    const [_anchorElement, setAnchorElement] = useElementState();
     const [popupOpen, setPopupOpen, unsetPopupOpen] = useBooleanState(false);
     const placement: PopupPlacement = ['bottom-end', 'bottom-start'];
-    const buttonRef = useRef<HTMLDivElement>(null);
 
     const handleEdit = () => {
         toggleEdit();
@@ -51,6 +51,7 @@ export const ImgSettingsButton: React.FC<{
     const isVisiblePopup = !edit && popupOpen;
 
     const handleEditButtonClick = (event: React.MouseEvent<HTMLElement>) => {
+        // debugger;
         event.preventDefault();
         setPopupOpen();
     };
@@ -62,27 +63,40 @@ export const ImgSettingsButton: React.FC<{
                     node={node}
                     view={view}
                     updateAttributes={updateAttributes}
-                    dom={nodeRef}
+                    anchorElement={nodeElement}
                     unsetEdit={unsetEdit}
                 />
             )}
 
             {isVisibleEditButton && (
-                <Button
-                    onClick={handleEditButtonClick}
-                    ref={buttonRef}
-                    size="s"
-                    view={'raised'}
-                    className={b()}
-                >
-                    <Icon data={Ellipsis} />
-                </Button>
+                // <Button
+                //     onClick={handleEditButtonClick}
+                //     ref={setAnchorElement}
+                //     size="s"
+                //     view={'raised'}
+                //     className={b()}
+                // >
+                //     <Icon data={Ellipsis} />
+                // </Button>
+                <></>
             )}
+
+            <Button
+                onClick={handleEditButtonClick}
+                ref={setAnchorElement}
+                size="s"
+                view={'raised'}
+                className={b()}
+            >
+                <Icon data={Ellipsis} />
+            </Button>
 
             <Popup
                 open={isVisiblePopup}
-                anchorRef={buttonRef}
-                onClose={unsetPopupOpen}
+                anchorElement={nodeElement}
+                // onOpenChange={(_0, _1, reason) => {
+                //     if (reason !== 'focus-out') unsetPopupOpen();
+                // }}
                 placement={placement}
             >
                 <Menu>

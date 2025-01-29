@@ -100,6 +100,14 @@ export const ImageNodeView: React.FC<ReactNodeViewProps> = ({
         }
     }, [view, setEditing]);
 
+    const refFn = useCallback(
+        (elem: HTMLImageElement | null) => {
+            setRef(imageRef, elem);
+            setImageElement(elem);
+        },
+        [setImageElement],
+    );
+
     return (
         <div ref={imageContainerRef}>
             <Resizable
@@ -117,18 +125,11 @@ export const ImageNodeView: React.FC<ReactNodeViewProps> = ({
                     edit={edit}
                     toggleEdit={toggleEdit}
                     nodeElement={imageElement}
+                    // nodeElement={imageContainerRef.current}
                     onDelete={handleDelete}
                     unsetEdit={unsetEdit}
                 />
-                <img
-                    ref={(elem) => {
-                        setRef(imageRef, elem);
-                        setImageElement(elem);
-                    }}
-                    src={src}
-                    alt={alt}
-                    style={style}
-                />
+                <img ref={refFn} src={src} alt={alt} style={style} />
             </Resizable>
         </div>
     );

@@ -30,7 +30,7 @@ export type GptWidgetDecoViewParams<
     parser: Parser;
 } & {
     onApplyResult?: GptDialogProps['onApplyResult'];
-    gptPopupContainer?: PopupProps['container'];
+    gptPopupContainer?: HTMLElement;
 };
 
 export class GptWidgetDecoView<
@@ -142,7 +142,7 @@ export class GptWidgetDecoView<
                 onConfirmOk={this._onConfirmOk}
                 /* eslint-disable-next-line react/jsx-handler-names */
                 onConfirmCancel={this._onConfirmCancel}
-                container={this._params.gptPopupContainer}
+                // container={this._params.gptPopupContainer}
             />
         );
     }
@@ -241,7 +241,7 @@ export class GptWidgetDecoView<
 type WidgetProps<
     AnswerData extends CommonAnswer = CommonAnswer,
     PromptData extends unknown = unknown,
-> = Pick<PopupProps, 'anchorRef' | 'container'> & {
+> = Pick<PopupProps, 'anchorRef'> & {
     markup: string;
     onClose: () => void;
     confirmOpen: boolean;
@@ -268,7 +268,7 @@ function Widget<
     onDislike,
     onClose,
     onUpdate,
-    container,
+    // container, // TODO
     gptAlertProps,
 }: WidgetProps<AnswerData, PromptData>) {
     useMount(() => {
@@ -291,34 +291,36 @@ function Widget<
         <>
             <Popup
                 className={cnGptPopup()}
-                contentClassName={cnGptPopup('content')}
+                // contentClassName={cnGptPopup('content')}
                 open
                 anchorRef={anchorRef}
                 placement={gptPopupPlacement}
-                onOutsideClick={onClose}
-                focusTrap
-                autoFocus={!onCustomPromptApply && true}
+                // onOutsideClick={onClose} // TODO
+                // focusTrap
+                // autoFocus={!onCustomPromptApply && true}
                 strategy="absolute"
-                container={container}
-                onEscapeKeyDown={onClose}
+                // container={container} // TODO
+                // onEscapeKeyDown={onClose}// TODO
             >
-                <GptDialog
-                    markup={markup}
-                    answerRender={answerRender}
-                    promptPresets={promptPresets}
-                    disablePromptPresets={disablePromptPresets}
-                    customPromptPlaceholder={customPromptPlaceholder}
-                    disabledPromptPlaceholder={disabledPromptPlaceholder}
-                    onApplyResult={onApplyResult}
-                    onCustomPromptApply={onCustomPromptApply}
-                    onPromptPresetClick={onPromptPresetClick}
-                    onTryAgain={onTryAgain}
-                    onLike={onLike}
-                    onDislike={onDislike}
-                    onClose={onClose}
-                    onUpdate={handleUpdate}
-                    gptAlertProps={gptAlertProps}
-                />
+                <div className={cnGptPopup('content')}>
+                    <GptDialog
+                        markup={markup}
+                        answerRender={answerRender}
+                        promptPresets={promptPresets}
+                        disablePromptPresets={disablePromptPresets}
+                        customPromptPlaceholder={customPromptPlaceholder}
+                        disabledPromptPlaceholder={disabledPromptPlaceholder}
+                        onApplyResult={onApplyResult}
+                        onCustomPromptApply={onCustomPromptApply}
+                        onPromptPresetClick={onPromptPresetClick}
+                        onTryAgain={onTryAgain}
+                        onLike={onLike}
+                        onDislike={onDislike}
+                        onClose={onClose}
+                        onUpdate={handleUpdate}
+                        gptAlertProps={gptAlertProps}
+                    />
+                </div>
             </Popup>
         </>
     );

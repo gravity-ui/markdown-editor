@@ -28,9 +28,9 @@ export const TooltipButton: React.FC<TooltipButtonProps> = ({
     withSearch,
     onOutsideClick,
 }) => {
-    const [width, setWidth] = useState(0);
+    const [_width, setWidth] = useState(0);
     const [open, , , toggleOpen] = useBooleanState(false);
-    const ref = useRef<HTMLDivElement>(null);
+    const ref = useRef<HTMLButtonElement>(null);
 
     useLayoutEffect(() => {
         if (ref.current?.clientWidth) {
@@ -43,16 +43,22 @@ export const TooltipButton: React.FC<TooltipButtonProps> = ({
             open
             keepMounted={false}
             hasArrow={false}
-            anchorRef={{current: domRef}}
+            anchorElement={domRef}
             placement={'right-start'}
-            offset={[10, -(width + 10)]}
-            onOutsideClick={onOutsideClick}
-            modifiers={[
-                {
-                    name: 'preventOverflow',
-                    enabled: false,
-                },
-            ]}
+            // offset={[10, -(width + 10)]}
+            // offset={{mainAxis: 10, crossAxis: -(width + 10)}}
+            // onOutsideClick={onOutsideClick}
+            onOpenChange={(_0, event, reason) => {
+                if (reason !== 'escape-key') {
+                    onOutsideClick?.(event as MouseEvent);
+                }
+            }}
+            // modifiers={[
+            //     {
+            //         name: 'preventOverflow',
+            //         enabled: false,
+            //     },
+            // ]}
         >
             <Select
                 onOpenChange={toggleOpen}

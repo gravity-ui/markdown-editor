@@ -1,8 +1,9 @@
 import React from 'react';
 
+import {Portal} from '@gravity-ui/uikit';
 import type {Mark, Node} from 'prosemirror-model';
 import type {EditorView, NodeView, NodeViewConstructor} from 'prosemirror-view';
-import {createPortal} from 'react-dom';
+// import {createPortal} from 'react-dom';
 
 import {ExtensionDeps, Serializer} from '../core';
 import {getReactRendererFromState} from '../extensions';
@@ -48,11 +49,16 @@ export class ReactNodeView<T extends object = {}> implements NodeView {
         this.dom = options?.isInline
             ? document.createElement('span')
             : document.createElement('div');
-        this.dom.classList.add('react-node-wrapper');
-        if (options?.reactNodeWrapperCn) {
-            this.dom.classList.add(options?.reactNodeWrapperCn);
-        }
         this.dom.contentEditable = 'false';
+        this.dom.classList.add('react-node-container');
+
+        const wrapper = document.createElement(options?.isInline ? 'span' : 'div');
+        wrapper.classList.add('react-node-wrapper');
+        if (options?.reactNodeWrapperCn) {
+            wrapper.classList.add(options?.reactNodeWrapperCn);
+        }
+
+        this.dom.appendChild(wrapper);
 
         this.serializer = serializer;
         this.view = view;
@@ -60,23 +66,24 @@ export class ReactNodeView<T extends object = {}> implements NodeView {
 
         this.renderItem = getReactRendererFromState(view.state).createItem(
             `${Component.displayName || this.node.type.name}-view`,
-            () =>
-                createPortal(
+            () => (
+                <Portal container={wrapper}>
                     <Component
-                        dom={this.dom}
+                        dom={wrapper}
                         view={this.view}
                         updateAttributes={this.updateAttributes.bind(this)}
                         node={this.node}
                         getPos={this.getPos.bind(this)}
                         serializer={this.serializer}
                         extensionOptions={options?.extensionOptions}
-                    />,
-                    this.dom,
-                ),
+                    />
+                </Portal>
+            ),
         );
     }
 
     update(node: Node) {
+        console.log('@@ReactNodeView update', this.node.type.name);
         if (node.type !== this.node.type) return false;
         if (this.node === node) return true;
 
@@ -87,14 +94,17 @@ export class ReactNodeView<T extends object = {}> implements NodeView {
     }
 
     destroy() {
+        console.log('@@ReactNodeView destroy', this.node.type.name);
         this.renderItem.remove();
     }
 
-    ignoreMutation() {
+    ignoreMutation(mutation: MutationRecord) {
+        console.log('@@ReactNodeView ignoreMutation', this.node.type.name, mutation);
         return true;
     }
 
     updateAttributes(attributes: {}, marks: Mark[] = []) {
+        console.log('@@ReactNodeView updateAttributes', this.node.type.name, attributes);
         const pos = this.getPos();
         if (pos === undefined) return;
 
@@ -112,6 +122,7 @@ export class ReactNodeView<T extends object = {}> implements NodeView {
     }
 
     stopEvent(e: Event) {
+        console.log('@@ReactNodeView stopEvent', this.node.type.name, e);
         const target = e.target as Element;
         const isInput = ['INPUT', 'BUTTON', 'SELECT', 'TEXTAREA'].includes(target.tagName);
 

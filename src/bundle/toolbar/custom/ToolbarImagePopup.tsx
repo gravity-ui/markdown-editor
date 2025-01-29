@@ -1,4 +1,4 @@
-import React, {RefObject, useCallback} from 'react';
+import React, {useCallback} from 'react';
 
 import {Popup, PopupPlacement} from '@gravity-ui/uikit';
 
@@ -15,12 +15,12 @@ export type ToolbarImagePopuProps = Omit<ToolbarBaseProps<never>, 'editor'> & {
     uploadImages?: FileUploadHandler;
     onSuccessUpload?: (res: BatchUploadResult) => void;
     hide: () => void;
-    anchorRef: RefObject<HTMLElement>;
+    anchorElement: HTMLElement | null;
 } & Pick<ImageFormProps, 'onSubmit'>;
 
 export const ToolbarImagePopup: React.FC<ToolbarImagePopuProps> = ({
     className,
-    anchorRef,
+    anchorElement,
     hide,
     onSubmit,
     focus,
@@ -39,8 +39,8 @@ export const ToolbarImagePopup: React.FC<ToolbarImagePopuProps> = ({
     return (
         <Popup
             open
-            anchorRef={anchorRef}
-            onClose={handleCancel}
+            anchorElement={anchorElement}
+            // onClose={handleCancel} // TODO
             placement={placement}
             className={className}
         >

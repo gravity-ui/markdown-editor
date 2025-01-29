@@ -8,6 +8,8 @@ import {BaseTooltipNode, BaseTooltipPluginOptions, BaseTooltipPluginView} from '
 
 import {TooltipButton} from './TooltipSelect';
 
+// TODO: remove this? this is unused...
+
 interface TooltipSelectOptions extends BaseTooltipPluginOptions {
     buttonText?: (node: Node) => string;
     items?: SelectOption[] | SelectOptionGroup[];
