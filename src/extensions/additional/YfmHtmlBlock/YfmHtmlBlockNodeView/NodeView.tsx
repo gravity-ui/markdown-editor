@@ -1,12 +1,12 @@
-import {Node} from 'prosemirror-model';
-import {EditorView, NodeView} from 'prosemirror-view';
-import {createPortal} from 'react-dom';
+import {Portal} from '@gravity-ui/uikit';
+import type {Node} from 'prosemirror-model';
+import type {EditorView, NodeView} from 'prosemirror-view';
 
 import {getReactRendererFromState} from '../../../behavior';
 import {YfmHtmlBlockConsts} from '../YfmHtmlBlockSpecs/const';
-import {YfmHtmlBlockOptions} from '../index';
+import type {YfmHtmlBlockOptions} from '../index';
 
-import {YfmHtmlBlockView} from './YfmHtmlBlockView';
+import {STOP_EVENT_CLASSNAME, YfmHtmlBlockView} from './YfmHtmlBlockView';
 
 export class WYfmHtmlBlockNodeView implements NodeView {
     readonly dom: HTMLElement;
@@ -63,14 +63,7 @@ export class WYfmHtmlBlockNodeView implements NodeView {
 
     stopEvent(e: Event) {
         const target = e.target as Element;
-        if (
-            typeof target.className === 'string' &&
-            target.className.includes('prosemirror-stop-event')
-        ) {
-            return true;
-        }
-
-        return false;
+        return target.classList.contains(STOP_EVENT_CLASSNAME);
     }
 
     private onChange(attrs: {[YfmHtmlBlockConsts.NodeAttrs.srcdoc]: string}) {
@@ -91,15 +84,16 @@ export class WYfmHtmlBlockNodeView implements NodeView {
     }
 
     private renderYfmHtmlBlock() {
-        return createPortal(
-            <YfmHtmlBlockView
-                getPos={this.getPos}
-                node={this.node}
-                onChange={this.onChange.bind(this)}
-                options={this.options}
-                view={this.view}
-            />,
-            this.dom,
+        return (
+            <Portal container={this.dom}>
+                <YfmHtmlBlockView
+                    getPos={this.getPos}
+                    node={this.node}
+                    onChange={this.onChange.bind(this)}
+                    options={this.options}
+                    view={this.view}
+                />
+            </Portal>
         );
     }
 }

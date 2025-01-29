@@ -1,5 +1,4 @@
-import {HelpPopover, HelpPopoverProps} from '@gravity-ui/components';
-import {Link, Portal} from '@gravity-ui/uikit';
+import {HelpMark, type HelpMarkProps, Link, Portal} from '@gravity-ui/uikit';
 
 import {cn} from '../../../classname';
 import {i18n} from '../../../i18n/math-hint';
@@ -17,15 +16,19 @@ const MathHintContent: React.FC = function MathHintContent() {
     );
 };
 
-type MathHintProps = Pick<HelpPopoverProps, 'offset' | 'hasArrow'>;
+type MathHintProps = Pick<NonNullable<HelpMarkProps['popoverProps']>, 'offset' | 'hasArrow'>;
 
 const MathHint: React.FC<MathHintProps> = function MathHint(props) {
     return (
-        <HelpPopover
-            placement={['bottom-end', 'top-end']}
-            {...props}
-            content={<MathHintContent />}
-        />
+        <HelpMark
+            popoverProps={{
+                placement: ['bottom-end', 'top-end'],
+                modal: false,
+                ...props,
+            }}
+        >
+            <MathHintContent />
+        </HelpMark>
     );
 };
 

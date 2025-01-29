@@ -1,12 +1,12 @@
-import {useCallback, useRef} from 'react';
+import {useCallback} from 'react';
 
-import {Popup, PopupPlacement} from '@gravity-ui/uikit';
+import {Popup, type PopupPlacement} from '@gravity-ui/uikit';
 import {useMountedState} from 'react-use';
 
 import {cn} from '../../../../classname';
-import {FileForm, FileFormProps} from '../../../../forms/FileForm';
+import {FileForm, type FileFormProps} from '../../../../forms/FileForm';
 import {i18n} from '../../../../i18n/widgets';
-import {useBooleanState} from '../../../../react-utils/hooks';
+import {useBooleanState, useElementState} from '../../../../react-utils/hooks';
 
 import './view.scss';
 
@@ -22,7 +22,7 @@ export type FilePlaceholderProps = {
 export const FilePlaceholder: React.FC<FilePlaceholderProps> = ({onCancel, onSubmit, onAttach}) => {
     const isMounted = useMountedState();
     const [loading, showLoading, hideLoading] = useBooleanState(false);
-    const divRef = useRef<HTMLDivElement>(null);
+    const [anchor, setAnchor] = useElementState();
     const attachHandler = useCallback<NonNullable<FileFormProps['onAttach']>>(
         (files) => {
             if (!onAttach) return;
@@ -40,14 +40,14 @@ export const FilePlaceholder: React.FC<FilePlaceholderProps> = ({onCancel, onSub
 
     return (
         <>
-            <span ref={divRef} className={b()}>
+            <span ref={setAnchor} className={b()}>
                 {/* eslint-disable-next-line jsx-a11y/anchor-is-valid */}
                 <a href="#" className="yfm-file">
                     <span className="yfm-file__icon" />
                     {i18n('file')}
                 </a>
             </span>
-            <Popup open onClose={onCancel} anchorRef={divRef} placement={placement}>
+            <Popup open modal onOpenChange={onCancel} anchorElement={anchor} placement={placement}>
                 <FileForm
                     autoFocus
                     loading={loading}

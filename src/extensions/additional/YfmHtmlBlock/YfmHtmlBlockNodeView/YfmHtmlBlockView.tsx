@@ -11,7 +11,7 @@ import {EditorView} from 'prosemirror-view';
 import {cn} from '../../../../classname';
 import {TextAreaFixed as TextArea} from '../../../../forms/TextInput';
 import {i18n} from '../../../../i18n/common';
-import {useBooleanState} from '../../../../react-utils/hooks';
+import {useBooleanState, useElementState} from '../../../../react-utils/hooks';
 import {removeNode} from '../../../../utils/remove-node';
 import {YfmHtmlBlockConsts} from '../YfmHtmlBlockSpecs/const';
 import {YfmHtmlBlockOptions} from '../index';
@@ -19,7 +19,7 @@ import {YfmHtmlBlockOptions} from '../index';
 import './YfmHtmlBlock.scss';
 
 export const cnYfmHtmlBlock = cn('yfm-html-block');
-export const cnHelper = cn('yfm-html-block-helper');
+export const STOP_EVENT_CLASSNAME = 'prosemirror-stop-event';
 
 const b = cnYfmHtmlBlock;
 
@@ -198,7 +198,7 @@ const CodeEditMode: React.FC<{
             <div className={b('editor')}>
                 <TextArea
                     controlProps={{
-                        className: cnHelper({'prosemirror-stop-event': true}),
+                        className: STOP_EVENT_CLASSNAME,
                     }}
                     value={text}
                     onUpdate={(v) => {
@@ -210,14 +210,10 @@ const CodeEditMode: React.FC<{
                 <div className={b('controls')}>
                     <div>
                         <Button onClick={onCancel} view={'flat'}>
-                            <span className={cnHelper({'prosemirror-stop-event': true})}>
-                                {i18n('cancel')}
-                            </span>
+                            <span className={STOP_EVENT_CLASSNAME}>{i18n('cancel')}</span>
                         </Button>
                         <Button onClick={() => onSave(text)} view={'action'}>
-                            <span className={cnHelper({'prosemirror-stop-event': true})}>
-                                {i18n('save')}
-                            </span>
+                            <span className={STOP_EVENT_CLASSNAME}>{i18n('save')}</span>
                         </Button>
                     </div>
                 </div>
@@ -245,8 +241,8 @@ export const YfmHtmlBlockView: React.FC<{
 
     const config = useConfig?.();
 
-    const [menuOpen, , , toggleMenuOpen] = useBooleanState(false);
-    const buttonRef = useRef<HTMLDivElement>(null);
+    const [menuOpen, _openMenu, closeMenu, toggleMenuOpen] = useBooleanState(false);
+    const [anchorElement, setAnchorElement] = useElementState();
 
     const handleClick = () => {
         setEditing();
@@ -290,23 +286,23 @@ export const YfmHtmlBlockView: React.FC<{
             <div className={b('menu')}>
                 <Button
                     onClick={toggleMenuOpen}
-                    ref={buttonRef}
-                    size={'s'}
-                    className={cnHelper({'prosemirror-stop-event': true})}
+                    ref={setAnchorElement}
+                    size="s"
+                    className={STOP_EVENT_CLASSNAME}
                 >
-                    <Icon data={DotsIcon} className={cnHelper({'prosemirror-stop-event': true})} />
+                    <Icon data={DotsIcon} className={STOP_EVENT_CLASSNAME} />
                 </Button>
                 <Popup
-                    anchorRef={buttonRef}
+                    anchorElement={anchorElement}
                     open={menuOpen}
-                    onClose={toggleMenuOpen}
-                    placement={['bottom-end']}
+                    onOpenChange={closeMenu}
+                    placement="bottom-end"
                 >
                     <Menu>
                         <Menu.Item
                             onClick={() => {
                                 toggleEditing();
-                                toggleMenuOpen();
+                                closeMenu();
                             }}
                         >
                             {i18n('edit')}

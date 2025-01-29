@@ -57,6 +57,15 @@ export const BundlePreset: ExtensionAuto<BundlePresetOptions> = (builder, opts) 
 
     const zeroOptions: BehaviorPresetOptions & ZeroPresetOptions = {
         ...opts,
+        baseStyles: {
+            attributes: {
+                // for disable setting attrs inside pm-view from floating-ui from uikit
+                // see https://github.com/floating-ui/floating-ui/discussions/3213
+                // and https://github.com/floating-ui/floating-ui/pull/3202
+                'aria-live': '',
+                ...opts.baseStyles?.attributes,
+            },
+        },
         cursor: {dropOptions: dropCursor},
         clipboard: {pasteFileHandler: opts.fileUploadHandler, ...opts.clipboard},
         selectionContext: {config: wSelectionMenuConfigByPreset.zero, ...opts.selectionContext},

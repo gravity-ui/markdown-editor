@@ -39,6 +39,7 @@ const CodeMenu: React.FC<CodeMenuProps> = ({view, pos, node, selectItems, mappin
         <Select
             size="m"
             width="max"
+            disablePortal
             value={[value]}
             onUpdate={(v) => handleClick(v[0])}
             options={selectItems}
@@ -49,6 +50,8 @@ const CodeMenu: React.FC<CodeMenuProps> = ({view, pos, node, selectItems, mappin
             renderEmptyOptions={() => (
                 <div className="g-md-code-block__select-empty">{i18n('empty_option')}</div>
             )}
+            // TODO: in onOpenChange return focus to view.dom after press Esc in Select
+            // after https://github.com/gravity-ui/uikit/issues/2075
         />
     );
 };

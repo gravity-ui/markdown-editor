@@ -1,13 +1,13 @@
+import {Portal} from '@gravity-ui/uikit';
 import type {Mermaid} from 'mermaid' with {'resolution-mode': 'import'};
-import {Node} from 'prosemirror-model';
-import {EditorView, NodeView} from 'prosemirror-view';
-import {createPortal} from 'react-dom';
+import type {Node} from 'prosemirror-model';
+import type {EditorView, NodeView} from 'prosemirror-view';
 
 import type {MermaidOptions} from '..';
 import {getReactRendererFromState} from '../../../behavior';
 import {MermaidConsts} from '../MermaidSpecs/const';
 
-import {MermaidView} from './MermaidView';
+import {MermaidView, STOP_EVENT_CLASSNAME} from './MermaidView';
 
 let mermaidInstance: Mermaid;
 
@@ -67,14 +67,7 @@ export class WMermaidNodeView implements NodeView {
 
     stopEvent(e: Event) {
         const target = e.target as Element;
-        if (
-            typeof target.className === 'string' &&
-            target.className.includes('prosemirror-stop-event')
-        ) {
-            return true;
-        }
-
-        return false;
+        return target.classList.contains(STOP_EVENT_CLASSNAME);
     }
 
     private onChange(attrs: {[MermaidConsts.NodeAttrs.content]: string}) {
@@ -97,15 +90,16 @@ export class WMermaidNodeView implements NodeView {
     private getMermaidInstance = () => mermaidInstance;
 
     private renderMermaid() {
-        return createPortal(
-            <MermaidView
-                view={this.view}
-                onChange={this.onChange.bind(this)}
-                node={this.node}
-                getMermaidInstance={this.getMermaidInstance}
-                getPos={this.getPos}
-            />,
-            this.dom,
+        return (
+            <Portal container={this.dom}>
+                <MermaidView
+                    view={this.view}
+                    onChange={this.onChange.bind(this)}
+                    node={this.node}
+                    getMermaidInstance={this.getMermaidInstance}
+                    getPos={this.getPos}
+                />
+            </Portal>
         );
     }
 }

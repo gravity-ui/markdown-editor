@@ -4,7 +4,9 @@
     border-radius: var(--g-border-radius-s);
     background-color: var(--g-color-base-float-heavy);
 
-    & .g-popup__content:first-child {
+    &__content {
         padding: 0 0 0 var(--g-spacing-2);
+
+        background-color: var(--g-color-base-float);
     }
 }

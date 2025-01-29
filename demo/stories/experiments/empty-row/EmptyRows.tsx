@@ -1,12 +1,11 @@
 import {memo, useCallback, useLayoutEffect, useState} from 'react';
 
-import {toaster} from '@gravity-ui/uikit/toaster-singleton-react-18';
-
 import {MarkdownEditorView, type RenderPreview, useMarkdownEditor} from '../../../../src';
 import {PlaygroundLayout} from '../../../components/PlaygroundLayout';
 import {SplitModePreview} from '../../../components/SplitModePreview';
 import {plugins} from '../../../defaults/md-plugins';
 import {useMarkdownEditorValue} from '../../../hooks/useMarkdownEditorValue';
+import {toaster} from '../../../utils/toaster';
 
 const initialMarkup = `
 &nbsp;

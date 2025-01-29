@@ -191,16 +191,22 @@ export class BaseTooltipPluginView implements PluginView {
         this.hidePopupManual();
     };
 
-    protected popupCloseHandler: PopupProps['onClose'] = (_e, reason) => {
-        if (this.disableHideOnEscapeKeyDown && reason === 'escapeKeyDown') return;
+    protected popupOpenChangeHandler: PopupProps['onOpenChange'] = (open, event, reason) => {
+        if (open) return;
+        if (reason === 'focus-out' && (event as FocusEvent).relatedTarget === this.view.dom) return;
+        if (this.disableHideOnEscapeKeyDown && reason === 'escape-key') return;
+
         this.hidePopupManual();
-        if (reason === 'outsideClick' && !this.view.hasFocus()) {
+
+        requestAnimationFrame(() => {
+            if (this.destroyed || this.view.hasFocus()) return;
             this.startTrackingViewFocus();
-        }
+        });
     };
 
     protected startTrackingViewFocus() {
         this.focusTrackingRafId = requestAnimationFrame(() => {
+            if (this.destroyed) return;
             if (this.view.hasFocus()) {
                 this.focusTrackingRafId = null;
                 this.manualHidden = false;
@@ -231,12 +237,13 @@ export class BaseTooltipPluginView implements PluginView {
             <Popup
                 open
                 hasArrow={false}
-                contentClassName={b()}
-                anchorRef={{current: currentNode.dom}}
+                anchorElement={currentNode.dom}
                 placement={this.popupPlacement || defaultPlacement}
-                onClose={this.popupCloseHandler}
+                onOpenChange={this.popupOpenChangeHandler}
             >
-                <div>{this.content(this.view, currentNode, this.changeAttrsCb)}</div>
+                <div className={b()}>
+                    {this.content(this.view, currentNode, this.changeAttrsCb)}
+                </div>
             </Popup>
         );
     }

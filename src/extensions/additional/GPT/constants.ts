@@ -1,8 +1,8 @@
-import type {PopupProps} from '@gravity-ui/uikit';
+import type {PopupPlacement} from '@gravity-ui/uikit';
 
 export const WIDGET_DECO_CLASS_NAME = 'g-md-gpt-widget-deco';
 export const WIDGET_DECO_SPEC_FLAG = 'gpt_widget_deco';
-export const gptPopupPlacement: PopupProps['placement'] = ['bottom-start', 'top-start'];
+export const gptPopupPlacement: PopupPlacement = ['bottom-start', 'top-start'];
 
 export const gptHotKeys = {
     openGptKey: 'Mod-h',

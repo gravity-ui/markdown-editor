@@ -1,20 +1,20 @@
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 /* eslint-disable jsx-a11y/click-events-have-key-events */
-import {memo, useRef} from 'react';
+import {memo, useState} from 'react';
 
-import {HelpPopover} from '@gravity-ui/components';
 import {Eye, Gear, LogoMarkdown} from '@gravity-ui/icons';
 import {
     ActionTooltip,
     Button,
     Checkbox,
+    HelpMark,
     Icon,
     Menu,
     Popup,
-    PopupPlacement,
+    type PopupPlacement,
 } from '@gravity-ui/uikit';
 
-import {ClassNameProps, cn} from '../../classname';
+import {type ClassNameProps, cn} from '../../classname';
 import {i18n} from '../../i18n/bundle';
 import WysiwygModeIcon from '../../icons/WysiwygMode';
 import {noop} from '../../lodash';
@@ -40,7 +40,7 @@ export type EditorSettingsProps = Omit<SettingsContentProps, 'onClose'> & {
 export const EditorSettings = memo<EditorSettingsProps>(function EditorSettings(props) {
     const {className, onShowPreviewChange, showPreview, renderPreviewButton, settingsVisible} =
         props;
-    const chevronRef = useRef<HTMLButtonElement>(null);
+    const [chevronElement, setChevronElement] = useState<HTMLButtonElement | null>(null);
     const [popupShown, , hidePopup, togglePopup] = useBooleanState(false);
 
     return (
@@ -72,18 +72,18 @@ export const EditorSettings = memo<EditorSettingsProps>(function EditorSettings(
                     <Button
                         size="m"
                         view="flat"
-                        ref={chevronRef}
                         pin="round-round"
                         onClick={togglePopup}
+                        ref={setChevronElement}
                         className={bSettings('dropdown-button')}
                     >
                         <Icon data={Gear} />
                     </Button>
                     <Popup
                         open={popupShown}
-                        anchorRef={chevronRef}
+                        anchorElement={chevronElement}
                         placement={placement}
-                        onClose={hidePopup}
+                        onOpenChange={hidePopup}
                     >
                         <SettingsContent
                             {...props}
@@ -133,7 +133,7 @@ const SettingsContent: React.FC<SettingsContentProps> = function SettingsContent
                         onModeChange('wysiwyg');
                         onClose();
                     }}
-                    icon={<Icon data={WysiwygModeIcon} />}
+                    iconStart={<Icon data={WysiwygModeIcon} />}
                 >
                     {i18n('settings_wysiwyg')}
                 </Menu.Item>
@@ -143,24 +143,26 @@ const SettingsContent: React.FC<SettingsContentProps> = function SettingsContent
                         onModeChange('markup');
                         onClose();
                     }}
-                    icon={<Icon data={LogoMarkdown} />}
+                    iconStart={<Icon data={LogoMarkdown} />}
                 >
                     {i18n('settings_markup')}
-                    <HelpPopover
-                        content={
-                            <div
-                                onClick={(e) => {
-                                    // stop clicks propagation
-                                    // because otherwise click in MarkdownHints handled as click on MenuItem
-                                    e.stopPropagation();
-                                }}
-                            >
-                                <MarkdownHints />
-                            </div>
-                        }
-                        placement={mdHelpPlacement}
+                    <HelpMark
+                        popoverProps={{
+                            placement: mdHelpPlacement,
+                            modal: false,
+                        }}
                         className={bContent('mode-help')}
-                    />
+                    >
+                        <div
+                            onClick={(e) => {
+                                // stop clicks propagation
+                                // because otherwise click in MarkdownHints handled as click on MenuItem
+                                e.stopPropagation();
+                            }}
+                        >
+                            <MarkdownHints />
+                        </div>
+                    </HelpMark>
                 </Menu.Item>
             </Menu>
             <div className={bContent('separator')} />

@@ -23,14 +23,13 @@ Ensure that you have the necessary dependencies listed in peerDependencies. Incl
 - `react`
 - `react-dom`
 - `@gravity-ui/uikit`
-- `@gravity-ui/components`
 
 Check the peerDependencies section in the `package.json` file to ensure all necessary dependencies are installed correctly.
 
 To install the dependencies, use:
 
 ```bash
-npm install @diplodoc/transform react react-dom @gravity-ui/uikit @gravity-ui/components
+npm install @diplodoc/transform react react-dom @gravity-ui/uikit
 ```
 
 ### 4. Configuring Webpack

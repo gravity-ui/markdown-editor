@@ -61,7 +61,7 @@ export class TooltipButtonPluginView extends BaseTooltipPluginView {
                 {this.forceEdit && this.formContent ? (
                     <div>{this.formContent(this.view, currentNode, this.changeAttrsCb)}</div>
                 ) : (
-                    <TooltipButton domRef={currentNode.dom} onOutsideClick={this.onOutsideClick}>
+                    <TooltipButton domElem={currentNode.dom} onOutsideClick={this.onOutsideClick}>
                         {this.buttonContent(this.view, currentNode, this.toggleEdit)}
                     </TooltipButton>
                 )}

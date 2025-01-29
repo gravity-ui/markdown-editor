@@ -2,7 +2,6 @@ import {CSSProperties, memo, useCallback, useEffect, useState} from 'react';
 
 import {defaultOptions} from '@diplodoc/transform/lib/sanitize';
 import {Button, DropdownMenu} from '@gravity-ui/uikit';
-import {toaster} from '@gravity-ui/uikit/toaster-singleton-react-18';
 
 import {
     type DirectiveSyntaxValue,
@@ -34,6 +33,7 @@ import useYfmHtmlBlockStyles from '../hooks/useYfmHtmlBlockStyles';
 import {randomDelay} from '../utils/delay';
 import {parseInsertedUrlAsImage} from '../utils/imageUrl';
 import {debouncedUpdateLocation as updateLocation} from '../utils/location';
+import {toaster} from '../utils/toaster';
 
 import {PlaygroundLayout, b} from './PlaygroundLayout';
 import {SplitModePreview} from './SplitModePreview';

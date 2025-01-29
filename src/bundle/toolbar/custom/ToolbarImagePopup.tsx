@@ -1,13 +1,17 @@
-import {RefObject, useCallback} from 'react';
+import {useCallback} from 'react';
 
-import {Popup, PopupPlacement} from '@gravity-ui/uikit';
+import {Popup, type PopupPlacement} from '@gravity-ui/uikit';
 
-import {ImageForm, ImageFormProps} from '../../../forms/ImageForm';
+import {ImageForm, type ImageFormProps} from '../../../forms/ImageForm';
 import {i18n} from '../../../i18n/forms';
 import {useBooleanState} from '../../../react-utils/hooks';
 import {useToaster} from '../../../react-utils/toaster';
 import type {ToolbarBaseProps} from '../../../toolbar';
-import {BatchUploadResult, FileUploadHandler, batchUploadFiles} from '../../../utils/upload';
+import {
+    type BatchUploadResult,
+    type FileUploadHandler,
+    batchUploadFiles,
+} from '../../../utils/upload';
 
 const placement: PopupPlacement = ['bottom-start', 'top-start', 'bottom-end', 'top-end'];
 
@@ -15,12 +19,12 @@ export type ToolbarImagePopuProps = Omit<ToolbarBaseProps<never>, 'editor'> & {
     uploadImages?: FileUploadHandler;
     onSuccessUpload?: (res: BatchUploadResult) => void;
     hide: () => void;
-    anchorRef: RefObject<HTMLElement>;
+    anchorElement: HTMLElement | null;
 } & Pick<ImageFormProps, 'onSubmit'>;
 
 export const ToolbarImagePopup: React.FC<ToolbarImagePopuProps> = ({
     className,
-    anchorRef,
+    anchorElement,
     hide,
     onSubmit,
     focus,
@@ -39,8 +43,8 @@ export const ToolbarImagePopup: React.FC<ToolbarImagePopuProps> = ({
     return (
         <Popup
             open
-            anchorRef={anchorRef}
-            onClose={handleCancel}
+            anchorElement={anchorElement}
+            onOpenChange={handleCancel}
             placement={placement}
             className={className}
         >
