@@ -9,6 +9,7 @@ import {ParserTokensRegistry} from './ParserTokensRegistry';
 import {SchemaSpecRegistry} from './SchemaSpecRegistry';
 import {SerializerTokensRegistry} from './SerializerTokensRegistry';
 import {MarkdownParserDynamicModifier, TokenAttrs} from './markdown/MarkdownParser';
+import {MarkdownSerializerDynamicModifier} from './markdown/MarkdownSerializerDynamicModifier';
 import {MarkupManager} from './markdown/MarkupManager';
 import {TransformFn} from './markdown/ProseMirrorTransformer';
 import type {ActionSpec} from './types/actions';
@@ -20,6 +21,7 @@ import type {
     ExtensionSpec,
 } from './types/extension';
 import type {MarkViewConstructor, NodeViewConstructor} from './types/node-views';
+import {SerializerNodeToken, SerializerState} from './types/serializer';
 
 type ExtensionsManagerParams = {
     extensions: Extension;
@@ -44,7 +46,7 @@ export function createUniqueId(prefix: string): string {
     return `${prefix}-${randomLetters}${Date.now()}`;
 }
 
-const getDynamicModifierConfig = (markupManager: MarkupManager) => ({
+const getParserDynamicModifierConfig = (markupManager: MarkupManager) => ({
     ['yfm_table']: {
         processToken: [
             (token: Token) => {
@@ -59,7 +61,6 @@ const getDynamicModifierConfig = (markupManager: MarkupManager) => ({
                     const [lineBegin, lineEnd] = map;
                     const lines = rawMarkup.split('\n');
                     const selectedMarkup = lines.slice(lineBegin, lineEnd).join('\n');
-                    console.log('selectedMarkup', selectedMarkup);
                     markupManager.setMarkup(tokenId, selectedMarkup);
                 }
                 return token;
@@ -89,6 +90,30 @@ const getDynamicModifierConfig = (markupManager: MarkupManager) => ({
             },
         ],
         allowedAttrs: ['data-node-id'],
+    },
+});
+
+const getSerializerDynamicModifierConfig = (markupManager: MarkupManager) => ({
+    ['yfm_table']: {
+        processNode: [
+            (
+                state: SerializerState,
+                node: Node,
+                parent: Node,
+                index: number,
+                callback?: SerializerNodeToken,
+            ) => {
+                const nodeId = node.attrs['data-node-id'];
+                const savedNode = markupManager.getNode(nodeId);
+                const areNodesEqual = savedNode ? node.eq(savedNode) : false;
+
+                if (areNodesEqual) {
+                    state.write(markupManager.getMarkup(nodeId) + '\n');
+                } else if (callback) {
+                    callback(state, node, parent, index);
+                }
+            },
+        ],
     },
 });
 
@@ -190,24 +215,30 @@ export class ExtensionsManager {
         const actions = new ActionsManager();
 
         const markupManager = new MarkupManager();
-        const dynamicModifierConfig = getDynamicModifierConfig(markupManager);
-        const dynamicModifier = new MarkdownParserDynamicModifier(dynamicModifierConfig);
+        const parserDynamicModifierConfig = getParserDynamicModifierConfig(markupManager);
+        const parserDynamicModifier = new MarkdownParserDynamicModifier(
+            parserDynamicModifierConfig,
+        );
+        const serializerDynamicModifierConfig = getSerializerDynamicModifierConfig(markupManager);
+        const serializerDynamicModifier = new MarkdownSerializerDynamicModifier(
+            serializerDynamicModifierConfig,
+        );
 
-        const schema = this.#schemaRegistry.createSchema(dynamicModifier);
+        const schema = this.#schemaRegistry.createSchema(parserDynamicModifier);
         const markupParser = this.#parserRegistry.createParser(
             schema,
             this.#mdForMarkup,
             this.#pmTransformers,
-            dynamicModifier,
+            parserDynamicModifier,
         );
         const textParser = this.#parserRegistry.createParser(
             schema,
             this.#mdForText,
             this.#pmTransformers,
-            dynamicModifier,
+            parserDynamicModifier,
         );
 
-        const serializer = this.#serializerRegistry.createSerializer();
+        const serializer = this.#serializerRegistry.createSerializer(serializerDynamicModifier);
 
         this.#deps = {
             schema,
