@@ -1,5 +1,3 @@
-import type {RefObject} from 'react';
-
 import type {HotkeyProps, IconProps} from '@gravity-ui/uikit';
 
 import type {ClassNameProps} from '../classname';
@@ -83,7 +81,7 @@ export type ToolbarButtonPopupData<E> = ToolbarItemData<E> & {
     exec: ToolbarItemData<E>['exec'];
     type: ToolbarDataType.ButtonPopup;
     renderPopup: (
-        props: ToolbarBaseProps<E> & {hide: () => void; anchorRef: RefObject<HTMLElement>},
+        props: ToolbarBaseProps<E> & {hide: () => void; anchorElement: HTMLElement | null},
     ) => React.ReactNode;
     className?: string;
 };

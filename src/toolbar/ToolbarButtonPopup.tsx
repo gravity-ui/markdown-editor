@@ -1,6 +1,8 @@
-import React, {useRef} from 'react';
+import React from 'react';
 
 import {useBoolean} from 'react-use';
+
+import {useElementState} from '../react-utils/hooks';
 
 import {ToolbarButtonView} from './ToolbarButton';
 import {ToolbarBaseProps, ToolbarButtonPopupData} from './types';
@@ -10,7 +12,7 @@ export type ToolbarButtonPopupProps<E> = ToolbarBaseProps<E> & ToolbarButtonPopu
 export function ToolbarButtonPopup<E>(props: ToolbarButtonPopupProps<E>) {
     const {className, editor, isActive, isEnable, renderPopup, ...buttonProps} = props;
 
-    const buttonRef = useRef<HTMLElement>(null);
+    const [anchorElement, setAnchorElement] = useElementState();
     const [open, setOpen] = useBoolean(false);
 
     const active = isActive(editor);
@@ -20,7 +22,7 @@ export function ToolbarButtonPopup<E>(props: ToolbarButtonPopupProps<E>) {
         <>
             <ToolbarButtonView
                 {...buttonProps}
-                ref={buttonRef}
+                ref={setAnchorElement}
                 active={active}
                 enabled={enabled}
                 className={className}
@@ -29,7 +31,7 @@ export function ToolbarButtonPopup<E>(props: ToolbarButtonPopupProps<E>) {
             {open &&
                 renderPopup({
                     ...props,
-                    anchorRef: buttonRef,
+                    anchorElement,
                     hide: () => setOpen(false),
                 })}
         </>

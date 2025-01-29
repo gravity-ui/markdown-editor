@@ -1,7 +1,6 @@
 import React from 'react';
 
-import {HelpPopover} from '@gravity-ui/components';
-import {Hotkey, Icon, Select, SelectOption} from '@gravity-ui/uikit';
+import {HelpMark, Hotkey, Icon, Select, type SelectOption} from '@gravity-ui/uikit';
 
 import {cn} from '../../classname';
 import {ActionStorage} from '../../core';
@@ -54,10 +53,7 @@ export const ToolbarSelect: React.FC<ToolbarSelectProps> = ({
                                 <div className={b('item-extra')}>
                                     {hotkey && <Hotkey value={hotkey} />}
                                     {hintText && (
-                                        <HelpPopover
-                                            content={hintText}
-                                            className={b('item-hint')}
-                                        />
+                                        <HelpMark className={b('item-hint')}>{hintText}</HelpMark>
                                     )}
                                 </div>
                             </div>

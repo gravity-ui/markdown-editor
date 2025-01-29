@@ -1,4 +1,4 @@
-import React, {RefObject} from 'react';
+import React from 'react';
 
 import {Popup, TextInput, TextInputProps} from '@gravity-ui/uikit';
 import isNumber from 'is-number';
@@ -20,11 +20,11 @@ const b = cn('image-tooltip-form');
 
 export const ImageForm: React.FC<{
     node: Node;
-    dom: RefObject<HTMLElement>;
+    anchorElement: HTMLElement | null;
     updateAttributes: (o: object, marks?: Mark[]) => void;
     view: EditorView;
     unsetEdit: () => void;
-}> = ({node, updateAttributes, view, unsetEdit, dom}) => {
+}> = ({node, updateAttributes, view, unsetEdit, anchorElement}) => {
     const {attrs, marks} = node;
     const link = marks.find((m) => m.type.name === linkType(view.state.schema).name);
 
@@ -62,9 +62,11 @@ export const ImageForm: React.FC<{
     return (
         <Popup
             open
-            anchorRef={dom}
+            anchorElement={anchorElement}
             placement={['bottom-start', 'top-start', 'bottom-end', 'top-end']}
-            onOutsideClick={unsetEdit}
+            onOpenChange={(_open, _event, reason) => {
+                if (reason !== 'escape-key') unsetEdit();
+            }}
         >
             <Form.Form className={b()}>
                 <Form.Layout>

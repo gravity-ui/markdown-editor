@@ -93,6 +93,7 @@ export abstract class MathNodeView implements NodeView {
         return (
             mutation.type === 'childList' &&
             (mutation.target === this.mathHintContainerDOM ||
+                this.mathHintContainerDOM.contains(mutation.target) ||
                 this.mathViewDOM.contains(mutation.target))
         );
     }
@@ -172,8 +173,9 @@ export class MathInlineNodeView extends MathNodeView {
         dom.appendChild(mathInlineDOM.container);
         dom.appendChild(mathHintContainerDOM);
 
-        const hintRendererItem = this.reactRenderer.createItem('math-inline-hint', () =>
-            renderMathHint({offset: {left: 3, top: -1}}, mathHintContainerDOM),
+        const hintRendererItem = this.reactRenderer.createItem(
+            'math-inline-hint',
+            () => renderMathHint({}, mathHintContainerDOM), // TODO: пофиксить смену фокуса на хинт
         );
 
         return {
@@ -230,8 +232,9 @@ export class MathBlockNodeView extends MathNodeView {
         dom.appendChild(mathViewDOM);
         dom.appendChild(contentDOM);
 
-        const hintRendererItem = this.reactRenderer.createItem('math-block-hint', () =>
-            renderMathHint({offset: {left: -3}}, mathHintContainerDOM),
+        const hintRendererItem = this.reactRenderer.createItem(
+            'math-block-hint',
+            () => renderMathHint({}, mathHintContainerDOM), // TODO: пофиксить смену фокуса на хинт
         );
 
         return {dom, contentDOM, mathViewDOM, mathHintContainerDOM, hintRendererItem};

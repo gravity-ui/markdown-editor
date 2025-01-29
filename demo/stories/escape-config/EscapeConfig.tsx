@@ -1,10 +1,9 @@
 import React from 'react';
 
-import {toaster} from '@gravity-ui/uikit/toaster-singleton-react-18';
-
 import {MarkdownEditorView, useMarkdownEditor} from '../../../src';
 import {PlaygroundLayout} from '../../components/PlaygroundLayout';
 import {markup} from '../../defaults/content';
+import {toaster} from '../../utils/toaster';
 
 export type EscapeConfigProps = {
     commonEscapeRegexp: string;

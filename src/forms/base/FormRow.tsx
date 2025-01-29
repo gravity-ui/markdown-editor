@@ -1,6 +1,6 @@
 import React from 'react';
 
-import {HelpPopover} from '@gravity-ui/components';
+import {HelpMark} from '@gravity-ui/uikit';
 
 import {ClassNameProps, cn} from '../../classname';
 
@@ -26,7 +26,7 @@ export const FormRow: React.FC<FormRowProps> = ({
         <div className={b(null, [className])}>
             <div className={b('label')}>
                 <span className={b('label-text')}>{label}</span>
-                {help && <HelpPopover content={help} className={b('label-help')} />}
+                {help && <HelpMark className={b('label-help')}>{help}</HelpMark>}
             </div>
             <div className={b('control', [controlClassName])}>{control}</div>
         </div>

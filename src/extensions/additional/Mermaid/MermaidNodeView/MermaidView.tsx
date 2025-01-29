@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 
 import {Ellipsis as DotsIcon} from '@gravity-ui/icons';
 import {Button, Icon, Loader, Menu, Popup} from '@gravity-ui/uikit';
@@ -9,7 +9,7 @@ import {EditorView} from 'prosemirror-view';
 import {cn} from '../../../../classname';
 import {TextAreaFixed as TextArea} from '../../../../forms/TextInput';
 import {i18n} from '../../../../i18n/common';
-import {useBooleanState} from '../../../../react-utils';
+import {useBooleanState, useElementState} from '../../../../react-utils';
 import {removeNode} from '../../../../utils';
 import {MermaidConsts} from '../MermaidSpecs/const';
 export const cnMermaid = cn('Mermaid');
@@ -111,8 +111,8 @@ export const MermaidView: React.FC<{
     const [editing, setEditing, unsetEditing, toggleEditing] = useBooleanState(
         Boolean(node.attrs[MermaidConsts.NodeAttrs.newCreated]),
     );
-    const [menuOpen, , , toggleMenuOpen] = useBooleanState(false);
-    const buttonRef = useRef<HTMLDivElement>(null);
+    const [menuOpen, , closeMenu, toggleMenuOpen] = useBooleanState(false);
+    const [anchorElement, setAnchorElement] = useElementState();
 
     useEffect(() => {
         const waitForMermaid = () =>
@@ -153,7 +153,7 @@ export const MermaidView: React.FC<{
             <div>
                 <Button
                     onClick={toggleMenuOpen}
-                    ref={buttonRef}
+                    ref={setAnchorElement}
                     size={'s'}
                     className={cnDiagramHelper({'prosemirror-stop-event': true})}
                 >
@@ -163,16 +163,16 @@ export const MermaidView: React.FC<{
                     />
                 </Button>
                 <Popup
-                    anchorRef={buttonRef}
+                    anchorElement={anchorElement}
                     open={menuOpen}
-                    onClose={toggleMenuOpen}
-                    placement={['bottom-end']}
+                    onOpenChange={closeMenu}
+                    placement="bottom-end"
                 >
                     <Menu>
                         <Menu.Item
                             onClick={() => {
                                 toggleEditing();
-                                toggleMenuOpen();
+                                closeMenu();
                             }}
                         >
                             {i18n('edit')}

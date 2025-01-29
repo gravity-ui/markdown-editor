@@ -1,10 +1,11 @@
 import React from 'react';
 
-import {Popup, PopupProps} from '@gravity-ui/uikit';
+import {offset, shift} from '@floating-ui/react'; // TODO
+import {Popup, type PopupProps} from '@gravity-ui/uikit';
 import {EditorState} from 'prosemirror-state';
 import {EditorView} from 'prosemirror-view';
 
-import {ActionStorage} from '../../../core';
+import type {ActionStorage} from '../../../core';
 import {isFunction} from '../../../lodash';
 import {logger} from '../../../logger';
 import {ErrorLoggerBoundary} from '../../../react-utils/ErrorBoundary';
@@ -157,8 +158,19 @@ export class TooltipView {
 
         return {
             placement: 'bottom',
-            anchorRef: {current: viewDom},
-            offset: [leftOffset, bottomOffset],
+            anchorElement: viewDom,
+            // override floating middlewares
+            floatingMiddlewares: [
+                offset({
+                    mainAxis: bottomOffset,
+                    crossAxis: leftOffset,
+                }),
+                shift({
+                    mainAxis: true,
+                    crossAxis: false,
+                    padding: 4,
+                }),
+            ],
         };
     }
 

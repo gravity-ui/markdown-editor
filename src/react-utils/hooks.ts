@@ -1,8 +1,11 @@
-import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import {RefCallback, useCallback, useEffect, useMemo, useRef, useState} from 'react';
 
 import {useEffectOnce, useLatest} from 'react-use';
 
 import {debounce} from '../lodash';
+
+export const useElementState = <T extends HTMLElement>(): [T | null, RefCallback<T>] =>
+    useState<T | null>(null);
 
 type SetTrue = () => void;
 type SetFalse = () => void;

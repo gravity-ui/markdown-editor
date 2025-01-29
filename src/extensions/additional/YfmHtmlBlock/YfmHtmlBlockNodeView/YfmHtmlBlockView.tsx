@@ -11,7 +11,7 @@ import {EditorView} from 'prosemirror-view';
 import {cn} from '../../../../classname';
 import {TextAreaFixed as TextArea} from '../../../../forms/TextInput';
 import {i18n} from '../../../../i18n/common';
-import {useBooleanState} from '../../../../react-utils/hooks';
+import {useBooleanState, useElementState} from '../../../../react-utils/hooks';
 import {removeNode} from '../../../../utils/remove-node';
 import {YfmHtmlBlockConsts} from '../YfmHtmlBlockSpecs/const';
 import {YfmHtmlBlockOptions} from '../index';
@@ -245,8 +245,8 @@ export const YfmHtmlBlockView: React.FC<{
 
     const config = useConfig?.();
 
-    const [menuOpen, , , toggleMenuOpen] = useBooleanState(false);
-    const buttonRef = useRef<HTMLDivElement>(null);
+    const [menuOpen, closeMenu, toggleMenuOpen] = useBooleanState(false);
+    const [anchorElement, setAnchorElement] = useElementState();
 
     const handleClick = () => {
         setEditing();
@@ -290,23 +290,23 @@ export const YfmHtmlBlockView: React.FC<{
             <div className={b('menu')}>
                 <Button
                     onClick={toggleMenuOpen}
-                    ref={buttonRef}
-                    size={'s'}
+                    ref={setAnchorElement}
+                    size="s"
                     className={cnHelper({'prosemirror-stop-event': true})}
                 >
                     <Icon data={DotsIcon} className={cnHelper({'prosemirror-stop-event': true})} />
                 </Button>
                 <Popup
-                    anchorRef={buttonRef}
+                    anchorElement={anchorElement}
                     open={menuOpen}
-                    onClose={toggleMenuOpen}
-                    placement={['bottom-end']}
+                    onOpenChange={closeMenu}
+                    placement="bottom-end"
                 >
                     <Menu>
                         <Menu.Item
                             onClick={() => {
                                 toggleEditing();
-                                toggleMenuOpen();
+                                closeMenu();
                             }}
                         >
                             {i18n('edit')}

@@ -37,7 +37,7 @@ export class CommandHandler implements AutocompleteHandler {
     #filteredActionsCarousel?: ArrayCarousel<CommandAction>;
 
     #view?: EditorView;
-    #anchor?: Element | null;
+    #anchor: Element | null = null;
     #range?: FromTo;
     #filterText?: string;
     #popupCloser?: AutocompletePopupCloser;
@@ -201,12 +201,11 @@ export class CommandHandler implements AutocompleteHandler {
         this.findAnchor();
         const viewItems = this.#filteredActionsCarousel?.array ?? [];
         this.#menuProps = {
-            anchor: this.#anchor,
+            anchorElement: this.#anchor,
             currentIndex: this.#filteredActionsCarousel?.currentIndex,
             items: viewItems,
-            onClick: this.onItemClick,
-            onEscapeKeyDown: this.#popupCloser?.popupEscapeKeyHandler,
-            onOutsideClick: this.#popupCloser?.popupOutsideClickHandler,
+            onItemClick: this.onItemClick,
+            onOpenChange: this.#popupCloser?.popupOpenChangeHandler,
         };
         this.#menuRenderItem = this.#menuRenderItem ?? this.createMenuRenderItem();
         this.#menuRenderItem.rerender();
@@ -228,7 +227,7 @@ export class CommandHandler implements AutocompleteHandler {
     private clear() {
         this.#view = undefined;
         this.#range = undefined;
-        this.#anchor = undefined;
+        this.#anchor = null;
         this.#filterText = undefined;
         this.#filteredActionsCarousel = undefined;
         this.#popupCloser?.cancelTimer();

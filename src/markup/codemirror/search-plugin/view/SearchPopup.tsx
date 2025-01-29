@@ -6,7 +6,6 @@ import {
     Card,
     Checkbox,
     Icon,
-    PopoverAnchorRef,
     Popup,
     TextInput,
     TextInputProps,
@@ -150,17 +149,19 @@ export interface SearchPopupProps {
     open: boolean;
 }
 
-export const SearchPopup: React.FC<SearchPopupProps> = ({open, anchor, onClose, ...props}) => {
-    const anchorRef = useRef<HTMLElement>(anchor);
-
+export const SearchPopup: React.FC<SearchPopupProps> = ({open, anchor, ...props}) => {
     return (
         <Popup
-            onEscapeKeyDown={onClose}
-            open={anchorRef.current && open}
-            anchorRef={anchorRef as PopoverAnchorRef}
+            open={open}
+            anchorElement={anchor}
             placement="bottom-end"
+            onOpenChange={(_open, _event, reason) => {
+                if (reason === 'escape-key') {
+                    props.onClose();
+                }
+            }}
         >
-            <SearchCard onClose={onClose} {...props} />
+            <SearchCard {...props} />
         </Popup>
     );
 };
@@ -171,8 +172,6 @@ interface SearchPopupWithRefProps extends Omit<SearchPopupProps, 'anchor'> {
     anchor: HTMLElement | null;
 }
 
-export function renderSearchPopup({anchor, open, onClose, ...props}: SearchPopupWithRefProps) {
-    return (
-        <>{anchor && <SearchPopup open={open} onClose={onClose} anchor={anchor} {...props} />}</>
-    );
+export function renderSearchPopup({anchor, ...props}: SearchPopupWithRefProps) {
+    return <>{anchor && <SearchPopup anchor={anchor} {...props} />}</>;
 }

@@ -1,7 +1,14 @@
 import React, {HTMLAttributes, useCallback, useEffect, useRef} from 'react';
 
+import {setRef} from '@gravity-ui/uikit';
+
 import {cn} from '../../../../../classname';
-import {ReactNodeViewProps, useNodeEditing, useNodeHovered} from '../../../../../react-utils';
+import {
+    type ReactNodeViewProps,
+    useElementState,
+    useNodeEditing,
+    useNodeHovered,
+} from '../../../../../react-utils';
 import {ResizeDirection, useNodeResizing} from '../../../../../react-utils/useNodeResizing';
 import {removeNode} from '../../../../../utils';
 import {Resizable} from '../../../../behavior/Resizable/Resizable';
@@ -22,6 +29,7 @@ export const ImageNodeView: React.FC<ReactNodeViewProps> = ({
 }) => {
     const imageContainerRef = useRef<HTMLDivElement>(null);
     const imageRef = useRef<HTMLImageElement>(null);
+    const [imageElement, setImageElement] = useElementState();
 
     const alt = node.attrs[ImgSizeAttr.Alt] || '';
     const initialHeight = node.attrs[ImgSizeAttr.Height];
@@ -108,11 +116,19 @@ export const ImageNodeView: React.FC<ReactNodeViewProps> = ({
                     visible={isNodeHovered && !edit && !state.resizing}
                     edit={edit}
                     toggleEdit={toggleEdit}
-                    nodeRef={imageRef}
+                    nodeElement={imageElement}
                     onDelete={handleDelete}
                     unsetEdit={unsetEdit}
                 />
-                <img ref={imageRef} src={src} alt={alt} style={style} />
+                <img
+                    ref={(elem) => {
+                        setRef(imageRef, elem);
+                        setImageElement(elem);
+                    }}
+                    src={src}
+                    alt={alt}
+                    style={style}
+                />
             </Resizable>
         </div>
     );
