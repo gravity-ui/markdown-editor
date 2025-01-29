@@ -388,36 +388,34 @@ function withoutTrailingNewline(str: string) {
  * Example:
  * ```ts
  * const dynamicModifier = new MarkdownParserDynamicModifier({
- *     elementProcessors: {
- *         paragraph: {
- *             processToken: [
- *                 (token, prefix) => {
- *                     token.attrSet('data-prefix', prefix);
- *                     return token;
- *                 },
- *                 (token) => {
- *                     console.log(`Processing token: ${token.type}`);
- *                     return token;
- *                 },
- *             ],
- *             processNodeAttrs: [
- *                 (token, attrs) => {
- *                     attrs['data-paragraph'] = token.attrGet('data-prefix');
- *                     return attrs;
- *                 },
- *                 (token, attrs) => {
- *                     console.log(`Processing attrs for token: ${token.type}`);
- *                     return attrs;
- *                 },
- *             ],
- *             processNode: [
- *                 (node) => {
- *                     console.log(`Processing node: ${node.type}`);
- *                     return node;
- *                 },
- *             ],
- *             allowedAttrs: ['data-paragraph'],
- *         },
+ *     paragraph: {
+ *         processToken: [
+ *             (token, prefix) => {
+ *                 token.attrSet('data-prefix', prefix);
+ *                 return token;
+ *             },
+ *             (token) => {
+ *                 console.log(`Processing token: ${token.type}`);
+ *                 return token;
+ *             },
+ *         ],
+ *         processNodeAttrs: [
+ *             (token, attrs) => {
+ *                 attrs['data-paragraph'] = token.attrGet('data-prefix');
+ *                 return attrs;
+ *             },
+ *             (token, attrs) => {
+ *                 console.log(`Processing attrs for token: ${token.type}`);
+ *                 return attrs;
+ *             },
+ *         ],
+ *         processNode: [
+ *             (node) => {
+ *                 console.log(`Processing node: ${node.type}`);
+ *                 return node;
+ *             },
+ *         ],
+ *         allowedAttrs: ['data-paragraph'],
  *     },
  * });
  * ```
@@ -445,7 +443,7 @@ export interface ElementProcessor {
     processToken?: ProcessToken[];
     processNodeAttrs?: ProcessNodeAttrs[];
     processNode?: ProcessNode[];
-    allowedAttrs?: string[]; // Array of attributes to include for the element type
+    allowedAttrs?: string[];
 }
 
 export interface MarkdownParserDynamicModifierConfig {
