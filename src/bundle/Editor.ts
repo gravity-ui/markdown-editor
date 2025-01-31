@@ -127,6 +127,7 @@ export type EditorOptions = Pick<
     preset: EditorPreset;
     directiveSyntax: DirectiveSyntaxContext;
     pmTransformers: TransformFn[];
+    preserveMarkupFormatting?: boolean;
 };
 
 /** @internal */
@@ -143,6 +144,7 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
     #escapeConfig?: EscapeConfig;
     #mdOptions: Readonly<MarkdownEditorMdOptions>;
     #pmTransformers: TransformFn[] = [];
+    #preserveMarkupFormatting: boolean;
     #preserveEmptyRows: boolean;
 
     readonly #preset: EditorPreset;
@@ -254,6 +256,7 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
                 initialContent: this.#markup,
                 extensions: this.#extensions,
                 pmTransformers: this.#pmTransformers,
+                preserveMarkupFormatting: this.#preserveMarkupFormatting,
                 allowHTML: this.#mdOptions.html,
                 linkify: this.#mdOptions.linkify,
                 linkifyTlds: this.#mdOptions.linkifyTlds,
@@ -342,6 +345,7 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
 
         this.#preset = opts.preset ?? 'full';
         this.#pmTransformers = opts.pmTransformers;
+        this.#preserveMarkupFormatting = Boolean(opts.experimental?.preserveMarkupFormatting);
         this.#mdOptions = md;
         this.#extensions = wysiwygConfig.extensions;
         this.#markupConfig = {...opts.markupConfig};

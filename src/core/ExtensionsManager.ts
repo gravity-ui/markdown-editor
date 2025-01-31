@@ -1,6 +1,7 @@
+import uniqueId from 'lodash/uniqueId';
 import MarkdownIt, {PresetName} from 'markdown-it';
 import type Token from 'markdown-it/lib/token';
-import {Node} from 'prosemirror-model';
+import {Node, Schema} from 'prosemirror-model';
 import type {Plugin} from 'prosemirror-state';
 
 import {ActionsManager} from './ActionsManager';
@@ -32,101 +33,12 @@ type ExtensionsManagerOptions = {
     mdOpts?: MarkdownIt.Options & {preset?: PresetName};
     linkifyTlds?: string | string[];
     pmTransformers?: TransformFn[];
+    allowDynamicModifiers?: boolean;
+    dynamicModifiers?: {
+        parser?: MarkdownParserDynamicModifier;
+        serializer?: MarkdownSerializerDynamicModifier;
+    };
 };
-
-/**
- * Generate a unique token ID
- */
-export function createUniqueId(prefix: string): string {
-    const randomLetters = Array.from(
-        {length: 5},
-        () => String.fromCharCode(97 + Math.floor(Math.random() * 26)), // a-z
-    ).join('');
-
-    return `${prefix}-${randomLetters}${Date.now()}`;
-}
-
-const getParserDynamicModifierConfig = (markupManager: MarkupManager) => ({
-    ['yfm_table,paragraph']: {
-        processToken: [
-            (token: Token) => {
-                console.log('processToken', token);
-                return token;
-            },
-            (token: Token) => {
-                token.attrSet('data-token-id', createUniqueId(token.type));
-                return token;
-            },
-            (token: Token, _: number, rawMarkup: string) => {
-                const tokenId = token.attrGet('data-token-id');
-                const {map} = token;
-
-                if (tokenId && map) {
-                    const [lineBegin, lineEnd] = map;
-                    const lines = rawMarkup.split('\n');
-                    const selectedMarkup = lines.slice(lineBegin, lineEnd).join('\n');
-                    markupManager.setMarkup(tokenId, selectedMarkup);
-                }
-                return token;
-            },
-            (token: Token, _: number, rawMarkup: string) => {
-                const tokenId = token.attrGet('data-token-id');
-                if (tokenId) {
-                    markupManager.setMarkup(tokenId, rawMarkup);
-                }
-                return token;
-            },
-        ],
-        processNodeAttrs: [
-            (token: Token, attrs: TokenAttrs) => {
-                attrs['data-node-id'] = token.attrGet('data-token-id');
-                return attrs;
-            },
-            (token: Token, attrs: TokenAttrs) => {
-                console.log('processNodeAttrs', token, attrs);
-                return attrs;
-            },
-        ],
-        processNode: [
-            (node: Node) => {
-                const nodeId = node.attrs['data-node-id'];
-                if (nodeId) {
-                    markupManager.setNode(nodeId, node);
-                }
-
-                return node;
-            },
-            (node: Node) => {
-                console.log('processNode', node);
-                return node;
-            },
-        ],
-        allowedAttrs: ['data-node-id'],
-    },
-});
-const getSerializerDynamicModifierConfig = (markupManager: MarkupManager) => ({
-    ['yfm_table']: {
-        processNode: [
-            (
-                state: SerializerState,
-                node: Node,
-                parent: Node,
-                index: number,
-                callback?: SerializerNodeToken,
-            ) => {
-                const nodeId = node.attrs['data-node-id'];
-                const savedNode = markupManager.getNode(nodeId);
-                const areNodesEqual = savedNode ? node.eq(savedNode) : false;
-
-                if (areNodesEqual) {
-                    state.write(markupManager.getMarkup(nodeId) + '\n');
-                } else if (callback) {
-                    callback(state, node, parent, index);
-                }
-            },
-        ],
-    },
-});
 
 export class ExtensionsManager {
     static process(extensions: Extension, options: ExtensionsManagerOptions) {
@@ -153,6 +65,8 @@ export class ExtensionsManager {
     #actions: Record<string, ActionSpec> = {};
     #nodeViews: Record<string, NodeViewConstructor> = {};
     #markViews: Record<string, MarkViewConstructor> = {};
+    #serializerDynamicModifier?: MarkdownSerializerDynamicModifier;
+    #parserDynamicModifier?: MarkdownParserDynamicModifier;
 
     constructor({extensions, options = {}}: ExtensionsManagerParams) {
         this.#extensions = extensions;
@@ -168,6 +82,17 @@ export class ExtensionsManager {
 
         if (options.pmTransformers) {
             this.#pmTransformers = options.pmTransformers;
+        }
+
+        if (options.allowDynamicModifiers) {
+            const markupManager = new MarkupManager();
+            console.log('allowDynamicModifiers');
+            this.#parserDynamicModifier =
+                options?.dynamicModifiers?.parser ??
+                this.createParserDynamicModifier(markupManager);
+            this.#serializerDynamicModifier =
+                options?.dynamicModifiers?.serializer ??
+                this.createSerializerDynamicModifier(markupManager);
         }
 
         // TODO: add prefilled context
@@ -222,34 +147,24 @@ export class ExtensionsManager {
         }
     };
 
+    private createParser(schema: Schema, mdInstance: MarkdownIt) {
+        return this.#parserRegistry.createParser(
+            schema,
+            mdInstance,
+            this.#pmTransformers,
+            this.#parserDynamicModifier,
+        );
+    }
+
     private createDeps() {
         const actions = new ActionsManager();
 
-        const markupManager = new MarkupManager();
-        const parserDynamicModifierConfig = getParserDynamicModifierConfig(markupManager);
-        const parserDynamicModifier = new MarkdownParserDynamicModifier(
-            parserDynamicModifierConfig,
+        const schema = this.#schemaRegistry.createSchema(this.#parserDynamicModifier);
+        const markupParser = this.createParser(schema, this.#mdForMarkup);
+        const textParser = this.createParser(schema, this.#mdForText);
+        const serializer = this.#serializerRegistry.createSerializer(
+            this.#serializerDynamicModifier,
         );
-        const serializerDynamicModifierConfig = getSerializerDynamicModifierConfig(markupManager);
-        const serializerDynamicModifier = new MarkdownSerializerDynamicModifier(
-            serializerDynamicModifierConfig,
-        );
-
-        const schema = this.#schemaRegistry.createSchema(parserDynamicModifier);
-        const markupParser = this.#parserRegistry.createParser(
-            schema,
-            this.#mdForMarkup,
-            this.#pmTransformers,
-            parserDynamicModifier,
-        );
-        const textParser = this.#parserRegistry.createParser(
-            schema,
-            this.#mdForText,
-            this.#pmTransformers,
-            parserDynamicModifier,
-        );
-
-        const serializer = this.#serializerRegistry.createSerializer(serializerDynamicModifier);
 
         this.#deps = {
             schema,
@@ -259,6 +174,7 @@ export class ExtensionsManager {
             serializer,
         };
     }
+
     private createDerived() {
         this.#plugins = this.#spec.plugins(this.#deps);
         Object.assign(this.#actions, this.#spec.actions(this.#deps));
@@ -271,4 +187,115 @@ export class ExtensionsManager {
             this.#markViews[name] = view(this.#deps);
         }
     }
+
+    private createParserDynamicModifier(markupManager: MarkupManager) {
+        return new MarkdownParserDynamicModifier(createParserDynamicModifierConfig(markupManager));
+    }
+
+    private createSerializerDynamicModifier(markupManager: MarkupManager) {
+        return new MarkdownSerializerDynamicModifier(
+            createSerializerDynamicModifierConfig(markupManager),
+        );
+    }
+}
+
+const YFM_TABLE_TOKEN_ATTR = 'data-token-id';
+const YFM_TABLE_NODE_ATTR = 'data-node-id';
+const PARENTS_WITH_AFFECT = ['blockquote', 'yfm_tabs'];
+
+/**
+ * Creates a hook for injecting custom logic into the parsing process via `MarkdownParserDynamicModifier`,
+ * allowing extensions beyond the fixed parsing rules defined by the schema.
+ *
+ * Dynamically configures parsing for `yfm_table` elements:
+ * - Assigns a unique `data-token-id` to each token.
+ * - Captures and stores the raw Markdown using `MarkupManager`.
+ * - Links the token to its corresponding node via `data-node-id`.
+ * - Adds the `data-node-id` attribute to the list of allowed attributes.
+ */
+function createParserDynamicModifierConfig(markupManager: MarkupManager) {
+    console.log('createParserDynamicModifierConfig');
+
+    return {
+        ['yfm_table']: {
+            processToken: [
+                (token: Token, _: number, rawMarkup: string) => {
+                    const {map, type} = token;
+                    const tokenId = uniqueId(`${type}_${Date.now()}_`);
+                    token.attrSet(YFM_TABLE_TOKEN_ATTR, tokenId);
+
+                    if (map) {
+                        markupManager.setMarkup(
+                            tokenId,
+                            rawMarkup.split('\n').slice(map[0], map[1]).join('\n'),
+                        );
+                    }
+                    return token;
+                },
+                (token: Token, _: number) => {
+                    console.log('111', token);
+                    return token;
+                },
+            ],
+            processNodeAttrs: [
+                (token: Token, attrs: TokenAttrs) => ({
+                    ...attrs,
+                    [YFM_TABLE_NODE_ATTR]: token.attrGet(YFM_TABLE_TOKEN_ATTR),
+                }),
+                (token: Token, attrs: TokenAttrs) => {
+                    console.log('222', token, attrs);
+                    return attrs;
+                },
+            ],
+            processNode: [
+                (node: Node) => {
+                    const nodeId = node.attrs[YFM_TABLE_NODE_ATTR];
+                    if (nodeId) {
+                        markupManager.setNode(nodeId, node);
+                    }
+                    return node;
+                },
+                (node: Node) => {
+                    console.log('333', node);
+                    return node;
+                },
+            ],
+            allowedAttrs: [YFM_TABLE_NODE_ATTR],
+        },
+    };
+}
+
+/**
+ * Creates a hook for injecting custom logic into the serialization process via `MarkdownSerializerDynamicModifier`,
+ * allowing extensions beyond the standard serialization rules defined by the schema.
+ *
+ * Dynamically configures serialization for `yfm_table` elements:
+ * - Retrieves the original Markdown using the `data-node-id` attribute.
+ * - Uses the original Markdown if the node matches the saved version.
+ * - Falls back to schema-based rendering if the node structure, attributes, or parent elements affect it.
+ */
+function createSerializerDynamicModifierConfig(markupManager: MarkupManager) {
+    return {
+        ['yfm_table']: {
+            processNode: [
+                (
+                    state: SerializerState,
+                    node: Node,
+                    parent: Node,
+                    index: number,
+                    callback?: SerializerNodeToken,
+                ) => {
+                    const nodeId = node.attrs[YFM_TABLE_NODE_ATTR];
+                    const savedNode = markupManager.getNode(nodeId);
+
+                    if (!PARENTS_WITH_AFFECT.includes(parent?.type?.name) && savedNode?.eq(node)) {
+                        state.write(markupManager.getMarkup(nodeId) + '\n');
+                        return;
+                    }
+
+                    callback?.(state, node, parent, index);
+                },
+            ],
+        },
+    };
 }

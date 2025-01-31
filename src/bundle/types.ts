@@ -28,7 +28,7 @@ export type ParseInsertedUrlAsImage = (text: string) => {imageUrl: string; title
 
 export type WysiwygPlaceholderOptions = {
     value?: string | (() => string);
-    /** Default – empty-doc 
+    /** Default – empty-doc
     Values:
     - 'empty-doc' – The placeholder will only be shown when the document is completely empty;
     - 'empty-row-top-level' – The placeholder will be displayed in an empty line that is at the top level of the document structure;
@@ -110,6 +110,17 @@ export type MarkdownEditorExperimentalOptions = {
      * @default false
      */
     preserveEmptyRows?: boolean;
+    /**
+     * Preserves the original formatting of unmodified blocks,
+     * restoring their structure during serialization
+     *
+     * **Use case:** Maintain consistent markup when switching modes
+     *
+     * **Note:** Applies to tracked blocks: `yfm_table`
+     *
+     * @default false
+     */
+    preserveMarkupFormatting?: boolean;
 };
 
 export type MarkdownEditorMarkupConfig = {
