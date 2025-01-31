@@ -1,6 +1,6 @@
 import React from 'react';
 
-import {ClassNameProps, cn} from '../classname';
+import {type ClassNameProps, cn} from '../classname';
 import {ReactRendererComponent} from '../extensions';
 import {logger} from '../logger';
 import {useRenderTime} from '../react-utils/hooks';
@@ -8,7 +8,7 @@ import {useRenderTime} from '../react-utils/hooks';
 import type {EditorInt} from './Editor';
 import {ToolbarView} from './ToolbarView';
 import {WysiwygEditorComponent} from './WysiwygEditorComponent';
-import type {WToolbarData, WToolbarItemData} from './config/wysiwyg';
+import type {WToolbarData, WToolbarItemData} from './toolbar/types';
 
 import './WysiwygEditorView.scss';
 

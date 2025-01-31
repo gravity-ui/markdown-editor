@@ -1,12 +1,13 @@
 import React from 'react';
 
-import {Transaction} from 'prosemirror-state';
-import {EditorView} from 'prosemirror-view';
+import type {Transaction} from 'prosemirror-state';
+import type {EditorView} from 'prosemirror-view';
 
-import {ExtensionDeps} from '../../../../core';
+import type {ExtensionDeps} from '../../../../core';
 import {removeDecoration} from '../../../behavior/WidgetDecoration';
 import {ReactWidgetDescriptor} from '../../../behavior/WidgetDecoration/ReactWidgetDescriptor';
-import {LinkAttr, linkType, normalizeUrlFactory} from '../../index';
+import {LinkAttr, linkType} from '../LinkSpecs';
+import {normalizeUrlFactory} from '../utils';
 
 import {LinkPlaceholderWidget, LinkPlaceholderWidgetProps} from './widget';
 
