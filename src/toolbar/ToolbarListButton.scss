@@ -29,6 +29,17 @@
         }
     }
 
+    &__preview-content {
+        padding: var(--g-spacing-3);
+
+        border-radius: var(--g-border-radius-s);
+        background-color: var(--g-color-base-float-heavy);
+
+        & .g-popup__content[class] {
+            padding: 0 0 0 var(--g-spacing-2);
+        }
+    }
+
     &__action-disabled-popover {
         display: block;
 
