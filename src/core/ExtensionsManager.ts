@@ -86,7 +86,6 @@ export class ExtensionsManager {
 
         if (options.allowDynamicModifiers) {
             const markupManager = new MarkupManager();
-            console.log('allowDynamicModifiers');
             this.#parserDynamicModifier =
                 options?.dynamicModifiers?.parser ??
                 this.createParserDynamicModifier(markupManager);
@@ -214,26 +213,21 @@ const PARENTS_WITH_AFFECT = ['blockquote', 'yfm_tabs'];
  * - Adds the `data-node-id` attribute to the list of allowed attributes.
  */
 function createParserDynamicModifierConfig(markupManager: MarkupManager) {
-    console.log('createParserDynamicModifierConfig');
-
     return {
         ['yfm_table']: {
             processToken: [
                 (token: Token, _: number, rawMarkup: string) => {
                     const {map, type} = token;
-                    const tokenId = uniqueId(`${type}_${Date.now()}_`);
-                    token.attrSet(YFM_TABLE_TOKEN_ATTR, tokenId);
+                    const tokenId = token.attrGet(YFM_TABLE_TOKEN_ATTR);
 
-                    if (map) {
+                    if (map && !tokenId) {
+                        const newTokenId = uniqueId(`${type}_${Date.now()}_`);
+                        token.attrSet(YFM_TABLE_TOKEN_ATTR, newTokenId);
                         markupManager.setMarkup(
-                            tokenId,
+                            newTokenId,
                             rawMarkup.split('\n').slice(map[0], map[1]).join('\n'),
                         );
                     }
-                    return token;
-                },
-                (token: Token, _: number) => {
-                    console.log('111', token);
                     return token;
                 },
             ],
@@ -242,10 +236,6 @@ function createParserDynamicModifierConfig(markupManager: MarkupManager) {
                     ...attrs,
                     [YFM_TABLE_NODE_ATTR]: token.attrGet(YFM_TABLE_TOKEN_ATTR),
                 }),
-                (token: Token, attrs: TokenAttrs) => {
-                    console.log('222', token, attrs);
-                    return attrs;
-                },
             ],
             processNode: [
                 (node: Node) => {
@@ -253,10 +243,6 @@ function createParserDynamicModifierConfig(markupManager: MarkupManager) {
                     if (nodeId) {
                         markupManager.setNode(nodeId, node);
                     }
-                    return node;
-                },
-                (node: Node) => {
-                    console.log('333', node);
                     return node;
                 },
             ],
