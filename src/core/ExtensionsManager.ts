@@ -1,8 +1,8 @@
-import uniqueId from 'lodash/uniqueId';
 import MarkdownIt, {PresetName} from 'markdown-it';
 import type Token from 'markdown-it/lib/token';
 import {Node, Schema} from 'prosemirror-model';
 import type {Plugin} from 'prosemirror-state';
+import {v5} from 'uuid';
 
 import {ActionsManager} from './ActionsManager';
 import {ExtensionBuilder} from './ExtensionBuilder';
@@ -217,16 +217,14 @@ function createParserDynamicModifierConfig(markupManager: MarkupManager) {
         ['yfm_table']: {
             processToken: [
                 (token: Token, _: number, rawMarkup: string) => {
-                    const {map, type} = token;
-                    const tokenId = token.attrGet(YFM_TABLE_TOKEN_ATTR);
+                    const {map} = token;
 
-                    if (map && !tokenId) {
-                        const newTokenId = uniqueId(`${type}_${Date.now()}_`);
-                        token.attrSet(YFM_TABLE_TOKEN_ATTR, newTokenId);
-                        markupManager.setMarkup(
-                            newTokenId,
-                            rawMarkup.split('\n').slice(map[0], map[1]).join('\n'),
-                        );
+                    if (map) {
+                        const content = rawMarkup.split('\n').slice(map[0], map[1]).join('\n');
+                        const tokenId = v5(content, markupManager.getNamespace());
+
+                        token.attrSet(YFM_TABLE_TOKEN_ATTR, tokenId);
+                        markupManager.setMarkup(tokenId, content);
                     }
                     return token;
                 },
