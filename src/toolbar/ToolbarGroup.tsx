@@ -11,6 +11,8 @@ import './ToolbarGroup.scss';
 
 const b = cn('toolbar-group');
 
+export type {ToolbarGroupData};
+
 export type ToolbarGroupProps<E> = ToolbarBaseProps<E> & {
     data: ToolbarGroupData<E>;
 };

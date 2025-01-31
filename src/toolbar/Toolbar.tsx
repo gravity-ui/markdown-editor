@@ -9,6 +9,8 @@ import './Toolbar.scss';
 
 const b = cn('toolbar');
 
+export type {ToolbarData};
+
 export type ToolbarProps<E> = ToolbarBaseProps<E> & {
     data: ToolbarData<E>;
 };
