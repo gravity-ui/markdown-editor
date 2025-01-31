@@ -1,6 +1,6 @@
 import React from 'react';
 
-import {ClassNameProps, cn} from '../classname';
+import {type ClassNameProps, cn} from '../classname';
 import {ReactRendererComponent} from '../extensions';
 import {logger} from '../logger';
 import {useRenderTime} from '../react-utils/hooks';

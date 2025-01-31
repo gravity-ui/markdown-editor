@@ -1,21 +1,21 @@
 import React from 'react';
 
-import {Popup, PopupProps} from '@gravity-ui/uikit';
-import {EditorState} from 'prosemirror-state';
-import {EditorView} from 'prosemirror-view';
+import {Popup, type PopupProps} from '@gravity-ui/uikit';
+import type {EditorState} from 'prosemirror-state';
+import type {EditorView} from 'prosemirror-view';
 
-import {ActionStorage} from '../../../core';
+import type {ActionStorage} from '../../../core';
 import {isFunction} from '../../../lodash';
 import {logger} from '../../../logger';
 import {ErrorLoggerBoundary} from '../../../react-utils/ErrorBoundary';
-import {Toolbar} from '../../../toolbar/Toolbar';
-import {
+import {Toolbar} from '../../../toolbar';
+import type {
     ToolbarButtonPopupData,
     ToolbarGroupItemData,
     ToolbarProps,
     ToolbarSingleItemData,
-} from '../../../toolbar/types';
-import {RendererItem, getReactRendererFromState} from '../ReactRenderer';
+} from '../../../toolbar';
+import {type RendererItem, getReactRendererFromState} from '../ReactRenderer';
 
 type SelectionTooltipBaseProps = {
     show?: boolean;

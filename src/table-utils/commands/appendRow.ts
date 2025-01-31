@@ -1,9 +1,9 @@
-import {Node, NodeType} from 'prosemirror-model';
+import type {Node, NodeType} from 'prosemirror-model';
 import {findParentNodeClosestToPos} from 'prosemirror-utils';
 
-import {isTableNode} from '..';
 import type {CommandWithAttrs} from '../../core';
 import {TableDesc} from '../table-desc';
+import {isTableNode} from '../utils';
 
 export const appendRow: CommandWithAttrs<{
     tablePos: number;

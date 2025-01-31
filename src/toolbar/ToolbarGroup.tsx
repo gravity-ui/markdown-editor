@@ -5,7 +5,7 @@ import {cn} from '../classname';
 import {ToolbarButton} from './ToolbarButton';
 import {ToolbarButtonPopup} from './ToolbarButtonPopup';
 import {ToolbarListButton} from './ToolbarListButton';
-import {ToolbarBaseProps, ToolbarDataType, ToolbarGroupData} from './types';
+import {type ToolbarBaseProps, ToolbarDataType, type ToolbarGroupData} from './types';
 
 import './ToolbarGroup.scss';
 

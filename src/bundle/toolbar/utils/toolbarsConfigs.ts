@@ -6,11 +6,10 @@ import type {
     ToolbarItemWysiwyg,
     ToolbarsPreset,
 } from '../../../modules/toolbars/types';
-import {ToolbarDataType, ToolbarIconData} from '../../../toolbar';
 import type {MarkdownEditorViewProps} from '../../MarkdownEditorView';
-import type {MToolbarData} from '../../config/markup';
-import {MarkdownEditorPreset} from '../../types';
-import type {WToolbarData} from '../types';
+import type {MarkdownEditorPreset} from '../../types';
+import {ToolbarDataType} from '../types';
+import type {MToolbarData, ToolbarIconData, WToolbarData} from '../types';
 
 import {flattenPreset} from './flattenPreset';
 

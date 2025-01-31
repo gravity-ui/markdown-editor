@@ -6,10 +6,6 @@
     "module": "esnext",
     "jsx": "react",
     "baseUrl": ".",
-    "types": [
-      "jest",
-      "node"
-    ],
     "declaration": true,
     "importHelpers": true,
     "isolatedModules": true,

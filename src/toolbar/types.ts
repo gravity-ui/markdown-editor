@@ -4,19 +4,10 @@ import type {HotkeyProps, IconProps} from '@gravity-ui/uikit';
 
 import type {ClassNameProps} from '../classname';
 
-import type {ToolbarListButtonData} from './ToolbarListButton';
-
 export type ToolbarBaseProps<E> = ClassNameProps & {
     editor: E;
     focus(): void;
     onClick?(id: string, attrs?: {[key: string]: any}): void;
-};
-
-export type ToolbarProps<E> = ClassNameProps & {
-    editor: E;
-    focus(): void;
-    onClick?(id: string, attrs?: {[key: string]: any}): void;
-    data: ToolbarData<E>;
 };
 
 export type ToolbarIconData = Pick<IconProps, 'data' | 'size'>;
@@ -35,7 +26,9 @@ export type ToolbarItemData<E> = {
      * Show hint when _isEnable()_ returns false
      *
      * `false` – don't show hint;
+     *
      * `true` – show default hint;
+     *
      * `string` or `() => string` – show hint with custom message.
      *
      * @default true
@@ -97,6 +90,15 @@ export type ToolbarButtonPopupData<E> = ToolbarItemData<E> & {
 
 export type ToolbarListButtonItemData<E> = ToolbarItemData<E> & {
     doNotActivateList?: boolean;
+};
+
+export type ToolbarListButtonData<E> = {
+    icon: ToolbarIconData;
+    title: string | (() => string);
+    withArrow?: boolean;
+    data: ToolbarListButtonItemData<E>[];
+    alwaysActive?: boolean;
+    hideDisabled?: boolean;
 };
 
 /**

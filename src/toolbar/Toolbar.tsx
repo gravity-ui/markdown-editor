@@ -3,11 +3,15 @@ import React from 'react';
 import {cn} from '../classname';
 
 import {ToolbarButtonGroup} from './ToolbarGroup';
-import {ToolbarProps} from './types';
+import type {ToolbarBaseProps, ToolbarData} from './types';
 
 import './Toolbar.scss';
 
 const b = cn('toolbar');
+
+export type ToolbarProps<E> = ToolbarBaseProps<E> & {
+    data: ToolbarData<E>;
+};
 
 export function Toolbar<E>({editor, data, className, focus, onClick}: ToolbarProps<E>) {
     return (

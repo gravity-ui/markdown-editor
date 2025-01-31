@@ -6,12 +6,11 @@ import {useMeasure} from 'react-use';
 import {cn} from '../classname';
 import {logger} from '../logger';
 import {useRenderTime} from '../react-utils/hooks';
-import type {ToolbarProps} from '../toolbar/types';
 
-import {Toolbar} from './Toolbar';
+import {Toolbar, type ToolbarProps} from './Toolbar';
 import {ToolbarListButton} from './ToolbarListButton';
 import {shrinkToolbarData} from './flexible';
-import {ToolbarDataType, ToolbarItemData} from './types';
+import {ToolbarDataType, type ToolbarItemData} from './types';
 
 import './FlexToolbar.scss';
 

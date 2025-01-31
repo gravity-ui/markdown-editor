@@ -1,9 +1,9 @@
 import type {Action, ExtensionAuto} from '../../../core';
 
-import {ImagePaste, ImagePasteOptions} from './ImagePaste';
+import {ImagePaste, type ImagePasteOptions} from './ImagePaste';
 import {ImageWidget} from './ImageWidget';
-import {ImgSizeSpecs, ImgSizeSpecsOptions} from './ImgSizeSpecs';
-import {AddImageAttrs, addImage} from './actions';
+import {ImgSizeSpecs, type ImgSizeSpecsOptions} from './ImgSizeSpecs';
+import {type AddImageAttrs, addImage} from './actions';
 import {addImageAction} from './const';
 import {imgSizeNodeViewPlugin} from './plugins/ImgSizeNodeView';
 
