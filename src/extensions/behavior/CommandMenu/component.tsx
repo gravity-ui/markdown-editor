@@ -1,12 +1,15 @@
 import React from 'react';
 
 import {HelpPopover} from '@gravity-ui/components';
-import {Hotkey, Icon, List, Popup, PopupPlacement} from '@gravity-ui/uikit';
+import {Hotkey, Icon, List, Popup, PopupPlacement, Tooltip} from '@gravity-ui/uikit';
 
+import type {ActionName} from '../../../bundle/config/action-names';
+import {previews} from '../../../bundle/config/previews';
 import {cn} from '../../../classname';
 import {i18n} from '../../../i18n/suggest';
 import {isFunction} from '../../../lodash';
 import {ErrorLoggerBoundary} from '../../../react-utils/ErrorBoundary';
+import {ToolbarTooltipDelay} from '../../../toolbar';
 import {AutocompletePopupProps} from '../../../utils/autocomplete-popup';
 
 import type {CommandAction} from './types';
@@ -76,17 +79,29 @@ export const CommandMenuComponent: React.FC<CommandMenuComponentProps> = ({
 function renderItem({id, title, icon, hotkey, hint}: CommandMenuItem): React.ReactNode {
     const titleText = isFunction(title) ? title() : title;
     const hintText = isFunction(hint) ? hint() : hint;
+    const preview = previews[id as keyof typeof ActionName];
+    const previewContent = isFunction(preview) ? preview() : preview;
+
     return (
-        <div key={id} className={b('item', {id})}>
-            <Icon data={icon.data} size={20} className={b('item-icon')} />
-            <div className={b('item-body')}>
-                <span className={b('item-title')}>{titleText}</span>
-                <div className={b('item-extra')}>
-                    {hotkey && <Hotkey value={hotkey} className={b('item-hotkey')} />}
-                    {hintText && <HelpPopover className={b('item- hint')} content={hintText} />}
+        <Tooltip
+            placement="right"
+            className={b('preview-content')}
+            disabled={!previewContent}
+            openDelay={ToolbarTooltipDelay.Open}
+            closeDelay={ToolbarTooltipDelay.Close}
+            content={previewContent}
+        >
+            <div key={id} className={b('item', {id})}>
+                <Icon data={icon.data} size={20} className={b('item-icon')} />
+                <div className={b('item-body')}>
+                    <span className={b('item-title')}>{titleText}</span>
+                    <div className={b('item-extra')}>
+                        {hotkey && <Hotkey value={hotkey} className={b('item-hotkey')} />}
+                        {hintText && <HelpPopover className={b('item-hint')} content={hintText} />}
+                    </div>
                 </div>
             </div>
-        </div>
+        </Tooltip>
     );
 }
 
