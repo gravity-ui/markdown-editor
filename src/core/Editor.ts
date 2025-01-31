@@ -30,6 +30,7 @@ export type WysiwygEditorOptions = {
     /** @default 'default' */
     mdPreset?: PresetName;
     allowHTML?: boolean;
+    preserveMarkupFormatting?: boolean;
     linkify?: boolean;
     pmTransformers?: TransformFn[];
     linkifyTlds?: string | string[];
@@ -81,6 +82,7 @@ export class WysiwygEditor implements CommonEditor, ActionStorage {
         escapeConfig,
         onChange,
         onDocChange,
+        preserveMarkupFormatting,
     }: WysiwygEditorOptions) {
         const {
             schema,
@@ -96,6 +98,7 @@ export class WysiwygEditor implements CommonEditor, ActionStorage {
             mdOpts: {html: allowHTML, linkify, breaks: true, preset: mdPreset},
             linkifyTlds,
             pmTransformers,
+            allowDynamicModifiers: preserveMarkupFormatting,
         });
 
         const state = EditorState.create({
