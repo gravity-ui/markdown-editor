@@ -1,6 +1,7 @@
 import {EventEmitter} from 'events';
 
 import {Node} from 'prosemirror-model';
+import {v4} from 'uuid';
 
 export interface IMarkupManager {
     setMarkup(id: string, rawMarkup: string): void;
@@ -19,12 +20,14 @@ export interface Logger {
 export class MarkupManager extends EventEmitter implements IMarkupManager {
     private _markups: Map<string, string> = new Map();
     private _nodes: Map<string, Node> = new Map();
+    private _namespace = '';
 
     private readonly logger: Logger;
 
     constructor(logger?: Logger) {
         super();
         this.logger = logger ?? console;
+        this._namespace = v4();
     }
 
     /**
@@ -67,6 +70,10 @@ export class MarkupManager extends EventEmitter implements IMarkupManager {
      */
     getNode(id: string): Node | null {
         return this._nodes.get(id) ?? null;
+    }
+
+    getNamespace() {
+        return this._namespace;
     }
 
     /**
