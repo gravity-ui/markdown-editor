@@ -2,8 +2,19 @@ import React, {useState} from 'react';
 
 import {HelpPopover} from '@gravity-ui/components';
 import {ChevronDown} from '@gravity-ui/icons';
-import {ActionTooltip, Button, Hotkey, Icon, Menu, Popover, Popup} from '@gravity-ui/uikit';
+import {
+    ActionTooltip,
+    Button,
+    Hotkey,
+    Icon,
+    Menu,
+    Popover,
+    Popup,
+    Tooltip,
+} from '@gravity-ui/uikit';
 
+import type {ActionName} from '../bundle/config/action-names';
+import {previews} from '../bundle/config/previews';
 import {cn} from '../classname';
 import {i18n} from '../i18n/common';
 import {isFunction} from '../lodash';
@@ -113,6 +124,10 @@ export function ToolbarListButton<E>({
 
                             const titleText = isFunction(title) ? title() : title;
                             const hintText = isFunction(hint) ? hint() : hint;
+                            const preview = previews[id as keyof typeof ActionName];
+
+                            const previewContent = isFunction(preview) ? preview() : preview;
+
                             const disabled = !isEnable(editor);
 
                             const hideHintWhenDisabled =
@@ -133,38 +148,50 @@ export function ToolbarListButton<E>({
                                     disabled={hideHintWhenDisabled}
                                     key={id}
                                 >
-                                    <Menu.Item
-                                        key={id}
-                                        active={isActive(editor)}
-                                        disabled={!isEnable(editor)}
-                                        onClick={() => {
-                                            hide();
-
-                                            if (isPopupItem(data)) {
-                                                setPopupItem(data);
-                                            } else {
-                                                setPopupItem(undefined);
-                                                focus();
-                                                exec(editor);
-                                                onClick?.(id);
-                                            }
-                                        }}
-                                        icon={<Icon data={icon.data} size={icon.size ?? 16} />}
-                                        extraProps={{'aria-label': titleText}}
+                                    <Tooltip
+                                        placement="right"
+                                        className={b('preview-content')}
+                                        contentClassName={b('preview-content-1')}
+                                        disabled={!previewContent}
+                                        openDelay={ToolbarTooltipDelay.Open}
+                                        closeDelay={ToolbarTooltipDelay.Close}
+                                        content={previewContent}
                                     >
-                                        <div className={b('item')}>
-                                            {titleText}
-                                            <div className={b('extra')}>
-                                                {hotkey && <Hotkey value={hotkey} />}
-                                                {hintText && (
-                                                    <HelpPopover
-                                                        className={b('hint')}
-                                                        content={hintText}
-                                                    />
-                                                )}
+                                        <Menu.Item
+                                            key={id}
+                                            active={isActive(editor)}
+                                            disabled={!isEnable(editor)}
+                                            onClick={() => {
+                                                hide();
+
+                                                if (isPopupItem(data)) {
+                                                    setPopupItem(data);
+                                                } else {
+                                                    setPopupItem(undefined);
+                                                    focus();
+                                                    exec(editor);
+                                                    onClick?.(id);
+                                                }
+                                            }}
+                                            icon={<Icon data={icon.data} size={icon.size ?? 16} />}
+                                            extraProps={{
+                                                'aria-label': titleText,
+                                            }}
+                                        >
+                                            <div className={b('item')}>
+                                                {titleText}
+                                                <div className={b('extra')}>
+                                                    {hotkey && <Hotkey value={hotkey} />}
+                                                    {hintText && (
+                                                        <HelpPopover
+                                                            className={b('hint')}
+                                                            content={hintText}
+                                                        />
+                                                    )}
+                                                </div>
                                             </div>
-                                        </div>
-                                    </Menu.Item>
+                                        </Menu.Item>
+                                    </Tooltip>
                                 </Popover>
                             );
                         })
