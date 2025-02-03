@@ -7,6 +7,7 @@ import {Logger2, globalLogger} from '../logger';
 import {DirectiveSyntaxContext} from '../utils/directive';
 
 import {EditorImpl, type EditorInt} from './Editor';
+import {wSelectionMenuConfigByPreset} from './config';
 import type {
     MarkdownEditorInstance,
     MarkdownEditorMode,
@@ -30,6 +31,7 @@ export function useMarkdownEditor(
             markupConfig = {},
             wysiwygConfig = {},
             logger = new Logger2(),
+            mobile = false,
         } = props;
 
         const preset: MarkdownEditorPreset = props.preset ?? 'full';
@@ -42,7 +44,13 @@ export function useMarkdownEditor(
         const directiveSyntax = new DirectiveSyntaxContext(experimental.directiveSyntax);
 
         const extensions: Extension = (builder) => {
-            const extensionOptions = wysiwygConfig.extensionOptions;
+            const extensionOptions = wysiwygConfig.extensionOptions ?? {};
+
+            if (mobile) {
+                extensionOptions.selectionContext = {
+                    config: wSelectionMenuConfigByPreset.zero,
+                };
+            }
 
             builder.use(BundlePreset, {
                 ...extensionOptions,

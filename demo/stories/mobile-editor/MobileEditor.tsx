@@ -30,7 +30,9 @@ const mToolbarConfig = cloneDeep(markupToolbarConfigs.mToolbarConfig);
 mToolbarConfig.unshift([mGptToolbarItem]);
 
 export const MobileEditor = React.memo(() => {
-    const editor = useMarkdownEditor({});
+    const editor = useMarkdownEditor({
+        mobile: true,
+    });
 
     return (
         <PlaygroundLayout
