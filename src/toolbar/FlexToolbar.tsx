@@ -61,7 +61,7 @@ export function FlexToolbar<E>(props: FlexToolbarProps<E>) {
         <div ref={ref} className={b(null, [className])}>
             <div className={b('container')}>
                 <Toolbar {...props} data={items} className={b('bar')} />
-                {dots?.length && (
+                {dots?.length && !mobile && (
                     <ToolbarListButton
                         qa="g-md-toolbar-more-action"
                         qaMenu="g-md-toolbar-more-menu"
