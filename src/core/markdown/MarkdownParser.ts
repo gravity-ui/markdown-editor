@@ -5,6 +5,7 @@ import {Mark, MarkSpec, MarkType, Node, NodeSpec, NodeType, Schema} from 'prosem
 
 import {logger} from '../../logger';
 import type {Parser, ParserToken} from '../types/parser';
+import {buildKeyMapping} from '../utils/buildKeyMapping';
 
 import {ProseMirrorTransformer, TransformFn} from './ProseMirrorTransformer';
 
@@ -366,32 +367,29 @@ function withoutTrailingNewline(str: string) {
 /**
  * Class MarkdownParserDynamicModifier
  *
- * This class provides a mechanism for dynamic modification of tokens and attributes processing in a `MarkdownParser`.
- * It implements sequential processing of specified element types, allowing customization of the parser
- * without altering its core structure.
+ * Provides a mechanism for dynamic modification of tokens and node attributes during parsing by a MarkdownParser.
+ * It allows sequential processing of element types by applying a series of custom handlers, making it possible to:
  *
- * Features:
  * 1. Token Processing:
- *    - `processToken`: An array of handlers applied sequentially. Each handler processes a token
- *      and passes the result to the next one.
+ *    - `processToken`: An array of handlers that process tokens sequentially, each passing the result to the next.
  *
  * 2. Attribute Processing:
- *    - `processNodeAttrs`: An array of handlers applied sequentially to process and modify attributes of node.
+ *    - `processNodeAttrs`: An array of handlers that modify and process node attributes.
  *
- * 2. Attribute Processing:
- *    - `processNode`: An array of handlers applied sequentially to process and modify nodes.
+ * 3. Node Processing:
+ *    - `processNode`: An array of handlers that process and modify the resulting ProseMirror nodes.
  *
  * 4. Allowed Attributes:
- *    - `allowedAttrs`: A list of attributes to include in the schema with default values.
- *      If specified, these attributes are added to the schema and won't be ignored during processing.
+ *    - `allowedAttrs`: A list of additional attributes to include in the ProseMirror schema with default values.
+ *      When specified, these attributes are added to the schema and preserved during processing.
  *
  * Example:
  * ```ts
  * const dynamicModifier = new MarkdownParserDynamicModifier({
  *     paragraph: {
  *         processToken: [
- *             (token, prefix) => {
- *                 token.attrSet('data-prefix', prefix);
+ *             (token, index, rawMarkup, allowedAttrs) => {
+ *                 token.attrSet('data-prefix', 'prefix-value');
  *                 return token;
  *             },
  *             (token) => {
@@ -420,9 +418,9 @@ function withoutTrailingNewline(str: string) {
  * });
  * ```
  *
- * This class extends the functionality of a `MarkdownParser` for scenarios such as:
- * - Adding default attributes to specific elements;
- * - Modifying token metadata;
+ * This class extends the functionality of a MarkdownParser for scenarios such as:
+ * - Adding default attributes to specific elements.
+ * - Modifying token metadata.
  * - Logging or customizing processing steps for debugging.
  */
 
@@ -461,21 +459,10 @@ export class MarkdownParserDynamicModifier {
     private keyMapping: Map<string, string[]>;
 
     constructor(config: MarkdownParserDynamicModifierConfig) {
-        this.elementProcessors = new Map();
-        this.keyMapping = new Map();
+        const {processorsMap, keyMapping} = buildKeyMapping<ElementProcessor>(config);
 
-        Object.entries(config).forEach(([key, processor]) => {
-            const keys = key.includes(',') ? key.split(',').map((k) => k.trim()) : [key];
-
-            this.elementProcessors.set(keys.join(','), processor);
-
-            keys.forEach((elementType) => {
-                this.keyMapping.set(elementType, [
-                    ...(this.keyMapping.get(elementType) || []),
-                    keys.join(','),
-                ]);
-            });
-        });
+        this.elementProcessors = processorsMap;
+        this.keyMapping = keyMapping;
     }
 
     processTokens(tokens: Token[], rawMarkup: string): Token[] {
