@@ -44,6 +44,7 @@ interface EditorWrapperProps extends QAProps, ToolbarConfigs, Omit<ViewProps, 'e
     showPreview: boolean;
     toggleShowPreview: () => void;
     unsetShowPreview: () => void;
+    mobile?: boolean;
 }
 const EditorWrapper = forwardRef<HTMLDivElement, EditorWrapperProps>(
     (
@@ -65,6 +66,7 @@ const EditorWrapper = forwardRef<HTMLDivElement, EditorWrapperProps>(
             unsetShowPreview,
             wysiwygHiddenActionsConfig: initialWysiwygHiddenActionsConfig,
             wysiwygToolbarConfig: initialWysiwygToolbarConfig,
+            mobile = false,
         },
         ref,
     ) => {
@@ -198,6 +200,7 @@ const EditorWrapper = forwardRef<HTMLDivElement, EditorWrapperProps>(
                                 className={b('editor', {mode: editorMode})}
                                 toolbarClassName={b('toolbar')}
                                 stickyToolbar={stickyToolbar}
+                                mobile={mobile}
                             >
                                 <Settings
                                     {...settingsProps}
@@ -218,6 +221,7 @@ const EditorWrapper = forwardRef<HTMLDivElement, EditorWrapperProps>(
                                 className={b('editor', {mode: editorMode})}
                                 toolbarClassName={b('toolbar')}
                                 stickyToolbar={stickyToolbar}
+                                mobile={mobile}
                             >
                                 <Settings
                                     {...settingsProps}
