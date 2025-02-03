@@ -23,11 +23,12 @@ export type ToolbarButtonViewProps = Pick<
     enabled: boolean;
     onClick: () => void;
     className?: string;
+    mobile?: boolean;
 };
 
 export const ToolbarButtonView = forwardRef<HTMLButtonElement, ToolbarButtonViewProps>(
     function ToolbarButtonView(
-        {icon, title, hint, hotkey, hintWhenDisabled, active, enabled, onClick, className},
+        {icon, title, hint, hotkey, hintWhenDisabled, active, enabled, onClick, className, mobile},
         ref,
     ) {
         const disabled = !active && !enabled;
@@ -54,6 +55,7 @@ export const ToolbarButtonView = forwardRef<HTMLButtonElement, ToolbarButtonView
                         description={hintText}
                         title={titleText}
                         hotkey={hotkey}
+                        disabled={mobile}
                     >
                         {(_, refForTooltip) => (
                             <Button

@@ -62,6 +62,7 @@ export type MarkdownEditorViewProps = ClassNameProps & {
     stickyToolbar: boolean;
     enableSubmitInPreview?: boolean;
     hidePreviewAfterSubmit?: boolean;
+    mobile?: boolean;
 };
 
 export const MarkdownEditorView = forwardRef<HTMLDivElement, MarkdownEditorViewProps>(
@@ -94,6 +95,7 @@ export const MarkdownEditorView = forwardRef<HTMLDivElement, MarkdownEditorViewP
             markupHiddenActionsConfig: initialMarkupHiddenActionsConfig,
             enableSubmitInPreview = true,
             hidePreviewAfterSubmit = false,
+            mobile = false,
         } = props;
 
         const {
