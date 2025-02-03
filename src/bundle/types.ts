@@ -196,4 +196,68 @@ export type MarkdownEditorOptions = {
     markupConfig?: MarkdownEditorMarkupConfig;
     /** Options for wysiwyg mode */
     wysiwygConfig?: MarkdownEditorWysiwygConfig;
+    /** Mobile view */
+    mobile?: boolean;
+
+    /** @deprecated Put allowHTML via MarkdownEditorMdOptions */
+    allowHTML?: boolean;
+    /** @deprecated Put breaks via MarkdownEditorMdOptions */
+    breaks?: boolean;
+    /** @deprecated Put linkify via MarkdownEditorMdOptions */
+    linkify?: boolean;
+    /** @deprecated Put linkifyTlds via MarkdownEditorMdOptions */
+    linkifyTlds?: string | string[];
+    /** @deprecated Put initial markup via MarkdownEditorInitialOptions */
+    initialMarkup?: MarkdownEditorInitialOptions['markup'];
+    /**
+     * @default 'wysiwyg'
+     *
+     * @deprecated Put initial editor mode via MarkdownEditorInitialOptions
+     */
+    initialEditorMode?: MarkdownEditorInitialOptions['mode'];
+    /**
+     * @default true
+     *
+     * @deprecated Put initial toolbar visibility via MarkdownEditorInitialOptions
+     */
+    initialToolbarVisible?: MarkdownEditorInitialOptions['toolbarVisible'];
+    /**
+     * Has no effect if splitMode is false or undefined
+     *
+     * @default false
+     *
+     * @deprecated Put initialSplitModeEnabled via MarkdownEditorInitialOptions
+     */
+    initialSplitModeEnabled?: MarkdownEditorInitialOptions['splitModeEnabled'];
+    /**
+     * If we need to set dimensions for uploaded images
+     *
+     * @default false
+     *
+     * @deprecated Put needToSetDimensionsForUploadedImages via MarkdownEditorExperimentalOptions
+     */
+    needToSetDimensionsForUploadedImages?: MarkdownEditorExperimentalOptions['needToSetDimensionsForUploadedImages'];
+    /**
+     * Called before switching from the markup editor to the wysiwyg editor.
+     * You can use it to pre-process the value from the markup editor before it gets into the wysiwyg editor.
+     *
+     * @deprecated Put prepareRawMarkup via MarkdownEditorExperimentalOptions
+     */
+    prepareRawMarkup?: MarkdownEditorExperimentalOptions['prepareRawMarkup'];
+    /** @deprecated Put beforeEditorModeChange via MarkdownEditorExperimentalOptions */
+    experimental_beforeEditorModeChange?: MarkdownEditorExperimentalOptions['beforeEditorModeChange'];
+    /** @deprecated Put split mode via MarkdownEditorMarkupConfig */
+    splitMode?: MarkdownEditorMarkupConfig['splitMode'];
+    /** @deprecated Put render preview function via MarkdownEditorMarkupConfig */
+    renderPreview?: MarkdownEditorMarkupConfig['renderPreview'];
+    /** @deprecated Put extensions via MarkdownEditorWysiwygConfig */
+    extraExtensions?: MarkdownEditorWysiwygConfig['extensions'];
+    /** @deprecated Put extension options via MarkdownEditorWysiwygConfig */
+    extensionOptions?: ExtensionsOptions<T>;
+    /** @deprecated Put extra extensions via MarkdownEditorMarkupConfig */
+    extraMarkupExtensions?: MarkdownEditorMarkupConfig['extensions'];
+    /** @deprecated Put escapeConfig via MarkdownEditorWysiwygConfig */
+    escapeConfig?: MarkdownEditorWysiwygConfig['escapeConfig'];
+    /** @deprecated Put file upload handler via MarkdownEditorHandlers */
+    fileUploadHandler?: MarkdownEditorHandlers['uploadFile'];
 };
