@@ -1,9 +1,8 @@
 import React from 'react';
 
-import {ActionStorage} from '../../../core';
-import {ToolbarBaseProps} from '../../../toolbar';
+import type {ActionStorage} from '../../../core';
 import {ToolbarColors} from '../custom/ToolbarColors';
-
+import type {ToolbarBaseProps} from '../types';
 export type WToolbarColorsProps = ToolbarBaseProps<ActionStorage>;
 
 export const WToolbarColors: React.FC<WToolbarColorsProps> = ({

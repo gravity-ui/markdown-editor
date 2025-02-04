@@ -40,41 +40,42 @@ import {
     wrapToYfmCut,
     wrapToYfmNote,
 } from '../../markup/commands';
-import {CodeEditor} from '../../markup/editor';
+import type {CodeEditor} from '../../markup/editor';
 import {Action as A, formatter as f} from '../../shortcuts';
-import {ToolbarData} from '../../toolbar/Toolbar';
-import {ToolbarGroupData} from '../../toolbar/ToolbarGroup';
-import {ToolbarListButtonData} from '../../toolbar/ToolbarListButton';
-import {
-    ToolbarButtonPopupData,
-    ToolbarDataType,
-    ToolbarItemData,
-    ToolbarListButtonItemData,
-    ToolbarListItemData,
-    ToolbarReactComponentData,
-    ToolbarSingleItemData,
-} from '../../toolbar/types';
 import {MToolbarColors} from '../toolbar/markup/MToolbarColors';
 import {MToolbarFilePopup} from '../toolbar/markup/MToolbarFilePopup';
 import {MToolbarImagePopup} from '../toolbar/markup/MToolbarImagePopup';
+import type {
+    MToolbarButtonPopupData,
+    MToolbarData,
+    MToolbarGroupData,
+    MToolbarItemData,
+    MToolbarListButtonData,
+    MToolbarListItemData,
+    MToolbarSingleItemData,
+    ToolbarListButtonItemData,
+} from '../toolbar/types';
+import {ToolbarDataType} from '../toolbar/types';
 import type {MarkdownEditorPreset} from '../types';
 
 import {ActionName} from './action-names';
 import {icons} from './icons';
 
+export type {
+    MToolbarData,
+    MToolbarItemData,
+    MToolbarSingleItemData,
+    MToolbarGroupData,
+    MToolbarReactComponentData,
+    MToolbarListButtonData,
+    MToolbarListItemData,
+    MToolbarButtonPopupData,
+} from '../toolbar/types';
+
 const noop = () => {};
 const inactive = () => false;
 const enable = () => true;
 const disable = () => false;
-
-export type MToolbarData = ToolbarData<CodeEditor>;
-export type MToolbarItemData = ToolbarItemData<CodeEditor>;
-export type MToolbarSingleItemData = ToolbarSingleItemData<CodeEditor>;
-export type MToolbarGroupData = ToolbarGroupData<CodeEditor>;
-export type MToolbarReactComponentData = ToolbarReactComponentData<CodeEditor>;
-export type MToolbarListButtonData = ToolbarListButtonData<CodeEditor>;
-export type MToolbarListItemData = ToolbarListItemData<CodeEditor>;
-export type MToolbarButtonPopupData = ToolbarButtonPopupData<CodeEditor>;
 
 export const mUndoItemData: MToolbarSingleItemData = {
     id: ActionName.undo,

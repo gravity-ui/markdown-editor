@@ -1,11 +1,10 @@
 import {transform as yfmCut} from '@diplodoc/cut-extension';
-import type {NodeSpec} from 'prosemirror-model';
 
 import type {ExtensionAuto, ExtensionNodeSpec} from '../../../../core';
 
 import {CutNode} from './const';
 import {parserTokens} from './parser';
-import {getSchemaSpecs} from './schema';
+import {type YfmCutSchemaOptions, getSchemaSpecs} from './schema';
 import {getSerializerTokens} from './serializer';
 
 export {CutAttr, CutNode, cutType, cutTitleType, cutContentType} from './const';
@@ -19,18 +18,10 @@ declare global {
     }
 }
 
-export type YfmCutSpecsOptions = {
+export type YfmCutSpecsOptions = YfmCutSchemaOptions & {
     cutView?: ExtensionNodeSpec['view'];
     cutTitleView?: ExtensionNodeSpec['view'];
     cutContentView?: ExtensionNodeSpec['view'];
-    /**
-     * @deprecated: use placeholder option in BehaviorPreset instead.
-     */
-    yfmCutTitlePlaceholder?: NonNullable<NodeSpec['placeholder']>['content'];
-    /**
-     * @deprecated: use placeholder option in BehaviorPreset instead.
-     */
-    yfmCutContentPlaceholder?: NonNullable<NodeSpec['placeholder']>['content'];
 };
 
 export const YfmCutSpecs: ExtensionAuto<YfmCutSpecsOptions> = (builder, opts) => {

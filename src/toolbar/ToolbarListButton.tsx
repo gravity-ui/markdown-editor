@@ -10,26 +10,18 @@ import {isFunction} from '../lodash';
 import {useBooleanState} from '../react-utils/hooks';
 
 import {ToolbarTooltipDelay} from './const';
-import {
+import type {
     ToolbarBaseProps,
     ToolbarButtonPopupData,
-    ToolbarIconData,
     ToolbarItemData,
-    ToolbarListButtonItemData,
+    ToolbarListButtonData,
 } from './types';
 
 import './ToolbarListButton.scss';
 
 const b = cn('toolbar-list-button');
 
-export type ToolbarListButtonData<E> = {
-    icon: ToolbarIconData;
-    title: string | (() => string);
-    withArrow?: boolean;
-    data: ToolbarListButtonItemData<E>[];
-    alwaysActive?: boolean;
-    hideDisabled?: boolean;
-};
+export type {ToolbarListButtonData};
 
 export type ToolbarListButtonProps<E> = ToolbarBaseProps<E> & ToolbarListButtonData<E>;
 

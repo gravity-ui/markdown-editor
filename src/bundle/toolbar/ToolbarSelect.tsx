@@ -4,10 +4,10 @@ import {HelpPopover} from '@gravity-ui/components';
 import {Hotkey, Icon, Select, SelectOption} from '@gravity-ui/uikit';
 
 import {cn} from '../../classname';
-import {ActionStorage} from '../../core';
+import type {ActionStorage} from '../../core';
 import {isFunction} from '../../lodash';
-import {ToolbarBaseProps} from '../../toolbar';
-import type {WToolbarItemData} from '../config/wysiwyg';
+
+import type {ToolbarBaseProps, WToolbarItemData} from './types';
 
 import './ToolbarSelect.scss';
 

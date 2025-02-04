@@ -1,6 +1,6 @@
 {
   "name": "@gravity-ui/markdown-editor",
-  "version": "14.11.0",
+  "version": "14.11.1",
   "description": "Markdown wysiwyg and markup editor",
   "license": "MIT",
   "repository": {
@@ -25,6 +25,7 @@
     "lint:js": "eslint \"{src,demo}/**/*.{js,jsx,ts,tsx}\"",
     "lint:styles": "stylelint \"{src,demo}/**/*.{css,scss}\"",
     "lint:prettier": "prettier --check \"{src,demo}/**/*.{js,jsx,ts,tsx,css,scss}\"",
+    "check-circular-deps": "node scripts/check-circular-deps.js 48",
     "test": "jest",
     "test:cov": "jest --coverage",
     "test:watch": "jest --watchAll",
@@ -235,6 +236,7 @@
     "@types/rimraf": "3.0.2",
     "@types/sanitize-html": "2.11.0",
     "bem-cn-lite": "4.1.0",
+    "dpdm": "3.14.0",
     "esbuild-sass-plugin": "2.15.0",
     "eslint": "8.56.0",
     "eslint-plugin-lodash": "7.4.0",

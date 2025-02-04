@@ -2,9 +2,9 @@ import {Fragment} from 'prosemirror-model';
 import type {Command} from 'prosemirror-state';
 import {findParentNodeClosestToPos} from 'prosemirror-utils';
 
-import {isTableNode} from '..';
 import {trackTransactionMetrics} from '../../core';
 import {TableDesc} from '../table-desc';
+import {isTableNode} from '../utils';
 
 export const removeRow: Command = (
     state,
