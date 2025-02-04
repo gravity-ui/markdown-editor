@@ -31,17 +31,11 @@ export function useMarkdownEditor(
             wysiwygConfig = {},
         } = props;
 
-        const breaks = md.breaks;
-        const preserveEmptyRows = experimental.preserveEmptyRows;
         const preset: MarkdownEditorPreset = props.preset ?? 'full';
         const renderStorage = new ReactRenderStorage();
-        const uploadFile = handlers.uploadFile;
-        const needToSetDimensionsForUploadedImages =
-            experimental.needToSetDimensionsForUploadedImages;
-        const enableNewImageSizeCalculation = experimental.enableNewImageSizeCalculation;
 
         const pmTransformers = getPMTransformers({
-            emptyRowTransformer: preserveEmptyRows,
+            emptyRowTransformer: experimental.preserveEmptyRows,
         });
 
         const directiveSyntax = new DirectiveSyntaxContext(experimental.directiveSyntax);
@@ -62,12 +56,13 @@ export function useMarkdownEditor(
                     editor.emit('submit', null);
                     return true;
                 },
-                preserveEmptyRows: preserveEmptyRows,
+                preserveEmptyRows: experimental.preserveEmptyRows,
                 placeholderOptions: wysiwygConfig.placeholderOptions,
-                mdBreaks: breaks,
-                fileUploadHandler: uploadFile,
-                needToSetDimensionsForUploadedImages,
-                enableNewImageSizeCalculation,
+                mdBreaks: md.breaks,
+                fileUploadHandler: handlers.uploadFile,
+                needToSetDimensionsForUploadedImages:
+                    experimental.needToSetDimensionsForUploadedImages,
+                enableNewImageSizeCalculation: experimental.enableNewImageSizeCalculation,
             });
             {
                 const extraExtensions = wysiwygConfig.extensions;
@@ -83,41 +78,14 @@ export function useMarkdownEditor(
             renderStorage,
             directiveSyntax,
             pmTransformers,
-            md: {
-                ...md,
-                breaks,
-                html: md.html,
-                linkify: md.linkify,
-                linkifyTlds: md.linkifyTlds,
-            },
-            initial: {
-                ...initial,
-                markup: initial.markup,
-                mode: initial.mode,
-                toolbarVisible: initial.toolbarVisible,
-                splitModeEnabled: initial.splitModeEnabled,
-            },
-            handlers: {
-                ...handlers,
-                uploadFile,
-            },
-            experimental: {
-                ...experimental,
-                needToSetDimensionsForUploadedImages,
-                enableNewImageSizeCalculation,
-                prepareRawMarkup: experimental.prepareRawMarkup,
-                beforeEditorModeChange: experimental.beforeEditorModeChange,
-            },
-            markupConfig: {
-                ...markupConfig,
-                splitMode: markupConfig.splitMode,
-                renderPreview: markupConfig.renderPreview,
-                extensions: markupConfig.extensions,
-            },
+            md,
+            initial,
+            handlers,
+            experimental,
+            markupConfig,
             wysiwygConfig: {
                 ...wysiwygConfig,
                 extensions,
-                escapeConfig: wysiwygConfig.escapeConfig,
             },
         });
     }, deps);
