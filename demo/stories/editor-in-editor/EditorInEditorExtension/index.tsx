@@ -111,12 +111,16 @@ type YfmEditorProps = {
 
 function InnerEditor({initialContent, toaster}: YfmEditorProps) {
     const mdEditor = useMarkdownEditor({
-        initialMarkup: initialContent,
-        initialEditorMode: 'wysiwyg',
-        initialToolbarVisible: true,
-        linkify: true,
-        breaks: true,
-        allowHTML: false,
+        md: {
+            linkify: true,
+            breaks: true,
+            html: false,
+        },
+        initial: {
+            markup: initialContent,
+            mode: 'wysiwyg',
+            toolbarVisible: true,
+        },
     });
     return (
         <MarkdownEditorView

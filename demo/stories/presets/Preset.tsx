@@ -84,15 +84,19 @@ export const Preset = React.memo<PresetDemoProps>((props) => {
 
     const mdEditor = useMarkdownEditor({
         preset,
-        allowHTML,
-        linkify,
-        linkifyTlds,
-        breaks: breaks ?? true,
-        initialSplitModeEnabled: true,
-        initialToolbarVisible: true,
-        splitMode: splitModeOrientation,
-        renderPreview,
-        fileUploadHandler,
+        md: {
+            html: allowHTML,
+            linkify,
+            linkifyTlds,
+            breaks: breaks ?? true,
+        },
+        handlers: {
+            uploadFile: fileUploadHandler,
+        },
+        initial: {
+            toolbarVisible: true,
+            splitModeEnabled: true,
+        },
         wysiwygConfig: {
             extensionOptions: {
                 imgSize: {
@@ -101,6 +105,8 @@ export const Preset = React.memo<PresetDemoProps>((props) => {
             },
         },
         markupConfig: {
+            splitMode: splitModeOrientation,
+            renderPreview,
             parseInsertedUrlAsImage,
         },
     });
