@@ -18,7 +18,6 @@ import {type ClassNameProps, cn} from '../../classname';
 import {i18n} from '../../i18n/bundle';
 import WysiwygModeIcon from '../../icons/WysiwygMode';
 import {noop} from '../../lodash';
-import {useBooleanState} from '../../react-utils/hooks';
 import {ToolbarTooltipDelay} from '../../toolbar';
 import {VERSION} from '../../version';
 import type {MarkdownEditorMode, MarkdownEditorSplitMode} from '../types';
@@ -26,8 +25,6 @@ import type {MarkdownEditorMode, MarkdownEditorSplitMode} from '../types';
 import {MarkdownHints} from './MarkdownHints';
 
 import './index.scss';
-
-const placement: PopupPlacement = ['bottom-end', 'top-end'];
 
 const bSettings = cn('editor-settings');
 const bContent = cn('settings-content');
@@ -99,7 +96,6 @@ export const EditorSettings = memo<EditorSettingsProps>(function EditorSettings(
 
 type SettingsContentProps = ClassNameProps & {
     mode: MarkdownEditorMode;
-    onClose: () => void;
     onModeChange: (mode: MarkdownEditorMode) => void;
     onShowPreviewChange: (showPreview: boolean) => void;
     showPreview: boolean;
@@ -108,13 +104,13 @@ type SettingsContentProps = ClassNameProps & {
     splitMode?: MarkdownEditorSplitMode;
     splitModeEnabled?: boolean;
     onSplitModeChange?: (splitModeEnabled: boolean) => void;
+    mobile?: boolean;
 };
 
 const mdHelpPlacement: PopupPlacement = ['bottom', 'bottom-end', 'right-start', 'right', 'left'];
 
 const SettingsContent: React.FC<SettingsContentProps> = function SettingsContent({
     mode,
-    onClose,
     onModeChange,
     toolbarVisibility,
     onToolbarVisibilityChange,
@@ -123,15 +119,22 @@ const SettingsContent: React.FC<SettingsContentProps> = function SettingsContent
     splitModeEnabled,
     className,
     showPreview,
+    mobile,
 }) {
     return (
-        <div className={bContent(null, [className])}>
+        <div
+            className={bContent(
+                {
+                    mobile,
+                },
+                [className],
+            )}
+        >
             <Menu size="l" className={bContent('mode')}>
                 <Menu.Item
                     active={mode === 'wysiwyg'}
                     onClick={() => {
                         onModeChange('wysiwyg');
-                        onClose();
                     }}
                     iconStart={<Icon data={WysiwygModeIcon} />}
                 >
@@ -141,28 +144,29 @@ const SettingsContent: React.FC<SettingsContentProps> = function SettingsContent
                     active={mode === 'markup'}
                     onClick={() => {
                         onModeChange('markup');
-                        onClose();
                     }}
                     iconStart={<Icon data={LogoMarkdown} />}
                 >
                     {i18n('settings_markup')}
-                    <HelpMark
-                        popoverProps={{
-                            placement: mdHelpPlacement,
-                            modal: false,
-                        }}
-                        className={bContent('mode-help')}
-                    >
-                        <div
-                            onClick={(e) => {
-                                // stop clicks propagation
-                                // because otherwise click in MarkdownHints handled as click on MenuItem
-                                e.stopPropagation();
+                    {!mobile && (
+                        <HelpMark
+                            popoverProps={{
+                                placement: mdHelpPlacement,
+                                modal: false,
                             }}
+                            className={bContent('mode-help')}
                         >
-                            <MarkdownHints />
-                        </div>
-                    </HelpMark>
+                            <div
+                                onClick={(e) => {
+                                    // stop clicks propagation
+                                    // because otherwise click in MarkdownHints handled as click on MenuItem
+                                    e.stopPropagation();
+                                }}
+                            >
+                                <MarkdownHints />
+                            </div>
+                        </HelpMark>
+                    )}
                 </Menu.Item>
             </Menu>
             <div className={bContent('separator')} />

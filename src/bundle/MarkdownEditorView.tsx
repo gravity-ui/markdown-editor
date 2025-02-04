@@ -220,21 +220,23 @@ export const MarkdownEditorView = forwardRef<HTMLDivElement, MarkdownEditorViewP
                     onShowPreviewChange={onShowPreviewChange}
                     showPreview={showPreview}
                     renderPreviewButton={canRenderPreview}
+                    mobile={mobile}
                 />
             ),
             [
                 editorMode,
                 settingsVisible,
+                onModeChange,
                 editor.toolbarVisible,
                 editor.splitModeEnabled,
                 editor.splitMode,
-                onModeChange,
                 showPreview,
                 onToolbarVisibilityChange,
                 onSplitModeChange,
                 stickyToolbar,
                 onShowPreviewChange,
                 canRenderPreview,
+                mobile,
             ],
         );
 
