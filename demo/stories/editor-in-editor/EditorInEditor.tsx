@@ -13,15 +13,21 @@ import {
 
 export const EditorInEditor: FC = () => {
     const editor = useMarkdownEditor({
-        initialEditorMode: 'wysiwyg',
-        initialToolbarVisible: true,
-        allowHTML: false,
-        linkify: true,
-        breaks: true,
-        extraExtensions: (builder) =>
-            builder.use(extension, {
-                toaster,
-            }),
+        md: {
+            html: false,
+            linkify: true,
+            breaks: true,
+        },
+        initial: {
+            mode: 'wysiwyg',
+            toolbarVisible: true,
+        },
+        wysiwygConfig: {
+            extensions: (builder) =>
+                builder.use(extension, {
+                    toaster,
+                }),
+        },
     });
 
     useEffect(() => {

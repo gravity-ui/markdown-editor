@@ -15,12 +15,10 @@ import type {
 } from './types';
 import {BundlePreset} from './wysiwyg-preset';
 
-// [major] TODO: remove generic type
-export type UseMarkdownEditorProps<T extends object = {}> = MarkdownEditorOptions<T>;
+export type UseMarkdownEditorProps = MarkdownEditorOptions;
 
-// [major] TODO: remove generic type
-export function useMarkdownEditor<T extends object = {}>(
-    props: UseMarkdownEditorProps<T>,
+export function useMarkdownEditor(
+    props: UseMarkdownEditorProps,
     deps: React.DependencyList = [],
 ): MarkdownEditorInstance {
     const editor = useMemo<EditorInt>(() => {
@@ -33,14 +31,13 @@ export function useMarkdownEditor<T extends object = {}>(
             wysiwygConfig = {},
         } = props;
 
-        const breaks = md.breaks ?? props.breaks;
+        const breaks = md.breaks;
         const preserveEmptyRows = experimental.preserveEmptyRows;
         const preset: MarkdownEditorPreset = props.preset ?? 'full';
         const renderStorage = new ReactRenderStorage();
-        const uploadFile = handlers.uploadFile ?? props.fileUploadHandler;
+        const uploadFile = handlers.uploadFile;
         const needToSetDimensionsForUploadedImages =
-            experimental.needToSetDimensionsForUploadedImages ??
-            props.needToSetDimensionsForUploadedImages;
+            experimental.needToSetDimensionsForUploadedImages;
         const enableNewImageSizeCalculation = experimental.enableNewImageSizeCalculation;
 
         const pmTransformers = getPMTransformers({
@@ -50,7 +47,7 @@ export function useMarkdownEditor<T extends object = {}>(
         const directiveSyntax = new DirectiveSyntaxContext(experimental.directiveSyntax);
 
         const extensions: Extension = (builder) => {
-            const extensionOptions = wysiwygConfig.extensionOptions ?? props.extensionOptions;
+            const extensionOptions = wysiwygConfig.extensionOptions;
 
             builder.use(BundlePreset, {
                 ...extensionOptions,
@@ -73,9 +70,9 @@ export function useMarkdownEditor<T extends object = {}>(
                 enableNewImageSizeCalculation,
             });
             {
-                const extraExtensions = wysiwygConfig.extensions || props.extraExtensions;
+                const extraExtensions = wysiwygConfig.extensions;
                 if (extraExtensions) {
-                    builder.use(extraExtensions, props.extensionOptions);
+                    builder.use(extraExtensions, props.wysiwygConfig?.extensionOptions);
                 }
             }
         };
@@ -89,16 +86,16 @@ export function useMarkdownEditor<T extends object = {}>(
             md: {
                 ...md,
                 breaks,
-                html: md.html ?? props.allowHTML,
-                linkify: md.linkify ?? props.linkify,
-                linkifyTlds: md.linkifyTlds ?? props.linkifyTlds,
+                html: md.html,
+                linkify: md.linkify,
+                linkifyTlds: md.linkifyTlds,
             },
             initial: {
                 ...initial,
-                markup: initial.markup ?? props.initialMarkup,
-                mode: initial.mode ?? props.initialEditorMode,
-                toolbarVisible: initial.toolbarVisible ?? props.initialToolbarVisible,
-                splitModeEnabled: initial.splitModeEnabled ?? props.initialSplitModeEnabled,
+                markup: initial.markup,
+                mode: initial.mode,
+                toolbarVisible: initial.toolbarVisible,
+                splitModeEnabled: initial.splitModeEnabled,
             },
             handlers: {
                 ...handlers,
@@ -108,21 +105,19 @@ export function useMarkdownEditor<T extends object = {}>(
                 ...experimental,
                 needToSetDimensionsForUploadedImages,
                 enableNewImageSizeCalculation,
-                prepareRawMarkup: experimental.prepareRawMarkup ?? props.prepareRawMarkup,
-                beforeEditorModeChange:
-                    experimental.beforeEditorModeChange ??
-                    props.experimental_beforeEditorModeChange,
+                prepareRawMarkup: experimental.prepareRawMarkup,
+                beforeEditorModeChange: experimental.beforeEditorModeChange,
             },
             markupConfig: {
                 ...markupConfig,
-                splitMode: markupConfig.splitMode ?? props.splitMode,
-                renderPreview: markupConfig.renderPreview ?? props.renderPreview,
-                extensions: markupConfig.extensions ?? props.extraMarkupExtensions,
+                splitMode: markupConfig.splitMode,
+                renderPreview: markupConfig.renderPreview,
+                extensions: markupConfig.extensions,
             },
             wysiwygConfig: {
                 ...wysiwygConfig,
                 extensions,
-                escapeConfig: wysiwygConfig.escapeConfig ?? props.escapeConfig,
+                escapeConfig: wysiwygConfig.escapeConfig,
             },
         });
     }, deps);
