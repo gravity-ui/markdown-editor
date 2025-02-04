@@ -45,6 +45,17 @@ const preview: Preview = {
                 ],
             },
         },
+        platform: {
+            defaultValue: 'desktop',
+            toolbar: {
+                title: 'Platform',
+                items: [
+                    {value: 'desktop', title: 'Desktop', icon: 'browser'},
+                    {value: 'mobile', title: 'Mobile', icon: 'mobile'},
+                ],
+                dynamicTitle: true,
+            },
+        },
     },
 };
 
