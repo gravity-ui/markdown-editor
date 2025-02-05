@@ -1,4 +1,4 @@
-import React from 'react';
+import {useCallback, useRef} from 'react';
 
 import {Popup, PopupPlacement} from '@gravity-ui/uikit';
 import {useMountedState} from 'react-use';
@@ -22,8 +22,8 @@ export type FilePlaceholderProps = {
 export const FilePlaceholder: React.FC<FilePlaceholderProps> = ({onCancel, onSubmit, onAttach}) => {
     const isMounted = useMountedState();
     const [loading, showLoading, hideLoading] = useBooleanState(false);
-    const divRef = React.useRef<HTMLDivElement>(null);
-    const attachHandler = React.useCallback<NonNullable<FileFormProps['onAttach']>>(
+    const divRef = useRef<HTMLDivElement>(null);
+    const attachHandler = useCallback<NonNullable<FileFormProps['onAttach']>>(
         (files) => {
             if (!onAttach) return;
             if (isMounted()) {

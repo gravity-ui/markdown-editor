@@ -1,5 +1,3 @@
-import React from 'react';
-
 import {List, Popup, PopupPlacement} from '@gravity-ui/uikit';
 
 import {cn} from '../../../../classname';

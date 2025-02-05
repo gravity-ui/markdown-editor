@@ -1,5 +1,3 @@
-import React from 'react';
-
 import {ActionTooltip, Button, DropdownMenu} from '@gravity-ui/uikit';
 
 import {cn} from '../../../../classname';

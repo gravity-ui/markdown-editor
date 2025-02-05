@@ -1,4 +1,4 @@
-import React, {FC, useEffect} from 'react';
+import {useEffect} from 'react';
 
 import {toaster} from '@gravity-ui/uikit/toaster-singleton-react-18';
 
@@ -11,7 +11,7 @@ import {
     EditorInEditor as extension,
 } from './EditorInEditorExtension';
 
-export const EditorInEditor: FC = () => {
+export const EditorInEditor: React.FC = () => {
     const editor = useMarkdownEditor({
         md: {
             html: false,

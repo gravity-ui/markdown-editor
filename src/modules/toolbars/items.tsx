@@ -1,5 +1,3 @@
-import React from 'react';
-
 import {icons} from '../../bundle/config/icons';
 import {MToolbarColors} from '../../bundle/toolbar/markup/MToolbarColors';
 import {MToolbarFilePopup} from '../../bundle/toolbar/markup/MToolbarFilePopup';

@@ -1,4 +1,4 @@
-import React from 'react';
+import {useEffect, useMemo, useRef} from 'react';
 
 import {ChevronDown} from '@gravity-ui/icons';
 import {ActionTooltip, Button, Icon, IconProps, Menu, Popup} from '@gravity-ui/uikit';
@@ -47,9 +47,9 @@ export const ToolbarButtonWithPopupMenu: React.FC<ToolbarButtonWithPopupMenuProp
     menuItems,
     _selectionType,
 }) => {
-    const buttonRef = React.useRef<HTMLButtonElement>(null);
+    const buttonRef = useRef<HTMLButtonElement>(null);
     const [open, , hide, toggleOpen] = useBooleanState(false);
-    const groups = React.useMemo(
+    const groups = useMemo(
         () =>
             groupBy(
                 menuItems.map((i) => ({...i, group: i.group || ''})),
@@ -65,7 +65,7 @@ export const ToolbarButtonWithPopupMenu: React.FC<ToolbarButtonWithPopupMenuProp
 
     const popupOpen = everyDisabled ? false : open;
     const shouldForceHide = open && !popupOpen;
-    React.useEffect(() => {
+    useEffect(() => {
         if (shouldForceHide) {
             hide();
         }

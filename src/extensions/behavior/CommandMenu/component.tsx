@@ -1,5 +1,3 @@
-import React from 'react';
-
 import {HelpPopover} from '@gravity-ui/components';
 import {Hotkey, Icon, List, Popup, PopupPlacement} from '@gravity-ui/uikit';
 

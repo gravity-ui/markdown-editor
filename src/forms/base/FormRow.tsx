@@ -1,5 +1,3 @@
-import React from 'react';
-
 import {HelpPopover} from '@gravity-ui/components';
 
 import {ClassNameProps, cn} from '../../classname';

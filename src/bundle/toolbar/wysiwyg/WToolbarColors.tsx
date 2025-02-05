@@ -1,5 +1,3 @@
-import React from 'react';
-
 import type {ActionStorage} from '../../../core';
 import {ToolbarColors} from '../custom/ToolbarColors';
 import type {ToolbarBaseProps} from '../types';

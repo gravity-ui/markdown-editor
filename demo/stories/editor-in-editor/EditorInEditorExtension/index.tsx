@@ -1,5 +1,3 @@
-import React from 'react';
-
 import {ToasterPublicMethods} from '@gravity-ui/uikit';
 import {Node} from 'prosemirror-model';
 import {EditorView, NodeView} from 'prosemirror-view';

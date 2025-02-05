@@ -1,4 +1,12 @@
-import React, {MutableRefObject, useEffect, useMemo, useRef, useState} from 'react';
+import {
+    forwardRef,
+    useCallback,
+    useEffect,
+    useLayoutEffect,
+    useMemo,
+    useRef,
+    useState,
+} from 'react';
 
 import type {ToasterPublicMethods} from '@gravity-ui/uikit';
 import {ErrorBoundary} from 'react-error-boundary';
@@ -57,9 +65,9 @@ export type MarkdownEditorViewProps = ClassNameProps & {
     hidePreviewAfterSubmit?: boolean;
 };
 
-export const MarkdownEditorView = React.forwardRef<HTMLDivElement, MarkdownEditorViewProps>(
+export const MarkdownEditorView = forwardRef<HTMLDivElement, MarkdownEditorViewProps>(
     (props, ref) => {
-        const divRef = useEnsuredForwardedRef(ref as MutableRefObject<HTMLDivElement>);
+        const divRef = useEnsuredForwardedRef(ref as React.MutableRefObject<HTMLDivElement>);
 
         const [isMounted, setIsMounted] = useState(false);
         useEffect(() => {
@@ -118,27 +126,27 @@ export const MarkdownEditorView = React.forwardRef<HTMLDivElement, MarkdownEdito
         );
 
         const rerender = useUpdate();
-        React.useLayoutEffect(() => {
+        useLayoutEffect(() => {
             editor.on('rerender', rerender);
             return () => {
                 editor.off('rerender', rerender);
             };
         }, [editor, rerender]);
 
-        const onModeChange = React.useCallback(
+        const onModeChange = useCallback(
             (type: MarkdownEditorMode) => {
                 editor.changeEditorMode({mode: type, reason: 'settings'});
                 unsetShowPreview();
             },
             [editor, unsetShowPreview],
         );
-        const onToolbarVisibilityChange = React.useCallback(
+        const onToolbarVisibilityChange = useCallback(
             (visible: boolean) => {
                 editor.changeToolbarVisibility({visible});
             },
             [editor],
         );
-        const onSplitModeChange = React.useCallback(
+        const onSplitModeChange = useCallback(
             (splitModeEnabled: boolean) => {
                 unsetShowPreview();
                 editor.changeSplitModeEnabled({splitModeEnabled});
@@ -146,7 +154,7 @@ export const MarkdownEditorView = React.forwardRef<HTMLDivElement, MarkdownEdito
             [editor, unsetShowPreview],
         );
 
-        const onShowPreviewChange = React.useCallback(
+        const onShowPreviewChange = useCallback(
             (showPreviewValue: boolean) => {
                 editor.changeSplitModeEnabled({splitModeEnabled: false});
                 if (showPreviewValue !== showPreview) toggleShowPreview();

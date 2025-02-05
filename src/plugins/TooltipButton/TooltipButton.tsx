@@ -1,4 +1,4 @@
-import React, {ReactNode, useLayoutEffect, useRef, useState} from 'react';
+import {type ReactNode, useLayoutEffect, useRef, useState} from 'react';
 
 import {Ellipsis} from '@gravity-ui/icons';
 import {Button, Icon, Popup, PopupPlacement, PopupProps} from '@gravity-ui/uikit';

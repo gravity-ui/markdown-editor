@@ -1,5 +1,3 @@
-import React from 'react';
-
 import {HelpPopover, HelpPopoverProps} from '@gravity-ui/components';
 import {Link, Portal} from '@gravity-ui/uikit';
 

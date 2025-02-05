@@ -1,4 +1,4 @@
-import React, {ComponentType, RefAttributes, forwardRef, useEffect} from 'react';
+import {type ComponentType, type RefAttributes, forwardRef, useEffect} from 'react';
 
 import {useLatex} from '@diplodoc/latex-extension/react';
 

@@ -1,4 +1,4 @@
-import React, {HTMLAttributes, useCallback, useEffect, useRef} from 'react';
+import {HTMLAttributes, useCallback, useEffect, useRef} from 'react';
 
 import {cn} from '../../../../../classname';
 import {ReactNodeViewProps, useNodeEditing, useNodeHovered} from '../../../../../react-utils';

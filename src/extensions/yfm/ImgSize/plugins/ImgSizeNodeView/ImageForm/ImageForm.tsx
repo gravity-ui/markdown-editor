@@ -1,4 +1,4 @@
-import React, {RefObject} from 'react';
+import {type RefObject, useRef, useState} from 'react';
 
 import {Popup, TextInput, TextInputProps} from '@gravity-ui/uikit';
 import isNumber from 'is-number';
@@ -28,11 +28,11 @@ export const ImageForm: React.FC<{
     const {attrs, marks} = node;
     const link = marks.find((m) => m.type.name === linkType(view.state.schema).name);
 
-    const [name, setName] = React.useState(attrs[ImgSizeAttr.Title] || '');
-    const [alt, setAlt] = React.useState(attrs[ImgSizeAttr.Alt] || '');
-    const [width, setWidth] = React.useState(attrs[ImgSizeAttr.Width] || '');
-    const [height, setHeight] = React.useState(attrs[ImgSizeAttr.Height] || '');
-    const [linkHref, setLinkHref] = React.useState(link?.attrs.href || '');
+    const [name, setName] = useState(attrs[ImgSizeAttr.Title] || '');
+    const [alt, setAlt] = useState(attrs[ImgSizeAttr.Alt] || '');
+    const [width, setWidth] = useState(attrs[ImgSizeAttr.Width] || '');
+    const [height, setHeight] = useState(attrs[ImgSizeAttr.Height] || '');
+    const [linkHref, setLinkHref] = useState(link?.attrs.href || '');
     const handleSubmit = () => {
         updateAttributes(
             {
@@ -52,8 +52,8 @@ export const ImageForm: React.FC<{
         );
         unsetEdit();
     };
-    const linkRef = React.useRef<HTMLInputElement>(null);
-    const imageNameRef = React.useRef<HTMLInputElement>(null);
+    const linkRef = useRef<HTMLInputElement>(null);
+    const imageNameRef = useRef<HTMLInputElement>(null);
 
     useAutoFocus(link ? linkRef : imageNameRef);
 

@@ -1,4 +1,4 @@
-import React, {useCallback, useLayoutEffect, useState} from 'react';
+import {memo, useCallback, useLayoutEffect, useState} from 'react';
 
 import {toaster} from '@gravity-ui/uikit/toaster-singleton-react-18';
 
@@ -28,7 +28,7 @@ type PreserveEmptyRowsDemoProps = {
     preserveEmptyRows: boolean;
 };
 
-export const PreserveEmptyRowsDemo = React.memo<PreserveEmptyRowsDemoProps>((props) => {
+export const PreserveEmptyRowsDemo = memo<PreserveEmptyRowsDemoProps>((props) => {
     const {preserveEmptyRows} = props;
 
     const [mdMarkup, setMdMarkup] = useState(initialMarkup);

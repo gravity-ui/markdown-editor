@@ -1,4 +1,4 @@
-import React, {RefObject, useCallback} from 'react';
+import {RefObject, useCallback} from 'react';
 
 import {Popup, PopupPlacement} from '@gravity-ui/uikit';
 

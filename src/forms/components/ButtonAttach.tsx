@@ -1,5 +1,3 @@
-import React from 'react';
-
 import {Button, ButtonProps, UseFileInputProps, useFileInput} from '@gravity-ui/uikit';
 
 export type ButtonAttachProps = UseFileInputProps & {

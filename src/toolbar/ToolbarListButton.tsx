@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import {Fragment, useEffect, useRef, useState} from 'react';
 
 import {HelpPopover} from '@gravity-ui/components';
 import {ChevronDown} from '@gravity-ui/icons';
@@ -36,7 +36,7 @@ export function ToolbarListButton<E>({
     data,
     alwaysActive,
 }: ToolbarListButtonProps<E>) {
-    const buttonRef = React.useRef<HTMLButtonElement>(null);
+    const buttonRef = useRef<HTMLButtonElement>(null);
     const [open, , hide, toggleOpen] = useBooleanState(false);
     const [popupItem, setPopupItem] = useState<ToolbarButtonPopupData<E>>();
 
@@ -47,7 +47,7 @@ export function ToolbarListButton<E>({
 
     const popupOpen = everyDisabled ? false : open;
     const shouldForceHide = open && !popupOpen;
-    React.useEffect(() => {
+    useEffect(() => {
         if (shouldForceHide) {
             hide();
         }
@@ -57,7 +57,7 @@ export function ToolbarListButton<E>({
 
     const buttonContent = [<Icon key={1} data={icon.data} size={icon.size ?? 16} />];
     if (withArrow) {
-        buttonContent.push(<React.Fragment key={2}>{''}</React.Fragment>);
+        buttonContent.push(<Fragment key={2}>{''}</Fragment>);
         buttonContent.push(<Icon key={3} data={ChevronDown} size={16} />);
     }
 

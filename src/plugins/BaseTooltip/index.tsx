@@ -1,5 +1,3 @@
-import React, {ReactNode} from 'react';
-
 import {Popup, PopupPlacement, PopupProps} from '@gravity-ui/uikit';
 import {Mark, MarkType, Node, NodeType} from 'prosemirror-model';
 import {NodeSelection, PluginView} from 'prosemirror-state';
@@ -224,7 +222,7 @@ export class BaseTooltipPluginView implements PluginView {
         this.render();
     }
 
-    protected renderContent(currentNode: BaseTooltipNode): ReactNode {
+    protected renderContent(currentNode: BaseTooltipNode): React.ReactNode {
         if (!this.content) return null;
         // hack for popup rerender
         window.dispatchEvent(new CustomEvent('scroll'));

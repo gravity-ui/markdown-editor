@@ -1,5 +1,3 @@
-import React from 'react';
-
 import {TrashBin} from '@gravity-ui/icons';
 import {Select, SelectOption} from '@gravity-ui/uikit';
 import {Node} from 'prosemirror-model';

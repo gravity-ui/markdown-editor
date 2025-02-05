@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import {memo, useState} from 'react';
 
 import {toaster} from '@gravity-ui/uikit/toaster-singleton-react-18';
 import cloneDeep from 'lodash/cloneDeep';
@@ -34,7 +34,7 @@ wCommandMenuConfig.unshift(wGptItemData);
 const mToolbarConfig = cloneDeep(markupToolbarConfigs.mToolbarConfig);
 mToolbarConfig.unshift([mGptToolbarItem]);
 
-export const GPT = React.memo(() => {
+export const GPT = memo(() => {
     const [showedAlertGpt, setShowedAlertGpt] = useState(true);
 
     const gptExtensionProps = gptWidgetProps({

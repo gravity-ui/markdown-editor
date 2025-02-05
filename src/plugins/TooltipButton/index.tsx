@@ -1,5 +1,3 @@
-import React from 'react';
-
 import {NodeType} from 'prosemirror-model';
 import {EditorView} from 'prosemirror-view';
 

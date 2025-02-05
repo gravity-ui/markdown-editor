@@ -1,5 +1,3 @@
-import React from 'react';
-
 import {ClassNameProps, cn} from '../../classname';
 
 import './Form.scss';

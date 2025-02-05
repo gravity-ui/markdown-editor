@@ -1,5 +1,3 @@
-import React from 'react';
-
 import {EditorView} from 'prosemirror-view';
 import {createPortal} from 'react-dom';
 

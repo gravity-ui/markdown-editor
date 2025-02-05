@@ -1,5 +1,3 @@
-import React from 'react';
-
 import {Popup, PopupPlacement, PopupProps} from '@gravity-ui/uikit';
 import {keydownHandler} from 'prosemirror-keymap';
 import {EditorState, Plugin, PluginView, TextSelection} from 'prosemirror-state';

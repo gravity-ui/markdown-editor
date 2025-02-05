@@ -1,4 +1,4 @@
-import React, {useCallback, useRef, useState} from 'react';
+import {useCallback, useRef, useState} from 'react';
 
 import {ArrowRight, ArrowRotateLeft, ThumbsDown, ThumbsUp} from '@gravity-ui/icons';
 import {ActionTooltip, Alert, AlertProps, Button, Icon, TextInput} from '@gravity-ui/uikit';
