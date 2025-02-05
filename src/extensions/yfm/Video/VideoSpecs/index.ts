@@ -57,10 +57,13 @@ export const VideoSpecs: ExtensionAuto<VideoSpecsOptions> = (builder, opts) => {
                 const videoId = node.attrs[VideoAttr.VideoID];
 
                 if (availableServices.has(service) || !videoId) {
+                    // TODO: remove in next major
+                    // see https://github.com/gravity-ui/markdown-editor/pull/478
                     let src = '';
-                    if (typeof options.videoUrl === 'function') {
-                        src = options.videoUrl(service, videoId, options);
-                    }
+                    if (typeof (options as any).url === 'function')
+                        src = (options as any).url(service, videoId, options);
+                    else if (typeof (options as any).videoUrl === 'function')
+                        src = (options as any).videoUrl(service, videoId, options);
                     return [
                         'div',
                         {
