@@ -34,126 +34,130 @@
   },
   "exports": {
     ".": {
-      "types": "./build/esm/index.d.ts",
-      "require": "./build/cjs/index.js",
-      "import": "./build/esm/index.js"
+      "import":{
+        "types": "./build/esm/index.d.ts",
+        "default": "./build/esm/index.js"
+      },
+      "require":{
+        "types": "./build/cjs/index.d.ts",
+        "default": "./build/cjs/index.js"
+      }
     },
     "./core": {
-      "types": "./build/esm/core/index.d.ts",
-      "require": "./build/cjs/core/index.js",
-      "import": "./build/esm/core/index.js"
+      "import":{
+        "types": "./build/esm/core/index.d.ts",
+        "default": "./build/esm/core/index.js"
+      },
+      "require":{
+        "types": "./build/cjs/core/index.d.ts",
+        "default": "./build/cjs/core/index.js"
+      }
     },
     "./i18n": {
-      "types": "./build/esm/i18n/i18n.d.ts",
-      "require": "./build/cjs/i18n/i18n.js",
-      "import": "./build/esm/i18n/i18n.js"
+      "import":{
+        "types": "./build/esm/i18n/i18n.d.ts",
+        "default": "./build/esm/i18n/i18n.js"
+      },
+      "require":{
+        "types": "./build/cjs/i18n/i18n.d.ts",
+        "default": "./build/cjs/i18n/i18n.js"
+      }
     },
     "./specs": {
-      "types": "./build/esm/extensions/specs.d.ts",
-      "require": "./build/cjs/extensions/specs.js",
-      "import": "./build/esm/extensions/specs.js"
+      "import":{
+        "types": "./build/esm/extensions/specs.d.ts",
+        "default": "./build/esm/extensions/specs.js"
+      },
+      "require":{
+        "types": "./build/cjs/extensions/specs.d.ts",
+        "default": "./build/cjs/extensions/specs.js"
+      }
     },
     "./extensions": {
-      "types": "./build/esm/extensions/index.d.ts",
-      "require": "./build/cjs/extensions/index.js",
-      "import": "./build/esm/extensions/index.js"
+      "import":{
+        "types": "./build/esm/extensions/index.d.ts",
+        "default": "./build/esm/extensions/index.js"
+      },
+      "require":{
+        "types": "./build/cjs/extensions/index.d.ts",
+        "default": "./build/cjs/extensions/index.js"
+      }
     },
     "./extensions/*": {
-      "types": "./build/esm/extensions/*",
-      "require": "./build/cjs/extensions/*",
-      "import": "./build/esm/extensions/*"
+      "import":{
+        "types": "./build/esm/extensions/*",
+        "default": "./build/esm/extensions/*"
+      },
+      "require":{
+        "types": "./build/cjs/extensions/*",
+        "default": "./build/cjs/extensions/*"
+      }
     },
     "./view": {
-      "types": "./build/esm/view/index.d.ts",
-      "require": "./build/cjs/view/index.js",
-      "import": "./build/esm/view/index.js"
+      "import":{
+        "types": "./build/esm/view/index.d.ts",
+        "default": "./build/esm/view/index.js"
+      },
+      "require":{
+        "types": "./build/cjs/view/index.d.ts",
+        "default": "./build/cjs/view/index.js"
+      }
     },
     "./view/*": {
-      "types": "./build/esm/view/*",
-      "require": "./build/cjs/view/*",
-      "import": "./build/esm/view/*"
-    },
-    "./bundle": {
-      "types": "./build/esm/bundle/index.d.ts",
-      "require": "./build/cjs/bundle/index.js",
-      "import": "./build/esm/bundle/index.js"
-    },
-    "./bundle/*": {
-      "types": "./build/esm/bundle/*",
-      "require": "./build/cjs/bundle/*",
-      "import": "./build/esm/bundle/*"
+      "import":{
+        "types": "./build/esm/view/*",
+        "default": "./build/esm/view/*"
+      },
+      "require":{
+        "types": "./build/cjs/view/*",
+        "default": "./build/cjs/view/*"
+      }
     },
     "./cm/*": {
-      "types": "./build/esm/cm/*",
-      "require": "./build/cjs/cm/*",
-      "import": "./build/esm/cm/*"
+      "import":{
+        "types": "./build/esm/cm/*.d.ts",
+        "default": "./build/esm/cm/*"
+      },
+      "require":{
+        "types": "./build/cjs/cm/*.d.ts",
+        "default": "./build/cjs/cm/*"
+      }
     },
     "./pm/*": {
-      "types": "./build/esm/pm/*",
-      "require": "./build/cjs/pm/*",
-      "import": "./build/esm/pm/*"
+      "import":{
+        "types": "./build/esm/pm/*.d.ts",
+        "default": "./build/esm/pm/*"
+      },
+      "require":{
+        "types": "./build/cjs/pm/*.d.ts",
+        "default": "./build/cjs/pm/*"
+      }
     },
     "./markdown-it/*": {
-      "types": "./build/esm/markdown-it/*",
-      "require": "./build/cjs/markdown-it/*",
-      "import": "./build/esm/markdown-it/*"
+      "import":{
+        "types": "./build/esm/markdown-it/*.d.ts",
+        "default": "./build/esm/markdown-it/*"
+      },
+      "require":{
+        "types": "./build/cjs/markdown-it/*.d.ts",
+        "default": "./build/cjs/markdown-it/*"
+      }
     },
     "./_/*": {
-      "types": "./build/esm/*",
-      "require": "./build/cjs/*",
-      "import": "./build/esm/*"
+      "import":{
+        "types": "./build/esm/*",
+        "default": "./build/esm/*"
+      },
+      "require":{
+        "types": "./build/cjs/*",
+        "default": "./build/cjs/*"
+      }
     },
     "./styles/*": "./build/esm/styles/*"
   },
   "main": "build/cjs/index.js",
   "module": "build/esm/index.js",
   "types": "build/esm/index.d.ts",
-  "typesVersions": {
-    "*": {
-      "index.d.ts": [
-        "./build/esm/index.d.ts"
-      ],
-      "core": [
-        "./build/esm/core/index.d.ts"
-      ],
-      "i18n": [
-        "./build/esm/i18n/i18n.d.ts"
-      ],
-      "specs": [
-        "./build/esm/extensions/specs.d.ts"
-      ],
-      "cm/*": [
-        "./build/esm/cm/*"
-      ],
-      "pm/*": [
-        "./build/esm/pm/*"
-      ],
-      "markdown-it/*": [
-        "./build/esm/markdown-it/*"
-      ],
-      "_/*": [
-        "./build/esm/*"
-      ],
-      "extensions/*": [
-        "./build/esm/extensions/*"
-      ],
-      "extensions": [
-        "./build/esm/extensions/index.d.ts"
-      ],
-      "view/*": [
-        "./build/esm/view/*"
-      ],
-      "view": [
-        "./build/esm/view/index.d.ts"
-      ],
-      "bundle/*": [
-        "./build/esm/bundle/*"
-      ],
-      "bundle": [
-        "./build/esm/bundle/index.d.ts"
-      ]
-    }
-  },
   "files": [
     "build"
   ],
