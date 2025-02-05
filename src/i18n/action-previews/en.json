@@ -1,4 +1,5 @@
 {
-  "text": "Это текст без заголовка. И заголовок, и \nтекст под ним можно выделять \nполужирным, курсивом, цветом, \nзачёркивать и подчёркивать. А ещё — \nдобавлять списки, таблицы, ссылки, \nформулы, якоря и блоки кода",
-  "heading": "О тексте"
+  "text": "This is a text without a title. \nBoth the title and the text \nbelow it can be highlighted in bold, italics, color, \nstrikethrough, and underline. You can also add lists, \ntables, links, formulas, anchors, \nand code blocks.",
+  "text-with-head": "This is the text with the title. \nBoth the title and the text \nbelow it can be highlighted in bold, italics, color, \nstrikethrough, and underline. You can also add lists, \ntables, links, formulas, anchors, \nand code blocks.",
+  "heading": "Text"
 }

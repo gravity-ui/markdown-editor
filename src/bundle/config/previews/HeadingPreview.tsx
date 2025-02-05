@@ -16,7 +16,7 @@ export const HeadingPreview = ({level}: {level: HeadingLevel}) => {
     return (
         <ActionPreview>
             <DynamicHeading level={level}>{i18n('heading')}</DynamicHeading>
-            <p>{i18n('text')}</p>
+            <p>{i18n('text-with-head')}</p>
         </ActionPreview>
     );
 };
