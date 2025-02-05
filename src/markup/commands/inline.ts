@@ -13,18 +13,6 @@ export const insertLink: StateCommand = ({state, dispatch}) => {
     return true;
 };
 
-// [major] TODO: remove insertAnchor
-const defaultAnchorSnippet = snippet(`#[#{2:text}](#{1:anchor} "#{3:title}")`);
-/** @deprecated */
-export const insertAnchor: StateCommand = ({state, dispatch}) => {
-    const {from, to, empty} = state.selection.main;
-    const anchorSnippet = empty
-        ? defaultAnchorSnippet
-        : snippet(`#[#{2:${state.sliceDoc(from, to)}}](#{1:anchor} "#{3:title}")`);
-    anchorSnippet({state, dispatch}, null, from, to);
-    return true;
-};
-
 export type ImageItem = {
     url?: string;
     title?: string;

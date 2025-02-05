@@ -4,7 +4,7 @@ import {findParentNodeOfType} from 'prosemirror-utils';
 
 import {toParagraph} from '../../../extensions/base';
 
-import {hType} from './YfmHeadingSpecs/utils';
+import {headingType} from './YfmHeadingSpecs/utils';
 import {HeadingLevel, YfmHeadingAttr, headingLevelAttr} from './const';
 
 export {resetHeading} from '../../markdown/Heading/commands';
@@ -14,7 +14,7 @@ export const toHeading =
     (state, dispatch, view) => {
         const attrs: Record<string, any> = {};
 
-        const parentHeading = findParentNodeOfType(hType(state.schema))(state.selection);
+        const parentHeading = findParentNodeOfType(headingType(state.schema))(state.selection);
         if (parentHeading) {
             if (parentHeading.node.attrs[headingLevelAttr] === level) {
                 return toParagraph(state, dispatch, view);
@@ -27,5 +27,5 @@ export const toHeading =
         // attrs[YfmHeadingAttr.Id] = slugify(text);
         attrs[YfmHeadingAttr.Level] = level;
 
-        return setBlockType(hType(state.schema), attrs)(state, dispatch);
+        return setBlockType(headingType(state.schema), attrs)(state, dispatch);
     };

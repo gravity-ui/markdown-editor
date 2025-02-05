@@ -17,7 +17,7 @@ export type ToolbarButtonProps<E> = ToolbarBaseProps<E> & ToolbarItemData<E>;
 
 export type ToolbarButtonViewProps = Pick<
     ToolbarItemData<unknown>,
-    'icon' | 'title' | 'hint' | 'hotkey' | 'disabledPopoverVisible' | 'hintWhenDisabled'
+    'icon' | 'title' | 'hint' | 'hotkey' | 'hintWhenDisabled'
 > & {
     active: boolean;
     enabled: boolean;
@@ -27,25 +27,13 @@ export type ToolbarButtonViewProps = Pick<
 
 export const ToolbarButtonView = React.forwardRef<HTMLElement, ToolbarButtonViewProps>(
     function ToolbarButtonView(
-        {
-            icon,
-            title,
-            hint,
-            hotkey,
-            disabledPopoverVisible = true,
-            hintWhenDisabled,
-            active,
-            enabled,
-            onClick,
-            className,
-        },
+        {icon, title, hint, hotkey, hintWhenDisabled, active, enabled, onClick, className},
         ref,
     ) {
         const disabled = !active && !enabled;
         const titleText: string = isFunction(title) ? title() : title;
         const hintText: string | undefined = isFunction(hint) ? hint() : hint;
-        const hideHintWhenDisabled =
-            hintWhenDisabled === false || !disabledPopoverVisible || !disabled;
+        const hideHintWhenDisabled = hintWhenDisabled === false || !disabled;
         const hintWhenDisabledText =
             typeof hintWhenDisabled === 'string'
                 ? hintWhenDisabled

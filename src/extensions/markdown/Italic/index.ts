@@ -5,11 +5,9 @@ import {createToggleMarkAction} from '../../../utils/actions';
 import {markInputRule} from '../../../utils/inputrules';
 import {withLogAction} from '../../../utils/keymap';
 
-import {ItalicSpecs, italicMarkName, italicType} from './ItalicSpecs';
+import {ItalicSpecs, italicType} from './ItalicSpecs';
 
 export {italicMarkName, italicType} from './ItalicSpecs';
-/** @deprecated Use `italicMarkName` instead */
-export const italic = italicMarkName;
 const iAction = 'italic';
 
 export type ItalicOptions = {

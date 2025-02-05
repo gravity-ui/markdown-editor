@@ -14,7 +14,7 @@ export const BaseKeymap: ExtensionAuto = (builder) => {
                 'Mod-BracketLeft': lift,
                 'Alt-Shift-Escape': selectParentNode,
             }),
-            builder.PluginPriority.Lowest,
+            builder.Priority.Lowest,
         )
-        .addKeymap(() => baseKeymap, builder.PluginPriority.Lowest);
+        .addKeymap(() => baseKeymap, builder.Priority.Lowest);
 };

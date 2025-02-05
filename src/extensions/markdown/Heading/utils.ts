@@ -7,9 +7,6 @@ import {textblockTypeInputRule} from '../../../utils/inputrules';
 import {headingType} from './HeadingSpecs';
 import {HeadingLevel, headingLevelAttr} from './const';
 
-/** @deprecated Use `headingType` instead */
-export const hType = headingType;
-
 export const hasParentHeading = (level: HeadingLevel) => (state: EditorState) =>
     hasParentNode((node) => {
         return node.type === headingType(state.schema) && node.attrs[headingLevelAttr] === level;

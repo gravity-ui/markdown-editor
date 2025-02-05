@@ -9,7 +9,7 @@ import {withLogAction} from '../../../utils/keymap';
 import {BlockquoteSpecs, blockquoteType} from './BlockquoteSpecs';
 import {joinPrevQuote, liftFromQuote, toggleQuote} from './commands';
 
-export {blockquote, blockquoteNodeName, blockquoteType} from './const';
+export {blockquoteNodeName, blockquoteType} from './const';
 const bqAction = 'quote';
 
 export type BlockquoteOptions = {

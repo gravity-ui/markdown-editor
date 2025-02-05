@@ -13,12 +13,7 @@ import {cbAction, codeBlockType} from './const';
 import {codeBlockPastePlugin} from './plugins/codeBlockPastePlugin';
 
 export {resetCodeblock} from './commands';
-export {
-    codeBlockNodeName,
-    CodeBlockNodeAttr,
-    codeBlockLangAttr,
-    codeBlockType,
-} from './CodeBlockSpecs';
+export {codeBlockNodeName, CodeBlockNodeAttr, codeBlockType} from './CodeBlockSpecs';
 
 export type CodeBlockOptions = CodeBlockSpecsOptions & {
     codeBlockKey?: string | null;

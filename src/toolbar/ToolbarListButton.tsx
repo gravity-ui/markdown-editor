@@ -108,15 +108,13 @@ export function ToolbarListButton<E>({
                                 exec,
                                 hint,
                                 hintWhenDisabled,
-                                disabledPopoverVisible = true,
                             } = data;
 
                             const titleText = isFunction(title) ? title() : title;
                             const hintText = isFunction(hint) ? hint() : hint;
                             const disabled = !isEnable(editor);
 
-                            const hideHintWhenDisabled =
-                                hintWhenDisabled === false || !disabledPopoverVisible || !disabled;
+                            const hideHintWhenDisabled = hintWhenDisabled === false || !disabled;
                             const hintWhenDisabledText =
                                 typeof hintWhenDisabled === 'string'
                                     ? hintWhenDisabled
