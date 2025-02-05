@@ -1,5 +1,3 @@
-import React from 'react';
-
 import {Popup, PopupProps} from '@gravity-ui/uikit';
 
 import {CommonAnswer} from '../ErrorScreen/types';

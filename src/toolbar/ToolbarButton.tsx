@@ -1,4 +1,4 @@
-import React from 'react';
+import {forwardRef} from 'react';
 
 import {ActionTooltip, Button, Icon, Popover} from '@gravity-ui/uikit';
 
@@ -25,7 +25,7 @@ export type ToolbarButtonViewProps = Pick<
     className?: string;
 };
 
-export const ToolbarButtonView = React.forwardRef<HTMLElement, ToolbarButtonViewProps>(
+export const ToolbarButtonView = forwardRef<HTMLElement, ToolbarButtonViewProps>(
     function ToolbarButtonView(
         {icon, title, hint, hotkey, hintWhenDisabled, active, enabled, onClick, className},
         ref,

@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import {useEffect, useState} from 'react';
 
 import type {MarkdownEditorMode} from '../../../src/bundle';
 import {PlaygroundMini} from '../../components/PlaygroundMini';

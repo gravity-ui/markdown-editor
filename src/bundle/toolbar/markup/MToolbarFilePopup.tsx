@@ -1,4 +1,4 @@
-import React, {RefObject} from 'react';
+import {RefObject} from 'react';
 
 import {FileItem, insertFiles} from '../../../markup/commands';
 import type {CodeEditor} from '../../../markup/editor';

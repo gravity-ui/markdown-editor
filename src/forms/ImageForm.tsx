@@ -1,4 +1,4 @@
-import React from 'react';
+import {useLayoutEffect, useState} from 'react';
 
 import {Tabs, TextInput, TextInputProps} from '@gravity-ui/uikit';
 
@@ -44,17 +44,17 @@ export const ImageForm: React.FC<ImageFormProps> = ({
     onAttach,
     loading,
 }) => {
-    const [tabId, setTabId] = React.useState<string>(() =>
+    const [tabId, setTabId] = useState<string>(() =>
         isFunction(onAttach) ? ImageTabId.Attach : ImageTabId.Link,
     );
-    const [url, setUrl] = React.useState('');
-    const [name, setName] = React.useState('');
-    const [alt, setAlt] = React.useState('');
-    const [width, setWidth] = React.useState<number | undefined>();
-    const [height, setHeight] = React.useState<number | undefined>();
+    const [url, setUrl] = useState('');
+    const [name, setName] = useState('');
+    const [alt, setAlt] = useState('');
+    const [width, setWidth] = useState<number | undefined>();
+    const [height, setHeight] = useState<number | undefined>();
 
     const shouldRenderTabs = isFunction(onAttach);
-    React.useLayoutEffect(() => {
+    useLayoutEffect(() => {
         if (!shouldRenderTabs && tabId === ImageTabId.Attach) {
             setTabId(ImageTabId.Link);
         }

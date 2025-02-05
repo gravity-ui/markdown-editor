@@ -1,4 +1,4 @@
-import React from 'react';
+import {memo} from 'react';
 
 import {ArrowUpRightFromSquare as LinkIcon} from '@gravity-ui/icons';
 import {ActionTooltip, Button, Icon} from '@gravity-ui/uikit';
@@ -15,7 +15,7 @@ export type UrlInputRowProps = {
     href: string;
 };
 
-export const UrlInputRow = React.memo<UrlInputRowProps>(function UrlInputRow({href, input}) {
+export const UrlInputRow = memo<UrlInputRowProps>(function UrlInputRow({href, input}) {
     return (
         <div className={b()}>
             {input}

@@ -1,4 +1,4 @@
-import React, {CSSProperties, useCallback, useEffect, useState} from 'react';
+import {CSSProperties, memo, useCallback, useEffect, useState} from 'react';
 
 import {defaultOptions} from '@diplodoc/transform/lib/sanitize';
 import {Button, DropdownMenu} from '@gravity-ui/uikit';
@@ -92,7 +92,7 @@ logger.setLogger({
     ...console,
 });
 
-export const Playground = React.memo<PlaygroundProps>((props) => {
+export const Playground = memo<PlaygroundProps>((props) => {
     const {
         initial,
         initialEditor,
@@ -121,12 +121,10 @@ export const Playground = React.memo<PlaygroundProps>((props) => {
         experimental,
         directiveSyntax,
     } = props;
-    const [editorMode, setEditorMode] = React.useState<MarkdownEditorMode>(
-        initialEditor ?? 'wysiwyg',
-    );
-    const [mdRaw, setMdRaw] = React.useState<MarkupString>(initial || '');
+    const [editorMode, setEditorMode] = useState<MarkdownEditorMode>(initialEditor ?? 'wysiwyg');
+    const [mdRaw, setMdRaw] = useState<MarkupString>(initial || '');
 
-    React.useEffect(() => {
+    useEffect(() => {
         updateLocation(mdRaw);
     }, [mdRaw]);
 

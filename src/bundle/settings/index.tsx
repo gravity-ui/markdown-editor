@@ -1,6 +1,6 @@
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 /* eslint-disable jsx-a11y/click-events-have-key-events */
-import React from 'react';
+import {memo, useRef} from 'react';
 
 import {HelpPopover} from '@gravity-ui/components';
 import {Eye, Gear, LogoMarkdown} from '@gravity-ui/icons';
@@ -37,10 +37,10 @@ export type EditorSettingsProps = Omit<SettingsContentProps, 'onClose'> & {
     settingsVisible?: boolean;
 };
 
-export const EditorSettings = React.memo<EditorSettingsProps>(function EditorSettings(props) {
+export const EditorSettings = memo<EditorSettingsProps>(function EditorSettings(props) {
     const {className, onShowPreviewChange, showPreview, renderPreviewButton, settingsVisible} =
         props;
-    const chevronRef = React.useRef<HTMLButtonElement>(null);
+    const chevronRef = useRef<HTMLButtonElement>(null);
     const [popupShown, , hidePopup, togglePopup] = useBooleanState(false);
 
     return (

@@ -1,4 +1,4 @@
-import React, {useCallback} from 'react';
+import {useCallback} from 'react';
 
 import {Popup} from '@gravity-ui/uikit';
 import type {PopupProps} from '@gravity-ui/uikit';

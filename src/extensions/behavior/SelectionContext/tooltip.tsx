@@ -1,5 +1,3 @@
-import React from 'react';
-
 import {Popup, type PopupProps} from '@gravity-ui/uikit';
 import type {EditorState} from 'prosemirror-state';
 import type {EditorView} from 'prosemirror-view';

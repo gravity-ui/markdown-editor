@@ -1,5 +1,3 @@
-import React from 'react';
-
 import isNumber from 'is-number';
 import {Node} from 'prosemirror-model';
 import {Transaction} from 'prosemirror-state';

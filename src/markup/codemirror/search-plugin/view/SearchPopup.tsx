@@ -1,4 +1,4 @@
-import React, {useRef, useState} from 'react';
+import {useRef, useState} from 'react';
 
 import type {SearchQuery} from '@codemirror/search';
 import {ChevronDown, ChevronUp, Xmark} from '@gravity-ui/icons';

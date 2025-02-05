@@ -1,4 +1,4 @@
-import React, {RefObject, useRef} from 'react';
+import {RefObject, useRef} from 'react';
 
 import {Ellipsis} from '@gravity-ui/icons';
 import {Button, Icon, Menu, Popup, PopupPlacement} from '@gravity-ui/uikit';

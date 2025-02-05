@@ -1,5 +1,3 @@
-import React from 'react';
-
 import type {Mark, Node} from 'prosemirror-model';
 import type {EditorView, NodeView, NodeViewConstructor} from 'prosemirror-view';
 import {createPortal} from 'react-dom';

@@ -1,4 +1,4 @@
-import React from 'react';
+import {useRef} from 'react';
 
 import {Popup, PopupPlacement} from '@gravity-ui/uikit';
 
@@ -20,7 +20,7 @@ export const LinkPlaceholderWidget: React.FC<LinkPlaceholderWidgetProps> = ({
     onCancel,
     onSubmit,
 }) => {
-    const divRef = React.useRef<HTMLDivElement>(null);
+    const divRef = useRef<HTMLDivElement>(null);
 
     return (
         <>

@@ -1,5 +1,3 @@
-import React from 'react';
-
 import type {Mermaid} from 'mermaid'; // eslint-disable-line import/no-extraneous-dependencies
 import {Node} from 'prosemirror-model';
 import {EditorView, NodeView} from 'prosemirror-view';

@@ -1,5 +1,3 @@
-import React from 'react';
-
 import {HelpPopover} from '@gravity-ui/components';
 import {Hotkey, Icon, Select, SelectOption} from '@gravity-ui/uikit';
 

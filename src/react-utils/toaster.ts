@@ -1,16 +1,16 @@
-import React from 'react';
+import {createContext, useContext, useMemo} from 'react';
 
 import type {ToasterPublicMethods} from '@gravity-ui/uikit';
 
-export const ToasterContext = React.createContext<ToasterPublicMethods | null>(null);
+export const ToasterContext = createContext<ToasterPublicMethods | null>(null);
 ToasterContext.displayName = 'YEToasterContext';
 
 export function useToaster(): ToasterPublicMethods {
-    const toaster = React.useContext(ToasterContext);
+    const toaster = useContext(ToasterContext);
 
     if (!toaster) {
         throw new Error('YEToaster: `useToaster` hook is used out of context');
     }
 
-    return React.useMemo(() => toaster, [toaster]);
+    return useMemo(() => toaster, [toaster]);
 }

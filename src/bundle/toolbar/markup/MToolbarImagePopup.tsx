@@ -1,4 +1,4 @@
-import React, {RefObject} from 'react';
+import type {RefObject} from 'react';
 
 import isNumber from 'is-number';
 

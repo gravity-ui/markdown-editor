@@ -1,4 +1,4 @@
-import React from 'react';
+import {useMemo} from 'react';
 
 import type {ActionStorage} from '../../../core';
 import type {ToolbarBaseProps} from '../../../toolbar/types';
@@ -13,7 +13,7 @@ export const WToolbarTextSelect: React.FC<WToolbarTextSelectProps> = ({
     editor,
     className,
 }) => {
-    const items = React.useMemo(() => wHeadingListConfig.data, []);
+    const items = useMemo(() => wHeadingListConfig.data, []);
     return (
         <ToolbarSelect
             items={items}
