@@ -3,7 +3,7 @@ import {findParentNode, replaceParentNodeOfType} from 'prosemirror-utils';
 
 import {isNodeSelection} from '../../../utils/selection';
 
-import {descType, listType, termType} from './utils';
+import {defDescType, defListType, defTermType} from './utils';
 
 export const wrapToDeflist: Command = (state, dispatch) => {
     const parent = findParentNode((node) => node.isTextblock)(state.selection);
@@ -12,9 +12,9 @@ export const wrapToDeflist: Command = (state, dispatch) => {
     dispatch?.(
         replaceParentNodeOfType(
             parent.node.type,
-            listType(state.schema).create(null, [
-                termType(state.schema).create(),
-                descType(state.schema).create(null, parent.node.copy(parent.node.content)),
+            defListType(state.schema).create(null, [
+                defTermType(state.schema).create(),
+                defDescType(state.schema).create(null, parent.node.copy(parent.node.content)),
             ]),
         )(state.tr).scrollIntoView(),
     );
@@ -35,7 +35,7 @@ export const splitDeflist: Command = (state, dispatch) => {
 
     // check if parent textblock is inside description node
     const desc = selection.$from.node(parentTextblock.depth - 1);
-    if (!desc || desc.type !== descType(state.schema)) return false;
+    if (!desc || desc.type !== defDescType(state.schema)) return false;
 
     // check if parent is last child and desc has other children
     const isParentLastChild = desc.lastChild === parentTextblock.node;

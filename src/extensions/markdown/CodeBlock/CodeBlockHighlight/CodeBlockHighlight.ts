@@ -12,7 +12,7 @@ import {Decoration, DecorationSet} from 'prosemirror-view';
 import type {ExtensionAuto} from '../../../../core';
 import {capitalize} from '../../../../lodash';
 import {logger} from '../../../../logger';
-import {codeBlockLangAttr, codeBlockNodeName, codeBlockType} from '../CodeBlockSpecs';
+import {CodeBlockNodeAttr, codeBlockNodeName, codeBlockType} from '../CodeBlockSpecs';
 
 import {codeLangSelectTooltipViewCreator} from './TooltipPlugin';
 
@@ -120,7 +120,7 @@ export const CodeBlockHighlight: ExtensionAuto<CodeBlockHighlightOptions> = (bui
                 },
                 nodeViews: {
                     [codeBlockNodeName]: (node) => {
-                        let prevLang = node.attrs[codeBlockLangAttr];
+                        let prevLang = node.attrs[CodeBlockNodeAttr.Lang];
 
                         const dom = document.createElement('pre');
 
@@ -128,7 +128,7 @@ export const CodeBlockHighlight: ExtensionAuto<CodeBlockHighlightOptions> = (bui
                         contentDOM.classList.add('hljs');
 
                         if (prevLang) {
-                            dom.setAttribute(codeBlockLangAttr, prevLang);
+                            dom.setAttribute(CodeBlockNodeAttr.Lang, prevLang);
                             contentDOM.classList.add(prevLang);
                         }
 
@@ -140,14 +140,14 @@ export const CodeBlockHighlight: ExtensionAuto<CodeBlockHighlightOptions> = (bui
                             update(newNode) {
                                 if (node.type !== newNode.type) return false;
 
-                                const newLang = newNode.attrs[codeBlockLangAttr];
+                                const newLang = newNode.attrs[CodeBlockNodeAttr.Lang];
                                 if (prevLang !== newLang) {
                                     contentDOM.className = 'hljs';
                                     if (newLang) {
-                                        dom.setAttribute(codeBlockLangAttr, newLang);
+                                        dom.setAttribute(CodeBlockNodeAttr.Lang, newLang);
                                         contentDOM.classList.add(newLang);
                                     } else {
-                                        dom.removeAttribute(codeBlockLangAttr);
+                                        dom.removeAttribute(CodeBlockNodeAttr.Lang);
                                     }
                                     prevLang = newLang;
                                 }
@@ -168,7 +168,7 @@ export const CodeBlockHighlight: ExtensionAuto<CodeBlockHighlightOptions> = (bui
             let from = pos + 1;
             let nodes: Root['children'];
 
-            const lang: string | undefined = node.attrs[codeBlockLangAttr];
+            const lang: string | undefined = node.attrs[CodeBlockNodeAttr.Lang];
             if (lang && lowlight.registered(lang)) {
                 nodes = lowlight.highlight(lang, node.textContent).children;
             } else {

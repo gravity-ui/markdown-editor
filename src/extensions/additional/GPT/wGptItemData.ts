@@ -15,7 +15,6 @@ export const wGptItemData: WToolbarSingleItemData = {
     title: () => `${i18n('help-with-text')}`,
     hotkey: gptHotKeys.openGptKeyTooltip,
     icon: {data: gptIcon},
-    disabledPopoverVisible: false,
     exec: (actionsStorage) => actionsStorage.actions.addGptWidget.run({}),
     isActive: (actionsStorage) => actionsStorage.actions.addGptWidget.isActive(),
     isEnable: (actionsStorage) => actionsStorage.actions.addGptWidget.isEnable(),
