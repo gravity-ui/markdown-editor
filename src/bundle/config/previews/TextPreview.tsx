@@ -1,10 +1,9 @@
 import React from 'react';
 
+import {cn} from '../../../classname';
 import {i18n} from '../../../i18n/action-previews';
 
 import {ActionPreview} from './ActionPreview';
-
-import {cn} from '../../../classname';
 
 import './ActionPreview.scss';
 
