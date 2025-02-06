@@ -50,6 +50,8 @@ export function ToolbarListButton<E>({
     const everyDisabled = alwaysActive ? false : data.every((item) => !item.isEnable(editor));
     const popupOpen = everyDisabled ? false : open;
     const shouldForceHide = open && !popupOpen;
+    const disableActionTooltip = mobile || Boolean(popupItem) || popupOpen;
+
     useEffect(() => {
         if (shouldForceHide) {
             hide();
