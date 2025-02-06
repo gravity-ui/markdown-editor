@@ -37,6 +37,7 @@ export function ToolbarListButton<E>({
     alwaysActive,
     replaceActiveIcon,
     qa,
+    mobile,
 }: ToolbarListButtonProps<E>) {
     const [anchorElement, setAnchorElement] = useElementState();
     const [open, , hide, toggleOpen] = useBooleanState(false);
@@ -104,7 +105,9 @@ export function ToolbarListButton<E>({
 
                             const disabled = !isEnable(editor);
 
-                            const hideHintWhenDisabled = hintWhenDisabled === false || !disabled;
+                            const hideHintWhenDisabled =
+                                mobile || hintWhenDisabled === false || !disabled;
+
                             const hintWhenDisabledText =
                                 typeof hintWhenDisabled === 'string'
                                     ? hintWhenDisabled

@@ -15,6 +15,7 @@ import {useEnsuredForwardedRef, useKey, useUpdate} from 'react-use';
 import {type ClassNameProps, cn} from '../classname';
 import {i18n} from '../i18n/bundle';
 import {globalLogger} from '../logger';
+import {mobilePreset} from '../modules/toolbars/presets';
 import type {ToolbarsPreset} from '../modules/toolbars/types';
 import {useBooleanState, useSticky} from '../react-utils';
 import {isMac} from '../utils';
@@ -78,7 +79,7 @@ const EditorWrapper = forwardRef<HTMLDivElement, EditorWrapperProps>(
         } = useMemo(
             () =>
                 getToolbarsConfigs({
-                    toolbarsPreset,
+                    toolbarsPreset: mobile ? mobilePreset : toolbarsPreset,
                     props: {
                         wysiwygToolbarConfig: initialWysiwygToolbarConfig,
                         markupToolbarConfig: initialMarkupToolbarConfig,
@@ -88,6 +89,7 @@ const EditorWrapper = forwardRef<HTMLDivElement, EditorWrapperProps>(
                     preset: editor.preset,
                 }),
             [
+                mobile,
                 toolbarsPreset,
                 initialWysiwygToolbarConfig,
                 initialMarkupToolbarConfig,
