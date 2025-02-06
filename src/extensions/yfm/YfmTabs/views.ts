@@ -1,7 +1,7 @@
 import type {Node} from 'prosemirror-model';
 import {type EditorState, TextSelection} from 'prosemirror-state';
 import {findParentNodeOfTypeClosestToPos} from 'prosemirror-utils';
-import {EditorView, type NodeViewConstructor} from 'prosemirror-view';
+import {EditorView, type NodeViewConstructor, ViewMutationRecord} from 'prosemirror-view';
 
 import {cn} from '../../../classname';
 
@@ -16,7 +16,7 @@ const cnYfmTab = cn('yfm-tab');
 
 const ignoreMutation =
     (_node: Node, _view: EditorView, _getPos: () => number | undefined) =>
-    (mutation: MutationRecord) => {
+    (mutation: ViewMutationRecord) => {
         if (
             mutation instanceof MutationRecord &&
             mutation.type === 'attributes' &&
