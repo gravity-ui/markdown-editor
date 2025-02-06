@@ -1,4 +1,4 @@
-import React from 'react';
+import {memo} from 'react';
 
 import {toaster} from '@gravity-ui/uikit/toaster-singleton-react-18';
 import cloneDeep from 'lodash/cloneDeep';
@@ -29,7 +29,7 @@ wCommandMenuConfig.unshift(wGptItemData);
 const mToolbarConfig = cloneDeep(markupToolbarConfigs.mToolbarConfig);
 mToolbarConfig.unshift([mGptToolbarItem]);
 
-export const MobileEditor = React.memo(() => {
+export const MobileEditor = memo(() => {
     const editor = useMarkdownEditor({
         mobile: true,
     });
