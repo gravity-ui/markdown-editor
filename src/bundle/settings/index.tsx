@@ -10,7 +10,6 @@ import {
     HelpMark,
     Icon,
     Menu,
-    Popup,
     type PopupPlacement,
     type QAProps,
 } from '@gravity-ui/uikit';
@@ -19,13 +18,17 @@ import {type ClassNameProps, cn} from '../../classname';
 import {i18n} from '../../i18n/bundle';
 import WysiwygModeIcon from '../../icons/WysiwygMode';
 import {noop} from '../../lodash';
+import {useBooleanState} from '../../react-utils/hooks';
 import {ToolbarTooltipDelay} from '../../toolbar';
 import {VERSION} from '../../version';
+import {SelectPopup} from '../SelectPopup';
 import type {MarkdownEditorMode, MarkdownEditorSplitMode} from '../types';
 
 import {MarkdownHints} from './MarkdownHints';
 
 import './index.scss';
+
+const placement: PopupPlacement = ['bottom-end', 'top-end'];
 
 const bSettings = cn('editor-settings');
 const bContent = cn('settings-content');
@@ -36,8 +39,14 @@ export type EditorSettingsProps = Omit<SettingsContentProps, 'onClose'> & {
 };
 
 export const EditorSettings = memo<EditorSettingsProps>(function EditorSettings(props) {
-    const {className, onShowPreviewChange, showPreview, renderPreviewButton, settingsVisible} =
-        props;
+    const {
+        className,
+        onShowPreviewChange,
+        showPreview,
+        renderPreviewButton,
+        settingsVisible,
+        mobile,
+    } = props;
     const [chevronElement, setChevronElement] = useState<HTMLButtonElement | null>(null);
     const [popupShown, , hidePopup, togglePopup] = useBooleanState(false);
 
@@ -82,11 +91,12 @@ export const EditorSettings = memo<EditorSettingsProps>(function EditorSettings(
                     >
                         <Icon data={Gear} />
                     </Button>
-                    <Popup
+                    <SelectPopup
+                        mobile={mobile}
                         open={popupShown}
-                        anchorElement={chevronElement}
+                        onClose={hidePopup}
+                        anchorRef={chevronElement}
                         placement={placement}
-                        onOpenChange={hidePopup}
                     >
                         <SettingsContent
                             {...props}
@@ -94,7 +104,7 @@ export const EditorSettings = memo<EditorSettingsProps>(function EditorSettings(
                             onClose={hidePopup}
                             className={bSettings('content')}
                         />
-                    </Popup>
+                    </SelectPopup>
                 </>
             )}
         </div>
@@ -123,6 +133,7 @@ const mdHelpPlacement: PopupPlacement = ['bottom', 'bottom-end', 'right-start', 
 
 const SettingsContent: React.FC<SettingsContentProps> = function SettingsContent({
     mode,
+    onClose,
     onModeChange,
     toolbarVisibility,
     onToolbarVisibilityChange,

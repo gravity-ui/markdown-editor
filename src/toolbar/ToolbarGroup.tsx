@@ -64,6 +64,7 @@ export function ToolbarButtonGroup<E>({
                             focus={focus}
                             onClick={onClick}
                             className={b(item.type, {id: item.id}, [item.className])}
+                            mobile={mobile}
                         />
                     );
                 }
