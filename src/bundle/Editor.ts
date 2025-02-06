@@ -1,16 +1,24 @@
 import type {ReactNode} from 'react';
 
 import {EditorView as CMEditorView} from '@codemirror/view';
+import type Token from 'markdown-it/lib/token';
+import {Node} from 'prosemirror-model';
 import {TextSelection} from 'prosemirror-state';
 import {EditorView as PMEditorView} from 'prosemirror-view';
+import {v5} from 'uuid';
 
 import type {CommonEditor, MarkupString} from '../common';
 import {
     type ActionStorage,
     type EscapeConfig,
+    SerializerNodeToken,
+    SerializerState,
     WysiwygEditor,
     type WysiwygEditorOptions,
 } from '../core';
+import {MarkdownParserDynamicModifier, TokenAttrs} from '../core/markdown/MarkdownParser';
+import {MarkdownSerializerDynamicModifier} from '../core/markdown/MarkdownSerializerDynamicModifier';
+import {MarkupManager} from '../core/markdown/MarkupManager';
 import type {TransformFn} from '../core/markdown/ProseMirrorTransformer';
 import {ReactRenderStorage, type RenderStorage} from '../extensions';
 import {i18n} from '../i18n/bundle';
@@ -146,6 +154,10 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
     #pmTransformers: TransformFn[] = [];
     #preserveMarkupFormatting: boolean;
     #preserveEmptyRows: boolean;
+    #parserAndSerializerDynamicModifiers?: {
+        parser?: MarkdownParserDynamicModifier;
+        serializer?: MarkdownSerializerDynamicModifier;
+    };
 
     readonly #preset: EditorPreset;
     #extensions?: WysiwygEditorOptions['extensions'];
@@ -257,6 +269,7 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
                 extensions: this.#extensions,
                 pmTransformers: this.#pmTransformers,
                 preserveMarkupFormatting: this.#preserveMarkupFormatting,
+                parserAndSerializerDynamicModifiers: this.#parserAndSerializerDynamicModifiers,
                 allowHTML: this.#mdOptions.html,
                 linkify: this.#mdOptions.linkify,
                 linkifyTlds: this.#mdOptions.linkifyTlds,
@@ -335,6 +348,21 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
             wysiwygConfig = {},
         } = opts;
 
+        const preserveMarkupFormatting = Boolean(opts.experimental?.preserveMarkupFormatting);
+
+        let parserAndSerializerDynamicModifiers;
+        if (preserveMarkupFormatting) {
+            const markupManager = new MarkupManager();
+            parserAndSerializerDynamicModifiers = {
+                parser: new MarkdownParserDynamicModifier(
+                    createParserDynamicModifierConfig(markupManager),
+                ),
+                serializer: new MarkdownSerializerDynamicModifier(
+                    createSerializerDynamicModifierConfig(markupManager),
+                ),
+            };
+        }
+
         this.#editorMode = initial.mode ?? 'wysiwyg';
         this.#toolbarVisible = initial.toolbarVisible ?? true;
         this.#splitMode = (markupConfig.renderPreview && markupConfig.splitMode) ?? false;
@@ -345,7 +373,8 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
 
         this.#preset = opts.preset ?? 'full';
         this.#pmTransformers = opts.pmTransformers;
-        this.#preserveMarkupFormatting = Boolean(opts.experimental?.preserveMarkupFormatting);
+        this.#preserveMarkupFormatting = preserveMarkupFormatting;
+        this.#parserAndSerializerDynamicModifiers = parserAndSerializerDynamicModifiers;
         this.#mdOptions = md;
         this.#extensions = wysiwygConfig.extensions;
         this.#markupConfig = {...opts.markupConfig};
@@ -551,4 +580,90 @@ function calculateCSSNumberValue(cssValue: string): number {
     tmp.remove();
 
     return value;
+}
+
+const YFM_TABLE_TOKEN_ATTR = 'data-token-id';
+const YFM_TABLE_NODE_ATTR = 'data-node-id';
+const PARENTS_WITH_AFFECT = ['blockquote', 'yfm_tabs'];
+
+/**
+ * Creates a hook for injecting custom logic into the parsing process via `MarkdownParserDynamicModifier`,
+ * allowing extensions beyond the fixed parsing rules defined by the schema.
+ *
+ * Dynamically configures parsing for `yfm_table` elements:
+ * - Assigns a unique `data-token-id` to each token.
+ * - Captures and stores the raw Markdown using `MarkupManager`.
+ * - Links the token to its corresponding node via `data-node-id`.
+ * - Adds the `data-node-id` attribute to the list of allowed attributes.
+ */
+function createParserDynamicModifierConfig(markupManager: MarkupManager) {
+    return {
+        ['yfm_table']: {
+            processToken: [
+                (token: Token, _: number, rawMarkup: string) => {
+                    const {map} = token;
+
+                    if (map) {
+                        const content = rawMarkup.split('\n').slice(map[0], map[1]).join('\n');
+                        const tokenId = v5(content, markupManager.getNamespace());
+
+                        token.attrSet(YFM_TABLE_TOKEN_ATTR, tokenId);
+                        markupManager.setMarkup(tokenId, content);
+                    }
+                    return token;
+                },
+            ],
+            processNodeAttrs: [
+                (token: Token, attrs: TokenAttrs) => ({
+                    ...attrs,
+                    [YFM_TABLE_NODE_ATTR]: token.attrGet(YFM_TABLE_TOKEN_ATTR),
+                }),
+            ],
+            processNode: [
+                (node: Node) => {
+                    const nodeId = node.attrs[YFM_TABLE_NODE_ATTR];
+                    if (nodeId) {
+                        markupManager.setNode(nodeId, node);
+                    }
+                    return node;
+                },
+            ],
+            allowedAttrs: [YFM_TABLE_NODE_ATTR],
+        },
+    };
+}
+
+/**
+ * Creates a hook for injecting custom logic into the serialization process via `MarkdownSerializerDynamicModifier`,
+ * allowing extensions beyond the standard serialization rules defined by the schema.
+ *
+ * Dynamically configures serialization for `yfm_table` elements:
+ * - Retrieves the original Markdown using the `data-node-id` attribute.
+ * - Uses the original Markdown if the node matches the saved version.
+ * - Falls back to schema-based rendering if the node structure, attributes, or parent elements affect it.
+ */
+function createSerializerDynamicModifierConfig(markupManager: MarkupManager) {
+    return {
+        ['yfm_table']: {
+            processNode: [
+                (
+                    state: SerializerState,
+                    node: Node,
+                    parent: Node,
+                    index: number,
+                    callback?: SerializerNodeToken,
+                ) => {
+                    const nodeId = node.attrs[YFM_TABLE_NODE_ATTR];
+                    const savedNode = markupManager.getNode(nodeId);
+
+                    if (!PARENTS_WITH_AFFECT.includes(parent?.type?.name) && savedNode?.eq(node)) {
+                        state.write(markupManager.getMarkup(nodeId) + '\n');
+                        return;
+                    }
+
+                    callback?.(state, node, parent, index);
+                },
+            ],
+        },
+    };
 }

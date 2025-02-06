@@ -7,11 +7,13 @@ import type {CommonEditor, ContentHandler, MarkupString} from '../common';
 import type {ActionsManager} from './ActionsManager';
 import {WysiwygContentHandler} from './ContentHandler';
 import {ExtensionsManager} from './ExtensionsManager';
+import {MarkdownParserDynamicModifier} from './markdown/MarkdownParser';
+import {MarkdownSerializerDynamicModifier} from './markdown/MarkdownSerializerDynamicModifier';
 import {TransformFn} from './markdown/ProseMirrorTransformer';
 import type {ActionStorage} from './types/actions';
 import type {Extension} from './types/extension';
 import type {Parser} from './types/parser';
-import type {Serializer} from './types/serializer';
+import {Serializer} from './types/serializer';
 import {bindActions} from './utils/actions';
 import {logTransactionMetrics} from './utils/metrics';
 
@@ -31,6 +33,10 @@ export type WysiwygEditorOptions = {
     mdPreset?: PresetName;
     allowHTML?: boolean;
     preserveMarkupFormatting?: boolean;
+    parserAndSerializerDynamicModifiers?: {
+        parser?: MarkdownParserDynamicModifier;
+        serializer?: MarkdownSerializerDynamicModifier;
+    };
     linkify?: boolean;
     pmTransformers?: TransformFn[];
     linkifyTlds?: string | string[];
@@ -83,6 +89,7 @@ export class WysiwygEditor implements CommonEditor, ActionStorage {
         onChange,
         onDocChange,
         preserveMarkupFormatting,
+        parserAndSerializerDynamicModifiers,
     }: WysiwygEditorOptions) {
         const {
             schema,
@@ -99,6 +106,7 @@ export class WysiwygEditor implements CommonEditor, ActionStorage {
             linkifyTlds,
             pmTransformers,
             allowDynamicModifiers: preserveMarkupFormatting,
+            dynamicModifiers: parserAndSerializerDynamicModifiers,
         });
 
         const state = EditorState.create({
