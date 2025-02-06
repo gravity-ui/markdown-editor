@@ -1,7 +1,7 @@
-import {EventEmitter} from 'events';
-
 import {Node} from 'prosemirror-model';
 import {v4} from 'uuid';
+
+import {SafeEventEmitter} from '../../utils';
 
 export interface IMarkupManager {
     setMarkup(id: string, rawMarkup: string): void;
@@ -9,7 +9,7 @@ export interface IMarkupManager {
     getMarkup(id: string): string | null;
     getNode(id: string): Node | null;
     reset(): void;
-    on(event: string, listener: (...args: any[]) => void): void;
+    on<K extends keyof Events>(event: K, listener: (value: Events[K]) => void): void;
 }
 
 export interface Logger {
@@ -17,16 +17,22 @@ export interface Logger {
     error(message: string): void;
 }
 
-export class MarkupManager extends EventEmitter implements IMarkupManager {
+interface Events {
+    markupChanged: {id: string; rawMarkup: string};
+    nodeChanged: {id: string; node: Node};
+    reset: {};
+}
+
+export class MarkupManager extends SafeEventEmitter<Events> implements IMarkupManager {
     private _markups: Map<string, string> = new Map();
     private _nodes: Map<string, Node> = new Map();
-    private _namespace = '';
+    private _namespace: string;
 
-    private readonly logger: Logger;
+    private readonly logger?: Logger;
 
     constructor(logger?: Logger) {
         super();
-        this.logger = logger ?? console;
+        this.logger = logger;
         this._namespace = v4();
     }
 
@@ -35,13 +41,13 @@ export class MarkupManager extends EventEmitter implements IMarkupManager {
      */
     setMarkup(id: string, rawMarkup: string): void {
         if (typeof rawMarkup !== 'string') {
-            this.logger.error('[MarkupManager] rawMarkup must be a string');
+            this.logger?.error('[MarkupManager] rawMarkup must be a string');
             return;
         }
         this._markups.set(id, rawMarkup);
 
-        this.emit('markupManager.markupChanged', {id, rawMarkup});
-        this.logger.log(`[MarkupManager] Raw markup for ID ${id} set successfully`);
+        this.emit('markupChanged', {id, rawMarkup});
+        this.logger?.log(`[MarkupManager] Raw markup for ID ${id} set successfully`);
     }
 
     /**
@@ -49,13 +55,13 @@ export class MarkupManager extends EventEmitter implements IMarkupManager {
      */
     setNode(id: string, node: Node): void {
         if (!node) {
-            this.logger.error('[MarkupManager] Node must be a valid ProseMirror Node');
+            this.logger?.error('[MarkupManager] Node must be a valid ProseMirror Node');
             return;
         }
         this._nodes.set(id, node);
 
-        this.emit('markupManager.nodeChanged', {id, node});
-        this.logger.log(`[MarkupManager] Node for ID ${id} set successfully`);
+        this.emit('nodeChanged', {id, node});
+        this.logger?.log(`[MarkupManager] Node for ID ${id} set successfully`);
     }
 
     /**
@@ -72,7 +78,7 @@ export class MarkupManager extends EventEmitter implements IMarkupManager {
         return this._nodes.get(id) ?? null;
     }
 
-    getNamespace() {
+    getNamespace(): string {
         return this._namespace;
     }
 
@@ -83,7 +89,7 @@ export class MarkupManager extends EventEmitter implements IMarkupManager {
         this._markups.clear();
         this._nodes.clear();
 
-        this.emit('markupManager.reset');
-        this.logger.log('[MarkupManager] MarkupManager has been reset');
+        this.emit('reset', {});
+        this.logger?.log('[MarkupManager] MarkupManager has been reset');
     }
 }
