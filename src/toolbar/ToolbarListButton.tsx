@@ -58,6 +58,8 @@ export function ToolbarListButton<E>({
 
     const popupOpen = everyDisabled ? false : open;
     const shouldForceHide = open && !popupOpen;
+    const disableActionTooltip = mobile || Boolean(popupItem) || popupOpen;
+
     useEffect(() => {
         if (shouldForceHide) {
             hide();
@@ -88,7 +90,7 @@ export function ToolbarListButton<E>({
             >
                 <ActionTooltip
                     title={titleText}
-                    disabled={Boolean(popupItem) || popupOpen}
+                    disabled={disableActionTooltip}
                     openDelay={ToolbarTooltipDelay.Open}
                     closeDelay={ToolbarTooltipDelay.Close}
                 >
