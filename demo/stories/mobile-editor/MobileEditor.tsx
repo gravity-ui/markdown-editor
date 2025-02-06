@@ -39,7 +39,6 @@ export const MobileEditor = React.memo(() => {
             editor={editor}
             view={({className}) => (
                 <MarkdownEditorView
-                    autofocus
                     stickyToolbar
                     settingsVisible
                     editor={editor}
