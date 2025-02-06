@@ -1,7 +1,7 @@
 import {keydownHandler} from 'prosemirror-keymap';
 import type {Node} from 'prosemirror-model';
 import {Plugin} from 'prosemirror-state';
-import {Decoration, DecorationSet, NodeView} from 'prosemirror-view';
+import {Decoration, DecorationSet, NodeView, ViewMutationRecord} from 'prosemirror-view';
 
 import {isTextSelection} from '../../../utils/selection';
 import type {ReactRenderer, RendererItem} from '../../behavior/ReactRenderer';
@@ -86,8 +86,7 @@ export abstract class MathNodeView implements NodeView {
         return true;
     }
 
-    ignoreMutation(mutation: MutationRecord): boolean {
-        // @ts-expect-error
+    ignoreMutation(mutation: ViewMutationRecord): boolean {
         if (mutation.type === 'selection' || mutation.type === 'attributes') return true;
 
         return (
