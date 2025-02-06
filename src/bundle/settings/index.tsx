@@ -18,13 +18,17 @@ import {type ClassNameProps, cn} from '../../classname';
 import {i18n} from '../../i18n/bundle';
 import WysiwygModeIcon from '../../icons/WysiwygMode';
 import {noop} from '../../lodash';
+import {useBooleanState} from '../../react-utils/hooks';
 import {ToolbarTooltipDelay} from '../../toolbar';
 import {VERSION} from '../../version';
+import {SelectPopup} from '../SelectPopup';
 import type {MarkdownEditorMode, MarkdownEditorSplitMode} from '../types';
 
 import {MarkdownHints} from './MarkdownHints';
 
 import './index.scss';
+
+const placement: PopupPlacement = ['bottom-end', 'top-end'];
 
 const bSettings = cn('editor-settings');
 const bContent = cn('settings-content');
@@ -35,8 +39,14 @@ export type EditorSettingsProps = Omit<SettingsContentProps, 'onClose'> & {
 };
 
 export const EditorSettings = memo<EditorSettingsProps>(function EditorSettings(props) {
-    const {className, onShowPreviewChange, showPreview, renderPreviewButton, settingsVisible} =
-        props;
+    const {
+        className,
+        onShowPreviewChange,
+        showPreview,
+        renderPreviewButton,
+        settingsVisible,
+        mobile,
+    } = props;
     const [chevronElement, setChevronElement] = useState<HTMLButtonElement | null>(null);
     const [popupShown, , hidePopup, togglePopup] = useBooleanState(false);
 
@@ -76,18 +86,19 @@ export const EditorSettings = memo<EditorSettingsProps>(function EditorSettings(
                     >
                         <Icon data={Gear} />
                     </Button>
-                    <Popup
+                    <SelectPopup
+                        mobile={mobile}
                         open={popupShown}
-                        anchorElement={chevronElement}
+                        onClose={hidePopup}
+                        anchorRef={chevronElement}
                         placement={placement}
-                        onOpenChange={hidePopup}
                     >
                         <SettingsContent
                             {...props}
                             onClose={hidePopup}
                             className={bSettings('content')}
                         />
-                    </Popup>
+                    </SelectPopup>
                 </>
             )}
         </div>
@@ -96,6 +107,7 @@ export const EditorSettings = memo<EditorSettingsProps>(function EditorSettings(
 
 type SettingsContentProps = ClassNameProps & {
     mode: MarkdownEditorMode;
+    onClose: () => void;
     onModeChange: (mode: MarkdownEditorMode) => void;
     onShowPreviewChange: (showPreview: boolean) => void;
     showPreview: boolean;
@@ -111,6 +123,7 @@ const mdHelpPlacement: PopupPlacement = ['bottom', 'bottom-end', 'right-start', 
 
 const SettingsContent: React.FC<SettingsContentProps> = function SettingsContent({
     mode,
+    onClose,
     onModeChange,
     toolbarVisibility,
     onToolbarVisibilityChange,
@@ -122,19 +135,13 @@ const SettingsContent: React.FC<SettingsContentProps> = function SettingsContent
     mobile,
 }) {
     return (
-        <div
-            className={bContent(
-                {
-                    mobile,
-                },
-                [className],
-            )}
-        >
+        <div className={bContent(null, [className])}>
             <Menu size="l" className={bContent('mode')}>
                 <Menu.Item
                     active={mode === 'wysiwyg'}
                     onClick={() => {
                         onModeChange('wysiwyg');
+                        onClose();
                     }}
                     iconStart={<Icon data={WysiwygModeIcon} />}
                 >
@@ -144,6 +151,7 @@ const SettingsContent: React.FC<SettingsContentProps> = function SettingsContent
                     active={mode === 'markup'}
                     onClick={() => {
                         onModeChange('markup');
+                        onClose();
                     }}
                     iconStart={<Icon data={LogoMarkdown} />}
                 >

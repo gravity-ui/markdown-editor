@@ -12,6 +12,7 @@ import {
     Popup,
 } from '@gravity-ui/uikit';
 
+import {SelectPopup} from '../bundle/SelectPopup';
 import {cn} from '../classname';
 import {i18n} from '../i18n/common';
 import {isFunction} from '../lodash';
@@ -44,6 +45,7 @@ export function ToolbarListButton<E>({
     withArrow,
     data,
     alwaysActive,
+    mobile,
 }: ToolbarListButtonProps<E>) {
     const [anchorElement, setAnchorElement] = useElementState();
     const [open, , hide, toggleOpen] = useBooleanState(false);
@@ -106,7 +108,7 @@ export function ToolbarListButton<E>({
                     </Button>
                 </ActionTooltip>
             </Popover>
-            <Popup anchorElement={anchorElement} open={popupOpen} onOpenChange={hide}>
+            <SelectPopup mobile={mobile} open={popupOpen} onClose={hide} buttonRef={anchorElement}>
                 <Menu size="l" className={b('menu')}>
                     {data
                         .map((data) => {
@@ -128,7 +130,9 @@ export function ToolbarListButton<E>({
 
                             const disabled = !isEnable(editor);
 
-                            const hideHintWhenDisabled = hintWhenDisabled === false || !disabled;
+                            const hideHintWhenDisabled =
+                                mobile || hintWhenDisabled === false || !disabled;
+
                             const hintWhenDisabledText =
                                 typeof hintWhenDisabled === 'string'
                                     ? hintWhenDisabled
@@ -200,7 +204,7 @@ export function ToolbarListButton<E>({
                         })
                         .filter(Boolean)}
                 </Menu>
-            </Popup>
+            </SelectPopup>
             {popupItem
                 ? popupItem.renderPopup({
                       ...popupItem,

@@ -6,6 +6,6 @@ export const Story: StoryObj<typeof component> = {};
 Story.storyName = 'Mobile editor';
 
 export default {
-    title: 'Experiments / MobileEditor',
+    title: 'Experiments / Mobile editor',
     component,
 };

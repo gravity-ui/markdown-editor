@@ -15,6 +15,7 @@ import {useEnsuredForwardedRef, useKey, useUpdate} from 'react-use';
 import {type ClassNameProps, cn} from '../classname';
 import {i18n} from '../i18n/bundle';
 import {logger} from '../logger';
+import {mobilePreset} from '../modules/toolbars/presets';
 import type {ToolbarsPreset} from '../modules/toolbars/types';
 import {useBooleanState, useSticky} from '../react-utils';
 import {isMac} from '../utils';
@@ -106,7 +107,7 @@ export const MarkdownEditorView = forwardRef<HTMLDivElement, MarkdownEditorViewP
         } = useMemo(
             () =>
                 getToolbarsConfigs({
-                    toolbarsPreset,
+                    toolbarsPreset: mobile ? mobilePreset : toolbarsPreset,
                     props: {
                         wysiwygToolbarConfig: initialWysiwygToolbarConfig,
                         markupToolbarConfig: initialMarkupToolbarConfig,
@@ -116,6 +117,7 @@ export const MarkdownEditorView = forwardRef<HTMLDivElement, MarkdownEditorViewP
                     preset: editor.preset,
                 }),
             [
+                mobile,
                 toolbarsPreset,
                 initialWysiwygToolbarConfig,
                 initialMarkupToolbarConfig,
@@ -303,6 +305,7 @@ export const MarkdownEditorView = forwardRef<HTMLDivElement, MarkdownEditorViewP
                                         className={b('editor', {mode: editorMode})}
                                         toolbarClassName={b('toolbar')}
                                         stickyToolbar={stickyToolbar}
+                                        mobile={mobile}
                                     >
                                         {editor.toolbarVisible && settingsVisible && settings}
                                     </WysiwygEditorView>
@@ -320,6 +323,7 @@ export const MarkdownEditorView = forwardRef<HTMLDivElement, MarkdownEditorViewP
                                         className={b('editor', {mode: editorMode})}
                                         toolbarClassName={b('toolbar')}
                                         stickyToolbar={stickyToolbar}
+                                        mobile={mobile}
                                     >
                                         {editor.toolbarVisible && settings}
                                     </MarkupEditorView>
