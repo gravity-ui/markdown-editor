@@ -1,5 +1,6 @@
-import type {NodeType} from 'prosemirror-model';
+import type {Node, NodeType} from 'prosemirror-model';
 import type {EditorState} from 'prosemirror-state';
+// @ts-ignore // TODO: fix cjs build
 import {hasParentNode} from 'prosemirror-utils';
 
 import {textblockTypeInputRule} from '../../../utils/inputrules';
@@ -8,7 +9,7 @@ import {headingType} from './HeadingSpecs';
 import {HeadingLevel, headingLevelAttr} from './const';
 
 export const hasParentHeading = (level: HeadingLevel) => (state: EditorState) =>
-    hasParentNode((node) => {
+    hasParentNode((node: Node) => {
         return node.type === headingType(state.schema) && node.attrs[headingLevelAttr] === level;
     })(state.selection);
 

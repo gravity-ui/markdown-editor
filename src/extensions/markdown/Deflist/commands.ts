@@ -1,4 +1,6 @@
+import type {Node} from 'prosemirror-model';
 import type {Command} from 'prosemirror-state';
+// @ts-ignore // TODO: fix cjs build
 import {findParentNode, replaceParentNodeOfType} from 'prosemirror-utils';
 
 import {isNodeSelection} from '../../../utils/selection';
@@ -6,7 +8,7 @@ import {isNodeSelection} from '../../../utils/selection';
 import {defDescType, defListType, defTermType} from './utils';
 
 export const wrapToDeflist: Command = (state, dispatch) => {
-    const parent = findParentNode((node) => node.isTextblock)(state.selection);
+    const parent = findParentNode((node: Node) => node.isTextblock)(state.selection);
     if (!parent) return false;
 
     dispatch?.(
@@ -27,7 +29,7 @@ export const splitDeflist: Command = (state, dispatch) => {
 
     if (isNodeSelection(selection)) return false;
 
-    const parentTextblock = findParentNode((node) => node.isTextblock)(selection);
+    const parentTextblock = findParentNode((node: Node) => node.isTextblock)(selection);
     if (!parentTextblock) return false; // check if parent is textblock
 
     const isParentEmpty = parentTextblock.node.textContent === '';

@@ -1,4 +1,4 @@
-import type {Mermaid} from 'mermaid'; // eslint-disable-line import/no-extraneous-dependencies
+import type {Mermaid} from 'mermaid' with {'resolution-mode': 'import'};
 import {Node} from 'prosemirror-model';
 import {EditorView, NodeView} from 'prosemirror-view';
 import {createPortal} from 'react-dom';

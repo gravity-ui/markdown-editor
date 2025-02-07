@@ -9,6 +9,7 @@ import {
 } from '@gravity-ui/icons';
 import {Button, DropdownMenu, Icon, Portal} from '@gravity-ui/uikit';
 import type {Node} from 'prosemirror-model';
+// @ts-ignore // TODO: fix cjs build
 import {NodeWithPos, findParentNodeClosestToPos} from 'prosemirror-utils';
 import type {EditorView, NodeView, NodeViewConstructor} from 'prosemirror-view';
 

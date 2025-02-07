@@ -1,6 +1,8 @@
 import {Popup, PopupPlacement, PopupProps} from '@gravity-ui/uikit';
 import {keydownHandler} from 'prosemirror-keymap';
+import type {Node} from 'prosemirror-model';
 import {EditorState, Plugin, PluginView, TextSelection} from 'prosemirror-state';
+// @ts-ignore // TODO: fix cjs build
 import {findChildrenByMark, findParentNode} from 'prosemirror-utils';
 import {Decoration, DecorationSet, EditorView} from 'prosemirror-view';
 
@@ -31,7 +33,7 @@ function getTextNode(state: EditorState) {
 
     const textNodes = findChildrenByMark(parent?.node, linkType(state.schema));
 
-    const textNode = textNodes.find((n) => {
+    const textNode = textNodes.find((n: {node: Node; pos: number}) => {
         const start = n.pos + parent.pos;
         const end = start + n.node.nodeSize;
         return start <= state.selection.from && end >= state.selection.from;

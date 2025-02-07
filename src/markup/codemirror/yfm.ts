@@ -2,6 +2,7 @@ import {Completion, CompletionSource, snippet} from '@codemirror/autocomplete';
 import {markdown, markdownLanguage} from '@codemirror/lang-markdown';
 import type {Extension} from '@codemirror/state';
 import {Tag, tags} from '@lezer/highlight';
+// @ts-ignore TODO: https://github.com/lezer-parser/markdown/issues/51
 import type {DelimiterType, MarkdownConfig} from '@lezer/markdown';
 
 import {capitalize} from '../../lodash';
@@ -34,7 +35,8 @@ function mdInlineFactory({
         parseInline: [
             {
                 name,
-                parse(cx, next, pos) {
+                // TODO: remove types of arguments after https://github.com/lezer-parser/markdown/issues/51
+                parse(cx: any, next: number, pos: number) {
                     if (next !== char || cx.char(pos + 1) !== char || cx.char(pos + 2) === char)
                         return -1;
 

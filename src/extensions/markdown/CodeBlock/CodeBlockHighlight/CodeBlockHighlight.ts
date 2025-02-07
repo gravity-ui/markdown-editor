@@ -1,11 +1,11 @@
 import type {Options} from '@diplodoc/transform';
 // importing only type, because lowlight and highlight.js is optional deps
 import type HLJS from 'highlight.js/lib/core';
-import type {createLowlight} from 'lowlight';
-import type {Root} from 'lowlight/lib/core';
+import type {createLowlight} from 'lowlight' with {'resolution-mode': 'import'};
 import {Node} from 'prosemirror-model';
 import {Plugin, PluginKey} from 'prosemirror-state';
 import {Step} from 'prosemirror-transform';
+// @ts-ignore // TODO: fix cjs build
 import {findChildrenByType} from 'prosemirror-utils';
 import {Decoration, DecorationSet} from 'prosemirror-view';
 
@@ -17,6 +17,9 @@ import {CodeBlockNodeAttr, codeBlockNodeName, codeBlockType} from '../CodeBlockS
 import {codeLangSelectTooltipViewCreator} from './TooltipPlugin';
 
 export type HighlightLangMap = Options['highlightLangs'];
+
+type Lowlight = ReturnType<typeof createLowlight>;
+type Root = ReturnType<Lowlight['highlight']>;
 
 type LangSelectItem = {
     value: string;
@@ -31,7 +34,7 @@ export type CodeBlockHighlightOptions = {
 
 export const CodeBlockHighlight: ExtensionAuto<CodeBlockHighlightOptions> = (builder, opts) => {
     let langs: NonNullable<HighlightLangMap>;
-    let lowlight: ReturnType<typeof createLowlight>;
+    let lowlight: Lowlight;
     let hljs: typeof HLJS;
 
     try {
@@ -99,7 +102,7 @@ export const CodeBlockHighlight: ExtensionAuto<CodeBlockHighlightOptions> = (bui
                                     return (
                                         stepHasFromTo(step) &&
                                         oldNodes.some(
-                                            (node) =>
+                                            (node: {node: Node; pos: number}) =>
                                                 node.pos >= step.from &&
                                                 node.pos + node.node.nodeSize <= step.to,
                                         )

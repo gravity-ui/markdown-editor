@@ -1,5 +1,6 @@
 import type {Node} from 'prosemirror-model';
 import {Plugin, Transaction} from 'prosemirror-state';
+// @ts-ignore // TODO: fix cjs build
 import {findChildren, hasParentNode} from 'prosemirror-utils';
 
 import {isListNode} from '../utils';

@@ -1,6 +1,7 @@
 import {keymap} from 'prosemirror-keymap';
 import {Fragment} from 'prosemirror-model';
 import {Command, TextSelection} from 'prosemirror-state';
+// @ts-ignore // TODO: fix cjs build
 import {findParentNodeOfType} from 'prosemirror-utils';
 
 import {isWholeSelection} from '../../../utils/selection';

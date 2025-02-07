@@ -1,5 +1,6 @@
 import {setBlockType} from 'prosemirror-commands';
 import type {Command} from 'prosemirror-state';
+// @ts-ignore // TODO: fix cjs build
 import {findParentNodeOfType} from 'prosemirror-utils';
 
 import {toParagraph} from '../../../extensions/base';

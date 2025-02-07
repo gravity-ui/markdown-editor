@@ -5,6 +5,7 @@ import {
     findChildrenByType,
     findParentNodeOfType,
     hasParentNodeOfType,
+    // @ts-ignore // TODO: fix cjs build
 } from 'prosemirror-utils';
 
 import {TableNode} from './const';
@@ -31,7 +32,7 @@ export const findTableRows = (table: Node, schema: Schema) =>
     findChildrenByType(table, schema.nodes[TableNode.Row]);
 
 export const findTableCells = (table: Node, schema: Schema) =>
-    findChildren(table, (node) =>
+    findChildren(table, (node: Node) =>
         [schema.nodes[TableNode.HeaderCell].name, schema.nodes[TableNode.DataCell].name].includes(
             node.type.name,
         ),

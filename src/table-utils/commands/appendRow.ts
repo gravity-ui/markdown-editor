@@ -1,4 +1,5 @@
 import type {Node, NodeType} from 'prosemirror-model';
+// @ts-ignore // TODO: fix cjs build
 import {findParentNodeClosestToPos} from 'prosemirror-utils';
 
 import type {CommandWithAttrs} from '../../core';
