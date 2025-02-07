@@ -12,9 +12,9 @@ const b = cn('action-preview');
 type HeadingLevel = 1 | 2 | 3 | 4 | 5 | 6;
 
 const DynamicHeading = ({level, children}: {level: HeadingLevel; children: React.ReactNode}) => {
-    const HeadingTag = `h${level}`; // e.g. 'h1', 'h2', etc.
+    const CustomTag = `h${level}` as keyof JSX.IntrinsicElements; // e.g. 'h1', 'h2', etc.
 
-    return React.createElement(HeadingTag, {className: b('heading', {level})}, children);
+    return <CustomTag className={b('heading', {level})}>{children}</CustomTag>;
 };
 
 export const HeadingPreview = ({level}: {level: HeadingLevel}) => {

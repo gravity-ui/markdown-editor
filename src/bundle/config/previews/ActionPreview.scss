@@ -1,47 +1,76 @@
+:root {
+    --toolbar-item-preview-width: 144px;
+    --toolbar-item-preview-height: 104px;
+}
+
+@mixin toolbar-item-preview-h1() {
+    font-size: 26px;
+    line-height: 32px;
+    margin: 10px 0 6px 0;
+}
+
+@mixin toolbar-item-preview-h2() {
+    font-size: 20px;
+    line-height: 24px;
+    margin: 20px 0 4px 0;
+}
+
+@mixin toolbar-item-preview-h3() {
+    font-size: 16px;
+    line-height: 20px;
+    margin: 24px 0 4px 0;
+}
+
+@mixin toolbar-item-preview-h4() {
+    font-size: 14px;
+    line-height: 20px;
+    margin: 24px 0 4px 0;
+}
+
+@mixin toolbar-item-preview-h5() {
+    font-size: 12px;
+    line-height: 16px;
+    margin: 26px 0 6px 0;
+}
+
+@mixin toolbar-item-preview-h6() {
+    font-size: 10px;
+    line-height: 14px;
+    margin: 28px 0 6px 0;
+}
+
 .g-md-action-preview {
     overflow: hidden;
 
-    width: 144px;
-    height: 104px;
+    width: var(--toolbar-item-preview-width);
+    height: var(--toolbar-item-preview-height);
 
     white-space: pre;
 
     &__heading {
         &_level {
             &_1 {
-                font-size: 26px;
-                line-height: 32px;
-                margin: 10px 0 6px 0;
+                @include toolbar-item-preview-h1;
             }
 
             &_2 {
-                font-size: 20px;
-                line-height: 24px;
-                margin: 20px 0 4px 0;
+                @include toolbar-item-preview-h2;
             }
 
             &_3 {
-                font-size: 16px;
-                line-height: 20px;
-                margin: 24px 0 4px 0;
+                @include toolbar-item-preview-h3;
             }
 
             &_4 {
-                font-size: 14px;
-                line-height: 20px;
-                margin: 24px 0 4px 0;
+                @include toolbar-item-preview-h4;
             }
 
             &_5 {
-                font-size: 12px;
-                line-height: 16px;
-                margin: 26px 0 6px 0;
+                @include toolbar-item-preview-h5;
             }
 
             &_6 {
-                font-size: 10px;
-                line-height: 14px;
-                margin: 28px 0 6px 0;
+                @include toolbar-item-preview-h6;
             }
         }
     }

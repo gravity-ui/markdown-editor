@@ -1,15 +1,13 @@
 import React from 'react';
 
 import {HelpPopover} from '@gravity-ui/components';
-import {Hotkey, Icon, List, Popup, PopupPlacement, Tooltip} from '@gravity-ui/uikit';
+import {Hotkey, Icon, List, Popup, PopupPlacement} from '@gravity-ui/uikit';
 
-import type {ActionName} from '../../../bundle/config/action-names';
-import {previews} from '../../../bundle/config/previews';
+import {PreviewTooltip} from '../../../bundle/config/previews/PreviewTooltip';
 import {cn} from '../../../classname';
 import {i18n} from '../../../i18n/suggest';
 import {isFunction} from '../../../lodash';
 import {ErrorLoggerBoundary} from '../../../react-utils/ErrorBoundary';
-import {ToolbarTooltipDelay} from '../../../toolbar';
 import {AutocompletePopupProps} from '../../../utils/autocomplete-popup';
 
 import type {CommandAction} from './types';
@@ -27,7 +25,10 @@ function calcListHeight(itemsCount: number): number | undefined {
     return Math.min(MAX_LIST_HEIGHT, itemsCount * ITEM_HEIGHT);
 }
 
-export type CommandMenuItem = Pick<CommandAction, 'id' | 'title' | 'icon' | 'hotkey' | 'hint'>;
+export type CommandMenuItem = Pick<
+    CommandAction,
+    'id' | 'title' | 'icon' | 'hotkey' | 'hint' | 'preview'
+>;
 
 export type CommandMenuComponentProps = AutocompletePopupProps & {
     currentIndex?: number;
@@ -76,21 +77,12 @@ export const CommandMenuComponent: React.FC<CommandMenuComponentProps> = ({
     );
 };
 
-function renderItem({id, title, icon, hotkey, hint}: CommandMenuItem): React.ReactNode {
+function renderItem({id, title, icon, hotkey, hint, preview}: CommandMenuItem): React.ReactNode {
     const titleText = isFunction(title) ? title() : title;
     const hintText = isFunction(hint) ? hint() : hint;
-    const preview = previews[id as keyof typeof ActionName];
-    const previewContent = isFunction(preview) ? preview() : preview;
 
     return (
-        <Tooltip
-            placement="right"
-            className={b('preview-content')}
-            disabled={!previewContent}
-            openDelay={ToolbarTooltipDelay.Open}
-            closeDelay={ToolbarTooltipDelay.Close}
-            content={previewContent}
-        >
+        <PreviewTooltip preview={preview}>
             <div key={id} className={b('item', {id})}>
                 <Icon data={icon.data} size={20} className={b('item-icon')} />
                 <div className={b('item-body')}>
@@ -101,7 +93,7 @@ function renderItem({id, title, icon, hotkey, hint}: CommandMenuItem): React.Rea
                     </div>
                 </div>
             </div>
-        </Tooltip>
+        </PreviewTooltip>
     );
 }
 
