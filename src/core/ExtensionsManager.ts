@@ -29,7 +29,6 @@ type ExtensionsManagerOptions = {
     mdOpts?: MarkdownIt.Options & {preset?: PresetName};
     linkifyTlds?: string | string[];
     pmTransformers?: TransformFn[];
-    allowDynamicModifiers?: boolean;
     dynamicModifiers?: {
         parser?: MarkdownParserDynamicModifier;
         serializer?: MarkdownSerializerDynamicModifier;
@@ -80,7 +79,7 @@ export class ExtensionsManager {
             this.#pmTransformers = options.pmTransformers;
         }
 
-        if (options.allowDynamicModifiers) {
+        if (options.dynamicModifiers) {
             this.#parserDynamicModifier = options?.dynamicModifiers?.parser;
             this.#serializerDynamicModifier = options?.dynamicModifiers?.serializer;
         }

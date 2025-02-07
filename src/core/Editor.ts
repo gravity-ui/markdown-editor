@@ -32,7 +32,6 @@ export type WysiwygEditorOptions = {
     /** @default 'default' */
     mdPreset?: PresetName;
     allowHTML?: boolean;
-    preserveMarkupFormatting?: boolean;
     parserAndSerializerDynamicModifiers?: {
         parser?: MarkdownParserDynamicModifier;
         serializer?: MarkdownSerializerDynamicModifier;
@@ -88,7 +87,6 @@ export class WysiwygEditor implements CommonEditor, ActionStorage {
         escapeConfig,
         onChange,
         onDocChange,
-        preserveMarkupFormatting,
         parserAndSerializerDynamicModifiers,
     }: WysiwygEditorOptions) {
         const {
@@ -105,7 +103,6 @@ export class WysiwygEditor implements CommonEditor, ActionStorage {
             mdOpts: {html: allowHTML, linkify, breaks: true, preset: mdPreset},
             linkifyTlds,
             pmTransformers,
-            allowDynamicModifiers: preserveMarkupFormatting,
             dynamicModifiers: parserAndSerializerDynamicModifiers,
         });
 
