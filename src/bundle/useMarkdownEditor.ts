@@ -35,7 +35,6 @@ export function useMarkdownEditor<T extends object = {}>(
 
         const breaks = md.breaks ?? props.breaks;
         const preserveEmptyRows = experimental.preserveEmptyRows;
-        const preserveMarkupFormatting = experimental.preserveMarkupFormatting;
         const preset: MarkdownEditorPreset = props.preset ?? 'full';
         const renderStorage = new ReactRenderStorage();
         const uploadFile = handlers.uploadFile ?? props.fileUploadHandler;
@@ -87,7 +86,6 @@ export function useMarkdownEditor<T extends object = {}>(
             renderStorage,
             directiveSyntax,
             pmTransformers,
-            preserveMarkupFormatting,
             md: {
                 ...md,
                 breaks,
