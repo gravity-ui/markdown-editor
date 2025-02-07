@@ -2,7 +2,7 @@ import {useEffect, useRef, useState} from 'react';
 
 import {Ellipsis as DotsIcon} from '@gravity-ui/icons';
 import {Button, Icon, Loader, Menu, Popup} from '@gravity-ui/uikit';
-import type {Mermaid} from 'mermaid';
+import type {Mermaid} from 'mermaid' with {'resolution-mode': 'import'};
 import {Node} from 'prosemirror-model';
 import {EditorView} from 'prosemirror-view';
 

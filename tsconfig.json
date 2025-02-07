@@ -1,15 +1,19 @@
 {
   "extends": "@gravity-ui/tsconfig/tsconfig",
   "compilerOptions": {
+    "target": "ES2022",
     "lib": ["DOM", "ESNext"],
-    "outDir": "build",
+    "outDir": "build/esm",
     "module": "esnext",
+    "moduleResolution": "bundler",
     "jsx": "react-jsx",
     "baseUrl": ".",
     "declaration": true,
     "importHelpers": true,
     "isolatedModules": true,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    // "verbatimModuleSyntax": true, // TODO: enable after fix all problems
   },
-  "include": ["src/**/*", "demo/**/*", "tests/**/*"]
+  "include": ["src/**/*", "demo/**/*", "tests/**/*"],
+  "exclude": ["build"]
 }

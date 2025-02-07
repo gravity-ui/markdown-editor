@@ -1,4 +1,5 @@
 import type {NodeType} from 'prosemirror-model';
+// @ts-ignore // TODO: fix cjs build
 import {hasParentNodeOfType} from 'prosemirror-utils';
 
 import type {Action, ExtensionAuto, Keymap} from '../../../core';

@@ -4,6 +4,7 @@ import {
     findParentNode,
     findParentNodeClosestToPos,
     findSelectedNodeOfType,
+    // @ts-ignore // TODO: fix cjs build
 } from 'prosemirror-utils';
 import {Decoration, DecorationSet, EditorView} from 'prosemirror-view';
 

@@ -1,5 +1,6 @@
 import {NodeType} from 'prosemirror-model';
 import {PluginView} from 'prosemirror-state';
+// @ts-ignore // TODO: fix cjs build
 import {findParentDomRefOfType} from 'prosemirror-utils';
 import {EditorView} from 'prosemirror-view';
 

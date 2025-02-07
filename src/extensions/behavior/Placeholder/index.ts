@@ -1,5 +1,6 @@
 import type {Node, Schema} from 'prosemirror-model';
 import {EditorState, Plugin, PluginKey, Transaction} from 'prosemirror-state';
+// @ts-ignore // TODO: fix cjs build
 import {findChildren, findParentNodeClosestToPos} from 'prosemirror-utils';
 import {Decoration, DecorationSet} from 'prosemirror-view';
 
@@ -48,7 +49,7 @@ export const createPlaceholder = (node: Node, parent: Node | null, focus?: boole
 };
 
 const placeholderNeeded = (node: Node) => {
-    const childrenWithPlaceholderVisible = findChildren(node, (n) =>
+    const childrenWithPlaceholderVisible = findChildren(node, (n: Node) =>
         Boolean(n.type.spec.placeholder?.alwaysVisible),
     );
 
@@ -160,7 +161,7 @@ function getPlaceholderWidgetSpecs(state: EditorState) {
 
     state.doc.descendants(decorate);
 
-    const parentNode = findParentNodeClosestToPos(state.selection.$from, (node) => {
+    const parentNode = findParentNodeClosestToPos(state.selection.$from, (node: Node) => {
         return Boolean(node.type.spec.placeholder);
     });
 
