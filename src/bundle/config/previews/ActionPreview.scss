@@ -1,48 +1,13 @@
 :root {
     --toolbar-item-preview-width: 144px;
     --toolbar-item-preview-height: 104px;
-}
 
-@mixin toolbar-item-preview-h1() {
-    margin: 10px 0 6px;
-
-    font-size: 26px;
-    line-height: 32px;
-}
-
-@mixin toolbar-item-preview-h2() {
-    margin: 20px 0 4px;
-
-    font-size: 20px;
-    line-height: 24px;
-}
-
-@mixin toolbar-item-preview-h3() {
-    margin: 24px 0 4px;
-
-    font-size: 16px;
-    line-height: 20px;
-}
-
-@mixin toolbar-item-preview-h4() {
-    margin: 24px 0 4px;
-
-    font-size: 14px;
-    line-height: 20px;
-}
-
-@mixin toolbar-item-preview-h5() {
-    margin: 26px 0 6px;
-
-    font-size: 12px;
-    line-height: 16px;
-}
-
-@mixin toolbar-item-preview-h6() {
-    margin: 28px 0 6px;
-
-    font-size: 10px;
-    line-height: 14px;
+    --toolbar-item-preview-h1-margin: 8px 0 6px;
+    --toolbar-item-preview-h2-margin: 20px 0 4px;
+    --toolbar-item-preview-h3-margin: 24px 0 4px;
+    --toolbar-item-preview-h4-margin: 24px 0 4px;
+    --toolbar-item-preview-h5-margin: 26px 0 6px;
+    --toolbar-item-preview-h6-margin: 28px 0 6px;
 }
 
 .g-md-action-preview {
@@ -53,32 +18,35 @@
 
     white-space: pre;
 
-    &__heading {
-        &_level {
-            &_1 {
-                @include toolbar-item-preview-h1;
-            }
+    // Redefine yfm styles
+    &.yfm > *:not(h2):not(h3):not(h4):not(h5):not(h6):first-child {
+        /* stylelint-disable-next-line declaration-no-important */
+        margin: var(--toolbar-item-preview-h1-margin) !important;
+    }
 
-            &_2 {
-                @include toolbar-item-preview-h2;
-            }
+    &.yfm > h2 {
+        /* stylelint-disable-next-line declaration-no-important */
+        margin: var(--toolbar-item-preview-h2-margin) !important;
+    }
 
-            &_3 {
-                @include toolbar-item-preview-h3;
-            }
+    &.yfm > h3 {
+        /* stylelint-disable-next-line declaration-no-important */
+        margin: var(--toolbar-item-preview-h3-margin) !important;
+    }
 
-            &_4 {
-                @include toolbar-item-preview-h4;
-            }
+    &.yfm > h4 {
+        /* stylelint-disable-next-line declaration-no-important */
+        margin: var(--toolbar-item-preview-h4-margin) !important;
+    }
 
-            &_5 {
-                @include toolbar-item-preview-h5;
-            }
+    &.yfm > h5 {
+        /* stylelint-disable-next-line declaration-no-important */
+        margin: var(--toolbar-item-preview-h5-margin) !important;
+    }
 
-            &_6 {
-                @include toolbar-item-preview-h6;
-            }
-        }
+    &.yfm > h6 {
+        /* stylelint-disable-next-line declaration-no-important */
+        margin: var(--toolbar-item-preview-h6-margin) !important;
     }
 
     &__text-with-head {
