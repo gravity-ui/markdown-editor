@@ -3,11 +3,11 @@ import React from 'react';
 import {HelpPopover} from '@gravity-ui/components';
 import {Hotkey, Icon, List, Popup, PopupPlacement} from '@gravity-ui/uikit';
 
-import {PreviewTooltip} from '../../../bundle/config/previews/PreviewTooltip';
 import {cn} from '../../../classname';
 import {i18n} from '../../../i18n/suggest';
 import {isFunction} from '../../../lodash';
 import {ErrorLoggerBoundary} from '../../../react-utils/ErrorBoundary';
+import {PreviewTooltip} from '../../../toolbar/PreviewTooltip';
 import {AutocompletePopupProps} from '../../../utils/autocomplete-popup';
 
 import type {CommandAction} from './types';

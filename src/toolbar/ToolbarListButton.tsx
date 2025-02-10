@@ -4,12 +4,12 @@ import {HelpPopover} from '@gravity-ui/components';
 import {ChevronDown} from '@gravity-ui/icons';
 import {ActionTooltip, Button, Hotkey, Icon, Menu, Popover, Popup} from '@gravity-ui/uikit';
 
-import {PreviewTooltip} from '../bundle/config/previews/PreviewTooltip';
 import {cn} from '../classname';
 import {i18n} from '../i18n/common';
 import {isFunction} from '../lodash';
 import {useBooleanState} from '../react-utils/hooks';
 
+import {PreviewTooltip} from './PreviewTooltip';
 import {ToolbarTooltipDelay} from './const';
 import type {
     ToolbarBaseProps,

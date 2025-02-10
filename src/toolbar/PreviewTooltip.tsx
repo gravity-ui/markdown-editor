@@ -2,8 +2,9 @@ import React from 'react';
 
 import {Tooltip} from '@gravity-ui/uikit';
 
-import {cn} from '../../../classname';
-import {ToolbarTooltipDelay} from '../../../toolbar/const';
+import {cn} from '../classname';
+
+import {ToolbarTooltipDelay} from './const';
 
 import './PreviewTooltip.scss';
 
