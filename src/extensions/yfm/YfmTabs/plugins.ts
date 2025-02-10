@@ -1,8 +1,7 @@
 import {generateID} from '@diplodoc/transform/lib/plugins/utils';
-import {Command, Plugin, PluginView, TextSelection, Transaction} from 'prosemirror-state';
-import type {Transform} from 'prosemirror-transform';
+import {type Command, Plugin, type PluginView, TextSelection} from 'prosemirror-state';
 import {
-    NodeWithPos,
+    type NodeWithPos,
     findChildren,
     findDomRefAtPos,
     findParentNodeOfType,
@@ -24,7 +23,6 @@ import {get$Cursor, isTextSelection} from '../../../utils/selection';
 
 import {TabAttrs, TabPanelAttrs} from './YfmTabsSpecs/const';
 import {
-    tabActiveClassname,
     tabInactiveClassname,
     tabPanelActiveClassname,
     tabPanelInactiveClassname,
@@ -33,7 +31,7 @@ import {
     tabsListType,
     tabsType,
 } from './const';
-import {atEndOfPanel} from './utils';
+import {atEndOfPanel, execAfterPaint, switchTabByElem, switchTabById} from './utils';
 
 export const dragAutoSwitch = () =>
     new Plugin({
@@ -75,10 +73,10 @@ class TabsAutoSwitchOnDragOver implements PluginView {
         const pos = view.posAtCoords({left: event.clientX, top: event.clientY});
         if (pos) {
             const elem = findDomRefAtPos(pos.pos, view.domAtPos.bind(view)) as HTMLElement;
-            const cutElem = elem.closest(TabsAutoSwitchOnDragOver.TAB_SELECTOR);
-            if (cutElem === this._tabElem) return;
+            const tabElem = elem.closest(TabsAutoSwitchOnDragOver.TAB_SELECTOR);
+            if (tabElem === this._tabElem) return;
             this._clear();
-            if (cutElem) this._setTabElem(cutElem as HTMLElement);
+            if (tabElem) this._setTabElem(tabElem as HTMLElement);
         }
     }
 
@@ -98,96 +96,10 @@ class TabsAutoSwitchOnDragOver implements PluginView {
 
     private _switchTab() {
         if (this._editorView.dragging && this._tabElem) {
-            const pos = this._editorView.posAtDOM(this._tabElem, 0, -1);
-            const $pos = this._editorView.state.doc.resolve(pos);
-            const {state} = this._editorView;
-
-            let {depth} = $pos;
-            let tabId = '';
-            let tabsNode: NodeWithPos | null = null;
-            do {
-                const node = $pos.node(depth);
-                if (node.type === tabType(state.schema)) {
-                    tabId = node.attrs[TabAttrs.dataDiplodocid];
-                    continue;
-                }
-
-                if (node.type === tabsType(state.schema)) {
-                    tabsNode = {node, pos: $pos.before(depth)};
-                    break;
-                }
-            } while (--depth >= 0);
-
-            if (tabId && tabsNode) {
-                const {tr} = state;
-                if (switchYfmTab(tabsNode, tabId, tr)) {
-                    this._editorView.dispatch(tr.setMeta('addToHistory', false));
-                }
-            }
+            switchTabByElem(this._tabElem);
         }
         this._clear();
     }
-}
-
-function switchYfmTab(
-    {node: tabsNode, pos: tabsPos}: NodeWithPos,
-    tabId: string,
-    tr: Transform,
-): boolean {
-    const {schema} = tabsNode.type;
-    if (tabsNode.type !== tabsType(schema)) return false;
-
-    const tabsList = tabsNode.firstChild;
-    if (tabsList?.type !== tabsListType(schema)) return false;
-
-    const tabsListPos = tabsPos + 1;
-
-    let panelId: string | null = null;
-    tabsList.forEach((node, offset) => {
-        if (node.type !== tabType(schema)) return;
-
-        const tabPos = tabsListPos + 1 + offset;
-        const tabAttrs = {
-            ...node.attrs,
-            [TabAttrs.ariaSelected]: 'false',
-            [TabAttrs.dataDiplodocIsActive]: 'false',
-        };
-
-        if (node.attrs[TabAttrs.dataDiplodocid] === tabId) {
-            panelId = node.attrs[TabAttrs.ariaControls];
-            tabAttrs[TabAttrs.ariaSelected] = 'true';
-            tabAttrs[TabAttrs.dataDiplodocIsActive] = 'true';
-        }
-
-        tr.setNodeMarkup(tabPos, null, tabAttrs);
-    });
-
-    if (!panelId) return false;
-
-    tabsNode.forEach((node, offset) => {
-        if (node.type !== tabPanelType(schema)) return;
-
-        const tabPanelPos = tabsPos + 1 + offset;
-        const tabPanelAttrs = {
-            ...node.attrs,
-        };
-        const tabPanelClassList = new Set(
-            ((node.attrs[TabPanelAttrs.class] as string) ?? '')
-                .split(' ')
-                .filter((val) => Boolean(val.trim())),
-        );
-
-        if (node.attrs[TabPanelAttrs.id] === panelId) {
-            tabPanelClassList.add('active');
-        } else {
-            tabPanelClassList.delete('active');
-        }
-
-        tabPanelAttrs[TabPanelAttrs.class] = Array.from(tabPanelClassList).join(' ');
-        tr.setNodeMarkup(tabPanelPos, null, tabPanelAttrs);
-    });
-
-    return true;
 }
 
 export const tabPanelArrowDown: Command = (state, dispatch, view) => {
@@ -253,36 +165,6 @@ export const liftEmptyBlockFromTabPanel: Command = (state, dispatch) => {
     return false;
 };
 
-const makeTabsInactive = (tabNodes: NodeWithPos[], tabPanels: NodeWithPos[], tr: Transaction) => {
-    // Find all active tabs and make them inactive
-    const activeTabs = tabNodes.filter(
-        (v) => v.node.attrs[TabAttrs.dataDiplodocIsActive] === 'true',
-    );
-
-    if (activeTabs.length) {
-        activeTabs.forEach((tab) => {
-            tr.setNodeMarkup(tab.pos, null, {
-                ...tab.node.attrs,
-                class: tabInactiveClassname,
-                [TabAttrs.dataDiplodocIsActive]: 'false',
-            });
-        });
-    }
-
-    // Find all active panels and make them inactive
-    const activePanels = tabPanels.filter(
-        (v) => v.node.attrs[TabPanelAttrs.class] === tabPanelActiveClassname,
-    );
-    if (activePanels.length) {
-        activePanels.forEach((tabPanel) => {
-            tr.setNodeMarkup(tr.mapping.map(tabPanel.pos), null, {
-                ...tabPanel.node.attrs,
-                class: tabPanelInactiveClassname,
-            });
-        });
-    }
-};
-
 export const createTab: (afterTab: NodeWithPos, tabsParentNode: NodeWithPos) => Command =
     (afterTab, tabsParentNode) => (state, dispatch, view) => {
         const tabNodes = findChildren(
@@ -307,7 +189,7 @@ export const createTab: (afterTab: NodeWithPos, tabsParentNode: NodeWithPos) => 
             {
                 [TabPanelAttrs.ariaLabelledby]: tabId,
                 [TabPanelAttrs.id]: panelId,
-                [TabPanelAttrs.class]: tabPanelActiveClassname,
+                [TabPanelAttrs.class]: tabPanelInactiveClassname,
             },
             pType(state.schema).createAndFill(),
         );
@@ -315,8 +197,8 @@ export const createTab: (afterTab: NodeWithPos, tabsParentNode: NodeWithPos) => 
             [TabAttrs.id]: tabId,
             [TabAttrs.dataDiplodocid]: tabId,
             [TabAttrs.dataDiplodocKey]: tabId,
-            [TabAttrs.dataDiplodocIsActive]: 'true',
-            [TabAttrs.class]: tabActiveClassname,
+            [TabAttrs.dataDiplodocIsActive]: 'false',
+            [TabAttrs.class]: tabInactiveClassname,
             [TabAttrs.role]: 'tab',
             [TabAttrs.ariaControls]: panelId,
         });
@@ -332,8 +214,6 @@ export const createTab: (afterTab: NodeWithPos, tabsParentNode: NodeWithPos) => 
             v.pos = v.pos + tabsParentNode.pos + 1;
         });
 
-        makeTabsInactive(tabNodes, tabPanels, tr);
-
         dispatch?.(
             tr
                 .insert(afterPanelNode.pos + afterPanelNode.node.nodeSize, newPanel)
@@ -344,6 +224,10 @@ export const createTab: (afterTab: NodeWithPos, tabsParentNode: NodeWithPos) => 
         );
 
         view?.focus();
+
+        if (view) {
+            execAfterPaint(() => switchTabById(view.dom, tabId));
+        }
 
         return true;
     };
@@ -388,33 +272,22 @@ export const removeTab: (tabToRemove: NodeWithPos, tabsParentNode: NodeWithPos) 
                 });
 
                 const newTabNode = tabNodes[newTabIdx];
-
-                const newTabPanelNode = tabPanels[newTabIdx];
-
-                makeTabsInactive(tabNodes, tabPanels, tr);
+                const newActiveTabId: string = newTabNode.node.attrs[TabAttrs.dataDiplodocid];
 
                 tr
                     // Delete panel
                     .delete(panelToRemove.pos, panelToRemove.pos + panelToRemove.node.nodeSize)
                     // Delete tab
                     .delete(tabToRemove.pos, tabToRemove.pos + tabToRemove.node.nodeSize)
-                    // Set new active tab
-                    .setNodeMarkup(tr.mapping.map(newTabNode.pos), null, {
-                        ...newTabNode.node.attrs,
-                        class: tabActiveClassname,
-                        [TabAttrs.dataDiplodocIsActive]: 'true',
-                    })
-                    // Set new active panel
-                    .setNodeMarkup(tr.mapping.map(newTabPanelNode.pos), null, {
-                        ...newTabPanelNode.node.attrs,
-                        class: tabPanelActiveClassname,
-                    })
                     .setSelection(
                         TextSelection.create(
                             tr.doc,
                             tr.mapping.map(newTabNode.pos + newTabNode.node.nodeSize - 1),
                         ),
                     );
+
+                // Set new active tab
+                if (view) execAfterPaint(() => switchTabById(view.dom, newActiveTabId));
             }
             dispatch(tr);
             view?.focus();

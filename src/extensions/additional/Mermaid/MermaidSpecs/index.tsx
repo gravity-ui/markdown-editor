@@ -3,7 +3,7 @@ import {transform} from '@diplodoc/mermaid-extension';
 
 import type {ExtensionAuto, ExtensionNodeSpec} from '../../../../core';
 
-import {MermaidConsts, mermaidNodeName as mermaidNodeName} from './const';
+import {MermaidConsts, mermaidNodeName} from './const';
 export {mermaidNodeName} from './const';
 
 export type MermaidSpecsOptions = {
@@ -37,9 +37,11 @@ const MermaidSpecsExtension: ExtensionAuto<MermaidSpecsOptions> = (builder, {nod
                 dnd: {props: {offset: [8, 1]}},
             },
             toMd: (state, node) => {
-                state.write('```mermaid\n');
+                const content: string = node.attrs[MermaidConsts.NodeAttrs.content] || '';
+
+                state.write('```mermaid');
                 state.ensureNewLine();
-                state.write(node.attrs.content);
+                state.text(content.trim(), false);
                 state.ensureNewLine();
                 state.write('```');
                 state.ensureNewLine();

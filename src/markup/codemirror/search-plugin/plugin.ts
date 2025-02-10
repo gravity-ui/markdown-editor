@@ -3,6 +3,7 @@ import {
     closeSearchPanel,
     findNext,
     findPrevious,
+    getSearchQuery,
     search,
     searchKeymap,
     searchPanelOpen,
@@ -19,15 +20,7 @@ import {ReactRendererFacet} from '../react-facet';
 
 import {renderSearchPopup} from './view/SearchPopup';
 
-interface SearchQueryParams {
-    search: string;
-    caseSensitive?: boolean;
-    literal?: boolean;
-    regexp?: boolean;
-    replace?: string;
-    valid?: boolean;
-    wholeWord?: boolean;
-}
+type SearchQueryConfig = ConstructorParameters<typeof SearchQuery>[0];
 
 const INPUT_DELAY = 200;
 
@@ -45,14 +38,14 @@ export const SearchPanelPlugin = (params: SearchPanelPluginParams) =>
 
             anchor: HTMLElement | null;
             renderer: RendererItem | null;
-            searchQuery: SearchQueryParams = {
+            searchConfig: SearchQueryConfig = {
                 search: '',
                 caseSensitive: false,
                 wholeWord: false,
             };
             receiver: Receiver<EventMap> | undefined;
 
-            setViewSearchWithDelay: (config: Partial<SearchQueryParams>) => void;
+            setViewSearchWithDelay: (config: Partial<SearchQueryConfig>) => void;
 
             constructor(view: EditorView) {
                 this.view = view;
@@ -79,11 +72,13 @@ export const SearchPanelPlugin = (params: SearchPanelPluginParams) =>
                 const isPanelOpen = searchPanelOpen(update.state);
 
                 if (isPanelOpen && !this.renderer) {
+                    const initial = getSearchQuery(update.state);
                     this.anchor = document.querySelector(this.params.anchorSelector);
                     this.renderer = this.view.state
                         .facet(ReactRendererFacet)
                         .createItem('cm-search', () =>
                             renderSearchPopup({
+                                initial,
                                 open: true,
                                 anchor: this.anchor,
                                 onChange: this.handleChange,
@@ -105,13 +100,13 @@ export const SearchPanelPlugin = (params: SearchPanelPluginParams) =>
                 this.receiver?.off('change-editor-mode', this.handleEditorModeChange);
             }
 
-            setViewSearch(config: Partial<SearchQueryParams>) {
-                this.searchQuery = {
-                    ...this.searchQuery,
+            setViewSearch(config: Partial<SearchQueryConfig>) {
+                this.searchConfig = {
+                    ...this.searchConfig,
                     ...config,
                 };
                 const searchQuery = new SearchQuery({
-                    ...this.searchQuery,
+                    ...this.searchConfig,
                 });
 
                 this.view.dispatch({effects: setSearchQuery.of(searchQuery)});
@@ -140,17 +135,8 @@ export const SearchPanelPlugin = (params: SearchPanelPluginParams) =>
                 findPrevious(this.view);
             }
 
-            handleSearchConfigChange({
-                isCaseSensitive,
-                isWholeWord,
-            }: {
-                isCaseSensitive?: boolean;
-                isWholeWord?: boolean;
-            }) {
-                this.setViewSearch({
-                    caseSensitive: isCaseSensitive,
-                    wholeWord: isWholeWord,
-                });
+            handleSearchConfigChange(config: Partial<SearchQueryConfig>) {
+                this.setViewSearch(config);
             }
         },
         {

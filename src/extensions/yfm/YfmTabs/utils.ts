@@ -1,6 +1,12 @@
-import {EditorView} from 'prosemirror-view';
+import type {EditorView} from 'prosemirror-view';
 
-import {tabPanelType} from '.';
+import {DIPLODOC_ID_ATTR, YFM_TAB_CLASSNAME, tabPanelType} from './const';
+
+export const execAfterPaint = (fn: () => void) => {
+    requestAnimationFrame(() => {
+        requestAnimationFrame(fn);
+    });
+};
 
 export const atEndOfPanel = (view?: EditorView) => {
     if (!view) return null;
@@ -16,4 +22,18 @@ export const atEndOfPanel = (view?: EditorView) => {
     }
 
     return null;
+};
+
+export const switchTabByElem = (tabElem: HTMLElement) => {
+    if (tabElem.classList.contains(YFM_TAB_CLASSNAME)) {
+        tabElem.click();
+    }
+};
+
+export const switchTabById = (container: HTMLElement, tabId: string) => {
+    const selector = `.${YFM_TAB_CLASSNAME}[${DIPLODOC_ID_ATTR}="${tabId}"]`;
+    const tabElem = container.querySelector<HTMLDivElement>(selector);
+    if (tabElem) {
+        switchTabByElem(tabElem);
+    }
 };

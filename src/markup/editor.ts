@@ -1,6 +1,6 @@
 import type {EditorView} from '@codemirror/view';
 
-import {CommonEditor, MarkupString} from '../common';
+import type {CommonEditor, MarkupString} from '../common';
 
 export interface CodeEditor {
     readonly cm: EditorView;

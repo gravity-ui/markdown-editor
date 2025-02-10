@@ -4,7 +4,7 @@ import {isFunction} from '../../../lodash';
 import {ImageSpecs, imageType} from './ImageSpecs';
 import {AddImageAttrs, addImage} from './actions';
 import {addImageAction} from './const';
-import {ImageUrlPasteOptions, imageUrlPaste} from './imageUrlPaste';
+import {type ImageUrlPasteOptions, imageUrlPaste} from './imageUrlPaste';
 
 export {imageNodeName, imageType, ImageAttr} from './ImageSpecs';
 /** @deprecated Use `imageType` instead */
@@ -28,7 +28,6 @@ export const Image: ExtensionAuto<ImageOptions | undefined> = (builder, opts) =>
 declare global {
     namespace WysiwygEditor {
         interface Actions {
-            // @ts-expect-error
             [addImageAction]: Action<AddImageAttrs>;
         }
     }

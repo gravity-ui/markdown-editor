@@ -1,5 +1,4 @@
 import {transform as yfmTabs} from '@diplodoc/tabs-extension';
-import {NodeSpec} from 'prosemirror-model';
 
 import type {ExtensionAuto, ExtensionNodeSpec} from '../../../../core';
 import {nodeTypeFactory} from '../../../../utils/schema';
@@ -7,7 +6,7 @@ import {nodeTypeFactory} from '../../../../utils/schema';
 import {TabsNode} from './const';
 import {tabsPostPlugin} from './md-plugin';
 import {parserTokens} from './parser';
-import {getSchemaSpecs} from './schema';
+import {type YfmTabsSchemaOptions, getSchemaSpecs} from './schema';
 import {serializerTokens} from './serializer';
 
 export {TabsNode} from './const';
@@ -16,11 +15,7 @@ export const tabType = nodeTypeFactory(TabsNode.Tab);
 export const tabsType = nodeTypeFactory(TabsNode.Tabs);
 export const tabsListType = nodeTypeFactory(TabsNode.TabsList);
 
-export type YfmTabsSpecsOptions = {
-    /**
-     * @deprecated: use placeholder option in BehaviorPreset instead.
-     */
-    tabPlaceholder?: NonNullable<NodeSpec['placeholder']>['content'];
+export type YfmTabsSpecsOptions = YfmTabsSchemaOptions & {
     tabView?: ExtensionNodeSpec['view'];
     tabsListView?: ExtensionNodeSpec['view'];
     tabPanelView?: ExtensionNodeSpec['view'];

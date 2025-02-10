@@ -1,15 +1,16 @@
-import React, {ChangeEvent, useRef, useState} from 'react';
+import React, {useRef, useState} from 'react';
 
+import type {SearchQuery} from '@codemirror/search';
 import {ChevronDown, ChevronUp, Xmark} from '@gravity-ui/icons';
 import {
     Button,
     Card,
     Checkbox,
     Icon,
-    PopoverAnchorRef,
+    type PopoverAnchorRef,
     Popup,
     TextInput,
-    TextInputProps,
+    type TextInputProps,
     sp,
 } from '@gravity-ui/uikit';
 
@@ -19,12 +20,11 @@ import {enterKeyHandler} from '../../../../utils/handlers';
 
 import './SearchPopup.scss';
 
-interface SearchConfig {
-    isCaseSensitive: boolean;
-    isWholeWord: boolean;
-}
+type SearchInitial = Pick<SearchQuery, 'search' | 'caseSensitive' | 'wholeWord'>;
+type SearchConfig = Pick<SearchInitial, 'caseSensitive' | 'wholeWord'>;
 
 interface SearchCardProps {
+    initial: SearchInitial;
     onSearchKeyDown?: (query: string) => void;
     onChange?: (query: string) => void;
     onClose?: (query: string) => void;
@@ -36,28 +36,26 @@ interface SearchCardProps {
 const b = cn('search-card');
 
 const noop = () => {};
+const inverse = (val: boolean) => !val;
 
 export const SearchCard: React.FC<SearchCardProps> = ({
+    initial,
     onChange = noop,
     onClose = noop,
     onSearchPrev = noop,
     onSearchNext = noop,
     onConfigChange = noop,
 }) => {
-    const [query, setQuery] = useState<string>('');
-    const [isCaseSensitive, setIsCaseSensitive] = useState<boolean>(false);
-    const [isWholeWord, setIsWholeWord] = useState<boolean>(false);
+    const [query, setQuery] = useState<string>(initial.search);
+    const [isCaseSensitive, setIsCaseSensitive] = useState<boolean>(initial.caseSensitive);
+    const [isWholeWord, setIsWholeWord] = useState<boolean>(initial.wholeWord);
     const textInputRef = useRef<HTMLInputElement>(null);
 
     const setInputFocus = () => {
         textInputRef.current?.focus();
     };
 
-    const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
-        const {
-            target: {value},
-        } = event;
-
+    const handleInputChange = (value: string) => {
         setQuery(value);
         onChange(value);
     };
@@ -80,19 +78,19 @@ export const SearchCard: React.FC<SearchCardProps> = ({
 
     const handleIsCaseSensitive = () => {
         onConfigChange({
-            isCaseSensitive: !isCaseSensitive,
-            isWholeWord,
+            caseSensitive: !isCaseSensitive,
+            wholeWord: isWholeWord,
         });
-        setIsCaseSensitive((isCaseSensitive) => !isCaseSensitive);
+        setIsCaseSensitive(inverse);
         setInputFocus();
     };
 
     const handleIsWholeWord = () => {
         onConfigChange({
-            isCaseSensitive,
-            isWholeWord: !isWholeWord,
+            caseSensitive: isCaseSensitive,
+            wholeWord: !isWholeWord,
         });
-        setIsWholeWord((isWholeWord) => !isWholeWord);
+        setIsWholeWord(inverse);
         setInputFocus();
     };
 
@@ -112,7 +110,7 @@ export const SearchCard: React.FC<SearchCardProps> = ({
                 size="s"
                 autoFocus
                 onKeyPress={handleSearchKeyPress}
-                onChange={handleInputChange}
+                onUpdate={handleInputChange}
                 value={query}
                 endContent={
                     <>
@@ -140,14 +138,10 @@ export const SearchCard: React.FC<SearchCardProps> = ({
     );
 };
 
-export interface SearchPopupProps {
-    anchor: HTMLElement;
-    onChange: (query: string) => void;
-    onClose: () => void;
-    onSearchNext: () => void;
-    onSearchPrev: () => void;
-    onConfigChange: (config: SearchConfig) => void;
+export interface SearchPopupProps extends SearchCardProps {
     open: boolean;
+    anchor: HTMLElement;
+    onClose: () => void;
 }
 
 export const SearchPopup: React.FC<SearchPopupProps> = ({open, anchor, onClose, ...props}) => {

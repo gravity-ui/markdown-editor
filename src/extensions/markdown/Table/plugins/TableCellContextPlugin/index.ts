@@ -2,7 +2,7 @@ import {Plugin} from 'prosemirror-state';
 
 import {bindActions} from '../../../../../core';
 import {i18n} from '../../../../../i18n/yfm-table';
-import {convertToYfmTable} from '../../../../yfm';
+import {convertToYfmTable} from '../../../../yfm/YfmTable/commands/convert-table';
 import {TableNode} from '../../TableSpecs';
 import {innerActions} from '../../actions/innerActions';
 import {deleteTableAction} from '../../actions/tableActions';

@@ -1,5 +1,44 @@
 # Changelog
 
+## [14.11.2](https://github.com/gravity-ui/markdown-editor/compare/v14.11.1...v14.11.2) (2025-02-07)
+
+
+### Bug Fixes
+
+* **deps:** updated @diplodoc/cut-extension ([#593](https://github.com/gravity-ui/markdown-editor/issues/593)) ([30d0d8c](https://github.com/gravity-ui/markdown-editor/commit/30d0d8cb3732869d9142e15398315f78a4a8ea31))
+
+## [14.11.1](https://github.com/gravity-ui/markdown-editor/compare/v14.11.0...v14.11.1) (2025-02-03)
+
+
+### Bug Fixes
+
+* **BaseSchema:** fixed definition of an empty string during serialization ([#571](https://github.com/gravity-ui/markdown-editor/issues/571)) ([2926d71](https://github.com/gravity-ui/markdown-editor/commit/2926d71d88e89f6cb85512f39a9be944331644d9))
+* fixed critical circular dependencies ([#549](https://github.com/gravity-ui/markdown-editor/issues/549)) ([0540dc9](https://github.com/gravity-ui/markdown-editor/commit/0540dc95b23b8c866a4834e3ee6e6853d67e43e3))
+* **Link:** set high priority to link mark ([#568](https://github.com/gravity-ui/markdown-editor/issues/568)) ([6da4e70](https://github.com/gravity-ui/markdown-editor/commit/6da4e70e396eb9554ed55779bc364173171c6c26))
+* **markup:** show initial search state in search popup ([#570](https://github.com/gravity-ui/markdown-editor/issues/570)) ([0749cb3](https://github.com/gravity-ui/markdown-editor/commit/0749cb3edcc8ccc30f6f8ab7b75b515e28f582e6))
+* **Mermaid:** fixed serialization of mermaid block inside other blocks ([#577](https://github.com/gravity-ui/markdown-editor/issues/577)) ([5277645](https://github.com/gravity-ui/markdown-editor/commit/5277645c8914c996bf004ced55249f83f7737335))
+
+## [14.11.0](https://github.com/gravity-ui/markdown-editor/compare/v14.10.5...v14.11.0) (2025-01-22)
+
+
+### Features
+
+* **YfmTabs:** switch between tabs using tabs-extension runtime ([#550](https://github.com/gravity-ui/markdown-editor/issues/550)) ([3d223cc](https://github.com/gravity-ui/markdown-editor/commit/3d223cc9617d73c8e31e282a9f716b0f7ef663df))
+
+## [14.10.5](https://github.com/gravity-ui/markdown-editor/compare/v14.10.4...v14.10.5) (2025-01-21)
+
+
+### Bug Fixes
+
+* **modules/toolbars:** fixed strikethrough action in default toolbar preset ([#555](https://github.com/gravity-ui/markdown-editor/issues/555)) ([221b0ef](https://github.com/gravity-ui/markdown-editor/commit/221b0efc70be69ae8332ef71a083eb193b658e7b))
+
+## [14.10.4](https://github.com/gravity-ui/markdown-editor/compare/v14.10.3...v14.10.4) (2025-01-20)
+
+
+### Bug Fixes
+
+* **modules/toolbars:** fixed tabs actions in yfm toolbar preset [#551](https://github.com/gravity-ui/markdown-editor/issues/551) ([b2dd0f3](https://github.com/gravity-ui/markdown-editor/commit/b2dd0f369b4d48839c822a524d5cfc6a8bca2f35))
+
 ## [14.10.3](https://github.com/gravity-ui/markdown-editor/compare/v14.10.2...v14.10.3) (2025-01-14)
 
 

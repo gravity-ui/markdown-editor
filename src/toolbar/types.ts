@@ -4,8 +4,6 @@ import type {HotkeyProps, IconProps} from '@gravity-ui/uikit';
 
 import type {ClassNameProps} from '../classname';
 
-import type {ToolbarListButtonData} from './ToolbarListButton';
-
 export type ToolbarBaseProps<E> = ClassNameProps & {
     editor: E;
     focus(): void;
@@ -13,6 +11,8 @@ export type ToolbarBaseProps<E> = ClassNameProps & {
 };
 
 export type ToolbarIconData = Pick<IconProps, 'data' | 'size'>;
+export type ToolbarGroupData<E> = Array<ToolbarGroupItemData<E>>;
+export type ToolbarData<E> = ToolbarGroupData<E>[];
 
 export type ToolbarItemData<E> = {
     id: string;
@@ -90,6 +90,15 @@ export type ToolbarButtonPopupData<E> = ToolbarItemData<E> & {
 
 export type ToolbarListButtonItemData<E> = ToolbarItemData<E> & {
     doNotActivateList?: boolean;
+};
+
+export type ToolbarListButtonData<E> = {
+    icon: ToolbarIconData;
+    title: string | (() => string);
+    withArrow?: boolean;
+    data: ToolbarListButtonItemData<E>[];
+    alwaysActive?: boolean;
+    hideDisabled?: boolean;
 };
 
 /**

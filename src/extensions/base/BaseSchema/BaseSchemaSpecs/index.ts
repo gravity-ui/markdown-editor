@@ -1,4 +1,4 @@
-import type {NodeSpec} from 'prosemirror-model';
+import type {Node, NodeSpec} from 'prosemirror-model';
 
 import type {ExtensionAuto} from '../../../../core';
 import {nodeTypeFactory} from '../../../../utils/schema';
@@ -69,7 +69,7 @@ export const BaseSchemaSpecs: ExtensionAuto<BaseSchemaSpecsOptions> = (builder, 
                     An empty line is added only if there is some content in the parent element. 
                     This is necessary in order to prevent an empty document with empty lines
                 */
-                if (opts.preserveEmptyRows && !node.content.size) {
+                if (opts.preserveEmptyRows && isEmptyString(node)) {
                     let isParentEmpty = true;
 
                     for (let index = 0; index < parent.content.childCount; index++) {
@@ -91,4 +91,20 @@ export const BaseSchemaSpecs: ExtensionAuto<BaseSchemaSpecsOptions> = (builder, 
                 }
             },
         }));
+};
+
+const isEmptyString = (node: Node) => {
+    if (!node.content.size) {
+        return true;
+    }
+
+    if (
+        node.childCount === 1 &&
+        node.child(0).type.name === 'text' &&
+        node.child(0).text?.trim() === ''
+    ) {
+        return true;
+    }
+
+    return false;
 };
