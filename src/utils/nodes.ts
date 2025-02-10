@@ -23,7 +23,9 @@ export function findFirstTextblockChild(
 export const isNodeEmpty = (node: Node) => {
     const emptyChildren = findChildren(
         node,
-        (n) => (!n.isText && !n.isAtom && n.content.size === 0) || (n.isText && !n.textContent),
+        (n) =>
+            (!n.isText && !n.isAtom && n.content.size === 0 && n.type.name === 'paragraph') ||
+            (n.isText && !n.textContent),
         true,
     );
 

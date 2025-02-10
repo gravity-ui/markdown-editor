@@ -6,7 +6,6 @@ import {toaster} from '@gravity-ui/uikit/toaster-singleton-react-18';
 
 import {
     type DirectiveSyntaxValue,
-    type EscapeConfig,
     type FileUploadHandler,
     type MarkdownEditorMode,
     MarkdownEditorView,
@@ -30,21 +29,15 @@ import {YfmHtmlBlock} from '../../src/extensions/additional/YfmHtmlBlock';
 import {getSanitizeYfmHtmlBlock} from '../../src/extensions/additional/YfmHtmlBlock/utils';
 import type {CodeEditor} from '../../src/markup';
 import {ToolbarsPreset} from '../../src/modules/toolbars/types';
-import {VERSION} from '../../src/version';
 import {getPlugins} from '../defaults/md-plugins';
 import useYfmHtmlBlockStyles from '../hooks/useYfmHtmlBlockStyles';
-import {block} from '../utils/cn';
 import {randomDelay} from '../utils/delay';
 import {parseInsertedUrlAsImage} from '../utils/imageUrl';
 import {debouncedUpdateLocation as updateLocation} from '../utils/location';
 
-import {WysiwygSelection} from './PMSelection';
-import {WysiwygDevTools} from './ProseMirrorDevTools';
+import {PlaygroundLayout, b} from './PlaygroundLayout';
 import {SplitModePreview} from './SplitModePreview';
 
-import './Playground.scss';
-
-const b = block('playground');
 const fileUploadHandler: FileUploadHandler = async (file) => {
     console.info('[Playground] Uploading file: ' + file.name);
     await randomDelay(1000, 3000);
@@ -63,6 +56,7 @@ export type PlaygroundProps = {
     allowHTML?: boolean;
     settingsVisible?: boolean;
     initialEditor?: MarkdownEditorMode;
+    preserveEmptyRows?: boolean;
     breaks?: boolean;
     linkify?: boolean;
     linkifyTlds?: string | string[];
@@ -75,7 +69,6 @@ export type PlaygroundProps = {
     renderPreviewDefined?: boolean;
     height?: CSSProperties['height'];
     markupConfigExtensions?: Extension[];
-    escapeConfig?: EscapeConfig;
     wysiwygCommandMenuConfig?: wysiwygToolbarConfigs.WToolbarItemData[];
     markupToolbarConfig?: ToolbarGroupData<CodeEditor>[];
     toolbarsPreset?: ToolbarsPreset;
@@ -115,6 +108,7 @@ export const Playground = React.memo<PlaygroundProps>((props) => {
         allowHTML,
         breaks,
         linkify,
+        preserveEmptyRows,
         linkifyTlds,
         sanitizeHtml,
         prepareRawMarkup,
@@ -130,7 +124,6 @@ export const Playground = React.memo<PlaygroundProps>((props) => {
         markupConfigExtensions,
         markupToolbarConfig,
         placeholderOptions,
-        escapeConfig,
         enableSubmitInPreview,
         hidePreviewAfterSubmit,
         needToSetDimensionsForUploadedImages,
@@ -165,7 +158,6 @@ export const Playground = React.memo<PlaygroundProps>((props) => {
         {
             preset: 'full',
             wysiwygConfig: {
-                escapeConfig,
                 placeholderOptions: placeholderOptions,
                 extensions: (builder) => {
                     builder
@@ -219,6 +211,7 @@ export const Playground = React.memo<PlaygroundProps>((props) => {
             experimental: {
                 ...experimental,
                 directiveSyntax,
+                preserveEmptyRows: preserveEmptyRows,
             },
             prepareRawMarkup: prepareRawMarkup
                 ? (value) => '**prepare raw markup**\n\n' + value
@@ -301,107 +294,96 @@ export const Playground = React.memo<PlaygroundProps>((props) => {
     }, [mdEditor]);
 
     return (
-        <div className={b()}>
-            <div className={b('header')}>
-                Markdown Editor Playground
-                <span className={b('version')}>{VERSION}</span>
-            </div>
-            <div className={b('actions')}>
-                <DropdownMenu
-                    size="s"
-                    switcher={
-                        <Button size="s" view="flat">
-                            isEmpty: {String(mdEditor.isEmpty())}
-                        </Button>
-                    }
-                >
-                    <DropdownMenu.Item
-                        text="Clear"
-                        action={() => {
-                            mdEditor.clear();
-                            mdEditor.focus();
-                        }}
-                    />
-                    <DropdownMenu.Item
-                        text="Append"
-                        action={() => {
-                            mdEditor.append('> append');
-                            mdEditor.focus();
-                        }}
-                    />
-                    <DropdownMenu.Item
-                        text="Prepend"
-                        action={() => {
-                            mdEditor.prepend('> prepend');
-                            mdEditor.focus();
-                        }}
-                    />
-                    <DropdownMenu.Item
-                        text="Replace"
-                        action={() => {
-                            mdEditor.replace('> replace');
-                            mdEditor.focus();
-                        }}
-                    />
-                    <DropdownMenu.Item
-                        text="Move cursor to start"
-                        action={() => {
-                            mdEditor.moveCursor('start');
-                            mdEditor.focus();
-                        }}
-                    />
-                    <DropdownMenu.Item
-                        text="Move cursor to end"
-                        action={() => {
-                            mdEditor.moveCursor('end');
-                            mdEditor.focus();
-                        }}
-                    />
-                    <DropdownMenu.Item
-                        text="Move to line"
-                        action={() => {
-                            mdEditor.moveCursor({line: 115});
-                            mdEditor.focus();
-                        }}
-                    />
-                </DropdownMenu>
-                {mdEditor.currentMode === 'markup' && (
-                    <MoveToLine
-                        onClick={(line) => {
-                            if (typeof line !== 'number' || Number.isNaN(line)) return;
-                            mdEditor.moveCursor({line});
-                            mdEditor.focus();
-                        }}
-                    />
-                )}
-            </div>
-            <hr />
-            <React.StrictMode>
-                <div className={b('editor')} style={{height: height ?? 'initial'}}>
-                    <MarkdownEditorView
-                        autofocus
-                        toaster={toaster}
-                        className={b('editor-view')}
-                        stickyToolbar={Boolean(stickyToolbar)}
-                        toolbarsPreset={toolbarsPreset}
-                        wysiwygToolbarConfig={wysiwygToolbarConfig}
-                        markupToolbarConfig={markupToolbarConfig}
-                        settingsVisible={settingsVisible}
-                        editor={mdEditor}
-                        enableSubmitInPreview={enableSubmitInPreview}
-                        hidePreviewAfterSubmit={hidePreviewAfterSubmit}
-                    />
-                    <WysiwygDevTools editor={mdEditor} />
-                    <WysiwygSelection editor={mdEditor} className={b('pm-selection')} />
-                </div>
-            </React.StrictMode>
-
-            <hr />
-
-            <div className={b('preview')}>
-                {editorMode === 'wysiwyg' && <pre className={b('markup')}>{mdRaw}</pre>}
-            </div>
-        </div>
+        <PlaygroundLayout
+            editor={mdEditor}
+            viewHeight={height}
+            view={({className}) => (
+                <MarkdownEditorView
+                    autofocus
+                    toaster={toaster}
+                    className={className}
+                    stickyToolbar={Boolean(stickyToolbar)}
+                    toolbarsPreset={toolbarsPreset}
+                    wysiwygToolbarConfig={wysiwygToolbarConfig}
+                    markupToolbarConfig={markupToolbarConfig}
+                    settingsVisible={settingsVisible}
+                    editor={mdEditor}
+                    enableSubmitInPreview={enableSubmitInPreview}
+                    hidePreviewAfterSubmit={hidePreviewAfterSubmit}
+                />
+            )}
+            actions={() => (
+                <>
+                    <DropdownMenu
+                        size="s"
+                        switcher={
+                            <Button size="s" view="flat">
+                                isEmpty: {String(mdEditor.isEmpty())}
+                            </Button>
+                        }
+                    >
+                        <DropdownMenu.Item
+                            text="Clear"
+                            action={() => {
+                                mdEditor.clear();
+                                mdEditor.focus();
+                            }}
+                        />
+                        <DropdownMenu.Item
+                            text="Append"
+                            action={() => {
+                                mdEditor.append('> append');
+                                mdEditor.focus();
+                            }}
+                        />
+                        <DropdownMenu.Item
+                            text="Prepend"
+                            action={() => {
+                                mdEditor.prepend('> prepend');
+                                mdEditor.focus();
+                            }}
+                        />
+                        <DropdownMenu.Item
+                            text="Replace"
+                            action={() => {
+                                mdEditor.replace('> replace');
+                                mdEditor.focus();
+                            }}
+                        />
+                        <DropdownMenu.Item
+                            text="Move cursor to start"
+                            action={() => {
+                                mdEditor.moveCursor('start');
+                                mdEditor.focus();
+                            }}
+                        />
+                        <DropdownMenu.Item
+                            text="Move cursor to end"
+                            action={() => {
+                                mdEditor.moveCursor('end');
+                                mdEditor.focus();
+                            }}
+                        />
+                        <DropdownMenu.Item
+                            text="Move to line"
+                            action={() => {
+                                mdEditor.moveCursor({line: 115});
+                                mdEditor.focus();
+                            }}
+                        />
+                    </DropdownMenu>
+                    {mdEditor.currentMode === 'markup' && (
+                        <MoveToLine
+                            onClick={(line) => {
+                                if (typeof line !== 'number' || Number.isNaN(line)) return;
+                                mdEditor.moveCursor({line});
+                                mdEditor.focus();
+                            }}
+                        />
+                    )}
+                </>
+            )}
+        />
     );
 });
 

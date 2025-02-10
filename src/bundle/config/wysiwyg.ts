@@ -1,8 +1,6 @@
 /**
  * @deprecated This file is deprecated. Use ToolbarsPreset instead.
  */
-import {ActionStorage} from 'src/core';
-
 import {headingType, pType} from '../../extensions';
 // for typings from Math
 import type {} from '../../extensions/additional/Math';
@@ -13,32 +11,44 @@ import type {
 import {i18n as i18nHint} from '../../i18n/hints';
 import {i18n} from '../../i18n/menubar';
 import {Action as A, formatter as f} from '../../shortcuts';
-import {
-    ToolbarDataType,
-    ToolbarGroupItemData,
-    ToolbarItemData,
-    ToolbarListButtonItemData,
-    ToolbarListItemData,
-    ToolbarSingleItemData,
-} from '../../toolbar';
-import {ToolbarData} from '../../toolbar/Toolbar';
-import {ToolbarGroupData} from '../../toolbar/ToolbarGroup';
-import {ToolbarListButtonData} from '../../toolbar/ToolbarListButton';
+import {ToolbarDataType} from '../toolbar/types';
+import type {
+    WToolbarData,
+    WToolbarGroupData,
+    WToolbarItemData,
+    WToolbarListButtonData,
+    WToolbarListButtonItemData,
+    WToolbarListItemData,
+    WToolbarSingleItemData,
+} from '../toolbar/types';
 import {WToolbarColors} from '../toolbar/wysiwyg/WToolbarColors';
 import {WToolbarTextSelect} from '../toolbar/wysiwyg/WToolbarTextSelect';
 import type {MarkdownEditorPreset} from '../types';
 
 import {ActionName} from './action-names';
 import {icons} from './icons';
+import {
+    wHeading1ItemData,
+    wHeading2ItemData,
+    wHeading3ItemData,
+    wHeading4ItemData,
+    wHeading5ItemData,
+    wHeading6ItemData,
+    wTextItemData,
+} from './w-heading-config';
 
-export type WToolbarData = ToolbarData<ActionStorage>;
-export type WToolbarItemData = ToolbarItemData<ActionStorage>;
-export type WToolbarSingleItemData = ToolbarSingleItemData<ActionStorage>;
-export type WToolbarGroupData = ToolbarGroupData<ActionStorage>;
-export type WToolbarGroupItemData = ToolbarGroupItemData<ActionStorage>;
-export type WToolbarListButtonData = ToolbarListButtonData<ActionStorage>;
-export type WToolbarListItemData = ToolbarListItemData<ActionStorage>;
-export type WToolbarListButtonItemData = ToolbarListButtonItemData<ActionStorage>;
+export type {
+    WToolbarData,
+    WToolbarItemData,
+    WToolbarSingleItemData,
+    WToolbarGroupData,
+    WToolbarGroupItemData,
+    WToolbarListButtonData,
+    WToolbarListItemData,
+    WToolbarListButtonItemData,
+} from '../toolbar/types';
+
+export * from './w-heading-config';
 
 export const wUndoItemData: WToolbarSingleItemData = {
     id: ActionName.undo,
@@ -315,71 +325,6 @@ export const wMathListItem: WToolbarListItemData = {
     data: [wMathInlineItemData, wMathBlockItemData],
 };
 
-export const wTextItemData: WToolbarListButtonItemData = {
-    id: ActionName.paragraph,
-    title: i18n.bind(null, 'text'),
-    icon: icons.text,
-    hotkey: f.toView(A.Text),
-    exec: (e) => e.actions.toParagraph.run(),
-    isActive: (e) => e.actions.toParagraph.isActive(),
-    isEnable: (e) => e.actions.toParagraph.isEnable(),
-    doNotActivateList: true,
-};
-export const wHeading1ItemData: WToolbarListButtonItemData = {
-    id: ActionName.heading1,
-    title: i18n.bind(null, 'heading1'),
-    icon: icons.h1,
-    hotkey: f.toView(A.Heading1),
-    exec: (e) => e.actions.toH1.run(),
-    isActive: (e) => e.actions.toH1.isActive(),
-    isEnable: (e) => e.actions.toH1.isEnable(),
-};
-export const wHeading2ItemData: WToolbarListButtonItemData = {
-    id: ActionName.heading2,
-    title: i18n.bind(null, 'heading2'),
-    icon: icons.h2,
-    hotkey: f.toView(A.Heading2),
-    exec: (e) => e.actions.toH2.run(),
-    isActive: (e) => e.actions.toH2.isActive(),
-    isEnable: (e) => e.actions.toH2.isEnable(),
-};
-export const wHeading3ItemData: WToolbarListButtonItemData = {
-    id: ActionName.heading3,
-    title: i18n.bind(null, 'heading3'),
-    icon: icons.h3,
-    hotkey: f.toView(A.Heading3),
-    exec: (e) => e.actions.toH3.run(),
-    isActive: (e) => e.actions.toH3.isActive(),
-    isEnable: (e) => e.actions.toH3.isEnable(),
-};
-export const wHeading4ItemData: WToolbarListButtonItemData = {
-    id: ActionName.heading4,
-    title: i18n.bind(null, 'heading4'),
-    icon: icons.h4, // Предполагается, что icon исправлен для h4
-    hotkey: f.toView(A.Heading4),
-    exec: (e) => e.actions.toH4.run(),
-    isActive: (e) => e.actions.toH4.isActive(),
-    isEnable: (e) => e.actions.toH4.isEnable(),
-};
-export const wHeading5ItemData: WToolbarListButtonItemData = {
-    id: ActionName.heading5,
-    title: i18n.bind(null, 'heading5'),
-    icon: icons.h5, // Предполагается, что icon исправлен для h5
-    hotkey: f.toView(A.Heading5),
-    exec: (e) => e.actions.toH5.run(),
-    isActive: (e) => e.actions.toH5.isActive(),
-    isEnable: (e) => e.actions.toH5.isEnable(),
-};
-export const wHeading6ItemData: WToolbarListButtonItemData = {
-    id: ActionName.heading6,
-    title: i18n.bind(null, 'heading6'),
-    icon: icons.h6, // Предполагается, что icon исправлен для h6
-    hotkey: f.toView(A.Heading6),
-    exec: (e) => e.actions.toH6.run(),
-    isActive: (e) => e.actions.toH6.isActive(),
-    isEnable: (e) => e.actions.toH6.isEnable(),
-};
-
 export const wBulletListItemData: WToolbarListButtonItemData = {
     id: ActionName.bulletList,
     title: i18n.bind(null, 'ulist'),
@@ -419,20 +364,6 @@ export const wLiftListItemData: WToolbarListButtonItemData = {
     isEnable: (e) => e.actions.liftListItem.isEnable(),
 };
 
-export const wHeadingListConfig: WToolbarListButtonData = {
-    icon: icons.headline,
-    withArrow: true,
-    title: i18n.bind(null, 'heading'),
-    data: [
-        wTextItemData,
-        wHeading1ItemData,
-        wHeading2ItemData,
-        wHeading3ItemData,
-        wHeading4ItemData,
-        wHeading5ItemData,
-        wHeading6ItemData,
-    ],
-};
 export const wListsListConfig: WToolbarListButtonData = {
     icon: icons.bulletList,
     withArrow: true,

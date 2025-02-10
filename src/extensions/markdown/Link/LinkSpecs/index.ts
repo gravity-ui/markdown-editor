@@ -15,68 +15,72 @@ export enum LinkAttr {
 }
 
 export const LinkSpecs: ExtensionAuto = (builder) => {
-    builder.addMark(linkMarkName, () => ({
-        spec: {
-            attrs: {
-                [LinkAttr.Href]: {},
-                [LinkAttr.Title]: {default: null},
-                [LinkAttr.IsPlaceholder]: {default: false},
-                [LinkAttr.RawLink]: {default: false},
-            },
-            inclusive: false,
-            parseDOM: [
-                {
-                    tag: 'a[href]',
-                    getAttrs(dom) {
-                        return {
-                            href: (dom as Element).getAttribute(LinkAttr.Href),
-                            title: (dom as Element).getAttribute(LinkAttr.Title),
-                        };
-                    },
+    builder.addMark(
+        linkMarkName,
+        () => ({
+            spec: {
+                attrs: {
+                    [LinkAttr.Href]: {},
+                    [LinkAttr.Title]: {default: null},
+                    [LinkAttr.IsPlaceholder]: {default: false},
+                    [LinkAttr.RawLink]: {default: false},
                 },
-            ],
-            toDOM(node) {
-                return ['a', node.attrs];
+                inclusive: false,
+                parseDOM: [
+                    {
+                        tag: 'a[href]',
+                        getAttrs(dom) {
+                            return {
+                                href: (dom as Element).getAttribute(LinkAttr.Href),
+                                title: (dom as Element).getAttribute(LinkAttr.Title),
+                            };
+                        },
+                    },
+                ],
+                toDOM(node) {
+                    return ['a', node.attrs];
+                },
             },
-        },
-        toMd: {
-            open(state, mark, parent, index) {
-                state.isAutolink = isPlainURL(mark, parent, index, 1);
-                if (state.isAutolink) {
-                    if (mark.attrs[LinkAttr.RawLink]) return '';
-                    return '<';
-                }
-                return '[';
-            },
-            close(state, mark) {
-                if (state.isAutolink) {
-                    state.isAutolink = undefined;
-                    if (mark.attrs[LinkAttr.RawLink]) return '';
+            toMd: {
+                open(state, mark, parent, index) {
+                    state.isAutolink = isPlainURL(mark, parent, index, 1);
+                    if (state.isAutolink) {
+                        if (mark.attrs[LinkAttr.RawLink]) return '';
+                        return '<';
+                    }
+                    return '[';
+                },
+                close(state, mark) {
+                    if (state.isAutolink) {
+                        state.isAutolink = undefined;
+                        if (mark.attrs[LinkAttr.RawLink]) return '';
 
-                    return '>';
-                }
-                state.isAutolink = undefined;
-                return (
-                    '](' +
-                    escapeParenthesesInUrl(mark.attrs[LinkAttr.Href]) +
-                    (mark.attrs[LinkAttr.Title]
-                        ? ' ' + state.quote(mark.attrs[LinkAttr.Title])
-                        : '') +
-                    ')'
-                );
+                        return '>';
+                    }
+                    state.isAutolink = undefined;
+                    return (
+                        '](' +
+                        escapeParenthesesInUrl(mark.attrs[LinkAttr.Href]) +
+                        (mark.attrs[LinkAttr.Title]
+                            ? ' ' + state.quote(mark.attrs[LinkAttr.Title])
+                            : '') +
+                        ')'
+                    );
+                },
             },
-        },
-        fromMd: {
-            tokenSpec: {
-                name: linkMarkName,
-                type: 'mark',
-                getAttrs: (tok) => ({
-                    href: tok.attrGet('href'),
-                    title: tok.attrGet('title') || null,
-                }),
+            fromMd: {
+                tokenSpec: {
+                    name: linkMarkName,
+                    type: 'mark',
+                    getAttrs: (tok) => ({
+                        href: tok.attrGet('href'),
+                        title: tok.attrGet('title') || null,
+                    }),
+                },
             },
-        },
-    }));
+        }),
+        builder.Priority.High,
+    );
 };
 
 function isPlainURL(link: Mark, parent: Fragment, index: number, side: number) {

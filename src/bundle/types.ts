@@ -104,6 +104,12 @@ export type MarkdownEditorExperimentalOptions = {
      * Default value is 'disabled'.
      */
     directiveSyntax?: DirectiveSyntaxOption;
+    /**
+     * If we need support for empty strings
+     *
+     * @default false
+     */
+    preserveEmptyRows?: boolean;
 };
 
 export type MarkdownEditorMarkupConfig = {

@@ -1,4 +1,4 @@
-import type {ActionSpec, ExtensionDeps} from 'src/core';
+import type {ActionSpec, ExtensionDeps} from '../../../core';
 
 import {runGpt} from './commands';
 

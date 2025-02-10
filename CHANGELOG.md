@@ -1,5 +1,81 @@
 # Changelog
 
+## [14.11.2](https://github.com/gravity-ui/markdown-editor/compare/v14.11.1...v14.11.2) (2025-02-07)
+
+
+### Bug Fixes
+
+* **deps:** updated @diplodoc/cut-extension ([#593](https://github.com/gravity-ui/markdown-editor/issues/593)) ([30d0d8c](https://github.com/gravity-ui/markdown-editor/commit/30d0d8cb3732869d9142e15398315f78a4a8ea31))
+
+## [14.11.1](https://github.com/gravity-ui/markdown-editor/compare/v14.11.0...v14.11.1) (2025-02-03)
+
+
+### Bug Fixes
+
+* **BaseSchema:** fixed definition of an empty string during serialization ([#571](https://github.com/gravity-ui/markdown-editor/issues/571)) ([2926d71](https://github.com/gravity-ui/markdown-editor/commit/2926d71d88e89f6cb85512f39a9be944331644d9))
+* fixed critical circular dependencies ([#549](https://github.com/gravity-ui/markdown-editor/issues/549)) ([0540dc9](https://github.com/gravity-ui/markdown-editor/commit/0540dc95b23b8c866a4834e3ee6e6853d67e43e3))
+* **Link:** set high priority to link mark ([#568](https://github.com/gravity-ui/markdown-editor/issues/568)) ([6da4e70](https://github.com/gravity-ui/markdown-editor/commit/6da4e70e396eb9554ed55779bc364173171c6c26))
+* **markup:** show initial search state in search popup ([#570](https://github.com/gravity-ui/markdown-editor/issues/570)) ([0749cb3](https://github.com/gravity-ui/markdown-editor/commit/0749cb3edcc8ccc30f6f8ab7b75b515e28f582e6))
+* **Mermaid:** fixed serialization of mermaid block inside other blocks ([#577](https://github.com/gravity-ui/markdown-editor/issues/577)) ([5277645](https://github.com/gravity-ui/markdown-editor/commit/5277645c8914c996bf004ced55249f83f7737335))
+
+## [14.11.0](https://github.com/gravity-ui/markdown-editor/compare/v14.10.5...v14.11.0) (2025-01-22)
+
+
+### Features
+
+* **YfmTabs:** switch between tabs using tabs-extension runtime ([#550](https://github.com/gravity-ui/markdown-editor/issues/550)) ([3d223cc](https://github.com/gravity-ui/markdown-editor/commit/3d223cc9617d73c8e31e282a9f716b0f7ef663df))
+
+## [14.10.5](https://github.com/gravity-ui/markdown-editor/compare/v14.10.4...v14.10.5) (2025-01-21)
+
+
+### Bug Fixes
+
+* **modules/toolbars:** fixed strikethrough action in default toolbar preset ([#555](https://github.com/gravity-ui/markdown-editor/issues/555)) ([221b0ef](https://github.com/gravity-ui/markdown-editor/commit/221b0efc70be69ae8332ef71a083eb193b658e7b))
+
+## [14.10.4](https://github.com/gravity-ui/markdown-editor/compare/v14.10.3...v14.10.4) (2025-01-20)
+
+
+### Bug Fixes
+
+* **modules/toolbars:** fixed tabs actions in yfm toolbar preset [#551](https://github.com/gravity-ui/markdown-editor/issues/551) ([b2dd0f3](https://github.com/gravity-ui/markdown-editor/commit/b2dd0f369b4d48839c822a524d5cfc6a8bca2f35))
+
+## [14.10.3](https://github.com/gravity-ui/markdown-editor/compare/v14.10.2...v14.10.3) (2025-01-14)
+
+
+### Bug Fixes
+
+* fixed serialization of empty nodes ([#545](https://github.com/gravity-ui/markdown-editor/issues/545)) ([26a4b6b](https://github.com/gravity-ui/markdown-editor/commit/26a4b6b37139ba76aa98ca48183ff227f9ba8419))
+* **toolbars:** added math to ListName ([#547](https://github.com/gravity-ui/markdown-editor/issues/547)) ([c8bfa70](https://github.com/gravity-ui/markdown-editor/commit/c8bfa702aebe53bdf87d6c6fb6fb1a7634c5d83a))
+
+## [14.10.2](https://github.com/gravity-ui/markdown-editor/compare/v14.10.1...v14.10.2) (2024-12-25)
+
+
+### Bug Fixes
+
+* fixed imports with relative paths ([#540](https://github.com/gravity-ui/markdown-editor/issues/540)) ([98ea54f](https://github.com/gravity-ui/markdown-editor/commit/98ea54fc053b8fa2eadf138182d83984f8a84d75))
+
+## [14.10.1](https://github.com/gravity-ui/markdown-editor/compare/v14.10.0...v14.10.1) (2024-12-25)
+
+
+### Bug Fixes
+
+* **bundle:** fixed imports with relative paths ([#538](https://github.com/gravity-ui/markdown-editor/issues/538)) ([747a3fd](https://github.com/gravity-ui/markdown-editor/commit/747a3fdc1b76c8eed3ad975d06d852fdf5bc2a6b))
+
+## [14.10.0](https://github.com/gravity-ui/markdown-editor/compare/v14.9.0...v14.10.0) (2024-12-24)
+
+
+### Features
+
+* added support for an empty string ([#505](https://github.com/gravity-ui/markdown-editor/issues/505)) ([a3f8b50](https://github.com/gravity-ui/markdown-editor/commit/a3f8b50c7fd973c3db6bfa7e92f981db8d6a11c6))
+* **Selection:** made all top-level nodes selectable ([#533](https://github.com/gravity-ui/markdown-editor/issues/533)) ([09e8e55](https://github.com/gravity-ui/markdown-editor/commit/09e8e5537d86bdfe991ed42addcbda70882c6537))
+* **toolbars:** updated flattenPreset ([#531](https://github.com/gravity-ui/markdown-editor/issues/531)) ([deafe20](https://github.com/gravity-ui/markdown-editor/commit/deafe20cc364474580d993801e32fee227cc8832))
+
+
+### Bug Fixes
+
+* disable escaping when serializing content for code_block ([#537](https://github.com/gravity-ui/markdown-editor/issues/537)) ([617a1cc](https://github.com/gravity-ui/markdown-editor/commit/617a1ccf50c83e4deddc495162c86023f9be4760))
+* **toolbars:** add reexport /modules/toolbars/types ([#534](https://github.com/gravity-ui/markdown-editor/issues/534)) ([cc026a3](https://github.com/gravity-ui/markdown-editor/commit/cc026a3923dd87c0d519df2d7c53bfae910887b6))
+
 ## [14.9.0](https://github.com/gravity-ui/markdown-editor/compare/v14.8.0...v14.9.0) (2024-12-20)
 
 

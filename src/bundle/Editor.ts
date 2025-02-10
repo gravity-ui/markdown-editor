@@ -11,10 +11,12 @@ import {
     WysiwygEditor,
     type WysiwygEditorOptions,
 } from '../core';
+import type {TransformFn} from '../core/markdown/ProseMirrorTransformer';
 import {ReactRenderStorage, type RenderStorage} from '../extensions';
 import {i18n} from '../i18n/bundle';
 import {logger} from '../logger';
 import {createCodemirror} from '../markup';
+import {getAutocompleteConfig} from '../markup/codemirror/autocomplete';
 import {type CodeEditor, Editor as MarkupEditor} from '../markup/editor';
 import {type Emitter, FileUploadHandler, type Receiver, SafeEventEmitter} from '../utils';
 import type {DirectiveSyntaxContext} from '../utils/directive';
@@ -124,6 +126,7 @@ export type EditorOptions = Pick<
     renderStorage: ReactRenderStorage;
     preset: EditorPreset;
     directiveSyntax: DirectiveSyntaxContext;
+    pmTransformers: TransformFn[];
 };
 
 /** @internal */
@@ -139,6 +142,8 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
     #markupConfig: MarkupConfig;
     #escapeConfig?: EscapeConfig;
     #mdOptions: Readonly<MarkdownEditorMdOptions>;
+    #pmTransformers: TransformFn[] = [];
+    #preserveEmptyRows: boolean;
 
     readonly #preset: EditorPreset;
     #extensions?: WysiwygEditorOptions['extensions'];
@@ -248,6 +253,7 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
                 mdPreset,
                 initialContent: this.#markup,
                 extensions: this.#extensions,
+                pmTransformers: this.#pmTransformers,
                 allowHTML: this.#mdOptions.html,
                 linkify: this.#mdOptions.linkify,
                 linkifyTlds: this.#mdOptions.linkifyTlds,
@@ -279,7 +285,12 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
                     extensions: this.#markupConfig.extensions,
                     disabledExtensions: this.#markupConfig.disabledExtensions,
                     keymaps: this.#markupConfig.keymaps,
-                    yfmLangOptions: {languageData: this.#markupConfig.languageData},
+                    preserveEmptyRows: this.#preserveEmptyRows,
+                    yfmLangOptions: {
+                        languageData: getAutocompleteConfig({
+                            preserveEmptyRows: this.#preserveEmptyRows,
+                        }).concat(this.#markupConfig?.languageData || []),
+                    },
                     autocompletion: this.#markupConfig.autocompletion,
                     directiveSyntax: this.directiveSyntax,
                     receiver: this,
@@ -330,6 +341,7 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
         this.#markup = initial.markup ?? '';
 
         this.#preset = opts.preset ?? 'full';
+        this.#pmTransformers = opts.pmTransformers;
         this.#mdOptions = md;
         this.#extensions = wysiwygConfig.extensions;
         this.#markupConfig = {...opts.markupConfig};
@@ -342,6 +354,7 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
         );
         this.#directiveSyntax = opts.directiveSyntax;
         this.#enableNewImageSizeCalculation = Boolean(experimental.enableNewImageSizeCalculation);
+        this.#preserveEmptyRows = experimental.preserveEmptyRows || false;
         this.#prepareRawMarkup = experimental.prepareRawMarkup;
         this.#escapeConfig = wysiwygConfig.escapeConfig;
         this.#beforeEditorModeChange = experimental.beforeEditorModeChange;

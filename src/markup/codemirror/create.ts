@@ -21,6 +21,7 @@ import type {Receiver} from '../../utils';
 import {DataTransferType, shouldSkipHtmlConversion} from '../../utils/clipboard';
 import type {DirectiveSyntaxContext} from '../../utils/directive';
 import {
+    insertEmptyRow,
     insertImages,
     insertLink,
     toH1,
@@ -76,6 +77,7 @@ export type CreateCodemirrorParams = {
     yfmLangOptions?: YfmLangOptions;
     autocompletion?: Autocompletion;
     directiveSyntax: DirectiveSyntaxContext;
+    preserveEmptyRows: boolean;
 };
 
 export function createCodemirror(params: CreateCodemirrorParams) {
@@ -97,6 +99,7 @@ export function createCodemirror(params: CreateCodemirrorParams) {
         parseHtmlOnPaste,
         parseInsertedUrlAsImage,
         directiveSyntax,
+        preserveEmptyRows,
     } = params;
 
     const extensions: Extension[] = [gravityTheme, placeholder(placeholderContent)];
@@ -244,6 +247,14 @@ export function createCodemirror(params: CreateCodemirrorParams) {
             receiver,
         }),
     );
+
+    if (preserveEmptyRows) {
+        extensions.push(
+            keymap.of([
+                {key: f.toCM(A.EmptyRow)!, run: withLogger(ActionName.emptyRow, insertEmptyRow)},
+            ]),
+        );
+    }
 
     if (params.uploadHandler) {
         extensions.push(

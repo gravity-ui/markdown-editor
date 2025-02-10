@@ -1,9 +1,10 @@
 import React from 'react';
 
+import {toaster} from '@gravity-ui/uikit/toaster-singleton-react-18';
 import cloneDeep from 'lodash/cloneDeep';
 
-import {logger, markupToolbarConfigs} from '../../../src';
-import {Playground} from '../../components/Playground';
+import {MarkdownEditorView, logger, markupToolbarConfigs, useMarkdownEditor} from '../../../src';
+import {PlaygroundLayout} from '../../components/PlaygroundLayout';
 
 import {initialMdContent} from './content';
 import {ghostPopupExtension, ghostPopupToolbarItem} from './ghostExtension';
@@ -15,17 +16,26 @@ logger.setLogger({
 });
 
 const mToolbarConfig = cloneDeep(markupToolbarConfigs.mToolbarConfig);
-
-mToolbarConfig[2].unshift(ghostPopupToolbarItem);
+mToolbarConfig.unshift([ghostPopupToolbarItem]);
 
 export const Ghost = () => {
+    const editor = useMarkdownEditor({
+        initial: {markup: initialMdContent, mode: 'markup'},
+        markupConfig: {extensions: [ghostPopupExtension]},
+    });
+
     return (
-        <Playground
-            settingsVisible
-            markupToolbarConfig={mToolbarConfig}
-            markupConfigExtensions={[ghostPopupExtension]}
-            initial={initialMdContent}
-            initialEditor="markup"
+        <PlaygroundLayout
+            editor={editor}
+            view={() => (
+                <MarkdownEditorView
+                    stickyToolbar
+                    settingsVisible
+                    editor={editor}
+                    toaster={toaster}
+                    markupToolbarConfig={mToolbarConfig}
+                />
+            )}
         />
     );
 };

@@ -4,7 +4,16 @@ import type {PlaceholderOptions} from '../../../../utils/placeholder';
 
 import {CutAttr, CutNode} from './const';
 
-import type {YfmCutSpecsOptions} from './index';
+export type YfmCutSchemaOptions = {
+    /**
+     * @deprecated: use placeholder option in BehaviorPreset instead.
+     */
+    yfmCutTitlePlaceholder?: NonNullable<NodeSpec['placeholder']>['content'];
+    /**
+     * @deprecated: use placeholder option in BehaviorPreset instead.
+     */
+    yfmCutContentPlaceholder?: NonNullable<NodeSpec['placeholder']>['content'];
+};
 
 const DEFAULT_PLACEHOLDERS = {
     Title: 'Cut title',
@@ -12,7 +21,7 @@ const DEFAULT_PLACEHOLDERS = {
 };
 
 export const getSchemaSpecs = (
-    opts?: YfmCutSpecsOptions,
+    opts?: YfmCutSchemaOptions,
     placeholder?: PlaceholderOptions,
 ): Record<CutNode, NodeSpec> => ({
     [CutNode.Cut]: {

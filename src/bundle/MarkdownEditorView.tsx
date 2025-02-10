@@ -16,11 +16,11 @@ import {HorizontalDrag} from './HorizontalDrag';
 import {MarkupEditorView} from './MarkupEditorView';
 import {SplitModeView} from './SplitModeView';
 import {WysiwygEditorView} from './WysiwygEditorView';
-import {MToolbarData, MToolbarItemData, WToolbarData, WToolbarItemData} from './config';
 import {useMarkdownEditorContext} from './context';
-import {EditorSettings, EditorSettingsProps} from './settings';
+import {EditorSettings, type EditorSettingsProps} from './settings';
 import {stickyCn} from './sticky';
-import {getToolbarsConfigs} from './toolbar/utils';
+import type {MToolbarData, MToolbarItemData, WToolbarData, WToolbarItemData} from './toolbar/types';
+import {getToolbarsConfigs} from './toolbar/utils/toolbarsConfigs';
 import type {MarkdownEditorMode} from './types';
 
 import '../styles/styles.scss';

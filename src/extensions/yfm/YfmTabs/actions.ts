@@ -3,10 +3,17 @@ import type {Command} from 'prosemirror-state';
 
 import {pType} from '../../base/BaseSchema';
 
-import {TabAttrs, TabPanelAttrs, TabsAttrs} from './YfmTabsSpecs/const';
-import {tabActiveClassname, tabPanelActiveClassname} from './const';
-
-import {tabPanelType, tabType, tabsListType, tabsType} from '.';
+import {
+    TabAttrs,
+    TabPanelAttrs,
+    TabsAttrs,
+    tabActiveClassname,
+    tabPanelActiveClassname,
+    tabPanelType,
+    tabType,
+    tabsListType,
+    tabsType,
+} from './const';
 
 export const createYfmTabsCommand: Command = (state, dispatch) => {
     if (dispatch) {

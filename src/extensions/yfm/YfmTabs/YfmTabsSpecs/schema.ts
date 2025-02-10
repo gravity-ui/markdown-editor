@@ -1,18 +1,23 @@
 import type {NodeSpec} from 'prosemirror-model';
 
-import {PlaceholderOptions} from '../../../../utils/placeholder';
+import type {PlaceholderOptions} from '../../../../utils/placeholder';
 
 import {TabAttrs, TabPanelAttrs, TabsAttrs, TabsListAttrs, TabsNode} from './const';
-
-import {YfmTabsSpecsOptions} from '.';
 
 const DEFAULT_PLACEHOLDERS = {
     TabTitle: 'Tab title',
     RadioTabLabelTitle: 'Radio title',
 };
 
+export type YfmTabsSchemaOptions = {
+    /**
+     * @deprecated: use placeholder option in BehaviorPreset instead.
+     */
+    tabPlaceholder?: NonNullable<NodeSpec['placeholder']>['content'];
+};
+
 export const getSchemaSpecs: (
-    opts: YfmTabsSpecsOptions,
+    opts: YfmTabsSchemaOptions,
     placeholder?: PlaceholderOptions,
 ) => Record<TabsNode, NodeSpec> = (opts, placeholder) => ({
     [TabsNode.Tab]: {
@@ -78,6 +83,7 @@ export const getSchemaSpecs: (
         toDOM(node) {
             return ['div', node.attrs, 0];
         },
+        selectable: true,
         complex: 'root',
     },
 

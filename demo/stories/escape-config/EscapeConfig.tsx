@@ -1,27 +1,46 @@
-import React, {FC} from 'react';
+import React from 'react';
 
-import {PlaygroundMini, PlaygroundMiniProps} from '../../components/PlaygroundMini';
+import {toaster} from '@gravity-ui/uikit/toaster-singleton-react-18';
 
-export type EscapeConfigProps = Pick<
-    PlaygroundMiniProps,
-    'initialEditor' | 'withDefaultInitialContent'
-> & {
+import {MarkdownEditorView, useMarkdownEditor} from '../../../src';
+import {PlaygroundLayout} from '../../components/PlaygroundLayout';
+import {markup} from '../../defaults/content';
+
+export type EscapeConfigProps = {
     commonEscapeRegexp: string;
     startOfLineEscapeRegexp: string;
 };
 
-export const EscapeConfig: FC<EscapeConfigProps> = ({
+export const EscapeConfig: React.FC<EscapeConfigProps> = ({
     startOfLineEscapeRegexp,
     commonEscapeRegexp,
-    ...props
 }) => {
+    const editor = useMarkdownEditor(
+        {
+            initial: {markup},
+            wysiwygConfig: {
+                escapeConfig: {
+                    commonEscape: new RegExp(commonEscapeRegexp),
+                    startOfLineEscape: new RegExp(startOfLineEscapeRegexp),
+                },
+            },
+        },
+        [commonEscapeRegexp, startOfLineEscapeRegexp],
+    );
+
     return (
-        <PlaygroundMini
-            {...props}
-            escapeConfig={{
-                commonEscape: new RegExp(commonEscapeRegexp),
-                startOfLineEscape: new RegExp(startOfLineEscapeRegexp),
-            }}
+        <PlaygroundLayout
+            editor={editor}
+            view={({className}) => (
+                <MarkdownEditorView
+                    autofocus
+                    stickyToolbar
+                    settingsVisible
+                    editor={editor}
+                    toaster={toaster}
+                    className={className}
+                />
+            )}
         />
     );
 };
