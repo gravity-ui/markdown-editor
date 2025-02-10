@@ -213,8 +213,9 @@ export class GptWidgetDecoView<
         const {from, to} = deco;
 
         try {
+            // FIXME: Verify and use Node instead of Fragment
             const fragment = this._view.state.doc.slice(from, to, true).content;
-            const yfmMarkup = this._serializer.serialize(fragment);
+            const yfmMarkup = this._serializer.serialize(fragment as any);
 
             return yfmMarkup;
         } catch (error) {

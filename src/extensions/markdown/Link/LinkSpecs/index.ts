@@ -43,7 +43,8 @@ export const LinkSpecs: ExtensionAuto = (builder) => {
             },
             toMd: {
                 open(state, mark, parent, index) {
-                    state.isAutolink = isPlainURL(mark, parent, index, 1);
+                    // FIXME: Verify and use Node instead of Fragment
+                    state.isAutolink = isPlainURL(mark, parent as any, index, 1);
                     if (state.isAutolink) {
                         if (mark.attrs[LinkAttr.RawLink]) return '';
                         return '<';

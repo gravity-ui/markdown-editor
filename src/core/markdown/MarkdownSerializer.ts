@@ -191,7 +191,7 @@ export class MarkdownSerializerState {
     // Prepare the state for writing output (closing closed paragraphs,
     // adding delimiters, and so on), and then optionally add content
     // (unescaped) to the output.
-    write(content?: string) {
+    write(content?: string | null): void {
         this.flushClose();
         if (this.delim && this.atBlank()) { this.out += this.delim }
         if (content) this.out += content;
@@ -199,8 +199,8 @@ export class MarkdownSerializerState {
 
     // :: (Node)
     // Close the block for the given node.
-    closeBlock(node: Node) {
-        this.closed = node
+    closeBlock(node?: Node) {
+        this.closed = node ?? false;
     }
 
     // :: (string, ?bool)
@@ -333,7 +333,7 @@ export class MarkdownSerializerState {
     // indentation added to all lines except the first in an item,
     // `firstDelim` is a function going from an item index to a
     // delimiter for the first line of the item.
-    renderList(node: Node, delim: string, firstDelim: (index: number) => string) {
+    renderList(node: Node, delim: string, firstDelim: (index: number, firstDelimNode: Node) => string): void {
         if (this.closed && this.closed.type == node.type) { this.flushClose(3) } else if (this.inTightList) { this.flushClose(1) }
 
         const isTight = typeof node.attrs.tight !== 'undefined' ? node.attrs.tight : this.options.tightLists;
@@ -341,7 +341,7 @@ export class MarkdownSerializerState {
         this.inTightList = isTight;
         node.forEach((child: any, _: any, i: any) => {
             if (i && isTight) this.flushClose(1);
-            this.wrapBlock(delim, firstDelim(i), node, () => this.render(child, node, i))
+            this.wrapBlock(delim, firstDelim(i, child), node, () => this.render(child, node, i))
         });
         this.inTightList = prevTight;
     }
