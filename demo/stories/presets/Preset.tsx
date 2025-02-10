@@ -20,7 +20,6 @@ import {plugins} from '../../defaults/md-plugins';
 import {block} from '../../utils/cn';
 import {randomDelay} from '../../utils/delay';
 import {parseInsertedUrlAsImage} from '../../utils/imageUrl';
-import {toaster} from '../../utils/toaster';
 
 import '../../components/Playground.scss';
 
@@ -139,7 +138,6 @@ export const Preset = memo<PresetDemoProps>((props) => {
                     <MarkdownEditorView
                         autofocus
                         toolbarsPreset={toolbarsPreset}
-                        toaster={toaster}
                         className={b('editor-view')}
                         stickyToolbar={Boolean(stickyToolbar)}
                         settingsVisible={settingsVisible}

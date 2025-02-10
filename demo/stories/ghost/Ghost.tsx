@@ -2,7 +2,6 @@ import cloneDeep from 'lodash/cloneDeep';
 
 import {MarkdownEditorView, logger, markupToolbarConfigs, useMarkdownEditor} from '../../../src';
 import {PlaygroundLayout} from '../../components/PlaygroundLayout';
-import {toaster} from '../../utils/toaster';
 
 import {initialMdContent} from './content';
 import {ghostPopupExtension, ghostPopupToolbarItem} from './ghostExtension';
@@ -30,7 +29,6 @@ export const Ghost = () => {
                     stickyToolbar
                     settingsVisible
                     editor={editor}
-                    toaster={toaster}
                     markupToolbarConfig={mToolbarConfig}
                 />
             )}

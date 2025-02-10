@@ -1,11 +1,10 @@
 import {useCallback} from 'react';
 
-import {Popup, PopupPlacement} from '@gravity-ui/uikit';
+import {Popup, type PopupPlacement, useToaster} from '@gravity-ui/uikit';
 
 import {FileForm, FileFormProps} from '../../../forms/FileForm';
 import {i18n} from '../../../i18n/forms';
 import {useBooleanState} from '../../../react-utils/hooks';
-import {useToaster} from '../../../react-utils/toaster';
 import type {ToolbarBaseProps} from '../../../toolbar';
 import {BatchUploadResult, FileUploadHandler, batchUploadFiles} from '../../../utils/upload';
 

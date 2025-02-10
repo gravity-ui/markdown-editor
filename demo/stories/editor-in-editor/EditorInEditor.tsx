@@ -2,7 +2,6 @@ import {useEffect} from 'react';
 
 import {BaseNode, MarkdownEditorView, useMarkdownEditor} from '../../../src';
 import {PlaygroundLayout} from '../../components/PlaygroundLayout';
-import {toaster} from '../../utils/toaster';
 
 import {
     EditorInEditorAttr,
@@ -22,10 +21,7 @@ export const EditorInEditor: React.FC = () => {
             toolbarVisible: true,
         },
         wysiwygConfig: {
-            extensions: (builder) =>
-                builder.use(extension, {
-                    toaster,
-                }),
+            extensions: (builder) => builder.use(extension, {}),
         },
     });
 
@@ -54,7 +50,6 @@ export const EditorInEditor: React.FC = () => {
                     stickyToolbar
                     settingsVisible
                     editor={editor}
-                    toaster={toaster}
                     className={className}
                 />
             )}

@@ -73,24 +73,26 @@ module.exports = {
 ### 5. Configuring the application
 Add ThemeProvider to App:
 
-```ts
-import { ThemeProvider } from '@gravity-ui/uikit';
+```tsx
+import { ThemeProvider, ToasterProvider } from '@gravity-ui/uikit';
+import { toaster } from '@gravity-ui/uikit/toaster-singleton';
 
 // ...
 function App() {
   return (
     <ThemeProvider theme="light">
-      <Editor onSubmit={(value) => console.log(value)} />
+      <ToasterProvider toaster={toaster}>
+        <Editor onSubmit={(value) => console.log(value)} />
+      </ToasterProvider>
     </ThemeProvider>
   );
 }
 ```
 Add the Editor component to App:
 
-```ts
+```tsx
 import React from 'react';
 import { useMarkdownEditor, MarkdownEditorView } from '@gravity-ui/markdown-editor';
-import { toaster } from '@gravity-ui/uikit/toaster-singleton-react-18';
 
 function Editor({ onSubmit }) {
   const editor = useMarkdownEditor({ allowHTML: false });
@@ -108,7 +110,7 @@ function Editor({ onSubmit }) {
     };
   }, [onSubmit]);
 
-  return <MarkdownEditorView stickyToolbar autofocus toaster={toaster} editor={editor} />;
+  return <MarkdownEditorView stickyToolbar autofocus editor={editor} />;
 }
 ```
 Add styles:
