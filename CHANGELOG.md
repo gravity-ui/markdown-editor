@@ -1,5 +1,12 @@
 # Changelog
 
+## [14.11.2](https://github.com/gravity-ui/markdown-editor/compare/v14.11.1...v14.11.2) (2025-02-07)
+
+
+### Bug Fixes
+
+* **deps:** updated @diplodoc/cut-extension ([#593](https://github.com/gravity-ui/markdown-editor/issues/593)) ([30d0d8c](https://github.com/gravity-ui/markdown-editor/commit/30d0d8cb3732869d9142e15398315f78a4a8ea31))
+
 ## [14.11.1](https://github.com/gravity-ui/markdown-editor/compare/v14.11.0...v14.11.1) (2025-02-03)
 
 
