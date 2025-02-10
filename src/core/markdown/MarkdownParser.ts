@@ -5,7 +5,6 @@ import {Mark, MarkSpec, MarkType, Node, NodeSpec, NodeType, Schema} from 'prosem
 
 import {logger} from '../../logger';
 import type {Parser, ParserToken} from '../types/parser';
-import {buildKeyMapping} from '../utils/buildKeyMapping';
 
 import {ProseMirrorTransformer, TransformFn} from './ProseMirrorTransformer';
 
@@ -368,20 +367,13 @@ function withoutTrailingNewline(str: string) {
  * Class MarkdownParserDynamicModifier
  *
  * Provides a mechanism for dynamic modification of tokens and node attributes during parsing by a MarkdownParser.
- * It allows sequential processing of element types by applying a series of custom handlers, making it possible to:
+ * It allows sequential processing of element types by applying a series of custom handlers:
  *
- * 1. Token Processing:
  *    - `processToken`: An array of handlers that process tokens sequentially, each passing the result to the next.
  *
- * 2. Attribute Processing:
  *    - `processNodeAttrs`: An array of handlers that modify and process node attributes.
  *
- * 3. Node Processing:
  *    - `processNode`: An array of handlers that process and modify the resulting ProseMirror nodes.
- *
- * 4. Allowed Attributes:
- *    - `allowedAttrs`: A list of additional attributes to include in the ProseMirror schema with default values.
- *      When specified, these attributes are added to the schema and preserved during processing.
  *
  * Example:
  * ```ts
@@ -413,7 +405,6 @@ function withoutTrailingNewline(str: string) {
  *                 return node;
  *             },
  *         ],
- *         allowedAttrs: ['data-paragraph'],
  *     },
  * });
  * ```
@@ -441,7 +432,6 @@ export interface ElementProcessor {
     processToken?: ProcessToken[];
     processNodeAttrs?: ProcessNodeAttrs[];
     processNode?: ProcessNode[];
-    allowedAttrs?: string[];
 }
 
 export interface MarkdownParserDynamicModifierConfig {
@@ -456,98 +446,43 @@ export interface SchemaSpec {
 
 export class MarkdownParserDynamicModifier {
     private elementProcessors: Map<string, ElementProcessor>;
-    private keyMapping: Map<string, string[]>;
 
     constructor(config: MarkdownParserDynamicModifierConfig) {
-        const {processorsMap, keyMapping} = buildKeyMapping<ElementProcessor>(config);
-
-        this.elementProcessors = processorsMap;
-        this.keyMapping = keyMapping;
+        this.elementProcessors = new Map(Object.entries(config));
     }
 
     processTokens(tokens: Token[], rawMarkup: string): Token[] {
         return tokens.map((token, index) => {
-            const processors = this.findProcessors(cropNodeName(token.type, openSuffix, ''));
+            const processor = this.elementProcessors.get(cropNodeName(token.type, openSuffix, ''));
+            if (!processor || !processor.processToken || processor.processToken.length === 0) {
+                return token;
+            }
 
-            processors.forEach((processor) => {
-                if (processor.processToken) {
-                    processor.processToken.forEach((process) => {
-                        token = process(token, index, rawMarkup, processor.allowedAttrs);
-                    });
-                }
-            });
-
-            return token;
+            return processor.processToken.reduce((currentToken, process) => {
+                return process(currentToken, index, rawMarkup);
+            }, token);
         });
     }
 
     processAttrs(token: Token, attrs: TokenAttrs): TokenAttrs {
-        const processors = this.findProcessors(cropNodeName(token.type, openSuffix, ''));
+        const processor = this.elementProcessors.get(cropNodeName(token.type, openSuffix, ''));
+        if (!processor || !processor.processNodeAttrs || processor.processNodeAttrs.length === 0) {
+            return attrs;
+        }
 
-        processors.forEach((processor) => {
-            if (processor.processNodeAttrs) {
-                processor.processNodeAttrs.forEach((process) => {
-                    attrs = process(token, attrs, processor.allowedAttrs);
-                });
-            }
-        });
-
-        return attrs;
-    }
-
-    processNodeAttrsSpec(baseSchema: SchemaSpec): SchemaSpec {
-        const updatedNodes = {...baseSchema.nodes};
-
-        this.keyMapping.forEach((keys, elementType) => {
-            keys.forEach((key) => {
-                const processor = this.elementProcessors.get(key);
-                if (!processor || !processor.allowedAttrs || processor.allowedAttrs.length === 0)
-                    return;
-
-                const nodeSpec = baseSchema.nodes[elementType];
-                if (nodeSpec) {
-                    updatedNodes[elementType] = {
-                        ...nodeSpec,
-                        attrs: {
-                            ...nodeSpec.attrs,
-                            ...processor.allowedAttrs.reduce(
-                                (acc, key) => {
-                                    acc[key] = {default: null};
-                                    return acc;
-                                },
-                                {} as Record<string, any>,
-                            ),
-                        },
-                    };
-                }
-            });
-        });
-
-        return {
-            ...baseSchema,
-            nodes: updatedNodes,
-        };
+        return processor.processNodeAttrs.reduce((currentAttrs, process) => {
+            return process(token, currentAttrs);
+        }, attrs);
     }
 
     processNodes(node: Node): Node {
-        const processors = this.findProcessors(node.type.name);
+        const processor = this.elementProcessors.get(node.type.name);
+        if (!processor || !processor.processNode || processor.processNode.length === 0) {
+            return node;
+        }
 
-        processors.forEach((processor) => {
-            if (processor.processNode) {
-                processor.processNode.forEach((process) => {
-                    node = process(node);
-                });
-            }
-        });
-
-        return node;
-    }
-
-    private findProcessors(elementType: string): ElementProcessor[] {
-        const elementTypes = this.keyMapping.get(elementType) || [];
-
-        return elementTypes
-            .map((key) => this.elementProcessors.get(key))
-            .filter((processor): processor is ElementProcessor => Boolean(processor));
+        return processor.processNode.reduce((currentNode, process) => {
+            return process(currentNode);
+        }, node);
     }
 }

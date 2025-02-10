@@ -67,7 +67,6 @@ describe('MarkdownParser with MarkdownParserDynamicModifier', () => {
                         return attrs;
                     },
                 ],
-                allowedAttrs: ['data-some'],
             },
         };
 

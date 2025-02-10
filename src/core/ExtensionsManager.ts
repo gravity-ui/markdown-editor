@@ -5,6 +5,7 @@ import type {Plugin} from 'prosemirror-state';
 import {ActionsManager} from './ActionsManager';
 import {ExtensionBuilder} from './ExtensionBuilder';
 import {ParserTokensRegistry} from './ParserTokensRegistry';
+import {SchemaDynamicModifier} from './SchemaDynamicModifier';
 import {SchemaSpecRegistry} from './SchemaSpecRegistry';
 import {SerializerTokensRegistry} from './SerializerTokensRegistry';
 import {MarkdownParserDynamicModifier} from './markdown/MarkdownParser';
@@ -32,6 +33,7 @@ type ExtensionsManagerOptions = {
     dynamicModifiers?: {
         parser?: MarkdownParserDynamicModifier;
         serializer?: MarkdownSerializerDynamicModifier;
+        schema?: SchemaDynamicModifier;
     };
 };
 
@@ -40,9 +42,9 @@ export class ExtensionsManager {
         return new this({extensions, options}).build();
     }
 
-    #schemaRegistry = new SchemaSpecRegistry();
-    #parserRegistry = new ParserTokensRegistry();
-    #serializerRegistry = new SerializerTokensRegistry();
+    #schemaRegistry;
+    #parserRegistry;
+    #serializerRegistry;
 
     #nodeViewCreators = new Map<string, (deps: ExtensionDeps) => NodeViewConstructor>();
     #markViewCreators = new Map<string, (deps: ExtensionDeps) => MarkViewConstructor>();
@@ -64,6 +66,10 @@ export class ExtensionsManager {
     #parserDynamicModifier?: MarkdownParserDynamicModifier;
 
     constructor({extensions, options = {}}: ExtensionsManagerParams) {
+        this.#schemaRegistry = new SchemaSpecRegistry(undefined, options?.dynamicModifiers?.schema);
+        this.#parserRegistry = new ParserTokensRegistry();
+        this.#serializerRegistry = new SerializerTokensRegistry();
+
         this.#extensions = extensions;
 
         const mdPreset: PresetName = options.mdOpts?.preset ?? 'default';
@@ -148,7 +154,7 @@ export class ExtensionsManager {
     private createDeps() {
         const actions = new ActionsManager();
 
-        const schema = this.#schemaRegistry.createSchema(this.#parserDynamicModifier);
+        const schema = this.#schemaRegistry.createSchema();
         const markupParser = this.createParser(schema, this.#mdForMarkup);
         const textParser = this.createParser(schema, this.#mdForText);
         const serializer = this.#serializerRegistry.createSerializer(

@@ -1,7 +1,6 @@
 import {Node} from 'prosemirror-model';
 
 import {SerializerNodeToken, SerializerState} from '../types/serializer';
-import {buildKeyMapping} from '../utils/buildKeyMapping';
 
 export type SerializerProcessNode = (
     state: SerializerState,
@@ -23,10 +22,8 @@ export interface MarkdownSerializerDynamicModifierConfig {
  * Class MarkdownSerializerDynamicModifier
  *
  * Provides a mechanism for dynamic modification of node serialization during conversion of ProseMirror nodes
- * to a markdown-like format. It allows sequential processing of nodes by applying a series of custom handlers,
- * making it possible to:
+ * to a markdown-like format. It allows sequential processing of nodes by applying a series of custom handlers:
  *
- * 1. Node Processing:
  *    - `processNode`: An array of handlers that process nodes sequentially, each modifying the output.
  *
  * Example:
@@ -49,12 +46,9 @@ export interface MarkdownSerializerDynamicModifierConfig {
  */
 export class MarkdownSerializerDynamicModifier {
     private nodeProcessors: Map<string, SerializerNodeProcessor>;
-    private keyMapping: Map<string, string[]>;
 
     constructor(config: MarkdownSerializerDynamicModifierConfig) {
-        const {processorsMap, keyMapping} = buildKeyMapping<SerializerNodeProcessor>(config);
-        this.nodeProcessors = processorsMap;
-        this.keyMapping = keyMapping;
+        this.nodeProcessors = new Map(Object.entries(config));
     }
 
     processNode(
@@ -64,21 +58,14 @@ export class MarkdownSerializerDynamicModifier {
         index: number,
         callback: SerializerNodeToken,
     ): void {
-        const complexKeys = this.keyMapping.get(node.type.name) || [];
-        let foundAnyProcessor = false;
+        const nodeType = this.nodeProcessors.get(node.type.name);
 
-        for (const complexKey of complexKeys) {
-            const processor = this.nodeProcessors.get(complexKey);
-            if (processor?.processNode?.length) {
-                foundAnyProcessor = true;
-                for (const fn of processor.processNode) {
-                    fn(state, node, parent, index, callback);
-                }
-            }
-        }
-
-        if (!foundAnyProcessor) {
+        if (!nodeType || !nodeType.processNode || nodeType.processNode.length === 0) {
             callback(state, node, parent, index);
+        } else {
+            nodeType.processNode.forEach((process) => {
+                process(state, node, parent, index, callback);
+            });
         }
     }
 }
