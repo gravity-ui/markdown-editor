@@ -1,12 +1,12 @@
 import React from 'react';
 
-import {HeadingPreview} from '../../bundle/config/previews/HeadingPreview';
 import {i18n} from '../../i18n/menubar';
 import {Action as A, formatter as f} from '../../shortcuts';
 import type {WToolbarListButtonData, WToolbarListButtonItemData} from '../toolbar/types';
 
 import {ActionName} from './action-names';
 import {icons} from './icons';
+import {HeadingPreview} from './previews/HeadingPreview';
 import {TextPreview} from './previews/TextPreview';
 
 export const wTextItemData: WToolbarListButtonItemData = {
