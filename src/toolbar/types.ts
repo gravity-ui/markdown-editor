@@ -20,6 +20,7 @@ export type ToolbarItemData<E> = {
     title: string | (() => string);
     hint?: string | (() => string);
     hotkey?: HotkeyProps['value'];
+    preview?: React.ReactNode;
     /** @deprecated Use _hintWhenDisabled_ setting instead */
     disabledPopoverVisible?: boolean;
     /**

@@ -3,6 +3,7 @@
  */
 import React from 'react';
 
+import {HeadingPreview} from '../../bundle/config/previews/HeadingPreview';
 import {i18n} from '../../i18n/menubar';
 import {
     insertHRule,
@@ -363,6 +364,7 @@ export const mHeading1ItemData: ToolbarListButtonItemData<CodeEditor> = {
     exec: (e) => toH1(e.cm),
     isActive: inactive,
     isEnable: enable,
+    preview: <HeadingPreview level={1} />,
 };
 export const mHeading2ItemData: ToolbarListButtonItemData<CodeEditor> = {
     id: ActionName.heading2,
@@ -372,6 +374,7 @@ export const mHeading2ItemData: ToolbarListButtonItemData<CodeEditor> = {
     exec: (e) => toH2(e.cm),
     isActive: inactive,
     isEnable: enable,
+    preview: <HeadingPreview level={2} />,
 };
 export const mHeading3ItemData: ToolbarListButtonItemData<CodeEditor> = {
     id: ActionName.heading3,
@@ -381,6 +384,7 @@ export const mHeading3ItemData: ToolbarListButtonItemData<CodeEditor> = {
     exec: (e) => toH3(e.cm),
     isActive: inactive,
     isEnable: enable,
+    preview: <HeadingPreview level={3} />,
 };
 export const mHeading4ItemData: ToolbarListButtonItemData<CodeEditor> = {
     id: ActionName.heading4,
@@ -390,6 +394,7 @@ export const mHeading4ItemData: ToolbarListButtonItemData<CodeEditor> = {
     exec: (e) => toH4(e.cm),
     isActive: inactive,
     isEnable: enable,
+    preview: <HeadingPreview level={4} />,
 };
 export const mHeading5ItemData: ToolbarListButtonItemData<CodeEditor> = {
     id: ActionName.heading5,
@@ -399,6 +404,7 @@ export const mHeading5ItemData: ToolbarListButtonItemData<CodeEditor> = {
     exec: (e) => toH5(e.cm),
     isActive: inactive,
     isEnable: enable,
+    preview: <HeadingPreview level={5} />,
 };
 export const mHeading6ItemData: ToolbarListButtonItemData<CodeEditor> = {
     id: ActionName.heading6,
@@ -408,6 +414,7 @@ export const mHeading6ItemData: ToolbarListButtonItemData<CodeEditor> = {
     exec: (e) => toH6(e.cm),
     isActive: inactive,
     isEnable: enable,
+    preview: <HeadingPreview level={6} />,
 };
 
 export const mBulletListItemData: ToolbarListButtonItemData<CodeEditor> = {

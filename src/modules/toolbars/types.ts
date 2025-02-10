@@ -29,6 +29,7 @@ export type ToolbarItemView<T extends ToolbarDataType = ToolbarDataType.SingleBu
     ? {
           icon: ToolbarIconData;
           title: string | (() => string);
+          preview?: React.ReactNode;
       }
     : T extends ToolbarDataType.ListButton
       ? {

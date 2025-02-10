@@ -1,9 +1,13 @@
+import React from 'react';
+
 import {i18n} from '../../i18n/menubar';
 import {Action as A, formatter as f} from '../../shortcuts';
 import type {WToolbarListButtonData, WToolbarListButtonItemData} from '../toolbar/types';
 
 import {ActionName} from './action-names';
 import {icons} from './icons';
+import {HeadingPreview} from './previews/HeadingPreview';
+import {TextPreview} from './previews/TextPreview';
 
 export const wTextItemData: WToolbarListButtonItemData = {
     id: ActionName.paragraph,
@@ -14,6 +18,7 @@ export const wTextItemData: WToolbarListButtonItemData = {
     isActive: (e) => e.actions.toParagraph.isActive(),
     isEnable: (e) => e.actions.toParagraph.isEnable(),
     doNotActivateList: true,
+    preview: <TextPreview />,
 };
 export const wHeading1ItemData: WToolbarListButtonItemData = {
     id: ActionName.heading1,
@@ -23,6 +28,7 @@ export const wHeading1ItemData: WToolbarListButtonItemData = {
     exec: (e) => e.actions.toH1.run(),
     isActive: (e) => e.actions.toH1.isActive(),
     isEnable: (e) => e.actions.toH1.isEnable(),
+    preview: <HeadingPreview level={1} />,
 };
 export const wHeading2ItemData: WToolbarListButtonItemData = {
     id: ActionName.heading2,
@@ -32,6 +38,7 @@ export const wHeading2ItemData: WToolbarListButtonItemData = {
     exec: (e) => e.actions.toH2.run(),
     isActive: (e) => e.actions.toH2.isActive(),
     isEnable: (e) => e.actions.toH2.isEnable(),
+    preview: <HeadingPreview level={2} />,
 };
 export const wHeading3ItemData: WToolbarListButtonItemData = {
     id: ActionName.heading3,
@@ -41,6 +48,7 @@ export const wHeading3ItemData: WToolbarListButtonItemData = {
     exec: (e) => e.actions.toH3.run(),
     isActive: (e) => e.actions.toH3.isActive(),
     isEnable: (e) => e.actions.toH3.isEnable(),
+    preview: <HeadingPreview level={3} />,
 };
 export const wHeading4ItemData: WToolbarListButtonItemData = {
     id: ActionName.heading4,
@@ -50,6 +58,7 @@ export const wHeading4ItemData: WToolbarListButtonItemData = {
     exec: (e) => e.actions.toH4.run(),
     isActive: (e) => e.actions.toH4.isActive(),
     isEnable: (e) => e.actions.toH4.isEnable(),
+    preview: <HeadingPreview level={4} />,
 };
 export const wHeading5ItemData: WToolbarListButtonItemData = {
     id: ActionName.heading5,
@@ -59,6 +68,7 @@ export const wHeading5ItemData: WToolbarListButtonItemData = {
     exec: (e) => e.actions.toH5.run(),
     isActive: (e) => e.actions.toH5.isActive(),
     isEnable: (e) => e.actions.toH5.isEnable(),
+    preview: <HeadingPreview level={5} />,
 };
 export const wHeading6ItemData: WToolbarListButtonItemData = {
     id: ActionName.heading6,
@@ -68,6 +78,7 @@ export const wHeading6ItemData: WToolbarListButtonItemData = {
     exec: (e) => e.actions.toH6.run(),
     isActive: (e) => e.actions.toH6.isActive(),
     isEnable: (e) => e.actions.toH6.isEnable(),
+    preview: <HeadingPreview level={6} />,
 };
 
 export const wHeadingListConfig: WToolbarListButtonData = {

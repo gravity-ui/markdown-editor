@@ -7,6 +7,7 @@ import {cn} from '../../../classname';
 import {i18n} from '../../../i18n/suggest';
 import {isFunction} from '../../../lodash';
 import {ErrorLoggerBoundary} from '../../../react-utils/ErrorBoundary';
+import {PreviewTooltip} from '../../../toolbar/PreviewTooltip';
 import {AutocompletePopupProps} from '../../../utils/autocomplete-popup';
 
 import type {CommandAction} from './types';
@@ -24,7 +25,10 @@ function calcListHeight(itemsCount: number): number | undefined {
     return Math.min(MAX_LIST_HEIGHT, itemsCount * ITEM_HEIGHT);
 }
 
-export type CommandMenuItem = Pick<CommandAction, 'id' | 'title' | 'icon' | 'hotkey' | 'hint'>;
+export type CommandMenuItem = Pick<
+    CommandAction,
+    'id' | 'title' | 'icon' | 'hotkey' | 'hint' | 'preview'
+>;
 
 export type CommandMenuComponentProps = AutocompletePopupProps & {
     currentIndex?: number;
@@ -73,20 +77,23 @@ export const CommandMenuComponent: React.FC<CommandMenuComponentProps> = ({
     );
 };
 
-function renderItem({id, title, icon, hotkey, hint}: CommandMenuItem): React.ReactNode {
+function renderItem({id, title, icon, hotkey, hint, preview}: CommandMenuItem): React.ReactNode {
     const titleText = isFunction(title) ? title() : title;
     const hintText = isFunction(hint) ? hint() : hint;
+
     return (
-        <div key={id} className={b('item', {id})}>
-            <Icon data={icon.data} size={20} className={b('item-icon')} />
-            <div className={b('item-body')}>
-                <span className={b('item-title')}>{titleText}</span>
-                <div className={b('item-extra')}>
-                    {hotkey && <Hotkey value={hotkey} className={b('item-hotkey')} />}
-                    {hintText && <HelpPopover className={b('item- hint')} content={hintText} />}
+        <PreviewTooltip preview={preview}>
+            <div key={id} className={b('item', {id})}>
+                <Icon data={icon.data} size={20} className={b('item-icon')} />
+                <div className={b('item-body')}>
+                    <span className={b('item-title')}>{titleText}</span>
+                    <div className={b('item-extra')}>
+                        {hotkey && <Hotkey value={hotkey} className={b('item-hotkey')} />}
+                        {hintText && <HelpPopover className={b('item-hint')} content={hintText} />}
+                    </div>
                 </div>
             </div>
-        </div>
+        </PreviewTooltip>
     );
 }
 
