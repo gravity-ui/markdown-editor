@@ -5,7 +5,6 @@ import {PlaygroundLayout} from '../../../components/PlaygroundLayout';
 import {SplitModePreview} from '../../../components/SplitModePreview';
 import {plugins} from '../../../defaults/md-plugins';
 import {useMarkdownEditorValue} from '../../../hooks/useMarkdownEditorValue';
-import {toaster} from '../../../utils/toaster';
 
 const initialMarkup = `
 &nbsp;
@@ -71,7 +70,6 @@ export const PreserveEmptyRowsDemo = memo<PreserveEmptyRowsDemoProps>((props) =>
                     stickyToolbar
                     settingsVisible
                     editor={editor}
-                    toaster={toaster}
                     className={className}
                 />
             )}

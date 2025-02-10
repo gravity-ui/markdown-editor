@@ -14,7 +14,6 @@ import {
     wysiwygToolbarConfigs,
 } from '../../../src';
 import {PlaygroundLayout} from '../../components/PlaygroundLayout';
-import {toaster} from '../../utils/toaster';
 
 import {initialMdContent} from './content';
 import {gptWidgetProps} from './gptWidgetOptions';
@@ -72,7 +71,6 @@ export const GPT = memo(() => {
                     stickyToolbar
                     settingsVisible
                     editor={editor}
-                    toaster={toaster}
                     className={className}
                     markupToolbarConfig={mToolbarConfig}
                     wysiwygToolbarConfig={wToolbarConfig}

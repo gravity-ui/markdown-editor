@@ -8,7 +8,7 @@ import {
     useState,
 } from 'react';
 
-import type {ToasterPublicMethods} from '@gravity-ui/uikit';
+import {useToaster} from '@gravity-ui/uikit';
 import {ErrorBoundary} from 'react-error-boundary';
 import {useEnsuredForwardedRef, useKey, useUpdate} from 'react-use';
 
@@ -16,7 +16,7 @@ import {ClassNameProps, cn} from '../classname';
 import {i18n} from '../i18n/bundle';
 import {logger} from '../logger';
 import type {ToolbarsPreset} from '../modules/toolbars/types';
-import {ToasterContext, useBooleanState, useSticky} from '../react-utils';
+import {useBooleanState, useSticky} from '../react-utils';
 import {isMac} from '../utils';
 
 import type {Editor, EditorInt} from './Editor';
@@ -59,7 +59,6 @@ export type MarkdownEditorViewProps = ClassNameProps & {
     wysiwygHiddenActionsConfig?: WToolbarItemData[];
     /** @default true */
     settingsVisible?: boolean;
-    toaster: ToasterPublicMethods;
     stickyToolbar: boolean;
     enableSubmitInPreview?: boolean;
     hidePreviewAfterSubmit?: boolean;
@@ -88,7 +87,6 @@ export const MarkdownEditorView = forwardRef<HTMLDivElement, MarkdownEditorViewP
             className,
             settingsVisible = true,
             toolbarsPreset,
-            toaster,
             stickyToolbar,
             wysiwygToolbarConfig: initialWysiwygToolbarConfig,
             markupToolbarConfig: initialMarkupToolbarConfig,
@@ -238,6 +236,8 @@ export const MarkdownEditorView = forwardRef<HTMLDivElement, MarkdownEditorViewP
             ],
         );
 
+        const toaster = useToaster();
+
         return (
             <ErrorBoundary
                 onError={(e) => {
@@ -261,89 +261,87 @@ export const MarkdownEditorView = forwardRef<HTMLDivElement, MarkdownEditorViewP
                     return null;
                 }}
             >
-                <ToasterContext.Provider value={toaster}>
-                    <div
-                        ref={divRef}
-                        className={b(
-                            {
-                                settings: settingsVisible,
-                                split: markupSplitMode && editor.splitMode,
-                            },
-                            [className],
-                        )}
-                        role="button"
-                        tabIndex={0}
-                    >
-                        <div className={b('editor-wrapper')} ref={editorWrapperRef}>
-                            {showPreview ? (
-                                <>
-                                    <div className={b('preview-wrapper')}>
-                                        {editor.renderPreview?.({
-                                            getValue: editor.getValue,
-                                            mode: 'preview',
-                                            md: editor.mdOptions,
-                                            directiveSyntax: editor.directiveSyntax,
-                                        })}
-                                    </div>
-                                    {settings}
-                                </>
-                            ) : (
-                                <>
-                                    {editorMode === 'wysiwyg' && (
-                                        <WysiwygEditorView
-                                            editor={editor}
-                                            autofocus={autofocus}
-                                            settingsVisible={settingsVisible}
-                                            toolbarConfig={wysiwygToolbarConfig}
-                                            toolbarVisible={editor.toolbarVisible}
-                                            hiddenActionsConfig={wysiwygHiddenActionsConfig}
-                                            className={b('editor', {mode: editorMode})}
-                                            toolbarClassName={b('toolbar')}
-                                            stickyToolbar={stickyToolbar}
-                                        >
-                                            {editor.toolbarVisible && settingsVisible && settings}
-                                        </WysiwygEditorView>
-                                    )}
-                                    {editorMode === 'markup' && (
-                                        <MarkupEditorView
-                                            editor={editor}
-                                            autofocus={autofocus}
-                                            settingsVisible={settingsVisible}
-                                            toolbarConfig={markupToolbarConfig}
-                                            toolbarVisible={editor.toolbarVisible}
-                                            splitMode={editor.splitMode}
-                                            splitModeEnabled={editor.splitModeEnabled}
-                                            hiddenActionsConfig={markupHiddenActionsConfig}
-                                            className={b('editor', {mode: editorMode})}
-                                            toolbarClassName={b('toolbar')}
-                                            stickyToolbar={stickyToolbar}
-                                        >
-                                            {editor.toolbarVisible && settings}
-                                        </MarkupEditorView>
-                                    )}
-                                    {!editor.toolbarVisible && settings}
-                                </>
-                            )}
-                        </div>
-
-                        {markupSplitMode && (
+                <div
+                    ref={divRef}
+                    className={b(
+                        {
+                            settings: settingsVisible,
+                            split: markupSplitMode && editor.splitMode,
+                        },
+                        [className],
+                    )}
+                    role="button"
+                    tabIndex={0}
+                >
+                    <div className={b('editor-wrapper')} ref={editorWrapperRef}>
+                        {showPreview ? (
                             <>
-                                {editor.splitMode === 'horizontal' ? (
-                                    <HorizontalDrag
+                                <div className={b('preview-wrapper')}>
+                                    {editor.renderPreview?.({
+                                        getValue: editor.getValue,
+                                        mode: 'preview',
+                                        md: editor.mdOptions,
+                                        directiveSyntax: editor.directiveSyntax,
+                                    })}
+                                </div>
+                                {settings}
+                            </>
+                        ) : (
+                            <>
+                                {editorMode === 'wysiwyg' && (
+                                    <WysiwygEditorView
                                         editor={editor}
-                                        isMounted={isMounted}
-                                        leftElRef={editorWrapperRef}
-                                        rightElRef={splitModeViewWrapperRef}
-                                        wrapperRef={divRef}
-                                    />
-                                ) : (
-                                    <div className={b('resizer')} />
+                                        autofocus={autofocus}
+                                        settingsVisible={settingsVisible}
+                                        toolbarConfig={wysiwygToolbarConfig}
+                                        toolbarVisible={editor.toolbarVisible}
+                                        hiddenActionsConfig={wysiwygHiddenActionsConfig}
+                                        className={b('editor', {mode: editorMode})}
+                                        toolbarClassName={b('toolbar')}
+                                        stickyToolbar={stickyToolbar}
+                                    >
+                                        {editor.toolbarVisible && settingsVisible && settings}
+                                    </WysiwygEditorView>
                                 )}
-                                <SplitModeView editor={editor} ref={splitModeViewWrapperRef} />
+                                {editorMode === 'markup' && (
+                                    <MarkupEditorView
+                                        editor={editor}
+                                        autofocus={autofocus}
+                                        settingsVisible={settingsVisible}
+                                        toolbarConfig={markupToolbarConfig}
+                                        toolbarVisible={editor.toolbarVisible}
+                                        splitMode={editor.splitMode}
+                                        splitModeEnabled={editor.splitModeEnabled}
+                                        hiddenActionsConfig={markupHiddenActionsConfig}
+                                        className={b('editor', {mode: editorMode})}
+                                        toolbarClassName={b('toolbar')}
+                                        stickyToolbar={stickyToolbar}
+                                    >
+                                        {editor.toolbarVisible && settings}
+                                    </MarkupEditorView>
+                                )}
+                                {!editor.toolbarVisible && settings}
                             </>
                         )}
                     </div>
-                </ToasterContext.Provider>
+
+                    {markupSplitMode && (
+                        <>
+                            {editor.splitMode === 'horizontal' ? (
+                                <HorizontalDrag
+                                    editor={editor}
+                                    isMounted={isMounted}
+                                    leftElRef={editorWrapperRef}
+                                    rightElRef={splitModeViewWrapperRef}
+                                    wrapperRef={divRef}
+                                />
+                            ) : (
+                                <div className={b('resizer')} />
+                            )}
+                            <SplitModeView editor={editor} ref={splitModeViewWrapperRef} />
+                        </>
+                    )}
+                </div>
             </ErrorBoundary>
         );
     },

@@ -1,14 +1,9 @@
-import {ToasterPublicMethods} from '@gravity-ui/uikit';
 import {Node} from 'prosemirror-model';
 import {EditorView, NodeView} from 'prosemirror-view';
 import {createPortal} from 'react-dom';
 
 import {ExtensionAuto, getReactRendererFromState} from '../../../../src';
-import {
-    MarkdownEditorView,
-    MarkdownEditorViewProps,
-    useMarkdownEditor,
-} from '../../../../src/bundle';
+import {MarkdownEditorView, useMarkdownEditor} from '../../../../src/bundle';
 
 import './index.scss';
 
@@ -19,11 +14,9 @@ export enum EditorInEditorAttr {
 
 const CONTAINER_CLASSNAME = editorInEditorNodeName;
 
-export type EditorInEditorOptions = {
-    toaster: ToasterPublicMethods;
-};
+export type EditorInEditorOptions = {};
 
-export const EditorInEditor: ExtensionAuto<EditorInEditorOptions> = (builder, opts) => {
+export const EditorInEditor: ExtensionAuto<EditorInEditorOptions> = (builder) => {
     builder.addNode(editorInEditorNodeName, () => ({
         spec: {
             attrs: {[EditorInEditorAttr.Markup]: {}},
@@ -41,11 +34,9 @@ export const EditorInEditor: ExtensionAuto<EditorInEditorOptions> = (builder, op
         toMd: (state, node) => {
             state.closeBlock(node);
         },
-        view: () => (node, view) => new EditorInEditorNodeView(node, view, opts),
+        view: () => (node, view) => new EditorInEditorNodeView(node, view),
     }));
 };
-
-type EditorInEditorNodeViewParams = Pick<EditorInEditorOptions, 'toaster'>;
 
 class EditorInEditorNodeView implements NodeView {
     readonly dom: HTMLElement;
@@ -54,12 +45,8 @@ class EditorInEditorNodeView implements NodeView {
 
     private readonly renderItem;
 
-    private readonly toaster: ToasterPublicMethods;
-
-    constructor(node: Node, view: EditorView, {toaster}: EditorInEditorNodeViewParams) {
+    constructor(node: Node, view: EditorView) {
         this.node = node;
-
-        this.toaster = toaster;
 
         this.dom = document.createElement('div');
         this.dom.classList.add(CONTAINER_CLASSNAME);
@@ -91,12 +78,8 @@ class EditorInEditorNodeView implements NodeView {
     }
 
     private renderEditor(): React.ReactNode {
-        const {toaster} = this;
         return createPortal(
-            <InnerEditor
-                toaster={toaster}
-                initialContent={this.node.attrs[EditorInEditorAttr.Markup]}
-            />,
+            <InnerEditor initialContent={this.node.attrs[EditorInEditorAttr.Markup]} />,
             this.dom,
         );
     }
@@ -104,10 +87,9 @@ class EditorInEditorNodeView implements NodeView {
 
 type YfmEditorProps = {
     initialContent: string;
-    toaster: MarkdownEditorViewProps['toaster'];
 };
 
-function InnerEditor({initialContent, toaster}: YfmEditorProps) {
+function InnerEditor({initialContent}: YfmEditorProps) {
     const mdEditor = useMarkdownEditor({
         md: {
             linkify: true,
@@ -120,12 +102,5 @@ function InnerEditor({initialContent, toaster}: YfmEditorProps) {
             toolbarVisible: true,
         },
     });
-    return (
-        <MarkdownEditorView
-            editor={mdEditor}
-            toaster={toaster}
-            settingsVisible={false}
-            stickyToolbar={false}
-        />
-    );
+    return <MarkdownEditorView editor={mdEditor} settingsVisible={false} stickyToolbar={false} />;
 }

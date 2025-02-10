@@ -30,7 +30,6 @@ To set up styling and theme see [UIKit docs](https://github.com/gravity-ui/uikit
 ```tsx
 import React from 'react';
 import {useMarkdownEditor, MarkdownEditorView} from '@gravity-ui/markdown-editor';
-import {toaster} from '@gravity-ui/uikit/toaster-singleton-react-18';
 
 function Editor({onSubmit}) {
   const editor = useMarkdownEditor({allowHTML: false});
@@ -48,7 +47,7 @@ function Editor({onSubmit}) {
     };
   }, [onSubmit]);
 
-  return <MarkdownEditorView stickyToolbar autofocus toaster={toaster} editor={editor} />;
+  return <MarkdownEditorView stickyToolbar autofocus editor={editor} />;
 }
 ```
 Read more:

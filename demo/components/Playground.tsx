@@ -33,7 +33,6 @@ import useYfmHtmlBlockStyles from '../hooks/useYfmHtmlBlockStyles';
 import {randomDelay} from '../utils/delay';
 import {parseInsertedUrlAsImage} from '../utils/imageUrl';
 import {debouncedUpdateLocation as updateLocation} from '../utils/location';
-import {toaster} from '../utils/toaster';
 
 import {PlaygroundLayout, b} from './PlaygroundLayout';
 import {SplitModePreview} from './SplitModePreview';
@@ -293,7 +292,6 @@ export const Playground = memo<PlaygroundProps>((props) => {
             view={({className}) => (
                 <MarkdownEditorView
                     autofocus
-                    toaster={toaster}
                     className={className}
                     stickyToolbar={Boolean(stickyToolbar)}
                     toolbarsPreset={toolbarsPreset}
