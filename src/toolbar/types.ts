@@ -20,6 +20,7 @@ export type ToolbarItemData<E> = {
     title: string | (() => string);
     hint?: string | (() => string);
     hotkey?: HotkeyProps['value'];
+    preview?: React.ReactNode;
     /**
      * Show hint when _isEnable()_ returns false
      *
