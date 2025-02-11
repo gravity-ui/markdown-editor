@@ -1,7 +1,7 @@
 import type {ExtensionAuto} from '../core';
-import {Color, Emoji, EmojiOptions, Mark} from '../extensions';
+import {Color, Emoji, type EmojiOptions, Mark} from '../extensions';
 
-import {YfmPreset, YfmPresetOptions} from './yfm';
+import {YfmPreset, type YfmPresetOptions} from './yfm';
 
 export type FullPresetOptions = YfmPresetOptions &
     YfmPresetOptions & {

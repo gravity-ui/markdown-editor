@@ -1,5 +1,5 @@
 import type {Node, NodeType, ResolvedPos} from 'prosemirror-model';
-import {AllSelection, NodeSelection, Selection, TextSelection} from 'prosemirror-state';
+import {AllSelection, NodeSelection, type Selection, TextSelection} from 'prosemirror-state';
 
 export const isTextSelection = (selection: Selection): selection is TextSelection =>
     selection instanceof TextSelection;

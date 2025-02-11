@@ -10,7 +10,7 @@ import {YfmTable, YfmTableNode} from '../../yfm/YfmTable';
 import {GapCursorSelection} from '../Cursor/GapCursorSelection';
 
 import {
-    Direction,
+    type Direction,
     findFakeParaPosForTextSelection,
     findNextFakeParaPosForGapCursorSelection,
 } from './commands';

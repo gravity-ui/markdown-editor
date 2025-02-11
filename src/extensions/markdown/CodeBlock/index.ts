@@ -7,8 +7,8 @@ import {isFunction} from '../../../lodash';
 import {textblockTypeInputRule} from '../../../utils/inputrules';
 import {withLogAction} from '../../../utils/keymap';
 
-import {CodeBlockHighlight, HighlightLangMap} from './CodeBlockHighlight/CodeBlockHighlight';
-import {CodeBlockSpecs, CodeBlockSpecsOptions} from './CodeBlockSpecs';
+import {CodeBlockHighlight, type HighlightLangMap} from './CodeBlockHighlight/CodeBlockHighlight';
+import {CodeBlockSpecs, type CodeBlockSpecsOptions} from './CodeBlockSpecs';
 import {newlineInCode, resetCodeblock, setCodeBlockType} from './commands';
 import {cbAction, codeBlockType} from './const';
 import {codeBlockPastePlugin} from './plugins/codeBlockPastePlugin';

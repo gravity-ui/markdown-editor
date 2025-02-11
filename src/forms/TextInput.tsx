@@ -1,9 +1,9 @@
 import {forwardRef, useRef} from 'react';
 
 import {
-    TextAreaProps,
+    type TextAreaProps,
     TextArea as TextAreaUIKit,
-    TextInputProps,
+    type TextInputProps,
     TextInput as TextInputUIKit,
 } from '@gravity-ui/uikit';
 import {useEffectOnce} from 'react-use';

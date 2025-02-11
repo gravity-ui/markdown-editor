@@ -4,7 +4,7 @@ import {
     FILE_TOKEN,
     FILE_TO_LINK_ATTRS_MAP,
     FileHtmlAttr,
-    FileSpecialAttr,
+    type FileSpecialAttr,
 } from '@diplodoc/file-extension';
 import type {AttributeSpec} from 'prosemirror-model';
 

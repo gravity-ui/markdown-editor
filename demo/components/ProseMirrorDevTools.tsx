@@ -1,7 +1,7 @@
 import {useEffect, useLayoutEffect} from 'react';
 
 import {applyDevTools, removeDevTools} from 'prosemirror-dev-toolkit';
-import {EditorView} from 'prosemirror-view';
+import type {EditorView} from 'prosemirror-view';
 import {useEffectOnce, useUpdate} from 'react-use';
 
 import type {MarkdownEditorInstance} from '../../src';

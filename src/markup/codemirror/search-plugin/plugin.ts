@@ -9,13 +9,19 @@ import {
     searchPanelOpen,
     setSearchQuery,
 } from '@codemirror/search';
-import {EditorView, PluginValue, ViewPlugin, ViewUpdate, keymap} from '@codemirror/view';
+import {
+    type EditorView,
+    type PluginValue,
+    ViewPlugin,
+    type ViewUpdate,
+    keymap,
+} from '@codemirror/view';
 
 import type {MarkdownEditorMode} from '../../../bundle';
 import type {EventMap} from '../../../bundle/Editor';
 import type {RendererItem} from '../../../extensions';
 import {debounce} from '../../../lodash';
-import {Receiver} from '../../../utils';
+import type {Receiver} from '../../../utils';
 import {ReactRendererFacet} from '../react-facet';
 
 import {renderSearchPopup} from './view/SearchPopup';

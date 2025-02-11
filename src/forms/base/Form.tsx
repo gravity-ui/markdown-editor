@@ -1,4 +1,4 @@
-import {ClassNameProps, cn} from '../../classname';
+import {type ClassNameProps, cn} from '../../classname';
 
 import './Form.scss';
 

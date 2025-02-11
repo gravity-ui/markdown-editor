@@ -1,4 +1,4 @@
-import {Button, ButtonProps, UseFileInputProps, useFileInput} from '@gravity-ui/uikit';
+import {Button, type ButtonProps, type UseFileInputProps, useFileInput} from '@gravity-ui/uikit';
 
 export type ButtonAttachProps = UseFileInputProps & {
     multiple?: boolean;

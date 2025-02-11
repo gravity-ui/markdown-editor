@@ -1,4 +1,4 @@
-import {SanitizeOptions} from '@diplodoc/transform/lib/sanitize';
+import type {SanitizeOptions} from '@diplodoc/transform/lib/sanitize';
 
 import {getSanitizeYfmHtmlBlock, getYfmHtmlBlockOptions} from './utils'; // update the path accordingly
 

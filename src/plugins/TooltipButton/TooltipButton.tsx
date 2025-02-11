@@ -1,7 +1,7 @@
 import {useLayoutEffect, useState} from 'react';
 
 import {Ellipsis} from '@gravity-ui/icons';
-import {Button, Icon, Popup, PopupPlacement, PopupProps} from '@gravity-ui/uikit';
+import {Button, Icon, Popup, type PopupPlacement, type PopupProps} from '@gravity-ui/uikit';
 
 import {useBooleanState, useElementState} from '../../react-utils';
 

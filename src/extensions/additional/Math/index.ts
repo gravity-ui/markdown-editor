@@ -1,5 +1,5 @@
 import {chainCommands, setBlockType} from 'prosemirror-commands';
-import {Command, TextSelection} from 'prosemirror-state';
+import {type Command, TextSelection} from 'prosemirror-state';
 // @ts-ignore // TODO: fix cjs build
 import {hasParentNodeOfType} from 'prosemirror-utils';
 
@@ -14,7 +14,7 @@ import {
     removeEmptyMathInlineIfCursorIsAtBeginning,
 } from './commands';
 import {mathBType, mathIType} from './const';
-import {MathNodeViewOptions, mathViewAndEditPlugin} from './view-and-edit';
+import {type MathNodeViewOptions, mathViewAndEditPlugin} from './view-and-edit';
 
 import './index.scss';
 

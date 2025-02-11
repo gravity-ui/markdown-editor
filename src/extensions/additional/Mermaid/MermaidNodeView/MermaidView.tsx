@@ -3,8 +3,8 @@ import {useEffect, useState} from 'react';
 import {Ellipsis as DotsIcon} from '@gravity-ui/icons';
 import {Button, Icon, Loader, Menu, Popup} from '@gravity-ui/uikit';
 import type {Mermaid} from 'mermaid' with {'resolution-mode': 'import'};
-import {Node} from 'prosemirror-model';
-import {EditorView} from 'prosemirror-view';
+import type {Node} from 'prosemirror-model';
+import type {EditorView} from 'prosemirror-view';
 
 import {cn} from '../../../../classname';
 import {TextAreaFixed as TextArea} from '../../../../forms/TextInput';

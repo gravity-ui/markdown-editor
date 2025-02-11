@@ -3,7 +3,7 @@ import {InputRule} from 'prosemirror-inputrules';
 import type {ExtensionAuto} from '../../../../core';
 import {escapeRegExp} from '../../../../utils/ecapeRegexp';
 import {hasCodeMark} from '../../../../utils/inputrules';
-import {EmojiConsts, EmojiSpecsOptions} from '../EmojiSpecs';
+import {EmojiConsts, type EmojiSpecsOptions} from '../EmojiSpecs';
 
 export const EmojiInput: ExtensionAuto<EmojiSpecsOptions> = (builder, opts) => {
     const {defs, shortcuts} = opts;

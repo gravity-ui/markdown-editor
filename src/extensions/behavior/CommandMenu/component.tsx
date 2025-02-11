@@ -5,7 +5,7 @@ import {i18n} from '../../../i18n/suggest';
 import {isFunction} from '../../../lodash';
 import {ErrorLoggerBoundary} from '../../../react-utils/ErrorBoundary';
 import {PreviewTooltip} from '../../../toolbar/PreviewTooltip';
-import {AutocompletePopupProps} from '../../../utils/autocomplete-popup';
+import type {AutocompletePopupProps} from '../../../utils/autocomplete-popup';
 
 import type {CommandAction} from './types';
 

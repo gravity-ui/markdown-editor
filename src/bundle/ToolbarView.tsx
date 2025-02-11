@@ -2,10 +2,10 @@ import {useLayoutEffect, useRef} from 'react';
 
 import {useUpdate} from 'react-use';
 
-import {ClassNameProps} from '../classname';
+import type {ClassNameProps} from '../classname';
 import {i18n} from '../i18n/menubar';
 import {useSticky} from '../react-utils/useSticky';
-import {FlexToolbar, ToolbarData, ToolbarItemData} from '../toolbar';
+import {FlexToolbar, type ToolbarData, type ToolbarItemData} from '../toolbar';
 
 import type {EditorInt} from './Editor';
 import {stickyCn} from './sticky';

@@ -3,10 +3,10 @@ import {setBlockType} from 'prosemirror-commands';
 import type {Action, ExtensionAuto, Keymap} from '../../../core';
 import {withLogAction} from '../../../utils/keymap';
 
-import {HeadingSpecs, HeadingSpecsOptions, headingType} from './HeadingSpecs';
+import {HeadingSpecs, type HeadingSpecsOptions, headingType} from './HeadingSpecs';
 import {headingAction} from './actions';
 import {resetHeading} from './commands';
-import {HeadingAction, HeadingLevel, headingLevelAttr} from './const';
+import {HeadingAction, type HeadingLevel, headingLevelAttr} from './const';
 import {headingRule} from './utils';
 
 export {headingNodeName, headingType} from './HeadingSpecs';

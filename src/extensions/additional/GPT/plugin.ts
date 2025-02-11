@@ -1,7 +1,7 @@
 import {Plugin, PluginKey} from 'prosemirror-state';
 import {Decoration, DecorationSet} from 'prosemirror-view';
 
-import {CommonAnswer} from './ErrorScreen/types';
+import type {CommonAnswer} from './ErrorScreen/types';
 import {WIDGET_DECO_CLASS_NAME, WIDGET_DECO_SPEC_FLAG} from './constants';
 import type {GptWidgetDecoViewParams} from './gptExtension/view';
 import {GptWidgetDecoView} from './gptExtension/view';

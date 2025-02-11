@@ -2,7 +2,7 @@ import {memo, useEffect} from 'react';
 
 import {useUpdate} from 'react-use';
 
-import {RenderStorage, RenderStorageItem} from './types';
+import type {RenderStorage, RenderStorageItem} from './types';
 
 export type RendererProps = {
     storage: RenderStorage<React.ReactNode>;

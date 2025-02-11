@@ -1,4 +1,4 @@
-import {CSSProperties, memo, useCallback, useEffect, useState} from 'react';
+import {type CSSProperties, memo, useCallback, useEffect, useState} from 'react';
 
 import {defaultOptions} from '@diplodoc/transform/lib/sanitize';
 import {Button, DropdownMenu} from '@gravity-ui/uikit';
@@ -14,7 +14,7 @@ import {
     type RenderPreview,
     type ToolbarGroupData,
     type UseMarkdownEditorProps,
-    WysiwygPlaceholderOptions,
+    type WysiwygPlaceholderOptions,
     logger,
     useMarkdownEditor,
     wysiwygToolbarConfigs,
@@ -27,7 +27,7 @@ import {Mermaid} from '../../src/extensions/additional/Mermaid';
 import {YfmHtmlBlock} from '../../src/extensions/additional/YfmHtmlBlock';
 import {getSanitizeYfmHtmlBlock} from '../../src/extensions/additional/YfmHtmlBlock/utils';
 import type {CodeEditor} from '../../src/markup';
-import {ToolbarsPreset} from '../../src/modules/toolbars/types';
+import type {ToolbarsPreset} from '../../src/modules/toolbars/types';
 import {getPlugins} from '../defaults/md-plugins';
 import useYfmHtmlBlockStyles from '../hooks/useYfmHtmlBlockStyles';
 import {randomDelay} from '../utils/delay';

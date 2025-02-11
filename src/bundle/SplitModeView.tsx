@@ -7,7 +7,7 @@ import {cn} from '../classname';
 import {i18n} from '../i18n/bundle';
 import {throttle} from '../lodash';
 import {
-    CodeLineElement,
+    type CodeLineElement,
     getEditorLineNumberForOffset,
     scrollToRevealSourceLine,
 } from '../utils/sync-scroll';

@@ -1,6 +1,6 @@
 {
   "name": "@gravity-ui/markdown-editor",
-  "version": "14.12.2",
+  "version": "15.0.0",
   "description": "Markdown wysiwyg and markup editor",
   "license": "MIT",
   "repository": {
@@ -214,7 +214,7 @@
     "@diplodoc/mermaid-extension": "1.2.1",
     "@diplodoc/tabs-extension": "^3.5.1",
     "@diplodoc/transform": "^4.43.0",
-    "@gravity-ui/eslint-config": "3.1.1",
+    "@gravity-ui/eslint-config": "3.3.0",
     "@gravity-ui/gulp-utils": "1.0.1",
     "@gravity-ui/prettier-config": "1.1.0",
     "@gravity-ui/stylelint-config": "4.0.1",
@@ -243,7 +243,7 @@
     "bem-cn-lite": "4.1.0",
     "dpdm": "3.14.0",
     "esbuild-sass-plugin": "2.15.0",
-    "eslint": "8.56.0",
+    "eslint": "8.57.1",
     "eslint-plugin-lodash": "7.4.0",
     "gulp": "5.0.0",
     "gulp-cli": "3.0.0",

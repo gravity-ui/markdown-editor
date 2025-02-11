@@ -2,11 +2,15 @@ import {useCallback} from 'react';
 
 import {Popup, type PopupPlacement, useToaster} from '@gravity-ui/uikit';
 
-import {FileForm, FileFormProps} from '../../../forms/FileForm';
+import {FileForm, type FileFormProps} from '../../../forms/FileForm';
 import {i18n} from '../../../i18n/forms';
 import {useBooleanState} from '../../../react-utils/hooks';
 import type {ToolbarBaseProps} from '../../../toolbar';
-import {BatchUploadResult, FileUploadHandler, batchUploadFiles} from '../../../utils/upload';
+import {
+    type BatchUploadResult,
+    type FileUploadHandler,
+    batchUploadFiles,
+} from '../../../utils/upload';
 
 const placement: PopupPlacement = ['bottom-start', 'top-start', 'bottom-end', 'top-end'];
 

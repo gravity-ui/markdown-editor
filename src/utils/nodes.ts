@@ -1,4 +1,4 @@
-import {Fragment, Node} from 'prosemirror-model';
+import {type Fragment, Node} from 'prosemirror-model';
 // @ts-ignore // TODO: fix cjs build
 import {findChildren} from 'prosemirror-utils';
 

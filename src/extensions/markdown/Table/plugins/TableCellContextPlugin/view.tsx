@@ -1,13 +1,13 @@
-import {NodeType} from 'prosemirror-model';
-import {PluginView} from 'prosemirror-state';
+import type {NodeType} from 'prosemirror-model';
+import type {PluginView} from 'prosemirror-state';
 // @ts-ignore // TODO: fix cjs build
 import {findParentDomRefOfType} from 'prosemirror-utils';
-import {EditorView} from 'prosemirror-view';
+import type {EditorView} from 'prosemirror-view';
 
 import {ErrorLoggerBoundary} from '../../../../../react-utils/ErrorBoundary';
 import {getReactRendererFromState} from '../../../../behavior/ReactRenderer';
 
-import {TableCellFloatingButton, TableCellFloatingButtonActions} from './floating';
+import {TableCellFloatingButton, type TableCellFloatingButtonActions} from './floating';
 
 type MixedNodeType = NodeType | NodeType[];
 export class TableCellContextView implements PluginView {

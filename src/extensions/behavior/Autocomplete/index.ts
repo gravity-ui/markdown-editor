@@ -1,7 +1,7 @@
 import autocomplete from 'prosemirror-autocomplete';
 import {Plugin} from 'prosemirror-state';
 
-import {ExtensionAuto, ExtensionDeps} from '../../../core';
+import type {ExtensionAuto, ExtensionDeps} from '../../../core';
 import {isFunction} from '../../../lodash';
 
 import {MainHandler} from './handler';

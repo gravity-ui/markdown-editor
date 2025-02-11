@@ -6,15 +6,15 @@ import {ArrayCarousel} from '../../..//utils/carousel';
 import type {ActionStorage} from '../../../core';
 import {isFunction} from '../../../lodash';
 import {
-    AutocompleteAction,
+    type AutocompleteAction,
     AutocompleteActionKind,
-    AutocompleteHandler,
-    FromTo,
+    type AutocompleteHandler,
+    type FromTo,
     closeAutocomplete,
 } from '../Autocomplete';
-import {RendererItem, getReactRendererFromState} from '../ReactRenderer';
+import {type RendererItem, getReactRendererFromState} from '../ReactRenderer';
 
-import {CommandMenuComponentProps, render} from './component';
+import {type CommandMenuComponentProps, render} from './component';
 import type {CommandAction, Config} from './types';
 import {findDecoElem} from './utils';
 

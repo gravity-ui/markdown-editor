@@ -1,5 +1,5 @@
 import type {Node, Schema} from 'prosemirror-model';
-import {EditorState, Plugin, PluginKey, Transaction} from 'prosemirror-state';
+import {type EditorState, Plugin, PluginKey, type Transaction} from 'prosemirror-state';
 // @ts-ignore // TODO: fix cjs build
 import {findChildren, findParentNodeClosestToPos} from 'prosemirror-utils';
 import {Decoration, DecorationSet} from 'prosemirror-view';
@@ -8,7 +8,7 @@ import {cn} from '../../../classname';
 import type {ExtensionAuto} from '../../../core';
 import {isEqual} from '../../../lodash';
 import {isNodeEmpty} from '../../../utils/nodes';
-import {PlaceholderOptions, getPlaceholderContent} from '../../../utils/placeholder';
+import {type PlaceholderOptions, getPlaceholderContent} from '../../../utils/placeholder';
 import {isTextSelection} from '../../../utils/selection';
 
 import './index.scss';

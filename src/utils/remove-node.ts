@@ -1,5 +1,5 @@
-import {Node} from 'prosemirror-model';
-import {Transaction} from 'prosemirror-state';
+import type {Node} from 'prosemirror-model';
+import type {Transaction} from 'prosemirror-state';
 
 export const removeNode: (params: {
     node: Node;

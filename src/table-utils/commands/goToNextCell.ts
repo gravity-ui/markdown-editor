@@ -1,5 +1,5 @@
 import type {Node} from 'prosemirror-model';
-import {Command, TextSelection} from 'prosemirror-state';
+import {type Command, TextSelection} from 'prosemirror-state';
 
 import {findChildTableCells, findParentTable, findParentTableCell} from '../utils';
 

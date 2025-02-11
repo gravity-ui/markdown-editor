@@ -1,7 +1,7 @@
 import {Popup, type PopupPlacement} from '@gravity-ui/uikit';
 
 import {cn} from '../../../../classname';
-import {LinkForm, LinkFormProps} from '../../../../forms/LinkForm';
+import {LinkForm, type LinkFormProps} from '../../../../forms/LinkForm';
 import {i18n} from '../../../../i18n/widgets';
 import {useElementState} from '../../../../react-utils';
 

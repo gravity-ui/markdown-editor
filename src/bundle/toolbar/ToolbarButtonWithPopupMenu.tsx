@@ -1,13 +1,21 @@
 import {useEffect, useMemo} from 'react';
 
 import {ChevronDown} from '@gravity-ui/icons';
-import {ActionTooltip, Button, Icon, IconProps, Menu, Popup, PopupProps} from '@gravity-ui/uikit';
+import {
+    ActionTooltip,
+    Button,
+    Icon,
+    type IconProps,
+    Menu,
+    Popup,
+    type PopupProps,
+} from '@gravity-ui/uikit';
 
 import {cn} from '../../classname';
-import {Action, ActionStorage} from '../../core';
+import type {Action, ActionStorage} from '../../core';
 import {groupBy, isFunction} from '../../lodash';
 import {useBooleanState, useElementState} from '../../react-utils/hooks';
-import {ToolbarBaseProps, ToolbarIconData, ToolbarTooltipDelay} from '../../toolbar';
+import {type ToolbarBaseProps, type ToolbarIconData, ToolbarTooltipDelay} from '../../toolbar';
 
 import './ToolbarButtonWithPopupMenu.scss';
 const b = cn('toolbar-button-with-popup-menu');

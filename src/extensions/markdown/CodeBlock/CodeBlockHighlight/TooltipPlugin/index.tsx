@@ -1,7 +1,7 @@
 import {TrashBin} from '@gravity-ui/icons';
-import {Select, SelectOption} from '@gravity-ui/uikit';
-import {Node} from 'prosemirror-model';
-import {EditorView} from 'prosemirror-view';
+import {Select, type SelectOption} from '@gravity-ui/uikit';
+import type {Node} from 'prosemirror-model';
+import type {EditorView} from 'prosemirror-view';
 
 import {i18n} from '../../../../../i18n/codeblock';
 import {i18n as i18nPlaceholder} from '../../../../../i18n/placeholder';

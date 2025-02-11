@@ -1,9 +1,9 @@
 import {CircleInfo, TrashBin} from '@gravity-ui/icons';
-import {Node, Schema} from 'prosemirror-model';
-import {Plugin, Transaction} from 'prosemirror-state';
-import {EditorView} from 'prosemirror-view';
+import type {Node, Schema} from 'prosemirror-model';
+import {Plugin, type Transaction} from 'prosemirror-state';
+import type {EditorView} from 'prosemirror-view';
 
-import {ExtensionDeps} from '../../../../../core';
+import type {ExtensionDeps} from '../../../../../core';
 import {i18n} from '../../../../../i18n/yfm-note';
 import {BaseTooltipPluginView} from '../../../../../plugins/BaseTooltip';
 import {Toolbar, ToolbarDataType} from '../../../../../toolbar';

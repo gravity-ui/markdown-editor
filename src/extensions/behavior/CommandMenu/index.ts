@@ -2,7 +2,7 @@ import type {ExtensionAuto} from '../../../core';
 import {DeflistNode, TableNode} from '../../../extensions/markdown';
 import {CheckboxNode, CutNode, TabsNode, YfmNoteNode} from '../../../extensions/yfm';
 import {logger} from '../../../logger';
-import {Autocomplete, AutocompleteItemFn} from '../Autocomplete';
+import {Autocomplete, type AutocompleteItemFn} from '../Autocomplete';
 
 import {DecoClassName} from './const';
 import {CommandHandler} from './handler';

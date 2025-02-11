@@ -1,7 +1,7 @@
 import {keydownHandler} from 'prosemirror-keymap';
 import type {Node} from 'prosemirror-model';
 import {Plugin} from 'prosemirror-state';
-import {Decoration, DecorationSet, NodeView, ViewMutationRecord} from 'prosemirror-view';
+import {Decoration, DecorationSet, type NodeView, type ViewMutationRecord} from 'prosemirror-view';
 
 import {isTextSelection} from '../../../utils/selection';
 import type {ReactRenderer, RendererItem} from '../../behavior/ReactRenderer';

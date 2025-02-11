@@ -1,4 +1,4 @@
-import {SerializerNodeToken} from '../../../../core';
+import type {SerializerNodeToken} from '../../../../core';
 import {getPlaceholderContent} from '../../../../utils/placeholder';
 
 import {CheckboxAttr, CheckboxNode} from './const';

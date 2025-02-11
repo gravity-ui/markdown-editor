@@ -1,10 +1,10 @@
 import {cn} from '../../../classname';
 import {Colors} from '../../../extensions';
 import {i18n} from '../../../i18n/menubar';
-import {ToolbarBaseProps} from '../../../toolbar';
+import type {ToolbarBaseProps} from '../../../toolbar';
 import {icons} from '../../config/icons';
 import {
-    MenuItem,
+    type MenuItem,
     ToolbarButtonWithPopupMenu,
     type ToolbarButtonWithPopupMenuProps,
 } from '../ToolbarButtonWithPopupMenu';

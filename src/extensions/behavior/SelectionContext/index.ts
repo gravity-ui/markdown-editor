@@ -8,10 +8,10 @@ import {
 } from 'prosemirror-state';
 import type {EditorProps, EditorView} from 'prosemirror-view';
 
-import {ActionStorage, ExtensionAuto} from '../../../core';
+import type {ActionStorage, ExtensionAuto} from '../../../core';
 import {isCodeBlock} from '../../../utils/nodes';
 
-import {ContextConfig, TooltipView} from './tooltip';
+import {type ContextConfig, TooltipView} from './tooltip';
 
 export type {
     ContextConfig as SelectionContextConfig,

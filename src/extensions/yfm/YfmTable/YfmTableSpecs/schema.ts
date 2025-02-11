@@ -1,7 +1,7 @@
 import type {NodeSpec} from 'prosemirror-model';
 
 import {TableRole} from '../../../../table-utils';
-import {PlaceholderOptions} from '../../../../utils/placeholder';
+import type {PlaceholderOptions} from '../../../../utils/placeholder';
 
 import {YfmTableAttr, YfmTableNode} from './const';
 

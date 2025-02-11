@@ -2,9 +2,9 @@ import type {Options} from '@diplodoc/transform';
 // importing only type, because lowlight and highlight.js is optional deps
 import type HLJS from 'highlight.js/lib/core';
 import type {createLowlight} from 'lowlight' with {'resolution-mode': 'import'};
-import {Node} from 'prosemirror-model';
+import type {Node} from 'prosemirror-model';
 import {Plugin, PluginKey} from 'prosemirror-state';
-import {Step} from 'prosemirror-transform';
+import type {Step} from 'prosemirror-transform';
 // @ts-ignore // TODO: fix cjs build
 import {findChildrenByType} from 'prosemirror-utils';
 import {Decoration, DecorationSet} from 'prosemirror-view';

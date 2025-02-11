@@ -1,7 +1,7 @@
-import {SchemaDynamicModifierConfig} from '../SchemaDynamicModifier';
-import {MarkdownParserDynamicModifierConfig} from '../markdown/MarkdownParser';
-import {MarkdownSerializerDynamicModifierConfig} from '../markdown/MarkdownSerializerDynamicModifier';
-import {DynamicModifiers} from '../types/dynamicModifiers';
+import type {SchemaDynamicModifierConfig} from '../SchemaDynamicModifier';
+import type {MarkdownParserDynamicModifierConfig} from '../markdown/MarkdownParser';
+import type {MarkdownSerializerDynamicModifierConfig} from '../markdown/MarkdownSerializerDynamicModifier';
+import type {DynamicModifiers} from '../types/dynamicModifiers';
 
 export function convertDynamicModifiersConfigs(modifiers: DynamicModifiers[]): {
     parser: MarkdownParserDynamicModifierConfig;

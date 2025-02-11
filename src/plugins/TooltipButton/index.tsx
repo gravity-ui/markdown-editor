@@ -1,11 +1,11 @@
-import {NodeType} from 'prosemirror-model';
-import {EditorView} from 'prosemirror-view';
+import type {NodeType} from 'prosemirror-model';
+import type {EditorView} from 'prosemirror-view';
 
 import {
-    BaseTooltipNode,
-    BaseTooltipPluginOptions,
+    type BaseTooltipNode,
+    type BaseTooltipPluginOptions,
     BaseTooltipPluginView,
-    TooltipOnChangeCallback,
+    type TooltipOnChangeCallback,
 } from '../BaseTooltip';
 
 import {TooltipButton} from './TooltipButton';

@@ -1,4 +1,4 @@
-import {Completion, CompletionSource, snippet} from '@codemirror/autocomplete';
+import {type Completion, type CompletionSource, snippet} from '@codemirror/autocomplete';
 import {markdown, markdownLanguage} from '@codemirror/lang-markdown';
 import type {Extension} from '@codemirror/state';
 import {Tag, tags} from '@lezer/highlight';

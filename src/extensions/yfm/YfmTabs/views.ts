@@ -2,7 +2,7 @@ import type {Node} from 'prosemirror-model';
 import {type EditorState, TextSelection} from 'prosemirror-state';
 // @ts-ignore // TODO: fix cjs build
 import {findParentNodeOfTypeClosestToPos} from 'prosemirror-utils';
-import {EditorView, type NodeViewConstructor, ViewMutationRecord} from 'prosemirror-view';
+import type {EditorView, NodeViewConstructor, ViewMutationRecord} from 'prosemirror-view';
 
 import {cn} from '../../../classname';
 

@@ -1,31 +1,31 @@
 import type {Extension, ExtensionAuto} from '../core';
 import {
     Blockquote,
-    BlockquoteOptions,
+    type BlockquoteOptions,
     Bold,
-    BoldOptions,
+    type BoldOptions,
     Breaks,
-    BreaksOptions,
+    type BreaksOptions,
     Code,
     CodeBlock,
-    CodeBlockOptions,
-    CodeOptions,
+    type CodeBlockOptions,
+    type CodeOptions,
     Heading,
-    HeadingOptions,
+    type HeadingOptions,
     HorizontalRule,
     Html,
     Image,
-    ImageOptions,
+    type ImageOptions,
     Italic,
-    ItalicOptions,
+    type ItalicOptions,
     Link,
-    LinkOptions,
+    type LinkOptions,
     Lists,
-    ListsOptions,
+    type ListsOptions,
 } from '../extensions/markdown';
 import {isFunction} from '../lodash';
 
-import {ZeroPreset, ZeroPresetOptions} from './zero';
+import {ZeroPreset, type ZeroPresetOptions} from './zero';
 
 export type CommonMarkPresetOptions = ZeroPresetOptions & {
     bold?: BoldOptions;

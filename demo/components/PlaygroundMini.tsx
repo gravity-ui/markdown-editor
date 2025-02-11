@@ -2,7 +2,7 @@ import {memo} from 'react';
 
 import {getInitialMd} from '../utils/getInitialMd';
 
-import {Playground, PlaygroundProps} from './Playground';
+import {Playground, type PlaygroundProps} from './Playground';
 
 export type PlaygroundMiniProps = Pick<
     PlaygroundProps,

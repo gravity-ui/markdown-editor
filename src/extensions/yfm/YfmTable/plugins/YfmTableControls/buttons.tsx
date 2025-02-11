@@ -6,7 +6,7 @@ import {
     findSelectedNodeOfType,
     // @ts-ignore // TODO: fix cjs build
 } from 'prosemirror-utils';
-import {Decoration, DecorationSet, EditorView} from 'prosemirror-view';
+import {Decoration, DecorationSet, type EditorView} from 'prosemirror-view';
 
 import {throttle} from '../../../../../lodash';
 import {

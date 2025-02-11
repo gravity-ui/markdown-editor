@@ -1,15 +1,15 @@
-import {CSSProperties, StrictMode, memo, useCallback, useEffect, useState} from 'react';
+import {StrictMode, memo, useCallback, useEffect, useState} from 'react';
 
 import {
-    MarkdownEditorMode,
-    MarkdownEditorPreset,
+    type MarkdownEditorMode,
+    type MarkdownEditorPreset,
     MarkdownEditorView,
-    MarkupString,
-    RenderPreview,
+    type MarkupString,
+    type RenderPreview,
     logger,
     useMarkdownEditor,
 } from '../../../src';
-import {ToolbarsPreset} from '../../../src/modules/toolbars/types';
+import type {ToolbarsPreset} from '../../../src/modules/toolbars/types';
 import type {FileUploadHandler} from '../../../src/utils/upload';
 import {VERSION} from '../../../src/version';
 // ---
@@ -39,7 +39,7 @@ export type PresetDemoProps = {
     linkifyTlds?: string | string[];
     splitModeOrientation?: 'horizontal' | 'vertical' | false;
     stickyToolbar?: boolean;
-    height?: CSSProperties['height'];
+    height?: React.CSSProperties['height'];
     toolbarsPreset?: ToolbarsPreset;
 };
 

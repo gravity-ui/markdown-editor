@@ -1,11 +1,11 @@
 import MarkdownIt from 'markdown-it';
 import type Token from 'markdown-it/lib/token';
-import {Node, Schema} from 'prosemirror-model';
+import {type Node, Schema} from 'prosemirror-model';
 import {schema as baseSchema, builders, doc, br as hardBreak, p} from 'prosemirror-test-builder';
 
 import type {Parser} from '../types/parser';
 
-import {MarkdownParser, MarkdownParserDynamicModifier, TokenAttrs} from './MarkdownParser';
+import {MarkdownParser, MarkdownParserDynamicModifier, type TokenAttrs} from './MarkdownParser';
 
 const md = MarkdownIt('commonmark', {html: false, breaks: true});
 
