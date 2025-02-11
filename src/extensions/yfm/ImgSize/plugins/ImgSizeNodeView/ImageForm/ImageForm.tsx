@@ -1,4 +1,4 @@
-import React, {RefObject} from 'react';
+import {useRef, useState} from 'react';
 
 import {Popup, TextInput, TextInputProps} from '@gravity-ui/uikit';
 import isNumber from 'is-number';
@@ -20,19 +20,19 @@ const b = cn('image-tooltip-form');
 
 export const ImageForm: React.FC<{
     node: Node;
-    dom: RefObject<HTMLElement>;
+    anchorElement: HTMLElement | null;
     updateAttributes: (o: object, marks?: Mark[]) => void;
     view: EditorView;
     unsetEdit: () => void;
-}> = ({node, updateAttributes, view, unsetEdit, dom}) => {
+}> = ({node, updateAttributes, view, unsetEdit, anchorElement}) => {
     const {attrs, marks} = node;
     const link = marks.find((m) => m.type.name === linkType(view.state.schema).name);
 
-    const [name, setName] = React.useState(attrs[ImgSizeAttr.Title] || '');
-    const [alt, setAlt] = React.useState(attrs[ImgSizeAttr.Alt] || '');
-    const [width, setWidth] = React.useState(attrs[ImgSizeAttr.Width] || '');
-    const [height, setHeight] = React.useState(attrs[ImgSizeAttr.Height] || '');
-    const [linkHref, setLinkHref] = React.useState(link?.attrs.href || '');
+    const [name, setName] = useState(attrs[ImgSizeAttr.Title] || '');
+    const [alt, setAlt] = useState(attrs[ImgSizeAttr.Alt] || '');
+    const [width, setWidth] = useState(attrs[ImgSizeAttr.Width] || '');
+    const [height, setHeight] = useState(attrs[ImgSizeAttr.Height] || '');
+    const [linkHref, setLinkHref] = useState(link?.attrs.href || '');
     const handleSubmit = () => {
         updateAttributes(
             {
@@ -52,8 +52,8 @@ export const ImageForm: React.FC<{
         );
         unsetEdit();
     };
-    const linkRef = React.useRef<HTMLInputElement>(null);
-    const imageNameRef = React.useRef<HTMLInputElement>(null);
+    const linkRef = useRef<HTMLInputElement>(null);
+    const imageNameRef = useRef<HTMLInputElement>(null);
 
     useAutoFocus(link ? linkRef : imageNameRef);
 
@@ -62,9 +62,12 @@ export const ImageForm: React.FC<{
     return (
         <Popup
             open
-            anchorRef={dom}
+            modal
+            anchorElement={anchorElement}
             placement={['bottom-start', 'top-start', 'bottom-end', 'top-end']}
-            onOutsideClick={unsetEdit}
+            onOpenChange={(_open, _event, reason) => {
+                if (reason !== 'escape-key') unsetEdit();
+            }}
         >
             <Form.Form className={b()}>
                 <Form.Layout>

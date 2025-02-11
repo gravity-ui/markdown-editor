@@ -1,13 +1,11 @@
-import React from 'react';
-
 import {Ellipsis} from '@gravity-ui/icons';
-import {DropdownMenu, DropdownMenuItemMixed, Icon, Popup} from '@gravity-ui/uikit';
+import {DropdownMenu, type DropdownMenuItemMixed, Icon, Popup} from '@gravity-ui/uikit';
 
-import {Action} from '../../../../../core';
+import type {Action} from '../../../../../core';
 
 import './floating.scss';
 
-export type TableCellFloatingButtonAction = {action: Action; text: string};
+export type TableCellFloatingButtonAction = {action: Action<Record<string, unknown>>; text: string};
 export type TableCellFloatingButtonMixed =
     | TableCellFloatingButtonAction
     | TableCellFloatingButtonAction[];
@@ -28,8 +26,8 @@ export const TableCellFloatingButton: React.FC<TableCellFloatingButtonProps> = (
             open
             keepMounted={false}
             hasArrow={false}
-            anchorRef={{current: dom}}
-            offset={[2, -12]}
+            anchorElement={dom}
+            offset={{crossAxis: 2, mainAxis: -12}}
             placement="left-start"
         >
             <DropdownMenu
@@ -54,7 +52,7 @@ function buildMenuItem(floatingAction: TableCellFloatingButtonMixed): DropdownMe
 
     return {
         text,
-        action: () => action.run(),
+        action: () => action.run({}),
         active,
         disabled,
     };

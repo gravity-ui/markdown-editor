@@ -1,5 +1,3 @@
-import React from 'react';
-
 import {icons} from '../../bundle/config/icons';
 import {HeadingPreview} from '../../bundle/config/previews/HeadingPreview';
 import {TextPreview} from '../../bundle/config/previews/TextPreview';
@@ -8,8 +6,8 @@ import {MToolbarFilePopup} from '../../bundle/toolbar/markup/MToolbarFilePopup';
 import {MToolbarImagePopup} from '../../bundle/toolbar/markup/MToolbarImagePopup';
 import {WToolbarColors} from '../../bundle/toolbar/wysiwyg/WToolbarColors';
 import {WToolbarTextSelect} from '../../bundle/toolbar/wysiwyg/WToolbarTextSelect';
-import {headingType, pType} from '../../extensions';
 import {gptHotKeys} from '../../extensions/additional/GPT/constants';
+import {headingType, pType} from '../../extensions/specs';
 import {i18n as i18nHint} from '../../i18n/hints';
 import {i18n} from '../../i18n/menubar';
 import {

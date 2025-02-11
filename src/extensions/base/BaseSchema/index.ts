@@ -1,5 +1,6 @@
 import {chainCommands, setBlockType} from 'prosemirror-commands';
 import type {Command} from 'prosemirror-state';
+// @ts-ignore // TODO: fix cjs build
 import {hasParentNodeOfType} from 'prosemirror-utils';
 
 import type {Action, ExtensionAuto} from '../../../core';

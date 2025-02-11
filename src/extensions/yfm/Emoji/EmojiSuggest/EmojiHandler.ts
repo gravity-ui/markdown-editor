@@ -29,7 +29,7 @@ export class EmojiHandler implements AutocompleteHandler {
     private _emojiCarousel?: ArrayCarousel<EmojiDef>;
 
     private _view?: EditorView;
-    private _anchor?: Element | null;
+    private _anchor: Element | null = null;
     private _range?: FromTo;
     private _popupCloser?: AutocompletePopupCloser;
 
@@ -173,12 +173,11 @@ export class EmojiHandler implements AutocompleteHandler {
         this.findAnchor();
         const viewItems = this._emojiCarousel?.array ?? [];
         this._suggestProps = {
-            anchor: this._anchor,
+            anchorElement: this._anchor,
             currentIndex: this._emojiCarousel?.currentIndex,
             items: viewItems,
             onClick: this.onItemClick,
-            onEscapeKeyDown: this._popupCloser?.popupEscapeKeyHandler,
-            onOutsideClick: this._popupCloser?.popupOutsideClickHandler,
+            onOpenChange: this._popupCloser?.popupOpenChangeHandler,
         };
         this._suggestRenderItem = this._suggestRenderItem ?? this.createMenuRenderItem();
         this._suggestRenderItem.rerender();
@@ -200,7 +199,7 @@ export class EmojiHandler implements AutocompleteHandler {
     private clear() {
         this._view = undefined;
         this._range = undefined;
-        this._anchor = undefined;
+        this._anchor = null;
         this._emojiCarousel = undefined;
         this._popupCloser?.cancelTimer();
         this._popupCloser = undefined;

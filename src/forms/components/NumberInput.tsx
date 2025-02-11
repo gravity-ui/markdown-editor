@@ -1,5 +1,3 @@
-import React from 'react';
-
 import {TextInput, TextInputProps} from '@gravity-ui/uikit';
 import isNumber from 'is-number';
 

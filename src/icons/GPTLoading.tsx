@@ -1,5 +1,3 @@
-import React from 'react';
-
 const GPTLoading = () => (
     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20">
         <circle cx="8" cy="8" r="6" fill="url(#paint0_linear_1608_24154)">

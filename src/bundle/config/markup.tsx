@@ -1,9 +1,7 @@
 /**
  * @deprecated This file is deprecated. Use ToolbarsPreset instead.
  */
-import React from 'react';
 
-import {HeadingPreview} from '../../bundle/config/previews/HeadingPreview';
 import {i18n} from '../../i18n/menubar';
 import {
     insertHRule,
@@ -61,6 +59,7 @@ import type {MarkdownEditorPreset} from '../types';
 
 import {ActionName} from './action-names';
 import {icons} from './icons';
+import {HeadingPreview} from './previews/HeadingPreview';
 
 export type {
     MToolbarData,

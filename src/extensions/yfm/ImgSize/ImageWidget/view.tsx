@@ -1,4 +1,4 @@
-import React from 'react';
+import {useCallback} from 'react';
 
 import {Picture as ImageIcon} from '@gravity-ui/icons';
 import {Icon, Popup, PopupPlacement} from '@gravity-ui/uikit';
@@ -7,7 +7,7 @@ import {useMountedState} from 'react-use';
 import {cn} from '../../../../classname';
 import {ImageForm, ImageFormProps} from '../../../../forms/ImageForm';
 import {i18n} from '../../../../i18n/widgets';
-import {useBooleanState} from '../../../../react-utils/hooks';
+import {useBooleanState, useElementState} from '../../../../react-utils/hooks';
 
 import './view.scss';
 
@@ -23,8 +23,8 @@ export type FilePlaceholderProps = {
 export const FilePlaceholder: React.FC<FilePlaceholderProps> = ({onCancel, onSubmit, onAttach}) => {
     const isMounted = useMountedState();
     const [loading, showLoading, hideLoading] = useBooleanState(false);
-    const divRef = React.useRef<HTMLDivElement>(null);
-    const attachHandler = React.useCallback<NonNullable<ImageFormProps['onAttach']>>(
+    const [anchor, setAnchor] = useElementState();
+    const attachHandler = useCallback<NonNullable<ImageFormProps['onAttach']>>(
         (files) => {
             if (!onAttach) return;
             if (isMounted()) {
@@ -41,11 +41,11 @@ export const FilePlaceholder: React.FC<FilePlaceholderProps> = ({onCancel, onSub
 
     return (
         <>
-            <div ref={divRef} className={b()}>
+            <div ref={setAnchor} className={b()}>
                 <Icon data={ImageIcon} size={24} />
                 {i18n('image')}
             </div>
-            <Popup open onClose={onCancel} anchorRef={divRef} placement={placement}>
+            <Popup open modal onOpenChange={onCancel} anchorElement={anchor} placement={placement}>
                 <ImageForm
                     autoFocus
                     loading={loading}

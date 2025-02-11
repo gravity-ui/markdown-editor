@@ -1,4 +1,4 @@
-import React from 'react';
+import {memo} from 'react';
 
 import {type ClassNameProps, cn} from '../classname';
 import {ReactRendererComponent} from '../extensions';
@@ -26,7 +26,7 @@ export type WysiwygEditorViewProps = ClassNameProps & {
     children?: React.ReactNode;
 };
 
-export const WysiwygEditorView = React.memo<WysiwygEditorViewProps>((props) => {
+export const WysiwygEditorView = memo<WysiwygEditorViewProps>((props) => {
     const {
         editor,
         autofocus,

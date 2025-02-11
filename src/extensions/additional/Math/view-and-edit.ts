@@ -1,7 +1,7 @@
 import {keydownHandler} from 'prosemirror-keymap';
 import type {Node} from 'prosemirror-model';
 import {Plugin} from 'prosemirror-state';
-import {Decoration, DecorationSet, NodeView} from 'prosemirror-view';
+import {Decoration, DecorationSet, NodeView, ViewMutationRecord} from 'prosemirror-view';
 
 import {isTextSelection} from '../../../utils/selection';
 import type {ReactRenderer, RendererItem} from '../../behavior/ReactRenderer';
@@ -86,13 +86,13 @@ export abstract class MathNodeView implements NodeView {
         return true;
     }
 
-    ignoreMutation(mutation: MutationRecord): boolean {
-        // @ts-expect-error
+    ignoreMutation(mutation: ViewMutationRecord): boolean {
         if (mutation.type === 'selection' || mutation.type === 'attributes') return true;
 
         return (
             mutation.type === 'childList' &&
             (mutation.target === this.mathHintContainerDOM ||
+                this.mathHintContainerDOM.contains(mutation.target) ||
                 this.mathViewDOM.contains(mutation.target))
         );
     }
@@ -173,7 +173,7 @@ export class MathInlineNodeView extends MathNodeView {
         dom.appendChild(mathHintContainerDOM);
 
         const hintRendererItem = this.reactRenderer.createItem('math-inline-hint', () =>
-            renderMathHint({offset: {left: 3, top: -1}}, mathHintContainerDOM),
+            renderMathHint({}, mathHintContainerDOM),
         );
 
         return {
@@ -231,7 +231,7 @@ export class MathBlockNodeView extends MathNodeView {
         dom.appendChild(contentDOM);
 
         const hintRendererItem = this.reactRenderer.createItem('math-block-hint', () =>
-            renderMathHint({offset: {left: -3}}, mathHintContainerDOM),
+            renderMathHint({}, mathHintContainerDOM),
         );
 
         return {dom, contentDOM, mathViewDOM, mathHintContainerDOM, hintRendererItem};

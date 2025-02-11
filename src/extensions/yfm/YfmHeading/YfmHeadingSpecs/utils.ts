@@ -1,7 +1,9 @@
 import type {TagParseRule} from 'prosemirror-model';
 
 import {HeadingLevel, YfmHeadingAttr} from '../const';
-export {hType, hasParentHeading, headingRule} from '../../../markdown/Heading/utils';
+export {hasParentHeading, headingRule} from '../../../markdown/Heading/utils';
+export {headingType} from '../../../markdown/Heading/HeadingSpecs';
+
 // const slug = require('slugify');
 
 export const getNodeAttrs =

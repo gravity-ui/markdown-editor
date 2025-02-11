@@ -1,5 +1,3 @@
-import React from 'react';
-
 import {cn} from '../../../classname';
 import {i18n} from '../../../i18n/action-previews';
 

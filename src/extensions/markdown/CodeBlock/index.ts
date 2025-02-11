@@ -1,4 +1,5 @@
 import type {NodeType} from 'prosemirror-model';
+// @ts-ignore // TODO: fix cjs build
 import {hasParentNodeOfType} from 'prosemirror-utils';
 
 import type {Action, ExtensionAuto, Keymap} from '../../../core';
@@ -13,12 +14,7 @@ import {cbAction, codeBlockType} from './const';
 import {codeBlockPastePlugin} from './plugins/codeBlockPastePlugin';
 
 export {resetCodeblock} from './commands';
-export {
-    codeBlockNodeName,
-    CodeBlockNodeAttr,
-    codeBlockLangAttr,
-    codeBlockType,
-} from './CodeBlockSpecs';
+export {codeBlockNodeName, CodeBlockNodeAttr, codeBlockType} from './CodeBlockSpecs';
 
 export type CodeBlockOptions = CodeBlockSpecsOptions & {
     codeBlockKey?: string | null;

@@ -62,5 +62,5 @@ export function bulletListRule(nodeType: NodeType, config?: BulletListInputRuleC
     if (bullets.length === 0) return null;
 
     const regexp = new RegExp(`^\\s*([${bullets.join('')}])\\s$`); // same as /^\s*([-+*])\s$/
-    return wrappingInputRule(regexp, nodeType, (match) => ({[ListsAttr.Bullet]: match[1]}));
+    return wrappingInputRule(regexp, nodeType, (match) => ({[ListsAttr.Markup]: match[1]}));
 }

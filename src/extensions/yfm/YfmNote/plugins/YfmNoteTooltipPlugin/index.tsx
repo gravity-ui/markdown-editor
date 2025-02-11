@@ -1,5 +1,3 @@
-import React from 'react';
-
 import {CircleInfo, TrashBin} from '@gravity-ui/icons';
 import {Node, Schema} from 'prosemirror-model';
 import {Plugin, Transaction} from 'prosemirror-state';

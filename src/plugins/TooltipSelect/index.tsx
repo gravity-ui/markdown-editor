@@ -1,5 +1,3 @@
-import React from 'react';
-
 import {SelectOption, SelectOptionGroup} from '@gravity-ui/uikit';
 import {Node} from 'prosemirror-model';
 import {EditorView} from 'prosemirror-view';

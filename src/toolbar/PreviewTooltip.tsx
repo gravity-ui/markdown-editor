@@ -1,5 +1,3 @@
-import React from 'react';
-
 import {Tooltip} from '@gravity-ui/uikit';
 
 import {cn} from '../classname';
@@ -20,11 +18,10 @@ export const PreviewTooltip: React.FC<PreviewTooltipProps> = ({preview, children
         <Tooltip
             placement="right"
             className={b()}
-            contentClassName={b('content')}
             disabled={!preview}
             openDelay={ToolbarTooltipDelay.Open}
             closeDelay={ToolbarTooltipDelay.Close}
-            content={preview}
+            content={<div className={b('content')}>{preview}</div>}
         >
             {children}
         </Tooltip>

@@ -1,5 +1,3 @@
-import React from 'react';
-
 import {
     ArrowDown,
     ArrowLeft,
@@ -11,6 +9,7 @@ import {
 } from '@gravity-ui/icons';
 import {Button, DropdownMenu, Icon, Portal} from '@gravity-ui/uikit';
 import type {Node} from 'prosemirror-model';
+// @ts-ignore // TODO: fix cjs build
 import {NodeWithPos, findParentNodeClosestToPos} from 'prosemirror-utils';
 import type {EditorView, NodeView, NodeViewConstructor} from 'prosemirror-view';
 
@@ -57,11 +56,11 @@ const Controls: React.FC<Props> = function Controls({
             <DropdownMenu
                 key={1}
                 switcherWrapperClassName={b('left-button')}
-                switcher={
-                    <Button view={'outlined'} size={'s'}>
+                renderSwitcher={(props) => (
+                    <Button view={'outlined'} size={'s'} {...props}>
                         <Icon data={EllipsisVertical} />
                     </Button>
-                }
+                )}
                 items={[
                     {
                         text: i18n('row.add.before'),
@@ -71,7 +70,7 @@ const Controls: React.FC<Props> = function Controls({
                                 rowNumber,
                                 direction: 'before',
                             }),
-                        icon: <Icon data={ArrowUp} />,
+                        iconStart: <Icon data={ArrowUp} />,
                         disabled: !actions.appendRow.isEnable({
                             tablePos: getParentTable()?.pos,
                             rowNumber,
@@ -86,7 +85,7 @@ const Controls: React.FC<Props> = function Controls({
                                 rowNumber,
                                 direction: 'after',
                             }),
-                        icon: <Icon data={ArrowDown} />,
+                        iconStart: <Icon data={ArrowDown} />,
                         disabled: !actions.appendRow.isEnable({
                             tablePos: getParentTable()?.pos,
                             rowNumber,
@@ -100,7 +99,7 @@ const Controls: React.FC<Props> = function Controls({
                                 rowNumber,
                                 tablePos: getParentTable()?.pos,
                             }),
-                        icon: <Icon data={Xmark} />,
+                        iconStart: <Icon data={Xmark} />,
                         disabled: !actions.deleteRow.isEnable({
                             rowNumber,
                             tablePos: getParentTable()?.pos,
@@ -114,7 +113,7 @@ const Controls: React.FC<Props> = function Controls({
                                 tablePos: getParentTable()?.pos,
                                 tableNode: getParentTable()?.node,
                             }),
-                        icon: <Icon data={TrashBin} />,
+                        iconStart: <Icon data={TrashBin} />,
                         disabled: !actions.deleteTable.isEnable({
                             tablePos: getParentTable()?.pos,
                             tableNode: getParentTable()?.node,
@@ -130,11 +129,11 @@ const Controls: React.FC<Props> = function Controls({
             <DropdownMenu
                 key={2}
                 switcherWrapperClassName={b('upper-button')}
-                switcher={
-                    <Button view={'outlined'} size={'s'}>
+                renderSwitcher={(props) => (
+                    <Button view={'outlined'} size={'s'} {...props}>
                         <Icon data={EllipsisVertical} />
                     </Button>
-                }
+                )}
                 items={[
                     {
                         text: i18n('column.add.before'),
@@ -144,7 +143,7 @@ const Controls: React.FC<Props> = function Controls({
                                 columnNumber,
                                 direction: 'before',
                             }),
-                        icon: <Icon data={ArrowLeft} />,
+                        iconStart: <Icon data={ArrowLeft} />,
                         disabled: !actions.appendColumn.isEnable({
                             tablePos: getParentTable()?.pos,
                             columnNumber,
@@ -159,7 +158,7 @@ const Controls: React.FC<Props> = function Controls({
                                 columnNumber,
                                 direction: 'after',
                             }),
-                        icon: <Icon data={ArrowRight} />,
+                        iconStart: <Icon data={ArrowRight} />,
                         disabled: !actions.appendColumn.isEnable({
                             tablePos: getParentTable()?.pos,
                             columnNumber,
@@ -173,7 +172,7 @@ const Controls: React.FC<Props> = function Controls({
                                 columnNumber,
                                 tablePos: getParentTable()?.pos,
                             }),
-                        icon: <Icon data={Xmark} />,
+                        iconStart: <Icon data={Xmark} />,
                         disabled: !actions.deleteColumn.isEnable({
                             columnNumber,
                             tablePos: getParentTable()?.pos,
@@ -187,7 +186,7 @@ const Controls: React.FC<Props> = function Controls({
                                 tablePos: getParentTable()?.pos,
                                 tableNode: getParentTable()?.node,
                             }),
-                        icon: <Icon data={TrashBin} />,
+                        iconStart: <Icon data={TrashBin} />,
                         disabled: !actions.deleteTable.isEnable({
                             tablePos: getParentTable()?.pos,
                             tableNode: getParentTable()?.node,
@@ -265,7 +264,7 @@ export const yfmTableCellView: NodeViewConstructor = (node, view, getPos): NodeV
             renderItem.remove();
         },
         ignoreMutation(mutation) {
-            return mutation.type === 'childList' && mutation.target === control;
+            return mutation.target === control || control.contains(mutation.target);
         },
         update(n) {
             const {rows: nRows, cols: nCols} = getTableDimensions(n);

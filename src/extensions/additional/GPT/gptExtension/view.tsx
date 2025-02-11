@@ -1,4 +1,4 @@
-import React, {useCallback} from 'react';
+import {useCallback} from 'react';
 
 import {Popup} from '@gravity-ui/uikit';
 import type {PopupProps} from '@gravity-ui/uikit';
@@ -30,7 +30,6 @@ export type GptWidgetDecoViewParams<
     parser: Parser;
 } & {
     onApplyResult?: GptDialogProps['onApplyResult'];
-    gptPopupContainer?: PopupProps['container'];
 };
 
 export class GptWidgetDecoView<
@@ -113,36 +112,24 @@ export class GptWidgetDecoView<
         return (
             <Widget
                 markup={markup}
-                anchorRef={{current: this._decoElem}}
+                anchorElement={this._decoElem}
                 answerRender={this._params.answerRender}
                 promptPresets={this._params.promptPresets}
                 disablePromptPresets={this._params.disablePromptPresets}
                 customPromptPlaceholder={this._params.customPromptPlaceholder}
                 disabledPromptPlaceholder={this._params.disabledPromptPlaceholder}
                 gptAlertProps={this._params.gptAlertProps}
-                /* eslint-disable-next-line react/jsx-handler-names */
                 onApplyResult={this._onSubmit}
-                /* eslint-disable-next-line react/jsx-handler-names */
                 onCustomPromptApply={this._params.onCustomPromptApply}
-                /* eslint-disable-next-line react/jsx-handler-names */
                 onPromptPresetClick={this._params.onPromptPresetClick}
-                /* eslint-disable-next-line react/jsx-handler-names */
                 onTryAgain={this._params.onTryAgain}
-                /* eslint-disable-next-line react/jsx-handler-names */
                 onLike={this._params.onLike}
-                /* eslint-disable-next-line react/jsx-handler-names */
                 onDislike={this._params.onDislike}
-                /* eslint-disable-next-line react/jsx-handler-names */
                 onClose={this._onClose}
-                /* eslint-disable-next-line react/jsx-handler-names */
                 onUpdate={this._onGptAnswerUpdate}
-                /* eslint-disable-next-line react/jsx-handler-names */
                 confirmOpen={this._confirmOpen}
-                /* eslint-disable-next-line react/jsx-handler-names */
                 onConfirmOk={this._onConfirmOk}
-                /* eslint-disable-next-line react/jsx-handler-names */
                 onConfirmCancel={this._onConfirmCancel}
-                container={this._params.gptPopupContainer}
             />
         );
     }
@@ -213,8 +200,9 @@ export class GptWidgetDecoView<
         const {from, to} = deco;
 
         try {
+            // FIXME: Verify and use Node instead of Fragment
             const fragment = this._view.state.doc.slice(from, to, true).content;
-            const yfmMarkup = this._serializer.serialize(fragment);
+            const yfmMarkup = this._serializer.serialize(fragment as any);
 
             return yfmMarkup;
         } catch (error) {
@@ -241,7 +229,7 @@ export class GptWidgetDecoView<
 type WidgetProps<
     AnswerData extends CommonAnswer = CommonAnswer,
     PromptData extends unknown = unknown,
-> = Pick<PopupProps, 'anchorRef' | 'container'> & {
+> = Pick<PopupProps, 'anchorElement'> & {
     markup: string;
     onClose: () => void;
     confirmOpen: boolean;
@@ -254,7 +242,7 @@ function Widget<
     PromptData extends unknown = unknown,
 >({
     markup,
-    anchorRef,
+    anchorElement,
     answerRender,
     promptPresets,
     disablePromptPresets,
@@ -268,12 +256,11 @@ function Widget<
     onDislike,
     onClose,
     onUpdate,
-    container,
     gptAlertProps,
 }: WidgetProps<AnswerData, PromptData>) {
     useMount(() => {
-        if (anchorRef?.current && 'scrollIntoView' in anchorRef.current) {
-            anchorRef.current.scrollIntoView({
+        if (anchorElement && 'scrollIntoView' in anchorElement) {
+            anchorElement.scrollIntoView({
                 behavior: 'smooth',
                 block: 'center',
             });
@@ -291,34 +278,33 @@ function Widget<
         <>
             <Popup
                 className={cnGptPopup()}
-                contentClassName={cnGptPopup('content')}
                 open
-                anchorRef={anchorRef}
+                anchorElement={anchorElement}
                 placement={gptPopupPlacement}
-                onOutsideClick={onClose}
-                focusTrap
-                autoFocus={!onCustomPromptApply && true}
+                onOpenChange={(open) => {
+                    if (!open) onClose();
+                }}
                 strategy="absolute"
-                container={container}
-                onEscapeKeyDown={onClose}
             >
-                <GptDialog
-                    markup={markup}
-                    answerRender={answerRender}
-                    promptPresets={promptPresets}
-                    disablePromptPresets={disablePromptPresets}
-                    customPromptPlaceholder={customPromptPlaceholder}
-                    disabledPromptPlaceholder={disabledPromptPlaceholder}
-                    onApplyResult={onApplyResult}
-                    onCustomPromptApply={onCustomPromptApply}
-                    onPromptPresetClick={onPromptPresetClick}
-                    onTryAgain={onTryAgain}
-                    onLike={onLike}
-                    onDislike={onDislike}
-                    onClose={onClose}
-                    onUpdate={handleUpdate}
-                    gptAlertProps={gptAlertProps}
-                />
+                <div className={cnGptPopup('content')}>
+                    <GptDialog
+                        markup={markup}
+                        answerRender={answerRender}
+                        promptPresets={promptPresets}
+                        disablePromptPresets={disablePromptPresets}
+                        customPromptPlaceholder={customPromptPlaceholder}
+                        disabledPromptPlaceholder={disabledPromptPlaceholder}
+                        onApplyResult={onApplyResult}
+                        onCustomPromptApply={onCustomPromptApply}
+                        onPromptPresetClick={onPromptPresetClick}
+                        onTryAgain={onTryAgain}
+                        onLike={onLike}
+                        onDislike={onDislike}
+                        onClose={onClose}
+                        onUpdate={handleUpdate}
+                        gptAlertProps={gptAlertProps}
+                    />
+                </div>
             </Popup>
         </>
     );

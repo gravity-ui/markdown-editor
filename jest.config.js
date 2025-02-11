@@ -10,9 +10,13 @@ module.exports = {
         '.+\\.(svg|png|jpg)$': 'identity-obj-proxy',
     },
     moduleFileExtensions: ['tsx', 'ts', 'js'],
-    globals: {
-        'ts-jest': {
-            isolatedModules: true,
-        },
+    transformIgnorePatterns: ['node_modules/(?!cheerio)'],
+    transform: {
+        '.ts(x)?': [
+            'ts-jest',
+            {
+                isolatedModules: true,
+            },
+        ],
     },
 };

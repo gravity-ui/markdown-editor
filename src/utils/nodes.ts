@@ -1,4 +1,5 @@
 import {Fragment, Node} from 'prosemirror-model';
+// @ts-ignore // TODO: fix cjs build
 import {findChildren} from 'prosemirror-utils';
 
 export function findFirstTextblockChild(
@@ -23,7 +24,7 @@ export function findFirstTextblockChild(
 export const isNodeEmpty = (node: Node) => {
     const emptyChildren = findChildren(
         node,
-        (n) =>
+        (n: Node) =>
             (!n.isText && !n.isAtom && n.content.size === 0 && n.type.name === 'paragraph') ||
             (n.isText && !n.textContent),
         true,

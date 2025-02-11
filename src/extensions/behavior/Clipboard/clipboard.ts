@@ -211,7 +211,8 @@ function serializeSelected(view: EditorView, serializer: Serializer): SerializeR
         return {text: fragment.textBetween(0, fragment.size)};
     }
 
-    const markup = serializer.serialize(getCopyContent(view.state).content);
+    // FIXME: Verify and use Node instead of Fragment
+    const markup = serializer.serialize(getCopyContent(view.state).content as any);
     const {dom, text} = serializeForClipboard(view, sel.content());
     return {markup, text, html: dom.innerHTML};
 }

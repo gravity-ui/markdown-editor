@@ -1,22 +1,25 @@
 import type {Options} from '@diplodoc/transform';
 // importing only type, because lowlight and highlight.js is optional deps
 import type HLJS from 'highlight.js/lib/core';
-import type {createLowlight} from 'lowlight';
-import type {Root} from 'lowlight/lib/core';
+import type {createLowlight} from 'lowlight' with {'resolution-mode': 'import'};
 import {Node} from 'prosemirror-model';
 import {Plugin, PluginKey} from 'prosemirror-state';
 import {Step} from 'prosemirror-transform';
+// @ts-ignore // TODO: fix cjs build
 import {findChildrenByType} from 'prosemirror-utils';
 import {Decoration, DecorationSet} from 'prosemirror-view';
 
 import type {ExtensionAuto} from '../../../../core';
 import {capitalize} from '../../../../lodash';
 import {logger} from '../../../../logger';
-import {codeBlockLangAttr, codeBlockNodeName, codeBlockType} from '../CodeBlockSpecs';
+import {CodeBlockNodeAttr, codeBlockNodeName, codeBlockType} from '../CodeBlockSpecs';
 
 import {codeLangSelectTooltipViewCreator} from './TooltipPlugin';
 
 export type HighlightLangMap = Options['highlightLangs'];
+
+type Lowlight = ReturnType<typeof createLowlight>;
+type Root = ReturnType<Lowlight['highlight']>;
 
 type LangSelectItem = {
     value: string;
@@ -31,7 +34,7 @@ export type CodeBlockHighlightOptions = {
 
 export const CodeBlockHighlight: ExtensionAuto<CodeBlockHighlightOptions> = (builder, opts) => {
     let langs: NonNullable<HighlightLangMap>;
-    let lowlight: ReturnType<typeof createLowlight>;
+    let lowlight: Lowlight;
     let hljs: typeof HLJS;
 
     try {
@@ -99,7 +102,7 @@ export const CodeBlockHighlight: ExtensionAuto<CodeBlockHighlightOptions> = (bui
                                     return (
                                         stepHasFromTo(step) &&
                                         oldNodes.some(
-                                            (node) =>
+                                            (node: {node: Node; pos: number}) =>
                                                 node.pos >= step.from &&
                                                 node.pos + node.node.nodeSize <= step.to,
                                         )
@@ -120,7 +123,7 @@ export const CodeBlockHighlight: ExtensionAuto<CodeBlockHighlightOptions> = (bui
                 },
                 nodeViews: {
                     [codeBlockNodeName]: (node) => {
-                        let prevLang = node.attrs[codeBlockLangAttr];
+                        let prevLang = node.attrs[CodeBlockNodeAttr.Lang];
 
                         const dom = document.createElement('pre');
 
@@ -128,7 +131,7 @@ export const CodeBlockHighlight: ExtensionAuto<CodeBlockHighlightOptions> = (bui
                         contentDOM.classList.add('hljs');
 
                         if (prevLang) {
-                            dom.setAttribute(codeBlockLangAttr, prevLang);
+                            dom.setAttribute(CodeBlockNodeAttr.Lang, prevLang);
                             contentDOM.classList.add(prevLang);
                         }
 
@@ -140,14 +143,14 @@ export const CodeBlockHighlight: ExtensionAuto<CodeBlockHighlightOptions> = (bui
                             update(newNode) {
                                 if (node.type !== newNode.type) return false;
 
-                                const newLang = newNode.attrs[codeBlockLangAttr];
+                                const newLang = newNode.attrs[CodeBlockNodeAttr.Lang];
                                 if (prevLang !== newLang) {
                                     contentDOM.className = 'hljs';
                                     if (newLang) {
-                                        dom.setAttribute(codeBlockLangAttr, newLang);
+                                        dom.setAttribute(CodeBlockNodeAttr.Lang, newLang);
                                         contentDOM.classList.add(newLang);
                                     } else {
-                                        dom.removeAttribute(codeBlockLangAttr);
+                                        dom.removeAttribute(CodeBlockNodeAttr.Lang);
                                     }
                                     prevLang = newLang;
                                 }
@@ -168,7 +171,7 @@ export const CodeBlockHighlight: ExtensionAuto<CodeBlockHighlightOptions> = (bui
             let from = pos + 1;
             let nodes: Root['children'];
 
-            const lang: string | undefined = node.attrs[codeBlockLangAttr];
+            const lang: string | undefined = node.attrs[CodeBlockNodeAttr.Lang];
             if (lang && lowlight.registered(lang)) {
                 nodes = lowlight.highlight(lang, node.textContent).children;
             } else {

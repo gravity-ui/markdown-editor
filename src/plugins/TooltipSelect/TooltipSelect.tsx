@@ -1,4 +1,4 @@
-import React, {useLayoutEffect, useRef, useState} from 'react';
+import {useLayoutEffect, useRef, useState} from 'react';
 
 import {
     ArrowToggle,
@@ -30,7 +30,7 @@ export const TooltipButton: React.FC<TooltipButtonProps> = ({
 }) => {
     const [width, setWidth] = useState(0);
     const [open, , , toggleOpen] = useBooleanState(false);
-    const ref = useRef<HTMLDivElement>(null);
+    const ref = useRef<HTMLButtonElement>(null);
 
     useLayoutEffect(() => {
         if (ref.current?.clientWidth) {
@@ -43,16 +43,10 @@ export const TooltipButton: React.FC<TooltipButtonProps> = ({
             open
             keepMounted={false}
             hasArrow={false}
-            anchorRef={{current: domRef}}
+            anchorElement={domRef}
             placement={'right-start'}
-            offset={[10, -(width + 10)]}
+            offset={{crossAxis: 10, mainAxis: -(width + 10)}}
             onOutsideClick={onOutsideClick}
-            modifiers={[
-                {
-                    name: 'preventOverflow',
-                    enabled: false,
-                },
-            ]}
         >
             <Select
                 onOpenChange={toggleOpen}

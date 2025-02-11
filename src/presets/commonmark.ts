@@ -56,10 +56,11 @@ export const CommonMarkPreset: ExtensionAuto<CommonMarkPresetOptions> = (builder
         .use(Blockquote, opts.blockquote ?? {});
 
     if (opts.image !== false) {
-        builder.use(
-            isFunction(opts.image) ? opts.image : Image,
-            isFunction(opts.image) ? undefined : opts.image,
-        );
+        if (isFunction(opts.image)) {
+            builder.use(opts.image);
+        } else {
+            builder.use(Image, opts.image ?? {});
+        }
     }
 
     if (opts.heading !== false) {

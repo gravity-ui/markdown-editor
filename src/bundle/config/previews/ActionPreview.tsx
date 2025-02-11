@@ -1,5 +1,3 @@
-import React from 'react';
-
 import {cn} from '../../../classname';
 
 import './ActionPreview.scss';

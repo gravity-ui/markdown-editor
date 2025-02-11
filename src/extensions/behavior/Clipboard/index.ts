@@ -16,6 +16,6 @@ export const Clipboard: ExtensionAuto<ClipboardOptions> = (builder, opts) => {
                 serializer: deps.serializer,
                 pasteFileHandler: opts.pasteFileHandler,
             }),
-        builder.PluginPriority.VeryLow,
+        builder.Priority.VeryLow,
     );
 };

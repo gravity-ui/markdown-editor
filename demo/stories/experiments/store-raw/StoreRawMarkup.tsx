@@ -1,6 +1,4 @@
-import React, {useCallback, useLayoutEffect, useState} from 'react';
-
-import {toaster} from '@gravity-ui/uikit/toaster-singleton-react-18';
+import {memo, useCallback, useLayoutEffect, useState} from 'react';
 
 import {MarkdownEditorView, type RenderPreview, useMarkdownEditor} from '../../../../src';
 import {PlaygroundLayout} from '../../../components/PlaygroundLayout';
@@ -78,7 +76,7 @@ type StoreRawMarkupDemoProps = {
     preserveMarkupFormatting: boolean;
 };
 
-export const StoreRawMarkupDemo = React.memo<StoreRawMarkupDemoProps>((props) => {
+export const StoreRawMarkupDemo = memo<StoreRawMarkupDemoProps>((props) => {
     const {preserveMarkupFormatting} = props;
     const [mdMarkup, setMdMarkup] = useState(initialMarkup);
 
@@ -103,7 +101,7 @@ export const StoreRawMarkupDemo = React.memo<StoreRawMarkupDemoProps>((props) =>
             markupConfig: {renderPreview},
             experimental: {preserveMarkupFormatting},
         },
-        [],
+        [preserveMarkupFormatting],
     );
 
     // for preserve edited content
@@ -121,7 +119,6 @@ export const StoreRawMarkupDemo = React.memo<StoreRawMarkupDemoProps>((props) =>
                     stickyToolbar
                     settingsVisible
                     editor={editor}
-                    toaster={toaster}
                     className={className}
                 />
             )}

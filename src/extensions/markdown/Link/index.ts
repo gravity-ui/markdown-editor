@@ -4,7 +4,7 @@ import type {MarkType} from 'prosemirror-model';
 import type {Action, ExtensionAuto} from '../../../core';
 import {hasCodeMark} from '../../../utils/inputrules';
 
-import {LinkSpecs, linkMarkName, linkType} from './LinkSpecs';
+import {LinkSpecs, linkType} from './LinkSpecs';
 import {LinkActionMeta, LinkActionParams, linkCommand} from './actions/linkActions';
 import {addLinkCmd2, linkActionSpec2} from './actions/linkEnhanceActions';
 import {linkPasteEnhance} from './paste-plugin';
@@ -16,8 +16,6 @@ export {normalizeUrlFactory} from './utils';
 export {removeLink} from './commands';
 
 export {LinkAttr, linkMarkName, linkType} from './LinkSpecs';
-/** @deprecated Use `linkMarkName` instead */
-export const link = linkMarkName;
 const linkAction = 'link';
 const linkAction2 = 'addLink';
 
