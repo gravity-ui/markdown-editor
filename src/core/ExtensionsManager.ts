@@ -1,11 +1,15 @@
 import MarkdownIt, {PresetName} from 'markdown-it';
+import {Schema} from 'prosemirror-model';
 import type {Plugin} from 'prosemirror-state';
 
 import {ActionsManager} from './ActionsManager';
 import {ExtensionBuilder} from './ExtensionBuilder';
 import {ParserTokensRegistry} from './ParserTokensRegistry';
+import {SchemaDynamicModifier} from './SchemaDynamicModifier';
 import {SchemaSpecRegistry} from './SchemaSpecRegistry';
 import {SerializerTokensRegistry} from './SerializerTokensRegistry';
+import {MarkdownParserDynamicModifier} from './markdown/MarkdownParser';
+import {MarkdownSerializerDynamicModifier} from './markdown/MarkdownSerializerDynamicModifier';
 import {TransformFn} from './markdown/ProseMirrorTransformer';
 import type {ActionSpec} from './types/actions';
 import type {
@@ -26,6 +30,11 @@ type ExtensionsManagerOptions = {
     mdOpts?: MarkdownIt.Options & {preset?: PresetName};
     linkifyTlds?: string | string[];
     pmTransformers?: TransformFn[];
+    dynamicModifiers?: {
+        parser?: MarkdownParserDynamicModifier;
+        serializer?: MarkdownSerializerDynamicModifier;
+        schema?: SchemaDynamicModifier;
+    };
 };
 
 export class ExtensionsManager {
@@ -33,9 +42,9 @@ export class ExtensionsManager {
         return new this({extensions, options}).build();
     }
 
-    #schemaRegistry = new SchemaSpecRegistry();
-    #parserRegistry = new ParserTokensRegistry();
-    #serializerRegistry = new SerializerTokensRegistry();
+    #schemaRegistry;
+    #parserRegistry;
+    #serializerRegistry;
 
     #nodeViewCreators = new Map<string, (deps: ExtensionDeps) => NodeViewConstructor>();
     #markViewCreators = new Map<string, (deps: ExtensionDeps) => MarkViewConstructor>();
@@ -53,8 +62,18 @@ export class ExtensionsManager {
     #actions: Record<string, ActionSpec> = {};
     #nodeViews: Record<string, NodeViewConstructor> = {};
     #markViews: Record<string, MarkViewConstructor> = {};
+    #serializerDynamicModifier?: MarkdownSerializerDynamicModifier;
+    #parserDynamicModifier?: MarkdownParserDynamicModifier;
 
     constructor({extensions, options = {}}: ExtensionsManagerParams) {
+        this.#schemaRegistry = new SchemaSpecRegistry(undefined, options.dynamicModifiers?.schema);
+        this.#parserRegistry = new ParserTokensRegistry();
+        this.#serializerRegistry = new SerializerTokensRegistry();
+        if (options.dynamicModifiers) {
+            this.#parserDynamicModifier = options.dynamicModifiers?.parser;
+            this.#serializerDynamicModifier = options.dynamicModifiers?.serializer;
+        }
+
         this.#extensions = extensions;
 
         const mdPreset: PresetName = options.mdOpts?.preset ?? 'default';
@@ -105,6 +124,7 @@ export class ExtensionsManager {
 
     private processNode = (name: string, {spec, fromMd, toMd: toMd, view}: ExtensionNodeSpec) => {
         this.#schemaRegistry.addNode(name, spec);
+
         this.#parserRegistry.addToken(fromMd.tokenName || name, fromMd.tokenSpec);
         this.#serializerRegistry.addNode(name, toMd);
         if (view) {
@@ -121,22 +141,31 @@ export class ExtensionsManager {
         }
     };
 
+    private createParser(schema: Schema, mdInstance: MarkdownIt) {
+        return this.#parserRegistry.createParser(
+            schema,
+            mdInstance,
+            this.#pmTransformers,
+            this.#parserDynamicModifier,
+        );
+    }
+
     private createDeps() {
+        const actions = new ActionsManager();
+
         const schema = this.#schemaRegistry.createSchema();
+        const markupParser = this.createParser(schema, this.#mdForMarkup);
+        const textParser = this.createParser(schema, this.#mdForText);
+        const serializer = this.#serializerRegistry.createSerializer(
+            this.#serializerDynamicModifier,
+        );
+
         this.#deps = {
             schema,
-            actions: new ActionsManager(),
-            markupParser: this.#parserRegistry.createParser(
-                schema,
-                this.#mdForMarkup,
-                this.#pmTransformers,
-            ),
-            textParser: this.#parserRegistry.createParser(
-                schema,
-                this.#mdForText,
-                this.#pmTransformers,
-            ),
-            serializer: this.#serializerRegistry.createSerializer(),
+            actions,
+            markupParser,
+            textParser,
+            serializer,
         };
     }
 

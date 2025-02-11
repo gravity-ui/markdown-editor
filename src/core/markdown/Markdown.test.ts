@@ -14,6 +14,7 @@ import {MarkdownSerializer} from './MarkdownSerializer';
 
 const {schema} = builder;
 schema.nodes['hard_break'].spec.isBreak = true;
+
 const parser: Parser = new MarkdownParser(
     schema,
     new MarkdownIt('commonmark'),
