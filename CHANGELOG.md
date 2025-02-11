@@ -1,5 +1,12 @@
 # Changelog
 
+## [14.12.2](https://github.com/gravity-ui/markdown-editor/compare/v14.12.0...v14.12.2) (2025-02-11)
+
+
+### chore
+
+* release 14.12.2 ([12a8ef1](https://github.com/gravity-ui/markdown-editor/commit/12a8ef1d6a4b8fba5f9741d0d974a8549992acc6))
+
 ## [14.12.0](https://github.com/gravity-ui/markdown-editor/compare/v14.11.2...v14.12.0) (2025-02-11)
 
 
