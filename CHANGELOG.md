@@ -1,5 +1,13 @@
 # Changelog
 
+## [14.12.0](https://github.com/gravity-ui/markdown-editor/compare/v14.11.2...v14.12.0) (2025-02-11)
+
+
+### Features
+
+* **actions:** add heading previews ([#582](https://github.com/gravity-ui/markdown-editor/issues/582)) ([0bf2af1](https://github.com/gravity-ui/markdown-editor/commit/0bf2af1a65c52f82559930e1f31dab78f9c16b34))
+* **core:** added preserving and managing original markdown formatting for YfmTable ([#558](https://github.com/gravity-ui/markdown-editor/issues/558)) ([59549eb](https://github.com/gravity-ui/markdown-editor/commit/59549ebb4ee04296ae32e68c4e6289559d037330))
+
 ## [14.11.2](https://github.com/gravity-ui/markdown-editor/compare/v14.11.1...v14.11.2) (2025-02-07)
 
 

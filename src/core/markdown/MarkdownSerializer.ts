@@ -3,6 +3,8 @@
 // prettier-ignore
 import type {Mark, Node} from "prosemirror-model";
 
+import type {MarkdownSerializerDynamicModifier} from './MarkdownSerializerDynamicModifier';
+
 export interface SerializerNodeToken {
     (state: MarkdownSerializerState, node: Node, parent: Node, index: number): void;
 }
@@ -40,6 +42,7 @@ interface NodeMap {
 export class MarkdownSerializer {
     private readonly nodes: NodeMap;
     private readonly marks: MarkMap;
+    private readonly dynamicModifier?: MarkdownSerializerDynamicModifier;
 
     // :: (Object<(state: MarkdownSerializerState, node: Node, parent: Node, index: number)>, Object)
     // Construct a serializer with the given configuration. The `nodes`
@@ -74,19 +77,30 @@ export class MarkdownSerializer {
     // outside the marks. This is necessary for emphasis marks as
     // CommonMark does not permit enclosing whitespace inside emphasis
     // marks, see: http://spec.commonmark.org/0.26/#example-330
-    constructor(nodes: NodeMap, marks: MarkMap) {
+    constructor(
+        nodes: NodeMap,
+        marks: MarkMap,
+        dynamicModifier?: MarkdownSerializerDynamicModifier,
+    ) {
         // :: Object<(MarkdownSerializerState, Node)> The node serializer
         // functions for this serializer.
         this.nodes = nodes;
         // :: Object The mark serializer info.
         this.marks = marks;
+
+        this.dynamicModifier = dynamicModifier;
     }
 
     // :: (Node, ?Object) → string
     // Serialize the content of the given node to
     // [CommonMark](http://commonmark.org/).
     serialize(content: Node, options: Partial<SerializerOptions> = {}): string {
-        const state = new MarkdownSerializerState(this.nodes, this.marks, options);
+        const state = new MarkdownSerializerState(
+            this.nodes,
+            this.marks,
+            options,
+            this.dynamicModifier,
+        );
         state.renderContent(content);
         return state.out;
     }
@@ -118,8 +132,9 @@ export class MarkdownSerializerState {
     private readonly options: SerializerOptions;
     private delim: string;
     private closed: Node | false;
+    private readonly dynamicModifier?: MarkdownSerializerDynamicModifier;
 
-    constructor(nodes: NodeMap, marks: MarkMap, options: Partial<SerializerOptions> = {}) {
+    constructor(nodes: NodeMap, marks: MarkMap, options: Partial<SerializerOptions> = {}, dynamicModifier?: MarkdownSerializerDynamicModifier) {
         this.nodes = nodes;
         this.marks = marks;
         this.delim = this.out = '';
@@ -135,6 +150,7 @@ export class MarkdownSerializerState {
         //   on a node level by specifying a tight attribute on the node.
         //   Defaults to false.
         this.options = options || {};
+        this.dynamicModifier = dynamicModifier;
         if (typeof this.options.tightLists === 'undefined') { this.options.tightLists = false }
     }
 
@@ -222,9 +238,19 @@ export class MarkdownSerializerState {
     // :: (Node)
     // Render the given node as a block.
     render(node: Node, parent: Node, index: number) {
-        if (typeof parent === 'number') throw new Error('!');
-        if (!this.nodes[node.type.name]) throw new Error('Token type `' + node.type.name + '` not supported by Markdown renderer');
-        this.nodes[node.type.name](this, node, parent, index);
+        if (typeof parent === 'number') {
+            throw new Error('!');
+        }
+        if (!this.nodes[node.type.name]) {
+            throw new Error('Token type `' + node.type.name + '` not supported by Markdown renderer');
+        }
+
+        const callback = this.nodes[node.type.name];
+        if (this.dynamicModifier) {
+            this.dynamicModifier.processNode(this, node, parent, index, callback);
+        } else {
+            callback(this, node, parent, index);
+        }
     }
 
     // :: (Node)
@@ -274,8 +300,8 @@ export class MarkdownSerializerState {
                 }
             }
 
-            const inner = marks.length && marks[marks.length - 1]; const
-                noEsc = inner && this.marks[inner.type.name].escape === false;
+            const inner = marks.length && marks[marks.length - 1];
+            const noEsc = inner && this.marks[inner.type.name].escape === false;
             const len = marks.length - (noEsc ? 1 : 0);
 
             // Try to reorder 'mixable' marks, such as em and strong, which

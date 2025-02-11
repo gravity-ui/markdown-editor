@@ -110,6 +110,17 @@ export type MarkdownEditorExperimentalOptions = {
      * @default false
      */
     preserveEmptyRows?: boolean;
+    /**
+     * Preserves the original formatting of unmodified blocks,
+     * restoring their structure during serialization
+     *
+     * **Use case:** Maintain consistent markup when switching modes
+     *
+     * **Note:** Applies to tracked blocks: `yfm_table`
+     *
+     * @default false
+     */
+    preserveMarkupFormatting?: boolean;
 };
 
 export type MarkdownEditorMarkupConfig = {
