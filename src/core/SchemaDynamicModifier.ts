@@ -1,4 +1,4 @@
-import {MarkSpec, NodeSpec} from 'prosemirror-model';
+import {NodeSpec} from 'prosemirror-model';
 
 export type TokenAttrs = {[name: string]: unknown};
 
@@ -20,20 +20,17 @@ export type TokenAttrs = {[name: string]: unknown};
  * ```
  */
 
+/** @internal */
 export interface NodeSpecProcessor {
     allowedAttrs?: string[];
 }
 
+/** @internal */
 export interface SchemaDynamicModifierConfig {
     [elementType: string]: NodeSpecProcessor;
 }
 
-export interface SchemaSpec {
-    topNode?: string;
-    nodes: Record<string, NodeSpec>;
-    marks: Record<string, MarkSpec>;
-}
-
+/** @internal */
 export class SchemaDynamicModifier {
     private nodeSpecsProcessors: Map<string, NodeSpecProcessor>;
 

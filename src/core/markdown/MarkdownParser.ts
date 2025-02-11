@@ -1,7 +1,7 @@
 import type {Match} from 'linkify-it'; // eslint-disable-line import/no-extraneous-dependencies
 import type MarkdownIt from 'markdown-it';
 import type Token from 'markdown-it/lib/token';
-import {Mark, MarkSpec, MarkType, Node, NodeSpec, NodeType, Schema} from 'prosemirror-model';
+import {Mark, MarkType, Node, NodeType, Schema} from 'prosemirror-model';
 
 import {logger} from '../../logger';
 import type {Parser, ParserToken} from '../types/parser';
@@ -415,6 +415,7 @@ function withoutTrailingNewline(str: string) {
  * - Logging or customizing processing steps for debugging.
  */
 
+/** @internal */
 export type ProcessToken = (
     token: Token,
     index: number,
@@ -428,22 +429,19 @@ export type ProcessNodeAttrs = (
 ) => TokenAttrs;
 export type ProcessNode = (node: Node) => Node;
 
+/** @internal */
 export interface ElementProcessor {
     processToken?: ProcessToken[];
     processNodeAttrs?: ProcessNodeAttrs[];
     processNode?: ProcessNode[];
 }
 
+/** @internal */
 export interface MarkdownParserDynamicModifierConfig {
     [elementType: string]: ElementProcessor;
 }
 
-export interface SchemaSpec {
-    topNode?: string;
-    nodes: Record<string, NodeSpec>;
-    marks: Record<string, MarkSpec>;
-}
-
+/** @internal */
 export class MarkdownParserDynamicModifier {
     private elementProcessors: Map<string, ElementProcessor>;
 

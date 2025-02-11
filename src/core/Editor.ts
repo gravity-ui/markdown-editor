@@ -43,7 +43,7 @@ export type WysiwygEditorOptions = {
     onChange?: OnChange;
     /** Call only if document change */
     onDocChange?: OnChange;
-    /** Modifiers adjust the parser and serializer */
+    /** @internal Modifiers adjust the parser and serializer */
     modifiers?: DynamicModifiers[];
 };
 
