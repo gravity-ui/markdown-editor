@@ -1,5 +1,3 @@
-import React from 'react';
-
 import {Button} from '@gravity-ui/uikit';
 
 import {ClassNameProps, cn} from '../../classname';

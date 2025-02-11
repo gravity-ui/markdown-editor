@@ -1,8 +1,8 @@
-import React from 'react';
-
 import {Popup, PopupPlacement, PopupProps} from '@gravity-ui/uikit';
 import {keydownHandler} from 'prosemirror-keymap';
+import type {Node} from 'prosemirror-model';
 import {EditorState, Plugin, PluginView, TextSelection} from 'prosemirror-state';
+// @ts-ignore // TODO: fix cjs build
 import {findChildrenByMark, findParentNode} from 'prosemirror-utils';
 import {Decoration, DecorationSet, EditorView} from 'prosemirror-view';
 
@@ -33,7 +33,7 @@ function getTextNode(state: EditorState) {
 
     const textNodes = findChildrenByMark(parent?.node, linkType(state.schema));
 
-    const textNode = textNodes.find((n) => {
+    const textNode = textNodes.find((n: {node: Node; pos: number}) => {
         const start = n.pos + parent.pos;
         const end = start + n.node.nodeSize;
         return start <= state.selection.from && end >= state.selection.from;
@@ -136,7 +136,7 @@ class SelectionTooltip implements PluginView {
                 onCancel: () => this.cancelPopup(),
                 attrs: this.getMarkAttrs(),
                 onChange: this.changeAttrs.bind(this),
-                onOutsideClick: this.onOutisdeClick,
+                onOpenChange: this.onOpenChange,
             });
         }
     }
@@ -180,6 +180,15 @@ class SelectionTooltip implements PluginView {
         this.renderItem = this.renderItem ?? this.createRenderItem();
         this.renderItem.rerender();
     }
+
+    private onOpenChange: NonNullable<PopupProps['onOpenChange']> = (open, _e, reason) => {
+        if (open) return;
+        if (reason === 'escape-key') {
+            this.cancelPopup();
+        } else {
+            this.onOutisdeClick();
+        }
+    };
 
     private onOutisdeClick = () => {
         // after all updates of the editor state
@@ -252,7 +261,7 @@ type SelectionTooltipViewBaseProps<T = boolean> = T extends false
           onCancel: () => void;
           onChange: (opts: {href: string}) => void;
           attrs?: {[LinkAttr.Href]?: string; [LinkAttr.IsPlaceholder]?: boolean};
-      } & Pick<PopupProps, 'onOutsideClick'>;
+      } & Pick<PopupProps, 'onOpenChange'>;
 
 type SelectionTooltipViewProps = SelectionTooltipViewBaseProps;
 
@@ -261,18 +270,17 @@ const SelectionTooltipView: React.FC<SelectionTooltipViewProps> = (props) => {
 
     if (!show) return null;
 
-    const {domElem, onChange, onCancel, onOutsideClick, attrs = {}} = props;
+    const {domElem, onChange, onCancel, onOpenChange, attrs = {}} = props;
     const href = attrs[LinkAttr.Href];
     const autoFocus = attrs[LinkAttr.IsPlaceholder];
 
     return (
         <Popup
-            key={href}
             open
-            anchorRef={{current: domElem}}
+            key={href}
+            anchorElement={domElem}
             placement={placement}
-            onEscapeKeyDown={onCancel}
-            onOutsideClick={onOutsideClick}
+            onOpenChange={onOpenChange}
         >
             <LinkForm
                 href={href ?? ''}

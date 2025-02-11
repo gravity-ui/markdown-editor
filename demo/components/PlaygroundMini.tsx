@@ -1,4 +1,4 @@
-import React from 'react';
+import {memo} from 'react';
 
 import {getInitialMd} from '../utils/getInitialMd';
 
@@ -25,7 +25,7 @@ export type PlaygroundMiniProps = Pick<
     | 'directiveSyntax'
 > & {withDefaultInitialContent?: boolean};
 
-export const PlaygroundMini = React.memo<PlaygroundMiniProps>(
+export const PlaygroundMini = memo<PlaygroundMiniProps>(
     ({withDefaultInitialContent, initial, ...props}) => (
         <Playground
             {...props}

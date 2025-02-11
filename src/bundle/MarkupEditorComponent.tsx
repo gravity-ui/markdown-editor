@@ -1,4 +1,4 @@
-import React from 'react';
+import {useEffect, useLayoutEffect, useRef} from 'react';
 
 import type {EditorInt} from './Editor';
 
@@ -11,10 +11,10 @@ export type MarkupEditorComponentProps = {
 
 export const MarkupEditorComponent: React.FC<MarkupEditorComponentProps> =
     function MarkupEditorComponent({editor, autofocus, className, children}) {
-        const ref = React.useRef<HTMLDivElement>(null);
+        const ref = useRef<HTMLDivElement>(null);
 
         // insert editor to dom
-        React.useLayoutEffect(() => {
+        useLayoutEffect(() => {
             const domElem = editor.markupEditor.cm.dom;
             if (ref.current) {
                 ref.current.appendChild(domElem);
@@ -25,7 +25,7 @@ export const MarkupEditorComponent: React.FC<MarkupEditorComponentProps> =
         }, [editor.markupEditor]);
 
         // update editor after connecting to dom
-        React.useEffect(() => {
+        useEffect(() => {
             editor.markupEditor.cm.requestMeasure();
             if (autofocus) {
                 editor.markupEditor.focus();

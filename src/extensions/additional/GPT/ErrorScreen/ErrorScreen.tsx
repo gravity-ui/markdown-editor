@@ -1,6 +1,3 @@
-import React from 'react';
-import type {FC} from 'react';
-
 import {CircleXmarkFill} from '@gravity-ui/icons';
 import {Button} from '@gravity-ui/uikit';
 
@@ -17,7 +14,7 @@ type ErrorScreenProps = {
 
 export const cnGptDialogErrorScreen = cn('gpt-dialog-error-screen');
 
-export const ErrorScreen: FC<ErrorScreenProps> = ({onRetry, onStartAgain}) => {
+export const ErrorScreen: React.FC<ErrorScreenProps> = ({onRetry, onStartAgain}) => {
     return (
         <div className={cnGptDialogErrorScreen()}>
             <div className={cnGptDialogErrorScreen('content')}>

@@ -1,11 +1,10 @@
-import React, {RefObject, useCallback} from 'react';
+import {useCallback} from 'react';
 
-import {Popup, PopupPlacement} from '@gravity-ui/uikit';
+import {Popup, type PopupPlacement, useToaster} from '@gravity-ui/uikit';
 
 import {FileForm, FileFormProps} from '../../../forms/FileForm';
 import {i18n} from '../../../i18n/forms';
 import {useBooleanState} from '../../../react-utils/hooks';
-import {useToaster} from '../../../react-utils/toaster';
 import type {ToolbarBaseProps} from '../../../toolbar';
 import {BatchUploadResult, FileUploadHandler, batchUploadFiles} from '../../../utils/upload';
 
@@ -13,7 +12,7 @@ const placement: PopupPlacement = ['bottom-start', 'top-start', 'bottom-end', 't
 
 export type ToolbarFilePopupProps = Omit<ToolbarBaseProps<never>, 'editor'> & {
     hide: () => void;
-    anchorRef: RefObject<HTMLElement>;
+    anchorElement: HTMLElement | null;
 
     uploadHandler?: FileUploadHandler;
     onSuccessUpload?: (result: BatchUploadResult) => void;
@@ -22,7 +21,7 @@ export type ToolbarFilePopupProps = Omit<ToolbarBaseProps<never>, 'editor'> & {
 export const ToolbarFilePopup: React.FC<ToolbarFilePopupProps> = ({
     className,
     hide,
-    anchorRef,
+    anchorElement,
 
     onSubmit,
     focus,
@@ -41,8 +40,9 @@ export const ToolbarFilePopup: React.FC<ToolbarFilePopupProps> = ({
     return (
         <Popup
             open
-            onClose={handleCancel}
-            anchorRef={anchorRef}
+            modal
+            onOpenChange={handleCancel}
+            anchorElement={anchorElement}
             placement={placement}
             className={className}
         >

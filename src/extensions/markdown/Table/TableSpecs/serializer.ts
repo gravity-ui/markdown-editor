@@ -18,7 +18,6 @@ export const serializerTokens: Record<TableNode, SerializerNodeToken> = {
     [TableNode.Head]: (state, node) => {
         state.renderContent(node);
 
-        // @ts-expect-error
         for (const cellNode of node.content.content[0].content.content) {
             switch (cellNode.attrs[TableAttrs.CellAlign]) {
                 case CellAlign.Left:

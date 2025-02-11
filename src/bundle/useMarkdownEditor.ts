@@ -15,12 +15,10 @@ import type {
 } from './types';
 import {BundlePreset} from './wysiwyg-preset';
 
-// [major] TODO: remove generic type
-export type UseMarkdownEditorProps<T extends object = {}> = MarkdownEditorOptions<T>;
+export type UseMarkdownEditorProps = MarkdownEditorOptions;
 
-// [major] TODO: remove generic type
-export function useMarkdownEditor<T extends object = {}>(
-    props: UseMarkdownEditorProps<T>,
+export function useMarkdownEditor(
+    props: UseMarkdownEditorProps,
     deps: React.DependencyList = [],
 ): MarkdownEditorInstance {
     const editor = useMemo<EditorInt>(() => {
@@ -33,24 +31,17 @@ export function useMarkdownEditor<T extends object = {}>(
             wysiwygConfig = {},
         } = props;
 
-        const breaks = md.breaks ?? props.breaks;
-        const preserveEmptyRows = experimental.preserveEmptyRows;
         const preset: MarkdownEditorPreset = props.preset ?? 'full';
         const renderStorage = new ReactRenderStorage();
-        const uploadFile = handlers.uploadFile ?? props.fileUploadHandler;
-        const needToSetDimensionsForUploadedImages =
-            experimental.needToSetDimensionsForUploadedImages ??
-            props.needToSetDimensionsForUploadedImages;
-        const enableNewImageSizeCalculation = experimental.enableNewImageSizeCalculation;
 
         const pmTransformers = getPMTransformers({
-            emptyRowTransformer: preserveEmptyRows,
+            emptyRowTransformer: experimental.preserveEmptyRows,
         });
 
         const directiveSyntax = new DirectiveSyntaxContext(experimental.directiveSyntax);
 
         const extensions: Extension = (builder) => {
-            const extensionOptions = wysiwygConfig.extensionOptions ?? props.extensionOptions;
+            const extensionOptions = wysiwygConfig.extensionOptions;
 
             builder.use(BundlePreset, {
                 ...extensionOptions,
@@ -65,17 +56,18 @@ export function useMarkdownEditor<T extends object = {}>(
                     editor.emit('submit', null);
                     return true;
                 },
-                preserveEmptyRows: preserveEmptyRows,
+                preserveEmptyRows: experimental.preserveEmptyRows,
                 placeholderOptions: wysiwygConfig.placeholderOptions,
-                mdBreaks: breaks,
-                fileUploadHandler: uploadFile,
-                needToSetDimensionsForUploadedImages,
-                enableNewImageSizeCalculation,
+                mdBreaks: md.breaks,
+                fileUploadHandler: handlers.uploadFile,
+                needToSetDimensionsForUploadedImages:
+                    experimental.needToSetDimensionsForUploadedImages,
+                enableNewImageSizeCalculation: experimental.enableNewImageSizeCalculation,
             });
             {
-                const extraExtensions = wysiwygConfig.extensions || props.extraExtensions;
+                const extraExtensions = wysiwygConfig.extensions;
                 if (extraExtensions) {
-                    builder.use(extraExtensions, props.extensionOptions);
+                    builder.use(extraExtensions, props.wysiwygConfig?.extensionOptions);
                 }
             }
         };
@@ -86,43 +78,14 @@ export function useMarkdownEditor<T extends object = {}>(
             renderStorage,
             directiveSyntax,
             pmTransformers,
-            md: {
-                ...md,
-                breaks,
-                html: md.html ?? props.allowHTML,
-                linkify: md.linkify ?? props.linkify,
-                linkifyTlds: md.linkifyTlds ?? props.linkifyTlds,
-            },
-            initial: {
-                ...initial,
-                markup: initial.markup ?? props.initialMarkup,
-                mode: initial.mode ?? props.initialEditorMode,
-                toolbarVisible: initial.toolbarVisible ?? props.initialToolbarVisible,
-                splitModeEnabled: initial.splitModeEnabled ?? props.initialSplitModeEnabled,
-            },
-            handlers: {
-                ...handlers,
-                uploadFile,
-            },
-            experimental: {
-                ...experimental,
-                needToSetDimensionsForUploadedImages,
-                enableNewImageSizeCalculation,
-                prepareRawMarkup: experimental.prepareRawMarkup ?? props.prepareRawMarkup,
-                beforeEditorModeChange:
-                    experimental.beforeEditorModeChange ??
-                    props.experimental_beforeEditorModeChange,
-            },
-            markupConfig: {
-                ...markupConfig,
-                splitMode: markupConfig.splitMode ?? props.splitMode,
-                renderPreview: markupConfig.renderPreview ?? props.renderPreview,
-                extensions: markupConfig.extensions ?? props.extraMarkupExtensions,
-            },
+            md,
+            initial,
+            handlers,
+            experimental,
+            markupConfig,
             wysiwygConfig: {
                 ...wysiwygConfig,
                 extensions,
-                escapeConfig: wysiwygConfig.escapeConfig ?? props.escapeConfig,
             },
         });
     }, deps);

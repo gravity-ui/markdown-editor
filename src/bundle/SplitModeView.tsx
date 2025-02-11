@@ -1,4 +1,4 @@
-import React, {useEffect, useImperativeHandle, useMemo, useReducer, useRef} from 'react';
+import {forwardRef, useEffect, useImperativeHandle, useMemo, useReducer, useRef} from 'react';
 
 import {Eye} from '@gravity-ui/icons';
 import {Label} from '@gravity-ui/uikit';
@@ -20,7 +20,7 @@ export type SplitModeProps = {
     editor: EditorInt;
 };
 
-const SplitModeView = React.forwardRef<HTMLDivElement, SplitModeProps>(({editor}, ref) => {
+const SplitModeView = forwardRef<HTMLDivElement, SplitModeProps>(({editor}, ref) => {
     const cm = editor.cm;
 
     const [, forceUpdate] = useReducer((x) => x + 1, 0);

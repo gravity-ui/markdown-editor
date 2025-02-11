@@ -1,5 +1,6 @@
 import {chainCommands, wrapIn} from 'prosemirror-commands';
 import type {NodeType} from 'prosemirror-model';
+// @ts-ignore // TODO: fix cjs build
 import {hasParentNodeOfType} from 'prosemirror-utils';
 
 import type {Action, ExtensionAuto} from '../../../core';
@@ -9,7 +10,7 @@ import {withLogAction} from '../../../utils/keymap';
 import {BlockquoteSpecs, blockquoteType} from './BlockquoteSpecs';
 import {joinPrevQuote, liftFromQuote, toggleQuote} from './commands';
 
-export {blockquote, blockquoteNodeName, blockquoteType} from './const';
+export {blockquoteNodeName, blockquoteType} from './const';
 const bqAction = 'quote';
 
 export type BlockquoteOptions = {

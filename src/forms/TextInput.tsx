@@ -1,4 +1,4 @@
-import React from 'react';
+import {forwardRef, useRef} from 'react';
 
 import {
     TextAreaProps,
@@ -9,8 +9,8 @@ import {
 import {useEffectOnce} from 'react-use';
 
 // TODO: remove after fix https://github.com/yandex-cloud/uikit/issues/133
-export const TextInputFixed = React.forwardRef<HTMLSpanElement, TextInputProps>((props, ref) => {
-    const inputRef = React.useRef<HTMLInputElement>(null);
+export const TextInputFixed = forwardRef<HTMLSpanElement, TextInputProps>((props, ref) => {
+    const inputRef = useRef<HTMLInputElement>(null);
     const controlRef = (props.controlRef as React.RefObject<HTMLInputElement>) ?? inputRef;
 
     useEffectOnce(() => {
@@ -28,8 +28,8 @@ export const TextInputFixed = React.forwardRef<HTMLSpanElement, TextInputProps>(
 TextInputFixed.displayName = 'TextInputFixed';
 
 // TODO: remove after fix https://github.com/yandex-cloud/uikit/issues/133
-export const TextAreaFixed = React.forwardRef<HTMLSpanElement, TextAreaProps>((props, ref) => {
-    const inputRef = React.useRef<HTMLTextAreaElement>(null);
+export const TextAreaFixed = forwardRef<HTMLSpanElement, TextAreaProps>((props, ref) => {
+    const inputRef = useRef<HTMLTextAreaElement>(null);
     const controlRef = (props.controlRef as React.RefObject<HTMLTextAreaElement>) ?? inputRef;
 
     useEffectOnce(() => {

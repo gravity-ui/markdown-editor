@@ -13,7 +13,7 @@ export const addRowAfter: Command = (state, dispatch) => {
 
     if (dispatch) {
         const newCellNodes: Node[] = [];
-        parentRow.node.forEach((node) => {
+        parentRow.node.forEach((node: Node) => {
             newCellNodes.push(node.type.createAndFill(node.attrs)!);
         });
 

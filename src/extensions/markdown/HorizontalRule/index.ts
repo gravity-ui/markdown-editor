@@ -18,13 +18,7 @@ export {
     horizontalRuleNodeName,
     horizontalRuleType,
 } from './HorizontalRuleSpecs';
-/** @deprecated Use `horizontalRuleNodeName` instead */
-export const horizontalRule = horizontalRuleNodeName;
 const hrAction = 'hRule';
-/** @deprecated Use `horizontalRuleMarkupAttr` instead */
-export const markupAttr = horizontalRuleMarkupAttr;
-/** @deprecated Use `horizontalRuleType` instead */
-const hrType = horizontalRuleType;
 
 export const HorizontalRule: ExtensionAuto = (builder) => {
     builder.use(HorizontalRuleSpecs);
@@ -36,7 +30,7 @@ export const HorizontalRule: ExtensionAuto = (builder) => {
             nodeInputRule(
                 /^(---|___|\*\*\*)$/,
                 (markup) => [
-                    hrType(deps.schema).create({[horizontalRuleMarkupAttr]: markup}),
+                    horizontalRuleType(deps.schema).create({[horizontalRuleMarkupAttr]: markup}),
                     pType(deps.schema).create(),
                 ],
                 1,
@@ -45,7 +39,7 @@ export const HorizontalRule: ExtensionAuto = (builder) => {
     }));
 
     builder.addAction(hrAction, ({schema}) => {
-        const cmd = addHr(hrType(schema));
+        const cmd = addHr(horizontalRuleType(schema));
         return {
             isActive: (state) => isHrSelection(state.selection),
             isEnable: cmd,

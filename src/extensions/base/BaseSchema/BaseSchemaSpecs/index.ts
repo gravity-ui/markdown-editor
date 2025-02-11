@@ -37,7 +37,7 @@ export const BaseSchemaSpecs: ExtensionAuto<BaseSchemaSpecsOptions> = (builder, 
             fromMd: {tokenSpec: {name: BaseNode.Text, type: 'node', ignore: true}},
             toMd: (state, node, parent) => {
                 const {escapeText} = parent.type.spec;
-                state.text(node.text, escapeText ?? !state.isAutolink);
+                state.text(node.text ?? '', escapeText ?? !state.isAutolink);
             },
         }))
         .addNode(BaseNode.Paragraph, () => ({

@@ -1,5 +1,3 @@
-import React from 'react';
-
 import {Node} from 'prosemirror-model';
 import {Transaction} from 'prosemirror-state';
 import {EditorView} from 'prosemirror-view';

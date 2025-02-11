@@ -1,8 +1,7 @@
-import React, {CSSProperties, useCallback, useEffect, useState} from 'react';
+import {CSSProperties, memo, useCallback, useEffect, useState} from 'react';
 
 import {defaultOptions} from '@diplodoc/transform/lib/sanitize';
 import {Button, DropdownMenu} from '@gravity-ui/uikit';
-import {toaster} from '@gravity-ui/uikit/toaster-singleton-react-18';
 
 import {
     type DirectiveSyntaxValue,
@@ -75,14 +74,7 @@ export type PlaygroundProps = {
     onChangeEditorType?: (mode: MarkdownEditorMode) => void;
     onChangeSplitModeEnabled?: (splitModeEnabled: boolean) => void;
     directiveSyntax?: DirectiveSyntaxValue;
-} & Pick<
-    UseMarkdownEditorProps,
-    | 'needToSetDimensionsForUploadedImages'
-    | 'extraExtensions'
-    | 'renderPreview'
-    | 'extensionOptions'
-    | 'experimental'
-> &
+} & Pick<UseMarkdownEditorProps, 'experimental' | 'wysiwygConfig'> &
     Pick<
         MarkdownEditorViewProps,
         | 'markupHiddenActionsConfig'
@@ -99,7 +91,7 @@ logger.setLogger({
     ...console,
 });
 
-export const Playground = React.memo<PlaygroundProps>((props) => {
+export const Playground = memo<PlaygroundProps>((props) => {
     const {
         initial,
         initialEditor,
@@ -116,8 +108,7 @@ export const Playground = React.memo<PlaygroundProps>((props) => {
         stickyToolbar,
         renderPreviewDefined,
         height,
-        extraExtensions,
-        extensionOptions,
+        wysiwygConfig,
         toolbarsPreset,
         wysiwygToolbarConfig,
         wysiwygCommandMenuConfig,
@@ -126,16 +117,13 @@ export const Playground = React.memo<PlaygroundProps>((props) => {
         placeholderOptions,
         enableSubmitInPreview,
         hidePreviewAfterSubmit,
-        needToSetDimensionsForUploadedImages,
         experimental,
         directiveSyntax,
     } = props;
-    const [editorMode, setEditorMode] = React.useState<MarkdownEditorMode>(
-        initialEditor ?? 'wysiwyg',
-    );
-    const [mdRaw, setMdRaw] = React.useState<MarkupString>(initial || '');
+    const [editorMode, setEditorMode] = useState<MarkdownEditorMode>(initialEditor ?? 'wysiwyg');
+    const [mdRaw, setMdRaw] = useState<MarkupString>(initial || '');
 
-    React.useEffect(() => {
+    useEffect(() => {
         updateLocation(mdRaw);
     }, [mdRaw]);
 
@@ -193,39 +181,44 @@ export const Playground = React.memo<PlaygroundProps>((props) => {
                         </style
                     `,
                         });
-                    if (extraExtensions) builder.use(extraExtensions);
+                    if (wysiwygConfig?.extensions) builder.use(wysiwygConfig.extensions);
+                },
+                extensionOptions: {
+                    commandMenu: {actions: wysiwygCommandMenuConfig ?? wCommandMenuConfig},
+                    imgSize: {
+                        parseInsertedUrlAsImage,
+                    },
+                    ...wysiwygConfig?.extensionOptions,
                 },
             },
-            allowHTML,
-            linkify,
-            linkifyTlds,
-            initialMarkup: mdRaw,
-            breaks: breaks ?? true,
-            initialEditorMode: editorMode,
-            initialSplitModeEnabled: initialSplitModeEnabled,
-            initialToolbarVisible: true,
-            splitMode: splitModeOrientation,
-            needToSetDimensionsForUploadedImages,
-            renderPreview: renderPreviewDefined ? renderPreview : undefined,
-            fileUploadHandler,
+            md: {
+                html: allowHTML,
+                linkify,
+                linkifyTlds,
+                breaks: breaks ?? true,
+            },
+            initial: {
+                markup: mdRaw,
+                mode: editorMode,
+                toolbarVisible: true,
+                splitModeEnabled: initialSplitModeEnabled,
+            },
+            handlers: {
+                uploadFile: fileUploadHandler,
+            },
             experimental: {
                 ...experimental,
                 directiveSyntax,
-                preserveEmptyRows: preserveEmptyRows,
-            },
-            prepareRawMarkup: prepareRawMarkup
-                ? (value) => '**prepare raw markup**\n\n' + value
-                : undefined,
-            extensionOptions: {
-                commandMenu: {actions: wysiwygCommandMenuConfig ?? wCommandMenuConfig},
-                imgSize: {
-                    parseInsertedUrlAsImage,
-                },
-                ...extensionOptions,
+                preserveEmptyRows,
+                prepareRawMarkup: prepareRawMarkup
+                    ? (value) => '**prepare raw markup**\n\n' + value
+                    : undefined,
             },
             markupConfig: {
                 extensions: markupConfigExtensions,
                 parseInsertedUrlAsImage,
+                renderPreview,
+                splitMode: splitModeOrientation,
             },
         },
         [
@@ -236,8 +229,7 @@ export const Playground = React.memo<PlaygroundProps>((props) => {
             splitModeOrientation,
             renderPreviewDefined,
             renderPreview,
-            extraExtensions,
-            needToSetDimensionsForUploadedImages,
+            experimental?.needToSetDimensionsForUploadedImages,
             initial,
             experimental?.enableNewImageSizeCalculation,
             experimental?.needToSetDimensionsForUploadedImages,
@@ -300,7 +292,6 @@ export const Playground = React.memo<PlaygroundProps>((props) => {
             view={({className}) => (
                 <MarkdownEditorView
                     autofocus
-                    toaster={toaster}
                     className={className}
                     stickyToolbar={Boolean(stickyToolbar)}
                     toolbarsPreset={toolbarsPreset}

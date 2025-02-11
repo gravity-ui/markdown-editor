@@ -1,5 +1,3 @@
-import React from 'react';
-
 import {i18n} from '../../i18n/menubar';
 import {Action as A, formatter as f} from '../../shortcuts';
 import type {WToolbarListButtonData, WToolbarListButtonItemData} from '../toolbar/types';

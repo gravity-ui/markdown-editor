@@ -4,6 +4,9 @@ import {useEffectOnce, useLatest} from 'react-use';
 
 import {debounce} from '../lodash';
 
+export const useElementState = <T extends HTMLElement>(): [T | null, React.RefCallback<T>] =>
+    useState<T | null>(null);
+
 type SetTrue = () => void;
 type SetFalse = () => void;
 type Toggle = () => void;

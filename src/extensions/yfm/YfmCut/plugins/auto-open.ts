@@ -1,5 +1,6 @@
 import type {ResolvedPos} from 'prosemirror-model';
 import {Plugin, PluginKey, PluginView} from 'prosemirror-state';
+// @ts-ignore // TODO: fix cjs build
 import {findDomRefAtPos} from 'prosemirror-utils';
 import type {EditorView} from 'prosemirror-view';
 

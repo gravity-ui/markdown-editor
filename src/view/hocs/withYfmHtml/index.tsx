@@ -1,4 +1,4 @@
-import React, {ComponentType, RefAttributes, forwardRef, useEffect} from 'react';
+import {type ComponentType, type RefAttributes, forwardRef, useEffect} from 'react';
 
 import {useDiplodocEmbeddedContentController} from '@diplodoc/html-extension/react';
 import {IHTMLIFrameElementConfig} from '@diplodoc/html-extension/runtime';

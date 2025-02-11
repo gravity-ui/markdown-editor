@@ -8,6 +8,7 @@ import {
     RemoveNodeMarkStep,
     ReplaceStep,
 } from 'prosemirror-transform';
+// @ts-ignore // TODO: fix cjs build
 import {findChildren} from 'prosemirror-utils';
 import {Decoration, DecorationAttrs, DecorationSet} from 'prosemirror-view';
 
