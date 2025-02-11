@@ -1,7 +1,7 @@
 import {v5} from 'uuid';
 
-import {MarkupManager} from '../../core/markdown/MarkupManager';
 import {DynamicModifiers} from '../../core/types/dynamicModifiers';
+import {MarkupManager} from '../MarkupManager';
 
 const YFM_TABLE_TOKEN_ATTR = 'data-token-id';
 const YFM_TABLE_NODE_ATTR = 'data-node-id';

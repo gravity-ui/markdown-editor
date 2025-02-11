@@ -3,7 +3,7 @@ import {MarkdownParserDynamicModifierConfig} from '../markdown/MarkdownParser';
 import {MarkdownSerializerDynamicModifierConfig} from '../markdown/MarkdownSerializerDynamicModifier';
 import {DynamicModifiers} from '../types/dynamicModifiers';
 
-export function convertDynamicModifiersConfigs(modifiers?: DynamicModifiers[]): {
+export function convertDynamicModifiersConfigs(modifiers: DynamicModifiers[]): {
     parser: MarkdownParserDynamicModifierConfig;
     schema: SchemaDynamicModifierConfig;
     serializer: MarkdownSerializerDynamicModifierConfig;
@@ -12,7 +12,7 @@ export function convertDynamicModifiersConfigs(modifiers?: DynamicModifiers[]): 
     const schema: SchemaDynamicModifierConfig = {};
     const serializer: MarkdownSerializerDynamicModifierConfig = {};
 
-    modifiers?.forEach((modifier) => {
+    modifiers.forEach((modifier) => {
         switch (modifier.type) {
             case 'parserToken': {
                 const {tokenName, process} = modifier;

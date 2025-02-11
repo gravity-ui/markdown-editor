@@ -12,10 +12,12 @@ import {MarkdownParserDynamicModifier} from './markdown/MarkdownParser';
 import {MarkdownSerializerDynamicModifier} from './markdown/MarkdownSerializerDynamicModifier';
 import {TransformFn} from './markdown/ProseMirrorTransformer';
 import type {ActionStorage} from './types/actions';
+import {DynamicModifiers} from './types/dynamicModifiers';
 import type {Extension} from './types/extension';
 import type {Parser} from './types/parser';
 import {Serializer} from './types/serializer';
 import {bindActions} from './utils/actions';
+import {convertDynamicModifiersConfigs} from './utils/dynamicModifiers';
 import {logTransactionMetrics} from './utils/metrics';
 
 type OnChange = (editor: WysiwygEditor) => void;
@@ -41,11 +43,8 @@ export type WysiwygEditorOptions = {
     onChange?: OnChange;
     /** Call only if document change */
     onDocChange?: OnChange;
-    dynamicModifiers?: {
-        parser?: MarkdownParserDynamicModifier;
-        schema?: SchemaDynamicModifier;
-        serialier?: MarkdownSerializerDynamicModifier;
-    };
+    /** Modifiers adjust the parser and serializer */
+    modifiers?: DynamicModifiers[];
 };
 
 export class WysiwygEditor implements CommonEditor, ActionStorage {
@@ -89,8 +88,21 @@ export class WysiwygEditor implements CommonEditor, ActionStorage {
         escapeConfig,
         onChange,
         onDocChange,
-        dynamicModifiers,
+        modifiers,
     }: WysiwygEditorOptions) {
+        const dynamicModifiersConfig = modifiers
+            ? convertDynamicModifiersConfigs(modifiers)
+            : undefined;
+        const dynamicModifiers = dynamicModifiersConfig
+            ? {
+                  schema: new SchemaDynamicModifier(dynamicModifiersConfig.schema),
+                  parser: new MarkdownParserDynamicModifier(dynamicModifiersConfig.parser),
+                  serializer: new MarkdownSerializerDynamicModifier(
+                      dynamicModifiersConfig.serializer,
+                  ),
+              }
+            : undefined;
+
         const {
             schema,
             markupParser: parser,
@@ -116,6 +128,7 @@ export class WysiwygEditor implements CommonEditor, ActionStorage {
 
         const thisOnChange = () => this.tryOnChange(onChange);
         const thisOnDocChange = () => this.tryOnChange(onDocChange);
+
         this.#view = new EditorView(domElem ?? null, {
             state,
             nodeViews,

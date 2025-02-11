@@ -1,7 +1,7 @@
 import {Node} from 'prosemirror-model';
 import {v4} from 'uuid';
 
-import {SafeEventEmitter} from '../../utils';
+import {SafeEventEmitter} from '../utils';
 
 export interface IMarkupManager {
     setMarkup(id: string, rawMarkup: string): void;

@@ -66,9 +66,13 @@ export class ExtensionsManager {
     #parserDynamicModifier?: MarkdownParserDynamicModifier;
 
     constructor({extensions, options = {}}: ExtensionsManagerParams) {
-        this.#schemaRegistry = new SchemaSpecRegistry(undefined, options?.dynamicModifiers?.schema);
+        this.#schemaRegistry = new SchemaSpecRegistry(undefined, options.dynamicModifiers?.schema);
         this.#parserRegistry = new ParserTokensRegistry();
         this.#serializerRegistry = new SerializerTokensRegistry();
+        if (options.dynamicModifiers) {
+            this.#parserDynamicModifier = options.dynamicModifiers?.parser;
+            this.#serializerDynamicModifier = options.dynamicModifiers?.serializer;
+        }
 
         this.#extensions = extensions;
 
@@ -83,11 +87,6 @@ export class ExtensionsManager {
 
         if (options.pmTransformers) {
             this.#pmTransformers = options.pmTransformers;
-        }
-
-        if (options.dynamicModifiers) {
-            this.#parserDynamicModifier = options?.dynamicModifiers?.parser;
-            this.#serializerDynamicModifier = options?.dynamicModifiers?.serializer;
         }
 
         // TODO: add prefilled context
