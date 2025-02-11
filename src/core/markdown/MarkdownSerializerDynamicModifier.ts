@@ -1,6 +1,6 @@
-import {Node} from 'prosemirror-model';
+import type {Node} from 'prosemirror-model';
 
-import {SerializerNodeToken, SerializerState} from '../types/serializer';
+import type {SerializerNodeToken, SerializerState} from '../types/serializer';
 
 /** @internal */
 export type SerializerProcessNode = (
