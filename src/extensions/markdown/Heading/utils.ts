@@ -6,7 +6,7 @@ import {hasParentNode} from 'prosemirror-utils';
 import {textblockTypeInputRule} from '../../../utils/inputrules';
 
 import {headingType} from './HeadingSpecs';
-import {HeadingLevel, headingLevelAttr} from './const';
+import {type HeadingLevel, headingLevelAttr} from './const';
 
 export const hasParentHeading = (level: HeadingLevel) => (state: EditorState) =>
     hasParentNode((node: Node) => {

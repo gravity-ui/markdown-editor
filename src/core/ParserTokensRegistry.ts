@@ -1,8 +1,8 @@
 import type MarkdownIt from 'markdown-it';
 import type {Schema} from 'prosemirror-model';
 
-import {MarkdownParser, MarkdownParserDynamicModifier} from './markdown/MarkdownParser';
-import {TransformFn} from './markdown/ProseMirrorTransformer';
+import {MarkdownParser, type MarkdownParserDynamicModifier} from './markdown/MarkdownParser';
+import type {TransformFn} from './markdown/ProseMirrorTransformer';
 import type {Parser, ParserToken} from './types/parser';
 
 export class ParserTokensRegistry {

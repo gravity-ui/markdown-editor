@@ -1,6 +1,6 @@
 import {Plugin} from 'prosemirror-state';
 
-import {ExtensionDeps} from '../../../../../core';
+import type {ExtensionDeps} from '../../../../../core';
 import {reactNodeViewFactory} from '../../../../../react-utils';
 import {imageNodeName, imageRendererKey} from '../../const';
 

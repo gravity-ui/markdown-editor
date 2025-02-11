@@ -1,4 +1,4 @@
-import {Action, ExtensionBuilder} from '../../../../core';
+import type {Action, ExtensionBuilder} from '../../../../core';
 import type {CommonAnswer} from '../ErrorScreen/types';
 import {showGptWidget} from '../actions';
 import {runGpt} from '../commands';

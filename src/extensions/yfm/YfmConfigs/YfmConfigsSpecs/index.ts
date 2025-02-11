@@ -1,4 +1,4 @@
-import attrsPlugin, {AttrsOptions} from 'markdown-it-attrs'; // eslint-disable-line import/no-extraneous-dependencies
+import attrsPlugin, {type AttrsOptions} from 'markdown-it-attrs'; // eslint-disable-line import/no-extraneous-dependencies
 
 import type {ExtensionAuto} from '../../../../core';
 import {noop} from '../../../../lodash';

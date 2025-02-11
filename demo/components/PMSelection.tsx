@@ -1,6 +1,6 @@
 import {useLayoutEffect} from 'react';
 
-import {EditorView} from 'prosemirror-view';
+import type {EditorView} from 'prosemirror-view';
 import {useEffectOnce, useUpdate} from 'react-use';
 
 import {

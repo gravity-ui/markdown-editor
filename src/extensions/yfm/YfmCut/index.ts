@@ -5,7 +5,7 @@ import type {Action, ExtensionAuto} from '../../../core';
 import {nodeInputRule} from '../../../utils/inputrules';
 import {withLogAction} from '../../../utils/keymap';
 
-import {YfmCutSpecs, YfmCutSpecsOptions} from './YfmCutSpecs';
+import {YfmCutSpecs, type YfmCutSpecsOptions} from './YfmCutSpecs';
 import {createYfmCut, toYfmCut} from './actions/toYfmCut';
 import {backToCutTitle, exitFromCutTitle, liftEmptyBlockFromCut, removeCut} from './commands';
 import {cutType} from './const';

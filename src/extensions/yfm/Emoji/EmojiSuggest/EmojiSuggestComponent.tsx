@@ -1,8 +1,8 @@
-import {List, Popup, PopupPlacement} from '@gravity-ui/uikit';
+import {List, Popup, type PopupPlacement} from '@gravity-ui/uikit';
 
 import {cn} from '../../../../classname';
 import {ErrorLoggerBoundary} from '../../../../react-utils/ErrorBoundary';
-import {AutocompletePopupProps} from '../../../../utils/autocomplete-popup';
+import type {AutocompletePopupProps} from '../../../../utils/autocomplete-popup';
 
 import type {EmojiDef} from './types';
 

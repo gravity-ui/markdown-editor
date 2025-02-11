@@ -5,7 +5,7 @@ import type {PopupProps} from '@gravity-ui/uikit';
 import {Slice} from 'prosemirror-model';
 import type {EditorState, PluginView} from 'prosemirror-state';
 import {TextSelection} from 'prosemirror-state';
-import {EditorView} from 'prosemirror-view';
+import type {EditorView} from 'prosemirror-view';
 import {useMount} from 'react-use';
 
 import {cn} from '../../../../classname';

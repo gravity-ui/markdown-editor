@@ -7,7 +7,7 @@ import {ReactWidgetDescriptor} from '../../../behavior/WidgetDecoration/ReactWid
 import {LinkAttr, linkType} from '../LinkSpecs';
 import {normalizeUrlFactory} from '../utils';
 
-import {LinkPlaceholderWidget, LinkPlaceholderWidgetProps} from './widget';
+import {LinkPlaceholderWidget, type LinkPlaceholderWidgetProps} from './widget';
 
 export const addPlaceholder = (tr: Transaction, deps: ExtensionDeps) => {
     return new LinkWidgetDescriptor(tr.selection.from, deps).applyTo(tr);

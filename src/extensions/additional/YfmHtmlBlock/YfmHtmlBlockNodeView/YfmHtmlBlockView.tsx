@@ -5,8 +5,8 @@ import type {IHTMLIFrameElementConfig} from '@diplodoc/html-extension/runtime';
 import {Ellipsis as DotsIcon, Eye} from '@gravity-ui/icons';
 import {Button, Icon, Label, Menu, Popup} from '@gravity-ui/uikit';
 import debounce from 'lodash/debounce';
-import {Node} from 'prosemirror-model';
-import {EditorView} from 'prosemirror-view';
+import type {Node} from 'prosemirror-model';
+import type {EditorView} from 'prosemirror-view';
 
 import {cn} from '../../../../classname';
 import {TextAreaFixed as TextArea} from '../../../../forms/TextInput';
@@ -14,7 +14,7 @@ import {i18n} from '../../../../i18n/common';
 import {useBooleanState, useElementState} from '../../../../react-utils/hooks';
 import {removeNode} from '../../../../utils/remove-node';
 import {YfmHtmlBlockConsts} from '../YfmHtmlBlockSpecs/const';
-import {YfmHtmlBlockOptions} from '../index';
+import type {YfmHtmlBlockOptions} from '../index';
 
 import './YfmHtmlBlock.scss';
 

@@ -1,19 +1,19 @@
-import {Schema} from 'prosemirror-model';
-import {EditorView} from 'prosemirror-view';
+import type {Schema} from 'prosemirror-model';
+import type {EditorView} from 'prosemirror-view';
 
 import {AutocompletePopupCloser} from '../../../../utils/autocomplete-popup';
 import {ArrayCarousel} from '../../../../utils/carousel';
-import {RendererItem, getReactRendererFromState} from '../../../behavior';
+import {type RendererItem, getReactRendererFromState} from '../../../behavior';
 import {
-    AutocompleteAction,
+    type AutocompleteAction,
     AutocompleteActionKind,
-    AutocompleteHandler,
-    FromTo,
+    type AutocompleteHandler,
+    type FromTo,
     closeAutocomplete,
 } from '../../../behavior/Autocomplete';
 import {EmojiConsts} from '../EmojiSpecs';
 
-import {EmojiSuggestComponentProps, render} from './EmojiSuggestComponent';
+import {type EmojiSuggestComponentProps, render} from './EmojiSuggestComponent';
 import type {EmojiDef} from './types';
 import {findDecoElem} from './utils';
 

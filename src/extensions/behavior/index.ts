@@ -1,16 +1,16 @@
 import type {ExtensionAuto} from '../../core';
-import {PlaceholderOptions} from '../../utils/placeholder';
+import type {PlaceholderOptions} from '../../utils/placeholder';
 
 import {ClicksOnEdges} from './ClicksOnEdges';
-import {Clipboard, ClipboardOptions} from './Clipboard';
-import {CommandMenu, CommandMenuOptions} from './CommandMenu';
-import {Cursor, CursorOptions} from './Cursor';
+import {Clipboard, type ClipboardOptions} from './Clipboard';
+import {CommandMenu, type CommandMenuOptions} from './CommandMenu';
+import {Cursor, type CursorOptions} from './Cursor';
 import {FilePaste} from './FilePaste';
-import {History, HistoryOptions} from './History';
+import {History, type HistoryOptions} from './History';
 import {Placeholder} from './Placeholder';
-import {ReactRenderer, ReactRendererExtension} from './ReactRenderer';
+import {type ReactRenderer, ReactRendererExtension} from './ReactRenderer';
 import {Selection} from './Selection';
-import {SelectionContext, SelectionContextOptions} from './SelectionContext';
+import {SelectionContext, type SelectionContextOptions} from './SelectionContext';
 import {WidgetDecoration} from './WidgetDecoration';
 
 export * from './ClicksOnEdges';

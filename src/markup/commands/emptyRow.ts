@@ -1,4 +1,4 @@
-import {EditorState, Line, StateCommand} from '@codemirror/state';
+import type {EditorState, Line, StateCommand} from '@codemirror/state';
 
 export const insertEmptyRow: StateCommand = ({state, dispatch}) => {
     const emptyRowMarkup = '&nbsp;';

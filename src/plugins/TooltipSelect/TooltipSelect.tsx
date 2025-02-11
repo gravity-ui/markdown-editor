@@ -4,10 +4,10 @@ import {
     ArrowToggle,
     Button,
     Popup,
-    PopupProps,
+    type PopupProps,
     Select,
-    SelectOption,
-    SelectOptionGroup,
+    type SelectOption,
+    type SelectOptionGroup,
 } from '@gravity-ui/uikit';
 
 import {useBooleanState} from '../../react-utils';

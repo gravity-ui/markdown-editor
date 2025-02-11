@@ -1,4 +1,4 @@
-import {ChangeSet, ChangeSpec} from '@codemirror/state';
+import {ChangeSet, type ChangeSpec} from '@codemirror/state';
 import {EditorView} from '@codemirror/view';
 
 const PAIRING_CHARS = new Map([

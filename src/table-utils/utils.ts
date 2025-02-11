@@ -1,7 +1,7 @@
 import isNumber from 'is-number';
-import {Node as PmNode, ResolvedPos} from 'prosemirror-model';
+import type {Node as PmNode, ResolvedPos} from 'prosemirror-model';
 import {
-    Predicate,
+    type Predicate,
     findChildren,
     findParentNode,
     findParentNodeClosestToPos,

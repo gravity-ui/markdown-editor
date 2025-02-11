@@ -3,7 +3,7 @@ import {useLayoutEffect, useState} from 'react';
 import {TextInput, type TextInputProps} from '@gravity-ui/uikit';
 import {Tabs} from '@gravity-ui/uikit/legacy';
 
-import {ClassNameProps, cn} from '../classname';
+import {type ClassNameProps, cn} from '../classname';
 import {i18n} from '../i18n/forms';
 import {isFunction} from '../lodash';
 import {enterKeyHandler} from '../utils/handlers';

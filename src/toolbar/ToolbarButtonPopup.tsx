@@ -1,7 +1,7 @@
 import {useBooleanState, useElementState} from '../react-utils/hooks';
 
 import {ToolbarButtonView} from './ToolbarButton';
-import {ToolbarBaseProps, ToolbarButtonPopupData} from './types';
+import type {ToolbarBaseProps, ToolbarButtonPopupData} from './types';
 
 export type ToolbarButtonPopupProps<E> = ToolbarBaseProps<E> & ToolbarButtonPopupData<E>;
 

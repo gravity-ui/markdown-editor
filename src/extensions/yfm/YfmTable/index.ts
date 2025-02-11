@@ -1,7 +1,7 @@
 import type {Action, ExtensionWithOptions} from '../../../core';
 import {goToNextCell} from '../../../table-utils';
 
-import {YfmTableSpecs, YfmTableSpecsOptions} from './YfmTableSpecs';
+import {YfmTableSpecs, type YfmTableSpecsOptions} from './YfmTableSpecs';
 import {createYfmTable} from './actions';
 import {backspaceCommand} from './commands/backspace';
 import {goToNextRow} from './commands/goToNextRow';

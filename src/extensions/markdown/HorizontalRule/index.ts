@@ -1,5 +1,5 @@
 import type {NodeType} from 'prosemirror-model';
-import {Command, Selection, TextSelection} from 'prosemirror-state';
+import {type Command, type Selection, TextSelection} from 'prosemirror-state';
 
 import type {Action, ExtensionAuto} from '../../../core';
 import {nodeInputRule} from '../../../utils/inputrules';

@@ -1,7 +1,7 @@
 import {type ComponentType, type RefAttributes, forwardRef, useEffect} from 'react';
 
 import {useDiplodocEmbeddedContentController} from '@diplodoc/html-extension/react';
-import {IHTMLIFrameElementConfig} from '@diplodoc/html-extension/runtime';
+import type {IHTMLIFrameElementConfig} from '@diplodoc/html-extension/runtime';
 
 import type {PluginRuntime, TransformMeta} from '../withMermaid/types';
 

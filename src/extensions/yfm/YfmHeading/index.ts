@@ -1,7 +1,7 @@
 import type {Action, ExtensionAuto, Keymap} from '../../../core';
 import {withLogAction} from '../../../utils/keymap';
 
-import {YfmHeadingSpecs, YfmHeadingSpecsOptions} from './YfmHeadingSpecs';
+import {YfmHeadingSpecs, type YfmHeadingSpecsOptions} from './YfmHeadingSpecs';
 import {headingRule, headingType} from './YfmHeadingSpecs/utils';
 import {headingAction} from './actions';
 import {resetHeading, toHeading} from './commands';

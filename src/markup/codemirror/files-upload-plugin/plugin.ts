@@ -1,16 +1,16 @@
 import type {ChangeSpec} from '@codemirror/state';
 import {
     Decoration,
-    DecorationSet,
-    EditorView,
-    PluginValue,
+    type DecorationSet,
+    type EditorView,
+    type PluginValue,
     ViewPlugin,
-    ViewUpdate,
+    type ViewUpdate,
     WidgetType,
 } from '@codemirror/view';
 
 import type {RendererItem} from '../../../extensions';
-import {FileUploadHandler, FileUploadResult, getProportionalSize} from '../../../utils';
+import {type FileUploadHandler, type FileUploadResult, getProportionalSize} from '../../../utils';
 import {FileUploadHandlerFacet} from '../files-upload-facet';
 import {ReactRendererFacet} from '../react-facet';
 

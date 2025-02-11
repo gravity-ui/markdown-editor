@@ -1,4 +1,4 @@
-import {ExtensionAuto} from '../../../core';
+import type {ExtensionAuto} from '../../../core';
 
 import {WidgetDecorationPlugin} from './plugin';
 

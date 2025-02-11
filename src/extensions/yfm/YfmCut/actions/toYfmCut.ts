@@ -1,5 +1,5 @@
 import type {Fragment, Node, Schema} from 'prosemirror-model';
-import {Command, TextSelection} from 'prosemirror-state';
+import {type Command, TextSelection} from 'prosemirror-state';
 // @ts-ignore // TODO: fix cjs build
 import {findParentNodeClosestToPos} from 'prosemirror-utils';
 

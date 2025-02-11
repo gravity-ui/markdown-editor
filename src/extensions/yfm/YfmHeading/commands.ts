@@ -6,7 +6,7 @@ import {findParentNodeOfType} from 'prosemirror-utils';
 import {toParagraph} from '../../../extensions/base';
 
 import {headingType} from './YfmHeadingSpecs/utils';
-import {HeadingLevel, YfmHeadingAttr, headingLevelAttr} from './const';
+import {type HeadingLevel, YfmHeadingAttr, headingLevelAttr} from './const';
 
 export {resetHeading} from '../../markdown/Heading/commands';
 

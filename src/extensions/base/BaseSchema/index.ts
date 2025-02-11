@@ -6,7 +6,7 @@ import {hasParentNodeOfType} from 'prosemirror-utils';
 import type {Action, ExtensionAuto} from '../../../core';
 import {withLogAction} from '../../../utils/keymap';
 
-import {BaseSchemaSpecs, BaseSchemaSpecsOptions, pType} from './BaseSchemaSpecs';
+import {BaseSchemaSpecs, type BaseSchemaSpecsOptions, pType} from './BaseSchemaSpecs';
 
 export {BaseNode, pType} from './BaseSchemaSpecs';
 

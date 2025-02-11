@@ -1,4 +1,4 @@
-import {TextInput, TextInputProps} from '@gravity-ui/uikit';
+import {TextInput, type TextInputProps} from '@gravity-ui/uikit';
 import isNumber from 'is-number';
 
 type BaseNumberInputProps = {

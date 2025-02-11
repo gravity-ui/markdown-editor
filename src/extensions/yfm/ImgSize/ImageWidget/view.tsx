@@ -1,11 +1,11 @@
 import {useCallback} from 'react';
 
 import {Picture as ImageIcon} from '@gravity-ui/icons';
-import {Icon, Popup, PopupPlacement} from '@gravity-ui/uikit';
+import {Icon, Popup, type PopupPlacement} from '@gravity-ui/uikit';
 import {useMountedState} from 'react-use';
 
 import {cn} from '../../../../classname';
-import {ImageForm, ImageFormProps} from '../../../../forms/ImageForm';
+import {ImageForm, type ImageFormProps} from '../../../../forms/ImageForm';
 import {i18n} from '../../../../i18n/widgets';
 import {useBooleanState, useElementState} from '../../../../react-utils/hooks';
 

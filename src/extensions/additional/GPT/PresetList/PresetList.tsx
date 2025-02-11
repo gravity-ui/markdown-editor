@@ -2,7 +2,7 @@ import {ActionTooltip, Button, DropdownMenu} from '@gravity-ui/uikit';
 
 import {cn} from '../../../../classname';
 import {i18n} from '../../../../i18n/gpt/dialog';
-import {CommonAnswer, type PromptPreset} from '../ErrorScreen/types';
+import type {CommonAnswer, PromptPreset} from '../ErrorScreen/types';
 import type {GptDialogProps} from '../GptDialog/GptDialog';
 import {gptHotKeys} from '../constants';
 import {useGptHotKeys} from '../hooks/useGptHotKeys';

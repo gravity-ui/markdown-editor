@@ -10,6 +10,10 @@
     "rules": {
         "lodash/import-scope": [2, "method"],
         "jsx-a11y/no-autofocus": "warn",
+        "@typescript-eslint/no-import-type-side-effects": "error",
+        "@typescript-eslint/consistent-type-imports": [2, {
+            "fixStyle": "inline-type-imports"
+        }],
         "@typescript-eslint/no-unused-vars": [2, {
             "argsIgnorePattern": "^_",
             "varsIgnorePattern": "^_",

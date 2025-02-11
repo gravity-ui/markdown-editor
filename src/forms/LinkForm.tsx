@@ -1,8 +1,8 @@
 import {memo, useState} from 'react';
 
-import {TextInput, TextInputProps} from '@gravity-ui/uikit';
+import {TextInput, type TextInputProps} from '@gravity-ui/uikit';
 
-import {ClassNameProps} from '../classname';
+import type {ClassNameProps} from '../classname';
 import {i18n} from '../i18n/forms';
 import {enterKeyHandler} from '../utils/handlers';
 

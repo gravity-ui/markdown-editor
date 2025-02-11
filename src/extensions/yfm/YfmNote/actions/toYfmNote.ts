@@ -1,5 +1,5 @@
 import type {Node, Schema} from 'prosemirror-model';
-import {Command, EditorState} from 'prosemirror-state';
+import type {Command, EditorState} from 'prosemirror-state';
 // @ts-ignore // TODO: fix cjs build
 import {findParentNodeOfType, hasParentNodeOfType} from 'prosemirror-utils';
 

@@ -2,7 +2,7 @@ import isNumber from 'is-number';
 import type {Schema} from 'prosemirror-model';
 
 import type {ActionSpec} from '../../../core';
-import {AddImageAttrs as AddImageAttrsBase, imageType} from '../../markdown/Image';
+import {type AddImageAttrs as AddImageAttrsBase, imageType} from '../../markdown/Image';
 
 import {ImgSizeAttr} from './const';
 

@@ -2,7 +2,7 @@ import type {Action, ExtensionAuto} from '../../../core';
 import {isFunction} from '../../../lodash';
 
 import {ImageSpecs} from './ImageSpecs';
-import {AddImageAttrs, addImage} from './actions';
+import {type AddImageAttrs, addImage} from './actions';
 import {addImageAction} from './const';
 import {type ImageUrlPasteOptions, imageUrlPaste} from './imageUrlPaste';
 

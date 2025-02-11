@@ -5,7 +5,7 @@ import type {EditorView, NodeView} from 'prosemirror-view';
 
 import type {MermaidOptions} from '..';
 import {getReactRendererFromState} from '../../../behavior';
-import {MermaidConsts} from '../MermaidSpecs/const';
+import type {MermaidConsts} from '../MermaidSpecs/const';
 
 import {MermaidView, STOP_EVENT_CLASSNAME} from './MermaidView';
 

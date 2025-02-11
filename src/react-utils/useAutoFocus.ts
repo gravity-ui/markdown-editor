@@ -1,4 +1,4 @@
-import {RefObject, useEffect} from 'react';
+import {type RefObject, useEffect} from 'react';
 
 export const useAutoFocus = (nodeRef: RefObject<HTMLElement>, dependencies: unknown[] = []) => {
     useEffect(() => {
