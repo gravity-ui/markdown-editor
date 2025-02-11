@@ -107,9 +107,7 @@ export function ToolbarListButton<E>({
 
                             const disabled = !isEnable(editor);
 
-                            const hideHintWhenDisabled =
-                                mobile || hintWhenDisabled === false || !disabled;
-
+                            const hideHintWhenDisabled = hintWhenDisabled === false || !disabled;
                             const hintWhenDisabledText =
                                 typeof hintWhenDisabled === 'string'
                                     ? hintWhenDisabled
@@ -144,7 +142,7 @@ export function ToolbarListButton<E>({
                                     key={id}
                                 >
                                     {(props, ref) => (
-                                        <PreviewTooltip preview={preview}>
+                                        <PreviewTooltip preview={preview} mobile>
                                             <Menu.Item
                                                 key={id}
                                                 ref={ref}
@@ -161,17 +159,19 @@ export function ToolbarListButton<E>({
                                             >
                                                 <div className={b('item')}>
                                                     {titleText}
-                                                    <div className={b('extra')}>
-                                                        {hotkey && <Hotkey value={hotkey} />}
-                                                        {hintText && (
-                                                            <HelpMark
-                                                                className={b('hint')}
-                                                                popoverProps={{modal: false}}
-                                                            >
-                                                                {hintText}
-                                                            </HelpMark>
-                                                        )}
-                                                    </div>
+                                                    {!mobile && (
+                                                        <div className={b('extra')}>
+                                                            {hotkey && <Hotkey value={hotkey} />}
+                                                            {hintText && (
+                                                                <HelpMark
+                                                                    className={b('hint')}
+                                                                    popoverProps={{modal: false}}
+                                                                >
+                                                                    {hintText}
+                                                                </HelpMark>
+                                                            )}
+                                                        </div>
+                                                    )}
                                                 </div>
                                             </Menu.Item>
                                         </PreviewTooltip>

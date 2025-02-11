@@ -4,10 +4,9 @@ import {Popup, PopupProps, Sheet} from '@gravity-ui/uikit';
 
 import {cn} from '../classname';
 
-export type SelectPopupProps = Pick<PopupProps, 'placement' | 'open' | 'anchorRef'> & {
+export type SelectPopupProps = Pick<PopupProps, 'placement' | 'open' | 'anchorElement'> & {
     children: ReactNode;
     mobile?: boolean;
-    buttonRef?: PopupProps['anchorRef'];
     onClose?: () => void;
 };
 
@@ -19,7 +18,7 @@ export const SelectPopup: FC<SelectPopupProps> = ({
     mobile,
     children,
     onClose,
-    anchorRef,
+    anchorElement,
     placement,
     open = false,
 }) => {
@@ -32,7 +31,12 @@ export const SelectPopup: FC<SelectPopupProps> = ({
     }
 
     return (
-        <Popup anchorRef={anchorRef} open={open} onClose={onClose} placement={placement}>
+        <Popup
+            anchorElement={anchorElement}
+            open={open}
+            onOpenChange={onClose}
+            placement={placement}
+        >
             {children}
         </Popup>
     );
