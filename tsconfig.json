@@ -12,7 +12,7 @@
     "importHelpers": true,
     "isolatedModules": true,
     "resolveJsonModule": true,
-    // "verbatimModuleSyntax": true, // TODO: enable after fix all problems
+    "verbatimModuleSyntax": true,
   },
   "include": ["src/**/*", "demo/**/*", "tests/**/*"],
   "exclude": ["build"]
