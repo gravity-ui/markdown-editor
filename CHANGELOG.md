@@ -1,5 +1,12 @@
 # Changelog
 
+## [14.12.1](https://github.com/gravity-ui/markdown-editor/compare/v14.12.0...v14.12.1) (2025-02-11)
+
+
+### Bug Fixes
+
+* **core:** fixed circularr dependencies ([26ecd42](https://github.com/gravity-ui/markdown-editor/commit/26ecd42c0df0256c36f6471454d6727e57406e01))
+
 ## [14.12.0](https://github.com/gravity-ui/markdown-editor/compare/v14.11.2...v14.12.0) (2025-02-11)
 
 
