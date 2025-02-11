@@ -1,6 +1,6 @@
 import type {TagParseRule} from 'prosemirror-model';
 
-import {HeadingLevel, YfmHeadingAttr} from '../const';
+import {type HeadingLevel, YfmHeadingAttr} from '../const';
 export {hasParentHeading, headingRule} from '../../../markdown/Heading/utils';
 export {headingType} from '../../../markdown/Heading/HeadingSpecs';
 

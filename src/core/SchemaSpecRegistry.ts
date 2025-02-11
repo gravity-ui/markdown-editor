@@ -1,6 +1,6 @@
-import {MarkSpec, NodeSpec, Schema} from 'prosemirror-model';
+import {type MarkSpec, type NodeSpec, Schema} from 'prosemirror-model';
 
-import {SchemaDynamicModifier} from './SchemaDynamicModifier';
+import type {SchemaDynamicModifier} from './SchemaDynamicModifier';
 
 export class SchemaSpecRegistry {
     #spec: {

@@ -1,9 +1,9 @@
 import {useRef, useState} from 'react';
 
-import {Popup, TextInput, TextInputProps} from '@gravity-ui/uikit';
+import {Popup, TextInput, type TextInputProps} from '@gravity-ui/uikit';
 import isNumber from 'is-number';
-import {Mark, Node} from 'prosemirror-model';
-import {EditorView} from 'prosemirror-view';
+import type {Mark, Node} from 'prosemirror-model';
+import type {EditorView} from 'prosemirror-view';
 
 import {cn} from '../../../../../../classname';
 import Form from '../../../../../../forms/base';

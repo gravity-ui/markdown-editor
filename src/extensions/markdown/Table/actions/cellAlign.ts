@@ -1,6 +1,6 @@
 import type {Node} from 'prosemirror-model';
 
-import {ActionSpec} from '../../../../core';
+import type {ActionSpec} from '../../../../core';
 import {CellAlign, TableAttrs} from '../TableSpecs/const';
 import {
     findParentCell,

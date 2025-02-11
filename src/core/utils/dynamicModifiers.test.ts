@@ -1,4 +1,4 @@
-import {
+import type {
     DynamicModifiers,
     ParserNodeAttrsModifier,
     ParserTokenModifier,

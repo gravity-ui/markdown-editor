@@ -5,7 +5,7 @@ import type {Action, ExtensionAuto} from '../../../core';
 import {hasCodeMark} from '../../../utils/inputrules';
 
 import {LinkSpecs, linkType} from './LinkSpecs';
-import {LinkActionMeta, LinkActionParams, linkCommand} from './actions/linkActions';
+import {type LinkActionMeta, type LinkActionParams, linkCommand} from './actions/linkActions';
 import {addLinkCmd2, linkActionSpec2} from './actions/linkEnhanceActions';
 import {linkPasteEnhance} from './paste-plugin';
 import {linkTooltipPlugin} from './plugins/LinkTooltipPlugin';

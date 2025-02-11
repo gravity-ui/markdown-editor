@@ -1,12 +1,12 @@
 import type {Match} from 'linkify-it'; // eslint-disable-line import/no-extraneous-dependencies
 import type MarkdownIt from 'markdown-it';
 import type Token from 'markdown-it/lib/token';
-import {Mark, MarkType, Node, NodeType, Schema} from 'prosemirror-model';
+import {Mark, type MarkType, type Node, type NodeType, type Schema} from 'prosemirror-model';
 
 import {logger} from '../../logger';
 import type {Parser, ParserToken} from '../types/parser';
 
-import {ProseMirrorTransformer, TransformFn} from './ProseMirrorTransformer';
+import {ProseMirrorTransformer, type TransformFn} from './ProseMirrorTransformer';
 
 export type TokenAttrs = {[name: string]: unknown};
 

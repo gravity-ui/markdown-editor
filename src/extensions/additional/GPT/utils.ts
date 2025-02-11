@@ -2,9 +2,9 @@ import type React from 'react';
 
 import {i18n} from '../../../i18n/gpt/dialog';
 
-import {CommonAnswer} from './ErrorScreen/types';
-import {GptDialogProps} from './GptDialog/GptDialog';
-import {GptWidgetOptions} from './gptExtension/gptExtension';
+import type {CommonAnswer} from './ErrorScreen/types';
+import type {GptDialogProps} from './GptDialog/GptDialog';
+import type {GptWidgetOptions} from './gptExtension/gptExtension';
 
 type CombinedKeyboardEvent = KeyboardEvent | React.KeyboardEvent;
 

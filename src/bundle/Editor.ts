@@ -2,7 +2,7 @@ import type {ReactNode} from 'react';
 
 import {EditorView as CMEditorView} from '@codemirror/view';
 import {TextSelection} from 'prosemirror-state';
-import {EditorView as PMEditorView} from 'prosemirror-view';
+import type {EditorView as PMEditorView} from 'prosemirror-view';
 
 import type {CommonEditor, MarkupString} from '../common';
 import {
@@ -12,14 +12,14 @@ import {
     type WysiwygEditorOptions,
 } from '../core';
 import type {TransformFn} from '../core/markdown/ProseMirrorTransformer';
-import {DynamicModifiers} from '../core/types/dynamicModifiers';
-import {ReactRenderStorage, type RenderStorage} from '../extensions';
+import type {DynamicModifiers} from '../core/types/dynamicModifiers';
+import type {ReactRenderStorage, RenderStorage} from '../extensions';
 import {i18n} from '../i18n/bundle';
 import {logger} from '../logger';
 import {createCodemirror} from '../markup';
 import {getAutocompleteConfig} from '../markup/codemirror/autocomplete';
 import {type CodeEditor, Editor as MarkupEditor} from '../markup/editor';
-import {type Emitter, FileUploadHandler, type Receiver, SafeEventEmitter} from '../utils';
+import {type Emitter, type FileUploadHandler, type Receiver, SafeEventEmitter} from '../utils';
 import type {DirectiveSyntaxContext} from '../utils/directive';
 
 import {MarkupManager} from './MarkupManager';

@@ -49,7 +49,7 @@ import {
 import {Action as A, formatter as f} from '../../shortcuts';
 import {ToolbarDataType} from '../../toolbar';
 
-import {ToolbarItemMarkup, ToolbarItemView, ToolbarItemWysiwyg} from './types';
+import type {ToolbarItemMarkup, ToolbarItemView, ToolbarItemWysiwyg} from './types';
 
 const noop = () => {};
 const inactive = () => false;

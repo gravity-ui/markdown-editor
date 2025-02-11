@@ -1,4 +1,4 @@
-import {RefObject, useState} from 'react';
+import {useState} from 'react';
 
 import {useEffectOnce, useLatest} from 'react-use';
 
@@ -13,7 +13,7 @@ const events: ReadonlySet<keyof WindowEventMap> = new Set<keyof WindowEventMap>(
     'orientationchange',
 ]);
 
-export function useSticky<T extends HTMLElement>(elemRef: RefObject<T>) {
+export function useSticky<T extends HTMLElement>(elemRef: React.RefObject<T>) {
     const [sticky, setSticky] = useState(false);
     const stickyRef = useLatest(sticky);
 

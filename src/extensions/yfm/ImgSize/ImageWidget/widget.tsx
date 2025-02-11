@@ -1,16 +1,16 @@
 import isNumber from 'is-number';
-import {Node} from 'prosemirror-model';
-import {Transaction} from 'prosemirror-state';
-import {EditorView} from 'prosemirror-view';
+import type {Node} from 'prosemirror-model';
+import type {Transaction} from 'prosemirror-state';
+import type {EditorView} from 'prosemirror-view';
 
-import {ExtensionDeps} from '../../../../core';
-import {FileUploadHandler} from '../../../../utils/upload';
+import type {ExtensionDeps} from '../../../../core';
+import type {FileUploadHandler} from '../../../../utils/upload';
 import {ReactWidgetDescriptor, removeDecoration} from '../../../behavior/WidgetDecoration';
 import {imageType, normalizeUrlFactory} from '../../../markdown';
 import {ImgSizeAttr} from '../../../specs';
 import {ImagesUploadProcess} from '../ImagePaste/upload';
 
-import {FilePlaceholder, FilePlaceholderProps} from './view';
+import {FilePlaceholder, type FilePlaceholderProps} from './view';
 
 export const addWidget = (
     tr: Transaction,

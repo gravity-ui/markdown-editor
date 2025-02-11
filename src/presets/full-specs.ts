@@ -1,13 +1,13 @@
 import type {ExtensionAuto} from '../core';
 import {
     ColorSpecs,
-    ColorSpecsOptions,
+    type ColorSpecsOptions,
     EmojiSpecs,
-    EmojiSpecsOptions,
+    type EmojiSpecsOptions,
     MarkSpecs,
 } from '../extensions/specs';
 
-import {YfmSpecsPreset, YfmSpecsPresetOptions} from './yfm-specs';
+import {YfmSpecsPreset, type YfmSpecsPresetOptions} from './yfm-specs';
 
 export type FullSpecsPresetOptions = YfmSpecsPresetOptions & {
     emoji?: EmojiSpecsOptions;

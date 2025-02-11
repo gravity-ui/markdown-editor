@@ -7,7 +7,7 @@ import {ListsSpecs, blType, liType, olType} from './ListsSpecs';
 import {actions} from './actions';
 import {joinPrevList, toList} from './commands';
 import {ListAction} from './const';
-import {ListsInputRulesExtension, ListsInputRulesOptions} from './inputrules';
+import {ListsInputRulesExtension, type ListsInputRulesOptions} from './inputrules';
 import {mergeListsPlugin} from './plugins/MergeListsPlugin';
 
 export {ListNode, ListsAttr, blType, liType, olType} from './ListsSpecs';

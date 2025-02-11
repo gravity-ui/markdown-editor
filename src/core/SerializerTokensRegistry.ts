@@ -1,5 +1,5 @@
 import {MarkdownSerializer} from './markdown/MarkdownSerializer';
-import {MarkdownSerializerDynamicModifier} from './markdown/MarkdownSerializerDynamicModifier';
+import type {MarkdownSerializerDynamicModifier} from './markdown/MarkdownSerializerDynamicModifier';
 import type {Serializer, SerializerMarkToken, SerializerNodeToken} from './types/serializer';
 
 export class SerializerTokensRegistry {

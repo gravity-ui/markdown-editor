@@ -3,7 +3,7 @@ import type {NodeType} from 'prosemirror-model';
 
 import type {ActionSpec} from '../../../core';
 
-import {HeadingLevel, headingLevelAttr} from './const';
+import {type HeadingLevel, headingLevelAttr} from './const';
 import {hasParentHeading} from './utils';
 
 export const headingAction = (nodeType: NodeType, level: HeadingLevel): ActionSpec => {

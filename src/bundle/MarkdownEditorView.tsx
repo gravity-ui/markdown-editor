@@ -12,7 +12,7 @@ import {useToaster} from '@gravity-ui/uikit';
 import {ErrorBoundary} from 'react-error-boundary';
 import {useEnsuredForwardedRef, useKey, useUpdate} from 'react-use';
 
-import {ClassNameProps, cn} from '../classname';
+import {type ClassNameProps, cn} from '../classname';
 import {i18n} from '../i18n/bundle';
 import {logger} from '../logger';
 import type {ToolbarsPreset} from '../modules/toolbars/types';

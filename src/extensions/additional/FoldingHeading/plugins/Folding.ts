@@ -1,5 +1,5 @@
 import type {Node} from 'prosemirror-model';
-import {Plugin, Transaction} from 'prosemirror-state';
+import {Plugin, type Transaction} from 'prosemirror-state';
 import {
     AddMarkStep,
     AddNodeMarkStep,
@@ -10,7 +10,7 @@ import {
 } from 'prosemirror-transform';
 // @ts-ignore // TODO: fix cjs build
 import {findChildren} from 'prosemirror-utils';
-import {Decoration, DecorationAttrs, DecorationSet} from 'prosemirror-view';
+import {Decoration, type DecorationAttrs, DecorationSet} from 'prosemirror-view';
 
 import {YfmHeadingAttr} from '../const';
 import {

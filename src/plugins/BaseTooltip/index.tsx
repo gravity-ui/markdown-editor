@@ -1,12 +1,12 @@
-import {Popup, PopupPlacement, PopupProps} from '@gravity-ui/uikit';
-import {Mark, MarkType, Node, NodeType} from 'prosemirror-model';
-import {NodeSelection, PluginView} from 'prosemirror-state';
+import {Popup, type PopupPlacement, type PopupProps} from '@gravity-ui/uikit';
+import type {Mark, MarkType, Node, NodeType} from 'prosemirror-model';
+import {NodeSelection, type PluginView} from 'prosemirror-state';
 // @ts-ignore // TODO: fix cjs build
 import {findDomRefAtPos, findParentNodeOfType, findSelectedNodeOfType} from 'prosemirror-utils';
-import {EditorView} from 'prosemirror-view';
+import type {EditorView} from 'prosemirror-view';
 
 import {cn} from '../../classname';
-import {RendererItem, getReactRendererFromState} from '../../extensions';
+import {type RendererItem, getReactRendererFromState} from '../../extensions';
 import {ErrorLoggerBoundary} from '../../react-utils/ErrorBoundary';
 
 import './index.scss';

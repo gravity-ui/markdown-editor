@@ -9,7 +9,7 @@ import {
     useNodeEditing,
     useNodeHovered,
 } from '../../../../../react-utils';
-import {ResizeDirection, useNodeResizing} from '../../../../../react-utils/useNodeResizing';
+import {type ResizeDirection, useNodeResizing} from '../../../../../react-utils/useNodeResizing';
 import {removeNode} from '../../../../../utils';
 import {Resizable} from '../../../../behavior/Resizable/Resizable';
 import {ImgSizeAttr} from '../../ImgSizeSpecs';

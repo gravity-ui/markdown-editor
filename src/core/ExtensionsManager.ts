@@ -1,16 +1,16 @@
-import MarkdownIt, {PresetName} from 'markdown-it';
-import {Schema} from 'prosemirror-model';
+import MarkdownIt, {type PresetName} from 'markdown-it';
+import type {Schema} from 'prosemirror-model';
 import type {Plugin} from 'prosemirror-state';
 
 import {ActionsManager} from './ActionsManager';
 import {ExtensionBuilder} from './ExtensionBuilder';
 import {ParserTokensRegistry} from './ParserTokensRegistry';
-import {SchemaDynamicModifier} from './SchemaDynamicModifier';
+import type {SchemaDynamicModifier} from './SchemaDynamicModifier';
 import {SchemaSpecRegistry} from './SchemaSpecRegistry';
 import {SerializerTokensRegistry} from './SerializerTokensRegistry';
-import {MarkdownParserDynamicModifier} from './markdown/MarkdownParser';
-import {MarkdownSerializerDynamicModifier} from './markdown/MarkdownSerializerDynamicModifier';
-import {TransformFn} from './markdown/ProseMirrorTransformer';
+import type {MarkdownParserDynamicModifier} from './markdown/MarkdownParser';
+import type {MarkdownSerializerDynamicModifier} from './markdown/MarkdownSerializerDynamicModifier';
+import type {TransformFn} from './markdown/ProseMirrorTransformer';
 import type {ActionSpec} from './types/actions';
 import type {
     Extension,

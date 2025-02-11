@@ -1,15 +1,15 @@
-import {Popup, PopupPlacement, PopupProps} from '@gravity-ui/uikit';
+import {Popup, type PopupPlacement, type PopupProps} from '@gravity-ui/uikit';
 import {keydownHandler} from 'prosemirror-keymap';
 import type {Node} from 'prosemirror-model';
-import {EditorState, Plugin, PluginView, TextSelection} from 'prosemirror-state';
+import {type EditorState, Plugin, type PluginView, TextSelection} from 'prosemirror-state';
 // @ts-ignore // TODO: fix cjs build
 import {findChildrenByMark, findParentNode} from 'prosemirror-utils';
-import {Decoration, DecorationSet, EditorView} from 'prosemirror-view';
+import {Decoration, DecorationSet, type EditorView} from 'prosemirror-view';
 
-import {ExtensionDeps} from '../../../../../core';
+import type {ExtensionDeps} from '../../../../../core';
 import {ErrorLoggerBoundary} from '../../../../../react-utils/ErrorBoundary';
 import {findMark, isMarkActive} from '../../../../../utils/marks';
-import {RendererItem, getReactRendererFromState} from '../../../../behavior/ReactRenderer';
+import {type RendererItem, getReactRendererFromState} from '../../../../behavior/ReactRenderer';
 import {LinkAttr, linkType, normalizeUrlFactory} from '../../../index';
 
 import {LinkForm} from './TooltipView';

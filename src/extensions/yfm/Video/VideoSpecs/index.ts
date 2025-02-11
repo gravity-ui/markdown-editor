@@ -3,7 +3,13 @@ import log from '@diplodoc/transform/lib/log';
 import type {ExtensionAuto} from '../../../../core';
 
 import {VideoAttr, videoNodeName} from './const';
-import {VideoPluginOptions, VideoService, VideoToken, defaults, videoPlugin} from './md-video';
+import {
+    type VideoPluginOptions,
+    VideoService,
+    type VideoToken,
+    defaults,
+    videoPlugin,
+} from './md-video';
 import {createViewStub, serializeNodeToString} from './utils';
 
 // we don't support osf service

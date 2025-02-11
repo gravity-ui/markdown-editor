@@ -1,10 +1,10 @@
 import type {NodeSpec} from 'prosemirror-model';
 
-import {PlaceholderOptions} from '../../../../utils/placeholder';
+import type {PlaceholderOptions} from '../../../../utils/placeholder';
 
 import {NoteAttrs, NoteNode} from './const';
 
-import {YfmNoteSpecsOptions} from './index';
+import type {YfmNoteSpecsOptions} from './index';
 
 const DEFAULT_TITLE_PLACEHOLDER = 'Note';
 const DEFAULT_CONTENT_PLACEHOLDER = 'Note content';

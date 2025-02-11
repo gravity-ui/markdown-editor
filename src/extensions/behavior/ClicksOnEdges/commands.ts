@@ -1,5 +1,5 @@
-import {Command, TextSelection} from 'prosemirror-state';
-import {EditorView} from 'prosemirror-view';
+import {type Command, TextSelection} from 'prosemirror-state';
+import type {EditorView} from 'prosemirror-view';
 
 import {pType} from '../../../extensions/base';
 
