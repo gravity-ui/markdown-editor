@@ -95,7 +95,7 @@ export const EditorSettings = memo<EditorSettingsProps>(function EditorSettings(
                         mobile={mobile}
                         open={popupShown}
                         onClose={hidePopup}
-                        anchorRef={chevronElement}
+                        anchorElement={chevronElement}
                         placement={placement}
                     >
                         <SettingsContent
