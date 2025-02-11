@@ -1,16 +1,7 @@
 import {Fragment, useEffect, useState} from 'react';
 
 import {ChevronDown} from '@gravity-ui/icons';
-import {
-    ActionTooltip,
-    Button,
-    HelpMark,
-    Hotkey,
-    Icon,
-    Menu,
-    Popover,
-    Popup,
-} from '@gravity-ui/uikit';
+import {ActionTooltip, Button, HelpMark, Hotkey, Icon, Menu, Popover} from '@gravity-ui/uikit';
 
 import {SelectPopup} from '../bundle/SelectPopup';
 import {cn} from '../classname';
@@ -110,7 +101,12 @@ export function ToolbarListButton<E>({
                     </Button>
                 </ActionTooltip>
             </Popover>
-            <SelectPopup mobile={mobile} open={popupOpen} onClose={hide} buttonRef={anchorElement}>
+            <SelectPopup
+                mobile={mobile}
+                open={popupOpen}
+                onClose={hide}
+                anchorElement={anchorElement}
+            >
                 <Menu size="l" className={b('menu')}>
                     {data
                         .map((data) => {
@@ -132,9 +128,7 @@ export function ToolbarListButton<E>({
 
                             const disabled = !isEnable(editor);
 
-                            const hideHintWhenDisabled =
-                                mobile || hintWhenDisabled === false || !disabled;
-
+                            const hideHintWhenDisabled = hintWhenDisabled === false || !disabled;
                             const hintWhenDisabledText =
                                 typeof hintWhenDisabled === 'string'
                                     ? hintWhenDisabled
@@ -169,7 +163,7 @@ export function ToolbarListButton<E>({
                                     key={id}
                                 >
                                     {(props, ref) => (
-                                        <PreviewTooltip preview={preview}>
+                                        <PreviewTooltip preview={preview} mobile>
                                             <Menu.Item
                                                 key={id}
                                                 ref={ref}
@@ -186,17 +180,19 @@ export function ToolbarListButton<E>({
                                             >
                                                 <div className={b('item')}>
                                                     {titleText}
-                                                    <div className={b('extra')}>
-                                                        {hotkey && <Hotkey value={hotkey} />}
-                                                        {hintText && (
-                                                            <HelpMark
-                                                                className={b('hint')}
-                                                                popoverProps={{modal: false}}
-                                                            >
-                                                                {hintText}
-                                                            </HelpMark>
-                                                        )}
-                                                    </div>
+                                                    {!mobile && (
+                                                        <div className={b('extra')}>
+                                                            {hotkey && <Hotkey value={hotkey} />}
+                                                            {hintText && (
+                                                                <HelpMark
+                                                                    className={b('hint')}
+                                                                    popoverProps={{modal: false}}
+                                                                >
+                                                                    {hintText}
+                                                                </HelpMark>
+                                                            )}
+                                                        </div>
+                                                    )}
                                                 </div>
                                             </Menu.Item>
                                         </PreviewTooltip>

@@ -1,6 +1,5 @@
 import {memo} from 'react';
 
-import {toaster} from '@gravity-ui/uikit/toaster-singleton-react-18';
 import cloneDeep from 'lodash/cloneDeep';
 
 import {
@@ -42,7 +41,6 @@ export const MobileEditor = memo(() => {
                     stickyToolbar
                     settingsVisible
                     editor={editor}
-                    toaster={toaster}
                     className={className}
                     mobile
                 />

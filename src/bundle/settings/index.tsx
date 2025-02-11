@@ -10,7 +10,6 @@ import {
     HelpMark,
     Icon,
     Menu,
-    Popup,
     type PopupPlacement,
 } from '@gravity-ui/uikit';
 
@@ -90,7 +89,7 @@ export const EditorSettings = memo<EditorSettingsProps>(function EditorSettings(
                         mobile={mobile}
                         open={popupShown}
                         onClose={hidePopup}
-                        anchorRef={chevronElement}
+                        anchorElement={chevronElement}
                         placement={placement}
                     >
                         <SettingsContent
