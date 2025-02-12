@@ -10,6 +10,7 @@ import {
 
 import {TooltipButton} from './TooltipSelect';
 
+/** @deprecated */
 interface TooltipSelectOptions extends BaseTooltipPluginOptions {
     buttonText?: (node: Node) => string;
     items?: SelectOption[] | SelectOptionGroup[];
@@ -18,6 +19,7 @@ interface TooltipSelectOptions extends BaseTooltipPluginOptions {
     disableHideOnBlur?: boolean;
 }
 
+/** @deprecated */
 export class TooltipSelectPluginView extends BaseTooltipPluginView {
     private buttonText?: (node: Node) => string;
     private items?: SelectOption[] | SelectOptionGroup[];
