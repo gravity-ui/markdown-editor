@@ -1,5 +1,16 @@
 # Changelog
 
+## [14.12.3](https://github.com/gravity-ui/markdown-editor/compare/v14.12.2...v14.12.3) (2025-02-12)
+
+
+### Bug Fixes
+
+* **bundle:** added preview in toolbar select ([#615](https://github.com/gravity-ui/markdown-editor/issues/615)) ([65a1b8c](https://github.com/gravity-ui/markdown-editor/commit/65a1b8c0ee55a96d3a1e668e70b622a6e796abbc))
+* **bundle:** fixed active list element ([#625](https://github.com/gravity-ui/markdown-editor/issues/625)) ([2f267b1](https://github.com/gravity-ui/markdown-editor/commit/2f267b1cae5d266742a594255ddc7efd198176e4))
+* **cut:** fixed open state styles ([#616](https://github.com/gravity-ui/markdown-editor/issues/616)) ([275712b](https://github.com/gravity-ui/markdown-editor/commit/275712bdcd4a4a5652a01710590b417d4801ed4a))
+* **toolbar:** dont render tooltip if preview is empty ([#622](https://github.com/gravity-ui/markdown-editor/issues/622)) ([b77f537](https://github.com/gravity-ui/markdown-editor/commit/b77f537e72e018e7387688b2faeb5883ccd9b757))
+* **toolbar:** fixed preview tooltip placement ([#607](https://github.com/gravity-ui/markdown-editor/issues/607)) ([f0c903f](https://github.com/gravity-ui/markdown-editor/commit/f0c903f67a902dec8a5c29fd65705b73aeb13c48))
+
 ## [14.12.2](https://github.com/gravity-ui/markdown-editor/compare/v14.12.0...v14.12.2) (2025-02-11)
 
 
