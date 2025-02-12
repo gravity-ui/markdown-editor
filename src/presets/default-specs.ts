@@ -1,7 +1,7 @@
 import type {ExtensionAuto} from '../core';
 import {StrikeSpecs, TableSpecs} from '../extensions/markdown/specs';
 
-import {CommonMarkSpecsPreset, CommonMarkSpecsPresetOptions} from './commonmark-specs';
+import {CommonMarkSpecsPreset, type CommonMarkSpecsPresetOptions} from './commonmark-specs';
 
 export type DefaultSpecsPresetOptions = CommonMarkSpecsPresetOptions & {};
 

@@ -1,4 +1,4 @@
-import React, {RefObject, useEffect, useState} from 'react';
+import {type RefObject, useEffect, useState} from 'react';
 
 import throttle from 'lodash/throttle';
 

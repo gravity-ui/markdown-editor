@@ -1,8 +1,8 @@
 import type {Action, ExtensionAuto, Keymap} from '../../../core';
 import {withLogAction} from '../../../utils/keymap';
 
-import {YfmHeadingSpecs, YfmHeadingSpecsOptions} from './YfmHeadingSpecs';
-import {hType, headingRule} from './YfmHeadingSpecs/utils';
+import {YfmHeadingSpecs, type YfmHeadingSpecsOptions} from './YfmHeadingSpecs';
+import {headingRule, headingType} from './YfmHeadingSpecs/utils';
 import {headingAction} from './actions';
 import {resetHeading, toHeading} from './commands';
 import {HeadingAction} from './const';
@@ -34,7 +34,7 @@ export const YfmHeading: ExtensionAuto<YfmHeadingOptions> = (builder, opts) => {
             if (h6Key) bindings[h6Key] = withLogAction('heading6', toHeading(6));
             return bindings;
         })
-        .addInputRules(({schema}) => ({rules: [headingRule(hType(schema), 6)]}));
+        .addInputRules(({schema}) => ({rules: [headingRule(headingType(schema), 6)]}));
 
     builder
         .addAction(HeadingAction.ToH1, () => headingAction(1))

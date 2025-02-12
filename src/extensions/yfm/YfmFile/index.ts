@@ -1,5 +1,5 @@
-import {ExtensionAuto} from '../../../core';
-import {FileUploadHandler} from '../../../utils/upload';
+import type {ExtensionAuto} from '../../../core';
+import type {FileUploadHandler} from '../../../utils/upload';
 
 import {YfmFilePaste} from './YfmFilePaste';
 import {YfmFileSpecs} from './YfmFileSpecs';

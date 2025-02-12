@@ -14,6 +14,7 @@ import {MarkdownSerializer} from './MarkdownSerializer';
 
 const {schema} = builder;
 schema.nodes['hard_break'].spec.isBreak = true;
+
 const parser: Parser = new MarkdownParser(
     schema,
     new MarkdownIt('commonmark'),
@@ -39,7 +40,7 @@ const parser: Parser = new MarkdownParser(
 const serializer = new MarkdownSerializer(
     {
         text: ((state, node) => {
-            state.text(node.text);
+            state.text(node.text ?? '');
         }) as SerializerNodeToken,
         paragraph: ((state, node) => {
             state.renderInline(node);

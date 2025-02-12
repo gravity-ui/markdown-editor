@@ -1,6 +1,4 @@
-import React, {useCallback, useLayoutEffect, useState} from 'react';
-
-import {toaster} from '@gravity-ui/uikit/toaster-singleton-react-18';
+import {memo, useCallback, useLayoutEffect, useState} from 'react';
 
 import {MarkdownEditorView, type RenderPreview, useMarkdownEditor} from '../../../../src';
 import {PlaygroundLayout} from '../../../components/PlaygroundLayout';
@@ -28,7 +26,7 @@ type PreserveEmptyRowsDemoProps = {
     preserveEmptyRows: boolean;
 };
 
-export const PreserveEmptyRowsDemo = React.memo<PreserveEmptyRowsDemoProps>((props) => {
+export const PreserveEmptyRowsDemo = memo<PreserveEmptyRowsDemoProps>((props) => {
     const {preserveEmptyRows} = props;
 
     const [mdMarkup, setMdMarkup] = useState(initialMarkup);
@@ -72,7 +70,6 @@ export const PreserveEmptyRowsDemo = React.memo<PreserveEmptyRowsDemoProps>((pro
                     stickyToolbar
                     settingsVisible
                     editor={editor}
-                    toaster={toaster}
                     className={className}
                 />
             )}

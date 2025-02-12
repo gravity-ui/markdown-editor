@@ -1,6 +1,6 @@
-import {NodeType} from 'prosemirror-model';
+import type {NodeType} from 'prosemirror-model';
 
-import {UploadSuccessItem} from '../../../utils/upload';
+import type {UploadSuccessItem} from '../../../utils/upload';
 
 export const createFileNode =
     (fileType: NodeType) =>

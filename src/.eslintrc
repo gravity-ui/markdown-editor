@@ -1,5 +1,5 @@
 {
-    "extends": "@gravity-ui/eslint-config/client",
+    "extends": ["@gravity-ui/eslint-config/client", "plugin:react/jsx-runtime"],
     "overrides": [{
         "files": ["*"],
         "rules": {

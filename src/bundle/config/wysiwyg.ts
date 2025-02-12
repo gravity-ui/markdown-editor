@@ -21,8 +21,11 @@ import type {
     WToolbarListItemData,
     WToolbarSingleItemData,
 } from '../toolbar/types';
-import {WToolbarColors} from '../toolbar/wysiwyg/WToolbarColors';
-import {WToolbarTextSelect} from '../toolbar/wysiwyg/WToolbarTextSelect';
+import {WToolbarColors, type WToolbarColorsProps} from '../toolbar/wysiwyg/WToolbarColors';
+import {
+    WToolbarTextSelect,
+    type WToolbarTextSelectProps,
+} from '../toolbar/wysiwyg/WToolbarTextSelect';
 import type {MarkdownEditorPreset} from '../types';
 
 import {ActionName} from './action-names';
@@ -308,6 +311,7 @@ export const textContextItemData: SelectionContextItemData = {
     id: 'text',
     type: ToolbarDataType.ReactComponent,
     component: WToolbarTextSelect,
+    props: {disablePortal: true} satisfies Partial<WToolbarTextSelectProps>,
     width: 0,
     condition: ({selection: {$from, $to}, schema}) => {
         if (!$from.sameParent($to)) return false;
@@ -516,6 +520,7 @@ export const wSelectionMenuConfig: SelectionContextConfig = [
             id: 'colorify',
             type: ToolbarDataType.ReactComponent,
             component: WToolbarColors,
+            props: {disablePortal: true} satisfies Partial<WToolbarColorsProps>,
             width: 42,
         },
         wLinkItemData,

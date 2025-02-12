@@ -1,0 +1,57 @@
+:root {
+    --toolbar-item-preview-width: 144px;
+    --toolbar-item-preview-height: 104px;
+
+    --toolbar-item-preview-h1-margin: 10px 0 2px;
+    --toolbar-item-preview-h2-margin: 20px 0 4px;
+    --toolbar-item-preview-h3-margin: 24px 0 4px;
+    --toolbar-item-preview-h4-margin: 24px 0 4px;
+    --toolbar-item-preview-h5-margin: 26px 0 6px;
+    --toolbar-item-preview-h6-margin: 28px 0 6px;
+}
+
+.g-md-action-preview {
+    overflow: hidden;
+
+    width: var(--toolbar-item-preview-width);
+    height: var(--toolbar-item-preview-height);
+
+    white-space: pre;
+
+    // Redefine yfm styles
+    &.yfm > *:not(h2):not(h3):not(h4):not(h5):not(h6):first-child {
+        /* stylelint-disable-next-line declaration-no-important */
+        margin: var(--toolbar-item-preview-h1-margin) !important;
+    }
+
+    &.yfm > h2 {
+        /* stylelint-disable-next-line declaration-no-important */
+        margin: var(--toolbar-item-preview-h2-margin) !important;
+    }
+
+    &.yfm > h3 {
+        /* stylelint-disable-next-line declaration-no-important */
+        margin: var(--toolbar-item-preview-h3-margin) !important;
+    }
+
+    &.yfm > h4 {
+        /* stylelint-disable-next-line declaration-no-important */
+        margin: var(--toolbar-item-preview-h4-margin) !important;
+    }
+
+    &.yfm > h5 {
+        /* stylelint-disable-next-line declaration-no-important */
+        margin: var(--toolbar-item-preview-h5-margin) !important;
+    }
+
+    &.yfm > h6 {
+        /* stylelint-disable-next-line declaration-no-important */
+        margin: var(--toolbar-item-preview-h6-margin) !important;
+    }
+
+    &__text-with-head {
+        margin-top: 0;
+
+        color: var(--g-color-text-hint);
+    }
+}

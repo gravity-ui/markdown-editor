@@ -1,7 +1,7 @@
-import {Node, NodeType} from 'prosemirror-model';
+import type {Node, NodeType} from 'prosemirror-model';
 
 import {logger} from '../../../logger';
-import {UploadSuccessItem, getProportionalSize} from '../../../utils';
+import {type UploadSuccessItem, getProportionalSize} from '../../../utils';
 import {imageNodeName} from '../../markdown';
 import {ImgSizeAttr} from '../../specs';
 

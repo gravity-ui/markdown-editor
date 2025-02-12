@@ -1,5 +1,5 @@
 import {Slice} from 'prosemirror-model';
-import {AllSelection, TextSelection, Transaction} from 'prosemirror-state';
+import {AllSelection, TextSelection, type Transaction} from 'prosemirror-state';
 import type {EditorView} from 'prosemirror-view';
 
 import type {ContentHandler, MarkupString} from '../common';

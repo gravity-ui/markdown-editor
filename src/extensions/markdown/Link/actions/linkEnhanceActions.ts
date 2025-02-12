@@ -1,8 +1,8 @@
 import {chainCommands, toggleMark} from 'prosemirror-commands';
 import {type Command, NodeSelection, TextSelection} from 'prosemirror-state';
-import {isNodeSelection} from 'prosemirror-utils';
 
 import type {ActionSpec, ExtensionDeps} from '../../../../core';
+import {isNodeSelection} from '../../../../utils';
 import {isMarkActive} from '../../../../utils/marks';
 import {type ImageRendererState, imageRendererKey} from '../../../yfm/ImgSize/const';
 import {imageType} from '../../Image/ImageSpecs';

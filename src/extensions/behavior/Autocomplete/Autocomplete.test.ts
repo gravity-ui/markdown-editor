@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-loop-func */
-import {MainHandler, MainHandlerConfig} from './handler';
+import {MainHandler, type MainHandlerConfig} from './handler';
 import type {AutocompleteAction, AutocompleteHandler, AutocompleteTrigger} from './types';
 
 const methodsWithAction = new Set<keyof AutocompleteHandler>([

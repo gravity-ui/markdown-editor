@@ -7,7 +7,7 @@ import {
     HeaderHandler,
     ImageHandler,
     LinkHandler,
-    NodeHandler,
+    type NodeHandler,
     OrderedListHandler,
     ParagraphHandler,
     TableHandler,

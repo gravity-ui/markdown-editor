@@ -3,12 +3,14 @@ import {
     BaseInputRules,
     BaseKeymap,
     BaseSchema,
-    BaseSchemaOptions,
+    type BaseSchemaOptions,
     BaseStyles,
+    type BaseStylesOptions,
 } from '../extensions/base';
 
 export type ZeroPresetOptions = {
     baseSchema?: BaseSchemaOptions;
+    baseStyles?: BaseStylesOptions;
 };
 
 export const ZeroPreset: ExtensionAuto<ZeroPresetOptions> = (builder, opts) => {
@@ -16,5 +18,5 @@ export const ZeroPreset: ExtensionAuto<ZeroPresetOptions> = (builder, opts) => {
         .use(BaseSchema, opts.baseSchema ?? {})
         .use(BaseKeymap)
         .use(BaseInputRules)
-        .use(BaseStyles);
+        .use(BaseStyles, opts.baseStyles ?? {});
 };

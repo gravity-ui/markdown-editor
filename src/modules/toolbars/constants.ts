@@ -1,3 +1,5 @@
+export {ActionName} from '../../bundle/config/action-names';
+
 export enum ListName {
     code = 'code',
     heading = 'heading',

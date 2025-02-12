@@ -72,10 +72,6 @@ export class ExtensionBuilder {
     /* eslint-disable @typescript-eslint/member-ordering */
     static readonly Priority = Priority;
     readonly Priority = ExtensionBuilder.Priority;
-    /** @deprecated use `ExtensionBuilder.Priority` instead */
-    static readonly PluginPriority = ExtensionBuilder.Priority;
-    /** @deprecated use `builder.Priority` instead */
-    readonly PluginPriority = ExtensionBuilder.PluginPriority;
     /* eslint-enable @typescript-eslint/member-ordering */
 
     #confMdCbs: {cb: ConfigureMdCallback; params: Required<ConfigureMdParams>}[] = [];

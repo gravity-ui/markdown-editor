@@ -5,11 +5,9 @@ import {createToggleMarkAction} from '../../../utils/actions';
 import {markInputRule} from '../../../utils/inputrules';
 import {withLogAction} from '../../../utils/keymap';
 
-import {UnderlineSpecs, underlineMarkName, underlineType} from './UnderlineSpecs';
+import {UnderlineSpecs, underlineType} from './UnderlineSpecs';
 
 export {underlineMarkName, underlineType} from './UnderlineSpecs';
-/** @deprecated Use `underlineMarkName` instead */
-export const underline = underlineMarkName;
 const undAction = 'underline';
 
 export type UnderlineOptions = {

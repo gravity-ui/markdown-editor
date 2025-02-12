@@ -1,6 +1,6 @@
 import type {Meta, StoryObj} from '@storybook/react';
 
-import {PlaygroundProps, Playground as component} from '../../components/Playground';
+import {type PlaygroundProps, Playground as component} from '../../components/Playground';
 import {args} from '../../defaults/args';
 import {getInitialMd} from '../../utils/getInitialMd';
 

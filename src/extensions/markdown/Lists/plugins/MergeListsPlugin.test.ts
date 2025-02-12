@@ -62,7 +62,6 @@ describe('Lists extension', () => {
                     ul(
                         {
                             [ListsAttr.Tight]: true,
-                            [ListsAttr.Bullet]: '+',
                             [ListsAttr.Markup]: '+',
                         },
                         li(
@@ -82,7 +81,6 @@ describe('Lists extension', () => {
                             ul(
                                 {
                                     [ListsAttr.Tight]: true,
-                                    [ListsAttr.Bullet]: '-',
                                     [ListsAttr.Markup]: '-',
                                 },
                                 li(

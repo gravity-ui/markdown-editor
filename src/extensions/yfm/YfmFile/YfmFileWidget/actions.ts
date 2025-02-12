@@ -1,5 +1,5 @@
-import {ActionSpec, ExtensionDeps} from '../../../../core';
-import {FileUploadHandler} from '../../../../utils/upload';
+import type {ActionSpec, ExtensionDeps} from '../../../../core';
+import type {FileUploadHandler} from '../../../../utils/upload';
 
 import {addWidget} from './widget';
 

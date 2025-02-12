@@ -1,5 +1,6 @@
 import {Fragment} from 'prosemirror-model';
 import type {Command} from 'prosemirror-state';
+// @ts-ignore // TODO: fix cjs build
 import {findParentNodeClosestToPos} from 'prosemirror-utils';
 
 import {trackTransactionMetrics} from '../../core';

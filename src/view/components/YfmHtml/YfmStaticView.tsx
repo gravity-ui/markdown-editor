@@ -1,8 +1,8 @@
-import React, {forwardRef} from 'react';
+import {forwardRef} from 'react';
 
 import {classnames} from '@bem-react/classnames';
 
-import {ClassNameProps} from '../../../classname';
+import type {ClassNameProps} from '../../../classname';
 
 export type YfmStaticViewProps = ClassNameProps & {
     html: string;

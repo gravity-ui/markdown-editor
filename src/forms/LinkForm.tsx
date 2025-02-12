@@ -1,8 +1,8 @@
-import React from 'react';
+import {memo, useState} from 'react';
 
-import {TextInput, TextInputProps} from '@gravity-ui/uikit';
+import {TextInput, type TextInputProps} from '@gravity-ui/uikit';
 
-import {ClassNameProps} from '../classname';
+import type {ClassNameProps} from '../classname';
 import {i18n} from '../i18n/forms';
 import {enterKeyHandler} from '../utils/handlers';
 
@@ -24,7 +24,7 @@ export type LinkFormProps = ClassNameProps & {
     onCancel(): void;
 };
 
-export const LinkForm = React.memo<LinkFormProps>(function LinkForm({
+export const LinkForm = memo<LinkFormProps>(function LinkForm({
     className,
     autoFocus,
     initialUrl,
@@ -33,8 +33,8 @@ export const LinkForm = React.memo<LinkFormProps>(function LinkForm({
     onSubmit,
     onCancel,
 }) {
-    const [url, setUrl] = React.useState(initialUrl ?? '');
-    const [text, setText] = React.useState(initialText ?? '');
+    const [url, setUrl] = useState(initialUrl ?? '');
+    const [text, setText] = useState(initialText ?? '');
 
     const handleSubmit = () => {
         onSubmit({url, text});

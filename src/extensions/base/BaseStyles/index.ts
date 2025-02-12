@@ -4,13 +4,22 @@ import type {ExtensionAuto} from '../../../core';
 
 import './index.scss';
 
-export const BaseStyles: ExtensionAuto = (builder) => {
+const CLASSNAME = 'g-md-editor';
+
+export type BaseStylesOptions = {
+    attributes?: Record<string, string>;
+};
+
+export const BaseStyles: ExtensionAuto<BaseStylesOptions> = (builder, opts) => {
+    const {attributes = {}} = opts;
+
     builder.addPlugin(
         () =>
             new Plugin({
                 props: {
                     attributes: {
-                        class: 'g-md-editor',
+                        ...attributes,
+                        class: [CLASSNAME, attributes.class].filter(Boolean).join(' '),
                     },
                 },
             }),

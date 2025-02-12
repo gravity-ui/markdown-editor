@@ -40,7 +40,7 @@ import {
     UndoIcon,
 } from '../../icons';
 import GPTIcon from '../../icons/GPT';
-import {ToolbarIconData} from '../../toolbar/types';
+import type {ToolbarIconData} from '../../toolbar/types';
 
 type Icon =
     | 'undo'

@@ -8,7 +8,7 @@ import {isMac} from '../../../utils/platform';
 import {isTextSelection} from '../../../utils/selection';
 import {pType} from '../../base/BaseSchema/BaseSchemaSpecs';
 
-import {BreaksSpecs, BreaksSpecsOptions, hbType, sbType} from './BreaksSpecs';
+import {BreaksSpecs, type BreaksSpecsOptions, hbType, sbType} from './BreaksSpecs';
 
 export {BreaksSpecs, BreakNodeName, hbType, sbType} from './BreaksSpecs';
 

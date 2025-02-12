@@ -1,5 +1,3 @@
-import React from 'react';
-
 import {ToolbarDataType, type WToolbarData} from '../types';
 
 import {flattenPreset} from './flattenPreset';

@@ -1,4 +1,5 @@
 import type {Command} from 'prosemirror-state';
+// @ts-ignore // TODO: fix cjs build
 import {removeParentNodeOfType} from 'prosemirror-utils';
 
 import {findChildTableRows, findParentTableBody, findParentTableRow} from '../utils';

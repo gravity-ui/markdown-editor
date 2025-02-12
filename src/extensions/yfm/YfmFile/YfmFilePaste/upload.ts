@@ -1,7 +1,7 @@
-import {Node} from 'prosemirror-model';
-import {EditorView} from 'prosemirror-view';
+import type {Node} from 'prosemirror-model';
+import type {EditorView} from 'prosemirror-view';
 
-import {FileUploadHandler, UploadSuccessItem} from '../../../../utils/upload';
+import type {FileUploadHandler, UploadSuccessItem} from '../../../../utils/upload';
 import {FilesBatchUploadProcess} from '../../../behavior/utils/upload';
 import {fileType} from '../YfmFileSpecs';
 import {createFileNode} from '../utils';

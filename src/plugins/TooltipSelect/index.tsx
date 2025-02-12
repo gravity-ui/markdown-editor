@@ -1,10 +1,12 @@
-import React from 'react';
+import type {SelectOption, SelectOptionGroup} from '@gravity-ui/uikit';
+import type {Node} from 'prosemirror-model';
+import type {EditorView} from 'prosemirror-view';
 
-import {SelectOption, SelectOptionGroup} from '@gravity-ui/uikit';
-import {Node} from 'prosemirror-model';
-import {EditorView} from 'prosemirror-view';
-
-import {BaseTooltipNode, BaseTooltipPluginOptions, BaseTooltipPluginView} from '../BaseTooltip';
+import {
+    type BaseTooltipNode,
+    type BaseTooltipPluginOptions,
+    BaseTooltipPluginView,
+} from '../BaseTooltip';
 
 import {TooltipButton} from './TooltipSelect';
 

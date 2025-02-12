@@ -80,7 +80,7 @@ describe('Lists extension', () => {
             markup,
             doc(
                 ul(
-                    {[ListsAttr.Bullet]: '-', [ListsAttr.Markup]: '-'},
+                    {[ListsAttr.Markup]: '-'},
                     li(
                         {[ListsAttr.Markup]: '-'},
                         p('one'),
@@ -91,7 +91,6 @@ describe('Lists extension', () => {
                                 ul(
                                     {
                                         [ListsAttr.Tight]: true,
-                                        [ListsAttr.Bullet]: '+',
                                         [ListsAttr.Markup]: '+',
                                     },
                                     li({[ListsAttr.Markup]: '+'}, p('three')),
@@ -111,15 +110,15 @@ describe('Lists extension', () => {
             '- + * 2. item',
             doc(
                 ul(
-                    {[ListsAttr.Bullet]: '-', [ListsAttr.Markup]: '-'},
+                    {[ListsAttr.Markup]: '-'},
                     li(
                         {[ListsAttr.Markup]: '-'},
                         ul(
-                            {[ListsAttr.Bullet]: '+', [ListsAttr.Markup]: '+'},
+                            {[ListsAttr.Markup]: '+'},
                             li(
                                 {[ListsAttr.Markup]: '+'},
                                 ul(
-                                    {[ListsAttr.Bullet]: '*', [ListsAttr.Markup]: '*'},
+                                    {[ListsAttr.Markup]: '*'},
                                     li(
                                         {[ListsAttr.Markup]: '*'},
                                         ol(

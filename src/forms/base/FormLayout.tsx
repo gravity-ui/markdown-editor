@@ -1,6 +1,4 @@
-import React from 'react';
-
-import {ClassNameProps, cn} from '../../classname';
+import {type ClassNameProps, cn} from '../../classname';
 
 import './FormLayout.scss';
 

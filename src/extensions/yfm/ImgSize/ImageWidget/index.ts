@@ -1,5 +1,5 @@
 import type {Action, ExtensionAuto} from '../../../../core';
-import {FileUploadHandler} from '../../../../utils/upload';
+import type {FileUploadHandler} from '../../../../utils/upload';
 
 import {addImageWidget} from './actions';
 import type {ImageWidgetDescriptorOpts} from './widget';

@@ -2,7 +2,7 @@ import {useMemo, useRef} from 'react';
 
 import type {DropdownMenuItem} from '@gravity-ui/uikit';
 
-import {CommonAnswer} from '../ErrorScreen/types';
+import type {CommonAnswer} from '../ErrorScreen/types';
 import type {GptDialogProps} from '../GptDialog/GptDialog';
 import type {PresetListProps} from '../PresetList/PresetList';
 import {cnGptDialogPresetList} from '../PresetList/PresetList';

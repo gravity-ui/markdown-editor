@@ -2,11 +2,9 @@ import type {Action, ExtensionAuto} from '../../../core';
 import {createToggleMarkAction} from '../../../utils/actions';
 import {markInputRule} from '../../../utils/inputrules';
 
-import {SuperscriptSpecs, superscriptMarkName, superscriptType} from './SuperscriptSpecs';
+import {SuperscriptSpecs, superscriptType} from './SuperscriptSpecs';
 
 export {superscriptMarkName, superscriptType} from './SuperscriptSpecs';
-/** @deprecated Use `superscriptMarkName` instead */
-export const superscript = superscriptMarkName;
 const supAction = 'supscript';
 
 export const Superscript: ExtensionAuto = (builder) => {

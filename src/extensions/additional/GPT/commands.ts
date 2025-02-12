@@ -1,6 +1,6 @@
-import {Command, TextSelection} from 'prosemirror-state';
+import {type Command, TextSelection} from 'prosemirror-state';
 
-import {GptWidgetMeta, pluginKey} from './plugin';
+import {type GptWidgetMeta, pluginKey} from './plugin';
 
 export const runGpt: Command = (state, dispatch) => {
     const {selection: sel} = state;

@@ -1,7 +1,7 @@
 import type {Node} from 'prosemirror-model';
-import {Command, NodeSelection, TextSelection} from 'prosemirror-state';
+import {type Command, NodeSelection, TextSelection} from 'prosemirror-state';
 
-import {NodeChild, getLastChildOfNode} from '../utils/nodes';
+import {type NodeChild, getLastChildOfNode} from '../utils/nodes';
 import {get$CursorAtBlockStart} from '../utils/selection';
 
 export type JoinPreviousBlockParams = {

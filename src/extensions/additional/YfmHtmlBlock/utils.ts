@@ -1,4 +1,4 @@
-import diplodocSanitize, {SanitizeOptions} from '@diplodoc/transform/lib/sanitize';
+import diplodocSanitize, {type SanitizeOptions} from '@diplodoc/transform/lib/sanitize';
 
 // yfmHtmlBlock additional css properties white list
 const getYfmHtmlBlockWhiteList = () => {

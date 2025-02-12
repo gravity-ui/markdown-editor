@@ -1,7 +1,7 @@
 import type {ExtensionAuto} from '../../../core';
 
 import {EmojiInput} from './EmojiInput';
-import {EmojiConsts, EmojiSpecs, EmojiSpecsOptions} from './EmojiSpecs';
+import {EmojiConsts, EmojiSpecs, type EmojiSpecsOptions} from './EmojiSpecs';
 import {EmojiSuggest} from './EmojiSuggest';
 
 export {EmojiConsts} from './EmojiSpecs';

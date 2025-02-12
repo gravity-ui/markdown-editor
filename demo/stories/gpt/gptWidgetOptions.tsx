@@ -1,5 +1,3 @@
-import React from 'react';
-
 import type {GptWidgetOptions} from '../../../src';
 
 const gptRequestHandler = async ({

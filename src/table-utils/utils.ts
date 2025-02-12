@@ -1,10 +1,11 @@
 import isNumber from 'is-number';
-import {Node as PmNode, ResolvedPos} from 'prosemirror-model';
+import type {Node as PmNode, ResolvedPos} from 'prosemirror-model';
 import {
-    Predicate,
+    type Predicate,
     findChildren,
     findParentNode,
     findParentNodeClosestToPos,
+    // @ts-ignore // TODO: fix cjs build
 } from 'prosemirror-utils';
 import type {EditorView} from 'prosemirror-view';
 
@@ -12,10 +13,14 @@ import {isTextSelection} from '../utils/selection';
 
 import {TableRole} from './const';
 
-export const isTableNode: Predicate = (node) => node.type.spec.tableRole === TableRole.Table;
-export const isTableBodyNode: Predicate = (node) => node.type.spec.tableRole === TableRole.Body;
-export const isTableRowNode: Predicate = (node) => node.type.spec.tableRole === TableRole.Row;
-export const isTableCellNode: Predicate = (node) => node.type.spec.tableRole === TableRole.Cell;
+export const isTableNode: Predicate = (node: PmNode) =>
+    node.type.spec.tableRole === TableRole.Table;
+export const isTableBodyNode: Predicate = (node: PmNode) =>
+    node.type.spec.tableRole === TableRole.Body;
+export const isTableRowNode: Predicate = (node: PmNode) =>
+    node.type.spec.tableRole === TableRole.Row;
+export const isTableCellNode: Predicate = (node: PmNode) =>
+    node.type.spec.tableRole === TableRole.Cell;
 
 export const findParentTable = findParentNode(isTableNode);
 export const findParentTableBody = findParentNode(isTableBodyNode);

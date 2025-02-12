@@ -1,6 +1,6 @@
 import {Plugin} from 'prosemirror-state';
 
-import {Action, Extension} from '../../../core';
+import type {Action, Extension} from '../../../core';
 
 import {addParagraphToEnd, addParagraphToStart} from './commands';
 

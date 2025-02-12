@@ -1,5 +1,6 @@
 import type {NodeType, ResolvedPos} from 'prosemirror-model';
 import {Plugin} from 'prosemirror-state';
+// @ts-ignore // TODO: fix cjs build
 import type {NodeWithPos} from 'prosemirror-utils';
 import {Decoration, DecorationSet} from 'prosemirror-view';
 

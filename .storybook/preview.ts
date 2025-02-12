@@ -2,9 +2,10 @@ import type {Preview} from '@storybook/react';
 import {MINIMAL_VIEWPORTS} from '@storybook/addon-viewport';
 import {withThemeProvider} from '../demo/hocs/withThemeProvider';
 import {withLang} from '../demo/hocs/withLang';
+import {withToaster} from '../demo/hocs/withToaster';
 
 const preview: Preview = {
-    decorators: [withThemeProvider, withLang],
+    decorators: [withThemeProvider, withLang, withToaster],
     parameters: {
         jsx: {showFunctions: true}, // To show functions in sources
         viewport: {

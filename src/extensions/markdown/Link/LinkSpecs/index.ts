@@ -1,4 +1,4 @@
-import type {Fragment, Mark} from 'prosemirror-model';
+import type {Mark, Node} from 'prosemirror-model';
 
 import type {ExtensionAuto} from '../../../../core';
 import {markTypeFactory} from '../../../../utils/schema';
@@ -43,7 +43,8 @@ export const LinkSpecs: ExtensionAuto = (builder) => {
             },
             toMd: {
                 open(state, mark, parent, index) {
-                    state.isAutolink = isPlainURL(mark, parent, index, 1);
+                    // FIXME: Verify and use Node instead of Fragment
+                    state.isAutolink = isPlainURL(mark, parent as any, index, 1);
                     if (state.isAutolink) {
                         if (mark.attrs[LinkAttr.RawLink]) return '';
                         return '<';
@@ -83,7 +84,7 @@ export const LinkSpecs: ExtensionAuto = (builder) => {
     );
 };
 
-function isPlainURL(link: Mark, parent: Fragment, index: number, side: number) {
+function isPlainURL(link: Mark, parent: Node, index: number, side: number) {
     if (link.attrs.title || !/^\w+:/.test(link.attrs[LinkAttr.Href])) return false;
 
     const content = parent.child(index + (side < 0 ? -1 : 0));

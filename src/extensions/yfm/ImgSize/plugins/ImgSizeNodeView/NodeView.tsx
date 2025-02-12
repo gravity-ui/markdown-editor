@@ -1,8 +1,15 @@
-import React, {HTMLAttributes, useCallback, useEffect, useRef} from 'react';
+import {useCallback, useEffect, useRef} from 'react';
+
+import {setRef} from '@gravity-ui/uikit';
 
 import {cn} from '../../../../../classname';
-import {ReactNodeViewProps, useNodeEditing, useNodeHovered} from '../../../../../react-utils';
-import {ResizeDirection, useNodeResizing} from '../../../../../react-utils/useNodeResizing';
+import {
+    type ReactNodeViewProps,
+    useElementState,
+    useNodeEditing,
+    useNodeHovered,
+} from '../../../../../react-utils';
+import {type ResizeDirection, useNodeResizing} from '../../../../../react-utils/useNodeResizing';
 import {removeNode} from '../../../../../utils';
 import {Resizable} from '../../../../behavior/Resizable/Resizable';
 import {ImgSizeAttr} from '../../ImgSizeSpecs';
@@ -22,6 +29,7 @@ export const ImageNodeView: React.FC<ReactNodeViewProps> = ({
 }) => {
     const imageContainerRef = useRef<HTMLDivElement>(null);
     const imageRef = useRef<HTMLImageElement>(null);
+    const [imageElement, setImageElement] = useElementState();
 
     const alt = node.attrs[ImgSizeAttr.Alt] || '';
     const initialHeight = node.attrs[ImgSizeAttr.Height];
@@ -54,7 +62,7 @@ export const ImageNodeView: React.FC<ReactNodeViewProps> = ({
         onResize: handleResize,
     });
 
-    const style: HTMLAttributes<HTMLImageElement>['style'] = {
+    const style: React.HTMLAttributes<HTMLImageElement>['style'] = {
         transition: 'width 0.15s ease-out, height 0.15s ease-out',
     };
 
@@ -92,6 +100,14 @@ export const ImageNodeView: React.FC<ReactNodeViewProps> = ({
         }
     }, [view, setEditing]);
 
+    const refFn = useCallback(
+        (elem: HTMLImageElement | null) => {
+            setRef(imageRef, elem);
+            setImageElement(elem);
+        },
+        [setImageElement],
+    );
+
     return (
         <div ref={imageContainerRef}>
             <Resizable
@@ -108,11 +124,11 @@ export const ImageNodeView: React.FC<ReactNodeViewProps> = ({
                     visible={isNodeHovered && !edit && !state.resizing}
                     edit={edit}
                     toggleEdit={toggleEdit}
-                    nodeRef={imageRef}
+                    nodeElement={imageElement}
                     onDelete={handleDelete}
                     unsetEdit={unsetEdit}
                 />
-                <img ref={imageRef} src={src} alt={alt} style={style} />
+                <img ref={refFn} src={src} alt={alt} style={style} />
             </Resizable>
         </div>
     );

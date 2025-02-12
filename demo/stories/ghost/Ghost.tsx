@@ -1,6 +1,3 @@
-import React from 'react';
-
-import {toaster} from '@gravity-ui/uikit/toaster-singleton-react-18';
 import cloneDeep from 'lodash/cloneDeep';
 
 import {MarkdownEditorView, logger, markupToolbarConfigs, useMarkdownEditor} from '../../../src';
@@ -32,7 +29,6 @@ export const Ghost = () => {
                     stickyToolbar
                     settingsVisible
                     editor={editor}
-                    toaster={toaster}
                     markupToolbarConfig={mToolbarConfig}
                 />
             )}

@@ -1,6 +1,6 @@
 import type {ExtensionAuto} from '../../../core';
 
-import {ClipboardPluginOptions, clipboard} from './clipboard';
+import {type ClipboardPluginOptions, clipboard} from './clipboard';
 import * as clipboardUtils from './utils';
 
 export {clipboardUtils};
@@ -16,6 +16,6 @@ export const Clipboard: ExtensionAuto<ClipboardOptions> = (builder, opts) => {
                 serializer: deps.serializer,
                 pasteFileHandler: opts.pasteFileHandler,
             }),
-        builder.PluginPriority.VeryLow,
+        builder.Priority.VeryLow,
     );
 };

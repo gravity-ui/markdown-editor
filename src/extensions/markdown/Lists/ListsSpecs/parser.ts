@@ -16,7 +16,6 @@ export const parserTokens: Record<ListNode, ParserToken> = {
         type: 'block',
         getAttrs: (token, tokens, i) => ({
             [ListsAttr.Tight]: listIsTight(tokens, i),
-            [ListsAttr.Bullet]: token.markup,
             [ListsAttr.Markup]: token.markup,
         }),
     },

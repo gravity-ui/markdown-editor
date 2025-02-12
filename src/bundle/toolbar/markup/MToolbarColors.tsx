@@ -1,5 +1,3 @@
-import React from 'react';
-
 import {colorify} from '../../../markup/commands';
 import type {CodeEditor} from '../../../markup/editor';
 import {ToolbarColors} from '../custom/ToolbarColors';

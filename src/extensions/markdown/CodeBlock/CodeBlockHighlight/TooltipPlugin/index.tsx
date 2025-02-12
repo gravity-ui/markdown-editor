@@ -1,9 +1,7 @@
-import React from 'react';
-
 import {TrashBin} from '@gravity-ui/icons';
-import {Select, SelectOption} from '@gravity-ui/uikit';
-import {Node} from 'prosemirror-model';
-import {EditorView} from 'prosemirror-view';
+import {Select, type SelectOption} from '@gravity-ui/uikit';
+import type {Node} from 'prosemirror-model';
+import type {EditorView} from 'prosemirror-view';
 
 import {i18n} from '../../../../../i18n/codeblock';
 import {i18n as i18nPlaceholder} from '../../../../../i18n/placeholder';
@@ -41,6 +39,7 @@ const CodeMenu: React.FC<CodeMenuProps> = ({view, pos, node, selectItems, mappin
         <Select
             size="m"
             width="max"
+            disablePortal
             value={[value]}
             onUpdate={(v) => handleClick(v[0])}
             options={selectItems}
@@ -51,6 +50,8 @@ const CodeMenu: React.FC<CodeMenuProps> = ({view, pos, node, selectItems, mappin
             renderEmptyOptions={() => (
                 <div className="g-md-code-block__select-empty">{i18n('empty_option')}</div>
             )}
+            // TODO: in onOpenChange return focus to view.dom after press Esc in Select
+            // after https://github.com/gravity-ui/uikit/issues/2075
         />
     );
 };

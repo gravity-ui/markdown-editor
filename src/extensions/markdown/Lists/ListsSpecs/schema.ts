@@ -25,7 +25,6 @@ export const schemaSpecs: Record<ListNode, NodeSpec> = {
         group: 'block',
         attrs: {
             [ListsAttr.Tight]: {default: false},
-            [ListsAttr.Bullet]: {default: Markup.bullet.default},
             [ListsAttr.Markup]: {default: Markup.bullet.default},
         },
         parseDOM: [

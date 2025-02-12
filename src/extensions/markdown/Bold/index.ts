@@ -5,11 +5,9 @@ import {createToggleMarkAction} from '../../../utils/actions';
 import {markInputRule} from '../../../utils/inputrules';
 import {withLogAction} from '../../../utils/keymap';
 
-import {BoldSpecs, boldMarkName, boldType} from './BoldSpecs';
+import {BoldSpecs, boldType} from './BoldSpecs';
 
 export {boldMarkName, boldType} from './BoldSpecs';
-/** @deprecated Use `boldMarkName` instead */
-export const bold = boldMarkName;
 const bAction = 'bold';
 
 export type BoldOptions = {

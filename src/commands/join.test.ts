@@ -1,5 +1,11 @@
-import {Node} from 'prosemirror-model';
-import {Command, EditorState, Selection, TextSelection, Transaction} from 'prosemirror-state';
+import type {Node} from 'prosemirror-model';
+import {
+    type Command,
+    EditorState,
+    type Selection,
+    TextSelection,
+    type Transaction,
+} from 'prosemirror-state';
 import {builders} from 'prosemirror-test-builder';
 
 import {ExtensionsManager} from '../core';

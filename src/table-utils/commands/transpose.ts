@@ -1,4 +1,4 @@
-import {Fragment, Node} from 'prosemirror-model';
+import {Fragment, type Node} from 'prosemirror-model';
 import type {Command} from 'prosemirror-state';
 
 import {

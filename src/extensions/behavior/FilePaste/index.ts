@@ -1,4 +1,4 @@
-import {Fragment, Node, Schema, Slice} from 'prosemirror-model';
+import {Fragment, type Node, type Schema, Slice} from 'prosemirror-model';
 import {Plugin} from 'prosemirror-state';
 import {dropPoint} from 'prosemirror-transform';
 

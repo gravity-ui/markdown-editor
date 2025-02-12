@@ -1,5 +1,4 @@
-import React from 'react';
-
+import {offset, shift} from '@floating-ui/react'; // eslint-disable-line import/no-extraneous-dependencies
 import {Popup, type PopupProps} from '@gravity-ui/uikit';
 import type {EditorState} from 'prosemirror-state';
 import type {EditorView} from 'prosemirror-view';
@@ -157,8 +156,19 @@ export class TooltipView {
 
         return {
             placement: 'bottom',
-            anchorRef: {current: viewDom},
-            offset: [leftOffset, bottomOffset],
+            anchorElement: viewDom,
+            // override floating middlewares
+            floatingMiddlewares: [
+                offset({
+                    mainAxis: bottomOffset,
+                    crossAxis: leftOffset,
+                }),
+                shift({
+                    mainAxis: true,
+                    crossAxis: false,
+                    padding: 4,
+                }),
+            ],
         };
     }
 

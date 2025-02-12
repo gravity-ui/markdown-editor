@@ -1,7 +1,7 @@
 import {Plugin} from 'prosemirror-state';
 
 import type {ParseInsertedUrlAsImage} from '../../../../bundle';
-import {ExtensionAuto} from '../../../../core';
+import type {ExtensionAuto} from '../../../../core';
 import {DataTransferType} from '../../../behavior/Clipboard/utils';
 import {imageType} from '../ImageSpecs';
 

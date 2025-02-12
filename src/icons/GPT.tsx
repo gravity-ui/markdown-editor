@@ -1,5 +1,3 @@
-import React from 'react';
-
 import {useTheme} from '@gravity-ui/uikit';
 
 const GPTIcon = () => {

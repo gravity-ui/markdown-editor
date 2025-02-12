@@ -1,6 +1,6 @@
-import {Node} from 'prosemirror-model';
+import type {Node} from 'prosemirror-model';
 
-import {CommandWithAttrs} from '../../../../../core';
+import type {CommandWithAttrs} from '../../../../../core';
 import {appendColumn, appendRow, removeColumn, removeRow} from '../../../../../table-utils';
 import {defineActions} from '../../../../../utils/actions';
 import {removeNode} from '../../../../../utils/remove-node';

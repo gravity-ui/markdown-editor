@@ -8,10 +8,10 @@ import {
 } from 'prosemirror-state';
 import type {EditorProps, EditorView} from 'prosemirror-view';
 
-import {ActionStorage, ExtensionAuto} from '../../../core';
+import type {ActionStorage, ExtensionAuto} from '../../../core';
 import {isCodeBlock} from '../../../utils/nodes';
 
-import {ContextConfig, TooltipView} from './tooltip';
+import {type ContextConfig, TooltipView} from './tooltip';
 
 export type {
     ContextConfig as SelectionContextConfig,
@@ -123,8 +123,8 @@ class SelectionTooltip implements PluginSpec<unknown> {
         }
 
         this.tooltip.show(view, {
-            onOutsideClick: () => {
-                this.scheduleTooltipHiding(view);
+            onOpenChange: (_open, _event, reason) => {
+                if (reason !== 'escape-key') this.scheduleTooltipHiding(view);
             },
         });
     }

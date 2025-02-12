@@ -1,4 +1,4 @@
-import React from 'react';
+import {memo} from 'react';
 
 import {type ClassNameProps, cn} from '../classname';
 import {ReactRendererComponent} from '../extensions';
@@ -30,7 +30,7 @@ export type MarkupEditorViewProps = ClassNameProps & {
     children?: React.ReactNode;
 };
 
-export const MarkupEditorView = React.memo<MarkupEditorViewProps>((props) => {
+export const MarkupEditorView = memo<MarkupEditorViewProps>((props) => {
     const {
         editor,
         autofocus,

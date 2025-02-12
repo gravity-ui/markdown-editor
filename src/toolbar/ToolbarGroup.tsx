@@ -1,4 +1,4 @@
-import React from 'react';
+import {Fragment} from 'react';
 
 import {cn} from '../classname';
 
@@ -70,6 +70,7 @@ export function ToolbarButtonGroup<E>({
                     const Component = item.component;
                     return (
                         <Component
+                            {...item.props}
                             key={item.id}
                             editor={editor}
                             focus={focus}
@@ -80,11 +81,11 @@ export function ToolbarButtonGroup<E>({
                 }
 
                 if (item.type === ToolbarDataType.ReactNode) {
-                    return <React.Fragment key={item.id}>{item.content}</React.Fragment>;
+                    return <Fragment key={item.id}>{item.content}</Fragment>;
                 }
 
                 if (item.type === ToolbarDataType.ReactNodeFn) {
-                    return <React.Fragment key={item.id}>{item.content(editor)}</React.Fragment>;
+                    return <Fragment key={item.id}>{item.content(editor)}</Fragment>;
                 }
 
                 return null;

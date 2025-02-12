@@ -21,3 +21,6 @@ export type {
     SerializerMarkToken,
 } from './types/serializer';
 export type {NodeViewConstructor, MarkViewConstructor} from './types/node-views';
+
+export type {MarkdownParserDynamicModifierConfig} from './markdown/MarkdownParser';
+export type {MarkdownSerializerDynamicModifierConfig} from './markdown/MarkdownSerializerDynamicModifier';

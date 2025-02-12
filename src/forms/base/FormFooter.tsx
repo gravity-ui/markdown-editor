@@ -1,8 +1,6 @@
-import React from 'react';
-
 import {Button} from '@gravity-ui/uikit';
 
-import {ClassNameProps, cn} from '../../classname';
+import {type ClassNameProps, cn} from '../../classname';
 import {i18n} from '../../i18n/forms';
 
 import './FormFooter.scss';

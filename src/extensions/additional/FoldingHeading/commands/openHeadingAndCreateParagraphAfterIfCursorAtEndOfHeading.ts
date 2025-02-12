@@ -1,5 +1,5 @@
 import type {ResolvedPos} from 'prosemirror-model';
-import {Command, Selection, TextSelection} from 'prosemirror-state';
+import {type Command, type Selection, TextSelection} from 'prosemirror-state';
 
 import {get$Cursor} from '../../../../utils/selection';
 import {pType} from '../../../base/specs';

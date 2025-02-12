@@ -1,4 +1,4 @@
-import {Action, ExtensionAuto, ExtensionDeps, NodeViewConstructor} from '../../../core';
+import type {Action, ExtensionAuto, ExtensionDeps, NodeViewConstructor} from '../../../core';
 
 import {WMermaidNodeView} from './MermaidNodeView';
 import {MermaidSpecs} from './MermaidSpecs';

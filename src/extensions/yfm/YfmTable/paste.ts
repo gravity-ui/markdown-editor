@@ -1,4 +1,4 @@
-import {Fragment, Node, Schema, Slice} from 'prosemirror-model';
+import {Fragment, type Node, type Schema, Slice} from 'prosemirror-model';
 
 import {getChildrenOfNode} from '../../../utils/nodes';
 

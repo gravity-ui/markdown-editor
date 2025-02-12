@@ -1,17 +1,15 @@
-import React, {CSSProperties, useCallback, useEffect} from 'react';
-
-import {toaster} from '@gravity-ui/uikit/toaster-singleton-react-18';
+import {StrictMode, memo, useCallback, useEffect, useState} from 'react';
 
 import {
-    MarkdownEditorMode,
-    MarkdownEditorPreset,
+    type MarkdownEditorMode,
+    type MarkdownEditorPreset,
     MarkdownEditorView,
-    MarkupString,
-    RenderPreview,
+    type MarkupString,
+    type RenderPreview,
     logger,
     useMarkdownEditor,
 } from '../../../src';
-import {ToolbarsPreset} from '../../../src/modules/toolbars/types';
+import type {ToolbarsPreset} from '../../../src/modules/toolbars/types';
 import type {FileUploadHandler} from '../../../src/utils/upload';
 import {VERSION} from '../../../src/version';
 // ---
@@ -41,7 +39,7 @@ export type PresetDemoProps = {
     linkifyTlds?: string | string[];
     splitModeOrientation?: 'horizontal' | 'vertical' | false;
     stickyToolbar?: boolean;
-    height?: CSSProperties['height'];
+    height?: React.CSSProperties['height'];
     toolbarsPreset?: ToolbarsPreset;
 };
 
@@ -51,7 +49,7 @@ logger.setLogger({
     ...console,
 });
 
-export const Preset = React.memo<PresetDemoProps>((props) => {
+export const Preset = memo<PresetDemoProps>((props) => {
     const {
         preset,
         settingsVisible,
@@ -64,8 +62,8 @@ export const Preset = React.memo<PresetDemoProps>((props) => {
         height,
         toolbarsPreset,
     } = props;
-    const [editorMode, setEditorMode] = React.useState<MarkdownEditorMode>('wysiwyg');
-    const [mdRaw, setMdRaw] = React.useState<MarkupString>('');
+    const [editorMode, setEditorMode] = useState<MarkdownEditorMode>('wysiwyg');
+    const [mdRaw, setMdRaw] = useState<MarkupString>('');
 
     const renderPreview = useCallback<RenderPreview>(
         ({getValue, md}) => (
@@ -84,15 +82,19 @@ export const Preset = React.memo<PresetDemoProps>((props) => {
 
     const mdEditor = useMarkdownEditor({
         preset,
-        allowHTML,
-        linkify,
-        linkifyTlds,
-        breaks: breaks ?? true,
-        initialSplitModeEnabled: true,
-        initialToolbarVisible: true,
-        splitMode: splitModeOrientation,
-        renderPreview,
-        fileUploadHandler,
+        md: {
+            html: allowHTML,
+            linkify,
+            linkifyTlds,
+            breaks: breaks ?? true,
+        },
+        handlers: {
+            uploadFile: fileUploadHandler,
+        },
+        initial: {
+            toolbarVisible: true,
+            splitModeEnabled: true,
+        },
         wysiwygConfig: {
             extensionOptions: {
                 imgSize: {
@@ -101,6 +103,8 @@ export const Preset = React.memo<PresetDemoProps>((props) => {
             },
         },
         markupConfig: {
+            splitMode: splitModeOrientation,
+            renderPreview,
             parseInsertedUrlAsImage,
         },
     });
@@ -129,12 +133,11 @@ export const Preset = React.memo<PresetDemoProps>((props) => {
                 <span className={b('version')}>{VERSION}</span>
             </div>
             <hr />
-            <React.StrictMode>
+            <StrictMode>
                 <div className={b('editor')} style={{height: height ?? 'initial'}}>
                     <MarkdownEditorView
                         autofocus
                         toolbarsPreset={toolbarsPreset}
-                        toaster={toaster}
                         className={b('editor-view')}
                         stickyToolbar={Boolean(stickyToolbar)}
                         settingsVisible={settingsVisible}
@@ -143,7 +146,7 @@ export const Preset = React.memo<PresetDemoProps>((props) => {
                     <WysiwygDevTools editor={mdEditor} />
                     <WysiwygSelection editor={mdEditor} className={b('pm-selection')} />
                 </div>
-            </React.StrictMode>
+            </StrictMode>
 
             <hr />
 

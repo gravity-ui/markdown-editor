@@ -1,4 +1,4 @@
-import {ExtensionAuto, Keymap} from '../../../core';
+import type {ExtensionAuto, Keymap} from '../../../core';
 import {Action as A, formatter as f} from '../../../shortcuts';
 import {VERSION} from '../../../version';
 

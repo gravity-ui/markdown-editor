@@ -2,11 +2,9 @@ import type {Action, ExtensionAuto} from '../../../core';
 import {createToggleMarkAction} from '../../../utils/actions';
 import {markInputRule} from '../../../utils/inputrules';
 
-import {MarkSpecs, markMarkName, markMarkType} from './MarkSpecs';
+import {MarkSpecs, markMarkType} from './MarkSpecs';
 
 export {markMarkName, markMarkType} from './MarkSpecs';
-/** @deprecated Use `markMarkName` instead  */
-export const mark = markMarkName;
 const mAction = 'mark';
 
 export const Mark: ExtensionAuto = (builder) => {

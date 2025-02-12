@@ -1,12 +1,16 @@
-import {Node} from 'prosemirror-model';
-import {EditorView} from 'prosemirror-view';
+import type {Node} from 'prosemirror-model';
+import type {EditorView} from 'prosemirror-view';
 
 import {logger} from '../../../../logger';
-import {FileUploadHandler, UploadSuccessItem, getProportionalSize} from '../../../../utils';
+import {
+    type FileUploadHandler,
+    type UploadSuccessItem,
+    getProportionalSize,
+} from '../../../../utils';
 import {FilesBatchUploadProcess} from '../../../behavior/utils/upload';
 import {imageType} from '../../../markdown';
 import {IMG_MAX_HEIGHT} from '../const';
-import {CreateImageNodeOptions, createImageNode, loadImage} from '../utils';
+import {type CreateImageNodeOptions, createImageNode, loadImage} from '../utils';
 
 import {ImageSkeletonDescriptor} from './skeleton';
 

@@ -1,16 +1,16 @@
 import {decode as base64ToBuffer} from 'base64-arraybuffer';
-import {Fragment, Node, Schema, Slice} from 'prosemirror-model';
+import {Fragment, type Node, type Schema, Slice} from 'prosemirror-model';
 import {Plugin} from 'prosemirror-state';
 import {dropPoint} from 'prosemirror-transform';
 
 import type {ParseInsertedUrlAsImage} from '../../../../bundle';
-import {ExtensionAuto} from '../../../../core';
+import type {ExtensionAuto} from '../../../../core';
 import {isFunction} from '../../../../lodash';
-import {FileUploadHandler} from '../../../../utils';
+import type {FileUploadHandler} from '../../../../utils';
 import {clipboardUtils} from '../../../behavior/Clipboard';
 import {DataTransferType} from '../../../behavior/Clipboard/utils';
 import {ImageAttr, ImgSizeAttr, imageType} from '../../../specs';
-import {CreateImageNodeOptions, isImageNode} from '../utils';
+import {type CreateImageNodeOptions, isImageNode} from '../utils';
 
 import {ImagesUploadProcess} from './upload';
 

@@ -1,5 +1,3 @@
-import React from 'react';
-
 import {ArrowsRotateRight} from '@gravity-ui/icons';
 import {Icon, Label, Portal, Spin, Tooltip} from '@gravity-ui/uikit';
 

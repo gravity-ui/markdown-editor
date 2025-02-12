@@ -1,5 +1,51 @@
 # Changelog
 
+## [15.0.0](https://github.com/gravity-ui/markdown-editor/compare/v14.12.2...v15.0.0) (2025-02-11)
+
+See [the migration guide here](https://github.com/gravity-ui/markdown-editor/discussions/610).
+
+### ⚠ BREAKING CHANGES
+
+* markdown-editor@15 ([#604](https://github.com/gravity-ui/markdown-editor/issues/604))
+* `@gravity-ui/uikit` updated to v7
+* removed `toaster` prop from `<MarkdownEditorView />` component
+* removed deprecated props from `useMarkdownEditor()` hook
+* removed generics from `useMarkdownEditor()` and `UseMarkdownEditorProps`
+* removed deprecated `PluginPriority` field from `ExtensionBuilder`
+* removed deprecated constants with node and mark names; similarly for attributes
+* removed deprecated `<YfmHtml />` and `YfmHtmlProps`
+* removed deprecated `disabledPopoverVisible` field from `ToolbarItemData` type
+* removed `typesVersions` from `package.json`
+* build react-jsx using new jsx-transform
+* dropped support of `react@16.8.0`; changed minimal `react@16` version: `^16.14.0`
+* changed build target to ES2022 
+* dropped support of `@diplodoc/transform` lower then `^4.43.0`
+* dropped support of `@diplodoc/cut-extension` lower then `^0.5.0`
+* added `@diplodoc/file-extension` to peer dependencies
+* updated `SerializerMarkToken` — parent parameter now uses `Node` instead of `Fragment`
+
+### Features
+
+* moved `lodash` to dependencies
+* updated `codemirror` packages to latest versions
+* updated `prosemirror` packages to latest versions
+* added sourcemaps for builded files 
+
+## [14.12.2](https://github.com/gravity-ui/markdown-editor/compare/v14.12.0...v14.12.2) (2025-02-11)
+
+
+### chore
+
+* release 14.12.2 ([12a8ef1](https://github.com/gravity-ui/markdown-editor/commit/12a8ef1d6a4b8fba5f9741d0d974a8549992acc6))
+
+## [14.12.0](https://github.com/gravity-ui/markdown-editor/compare/v14.11.2...v14.12.0) (2025-02-11)
+
+
+### Features
+
+* **actions:** add heading previews ([#582](https://github.com/gravity-ui/markdown-editor/issues/582)) ([0bf2af1](https://github.com/gravity-ui/markdown-editor/commit/0bf2af1a65c52f82559930e1f31dab78f9c16b34))
+* **core:** added preserving and managing original markdown formatting for YfmTable ([#558](https://github.com/gravity-ui/markdown-editor/issues/558)) ([59549eb](https://github.com/gravity-ui/markdown-editor/commit/59549ebb4ee04296ae32e68c4e6289559d037330))
+
 ## [14.11.2](https://github.com/gravity-ui/markdown-editor/compare/v14.11.1...v14.11.2) (2025-02-07)
 
 

@@ -121,9 +121,9 @@ describe('ExtensionBuilder', () => {
         const plugin2 = new Plugin({});
         const plugin3 = new Plugin({});
         const plugins = new ExtensionBuilder()
-            .addPlugin(() => plugin3, ExtensionBuilder.PluginPriority.VeryLow)
+            .addPlugin(() => plugin3, ExtensionBuilder.Priority.VeryLow)
             .addPlugin(() => plugin1)
-            .addPlugin(() => plugin0, ExtensionBuilder.PluginPriority.VeryHigh)
+            .addPlugin(() => plugin0, ExtensionBuilder.Priority.VeryHigh)
             .addPlugin(() => plugin2)
             .build()
             .plugins({} as ExtensionDeps);

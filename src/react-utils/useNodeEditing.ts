@@ -1,11 +1,11 @@
-import {RefObject, useEffect} from 'react';
+import {useEffect} from 'react';
 
-import {EditorView} from 'prosemirror-view';
+import type {EditorView} from 'prosemirror-view';
 
 import {useBooleanState} from './hooks';
 
 export interface UseNodeEditingArgs {
-    nodeRef: RefObject<HTMLElement>;
+    nodeRef: React.RefObject<HTMLElement>;
     view: EditorView;
 }
 

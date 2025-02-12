@@ -1,4 +1,4 @@
-import {Command, NodeSelection, TextSelection} from 'prosemirror-state';
+import {type Command, NodeSelection, TextSelection} from 'prosemirror-state';
 
 import {get$Cursor} from '../../../utils/selection';
 

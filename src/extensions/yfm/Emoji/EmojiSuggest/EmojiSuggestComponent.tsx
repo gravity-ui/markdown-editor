@@ -1,10 +1,8 @@
-import React from 'react';
-
-import {List, Popup, PopupPlacement} from '@gravity-ui/uikit';
+import {List, Popup, type PopupPlacement} from '@gravity-ui/uikit';
 
 import {cn} from '../../../../classname';
 import {ErrorLoggerBoundary} from '../../../../react-utils/ErrorBoundary';
-import {AutocompletePopupProps} from '../../../../utils/autocomplete-popup';
+import type {AutocompletePopupProps} from '../../../../utils/autocomplete-popup';
 
 import type {EmojiDef} from './types';
 
@@ -28,24 +26,20 @@ export type EmojiSuggestComponentProps = AutocompletePopupProps & {
 };
 
 export const EmojiSuggestComponent: React.FC<EmojiSuggestComponentProps> = ({
-    anchor,
+    anchorElement,
     currentIndex,
     items,
     onClick,
-    onEnterKeyDown,
-    onEscapeKeyDown,
-    onOutsideClick,
+    onOpenChange,
 }) => {
-    if (!anchor) return null;
+    if (!anchorElement) return null;
 
     return (
         <Popup
             open={Boolean(items.length)}
-            anchorRef={{current: anchor}}
+            anchorElement={anchorElement}
             placement={placement}
-            onEnterKeyDown={onEnterKeyDown}
-            onEscapeKeyDown={onEscapeKeyDown}
-            onOutsideClick={onOutsideClick}
+            onOpenChange={onOpenChange}
         >
             <div className={b()}>
                 <List<EmojiDef>

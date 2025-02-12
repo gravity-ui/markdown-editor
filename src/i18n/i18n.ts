@@ -1,4 +1,4 @@
-import {I18N, I18NFn} from '@gravity-ui/i18n';
+import {I18N, type I18NFn} from '@gravity-ui/i18n';
 
 import {Lang, getConfig, subscribeConfigure} from '../configure';
 

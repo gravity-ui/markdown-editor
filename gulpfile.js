@@ -1,22 +1,27 @@
 /* eslint-env node */
 
-const path = require('path');
+const path = require('node:path');
+
+const utils = require('@gravity-ui/gulp-utils');
 const gulp = require('gulp');
-const rimraf = require('rimraf');
-const ts = require('gulp-typescript');
-const replace = require('gulp-replace');
 const concat = require('gulp-concat');
+const replace = require('gulp-replace');
 const sass = require('gulp-sass')(require('sass'));
+const sourcemaps = require('gulp-sourcemaps');
+const rimraf = require('rimraf');
+
 const pkg = require('./package.json');
 
 const Module = Object.freeze({
-    CJS: 'commonjs',
+    CJS: 'nodenext',
     ESM: 'esnext',
 });
 
 const BUILD_DIR = path.resolve('build');
 const BUILD_DIR_CJS = path.resolve(BUILD_DIR, 'cjs');
 const BUILD_DIR_ESM = path.resolve(BUILD_DIR, 'esm');
+
+const NODE_MODULES_DIR = path.resolve(__dirname, 'node_modules');
 
 gulp.task('clean', (done) => rimraf(BUILD_DIR, done));
 
@@ -31,7 +36,9 @@ gulp.task('json', () => {
 gulp.task('scss', () => {
     return gulp
         .src('src/**/*.scss')
-        .pipe(replace(/@(import|use) '~.+';/g, (match) => match.replace('~', 'node_modules/')))
+        .pipe(
+            replace(/@(import|use) '~.+'/g, (match) => match.replace('~', NODE_MODULES_DIR + '/')),
+        )
         .pipe(sass())
         .pipe(gulp.dest(BUILD_DIR_CJS))
         .pipe(gulp.dest(BUILD_DIR_ESM))
@@ -43,22 +50,44 @@ gulp.task('build', gulp.parallel('ts', 'json', 'scss'));
 
 gulp.task('default', gulp.series('clean', 'build'));
 
-function compileTS({module, destPath}) {
-    const tsProject = ts.createProject('tsconfig.json', {
-        module,
-        declaration: true,
-        isolatedModules: false, // включение данной опции вырубает генерацию .d.ts файлов о_О
+async function compileTS({module, destPath}) {
+    const tsProject = await utils.createTypescriptProject({
+        compilerOptions: {
+            module,
+            declaration: true,
+            ...(module === Module.ESM
+                ? undefined
+                : {
+                      moduleResolution: 'nodenext',
+                      verbatimModuleSyntax: false,
+                  }),
+        },
     });
-    return gulp
-        .src(['src/**/*.{js,jsx,ts,tsx}', '!src/**/*.test.{js,jsx,ts,tsx}'])
-        .pipe(
-            replace(
-                /import '.+\.scss';/g,
-                module === Module.CJS ? '' : (match) => match.replace('.scss', '.css'),
-            ),
-        )
-        .pipe(replace(/(\.\.\/)+assets\//g, (match) => '../' + match))
-        .pipe(tsProject())
-        .pipe(replace('__VERSION__', `'${pkg.version}'`))
-        .pipe(gulp.dest(destPath));
+    const transformers = [
+        tsProject.customTransformers.transformScssImports,
+        tsProject.customTransformers.transformLocalModules,
+    ];
+
+    return new Promise((resolve) => {
+        gulp.src(['src/**/*.{js,jsx,ts,tsx}', '!src/**/*.test.{js,jsx,ts,tsx}'])
+            .pipe(sourcemaps.init())
+            .pipe(
+                tsProject({
+                    customTransformers: {
+                        before: transformers,
+                        afterDeclarations: transformers,
+                    },
+                }),
+            )
+            .pipe(sourcemaps.write('.', {includeContent: true, sourceRoot: '../../src'}))
+            .pipe(
+                utils.addVirtualFile({
+                    fileName: 'package.json',
+                    text: JSON.stringify({type: module === Module.ESM ? 'module' : 'commonjs'}),
+                }),
+            )
+            .pipe(replace('__VERSION__', `'${pkg.version}'`))
+            .pipe(gulp.dest(destPath))
+            .on('end', resolve);
+    });
 }

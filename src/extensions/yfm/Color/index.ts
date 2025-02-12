@@ -4,7 +4,7 @@ import type {Action, ExtensionAuto} from '../../../core';
 import {isMarkActive} from '../../../utils/marks';
 
 import {ColorSpecs, colorType} from './ColorSpecs';
-import {Colors, colorAction, colorMarkName} from './const';
+import {type Colors, colorAction, colorMarkName} from './const';
 import {chainAND, parseStyleColorValue, validateClassNameColorName} from './utils';
 
 import './colors.scss';

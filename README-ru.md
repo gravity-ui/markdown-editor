@@ -30,7 +30,6 @@ npm install @gravity-ui/markdown-editor
 ```tsx
 import React from 'react';
 import {useMarkdownEditor, MarkdownEditorView} from '@gravity-ui/markdown-editor';
-import {toaster} from '@gravity-ui/uikit/toaster-singleton-react-18';
 
 function Editor({onSubmit}) {
   const editor = useMarkdownEditor({allowHTML: false});
@@ -48,11 +47,12 @@ function Editor({onSubmit}) {
     };
   }, [onSubmit]);
 
-  return <MarkdownEditorView stickyToolbar autofocus toaster={toaster} editor={editor} />;
+  return <MarkdownEditorView stickyToolbar autofocus editor={editor} />;
 }
 ```
 
 Полезные ссылки:
+
 - [Как подключить редактор в Create React App](https://preview.gravity-ui.com/md-editor/?path=/docs/docs-install-create-react-app--docs)
 - [Как добавить предварительный просмотр для режима разметки](https://preview.gravity-ui.com/md-editor/?path=/docs/docs-develop-preview--docs)
 - [Как добавить расширение HTML](https://preview.gravity-ui.com/md-editor/?path=/docs/docs-connect-html-block--docs)
@@ -84,20 +84,19 @@ configure({
 
 Обязательно сделайте вызов `configure()` из [UIKit](https://github.com/gravity-ui/uikit?tab=readme-ov-file#i18n) и других UI-библиотек.
 
-### Система z-index 
+### Система z-index
 
 В этом проекте используется система z-index для управления слоями элементов. Ниже приведены определенные уровни и их значения:
 
 | level               | z-index value |
-|---------------------|---------------|
+| ------------------- | ------------- |
 | background          | -1            |
 | default             | 0             |
 | forefront           | 1             |
 | img-settings-button | 2             |
 | table-view-button   | 100           |
 | table-cell-button   | 110           |
-| sticky-toolbar      | 2000          |
-| tooltip             | 2100          |
+| sticky-toolbar      | 990           |
 
 ### Использование
 
@@ -107,7 +106,7 @@ configure({
 @use 'styles/mixins.scss';
 
 .tooltip {
-  @include mixins.z-index('tooltip');
+  @include mixins.z-index('forefront');
 }
 ```
 

@@ -1,13 +1,11 @@
-import React from 'react';
-
-import {NodeType} from 'prosemirror-model';
-import {EditorView} from 'prosemirror-view';
+import type {NodeType} from 'prosemirror-model';
+import type {EditorView} from 'prosemirror-view';
 
 import {
-    BaseTooltipNode,
-    BaseTooltipPluginOptions,
+    type BaseTooltipNode,
+    type BaseTooltipPluginOptions,
     BaseTooltipPluginView,
-    TooltipOnChangeCallback,
+    type TooltipOnChangeCallback,
 } from '../BaseTooltip';
 
 import {TooltipButton} from './TooltipButton';
@@ -63,7 +61,7 @@ export class TooltipButtonPluginView extends BaseTooltipPluginView {
                 {this.forceEdit && this.formContent ? (
                     <div>{this.formContent(this.view, currentNode, this.changeAttrsCb)}</div>
                 ) : (
-                    <TooltipButton domRef={currentNode.dom} onOutsideClick={this.onOutsideClick}>
+                    <TooltipButton domElem={currentNode.dom} onOutsideClick={this.onOutsideClick}>
                         {this.buttonContent(this.view, currentNode, this.toggleEdit)}
                     </TooltipButton>
                 )}

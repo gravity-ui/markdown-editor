@@ -6,13 +6,11 @@ import type {Action, ExtensionAuto} from '../../../core';
 import {createToggleMarkAction} from '../../../utils/actions';
 import {withLogAction} from '../../../utils/keymap';
 
-import {CodeSpecs, codeMarkName, codeType} from './CodeSpecs';
+import {CodeSpecs, codeType} from './CodeSpecs';
 
 import './code.scss';
 
 export {codeMarkName, codeType} from './CodeSpecs';
-/** @deprecated Use `codeMarkName` instead */
-export const code = codeMarkName;
 const codeAction = 'code';
 
 export type CodeOptions = {

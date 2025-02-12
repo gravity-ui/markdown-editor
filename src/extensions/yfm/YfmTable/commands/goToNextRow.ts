@@ -1,4 +1,5 @@
-import {Command, TextSelection} from 'prosemirror-state';
+import type {Node} from 'prosemirror-model';
+import {type Command, TextSelection} from 'prosemirror-state';
 
 import {
     atEndOfCell,
@@ -30,7 +31,7 @@ export function goToNextRow(dir: 'up' | 'down'): Command {
         }
 
         const allRows = findChildTableRows(parentTable.node);
-        const rowIndex = allRows.findIndex((node) => node.node === parentRow.node);
+        const rowIndex = allRows.findIndex((node: {node: Node}) => node.node === parentRow.node);
 
         let cellIndex;
 

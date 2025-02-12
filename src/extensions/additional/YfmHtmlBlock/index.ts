@@ -1,7 +1,7 @@
-import {PluginOptions} from '@diplodoc/html-extension/plugin';
+import type {PluginOptions} from '@diplodoc/html-extension';
 import type {IHTMLIFrameElementConfig} from '@diplodoc/html-extension/runtime';
 
-import {Action, ExtensionAuto, ExtensionDeps, NodeViewConstructor} from '../../../core';
+import type {Action, ExtensionAuto, ExtensionDeps, NodeViewConstructor} from '../../../core';
 
 import {WYfmHtmlBlockNodeView} from './YfmHtmlBlockNodeView';
 import {YfmHtmlBlockSpecs} from './YfmHtmlBlockSpecs';

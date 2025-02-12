@@ -3,14 +3,14 @@ import {keydownHandler} from 'prosemirror-keymap';
 import type {Node} from 'prosemirror-model';
 import {
     AllSelection,
-    Command,
+    type Command,
     NodeSelection,
     Plugin,
-    Selection,
+    type Selection,
     TextSelection,
-    Transaction,
+    type Transaction,
 } from 'prosemirror-state';
-import {Decoration, DecorationSet, EditorView} from 'prosemirror-view';
+import {Decoration, DecorationSet, type EditorView} from 'prosemirror-view';
 
 import {isSelectableNode} from '../../../utils/nodes';
 import {isNodeSelection} from '../../../utils/selection';

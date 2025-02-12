@@ -1,4 +1,4 @@
-import {CompletionContext, CompletionResult, snippet} from '@codemirror/autocomplete';
+import {type CompletionContext, type CompletionResult, snippet} from '@codemirror/autocomplete';
 
 import {i18n} from '../../../i18n/empty-row';
 

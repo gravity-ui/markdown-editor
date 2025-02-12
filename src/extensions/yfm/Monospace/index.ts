@@ -2,11 +2,9 @@ import type {Action, ExtensionAuto} from '../../../core';
 import {createToggleMarkAction} from '../../../utils/actions';
 import {markInputRule} from '../../../utils/inputrules';
 
-import {MonospaceSpecs, monospaceMarkName, monospaceType} from './MonospaceSpecs';
+import {MonospaceSpecs, monospaceType} from './MonospaceSpecs';
 
 export {monospaceMarkName, monospaceType} from './MonospaceSpecs';
-/** @deprecated Use `monospaceMarkName` instead */
-export const monospace = monospaceMarkName;
 const monoAction = 'mono';
 
 export const Monospace: ExtensionAuto = (builder) => {

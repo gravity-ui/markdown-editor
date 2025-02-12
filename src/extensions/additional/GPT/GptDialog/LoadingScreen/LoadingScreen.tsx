@@ -1,6 +1,3 @@
-import React from 'react';
-import type {FC} from 'react';
-
 import {Skeleton} from '@gravity-ui/uikit';
 
 import {cn} from '../../../../../classname';
@@ -12,7 +9,7 @@ import './LoadingScreen.scss';
 
 export const cnGptDialogLoadingScreen = cn('gpt-dialog-loading-screen');
 
-export const LoadingScreen: FC = () => {
+export const LoadingScreen: React.FC = () => {
     return (
         <div className={cnGptDialogLoadingScreen()}>
             <div className={cnGptDialogLoadingScreen('header')}>

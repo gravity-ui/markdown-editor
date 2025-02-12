@@ -1,6 +1,6 @@
-import {Command} from 'prosemirror-state';
+import type {Command} from 'prosemirror-state';
 
-import {ActionSpec} from '../../../../core';
+import type {ActionSpec} from '../../../../core';
 import {
     addColumnAfter,
     addRowAfter as addRowAfterOrig,

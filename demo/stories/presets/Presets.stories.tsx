@@ -1,4 +1,4 @@
-import {StoryObj} from '@storybook/react';
+import type {StoryObj} from '@storybook/react';
 
 import {ActionName as Action} from '../../../src/bundle/config/action-names';
 import {ToolbarName as Toolbar} from '../../../src/modules/toolbars/constants';

@@ -1,5 +1,3 @@
-import type {PluginOptions} from '@diplodoc/mermaid-extension/plugin/transform';
-
 export type {TransformMeta} from '../../types';
 
-export type PluginRuntime = PluginOptions['runtime'];
+export type PluginRuntime = string; // TODO: import runtime type from @diplodoc/mermaid-extension

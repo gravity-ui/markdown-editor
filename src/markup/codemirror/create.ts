@@ -9,7 +9,13 @@ import {
 } from '@codemirror/commands';
 import {syntaxHighlighting} from '@codemirror/language';
 import type {Extension, StateCommand} from '@codemirror/state';
-import {EditorView, type EditorViewConfig, KeyBinding, keymap, placeholder} from '@codemirror/view';
+import {
+    EditorView,
+    type EditorViewConfig,
+    type KeyBinding,
+    keymap,
+    placeholder,
+} from '@codemirror/view';
 
 import type {ParseInsertedUrlAsImage} from '../../bundle';
 import type {EventMap} from '../../bundle/Editor';

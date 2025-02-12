@@ -2,7 +2,7 @@ import type {ReactNode} from 'react';
 
 import {EditorView as CMEditorView} from '@codemirror/view';
 import {TextSelection} from 'prosemirror-state';
-import {EditorView as PMEditorView} from 'prosemirror-view';
+import type {EditorView as PMEditorView} from 'prosemirror-view';
 
 import type {CommonEditor, MarkupString} from '../common';
 import {
@@ -12,15 +12,18 @@ import {
     type WysiwygEditorOptions,
 } from '../core';
 import type {TransformFn} from '../core/markdown/ProseMirrorTransformer';
-import {ReactRenderStorage, type RenderStorage} from '../extensions';
+import type {DynamicModifiers} from '../core/types/dynamicModifiers';
+import type {ReactRenderStorage, RenderStorage} from '../extensions';
 import {i18n} from '../i18n/bundle';
 import {logger} from '../logger';
 import {createCodemirror} from '../markup';
 import {getAutocompleteConfig} from '../markup/codemirror/autocomplete';
 import {type CodeEditor, Editor as MarkupEditor} from '../markup/editor';
-import {type Emitter, FileUploadHandler, type Receiver, SafeEventEmitter} from '../utils';
+import {type Emitter, type FileUploadHandler, type Receiver, SafeEventEmitter} from '../utils';
 import type {DirectiveSyntaxContext} from '../utils/directive';
 
+import {MarkupManager} from './MarkupManager';
+import {createDynamicModifiers} from './config/dynamicModifiers';
 import type {
     MarkdownEditorMode as EditorMode,
     MarkdownEditorPreset as EditorPreset,
@@ -144,6 +147,7 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
     #mdOptions: Readonly<MarkdownEditorMdOptions>;
     #pmTransformers: TransformFn[] = [];
     #preserveEmptyRows: boolean;
+    #modifiers?: DynamicModifiers[];
 
     readonly #preset: EditorPreset;
     #extensions?: WysiwygEditorOptions['extensions'];
@@ -254,6 +258,7 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
                 initialContent: this.#markup,
                 extensions: this.#extensions,
                 pmTransformers: this.#pmTransformers,
+                modifiers: this.#modifiers,
                 allowHTML: this.#mdOptions.html,
                 linkify: this.#mdOptions.linkify,
                 linkifyTlds: this.#mdOptions.linkifyTlds,
@@ -331,6 +336,10 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
             markupConfig = {},
             wysiwygConfig = {},
         } = opts;
+
+        this.#modifiers = experimental.preserveMarkupFormatting
+            ? createDynamicModifiers(new MarkupManager())
+            : undefined;
 
         this.#editorMode = initial.mode ?? 'wysiwyg';
         this.#toolbarVisible = initial.toolbarVisible ?? true;

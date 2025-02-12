@@ -1,13 +1,12 @@
-import React, {RefObject, useRef} from 'react';
-
 import {Ellipsis} from '@gravity-ui/icons';
-import {Button, Icon, Menu, Popup, PopupPlacement} from '@gravity-ui/uikit';
-import {Node} from 'prosemirror-model';
-import {EditorView} from 'prosemirror-view';
+import {Button, Icon, Menu, Popup, type PopupPlacement} from '@gravity-ui/uikit';
+import type {Node} from 'prosemirror-model';
+import type {EditorView} from 'prosemirror-view';
 
 import {cn} from '../../../../../classname';
 import {i18n as i18nCommon} from '../../../../../i18n/common';
-import {useBooleanState} from '../../../../../react-utils/hooks';
+import {useBooleanState, useElementState} from '../../../../../react-utils/hooks';
+import {ReactNodeStopEventCn} from '../../../../../react-utils/react-node-view';
 
 import {ImageForm} from './ImageForm';
 
@@ -20,7 +19,7 @@ export const ImgSettingsButton: React.FC<{
     view: EditorView;
     getPos: () => number | undefined;
     updateAttributes: (o: object) => void;
-    nodeRef: RefObject<HTMLDivElement>;
+    nodeElement: HTMLElement | null;
     visible: boolean;
     toggleEdit: () => void;
     edit: boolean;
@@ -33,13 +32,13 @@ export const ImgSettingsButton: React.FC<{
     visible,
     edit,
     toggleEdit,
-    nodeRef,
+    nodeElement,
     unsetEdit,
     onDelete,
 }) {
-    const [popupOpen, setPopupOpen, unsetPopupOpen] = useBooleanState(false);
+    const [anchorElement, setAnchorElement] = useElementState();
+    const [popupOpen, _setPopupOpen, unsetPopupOpen, togglePopup] = useBooleanState(false);
     const placement: PopupPlacement = ['bottom-end', 'bottom-start'];
-    const buttonRef = useRef<HTMLDivElement>(null);
 
     const handleEdit = () => {
         toggleEdit();
@@ -50,11 +49,6 @@ export const ImgSettingsButton: React.FC<{
     const isVisibleEditButton = !edit && (visible || popupOpen);
     const isVisiblePopup = !edit && popupOpen;
 
-    const handleEditButtonClick = (event: React.MouseEvent<HTMLElement>) => {
-        event.preventDefault();
-        setPopupOpen();
-    };
-
     return (
         <>
             {isVisibleImageForm && (
@@ -62,27 +56,27 @@ export const ImgSettingsButton: React.FC<{
                     node={node}
                     view={view}
                     updateAttributes={updateAttributes}
-                    dom={nodeRef}
+                    anchorElement={nodeElement}
                     unsetEdit={unsetEdit}
                 />
             )}
 
             {isVisibleEditButton && (
                 <Button
-                    onClick={handleEditButtonClick}
-                    ref={buttonRef}
+                    onClick={togglePopup}
+                    ref={setAnchorElement}
                     size="s"
                     view={'raised'}
-                    className={b()}
+                    className={b(null, ReactNodeStopEventCn)}
                 >
-                    <Icon data={Ellipsis} />
+                    <Icon data={Ellipsis} className={ReactNodeStopEventCn} />
                 </Button>
             )}
 
             <Popup
                 open={isVisiblePopup}
-                anchorRef={buttonRef}
-                onClose={unsetPopupOpen}
+                anchorElement={anchorElement}
+                onOpenChange={unsetPopupOpen}
                 placement={placement}
             >
                 <Menu>

@@ -27,11 +27,11 @@ export interface ActionSpec {
     meta?(state: EditorState): any;
 }
 
-export interface Action<A extends {} = never, M = unknown> {
-    isActive(): boolean;
-    isEnable(args?: Record<string, unknown>): boolean;
-    run(...args: A extends never ? [] : [A]): void;
-    meta(): M;
+export interface Action<A extends {} | unknown = unknown, M = unknown> {
+    isActive: () => boolean;
+    isEnable: (args?: Record<string, unknown>) => boolean;
+    run: A extends {} ? (arg: A) => void : () => void;
+    meta: () => M;
 }
 
 export interface ActionStorage {

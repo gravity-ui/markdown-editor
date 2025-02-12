@@ -1,4 +1,6 @@
-import {ActionSpec} from '../../../../core';
+import type {Node} from 'prosemirror-model';
+
+import type {ActionSpec} from '../../../../core';
 import {CellAlign, TableAttrs} from '../TableSpecs/const';
 import {
     findParentCell,
@@ -29,7 +31,7 @@ function factory(align: CellAlign): ActionSpec {
             }
 
             let cellIndex = -1;
-            row.node.forEach((node, _, index) => {
+            row.node.forEach((node: Node, _offset: number, index: number) => {
                 if (node === cell.node) {
                     cellIndex = index;
                 }

@@ -1,4 +1,4 @@
-import {ChangeSpec, EditorSelection, StateCommand} from '@codemirror/state';
+import {type ChangeSpec, EditorSelection, type StateCommand} from '@codemirror/state';
 
 export const toH1 = toHeading(1);
 export const toH2 = toHeading(2);

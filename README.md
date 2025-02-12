@@ -30,7 +30,6 @@ To set up styling and theme see [UIKit docs](https://github.com/gravity-ui/uikit
 ```tsx
 import React from 'react';
 import {useMarkdownEditor, MarkdownEditorView} from '@gravity-ui/markdown-editor';
-import {toaster} from '@gravity-ui/uikit/toaster-singleton-react-18';
 
 function Editor({onSubmit}) {
   const editor = useMarkdownEditor({allowHTML: false});
@@ -48,10 +47,12 @@ function Editor({onSubmit}) {
     };
   }, [onSubmit]);
 
-  return <MarkdownEditorView stickyToolbar autofocus toaster={toaster} editor={editor} />;
+  return <MarkdownEditorView stickyToolbar autofocus editor={editor} />;
 }
 ```
+
 Read more:
+
 - [How to connect the editor in the Create React App](https://preview.gravity-ui.com/md-editor/?path=/docs/docs-install-create-react-app--docs)
 - [How to add preview for markup mode](https://preview.gravity-ui.com/md-editor/?path=/docs/docs-develop-preview--docs)
 - [How to add HTML extension](https://preview.gravity-ui.com/md-editor/?path=/docs/docs-connect-html-block--docs)
@@ -62,12 +63,12 @@ Read more:
 - [How to add text binding extension in markdown](https://preview.gravity-ui.com/md-editor/?path=/docs/docs-develop-extension-with-popup--docs)
 
 ### Development
+
 To start the dev storybook
 
 ```shell
 npm start
 ```
-
 
 ### i18n
 
@@ -88,15 +89,14 @@ Don't forget to call `configure()` from [UIKit](https://github.com/gravity-ui/ui
 This project uses a z-index map to control the layers of elements. Defined levels:
 
 | level               | z-index value |
-|---------------------|---------------|
+| ------------------- | ------------- |
 | background          | -1            |
 | default             | 0             |
 | forefront           | 1             |
 | img-settings-button | 2             |
 | table-view-button   | 100           |
 | table-cell-button   | 110           |
-| sticky-toolbar      | 2000          |
-| tooltip             | 2100          |
+| sticky-toolbar      | 990           |
 
 ### Usage
 
@@ -106,7 +106,7 @@ To apply z-index to components, use the z-index mixin, passing the key as an arg
 @use 'styles/mixins.scss';
 
 .tooltip {
-  @include mixins.z-index('tooltip');
+  @include mixins.z-index('forefront');
 }
 ```
 

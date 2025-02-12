@@ -1,4 +1,4 @@
-import React from 'react';
+import {Fragment, memo} from 'react';
 
 import {Link} from '@gravity-ui/uikit';
 
@@ -9,7 +9,7 @@ import './MarkdownHints.scss';
 
 const b = cn('markdown-hints');
 
-export const MarkdownHints = React.memo(function MarkdownHints() {
+export const MarkdownHints = memo(function MarkdownHints() {
     const hints = [
         {title: i18n('header_title'), hint: i18n('header_hint')},
         {title: i18n('italic_title'), hint: i18n('italic_hint')},
@@ -27,10 +27,10 @@ export const MarkdownHints = React.memo(function MarkdownHints() {
         <div className={b()}>
             <div className={b('grid')}>
                 {hints.map((hint, index) => (
-                    <React.Fragment key={`md-hint-${index}`}>
+                    <Fragment key={`md-hint-${index}`}>
                         <span className={b('title')}>{hint.title}</span>
                         <span className={b('hint')}>{hint.hint}</span>
-                    </React.Fragment>
+                    </Fragment>
                 ))}
             </div>
 

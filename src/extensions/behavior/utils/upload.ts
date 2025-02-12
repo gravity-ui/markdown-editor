@@ -1,7 +1,11 @@
-import {Node} from 'prosemirror-model';
-import {EditorView} from 'prosemirror-view';
+import type {Node} from 'prosemirror-model';
+import type {EditorView} from 'prosemirror-view';
 
-import {FileUploadHandler, UploadSuccessItem, batchUploadFiles} from '../../../utils/upload';
+import {
+    type FileUploadHandler,
+    type UploadSuccessItem,
+    batchUploadFiles,
+} from '../../../utils/upload';
 import type {WidgetDescriptor} from '../WidgetDecoration';
 
 export abstract class FilesBatchUploadProcess {

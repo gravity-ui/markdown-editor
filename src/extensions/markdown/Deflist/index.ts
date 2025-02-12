@@ -1,6 +1,6 @@
 import type {Action, ExtensionAuto} from '../../../core';
 
-import {DeflistSpecs, DeflistSpecsOptions} from './DeflistSpecs';
+import {DeflistSpecs, type DeflistSpecsOptions} from './DeflistSpecs';
 import {splitDeflist, wrapToDeflist} from './commands';
 import {dlAction} from './const';
 

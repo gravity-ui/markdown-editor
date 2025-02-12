@@ -1,5 +1,5 @@
-import {Fragment, Node, Schema} from 'prosemirror-model';
-import {Command, TextSelection, Transaction} from 'prosemirror-state';
+import type {Fragment, Node, Schema} from 'prosemirror-model';
+import {type Command, TextSelection, type Transaction} from 'prosemirror-state';
 
 import type {ActionSpec} from '../../../core';
 import {get$Cursor, isNodeSelection} from '../../../utils/selection';

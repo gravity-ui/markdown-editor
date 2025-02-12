@@ -4,7 +4,7 @@ import {Plugin} from 'prosemirror-state';
 
 import type {ExtensionAuto} from '../../../core';
 
-import {YfmConfigsSpecs, YfmConfigsSpecsOptions} from './YfmConfigsSpecs';
+import {YfmConfigsSpecs, type YfmConfigsSpecsOptions} from './YfmConfigsSpecs';
 
 import '@diplodoc/transform/dist/css/base.css';
 import '@diplodoc/transform/dist/css/_yfm-only.css'; // eslint-disable-line import/order

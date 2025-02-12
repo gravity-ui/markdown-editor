@@ -1,11 +1,11 @@
-import {Fragment, Node, Schema, Slice} from 'prosemirror-model';
+import {Fragment, type Node, type Schema, Slice} from 'prosemirror-model';
 import {Plugin} from 'prosemirror-state';
 import {dropPoint} from 'prosemirror-transform';
-import {EditorView} from 'prosemirror-view';
+import type {EditorView} from 'prosemirror-view';
 
-import {ExtensionAuto} from '../../../../core';
+import type {ExtensionAuto} from '../../../../core';
 import {isFunction} from '../../../../lodash';
-import {FileUploadHandler, UploadSuccessItem} from '../../../../utils';
+import type {FileUploadHandler, UploadSuccessItem} from '../../../../utils';
 import {clipboardUtils} from '../../../behavior/Clipboard';
 import {imageType} from '../../../markdown';
 import {createImageNode} from '../../ImgSize/utils'; // TODO: remove hard import

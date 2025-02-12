@@ -4,7 +4,7 @@
 ///
 
 import {InputRule} from 'prosemirror-inputrules';
-import {Attrs, Node, NodeType} from 'prosemirror-model';
+import type {Attrs, Node, NodeType} from 'prosemirror-model';
 import {canJoin, findWrapping} from 'prosemirror-transform';
 
 import {hasCodeMark} from './inputrules';

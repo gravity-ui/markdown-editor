@@ -1,6 +1,6 @@
-import React from 'react';
+import {useLayoutEffect} from 'react';
 
-import {EditorView} from 'prosemirror-view';
+import type {EditorView} from 'prosemirror-view';
 import {useEffectOnce, useUpdate} from 'react-use';
 
 import {
@@ -23,7 +23,7 @@ export function WysiwygSelection({editor, className}: WysiwygSelectionProps) {
 
     const view = editor?.currentMode === 'wysiwyg' && editor._wysiwygView;
 
-    React.useLayoutEffect(() => {
+    useLayoutEffect(() => {
         if (!editor) return undefined;
         editor.on(
             // @ts-expect-error TODO: add public event for selection change

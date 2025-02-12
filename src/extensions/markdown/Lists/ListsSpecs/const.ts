@@ -6,8 +6,6 @@ export enum ListNode {
 
 export enum ListsAttr {
     Tight = 'tight',
-    /** @deprecated Use `ListsAttr.Markup` instead */
-    Bullet = 'bullet',
     /** used in ordered list only */
     Order = 'order',
     Markup = 'markup',

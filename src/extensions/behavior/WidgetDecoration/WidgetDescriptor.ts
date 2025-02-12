@@ -1,5 +1,5 @@
-import {Transaction} from 'prosemirror-state';
-import {EditorView} from 'prosemirror-view';
+import type {Transaction} from 'prosemirror-state';
+import type {EditorView} from 'prosemirror-view';
 
 import {uniqueId} from '../../../lodash';
 

@@ -107,7 +107,7 @@ import {
     undoItemView,
     undoItemWysiwyg,
 } from './items';
-import {ToolbarsPreset} from './types';
+import type {ToolbarsPreset} from './types';
 
 // presets
 export const zero: ToolbarsPreset = {

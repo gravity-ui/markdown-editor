@@ -1,17 +1,15 @@
-import React from 'react';
+import type {Node} from 'prosemirror-model';
+import type {Transaction} from 'prosemirror-state';
+import type {EditorView} from 'prosemirror-view';
 
-import {Node} from 'prosemirror-model';
-import {Transaction} from 'prosemirror-state';
-import {EditorView} from 'prosemirror-view';
-
-import {ExtensionDeps} from '../../../../core';
-import {FileUploadHandler} from '../../../../utils/upload';
+import type {ExtensionDeps} from '../../../../core';
+import type {FileUploadHandler} from '../../../../utils/upload';
 import {ReactWidgetDescriptor, removeDecoration} from '../../../behavior/WidgetDecoration';
 import {normalizeUrlFactory} from '../../../markdown';
 import {YfmFilesUploadProcessBase} from '../YfmFilePaste/upload';
 import {fileType} from '../YfmFileSpecs';
 
-import {FilePlaceholder, FilePlaceholderProps} from './view';
+import {FilePlaceholder, type FilePlaceholderProps} from './view';
 
 export const addWidget = (
     tr: Transaction,

@@ -1,4 +1,4 @@
-import React from 'react';
+import {Fragment} from 'react';
 
 import {cn} from '../classname';
 
@@ -22,7 +22,7 @@ export function Toolbar<E>({editor, data, className, focus, onClick}: ToolbarPro
                 const isLastGroup = index === data.length - 1;
 
                 return (
-                    <React.Fragment key={index}>
+                    <Fragment key={index}>
                         <ToolbarButtonGroup
                             data={group}
                             editor={editor}
@@ -31,7 +31,7 @@ export function Toolbar<E>({editor, data, className, focus, onClick}: ToolbarPro
                             className={b('group')}
                         />
                         {isLastGroup || <div className={b('group-separator')} />}
-                    </React.Fragment>
+                    </Fragment>
                 );
             })}
         </div>

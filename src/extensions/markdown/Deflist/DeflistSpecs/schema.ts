@@ -1,6 +1,6 @@
 import type {NodeSpec} from 'prosemirror-model';
 
-import {PlaceholderOptions} from '../../../../utils/placeholder';
+import type {PlaceholderOptions} from '../../../../utils/placeholder';
 
 import {DeflistNode} from './const';
 

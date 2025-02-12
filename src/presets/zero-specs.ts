@@ -1,5 +1,5 @@
 import type {ExtensionAuto} from '../core';
-import {BaseSchemaSpecs, BaseSchemaSpecsOptions} from '../extensions/base/specs';
+import {BaseSchemaSpecs, type BaseSchemaSpecsOptions} from '../extensions/base/specs';
 
 export type ZeroSpecPresetOptions = {
     baseSchema?: BaseSchemaSpecsOptions;

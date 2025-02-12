@@ -1,4 +1,4 @@
-import React from 'react';
+import {useEffect, useRef} from 'react';
 
 import type {EditorInt} from './Editor';
 
@@ -11,8 +11,8 @@ export type WysiwygEditorComponentProps = {
 
 export const WysiwygEditorComponent: React.FC<WysiwygEditorComponentProps> =
     function WysiwygEditorComponent({className, autofocus, editor, children}) {
-        const ref = React.useRef<HTMLDivElement>(null);
-        React.useEffect(() => {
+        const ref = useRef<HTMLDivElement>(null);
+        useEffect(() => {
             const {current} = ref;
             if (current) {
                 current.appendChild(editor.wysiwygEditor.dom);

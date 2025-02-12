@@ -1,6 +1,6 @@
 import type {ActionSpec, ExtensionDeps} from '../../../../core';
 
-import {ImageWidgetDescriptorOpts, addWidget} from './widget';
+import {type ImageWidgetDescriptorOpts, addWidget} from './widget';
 
 export const addImageWidget: (
     deps: ExtensionDeps,

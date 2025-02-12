@@ -27,11 +27,10 @@
     width: 300px;
 
     &__mode-help {
-        float: right;
-    }
+        position: relative;
+        top: 8px;
 
-    &__tooltip {
-        @include mixins.z-index('tooltip');
+        float: right;
     }
 
     &__separator {

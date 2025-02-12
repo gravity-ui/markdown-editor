@@ -1,8 +1,8 @@
-import {Fragment, Node, ResolvedPos, Schema, Slice} from 'prosemirror-model';
-import {EditorState, Plugin, Selection} from 'prosemirror-state';
+import {Fragment, type Node, type ResolvedPos, type Schema, Slice} from 'prosemirror-model';
+import {type EditorState, Plugin, type Selection} from 'prosemirror-state';
 import type {EditorView} from 'prosemirror-view';
 
-import {Parser, Serializer, trackTransactionMetrics} from '../../../core';
+import {type Parser, type Serializer, trackTransactionMetrics} from '../../../core';
 import {logger} from '../../../logger';
 import '../../../types/spec';
 import {tryCatch} from '../../../utils/helpers';
@@ -211,7 +211,8 @@ function serializeSelected(view: EditorView, serializer: Serializer): SerializeR
         return {text: fragment.textBetween(0, fragment.size)};
     }
 
-    const markup = serializer.serialize(getCopyContent(view.state).content);
+    // FIXME: Verify and use Node instead of Fragment
+    const markup = serializer.serialize(getCopyContent(view.state).content as any);
     const {dom, text} = serializeForClipboard(view, sel.content());
     return {markup, text, html: dom.innerHTML};
 }

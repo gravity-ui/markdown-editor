@@ -3,12 +3,12 @@ import {
     BlockquoteSpecs,
     BoldSpecs,
     BreaksSpecs,
-    BreaksSpecsOptions,
+    type BreaksSpecsOptions,
     CodeBlockSpecs,
-    CodeBlockSpecsOptions,
+    type CodeBlockSpecsOptions,
     CodeSpecs,
     HeadingSpecs,
-    HeadingSpecsOptions,
+    type HeadingSpecsOptions,
     HorizontalRuleSpecs,
     Html,
     ImageSpecs,
@@ -18,9 +18,9 @@ import {
 } from '../extensions/markdown/specs';
 import {isFunction} from '../lodash';
 
-import {ZeroPreset, ZeroPresetOptions} from './zero';
+import {type ZeroSpecPresetOptions, ZeroSpecsPreset} from './zero-specs';
 
-export type CommonMarkSpecsPresetOptions = ZeroPresetOptions & {
+export type CommonMarkSpecsPresetOptions = ZeroSpecPresetOptions & {
     image?: false | Extension;
     breaks?: BreaksSpecsOptions;
     codeBlock?: CodeBlockSpecsOptions;
@@ -31,7 +31,7 @@ export const CommonMarkSpecsPreset: ExtensionAuto<CommonMarkSpecsPresetOptions> 
     builder,
     opts,
 ) => {
-    builder.use(ZeroPreset, opts);
+    builder.use(ZeroSpecsPreset, opts);
 
     builder
         .use(Html)

@@ -4,7 +4,7 @@ import type {Action, ExtensionAuto} from '../../../core';
 import {nodeInputRule} from '../../../utils/inputrules';
 import {withLogAction} from '../../../utils/keymap';
 
-import {YfmNoteSpecs, YfmNoteSpecsOptions} from './YfmNoteSpecs';
+import {YfmNoteSpecs, type YfmNoteSpecsOptions} from './YfmNoteSpecs';
 import {createYfmNote, toYfmNote} from './actions/toYfmNote';
 import {backToNoteTitle, exitFromNoteTitle, liftEmptyBlockFromNote, removeNote} from './commands';
 import {yfmNoteTooltipPlugin} from './plugins/YfmNoteTooltipPlugin';
