@@ -18,7 +18,7 @@ type PreviewTooltipProps = {
 export const PreviewTooltip: React.FC<PreviewTooltipProps> = ({preview, children}) => {
     return (
         <Tooltip
-            placement="right"
+            placement={['right', 'left']}
             className={b()}
             contentClassName={b('content')}
             disabled={!preview}
