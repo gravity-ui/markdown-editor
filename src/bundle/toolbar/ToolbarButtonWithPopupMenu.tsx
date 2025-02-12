@@ -12,7 +12,7 @@ import {
 } from '@gravity-ui/uikit';
 
 import {cn} from '../../classname';
-import type {Action, ActionStorage} from '../../core';
+import type {Action} from '../../core';
 import {groupBy, isFunction} from '../../lodash';
 import {useBooleanState, useElementState} from '../../react-utils/hooks';
 import {type ToolbarBaseProps, type ToolbarIconData, ToolbarTooltipDelay} from '../../toolbar';
@@ -32,7 +32,7 @@ export type MenuItem = {
 };
 
 export type ToolbarButtonWithPopupMenuProps = Omit<
-    ToolbarBaseProps<ActionStorage> &
+    ToolbarBaseProps<never> &
         Pick<PopupProps, 'disablePortal'> & {
             icon: ToolbarIconData;
             iconClassName?: string;

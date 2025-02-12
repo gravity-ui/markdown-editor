@@ -41,6 +41,7 @@ import {
 } from './w-heading-config';
 
 export type {
+    WToolbarBaseProps,
     WToolbarData,
     WToolbarItemData,
     WToolbarSingleItemData,

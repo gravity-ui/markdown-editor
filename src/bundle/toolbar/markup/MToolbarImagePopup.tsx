@@ -1,10 +1,9 @@
 import isNumber from 'is-number';
 
 import {IMG_MAX_HEIGHT, type ImageItem, getImageDimensions, insertImages} from '../../../markup';
-import type {CodeEditor} from '../../../markup/editor';
-import type {ToolbarBaseProps} from '../../../toolbar';
 import type {UploadSuccessItem} from '../../../utils';
 import {type ToolbarImagePopuProps, ToolbarImagePopup} from '../custom/ToolbarImagePopup';
+import type {MToolbarBaseProps} from '../types';
 
 import {useMarkupToolbarContext} from './context';
 
@@ -12,7 +11,7 @@ const noop = (err: unknown) => {
     console.error(err);
 };
 
-export type MToolbarImagePopupProps = ToolbarBaseProps<CodeEditor> &
+export type MToolbarImagePopupProps = MToolbarBaseProps &
     Pick<ToolbarImagePopuProps, 'anchorElement'> & {
         hide: () => void;
     };

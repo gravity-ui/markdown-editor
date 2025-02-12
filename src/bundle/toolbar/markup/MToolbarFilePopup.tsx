@@ -1,11 +1,10 @@
 import {type FileItem, insertFiles} from '../../../markup/commands';
-import type {CodeEditor} from '../../../markup/editor';
-import type {ToolbarBaseProps} from '../../../toolbar';
 import {ToolbarFilePopup, type ToolbarFilePopupProps} from '../custom/ToolbarFilePopup';
+import type {MToolbarBaseProps} from '../types';
 
 import {useMarkupToolbarContext} from './context';
 
-export type MToolbarFilePopupProps = ToolbarBaseProps<CodeEditor> &
+export type MToolbarFilePopupProps = MToolbarBaseProps &
     Pick<ToolbarFilePopupProps, 'anchorElement'> & {
         hide: () => void;
     };
