@@ -1,9 +1,8 @@
 import {colorify} from '../../../markup/commands';
-import type {CodeEditor} from '../../../markup/editor';
 import {ToolbarColors} from '../custom/ToolbarColors';
-import type {ToolbarBaseProps} from '../types';
+import type {MToolbarBaseProps} from '../types';
 
-export type MToolbarColorsProps = ToolbarBaseProps<CodeEditor>;
+export type MToolbarColorsProps = MToolbarBaseProps;
 
 export const MToolbarColors: React.FC<MToolbarColorsProps> = ({
     className,

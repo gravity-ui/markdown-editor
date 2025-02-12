@@ -8,16 +8,15 @@ import {
 } from '@gravity-ui/uikit';
 
 import {cn} from '../../classname';
-import type {ActionStorage} from '../../core';
 import {isFunction} from '../../lodash';
 
-import type {ToolbarBaseProps, WToolbarItemData} from './types';
+import type {WToolbarBaseProps, WToolbarItemData} from './types';
 
 import './ToolbarSelect.scss';
 
 const b = cn('toolbar-select');
 
-export type ToolbarSelectProps = ToolbarBaseProps<ActionStorage> &
+export type ToolbarSelectProps = WToolbarBaseProps &
     Pick<SelectProps, 'disablePortal'> & {
         items: WToolbarItemData[];
     };
