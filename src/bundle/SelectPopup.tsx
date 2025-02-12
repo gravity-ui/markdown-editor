@@ -1,6 +1,6 @@
-import {FC, ReactNode} from 'react';
+import type {FC, ReactNode} from 'react';
 
-import {Popup, PopupProps, Sheet} from '@gravity-ui/uikit';
+import {Popup, type PopupProps, Sheet} from '@gravity-ui/uikit';
 
 import {cn} from '../classname';
 
