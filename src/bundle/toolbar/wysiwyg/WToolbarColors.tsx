@@ -1,9 +1,7 @@
-import type {ActionStorage} from '../../../core';
 import {ToolbarColors, type ToolbarColorsProps} from '../custom/ToolbarColors';
-import type {ToolbarBaseProps} from '../types';
+import type {WToolbarBaseProps} from '../types';
 
-export type WToolbarColorsProps = ToolbarBaseProps<ActionStorage> &
-    Pick<ToolbarColorsProps, 'disablePortal'>;
+export type WToolbarColorsProps = WToolbarBaseProps & Pick<ToolbarColorsProps, 'disablePortal'>;
 
 export const WToolbarColors: React.FC<WToolbarColorsProps> = ({
     disablePortal,

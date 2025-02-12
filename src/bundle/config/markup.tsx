@@ -62,6 +62,7 @@ import {icons} from './icons';
 import {HeadingPreview} from './previews/HeadingPreview';
 
 export type {
+    MToolbarBaseProps,
     MToolbarData,
     MToolbarItemData,
     MToolbarSingleItemData,
