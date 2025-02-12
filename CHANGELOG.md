@@ -1,5 +1,18 @@
 # Changelog
 
+## [15.0.1](https://github.com/gravity-ui/markdown-editor/compare/v15.0.0...v15.0.1) (2025-02-12)
+
+
+### Bug Fixes
+
+* **bundle:** added missing toolbar types ([#611](https://github.com/gravity-ui/markdown-editor/issues/611)) ([40a5ff2](https://github.com/gravity-ui/markdown-editor/commit/40a5ff2f7354ece6bc783bf3a3a89e6fa7e02e88))
+* **bundle:** added preview in toolbar select ([#615](https://github.com/gravity-ui/markdown-editor/issues/615)) ([4dfb4fc](https://github.com/gravity-ui/markdown-editor/commit/4dfb4fca360c20307f4a2f64e03e230fab97a01c))
+* **bundle:** fixed active list element ([#625](https://github.com/gravity-ui/markdown-editor/issues/625)) ([60e16d4](https://github.com/gravity-ui/markdown-editor/commit/60e16d4126f7533d61dba98fbdfc837aff670130))
+* **cut:** fixed open state styles ([#616](https://github.com/gravity-ui/markdown-editor/issues/616)) ([f80fe92](https://github.com/gravity-ui/markdown-editor/commit/f80fe922af88d9e547d25b9d590ac40a94f7de2d))
+* **plugins:** mark TooltipButtonPlugin and TooltipSelectPlugin deprecated ([#621](https://github.com/gravity-ui/markdown-editor/issues/621)) ([06d4c6c](https://github.com/gravity-ui/markdown-editor/commit/06d4c6ce6c78e6667b5253d5797592ef3515c21d))
+* **toolbar:** dont render tooltip if preview is empty ([#622](https://github.com/gravity-ui/markdown-editor/issues/622)) ([4e9d19f](https://github.com/gravity-ui/markdown-editor/commit/4e9d19fe13d79e0724732f48fe6c9073f8c197e2))
+* **toolbar:** fixed preview tooltip placement ([#607](https://github.com/gravity-ui/markdown-editor/issues/607)) ([de141f2](https://github.com/gravity-ui/markdown-editor/commit/de141f22ea0d8b770e9737ff21dd25da20d9e3ff))
+
 ## [15.0.0](https://github.com/gravity-ui/markdown-editor/compare/v14.12.2...v15.0.0) (2025-02-11)
 
 See [the migration guide here](https://github.com/gravity-ui/markdown-editor/discussions/610).
