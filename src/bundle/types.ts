@@ -196,4 +196,6 @@ export type MarkdownEditorOptions = {
     markupConfig?: MarkdownEditorMarkupConfig;
     /** Options for wysiwyg mode */
     wysiwygConfig?: MarkdownEditorWysiwygConfig;
+    /** Mobile view */
+    mobile?: boolean;
 };

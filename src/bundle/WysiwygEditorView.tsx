@@ -24,6 +24,7 @@ export type WysiwygEditorViewProps = ClassNameProps & {
     toolbarClassName?: string;
     hiddenActionsConfig?: WToolbarItemData[];
     children?: React.ReactNode;
+    mobile?: boolean;
 };
 
 export const WysiwygEditorView = memo<WysiwygEditorViewProps>((props) => {
@@ -38,6 +39,7 @@ export const WysiwygEditorView = memo<WysiwygEditorViewProps>((props) => {
         toolbarClassName,
         children,
         stickyToolbar = true,
+        mobile,
     } = props;
     useRenderTime((time) => {
         logger.metrics({
@@ -59,6 +61,7 @@ export const WysiwygEditorView = memo<WysiwygEditorViewProps>((props) => {
                     hiddenActionsConfig={hiddenActionsConfig}
                     settingsVisible={settingsVisible}
                     className={b('toolbar', [toolbarClassName])}
+                    mobile={mobile}
                 >
                     {children}
                 </ToolbarView>

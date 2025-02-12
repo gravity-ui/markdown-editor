@@ -28,6 +28,7 @@ export type MarkupEditorViewProps = ClassNameProps & {
     splitModeEnabled: boolean;
     hiddenActionsConfig?: MToolbarItemData[];
     children?: React.ReactNode;
+    mobile?: boolean;
 };
 
 export const MarkupEditorView = memo<MarkupEditorViewProps>((props) => {
@@ -42,6 +43,7 @@ export const MarkupEditorView = memo<MarkupEditorViewProps>((props) => {
         toolbarClassName,
         children,
         stickyToolbar = true,
+        mobile = false,
     } = props;
     useRenderTime((time) => {
         logger.metrics({
@@ -71,6 +73,7 @@ export const MarkupEditorView = memo<MarkupEditorViewProps>((props) => {
                         toolbarFocus={() => editor.focus()}
                         settingsVisible={settingsVisible}
                         className={b('toolbar', [toolbarClassName])}
+                        mobile={mobile}
                     >
                         {children}
                     </ToolbarView>
