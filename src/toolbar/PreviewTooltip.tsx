@@ -14,6 +14,8 @@ type PreviewTooltipProps = {
 };
 
 export const PreviewTooltip: React.FC<PreviewTooltipProps> = ({preview, children}) => {
+    if (!preview) return children;
+
     return (
         <Tooltip
             placement={['right', 'left']}
