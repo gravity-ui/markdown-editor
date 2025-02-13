@@ -3,7 +3,6 @@ import type {Node, NodeType} from 'prosemirror-model';
 import {TextSelection} from 'prosemirror-state';
 
 import type {ExtensionAuto, Keymap} from '../../../core';
-import {logger} from '../../../logger';
 import {isMac} from '../../../utils/platform';
 import {isTextSelection} from '../../../utils/selection';
 import {pType} from '../../base/BaseSchema/BaseSchemaSpecs';
@@ -27,7 +26,7 @@ export const Breaks: ExtensionAuto<BreaksOptions> = (builder, opts) => {
         preferredBreak = builder.context.get('breaks') ? 'soft' : 'hard';
     } else {
         preferredBreak = opts.preferredBreak ?? 'hard';
-        logger.info(
+        builder.logger.log(
             "[Breaks extension]: Parameter 'breaks' is not defined in context; value from options is used",
         );
     }

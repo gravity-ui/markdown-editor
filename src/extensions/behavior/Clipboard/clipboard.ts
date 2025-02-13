@@ -3,7 +3,7 @@ import {type EditorState, Plugin, type Selection} from 'prosemirror-state';
 import type {EditorView} from 'prosemirror-view';
 
 import {type Parser, type Serializer, trackTransactionMetrics} from '../../../core';
-import {logger} from '../../../logger';
+import type {Logger2} from '../../../logger';
 import '../../../types/spec';
 import {tryCatch} from '../../../utils/helpers';
 import {isNodeSelection, isTextSelection, isWholeSelection} from '../../../utils/selection';
@@ -14,6 +14,7 @@ import {isInsideCode} from './code';
 import {DataTransferType, extractTextContentFromHtml, isIosSafariShare} from './utils';
 
 export type ClipboardPluginOptions = {
+    logger: Logger2;
     mdParser: Parser;
     textParser: Parser;
     serializer: Serializer;
@@ -21,6 +22,7 @@ export type ClipboardPluginOptions = {
 };
 
 export const clipboard = ({
+    logger,
     textParser,
     mdParser,
     serializer,

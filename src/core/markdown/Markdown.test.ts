@@ -6,6 +6,7 @@ import MarkdownIt from 'markdown-it';
 import * as builder from 'prosemirror-test-builder';
 
 import {createMarkupChecker} from '../../../tests/sameMarkup';
+import {Logger2Impl} from '../../logger';
 import type {Parser} from '../types/parser';
 import type {SerializerNodeToken} from '../types/serializer';
 
@@ -35,7 +36,7 @@ const parser: Parser = new MarkdownParser(
         strong: {type: 'mark', name: 'strong'},
         code_inline: {type: 'mark', name: 'code', noCloseToken: true},
     },
-    [],
+    {logger: new Logger2Impl({instanceId: 'test-logger'}), pmTransformers: []},
 );
 const serializer = new MarkdownSerializer(
     {

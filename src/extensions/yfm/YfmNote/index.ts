@@ -35,7 +35,9 @@ export const YfmNote: ExtensionAuto<YfmNoteOptions> = (builder, opts) => {
 
     if (opts?.yfmNoteKey) {
         const {yfmNoteKey} = opts;
-        builder.addKeymap(() => ({[yfmNoteKey]: withLogAction('yfm_note', createYfmNote)}));
+        builder.addKeymap(() => ({
+            [yfmNoteKey]: withLogAction('yfm_note', createYfmNote),
+        }));
     }
     builder.addPlugin(yfmNoteTooltipPlugin);
 };

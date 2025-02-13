@@ -1,6 +1,11 @@
+import {v4 as uuidv4} from 'uuid';
+
+import {type Receiver, SafeEventEmitter} from './utils';
+
 const noop = () => {};
 
 declare global {
+    /** @deprecated */
     namespace MdEditorLogger {
         type MetricsData = {
             component: string;
@@ -28,6 +33,7 @@ declare global {
     }
 }
 
+/** @deprecated */
 class Logger implements MdEditorLogger.Logger {
     #logger: MdEditorLogger.Logger = this.createLogger({});
 
@@ -76,4 +82,52 @@ class Logger implements MdEditorLogger.Logger {
     }
 }
 
-export const logger = new Logger();
+/** @deprecated */
+// export const logger = new Logger();
+
+type Logger2Args = {
+    log: any;
+    warn: any;
+    error: any;
+    action: MdEditorLogger.ActionData;
+    metrics: MdEditorLogger.MetricsData;
+};
+
+export interface Logger2 extends Receiver<Logger2Args> {
+    readonly instanceId: string;
+
+    log(data: Logger2Args['log']): void;
+    warn(data: Logger2Args['warn']): void;
+    error(data: Logger2Args['error']): void;
+    action(data: Logger2Args['action']): void;
+    metrics(data: Logger2Args['metrics']): void;
+}
+
+export class Logger2Impl extends SafeEventEmitter<Logger2Args> implements Logger2 {
+    readonly instanceId: string;
+
+    constructor({instanceId}: {instanceId?: string} = {}) {
+        super();
+        this.instanceId = instanceId ?? uuidv4();
+    }
+
+    log(data: Logger2Args['log']): void {
+        this.emit('log', data);
+    }
+
+    warn(data: Logger2Args['warn']): void {
+        this.emit('warn', data);
+    }
+
+    error(data: Logger2Args['error']): void {
+        this.emit('error', data);
+    }
+
+    action(data: Logger2Args['action']): void {
+        this.emit('action', data);
+    }
+
+    metrics(data: Logger2Args['metrics']): void {
+        this.emit('metrics', data);
+    }
+}

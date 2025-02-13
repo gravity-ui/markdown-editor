@@ -55,7 +55,9 @@ export const YfmCut: ExtensionAuto<YfmCutOptions> = (builder, opts) => {
 
     if (opts?.yfmCutKey) {
         const {yfmCutKey} = opts;
-        builder.addKeymap(() => ({[yfmCutKey]: withLogAction('yfm_cut', createYfmCut)}));
+        builder.addKeymap(() => ({
+            [yfmCutKey]: withLogAction('yfm_cut', createYfmCut),
+        }));
     }
 };
 

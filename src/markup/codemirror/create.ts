@@ -21,7 +21,7 @@ import type {ParseInsertedUrlAsImage} from '../../bundle';
 import type {EventMap} from '../../bundle/Editor';
 import {ActionName} from '../../bundle/config/action-names';
 import type {ReactRenderStorage} from '../../extensions';
-import {logger} from '../../logger';
+import type {Logger2} from '../../logger';
 import {Action as A, formatter as f} from '../../shortcuts';
 import type {Receiver} from '../../utils';
 import {DataTransferType, shouldSkipHtmlConversion} from '../../utils/clipboard';
@@ -50,6 +50,7 @@ import {DirectiveSyntaxFacet} from './directive-facet';
 import {type FileUploadHandler, FileUploadHandlerFacet} from './files-upload-facet';
 import {gravityHighlightStyle, gravityTheme} from './gravity';
 import {MarkdownConverter} from './html-to-markdown/converters';
+import {LoggerFacet} from './logger-facet';
 import {PairingCharactersExtension} from './pairing-chars';
 import {ReactRendererFacet} from './react-facet';
 import {SearchPanelPlugin} from './search-plugin/plugin';
@@ -63,6 +64,7 @@ type Autocompletion = Parameters<typeof autocompletion>[0];
 export type CreateCodemirrorParams = {
     doc: EditorViewConfig['doc'];
     placeholder: Parameters<typeof placeholder>[0];
+    logger: Logger2;
     onCancel: () => void;
     onSubmit: () => void;
     onChange: () => void;
@@ -88,6 +90,7 @@ export type CreateCodemirrorParams = {
 
 export function createCodemirror(params: CreateCodemirrorParams) {
     const {
+        logger,
         doc,
         reactRenderer,
         onCancel,
@@ -116,6 +119,7 @@ export function createCodemirror(params: CreateCodemirrorParams) {
 
     extensions.push(
         syntaxHighlighting(gravityHighlightStyle),
+        LoggerFacet.of(logger),
         keymap.of([
             {key: f.toCM(A.Bold)!, run: withLogger(ActionName.bold, toggleBold)},
             {key: f.toCM(A.Italic)!, run: withLogger(ActionName.italic, toggleItalic)},
@@ -257,7 +261,10 @@ export function createCodemirror(params: CreateCodemirrorParams) {
     if (preserveEmptyRows) {
         extensions.push(
             keymap.of([
-                {key: f.toCM(A.EmptyRow)!, run: withLogger(ActionName.emptyRow, insertEmptyRow)},
+                {
+                    key: f.toCM(A.EmptyRow)!,
+                    run: withLogger(ActionName.emptyRow, insertEmptyRow),
+                },
             ]),
         );
     }
@@ -291,7 +298,8 @@ export function createCodemirror(params: CreateCodemirrorParams) {
 
 export function withLogger(action: string, command: StateCommand): StateCommand {
     return (...args) => {
-        logger.action({mode: 'markup', source: 'keymap', action});
+        const {state} = args[0];
+        state.facet(LoggerFacet).action({mode: 'markup', source: 'keymap', action});
         return command(...args);
     };
 }

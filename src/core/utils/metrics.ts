@@ -1,6 +1,6 @@
 import type {Transaction} from 'prosemirror-state';
 
-import {logger} from '../../logger';
+import type {Logger2} from '../../logger';
 
 const METRICS_KEY = 'metrics';
 
@@ -14,7 +14,7 @@ export const trackTransactionMetrics = (
     return tr;
 };
 
-export const logTransactionMetrics = (tr: Transaction) => {
+export const logTransactionMetrics = (logger: Logger2, tr: Transaction) => {
     const metrics = tr.getMeta(METRICS_KEY);
     if (metrics) {
         logger.metrics({

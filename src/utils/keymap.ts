@@ -1,11 +1,15 @@
 import type {Command} from 'prosemirror-state';
 
-import {logger} from '../logger';
+import {getLoggerFromState} from '../core';
 
 export function withLogAction(action: string, command: Command): Command {
     return (...args) => {
         const res = command(...args);
-        if (res) logger.action({action, source: 'keymap'});
+        if (res) {
+            const [state] = args;
+            const logger = getLoggerFromState(state);
+            logger.action({action, source: 'keymap'}); // TODO: add editor mode
+        }
         return res;
     };
 }

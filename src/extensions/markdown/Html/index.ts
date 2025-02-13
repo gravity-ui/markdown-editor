@@ -1,5 +1,4 @@
 import type {ExtensionAuto} from '../../../core';
-import {logger} from '../../../logger';
 
 import {HtmlNode} from './const';
 import {parserTokens} from './parser';
@@ -10,7 +9,7 @@ export {HtmlAttr, HtmlNode} from './const';
 
 export const Html: ExtensionAuto = (builder) => {
     if (builder.context.has('html') && builder.context.get('html') === false) {
-        logger.info('[HTML extension]: Skip extension, because HTML disabled via context');
+        builder.logger.log('[HTML extension]: Skip extension, because HTML disabled via context');
         return;
     }
 
