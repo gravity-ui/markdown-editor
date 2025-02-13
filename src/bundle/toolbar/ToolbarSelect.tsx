@@ -9,6 +9,7 @@ import {
 
 import {cn} from '../../classname';
 import {isFunction} from '../../lodash';
+import {PreviewTooltip} from '../../toolbar/PreviewTooltip';
 
 import type {WToolbarBaseProps, WToolbarItemData} from './types';
 
@@ -46,28 +47,30 @@ export const ToolbarSelect: React.FC<ToolbarSelectProps> = ({
                     text: isFunction(item.title) ? item.title() : item.title,
                 }))}
                 renderOption={({text, data}) => {
-                    const {icon, hotkey, hint} = data as WToolbarItemData;
+                    const {icon, hotkey, hint, preview} = data as WToolbarItemData;
                     const hintText = isFunction(hint) ? hint() : hint;
                     return (
-                        <div aria-label={text} className={b('item')}>
-                            <div className={b('item-icon')}>
-                                <Icon data={icon.data} size={Number(icon.size ?? 16) + 2} />
-                            </div>
-                            <div className={b('item-content')}>
-                                {text}
-                                <div className={b('item-extra')}>
-                                    {hotkey && <Hotkey value={hotkey} />}
-                                    {hintText && (
-                                        <HelpMark
-                                            popoverProps={{modal: false}}
-                                            className={b('item-hint')}
-                                        >
-                                            {hintText}
-                                        </HelpMark>
-                                    )}
+                        <PreviewTooltip preview={preview}>
+                            <div aria-label={text} className={b('item')}>
+                                <div className={b('item-icon')}>
+                                    <Icon data={icon.data} size={Number(icon.size ?? 16) + 2} />
+                                </div>
+                                <div className={b('item-content')}>
+                                    {text}
+                                    <div className={b('item-extra')}>
+                                        {hotkey && <Hotkey value={hotkey} />}
+                                        {hintText && (
+                                            <HelpMark
+                                                popoverProps={{modal: false}}
+                                                className={b('item-hint')}
+                                            >
+                                                {hintText}
+                                            </HelpMark>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                        </PreviewTooltip>
                     );
                 }}
                 onUpdate={([id]) => {

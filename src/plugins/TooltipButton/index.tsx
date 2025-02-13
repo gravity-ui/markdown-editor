@@ -10,24 +10,28 @@ import {
 
 import {TooltipButton} from './TooltipButton';
 
+/** @deprecated */
 type ButtonContent = (
     view: EditorView,
     node: BaseTooltipNode,
     toggleEdit: () => void,
 ) => React.ReactElement;
 
+/** @deprecated */
 type FormContent = (
     view: EditorView,
     node: BaseTooltipNode,
     onChange?: TooltipOnChangeCallback,
 ) => React.ReactElement;
 
+/** @deprecated */
 interface TooltipMenuOptions extends BaseTooltipPluginOptions {
     disableHideOnBlur?: boolean;
     buttonContent: ButtonContent;
     formContent: FormContent;
 }
 
+/** @deprecated */
 export class TooltipButtonPluginView extends BaseTooltipPluginView {
     private enableHideOnBlur?: boolean;
     private forceEdit = false;

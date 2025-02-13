@@ -5,11 +5,13 @@ import {Button, Icon, Popup, type PopupPlacement, type PopupProps} from '@gravit
 
 import {useBooleanState, useElementState} from '../../react-utils';
 
+/** @deprecated */
 type TooltipButtonProps = Pick<PopupProps, 'onOutsideClick'> & {
     domElem: HTMLElement | null;
     children?: React.ReactNode;
 };
 
+/** @deprecated */
 export const TooltipButton: React.FC<TooltipButtonProps> = ({
     domElem,
     children,

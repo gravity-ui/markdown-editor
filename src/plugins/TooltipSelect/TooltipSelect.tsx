@@ -12,6 +12,7 @@ import {
 
 import {useBooleanState} from '../../react-utils';
 
+/** @deprecated */
 type TooltipButtonProps = Pick<PopupProps, 'onOutsideClick'> & {
     domRef: HTMLElement | null;
     buttonTitle?: string;
@@ -20,6 +21,7 @@ type TooltipButtonProps = Pick<PopupProps, 'onOutsideClick'> & {
     withSearch?: boolean;
 };
 
+/** @deprecated */
 export const TooltipButton: React.FC<TooltipButtonProps> = ({
     domRef,
     buttonTitle = 'Settings',
