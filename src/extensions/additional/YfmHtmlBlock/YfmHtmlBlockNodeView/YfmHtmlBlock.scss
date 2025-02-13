@@ -1,3 +1,5 @@
+@use '../../../../styles/mixins.scss';
+
 .g-md-yfm-html-block {
     position: relative;
 
@@ -65,9 +67,9 @@
     }
 
     &__editor-popover {
-        z-index: 1;
-
         float: right;
+
+        @include mixins.z-index('forefront');
     }
 
     &__controls {

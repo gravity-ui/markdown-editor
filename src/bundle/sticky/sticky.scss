@@ -1,4 +1,4 @@
-@use '../../styles/zindex' as zIndexVars;
+@use '../../styles/mixins.scss';
 
 $block: 'g-md-editor-sticky';
 
@@ -13,9 +13,9 @@ $block: 'g-md-editor-sticky';
     }
 
     &_sticky-active:not(.#{$block}_clear) {
-        z-index: zIndexVars.$sticky-toolbar;
-
         padding: var(--g-md-toolbar-sticky-padding);
+
+        @include mixins.z-index('sticky-toolbar');
 
         &::before {
             position: absolute;

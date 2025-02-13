@@ -1,3 +1,5 @@
+@use '../../styles/mixins.scss';
+
 @import '~@gravity-ui/uikit/styles/mixins';
 
 .g-md-editor-settings {
@@ -13,11 +15,11 @@
     }
 
     &__separator {
-        z-index: 0;
-
         margin: 6px 4px;
 
         border-left: 1px solid var(--g-color-line-generic);
+
+        @include mixins.z-index('default');
     }
 }
 
