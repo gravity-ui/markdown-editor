@@ -1,11 +1,15 @@
 import {Plugin} from 'prosemirror-state';
 
+import {Logger2} from '../logger';
+
 import {ExtensionBuilder} from './ExtensionBuilder';
 import type {ExtensionDeps, ExtensionMarkSpec} from './types/extension';
 
+const logger = new Logger2().nested({env: 'test'});
+
 describe('ExtensionBuilder', () => {
     it('should build empty extension', () => {
-        const ext = new ExtensionBuilder().build();
+        const ext = new ExtensionBuilder(logger).build();
         const deps = {} as ExtensionDeps;
 
         expect(ext.nodes().size).toBe(0);
@@ -16,7 +20,7 @@ describe('ExtensionBuilder', () => {
 
     it('should immediately call added by .use() extension', () => {
         const mockExtension = jest.fn();
-        const builder = new ExtensionBuilder();
+        const builder = new ExtensionBuilder(logger);
         const options = {a: 1, b: 2, c: 3};
 
         builder.use(mockExtension, options);
@@ -26,7 +30,7 @@ describe('ExtensionBuilder', () => {
     });
 
     it('should add nodes', () => {
-        const nodes = new ExtensionBuilder()
+        const nodes = new ExtensionBuilder(logger)
             .addNode('node1', () => ({
                 spec: {},
                 fromMd: {tokenSpec: {type: 'block', name: 'node1'}},
@@ -46,7 +50,7 @@ describe('ExtensionBuilder', () => {
     });
 
     it('should add marks', () => {
-        const marks = new ExtensionBuilder()
+        const marks = new ExtensionBuilder(logger)
             .addMark('mark1', () => ({
                 spec: {},
                 fromMd: {tokenSpec: {type: 'mark', name: 'mark1'}},
@@ -86,7 +90,7 @@ describe('ExtensionBuilder', () => {
             fromMd: {tokenSpec: {type: 'mark', name: 'mark3'}},
             toMd: {open: '', close: ''},
         };
-        const marksOrderedMap = new ExtensionBuilder()
+        const marksOrderedMap = new ExtensionBuilder(logger)
             .addMark('mark3', () => mark3, ExtensionBuilder.Priority.VeryLow)
             .addMark('mark1', () => mark1)
             .addMark('mark0', () => mark0, ExtensionBuilder.Priority.VeryHigh)
@@ -106,7 +110,7 @@ describe('ExtensionBuilder', () => {
     });
 
     it('should add plugins', () => {
-        const plugins = new ExtensionBuilder()
+        const plugins = new ExtensionBuilder(logger)
             .addPlugin(() => new Plugin({}))
             .addPlugin(() => new Plugin({}))
             .build()
@@ -120,7 +124,7 @@ describe('ExtensionBuilder', () => {
         const plugin1 = new Plugin({});
         const plugin2 = new Plugin({});
         const plugin3 = new Plugin({});
-        const plugins = new ExtensionBuilder()
+        const plugins = new ExtensionBuilder(logger)
             .addPlugin(() => plugin3, ExtensionBuilder.Priority.VeryLow)
             .addPlugin(() => plugin1)
             .addPlugin(() => plugin0, ExtensionBuilder.Priority.VeryHigh)
@@ -135,7 +139,7 @@ describe('ExtensionBuilder', () => {
     });
 
     it('should add actions', () => {
-        const actions = new ExtensionBuilder()
+        const actions = new ExtensionBuilder(logger)
             .addAction('action1', () => ({
                 isActive: () => false,
                 isEnable: () => false,
@@ -155,7 +159,7 @@ describe('ExtensionBuilder', () => {
     });
 
     it('should throw error when add nodes with the same names', () => {
-        const builder = new ExtensionBuilder().addNode('node', () => ({
+        const builder = new ExtensionBuilder(logger).addNode('node', () => ({
             spec: {},
             toMd: () => {},
             fromMd: {tokenSpec: {type: 'block', name: 'node'}},
@@ -173,7 +177,7 @@ describe('ExtensionBuilder', () => {
     });
 
     it('should throw error when add marks with the same names', () => {
-        const builder = new ExtensionBuilder().addMark('mark', () => ({
+        const builder = new ExtensionBuilder(logger).addMark('mark', () => ({
             spec: {},
             toMd: {open: '', close: ''},
             fromMd: {tokenSpec: {type: 'mark', name: 'mark'}},
@@ -191,7 +195,7 @@ describe('ExtensionBuilder', () => {
     });
 
     it('should throw error when add actions with the same names', () => {
-        const builder = new ExtensionBuilder().addAction('action', () => ({
+        const builder = new ExtensionBuilder(logger).addAction('action', () => ({
             isActive: () => false,
             isEnable: () => false,
             run() {},

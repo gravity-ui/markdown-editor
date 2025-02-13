@@ -4,6 +4,7 @@ import type {ReactNode} from 'react';
 
 import type {MarkupString} from '../common';
 import type {EscapeConfig, Extension} from '../core';
+import type {Logger2} from '../logger';
 import type {CreateCodemirrorParams, YfmLangOptions} from '../markup';
 import type {FileUploadHandler} from '../utils';
 import type {DirectiveSyntaxContext, DirectiveSyntaxOption} from '../utils/directive';
@@ -196,4 +197,5 @@ export type MarkdownEditorOptions = {
     markupConfig?: MarkdownEditorMarkupConfig;
     /** Options for wysiwyg mode */
     wysiwygConfig?: MarkdownEditorWysiwygConfig;
+    logger?: Logger2.ILogger;
 };
