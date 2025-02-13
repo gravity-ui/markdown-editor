@@ -37,7 +37,7 @@ export const Autocomplete: ExtensionAuto = (builder) => {
             config.push(item);
         }
 
-        const handler = new MainHandler(config);
+        const handler = new MainHandler(config, builder.logger);
         const plugins = autocomplete({
             triggers,
             onOpen: handler.onOpen.bind(handler),

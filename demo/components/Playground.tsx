@@ -86,9 +86,12 @@ export type PlaygroundProps = {
     >;
 
 logger.setLogger({
-    metrics: console.info,
-    action: (data) => console.info(`Action: ${data.action}`, data),
-    ...console,
+    log: (...data) => console.log('[Deprecated]', ...data),
+    info: (...data) => console.info('[Deprecated]', ...data),
+    warn: (...data) => console.warn('[Deprecated]', ...data),
+    error: (...data) => console.error('[Deprecated]', ...data),
+    metrics: (...data) => console.info('[Deprecated]', ...data),
+    action: (data) => console.info(`[Deprecated] Action: ${data.action}`, data),
 });
 
 export const Playground = memo<PlaygroundProps>((props) => {
