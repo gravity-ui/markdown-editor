@@ -1,5 +1,12 @@
 # Changelog
 
+## [14.12.4](https://github.com/gravity-ui/markdown-editor/compare/v14.12.3...v14.12.4) (2025-02-14)
+
+
+### Bug Fixes
+
+* **view:** updated cut open logic to use attributes instead of classes due to extension update ([#628](https://github.com/gravity-ui/markdown-editor/issues/628)) ([#630](https://github.com/gravity-ui/markdown-editor/issues/630)) ([3d58a8d](https://github.com/gravity-ui/markdown-editor/commit/3d58a8d20168336319c6a55fd695c43fd9a973b6))
+
 ## [14.12.3](https://github.com/gravity-ui/markdown-editor/compare/v14.12.2...v14.12.3) (2025-02-12)
 
 
