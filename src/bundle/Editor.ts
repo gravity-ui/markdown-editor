@@ -15,7 +15,7 @@ import type {TransformFn} from '../core/markdown/ProseMirrorTransformer';
 import type {DynamicModifiers} from '../core/types/dynamicModifiers';
 import type {ReactRenderStorage, RenderStorage} from '../extensions';
 import {i18n} from '../i18n/bundle';
-import {type LogReceiver, type Logger2, globalLogger} from '../logger';
+import {type Logger2, globalLogger} from '../logger';
 import {createCodemirror} from '../markup';
 import {getAutocompleteConfig} from '../markup/codemirror/autocomplete';
 import {type CodeEditor, Editor as MarkupEditor} from '../markup/editor';
@@ -61,7 +61,7 @@ interface EventMapInt extends EventMap {
 }
 
 export interface Editor extends Receiver<EventMap>, CommonEditor {
-    readonly logger: LogReceiver;
+    readonly logger: Logger2.LogReceiver;
     readonly currentMode: EditorMode;
     readonly toolbarVisible: boolean;
 
@@ -356,7 +356,9 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
 
         this.#logger = logger;
         this.#modifiers = experimental.preserveMarkupFormatting
-            ? createDynamicModifiers(new MarkupManager())
+            ? createDynamicModifiers(
+                  new MarkupManager(this.logger.nested({module: 'markup-manager'})),
+              )
             : undefined;
 
         this.#editorMode = initial.mode ?? 'wysiwyg';
@@ -425,6 +427,13 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
         if (this.#beforeEditorModeChange?.({mode: opts.mode, reason: opts.reason}) === false) {
             return;
         }
+
+        this.logger.event({
+            event: 'mode-change',
+            prevMode: this.#editorMode,
+            nextMode: opts.mode,
+            reason: opts.reason,
+        });
 
         this.currentMode = opts.mode;
         this.emit('rerender', null);

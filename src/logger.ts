@@ -10,66 +10,117 @@ type ErrObj = {
     [key: string]: unknown;
 };
 
-type Logger2Args = {
-    log: MsgObj;
-    warn: MsgObj;
-    error: ErrObj;
-    action: MdEditorLogger.ActionData;
-    metrics: MdEditorLogger.MetricsData;
+type EventObj = {
+    event: string;
+    [key: string]: unknown;
 };
 
-export interface LogReceiver extends Receiver<Logger2Args> {}
-export interface LogEmitter {
-    log(data: Logger2Args['log']): void;
-    warn(data: Logger2Args['warn']): void;
-    error(data: Logger2Args['error']): void;
-    action(data: Logger2Args['action']): void;
-    metrics(data: Logger2Args['metrics']): void;
+// eslint-disable-next-line @typescript-eslint/no-namespace
+export namespace Logger2 {
+    export type LogData = MsgObj;
+    export type WarnData = MsgObj;
+    export type ErrorData = ErrObj;
+    export type ActionData = MdEditorLogger.ActionData;
+    export type MetricsData = MdEditorLogger.MetricsData;
+    export type EventData = EventObj;
+
+    export type ReceiverDataMap = {
+        log: LogData;
+        warn: WarnData;
+        error: ErrorData;
+        event: EventData;
+        action: ActionData;
+        metrics: MetricsData;
+    };
+
+    export type EmitterDataMap = {
+        log: LogData;
+        warn: WarnData;
+        error: ErrorData;
+        event: EventData;
+        action: ActionData;
+        metrics: MetricsData;
+    };
+
+    export interface LogReceiver extends Receiver<ReceiverDataMap> {}
+
+    export interface LogEmitter {
+        log(data: EmitterDataMap['log']): void;
+        warn(data: EmitterDataMap['warn']): void;
+        error(data: EmitterDataMap['error']): void;
+        action(data: EmitterDataMap['action']): void;
+        metrics(data: EmitterDataMap['metrics']): void;
+        event(data: EmitterDataMap['event']): void;
+    }
 }
-export interface Logger2 extends LogEmitter, LogReceiver {
+
+export interface Logger2 extends Logger2.LogEmitter, Logger2.LogReceiver {
     nested(params: object): Logger2;
 }
 
-export class Logger2Impl extends SafeEventEmitter<Logger2Args> implements Logger2 {
-    log(data: Logger2Args['log']): void {
+export class Logger2Impl extends SafeEventEmitter<Logger2.ReceiverDataMap> implements Logger2 {
+    log(data: Logger2.LogData): void {
         this.emit('log', data);
     }
 
-    warn(data: Logger2Args['warn']): void {
+    warn(data: Logger2.WarnData): void {
         this.emit('warn', data);
     }
 
-    error(data: Logger2Args['error']): void {
+    error(data: Logger2.ErrorData): void {
         this.emit('error', data);
     }
 
-    action(data: Logger2Args['action']): void {
+    action(data: Logger2.ActionData): void {
         this.emit('action', data);
     }
 
-    metrics(data: Logger2Args['metrics']): void {
+    metrics(data: Logger2.MetricsData): void {
         this.emit('metrics', data);
     }
 
+    event(data: Logger2.EventData): void {
+        this.emit('event', data);
+    }
+
     nested(params: object): Logger2 {
-        return {
-            log: (data) => this.log({...params, ...data}),
-            warn: (data) => this.warn({...params, ...data}),
-            error: (data) => this.error({...params, ...data}),
-            action: (data) => this.action({...params, ...data}),
-            metrics: (data) => this.metrics({...params, ...data}),
-            nested: (prms) => this.nested({...params, ...prms}),
-            on: this.on.bind(this),
-            off: this.off.bind(this),
+        const self = this;
+        const paramsKey = Symbol();
+
+        const logger: Logger2 & {[paramsKey]: object} = {
+            [paramsKey]: params,
+            log(data) {
+                self.log({...this[paramsKey], ...data});
+            },
+            warn(data) {
+                self.warn({...this[paramsKey], ...data});
+            },
+            error(data) {
+                self.error({...this[paramsKey], ...data});
+            },
+            action(data) {
+                self.action({...this[paramsKey], ...data});
+            },
+            metrics(data) {
+                self.metrics({...this[paramsKey], ...data});
+            },
+            event(data) {
+                self.event({...this[paramsKey], ...data});
+            },
+            nested(nestedParams) {
+                return {...this, [paramsKey]: {...this[paramsKey], ...nestedParams}};
+            },
+            on: self.on.bind(self),
+            off: self.off.bind(self),
         };
+
+        return logger;
     }
 }
 
-// =====> next is deprecated
+// Major: remove old logger implementation
 
 const noop = () => {};
-
-// Major: remove old logger implementation
 
 declare global {
     /** @deprecated */

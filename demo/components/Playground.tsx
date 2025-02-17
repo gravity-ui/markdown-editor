@@ -29,6 +29,7 @@ import {getSanitizeYfmHtmlBlock} from '../../src/extensions/additional/YfmHtmlBl
 import type {CodeEditor} from '../../src/markup';
 import type {ToolbarsPreset} from '../../src/modules/toolbars/types';
 import {getPlugins} from '../defaults/md-plugins';
+import {useLogs} from '../hooks/useLogs';
 import useYfmHtmlBlockStyles from '../hooks/useYfmHtmlBlockStyles';
 import {randomDelay} from '../utils/delay';
 import {parseInsertedUrlAsImage} from '../utils/imageUrl';
@@ -241,6 +242,8 @@ export const Playground = memo<PlaygroundProps>((props) => {
             directiveSyntax,
         ],
     );
+
+    useLogs(mdEditor);
 
     useEffect(() => {
         function onCancel() {
