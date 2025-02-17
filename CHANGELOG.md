@@ -1,5 +1,12 @@
 # Changelog
 
+## [14.12.5](https://github.com/gravity-ui/markdown-editor/compare/v14.12.4...v14.12.5) (2025-02-17)
+
+
+### Bug Fixes
+
+* **bundle:** fixed YfmTable serialization inside quotes at any nesting level ([#635](https://github.com/gravity-ui/markdown-editor/issues/635)) ([b73391c](https://github.com/gravity-ui/markdown-editor/commit/b73391c9d99be9b422e63de80a3261f5d924c6de))
+
 ## [14.12.4](https://github.com/gravity-ui/markdown-editor/compare/v14.12.3...v14.12.4) (2025-02-14)
 
 
