@@ -203,6 +203,7 @@
     "react-error-boundary": "^3.1.4",
     "react-hotkeys-hook": "4.5.0",
     "react-use": "^17.3.2",
+    "ts-dedent": "2.2.0",
     "tslib": "^2.3.1",
     "uuid": "11.0.5"
   },
@@ -269,7 +270,6 @@
     "sass": "^1.84.0",
     "sass-loader": "^13.3.2",
     "stylelint": "15.11.0",
-    "ts-dedent": "2.2.0",
     "ts-jest": "^29.2.5",
     "typescript": "^5.7.3"
   },
