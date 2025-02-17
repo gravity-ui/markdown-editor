@@ -1,5 +1,14 @@
 # Changelog
 
+## [15.0.2](https://github.com/gravity-ui/markdown-editor/compare/v15.0.1...v15.0.2) (2025-02-17)
+
+
+### Bug Fixes
+
+* **bundle:** fixed YfmTable serialization inside quotes at any nesting level ([#635](https://github.com/gravity-ui/markdown-editor/issues/635)) ([52b421c](https://github.com/gravity-ui/markdown-editor/commit/52b421c3eeb847685a2c5d8ce113814a6a0cad6c))
+* **ImagePaste:** make image paste priority higher than link to make image link paste working ([#634](https://github.com/gravity-ui/markdown-editor/issues/634)) ([9b98e40](https://github.com/gravity-ui/markdown-editor/commit/9b98e401ccfdf9b9b6617b489e9dbd1e36c3c0c7))
+* **view:** updated cut open logic to use attributes instead of classes due to extension update ([#628](https://github.com/gravity-ui/markdown-editor/issues/628)) ([0985395](https://github.com/gravity-ui/markdown-editor/commit/0985395c0c6586ac9687e7a36356a0123c630e2d))
+
 ## [15.0.1](https://github.com/gravity-ui/markdown-editor/compare/v15.0.0...v15.0.1) (2025-02-12)
 
 
