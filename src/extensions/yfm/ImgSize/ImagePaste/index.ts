@@ -138,7 +138,7 @@ export const ImagePaste: ExtensionAuto<ImagePasteOptions> = (builder, opts) => {
                     },
                 },
             }),
-        builder.Priority.High,
+        builder.Priority.VeryHigh,
     );
 };
 
