@@ -1,5 +1,18 @@
 # Changelog
 
+## [15.1.0](https://github.com/gravity-ui/markdown-editor/compare/v15.0.2...v15.1.0) (2025-02-19)
+
+
+### Features
+
+* **ImgSize:** added ability to render custom form in image widget ([#639](https://github.com/gravity-ui/markdown-editor/issues/639)) ([b529453](https://github.com/gravity-ui/markdown-editor/commit/b52945349472656eb0f21c6e6b3f93919126987d))
+
+
+### Bug Fixes
+
+* **ImgSize:** support enableNewImageSizeCalculation in ImageWidget ([#641](https://github.com/gravity-ui/markdown-editor/issues/641)) ([f6a7899](https://github.com/gravity-ui/markdown-editor/commit/f6a7899332adeced9e7bc87447b0ee5a5c19bf7a))
+* **YfmCut:** fixed open state styles for nested cuts ([#643](https://github.com/gravity-ui/markdown-editor/issues/643)) ([25089b3](https://github.com/gravity-ui/markdown-editor/commit/25089b312fddb6486b9e1921bbfa9cdfa3b541ea))
+
 ## [15.0.2](https://github.com/gravity-ui/markdown-editor/compare/v15.0.1...v15.0.2) (2025-02-17)
 
 
