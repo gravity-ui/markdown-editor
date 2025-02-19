@@ -25,6 +25,7 @@ export const ImgSize: ExtensionAuto<ImgSizeOptions> = (builder, opts) => {
     builder.use(ImageWidget, {
         imageUploadHandler: opts.imageUploadHandler,
         needToSetDimensionsForUploadedImages: Boolean(opts.needToSetDimensionsForUploadedImages),
+        enableNewImageSizeCalculation: Boolean(opts.enableNewImageSizeCalculation),
     });
 
     if (opts.imageUploadHandler || opts.parseInsertedUrlAsImage) {

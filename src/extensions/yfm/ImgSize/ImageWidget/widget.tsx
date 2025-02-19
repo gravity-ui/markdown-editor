@@ -25,6 +25,7 @@ export const removeWidget = removeDecoration;
 export type ImageWidgetDescriptorOpts = {
     needToSetDimensionsForUploadedImages: boolean;
     uploadImages?: FileUploadHandler;
+    enableNewImageSizeCalculation?: boolean;
 };
 
 class ImageWidgetDescriptor extends ReactWidgetDescriptor {
@@ -32,6 +33,7 @@ class ImageWidgetDescriptor extends ReactWidgetDescriptor {
     private readonly deps;
     private readonly uploadImages;
     private readonly needToSetDimensionsForUploadedImages: boolean;
+    private readonly enableNewImageSizeCalculation?: boolean;
 
     private widgetHandler: ImageWidgetHandler | null = null;
 
@@ -41,6 +43,7 @@ class ImageWidgetDescriptor extends ReactWidgetDescriptor {
         this.deps = deps;
         this.uploadImages = opts.uploadImages;
         this.needToSetDimensionsForUploadedImages = opts.needToSetDimensionsForUploadedImages;
+        this.enableNewImageSizeCalculation = opts.enableNewImageSizeCalculation;
     }
 
     getWidgetHandler(view: EditorView, getPos: () => number): ImageWidgetHandler {
@@ -52,6 +55,7 @@ class ImageWidgetDescriptor extends ReactWidgetDescriptor {
                     decoId: this.id,
                     uploadImages: this.uploadImages,
                     needToSetDimensionsForUploadedImages: this.needToSetDimensionsForUploadedImages,
+                    enableNewImageSizeCalculation: this.enableNewImageSizeCalculation,
                 },
                 this.deps,
             );
@@ -80,6 +84,7 @@ type ImageWidgetHandlerProps = {
     getPos: () => number;
     uploadImages?: FileUploadHandler;
     needToSetDimensionsForUploadedImages: boolean;
+    enableNewImageSizeCalculation?: boolean;
 };
 
 class ImageWidgetHandler {
@@ -90,6 +95,7 @@ class ImageWidgetHandler {
     private readonly uploadImages;
     private readonly normalizeUrl;
     private readonly needToSetDimensionsForUploadedImages: boolean;
+    private readonly enableNewImageSizeCalculation?: boolean;
 
     private cancelled = false;
 
@@ -100,6 +106,7 @@ class ImageWidgetHandler {
             getPos,
             uploadImages,
             needToSetDimensionsForUploadedImages,
+            enableNewImageSizeCalculation,
         }: ImageWidgetHandlerProps,
         deps: ExtensionDeps,
     ) {
@@ -109,6 +116,7 @@ class ImageWidgetHandler {
         this.uploadImages = uploadImages;
         this.normalizeUrl = normalizeUrlFactory(deps);
         this.needToSetDimensionsForUploadedImages = needToSetDimensionsForUploadedImages;
+        this.enableNewImageSizeCalculation = enableNewImageSizeCalculation;
     }
 
     destruct() {
@@ -157,6 +165,7 @@ class ImageWidgetHandler {
         const {view} = this;
         new ImagesUploadProcess(view, files, this.uploadImages, this.getPos(), {
             needDimensions: this.needToSetDimensionsForUploadedImages,
+            enableNewImageSizeCalculation: this.enableNewImageSizeCalculation,
         }).run();
         view.dispatch(removeWidget(view.state.tr, this.decoId));
         view.focus();
