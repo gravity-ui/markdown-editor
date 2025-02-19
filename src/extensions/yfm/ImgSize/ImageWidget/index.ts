@@ -8,7 +8,7 @@ const addImageWidgetAction = 'addImageWidget';
 
 export type ImageWidgetOptions = Pick<
     ImageWidgetDescriptorOpts,
-    'needToSetDimensionsForUploadedImages'
+    'needToSetDimensionsForUploadedImages' | 'enableNewImageSizeCalculation'
 > & {
     imageUploadHandler?: FileUploadHandler;
 };
@@ -18,6 +18,7 @@ export const ImageWidget: ExtensionAuto<ImageWidgetOptions> = (builder, opts) =>
         addImageWidget(deps, {
             uploadImages: opts.imageUploadHandler,
             needToSetDimensionsForUploadedImages: opts.needToSetDimensionsForUploadedImages,
+            enableNewImageSizeCalculation: opts.enableNewImageSizeCalculation,
         }),
     );
 };
