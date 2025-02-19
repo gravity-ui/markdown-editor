@@ -1,5 +1,13 @@
 # Changelog
 
+## [14.12.6](https://github.com/gravity-ui/markdown-editor/compare/v14.12.5...v14.12.6) (2025-02-19)
+
+
+### Bug Fixes
+
+* **ImgSize:** support enableNewImageSizeCalculation in ImageWidget ([#641](https://github.com/gravity-ui/markdown-editor/issues/641)) ([df38fb0](https://github.com/gravity-ui/markdown-editor/commit/df38fb0a3a62f99140b0b63917ec5166b51e07bd))
+* **YfmCut:** fixed open state styles for nested cuts ([#643](https://github.com/gravity-ui/markdown-editor/issues/643)) ([757b6d9](https://github.com/gravity-ui/markdown-editor/commit/757b6d92bd6594dcdd57ce409ef37b7ba0ae46a7))
+
 ## [14.12.5](https://github.com/gravity-ui/markdown-editor/compare/v14.12.4...v14.12.5) (2025-02-17)
 
 
