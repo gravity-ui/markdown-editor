@@ -239,6 +239,8 @@ class SelectionTooltip implements PluginView {
                 view.state.tr.addMark(from, to, linkType(view.state.schema).create({href: url})),
             );
 
+            view.dispatch(view.state.tr.setSelection(TextSelection.create(view.state.doc, to)));
+
             setTimeout(this.cancelPopup.bind(this));
         }
     }
