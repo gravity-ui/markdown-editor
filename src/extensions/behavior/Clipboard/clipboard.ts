@@ -60,6 +60,11 @@ export const clipboard = ({
                 paste(view, e) {
                     if (!e.clipboardData) return false;
 
+                    const pasteLogger = logger.nested({
+                        domEvent: 'paste',
+                        dataTypes: e.clipboardData.types,
+                    });
+
                     let data: string;
                     let isPasteHandled = false;
 
@@ -84,6 +89,9 @@ export const clipboard = ({
                                 {clipboardDataFormat: DataTransferType.UriList},
                             ),
                         );
+                        pasteLogger.event({
+                            event: 'paste-uri-list',
+                        });
                         isPasteHandled = true;
                         e.preventDefault();
                         return true;
@@ -106,12 +114,14 @@ export const clipboard = ({
                                         {clipboardDataFormat: DataTransferType.Html},
                                     ),
                                 );
+                                pasteLogger.event({
+                                    event: 'paste-parsed-html',
+                                });
                                 isPasteHandled = true;
                             } else {
                                 globalLogger.error(res.error);
-                                logger.error(res.error, {
-                                    module: 'clipboard',
-                                    event: 'paste',
+                                pasteLogger.error(res.error, {
+                                    event: 'parse-html',
                                 });
                                 console.error(res.error);
                             }
@@ -137,6 +147,10 @@ export const clipboard = ({
                             const schema: Schema = view.state.schema;
                             const insideCodeData = e.clipboardData.getData(DataTransferType.Text);
 
+                            pasteLogger.event({
+                                event: 'paste-text-to-code',
+                                codeType,
+                            });
                             view.dispatch(
                                 trackTransactionMetrics(
                                     view.state.tr.replaceSelectionWith(
@@ -156,6 +170,10 @@ export const clipboard = ({
                             if (res.success) {
                                 const docNode = res.result;
                                 const slice = getSliceFromMarkupFragment(docNode.content);
+                                pasteLogger.event({
+                                    event: 'paste-parsed-content',
+                                    dataFormat,
+                                });
                                 view.dispatch(
                                     trackTransactionMetrics(
                                         view.state.tr.replaceSelection(slice),
@@ -166,9 +184,9 @@ export const clipboard = ({
                                 isPasteHandled = true;
                             } else {
                                 globalLogger.error(res.error);
-                                logger.error(res.error, {
-                                    module: 'clipboard',
+                                pasteLogger.error(res.error, {
                                     event: 'paste',
+                                    dataFormat,
                                 });
                                 console.error(res.error);
                             }
@@ -176,6 +194,9 @@ export const clipboard = ({
                     }
 
                     if (e.clipboardData.files.length && pasteFileHandler) {
+                        pasteLogger.event({
+                            event: 'paste-files',
+                        });
                         for (const file of Array.from(e.clipboardData.files)) {
                             pasteFileHandler(file);
                         }

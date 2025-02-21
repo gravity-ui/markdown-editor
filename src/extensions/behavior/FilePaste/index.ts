@@ -2,7 +2,7 @@ import {Fragment, type Node, type Schema, Slice} from 'prosemirror-model';
 import {Plugin} from 'prosemirror-state';
 import {dropPoint} from 'prosemirror-transform';
 
-import type {ExtensionAuto} from '../../../core';
+import {type ExtensionAuto, getLoggerFromState} from '../../../core';
 import {pType} from '../../../extensions/base';
 import {isFilesOnly} from '../Clipboard/utils';
 
@@ -14,6 +14,12 @@ export const FilePaste: ExtensionAuto = (builder) => {
                 handlePaste(view, event) {
                     const files = getFiles(event.clipboardData);
                     if (!files) return false;
+
+                    getLoggerFromState(view.state).event({
+                        event: 'paste-files',
+                        plugin: 'file-paste',
+                        prop: 'handlePaste',
+                    });
 
                     view.dispatch(
                         view.state.tr
@@ -36,6 +42,14 @@ export const FilePaste: ExtensionAuto = (builder) => {
                     if (dropPos === -1) return false;
 
                     const posToInsert = dropPoint(view.state.doc, dropPos, slice);
+
+                    getLoggerFromState(view.state).event({
+                        event: 'drop-files',
+                        plugin: 'file-paste',
+                        prop: 'handleDrop',
+                        dispatch: posToInsert !== null,
+                    });
+
                     if (posToInsert === null) return false;
 
                     view.dispatch(view.state.tr.insert(posToInsert, slice.content));
