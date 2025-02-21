@@ -2,6 +2,8 @@ import MarkdownIt, {type PresetName} from 'markdown-it';
 import type {Schema} from 'prosemirror-model';
 import type {Plugin} from 'prosemirror-state';
 
+import {Logger2} from '../logger';
+
 import {ActionsManager} from './ActionsManager';
 import {ExtensionBuilder} from './ExtensionBuilder';
 import {ParserTokensRegistry} from './ParserTokensRegistry';
@@ -22,6 +24,7 @@ import type {
 import type {MarkViewConstructor, NodeViewConstructor} from './types/node-views';
 
 type ExtensionsManagerParams = {
+    logger?: Logger2.ILogger;
     extensions: Extension;
     options?: ExtensionsManagerOptions;
 };
@@ -38,8 +41,12 @@ type ExtensionsManagerOptions = {
 };
 
 export class ExtensionsManager {
-    static process(extensions: Extension, options: ExtensionsManagerOptions) {
-        return new this({extensions, options}).build();
+    static process(
+        extensions: Extension,
+        options: ExtensionsManagerOptions,
+        logger?: Logger2.ILogger,
+    ) {
+        return new this({extensions, options, logger}).build();
     }
 
     #schemaRegistry;
@@ -65,9 +72,9 @@ export class ExtensionsManager {
     #serializerDynamicModifier?: MarkdownSerializerDynamicModifier;
     #parserDynamicModifier?: MarkdownParserDynamicModifier;
 
-    constructor({extensions, options = {}}: ExtensionsManagerParams) {
+    constructor({extensions, options = {}, logger = new Logger2()}: ExtensionsManagerParams) {
         this.#schemaRegistry = new SchemaSpecRegistry(undefined, options.dynamicModifiers?.schema);
-        this.#parserRegistry = new ParserTokensRegistry();
+        this.#parserRegistry = new ParserTokensRegistry({logger});
         this.#serializerRegistry = new SerializerTokensRegistry();
         if (options.dynamicModifiers) {
             this.#parserDynamicModifier = options.dynamicModifiers?.parser;
@@ -90,7 +97,7 @@ export class ExtensionsManager {
         }
 
         // TODO: add prefilled context
-        this.#builder = new ExtensionBuilder();
+        this.#builder = new ExtensionBuilder(logger);
     }
 
     build() {

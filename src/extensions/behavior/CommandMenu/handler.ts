@@ -1,10 +1,10 @@
 import type {EditorView} from 'prosemirror-view';
 
-import {logger} from '../../..//logger';
-import {AutocompletePopupCloser} from '../../..//utils/autocomplete-popup';
-import {ArrayCarousel} from '../../..//utils/carousel';
 import type {ActionStorage} from '../../../core';
 import {isFunction} from '../../../lodash';
+import {type Logger2, globalLogger} from '../../../logger';
+import {AutocompletePopupCloser} from '../../../utils/autocomplete-popup';
+import {ArrayCarousel} from '../../../utils/carousel';
 import {
     type AutocompleteAction,
     AutocompleteActionKind,
@@ -25,12 +25,14 @@ declare module 'prosemirror-model' {
 }
 
 export type CommandHandlerParams = {
+    logger: Logger2.ILogger;
     actions: Config;
     storage: ActionStorage;
     nodesIgnoreList?: readonly string[];
 };
 
 export class CommandHandler implements AutocompleteHandler {
+    readonly #logger: Logger2.ILogger;
     readonly #actions: readonly CommandAction[];
     readonly #actionStorage: ActionStorage;
     readonly #nodesIgnoreList: readonly string[];
@@ -45,7 +47,8 @@ export class CommandHandler implements AutocompleteHandler {
     #menuProps?: CommandMenuComponentProps;
     #menuRenderItem?: RendererItem;
 
-    constructor({actions, storage, nodesIgnoreList = []}: CommandHandlerParams) {
+    constructor({logger, actions, storage, nodesIgnoreList = []}: CommandHandlerParams) {
+        this.#logger = logger;
         this.#actions = actions;
         this.#actionStorage = storage;
         this.#nodesIgnoreList = nodesIgnoreList;
@@ -164,7 +167,8 @@ export class CommandHandler implements AutocompleteHandler {
         action.exec(this.#actionStorage);
         view.focus();
 
-        logger.action({mode: 'wysiwyg', source: 'command-menu', action: action.id});
+        globalLogger.action({mode: 'wysiwyg', source: 'command-menu', action: action.id});
+        this.#logger.action({source: 'command-menu', action: action.id});
     }
 
     private filterActions(): boolean {
