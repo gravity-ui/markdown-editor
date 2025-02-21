@@ -3,7 +3,7 @@ import {Plugin} from 'prosemirror-state';
 import {dropPoint} from 'prosemirror-transform';
 import type {EditorView} from 'prosemirror-view';
 
-import type {ExtensionAuto} from '../../../../core';
+import {type ExtensionAuto, getLoggerFromState} from '../../../../core';
 import {isFunction} from '../../../../lodash';
 import type {FileUploadHandler, UploadSuccessItem} from '../../../../utils';
 import {clipboardUtils} from '../../../behavior/Clipboard';
@@ -30,9 +30,15 @@ export const YfmFilePaste: ExtensionAuto<YfmFilePasteOptions> = (builder, opts) 
                 props: {
                     handleDOMEvents: {
                         paste(view, e) {
+                            const logger = getLoggerFromState(view.state);
                             const files = getPastedFiles(e.clipboardData);
                             if (files) {
                                 e.preventDefault();
+                                logger.event({
+                                    event: 'paste-files',
+                                    plugin: 'yfm-file-paste',
+                                    domEvent: 'paste',
+                                });
                                 new YfmFilesPasteUploadProcess(view, files, {
                                     uploadHandler: opts.fileUploadHandler,
                                     needToSetDimensionsForUploadedImages:
@@ -58,6 +64,14 @@ export const YfmFilePaste: ExtensionAuto<YfmFilePasteOptions> = (builder, opts) 
                                 dropPos,
                                 createFakeFileSlice(view.state.schema),
                             );
+
+                            const logger = getLoggerFromState(view.state);
+                            logger.event({
+                                event: 'drop-files',
+                                plugin: 'yfm-file-paste',
+                                domEvent: 'drop',
+                                runProcess: posToInsert !== null,
+                            });
 
                             if (posToInsert !== null) {
                                 new YfmFilesPasteUploadProcess(view, files, {

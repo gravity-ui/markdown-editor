@@ -4,7 +4,7 @@ import {Plugin} from 'prosemirror-state';
 import {dropPoint} from 'prosemirror-transform';
 
 import type {ParseInsertedUrlAsImage} from '../../../../bundle';
-import type {ExtensionAuto} from '../../../../core';
+import {type ExtensionAuto, getLoggerFromState} from '../../../../core';
 import {isFunction} from '../../../../lodash';
 import type {FileUploadHandler} from '../../../../utils';
 import {clipboardUtils} from '../../../behavior/Clipboard';
@@ -43,9 +43,15 @@ export const ImagePaste: ExtensionAuto<ImagePasteOptions> = (builder, opts) => {
                 props: {
                     handleDOMEvents: {
                         paste(view, e) {
+                            const logger = getLoggerFromState(view.state).nested({
+                                plugin: 'image-paste',
+                                domEvent: 'paste',
+                            });
+
                             const files = getPastedImages(e.clipboardData);
                             if (imageUploadHandler && files) {
                                 e.preventDefault();
+                                logger.event({event: 'paste-images'});
                                 new ImagesUploadProcess(
                                     view,
                                     files,
@@ -73,6 +79,7 @@ export const ImagePaste: ExtensionAuto<ImagePasteOptions> = (builder, opts) => {
 
                                 const tr = view.state.tr.replaceSelectionWith(imageNode);
                                 view.dispatch(tr.scrollIntoView());
+                                logger.event({event: 'paste-url-as-image'});
 
                                 return true;
                             }
@@ -99,6 +106,14 @@ export const ImagePaste: ExtensionAuto<ImagePasteOptions> = (builder, opts) => {
                                 dropPos,
                                 createFakeImageSlice(view.state.schema),
                             );
+
+                            const logger = getLoggerFromState(view.state);
+                            logger.event({
+                                event: 'drop-image',
+                                plugin: 'image-paste',
+                                domEvent: 'drop',
+                                runProcess: posToInsert !== null,
+                            });
 
                             if (posToInsert !== null) {
                                 new ImagesUploadProcess(
