@@ -1,5 +1,13 @@
 # Changelog
 
+## [15.2.0](https://github.com/gravity-ui/markdown-editor/compare/v15.1.0...v15.2.0) (2025-02-21)
+
+
+### Features
+
+* add more event logs ([#650](https://github.com/gravity-ui/markdown-editor/issues/650)) ([9ab291e](https://github.com/gravity-ui/markdown-editor/commit/9ab291eee3c35c618c7acd45d161d456d11f2e11))
+* new logger implementation ([#646](https://github.com/gravity-ui/markdown-editor/issues/646)) ([c0bf2ca](https://github.com/gravity-ui/markdown-editor/commit/c0bf2cafef236dfca80ff9bc81c02c200bbff0db))
+
 ## [15.1.0](https://github.com/gravity-ui/markdown-editor/compare/v15.0.2...v15.1.0) (2025-02-19)
 
 
