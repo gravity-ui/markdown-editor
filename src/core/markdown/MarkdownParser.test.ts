@@ -3,6 +3,7 @@ import type Token from 'markdown-it/lib/token';
 import {type Node, Schema} from 'prosemirror-model';
 import {schema as baseSchema, builders, doc, br as hardBreak, p} from 'prosemirror-test-builder';
 
+import {Logger2} from '../../logger';
 import type {Parser} from '../types/parser';
 
 import {MarkdownParser, MarkdownParserDynamicModifier, type TokenAttrs} from './MarkdownParser';
@@ -21,8 +22,11 @@ const createTestParser = (
             paragraph: {type: 'block', name: 'paragraph'},
             softbreak: {type: 'node', name: 'hard_break'},
         },
-        [],
-        dynamicModifier,
+        {
+            logger: new Logger2().nested({env: 'test'}),
+            pmTransformers: [],
+            dynamicModifier,
+        },
     );
 
 function parseWith(parser: Parser) {

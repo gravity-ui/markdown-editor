@@ -1,7 +1,7 @@
 import type {ExtensionAuto} from '../../../core';
 import {DeflistNode, TableNode} from '../../../extensions/markdown';
 import {CheckboxNode, CutNode, TabsNode, YfmNoteNode} from '../../../extensions/yfm';
-import {logger} from '../../../logger';
+import {type Logger2, globalLogger} from '../../../logger';
 import {Autocomplete, type AutocompleteItemFn} from '../Autocomplete';
 
 import {DecoClassName} from './const';
@@ -14,7 +14,7 @@ export type CommandMenuOptions = {
 };
 
 const getCommandMenuAutocompleteItem =
-    (opts: CommandMenuOptions): AutocompleteItemFn =>
+    (opts: CommandMenuOptions, logger: Logger2.ILogger): AutocompleteItemFn =>
     ({actions}) => ({
         trigger: {
             name: 'command',
@@ -24,6 +24,7 @@ const getCommandMenuAutocompleteItem =
             decorationAttrs: {class: DecoClassName},
         },
         handler: new CommandHandler({
+            logger,
             storage: actions,
             actions: opts.actions,
             // TODO: add commandMenu=false flag to specs:
@@ -41,11 +42,16 @@ const getCommandMenuAutocompleteItem =
 
 export const CommandMenu: ExtensionAuto<CommandMenuOptions> = (builder, opts) => {
     if (!Array.isArray(opts.actions) || opts.actions.length === 0) {
-        logger.info("[CommandMenu extension]: Skip because 'actions' is not an array or is empty");
+        globalLogger.log(
+            "[CommandMenu extension]: Skip because 'actions' is not an array or is empty",
+        );
+        builder.logger.log(
+            "[CommandMenu extension]: Skip because 'actions' is not an array or is empty",
+        );
         return;
     }
     if (!builder.context.has('autocomplete')) {
         builder.use(Autocomplete);
     }
-    builder.context.get('autocomplete')!.add(getCommandMenuAutocompleteItem(opts));
+    builder.context.get('autocomplete')!.add(getCommandMenuAutocompleteItem(opts, builder.logger));
 };

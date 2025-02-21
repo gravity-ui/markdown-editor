@@ -3,12 +3,15 @@ import {SchemaDynamicModifier} from '../../core/SchemaDynamicModifier';
 import {MarkdownParserDynamicModifier} from '../../core/markdown/MarkdownParser';
 import {MarkdownSerializerDynamicModifier} from '../../core/markdown/MarkdownSerializerDynamicModifier';
 import {convertDynamicModifiersConfigs} from '../../core/utils/dynamicModifiers';
+import {Logger2} from '../../logger';
 import {FullSpecsPreset} from '../../presets/full-specs';
 import {MarkupManager} from '../MarkupManager';
 
 import {createDynamicModifiers} from './dynamicModifiers';
 
-const markupManager = new MarkupManager();
+const markupManager = new MarkupManager(
+    new Logger2().nested({env: 'test', module: 'markup-manager'}),
+);
 
 const dynamicModifiersConfig = convertDynamicModifiersConfigs(
     createDynamicModifiers(markupManager),
