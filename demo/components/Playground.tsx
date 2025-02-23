@@ -1,4 +1,4 @@
-import {type CSSProperties, memo, useCallback, useEffect, useState} from 'react';
+import {type CSSProperties, memo, useCallback, useEffect, useMemo, useState} from 'react';
 
 import {defaultOptions} from '@diplodoc/transform/lib/sanitize';
 import {Button, DropdownMenu} from '@gravity-ui/uikit';
@@ -6,6 +6,7 @@ import {Button, DropdownMenu} from '@gravity-ui/uikit';
 import {
     type DirectiveSyntaxValue,
     type FileUploadHandler,
+    Logger2,
     type MarkdownEditorMode,
     MarkdownEditorView,
     type MarkdownEditorViewProps,
@@ -29,6 +30,7 @@ import {getSanitizeYfmHtmlBlock} from '../../src/extensions/additional/YfmHtmlBl
 import type {CodeEditor} from '../../src/markup';
 import type {ToolbarsPreset} from '../../src/modules/toolbars/types';
 import {getPlugins} from '../defaults/md-plugins';
+import {useLogs} from '../hooks/useLogs';
 import useYfmHtmlBlockStyles from '../hooks/useYfmHtmlBlockStyles';
 import {randomDelay} from '../utils/delay';
 import {parseInsertedUrlAsImage} from '../utils/imageUrl';
@@ -86,9 +88,12 @@ export type PlaygroundProps = {
     >;
 
 logger.setLogger({
-    metrics: console.info,
-    action: (data) => console.info(`Action: ${data.action}`, data),
-    ...console,
+    log: (...data) => console.log('[Deprecated logger]', ...data),
+    info: (...data) => console.info('[Deprecated logger]', ...data),
+    warn: (...data) => console.warn('[Deprecated logger]', ...data),
+    error: (...data) => console.error('[Deprecated logger]', ...data),
+    metrics: (...data) => console.info('[Deprecated logger]', ...data),
+    action: (data) => console.info(`[Deprecated logger] Action: ${data.action}`, data),
 });
 
 export const Playground = memo<PlaygroundProps>((props) => {
@@ -142,8 +147,12 @@ export const Playground = memo<PlaygroundProps>((props) => {
         [sanitizeHtml],
     );
 
+    const logger = useMemo(() => new Logger2().nested({env: 'playground'}), []);
+    useLogs(logger);
+
     const mdEditor = useMarkdownEditor(
         {
+            logger,
             preset: 'full',
             wysiwygConfig: {
                 placeholderOptions: placeholderOptions,
