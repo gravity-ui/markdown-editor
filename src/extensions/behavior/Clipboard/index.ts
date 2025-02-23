@@ -11,7 +11,10 @@ export const Clipboard: ExtensionAuto<ClipboardOptions> = (builder, opts) => {
     builder.addPlugin(
         (deps) =>
             clipboard({
-                logger: builder.logger,
+                logger: builder.logger.nested({
+                    module: 'clipboard',
+                    plugin: 'clipboard',
+                }),
                 mdParser: deps.markupParser,
                 textParser: deps.textParser,
                 serializer: deps.serializer,

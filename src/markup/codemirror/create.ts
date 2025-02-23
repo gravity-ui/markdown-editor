@@ -176,6 +176,11 @@ export function createCodemirror(params: CreateCodemirrorParams) {
             paste(event, editor) {
                 if (!event.clipboardData) return;
 
+                const pasteLogger = logger.nested({
+                    domEvent: 'paste',
+                    dataTypes: event.clipboardData.types,
+                });
+
                 const {from} = editor.state.selection.main;
                 const line = editor.state.doc.lineAt(from);
                 const currentLine = line.text;
@@ -185,6 +190,7 @@ export function createCodemirror(params: CreateCodemirrorParams) {
                 const yfmContent = event.clipboardData.getData(DataTransferType.Yfm);
                 if (yfmContent) {
                     event.preventDefault();
+                    logger.event({event: 'paste-markup'});
                     const reindentedYfmContent = smartReindent(yfmContent, currentLine);
                     editor.dispatch(editor.state.replaceSelection(reindentedYfmContent));
                     return;
@@ -209,12 +215,13 @@ export function createCodemirror(params: CreateCodemirrorParams) {
                         // especially with invalid HTML or weird DOM parsing errors.
                         // If something goes wrong, I just want to fall back to the "default pasting"
                         // rather than break the entire experience for the user.
-                        logger.error(e);
+                        pasteLogger.error(e, {event: 'parse-html-to-md'});
                         globalLogger.error(e);
                     }
 
                     if (parsedMarkdownMarkup !== undefined) {
                         event.preventDefault();
+                        logger.event({event: 'paste-parsed-html'});
                         const reindentedHtmlContent = smartReindent(
                             parsedMarkdownMarkup,
                             currentLine,
@@ -232,7 +239,7 @@ export function createCodemirror(params: CreateCodemirrorParams) {
 
                     if (imageUrl) {
                         event.preventDefault();
-
+                        logger.event({event: 'paste-url-as-image'});
                         insertImages([
                             {
                                 url: imageUrl,
