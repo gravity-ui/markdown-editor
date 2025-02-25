@@ -52,6 +52,7 @@ function Editor({onSubmit}) {
 ```
 
 Полезные ссылки:
+
 - [Как подключить редактор в Create React App](https://preview.gravity-ui.com/md-editor/?path=/docs/docs-install-create-react-app--docs)
 - [Как добавить предварительный просмотр для режима разметки](https://preview.gravity-ui.com/md-editor/?path=/docs/docs-develop-preview--docs)
 - [Как добавить расширение HTML](https://preview.gravity-ui.com/md-editor/?path=/docs/docs-connect-html-block--docs)
@@ -83,6 +84,31 @@ configure({
 
 Обязательно сделайте вызов `configure()` из [UIKit](https://github.com/gravity-ui/uikit?tab=readme-ov-file#i18n) и других UI-библиотек.
 
+### Система z-index
+
+В этом проекте используется система z-index для управления слоями элементов. Ниже приведены определенные уровни и их значения:
+
+| level               | z-index value |
+| ------------------- | ------------- |
+| background          | -1            |
+| default             | 0             |
+| forefront           | 1             |
+| img-settings-button | 2             |
+| table-view-button   | 100           |
+| table-cell-button   | 110           |
+| sticky-toolbar      | 990           |
+
+### Использование
+
+Для применения z-index в компонентах используйте миксин z-index, передавая соответствующий ключ в качестве аргумента:
+
+```scss
+@use 'styles/mixins.scss';
+
+.tooltip {
+  @include mixins.z-index('forefront');
+}
+```
 
 ### Участие в разработке
 
