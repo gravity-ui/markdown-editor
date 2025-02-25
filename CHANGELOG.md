@@ -1,5 +1,12 @@
 # Changelog
 
+## [15.2.1](https://github.com/gravity-ui/markdown-editor/compare/v15.2.0...v15.2.1) (2025-02-25)
+
+
+### Bug Fixes
+
+* added file extensions to full-path imports for esm-build ([#651](https://github.com/gravity-ui/markdown-editor/issues/651)) ([2bfcd5d](https://github.com/gravity-ui/markdown-editor/commit/2bfcd5de0ebf66427f733c7cc94327cf34d4ec4e))
+
 ## [15.2.0](https://github.com/gravity-ui/markdown-editor/compare/v15.1.0...v15.2.0) (2025-02-21)
 
 
