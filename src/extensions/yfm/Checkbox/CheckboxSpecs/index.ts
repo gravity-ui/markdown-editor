@@ -1,4 +1,4 @@
-import checkboxPlugin from '@diplodoc/transform/lib/plugins/checkbox';
+import checkboxPlugin from '@diplodoc/transform/lib/plugins/checkbox/index.js';
 import type {NodeSpec} from 'prosemirror-model';
 
 import type {ExtensionAuto, ExtensionNodeSpec} from '../../../../core';
