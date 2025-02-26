@@ -1,6 +1,7 @@
 import {useEffect} from 'react';
 
-import {BaseNode, MarkdownEditorView, useMarkdownEditor} from '../../../src';
+import {BaseNode, MarkdownEditorView, useMarkdownEditor} from 'src/index';
+
 import {PlaygroundLayout} from '../../components/PlaygroundLayout';
 
 import {

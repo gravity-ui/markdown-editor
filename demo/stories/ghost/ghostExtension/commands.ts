@@ -1,4 +1,4 @@
-import type {EditorView} from '../../../../src/cm/view';
+import type {EditorView} from '#cm/view';
 
 import {HideGhostPopupEffect, ShowGhostPopupEffect} from './effects';
 

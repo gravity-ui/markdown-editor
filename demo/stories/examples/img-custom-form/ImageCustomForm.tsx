@@ -3,7 +3,8 @@ import {memo} from 'react';
 import {FilePlus} from '@gravity-ui/icons';
 import {Button, FilePreview, Icon, useFileInput} from '@gravity-ui/uikit';
 
-import {type ImgSizeOptions, MarkdownEditorView, useMarkdownEditor} from '../../../../src';
+import {type ImgSizeOptions, MarkdownEditorView, useMarkdownEditor} from 'src/index';
+
 import {PlaygroundLayout} from '../../../components/PlaygroundLayout';
 import {randomDelay} from '../../../utils/delay';
 

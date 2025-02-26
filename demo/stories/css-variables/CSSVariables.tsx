@@ -1,6 +1,7 @@
 import {memo} from 'react';
 
-import {MarkdownEditorView, useMarkdownEditor} from '../../../src';
+import {MarkdownEditorView, useMarkdownEditor} from 'src/index';
+
 import {PlaygroundLayout} from '../../components/PlaygroundLayout';
 import {markup} from '../../defaults/content';
 

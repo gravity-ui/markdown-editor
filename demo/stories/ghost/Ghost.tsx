@@ -1,6 +1,6 @@
-import cloneDeep from 'lodash/cloneDeep';
+import {MarkdownEditorView, markupToolbarConfigs, useMarkdownEditor} from 'src/index';
+import {cloneDeep} from 'src/lodash';
 
-import {MarkdownEditorView, markupToolbarConfigs, useMarkdownEditor} from '../../../src';
 import {PlaygroundLayout} from '../../components/PlaygroundLayout';
 import {useLogs} from '../../hooks/useLogs';
 
