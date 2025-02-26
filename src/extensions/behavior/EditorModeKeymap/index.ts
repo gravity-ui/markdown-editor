@@ -17,9 +17,22 @@ export const EditorModeKeymap: ExtensionAuto<EditorModeKeymapOptions> = (builder
     builder.addKeymap(() => {
         const bindings: Keymap = {};
         const {onCancel, onSubmit} = opts;
+        const logger = builder.logger.nested({
+            source: 'keymap',
+        });
 
-        if (onCancel) bindings[f.toPM(A.Cancel)!] = () => onCancel();
-        if (onSubmit) bindings[f.toPM(A.Submit)!] = () => onSubmit();
+        if (onCancel)
+            bindings[f.toPM(A.Cancel)!] = () => {
+                const result = onCancel();
+                logger.event({event: 'cancel', result});
+                return result;
+            };
+        if (onSubmit)
+            bindings[f.toPM(A.Submit)!] = () => {
+                const result = onSubmit();
+                logger.event({event: 'submit', result});
+                return result;
+            };
 
         bindings[f.toPM(A.__debug)!] = () => {
             debug();

@@ -1,6 +1,6 @@
 import {Plugin, TextSelection, type Transaction} from 'prosemirror-state';
 
-import type {ExtensionDeps, Parser} from '../../../core';
+import {type ExtensionDeps, type Parser, getLoggerFromState} from '../../../core';
 import {isNodeSelection, isTextSelection} from '../../../utils/selection';
 import {DataTransferType, isIosSafariShare} from '../../behavior/Clipboard/utils';
 import {imageType} from '../Image';
@@ -12,6 +12,11 @@ export function linkPasteEnhance({markupParser: parser}: ExtensionDeps) {
         props: {
             handleDOMEvents: {
                 paste(view, e): boolean {
+                    const logger = getLoggerFromState(view.state).nested({
+                        plugin: 'link-paste-enhance',
+                        domEvent: 'paste',
+                    });
+
                     const {state, dispatch} = view;
                     const sel = state.selection;
                     let tr: Transaction | null = null;
@@ -34,6 +39,9 @@ export function linkPasteEnhance({markupParser: parser}: ExtensionDeps) {
                                     ]),
                                     false,
                                 );
+                                logger.event({
+                                    event: 'paste-url',
+                                });
                             }
                         } else if ($from.sameParent($to)) {
                             const url = getUrl(e.clipboardData, parser);
@@ -46,6 +54,9 @@ export function linkPasteEnhance({markupParser: parser}: ExtensionDeps) {
                                     }),
                                 );
                                 tr.setSelection(TextSelection.create(tr.doc, $to.pos));
+                                logger.event({
+                                    event: 'paste-url-on-text',
+                                });
                             }
                         }
                     }

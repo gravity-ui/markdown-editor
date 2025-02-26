@@ -33,6 +33,10 @@ export class EventEmitter<T extends object = UnkObj> implements Emitter<T>, Rece
     emit<K extends keyof T>(type: K, value: T[K]): void {
         this._listeners.get(type)?.forEach((listener) => listener(value));
     }
+
+    countOf<K extends keyof T>(type: K): number {
+        return this._listeners.get(type)?.length || 0;
+    }
 }
 
 export class SafeEventEmitter<T extends object = UnkObj> extends EventEmitter<T> {

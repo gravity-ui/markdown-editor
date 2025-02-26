@@ -3,7 +3,7 @@ import {type EditorState, Plugin, type Selection} from 'prosemirror-state';
 import type {EditorView} from 'prosemirror-view';
 
 import {type Parser, type Serializer, trackTransactionMetrics} from '../../../core';
-import {logger} from '../../../logger';
+import {type Logger2, globalLogger} from '../../../logger';
 import '../../../types/spec';
 import {tryCatch} from '../../../utils/helpers';
 import {isNodeSelection, isTextSelection, isWholeSelection} from '../../../utils/selection';
@@ -14,6 +14,7 @@ import {isInsideCode} from './code';
 import {DataTransferType, extractTextContentFromHtml, isIosSafariShare} from './utils';
 
 export type ClipboardPluginOptions = {
+    logger: Logger2.ILogger;
     mdParser: Parser;
     textParser: Parser;
     serializer: Serializer;
@@ -21,6 +22,7 @@ export type ClipboardPluginOptions = {
 };
 
 export const clipboard = ({
+    logger,
     textParser,
     mdParser,
     serializer,
@@ -58,6 +60,11 @@ export const clipboard = ({
                 paste(view, e) {
                     if (!e.clipboardData) return false;
 
+                    const pasteLogger = logger.nested({
+                        domEvent: 'paste',
+                        dataTypes: e.clipboardData.types,
+                    });
+
                     let data: string;
                     let isPasteHandled = false;
 
@@ -82,6 +89,9 @@ export const clipboard = ({
                                 {clipboardDataFormat: DataTransferType.UriList},
                             ),
                         );
+                        pasteLogger.event({
+                            event: 'paste-uri-list',
+                        });
                         isPasteHandled = true;
                         e.preventDefault();
                         return true;
@@ -104,9 +114,15 @@ export const clipboard = ({
                                         {clipboardDataFormat: DataTransferType.Html},
                                     ),
                                 );
+                                pasteLogger.event({
+                                    event: 'paste-parsed-html',
+                                });
                                 isPasteHandled = true;
                             } else {
-                                logger.error(res.error);
+                                globalLogger.error(res.error);
+                                pasteLogger.error(res.error, {
+                                    event: 'parse-html',
+                                });
                                 console.error(res.error);
                             }
                         } else return false; // default html pasting
@@ -131,6 +147,10 @@ export const clipboard = ({
                             const schema: Schema = view.state.schema;
                             const insideCodeData = e.clipboardData.getData(DataTransferType.Text);
 
+                            pasteLogger.event({
+                                event: 'paste-text-to-code',
+                                codeType,
+                            });
                             view.dispatch(
                                 trackTransactionMetrics(
                                     view.state.tr.replaceSelectionWith(
@@ -150,6 +170,10 @@ export const clipboard = ({
                             if (res.success) {
                                 const docNode = res.result;
                                 const slice = getSliceFromMarkupFragment(docNode.content);
+                                pasteLogger.event({
+                                    event: 'paste-parsed-content',
+                                    dataFormat,
+                                });
                                 view.dispatch(
                                     trackTransactionMetrics(
                                         view.state.tr.replaceSelection(slice),
@@ -159,13 +183,20 @@ export const clipboard = ({
                                 );
                                 isPasteHandled = true;
                             } else {
-                                logger.error(res.error);
+                                globalLogger.error(res.error);
+                                pasteLogger.error(res.error, {
+                                    event: 'paste',
+                                    dataFormat,
+                                });
                                 console.error(res.error);
                             }
                         }
                     }
 
                     if (e.clipboardData.files.length && pasteFileHandler) {
+                        pasteLogger.event({
+                            event: 'paste-files',
+                        });
                         for (const file of Array.from(e.clipboardData.files)) {
                             pasteFileHandler(file);
                         }

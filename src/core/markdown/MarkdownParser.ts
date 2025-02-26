@@ -3,7 +3,7 @@ import type MarkdownIt from 'markdown-it';
 import type Token from 'markdown-it/lib/token';
 import {Mark, type MarkType, type Node, type NodeType, type Schema} from 'prosemirror-model';
 
-import {logger} from '../../logger';
+import {type Logger2, logger} from '../../logger';
 import type {Parser, ParserToken} from '../types/parser';
 
 import {ProseMirrorTransformer, type TransformFn} from './ProseMirrorTransformer';
@@ -27,6 +27,12 @@ function cropNodeName(tokName: string, openSuffix: string, closeSuffix: string):
     return tokName.replace(regex, '');
 }
 
+type MarkdownParserOptions = {
+    logger: Logger2.ILogger;
+    pmTransformers: TransformFn[];
+    dynamicModifier?: MarkdownParserDynamicModifier;
+};
+
 export class MarkdownParser implements Parser {
     schema: Schema;
     stack: Array<{type: NodeType; attrs?: TokenAttrs; content: Array<Node>}> = [];
@@ -36,20 +42,23 @@ export class MarkdownParser implements Parser {
     pmTransformers: TransformFn[];
     dynamicModifier: MarkdownParserDynamicModifier | null;
 
+    private logger: Logger2.ILogger;
+
     constructor(
         schema: Schema,
         tokenizer: MarkdownIt,
         tokens: Record<string, ParserToken>,
-        pmTransformers: TransformFn[],
-        dynamicModifier?: MarkdownParserDynamicModifier,
+        opts: MarkdownParserOptions,
     ) {
         this.schema = schema;
 
         this.marks = Mark.none;
         this.tokens = tokens;
         this.tokenizer = tokenizer;
-        this.pmTransformers = pmTransformers;
-        this.dynamicModifier = dynamicModifier ?? null;
+        this.pmTransformers = opts.pmTransformers;
+        this.dynamicModifier = opts.dynamicModifier ?? null;
+
+        this.logger = opts.logger.nested({module: 'markdown-parser'});
     }
 
     validateLink(url: string): boolean {
@@ -83,6 +92,7 @@ export class MarkdownParser implements Parser {
             } catch (err) {
                 const e = err as Error;
                 e.message = 'Unable to parse your markup. Please check for errors. ' + e.message;
+                this.logger.error(e);
                 throw e;
             }
 
@@ -100,6 +110,7 @@ export class MarkdownParser implements Parser {
             return doc ? pmTransformer.transform(doc) : this.schema.topNodeType.createAndFill()!;
         } finally {
             logger.metrics({component: 'parser', event: 'parse', duration: Date.now() - time});
+            this.logger.metrics({component: 'parser', event: 'parse', duration: Date.now() - time});
         }
     }
 

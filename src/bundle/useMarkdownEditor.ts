@@ -3,7 +3,7 @@ import {useLayoutEffect, useMemo} from 'react';
 import type {Extension} from '../core';
 import {getPMTransformers} from '../core/markdown/ProseMirrorTransformer/getTransformers';
 import {ReactRenderStorage} from '../extensions';
-import {logger} from '../logger';
+import {Logger2, globalLogger} from '../logger';
 import {DirectiveSyntaxContext} from '../utils/directive';
 
 import {EditorImpl, type EditorInt} from './Editor';
@@ -29,6 +29,7 @@ export function useMarkdownEditor(
             experimental = {},
             markupConfig = {},
             wysiwygConfig = {},
+            logger = new Logger2(),
         } = props;
 
         const preset: MarkdownEditorPreset = props.preset ?? 'full';
@@ -74,6 +75,7 @@ export function useMarkdownEditor(
 
         return new EditorImpl({
             ...props,
+            logger,
             preset,
             renderStorage,
             directiveSyntax,
@@ -92,7 +94,8 @@ export function useMarkdownEditor(
 
     useLayoutEffect(() => {
         function onToolbarAction({editorMode, id}: {editorMode: MarkdownEditorMode; id: string}) {
-            logger.action({mode: editorMode, source: 'toolbar', action: id});
+            globalLogger.action({mode: editorMode, source: 'toolbar', action: id});
+            editor.logger.action({mode: editorMode, source: 'toolbar', action: id});
         }
 
         editor.on('toolbar-action', onToolbarAction);

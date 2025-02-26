@@ -1,4 +1,5 @@
-/* eslint-disable @typescript-eslint/no-loop-func */
+import {Logger2} from '../../../logger';
+
 import {MainHandler, type MainHandlerConfig} from './handler';
 import type {AutocompleteAction, AutocompleteHandler, AutocompleteTrigger} from './types';
 
@@ -12,6 +13,8 @@ const methodsWithAction = new Set<keyof AutocompleteHandler>([
 
 describe('Autocomplete', () => {
     describe('MainHandler', () => {
+        const logger = new Logger2().nested({env: 'test'});
+
         for (const method of methodsWithAction) {
             it(`should call ${method} only on the right handlers`, () => {
                 const handler1: AutocompleteHandler = {[method]: jest.fn(() => false)};
@@ -34,7 +37,7 @@ describe('Autocomplete', () => {
                     {handler: handler2, trigger: trigger2},
                     {handler: handler3, trigger: trigger3},
                 ];
-                const mainHandler = new MainHandler(config);
+                const mainHandler = new MainHandler(config, logger);
 
                 expect(mainHandler[method](action1)).toBe(false);
                 expect(handler1[method]).toBeCalledTimes(1);
@@ -61,7 +64,7 @@ describe('Autocomplete', () => {
                 {handler: handler2, trigger},
                 {handler: handler3, trigger},
             ];
-            const mainHandler = new MainHandler(config);
+            const mainHandler = new MainHandler(config, logger);
 
             mainHandler.onDestroy();
 

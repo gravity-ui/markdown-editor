@@ -5,7 +5,6 @@ import cloneDeep from 'lodash/cloneDeep';
 import {
     MarkdownEditorView,
     gptExtension,
-    logger,
     mGptExtension,
     mGptToolbarItem,
     markupToolbarConfigs,
@@ -14,15 +13,10 @@ import {
     wysiwygToolbarConfigs,
 } from '../../../src';
 import {PlaygroundLayout} from '../../components/PlaygroundLayout';
+import {useLogs} from '../../hooks/useLogs';
 
 import {initialMdContent} from './content';
 import {gptWidgetProps} from './gptWidgetOptions';
-
-logger.setLogger({
-    metrics: console.info,
-    action: (data) => console.info(`Action: ${data.action}`, data),
-    ...console,
-});
 
 const wToolbarConfig = cloneDeep(wysiwygToolbarConfigs.wToolbarConfig);
 wToolbarConfig.unshift([wGptItemData]);
@@ -61,6 +55,8 @@ export const GPT = memo(() => {
             },
         },
     });
+
+    useLogs(editor.logger);
 
     return (
         <PlaygroundLayout
