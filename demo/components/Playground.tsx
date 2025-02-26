@@ -3,6 +3,13 @@ import {type CSSProperties, memo, useCallback, useEffect, useMemo, useState} fro
 import {defaultOptions} from '@diplodoc/transform/lib/sanitize';
 import {Button, DropdownMenu} from '@gravity-ui/uikit';
 
+import type {ToolbarActionData} from 'src/bundle/Editor';
+import type {Extension} from 'src/cm/state';
+import {FoldingHeading} from 'src/extensions/additional/FoldingHeading';
+import {Math} from 'src/extensions/additional/Math';
+import {Mermaid} from 'src/extensions/additional/Mermaid';
+import {YfmHtmlBlock} from 'src/extensions/additional/YfmHtmlBlock';
+import {getSanitizeYfmHtmlBlock} from 'src/extensions/additional/YfmHtmlBlock/utils';
 import {
     type DirectiveSyntaxValue,
     type FileUploadHandler,
@@ -19,16 +26,10 @@ import {
     logger,
     useMarkdownEditor,
     wysiwygToolbarConfigs,
-} from '../../src';
-import type {ToolbarActionData} from '../../src/bundle/Editor';
-import type {Extension} from '../../src/cm/state';
-import {FoldingHeading} from '../../src/extensions/additional/FoldingHeading';
-import {Math} from '../../src/extensions/additional/Math';
-import {Mermaid} from '../../src/extensions/additional/Mermaid';
-import {YfmHtmlBlock} from '../../src/extensions/additional/YfmHtmlBlock';
-import {getSanitizeYfmHtmlBlock} from '../../src/extensions/additional/YfmHtmlBlock/utils';
-import type {CodeEditor} from '../../src/markup';
-import type {ToolbarsPreset} from '../../src/modules/toolbars/types';
+} from 'src/index';
+import type {CodeEditor} from 'src/markup';
+import type {ToolbarsPreset} from 'src/modules/toolbars/types';
+
 import {getPlugins} from '../defaults/md-plugins';
 import {useLogs} from '../hooks/useLogs';
 import useYfmHtmlBlockStyles from '../hooks/useYfmHtmlBlockStyles';

@@ -1,15 +1,15 @@
 import {useLayoutEffect} from 'react';
 
-import type {EditorView} from 'prosemirror-view';
 import {useEffectOnce, useUpdate} from 'react-use';
 
+import type {EditorView} from '#pm/view';
 import {
     type ClassNameProps,
     type MarkdownEditorInstance,
     isNodeSelection,
     isTextSelection,
     isWholeSelection,
-} from '../../src';
+} from 'src/index';
 
 export type WysiwygSelectionProps = ClassNameProps & {
     editor: MarkdownEditorInstance;
