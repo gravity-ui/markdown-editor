@@ -11,7 +11,7 @@ import {Decoration, DecorationSet} from 'prosemirror-view';
 
 import type {ExtensionAuto} from '../../../../core';
 import {capitalize} from '../../../../lodash';
-import {logger} from '../../../../logger';
+import {globalLogger} from '../../../../logger';
 import {CodeBlockNodeAttr, codeBlockNodeName, codeBlockType} from '../CodeBlockSpecs';
 
 import {codeLangSelectTooltipViewCreator} from './TooltipPlugin';
@@ -45,7 +45,8 @@ export const CodeBlockHighlight: ExtensionAuto<CodeBlockHighlightOptions> = (bui
         langs = {...all, ...opts.langs};
         lowlight = create(langs);
     } catch (e) {
-        logger.info('Skip code_block highlighting');
+        globalLogger.info('Skip code_block highlighting');
+        builder.logger.log('Skip code_block highlighting');
         return;
     }
 

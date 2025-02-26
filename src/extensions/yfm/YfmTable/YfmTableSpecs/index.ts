@@ -1,5 +1,5 @@
-import log from '@diplodoc/transform/lib/log';
-import yfmTable from '@diplodoc/transform/lib/plugins/table';
+import log from '@diplodoc/transform/lib/log.js';
+import yfmTable from '@diplodoc/transform/lib/plugins/table/index.js';
 
 import type {ExtensionWithOptions} from '../../../../core';
 

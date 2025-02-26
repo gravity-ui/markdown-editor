@@ -14,7 +14,7 @@ import {useEnsuredForwardedRef, useKey, useUpdate} from 'react-use';
 
 import {type ClassNameProps, cn} from '../classname';
 import {i18n} from '../i18n/bundle';
-import {logger} from '../logger';
+import {globalLogger} from '../logger';
 import type {ToolbarsPreset} from '../modules/toolbars/types';
 import {useBooleanState, useSticky} from '../react-utils';
 import {isMac} from '../utils';
@@ -241,7 +241,8 @@ export const MarkdownEditorView = forwardRef<HTMLDivElement, MarkdownEditorViewP
         return (
             <ErrorBoundary
                 onError={(e) => {
-                    logger.error(e);
+                    globalLogger.error(e);
+                    editor.logger.error(e);
                 }}
                 fallbackRender={({error, resetErrorBoundary}) => {
                     toaster.add({

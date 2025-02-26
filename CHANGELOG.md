@@ -1,5 +1,35 @@
 # Changelog
 
+## [15.2.0](https://github.com/gravity-ui/markdown-editor/compare/v15.1.0...v15.2.0) (2025-02-21)
+
+
+### Features
+
+* add more event logs ([#650](https://github.com/gravity-ui/markdown-editor/issues/650)) ([9ab291e](https://github.com/gravity-ui/markdown-editor/commit/9ab291eee3c35c618c7acd45d161d456d11f2e11))
+* new logger implementation ([#646](https://github.com/gravity-ui/markdown-editor/issues/646)) ([c0bf2ca](https://github.com/gravity-ui/markdown-editor/commit/c0bf2cafef236dfca80ff9bc81c02c200bbff0db))
+
+## [15.1.0](https://github.com/gravity-ui/markdown-editor/compare/v15.0.2...v15.1.0) (2025-02-19)
+
+
+### Features
+
+* **ImgSize:** added ability to render custom form in image widget ([#639](https://github.com/gravity-ui/markdown-editor/issues/639)) ([b529453](https://github.com/gravity-ui/markdown-editor/commit/b52945349472656eb0f21c6e6b3f93919126987d))
+
+
+### Bug Fixes
+
+* **ImgSize:** support enableNewImageSizeCalculation in ImageWidget ([#641](https://github.com/gravity-ui/markdown-editor/issues/641)) ([f6a7899](https://github.com/gravity-ui/markdown-editor/commit/f6a7899332adeced9e7bc87447b0ee5a5c19bf7a))
+* **YfmCut:** fixed open state styles for nested cuts ([#643](https://github.com/gravity-ui/markdown-editor/issues/643)) ([25089b3](https://github.com/gravity-ui/markdown-editor/commit/25089b312fddb6486b9e1921bbfa9cdfa3b541ea))
+
+## [15.0.2](https://github.com/gravity-ui/markdown-editor/compare/v15.0.1...v15.0.2) (2025-02-17)
+
+
+### Bug Fixes
+
+* **bundle:** fixed YfmTable serialization inside quotes at any nesting level ([#635](https://github.com/gravity-ui/markdown-editor/issues/635)) ([52b421c](https://github.com/gravity-ui/markdown-editor/commit/52b421c3eeb847685a2c5d8ce113814a6a0cad6c))
+* **ImagePaste:** make image paste priority higher than link to make image link paste working ([#634](https://github.com/gravity-ui/markdown-editor/issues/634)) ([9b98e40](https://github.com/gravity-ui/markdown-editor/commit/9b98e401ccfdf9b9b6617b489e9dbd1e36c3c0c7))
+* **view:** updated cut open logic to use attributes instead of classes due to extension update ([#628](https://github.com/gravity-ui/markdown-editor/issues/628)) ([0985395](https://github.com/gravity-ui/markdown-editor/commit/0985395c0c6586ac9687e7a36356a0123c630e2d))
+
 ## [15.0.1](https://github.com/gravity-ui/markdown-editor/compare/v15.0.0...v15.0.1) (2025-02-12)
 
 

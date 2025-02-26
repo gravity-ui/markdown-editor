@@ -12,6 +12,7 @@ import {
 import type {RendererItem} from '../../../extensions';
 import {type FileUploadHandler, type FileUploadResult, getProportionalSize} from '../../../utils';
 import {FileUploadHandlerFacet} from '../files-upload-facet';
+import {LoggerFacet} from '../logger-facet';
 import {ReactRendererFacet} from '../react-facet';
 
 import {IMG_MAX_HEIGHT, SUCCESS_UPLOAD_REMOVE_TIMEOUT} from './const';
@@ -256,6 +257,13 @@ export const FilesUploadPlugin = ViewPlugin.fromClass(
 
                 const {from, to} = view.state.selection.main;
 
+                view.state.facet(LoggerFacet).event({
+                    domEvent: 'paste',
+                    event: 'paste-files',
+                    plugin: 'files-upload',
+                    dataTypes: event.clipboardData.types,
+                });
+
                 view.dispatch({
                     selection: {anchor: from},
                     effects: AddUploadWidgetEffect.of({files, pos: from}),
@@ -269,6 +277,13 @@ export const FilesUploadPlugin = ViewPlugin.fromClass(
 
                 const files = getTransferFiles(event.dataTransfer);
                 if (!files) return false;
+
+                view.state.facet(LoggerFacet).event({
+                    domEvent: 'drop',
+                    event: 'drop-files',
+                    plugin: 'files-upload',
+                    dataTypes: event.dataTransfer.types,
+                });
 
                 const pos = this.view.posAtCoords(event, false);
                 view.dispatch({

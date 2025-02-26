@@ -10,7 +10,7 @@ import {imageType, normalizeUrlFactory} from '../../../markdown';
 import {ImgSizeAttr} from '../../../specs';
 import {ImagesUploadProcess} from '../ImagePaste/upload';
 
-import {FilePlaceholder, type FilePlaceholderProps} from './view';
+import {ImagePlaceholder, type ImagePlaceholderProps, type RenderImageWidgetFormFn} from './view';
 
 export const addWidget = (
     tr: Transaction,
@@ -25,6 +25,8 @@ export const removeWidget = removeDecoration;
 export type ImageWidgetDescriptorOpts = {
     needToSetDimensionsForUploadedImages: boolean;
     uploadImages?: FileUploadHandler;
+    enableNewImageSizeCalculation?: boolean;
+    renderImageForm?: RenderImageWidgetFormFn;
 };
 
 class ImageWidgetDescriptor extends ReactWidgetDescriptor {
@@ -32,6 +34,8 @@ class ImageWidgetDescriptor extends ReactWidgetDescriptor {
     private readonly deps;
     private readonly uploadImages;
     private readonly needToSetDimensionsForUploadedImages: boolean;
+    private readonly enableNewImageSizeCalculation?: boolean;
+    private readonly renderImageForm: RenderImageWidgetFormFn | undefined;
 
     private widgetHandler: ImageWidgetHandler | null = null;
 
@@ -40,7 +44,9 @@ class ImageWidgetDescriptor extends ReactWidgetDescriptor {
         this.domElem = document.createElement('span');
         this.deps = deps;
         this.uploadImages = opts.uploadImages;
+        this.renderImageForm = opts.renderImageForm;
         this.needToSetDimensionsForUploadedImages = opts.needToSetDimensionsForUploadedImages;
+        this.enableNewImageSizeCalculation = opts.enableNewImageSizeCalculation;
     }
 
     getWidgetHandler(view: EditorView, getPos: () => number): ImageWidgetHandler {
@@ -51,7 +57,9 @@ class ImageWidgetDescriptor extends ReactWidgetDescriptor {
                     getPos,
                     decoId: this.id,
                     uploadImages: this.uploadImages,
+                    renderImageForm: this.renderImageForm,
                     needToSetDimensionsForUploadedImages: this.needToSetDimensionsForUploadedImages,
+                    enableNewImageSizeCalculation: this.enableNewImageSizeCalculation,
                 },
                 this.deps,
             );
@@ -79,7 +87,9 @@ type ImageWidgetHandlerProps = {
     view: EditorView;
     getPos: () => number;
     uploadImages?: FileUploadHandler;
+    renderImageForm?: RenderImageWidgetFormFn;
     needToSetDimensionsForUploadedImages: boolean;
+    enableNewImageSizeCalculation?: boolean;
 };
 
 class ImageWidgetHandler {
@@ -90,6 +100,8 @@ class ImageWidgetHandler {
     private readonly uploadImages;
     private readonly normalizeUrl;
     private readonly needToSetDimensionsForUploadedImages: boolean;
+    private readonly enableNewImageSizeCalculation?: boolean;
+    private readonly renderImageForm: RenderImageWidgetFormFn | undefined;
 
     private cancelled = false;
 
@@ -99,7 +111,9 @@ class ImageWidgetHandler {
             view,
             getPos,
             uploadImages,
+            renderImageForm,
             needToSetDimensionsForUploadedImages,
+            enableNewImageSizeCalculation,
         }: ImageWidgetHandlerProps,
         deps: ExtensionDeps,
     ) {
@@ -108,7 +122,9 @@ class ImageWidgetHandler {
         this.getPos = getPos;
         this.uploadImages = uploadImages;
         this.normalizeUrl = normalizeUrlFactory(deps);
+        this.renderImageForm = renderImageForm;
         this.needToSetDimensionsForUploadedImages = needToSetDimensionsForUploadedImages;
+        this.enableNewImageSizeCalculation = enableNewImageSizeCalculation;
     }
 
     destruct() {
@@ -119,21 +135,22 @@ class ImageWidgetHandler {
         this.view = view;
         this.getPos = getPos;
         return (
-            <FilePlaceholder
+            <ImagePlaceholder
                 onCancel={this.onCancel}
                 onSubmit={this.onSubmit}
                 onAttach={this.uploadImages && this.onAttach}
+                renderForm={this.renderImageForm}
             />
         );
     }
 
-    private onCancel: FilePlaceholderProps['onCancel'] = () => {
+    private onCancel: ImagePlaceholderProps['onCancel'] = () => {
         this.cancelled = true;
         this.view.dispatch(removeDecoration(this.view.state.tr, this.decoId));
         this.view.focus();
     };
 
-    private onSubmit: FilePlaceholderProps['onSubmit'] = (params) => {
+    private onSubmit: ImagePlaceholderProps['onSubmit'] = (params) => {
         if (this.cancelled) return;
 
         const url = this.normalizeUrl(params.url)?.url;
@@ -151,12 +168,13 @@ class ImageWidgetHandler {
         this.insertNodes([node]);
     };
 
-    private onAttach: FilePlaceholderProps['onAttach'] = async (files) => {
+    private onAttach: ImagePlaceholderProps['onAttach'] = async (files) => {
         if (this.cancelled || !this.uploadImages) return;
 
         const {view} = this;
         new ImagesUploadProcess(view, files, this.uploadImages, this.getPos(), {
             needDimensions: this.needToSetDimensionsForUploadedImages,
+            enableNewImageSizeCalculation: this.enableNewImageSizeCalculation,
         }).run();
         view.dispatch(removeWidget(view.state.tr, this.decoId));
         view.focus();

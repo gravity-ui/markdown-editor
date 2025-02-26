@@ -6,7 +6,6 @@ import {
     MarkdownEditorView,
     type MarkupString,
     type RenderPreview,
-    logger,
     useMarkdownEditor,
 } from '../../../src';
 import type {ToolbarsPreset} from '../../../src/modules/toolbars/types';
@@ -17,6 +16,7 @@ import {WysiwygSelection} from '../../components/PMSelection';
 import {WysiwygDevTools} from '../../components/ProseMirrorDevTools';
 import {SplitModePreview} from '../../components/SplitModePreview';
 import {plugins} from '../../defaults/md-plugins';
+import {useLogs} from '../../hooks/useLogs';
 import {block} from '../../utils/cn';
 import {randomDelay} from '../../utils/delay';
 import {parseInsertedUrlAsImage} from '../../utils/imageUrl';
@@ -42,12 +42,6 @@ export type PresetDemoProps = {
     height?: React.CSSProperties['height'];
     toolbarsPreset?: ToolbarsPreset;
 };
-
-logger.setLogger({
-    metrics: console.info,
-    action: (data) => console.info(`Action: ${data.action}`, data),
-    ...console,
-});
 
 export const Preset = memo<PresetDemoProps>((props) => {
     const {
@@ -108,6 +102,8 @@ export const Preset = memo<PresetDemoProps>((props) => {
             parseInsertedUrlAsImage,
         },
     });
+
+    useLogs(mdEditor.logger);
 
     useEffect(() => {
         function onChange() {

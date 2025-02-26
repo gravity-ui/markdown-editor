@@ -1,6 +1,7 @@
 import type {Node} from 'prosemirror-model';
 import {v4} from 'uuid';
 
+import type {Logger2} from '../logger';
 import {SafeEventEmitter} from '../utils';
 
 export interface IMarkupManager {
@@ -10,11 +11,6 @@ export interface IMarkupManager {
     getNode(id: string): Node | null;
     reset(): void;
     on<K extends keyof Events>(event: K, listener: (value: Events[K]) => void): void;
-}
-
-export interface Logger {
-    log(message: string): void;
-    error(message: string): void;
 }
 
 interface Events {
@@ -28,9 +24,9 @@ export class MarkupManager extends SafeEventEmitter<Events> implements IMarkupMa
     private _nodes: Map<string, Node> = new Map();
     private _namespace: string;
 
-    private readonly logger?: Logger;
+    private readonly logger: Logger2.ILogger;
 
-    constructor(logger?: Logger) {
+    constructor(logger: Logger2.ILogger) {
         super();
         this.logger = logger;
         this._namespace = v4();
@@ -41,13 +37,13 @@ export class MarkupManager extends SafeEventEmitter<Events> implements IMarkupMa
      */
     setMarkup(id: string, rawMarkup: string): void {
         if (typeof rawMarkup !== 'string') {
-            this.logger?.error('[MarkupManager] rawMarkup must be a string');
+            this.logger.warn('[MarkupManager] rawMarkup must be a string');
             return;
         }
         this._markups.set(id, rawMarkup);
 
         this.emit('markupChanged', {id, rawMarkup});
-        this.logger?.log(`[MarkupManager] Raw markup for ID ${id} set successfully`);
+        this.logger.log(`[MarkupManager] Raw markup for ID ${id} set successfully`);
     }
 
     /**
@@ -55,13 +51,13 @@ export class MarkupManager extends SafeEventEmitter<Events> implements IMarkupMa
      */
     setNode(id: string, node: Node): void {
         if (!node) {
-            this.logger?.error('[MarkupManager] Node must be a valid ProseMirror Node');
+            this.logger.warn('[MarkupManager] Node must be a valid ProseMirror Node');
             return;
         }
         this._nodes.set(id, node);
 
         this.emit('nodeChanged', {id, node});
-        this.logger?.log(`[MarkupManager] Node for ID ${id} set successfully`);
+        this.logger.log(`[MarkupManager] Node for ID ${id} set successfully`);
     }
 
     /**
@@ -90,6 +86,6 @@ export class MarkupManager extends SafeEventEmitter<Events> implements IMarkupMa
         this._nodes.clear();
 
         this.emit('reset', {});
-        this.logger?.log('[MarkupManager] MarkupManager has been reset');
+        this.logger.log('[MarkupManager] MarkupManager has been reset');
     }
 }

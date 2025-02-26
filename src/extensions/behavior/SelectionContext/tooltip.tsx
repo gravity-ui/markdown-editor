@@ -5,7 +5,7 @@ import type {EditorView} from 'prosemirror-view';
 
 import type {ActionStorage} from '../../../core';
 import {isFunction} from '../../../lodash';
-import {logger} from '../../../logger';
+import {type Logger2, globalLogger} from '../../../logger';
 import {ErrorLoggerBoundary} from '../../../react-utils/ErrorBoundary';
 import {Toolbar} from '../../../toolbar';
 import type {
@@ -49,6 +49,7 @@ export type ContextConfig = ContextGroupData[];
 export class TooltipView {
     #isTooltipOpen = false;
 
+    private logger: Logger2.ILogger;
     private actions: ActionStorage;
     private menuConfig: ContextConfig;
 
@@ -56,7 +57,8 @@ export class TooltipView {
     private baseProps: SelectionTooltipBaseProps = {show: false, poppupProps: {}};
     private _tooltipRenderItem: RendererItem | null = null;
 
-    constructor(actions: ActionStorage, menuConfig: ContextConfig) {
+    constructor(actions: ActionStorage, menuConfig: ContextConfig, logger: Logger2.ILogger) {
+        this.logger = logger;
         this.actions = actions;
         this.menuConfig = menuConfig;
     }
@@ -96,7 +98,10 @@ export class TooltipView {
             focus: () => this.view.focus(),
             data: this.getFilteredConfig(),
             editor: this.actions,
-            onClick: (id) => logger.action({mode: 'wysiwyg', source: 'context-menu', action: id}),
+            onClick: (id) => {
+                globalLogger.action({mode: 'wysiwyg', source: 'context-menu', action: id});
+                this.logger.action({source: 'context-menu', action: id});
+            },
         };
     }
 

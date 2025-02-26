@@ -1,4 +1,4 @@
-import log from '@diplodoc/transform/lib/log';
+import log from '@diplodoc/transform/lib/log.js';
 
 import type {ExtensionAuto} from '../../../../core';
 
