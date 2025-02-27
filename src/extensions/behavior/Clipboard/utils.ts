@@ -1,3 +1,8 @@
+import {Fragment, type Node} from 'prosemirror-model';
+
+import {isListItemNode, isListNode} from 'src/extensions/markdown/Lists/utils';
+import {isEmptyString} from 'src/utils';
+
 /** Сontains all data formats known to us */
 export enum DataTransferType {
     Text = 'text/plain',
@@ -55,4 +60,61 @@ export function extractTextContentFromHtml(html: string) {
     }
 
     return null;
+}
+
+function isListItemEmpty(node: Node): boolean {
+    let isEmpty = true;
+    node.content.forEach((child) => {
+        if (!isEmptyString(child)) {
+            isEmpty = false;
+        }
+    });
+    return isEmpty;
+}
+
+export function trimListItems(fragment: Fragment): Fragment {
+    let modified = false;
+    const newChildren: Node[] = [];
+
+    fragment.forEach((contentNode) => {
+        let result = contentNode;
+
+        if (isListNode(contentNode)) {
+            const itemsArray: Node[] = Array.from(contentNode.content.content);
+            if (itemsArray.length === 0) {
+                return;
+            }
+
+            const initialStart = 0;
+            const initialEnd = itemsArray.length - 1;
+            let start = initialStart;
+            let end = initialEnd;
+
+            while (start <= end) {
+                if (isListItemNode(itemsArray[start])) {
+                    if (!isListItemEmpty(itemsArray[start])) {
+                        break;
+                    }
+                    start++;
+                }
+
+                if (start <= end && isListItemNode(itemsArray[end])) {
+                    if (!isListItemEmpty(itemsArray[end])) {
+                        break;
+                    }
+                    end--;
+                }
+            }
+
+            if (start !== initialStart || end !== initialEnd) {
+                const pos = start > end ? [0, 1] : [start, end + 1];
+                result = contentNode.copy(Fragment.fromArray(itemsArray.slice(...pos)));
+                modified = true;
+            }
+        }
+
+        newChildren.push(result);
+    });
+
+    return modified ? Fragment.fromArray(newChildren) : fragment;
 }
