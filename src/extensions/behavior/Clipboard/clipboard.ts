@@ -241,20 +241,14 @@ function serializeSelected(view: EditorView, serializer: Serializer): SerializeR
     const sel = view.state.selection;
 
     if (sel.empty) return null;
-    let content = sel.content();
 
     if (getSharedDepthNode(sel).type.spec.code) {
-        const fragment = content.content;
+        const fragment = sel.content().content;
         return {text: fragment.textBetween(0, fragment.size)};
     }
 
-    const trimedContent = trimListItems(content.content);
-
-    if (trimedContent !== content.content) {
-        content = new Slice(trimedContent, content.openStart, content.openEnd);
-    }
-
-    const markup = serializer.serialize(content.content as any);
+    // FIXME: Verify and use Node instead of Fragment
+    const markup = serializer.serialize(getCopyContent(view.state).content as any);
     const {dom, text} = serializeForClipboard(view, sel.content());
     return {markup, text, html: dom.innerHTML};
 }
@@ -302,6 +296,12 @@ function getCopyContent(state: EditorState): Slice {
     }
 
     let slice = getSelectionContent(sel);
+
+    // trim empty list items
+    const trimedContent = trimListItems(slice.content);
+    if (trimedContent !== slice.content) {
+        slice = new Slice(trimedContent, 1, 1);
+    }
 
     // replace first node with paragraph if needed
     if (
