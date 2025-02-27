@@ -1,4 +1,4 @@
-import mdPlugin from 'markdown-it-color';
+import mdPlugin from 'src/markdown-it/color';
 
 import type {ExtensionAuto} from '../../../../core';
 import {markTypeFactory} from '../../../../utils/schema';

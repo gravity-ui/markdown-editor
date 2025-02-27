@@ -1,5 +1,12 @@
 # Changelog
 
+## [15.2.2](https://github.com/gravity-ui/markdown-editor/compare/v15.2.1...v15.2.2) (2025-02-27)
+
+
+### Bug Fixes
+
+* **Color:** fixed import of color md plugin ([#661](https://github.com/gravity-ui/markdown-editor/issues/661)) ([d260605](https://github.com/gravity-ui/markdown-editor/commit/d2606052c366d3f01c31cbb62bb460757171fa86))
+
 ## [15.2.1](https://github.com/gravity-ui/markdown-editor/compare/v15.2.0...v15.2.1) (2025-02-26)
 
 
