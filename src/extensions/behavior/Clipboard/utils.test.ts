@@ -63,11 +63,13 @@ describe('trimListItems', () => {
         );
     });
 
-    it('removes an entire list if it contains only empty list items', () => {
+    it('trims a list to one empty list item if it contains only empty list items', () => {
         const fragment = doc(bulletList(listItem(), listItem(), listItem())).content;
 
         const trimmedFragment = trimListItems(fragment);
-        expect(schema.nodes.doc.create(null, trimmedFragment)).toMatchNode(doc());
+        expect(schema.nodes.doc.create(null, trimmedFragment)).toMatchNode(
+            doc(bulletList(listItem())),
+        );
     });
 
     it('correctly handles multiple lists in a single fragment', () => {

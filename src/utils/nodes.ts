@@ -60,3 +60,19 @@ export function getLastChildOfNode(node: Node | Fragment): NodeChild {
     const children = getChildrenOfNode(node);
     return children[children.length - 1];
 }
+
+export const isEmptyString = (node: Node) => {
+    if (!node.content.size) {
+        return true;
+    }
+
+    if (
+        node.childCount === 1 &&
+        node.child(0).type.name === 'text' &&
+        node.child(0).text?.trim() === ''
+    ) {
+        return true;
+    }
+
+    return false;
+};
