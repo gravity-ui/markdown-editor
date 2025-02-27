@@ -1,3 +1,5 @@
+import {Fragment, type Node} from 'prosemirror-model';
+
 /** Сontains all data formats known to us */
 export enum DataTransferType {
     Text = 'text/plain',
@@ -55,4 +57,58 @@ export function extractTextContentFromHtml(html: string) {
     }
 
     return null;
+}
+
+export function trimListItems(fragment: Fragment): Fragment {
+    let modified = false;
+    const newChildren: Node[] = [];
+
+    fragment.forEach((contentNode) => {
+        if (['bullet_list', 'ordered_list'].includes(contentNode.type.name)) {
+            const listItems: Node[] = [];
+            let firstNonEmptyFound = false;
+            let lastNonEmptyIndex = -1;
+
+            contentNode.forEach((node) => {
+                if (node.type.name === 'list_item') {
+                    let hasContent = false;
+
+                    node.content.forEach((child) => {
+                        if (
+                            (child.isText && child.text?.trim().length) ||
+                            (!child.isText && child.content.size > 0)
+                        ) {
+                            hasContent = true;
+                        }
+                    });
+
+                    if (hasContent) {
+                        firstNonEmptyFound = true;
+                        lastNonEmptyIndex = listItems.length;
+                    } else if (!firstNonEmptyFound) {
+                        modified = true;
+                        return;
+                    }
+                }
+
+                listItems.push(node);
+            });
+
+            if (lastNonEmptyIndex >= 0 && listItems.length > lastNonEmptyIndex + 1) {
+                modified = true;
+            }
+
+            if (modified) {
+                listItems.length = lastNonEmptyIndex + 1;
+            }
+
+            if (listItems.length > 0) {
+                newChildren.push(contentNode.copy(Fragment.fromArray(listItems)));
+            }
+        } else {
+            newChildren.push(contentNode);
+        }
+    });
+
+    return modified ? Fragment.fromArray(newChildren) : fragment;
 }

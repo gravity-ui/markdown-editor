@@ -11,7 +11,12 @@ import {serializeForClipboard} from '../../../utils/serialize-for-clipboard';
 import {BaseNode, pType} from '../../base/BaseSchema';
 
 import {isInsideCode} from './code';
-import {DataTransferType, extractTextContentFromHtml, isIosSafariShare} from './utils';
+import {
+    DataTransferType,
+    extractTextContentFromHtml,
+    isIosSafariShare,
+    trimListItems,
+} from './utils';
 
 export type ClipboardPluginOptions = {
     logger: Logger2.ILogger;
@@ -236,14 +241,20 @@ function serializeSelected(view: EditorView, serializer: Serializer): SerializeR
     const sel = view.state.selection;
 
     if (sel.empty) return null;
+    let content = sel.content();
 
     if (getSharedDepthNode(sel).type.spec.code) {
-        const fragment = sel.content().content;
+        const fragment = content.content;
         return {text: fragment.textBetween(0, fragment.size)};
     }
 
-    // FIXME: Verify and use Node instead of Fragment
-    const markup = serializer.serialize(getCopyContent(view.state).content as any);
+    const trimedContent = trimListItems(content.content);
+
+    if (trimedContent !== content.content) {
+        content = new Slice(trimedContent, content.openStart, content.openEnd);
+    }
+
+    const markup = serializer.serialize(content.content as any);
     const {dom, text} = serializeForClipboard(view, sel.content());
     return {markup, text, html: dom.innerHTML};
 }
