@@ -1,3 +1,6 @@
+const {pathsToModuleNameMapper} = require('ts-jest');
+const {compilerOptions} = require('./tsconfig.json');
+
 /** @type {import('ts-jest/dist/types').InitialOptionsTsJest} */
 // eslint-disable-next-line no-undef
 module.exports = {
@@ -6,6 +9,7 @@ module.exports = {
     testPathIgnorePatterns: ['spec.js', 'spec.ts'],
     setupFilesAfterEnv: ['<rootDir>tests/setup.ts'],
     moduleNameMapper: {
+        ...pathsToModuleNameMapper(compilerOptions.paths, {prefix: '<rootDir>/'}),
         '\\.(css|less|scss|sss|styl)$': '<rootDir>/node_modules/jest-css-modules',
         '.+\\.(svg|png|jpg)$': 'identity-obj-proxy',
     },
