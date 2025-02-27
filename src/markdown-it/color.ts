@@ -1,3 +1,3 @@
-import color from 'markdown-it-color';
+import {colorPlugin} from 'markdown-it-color';
 
-export default color;
+export default colorPlugin;
