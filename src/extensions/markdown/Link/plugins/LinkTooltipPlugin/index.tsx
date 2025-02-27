@@ -111,14 +111,12 @@ class SelectionTooltip implements PluginView {
         if (prevState && prevState.doc.eq(state.doc) && prevState.selection.eq(state.selection))
             return;
 
-        const prevTextNode = this.textNode;
         this.textNode = getTextNode(view.state);
 
         const prevRef = this.textNodeRef;
         this.updateTextNodeRef();
 
         if (!this.textNode || !this.textNodeRef) {
-            this.removePlaceholderLink(prevTextNode);
             this.hideTooltip();
             return;
         }
@@ -235,11 +233,11 @@ class SelectionTooltip implements PluginView {
         if (normalizeResult) {
             const {url} = normalizeResult;
             const {from, to} = textNode;
-            view.dispatch(
-                view.state.tr.addMark(from, to, linkType(view.state.schema).create({href: url})),
-            );
 
-            setTimeout(this.cancelPopup.bind(this));
+            const tr = view.state.tr;
+            tr.setSelection(TextSelection.create(tr.doc, tr.mapping.map(to)));
+            tr.addMark(from, to, linkType(view.state.schema).create({href: url}));
+            view.dispatch(tr);
         }
     }
 
