@@ -1,4 +1,4 @@
-import type {GptWidgetOptions} from '../../../src';
+import type {GptWidgetOptions} from 'src/index';
 
 const gptRequestHandler = async ({
     markup,

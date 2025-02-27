@@ -1,4 +1,4 @@
-import {ImsizeAttr} from '@diplodoc/transform/lib/plugins/imsize/const';
+import {ImsizeAttr} from '@diplodoc/transform/lib/plugins/imsize/const.js';
 
 export const ImgSizeAttr = {
     Alt: ImsizeAttr.Alt,

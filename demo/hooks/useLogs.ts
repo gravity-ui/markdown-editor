@@ -1,6 +1,6 @@
 import {useMemo} from 'react';
 
-import type {Logger2} from '../../src';
+import type {Logger2} from 'src/index';
 
 export function useLogs(logger: Logger2.LogReceiver) {
     useMemo(() => {

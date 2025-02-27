@@ -2,8 +2,9 @@ import {StrictMode, useEffect} from 'react';
 
 import {useUpdate} from 'react-use';
 
-import type {MarkdownEditorInstance} from '../../src';
-import {VERSION} from '../../src/version';
+import type {MarkdownEditorInstance} from 'src/index';
+import {VERSION} from 'src/version';
+
 import {useMarkdownEditorValue} from '../hooks/useMarkdownEditorValue';
 import {block} from '../utils/cn';
 

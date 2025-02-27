@@ -1,5 +1,5 @@
 import type {Options} from 'markdown-it-emoji';
-import emojiPlugin from 'markdown-it-emoji/bare';
+import emojiPlugin from 'markdown-it-emoji/bare.js';
 
 import type {ExtensionAuto} from '../../../../core';
 

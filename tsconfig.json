@@ -13,6 +13,12 @@
     "isolatedModules": true,
     "resolveJsonModule": true,
     "verbatimModuleSyntax": true,
+    "paths": {
+      "#core": ["./src/core"],
+      "#cm/*": ["./src/cm/*"],
+      "#pm/*": ["./src/pm/*"],
+      "src/*": ["./src/*"]
+    }
   },
   "include": ["src/**/*", "demo/**/*", "tests/**/*"],
   "exclude": ["build"]

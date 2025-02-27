@@ -1,6 +1,6 @@
 import {useEffect, useState} from 'react';
 
-import {type MarkdownEditorInstance, type MarkupString, useDebounce} from '../../src';
+import {type MarkdownEditorInstance, type MarkupString, useDebounce} from 'src/index';
 
 export function useMarkdownEditorValue(editor: MarkdownEditorInstance, delay = 500): MarkupString {
     const [value, setValue] = useState(() => editor.getValue());

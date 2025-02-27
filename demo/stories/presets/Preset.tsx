@@ -7,11 +7,11 @@ import {
     type MarkupString,
     type RenderPreview,
     useMarkdownEditor,
-} from '../../../src';
-import type {ToolbarsPreset} from '../../../src/modules/toolbars/types';
-import type {FileUploadHandler} from '../../../src/utils/upload';
-import {VERSION} from '../../../src/version';
-// ---
+} from 'src/index';
+import type {ToolbarsPreset} from 'src/modules/toolbars/types';
+import type {FileUploadHandler} from 'src/utils/upload';
+import {VERSION} from 'src/version';
+
 import {WysiwygSelection} from '../../components/PMSelection';
 import {WysiwygDevTools} from '../../components/ProseMirrorDevTools';
 import {SplitModePreview} from '../../components/SplitModePreview';

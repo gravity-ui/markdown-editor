@@ -1,7 +1,7 @@
 import type {StoryObj} from '@storybook/react';
 
-import {ActionName as Action} from '../../../src/bundle/config/action-names';
-import {ToolbarName as Toolbar} from '../../../src/modules/toolbars/constants';
+import {ActionName as Action} from 'src/bundle/config/action-names';
+import {ToolbarName as Toolbar} from 'src/modules/toolbars/constants';
 import {
     boldItemView,
     boldItemWysiwyg,
@@ -16,7 +16,7 @@ import {
     undoItemMarkup,
     undoItemView,
     undoItemWysiwyg,
-} from '../../../src/modules/toolbars/items';
+} from 'src/modules/toolbars/items';
 
 import {Preset as component} from './Preset';
 
