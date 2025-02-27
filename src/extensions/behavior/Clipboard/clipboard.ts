@@ -297,12 +297,6 @@ function getCopyContent(state: EditorState): Slice {
 
     let slice = getSelectionContent(sel);
 
-    // trim empty list items
-    const trimedContent = trimListItems(slice.content);
-    if (trimedContent !== slice.content) {
-        slice = new Slice(trimedContent, 1, 1);
-    }
-
     // replace first node with paragraph if needed
     if (
         slice.content.firstChild?.isTextblock &&
@@ -325,6 +319,12 @@ function getCopyContent(state: EditorState): Slice {
                 slice.openStart,
                 slice.openStart,
             );
+        }
+    } else {
+        // trim empty list items
+        const trimedContent = trimListItems(slice.content);
+        if (trimedContent !== slice.content) {
+            slice = new Slice(trimedContent, 1, 1);
         }
     }
 

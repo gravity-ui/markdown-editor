@@ -1,5 +1,8 @@
 import {Fragment, type Node} from 'prosemirror-model';
 
+import {isListItemNode, isListNode} from 'src/extensions/markdown/Lists/utils';
+import {isEmptyString} from 'src/utils';
+
 /** Сontains all data formats known to us */
 export enum DataTransferType {
     Text = 'text/plain',
@@ -59,55 +62,58 @@ export function extractTextContentFromHtml(html: string) {
     return null;
 }
 
+function isListItemEmpty(node: Node): boolean {
+    let isEmpty = true;
+    node.content.forEach((child) => {
+        if (!isEmptyString(child)) {
+            isEmpty = false;
+        }
+    });
+    return isEmpty;
+}
+
 export function trimListItems(fragment: Fragment): Fragment {
     let modified = false;
     const newChildren: Node[] = [];
 
     fragment.forEach((contentNode) => {
-        if (['bullet_list', 'ordered_list'].includes(contentNode.type.name)) {
-            const listItems: Node[] = [];
-            let firstNonEmptyFound = false;
-            let lastNonEmptyIndex = -1;
+        let result = contentNode;
 
-            contentNode.forEach((node) => {
-                if (node.type.name === 'list_item') {
-                    let hasContent = false;
+        if (isListNode(contentNode)) {
+            const itemsArray: Node[] = Array.from(contentNode.content.content);
+            if (itemsArray.length === 0) {
+                return;
+            }
 
-                    node.content.forEach((child) => {
-                        if (
-                            (child.isText && child.text?.trim().length) ||
-                            (!child.isText && child.content.size > 0)
-                        ) {
-                            hasContent = true;
-                        }
-                    });
+            const initialStart = 0;
+            const initialEnd = itemsArray.length - 1;
+            let start = initialStart;
+            let end = initialEnd;
 
-                    if (hasContent) {
-                        firstNonEmptyFound = true;
-                        lastNonEmptyIndex = listItems.length;
-                    } else if (!firstNonEmptyFound) {
-                        modified = true;
-                        return;
+            while (start <= end) {
+                if (isListItemNode(itemsArray[start])) {
+                    if (!isListItemEmpty(itemsArray[start])) {
+                        break;
                     }
+                    start++;
                 }
 
-                listItems.push(node);
-            });
+                if (start <= end && isListItemNode(itemsArray[end])) {
+                    if (!isListItemEmpty(itemsArray[end])) {
+                        break;
+                    }
+                    end--;
+                }
+            }
 
-            if (lastNonEmptyIndex >= 0 && listItems.length > lastNonEmptyIndex + 1) {
+            if (start !== initialStart || end !== initialEnd) {
+                const pos = start > end ? [0, 1] : [start, end + 1];
+                result = contentNode.copy(Fragment.fromArray(itemsArray.slice(...pos)));
                 modified = true;
             }
-
-            if (modified) {
-                listItems.length = lastNonEmptyIndex + 1;
-            }
-
-            if (listItems.length > 0) {
-                newChildren.push(contentNode.copy(Fragment.fromArray(listItems)));
-            }
-        } else {
-            newChildren.push(contentNode);
         }
+
+        newChildren.push(result);
     });
 
     return modified ? Fragment.fromArray(newChildren) : fragment;
