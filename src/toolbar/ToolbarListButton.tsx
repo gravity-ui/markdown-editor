@@ -1,35 +1,36 @@
-import React, {useState} from 'react';
+import {Fragment, useEffect, useState} from 'react';
 
-import {HelpPopover} from '@gravity-ui/components';
 import {ChevronDown} from '@gravity-ui/icons';
-import {ActionTooltip, Button, Hotkey, Icon, Menu, Popover, Popup} from '@gravity-ui/uikit';
+import {
+    ActionTooltip,
+    Button,
+    HelpMark,
+    Hotkey,
+    Icon,
+    Menu,
+    Popover,
+    Popup,
+} from '@gravity-ui/uikit';
 
 import {cn} from '../classname';
 import {i18n} from '../i18n/common';
 import {isFunction} from '../lodash';
-import {useBooleanState} from '../react-utils/hooks';
+import {useBooleanState, useElementState} from '../react-utils/hooks';
 
+import {PreviewTooltip} from './PreviewTooltip';
 import {ToolbarTooltipDelay} from './const';
-import {
+import type {
     ToolbarBaseProps,
     ToolbarButtonPopupData,
-    ToolbarIconData,
     ToolbarItemData,
-    ToolbarListButtonItemData,
+    ToolbarListButtonData,
 } from './types';
 
 import './ToolbarListButton.scss';
 
 const b = cn('toolbar-list-button');
 
-export type ToolbarListButtonData<E> = {
-    icon: ToolbarIconData;
-    title: string | (() => string);
-    withArrow?: boolean;
-    data: ToolbarListButtonItemData<E>[];
-    alwaysActive?: boolean;
-    hideDisabled?: boolean;
-};
+export type {ToolbarListButtonData};
 
 export type ToolbarListButtonProps<E> = ToolbarBaseProps<E> & ToolbarListButtonData<E>;
 
@@ -44,7 +45,7 @@ export function ToolbarListButton<E>({
     data,
     alwaysActive,
 }: ToolbarListButtonProps<E>) {
-    const buttonRef = React.useRef<HTMLButtonElement>(null);
+    const [anchorElement, setAnchorElement] = useElementState();
     const [open, , hide, toggleOpen] = useBooleanState(false);
     const [popupItem, setPopupItem] = useState<ToolbarButtonPopupData<E>>();
 
@@ -55,7 +56,7 @@ export function ToolbarListButton<E>({
 
     const popupOpen = everyDisabled ? false : open;
     const shouldForceHide = open && !popupOpen;
-    React.useEffect(() => {
+    useEffect(() => {
         if (shouldForceHide) {
             hide();
         }
@@ -65,7 +66,7 @@ export function ToolbarListButton<E>({
 
     const buttonContent = [<Icon key={1} data={icon.data} size={icon.size ?? 16} />];
     if (withArrow) {
-        buttonContent.push(<React.Fragment key={2}>{''}</React.Fragment>);
+        buttonContent.push(<Fragment key={2}>{''}</Fragment>);
         buttonContent.push(<Icon key={3} data={ChevronDown} size={16} />);
     }
 
@@ -75,8 +76,11 @@ export function ToolbarListButton<E>({
         <>
             <Popover
                 className={b('action-disabled-popover')}
-                tooltipContentClassName={b('action-disabled-tooltip')}
-                content={i18n('toolbar_action_disabled')}
+                content={
+                    <div className={b('action-disabled-tooltip')}>
+                        {i18n('toolbar_action_disabled')}
+                    </div>
+                }
                 placement={'bottom'}
                 disabled={!everyDisabled}
             >
@@ -88,7 +92,7 @@ export function ToolbarListButton<E>({
                 >
                     <Button
                         size="m"
-                        ref={buttonRef}
+                        ref={setAnchorElement}
                         view={someActive || popupOpen ? 'normal' : 'flat'}
                         selected={someActive}
                         disabled={everyDisabled}
@@ -102,7 +106,7 @@ export function ToolbarListButton<E>({
                     </Button>
                 </ActionTooltip>
             </Popover>
-            <Popup anchorRef={buttonRef} open={popupOpen} onClose={hide}>
+            <Popup anchorElement={anchorElement} open={popupOpen} onOpenChange={hide}>
                 <Menu size="l" className={b('menu')}>
                     {data
                         .map((data) => {
@@ -116,15 +120,15 @@ export function ToolbarListButton<E>({
                                 exec,
                                 hint,
                                 hintWhenDisabled,
-                                disabledPopoverVisible = true,
+                                preview,
                             } = data;
 
                             const titleText = isFunction(title) ? title() : title;
                             const hintText = isFunction(hint) ? hint() : hint;
+
                             const disabled = !isEnable(editor);
 
-                            const hideHintWhenDisabled =
-                                hintWhenDisabled === false || !disabledPopoverVisible || !disabled;
+                            const hideHintWhenDisabled = hintWhenDisabled === false || !disabled;
                             const hintWhenDisabledText =
                                 typeof hintWhenDisabled === 'string'
                                     ? hintWhenDisabled
@@ -132,47 +136,65 @@ export function ToolbarListButton<E>({
                                       ? hintWhenDisabled()
                                       : i18n('toolbar_action_disabled');
 
+                            const handleClick = () => {
+                                hide();
+
+                                if (isPopupItem(data)) {
+                                    setPopupItem(data);
+                                } else {
+                                    setPopupItem(undefined);
+                                    focus();
+                                    exec(editor);
+                                    onClick?.(id);
+                                }
+                            };
+
                             return (
                                 <Popover
                                     className={b('action-disabled-popover')}
-                                    tooltipContentClassName={b('action-disabled-tooltip')}
-                                    content={hintWhenDisabledText}
-                                    placement={'left'}
+                                    content={
+                                        <div className={b('action-disabled-tooltip')}>
+                                            {hintWhenDisabledText}
+                                        </div>
+                                    }
+                                    placement="left"
+                                    modal={false}
                                     disabled={hideHintWhenDisabled}
                                     key={id}
                                 >
-                                    <Menu.Item
-                                        key={id}
-                                        active={isActive(editor)}
-                                        disabled={!isEnable(editor)}
-                                        onClick={() => {
-                                            hide();
-
-                                            if (isPopupItem(data)) {
-                                                setPopupItem(data);
-                                            } else {
-                                                setPopupItem(undefined);
-                                                focus();
-                                                exec(editor);
-                                                onClick?.(id);
-                                            }
-                                        }}
-                                        icon={<Icon data={icon.data} size={icon.size ?? 16} />}
-                                        extraProps={{'aria-label': titleText}}
-                                    >
-                                        <div className={b('item')}>
-                                            {titleText}
-                                            <div className={b('extra')}>
-                                                {hotkey && <Hotkey value={hotkey} />}
-                                                {hintText && (
-                                                    <HelpPopover
-                                                        className={b('hint')}
-                                                        content={hintText}
-                                                    />
-                                                )}
-                                            </div>
-                                        </div>
-                                    </Menu.Item>
+                                    {(props, ref) => (
+                                        <PreviewTooltip preview={preview}>
+                                            <Menu.Item
+                                                key={id}
+                                                ref={ref}
+                                                active={isActive(editor)}
+                                                disabled={!isEnable(editor)}
+                                                onClick={handleClick}
+                                                iconStart={
+                                                    <Icon data={icon.data} size={icon.size ?? 16} />
+                                                }
+                                                extraProps={{
+                                                    ...props,
+                                                    'aria-label': titleText,
+                                                }}
+                                            >
+                                                <div className={b('item')}>
+                                                    {titleText}
+                                                    <div className={b('extra')}>
+                                                        {hotkey && <Hotkey value={hotkey} />}
+                                                        {hintText && (
+                                                            <HelpMark
+                                                                className={b('hint')}
+                                                                popoverProps={{modal: false}}
+                                                            >
+                                                                {hintText}
+                                                            </HelpMark>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            </Menu.Item>
+                                        </PreviewTooltip>
+                                    )}
                                 </Popover>
                             );
                         })
@@ -185,7 +207,7 @@ export function ToolbarListButton<E>({
                       editor,
                       focus,
                       onClick,
-                      anchorRef: buttonRef,
+                      anchorElement,
                       hide: () => setPopupItem(undefined),
                   })
                 : null}

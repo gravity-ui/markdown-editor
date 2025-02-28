@@ -6,10 +6,10 @@ import type {
     ToolbarItemWysiwyg,
     ToolbarsPreset,
 } from '../../../modules/toolbars/types';
-import type {MToolbarData, WToolbarData} from '../../../toolbar';
-import {ToolbarDataType, ToolbarIconData} from '../../../toolbar';
 import type {MarkdownEditorViewProps} from '../../MarkdownEditorView';
-import {MarkdownEditorPreset} from '../../types';
+import type {MarkdownEditorPreset} from '../../types';
+import {ToolbarDataType} from '../types';
+import type {MToolbarData, ToolbarIconData, WToolbarData} from '../types';
 
 import {flattenPreset} from './flattenPreset';
 
@@ -29,6 +29,8 @@ interface TransformedItem {
     icon?: ToolbarIconData;
     hotkey?: string;
     withArrow?: boolean;
+    doNotActivateList?: boolean;
+    preview?: React.ReactNode;
     wysiwyg?: ToolbarItemWysiwyg<ToolbarDataType>;
     markup?: ToolbarItemMarkup<ToolbarDataType>;
 }
@@ -46,6 +48,7 @@ const transformItem = (
     }
 
     const isListButton = item.view.type === ToolbarDataType.ListButton;
+    const isSingleButton = item.view.type === ToolbarDataType.SingleButton;
 
     return {
         type: item.view.type ?? ToolbarDataType.SingleButton,
@@ -54,6 +57,8 @@ const transformItem = (
         hint: item.view.hint,
         icon: item.view.icon,
         hotkey: item.view.hotkey,
+        doNotActivateList: item.view.doNotActivateList,
+        ...(isSingleButton && {preview: (item.view as any).preview}),
         ...(isListButton && {withArrow: (item.view as any).withArrow}),
         ...(type === 'wysiwyg' && item.wysiwyg && {...item.wysiwyg}),
         ...(type === 'markup' && item.markup && {...item.markup}),

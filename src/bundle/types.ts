@@ -4,6 +4,7 @@ import type {ReactNode} from 'react';
 
 import type {MarkupString} from '../common';
 import type {EscapeConfig, Extension} from '../core';
+import type {Logger2} from '../logger';
 import type {CreateCodemirrorParams, YfmLangOptions} from '../markup';
 import type {FileUploadHandler} from '../utils';
 import type {DirectiveSyntaxContext, DirectiveSyntaxOption} from '../utils/directive';
@@ -28,7 +29,7 @@ export type ParseInsertedUrlAsImage = (text: string) => {imageUrl: string; title
 
 export type WysiwygPlaceholderOptions = {
     value?: string | (() => string);
-    /** Default – empty-doc 
+    /** Default – empty-doc
     Values:
     - 'empty-doc' – The placeholder will only be shown when the document is completely empty;
     - 'empty-row-top-level' – The placeholder will be displayed in an empty line that is at the top level of the document structure;
@@ -110,6 +111,17 @@ export type MarkdownEditorExperimentalOptions = {
      * @default false
      */
     preserveEmptyRows?: boolean;
+    /**
+     * Preserves the original formatting of unmodified blocks,
+     * restoring their structure during serialization
+     *
+     * **Use case:** Maintain consistent markup when switching modes
+     *
+     * **Note:** Applies to tracked blocks: `yfm_table`
+     *
+     * @default false
+     */
+    preserveMarkupFormatting?: boolean;
 };
 
 export type MarkdownEditorMarkupConfig = {
@@ -168,8 +180,7 @@ export type MarkdownEditorWysiwygConfig = {
     placeholderOptions?: WysiwygPlaceholderOptions;
 };
 
-// [major] TODO: remove generic type
-export type MarkdownEditorOptions<T extends object = {}> = {
+export type MarkdownEditorOptions = {
     /**
      * A set of plug-in extensions.
      *
@@ -186,66 +197,5 @@ export type MarkdownEditorOptions<T extends object = {}> = {
     markupConfig?: MarkdownEditorMarkupConfig;
     /** Options for wysiwyg mode */
     wysiwygConfig?: MarkdownEditorWysiwygConfig;
-
-    /** @deprecated Put allowHTML via MarkdownEditorMdOptions */
-    allowHTML?: boolean;
-    /** @deprecated Put breaks via MarkdownEditorMdOptions */
-    breaks?: boolean;
-    /** @deprecated Put linkify via MarkdownEditorMdOptions */
-    linkify?: boolean;
-    /** @deprecated Put linkifyTlds via MarkdownEditorMdOptions */
-    linkifyTlds?: string | string[];
-    /** @deprecated Put initial markup via MarkdownEditorInitialOptions */
-    initialMarkup?: MarkdownEditorInitialOptions['markup'];
-    /**
-     * @default 'wysiwyg'
-     *
-     * @deprecated Put initial editor mode via MarkdownEditorInitialOptions
-     */
-    initialEditorMode?: MarkdownEditorInitialOptions['mode'];
-    /**
-     * @default true
-     *
-     * @deprecated Put initial toolbar visibility via MarkdownEditorInitialOptions
-     */
-    initialToolbarVisible?: MarkdownEditorInitialOptions['toolbarVisible'];
-    /**
-     * Has no effect if splitMode is false or undefined
-     *
-     * @default false
-     *
-     * @deprecated Put initialSplitModeEnabled via MarkdownEditorInitialOptions
-     */
-    initialSplitModeEnabled?: MarkdownEditorInitialOptions['splitModeEnabled'];
-    /**
-     * If we need to set dimensions for uploaded images
-     *
-     * @default false
-     *
-     * @deprecated Put needToSetDimensionsForUploadedImages via MarkdownEditorExperimentalOptions
-     */
-    needToSetDimensionsForUploadedImages?: MarkdownEditorExperimentalOptions['needToSetDimensionsForUploadedImages'];
-    /**
-     * Called before switching from the markup editor to the wysiwyg editor.
-     * You can use it to pre-process the value from the markup editor before it gets into the wysiwyg editor.
-     *
-     * @deprecated Put prepareRawMarkup via MarkdownEditorExperimentalOptions
-     */
-    prepareRawMarkup?: MarkdownEditorExperimentalOptions['prepareRawMarkup'];
-    /** @deprecated Put beforeEditorModeChange via MarkdownEditorExperimentalOptions */
-    experimental_beforeEditorModeChange?: MarkdownEditorExperimentalOptions['beforeEditorModeChange'];
-    /** @deprecated Put split mode via MarkdownEditorMarkupConfig */
-    splitMode?: MarkdownEditorMarkupConfig['splitMode'];
-    /** @deprecated Put render preview function via MarkdownEditorMarkupConfig */
-    renderPreview?: MarkdownEditorMarkupConfig['renderPreview'];
-    /** @deprecated Put extensions via MarkdownEditorWysiwygConfig */
-    extraExtensions?: MarkdownEditorWysiwygConfig['extensions'];
-    /** @deprecated Put extension options via MarkdownEditorWysiwygConfig */
-    extensionOptions?: ExtensionsOptions<T>;
-    /** @deprecated Put extra extensions via MarkdownEditorMarkupConfig */
-    extraMarkupExtensions?: MarkdownEditorMarkupConfig['extensions'];
-    /** @deprecated Put escapeConfig via MarkdownEditorWysiwygConfig */
-    escapeConfig?: MarkdownEditorWysiwygConfig['escapeConfig'];
-    /** @deprecated Put file upload handler via MarkdownEditorHandlers */
-    fileUploadHandler?: MarkdownEditorHandlers['uploadFile'];
+    logger?: Logger2.ILogger;
 };

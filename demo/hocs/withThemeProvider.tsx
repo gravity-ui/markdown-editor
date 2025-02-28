@@ -1,5 +1,3 @@
-import React from 'react';
-
 import {ThemeProvider} from '@gravity-ui/uikit';
 import type {Decorator} from '@storybook/react';
 

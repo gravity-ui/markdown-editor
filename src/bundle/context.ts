@@ -1,6 +1,6 @@
 import {createContext, useContext} from 'react';
 
-import {Editor} from './Editor';
+import type {Editor} from './Editor';
 
 const EditorContext = createContext<Editor | null>(null);
 

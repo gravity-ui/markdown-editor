@@ -1,5 +1,3 @@
-import React from 'react';
-
 import {Ghost} from '@gravity-ui/icons';
 import {Button, Popup} from '@gravity-ui/uikit';
 

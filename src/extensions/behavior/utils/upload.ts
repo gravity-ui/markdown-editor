@@ -1,13 +1,20 @@
-import {Node} from 'prosemirror-model';
-import {EditorView} from 'prosemirror-view';
+import type {Node} from 'prosemirror-model';
+import type {EditorView} from 'prosemirror-view';
 
-import {FileUploadHandler, UploadSuccessItem, batchUploadFiles} from '../../../utils/upload';
+import {getLoggerFromState} from '../../../core';
+import type {Logger2} from '../../../logger';
+import {
+    type FileUploadHandler,
+    type UploadSuccessItem,
+    batchUploadFiles,
+} from '../../../utils/upload';
 import type {WidgetDescriptor} from '../WidgetDecoration';
 
 export abstract class FilesBatchUploadProcess {
     protected readonly view;
     protected readonly files;
     protected readonly uploadHandler;
+    protected readonly logger: Logger2.ILogger;
 
     protected skeletonDescriptor?: WidgetDescriptor;
 
@@ -15,6 +22,7 @@ export abstract class FilesBatchUploadProcess {
         this.view = view;
         this.files = files;
         this.uploadHandler = uploadHandler;
+        this.logger = getLoggerFromState(view.state);
     }
 
     async run() {

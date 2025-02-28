@@ -61,10 +61,10 @@ export class ClipboardEventMock implements ClipboardEvent {
     readonly target: EventTarget | null = null;
     readonly timeStamp: DOMHighResTimeStamp = Date.now();
     readonly type: string;
-    readonly AT_TARGET: number = 0;
-    readonly BUBBLING_PHASE: number = 0;
-    readonly CAPTURING_PHASE: number = 0;
-    readonly NONE: number = 0;
+    readonly NONE: 0 = 0;
+    readonly CAPTURING_PHASE: 1 = 1;
+    readonly AT_TARGET: 2 = 2;
+    readonly BUBBLING_PHASE: 3 = 3;
     constructor(type: string, eventInitDict?: ClipboardEventInit) {
         this.type = type;
         this.bubbles = eventInitDict?.bubbles ?? false;

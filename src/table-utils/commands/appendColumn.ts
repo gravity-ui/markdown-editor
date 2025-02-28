@@ -1,8 +1,9 @@
+// @ts-ignore // TODO: fix cjs build
 import {findParentNodeClosestToPos} from 'prosemirror-utils';
 
-import {isTableNode} from '..';
 import type {CommandWithAttrs} from '../../core';
-import {CellPos, TableDesc} from '../table-desc';
+import {type CellPos, TableDesc} from '../table-desc';
+import {isTableNode} from '../utils';
 
 export const appendColumn: CommandWithAttrs<{
     tablePos: number;

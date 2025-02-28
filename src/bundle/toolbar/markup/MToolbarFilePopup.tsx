@@ -1,22 +1,19 @@
-import React, {RefObject} from 'react';
-
-import {FileItem, insertFiles} from '../../../markup/commands';
-import type {CodeEditor} from '../../../markup/editor';
-import type {ToolbarBaseProps} from '../../../toolbar';
-import {ToolbarFilePopup} from '../custom/ToolbarFilePopup';
+import {type FileItem, insertFiles} from '../../../markup/commands';
+import {ToolbarFilePopup, type ToolbarFilePopupProps} from '../custom/ToolbarFilePopup';
+import type {MToolbarBaseProps} from '../types';
 
 import {useMarkupToolbarContext} from './context';
 
-export type MToolbarFilePopupProps = ToolbarBaseProps<CodeEditor> & {
-    hide: () => void;
-    anchorRef: RefObject<HTMLElement>;
-};
+export type MToolbarFilePopupProps = MToolbarBaseProps &
+    Pick<ToolbarFilePopupProps, 'anchorElement'> & {
+        hide: () => void;
+    };
 
 export const MToolbarFilePopup: React.FC<MToolbarFilePopupProps> = ({
     focus,
     onClick,
     hide,
-    anchorRef,
+    anchorElement,
     editor,
     className,
 }) => {
@@ -27,7 +24,7 @@ export const MToolbarFilePopup: React.FC<MToolbarFilePopupProps> = ({
             hide={hide}
             focus={focus}
             onClick={onClick}
-            anchorRef={anchorRef}
+            anchorElement={anchorElement}
             className={className}
             onSubmit={(fileParams) => insertFiles([fileParams])(editor.cm)}
             uploadHandler={uploadHandler}

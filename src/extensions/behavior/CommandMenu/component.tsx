@@ -1,13 +1,11 @@
-import React from 'react';
-
-import {HelpPopover} from '@gravity-ui/components';
-import {Hotkey, Icon, List, Popup, PopupPlacement} from '@gravity-ui/uikit';
+import {HelpMark, Hotkey, Icon, List, Popup, type PopupPlacement} from '@gravity-ui/uikit';
 
 import {cn} from '../../../classname';
 import {i18n} from '../../../i18n/suggest';
 import {isFunction} from '../../../lodash';
 import {ErrorLoggerBoundary} from '../../../react-utils/ErrorBoundary';
-import {AutocompletePopupProps} from '../../../utils/autocomplete-popup';
+import {PreviewTooltip} from '../../../toolbar/PreviewTooltip';
+import type {AutocompletePopupProps} from '../../../utils/autocomplete-popup';
 
 import type {CommandAction} from './types';
 
@@ -24,34 +22,28 @@ function calcListHeight(itemsCount: number): number | undefined {
     return Math.min(MAX_LIST_HEIGHT, itemsCount * ITEM_HEIGHT);
 }
 
-export type CommandMenuItem = Pick<CommandAction, 'id' | 'title' | 'icon' | 'hotkey' | 'hint'>;
+export type CommandMenuItem = Pick<
+    CommandAction,
+    'id' | 'title' | 'icon' | 'hotkey' | 'hint' | 'preview'
+>;
 
 export type CommandMenuComponentProps = AutocompletePopupProps & {
     currentIndex?: number;
     items: readonly CommandMenuItem[];
-    onClick(itemIndex: number): void;
+    onItemClick(itemIndex: number): void;
 };
 
 export const CommandMenuComponent: React.FC<CommandMenuComponentProps> = ({
-    anchor,
+    anchorElement,
     currentIndex,
     items,
-    onClick,
-    onEnterKeyDown,
-    onEscapeKeyDown,
-    onOutsideClick,
+    onItemClick,
+    onOpenChange,
 }) => {
-    if (!anchor) return null;
+    if (!anchorElement) return null;
 
     return (
-        <Popup
-            open
-            anchorRef={{current: anchor}}
-            placement={placement}
-            onEnterKeyDown={onEnterKeyDown}
-            onEscapeKeyDown={onEscapeKeyDown}
-            onOutsideClick={onOutsideClick}
-        >
+        <Popup open anchorElement={anchorElement} placement={placement} onOpenChange={onOpenChange}>
             <div className={b()}>
                 <List<CommandMenuItem>
                     virtualized
@@ -64,7 +56,7 @@ export const CommandMenuComponent: React.FC<CommandMenuComponentProps> = ({
                     renderItem={renderItem}
                     deactivateOnLeave={false}
                     activeItemIndex={currentIndex}
-                    onItemClick={(_item, index) => onClick(index)}
+                    onItemClick={(_item, index) => onItemClick(index)}
                     className={b('list')}
                     itemClassName={b('list-item')}
                 />
@@ -73,20 +65,23 @@ export const CommandMenuComponent: React.FC<CommandMenuComponentProps> = ({
     );
 };
 
-function renderItem({id, title, icon, hotkey, hint}: CommandMenuItem): React.ReactNode {
+function renderItem({id, title, icon, hotkey, hint, preview}: CommandMenuItem): React.ReactNode {
     const titleText = isFunction(title) ? title() : title;
     const hintText = isFunction(hint) ? hint() : hint;
+
     return (
-        <div key={id} className={b('item', {id})}>
-            <Icon data={icon.data} size={20} className={b('item-icon')} />
-            <div className={b('item-body')}>
-                <span className={b('item-title')}>{titleText}</span>
-                <div className={b('item-extra')}>
-                    {hotkey && <Hotkey value={hotkey} className={b('item-hotkey')} />}
-                    {hintText && <HelpPopover className={b('item- hint')} content={hintText} />}
+        <PreviewTooltip preview={preview}>
+            <div key={id} className={b('item', {id})}>
+                <Icon data={icon.data} size={20} className={b('item-icon')} />
+                <div className={b('item-body')}>
+                    <span className={b('item-title')}>{titleText}</span>
+                    <div className={b('item-extra')}>
+                        {hotkey && <Hotkey value={hotkey} className={b('item-hotkey')} />}
+                        {hintText && <HelpMark className={b('item-hint')}>{hintText}</HelpMark>}
+                    </div>
                 </div>
             </div>
-        </div>
+        </PreviewTooltip>
     );
 }
 

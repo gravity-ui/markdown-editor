@@ -1,14 +1,13 @@
-import React from 'react';
+import type {Transaction} from 'prosemirror-state';
+import type {EditorView} from 'prosemirror-view';
 
-import {Transaction} from 'prosemirror-state';
-import {EditorView} from 'prosemirror-view';
-
-import {ExtensionDeps} from '../../../../core';
+import type {ExtensionDeps} from '../../../../core';
 import {removeDecoration} from '../../../behavior/WidgetDecoration';
 import {ReactWidgetDescriptor} from '../../../behavior/WidgetDecoration/ReactWidgetDescriptor';
-import {LinkAttr, linkType, normalizeUrlFactory} from '../../index';
+import {LinkAttr, linkType} from '../LinkSpecs';
+import {normalizeUrlFactory} from '../utils';
 
-import {LinkPlaceholderWidget, LinkPlaceholderWidgetProps} from './widget';
+import {LinkPlaceholderWidget, type LinkPlaceholderWidgetProps} from './widget';
 
 export const addPlaceholder = (tr: Transaction, deps: ExtensionDeps) => {
     return new LinkWidgetDescriptor(tr.selection.from, deps).applyTo(tr);

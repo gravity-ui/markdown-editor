@@ -1,35 +1,35 @@
 import type {ExtensionAuto} from '../core';
 import {
     DeflistSpecs,
-    DeflistSpecsOptions,
+    type DeflistSpecsOptions,
     SubscriptSpecs,
     SuperscriptSpecs,
     UnderlineSpecs,
 } from '../extensions/specs';
 import {
     CheckboxSpecs,
-    CheckboxSpecsOptions,
+    type CheckboxSpecsOptions,
     ImgSizeSpecs,
-    ImgSizeSpecsOptions,
+    type ImgSizeSpecsOptions,
     MonospaceSpecs,
     VideoSpecs,
-    VideoSpecsOptions,
+    type VideoSpecsOptions,
     YfmConfigsSpecs,
-    YfmConfigsSpecsOptions,
+    type YfmConfigsSpecsOptions,
     YfmCutSpecs,
-    YfmCutSpecsOptions,
+    type YfmCutSpecsOptions,
     YfmFileSpecs,
     YfmHeadingSpecs,
-    YfmHeadingSpecsOptions,
+    type YfmHeadingSpecsOptions,
     YfmNoteSpecs,
-    YfmNoteSpecsOptions,
+    type YfmNoteSpecsOptions,
     YfmTableSpecs,
-    YfmTableSpecsOptions,
+    type YfmTableSpecsOptions,
     YfmTabsSpecs,
-    YfmTabsSpecsOptions,
+    type YfmTabsSpecsOptions,
 } from '../extensions/yfm/specs';
 
-import {DefaultSpecsPreset, DefaultSpecsPresetOptions} from './default-specs';
+import {DefaultSpecsPreset, type DefaultSpecsPresetOptions} from './default-specs';
 
 export type YfmSpecsPresetOptions = Omit<DefaultSpecsPresetOptions, 'heading' | 'image'> & {
     checkbox?: CheckboxSpecsOptions;

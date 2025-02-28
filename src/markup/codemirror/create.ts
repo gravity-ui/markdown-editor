@@ -9,13 +9,19 @@ import {
 } from '@codemirror/commands';
 import {syntaxHighlighting} from '@codemirror/language';
 import type {Extension, StateCommand} from '@codemirror/state';
-import {EditorView, type EditorViewConfig, KeyBinding, keymap, placeholder} from '@codemirror/view';
+import {
+    EditorView,
+    type EditorViewConfig,
+    type KeyBinding,
+    keymap,
+    placeholder,
+} from '@codemirror/view';
 
 import type {ParseInsertedUrlAsImage} from '../../bundle';
 import type {EventMap} from '../../bundle/Editor';
 import {ActionName} from '../../bundle/config/action-names';
 import type {ReactRenderStorage} from '../../extensions';
-import {logger} from '../../logger';
+import {type Logger2, globalLogger} from '../../logger';
 import {Action as A, formatter as f} from '../../shortcuts';
 import type {Receiver} from '../../utils';
 import {DataTransferType, shouldSkipHtmlConversion} from '../../utils/clipboard';
@@ -44,6 +50,7 @@ import {DirectiveSyntaxFacet} from './directive-facet';
 import {type FileUploadHandler, FileUploadHandlerFacet} from './files-upload-facet';
 import {gravityHighlightStyle, gravityTheme} from './gravity';
 import {MarkdownConverter} from './html-to-markdown/converters';
+import {LoggerFacet} from './logger-facet';
 import {PairingCharactersExtension} from './pairing-chars';
 import {ReactRendererFacet} from './react-facet';
 import {SearchPanelPlugin} from './search-plugin/plugin';
@@ -57,6 +64,7 @@ type Autocompletion = Parameters<typeof autocompletion>[0];
 export type CreateCodemirrorParams = {
     doc: EditorViewConfig['doc'];
     placeholder: Parameters<typeof placeholder>[0];
+    logger: Logger2.ILogger;
     onCancel: () => void;
     onSubmit: () => void;
     onChange: () => void;
@@ -82,6 +90,7 @@ export type CreateCodemirrorParams = {
 
 export function createCodemirror(params: CreateCodemirrorParams) {
     const {
+        logger,
         doc,
         reactRenderer,
         onCancel,
@@ -110,6 +119,7 @@ export function createCodemirror(params: CreateCodemirrorParams) {
 
     extensions.push(
         syntaxHighlighting(gravityHighlightStyle),
+        LoggerFacet.of(logger),
         keymap.of([
             {key: f.toCM(A.Bold)!, run: withLogger(ActionName.bold, toggleBold)},
             {key: f.toCM(A.Italic)!, run: withLogger(ActionName.italic, toggleItalic)},
@@ -166,6 +176,11 @@ export function createCodemirror(params: CreateCodemirrorParams) {
             paste(event, editor) {
                 if (!event.clipboardData) return;
 
+                const pasteLogger = logger.nested({
+                    domEvent: 'paste',
+                    dataTypes: event.clipboardData.types,
+                });
+
                 const {from} = editor.state.selection.main;
                 const line = editor.state.doc.lineAt(from);
                 const currentLine = line.text;
@@ -175,6 +190,7 @@ export function createCodemirror(params: CreateCodemirrorParams) {
                 const yfmContent = event.clipboardData.getData(DataTransferType.Yfm);
                 if (yfmContent) {
                     event.preventDefault();
+                    logger.event({event: 'paste-markup'});
                     const reindentedYfmContent = smartReindent(yfmContent, currentLine);
                     editor.dispatch(editor.state.replaceSelection(reindentedYfmContent));
                     return;
@@ -199,11 +215,13 @@ export function createCodemirror(params: CreateCodemirrorParams) {
                         // especially with invalid HTML or weird DOM parsing errors.
                         // If something goes wrong, I just want to fall back to the "default pasting"
                         // rather than break the entire experience for the user.
-                        logger.error(e);
+                        pasteLogger.error(e, {event: 'parse-html-to-md'});
+                        globalLogger.error(e);
                     }
 
                     if (parsedMarkdownMarkup !== undefined) {
                         event.preventDefault();
+                        logger.event({event: 'paste-parsed-html'});
                         const reindentedHtmlContent = smartReindent(
                             parsedMarkdownMarkup,
                             currentLine,
@@ -221,7 +239,7 @@ export function createCodemirror(params: CreateCodemirrorParams) {
 
                     if (imageUrl) {
                         event.preventDefault();
-
+                        logger.event({event: 'paste-url-as-image'});
                         insertImages([
                             {
                                 url: imageUrl,
@@ -285,7 +303,9 @@ export function createCodemirror(params: CreateCodemirrorParams) {
 
 export function withLogger(action: string, command: StateCommand): StateCommand {
     return (...args) => {
-        logger.action({mode: 'markup', source: 'keymap', action});
+        const {state} = args[0];
+        state.facet(LoggerFacet).action({source: 'keymap', action});
+        globalLogger.action({mode: 'markup', source: 'keymap', action});
         return command(...args);
     };
 }

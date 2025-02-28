@@ -1,4 +1,4 @@
-import {TransformFn} from './index';
+import type {TransformFn} from './index';
 
 export const transformEmptyParagraph: TransformFn = (node) => {
     if (node.type !== 'paragraph') return;

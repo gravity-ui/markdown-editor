@@ -1,12 +1,14 @@
 import {chainCommands, toggleMark} from 'prosemirror-commands';
-import {Command, NodeSelection, TextSelection} from 'prosemirror-state';
-import {isNodeSelection} from 'prosemirror-utils';
+import {type Command, NodeSelection, TextSelection} from 'prosemirror-state';
 
-import {ActionSpec, ExtensionDeps} from '../../../../core';
+import type {ActionSpec, ExtensionDeps} from '../../../../core';
+import {isNodeSelection} from '../../../../utils';
 import {isMarkActive} from '../../../../utils/marks';
-import {ImageRendererState, imageRendererKey} from '../../../yfm/ImgSize/const';
-import {LinkAttr, imageType, linkType, removeLink} from '../../index';
+import {type ImageRendererState, imageRendererKey} from '../../../yfm/ImgSize/const';
+import {imageType} from '../../Image/ImageSpecs';
+import {LinkAttr, linkType} from '../LinkSpecs';
 import {addLinkPlaceholder} from '../PlaceholderWidget/commands';
+import {removeLink} from '../commands';
 
 export const addEmptyLink: Command = (state, dispatch) => {
     const linkMarkType = linkType(state.schema);

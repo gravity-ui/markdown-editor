@@ -1,4 +1,4 @@
-import deflistPlugin from '@diplodoc/transform/lib/plugins/deflist';
+import deflistPlugin from '@diplodoc/transform/lib/plugins/deflist.js';
 import type {NodeSpec} from 'prosemirror-model';
 
 import type {ExtensionAuto} from '../../../../core';

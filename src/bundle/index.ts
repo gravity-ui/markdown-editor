@@ -9,3 +9,6 @@ export type {MarkdownEditorViewProps} from './MarkdownEditorView';
 import * as markupToolbarConfigs from './config/markup';
 import * as wysiwygToolbarConfigs from './config/wysiwyg';
 export {markupToolbarConfigs, wysiwygToolbarConfigs};
+
+// MAJOR: remove in next major
+export * from './config';

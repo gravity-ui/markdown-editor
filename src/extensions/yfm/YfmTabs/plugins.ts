@@ -1,4 +1,5 @@
-import {generateID} from '@diplodoc/transform/lib/plugins/utils';
+import {generateID} from '@diplodoc/transform/lib/plugins/utils.js';
+import type {Node} from 'prosemirror-model';
 import {type Command, Plugin, type PluginView, TextSelection} from 'prosemirror-state';
 import {
     type NodeWithPos,
@@ -6,6 +7,7 @@ import {
     findDomRefAtPos,
     findParentNodeOfType,
     findParentNodeOfTypeClosestToPos,
+    // @ts-ignore // TODO: fix cjs build
 } from 'prosemirror-utils';
 import type {EditorView} from 'prosemirror-view';
 
@@ -169,15 +171,15 @@ export const createTab: (afterTab: NodeWithPos, tabsParentNode: NodeWithPos) => 
     (afterTab, tabsParentNode) => (state, dispatch, view) => {
         const tabNodes = findChildren(
             tabsParentNode.node,
-            (node) => node.type.name === tabType(state.schema).name,
+            (node: Node) => node.type.name === tabType(state.schema).name,
         );
 
-        const tabPanels = findChildren(tabsParentNode.node, (tabNode) => {
+        const tabPanels = findChildren(tabsParentNode.node, (tabNode: Node) => {
             return tabNode.type.name === tabPanelType(state.schema).name;
         });
 
         const afterPanelNode = tabPanels.filter(
-            (tabPanelNode) =>
+            (tabPanelNode: {node: Node}) =>
                 tabPanelNode.node.attrs[TabPanelAttrs.ariaLabelledby] ===
                 afterTab.node.attrs[TabAttrs.dataDiplodocid],
         )[0];
@@ -206,11 +208,11 @@ export const createTab: (afterTab: NodeWithPos, tabsParentNode: NodeWithPos) => 
         const {tr} = state;
 
         // Change relative pos to absolute
-        tabNodes.forEach((v) => {
+        tabNodes.forEach((v: {pos: number}) => {
             v.pos = v.pos + tabsParentNode.pos + 1;
         });
 
-        tabPanels.forEach((v) => {
+        tabPanels.forEach((v: {pos: number}) => {
             v.pos = v.pos + tabsParentNode.pos + 1;
         });
 
@@ -234,22 +236,22 @@ export const createTab: (afterTab: NodeWithPos, tabsParentNode: NodeWithPos) => 
 
 export const removeTab: (tabToRemove: NodeWithPos, tabsParentNode: NodeWithPos) => Command =
     (tabToRemove, tabsParentNode) => (state, dispatch, view) => {
-        const tabList = findChildren(tabsParentNode.node, (tabNode) => {
+        const tabList = findChildren(tabsParentNode.node, (tabNode: Node) => {
             return tabNode.type.name === tabsListType(state.schema).name;
         })[0];
         const tabToRemoveIdx = findChildIndex(tabList.node, tabToRemove.node);
 
         const tabNodes = findChildren(
             tabList.node,
-            (node) => node.type.name === tabType(state.schema).name,
+            (node: Node) => node.type.name === tabType(state.schema).name,
         );
 
-        const tabPanels = findChildren(tabsParentNode.node, (tabNode) => {
+        const tabPanels = findChildren(tabsParentNode.node, (tabNode: Node) => {
             return tabNode.type.name === tabPanelType(state.schema).name;
         });
 
         const panelToRemove = tabPanels.filter(
-            (tabPanelNode) =>
+            (tabPanelNode: {node: Node}) =>
                 tabPanelNode.node.attrs[TabPanelAttrs.ariaLabelledby] ===
                 tabToRemove.node.attrs[TabAttrs.dataDiplodocid],
         )[0];
@@ -263,11 +265,11 @@ export const removeTab: (tabToRemove: NodeWithPos, tabsParentNode: NodeWithPos) 
                 const newTabIdx = tabToRemoveIdx - 1 < 0 ? 1 : tabToRemoveIdx - 1;
 
                 // Change relative pos to absolute
-                tabNodes.forEach((v) => {
+                tabNodes.forEach((v: {pos: number}) => {
                     v.pos = v.pos + tabsParentNode.pos + 2;
                 });
 
-                tabPanels.forEach((v) => {
+                tabPanels.forEach((v: {pos: number}) => {
                     v.pos = v.pos + tabsParentNode.pos + 1;
                 });
 
@@ -336,7 +338,7 @@ export const joinBackwardToOpenTab: Command = (state, dispatch) => {
     }
     const activePanel = findChildren(
         tabsParent.node,
-        (n) => n.attrs.class === tabPanelActiveClassname,
+        (n: Node) => n.attrs.class === tabPanelActiveClassname,
     )[0];
 
     if (dispatch) {

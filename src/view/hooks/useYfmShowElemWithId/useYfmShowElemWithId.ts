@@ -1,8 +1,11 @@
 import {type RefObject, useEffect} from 'react';
 
 const YfmCutCN = {
-    Open: 'open',
     Cut: 'yfm-cut',
+} as const;
+
+const YfmCutAttrs = {
+    Open: 'open',
 } as const;
 
 const YfmTabsCN = {
@@ -34,9 +37,9 @@ export function useYfmShowElemWithId(ref: RefObject<HTMLElement>, id: string) {
     }, [id]);
 }
 
-function openYfmCut({classList}: Element): boolean {
-    if (classList.contains(YfmCutCN.Cut) && !classList.contains(YfmCutCN.Open)) {
-        classList.add(YfmCutCN.Open);
+function openYfmCut(cutElement: Element): boolean {
+    if (cutElement.classList.contains(YfmCutCN.Cut) && !cutElement.hasAttribute(YfmCutAttrs.Open)) {
+        cutElement.setAttribute(YfmCutAttrs.Open, '');
         return true;
     }
     return false;

@@ -1,10 +1,10 @@
-import React from 'react';
+import {useEffect, useLayoutEffect} from 'react';
 
 import {applyDevTools, removeDevTools} from 'prosemirror-dev-toolkit';
-import {EditorView} from 'prosemirror-view';
 import {useEffectOnce, useUpdate} from 'react-use';
 
-import type {MarkdownEditorInstance} from '../../src';
+import type {EditorView} from '#pm/view';
+import type {MarkdownEditorInstance} from 'src/index';
 
 export type WysiwygDevToolsProps = {
     editor: MarkdownEditorInstance;
@@ -18,7 +18,7 @@ export function WysiwygDevTools({editor}: WysiwygDevToolsProps) {
 
     const view = editor?.currentMode === 'wysiwyg' && editor._wysiwygView;
 
-    React.useLayoutEffect(() => {
+    useLayoutEffect(() => {
         if (!editor) return undefined;
         editor.on('change-editor-mode', rerender);
         return () => {
@@ -36,7 +36,7 @@ type ProseMirrorDevToolsProps = {
 };
 
 function ProseMirrorDevTools({view}: ProseMirrorDevToolsProps) {
-    React.useEffect(() => {
+    useEffect(() => {
         applyDevTools(view);
         return () => {
             removeDevTools();

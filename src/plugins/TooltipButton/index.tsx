@@ -1,35 +1,37 @@
-import React from 'react';
-
-import {NodeType} from 'prosemirror-model';
-import {EditorView} from 'prosemirror-view';
+import type {NodeType} from 'prosemirror-model';
+import type {EditorView} from 'prosemirror-view';
 
 import {
-    BaseTooltipNode,
-    BaseTooltipPluginOptions,
+    type BaseTooltipNode,
+    type BaseTooltipPluginOptions,
     BaseTooltipPluginView,
-    TooltipOnChangeCallback,
+    type TooltipOnChangeCallback,
 } from '../BaseTooltip';
 
 import {TooltipButton} from './TooltipButton';
 
+/** @deprecated */
 type ButtonContent = (
     view: EditorView,
     node: BaseTooltipNode,
     toggleEdit: () => void,
 ) => React.ReactElement;
 
+/** @deprecated */
 type FormContent = (
     view: EditorView,
     node: BaseTooltipNode,
     onChange?: TooltipOnChangeCallback,
 ) => React.ReactElement;
 
+/** @deprecated */
 interface TooltipMenuOptions extends BaseTooltipPluginOptions {
     disableHideOnBlur?: boolean;
     buttonContent: ButtonContent;
     formContent: FormContent;
 }
 
+/** @deprecated */
 export class TooltipButtonPluginView extends BaseTooltipPluginView {
     private enableHideOnBlur?: boolean;
     private forceEdit = false;
@@ -63,7 +65,7 @@ export class TooltipButtonPluginView extends BaseTooltipPluginView {
                 {this.forceEdit && this.formContent ? (
                     <div>{this.formContent(this.view, currentNode, this.changeAttrsCb)}</div>
                 ) : (
-                    <TooltipButton domRef={currentNode.dom} onOutsideClick={this.onOutsideClick}>
+                    <TooltipButton domElem={currentNode.dom} onOutsideClick={this.onOutsideClick}>
                         {this.buttonContent(this.view, currentNode, this.toggleEdit)}
                     </TooltipButton>
                 )}

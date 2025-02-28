@@ -1,7 +1,6 @@
 /**
  * @deprecated This file is deprecated. Use ToolbarsPreset instead.
  */
-import React from 'react';
 
 import {i18n} from '../../i18n/menubar';
 import {
@@ -40,41 +39,44 @@ import {
     wrapToYfmCut,
     wrapToYfmNote,
 } from '../../markup/commands';
-import {CodeEditor} from '../../markup/editor';
+import type {CodeEditor} from '../../markup/editor';
 import {Action as A, formatter as f} from '../../shortcuts';
-import {ToolbarData} from '../../toolbar/Toolbar';
-import {ToolbarGroupData} from '../../toolbar/ToolbarGroup';
-import {ToolbarListButtonData} from '../../toolbar/ToolbarListButton';
-import {
-    ToolbarButtonPopupData,
-    ToolbarDataType,
-    ToolbarItemData,
-    ToolbarListButtonItemData,
-    ToolbarListItemData,
-    ToolbarReactComponentData,
-    ToolbarSingleItemData,
-} from '../../toolbar/types';
 import {MToolbarColors} from '../toolbar/markup/MToolbarColors';
 import {MToolbarFilePopup} from '../toolbar/markup/MToolbarFilePopup';
 import {MToolbarImagePopup} from '../toolbar/markup/MToolbarImagePopup';
+import type {
+    MToolbarButtonPopupData,
+    MToolbarData,
+    MToolbarGroupData,
+    MToolbarItemData,
+    MToolbarListButtonData,
+    MToolbarListItemData,
+    MToolbarSingleItemData,
+    ToolbarListButtonItemData,
+} from '../toolbar/types';
+import {ToolbarDataType} from '../toolbar/types';
 import type {MarkdownEditorPreset} from '../types';
 
 import {ActionName} from './action-names';
 import {icons} from './icons';
+import {HeadingPreview} from './previews/HeadingPreview';
+
+export type {
+    MToolbarBaseProps,
+    MToolbarData,
+    MToolbarItemData,
+    MToolbarSingleItemData,
+    MToolbarGroupData,
+    MToolbarReactComponentData,
+    MToolbarListButtonData,
+    MToolbarListItemData,
+    MToolbarButtonPopupData,
+} from '../toolbar/types';
 
 const noop = () => {};
 const inactive = () => false;
 const enable = () => true;
 const disable = () => false;
-
-export type MToolbarData = ToolbarData<CodeEditor>;
-export type MToolbarItemData = ToolbarItemData<CodeEditor>;
-export type MToolbarSingleItemData = ToolbarSingleItemData<CodeEditor>;
-export type MToolbarGroupData = ToolbarGroupData<CodeEditor>;
-export type MToolbarReactComponentData = ToolbarReactComponentData<CodeEditor>;
-export type MToolbarListButtonData = ToolbarListButtonData<CodeEditor>;
-export type MToolbarListItemData = ToolbarListItemData<CodeEditor>;
-export type MToolbarButtonPopupData = ToolbarButtonPopupData<CodeEditor>;
 
 export const mUndoItemData: MToolbarSingleItemData = {
     id: ActionName.undo,
@@ -362,6 +364,7 @@ export const mHeading1ItemData: ToolbarListButtonItemData<CodeEditor> = {
     exec: (e) => toH1(e.cm),
     isActive: inactive,
     isEnable: enable,
+    preview: <HeadingPreview level={1} />,
 };
 export const mHeading2ItemData: ToolbarListButtonItemData<CodeEditor> = {
     id: ActionName.heading2,
@@ -371,6 +374,7 @@ export const mHeading2ItemData: ToolbarListButtonItemData<CodeEditor> = {
     exec: (e) => toH2(e.cm),
     isActive: inactive,
     isEnable: enable,
+    preview: <HeadingPreview level={2} />,
 };
 export const mHeading3ItemData: ToolbarListButtonItemData<CodeEditor> = {
     id: ActionName.heading3,
@@ -380,6 +384,7 @@ export const mHeading3ItemData: ToolbarListButtonItemData<CodeEditor> = {
     exec: (e) => toH3(e.cm),
     isActive: inactive,
     isEnable: enable,
+    preview: <HeadingPreview level={3} />,
 };
 export const mHeading4ItemData: ToolbarListButtonItemData<CodeEditor> = {
     id: ActionName.heading4,
@@ -389,6 +394,7 @@ export const mHeading4ItemData: ToolbarListButtonItemData<CodeEditor> = {
     exec: (e) => toH4(e.cm),
     isActive: inactive,
     isEnable: enable,
+    preview: <HeadingPreview level={4} />,
 };
 export const mHeading5ItemData: ToolbarListButtonItemData<CodeEditor> = {
     id: ActionName.heading5,
@@ -398,6 +404,7 @@ export const mHeading5ItemData: ToolbarListButtonItemData<CodeEditor> = {
     exec: (e) => toH5(e.cm),
     isActive: inactive,
     isEnable: enable,
+    preview: <HeadingPreview level={5} />,
 };
 export const mHeading6ItemData: ToolbarListButtonItemData<CodeEditor> = {
     id: ActionName.heading6,
@@ -407,6 +414,7 @@ export const mHeading6ItemData: ToolbarListButtonItemData<CodeEditor> = {
     exec: (e) => toH6(e.cm),
     isActive: inactive,
     isEnable: enable,
+    preview: <HeadingPreview level={6} />,
 };
 
 export const mBulletListItemData: ToolbarListButtonItemData<CodeEditor> = {

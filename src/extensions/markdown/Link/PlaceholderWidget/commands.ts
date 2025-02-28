@@ -1,6 +1,6 @@
-import {Command} from 'prosemirror-state';
+import type {Command} from 'prosemirror-state';
 
-import {ExtensionDeps} from '../../../../core';
+import type {ExtensionDeps} from '../../../../core';
 
 import {addPlaceholder} from './descriptor';
 

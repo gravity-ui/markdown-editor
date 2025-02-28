@@ -1,15 +1,15 @@
-import React from 'react';
+import {Fragment} from 'react';
 
 import {cn} from '../classname';
 
-import {ToolbarButtonGroup, ToolbarGroupData} from './ToolbarGroup';
-import {ToolbarBaseProps} from './types';
+import {ToolbarButtonGroup} from './ToolbarGroup';
+import type {ToolbarBaseProps, ToolbarData} from './types';
 
 import './Toolbar.scss';
 
 const b = cn('toolbar');
 
-export type ToolbarData<E> = ToolbarGroupData<E>[];
+export type {ToolbarData};
 
 export type ToolbarProps<E> = ToolbarBaseProps<E> & {
     data: ToolbarData<E>;
@@ -22,7 +22,7 @@ export function Toolbar<E>({editor, data, className, focus, onClick}: ToolbarPro
                 const isLastGroup = index === data.length - 1;
 
                 return (
-                    <React.Fragment key={index}>
+                    <Fragment key={index}>
                         <ToolbarButtonGroup
                             data={group}
                             editor={editor}
@@ -31,7 +31,7 @@ export function Toolbar<E>({editor, data, className, focus, onClick}: ToolbarPro
                             className={b('group')}
                         />
                         {isLastGroup || <div className={b('group-separator')} />}
-                    </React.Fragment>
+                    </Fragment>
                 );
             })}
         </div>

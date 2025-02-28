@@ -1,9 +1,10 @@
-import React, {useEffect} from 'react';
+import {StrictMode, useEffect} from 'react';
 
 import {useUpdate} from 'react-use';
 
-import type {MarkdownEditorInstance} from '../../src';
-import {VERSION} from '../../src/version';
+import type {MarkdownEditorInstance} from 'src/index';
+import {VERSION} from 'src/version';
+
 import {useMarkdownEditorValue} from '../hooks/useMarkdownEditorValue';
 import {block} from '../utils/cn';
 
@@ -49,14 +50,14 @@ export const PlaygroundLayout: React.FC<PlaygroundLayoutProps> = function Playgr
 
             <hr />
 
-            <React.StrictMode>
+            <StrictMode>
                 <div className={b('editor')} style={{height: props.viewHeight ?? 'initial'}}>
                     {props.view({className: b('editor-view')})}
 
                     <WysiwygDevTools editor={editor} />
                     <WysiwygSelection editor={editor} className={b('pm-selection')} />
                 </div>
-            </React.StrictMode>
+            </StrictMode>
 
             <hr />
 

@@ -1,15 +1,18 @@
-import {Node} from 'prosemirror-model';
+import type {Node} from 'prosemirror-model';
 
 import type {ExtensionAuto} from '../core';
-import {BehaviorPreset, BehaviorPresetOptions} from '../extensions/behavior';
-import {EditorModeKeymap, EditorModeKeymapOptions} from '../extensions/behavior/EditorModeKeymap';
+import {BehaviorPreset, type BehaviorPresetOptions} from '../extensions/behavior';
+import {
+    EditorModeKeymap,
+    type EditorModeKeymapOptions,
+} from '../extensions/behavior/EditorModeKeymap';
 import {BaseNode, YfmHeadingAttr, YfmNoteNode} from '../extensions/specs';
 import {i18n as i18nPlaceholder} from '../i18n/placeholder';
-import {CommonMarkPreset, CommonMarkPresetOptions} from '../presets/commonmark';
-import {DefaultPreset, DefaultPresetOptions} from '../presets/default';
-import {FullPreset, FullPresetOptions} from '../presets/full';
-import {YfmPreset, YfmPresetOptions} from '../presets/yfm';
-import {ZeroPreset, ZeroPresetOptions} from '../presets/zero';
+import {CommonMarkPreset, type CommonMarkPresetOptions} from '../presets/commonmark';
+import {DefaultPreset, type DefaultPresetOptions} from '../presets/default';
+import {FullPreset, type FullPresetOptions} from '../presets/full';
+import {YfmPreset, type YfmPresetOptions} from '../presets/yfm';
+import {ZeroPreset, type ZeroPresetOptions} from '../presets/zero';
 import {Action as A, formatter as f} from '../shortcuts';
 import type {DirectiveSyntaxContext} from '../utils/directive';
 import type {FileUploadHandler} from '../utils/upload';
@@ -57,6 +60,15 @@ export const BundlePreset: ExtensionAuto<BundlePresetOptions> = (builder, opts) 
 
     const zeroOptions: BehaviorPresetOptions & ZeroPresetOptions = {
         ...opts,
+        baseStyles: {
+            attributes: {
+                // for disable setting attrs inside pm-view from floating-ui from uikit
+                // see https://github.com/floating-ui/floating-ui/discussions/3213
+                // and https://github.com/floating-ui/floating-ui/pull/3202
+                'aria-live': '',
+                ...opts.baseStyles?.attributes,
+            },
+        },
         cursor: {dropOptions: dropCursor},
         clipboard: {pasteFileHandler: opts.fileUploadHandler, ...opts.clipboard},
         selectionContext: {config: wSelectionMenuConfigByPreset.zero, ...opts.selectionContext},

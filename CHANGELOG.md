@@ -1,5 +1,127 @@
 # Changelog
 
+## [15.2.2](https://github.com/gravity-ui/markdown-editor/compare/v15.2.1...v15.2.2) (2025-02-27)
+
+
+### Bug Fixes
+
+* **Color:** fixed import of color md plugin ([#661](https://github.com/gravity-ui/markdown-editor/issues/661)) ([d260605](https://github.com/gravity-ui/markdown-editor/commit/d2606052c366d3f01c31cbb62bb460757171fa86))
+
+## [15.2.1](https://github.com/gravity-ui/markdown-editor/compare/v15.2.0...v15.2.1) (2025-02-26)
+
+
+### Bug Fixes
+
+* added file extensions to full-path imports for esm-build ([#651](https://github.com/gravity-ui/markdown-editor/issues/651)) ([2bfcd5d](https://github.com/gravity-ui/markdown-editor/commit/2bfcd5de0ebf66427f733c7cc94327cf34d4ec4e))
+* **Emoji:** added file extension to plugin import path ([#654](https://github.com/gravity-ui/markdown-editor/issues/654)) ([77d3c0c](https://github.com/gravity-ui/markdown-editor/commit/77d3c0c85ab4347bcf6c0146a7bfd74f81cb01f1))
+
+## [15.2.0](https://github.com/gravity-ui/markdown-editor/compare/v15.1.0...v15.2.0) (2025-02-21)
+
+
+### Features
+
+* add more event logs ([#650](https://github.com/gravity-ui/markdown-editor/issues/650)) ([9ab291e](https://github.com/gravity-ui/markdown-editor/commit/9ab291eee3c35c618c7acd45d161d456d11f2e11))
+* new logger implementation ([#646](https://github.com/gravity-ui/markdown-editor/issues/646)) ([c0bf2ca](https://github.com/gravity-ui/markdown-editor/commit/c0bf2cafef236dfca80ff9bc81c02c200bbff0db))
+
+## [15.1.0](https://github.com/gravity-ui/markdown-editor/compare/v15.0.2...v15.1.0) (2025-02-19)
+
+
+### Features
+
+* **ImgSize:** added ability to render custom form in image widget ([#639](https://github.com/gravity-ui/markdown-editor/issues/639)) ([b529453](https://github.com/gravity-ui/markdown-editor/commit/b52945349472656eb0f21c6e6b3f93919126987d))
+
+
+### Bug Fixes
+
+* **ImgSize:** support enableNewImageSizeCalculation in ImageWidget ([#641](https://github.com/gravity-ui/markdown-editor/issues/641)) ([f6a7899](https://github.com/gravity-ui/markdown-editor/commit/f6a7899332adeced9e7bc87447b0ee5a5c19bf7a))
+* **YfmCut:** fixed open state styles for nested cuts ([#643](https://github.com/gravity-ui/markdown-editor/issues/643)) ([25089b3](https://github.com/gravity-ui/markdown-editor/commit/25089b312fddb6486b9e1921bbfa9cdfa3b541ea))
+
+## [15.0.2](https://github.com/gravity-ui/markdown-editor/compare/v15.0.1...v15.0.2) (2025-02-17)
+
+
+### Bug Fixes
+
+* **bundle:** fixed YfmTable serialization inside quotes at any nesting level ([#635](https://github.com/gravity-ui/markdown-editor/issues/635)) ([52b421c](https://github.com/gravity-ui/markdown-editor/commit/52b421c3eeb847685a2c5d8ce113814a6a0cad6c))
+* **ImagePaste:** make image paste priority higher than link to make image link paste working ([#634](https://github.com/gravity-ui/markdown-editor/issues/634)) ([9b98e40](https://github.com/gravity-ui/markdown-editor/commit/9b98e401ccfdf9b9b6617b489e9dbd1e36c3c0c7))
+* **view:** updated cut open logic to use attributes instead of classes due to extension update ([#628](https://github.com/gravity-ui/markdown-editor/issues/628)) ([0985395](https://github.com/gravity-ui/markdown-editor/commit/0985395c0c6586ac9687e7a36356a0123c630e2d))
+
+## [15.0.1](https://github.com/gravity-ui/markdown-editor/compare/v15.0.0...v15.0.1) (2025-02-12)
+
+
+### Bug Fixes
+
+* **bundle:** added missing toolbar types ([#611](https://github.com/gravity-ui/markdown-editor/issues/611)) ([40a5ff2](https://github.com/gravity-ui/markdown-editor/commit/40a5ff2f7354ece6bc783bf3a3a89e6fa7e02e88))
+* **bundle:** added preview in toolbar select ([#615](https://github.com/gravity-ui/markdown-editor/issues/615)) ([4dfb4fc](https://github.com/gravity-ui/markdown-editor/commit/4dfb4fca360c20307f4a2f64e03e230fab97a01c))
+* **bundle:** fixed active list element ([#625](https://github.com/gravity-ui/markdown-editor/issues/625)) ([60e16d4](https://github.com/gravity-ui/markdown-editor/commit/60e16d4126f7533d61dba98fbdfc837aff670130))
+* **cut:** fixed open state styles ([#616](https://github.com/gravity-ui/markdown-editor/issues/616)) ([f80fe92](https://github.com/gravity-ui/markdown-editor/commit/f80fe922af88d9e547d25b9d590ac40a94f7de2d))
+* **plugins:** mark TooltipButtonPlugin and TooltipSelectPlugin deprecated ([#621](https://github.com/gravity-ui/markdown-editor/issues/621)) ([06d4c6c](https://github.com/gravity-ui/markdown-editor/commit/06d4c6ce6c78e6667b5253d5797592ef3515c21d))
+* **toolbar:** dont render tooltip if preview is empty ([#622](https://github.com/gravity-ui/markdown-editor/issues/622)) ([4e9d19f](https://github.com/gravity-ui/markdown-editor/commit/4e9d19fe13d79e0724732f48fe6c9073f8c197e2))
+* **toolbar:** fixed preview tooltip placement ([#607](https://github.com/gravity-ui/markdown-editor/issues/607)) ([de141f2](https://github.com/gravity-ui/markdown-editor/commit/de141f22ea0d8b770e9737ff21dd25da20d9e3ff))
+
+## [15.0.0](https://github.com/gravity-ui/markdown-editor/compare/v14.12.2...v15.0.0) (2025-02-11)
+
+See [the migration guide here](https://github.com/gravity-ui/markdown-editor/discussions/610).
+
+### ⚠ BREAKING CHANGES
+
+* markdown-editor@15 ([#604](https://github.com/gravity-ui/markdown-editor/issues/604))
+* `@gravity-ui/uikit` updated to v7
+* removed `toaster` prop from `<MarkdownEditorView />` component
+* removed deprecated props from `useMarkdownEditor()` hook
+* removed generics from `useMarkdownEditor()` and `UseMarkdownEditorProps`
+* removed deprecated `PluginPriority` field from `ExtensionBuilder`
+* removed deprecated constants with node and mark names; similarly for attributes
+* removed deprecated `<YfmHtml />` and `YfmHtmlProps`
+* removed deprecated `disabledPopoverVisible` field from `ToolbarItemData` type
+* removed `typesVersions` from `package.json`
+* build react-jsx using new jsx-transform
+* dropped support of `react@16.8.0`; changed minimal `react@16` version: `^16.14.0`
+* changed build target to ES2022 
+* dropped support of `@diplodoc/transform` lower then `^4.43.0`
+* dropped support of `@diplodoc/cut-extension` lower then `^0.5.0`
+* added `@diplodoc/file-extension` to peer dependencies
+* updated `SerializerMarkToken` — parent parameter now uses `Node` instead of `Fragment`
+
+### Features
+
+* moved `lodash` to dependencies
+* updated `codemirror` packages to latest versions
+* updated `prosemirror` packages to latest versions
+* added sourcemaps for builded files 
+
+## [14.12.2](https://github.com/gravity-ui/markdown-editor/compare/v14.12.0...v14.12.2) (2025-02-11)
+
+
+### chore
+
+* release 14.12.2 ([12a8ef1](https://github.com/gravity-ui/markdown-editor/commit/12a8ef1d6a4b8fba5f9741d0d974a8549992acc6))
+
+## [14.12.0](https://github.com/gravity-ui/markdown-editor/compare/v14.11.2...v14.12.0) (2025-02-11)
+
+
+### Features
+
+* **actions:** add heading previews ([#582](https://github.com/gravity-ui/markdown-editor/issues/582)) ([0bf2af1](https://github.com/gravity-ui/markdown-editor/commit/0bf2af1a65c52f82559930e1f31dab78f9c16b34))
+* **core:** added preserving and managing original markdown formatting for YfmTable ([#558](https://github.com/gravity-ui/markdown-editor/issues/558)) ([59549eb](https://github.com/gravity-ui/markdown-editor/commit/59549ebb4ee04296ae32e68c4e6289559d037330))
+
+## [14.11.2](https://github.com/gravity-ui/markdown-editor/compare/v14.11.1...v14.11.2) (2025-02-07)
+
+
+### Bug Fixes
+
+* **deps:** updated @diplodoc/cut-extension ([#593](https://github.com/gravity-ui/markdown-editor/issues/593)) ([30d0d8c](https://github.com/gravity-ui/markdown-editor/commit/30d0d8cb3732869d9142e15398315f78a4a8ea31))
+
+## [14.11.1](https://github.com/gravity-ui/markdown-editor/compare/v14.11.0...v14.11.1) (2025-02-03)
+
+
+### Bug Fixes
+
+* **BaseSchema:** fixed definition of an empty string during serialization ([#571](https://github.com/gravity-ui/markdown-editor/issues/571)) ([2926d71](https://github.com/gravity-ui/markdown-editor/commit/2926d71d88e89f6cb85512f39a9be944331644d9))
+* fixed critical circular dependencies ([#549](https://github.com/gravity-ui/markdown-editor/issues/549)) ([0540dc9](https://github.com/gravity-ui/markdown-editor/commit/0540dc95b23b8c866a4834e3ee6e6853d67e43e3))
+* **Link:** set high priority to link mark ([#568](https://github.com/gravity-ui/markdown-editor/issues/568)) ([6da4e70](https://github.com/gravity-ui/markdown-editor/commit/6da4e70e396eb9554ed55779bc364173171c6c26))
+* **markup:** show initial search state in search popup ([#570](https://github.com/gravity-ui/markdown-editor/issues/570)) ([0749cb3](https://github.com/gravity-ui/markdown-editor/commit/0749cb3edcc8ccc30f6f8ab7b75b515e28f582e6))
+* **Mermaid:** fixed serialization of mermaid block inside other blocks ([#577](https://github.com/gravity-ui/markdown-editor/issues/577)) ([5277645](https://github.com/gravity-ui/markdown-editor/commit/5277645c8914c996bf004ced55249f83f7737335))
+
 ## [14.11.0](https://github.com/gravity-ui/markdown-editor/compare/v14.10.5...v14.11.0) (2025-01-22)
 
 

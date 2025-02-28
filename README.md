@@ -30,7 +30,6 @@ To set up styling and theme see [UIKit docs](https://github.com/gravity-ui/uikit
 ```tsx
 import React from 'react';
 import {useMarkdownEditor, MarkdownEditorView} from '@gravity-ui/markdown-editor';
-import {toaster} from '@gravity-ui/uikit/toaster-singleton-react-18';
 
 function Editor({onSubmit}) {
   const editor = useMarkdownEditor({allowHTML: false});
@@ -48,17 +47,17 @@ function Editor({onSubmit}) {
     };
   }, [onSubmit]);
 
-  return <MarkdownEditorView stickyToolbar autofocus toaster={toaster} editor={editor} />;
+  return <MarkdownEditorView stickyToolbar autofocus editor={editor} />;
 }
 ```
 Read more:
-- [How to connect the editor in the Create React App](https://preview.gravity-ui.com/md-editor/?path=/docs/docs-install-create-react-app--docs)
-- [How to add preview for markup mode](https://preview.gravity-ui.com/md-editor/?path=/docs/docs-develop-preview--docs)
-- [How to add HTML extension](https://preview.gravity-ui.com/md-editor/?path=/docs/docs-connect-html-block--docs)
-- [How to add Latex extension](https://preview.gravity-ui.com/md-editor/?path=/docs/docs-connect-latex-extension--docs)
-- [How to add Mermaid extension](https://preview.gravity-ui.com/md-editor/?path=/docs/docs-connect-mermaid-extension--docs)
+- [How to connect the editor in the Create React App](https://preview.gravity-ui.com/md-editor/?path=/docs/docs-getting-started-create-react-app--docs)
+- [How to add preview for markup mode](https://preview.gravity-ui.com/md-editor/?path=/docs/docs-getting-started-preview--docs)
+- [How to add HTML extension](https://preview.gravity-ui.com/md-editor/?path=/docs/docs-extensions-html-block--docs)
+- [How to add Latex extension](https://preview.gravity-ui.com/md-editor/?path=/docs/docs-extensions-latex-extension--docs)
+- [How to add Mermaid extension](https://preview.gravity-ui.com/md-editor/?path=/docs/docs-extensions-mermaid-extension--docs)
 - [How to write extension](https://preview.gravity-ui.com/md-editor/?path=/docs/docs-develop-extension-creation--docs)
-- [How to add GPT extension](https://preview.gravity-ui.com/md-editor/?path=/docs/docs-connect-gpt--docs)
+- [How to add GPT extension](https://preview.gravity-ui.com/md-editor/?path=/docs/docs-extensions-gpt--docs)
 - [How to add text binding extension in markdown](https://preview.gravity-ui.com/md-editor/?path=/docs/docs-develop-extension-with-popup--docs)
 
 ### Development

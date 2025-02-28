@@ -1,7 +1,7 @@
 // TODO: add a new method to the ExtensionBuilder
 import {transformEmptyParagraph} from './emptyRowTransformer';
 
-import {TransformFn} from '.';
+import type {TransformFn} from '.';
 
 type GetTransformersProps = {
     emptyRowTransformer?: boolean;

@@ -1,16 +1,21 @@
 import type {NodeSpec} from 'prosemirror-model';
 
 import {TableRole} from '../../../../table-utils';
-import {PlaceholderOptions} from '../../../../utils/placeholder';
+import type {PlaceholderOptions} from '../../../../utils/placeholder';
 
 import {YfmTableAttr, YfmTableNode} from './const';
 
-import type {YfmTableSpecsOptions} from './index';
-
 const DEFAULT_CELL_PLACEHOLDER = 'Table cell';
 
+export type YfmTableSchemaOptions = {
+    /**
+     * @deprecated: use placeholder option in BehaviorPreset instead.
+     */
+    yfmTableCellPlaceholder?: NonNullable<NodeSpec['placeholder']>['content'];
+};
+
 export const getSchemaSpecs = (
-    opts?: YfmTableSpecsOptions,
+    opts?: YfmTableSchemaOptions,
     placeholder?: PlaceholderOptions,
 ): Record<YfmTableNode, NodeSpec> => ({
     [YfmTableNode.Table]: {

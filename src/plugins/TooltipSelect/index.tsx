@@ -1,13 +1,16 @@
-import React from 'react';
+import type {SelectOption, SelectOptionGroup} from '@gravity-ui/uikit';
+import type {Node} from 'prosemirror-model';
+import type {EditorView} from 'prosemirror-view';
 
-import {SelectOption, SelectOptionGroup} from '@gravity-ui/uikit';
-import {Node} from 'prosemirror-model';
-import {EditorView} from 'prosemirror-view';
-
-import {BaseTooltipNode, BaseTooltipPluginOptions, BaseTooltipPluginView} from '../BaseTooltip';
+import {
+    type BaseTooltipNode,
+    type BaseTooltipPluginOptions,
+    BaseTooltipPluginView,
+} from '../BaseTooltip';
 
 import {TooltipButton} from './TooltipSelect';
 
+/** @deprecated */
 interface TooltipSelectOptions extends BaseTooltipPluginOptions {
     buttonText?: (node: Node) => string;
     items?: SelectOption[] | SelectOptionGroup[];
@@ -16,6 +19,7 @@ interface TooltipSelectOptions extends BaseTooltipPluginOptions {
     disableHideOnBlur?: boolean;
 }
 
+/** @deprecated */
 export class TooltipSelectPluginView extends BaseTooltipPluginView {
     private buttonText?: (node: Node) => string;
     private items?: SelectOption[] | SelectOptionGroup[];

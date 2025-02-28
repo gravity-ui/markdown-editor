@@ -1,5 +1,5 @@
 import {Fragment} from 'prosemirror-model';
-import {Command, TextSelection} from 'prosemirror-state';
+import {type Command, TextSelection} from 'prosemirror-state';
 
 import {findFirstTextblockChild} from '../../../utils/nodes';
 import {isSameNodeType} from '../../../utils/schema';

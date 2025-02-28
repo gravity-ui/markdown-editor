@@ -1,5 +1,6 @@
 import type {Fragment, Node, Schema} from 'prosemirror-model';
-import {Command, TextSelection} from 'prosemirror-state';
+import {type Command, TextSelection} from 'prosemirror-state';
+// @ts-ignore // TODO: fix cjs build
 import {findParentNodeClosestToPos} from 'prosemirror-utils';
 
 import type {ActionSpec} from '../../../../core';
@@ -17,7 +18,7 @@ export const createYfmCut: Command = (state, dispatch) => {
 
     const textblock = findParentNodeClosestToPos(
         sel.$from,
-        (node) => node.isTextblock && !node.type.spec.complex,
+        (node: Node) => node.isTextblock && !node.type.spec.complex,
     );
 
     if (!textblock) return false;

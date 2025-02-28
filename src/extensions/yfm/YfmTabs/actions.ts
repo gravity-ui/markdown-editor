@@ -1,4 +1,4 @@
-import {generateID} from '@diplodoc/transform/lib/plugins/utils';
+import {generateID} from '@diplodoc/transform/lib/plugins/utils.js';
 import type {Command} from 'prosemirror-state';
 
 import {pType} from '../../base/BaseSchema';

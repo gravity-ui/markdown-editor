@@ -1,21 +1,20 @@
-import React from 'react';
+import {offset, shift} from '@floating-ui/react'; // eslint-disable-line import/no-extraneous-dependencies
+import {Popup, type PopupProps} from '@gravity-ui/uikit';
+import type {EditorState} from 'prosemirror-state';
+import type {EditorView} from 'prosemirror-view';
 
-import {Popup, PopupProps} from '@gravity-ui/uikit';
-import {EditorState} from 'prosemirror-state';
-import {EditorView} from 'prosemirror-view';
-
-import {ActionStorage} from '../../../core';
+import type {ActionStorage} from '../../../core';
 import {isFunction} from '../../../lodash';
-import {logger} from '../../../logger';
+import {type Logger2, globalLogger} from '../../../logger';
 import {ErrorLoggerBoundary} from '../../../react-utils/ErrorBoundary';
-import {
-    Toolbar,
+import {Toolbar} from '../../../toolbar';
+import type {
     ToolbarButtonPopupData,
     ToolbarGroupItemData,
     ToolbarProps,
     ToolbarSingleItemData,
 } from '../../../toolbar';
-import {RendererItem, getReactRendererFromState} from '../ReactRenderer';
+import {type RendererItem, getReactRendererFromState} from '../ReactRenderer';
 
 type SelectionTooltipBaseProps = {
     show?: boolean;
@@ -50,6 +49,7 @@ export type ContextConfig = ContextGroupData[];
 export class TooltipView {
     #isTooltipOpen = false;
 
+    private logger: Logger2.ILogger;
     private actions: ActionStorage;
     private menuConfig: ContextConfig;
 
@@ -57,7 +57,8 @@ export class TooltipView {
     private baseProps: SelectionTooltipBaseProps = {show: false, poppupProps: {}};
     private _tooltipRenderItem: RendererItem | null = null;
 
-    constructor(actions: ActionStorage, menuConfig: ContextConfig) {
+    constructor(actions: ActionStorage, menuConfig: ContextConfig, logger: Logger2.ILogger) {
+        this.logger = logger;
         this.actions = actions;
         this.menuConfig = menuConfig;
     }
@@ -97,7 +98,10 @@ export class TooltipView {
             focus: () => this.view.focus(),
             data: this.getFilteredConfig(),
             editor: this.actions,
-            onClick: (id) => logger.action({mode: 'wysiwyg', source: 'context-menu', action: id}),
+            onClick: (id) => {
+                globalLogger.action({mode: 'wysiwyg', source: 'context-menu', action: id});
+                this.logger.action({source: 'context-menu', action: id});
+            },
         };
     }
 
@@ -157,8 +161,19 @@ export class TooltipView {
 
         return {
             placement: 'bottom',
-            anchorRef: {current: viewDom},
-            offset: [leftOffset, bottomOffset],
+            anchorElement: viewDom,
+            // override floating middlewares
+            floatingMiddlewares: [
+                offset({
+                    mainAxis: bottomOffset,
+                    crossAxis: leftOffset,
+                }),
+                shift({
+                    mainAxis: true,
+                    crossAxis: false,
+                    padding: 4,
+                }),
+            ],
         };
     }
 

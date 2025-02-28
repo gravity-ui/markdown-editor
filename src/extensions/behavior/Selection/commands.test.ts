@@ -4,13 +4,13 @@ import {builders} from 'prosemirror-test-builder';
 
 import {ExtensionsManager} from '../../../core';
 import {BaseNode, BaseSchema} from '../../base/BaseSchema';
-import {Blockquote, blockquote} from '../../markdown/Blockquote';
+import {Blockquote, blockquoteNodeName} from '../../markdown/Blockquote';
 import {CodeBlockSpecs, codeBlockNodeName} from '../../markdown/CodeBlock/CodeBlockSpecs';
 import {YfmTable, YfmTableNode} from '../../yfm/YfmTable';
 import {GapCursorSelection} from '../Cursor/GapCursorSelection';
 
 import {
-    Direction,
+    type Direction,
     findFakeParaPosForTextSelection,
     findNextFakeParaPosForGapCursorSelection,
 } from './commands';
@@ -34,7 +34,7 @@ const {doc, p, bq, codeBlock, table, tbody, tr, td, testnode} = builders<
 >(schema, {
     doc: {nodeType: BaseNode.Doc},
     p: {nodeType: BaseNode.Paragraph},
-    bq: {nodeType: blockquote},
+    bq: {nodeType: blockquoteNodeName},
     codeBlock: {nodeType: codeBlockNodeName},
     table: {nodeType: YfmTableNode.Table},
     tbody: {nodeType: YfmTableNode.Body},

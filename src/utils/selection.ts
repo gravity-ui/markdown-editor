@@ -1,20 +1,14 @@
 import type {Node, NodeType, ResolvedPos} from 'prosemirror-model';
-import {AllSelection, NodeSelection, Selection, TextSelection} from 'prosemirror-state';
-
-NodeSelection.prototype.selectionName = 'NodeSelection';
-TextSelection.prototype.selectionName = 'TextSelection';
-AllSelection.prototype.selectionName = 'AllSelection';
+import {AllSelection, NodeSelection, type Selection, TextSelection} from 'prosemirror-state';
 
 export const isTextSelection = (selection: Selection): selection is TextSelection =>
-    selection.selectionName === TextSelection.prototype.selectionName;
+    selection instanceof TextSelection;
 
 export const isNodeSelection = (selection: Selection): selection is NodeSelection =>
-    selection.selectionName === NodeSelection.prototype.selectionName;
+    selection instanceof NodeSelection;
 
-// ts broke down when use "selection is AllSelection" return type
-// maybe because AllSelection has same class type with different constructor
-export const isWholeSelection = (selection: Selection): boolean =>
-    selection.selectionName === AllSelection.prototype.selectionName;
+export const isWholeSelection = (selection: Selection): selection is AllSelection =>
+    selection instanceof AllSelection;
 
 export const get$Cursor = (selection: Selection): ResolvedPos | null => {
     return isTextSelection(selection) ? selection.$cursor : null;

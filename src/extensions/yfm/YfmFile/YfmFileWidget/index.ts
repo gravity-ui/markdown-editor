@@ -1,5 +1,5 @@
-import {Action, ExtensionAuto} from '../../../../core';
-import {FileUploadHandler} from '../../../../utils/upload';
+import type {Action, ExtensionAuto} from '../../../../core';
+import type {FileUploadHandler} from '../../../../utils/upload';
 
 import {addFileWidget} from './actions';
 

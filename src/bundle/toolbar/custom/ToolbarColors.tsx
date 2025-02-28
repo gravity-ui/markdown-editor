@@ -1,24 +1,27 @@
-import React from 'react';
-
 import {cn} from '../../../classname';
 import {Colors} from '../../../extensions';
 import {i18n} from '../../../i18n/menubar';
-import {ToolbarBaseProps} from '../../../toolbar';
+import type {ToolbarBaseProps} from '../../../toolbar';
 import {icons} from '../../config/icons';
-import {MenuItem, ToolbarButtonWithPopupMenu} from '../ToolbarButtonWithPopupMenu';
+import {
+    type MenuItem,
+    ToolbarButtonWithPopupMenu,
+    type ToolbarButtonWithPopupMenuProps,
+} from '../ToolbarButtonWithPopupMenu';
 
 import './ToolbarColors.scss';
 
 const b = cn('toolbar-colors');
 const textColorIcon = icons.textColor;
 
-export type ToolbarColorsProps = Omit<ToolbarBaseProps<never>, 'editor'> & {
-    active?: boolean;
-    enable?: boolean;
-    currentColor?: string;
-    withDefault?: boolean;
-    exec(color: string): void;
-};
+export type ToolbarColorsProps = Omit<ToolbarBaseProps<never>, 'editor'> &
+    Pick<ToolbarButtonWithPopupMenuProps, 'disablePortal'> & {
+        active?: boolean;
+        enable?: boolean;
+        currentColor?: string;
+        withDefault?: boolean;
+        exec(color: string): void;
+    };
 
 export const ToolbarColors: React.FC<ToolbarColorsProps> = (props) => {
     const {exec, onClick, enable, currentColor, withDefault} = props;

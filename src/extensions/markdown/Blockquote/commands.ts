@@ -6,7 +6,7 @@ import {joinPreviousBlock} from '../../../commands/join';
 import '../../../types/spec';
 import {get$CursorAtBlockStart, isTextSelection} from '../../../utils/selection';
 
-import {bqType, isBlockqouteNode} from './const';
+import {blockquoteType, isBlockqouteNode} from './const';
 
 export const liftFromQuote: Command = (state, dispatch) => {
     const $cursor = get$CursorAtBlockStart(state.selection);
@@ -21,7 +21,7 @@ export const joinPrevQuote = joinPreviousBlock({
 
 export const toggleQuote: Command = (state, dispatch) => {
     const {selection} = state;
-    const qType = bqType(state.schema);
+    const qType = blockquoteType(state.schema);
     if (!isTextSelection(selection) || !selection.$cursor) return wrapIn(qType)(state, dispatch);
     const {$cursor} = selection;
     let {depth} = $cursor;

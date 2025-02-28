@@ -1,20 +1,20 @@
 import type {EditorView} from 'prosemirror-view';
 
-import {logger} from '../../..//logger';
-import {AutocompletePopupCloser} from '../../..//utils/autocomplete-popup';
-import {ArrayCarousel} from '../../..//utils/carousel';
 import type {ActionStorage} from '../../../core';
 import {isFunction} from '../../../lodash';
+import {type Logger2, globalLogger} from '../../../logger';
+import {AutocompletePopupCloser} from '../../../utils/autocomplete-popup';
+import {ArrayCarousel} from '../../../utils/carousel';
 import {
-    AutocompleteAction,
+    type AutocompleteAction,
     AutocompleteActionKind,
-    AutocompleteHandler,
-    FromTo,
+    type AutocompleteHandler,
+    type FromTo,
     closeAutocomplete,
 } from '../Autocomplete';
-import {RendererItem, getReactRendererFromState} from '../ReactRenderer';
+import {type RendererItem, getReactRendererFromState} from '../ReactRenderer';
 
-import {CommandMenuComponentProps, render} from './component';
+import {type CommandMenuComponentProps, render} from './component';
 import type {CommandAction, Config} from './types';
 import {findDecoElem} from './utils';
 
@@ -25,19 +25,21 @@ declare module 'prosemirror-model' {
 }
 
 export type CommandHandlerParams = {
+    logger: Logger2.ILogger;
     actions: Config;
     storage: ActionStorage;
     nodesIgnoreList?: readonly string[];
 };
 
 export class CommandHandler implements AutocompleteHandler {
+    readonly #logger: Logger2.ILogger;
     readonly #actions: readonly CommandAction[];
     readonly #actionStorage: ActionStorage;
     readonly #nodesIgnoreList: readonly string[];
     #filteredActionsCarousel?: ArrayCarousel<CommandAction>;
 
     #view?: EditorView;
-    #anchor?: Element | null;
+    #anchor: Element | null = null;
     #range?: FromTo;
     #filterText?: string;
     #popupCloser?: AutocompletePopupCloser;
@@ -45,7 +47,8 @@ export class CommandHandler implements AutocompleteHandler {
     #menuProps?: CommandMenuComponentProps;
     #menuRenderItem?: RendererItem;
 
-    constructor({actions, storage, nodesIgnoreList = []}: CommandHandlerParams) {
+    constructor({logger, actions, storage, nodesIgnoreList = []}: CommandHandlerParams) {
+        this.#logger = logger;
         this.#actions = actions;
         this.#actionStorage = storage;
         this.#nodesIgnoreList = nodesIgnoreList;
@@ -164,7 +167,8 @@ export class CommandHandler implements AutocompleteHandler {
         action.exec(this.#actionStorage);
         view.focus();
 
-        logger.action({mode: 'wysiwyg', source: 'command-menu', action: action.id});
+        globalLogger.action({mode: 'wysiwyg', source: 'command-menu', action: action.id});
+        this.#logger.action({source: 'command-menu', action: action.id});
     }
 
     private filterActions(): boolean {
@@ -201,12 +205,11 @@ export class CommandHandler implements AutocompleteHandler {
         this.findAnchor();
         const viewItems = this.#filteredActionsCarousel?.array ?? [];
         this.#menuProps = {
-            anchor: this.#anchor,
+            anchorElement: this.#anchor,
             currentIndex: this.#filteredActionsCarousel?.currentIndex,
             items: viewItems,
-            onClick: this.onItemClick,
-            onEscapeKeyDown: this.#popupCloser?.popupEscapeKeyHandler,
-            onOutsideClick: this.#popupCloser?.popupOutsideClickHandler,
+            onItemClick: this.onItemClick,
+            onOpenChange: this.#popupCloser?.popupOpenChangeHandler,
         };
         this.#menuRenderItem = this.#menuRenderItem ?? this.createMenuRenderItem();
         this.#menuRenderItem.rerender();
@@ -228,7 +231,7 @@ export class CommandHandler implements AutocompleteHandler {
     private clear() {
         this.#view = undefined;
         this.#range = undefined;
-        this.#anchor = undefined;
+        this.#anchor = null;
         this.#filterText = undefined;
         this.#filteredActionsCarousel = undefined;
         this.#popupCloser?.cancelTimer();

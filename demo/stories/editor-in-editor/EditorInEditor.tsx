@@ -1,8 +1,7 @@
-import React, {FC, useEffect} from 'react';
+import {useEffect} from 'react';
 
-import {toaster} from '@gravity-ui/uikit/toaster-singleton-react-18';
+import {BaseNode, MarkdownEditorView, useMarkdownEditor} from 'src/index';
 
-import {BaseNode, MarkdownEditorView, useMarkdownEditor} from '../../../src';
 import {PlaygroundLayout} from '../../components/PlaygroundLayout';
 
 import {
@@ -11,17 +10,20 @@ import {
     EditorInEditor as extension,
 } from './EditorInEditorExtension';
 
-export const EditorInEditor: FC = () => {
+export const EditorInEditor: React.FC = () => {
     const editor = useMarkdownEditor({
-        initialEditorMode: 'wysiwyg',
-        initialToolbarVisible: true,
-        allowHTML: false,
-        linkify: true,
-        breaks: true,
-        extraExtensions: (builder) =>
-            builder.use(extension, {
-                toaster,
-            }),
+        md: {
+            html: false,
+            linkify: true,
+            breaks: true,
+        },
+        initial: {
+            mode: 'wysiwyg',
+            toolbarVisible: true,
+        },
+        wysiwygConfig: {
+            extensions: (builder) => builder.use(extension, {}),
+        },
     });
 
     useEffect(() => {
@@ -49,7 +51,6 @@ export const EditorInEditor: FC = () => {
                     stickyToolbar
                     settingsVisible
                     editor={editor}
-                    toaster={toaster}
                     className={className}
                 />
             )}

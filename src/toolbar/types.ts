@@ -1,10 +1,6 @@
-import type {RefObject} from 'react';
-
 import type {HotkeyProps, IconProps} from '@gravity-ui/uikit';
 
 import type {ClassNameProps} from '../classname';
-
-import type {ToolbarListButtonData} from './ToolbarListButton';
 
 export type ToolbarBaseProps<E> = ClassNameProps & {
     editor: E;
@@ -13,6 +9,8 @@ export type ToolbarBaseProps<E> = ClassNameProps & {
 };
 
 export type ToolbarIconData = Pick<IconProps, 'data' | 'size'>;
+export type ToolbarGroupData<E> = Array<ToolbarGroupItemData<E>>;
+export type ToolbarData<E> = ToolbarGroupData<E>[];
 
 export type ToolbarItemData<E> = {
     id: string;
@@ -20,8 +18,7 @@ export type ToolbarItemData<E> = {
     title: string | (() => string);
     hint?: string | (() => string);
     hotkey?: HotkeyProps['value'];
-    /** @deprecated Use _hintWhenDisabled_ setting instead */
-    disabledPopoverVisible?: boolean;
+    preview?: React.ReactNode;
     /**
      * Show hint when _isEnable()_ returns false
      *
@@ -76,6 +73,7 @@ export type ToolbarReactComponentData<E> = {
     width: number;
     className?: string;
     component: React.ComponentType<ToolbarBaseProps<E>>;
+    props?: object;
 };
 
 export type ToolbarButtonPopupData<E> = ToolbarItemData<E> & {
@@ -83,13 +81,22 @@ export type ToolbarButtonPopupData<E> = ToolbarItemData<E> & {
     exec: ToolbarItemData<E>['exec'];
     type: ToolbarDataType.ButtonPopup;
     renderPopup: (
-        props: ToolbarBaseProps<E> & {hide: () => void; anchorRef: RefObject<HTMLElement>},
+        props: ToolbarBaseProps<E> & {hide: () => void; anchorElement: HTMLElement | null},
     ) => React.ReactNode;
     className?: string;
 };
 
 export type ToolbarListButtonItemData<E> = ToolbarItemData<E> & {
     doNotActivateList?: boolean;
+};
+
+export type ToolbarListButtonData<E> = {
+    icon: ToolbarIconData;
+    title: string | (() => string);
+    withArrow?: boolean;
+    data: ToolbarListButtonItemData<E>[];
+    alwaysActive?: boolean;
+    hideDisabled?: boolean;
 };
 
 /**

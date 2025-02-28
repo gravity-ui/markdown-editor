@@ -8,10 +8,11 @@ import {
 } from 'prosemirror-state';
 import type {EditorProps, EditorView} from 'prosemirror-view';
 
-import {ActionStorage, ExtensionAuto} from '../../../core';
+import type {ActionStorage, ExtensionAuto} from '../../../core';
+import type {Logger2} from '../../../logger';
 import {isCodeBlock} from '../../../utils/nodes';
 
-import {ContextConfig, TooltipView} from './tooltip';
+import {type ContextConfig, TooltipView} from './tooltip';
 
 export type {
     ContextConfig as SelectionContextConfig,
@@ -24,7 +25,9 @@ export type SelectionContextOptions = {
 
 export const SelectionContext: ExtensionAuto<SelectionContextOptions> = (builder, {config}) => {
     if (Array.isArray(config) && config.length > 0) {
-        builder.addPlugin(({actions}) => new Plugin(new SelectionTooltip(actions, config)));
+        builder.addPlugin(
+            ({actions}) => new Plugin(new SelectionTooltip(actions, config, builder.logger)),
+        );
     }
 };
 
@@ -38,8 +41,8 @@ class SelectionTooltip implements PluginSpec<unknown> {
 
     private _isMousePressed = false;
 
-    constructor(actions: ActionStorage, menuConfig: ContextConfig) {
-        this.tooltip = new TooltipView(actions, menuConfig);
+    constructor(actions: ActionStorage, menuConfig: ContextConfig, logger: Logger2.ILogger) {
+        this.tooltip = new TooltipView(actions, menuConfig, logger);
     }
 
     get props(): EditorProps {
@@ -123,8 +126,8 @@ class SelectionTooltip implements PluginSpec<unknown> {
         }
 
         this.tooltip.show(view, {
-            onOutsideClick: () => {
-                this.scheduleTooltipHiding(view);
+            onOpenChange: (_open, _event, reason) => {
+                if (reason !== 'escape-key') this.scheduleTooltipHiding(view);
             },
         });
     }

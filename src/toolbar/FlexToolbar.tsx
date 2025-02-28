@@ -1,4 +1,4 @@
-import React from 'react';
+import {useMemo} from 'react';
 
 import {Ellipsis} from '@gravity-ui/icons';
 import {useMeasure} from 'react-use';
@@ -7,10 +7,10 @@ import {cn} from '../classname';
 import {logger} from '../logger';
 import {useRenderTime} from '../react-utils/hooks';
 
-import {Toolbar, ToolbarProps} from './Toolbar';
+import {Toolbar, type ToolbarProps} from './Toolbar';
 import {ToolbarListButton} from './ToolbarListButton';
 import {shrinkToolbarData} from './flexible';
-import {ToolbarDataType, ToolbarItemData} from './types';
+import {ToolbarDataType, type ToolbarItemData} from './types';
 
 import './FlexToolbar.scss';
 
@@ -33,7 +33,7 @@ export function FlexToolbar<E>(props: FlexToolbarProps<E>) {
     const {data, className, hiddenActions} = props;
 
     const [ref, {width}] = useMeasure<HTMLDivElement>();
-    const {data: items, dots} = React.useMemo(() => {
+    const {data: items, dots} = useMemo(() => {
         const toolbarButtonIds = data.reduce((a: string[], toolbarGroup) => {
             return [
                 ...a,
