@@ -59,7 +59,7 @@ export const CodeBlockSpecs: ExtensionAuto<CodeBlockSpecsOptions> = (builder, op
                 },
             ],
             toDOM({attrs}) {
-                return ['pre', attrs, ['code', 0]];
+                return ['div', {class: 'code-block-container'}, ['pre', attrs, ['code', 0]]];
             },
         },
         fromMd: {

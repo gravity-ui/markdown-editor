@@ -12,7 +12,7 @@ export const HorizontalRuleSpecs: ExtensionAuto = (builder) => {
             group: 'block',
             parseDOM: [{tag: 'hr'}],
             toDOM() {
-                return ['div', ['hr']];
+                return ['div', {class: 'separator-container'}, ['hr']];
             },
             selectable: true,
         },

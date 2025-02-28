@@ -10,7 +10,7 @@ export const schemaSpecs: Record<TableNode, NodeSpec> = {
         isolating: true,
         parseDOM: [{tag: 'table'}],
         toDOM() {
-            return ['table', 0];
+            return ['div', {class: 'table-container'}, ['table', 0]];
         },
         selectable: true,
         allowSelection: true,

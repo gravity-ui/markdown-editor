@@ -19,6 +19,9 @@ export const viewB = cn('table-view');
 export const yfmTableView: NodeViewConstructor = (node, view, getPos) => {
     const actions = bindActions(controlActions)(view);
 
+    const containerElem = document.createElement('div');
+    containerElem.classList.add('yfm-table-container');
+
     const wrapperElem = document.createElement('div');
     wrapperElem.classList.add(wrapperB());
 
@@ -40,6 +43,7 @@ export const yfmTableView: NodeViewConstructor = (node, view, getPos) => {
     viewElem.appendChild(tableElem);
     viewElem.appendChild(controls);
     wrapperElem.appendChild(viewElem);
+    containerElem.appendChild(wrapperElem);
 
     const components = [
         <div className={viewB('plus-button-controls', {bottom: true})} key={1}>
@@ -72,7 +76,7 @@ export const yfmTableView: NodeViewConstructor = (node, view, getPos) => {
     );
 
     return {
-        dom: wrapperElem,
+        dom: containerElem,
         contentDOM: tableElem,
         destroy() {
             renderItem.remove();
