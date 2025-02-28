@@ -27,6 +27,7 @@ export const schemaSpecs: Record<HtmlNode, NodeSpec> = {
         toDOM(node) {
             const htmlContent = node.attrs[HtmlAttr.Content] as string;
             const elem = document.createElement('div');
+            elem.classList.add('html-block-container');
             elem.setAttribute(DomAttr.Html, '');
             elem.setAttribute(DomAttr.HtmlRaw, htmlContent);
             elem.contentEditable = 'false';
