@@ -1,4 +1,4 @@
-import {Fragment, type Node} from 'prosemirror-model';
+import type {Fragment} from 'prosemirror-model';
 
 import {isListItemNode, isListNode} from 'src/extensions/markdown/Lists/utils';
 import {isEmptyString} from 'src/utils';
@@ -62,59 +62,47 @@ export function extractTextContentFromHtml(html: string) {
     return null;
 }
 
-function isListItemEmpty(node: Node): boolean {
-    let isEmpty = true;
-    node.content.forEach((child) => {
-        if (!isEmptyString(child)) {
-            isEmpty = false;
+export function findNotEmptyContentPosses(fragment: Fragment): [number, number, number, number] {
+    let firstNodePos = -1;
+    let lastNodePos = -1;
+    let firstNotEmptyNodePos = -1;
+    let lastNotEmptyNodePos = -1;
+
+    fragment.forEach((contentNode, offset) => {
+        if (firstNodePos === -1) {
+            firstNodePos = offset;
+        }
+        lastNodePos = offset + contentNode.nodeSize;
+
+        if (!isEmptyString(contentNode)) {
+            if (isListNode(contentNode) || isListItemNode(contentNode)) {
+                const [start, end] = findNotEmptyContentPosses(contentNode.content);
+                if (firstNotEmptyNodePos === -1 && start !== -1) {
+                    firstNotEmptyNodePos = offset + start;
+                }
+                if (end !== -1) {
+                    lastNotEmptyNodePos = offset + end;
+                }
+            } else {
+                if (firstNotEmptyNodePos === -1) {
+                    firstNotEmptyNodePos = offset;
+                }
+                lastNotEmptyNodePos = offset + contentNode.nodeSize;
+            }
         }
     });
-    return isEmpty;
+
+    return [firstNotEmptyNodePos, lastNotEmptyNodePos, firstNodePos, lastNodePos];
 }
 
-export function trimListItems(fragment: Fragment): Fragment {
-    let modified = false;
-    const newChildren: Node[] = [];
+export function trimContent(fragment: Fragment): Fragment {
+    const [notEmptyStart, notEmptyEnd, start, end] = findNotEmptyContentPosses(fragment);
 
-    fragment.forEach((contentNode) => {
-        let result = contentNode;
+    if (notEmptyStart === start && notEmptyEnd === end) {
+        return fragment;
+    } else if (notEmptyStart === -1 && notEmptyEnd === -1) {
+        return fragment.cut(0, 1);
+    }
 
-        if (isListNode(contentNode)) {
-            const itemsArray: Node[] = Array.from(contentNode.content.content);
-            if (itemsArray.length === 0) {
-                return;
-            }
-
-            const initialStart = 0;
-            const initialEnd = itemsArray.length - 1;
-            let start = initialStart;
-            let end = initialEnd;
-
-            while (start <= end) {
-                if (isListItemNode(itemsArray[start])) {
-                    if (!isListItemEmpty(itemsArray[start])) {
-                        break;
-                    }
-                    start++;
-                }
-
-                if (start <= end && isListItemNode(itemsArray[end])) {
-                    if (!isListItemEmpty(itemsArray[end])) {
-                        break;
-                    }
-                    end--;
-                }
-            }
-
-            if (start !== initialStart || end !== initialEnd) {
-                const pos = start > end ? [0, 1] : [start, end + 1];
-                result = contentNode.copy(Fragment.fromArray(itemsArray.slice(...pos)));
-                modified = true;
-            }
-        }
-
-        newChildren.push(result);
-    });
-
-    return modified ? Fragment.fromArray(newChildren) : fragment;
+    return fragment.cut(notEmptyStart + 1, notEmptyEnd + 1);
 }

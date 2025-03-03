@@ -62,7 +62,7 @@ export function getLastChildOfNode(node: Node | Fragment): NodeChild {
 }
 
 export const isEmptyString = (node: Node) => {
-    if (!node.content.size) {
+    if (node.type.name === 'paragraph' && !node.content.size) {
         return true;
     }
 
