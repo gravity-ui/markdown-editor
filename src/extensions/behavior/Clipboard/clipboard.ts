@@ -11,7 +11,7 @@ import {serializeForClipboard} from '../../../utils/serialize-for-clipboard';
 import {BaseNode, pType} from '../../base/BaseSchema';
 
 import {isInsideCode} from './code';
-import {DataTransferType, extractTextContentFromHtml, isIosSafariShare} from './utils';
+import {DataTransferType, extractTextContentFromHtml, isIosSafariShare, trimContent} from './utils';
 
 export type ClipboardPluginOptions = {
     logger: Logger2.ILogger;
@@ -314,6 +314,13 @@ function getCopyContent(state: EditorState): Slice {
                 slice.openStart,
                 slice.openStart,
             );
+        }
+    } else {
+        // trim empty list items
+        const createEmptyParagraph = () => Fragment.from(pType(state.schema).createAndFill());
+        const trimmedContent = trimContent(slice.content, createEmptyParagraph);
+        if (trimmedContent !== slice.content) {
+            slice = new Slice(trimmedContent, 1, 1);
         }
     }
 

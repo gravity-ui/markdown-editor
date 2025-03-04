@@ -1,6 +1,7 @@
 import {memo, useCallback, useLayoutEffect, useState} from 'react';
 
-import {MarkdownEditorView, type RenderPreview, useMarkdownEditor} from '../../../../src';
+import {MarkdownEditorView, type RenderPreview, useMarkdownEditor} from 'src/index';
+
 import {PlaygroundLayout} from '../../../components/PlaygroundLayout';
 import {SplitModePreview} from '../../../components/SplitModePreview';
 import {plugins} from '../../../defaults/md-plugins';

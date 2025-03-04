@@ -1,9 +1,9 @@
-import type {Node} from 'prosemirror-model';
-import type {EditorView, NodeView} from 'prosemirror-view';
 import {createPortal} from 'react-dom';
 
-import {type ExtensionAuto, getReactRendererFromState} from '../../../../src';
-import {MarkdownEditorView, useMarkdownEditor} from '../../../../src/bundle';
+import type {Node} from '#pm/model';
+import type {EditorView, NodeView} from '#pm/view';
+import {MarkdownEditorView, useMarkdownEditor} from 'src/bundle';
+import {type ExtensionAuto, getReactRendererFromState} from 'src/index';
 
 import './index.scss';
 

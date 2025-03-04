@@ -19,13 +19,13 @@ import yfmTable from '@diplodoc/transform/lib/plugins/table';
 import video from '@diplodoc/transform/lib/plugins/video';
 import type {PluginWithParams} from 'markdown-it/lib';
 
-import type {RenderPreviewParams} from '../../src';
-import {emojiDefs} from '../../src/bundle/emoji';
-import color from '../../src/markdown-it/color';
-import {bare as emoji} from '../../src/markdown-it/emoji';
-import ins from '../../src/markdown-it/ins';
-import mark from '../../src/markdown-it/mark';
-import sub from '../../src/markdown-it/sub';
+import {emojiDefs} from 'src/bundle/emoji';
+import type {RenderPreviewParams} from 'src/index';
+import color from 'src/markdown-it/color';
+import {bare as emoji} from 'src/markdown-it/emoji';
+import ins from 'src/markdown-it/ins';
+import mark from 'src/markdown-it/mark';
+import sub from 'src/markdown-it/sub';
 
 export const LATEX_RUNTIME = 'extension:latex';
 export const MERMAID_RUNTIME = 'extension:mermaid';

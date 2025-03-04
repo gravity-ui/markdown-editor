@@ -52,14 +52,15 @@ function Editor({onSubmit}) {
 ```
 
 Полезные ссылки:
-- [Как подключить редактор в Create React App](https://preview.gravity-ui.com/md-editor/?path=/docs/docs-install-create-react-app--docs)
-- [Как добавить предварительный просмотр для режима разметки](https://preview.gravity-ui.com/md-editor/?path=/docs/docs-develop-preview--docs)
-- [Как добавить расширение HTML](https://preview.gravity-ui.com/md-editor/?path=/docs/docs-connect-html-block--docs)
-- [Как добавить расширение Latex](https://preview.gravity-ui.com/md-editor/?path=/docs/docs-connect-latex-extension--docs)
-- [Как добавить расширение Mermaid](https://preview.gravity-ui.com/md-editor/?path=/docs/docs-connect-mermaid-extension--docs)
+- [Как подключить редактор в Create React App](https://preview.gravity-ui.com/md-editor/?path=/docs/docs-getting-started-create-react-app--docs)
+- [Как добавить предварительный просмотр для режима разметки](https://preview.gravity-ui.com/md-editor/?path=/docs/docs-getting-started-preview--docs)
+- [Как добавить расширение HTML](https://preview.gravity-ui.com/md-editor/?path=/docs/docs-extensions-html-block--docs)
+- [Как добавить расширение Latex](https://preview.gravity-ui.com/md-editor/?path=/docs/docs-extensions-latex-extension--docs)
+- [Как добавить расширение Mermaid](https://preview.gravity-ui.com/md-editor/?path=/docs/docs-extensions-mermaid-extension--docs)
 - [Как создать собственное расширение](https://preview.gravity-ui.com/md-editor/?path=/docs/docs-develop-extension-creation--docs)
-- [Как добавить расширение GPT](https://preview.gravity-ui.com/md-editor/?path=/docs/docs-connect-gpt--docs)
+- [Как добавить расширение GPT](https://preview.gravity-ui.com/md-editor/?path=/docs/docs-extensions-gpt--docs)
 - [Как добавить расширение привязки текста в Markdown](https://preview.gravity-ui.com/md-editor/?path=/docs/docs-develop-extension-with-popup--docs)
+
 
 ### Разработка
 

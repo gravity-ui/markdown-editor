@@ -1,4 +1,6 @@
-import type {Node, NodeSpec} from 'prosemirror-model';
+import type {NodeSpec} from 'prosemirror-model';
+
+import {isEmptyString} from 'src/utils';
 
 import type {ExtensionAuto} from '../../../../core';
 import {nodeTypeFactory} from '../../../../utils/schema';
@@ -91,20 +93,4 @@ export const BaseSchemaSpecs: ExtensionAuto<BaseSchemaSpecsOptions> = (builder, 
                 }
             },
         }));
-};
-
-const isEmptyString = (node: Node) => {
-    if (!node.content.size) {
-        return true;
-    }
-
-    if (
-        node.childCount === 1 &&
-        node.child(0).type.name === 'text' &&
-        node.child(0).text?.trim() === ''
-    ) {
-        return true;
-    }
-
-    return false;
 };

@@ -1,4 +1,4 @@
-import {generateID} from '@diplodoc/transform/lib/plugins/utils';
+import {generateID} from '@diplodoc/transform/lib/plugins/utils.js';
 import type {Node} from 'prosemirror-model';
 import {type Command, Plugin, type PluginView, TextSelection} from 'prosemirror-state';
 import {

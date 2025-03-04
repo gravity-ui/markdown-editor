@@ -1,5 +1,5 @@
-import log from '@diplodoc/transform/lib/log';
-import imsize from '@diplodoc/transform/lib/plugins/imsize';
+import log from '@diplodoc/transform/lib/log.js';
+import imsize from '@diplodoc/transform/lib/plugins/imsize/index.js';
 import isNumber from 'is-number';
 import type {NodeSpec} from 'prosemirror-model';
 
