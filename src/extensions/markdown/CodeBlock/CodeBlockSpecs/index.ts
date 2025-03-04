@@ -7,8 +7,6 @@ export const CodeBlockNodeAttr = {
 } as const;
 
 export const codeBlockNodeName = 'code_block';
-/** @deprecated Use __CodeBlockNodeAttr__ instead */
-export const codeBlockLangAttr = CodeBlockNodeAttr.Lang;
 export const codeBlockType = nodeTypeFactory(codeBlockNodeName);
 
 export type CodeBlockSpecsOptions = {

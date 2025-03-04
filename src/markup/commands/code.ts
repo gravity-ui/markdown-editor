@@ -1,4 +1,4 @@
-import {ChangeSpec, EditorSelection, StateCommand} from '@codemirror/state';
+import {type ChangeSpec, EditorSelection, type StateCommand} from '@codemirror/state';
 
 import {wrapToBlock} from './helpers';
 

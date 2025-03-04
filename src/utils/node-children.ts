@@ -1,4 +1,4 @@
-import {Node} from 'prosemirror-model';
+import type {Node} from 'prosemirror-model';
 
 type ChildWithMeta = {
     node: Node;

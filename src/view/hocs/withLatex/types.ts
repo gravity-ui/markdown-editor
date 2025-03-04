@@ -1,5 +1,9 @@
-import type {PluginOptions} from '@diplodoc/latex-extension/plugin/transform';
-
 export type {TransformMeta} from '../../types';
 
-export type PluginRuntime = PluginOptions['runtime'];
+// TODO: import runtime type from @diplodoc/latex-extension
+export type PluginRuntime =
+    | string
+    | {
+          script: string;
+          style: string;
+      };

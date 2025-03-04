@@ -1,8 +1,9 @@
-import React from 'react';
+import {useLayoutEffect, useState} from 'react';
 
-import {Tabs, TextInput, TextInputProps} from '@gravity-ui/uikit';
+import {TextInput, type TextInputProps} from '@gravity-ui/uikit';
+import {Tabs} from '@gravity-ui/uikit/legacy';
 
-import {ClassNameProps, cn} from '../classname';
+import {type ClassNameProps, cn} from '../classname';
 import {i18n} from '../i18n/forms';
 import {isFunction} from '../lodash';
 import {enterKeyHandler} from '../utils/handlers';
@@ -39,14 +40,14 @@ export const FileForm: React.FC<FileFormProps> = ({
     onAttach,
     loading,
 }) => {
-    const [tabId, setTabId] = React.useState<string>(() =>
+    const [tabId, setTabId] = useState<string>(() =>
         isFunction(onAttach) ? TabId.Attach : TabId.Link,
     );
-    const [src, setSrc] = React.useState('');
-    const [name, setName] = React.useState('');
+    const [src, setSrc] = useState('');
+    const [name, setName] = useState('');
 
     const shouldRenderTabs = isFunction(onAttach);
-    React.useLayoutEffect(() => {
+    useLayoutEffect(() => {
         if (!shouldRenderTabs && tabId === TabId.Attach) {
             setTabId(TabId.Link);
         }

@@ -1,8 +1,5 @@
-import React from 'react';
+import {MarkdownEditorView, useMarkdownEditor} from 'src/index';
 
-import {toaster} from '@gravity-ui/uikit/toaster-singleton-react-18';
-
-import {MarkdownEditorView, useMarkdownEditor} from '../../../src';
 import {PlaygroundLayout} from '../../components/PlaygroundLayout';
 import {markup} from '../../defaults/content';
 
@@ -37,7 +34,6 @@ export const EscapeConfig: React.FC<EscapeConfigProps> = ({
                     stickyToolbar
                     settingsVisible
                     editor={editor}
-                    toaster={toaster}
                     className={className}
                 />
             )}

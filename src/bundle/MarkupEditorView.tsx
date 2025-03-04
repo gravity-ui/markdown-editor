@@ -1,8 +1,8 @@
-import React from 'react';
+import {memo} from 'react';
 
 import {type ClassNameProps, cn} from '../classname';
 import {ReactRendererComponent} from '../extensions';
-import {logger} from '../logger';
+import {globalLogger} from '../logger';
 import {useRenderTime} from '../react-utils/hooks';
 
 import type {EditorInt} from './Editor';
@@ -30,7 +30,7 @@ export type MarkupEditorViewProps = ClassNameProps & {
     children?: React.ReactNode;
 };
 
-export const MarkupEditorView = React.memo<MarkupEditorViewProps>((props) => {
+export const MarkupEditorView = memo<MarkupEditorViewProps>((props) => {
     const {
         editor,
         autofocus,
@@ -44,7 +44,12 @@ export const MarkupEditorView = React.memo<MarkupEditorViewProps>((props) => {
         stickyToolbar = true,
     } = props;
     useRenderTime((time) => {
-        logger.metrics({
+        globalLogger.metrics({
+            component: 'markup-editor',
+            event: 'render',
+            duration: time,
+        });
+        editor.logger.metrics({
             component: 'markup-editor',
             event: 'render',
             duration: time,

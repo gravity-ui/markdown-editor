@@ -1,9 +1,9 @@
 import {useEffect, useState} from 'react';
 
-import {IHTMLIFrameElementConfig} from '@diplodoc/html-extension/runtime';
+import type {IHTMLIFrameElementConfig} from '@diplodoc/html-extension/runtime';
 import {useThemeValue} from '@gravity-ui/uikit';
 
-import {getYfmHtmlBlockCssVariables} from '../../src/view/hocs/withYfmHtml/utils';
+import {getYfmHtmlBlockCssVariables} from 'src/view/hocs/withYfmHtml/utils';
 
 const variablesMapping = {
     colorBackground: '--g-color-base-background',

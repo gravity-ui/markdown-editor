@@ -4,6 +4,8 @@ import {inputRules} from 'prosemirror-inputrules';
 import {keymap} from 'prosemirror-keymap';
 import type {Plugin} from 'prosemirror-state';
 
+import type {Logger2} from '../logger';
+
 import type {ActionSpec} from './types/actions';
 import type {
     Extension,
@@ -72,12 +74,9 @@ export class ExtensionBuilder {
     /* eslint-disable @typescript-eslint/member-ordering */
     static readonly Priority = Priority;
     readonly Priority = ExtensionBuilder.Priority;
-    /** @deprecated use `ExtensionBuilder.Priority` instead */
-    static readonly PluginPriority = ExtensionBuilder.Priority;
-    /** @deprecated use `builder.Priority` instead */
-    readonly PluginPriority = ExtensionBuilder.PluginPriority;
     /* eslint-enable @typescript-eslint/member-ordering */
 
+    readonly #logger: Logger2.ILogger;
     #confMdCbs: {cb: ConfigureMdCallback; params: Required<ConfigureMdParams>}[] = [];
     #nodeSpecs: Record<string, {name: string; cb: AddPmNodeCallback}> = {};
     #markSpecs: Record<string, {name: string; cb: AddPmMarkCallback; priority: number}> = {};
@@ -86,8 +85,13 @@ export class ExtensionBuilder {
 
     readonly context: BuilderContext<WysiwygEditor.Context>;
 
-    constructor(context?: BuilderContext<WysiwygEditor.Context>) {
+    constructor(logger: Logger2.ILogger, context?: BuilderContext<WysiwygEditor.Context>) {
+        this.#logger = logger;
         this.context = context ?? ExtensionBuilder.createContext();
+    }
+
+    get logger(): Logger2.ILogger {
+        return this.#logger;
     }
 
     use(extension: Extension): this;

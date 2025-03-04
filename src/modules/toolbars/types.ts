@@ -1,5 +1,3 @@
-import type {RefObject} from 'react';
-
 import type {HotkeyProps} from '@gravity-ui/uikit';
 import type {EditorState} from 'prosemirror-state';
 
@@ -29,6 +27,7 @@ export type ToolbarItemView<T extends ToolbarDataType = ToolbarDataType.SingleBu
     ? {
           icon: ToolbarIconData;
           title: string | (() => string);
+          preview?: React.ReactNode;
       }
     : T extends ToolbarDataType.ListButton
       ? {
@@ -52,7 +51,7 @@ type ToolbarItemEditor<T, E> = Partial<EditorActions<E>> & {
               renderPopup: (
                   props: ToolbarBaseProps<E> & {
                       hide: () => void;
-                      anchorRef: RefObject<HTMLElement>;
+                      anchorElement: HTMLElement | null;
                   },
               ) => React.ReactNode;
           }

@@ -1,8 +1,9 @@
 import type {Node, Schema} from 'prosemirror-model';
-import {EditorState} from 'prosemirror-state';
+import type {EditorState} from 'prosemirror-state';
+// @ts-ignore // TODO: fix cjs build
 import {findParentNodeOfType} from 'prosemirror-utils';
 
-import {ListNode, blType, liType, olType} from './ListsSpecs';
+import {type ListNode, blType, liType, olType} from './ListsSpecs';
 
 export {liType, blType, olType} from './ListsSpecs';
 

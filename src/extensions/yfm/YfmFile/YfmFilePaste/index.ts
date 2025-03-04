@@ -1,11 +1,11 @@
-import {Fragment, Node, Schema, Slice} from 'prosemirror-model';
+import {Fragment, type Node, type Schema, Slice} from 'prosemirror-model';
 import {Plugin} from 'prosemirror-state';
 import {dropPoint} from 'prosemirror-transform';
-import {EditorView} from 'prosemirror-view';
+import type {EditorView} from 'prosemirror-view';
 
-import {ExtensionAuto} from '../../../../core';
+import {type ExtensionAuto, getLoggerFromState} from '../../../../core';
 import {isFunction} from '../../../../lodash';
-import {FileUploadHandler, UploadSuccessItem} from '../../../../utils';
+import type {FileUploadHandler, UploadSuccessItem} from '../../../../utils';
 import {clipboardUtils} from '../../../behavior/Clipboard';
 import {imageType} from '../../../markdown';
 import {createImageNode} from '../../ImgSize/utils'; // TODO: remove hard import
@@ -30,9 +30,15 @@ export const YfmFilePaste: ExtensionAuto<YfmFilePasteOptions> = (builder, opts) 
                 props: {
                     handleDOMEvents: {
                         paste(view, e) {
+                            const logger = getLoggerFromState(view.state);
                             const files = getPastedFiles(e.clipboardData);
                             if (files) {
                                 e.preventDefault();
+                                logger.event({
+                                    event: 'paste-files',
+                                    plugin: 'yfm-file-paste',
+                                    domEvent: 'paste',
+                                });
                                 new YfmFilesPasteUploadProcess(view, files, {
                                     uploadHandler: opts.fileUploadHandler,
                                     needToSetDimensionsForUploadedImages:
@@ -58,6 +64,14 @@ export const YfmFilePaste: ExtensionAuto<YfmFilePasteOptions> = (builder, opts) 
                                 dropPos,
                                 createFakeFileSlice(view.state.schema),
                             );
+
+                            const logger = getLoggerFromState(view.state);
+                            logger.event({
+                                event: 'drop-files',
+                                plugin: 'yfm-file-paste',
+                                domEvent: 'drop',
+                                runProcess: posToInsert !== null,
+                            });
 
                             if (posToInsert !== null) {
                                 new YfmFilesPasteUploadProcess(view, files, {
@@ -114,9 +128,13 @@ class YfmFilesPasteUploadProcess extends YfmFilesUploadProcessBase {
 
         const {schema} = this.view.state;
         if (imageType(schema)) {
-            this.createImage = createImageNode(imageType(schema), {
-                needDimensions: opts.needToSetDimensionsForUploadedImages,
-            });
+            this.createImage = createImageNode(
+                imageType(schema),
+                {
+                    needDimensions: opts.needToSetDimensionsForUploadedImages,
+                },
+                this.logger,
+            );
         }
     }
 

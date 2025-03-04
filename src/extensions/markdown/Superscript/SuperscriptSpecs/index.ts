@@ -1,5 +1,5 @@
-import log from '@diplodoc/transform/lib/log';
-import sup from '@diplodoc/transform/lib/plugins/sup';
+import log from '@diplodoc/transform/lib/log.js';
+import sup from '@diplodoc/transform/lib/plugins/sup.js';
 
 import type {ExtensionAuto} from '../../../../core';
 import {markTypeFactory} from '../../../../utils/schema';

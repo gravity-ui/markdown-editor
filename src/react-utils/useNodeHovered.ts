@@ -1,8 +1,8 @@
-import {RefObject, useEffect} from 'react';
+import {useEffect} from 'react';
 
 import {useBooleanState} from './hooks';
 
-export const useNodeHovered = (nodeRef: RefObject<HTMLElement>) => {
+export const useNodeHovered = (nodeRef: React.RefObject<HTMLElement>) => {
     const [nodeHovered, setNodeHovered, unsetNodeHovered] = useBooleanState(false);
 
     useEffect(() => {

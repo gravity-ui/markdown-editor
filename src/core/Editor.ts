@@ -3,16 +3,23 @@ import {EditorState} from 'prosemirror-state';
 import {EditorView} from 'prosemirror-view';
 
 import type {CommonEditor, ContentHandler, MarkupString} from '../common';
+import {Logger2} from '../logger';
 
 import type {ActionsManager} from './ActionsManager';
 import {WysiwygContentHandler} from './ContentHandler';
 import {ExtensionsManager} from './ExtensionsManager';
-import {TransformFn} from './markdown/ProseMirrorTransformer';
+import {SchemaDynamicModifier} from './SchemaDynamicModifier';
+import {MarkdownParserDynamicModifier} from './markdown/MarkdownParser';
+import {MarkdownSerializerDynamicModifier} from './markdown/MarkdownSerializerDynamicModifier';
+import type {TransformFn} from './markdown/ProseMirrorTransformer';
 import type {ActionStorage} from './types/actions';
+import type {DynamicModifiers} from './types/dynamicModifiers';
 import type {Extension} from './types/extension';
 import type {Parser} from './types/parser';
 import type {Serializer} from './types/serializer';
 import {bindActions} from './utils/actions';
+import {convertDynamicModifiersConfigs} from './utils/dynamicModifiers';
+import {LoggerFacet} from './utils/logger';
 import {logTransactionMetrics} from './utils/metrics';
 
 type OnChange = (editor: WysiwygEditor) => void;
@@ -38,6 +45,9 @@ export type WysiwygEditorOptions = {
     onChange?: OnChange;
     /** Call only if document change */
     onDocChange?: OnChange;
+    /** @internal Modifiers adjust the parser and serializer */
+    modifiers?: DynamicModifiers[];
+    logger?: Logger2.ILogger;
 };
 
 export class WysiwygEditor implements CommonEditor, ActionStorage {
@@ -81,7 +91,22 @@ export class WysiwygEditor implements CommonEditor, ActionStorage {
         escapeConfig,
         onChange,
         onDocChange,
+        modifiers,
+        logger = new Logger2(),
     }: WysiwygEditorOptions) {
+        const dynamicModifiersConfig = modifiers
+            ? convertDynamicModifiersConfigs(modifiers)
+            : undefined;
+        const dynamicModifiers = dynamicModifiersConfig
+            ? {
+                  schema: new SchemaDynamicModifier(dynamicModifiersConfig.schema),
+                  parser: new MarkdownParserDynamicModifier(dynamicModifiersConfig.parser),
+                  serializer: new MarkdownSerializerDynamicModifier(
+                      dynamicModifiersConfig.serializer,
+                  ),
+              }
+            : undefined;
+
         const {
             schema,
             markupParser: parser,
@@ -91,12 +116,19 @@ export class WysiwygEditor implements CommonEditor, ActionStorage {
             plugins,
             rawActions,
             actions,
-        } = ExtensionsManager.process(extensions, {
-            // "breaks" option only affects the renderer, but not the parser
-            mdOpts: {html: allowHTML, linkify, breaks: true, preset: mdPreset},
-            linkifyTlds,
-            pmTransformers,
-        });
+        } = ExtensionsManager.process(
+            extensions,
+            {
+                // "breaks" option only affects the renderer, but not the parser
+                mdOpts: {html: allowHTML, linkify, breaks: true, preset: mdPreset},
+                linkifyTlds,
+                pmTransformers,
+                dynamicModifiers,
+            },
+            logger,
+        );
+
+        plugins.unshift(LoggerFacet.of(logger));
 
         const state = EditorState.create({
             schema,
@@ -106,6 +138,7 @@ export class WysiwygEditor implements CommonEditor, ActionStorage {
 
         const thisOnChange = () => this.tryOnChange(onChange);
         const thisOnDocChange = () => this.tryOnChange(onDocChange);
+
         this.#view = new EditorView(domElem ?? null, {
             state,
             nodeViews,
@@ -118,7 +151,7 @@ export class WysiwygEditor implements CommonEditor, ActionStorage {
                 if (tr.docChanged) {
                     thisOnDocChange();
                 }
-                logTransactionMetrics(tr);
+                logTransactionMetrics(tr, logger);
             },
         });
         this.#actions = actions.setActions(

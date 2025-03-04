@@ -1,4 +1,4 @@
-import React from 'react';
+import {memo, useState} from 'react';
 
 import type {TextInputProps} from '@gravity-ui/uikit';
 
@@ -15,13 +15,13 @@ type LinkFormProps = {
     onCancel?: () => void;
 };
 
-export const LinkForm = React.memo<LinkFormProps>(function LinkForm({
+export const LinkForm = memo<LinkFormProps>(function LinkForm({
     href,
     autoFocus,
     onChange,
     onCancel,
 }) {
-    const [url, setUrl] = React.useState(href);
+    const [url, setUrl] = useState(href);
 
     const handleSubmit = () => {
         onChange?.({href: url});

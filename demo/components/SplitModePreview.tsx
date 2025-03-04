@@ -1,14 +1,16 @@
-import React, {useEffect, useMemo, useRef, useState} from 'react';
+import {useEffect, useMemo, useRef, useState} from 'react';
 
 import transform from '@diplodoc/transform';
 import {useThemeValue} from '@gravity-ui/uikit';
+import type MarkdownIt from 'markdown-it';
 
-import {MarkupString, colorClassName} from '../../src';
-import {debounce} from '../../src/lodash';
-import {YfmStaticView} from '../../src/view/components/YfmHtml';
-import {withLatex} from '../../src/view/hocs/withLatex';
-import {MermaidConfig, withMermaid} from '../../src/view/hocs/withMermaid';
-import {withYfmHtmlBlock} from '../../src/view/hocs/withYfmHtml';
+import {type MarkupString, colorClassName} from 'src/index';
+import {debounce} from 'src/lodash';
+import {YfmStaticView} from 'src/view/components/YfmHtml';
+import {withLatex} from 'src/view/hocs/withLatex';
+import {type MermaidConfig, withMermaid} from 'src/view/hocs/withMermaid';
+import {withYfmHtmlBlock} from 'src/view/hocs/withYfmHtml';
+
 import {LATEX_RUNTIME, MERMAID_RUNTIME, YFM_HTML_BLOCK_RUNTIME} from '../defaults/md-plugins';
 import useYfmHtmlBlockStyles from '../hooks/useYfmHtmlBlockStyles';
 
@@ -22,7 +24,7 @@ const Preview = withMermaid({runtime: MERMAID_RUNTIME})(
 );
 
 export type SplitModePreviewProps = {
-    plugins?: import('markdown-it').PluginSimple[];
+    plugins?: MarkdownIt.PluginSimple[];
     getValue: () => MarkupString;
     allowHTML?: boolean;
     breaks?: boolean;

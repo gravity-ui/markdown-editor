@@ -1,8 +1,8 @@
-import React, {EventHandler, useCallback, useEffect, useRef, useState} from 'react';
+import {useCallback, useEffect, useRef, useState} from 'react';
 
 import {clamp} from '../lodash';
 
-import {EditorInt} from './Editor';
+import type {EditorInt} from './Editor';
 import {cnEditorComponent} from './MarkdownEditorView';
 
 export const IN_RESIZE_CLASSNAME = 'in-resize';
@@ -48,7 +48,7 @@ const useColResize = ({onStart, onMove, onEnd}: UseDragHandlersParams) => {
         [handleMove, onEnd],
     );
 
-    const handleStart: EventHandler<React.MouseEvent | React.TouchEvent> = useCallback(
+    const handleStart: React.EventHandler<React.MouseEvent | React.TouchEvent> = useCallback(
         (e) => {
             const currentX = 'touches' in e ? e.touches[0]?.clientX ?? 0 : e.clientX;
             initialXPosition.current = currentX;

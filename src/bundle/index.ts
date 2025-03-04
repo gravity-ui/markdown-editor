@@ -10,5 +10,5 @@ import * as markupToolbarConfigs from './config/markup';
 import * as wysiwygToolbarConfigs from './config/wysiwyg';
 export {markupToolbarConfigs, wysiwygToolbarConfigs};
 
-// TODO: remove in next major
+// MAJOR: remove in next major
 export * from './config';

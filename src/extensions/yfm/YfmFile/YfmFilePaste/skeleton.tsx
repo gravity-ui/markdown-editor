@@ -1,5 +1,3 @@
-import React from 'react';
-
 import {Skeleton} from '@gravity-ui/uikit';
 
 import {cn} from '../../../../classname';

@@ -5,11 +5,9 @@ import {createToggleMarkAction} from '../../../utils/actions';
 import {markInputRule} from '../../../utils/inputrules';
 import {withLogAction} from '../../../utils/keymap';
 
-import {StrikeSpecs, strikeMarkName, strikeType} from './StrikeSpecs';
+import {StrikeSpecs, strikeType} from './StrikeSpecs';
 
 export {strikeMarkName, strikeType} from './StrikeSpecs';
-/** @deprecated Use `strikeMarkName` instead */
-export const strike = strikeMarkName;
 const sAction = 'strike';
 
 export type StrikeOptions = {

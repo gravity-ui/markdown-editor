@@ -1,11 +1,10 @@
-import React from 'react';
+import {ToolbarColors, type ToolbarColorsProps} from '../custom/ToolbarColors';
+import type {WToolbarBaseProps} from '../types';
 
-import type {ActionStorage} from '../../../core';
-import {ToolbarColors} from '../custom/ToolbarColors';
-import type {ToolbarBaseProps} from '../types';
-export type WToolbarColorsProps = ToolbarBaseProps<ActionStorage>;
+export type WToolbarColorsProps = WToolbarBaseProps & Pick<ToolbarColorsProps, 'disablePortal'>;
 
 export const WToolbarColors: React.FC<WToolbarColorsProps> = ({
+    disablePortal,
     className,
     editor,
     focus,
@@ -22,6 +21,7 @@ export const WToolbarColors: React.FC<WToolbarColorsProps> = ({
             exec={(color) => {
                 action.run({color: color === currentColor ? '' : color});
             }}
+            disablePortal={disablePortal}
             className={className}
             focus={focus}
             onClick={onClick}

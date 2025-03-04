@@ -2,7 +2,7 @@ import type {ReactNode} from 'react';
 
 import {EditorView as CMEditorView} from '@codemirror/view';
 import {TextSelection} from 'prosemirror-state';
-import {EditorView as PMEditorView} from 'prosemirror-view';
+import type {EditorView as PMEditorView} from 'prosemirror-view';
 
 import type {CommonEditor, MarkupString} from '../common';
 import {
@@ -12,15 +12,18 @@ import {
     type WysiwygEditorOptions,
 } from '../core';
 import type {TransformFn} from '../core/markdown/ProseMirrorTransformer';
-import {ReactRenderStorage, type RenderStorage} from '../extensions';
+import type {DynamicModifiers} from '../core/types/dynamicModifiers';
+import type {ReactRenderStorage, RenderStorage} from '../extensions';
 import {i18n} from '../i18n/bundle';
-import {logger} from '../logger';
+import {type Logger2, globalLogger} from '../logger';
 import {createCodemirror} from '../markup';
 import {getAutocompleteConfig} from '../markup/codemirror/autocomplete';
 import {type CodeEditor, Editor as MarkupEditor} from '../markup/editor';
-import {type Emitter, FileUploadHandler, type Receiver, SafeEventEmitter} from '../utils';
+import {type Emitter, type FileUploadHandler, type Receiver, SafeEventEmitter} from '../utils';
 import type {DirectiveSyntaxContext} from '../utils/directive';
 
+import {MarkupManager} from './MarkupManager';
+import {createDynamicModifiers} from './config/dynamicModifiers';
 import type {
     MarkdownEditorMode as EditorMode,
     MarkdownEditorPreset as EditorPreset,
@@ -58,6 +61,7 @@ interface EventMapInt extends EventMap {
 }
 
 export interface Editor extends Receiver<EventMap>, CommonEditor {
+    readonly logger: Logger2.LogReceiver;
     readonly currentMode: EditorMode;
     readonly toolbarVisible: boolean;
 
@@ -76,6 +80,7 @@ export interface EditorInt
         Receiver<EventMapInt>,
         ActionStorage,
         CodeEditor {
+    readonly logger: Logger2.ILogger;
     readonly currentMode: EditorMode;
     readonly toolbarVisible: boolean;
     readonly splitModeEnabled: boolean;
@@ -123,6 +128,7 @@ export type EditorOptions = Pick<
     MarkdownEditorOptions,
     'md' | 'initial' | 'handlers' | 'experimental' | 'markupConfig' | 'wysiwygConfig'
 > & {
+    logger: Logger2.ILogger;
     renderStorage: ReactRenderStorage;
     preset: EditorPreset;
     directiveSyntax: DirectiveSyntaxContext;
@@ -131,6 +137,7 @@ export type EditorOptions = Pick<
 
 /** @internal */
 export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorInt {
+    #logger: Logger2.ILogger;
     #markup: MarkupString;
     #editorMode: EditorMode;
     #toolbarVisible: boolean;
@@ -144,6 +151,7 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
     #mdOptions: Readonly<MarkdownEditorMdOptions>;
     #pmTransformers: TransformFn[] = [];
     #preserveEmptyRows: boolean;
+    #modifiers?: DynamicModifiers[];
 
     readonly #preset: EditorPreset;
     #extensions?: WysiwygEditorOptions['extensions'];
@@ -161,6 +169,10 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
     get _wysiwygView(): PMEditorView {
         // @ts-expect-error internal typing
         return this.#wysiwygEditor?.view;
+    }
+
+    get logger(): Logger2.ILogger {
+        return this.#logger;
     }
 
     get currentMode(): EditorMode {
@@ -251,9 +263,11 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
                 this.#preset === 'zero' || this.#preset === 'commonmark' ? this.#preset : 'default';
             this.#wysiwygEditor = new WysiwygEditor({
                 mdPreset,
+                logger: this.logger.nested({mode: 'wysiwyg'}),
                 initialContent: this.#markup,
                 extensions: this.#extensions,
                 pmTransformers: this.#pmTransformers,
+                modifiers: this.#modifiers,
                 allowHTML: this.#mdOptions.html,
                 linkify: this.#mdOptions.linkify,
                 linkifyTlds: this.#mdOptions.linkifyTlds,
@@ -270,6 +284,7 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
             this.#markupEditor = new MarkupEditor(
                 createCodemirror({
                     doc: this.#markup,
+                    logger: this.logger.nested({mode: 'markup'}),
                     placeholder: this.#markupConfig.placeholder ?? i18n('markup_placeholder'),
                     onCancel: () => this.emit('cancel', null),
                     onSubmit: () => this.emit('submit', null),
@@ -321,7 +336,14 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
     }
 
     constructor(opts: EditorOptions) {
-        super({onError: logger.error.bind(logger)});
+        const {logger} = opts;
+
+        super({
+            onError: (error) => {
+                logger.error(error);
+                globalLogger.error(error);
+            },
+        });
 
         const {
             md = {},
@@ -331,6 +353,13 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
             markupConfig = {},
             wysiwygConfig = {},
         } = opts;
+
+        this.#logger = logger;
+        this.#modifiers = experimental.preserveMarkupFormatting
+            ? createDynamicModifiers(
+                  new MarkupManager(this.logger.nested({module: 'markup-manager'})),
+              )
+            : undefined;
 
         this.#editorMode = initial.mode ?? 'wysiwyg';
         this.#toolbarVisible = initial.toolbarVisible ?? true;
@@ -398,6 +427,13 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
         if (this.#beforeEditorModeChange?.({mode: opts.mode, reason: opts.reason}) === false) {
             return;
         }
+
+        this.logger.event({
+            event: 'mode-change',
+            prevMode: this.#editorMode,
+            nextMode: opts.mode,
+            reason: opts.reason,
+        });
 
         this.currentMode = opts.mode;
         this.emit('rerender', null);

@@ -1,31 +1,31 @@
 import type {Extension, ExtensionAuto} from '../core';
 import {
     Blockquote,
-    BlockquoteOptions,
+    type BlockquoteOptions,
     Bold,
-    BoldOptions,
+    type BoldOptions,
     Breaks,
-    BreaksOptions,
+    type BreaksOptions,
     Code,
     CodeBlock,
-    CodeBlockOptions,
-    CodeOptions,
+    type CodeBlockOptions,
+    type CodeOptions,
     Heading,
-    HeadingOptions,
+    type HeadingOptions,
     HorizontalRule,
     Html,
     Image,
-    ImageOptions,
+    type ImageOptions,
     Italic,
-    ItalicOptions,
+    type ItalicOptions,
     Link,
-    LinkOptions,
+    type LinkOptions,
     Lists,
-    ListsOptions,
+    type ListsOptions,
 } from '../extensions/markdown';
 import {isFunction} from '../lodash';
 
-import {ZeroPreset, ZeroPresetOptions} from './zero';
+import {ZeroPreset, type ZeroPresetOptions} from './zero';
 
 export type CommonMarkPresetOptions = ZeroPresetOptions & {
     bold?: BoldOptions;
@@ -56,10 +56,11 @@ export const CommonMarkPreset: ExtensionAuto<CommonMarkPresetOptions> = (builder
         .use(Blockquote, opts.blockquote ?? {});
 
     if (opts.image !== false) {
-        builder.use(
-            isFunction(opts.image) ? opts.image : Image,
-            isFunction(opts.image) ? undefined : opts.image,
-        );
+        if (isFunction(opts.image)) {
+            builder.use(opts.image);
+        } else {
+            builder.use(Image, opts.image ?? {});
+        }
     }
 
     if (opts.heading !== false) {

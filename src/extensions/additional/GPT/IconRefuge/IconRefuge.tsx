@@ -1,6 +1,3 @@
-import React from 'react';
-import type {FC} from 'react';
-
 import {Icon} from '@gravity-ui/uikit';
 
 import {cnIconRefuge} from './IconRefuge.classname';
@@ -20,7 +17,7 @@ import './IconRefuge.scss';
  * refugeWidth and refugeHeight
  */
 
-export const IconRefuge: FC<IconRefugeProps> = ({
+export const IconRefuge: React.FC<IconRefugeProps> = ({
     refugeSize,
     containerClassName,
     containerStyle,

@@ -1,6 +1,6 @@
 import {InputRule} from 'prosemirror-inputrules';
-import {Fragment, Mark, MarkType, Node} from 'prosemirror-model';
-import {EditorState, TextSelection} from 'prosemirror-state';
+import {Fragment, type Mark, type MarkType, type Node} from 'prosemirror-model';
+import {type EditorState, TextSelection} from 'prosemirror-state';
 
 import {codeType} from '../extensions/markdown/specs';
 import {isFunction} from '../lodash';

@@ -1,7 +1,7 @@
 import {isMac} from '../utils/platform';
 
 import {ModKey as MK} from './const';
-import {Defs, PlatfrormDefs} from './types';
+import type {Defs, PlatfrormDefs} from './types';
 
 class ShortCutFormatter {
     #map = new Map<string, Defs>();

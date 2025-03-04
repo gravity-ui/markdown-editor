@@ -1,19 +1,20 @@
-import React, {useEffect, useRef, useState} from 'react';
+import {useEffect, useState} from 'react';
 
 import {Ellipsis as DotsIcon} from '@gravity-ui/icons';
 import {Button, Icon, Loader, Menu, Popup} from '@gravity-ui/uikit';
-import type {Mermaid} from 'mermaid';
-import {Node} from 'prosemirror-model';
-import {EditorView} from 'prosemirror-view';
+import type {Mermaid} from 'mermaid' with {'resolution-mode': 'import'};
+import type {Node} from 'prosemirror-model';
+import type {EditorView} from 'prosemirror-view';
 
 import {cn} from '../../../../classname';
 import {TextAreaFixed as TextArea} from '../../../../forms/TextInput';
 import {i18n} from '../../../../i18n/common';
-import {useBooleanState} from '../../../../react-utils';
+import {useBooleanState, useElementState} from '../../../../react-utils';
 import {removeNode} from '../../../../utils';
 import {MermaidConsts} from '../MermaidSpecs/const';
 export const cnMermaid = cn('Mermaid');
-export const cnDiagramHelper = cn('MermaidHelper');
+
+export const STOP_EVENT_CLASSNAME = 'prosemirror-stop-event';
 
 import './Mermaid.scss';
 
@@ -72,7 +73,7 @@ const DiagramEditMode: React.FC<{
                 <div>
                     <TextArea
                         controlProps={{
-                            className: cnDiagramHelper({'prosemirror-stop-event': true}),
+                            className: STOP_EVENT_CLASSNAME,
                         }}
                         value={text}
                         onUpdate={(v) => {
@@ -84,14 +85,10 @@ const DiagramEditMode: React.FC<{
                 <div className={b('Controls')}>
                     <div>
                         <Button onClick={onCancel} view={'flat'}>
-                            <span className={cnDiagramHelper({'prosemirror-stop-event': true})}>
-                                {i18n('cancel')}
-                            </span>
+                            <span className={STOP_EVENT_CLASSNAME}>{i18n('cancel')}</span>
                         </Button>
                         <Button onClick={() => onSave(text)} view={'action'}>
-                            <span className={cnDiagramHelper({'prosemirror-stop-event': true})}>
-                                {i18n('save')}
-                            </span>
+                            <span className={STOP_EVENT_CLASSNAME}>{i18n('save')}</span>
                         </Button>
                     </div>
                 </div>
@@ -111,8 +108,8 @@ export const MermaidView: React.FC<{
     const [editing, setEditing, unsetEditing, toggleEditing] = useBooleanState(
         Boolean(node.attrs[MermaidConsts.NodeAttrs.newCreated]),
     );
-    const [menuOpen, , , toggleMenuOpen] = useBooleanState(false);
-    const buttonRef = useRef<HTMLDivElement>(null);
+    const [menuOpen, , closeMenu, toggleMenuOpen] = useBooleanState(false);
+    const [anchorElement, setAnchorElement] = useElementState();
 
     useEffect(() => {
         const waitForMermaid = () =>
@@ -153,26 +150,23 @@ export const MermaidView: React.FC<{
             <div>
                 <Button
                     onClick={toggleMenuOpen}
-                    ref={buttonRef}
+                    ref={setAnchorElement}
                     size={'s'}
-                    className={cnDiagramHelper({'prosemirror-stop-event': true})}
+                    className={STOP_EVENT_CLASSNAME}
                 >
-                    <Icon
-                        data={DotsIcon}
-                        className={cnDiagramHelper({'prosemirror-stop-event': true})}
-                    />
+                    <Icon data={DotsIcon} className={STOP_EVENT_CLASSNAME} />
                 </Button>
                 <Popup
-                    anchorRef={buttonRef}
                     open={menuOpen}
-                    onClose={toggleMenuOpen}
-                    placement={['bottom-end']}
+                    anchorElement={anchorElement}
+                    onOpenChange={closeMenu}
+                    placement="bottom-end"
                 >
                     <Menu>
                         <Menu.Item
                             onClick={() => {
                                 toggleEditing();
-                                toggleMenuOpen();
+                                closeMenu();
                             }}
                         >
                             {i18n('edit')}

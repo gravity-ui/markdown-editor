@@ -1,29 +1,22 @@
-import React, {useState} from 'react';
-
-import {toaster} from '@gravity-ui/uikit/toaster-singleton-react-18';
-import cloneDeep from 'lodash/cloneDeep';
+import {memo, useState} from 'react';
 
 import {
     MarkdownEditorView,
     gptExtension,
-    logger,
     mGptExtension,
     mGptToolbarItem,
     markupToolbarConfigs,
     useMarkdownEditor,
     wGptItemData,
     wysiwygToolbarConfigs,
-} from '../../../src';
+} from 'src/index';
+import {cloneDeep} from 'src/lodash';
+
 import {PlaygroundLayout} from '../../components/PlaygroundLayout';
+import {useLogs} from '../../hooks/useLogs';
 
 import {initialMdContent} from './content';
 import {gptWidgetProps} from './gptWidgetOptions';
-
-logger.setLogger({
-    metrics: console.info,
-    action: (data) => console.info(`Action: ${data.action}`, data),
-    ...console,
-});
 
 const wToolbarConfig = cloneDeep(wysiwygToolbarConfigs.wToolbarConfig);
 wToolbarConfig.unshift([wGptItemData]);
@@ -34,7 +27,7 @@ wCommandMenuConfig.unshift(wGptItemData);
 const mToolbarConfig = cloneDeep(markupToolbarConfigs.mToolbarConfig);
 mToolbarConfig.unshift([mGptToolbarItem]);
 
-export const GPT = React.memo(() => {
+export const GPT = memo(() => {
     const [showedAlertGpt, setShowedAlertGpt] = useState(true);
 
     const gptExtensionProps = gptWidgetProps({
@@ -63,6 +56,8 @@ export const GPT = React.memo(() => {
         },
     });
 
+    useLogs(editor.logger);
+
     return (
         <PlaygroundLayout
             editor={editor}
@@ -72,7 +67,6 @@ export const GPT = React.memo(() => {
                     stickyToolbar
                     settingsVisible
                     editor={editor}
-                    toaster={toaster}
                     className={className}
                     markupToolbarConfig={mToolbarConfig}
                     wysiwygToolbarConfig={wToolbarConfig}

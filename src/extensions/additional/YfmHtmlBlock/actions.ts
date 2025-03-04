@@ -1,4 +1,4 @@
-import {ActionSpec} from '../../../core';
+import type {ActionSpec} from '../../../core';
 
 import {YfmHtmlBlockConsts, yfmHtmlBlockNodeType} from './YfmHtmlBlockSpecs/const';
 

@@ -1,6 +1,6 @@
 {
   "name": "@gravity-ui/markdown-editor",
-  "version": "14.11.2",
+  "version": "15.2.2",
   "description": "Markdown wysiwyg and markup editor",
   "license": "MIT",
   "repository": {
@@ -25,7 +25,7 @@
     "lint:js": "eslint \"{src,demo}/**/*.{js,jsx,ts,tsx}\"",
     "lint:styles": "stylelint \"{src,demo}/**/*.{css,scss}\"",
     "lint:prettier": "prettier --check \"{src,demo}/**/*.{js,jsx,ts,tsx,css,scss}\"",
-    "check-circular-deps": "node scripts/check-circular-deps.js 48",
+    "check-circular-deps": "node scripts/check-circular-deps.js 49",
     "test": "jest",
     "test:cov": "jest --coverage",
     "test:watch": "jest --watchAll",
@@ -34,148 +34,152 @@
   },
   "exports": {
     ".": {
-      "types": "./build/esm/index.d.ts",
-      "require": "./build/cjs/index.js",
-      "import": "./build/esm/index.js"
+      "import": {
+        "types": "./build/esm/index.d.ts",
+        "default": "./build/esm/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/index.d.ts",
+        "default": "./build/cjs/index.js"
+      }
     },
     "./core": {
-      "types": "./build/esm/core/index.d.ts",
-      "require": "./build/cjs/core/index.js",
-      "import": "./build/esm/core/index.js"
+      "import": {
+        "types": "./build/esm/core/index.d.ts",
+        "default": "./build/esm/core/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/core/index.d.ts",
+        "default": "./build/cjs/core/index.js"
+      }
     },
     "./i18n": {
-      "types": "./build/esm/i18n/i18n.d.ts",
-      "require": "./build/cjs/i18n/i18n.js",
-      "import": "./build/esm/i18n/i18n.js"
+      "import": {
+        "types": "./build/esm/i18n/i18n.d.ts",
+        "default": "./build/esm/i18n/i18n.js"
+      },
+      "require": {
+        "types": "./build/cjs/i18n/i18n.d.ts",
+        "default": "./build/cjs/i18n/i18n.js"
+      }
     },
     "./specs": {
-      "types": "./build/esm/extensions/specs.d.ts",
-      "require": "./build/cjs/extensions/specs.js",
-      "import": "./build/esm/extensions/specs.js"
+      "import": {
+        "types": "./build/esm/extensions/specs.d.ts",
+        "default": "./build/esm/extensions/specs.js"
+      },
+      "require": {
+        "types": "./build/cjs/extensions/specs.d.ts",
+        "default": "./build/cjs/extensions/specs.js"
+      }
     },
     "./extensions": {
-      "types": "./build/esm/extensions/index.d.ts",
-      "require": "./build/cjs/extensions/index.js",
-      "import": "./build/esm/extensions/index.js"
+      "import": {
+        "types": "./build/esm/extensions/index.d.ts",
+        "default": "./build/esm/extensions/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/extensions/index.d.ts",
+        "default": "./build/cjs/extensions/index.js"
+      }
     },
     "./extensions/*": {
-      "types": "./build/esm/extensions/*",
-      "require": "./build/cjs/extensions/*",
-      "import": "./build/esm/extensions/*"
+      "import": {
+        "types": "./build/esm/extensions/*",
+        "default": "./build/esm/extensions/*"
+      },
+      "require": {
+        "types": "./build/cjs/extensions/*",
+        "default": "./build/cjs/extensions/*"
+      }
     },
     "./view": {
-      "types": "./build/esm/view/index.d.ts",
-      "require": "./build/cjs/view/index.js",
-      "import": "./build/esm/view/index.js"
+      "import": {
+        "types": "./build/esm/view/index.d.ts",
+        "default": "./build/esm/view/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/view/index.d.ts",
+        "default": "./build/cjs/view/index.js"
+      }
     },
     "./view/*": {
-      "types": "./build/esm/view/*",
-      "require": "./build/cjs/view/*",
-      "import": "./build/esm/view/*"
-    },
-    "./bundle": {
-      "types": "./build/esm/bundle/index.d.ts",
-      "require": "./build/cjs/bundle/index.js",
-      "import": "./build/esm/bundle/index.js"
-    },
-    "./bundle/*": {
-      "types": "./build/esm/bundle/*",
-      "require": "./build/cjs/bundle/*",
-      "import": "./build/esm/bundle/*"
+      "import": {
+        "types": "./build/esm/view/*",
+        "default": "./build/esm/view/*"
+      },
+      "require": {
+        "types": "./build/cjs/view/*",
+        "default": "./build/cjs/view/*"
+      }
     },
     "./cm/*": {
-      "types": "./build/esm/cm/*",
-      "require": "./build/cjs/cm/*",
-      "import": "./build/esm/cm/*"
+      "import": {
+        "types": "./build/esm/cm/*.d.ts",
+        "default": "./build/esm/cm/*"
+      },
+      "require": {
+        "types": "./build/cjs/cm/*.d.ts",
+        "default": "./build/cjs/cm/*"
+      }
     },
     "./pm/*": {
-      "types": "./build/esm/pm/*",
-      "require": "./build/cjs/pm/*",
-      "import": "./build/esm/pm/*"
+      "import": {
+        "types": "./build/esm/pm/*.d.ts",
+        "default": "./build/esm/pm/*"
+      },
+      "require": {
+        "types": "./build/cjs/pm/*.d.ts",
+        "default": "./build/cjs/pm/*"
+      }
     },
     "./markdown-it/*": {
-      "types": "./build/esm/markdown-it/*",
-      "require": "./build/cjs/markdown-it/*",
-      "import": "./build/esm/markdown-it/*"
+      "import": {
+        "types": "./build/esm/markdown-it/*.d.ts",
+        "default": "./build/esm/markdown-it/*"
+      },
+      "require": {
+        "types": "./build/cjs/markdown-it/*.d.ts",
+        "default": "./build/cjs/markdown-it/*"
+      }
     },
     "./_/*": {
-      "types": "./build/esm/*",
-      "require": "./build/cjs/*",
-      "import": "./build/esm/*"
+      "import": {
+        "types": "./build/esm/*",
+        "default": "./build/esm/*"
+      },
+      "require": {
+        "types": "./build/cjs/*",
+        "default": "./build/cjs/*"
+      }
     },
     "./styles/*": "./build/esm/styles/*"
   },
   "main": "build/cjs/index.js",
   "module": "build/esm/index.js",
   "types": "build/esm/index.d.ts",
-  "typesVersions": {
-    "*": {
-      "index.d.ts": [
-        "./build/esm/index.d.ts"
-      ],
-      "core": [
-        "./build/esm/core/index.d.ts"
-      ],
-      "i18n": [
-        "./build/esm/i18n/i18n.d.ts"
-      ],
-      "specs": [
-        "./build/esm/extensions/specs.d.ts"
-      ],
-      "cm/*": [
-        "./build/esm/cm/*"
-      ],
-      "pm/*": [
-        "./build/esm/pm/*"
-      ],
-      "markdown-it/*": [
-        "./build/esm/markdown-it/*"
-      ],
-      "_/*": [
-        "./build/esm/*"
-      ],
-      "extensions/*": [
-        "./build/esm/extensions/*"
-      ],
-      "extensions": [
-        "./build/esm/extensions/index.d.ts"
-      ],
-      "view/*": [
-        "./build/esm/view/*"
-      ],
-      "view": [
-        "./build/esm/view/index.d.ts"
-      ],
-      "bundle/*": [
-        "./build/esm/bundle/*"
-      ],
-      "bundle": [
-        "./build/esm/bundle/index.d.ts"
-      ]
-    }
-  },
   "files": [
     "build"
   ],
   "dependencies": {
     "@bem-react/classname": "^1.6.0",
     "@bem-react/classnames": "1.3.10",
-    "@codemirror/autocomplete": "~6.18.1",
-    "@codemirror/commands": "~6.7.0",
-    "@codemirror/lang-markdown": "~6.3.0",
-    "@codemirror/language": "~6.10.3",
-    "@codemirror/search": "~6.5.6",
-    "@codemirror/state": "~6.4.1",
-    "@codemirror/view": "~6.34.1",
-    "@diplodoc/file-extension": "^0.2.1",
-    "@gravity-ui/i18n": "^1.1.0",
-    "@gravity-ui/icons": "^2.10.0",
+    "@codemirror/autocomplete": "~6.18.4",
+    "@codemirror/commands": "~6.8.0",
+    "@codemirror/lang-markdown": "~6.3.2",
+    "@codemirror/language": "~6.10.8",
+    "@codemirror/search": "~6.5.8",
+    "@codemirror/state": "~6.5.1",
+    "@codemirror/view": "~6.36.2",
+    "@gravity-ui/i18n": "^1.7.0",
+    "@gravity-ui/icons": "^2.12.0",
     "@lezer/highlight": "~1.2.1",
-    "@lezer/markdown": "~1.3.2",
+    "@lezer/markdown": "~1.4.0",
     "@types/is-number": "^7.0.1",
     "@types/markdown-it": "^12.2.3",
     "base64-arraybuffer": "1.0.2",
     "is-number": "^7.0.0",
+    "lodash": "^4.17.21",
     "markdown-it-attrs": "^4.2.0",
     "markdown-it-color": "^2.1.1",
     "markdown-it-emoji": "2.0.2",
@@ -184,22 +188,24 @@
     "markdown-it-sub": "^1.0.0",
     "prosemirror-autocomplete": "~0.4.3",
     "prosemirror-codemark": "~0.4.2",
-    "prosemirror-commands": "~1.6.0",
+    "prosemirror-commands": "~1.6.2",
     "prosemirror-dropcursor": "~1.8.1",
     "prosemirror-history": "~1.4.1",
     "prosemirror-inputrules": "~1.4.0",
     "prosemirror-keymap": "~1.2.2",
-    "prosemirror-model": "~1.23.0",
-    "prosemirror-schema-list": "~1.4.1",
+    "prosemirror-model": "~1.24.1",
+    "prosemirror-schema-list": "~1.5.0",
     "prosemirror-state": "~1.4.3",
     "prosemirror-test-builder": "~1.1.1",
-    "prosemirror-transform": "~1.10.0",
-    "prosemirror-utils": "1.2.0",
-    "prosemirror-view": "~1.34.3",
+    "prosemirror-transform": "~1.10.2",
+    "prosemirror-utils": "~1.2.2",
+    "prosemirror-view": "~1.37.2",
     "react-error-boundary": "^3.1.4",
     "react-hotkeys-hook": "4.5.0",
     "react-use": "^17.3.2",
-    "tslib": "^2.3.1"
+    "ts-dedent": "2.2.0",
+    "tslib": "^2.3.1",
+    "uuid": "11.0.5"
   },
   "devDependencies": {
     "@diplodoc/cut-extension": "^0.6.1",
@@ -208,13 +214,13 @@
     "@diplodoc/latex-extension": "1.0.3",
     "@diplodoc/mermaid-extension": "1.2.1",
     "@diplodoc/tabs-extension": "^3.5.1",
-    "@diplodoc/transform": "^4.40.0",
-    "@gravity-ui/components": "3.0.0",
-    "@gravity-ui/eslint-config": "3.1.1",
+    "@diplodoc/transform": "^4.43.0",
+    "@gravity-ui/eslint-config": "3.3.0",
+    "@gravity-ui/gulp-utils": "1.0.3",
     "@gravity-ui/prettier-config": "1.1.0",
     "@gravity-ui/stylelint-config": "4.0.1",
     "@gravity-ui/tsconfig": "1.0.0",
-    "@gravity-ui/uikit": "6.11.0",
+    "@gravity-ui/uikit": "7.1.1",
     "@storybook/addon-docs": "8.4.1",
     "@storybook/addon-essentials": "^8.4.1",
     "@storybook/addon-webpack5-compiler-babel": "3.0.3",
@@ -226,7 +232,7 @@
     "@storybook/theming": "^8.4.1",
     "@types/gulp": "4.0.9",
     "@types/gulp-sass": "5.0.0",
-    "@types/jest": "^27.0.3",
+    "@types/jest": "^29.5.14",
     "@types/jsdom": "21.1.7",
     "@types/katex": "0.16.7",
     "@types/lodash": "^4.14.177",
@@ -238,34 +244,34 @@
     "bem-cn-lite": "4.1.0",
     "dpdm": "3.14.0",
     "esbuild-sass-plugin": "2.15.0",
-    "eslint": "8.56.0",
+    "eslint": "8.57.1",
     "eslint-plugin-lodash": "7.4.0",
-    "gulp": "4.0.2",
-    "gulp-cli": "2.3.0",
+    "gulp": "5.0.0",
+    "gulp-cli": "3.0.0",
     "gulp-concat": "2.6.1",
     "gulp-replace": "1.1.3",
-    "gulp-sass": "5.1.0",
-    "gulp-typescript": "5.0.1",
+    "gulp-sass": "6.0.0",
+    "gulp-sourcemaps": "3.0.0",
     "identity-obj-proxy": "^3.0.0",
-    "jest": "^27.3.1",
+    "jest": "^29.7.0",
     "jest-css-modules": "^2.1.0",
+    "jest-environment-jsdom": "^29.7.0",
     "jsdom": "25.0.1",
     "lowlight": "3.0.0",
     "markdown-it-testgen": "^0.1.6",
-    "mermaid": "10.9.0",
+    "mermaid": "11.4.1",
     "npm-run-all": "^4.1.5",
     "postcss": "^8.4.27",
     "prettier": "3.1.1",
-    "prosemirror-dev-toolkit": "1.1.5",
+    "prosemirror-dev-toolkit": "1.1.8",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "rimraf": "3.0.2",
-    "sass": "^1.64.1",
+    "sass": "^1.84.0",
     "sass-loader": "^13.3.2",
     "stylelint": "15.11.0",
-    "ts-dedent": "2.2.0",
-    "ts-jest": "^27.0.7",
-    "typescript": "^4.5.2"
+    "ts-jest": "^29.2.5",
+    "typescript": "^5.7.3"
   },
   "peerDependenciesMeta": {
     "@diplodoc/folding-headings-extension": {
@@ -288,22 +294,21 @@
     }
   },
   "peerDependencies": {
-    "@diplodoc/cut-extension": "^0.3.1 || ^0.4.0 || ^0.5.0 || ^0.6.1 || ^0.7.1",
+    "@diplodoc/cut-extension": "^0.5.0 || ^0.6.1 || ^0.7.1",
     "@diplodoc/folding-headings-extension": "^0.1.0",
+    "@diplodoc/file-extension": "^0.2.1",
     "@diplodoc/html-extension": "^2.3.2",
     "@diplodoc/latex-extension": "^1.0.3",
     "@diplodoc/mermaid-extension": "^1.0.0",
     "@diplodoc/tabs-extension": "^3.5.1",
-    "@diplodoc/transform": "^4.33.0",
-    "@gravity-ui/components": "^3.0.0",
-    "@gravity-ui/uikit": "^6.11.0",
+    "@diplodoc/transform": "^4.43.0",
+    "@gravity-ui/uikit": "^7.1.0",
     "highlight.js": "^11.8.0",
     "katex": "^0.16.9",
-    "lodash": "^4.17.20",
     "lowlight": "^3.0.0",
     "markdown-it": "^13.0.0",
-    "react": "^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0",
-    "react-dom": "^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0"
+    "react": "^16.14.0 || ^17.0.0 || ^18.0.0 || ^19.0.0",
+    "react-dom": "^16.14.0 || ^17.0.0 || ^18.0.0 || ^19.0.0"
   },
   "lint-staged": {
     "*.{css,scss}": [

@@ -1,4 +1,4 @@
-import {ActionSpec} from '../../../core';
+import type {ActionSpec} from '../../../core';
 
 import {mermaidNodeType} from './MermaidSpecs/const';
 

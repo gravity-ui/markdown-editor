@@ -1,6 +1,6 @@
 import type {ExtensionAuto} from '../../../core';
 
-import {ClipboardPluginOptions, clipboard} from './clipboard';
+import {type ClipboardPluginOptions, clipboard} from './clipboard';
 import * as clipboardUtils from './utils';
 
 export {clipboardUtils};
@@ -11,11 +11,15 @@ export const Clipboard: ExtensionAuto<ClipboardOptions> = (builder, opts) => {
     builder.addPlugin(
         (deps) =>
             clipboard({
+                logger: builder.logger.nested({
+                    module: 'clipboard',
+                    plugin: 'clipboard',
+                }),
                 mdParser: deps.markupParser,
                 textParser: deps.textParser,
                 serializer: deps.serializer,
                 pasteFileHandler: opts.pasteFileHandler,
             }),
-        builder.PluginPriority.VeryLow,
+        builder.Priority.VeryLow,
     );
 };

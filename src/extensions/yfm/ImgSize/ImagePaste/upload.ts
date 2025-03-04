@@ -1,12 +1,16 @@
-import {Node} from 'prosemirror-model';
-import {EditorView} from 'prosemirror-view';
+import type {Node} from 'prosemirror-model';
+import type {EditorView} from 'prosemirror-view';
 
-import {logger} from '../../../../logger';
-import {FileUploadHandler, UploadSuccessItem, getProportionalSize} from '../../../../utils';
+import {type Logger2, globalLogger} from '../../../../logger';
+import {
+    type FileUploadHandler,
+    type UploadSuccessItem,
+    getProportionalSize,
+} from '../../../../utils';
 import {FilesBatchUploadProcess} from '../../../behavior/utils/upload';
 import {imageType} from '../../../markdown';
 import {IMG_MAX_HEIGHT} from '../const';
-import {CreateImageNodeOptions, createImageNode, loadImage} from '../utils';
+import {type CreateImageNodeOptions, createImageNode, loadImage} from '../utils';
 
 import {ImageSkeletonDescriptor} from './skeleton';
 
@@ -26,16 +30,20 @@ export class ImagesUploadProcess extends FilesBatchUploadProcess {
         super(view, files, uploadHandler);
 
         this.initPosition = position;
-        this.createImage = createImageNode(imageType(this.view.state.schema), opts);
+        this.createImage = createImageNode(imageType(this.view.state.schema), opts, this.logger);
         this.enableNewImageSizeCalculation = opts.enableNewImageSizeCalculation;
     }
 
     protected async createSkeleton() {
         return new ImageSkeletonDescriptor(
             this.initPosition,
-            await getSkeletonSize(this.files, {
-                enableNewImageSizeCalculation: this.enableNewImageSizeCalculation,
-            }),
+            await getSkeletonSize(
+                this.files,
+                {
+                    enableNewImageSizeCalculation: this.enableNewImageSizeCalculation,
+                },
+                this.logger,
+            ),
         );
     }
 
@@ -46,18 +54,20 @@ export class ImagesUploadProcess extends FilesBatchUploadProcess {
 
 async function getSkeletonSize(
     files: readonly File[],
-    opts?: {enableNewImageSizeCalculation?: boolean},
+    opts: {enableNewImageSizeCalculation?: boolean},
+    logger: Logger2.ILogger,
 ) {
     const skeletonSize = {width: '300', height: '200'};
     if (files.length === 1) {
         try {
             const size = await loadImage(files[0]).then(
-                opts?.enableNewImageSizeCalculation ? calcSkeletonSizeNew : calcSkeletonSize,
+                opts.enableNewImageSizeCalculation ? calcSkeletonSizeNew : calcSkeletonSize,
             );
             skeletonSize.width = String(size.width);
             skeletonSize.height = String(size.height);
         } catch (err) {
-            logger.error(err);
+            globalLogger.error(err);
+            logger.error({error: err});
         }
     }
     return skeletonSize;

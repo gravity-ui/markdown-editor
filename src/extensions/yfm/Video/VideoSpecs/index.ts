@@ -1,9 +1,15 @@
-import log from '@diplodoc/transform/lib/log';
+import log from '@diplodoc/transform/lib/log.js';
 
 import type {ExtensionAuto} from '../../../../core';
 
 import {VideoAttr, videoNodeName} from './const';
-import {VideoPluginOptions, VideoService, VideoToken, defaults, videoPlugin} from './md-video';
+import {
+    type VideoPluginOptions,
+    VideoService,
+    type VideoToken,
+    defaults,
+    videoPlugin,
+} from './md-video';
 import {createViewStub, serializeNodeToString} from './utils';
 
 // we don't support osf service
@@ -57,13 +63,10 @@ export const VideoSpecs: ExtensionAuto<VideoSpecsOptions> = (builder, opts) => {
                 const videoId = node.attrs[VideoAttr.VideoID];
 
                 if (availableServices.has(service) || !videoId) {
-                    // TODO: remove in next major
-                    // see https://github.com/gravity-ui/markdown-editor/pull/478
                     let src = '';
-                    if (typeof (options as any).url === 'function')
-                        src = (options as any).url(service, videoId, options);
-                    else if (typeof (options as any).videoUrl === 'function')
-                        src = (options as any).videoUrl(service, videoId, options);
+                    if (typeof options.videoUrl === 'function') {
+                        src = options.videoUrl(service, videoId, options);
+                    }
                     return [
                         'div',
                         {

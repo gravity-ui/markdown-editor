@@ -1,7 +1,7 @@
-import {Node, NodeType} from 'prosemirror-model';
+import type {Node, NodeType} from 'prosemirror-model';
 
-import {logger} from '../../../logger';
-import {UploadSuccessItem, getProportionalSize} from '../../../utils';
+import {type Logger2, globalLogger} from '../../../logger';
+import {type UploadSuccessItem, getProportionalSize} from '../../../utils';
 import {imageNodeName} from '../../markdown';
 import {ImgSizeAttr} from '../../specs';
 
@@ -17,7 +17,7 @@ export type CreateImageNodeOptions = {
 };
 
 export const createImageNode =
-    (imgType: NodeType, opts: CreateImageNodeOptions) =>
+    (imgType: NodeType, opts: CreateImageNodeOptions, logger: Logger2.ILogger) =>
     async ({result, file}: UploadSuccessItem) => {
         const attrs: Record<string, string> = {
             [ImgSizeAttr.Src]: result.url,
@@ -30,7 +30,8 @@ export const createImageNode =
                 );
                 Object.assign(attrs, sizes);
             } catch (err) {
-                logger.error(err);
+                globalLogger.error(err);
+                logger.error({error: err});
             }
         }
         return imgType.create(attrs);

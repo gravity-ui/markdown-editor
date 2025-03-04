@@ -1,12 +1,17 @@
 @use '../../../styles/mixins.scss';
 
-.ProseMirror.yfm .yfm-cut {
-    @include mixins.block-border-hover();
+.ProseMirror.yfm {
+    .yfm-cut {
+        @include mixins.block-border-hover();
 
-    &.yfm-cut-active {
-        border-color: var(--g-color-line-generic);
+        &.yfm-cut-active {
+            border-color: var(--g-color-line-generic);
+        }
+        .yfm-cut-title:focus {
+            outline: 0;
+        }
     }
-    .yfm-cut-title:focus {
-        outline: 0;
+    .yfm-cut.open > .yfm-cut-title:before {
+        transform: translateY(-50%);
     }
 }

@@ -1,7 +1,7 @@
 import {keymap} from '@codemirror/view';
 
-import {GptWidgetOptions} from '../../..';
-import {CommonAnswer} from '../ErrorScreen/types';
+import type {GptWidgetOptions} from '../../..';
+import type {CommonAnswer} from '../ErrorScreen/types';
 import {gptHotKeys} from '../constants';
 
 import {runMarkupGpt} from './commands';

@@ -1,12 +1,12 @@
 import {
-    ChangeSpec,
+    type ChangeSpec,
     EditorSelection,
-    EditorState,
-    Line,
-    SelectionRange,
-    StateCommand,
-    Text,
-    TransactionSpec,
+    type EditorState,
+    type Line,
+    type SelectionRange,
+    type StateCommand,
+    type Text,
+    type TransactionSpec,
 } from '@codemirror/state';
 
 export function getBlockExtraLineBreaks(

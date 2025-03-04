@@ -1,12 +1,19 @@
-import React, {CSSProperties, useCallback, useEffect, useState} from 'react';
+import {type CSSProperties, memo, useCallback, useEffect, useMemo, useState} from 'react';
 
 import {defaultOptions} from '@diplodoc/transform/lib/sanitize';
 import {Button, DropdownMenu} from '@gravity-ui/uikit';
-import {toaster} from '@gravity-ui/uikit/toaster-singleton-react-18';
 
+import type {ToolbarActionData} from 'src/bundle/Editor';
+import type {Extension} from 'src/cm/state';
+import {FoldingHeading} from 'src/extensions/additional/FoldingHeading';
+import {Math} from 'src/extensions/additional/Math';
+import {Mermaid} from 'src/extensions/additional/Mermaid';
+import {YfmHtmlBlock} from 'src/extensions/additional/YfmHtmlBlock';
+import {getSanitizeYfmHtmlBlock} from 'src/extensions/additional/YfmHtmlBlock/utils';
 import {
     type DirectiveSyntaxValue,
     type FileUploadHandler,
+    Logger2,
     type MarkdownEditorMode,
     MarkdownEditorView,
     type MarkdownEditorViewProps,
@@ -15,21 +22,16 @@ import {
     type RenderPreview,
     type ToolbarGroupData,
     type UseMarkdownEditorProps,
-    WysiwygPlaceholderOptions,
+    type WysiwygPlaceholderOptions,
     logger,
     useMarkdownEditor,
     wysiwygToolbarConfigs,
-} from '../../src';
-import type {ToolbarActionData} from '../../src/bundle/Editor';
-import type {Extension} from '../../src/cm/state';
-import {FoldingHeading} from '../../src/extensions/additional/FoldingHeading';
-import {Math} from '../../src/extensions/additional/Math';
-import {Mermaid} from '../../src/extensions/additional/Mermaid';
-import {YfmHtmlBlock} from '../../src/extensions/additional/YfmHtmlBlock';
-import {getSanitizeYfmHtmlBlock} from '../../src/extensions/additional/YfmHtmlBlock/utils';
-import type {CodeEditor} from '../../src/markup';
-import {ToolbarsPreset} from '../../src/modules/toolbars/types';
+} from 'src/index';
+import type {CodeEditor} from 'src/markup';
+import type {ToolbarsPreset} from 'src/modules/toolbars/types';
+
 import {getPlugins} from '../defaults/md-plugins';
+import {useLogs} from '../hooks/useLogs';
 import useYfmHtmlBlockStyles from '../hooks/useYfmHtmlBlockStyles';
 import {randomDelay} from '../utils/delay';
 import {parseInsertedUrlAsImage} from '../utils/imageUrl';
@@ -75,14 +77,7 @@ export type PlaygroundProps = {
     onChangeEditorType?: (mode: MarkdownEditorMode) => void;
     onChangeSplitModeEnabled?: (splitModeEnabled: boolean) => void;
     directiveSyntax?: DirectiveSyntaxValue;
-} & Pick<
-    UseMarkdownEditorProps,
-    | 'needToSetDimensionsForUploadedImages'
-    | 'extraExtensions'
-    | 'renderPreview'
-    | 'extensionOptions'
-    | 'experimental'
-> &
+} & Pick<UseMarkdownEditorProps, 'experimental' | 'wysiwygConfig'> &
     Pick<
         MarkdownEditorViewProps,
         | 'markupHiddenActionsConfig'
@@ -94,12 +89,15 @@ export type PlaygroundProps = {
     >;
 
 logger.setLogger({
-    metrics: console.info,
-    action: (data) => console.info(`Action: ${data.action}`, data),
-    ...console,
+    log: (...data) => console.log('[Deprecated logger]', ...data),
+    info: (...data) => console.info('[Deprecated logger]', ...data),
+    warn: (...data) => console.warn('[Deprecated logger]', ...data),
+    error: (...data) => console.error('[Deprecated logger]', ...data),
+    metrics: (...data) => console.info('[Deprecated logger]', ...data),
+    action: (data) => console.info(`[Deprecated logger] Action: ${data.action}`, data),
 });
 
-export const Playground = React.memo<PlaygroundProps>((props) => {
+export const Playground = memo<PlaygroundProps>((props) => {
     const {
         initial,
         initialEditor,
@@ -116,8 +114,7 @@ export const Playground = React.memo<PlaygroundProps>((props) => {
         stickyToolbar,
         renderPreviewDefined,
         height,
-        extraExtensions,
-        extensionOptions,
+        wysiwygConfig,
         toolbarsPreset,
         wysiwygToolbarConfig,
         wysiwygCommandMenuConfig,
@@ -126,16 +123,13 @@ export const Playground = React.memo<PlaygroundProps>((props) => {
         placeholderOptions,
         enableSubmitInPreview,
         hidePreviewAfterSubmit,
-        needToSetDimensionsForUploadedImages,
         experimental,
         directiveSyntax,
     } = props;
-    const [editorMode, setEditorMode] = React.useState<MarkdownEditorMode>(
-        initialEditor ?? 'wysiwyg',
-    );
-    const [mdRaw, setMdRaw] = React.useState<MarkupString>(initial || '');
+    const [editorMode, setEditorMode] = useState<MarkdownEditorMode>(initialEditor ?? 'wysiwyg');
+    const [mdRaw, setMdRaw] = useState<MarkupString>(initial || '');
 
-    React.useEffect(() => {
+    useEffect(() => {
         updateLocation(mdRaw);
     }, [mdRaw]);
 
@@ -154,8 +148,12 @@ export const Playground = React.memo<PlaygroundProps>((props) => {
         [sanitizeHtml],
     );
 
+    const logger = useMemo(() => new Logger2().nested({env: 'playground'}), []);
+    useLogs(logger);
+
     const mdEditor = useMarkdownEditor(
         {
+            logger,
             preset: 'full',
             wysiwygConfig: {
                 placeholderOptions: placeholderOptions,
@@ -193,39 +191,44 @@ export const Playground = React.memo<PlaygroundProps>((props) => {
                         </style
                     `,
                         });
-                    if (extraExtensions) builder.use(extraExtensions);
+                    if (wysiwygConfig?.extensions) builder.use(wysiwygConfig.extensions);
+                },
+                extensionOptions: {
+                    commandMenu: {actions: wysiwygCommandMenuConfig ?? wCommandMenuConfig},
+                    imgSize: {
+                        parseInsertedUrlAsImage,
+                    },
+                    ...wysiwygConfig?.extensionOptions,
                 },
             },
-            allowHTML,
-            linkify,
-            linkifyTlds,
-            initialMarkup: mdRaw,
-            breaks: breaks ?? true,
-            initialEditorMode: editorMode,
-            initialSplitModeEnabled: initialSplitModeEnabled,
-            initialToolbarVisible: true,
-            splitMode: splitModeOrientation,
-            needToSetDimensionsForUploadedImages,
-            renderPreview: renderPreviewDefined ? renderPreview : undefined,
-            fileUploadHandler,
+            md: {
+                html: allowHTML,
+                linkify,
+                linkifyTlds,
+                breaks: breaks ?? true,
+            },
+            initial: {
+                markup: mdRaw,
+                mode: editorMode,
+                toolbarVisible: true,
+                splitModeEnabled: initialSplitModeEnabled,
+            },
+            handlers: {
+                uploadFile: fileUploadHandler,
+            },
             experimental: {
                 ...experimental,
                 directiveSyntax,
-                preserveEmptyRows: preserveEmptyRows,
-            },
-            prepareRawMarkup: prepareRawMarkup
-                ? (value) => '**prepare raw markup**\n\n' + value
-                : undefined,
-            extensionOptions: {
-                commandMenu: {actions: wysiwygCommandMenuConfig ?? wCommandMenuConfig},
-                imgSize: {
-                    parseInsertedUrlAsImage,
-                },
-                ...extensionOptions,
+                preserveEmptyRows,
+                prepareRawMarkup: prepareRawMarkup
+                    ? (value) => '**prepare raw markup**\n\n' + value
+                    : undefined,
             },
             markupConfig: {
                 extensions: markupConfigExtensions,
                 parseInsertedUrlAsImage,
+                renderPreview,
+                splitMode: splitModeOrientation,
             },
         },
         [
@@ -236,8 +239,7 @@ export const Playground = React.memo<PlaygroundProps>((props) => {
             splitModeOrientation,
             renderPreviewDefined,
             renderPreview,
-            extraExtensions,
-            needToSetDimensionsForUploadedImages,
+            experimental?.needToSetDimensionsForUploadedImages,
             initial,
             experimental?.enableNewImageSizeCalculation,
             experimental?.needToSetDimensionsForUploadedImages,
@@ -300,7 +302,6 @@ export const Playground = React.memo<PlaygroundProps>((props) => {
             view={({className}) => (
                 <MarkdownEditorView
                     autofocus
-                    toaster={toaster}
                     className={className}
                     stickyToolbar={Boolean(stickyToolbar)}
                     toolbarsPreset={toolbarsPreset}

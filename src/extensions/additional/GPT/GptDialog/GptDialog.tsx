@@ -1,7 +1,7 @@
-import React, {useCallback, useRef, useState} from 'react';
+import {useCallback, useRef, useState} from 'react';
 
 import {ArrowRight, ArrowRotateLeft, ThumbsDown, ThumbsUp} from '@gravity-ui/icons';
-import {ActionTooltip, Alert, AlertProps, Button, Icon, TextInput} from '@gravity-ui/uikit';
+import {ActionTooltip, Alert, type AlertProps, Button, Icon, TextInput} from '@gravity-ui/uikit';
 
 import {cn} from '../../../../classname';
 import {i18n} from '../../../../i18n/gpt/dialog';

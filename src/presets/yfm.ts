@@ -1,36 +1,36 @@
 import type {ExtensionAuto} from '../core';
 import {
     Deflist,
-    DeflistOptions,
+    type DeflistOptions,
     Subscript,
     Superscript,
     Underline,
-    UnderlineOptions,
+    type UnderlineOptions,
 } from '../extensions/markdown';
 import {
     Checkbox,
-    CheckboxOptions,
+    type CheckboxOptions,
     ImgSize,
-    ImgSizeOptions,
+    type ImgSizeOptions,
     Monospace,
     Video,
-    VideoOptions,
+    type VideoOptions,
     YfmConfigs,
-    YfmConfigsOptions,
+    type YfmConfigsOptions,
     YfmCut,
-    YfmCutOptions,
+    type YfmCutOptions,
     YfmFile,
-    YfmFileOptions,
+    type YfmFileOptions,
     YfmHeading,
-    YfmHeadingOptions,
+    type YfmHeadingOptions,
     YfmNote,
-    YfmNoteOptions,
+    type YfmNoteOptions,
     YfmTable,
-    YfmTableOptions,
+    type YfmTableOptions,
     YfmTabs,
 } from '../extensions/yfm';
 
-import {DefaultPreset, DefaultPresetOptions} from './default';
+import {DefaultPreset, type DefaultPresetOptions} from './default';
 
 export type YfmPresetOptions = Omit<DefaultPresetOptions, 'heading' | 'image'> & {
     checkbox?: CheckboxOptions;
