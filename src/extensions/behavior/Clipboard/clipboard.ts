@@ -317,9 +317,10 @@ function getCopyContent(state: EditorState): Slice {
         }
     } else {
         // trim empty list items
-        const trimedContent = trimContent(slice.content);
-        if (trimedContent !== slice.content) {
-            slice = new Slice(trimedContent, 1, 1);
+        const createEmptyParagraph = () => Fragment.from(pType(state.schema).createAndFill());
+        const trimmedContent = trimContent(slice.content, createEmptyParagraph);
+        if (trimmedContent !== slice.content) {
+            slice = new Slice(trimmedContent, 1, 1);
         }
     }
 

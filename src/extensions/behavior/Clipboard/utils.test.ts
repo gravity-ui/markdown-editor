@@ -165,7 +165,7 @@ describe('trimContent', () => {
         const fragment = doc(ul(li(), li(), li())).content;
 
         const trimmedFragment = trimContent(fragment);
-        expect(schema.nodes.doc.create(null, trimmedFragment)).toMatchNode(doc(ul()));
+        expect(schema.nodes.doc.create(null, trimmedFragment)).toMatchNode(doc());
     });
 
     it('correctly handles multiple lists in a single fragment', () => {

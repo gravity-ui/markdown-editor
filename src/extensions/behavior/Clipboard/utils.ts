@@ -1,4 +1,4 @@
-import type {Fragment} from 'prosemirror-model';
+import {Fragment} from 'prosemirror-model';
 
 import {isListItemNode, isListNode} from 'src/extensions/markdown/Lists/utils';
 import {isEmptyString} from 'src/utils';
@@ -95,13 +95,13 @@ export function findNotEmptyContentPosses(fragment: Fragment): [number, number, 
     return [firstNotEmptyNodePos, lastNotEmptyNodePos, firstNodePos, lastNodePos];
 }
 
-export function trimContent(fragment: Fragment): Fragment {
+export function trimContent(fragment: Fragment, creatEmptyFragment?: () => Fragment): Fragment {
     const [notEmptyStart, notEmptyEnd, start, end] = findNotEmptyContentPosses(fragment);
 
     if (notEmptyStart === start && notEmptyEnd === end) {
         return fragment;
     } else if (notEmptyStart === -1 && notEmptyEnd === -1) {
-        return fragment.cut(0, 1);
+        return creatEmptyFragment ? creatEmptyFragment() : Fragment.empty;
     }
 
     return fragment.cut(notEmptyStart + 1, notEmptyEnd + 1);
