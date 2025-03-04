@@ -64,7 +64,7 @@ describe('CollapseListsPlugin', () => {
             view.state.tr.replaceWith(0, view.state.doc.nodeSize - 2, initialDoc.content),
         );
 
-        expect(view.state.doc).toMatchNode(doc(ul(li(ul(li(p('Deep nested item')))))));
+        expect(view.state.doc).toMatchNode(doc(ul(li(p('Deep nested item')))));
     });
 
     it('should collapse multiple nested lists in a single document', () => {

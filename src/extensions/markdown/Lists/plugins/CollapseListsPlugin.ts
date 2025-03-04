@@ -1,9 +1,9 @@
-import {Fragment, type Node, Slice} from 'prosemirror-model';
+import {Fragment, type Node} from 'prosemirror-model';
 import {Plugin, TextSelection, type Transaction} from 'prosemirror-state';
 import {findChildren, hasParentNode} from 'prosemirror-utils';
 
 import {getChildrenOfNode} from '../../../../utils';
-import {isListItemNode, isListNode} from '../utils';
+import {isListItemNode, isListNode, liType} from '../utils';
 
 export const collapseListsPlugin = () =>
     new Plugin({
@@ -17,9 +17,15 @@ export const collapseListsPlugin = () =>
             if (!hasParentList) return null;
 
             const {tr} = newState;
-            const listNodes = findChildren(tr.doc, isListNode, true);
+            let prevStepsCount = -1;
+            let currentStepsCount = 0;
 
-            collapseEmptyListItems(tr, listNodes);
+            // execute until there are no nested lists.
+            while (prevStepsCount !== currentStepsCount) {
+                const listNodes = findChildren(tr.doc, isListNode, true);
+                prevStepsCount = currentStepsCount;
+                currentStepsCount = collapseEmptyListItems(tr, listNodes);
+            }
 
             return tr.docChanged ? tr : null;
         },
@@ -28,13 +34,14 @@ export const collapseListsPlugin = () =>
 export function collapseEmptyListItems(
     tr: Transaction,
     nodes: ReturnType<typeof findChildren>,
-): void {
+): number {
+    const stepsCountBefore = tr.steps.length;
     nodes.reverse().forEach((list) => {
         const listNode = list.node;
         const listPos = list.pos;
-        const childrenOfNodes = getChildrenOfNode(listNode).reverse();
+        const childrenOfList = getChildrenOfNode(listNode).reverse();
 
-        childrenOfNodes.forEach(({node: itemNode, offset}) => {
+        childrenOfList.forEach(({node: itemNode, offset}) => {
             if (isListItemNode(itemNode)) {
                 const {firstChild} = itemNode;
                 const listItemNodePos = listPos + 1 + offset;
@@ -45,17 +52,12 @@ export function collapseEmptyListItems(
                     const nestedList = firstChild.content;
 
                     // nodes at the same level as the list
-                    const remainingNodes: Node[] = [];
-                    itemNode.forEach((child, _pos, index) => {
-                        if (index > 0) {
-                            remainingNodes.push(child);
-                        }
-                    });
+                    const remainingNodes = itemNode.content.content.slice(1);
 
                     const listItems = remainingNodes.length
                         ? nestedList.append(
                               Fragment.from(
-                                  tr.doc.type.schema.nodes.list_item.create(null, remainingNodes),
+                                  liType(tr.doc.type.schema).create(null, remainingNodes),
                               ),
                           )
                         : nestedList;
@@ -63,7 +65,7 @@ export function collapseEmptyListItems(
                     const mappedStart = tr.mapping.map(listItemNodePos);
                     const mappedEnd = tr.mapping.map(listItemNodePos + itemNode.nodeSize);
 
-                    tr.replace(mappedStart, mappedEnd, new Slice(listItems, 0, 0));
+                    tr.replaceWith(mappedStart, mappedEnd, listItems);
 
                     const closestTextNodePos = findClosestTextNodePos(
                         tr.doc,
@@ -76,6 +78,8 @@ export function collapseEmptyListItems(
             }
         });
     });
+
+    return tr.steps.length - stepsCountBefore;
 }
 
 function findClosestTextNodePos(doc: Node, pos: number): number | null {
