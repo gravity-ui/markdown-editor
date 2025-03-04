@@ -106,11 +106,11 @@
     "./view/*": {
       "import": {
         "types": "./build/esm/view/*/index.d.ts",
-        "default": "./build/esm/view/*"
+        "default": "./build/esm/view/*/index.js"
       },
       "require": {
         "types": "./build/cjs/view/*/index.d.ts",
-        "default": "./build/cjs/view/*"
+        "default": "./build/cjs/view/*/index.js"
       }
     },
     "./cm/*": {
