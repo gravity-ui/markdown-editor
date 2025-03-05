@@ -18,9 +18,8 @@ const sanitizeAll = () => {
 };
 const getSanitizeFunction = (): SanitizeFn => {
     const module = sanitizeModule as SanitizeModule;
-    return 'sanitize' in module && module.sanitize
-        ? module.sanitize
-        : module.default ?? sanitizeAll;
+    const sanitize = 'sanitize' in module && module.sanitize ? module.sanitize : module.default;
+    return sanitize instanceof Function ? sanitize : sanitizeAll;
 };
 
 // MAJOR: use `import {sanitize} from '@diplodoc/transform/lib/sanitize.js'`
