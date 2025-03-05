@@ -4,6 +4,7 @@
 
 import {i18n} from '../../i18n/menubar';
 import {
+    insertBlockquoteLink,
     insertHRule,
     insertLink,
     insertMermaidDiagram,
@@ -196,6 +197,17 @@ export const mQuoteButton: MToolbarSingleItemData = {
     isEnable: enable,
 };
 export const mQuoteItemData = mQuoteButton;
+
+export const mQuoteLinkButton: MToolbarSingleItemData = {
+    id: ActionName.quoteLink,
+    type: ToolbarDataType.SingleButton,
+    title: i18n.bind(null, 'quotelink'),
+    icon: icons.quoteLink,
+    exec: (e) => insertBlockquoteLink(e.cm),
+    isActive: inactive,
+    isEnable: enable,
+};
+export const mQuoteLinkItemData = mQuoteLinkButton;
 
 export const mCutButton: MToolbarSingleItemData = {
     id: ActionName.yfm_cut,
