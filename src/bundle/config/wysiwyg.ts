@@ -271,6 +271,19 @@ export const wMermaidItemData: WToolbarSingleItemData = {
     isEnable: (e) => e.actions.createMermaid.isEnable(),
 };
 
+export const wQuoteLinkItemData: WToolbarSingleItemData = {
+    id: ActionName.quoteLink,
+    type: ToolbarDataType.SingleButton,
+    title: i18n.bind(null, 'quotelink'),
+    icon: icons.quoteLink,
+    exec: (e) => {
+        e.actions.quoteLink.run();
+        e.actions.addLinkToQuoteLink.run();
+    },
+    isActive: (e) => e.actions.quoteLink.isActive(),
+    isEnable: (e) => e.actions.quoteLink.isEnable(),
+};
+
 export const wCodeBlockItemData: WToolbarItemData = {
     id: ActionName.code_block,
     title: i18n.bind(null, 'codeblock'),
