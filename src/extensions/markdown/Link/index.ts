@@ -50,10 +50,9 @@ declare global {
         }
     }
 }
-
 // TODO: think about generalizing with markInputRule
 function linkInputRule(markType: MarkType): InputRule {
-    return new InputRule(/\[(.+)]\((\S+)\)\s$/, (state, match, start, end) => {
+    return new InputRule(/\[(.+)]\((\S+)\)\{?([^{}]+)?}?\s$/, (state, match, start, end) => {
         if (hasCodeMark(state, match, start, end)) return null;
 
         // handle the rule only if is start of line or there is a space before "open" symbols
@@ -62,14 +61,24 @@ function linkInputRule(markType: MarkType): InputRule {
             if (re.input![re.index! - 1] !== ' ') return null;
         }
 
-        const [okay, alt, href] = match;
+        const [okay, alt, href, attrsString] = match;
         const {tr} = state;
+
+        const attrs: Record<string, string> = {};
+        if (attrsString) {
+            for (const attrKeyValue of attrsString.split(',')) {
+                const [attrKey, attrValue = 'true'] = attrKeyValue.split(/\s*=\s*/);
+                if (attrKey && attrValue) {
+                    attrs[attrKey] = attrValue.replace(/(^'"|'"$)/g, '');
+                }
+            }
+        }
 
         if (okay) {
             tr.replaceWith(start, end, markType.schema.text(alt)).addMark(
                 start,
                 start + alt.length,
-                markType.create({href}),
+                markType.create({...attrs, href}),
             );
         }
 
