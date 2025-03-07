@@ -66,8 +66,8 @@ export const CodeBlockHighlight: ExtensionAuto<CodeBlockHighlightOptions> = (bui
             key,
             state: {
                 init: (_, state) => {
-                    loadModules().then((success) => {
-                        modulesLoaded = success;
+                    loadModules().then(() => {
+                        modulesLoaded = true;
 
                         for (const lang of Object.keys(langs)) {
                             const defs = langs[lang](hljs);
@@ -85,7 +85,9 @@ export const CodeBlockHighlight: ExtensionAuto<CodeBlockHighlightOptions> = (bui
                     return getDecorations(state.doc);
                 },
                 apply: (tr, decos, oldState, newState) => {
-                    if (!modulesLoaded) return DecorationSet.empty;
+                    if (!modulesLoaded) {
+                        return DecorationSet.empty;
+                    }
 
                     if (tr.docChanged) {
                         const oldNodeName = oldState.selection.$head.parent.type.name;
