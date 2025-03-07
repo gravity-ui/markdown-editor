@@ -30,7 +30,14 @@
     "test:cov": "jest --coverage",
     "test:watch": "jest --watchAll",
     "test:esbuild": "node tests/esbuild-test/esbuild-tester.js",
-    "prepublishOnly": "npm run lint && npm run build"
+    "prepublishOnly": "npm run lint && npm run build",
+    "playwright:install": "playwright install chromium webkit --with-deps",
+    "playwright": "playwright test --config=playwright/playwright.config.ts",
+    "playwright:update": "npm run playwright -- -u",
+    "playwright:clear-cache": "rm -rf ./playwright/.cache",
+    "playwright:docker": "./scripts/playwright-docker.sh 'npm run playwright'",
+    "playwright:docker:update": "./scripts/playwright-docker.sh 'npm run playwright:update'",
+    "playwright:docker:clear-cache": "./scripts/playwright-docker.sh clear-cache"
   },
   "exports": {
     ".": {
