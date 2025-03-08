@@ -230,6 +230,7 @@
     "@gravity-ui/uikit": "7.1.1",
     "@playwright/experimental-ct-react": "^1.49.0",
     "@playwright/test": "^1.49.0",
+    "@vitejs/plugin-react": "^4.3.4",
     "@storybook/addon-docs": "8.4.1",
     "@storybook/addon-essentials": "^8.4.1",
     "@storybook/addon-webpack5-compiler-babel": "3.0.3",
