@@ -1,5 +1,13 @@
 # Changelog
 
+## [15.3.1](https://github.com/gravity-ui/markdown-editor/compare/v15.3.0...v15.3.1) (2025-03-07)
+
+
+### Bug Fixes
+
+* **CodeBlock:** resolved async import loading for CodeBlockHighlight ([#672](https://github.com/gravity-ui/markdown-editor/issues/672)) ([2f68e16](https://github.com/gravity-ui/markdown-editor/commit/2f68e163e77d43d48bdba32fc4ff3290c77b1d40))
+* **gpt:** added onClose props in plugin for  markup mode ([#669](https://github.com/gravity-ui/markdown-editor/issues/669)) ([689cc20](https://github.com/gravity-ui/markdown-editor/commit/689cc2067dfe9ccac531beee107feacaea90ae70))
+
 ## [15.3.0](https://github.com/gravity-ui/markdown-editor/compare/v15.2.2...v15.3.0) (2025-03-05)
 
 

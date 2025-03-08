@@ -37,42 +37,58 @@ export const CodeBlockHighlight: ExtensionAuto<CodeBlockHighlightOptions> = (bui
     let lowlight: Lowlight;
     let hljs: typeof HLJS;
 
-    try {
-        hljs = require('highlight.js/lib/core');
-        const low = require('lowlight');
-        const all: HighlightLangMap = low.all;
-        const create: typeof createLowlight = low.createLowlight;
-        langs = {...all, ...opts.langs};
-        lowlight = create(langs);
-    } catch (e) {
-        globalLogger.info('Skip code_block highlighting');
-        builder.logger.log('Skip code_block highlighting');
-        return;
-    }
+    const loadModules = async () => {
+        try {
+            hljs = (await import('highlight.js/lib/core')).default;
+            const low = await import('lowlight');
+
+            const all: HighlightLangMap = low.all;
+            const create: typeof createLowlight = low.createLowlight;
+            langs = {...all, ...opts.langs};
+            lowlight = create(langs);
+            return true;
+        } catch (e) {
+            globalLogger.info('Skip code_block highlighting');
+            builder.logger.log('Skip code_block highlighting');
+            return false;
+        }
+    };
 
     builder.addPlugin(() => {
+        let modulesLoaded = false;
+
         const selectItems: LangSelectItem[] = [];
         const mapping: Record<string, string> = {};
-        for (const lang of Object.keys(langs)) {
-            const defs = langs[lang](hljs);
-            selectItems.push({
-                value: lang,
-                content: defs.name || capitalize(lang),
-            });
-            if (defs.aliases) {
-                for (const alias of defs.aliases) {
-                    mapping[alias] = lang;
-                }
-            }
-        }
 
         // TODO: add TAB key handler
         // TODO: Remove constant selection of block
         return new Plugin<DecorationSet>({
             key,
             state: {
-                init: (_, state) => getDecorations(state.doc),
+                init: (_, state) => {
+                    loadModules().then(() => {
+                        modulesLoaded = true;
+
+                        for (const lang of Object.keys(langs)) {
+                            const defs = langs[lang](hljs);
+                            selectItems.push({
+                                value: lang,
+                                content: defs.name || capitalize(lang),
+                            });
+                            if (defs.aliases) {
+                                for (const alias of defs.aliases) {
+                                    mapping[alias] = lang;
+                                }
+                            }
+                        }
+                    });
+                    return getDecorations(state.doc);
+                },
                 apply: (tr, decos, oldState, newState) => {
+                    if (!modulesLoaded) {
+                        return DecorationSet.empty;
+                    }
+
                     if (tr.docChanged) {
                         const oldNodeName = oldState.selection.$head.parent.type.name;
                         const newNodeName = newState.selection.$head.parent.type.name;
@@ -167,6 +183,10 @@ export const CodeBlockHighlight: ExtensionAuto<CodeBlockHighlightOptions> = (bui
 
     function getDecorations(doc: Node) {
         const decos: Decoration[] = [];
+
+        if (!lowlight) {
+            return DecorationSet.empty;
+        }
 
         for (const {node, pos} of findChildrenByType(doc, codeBlockType(doc.type.schema), true)) {
             let from = pos + 1;
