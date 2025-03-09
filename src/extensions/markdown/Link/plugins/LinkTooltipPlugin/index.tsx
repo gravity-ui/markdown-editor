@@ -189,14 +189,9 @@ class SelectionTooltip implements PluginView {
     };
 
     private onOutisdeClick = () => {
-        // after all updates of the editor state
-        setTimeout(() => {
-            if (!this.view.hasFocus()) {
-                this.removePlaceholderLink(this.textNode);
-                this.hideTooltip();
-                this.manualHidden = false;
-            }
-        });
+        this.removePlaceholderLink(this.textNode);
+        this.hideTooltip();
+        this.manualHidden = true;
     };
 
     private cancelPopup() {
