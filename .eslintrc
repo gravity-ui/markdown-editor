@@ -19,5 +19,9 @@
             "varsIgnorePattern": "^_",
             "caughtErrors": "none"
         }]
-    }
+    },
+    "ignorePatterns": [
+        "**/__tests__/**/*",
+        "**/__stories__/**/*"
+    ]
 }
