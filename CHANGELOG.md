@@ -1,5 +1,22 @@
 # Changelog
 
+## [15.3.1](https://github.com/gravity-ui/markdown-editor/compare/v15.3.0...v15.3.1) (2025-03-07)
+
+
+### Bug Fixes
+
+* **CodeBlock:** resolved async import loading for CodeBlockHighlight ([#672](https://github.com/gravity-ui/markdown-editor/issues/672)) ([2f68e16](https://github.com/gravity-ui/markdown-editor/commit/2f68e163e77d43d48bdba32fc4ff3290c77b1d40))
+* **gpt:** added onClose props in plugin for  markup mode ([#669](https://github.com/gravity-ui/markdown-editor/issues/669)) ([689cc20](https://github.com/gravity-ui/markdown-editor/commit/689cc2067dfe9ccac531beee107feacaea90ae70))
+
+## [15.3.0](https://github.com/gravity-ui/markdown-editor/compare/v15.2.2...v15.3.0) (2025-03-05)
+
+
+### Features
+
+* **Clipboard:** added trim empty list items before copying ([#658](https://github.com/gravity-ui/markdown-editor/issues/658)) ([ed88851](https://github.com/gravity-ui/markdown-editor/commit/ed88851821de069d9c6f1b2dfa4891580057937a))
+* **Lists:** improved collapsing of empty list items with nested lists ([#653](https://github.com/gravity-ui/markdown-editor/issues/653)) ([c828137](https://github.com/gravity-ui/markdown-editor/commit/c828137f726a80722772583bf5f6a2985b51021e))
+* **YfmHtmlBlock:** added compatibility for sanitize named export ([#668](https://github.com/gravity-ui/markdown-editor/issues/668)) ([e76af56](https://github.com/gravity-ui/markdown-editor/commit/e76af563426c75aea80ee8168176f9c8563f4030))
+
 ## [15.2.2](https://github.com/gravity-ui/markdown-editor/compare/v15.2.1...v15.2.2) (2025-02-27)
 
 

@@ -1,5 +1,6 @@
 import {Fragment, type Node} from 'prosemirror-model';
 import {Plugin, TextSelection, type Transaction} from 'prosemirror-state';
+// @ts-ignore // TODO: fix cjs build
 import {findChildren, hasParentNode} from 'prosemirror-utils';
 
 import {getChildrenOfNode} from '../../../../utils';
@@ -36,7 +37,8 @@ export function collapseEmptyListItems(
     nodes: ReturnType<typeof findChildren>,
 ): number {
     const stepsCountBefore = tr.steps.length;
-    nodes.reverse().forEach((list) => {
+    // TODO: fix cjs build
+    nodes.reverse().forEach((list: {node: Node; pos: number}) => {
         const listNode = list.node;
         const listPos = list.pos;
         const childrenOfList = getChildrenOfNode(listNode).reverse();
