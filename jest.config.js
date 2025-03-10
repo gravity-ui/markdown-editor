@@ -6,7 +6,7 @@ const {compilerOptions} = require('./tsconfig.json');
 module.exports = {
     preset: 'ts-jest/presets/js-with-ts',
     testEnvironment: 'jsdom',
-    testPathIgnorePatterns: ['spec.js', 'spec.ts'],
+    testPathIgnorePatterns: ['spec.js', 'spec.ts', '__tests__', '__stories__'],
     setupFilesAfterEnv: ['<rootDir>tests/setup.ts'],
     moduleNameMapper: {
         ...pathsToModuleNameMapper(compilerOptions.paths, {prefix: '<rootDir>/'}),
