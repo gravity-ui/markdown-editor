@@ -17,9 +17,10 @@
       "#core": ["./src/core"],
       "#cm/*": ["./src/cm/*"],
       "#pm/*": ["./src/pm/*"],
+      "~playwright/*": ["./playwright/*"],
       "src/*": ["./src/*"]
     }
   },
   "include": ["src/**/*", "demo/**/*", "tests/**/*"],
-  "exclude": ["build"]
+  "exclude": ["build", "**/__stories__", "**/__tests__"]
 }
