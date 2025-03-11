@@ -28,11 +28,11 @@ reporter.push(
  * See https://playwright.dev/docs/test-configuration.
  */
 const config: PlaywrightTestConfig = {
-    testDir: pathFromRoot('src'),
-    testMatch: '**/__tests__/*.visual.test.tsx',
+    testDir: pathFromRoot('visual-tests'),
+    testMatch: '*.visual.test.tsx',
     updateSnapshots: process.env.UPDATE_REQUEST ? 'all' : 'missing',
     snapshotPathTemplate:
-        '{testDir}/{testFileDir}/../__snapshots__/{testFileName}-snapshots/{arg}{-projectName}-linux{ext}',
+        '{testDir}/__snapshots__/{testFileName}-snapshots/{arg}{-projectName}-linux{ext}',
     /* Maximum time one test can run for. */
     timeout: 10 * 1000,
     /* Run tests in files in parallel */
@@ -65,6 +65,10 @@ const config: PlaywrightTestConfig = {
             },
             resolve: {
                 alias: {
+                    '#core': resolve(__dirname, '../src/core'),
+                    '#cm/*': resolve(__dirname, '../src/cm/*'),
+                    '#pm/*': resolve(__dirname, '../src/pm/*'),
+                    src: resolve(__dirname, '../src'),
                     '~playwright': resolve(__dirname),
                     '~@gravity-ui/uikit/styles/mixins': '@gravity-ui/uikit/styles/mixins',
                     '~@doc-tools/transform/dist/css/yfm.css':

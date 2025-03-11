@@ -22,5 +22,5 @@
     }
   },
   "include": ["src/**/*", "demo/**/*", "tests/**/*"],
-  "exclude": ["build", "**/__stories__", "**/__tests__"]
+  "exclude": ["build"]
 }

@@ -21,7 +21,6 @@
         }]
     },
     "ignorePatterns": [
-        "**/__tests__/**/*",
-        "**/__stories__/**/*"
+        "visual-tests/**/*"
     ]
 }
