@@ -1,5 +1,6 @@
 import {type CSSProperties, memo, useCallback, useEffect, useMemo, useState} from 'react';
 
+import type {EmbeddingMode} from '@diplodoc/html-extension';
 import {defaultOptions} from '@diplodoc/transform/lib/sanitize';
 import {Button, DropdownMenu} from '@gravity-ui/uikit';
 
@@ -77,6 +78,7 @@ export type PlaygroundProps = {
     onChangeEditorType?: (mode: MarkdownEditorMode) => void;
     onChangeSplitModeEnabled?: (splitModeEnabled: boolean) => void;
     directiveSyntax?: DirectiveSyntaxValue;
+    disabledHTMLBlockModes?: EmbeddingMode[];
 } & Pick<UseMarkdownEditorProps, 'experimental' | 'wysiwygConfig'> &
     Pick<
         MarkdownEditorViewProps,
@@ -125,6 +127,7 @@ export const Playground = memo<PlaygroundProps>((props) => {
         hidePreviewAfterSubmit,
         experimental,
         directiveSyntax,
+        disabledHTMLBlockModes,
     } = props;
     const [editorMode, setEditorMode] = useState<MarkdownEditorMode>(initialEditor ?? 'wysiwyg');
     const [mdRaw, setMdRaw] = useState<MarkupString>(initial || '');
@@ -143,9 +146,10 @@ export const Playground = memo<PlaygroundProps>((props) => {
                 breaks={md.breaks}
                 needToSanitizeHtml={sanitizeHtml}
                 plugins={getPlugins({directiveSyntax})}
+                htmlRuntimeConfig={{disabledModes: disabledHTMLBlockModes}}
             />
         ),
-        [sanitizeHtml],
+        [sanitizeHtml, disabledHTMLBlockModes],
     );
 
     const logger = useMemo(() => new Logger2().nested({env: 'playground'}), []);
