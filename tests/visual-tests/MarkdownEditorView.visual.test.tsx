@@ -1,4 +1,4 @@
-import {test} from '../playwright/core';
+import {test} from 'playwright/core';
 
 import {MarkdownEditorViewTest} from './helpersPlaywright';
 

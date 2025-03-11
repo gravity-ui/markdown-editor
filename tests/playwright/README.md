@@ -13,7 +13,7 @@
 
    import {MyComponent} from '../MyComponent';
 
-   import {test} from '~playwright/core';
+   import {test} from 'playwright/core';
 
    test('test description', async ({mount}) => {
      // mount the component
@@ -29,7 +29,7 @@
    ```tsx
    import {MyComponent} from '../MyComponent';
 
-   import {test} from '~playwright/core';
+   import {test} from 'playwright/core';
 
    test('test description', async ({mount, expectScreenshot}) => {
      // mount the component
@@ -45,7 +45,7 @@
    ```tsx
    import {MyComponent} from '../MyComponent';
 
-   import {test} from '~playwright/core';
+   import {test} from 'playwright/core';
 
    test('test description', async ({mount, expectScreenshot}) => {
      // mount the component

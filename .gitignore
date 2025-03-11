@@ -17,8 +17,14 @@ temp/
 
 # build
 .cache
+.cache*
 build/
 coverage/
 storybook-static/
 .eslintcache
 demo/docs
+
+# tests
+playwright-report*
+test-results
+

@@ -19,8 +19,5 @@
             "varsIgnorePattern": "^_",
             "caughtErrors": "none"
         }]
-    },
-    "ignorePatterns": [
-        "visual-tests/**/*"
-    ]
+    }
 }

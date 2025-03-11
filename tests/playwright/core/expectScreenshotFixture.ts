@@ -61,6 +61,5 @@ export const expectScreenshotFixture: PlaywrightFixture<ExpectScreenshotFixture>
         }
     };
 
-    // eslint-disable-next-line react-hooks/rules-of-hooks
     await use(expectScreenshot);
 };

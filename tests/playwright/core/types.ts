@@ -14,7 +14,7 @@ import type {
 
 interface ComponentFixtures {
     mount<HooksConfig>(
-        component: React.JSX.Element,
+        component: JSX.Element,
         options?: MountOptions<HooksConfig> & {
             width?: number | string;
             rootStyle?: React.CSSProperties;

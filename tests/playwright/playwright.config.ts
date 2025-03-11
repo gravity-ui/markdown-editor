@@ -2,7 +2,6 @@ import {resolve} from 'path';
 
 import type {PlaywrightTestConfig} from '@playwright/experimental-ct-react';
 import {defineConfig, devices} from '@playwright/experimental-ct-react';
-import react from '@vitejs/plugin-react';
 
 function pathFromRoot(p: string) {
     return resolve(__dirname, '../', p);
@@ -23,6 +22,27 @@ reporter.push(
         },
     ],
 );
+
+const ctViteConfig = {
+    css: {
+        preprocessorOptions: {
+            scss: {
+                api: 'modern-compiler',
+            },
+        },
+    },
+    resolve: {
+        alias: {
+            '#core': resolve(__dirname, '../../src/core'),
+            '#cm/*': resolve(__dirname, '../../src/cm/*'),
+            '#pm/*': resolve(__dirname, '../../src/pm/*'),
+            src: resolve(__dirname, '../../src'),
+            playwright: resolve(__dirname),
+            '~@gravity-ui/uikit/styles/mixins': '@gravity-ui/uikit/styles/mixins',
+            '~@doc-tools/transform/dist/css/yfm.css': '@doc-tools/transform/dist/css/yfm.css',
+        },
+    },
+};
 
 /**
  * See https://playwright.dev/docs/test-configuration.
@@ -54,28 +74,9 @@ const config: PlaywrightTestConfig = {
         screenshot: 'only-on-failure',
         timezoneId: 'UTC',
         ctCacheDir: process.env.IS_DOCKER ? '.cache-docker' : '.cache',
-        ctViteConfig: {
-            plugins: [react()],
-            css: {
-                preprocessorOptions: {
-                    scss: {
-                        api: 'modern-compiler',
-                    },
-                },
-            },
-            resolve: {
-                alias: {
-                    '#core': resolve(__dirname, '../src/core'),
-                    '#cm/*': resolve(__dirname, '../src/cm/*'),
-                    '#pm/*': resolve(__dirname, '../src/pm/*'),
-                    src: resolve(__dirname, '../src'),
-                    '~playwright': resolve(__dirname),
-                    '~@gravity-ui/uikit/styles/mixins': '@gravity-ui/uikit/styles/mixins',
-                    '~@doc-tools/transform/dist/css/yfm.css':
-                        '@doc-tools/transform/dist/css/yfm.css',
-                },
-            },
-        },
+        /* Configure Vite settings for component testing.
+        See https://playwright.dev/docs/test-components#i-have-a-project-that-already-uses-vite-can-i-reuse-the-config */
+        ctViteConfig,
     },
     /* Configure projects for major browsers */
     projects: [
