@@ -2,8 +2,10 @@ import {Portal} from '@gravity-ui/uikit';
 import type {Node} from 'prosemirror-model';
 import type {EditorView, NodeView} from 'prosemirror-view';
 
-import {getReactRendererFromState} from '../../../behavior';
-import {YfmHtmlBlockConsts} from '../YfmHtmlBlockSpecs/const';
+import {getReactRendererFromState} from 'src/extensions/behavior/ReactRenderer';
+import {generateEntityId, isInvalidEntityId} from 'src/utils/entity-id';
+
+import {YfmHtmlBlockConsts, defaultYfmHtmlBlockEntityId} from '../YfmHtmlBlockSpecs/const';
 import type {YfmHtmlBlockOptions} from '../index';
 
 import {STOP_EVENT_CLASSNAME, YfmHtmlBlockView} from './YfmHtmlBlockView';
@@ -39,15 +41,12 @@ export class WYfmHtmlBlockNodeView implements NodeView {
             'yfmHtmlBlock-view',
             this.renderYfmHtmlBlock.bind(this),
         );
+
+        this.validateEntityId();
     }
 
     update(node: Node) {
         if (node.type !== this.node.type) return false;
-        if (
-            node.attrs[YfmHtmlBlockConsts.NodeAttrs.newCreated] !==
-            this.node.attrs[YfmHtmlBlockConsts.NodeAttrs.newCreated]
-        )
-            return false;
         this.node = node;
         this.renderItem.rerender();
         return true;
@@ -64,6 +63,25 @@ export class WYfmHtmlBlockNodeView implements NodeView {
     stopEvent(e: Event) {
         const target = e.target as Element;
         return target.classList.contains(STOP_EVENT_CLASSNAME);
+    }
+
+    private validateEntityId() {
+        if (
+            isInvalidEntityId({
+                node: this.node,
+                doc: this.view.state.doc,
+                defaultId: defaultYfmHtmlBlockEntityId,
+            })
+        ) {
+            const newId = generateEntityId(YfmHtmlBlockConsts.NodeName);
+            this.view.dispatch(
+                this.view.state.tr.setNodeAttribute(
+                    this.getPos()!,
+                    YfmHtmlBlockConsts.NodeAttrs.EntityId,
+                    newId,
+                ),
+            );
+        }
     }
 
     private onChange(attrs: {[YfmHtmlBlockConsts.NodeAttrs.srcdoc]: string}) {
