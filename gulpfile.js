@@ -69,12 +69,7 @@ async function compileTS({module, destPath}) {
     ];
 
     return new Promise((resolve) => {
-        gulp.src([
-            'src/**/*.{js,jsx,ts,tsx}',
-            '!src/**/*.test.{js,jsx,ts,tsx}',
-            '!src/**/__tests__/**/*',
-            '!src/**/__stories__/**/*',
-        ])
+        gulp.src(['src/**/*.{js,jsx,ts,tsx}', '!src/**/*.test.{js,jsx,ts,tsx}'])
             .pipe(sourcemaps.init())
             .pipe(
                 tsProject({
