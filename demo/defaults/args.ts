@@ -17,4 +17,5 @@ export const args: Meta<PlaygroundMiniProps>['args'] = {
     renderPreviewDefined: true,
     height: 'initial',
     directiveSyntax: 'disabled',
+    disabledHTMLBlockModes: [],
 };

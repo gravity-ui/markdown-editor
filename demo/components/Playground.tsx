@@ -1,5 +1,6 @@
 import React, {CSSProperties, useCallback, useEffect, useState} from 'react';
 
+import type {EmbeddingMode} from '@diplodoc/html-extension';
 import {defaultOptions} from '@diplodoc/transform/lib/sanitize';
 import {Button, DropdownMenu} from '@gravity-ui/uikit';
 import {toaster} from '@gravity-ui/uikit/toaster-singleton-react-18';
@@ -75,6 +76,7 @@ export type PlaygroundProps = {
     onChangeEditorType?: (mode: MarkdownEditorMode) => void;
     onChangeSplitModeEnabled?: (splitModeEnabled: boolean) => void;
     directiveSyntax?: DirectiveSyntaxValue;
+    disabledHTMLBlockModes?: EmbeddingMode[];
 } & Pick<
     UseMarkdownEditorProps,
     | 'needToSetDimensionsForUploadedImages'
@@ -129,6 +131,7 @@ export const Playground = React.memo<PlaygroundProps>((props) => {
         needToSetDimensionsForUploadedImages,
         experimental,
         directiveSyntax,
+        disabledHTMLBlockModes,
     } = props;
     const [editorMode, setEditorMode] = React.useState<MarkdownEditorMode>(
         initialEditor ?? 'wysiwyg',
@@ -149,9 +152,10 @@ export const Playground = React.memo<PlaygroundProps>((props) => {
                 breaks={md.breaks}
                 needToSanitizeHtml={sanitizeHtml}
                 plugins={getPlugins({directiveSyntax})}
+                htmlRuntimeConfig={{disabledModes: disabledHTMLBlockModes}}
             />
         ),
-        [sanitizeHtml],
+        [sanitizeHtml, disabledHTMLBlockModes],
     );
 
     const mdEditor = useMarkdownEditor(

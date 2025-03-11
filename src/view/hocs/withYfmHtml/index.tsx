@@ -1,5 +1,6 @@
 import React, {ComponentType, RefAttributes, forwardRef, useEffect} from 'react';
 
+import type {HTMLRuntimeConfig} from '@diplodoc/html-extension';
 import {useDiplodocEmbeddedContentController} from '@diplodoc/html-extension/react';
 import {IHTMLIFrameElementConfig} from '@diplodoc/html-extension/runtime';
 
@@ -14,6 +15,7 @@ export type WithYfmHtmlBlockOptions = {
 export type WithYfmHtmlBlockProps = {
     meta: TransformMeta;
     yfmHtmlBlockConfig?: IHTMLIFrameElementConfig;
+    htmlRuntimeConfig?: HTMLRuntimeConfig;
 };
 
 export function withYfmHtmlBlock(opts: WithYfmHtmlBlockOptions) {
@@ -21,9 +23,9 @@ export function withYfmHtmlBlock(opts: WithYfmHtmlBlockOptions) {
         Component: ComponentType<T & RefAttributes<HTMLDivElement>>,
     ) =>
         forwardRef<HTMLDivElement, T & WithYfmHtmlBlockProps>(function WithYfmHtml(props, ref) {
-            const {meta, html, yfmHtmlBlockConfig} = props;
+            const {meta, html, yfmHtmlBlockConfig, htmlRuntimeConfig} = props;
 
-            useYfmHtmlBlockRuntime(meta, opts.runtime);
+            useYfmHtmlBlockRuntime(meta, opts.runtime, htmlRuntimeConfig);
 
             const yfmHtmlBlock = useDiplodocEmbeddedContentController();
 
