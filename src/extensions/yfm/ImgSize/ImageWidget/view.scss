@@ -1,4 +1,4 @@
-@import '~@gravity-ui/uikit/styles/mixins';
+@use '~@gravity-ui/uikit/styles/mixins' as uikit;
 
 .g-md-image-placeholder {
     display: inline-flex;
@@ -11,5 +11,5 @@
     border-radius: 4px;
     background-color: var(--g-color-base-simple-hover-solid);
 
-    @include text-body-2();
+    @include uikit.text-body-2();
 }

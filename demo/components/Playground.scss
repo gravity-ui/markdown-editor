@@ -1,4 +1,4 @@
-@import '../../node_modules/@gravity-ui/uikit/styles/mixins';
+@use '@gravity-ui/uikit/styles/mixins' as uikit;
 
 .playground {
     max-width: 1296px;
@@ -12,7 +12,7 @@
 
         text-align: center;
 
-        @include text-header-2();
+        @include uikit.text-header-2();
     }
 
     &__version {
@@ -20,7 +20,7 @@
         right: 0;
         bottom: 0;
 
-        @include text-code-inline-1();
+        @include uikit.text-code-inline-1();
     }
 
     &__markup {
