@@ -13,6 +13,7 @@ import {Selection} from './Selection';
 import {SelectionContext, type SelectionContextOptions} from './SelectionContext';
 import {WidgetDecoration} from './WidgetDecoration';
 
+export * from './Autocomplete';
 export * from './ClicksOnEdges';
 export * from './Clipboard';
 export * from './CommandMenu';
