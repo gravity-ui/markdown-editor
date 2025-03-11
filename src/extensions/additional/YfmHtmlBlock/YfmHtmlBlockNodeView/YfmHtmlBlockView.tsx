@@ -274,7 +274,9 @@ export const YfmHtmlBlockView: React.FC<{
     const body = `<body>${node.attrs[YfmHtmlBlockConsts.NodeAttrs.srcdoc] ?? ''}</body>`;
     const html = `<!DOCTYPE html><html>${head}${body}</html>`;
 
-    const resultHtml = sanitize ? sanitize(html) : html;
+    const sanitizeFunction = typeof sanitize === 'function' ? sanitize : sanitize?.body;
+
+    const resultHtml = sanitizeFunction ? sanitizeFunction(html) : html;
 
     return (
         <div className={b()} onDoubleClick={setEditing}>

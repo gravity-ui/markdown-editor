@@ -102,6 +102,8 @@ html, body {
 
 Simple text again
 
+<div data-yfm-sandbox-mode='shadow' data-yfm-sandbox-content='This is shadow html block content that injected in html by runtime'>This is initial shadow html block content</div>
+
 ## Next is another YFM HTML block with styles
 
 ::: html
