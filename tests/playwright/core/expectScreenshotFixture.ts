@@ -44,6 +44,9 @@ export const expectScreenshotFixture: PlaywrightFixture<ExpectScreenshotFixture>
         // Wait for loading fonts
         await page.evaluate(() => document.fonts.ready);
 
+        // Additional wait
+        await page.waitForTimeout(100);
+
         if (themes?.includes('light')) {
             await page.emulateMedia({colorScheme: 'light'});
 

@@ -1,6 +1,6 @@
 import {test} from 'playwright/core';
 
-import {Commonmark, Custom, Default, Full, Yfm, Zero} from './helpers';
+import {Commonmark, Custom, Default, Full, Yfm, Zero} from './Presets.helpers';
 
 test.describe('Extensions, Presets', () => {
     test('Zero', async ({mount, expectScreenshot}) => {
