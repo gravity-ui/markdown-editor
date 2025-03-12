@@ -16,6 +16,7 @@ run_command() {
     -v $(pwd):/work \
     -v "$NODE_MODULES_CACHE_DIR:/work/node_modules" \
     -e IS_DOCKER=1 \
+    -e NODE_OPTIONS="--max-old-space-size=8192" \
     "$IMAGE_NAME:$IMAGE_TAG" \
     /bin/bash -c "$1"
 }
@@ -31,7 +32,7 @@ fi
 
 if [[ "$1" = "clear-cache" ]]; then
   rm -rf "$NODE_MODULES_CACHE_DIR"
-  rm -rf "./playwright/.cache-docker"
+  rm -rf "./tests/playwright/.cache-docker"
   exit 0
 fi
 
