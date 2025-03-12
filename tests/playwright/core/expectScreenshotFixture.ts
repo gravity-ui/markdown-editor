@@ -18,10 +18,15 @@ export const expectScreenshotFixture: PlaywrightFixture<ExpectScreenshotFixture>
         ...pageScreenshotOptions
     } = defaultParams) => {
         const captureScreenshot = async () => {
-            return (component || page.locator('.playwright-wrapper-test')).screenshot({
-                animations: 'disabled',
-                ...pageScreenshotOptions,
-            });
+            return (
+                (component || page.locator('.playwright-wrapper-test'))
+                    // TODO: @makhnatkin make more flexible
+                    .locator('.playground__editor-markup')
+                    .screenshot({
+                        animations: 'disabled',
+                        ...pageScreenshotOptions,
+                    })
+            );
         };
 
         const nameScreenshot =
