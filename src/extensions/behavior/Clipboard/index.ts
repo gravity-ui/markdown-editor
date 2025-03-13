@@ -1,6 +1,7 @@
-import type {ExtensionAuto} from '../../../core';
+import type {ExtensionAuto} from '#core';
 
 import {type ClipboardPluginOptions, clipboard} from './clipboard';
+import {handlePasteIntoCodePlugin} from './code';
 import * as clipboardUtils from './utils';
 
 export {clipboardUtils};
@@ -22,4 +23,6 @@ export const Clipboard: ExtensionAuto<ClipboardOptions> = (builder, opts) => {
             }),
         builder.Priority.VeryLow,
     );
+
+    builder.addPlugin(handlePasteIntoCodePlugin, builder.Priority.Highest);
 };
