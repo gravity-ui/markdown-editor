@@ -26,5 +26,5 @@ demo/docs
 
 # tests
 playwright-report*
-test-results
+test-results/
 

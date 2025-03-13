@@ -1,30 +1,30 @@
 import {test} from 'playwright/core';
 
-import {Commonmark, Custom, Default, Full, Yfm, Zero} from './Presets.helpers';
+import {PresetsStories} from './Presets.helpers';
 
 test.describe('Extensions, Presets', () => {
     test('Zero', async ({mount, expectScreenshot}) => {
-        await mount(<Zero />);
+        await mount(<PresetsStories.Zero />);
         await expectScreenshot();
     });
     test('Common Mark', async ({mount, expectScreenshot}) => {
-        await mount(<Commonmark />);
+        await mount(<PresetsStories.CommonMark />);
         await expectScreenshot();
     });
     test('Default', async ({mount, expectScreenshot}) => {
-        await mount(<Default />);
+        await mount(<PresetsStories.Default />);
         await expectScreenshot();
     });
     test('YFM', async ({mount, expectScreenshot}) => {
-        await mount(<Yfm />);
+        await mount(<PresetsStories.YFM />);
         await expectScreenshot();
     });
     test('Full', async ({mount, expectScreenshot}) => {
-        await mount(<Full />);
+        await mount(<PresetsStories.Full />);
         await expectScreenshot();
     });
     test('Custom', async ({mount, expectScreenshot}) => {
-        await mount(<Custom />);
+        await mount(<PresetsStories.Custom />);
         await expectScreenshot();
     });
 });

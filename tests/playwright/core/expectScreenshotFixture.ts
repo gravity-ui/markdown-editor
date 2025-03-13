@@ -34,6 +34,7 @@ export const expectScreenshotFixture: PlaywrightFixture<ExpectScreenshotFixture>
 
         const themes = paramsThemes || defaultParams.themes;
 
+        // TODO: @makhnatkin simplify with await loader.waitFor({state: 'hidden'});
         // Wait for loading of all the images
         const locators = await page.locator('//img').all();
         await Promise.all(
@@ -48,9 +49,6 @@ export const expectScreenshotFixture: PlaywrightFixture<ExpectScreenshotFixture>
 
         // Wait for loading fonts
         await page.evaluate(() => document.fonts.ready);
-
-        // Additional wait
-        await page.waitForTimeout(100);
 
         if (themes?.includes('light')) {
             await page.emulateMedia({colorScheme: 'light'});

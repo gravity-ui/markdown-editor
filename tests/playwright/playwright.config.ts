@@ -34,12 +34,11 @@ const ctViteConfig = {
     resolve: {
         alias: {
             '#core': resolve(__dirname, '../../src/core'),
-            '#cm/*': resolve(__dirname, '../../src/cm/*'),
-            '#pm/*': resolve(__dirname, '../../src/pm/*'),
+            '#cm': resolve(__dirname, '../../src/cm'),
+            '#pm': resolve(__dirname, '../../src/pm'),
             src: resolve(__dirname, '../../src'),
             playwright: resolve(__dirname),
             '~@gravity-ui/uikit/styles/mixins': '@gravity-ui/uikit/styles/mixins',
-            '~@doc-tools/transform/dist/css/yfm.css': '@doc-tools/transform/dist/css/yfm.css',
         },
     },
 };

@@ -22,9 +22,21 @@ Tests use the configuration file `playwright.config.ts`. The build is handled by
 
 To avoid environmental differences, it is recommended to run tests in Docker using `playwright-docker.sh`.
 
+See more: [Playwright Test Components](https://playwright.dev/docs/test-components)
+
+
 ## Running Tests Locally
 
-On the first run, install the required dependencies (Docker, Playwright).
+On the first run, install the required dependencies (Docker or alternatives, Playwright).
+
+### Podman example
+
+```shell
+brew install podman
+podman machine init
+podman machine set --cpus 2 --memory 8192
+podman machine start
+```
 
 ```shell
 npm run playwright:docker
@@ -62,8 +74,10 @@ npm run playwright:docker
 4. To update reference screenshots in Docker, run:
 
   ```shell
-  npm run playwright:docker:update
+  npm run playwright:docker:update -g "test name"
   ```
+
+See more: [Command line](https://playwright.dev/docs/test-cli)
 
 5. The generated screenshots will be saved in `__snapshots__`. After that, verify:
   * Consistency with Storybook;
@@ -79,6 +93,5 @@ npm run playwright:docker
 
 ## Useful Links
 
-- [Playwright Test Components](https://playwright.dev/docs/test-components)
 - [Playwright API](https://playwright.dev/docs/api/class-test)
 - [Writing Playwright Tests](https://playwright.dev/docs/writing-tests)
