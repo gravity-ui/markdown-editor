@@ -72,40 +72,48 @@ export function ToolbarListButton<E>({
 
     const titleText: string = isFunction(title) ? title() : title;
 
+    const button = (
+        <Button
+            size="m"
+            ref={setAnchorElement}
+            view={someActive || popupOpen ? 'normal' : 'flat'}
+            selected={someActive}
+            disabled={everyDisabled}
+            className={b({arrow: withArrow}, [className])}
+            onClick={() => {
+                if (popupItem) setPopupItem(undefined);
+                else toggleOpen();
+            }}
+        >
+            {buttonContent}
+        </Button>
+    );
+    
     return (
         <>
-            <Popover
-                className={b('action-disabled-popover')}
-                content={
-                    <div className={b('action-disabled-tooltip')}>
-                        {i18n('toolbar_action_disabled')}
-                    </div>
-                }
-                placement={'bottom'}
-                disabled={!everyDisabled}
-            >
+            {everyDisabled ? (
                 <ActionTooltip
                     title={titleText}
                     disabled={Boolean(popupItem) || popupOpen}
                     openDelay={ToolbarTooltipDelay.Open}
                     closeDelay={ToolbarTooltipDelay.Close}
                 >
-                    <Button
-                        size="m"
-                        ref={setAnchorElement}
-                        view={someActive || popupOpen ? 'normal' : 'flat'}
-                        selected={someActive}
-                        disabled={everyDisabled}
-                        className={b({arrow: withArrow}, [className])}
-                        onClick={() => {
-                            if (popupItem) setPopupItem(undefined);
-                            else toggleOpen();
-                        }}
-                    >
-                        {buttonContent}
-                    </Button>
+                    {button}
                 </ActionTooltip>
-            </Popover>
+            ) : (
+                <Popover
+                    className={b('action-disabled-popover')}
+                    content={
+                        <div className={b('action-disabled-tooltip')}>
+                            {i18n('toolbar_action_disabled')}
+                        </div>
+                    }
+                    placement={'bottom'}
+                    disabled={!everyDisabled}
+                >
+                    {button}
+                </Popover>
+            )}
             <Popup anchorElement={anchorElement} open={popupOpen} onOpenChange={hide}>
                 <Menu size="l" className={b('menu')}>
                     {data
