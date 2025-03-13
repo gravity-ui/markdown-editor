@@ -88,7 +88,7 @@ export function ToolbarListButton<E>({
             {buttonContent}
         </Button>
     );
-    
+
     return (
         <>
             {everyDisabled ? (
