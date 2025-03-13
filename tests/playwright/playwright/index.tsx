@@ -7,7 +7,7 @@ import {
 } from '@gravity-ui/uikit';
 import {beforeMount} from '@playwright/experimental-ct-react/hooks';
 
-import './index.scss';
+import '@gravity-ui/uikit/styles/styles.scss';
 
 const toaster = new Toaster();
 

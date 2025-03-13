@@ -1,29 +1,28 @@
 import type {StoryObj} from '@storybook/react';
 
 import {Preset as component} from './Preset';
-import {presets, toolbarPresets} from './presets';
+import {toolbarPresets} from './presets';
 
-const {commonmark, defaultPreset, full, yfm, zero} = presets;
 const {custom} = toolbarPresets;
 
 export const Zero: StoryObj<typeof component> = {
-    args: {preset: zero},
+    args: {preset: 'zero'},
 };
 
 export const CommonMark: StoryObj<typeof component> = {
-    args: {preset: commonmark},
+    args: {preset: 'commonmark'},
 };
 
 export const Default: StoryObj<typeof component> = {
-    args: {preset: defaultPreset},
+    args: {preset: 'default'},
 };
 
 export const YFM: StoryObj<typeof component> = {
-    args: {preset: yfm},
+    args: {preset: 'yfm'},
 };
 
 export const Full: StoryObj<typeof component> = {
-    args: {preset: full},
+    args: {preset: 'full'},
 };
 
 export const Custom: StoryObj<typeof component> = {

@@ -1,5 +1,5 @@
 import {Preset} from '../../demo/stories/presets/Preset';
-import {presets, toolbarPresets} from '../../demo/stories/presets/presets';
+import {toolbarPresets} from '../../demo/stories/presets/presets';
 
 const args = {
     settingsVisible: true,
@@ -12,11 +12,11 @@ const args = {
     height: 'initial',
 };
 
-export const Zero = () => <Preset {...args} preset={presets.zero} />;
-export const Commonmark = () => <Preset {...args} preset={presets.commonmark} />;
-export const Default = () => <Preset {...args} preset={presets.defaultPreset} />;
-export const Yfm = () => <Preset {...args} preset={presets.yfm} />;
-export const Full = () => <Preset {...args} preset={presets.full} />;
+export const Zero = () => <Preset {...args} preset="zero" />;
+export const Commonmark = () => <Preset {...args} preset="commonmark" />;
+export const Default = () => <Preset {...args} preset="default" />;
+export const Yfm = () => <Preset {...args} preset="yfm" />;
+export const Full = () => <Preset {...args} preset="full" />;
 export const Custom = () => (
-    <Preset {...args} preset={presets.full} toolbarsPreset={toolbarPresets.custom} />
+    <Preset {...args} preset="full" toolbarsPreset={toolbarPresets.custom} />
 );

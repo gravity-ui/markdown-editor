@@ -1,4 +1,3 @@
-import type {MarkdownEditorPreset} from 'src/bundle';
 import {ActionName as Action} from 'src/bundle/config/action-names';
 import {ToolbarName as Toolbar} from 'src/modules/toolbars/constants';
 import {
@@ -17,14 +16,6 @@ import {
     undoItemWysiwyg,
 } from 'src/modules/toolbars/items';
 import type {ToolbarsPreset} from 'src/modules/toolbars/types';
-
-export const presets: Record<string, MarkdownEditorPreset> = {
-    commonmark: 'commonmark',
-    defaultPreset: 'default',
-    full: 'full',
-    yfm: 'yfm',
-    zero: 'zero',
-};
 
 export const toolbarPresets: Record<string, ToolbarsPreset> = {
     custom: {
