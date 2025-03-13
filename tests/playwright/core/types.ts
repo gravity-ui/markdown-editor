@@ -30,12 +30,18 @@ export type PlaywrightFixture<T> = TestFixture<T, PlaywrightFixtures>;
 export type Fixtures = {
     mount: MountFixture;
     expectScreenshot: ExpectScreenshotFixture;
+    wait: WaitFixture;
 };
 
 export type MountFixture = ComponentFixtures['mount'];
 
 export interface ExpectScreenshotFixture {
     (props?: CaptureScreenshotParams): Promise<void>;
+}
+
+export interface WaitFixture {
+    loadersHiddenQASelect(): Promise<void>;
+    loadersHidden(): Promise<void>;
 }
 
 export interface CaptureScreenshotParams extends PageScreenshotOptions {

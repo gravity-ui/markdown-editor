@@ -1,4 +1,4 @@
-##### Develop / Visual tests
+##### Develop / Visual Tests
 
 # Visual Testing with Playwright
 
@@ -13,21 +13,21 @@ Available commands:
 npm run playwright:install              # Install Playwright and browsers
 npm run playwright                      # Run tests
 npm run playwright:update               # Update reference screenshots
-npm run playwright:clear-cache          # Clear test cache
+npm run playwright:clear                # Clear test cache
+npm run playwright:report               # Display test results report
 npm run playwright:docker               # Run tests in Docker
 npm run playwright:docker:update        # Update screenshots in Docker
-npm run playwright:docker:clear-cache   # Clear cache in Docker
+npm run playwright:docker:clear         # Clear cache in Docker
+npm run playwright:docker:report        # Display test results report in Docker
 ```
 Tests use the configuration file `playwright.config.ts`. The build is handled by Vite, available in `@playwright/experimental-ct-react`. The Vite configuration is specified in `ctViteConfig` in `playwright.config.ts`. To stabilize tests, `mountFixture` and `expectScreenshotFixture` are also used.
-
-To avoid environmental differences, it is recommended to run tests in Docker using `playwright-docker.sh`.
 
 See more: [Playwright Test Components](https://playwright.dev/docs/test-components)
 
 
 ## Running Tests Locally
 
-On the first run, install the required dependencies (Docker or alternatives, Playwright).
+On the first run, install the required dependencies (Docker or alternatives, Playwright). Run the script `npm run playwright:install`, and during the installation, follow all the instructions provided in the shell.
 
 ### Podman example
 
@@ -44,6 +44,8 @@ npm run playwright:docker
 
 ## Writing Tests
 
+Creating tests occurs on a local machine, but using commands with the `:docker` postfix to avoid environmental differences.
+
 1. In the `visual-tests` folder, create the following files for reliable execution in Playwright:
   *`[name].helpers.tsx` (prepares the component for testing);
   *`[name].visual.test.tsx` (the actual test).
@@ -51,21 +53,23 @@ npm run playwright:docker
 2. In `[name].helpers.tsx`, prepare the tested component:
 
   ```tsx
-  import { PlaygroundMini } from '../../demo/components/PlaygroundMini';
-  import { markup } from '../../demo/stories/markdown/markup';
+  import {composeStories} from '@storybook/react';
 
-  export const Heading = () => <PlaygroundMini initial={markup.heading} />;
+  import * as DefaultMarkdownStories from '../../demo/stories/markdown/Markdown.stories';
+
+  export const MarkdownStories = composeStories(DefaultMarkdownStories);
   ```
 
 3. In `[name].visual.test.tsx`, create the test:
 
   ```tsx
-  import { test } from 'playwright/core';
-  import { Heading } from './YourTitle.helpers';
+  import {test} from 'playwright/core';
+
+  import {MarkdownStories} from './MarkdownExtensions.helpers';
 
   test.describe('Extensions, Markdown', () => {
-    test('Heading', async ({ mount, expectScreenshot }) => {
-      await mount(<Heading />);
+    test('Heading', async ({mount, expectScreenshot}) => {
+      await mount(<MarkdownStories.Heading />);
       await expectScreenshot();
     });
   });
@@ -85,10 +89,10 @@ See more: [Command line](https://playwright.dev/docs/test-cli)
   * Image and icon loading;
   * Compliance with expected results.
 
-6. In case of an error, you can view reports with the following command:
+6. Test reports (in Docker) can be viewed using the following command:
 
   ```shell
-  npx playwright show-report playwright-report-docker
+  npm run playwright:docker:report
   ```
 
 ## Useful Links

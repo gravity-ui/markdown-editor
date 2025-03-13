@@ -6,7 +6,7 @@ const defaultParams: CaptureScreenshotParams = {
     themes: ['light', 'dark'],
 };
 
-export const expectScreenshotFixture: PlaywrightFixture<ExpectScreenshotFixture> = async (
+export const expectScreenshot: PlaywrightFixture<ExpectScreenshotFixture> = async (
     {page},
     use,
     testInfo,

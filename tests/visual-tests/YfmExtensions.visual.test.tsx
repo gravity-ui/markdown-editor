@@ -35,12 +35,16 @@ test.describe('Extensions, YFM', () => {
         await mount(<YFMStories.YfmTable />);
         await expectScreenshot();
     });
-    test('LaTeX Formulas', async ({mount, expectScreenshot}) => {
+    test('LaTeX Formulas', async ({mount, expectScreenshot, wait}) => {
         await mount(<YFMStories.LaTeXFormulas />);
+        await wait.loadersHiddenQASelect();
+
         await expectScreenshot();
     });
-    test('Mermaid diagram', async ({mount, expectScreenshot}) => {
+    test('Mermaid diagram', async ({mount, expectScreenshot, wait}) => {
         await mount(<YFMStories.MermaidDiagram />);
+        await wait.loadersHiddenQASelect();
+
         await expectScreenshot();
     });
 });

@@ -1,6 +1,6 @@
 import type {MountFixture, PlaywrightFixture} from './types';
 
-export const mountFixture: PlaywrightFixture<MountFixture> = async ({mount: baseMount}, use) => {
+export const mount: PlaywrightFixture<MountFixture> = async ({mount: baseMount}, use) => {
     const mount: MountFixture = async (component, options) => {
         return await baseMount(
             <div

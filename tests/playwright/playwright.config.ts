@@ -1,4 +1,4 @@
-import {resolve} from 'path';
+import {resolve} from 'node:path';
 
 import type {PlaywrightTestConfig} from '@playwright/experimental-ct-react';
 import {defineConfig, devices} from '@playwright/experimental-ct-react';

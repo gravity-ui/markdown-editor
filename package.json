@@ -34,10 +34,12 @@
     "playwright:install": "playwright install chromium webkit --with-deps",
     "playwright": "playwright test --config=tests/playwright/playwright.config.ts",
     "playwright:update": "npm run playwright -- -u",
-    "playwright:clear-cache": "rm -rf ./tests/playwright/.cache",
+    "playwright:clear": "rm -rf ./tests/playwright/.cache",
+    "playwright:report": "npx playwright show-report playwright-report",
     "playwright:docker": "./scripts/playwright-docker.sh 'npm run playwright'",
     "playwright:docker:update": "./scripts/playwright-docker.sh 'npm run playwright:update'",
-    "playwright:docker:clear-cache": "./scripts/playwright-docker.sh clear-cache"
+    "playwright:docker:clear": "./scripts/playwright-docker.sh clear",
+    "playwright:docker:report": "npx playwright show-report playwright-report-docker"
   },
   "exports": {
     ".": {
