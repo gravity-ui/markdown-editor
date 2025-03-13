@@ -1,5 +1,6 @@
 import {useEffect, useMemo, useRef, useState} from 'react';
 
+import type {HTMLRuntimeConfig} from '@diplodoc/html-extension';
 import transform from '@diplodoc/transform';
 import {useThemeValue} from '@gravity-ui/uikit';
 import type MarkdownIt from 'markdown-it';
@@ -31,10 +32,20 @@ export type SplitModePreviewProps = {
     linkify?: boolean;
     linkifyTlds?: string | string[];
     needToSanitizeHtml?: boolean;
+    htmlRuntimeConfig?: HTMLRuntimeConfig;
 };
 
 export const SplitModePreview: React.FC<SplitModePreviewProps> = (props) => {
-    const {plugins, getValue, allowHTML, breaks, linkify, linkifyTlds, needToSanitizeHtml} = props;
+    const {
+        plugins,
+        getValue,
+        allowHTML,
+        breaks,
+        linkify,
+        linkifyTlds,
+        needToSanitizeHtml,
+        htmlRuntimeConfig,
+    } = props;
     const [html, setHtml] = useState('');
     const [meta, setMeta] = useState<object | undefined>({});
     const divRef = useRef<HTMLDivElement>(null);
@@ -74,6 +85,7 @@ export const SplitModePreview: React.FC<SplitModePreviewProps> = (props) => {
             noListReset
             mermaidConfig={mermaidConfig}
             yfmHtmlBlockConfig={yfmHtmlBlockConfig}
+            htmlRuntimeConfig={htmlRuntimeConfig}
             className="demo-preview"
         />
     );

@@ -1,6 +1,6 @@
 {
   "name": "@gravity-ui/markdown-editor",
-  "version": "15.2.2",
+  "version": "15.4.0",
   "description": "Markdown wysiwyg and markup editor",
   "license": "MIT",
   "repository": {
@@ -210,7 +210,7 @@
   "devDependencies": {
     "@diplodoc/cut-extension": "^0.6.1",
     "@diplodoc/folding-headings-extension": "0.1.0",
-    "@diplodoc/html-extension": "^2.5.0",
+    "@diplodoc/html-extension": "2.7.1",
     "@diplodoc/latex-extension": "1.0.3",
     "@diplodoc/mermaid-extension": "1.2.1",
     "@diplodoc/tabs-extension": "^3.5.1",
@@ -295,8 +295,8 @@
   },
   "peerDependencies": {
     "@diplodoc/cut-extension": "^0.5.0 || ^0.6.1 || ^0.7.1",
-    "@diplodoc/folding-headings-extension": "^0.1.0",
     "@diplodoc/file-extension": "^0.2.1",
+    "@diplodoc/folding-headings-extension": "^0.1.0",
     "@diplodoc/html-extension": "^2.3.2",
     "@diplodoc/latex-extension": "^1.0.3",
     "@diplodoc/mermaid-extension": "^1.0.0",

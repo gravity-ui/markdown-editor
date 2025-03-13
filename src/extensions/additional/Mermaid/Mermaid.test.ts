@@ -8,6 +8,10 @@ import {BaseNode, BaseSchemaSpecs, BlockquoteSpecs, blockquoteNodeName} from '..
 import {MermaidSpecs} from './MermaidSpecs';
 import {MermaidAttrs, mermaidNodeName} from './const';
 
+jest.mock<{v4: () => string}>('uuid', () => ({
+    v4: jest.fn().mockReturnValue('eff-000-0ab'),
+}));
+
 const {
     schema,
     markupParser: parser,
@@ -27,7 +31,15 @@ const {same} = createMarkupChecker({parser, serializer});
 
 describe('Mermaid extension', () => {
     it('should parse mermaid', () =>
-        same('```mermaid\ncontent\n```\n', doc(mermaid({[MermaidAttrs.content]: 'content\n'}))));
+        same(
+            '```mermaid\ncontent\n```\n',
+            doc(
+                mermaid({
+                    [MermaidAttrs.content]: 'content\n',
+                    [MermaidAttrs.EntityId]: 'mermaid-eff-000-0ab',
+                }),
+            ),
+        ));
 
     it('should parse mermaid inside blockqoute', () => {
         const mermaidContent = dd`
@@ -46,6 +58,16 @@ describe('Mermaid extension', () => {
 
         `;
 
-        same(markup, doc(quote(mermaid({[MermaidAttrs.content]: mermaidContent}))));
+        same(
+            markup,
+            doc(
+                quote(
+                    mermaid({
+                        [MermaidAttrs.content]: mermaidContent,
+                        [MermaidAttrs.EntityId]: 'mermaid-eff-000-0ab',
+                    }),
+                ),
+            ),
+        );
     });
 });

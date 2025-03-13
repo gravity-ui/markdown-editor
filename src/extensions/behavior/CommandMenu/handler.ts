@@ -9,8 +9,8 @@ import {
     type AutocompleteAction,
     AutocompleteActionKind,
     type AutocompleteHandler,
-    type FromTo,
     closeAutocomplete,
+    getAutocompleteState,
 } from '../Autocomplete';
 import {type RendererItem, getReactRendererFromState} from '../ReactRenderer';
 
@@ -40,7 +40,6 @@ export class CommandHandler implements AutocompleteHandler {
 
     #view?: EditorView;
     #anchor: Element | null = null;
-    #range?: FromTo;
     #filterText?: string;
     #popupCloser?: AutocompletePopupCloser;
 
@@ -155,13 +154,16 @@ export class CommandHandler implements AutocompleteHandler {
     }
 
     private select() {
-        if (!this.#view || !this.#range) return;
+        if (!this.#view) return;
 
         const action = this.#filteredActionsCarousel?.currentItem;
         if (!action) return;
 
+        const autocompleteState = getAutocompleteState(this.#view.state);
+        if (!autocompleteState || !autocompleteState.active) return;
+
         const view = this.#view;
-        const range = this.#range;
+        const {range} = autocompleteState;
 
         view.dispatch(view.state.tr.deleteRange(range.from, range.to).scrollIntoView());
         action.exec(this.#actionStorage);
@@ -223,14 +225,12 @@ export class CommandHandler implements AutocompleteHandler {
         this.#view?.focus();
     };
 
-    private updateState({view, range}: AutocompleteAction) {
+    private updateState({view}: AutocompleteAction) {
         this.#view = view;
-        this.#range = range;
     }
 
     private clear() {
         this.#view = undefined;
-        this.#range = undefined;
         this.#anchor = null;
         this.#filterText = undefined;
         this.#filteredActionsCarousel = undefined;
