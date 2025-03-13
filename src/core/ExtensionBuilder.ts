@@ -4,6 +4,8 @@ import {inputRules} from 'prosemirror-inputrules';
 import {keymap} from 'prosemirror-keymap';
 import type {Plugin} from 'prosemirror-state';
 
+import type {MarkSpec, NodeSpec} from '#pm/model';
+
 import type {Logger2} from '../logger';
 
 import type {ActionSpec} from './types/actions';
@@ -16,6 +18,8 @@ import type {
     ExtensionWithOptions,
 } from './types/extension';
 import type {Keymap} from './types/keymap';
+import type {ParserToken} from './types/parser';
+import type {SerializerMarkToken, SerializerNodeToken} from './types/serializer';
 
 type InputRulesConfig = Parameters<typeof inputRules>[0];
 type ExtensionWithParams = (builder: ExtensionBuilder, ...params: any[]) => void;
@@ -35,8 +39,22 @@ type ConfigureMdParams = {
 };
 
 type ConfigureMdCallback = (md: MarkdownIt) => MarkdownIt;
+
+/** @deprecated */
 type AddPmNodeCallback = () => ExtensionNodeSpec;
+/** @deprecated */
 type AddPmMarkCallback = () => ExtensionMarkSpec;
+
+type AddPmNodeSpecCallback = () => NodeSpec;
+type AddPmMarkSpecCallback = () => MarkSpec;
+
+type AddMdParserSpecCallback = () => ExtensionMarkSpec['fromMd'];
+type AddMdSerializerNodeSpec = () => SerializerNodeToken;
+type AddMdSerializerMarkSpec = () => SerializerMarkToken;
+
+type AddPmNodeViewCallback = () => NonNullable<ExtensionNodeSpec['view']>;
+type AddPmMarkViewCallback = () => NonNullable<ExtensionMarkSpec['view']>;
+
 type AddPmPluginCallback = (deps: ExtensionDeps) => Plugin | Plugin[];
 type AddPmKeymapCallback = (deps: ExtensionDeps) => Keymap;
 type AddPmInputRulesCallback = (deps: ExtensionDeps) => InputRulesConfig;
@@ -78,10 +96,19 @@ export class ExtensionBuilder {
 
     readonly #logger: Logger2.ILogger;
     #confMdCbs: {cb: ConfigureMdCallback; params: Required<ConfigureMdParams>}[] = [];
-    #nodeSpecs: Record<string, {name: string; cb: AddPmNodeCallback}> = {};
-    #markSpecs: Record<string, {name: string; cb: AddPmMarkCallback; priority: number}> = {};
+
+    #nodeSpecs: Record<string, {name: string; cb: AddPmNodeSpecCallback}> = {};
+    #markSpecs: Record<string, {name: string; cb: AddPmMarkSpecCallback; priority: number}> = {};
+
+    // name – name of pm entity, not token type
+    #parserSpecs: Record<string, {name: string; cb: AddMdParserSpecCallback}> = {};
+    #serializerNodeSpecs: Record<string, {name: string; cb: AddMdSerializerNodeSpec}> = {};
+    #serializerMarkSpecs: Record<string, {name: string; cb: AddMdSerializerMarkSpec}> = {};
+
     #plugins: {cb: AddPmPluginCallback; priority: number}[] = [];
     #actions: [string, AddActionCallback][] = [];
+    #nodeViews: Record<string, AddPmNodeViewCallback> = {};
+    #markViews: Record<string, AddPmMarkViewCallback> = {};
 
     readonly context: BuilderContext<WysiwygEditor.Context>;
 
@@ -112,7 +139,46 @@ export class ExtensionBuilder {
         return this;
     }
 
+    addMdParserSpec(tokenType: string, cb: () => ParserToken): this {
+        const entityName = cb().name;
+        if (this.#parserSpecs[entityName]) {
+            throw new Error(`ParserSpec for this node "${entityName}" already exist`);
+        }
+        this.#parserSpecs[entityName] = {
+            name: entityName,
+            cb: () => ({tokenName: tokenType, tokenSpec: cb()}),
+        };
+        return this;
+    }
+
+    addMdSerializerNodeSpec(nodeName: string, cb: AddMdSerializerNodeSpec): this {
+        if (this.#serializerNodeSpecs[nodeName]) {
+            throw new Error(`SerializerNodeSpec for this node "${nodeName}" already exist`);
+        }
+        this.#serializerNodeSpecs[nodeName] = {name: nodeName, cb};
+        return this;
+    }
+
+    addMdSerializerMarkSpec(markName: string, cb: AddMdSerializerMarkSpec): this {
+        if (this.#serializerNodeSpecs[markName]) {
+            throw new Error(`SerializerNodeSpec for this mark "${markName}" already exist`);
+        }
+        this.#serializerMarkSpecs[markName] = {name: markName, cb};
+        return this;
+    }
+
+    /** @deprecated */
     addNode(name: string, cb: AddPmNodeCallback): this {
+        if (this.#nodeSpecs[name] || this.#parserSpecs[name] || this.#serializerNodeSpecs[name]) {
+            throw new Error(`ProseMirror node with this name "${name}" already exist`);
+        }
+        this.#nodeSpecs[name] = {name, cb: () => cb().spec};
+        this.#parserSpecs[name] = {name, cb: () => cb().fromMd};
+        this.#serializerNodeSpecs[name] = {name, cb: () => cb().toMd};
+        return this;
+    }
+
+    addNodeSpec(name: string, cb: AddPmNodeSpecCallback): this {
         if (this.#nodeSpecs[name]) {
             throw new Error(`ProseMirror node with this name "${name}" already exist`);
         }
@@ -120,11 +186,44 @@ export class ExtensionBuilder {
         return this;
     }
 
+    addNodeView(name: string, cb: AddPmNodeViewCallback): this {
+        if (!this.#nodeSpecs[name]) {
+            throw new Error(`ProseMirror node with this name "${name}" not found`);
+        }
+        if (this.#nodeViews[name]) {
+            this.logger.warn(`Builder: nodeView "${name}" already exists. Overriding it`);
+        }
+        this.#nodeViews[name] = cb;
+        return this;
+    }
+
+    /** @deprecated */
     addMark(name: string, cb: AddPmMarkCallback, priority = DEFAULT_PRIORITY): this {
         if (this.#markSpecs[name]) {
             throw new Error(`ProseMirror mark with this name "${name}" already exist`);
         }
+        this.#markSpecs[name] = {name, cb: () => cb().spec, priority};
+        this.#parserSpecs[name] = {name, cb: () => cb().fromMd};
+        this.#serializerMarkSpecs[name] = {name, cb: () => cb().toMd};
+        return this;
+    }
+
+    addMarkSpec(name: string, cb: AddPmMarkSpecCallback, priority = DEFAULT_PRIORITY): this {
+        if (this.#markSpecs[name]) {
+            throw new Error(`ProseMirror mark with this name "${name}" already exist`);
+        }
         this.#markSpecs[name] = {name, cb, priority};
+        return this;
+    }
+
+    addMarkView(name: string, cb: AddPmMarkViewCallback): this {
+        if (!this.#markSpecs[name]) {
+            throw new Error(`ProseMirror mark with this name "${name}" not found`);
+        }
+        if (this.#markViews[name]) {
+            this.logger.warn(`Builder: markView "${name}" already exists. Overriding it`);
+        }
+        this.#markViews[name] = cb;
         return this;
     }
 
