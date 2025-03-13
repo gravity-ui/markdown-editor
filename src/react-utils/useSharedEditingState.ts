@@ -6,7 +6,7 @@ import type {EditorView} from '#pm/view';
 import type {SharedStateKey} from 'src/extensions/behavior/SharedState';
 
 export function useSharedEditingState(view: EditorView, key: SharedStateKey<{editing: boolean}>) {
-    const [value, setValue] = useState<Boolean>(false);
+    const [value, setValue] = useState<boolean>(false);
     const valueRef = useLatest(value);
 
     useLayoutEffect(() => {
