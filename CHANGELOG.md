@@ -1,5 +1,23 @@
 # Changelog
 
+## [15.4.0](https://github.com/gravity-ui/markdown-editor/compare/v15.3.1...v15.4.0) (2025-03-13)
+
+
+### Features
+
+* **Mermaid:** use shared state to manage editing state ([8568fb9](https://github.com/gravity-ui/markdown-editor/commit/8568fb94acc190aa20dd5c276156b5c9cee86e43))
+* **react-utils:** added helper hook for manage shared editing state ([b1b4e6b](https://github.com/gravity-ui/markdown-editor/commit/b1b4e6b268df017b1929cd7fdc4664226fe15388))
+* **utils:** added helpers to generating and validating entity ids ([280d8ed](https://github.com/gravity-ui/markdown-editor/commit/280d8edf1aa115d233f42953be3d29a133c9143c))
+* **view:** added option to control HTML block runtimes ([#674](https://github.com/gravity-ui/markdown-editor/issues/674)) ([ad03230](https://github.com/gravity-ui/markdown-editor/commit/ad0323059a6e1c42280995e054af0db83d90687d))
+* **wysiwyg:** implemented shared state extension ([d3de016](https://github.com/gravity-ui/markdown-editor/commit/d3de016c9b40021d783f3b8de48dc5d44d1df4ee))
+* **YfmHtmlBlock:** use shared state to manage editing state ([a63b121](https://github.com/gravity-ui/markdown-editor/commit/a63b1214f1450d2b14870705ce9d263db2405ed4))
+
+
+### Bug Fixes
+
+* **Clipboard:** correct handling of pasting into code ([#678](https://github.com/gravity-ui/markdown-editor/issues/678)) ([ea31ecc](https://github.com/gravity-ui/markdown-editor/commit/ea31ecc01baec650b1199c593f58b99c49cd6f39))
+* get actual range when selecting item in suggests (command menu, emoji suggest) ([#673](https://github.com/gravity-ui/markdown-editor/issues/673)) ([d70644a](https://github.com/gravity-ui/markdown-editor/commit/d70644a0e557465e0a27d2122175a5b894517616))
+
 ## [15.3.1](https://github.com/gravity-ui/markdown-editor/compare/v15.3.0...v15.3.1) (2025-03-07)
 
 
