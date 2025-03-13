@@ -235,8 +235,18 @@ class SelectionTooltip implements PluginView {
         if (normalizeResult) {
             const {url} = normalizeResult;
             const {from, to} = textNode;
+            const attrs = this.getMarkAttrs();
+
             view.dispatch(
-                view.state.tr.addMark(from, to, linkType(view.state.schema).create({href: url})),
+                view.state.tr.addMark(
+                    from,
+                    to,
+                    linkType(view.state.schema).create({
+                        [LinkAttr.Href]: url,
+                        [LinkAttr.Title]: attrs?.[LinkAttr.Title],
+                        [LinkAttr.DataQuoteLink]: attrs?.[LinkAttr.DataQuoteLink],
+                    }),
+                ),
             );
 
             setTimeout(this.cancelPopup.bind(this));
