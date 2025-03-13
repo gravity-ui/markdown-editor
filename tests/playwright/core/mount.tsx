@@ -17,7 +17,7 @@ export const mount: PlaywrightFixture<MountFixture> = async ({mount: baseMount},
                 {/* Do not scale buttons while clicking. Floating UI might position its elements differently in every test run. */}
                 <style>{'.g-button, .g-button::after { transform: scale(1) !important; }'}</style>
                 {/* Do not show ProseMirror dev toolkit. */}
-                <style>{'.__prosemirror-dev-toolkit__ { display: none) !important; }'}</style>
+                <style>{'.__prosemirror-dev-toolkit__ {display: none;}'}</style>
                 {component}
             </div>,
             options,

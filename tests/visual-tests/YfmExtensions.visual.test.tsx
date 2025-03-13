@@ -23,8 +23,11 @@ test.describe('Extensions, YFM', () => {
         await mount(<YFMStories.YfmTabs />);
         await expectScreenshot();
     });
-    test('YFM HTML', async ({mount, expectScreenshot}) => {
+    test('YFM HTML', async ({mount, expectScreenshot, page}) => {
         await mount(<YFMStories.YfmHtmlBlock />);
+
+        // TODO: @makhnatkin Improve iframe height stabilization wait
+        await page.waitForTimeout(200);
         await expectScreenshot();
     });
     test('YFM File', async ({mount, expectScreenshot}) => {
@@ -37,13 +40,13 @@ test.describe('Extensions, YFM', () => {
     });
     test('LaTeX Formulas', async ({mount, expectScreenshot, wait}) => {
         await mount(<YFMStories.LaTeXFormulas />);
-        await wait.loadersHiddenQASelect();
+        await wait.loadersHidden();
 
         await expectScreenshot();
     });
     test('Mermaid diagram', async ({mount, expectScreenshot, wait}) => {
         await mount(<YFMStories.MermaidDiagram />);
-        await wait.loadersHiddenQASelect();
+        await wait.loadersHidden();
 
         await expectScreenshot();
     });
