@@ -68,13 +68,14 @@ export function ToolbarListButton<E>({
                 active={someActive}
                 enabled={!everyDisabled}
                 title={title}
-                icon={icon}
                 className={b({arrow: withArrow}, [className])}
                 onClick={() => {
                     if (popupItem) setPopupItem(undefined);
                     else toggleOpen();
                 }}
-            />
+            >
+                {buttonContent}
+            </ToolbarButtonView>
             <Popup anchorElement={anchorElement} open={popupOpen} onOpenChange={hide}>
                 <Menu size="l" className={b('menu')}>
                     {data

@@ -1,4 +1,4 @@
-import {forwardRef} from 'react';
+import {type ReactNode, forwardRef} from 'react';
 
 import {ActionTooltip, Button, Icon, Popover, setRef} from '@gravity-ui/uikit';
 
@@ -17,17 +17,17 @@ export type ToolbarButtonProps<E> = ToolbarBaseProps<E> & ToolbarItemData<E>;
 
 export type ToolbarButtonViewProps = Pick<
     ToolbarItemData<unknown>,
-    'icon' | 'title' | 'hint' | 'hotkey' | 'hintWhenDisabled'
+    'title' | 'hint' | 'hotkey' | 'hintWhenDisabled'
 > & {
     active: boolean;
     enabled: boolean;
     onClick: () => void;
     className?: string;
-};
+} & (Pick<ToolbarItemData<unknown>, 'icon'> | {children: ReactNode});
 
 export const ToolbarButtonView = forwardRef<HTMLButtonElement, ToolbarButtonViewProps>(
     function ToolbarButtonView(
-        {icon, title, hint, hotkey, hintWhenDisabled, active, enabled, onClick, className},
+        {title, hint, hotkey, hintWhenDisabled, active, enabled, onClick, className, ...props},
         ref,
     ) {
         const disabled = !active && !enabled;
@@ -70,7 +70,11 @@ export const ToolbarButtonView = forwardRef<HTMLButtonElement, ToolbarButtonView
                                 className={b(null, [className])}
                                 aria-label={titleText}
                             >
-                                <Icon data={icon.data} size={icon.size ?? 16} />
+                                {'icon' in props ? (
+                                    <Icon data={props.icon.data} size={props.icon.size ?? 16} />
+                                ) : (
+                                    props.children
+                                )}
                             </Button>
                         )}
                     </ActionTooltip>
