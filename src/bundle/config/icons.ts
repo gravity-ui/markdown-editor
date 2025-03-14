@@ -1,6 +1,7 @@
 import {
     BoldIcon,
     CheckListIcon,
+    CircleLinkIcon,
     CodeBlockIcon,
     CodeInlineIcon,
     CutIcon,
@@ -72,6 +73,7 @@ type Icon =
     | 'image'
     | 'table'
     | 'quote'
+    | 'quoteLink'
     | 'checklist'
     | 'horizontalRule'
     | 'file'
@@ -125,6 +127,7 @@ export const icons: Icons = {
 
     table: {data: TableIcon},
     quote: {data: QuoteIcon},
+    quoteLink: {data: CircleLinkIcon},
     checklist: {data: CheckListIcon},
 
     html: {data: HtmlBlockIcon},
