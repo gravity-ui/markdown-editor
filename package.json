@@ -30,7 +30,16 @@
     "test:cov": "jest --coverage",
     "test:watch": "jest --watchAll",
     "test:esbuild": "node tests/esbuild-test/esbuild-tester.js",
-    "prepublishOnly": "npm run lint && npm run build"
+    "prepublishOnly": "npm run lint && npm run build",
+    "playwright:install": "playwright install chromium webkit --with-deps",
+    "playwright": "playwright test --config=tests/playwright/playwright.config.ts",
+    "playwright:update": "npm run playwright -- -u",
+    "playwright:clear": "rm -rf ./tests/playwright/.cache",
+    "playwright:report": "npx playwright show-report playwright-report",
+    "playwright:docker": "./scripts/playwright-docker.sh 'npm run playwright'",
+    "playwright:docker:update": "./scripts/playwright-docker.sh 'npm run playwright:update'",
+    "playwright:docker:clear": "./scripts/playwright-docker.sh clear",
+    "playwright:docker:report": "npx playwright show-report playwright-report-docker"
   },
   "exports": {
     ".": {
@@ -221,6 +230,8 @@
     "@gravity-ui/stylelint-config": "4.0.1",
     "@gravity-ui/tsconfig": "1.0.0",
     "@gravity-ui/uikit": "7.1.1",
+    "@playwright/experimental-ct-react": "1.49.0",
+    "@playwright/test": "1.49.0",
     "@storybook/addon-docs": "8.4.1",
     "@storybook/addon-essentials": "^8.4.1",
     "@storybook/addon-webpack5-compiler-babel": "3.0.3",

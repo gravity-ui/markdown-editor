@@ -83,10 +83,6 @@ export class WMermaidNodeView implements NodeView {
             })
         ) {
             const newId = generateEntityId(MermaidConsts.NodeName);
-            console.log('@@@ Mermaid Node View entityId is invalid', {
-                entityId: this.node.attrs[MermaidConsts.NodeAttrs.EntityId],
-                newId,
-            });
             this.view.dispatch(
                 this.view.state.tr.setNodeAttribute(
                     this.getPos()!,
