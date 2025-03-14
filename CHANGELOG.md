@@ -1,5 +1,14 @@
 # Changelog
 
+## [15.4.1](https://github.com/gravity-ui/markdown-editor/compare/v15.4.0...v15.4.1) (2025-03-14)
+
+
+### Bug Fixes
+
+* **link:** fixed link cursor focus ([#648](https://github.com/gravity-ui/markdown-editor/issues/648)) ([c4797ef](https://github.com/gravity-ui/markdown-editor/commit/c4797efa456eb32f01afbe832d1c4b2a1d26c854))
+* **Mermaid:** removed unnecessary consolelog in nodeview ([#681](https://github.com/gravity-ui/markdown-editor/issues/681)) ([dadecdb](https://github.com/gravity-ui/markdown-editor/commit/dadecdb70b2a030a1bca0e38df7ae18acf6224f1))
+* use primitive boolean type in `useSharedEditingState` hook ([#682](https://github.com/gravity-ui/markdown-editor/issues/682)) ([e476365](https://github.com/gravity-ui/markdown-editor/commit/e476365c153665ba2cd70f01866c52e0b010069e))
+
 ## [15.4.0](https://github.com/gravity-ui/markdown-editor/compare/v15.3.1...v15.4.0) (2025-03-13)
 
 
