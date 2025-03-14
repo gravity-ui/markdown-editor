@@ -1,16 +1,7 @@
 import {Fragment, useEffect, useState} from 'react';
 
 import {ChevronDown} from '@gravity-ui/icons';
-import {
-    ActionTooltip,
-    Button,
-    HelpMark,
-    Hotkey,
-    Icon,
-    Menu,
-    Popover,
-    Popup,
-} from '@gravity-ui/uikit';
+import {HelpMark, Hotkey, Icon, Menu, Popover, Popup} from '@gravity-ui/uikit';
 
 import {cn} from '../classname';
 import {i18n} from '../i18n/common';
@@ -18,7 +9,7 @@ import {isFunction} from '../lodash';
 import {useBooleanState, useElementState} from '../react-utils/hooks';
 
 import {PreviewTooltip} from './PreviewTooltip';
-import {ToolbarTooltipDelay} from './const';
+import {ToolbarButtonView} from './ToolbarButton';
 import type {
     ToolbarBaseProps,
     ToolbarButtonPopupData,
@@ -70,42 +61,21 @@ export function ToolbarListButton<E>({
         buttonContent.push(<Icon key={3} data={ChevronDown} size={16} />);
     }
 
-    const titleText: string = isFunction(title) ? title() : title;
-
     return (
         <>
-            <Popover
-                className={b('action-disabled-popover')}
-                content={
-                    <div className={b('action-disabled-tooltip')}>
-                        {i18n('toolbar_action_disabled')}
-                    </div>
-                }
-                placement={'bottom'}
-                disabled={!everyDisabled}
+            <ToolbarButtonView
+                ref={setAnchorElement}
+                active={someActive}
+                enabled={!everyDisabled}
+                title={title}
+                className={b({arrow: withArrow}, [className])}
+                onClick={() => {
+                    if (popupItem) setPopupItem(undefined);
+                    else toggleOpen();
+                }}
             >
-                <ActionTooltip
-                    title={titleText}
-                    disabled={Boolean(popupItem) || popupOpen}
-                    openDelay={ToolbarTooltipDelay.Open}
-                    closeDelay={ToolbarTooltipDelay.Close}
-                >
-                    <Button
-                        size="m"
-                        ref={setAnchorElement}
-                        view={someActive || popupOpen ? 'normal' : 'flat'}
-                        selected={someActive}
-                        disabled={everyDisabled}
-                        className={b({arrow: withArrow}, [className])}
-                        onClick={() => {
-                            if (popupItem) setPopupItem(undefined);
-                            else toggleOpen();
-                        }}
-                    >
-                        {buttonContent}
-                    </Button>
-                </ActionTooltip>
-            </Popover>
+                {buttonContent}
+            </ToolbarButtonView>
             <Popup anchorElement={anchorElement} open={popupOpen} onOpenChange={hide}>
                 <Menu size="l" className={b('menu')}>
                     {data
