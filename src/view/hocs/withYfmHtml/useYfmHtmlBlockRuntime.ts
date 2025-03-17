@@ -10,7 +10,8 @@ export function useYfmHtmlBlockRuntime(
     htmlRuntimeConfig: HTMLRuntimeConfig = {},
 ) {
     if (meta?.script?.includes(runtime)) {
-        setupRuntimeConfig(htmlRuntimeConfig);
+        // MAJOR: update html-extension peer on ^2.7.1 and remove optional chain
+        setupRuntimeConfig?.(htmlRuntimeConfig);
         import(/* webpackChunkName: "yfm-html-runtime" */ '@diplodoc/html-extension/runtime');
     }
 }
