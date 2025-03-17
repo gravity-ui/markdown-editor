@@ -1,5 +1,12 @@
 # Changelog
 
+## [15.4.2](https://github.com/gravity-ui/markdown-editor/compare/v15.4.1...v15.4.2) (2025-03-17)
+
+
+### Bug Fixes
+
+* **view:** setupRuntimeConfig is not a function on old html-extension peer ([#685](https://github.com/gravity-ui/markdown-editor/issues/685)) ([9b44af4](https://github.com/gravity-ui/markdown-editor/commit/9b44af47aa5e41094f6fe9d39a6886ea75887e6c))
+
 ## [15.4.1](https://github.com/gravity-ui/markdown-editor/compare/v15.4.0...v15.4.1) (2025-03-14)
 
 
