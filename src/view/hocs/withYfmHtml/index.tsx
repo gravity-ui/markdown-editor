@@ -15,6 +15,7 @@ export type WithYfmHtmlBlockOptions = {
 export type WithYfmHtmlBlockProps = {
     meta: TransformMeta;
     yfmHtmlBlockConfig?: IHTMLIFrameElementConfig;
+    /** Works only with html-extension dep version 2.7.1 and higher  */
     htmlRuntimeConfig?: HTMLRuntimeConfig;
 };
 
