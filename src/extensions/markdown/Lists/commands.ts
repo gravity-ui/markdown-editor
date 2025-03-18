@@ -1,6 +1,10 @@
 import type {NodeType} from 'prosemirror-model';
-import {wrapInList} from 'prosemirror-schema-list';
-import type {Command} from 'prosemirror-state';
+import {
+    sinkListItem as defaultSinkListItem,
+    liftListItem,
+    wrapInList,
+} from 'prosemirror-schema-list';
+import type {Command, EditorState, Transaction} from 'prosemirror-state';
 
 import {joinPreviousBlock} from '../../../commands/join';
 
@@ -23,3 +27,28 @@ export const joinPrevList = joinPreviousBlock({
     checkPrevNode: isListNode,
     skipNode: isListOrItemNode,
 });
+
+export function sinkOnlySelectedListItem(itemType: NodeType): Command {
+    const sink = defaultSinkListItem(itemType);
+    const lift = liftListItem(itemType);
+
+    return (state: EditorState, dispatch?: (tr: Transaction) => void): boolean => {
+        let tr: Transaction = state.tr;
+        const sinkResult = sink(state, (transaction) => {
+            tr = transaction;
+        });
+        if (!sinkResult) {
+            return false;
+        }
+        // TODO lift for nested bullet или order
+        if (!tr) {
+            lift(state);
+        }
+
+        if (dispatch) {
+            dispatch(tr);
+        }
+
+        return true;
+    };
+}
