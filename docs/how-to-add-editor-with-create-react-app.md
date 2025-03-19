@@ -34,49 +34,59 @@ Add the `Editor.tsx`:
 
 ```tsx
 import React from 'react';
-import {MarkdownEditorView, useMarkdownEditor} from '@gravity-ui/markdown-editor';
+import {MarkdownEditorView, MarkupString, useMarkdownEditor} from '@gravity-ui/markdown-editor';
 
-export function Editor({onSubmit}: any) {
-    const editor = useMarkdownEditor({
-        md: {
-            html: false,
-        },
-    });
-
-    React.useEffect(() => {
-        function submitHandler() {
-            // Serialize current content to markdown markup
-            const value = editor.getValue();
-            onSubmit(value);
-        }
-
-        editor.on('submit', submitHandler);
-        return () => {
-            editor.off('submit', submitHandler);
-        };
-    }, [onSubmit]);
-
-    return <MarkdownEditorView stickyToolbar autofocus editor={editor} />;
+export interface EditorProps {
+  onSubmit: (value: MarkupString) => void;
 }
+
+export const Editor: React.FC<EditorProps> = ({onSubmit}) => {
+  const editor = useMarkdownEditor({
+    md: {
+      html: false,
+    },
+  });
+
+  React.useEffect(() => {
+    function submitHandler() {
+      // Serialize current content to markdown markup
+      const value = editor.getValue();
+      onSubmit(value);
+    }
+
+    editor.on('submit', submitHandler);
+    return () => {
+      editor.off('submit', submitHandler);
+    };
+  }, [onSubmit]);
+
+  return <MarkdownEditorView stickyToolbar autofocus editor={editor} />;
+};
 ```
 
 Update the `App.tsx` with `Editor` component:
 
 ```tsx
-import {ThemeProvider, Toaster, ToasterProvider} from '@gravity-ui/uikit';
+import {ThemeProvider, Toaster, ToasterComponent, ToasterProvider} from '@gravity-ui/uikit';
+import {MarkupString} from '@gravity-ui/markdown-editor';
 
 import {Editor} from './Editor';
 
 const toaster = new Toaster();
 
 const App = () => {
-    return (
-        <ThemeProvider theme="light">
-            <ToasterProvider toaster={toaster}>
-                <Editor onSubmit={(value: any) => console.log(value)} />
-            </ToasterProvider>
-        </ThemeProvider>
-    );
+  const handleSubmit = (value: MarkupString) => {
+    console.log(value);
+  };
+
+  return (
+    <ThemeProvider theme="light">
+      <ToasterProvider toaster={toaster}>
+        <ToasterComponent />
+        <Editor onSubmit={handleSubmit} />
+      </ToasterProvider>
+    </ThemeProvider>
+  );
 };
 
 export default App;
