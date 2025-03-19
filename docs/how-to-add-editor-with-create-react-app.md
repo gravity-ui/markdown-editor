@@ -6,8 +6,12 @@
 First, set up the environment for React. In this example, we will use Create React App:
 
 ```bash
-npx create-react-app markdown-editor --template typescript
-cd markdown-editor
+npx create-react-app markdown-editor --template gravity-ui-pure && cd markdown-editor
+```
+Ensure that the `typescript` version in `devDependencies` matches the version specified in `overrides` in `package.json`. If there is a mismatch, update it by running:
+
+```bash
+npm install typescript@<version_from_overrides> --save-dev
 ```
 
 ### 2. Installing the Markdown editor
@@ -17,32 +21,85 @@ Install the Markdown editor
 npm install @gravity-ui/markdown-editor
 ```
 
-### 3. Installing dependencies
-Ensure that you have the necessary dependencies listed in peerDependencies. Include the following packages:
+### 3. Install peer dependencies
+Ensure that you have the necessary dependencies listed in [peerDependencies](https://github.com/gravity-ui/markdown-editor/blob/main/package.json) and install it. Include the following packages:
 - `@diplodoc/transform`
-- `react`
-- `react-dom`
-- `@gravity-ui/uikit`
+- `highlight.js`
+- `katex`
+- `lowlight`
+- `markdown-it`
 
-Check the peerDependencies section in the `package.json` file to ensure all necessary dependencies are installed correctly.
+### 4. Configuring the application
+Add the `Editor.tsx`:
 
-To install the dependencies, use:
+```tsx
+import React from 'react';
+import {MarkdownEditorView, useMarkdownEditor} from '@gravity-ui/markdown-editor';
 
-```bash
-npm install @diplodoc/transform react react-dom @gravity-ui/uikit
+export function Editor({onSubmit}: any) {
+    const editor = useMarkdownEditor({
+        md: {
+            html: false,
+        },
+    });
+
+    React.useEffect(() => {
+        function submitHandler() {
+            // Serialize current content to markdown markup
+            const value = editor.getValue();
+            onSubmit(value);
+        }
+
+        editor.on('submit', submitHandler);
+        return () => {
+            editor.off('submit', submitHandler);
+        };
+    }, [onSubmit]);
+
+    return <MarkdownEditorView stickyToolbar autofocus editor={editor} />;
+}
 ```
 
-### 4. Configuring Webpack
-In order for the `diplodoc/transform` process to function correctly, please add the [webpack resolve-fallbacks](https://webpack.js.org/configuration/resolve/#resolvefallback).
+Update the `App.tsx` with `Editor` component:
 
-To accomplish this, please install CRACO and configure it follow the instructions below:
+```tsx
+import {ThemeProvider, Toaster, ToasterProvider} from '@gravity-ui/uikit';
+
+import {Editor} from './Editor';
+
+const toaster = new Toaster();
+
+const App = () => {
+    return (
+        <ThemeProvider theme="light">
+            <ToasterProvider toaster={toaster}>
+                <Editor onSubmit={(value: any) => console.log(value)} />
+            </ToasterProvider>
+        </ThemeProvider>
+    );
+};
+
+export default App;
+````
+
+### 5. Configuring Webpack
+To prevent errors related to missing polyfills for Node.js core modules in Webpack 5, such as:
+
+- `Can't resolve 'process'`
+- `Can't resolve 'fs'`
+- `Can't resolve 'path'`
+- `Can't resolve 'url'`
+
+These errors occur because Webpack 5 no longer includes polyfills for Node.js modules by default. To fix this, you need to configure [fallback modules](https://webpack.js.org/configuration/resolve/#resolvefallback).
+
+We recommend using CRACO to apply these configurations.
 
 1. Install CRACO:
 
 ```bash
 npm install @craco/craco
 ```
-2. Create a file called craco.config.js in the root of the project and add the following configuration:
+2. Create a file called `craco.config.js` in the root of the project and add the following configuration:
 
 ```javascript
 module.exports = {
@@ -52,13 +109,14 @@ module.exports = {
         fs: false,
         process: false,
         path: false,
+        url: false,
       };
       return webpackConfig;
     },
   },
 };
 ```
-3. Update package.json to use craco for scripts:
+3. Update `package.json` to use CRACO for scripts:
 
 ```json
 {
@@ -70,51 +128,13 @@ module.exports = {
   }
 }
 ```
-### 5. Configuring the application
-Add ThemeProvider to App:
+This setup ensures that your project is compatible with Webpack 5 and prevents missing module errors.
 
-```tsx
-import { ThemeProvider, ToasterProvider } from '@gravity-ui/uikit';
-import { toaster } from '@gravity-ui/uikit/toaster-singleton';
+6. After these changes, start the development server:
 
-// ...
-function App() {
-  return (
-    <ThemeProvider theme="light">
-      <ToasterProvider toaster={toaster}>
-        <Editor onSubmit={(value) => console.log(value)} />
-      </ToasterProvider>
-    </ThemeProvider>
-  );
-}
+```bash
+npm start
 ```
-Add the Editor component to App:
 
-```tsx
-import React from 'react';
-import { useMarkdownEditor, MarkdownEditorView } from '@gravity-ui/markdown-editor';
 
-function Editor({ onSubmit }) {
-  const editor = useMarkdownEditor({ allowHTML: false });
 
-  React.useEffect(() => {
-    function submitHandler() {
-      // Serialize current content to markdown markup
-      const value = editor.getValue();
-      onSubmit(value);
-    }
-
-    editor.on('submit', submitHandler);
-    return () => {
-      editor.off('submit', submitHandler);
-    };
-  }, [onSubmit]);
-
-  return <MarkdownEditorView stickyToolbar autofocus editor={editor} />;
-}
-```
-Add styles:
-
-```ts
-import '@gravity-ui/uikit/styles/styles.css';
-```
