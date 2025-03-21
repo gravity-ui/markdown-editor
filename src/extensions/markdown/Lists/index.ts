@@ -1,14 +1,13 @@
-import {liftListItem, sinkListItem, splitListItem} from 'prosemirror-schema-list';
+import {liftListItem, splitListItem} from 'prosemirror-schema-list';
 
 import type {Action, ExtensionAuto, Keymap} from '../../../core';
 import {withLogAction} from '../../../utils/keymap';
 
 import {ListsSpecs, blType, liType, olType} from './ListsSpecs';
 import {actions} from './actions';
-import {joinPrevList, toList} from './commands';
+import {joinPrevList, sinkOnlySelectedListItem, toList} from './commands';
 import {ListAction} from './const';
 import {ListsInputRulesExtension, type ListsInputRulesOptions} from './inputrules';
-import {collapseListsPlugin} from './plugins/CollapseListsPlugin';
 import {mergeListsPlugin} from './plugins/MergeListsPlugin';
 
 export {ListNode, ListsAttr, blType, liType, olType} from './ListsSpecs';
@@ -29,11 +28,11 @@ export const Lists: ExtensionAuto<ListsOptions> = (builder, opts) => {
         if (olKey) bindings[olKey] = withLogAction('orderedList', toList(olType(schema)));
 
         return {
-            Tab: sinkListItem(liType(schema)),
+            Tab: sinkOnlySelectedListItem(liType(schema)),
             'Shift-Tab': liftListItem(liType(schema)),
 
             'Mod-[': liftListItem(liType(schema)),
-            'Mod-]': sinkListItem(liType(schema)),
+            'Mod-]': sinkOnlySelectedListItem(liType(schema)),
 
             ...bindings,
         };
@@ -51,7 +50,8 @@ export const Lists: ExtensionAuto<ListsOptions> = (builder, opts) => {
 
     builder.addPlugin(mergeListsPlugin);
 
-    builder.addPlugin(collapseListsPlugin);
+    // FIXME: @makhnatkin enable after debug
+    // builder.addPlugin(collapseListsPlugin);
 
     builder
         .addAction(ListAction.ToBulletList, actions.toBulletList)
