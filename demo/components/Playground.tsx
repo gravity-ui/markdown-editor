@@ -79,6 +79,7 @@ export type PlaygroundProps = {
     onChangeSplitModeEnabled?: (splitModeEnabled: boolean) => void;
     directiveSyntax?: DirectiveSyntaxValue;
     disabledHTMLBlockModes?: EmbeddingMode[];
+    disableMarkdownItAttrs?: boolean;
 } & Pick<UseMarkdownEditorProps, 'experimental' | 'wysiwygConfig'> &
     Pick<
         MarkdownEditorViewProps,
@@ -128,6 +129,7 @@ export const Playground = memo<PlaygroundProps>((props) => {
         experimental,
         directiveSyntax,
         disabledHTMLBlockModes,
+        disableMarkdownItAttrs,
     } = props;
     const [editorMode, setEditorMode] = useState<MarkdownEditorMode>(initialEditor ?? 'wysiwyg');
     const [mdRaw, setMdRaw] = useState<MarkupString>(initial || '');
@@ -146,10 +148,11 @@ export const Playground = memo<PlaygroundProps>((props) => {
                 breaks={md.breaks}
                 needToSanitizeHtml={sanitizeHtml}
                 plugins={getPlugins({directiveSyntax})}
+                disableMarkdownItAttrs={disableMarkdownItAttrs}
                 htmlRuntimeConfig={{disabledModes: disabledHTMLBlockModes}}
             />
         ),
-        [sanitizeHtml, disabledHTMLBlockModes],
+        [sanitizeHtml, disabledHTMLBlockModes, disableMarkdownItAttrs],
     );
 
     const logger = useMemo(() => new Logger2().nested({env: 'playground'}), []);
@@ -161,6 +164,7 @@ export const Playground = memo<PlaygroundProps>((props) => {
             preset: 'full',
             wysiwygConfig: {
                 placeholderOptions: placeholderOptions,
+                disableMarkdownAttrs: disableMarkdownItAttrs,
                 extensions: (builder) => {
                     builder
                         .use(Math, {
@@ -250,6 +254,7 @@ export const Playground = memo<PlaygroundProps>((props) => {
             experimental?.beforeEditorModeChange,
             experimental?.prepareRawMarkup,
             directiveSyntax,
+            disableMarkdownItAttrs,
         ],
     );
 

@@ -40,6 +40,8 @@ export type BundlePresetOptions = ExtensionsOptions &
         needToSetDimensionsForUploadedImages?: boolean;
         enableNewImageSizeCalculation?: boolean;
         directiveSyntax: DirectiveSyntaxContext;
+        // MAJOR: remove markdown-it-attrs
+        disableMdAttrs?: boolean;
     };
 
 declare global {
@@ -136,6 +138,7 @@ export const BundlePreset: ExtensionAuto<BundlePresetOptions> = (builder, opts) 
     };
     const yfmOptions: BehaviorPresetOptions & YfmPresetOptions = {
         ...defaultOptions,
+        yfmConfigs: {disableAttrs: opts.disableMdAttrs, ...opts.yfmConfigs},
         selectionContext: {config: wSelectionMenuConfigByPreset.yfm, ...opts.selectionContext},
         commandMenu: {actions: wCommandMenuConfigByPreset.yfm, ...opts.commandMenu},
         underline: {underlineKey: f.toPM(A.Underline), ...opts.underline},
@@ -174,6 +177,7 @@ export const BundlePreset: ExtensionAuto<BundlePresetOptions> = (builder, opts) 
             h4Key: f.toPM(A.Heading4),
             h5Key: f.toPM(A.Heading5),
             h6Key: f.toPM(A.Heading6),
+            enableAnchorsPlugin: opts.disableMdAttrs,
             headingPlaceholder: (node: Node) =>
                 `${i18nPlaceholder('heading')} ${node.attrs[YfmHeadingAttr.Level]}`, // todo: remove attrs import
             ...opts.yfmHeading,
