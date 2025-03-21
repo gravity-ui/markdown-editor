@@ -25,7 +25,7 @@ const Preview = withMermaid({runtime: MERMAID_RUNTIME})(
 );
 
 export type SplitModePreviewProps = {
-    plugins?: MarkdownIt.PluginSimple[];
+    plugins: MarkdownIt.PluginSimple[];
     getValue: () => MarkupString;
     allowHTML?: boolean;
     breaks?: boolean;
@@ -33,6 +33,7 @@ export type SplitModePreviewProps = {
     linkifyTlds?: string | string[];
     needToSanitizeHtml?: boolean;
     htmlRuntimeConfig?: HTMLRuntimeConfig;
+    disableMarkdownItAttrs?: boolean;
 };
 
 export const SplitModePreview: React.FC<SplitModePreviewProps> = (props) => {
@@ -45,6 +46,7 @@ export const SplitModePreview: React.FC<SplitModePreviewProps> = (props) => {
         linkifyTlds,
         needToSanitizeHtml,
         htmlRuntimeConfig,
+        disableMarkdownItAttrs,
     } = props;
     const [html, setHtml] = useState('');
     const [meta, setMeta] = useState<object | undefined>({});
@@ -58,12 +60,17 @@ export const SplitModePreview: React.FC<SplitModePreviewProps> = (props) => {
                 const res = transform(getValue(), {
                     allowHTML,
                     breaks,
-                    plugins,
                     linkify,
                     linkifyTlds,
                     needToSanitizeHtml,
                     linkAttrs: [[ML_ATTR, true]],
                     defaultClassName: colorClassName,
+                    plugins: [
+                        ...plugins,
+                        ...(disableMarkdownItAttrs
+                            ? [(md: MarkdownIt) => md.core.ruler.disable('curly_attributes')]
+                            : []),
+                    ],
                 }).result;
                 setHtml(res.html);
                 setMeta(res.meta);

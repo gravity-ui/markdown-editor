@@ -1,6 +1,7 @@
-import type {Node, NodeSpec} from 'prosemirror-model';
+import headingAnchors from '@diplodoc/transform/lib/plugins/anchors/index.js';
 
-import type {ExtensionAuto} from '../../../../core';
+import type {ExtensionAuto} from '#core';
+import type {Node, NodeSpec} from '#pm/model';
 
 import {YfmHeadingAttr, headingNodeName} from './const';
 import {getNodeAttrs} from './utils';
@@ -14,10 +15,21 @@ export type YfmHeadingSpecsOptions = {
      * @deprecated: use placeholder option in BehaviorPreset instead.
      */
     headingPlaceholder?: NonNullable<NodeSpec['placeholder']>['content'];
+    enableAnchorsPlugin?: boolean;
 };
 
 /** YfmHeading extension needs markdown-it-attrs plugin */
 export const YfmHeadingSpecs: ExtensionAuto<YfmHeadingSpecsOptions> = (builder, opts) => {
+    if (opts.enableAnchorsPlugin) {
+        // parsing heading id whithout markdown-it-attrs
+        builder.configureMd((md) =>
+            md.use(headingAnchors, {
+                // disables generation of additional links inside heading
+                // https://github.com/diplodoc-platform/transform/blob/b8d04b9426fb587accb3e33b6daf2b2a5d9ccdc0/src/transform/plugins/anchors/index.ts#L147
+                disableCommonAnchors: true,
+            }),
+        );
+    }
     builder.addNode(headingNodeName, () => ({
         spec: {
             attrs: {

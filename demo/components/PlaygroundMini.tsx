@@ -24,6 +24,7 @@ export type PlaygroundMiniProps = Pick<
     | 'onChangeSplitModeEnabled'
     | 'directiveSyntax'
     | 'disabledHTMLBlockModes'
+    | 'disableMarkdownItAttrs'
 > & {withDefaultInitialContent?: boolean};
 
 export const PlaygroundMini = memo<PlaygroundMiniProps>(
