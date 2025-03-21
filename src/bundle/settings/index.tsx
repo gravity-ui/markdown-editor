@@ -75,6 +75,7 @@ export const EditorSettings = memo<EditorSettingsProps>(function EditorSettings(
                         pin="round-round"
                         onClick={togglePopup}
                         ref={setChevronElement}
+                        qa="g-md-settings-button"
                         className={bSettings('dropdown-button')}
                     >
                         <Icon data={Gear} />
@@ -125,9 +126,10 @@ const SettingsContent: React.FC<SettingsContentProps> = function SettingsContent
     showPreview,
 }) {
     return (
-        <div className={bContent(null, [className])}>
+        <div className={bContent(null, [className])} data-qa="g-md-settings-content">
             <Menu size="l" className={bContent('mode')}>
                 <Menu.Item
+                    qa="md-settings-mode-wysiwyg"
                     active={mode === 'wysiwyg'}
                     onClick={() => {
                         onModeChange('wysiwyg');
@@ -138,6 +140,7 @@ const SettingsContent: React.FC<SettingsContentProps> = function SettingsContent
                     {i18n('settings_wysiwyg')}
                 </Menu.Item>
                 <Menu.Item
+                    qa="md-settings-mode-markup"
                     active={mode === 'markup'}
                     onClick={() => {
                         onModeChange('markup');
