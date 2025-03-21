@@ -57,6 +57,7 @@ export function useMarkdownEditor(
                     editor.emit('submit', null);
                     return true;
                 },
+                disableMdAttrs: wysiwygConfig.disableMarkdownAttrs,
                 preserveEmptyRows: experimental.preserveEmptyRows,
                 placeholderOptions: wysiwygConfig.placeholderOptions,
                 mdBreaks: md.breaks,

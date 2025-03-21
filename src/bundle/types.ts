@@ -178,6 +178,13 @@ export type MarkdownEditorWysiwygConfig = {
     extensionOptions?: ExtensionsOptions;
     escapeConfig?: EscapeConfig;
     placeholderOptions?: WysiwygPlaceholderOptions;
+    // MAJOR: remove markdown-it-attrs
+    /**
+     * Disable the markdown-it-attrs plugin in the markup parser.
+     *
+     * Note: The use of the markdown-it-attrs plugin will be removed in the next major version.
+     */
+    disableMarkdownAttrs?: boolean;
 };
 
 export type MarkdownEditorOptions = {

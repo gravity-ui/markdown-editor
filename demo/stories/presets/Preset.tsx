@@ -90,6 +90,7 @@ export const Preset = memo<PresetDemoProps>((props) => {
             splitModeEnabled: true,
         },
         wysiwygConfig: {
+            disableMarkdownAttrs: true,
             extensionOptions: {
                 imgSize: {
                     parseInsertedUrlAsImage,

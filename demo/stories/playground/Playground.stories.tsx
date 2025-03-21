@@ -4,7 +4,11 @@ import {type PlaygroundProps, Playground as component} from '../../components/Pl
 import {args} from '../../defaults/args';
 import {getInitialMd} from '../../utils/getInitialMd';
 
-export const Story: StoryObj<typeof component> = {};
+export const Story: StoryObj<typeof component> = {
+    args: {
+        disableMarkdownItAttrs: true,
+    },
+};
 Story.storyName = 'Playground';
 
 const meta: Meta<PlaygroundProps> = {
