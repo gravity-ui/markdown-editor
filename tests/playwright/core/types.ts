@@ -12,6 +12,9 @@ import type {
     TestFixture,
 } from '@playwright/test';
 
+import type {MarkdownEditorPage} from './editor';
+import type {PlaywrightHelpers} from './helpers';
+
 interface ComponentFixtures {
     mount<HooksConfig>(
         component: JSX.Element,
@@ -31,6 +34,9 @@ export type Fixtures = {
     mount: MountFixture;
     expectScreenshot: ExpectScreenshotFixture;
     wait: WaitFixture;
+    editor: MarkdownEditorPage;
+    helpers: PlaywrightHelpers;
+    platform: NodeJS.Platform;
 };
 
 export type MountFixture = ComponentFixtures['mount'];
