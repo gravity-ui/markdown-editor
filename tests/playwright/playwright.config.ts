@@ -2,28 +2,27 @@ import {resolve} from 'node:path';
 
 import type {PlaywrightTestConfig} from '@playwright/experimental-ct-react';
 import {defineConfig, devices} from '@playwright/experimental-ct-react';
+import type {InlineConfig} from 'vite'; // eslint-disable-line import/no-extraneous-dependencies
 
-function pathFromRoot(p: string) {
+import tsConfig from '../../tsconfig.json';
+
+const pathFromRoot = (p: string) => {
     return resolve(__dirname, '../', p);
-}
+};
 
-const reporter: PlaywrightTestConfig['reporter'] = [];
+const aliasesFromTsConf = (() => {
+    const baseUrl = resolve(__dirname, '..', '..', tsConfig.compilerOptions.baseUrl);
+    const paths = tsConfig.compilerOptions.paths;
 
-reporter.push(
-    ['list'],
-    [
-        'html',
-        {
-            open: process.env.CI ? 'never' : 'on-failure',
-            outputFolder: resolve(
-                process.cwd(),
-                process.env.IS_DOCKER ? 'playwright-report-docker' : 'playwright-report',
-            ),
-        },
-    ],
-);
+    return Object.entries(paths).reduce<Record<string, string>>((acc, [key, value]) => {
+        const cleanKey = key.replace('/*', '');
+        const cleanValue = value[0].replace('/*', '');
+        acc[cleanKey] = resolve(baseUrl, cleanValue);
+        return acc;
+    }, {});
+})();
 
-const ctViteConfig = {
+const ctViteConfig: InlineConfig = {
     css: {
         preprocessorOptions: {
             scss: {
@@ -33,11 +32,7 @@ const ctViteConfig = {
     },
     resolve: {
         alias: {
-            '#core': resolve(__dirname, '../../src/core'),
-            '#cm': resolve(__dirname, '../../src/cm'),
-            '#pm': resolve(__dirname, '../../src/pm'),
-            src: resolve(__dirname, '../../src'),
-            playwright: resolve(__dirname),
+            ...aliasesFromTsConf,
             '~@gravity-ui/uikit/styles/mixins': '@gravity-ui/uikit/styles/mixins',
         },
     },
@@ -63,7 +58,19 @@ const config: PlaywrightTestConfig = {
     /* Opt out of parallel tests on CI. */
     workers: process.env.CI ? 2 : 2,
     /* Reporter to use. See https://playwright.dev/docs/test-reporters */
-    reporter,
+    reporter: [
+        ['list'],
+        [
+            'html',
+            {
+                open: process.env.CI ? 'never' : 'on-failure',
+                outputFolder: resolve(
+                    process.cwd(),
+                    process.env.IS_DOCKER ? 'playwright-report-docker' : 'playwright-report',
+                ),
+            },
+        ],
+    ],
     /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
     use: {
         testIdAttribute: 'data-qa',
