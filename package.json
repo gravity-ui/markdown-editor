@@ -33,6 +33,7 @@
     "prepublishOnly": "npm run lint && npm run build",
     "playwright:install": "playwright install chromium webkit --with-deps",
     "playwright": "playwright test --config=tests/playwright/playwright.config.ts",
+    "playwright:watch": "npm run playwright -- --ui",
     "playwright:update": "npm run playwright -- -u",
     "playwright:clear": "rm -rf ./tests/playwright/.cache",
     "playwright:report": "npx playwright show-report playwright-report",
