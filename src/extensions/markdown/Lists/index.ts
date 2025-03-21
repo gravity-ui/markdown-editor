@@ -8,7 +8,6 @@ import {actions} from './actions';
 import {joinPrevList, sinkOnlySelectedListItem, toList} from './commands';
 import {ListAction} from './const';
 import {ListsInputRulesExtension, type ListsInputRulesOptions} from './inputrules';
-import {collapseListsPlugin} from './plugins/CollapseListsPlugin';
 import {mergeListsPlugin} from './plugins/MergeListsPlugin';
 
 export {ListNode, ListsAttr, blType, liType, olType} from './ListsSpecs';
@@ -51,7 +50,8 @@ export const Lists: ExtensionAuto<ListsOptions> = (builder, opts) => {
 
     builder.addPlugin(mergeListsPlugin);
 
-    builder.addPlugin(collapseListsPlugin);
+    // FIXME: @makhnatkin enable after debug
+    // builder.addPlugin(collapseListsPlugin);
 
     builder
         .addAction(ListAction.ToBulletList, actions.toBulletList)
