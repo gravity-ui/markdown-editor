@@ -1,35 +1,13 @@
 import {wrapIn} from 'prosemirror-commands';
 import type {ResolvedPos} from 'prosemirror-model';
 import type {Command} from 'prosemirror-state';
-import {findParentNodeOfType} from 'prosemirror-utils';
 
-import {get$CursorAtBlockStart, isTextSelection} from 'src/utils';
+import {isTextSelection} from 'src/utils';
 
 import '../../../types/spec';
 
 import {addQuoteLinkPlaceholder} from './PlaceholderWidget/commands';
 import {isQuoteLinkNode, quoteLinkType} from './QuoteLinkSpecs';
-
-export const removeQuoteLink: Command = (state, dispatch) => {
-    const $cursor = get$CursorAtBlockStart(state.selection);
-    if (!$cursor || !isQuoteLinkNode($cursor.node(-1)) || $cursor.node(-1).childCount > 2) {
-        return false;
-    }
-
-    const currentNodeWithPos = findParentNodeOfType(quoteLinkType(state.schema))(state.selection);
-    if (!currentNodeWithPos) {
-        return false;
-    }
-
-    dispatch?.(
-        state.tr.delete(
-            currentNodeWithPos.pos,
-            currentNodeWithPos.pos + currentNodeWithPos.node.nodeSize,
-        ),
-    );
-
-    return true;
-};
 
 export const toggleQuote: Command = (state, dispatch) => {
     const {selection} = state;

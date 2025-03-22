@@ -7,7 +7,7 @@ import {linkType} from 'src/extensions';
 import {isMarkActive, wrappingInputRule} from 'src/utils';
 
 import {QuoteLinkSpecs, quoteLinkType} from './QuoteLinkSpecs';
-import {addQuoteLink, removeQuoteLink, toggleQuote} from './commands';
+import {addQuoteLink, toggleQuote} from './commands';
 
 import './index.scss';
 import '@diplodoc/quote-link-extension/runtime/styles.css';
@@ -18,10 +18,6 @@ const addLinkToQuoteLinkAction = 'addLinkToQuoteLink';
 
 export const QuoteLink: ExtensionAuto = (builder) => {
     builder.use(QuoteLinkSpecs);
-
-    builder.addKeymap(() => ({
-        Backspace: removeQuoteLink,
-    }));
 
     builder.addInputRules(({schema}) => ({
         rules: [quoteLinkInputRule(quoteLinkType(schema))],

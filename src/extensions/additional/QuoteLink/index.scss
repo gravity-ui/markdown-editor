@@ -40,22 +40,8 @@
             position: absolute;
         }
 
-        > p > a[data-quotelink='true'] {
-            right: calc(100% - var(--g-spacing-3));
-            white-space: nowrap;
-
-            &,
-            &:hover {
-                background: transparent;
-            }
-
-            .pm-node-selected {
-                box-shadow: none;
-            }
-        }
-
-        &:has(> p > a[data-quotelink='true'] > .pm-node-selected) {
-            outline: 1px solid var(--g-color-text-info);
+        p {
+            max-width: unset;
         }
     }
 }

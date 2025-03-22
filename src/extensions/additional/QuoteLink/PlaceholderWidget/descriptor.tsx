@@ -1,18 +1,14 @@
 import type React from 'react';
 
+import type {Fragment, Node} from 'prosemirror-model';
 import type {Transaction} from 'prosemirror-state';
 import {TextSelection} from 'prosemirror-state';
+import {findParentNodeOfType, findParentNodeOfTypeClosestToPos} from 'prosemirror-utils';
 import type {EditorView} from 'prosemirror-view';
 
 import type {ExtensionDeps} from '#core';
-import {
-    LinkAttr,
-    ReactWidgetDescriptor,
-    linkType,
-    normalizeUrlFactory,
-    pType,
-    removeDecoration,
-} from 'src/extensions';
+import {ReactWidgetDescriptor, normalizeUrlFactory, removeDecoration} from 'src/extensions';
+import {QuoteLinkAttr, quoteLinkType} from 'src/extensions/additional/QuoteLink/QuoteLinkSpecs';
 import {
     LinkPlaceholderWidget,
     type LinkPlaceholderWidgetProps,
@@ -63,28 +59,41 @@ export class QuoteLinkWidgetDescriptor extends ReactWidgetDescriptor {
         const from = this.#getPos();
         const isAllSelected =
             from === 1 && (!isTextSelection(tr.selection) || !tr.selection.$cursor);
-        const to = from + text.length + (isAllSelected ? 1 : 0);
 
-        tr = tr.insertText(text, from);
-        tr = tr.addMark(
-            from,
-            to,
-            linkType(this.#view.state.schema).create({
-                [LinkAttr.Href]: url,
-                [LinkAttr.DataQuoteLink]: true,
-            }),
-        );
+        const currentNodeWithPos = isAllSelected
+            ? findParentNodeOfTypeClosestToPos(
+                  this.#view.state.doc.resolve(4),
+                  quoteLinkType(this.#view.state.schema),
+              )
+            : findParentNodeOfType(quoteLinkType(this.#view.state.schema))(
+                  this.#view.state.selection,
+              );
 
-        tr = removeDecoration(tr, this.id);
+        if (currentNodeWithPos) {
+            let content: Fragment | Node | undefined = currentNodeWithPos.node.content;
+            let contentSize = currentNodeWithPos.node.nodeSize - 4;
 
-        tr = tr.insert(
-            to,
-            pType(this.#view.state.schema).create(null, text ? this.#schema?.text(text) : null),
-        );
-        tr.setSelection(TextSelection.create(tr.doc, to + 1 + text.length + 1));
+            if (currentNodeWithPos.node.nodeSize <= 4 && text) {
+                content = this.#schema?.text(text);
+                contentSize = text.length;
+            }
+
+            tr = tr.replaceWith(
+                currentNodeWithPos.pos,
+                currentNodeWithPos.pos + currentNodeWithPos.node.nodeSize,
+                quoteLinkType(this.#view.state.schema).create(
+                    {
+                        [QuoteLinkAttr.Href]: url,
+                        [QuoteLinkAttr.Content]: text,
+                    },
+                    content,
+                ),
+            );
+
+            tr.setSelection(TextSelection.create(tr.doc, from + contentSize));
+        }
 
         this.#view.dispatch(tr);
-        this.#view.focus();
     };
 }
 

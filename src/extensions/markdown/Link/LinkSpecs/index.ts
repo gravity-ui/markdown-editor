@@ -12,7 +12,6 @@ export enum LinkAttr {
     // tech attributes
     IsPlaceholder = 'is-placeholder',
     RawLink = 'raw-link',
-    DataQuoteLink = 'data-quotelink',
 }
 
 export const LinkSpecs: ExtensionAuto = (builder) => {
@@ -25,7 +24,6 @@ export const LinkSpecs: ExtensionAuto = (builder) => {
                     [LinkAttr.Title]: {default: null},
                     [LinkAttr.IsPlaceholder]: {default: false},
                     [LinkAttr.RawLink]: {default: false},
-                    [LinkAttr.DataQuoteLink]: {default: null},
                 },
                 inclusive: false,
                 parseDOM: [
@@ -35,9 +33,6 @@ export const LinkSpecs: ExtensionAuto = (builder) => {
                             return {
                                 href: (dom as Element).getAttribute(LinkAttr.Href),
                                 title: (dom as Element).getAttribute(LinkAttr.Title),
-                                [LinkAttr.DataQuoteLink]: (dom as Element).getAttribute(
-                                    LinkAttr.DataQuoteLink,
-                                ),
                             };
                         },
                     },
@@ -70,8 +65,7 @@ export const LinkSpecs: ExtensionAuto = (builder) => {
                         (mark.attrs[LinkAttr.Title]
                             ? ' ' + state.quote(mark.attrs[LinkAttr.Title])
                             : '') +
-                        ')' +
-                        (mark.attrs[LinkAttr.DataQuoteLink] ? '{data-quotelink=true}' : '')
+                        ')'
                     );
                 },
             },
@@ -82,7 +76,6 @@ export const LinkSpecs: ExtensionAuto = (builder) => {
                     getAttrs: (tok) => ({
                         href: tok.attrGet('href'),
                         title: tok.attrGet('title') || null,
-                        [LinkAttr.DataQuoteLink]: tok.attrGet('data-quotelink'),
                     }),
                 },
             },
