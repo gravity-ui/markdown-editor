@@ -61,4 +61,5 @@ export {
     Pencil as DrawIoIcon,
     FolderCode as HtmlBlockIcon,
     ArrowChevronRight as FoldingHeadingIcon,
+    CircleLink as QuoteLinkIcon,
 } from '@gravity-ui/icons';
