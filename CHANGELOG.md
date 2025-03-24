@@ -1,5 +1,17 @@
 # Changelog
 
+## [14.13.0](https://github.com/gravity-ui/markdown-editor/compare/v14.12.6...v14.13.0) (2025-03-24)
+
+
+### Features
+
+* **withYfmHtml:** add setup for runtime config ([c6b4803](https://github.com/gravity-ui/markdown-editor/commit/c6b4803dc076e397cfc88ccaa50c8e4b36e40b1a))
+
+
+### Bug Fixes
+
+* **view:** setupRuntimeConfig is not a function on old html-extension peer ([#685](https://github.com/gravity-ui/markdown-editor/issues/685)) ([602aab6](https://github.com/gravity-ui/markdown-editor/commit/602aab6e3a5727694ee040f725ef37b116be2b7a))
+
 ## [14.12.6](https://github.com/gravity-ui/markdown-editor/compare/v14.12.5...v14.12.6) (2025-02-19)
 
 
