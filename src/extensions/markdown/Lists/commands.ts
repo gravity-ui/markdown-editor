@@ -25,13 +25,17 @@ export const joinPrevList = joinPreviousBlock({
     skipNode: isListOrItemNode,
 });
 
+/*
+    Simplified `sinkListItem` from `prosemirror-schema-list` without `state`/`dispatch`,
+    sinks list items deeper.
+ */
 const sink = (tr: Transaction, range: NodeRange, itemType: NodeType) => {
     const before = tr.mapping.map(range.start);
     const after = tr.mapping.map(range.end);
     const startIndex = tr.mapping.map(range.startIndex);
 
-    const parent = range.parent,
-        nodeBefore = parent.child(startIndex - 1);
+    const parent = range.parent;
+    const nodeBefore = parent.child(startIndex - 1);
 
     const nestedBefore = nodeBefore.lastChild && nodeBefore.lastChild.type === parent.type;
     const inner = Fragment.from(nestedBefore ? itemType.create() : null);
@@ -56,58 +60,61 @@ const sink = (tr: Transaction, range: NodeRange, itemType: NodeType) => {
 };
 
 export function sinkOnlySelectedListItem(itemType: NodeType): Command {
-    return function (state, dispatch) {
-        const {$from, $to} = state.selection;
-        const range = $from.blockRange(
+    return ({tr, selection}, dispatch) => {
+        const {$from, $to} = selection;
+        const selectionRange = $from.blockRange(
             $to,
             (node) => node.childCount > 0 && node.firstChild!.type === itemType,
         );
-        if (!range) return false;
-        const startIndex = range.startIndex;
-        if (startIndex === 0) return false;
-        const parent = range.parent,
-            nodeBefore = parent.child(startIndex - 1);
-        if (nodeBefore.type !== itemType) return false;
+        if (!selectionRange) {
+            return false;
+        }
+
+        const {startIndex, parent, start, end} = selectionRange;
+        if (startIndex === 0) {
+            return false;
+        }
+
+        const nodeBefore = parent.child(startIndex - 1);
+        if (nodeBefore.type !== itemType) {
+            return false;
+        }
 
         if (dispatch) {
-            const {tr} = state;
-            const before = range.start;
-            const after = range.end;
+            // lifts following list items sequentially to prepare correct nesting structure
+            let currentEnd = end - 1;
+            while (currentEnd > start) {
+                const selectionEnd = tr.mapping.map($to.pos);
 
-            let i = after - 1;
-            while (i > before) {
-                const selectionPos = tr.mapping.map($to.pos);
-                const $endPos = tr.doc.resolve(i);
-                const startPos = $endPos.start($endPos.depth);
-                const $startPos = tr.doc.resolve(startPos);
-                const blockRange = $startPos.blockRange($endPos);
+                const $candidateBlockEnd = tr.doc.resolve(currentEnd);
+                const candidateBlockStartPos = $candidateBlockEnd.before($candidateBlockEnd.depth);
+                const $candidateBlockStart = tr.doc.resolve(candidateBlockStartPos);
+                const candidateBlockRange = $candidateBlockStart.blockRange($candidateBlockEnd);
 
-                if (blockRange?.start) {
-                    const $blockRangeStart = tr.doc.resolve(blockRange?.start);
-
+                if (candidateBlockRange?.start) {
+                    const $rangeStart = tr.doc.resolve(candidateBlockRange.start);
                     const shouldLift =
-                        blockRange.start > tr.mapping.map(selectionPos) &&
-                        isListNode($blockRangeStart.parent);
+                        candidateBlockRange.start > selectionEnd && isListNode($rangeStart.parent);
 
                     if (shouldLift) {
-                        i = blockRange.start;
-                        const target = liftTarget(blockRange);
+                        currentEnd = candidateBlockRange.start;
 
-                        if (target === null) {
-                            break;
+                        const targetDepth = liftTarget(candidateBlockRange);
+                        if (targetDepth !== null) {
+                            tr.lift(candidateBlockRange, targetDepth);
                         }
-
-                        tr.lift(blockRange, target);
                     }
                 }
-                i--;
+
+                currentEnd--;
             }
 
-            sink(tr, range, itemType);
+            // sinks the selected list item deeper into the list hierarchy
+            sink(tr, selectionRange, itemType);
 
             dispatch(tr.scrollIntoView());
             return true;
         }
-        return true;
+        return false;
     };
 }

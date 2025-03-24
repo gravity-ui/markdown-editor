@@ -1,5 +1,7 @@
 import {liftListItem, splitListItem} from 'prosemirror-schema-list';
 
+import {collapseListsPlugin} from 'src/extensions/markdown/Lists/plugins/CollapseListsPlugin';
+
 import type {Action, ExtensionAuto, Keymap} from '../../../core';
 import {withLogAction} from '../../../utils/keymap';
 
@@ -50,8 +52,7 @@ export const Lists: ExtensionAuto<ListsOptions> = (builder, opts) => {
 
     builder.addPlugin(mergeListsPlugin);
 
-    // FIXME: @makhnatkin enable after debug
-    // builder.addPlugin(collapseListsPlugin);
+    builder.addPlugin(collapseListsPlugin);
 
     builder
         .addAction(ListAction.ToBulletList, actions.toBulletList)
