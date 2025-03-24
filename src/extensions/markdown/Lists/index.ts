@@ -1,7 +1,5 @@
 import {liftListItem, splitListItem} from 'prosemirror-schema-list';
 
-import {collapseListsPlugin} from 'src/extensions/markdown/Lists/plugins/CollapseListsPlugin';
-
 import type {Action, ExtensionAuto, Keymap} from '../../../core';
 import {withLogAction} from '../../../utils/keymap';
 
@@ -10,6 +8,7 @@ import {actions} from './actions';
 import {joinPrevList, sinkOnlySelectedListItem, toList} from './commands';
 import {ListAction} from './const';
 import {ListsInputRulesExtension, type ListsInputRulesOptions} from './inputrules';
+import {collapseListsPlugin} from './plugins/CollapseListsPlugin';
 import {mergeListsPlugin} from './plugins/MergeListsPlugin';
 
 export {ListNode, ListsAttr, blType, liType, olType} from './ListsSpecs';
