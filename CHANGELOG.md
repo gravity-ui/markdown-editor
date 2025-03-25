@@ -1,5 +1,19 @@
 # Changelog
 
+## [15.5.0](https://github.com/gravity-ui/markdown-editor/compare/v15.4.2...v15.5.0) (2025-03-25)
+
+
+### Features
+
+* **Lists:** added sinkOnlySelectedListItem ([#687](https://github.com/gravity-ui/markdown-editor/issues/687)) ([6f54ee7](https://github.com/gravity-ui/markdown-editor/commit/6f54ee7b0244587230a61c764c6a80d6ade3fda1))
+* **QuoteLink:** added QuoteLink additional extension for wysiwyg mode ([#667](https://github.com/gravity-ui/markdown-editor/issues/667)) ([138120a](https://github.com/gravity-ui/markdown-editor/commit/138120ac63725bd3f11720ccc216263f6cd96642))
+* **wysiwyg:** allow to disable `markdown-it-attrs` in yfm preset ([#690](https://github.com/gravity-ui/markdown-editor/issues/690)) ([da1c209](https://github.com/gravity-ui/markdown-editor/commit/da1c20949ec83d1395ee77d0313f7f4cb0d8d084))
+
+
+### Bug Fixes
+
+* **bundle:** added qa-attributes ([c16aa59](https://github.com/gravity-ui/markdown-editor/commit/c16aa5994f6edfbaf8df513ef2f0b03e463e37cb))
+
 ## [15.4.2](https://github.com/gravity-ui/markdown-editor/compare/v15.4.1...v15.4.2) (2025-03-17)
 
 
