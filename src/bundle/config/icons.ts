@@ -29,6 +29,7 @@ import {
     MonoIcon,
     NoteIcon,
     QuoteIcon,
+    QuoteLinkIcon,
     RedoIcon,
     SinkIcon,
     StrikethroughIcon,
@@ -72,6 +73,7 @@ type Icon =
     | 'image'
     | 'table'
     | 'quote'
+    | 'quoteLink'
     | 'checklist'
     | 'horizontalRule'
     | 'file'
@@ -125,6 +127,7 @@ export const icons: Icons = {
 
     table: {data: TableIcon},
     quote: {data: QuoteIcon},
+    quoteLink: {data: QuoteLinkIcon},
     checklist: {data: CheckListIcon},
 
     html: {data: HtmlBlockIcon},

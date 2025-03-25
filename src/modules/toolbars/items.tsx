@@ -11,6 +11,7 @@ import {headingType, pType} from '../../extensions/specs';
 import {i18n as i18nHint} from '../../i18n/hints';
 import {i18n} from '../../i18n/menubar';
 import {
+    insertBlockquoteLink,
     insertHRule,
     insertLink,
     insertMermaidDiagram,
@@ -251,6 +252,26 @@ export const quoteItemWysiwyg: ToolbarItemWysiwyg = {
 };
 export const quoteItemMarkup: ToolbarItemMarkup = {
     exec: (e) => wrapToBlockquote(e.cm),
+    isActive: inactive,
+    isEnable: enable,
+};
+
+// ---- Quote Link ----
+export const quoteLinkItemView: ToolbarItemView = {
+    type: ToolbarDataType.SingleButton,
+    title: i18n.bind(null, 'quotelink'),
+    icon: icons.quoteLink,
+};
+export const quoteLinkItemWysiwyg: ToolbarItemWysiwyg = {
+    exec: (e) => {
+        e.actions.quoteLink.run();
+        e.actions.addLinkToQuoteLink.run();
+    },
+    isActive: (e) => e.actions.quoteLink.isActive(),
+    isEnable: (e) => e.actions.quoteLink.isEnable(),
+};
+export const quoteLinkItemMarkup: ToolbarItemMarkup = {
+    exec: (e) => insertBlockquoteLink(e.cm),
     isActive: inactive,
     isEnable: enable,
 };
