@@ -18,4 +18,5 @@ export const args: Meta<PlaygroundMiniProps>['args'] = {
     height: 'initial',
     directiveSyntax: 'disabled',
     disabledHTMLBlockModes: [],
+    disableMarkdownItAttrs: true,
 };
