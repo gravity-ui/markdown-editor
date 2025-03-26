@@ -1,8 +1,8 @@
-import type {Node, NodeSpec} from 'prosemirror-model';
-
-import type {ExtensionAuto} from '../../../../core';
+import type {ExtensionAuto} from '#core';
+import type {Node, NodeSpec} from '#pm/model';
 
 import {YfmHeadingAttr, headingNodeName} from './const';
+import {headingAttrsPlugin} from './markdown/heading-attrs';
 import {getNodeAttrs} from './utils';
 
 const DEFAULT_PLACEHOLDER = (node: Node) => 'Heading ' + node.attrs[YfmHeadingAttr.Level];
@@ -18,6 +18,7 @@ export type YfmHeadingSpecsOptions = {
 
 /** YfmHeading extension needs markdown-it-attrs plugin */
 export const YfmHeadingSpecs: ExtensionAuto<YfmHeadingSpecsOptions> = (builder, opts) => {
+    builder.configureMd((md) => md.use(headingAttrsPlugin));
     builder.addNode(headingNodeName, () => ({
         spec: {
             attrs: {

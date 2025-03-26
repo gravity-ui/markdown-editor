@@ -40,6 +40,8 @@ export type BundlePresetOptions = ExtensionsOptions &
         needToSetDimensionsForUploadedImages?: boolean;
         enableNewImageSizeCalculation?: boolean;
         directiveSyntax: DirectiveSyntaxContext;
+        // MAJOR: remove markdown-it-attrs
+        disableMdAttrs?: boolean;
     };
 
 declare global {
@@ -136,6 +138,7 @@ export const BundlePreset: ExtensionAuto<BundlePresetOptions> = (builder, opts) 
     };
     const yfmOptions: BehaviorPresetOptions & YfmPresetOptions = {
         ...defaultOptions,
+        yfmConfigs: {disableAttrs: opts.disableMdAttrs, ...opts.yfmConfigs},
         selectionContext: {config: wSelectionMenuConfigByPreset.yfm, ...opts.selectionContext},
         commandMenu: {actions: wCommandMenuConfigByPreset.yfm, ...opts.commandMenu},
         underline: {underlineKey: f.toPM(A.Underline), ...opts.underline},
