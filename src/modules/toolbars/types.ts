@@ -34,6 +34,8 @@ export type ToolbarItemView<T extends ToolbarDataType = ToolbarDataType.SingleBu
             withArrow?: boolean;
             icon: ToolbarIconData;
             title: string | (() => string);
+            /** When state changes to active, replace default icon with icon of first active item */
+            replaceActiveIcon?: boolean;
         }
       : {});
 
