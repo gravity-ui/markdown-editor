@@ -29,6 +29,7 @@ interface TransformedItem {
     icon?: ToolbarIconData;
     hotkey?: string;
     withArrow?: boolean;
+    replaceActiveIcon?: true;
     doNotActivateList?: boolean;
     preview?: React.ReactNode;
     wysiwyg?: ToolbarItemWysiwyg<ToolbarDataType>;
@@ -59,7 +60,10 @@ const transformItem = (
         hotkey: item.view.hotkey,
         doNotActivateList: item.view.doNotActivateList,
         ...(isSingleButton && {preview: (item.view as any).preview}),
-        ...(isListButton && {withArrow: (item.view as any).withArrow}),
+        ...(isListButton && {
+            withArrow: (item.view as any).withArrow,
+            replaceActiveIcon: (item.view as any).replaceActiveIcon,
+        }),
         ...(type === 'wysiwyg' && item.wysiwyg && {...item.wysiwyg}),
         ...(type === 'markup' && item.markup && {...item.markup}),
     };

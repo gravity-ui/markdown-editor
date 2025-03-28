@@ -82,6 +82,7 @@ export const wHeading6ItemData: WToolbarListButtonItemData = {
 export const wHeadingListConfig: WToolbarListButtonData = {
     icon: icons.headline,
     withArrow: true,
+    replaceActiveIcon: true,
     title: i18n.bind(null, 'heading'),
     data: [
         wTextItemData,

@@ -35,16 +35,13 @@ export function ToolbarListButton<E>({
     withArrow,
     data,
     alwaysActive,
+    replaceActiveIcon,
 }: ToolbarListButtonProps<E>) {
     const [anchorElement, setAnchorElement] = useElementState();
     const [open, , hide, toggleOpen] = useBooleanState(false);
     const [popupItem, setPopupItem] = useState<ToolbarButtonPopupData<E>>();
 
-    const someActive = alwaysActive
-        ? false
-        : data.some((item) => item.isActive(editor) && !item.doNotActivateList);
     const everyDisabled = alwaysActive ? false : data.every((item) => !item.isEnable(editor));
-
     const popupOpen = everyDisabled ? false : open;
     const shouldForceHide = open && !popupOpen;
     useEffect(() => {
@@ -54,6 +51,13 @@ export function ToolbarListButton<E>({
     }, [hide, shouldForceHide]);
 
     if (data.length === 0) return null;
+
+    const activeItem = data.find((item) => item.isActive(editor) && !item.doNotActivateList);
+    const someActive = alwaysActive ? false : Boolean(activeItem);
+
+    if (replaceActiveIcon && someActive && activeItem) {
+        icon = activeItem.icon;
+    }
 
     const buttonContent = [<Icon key={1} data={icon.data} size={icon.size ?? 16} />];
     if (withArrow) {
