@@ -806,6 +806,7 @@ export const headingListItemView: ToolbarItemView<ToolbarDataType.ListButton> = 
     icon: icons.headline,
     title: i18n.bind(null, 'heading'),
     withArrow: true,
+    replaceActiveIcon: true,
 };
 
 // ---- Lists list ----
