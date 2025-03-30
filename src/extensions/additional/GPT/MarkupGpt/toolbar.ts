@@ -15,3 +15,10 @@ export const mGptToolbarItem: MToolbarSingleItemData = {
     isActive: () => false,
     isEnable: () => true,
 };
+
+export function getMGptToolbarItem(params: Partial<MToolbarSingleItemData>) {
+    return {
+        ...mGptToolbarItem,
+        ...params,
+    };
+}

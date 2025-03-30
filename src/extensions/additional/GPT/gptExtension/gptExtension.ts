@@ -27,7 +27,9 @@ export type GptWidgetOptions<
     | 'onClose'
     | 'onUpdate'
     | 'gptAlertProps'
->;
+> & {
+    hotKey?: string;
+};
 
 export const gptExtension = <
     AnswerData extends CommonAnswer = CommonAnswer,
@@ -36,6 +38,8 @@ export const gptExtension = <
     builder: ExtensionBuilder,
     options: GptWidgetOptions<AnswerData, PromptData>,
 ) => {
+    const hotKey = options.hotKey ?? gptHotKeys.openGptKey;
+
     builder.addAction(gptActionName, showGptWidget);
     builder.addPlugin(({serializer, markupParser}) => {
         return gptWidgetPlugin({
@@ -46,7 +50,7 @@ export const gptExtension = <
     });
     builder.addKeymap(
         () => ({
-            [gptHotKeys.openGptKey]: runGpt,
+            [hotKey]: runGpt,
         }),
         builder.Priority.VeryLow,
     );

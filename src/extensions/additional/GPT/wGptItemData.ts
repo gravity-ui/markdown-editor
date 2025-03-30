@@ -9,6 +9,11 @@ import {gptHotKeys} from './constants';
 
 export const cnGptButton = cn('gpt-button');
 
+export type GetWGptItemData = Pick<
+    WToolbarSingleItemData,
+    'title' | 'hotkey' | 'icon' | 'className'
+>;
+
 export const wGptItemData: WToolbarSingleItemData = {
     type: ToolbarDataType.SingleButton,
     id: 'gpt',
@@ -21,3 +26,10 @@ export const wGptItemData: WToolbarSingleItemData = {
     isEnable: (actionsStorage) => actionsStorage.actions.addGptWidget.isEnable(),
     className: cnGptButton(),
 };
+
+export function getWGptItemData(params: Partial<GetWGptItemData>) {
+    return {
+        ...wGptItemData,
+        ...params,
+    };
+}
