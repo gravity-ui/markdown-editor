@@ -1,7 +1,8 @@
 import type {NodeSpec} from 'prosemirror-model';
 
+import {getSanitize} from 'src/utils/getSanitize';
+
 import {HtmlAttr, HtmlNode} from './const';
-import { getSanitize } from 'src/utils/getSanitize';
 
 enum DomAttr {
     Html = 'data-html',
