@@ -1,4 +1,4 @@
-import type {SanitizeOptions} from '@diplodoc/transform/lib/sanitize';
+import type {SanitizeOptions} from '@diplodoc/transform/lib/sanitize.js';
 
 import {getSanitize} from 'src/utils/getSanitize';
 
