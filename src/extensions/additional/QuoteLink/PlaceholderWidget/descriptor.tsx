@@ -3,6 +3,7 @@ import type React from 'react';
 import type {Fragment, Node} from 'prosemirror-model';
 import type {Transaction} from 'prosemirror-state';
 import {TextSelection} from 'prosemirror-state';
+// @ts-ignore // TODO: fix cjs build
 import {findParentNodeOfType, findParentNodeOfTypeClosestToPos} from 'prosemirror-utils';
 import type {EditorView} from 'prosemirror-view';
 
