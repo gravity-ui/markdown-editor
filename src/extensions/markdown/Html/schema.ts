@@ -1,36 +1,14 @@
-import type {SanitizeOptions} from '@diplodoc/transform/lib/sanitize.js';
-import * as sanitizeModule from '@diplodoc/transform/lib/sanitize.js';
 import type {NodeSpec} from 'prosemirror-model';
 
 import {HtmlAttr, HtmlNode} from './const';
+import { getSanitize } from 'src/utils/getSanitize';
 
 enum DomAttr {
     Html = 'data-html',
     HtmlRaw = 'data-html-raw',
 }
 
-type SanitizeFn = (
-    html: string,
-    options?: SanitizeOptions,
-    additionalOptions?: SanitizeOptions,
-) => string;
-
-interface SanitizeModule {
-    sanitize?: SanitizeFn;
-    default?: SanitizeFn;
-}
-
-const sanitizeAll = () => {
-    console.warn('[Html]: sanitize function not found');
-    return '';
-};
-const getSanitizeFunction = (): SanitizeFn => {
-    const module = sanitizeModule as SanitizeModule;
-    const sanitize = 'sanitize' in module && module.sanitize ? module.sanitize : module.default;
-    return sanitize instanceof Function ? sanitize : sanitizeAll;
-};
-
-const sanitize = getSanitizeFunction();
+const sanitize = getSanitize('Html');
 
 export const schemaSpecs: Record<HtmlNode, NodeSpec> = {
     [HtmlNode.Block]: {
