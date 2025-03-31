@@ -1,29 +1,9 @@
-import type {SanitizeOptions} from '@diplodoc/transform/lib/sanitize.js';
-import * as sanitizeModule from '@diplodoc/transform/lib/sanitize.js';
+import type {SanitizeOptions} from '@diplodoc/transform/lib/sanitize';
 
-type SanitizeFn = (
-    html: string,
-    options?: SanitizeOptions,
-    additionalOptions?: SanitizeOptions,
-) => string;
-
-interface SanitizeModule {
-    sanitize?: SanitizeFn;
-    default?: SanitizeFn;
-}
-
-const sanitizeAll = () => {
-    console.warn('[YfmHtmlBlock]: sanitize function not found');
-    return '';
-};
-const getSanitizeFunction = (): SanitizeFn => {
-    const module = sanitizeModule as SanitizeModule;
-    const sanitize = 'sanitize' in module && module.sanitize ? module.sanitize : module.default;
-    return sanitize instanceof Function ? sanitize : sanitizeAll;
-};
+import {getSanitize} from 'src/utils/getSanitize';
 
 // MAJOR: use `import {sanitize} from '@diplodoc/transform/lib/sanitize.js'`
-const diplodocSanitize = getSanitizeFunction();
+const diplodocSanitize = getSanitize('YfmHtmlBlock');
 
 // yfmHtmlBlock additional css properties white list
 const getYfmHtmlBlockWhiteList = () => {
