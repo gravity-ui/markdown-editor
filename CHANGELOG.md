@@ -1,5 +1,12 @@
 # Changelog
 
+## [15.5.1](https://github.com/gravity-ui/markdown-editor/compare/v15.5.0...v15.5.1) (2025-03-31)
+
+
+### Bug Fixes
+
+* **QuoteLink:** fixed cjs build ([#701](https://github.com/gravity-ui/markdown-editor/issues/701)) ([d1a2270](https://github.com/gravity-ui/markdown-editor/commit/d1a2270aeba67879b5fe5ce84281b2c01ee43c6c))
+
 ## [15.5.0](https://github.com/gravity-ui/markdown-editor/compare/v15.4.2...v15.5.0) (2025-03-31)
 
 
