@@ -21,7 +21,7 @@ interface SanitizeModule {
 }
 
 const sanitizeAll = () => {
-    console.warn('[YfmHtmlBlock]: sanitize function not found');
+    console.warn('[Html]: sanitize function not found');
     return '';
 };
 const getSanitizeFunction = (): SanitizeFn => {
