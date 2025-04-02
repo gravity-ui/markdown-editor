@@ -95,6 +95,31 @@ See more: [Command line](https://playwright.dev/docs/test-cli)
   npm run playwright:docker:report
   ```
 
+## Writing Complex Tests
+
+### Editor helpers
+The core also includes helper functions designed to simplify UI interactions, testing, and debugging. These allow you to quickly switch editor modes, paste and clear text, visually highlight elements, and inspect their HTML markup during development.
+
+See:
+  ```
+  tests/playwright/core/editor.ts
+  tests/playwright/core/helpers.ts
+  ```
+
+## Clipboard specifics
+
+Playwright clipboard support varies across browsers. Keep this in mind when writing copy-paste tests.
+
+## Click testing
+
+Playwright provides three main ways to perform clicks:
+
+- `locator.click()`
+- `element.dispatchEvent('click', params)`
+- `page.mouse.click(x, y)`
+
+Choose the method based on your code specifics. For events involving bubbling, consider using `dispatchEvent` with `{ bubbles: true }`.
+
 ## Useful Links
 
 - [Playwright API](https://playwright.dev/docs/api/class-test)
