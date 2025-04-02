@@ -13,7 +13,7 @@ import type {
 } from '@playwright/test';
 
 import type {MarkdownEditorPage} from './editor';
-import type {PlaywrightHelpers} from './helpers';
+import type {DebugHelpers, PlaywrightHelpers} from './helpers';
 
 interface ComponentFixtures {
     mount<HooksConfig>(
@@ -36,6 +36,7 @@ export type Fixtures = {
     wait: WaitFixture;
     editor: MarkdownEditorPage;
     helpers: PlaywrightHelpers;
+    debug: DebugHelpers;
     platform: NodeJS.Platform;
 };
 

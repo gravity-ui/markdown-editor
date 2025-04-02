@@ -2,7 +2,7 @@ import {test as base, expect} from '@playwright/experimental-ct-react';
 
 import {MarkdownEditorPage} from './editor';
 import {expectScreenshot} from './expectScreenshot';
-import {PlaywrightHelpers} from './helpers';
+import {DebugHelpers, PlaywrightHelpers} from './helpers';
 import {mount} from './mount';
 import type {Fixtures} from './types';
 import {wait} from './wait';
@@ -18,6 +18,10 @@ export const test = base.extend<Fixtures>({
     helpers: async ({page, context}, use) => {
         const helpers = new PlaywrightHelpers({page, context});
         await use(helpers);
+    },
+    debug: async ({page}, use) => {
+        const debug = new DebugHelpers({page});
+        await use(debug);
     },
     platform: [process.platform, {scope: 'test'}],
 });
