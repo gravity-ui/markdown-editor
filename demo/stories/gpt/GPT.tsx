@@ -2,12 +2,12 @@ import {memo, useState} from 'react';
 
 import {
     MarkdownEditorView,
+    getMGptToolbarItem,
+    getWGptItemData,
     gptExtension,
     mGptExtension,
-    mGptToolbarItem,
     markupToolbarConfigs,
     useMarkdownEditor,
-    wGptItemData,
     wysiwygToolbarConfigs,
 } from 'src/index';
 import {cloneDeep} from 'src/lodash';
@@ -18,14 +18,22 @@ import {useLogs} from '../../hooks/useLogs';
 import {initialMdContent} from './content';
 import {gptWidgetProps} from './gptWidgetOptions';
 
+const wGptItem = getWGptItemData({
+    hotkey: 'Mod+m',
+});
+
+const mGptItem = getMGptToolbarItem({
+    hotkey: 'Mod+m',
+});
+
 const wToolbarConfig = cloneDeep(wysiwygToolbarConfigs.wToolbarConfig);
-wToolbarConfig.unshift([wGptItemData]);
+wToolbarConfig.unshift([wGptItem]);
 
 const wCommandMenuConfig = cloneDeep(wysiwygToolbarConfigs.wCommandMenuConfig);
-wCommandMenuConfig.unshift(wGptItemData);
+wCommandMenuConfig.unshift(wGptItem);
 
 const mToolbarConfig = cloneDeep(markupToolbarConfigs.mToolbarConfig);
-mToolbarConfig.unshift([mGptToolbarItem]);
+mToolbarConfig.unshift([mGptItem]);
 
 export const GPT = memo(() => {
     const [showedAlertGpt, setShowedAlertGpt] = useState(true);
@@ -38,7 +46,7 @@ export const GPT = memo(() => {
     });
 
     const markupExtension = mGptExtension(gptExtensionProps);
-    const wSelectionMenuConfig = [[wGptItemData], ...wysiwygToolbarConfigs.wSelectionMenuConfig];
+    const wSelectionMenuConfig = [[wGptItem], ...wysiwygToolbarConfigs.wSelectionMenuConfig];
 
     const editor = useMarkdownEditor({
         initial: {markup: initialMdContent},
