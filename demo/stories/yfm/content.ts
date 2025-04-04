@@ -1,11 +1,15 @@
 export const markup = {
     textMarks: `
+&nbsp;
+
 ## YFM text marks
 
 ##Monospaced text##
 `.trim(),
 
     yfmNotes: `
+&nbsp;
+
 ## YFM Notes
 
 {% note info %}
@@ -36,6 +40,8 @@ This is an alert.
 `.trim(),
 
     yfmCut: `
+&nbsp;
+
 ## YFM Cut
 
 {% cut "Cut header" %}
@@ -57,6 +63,8 @@ Content displayed when clicked.
 `.trim(),
 
     yfmTabs: `
+&nbsp;
+
 ## YFM Tabs
 
 {% list tabs %}
@@ -76,7 +84,7 @@ Content displayed when clicked.
 `.trim(),
 
     yfmHtmlBlock: `
-Some text here
+&nbsp;
 
 ## Next is YFM HTML block
 
@@ -213,12 +221,16 @@ aside blockquote {
 `.trim(),
 
     yfmFile: `
+&nbsp;
+
 ## YFM File
 
 File: {% file src="data:text/plain;base64,Cg==" name="empty.txt" %}
 `.trim(),
 
     yfmTable: `
+&nbsp;
+
 ## YFM Table
 
 ### Simple table
@@ -262,6 +274,8 @@ Text after other table||
 `.trim(),
 
     tasklist: `
+&nbsp;
+
 ## Task lists (additional feature)
 
 - [x] ~~Write the press release~~
@@ -270,6 +284,8 @@ Text after other table||
 `.trim(),
 
     latexFormulas: `
+&nbsp;
+
 ## LaTeX Formulas (optional feature)
 
 Inline formula: $\\sqrt{3x-1}+(1+x)^2$
@@ -284,6 +300,8 @@ $$
 `.trim(),
 
     mermaidDiagram: `
+&nbsp;
+
 ## Mermaid diagram (optional feature)
 
 \`\`\`mermaid
@@ -294,6 +312,8 @@ sequenceDiagram
 `.trim(),
 
     foldingHeadings: `
+&nbsp;
+
 #+ Heading 1
 
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum euismod, nulla sit amet sodales porttitor, ligula arcu consectetur justo, sit amet varius orci lorem a augue.
