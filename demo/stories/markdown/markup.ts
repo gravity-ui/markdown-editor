@@ -1,5 +1,7 @@
 export const markup = {
     heading: `
+&nbsp;
+
 # h1 Heading
 ## h2 Heading
 ### h3 Heading
@@ -9,6 +11,8 @@ export const markup = {
 `.trim(),
 
     blockquote: `
+&nbsp;
+
 ## Blockquotes
 
 
@@ -18,6 +22,8 @@ export const markup = {
 `.trim(),
 
     emphasis: `
+&nbsp;
+
 ## Emphasis
 
 **This is bold text**
@@ -38,6 +44,8 @@ _This is italic text_
 `.trim(),
 
     horizontalRules: `
+&nbsp;
+
 ## Horizontal Rules
 
 ___
@@ -48,6 +56,8 @@ ___
 `.trim(),
 
     lists: `
+&nbsp;
+
 ## Lists
 
 Unordered
@@ -77,6 +87,8 @@ Start numbering with offset:
 `.trim(),
 
     code: `
+&nbsp;
+
 ## Code
 
 Inline \`code\`
@@ -107,6 +119,8 @@ console.log(foo(5));
 `.trim(),
 
     tables: `
+&nbsp;
+
 ## Tables
 
 | Option | Description |
@@ -125,6 +139,8 @@ Right aligned columns
 `.trim(),
 
     links: `
+&nbsp;
+
 ## Links
 
 [link text](https://gravity-ui.com)
@@ -135,6 +151,8 @@ Autoconverted link https://gravity-ui.com/components (linkify must be enabled)
 `.trim(),
 
     images: `
+&nbsp;
+
 ## Images
 
 ![Minion](https://octodex.github.com/images/minion.png)
@@ -144,6 +162,8 @@ Autoconverted link https://gravity-ui.com/components (linkify must be enabled)
 `.trim(),
 
     subAndSub: `
+&nbsp;
+
 ## Subscript & Superscript (additional feature)
 
 - 19^th^
@@ -151,12 +171,16 @@ Autoconverted link https://gravity-ui.com/components (linkify must be enabled)
 `.trim(),
 
     emojis: `
+&nbsp;
+
 ## Emojis (additional feature)
 
 :wink: :cry: :laughing: :yum:
 `.trim(),
 
     deflist: `
+&nbsp;
+
 ## Definition list (additional feature)
 
 Term 1
