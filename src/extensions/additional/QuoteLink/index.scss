@@ -1,12 +1,6 @@
 .yfm-quote-link {
     --yfm-quote-link-background: var(--g-color-private-black-50-solid);
     --yfm-quote-link-background-hover: var(--g-color-base-simple-hover);
-
-    // TODO: remove this after the plugin package update
-    * {
-        position: relative;
-        z-index: 1;
-    }
 }
 
 .g-root_theme_dark,
