@@ -62,7 +62,13 @@ export function extractTextContentFromHtml(html: string) {
     return null;
 }
 
-export function findNotEmptyContentPosses(fragment: Fragment): [number, number, number, number] {
+type ContentBoundaryPositions = [
+    firstNotEmptyPos: number,
+    lastNotEmptyPos: number,
+    firstPos: number,
+    lastPos: number,
+];
+export function findNotEmptyContentPosses(fragment: Fragment): ContentBoundaryPositions {
     let firstNodePos = -1;
     let lastNodePos = -1;
     let firstNotEmptyNodePos = -1;
