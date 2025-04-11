@@ -54,6 +54,7 @@ export const EditorSettings = memo<EditorSettingsProps>(function EditorSettings(
                         hotkey="mod+shift+p"
                     >
                         <Button
+                            qa="g-md-settings-mode-markup-preview"
                             size="m"
                             view="flat"
                             pin="round-round"
@@ -129,7 +130,7 @@ const SettingsContent: React.FC<SettingsContentProps> = function SettingsContent
         <div className={bContent(null, [className])} data-qa="g-md-settings-content">
             <Menu size="l" className={bContent('mode')}>
                 <Menu.Item
-                    qa="md-settings-mode-wysiwyg"
+                    qa="g-md-settings-mode-wysiwyg"
                     active={mode === 'wysiwyg'}
                     onClick={() => {
                         onModeChange('wysiwyg');
@@ -140,7 +141,7 @@ const SettingsContent: React.FC<SettingsContentProps> = function SettingsContent
                     {i18n('settings_wysiwyg')}
                 </Menu.Item>
                 <Menu.Item
-                    qa="md-settings-mode-markup"
+                    qa="g-md-settings-mode-markup"
                     active={mode === 'markup'}
                     onClick={() => {
                         onModeChange('markup');
