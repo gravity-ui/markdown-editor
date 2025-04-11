@@ -312,7 +312,7 @@ export const Playground = memo<PlaygroundProps>((props) => {
                 <MarkdownEditorView
                     autofocus
                     className={className}
-                    qa="playground-md-editor"
+                    qa="demo-md-editor"
                     stickyToolbar={Boolean(stickyToolbar)}
                     toolbarsPreset={toolbarsPreset}
                     wysiwygToolbarConfig={wysiwygToolbarConfig}

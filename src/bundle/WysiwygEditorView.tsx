@@ -56,11 +56,7 @@ export const WysiwygEditorView = memo<WysiwygEditorViewProps>((props) => {
         });
     });
     return (
-        <div
-            className={b({toolbar: toolbarVisible}, [className])}
-            data-mode={editor.currentMode}
-            data-qa={qa}
-        >
+        <div className={b({toolbar: toolbarVisible}, [className])} data-qa={qa}>
             {toolbarVisible ? (
                 <ToolbarView
                     editor={editor}

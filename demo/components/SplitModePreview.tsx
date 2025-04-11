@@ -86,6 +86,7 @@ export const SplitModePreview: React.FC<SplitModePreviewProps> = (props) => {
 
     return (
         <Preview
+            qa="demo-md-preview"
             ref={divRef}
             html={html}
             meta={meta}

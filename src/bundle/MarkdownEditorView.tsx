@@ -277,7 +277,12 @@ export const MarkdownEditorView = forwardRef<HTMLDivElement, MarkdownEditorViewP
                     role="button"
                     tabIndex={0}
                 >
-                    <div className={b('editor-wrapper')} ref={editorWrapperRef}>
+                    <div
+                        className={b('editor-wrapper')}
+                        ref={editorWrapperRef}
+                        data-qa="g-md-editor-mode"
+                        data-mode={editor.currentMode}
+                    >
                         {showPreview ? (
                             <>
                                 <div className={b('preview-wrapper')}>
@@ -300,7 +305,6 @@ export const MarkdownEditorView = forwardRef<HTMLDivElement, MarkdownEditorViewP
                                         toolbarConfig={wysiwygToolbarConfig}
                                         toolbarVisible={editor.toolbarVisible}
                                         hiddenActionsConfig={wysiwygHiddenActionsConfig}
-                                        qa="g-md-editor-mode"
                                         className={b('editor', {mode: editorMode})}
                                         toolbarClassName={b('toolbar')}
                                         stickyToolbar={stickyToolbar}
@@ -318,7 +322,6 @@ export const MarkdownEditorView = forwardRef<HTMLDivElement, MarkdownEditorViewP
                                         splitMode={editor.splitMode}
                                         splitModeEnabled={editor.splitModeEnabled}
                                         hiddenActionsConfig={markupHiddenActionsConfig}
-                                        qa="g-md-editor-mode"
                                         className={b('editor', {mode: editorMode})}
                                         toolbarClassName={b('toolbar')}
                                         stickyToolbar={stickyToolbar}
