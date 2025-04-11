@@ -17,7 +17,7 @@ class MarkdownEditorLocators {
     constructor(page: Page) {
         this.component = page.getByTestId('demo-md-editor');
         this.previewContent = page.getByTestId('demo-md-preview');
-        this.previewButton = page.getByTestId('g-md-settings-mode-markup-preview');
+        this.previewButton = page.getByTestId('g-md-markup-preview-button');
 
         this.editor = page.getByTestId('g-md-editor-mode');
 

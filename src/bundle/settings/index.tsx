@@ -54,7 +54,7 @@ export const EditorSettings = memo<EditorSettingsProps>(function EditorSettings(
                         hotkey="mod+shift+p"
                     >
                         <Button
-                            qa="g-md-settings-mode-markup-preview"
+                            qa="g-md-markup-preview-button"
                             size="m"
                             view="flat"
                             pin="round-round"
