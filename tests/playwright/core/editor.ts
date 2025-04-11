@@ -10,9 +10,15 @@ class MarkdownEditorLocators {
     readonly settingsContent;
 
     readonly contenteditable;
+    readonly previewContent;
+
+    readonly previewButton;
 
     constructor(page: Page) {
-        this.component = page.getByTestId('playground-md-editor');
+        this.component = page.getByTestId('demo-md-editor');
+        this.previewContent = page.getByTestId('demo-md-preview');
+        this.previewButton = page.getByTestId('g-md-markup-preview-button');
+
         this.editor = page.getByTestId('g-md-editor-mode');
 
         this.settingsButton = page.getByTestId('g-md-settings-button');
@@ -23,6 +29,8 @@ class MarkdownEditorLocators {
 }
 
 type PasteData = Partial<Record<DataTransferType, string>>;
+
+type VisibleState = 'attached' | 'detached' | 'visible' | 'hidden' | undefined;
 
 export class MarkdownEditorPage {
     protected readonly page: Page;
@@ -54,8 +62,38 @@ export class MarkdownEditorPage {
         if ((await this.getMode()) === mode) return;
 
         await this.openSettingsPopup();
-        await this.locators.settingsContent.getByTestId(`md-settings-mode-${mode}`).click();
+        await this.locators.settingsContent.getByTestId(`g-md-settings-mode-${mode}`).click();
         await this.assertMode(mode);
+    }
+
+    async getPreview(): Promise<VisibleState> {
+        const previewContent = await this.locators.previewContent;
+        if (await previewContent.isVisible()) {
+            return 'visible';
+        }
+
+        const previewButton = await this.locators.previewButton;
+        if (await previewButton.isVisible()) {
+            return 'hidden';
+        }
+        return undefined;
+    }
+
+    async switchPreview(state?: VisibleState) {
+        const currentState = await this.getPreview();
+        const revertState = currentState === 'visible' ? 'hidden' : 'visible';
+        const targetState = state === undefined ? revertState : state;
+
+        if (currentState === targetState) {
+            return;
+        }
+
+        await this.switchMode('markup');
+        await this.locators.previewButton.click();
+
+        await this.locators.previewContent.waitFor({
+            state: targetState,
+        });
     }
 
     async assertMode(mode: MarkdownEditorMode) {

@@ -61,11 +61,7 @@ export const MarkupEditorView = memo<MarkupEditorViewProps>((props) => {
     });
 
     return (
-        <div
-            className={b({toolbar: toolbarVisible}, [className])}
-            data-mode={editor.currentMode}
-            data-qa={qa}
-        >
+        <div className={b({toolbar: toolbarVisible}, [className])} data-qa={qa}>
             {toolbarVisible ? (
                 <MarkupToolbarContextProvider
                     value={{

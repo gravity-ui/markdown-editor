@@ -73,4 +73,16 @@ test.describe('Cut', () => {
 
         await expectScreenshot();
     });
+
+    test('should open second cut in preview', async ({editor, page, expectScreenshot}) => {
+        await editor.switchPreview('visible');
+
+        const nestedCut = page.getByText('Cut with nested сut header').first().locator('..');
+        await expect(nestedCut).toBeVisible();
+
+        await nestedCut.click();
+        await page.waitForTimeout(100);
+
+        await expectScreenshot();
+    });
 });
