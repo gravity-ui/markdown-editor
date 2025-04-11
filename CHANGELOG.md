@@ -1,5 +1,17 @@
 # Changelog
 
+## [15.6.0](https://github.com/gravity-ui/markdown-editor/compare/v15.5.1...v15.6.0) (2025-04-07)
+
+
+### Features
+
+* **toolbar:** show current heading level in editor toolbar ([#696](https://github.com/gravity-ui/markdown-editor/issues/696)) ([bac13dc](https://github.com/gravity-ui/markdown-editor/commit/bac13dc95af7d60f8e75be5014a32277144ba505))
+
+
+### Bug Fixes
+
+* **Clipboard:** fixed trimContent ([#709](https://github.com/gravity-ui/markdown-editor/issues/709)) ([d325e39](https://github.com/gravity-ui/markdown-editor/commit/d325e39f5006cae7e69ae13468a3b92b9539c631))
+
 ## [15.5.1](https://github.com/gravity-ui/markdown-editor/compare/v15.5.0...v15.5.1) (2025-03-31)
 
 
