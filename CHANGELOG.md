@@ -1,5 +1,12 @@
 # Changelog
 
+## [15.6.1](https://github.com/gravity-ui/markdown-editor/compare/v15.6.0...v15.6.1) (2025-04-14)
+
+
+### Bug Fixes
+
+* **deps:** updated codemirror, prosemirror, lezer versions ([#715](https://github.com/gravity-ui/markdown-editor/issues/715)) ([c2e4a8e](https://github.com/gravity-ui/markdown-editor/commit/c2e4a8e7f8a069942730eebe06dc37a0cb1854a2))
+
 ## [15.6.0](https://github.com/gravity-ui/markdown-editor/compare/v15.5.1...v15.6.0) (2025-04-07)
 
 
