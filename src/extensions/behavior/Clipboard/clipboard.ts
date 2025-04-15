@@ -7,7 +7,6 @@ import {type Logger2, globalLogger} from '../../../logger';
 import '../../../types/spec';
 import {tryCatch} from '../../../utils/helpers';
 import {isNodeSelection, isTextSelection, isWholeSelection} from '../../../utils/selection';
-import {serializeForClipboard} from '../../../utils/serialize-for-clipboard';
 import {BaseNode, pType} from '../../base/BaseSchema';
 
 import {isInsideCode} from './code';
@@ -244,7 +243,7 @@ function serializeSelected(view: EditorView, serializer: Serializer): SerializeR
 
     // FIXME: Verify and use Node instead of Fragment
     const markup = serializer.serialize(getCopyContent(view.state).content as any);
-    const {dom, text} = serializeForClipboard(view, sel.content());
+    const {dom, text} = view.serializeForClipboard(sel.content());
     return {markup, text, html: dom.innerHTML};
 }
 
