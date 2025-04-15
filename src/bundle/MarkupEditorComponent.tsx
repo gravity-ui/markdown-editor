@@ -1,8 +1,10 @@
 import {useEffect, useLayoutEffect, useRef} from 'react';
 
+import type {QAProps} from '@gravity-ui/uikit';
+
 import type {EditorInt} from './Editor';
 
-export type MarkupEditorComponentProps = {
+export type MarkupEditorComponentProps = QAProps & {
     editor: EditorInt;
     autofocus?: boolean;
     className?: string;
@@ -10,7 +12,7 @@ export type MarkupEditorComponentProps = {
 };
 
 export const MarkupEditorComponent: React.FC<MarkupEditorComponentProps> =
-    function MarkupEditorComponent({editor, autofocus, className, children}) {
+    function MarkupEditorComponent({editor, autofocus, className, children, qa}) {
         const ref = useRef<HTMLDivElement>(null);
 
         // insert editor to dom
@@ -35,6 +37,7 @@ export const MarkupEditorComponent: React.FC<MarkupEditorComponentProps> =
         return (
             // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
             <div
+                data-qa={qa}
                 ref={ref}
                 className={className}
                 onClick={(event) => {

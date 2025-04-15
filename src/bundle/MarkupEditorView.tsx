@@ -71,6 +71,7 @@ export const MarkupEditorView = memo<MarkupEditorViewProps>((props) => {
                     }}
                 >
                     <ToolbarView
+                        qa="g-md-toolbar"
                         editor={editor}
                         editorMode="markup"
                         toolbarEditor={editor}

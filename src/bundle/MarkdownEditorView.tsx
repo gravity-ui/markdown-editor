@@ -1,4 +1,6 @@
 import {
+    type FC,
+    type MutableRefObject,
     forwardRef,
     useCallback,
     useEffect,
@@ -36,6 +38,95 @@ import './MarkdownEditorView.scss'; // eslint-disable-line import/order
 
 export const cnEditorComponent = cn('editor-component');
 const b = cnEditorComponent;
+
+interface EditorWrapperProps extends QAProps {
+    editorWrapperRef: MutableRefObject<null>;
+    editor: EditorInt;
+    showPreview: boolean;
+    settings: JSX.Element;
+    editorMode: MarkdownEditorMode;
+    autofocus?: boolean;
+    settingsVisible: boolean;
+    wysiwygToolbarConfig: WToolbarData;
+    wysiwygHiddenActionsConfig: WToolbarItemData[];
+    stickyToolbar: boolean;
+    markupToolbarConfig: MToolbarData;
+    markupHiddenActionsConfig: MToolbarItemData[];
+}
+const EditorWrapper: FC<EditorWrapperProps> = ({
+    editorWrapperRef,
+    editor,
+    showPreview,
+    settings,
+    editorMode,
+    autofocus,
+    settingsVisible,
+    wysiwygToolbarConfig,
+    wysiwygHiddenActionsConfig,
+    stickyToolbar,
+    markupToolbarConfig,
+    markupHiddenActionsConfig,
+    qa,
+}) => {
+    return (
+        <div
+            className={b('editor-wrapper')}
+            ref={editorWrapperRef}
+            data-qa={qa}
+            data-mode={editor.currentMode}
+        >
+            {showPreview ? (
+                <>
+                    <div className={b('preview-wrapper')}>
+                        {editor.renderPreview?.({
+                            getValue: editor.getValue,
+                            mode: 'preview',
+                            md: editor.mdOptions,
+                            directiveSyntax: editor.directiveSyntax,
+                        })}
+                    </div>
+                    {settings}
+                </>
+            ) : (
+                <>
+                    {editorMode === 'wysiwyg' && (
+                        <WysiwygEditorView
+                            editor={editor}
+                            autofocus={autofocus}
+                            settingsVisible={settingsVisible}
+                            toolbarConfig={wysiwygToolbarConfig}
+                            toolbarVisible={editor.toolbarVisible}
+                            hiddenActionsConfig={wysiwygHiddenActionsConfig}
+                            className={b('editor', {mode: editorMode})}
+                            toolbarClassName={b('toolbar')}
+                            stickyToolbar={stickyToolbar}
+                        >
+                            {editor.toolbarVisible && settingsVisible && settings}
+                        </WysiwygEditorView>
+                    )}
+                    {editorMode === 'markup' && (
+                        <MarkupEditorView
+                            editor={editor}
+                            autofocus={autofocus}
+                            settingsVisible={settingsVisible}
+                            toolbarConfig={markupToolbarConfig}
+                            toolbarVisible={editor.toolbarVisible}
+                            splitMode={editor.splitMode}
+                            splitModeEnabled={editor.splitModeEnabled}
+                            hiddenActionsConfig={markupHiddenActionsConfig}
+                            className={b('editor', {mode: editorMode})}
+                            toolbarClassName={b('toolbar')}
+                            stickyToolbar={stickyToolbar}
+                        >
+                            {editor.toolbarVisible && settings}
+                        </MarkupEditorView>
+                    )}
+                    {!editor.toolbarVisible && settings}
+                </>
+            )}
+        </div>
+    );
+};
 
 export type MarkdownEditorViewProps = ClassNameProps &
     QAProps & {
@@ -277,62 +368,21 @@ export const MarkdownEditorView = forwardRef<HTMLDivElement, MarkdownEditorViewP
                     role="button"
                     tabIndex={0}
                 >
-                    <div
-                        className={b('editor-wrapper')}
-                        ref={editorWrapperRef}
-                        data-qa="g-md-editor-mode"
-                        data-mode={editor.currentMode}
-                    >
-                        {showPreview ? (
-                            <>
-                                <div className={b('preview-wrapper')}>
-                                    {editor.renderPreview?.({
-                                        getValue: editor.getValue,
-                                        mode: 'preview',
-                                        md: editor.mdOptions,
-                                        directiveSyntax: editor.directiveSyntax,
-                                    })}
-                                </div>
-                                {settings}
-                            </>
-                        ) : (
-                            <>
-                                {editorMode === 'wysiwyg' && (
-                                    <WysiwygEditorView
-                                        editor={editor}
-                                        autofocus={autofocus}
-                                        settingsVisible={settingsVisible}
-                                        toolbarConfig={wysiwygToolbarConfig}
-                                        toolbarVisible={editor.toolbarVisible}
-                                        hiddenActionsConfig={wysiwygHiddenActionsConfig}
-                                        className={b('editor', {mode: editorMode})}
-                                        toolbarClassName={b('toolbar')}
-                                        stickyToolbar={stickyToolbar}
-                                    >
-                                        {editor.toolbarVisible && settingsVisible && settings}
-                                    </WysiwygEditorView>
-                                )}
-                                {editorMode === 'markup' && (
-                                    <MarkupEditorView
-                                        editor={editor}
-                                        autofocus={autofocus}
-                                        settingsVisible={settingsVisible}
-                                        toolbarConfig={markupToolbarConfig}
-                                        toolbarVisible={editor.toolbarVisible}
-                                        splitMode={editor.splitMode}
-                                        splitModeEnabled={editor.splitModeEnabled}
-                                        hiddenActionsConfig={markupHiddenActionsConfig}
-                                        className={b('editor', {mode: editorMode})}
-                                        toolbarClassName={b('toolbar')}
-                                        stickyToolbar={stickyToolbar}
-                                    >
-                                        {editor.toolbarVisible && settings}
-                                    </MarkupEditorView>
-                                )}
-                                {!editor.toolbarVisible && settings}
-                            </>
-                        )}
-                    </div>
+                    <EditorWrapper
+                        qa="g-md-editor-mode"
+                        editorWrapperRef={editorWrapperRef}
+                        editor={editor}
+                        showPreview={showPreview}
+                        settings={settings}
+                        editorMode={editorMode}
+                        autofocus={autofocus}
+                        settingsVisible={settingsVisible}
+                        wysiwygToolbarConfig={wysiwygToolbarConfig}
+                        wysiwygHiddenActionsConfig={wysiwygHiddenActionsConfig}
+                        stickyToolbar={stickyToolbar}
+                        markupToolbarConfig={markupToolbarConfig}
+                        markupHiddenActionsConfig={markupHiddenActionsConfig}
+                    />
 
                     {markupSplitMode && (
                         <>

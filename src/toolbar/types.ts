@@ -1,18 +1,19 @@
-import type {HotkeyProps, IconProps} from '@gravity-ui/uikit';
+import type {HotkeyProps, IconProps, QAProps} from '@gravity-ui/uikit';
 
 import type {ClassNameProps} from '../classname';
 
-export type ToolbarBaseProps<E> = ClassNameProps & {
-    editor: E;
-    focus(): void;
-    onClick?(id: string, attrs?: {[key: string]: any}): void;
-};
+export type ToolbarBaseProps<E> = ClassNameProps &
+    QAProps & {
+        editor: E;
+        focus(): void;
+        onClick?(id: string, attrs?: {[key: string]: any}): void;
+    };
 
 export type ToolbarIconData = Pick<IconProps, 'data' | 'size'>;
 export type ToolbarGroupData<E> = Array<ToolbarGroupItemData<E>>;
 export type ToolbarData<E> = ToolbarGroupData<E>[];
 
-export type ToolbarItemData<E> = {
+export type ToolbarItemData<E> = QAProps & {
     id: string;
     icon: ToolbarIconData;
     title: string | (() => string);

@@ -17,7 +17,7 @@ export type ToolbarButtonProps<E> = ToolbarBaseProps<E> & ToolbarItemData<E>;
 
 export type ToolbarButtonViewProps = Pick<
     ToolbarItemData<unknown>,
-    'title' | 'hint' | 'hotkey' | 'hintWhenDisabled'
+    'title' | 'hint' | 'hotkey' | 'hintWhenDisabled' | 'qa'
 > & {
     active: boolean;
     enabled: boolean;
@@ -25,9 +25,11 @@ export type ToolbarButtonViewProps = Pick<
     className?: string;
 } & (Pick<ToolbarItemData<unknown>, 'icon'> | {children: ReactNode});
 
+const DEFAULT_ICON_SIZE = 16;
+
 export const ToolbarButtonView = forwardRef<HTMLButtonElement, ToolbarButtonViewProps>(
     function ToolbarButtonView(
-        {title, hint, hotkey, hintWhenDisabled, active, enabled, onClick, className, ...props},
+        {title, hint, hotkey, hintWhenDisabled, active, enabled, onClick, className, qa, ...props},
         ref,
     ) {
         const disabled = !active && !enabled;
@@ -55,8 +57,9 @@ export const ToolbarButtonView = forwardRef<HTMLButtonElement, ToolbarButtonView
                         title={titleText}
                         hotkey={hotkey}
                     >
-                        {(_, refForTooltip) => (
+                        {(__, refForTooltip) => (
                             <Button
+                                qa={qa}
                                 size="m"
                                 ref={(elem: HTMLButtonElement) => {
                                     setRef(ref, elem);
@@ -71,7 +74,10 @@ export const ToolbarButtonView = forwardRef<HTMLButtonElement, ToolbarButtonView
                                 aria-label={titleText}
                             >
                                 {'icon' in props ? (
-                                    <Icon data={props.icon.data} size={props.icon.size ?? 16} />
+                                    <Icon
+                                        data={props.icon.data}
+                                        size={props.icon.size ?? DEFAULT_ICON_SIZE}
+                                    />
                                 ) : (
                                     props.children
                                 )}
@@ -90,16 +96,11 @@ export function ToolbarButton<E>(props: ToolbarButtonProps<E>) {
     const active = isActive(editor);
     const enabled = isEnable(editor);
 
-    return (
-        <ToolbarButtonView
-            {...props}
-            active={active}
-            enabled={enabled}
-            onClick={() => {
-                focus();
-                exec(editor);
-                onClick?.(id);
-            }}
-        />
-    );
+    const handleClick = () => {
+        focus();
+        exec(editor);
+        onClick?.(id);
+    };
+
+    return <ToolbarButtonView {...props} active={active} enabled={enabled} onClick={handleClick} />;
 }

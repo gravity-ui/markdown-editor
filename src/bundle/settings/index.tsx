@@ -12,6 +12,7 @@ import {
     Menu,
     Popup,
     type PopupPlacement,
+    type QAProps,
 } from '@gravity-ui/uikit';
 
 import {type ClassNameProps, cn} from '../../classname';
@@ -89,6 +90,7 @@ export const EditorSettings = memo<EditorSettingsProps>(function EditorSettings(
                     >
                         <SettingsContent
                             {...props}
+                            qa="g-md-settings-content"
                             onClose={hidePopup}
                             className={bSettings('content')}
                         />
@@ -99,18 +101,19 @@ export const EditorSettings = memo<EditorSettingsProps>(function EditorSettings(
     );
 });
 
-type SettingsContentProps = ClassNameProps & {
-    mode: MarkdownEditorMode;
-    onClose: () => void;
-    onModeChange: (mode: MarkdownEditorMode) => void;
-    onShowPreviewChange: (showPreview: boolean) => void;
-    showPreview: boolean;
-    toolbarVisibility: boolean;
-    onToolbarVisibilityChange: (val: boolean) => void;
-    splitMode?: MarkdownEditorSplitMode;
-    splitModeEnabled?: boolean;
-    onSplitModeChange?: (splitModeEnabled: boolean) => void;
-};
+type SettingsContentProps = ClassNameProps &
+    QAProps & {
+        mode: MarkdownEditorMode;
+        onClose: () => void;
+        onModeChange: (mode: MarkdownEditorMode) => void;
+        onShowPreviewChange: (showPreview: boolean) => void;
+        showPreview: boolean;
+        toolbarVisibility: boolean;
+        onToolbarVisibilityChange: (val: boolean) => void;
+        splitMode?: MarkdownEditorSplitMode;
+        splitModeEnabled?: boolean;
+        onSplitModeChange?: (splitModeEnabled: boolean) => void;
+    };
 
 const mdHelpPlacement: PopupPlacement = ['bottom', 'bottom-end', 'right-start', 'right', 'left'];
 
@@ -125,9 +128,10 @@ const SettingsContent: React.FC<SettingsContentProps> = function SettingsContent
     splitModeEnabled,
     className,
     showPreview,
+    qa,
 }) {
     return (
-        <div className={bContent(null, [className])} data-qa="g-md-settings-content">
+        <div className={bContent(null, [className])} data-qa={qa}>
             <Menu size="l" className={bContent('mode')}>
                 <Menu.Item
                     qa="g-md-settings-mode-wysiwyg"
