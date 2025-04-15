@@ -29,11 +29,10 @@ test.describe('Cut', () => {
         await mount(<Playground initial={initialMarkup} />);
     });
 
-    test('should open second cut', async ({expectScreenshot, editor, page}) => {
+    test('should open second cut', async ({expectScreenshot, editor, page, wait}) => {
         await editor.switchMode('wysiwyg');
-
         const nestedCut = page.getByText('Cut with nested сut header').first().locator('..');
-        await expect(nestedCut).toBeVisible();
+        await wait.visible(nestedCut);
 
         // Clicking by MouseEvent because YfmCutController relies on event bubbling to document
         // https://github.com/diplodoc-platform/cut-extension/blob/master/src/runtime/controller.ts#L9
@@ -42,47 +41,87 @@ test.describe('Cut', () => {
             cancelable: true,
             composed: true,
         });
-        await page.waitForTimeout(100);
 
+        await wait.timeout();
         await expectScreenshot();
     });
 
-    test('should cut inside open second cut', async ({expectScreenshot, editor, page}) => {
+    test('should cut inside open second cut', async ({expectScreenshot, editor, page, wait}) => {
         await editor.switchMode('wysiwyg');
 
         const nestedCut = page.getByText('Cut with nested сut header').first().locator('..');
-        await expect(nestedCut).toBeVisible();
+        await wait.visible(nestedCut);
 
         await nestedCut.dispatchEvent('click', {
             bubbles: true,
             cancelable: true,
             composed: true,
         });
-        await page.waitForTimeout(100);
+        await wait.timeout();
 
         // click to cut inside
         const cutInsideNestedCut = page.getByText('Cut inside cut header').first().locator('..');
-        await expect(cutInsideNestedCut).toBeVisible();
+        await wait.visible(cutInsideNestedCut);
 
         await cutInsideNestedCut.dispatchEvent('click', {
             bubbles: true,
             cancelable: true,
             composed: true,
         });
-        await page.waitForTimeout(100);
 
+        await wait.timeout();
         await expectScreenshot();
     });
 
-    test('should open second cut in preview', async ({editor, page, expectScreenshot}) => {
+    test('should open second cut in preview', async ({editor, page, expectScreenshot, wait}) => {
         await editor.switchPreview('visible');
 
         const nestedCut = page.getByText('Cut with nested сut header').first().locator('..');
-        await expect(nestedCut).toBeVisible();
+        await wait.visible(nestedCut);
 
         await nestedCut.click();
-        await page.waitForTimeout(100);
 
+        await wait.timeout();
         await expectScreenshot();
+    });
+
+    test('should insert cut block via command menu', async ({page, editor, actions, wait}) => {
+        await editor.switchPreview('hidden');
+        await editor.switchMode('wysiwyg');
+        await editor.clearContent();
+
+        await editor.pressSequentially('/c');
+        await expect(page.getByTestId('g-md-command-menu')).toBeVisible();
+
+        const cutMenu = editor.getByTextInCommandMenu('Cut').first();
+        await wait.visible(cutMenu);
+
+        await cutMenu.click();
+
+        await expect(
+            editor.getBySelectorInContenteditable('.g-md-yfm-cut-title-inner'),
+        ).toBeVisible();
+
+        await editor.pressSequentially('title');
+        await actions.pressFocused('Enter');
+        await editor.pressSequentially('content');
+        await wait.timeout();
+
+        await expect(editor.getByTextInContenteditable('title')).toBeVisible();
+        await expect(editor.getByTextInContenteditable('content')).toBeVisible();
+    });
+
+    test('should insert cut via short code', async ({page, editor, actions, wait}) => {
+        await editor.switchMode('markup');
+        await editor.clearContent();
+
+        await editor.pressSequentially('{%');
+        await expect(page.getByText('YFM Cut')).toBeVisible();
+        await wait.timeout(300);
+
+        await actions.pressFocused('Enter');
+        await wait.timeout(300);
+
+        await expect(editor.getByTextInContenteditable('{% cut "title" %}')).toBeVisible();
     });
 });

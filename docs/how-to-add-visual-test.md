@@ -106,6 +106,13 @@ See:
   tests/playwright/core/helpers.ts
   ```
 
+### Locator Best Practices
+When writing tests targeting the editor’s view layer and plugins in the WYSIWYG mode, follow these guidelines for reliable locator usage:
+
+1. Use `editor.fill`, `editor.press`, or `editor.pressSequentially` to emulate user input within the `contenteditable` region.
+2. Prefer locating elements via `data-qa` attributes when working with React-based components (e.g., plugins that define node views via React).
+3. When targeting elements rendered without React (e.g., via `toDOM` in a ProseMirror node spec), use class names or specific attributes instead.
+
 ## Clipboard specifics
 
 Playwright clipboard support varies across browsers. Keep this in mind when writing copy-paste tests.
