@@ -1,6 +1,6 @@
 {
   "name": "@gravity-ui/markdown-editor",
-  "version": "15.6.1",
+  "version": "15.7.0",
   "description": "Markdown wysiwyg and markup editor",
   "license": "MIT",
   "repository": {
@@ -210,7 +210,7 @@
     "prosemirror-test-builder": "^1.1.1",
     "prosemirror-transform": "^1.10.2",
     "prosemirror-utils": "^1.2.2",
-    "prosemirror-view": "^1.37.2",
+    "prosemirror-view": "^1.38.0",
     "react-error-boundary": "^3.1.4",
     "react-hotkeys-hook": "4.5.0",
     "react-use": "^17.3.2",

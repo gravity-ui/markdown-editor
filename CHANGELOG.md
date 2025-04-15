@@ -1,5 +1,12 @@
 # Changelog
 
+## [15.7.0](https://github.com/gravity-ui/markdown-editor/compare/v15.6.1...v15.7.0) (2025-04-15)
+
+
+### Features
+
+* **deps:** updated prosemirror-view to 1.38.0 ([#717](https://github.com/gravity-ui/markdown-editor/issues/717)) ([dbae4a8](https://github.com/gravity-ui/markdown-editor/commit/dbae4a8e7b967530e578b4b76342997664028f44))
+
 ## [15.6.1](https://github.com/gravity-ui/markdown-editor/compare/v15.6.0...v15.6.1) (2025-04-14)
 
 
