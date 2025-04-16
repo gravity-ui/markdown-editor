@@ -1,6 +1,4 @@
 import {
-    type FC,
-    type MutableRefObject,
     forwardRef,
     useCallback,
     useEffect,
@@ -40,7 +38,6 @@ export const cnEditorComponent = cn('editor-component');
 const b = cnEditorComponent;
 
 interface EditorWrapperProps extends QAProps {
-    editorWrapperRef: MutableRefObject<null>;
     editor: EditorInt;
     showPreview: boolean;
     settings: JSX.Element;
@@ -53,80 +50,86 @@ interface EditorWrapperProps extends QAProps {
     markupToolbarConfig: MToolbarData;
     markupHiddenActionsConfig: MToolbarItemData[];
 }
-const EditorWrapper: FC<EditorWrapperProps> = ({
-    editorWrapperRef,
-    editor,
-    showPreview,
-    settings,
-    editorMode,
-    autofocus,
-    settingsVisible,
-    wysiwygToolbarConfig,
-    wysiwygHiddenActionsConfig,
-    stickyToolbar,
-    markupToolbarConfig,
-    markupHiddenActionsConfig,
-    qa,
-}) => {
-    return (
-        <div
-            className={b('editor-wrapper')}
-            ref={editorWrapperRef}
-            data-qa={qa}
-            data-mode={editor.currentMode}
-        >
-            {showPreview ? (
-                <>
-                    <div className={b('preview-wrapper')}>
-                        {editor.renderPreview?.({
-                            getValue: editor.getValue,
-                            mode: 'preview',
-                            md: editor.mdOptions,
-                            directiveSyntax: editor.directiveSyntax,
-                        })}
-                    </div>
-                    {settings}
-                </>
-            ) : (
-                <>
-                    {editorMode === 'wysiwyg' && (
-                        <WysiwygEditorView
-                            editor={editor}
-                            autofocus={autofocus}
-                            settingsVisible={settingsVisible}
-                            toolbarConfig={wysiwygToolbarConfig}
-                            toolbarVisible={editor.toolbarVisible}
-                            hiddenActionsConfig={wysiwygHiddenActionsConfig}
-                            className={b('editor', {mode: editorMode})}
-                            toolbarClassName={b('toolbar')}
-                            stickyToolbar={stickyToolbar}
-                        >
-                            {editor.toolbarVisible && settingsVisible && settings}
-                        </WysiwygEditorView>
-                    )}
-                    {editorMode === 'markup' && (
-                        <MarkupEditorView
-                            editor={editor}
-                            autofocus={autofocus}
-                            settingsVisible={settingsVisible}
-                            toolbarConfig={markupToolbarConfig}
-                            toolbarVisible={editor.toolbarVisible}
-                            splitMode={editor.splitMode}
-                            splitModeEnabled={editor.splitModeEnabled}
-                            hiddenActionsConfig={markupHiddenActionsConfig}
-                            className={b('editor', {mode: editorMode})}
-                            toolbarClassName={b('toolbar')}
-                            stickyToolbar={stickyToolbar}
-                        >
-                            {editor.toolbarVisible && settings}
-                        </MarkupEditorView>
-                    )}
-                    {!editor.toolbarVisible && settings}
-                </>
-            )}
-        </div>
-    );
-};
+const EditorWrapper = forwardRef<HTMLDivElement, Omit<EditorWrapperProps, 'editorWrapperRef'>>(
+    (
+        {
+            editor,
+            showPreview,
+            settings,
+            editorMode,
+            autofocus,
+            settingsVisible,
+            wysiwygToolbarConfig,
+            wysiwygHiddenActionsConfig,
+            stickyToolbar,
+            markupToolbarConfig,
+            markupHiddenActionsConfig,
+            qa,
+        },
+        ref,
+    ) => {
+        return (
+            <div
+                className={b('editor-wrapper')}
+                ref={ref}
+                data-qa={qa}
+                data-mode={editor.currentMode}
+            >
+                {showPreview ? (
+                    <>
+                        <div className={b('preview-wrapper')}>
+                            {editor.renderPreview?.({
+                                getValue: editor.getValue,
+                                mode: 'preview',
+                                md: editor.mdOptions,
+                                directiveSyntax: editor.directiveSyntax,
+                            })}
+                        </div>
+                        {settings}
+                    </>
+                ) : (
+                    <>
+                        {editorMode === 'wysiwyg' && (
+                            <WysiwygEditorView
+                                editor={editor}
+                                autofocus={autofocus}
+                                settingsVisible={settingsVisible}
+                                toolbarConfig={wysiwygToolbarConfig}
+                                toolbarVisible={editor.toolbarVisible}
+                                hiddenActionsConfig={wysiwygHiddenActionsConfig}
+                                className={b('editor', {mode: editorMode})}
+                                toolbarClassName={b('toolbar')}
+                                stickyToolbar={stickyToolbar}
+                            >
+                                {editor.toolbarVisible && settingsVisible && settings}
+                            </WysiwygEditorView>
+                        )}
+                        {editorMode === 'markup' && (
+                            <MarkupEditorView
+                                editor={editor}
+                                autofocus={autofocus}
+                                settingsVisible={settingsVisible}
+                                toolbarConfig={markupToolbarConfig}
+                                toolbarVisible={editor.toolbarVisible}
+                                splitMode={editor.splitMode}
+                                splitModeEnabled={editor.splitModeEnabled}
+                                hiddenActionsConfig={markupHiddenActionsConfig}
+                                className={b('editor', {mode: editorMode})}
+                                toolbarClassName={b('toolbar')}
+                                stickyToolbar={stickyToolbar}
+                            >
+                                {editor.toolbarVisible && settings}
+                            </MarkupEditorView>
+                        )}
+                        {!editor.toolbarVisible && settings}
+                    </>
+                )}
+            </div>
+        );
+    },
+);
+
+EditorWrapper.displayName = 'EditorWrapper';
 
 export type MarkdownEditorViewProps = ClassNameProps &
     QAProps & {
@@ -370,7 +373,7 @@ export const MarkdownEditorView = forwardRef<HTMLDivElement, MarkdownEditorViewP
                 >
                     <EditorWrapper
                         qa="g-md-editor-mode"
-                        editorWrapperRef={editorWrapperRef}
+                        ref={editorWrapperRef}
                         editor={editor}
                         showPreview={showPreview}
                         settings={settings}
