@@ -24,8 +24,7 @@
         background-color: var(--yfm-quote-link-background);
 
         // return the image settings button and clipboard button positions
-        .g-md-img-settings-button,
-        .yfm-clipboard-button {
+        .g-md-img-settings-button {
             position: absolute;
             z-index: 2;
         }
