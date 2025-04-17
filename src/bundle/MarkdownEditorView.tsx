@@ -215,9 +215,17 @@ const EditorWrapper = forwardRef<HTMLDivElement, EditorWrapperProps>(
                                 toolbarClassName={b('toolbar')}
                                 stickyToolbar={stickyToolbar}
                             >
-                                <Settings {...settingsProps} settingsVisible={settingsVisible} />
+                                <Settings
+                                    {...settingsProps}
+                                    settingsVisible={settingsVisible && editor.toolbarVisible}
+                                />
                             </MarkupEditorView>
                         )}
+                        <Settings
+                            {...settingsProps}
+                            settingsVisible={!editor.toolbarVisible && settingsVisible}
+                            renderPreviewButton={!editor.toolbarVisible}
+                        />
                     </>
                 )}
             </div>
