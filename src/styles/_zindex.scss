@@ -7,4 +7,10 @@ $z-index-map: (
     'table-view-button': 100,
     'table-cell-button': 110,
     'sticky-toolbar': 2000,
+    'sticky-toolbar-popup': 2100,
 );
+
+:root {
+    --md-editor-sticky-toolbar-popup-z-index: #{map-get($z-index-map, 'sticky-toolbar-popup')}
+}
+
