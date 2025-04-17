@@ -26,6 +26,7 @@ import type {MarkdownEditorMode, MarkdownEditorSplitMode} from '../types';
 import {MarkdownHints} from './MarkdownHints';
 
 import './index.scss';
+import '../../styles/_zindex.scss';
 
 const placement: PopupPlacement = ['bottom-end', 'top-end'];
 
@@ -154,6 +155,7 @@ const SettingsContent: React.FC<SettingsContentProps> = function SettingsContent
                         popoverProps={{
                             placement: mdHelpPlacement,
                             modal: false,
+                            zIndex: 'var(--md-editor-sticky-toolbar-popup-z-index)',
                         }}
                         className={bContent('mode-help')}
                     >

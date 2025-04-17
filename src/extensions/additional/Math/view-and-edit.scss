@@ -1,3 +1,5 @@
+@use '../../../styles/mixins.scss';
+
 .math-block {
     font-family: var(--g-font-family-monospace);
 
@@ -46,7 +48,6 @@
 
     &::before {
         position: absolute;
-        z-index: -1;
         inset: -2px;
 
         content: '';
@@ -55,6 +56,8 @@
         background-color: var(--g-md-math-back-color);
 
         transition: background-color 0.15s linear;
+
+        @include mixins.z-index('background');
     }
 
     &:hover {

@@ -1,3 +1,5 @@
+@use './zindex' as zIndexVariables;
+
 @mixin block-border-hover() {
     border: 1px dashed transparent;
     border-radius: var(--g-border-radius-s);
@@ -5,4 +7,10 @@
     &:hover {
         border-color: var(--g-color-line-generic);
     }
+}
+
+// Getting z-index value by key
+
+@mixin z-index($key) {
+    z-index: map-get(zIndexVariables.$z-index-map, $key);
 }
