@@ -1,6 +1,6 @@
 import {Ghost} from '@gravity-ui/icons';
 
-import {type MToolbarSingleItemData, ToolbarDataType} from '../../../../src';
+import {type MToolbarSingleItemData, ToolbarDataType} from 'src/index';
 
 import {showGhostPopup} from './commands';
 

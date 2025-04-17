@@ -1,8 +1,16 @@
 import {type CSSProperties, memo, useCallback, useEffect, useMemo, useState} from 'react';
 
+import type {EmbeddingMode} from '@diplodoc/html-extension';
 import {defaultOptions} from '@diplodoc/transform/lib/sanitize';
 import {Button, DropdownMenu} from '@gravity-ui/uikit';
 
+import type {ToolbarActionData} from 'src/bundle/Editor';
+import type {Extension} from 'src/cm/state';
+import {FoldingHeading} from 'src/extensions/additional/FoldingHeading';
+import {Math} from 'src/extensions/additional/Math';
+import {Mermaid} from 'src/extensions/additional/Mermaid';
+import {YfmHtmlBlock} from 'src/extensions/additional/YfmHtmlBlock';
+import {getSanitizeYfmHtmlBlock} from 'src/extensions/additional/YfmHtmlBlock/utils';
 import {
     type DirectiveSyntaxValue,
     type FileUploadHandler,
@@ -19,16 +27,10 @@ import {
     logger,
     useMarkdownEditor,
     wysiwygToolbarConfigs,
-} from '../../src';
-import type {ToolbarActionData} from '../../src/bundle/Editor';
-import type {Extension} from '../../src/cm/state';
-import {FoldingHeading} from '../../src/extensions/additional/FoldingHeading';
-import {Math} from '../../src/extensions/additional/Math';
-import {Mermaid} from '../../src/extensions/additional/Mermaid';
-import {YfmHtmlBlock} from '../../src/extensions/additional/YfmHtmlBlock';
-import {getSanitizeYfmHtmlBlock} from '../../src/extensions/additional/YfmHtmlBlock/utils';
-import type {CodeEditor} from '../../src/markup';
-import type {ToolbarsPreset} from '../../src/modules/toolbars/types';
+} from 'src/index';
+import type {CodeEditor} from 'src/markup';
+import type {ToolbarsPreset} from 'src/modules/toolbars/types';
+
 import {getPlugins} from '../defaults/md-plugins';
 import {useLogs} from '../hooks/useLogs';
 import useYfmHtmlBlockStyles from '../hooks/useYfmHtmlBlockStyles';
@@ -76,6 +78,8 @@ export type PlaygroundProps = {
     onChangeEditorType?: (mode: MarkdownEditorMode) => void;
     onChangeSplitModeEnabled?: (splitModeEnabled: boolean) => void;
     directiveSyntax?: DirectiveSyntaxValue;
+    disabledHTMLBlockModes?: EmbeddingMode[];
+    disableMarkdownItAttrs?: boolean;
 } & Pick<UseMarkdownEditorProps, 'experimental' | 'wysiwygConfig'> &
     Pick<
         MarkdownEditorViewProps,
@@ -124,6 +128,8 @@ export const Playground = memo<PlaygroundProps>((props) => {
         hidePreviewAfterSubmit,
         experimental,
         directiveSyntax,
+        disabledHTMLBlockModes,
+        disableMarkdownItAttrs,
     } = props;
     const [editorMode, setEditorMode] = useState<MarkdownEditorMode>(initialEditor ?? 'wysiwyg');
     const [mdRaw, setMdRaw] = useState<MarkupString>(initial || '');
@@ -142,9 +148,11 @@ export const Playground = memo<PlaygroundProps>((props) => {
                 breaks={md.breaks}
                 needToSanitizeHtml={sanitizeHtml}
                 plugins={getPlugins({directiveSyntax})}
+                disableMarkdownItAttrs={disableMarkdownItAttrs}
+                htmlRuntimeConfig={{disabledModes: disabledHTMLBlockModes}}
             />
         ),
-        [sanitizeHtml],
+        [sanitizeHtml, disabledHTMLBlockModes, disableMarkdownItAttrs],
     );
 
     const logger = useMemo(() => new Logger2().nested({env: 'playground'}), []);
@@ -156,6 +164,7 @@ export const Playground = memo<PlaygroundProps>((props) => {
             preset: 'full',
             wysiwygConfig: {
                 placeholderOptions: placeholderOptions,
+                disableMarkdownAttrs: disableMarkdownItAttrs,
                 extensions: (builder) => {
                     builder
                         .use(Math, {
@@ -245,6 +254,7 @@ export const Playground = memo<PlaygroundProps>((props) => {
             experimental?.beforeEditorModeChange,
             experimental?.prepareRawMarkup,
             directiveSyntax,
+            disableMarkdownItAttrs,
         ],
     );
 
@@ -302,6 +312,7 @@ export const Playground = memo<PlaygroundProps>((props) => {
                 <MarkdownEditorView
                     autofocus
                     className={className}
+                    qa="demo-md-editor"
                     stickyToolbar={Boolean(stickyToolbar)}
                     toolbarsPreset={toolbarsPreset}
                     wysiwygToolbarConfig={wysiwygToolbarConfig}

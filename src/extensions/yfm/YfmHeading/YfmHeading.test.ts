@@ -1,4 +1,5 @@
 import {builders} from 'prosemirror-test-builder';
+import dd from 'ts-dedent';
 
 import {parseDOM} from '../../../../tests/parse-dom';
 import {createMarkupChecker} from '../../../../tests/sameMarkup';
@@ -73,21 +74,21 @@ describe('Heading extension', () => {
     });
 
     it('should parse few headings', () => {
-        const markup = `
-# h1 {#one}
+        const markup = dd`
+            # h1 {#one}
 
-## h2 {#two}
+            ## h2 {#two}
 
-### h3 {#three}
+            ### h3 {#three}
 
-#### h4 {#four}
+            #### h4 {#four}
 
-##### h5 {#five}
+            ##### h5 {#five}
 
-###### h6 {#six}
+            ###### h6 {#six}
 
-para
-`.trim();
+            para
+            `.trim();
 
         same(
             markup,
@@ -98,6 +99,59 @@ para
                 h4({[YfmHeadingAttr.Id]: 'four'}, 'h4'),
                 h5({[YfmHeadingAttr.Id]: 'five'}, 'h5'),
                 h6({[YfmHeadingAttr.Id]: 'six'}, 'h6'),
+                p('para'),
+            ),
+        );
+    });
+
+    it('should parse headings with id without markdown-it-attrs', () => {
+        const markup = dd`
+            # h1 {#one}
+
+            ## h2 {#two}
+
+            ### h3 {#three}
+
+            #### h4 {#four}
+
+            ##### h5 {#five}
+
+            ###### h6 {#six}
+
+            para
+            `.trim();
+
+        const {
+            schema,
+            markupParser: parser,
+            serializer,
+        } = new ExtensionsManager({
+            extensions: (builder) =>
+                builder
+                    .use(BaseSchemaSpecs, {})
+                    .use(YfmConfigsSpecs, {disableAttrs: true})
+                    .use(YfmHeadingSpecs, {}),
+        }).buildDeps();
+        const {same} = createMarkupChecker({parser, serializer});
+
+        const {doc, p, h} = builders<
+            'doc' | 'p' | 'h' | 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6',
+            'b'
+        >(schema, {
+            doc: {nodeType: BaseNode.Doc},
+            p: {nodeType: BaseNode.Paragraph},
+            h: {nodeType: headingNodeName},
+        });
+
+        same(
+            markup,
+            doc(
+                h({[YfmHeadingAttr.Level]: 1, [YfmHeadingAttr.Id]: 'one'}, 'h1'),
+                h({[YfmHeadingAttr.Level]: 2, [YfmHeadingAttr.Id]: 'two'}, 'h2'),
+                h({[YfmHeadingAttr.Level]: 3, [YfmHeadingAttr.Id]: 'three'}, 'h3'),
+                h({[YfmHeadingAttr.Level]: 4, [YfmHeadingAttr.Id]: 'four'}, 'h4'),
+                h({[YfmHeadingAttr.Level]: 5, [YfmHeadingAttr.Id]: 'five'}, 'h5'),
+                h({[YfmHeadingAttr.Level]: 6, [YfmHeadingAttr.Id]: 'six'}, 'h6'),
                 p('para'),
             ),
         );

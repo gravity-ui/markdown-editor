@@ -8,7 +8,7 @@ import {
     useState,
 } from 'react';
 
-import {useToaster} from '@gravity-ui/uikit';
+import {type QAProps, useToaster} from '@gravity-ui/uikit';
 import {ErrorBoundary} from 'react-error-boundary';
 import {useEnsuredForwardedRef, useKey, useUpdate} from 'react-use';
 
@@ -37,32 +37,33 @@ import './MarkdownEditorView.scss'; // eslint-disable-line import/order
 export const cnEditorComponent = cn('editor-component');
 const b = cnEditorComponent;
 
-export type MarkdownEditorViewProps = ClassNameProps & {
-    editor?: Editor;
-    autofocus?: boolean;
-    toolbarsPreset?: ToolbarsPreset;
-    /**
-     * @deprecated use `toolbarsPreset` instead
-     */
-    markupToolbarConfig?: MToolbarData;
-    /**
-     * @deprecated use `toolbarsPreset` instead
-     */
-    wysiwygToolbarConfig?: WToolbarData;
-    /**
-     * @deprecated use `toolbarsPreset` instead
-     */
-    markupHiddenActionsConfig?: MToolbarItemData[];
-    /**
-     * @deprecated use `toolbarsPreset` instead
-     */
-    wysiwygHiddenActionsConfig?: WToolbarItemData[];
-    /** @default true */
-    settingsVisible?: boolean;
-    stickyToolbar: boolean;
-    enableSubmitInPreview?: boolean;
-    hidePreviewAfterSubmit?: boolean;
-};
+export type MarkdownEditorViewProps = ClassNameProps &
+    QAProps & {
+        editor?: Editor;
+        autofocus?: boolean;
+        toolbarsPreset?: ToolbarsPreset;
+        /**
+         * @deprecated use `toolbarsPreset` instead
+         */
+        markupToolbarConfig?: MToolbarData;
+        /**
+         * @deprecated use `toolbarsPreset` instead
+         */
+        wysiwygToolbarConfig?: WToolbarData;
+        /**
+         * @deprecated use `toolbarsPreset` instead
+         */
+        markupHiddenActionsConfig?: MToolbarItemData[];
+        /**
+         * @deprecated use `toolbarsPreset` instead
+         */
+        wysiwygHiddenActionsConfig?: WToolbarItemData[];
+        /** @default true */
+        settingsVisible?: boolean;
+        stickyToolbar: boolean;
+        enableSubmitInPreview?: boolean;
+        hidePreviewAfterSubmit?: boolean;
+    };
 
 export const MarkdownEditorView = forwardRef<HTMLDivElement, MarkdownEditorViewProps>(
     (props, ref) => {
@@ -83,6 +84,7 @@ export const MarkdownEditorView = forwardRef<HTMLDivElement, MarkdownEditorViewP
             );
 
         const {
+            qa,
             autofocus,
             className,
             settingsVisible = true,
@@ -264,6 +266,7 @@ export const MarkdownEditorView = forwardRef<HTMLDivElement, MarkdownEditorViewP
             >
                 <div
                     ref={divRef}
+                    data-qa={qa}
                     className={b(
                         {
                             settings: settingsVisible,
@@ -274,7 +277,12 @@ export const MarkdownEditorView = forwardRef<HTMLDivElement, MarkdownEditorViewP
                     role="button"
                     tabIndex={0}
                 >
-                    <div className={b('editor-wrapper')} ref={editorWrapperRef}>
+                    <div
+                        className={b('editor-wrapper')}
+                        ref={editorWrapperRef}
+                        data-qa="g-md-editor-mode"
+                        data-mode={editor.currentMode}
+                    >
                         {showPreview ? (
                             <>
                                 <div className={b('preview-wrapper')}>

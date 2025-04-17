@@ -1,8 +1,8 @@
-@use '../../../styles/mixins.scss';
+@use '../../../styles/mixins' as editor;
 
 .ProseMirror.yfm {
     .yfm-cut {
-        @include mixins.block-border-hover();
+        @include editor.block-border-hover();
 
         &.yfm-cut-active {
             border-color: var(--g-color-line-generic);

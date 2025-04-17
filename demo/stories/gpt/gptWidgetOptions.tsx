@@ -1,4 +1,4 @@
-import type {GptWidgetOptions} from '../../../src';
+import type {GptWidgetOptions} from 'src/index';
 
 const gptRequestHandler = async ({
     markup,
@@ -57,6 +57,9 @@ export const gptWidgetProps = (
         },
         onTryAgain: async ({markup, customPrompt, promptData}) => {
             return gptRequestHandler({markup, customPrompt, promptData});
+        },
+        onClose: () => {
+            console.log('close');
         },
         onLike: async () => {},
         onDislike: async () => {},

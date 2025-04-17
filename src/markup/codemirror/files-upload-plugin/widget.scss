@@ -1,4 +1,4 @@
-@use '~@gravity-ui/uikit/styles/mixins.scss';
+@use '~@gravity-ui/uikit/styles/mixins' as uikit;
 
 .g-md-upload-label {
     &__content {
@@ -9,7 +9,7 @@
 
     &__filename {
         display: inline-block;
-        @include mixins.max-text-width(128px);
+        @include uikit.max-text-width(128px);
     }
 }
 

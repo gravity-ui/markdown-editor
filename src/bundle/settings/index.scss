@@ -1,6 +1,5 @@
+@use '~@gravity-ui/uikit/styles/mixins' as uikit;
 @use '../../styles/mixins.scss';
-
-@import '~@gravity-ui/uikit/styles/mixins';
 
 .g-md-editor-settings {
     display: flex;
@@ -58,6 +57,6 @@
 
         transform: translateX(-50%);
 
-        @include text-code-inline-1();
+        @include uikit.text-code-inline-1();
     }
 }

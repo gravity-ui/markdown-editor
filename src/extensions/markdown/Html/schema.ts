@@ -1,5 +1,6 @@
-import sanitize from '@diplodoc/transform/lib/sanitize.js';
 import type {NodeSpec} from 'prosemirror-model';
+
+import {getSanitize} from 'src/utils/getSanitize';
 
 import {HtmlAttr, HtmlNode} from './const';
 
@@ -7,6 +8,8 @@ enum DomAttr {
     Html = 'data-html',
     HtmlRaw = 'data-html-raw',
 }
+
+const sanitize = getSanitize('Html');
 
 export const schemaSpecs: Record<HtmlNode, NodeSpec> = {
     [HtmlNode.Block]: {

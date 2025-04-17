@@ -2,8 +2,9 @@ import {StrictMode, useEffect} from 'react';
 
 import {useUpdate} from 'react-use';
 
-import type {MarkdownEditorInstance} from '../../src';
-import {VERSION} from '../../src/version';
+import type {MarkdownEditorInstance} from 'src/index';
+import {VERSION} from 'src/version';
+
 import {useMarkdownEditorValue} from '../hooks/useMarkdownEditorValue';
 import {block} from '../utils/cn';
 
@@ -48,20 +49,23 @@ export const PlaygroundLayout: React.FC<PlaygroundLayoutProps> = function Playgr
             <div className={b('actions')}>{props.actions?.({})}</div>
 
             <hr />
+            <div className={b('editor-markup')}>
+                <StrictMode>
+                    <div className={b('editor')} style={{height: props.viewHeight ?? 'initial'}}>
+                        {props.view({className: b('editor-view')})}
 
-            <StrictMode>
-                <div className={b('editor')} style={{height: props.viewHeight ?? 'initial'}}>
-                    {props.view({className: b('editor-view')})}
+                        <WysiwygDevTools editor={editor} />
+                        <WysiwygSelection editor={editor} className={b('pm-selection')} />
+                    </div>
+                </StrictMode>
 
-                    <WysiwygDevTools editor={editor} />
-                    <WysiwygSelection editor={editor} className={b('pm-selection')} />
+                <hr />
+
+                <div className={b('preview')}>
+                    {editor.currentMode === 'wysiwyg' && (
+                        <pre className={b('markup')}>{mdMarkup}</pre>
+                    )}
                 </div>
-            </StrictMode>
-
-            <hr />
-
-            <div className={b('preview')}>
-                {editor.currentMode === 'wysiwyg' && <pre className={b('markup')}>{mdMarkup}</pre>}
             </div>
         </div>
     );

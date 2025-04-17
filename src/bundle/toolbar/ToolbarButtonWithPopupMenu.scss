@@ -1,4 +1,4 @@
-@import '~@gravity-ui/uikit/styles/mixins';
+@use '~@gravity-ui/uikit/styles/mixins' as uikit;
 
 .g-md-toolbar-button-with-popup-menu {
     --g-button-icon-offset: 0px;
@@ -8,7 +8,7 @@
     &__menu-group {
         .g-menu__group-label {
             color: var(--g-color-text-hint);
-            @include text-body-1();
+            @include uikit.text-body-1();
         }
     }
 }

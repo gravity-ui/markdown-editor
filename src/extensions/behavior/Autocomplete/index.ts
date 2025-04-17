@@ -1,4 +1,4 @@
-import autocomplete from 'prosemirror-autocomplete';
+import {autocomplete} from 'prosemirror-autocomplete';
 import {Plugin} from 'prosemirror-state';
 
 import type {ExtensionAuto, ExtensionDeps} from '../../../core';
@@ -8,6 +8,7 @@ import {MainHandler} from './handler';
 import type {AutocompleteItem, AutocompleteTrigger} from './types';
 
 export {openAutocomplete, closeAutocomplete} from 'prosemirror-autocomplete';
+export {getAutocompleteState} from './utils';
 export const AutocompleteDecoClassName = 'autocomplete';
 
 export type AutocompleteItemFn = (deps: ExtensionDeps) => AutocompleteItem;

@@ -97,6 +97,8 @@ export type ToolbarListButtonData<E> = {
     data: ToolbarListButtonItemData<E>[];
     alwaysActive?: boolean;
     hideDisabled?: boolean;
+    /** When state changes to active, replace default icon with icon of first active item */
+    replaceActiveIcon?: boolean;
 };
 
 /**

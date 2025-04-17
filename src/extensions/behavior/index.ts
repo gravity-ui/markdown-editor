@@ -11,8 +11,10 @@ import {Placeholder} from './Placeholder';
 import {type ReactRenderer, ReactRendererExtension} from './ReactRenderer';
 import {Selection} from './Selection';
 import {SelectionContext, type SelectionContextOptions} from './SelectionContext';
+import {SharedState} from './SharedState';
 import {WidgetDecoration} from './WidgetDecoration';
 
+export * from './Autocomplete';
 export * from './ClicksOnEdges';
 export * from './Clipboard';
 export * from './CommandMenu';
@@ -23,6 +25,7 @@ export * from './Placeholder';
 export * from './ReactRenderer';
 export * from './Selection';
 export * from './SelectionContext';
+export * from './SharedState';
 export * from './WidgetDecoration';
 
 export type BehaviorPresetOptions = {
@@ -39,6 +42,7 @@ export type BehaviorPresetOptions = {
 export const BehaviorPreset: ExtensionAuto<BehaviorPresetOptions> = (builder, opts) => {
     builder
         .use(Selection)
+        .use(SharedState)
         .use(Placeholder, opts.placeholder ?? {})
         .use(Cursor, opts.cursor ?? {})
         .use(History, opts.history ?? {})

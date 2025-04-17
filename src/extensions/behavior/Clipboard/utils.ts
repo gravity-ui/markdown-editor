@@ -1,3 +1,8 @@
+import {Fragment} from 'prosemirror-model';
+
+import {isListItemNode, isListNode} from 'src/extensions/markdown/Lists/utils';
+import {isEmptyString} from 'src/utils';
+
 /** Сontains all data formats known to us */
 export enum DataTransferType {
     Text = 'text/plain',
@@ -55,4 +60,55 @@ export function extractTextContentFromHtml(html: string) {
     }
 
     return null;
+}
+
+type ContentBoundaryPositions = [
+    firstNotEmptyPos: number,
+    lastNotEmptyPos: number,
+    firstPos: number,
+    lastPos: number,
+];
+export function findNotEmptyContentPosses(fragment: Fragment): ContentBoundaryPositions {
+    let firstNodePos = -1;
+    let lastNodePos = -1;
+    let firstNotEmptyNodePos = -1;
+    let lastNotEmptyNodePos = -1;
+
+    fragment.forEach((contentNode, offset) => {
+        if (firstNodePos === -1) {
+            firstNodePos = offset;
+        }
+        lastNodePos = offset + contentNode.nodeSize;
+
+        if (!isEmptyString(contentNode)) {
+            if (isListNode(contentNode) || isListItemNode(contentNode)) {
+                const [start, end] = findNotEmptyContentPosses(contentNode.content);
+                if (firstNotEmptyNodePos === -1 && start !== -1) {
+                    firstNotEmptyNodePos = offset + start + 1;
+                }
+                if (end !== -1) {
+                    lastNotEmptyNodePos = offset + end + 1;
+                }
+            } else {
+                if (firstNotEmptyNodePos === -1) {
+                    firstNotEmptyNodePos = offset;
+                }
+                lastNotEmptyNodePos = offset + contentNode.nodeSize;
+            }
+        }
+    });
+
+    return [firstNotEmptyNodePos, lastNotEmptyNodePos, firstNodePos, lastNodePos];
+}
+
+export function trimContent(fragment: Fragment, creatEmptyFragment?: () => Fragment): Fragment {
+    const [notEmptyStart, notEmptyEnd, start, end] = findNotEmptyContentPosses(fragment);
+
+    if (notEmptyStart === start && notEmptyEnd === end) {
+        return fragment;
+    } else if (notEmptyStart === -1 && notEmptyEnd === -1) {
+        return creatEmptyFragment ? creatEmptyFragment() : Fragment.empty;
+    }
+
+    return fragment.cut(notEmptyStart, notEmptyEnd);
 }

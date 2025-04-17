@@ -1,4 +1,9 @@
-import diplodocSanitize, {type SanitizeOptions} from '@diplodoc/transform/lib/sanitize.js';
+import type {SanitizeOptions} from '@diplodoc/transform/lib/sanitize.js';
+
+import {getSanitize} from 'src/utils/getSanitize';
+
+// MAJOR: use `import {sanitize} from '@diplodoc/transform/lib/sanitize.js'`
+const diplodocSanitize = getSanitize('YfmHtmlBlock');
 
 // yfmHtmlBlock additional css properties white list
 const getYfmHtmlBlockWhiteList = () => {

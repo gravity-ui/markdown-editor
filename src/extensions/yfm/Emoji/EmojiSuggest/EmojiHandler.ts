@@ -8,8 +8,8 @@ import {
     type AutocompleteAction,
     AutocompleteActionKind,
     type AutocompleteHandler,
-    type FromTo,
     closeAutocomplete,
+    getAutocompleteState,
 } from '../../../behavior/Autocomplete';
 import {EmojiConsts} from '../EmojiSpecs';
 
@@ -30,7 +30,6 @@ export class EmojiHandler implements AutocompleteHandler {
 
     private _view?: EditorView;
     private _anchor: Element | null = null;
-    private _range?: FromTo;
     private _popupCloser?: AutocompletePopupCloser;
 
     private _suggestProps?: EmojiSuggestComponentProps;
@@ -133,12 +132,16 @@ export class EmojiHandler implements AutocompleteHandler {
     }
 
     private select() {
-        const {_view: view, _range: range} = this;
-        if (!view || !range) return;
+        const {_view: view} = this;
+        if (!view) return;
 
         const emojiDef = this._emojiCarousel?.currentItem;
         if (!emojiDef) return;
 
+        const autocompleteState = getAutocompleteState(view.state);
+        if (!autocompleteState || !autocompleteState.active) return;
+
+        const {range} = autocompleteState;
         const {tr, schema} = view.state;
         view.dispatch(
             tr.replaceWith(range.from, range.to, createEmoji(schema, emojiDef)).scrollIntoView(),
@@ -191,14 +194,12 @@ export class EmojiHandler implements AutocompleteHandler {
         this._view?.focus();
     };
 
-    private updateState({view, range}: AutocompleteAction) {
+    private updateState({view}: AutocompleteAction) {
         this._view = view;
-        this._range = range;
     }
 
     private clear() {
         this._view = undefined;
-        this._range = undefined;
         this._anchor = null;
         this._emojiCarousel = undefined;
         this._popupCloser?.cancelTimer();

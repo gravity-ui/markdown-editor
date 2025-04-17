@@ -1,10 +1,11 @@
 import {type PluginOptions, transform} from '@diplodoc/html-extension';
 
-import type {ExtensionAuto, ExtensionNodeSpec} from '../../../../core';
+import type {ExtensionAuto, ExtensionNodeSpec} from '#core';
+import {generateEntityId} from 'src/utils/entity-id';
 
-import {YfmHtmlBlockConsts} from './const';
+import {YfmHtmlBlockConsts, defaultYfmHtmlBlockEntityId} from './const';
 
-export {yfmHtmlBlockNodeName} from './const';
+export {yfmHtmlBlockNodeName, YfmHtmlBlockConsts} from './const';
 
 export interface YfmHtmlBlockSpecsOptions
     extends Omit<PluginOptions, 'runtimeJsPath' | 'containerClasses' | 'bundle' | 'embeddingMode'> {
@@ -32,7 +33,12 @@ const YfmHtmlBlockSpecsExtension: ExtensionAuto<YfmHtmlBlockSpecsOptions> = (
                     name: YfmHtmlBlockConsts.NodeName,
                     type: 'node',
                     noCloseToken: true,
-                    getAttrs: ({content}) => ({srcdoc: content}),
+                    getAttrs: ({content}) => ({
+                        [YfmHtmlBlockConsts.NodeAttrs.srcdoc]: content,
+                        [YfmHtmlBlockConsts.NodeAttrs.EntityId]: generateEntityId(
+                            YfmHtmlBlockConsts.NodeName,
+                        ),
+                    }),
                 },
             },
             spec: {
@@ -43,6 +49,7 @@ const YfmHtmlBlockSpecsExtension: ExtensionAuto<YfmHtmlBlockSpecsOptions> = (
                     [YfmHtmlBlockConsts.NodeAttrs.srcdoc]: {default: ''},
                     [YfmHtmlBlockConsts.NodeAttrs.style]: {default: null},
                     [YfmHtmlBlockConsts.NodeAttrs.newCreated]: {default: null},
+                    [YfmHtmlBlockConsts.NodeAttrs.EntityId]: {default: defaultYfmHtmlBlockEntityId},
                 },
                 toDOM: (node) => ['iframe', node.attrs],
             },

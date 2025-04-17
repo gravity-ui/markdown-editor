@@ -135,7 +135,11 @@ export function mGptPlugin<
                 return renderPopup(this._anchor as HTMLElement, {
                     ...gptProps,
                     disablePromptPresets: this.disablePromptPresets,
-                    onClose: () => hideMarkupGpt(this._view),
+                    onClose: () => {
+                        hideMarkupGpt(this._view);
+
+                        gptProps.onClose?.();
+                    },
                     markup: this.markup,
                     onApplyResult: (changedMarkup) => this._onApplyResult(changedMarkup),
                 });

@@ -1,4 +1,3 @@
-import {ReactRendererFacet} from '../../../../src';
 import {
     Decoration,
     type DecorationSet,
@@ -7,7 +6,8 @@ import {
     ViewPlugin,
     type ViewUpdate,
     WidgetType,
-} from '../../../../src/cm/view';
+} from '#cm/view';
+import {ReactRendererFacet} from 'src/index';
 
 import {hideGhostPopup} from './commands';
 import {HideGhostPopupEffect, ShowGhostPopupEffect} from './effects';

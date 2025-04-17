@@ -1,4 +1,4 @@
-@import '~@gravity-ui/uikit/styles/mixins.scss';
+@use '~@gravity-ui/uikit/styles/mixins' as uikit;
 
 $itemHeight: 28px;
 $listWidth: 312px;
@@ -43,7 +43,7 @@ $listWidth: 312px;
     }
 
     &__item-title {
-        @include overflow-ellipsis();
+        @include uikit.overflow-ellipsis();
     }
 
     &__item-extra {

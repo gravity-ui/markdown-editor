@@ -3,6 +3,7 @@ import type {Options, Trigger} from 'prosemirror-autocomplete';
 export type {
     FromTo,
     AutocompleteAction,
+    AutocompleteState,
     Trigger as AutocompleteTrigger,
 } from 'prosemirror-autocomplete';
 

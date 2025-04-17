@@ -1,4 +1,4 @@
-import {useEffect, useState} from 'react';
+import {useEffect, useMemo, useState} from 'react';
 
 import {Ellipsis as DotsIcon} from '@gravity-ui/icons';
 import {Button, Icon, Loader, Menu, Popup} from '@gravity-ui/uikit';
@@ -6,12 +6,17 @@ import type {Mermaid} from 'mermaid' with {'resolution-mode': 'import'};
 import type {Node} from 'prosemirror-model';
 import type {EditorView} from 'prosemirror-view';
 
+import {SharedStateKey} from 'src/extensions/behavior/SharedState';
+import {useSharedEditingState} from 'src/react-utils/useSharedEditingState';
+
 import {cn} from '../../../../classname';
 import {TextAreaFixed as TextArea} from '../../../../forms/TextInput';
 import {i18n} from '../../../../i18n/common';
 import {useBooleanState, useElementState} from '../../../../react-utils';
 import {removeNode} from '../../../../utils';
 import {MermaidConsts} from '../MermaidSpecs/const';
+import type {MermaidEntitySharedState} from '../types';
+
 export const cnMermaid = cn('Mermaid');
 
 export const STOP_EVENT_CLASSNAME = 'prosemirror-stop-event';
@@ -104,13 +109,17 @@ export const MermaidView: React.FC<{
     node: Node;
     getPos: () => number | undefined;
 }> = ({onChange, node, getPos, view, getMermaidInstance}) => {
-    const [mermaidInstance, setMermaidInstance] = useState<Mermaid | null>(null);
-    const [editing, setEditing, unsetEditing, toggleEditing] = useBooleanState(
-        Boolean(node.attrs[MermaidConsts.NodeAttrs.newCreated]),
+    const enitityId: string = node.attrs[MermaidConsts.NodeAttrs.EntityId];
+    const entityKey = useMemo(
+        () => SharedStateKey.define<MermaidEntitySharedState>({name: enitityId}),
+        [enitityId],
     );
+
+    const [editing, setEditing, unsetEditing] = useSharedEditingState(view, entityKey);
     const [menuOpen, , closeMenu, toggleMenuOpen] = useBooleanState(false);
     const [anchorElement, setAnchorElement] = useElementState();
 
+    const [mermaidInstance, setMermaidInstance] = useState<Mermaid | null>(null);
     useEffect(() => {
         const waitForMermaid = () =>
             setTimeout(() => {
@@ -165,7 +174,7 @@ export const MermaidView: React.FC<{
                     <Menu>
                         <Menu.Item
                             onClick={() => {
-                                toggleEditing();
+                                setEditing();
                                 closeMenu();
                             }}
                         >

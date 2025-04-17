@@ -1,7 +1,5 @@
 import {memo, useState} from 'react';
 
-import cloneDeep from 'lodash/cloneDeep';
-
 import {
     MarkdownEditorView,
     gptExtension,
@@ -11,7 +9,9 @@ import {
     useMarkdownEditor,
     wGptItemData,
     wysiwygToolbarConfigs,
-} from '../../../src';
+} from 'src/index';
+import {cloneDeep} from 'src/lodash';
+
 import {PlaygroundLayout} from '../../components/PlaygroundLayout';
 import {useLogs} from '../../hooks/useLogs';
 

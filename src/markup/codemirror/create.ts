@@ -61,6 +61,8 @@ export type {YfmLangOptions};
 
 type Autocompletion = Parameters<typeof autocompletion>[0];
 
+const linkRegex = /\[[\s\S]*?]\([\s\S]*?\)/g;
+
 export type CreateCodemirrorParams = {
     doc: EditorViewConfig['doc'];
     placeholder: Parameters<typeof placeholder>[0];
@@ -232,21 +234,27 @@ export function createCodemirror(params: CreateCodemirrorParams) {
                 }
 
                 if (parseInsertedUrlAsImage) {
-                    const {imageUrl, title} =
-                        parseInsertedUrlAsImage(
-                            event.clipboardData.getData(DataTransferType.Text) ?? '',
-                        ) || {};
+                    const linkMatches = currentLine.matchAll(linkRegex);
+                    const isInsertedInsideLink = linkMatches.some(
+                        (item) => from >= item.index && from <= item.index + (item[0]?.length ?? 0),
+                    );
+                    if (!isInsertedInsideLink) {
+                        const {imageUrl, title} =
+                            parseInsertedUrlAsImage(
+                                event.clipboardData.getData(DataTransferType.Text) ?? '',
+                            ) || {};
 
-                    if (imageUrl) {
-                        event.preventDefault();
-                        logger.event({event: 'paste-url-as-image'});
-                        insertImages([
-                            {
-                                url: imageUrl,
-                                alt: title,
-                                title,
-                            },
-                        ])(editor);
+                        if (imageUrl) {
+                            event.preventDefault();
+                            logger.event({event: 'paste-url-as-image'});
+                            insertImages([
+                                {
+                                    url: imageUrl,
+                                    alt: title,
+                                    title,
+                                },
+                            ])(editor);
+                        }
                     }
                 }
 
