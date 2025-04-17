@@ -38,9 +38,11 @@ export const cnEditorComponent = cn('editor-component');
 const b = cnEditorComponent;
 
 interface EditorWrapperProps extends QAProps {
+    onHidePreview: () => void;
+    onShowPreviewChange: (showPreviewValue: boolean) => void;
+    canRenderPreview?: boolean;
     editor: EditorInt;
     showPreview: boolean;
-    settings: JSX.Element;
     editorMode: MarkdownEditorMode;
     autofocus?: boolean;
     settingsVisible: boolean;
@@ -50,12 +52,14 @@ interface EditorWrapperProps extends QAProps {
     markupToolbarConfig: MToolbarData;
     markupHiddenActionsConfig: MToolbarItemData[];
 }
-const EditorWrapper = forwardRef<HTMLDivElement, Omit<EditorWrapperProps, 'editorWrapperRef'>>(
+const EditorWrapper = forwardRef<HTMLDivElement, EditorWrapperProps>(
     (
         {
+            onHidePreview,
+            onShowPreviewChange,
+            canRenderPreview,
             editor,
             showPreview,
-            settings,
             editorMode,
             autofocus,
             settingsVisible,
@@ -68,6 +72,60 @@ const EditorWrapper = forwardRef<HTMLDivElement, Omit<EditorWrapperProps, 'edito
         },
         ref,
     ) => {
+        const onModeChange = useCallback(
+            (type: MarkdownEditorMode) => {
+                editor.changeEditorMode({mode: type, reason: 'settings'});
+                onHidePreview();
+            },
+            [editor, onHidePreview],
+        );
+        const onToolbarVisibilityChange = useCallback(
+            (visible: boolean) => {
+                editor.changeToolbarVisibility({visible});
+            },
+            [editor],
+        );
+        const onSplitModeChange = useCallback(
+            (splitModeEnabled: boolean) => {
+                onHidePreview();
+                editor.changeSplitModeEnabled({splitModeEnabled});
+            },
+            [editor, onHidePreview],
+        );
+
+        const settings = useMemo(
+            () => (
+                <Settings
+                    mode={editorMode}
+                    settingsVisible={settingsVisible}
+                    onModeChange={onModeChange}
+                    toolbarVisibility={editor.toolbarVisible && !showPreview}
+                    onToolbarVisibilityChange={onToolbarVisibilityChange}
+                    onSplitModeChange={onSplitModeChange}
+                    splitModeEnabled={editor.splitModeEnabled}
+                    splitMode={editor.splitMode}
+                    stickyToolbar={stickyToolbar}
+                    onShowPreviewChange={onShowPreviewChange}
+                    showPreview={showPreview}
+                    renderPreviewButton={canRenderPreview}
+                />
+            ),
+            [
+                editorMode,
+                settingsVisible,
+                editor.toolbarVisible,
+                editor.splitModeEnabled,
+                editor.splitMode,
+                onModeChange,
+                showPreview,
+                onToolbarVisibilityChange,
+                onSplitModeChange,
+                stickyToolbar,
+                onShowPreviewChange,
+                canRenderPreview,
+            ],
+        );
+
         return (
             <div
                 className={b('editor-wrapper')}
@@ -227,27 +285,6 @@ export const MarkdownEditorView = forwardRef<HTMLDivElement, MarkdownEditorViewP
             };
         }, [editor, rerender]);
 
-        const onModeChange = useCallback(
-            (type: MarkdownEditorMode) => {
-                editor.changeEditorMode({mode: type, reason: 'settings'});
-                unsetShowPreview();
-            },
-            [editor, unsetShowPreview],
-        );
-        const onToolbarVisibilityChange = useCallback(
-            (visible: boolean) => {
-                editor.changeToolbarVisibility({visible});
-            },
-            [editor],
-        );
-        const onSplitModeChange = useCallback(
-            (splitModeEnabled: boolean) => {
-                unsetShowPreview();
-                editor.changeSplitModeEnabled({splitModeEnabled});
-            },
-            [editor, unsetShowPreview],
-        );
-
         const onShowPreviewChange = useCallback(
             (showPreviewValue: boolean) => {
                 editor.changeSplitModeEnabled({splitModeEnabled: false});
@@ -299,39 +336,6 @@ export const MarkdownEditorView = forwardRef<HTMLDivElement, MarkdownEditorViewP
             [hidePreviewAfterSubmit, enableSubmitInPreview, showPreview, showPreview],
         );
 
-        const settings = useMemo(
-            () => (
-                <Settings
-                    mode={editorMode}
-                    settingsVisible={settingsVisible}
-                    onModeChange={onModeChange}
-                    toolbarVisibility={editor.toolbarVisible && !showPreview}
-                    onToolbarVisibilityChange={onToolbarVisibilityChange}
-                    onSplitModeChange={onSplitModeChange}
-                    splitModeEnabled={editor.splitModeEnabled}
-                    splitMode={editor.splitMode}
-                    stickyToolbar={stickyToolbar}
-                    onShowPreviewChange={onShowPreviewChange}
-                    showPreview={showPreview}
-                    renderPreviewButton={canRenderPreview}
-                />
-            ),
-            [
-                editorMode,
-                settingsVisible,
-                editor.toolbarVisible,
-                editor.splitModeEnabled,
-                editor.splitMode,
-                onModeChange,
-                showPreview,
-                onToolbarVisibilityChange,
-                onSplitModeChange,
-                stickyToolbar,
-                onShowPreviewChange,
-                canRenderPreview,
-            ],
-        );
-
         const toaster = useToaster();
 
         return (
@@ -372,11 +376,13 @@ export const MarkdownEditorView = forwardRef<HTMLDivElement, MarkdownEditorViewP
                     tabIndex={0}
                 >
                     <EditorWrapper
+                        onHidePreview={unsetShowPreview}
+                        onShowPreviewChange={onShowPreviewChange}
+                        canRenderPreview={canRenderPreview}
                         qa="g-md-editor-mode"
                         ref={editorWrapperRef}
                         editor={editor}
                         showPreview={showPreview}
-                        settings={settings}
                         editorMode={editorMode}
                         autofocus={autofocus}
                         settingsVisible={settingsVisible}
