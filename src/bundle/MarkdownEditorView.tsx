@@ -221,10 +221,6 @@ const EditorWrapper = forwardRef<HTMLDivElement, EditorWrapperProps>(
                                 />
                             </MarkupEditorView>
                         )}
-                        <Settings
-                            {...settingsProps}
-                            settingsVisible={settingsVisible && !editor.toolbarVisible}
-                        />
                     </>
                 )}
             </div>
