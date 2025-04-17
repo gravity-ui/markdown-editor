@@ -37,22 +37,13 @@ import './MarkdownEditorView.scss'; // eslint-disable-line import/order
 export const cnEditorComponent = cn('editor-component');
 const b = cnEditorComponent;
 
-interface EditorWrapperProps extends QAProps {
-    autofocus?: boolean;
+interface EditorWrapperProps extends QAProps, ToolbarConfigs, Omit<ViewProps, 'editor'> {
     editor: EditorInt;
     editorMode: MarkdownEditorMode;
-    enableSubmitInPreview?: boolean;
-    hidePreviewAfterSubmit?: boolean;
     isFocused: boolean;
-    markupHiddenActionsConfig: MToolbarItemData[];
-    markupToolbarConfig: MToolbarData;
-    settingsVisible: boolean;
     showPreview: boolean;
-    stickyToolbar: boolean;
     toggleShowPreview: () => void;
     unsetShowPreview: () => void;
-    wysiwygHiddenActionsConfig: WToolbarItemData[];
-    wysiwygToolbarConfig: WToolbarData;
 }
 const EditorWrapper = forwardRef<HTMLDivElement, EditorWrapperProps>(
     (
@@ -63,19 +54,46 @@ const EditorWrapper = forwardRef<HTMLDivElement, EditorWrapperProps>(
             enableSubmitInPreview,
             hidePreviewAfterSubmit,
             isFocused,
-            markupHiddenActionsConfig,
-            markupToolbarConfig,
+            markupHiddenActionsConfig: initialMarkupHiddenActionsConfig,
+            markupToolbarConfig: initialMarkupToolbarConfig,
             qa,
             settingsVisible,
             showPreview,
             stickyToolbar,
             toggleShowPreview,
+            toolbarsPreset,
             unsetShowPreview,
-            wysiwygHiddenActionsConfig,
-            wysiwygToolbarConfig,
+            wysiwygHiddenActionsConfig: initialWysiwygHiddenActionsConfig,
+            wysiwygToolbarConfig: initialWysiwygToolbarConfig,
         },
         ref,
     ) => {
+        const {
+            wysiwygToolbarConfig,
+            markupToolbarConfig,
+            wysiwygHiddenActionsConfig,
+            markupHiddenActionsConfig,
+        } = useMemo(
+            () =>
+                getToolbarsConfigs({
+                    toolbarsPreset,
+                    props: {
+                        wysiwygToolbarConfig: initialWysiwygToolbarConfig,
+                        markupToolbarConfig: initialMarkupToolbarConfig,
+                        wysiwygHiddenActionsConfig: initialWysiwygHiddenActionsConfig,
+                        markupHiddenActionsConfig: initialMarkupHiddenActionsConfig,
+                    },
+                    preset: editor.preset,
+                }),
+            [
+                toolbarsPreset,
+                initialWysiwygToolbarConfig,
+                initialMarkupToolbarConfig,
+                initialWysiwygHiddenActionsConfig,
+                initialMarkupHiddenActionsConfig,
+                editor.preset,
+            ],
+        );
         const onModeChange = useCallback(
             (type: MarkdownEditorMode) => {
                 editor.changeEditorMode({mode: type, reason: 'settings'});
@@ -216,33 +234,37 @@ const EditorWrapper = forwardRef<HTMLDivElement, EditorWrapperProps>(
 
 EditorWrapper.displayName = 'EditorWrapper';
 
-export type MarkdownEditorViewProps = ClassNameProps &
-    QAProps & {
-        editor?: Editor;
-        autofocus?: boolean;
-        toolbarsPreset?: ToolbarsPreset;
-        /**
-         * @deprecated use `toolbarsPreset` instead
-         */
-        markupToolbarConfig?: MToolbarData;
-        /**
-         * @deprecated use `toolbarsPreset` instead
-         */
-        wysiwygToolbarConfig?: WToolbarData;
-        /**
-         * @deprecated use `toolbarsPreset` instead
-         */
-        markupHiddenActionsConfig?: MToolbarItemData[];
-        /**
-         * @deprecated use `toolbarsPreset` instead
-         */
-        wysiwygHiddenActionsConfig?: WToolbarItemData[];
-        /** @default true */
-        settingsVisible?: boolean;
-        stickyToolbar: boolean;
-        enableSubmitInPreview?: boolean;
-        hidePreviewAfterSubmit?: boolean;
-    };
+type ToolbarConfigs = {
+    /**
+     * @deprecated use `toolbarsPreset` instead
+     */
+    markupToolbarConfig?: MToolbarData;
+    /**
+     * @deprecated use `toolbarsPreset` instead
+     */
+    wysiwygToolbarConfig?: WToolbarData;
+    /**
+     * @deprecated use `toolbarsPreset` instead
+     */
+    markupHiddenActionsConfig?: MToolbarItemData[];
+    /**
+     * @deprecated use `toolbarsPreset` instead
+     */
+    wysiwygHiddenActionsConfig?: WToolbarItemData[];
+};
+
+type ViewProps = {
+    editor?: Editor;
+    autofocus?: boolean;
+    /** @default true */
+    settingsVisible?: boolean;
+    toolbarsPreset?: ToolbarsPreset;
+    stickyToolbar: boolean;
+    enableSubmitInPreview?: boolean;
+    hidePreviewAfterSubmit?: boolean;
+};
+
+export type MarkdownEditorViewProps = ClassNameProps & ToolbarConfigs & ViewProps & QAProps & {};
 
 export const MarkdownEditorView = forwardRef<HTMLDivElement, MarkdownEditorViewProps>(
     (props, ref) => {
@@ -263,46 +285,19 @@ export const MarkdownEditorView = forwardRef<HTMLDivElement, MarkdownEditorViewP
             );
 
         const {
-            qa,
             autofocus,
             className,
-            settingsVisible = true,
-            toolbarsPreset,
-            stickyToolbar,
-            wysiwygToolbarConfig: initialWysiwygToolbarConfig,
-            markupToolbarConfig: initialMarkupToolbarConfig,
-            wysiwygHiddenActionsConfig: initialWysiwygHiddenActionsConfig,
-            markupHiddenActionsConfig: initialMarkupHiddenActionsConfig,
             enableSubmitInPreview = true,
             hidePreviewAfterSubmit = false,
-        } = props;
-
-        const {
-            wysiwygToolbarConfig,
-            markupToolbarConfig,
-            wysiwygHiddenActionsConfig,
             markupHiddenActionsConfig,
-        } = useMemo(
-            () =>
-                getToolbarsConfigs({
-                    toolbarsPreset,
-                    props: {
-                        wysiwygToolbarConfig: initialWysiwygToolbarConfig,
-                        markupToolbarConfig: initialMarkupToolbarConfig,
-                        wysiwygHiddenActionsConfig: initialWysiwygHiddenActionsConfig,
-                        markupHiddenActionsConfig: initialMarkupHiddenActionsConfig,
-                    },
-                    preset: editor.preset,
-                }),
-            [
-                toolbarsPreset,
-                initialWysiwygToolbarConfig,
-                initialMarkupToolbarConfig,
-                initialWysiwygHiddenActionsConfig,
-                initialMarkupHiddenActionsConfig,
-                editor.preset,
-            ],
-        );
+            markupToolbarConfig,
+            qa,
+            settingsVisible = true,
+            stickyToolbar,
+            toolbarsPreset,
+            wysiwygHiddenActionsConfig,
+            wysiwygToolbarConfig,
+        } = props;
 
         const rerender = useUpdate();
         useLayoutEffect(() => {
@@ -378,6 +373,7 @@ export const MarkdownEditorView = forwardRef<HTMLDivElement, MarkdownEditorViewP
                         showPreview={showPreview}
                         stickyToolbar={stickyToolbar}
                         toggleShowPreview={toggleShowPreview}
+                        toolbarsPreset={toolbarsPreset}
                         unsetShowPreview={unsetShowPreview}
                         wysiwygHiddenActionsConfig={wysiwygHiddenActionsConfig}
                         wysiwygToolbarConfig={wysiwygToolbarConfig}
