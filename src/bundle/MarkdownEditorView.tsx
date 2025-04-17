@@ -38,46 +38,50 @@ export const cnEditorComponent = cn('editor-component');
 const b = cnEditorComponent;
 
 interface EditorWrapperProps extends QAProps {
-    onHidePreview: () => void;
-    onShowPreviewChange: (showPreviewValue: boolean) => void;
-    canRenderPreview?: boolean;
-    editor: EditorInt;
-    showPreview: boolean;
-    editorMode: MarkdownEditorMode;
     autofocus?: boolean;
-    settingsVisible: boolean;
-    wysiwygToolbarConfig: WToolbarData;
-    wysiwygHiddenActionsConfig: WToolbarItemData[];
-    stickyToolbar: boolean;
-    markupToolbarConfig: MToolbarData;
+    editor: EditorInt;
+    editorMode: MarkdownEditorMode;
+    enableSubmitInPreview?: boolean;
+    hidePreviewAfterSubmit?: boolean;
+    isFocused: boolean;
     markupHiddenActionsConfig: MToolbarItemData[];
+    markupToolbarConfig: MToolbarData;
+    settingsVisible: boolean;
+    showPreview: boolean;
+    stickyToolbar: boolean;
+    toggleShowPreview: () => void;
+    unsetShowPreview: () => void;
+    wysiwygHiddenActionsConfig: WToolbarItemData[];
+    wysiwygToolbarConfig: WToolbarData;
 }
 const EditorWrapper = forwardRef<HTMLDivElement, EditorWrapperProps>(
     (
         {
-            onHidePreview,
-            onShowPreviewChange,
-            canRenderPreview,
-            editor,
-            showPreview,
-            editorMode,
             autofocus,
-            settingsVisible,
-            wysiwygToolbarConfig,
-            wysiwygHiddenActionsConfig,
-            stickyToolbar,
-            markupToolbarConfig,
+            editor,
+            editorMode,
+            enableSubmitInPreview,
+            hidePreviewAfterSubmit,
+            isFocused,
             markupHiddenActionsConfig,
+            markupToolbarConfig,
             qa,
+            settingsVisible,
+            showPreview,
+            stickyToolbar,
+            toggleShowPreview,
+            unsetShowPreview,
+            wysiwygHiddenActionsConfig,
+            wysiwygToolbarConfig,
         },
         ref,
     ) => {
         const onModeChange = useCallback(
             (type: MarkdownEditorMode) => {
                 editor.changeEditorMode({mode: type, reason: 'settings'});
-                onHidePreview();
+                unsetShowPreview();
             },
-            [editor, onHidePreview],
+            [editor, unsetShowPreview],
         );
         const onToolbarVisibilityChange = useCallback(
             (visible: boolean) => {
@@ -87,10 +91,20 @@ const EditorWrapper = forwardRef<HTMLDivElement, EditorWrapperProps>(
         );
         const onSplitModeChange = useCallback(
             (splitModeEnabled: boolean) => {
-                onHidePreview();
+                unsetShowPreview();
                 editor.changeSplitModeEnabled({splitModeEnabled});
             },
-            [editor, onHidePreview],
+            [editor, unsetShowPreview],
+        );
+        const onShowPreviewChange = useCallback(
+            (showPreviewValue: boolean) => {
+                editor.changeSplitModeEnabled({splitModeEnabled: false});
+                if (showPreviewValue !== showPreview) toggleShowPreview();
+            },
+            [editor, showPreview, toggleShowPreview],
+        );
+        const canRenderPreview = Boolean(
+            editor.renderPreview && editorMode === 'markup' && !editor.splitModeEnabled,
         );
 
         const settings = useMemo(
@@ -124,6 +138,29 @@ const EditorWrapper = forwardRef<HTMLDivElement, EditorWrapperProps>(
                 onShowPreviewChange,
                 canRenderPreview,
             ],
+        );
+
+        useKey(
+            (e) => canRenderPreview && isPreviewKeyDown(e),
+            (e) => {
+                e.preventDefault();
+                onShowPreviewChange(!showPreview);
+            },
+            {event: 'keydown'},
+            [showPreview, editorMode, onShowPreviewChange, canRenderPreview],
+        );
+
+        useKey(
+            (e) => Boolean(enableSubmitInPreview && showPreview && isFocused && isSubmitKeyDown(e)),
+            () => {
+                editor.emit('submit', null);
+
+                if (hidePreviewAfterSubmit) {
+                    onShowPreviewChange(false);
+                }
+            },
+            {event: 'keydown'},
+            [hidePreviewAfterSubmit, enableSubmitInPreview, showPreview, showPreview],
         );
 
         return (
@@ -220,13 +257,13 @@ export type MarkdownEditorViewProps = ClassNameProps &
 export const MarkdownEditorView = forwardRef<HTMLDivElement, MarkdownEditorViewProps>(
     (props, ref) => {
         const divRef = useEnsuredForwardedRef(ref as React.MutableRefObject<HTMLDivElement>);
+        const editorWrapperRef = useRef(null);
+        const [showPreview, , unsetShowPreview, toggleShowPreview] = useBooleanState(false);
 
         const [isMounted, setIsMounted] = useState(false);
         useEffect(() => {
             setIsMounted(true);
         }, []);
-
-        const [showPreview, , unsetShowPreview, toggleShowPreview] = useBooleanState(false);
 
         const context = useMarkdownEditorContext();
         const editor = (props.editor ?? context) as EditorInt;
@@ -285,58 +322,19 @@ export const MarkdownEditorView = forwardRef<HTMLDivElement, MarkdownEditorViewP
             };
         }, [editor, rerender]);
 
-        const onShowPreviewChange = useCallback(
-            (showPreviewValue: boolean) => {
-                editor.changeSplitModeEnabled({splitModeEnabled: false});
-                if (showPreviewValue !== showPreview) toggleShowPreview();
-            },
-            [editor, showPreview, toggleShowPreview],
-        );
-
         const editorMode = editor.currentMode;
         const markupSplitMode =
             editor.splitModeEnabled && editor.splitMode && editorMode === 'markup';
-        const canRenderPreview = Boolean(
-            editor.renderPreview && editorMode === 'markup' && !editor.splitModeEnabled,
-        );
 
-        useKey(
-            (e) => canRenderPreview && isPreviewKeyDown(e),
-            (e) => {
-                e.preventDefault();
-                onShowPreviewChange(!showPreview);
-            },
-            {event: 'keydown'},
-            [showPreview, editorMode, onShowPreviewChange, canRenderPreview],
-        );
-
-        const editorWrapperRef = useRef(null);
         const splitModeViewWrapperRef = useRef(null);
+
+        const toaster = useToaster();
 
         useEffect(() => {
             if (showPreview) {
                 divRef.current.focus();
             }
         }, [divRef, showPreview]);
-
-        useKey(
-            (e) =>
-                enableSubmitInPreview &&
-                showPreview &&
-                isWrapperFocused(divRef) &&
-                isSubmitKeyDown(e),
-            () => {
-                editor.emit('submit', null);
-
-                if (hidePreviewAfterSubmit) {
-                    onShowPreviewChange(false);
-                }
-            },
-            {event: 'keydown'},
-            [hidePreviewAfterSubmit, enableSubmitInPreview, showPreview, showPreview],
-        );
-
-        const toaster = useToaster();
 
         return (
             <ErrorBoundary
@@ -376,21 +374,23 @@ export const MarkdownEditorView = forwardRef<HTMLDivElement, MarkdownEditorViewP
                     tabIndex={0}
                 >
                     <EditorWrapper
-                        onHidePreview={unsetShowPreview}
-                        onShowPreviewChange={onShowPreviewChange}
-                        canRenderPreview={canRenderPreview}
+                        autofocus={autofocus}
+                        editor={editor}
+                        editorMode={editorMode}
+                        enableSubmitInPreview={enableSubmitInPreview}
+                        hidePreviewAfterSubmit={hidePreviewAfterSubmit}
+                        isFocused={isWrapperFocused(divRef)}
+                        markupHiddenActionsConfig={markupHiddenActionsConfig}
+                        markupToolbarConfig={markupToolbarConfig}
                         qa="g-md-editor-mode"
                         ref={editorWrapperRef}
-                        editor={editor}
-                        showPreview={showPreview}
-                        editorMode={editorMode}
-                        autofocus={autofocus}
                         settingsVisible={settingsVisible}
-                        wysiwygToolbarConfig={wysiwygToolbarConfig}
-                        wysiwygHiddenActionsConfig={wysiwygHiddenActionsConfig}
+                        showPreview={showPreview}
                         stickyToolbar={stickyToolbar}
-                        markupToolbarConfig={markupToolbarConfig}
-                        markupHiddenActionsConfig={markupHiddenActionsConfig}
+                        toggleShowPreview={toggleShowPreview}
+                        unsetShowPreview={unsetShowPreview}
+                        wysiwygHiddenActionsConfig={wysiwygHiddenActionsConfig}
+                        wysiwygToolbarConfig={wysiwygToolbarConfig}
                     />
 
                     {markupSplitMode && (
