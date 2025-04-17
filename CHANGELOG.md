@@ -13,6 +13,11 @@
 * **markup:** fix pasting image urls to link lines ([#721](https://github.com/gravity-ui/markdown-editor/issues/721)) ([2fddf0a](https://github.com/gravity-ui/markdown-editor/commit/2fddf0a80d43a53630f2228b78ba89ec335c916c))
 * **QuoteLink:** move clipboard button style to the plugin styles ([#724](https://github.com/gravity-ui/markdown-editor/issues/724)) ([8b65ebd](https://github.com/gravity-ui/markdown-editor/commit/8b65ebd426945de60e986874c8241921c0adf252))
 
+
+### Refactoring
+
+* **bundle:** move editor content to additional component ([#722](https://github.com/gravity-ui/markdown-editor/issues/722)) ([2b94fd3](https://github.com/gravity-ui/markdown-editor/commit/2b94fd36c4a9717252fb8dae790dc0c5574fa4a4))
+  
 ## [15.7.0](https://github.com/gravity-ui/markdown-editor/compare/v15.6.1...v15.7.0) (2025-04-15)
 
 
