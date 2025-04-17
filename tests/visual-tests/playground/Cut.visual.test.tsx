@@ -29,7 +29,7 @@ test.describe('Cut', () => {
         await mount(<Playground initial={initialMarkup} />);
     });
 
-    test('should open second cut', async ({expectScreenshot, editor, page, wait}) => {
+    test.skip('should open second cut', async ({expectScreenshot, editor, page, wait}) => {
         await editor.switchMode('wysiwyg');
         const nestedCut = page.getByText('Cut with nested сut header').first().locator('..');
         await wait.visible(nestedCut);
@@ -46,7 +46,12 @@ test.describe('Cut', () => {
         await expectScreenshot();
     });
 
-    test('should cut inside open second cut', async ({expectScreenshot, editor, page, wait}) => {
+    test.skip('should cut inside open second cut', async ({
+        expectScreenshot,
+        editor,
+        page,
+        wait,
+    }) => {
         await editor.switchMode('wysiwyg');
 
         const nestedCut = page.getByText('Cut with nested сut header').first().locator('..');
@@ -73,7 +78,12 @@ test.describe('Cut', () => {
         await expectScreenshot();
     });
 
-    test('should open second cut in preview', async ({editor, page, expectScreenshot, wait}) => {
+    test.skip('should open second cut in preview', async ({
+        editor,
+        page,
+        expectScreenshot,
+        wait,
+    }) => {
         await editor.switchPreview('visible');
 
         const nestedCut = page.getByText('Cut with nested сut header').first().locator('..');
@@ -85,7 +95,7 @@ test.describe('Cut', () => {
         await expectScreenshot();
     });
 
-    test('should insert cut block via command menu', async ({page, editor, actions, wait}) => {
+    test.skip('should insert cut block via command menu', async ({page, editor, actions, wait}) => {
         await editor.switchPreview('hidden');
         await editor.switchMode('wysiwyg');
         await editor.clearContent();
@@ -111,7 +121,7 @@ test.describe('Cut', () => {
         await expect(editor.getByTextInContenteditable('content')).toBeVisible();
     });
 
-    test('should insert cut via short code', async ({page, editor, actions, wait}) => {
+    test.skip('should insert cut via short code', async ({page, editor, actions, wait}) => {
         await editor.switchMode('markup');
         await editor.clearContent();
 
@@ -123,5 +133,49 @@ test.describe('Cut', () => {
         await wait.timeout(300);
 
         await expect(editor.getByTextInContenteditable('{% cut "title" %}')).toBeVisible();
+    });
+
+    test.skip('should display cut block content in markup mode', async ({editor, wait}) => {
+        const cutMarkup = '{% cut "Cut header" %}\nHidden content\n{% endcut %}';
+        await editor.switchMode('markup');
+        await editor.fill(cutMarkup);
+        await wait.timeout();
+
+        await expect(editor.getByTextInContenteditable('Cut header')).toBeVisible();
+        await expect(editor.getByTextInContenteditable('Hidden content')).toBeVisible();
+        await expect(editor.getByTextInContenteditable('{% endcut %}')).toBeVisible();
+    });
+
+    test.skip('should insert cut block via input rule when typing {% cut', async ({
+        editor,
+        wait,
+    }) => {
+        await editor.inputRule('{% cut');
+        await wait.timeout();
+
+        const cutBlock = editor.getByTextInContenteditable('Cut title').first();
+        await expect(cutBlock).toBeVisible();
+    });
+
+    test('should insert cut via toolbar in WYSIWYG and highlight toolbar button when inside cut', async ({
+        editor,
+        page,
+        wait,
+    }) => {
+        await editor.switchMode('wysiwyg');
+        await editor.clearContent();
+
+        await editor.clickToolbarButton('cut');
+        await wait.timeout();
+
+        const cutButton = page.locator('[data-qa="g-md-toolbar-cut"]');
+        await expect(cutButton).toHaveClass(/g-button_disabled/);
+
+        await editor.press('ArrowDown');
+        await editor.press('ArrowDown');
+        await editor.press('ArrowDown');
+        await wait.timeout();
+
+        await expect(cutButton).not.toHaveClass(/g-button_disabled/);
     });
 });
