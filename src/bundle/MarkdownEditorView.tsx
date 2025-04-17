@@ -107,39 +107,6 @@ const EditorWrapper = forwardRef<HTMLDivElement, EditorWrapperProps>(
             editor.renderPreview && editorMode === 'markup' && !editor.splitModeEnabled,
         );
 
-        const settings = useMemo(
-            () => (
-                <Settings
-                    mode={editorMode}
-                    settingsVisible={settingsVisible}
-                    onModeChange={onModeChange}
-                    toolbarVisibility={editor.toolbarVisible && !showPreview}
-                    onToolbarVisibilityChange={onToolbarVisibilityChange}
-                    onSplitModeChange={onSplitModeChange}
-                    splitModeEnabled={editor.splitModeEnabled}
-                    splitMode={editor.splitMode}
-                    stickyToolbar={stickyToolbar}
-                    onShowPreviewChange={onShowPreviewChange}
-                    showPreview={showPreview}
-                    renderPreviewButton={canRenderPreview}
-                />
-            ),
-            [
-                editorMode,
-                settingsVisible,
-                editor.toolbarVisible,
-                editor.splitModeEnabled,
-                editor.splitMode,
-                onModeChange,
-                showPreview,
-                onToolbarVisibilityChange,
-                onSplitModeChange,
-                stickyToolbar,
-                onShowPreviewChange,
-                canRenderPreview,
-            ],
-        );
-
         useKey(
             (e) => canRenderPreview && isPreviewKeyDown(e),
             (e) => {
@@ -163,6 +130,20 @@ const EditorWrapper = forwardRef<HTMLDivElement, EditorWrapperProps>(
             [hidePreviewAfterSubmit, enableSubmitInPreview, showPreview, showPreview],
         );
 
+        const settingsProps = {
+            mode: editorMode,
+            onModeChange,
+            onShowPreviewChange,
+            onSplitModeChange,
+            onToolbarVisibilityChange,
+            renderPreviewButton: canRenderPreview,
+            showPreview,
+            splitMode: editor.splitMode,
+            splitModeEnabled: editor.splitModeEnabled,
+            stickyToolbar,
+            toolbarVisibility: editor.toolbarVisible && !showPreview,
+        };
+
         return (
             <div
                 className={b('editor-wrapper')}
@@ -180,7 +161,7 @@ const EditorWrapper = forwardRef<HTMLDivElement, EditorWrapperProps>(
                                 directiveSyntax: editor.directiveSyntax,
                             })}
                         </div>
-                        {settings}
+                        <Settings {...settingsProps} settingsVisible={settingsVisible} />
                     </>
                 ) : (
                     <>
@@ -196,7 +177,10 @@ const EditorWrapper = forwardRef<HTMLDivElement, EditorWrapperProps>(
                                 toolbarClassName={b('toolbar')}
                                 stickyToolbar={stickyToolbar}
                             >
-                                {editor.toolbarVisible && settingsVisible && settings}
+                                <Settings
+                                    {...settingsProps}
+                                    settingsVisible={settingsVisible && editor.toolbarVisible}
+                                />
                             </WysiwygEditorView>
                         )}
                         {editorMode === 'markup' && (
@@ -213,10 +197,16 @@ const EditorWrapper = forwardRef<HTMLDivElement, EditorWrapperProps>(
                                 toolbarClassName={b('toolbar')}
                                 stickyToolbar={stickyToolbar}
                             >
-                                {editor.toolbarVisible && settings}
+                                <Settings
+                                    {...settingsProps}
+                                    settingsVisible={settingsVisible && editor.toolbarVisible}
+                                />
                             </MarkupEditorView>
                         )}
-                        {!editor.toolbarVisible && settings}
+                        <Settings
+                            {...settingsProps}
+                            settingsVisible={settingsVisible && !editor.toolbarVisible}
+                        />
                     </>
                 )}
             </div>
