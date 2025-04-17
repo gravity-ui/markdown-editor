@@ -1,5 +1,18 @@
 # Changelog
 
+## [15.8.0](https://github.com/gravity-ui/markdown-editor/compare/v15.7.0...v15.8.0) (2025-04-17)
+
+
+### Features
+
+* **image:** move selection to the image title on toolbar item click ([#725](https://github.com/gravity-ui/markdown-editor/issues/725)) ([68096df](https://github.com/gravity-ui/markdown-editor/commit/68096df110a5d232290a35d30b31c4d99766d5e7))
+
+
+### Bug Fixes
+
+* **markup:** fix pasting image urls to link lines ([#721](https://github.com/gravity-ui/markdown-editor/issues/721)) ([2fddf0a](https://github.com/gravity-ui/markdown-editor/commit/2fddf0a80d43a53630f2228b78ba89ec335c916c))
+* **QuoteLink:** move clipboard button style to the plugin styles ([#724](https://github.com/gravity-ui/markdown-editor/issues/724)) ([8b65ebd](https://github.com/gravity-ui/markdown-editor/commit/8b65ebd426945de60e986874c8241921c0adf252))
+
 ## [15.7.0](https://github.com/gravity-ui/markdown-editor/compare/v15.6.1...v15.7.0) (2025-04-15)
 
 
