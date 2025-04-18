@@ -12,6 +12,8 @@ import type {
     TestFixture,
 } from '@playwright/test';
 
+import type {PlaywrightActions} from 'playwright/core/actions';
+
 import type {MarkdownEditorPage} from './editor';
 import type {DebugHelpers, PlaywrightHelpers} from './helpers';
 
@@ -34,6 +36,7 @@ export type Fixtures = {
     mount: MountFixture;
     expectScreenshot: ExpectScreenshotFixture;
     wait: WaitFixture;
+    actions: PlaywrightActions;
     editor: MarkdownEditorPage;
     helpers: PlaywrightHelpers;
     debug: DebugHelpers;
@@ -49,6 +52,9 @@ export interface ExpectScreenshotFixture {
 export interface WaitFixture {
     loadersHiddenQASelect(): Promise<void>;
     loadersHidden(): Promise<void>;
+    visible(selector: Locator): Promise<void>;
+    hidden(selector: Locator): Promise<void>;
+    timeout(delay?: number): Promise<void>;
 }
 
 export interface CaptureScreenshotParams extends PageScreenshotOptions {

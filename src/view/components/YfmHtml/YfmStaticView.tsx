@@ -1,15 +1,16 @@
 import {forwardRef} from 'react';
 
 import {classnames} from '@bem-react/classnames';
+import type {QAProps} from '@gravity-ui/uikit';
 
 import type {ClassNameProps} from '../../../classname';
 
-export type YfmStaticViewProps = ClassNameProps & {
-    html: string;
-    linksVisited?: boolean;
-    noListReset?: boolean;
-    qa?: string;
-};
+export type YfmStaticViewProps = ClassNameProps &
+    QAProps & {
+        html: string;
+        linksVisited?: boolean;
+        noListReset?: boolean;
+    };
 
 export const YfmStaticView = forwardRef<HTMLDivElement, YfmStaticViewProps>(
     function YFMStaticView(props, ref) {

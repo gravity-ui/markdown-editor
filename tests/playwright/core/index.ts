@@ -1,5 +1,7 @@
 import {test as base, expect} from '@playwright/experimental-ct-react';
 
+import {PlaywrightActions} from 'playwright/core/actions';
+
 import {MarkdownEditorPage} from './editor';
 import {expectScreenshot} from './expectScreenshot';
 import {DebugHelpers, PlaywrightHelpers} from './helpers';
@@ -11,6 +13,10 @@ export const test = base.extend<Fixtures>({
     mount,
     expectScreenshot,
     wait,
+    actions: async ({page}, use) => {
+        const actions = new PlaywrightActions(page);
+        await use(actions);
+    },
     editor: async ({page}, use) => {
         const editor = new MarkdownEditorPage(page, expect);
         await use(editor);

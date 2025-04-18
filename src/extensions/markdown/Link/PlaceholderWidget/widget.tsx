@@ -26,7 +26,14 @@ export const LinkPlaceholderWidget: React.FC<LinkPlaceholderWidgetProps> = ({
                 {/* eslint-disable-next-line jsx-a11y/anchor-is-valid */}
                 <a href="#">{i18n('link')}</a>
             </span>
-            <Popup open modal onOpenChange={onCancel} anchorElement={anchor} placement={placement}>
+            <Popup
+                qa="g-md-link-form"
+                open
+                modal
+                onOpenChange={onCancel}
+                anchorElement={anchor}
+                placement={placement}
+            >
                 <LinkForm autoFocus onSubmit={onSubmit} onCancel={onCancel} />
             </Popup>
         </>
