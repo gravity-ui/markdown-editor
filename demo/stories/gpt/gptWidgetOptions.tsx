@@ -69,5 +69,6 @@ export const gptWidgetProps = (
         onUpdate: (event) => {
             console.log('update:', event);
         },
+        hotKey: 'Mod-m',
     };
 };
