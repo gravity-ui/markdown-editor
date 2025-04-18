@@ -6,6 +6,7 @@ import {MToolbarFilePopup} from '../../bundle/toolbar/markup/MToolbarFilePopup';
 import {MToolbarImagePopup} from '../../bundle/toolbar/markup/MToolbarImagePopup';
 import {WToolbarColors} from '../../bundle/toolbar/wysiwyg/WToolbarColors';
 import {WToolbarTextSelect} from '../../bundle/toolbar/wysiwyg/WToolbarTextSelect';
+import {showMarkupGpt} from '../../extensions/additional/GPT';
 import {gptHotKeys} from '../../extensions/additional/GPT/constants';
 import {headingType, pType} from '../../extensions/specs';
 import {i18n as i18nHint} from '../../i18n/hints';
@@ -795,7 +796,7 @@ export const gptItemWysiwyg: ToolbarItemWysiwyg = {
     isEnable: (e) => e.actions.addGptWidget.isEnable(),
 };
 export const gptItemMarkup: ToolbarItemMarkup = {
-    exec: (e) => insertMermaidDiagram(e.cm),
+    exec: (e) => showMarkupGpt(e.cm),
     isActive: inactive,
     isEnable: enable,
 };
