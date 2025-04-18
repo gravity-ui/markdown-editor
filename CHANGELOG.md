@@ -1,5 +1,12 @@
 # Changelog
 
+## [15.8.1](https://github.com/gravity-ui/markdown-editor/compare/v15.8.0...v15.8.1) (2025-04-18)
+
+
+### Bug Fixes
+
+* **gpt:** fix gpt markup action for preset ([#727](https://github.com/gravity-ui/markdown-editor/issues/727)) ([9221b3a](https://github.com/gravity-ui/markdown-editor/commit/9221b3a5d9efb6c336f58cae5bfe620e61d87ab4))
+
 ## [15.8.0](https://github.com/gravity-ui/markdown-editor/compare/v15.7.0...v15.8.0) (2025-04-17)
 
 
