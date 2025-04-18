@@ -1,8 +1,10 @@
 import {useEffect, useRef} from 'react';
 
+import type {QAProps} from '@gravity-ui/uikit';
+
 import type {EditorInt} from './Editor';
 
-export type WysiwygEditorComponentProps = {
+export type WysiwygEditorComponentProps = QAProps & {
     className?: string;
     autofocus?: boolean;
     editor: EditorInt;
@@ -10,7 +12,7 @@ export type WysiwygEditorComponentProps = {
 };
 
 export const WysiwygEditorComponent: React.FC<WysiwygEditorComponentProps> =
-    function WysiwygEditorComponent({className, autofocus, editor, children}) {
+    function WysiwygEditorComponent({className, autofocus, editor, children, qa}) {
         const ref = useRef<HTMLDivElement>(null);
         useEffect(() => {
             const {current} = ref;
@@ -23,7 +25,7 @@ export const WysiwygEditorComponent: React.FC<WysiwygEditorComponentProps> =
         }, [editor]);
 
         return (
-            <div ref={ref} className={className}>
+            <div data-qa={qa} ref={ref} className={className}>
                 {children}
             </div>
         );

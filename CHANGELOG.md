@@ -1,5 +1,123 @@
 # Changelog
 
+## [15.8.0](https://github.com/gravity-ui/markdown-editor/compare/v15.7.0...v15.8.0) (2025-04-17)
+
+
+### Features
+
+* **image:** move selection to the image title on toolbar item click ([#725](https://github.com/gravity-ui/markdown-editor/issues/725)) ([68096df](https://github.com/gravity-ui/markdown-editor/commit/68096df110a5d232290a35d30b31c4d99766d5e7))
+
+
+### Bug Fixes
+
+* **markup:** fix pasting image urls to link lines ([#721](https://github.com/gravity-ui/markdown-editor/issues/721)) ([2fddf0a](https://github.com/gravity-ui/markdown-editor/commit/2fddf0a80d43a53630f2228b78ba89ec335c916c))
+* **QuoteLink:** move clipboard button style to the plugin styles ([#724](https://github.com/gravity-ui/markdown-editor/issues/724)) ([8b65ebd](https://github.com/gravity-ui/markdown-editor/commit/8b65ebd426945de60e986874c8241921c0adf252))
+
+
+### Refactoring
+
+* **bundle:** move editor content to additional component ([#722](https://github.com/gravity-ui/markdown-editor/issues/722)) ([2b94fd3](https://github.com/gravity-ui/markdown-editor/commit/2b94fd36c4a9717252fb8dae790dc0c5574fa4a4))
+  
+## [15.7.0](https://github.com/gravity-ui/markdown-editor/compare/v15.6.1...v15.7.0) (2025-04-15)
+
+
+### Features
+
+* **deps:** updated prosemirror-view to 1.38.0 ([#717](https://github.com/gravity-ui/markdown-editor/issues/717)) ([dbae4a8](https://github.com/gravity-ui/markdown-editor/commit/dbae4a8e7b967530e578b4b76342997664028f44))
+
+## [15.6.1](https://github.com/gravity-ui/markdown-editor/compare/v15.6.0...v15.6.1) (2025-04-14)
+
+
+### Bug Fixes
+
+* **deps:** updated codemirror, prosemirror, lezer versions ([#715](https://github.com/gravity-ui/markdown-editor/issues/715)) ([c2e4a8e](https://github.com/gravity-ui/markdown-editor/commit/c2e4a8e7f8a069942730eebe06dc37a0cb1854a2))
+
+## [15.6.0](https://github.com/gravity-ui/markdown-editor/compare/v15.5.1...v15.6.0) (2025-04-07)
+
+
+### Features
+
+* **toolbar:** show current heading level in editor toolbar ([#696](https://github.com/gravity-ui/markdown-editor/issues/696)) ([bac13dc](https://github.com/gravity-ui/markdown-editor/commit/bac13dc95af7d60f8e75be5014a32277144ba505))
+
+
+### Bug Fixes
+
+* **Clipboard:** fixed trimContent ([#709](https://github.com/gravity-ui/markdown-editor/issues/709)) ([d325e39](https://github.com/gravity-ui/markdown-editor/commit/d325e39f5006cae7e69ae13468a3b92b9539c631))
+
+## [15.5.1](https://github.com/gravity-ui/markdown-editor/compare/v15.5.0...v15.5.1) (2025-03-31)
+
+
+### Bug Fixes
+
+* **QuoteLink:** fixed cjs build ([#701](https://github.com/gravity-ui/markdown-editor/issues/701)) ([d1a2270](https://github.com/gravity-ui/markdown-editor/commit/d1a2270aeba67879b5fe5ce84281b2c01ee43c6c))
+
+## [15.5.0](https://github.com/gravity-ui/markdown-editor/compare/v15.4.2...v15.5.0) (2025-03-31)
+
+
+### Features
+
+* **Lists:** added sinkOnlySelectedListItem ([#687](https://github.com/gravity-ui/markdown-editor/issues/687)) ([6f54ee7](https://github.com/gravity-ui/markdown-editor/commit/6f54ee7b0244587230a61c764c6a80d6ade3fda1))
+* **QuoteLink:** added QuoteLink additional extension for wysiwyg mode ([#667](https://github.com/gravity-ui/markdown-editor/issues/667)) ([138120a](https://github.com/gravity-ui/markdown-editor/commit/138120ac63725bd3f11720ccc216263f6cd96642))
+* **wysiwyg:** allow to disable `markdown-it-attrs` in yfm preset ([#690](https://github.com/gravity-ui/markdown-editor/issues/690)) ([da1c209](https://github.com/gravity-ui/markdown-editor/commit/da1c20949ec83d1395ee77d0313f7f4cb0d8d084))
+
+
+### Bug Fixes
+
+* **bundle:** added qa-attributes ([c16aa59](https://github.com/gravity-ui/markdown-editor/commit/c16aa5994f6edfbaf8df513ef2f0b03e463e37cb))
+* import of sanitize ([#700](https://github.com/gravity-ui/markdown-editor/issues/700)) ([8ad83fa](https://github.com/gravity-ui/markdown-editor/commit/8ad83fab6e849840a30c25430c51c035efb1cf6f))
+* sanitize default import ([#698](https://github.com/gravity-ui/markdown-editor/issues/698)) ([878ed96](https://github.com/gravity-ui/markdown-editor/commit/878ed96199b2af8b9b3764e90c3d611b0b51f337))
+
+## [15.4.2](https://github.com/gravity-ui/markdown-editor/compare/v15.4.1...v15.4.2) (2025-03-17)
+
+
+### Bug Fixes
+
+* **view:** setupRuntimeConfig is not a function on old html-extension peer ([#685](https://github.com/gravity-ui/markdown-editor/issues/685)) ([9b44af4](https://github.com/gravity-ui/markdown-editor/commit/9b44af47aa5e41094f6fe9d39a6886ea75887e6c))
+
+## [15.4.1](https://github.com/gravity-ui/markdown-editor/compare/v15.4.0...v15.4.1) (2025-03-14)
+
+
+### Bug Fixes
+
+* **link:** fixed link cursor focus ([#648](https://github.com/gravity-ui/markdown-editor/issues/648)) ([c4797ef](https://github.com/gravity-ui/markdown-editor/commit/c4797efa456eb32f01afbe832d1c4b2a1d26c854))
+* **Mermaid:** removed unnecessary consolelog in nodeview ([#681](https://github.com/gravity-ui/markdown-editor/issues/681)) ([dadecdb](https://github.com/gravity-ui/markdown-editor/commit/dadecdb70b2a030a1bca0e38df7ae18acf6224f1))
+* use primitive boolean type in `useSharedEditingState` hook ([#682](https://github.com/gravity-ui/markdown-editor/issues/682)) ([e476365](https://github.com/gravity-ui/markdown-editor/commit/e476365c153665ba2cd70f01866c52e0b010069e))
+
+## [15.4.0](https://github.com/gravity-ui/markdown-editor/compare/v15.3.1...v15.4.0) (2025-03-13)
+
+
+### Features
+
+* **Mermaid:** use shared state to manage editing state ([8568fb9](https://github.com/gravity-ui/markdown-editor/commit/8568fb94acc190aa20dd5c276156b5c9cee86e43))
+* **react-utils:** added helper hook for manage shared editing state ([b1b4e6b](https://github.com/gravity-ui/markdown-editor/commit/b1b4e6b268df017b1929cd7fdc4664226fe15388))
+* **utils:** added helpers to generating and validating entity ids ([280d8ed](https://github.com/gravity-ui/markdown-editor/commit/280d8edf1aa115d233f42953be3d29a133c9143c))
+* **view:** added option to control HTML block runtimes ([#674](https://github.com/gravity-ui/markdown-editor/issues/674)) ([ad03230](https://github.com/gravity-ui/markdown-editor/commit/ad0323059a6e1c42280995e054af0db83d90687d))
+* **wysiwyg:** implemented shared state extension ([d3de016](https://github.com/gravity-ui/markdown-editor/commit/d3de016c9b40021d783f3b8de48dc5d44d1df4ee))
+* **YfmHtmlBlock:** use shared state to manage editing state ([a63b121](https://github.com/gravity-ui/markdown-editor/commit/a63b1214f1450d2b14870705ce9d263db2405ed4))
+
+
+### Bug Fixes
+
+* **Clipboard:** correct handling of pasting into code ([#678](https://github.com/gravity-ui/markdown-editor/issues/678)) ([ea31ecc](https://github.com/gravity-ui/markdown-editor/commit/ea31ecc01baec650b1199c593f58b99c49cd6f39))
+* get actual range when selecting item in suggests (command menu, emoji suggest) ([#673](https://github.com/gravity-ui/markdown-editor/issues/673)) ([d70644a](https://github.com/gravity-ui/markdown-editor/commit/d70644a0e557465e0a27d2122175a5b894517616))
+
+## [15.3.1](https://github.com/gravity-ui/markdown-editor/compare/v15.3.0...v15.3.1) (2025-03-07)
+
+
+### Bug Fixes
+
+* **CodeBlock:** resolved async import loading for CodeBlockHighlight ([#672](https://github.com/gravity-ui/markdown-editor/issues/672)) ([2f68e16](https://github.com/gravity-ui/markdown-editor/commit/2f68e163e77d43d48bdba32fc4ff3290c77b1d40))
+* **gpt:** added onClose props in plugin for  markup mode ([#669](https://github.com/gravity-ui/markdown-editor/issues/669)) ([689cc20](https://github.com/gravity-ui/markdown-editor/commit/689cc2067dfe9ccac531beee107feacaea90ae70))
+
+## [15.3.0](https://github.com/gravity-ui/markdown-editor/compare/v15.2.2...v15.3.0) (2025-03-05)
+
+
+### Features
+
+* **Clipboard:** added trim empty list items before copying ([#658](https://github.com/gravity-ui/markdown-editor/issues/658)) ([ed88851](https://github.com/gravity-ui/markdown-editor/commit/ed88851821de069d9c6f1b2dfa4891580057937a))
+* **Lists:** improved collapsing of empty list items with nested lists ([#653](https://github.com/gravity-ui/markdown-editor/issues/653)) ([c828137](https://github.com/gravity-ui/markdown-editor/commit/c828137f726a80722772583bf5f6a2985b51021e))
+* **YfmHtmlBlock:** added compatibility for sanitize named export ([#668](https://github.com/gravity-ui/markdown-editor/issues/668)) ([e76af56](https://github.com/gravity-ui/markdown-editor/commit/e76af563426c75aea80ee8168176f9c8563f4030))
+
 ## [15.2.2](https://github.com/gravity-ui/markdown-editor/compare/v15.2.1...v15.2.2) (2025-02-27)
 
 

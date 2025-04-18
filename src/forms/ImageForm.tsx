@@ -35,6 +35,7 @@ export type ImageFormProps = ClassNameProps & {
     onCancel(): void;
     onAttach?: (files: File[]) => void;
     loading?: boolean;
+    imageTitle?: string;
 };
 
 export const ImageForm: React.FC<ImageFormProps> = ({
@@ -44,12 +45,13 @@ export const ImageForm: React.FC<ImageFormProps> = ({
     onSubmit,
     onAttach,
     loading,
+    imageTitle: providedName,
 }) => {
     const [tabId, setTabId] = useState<string>(() =>
         isFunction(onAttach) ? ImageTabId.Attach : ImageTabId.Link,
     );
     const [url, setUrl] = useState('');
-    const [name, setName] = useState('');
+    const [name, setName] = useState(providedName ?? '');
     const [alt, setAlt] = useState('');
     const [width, setWidth] = useState<number | undefined>();
     const [height, setHeight] = useState<number | undefined>();

@@ -1,4 +1,4 @@
-@import '~@gravity-ui/uikit/styles/mixins';
+@use '~@gravity-ui/uikit/styles/mixins' as uikit;
 
 .g-md-form-row {
     display: flex;
@@ -13,7 +13,7 @@
     }
 
     &__label-text {
-        @include overflow-ellipsis();
+        @include uikit.overflow-ellipsis();
     }
 
     &__label-help {

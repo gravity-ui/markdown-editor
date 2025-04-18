@@ -90,6 +90,7 @@ export const Preset = memo<PresetDemoProps>((props) => {
             splitModeEnabled: true,
         },
         wysiwygConfig: {
+            disableMarkdownAttrs: true,
             extensionOptions: {
                 imgSize: {
                     parseInsertedUrlAsImage,
@@ -129,25 +130,27 @@ export const Preset = memo<PresetDemoProps>((props) => {
                 <span className={b('version')}>{VERSION}</span>
             </div>
             <hr />
-            <StrictMode>
-                <div className={b('editor')} style={{height: height ?? 'initial'}}>
-                    <MarkdownEditorView
-                        autofocus
-                        toolbarsPreset={toolbarsPreset}
-                        className={b('editor-view')}
-                        stickyToolbar={Boolean(stickyToolbar)}
-                        settingsVisible={settingsVisible}
-                        editor={mdEditor}
-                    />
-                    <WysiwygDevTools editor={mdEditor} />
-                    <WysiwygSelection editor={mdEditor} className={b('pm-selection')} />
+            <div className={b('editor-markup')}>
+                <StrictMode>
+                    <div className={b('editor')} style={{height: height ?? 'initial'}}>
+                        <MarkdownEditorView
+                            autofocus
+                            toolbarsPreset={toolbarsPreset}
+                            className={b('editor-view')}
+                            stickyToolbar={Boolean(stickyToolbar)}
+                            settingsVisible={settingsVisible}
+                            editor={mdEditor}
+                        />
+                        <WysiwygDevTools editor={mdEditor} />
+                        <WysiwygSelection editor={mdEditor} className={b('pm-selection')} />
+                    </div>
+                </StrictMode>
+
+                <hr />
+
+                <div className={b('preview')}>
+                    {editorMode === 'wysiwyg' && <pre className={b('markup')}>{mdRaw}</pre>}
                 </div>
-            </StrictMode>
-
-            <hr />
-
-            <div className={b('preview')}>
-                {editorMode === 'wysiwyg' && <pre className={b('markup')}>{mdRaw}</pre>}
             </div>
         </div>
     );

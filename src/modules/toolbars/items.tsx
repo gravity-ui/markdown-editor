@@ -6,11 +6,13 @@ import {MToolbarFilePopup} from '../../bundle/toolbar/markup/MToolbarFilePopup';
 import {MToolbarImagePopup} from '../../bundle/toolbar/markup/MToolbarImagePopup';
 import {WToolbarColors} from '../../bundle/toolbar/wysiwyg/WToolbarColors';
 import {WToolbarTextSelect} from '../../bundle/toolbar/wysiwyg/WToolbarTextSelect';
+import {showMarkupGpt} from '../../extensions/additional/GPT';
 import {gptHotKeys} from '../../extensions/additional/GPT/constants';
 import {headingType, pType} from '../../extensions/specs';
 import {i18n as i18nHint} from '../../i18n/hints';
 import {i18n} from '../../i18n/menubar';
 import {
+    insertBlockquoteLink,
     insertHRule,
     insertLink,
     insertMermaidDiagram,
@@ -251,6 +253,26 @@ export const quoteItemWysiwyg: ToolbarItemWysiwyg = {
 };
 export const quoteItemMarkup: ToolbarItemMarkup = {
     exec: (e) => wrapToBlockquote(e.cm),
+    isActive: inactive,
+    isEnable: enable,
+};
+
+// ---- Quote Link ----
+export const quoteLinkItemView: ToolbarItemView = {
+    type: ToolbarDataType.SingleButton,
+    title: i18n.bind(null, 'quotelink'),
+    icon: icons.quoteLink,
+};
+export const quoteLinkItemWysiwyg: ToolbarItemWysiwyg = {
+    exec: (e) => {
+        e.actions.quoteLink.run();
+        e.actions.addLinkToQuoteLink.run();
+    },
+    isActive: (e) => e.actions.quoteLink.isActive(),
+    isEnable: (e) => e.actions.quoteLink.isEnable(),
+};
+export const quoteLinkItemMarkup: ToolbarItemMarkup = {
+    exec: (e) => insertBlockquoteLink(e.cm),
     isActive: inactive,
     isEnable: enable,
 };
@@ -774,7 +796,7 @@ export const gptItemWysiwyg: ToolbarItemWysiwyg = {
     isEnable: (e) => e.actions.addGptWidget.isEnable(),
 };
 export const gptItemMarkup: ToolbarItemMarkup = {
-    exec: (e) => insertMermaidDiagram(e.cm),
+    exec: (e) => showMarkupGpt(e.cm),
     isActive: inactive,
     isEnable: enable,
 };
@@ -785,6 +807,7 @@ export const headingListItemView: ToolbarItemView<ToolbarDataType.ListButton> = 
     icon: icons.headline,
     title: i18n.bind(null, 'heading'),
     withArrow: true,
+    replaceActiveIcon: true,
 };
 
 // ---- Lists list ----

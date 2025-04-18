@@ -17,6 +17,7 @@
       "#core": ["./src/core"],
       "#cm/*": ["./src/cm/*"],
       "#pm/*": ["./src/pm/*"],
+      "playwright/*": ["./tests/playwright/*"],
       "src/*": ["./src/*"]
     }
   },

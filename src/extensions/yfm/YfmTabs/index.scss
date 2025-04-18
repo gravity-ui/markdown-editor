@@ -1,8 +1,8 @@
-@use '../../../styles/mixins.scss';
+@use '../../../styles/mixins' as editor;
 
 .ProseMirror {
     .yfm-tabs {
-        @include mixins.block-border-hover();
+        @include editor.block-border-hover();
     }
     .g-md-yfm-tab {
         &__wrapper {

@@ -1,5 +1,7 @@
 import {memo} from 'react';
 
+import type {QAProps} from '@gravity-ui/uikit';
+
 import {type ClassNameProps, cn} from '../classname';
 import {ReactRendererComponent} from '../extensions';
 import {globalLogger} from '../logger';
@@ -14,17 +16,18 @@ import './WysiwygEditorView.scss';
 
 const b = cn('wysiwyg-editor');
 
-export type WysiwygEditorViewProps = ClassNameProps & {
-    editor: EditorInt;
-    autofocus?: boolean;
-    settingsVisible?: boolean;
-    toolbarConfig: WToolbarData;
-    toolbarVisible?: boolean;
-    stickyToolbar?: boolean;
-    toolbarClassName?: string;
-    hiddenActionsConfig?: WToolbarItemData[];
-    children?: React.ReactNode;
-};
+export type WysiwygEditorViewProps = ClassNameProps &
+    QAProps & {
+        editor: EditorInt;
+        autofocus?: boolean;
+        settingsVisible?: boolean;
+        toolbarConfig: WToolbarData;
+        toolbarVisible?: boolean;
+        stickyToolbar?: boolean;
+        toolbarClassName?: string;
+        hiddenActionsConfig?: WToolbarItemData[];
+        children?: React.ReactNode;
+    };
 
 export const WysiwygEditorView = memo<WysiwygEditorViewProps>((props) => {
     const {
@@ -34,6 +37,7 @@ export const WysiwygEditorView = memo<WysiwygEditorViewProps>((props) => {
         toolbarVisible,
         toolbarConfig,
         hiddenActionsConfig,
+        qa,
         className,
         toolbarClassName,
         children,
@@ -52,9 +56,10 @@ export const WysiwygEditorView = memo<WysiwygEditorViewProps>((props) => {
         });
     });
     return (
-        <div className={b({toolbar: toolbarVisible}, [className])}>
+        <div className={b({toolbar: toolbarVisible}, [className])} data-qa={qa}>
             {toolbarVisible ? (
                 <ToolbarView
+                    qa="g-md-toolbar"
                     editor={editor}
                     editorMode="wysiwyg"
                     toolbarEditor={editor}

@@ -1,5 +1,7 @@
 import {memo} from 'react';
 
+import type {QAProps} from '@gravity-ui/uikit';
+
 import {type ClassNameProps, cn} from '../classname';
 import {ReactRendererComponent} from '../extensions';
 import {globalLogger} from '../logger';
@@ -16,19 +18,20 @@ import './MarkupEditorView.scss';
 
 const b = cn('markup-editor');
 
-export type MarkupEditorViewProps = ClassNameProps & {
-    editor: EditorInt;
-    autofocus?: boolean;
-    toolbarConfig: MToolbarData;
-    settingsVisible?: boolean;
-    toolbarVisible?: boolean;
-    stickyToolbar?: boolean;
-    toolbarClassName?: string;
-    splitMode?: MarkdownEditorSplitMode;
-    splitModeEnabled: boolean;
-    hiddenActionsConfig?: MToolbarItemData[];
-    children?: React.ReactNode;
-};
+export type MarkupEditorViewProps = ClassNameProps &
+    QAProps & {
+        editor: EditorInt;
+        autofocus?: boolean;
+        toolbarConfig: MToolbarData;
+        settingsVisible?: boolean;
+        toolbarVisible?: boolean;
+        stickyToolbar?: boolean;
+        toolbarClassName?: string;
+        splitMode?: MarkdownEditorSplitMode;
+        splitModeEnabled: boolean;
+        hiddenActionsConfig?: MToolbarItemData[];
+        children?: React.ReactNode;
+    };
 
 export const MarkupEditorView = memo<MarkupEditorViewProps>((props) => {
     const {
@@ -38,6 +41,7 @@ export const MarkupEditorView = memo<MarkupEditorViewProps>((props) => {
         toolbarVisible,
         toolbarConfig,
         hiddenActionsConfig,
+        qa,
         className,
         toolbarClassName,
         children,
@@ -57,7 +61,7 @@ export const MarkupEditorView = memo<MarkupEditorViewProps>((props) => {
     });
 
     return (
-        <div className={b({toolbar: toolbarVisible}, [className])}>
+        <div className={b({toolbar: toolbarVisible}, [className])} data-qa={qa}>
             {toolbarVisible ? (
                 <MarkupToolbarContextProvider
                     value={{
@@ -67,6 +71,7 @@ export const MarkupEditorView = memo<MarkupEditorViewProps>((props) => {
                     }}
                 >
                     <ToolbarView
+                        qa="g-md-toolbar"
                         editor={editor}
                         editorMode="markup"
                         toolbarEditor={editor}

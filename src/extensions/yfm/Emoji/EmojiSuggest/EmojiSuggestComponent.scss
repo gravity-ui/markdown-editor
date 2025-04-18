@@ -1,4 +1,4 @@
-@import '~@gravity-ui/uikit/styles/mixins.scss';
+@use '~@gravity-ui/uikit/styles/mixins' as uikit;
 
 $itemHeight: 28px;
 $listWidth: 256px;
@@ -40,7 +40,7 @@ $listWidth: 256px;
         width: 20px;
         margin-right: 8px;
 
-        @include text-body-3();
+        @include uikit.text-body-3();
     }
 
     &__item-name {
@@ -63,6 +63,6 @@ $listWidth: 256px;
         border-radius: var(--g-border-radius-xs);
         background-color: var(--g-color-base-generic);
 
-        @include text-code-inline-1();
+        @include uikit.text-code-inline-1();
     }
 }

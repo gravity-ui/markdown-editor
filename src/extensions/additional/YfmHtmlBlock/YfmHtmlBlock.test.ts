@@ -7,6 +7,10 @@ import {BaseNode, BaseSchemaSpecs} from '../../specs';
 import {YfmHtmlBlockSpecs} from './YfmHtmlBlockSpecs';
 import {YfmHtmlBlockAttrs, yfmHtmlBlockNodeName} from './const';
 
+jest.mock<{v4: () => string}>('uuid', () => ({
+    v4: jest.fn().mockReturnValue('8bca-mocked-7abc'),
+}));
+
 const {
     schema,
     markupParser: parser,
@@ -29,6 +33,7 @@ describe('YfmHtmlBlock extension', () => {
             doc(
                 yfmHtmlBlock({
                     [YfmHtmlBlockAttrs.srcdoc]: 'content\n',
+                    [YfmHtmlBlockAttrs.EntityId]: 'yfm_html_block-8bca-mocked-7abc',
                 }),
             ),
         ));

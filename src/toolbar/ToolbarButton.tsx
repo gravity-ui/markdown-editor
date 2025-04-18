@@ -1,4 +1,4 @@
-import {forwardRef} from 'react';
+import {type ReactNode, forwardRef} from 'react';
 
 import {ActionTooltip, Button, Icon, Popover, setRef} from '@gravity-ui/uikit';
 
@@ -17,17 +17,19 @@ export type ToolbarButtonProps<E> = ToolbarBaseProps<E> & ToolbarItemData<E>;
 
 export type ToolbarButtonViewProps = Pick<
     ToolbarItemData<unknown>,
-    'icon' | 'title' | 'hint' | 'hotkey' | 'hintWhenDisabled'
+    'title' | 'hint' | 'hotkey' | 'hintWhenDisabled' | 'qa'
 > & {
     active: boolean;
     enabled: boolean;
     onClick: () => void;
     className?: string;
-};
+} & (Pick<ToolbarItemData<unknown>, 'icon'> | {children: ReactNode});
+
+const DEFAULT_ICON_SIZE = 16;
 
 export const ToolbarButtonView = forwardRef<HTMLButtonElement, ToolbarButtonViewProps>(
     function ToolbarButtonView(
-        {icon, title, hint, hotkey, hintWhenDisabled, active, enabled, onClick, className},
+        {title, hint, hotkey, hintWhenDisabled, active, enabled, onClick, className, qa, ...props},
         ref,
     ) {
         const disabled = !active && !enabled;
@@ -55,8 +57,9 @@ export const ToolbarButtonView = forwardRef<HTMLButtonElement, ToolbarButtonView
                         title={titleText}
                         hotkey={hotkey}
                     >
-                        {(_, refForTooltip) => (
+                        {(__, refForTooltip) => (
                             <Button
+                                qa={qa}
                                 size="m"
                                 ref={(elem: HTMLButtonElement) => {
                                     setRef(ref, elem);
@@ -70,7 +73,14 @@ export const ToolbarButtonView = forwardRef<HTMLButtonElement, ToolbarButtonView
                                 className={b(null, [className])}
                                 aria-label={titleText}
                             >
-                                <Icon data={icon.data} size={icon.size ?? 16} />
+                                {'icon' in props ? (
+                                    <Icon
+                                        data={props.icon.data}
+                                        size={props.icon.size ?? DEFAULT_ICON_SIZE}
+                                    />
+                                ) : (
+                                    props.children
+                                )}
                             </Button>
                         )}
                     </ActionTooltip>
@@ -86,16 +96,11 @@ export function ToolbarButton<E>(props: ToolbarButtonProps<E>) {
     const active = isActive(editor);
     const enabled = isEnable(editor);
 
-    return (
-        <ToolbarButtonView
-            {...props}
-            active={active}
-            enabled={enabled}
-            onClick={() => {
-                focus();
-                exec(editor);
-                onClick?.(id);
-            }}
-        />
-    );
+    const handleClick = () => {
+        focus();
+        exec(editor);
+        onClick?.(id);
+    };
+
+    return <ToolbarButtonView {...props} active={active} enabled={enabled} onClick={handleClick} />;
 }
