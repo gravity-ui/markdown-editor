@@ -64,6 +64,8 @@ export const YfmFileSpecs: Extension = (builder) => {
                 },
             ],
             toDOM(node) {
+                const container = document.createElement('span');
+                container.classList.add('yfm-file-container');
                 const a = document.createElement('a');
                 a.contentEditable = 'false';
                 a.classList.add(FileClassName.Link);
@@ -74,7 +76,8 @@ export const YfmFileSpecs: Extension = (builder) => {
                 span.classList.add(FileClassName.Icon);
                 a.appendChild(span);
                 a.append(node.attrs[FileHtmlAttr.Download]);
-                return a;
+                container.appendChild(a);
+                return container;
             },
         },
         fromMd: {
