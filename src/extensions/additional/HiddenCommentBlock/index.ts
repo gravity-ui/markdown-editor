@@ -1,8 +1,6 @@
 import type {ExtensionAuto} from '../../../core';
 
-export const HiddenCommentBlock: ExtensionAuto = (
-    builder,
-) => {
+export const HiddenCommentBlock: ExtensionAuto = (builder) => {
     builder.configureMd((md) =>
         md.use((md) => {
             md.core.ruler.before('normalize', 'capture_hidden_comments', (state) => {
@@ -18,7 +16,7 @@ export const HiddenCommentBlock: ExtensionAuto = (
 
                     const token = new state.Token('hidden_comment', '', 0);
                     token.content = match[1];
-                    token.map = [startPos, endPos]
+                    token.map = [startPos, endPos];
 
                     tokens.push(token);
 

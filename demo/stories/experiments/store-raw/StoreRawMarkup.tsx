@@ -6,7 +6,7 @@ import {PlaygroundLayout} from '../../../components/PlaygroundLayout';
 import {SplitModePreview} from '../../../components/SplitModePreview';
 import {plugins} from '../../../defaults/md-plugins';
 import {useMarkdownEditorValue} from '../../../hooks/useMarkdownEditorValue';
-import { HiddenCommentBlock } from 'src/extensions/additional/HiddenCommentBlock';
+import {HiddenCommentBlock} from 'src/extensions/additional/HiddenCommentBlock';
 
 const initialMarkup = `
 ## YFM Table
@@ -102,7 +102,7 @@ export const StoreRawMarkupDemo = memo<StoreRawMarkupDemoProps>((props) => {
             initial: {markup: mdMarkup},
             markupConfig: {renderPreview},
             experimental: {preserveMarkupFormattingFeatures},
-            wysiwygConfig: {extensions: (builder) => builder.use(HiddenCommentBlock)}
+            wysiwygConfig: {extensions: (builder) => builder.use(HiddenCommentBlock)},
         },
         [preserveMarkupFormattingFeatures],
     );

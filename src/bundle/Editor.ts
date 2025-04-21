@@ -357,7 +357,8 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
         this.#logger = logger;
         this.#modifiers = experimental.preserveMarkupFormattingFeatures?.length
             ? createDynamicModifiers(
-                  new MarkupManager(this.logger.nested({module: 'markup-manager'})), experimental.preserveMarkupFormattingFeatures,
+                  new MarkupManager(this.logger.nested({module: 'markup-manager'})),
+                  experimental.preserveMarkupFormattingFeatures,
               )
             : undefined;
 

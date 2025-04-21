@@ -8,7 +8,7 @@ import {
 } from '../extensions/specs';
 
 import {YfmSpecsPreset, type YfmSpecsPresetOptions} from './yfm-specs';
-import { HiddenCommentBlock } from 'src/extensions/additional/HiddenCommentBlock';
+import {HiddenCommentBlock} from 'src/extensions/additional/HiddenCommentBlock';
 
 export type FullSpecsPresetOptions = YfmSpecsPresetOptions & {
     emoji?: EmojiSpecsOptions;
@@ -20,7 +20,7 @@ export const FullSpecsPreset: ExtensionAuto<FullSpecsPresetOptions> = (builder, 
 
     builder.use(MarkSpecs).use(ColorSpecs, opts.color);
 
-    builder.use(HiddenCommentBlock)
+    builder.use(HiddenCommentBlock);
 
     if (opts.emoji) {
         builder.use(EmojiSpecs, opts.emoji);
