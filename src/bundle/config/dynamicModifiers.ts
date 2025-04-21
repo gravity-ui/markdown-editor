@@ -7,8 +7,15 @@ import type {MarkupManager} from '../MarkupManager';
 const YFM_TOKEN_ATTR = 'data-token-id';
 const YFM_NODE_ATTR = 'data-node-id';
 
-export function createDynamicModifiers(markupManager: MarkupManager): DynamicModifiers[] {
-    return [
+export function createDynamicModifiers(
+    markupManager: MarkupManager,
+    modifiersToInclude?: string[],
+): DynamicModifiers[] {
+    if (!modifiersToInclude?.length) {
+        return [];
+    }
+
+    return ([
         {
             type: 'parserToken',
             tokenName: 'yfm_table',
@@ -35,12 +42,20 @@ export function createDynamicModifiers(markupManager: MarkupManager): DynamicMod
             type: 'parserToken',
             tokenName: 'hidden_comment',
             process: (token, _, rawMarkup) => {
-                const tokenId = v5(rawMarkup, markupManager.getNamespace());
+                const {map} = token;
 
-                token.attrSet(YFM_TOKEN_ATTR, tokenId);
-                markupManager.setMarkup(tokenId, dedent(rawMarkup));
+                if (map) {
+                const content = rawMarkup.slice(map[0], map[1]);
+                const tokenId = v5(content, markupManager.getNamespace());
+
+                if (content.match(/^\[\/\/\]:\s*#\s*\((.*?)\)\s*(\n|$)/m)) {
+                    token.attrSet(YFM_TOKEN_ATTR, tokenId);
+                    markupManager.setMarkup(tokenId, dedent(content));
+                }
+            }
 
                 return token;
+
             },
         },
         {
@@ -129,6 +144,8 @@ export function createDynamicModifiers(markupManager: MarkupManager): DynamicMod
                     state.ensureNewLine();
                     state.text(content, false);
                     state.ensureNewLine();
+                    state.closeBlock();
+                    state.write('\n');
                     return;
                 }
 
@@ -151,5 +168,10 @@ export function createDynamicModifiers(markupManager: MarkupManager): DynamicMod
              */
             allowedAttrs: [YFM_NODE_ATTR],
         },
-    ];
+    ] as DynamicModifiers[]).filter((token) =>
+        modifiersToInclude.some((prefix) =>
+            //@ts-ignore
+            (token?.tokenName || token?.nodeName || '').startsWith(prefix)
+        ),
+    );
 }

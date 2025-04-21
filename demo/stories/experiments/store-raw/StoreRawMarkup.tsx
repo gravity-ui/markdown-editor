@@ -6,6 +6,7 @@ import {PlaygroundLayout} from '../../../components/PlaygroundLayout';
 import {SplitModePreview} from '../../../components/SplitModePreview';
 import {plugins} from '../../../defaults/md-plugins';
 import {useMarkdownEditorValue} from '../../../hooks/useMarkdownEditorValue';
+import { HiddenCommentBlock } from 'src/extensions/additional/HiddenCommentBlock';
 
 const initialMarkup = `
 ## YFM Table
@@ -74,11 +75,11 @@ Text after other table
 `;
 
 type StoreRawMarkupDemoProps = {
-    preserveMarkupFormatting: boolean;
+    preserveMarkupFormattingFeatures: string[];
 };
 
 export const StoreRawMarkupDemo = memo<StoreRawMarkupDemoProps>((props) => {
-    const {preserveMarkupFormatting} = props;
+    const {preserveMarkupFormattingFeatures} = props;
     const [mdMarkup, setMdMarkup] = useState(initialMarkup);
 
     const renderPreview = useCallback<RenderPreview>(
@@ -100,9 +101,10 @@ export const StoreRawMarkupDemo = memo<StoreRawMarkupDemoProps>((props) => {
         {
             initial: {markup: mdMarkup},
             markupConfig: {renderPreview},
-            experimental: {preserveMarkupFormatting},
+            experimental: {preserveMarkupFormattingFeatures},
+            wysiwygConfig: {extensions: (builder) => builder.use(HiddenCommentBlock)}
         },
-        [preserveMarkupFormatting],
+        [preserveMarkupFormattingFeatures],
     );
 
     // for preserve edited content

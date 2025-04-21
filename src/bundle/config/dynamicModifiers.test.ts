@@ -14,7 +14,7 @@ const markupManager = new MarkupManager(
 );
 
 const dynamicModifiersConfig = convertDynamicModifiersConfigs(
-    createDynamicModifiers(markupManager),
+    createDynamicModifiers(markupManager, ['yfm_table', 'hidden_comment']),
 );
 
 const dynamicModifiers = {
@@ -35,7 +35,8 @@ const {markupParser: parser, serializer} = ExtensionsManager.process(
 
 describe('dynamicModifiers', () => {
     it('should correctly process YFM tables in different contexts', () => {
-        const initialMarkup = `
+        const initialMarkup = `[//]: # (TODO: link to GSYM)
+
 ## YFM Table
 ### Simple table
 #|
@@ -101,7 +102,8 @@ Text after other table
 {% endlist %}
 `;
 
-        const expectedMarkup = `## YFM Table
+        const expectedMarkup = `[//]: # (TODO: link to GSYM)
+## YFM Table
 
 ### Simple table
 

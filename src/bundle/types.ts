@@ -119,9 +119,11 @@ export type MarkdownEditorExperimentalOptions = {
      *
      * **Note:** Applies to tracked blocks: `yfm_table`
      *
-     * @default false
+     * **Note:** Preserve formatting by prefix: ['yfm_table'] works for `yfm_table_open` too
+     *
+     * @default []
      */
-    preserveMarkupFormatting?: boolean;
+    preserveMarkupFormattingFeatures?: string[];
 };
 
 export type MarkdownEditorMarkupConfig = {
