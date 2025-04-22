@@ -1,8 +1,10 @@
+/* eslint-disable */
+// @ts-nocheck
+/* TODO: delete eslint-disable and @ts-nocheck */
 import dd from 'ts-dedent';
 
 import {expect, test} from 'playwright/core';
 
-/* @ts-ignore TODO: delete ts-ignore */
 import {Playground} from './Playground.helpers';
 
 test.describe('%%name%%', () => {
