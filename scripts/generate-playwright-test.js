@@ -6,9 +6,9 @@ const process = require('process');
 const ALIASES = {
     r: 'rewrite',
 };
-const TEMPLATE_DIR = path.join(__dirname, 'templates');
+const TEMPLATE_DIR = 'tests/playwright/templates';
 const DEFAULT_OUTPUT_DIR = 'tests/visual-tests/playground';
-const templatePath = path.join(TEMPLATE_DIR, 'generate-playwright-test.template.tsx');
+const templatePath = path.join(TEMPLATE_DIR, 'Extension.template.test.tsx');
 
 if (!fs.existsSync(templatePath)) {
     console.error(`❌ Template file not found at ${templatePath}`);
