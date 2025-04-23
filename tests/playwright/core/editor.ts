@@ -144,6 +144,24 @@ export class MarkdownEditorPage {
         await this.locators.contenteditable.pressSequentially(key);
     }
 
+    /**
+     * Simulates input rule behavior by typing a sequence in WYSIWYG mode.
+     * Clears the editor and types each character.
+     */
+    async inputRule(sequence: string) {
+        await this.switchMode('wysiwyg');
+        await this.clearContent();
+        await this.pressSequentially(sequence);
+        await this.press('Space');
+    }
+
+    /** Clicks a toolbar button by its test ID */
+    async clickToolbarButton(toolbarTestIdPostfix: string) {
+        const button = this.locators.toolbar.getByTestId(`g-md-toolbar-${toolbarTestIdPostfix}`);
+        await this.expect(button).toBeEnabled();
+        await button.click();
+    }
+
     /** Clears all content from the editable area */
     async clearContent() {
         await this.press('ControlOrMeta+A');
