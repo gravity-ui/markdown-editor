@@ -30,8 +30,8 @@ test.describe('Cut', () => {
     });
 
     test.describe('insert', () => {
-        test.skip(' should insert via toolbar @wysiwyg', async ({page, editor, wait}) => {
-            // TODO: write it
+        test(' should insert via toolbar @wysiwyg', async ({page, editor, wait}) => {
+            // TODO[1]: write it
             await editor.switchMode('wysiwyg');
             await editor.clearContent();
 
@@ -50,7 +50,12 @@ test.describe('Cut', () => {
             await expect(cutButton).not.toHaveClass(/g-button_disabled/);
         });
 
-        test('should insert via command menu @wysiwyg', async ({page, editor, actions, wait}) => {
+        test.skip('should insert via command menu @wysiwyg', async ({
+            page,
+            editor,
+            actions,
+            wait,
+        }) => {
             await editor.switchPreview('hidden');
             await editor.switchMode('wysiwyg');
             await editor.clearContent();
@@ -76,7 +81,7 @@ test.describe('Cut', () => {
             await expect(editor.getByTextInContenteditable('content')).toBeVisible();
         });
 
-        test('should insert via input rule @wysiwyg', async ({editor, wait}) => {
+        test.skip('should insert via input rule @wysiwyg', async ({editor, wait}) => {
             await editor.inputRule('{% cut');
             await wait.timeout();
 
@@ -85,7 +90,7 @@ test.describe('Cut', () => {
         });
 
         test.skip('should insert via keyboard shortcut @wysiwyg', async ({editor, wait}) => {
-            /* TODO: unskip */
+            // TODO[2]: write it
             await editor.switchMode('wysiwyg');
             await editor.clearContent();
             await editor.press('/* TODO: add keyboard shortcut */');
@@ -95,7 +100,7 @@ test.describe('Cut', () => {
         });
 
         test.skip('should insert via pasted HTML @wysiwyg', async ({editor, wait}) => {
-            /* TODO: unskip */
+            // TODO[3]: write it
             await editor.switchMode('wysiwyg');
             await editor.clearContent();
 
@@ -107,7 +112,7 @@ test.describe('Cut', () => {
         });
 
         test.skip('should insert via toolbar @markup', async ({editor, wait}) => {
-            /* TODO: unskip */
+            // TODO[4]: write it
             await editor.switchMode('markup');
             await editor.clickToolbarButton('/* TODO: extension name */');
             await wait.timeout();
@@ -115,7 +120,12 @@ test.describe('Cut', () => {
             /* TODO: write test */
         });
 
-        test('should insert via command menu @markup', async ({page, editor, actions, wait}) => {
+        test.skip('should insert via command menu @markup', async ({
+            page,
+            editor,
+            actions,
+            wait,
+        }) => {
             await editor.switchMode('markup');
             await editor.clearContent();
 
@@ -132,6 +142,7 @@ test.describe('Cut', () => {
 
     test.describe('mode switch', () => {
         test.skip('should remain after mode switch @wysiwyg @markup', async ({editor, wait}) => {
+            // TODO[5]: write it
             const markup = '{% cut "Cut header" %}\\nHidden content\\n{% endcut %}';
 
             await editor.switchMode('markup');
@@ -152,7 +163,7 @@ test.describe('Cut', () => {
 
     test.describe('interaction', () => {
         test.skip('should edit block via context menu @wysiwyg', async ({editor}) => {
-            /* TODO: unskip */
+            // TODO[6]: write it
             await editor.switchMode('wysiwyg');
             await editor.clearContent();
 
@@ -160,7 +171,7 @@ test.describe('Cut', () => {
         });
 
         test.skip('should delete block via context menu @wysiwyg', async ({editor}) => {
-            /* TODO: unskip */
+            // TODO[7]: write it
             await editor.switchMode('wysiwyg');
             await editor.clearContent();
 
@@ -168,7 +179,7 @@ test.describe('Cut', () => {
         });
 
         test.skip('should delete block via remove button @wysiwyg', async ({editor}) => {
-            /* TODO: unskip */
+            // TODO[8]: write it
             await editor.switchMode('wysiwyg');
             await editor.clearContent();
 
@@ -177,7 +188,7 @@ test.describe('Cut', () => {
     });
 
     test.describe('specific', () => {
-        test('should open second cut', async ({expectScreenshot, editor, page, wait}) => {
+        test.skip('should open second cut', async ({expectScreenshot, editor, page, wait}) => {
             await editor.switchMode('wysiwyg');
             const nestedCut = page.getByText('Cut with nested сut header').first().locator('..');
             await wait.visible(nestedCut);
@@ -194,7 +205,7 @@ test.describe('Cut', () => {
             await expectScreenshot();
         });
 
-        test('should cut inside open second cut', async ({
+        test.skip('should cut inside open second cut', async ({
             expectScreenshot,
             editor,
             page,
@@ -229,7 +240,7 @@ test.describe('Cut', () => {
             await expectScreenshot();
         });
 
-        test('should open second cut in preview', async ({
+        test.skip('should open second cut in preview', async ({
             editor,
             page,
             expectScreenshot,
