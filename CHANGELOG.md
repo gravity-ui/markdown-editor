@@ -1,5 +1,17 @@
 # Changelog
 
+## [15.9.0](https://github.com/gravity-ui/markdown-editor/compare/v15.8.1...v15.9.0) (2025-04-23)
+
+
+### Features
+
+* **SelectionContext:** allow to change popup placement behavior ([#732](https://github.com/gravity-ui/markdown-editor/issues/732)) ([52e72e7](https://github.com/gravity-ui/markdown-editor/commit/52e72e74c2b3f90f8bfc0f28155383da1573d1ec))
+
+
+### Bug Fixes
+
+* resolved log func via named import to avoid default mismatch ([#733](https://github.com/gravity-ui/markdown-editor/issues/733)) ([13906ed](https://github.com/gravity-ui/markdown-editor/commit/13906edfeb639ef6ffbe06bc4c77c58981127f28))
+
 ## [15.8.1](https://github.com/gravity-ui/markdown-editor/compare/v15.8.0...v15.8.1) (2025-04-18)
 
 
