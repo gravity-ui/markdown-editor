@@ -67,6 +67,7 @@ export type PlaygroundProps = {
     sanitizeHtml?: boolean;
     prepareRawMarkup?: boolean;
     splitModeOrientation?: 'horizontal' | 'vertical' | false;
+    searchPanel?: boolean;
     stickyToolbar?: boolean;
     initialSplitModeEnabled?: boolean;
     renderPreviewDefined?: boolean;
@@ -114,6 +115,7 @@ export const Playground = memo<PlaygroundProps>((props) => {
         sanitizeHtml,
         prepareRawMarkup,
         splitModeOrientation,
+        searchPanel,
         stickyToolbar,
         renderPreviewDefined,
         height,
@@ -237,6 +239,7 @@ export const Playground = memo<PlaygroundProps>((props) => {
                 parseInsertedUrlAsImage,
                 renderPreview,
                 splitMode: splitModeOrientation,
+                searchPanel,
             },
         },
         [
@@ -245,6 +248,7 @@ export const Playground = memo<PlaygroundProps>((props) => {
             linkifyTlds,
             breaks,
             splitModeOrientation,
+            searchPanel,
             renderPreviewDefined,
             renderPreview,
             experimental?.needToSetDimensionsForUploadedImages,

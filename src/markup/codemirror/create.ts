@@ -88,6 +88,7 @@ export type CreateCodemirrorParams = {
     autocompletion?: Autocompletion;
     directiveSyntax: DirectiveSyntaxContext;
     preserveEmptyRows: boolean;
+    searchPanel?: boolean;
 };
 
 export function createCodemirror(params: CreateCodemirrorParams) {
@@ -111,6 +112,7 @@ export function createCodemirror(params: CreateCodemirrorParams) {
         parseInsertedUrlAsImage,
         directiveSyntax,
         preserveEmptyRows,
+        searchPanel = true,
     } = params;
 
     const extensions: Extension[] = [gravityTheme, placeholder(placeholderContent)];
@@ -268,11 +270,16 @@ export function createCodemirror(params: CreateCodemirrorParams) {
                 }
             },
         }),
-        SearchPanelPlugin({
-            anchorSelector: '.g-md-search-anchor',
-            receiver,
-        }),
     );
+
+    if (searchPanel) {
+        extensions.push(
+            SearchPanelPlugin({
+                anchorSelector: '.g-md-search-anchor',
+                receiver,
+            }),
+        );
+    }
 
     if (preserveEmptyRows) {
         extensions.push(
