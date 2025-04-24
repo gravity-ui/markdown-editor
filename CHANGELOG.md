@@ -1,5 +1,12 @@
 # Changelog
 
+## [15.10.0](https://github.com/gravity-ui/markdown-editor/compare/v15.9.0...v15.10.0) (2025-04-24)
+
+
+### Features
+
+* **markup:** allow to disable search panel ([#736](https://github.com/gravity-ui/markdown-editor/issues/736)) ([1ecb513](https://github.com/gravity-ui/markdown-editor/commit/1ecb5137e4170d7eab7a4d433721ef21b76272a4))
+
 ## [15.9.0](https://github.com/gravity-ui/markdown-editor/compare/v15.8.1...v15.9.0) (2025-04-23)
 
 
