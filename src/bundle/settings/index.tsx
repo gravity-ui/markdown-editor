@@ -134,47 +134,49 @@ const SettingsContent: React.FC<SettingsContentProps> = function SettingsContent
 }) {
     return (
         <div className={bContent(null, [className])} data-qa={qa}>
-            {canChangeMode && <Menu size="l" className={bContent('mode')}>
-                <Menu.Item
-                    qa="g-md-settings-mode-wysiwyg"
-                    active={mode === 'wysiwyg'}
-                    onClick={() => {
-                        onModeChange('wysiwyg');
-                        onClose();
-                    }}
-                    iconStart={<Icon data={WysiwygModeIcon} />}
-                >
-                    {i18n('settings_wysiwyg')}
-                </Menu.Item>
-                <Menu.Item
-                    qa="g-md-settings-mode-markup"
-                    active={mode === 'markup'}
-                    onClick={() => {
-                        onModeChange('markup');
-                        onClose();
-                    }}
-                    iconStart={<Icon data={LogoMarkdown} />}
-                >
-                    {i18n('settings_markup')}
-                    <HelpMark
-                        popoverProps={{
-                            placement: mdHelpPlacement,
-                            modal: false,
+            {canChangeMode && (
+                <Menu size="l" className={bContent('mode')}>
+                    <Menu.Item
+                        qa="g-md-settings-mode-wysiwyg"
+                        active={mode === 'wysiwyg'}
+                        onClick={() => {
+                            onModeChange('wysiwyg');
+                            onClose();
                         }}
-                        className={bContent('mode-help')}
+                        iconStart={<Icon data={WysiwygModeIcon} />}
                     >
-                        <div
-                            onClick={(e) => {
-                                // stop clicks propagation
-                                // because otherwise click in MarkdownHints handled as click on MenuItem
-                                e.stopPropagation();
+                        {i18n('settings_wysiwyg')}
+                    </Menu.Item>
+                    <Menu.Item
+                        qa="g-md-settings-mode-markup"
+                        active={mode === 'markup'}
+                        onClick={() => {
+                            onModeChange('markup');
+                            onClose();
+                        }}
+                        iconStart={<Icon data={LogoMarkdown} />}
+                    >
+                        {i18n('settings_markup')}
+                        <HelpMark
+                            popoverProps={{
+                                placement: mdHelpPlacement,
+                                modal: false,
                             }}
+                            className={bContent('mode-help')}
                         >
-                            <MarkdownHints />
-                        </div>
-                    </HelpMark>
-                </Menu.Item>
-            </Menu>}
+                            <div
+                                onClick={(e) => {
+                                    // stop clicks propagation
+                                    // because otherwise click in MarkdownHints handled as click on MenuItem
+                                    e.stopPropagation();
+                                }}
+                            >
+                                <MarkdownHints />
+                            </div>
+                        </HelpMark>
+                    </Menu.Item>
+                </Menu>
+            )}
             <div className={bContent('separator')} />
             {!showPreview && (
                 <div className={bContent('toolbar')}>
