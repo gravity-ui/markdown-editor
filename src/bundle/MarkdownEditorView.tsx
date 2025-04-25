@@ -49,6 +49,7 @@ const EditorWrapper = forwardRef<HTMLDivElement, EditorWrapperProps>(
     (
         {
             autofocus,
+            canChangeEditorMode,
             editor,
             editorMode,
             enableSubmitInPreview,
@@ -160,6 +161,7 @@ const EditorWrapper = forwardRef<HTMLDivElement, EditorWrapperProps>(
             splitModeEnabled: editor.splitModeEnabled,
             stickyToolbar,
             toolbarVisibility: editor.toolbarVisible && !showPreview,
+            canChangeMode: canChangeEditorMode,
         };
 
         return (
@@ -263,6 +265,7 @@ type ViewProps = {
     stickyToolbar: boolean;
     enableSubmitInPreview?: boolean;
     hidePreviewAfterSubmit?: boolean;
+    canChangeEditorMode?: boolean;
 };
 
 export type MarkdownEditorViewProps = ClassNameProps & ToolbarConfigs & ViewProps & QAProps & {};
@@ -287,6 +290,7 @@ export const MarkdownEditorView = forwardRef<HTMLDivElement, MarkdownEditorViewP
 
         const {
             autofocus,
+            canChangeEditorMode,
             className,
             enableSubmitInPreview = true,
             hidePreviewAfterSubmit = false,
@@ -361,6 +365,7 @@ export const MarkdownEditorView = forwardRef<HTMLDivElement, MarkdownEditorViewP
                 >
                     <EditorWrapper
                         autofocus={autofocus}
+                        canChangeEditorMode={canChangeEditorMode}
                         editor={editor}
                         editorMode={editorMode}
                         enableSubmitInPreview={enableSubmitInPreview}

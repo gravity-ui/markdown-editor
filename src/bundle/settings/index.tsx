@@ -113,12 +113,14 @@ type SettingsContentProps = ClassNameProps &
         splitMode?: MarkdownEditorSplitMode;
         splitModeEnabled?: boolean;
         onSplitModeChange?: (splitModeEnabled: boolean) => void;
+        canChangeMode?: boolean;
     };
 
 const mdHelpPlacement: PopupPlacement = ['bottom', 'bottom-end', 'right-start', 'right', 'left'];
 
 const SettingsContent: React.FC<SettingsContentProps> = function SettingsContent({
     mode,
+    canChangeMode = true,
     onClose,
     onModeChange,
     toolbarVisibility,
@@ -132,7 +134,7 @@ const SettingsContent: React.FC<SettingsContentProps> = function SettingsContent
 }) {
     return (
         <div className={bContent(null, [className])} data-qa={qa}>
-            <Menu size="l" className={bContent('mode')}>
+            {canChangeMode && <Menu size="l" className={bContent('mode')}>
                 <Menu.Item
                     qa="g-md-settings-mode-wysiwyg"
                     active={mode === 'wysiwyg'}
@@ -172,7 +174,7 @@ const SettingsContent: React.FC<SettingsContentProps> = function SettingsContent
                         </div>
                     </HelpMark>
                 </Menu.Item>
-            </Menu>
+            </Menu>}
             <div className={bContent('separator')} />
             {!showPreview && (
                 <div className={bContent('toolbar')}>
