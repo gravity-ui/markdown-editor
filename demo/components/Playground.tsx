@@ -81,6 +81,7 @@ export type PlaygroundProps = {
     directiveSyntax?: DirectiveSyntaxValue;
     disabledHTMLBlockModes?: EmbeddingMode[];
     disableMarkdownItAttrs?: boolean;
+    canChangeEditorMode?: boolean;
 } & Pick<UseMarkdownEditorProps, 'experimental' | 'wysiwygConfig'> &
     Pick<
         MarkdownEditorViewProps,
@@ -132,6 +133,7 @@ export const Playground = memo<PlaygroundProps>((props) => {
         directiveSyntax,
         disabledHTMLBlockModes,
         disableMarkdownItAttrs,
+        canChangeEditorMode,
     } = props;
     const [editorMode, setEditorMode] = useState<MarkdownEditorMode>(initialEditor ?? 'wysiwyg');
     const [mdRaw, setMdRaw] = useState<MarkupString>(initial || '');
@@ -325,6 +327,7 @@ export const Playground = memo<PlaygroundProps>((props) => {
                     editor={mdEditor}
                     enableSubmitInPreview={enableSubmitInPreview}
                     hidePreviewAfterSubmit={hidePreviewAfterSubmit}
+                    canChangeEditorMode={canChangeEditorMode}
                 />
             )}
             actions={() => (
