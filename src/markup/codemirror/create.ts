@@ -237,9 +237,13 @@ export function createCodemirror(params: CreateCodemirrorParams) {
 
                 if (parseInsertedUrlAsImage) {
                     const linkMatches = currentLine.matchAll(linkRegex);
+                    const cursorPositionInCurrentLine = from - line.from;
                     const isInsertedInsideLink = linkMatches.some(
-                        (item) => from >= item.index && from <= item.index + (item[0]?.length ?? 0),
+                        (item) =>
+                            cursorPositionInCurrentLine >= item.index &&
+                            cursorPositionInCurrentLine <= item.index + (item[0]?.length ?? 0),
                     );
+
                     if (!isInsertedInsideLink) {
                         const {imageUrl, title} =
                             parseInsertedUrlAsImage(
