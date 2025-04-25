@@ -1,5 +1,12 @@
 # Changelog
 
+## [15.10.1](https://github.com/gravity-ui/markdown-editor/compare/v15.10.0...v15.10.1) (2025-04-25)
+
+
+### Bug Fixes
+
+* **markup:** fix pasting image urls to link lines ([#738](https://github.com/gravity-ui/markdown-editor/issues/738)) ([2dfba92](https://github.com/gravity-ui/markdown-editor/commit/2dfba92d97884c0d2506ec2d558cb91e7b7a301d))
+
 ## [15.10.0](https://github.com/gravity-ui/markdown-editor/compare/v15.9.0...v15.10.0) (2025-04-24)
 
 
