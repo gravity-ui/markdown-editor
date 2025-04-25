@@ -30,24 +30,28 @@ test.describe('Cut', () => {
     });
 
     test.describe('insert', () => {
-        test(' should insert via toolbar @wysiwyg', async ({page, editor, wait}) => {
-            // TODO[1]: write it
+        test('should insert via toolbar @wysiwyg', async ({page, editor, wait}) => {
             await editor.switchMode('wysiwyg');
             await editor.clearContent();
+            await editor.clickToolbarMoreActionButton();
 
-            await editor.clickToolbarButton('cut');
+            await editor.clickToolbarButton('Cut');
+
+            await editor.clickToolbarMoreActionButton();
+
+            await page.pause();
+
+            await editor.assertToolbarButtonDisabled('Cut');
+
+            await editor.press('ArrowDown');
+            await editor.press('ArrowDown');
+
+            await editor.assertToolbarButtonDisabled('Cut');
+
+            await editor.press('Enter');
             await wait.timeout();
 
-            const cutButton = page.locator('[data-qa="g-md-toolbar-cut"]');
-            await expect(cutButton).toHaveClass(/g-button_disabled/);
-
-            await editor.press('ArrowDown');
-            await editor.press('ArrowDown');
-            await editor.press('ArrowDown');
-            await wait.timeout();
-
-            // Проверяем, что кнопка Cut на тулбаре больше не активна
-            await expect(cutButton).not.toHaveClass(/g-button_disabled/);
+            await editor.assertToolbarButtonEnabled('Cut');
         });
 
         test.skip('should insert via command menu @wysiwyg', async ({
@@ -156,32 +160,6 @@ test.describe('Cut', () => {
             await expect(editor.getByTextInContenteditable('{% endcut %}')).toBeVisible();
 
             await editor.switchMode('markup');
-
-            /* TODO: write test */
-        });
-    });
-
-    test.describe('interaction', () => {
-        test.skip('should edit block via context menu @wysiwyg', async ({editor}) => {
-            // TODO[6]: write it
-            await editor.switchMode('wysiwyg');
-            await editor.clearContent();
-
-            /* TODO: write test */
-        });
-
-        test.skip('should delete block via context menu @wysiwyg', async ({editor}) => {
-            // TODO[7]: write it
-            await editor.switchMode('wysiwyg');
-            await editor.clearContent();
-
-            /* TODO: write test */
-        });
-
-        test.skip('should delete block via remove button @wysiwyg', async ({editor}) => {
-            // TODO[8]: write it
-            await editor.switchMode('wysiwyg');
-            await editor.clearContent();
 
             /* TODO: write test */
         });
