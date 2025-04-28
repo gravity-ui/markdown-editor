@@ -22,7 +22,6 @@ import {noop} from '../../lodash';
 import {useBooleanState} from '../../react-utils/hooks';
 import {ToolbarTooltipDelay} from '../../toolbar';
 import {VERSION} from '../../version';
-import type {SettingItems} from '../MarkdownEditorView';
 import type {MarkdownEditorMode, MarkdownEditorSplitMode} from '../types';
 
 import {MarkdownHints} from './MarkdownHints';
@@ -104,6 +103,8 @@ export const EditorSettings = memo<EditorSettingsProps>(function EditorSettings(
         </div>
     );
 });
+
+export type SettingItems = 'mode' | 'toolbar' | 'split';
 
 type SettingsContentProps = ClassNameProps &
     QAProps & {

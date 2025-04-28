@@ -25,7 +25,7 @@ import {MarkupEditorView} from './MarkupEditorView';
 import {SplitModeView} from './SplitModeView';
 import {WysiwygEditorView} from './WysiwygEditorView';
 import {useMarkdownEditorContext} from './context';
-import {EditorSettings, type EditorSettingsProps} from './settings';
+import {EditorSettings, type EditorSettingsProps, type SettingItems} from './settings';
 import {stickyCn} from './sticky';
 import type {MToolbarData, MToolbarItemData, WToolbarData, WToolbarItemData} from './toolbar/types';
 import {getToolbarsConfigs} from './toolbar/utils/toolbarsConfigs';
@@ -257,8 +257,6 @@ type ToolbarConfigs = {
      */
     wysiwygHiddenActionsConfig?: WToolbarItemData[];
 };
-
-export type SettingItems = 'mode' | 'toolbar' | 'split';
 
 type ViewProps = {
     editor?: Editor;

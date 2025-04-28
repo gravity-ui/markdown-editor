@@ -5,7 +5,7 @@ import {defaultOptions} from '@diplodoc/transform/lib/sanitize';
 import {Button, DropdownMenu} from '@gravity-ui/uikit';
 
 import type {ToolbarActionData} from 'src/bundle/Editor';
-import type {SettingItems} from 'src/bundle/MarkdownEditorView';
+import type {SettingItems} from 'src/bundle/settings';
 import type {Extension} from 'src/cm/state';
 import {FoldingHeading} from 'src/extensions/additional/FoldingHeading';
 import {Math} from 'src/extensions/additional/Math';

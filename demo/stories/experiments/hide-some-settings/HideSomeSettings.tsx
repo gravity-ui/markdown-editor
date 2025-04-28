@@ -1,6 +1,6 @@
 import {memo, useCallback} from 'react';
 
-import type {SettingItems} from 'src/bundle/MarkdownEditorView';
+import type {SettingItems} from 'src/bundle/settings';
 import {MarkdownEditorView, type RenderPreview, useMarkdownEditor} from 'src/index';
 
 import {PlaygroundLayout} from '../../../components/PlaygroundLayout';
