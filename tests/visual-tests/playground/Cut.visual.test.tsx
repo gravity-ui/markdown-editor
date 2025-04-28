@@ -30,20 +30,22 @@ test.describe('Cut', () => {
     });
 
     test.describe('insert', () => {
-        test('should insert via toolbar @wysiwyg', async ({page, editor, wait}) => {
-            await editor.switchMode('wysiwyg');
+        test('should insert via toolbar @wysiwyg', async ({wait, editor}) => {
+            await editor.switchMode('markup');
+            // Switch to markup mode to clear content correctly,
+            // due to a issue clearing Cut blocks in WYSIWYG mode
             await editor.clearContent();
-            await editor.clickToolbarMoreActionButton();
+            await editor.switchMode('wysiwyg');
 
+            await editor.clickToolbarMoreActionButton();
             await editor.clickToolbarButton('Cut');
 
             await editor.clickToolbarMoreActionButton();
 
-            await page.pause();
-
             await editor.assertToolbarButtonDisabled('Cut');
 
             await editor.press('ArrowDown');
+            await wait.timeout();
             await editor.press('ArrowDown');
 
             await editor.assertToolbarButtonDisabled('Cut');
@@ -54,12 +56,7 @@ test.describe('Cut', () => {
             await editor.assertToolbarButtonEnabled('Cut');
         });
 
-        test.skip('should insert via command menu @wysiwyg', async ({
-            page,
-            editor,
-            actions,
-            wait,
-        }) => {
+        test('should insert via command menu @wysiwyg', async ({page, editor, actions, wait}) => {
             await editor.switchPreview('hidden');
             await editor.switchMode('wysiwyg');
             await editor.clearContent();
@@ -85,7 +82,7 @@ test.describe('Cut', () => {
             await expect(editor.getByTextInContenteditable('content')).toBeVisible();
         });
 
-        test.skip('should insert via input rule @wysiwyg', async ({editor, wait}) => {
+        test('should insert via input rule @wysiwyg', async ({editor, wait}) => {
             await editor.inputRule('{% cut');
             await wait.timeout();
 
@@ -93,43 +90,27 @@ test.describe('Cut', () => {
             await expect(cutBlock).toBeVisible();
         });
 
-        test.skip('should insert via keyboard shortcut @wysiwyg', async ({editor, wait}) => {
-            // TODO[2]: write it
+        test('should insert via keyboard shortcut @wysiwyg', async ({editor, wait}) => {
             await editor.switchMode('wysiwyg');
             await editor.clearContent();
-            await editor.press('/* TODO: add keyboard shortcut */');
+            await editor.press('Control+Alt+7');
             await wait.timeout();
 
-            /* TODO: write test */
+            const cutBlock = editor.getByTextInContenteditable('Cut title').first();
+            await expect(cutBlock).toBeVisible();
         });
 
-        test.skip('should insert via pasted HTML @wysiwyg', async ({editor, wait}) => {
-            // TODO[3]: write it
-            await editor.switchMode('wysiwyg');
-            await editor.clearContent();
-
-            const html = '/* TODO: add html content */'; // TODO
-            await editor.paste(html);
-            await wait.timeout();
-
-            /* TODO: write test */
-        });
-
-        test.skip('should insert via toolbar @markup', async ({editor, wait}) => {
-            // TODO[4]: write it
+        test('should insert via toolbar @markup', async ({editor}) => {
             await editor.switchMode('markup');
-            await editor.clickToolbarButton('/* TODO: extension name */');
-            await wait.timeout();
+            await editor.clearContent();
 
-            /* TODO: write test */
+            await editor.clickToolbarMoreActionButton();
+            await editor.clickToolbarButton('Cut');
+
+            await expect(editor.getByTextInContenteditable('{% cut "title" %}')).toBeVisible();
         });
 
-        test.skip('should insert via command menu @markup', async ({
-            page,
-            editor,
-            actions,
-            wait,
-        }) => {
+        test('should insert via command menu @markup', async ({page, editor, actions, wait}) => {
             await editor.switchMode('markup');
             await editor.clearContent();
 
@@ -145,8 +126,7 @@ test.describe('Cut', () => {
     });
 
     test.describe('mode switch', () => {
-        test.skip('should remain after mode switch @wysiwyg @markup', async ({editor, wait}) => {
-            // TODO[5]: write it
+        test('should remain after mode switch @wysiwyg @markup', async ({editor, wait}) => {
             const markup = '{% cut "Cut header" %}\\nHidden content\\n{% endcut %}';
 
             await editor.switchMode('markup');
@@ -154,19 +134,16 @@ test.describe('Cut', () => {
             await wait.timeout();
 
             await editor.switchMode('wysiwyg');
+            await wait.timeout();
 
             await expect(editor.getByTextInContenteditable('Cut header')).toBeVisible();
             await expect(editor.getByTextInContenteditable('Hidden content')).toBeVisible();
             await expect(editor.getByTextInContenteditable('{% endcut %}')).toBeVisible();
-
-            await editor.switchMode('markup');
-
-            /* TODO: write test */
         });
     });
 
     test.describe('specific', () => {
-        test.skip('should open second cut', async ({expectScreenshot, editor, page, wait}) => {
+        test('should open second cut', async ({expectScreenshot, editor, page, wait}) => {
             await editor.switchMode('wysiwyg');
             const nestedCut = page.getByText('Cut with nested сut header').first().locator('..');
             await wait.visible(nestedCut);
@@ -183,7 +160,7 @@ test.describe('Cut', () => {
             await expectScreenshot();
         });
 
-        test.skip('should cut inside open second cut', async ({
+        test('should cut inside open second cut', async ({
             expectScreenshot,
             editor,
             page,
@@ -218,7 +195,7 @@ test.describe('Cut', () => {
             await expectScreenshot();
         });
 
-        test.skip('should open second cut in preview', async ({
+        test('should open second cut in preview', async ({
             editor,
             page,
             expectScreenshot,

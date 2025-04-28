@@ -9,7 +9,15 @@ test.describe('Link', () => {
         await mount(<Playground initial={initialMarkup} />);
     });
 
-    test('should insert link via toolbar popup dialog', async ({editor, page, actions, wait}) => {
+    test('should insert link via toolbar popup dialog', async ({
+        browserName,
+        editor,
+        page,
+        actions,
+        wait,
+    }) => {
+        test.skip(browserName === 'webkit', 'fillFocused does not work correctly in webkit');
+
         await editor.switchMode('wysiwyg');
         await editor.clickToolbarMoreActionButton();
 
@@ -22,11 +30,13 @@ test.describe('Link', () => {
         // Expect that the focused element is an input inside the link popup
         await wait.timeout(300);
         await actions.fillFocused('gravity-ui.com');
+
         await actions.pressFocused('Tab');
         await actions.pressFocused('Tab');
         await actions.pressFocused('Tab');
 
         await actions.fillFocused('gravity');
+
         await actions.pressFocused('Enter');
 
         await expect(editor.getByTextInContenteditable('gravity-ui.com')).toBeHidden();
