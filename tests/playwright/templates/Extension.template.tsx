@@ -17,7 +17,7 @@ test.describe('%%name%%', () => {
     });
 
     test.describe('insert', () => {
-        test.skip(' should insert via toolbar @wysiwyg', async ({editor, wait}) => {
+        test.skip('should insert via toolbar @wysiwyg', async ({editor, wait}) => {
             /* TODO: unskip */
             await editor.switchMode('wysiwyg');
             await editor.clearContent();
