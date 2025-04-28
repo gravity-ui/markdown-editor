@@ -5,6 +5,7 @@ import {defaultOptions} from '@diplodoc/transform/lib/sanitize';
 import {Button, DropdownMenu} from '@gravity-ui/uikit';
 
 import type {ToolbarActionData} from 'src/bundle/Editor';
+import type {SettingItems} from 'src/bundle/MarkdownEditorView';
 import type {Extension} from 'src/cm/state';
 import {FoldingHeading} from 'src/extensions/additional/FoldingHeading';
 import {Math} from 'src/extensions/additional/Math';
@@ -57,7 +58,7 @@ const wCommandMenuConfig = wysiwygToolbarConfigs.wCommandMenuConfig.concat(
 export type PlaygroundProps = {
     initial?: MarkupString;
     allowHTML?: boolean;
-    settingsVisible?: boolean;
+    settingsVisible?: boolean | SettingItems[];
     initialEditor?: MarkdownEditorMode;
     preserveEmptyRows?: boolean;
     breaks?: boolean;
@@ -81,7 +82,6 @@ export type PlaygroundProps = {
     directiveSyntax?: DirectiveSyntaxValue;
     disabledHTMLBlockModes?: EmbeddingMode[];
     disableMarkdownItAttrs?: boolean;
-    canChangeEditorMode?: boolean;
 } & Pick<UseMarkdownEditorProps, 'experimental' | 'wysiwygConfig'> &
     Pick<
         MarkdownEditorViewProps,
@@ -133,7 +133,6 @@ export const Playground = memo<PlaygroundProps>((props) => {
         directiveSyntax,
         disabledHTMLBlockModes,
         disableMarkdownItAttrs,
-        canChangeEditorMode,
     } = props;
     const [editorMode, setEditorMode] = useState<MarkdownEditorMode>(initialEditor ?? 'wysiwyg');
     const [mdRaw, setMdRaw] = useState<MarkupString>(initial || '');
@@ -327,7 +326,6 @@ export const Playground = memo<PlaygroundProps>((props) => {
                     editor={mdEditor}
                     enableSubmitInPreview={enableSubmitInPreview}
                     hidePreviewAfterSubmit={hidePreviewAfterSubmit}
-                    canChangeEditorMode={canChangeEditorMode}
                 />
             )}
             actions={() => (

@@ -22,6 +22,7 @@ import {noop} from '../../lodash';
 import {useBooleanState} from '../../react-utils/hooks';
 import {ToolbarTooltipDelay} from '../../toolbar';
 import {VERSION} from '../../version';
+import type {SettingItems} from '../MarkdownEditorView';
 import type {MarkdownEditorMode, MarkdownEditorSplitMode} from '../types';
 
 import {MarkdownHints} from './MarkdownHints';
@@ -35,7 +36,7 @@ const bContent = cn('settings-content');
 
 export type EditorSettingsProps = Omit<SettingsContentProps, 'onClose'> & {
     renderPreviewButton?: boolean;
-    settingsVisible?: boolean;
+    settingsVisible?: boolean | SettingItems[];
 };
 
 export const EditorSettings = memo<EditorSettingsProps>(function EditorSettings(props) {
@@ -43,6 +44,9 @@ export const EditorSettings = memo<EditorSettingsProps>(function EditorSettings(
         props;
     const [chevronElement, setChevronElement] = useState<HTMLButtonElement | null>(null);
     const [popupShown, , hidePopup, togglePopup] = useBooleanState(false);
+
+    const areSettingsVisible =
+        settingsVisible === true || (Array.isArray(settingsVisible) && settingsVisible.length > 0);
 
     return (
         <div className={bSettings(null, [className])}>
@@ -69,7 +73,7 @@ export const EditorSettings = memo<EditorSettingsProps>(function EditorSettings(
                     {settingsVisible && <div className={bSettings('separator')} />}
                 </>
             )}
-            {settingsVisible && (
+            {areSettingsVisible && (
                 <>
                     <Button
                         size="m"
@@ -109,18 +113,17 @@ type SettingsContentProps = ClassNameProps &
         onShowPreviewChange: (showPreview: boolean) => void;
         showPreview: boolean;
         toolbarVisibility: boolean;
+        settingsVisible?: SettingItems[] | boolean;
         onToolbarVisibilityChange: (val: boolean) => void;
         splitMode?: MarkdownEditorSplitMode;
         splitModeEnabled?: boolean;
         onSplitModeChange?: (splitModeEnabled: boolean) => void;
-        canChangeMode?: boolean;
     };
 
 const mdHelpPlacement: PopupPlacement = ['bottom', 'bottom-end', 'right-start', 'right', 'left'];
 
 const SettingsContent: React.FC<SettingsContentProps> = function SettingsContent({
     mode,
-    canChangeMode = true,
     onClose,
     onModeChange,
     toolbarVisibility,
@@ -130,11 +133,17 @@ const SettingsContent: React.FC<SettingsContentProps> = function SettingsContent
     splitModeEnabled,
     className,
     showPreview,
+    settingsVisible,
     qa,
 }) {
+    const isSettingsArray = Array.isArray(settingsVisible);
+    const showModeSetting = isSettingsArray ? settingsVisible?.includes('mode') : true;
+    const showToolbarSetting = isSettingsArray ? settingsVisible?.includes('toolbar') : true;
+    const showSplitModeSetting = isSettingsArray ? settingsVisible?.includes('split') : true;
+
     return (
         <div className={bContent(null, [className])} data-qa={qa}>
-            {canChangeMode && (
+            {showModeSetting && (
                 <Menu size="l" className={bContent('mode')}>
                     <Menu.Item
                         qa="g-md-settings-mode-wysiwyg"
@@ -177,8 +186,10 @@ const SettingsContent: React.FC<SettingsContentProps> = function SettingsContent
                     </Menu.Item>
                 </Menu>
             )}
-            <div className={bContent('separator')} />
-            {!showPreview && (
+            {showModeSetting && (showSplitModeSetting || showToolbarSetting) && (
+                <div className={bContent('separator')} />
+            )}
+            {showToolbarSetting && !showPreview && (
                 <div className={bContent('toolbar')}>
                     <Checkbox
                         size="m"
@@ -190,7 +201,7 @@ const SettingsContent: React.FC<SettingsContentProps> = function SettingsContent
                     <div className={bContent('toolbar-hint')}>{i18n('settings_hint')}</div>
                 </div>
             )}
-            {splitMode && (
+            {showSplitModeSetting && splitMode && (
                 <div className={bContent('split-mode')}>
                     <Checkbox
                         size="m"
