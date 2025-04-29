@@ -82,6 +82,7 @@ export type PlaygroundProps = {
     directiveSyntax?: DirectiveSyntaxValue;
     disabledHTMLBlockModes?: EmbeddingMode[];
     disableMarkdownItAttrs?: boolean;
+    markupParseHtmlOnPaste?: boolean;
 } & Pick<UseMarkdownEditorProps, 'experimental' | 'wysiwygConfig'> &
     Pick<
         MarkdownEditorViewProps,
@@ -133,6 +134,7 @@ export const Playground = memo<PlaygroundProps>((props) => {
         directiveSyntax,
         disabledHTMLBlockModes,
         disableMarkdownItAttrs,
+        markupParseHtmlOnPaste,
     } = props;
     const [editorMode, setEditorMode] = useState<MarkdownEditorMode>(initialEditor ?? 'wysiwyg');
     const [mdRaw, setMdRaw] = useState<MarkupString>(initial || '');
@@ -236,6 +238,7 @@ export const Playground = memo<PlaygroundProps>((props) => {
                     : undefined,
             },
             markupConfig: {
+                parseHtmlOnPaste: true,
                 extensions: markupConfigExtensions,
                 parseInsertedUrlAsImage,
                 renderPreview,
@@ -260,6 +263,7 @@ export const Playground = memo<PlaygroundProps>((props) => {
             experimental?.prepareRawMarkup,
             directiveSyntax,
             disableMarkdownItAttrs,
+            markupParseHtmlOnPaste,
         ],
     );
 

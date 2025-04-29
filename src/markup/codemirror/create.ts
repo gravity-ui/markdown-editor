@@ -178,7 +178,7 @@ export function createCodemirror(params: CreateCodemirrorParams) {
                 onScroll(event);
             },
             paste(event, editor) {
-                if (!event.clipboardData) return;
+                if (!event.clipboardData) return false;
 
                 const pasteLogger = logger.nested({
                     domEvent: 'paste',
@@ -197,7 +197,7 @@ export function createCodemirror(params: CreateCodemirrorParams) {
                     logger.event({event: 'paste-markup'});
                     const reindentedYfmContent = smartReindent(yfmContent, currentLine);
                     editor.dispatch(editor.state.replaceSelection(reindentedYfmContent));
-                    return;
+                    return true;
                 }
 
                 // checking if a copy buffer content is suitable for convertion
@@ -231,7 +231,7 @@ export function createCodemirror(params: CreateCodemirrorParams) {
                             currentLine,
                         );
                         editor.dispatch(editor.state.replaceSelection(reindentedHtmlContent));
-                        return;
+                        return true;
                     }
                 }
 
@@ -260,6 +260,7 @@ export function createCodemirror(params: CreateCodemirrorParams) {
                                     title,
                                 },
                             ])(editor);
+                            return true;
                         }
                     }
                 }
@@ -271,7 +272,10 @@ export function createCodemirror(params: CreateCodemirrorParams) {
                 if (pastedText !== reindentedText) {
                     editor.dispatch(editor.state.replaceSelection(reindentedText));
                     event.preventDefault();
+                    return true;
                 }
+
+                return false;
             },
         }),
     );
