@@ -129,7 +129,7 @@ export class ExtensionsManager {
         this.#spec.marks().forEach(this.processMark);
     }
 
-    private processNode = (name: string, {spec, fromMd, toMd: toMd, view}: ExtensionNodeSpec) => {
+    private processNode = (name: string, {spec, fromMd, toMd, view}: ExtensionNodeSpec) => {
         this.#schemaRegistry.addNode(name, spec);
 
         this.#parserRegistry.addToken(fromMd.tokenName || name, fromMd.tokenSpec);

@@ -126,6 +126,7 @@ export class MarkdownSerializerState {
     noAutoBlank: boolean;
     isAutolink: boolean | undefined;
     escapeWhitespace: boolean;
+    escapeCharacters?: string[];
 
     private readonly nodes: NodeMap;
     private readonly marks: MarkMap;
@@ -328,8 +329,9 @@ export class MarkdownSerializerState {
             while (keep < Math.min(active.length, len) && marks[keep].eq(active[keep])) ++keep;
 
             // Close the marks that need to be closed
-            while (keep < active.length)
+            while (keep < active.length) {
                 this.text(this.markString(active.pop()!, false, parent, index), false)
+            }
 
             // Output any previously expelled trailing whitespace outside the marks
             if (leading) this.text(leading)
@@ -378,7 +380,12 @@ export class MarkdownSerializerState {
     // have special meaning only at the start of the line.
     esc(str: string, startOfLine = false) {
         // eslint-disable-next-line no-useless-escape
-        const escRegexp = this.options?.commonEscape || /[`\^+*\\\|~\[\]\{\}<>\$_]/g;
+        const defaultEsc = /[`\^+*\\\|~\[\]\{\}<>\$_]/g;
+        const extraChars = this.escapeCharacters?.length ? this.escapeCharacters.map(c => '\\' + c).join('') : '';
+        const escRegexp = this.options?.commonEscape ||
+            // Compose the escape regexp from default, options, and extra characters
+            new RegExp(defaultEsc.source + (extraChars ? `|[${extraChars}]` : ''), 'g');
+
         const startOfLineEscRegexp = this.options?.startOfLineEscape || /^[:#\-*+>]/;
 
         str = str.replace(escRegexp, '\\$&');

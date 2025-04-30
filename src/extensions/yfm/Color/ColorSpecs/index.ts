@@ -87,10 +87,14 @@ export const ColorSpecs: ExtensionAuto<ColorSpecsOptions> = (builder, opts) => {
                 },
             },
             toMd: {
-                open: (_state, mark) => {
+                open: (state, mark) => {
+                    state.escapeCharacters = ['(', ')'];
                     return `{${mark.attrs[colorMarkName]}}(`;
                 },
-                close: ')',
+                close: (state) => {
+                    state.escapeCharacters = undefined;
+                    return `)`;
+                },
                 mixable: true,
                 expelEnclosingWhitespace: true,
             },
