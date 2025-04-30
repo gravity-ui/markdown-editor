@@ -5,6 +5,7 @@ import {defaultOptions} from '@diplodoc/transform/lib/sanitize';
 import {Button, DropdownMenu} from '@gravity-ui/uikit';
 
 import type {ToolbarActionData} from 'src/bundle/Editor';
+import type {SettingItems} from 'src/bundle/settings';
 import type {Extension} from 'src/cm/state';
 import {FoldingHeading} from 'src/extensions/additional/FoldingHeading';
 import {Math} from 'src/extensions/additional/Math';
@@ -57,7 +58,7 @@ const wCommandMenuConfig = wysiwygToolbarConfigs.wCommandMenuConfig.concat(
 export type PlaygroundProps = {
     initial?: MarkupString;
     allowHTML?: boolean;
-    settingsVisible?: boolean;
+    settingsVisible?: boolean | SettingItems[];
     initialEditor?: MarkdownEditorMode;
     preserveEmptyRows?: boolean;
     breaks?: boolean;
@@ -67,6 +68,7 @@ export type PlaygroundProps = {
     sanitizeHtml?: boolean;
     prepareRawMarkup?: boolean;
     splitModeOrientation?: 'horizontal' | 'vertical' | false;
+    searchPanel?: boolean;
     stickyToolbar?: boolean;
     initialSplitModeEnabled?: boolean;
     renderPreviewDefined?: boolean;
@@ -114,6 +116,7 @@ export const Playground = memo<PlaygroundProps>((props) => {
         sanitizeHtml,
         prepareRawMarkup,
         splitModeOrientation,
+        searchPanel,
         stickyToolbar,
         renderPreviewDefined,
         height,
@@ -237,6 +240,7 @@ export const Playground = memo<PlaygroundProps>((props) => {
                 parseInsertedUrlAsImage,
                 renderPreview,
                 splitMode: splitModeOrientation,
+                searchPanel,
             },
         },
         [
@@ -245,6 +249,7 @@ export const Playground = memo<PlaygroundProps>((props) => {
             linkifyTlds,
             breaks,
             splitModeOrientation,
+            searchPanel,
             renderPreviewDefined,
             renderPreview,
             experimental?.needToSetDimensionsForUploadedImages,

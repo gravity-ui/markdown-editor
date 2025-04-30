@@ -88,6 +88,7 @@ export type CreateCodemirrorParams = {
     autocompletion?: Autocompletion;
     directiveSyntax: DirectiveSyntaxContext;
     preserveEmptyRows: boolean;
+    searchPanel?: boolean;
 };
 
 export function createCodemirror(params: CreateCodemirrorParams) {
@@ -111,6 +112,7 @@ export function createCodemirror(params: CreateCodemirrorParams) {
         parseInsertedUrlAsImage,
         directiveSyntax,
         preserveEmptyRows,
+        searchPanel = true,
     } = params;
 
     const extensions: Extension[] = [gravityTheme, placeholder(placeholderContent)];
@@ -235,9 +237,13 @@ export function createCodemirror(params: CreateCodemirrorParams) {
 
                 if (parseInsertedUrlAsImage) {
                     const linkMatches = currentLine.matchAll(linkRegex);
+                    const cursorPositionInCurrentLine = from - line.from;
                     const isInsertedInsideLink = linkMatches.some(
-                        (item) => from >= item.index && from <= item.index + (item[0]?.length ?? 0),
+                        (item) =>
+                            cursorPositionInCurrentLine >= item.index &&
+                            cursorPositionInCurrentLine <= item.index + (item[0]?.length ?? 0),
                     );
+
                     if (!isInsertedInsideLink) {
                         const {imageUrl, title} =
                             parseInsertedUrlAsImage(
@@ -268,11 +274,16 @@ export function createCodemirror(params: CreateCodemirrorParams) {
                 }
             },
         }),
-        SearchPanelPlugin({
-            anchorSelector: '.g-md-search-anchor',
-            receiver,
-        }),
     );
+
+    if (searchPanel) {
+        extensions.push(
+            SearchPanelPlugin({
+                anchorSelector: '.g-md-search-anchor',
+                receiver,
+            }),
+        );
+    }
 
     if (preserveEmptyRows) {
         extensions.push(

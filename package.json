@@ -1,6 +1,6 @@
 {
   "name": "@gravity-ui/markdown-editor",
-  "version": "15.8.0",
+  "version": "15.11.0",
   "description": "Markdown wysiwyg and markup editor",
   "license": "MIT",
   "repository": {
@@ -33,6 +33,7 @@
     "prepublishOnly": "npm run lint && npm run build",
     "playwright:install": "playwright install chromium webkit --with-deps",
     "playwright": "playwright test --config=tests/playwright/playwright.config.ts",
+    "playwright:generate": "node scripts/generate-playwright-test.js",
     "playwright:watch": "npm run playwright -- --ui",
     "playwright:update": "npm run playwright -- -u",
     "playwright:clear": "rm -rf ./tests/playwright/.cache",
