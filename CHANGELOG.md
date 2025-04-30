@@ -1,5 +1,18 @@
 # Changelog
 
+## [15.11.0](https://github.com/gravity-ui/markdown-editor/compare/v15.10.1...v15.11.0) (2025-04-29)
+
+
+### Features
+
+* **bundle:** added customization of display of the settings block ([#740](https://github.com/gravity-ui/markdown-editor/issues/740)) ([6e863a3](https://github.com/gravity-ui/markdown-editor/commit/6e863a350f5ad1cf6f7801e600afd4fd3930eeba))
+* **Gpt:** changed hotkey to open gpt popup ([#741](https://github.com/gravity-ui/markdown-editor/issues/741)) ([ccdf761](https://github.com/gravity-ui/markdown-editor/commit/ccdf76102488db57f51c8f1cca8e67f84f563007))
+
+
+### Bug Fixes
+
+* **Lists:** fixed toolbar button activation for sink list item ([#744](https://github.com/gravity-ui/markdown-editor/issues/744)) ([f556e08](https://github.com/gravity-ui/markdown-editor/commit/f556e08df79c1bbadb43c70e53e533c68cc0f589))
+
 ## [15.10.1](https://github.com/gravity-ui/markdown-editor/compare/v15.10.0...v15.10.1) (2025-04-25)
 
 
