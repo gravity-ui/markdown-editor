@@ -228,12 +228,12 @@ export const Playground = memo<PlaygroundProps>((props) => {
                 uploadFile: fileUploadHandler,
             },
             experimental: {
-                ...experimental,
                 directiveSyntax,
                 preserveEmptyRows,
                 prepareRawMarkup: prepareRawMarkup
                     ? (value) => '**prepare raw markup**\n\n' + value
                     : undefined,
+                ...experimental,
             },
             markupConfig: {
                 extensions: markupConfigExtensions,
@@ -258,6 +258,7 @@ export const Playground = memo<PlaygroundProps>((props) => {
             experimental?.needToSetDimensionsForUploadedImages,
             experimental?.beforeEditorModeChange,
             experimental?.prepareRawMarkup,
+            experimental?.preserveEmptyRows,
             directiveSyntax,
             disableMarkdownItAttrs,
         ],
