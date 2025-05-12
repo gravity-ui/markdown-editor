@@ -1,3 +1,5 @@
+import dd from 'ts-dedent';
+
 import {test} from 'playwright/core';
 
 import {Playground} from './Playground.helpers';
@@ -43,5 +45,36 @@ test.describe('Empty rows', () => {
             await editor.blur();
             await expectScreenshot({nameSuffix: 'result'});
         });
+    });
+});
+
+test.describe('Preserve markup formatting', () => {
+    test.beforeEach(async ({mount, editor}) => {
+        await mount(<Playground experimental={{preserveMarkupFormatting: true}} />);
+        await editor.clearContent();
+    });
+
+    test('should preserve markup formatting for yfm-table @table', async ({
+        editor,
+        expectScreenshot,
+    }) => {
+        const markup = dd`
+        #|
+        ||**Header1**|**Header2**||
+        ||
+        Text
+        |Text
+        ||
+        |#
+
+        a
+        `;
+
+        await editor.switchMode('markup');
+        await editor.fill(markup);
+        await editor.switchMode('wysiwyg');
+        await editor.press('a');
+        await editor.switchMode('markup');
+        await expectScreenshot();
     });
 });
