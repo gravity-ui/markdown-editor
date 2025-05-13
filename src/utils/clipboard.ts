@@ -55,6 +55,9 @@ export function shouldSkipHtmlConversion(clipboardData: DataTransfer): boolean {
     // If there's no HTML content, skip conversion
     if (!hasHtml) return true;
 
+    // Check for HTML only (text/html)
+    if (clipboardData.types.length === 1) return false;
+
     // Check for standard HTML clipboard (text/plain + text/html)
     if (clipboardData.types.length === 2) return false;
 

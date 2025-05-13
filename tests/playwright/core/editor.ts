@@ -13,6 +13,7 @@ class MarkdownEditorLocators {
     readonly settingsContent;
     readonly toolbar;
     readonly toolbarMoreActionButton;
+    readonly cmAutocomplete;
 
     constructor(page: Page) {
         // page
@@ -28,6 +29,8 @@ class MarkdownEditorLocators {
         // editor
         this.contenteditable = this.editor.locator('[contenteditable=true]');
         this.toolbarMoreActionButton = this.editor.getByTestId('g-md-toolbar-more-action');
+
+        this.cmAutocomplete = this.editor.locator('.cm-tooltip-autocomplete');
     }
 }
 
@@ -256,5 +259,9 @@ export class MarkdownEditorPage {
 
         loc.selectText();
         await this.page.waitForTimeout(100);
+    }
+
+    async waitForCMAutocomplete() {
+        await this.locators.cmAutocomplete.waitFor({state: 'visible'});
     }
 }

@@ -1,5 +1,7 @@
 import {Plugin} from 'prosemirror-state';
 
+import {InputState} from 'src/utils/input-state';
+
 import type {ParseInsertedUrlAsImage} from '../../../../bundle';
 import type {ExtensionAuto} from '../../../../core';
 import {DataTransferType} from '../../../behavior/Clipboard/utils';
@@ -13,13 +15,22 @@ export type ImageUrlPasteOptions = {
 };
 
 export const imageUrlPaste: ExtensionAuto<ImageUrlPasteOptions> = (builder, opts) => {
+    const inputState = new InputState();
+
     builder.addPlugin(
         () =>
             new Plugin({
                 props: {
                     handleDOMEvents: {
+                        keydown(_view, e) {
+                            inputState.keydown(e);
+                        },
+                        keyup(_view, e) {
+                            inputState.keyup(e);
+                        },
                         paste(view, e) {
                             if (
+                                !inputState.shiftKey ||
                                 !opts.parseInsertedUrlAsImage ||
                                 !e.clipboardData ||
                                 view.state.selection.$from.parent.type.spec.code

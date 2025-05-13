@@ -3,6 +3,8 @@ import {Fragment, type Node, type Schema, Slice} from 'prosemirror-model';
 import {Plugin} from 'prosemirror-state';
 import {dropPoint} from 'prosemirror-transform';
 
+import {InputState} from 'src/utils/input-state';
+
 import type {ParseInsertedUrlAsImage} from '../../../../bundle';
 import {type ExtensionAuto, getLoggerFromState} from '../../../../core';
 import {isFunction} from '../../../../lodash';
@@ -37,11 +39,19 @@ export const ImagePaste: ExtensionAuto<ImagePasteOptions> = (builder, opts) => {
             } is not a function`,
         );
 
+    const inputState = new InputState();
+
     builder.addPlugin(
         () =>
             new Plugin({
                 props: {
                     handleDOMEvents: {
+                        keydown(_view, e) {
+                            inputState.keydown(e);
+                        },
+                        keyup(_view, e) {
+                            inputState.keyup(e);
+                        },
                         paste(view, e) {
                             const logger = getLoggerFromState(view.state).nested({
                                 plugin: 'image-paste',
@@ -60,7 +70,7 @@ export const ImagePaste: ExtensionAuto<ImagePasteOptions> = (builder, opts) => {
                                     opts,
                                 ).run();
                                 return true;
-                            } else if (parseInsertedUrlAsImage) {
+                            } else if (!inputState.shiftKey && parseInsertedUrlAsImage) {
                                 const {imageUrl, title} =
                                     parseInsertedUrlAsImage(
                                         e.clipboardData?.getData(DataTransferType.Text) ?? '',

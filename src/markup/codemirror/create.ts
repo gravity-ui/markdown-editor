@@ -17,6 +17,8 @@ import {
     placeholder,
 } from '@codemirror/view';
 
+import {InputState} from 'src/utils/input-state';
+
 import type {ParseInsertedUrlAsImage} from '../../bundle';
 import type {EventMap} from '../../bundle/Editor';
 import {ActionName} from '../../bundle/config/action-names';
@@ -121,6 +123,8 @@ export function createCodemirror(params: CreateCodemirrorParams) {
         extensions.push(history());
     }
 
+    const inputState = new InputState();
+
     extensions.push(
         syntaxHighlighting(gravityHighlightStyle),
         LoggerFacet.of(logger),
@@ -177,8 +181,14 @@ export function createCodemirror(params: CreateCodemirrorParams) {
             scroll(event) {
                 onScroll(event);
             },
+            keydown(event) {
+                inputState.keydown(event);
+            },
+            keyup(event) {
+                inputState.keyup(event);
+            },
             paste(event, editor) {
-                if (!event.clipboardData) return;
+                if (!event.clipboardData) return false;
 
                 const pasteLogger = logger.nested({
                     domEvent: 'paste',
@@ -197,7 +207,7 @@ export function createCodemirror(params: CreateCodemirrorParams) {
                     logger.event({event: 'paste-markup'});
                     const reindentedYfmContent = smartReindent(yfmContent, currentLine);
                     editor.dispatch(editor.state.replaceSelection(reindentedYfmContent));
-                    return;
+                    return true;
                 }
 
                 // checking if a copy buffer content is suitable for convertion
@@ -231,11 +241,11 @@ export function createCodemirror(params: CreateCodemirrorParams) {
                             currentLine,
                         );
                         editor.dispatch(editor.state.replaceSelection(reindentedHtmlContent));
-                        return;
+                        return true;
                     }
                 }
 
-                if (parseInsertedUrlAsImage) {
+                if (!inputState.shiftKey && parseInsertedUrlAsImage) {
                     const linkMatches = currentLine.matchAll(linkRegex);
                     const cursorPositionInCurrentLine = from - line.from;
                     const isInsertedInsideLink = linkMatches.some(
@@ -260,6 +270,7 @@ export function createCodemirror(params: CreateCodemirrorParams) {
                                     title,
                                 },
                             ])(editor);
+                            return true;
                         }
                     }
                 }
@@ -271,7 +282,10 @@ export function createCodemirror(params: CreateCodemirrorParams) {
                 if (pastedText !== reindentedText) {
                     editor.dispatch(editor.state.replaceSelection(reindentedText));
                     event.preventDefault();
+                    return true;
                 }
+
+                return false;
             },
         }),
     );

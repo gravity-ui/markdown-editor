@@ -82,6 +82,7 @@ export type PlaygroundProps = {
     directiveSyntax?: DirectiveSyntaxValue;
     disabledHTMLBlockModes?: EmbeddingMode[];
     disableMarkdownItAttrs?: boolean;
+    markupParseHtmlOnPaste?: boolean;
 } & Pick<UseMarkdownEditorProps, 'experimental' | 'wysiwygConfig'> &
     Pick<
         MarkdownEditorViewProps,
@@ -133,6 +134,7 @@ export const Playground = memo<PlaygroundProps>((props) => {
         directiveSyntax,
         disabledHTMLBlockModes,
         disableMarkdownItAttrs,
+        markupParseHtmlOnPaste,
     } = props;
     const [editorMode, setEditorMode] = useState<MarkdownEditorMode>(initialEditor ?? 'wysiwyg');
     const [mdRaw, setMdRaw] = useState<MarkupString>(initial || '');
@@ -228,14 +230,15 @@ export const Playground = memo<PlaygroundProps>((props) => {
                 uploadFile: fileUploadHandler,
             },
             experimental: {
-                ...experimental,
                 directiveSyntax,
                 preserveEmptyRows,
                 prepareRawMarkup: prepareRawMarkup
                     ? (value) => '**prepare raw markup**\n\n' + value
                     : undefined,
+                ...experimental,
             },
             markupConfig: {
+                parseHtmlOnPaste: true,
                 extensions: markupConfigExtensions,
                 parseInsertedUrlAsImage,
                 renderPreview,
@@ -258,8 +261,10 @@ export const Playground = memo<PlaygroundProps>((props) => {
             experimental?.needToSetDimensionsForUploadedImages,
             experimental?.beforeEditorModeChange,
             experimental?.prepareRawMarkup,
+            experimental?.preserveEmptyRows,
             directiveSyntax,
             disableMarkdownItAttrs,
+            markupParseHtmlOnPaste,
         ],
     );
 

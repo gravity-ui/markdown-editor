@@ -6,7 +6,7 @@ import {Playground} from './Playground.helpers';
 
 test.describe('Clipboard', () => {
     test.beforeEach(async ({mount, editor}) => {
-        await mount(<Playground />);
+        await mount(<Playground markupParseHtmlOnPaste />);
         await editor.clearContent();
     });
 
@@ -229,6 +229,56 @@ test.describe('Clipboard', () => {
                 await page.waitForTimeout(500);
                 await expectScreenshot();
             });
+        });
+    });
+
+    test.describe('MARKUP mode', () => {
+        test.beforeEach(async ({editor}) => {
+            await editor.switchMode('markup');
+        });
+
+        test('should reindent pasted markup', async ({editor, expectScreenshot}) => {
+            await editor.paste('- first\n- second');
+            await editor.press('Enter');
+            await editor.paste('> This\n> is\n> qoute');
+            await editor.blur();
+            await expectScreenshot();
+        });
+
+        test('should paste link to image as image markup', async ({editor, expectScreenshot}) => {
+            await editor.paste('https://example.com/test_img.png');
+            await editor.blur();
+            await expectScreenshot();
+        });
+    });
+
+    test.describe('Paste HTML', () => {
+        const HTML = dd`
+        <div>
+        <h2>Heading</h2>
+        <p><em>Description</em></p>
+        <blockquote>
+        <p>This is qoute</p>
+        </blockquote>
+        <ul>
+        <li>first item</li>
+        <li>second item</li>
+        </ul>
+        </div>`;
+
+        test('should parse HTML in wysiwyg mode', async ({editor, expectScreenshot, wait}) => {
+            await editor.paste({'text/html': HTML});
+            await editor.blur();
+            await wait.timeout(500);
+            await expectScreenshot();
+        });
+
+        test('should parse HTML in markup mode', async ({editor, expectScreenshot, wait}) => {
+            await editor.switchMode('markup');
+            await editor.paste({'text/html': HTML});
+            await editor.blur();
+            await wait.timeout(500);
+            await expectScreenshot();
         });
     });
 });
