@@ -1,0 +1,17 @@
+/*
+ TDOD: delete it after https://github.com/diplodoc-platform/transform/pull/708
+ fix spacing for last paragraph and empty paragraphs with cursor (override YFM style)
+ */
+
+@supports selector(:has(br)) {
+    .yfm li > p:only-of-type:has(br),
+    .yfm li > blockquote:only-of-type:has(br) {
+        margin-block: 0;
+    }
+}
+
+li {
+    > p:last-child {
+        margin-block: var(--yfm-list-text-only-margin-block, 0);
+    }
+}
