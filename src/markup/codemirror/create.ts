@@ -17,6 +17,8 @@ import {
     placeholder,
 } from '@codemirror/view';
 
+import {InputState} from 'src/utils/input-state';
+
 import type {ParseInsertedUrlAsImage} from '../../bundle';
 import type {EventMap} from '../../bundle/Editor';
 import {ActionName} from '../../bundle/config/action-names';
@@ -121,6 +123,8 @@ export function createCodemirror(params: CreateCodemirrorParams) {
         extensions.push(history());
     }
 
+    const inputState = new InputState();
+
     extensions.push(
         syntaxHighlighting(gravityHighlightStyle),
         LoggerFacet.of(logger),
@@ -176,6 +180,12 @@ export function createCodemirror(params: CreateCodemirrorParams) {
         EditorView.domEventHandlers({
             scroll(event) {
                 onScroll(event);
+            },
+            keydown(event) {
+                inputState.keydown(event);
+            },
+            keyup(event) {
+                inputState.keyup(event);
             },
             paste(event, editor) {
                 if (!event.clipboardData) return false;
@@ -235,7 +245,7 @@ export function createCodemirror(params: CreateCodemirrorParams) {
                     }
                 }
 
-                if (parseInsertedUrlAsImage) {
+                if (!inputState.shiftKey && parseInsertedUrlAsImage) {
                     const linkMatches = currentLine.matchAll(linkRegex);
                     const cursorPositionInCurrentLine = from - line.from;
                     const isInsertedInsideLink = linkMatches.some(
