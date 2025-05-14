@@ -232,4 +232,39 @@ describe('sinkOnlySelectedListItem', () => {
                 ),
             ),
         ));
+    it('sinks nested list items with a reverse staircase selection from outdented item to indented one', () =>
+        apply(
+            doc(
+                ul(
+                    li(p('aa')),
+                    li(
+                        p('bb'),
+                        ul(
+                            li(p('cc')),
+                            li(p('dd'), ul(li(p('ee')), li(p('s<a>s')))),
+                            li(p('z<b>z')),
+                            li(p('ww')),
+                        ),
+                    ),
+                    li(p('pp')),
+                    li(p('hh')),
+                ),
+            ),
+            sink,
+            doc(
+                ul(
+                    li(p('aa')),
+                    li(
+                        p('bb'),
+                        ul(
+                            li(p('cc')),
+                            li(p('dd'), ul(li(p('ee'), ul(li(p('ss')))), li(p('zz')))),
+                            li(p('ww')),
+                        ),
+                    ),
+                    li(p('pp')),
+                    li(p('hh')),
+                ),
+            ),
+        ));
 });
