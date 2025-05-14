@@ -15,6 +15,8 @@ import {
     type QAProps,
 } from '@gravity-ui/uikit';
 
+import {getZIndexFromVariables} from 'src/utils/get-z-index-from-variables';
+
 import {type ClassNameProps, cn} from '../../classname';
 import {i18n} from '../../i18n/bundle';
 import WysiwygModeIcon from '../../icons/WysiwygMode';
@@ -172,6 +174,9 @@ const SettingsContent: React.FC<SettingsContentProps> = function SettingsContent
                             popoverProps={{
                                 placement: mdHelpPlacement,
                                 modal: false,
+                                zIndex: getZIndexFromVariables(
+                                    '--md-editor-sticky-toolbar-popup-z-index',
+                                ),
                             }}
                             className={bContent('mode-help')}
                         >
