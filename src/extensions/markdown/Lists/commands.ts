@@ -115,6 +115,6 @@ export function sinkOnlySelectedListItem(itemType: NodeType): Command {
             dispatch(tr.scrollIntoView());
             return true;
         }
-        return false;
+        return true;
     };
 }

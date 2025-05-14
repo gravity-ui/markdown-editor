@@ -38,6 +38,8 @@ const config: StorybookConfig = {
             config.resolve.alias[alias] = resolve(baseUrl, paths[alias][0])
         }
 
+        config.resolve.alias['demo/*'] = resolve(__dirname, '..', 'demo/*');
+
         return config;
     },
 };

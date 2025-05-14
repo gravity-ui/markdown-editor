@@ -21,12 +21,12 @@ run_command() {
     /bin/bash -c "$*"
 }
 
-if command_exists docker; then
-  CONTAINER_TOOL="docker"
-elif command_exists podman; then
+if command_exists podman; then
   CONTAINER_TOOL="podman"
+elif command_exists docker; then
+  CONTAINER_TOOL="docker"
 else
-  echo "Neither Docker nor Podman is installed on the system."
+  echo "Neither Podman nor Docker is installed on the system."
   exit 1
 fi
 

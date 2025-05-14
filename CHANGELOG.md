@@ -1,5 +1,78 @@
 # Changelog
 
+## [15.11.1](https://github.com/gravity-ui/markdown-editor/compare/v15.11.0...v15.11.1) (2025-05-13)
+
+
+### Bug Fixes
+
+* don't paste url as image if shift pressed ([#750](https://github.com/gravity-ui/markdown-editor/issues/750)) ([1dd30c8](https://github.com/gravity-ui/markdown-editor/commit/1dd30c8cc4dabfc650f399f922259a710bf0f2aa))
+* **markup:** fixed paste handling in markup mode ([7ae1d59](https://github.com/gravity-ui/markdown-editor/commit/7ae1d59710b93cd559c7903992c691cac484610a))
+* **styles:** added spacing rules to prevent jumps when editing lists ([#751](https://github.com/gravity-ui/markdown-editor/issues/751)) ([9059b84](https://github.com/gravity-ui/markdown-editor/commit/9059b84c25e558a77bcc2cdd06a528f5dfdedf47))
+
+## [15.11.0](https://github.com/gravity-ui/markdown-editor/compare/v15.10.1...v15.11.0) (2025-04-29)
+
+
+### Features
+
+* **bundle:** added customization of display of the settings block ([#740](https://github.com/gravity-ui/markdown-editor/issues/740)) ([6e863a3](https://github.com/gravity-ui/markdown-editor/commit/6e863a350f5ad1cf6f7801e600afd4fd3930eeba))
+* **Gpt:** changed hotkey to open gpt popup ([#741](https://github.com/gravity-ui/markdown-editor/issues/741)) ([ccdf761](https://github.com/gravity-ui/markdown-editor/commit/ccdf76102488db57f51c8f1cca8e67f84f563007))
+
+
+### Bug Fixes
+
+* **Lists:** fixed toolbar button activation for sink list item ([#744](https://github.com/gravity-ui/markdown-editor/issues/744)) ([f556e08](https://github.com/gravity-ui/markdown-editor/commit/f556e08df79c1bbadb43c70e53e533c68cc0f589))
+
+## [15.10.1](https://github.com/gravity-ui/markdown-editor/compare/v15.10.0...v15.10.1) (2025-04-25)
+
+
+### Bug Fixes
+
+* **markup:** fix pasting image urls to link lines ([#738](https://github.com/gravity-ui/markdown-editor/issues/738)) ([2dfba92](https://github.com/gravity-ui/markdown-editor/commit/2dfba92d97884c0d2506ec2d558cb91e7b7a301d))
+
+## [15.10.0](https://github.com/gravity-ui/markdown-editor/compare/v15.9.0...v15.10.0) (2025-04-24)
+
+
+### Features
+
+* **markup:** allow to disable search panel ([#736](https://github.com/gravity-ui/markdown-editor/issues/736)) ([1ecb513](https://github.com/gravity-ui/markdown-editor/commit/1ecb5137e4170d7eab7a4d433721ef21b76272a4))
+
+## [15.9.0](https://github.com/gravity-ui/markdown-editor/compare/v15.8.1...v15.9.0) (2025-04-23)
+
+
+### Features
+
+* **SelectionContext:** allow to change popup placement behavior ([#732](https://github.com/gravity-ui/markdown-editor/issues/732)) ([52e72e7](https://github.com/gravity-ui/markdown-editor/commit/52e72e74c2b3f90f8bfc0f28155383da1573d1ec))
+
+
+### Bug Fixes
+
+* resolved log func via named import to avoid default mismatch ([#733](https://github.com/gravity-ui/markdown-editor/issues/733)) ([13906ed](https://github.com/gravity-ui/markdown-editor/commit/13906edfeb639ef6ffbe06bc4c77c58981127f28))
+
+## [15.8.1](https://github.com/gravity-ui/markdown-editor/compare/v15.8.0...v15.8.1) (2025-04-18)
+
+
+### Bug Fixes
+
+* **gpt:** fix gpt markup action for preset ([#727](https://github.com/gravity-ui/markdown-editor/issues/727)) ([9221b3a](https://github.com/gravity-ui/markdown-editor/commit/9221b3a5d9efb6c336f58cae5bfe620e61d87ab4))
+
+## [15.8.0](https://github.com/gravity-ui/markdown-editor/compare/v15.7.0...v15.8.0) (2025-04-17)
+
+
+### Features
+
+* **image:** move selection to the image title on toolbar item click ([#725](https://github.com/gravity-ui/markdown-editor/issues/725)) ([68096df](https://github.com/gravity-ui/markdown-editor/commit/68096df110a5d232290a35d30b31c4d99766d5e7))
+
+
+### Bug Fixes
+
+* **markup:** fix pasting image urls to link lines ([#721](https://github.com/gravity-ui/markdown-editor/issues/721)) ([2fddf0a](https://github.com/gravity-ui/markdown-editor/commit/2fddf0a80d43a53630f2228b78ba89ec335c916c))
+* **QuoteLink:** move clipboard button style to the plugin styles ([#724](https://github.com/gravity-ui/markdown-editor/issues/724)) ([8b65ebd](https://github.com/gravity-ui/markdown-editor/commit/8b65ebd426945de60e986874c8241921c0adf252))
+
+
+### Refactoring
+
+* **bundle:** move editor content to additional component ([#722](https://github.com/gravity-ui/markdown-editor/issues/722)) ([2b94fd3](https://github.com/gravity-ui/markdown-editor/commit/2b94fd36c4a9717252fb8dae790dc0c5574fa4a4))
+  
 ## [15.7.0](https://github.com/gravity-ui/markdown-editor/compare/v15.6.1...v15.7.0) (2025-04-15)
 
 

@@ -1,3 +1,5 @@
+import {useMemo} from 'react';
+
 import isNumber from 'is-number';
 
 import {IMG_MAX_HEIGHT, type ImageItem, getImageDimensions, insertImages} from '../../../markup';
@@ -26,8 +28,16 @@ export const MToolbarImagePopup: React.FC<MToolbarImagePopupProps> = ({
 }) => {
     const {uploadHandler, needToSetDimensionsForUploadedImages} = useMarkupToolbarContext();
 
+    const selectedString = useMemo(() => {
+        const {from, to} = editor.cm.state.selection.main;
+        return editor.cm.state.doc.sliceString(from, to);
+        // we need to calculate the selection only once
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
     return (
         <ToolbarImagePopup
+            imageTitle={selectedString}
             hide={hide}
             anchorElement={anchorElement}
             focus={focus}

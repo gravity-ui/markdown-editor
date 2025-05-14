@@ -36,6 +36,7 @@ export function ToolbarListButton<E>({
     data,
     alwaysActive,
     replaceActiveIcon,
+    qa,
 }: ToolbarListButtonProps<E>) {
     const [anchorElement, setAnchorElement] = useElementState();
     const [open, , hide, toggleOpen] = useBooleanState(false);
@@ -68,6 +69,7 @@ export function ToolbarListButton<E>({
     return (
         <>
             <ToolbarButtonView
+                qa={qa}
                 ref={setAnchorElement}
                 active={someActive}
                 enabled={!everyDisabled}

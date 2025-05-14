@@ -1,4 +1,4 @@
-import log from '@diplodoc/transform/lib/log.js';
+import {log} from '@diplodoc/transform/lib/log.js';
 import yfmPlugin from '@diplodoc/transform/lib/plugins/monospace.js';
 
 import type {ExtensionAuto} from '../../../../core';

@@ -21,12 +21,25 @@ export type {
 
 export type SelectionContextOptions = {
     config?: ContextConfig;
+    /**
+     * Placement of context popup
+     *
+     * @default 'bottom'
+     */
+    placement?: 'top' | 'bottom';
+    /**
+     * Prevents context popup from overflowing
+     *
+     * @default false
+     */
+    flip?: boolean;
 };
 
-export const SelectionContext: ExtensionAuto<SelectionContextOptions> = (builder, {config}) => {
+export const SelectionContext: ExtensionAuto<SelectionContextOptions> = (builder, opts) => {
+    const {config} = opts;
     if (Array.isArray(config) && config.length > 0) {
         builder.addPlugin(
-            ({actions}) => new Plugin(new SelectionTooltip(actions, config, builder.logger)),
+            ({actions}) => new Plugin(new SelectionTooltip(actions, config, builder.logger, opts)),
         );
     }
 };
@@ -41,8 +54,13 @@ class SelectionTooltip implements PluginSpec<unknown> {
 
     private _isMousePressed = false;
 
-    constructor(actions: ActionStorage, menuConfig: ContextConfig, logger: Logger2.ILogger) {
-        this.tooltip = new TooltipView(actions, menuConfig, logger);
+    constructor(
+        actions: ActionStorage,
+        menuConfig: ContextConfig,
+        logger: Logger2.ILogger,
+        options: SelectionContextOptions,
+    ) {
+        this.tooltip = new TooltipView(actions, menuConfig, logger, options);
     }
 
     get props(): EditorProps {

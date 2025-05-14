@@ -163,6 +163,11 @@ export type MarkdownEditorMarkupConfig = {
      * The function, used to determine if the pasted text is the image url and should be inserted as an image
      */
     parseInsertedUrlAsImage?: ParseInsertedUrlAsImage;
+    /**
+     * Show search panel in the editor.
+     * @default true
+     */
+    searchPanel?: boolean;
 };
 
 // do not export this type

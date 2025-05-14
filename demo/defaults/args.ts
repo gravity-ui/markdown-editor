@@ -12,6 +12,7 @@ export const args: Meta<PlaygroundMiniProps>['args'] = {
     sanitizeHtml: false,
     prepareRawMarkup: false,
     splitModeOrientation: 'horizontal',
+    searchPanel: true,
     stickyToolbar: true,
     initialSplitModeEnabled: false,
     renderPreviewDefined: true,

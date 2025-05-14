@@ -309,6 +309,7 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
                     autocompletion: this.#markupConfig.autocompletion,
                     directiveSyntax: this.directiveSyntax,
                     receiver: this,
+                    searchPanel: this.#markupConfig.searchPanel,
                 }),
             );
         }

@@ -15,6 +15,7 @@ export type PlaygroundMiniProps = Pick<
     | 'sanitizeHtml'
     | 'prepareRawMarkup'
     | 'splitModeOrientation'
+    | 'searchPanel'
     | 'stickyToolbar'
     | 'initialSplitModeEnabled'
     | 'renderPreviewDefined'

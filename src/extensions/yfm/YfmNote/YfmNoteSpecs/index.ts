@@ -1,4 +1,4 @@
-import log from '@diplodoc/transform/lib/log.js';
+import {log} from '@diplodoc/transform/lib/log.js';
 import yfmPlugin from '@diplodoc/transform/lib/plugins/notes/index.js';
 import type {NodeSpec} from 'prosemirror-model';
 

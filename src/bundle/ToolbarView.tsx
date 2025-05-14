@@ -1,5 +1,6 @@
 import {useLayoutEffect, useRef} from 'react';
 
+import type {QAProps} from '@gravity-ui/uikit';
 import {useUpdate} from 'react-use';
 
 import type {ClassNameProps} from '../classname';
@@ -11,17 +12,18 @@ import type {EditorInt} from './Editor';
 import {stickyCn} from './sticky';
 import type {MarkdownEditorMode} from './types';
 
-export type ToolbarViewProps<T> = ClassNameProps & {
-    editor: EditorInt;
-    editorMode: MarkdownEditorMode;
-    toolbarEditor: T;
-    toolbarFocus: () => void;
-    toolbarConfig: ToolbarData<T>;
-    settingsVisible?: boolean;
-    hiddenActionsConfig?: ToolbarItemData<T>[];
-    children?: React.ReactNode;
-    stickyToolbar: boolean;
-};
+export type ToolbarViewProps<T> = ClassNameProps &
+    QAProps & {
+        editor: EditorInt;
+        editorMode: MarkdownEditorMode;
+        toolbarEditor: T;
+        toolbarFocus: () => void;
+        toolbarConfig: ToolbarData<T>;
+        settingsVisible?: boolean;
+        hiddenActionsConfig?: ToolbarItemData<T>[];
+        children?: React.ReactNode;
+        stickyToolbar: boolean;
+    };
 
 export function ToolbarView<T>({
     editor,
@@ -34,6 +36,7 @@ export function ToolbarView<T>({
     className,
     children,
     stickyToolbar,
+    qa,
 }: ToolbarViewProps<T>) {
     const rerender = useUpdate();
     useLayoutEffect(() => {
@@ -48,6 +51,7 @@ export function ToolbarView<T>({
 
     return (
         <div
+            data-qa={qa}
             ref={wrapperRef}
             className={stickyCn.toolbar(
                 {
