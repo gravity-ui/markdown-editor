@@ -1,5 +1,14 @@
 # Changelog
 
+## [15.11.1](https://github.com/gravity-ui/markdown-editor/compare/v15.11.0...v15.11.1) (2025-05-13)
+
+
+### Bug Fixes
+
+* don't paste url as image if shift pressed ([#750](https://github.com/gravity-ui/markdown-editor/issues/750)) ([1dd30c8](https://github.com/gravity-ui/markdown-editor/commit/1dd30c8cc4dabfc650f399f922259a710bf0f2aa))
+* **markup:** fixed paste handling in markup mode ([7ae1d59](https://github.com/gravity-ui/markdown-editor/commit/7ae1d59710b93cd559c7903992c691cac484610a))
+* **styles:** added spacing rules to prevent jumps when editing lists ([#751](https://github.com/gravity-ui/markdown-editor/issues/751)) ([9059b84](https://github.com/gravity-ui/markdown-editor/commit/9059b84c25e558a77bcc2cdd06a528f5dfdedf47))
+
 ## [15.11.0](https://github.com/gravity-ui/markdown-editor/compare/v15.10.1...v15.11.0) (2025-04-29)
 
 
