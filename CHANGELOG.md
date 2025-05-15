@@ -1,5 +1,12 @@
 # Changelog
 
+## [15.12.0](https://github.com/gravity-ui/markdown-editor/compare/v15.11.1...v15.12.0) (2025-05-15)
+
+
+### Features
+
+* **view:** added hook for opening files gallery ([#742](https://github.com/gravity-ui/markdown-editor/issues/742)) ([622fdaa](https://github.com/gravity-ui/markdown-editor/commit/622fdaacd563551373119a2837df9e1672ed098a))
+
 ## [15.11.1](https://github.com/gravity-ui/markdown-editor/compare/v15.11.0...v15.11.1) (2025-05-13)
 
 
