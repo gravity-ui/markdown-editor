@@ -6,5 +6,5 @@ export const galleryMarkup = `
 
 ![Dojocat](https://octodex.github.com/images/dojocat.jpg "The Dojocat")
 
-![Video](http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4)
+[Video](https://static.videezy.com/system/resources/previews/000/013/444/original/Water_43_-_37s_-_4k_res.mp4)
 `.trim();
