@@ -142,17 +142,21 @@ export const CodeBlockHighlight: ExtensionAuto<CodeBlockHighlightOptions> = (bui
                     [codeBlockNodeName]: (node) => {
                         let prevLang = node.attrs[CodeBlockNodeAttr.Lang];
 
-                        const dom = document.createElement('pre');
+                        const dom = document.createElement('div');
+                        dom.classList.add('code-block-container');
+
+                        const pre = document.createElement('pre');
 
                         const contentDOM = document.createElement('code');
                         contentDOM.classList.add('hljs');
 
                         if (prevLang) {
-                            dom.setAttribute(CodeBlockNodeAttr.Lang, prevLang);
+                            pre.setAttribute(CodeBlockNodeAttr.Lang, prevLang);
                             contentDOM.classList.add(prevLang);
                         }
 
-                        dom.append(contentDOM);
+                        pre.append(contentDOM);
+                        dom.append(pre);
 
                         return {
                             dom,
@@ -164,10 +168,10 @@ export const CodeBlockHighlight: ExtensionAuto<CodeBlockHighlightOptions> = (bui
                                 if (prevLang !== newLang) {
                                     contentDOM.className = 'hljs';
                                     if (newLang) {
-                                        dom.setAttribute(CodeBlockNodeAttr.Lang, newLang);
+                                        pre.setAttribute(CodeBlockNodeAttr.Lang, newLang);
                                         contentDOM.classList.add(newLang);
                                     } else {
-                                        dom.removeAttribute(CodeBlockNodeAttr.Lang);
+                                        pre.removeAttribute(CodeBlockNodeAttr.Lang);
                                     }
                                     prevLang = newLang;
                                 }

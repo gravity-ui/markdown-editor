@@ -25,7 +25,7 @@ export const getSchemaSpecs = (
         definingAsContext: true,
         parseDOM: [{tag: 'table', priority: 200}],
         toDOM() {
-            return ['table', 0];
+            return ['div', {class: 'yfm-table-container'}, ['table', 0]];
         },
         selectable: true,
         allowSelection: true,

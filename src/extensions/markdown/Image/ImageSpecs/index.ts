@@ -37,7 +37,7 @@ export const ImageSpecs: ExtensionAuto = (builder) => {
                 },
             ],
             toDOM(node) {
-                return ['img', node.attrs];
+                return ['span', {class: 'image-container'}, ['img', node.attrs]];
             },
         },
         fromMd: {

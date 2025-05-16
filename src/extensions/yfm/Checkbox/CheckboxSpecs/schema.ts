@@ -59,7 +59,7 @@ export const getSchemaSpecs = (
             },
         ],
         toDOM(node) {
-            return ['div', node.attrs, 0];
+            return ['div', {class: 'checkbox-container'}, ['div', node.attrs, 0]];
         },
         complex: 'root',
     },
