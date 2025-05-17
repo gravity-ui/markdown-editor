@@ -3,7 +3,8 @@ import {Fragment, useEffect, useState} from 'react';
 import {ChevronDown} from '@gravity-ui/icons';
 import {HelpMark, Hotkey, Icon, Menu, Popover} from '@gravity-ui/uikit';
 
-import {SelectPopup} from '../bundle/SelectPopup';
+import {PlatformPopup} from 'src/bundle/PlatformPopup';
+
 import {cn} from '../classname';
 import {i18n} from '../i18n/common';
 import {isFunction} from '../lodash';
@@ -89,7 +90,7 @@ export function ToolbarListButton<E>({
             >
                 {buttonContent}
             </ToolbarButtonView>
-            <SelectPopup
+            <PlatformPopup
                 mobile={mobile}
                 open={popupOpen}
                 onClose={hide}
@@ -191,7 +192,7 @@ export function ToolbarListButton<E>({
                         })
                         .filter(Boolean)}
                 </Menu>
-            </SelectPopup>
+            </PlatformPopup>
             {popupItem
                 ? popupItem.renderPopup({
                       ...popupItem,

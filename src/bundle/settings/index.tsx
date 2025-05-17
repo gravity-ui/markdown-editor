@@ -21,7 +21,7 @@ import {noop} from '../../lodash';
 import {useBooleanState} from '../../react-utils/hooks';
 import {ToolbarTooltipDelay} from '../../toolbar';
 import {VERSION} from '../../version';
-import {SelectPopup} from '../SelectPopup';
+import {PlatformPopup} from '../PlatformPopup';
 import type {MarkdownEditorMode, MarkdownEditorSplitMode} from '../types';
 
 import {MarkdownHints} from './MarkdownHints';
@@ -91,7 +91,7 @@ export const EditorSettings = memo<EditorSettingsProps>(function EditorSettings(
                     >
                         <Icon data={Gear} />
                     </Button>
-                    <SelectPopup
+                    <PlatformPopup
                         mobile={mobile}
                         open={popupShown}
                         onClose={hidePopup}
@@ -104,7 +104,7 @@ export const EditorSettings = memo<EditorSettingsProps>(function EditorSettings(
                             onClose={hidePopup}
                             className={bSettings('content')}
                         />
-                    </SelectPopup>
+                    </PlatformPopup>
                 </>
             )}
         </div>

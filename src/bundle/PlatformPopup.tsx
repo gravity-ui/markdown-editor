@@ -4,17 +4,17 @@ import {Popup, type PopupProps, Sheet} from '@gravity-ui/uikit';
 
 import {cn} from '../classname';
 
-export type SelectPopupProps = Pick<PopupProps, 'placement' | 'open' | 'anchorElement'> & {
+export type PlatformPopupProps = Pick<PopupProps, 'placement' | 'open' | 'anchorElement'> & {
     children: ReactNode;
     mobile?: boolean;
     onClose?: () => void;
 };
 
-import './SelectPopup.scss';
+import './PlatformPopup.scss';
 
-const b = cn('select-popup');
+const b = cn('platform-popup');
 
-export const SelectPopup: FC<SelectPopupProps> = ({
+export const PlatformPopup: FC<PlatformPopupProps> = ({
     mobile,
     children,
     onClose,

@@ -1,8 +1,5 @@
 import {memo} from 'react';
 
-import {ArrowUp} from '@gravity-ui/icons';
-import {Button, Icon} from '@gravity-ui/uikit';
-
 import {MarkdownEditorView, useMarkdownEditor} from '../../../src';
 import {PlaygroundLayout} from '../../components/PlaygroundLayout';
 
@@ -24,11 +21,6 @@ export const MobileEditor = memo(() => {
                     className={className}
                     toolbarsPreset={toolbarPreset}
                     mobile
-                    toolbarEnd={
-                        <Button view="action" pin="round-round">
-                            <Icon data={ArrowUp} size={16} />
-                        </Button>
-                    }
                 />
             )}
         />

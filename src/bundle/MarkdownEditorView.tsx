@@ -1,5 +1,4 @@
 import {
-    type ReactNode,
     forwardRef,
     useCallback,
     useEffect,
@@ -68,7 +67,6 @@ const EditorWrapper = forwardRef<HTMLDivElement, EditorWrapperProps>(
             wysiwygHiddenActionsConfig: initialWysiwygHiddenActionsConfig,
             wysiwygToolbarConfig: initialWysiwygToolbarConfig,
             mobile = false,
-            toolbarEnd,
         },
         ref,
     ) => {
@@ -209,7 +207,6 @@ const EditorWrapper = forwardRef<HTMLDivElement, EditorWrapperProps>(
                                     {...settingsProps}
                                     settingsVisible={editor.toolbarVisible && settingsVisibleProp}
                                 />
-                                {toolbarEnd}
                             </WysiwygEditorView>
                         )}
                         {editorMode === 'markup' && (
@@ -277,7 +274,6 @@ type ViewProps = {
     enableSubmitInPreview?: boolean;
     hidePreviewAfterSubmit?: boolean;
     mobile?: boolean;
-    toolbarEnd?: ReactNode;
 };
 
 export type MarkdownEditorViewProps = ClassNameProps & ToolbarConfigs & ViewProps & QAProps & {};
@@ -314,7 +310,6 @@ export const MarkdownEditorView = forwardRef<HTMLDivElement, MarkdownEditorViewP
             wysiwygHiddenActionsConfig,
             wysiwygToolbarConfig,
             mobile = false,
-            toolbarEnd,
         } = props;
 
         const rerender = useUpdate();
@@ -400,7 +395,6 @@ export const MarkdownEditorView = forwardRef<HTMLDivElement, MarkdownEditorViewP
                         wysiwygHiddenActionsConfig={wysiwygHiddenActionsConfig}
                         wysiwygToolbarConfig={wysiwygToolbarConfig}
                         mobile={mobile}
-                        toolbarEnd={toolbarEnd}
                     />
 
                     {markupSplitMode && (
