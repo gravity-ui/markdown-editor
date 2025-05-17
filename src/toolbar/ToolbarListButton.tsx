@@ -1,8 +1,9 @@
 import {Fragment, useEffect, useState} from 'react';
 
 import {ChevronDown} from '@gravity-ui/icons';
-import {HelpMark, Hotkey, Icon, Menu, Popover, Popup} from '@gravity-ui/uikit';
+import {HelpMark, Hotkey, Icon, Menu, Popover} from '@gravity-ui/uikit';
 
+import {SelectPopup} from '../bundle/SelectPopup';
 import {cn} from '../classname';
 import {i18n} from '../i18n/common';
 import {isFunction} from '../lodash';
@@ -50,7 +51,6 @@ export function ToolbarListButton<E>({
     const everyDisabled = alwaysActive ? false : data.every((item) => !item.isEnable(editor));
     const popupOpen = everyDisabled ? false : open;
     const shouldForceHide = open && !popupOpen;
-    const disableActionTooltip = mobile || Boolean(popupItem) || popupOpen;
 
     useEffect(() => {
         if (shouldForceHide) {
@@ -89,7 +89,12 @@ export function ToolbarListButton<E>({
             >
                 {buttonContent}
             </ToolbarButtonView>
-            <Popup anchorElement={anchorElement} open={popupOpen} onOpenChange={hide}>
+            <SelectPopup
+                mobile={mobile}
+                open={popupOpen}
+                onClose={hide}
+                anchorElement={anchorElement}
+            >
                 <Menu size="l" className={b('menu')} qa={qaMenu}>
                     {data
                         .map((data) => {
@@ -147,7 +152,7 @@ export function ToolbarListButton<E>({
                                     key={id}
                                 >
                                     {(props, ref) => (
-                                        <PreviewTooltip preview={preview} mobile>
+                                        <PreviewTooltip preview={preview} mobile={mobile}>
                                             <Menu.Item
                                                 key={id}
                                                 ref={ref}
@@ -186,7 +191,7 @@ export function ToolbarListButton<E>({
                         })
                         .filter(Boolean)}
                 </Menu>
-            </Popup>
+            </SelectPopup>
             {popupItem
                 ? popupItem.renderPopup({
                       ...popupItem,
