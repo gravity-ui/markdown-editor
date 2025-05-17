@@ -11,6 +11,7 @@ import type {EditorInt} from './Editor';
 import {ToolbarView} from './ToolbarView';
 import {WysiwygEditorComponent} from './WysiwygEditorComponent';
 import type {WToolbarData, WToolbarItemData} from './toolbar/types';
+import type {MarkdownEditorToolbarPosition} from './types';
 
 import './WysiwygEditorView.scss';
 
@@ -23,10 +24,12 @@ export type WysiwygEditorViewProps = ClassNameProps &
         settingsVisible?: boolean;
         toolbarConfig: WToolbarData;
         toolbarVisible?: boolean;
+        toolbarPosition: MarkdownEditorToolbarPosition;
         stickyToolbar?: boolean;
         toolbarClassName?: string;
         hiddenActionsConfig?: WToolbarItemData[];
         children?: React.ReactNode;
+        mobile?: boolean;
     };
 
 export const WysiwygEditorView = memo<WysiwygEditorViewProps>((props) => {
@@ -35,6 +38,7 @@ export const WysiwygEditorView = memo<WysiwygEditorViewProps>((props) => {
         autofocus,
         settingsVisible,
         toolbarVisible,
+        toolbarPosition,
         toolbarConfig,
         hiddenActionsConfig,
         qa,
@@ -42,7 +46,9 @@ export const WysiwygEditorView = memo<WysiwygEditorViewProps>((props) => {
         toolbarClassName,
         children,
         stickyToolbar = true,
+        mobile,
     } = props;
+
     useRenderTime((time) => {
         globalLogger.metrics({
             component: 'wysiwyg-editor',
@@ -55,27 +61,32 @@ export const WysiwygEditorView = memo<WysiwygEditorViewProps>((props) => {
             duration: time,
         });
     });
+
+    const toolbar = toolbarVisible ? (
+        <ToolbarView
+            qa="g-md-toolbar"
+            editor={editor}
+            editorMode="wysiwyg"
+            toolbarEditor={editor}
+            stickyToolbar={stickyToolbar}
+            toolbarConfig={toolbarConfig}
+            toolbarFocus={() => editor.focus()}
+            hiddenActionsConfig={hiddenActionsConfig}
+            settingsVisible={settingsVisible}
+            className={b('toolbar', [toolbarClassName])}
+            mobile={mobile}
+        >
+            {children}
+        </ToolbarView>
+    ) : null;
+
     return (
         <div className={b({toolbar: toolbarVisible}, [className])} data-qa={qa}>
-            {toolbarVisible ? (
-                <ToolbarView
-                    qa="g-md-toolbar"
-                    editor={editor}
-                    editorMode="wysiwyg"
-                    toolbarEditor={editor}
-                    stickyToolbar={stickyToolbar}
-                    toolbarConfig={toolbarConfig}
-                    toolbarFocus={() => editor.focus()}
-                    hiddenActionsConfig={hiddenActionsConfig}
-                    settingsVisible={settingsVisible}
-                    className={b('toolbar', [toolbarClassName])}
-                >
-                    {children}
-                </ToolbarView>
-            ) : null}
+            {toolbarPosition === 'top' && toolbar}
             <WysiwygEditorComponent autofocus={autofocus} editor={editor} className={b('editor')}>
                 <ReactRendererComponent storage={editor.renderStorage} />
             </WysiwygEditorComponent>
+            {toolbarPosition === 'bottom' && toolbar}
         </div>
     );
 });

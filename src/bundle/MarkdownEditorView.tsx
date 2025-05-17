@@ -1,4 +1,5 @@
 import {
+    type ReactNode,
     forwardRef,
     useCallback,
     useEffect,
@@ -44,6 +45,7 @@ interface EditorWrapperProps extends QAProps, ToolbarConfigs, Omit<ViewProps, 'e
     showPreview: boolean;
     toggleShowPreview: () => void;
     unsetShowPreview: () => void;
+    mobile?: boolean;
 }
 const EditorWrapper = forwardRef<HTMLDivElement, EditorWrapperProps>(
     (
@@ -65,6 +67,8 @@ const EditorWrapper = forwardRef<HTMLDivElement, EditorWrapperProps>(
             unsetShowPreview,
             wysiwygHiddenActionsConfig: initialWysiwygHiddenActionsConfig,
             wysiwygToolbarConfig: initialWysiwygToolbarConfig,
+            mobile = false,
+            toolbarEnd,
         },
         ref,
     ) => {
@@ -160,6 +164,7 @@ const EditorWrapper = forwardRef<HTMLDivElement, EditorWrapperProps>(
             splitModeEnabled: editor.splitModeEnabled,
             stickyToolbar,
             toolbarVisibility: editor.toolbarVisible && !showPreview,
+            mobile,
         };
 
         const areSettingsVisible =
@@ -194,15 +199,18 @@ const EditorWrapper = forwardRef<HTMLDivElement, EditorWrapperProps>(
                                 settingsVisible={areSettingsVisible}
                                 toolbarConfig={wysiwygToolbarConfig}
                                 toolbarVisible={editor.toolbarVisible}
+                                toolbarPosition={editor.toolbarPosition}
                                 hiddenActionsConfig={wysiwygHiddenActionsConfig}
                                 className={b('editor', {mode: editorMode})}
                                 toolbarClassName={b('toolbar')}
                                 stickyToolbar={stickyToolbar}
+                                mobile={mobile}
                             >
                                 <Settings
                                     {...settingsProps}
                                     settingsVisible={editor.toolbarVisible && settingsVisibleProp}
                                 />
+                                {toolbarEnd}
                             </WysiwygEditorView>
                         )}
                         {editorMode === 'markup' && (
@@ -218,6 +226,7 @@ const EditorWrapper = forwardRef<HTMLDivElement, EditorWrapperProps>(
                                 className={b('editor', {mode: editorMode})}
                                 toolbarClassName={b('toolbar')}
                                 stickyToolbar={stickyToolbar}
+                                mobile={mobile}
                             >
                                 <Settings
                                     {...settingsProps}
@@ -268,6 +277,8 @@ type ViewProps = {
     stickyToolbar: boolean;
     enableSubmitInPreview?: boolean;
     hidePreviewAfterSubmit?: boolean;
+    mobile?: boolean;
+    toolbarEnd?: ReactNode;
 };
 
 export type MarkdownEditorViewProps = ClassNameProps & ToolbarConfigs & ViewProps & QAProps & {};
@@ -303,6 +314,8 @@ export const MarkdownEditorView = forwardRef<HTMLDivElement, MarkdownEditorViewP
             toolbarsPreset,
             wysiwygHiddenActionsConfig,
             wysiwygToolbarConfig,
+            mobile = false,
+            toolbarEnd,
         } = props;
 
         const rerender = useUpdate();
@@ -387,6 +400,8 @@ export const MarkdownEditorView = forwardRef<HTMLDivElement, MarkdownEditorViewP
                         unsetShowPreview={unsetShowPreview}
                         wysiwygHiddenActionsConfig={wysiwygHiddenActionsConfig}
                         wysiwygToolbarConfig={wysiwygToolbarConfig}
+                        mobile={mobile}
+                        toolbarEnd={toolbarEnd}
                     />
 
                     {markupSplitMode && (

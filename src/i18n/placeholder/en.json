@@ -1,5 +1,6 @@
 {
   "doc_empty": "Enter your text or type '/' to open the list of commands",
+  "doc_empty_mobile": "Enter your text",
   "checkbox": "Add a description of the task or check point",
   "codeblock": "Add code or text to the block",
   "deflist_term": "Definition term",
