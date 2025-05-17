@@ -164,6 +164,7 @@ const EditorWrapper = forwardRef<HTMLDivElement, EditorWrapperProps>(
             splitModeEnabled: editor.splitModeEnabled,
             stickyToolbar,
             toolbarVisibility: editor.toolbarVisible && !showPreview,
+            mobile,
         };
 
         const areSettingsVisible =
@@ -274,6 +275,7 @@ type ViewProps = {
     stickyToolbar: boolean;
     enableSubmitInPreview?: boolean;
     hidePreviewAfterSubmit?: boolean;
+    mobile?: boolean;
 };
 
 export type MarkdownEditorViewProps = ClassNameProps & ToolbarConfigs & ViewProps & QAProps & {};
@@ -309,6 +311,7 @@ export const MarkdownEditorView = forwardRef<HTMLDivElement, MarkdownEditorViewP
             toolbarsPreset,
             wysiwygHiddenActionsConfig,
             wysiwygToolbarConfig,
+            mobile = false,
         } = props;
 
         const rerender = useUpdate();
@@ -393,6 +396,7 @@ export const MarkdownEditorView = forwardRef<HTMLDivElement, MarkdownEditorViewP
                         unsetShowPreview={unsetShowPreview}
                         wysiwygHiddenActionsConfig={wysiwygHiddenActionsConfig}
                         wysiwygToolbarConfig={wysiwygToolbarConfig}
+                        mobile={mobile}
                     />
 
                     {markupSplitMode && (
