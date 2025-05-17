@@ -11,6 +11,7 @@ import type {EditorInt} from './Editor';
 import {ToolbarView} from './ToolbarView';
 import {WysiwygEditorComponent} from './WysiwygEditorComponent';
 import type {WToolbarData, WToolbarItemData} from './toolbar/types';
+import type {MarkdownEditorToolbarPosition} from './types';
 
 import './WysiwygEditorView.scss';
 
@@ -23,6 +24,7 @@ export type WysiwygEditorViewProps = ClassNameProps &
         settingsVisible?: boolean;
         toolbarConfig: WToolbarData;
         toolbarVisible?: boolean;
+        toolbarPosition: MarkdownEditorToolbarPosition;
         stickyToolbar?: boolean;
         toolbarClassName?: string;
         hiddenActionsConfig?: WToolbarItemData[];
@@ -30,14 +32,13 @@ export type WysiwygEditorViewProps = ClassNameProps &
         mobile?: boolean;
     };
 
-const toolbarPosition: 'top' | 'bottom' = 'bottom';
-
 export const WysiwygEditorView = memo<WysiwygEditorViewProps>((props) => {
     const {
         editor,
         autofocus,
         settingsVisible,
         toolbarVisible,
+        toolbarPosition,
         toolbarConfig,
         hiddenActionsConfig,
         qa,

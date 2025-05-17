@@ -199,6 +199,7 @@ const EditorWrapper = forwardRef<HTMLDivElement, EditorWrapperProps>(
                                 settingsVisible={areSettingsVisible}
                                 toolbarConfig={wysiwygToolbarConfig}
                                 toolbarVisible={editor.toolbarVisible}
+                                toolbarPosition={editor.toolbarPosition}
                                 hiddenActionsConfig={wysiwygHiddenActionsConfig}
                                 className={b('editor', {mode: editorMode})}
                                 toolbarClassName={b('toolbar')}

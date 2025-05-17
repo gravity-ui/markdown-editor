@@ -21,13 +21,12 @@ import {noop} from '../../lodash';
 import {useBooleanState} from '../../react-utils/hooks';
 import {ToolbarTooltipDelay} from '../../toolbar';
 import {VERSION} from '../../version';
+import {PlatformPopup} from '../PlatformPopup';
 import type {MarkdownEditorMode, MarkdownEditorSplitMode} from '../types';
 
 import {MarkdownHints} from './MarkdownHints';
 
 import './index.scss';
-
-import {PlatformPopup} from '../PlatformPopup';
 
 const placement: PopupPlacement = ['bottom-end', 'top-end'];
 
