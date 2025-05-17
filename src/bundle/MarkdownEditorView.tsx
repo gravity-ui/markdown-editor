@@ -1,4 +1,5 @@
 import {
+    type ReactNode,
     forwardRef,
     useCallback,
     useEffect,
@@ -15,7 +16,6 @@ import {useEnsuredForwardedRef, useKey, useUpdate} from 'react-use';
 import {type ClassNameProps, cn} from '../classname';
 import {i18n} from '../i18n/bundle';
 import {globalLogger} from '../logger';
-import {mobilePreset} from '../modules/toolbars/presets';
 import type {ToolbarsPreset} from '../modules/toolbars/types';
 import {useBooleanState, useSticky} from '../react-utils';
 import {isMac} from '../utils';
@@ -68,6 +68,7 @@ const EditorWrapper = forwardRef<HTMLDivElement, EditorWrapperProps>(
             wysiwygHiddenActionsConfig: initialWysiwygHiddenActionsConfig,
             wysiwygToolbarConfig: initialWysiwygToolbarConfig,
             mobile = false,
+            toolbarEnd,
         },
         ref,
     ) => {
@@ -79,7 +80,7 @@ const EditorWrapper = forwardRef<HTMLDivElement, EditorWrapperProps>(
         } = useMemo(
             () =>
                 getToolbarsConfigs({
-                    toolbarsPreset: mobile ? mobilePreset : toolbarsPreset,
+                    toolbarsPreset,
                     props: {
                         wysiwygToolbarConfig: initialWysiwygToolbarConfig,
                         markupToolbarConfig: initialMarkupToolbarConfig,
@@ -89,7 +90,6 @@ const EditorWrapper = forwardRef<HTMLDivElement, EditorWrapperProps>(
                     preset: editor.preset,
                 }),
             [
-                mobile,
                 toolbarsPreset,
                 initialWysiwygToolbarConfig,
                 initialMarkupToolbarConfig,
@@ -209,6 +209,7 @@ const EditorWrapper = forwardRef<HTMLDivElement, EditorWrapperProps>(
                                     {...settingsProps}
                                     settingsVisible={editor.toolbarVisible && settingsVisibleProp}
                                 />
+                                {toolbarEnd}
                             </WysiwygEditorView>
                         )}
                         {editorMode === 'markup' && (
@@ -276,6 +277,7 @@ type ViewProps = {
     enableSubmitInPreview?: boolean;
     hidePreviewAfterSubmit?: boolean;
     mobile?: boolean;
+    toolbarEnd?: ReactNode;
 };
 
 export type MarkdownEditorViewProps = ClassNameProps & ToolbarConfigs & ViewProps & QAProps & {};
@@ -312,6 +314,7 @@ export const MarkdownEditorView = forwardRef<HTMLDivElement, MarkdownEditorViewP
             wysiwygHiddenActionsConfig,
             wysiwygToolbarConfig,
             mobile = false,
+            toolbarEnd,
         } = props;
 
         const rerender = useUpdate();
@@ -397,6 +400,7 @@ export const MarkdownEditorView = forwardRef<HTMLDivElement, MarkdownEditorViewP
                         wysiwygHiddenActionsConfig={wysiwygHiddenActionsConfig}
                         wysiwygToolbarConfig={wysiwygToolbarConfig}
                         mobile={mobile}
+                        toolbarEnd={toolbarEnd}
                     />
 
                     {markupSplitMode && (

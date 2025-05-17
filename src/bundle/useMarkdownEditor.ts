@@ -73,6 +73,7 @@ export function useMarkdownEditor(
                 needToSetDimensionsForUploadedImages:
                     experimental.needToSetDimensionsForUploadedImages,
                 enableNewImageSizeCalculation: experimental.enableNewImageSizeCalculation,
+                mobile,
             });
             {
                 const extraExtensions = wysiwygConfig.extensions;

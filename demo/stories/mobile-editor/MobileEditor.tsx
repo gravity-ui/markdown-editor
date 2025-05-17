@@ -1,13 +1,12 @@
 import {memo} from 'react';
 
-import {MarkdownEditorView, logger, useMarkdownEditor} from '../../../src';
+import {ArrowUp} from '@gravity-ui/icons';
+import {Button, Icon} from '@gravity-ui/uikit';
+
+import {MarkdownEditorView, useMarkdownEditor} from '../../../src';
 import {PlaygroundLayout} from '../../components/PlaygroundLayout';
 
-logger.setLogger({
-    metrics: console.info,
-    action: (data) => console.info(`Action: ${data.action}`, data),
-    ...console,
-});
+import {toolbarPreset} from './preset';
 
 export const MobileEditor = memo(() => {
     const editor = useMarkdownEditor({
@@ -20,10 +19,16 @@ export const MobileEditor = memo(() => {
             view={({className}) => (
                 <MarkdownEditorView
                     stickyToolbar
-                    settingsVisible
+                    settingsVisible={false}
                     editor={editor}
                     className={className}
+                    toolbarsPreset={toolbarPreset}
                     mobile
+                    toolbarEnd={
+                        <Button view="action" pin="round-round">
+                            <Icon data={ArrowUp} size={16} />
+                        </Button>
+                    }
                 />
             )}
         />
