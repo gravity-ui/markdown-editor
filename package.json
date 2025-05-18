@@ -1,6 +1,6 @@
 {
   "name": "@gravity-ui/markdown-editor",
-  "version": "15.10.1",
+  "version": "15.12.0",
   "description": "Markdown wysiwyg and markup editor",
   "license": "MIT",
   "repository": {
@@ -225,15 +225,16 @@
     "@diplodoc/html-extension": "2.7.1",
     "@diplodoc/latex-extension": "1.0.3",
     "@diplodoc/mermaid-extension": "1.2.1",
-    "@diplodoc/quote-link-extension": "0.1.2",
+    "@diplodoc/quote-link-extension": "0.1.3",
     "@diplodoc/tabs-extension": "^3.5.1",
-    "@diplodoc/transform": "^4.43.0",
+    "@diplodoc/transform": "^4.57.2",
+    "@gravity-ui/components": "4.2.2",
     "@gravity-ui/eslint-config": "3.3.0",
     "@gravity-ui/gulp-utils": "1.0.3",
     "@gravity-ui/prettier-config": "1.1.0",
     "@gravity-ui/stylelint-config": "4.0.1",
     "@gravity-ui/tsconfig": "1.0.0",
-    "@gravity-ui/uikit": "7.1.1",
+    "@gravity-ui/uikit": "7.10.0",
     "@playwright/experimental-ct-react": "1.49.0",
     "@playwright/test": "1.49.0",
     "@storybook/addon-docs": "8.4.1",
@@ -310,6 +311,9 @@
     },
     "lowlight": {
       "optional": true
+    },
+    "@gravity-ui/components": {
+      "optional": true
     }
   },
   "peerDependencies": {
@@ -319,9 +323,10 @@
     "@diplodoc/html-extension": "^2.3.2",
     "@diplodoc/latex-extension": "^1.0.3",
     "@diplodoc/mermaid-extension": "^1.0.0",
-    "@diplodoc/quote-link-extension": "^0.1.1",
+    "@diplodoc/quote-link-extension": "^0.1.3",
     "@diplodoc/tabs-extension": "^3.5.1",
     "@diplodoc/transform": "^4.43.0",
+    "@gravity-ui/components": "^4.2.2",
     "@gravity-ui/uikit": "^7.1.0",
     "highlight.js": "^11.8.0",
     "katex": "^0.16.9",

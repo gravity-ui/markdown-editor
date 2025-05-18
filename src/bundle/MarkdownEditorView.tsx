@@ -25,7 +25,7 @@ import {MarkupEditorView} from './MarkupEditorView';
 import {SplitModeView} from './SplitModeView';
 import {WysiwygEditorView} from './WysiwygEditorView';
 import {useMarkdownEditorContext} from './context';
-import {EditorSettings, type EditorSettingsProps} from './settings';
+import {EditorSettings, type EditorSettingsProps, type SettingItems} from './settings';
 import {stickyCn} from './sticky';
 import type {MToolbarData, MToolbarItemData, WToolbarData, WToolbarItemData} from './toolbar/types';
 import {getToolbarsConfigs} from './toolbar/utils/toolbarsConfigs';
@@ -57,7 +57,7 @@ const EditorWrapper = forwardRef<HTMLDivElement, EditorWrapperProps>(
             markupHiddenActionsConfig: initialMarkupHiddenActionsConfig,
             markupToolbarConfig: initialMarkupToolbarConfig,
             qa,
-            settingsVisible,
+            settingsVisible: settingsVisibleProp,
             showPreview,
             stickyToolbar,
             toggleShowPreview,
@@ -162,6 +162,10 @@ const EditorWrapper = forwardRef<HTMLDivElement, EditorWrapperProps>(
             toolbarVisibility: editor.toolbarVisible && !showPreview,
         };
 
+        const areSettingsVisible =
+            settingsVisibleProp === true ||
+            (Array.isArray(settingsVisibleProp) && settingsVisibleProp.length > 0);
+
         return (
             <div
                 className={b('editor-wrapper')}
@@ -179,7 +183,7 @@ const EditorWrapper = forwardRef<HTMLDivElement, EditorWrapperProps>(
                                 directiveSyntax: editor.directiveSyntax,
                             })}
                         </div>
-                        <Settings {...settingsProps} settingsVisible={settingsVisible} />
+                        <Settings {...settingsProps} settingsVisible={settingsVisibleProp} />
                     </>
                 ) : (
                     <>
@@ -187,7 +191,7 @@ const EditorWrapper = forwardRef<HTMLDivElement, EditorWrapperProps>(
                             <WysiwygEditorView
                                 editor={editor}
                                 autofocus={autofocus}
-                                settingsVisible={settingsVisible}
+                                settingsVisible={areSettingsVisible}
                                 toolbarConfig={wysiwygToolbarConfig}
                                 toolbarVisible={editor.toolbarVisible}
                                 hiddenActionsConfig={wysiwygHiddenActionsConfig}
@@ -197,7 +201,7 @@ const EditorWrapper = forwardRef<HTMLDivElement, EditorWrapperProps>(
                             >
                                 <Settings
                                     {...settingsProps}
-                                    settingsVisible={settingsVisible && editor.toolbarVisible}
+                                    settingsVisible={editor.toolbarVisible && settingsVisibleProp}
                                 />
                             </WysiwygEditorView>
                         )}
@@ -205,7 +209,7 @@ const EditorWrapper = forwardRef<HTMLDivElement, EditorWrapperProps>(
                             <MarkupEditorView
                                 editor={editor}
                                 autofocus={autofocus}
-                                settingsVisible={settingsVisible}
+                                settingsVisible={areSettingsVisible}
                                 toolbarConfig={markupToolbarConfig}
                                 toolbarVisible={editor.toolbarVisible}
                                 splitMode={editor.splitMode}
@@ -217,13 +221,13 @@ const EditorWrapper = forwardRef<HTMLDivElement, EditorWrapperProps>(
                             >
                                 <Settings
                                     {...settingsProps}
-                                    settingsVisible={settingsVisible && editor.toolbarVisible}
+                                    settingsVisible={editor.toolbarVisible && settingsVisibleProp}
                                 />
                             </MarkupEditorView>
                         )}
                         <Settings
                             {...settingsProps}
-                            settingsVisible={!editor.toolbarVisible && settingsVisible}
+                            settingsVisible={!editor.toolbarVisible && settingsVisibleProp}
                             renderPreviewButton={!editor.toolbarVisible && editorMode === 'markup'}
                         />
                     </>
@@ -257,8 +261,9 @@ type ToolbarConfigs = {
 type ViewProps = {
     editor?: Editor;
     autofocus?: boolean;
+    // MAJOR: rename to settings
     /** @default true */
-    settingsVisible?: boolean;
+    settingsVisible?: boolean | SettingItems[];
     toolbarsPreset?: ToolbarsPreset;
     stickyToolbar: boolean;
     enableSubmitInPreview?: boolean;
@@ -322,6 +327,10 @@ export const MarkdownEditorView = forwardRef<HTMLDivElement, MarkdownEditorViewP
             }
         }, [divRef, showPreview]);
 
+        const areSettingsVisible =
+            settingsVisible === true ||
+            (Array.isArray(settingsVisible) && settingsVisible.length > 0);
+
         return (
             <ErrorBoundary
                 onError={(e) => {
@@ -351,7 +360,7 @@ export const MarkdownEditorView = forwardRef<HTMLDivElement, MarkdownEditorViewP
                     data-qa={qa}
                     className={b(
                         {
-                            settings: settingsVisible,
+                            settings: areSettingsVisible,
                             split: markupSplitMode && editor.splitMode,
                         },
                         [className],
