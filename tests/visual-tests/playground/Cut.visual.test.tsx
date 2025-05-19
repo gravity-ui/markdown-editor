@@ -29,99 +29,187 @@ test.describe('Cut', () => {
         await mount(<Playground initial={initialMarkup} />);
     });
 
-    test('should open second cut', async ({expectScreenshot, editor, page, wait}) => {
-        await editor.switchMode('wysiwyg');
-        const nestedCut = page.getByText('Cut with nested сut header').first().locator('..');
-        await wait.visible(nestedCut);
+    test.describe('insert', () => {
+        test('should insert via toolbar @wysiwyg', async ({wait, editor}) => {
+            await editor.switchMode('markup');
+            // Switch to markup mode to clear content correctly,
+            // due to a issue clearing Cut blocks in WYSIWYG mode
+            await editor.clearContent();
+            await editor.switchMode('wysiwyg');
 
-        // Clicking by MouseEvent because YfmCutController relies on event bubbling to document
-        // https://github.com/diplodoc-platform/cut-extension/blob/master/src/runtime/controller.ts#L9
-        await nestedCut.dispatchEvent('click', {
-            bubbles: true,
-            cancelable: true,
-            composed: true,
+            await editor.clickToolbarMoreActionButton();
+            await editor.clickToolbarButton('Cut');
+
+            await editor.clickToolbarMoreActionButton();
+
+            await editor.assertToolbarButtonDisabled('Cut');
+
+            await editor.press('ArrowDown');
+            await wait.timeout();
+            await editor.press('ArrowDown');
+
+            await editor.assertToolbarButtonDisabled('Cut');
+
+            await editor.press('Enter');
+            await wait.timeout();
+
+            await editor.assertToolbarButtonEnabled('Cut');
         });
 
-        await wait.timeout();
-        await expectScreenshot();
-    });
+        test('should insert via command menu @wysiwyg', async ({page, editor, actions, wait}) => {
+            await editor.switchPreview('hidden');
+            await editor.switchMode('wysiwyg');
+            await editor.clearContent();
 
-    test('should cut inside open second cut', async ({expectScreenshot, editor, page, wait}) => {
-        await editor.switchMode('wysiwyg');
+            await editor.pressSequentially('/c');
+            await expect(page.getByTestId('g-md-command-menu')).toBeVisible();
 
-        const nestedCut = page.getByText('Cut with nested сut header').first().locator('..');
-        await wait.visible(nestedCut);
+            const cutMenu = editor.getByTextInCommandMenu('Cut').first();
+            await wait.visible(cutMenu);
 
-        await nestedCut.dispatchEvent('click', {
-            bubbles: true,
-            cancelable: true,
-            composed: true,
+            await cutMenu.click();
+
+            await expect(
+                editor.getBySelectorInContenteditable('.g-md-yfm-cut-title-inner'),
+            ).toBeVisible();
+
+            await editor.pressSequentially('title');
+            await actions.pressFocused('Enter');
+            await editor.pressSequentially('content');
+            await wait.timeout();
+
+            await expect(editor.getByTextInContenteditable('title')).toBeVisible();
+            await expect(editor.getByTextInContenteditable('content')).toBeVisible();
         });
-        await wait.timeout();
 
-        // click to cut inside
-        const cutInsideNestedCut = page.getByText('Cut inside cut header').first().locator('..');
-        await wait.visible(cutInsideNestedCut);
+        test('should insert via input rule @wysiwyg', async ({editor, wait}) => {
+            await editor.inputRule('{% cut');
+            await wait.timeout();
 
-        await cutInsideNestedCut.dispatchEvent('click', {
-            bubbles: true,
-            cancelable: true,
-            composed: true,
+            const cutBlock = editor.getByTextInContenteditable('Cut title').first();
+            await expect(cutBlock).toBeVisible();
         });
 
-        await wait.timeout();
-        await expectScreenshot();
+        test('should insert via keyboard shortcut @wysiwyg', async ({editor, wait}) => {
+            await editor.switchMode('wysiwyg');
+            await editor.clearContent();
+            await editor.press('Control+Alt+7');
+            await wait.timeout();
+
+            const cutBlock = editor.getByTextInContenteditable('Cut title').first();
+            await expect(cutBlock).toBeVisible();
+        });
+
+        test('should insert via toolbar @markup', async ({editor}) => {
+            await editor.switchMode('markup');
+            await editor.clearContent();
+
+            await editor.clickToolbarMoreActionButton();
+            await editor.clickToolbarButton('Cut');
+
+            await expect(editor.getByTextInContenteditable('{% cut "title" %}')).toBeVisible();
+        });
+
+        test('should insert via command menu @markup', async ({page, editor, actions, wait}) => {
+            await editor.switchMode('markup');
+            await editor.clearContent();
+
+            await editor.pressSequentially('{%');
+            await expect(page.getByText('YFM Cut')).toBeVisible();
+            await wait.timeout(300);
+
+            await actions.pressFocused('Enter');
+            await wait.timeout(300);
+
+            await expect(editor.getByTextInContenteditable('{% cut "title" %}')).toBeVisible();
+        });
     });
 
-    test('should open second cut in preview', async ({editor, page, expectScreenshot, wait}) => {
-        await editor.switchPreview('visible');
+    test.describe('mode switch', () => {
+        test('should remain after mode switch @wysiwyg @markup', async ({editor, wait}) => {
+            const markup = '{% cut "Cut header" %}\\nHidden content\\n{% endcut %}';
 
-        const nestedCut = page.getByText('Cut with nested сut header').first().locator('..');
-        await wait.visible(nestedCut);
+            await editor.switchMode('markup');
+            await editor.fill(markup);
+            await wait.timeout();
 
-        await nestedCut.click();
+            await editor.switchMode('wysiwyg');
+            await wait.timeout();
 
-        await wait.timeout();
-        await expectScreenshot();
+            await expect(editor.getByTextInContenteditable('Cut header')).toBeVisible();
+            await expect(editor.getByTextInContenteditable('Hidden content')).toBeVisible();
+            await expect(editor.getByTextInContenteditable('{% endcut %}')).toBeVisible();
+        });
     });
 
-    test('should insert cut block via command menu', async ({page, editor, actions, wait}) => {
-        await editor.switchPreview('hidden');
-        await editor.switchMode('wysiwyg');
-        await editor.clearContent();
+    test.describe('specific', () => {
+        test('should open second cut', async ({expectScreenshot, editor, page, wait}) => {
+            await editor.switchMode('wysiwyg');
+            const nestedCut = page.getByText('Cut with nested сut header').first().locator('..');
+            await wait.visible(nestedCut);
 
-        await editor.pressSequentially('/c');
-        await expect(page.getByTestId('g-md-command-menu')).toBeVisible();
+            // Clicking by MouseEvent because YfmCutController relies on event bubbling to document
+            // https://github.com/diplodoc-platform/cut-extension/blob/master/src/runtime/controller.ts#L9
+            await nestedCut.dispatchEvent('click', {
+                bubbles: true,
+                cancelable: true,
+                composed: true,
+            });
 
-        const cutMenu = editor.getByTextInCommandMenu('Cut').first();
-        await wait.visible(cutMenu);
+            await wait.timeout();
+            await expectScreenshot();
+        });
 
-        await cutMenu.click();
+        test('should cut inside open second cut', async ({
+            expectScreenshot,
+            editor,
+            page,
+            wait,
+        }) => {
+            await editor.switchMode('wysiwyg');
 
-        await expect(
-            editor.getBySelectorInContenteditable('.g-md-yfm-cut-title-inner'),
-        ).toBeVisible();
+            const nestedCut = page.getByText('Cut with nested сut header').first().locator('..');
+            await wait.visible(nestedCut);
 
-        await editor.pressSequentially('title');
-        await actions.pressFocused('Enter');
-        await editor.pressSequentially('content');
-        await wait.timeout();
+            await nestedCut.dispatchEvent('click', {
+                bubbles: true,
+                cancelable: true,
+                composed: true,
+            });
+            await wait.timeout();
 
-        await expect(editor.getByTextInContenteditable('title')).toBeVisible();
-        await expect(editor.getByTextInContenteditable('content')).toBeVisible();
-    });
+            // click to cut inside
+            const cutInsideNestedCut = page
+                .getByText('Cut inside cut header')
+                .first()
+                .locator('..');
+            await wait.visible(cutInsideNestedCut);
 
-    test('should insert cut via short code', async ({page, editor, actions, wait}) => {
-        await editor.switchMode('markup');
-        await editor.clearContent();
+            await cutInsideNestedCut.dispatchEvent('click', {
+                bubbles: true,
+                cancelable: true,
+                composed: true,
+            });
 
-        await editor.pressSequentially('{%');
-        await expect(page.getByText('YFM Cut')).toBeVisible();
-        await wait.timeout(300);
+            await wait.timeout();
+            await expectScreenshot();
+        });
 
-        await actions.pressFocused('Enter');
-        await wait.timeout(300);
+        test('should open second cut in preview', async ({
+            editor,
+            page,
+            expectScreenshot,
+            wait,
+        }) => {
+            await editor.switchPreview('visible');
 
-        await expect(editor.getByTextInContenteditable('{% cut "title" %}')).toBeVisible();
+            const nestedCut = page.getByText('Cut with nested сut header').first().locator('..');
+            await wait.visible(nestedCut);
+
+            await nestedCut.click();
+
+            await wait.timeout();
+            await expectScreenshot();
+        });
     });
 });

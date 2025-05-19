@@ -8,7 +8,7 @@ const ALIASES = {
 };
 const TEMPLATE_DIR = 'tests/playwright/templates';
 const DEFAULT_OUTPUT_DIR = 'tests/visual-tests/playground';
-const templatePath = path.join(TEMPLATE_DIR, 'Extension.template.test.tsx');
+const templatePath = path.join(TEMPLATE_DIR, 'Extension.template.tsx');
 
 if (!fs.existsSync(templatePath)) {
     console.error(`❌ Template file not found at ${templatePath}`);
