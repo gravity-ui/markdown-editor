@@ -228,7 +228,7 @@ const EditorWrapper = forwardRef<HTMLDivElement, EditorWrapperProps>(
                         <Settings
                             {...settingsProps}
                             settingsVisible={!editor.toolbarVisible && settingsVisibleProp}
-                            renderPreviewButton={!editor.toolbarVisible && editorMode === 'markup'}
+                            renderPreviewButton={!editor.toolbarVisible && canRenderPreview}
                         />
                     </>
                 )}
