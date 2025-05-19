@@ -1,5 +1,13 @@
 # Changelog
 
+## [15.12.1](https://github.com/gravity-ui/markdown-editor/compare/v15.12.0...v15.12.1) (2025-05-19)
+
+
+### Bug Fixes
+
+* **bundle:** do not render preview button if there is no preview ([#762](https://github.com/gravity-ui/markdown-editor/issues/762)) ([ef962e1](https://github.com/gravity-ui/markdown-editor/commit/ef962e1224155ad5f21a133266bdd3657b1edf53))
+* **GPT:** fixed popup position in markup mode ([#760](https://github.com/gravity-ui/markdown-editor/issues/760)) ([bb6fbf1](https://github.com/gravity-ui/markdown-editor/commit/bb6fbf11ffe07815f03e3d94e19c90f99417d84a))
+
 ## [15.12.0](https://github.com/gravity-ui/markdown-editor/compare/v15.11.1...v15.12.0) (2025-05-15)
 
 
