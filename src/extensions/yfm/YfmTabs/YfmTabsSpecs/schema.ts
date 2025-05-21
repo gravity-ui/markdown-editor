@@ -37,7 +37,7 @@ export const getSchemaSpecs: (
         group: 'block',
         parseDOM: [{tag: 'div.yfm-tab'}],
         toDOM(node) {
-            return ['div', node.attrs, 0];
+            return ['div', {draggable: 'false', ...node.attrs}, 0];
         },
         placeholder: {
             content:
