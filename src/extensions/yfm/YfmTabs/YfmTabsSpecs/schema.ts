@@ -82,7 +82,7 @@ export const getSchemaSpecs: (
         group: 'block',
         parseDOM: [{tag: 'div.yfm-tabs'}],
         toDOM(node) {
-            return ['div', node.attrs, 0];
+            return ['div', {class: 'yfm-tabs-container'}, ['div', node.attrs, 0]];
         },
         selectable: true,
         complex: 'root',
@@ -113,7 +113,7 @@ export const getSchemaSpecs: (
         content: `(${TabsNode.RadioTab} ${TabsNode.TabPanel})+`,
         group: 'block',
         toDOM(node) {
-            return ['div', node.attrs, 0];
+            return ['div', {class: 'yfm-tabs-container'}, ['div', node.attrs, 0]];
         },
         complex: 'root',
     },

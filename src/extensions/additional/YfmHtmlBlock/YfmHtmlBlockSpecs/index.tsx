@@ -51,7 +51,7 @@ const YfmHtmlBlockSpecsExtension: ExtensionAuto<YfmHtmlBlockSpecsOptions> = (
                     [YfmHtmlBlockConsts.NodeAttrs.newCreated]: {default: null},
                     [YfmHtmlBlockConsts.NodeAttrs.EntityId]: {default: defaultYfmHtmlBlockEntityId},
                 },
-                toDOM: (node) => ['iframe', node.attrs],
+                toDOM: (node) => ['div', {class: 'yfm-iframe-container'}, ['iframe', node.attrs]],
             },
             toMd: (state, node) => {
                 state.write('::: html');
