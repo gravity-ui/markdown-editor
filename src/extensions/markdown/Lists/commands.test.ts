@@ -267,4 +267,25 @@ describe('sinkOnlySelectedListItem', () => {
                 ),
             ),
         ));
+
+    it('removes selection markers without changing list structure for first item', () =>
+        apply(
+            doc(ul(li(p('1<a><b>1')), li(p('22')), li(p('33')))),
+            sink,
+            doc(ul(li(p('11')), li(p('22')), li(p('33')))),
+        ));
+
+    it('indents the second item into a sublist when selected', () =>
+        apply(
+            doc(ul(li(p('11')), li(p('2<a><b>2')), li(p('33')))),
+            sink,
+            doc(ul(li(p('11'), ul(li(p('22')))), li(p('33')))),
+        ));
+
+    it('indents only the selected item when selection spans two items', () =>
+        apply(
+            doc(ul(li(p('11')), li(p('2<a>2')), li(p('3<b>3')))),
+            sink,
+            doc(ul(li(p('11'), ul(li(p('22')))), li(p('33')))),
+        ));
 });
