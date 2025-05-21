@@ -164,25 +164,39 @@ export function sinkOnlySelectedListItem(itemType: NodeType): Command {
 
             for (const [startPos, endPos] of listItemsPoses) {
                 const mappedStart = tr.mapping.map(startPos);
-                const nodeStart = tr.doc.nodeAt(mappedStart);
-
                 const mappedEnd = tr.mapping.map(endPos);
-                // const nodeEnd = tr.doc.nodeAt(mappedEnd);
 
-                console.log('startPos ---->', startPos);
-                console.log('endPos ---->', endPos);
+                console.log('startPos: endPos', startPos, endPos);
+                console.log('mapped startPos: endPos ', mappedStart, mappedEnd);
 
-                console.log('mapped startPos ---->', mappedStart);
-                console.log('mapped endPos ---->', mappedEnd);
+                let j = 0;
+                while (j < tr.doc.nodeSize - 1) {
+                    const node = tr.doc.nodeAt(j);
+                    console.log('node', j, node?.type.name);
+                    j++;
+                }
 
-                console.log('nodeStart ---->', nodeStart?.type.name);
+                const start = startPos;
+                const end = endPos;
 
-                const $mappedStart = tr.doc.resolve(mappedStart);
-                const $mappedEnd = tr.doc.resolve(mappedEnd);
-                const range = $mappedStart.blockRange($mappedEnd);
+                const startNode = tr.doc.nodeAt(start);
+                console.log('[startNode]', startNode?.type, 'startNode size', startNode?.nodeSize);
+                console.log(
+                    '[start, end]',
+                    start,
+                    end,
+                    'start + nodeSize',
+                    start + (startNode?.nodeSize ?? 0),
+                );
+
+                const $start = tr.doc.resolve(start);
+                const $end = tr.doc.resolve(end);
+
+                console.log('[$start, $end]', $start.pos, $end.pos, 'j:', j);
+                const range = $start.blockRange($end);
 
                 if (range) {
-                    console.log('sink ---->', range.start, range.end, range);
+                    console.log('[sink ---->]', range.start, range.end, range);
                     sink(tr, range, itemType);
                 }
             }
