@@ -1,3 +1,5 @@
+import type {ReactNode} from 'react';
+
 import {cn} from '../../../classname';
 
 import './Resizable.scss';
@@ -20,7 +22,7 @@ const Resizer: React.FC<ResizerProps> = ({onMouseDown, direction}) => (
 );
 
 export interface ResizableProps {
-    children: React.ReactNode;
+    children: ReactNode;
     onResizeLeft: (event: React.MouseEvent<HTMLElement>) => void;
     onResizeRight: (event: React.MouseEvent<HTMLElement>) => void;
     hover?: boolean;

@@ -7,6 +7,7 @@ export type ToolbarBaseProps<E> = ClassNameProps &
         editor: E;
         focus(): void;
         onClick?(id: string, attrs?: {[key: string]: any}): void;
+        mobile?: boolean;
     };
 
 export type ToolbarIconData = Pick<IconProps, 'data' | 'size'>;

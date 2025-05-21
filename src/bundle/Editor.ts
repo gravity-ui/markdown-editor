@@ -29,6 +29,7 @@ import type {
     MarkdownEditorPreset as EditorPreset,
     MarkdownEditorMdOptions,
     MarkdownEditorOptions,
+    MarkdownEditorToolbarPosition,
     MarkdownEditorMarkupConfig as MarkupConfig,
     ParseInsertedUrlAsImage,
     RenderPreview,
@@ -64,6 +65,7 @@ export interface Editor extends Receiver<EventMap>, CommonEditor {
     readonly logger: Logger2.LogReceiver;
     readonly currentMode: EditorMode;
     readonly toolbarVisible: boolean;
+    readonly toolbarPosition?: 'top' | 'bottom';
 
     setEditorMode(mode: EditorMode, opts?: SetEditorModeOptions): void;
 
@@ -83,6 +85,7 @@ export interface EditorInt
     readonly logger: Logger2.ILogger;
     readonly currentMode: EditorMode;
     readonly toolbarVisible: boolean;
+    readonly toolbarPosition: MarkdownEditorToolbarPosition;
     readonly splitModeEnabled: boolean;
     readonly splitMode: SplitMode;
     readonly preset: EditorPreset;
@@ -141,6 +144,7 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
     #markup: MarkupString;
     #editorMode: EditorMode;
     #toolbarVisible: boolean;
+    #toolbarPosition: MarkdownEditorToolbarPosition;
     #splitModeEnabled: boolean;
     #splitMode: SplitMode;
     #renderPreview?: RenderPreview;
@@ -219,6 +223,10 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
 
     get toolbarVisible(): boolean {
         return this.#toolbarVisible;
+    }
+
+    get toolbarPosition(): MarkdownEditorToolbarPosition {
+        return this.#toolbarPosition;
     }
 
     get splitModeEnabled(): boolean {
@@ -364,6 +372,7 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
 
         this.#editorMode = initial.mode ?? 'wysiwyg';
         this.#toolbarVisible = initial.toolbarVisible ?? true;
+        this.#toolbarPosition = initial.toolbarPosition ?? 'top';
         this.#splitMode = (markupConfig.renderPreview && markupConfig.splitMode) ?? false;
         this.#splitModeEnabled = (this.#splitMode && initial.splitModeEnabled) ?? false;
         this.#renderPreview = markupConfig.renderPreview;

@@ -17,6 +17,8 @@ export type MarkdownEditorMode = 'wysiwyg' | 'markup';
 export type MarkdownEditorPreset = 'zero' | 'commonmark' | 'default' | 'yfm' | 'full';
 export type MarkdownEditorSplitMode = false | 'horizontal' | 'vertical';
 
+export type MarkdownEditorToolbarPosition = 'top' | 'bottom';
+
 export type RenderPreviewParams = {
     getValue: () => MarkupString;
     mode: 'preview' | 'split';
@@ -51,6 +53,7 @@ export type MarkdownEditorInitialOptions = {
     mode?: MarkdownEditorMode;
     /** Default – true */
     toolbarVisible?: boolean;
+    toolbarPosition?: MarkdownEditorToolbarPosition;
     /**
      * Default – false
      *
@@ -210,4 +213,6 @@ export type MarkdownEditorOptions = {
     /** Options for wysiwyg mode */
     wysiwygConfig?: MarkdownEditorWysiwygConfig;
     logger?: Logger2.ILogger;
+    /** Mobile view */
+    mobile?: boolean;
 };

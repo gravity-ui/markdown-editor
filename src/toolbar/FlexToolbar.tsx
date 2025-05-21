@@ -30,7 +30,7 @@ export function FlexToolbar<E>(props: FlexToolbarProps<E>) {
         });
     });
 
-    const {data, className, hiddenActions} = props;
+    const {data, className, hiddenActions, mobile} = props;
 
     const [ref, {width}] = useMeasure<HTMLDivElement>();
     const {data: items, dots} = useMemo(() => {
@@ -72,6 +72,7 @@ export function FlexToolbar<E>(props: FlexToolbarProps<E>) {
                         onClick={props.onClick}
                         className={b('dots')}
                         alwaysActive={true}
+                        mobile={mobile}
                     />
                 )}
             </div>

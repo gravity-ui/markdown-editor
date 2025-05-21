@@ -10,7 +10,6 @@ import {
     HelpMark,
     Icon,
     Menu,
-    Popup,
     type PopupPlacement,
     type QAProps,
 } from '@gravity-ui/uikit';
@@ -22,6 +21,7 @@ import {noop} from '../../lodash';
 import {useBooleanState} from '../../react-utils/hooks';
 import {ToolbarTooltipDelay} from '../../toolbar';
 import {VERSION} from '../../version';
+import {PlatformPopup} from '../PlatformPopup';
 import type {MarkdownEditorMode, MarkdownEditorSplitMode} from '../types';
 
 import {MarkdownHints} from './MarkdownHints';
@@ -39,8 +39,14 @@ export type EditorSettingsProps = Omit<SettingsContentProps, 'onClose'> & {
 };
 
 export const EditorSettings = memo<EditorSettingsProps>(function EditorSettings(props) {
-    const {className, onShowPreviewChange, showPreview, renderPreviewButton, settingsVisible} =
-        props;
+    const {
+        className,
+        onShowPreviewChange,
+        showPreview,
+        renderPreviewButton,
+        settingsVisible,
+        mobile,
+    } = props;
     const [chevronElement, setChevronElement] = useState<HTMLButtonElement | null>(null);
     const [popupShown, , hidePopup, togglePopup] = useBooleanState(false);
 
@@ -85,11 +91,12 @@ export const EditorSettings = memo<EditorSettingsProps>(function EditorSettings(
                     >
                         <Icon data={Gear} />
                     </Button>
-                    <Popup
+                    <PlatformPopup
+                        mobile={mobile}
                         open={popupShown}
+                        onClose={hidePopup}
                         anchorElement={chevronElement}
                         placement={placement}
-                        onOpenChange={hidePopup}
                     >
                         <SettingsContent
                             {...props}
@@ -97,7 +104,7 @@ export const EditorSettings = memo<EditorSettingsProps>(function EditorSettings(
                             onClose={hidePopup}
                             className={bSettings('content')}
                         />
-                    </Popup>
+                    </PlatformPopup>
                 </>
             )}
         </div>
@@ -119,6 +126,7 @@ type SettingsContentProps = ClassNameProps &
         splitMode?: MarkdownEditorSplitMode;
         splitModeEnabled?: boolean;
         onSplitModeChange?: (splitModeEnabled: boolean) => void;
+        mobile?: boolean;
     };
 
 const mdHelpPlacement: PopupPlacement = ['bottom', 'bottom-end', 'right-start', 'right', 'left'];
@@ -136,6 +144,7 @@ const SettingsContent: React.FC<SettingsContentProps> = function SettingsContent
     showPreview,
     settingsVisible,
     qa,
+    mobile,
 }) {
     const isSettingsArray = Array.isArray(settingsVisible);
     const showModeSetting = isSettingsArray ? settingsVisible?.includes('mode') : true;
@@ -167,23 +176,25 @@ const SettingsContent: React.FC<SettingsContentProps> = function SettingsContent
                         iconStart={<Icon data={LogoMarkdown} />}
                     >
                         {i18n('settings_markup')}
-                        <HelpMark
-                            popoverProps={{
-                                placement: mdHelpPlacement,
-                                modal: false,
-                            }}
-                            className={bContent('mode-help')}
-                        >
-                            <div
-                                onClick={(e) => {
-                                    // stop clicks propagation
-                                    // because otherwise click in MarkdownHints handled as click on MenuItem
-                                    e.stopPropagation();
+                        {!mobile && (
+                            <HelpMark
+                                popoverProps={{
+                                    placement: mdHelpPlacement,
+                                    modal: false,
                                 }}
+                                className={bContent('mode-help')}
                             >
-                                <MarkdownHints />
-                            </div>
-                        </HelpMark>
+                                <div
+                                    onClick={(e) => {
+                                        // stop clicks propagation
+                                        // because otherwise click in MarkdownHints handled as click on MenuItem
+                                        e.stopPropagation();
+                                    }}
+                                >
+                                    <MarkdownHints />
+                                </div>
+                            </HelpMark>
+                        )}
                     </Menu.Item>
                 </Menu>
             )}
