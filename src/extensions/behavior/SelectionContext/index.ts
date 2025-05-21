@@ -6,6 +6,7 @@ import {
     type PluginSpec,
     TextSelection,
 } from 'prosemirror-state';
+import {hasParentNode} from 'prosemirror-utils';
 import type {EditorProps, EditorView} from 'prosemirror-view';
 
 import type {ActionStorage, ExtensionAuto} from '../../../core';
@@ -137,8 +138,13 @@ class SelectionTooltip implements PluginSpec<unknown> {
             return;
         }
 
-        // Hide the tooltip when one side of selection inside codeblock
-        if (isCodeBlock(selection.$from.parent) || isCodeBlock(selection.$to.parent)) {
+        if (
+            // Hide tooltip when one side of selection is inside a codeblock
+            isCodeBlock(selection.$from.parent) ||
+            isCodeBlock(selection.$to.parent) ||
+            // or when selection is inside node where context menu is disabled
+            hasParentNode((node) => node.type.spec.selectionContext === false)(selection)
+        ) {
             this.tooltip.hide(view);
             return;
         }
@@ -164,5 +170,12 @@ class SelectionTooltip implements PluginSpec<unknown> {
             clearTimeout(this.hideTimeoutRef);
             this.hideTimeoutRef = null;
         }
+    }
+}
+
+declare module 'prosemirror-model' {
+    interface NodeSpec {
+        /** Set false to disable the selection-context menu within this node */
+        selectionContext?: boolean | undefined;
     }
 }
