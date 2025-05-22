@@ -182,7 +182,7 @@
     "@codemirror/search": "^6.5.8",
     "@codemirror/state": "^6.5.1",
     "@codemirror/view": "^6.36.2",
-    "@diplodoc/color-extension": "0.1.0",
+    "@diplodoc/color-extension": "0.1.1",
     "@diplodoc/utils": "^2.1.0",
     "@gravity-ui/i18n": "^1.7.0",
     "@gravity-ui/icons": "^2.12.0",
