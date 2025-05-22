@@ -63,29 +63,13 @@ const sink = (tr: Transaction, range: NodeRange, itemType: NodeType) => {
         ),
     );
 
-    // After sinking, lift any nested <li> children back out
-    const from = range.start;
-    const $movedPos = tr.doc.resolve(from);
-    const movedItem = $movedPos.nodeAfter;
+    // Log the new position of the moved <li>
+    const oldPos = range.start;
+    const newPos = tr.mapping.map(oldPos, 1); // 1 = map as if the step was inserted after
+    console.log('[sink] moved <li> new pos:', newPos, 'node:', tr.doc.nodeAt(newPos)?.type.name);
 
-    if (movedItem) {
-        movedItem.forEach((child, offset) => {
-            if (child.type === parent.type) {
-                const nestedStart = from + offset + 1;
-                const nestedEnd = nestedStart + child.nodeSize;
-                const $liStart = tr.doc.resolve(nestedStart + 1);
-                const $liEnd = tr.doc.resolve(nestedEnd - 1);
-                const liftRange = $liStart.blockRange($liEnd, (node) => node.type === itemType);
-
-                if (liftRange) {
-                    const targetDepth = liftTarget(liftRange);
-                    if (targetDepth !== null) {
-                        tr.lift(liftRange, targetDepth);
-                    }
-                }
-            }
-        });
-    }
+    // Lift any nested lists that ended up inside the moved <li>
+    liftNestedLists(tr, itemType, parent.type, newPos);
 
     return true;
 };
@@ -140,6 +124,51 @@ function getListItemsToTransform(
     return listItemsPoses;
 }
 
+/**
+ * Lifts all nested lists (<ul>/<ol>) that are direct children of the list item at `liPos`.
+ *
+ * @param tr         The working transaction
+ * @param itemType   The node type representing a list_item
+ * @param listType   The node type representing the surrounding list (bullet_list / ordered_list)
+ * @param liPos      The absolute position of the moved <li> in the current transaction
+ */
+function liftNestedLists(
+    tr: Transaction,
+    itemType: NodeType,
+    listType: NodeType,
+    liPos: number,
+): void {
+    const movedItem = tr.doc.nodeAt(liPos);
+    if (!movedItem) return;
+
+    movedItem.forEach((child, offset) => {
+        // Detect nested list nodes of the same type (i.e., another bullet_list or ordered_list)
+        if (child.type === listType) {
+            const nestedStart = liPos + 1 + offset; // +1 to move inside <li> content
+            const nestedEnd = nestedStart + child.nodeSize;
+
+            const $nestedStart = tr.doc.resolve(nestedStart + 1); // first node inside nested list
+            const $nestedEnd = tr.doc.resolve(nestedEnd - 1); // last node inside nested list
+
+            const liftRange = $nestedStart.blockRange($nestedEnd, (node) => node.type === itemType);
+            if (liftRange) {
+                const target = liftTarget(liftRange);
+                if (target !== null) {
+                    console.log(
+                        '[sink] lifting nested list',
+                        'range:',
+                        liftRange.start,
+                        liftRange.end,
+                        'target depth:',
+                        target,
+                    );
+                    tr.lift(liftRange, target);
+                }
+            }
+        }
+    });
+}
+
 export function sinkOnlySelectedListItem(itemType: NodeType): Command {
     return ({tr, selection}, dispatch) => {
         const {$from, $to, from, to} = selection;
@@ -166,9 +195,6 @@ export function sinkOnlySelectedListItem(itemType: NodeType): Command {
                 const mappedStart = tr.mapping.map(startPos);
                 const mappedEnd = tr.mapping.map(endPos);
 
-                console.log('startPos: endPos', startPos, endPos);
-                console.log('mapped startPos: endPos ', mappedStart, mappedEnd);
-
                 let j = 0;
                 while (j < tr.doc.nodeSize - 1) {
                     const node = tr.doc.nodeAt(j);
@@ -176,10 +202,16 @@ export function sinkOnlySelectedListItem(itemType: NodeType): Command {
                     j++;
                 }
 
-                const start = startPos;
-                const end = endPos;
+                const start = mappedStart;
+                const end = mappedEnd;
 
                 const startNode = tr.doc.nodeAt(start);
+                const $start = tr.doc.resolve(start);
+                const $end = tr.doc.resolve(end);
+
+                console.log('[startPos: endPos]', startPos, endPos);
+                console.log('[mapped startPos: endPos]', mappedStart, mappedEnd);
+                console.log('[$start, $end]', $start.pos, $end.pos, 'j:', j);
                 console.log('[startNode]', startNode?.type, 'startNode size', startNode?.nodeSize);
                 console.log(
                     '[start, end]',
@@ -189,10 +221,6 @@ export function sinkOnlySelectedListItem(itemType: NodeType): Command {
                     start + (startNode?.nodeSize ?? 0),
                 );
 
-                const $start = tr.doc.resolve(start);
-                const $end = tr.doc.resolve(end);
-
-                console.log('[$start, $end]', $start.pos, $end.pos, 'j:', j);
                 const range = $start.blockRange($end);
 
                 if (range) {
