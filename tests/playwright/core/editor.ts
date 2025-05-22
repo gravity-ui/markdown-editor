@@ -13,6 +13,8 @@ class MarkdownEditorLocators {
     readonly settingsContent;
     readonly toolbar;
     readonly toolbarMoreActionButton;
+    readonly toolbarActionDisabledHint;
+    readonly toolbarMoreMenu;
     readonly cmAutocomplete;
 
     constructor(page: Page) {
@@ -29,6 +31,8 @@ class MarkdownEditorLocators {
         // editor
         this.contenteditable = this.editor.locator('[contenteditable=true]');
         this.toolbarMoreActionButton = this.editor.getByTestId('g-md-toolbar-more-action');
+        this.toolbarActionDisabledHint = page.getByTestId('g-md-toolbar-action-disabled-hint');
+        this.toolbarMoreMenu = page.getByTestId('g-md-toolbar-more-menu');
 
         this.cmAutocomplete = this.editor.locator('.cm-tooltip-autocomplete');
     }
@@ -39,9 +43,9 @@ type PasteData = Partial<Record<DataTransferType, string>>;
 type VisibleState = 'attached' | 'detached' | 'visible' | 'hidden' | undefined;
 
 export class MarkdownEditorPage {
+    readonly locators;
     protected readonly page: Page;
     protected readonly expect: Expect;
-    protected readonly locators;
 
     constructor(page: Page, expect: Expect) {
         this.page = page;
@@ -173,6 +177,23 @@ export class MarkdownEditorPage {
      */
     async clickToolbarMoreActionButton() {
         await this.locators.toolbarMoreActionButton.click();
+    }
+
+    async openToolbarMoreMenu() {
+        const visible = await this.locators.toolbarMoreMenu.isVisible();
+        if (!visible) {
+            await this.clickToolbarMoreActionButton();
+            await this.locators.toolbarMoreMenu.waitFor({state: 'visible'});
+        }
+    }
+
+    async hoverToolbarMoreAction(label: string) {
+        await this.locators.toolbarMoreMenu.waitFor({state: 'visible'});
+        await this.getToolbarButton(label).hover({force: true});
+    }
+
+    async waitForToolbarActionDisabledHint() {
+        await this.locators.toolbarActionDisabledHint.waitFor({state: 'visible'});
     }
 
     /**

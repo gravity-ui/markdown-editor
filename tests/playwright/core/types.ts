@@ -23,6 +23,7 @@ interface ComponentFixtures {
         options?: MountOptions<HooksConfig> & {
             width?: number | string;
             rootStyle?: React.CSSProperties;
+            hidePlaygroundBlocks?: boolean;
         },
     ): Promise<MountResult>;
 }
@@ -60,5 +61,5 @@ export interface WaitFixture {
 export interface CaptureScreenshotParams extends PageScreenshotOptions {
     nameSuffix?: string;
     component?: Locator | Page;
-    themes?: Array<'light' | 'dark'>;
+    themes?: ReadonlyArray<'light' | 'dark'>;
 }
