@@ -1,4 +1,6 @@
-import mdPlugin from 'src/markdown-it/color';
+import type MarkdownIt from 'markdown-it';
+
+import color from 'src/markdown-it/color';
 
 import type {ExtensionAuto} from '../../../../core';
 import {markTypeFactory} from '../../../../utils/schema';
@@ -20,6 +22,8 @@ export type ColorSpecsOptions = {
 
 export const ColorSpecs: ExtensionAuto<ColorSpecsOptions> = (builder, opts) => {
     const {validateClassNameColorName, parseStyleColorValue} = opts;
+    const mdPlugin = (md: MarkdownIt) =>
+        md.use(color, {escape: true, defaultClassName: colorClassName});
 
     builder
         .configureMd((md) => md.use(mdPlugin, {defaultClassName: colorClassName, inline: false}))
