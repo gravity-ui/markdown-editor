@@ -35,6 +35,18 @@ describe('Color extension', () => {
     it('should parse code inside text', () =>
         same('he{c2}(llo wor)ld!', doc(p('he', c2('llo wor'), 'ld!'))));
 
+    it('should parse nested color marks with escaped parentheses', () =>
+        same(
+            '{green}(some\\(){blue}(2,3){green}(\\))',
+            doc(
+                p(
+                    color({[colorMarkName]: 'green'}, 'some('),
+                    color({[colorMarkName]: 'blue'}, '2,3'),
+                    color({[colorMarkName]: 'green'}, ')'),
+                ),
+            ),
+        ));
+
     it('should parse span with md-colorify--* classname', () => {
         parseDOM(
             schema,
@@ -72,6 +84,20 @@ describe('Color extension', () => {
             schema,
             '<span style="color:red">text with style color</span>',
             doc(p('text with style color')),
+        );
+    });
+
+    it('should parse nested color spans for escaped parentheses', () => {
+        parseDOM(
+            schema,
+            '<span class="yfm-colorify yfm-colorify--green">some(<span class="yfm-colorify yfm-colorify--blue">2,3</span><span class="yfm-colorify yfm-colorify--green">)</span></span>',
+            doc(
+                p(
+                    color({[colorMarkName]: 'green'}, 'some('),
+                    color({[colorMarkName]: 'blue'}, '2,3'),
+                    color({[colorMarkName]: 'green'}, ')'),
+                ),
+            ),
         );
     });
 });

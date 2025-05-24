@@ -1,3 +1,3 @@
-import {colorPlugin} from 'markdown-it-color';
+import {colorPlugin} from '@diplodoc/color-extension';
 
 export default colorPlugin;
