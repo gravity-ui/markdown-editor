@@ -12,21 +12,23 @@ export const expectScreenshot: PlaywrightFixture<ExpectScreenshotFixture> = asyn
     testInfo,
 ) => {
     const expectScreenshot: ExpectScreenshotFixture = async ({
+        fullPage,
         component,
         nameSuffix,
         themes: paramsThemes,
         ...pageScreenshotOptions
     } = defaultParams) => {
         const captureScreenshot = async () => {
-            return (
-                (component || page.locator('.playwright-wrapper-test'))
-                    // TODO: @makhnatkin make more flexible
-                    .locator('.playground__editor-markup')
-                    .screenshot({
-                        animations: 'disabled',
-                        ...pageScreenshotOptions,
-                    })
-            );
+            const locator = fullPage
+                ? page
+                : component ||
+                  page.locator('.playwright-wrapper-test').locator('.playground__editor-markup');
+
+            return locator.screenshot({
+                animations: 'disabled',
+                style: '.playground__pm-selection {display:none;}',
+                ...pageScreenshotOptions,
+            });
         };
 
         const nameScreenshot =
@@ -52,6 +54,8 @@ export const expectScreenshot: PlaywrightFixture<ExpectScreenshotFixture> = asyn
 
         if (themes?.includes('light')) {
             await page.emulateMedia({colorScheme: 'light'});
+            // sometimes theme doesn't change in webkit without timeout
+            await page.waitForTimeout(100);
 
             expect(await captureScreenshot()).toMatchSnapshot({
                 name: `${nameScreenshot} light.png`,
@@ -60,6 +64,8 @@ export const expectScreenshot: PlaywrightFixture<ExpectScreenshotFixture> = asyn
 
         if (themes?.includes('dark')) {
             await page.emulateMedia({colorScheme: 'dark'});
+            // sometimes theme doesn't change in webkit without timeout
+            await page.waitForTimeout(100);
 
             expect(await captureScreenshot()).toMatchSnapshot({
                 name: `${nameScreenshot} dark.png`,
