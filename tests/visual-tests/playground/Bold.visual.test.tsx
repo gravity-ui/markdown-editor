@@ -1,6 +1,3 @@
-/* eslint-disable */
-// @ts-nocheck
-/* TODO: delete eslint-disable and @ts-nocheck */
 import dd from 'ts-dedent';
 
 import {expect, test} from 'playwright/core';
@@ -16,158 +13,172 @@ test.describe('Bold', () => {
         await mount(<Playground initial={initialMarkup} />);
     });
 
-    test.describe('insert', () => {
-        test('should insert via toolbar @wysiwyg', async ({editor, wait}) => {
+    test.describe('mark', () => {
+        test('should mark via toolbar @wysiwyg', async ({editor, wait}) => {
             await editor.switchMode('wysiwyg');
-            await editor.clearContent();
+            await editor.assertToolbarButtonNotSelected('Bold');
+
+            await editor.focus();
+            await editor.press('ArrowDown');
+            await editor.press('Enter');
 
             await editor.clickToolbarButton('Bold');
             await wait.timeout();
 
-            await editor.assertToolbarButtonDisabled('Bold');
+            await editor.pressSequentially('next');
+            await editor.assertToolbarButtonSelected('Bold');
 
+            await editor.press('ArrowUp');
+            await editor.assertToolbarButtonNotSelected('Bold');
+        });
+
+        test('should mark via input rule @wysiwyg', async ({editor, wait}) => {
+            await editor.switchMode('wysiwyg');
+            await editor.assertToolbarButtonNotSelected('Bold');
+
+            await editor.focus();
             await editor.press('ArrowDown');
-            await wait.timeout();
-            await editor.press('ArrowDown');
-
-            await editor.assertToolbarButtonDisabled('Bold');
-
             await editor.press('Enter');
+
+            await editor.inputRule('**next**');
+            await wait.timeout();
+            await editor.press('ArrowLeft');
+
+            await editor.assertToolbarButtonSelected('Bold');
+
+            await editor.press('ArrowUp');
+            await editor.assertToolbarButtonNotSelected('Bold');
+        });
+
+        //
+        test.skip('should mark via keyboard shortcut @wysiwyg', async ({editor, wait}) => {
+            // Skip: key combo fails in Docker for unknown reason
+            await editor.switchMode('wysiwyg');
+            await editor.assertToolbarButtonNotSelected('Bold');
+
+            await editor.focus();
+            await editor.press('ArrowDown');
+            await editor.press('Enter');
+
+            await editor.press('Control+B');
             await wait.timeout();
 
-            await editor.assertToolbarButtonEnabled('Bold');
-        });
-
-        test.skip('should insert via command menu @wysiwyg', async ({page, editor, wait}) => {
-            /* TODO: unskip */
-            await editor.switchPreview('hidden');
-            await editor.switchMode('wysiwyg');
-            await editor.clearContent();
-
-            await editor.pressSequentially('/* TODO: write sequentially */');
-            await expect(page.getByTestId('g-md-command-menu')).toBeVisible();
-
-            const menuItem = editor.getByTextInCommandMenu('/* TODO: write name */').first();
-            await wait.visible(menuItem);
-
-            await menuItem.click();
-
-            await expect(
-                editor.getBySelectorInContenteditable('/* TODO: write selector */'),
-            ).toBeVisible();
-
-            /* TODO: write test */
-        });
-
-        test.skip('should insert via input rule @wysiwyg', async ({editor, wait}) => {
-            /* TODO: unskip */
-            await editor.switchMode('wysiwyg');
-            await editor.inputRule('/* TODO: input rule */');
+            await editor.pressSequentially('next');
             await wait.timeout();
 
-            /* TODO: write test */
+            await editor.assertToolbarButtonSelected('Bold');
+
+            await editor.press('ArrowUp');
+            await editor.assertToolbarButtonNotSelected('Bold');
         });
 
-        test.skip('should insert via keyboard shortcut @wysiwyg', async ({editor, wait}) => {
-            /* TODO: unskip */
-            await editor.switchMode('wysiwyg');
-            await editor.clearContent();
-            await editor.press('/* TODO: add keyboard shortcut */');
-            await wait.timeout();
-
-            /* TODO: write test */
-        });
-
-        test.skip('should insert via pasted HTML @wysiwyg', async ({editor, wait}) => {
-            /* TODO: unskip */
-            await editor.switchMode('wysiwyg');
-            await editor.clearContent();
-
-            const html = '/* TODO: add html content */'; // TODO
-            await editor.paste(html);
-            await wait.timeout();
-
-            /* TODO: write test */
-        });
-
-        test.skip('should insert via toolbar @markup', async ({editor, wait}) => {
-            /* TODO: unskip */
+        test('should mark via toolbar @markup', async ({editor, wait}) => {
             await editor.switchMode('markup');
-            await editor.clickToolbarButton('/* TODO: extension name */');
+
+            await editor.focus();
+            await editor.press('ArrowDown');
+            await editor.press('Enter');
+
+            await editor.clickToolbarButton('Bold');
             await wait.timeout();
+            await editor.pressSequentially('next');
 
-            /* TODO: write test */
-        });
-
-        test.skip('should insert via command menu @markup', async ({
-            page,
-            editor,
-            actions,
-            wait,
-        }) => {
-            /* TODO: unskip */
-            await editor.switchMode('markup');
-            await editor.clearContent();
-
-            await editor.pressSequentially('{%');
-            await expect(page.getByText('/* TODO: extension name */')).toBeVisible();
-            await wait.timeout(300);
-
-            await actions.pressFocused('Enter');
-            await wait.timeout(300);
-
-            await expect(
-                editor.getByTextInContenteditable('/* TODO: extension markup */'),
-            ).toBeVisible();
+            await expect(editor.getByTextInContenteditable('**next**')).toBeVisible();
         });
     });
 
     test.describe('mode switch', () => {
-        test.skip('should remain after mode switch @wysiwyg @markup', async ({editor, wait}) => {
-            /* TODO: unskip */
-            const markup = '/* TODO: add markup\n */';
+        test('should remain after mode switch @wysiwyg @markup', async ({editor, wait}) => {
+            await editor.clearContent();
 
+            const markup = 'some text\n**next**';
             await editor.switchMode('markup');
             await editor.fill(markup);
             await wait.timeout();
 
             await editor.switchMode('wysiwyg');
 
-            /* TODO: write test */
+            await editor.focus();
+            await editor.press('ArrowDown');
+            await wait.timeout();
+
+            await editor.assertToolbarButtonSelected('Bold');
+
+            await editor.press('ArrowUp');
+            await editor.assertToolbarButtonNotSelected('Bold');
 
             await editor.switchMode('markup');
-
-            /* TODO: write test */
         });
     });
 
     test.describe('interaction', () => {
-        test.skip('should edit block via context menu @wysiwyg', async ({editor}) => {
-            /* TODO: unskip */
+        test('should add mark to selected text via toolbar @wysiwyg', async ({editor, wait}) => {
             await editor.switchMode('wysiwyg');
-            await editor.clearContent();
+            await editor.assertToolbarButtonNotSelected('Bold');
 
-            /* TODO: write test */
+            await editor.focus();
+            await editor.press('ArrowDown');
+            await editor.press('Enter');
+
+            await editor.pressSequentially('next');
+            await wait.timeout();
+
+            await editor.selectTextIn('p:nth-child(2)');
+
+            await editor.assertToolbarButtonNotSelected('Bold');
+            await editor.clickToolbarButton('Bold');
+            await wait.timeout(300);
+
+            await editor.assertToolbarButtonSelected('Bold');
+            await editor.press('ArrowUp');
+            await wait.timeout();
+
+            await editor.assertToolbarButtonNotSelected('Bold');
         });
 
-        test.skip('should delete block via context menu @wysiwyg', async ({editor}) => {
-            /* TODO: unskip */
+        test('should add mark to selected text via context toolbar @wysiwyg', async ({
+            editor,
+            wait,
+        }) => {
             await editor.switchMode('wysiwyg');
-            await editor.clearContent();
+            await editor.assertToolbarButtonNotSelected('Bold');
 
-            /* TODO: write test */
+            await editor.focus();
+            await editor.press('ArrowDown');
+            await editor.press('Enter');
+
+            await editor.pressSequentially('next');
+            await wait.timeout();
+
+            await editor.selectTextIn('p:nth-child(2)');
+
+            await editor.assertToolbarButtonNotSelected('Bold');
+            await editor.assertToolbarButtonNotSelected('Bold', true);
+            await editor.clickToolbarButton('Bold', true);
+            await wait.timeout(300);
+
+            await editor.assertToolbarButtonSelected('Bold');
+            await editor.press('ArrowUp');
+
+            await editor.assertToolbarButtonNotSelected('Bold');
         });
 
-        test.skip('should delete block via remove button @wysiwyg', async ({editor}) => {
-            /* TODO: unskip */
+        test('should delete mark to selected text via toolbar @wysiwyg', async ({editor, wait}) => {
             await editor.switchMode('wysiwyg');
-            await editor.clearContent();
 
-            /* TODO: write test */
+            await editor.focus();
+            await editor.press('ArrowDown');
+            await editor.press('Enter');
+
+            await editor.inputRule('**next**');
+            await wait.timeout();
+
+            await editor.selectTextIn('p:nth-child(2)');
+            await editor.assertToolbarButtonSelected('Bold');
+
+            await editor.clickToolbarButton('Bold');
+            await wait.timeout();
+            await editor.assertToolbarButtonNotSelected('Bold');
         });
-    });
-
-    test.describe('specific', () => {
-        /* TODO: implement extension-specific tests */
     });
 });
