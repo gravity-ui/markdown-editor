@@ -52,7 +52,7 @@ test.describe('%%name%%', () => {
         test.skip('should insert via input rule @wysiwyg', async ({editor, wait}) => {
             /* TODO: unskip */
             await editor.switchMode('wysiwyg');
-            await editor.inputRule('/* TODO: input rule */');
+            await editor.inputRuleWithClear('/* TODO: input rule */');
             await wait.timeout();
 
             /* TODO: write test */

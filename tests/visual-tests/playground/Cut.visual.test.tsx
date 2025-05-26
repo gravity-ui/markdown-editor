@@ -38,22 +38,21 @@ test.describe('Cut', () => {
             await editor.switchMode('wysiwyg');
 
             await editor.clickToolbarMoreActionButton();
-            await editor.clickToolbarButton('Cut');
+            await editor.clickToolbarButton('Cut', true);
 
             await editor.clickToolbarMoreActionButton();
-
-            await editor.assertToolbarButtonDisabled('Cut');
+            await editor.assertToolbarButtonDisabled('Cut', true);
 
             await editor.press('ArrowDown');
             await wait.timeout();
             await editor.press('ArrowDown');
 
-            await editor.assertToolbarButtonDisabled('Cut');
+            await editor.assertToolbarButtonDisabled('Cut', true);
 
             await editor.press('Enter');
             await wait.timeout();
 
-            await editor.assertToolbarButtonEnabled('Cut');
+            await editor.assertToolbarButtonEnabled('Cut', true);
         });
 
         test('should insert via command menu @wysiwyg', async ({page, editor, actions, wait}) => {
@@ -83,7 +82,7 @@ test.describe('Cut', () => {
         });
 
         test('should insert via input rule @wysiwyg', async ({editor, wait}) => {
-            await editor.inputRule('{% cut');
+            await editor.inputRuleWithClear('{% cut');
             await wait.timeout();
 
             const cutBlock = editor.getByTextInContenteditable('Cut title').first();
@@ -105,7 +104,7 @@ test.describe('Cut', () => {
             await editor.clearContent();
 
             await editor.clickToolbarMoreActionButton();
-            await editor.clickToolbarButton('Cut');
+            await editor.clickToolbarButton('Cut', true);
 
             await expect(editor.getByTextInContenteditable('{% cut "title" %}')).toBeVisible();
         });

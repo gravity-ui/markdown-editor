@@ -13,6 +13,8 @@ class MarkdownEditorLocators {
     readonly settingsContent;
     readonly toolbar;
     readonly toolbarMoreActionButton;
+    readonly toolbarActionDisabledHint;
+    readonly toolbarMoreMenu;
     readonly cmAutocomplete;
 
     constructor(page: Page) {
@@ -29,6 +31,8 @@ class MarkdownEditorLocators {
         // editor
         this.contenteditable = this.editor.locator('[contenteditable=true]');
         this.toolbarMoreActionButton = this.editor.getByTestId('g-md-toolbar-more-action');
+        this.toolbarActionDisabledHint = page.getByTestId('g-md-toolbar-action-disabled-hint');
+        this.toolbarMoreMenu = page.getByTestId('g-md-toolbar-more-menu');
 
         this.cmAutocomplete = this.editor.locator('.cm-tooltip-autocomplete');
     }
@@ -39,9 +43,9 @@ type PasteData = Partial<Record<DataTransferType, string>>;
 type VisibleState = 'attached' | 'detached' | 'visible' | 'hidden' | undefined;
 
 export class MarkdownEditorPage {
+    readonly locators;
     protected readonly page: Page;
     protected readonly expect: Expect;
-    protected readonly locators;
 
     constructor(page: Page, expect: Expect) {
         this.page = page;
@@ -58,19 +62,39 @@ export class MarkdownEditorPage {
     }
 
     /**
-     * Asserts that the toolbar button is disabled
+     * Asserts that the toolbar button is disabled.
      */
-    async assertToolbarButtonDisabled(label: string) {
-        const button = this.getToolbarButton(label);
+    async assertToolbarButtonDisabled(label: string, inPopup = false) {
+        const root = inPopup ? this.page.locator('.g-popup.g-popup_open') : this.locators.editor;
+        const button = root.getByLabel(label);
         await this.expect(button).toHaveClass(/disabled/);
     }
 
     /**
-     * Asserts that the toolbar button is enabled
+     * Asserts that the toolbar button is enabled.
      */
-    async assertToolbarButtonEnabled(label: string) {
-        const button = this.getToolbarButton(label);
+    async assertToolbarButtonEnabled(label: string, inPopup = false) {
+        const root = inPopup ? this.page.locator('.g-popup.g-popup_open') : this.locators.editor;
+        const button = root.getByLabel(label);
         await this.expect(button).not.toHaveClass(/disabled/);
+    }
+
+    /**
+     * Asserts that the toolbar button is selected.
+     */
+    async assertToolbarButtonSelected(label: string, inPopup = false) {
+        const root = inPopup ? this.page.locator('.g-popup.g-popup_open') : this.locators.editor;
+        const button = root.getByLabel(label);
+        await this.expect(button).toHaveClass(/selected/);
+    }
+
+    /**
+     * Asserts that the toolbar button is not selected.
+     */
+    async assertToolbarButtonNotSelected(label: string, inPopup = false) {
+        const root = inPopup ? this.page.locator('.g-popup.g-popup_open') : this.locators.editor;
+        const button = root.getByLabel(label);
+        await this.expect(button).not.toHaveClass(/selected/);
     }
 
     /**
@@ -175,11 +199,31 @@ export class MarkdownEditorPage {
         await this.locators.toolbarMoreActionButton.click();
     }
 
+    async openToolbarMoreMenu() {
+        const visible = await this.locators.toolbarMoreMenu.isVisible();
+        if (!visible) {
+            await this.clickToolbarMoreActionButton();
+            await this.locators.toolbarMoreMenu.waitFor({state: 'visible'});
+        }
+    }
+
+    async hoverToolbarMoreAction(label: string) {
+        await this.locators.toolbarMoreMenu.waitFor({state: 'visible'});
+        await this.getToolbarButton(label).hover({force: true});
+    }
+
+    async waitForToolbarActionDisabledHint() {
+        await this.locators.toolbarActionDisabledHint.waitFor({state: 'visible'});
+    }
+
     /**
-     * Clicks a toolbar button using its aria-label
+     * Clicks a toolbar button using its aria-label.
+     * @param label - The aria-label of the button.
+     * @param inPopup - If true, only search within open popups; otherwise, search the main editor toolbar.
      */
-    async clickToolbarButton(label: string) {
-        const button = this.getToolbarButton(label);
+    async clickToolbarButton(label: string, inPopup = false) {
+        const root = inPopup ? this.page.locator('.g-popup.g-popup_open') : this.locators.editor;
+        const button = root.getByLabel(label);
 
         await this.expect(button).toBeEnabled();
         await button.click();
@@ -201,6 +245,13 @@ export class MarkdownEditorPage {
     }
 
     /**
+     * Add focus from the contenteditable area
+     */
+    async focus() {
+        await this.locators.contenteditable.focus();
+    }
+
+    /**
      * Presses a key within the contenteditable area
      */
     async press(key: string) {
@@ -215,14 +266,21 @@ export class MarkdownEditorPage {
     }
 
     /**
-     * Simulates input rule behavior by typing a sequence in WYSIWYG mode.
-     * Clears the editor and types each character
+     * Types the given sequence of characters and then presses Space to apply an input rule.
      */
     async inputRule(sequence: string) {
-        await this.switchMode('wysiwyg');
-        await this.clearContent();
         await this.pressSequentially(sequence);
         await this.press('Space');
+    }
+
+    /**
+     * Switches to WYSIWYG mode, clears all content, then types the given sequence
+     * and presses Space to apply an input rule.
+     */
+    async inputRuleWithClear(sequence: string) {
+        await this.switchMode('wysiwyg');
+        await this.clearContent();
+        await this.inputRule(sequence);
     }
 
     /**
