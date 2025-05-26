@@ -25,6 +25,8 @@ _useFilesGallery returns function `openFilesGallery` with the following args_:
 | :------- | :--------------------------------- | :------- | :----- | :------ | :-------------- |
 | event    | `React.MouseEvent<HTMLDivElement>` | Yes      |        |         | The click event |
 
+`openFilesGallery` function returns a boolean flag, which is true if the gallery has been opened.
+
 ### Usage
 
 First you should install @gravity-ui/components library and wrap your content into the GalleryProvider to be able to use the hook
