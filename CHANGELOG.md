@@ -1,5 +1,12 @@
 # Changelog
 
+## [15.13.1](https://github.com/gravity-ui/markdown-editor/compare/v15.13.0...v15.13.1) (2025-05-27)
+
+
+### Bug Fixes
+
+* **SelectionContext:** fixed ESM import error for `prosemirror-utils` ([#771](https://github.com/gravity-ui/markdown-editor/issues/771)) ([10ce81c](https://github.com/gravity-ui/markdown-editor/commit/10ce81c3ebbd0b76c58e445fc7e3eca7e6c2183e))
+
 ## [15.13.0](https://github.com/gravity-ui/markdown-editor/compare/v15.12.1...v15.13.0) (2025-05-27)
 
 
