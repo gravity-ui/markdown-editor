@@ -82,7 +82,7 @@ test.describe('Italic', () => {
             await wait.timeout();
             await editor.pressSequentially('next');
 
-            await expect(editor.getByTextInContenteditable('*next*')).toBeVisible();
+            await expect(editor.getByTextInContenteditable('_next_')).toBeVisible();
         });
     });
 

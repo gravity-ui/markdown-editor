@@ -57,7 +57,10 @@ test.describe('Marked', () => {
             await editor.press('ArrowDown');
             await editor.press('Enter');
 
-            await editor.clickToolbarButton('Marked');
+            await editor.openToolbarMoreMenu();
+            await wait.timeout();
+
+            await editor.clickToolbarButton('Marked', true);
             await wait.timeout();
             await editor.pressSequentially('next');
 
