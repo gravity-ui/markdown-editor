@@ -2,6 +2,92 @@ import type {Expect, Locator, Page} from '@playwright/test';
 
 import type {DataTransferType, MarkdownEditorMode} from 'src';
 
+type YfmTableCellMenuType = 'row' | 'column';
+type YfmTableActionKind =
+    | 'remove-table'
+    | 'remove-column'
+    | 'remove-row'
+    | 'add-column-before'
+    | 'add-column-after'
+    | 'add-row-before'
+    | 'add-row-after';
+
+class YfmTable {
+    readonly buttonPlusRowLocator;
+    readonly buttonPlusColumnLocator;
+    private readonly tableWrapperLocator;
+
+    private readonly rowButtonLocator;
+    private readonly columnButtonLocator;
+    private readonly cellMenus: Readonly<Record<YfmTableCellMenuType, Locator>>;
+    private readonly cellMenuActions: Readonly<Record<YfmTableActionKind, Locator>>;
+
+    constructor(page: Page) {
+        this.tableWrapperLocator = page.getByTestId('g-md-yfm-table-wrapper');
+        this.buttonPlusRowLocator = page.getByTestId('g-md-yfm-table-plus-row');
+        this.buttonPlusColumnLocator = page.getByTestId('g-md-yfm-table-plus-column');
+
+        this.rowButtonLocator = page.getByTestId('g-md-yfm-table-row-btn');
+        this.columnButtonLocator = page.getByTestId('g-md-yfm-table-column-btn');
+        this.cellMenus = {
+            row: page.getByTestId('g-md-yfm-table-row-menu'),
+            column: page.getByTestId('g-md-yfm-table-column-menu'),
+        };
+        this.cellMenuActions = {
+            'add-column-after': page.getByTestId('g-md-yfm-table-action-add-column-after'),
+            'add-column-before': page.getByTestId('g-md-yfm-table-action-add-column-before'),
+            'add-row-after': page.getByTestId('g-md-yfm-table-action-add-row-after'),
+            'add-row-before': page.getByTestId('g-md-yfm-table-action-add-row-before'),
+            'remove-column': page.getByTestId('g-md-yfm-table-action-remove-column'),
+            'remove-row': page.getByTestId('g-md-yfm-table-action-remove-row'),
+            'remove-table': page.getByTestId('g-md-yfm-table-action-remove-table'),
+        };
+    }
+
+    getMenuLocator(type: YfmTableCellMenuType) {
+        return this.cellMenus[type];
+    }
+
+    async getTable(locator?: Locator) {
+        return locator?.locator(this.tableWrapperLocator) ?? this.tableWrapperLocator;
+    }
+
+    async getRows(table?: Locator) {
+        return (table || (await this.getTable())).first().locator('table > tbody > tr');
+    }
+
+    async getCells(table?: Locator) {
+        return (table || (await this.getTable())).first().locator('table > tbody > tr > td');
+    }
+
+    async getRowButtons(table?: Locator) {
+        return (table || (await this.getTable())).first().locator(this.rowButtonLocator);
+    }
+
+    async getColumnButtons(table?: Locator) {
+        return (table || (await this.getTable())).first().locator(this.columnButtonLocator);
+    }
+
+    async doCellAction(menuType: YfmTableCellMenuType, kind: YfmTableActionKind) {
+        const menu = this.cellMenus[menuType];
+        await menu.waitFor({state: 'visible'});
+        await menu.locator(this.cellMenuActions[kind]).click();
+        await menu.waitFor({state: 'hidden'});
+    }
+
+    async clickPlusRow(locator?: Locator) {
+        const btnLoc = this.buttonPlusRowLocator;
+        const loc = locator?.locator(btnLoc) ?? btnLoc;
+        await loc.click();
+    }
+
+    async clickPlusColumn(locator?: Locator) {
+        const btnLoc = this.buttonPlusColumnLocator;
+        const loc = locator?.locator(btnLoc) ?? btnLoc;
+        await loc.click();
+    }
+}
+
 class MarkdownEditorLocators {
     readonly commandMenu;
     readonly component;
@@ -44,6 +130,7 @@ type VisibleState = 'attached' | 'detached' | 'visible' | 'hidden' | undefined;
 
 export class MarkdownEditorPage {
     readonly locators;
+    readonly yfmTable;
     protected readonly page: Page;
     protected readonly expect: Expect;
 
@@ -52,6 +139,7 @@ export class MarkdownEditorPage {
         this.expect = expect;
 
         this.locators = new MarkdownEditorLocators(page);
+        this.yfmTable = new YfmTable(page);
     }
 
     /**
@@ -107,6 +195,11 @@ export class MarkdownEditorPage {
         throw new Error(`MarkdownEditorPage.getMode(): unknown editor mode "${mode}"`);
     }
 
+    async openCommandMenu(search = '') {
+        await this.pressSequentially('/' + search);
+        await this.locators.commandMenu.waitFor({state: 'visible'});
+    }
+
     /**
      * Finds an element in the command menu by its text
      */
@@ -114,10 +207,16 @@ export class MarkdownEditorPage {
         return this.locators.commandMenu.getByText(text);
     }
 
+    async selectFromCommandMenu(searchText: string, commandText: string) {
+        await this.openCommandMenu(searchText);
+        await this.getByTextInCommandMenu(commandText).click();
+        await this.locators.commandMenu.waitFor({state: 'detached'});
+    }
+
     /**
      * Finds an element by selector within the contenteditable area
      */
-    getBySelectorInContenteditable(selector: string): Locator {
+    getBySelectorInContenteditable(selector: string | Locator): Locator {
         return this.locators.contenteditable.locator(selector);
     }
 
@@ -207,6 +306,14 @@ export class MarkdownEditorPage {
         }
     }
 
+    async hideToolbarMoreMenu() {
+        const visible = await this.locators.toolbarMoreMenu.isVisible();
+        if (visible) {
+            await this.clickToolbarMoreActionButton();
+            await this.locators.toolbarMoreMenu.waitFor({state: 'hidden'});
+        }
+    }
+
     async hoverToolbarMoreAction(label: string) {
         await this.locators.toolbarMoreMenu.waitFor({state: 'visible'});
         await this.getToolbarButton(label).hover({force: true});
@@ -227,6 +334,8 @@ export class MarkdownEditorPage {
 
         await this.expect(button).toBeEnabled();
         await button.click();
+
+        if (inPopup) await this.locators.toolbarMoreMenu.waitFor({state: 'detached'});
     }
 
     /**
