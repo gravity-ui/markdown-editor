@@ -96,7 +96,7 @@ test.describe('Clipboard', () => {
                     'Skip in webkit on linux, see https://github.com/microsoft/playwright/issues/34307',
                 );
 
-                await editor.paste('## Lorem *ipsum* **dolor** ~~sit~~ amet');
+                await editor.paste('## Lorem *ipsum* __dolor__ ~~sit~~ amet');
                 await editor.press(helpers.keys.selectAll);
                 await editor.press(helpers.keys.copy);
 
@@ -105,7 +105,7 @@ test.describe('Clipboard', () => {
                 expect(data).toStrictEqual({
                     'text/plain': 'Lorem ipsum dolor sit amet',
                     'text/html':
-                        '<h2 data-pm-slice="1 1 []">Lorem <em>ipsum</em> <strong>dolor</strong> <strike>sit</strike> amet</h2>',
+                        '<h2 data-pm-slice="1 1 []">Lorem <em data-markup="*">ipsum</em> <strong data-markup="__">dolor</strong> <strike>sit</strike> amet</h2>',
                 });
             });
         });
@@ -122,7 +122,7 @@ test.describe('Clipboard', () => {
                     'Skip in webkit on linux, see https://github.com/microsoft/playwright/issues/34307',
                 );
 
-                await editor.paste('## Lorem *ipsum* **dolor** ~~sit~~ amet');
+                await editor.paste('## Lorem _ipsum_ **dolor** ~~sit~~ amet');
                 await editor.press(helpers.keys.selectAll);
                 await editor.press(helpers.keys.cut);
 
@@ -131,7 +131,7 @@ test.describe('Clipboard', () => {
                 expect(data).toStrictEqual({
                     'text/plain': 'Lorem ipsum dolor sit amet',
                     'text/html':
-                        '<h2 data-pm-slice="1 1 []">Lorem <em>ipsum</em> <strong>dolor</strong> <strike>sit</strike> amet</h2>',
+                        '<h2 data-pm-slice="1 1 []">Lorem <em data-markup="_">ipsum</em> <strong data-markup="**">dolor</strong> <strike>sit</strike> amet</h2>',
                 });
             });
         });
