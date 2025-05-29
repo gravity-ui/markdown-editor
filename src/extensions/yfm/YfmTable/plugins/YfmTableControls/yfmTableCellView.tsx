@@ -57,13 +57,15 @@ const Controls: React.FC<Props> = function Controls({
                 key={1}
                 switcherWrapperClassName={b('left-button')}
                 renderSwitcher={(props) => (
-                    <Button view={'outlined'} size={'s'} {...props}>
+                    <Button view={'outlined'} size={'s'} qa="g-md-yfm-table-row-btn" {...props}>
                         <Icon data={EllipsisVertical} />
                     </Button>
                 )}
+                menuProps={{qa: 'g-md-yfm-table-row-menu'}}
                 items={[
                     {
                         text: i18n('row.add.before'),
+                        qa: 'g-md-yfm-table-action-add-row-before',
                         action: () =>
                             actions.appendRow.run({
                                 tablePos: getParentTable()?.pos,
@@ -79,6 +81,7 @@ const Controls: React.FC<Props> = function Controls({
                     },
                     {
                         text: i18n('row.add.after'),
+                        qa: 'g-md-yfm-table-action-add-row-after',
                         action: () =>
                             actions.appendRow.run({
                                 tablePos: getParentTable()?.pos,
@@ -94,6 +97,7 @@ const Controls: React.FC<Props> = function Controls({
                     },
                     {
                         text: i18n('row.remove'),
+                        qa: 'g-md-yfm-table-action-remove-row',
                         action: () =>
                             actions.deleteRow.run({
                                 rowNumber,
@@ -108,6 +112,7 @@ const Controls: React.FC<Props> = function Controls({
                     {
                         theme: 'danger',
                         text: i18n('table.remove'),
+                        qa: 'g-md-yfm-table-action-remove-table',
                         action: () =>
                             actions.deleteTable.run({
                                 tablePos: getParentTable()?.pos,
@@ -130,13 +135,15 @@ const Controls: React.FC<Props> = function Controls({
                 key={2}
                 switcherWrapperClassName={b('upper-button')}
                 renderSwitcher={(props) => (
-                    <Button view={'outlined'} size={'s'} {...props}>
+                    <Button view={'outlined'} size={'s'} qa="g-md-yfm-table-column-btn" {...props}>
                         <Icon data={EllipsisVertical} />
                     </Button>
                 )}
+                menuProps={{qa: 'g-md-yfm-table-column-menu'}}
                 items={[
                     {
                         text: i18n('column.add.before'),
+                        qa: 'g-md-yfm-table-action-add-column-before',
                         action: () =>
                             actions.appendColumn.run({
                                 tablePos: getParentTable()?.pos,
@@ -152,6 +159,7 @@ const Controls: React.FC<Props> = function Controls({
                     },
                     {
                         text: i18n('column.add.after'),
+                        qa: 'g-md-yfm-table-action-add-column-after',
                         action: () =>
                             actions.appendColumn.run({
                                 tablePos: getParentTable()?.pos,
@@ -167,6 +175,7 @@ const Controls: React.FC<Props> = function Controls({
                     },
                     {
                         text: i18n('column.remove'),
+                        qa: 'g-md-yfm-table-action-remove-column',
                         action: () =>
                             actions.deleteColumn.run({
                                 columnNumber,
@@ -181,6 +190,7 @@ const Controls: React.FC<Props> = function Controls({
                     {
                         theme: 'danger',
                         text: i18n('table.remove'),
+                        qa: 'g-md-yfm-table-action-remove-table',
                         action: () =>
                             actions.deleteTable.run({
                                 tablePos: getParentTable()?.pos,

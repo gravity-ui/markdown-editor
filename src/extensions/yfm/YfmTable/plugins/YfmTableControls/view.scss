@@ -27,6 +27,8 @@ $buttons-offset: 2px;
 
     &__buttons-visible {
         .g-md-table-view__plus-button-controls {
+            visibility: visible;
+
             pointer-events: initial;
 
             opacity: 1;
@@ -34,6 +36,8 @@ $buttons-offset: 2px;
     }
 
     &__plus-button-controls {
+        visibility: hidden;
+
         pointer-events: none;
 
         opacity: 0;
