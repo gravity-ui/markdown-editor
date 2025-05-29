@@ -5,16 +5,17 @@
         top: calc(50% - 14px);
         left: -13px;
 
+        visibility: hidden;
+
         pointer-events: none;
 
-        opacity: 0;
         border-radius: var(--g-border-radius-s);
         background: var(--g-color-base-background);
 
         &:hover {
-            pointer-events: initial;
+            visibility: visible;
 
-            opacity: 1;
+            pointer-events: initial;
         }
     }
 
@@ -24,33 +25,34 @@
         top: -13px;
         left: calc(50% - 14px);
 
+        visibility: hidden;
+
         pointer-events: none;
 
-        opacity: 0;
         border-radius: var(--g-border-radius-s);
         background: var(--g-color-base-background);
 
         transform: rotate(90deg);
 
         &:hover {
-            pointer-events: initial;
+            visibility: visible;
 
-            opacity: 1;
+            pointer-events: initial;
         }
     }
 
     &__upper-visible {
         .g-md-table-cell-view__upper-button {
-            pointer-events: initial;
+            visibility: visible;
 
-            opacity: 1;
+            pointer-events: initial;
         }
     }
     &__left-visible {
         .g-md-table-cell-view__left-button {
-            pointer-events: initial;
+            visibility: visible;
 
-            opacity: 1;
+            pointer-events: initial;
         }
     }
 }

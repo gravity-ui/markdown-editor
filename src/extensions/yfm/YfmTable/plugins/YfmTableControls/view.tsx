@@ -18,6 +18,7 @@ export const yfmTableView: NodeViewConstructor = (node, view, getPos) => {
 
     const wrapperElem = document.createElement('div');
     wrapperElem.classList.add(wrapperB());
+    wrapperElem.dataset.qa = 'g-md-yfm-table-wrapper';
 
     const tableElem = document.createElement('table');
     tableElem.classList.add(viewB());
@@ -46,6 +47,7 @@ export const yfmTableView: NodeViewConstructor = (node, view, getPos) => {
                 }}
                 className={viewB('plus-button', {bottom: true})}
                 view={'normal'}
+                qa="g-md-yfm-table-plus-row"
             >
                 +
             </Button>
@@ -57,6 +59,7 @@ export const yfmTableView: NodeViewConstructor = (node, view, getPos) => {
                 }}
                 className={viewB('plus-button', {right: true})}
                 view={'normal'}
+                qa="g-md-yfm-table-plus-column"
             >
                 +
             </Button>
