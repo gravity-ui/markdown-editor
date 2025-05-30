@@ -138,28 +138,47 @@ function liftNestedLists(
     listType: NodeType,
     liPos: number,
 ): void {
+    console.log('[liftNestedLists] entered with liPos:', liPos);
     const movedItem = tr.doc.nodeAt(liPos);
+    console.log('[liftNestedLists] movedItem at liPos:', movedItem);
     if (!movedItem) return;
 
     movedItem.forEach((child, offset) => {
-        // Detect nested list nodes of the same type (i.e., another bullet_list or ordered_list)
+        console.log('[liftNestedLists] inspecting child at offset', offset, 'node:', child);
         if (child.type === listType) {
-            const nestedStart = liPos + 1 + offset; // +1 to move inside <li> content
+            const nestedStart = liPos + 1 + offset;
             const nestedEnd = nestedStart + child.nodeSize;
+            console.log(
+                '[liftNestedLists] nested list span start/end:',
+                nestedStart,
+                nestedEnd,
+                'child.nodeSize:',
+                child.nodeSize,
+            );
 
-            const $nestedStart = tr.doc.resolve(nestedStart + 1); // first node inside nested list
-            const $nestedEnd = tr.doc.resolve(nestedEnd - 1); // last node inside nested list
+            const $nestedStart = tr.doc.resolve(nestedStart + 1);
+            const $nestedEnd = tr.doc.resolve(nestedEnd - 1);
+            console.log(
+                '[liftNestedLists] resolving range with $nestedStart.pos:',
+                $nestedStart.pos,
+                '$nestedEnd.pos:',
+                $nestedEnd.pos,
+            );
 
-            const liftRange = $nestedStart.blockRange($nestedEnd, (node) => node.type === itemType);
+            const liftRange = $nestedStart.blockRange($nestedEnd, (node) => node.type === listType);
+            console.log(
+                '[liftNestedLists] liftRange:',
+                liftRange ? {start: liftRange.start, end: liftRange.end} : null,
+            );
             if (liftRange) {
                 const target = liftTarget(liftRange);
+                console.log('[liftNestedLists] lift target depth:', target);
                 if (target !== null) {
                     console.log(
-                        '[sink] lifting nested list',
-                        'range:',
+                        '[liftNestedLists] performing tr.lift on range:',
                         liftRange.start,
                         liftRange.end,
-                        'target depth:',
+                        'with target depth:',
                         target,
                     );
                     tr.lift(liftRange, target);
