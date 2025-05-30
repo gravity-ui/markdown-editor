@@ -77,6 +77,25 @@ const sink = (tr: Transaction, range: NodeRange, itemType: NodeType) => {
 const isListItemNode = (node: Node, itemType: NodeType) =>
     node.childCount > 0 && node.firstChild!.type === itemType;
 
+function findDeepestListItem(tr: Transaction, itemType: NodeType, start: number): [number, number] {
+    let pos = start;
+
+    while (pos >= 0) {
+        const node = tr.doc.nodeAt(pos);
+
+        console.log('pos', pos);
+        console.log('node', node?.type.name);
+
+        if (node?.type === itemType) {
+            console.log('poses:', pos, pos + node.nodeSize);
+            return [pos, pos + node.nodeSize];
+        }
+
+        pos--;
+    }
+
+    return [start, start];
+}
 /**
  * Returns a map of list item positions that should be transformed (e.g., sink or lift).
  */
@@ -95,27 +114,25 @@ function getListItemsToTransform(
         to: number;
     },
 ): Map<number, number> {
-    // console.warn('getListItemsToTransform', start, end, from, to);
+    console.warn('getListItemsToTransform', start, end, from, to);
     const listItemsPoses = new Map<number, number>();
-    let pos = start;
 
-    while (pos <= end) {
+    const [fromStart, fromEnd] = findDeepestListItem(tr, itemType, from);
+    const [toStart, toEnd] = findDeepestListItem(tr, itemType, to);
+
+    listItemsPoses.set(fromStart, fromEnd);
+    listItemsPoses.set(toStart, toEnd);
+
+    let pos = fromStart + 1;
+
+    while (pos < toEnd) {
         const node = tr.doc.nodeAt(pos);
 
-        // console.log('pos', pos);
-        // console.log('node', node?.type.name);
+        console.log('pos', pos);
+        console.log('node', node?.type.name);
 
         if (node?.type === itemType) {
-            // console.log('list pos ----->: ', pos, pos + node.nodeSize);
-            const isBeetwwen =
-                (pos <= from && pos + node.nodeSize >= from) ||
-                (pos <= to && pos + node.nodeSize >= to);
-            if (isBeetwwen) {
-                // console.warn(isBeetwwen);
-                listItemsPoses.set(pos, pos + node.nodeSize);
-            } else {
-                // console.log(isBeetwwen, pos, pos + node.nodeSize, 'from:to', from, to);
-            }
+            listItemsPoses.set(pos, pos + node.nodeSize);
         }
 
         pos++;
@@ -244,7 +261,7 @@ export function sinkOnlySelectedListItem(itemType: NodeType): Command {
 
                 if (range) {
                     console.log('[sink ---->]', range.start, range.end, range);
-                    sink(tr, range, itemType);
+                    // sink(tr, range, itemType);
                 }
             }
             dispatch(tr.scrollIntoView());
