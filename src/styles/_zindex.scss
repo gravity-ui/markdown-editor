@@ -11,6 +11,5 @@ $z-index-map: (
 );
 
 :root {
-    --md-editor-sticky-toolbar-popup-z-index: #{map-get($z-index-map, 'sticky-toolbar-popup')}
+    --md-editor-sticky-toolbar-popup-z-index: #{map-get($z-index-map, 'sticky-toolbar-popup')};
 }
-
