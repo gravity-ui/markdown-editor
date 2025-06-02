@@ -20,7 +20,7 @@ import video from '@diplodoc/transform/lib/plugins/video';
 import type {PluginWithParams} from 'markdown-it/lib';
 
 import {emojiDefs} from 'src/bundle/emoji';
-import type {RenderPreviewParams} from 'src/index';
+import {type RenderPreviewParams, colorClassName} from 'src/index';
 import color from 'src/markdown-it/color';
 import {bare as emoji} from 'src/markdown-it/emoji';
 import ins from 'src/markdown-it/ins';
@@ -72,7 +72,7 @@ export function getPlugins({
     const extendedPlugins = defaultPlugins.concat(
         (md) => md.use(emoji, {defs: emojiDefs}),
         checkbox,
-        color,
+        (md) => md.use(color, {escape: true, defaultClassName: colorClassName}),
         ins,
         latex({bundle: false, validate: false, runtime: LATEX_RUNTIME}),
         mark,

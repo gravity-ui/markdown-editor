@@ -36,7 +36,8 @@ if (!fs.existsSync(outputDirPath)) {
     fs.mkdirSync(outputDirPath, {recursive: true});
 }
 
-const fileName = `${name}.test.tsx`;
+// Remove the underscores to enable the test (e.g., `name.visual.test.tsx`).
+const fileName = `${name}._visual_.test.tsx`;
 const filePath = path.join(outputDirPath, fileName);
 const content = template.replace(/%%name%%/g, name);
 

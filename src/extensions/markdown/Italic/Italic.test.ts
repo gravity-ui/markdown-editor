@@ -5,7 +5,7 @@ import {createMarkupChecker} from '../../../../tests/sameMarkup';
 import {ExtensionsManager} from '../../../core';
 import {BaseNode, BaseSchemaSpecs} from '../../base/specs';
 
-import {ItalicSpecs, italicMarkName} from './ItalicSpecs';
+import {ItalicAttrs, ItalicSpecs, italicMarkName} from './ItalicSpecs';
 
 const {
     schema,
@@ -23,16 +23,36 @@ const {doc, p, i} = builders<'doc' | 'p', 'i'>(schema, {
 
 const {same} = createMarkupChecker({parser, serializer});
 
-describe('Italic extension', () => {
-    it('should parse italic *', () => same('*hello!*', doc(p(i('hello!')))));
+const astAttrs = {[ItalicAttrs.Markup]: '*'}; // asterisk
+const undAttrs = {[ItalicAttrs.Markup]: '_'}; // underscore
+const nullAttrs = {[ItalicAttrs.Markup]: null}; // null
 
-    it.skip('should parse italic _', () => same('_hello!_', doc(p(i('hello!')))));
+describe('Italic extension', () => {
+    it('should parse italic *', () => same('*hello!*', doc(p(i(astAttrs, 'hello!')))));
+
+    it('should parse italic _', () => same('_hello!_', doc(p(i(undAttrs, 'hello!')))));
 
     it('should parse italic inside text', () =>
-        same('he*llo wor*ld!', doc(p('he', i('llo wor'), 'ld!'))));
+        same('he*llo wor*ld!', doc(p('he', i(astAttrs, 'llo wor'), 'ld!'))));
 
     it('should parse html - em tag', () => {
-        parseDOM(schema, '<p><em>text in em</em></p>', doc(p(i('text in em'))));
+        parseDOM(schema, '<p><em>text in em</em></p>', doc(p(i(nullAttrs, 'text in em'))));
+    });
+
+    it('should parse html - em tag - with asterisk markup', () => {
+        parseDOM(
+            schema,
+            '<p><em data-markup="*">text in em</em></p>',
+            doc(p(i(astAttrs, 'text in em'))),
+        );
+    });
+
+    it('should parse html - em tag - with underscore markup', () => {
+        parseDOM(
+            schema,
+            '<p><em data-markup="_">text in em</em></p>',
+            doc(p(i(undAttrs, 'text in em'))),
+        );
     });
 
     it('should parse html - i tag', () => {

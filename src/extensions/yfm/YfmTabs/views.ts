@@ -104,6 +104,7 @@ export const tabView: NodeViewConstructor = (node, view, getPos) => {
             createTab(currentTab, tabsParentNode)(state, dispatch, view);
     });
 
+    tabElem.draggable = false;
     for (const attr in node.attrs) {
         if (Object.prototype.hasOwnProperty.call(node.attrs, attr)) {
             tabElem.setAttribute(attr, node.attrs[attr]);

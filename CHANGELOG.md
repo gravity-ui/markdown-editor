@@ -1,5 +1,43 @@
 # Changelog
 
+## [15.13.1](https://github.com/gravity-ui/markdown-editor/compare/v15.13.0...v15.13.1) (2025-05-27)
+
+
+### Bug Fixes
+
+* **SelectionContext:** fixed ESM import error for `prosemirror-utils` ([#771](https://github.com/gravity-ui/markdown-editor/issues/771)) ([10ce81c](https://github.com/gravity-ui/markdown-editor/commit/10ce81c3ebbd0b76c58e445fc7e3eca7e6c2183e))
+
+## [15.13.0](https://github.com/gravity-ui/markdown-editor/compare/v15.12.1...v15.13.0) (2025-05-27)
+
+
+### Features
+
+* **core, Сolor:** added support for custom escape characters ([#746](https://github.com/gravity-ui/markdown-editor/issues/746)) ([1ad1ba4](https://github.com/gravity-ui/markdown-editor/commit/1ad1ba4a0732feaa4537d0671bcbab15c716975f))
+* **SelectionContext:** allow to disabling context menu within node via node spec ([8b12d87](https://github.com/gravity-ui/markdown-editor/commit/8b12d8787494b4d0aa0e530ada34a92275a39387))
+* **view:** `openFilesGallery` returns true if the gallery was opened ([#769](https://github.com/gravity-ui/markdown-editor/issues/769)) ([4bad59f](https://github.com/gravity-ui/markdown-editor/commit/4bad59fb5588c00ceaa5cd43e158d58bbb5771d0))
+
+
+### Bug Fixes
+
+* **Link:** fixed addLink action behavior ([#763](https://github.com/gravity-ui/markdown-editor/issues/763)) ([7472f56](https://github.com/gravity-ui/markdown-editor/commit/7472f56292536b51ce17bf99b573b06aa56b1a1e))
+* **YfmTabs:** disable drag of tab title ([#766](https://github.com/gravity-ui/markdown-editor/issues/766)) ([86468b2](https://github.com/gravity-ui/markdown-editor/commit/86468b258ca8b370919e5c1f9a01e8355dc3f5ab))
+* **YfmTabs:** disable selection-context menu inside tab title ([dce8e11](https://github.com/gravity-ui/markdown-editor/commit/dce8e11a6412d4d6ba42b0c0f1101a4ddfae88d6))
+
+## [15.12.1](https://github.com/gravity-ui/markdown-editor/compare/v15.12.0...v15.12.1) (2025-05-19)
+
+
+### Bug Fixes
+
+* **bundle:** do not render preview button if there is no preview ([#762](https://github.com/gravity-ui/markdown-editor/issues/762)) ([ef962e1](https://github.com/gravity-ui/markdown-editor/commit/ef962e1224155ad5f21a133266bdd3657b1edf53))
+* **GPT:** fixed popup position in markup mode ([#760](https://github.com/gravity-ui/markdown-editor/issues/760)) ([bb6fbf1](https://github.com/gravity-ui/markdown-editor/commit/bb6fbf11ffe07815f03e3d94e19c90f99417d84a))
+
+## [15.12.0](https://github.com/gravity-ui/markdown-editor/compare/v15.11.1...v15.12.0) (2025-05-15)
+
+
+### Features
+
+* **view:** added hook for opening files gallery ([#742](https://github.com/gravity-ui/markdown-editor/issues/742)) ([622fdaa](https://github.com/gravity-ui/markdown-editor/commit/622fdaacd563551373119a2837df9e1672ed098a))
+
 ## [15.11.1](https://github.com/gravity-ui/markdown-editor/compare/v15.11.0...v15.11.1) (2025-05-13)
 
 

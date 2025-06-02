@@ -24,12 +24,13 @@ export const addEmptyLink: Command = (state, dispatch) => {
     // text selection inside one text node
     if ($from.parent !== $to.parent) return false;
     let tr = state.tr;
-    toggleMark(linkMarkType, {
+    const toggleResult = toggleMark(linkMarkType, {
         [LinkAttr.Href]: '',
         [LinkAttr.IsPlaceholder]: true,
     })(state, (_tr) => {
         tr = _tr;
     });
+    if (!toggleResult) return false;
     tr.scrollIntoView();
     if (selection instanceof NodeSelection) {
         tr.setSelection(NodeSelection.create(tr.doc, $to.pos - 1));
