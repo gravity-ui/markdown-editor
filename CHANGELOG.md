@@ -1,5 +1,13 @@
 # Changelog
 
+## [15.13.2](https://github.com/gravity-ui/markdown-editor/compare/v15.13.1...v15.13.2) (2025-05-29)
+
+
+### Bug Fixes
+
+* **wysiwyg:** preserve markup for bold and italic marks ([#774](https://github.com/gravity-ui/markdown-editor/issues/774)) ([ef69f89](https://github.com/gravity-ui/markdown-editor/commit/ef69f892035b1b6f2d2db8753317ab9f185459a0))
+* **YfmTable:** fixed styles and added qa attrs ([cc2582b](https://github.com/gravity-ui/markdown-editor/commit/cc2582ba45e8adaf6595d373e994283dd5918f82))
+
 ## [15.13.1](https://github.com/gravity-ui/markdown-editor/compare/v15.13.0...v15.13.1) (2025-05-27)
 
 
