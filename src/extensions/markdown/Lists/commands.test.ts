@@ -1,37 +1,34 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
-import ist from 'ist';
-import type {Node} from 'prosemirror-model';
+import {Schema} from 'prosemirror-model';
+import {builders, li, ul} from 'prosemirror-test-builder';
+
 import {
-    type Command,
-    EditorState,
-    NodeSelection,
-    Selection,
-    TextSelection,
-} from 'prosemirror-state';
-import {doc, eq, li, p, schema, ul} from 'prosemirror-test-builder';
+    getListItemsToTransform,
+    sinkOnlySelectedListItem,
+} from 'src/extensions/markdown/Lists/commands';
+import {apply, assertMapEntries, getParams} from 'src/extensions/markdown/Lists/testUtils';
+import {getSchemaSpecs as getYfmNoteSchemaSpecs} from 'src/extensions/yfm/YfmNote/YfmNoteSpecs/schema';
 
-import {sinkOnlySelectedListItem} from 'src/extensions/markdown/Lists/commands';
+const schema = new Schema({
+    nodes: {
+        doc: {content: 'block+'},
+        text: {group: 'inline'},
+        paragraph: {
+            group: 'block',
+            content: 'inline*',
+            toDOM: () => ['p', 0],
+        },
+        ...getYfmNoteSchemaSpecs(),
+    },
+});
 
-function selFor(doc: Node) {
-    const a = (doc as any).tag.a,
-        b = (doc as any).tag.b;
-    if (a !== null) {
-        const $a = doc.resolve(a);
-        if ($a.parent.inlineContent)
-            return new TextSelection($a, b !== null ? doc.resolve(b) : undefined);
-        else return new NodeSelection($a);
-    }
-    return Selection.atStart(doc);
-}
-
-function apply(doc: Node, command: Command, result: Node | null) {
-    let state = EditorState.create({doc, selection: selFor(doc)});
-    // eslint-disable-next-line no-return-assign
-    command(state, (tr) => (state = state.apply(tr)));
-    ist(state.doc, result || doc, eq);
-    // eslint-disable-next-line no-eq-null
-    if (result && (result as any).tag.a != null) ist(state.selection, selFor(result), eq);
-}
+const {
+    doc,
+    paragraph: p,
+    yfm_note: note,
+    yfm_note_title: noteTitle,
+    yfm_note_content: noteContent,
+} = builders(schema);
 
 describe('sinkOnlySelectedListItem', () => {
     const sink = sinkOnlySelectedListItem(schema.nodes.list_item);
@@ -288,4 +285,99 @@ describe('sinkOnlySelectedListItem', () => {
             sink,
             doc(ul(li(p('11'), ul(li(p('22')))), li(p('33')))),
         ));
+});
+
+describe('getListItemsToTransform (using getParams helper)', () => {
+    it('1', () => {
+        const testDoc = doc(ul(li(p('11')), li(p('2<a><b>2')), li(p('33'))));
+
+        const resultMap = getListItemsToTransform(...getParams(testDoc));
+
+        assertMapEntries(resultMap, [[7, 13]]);
+    });
+
+    it('2', () => {
+        const testDoc = doc(ul(li(p('11')), li(p('2<a>2')), li(p('3<b>3'))));
+
+        const resultMap = getListItemsToTransform(...getParams(testDoc));
+
+        assertMapEntries(resultMap, [
+            [7, 13],
+            [13, 19],
+        ]);
+    });
+
+    it('3', () => {
+        const testDoc = doc(ul(li(p('11')), li(p('2<a>2'), ul(li(p('3<b>3'))))));
+        const resultMap = getListItemsToTransform(...getParams(testDoc));
+
+        assertMapEntries(resultMap, [
+            [7, 21],
+            [13, 19],
+        ]);
+    });
+
+    it('4', () => {
+        const testDoc = doc(ul(li(p('11')), li(p('2<a>2'), ul(li(p('33')))), li(p('4<b>4'))));
+        const resultMap = getListItemsToTransform(...getParams(testDoc));
+
+        assertMapEntries(resultMap, [
+            [7, 21],
+            [13, 19],
+            [21, 27],
+        ]);
+    });
+
+    it('5', () => {
+        const testDoc = doc(ul(li(p('11'), ul(li(p('22')), li(p('3<a>3')))), li(p('4<b>4'))));
+        const resultMap = getListItemsToTransform(...getParams(testDoc));
+
+        assertMapEntries(resultMap, [
+            [13, 19],
+            [21, 27],
+        ]);
+    });
+
+    it('6', () => {
+        const testDoc = doc(
+            ul(
+                li(p('11')),
+                li(p('2<a>2'), ul(li(p('33'), ul(li(p('44')))), li(p('55')))),
+                li(p('6<b>6')),
+            ),
+        );
+
+        const resultMap = getListItemsToTransform(...getParams(testDoc));
+
+        assertMapEntries(resultMap, [
+            [7, 35],
+            [13, 27],
+            [19, 25],
+            [27, 33],
+            [35, 41],
+        ]);
+    });
+
+    it('7', () => {
+        const testDoc = doc(
+            ul(
+                li(p('11')),
+                li(
+                    p('2<a>2'),
+                    note(noteTitle('Note'), noteContent(ul(li(p('33')), li(p('44')), li(p('55'))))),
+                ),
+                li(p('6<b>6')),
+            ),
+        );
+
+        const resultMap = getListItemsToTransform(...getParams(testDoc));
+
+        assertMapEntries(resultMap, [
+            [7, 43],
+            [43, 49],
+            [21, 27],
+            [27, 33],
+            [33, 39],
+        ]);
+    });
 });
