@@ -19,11 +19,19 @@ const schema = new Schema({
     },
 });
 
-const {doc, paragraph: p, yfm_note: note, yfm_note_title: noteTitle} = builders(schema);
+const {
+    doc,
+    paragraph: p,
+    yfm_note: note,
+    yfm_note_title: noteTitle,
+    yfm_note_content: noteContent,
+} = builders(schema);
 
 describe('YfmNote commands', () => {
     it('removeNote: should replace note with its content', () => {
-        const pmDoc = doc(note(noteTitle('note title'), p('note content in paragraph')));
+        const pmDoc = doc(
+            note(noteTitle('note title'), noteContent(p('note content in paragraph'))),
+        );
         const view = new EditorView(null, {
             state: EditorState.create({
                 schema,
@@ -38,7 +46,9 @@ describe('YfmNote commands', () => {
     });
 
     it("backToNoteTitle: should move cursor to the end of note's title", () => {
-        const pmDoc = doc(note(noteTitle('note title'), p('note content in paragraph')));
+        const pmDoc = doc(
+            note(noteTitle('note title'), noteContent(p('note content in paragraph'))),
+        );
         const view = new EditorView(null, {
             state: EditorState.create({
                 schema,
