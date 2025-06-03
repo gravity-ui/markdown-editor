@@ -74,7 +74,7 @@ const sink = (tr: Transaction, range: NodeRange, itemType: NodeType) => {
     return true;
 };
 
-const isListItemNode = (node: Node, itemType: NodeType) =>
+export const isNotFirstListItemNode = (node: Node, itemType: NodeType) =>
     node.childCount > 0 && node.firstChild!.type === itemType;
 
 function findDeepestListItem(tr: Transaction, itemType: NodeType, start: number): [number, number] {
@@ -99,7 +99,7 @@ function findDeepestListItem(tr: Transaction, itemType: NodeType, start: number)
 /**
  * Returns a map of list item positions that should be transformed (e.g., sink or lift).
  */
-function getListItemsToTransform(
+export function getListItemsToTransform(
     tr: Transaction,
     itemType: NodeType,
     {
@@ -209,7 +209,7 @@ export function sinkOnlySelectedListItem(itemType: NodeType): Command {
     return ({tr, selection}, dispatch) => {
         const {$from, $to, from, to} = selection;
         const listItemSelectionRange = $from.blockRange($to, (node) =>
-            isListItemNode(node, itemType),
+            isNotFirstListItemNode(node, itemType),
         );
 
         if (!listItemSelectionRange) {
