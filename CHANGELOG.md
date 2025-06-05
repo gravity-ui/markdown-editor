@@ -1,5 +1,12 @@
 # Changelog
 
+## [15.13.3](https://github.com/gravity-ui/markdown-editor/compare/v15.13.2...v15.13.3) (2025-06-05)
+
+
+### Bug Fixes
+
+* **YfmNote:** improved note removal on Backspace ([#778](https://github.com/gravity-ui/markdown-editor/issues/778)) ([2c5c0f6](https://github.com/gravity-ui/markdown-editor/commit/2c5c0f67f3122c804d40dad41a3bb720dcc4bc9b))
+
 ## [15.13.2](https://github.com/gravity-ui/markdown-editor/compare/v15.13.1...v15.13.2) (2025-05-29)
 
 
