@@ -66,7 +66,7 @@ const EditorWrapper = forwardRef<HTMLDivElement, EditorWrapperProps>(
             unsetShowPreview,
             wysiwygHiddenActionsConfig: initialWysiwygHiddenActionsConfig,
             wysiwygToolbarConfig: initialWysiwygToolbarConfig,
-            mobile = false,
+            mobile,
         },
         ref,
     ) => {
@@ -309,7 +309,7 @@ export const MarkdownEditorView = forwardRef<HTMLDivElement, MarkdownEditorViewP
             toolbarsPreset,
             wysiwygHiddenActionsConfig,
             wysiwygToolbarConfig,
-            mobile = false,
+            mobile,
         } = props;
 
         const rerender = useUpdate();

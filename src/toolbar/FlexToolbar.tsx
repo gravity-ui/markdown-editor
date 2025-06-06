@@ -54,8 +54,9 @@ export function FlexToolbar<E>(props: FlexToolbarProps<E>) {
             data,
             availableWidth: width,
             hiddenActions: filteredHiddenAction,
+            mobile,
         });
-    }, [data, width, hiddenActions]);
+    }, [data, hiddenActions, mobile, width]);
 
     return (
         <div ref={ref} className={b(null, [className])}>

@@ -43,6 +43,7 @@ export const WysiwygEditorView = memo<WysiwygEditorViewProps>((props) => {
         toolbarClassName,
         children,
         stickyToolbar = true,
+        mobile,
     } = props;
 
     useRenderTime((time) => {
@@ -72,6 +73,7 @@ export const WysiwygEditorView = memo<WysiwygEditorViewProps>((props) => {
                     hiddenActionsConfig={hiddenActionsConfig}
                     settingsVisible={settingsVisible}
                     className={b('toolbar', [toolbarClassName])}
+                    mobile={mobile}
                 >
                     {children}
                 </ToolbarView>

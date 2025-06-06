@@ -47,7 +47,7 @@ export const MarkupEditorView = memo<MarkupEditorViewProps>((props) => {
         toolbarClassName,
         children,
         stickyToolbar = true,
-        mobile = false,
+        mobile,
     } = props;
     useRenderTime((time) => {
         globalLogger.metrics({

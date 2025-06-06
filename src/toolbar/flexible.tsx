@@ -20,16 +20,25 @@ export type ShrinkToolbarDataParams<E> = {
     data: ToolbarData<E>;
     availableWidth: number;
     hiddenActions?: ToolbarItemData<E>[];
+    mobile?: boolean;
 };
 
 export function shrinkToolbarData<E>({
     availableWidth,
     data,
     hiddenActions = [],
+    mobile,
 }: ShrinkToolbarDataParams<E>): {
     data: ToolbarData<E>;
     dots?: ToolbarItemData<E>[];
 } {
+    if (mobile) {
+        return {
+            data,
+            dots: hiddenActions.length ? hiddenActions : undefined,
+        };
+    }
+
     const fittingData: ToolbarData<E> = [];
     const dotsData: ToolbarItemData<E>[] = [];
     let currentWidth = 0;

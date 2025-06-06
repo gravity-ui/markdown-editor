@@ -31,7 +31,7 @@ export function useMarkdownEditor(
             markupConfig = {},
             wysiwygConfig = {},
             logger = new Logger2(),
-            mobile = false,
+            mobile,
         } = props;
 
         const preset: MarkdownEditorPreset = props.preset ?? 'full';
