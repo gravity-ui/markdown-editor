@@ -1,7 +1,9 @@
 import {Fragment, useEffect, useState} from 'react';
 
 import {ChevronDown} from '@gravity-ui/icons';
-import {HelpMark, Hotkey, Icon, Menu, Popover, Popup} from '@gravity-ui/uikit';
+import {HelpMark, Hotkey, Icon, Menu, Popover} from '@gravity-ui/uikit';
+
+import {PlatformPopup} from 'src/bundle/PlatformPopup';
 
 import {cn} from '../classname';
 import {i18n} from '../i18n/common';
@@ -41,6 +43,7 @@ export function ToolbarListButton<E>({
     replaceActiveIcon,
     qa,
     qaMenu,
+    mobile,
 }: ToolbarListButtonProps<E>) {
     const [anchorElement, setAnchorElement] = useElementState();
     const [open, , hide, toggleOpen] = useBooleanState(false);
@@ -49,6 +52,7 @@ export function ToolbarListButton<E>({
     const everyDisabled = alwaysActive ? false : data.every((item) => !item.isEnable(editor));
     const popupOpen = everyDisabled ? false : open;
     const shouldForceHide = open && !popupOpen;
+
     useEffect(() => {
         if (shouldForceHide) {
             hide();
@@ -86,7 +90,12 @@ export function ToolbarListButton<E>({
             >
                 {buttonContent}
             </ToolbarButtonView>
-            <Popup anchorElement={anchorElement} open={popupOpen} onOpenChange={hide}>
+            <PlatformPopup
+                mobile={mobile}
+                open={popupOpen}
+                onClose={hide}
+                anchorElement={anchorElement}
+            >
                 <Menu size="l" className={b('menu')} qa={qaMenu}>
                     {data
                         .map((data) => {
@@ -144,7 +153,7 @@ export function ToolbarListButton<E>({
                                     key={id}
                                 >
                                     {(props, ref) => (
-                                        <PreviewTooltip preview={preview}>
+                                        <PreviewTooltip preview={preview} mobile={mobile}>
                                             <Menu.Item
                                                 key={id}
                                                 ref={ref}
@@ -161,17 +170,19 @@ export function ToolbarListButton<E>({
                                             >
                                                 <div className={b('item')}>
                                                     {titleText}
-                                                    <div className={b('extra')}>
-                                                        {hotkey && <Hotkey value={hotkey} />}
-                                                        {hintText && (
-                                                            <HelpMark
-                                                                className={b('hint')}
-                                                                popoverProps={{modal: false}}
-                                                            >
-                                                                {hintText}
-                                                            </HelpMark>
-                                                        )}
-                                                    </div>
+                                                    {!mobile && (
+                                                        <div className={b('extra')}>
+                                                            {hotkey && <Hotkey value={hotkey} />}
+                                                            {hintText && (
+                                                                <HelpMark
+                                                                    className={b('hint')}
+                                                                    popoverProps={{modal: false}}
+                                                                >
+                                                                    {hintText}
+                                                                </HelpMark>
+                                                            )}
+                                                        </div>
+                                                    )}
                                                 </div>
                                             </Menu.Item>
                                         </PreviewTooltip>
@@ -181,7 +192,7 @@ export function ToolbarListButton<E>({
                         })
                         .filter(Boolean)}
                 </Menu>
-            </Popup>
+            </PlatformPopup>
             {popupItem
                 ? popupItem.renderPopup({
                       ...popupItem,
