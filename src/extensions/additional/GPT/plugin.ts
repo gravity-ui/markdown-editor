@@ -35,6 +35,8 @@ export const gptWidgetPlugin = <
                 const meta = tr.getMeta(key) as GptWidgetMeta | undefined;
                 const paramsGpt = params;
 
+                if (!meta) return decos;
+
                 paramsGpt.disablePromptPresets = false;
 
                 if (meta?.action === 'show') {
