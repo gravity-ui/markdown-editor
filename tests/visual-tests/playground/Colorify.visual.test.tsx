@@ -193,12 +193,12 @@ test.describe('Colorify', () => {
             await wait.timeout();
 
             await editor.pressSequentially(')');
-            await wait.timeout(500);
+            await wait.timeout(400);
 
             await expectScreenshot({nameSuffix: 'wysiwyg'});
 
             editor.switchPreview('visible');
-            await wait.timeout(500);
+            await wait.timeout(800);
 
             await expectScreenshot({nameSuffix: 'markup'});
         });
