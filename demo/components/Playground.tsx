@@ -73,6 +73,7 @@ export type PlaygroundProps = {
     initialSplitModeEnabled?: boolean;
     renderPreviewDefined?: boolean;
     height?: CSSProperties['height'];
+    width?: CSSProperties['width'];
     markupConfigExtensions?: Extension[];
     wysiwygCommandMenuConfig?: wysiwygToolbarConfigs.WToolbarItemData[];
     markupToolbarConfig?: ToolbarGroupData<CodeEditor>[];
@@ -83,6 +84,7 @@ export type PlaygroundProps = {
     disabledHTMLBlockModes?: EmbeddingMode[];
     disableMarkdownItAttrs?: boolean;
     markupParseHtmlOnPaste?: boolean;
+    style?: React.CSSProperties;
 } & Pick<UseMarkdownEditorProps, 'experimental' | 'wysiwygConfig'> &
     Pick<
         MarkdownEditorViewProps,
@@ -121,6 +123,7 @@ export const Playground = memo<PlaygroundProps>((props) => {
         stickyToolbar,
         renderPreviewDefined,
         height,
+        width,
         wysiwygConfig,
         toolbarsPreset,
         wysiwygToolbarConfig,
@@ -135,6 +138,7 @@ export const Playground = memo<PlaygroundProps>((props) => {
         disabledHTMLBlockModes,
         disableMarkdownItAttrs,
         markupParseHtmlOnPaste,
+        style,
     } = props;
     const [editorMode, setEditorMode] = useState<MarkdownEditorMode>(initialEditor ?? 'wysiwyg');
     const [mdRaw, setMdRaw] = useState<MarkupString>(initial || '');
@@ -316,8 +320,10 @@ export const Playground = memo<PlaygroundProps>((props) => {
 
     return (
         <PlaygroundLayout
+            style={style}
             editor={mdEditor}
             viewHeight={height}
+            viewWidth={width}
             view={({className}) => (
                 <MarkdownEditorView
                     autofocus

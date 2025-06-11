@@ -13,8 +13,8 @@ Story.storyName = 'Playground';
 
 const meta: Meta<PlaygroundProps> = {
     title: 'Playground',
-    component: component,
-    args: args,
+    component,
+    args,
     beforeEach: (context) => {
         /* eslint-disable no-param-reassign */
         context.args.initial = getInitialMd();
