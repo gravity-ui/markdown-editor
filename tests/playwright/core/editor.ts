@@ -186,6 +186,24 @@ export class MarkdownEditorPage {
     }
 
     /**
+     * Asserts that the toolbar color button has the "default" qa attribute.
+     */
+    async assertToolbarColorButtonDefault(inPopup = false) {
+        const root = inPopup ? this.page.locator('.g-popup.g-popup_open') : this.locators.editor;
+        const button = root.getByLabel('Text color');
+        await this.expect(button).toHaveAttribute('data-qa', /colors-default/);
+    }
+
+    /**
+     * Asserts that the toolbar color button does not have the "default" qa attribute.
+     */
+    async assertToolbarColorButtonNotDefault(inPopup = false) {
+        const root = inPopup ? this.page.locator('.g-popup.g-popup_open') : this.locators.editor;
+        const button = root.getByLabel('Text color');
+        await this.expect(button).not.toHaveAttribute('data-qa', /colors-default/);
+    }
+
+    /**
      * Returns the current editor mode
      */
     async getMode(): Promise<MarkdownEditorMode> {
