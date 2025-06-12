@@ -22,6 +22,7 @@ export type ToolbarButtonViewProps = Pick<
     active: boolean;
     enabled: boolean;
     onClick: () => void;
+    id?: string;
     className?: string;
 } & (Pick<ToolbarItemData<unknown>, 'icon'> | {children: ReactNode});
 
@@ -29,7 +30,19 @@ const DEFAULT_ICON_SIZE = 16;
 
 export const ToolbarButtonView = forwardRef<HTMLButtonElement, ToolbarButtonViewProps>(
     function ToolbarButtonView(
-        {title, hint, hotkey, hintWhenDisabled, active, enabled, onClick, className, qa, ...props},
+        {
+            title,
+            hint,
+            hotkey,
+            hintWhenDisabled,
+            active,
+            enabled,
+            onClick,
+            className,
+            qa,
+            id,
+            ...props
+        },
         ref,
     ) {
         const disabled = !active && !enabled;
@@ -72,6 +85,7 @@ export const ToolbarButtonView = forwardRef<HTMLButtonElement, ToolbarButtonView
                                 onClick={onClick}
                                 className={b(null, [className])}
                                 aria-label={titleText}
+                                data-toolbar-item={id}
                             >
                                 {'icon' in props ? (
                                     <Icon
