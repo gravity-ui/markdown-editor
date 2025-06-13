@@ -50,8 +50,10 @@ test.describe('Italic', () => {
             await editor.assertToolbarButtonNotSelected('Italic');
         });
 
-        // key combo fails in headless mode
-        test.skip('should mark via keyboard shortcut @wysiwyg', async ({editor, wait}) => {
+        // TODO: Investigate why keyboard shortcuts don't work reliably in the test environment
+        test('should mark via keyboard shortcut @wysiwyg', async ({editor, wait}) => {
+            test.skip(true, 'key combo fails in headless mode');
+
             await editor.switchMode('wysiwyg');
             await editor.assertToolbarButtonNotSelected('Italic');
 
