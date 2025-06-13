@@ -20,6 +20,7 @@ export type PlaygroundMiniProps = Pick<
     | 'initialSplitModeEnabled'
     | 'renderPreviewDefined'
     | 'height'
+    | 'width'
     | 'initial'
     | 'onChangeEditorType'
     | 'onChangeSplitModeEnabled'
