@@ -254,6 +254,24 @@ export class MarkdownEditorPage {
     }
 
     /**
+     * Asserts that the Text Select toolbar button displays "Text".
+     */
+    async assertTextSelectToolbarIsText() {
+        const button = this.page.getByTestId('md-toolbar-text-select');
+        const text = await button.locator('span').innerText();
+        await this.expect(text).toBe('Text');
+    }
+
+    /**
+     * Asserts that the Text Select toolbar button does not display "Text".
+     */
+    async assertTextSelectToolbarIsNotText() {
+        const button = this.page.getByTestId('md-toolbar-text-select');
+        const text = await button.locator('span').innerText();
+        await this.expect(text).not.toBe('Text');
+    }
+
+    /**
      * Asserts that the toolbar color button does not have the "default" qa attribute.
      */
     async assertToolbarColorButtonNotDefault(inPopup = false) {
@@ -416,6 +434,15 @@ export class MarkdownEditorPage {
     }
 
     /**
+     * Clicks the Text Select toolbar button (dropdown).
+     */
+    async clickToolbarTextSelect() {
+        const button = this.page.getByTestId('md-toolbar-text-select');
+        await this.expect(button).toBeEnabled();
+        await button.click();
+    }
+
+    /**
      * Clears all content from the contenteditable area
      */
     async clearContent() {
@@ -501,8 +528,12 @@ export class MarkdownEditorPage {
         let loc = this.locators.contenteditable;
         if (selector) loc = loc.locator(selector);
 
-        loc.selectText();
-        await this.page.waitForTimeout(100);
+        try {
+            await loc.selectText();
+            await this.page.waitForTimeout(100);
+        } catch (e) {
+            console.error('Failed to select text in locator:', selector, e);
+        }
     }
 
     async waitForCMAutocomplete() {

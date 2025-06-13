@@ -125,7 +125,7 @@ test.describe('Headings', () => {
             await editor.assertToolbarButtonNotSelected('Heading');
         });
 
-        test.skip('should add mark to selected text via context toolbar @wysiwyg', async ({
+        test('should add mark to selected text via context toolbar @wysiwyg', async ({
             editor,
             wait,
         }) => {
@@ -142,8 +142,8 @@ test.describe('Headings', () => {
             await editor.selectTextIn('p:nth-child(2)');
 
             await editor.assertToolbarButtonNotSelected('Heading');
-            await editor.assertToolbarButtonNotSelected('Text', true);
-            await editor.clickToolbarButton('Text', true);
+            await editor.assertTextSelectToolbarIsText();
+            await editor.clickToolbarTextSelect();
             await wait.timeout();
 
             await editor.clickToolbarButton('Heading 2', true);
@@ -155,13 +155,10 @@ test.describe('Headings', () => {
             await editor.assertToolbarButtonNotSelected('Heading');
         });
 
-        test.skip('should delete mark to selected text via toolbar @wysiwyg', async ({
-            editor,
-            wait,
-        }) => {
+        test('should delete mark to selected text via toolbar @wysiwyg', async ({editor, wait}) => {
             await editor.clearContent();
 
-            const markup = 'some text\n{Heading 2}(next)';
+            const markup = 'some text\n## next';
             await editor.switchMode('markup');
             await editor.fill(markup);
             await wait.timeout(300);
@@ -169,13 +166,13 @@ test.describe('Headings', () => {
             await editor.switchMode('wysiwyg');
             await wait.timeout(300);
 
-            await editor.selectTextIn('.yfm-Headings');
+            await editor.selectTextIn('h2');
             await editor.assertToolbarButtonSelected('Heading');
 
             await editor.clickToolbarButton('Heading');
             await wait.timeout();
 
-            await editor.clickToolbarButton('Heading 2', true);
+            await editor.clickToolbarButton('Text', true);
             await wait.timeout();
 
             await editor.assertToolbarButtonNotSelected('Heading');
