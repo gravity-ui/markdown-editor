@@ -194,6 +194,8 @@ export class GptWidgetDecoView<
 
             return yfmMarkup;
         } catch (error) {
+            console.error(error);
+
             return this._view.state.doc.textBetween(from, to, '\n', '');
         }
     }
