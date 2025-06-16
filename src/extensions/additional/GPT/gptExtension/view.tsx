@@ -140,8 +140,6 @@ export class GptWidgetDecoView<
         const tr = this._view.state.tr;
         const meta: GptWidgetMeta = {action: 'hide'};
 
-        console.log('submit meta', meta);
-
         tr.setMeta(pluginKey, meta);
         tr.replace(from, to, new Slice(answerNode.content, 1, 1));
         tr.setSelection(TextSelection.create(tr.doc, tr.mapping.map(to)));
@@ -166,8 +164,6 @@ export class GptWidgetDecoView<
 
         const tr = this._view.state.tr;
         const meta: GptWidgetMeta = {action: 'hide'};
-
-        console.log('close meta', meta);
 
         tr.setSelection(TextSelection.create(tr.doc, deco.from, deco.to));
 
@@ -198,8 +194,6 @@ export class GptWidgetDecoView<
 
             return yfmMarkup;
         } catch (error) {
-            console.error(error);
-
             return this._view.state.doc.textBetween(from, to, '\n', '');
         }
     }
