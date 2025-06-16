@@ -35,7 +35,8 @@ test.describe('Undo/Redo', () => {
             const placeholder = page.getByText('Enter your text or type').first().locator('..');
             await wait.visible(placeholder);
         });
-        test.only('should verify correct undo and redo behavior @markup', async ({
+
+        test('should verify correct undo and redo behavior @markup', async ({
             page,
             wait,
             editor,
