@@ -528,12 +528,8 @@ export class MarkdownEditorPage {
         let loc = this.locators.contenteditable;
         if (selector) loc = loc.locator(selector);
 
-        try {
-            await loc.selectText();
-            await this.page.waitForTimeout(100);
-        } catch (e) {
-            console.error('Failed to select text in locator:', selector, e);
-        }
+        await loc.selectText();
+        await this.page.waitForTimeout(100);
     }
 
     async waitForCMAutocomplete() {
