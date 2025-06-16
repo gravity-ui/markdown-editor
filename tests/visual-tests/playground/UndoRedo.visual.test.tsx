@@ -58,7 +58,7 @@ test.describe('Undo/Redo', () => {
             await editor.assertToolbarButtonDisabled('Undo');
             await editor.assertToolbarButtonEnabled('Redo');
 
-            const placeholder = page.getByText('Enter your text or type').first().locator('..');
+            const placeholder = page.getByText('Add your markup here').first().locator('..');
             await wait.visible(placeholder);
         });
     });
