@@ -92,8 +92,6 @@ test.describe('Headings', () => {
 
             await editor.press('ArrowUp');
             await editor.assertToolbarButtonNotSelected('Heading');
-
-            await editor.switchMode('markup');
         });
     });
 
