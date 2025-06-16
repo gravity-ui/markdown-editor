@@ -2,6 +2,7 @@ import {Fragment, type Node, type NodeRange, type NodeType, Slice} from 'prosemi
 import {wrapInList} from 'prosemirror-schema-list';
 import type {Command, Transaction} from 'prosemirror-state';
 import {ReplaceAroundStep, liftTarget} from 'prosemirror-transform';
+import {findParentNodeClosestToPos} from 'prosemirror-utils';
 
 import {joinPreviousBlock} from '../../../commands/join';
 
@@ -83,8 +84,8 @@ function findDeepestListItem(tr: Transaction, itemType: NodeType, start: number)
     while (pos >= 0) {
         const node = tr.doc.nodeAt(pos);
 
-        console.log('pos', pos);
-        console.log('node', node?.type.name);
+        // console.log('pos', pos);
+        // console.log('node', node?.type.name);
 
         if (node?.type === itemType) {
             console.log('poses:', pos, pos + node.nodeSize);
@@ -102,17 +103,7 @@ function findDeepestListItem(tr: Transaction, itemType: NodeType, start: number)
 export function getListItemsToTransform(
     tr: Transaction,
     itemType: NodeType,
-    {
-        start,
-        end,
-        from,
-        to,
-    }: {
-        start: number;
-        end: number;
-        from: number;
-        to: number;
-    },
+    {start, end, from, to}: {start: number; end: number; from: number; to: number},
 ): Map<number, number> {
     console.warn('getListItemsToTransform', start, end, from, to);
     const listItemsPoses = new Map<number, number>();
@@ -120,12 +111,32 @@ export function getListItemsToTransform(
     const [fromStart, fromEnd] = findDeepestListItem(tr, itemType, from);
     const [toStart, toEnd] = findDeepestListItem(tr, itemType, to);
 
+    const $from = tr.doc.resolve(from);
+    const $to = tr.doc.resolve(to);
+
+    const fromParent = findParentNodeClosestToPos($from, (node) => node.type === itemType);
+    const toParent = findParentNodeClosestToPos($to, (node) => node.type === itemType);
+
+    console.error('+++');
+    console.log('form', fromStart, fromEnd);
+    console.log('to', toStart, toEnd);
+    console.log(
+        'fromParent',
+        fromParent?.pos,
+        Number(fromParent?.pos) + Number(fromParent?.node?.nodeSize),
+    );
+    console.log(
+        'toParent',
+        toParent?.pos,
+        Number(toParent?.pos) + Number(toParent?.node?.nodeSize),
+    );
+
     listItemsPoses.set(fromStart, fromEnd);
     listItemsPoses.set(toStart, toEnd);
 
     let pos = fromStart + 1;
 
-    while (pos < toEnd) {
+    while (pos < toStart) {
         const node = tr.doc.nodeAt(pos);
 
         console.log('pos', pos);
@@ -133,8 +144,9 @@ export function getListItemsToTransform(
 
         if (node?.type === itemType) {
             listItemsPoses.set(pos, pos + node.nodeSize);
+        } else if (node && !isListNode(node)) {
+            pos += node.nodeSize - 1;
         }
-
         pos++;
     }
 
@@ -234,7 +246,7 @@ export function sinkOnlySelectedListItem(itemType: NodeType): Command {
                 let j = 0;
                 while (j < tr.doc.nodeSize - 1) {
                     const node = tr.doc.nodeAt(j);
-                    console.log('node', j, node?.type.name);
+                    // console.log('node', j, node?.type.name);
                     j++;
                 }
 
