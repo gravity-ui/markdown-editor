@@ -1,5 +1,12 @@
 # Changelog
 
+## [15.14.0](https://github.com/gravity-ui/markdown-editor/compare/v15.13.3...v15.14.0) (2025-06-17)
+
+
+### Features
+
+* added data attribute for searching toolbar button ([#783](https://github.com/gravity-ui/markdown-editor/issues/783)) ([0aca8d8](https://github.com/gravity-ui/markdown-editor/commit/0aca8d855090a978bdeec673249e225bc9666184))
+
 ## [15.13.3](https://github.com/gravity-ui/markdown-editor/compare/v15.13.2...v15.13.3) (2025-06-05)
 
 
