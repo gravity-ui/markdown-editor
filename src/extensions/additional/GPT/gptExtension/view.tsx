@@ -3,7 +3,7 @@ import {useCallback} from 'react';
 import {Popup} from '@gravity-ui/uikit';
 import type {PopupProps} from '@gravity-ui/uikit';
 import {Slice} from 'prosemirror-model';
-import type {PluginView} from 'prosemirror-state';
+import type {EditorState, PluginView} from 'prosemirror-state';
 import {TextSelection} from 'prosemirror-state';
 import type {EditorView} from 'prosemirror-view';
 import {useMount} from 'react-use';
@@ -60,7 +60,19 @@ export class GptWidgetDecoView<
         );
     }
 
-    update(view: EditorView): void {
+    update(view: EditorView, prevState: EditorState): void {
+        const {state, dispatch} = view;
+
+        if (this._decoElem && !state.selection.eq(prevState.selection)) {
+            const transaction = state.tr;
+            const meta: GptWidgetMeta = {action: 'hide'};
+
+            dispatch(transaction.setMeta(pluginKey, meta));
+            this._view.focus();
+
+            return;
+        }
+
         const decoElements = Array.from(view.dom.querySelectorAll(`.${WIDGET_DECO_CLASS_NAME}`));
 
         this._decoElem = decoElements.at(-1) ?? null;
@@ -269,10 +281,8 @@ function Widget<
                 open
                 anchorElement={anchorElement}
                 placement={gptPopupPlacement}
-                onOpenChange={(_open, _event, reason) => {
-                    if (reason === 'outside-press' || reason === 'escape-key') {
-                        onClose();
-                    }
+                onOpenChange={(open) => {
+                    if (!open) onClose();
                 }}
                 strategy="absolute"
             >

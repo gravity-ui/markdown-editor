@@ -21,10 +21,8 @@ export function renderPopup<
             className={cnGptPopup()}
             open
             strategy="absolute"
-            onOpenChange={(_open, _event, reason) => {
-                if (reason === 'outside-press' || reason === 'escape-key') {
-                    props.onClose();
-                }
+            onOpenChange={(open) => {
+                if (!open) props.onClose();
             }}
             anchorElement={anchor}
             placement={gptPopupPlacement}
