@@ -51,7 +51,7 @@ test.describe('Note', () => {
             await editor.clearContent();
 
             await editor.pressSequentially('/no');
-            await expect(page.getByTestId('g-md-command-menu')).toBeVisible();
+            await expect(page.getByTestId('g-md-toolbar-command-menu')).toBeVisible();
 
             const noteMenu = editor.getByTextInCommandMenu('Note').first();
             await wait.visible(noteMenu);
