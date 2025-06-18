@@ -23,7 +23,11 @@ const b = cn('toolbar-list-button');
 
 export type {ToolbarListButtonData};
 
-export type ToolbarListButtonProps<E> = ToolbarBaseProps<E> & ToolbarListButtonData<E>;
+export type ToolbarListButtonProps<E> = ToolbarBaseProps<E> &
+    ToolbarListButtonData<E> & {
+        qaMenu?: string;
+        qaActionDisabledPopover?: string;
+    };
 
 export function ToolbarListButton<E>({
     className,
@@ -37,6 +41,8 @@ export function ToolbarListButton<E>({
     alwaysActive,
     replaceActiveIcon,
     qa,
+    qaMenu = 'g-md-toolbar-additional',
+    qaActionDisabledPopover = 'g-md-toolbar-action-disabled-hint',
 }: ToolbarListButtonProps<E>) {
     const [anchorElement, setAnchorElement] = useElementState();
     const [open, , hide, toggleOpen] = useBooleanState(false);
@@ -84,7 +90,7 @@ export function ToolbarListButton<E>({
                 {buttonContent}
             </ToolbarButtonView>
             <Popup anchorElement={anchorElement} open={popupOpen} onOpenChange={hide}>
-                <Menu size="l" className={b('menu')} qa="g-md-toolbar-additional">
+                <Menu size="l" className={b('menu')} qa={qaMenu}>
                     {data
                         .map((data) => {
                             const {
@@ -137,7 +143,7 @@ export function ToolbarListButton<E>({
                                     placement="left"
                                     modal={false}
                                     disabled={hideHintWhenDisabled}
-                                    qa="g-md-toolbar-action-disabled-hint"
+                                    qa={qaActionDisabledPopover}
                                     key={id}
                                 >
                                     {(props, ref) => (
