@@ -12,6 +12,11 @@ type YfmTableActionKind =
     | 'add-row-before'
     | 'add-row-after';
 
+type MarkdownEditorToolbarsLocators = Record<
+    'main' | 'additional' | 'selection' | 'commandMenu',
+    Locator
+>;
+
 class YfmTable {
     readonly buttonPlusRowLocator;
     readonly buttonPlusColumnLocator;
@@ -88,8 +93,58 @@ class YfmTable {
     }
 }
 
+class Colorify {
+    protected readonly page: Page;
+    protected readonly expect: Expect;
+    protected readonly editor: Locator;
+    protected readonly mainToolbar: Locator;
+    protected readonly selectionToolbar: Locator;
+
+    constructor(
+        page: Page,
+        expect: Expect,
+        locators: {toolbars: MarkdownEditorToolbarsLocators} & {editor: Locator},
+    ) {
+        this.page = page;
+        this.expect = expect;
+        this.editor = locators.editor;
+        this.mainToolbar = locators.toolbars.main;
+        this.selectionToolbar = locators.toolbars.selection;
+    }
+    /**
+     * Asserts that the main toolbar color button has the "default" qa attribute.
+     */
+    async assertMainToolbarColorButtonDefault() {
+        const button = this.mainToolbar.getByLabel('Text color');
+        await this.expect(button).toHaveAttribute('data-qa', /g-md-colorify-default/);
+    }
+
+    /**
+     * Asserts that the main toolbar color button does not have the "default" qa attribute.
+     */
+    async assertMainToolbarColorButtonNotDefault() {
+        const button = this.mainToolbar.getByLabel('Text color');
+        await this.expect(button).not.toHaveAttribute('data-qa', /g-md-colorify-default/);
+    }
+
+    /**
+     * Asserts that the selection toolbar color button has the "default" qa attribute.
+     */
+    async assertSelectionToolbarColorButtonDefault() {
+        const button = this.selectionToolbar.getByLabel('Text color');
+        await this.expect(button).toHaveAttribute('data-qa', /g-md-colorify-default/);
+    }
+
+    /**
+     * Asserts that the selection toolbar color button does not have the "default" qa attribute.
+     */
+    async assertSelectionToolbarColorButtonNotDefault() {
+        const button = this.selectionToolbar.getByLabel('Text color');
+        await this.expect(button).not.toHaveAttribute('data-qa', /g-md-colorify-default/);
+    }
+}
+
 class MarkdownEditorLocators {
-    readonly commandMenu;
     readonly component;
     readonly contenteditable;
     readonly editor;
@@ -97,28 +152,30 @@ class MarkdownEditorLocators {
     readonly previewContent;
     readonly settingsButton;
     readonly settingsContent;
-    readonly toolbar;
+    readonly toolbars: MarkdownEditorToolbarsLocators;
     readonly toolbarMoreActionButton;
     readonly toolbarActionDisabledHint;
-    readonly toolbarMoreMenu;
     readonly cmAutocomplete;
 
     constructor(page: Page) {
         // page
-        this.commandMenu = page.getByTestId('g-md-command-menu');
         this.component = page.getByTestId('demo-md-editor');
         this.editor = page.getByTestId('g-md-editor-mode');
         this.previewButton = page.getByTestId('g-md-markup-preview-button');
         this.previewContent = page.getByTestId('demo-md-preview');
         this.settingsButton = page.getByTestId('g-md-settings-button');
         this.settingsContent = page.getByTestId('g-md-settings-content');
-        this.toolbar = page.getByTestId('g-md-toolbar');
+        this.toolbars = {
+            main: page.getByTestId('g-md-toolbar-main'),
+            additional: page.getByTestId('g-md-toolbar-additional'),
+            selection: page.getByTestId('g-md-toolbar-selection'),
+            commandMenu: page.getByTestId('g-md-command-menu'),
+        };
 
         // editor
         this.contenteditable = this.editor.locator('[contenteditable=true]');
         this.toolbarMoreActionButton = this.editor.getByTestId('g-md-toolbar-more-action');
         this.toolbarActionDisabledHint = page.getByTestId('g-md-toolbar-action-disabled-hint');
-        this.toolbarMoreMenu = page.getByTestId('g-md-toolbar-more-menu');
 
         this.cmAutocomplete = this.editor.locator('.cm-tooltip-autocomplete');
     }
@@ -131,6 +188,7 @@ type VisibleState = 'attached' | 'detached' | 'visible' | 'hidden' | undefined;
 export class MarkdownEditorPage {
     readonly locators;
     readonly yfmTable;
+    readonly colorify;
     protected readonly page: Page;
     protected readonly expect: Expect;
 
@@ -140,6 +198,7 @@ export class MarkdownEditorPage {
 
         this.locators = new MarkdownEditorLocators(page);
         this.yfmTable = new YfmTable(page);
+        this.colorify = new Colorify(page, expect, this.locators);
     }
 
     /**
@@ -186,24 +245,6 @@ export class MarkdownEditorPage {
     }
 
     /**
-     * Asserts that the toolbar color button has the "default" qa attribute.
-     */
-    async assertToolbarColorButtonDefault(inPopup = false) {
-        const root = inPopup ? this.page.locator('.g-popup.g-popup_open') : this.locators.editor;
-        const button = root.getByLabel('Text color');
-        await this.expect(button).toHaveAttribute('data-qa', /colors-default/);
-    }
-
-    /**
-     * Asserts that the toolbar color button does not have the "default" qa attribute.
-     */
-    async assertToolbarColorButtonNotDefault(inPopup = false) {
-        const root = inPopup ? this.page.locator('.g-popup.g-popup_open') : this.locators.editor;
-        const button = root.getByLabel('Text color');
-        await this.expect(button).not.toHaveAttribute('data-qa', /colors-default/);
-    }
-
-    /**
      * Returns the current editor mode
      */
     async getMode(): Promise<MarkdownEditorMode> {
@@ -215,20 +256,20 @@ export class MarkdownEditorPage {
 
     async openCommandMenu(search = '') {
         await this.pressSequentially('/' + search);
-        await this.locators.commandMenu.waitFor({state: 'visible'});
+        await this.locators.toolbars.commandMenu.waitFor({state: 'visible'});
     }
 
     /**
      * Finds an element in the command menu by its text
      */
     getByTextInCommandMenu(text: string): Locator {
-        return this.locators.commandMenu.getByText(text);
+        return this.locators.toolbars.commandMenu.getByText(text);
     }
 
     async selectFromCommandMenu(searchText: string, commandText: string) {
         await this.openCommandMenu(searchText);
         await this.getByTextInCommandMenu(commandText).click();
-        await this.locators.commandMenu.waitFor({state: 'detached'});
+        await this.locators.toolbars.commandMenu.waitFor({state: 'detached'});
     }
 
     /**
@@ -317,23 +358,23 @@ export class MarkdownEditorPage {
     }
 
     async openToolbarMoreMenu() {
-        const visible = await this.locators.toolbarMoreMenu.isVisible();
+        const visible = await this.locators.toolbars.additional.isVisible();
         if (!visible) {
             await this.clickToolbarMoreActionButton();
-            await this.locators.toolbarMoreMenu.waitFor({state: 'visible'});
+            await this.locators.toolbars.additional.waitFor({state: 'visible'});
         }
     }
 
     async hideToolbarMoreMenu() {
-        const visible = await this.locators.toolbarMoreMenu.isVisible();
+        const visible = await this.locators.toolbars.additional.isVisible();
         if (visible) {
             await this.clickToolbarMoreActionButton();
-            await this.locators.toolbarMoreMenu.waitFor({state: 'hidden'});
+            await this.locators.toolbars.additional.waitFor({state: 'hidden'});
         }
     }
 
     async hoverToolbarMoreAction(label: string) {
-        await this.locators.toolbarMoreMenu.waitFor({state: 'visible'});
+        await this.locators.toolbars.additional.waitFor({state: 'visible'});
         await this.getToolbarButton(label).hover({force: true});
     }
 
@@ -353,7 +394,7 @@ export class MarkdownEditorPage {
         await this.expect(button).toBeEnabled();
         await button.click();
 
-        if (inPopup) await this.locators.toolbarMoreMenu.waitFor({state: 'detached'});
+        if (inPopup) await this.locators.toolbars.additional.waitFor({state: 'detached'});
     }
 
     /**

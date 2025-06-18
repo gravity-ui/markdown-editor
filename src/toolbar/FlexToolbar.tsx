@@ -64,7 +64,6 @@ export function FlexToolbar<E>(props: FlexToolbarProps<E>) {
                 {dots?.length && (
                     <ToolbarListButton
                         qa="g-md-toolbar-more-action"
-                        qaMenu="g-md-toolbar-more-menu"
                         data={dots}
                         icon={{data: Ellipsis}}
                         title={props.dotsTitle}

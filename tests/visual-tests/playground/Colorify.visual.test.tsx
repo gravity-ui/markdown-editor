@@ -17,7 +17,7 @@ test.describe('Colorify', () => {
     test.describe('mark', () => {
         test('should mark via toolbar @wysiwyg', async ({editor, wait}) => {
             await editor.switchMode('wysiwyg');
-            await editor.assertToolbarColorButtonDefault();
+            await editor.colorify.assertMainToolbarColorButtonDefault();
 
             await editor.focus();
             await editor.press('ArrowDown');
@@ -30,10 +30,10 @@ test.describe('Colorify', () => {
             await wait.timeout();
 
             await editor.pressSequentially('next');
-            await editor.assertToolbarColorButtonNotDefault();
+            await editor.colorify.assertMainToolbarColorButtonNotDefault();
 
             await editor.press('ArrowUp');
-            await editor.assertToolbarColorButtonDefault();
+            await editor.colorify.assertMainToolbarColorButtonDefault();
         });
 
         test('should mark via toolbar @markup', async ({editor, wait}) => {
@@ -70,10 +70,10 @@ test.describe('Colorify', () => {
             await editor.press('ArrowDown');
             await wait.timeout();
 
-            await editor.assertToolbarColorButtonNotDefault();
+            await editor.colorify.assertMainToolbarColorButtonNotDefault();
 
             await editor.press('ArrowUp');
-            await editor.assertToolbarColorButtonDefault();
+            await editor.colorify.assertMainToolbarColorButtonDefault();
 
             await editor.switchMode('markup');
         });
@@ -82,7 +82,7 @@ test.describe('Colorify', () => {
     test.describe('interaction', () => {
         test('should add mark to selected text via toolbar @wysiwyg', async ({editor, wait}) => {
             await editor.switchMode('wysiwyg');
-            await editor.assertToolbarColorButtonDefault();
+            await editor.colorify.assertMainToolbarColorButtonDefault();
 
             await editor.focus();
             await editor.press('ArrowDown');
@@ -93,18 +93,18 @@ test.describe('Colorify', () => {
 
             await editor.selectTextIn('p:nth-child(2)');
 
-            await editor.assertToolbarColorButtonDefault();
+            await editor.colorify.assertMainToolbarColorButtonDefault();
             await editor.clickToolbarButton('Text color');
             await wait.timeout();
 
             await editor.clickToolbarButton('Yellow', true);
             await wait.timeout(300);
 
-            await editor.assertToolbarColorButtonNotDefault();
+            await editor.colorify.assertMainToolbarColorButtonNotDefault();
             await editor.press('ArrowUp');
             await wait.timeout();
 
-            await editor.assertToolbarColorButtonDefault();
+            await editor.colorify.assertMainToolbarColorButtonDefault();
         });
 
         test('should add mark to selected text via context toolbar @wysiwyg', async ({
@@ -112,7 +112,7 @@ test.describe('Colorify', () => {
             wait,
         }) => {
             await editor.switchMode('wysiwyg');
-            await editor.assertToolbarColorButtonDefault();
+            await editor.colorify.assertMainToolbarColorButtonDefault();
 
             await editor.focus();
             await editor.press('ArrowDown');
@@ -123,18 +123,18 @@ test.describe('Colorify', () => {
 
             await editor.selectTextIn('p:nth-child(2)');
 
-            await editor.assertToolbarColorButtonDefault();
-            await editor.assertToolbarColorButtonDefault(true);
+            await editor.colorify.assertMainToolbarColorButtonDefault();
+            await editor.colorify.assertSelectionToolbarColorButtonDefault();
             await editor.clickToolbarButton('Text color', true);
             await wait.timeout();
 
             await editor.clickToolbarButton('Yellow', true);
             await wait.timeout(300);
 
-            await editor.assertToolbarColorButtonNotDefault();
+            await editor.colorify.assertMainToolbarColorButtonNotDefault();
             await editor.press('ArrowUp');
 
-            await editor.assertToolbarColorButtonDefault();
+            await editor.colorify.assertMainToolbarColorButtonDefault();
         });
 
         test('should delete mark to selected text via toolbar @wysiwyg', async ({editor, wait}) => {
@@ -149,7 +149,7 @@ test.describe('Colorify', () => {
             await wait.timeout(300);
 
             await editor.selectTextIn('.yfm-colorify');
-            await editor.assertToolbarColorButtonNotDefault();
+            await editor.colorify.assertMainToolbarColorButtonNotDefault();
 
             await editor.clickToolbarButton('Text color');
             await wait.timeout();
@@ -157,14 +157,14 @@ test.describe('Colorify', () => {
             await editor.clickToolbarButton('Yellow', true);
             await wait.timeout();
 
-            await editor.assertToolbarColorButtonDefault();
+            await editor.colorify.assertMainToolbarColorButtonDefault();
         });
     });
 
     test.describe('specific', () => {
-        test('should escape parentheses', async ({expectScreenshot, editor, wait}) => {
+        test('should escape parentheses', async ({page, expectScreenshot, editor, wait}) => {
             await editor.switchMode('wysiwyg');
-            await editor.assertToolbarColorButtonDefault();
+            await editor.colorify.assertMainToolbarColorButtonDefault();
 
             await editor.focus();
             await editor.press('ArrowDown');
@@ -193,11 +193,13 @@ test.describe('Colorify', () => {
             await wait.timeout();
 
             await editor.pressSequentially(')');
+            await page.mouse.move(-1, -1);
             await wait.timeout(400);
 
             await expectScreenshot({nameSuffix: 'wysiwyg'});
 
             editor.switchPreview('visible');
+            await page.mouse.move(-1, -1);
             await wait.timeout(800);
 
             await expectScreenshot({nameSuffix: 'markup'});
