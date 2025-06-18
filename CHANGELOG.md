@@ -1,5 +1,12 @@
 # Changelog
 
+## [15.14.1](https://github.com/gravity-ui/markdown-editor/compare/v15.14.0...v15.14.1) (2025-06-18)
+
+
+### Bug Fixes
+
+* **GPT:** fixed open gpt-widget in safari browser ([#781](https://github.com/gravity-ui/markdown-editor/issues/781)) ([5a21ae6](https://github.com/gravity-ui/markdown-editor/commit/5a21ae66de9f768ddf11710f2e704fc7f6756586))
+
 ## [15.14.0](https://github.com/gravity-ui/markdown-editor/compare/v15.13.3...v15.14.0) (2025-06-17)
 
 
