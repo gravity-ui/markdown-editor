@@ -73,7 +73,7 @@ test.describe('Toolbar', () => {
             await editor.switchMode('wysiwyg');
             await editor.openToolbarMoreMenu();
             await page.mouse.move(-1, -1);
-            await expectScreenshot({component: editor.locators.toolbarMoreMenu});
+            await expectScreenshot({component: editor.locators.toolbars.additional});
         });
 
         test('in @markup mode', async ({page, editor, expectScreenshot}) => {
@@ -81,7 +81,7 @@ test.describe('Toolbar', () => {
             await editor.switchMode('markup');
             await editor.openToolbarMoreMenu();
             await page.mouse.move(-1, -1);
-            await expectScreenshot({component: editor.locators.toolbarMoreMenu});
+            await expectScreenshot({component: editor.locators.toolbars.additional});
         });
     });
 

@@ -26,6 +26,7 @@ export type {ToolbarListButtonData};
 export type ToolbarListButtonProps<E> = ToolbarBaseProps<E> &
     ToolbarListButtonData<E> & {
         qaMenu?: string;
+        qaActionDisabledPopover?: string;
     };
 
 export function ToolbarListButton<E>({
@@ -41,6 +42,7 @@ export function ToolbarListButton<E>({
     replaceActiveIcon,
     qa,
     qaMenu,
+    qaActionDisabledPopover = 'g-md-toolbar-action-disabled-hint',
 }: ToolbarListButtonProps<E>) {
     const [anchorElement, setAnchorElement] = useElementState();
     const [open, , hide, toggleOpen] = useBooleanState(false);
@@ -49,6 +51,7 @@ export function ToolbarListButton<E>({
     const everyDisabled = alwaysActive ? false : data.every((item) => !item.isEnable(editor));
     const popupOpen = everyDisabled ? false : open;
     const shouldForceHide = open && !popupOpen;
+
     useEffect(() => {
         if (shouldForceHide) {
             hide();
@@ -140,7 +143,7 @@ export function ToolbarListButton<E>({
                                     placement="left"
                                     modal={false}
                                     disabled={hideHintWhenDisabled}
-                                    qa="g-md-toolbar-action-disabled-hint"
+                                    qa={qaActionDisabledPopover}
                                     key={id}
                                 >
                                     {(props, ref) => (

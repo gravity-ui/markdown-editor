@@ -56,6 +56,8 @@ export const ToolbarButtonWithPopupMenu: React.FC<ToolbarButtonWithPopupMenuProp
     title,
     menuItems,
     _selectionType,
+    qa,
+    ...props
 }) => {
     const [anchorElement, setAnchorElement] = useElementState();
     const [open, , hide, toggleOpen] = useBooleanState(false);
@@ -89,13 +91,15 @@ export const ToolbarButtonWithPopupMenu: React.FC<ToolbarButtonWithPopupMenuProp
               ] as const)
             : ([someActive || popupOpen ? 'normal' : 'flat', someActive] as const);
 
+    const textTitle = isFunction(title) ? title() : title;
+
     return (
         <>
             <ActionTooltip
                 disabled={popupOpen}
                 openDelay={ToolbarTooltipDelay.Open}
                 closeDelay={ToolbarTooltipDelay.Close}
-                title={isFunction(title) ? title() : title}
+                title={textTitle}
             >
                 <Button
                     size="m"
@@ -105,6 +109,9 @@ export const ToolbarButtonWithPopupMenu: React.FC<ToolbarButtonWithPopupMenuProp
                     disabled={everyDisabled}
                     className={b(null, [className])}
                     onClick={toggleOpen}
+                    aria-label={textTitle}
+                    qa={qa}
+                    {...props}
                 >
                     <Icon data={icon.data} size={icon.size} className={iconClassName} />
                     {''}

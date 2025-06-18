@@ -61,7 +61,7 @@ test.describe('Cut', () => {
             await editor.clearContent();
 
             await editor.pressSequentially('/c');
-            await expect(page.getByTestId('g-md-command-menu')).toBeVisible();
+            await expect(page.getByTestId('g-md-toolbar-command-menu')).toBeVisible();
 
             const cutMenu = editor.getByTextInCommandMenu('Cut').first();
             await wait.visible(cutMenu);

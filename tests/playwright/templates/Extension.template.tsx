@@ -35,7 +35,7 @@ test.describe('%%name%%', () => {
             await editor.clearContent();
 
             await editor.pressSequentially('/* TODO: write sequentially */');
-            await expect(page.getByTestId('g-md-command-menu')).toBeVisible();
+            await expect(page.getByTestId('g-md-toolbar-command-menu')).toBeVisible();
 
             const menuItem = editor.getByTextInCommandMenu('/* TODO: write name */').first();
             await wait.visible(menuItem);
