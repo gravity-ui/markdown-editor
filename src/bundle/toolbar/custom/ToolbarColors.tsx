@@ -83,9 +83,7 @@ export const ToolbarColors: React.FC<ToolbarColorsProps> = (props) => {
             _selectionType="light"
             iconClassName={b('menu-icon', {color: currentColor})}
             chevronIconClassName={b('chevron-icon', {color: currentColor})}
-            additionalInfo={`color-${
-                currentColor && currentColor !== 'default' ? currentColor : 'default'
-            }`}
+            data-selected-color={currentColor ?? 'default'}
         />
     );
 };

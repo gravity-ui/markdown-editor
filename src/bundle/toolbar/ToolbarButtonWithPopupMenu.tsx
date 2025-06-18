@@ -57,8 +57,8 @@ export const ToolbarButtonWithPopupMenu: React.FC<ToolbarButtonWithPopupMenuProp
     title,
     menuItems,
     _selectionType,
-    additionalInfo,
     qa,
+    ...props
 }) => {
     const [anchorElement, setAnchorElement] = useElementState();
     const [open, , hide, toggleOpen] = useBooleanState(false);
@@ -111,8 +111,8 @@ export const ToolbarButtonWithPopupMenu: React.FC<ToolbarButtonWithPopupMenuProp
                     className={b(null, [className])}
                     onClick={toggleOpen}
                     aria-label={textTitle}
-                    data-additional-info={additionalInfo}
                     qa={qa}
+                    {...props}
                 >
                     <Icon data={icon.data} size={icon.size} className={iconClassName} />
                     {''}

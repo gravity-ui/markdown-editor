@@ -116,7 +116,7 @@ class Colorify {
      */
     async assertMainToolbarColorButtonDefault() {
         const button = this.mainToolbar.getByLabel('Text color');
-        await this.expect(button).toHaveAttribute('data-additional-info', /color-default/);
+        await this.expect(button).toHaveAttribute('data-selected-color', 'default');
     }
 
     /**
@@ -124,7 +124,7 @@ class Colorify {
      */
     async assertMainToolbarColorButtonNotDefault() {
         const button = this.mainToolbar.getByLabel('Text color');
-        await this.expect(button).not.toHaveAttribute('data-additional-info', /color-default/);
+        await this.expect(button).not.toHaveAttribute('data-selected-color', 'default');
     }
 
     /**
@@ -132,7 +132,7 @@ class Colorify {
      */
     async assertSelectionToolbarColorButtonDefault() {
         const button = this.selectionToolbar.getByLabel('Text color');
-        await this.expect(button).toHaveAttribute('data-additional-info', /color-default/);
+        await this.expect(button).toHaveAttribute('data-selected-color', 'default');
     }
 
     /**
@@ -140,7 +140,7 @@ class Colorify {
      */
     async assertSelectionToolbarColorButtonNotDefault() {
         const button = this.selectionToolbar.getByLabel('Text color');
-        await this.expect(button).not.toHaveAttribute('data-additional-info', /color-default/);
+        await this.expect(button).not.toHaveAttribute('data-selected-color', 'default');
     }
 }
 
@@ -169,7 +169,7 @@ class MarkdownEditorLocators {
             main: page.getByTestId('g-md-toolbar-main'),
             additional: page.getByTestId('g-md-toolbar-additional'),
             selection: page.getByTestId('g-md-toolbar-selection'),
-            commandMenu: page.getByTestId('g-md-command-menu'),
+            commandMenu: page.getByTestId('g-md-toolbar-command-menu'),
         };
 
         // editor

@@ -198,9 +198,9 @@ test.describe('Colorify', () => {
 
             await expectScreenshot({nameSuffix: 'wysiwyg'});
 
-            editor.switchPreview('visible');
+            await editor.switchPreview('visible');
             await page.mouse.move(-1, -1);
-            await wait.timeout(800);
+            await wait.timeout();
 
             await expectScreenshot({nameSuffix: 'markup'});
         });
