@@ -2,6 +2,8 @@ import type {Locator} from '@playwright/test';
 
 import type {PlaywrightFixture, WaitFixture} from './types';
 
+const DEFAULT_DELAY = 100;
+
 export const wait: PlaywrightFixture<WaitFixture> = async ({page}, use) => {
     await use({
         loadersHiddenQASelect: async () => {
@@ -18,7 +20,7 @@ export const wait: PlaywrightFixture<WaitFixture> = async ({page}, use) => {
         hidden: async (locator: Locator) => {
             await locator.waitFor({state: 'hidden'});
         },
-        timeout: async (delay = 100) => {
+        timeout: async (delay = DEFAULT_DELAY) => {
             await page.waitForTimeout(delay);
         },
     });

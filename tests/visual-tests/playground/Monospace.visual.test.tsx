@@ -131,11 +131,12 @@ test.describe('Monospace', () => {
             await editor.selectTextIn('p:nth-child(2)');
 
             await editor.assertMainToolbarButtonNotSelected('Monospace');
-            await editor.assertMainToolbarButtonNotSelected('Monospace', true);
-            await editor.clickMainToolbarButton('Monospace', true);
+            await editor.assertSelectionToolbarButtonNotSelected('Monospace');
+            await editor.clickSelectionToolbarButton('Monospace');
             await wait.timeout(300);
 
             await editor.assertMainToolbarButtonSelected('Monospace');
+            await editor.assertSelectionToolbarButtonSelected('Monospace');
             await editor.press('ArrowUp');
 
             await editor.assertMainToolbarButtonNotSelected('Monospace');
@@ -153,10 +154,13 @@ test.describe('Monospace', () => {
 
             await editor.selectTextIn('p:nth-child(2)');
             await editor.assertMainToolbarButtonSelected('Monospace');
+            await editor.assertSelectionToolbarButtonSelected('Monospace');
 
             await editor.clickMainToolbarButton('Monospace');
             await wait.timeout();
+
             await editor.assertMainToolbarButtonNotSelected('Monospace');
+            await editor.assertSelectionToolbarButtonNotSelected('Monospace');
         });
     });
 });

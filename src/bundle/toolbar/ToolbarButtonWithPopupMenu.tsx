@@ -41,6 +41,7 @@ export type ToolbarButtonWithPopupMenuProps = Omit<
             menuItems: MenuItem[];
             /** @default 'classic' */
             _selectionType?: 'classic' | 'light';
+            qaMenu?: string;
         },
     'editor'
 >;
@@ -57,6 +58,7 @@ export const ToolbarButtonWithPopupMenu: React.FC<ToolbarButtonWithPopupMenuProp
     menuItems,
     _selectionType,
     qa,
+    qaMenu,
     ...props
 }) => {
     const [anchorElement, setAnchorElement] = useElementState();
@@ -126,7 +128,7 @@ export const ToolbarButtonWithPopupMenu: React.FC<ToolbarButtonWithPopupMenuProp
                     if (!open) hide();
                 }}
             >
-                <Menu size="l">
+                <Menu size="l" qa={qaMenu}>
                     {Object.entries(groups).map(([label, items], key) => {
                         return (
                             <Menu.Group label={label} key={key} className={b('menu-group')}>

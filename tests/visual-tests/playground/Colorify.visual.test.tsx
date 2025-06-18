@@ -23,10 +23,7 @@ test.describe('Colorify', () => {
             await editor.press('ArrowDown');
             await editor.press('Enter');
 
-            await editor.clickMainToolbarButton('Text color');
-            await wait.timeout();
-
-            await editor.clickMainToolbarButton('Yellow', true);
+            await editor.clickMainToolbarButton('Text color', 'Yellow');
             await wait.timeout();
 
             await editor.pressSequentially('next');
@@ -43,10 +40,7 @@ test.describe('Colorify', () => {
             await editor.press('ArrowDown');
             await editor.press('Enter');
 
-            await editor.clickMainToolbarButton('Text color');
-            await wait.timeout();
-
-            await editor.clickMainToolbarButton('Yellow', true);
+            await editor.clickMainToolbarButton('Text color', 'Yellow');
             await wait.timeout();
 
             await editor.pressSequentially('next');
@@ -94,10 +88,7 @@ test.describe('Colorify', () => {
             await editor.selectTextIn('p:nth-child(2)');
 
             await editor.colorify.assertMainToolbarColorButtonDefault();
-            await editor.clickMainToolbarButton('Text color');
-            await wait.timeout();
-
-            await editor.clickMainToolbarButton('Yellow', true);
+            await editor.clickMainToolbarButton('Text color', 'Yellow');
             await wait.timeout(300);
 
             await editor.colorify.assertMainToolbarColorButtonNotDefault();
@@ -125,10 +116,7 @@ test.describe('Colorify', () => {
 
             await editor.colorify.assertMainToolbarColorButtonDefault();
             await editor.colorify.assertSelectionToolbarColorButtonDefault();
-            await editor.clickMainToolbarButton('Text color', true);
-            await wait.timeout();
-
-            await editor.clickMainToolbarButton('Yellow', true);
+            await editor.clickSelectionToolbarButton('Text color', 'Yellow');
             await wait.timeout(300);
 
             await editor.colorify.assertMainToolbarColorButtonNotDefault();
@@ -151,10 +139,7 @@ test.describe('Colorify', () => {
             await editor.selectTextIn('.yfm-colorify');
             await editor.colorify.assertMainToolbarColorButtonNotDefault();
 
-            await editor.clickMainToolbarButton('Text color');
-            await wait.timeout();
-
-            await editor.clickMainToolbarButton('Yellow', true);
+            await editor.clickMainToolbarButton('Text color', 'Yellow');
             await wait.timeout();
 
             await editor.colorify.assertMainToolbarColorButtonDefault();
@@ -170,26 +155,17 @@ test.describe('Colorify', () => {
             await editor.press('ArrowDown');
             await editor.press('Enter');
 
-            await editor.clickMainToolbarButton('Text color');
-            await wait.timeout();
-
-            await editor.clickMainToolbarButton('Yellow', true);
+            await editor.clickMainToolbarButton('Text color', 'Yellow');
             await wait.timeout();
 
             await editor.pressSequentially('some(');
 
-            await editor.clickMainToolbarButton('Text color');
-            await wait.timeout();
-
-            await editor.clickMainToolbarButton('Red', true);
+            await editor.clickMainToolbarButton('Text color', 'Red');
             await wait.timeout();
 
             await editor.pressSequentially('2, 3');
 
-            await editor.clickMainToolbarButton('Text color');
-            await wait.timeout();
-
-            await editor.clickMainToolbarButton('Yellow', true);
+            await editor.clickMainToolbarButton('Text color', 'Yellow');
             await wait.timeout();
 
             await editor.pressSequentially(')');

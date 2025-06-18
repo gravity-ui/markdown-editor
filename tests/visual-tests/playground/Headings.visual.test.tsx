@@ -23,10 +23,7 @@ test.describe('Headings', () => {
             await editor.press('ArrowDown');
             await editor.press('Enter');
 
-            await editor.clickMainToolbarButton('Heading');
-            await wait.timeout();
-
-            await editor.clickMainToolbarButton('Heading 2', true);
+            await editor.clickMainToolbarButton('Heading', 'Heading 2');
             await wait.timeout();
 
             await editor.pressSequentially('next');
@@ -61,10 +58,7 @@ test.describe('Headings', () => {
             await editor.press('ArrowDown');
             await editor.press('Enter');
 
-            await editor.clickMainToolbarButton('Heading');
-            await wait.timeout();
-
-            await editor.clickMainToolbarButton('Heading 2', true);
+            await editor.clickMainToolbarButton('Heading', 'Heading 2');
             await wait.timeout();
 
             await editor.pressSequentially('next');
@@ -110,10 +104,7 @@ test.describe('Headings', () => {
             await editor.selectTextIn('p:nth-child(2)');
 
             await editor.assertMainToolbarButtonNotSelected('Heading');
-            await editor.clickMainToolbarButton('Heading');
-            await wait.timeout();
-
-            await editor.clickMainToolbarButton('Heading 2', true);
+            await editor.clickMainToolbarButton('Heading', 'Heading 2');
             await wait.timeout(300);
 
             await editor.assertMainToolbarButtonSelected('Heading');
@@ -140,11 +131,9 @@ test.describe('Headings', () => {
             await editor.selectTextIn('p:nth-child(2)');
 
             await editor.assertMainToolbarButtonNotSelected('Heading');
-            await editor.assertTextSelectToolbarIsText();
-            await editor.clickToolbarTextSelect();
-            await wait.timeout();
+            await editor.assertSelectionToolbarButtonSelected('Heading', 'Text');
 
-            await editor.clickMainToolbarButton('Heading 2', true);
+            await editor.clickSelectionToolbarButton('Heading', 'Heading 2');
             await wait.timeout(300);
 
             await editor.assertMainToolbarButtonSelected('Heading');
@@ -167,10 +156,7 @@ test.describe('Headings', () => {
             await editor.selectTextIn('h2');
             await editor.assertMainToolbarButtonSelected('Heading');
 
-            await editor.clickMainToolbarButton('Heading');
-            await wait.timeout();
-
-            await editor.clickMainToolbarButton('Text', true);
+            await editor.clickMainToolbarButton('Heading', 'Text');
             await wait.timeout();
 
             await editor.assertMainToolbarButtonNotSelected('Heading');

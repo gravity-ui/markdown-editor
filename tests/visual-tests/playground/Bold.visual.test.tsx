@@ -154,11 +154,12 @@ test.describe('Bold', () => {
             await editor.selectTextIn('p:nth-child(2)');
 
             await editor.assertMainToolbarButtonNotSelected('Bold');
-            await editor.assertMainToolbarButtonNotSelected('Bold', true);
-            await editor.clickMainToolbarButton('Bold', true);
+            await editor.assertSelectionToolbarButtonNotSelected('Bold');
+            await editor.clickSelectionToolbarButton('Bold');
             await wait.timeout(300);
 
             await editor.assertMainToolbarButtonSelected('Bold');
+            await editor.assertSelectionToolbarButtonSelected('Bold');
             await editor.press('ArrowUp');
 
             await editor.assertMainToolbarButtonNotSelected('Bold');
@@ -176,10 +177,13 @@ test.describe('Bold', () => {
 
             await editor.selectTextIn('p:nth-child(2)');
             await editor.assertMainToolbarButtonSelected('Bold');
+            await editor.assertSelectionToolbarButtonSelected('Bold');
 
             await editor.clickMainToolbarButton('Bold');
             await wait.timeout();
+
             await editor.assertMainToolbarButtonNotSelected('Bold');
+            await editor.assertSelectionToolbarButtonNotSelected('Bold');
         });
     });
 });

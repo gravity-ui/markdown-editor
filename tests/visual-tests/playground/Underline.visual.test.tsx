@@ -154,11 +154,12 @@ test.describe('Underline', () => {
             await editor.selectTextIn('p:nth-child(2)');
 
             await editor.assertMainToolbarButtonNotSelected('Underline');
-            await editor.assertMainToolbarButtonNotSelected('Underline', true);
-            await editor.clickMainToolbarButton('Underline', true);
+            await editor.assertSelectionToolbarButtonNotSelected('Underline');
+            await editor.clickSelectionToolbarButton('Underline');
             await wait.timeout(300);
 
             await editor.assertMainToolbarButtonSelected('Underline');
+            await editor.assertSelectionToolbarButtonSelected('Underline');
             await editor.press('ArrowUp');
 
             await editor.assertMainToolbarButtonNotSelected('Underline');
@@ -176,10 +177,13 @@ test.describe('Underline', () => {
 
             await editor.selectTextIn('p:nth-child(2)');
             await editor.assertMainToolbarButtonSelected('Underline');
+            await editor.assertSelectionToolbarButtonSelected('Underline');
 
             await editor.clickMainToolbarButton('Underline');
             await wait.timeout();
+
             await editor.assertMainToolbarButtonNotSelected('Underline');
+            await editor.assertSelectionToolbarButtonNotSelected('Underline');
         });
     });
 });

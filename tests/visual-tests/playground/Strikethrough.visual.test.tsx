@@ -154,11 +154,12 @@ test.describe('Strikethrough', () => {
             await editor.selectTextIn('p:nth-child(2)');
 
             await editor.assertMainToolbarButtonNotSelected('Strikethrough');
-            await editor.assertMainToolbarButtonNotSelected('Strikethrough', true);
-            await editor.clickMainToolbarButton('Strikethrough', true);
+            await editor.assertSelectionToolbarButtonNotSelected('Strikethrough');
+            await editor.clickSelectionToolbarButton('Strikethrough');
             await wait.timeout(300);
 
             await editor.assertMainToolbarButtonSelected('Strikethrough');
+            await editor.assertSelectionToolbarButtonSelected('Strikethrough');
             await editor.press('ArrowUp');
 
             await editor.assertMainToolbarButtonNotSelected('Strikethrough');
@@ -176,10 +177,13 @@ test.describe('Strikethrough', () => {
 
             await editor.selectTextIn('p:nth-child(2)');
             await editor.assertMainToolbarButtonSelected('Strikethrough');
+            await editor.assertSelectionToolbarButtonSelected('Strikethrough');
 
             await editor.clickMainToolbarButton('Strikethrough');
             await wait.timeout();
+
             await editor.assertMainToolbarButtonNotSelected('Strikethrough');
+            await editor.assertSelectionToolbarButtonNotSelected('Strikethrough');
         });
     });
 });

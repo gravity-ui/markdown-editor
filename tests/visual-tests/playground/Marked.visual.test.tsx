@@ -57,10 +57,7 @@ test.describe('Marked', () => {
             await editor.press('ArrowDown');
             await editor.press('Enter');
 
-            await editor.openToolbarMoreMenu();
-            await wait.timeout();
-
-            await editor.clickMainToolbarButton('Marked', true);
+            await editor.clickAdditionalToolbarButton('Marked');
             await wait.timeout();
             await editor.pressSequentially('next');
 
@@ -134,11 +131,12 @@ test.describe('Marked', () => {
             await editor.selectTextIn('p:nth-child(2)');
 
             await editor.assertMainToolbarButtonNotSelected('Marked');
-            await editor.assertMainToolbarButtonNotSelected('Marked', true);
-            await editor.clickMainToolbarButton('Marked', true);
+            await editor.assertSelectionToolbarButtonNotSelected('Marked');
+            await editor.clickSelectionToolbarButton('Marked');
             await wait.timeout(300);
 
             await editor.assertMainToolbarButtonSelected('Marked');
+            await editor.assertSelectionToolbarButtonSelected('Marked');
             await editor.press('ArrowUp');
 
             await editor.assertMainToolbarButtonNotSelected('Marked');
@@ -156,10 +154,13 @@ test.describe('Marked', () => {
 
             await editor.selectTextIn('p:nth-child(2)');
             await editor.assertMainToolbarButtonSelected('Marked');
+            await editor.assertSelectionToolbarButtonSelected('Marked');
 
             await editor.clickMainToolbarButton('Marked');
             await wait.timeout();
+
             await editor.assertMainToolbarButtonNotSelected('Marked');
+            await editor.assertSelectionToolbarButtonNotSelected('Marked');
         });
     });
 });

@@ -154,11 +154,12 @@ test.describe('Italic', () => {
             await editor.selectTextIn('p:nth-child(2)');
 
             await editor.assertMainToolbarButtonNotSelected('Italic');
-            await editor.assertMainToolbarButtonNotSelected('Italic', true);
-            await editor.clickMainToolbarButton('Italic', true);
+            await editor.assertSelectionToolbarButtonNotSelected('Italic');
+            await editor.clickSelectionToolbarButton('Italic');
             await wait.timeout(300);
 
             await editor.assertMainToolbarButtonSelected('Italic');
+            await editor.assertSelectionToolbarButtonSelected('Italic');
             await editor.press('ArrowUp');
 
             await editor.assertMainToolbarButtonNotSelected('Italic');
@@ -176,10 +177,12 @@ test.describe('Italic', () => {
 
             await editor.selectTextIn('p:nth-child(2)');
             await editor.assertMainToolbarButtonSelected('Italic');
+            await editor.assertSelectionToolbarButtonSelected('Italic');
 
             await editor.clickMainToolbarButton('Italic');
             await wait.timeout();
             await editor.assertMainToolbarButtonNotSelected('Italic');
+            await editor.assertSelectionToolbarButtonNotSelected('Italic');
         });
     });
 });
