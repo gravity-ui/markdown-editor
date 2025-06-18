@@ -39,7 +39,6 @@ export type ToolbarButtonWithPopupMenuProps = Omit<
             chevronIconClassName?: string;
             title: string | (() => string);
             menuItems: MenuItem[];
-            additionalInfo?: string;
             /** @default 'classic' */
             _selectionType?: 'classic' | 'light';
         },
