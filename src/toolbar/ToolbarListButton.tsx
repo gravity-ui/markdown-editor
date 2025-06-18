@@ -41,7 +41,7 @@ export function ToolbarListButton<E>({
     alwaysActive,
     replaceActiveIcon,
     qa,
-    qaMenu = 'g-md-toolbar-additional',
+    qaMenu = 'g-md-toolbar-menu',
     qaActionDisabledPopover = 'g-md-toolbar-action-disabled-hint',
 }: ToolbarListButtonProps<E>) {
     const [anchorElement, setAnchorElement] = useElementState();
