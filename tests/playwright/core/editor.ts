@@ -116,7 +116,7 @@ class Colorify {
      */
     async assertMainToolbarColorButtonDefault() {
         const button = this.mainToolbar.getByLabel('Text color');
-        await this.expect(button).toHaveAttribute('data-qa', /g-md-colorify-default/);
+        await this.expect(button).toHaveAttribute('data-additional-info', /color-default/);
     }
 
     /**
@@ -124,7 +124,7 @@ class Colorify {
      */
     async assertMainToolbarColorButtonNotDefault() {
         const button = this.mainToolbar.getByLabel('Text color');
-        await this.expect(button).not.toHaveAttribute('data-qa', /g-md-colorify-default/);
+        await this.expect(button).not.toHaveAttribute('data-additional-info', /color-default/);
     }
 
     /**
@@ -132,7 +132,7 @@ class Colorify {
      */
     async assertSelectionToolbarColorButtonDefault() {
         const button = this.selectionToolbar.getByLabel('Text color');
-        await this.expect(button).toHaveAttribute('data-qa', /g-md-colorify-default/);
+        await this.expect(button).toHaveAttribute('data-additional-info', /color-default/);
     }
 
     /**
@@ -140,7 +140,7 @@ class Colorify {
      */
     async assertSelectionToolbarColorButtonNotDefault() {
         const button = this.selectionToolbar.getByLabel('Text color');
-        await this.expect(button).not.toHaveAttribute('data-qa', /g-md-colorify-default/);
+        await this.expect(button).not.toHaveAttribute('data-additional-info', /color-default/);
     }
 }
 

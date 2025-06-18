@@ -39,6 +39,7 @@ export type ToolbarButtonWithPopupMenuProps = Omit<
             chevronIconClassName?: string;
             title: string | (() => string);
             menuItems: MenuItem[];
+            additionalInfo?: string;
             /** @default 'classic' */
             _selectionType?: 'classic' | 'light';
         },
@@ -56,6 +57,7 @@ export const ToolbarButtonWithPopupMenu: React.FC<ToolbarButtonWithPopupMenuProp
     title,
     menuItems,
     _selectionType,
+    additionalInfo,
     qa,
 }) => {
     const [anchorElement, setAnchorElement] = useElementState();
@@ -109,6 +111,7 @@ export const ToolbarButtonWithPopupMenu: React.FC<ToolbarButtonWithPopupMenuProp
                     className={b(null, [className])}
                     onClick={toggleOpen}
                     aria-label={textTitle}
+                    data-additional-info={additionalInfo}
                     qa={qa}
                 >
                     <Icon data={icon.data} size={icon.size} className={iconClassName} />
