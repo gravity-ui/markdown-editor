@@ -16,25 +16,25 @@ test.describe('Italic', () => {
     test.describe('mark', () => {
         test('should mark via toolbar @wysiwyg', async ({editor, wait}) => {
             await editor.switchMode('wysiwyg');
-            await editor.assertToolbarButtonNotSelected('Italic');
+            await editor.assertMainToolbarButtonNotSelected('Italic');
 
             await editor.focus();
             await editor.press('ArrowDown');
             await editor.press('Enter');
 
-            await editor.clickToolbarButton('Italic');
+            await editor.clickMainToolbarButton('Italic');
             await wait.timeout();
 
             await editor.pressSequentially('next');
-            await editor.assertToolbarButtonSelected('Italic');
+            await editor.assertMainToolbarButtonSelected('Italic');
 
             await editor.press('ArrowUp');
-            await editor.assertToolbarButtonNotSelected('Italic');
+            await editor.assertMainToolbarButtonNotSelected('Italic');
         });
 
         test('should mark via input rule @wysiwyg', async ({editor, wait}) => {
             await editor.switchMode('wysiwyg');
-            await editor.assertToolbarButtonNotSelected('Italic');
+            await editor.assertMainToolbarButtonNotSelected('Italic');
 
             await editor.focus();
             await editor.press('ArrowDown');
@@ -44,10 +44,10 @@ test.describe('Italic', () => {
             await wait.timeout();
             await editor.press('ArrowLeft');
 
-            await editor.assertToolbarButtonSelected('Italic');
+            await editor.assertMainToolbarButtonSelected('Italic');
 
             await editor.press('ArrowUp');
-            await editor.assertToolbarButtonNotSelected('Italic');
+            await editor.assertMainToolbarButtonNotSelected('Italic');
         });
 
         // TODO: Investigate why keyboard shortcuts don't work reliably in the test environment
@@ -55,7 +55,7 @@ test.describe('Italic', () => {
             test.skip(true, 'key combo fails in headless mode');
 
             await editor.switchMode('wysiwyg');
-            await editor.assertToolbarButtonNotSelected('Italic');
+            await editor.assertMainToolbarButtonNotSelected('Italic');
 
             await editor.focus();
             await editor.press('ArrowDown');
@@ -67,10 +67,10 @@ test.describe('Italic', () => {
             await editor.pressSequentially('next');
             await wait.timeout();
 
-            await editor.assertToolbarButtonSelected('Italic');
+            await editor.assertMainToolbarButtonSelected('Italic');
 
             await editor.press('ArrowUp');
-            await editor.assertToolbarButtonNotSelected('Italic');
+            await editor.assertMainToolbarButtonNotSelected('Italic');
         });
 
         test('should mark via toolbar @markup', async ({editor, wait}) => {
@@ -80,7 +80,7 @@ test.describe('Italic', () => {
             await editor.press('ArrowDown');
             await editor.press('Enter');
 
-            await editor.clickToolbarButton('Italic');
+            await editor.clickMainToolbarButton('Italic');
             await wait.timeout();
             await editor.pressSequentially('next');
 
@@ -103,10 +103,10 @@ test.describe('Italic', () => {
             await editor.press('ArrowDown');
             await wait.timeout();
 
-            await editor.assertToolbarButtonSelected('Italic');
+            await editor.assertMainToolbarButtonSelected('Italic');
 
             await editor.press('ArrowUp');
-            await editor.assertToolbarButtonNotSelected('Italic');
+            await editor.assertMainToolbarButtonNotSelected('Italic');
 
             await editor.switchMode('markup');
         });
@@ -115,7 +115,7 @@ test.describe('Italic', () => {
     test.describe('interaction', () => {
         test('should add mark to selected text via toolbar @wysiwyg', async ({editor, wait}) => {
             await editor.switchMode('wysiwyg');
-            await editor.assertToolbarButtonNotSelected('Italic');
+            await editor.assertMainToolbarButtonNotSelected('Italic');
 
             await editor.focus();
             await editor.press('ArrowDown');
@@ -126,15 +126,15 @@ test.describe('Italic', () => {
 
             await editor.selectTextIn('p:nth-child(2)');
 
-            await editor.assertToolbarButtonNotSelected('Italic');
-            await editor.clickToolbarButton('Italic');
+            await editor.assertMainToolbarButtonNotSelected('Italic');
+            await editor.clickMainToolbarButton('Italic');
             await wait.timeout(300);
 
-            await editor.assertToolbarButtonSelected('Italic');
+            await editor.assertMainToolbarButtonSelected('Italic');
             await editor.press('ArrowUp');
             await wait.timeout();
 
-            await editor.assertToolbarButtonNotSelected('Italic');
+            await editor.assertMainToolbarButtonNotSelected('Italic');
         });
 
         test('should add mark to selected text via context toolbar @wysiwyg', async ({
@@ -142,7 +142,7 @@ test.describe('Italic', () => {
             wait,
         }) => {
             await editor.switchMode('wysiwyg');
-            await editor.assertToolbarButtonNotSelected('Italic');
+            await editor.assertMainToolbarButtonNotSelected('Italic');
 
             await editor.focus();
             await editor.press('ArrowDown');
@@ -153,15 +153,15 @@ test.describe('Italic', () => {
 
             await editor.selectTextIn('p:nth-child(2)');
 
-            await editor.assertToolbarButtonNotSelected('Italic');
-            await editor.assertToolbarButtonNotSelected('Italic', true);
-            await editor.clickToolbarButton('Italic', true);
+            await editor.assertMainToolbarButtonNotSelected('Italic');
+            await editor.assertMainToolbarButtonNotSelected('Italic', true);
+            await editor.clickMainToolbarButton('Italic', true);
             await wait.timeout(300);
 
-            await editor.assertToolbarButtonSelected('Italic');
+            await editor.assertMainToolbarButtonSelected('Italic');
             await editor.press('ArrowUp');
 
-            await editor.assertToolbarButtonNotSelected('Italic');
+            await editor.assertMainToolbarButtonNotSelected('Italic');
         });
 
         test('should delete mark to selected text via toolbar @wysiwyg', async ({editor, wait}) => {
@@ -175,11 +175,11 @@ test.describe('Italic', () => {
             await wait.timeout();
 
             await editor.selectTextIn('p:nth-child(2)');
-            await editor.assertToolbarButtonSelected('Italic');
+            await editor.assertMainToolbarButtonSelected('Italic');
 
-            await editor.clickToolbarButton('Italic');
+            await editor.clickMainToolbarButton('Italic');
             await wait.timeout();
-            await editor.assertToolbarButtonNotSelected('Italic');
+            await editor.assertMainToolbarButtonNotSelected('Italic');
         });
     });
 });

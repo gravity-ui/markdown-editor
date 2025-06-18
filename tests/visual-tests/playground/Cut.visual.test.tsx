@@ -37,22 +37,22 @@ test.describe('Cut', () => {
             await editor.clearContent();
             await editor.switchMode('wysiwyg');
 
-            await editor.clickToolbarMoreActionButton();
-            await editor.clickToolbarButton('Cut', true);
+            await editor.clickMainToolbarMoreActionButton();
+            await editor.clickAdditionalToolbarButton('Cut');
 
-            await editor.clickToolbarMoreActionButton();
-            await editor.assertToolbarButtonDisabled('Cut', true);
+            await editor.clickMainToolbarMoreActionButton();
+            await editor.assertSelectionToolbarButtonDisabled('Cut');
 
             await editor.press('ArrowDown');
             await wait.timeout();
             await editor.press('ArrowDown');
 
-            await editor.assertToolbarButtonDisabled('Cut', true);
+            await editor.assertSelectionToolbarButtonDisabled('Cut');
 
             await editor.press('Enter');
             await wait.timeout();
 
-            await editor.assertToolbarButtonEnabled('Cut', true);
+            await editor.assertSelectionToolbarButtonEnabled('Cut');
         });
 
         test('should insert via command menu @wysiwyg', async ({page, editor, actions, wait}) => {
@@ -106,8 +106,8 @@ test.describe('Cut', () => {
             await editor.switchMode('markup');
             await editor.clearContent();
 
-            await editor.clickToolbarMoreActionButton();
-            await editor.clickToolbarButton('Cut', true);
+            await editor.clickMainToolbarMoreActionButton();
+            await editor.clickAdditionalToolbarButton('Cut');
 
             await expect(editor.getByTextInContenteditable('{% cut "title" %}')).toBeVisible();
         });

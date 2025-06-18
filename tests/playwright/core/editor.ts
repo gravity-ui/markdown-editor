@@ -209,48 +209,51 @@ export class MarkdownEditorPage {
     }
 
     /**
-     * Asserts that the toolbar button is disabled.
+     * Asserts that the main toolbar button is disabled.
      */
-    async assertToolbarButtonDisabled(label: string, inPopup = false) {
-        const root = inPopup ? this.page.locator('.g-popup.g-popup_open') : this.locators.editor;
-        const button = root.getByLabel(label);
+    async assertMainToolbarButtonDisabled(label: string) {
+        const button = this.locators.toolbars.main.getByLabel(label);
         await this.expect(button).toHaveClass(/disabled/);
     }
 
     /**
-     * Asserts that the toolbar button is enabled.
+     * Asserts that the main toolbar button is disabled.
      */
-    async assertToolbarButtonEnabled(label: string, inPopup = false) {
-        const root = inPopup ? this.page.locator('.g-popup.g-popup_open') : this.locators.editor;
-        const button = root.getByLabel(label);
+    async assertSelectionToolbarButtonDisabled(label: string) {
+        const button = this.locators.toolbars.selection.getByLabel(label);
+        await this.expect(button).toHaveClass(/disabled/);
+    }
+
+    /**
+     * Asserts that the main toolbar button is enabled.
+     */
+    async assertMainToolbarButtonEnabled(label: string) {
+        const button = this.locators.toolbars.main.getByLabel(label);
         await this.expect(button).not.toHaveClass(/disabled/);
     }
 
     /**
-     * Asserts that the toolbar button is selected.
+     * Asserts that the main toolbar button is enabled.
      */
-    async assertToolbarButtonSelected(label: string, inPopup = false) {
-        const root = inPopup ? this.page.locator('.g-popup.g-popup_open') : this.locators.editor;
-        const button = root.getByLabel(label);
+    async assertSelectionToolbarButtonEnabled(label: string) {
+        const button = this.locators.toolbars.selection.getByLabel(label);
+        await this.expect(button).not.toHaveClass(/disabled/);
+    }
+
+    /**
+     * Asserts that the main toolbar button is selected.
+     */
+    async assertMainToolbarButtonSelected(label: string) {
+        const button = this.locators.toolbars.main.getByLabel(label);
         await this.expect(button).toHaveClass(/selected/);
     }
 
     /**
-     * Asserts that the toolbar button is not selected.
+     * Asserts that the main toolbar button is not selected.
      */
-    async assertToolbarButtonNotSelected(label: string, inPopup = false) {
-        const root = inPopup ? this.page.locator('.g-popup.g-popup_open') : this.locators.editor;
-        const button = root.getByLabel(label);
+    async assertMainToolbarButtonNotSelected(label: string) {
+        const button = this.locators.toolbars.main.getByLabel(label);
         await this.expect(button).not.toHaveClass(/selected/);
-    }
-
-    /**
-     * Asserts that the toolbar color button has the "default" qa attribute.
-     */
-    async assertToolbarColorButtonDefault(inPopup = false) {
-        const root = inPopup ? this.page.locator('.g-popup.g-popup_open') : this.locators.editor;
-        const button = root.getByLabel('Text color');
-        await this.expect(button).toHaveAttribute('data-qa', /colors-default/);
     }
 
     /**
@@ -260,24 +263,6 @@ export class MarkdownEditorPage {
         const button = this.page.getByTestId('md-toolbar-text-select');
         const text = await button.locator('span').innerText();
         await this.expect(text).toBe('Text');
-    }
-
-    /**
-     * Asserts that the Text Select toolbar button does not display "Text".
-     */
-    async assertTextSelectToolbarIsNotText() {
-        const button = this.page.getByTestId('md-toolbar-text-select');
-        const text = await button.locator('span').innerText();
-        await this.expect(text).not.toBe('Text');
-    }
-
-    /**
-     * Asserts that the toolbar color button does not have the "default" qa attribute.
-     */
-    async assertToolbarColorButtonNotDefault(inPopup = false) {
-        const root = inPopup ? this.page.locator('.g-popup.g-popup_open') : this.locators.editor;
-        const button = root.getByLabel('Text color');
-        await this.expect(button).not.toHaveAttribute('data-qa', /colors-default/);
     }
 
     /**
@@ -389,14 +374,14 @@ export class MarkdownEditorPage {
     /**
      * Clicks the "more actions" button on the toolbar
      */
-    async clickToolbarMoreActionButton() {
+    async clickMainToolbarMoreActionButton() {
         await this.locators.toolbarMoreActionButton.click();
     }
 
     async openToolbarMoreMenu() {
         const visible = await this.locators.toolbars.additional.isVisible();
         if (!visible) {
-            await this.clickToolbarMoreActionButton();
+            await this.clickMainToolbarMoreActionButton();
             await this.locators.toolbars.additional.waitFor({state: 'visible'});
         }
     }
@@ -404,7 +389,7 @@ export class MarkdownEditorPage {
     async hideToolbarMoreMenu() {
         const visible = await this.locators.toolbars.additional.isVisible();
         if (visible) {
-            await this.clickToolbarMoreActionButton();
+            await this.clickMainToolbarMoreActionButton();
             await this.locators.toolbars.additional.waitFor({state: 'hidden'});
         }
     }
@@ -419,18 +404,27 @@ export class MarkdownEditorPage {
     }
 
     /**
-     * Clicks a toolbar button using its aria-label.
-     * @param label - The aria-label of the button.
-     * @param inPopup - If true, only search within open popups; otherwise, search the main editor toolbar.
+     * Clicks a main toolbar button using its aria-label.
      */
-    async clickToolbarButton(label: string, inPopup = false) {
-        const root = inPopup ? this.page.locator('.g-popup.g-popup_open') : this.locators.editor;
-        const button = root.getByLabel(label);
+    async clickMainToolbarButton(label: string) {
+        const button = this.locators.toolbars.main.getByLabel(label);
 
         await this.expect(button).toBeEnabled();
         await button.click();
 
-        if (inPopup) await this.locators.toolbars.additional.waitFor({state: 'detached'});
+        // if (inPopup) await this.locators.toolbars.additional.waitFor({state: 'detached'});
+    }
+
+    /**
+     * Clicks a additional toolbar button using its aria-label.
+     */
+    async clickAdditionalToolbarButton(label: string) {
+        const button = this.locators.toolbars.main.getByLabel(label);
+
+        await this.expect(button).toBeEnabled();
+        await button.click();
+
+        await this.locators.toolbars.additional.waitFor({state: 'detached'});
     }
 
     /**

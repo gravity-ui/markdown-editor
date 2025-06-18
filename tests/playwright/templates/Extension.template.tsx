@@ -22,7 +22,7 @@ test.describe('%%name%%', () => {
             await editor.switchMode('wysiwyg');
             await editor.clearContent();
 
-            await editor.clickToolbarButton('/* TODO: extension name */');
+            await editor.clickMainToolbarButton('/* TODO: extension name */');
             await wait.timeout();
 
             /* TODO: write test */
@@ -83,7 +83,7 @@ test.describe('%%name%%', () => {
         test.skip('should insert via toolbar @markup', async ({editor, wait}) => {
             /* TODO: unskip */
             await editor.switchMode('markup');
-            await editor.clickToolbarButton('/* TODO: extension name */');
+            await editor.clickMainToolbarButton('/* TODO: extension name */');
             await wait.timeout();
 
             /* TODO: write test */

@@ -27,12 +27,12 @@ test.describe('Note', () => {
             await editor.clearContent();
             await editor.switchMode('wysiwyg');
 
-            await editor.clickToolbarMoreActionButton();
-            await editor.clickToolbarButton('Note', true);
+            await editor.clickMainToolbarMoreActionButton();
+            await editor.clickAdditionalToolbarButton('Note');
             await wait.timeout();
 
-            await editor.clickToolbarMoreActionButton();
-            await editor.assertToolbarButtonEnabled('Note', true);
+            await editor.clickMainToolbarMoreActionButton();
+            await editor.assertSelectionToolbarButtonEnabled('Note');
 
             await editor.focus();
             await wait.timeout();
@@ -41,8 +41,8 @@ test.describe('Note', () => {
             await editor.press('ArrowUp');
             await editor.press('ArrowUp');
 
-            await editor.clickToolbarMoreActionButton();
-            await editor.assertToolbarButtonDisabled('Note', true);
+            await editor.clickMainToolbarMoreActionButton();
+            await editor.assertSelectionToolbarButtonDisabled('Note');
         });
 
         test('should insert via command menu @wysiwyg', async ({page, editor, actions, wait}) => {
@@ -90,8 +90,8 @@ test.describe('Note', () => {
             await editor.switchMode('markup');
             await editor.clearContent();
 
-            await editor.clickToolbarMoreActionButton();
-            await editor.clickToolbarButton('Note', true);
+            await editor.clickMainToolbarMoreActionButton();
+            await editor.clickAdditionalToolbarButton('Note');
 
             await expect(editor.getByTextInContenteditable('{% note info %}')).toBeVisible();
         });
@@ -159,10 +159,10 @@ test.describe('Note', () => {
             const nestedNote = page.getByText('Nested note title').first().locator('..');
             await wait.visible(nestedNote);
 
-            await editor.clickToolbarButton('Note', true);
+            await editor.clickAdditionalToolbarButton('Note');
             await wait.timeout(500);
 
-            await editor.clickToolbarButton('Alert', true);
+            await editor.clickAdditionalToolbarButton('Alert');
             await wait.timeout(500);
 
             // TODO: investigate why the icon hover color looks incorrect in the screenshot
@@ -179,7 +179,7 @@ test.describe('Note', () => {
             });
             await wait.timeout();
 
-            await editor.clickToolbarButton('Note', true);
+            await editor.clickAdditionalToolbarButton('Note');
             await wait.timeout(500);
 
             await expectScreenshot({nameSuffix: 'parent-note-is-info'});

@@ -17,28 +17,28 @@ test.describe('Headings', () => {
     test.describe('mark', () => {
         test('should mark via toolbar @wysiwyg', async ({editor, wait}) => {
             await editor.switchMode('wysiwyg');
-            await editor.assertToolbarButtonNotSelected('Heading');
+            await editor.assertMainToolbarButtonNotSelected('Heading');
 
             await editor.focus();
             await editor.press('ArrowDown');
             await editor.press('Enter');
 
-            await editor.clickToolbarButton('Heading');
+            await editor.clickMainToolbarButton('Heading');
             await wait.timeout();
 
-            await editor.clickToolbarButton('Heading 2', true);
+            await editor.clickMainToolbarButton('Heading 2', true);
             await wait.timeout();
 
             await editor.pressSequentially('next');
-            await editor.assertToolbarButtonSelected('Heading');
+            await editor.assertMainToolbarButtonSelected('Heading');
 
             await editor.press('ArrowUp');
-            await editor.assertToolbarButtonNotSelected('Heading');
+            await editor.assertMainToolbarButtonNotSelected('Heading');
         });
 
         test('should mark via input rule @wysiwyg', async ({editor, wait}) => {
             await editor.switchMode('wysiwyg');
-            await editor.assertToolbarButtonNotSelected('Heading');
+            await editor.assertMainToolbarButtonNotSelected('Heading');
 
             await editor.focus();
             await editor.press('ArrowDown');
@@ -48,10 +48,10 @@ test.describe('Headings', () => {
             await wait.timeout();
             await editor.press('ArrowLeft');
 
-            await editor.assertToolbarButtonSelected('Heading');
+            await editor.assertMainToolbarButtonSelected('Heading');
 
             await editor.press('ArrowUp');
-            await editor.assertToolbarButtonNotSelected('Heading');
+            await editor.assertMainToolbarButtonNotSelected('Heading');
         });
 
         test('should mark via toolbar @markup', async ({editor, wait}) => {
@@ -61,10 +61,10 @@ test.describe('Headings', () => {
             await editor.press('ArrowDown');
             await editor.press('Enter');
 
-            await editor.clickToolbarButton('Heading');
+            await editor.clickMainToolbarButton('Heading');
             await wait.timeout();
 
-            await editor.clickToolbarButton('Heading 2', true);
+            await editor.clickMainToolbarButton('Heading 2', true);
             await wait.timeout();
 
             await editor.pressSequentially('next');
@@ -88,17 +88,17 @@ test.describe('Headings', () => {
             await editor.press('ArrowDown');
             await wait.timeout();
 
-            await editor.assertToolbarButtonSelected('Heading');
+            await editor.assertMainToolbarButtonSelected('Heading');
 
             await editor.press('ArrowUp');
-            await editor.assertToolbarButtonNotSelected('Heading');
+            await editor.assertMainToolbarButtonNotSelected('Heading');
         });
     });
 
     test.describe('interaction', () => {
         test('should add mark to selected text via toolbar @wysiwyg', async ({editor, wait}) => {
             await editor.switchMode('wysiwyg');
-            await editor.assertToolbarButtonNotSelected('Heading');
+            await editor.assertMainToolbarButtonNotSelected('Heading');
 
             await editor.focus();
             await editor.press('ArrowDown');
@@ -109,18 +109,18 @@ test.describe('Headings', () => {
 
             await editor.selectTextIn('p:nth-child(2)');
 
-            await editor.assertToolbarButtonNotSelected('Heading');
-            await editor.clickToolbarButton('Heading');
+            await editor.assertMainToolbarButtonNotSelected('Heading');
+            await editor.clickMainToolbarButton('Heading');
             await wait.timeout();
 
-            await editor.clickToolbarButton('Heading 2', true);
+            await editor.clickMainToolbarButton('Heading 2', true);
             await wait.timeout(300);
 
-            await editor.assertToolbarButtonSelected('Heading');
+            await editor.assertMainToolbarButtonSelected('Heading');
             await editor.press('ArrowUp');
             await wait.timeout();
 
-            await editor.assertToolbarButtonNotSelected('Heading');
+            await editor.assertMainToolbarButtonNotSelected('Heading');
         });
 
         test('should add mark to selected text via context toolbar @wysiwyg', async ({
@@ -128,7 +128,7 @@ test.describe('Headings', () => {
             wait,
         }) => {
             await editor.switchMode('wysiwyg');
-            await editor.assertToolbarButtonNotSelected('Heading');
+            await editor.assertMainToolbarButtonNotSelected('Heading');
 
             await editor.focus();
             await editor.press('ArrowDown');
@@ -139,18 +139,18 @@ test.describe('Headings', () => {
 
             await editor.selectTextIn('p:nth-child(2)');
 
-            await editor.assertToolbarButtonNotSelected('Heading');
+            await editor.assertMainToolbarButtonNotSelected('Heading');
             await editor.assertTextSelectToolbarIsText();
             await editor.clickToolbarTextSelect();
             await wait.timeout();
 
-            await editor.clickToolbarButton('Heading 2', true);
+            await editor.clickMainToolbarButton('Heading 2', true);
             await wait.timeout(300);
 
-            await editor.assertToolbarButtonSelected('Heading');
+            await editor.assertMainToolbarButtonSelected('Heading');
             await editor.press('ArrowUp');
 
-            await editor.assertToolbarButtonNotSelected('Heading');
+            await editor.assertMainToolbarButtonNotSelected('Heading');
         });
 
         test('should delete mark to selected text via toolbar @wysiwyg', async ({editor, wait}) => {
@@ -165,15 +165,15 @@ test.describe('Headings', () => {
             await wait.timeout(300);
 
             await editor.selectTextIn('h2');
-            await editor.assertToolbarButtonSelected('Heading');
+            await editor.assertMainToolbarButtonSelected('Heading');
 
-            await editor.clickToolbarButton('Heading');
+            await editor.clickMainToolbarButton('Heading');
             await wait.timeout();
 
-            await editor.clickToolbarButton('Text', true);
+            await editor.clickMainToolbarButton('Text', true);
             await wait.timeout();
 
-            await editor.assertToolbarButtonNotSelected('Heading');
+            await editor.assertMainToolbarButtonNotSelected('Heading');
         });
     });
 });

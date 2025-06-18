@@ -17,28 +17,28 @@ test.describe('Bullet lists', () => {
     test.describe('insert', () => {
         test('should insert via toolbar @wysiwyg', async ({editor, wait}) => {
             await editor.switchMode('wysiwyg');
-            await editor.assertToolbarButtonNotSelected('List');
+            await editor.assertMainToolbarButtonNotSelected('List');
 
             await editor.focus();
             await editor.press('ArrowDown');
             await editor.press('Enter');
 
-            await editor.clickToolbarButton('List');
+            await editor.clickMainToolbarButton('List');
             await wait.timeout();
 
-            await editor.clickToolbarButton('Bullet list', true);
+            await editor.clickMainToolbarButton('Bullet list', true);
             await wait.timeout();
 
             await editor.pressSequentially('next');
-            await editor.assertToolbarButtonSelected('List');
+            await editor.assertMainToolbarButtonSelected('List');
 
             await editor.press('ArrowUp');
-            await editor.assertToolbarButtonNotSelected('List');
+            await editor.assertMainToolbarButtonNotSelected('List');
         });
 
         test('should insert via input rule @wysiwyg', async ({editor, wait}) => {
             await editor.switchMode('wysiwyg');
-            await editor.assertToolbarButtonNotSelected('List');
+            await editor.assertMainToolbarButtonNotSelected('List');
 
             await editor.focus();
             await editor.press('ArrowDown');
@@ -48,10 +48,10 @@ test.describe('Bullet lists', () => {
             await wait.timeout();
             await editor.press('ArrowLeft');
 
-            await editor.assertToolbarButtonSelected('List');
+            await editor.assertMainToolbarButtonSelected('List');
 
             await editor.press('ArrowUp');
-            await editor.assertToolbarButtonNotSelected('List');
+            await editor.assertMainToolbarButtonNotSelected('List');
         });
 
         test('should insert via toolbar @markup', async ({editor, wait}) => {
@@ -61,10 +61,10 @@ test.describe('Bullet lists', () => {
             await editor.press('ArrowDown');
             await editor.press('Enter');
 
-            await editor.clickToolbarButton('List');
+            await editor.clickMainToolbarButton('List');
             await wait.timeout();
 
-            await editor.clickToolbarButton('Bullet list', true);
+            await editor.clickMainToolbarButton('Bullet list', true);
             await wait.timeout();
 
             await editor.pressSequentially('next');
@@ -87,17 +87,17 @@ test.describe('Bullet lists', () => {
             await editor.focus();
             await wait.timeout();
 
-            await editor.assertToolbarButtonSelected('List');
+            await editor.assertMainToolbarButtonSelected('List');
 
             await editor.press('ArrowUp');
-            await editor.assertToolbarButtonNotSelected('List');
+            await editor.assertMainToolbarButtonNotSelected('List');
         });
     });
 
     test.describe('interaction', () => {
         test('should add insert to selected text via toolbar @wysiwyg', async ({editor, wait}) => {
             await editor.switchMode('wysiwyg');
-            await editor.assertToolbarButtonNotSelected('List');
+            await editor.assertMainToolbarButtonNotSelected('List');
 
             await editor.focus();
             await editor.press('ArrowDown');
@@ -108,18 +108,18 @@ test.describe('Bullet lists', () => {
 
             await editor.selectTextIn('p:nth-child(2)');
 
-            await editor.assertToolbarButtonNotSelected('List');
-            await editor.clickToolbarButton('List');
+            await editor.assertMainToolbarButtonNotSelected('List');
+            await editor.clickMainToolbarButton('List');
             await wait.timeout();
 
-            await editor.clickToolbarButton('Bullet list', true);
+            await editor.clickMainToolbarButton('Bullet list', true);
             await wait.timeout(300);
 
-            await editor.assertToolbarButtonSelected('List');
+            await editor.assertMainToolbarButtonSelected('List');
             await editor.press('ArrowUp');
             await wait.timeout();
 
-            await editor.assertToolbarButtonNotSelected('List');
+            await editor.assertMainToolbarButtonNotSelected('List');
         });
     });
 });
@@ -137,28 +137,28 @@ test.describe('Ordered lists', () => {
     test.describe('insert', () => {
         test('should insert via toolbar @wysiwyg', async ({editor, wait}) => {
             await editor.switchMode('wysiwyg');
-            await editor.assertToolbarButtonNotSelected('List');
+            await editor.assertMainToolbarButtonNotSelected('List');
 
             await editor.focus();
             await editor.press('ArrowDown');
             await editor.press('Enter');
 
-            await editor.clickToolbarButton('List');
+            await editor.clickMainToolbarButton('List');
             await wait.timeout();
 
-            await editor.clickToolbarButton('Ordered list', true);
+            await editor.clickMainToolbarButton('Ordered list', true);
             await wait.timeout();
 
             await editor.pressSequentially('next');
-            await editor.assertToolbarButtonSelected('List');
+            await editor.assertMainToolbarButtonSelected('List');
 
             await editor.press('ArrowUp');
-            await editor.assertToolbarButtonNotSelected('List');
+            await editor.assertMainToolbarButtonNotSelected('List');
         });
 
         test('should insert via input rule @wysiwyg', async ({editor, wait}) => {
             await editor.switchMode('wysiwyg');
-            await editor.assertToolbarButtonNotSelected('List');
+            await editor.assertMainToolbarButtonNotSelected('List');
 
             await editor.focus();
             await editor.press('ArrowDown');
@@ -168,10 +168,10 @@ test.describe('Ordered lists', () => {
             await wait.timeout();
             await editor.press('ArrowLeft');
 
-            await editor.assertToolbarButtonSelected('List');
+            await editor.assertMainToolbarButtonSelected('List');
 
             await editor.press('ArrowUp');
-            await editor.assertToolbarButtonNotSelected('List');
+            await editor.assertMainToolbarButtonNotSelected('List');
         });
 
         test('should insert via toolbar @markup', async ({editor, wait}) => {
@@ -181,10 +181,10 @@ test.describe('Ordered lists', () => {
             await editor.press('ArrowDown');
             await editor.press('Enter');
 
-            await editor.clickToolbarButton('List');
+            await editor.clickMainToolbarButton('List');
             await wait.timeout();
 
-            await editor.clickToolbarButton('Ordered list', true);
+            await editor.clickMainToolbarButton('Ordered list', true);
             await wait.timeout();
 
             await editor.pressSequentially('next');
@@ -207,17 +207,17 @@ test.describe('Ordered lists', () => {
             await editor.focus();
             await wait.timeout();
 
-            await editor.assertToolbarButtonSelected('List');
+            await editor.assertMainToolbarButtonSelected('List');
 
             await editor.press('ArrowUp');
-            await editor.assertToolbarButtonNotSelected('List');
+            await editor.assertMainToolbarButtonNotSelected('List');
         });
     });
 
     test.describe('interaction', () => {
         test('should add insert to selected text via toolbar @wysiwyg', async ({editor, wait}) => {
             await editor.switchMode('wysiwyg');
-            await editor.assertToolbarButtonNotSelected('List');
+            await editor.assertMainToolbarButtonNotSelected('List');
 
             await editor.focus();
             await editor.press('ArrowDown');
@@ -228,18 +228,18 @@ test.describe('Ordered lists', () => {
 
             await editor.selectTextIn('p:nth-child(2)');
 
-            await editor.assertToolbarButtonNotSelected('List');
-            await editor.clickToolbarButton('List');
+            await editor.assertMainToolbarButtonNotSelected('List');
+            await editor.clickMainToolbarButton('List');
             await wait.timeout();
 
-            await editor.clickToolbarButton('Ordered list', true);
+            await editor.clickMainToolbarButton('Ordered list', true);
             await wait.timeout(300);
 
-            await editor.assertToolbarButtonSelected('List');
+            await editor.assertMainToolbarButtonSelected('List');
             await editor.press('ArrowUp');
             await wait.timeout();
 
-            await editor.assertToolbarButtonNotSelected('List');
+            await editor.assertMainToolbarButtonNotSelected('List');
         });
     });
 });

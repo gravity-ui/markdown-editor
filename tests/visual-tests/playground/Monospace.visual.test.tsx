@@ -16,25 +16,25 @@ test.describe('Monospace', () => {
     test.describe('mark', () => {
         test('should mark via toolbar @wysiwyg', async ({editor, wait}) => {
             await editor.switchMode('wysiwyg');
-            await editor.assertToolbarButtonNotSelected('Monospace');
+            await editor.assertMainToolbarButtonNotSelected('Monospace');
 
             await editor.focus();
             await editor.press('ArrowDown');
             await editor.press('Enter');
 
-            await editor.clickToolbarButton('Monospace');
+            await editor.clickMainToolbarButton('Monospace');
             await wait.timeout();
 
             await editor.pressSequentially('next');
-            await editor.assertToolbarButtonSelected('Monospace');
+            await editor.assertMainToolbarButtonSelected('Monospace');
 
             await editor.press('ArrowUp');
-            await editor.assertToolbarButtonNotSelected('Monospace');
+            await editor.assertMainToolbarButtonNotSelected('Monospace');
         });
 
         test('should mark via input rule @wysiwyg', async ({editor, wait}) => {
             await editor.switchMode('wysiwyg');
-            await editor.assertToolbarButtonNotSelected('Monospace');
+            await editor.assertMainToolbarButtonNotSelected('Monospace');
 
             await editor.focus();
             await editor.press('ArrowDown');
@@ -44,10 +44,10 @@ test.describe('Monospace', () => {
             await wait.timeout();
             await editor.press('ArrowLeft');
 
-            await editor.assertToolbarButtonSelected('Monospace');
+            await editor.assertMainToolbarButtonSelected('Monospace');
 
             await editor.press('ArrowUp');
-            await editor.assertToolbarButtonNotSelected('Monospace');
+            await editor.assertMainToolbarButtonNotSelected('Monospace');
         });
 
         test('should mark via toolbar @markup', async ({editor, wait}) => {
@@ -57,7 +57,7 @@ test.describe('Monospace', () => {
             await editor.press('ArrowDown');
             await editor.press('Enter');
 
-            await editor.clickToolbarButton('Monospace');
+            await editor.clickMainToolbarButton('Monospace');
             await wait.timeout();
             await editor.pressSequentially('next');
 
@@ -80,10 +80,10 @@ test.describe('Monospace', () => {
             await editor.press('ArrowDown');
             await wait.timeout();
 
-            await editor.assertToolbarButtonSelected('Monospace');
+            await editor.assertMainToolbarButtonSelected('Monospace');
 
             await editor.press('ArrowUp');
-            await editor.assertToolbarButtonNotSelected('Monospace');
+            await editor.assertMainToolbarButtonNotSelected('Monospace');
 
             await editor.switchMode('markup');
         });
@@ -92,7 +92,7 @@ test.describe('Monospace', () => {
     test.describe('interaction', () => {
         test('should add mark to selected text via toolbar @wysiwyg', async ({editor, wait}) => {
             await editor.switchMode('wysiwyg');
-            await editor.assertToolbarButtonNotSelected('Monospace');
+            await editor.assertMainToolbarButtonNotSelected('Monospace');
 
             await editor.focus();
             await editor.press('ArrowDown');
@@ -103,15 +103,15 @@ test.describe('Monospace', () => {
 
             await editor.selectTextIn('p:nth-child(2)');
 
-            await editor.assertToolbarButtonNotSelected('Monospace');
-            await editor.clickToolbarButton('Monospace');
+            await editor.assertMainToolbarButtonNotSelected('Monospace');
+            await editor.clickMainToolbarButton('Monospace');
             await wait.timeout(300);
 
-            await editor.assertToolbarButtonSelected('Monospace');
+            await editor.assertMainToolbarButtonSelected('Monospace');
             await editor.press('ArrowUp');
             await wait.timeout();
 
-            await editor.assertToolbarButtonNotSelected('Monospace');
+            await editor.assertMainToolbarButtonNotSelected('Monospace');
         });
 
         test('should add mark to selected text via context toolbar @wysiwyg', async ({
@@ -119,7 +119,7 @@ test.describe('Monospace', () => {
             wait,
         }) => {
             await editor.switchMode('wysiwyg');
-            await editor.assertToolbarButtonNotSelected('Monospace');
+            await editor.assertMainToolbarButtonNotSelected('Monospace');
 
             await editor.focus();
             await editor.press('ArrowDown');
@@ -130,15 +130,15 @@ test.describe('Monospace', () => {
 
             await editor.selectTextIn('p:nth-child(2)');
 
-            await editor.assertToolbarButtonNotSelected('Monospace');
-            await editor.assertToolbarButtonNotSelected('Monospace', true);
-            await editor.clickToolbarButton('Monospace', true);
+            await editor.assertMainToolbarButtonNotSelected('Monospace');
+            await editor.assertMainToolbarButtonNotSelected('Monospace', true);
+            await editor.clickMainToolbarButton('Monospace', true);
             await wait.timeout(300);
 
-            await editor.assertToolbarButtonSelected('Monospace');
+            await editor.assertMainToolbarButtonSelected('Monospace');
             await editor.press('ArrowUp');
 
-            await editor.assertToolbarButtonNotSelected('Monospace');
+            await editor.assertMainToolbarButtonNotSelected('Monospace');
         });
 
         test('should delete mark to selected text via toolbar @wysiwyg', async ({editor, wait}) => {
@@ -152,11 +152,11 @@ test.describe('Monospace', () => {
             await wait.timeout();
 
             await editor.selectTextIn('p:nth-child(2)');
-            await editor.assertToolbarButtonSelected('Monospace');
+            await editor.assertMainToolbarButtonSelected('Monospace');
 
-            await editor.clickToolbarButton('Monospace');
+            await editor.clickMainToolbarButton('Monospace');
             await wait.timeout();
-            await editor.assertToolbarButtonNotSelected('Monospace');
+            await editor.assertMainToolbarButtonNotSelected('Monospace');
         });
     });
 });

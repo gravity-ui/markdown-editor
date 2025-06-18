@@ -23,10 +23,10 @@ test.describe('Colorify', () => {
             await editor.press('ArrowDown');
             await editor.press('Enter');
 
-            await editor.clickToolbarButton('Text color');
+            await editor.clickMainToolbarButton('Text color');
             await wait.timeout();
 
-            await editor.clickToolbarButton('Yellow', true);
+            await editor.clickMainToolbarButton('Yellow', true);
             await wait.timeout();
 
             await editor.pressSequentially('next');
@@ -43,10 +43,10 @@ test.describe('Colorify', () => {
             await editor.press('ArrowDown');
             await editor.press('Enter');
 
-            await editor.clickToolbarButton('Text color');
+            await editor.clickMainToolbarButton('Text color');
             await wait.timeout();
 
-            await editor.clickToolbarButton('Yellow', true);
+            await editor.clickMainToolbarButton('Yellow', true);
             await wait.timeout();
 
             await editor.pressSequentially('next');
@@ -94,10 +94,10 @@ test.describe('Colorify', () => {
             await editor.selectTextIn('p:nth-child(2)');
 
             await editor.colorify.assertMainToolbarColorButtonDefault();
-            await editor.clickToolbarButton('Text color');
+            await editor.clickMainToolbarButton('Text color');
             await wait.timeout();
 
-            await editor.clickToolbarButton('Yellow', true);
+            await editor.clickMainToolbarButton('Yellow', true);
             await wait.timeout(300);
 
             await editor.colorify.assertMainToolbarColorButtonNotDefault();
@@ -125,10 +125,10 @@ test.describe('Colorify', () => {
 
             await editor.colorify.assertMainToolbarColorButtonDefault();
             await editor.colorify.assertSelectionToolbarColorButtonDefault();
-            await editor.clickToolbarButton('Text color', true);
+            await editor.clickMainToolbarButton('Text color', true);
             await wait.timeout();
 
-            await editor.clickToolbarButton('Yellow', true);
+            await editor.clickMainToolbarButton('Yellow', true);
             await wait.timeout(300);
 
             await editor.colorify.assertMainToolbarColorButtonNotDefault();
@@ -151,10 +151,10 @@ test.describe('Colorify', () => {
             await editor.selectTextIn('.yfm-colorify');
             await editor.colorify.assertMainToolbarColorButtonNotDefault();
 
-            await editor.clickToolbarButton('Text color');
+            await editor.clickMainToolbarButton('Text color');
             await wait.timeout();
 
-            await editor.clickToolbarButton('Yellow', true);
+            await editor.clickMainToolbarButton('Yellow', true);
             await wait.timeout();
 
             await editor.colorify.assertMainToolbarColorButtonDefault();
@@ -170,26 +170,26 @@ test.describe('Colorify', () => {
             await editor.press('ArrowDown');
             await editor.press('Enter');
 
-            await editor.clickToolbarButton('Text color');
+            await editor.clickMainToolbarButton('Text color');
             await wait.timeout();
 
-            await editor.clickToolbarButton('Yellow', true);
+            await editor.clickMainToolbarButton('Yellow', true);
             await wait.timeout();
 
             await editor.pressSequentially('some(');
 
-            await editor.clickToolbarButton('Text color');
+            await editor.clickMainToolbarButton('Text color');
             await wait.timeout();
 
-            await editor.clickToolbarButton('Red', true);
+            await editor.clickMainToolbarButton('Red', true);
             await wait.timeout();
 
             await editor.pressSequentially('2, 3');
 
-            await editor.clickToolbarButton('Text color');
+            await editor.clickMainToolbarButton('Text color');
             await wait.timeout();
 
-            await editor.clickToolbarButton('Yellow', true);
+            await editor.clickMainToolbarButton('Yellow', true);
             await wait.timeout();
 
             await editor.pressSequentially(')');

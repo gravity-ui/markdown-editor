@@ -19,7 +19,7 @@ test.describe('Link', () => {
         test.skip(browserName === 'webkit', 'fillFocused does not work correctly in webkit');
 
         await editor.switchMode('wysiwyg');
-        await editor.clickToolbarMoreActionButton();
+        await editor.clickMainToolbarMoreActionButton();
 
         const linkButton = page.getByText('Link');
         await wait.visible(linkButton);

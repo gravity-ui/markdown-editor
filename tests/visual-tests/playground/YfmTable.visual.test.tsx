@@ -23,12 +23,12 @@ test.describe('YfmTable', () => {
             await editor.switchMode('wysiwyg');
 
             await editor.openToolbarMoreMenu();
-            await editor.clickToolbarButton('Table', true);
+            await editor.clickMainToolbarButton('Table', true);
 
             await tableLocator.waitFor({state: 'visible'});
 
-            await editor.clickToolbarMoreActionButton();
-            await editor.assertToolbarButtonEnabled('Table', true);
+            await editor.clickMainToolbarMoreActionButton();
+            await editor.assertMainToolbarButtonEnabled('Table', true);
             await editor.hideToolbarMoreMenu();
 
             await page.mouse.move(-50, -50);
@@ -46,10 +46,10 @@ test.describe('YfmTable', () => {
             await editor.switchMode('markup');
 
             await editor.openToolbarMoreMenu();
-            await editor.clickToolbarButton('Table', true);
+            await editor.clickMainToolbarButton('Table', true);
 
             await editor.openToolbarMoreMenu();
-            await editor.assertToolbarButtonEnabled('Table', true);
+            await editor.assertMainToolbarButtonEnabled('Table', true);
             await editor.hideToolbarMoreMenu();
 
             await page.mouse.move(-50, -50);
