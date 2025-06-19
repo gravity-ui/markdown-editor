@@ -519,18 +519,8 @@ export class MarkdownEditorPage {
     /**
      * Clears all content from the contenteditable area
      */
-    async clearContentAndSwitchMode(targetMode: 'markup' | 'wysiwyg') {
-        const mode = await this.getMode();
-
-        if (mode === 'wysiwyg') {
-            await this.switchMode('markup');
-        }
+    async clearContent() {
         await this.fill('');
-        await this.page.waitForTimeout(DEFAULT_DELAY);
-
-        if (targetMode === 'wysiwyg') {
-            await this.switchMode('wysiwyg');
-        }
     }
 
     /**
@@ -591,7 +581,16 @@ export class MarkdownEditorPage {
      * Fills the contenteditable area with the provided text
      */
     async fill(text: string) {
-        this.locators.contenteditable.fill(text);
+        const mode = await this.getMode();
+
+        if (mode === 'wysiwyg') {
+            await this.switchMode('markup');
+        }
+        await this.locators.contenteditable.fill(text);
+        await this.page.waitForTimeout(DEFAULT_DELAY);
+
+        await this.switchMode(mode);
+        await this.page.waitForTimeout(DEFAULT_DELAY);
     }
 
     /**
