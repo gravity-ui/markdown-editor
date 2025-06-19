@@ -5,18 +5,18 @@ import {expect, test} from 'playwright/core';
 import {Playground} from './Playground.helpers';
 
 test.describe('Headings', () => {
-    test.beforeEach(async ({mount, page}) => {
+    test.beforeEach(async ({editor, mount, page}) => {
         const initialMarkup = dd`
          some text
       `;
 
         await mount(<Playground initial={initialMarkup} width="100%" style={{width: 812}} />);
         await page.setViewportSize({height: 500, width: 812});
+        await editor.switchMode('wysiwyg');
     });
 
     test.describe('mark', () => {
         test('should mark via toolbar @wysiwyg', async ({editor, wait}) => {
-            await editor.switchMode('wysiwyg');
             await editor.assertMainToolbarButtonNotSelected('Heading');
 
             await editor.focus();
@@ -34,7 +34,6 @@ test.describe('Headings', () => {
         });
 
         test('should mark via input rule @wysiwyg', async ({editor, wait}) => {
-            await editor.switchMode('wysiwyg');
             await editor.assertMainToolbarButtonNotSelected('Heading');
 
             await editor.focus();
@@ -69,7 +68,8 @@ test.describe('Headings', () => {
 
     test.describe('mode switch', () => {
         test('should remain after mode switch @wysiwyg @markup', async ({editor, wait}) => {
-            await editor.clearContentAndSwitchMode('markup');
+            await editor.switchMode('markup');
+            await editor.clearContent();
 
             const markup = 'some text\n## next';
             await editor.switchMode('markup');
@@ -91,7 +91,6 @@ test.describe('Headings', () => {
 
     test.describe('interaction', () => {
         test('should add mark to selected text via toolbar @wysiwyg', async ({editor, wait}) => {
-            await editor.switchMode('wysiwyg');
             await editor.assertMainToolbarButtonNotSelected('Heading');
 
             await editor.focus();
@@ -118,7 +117,6 @@ test.describe('Headings', () => {
             editor,
             wait,
         }) => {
-            await editor.switchMode('wysiwyg');
             await editor.assertMainToolbarButtonNotSelected('Heading');
 
             await editor.focus();
@@ -143,10 +141,10 @@ test.describe('Headings', () => {
         });
 
         test('should delete mark to selected text via toolbar @wysiwyg', async ({editor, wait}) => {
-            await editor.clearContentAndSwitchMode('markup');
+            await editor.switchMode('markup');
+            await editor.clearContent();
 
             const markup = 'some text\n## next';
-            await editor.switchMode('markup');
             await editor.fill(markup);
             await wait.timeout(300);
 
