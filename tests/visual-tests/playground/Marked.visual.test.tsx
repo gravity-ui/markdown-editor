@@ -5,17 +5,17 @@ import {expect, test} from 'playwright/core';
 import {Playground} from './Playground.helpers';
 
 test.describe('Marked', () => {
-    test.beforeEach(async ({mount}) => {
+    test.beforeEach(async ({editor, mount}) => {
         const initialMarkup = dd`
          some text
       `;
 
         await mount(<Playground initial={initialMarkup} />);
+        await editor.switchMode('wysiwyg');
     });
 
     test.describe('mark', () => {
         test('should mark via toolbar @wysiwyg', async ({editor, wait}) => {
-            await editor.switchMode('wysiwyg');
             await editor.assertMainToolbarButtonNotSelected('Marked');
 
             await editor.focus();
@@ -33,7 +33,6 @@ test.describe('Marked', () => {
         });
 
         test('should mark via input rule @wysiwyg', async ({editor, wait}) => {
-            await editor.switchMode('wysiwyg');
             await editor.assertMainToolbarButtonNotSelected('Marked');
 
             await editor.focus();
@@ -67,7 +66,8 @@ test.describe('Marked', () => {
 
     test.describe('mode switch', () => {
         test('should remain after mode switch @wysiwyg @markup', async ({editor, wait}) => {
-            await editor.clearContentAndSwitchMode('markup');
+            await editor.switchMode('markup');
+            await editor.clearContent();
 
             const markup = 'some text\n==next==';
             await editor.switchMode('markup');
@@ -91,7 +91,6 @@ test.describe('Marked', () => {
 
     test.describe('interaction', () => {
         test('should add mark to selected text via toolbar @wysiwyg', async ({editor, wait}) => {
-            await editor.switchMode('wysiwyg');
             await editor.assertMainToolbarButtonNotSelected('Marked');
 
             await editor.focus();
@@ -118,7 +117,6 @@ test.describe('Marked', () => {
             editor,
             wait,
         }) => {
-            await editor.switchMode('wysiwyg');
             await editor.assertMainToolbarButtonNotSelected('Marked');
 
             await editor.focus();
@@ -143,8 +141,6 @@ test.describe('Marked', () => {
         });
 
         test('should delete mark to selected text via toolbar @wysiwyg', async ({editor, wait}) => {
-            await editor.switchMode('wysiwyg');
-
             await editor.focus();
             await editor.press('ArrowDown');
             await editor.press('Enter');

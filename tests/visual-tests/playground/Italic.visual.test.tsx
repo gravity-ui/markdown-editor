@@ -5,17 +5,17 @@ import {expect, test} from 'playwright/core';
 import {Playground} from './Playground.helpers';
 
 test.describe('Italic', () => {
-    test.beforeEach(async ({mount}) => {
+    test.beforeEach(async ({editor, mount}) => {
         const initialMarkup = dd`
          some text
       `;
 
         await mount(<Playground initial={initialMarkup} />);
+        await editor.switchMode('wysiwyg');
     });
 
     test.describe('mark', () => {
         test('should mark via toolbar @wysiwyg', async ({editor, wait}) => {
-            await editor.switchMode('wysiwyg');
             await editor.assertMainToolbarButtonNotSelected('Italic');
 
             await editor.focus();
@@ -33,7 +33,6 @@ test.describe('Italic', () => {
         });
 
         test('should mark via input rule @wysiwyg', async ({editor, wait}) => {
-            await editor.switchMode('wysiwyg');
             await editor.assertMainToolbarButtonNotSelected('Italic');
 
             await editor.focus();
@@ -54,7 +53,6 @@ test.describe('Italic', () => {
         test('should mark via keyboard shortcut @wysiwyg', async ({editor, wait}) => {
             test.skip(true, 'key combo fails in headless mode');
 
-            await editor.switchMode('wysiwyg');
             await editor.assertMainToolbarButtonNotSelected('Italic');
 
             await editor.focus();
@@ -90,7 +88,8 @@ test.describe('Italic', () => {
 
     test.describe('mode switch', () => {
         test('should remain after mode switch @wysiwyg @markup', async ({editor, wait}) => {
-            await editor.clearContentAndSwitchMode('markup');
+            await editor.switchMode('markup');
+            await editor.clearContent();
 
             const markup = 'some text\n*next*';
             await editor.switchMode('markup');
@@ -114,7 +113,6 @@ test.describe('Italic', () => {
 
     test.describe('interaction', () => {
         test('should add mark to selected text via toolbar @wysiwyg', async ({editor, wait}) => {
-            await editor.switchMode('wysiwyg');
             await editor.assertMainToolbarButtonNotSelected('Italic');
 
             await editor.focus();
@@ -141,7 +139,6 @@ test.describe('Italic', () => {
             editor,
             wait,
         }) => {
-            await editor.switchMode('wysiwyg');
             await editor.assertMainToolbarButtonNotSelected('Italic');
 
             await editor.focus();
@@ -166,8 +163,6 @@ test.describe('Italic', () => {
         });
 
         test('should delete mark to selected text via toolbar @wysiwyg', async ({editor, wait}) => {
-            await editor.switchMode('wysiwyg');
-
             await editor.focus();
             await editor.press('ArrowDown');
             await editor.press('Enter');
