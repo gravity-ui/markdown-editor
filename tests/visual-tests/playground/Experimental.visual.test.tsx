@@ -7,7 +7,7 @@ import {Playground} from './Playground.helpers';
 test.describe('Empty rows', () => {
     test.beforeEach(async ({mount, editor}) => {
         await mount(<Playground experimental={{preserveEmptyRows: true}} />);
-        await editor.clearContentAndSwitchMode('wysiwyg');
+        await editor.clearContent();
     });
 
     test.describe('WYSIWYG mode @wysiwyg', () => {
@@ -51,7 +51,7 @@ test.describe('Empty rows', () => {
 test.describe('Preserve markup formatting', () => {
     test.beforeEach(async ({mount, editor}) => {
         await mount(<Playground experimental={{preserveMarkupFormatting: true}} />);
-        await editor.clearContentAndSwitchMode('wysiwyg');
+        await editor.clearContent();
     });
 
     test('should preserve markup formatting for yfm-table @table', async ({
