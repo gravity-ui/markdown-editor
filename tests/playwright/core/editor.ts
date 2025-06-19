@@ -540,8 +540,11 @@ export class MarkdownEditorPage {
     /**
      * Presses a key within the contenteditable area
      */
-    async press(key: string) {
-        await this.locators.contenteditable.press(key);
+    async press(key: string, times = 1) {
+        while (times > 0) {
+            await this.locators.contenteditable.press(key);
+            times--;
+        }
     }
 
     /**

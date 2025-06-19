@@ -7,7 +7,7 @@ import {Playground} from './Playground.helpers';
 test.describe('Clipboard', () => {
     test.beforeEach(async ({mount, editor}) => {
         await mount(<Playground markupParseHtmlOnPaste />);
-        await editor.clearContentAndSwitchMode('wysiwyg');
+        await editor.clearContent();
     });
 
     const emphasisMarkup = dd`
@@ -33,7 +33,10 @@ test.describe('Clipboard', () => {
         await editor.paste(emphasisMarkup);
         await editor.press(keys.selectAll);
         await editor.press(keys.copy);
-        await editor.clearContentAndSwitchMode('markup');
+
+        await editor.switchMode('markup');
+        await editor.clearContent();
+
         await editor.press(keys.paste);
 
         await page.waitForTimeout(500);
@@ -53,7 +56,10 @@ test.describe('Clipboard', () => {
         await editor.paste(emphasisMarkup);
         await editor.press(keys.selectAll);
         await editor.press(keys.copy);
-        await editor.clearContentAndSwitchMode('wysiwyg');
+
+        await editor.switchMode('wysiwyg');
+        await editor.clearContent();
+
         await editor.press(keys.paste);
 
         await wait.timeout(500);
@@ -188,8 +194,7 @@ test.describe('Clipboard', () => {
                 page,
                 expectScreenshot,
             }) => {
-                await editor.fill('```');
-                await editor.fill('Lorem ipsum dolor sit amet');
+                await editor.fill('```\nLorem ipsum dolor sit amet');
                 await editor.selectTextIn('pre code');
                 await editor.paste('https://gravity-ui.com/');
                 await editor.blur();
@@ -202,9 +207,12 @@ test.describe('Clipboard', () => {
                 editor,
                 page,
                 expectScreenshot,
+                wait,
             }) => {
-                await editor.paste('`Code:`');
-                await editor.press('ArrowLeft');
+                await editor.paste('`Code: (begin)  (end)`');
+                await wait.timeout();
+
+                await editor.press('ArrowLeft', 6);
                 await editor.press('Space');
 
                 await editor.paste('## Lorem *ipsum* **dolor** ~~sit~~ amet');
@@ -265,6 +273,7 @@ test.describe('Clipboard', () => {
         </div>`;
 
         test('should parse HTML in wysiwyg mode', async ({editor, expectScreenshot, wait}) => {
+            await editor.switchMode('wysiwyg');
             await editor.paste({'text/html': HTML});
             await editor.blur();
             await wait.timeout(500);
