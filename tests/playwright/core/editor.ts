@@ -213,7 +213,7 @@ export class MarkdownEditorPage {
     }
 
     /**
-     * Asserts that the main toolbar button is disabled.
+     * Asserts that the main toolbar button with the given aria-label is disabled.
      */
     async assertMainToolbarButtonDisabled(label: string) {
         const button = this.locators.toolbars.main.getByLabel(label);
@@ -221,17 +221,17 @@ export class MarkdownEditorPage {
     }
 
     /**
-     * Asserts that the additional toolbar button is disabled.
+     * Asserts that the additional toolbar button with the given aria-label is disabled.
      */
     async assertAdditionalToolbarButtonDisabled(label: string) {
-        await this.clickMainToolbarMoreActionButton();
+        await this.openMainToolbarMoreMenu();
 
         const button = this.locators.toolbars.additional.getByLabel(label);
         await this.expect(button).toHaveClass(/disabled/);
     }
 
     /**
-     * Asserts that the main toolbar button is disabled.
+     * Asserts that the selection toolbar button with the given aria-label is disabled.
      */
     async assertSelectionToolbarButtonDisabled(label: string) {
         const button = this.locators.toolbars.selection.getByLabel(label);
@@ -239,7 +239,7 @@ export class MarkdownEditorPage {
     }
 
     /**
-     * Asserts that the main toolbar button is enabled.
+     * Asserts that the main toolbar button with the given aria-label is enabled.
      */
     async assertMainToolbarButtonEnabled(label: string) {
         const button = this.locators.toolbars.main.getByLabel(label);
@@ -247,17 +247,17 @@ export class MarkdownEditorPage {
     }
 
     /**
-     * Asserts that the additional toolbar button is enabled.
+     * Asserts that the additional toolbar button with the given aria-label is enabled.
      */
     async assertAdditionalToolbarButtonEnabled(label: string) {
-        await this.clickMainToolbarMoreActionButton();
+        await this.openMainToolbarMoreMenu();
 
         const button = this.locators.toolbars.additional.getByLabel(label);
         await this.expect(button).not.toHaveClass(/disabled/);
     }
 
     /**
-     * Asserts that the main toolbar button is enabled.
+     * Asserts that the selection toolbar button with the given aria-label is enabled.
      */
     async assertSelectionToolbarButtonEnabled(label: string) {
         const button = this.locators.toolbars.selection.getByLabel(label);
@@ -265,7 +265,7 @@ export class MarkdownEditorPage {
     }
 
     /**
-     * Asserts that the main toolbar button is selected.
+     * Asserts that the main toolbar button with the given aria-label is selected.
      */
     async assertMainToolbarButtonSelected(label: string) {
         const button = this.locators.toolbars.main.getByLabel(label);
@@ -273,12 +273,13 @@ export class MarkdownEditorPage {
     }
 
     /**
-     * Asserts that the selection toolbar button is selected.
+     * Asserts that the selection toolbar button with the given aria-label is selected.
+     * If the button is "Heading", checks that the heading is selected as specified.
      */
     async assertSelectionToolbarButtonSelected(label: string, selectedLabel?: string) {
         if (label === 'Heading') {
-            const button = this.page.getByTestId('g-md-toolbar-text-select');
-            const text = await button.locator('span').innerText();
+            const select = this.locators.toolbars.selection.getByTestId('g-md-toolbar-text-select');
+            const text = await select.locator('span').innerText();
 
             await this.expect(text).toBe(selectedLabel);
         } else {
@@ -288,7 +289,7 @@ export class MarkdownEditorPage {
     }
 
     /**
-     * Asserts that the main toolbar button is not selected.
+     * Asserts that the main toolbar button with the given aria-label is not selected.
      */
     async assertMainToolbarButtonNotSelected(label: string) {
         const button = this.locators.toolbars.main.getByLabel(label);
@@ -296,7 +297,7 @@ export class MarkdownEditorPage {
     }
 
     /**
-     * Asserts that the selection toolbar button is not selected.
+     * Asserts that the selection toolbar button with the given aria-label is not selected.
      */
     async assertSelectionToolbarButtonNotSelected(label: string) {
         const button = this.locators.toolbars.selection.getByLabel(label);
@@ -313,7 +314,10 @@ export class MarkdownEditorPage {
         throw new Error(`MarkdownEditorPage.getMode(): unknown editor mode "${mode}"`);
     }
 
-    async openCommandMenu(search = '') {
+    /**
+     * Opens the command menu toolbar and optionally searches for a command.
+     */
+    async openCommandMenuToolbar(search = '') {
         await this.pressSequentially('/' + search);
         await this.locators.toolbars.commandMenu.waitFor({state: 'visible'});
     }
@@ -325,8 +329,11 @@ export class MarkdownEditorPage {
         return this.locators.toolbars.commandMenu.getByText(text);
     }
 
+    /**
+     * Selects a command from the command menu by first searching and then clicking the command.
+     */
     async selectFromCommandMenu(searchText: string, commandText: string) {
-        await this.openCommandMenu(searchText);
+        await this.openCommandMenuToolbar(searchText);
         await this.getByTextInCommandMenu(commandText).click();
         await this.locators.toolbars.commandMenu.waitFor({state: 'detached'});
     }
@@ -416,7 +423,10 @@ export class MarkdownEditorPage {
         await this.locators.toolbarMoreActionButton.click();
     }
 
-    async openToolbarMoreMenu() {
+    /**
+     * Opens the "more actions" menu in the main toolbar if it is not already open.
+     */
+    async openMainToolbarMoreMenu() {
         const visible = await this.locators.toolbars.additional.isVisible();
         if (!visible) {
             await this.clickMainToolbarMoreActionButton();
@@ -424,6 +434,9 @@ export class MarkdownEditorPage {
         }
     }
 
+    /**
+     * Hides the "more actions" menu in the main toolbar if it is visible.
+     */
     async hideToolbarMoreMenu() {
         const visible = await this.locators.toolbars.additional.isVisible();
         if (visible) {
@@ -432,11 +445,17 @@ export class MarkdownEditorPage {
         }
     }
 
+    /**
+     * Hovers over an action in the additional toolbar by its aria-label.
+     */
     async hoverToolbarMoreAction(label: string) {
         await this.locators.toolbars.additional.waitFor({state: 'visible'});
         await this.getToolbarButton(label).hover({force: true});
     }
 
+    /**
+     * Waits for the toolbar action disabled hint to become visible.
+     */
     async waitForToolbarActionDisabledHint() {
         await this.locators.toolbarActionDisabledHint.waitFor({state: 'visible'});
     }
@@ -464,8 +483,7 @@ export class MarkdownEditorPage {
      * Clicks a additional toolbar button using its aria-label.
      */
     async clickAdditionalToolbarButton(label: string) {
-        await this.clickMainToolbarMoreActionButton();
-        await this.page.waitForTimeout(DEFAULT_DELAY);
+        await this.openMainToolbarMoreMenu();
 
         const button = this.locators.toolbars.additional.getByLabel(label);
 
@@ -501,9 +519,18 @@ export class MarkdownEditorPage {
     /**
      * Clears all content from the contenteditable area
      */
-    async clearContent() {
-        await this.press('ControlOrMeta+A');
-        await this.press('Backspace');
+    async clearContentAndSwitchMode(targetMode: 'markup' | 'wysiwyg') {
+        const mode = await this.getMode();
+
+        if (mode === 'wysiwyg') {
+            await this.switchMode('markup');
+        }
+        await this.fill('');
+        await this.page.waitForTimeout(DEFAULT_DELAY);
+
+        if (targetMode === 'wysiwyg') {
+            await this.switchMode('wysiwyg');
+        }
     }
 
     /**
@@ -543,16 +570,6 @@ export class MarkdownEditorPage {
     }
 
     /**
-     * Switches to WYSIWYG mode, clears all content, then types the given sequence
-     * and presses Space to apply an input rule.
-     */
-    async inputRuleWithClear(sequence: string) {
-        await this.switchMode('wysiwyg');
-        await this.clearContent();
-        await this.inputRule(sequence);
-    }
-
-    /**
      * Pastes data into the contenteditable area
      */
     async paste(value: PasteData | string) {
@@ -585,9 +602,12 @@ export class MarkdownEditorPage {
         if (selector) loc = loc.locator(selector);
 
         await loc.selectText();
-        await this.page.waitForTimeout(100);
+        await this.page.waitForTimeout(DEFAULT_DELAY);
     }
 
+    /**
+     * Waits for the CodeMirror autocomplete popup to become visible.
+     */
     async waitForCMAutocomplete() {
         await this.locators.cmAutocomplete.waitFor({state: 'visible'});
     }

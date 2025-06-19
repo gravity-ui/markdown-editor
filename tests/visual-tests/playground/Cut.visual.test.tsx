@@ -34,8 +34,7 @@ test.describe('Cut', () => {
             await editor.switchMode('markup');
             // Switch to markup mode to clear content correctly,
             // due to a issue clearing Cut blocks in WYSIWYG mode
-            await editor.clearContent();
-            await editor.switchMode('wysiwyg');
+            await editor.clearContentAndSwitchMode('wysiwyg');
 
             await editor.clickAdditionalToolbarButton('Cut');
             await wait.timeout();
@@ -55,9 +54,7 @@ test.describe('Cut', () => {
         });
 
         test('should insert via command menu @wysiwyg', async ({page, editor, actions, wait}) => {
-            await editor.switchPreview('hidden');
-            await editor.switchMode('wysiwyg');
-            await editor.clearContent();
+            await editor.clearContentAndSwitchMode('wysiwyg');
 
             await editor.pressSequentially('/c');
             await expect(page.getByTestId('g-md-toolbar-command-menu')).toBeVisible();
@@ -81,7 +78,8 @@ test.describe('Cut', () => {
         });
 
         test('should insert via input rule @wysiwyg', async ({editor, wait}) => {
-            await editor.inputRuleWithClear('{% cut');
+            await editor.clearContentAndSwitchMode('wysiwyg');
+            await editor.inputRule('{% cut');
             await wait.timeout();
 
             const cutBlock = editor.getByTextInContenteditable('Cut title').first();
@@ -92,8 +90,7 @@ test.describe('Cut', () => {
         test('should insert via keyboard shortcut @wysiwyg', async ({editor, wait}) => {
             test.skip(true, 'key combo fails in headless mode');
 
-            await editor.switchMode('wysiwyg');
-            await editor.clearContent();
+            await editor.clearContentAndSwitchMode('wysiwyg');
             await editor.press('Control+Alt+7');
             await wait.timeout();
 
@@ -102,8 +99,7 @@ test.describe('Cut', () => {
         });
 
         test('should insert via toolbar @markup', async ({editor}) => {
-            await editor.switchMode('markup');
-            await editor.clearContent();
+            await editor.clearContentAndSwitchMode('markup');
 
             await editor.clickAdditionalToolbarButton('Cut');
 
@@ -111,8 +107,7 @@ test.describe('Cut', () => {
         });
 
         test('should insert via command menu @markup', async ({page, editor, actions, wait}) => {
-            await editor.switchMode('markup');
-            await editor.clearContent();
+            await editor.clearContentAndSwitchMode('markup');
 
             await editor.pressSequentially('{%');
             await expect(page.getByText('YFM Cut')).toBeVisible();

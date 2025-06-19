@@ -67,7 +67,7 @@ test.describe('Monospace', () => {
 
     test.describe('mode switch', () => {
         test('should remain after mode switch @wysiwyg @markup', async ({editor, wait}) => {
-            await editor.clearContent();
+            await editor.clearContentAndSwitchMode('markup');
 
             const markup = 'some text\n##next##';
             await editor.switchMode('markup');

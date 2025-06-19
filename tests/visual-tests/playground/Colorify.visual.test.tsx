@@ -51,10 +51,9 @@ test.describe('Colorify', () => {
 
     test.describe('mode switch', () => {
         test('should remain after mode switch @wysiwyg @markup', async ({editor, wait}) => {
-            await editor.clearContent();
+            await editor.clearContentAndSwitchMode('markup');
 
             const markup = 'some text\n{yellow}(next)';
-            await editor.switchMode('markup');
             await editor.fill(markup);
             await wait.timeout();
 
@@ -126,10 +125,9 @@ test.describe('Colorify', () => {
         });
 
         test('should delete mark to selected text via toolbar @wysiwyg', async ({editor, wait}) => {
-            await editor.clearContent();
+            await editor.clearContentAndSwitchMode('markup');
 
             const markup = 'some text\n{yellow}(next)';
-            await editor.switchMode('markup');
             await editor.fill(markup);
             await wait.timeout(300);
 

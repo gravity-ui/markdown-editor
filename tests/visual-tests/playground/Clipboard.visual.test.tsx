@@ -7,7 +7,7 @@ import {Playground} from './Playground.helpers';
 test.describe('Clipboard', () => {
     test.beforeEach(async ({mount, editor}) => {
         await mount(<Playground markupParseHtmlOnPaste />);
-        await editor.clearContent();
+        await editor.clearContentAndSwitchMode('wysiwyg');
     });
 
     const emphasisMarkup = dd`
@@ -33,8 +33,7 @@ test.describe('Clipboard', () => {
         await editor.paste(emphasisMarkup);
         await editor.press(keys.selectAll);
         await editor.press(keys.copy);
-        await editor.clearContent();
-        await editor.switchMode('markup');
+        await editor.clearContentAndSwitchMode('markup');
         await editor.press(keys.paste);
 
         await page.waitForTimeout(500);
@@ -46,7 +45,7 @@ test.describe('Clipboard', () => {
         browserName,
         helpers: {keys},
         editor,
-        page,
+        wait,
     }) => {
         test.skip(browserName === 'webkit', 'Clipboard does not work correctly in webkit');
 
@@ -54,11 +53,10 @@ test.describe('Clipboard', () => {
         await editor.paste(emphasisMarkup);
         await editor.press(keys.selectAll);
         await editor.press(keys.copy);
-        await editor.clearContent();
-        await editor.switchMode('wysiwyg');
+        await editor.clearContentAndSwitchMode('wysiwyg');
         await editor.press(keys.paste);
 
-        await page.waitForTimeout(500);
+        await wait.timeout(500);
         await expectScreenshot();
     });
 
@@ -70,8 +68,8 @@ test.describe('Clipboard', () => {
         test('should copy and paste with preserve markup', async ({
             helpers: {keys},
             editor,
-            page,
             expectScreenshot,
+            wait,
         }) => {
             await editor.paste(emphasisMarkup);
             await editor.press(keys.selectAll);
@@ -80,7 +78,7 @@ test.describe('Clipboard', () => {
             await editor.press('Enter');
             await editor.press(keys.paste);
 
-            await page.waitForTimeout(500);
+            await wait.timeout(500);
             await expectScreenshot();
         });
 
