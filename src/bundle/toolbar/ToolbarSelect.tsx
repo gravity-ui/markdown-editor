@@ -29,12 +29,14 @@ export const ToolbarSelect: React.FC<ToolbarSelectProps> = ({
     focus,
     onClick,
     items,
+    qa,
 }) => {
     const activeItem = items.find((item) => item.isActive(editor));
 
     return (
         <>
             <Select
+                qa={qa}
                 size="m"
                 view="clear"
                 className={className}

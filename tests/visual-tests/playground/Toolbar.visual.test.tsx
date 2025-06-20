@@ -26,7 +26,7 @@ test.describe('Toolbar', () => {
         };
 
         await editor.switchMode('wysiwyg');
-        await editor.openToolbarMoreMenu();
+        await editor.openMainToolbarMoreMenu();
         await page.mouse.move(-1, -1);
 
         await test.step('Set large width', async () => {
@@ -58,7 +58,7 @@ test.describe('Toolbar', () => {
 
         await test.step('Switch to markup mode', async () => {
             await editor.switchMode('markup');
-            await editor.openToolbarMoreMenu();
+            await editor.openMainToolbarMoreMenu();
             await page.mouse.move(-1, -1);
             await expectScreenshot({
                 ...screenshotParams,
@@ -71,7 +71,7 @@ test.describe('Toolbar', () => {
         test('in @wysiwyg mode', async ({page, editor, expectScreenshot}) => {
             await page.setViewportSize({height: 256, width: 72});
             await editor.switchMode('wysiwyg');
-            await editor.openToolbarMoreMenu();
+            await editor.openMainToolbarMoreMenu();
             await page.mouse.move(-1, -1);
             await expectScreenshot({component: editor.locators.toolbars.additional});
         });
@@ -79,7 +79,7 @@ test.describe('Toolbar', () => {
         test('in @markup mode', async ({page, editor, expectScreenshot}) => {
             await page.setViewportSize({height: 256, width: 96});
             await editor.switchMode('markup');
-            await editor.openToolbarMoreMenu();
+            await editor.openMainToolbarMoreMenu();
             await page.mouse.move(-1, -1);
             await expectScreenshot({component: editor.locators.toolbars.additional});
         });
@@ -92,7 +92,7 @@ test.describe('Toolbar', () => {
 
         test('in @wysiwyg mode', async ({page, editor, expectScreenshot}) => {
             await editor.switchMode('wysiwyg');
-            await editor.openToolbarMoreMenu();
+            await editor.openMainToolbarMoreMenu();
             await page.mouse.move(-1, -1);
 
             await expectScreenshot({fullPage: true, caret: 'hide'});
@@ -100,7 +100,7 @@ test.describe('Toolbar', () => {
 
         test('in @markup mode', async ({editor, expectScreenshot}) => {
             await editor.switchMode('markup');
-            await editor.openToolbarMoreMenu();
+            await editor.openMainToolbarMoreMenu();
             await editor.hoverToolbarMoreAction('Emoji');
             await editor.waitForToolbarActionDisabledHint();
 

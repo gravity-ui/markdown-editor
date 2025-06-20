@@ -20,9 +20,9 @@ test.describe('%%name%%', () => {
         test.skip('should insert via toolbar @wysiwyg', async ({editor, wait}) => {
             /* TODO: unskip */
             await editor.switchMode('wysiwyg');
-            await editor.clearContent();
+            await editor.clearContentAndSwitchMode('markup');
 
-            await editor.clickToolbarButton('/* TODO: extension name */');
+            await editor.clickMainToolbarButton('/* TODO: extension name */');
             await wait.timeout();
 
             /* TODO: write test */
@@ -32,7 +32,7 @@ test.describe('%%name%%', () => {
             /* TODO: unskip */
             await editor.switchPreview('hidden');
             await editor.switchMode('wysiwyg');
-            await editor.clearContent();
+            await editor.clearContentAndSwitchMode('markup');
 
             await editor.pressSequentially('/* TODO: write sequentially */');
             await expect(page.getByTestId('g-md-toolbar-command-menu')).toBeVisible();
@@ -61,7 +61,7 @@ test.describe('%%name%%', () => {
         test.skip('should insert via keyboard shortcut @wysiwyg', async ({editor, wait}) => {
             /* TODO: unskip */
             await editor.switchMode('wysiwyg');
-            await editor.clearContent();
+            await editor.clearContentAndSwitchMode('markup');
             await editor.press('/* TODO: add keyboard shortcut */');
             await wait.timeout();
 
@@ -71,7 +71,7 @@ test.describe('%%name%%', () => {
         test.skip('should insert via pasted HTML @wysiwyg', async ({editor, wait}) => {
             /* TODO: unskip */
             await editor.switchMode('wysiwyg');
-            await editor.clearContent();
+            await editor.clearContentAndSwitchMode('markup');
 
             const html = '/* TODO: add html content */'; // TODO
             await editor.paste(html);
@@ -83,7 +83,7 @@ test.describe('%%name%%', () => {
         test.skip('should insert via toolbar @markup', async ({editor, wait}) => {
             /* TODO: unskip */
             await editor.switchMode('markup');
-            await editor.clickToolbarButton('/* TODO: extension name */');
+            await editor.clickMainToolbarButton('/* TODO: extension name */');
             await wait.timeout();
 
             /* TODO: write test */
@@ -97,7 +97,7 @@ test.describe('%%name%%', () => {
         }) => {
             /* TODO: unskip */
             await editor.switchMode('markup');
-            await editor.clearContent();
+            await editor.clearContentAndSwitchMode('markup');
 
             await editor.pressSequentially('{%');
             await expect(page.getByText('/* TODO: extension name */')).toBeVisible();
@@ -135,7 +135,7 @@ test.describe('%%name%%', () => {
         test.skip('should edit block via context menu @wysiwyg', async ({editor}) => {
             /* TODO: unskip */
             await editor.switchMode('wysiwyg');
-            await editor.clearContent();
+            await editor.clearContentAndSwitchMode('markup');
 
             /* TODO: write test */
         });
@@ -143,7 +143,7 @@ test.describe('%%name%%', () => {
         test.skip('should delete block via context menu @wysiwyg', async ({editor}) => {
             /* TODO: unskip */
             await editor.switchMode('wysiwyg');
-            await editor.clearContent();
+            await editor.clearContentAndSwitchMode('markup');
 
             /* TODO: write test */
         });
@@ -151,7 +151,7 @@ test.describe('%%name%%', () => {
         test.skip('should delete block via remove button @wysiwyg', async ({editor}) => {
             /* TODO: unskip */
             await editor.switchMode('wysiwyg');
-            await editor.clearContent();
+            await editor.clearContentAndSwitchMode('markup');
 
             /* TODO: write test */
         });

@@ -5,28 +5,25 @@ import {expect, test} from 'playwright/core';
 import {Playground} from './Playground.helpers';
 
 test.describe('Colorify', () => {
-    test.beforeEach(async ({mount, page}) => {
+    test.beforeEach(async ({editor, mount, page}) => {
         const initialMarkup = dd`
          some text
       `;
 
         await mount(<Playground initial={initialMarkup} width="100%" style={{width: 812}} />);
         await page.setViewportSize({height: 500, width: 812});
+        await editor.switchMode('wysiwyg');
     });
 
     test.describe('mark', () => {
         test('should mark via toolbar @wysiwyg', async ({editor, wait}) => {
-            await editor.switchMode('wysiwyg');
             await editor.colorify.assertMainToolbarColorButtonDefault();
 
             await editor.focus();
             await editor.press('ArrowDown');
             await editor.press('Enter');
 
-            await editor.clickToolbarButton('Text color');
-            await wait.timeout();
-
-            await editor.clickToolbarButton('Yellow', true);
+            await editor.clickMainToolbarButton('Text color', 'Yellow');
             await wait.timeout();
 
             await editor.pressSequentially('next');
@@ -43,10 +40,7 @@ test.describe('Colorify', () => {
             await editor.press('ArrowDown');
             await editor.press('Enter');
 
-            await editor.clickToolbarButton('Text color');
-            await wait.timeout();
-
-            await editor.clickToolbarButton('Yellow', true);
+            await editor.clickMainToolbarButton('Text color', 'Yellow');
             await wait.timeout();
 
             await editor.pressSequentially('next');
@@ -57,10 +51,10 @@ test.describe('Colorify', () => {
 
     test.describe('mode switch', () => {
         test('should remain after mode switch @wysiwyg @markup', async ({editor, wait}) => {
+            await editor.switchMode('markup');
             await editor.clearContent();
 
             const markup = 'some text\n{yellow}(next)';
-            await editor.switchMode('markup');
             await editor.fill(markup);
             await wait.timeout();
 
@@ -81,7 +75,6 @@ test.describe('Colorify', () => {
 
     test.describe('interaction', () => {
         test('should add mark to selected text via toolbar @wysiwyg', async ({editor, wait}) => {
-            await editor.switchMode('wysiwyg');
             await editor.colorify.assertMainToolbarColorButtonDefault();
 
             await editor.focus();
@@ -94,10 +87,7 @@ test.describe('Colorify', () => {
             await editor.selectTextIn('p:nth-child(2)');
 
             await editor.colorify.assertMainToolbarColorButtonDefault();
-            await editor.clickToolbarButton('Text color');
-            await wait.timeout();
-
-            await editor.clickToolbarButton('Yellow', true);
+            await editor.clickMainToolbarButton('Text color', 'Yellow');
             await wait.timeout(300);
 
             await editor.colorify.assertMainToolbarColorButtonNotDefault();
@@ -111,7 +101,6 @@ test.describe('Colorify', () => {
             editor,
             wait,
         }) => {
-            await editor.switchMode('wysiwyg');
             await editor.colorify.assertMainToolbarColorButtonDefault();
 
             await editor.focus();
@@ -125,10 +114,7 @@ test.describe('Colorify', () => {
 
             await editor.colorify.assertMainToolbarColorButtonDefault();
             await editor.colorify.assertSelectionToolbarColorButtonDefault();
-            await editor.clickToolbarButton('Text color', true);
-            await wait.timeout();
-
-            await editor.clickToolbarButton('Yellow', true);
+            await editor.clickSelectionToolbarButton('Text color', 'Yellow');
             await wait.timeout(300);
 
             await editor.colorify.assertMainToolbarColorButtonNotDefault();
@@ -138,10 +124,10 @@ test.describe('Colorify', () => {
         });
 
         test('should delete mark to selected text via toolbar @wysiwyg', async ({editor, wait}) => {
+            await editor.switchMode('markup');
             await editor.clearContent();
 
             const markup = 'some text\n{yellow}(next)';
-            await editor.switchMode('markup');
             await editor.fill(markup);
             await wait.timeout(300);
 
@@ -151,10 +137,7 @@ test.describe('Colorify', () => {
             await editor.selectTextIn('.yfm-colorify');
             await editor.colorify.assertMainToolbarColorButtonNotDefault();
 
-            await editor.clickToolbarButton('Text color');
-            await wait.timeout();
-
-            await editor.clickToolbarButton('Yellow', true);
+            await editor.clickMainToolbarButton('Text color', 'Yellow');
             await wait.timeout();
 
             await editor.colorify.assertMainToolbarColorButtonDefault();
@@ -163,33 +146,23 @@ test.describe('Colorify', () => {
 
     test.describe('specific', () => {
         test('should escape parentheses', async ({page, expectScreenshot, editor, wait}) => {
-            await editor.switchMode('wysiwyg');
             await editor.colorify.assertMainToolbarColorButtonDefault();
 
             await editor.focus();
             await editor.press('ArrowDown');
             await editor.press('Enter');
 
-            await editor.clickToolbarButton('Text color');
-            await wait.timeout();
-
-            await editor.clickToolbarButton('Yellow', true);
+            await editor.clickMainToolbarButton('Text color', 'Yellow');
             await wait.timeout();
 
             await editor.pressSequentially('some(');
 
-            await editor.clickToolbarButton('Text color');
-            await wait.timeout();
-
-            await editor.clickToolbarButton('Red', true);
+            await editor.clickMainToolbarButton('Text color', 'Red');
             await wait.timeout();
 
             await editor.pressSequentially('2, 3');
 
-            await editor.clickToolbarButton('Text color');
-            await wait.timeout();
-
-            await editor.clickToolbarButton('Yellow', true);
+            await editor.clickMainToolbarButton('Text color', 'Yellow');
             await wait.timeout();
 
             await editor.pressSequentially(')');

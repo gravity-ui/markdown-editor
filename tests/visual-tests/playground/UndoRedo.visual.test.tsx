@@ -17,20 +17,20 @@ test.describe('Undo/Redo', () => {
         }) => {
             await editor.switchMode('wysiwyg');
 
-            await editor.assertToolbarButtonDisabled('Undo');
-            await editor.assertToolbarButtonDisabled('Redo');
+            await editor.assertMainToolbarButtonDisabled('Undo');
+            await editor.assertMainToolbarButtonDisabled('Redo');
 
             await editor.pressSequentially('Text');
             await wait.timeout();
 
-            await editor.assertToolbarButtonEnabled('Undo');
-            await editor.assertToolbarButtonDisabled('Redo');
+            await editor.assertMainToolbarButtonEnabled('Undo');
+            await editor.assertMainToolbarButtonDisabled('Redo');
 
-            await editor.clickToolbarButton('Undo');
+            await editor.clickMainToolbarButton('Undo');
             await wait.timeout();
 
-            await editor.assertToolbarButtonDisabled('Undo');
-            await editor.assertToolbarButtonEnabled('Redo');
+            await editor.assertMainToolbarButtonDisabled('Undo');
+            await editor.assertMainToolbarButtonEnabled('Redo');
 
             const placeholder = page.getByText('Enter your text or type').first().locator('..');
             await wait.visible(placeholder);
@@ -43,20 +43,20 @@ test.describe('Undo/Redo', () => {
         }) => {
             await editor.switchMode('markup');
 
-            await editor.assertToolbarButtonDisabled('Undo');
-            await editor.assertToolbarButtonDisabled('Redo');
+            await editor.assertMainToolbarButtonDisabled('Undo');
+            await editor.assertMainToolbarButtonDisabled('Redo');
 
             await editor.pressSequentially('Text');
             await wait.timeout();
 
-            await editor.assertToolbarButtonEnabled('Undo');
-            await editor.assertToolbarButtonDisabled('Redo');
+            await editor.assertMainToolbarButtonEnabled('Undo');
+            await editor.assertMainToolbarButtonDisabled('Redo');
 
-            await editor.clickToolbarButton('Undo');
+            await editor.clickMainToolbarButton('Undo');
             await wait.timeout();
 
-            await editor.assertToolbarButtonDisabled('Undo');
-            await editor.assertToolbarButtonEnabled('Redo');
+            await editor.assertMainToolbarButtonDisabled('Undo');
+            await editor.assertMainToolbarButtonEnabled('Redo');
 
             const placeholder = page.getByText('Add your markup here').first().locator('..');
             await wait.visible(placeholder);
