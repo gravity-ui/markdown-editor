@@ -159,7 +159,7 @@ test.describe('Cut', () => {
                 cancelable: true,
                 composed: true,
             });
-            await wait.timeout();
+            await wait.timeout(300);
 
             await expectScreenshot();
         });
@@ -191,7 +191,7 @@ test.describe('Cut', () => {
                 cancelable: true,
                 composed: true,
             });
-            await wait.timeout();
+            await wait.timeout(300);
 
             await expectScreenshot();
         });
@@ -208,7 +208,7 @@ test.describe('Cut', () => {
             await wait.visible(nestedCut);
 
             await nestedCut.click();
-            await wait.timeout();
+            await wait.timeout(300);
 
             await expectScreenshot();
         });
