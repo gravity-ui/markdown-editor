@@ -10,11 +10,10 @@ export const WToolbarTextSelect: React.FC<WToolbarTextSelectProps> = ({
     editor,
     className,
     disablePortal,
-    qa = 'g-md-toolbar-text-select',
 }) => {
     return (
         <ToolbarSelect
-            qa={qa}
+            qa="g-md-toolbar-text-select"
             items={wHeadingListConfig.data}
             focus={focus}
             editor={editor}
