@@ -128,7 +128,7 @@ export const ToolbarButtonWithPopupMenu: React.FC<ToolbarButtonWithPopupMenuProp
                     if (!open) hide();
                 }}
             >
-                <Menu size="l" qa={qaMenu}>
+                <Menu size="l" qa={qaMenu} data-toolbar-menu-for={textTitle}>
                     {Object.entries(groups).map(([label, items], key) => {
                         return (
                             <Menu.Group label={label} key={key} className={b('menu-group')}>

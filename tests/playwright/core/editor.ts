@@ -155,7 +155,6 @@ class MarkdownEditorLocators {
     readonly toolbars: MarkdownEditorToolbarsLocators;
     readonly toolbarMoreActionButton;
     readonly toolbarActionDisabledHint;
-    readonly toolbarMenu;
     readonly cmAutocomplete;
 
     constructor(page: Page) {
@@ -177,7 +176,6 @@ class MarkdownEditorLocators {
         this.contenteditable = this.editor.locator('[contenteditable=true]');
         this.toolbarMoreActionButton = this.editor.getByTestId('g-md-toolbar-more-action');
         this.toolbarActionDisabledHint = page.getByTestId('g-md-toolbar-action-disabled-hint');
-        this.toolbarMenu = page.getByTestId('g-md-toolbar-menu');
 
         this.cmAutocomplete = this.editor.locator('.cm-tooltip-autocomplete');
     }
@@ -461,6 +459,13 @@ export class MarkdownEditorPage {
     }
 
     /**
+     * Returns the locator for the toolbar dropdown menu related to the given label.
+     */
+    getToolbarMenuByLabel(label: string): Locator {
+        return this.page.locator(`[data-toolbar-menu-for="${label}"]`);
+    }
+
+    /**
      * Clicks a main toolbar button using its aria-label.
      */
     async clickMainToolbarButton(label: string, subLabel?: string) {
@@ -472,7 +477,7 @@ export class MarkdownEditorPage {
         if (subLabel) {
             await this.page.waitForTimeout(DEFAULT_DELAY);
 
-            const item = this.locators.toolbarMenu.getByLabel(subLabel);
+            const item = this.getToolbarMenuByLabel(label).getByLabel(subLabel);
 
             await this.expect(item).toBeEnabled();
             await item.click();
@@ -509,7 +514,7 @@ export class MarkdownEditorPage {
             const item =
                 label === 'Heading'
                     ? this.locators.toolbars.selection.getByLabel(subLabel)
-                    : this.locators.toolbarMenu.getByLabel(subLabel);
+                    : this.getToolbarMenuByLabel(label).getByLabel(subLabel);
 
             await this.expect(item).toBeEnabled();
             await item.click();

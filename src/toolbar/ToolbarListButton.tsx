@@ -72,6 +72,7 @@ export function ToolbarListButton<E>({
         buttonContent.push(<Fragment key={2}>{''}</Fragment>);
         buttonContent.push(<Icon key={3} data={ChevronDown} size={16} />);
     }
+    const titleText: string = isFunction(title) ? title() : title;
 
     return (
         <>
@@ -90,7 +91,7 @@ export function ToolbarListButton<E>({
                 {buttonContent}
             </ToolbarButtonView>
             <Popup anchorElement={anchorElement} open={popupOpen} onOpenChange={hide}>
-                <Menu size="l" className={b('menu')} qa={qaMenu}>
+                <Menu size="l" className={b('menu')} qa={qaMenu} data-toolbar-menu-for={titleText}>
                     {data
                         .map((data) => {
                             const {
