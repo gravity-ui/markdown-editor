@@ -144,6 +144,19 @@ class Colorify {
     }
 }
 
+class YfmNote {
+    protected readonly yfmNoteToolbar: Locator;
+
+    constructor(page: Page) {
+        this.yfmNoteToolbar = page.getByTestId('g-md-toolbar-yfm-note');
+    }
+
+    async clickYfmNoteToolbarButton(label: string) {
+        const button = this.yfmNoteToolbar.getByLabel(label);
+        await button.click();
+    }
+}
+
 class MarkdownEditorLocators {
     readonly component;
     readonly contenteditable;
@@ -191,6 +204,7 @@ export class MarkdownEditorPage {
     readonly locators;
     readonly yfmTable;
     readonly colorify;
+    readonly yfmNote;
     protected readonly page: Page;
     protected readonly expect: Expect;
 
@@ -201,6 +215,7 @@ export class MarkdownEditorPage {
         this.locators = new MarkdownEditorLocators(page);
         this.yfmTable = new YfmTable(page);
         this.colorify = new Colorify(page, expect, this.locators);
+        this.yfmNote = new YfmNote(page);
     }
 
     /**
