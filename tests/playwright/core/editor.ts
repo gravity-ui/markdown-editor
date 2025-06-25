@@ -228,9 +228,19 @@ export class MarkdownEditorPage {
     /**
      * Asserts that the main toolbar button with the given aria-label is disabled.
      */
-    async assertMainToolbarButtonDisabled(label: string) {
+    async assertMainToolbarButtonDisabled(label: string, subLabel?: string) {
         const button = this.locators.toolbars.main.getByLabel(label);
-        await this.expect(button).toHaveClass(/disabled/);
+
+        if (subLabel) {
+            await button.click();
+            await this.page.waitForTimeout(DEFAULT_DELAY);
+
+            const item = this.getToolbarMenuByLabel(label).getByLabel(subLabel);
+            await this.expect(item).toHaveClass(/disabled/);
+            await button.click();
+        } else {
+            await this.expect(button).toHaveClass(/disabled/);
+        }
     }
 
     /**
@@ -254,9 +264,19 @@ export class MarkdownEditorPage {
     /**
      * Asserts that the main toolbar button with the given aria-label is enabled.
      */
-    async assertMainToolbarButtonEnabled(label: string) {
+    async assertMainToolbarButtonEnabled(label: string, subLabel?: string) {
         const button = this.locators.toolbars.main.getByLabel(label);
-        await this.expect(button).not.toHaveClass(/disabled/);
+
+        if (subLabel) {
+            await button.click();
+            await this.page.waitForTimeout(DEFAULT_DELAY);
+
+            const item = this.getToolbarMenuByLabel(label).getByLabel(subLabel);
+            await this.expect(item).not.toHaveClass(/disabled/);
+            await button.click();
+        } else {
+            await this.expect(button).not.toHaveClass(/disabled/);
+        }
     }
 
     /**
