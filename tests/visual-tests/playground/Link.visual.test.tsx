@@ -19,21 +19,14 @@ test.describe('Link', () => {
         test.skip(browserName === 'webkit', 'fillFocused does not work correctly in webkit');
 
         await editor.switchMode('wysiwyg');
-        await editor.clickToolbarMoreActionButton();
+        await editor.clickAdditionalToolbarButton('Link');
 
-        const linkButton = page.getByText('Link');
-        await wait.visible(linkButton);
-
-        await linkButton.click();
         await expect(page.getByTestId('g-md-link-form')).toBeVisible();
 
-        // Expect that the focused element is an input inside the link popup
         await wait.timeout(300);
         await actions.fillFocused('gravity-ui.com');
 
-        await actions.pressFocused('Tab');
-        await actions.pressFocused('Tab');
-        await actions.pressFocused('Tab');
+        await actions.pressFocused('Tab', 3);
 
         await actions.fillFocused('gravity');
 

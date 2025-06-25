@@ -28,6 +28,7 @@ export type {ToolbarListButtonData};
 export type ToolbarListButtonProps<E> = ToolbarBaseProps<E> &
     ToolbarListButtonData<E> & {
         qaMenu?: string;
+        qaActionDisabledPopover?: string;
     };
 
 export function ToolbarListButton<E>({
@@ -44,6 +45,7 @@ export function ToolbarListButton<E>({
     qa,
     qaMenu,
     mobile,
+    qaActionDisabledPopover = 'g-md-toolbar-action-disabled-hint',
 }: ToolbarListButtonProps<E>) {
     const [anchorElement, setAnchorElement] = useElementState();
     const [open, , hide, toggleOpen] = useBooleanState(false);
@@ -73,6 +75,7 @@ export function ToolbarListButton<E>({
         buttonContent.push(<Fragment key={2}>{''}</Fragment>);
         buttonContent.push(<Icon key={3} data={ChevronDown} size={16} />);
     }
+    const titleText: string = isFunction(title) ? title() : title;
 
     return (
         <>
@@ -96,7 +99,7 @@ export function ToolbarListButton<E>({
                 onClose={hide}
                 anchorElement={anchorElement}
             >
-                <Menu size="l" className={b('menu')} qa={qaMenu}>
+                <Menu size="l" className={b('menu')} qa={qaMenu} data-toolbar-menu-for={titleText}>
                     {data
                         .map((data) => {
                             const {
@@ -149,7 +152,7 @@ export function ToolbarListButton<E>({
                                     placement="left"
                                     modal={false}
                                     disabled={hideHintWhenDisabled}
-                                    qa="g-md-toolbar-action-disabled-hint"
+                                    qa={qaActionDisabledPopover}
                                     key={id}
                                 >
                                     {(props, ref) => (

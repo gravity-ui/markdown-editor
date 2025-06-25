@@ -59,6 +59,7 @@ export function ToolbarButtonGroup<E>({
                     return (
                         <ToolbarListButton
                             {...item}
+                            qaMenu="g-md-toolbar-menu"
                             key={item.id}
                             editor={editor}
                             focus={focus}

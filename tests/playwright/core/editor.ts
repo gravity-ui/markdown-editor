@@ -12,6 +12,11 @@ type YfmTableActionKind =
     | 'add-row-before'
     | 'add-row-after';
 
+type MarkdownEditorToolbarsLocators = Record<
+    'main' | 'additional' | 'selection' | 'commandMenu',
+    Locator
+>;
+
 class YfmTable {
     readonly buttonPlusRowLocator;
     readonly buttonPlusColumnLocator;
@@ -88,8 +93,71 @@ class YfmTable {
     }
 }
 
+class Colorify {
+    protected readonly page: Page;
+    protected readonly expect: Expect;
+    protected readonly editor: Locator;
+    protected readonly mainToolbar: Locator;
+    protected readonly selectionToolbar: Locator;
+
+    constructor(
+        page: Page,
+        expect: Expect,
+        locators: {toolbars: MarkdownEditorToolbarsLocators} & {editor: Locator},
+    ) {
+        this.page = page;
+        this.expect = expect;
+        this.editor = locators.editor;
+        this.mainToolbar = locators.toolbars.main;
+        this.selectionToolbar = locators.toolbars.selection;
+    }
+    /**
+     * Asserts that the main toolbar color button has the "default" qa attribute.
+     */
+    async assertMainToolbarColorButtonDefault() {
+        const button = this.mainToolbar.getByLabel('Text color');
+        await this.expect(button).toHaveAttribute('data-selected-color', 'default');
+    }
+
+    /**
+     * Asserts that the main toolbar color button does not have the "default" qa attribute.
+     */
+    async assertMainToolbarColorButtonNotDefault() {
+        const button = this.mainToolbar.getByLabel('Text color');
+        await this.expect(button).not.toHaveAttribute('data-selected-color', 'default');
+    }
+
+    /**
+     * Asserts that the selection toolbar color button has the "default" qa attribute.
+     */
+    async assertSelectionToolbarColorButtonDefault() {
+        const button = this.selectionToolbar.getByLabel('Text color');
+        await this.expect(button).toHaveAttribute('data-selected-color', 'default');
+    }
+
+    /**
+     * Asserts that the selection toolbar color button does not have the "default" qa attribute.
+     */
+    async assertSelectionToolbarColorButtonNotDefault() {
+        const button = this.selectionToolbar.getByLabel('Text color');
+        await this.expect(button).not.toHaveAttribute('data-selected-color', 'default');
+    }
+}
+
+class YfmNote {
+    protected readonly yfmNoteToolbar: Locator;
+
+    constructor(page: Page) {
+        this.yfmNoteToolbar = page.getByTestId('g-md-toolbar-yfm-note');
+    }
+
+    async clickYfmNoteToolbarButton(label: string) {
+        const button = this.yfmNoteToolbar.getByLabel(label);
+        await button.click();
+    }
+}
+
 class MarkdownEditorLocators {
-    readonly commandMenu;
     readonly component;
     readonly contenteditable;
     readonly editor;
@@ -97,28 +165,30 @@ class MarkdownEditorLocators {
     readonly previewContent;
     readonly settingsButton;
     readonly settingsContent;
-    readonly toolbar;
+    readonly toolbars: MarkdownEditorToolbarsLocators;
     readonly toolbarMoreActionButton;
     readonly toolbarActionDisabledHint;
-    readonly toolbarMoreMenu;
     readonly cmAutocomplete;
 
     constructor(page: Page) {
         // page
-        this.commandMenu = page.getByTestId('g-md-command-menu');
         this.component = page.getByTestId('demo-md-editor');
         this.editor = page.getByTestId('g-md-editor-mode');
         this.previewButton = page.getByTestId('g-md-markup-preview-button');
         this.previewContent = page.getByTestId('demo-md-preview');
         this.settingsButton = page.getByTestId('g-md-settings-button');
         this.settingsContent = page.getByTestId('g-md-settings-content');
-        this.toolbar = page.getByTestId('g-md-toolbar');
+        this.toolbars = {
+            main: page.getByTestId('g-md-toolbar-main'),
+            additional: page.getByTestId('g-md-toolbar-additional'),
+            selection: page.getByTestId('g-md-toolbar-selection'),
+            commandMenu: page.getByTestId('g-md-toolbar-command-menu'),
+        };
 
         // editor
         this.contenteditable = this.editor.locator('[contenteditable=true]');
         this.toolbarMoreActionButton = this.editor.getByTestId('g-md-toolbar-more-action');
         this.toolbarActionDisabledHint = page.getByTestId('g-md-toolbar-action-disabled-hint');
-        this.toolbarMoreMenu = page.getByTestId('g-md-toolbar-more-menu');
 
         this.cmAutocomplete = this.editor.locator('.cm-tooltip-autocomplete');
     }
@@ -128,9 +198,13 @@ type PasteData = Partial<Record<DataTransferType, string>>;
 
 type VisibleState = 'attached' | 'detached' | 'visible' | 'hidden' | undefined;
 
+const DEFAULT_DELAY = 100;
+
 export class MarkdownEditorPage {
     readonly locators;
     readonly yfmTable;
+    readonly colorify;
+    readonly yfmNote;
     protected readonly page: Page;
     protected readonly expect: Expect;
 
@@ -140,6 +214,8 @@ export class MarkdownEditorPage {
 
         this.locators = new MarkdownEditorLocators(page);
         this.yfmTable = new YfmTable(page);
+        this.colorify = new Colorify(page, expect, this.locators);
+        this.yfmNote = new YfmNote(page);
     }
 
     /**
@@ -150,38 +226,114 @@ export class MarkdownEditorPage {
     }
 
     /**
-     * Asserts that the toolbar button is disabled.
+     * Asserts that the main toolbar button with the given aria-label is disabled.
      */
-    async assertToolbarButtonDisabled(label: string, inPopup = false) {
-        const root = inPopup ? this.page.locator('.g-popup.g-popup_open') : this.locators.editor;
-        const button = root.getByLabel(label);
+    async assertMainToolbarButtonDisabled(label: string, subLabel?: string) {
+        const button = this.locators.toolbars.main.getByLabel(label);
+
+        if (subLabel) {
+            await button.click();
+            await this.page.waitForTimeout(DEFAULT_DELAY);
+
+            const item = this.getToolbarMenuByLabel(label).getByLabel(subLabel);
+            await this.expect(item).toHaveClass(/disabled/);
+            await button.click();
+        } else {
+            await this.expect(button).toHaveClass(/disabled/);
+        }
+    }
+
+    /**
+     * Asserts that the additional toolbar button with the given aria-label is disabled.
+     */
+    async assertAdditionalToolbarButtonDisabled(label: string) {
+        await this.openMainToolbarMoreMenu();
+
+        const button = this.locators.toolbars.additional.getByLabel(label);
         await this.expect(button).toHaveClass(/disabled/);
     }
 
     /**
-     * Asserts that the toolbar button is enabled.
+     * Asserts that the selection toolbar button with the given aria-label is disabled.
      */
-    async assertToolbarButtonEnabled(label: string, inPopup = false) {
-        const root = inPopup ? this.page.locator('.g-popup.g-popup_open') : this.locators.editor;
-        const button = root.getByLabel(label);
+    async assertSelectionToolbarButtonDisabled(label: string) {
+        const button = this.locators.toolbars.selection.getByLabel(label);
+        await this.expect(button).toHaveClass(/disabled/);
+    }
+
+    /**
+     * Asserts that the main toolbar button with the given aria-label is enabled.
+     */
+    async assertMainToolbarButtonEnabled(label: string, subLabel?: string) {
+        const button = this.locators.toolbars.main.getByLabel(label);
+
+        if (subLabel) {
+            await button.click();
+            await this.page.waitForTimeout(DEFAULT_DELAY);
+
+            const item = this.getToolbarMenuByLabel(label).getByLabel(subLabel);
+            await this.expect(item).not.toHaveClass(/disabled/);
+            await button.click();
+        } else {
+            await this.expect(button).not.toHaveClass(/disabled/);
+        }
+    }
+
+    /**
+     * Asserts that the additional toolbar button with the given aria-label is enabled.
+     */
+    async assertAdditionalToolbarButtonEnabled(label: string) {
+        await this.openMainToolbarMoreMenu();
+
+        const button = this.locators.toolbars.additional.getByLabel(label);
         await this.expect(button).not.toHaveClass(/disabled/);
     }
 
     /**
-     * Asserts that the toolbar button is selected.
+     * Asserts that the selection toolbar button with the given aria-label is enabled.
      */
-    async assertToolbarButtonSelected(label: string, inPopup = false) {
-        const root = inPopup ? this.page.locator('.g-popup.g-popup_open') : this.locators.editor;
-        const button = root.getByLabel(label);
+    async assertSelectionToolbarButtonEnabled(label: string) {
+        const button = this.locators.toolbars.selection.getByLabel(label);
+        await this.expect(button).not.toHaveClass(/disabled/);
+    }
+
+    /**
+     * Asserts that the main toolbar button with the given aria-label is selected.
+     */
+    async assertMainToolbarButtonSelected(label: string) {
+        const button = this.locators.toolbars.main.getByLabel(label);
         await this.expect(button).toHaveClass(/selected/);
     }
 
     /**
-     * Asserts that the toolbar button is not selected.
+     * Asserts that the selection toolbar button with the given aria-label is selected.
+     * If the button is "Heading", checks that the heading is selected as specified.
      */
-    async assertToolbarButtonNotSelected(label: string, inPopup = false) {
-        const root = inPopup ? this.page.locator('.g-popup.g-popup_open') : this.locators.editor;
-        const button = root.getByLabel(label);
+    async assertSelectionToolbarButtonSelected(label: string, selectedLabel?: string) {
+        if (label === 'Heading') {
+            const select = this.locators.toolbars.selection.getByTestId('g-md-toolbar-text-select');
+            const text = await select.locator('span').innerText();
+
+            await this.expect(text).toBe(selectedLabel);
+        } else {
+            const button = this.locators.toolbars.selection.getByLabel(label);
+            await this.expect(button).toHaveClass(/selected/);
+        }
+    }
+
+    /**
+     * Asserts that the main toolbar button with the given aria-label is not selected.
+     */
+    async assertMainToolbarButtonNotSelected(label: string) {
+        const button = this.locators.toolbars.main.getByLabel(label);
+        await this.expect(button).not.toHaveClass(/selected/);
+    }
+
+    /**
+     * Asserts that the selection toolbar button with the given aria-label is not selected.
+     */
+    async assertSelectionToolbarButtonNotSelected(label: string) {
+        const button = this.locators.toolbars.selection.getByLabel(label);
         await this.expect(button).not.toHaveClass(/selected/);
     }
 
@@ -195,22 +347,28 @@ export class MarkdownEditorPage {
         throw new Error(`MarkdownEditorPage.getMode(): unknown editor mode "${mode}"`);
     }
 
-    async openCommandMenu(search = '') {
+    /**
+     * Opens the command menu toolbar and optionally searches for a command.
+     */
+    async openCommandMenuToolbar(search = '') {
         await this.pressSequentially('/' + search);
-        await this.locators.commandMenu.waitFor({state: 'visible'});
+        await this.locators.toolbars.commandMenu.waitFor({state: 'visible'});
     }
 
     /**
      * Finds an element in the command menu by its text
      */
     getByTextInCommandMenu(text: string): Locator {
-        return this.locators.commandMenu.getByText(text);
+        return this.locators.toolbars.commandMenu.getByText(text);
     }
 
+    /**
+     * Selects a command from the command menu by first searching and then clicking the command.
+     */
     async selectFromCommandMenu(searchText: string, commandText: string) {
-        await this.openCommandMenu(searchText);
+        await this.openCommandMenuToolbar(searchText);
         await this.getByTextInCommandMenu(commandText).click();
-        await this.locators.commandMenu.waitFor({state: 'detached'});
+        await this.locators.toolbars.commandMenu.waitFor({state: 'detached'});
     }
 
     /**
@@ -294,56 +452,115 @@ export class MarkdownEditorPage {
     /**
      * Clicks the "more actions" button on the toolbar
      */
-    async clickToolbarMoreActionButton() {
+    async clickMainToolbarMoreActionButton() {
         await this.locators.toolbarMoreActionButton.click();
     }
 
-    async openToolbarMoreMenu() {
-        const visible = await this.locators.toolbarMoreMenu.isVisible();
+    /**
+     * Opens the "more actions" menu in the main toolbar if it is not already open.
+     */
+    async openMainToolbarMoreMenu() {
+        const visible = await this.locators.toolbars.additional.isVisible();
         if (!visible) {
-            await this.clickToolbarMoreActionButton();
-            await this.locators.toolbarMoreMenu.waitFor({state: 'visible'});
+            await this.clickMainToolbarMoreActionButton();
+            await this.locators.toolbars.additional.waitFor({state: 'visible'});
         }
     }
 
+    /**
+     * Hides the "more actions" menu in the main toolbar if it is visible.
+     */
     async hideToolbarMoreMenu() {
-        const visible = await this.locators.toolbarMoreMenu.isVisible();
+        const visible = await this.locators.toolbars.additional.isVisible();
         if (visible) {
-            await this.clickToolbarMoreActionButton();
-            await this.locators.toolbarMoreMenu.waitFor({state: 'hidden'});
+            await this.clickMainToolbarMoreActionButton();
+            await this.locators.toolbars.additional.waitFor({state: 'hidden'});
         }
     }
 
+    /**
+     * Hovers over an action in the additional toolbar by its aria-label.
+     */
     async hoverToolbarMoreAction(label: string) {
-        await this.locators.toolbarMoreMenu.waitFor({state: 'visible'});
+        await this.locators.toolbars.additional.waitFor({state: 'visible'});
         await this.getToolbarButton(label).hover({force: true});
     }
 
+    /**
+     * Waits for the toolbar action disabled hint to become visible.
+     */
     async waitForToolbarActionDisabledHint() {
         await this.locators.toolbarActionDisabledHint.waitFor({state: 'visible'});
     }
 
     /**
-     * Clicks a toolbar button using its aria-label.
-     * @param label - The aria-label of the button.
-     * @param inPopup - If true, only search within open popups; otherwise, search the main editor toolbar.
+     * Returns the locator for the toolbar dropdown menu related to the given label.
      */
-    async clickToolbarButton(label: string, inPopup = false) {
-        const root = inPopup ? this.page.locator('.g-popup.g-popup_open') : this.locators.editor;
-        const button = root.getByLabel(label);
+    getToolbarMenuByLabel(label: string): Locator {
+        return this.page.locator(`[data-toolbar-menu-for="${label}"]`);
+    }
+
+    /**
+     * Clicks a main toolbar button using its aria-label.
+     */
+    async clickMainToolbarButton(label: string, subLabel?: string) {
+        const button = this.locators.toolbars.main.getByLabel(label);
 
         await this.expect(button).toBeEnabled();
         await button.click();
 
-        if (inPopup) await this.locators.toolbarMoreMenu.waitFor({state: 'detached'});
+        if (subLabel) {
+            await this.page.waitForTimeout(DEFAULT_DELAY);
+
+            const item = this.getToolbarMenuByLabel(label).getByLabel(subLabel);
+
+            await this.expect(item).toBeEnabled();
+            await item.click();
+        }
+    }
+
+    /**
+     * Clicks a additional toolbar button using its aria-label.
+     */
+    async clickAdditionalToolbarButton(label: string) {
+        await this.openMainToolbarMoreMenu();
+
+        const button = this.locators.toolbars.additional.getByLabel(label);
+
+        await this.expect(button).toBeEnabled();
+        await button.click();
+    }
+
+    /**
+     * Clicks a selection toolbar button using its aria-label.
+     */
+    async clickSelectionToolbarButton(label: string, subLabel?: string) {
+        const button =
+            label === 'Heading'
+                ? this.locators.toolbars.selection.getByTestId('g-md-toolbar-text-select')
+                : this.locators.toolbars.selection.getByLabel(label);
+
+        await this.expect(button).toBeEnabled();
+        await button.click();
+
+        if (subLabel) {
+            await this.page.waitForTimeout(DEFAULT_DELAY);
+
+            const item =
+                label === 'Heading'
+                    ? this.locators.toolbars.selection.getByLabel(subLabel)
+                    : this.getToolbarMenuByLabel(label).getByLabel(subLabel);
+
+            await this.expect(item).toBeEnabled();
+            await item.click();
+        }
     }
 
     /**
      * Clears all content from the contenteditable area
      */
     async clearContent() {
-        await this.press('ControlOrMeta+A');
-        await this.press('Backspace');
+        await this.fill('');
     }
 
     /**
@@ -363,8 +580,11 @@ export class MarkdownEditorPage {
     /**
      * Presses a key within the contenteditable area
      */
-    async press(key: string) {
-        await this.locators.contenteditable.press(key);
+    async press(key: string, times = 1) {
+        while (times > 0) {
+            await this.locators.contenteditable.press(key);
+            times--;
+        }
     }
 
     /**
@@ -380,16 +600,6 @@ export class MarkdownEditorPage {
     async inputRule(sequence: string) {
         await this.pressSequentially(sequence);
         await this.press('Space');
-    }
-
-    /**
-     * Switches to WYSIWYG mode, clears all content, then types the given sequence
-     * and presses Space to apply an input rule.
-     */
-    async inputRuleWithClear(sequence: string) {
-        await this.switchMode('wysiwyg');
-        await this.clearContent();
-        await this.inputRule(sequence);
     }
 
     /**
@@ -414,7 +624,16 @@ export class MarkdownEditorPage {
      * Fills the contenteditable area with the provided text
      */
     async fill(text: string) {
-        this.locators.contenteditable.fill(text);
+        const mode = await this.getMode();
+
+        if (mode === 'wysiwyg') {
+            await this.switchMode('markup');
+        }
+        await this.locators.contenteditable.fill(text);
+        await this.page.waitForTimeout(DEFAULT_DELAY);
+
+        await this.switchMode(mode);
+        await this.page.waitForTimeout(DEFAULT_DELAY);
     }
 
     /**
@@ -424,10 +643,13 @@ export class MarkdownEditorPage {
         let loc = this.locators.contenteditable;
         if (selector) loc = loc.locator(selector);
 
-        loc.selectText();
-        await this.page.waitForTimeout(100);
+        await loc.selectText();
+        await this.page.waitForTimeout(DEFAULT_DELAY);
     }
 
+    /**
+     * Waits for the CodeMirror autocomplete popup to become visible.
+     */
     async waitForCMAutocomplete() {
         await this.locators.cmAutocomplete.waitFor({state: 'visible'});
     }

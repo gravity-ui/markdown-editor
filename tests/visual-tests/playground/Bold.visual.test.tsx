@@ -5,36 +5,35 @@ import {expect, test} from 'playwright/core';
 import {Playground} from './Playground.helpers';
 
 test.describe('Bold', () => {
-    test.beforeEach(async ({mount}) => {
+    test.beforeEach(async ({editor, mount}) => {
         const initialMarkup = dd`
          some text
       `;
 
         await mount(<Playground initial={initialMarkup} />);
+        await editor.switchMode('wysiwyg');
     });
 
     test.describe('mark', () => {
         test('should mark via toolbar @wysiwyg', async ({editor, wait}) => {
-            await editor.switchMode('wysiwyg');
-            await editor.assertToolbarButtonNotSelected('Bold');
+            await editor.assertMainToolbarButtonNotSelected('Bold');
 
             await editor.focus();
             await editor.press('ArrowDown');
             await editor.press('Enter');
 
-            await editor.clickToolbarButton('Bold');
+            await editor.clickMainToolbarButton('Bold');
             await wait.timeout();
 
             await editor.pressSequentially('next');
-            await editor.assertToolbarButtonSelected('Bold');
+            await editor.assertMainToolbarButtonSelected('Bold');
 
             await editor.press('ArrowUp');
-            await editor.assertToolbarButtonNotSelected('Bold');
+            await editor.assertMainToolbarButtonNotSelected('Bold');
         });
 
         test('should mark via input rule @wysiwyg', async ({editor, wait}) => {
-            await editor.switchMode('wysiwyg');
-            await editor.assertToolbarButtonNotSelected('Bold');
+            await editor.assertMainToolbarButtonNotSelected('Bold');
 
             await editor.focus();
             await editor.press('ArrowDown');
@@ -44,16 +43,17 @@ test.describe('Bold', () => {
             await wait.timeout();
             await editor.press('ArrowLeft');
 
-            await editor.assertToolbarButtonSelected('Bold');
+            await editor.assertMainToolbarButtonSelected('Bold');
 
             await editor.press('ArrowUp');
-            await editor.assertToolbarButtonNotSelected('Bold');
+            await editor.assertMainToolbarButtonNotSelected('Bold');
         });
 
-        // key combo fails in headless mode
-        test.skip('should mark via keyboard shortcut @wysiwyg', async ({editor, wait}) => {
-            await editor.switchMode('wysiwyg');
-            await editor.assertToolbarButtonNotSelected('Bold');
+        // TODO: Investigate why keyboard shortcuts don't work reliably in the test environment
+        test('should mark via keyboard shortcut @wysiwyg', async ({editor, wait}) => {
+            test.skip(true, 'key combo fails in headless mode');
+
+            await editor.assertMainToolbarButtonNotSelected('Bold');
 
             await editor.focus();
             await editor.press('ArrowDown');
@@ -65,10 +65,10 @@ test.describe('Bold', () => {
             await editor.pressSequentially('next');
             await wait.timeout();
 
-            await editor.assertToolbarButtonSelected('Bold');
+            await editor.assertMainToolbarButtonSelected('Bold');
 
             await editor.press('ArrowUp');
-            await editor.assertToolbarButtonNotSelected('Bold');
+            await editor.assertMainToolbarButtonNotSelected('Bold');
         });
 
         test('should mark via toolbar @markup', async ({editor, wait}) => {
@@ -78,7 +78,7 @@ test.describe('Bold', () => {
             await editor.press('ArrowDown');
             await editor.press('Enter');
 
-            await editor.clickToolbarButton('Bold');
+            await editor.clickMainToolbarButton('Bold');
             await wait.timeout();
             await editor.pressSequentially('next');
 
@@ -88,10 +88,10 @@ test.describe('Bold', () => {
 
     test.describe('mode switch', () => {
         test('should remain after mode switch @wysiwyg @markup', async ({editor, wait}) => {
+            await editor.switchMode('markup');
             await editor.clearContent();
 
             const markup = 'some text\n**next**';
-            await editor.switchMode('markup');
             await editor.fill(markup);
             await wait.timeout();
 
@@ -101,10 +101,10 @@ test.describe('Bold', () => {
             await editor.press('ArrowDown');
             await wait.timeout();
 
-            await editor.assertToolbarButtonSelected('Bold');
+            await editor.assertMainToolbarButtonSelected('Bold');
 
             await editor.press('ArrowUp');
-            await editor.assertToolbarButtonNotSelected('Bold');
+            await editor.assertMainToolbarButtonNotSelected('Bold');
 
             await editor.switchMode('markup');
         });
@@ -112,8 +112,7 @@ test.describe('Bold', () => {
 
     test.describe('interaction', () => {
         test('should add mark to selected text via toolbar @wysiwyg', async ({editor, wait}) => {
-            await editor.switchMode('wysiwyg');
-            await editor.assertToolbarButtonNotSelected('Bold');
+            await editor.assertMainToolbarButtonNotSelected('Bold');
 
             await editor.focus();
             await editor.press('ArrowDown');
@@ -124,23 +123,22 @@ test.describe('Bold', () => {
 
             await editor.selectTextIn('p:nth-child(2)');
 
-            await editor.assertToolbarButtonNotSelected('Bold');
-            await editor.clickToolbarButton('Bold');
+            await editor.assertMainToolbarButtonNotSelected('Bold');
+            await editor.clickMainToolbarButton('Bold');
             await wait.timeout(300);
 
-            await editor.assertToolbarButtonSelected('Bold');
+            await editor.assertMainToolbarButtonSelected('Bold');
             await editor.press('ArrowUp');
             await wait.timeout();
 
-            await editor.assertToolbarButtonNotSelected('Bold');
+            await editor.assertMainToolbarButtonNotSelected('Bold');
         });
 
         test('should add mark to selected text via context toolbar @wysiwyg', async ({
             editor,
             wait,
         }) => {
-            await editor.switchMode('wysiwyg');
-            await editor.assertToolbarButtonNotSelected('Bold');
+            await editor.assertMainToolbarButtonNotSelected('Bold');
 
             await editor.focus();
             await editor.press('ArrowDown');
@@ -151,20 +149,19 @@ test.describe('Bold', () => {
 
             await editor.selectTextIn('p:nth-child(2)');
 
-            await editor.assertToolbarButtonNotSelected('Bold');
-            await editor.assertToolbarButtonNotSelected('Bold', true);
-            await editor.clickToolbarButton('Bold', true);
+            await editor.assertMainToolbarButtonNotSelected('Bold');
+            await editor.assertSelectionToolbarButtonNotSelected('Bold');
+            await editor.clickSelectionToolbarButton('Bold');
             await wait.timeout(300);
 
-            await editor.assertToolbarButtonSelected('Bold');
+            await editor.assertMainToolbarButtonSelected('Bold');
+            await editor.assertSelectionToolbarButtonSelected('Bold');
             await editor.press('ArrowUp');
 
-            await editor.assertToolbarButtonNotSelected('Bold');
+            await editor.assertMainToolbarButtonNotSelected('Bold');
         });
 
         test('should delete mark to selected text via toolbar @wysiwyg', async ({editor, wait}) => {
-            await editor.switchMode('wysiwyg');
-
             await editor.focus();
             await editor.press('ArrowDown');
             await editor.press('Enter');
@@ -173,11 +170,14 @@ test.describe('Bold', () => {
             await wait.timeout();
 
             await editor.selectTextIn('p:nth-child(2)');
-            await editor.assertToolbarButtonSelected('Bold');
+            await editor.assertMainToolbarButtonSelected('Bold');
+            await editor.assertSelectionToolbarButtonSelected('Bold');
 
-            await editor.clickToolbarButton('Bold');
+            await editor.clickMainToolbarButton('Bold');
             await wait.timeout();
-            await editor.assertToolbarButtonNotSelected('Bold');
+
+            await editor.assertMainToolbarButtonNotSelected('Bold');
+            await editor.assertSelectionToolbarButtonNotSelected('Bold');
         });
     });
 });

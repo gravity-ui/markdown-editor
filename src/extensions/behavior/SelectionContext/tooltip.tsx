@@ -111,6 +111,7 @@ export class TooltipView {
     private getSelectionTooltipProps(): SelectionTooltipProps {
         return {
             ...this.baseProps,
+            qa: 'g-md-toolbar-selection',
             focus: () => this.view.focus(),
             data: this.getFilteredConfig(),
             editor: this.actions,
