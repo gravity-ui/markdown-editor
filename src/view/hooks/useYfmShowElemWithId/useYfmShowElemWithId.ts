@@ -26,7 +26,7 @@ export function useYfmShowElemWithId(ref: RefObject<HTMLElement>, id: string) {
         const {current: containerDom} = ref;
         if (!id || !containerDom) return;
 
-        let elem = document.getElementById(id);
+        let elem = document.getElementById(id) ?? document.querySelector(`[name="${id}"]`);
         if (!elem || !containerDom.contains(elem)) return;
 
         while (elem && elem !== containerDom) {
