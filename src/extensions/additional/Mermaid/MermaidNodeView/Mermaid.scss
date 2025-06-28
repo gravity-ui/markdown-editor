@@ -1,3 +1,5 @@
+@use '../../../../styles/mixins.scss';
+
 .g-md-Mermaid {
     display: flex;
     justify-content: space-between;
@@ -32,9 +34,9 @@
     }
 
     &__EditorPopover {
-        z-index: 1;
-
         float: right;
+
+        @include mixins.z-index('forefront');
     }
 
     &__Controls {
