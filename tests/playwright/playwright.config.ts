@@ -23,6 +23,7 @@ const aliasesFromTsConf = (() => {
 })();
 
 const ctViteConfig: InlineConfig = {
+    publicDir: pathFromRoot('visual-tests/public'),
     css: {
         preprocessorOptions: {
             scss: {

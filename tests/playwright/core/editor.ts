@@ -144,6 +144,28 @@ class Colorify {
     }
 }
 
+class Image {
+    protected readonly imageSettingsButton: Locator;
+    protected readonly imageSettingsMenu: Locator;
+    protected readonly image: Locator;
+
+    constructor(page: Page) {
+        this.imageSettingsButton = page.getByTestId('g-md-image-settings-button');
+        this.imageSettingsMenu = page.getByTestId('g-md-image-settings-menu');
+        this.image = page.getByTestId('g-md-image');
+    }
+
+    async clickImageSettingsButton() {
+        const button = this.imageSettingsButton;
+        await button.click();
+    }
+
+    async clickImageSettingsMenu(label: string) {
+        const button = this.imageSettingsMenu.getByLabel(label);
+        await button.click();
+    }
+}
+
 class YfmNote {
     protected readonly yfmNoteToolbar: Locator;
 
@@ -205,6 +227,7 @@ export class MarkdownEditorPage {
     readonly yfmTable;
     readonly colorify;
     readonly yfmNote;
+    readonly image;
     protected readonly page: Page;
     protected readonly expect: Expect;
 
@@ -216,6 +239,7 @@ export class MarkdownEditorPage {
         this.yfmTable = new YfmTable(page);
         this.colorify = new Colorify(page, expect, this.locators);
         this.yfmNote = new YfmNote(page);
+        this.image = new Image(page);
     }
 
     /**
