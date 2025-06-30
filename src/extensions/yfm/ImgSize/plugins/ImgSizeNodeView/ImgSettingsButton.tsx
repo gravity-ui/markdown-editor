@@ -63,6 +63,7 @@ export const ImgSettingsButton: React.FC<{
 
             {isVisibleEditButton && (
                 <Button
+                    qa="g-md-image-settings-button"
                     onClick={togglePopup}
                     ref={setAnchorElement}
                     size="s"
@@ -79,9 +80,13 @@ export const ImgSettingsButton: React.FC<{
                 onOpenChange={unsetPopupOpen}
                 placement={placement}
             >
-                <Menu>
-                    <Menu.Item onClick={handleEdit}>{i18nCommon('edit')}</Menu.Item>
-                    <Menu.Item onClick={onDelete}>{i18nCommon('delete')}</Menu.Item>
+                <Menu qa="g-md-image-settings-menu">
+                    <Menu.Item extraProps={{'aria-label': i18nCommon('edit')}} onClick={handleEdit}>
+                        {i18nCommon('edit')}
+                    </Menu.Item>
+                    <Menu.Item extraProps={{'aria-label': i18nCommon('delete')}} onClick={onDelete}>
+                        {i18nCommon('delete')}
+                    </Menu.Item>
                 </Menu>
             </Popup>
         </>
