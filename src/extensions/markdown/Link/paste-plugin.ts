@@ -80,6 +80,12 @@ function getUrl(data: DataTransfer | null, parser: Parser): string | null {
     // TODO: should we process HTML here?
     const text = data.getData(DataTransferType.Text);
     const match = parser.matchLinks(text);
-    if (match?.[0]?.raw === text) return match[0].url;
+    if (match?.[0]) {
+        const {raw, url} = match[0];
+        if (raw === text) return url;
+        if (text.endsWith('?') && raw + '?' === text && parser.validateLink(text)) {
+            return parser.normalizeLink(text);
+        }
+    }
     return null;
 }
