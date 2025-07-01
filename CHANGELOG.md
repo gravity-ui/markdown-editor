@@ -1,5 +1,12 @@
 # Changelog
 
+## [15.14.2](https://github.com/gravity-ui/markdown-editor/compare/v15.14.1...v15.14.2) (2025-06-30)
+
+
+### Bug Fixes
+
+* **view:** support anchor links using `name` instead of `id` ([#792](https://github.com/gravity-ui/markdown-editor/issues/792)) ([3079054](https://github.com/gravity-ui/markdown-editor/commit/3079054a4bf3b05af1cdda22f28970a06a9c03d5))
+
 ## [15.14.1](https://github.com/gravity-ui/markdown-editor/compare/v15.14.0...v15.14.1) (2025-06-18)
 
 

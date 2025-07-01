@@ -43,4 +43,4 @@ export const TextAreaFixed = forwardRef<HTMLSpanElement, TextAreaProps>((props, 
     return <TextAreaUIKit ref={ref} {...props} controlRef={controlRef} autoFocus={false} />;
 });
 
-TextAreaFixed.displayName = 'TextInputFixed';
+TextAreaFixed.displayName = 'TextAreaFixed';
