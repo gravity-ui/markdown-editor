@@ -1,19 +1,24 @@
 import {EditorState, TextSelection} from 'prosemirror-state';
-import {EditorView} from 'prosemirror-view';
 import {builders} from 'prosemirror-test-builder';
+import {EditorView} from 'prosemirror-view';
 
 import {dispatchPasteEvent} from '../../../../tests/dispatch-event';
 import {createMarkupChecker} from '../../../../tests/sameMarkup';
 import {ExtensionsManager} from '../../../core';
-import {Logger2} from '../../../logger';
 import {LoggerFacet} from '../../../core/utils/logger';
+import {Logger2} from '../../../logger';
 import {BaseNode, BaseSchemaSpecs} from '../../base/specs';
 
-import {LinkAttr, linkMarkName, LinkSpecs} from './LinkSpecs';
+import {LinkAttr, LinkSpecs, linkMarkName} from './LinkSpecs';
 import {linkPasteEnhance} from './paste-plugin';
 
 const logger = new Logger2();
-const {schema, plugins, markupParser: parser, serializer} = new ExtensionsManager({
+const {
+    schema,
+    plugins,
+    markupParser: parser,
+    serializer,
+} = new ExtensionsManager({
     extensions: (builder) => {
         builder.use(BaseSchemaSpecs, {}).use(LinkSpecs);
         builder.addPlugin(linkPasteEnhance, builder.Priority.High);
