@@ -55,8 +55,7 @@ test.describe('File', () => {
             await editor.press('ArrowDown', 2);
             await editor.press('Enter');
 
-            await editor.pressSequentially('/fi');
-            await expect(page.getByTestId('g-md-toolbar-command-menu')).toBeVisible();
+            await editor.openCommandMenuToolbar('fi');
 
             const fileMenu = editor.getByTextInCommandMenu('File').first();
             await wait.visible(fileMenu);
