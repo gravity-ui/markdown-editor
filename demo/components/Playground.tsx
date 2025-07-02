@@ -156,7 +156,11 @@ export const Playground = memo<PlaygroundProps>((props) => {
                 linkifyTlds={md.linkifyTlds}
                 breaks={md.breaks}
                 needToSanitizeHtml={sanitizeHtml}
-                plugins={getPlugins({directiveSyntax})}
+                plugins={getPlugins({
+                    directiveSyntax,
+                    table_ignoreSplittersInBlockMath: true,
+                    table_ignoreSplittersInInlineMath: true,
+                })}
                 disableMarkdownItAttrs={disableMarkdownItAttrs}
                 htmlRuntimeConfig={{disabledModes: disabledHTMLBlockModes}}
             />
@@ -214,6 +218,12 @@ export const Playground = memo<PlaygroundProps>((props) => {
                     commandMenu: {actions: wysiwygCommandMenuConfig ?? wCommandMenuConfig},
                     imgSize: {
                         parseInsertedUrlAsImage,
+                    },
+                    yfmTable: {
+                        table_ignoreSplittersInBlockCode: true,
+                        table_ignoreSplittersInBlockMath: true,
+                        table_ignoreSplittersInInlineCode: true,
+                        table_ignoreSplittersInInlineMath: true,
                     },
                     ...wysiwygConfig?.extensionOptions,
                 },
