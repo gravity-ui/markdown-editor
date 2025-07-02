@@ -26,9 +26,8 @@ test.describe('Note', () => {
             await editor.assertAdditionalToolbarButtonDisabled('Note');
         });
 
-        test('should insert via command menu @wysiwyg', async ({page, editor, actions, wait}) => {
-            await editor.pressSequentially('/no');
-            await expect(page.getByTestId('g-md-toolbar-command-menu')).toBeVisible();
+        test('should insert via command menu @wysiwyg', async ({editor, actions, wait}) => {
+            await editor.openCommandMenuToolbar('no');
 
             const noteMenu = editor.getByTextInCommandMenu('Note').first();
             await wait.visible(noteMenu);
