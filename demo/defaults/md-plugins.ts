@@ -16,6 +16,7 @@ import monospace from '@diplodoc/transform/lib/plugins/monospace';
 import notes from '@diplodoc/transform/lib/plugins/notes';
 import sup from '@diplodoc/transform/lib/plugins/sup';
 import yfmTable from '@diplodoc/transform/lib/plugins/table';
+import type {YfmTablePluginOptions} from '@diplodoc/transform/lib/plugins/table/types';
 import video from '@diplodoc/transform/lib/plugins/video';
 import type {PluginWithParams} from 'markdown-it/lib';
 
@@ -33,10 +34,14 @@ export const YFM_HTML_BLOCK_RUNTIME = 'extension:yfm-html-block';
 
 type GetPluginsOptions = {
     directiveSyntax?: RenderPreviewParams['directiveSyntax'];
-};
+} & Pick<
+    YfmTablePluginOptions,
+    'table_ignoreSplittersInBlockMath' | 'table_ignoreSplittersInInlineMath'
+>;
 
 export function getPlugins({
     directiveSyntax,
+    ...options
 }: GetPluginsOptions = {}): markdownit.PluginWithParams[] {
     const defaultPlugins: PluginWithParams[] = [
         anchors,
@@ -67,7 +72,14 @@ export function getPlugins({
             },
         }),
         video,
-        yfmTable,
+        (md, opts) =>
+            yfmTable(md, {
+                ...opts,
+                table_ignoreSplittersInBlockCode: true,
+                table_ignoreSplittersInInlineCode: true,
+                table_ignoreSplittersInBlockMath: options.table_ignoreSplittersInBlockMath,
+                table_ignoreSplittersInInlineMath: options.table_ignoreSplittersInInlineMath,
+            }),
     ];
     const extendedPlugins = defaultPlugins.concat(
         (md) => md.use(emoji, {defs: emojiDefs}),
