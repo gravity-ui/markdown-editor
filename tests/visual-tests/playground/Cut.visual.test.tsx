@@ -29,9 +29,8 @@ test.describe('Cut', () => {
             await editor.assertAdditionalToolbarButtonEnabled('Cut');
         });
 
-        test('should insert via command menu @wysiwyg', async ({page, editor, actions, wait}) => {
-            await editor.pressSequentially('/c');
-            await expect(page.getByTestId('g-md-toolbar-command-menu')).toBeVisible();
+        test('should insert via command menu @wysiwyg', async ({editor, actions, wait}) => {
+            await editor.openCommandMenuToolbar('cu');
 
             const cutMenu = editor.getByTextInCommandMenu('Cut').first();
             await wait.visible(cutMenu);

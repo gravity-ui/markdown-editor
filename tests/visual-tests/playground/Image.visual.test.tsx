@@ -53,8 +53,7 @@ test.describe('Images', () => {
             await editor.press('ArrowDown', 2);
             await editor.press('Enter');
 
-            await editor.pressSequentially('/im');
-            await expect(page.getByTestId('g-md-toolbar-command-menu')).toBeVisible();
+            await editor.openCommandMenuToolbar('im');
 
             const imageMenu = editor.getByTextInCommandMenu('Image').first();
             await wait.visible(imageMenu);
@@ -148,7 +147,7 @@ test.describe('Images', () => {
             expectScreenshot,
             browserName,
         }) => {
-            test.skip(browserName === 'webkit', 'Focus does not work correctly in webkit');
+            test.skip(browserName === 'webkit', 'fillFocused does not work correctly in webkit');
 
             const markup = dd`
                 some text
