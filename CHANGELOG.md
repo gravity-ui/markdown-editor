@@ -1,5 +1,18 @@
 # Changelog
 
+## [15.15.0](https://github.com/gravity-ui/markdown-editor/compare/v15.14.2...v15.15.0) (2025-07-03)
+
+
+### Features
+
+* **YfmTable:** support for ignoring splitters in table content ([#800](https://github.com/gravity-ui/markdown-editor/issues/800)) ([23c68ac](https://github.com/gravity-ui/markdown-editor/commit/23c68acb1aa7bbd583cad33795056263b4857005))
+
+
+### Bug Fixes
+
+* correct TextAreaFixed display name ([#796](https://github.com/gravity-ui/markdown-editor/issues/796)) ([7b65f78](https://github.com/gravity-ui/markdown-editor/commit/7b65f786e8f5fa75d1bd68a0ae4ff203e0537535))
+* **Link:** paste URL with trailing question mark ([#798](https://github.com/gravity-ui/markdown-editor/issues/798)) ([51d0fe7](https://github.com/gravity-ui/markdown-editor/commit/51d0fe7976ca30c9fe4a130ab99f0e5c13294b5f))
+
 ## [15.14.2](https://github.com/gravity-ui/markdown-editor/compare/v15.14.1...v15.14.2) (2025-06-30)
 
 
