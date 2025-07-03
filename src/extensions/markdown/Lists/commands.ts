@@ -1,7 +1,8 @@
-import {Fragment, type NodeRange, type NodeType, Slice} from 'prosemirror-model';
+import {Fragment, type Node, type NodeRange, type NodeType, Slice} from 'prosemirror-model';
 import {wrapInList} from 'prosemirror-schema-list';
 import type {Command, Transaction} from 'prosemirror-state';
 import {ReplaceAroundStep, liftTarget} from 'prosemirror-transform';
+import {findParentNodeClosestToPos} from 'prosemirror-utils';
 
 import {joinPreviousBlock} from '../../../commands/join';
 
@@ -30,11 +31,17 @@ export const joinPrevList = joinPreviousBlock({
     sinks list items deeper.
  */
 const sink = (tr: Transaction, range: NodeRange, itemType: NodeType) => {
-    const before = tr.mapping.map(range.start);
-    const after = tr.mapping.map(range.end);
-    const startIndex = tr.mapping.map(range.startIndex);
-
+    console.warn('sink', '=========>>>');
+    const before = range.start;
+    const after = range.end;
+    const startIndex = range.startIndex;
     const parent = range.parent;
+
+    console.log('before', before);
+    console.log('after', after);
+    console.log('startIndex', startIndex);
+    console.log('parent', parent);
+
     const nodeBefore = parent.child(startIndex - 1);
 
     const nestedBefore = nodeBefore.lastChild && nodeBefore.lastChild.type === parent.type;
@@ -56,65 +63,224 @@ const sink = (tr: Transaction, range: NodeRange, itemType: NodeType) => {
             true,
         ),
     );
+
+    // Log the new position of the moved <li>
+    const oldPos = range.start;
+    const newPos = tr.mapping.map(oldPos, 1); // 1 = map as if the step was inserted after
+    console.log('[sink] moved <li> new pos:', newPos, 'node:', tr.doc.nodeAt(newPos)?.type.name);
+
+    // Lift any nested lists that ended up inside the moved <li>
+    liftNestedLists(tr, itemType, parent.type, newPos);
+
     return true;
 };
 
+export const isNotFirstListItemNode = (node: Node, itemType: NodeType) =>
+    node.childCount > 0 && node.firstChild!.type === itemType;
+
+function findDeepestListItem(tr: Transaction, itemType: NodeType, start: number): [number, number] {
+    let pos = start;
+
+    while (pos >= 0) {
+        const node = tr.doc.nodeAt(pos);
+
+        // console.log('pos', pos);
+        // console.log('node', node?.type.name);
+
+        if (node?.type === itemType) {
+            console.log('poses:', pos, pos + node.nodeSize);
+            return [pos, pos + node.nodeSize];
+        }
+
+        pos--;
+    }
+
+    return [start, start];
+}
+/**
+ * Returns a map of list item positions that should be transformed (e.g., sink or lift).
+ */
+export function getListItemsToTransform(
+    tr: Transaction,
+    itemType: NodeType,
+    {start, end, from, to}: {start: number; end: number; from: number; to: number},
+): Map<number, number> {
+    console.warn('getListItemsToTransform', start, end, from, to);
+    const listItemsPoses = new Map<number, number>();
+
+    const [fromStart, fromEnd] = findDeepestListItem(tr, itemType, from);
+    const [toStart, toEnd] = findDeepestListItem(tr, itemType, to);
+
+    const $from = tr.doc.resolve(from);
+    const $to = tr.doc.resolve(to);
+
+    const fromParent = findParentNodeClosestToPos($from, (node) => node.type === itemType);
+    const toParent = findParentNodeClosestToPos($to, (node) => node.type === itemType);
+
+    console.error('+++');
+    console.log('form', fromStart, fromEnd);
+    console.log('to', toStart, toEnd);
+    console.log(
+        'fromParent',
+        fromParent?.pos,
+        Number(fromParent?.pos) + Number(fromParent?.node?.nodeSize),
+    );
+    console.log(
+        'toParent',
+        toParent?.pos,
+        Number(toParent?.pos) + Number(toParent?.node?.nodeSize),
+    );
+
+    listItemsPoses.set(fromStart, fromEnd);
+    listItemsPoses.set(toStart, toEnd);
+
+    let pos = fromStart + 1;
+
+    while (pos < toStart) {
+        const node = tr.doc.nodeAt(pos);
+
+        console.log('pos', pos);
+        console.log('node', node?.type.name);
+
+        if (node?.type === itemType) {
+            listItemsPoses.set(pos, pos + node.nodeSize);
+        } else if (node && !isListNode(node)) {
+            pos += node.nodeSize - 1;
+        }
+        pos++;
+    }
+
+    return listItemsPoses;
+}
+
+/**
+ * Lifts all nested lists (<ul>/<ol>) that are direct children of the list item at `liPos`.
+ *
+ * @param tr         The working transaction
+ * @param itemType   The node type representing a list_item
+ * @param listType   The node type representing the surrounding list (bullet_list / ordered_list)
+ * @param liPos      The absolute position of the moved <li> in the current transaction
+ */
+function liftNestedLists(
+    tr: Transaction,
+    itemType: NodeType,
+    listType: NodeType,
+    liPos: number,
+): void {
+    console.log('[liftNestedLists] entered with liPos:', liPos);
+    const movedItem = tr.doc.nodeAt(liPos);
+    console.log('[liftNestedLists] movedItem at liPos:', movedItem);
+    if (!movedItem) return;
+
+    movedItem.forEach((child, offset) => {
+        console.log('[liftNestedLists] inspecting child at offset', offset, 'node:', child);
+        if (child.type === listType) {
+            const nestedStart = liPos + 1 + offset;
+            const nestedEnd = nestedStart + child.nodeSize;
+            console.log(
+                '[liftNestedLists] nested list span start/end:',
+                nestedStart,
+                nestedEnd,
+                'child.nodeSize:',
+                child.nodeSize,
+            );
+
+            const $nestedStart = tr.doc.resolve(nestedStart + 1);
+            const $nestedEnd = tr.doc.resolve(nestedEnd - 1);
+            console.log(
+                '[liftNestedLists] resolving range with $nestedStart.pos:',
+                $nestedStart.pos,
+                '$nestedEnd.pos:',
+                $nestedEnd.pos,
+            );
+
+            const liftRange = $nestedStart.blockRange($nestedEnd, (node) => node.type === listType);
+            console.log(
+                '[liftNestedLists] liftRange:',
+                liftRange ? {start: liftRange.start, end: liftRange.end} : null,
+            );
+            if (liftRange) {
+                const target = liftTarget(liftRange);
+                console.log('[liftNestedLists] lift target depth:', target);
+                if (target !== null) {
+                    console.log(
+                        '[liftNestedLists] performing tr.lift on range:',
+                        liftRange.start,
+                        liftRange.end,
+                        'with target depth:',
+                        target,
+                    );
+                    tr.lift(liftRange, target);
+                }
+            }
+        }
+    });
+}
+
 export function sinkOnlySelectedListItem(itemType: NodeType): Command {
     return ({tr, selection}, dispatch) => {
-        const {$from, $to} = selection;
-        const selectionRange = $from.blockRange(
-            $to,
-            (node) => node.childCount > 0 && node.firstChild!.type === itemType,
+        const {$from, $to, from, to} = selection;
+        const listItemSelectionRange = $from.blockRange($to, (node) =>
+            isNotFirstListItemNode(node, itemType),
         );
-        if (!selectionRange) {
-            return false;
-        }
 
-        const {startIndex, parent, start, end} = selectionRange;
-        if (startIndex === 0) {
-            return false;
-        }
-
-        const nodeBefore = parent.child(startIndex - 1);
-        if (nodeBefore.type !== itemType) {
+        if (!listItemSelectionRange) {
             return false;
         }
 
         if (dispatch) {
-            // lifts following list items sequentially to prepare correct nesting structure
-            let currentEnd = end - 1;
-            while (currentEnd > start) {
-                const selectionEnd = tr.mapping.map($to.pos);
+            const {start, end} = listItemSelectionRange;
+            const listItemsPoses = getListItemsToTransform(tr, itemType, {
+                start,
+                end,
+                from,
+                to,
+            });
 
-                const $candidateBlockEnd = tr.doc.resolve(currentEnd);
-                const candidateBlockStartPos = $candidateBlockEnd.before($candidateBlockEnd.depth);
-                const $candidateBlockStart = tr.doc.resolve(candidateBlockStartPos);
-                const candidateBlockRange = $candidateBlockStart.blockRange($candidateBlockEnd);
+            console.warn(listItemsPoses, 'start: end', start, end);
 
-                if (candidateBlockRange?.start) {
-                    const $rangeStart = tr.doc.resolve(candidateBlockRange.start);
-                    const shouldLift =
-                        candidateBlockRange.start > selectionEnd && isListNode($rangeStart.parent);
+            for (const [startPos, endPos] of listItemsPoses) {
+                const mappedStart = tr.mapping.map(startPos);
+                const mappedEnd = tr.mapping.map(endPos);
 
-                    if (shouldLift) {
-                        currentEnd = candidateBlockRange.start;
-
-                        const targetDepth = liftTarget(candidateBlockRange);
-                        if (targetDepth !== null) {
-                            tr.lift(candidateBlockRange, targetDepth);
-                        }
-                    }
+                let j = 0;
+                while (j < tr.doc.nodeSize - 1) {
+                    const node = tr.doc.nodeAt(j);
+                    // console.log('node', j, node?.type.name);
+                    j++;
                 }
 
-                currentEnd--;
+                const start = mappedStart;
+                const end = mappedEnd;
+
+                const startNode = tr.doc.nodeAt(start);
+                const $start = tr.doc.resolve(start);
+                const $end = tr.doc.resolve(end);
+
+                console.log('[startPos: endPos]', startPos, endPos);
+                console.log('[mapped startPos: endPos]', mappedStart, mappedEnd);
+                console.log('[$start, $end]', $start.pos, $end.pos, 'j:', j);
+                console.log('[startNode]', startNode?.type, 'startNode size', startNode?.nodeSize);
+                console.log(
+                    '[start, end]',
+                    start,
+                    end,
+                    'start + nodeSize',
+                    start + (startNode?.nodeSize ?? 0),
+                );
+
+                const range = $start.blockRange($end);
+
+                if (range) {
+                    console.log('[sink ---->]', range.start, range.end, range);
+                    // sink(tr, range, itemType);
+                }
             }
-
-            // sinks the selected list item deeper into the list hierarchy
-            sink(tr, selectionRange, itemType);
-
             dispatch(tr.scrollIntoView());
+
             return true;
         }
+
         return true;
     };
 }
