@@ -4,7 +4,7 @@ import {expect, test} from 'playwright/core';
 
 import {Playground} from './Playground.helpers';
 
-test.describe('Images', () => {
+test.describe('File', () => {
     test.beforeEach(async ({mount, editor}) => {
         const initialMarkup = dd`
             some text
@@ -22,13 +22,13 @@ test.describe('Images', () => {
             editor,
             wait,
         }) => {
-            await editor.assertAdditionalToolbarButtonEnabled('Image');
+            await editor.assertAdditionalToolbarButtonEnabled('File');
 
             await editor.focus();
             await editor.press('ArrowDown', 2);
             await editor.press('Enter');
 
-            await editor.clickAdditionalToolbarButton('Image');
+            await editor.clickAdditionalToolbarButton('File');
             await wait.timeout();
 
             const addByLinkTab = page.getByText('Add by link').first().locator('..');
@@ -38,9 +38,11 @@ test.describe('Images', () => {
             await wait.timeout();
 
             await actions.fillFocused(`/assets/test-image.jpg`);
+            await actions.pressFocused('Tab');
+            await actions.fillFocused(`Background`);
             await wait.timeout();
 
-            await actions.pressFocused('Tab', 7);
+            await actions.pressFocused('Tab', 2);
             await actions.pressFocused('Enter');
             await wait.timeout(500);
 
@@ -53,12 +55,12 @@ test.describe('Images', () => {
             await editor.press('ArrowDown', 2);
             await editor.press('Enter');
 
-            await editor.openCommandMenuToolbar('im');
+            await editor.openCommandMenuToolbar('fi');
 
-            const imageMenu = editor.getByTextInCommandMenu('Image').first();
-            await wait.visible(imageMenu);
+            const fileMenu = editor.getByTextInCommandMenu('File').first();
+            await wait.visible(fileMenu);
 
-            await imageMenu.click();
+            await fileMenu.click();
             await wait.timeout();
 
             const addByLinkTab = page.getByText('Add by link').first().locator('..');
@@ -68,15 +70,15 @@ test.describe('Images', () => {
             await wait.timeout();
 
             await actions.fillFocused(`/assets/test-image.jpg`);
+            await actions.pressFocused('Tab');
+            await actions.fillFocused(`Background`);
             await wait.timeout();
 
-            await actions.pressFocused('Tab', 7);
+            await actions.pressFocused('Tab', 2);
             await actions.pressFocused('Enter');
             await wait.timeout(500);
 
-            await expect(
-                editor.getBySelectorInContenteditable('.g-md-resizable img'),
-            ).toBeVisible();
+            await expect(editor.getBySelectorInContenteditable('.yfm-file')).toBeVisible();
         });
 
         test('should insert via toolbar @markup', async ({editor, wait, actions, page}) => {
@@ -85,7 +87,7 @@ test.describe('Images', () => {
             await editor.press('ArrowDown', 2);
             await editor.press('Enter');
 
-            await editor.clickAdditionalToolbarButton('Image');
+            await editor.clickAdditionalToolbarButton('File');
             await wait.timeout();
 
             const addByLinkTab = page.getByText('Add by link').first().locator('..');
@@ -95,14 +97,18 @@ test.describe('Images', () => {
             await wait.timeout();
 
             await actions.fillFocused(`/assets/test-image.jpg`);
+            await actions.pressFocused('Tab');
+            await actions.fillFocused(`Background`);
             await wait.timeout();
 
-            await actions.pressFocused('Tab', 7);
+            await actions.pressFocused('Tab', 2);
             await actions.pressFocused('Enter');
             await wait.timeout(500);
 
             await expect(
-                editor.getByTextInContenteditable('![](/assets/test-image.jpg)'),
+                editor.getByTextInContenteditable(
+                    '{% file src="/assets/test-image.jpg" name="Background" %}',
+                ),
             ).toBeVisible();
         });
     });
@@ -117,7 +123,7 @@ test.describe('Images', () => {
             const markup = dd`
                 some text
 
-                ![](/assets/test-image.jpg)
+                {% file src="/assets/test-image.jpg" name="Background" %}
 
                 text
             `;
@@ -135,69 +141,6 @@ test.describe('Images', () => {
 
             await page.mouse.move(-1, -1);
             await expectScreenshot();
-        });
-    });
-
-    test.describe('specific', () => {
-        test('should change image size @wysiwyg', async ({
-            wait,
-            editor,
-            page,
-            actions,
-            expectScreenshot,
-            browserName,
-        }) => {
-            test.skip(browserName === 'webkit', 'fillFocused does not work correctly in webkit');
-
-            const markup = dd`
-                some text
-
-                ![](/assets/test-image.jpg)
-
-                text
-            `;
-
-            await editor.switchMode('markup');
-            await editor.clearContent();
-            await editor.fill(markup);
-            await wait.timeout();
-
-            await expect(editor.getByTextInContenteditable('some text')).toBeVisible();
-            await expect(editor.getByTextInContenteditable('/assets/test-image.jpg')).toBeVisible();
-
-            await editor.switchMode('wysiwyg');
-            await wait.timeout(500);
-
-            await page.mouse.move(400, 400);
-            await editor.image.clickImageSettingsButton();
-            await wait.timeout(500);
-
-            await editor.image.clickImageSettingsMenu('Edit');
-            await wait.timeout(500);
-
-            await actions.fillFocused('Title');
-            await actions.pressFocused('Tab', 2);
-            await actions.fillFocused('Markdown Editor');
-            await actions.pressFocused('Tab');
-            await actions.fillFocused('400');
-            await actions.pressFocused('Tab', 2);
-            await expectScreenshot({nameSuffix: 'edit-popup'});
-
-            await actions.pressFocused('Enter');
-            await wait.timeout(500);
-
-            await page.mouse.move(-1, -1);
-            await expectScreenshot();
-            await wait.timeout();
-
-            await editor.switchMode('markup');
-            await wait.timeout(500);
-
-            await expect(
-                editor.getByTextInContenteditable(
-                    '![Markdown Editor](/assets/test-image.jpg "Title" =400x)',
-                ),
-            ).toBeVisible();
         });
     });
 });
