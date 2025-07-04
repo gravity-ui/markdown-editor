@@ -1,9 +1,11 @@
 import {StrictMode, memo, useCallback, useEffect, useState} from 'react';
 
 import {
+    type MarkdownEditorMarkupConfig,
     type MarkdownEditorMode,
     type MarkdownEditorPreset,
     MarkdownEditorView,
+    type MarkdownEditorWysiwygConfig,
     type MarkupString,
     type RenderPreview,
     useMarkdownEditor,
@@ -41,6 +43,8 @@ export type PresetDemoProps = {
     stickyToolbar?: boolean;
     height?: React.CSSProperties['height'];
     toolbarsPreset?: ToolbarsPreset;
+    wysiwygConfig?: MarkdownEditorWysiwygConfig;
+    markupConfig?: MarkdownEditorMarkupConfig;
 };
 
 export const Preset = memo<PresetDemoProps>((props) => {
@@ -55,6 +59,8 @@ export const Preset = memo<PresetDemoProps>((props) => {
         stickyToolbar,
         height,
         toolbarsPreset,
+        wysiwygConfig,
+        markupConfig,
     } = props;
     const [editorMode, setEditorMode] = useState<MarkdownEditorMode>('wysiwyg');
     const [mdRaw, setMdRaw] = useState<MarkupString>('');
@@ -96,11 +102,13 @@ export const Preset = memo<PresetDemoProps>((props) => {
                     parseInsertedUrlAsImage,
                 },
             },
+            ...wysiwygConfig,
         },
         markupConfig: {
             splitMode: splitModeOrientation,
             renderPreview,
             parseInsertedUrlAsImage,
+            ...markupConfig,
         },
     });
 
