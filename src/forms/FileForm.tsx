@@ -30,6 +30,7 @@ export type FileFormProps = ClassNameProps & {
     onCancel(): void;
     onAttach?: (files: File[]) => void;
     loading?: boolean;
+    uploadHint?: string;
 };
 
 export const FileForm: React.FC<FileFormProps> = ({
@@ -39,6 +40,7 @@ export const FileForm: React.FC<FileFormProps> = ({
     onSubmit,
     onAttach,
     loading,
+    uploadHint,
 }) => {
     const [tabId, setTabId] = useState<string>(() =>
         isFunction(onAttach) ? TabId.Attach : TabId.Link,
@@ -75,7 +77,7 @@ export const FileForm: React.FC<FileFormProps> = ({
             )}
             {tabId === TabId.Attach && onAttach && (
                 <>
-                    <Form.Layout>{i18n('file_upload_help')}</Form.Layout>
+                    <Form.Layout>{uploadHint ?? i18n('file_upload_help')}</Form.Layout>
                     <Form.Footer onCancel={onCancel}>
                         <ButtonAttach
                             multiple
