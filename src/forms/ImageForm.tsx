@@ -36,6 +36,7 @@ export type ImageFormProps = ClassNameProps & {
     onAttach?: (files: File[]) => void;
     loading?: boolean;
     imageTitle?: string;
+    uploadHint?: string;
 };
 
 export const ImageForm: React.FC<ImageFormProps> = ({
@@ -46,6 +47,7 @@ export const ImageForm: React.FC<ImageFormProps> = ({
     onAttach,
     loading,
     imageTitle: providedName,
+    uploadHint,
 }) => {
     const [tabId, setTabId] = useState<string>(() =>
         isFunction(onAttach) ? ImageTabId.Attach : ImageTabId.Link,
@@ -89,7 +91,7 @@ export const ImageForm: React.FC<ImageFormProps> = ({
             )}
             {tabId === ImageTabId.Attach && onAttach && (
                 <>
-                    <Form.Layout>{i18n('image_upload_help')}</Form.Layout>
+                    <Form.Layout>{uploadHint ?? i18n('image_upload_help')}</Form.Layout>
                     <Form.Footer onCancel={onCancel}>
                         <ButtonAttach
                             multiple
