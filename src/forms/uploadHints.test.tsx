@@ -1,8 +1,7 @@
-import React from 'react';
 import {renderToStaticMarkup} from 'react-dom/server';
 
-import {ImageForm} from './ImageForm';
 import {FileForm} from './FileForm';
+import {ImageForm} from './ImageForm';
 
 describe('upload hints', () => {
     const commonImageProps = {
