@@ -13,7 +13,6 @@
         flex-grow: 1;
         // Ensure empty editor has clickable area
         min-height: 36px;
-
         padding: var(--g-md-editor-padding);
 
         .g-root_theme_dark & .pm-iframe-container {
