@@ -17,10 +17,13 @@ class SlowTestsReporter implements Reporter {
 
     onEnd() {
         if (this.slowTests.length > 0) {
-            console.log(`Slow tests (duration > ${DELTA}):`);
-            for (const test of this.slowTests) {
-                console.log(`• ${test.title} (${(test.duration / ONE_SECOND).toFixed(1)}s)`);
-            }
+            console.log('---');
+            console.log(`Slow tests (duration > ${DELTA}), total ${this.slowTests.length}:`);
+            this.slowTests.forEach((test, index) => {
+                console.log(
+                    `${index + 1}. ${test.title} (${(test.duration / ONE_SECOND).toFixed(1)}s)`,
+                );
+            });
         }
     }
 }
