@@ -77,7 +77,9 @@ export class MarkdownParser implements Parser {
         return this.tokenizer.linkify.match(text);
     }
 
-    parse(text: string) {
+    parse(src: string): Node;
+    parse(tokens: Token[]): Node;
+    parse(src: string | Token[]) {
         const time = Date.now();
 
         try {
@@ -85,9 +87,12 @@ export class MarkdownParser implements Parser {
 
             let mdItTokens;
             try {
-                mdItTokens = this.tokenizer.parse(text, {});
+                mdItTokens = typeof src === 'string' ? this.tokenizer.parse(src, {}) : src;
                 if (this.dynamicModifier) {
-                    mdItTokens = this.dynamicModifier.processTokens(mdItTokens, text);
+                    mdItTokens = this.dynamicModifier.processTokens(
+                        mdItTokens,
+                        typeof src === 'string' ? src : null,
+                    );
                 }
             } catch (err) {
                 const e = err as Error;
@@ -377,7 +382,7 @@ function withoutTrailingNewline(str: string) {
 export type ProcessToken = (
     token: Token,
     index: number,
-    rawMarkup: string,
+    rawMarkup: string | null,
     allowedAttrs?: string[],
 ) => Token;
 export type ProcessNodeAttrs = (
@@ -455,7 +460,7 @@ export class MarkdownParserDynamicModifier {
         this.elementProcessors = new Map(Object.entries(config));
     }
 
-    processTokens(tokens: Token[], rawMarkup: string): Token[] {
+    processTokens(tokens: Token[], rawMarkup: string | null): Token[] {
         return tokens.map((token, index) => {
             const processor = this.elementProcessors.get(cropNodeName(token.type, openSuffix, ''));
             if (!processor || !processor.processToken || processor.processToken.length === 0) {
