@@ -2,7 +2,6 @@ import type {Node} from 'prosemirror-model';
 
 import type {SerializerNodeToken, SerializerState} from '../types/serializer';
 
-/** @internal */
 export type SerializerProcessNode = (
     state: SerializerState,
     node: Node,
@@ -11,12 +10,10 @@ export type SerializerProcessNode = (
     callback?: SerializerNodeToken,
 ) => void;
 
-/** @internal */
 export interface SerializerNodeProcessor {
     processNode?: SerializerProcessNode[];
 }
 
-/** @internal */
 export interface MarkdownSerializerDynamicModifierConfig {
     [nodeType: string]: SerializerNodeProcessor;
 }
@@ -47,8 +44,6 @@ export interface MarkdownSerializerDynamicModifierConfig {
  * - Customizing the serialization output.
  * - Logging or modifying node content during serialization.
  */
-
-/** @internal */
 export class MarkdownSerializerDynamicModifier {
     private nodeProcessors: Map<string, SerializerNodeProcessor>;
 
