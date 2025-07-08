@@ -5,6 +5,8 @@ import type {Node} from 'prosemirror-model';
 export interface Parser {
     /** Parse raw markup to prosemirror's root node */
     parse(markup: string): Node;
+    /** Parse markdown-it tokens stream to prosemirror's root node */
+    parse(tokens: Token[]): Node;
     validateLink(url: string): boolean;
     normalizeLink(url: string): string;
     normalizeLinkText(url: string): string;

@@ -77,7 +77,9 @@ export class MarkdownParser implements Parser {
         return this.tokenizer.linkify.match(text);
     }
 
-    parse(text: string) {
+    parse(src: string): Node;
+    parse(tokens: Token[]): Node;
+    parse(src: string | Token[]) {
         const time = Date.now();
 
         try {
@@ -85,9 +87,12 @@ export class MarkdownParser implements Parser {
 
             let mdItTokens;
             try {
-                mdItTokens = this.tokenizer.parse(text, {});
+                mdItTokens = typeof src === 'string' ? this.tokenizer.parse(src, {}) : src;
                 if (this.dynamicModifier) {
-                    mdItTokens = this.dynamicModifier.processTokens(mdItTokens, text);
+                    mdItTokens = this.dynamicModifier.processTokens(
+                        mdItTokens,
+                        typeof src === 'string' ? src : null,
+                    );
                 }
             } catch (err) {
                 const e = err as Error;
@@ -374,6 +379,29 @@ function withoutTrailingNewline(str: string) {
     return str[str.length - 1] === '\n' || str.endsWith('\\n') ? str.slice(0, str.length - 1) : str;
 }
 
+export type ProcessToken = (
+    token: Token,
+    index: number,
+    rawMarkup: string | null,
+    allowedAttrs?: string[],
+) => Token;
+export type ProcessNodeAttrs = (
+    token: Token,
+    attrs: TokenAttrs,
+    allowedAttrs?: string[],
+) => TokenAttrs;
+export type ProcessNode = (node: Node) => Node;
+
+export interface ElementProcessor {
+    processToken?: ProcessToken[];
+    processNodeAttrs?: ProcessNodeAttrs[];
+    processNode?: ProcessNode[];
+}
+
+export interface MarkdownParserDynamicModifierConfig {
+    [elementType: string]: ElementProcessor;
+}
+
 /**
  * Class MarkdownParserDynamicModifier
  *
@@ -425,34 +453,6 @@ function withoutTrailingNewline(str: string) {
  * - Modifying token metadata.
  * - Logging or customizing processing steps for debugging.
  */
-
-/** @internal */
-export type ProcessToken = (
-    token: Token,
-    index: number,
-    rawMarkup: string,
-    allowedAttrs?: string[],
-) => Token;
-export type ProcessNodeAttrs = (
-    token: Token,
-    attrs: TokenAttrs,
-    allowedAttrs?: string[],
-) => TokenAttrs;
-export type ProcessNode = (node: Node) => Node;
-
-/** @internal */
-export interface ElementProcessor {
-    processToken?: ProcessToken[];
-    processNodeAttrs?: ProcessNodeAttrs[];
-    processNode?: ProcessNode[];
-}
-
-/** @internal */
-export interface MarkdownParserDynamicModifierConfig {
-    [elementType: string]: ElementProcessor;
-}
-
-/** @internal */
 export class MarkdownParserDynamicModifier {
     private elementProcessors: Map<string, ElementProcessor>;
 
@@ -460,7 +460,7 @@ export class MarkdownParserDynamicModifier {
         this.elementProcessors = new Map(Object.entries(config));
     }
 
-    processTokens(tokens: Token[], rawMarkup: string): Token[] {
+    processTokens(tokens: Token[], rawMarkup: string | null): Token[] {
         return tokens.map((token, index) => {
             const processor = this.elementProcessors.get(cropNodeName(token.type, openSuffix, ''));
             if (!processor || !processor.processToken || processor.processToken.length === 0) {

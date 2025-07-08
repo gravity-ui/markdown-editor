@@ -1,5 +1,14 @@
 # Changelog
 
+## [15.16.0](https://github.com/gravity-ui/markdown-editor/compare/v15.15.0...v15.16.0) (2025-07-08)
+
+
+### Features
+
+* **core:** make dynamic modifiers are public ([#805](https://github.com/gravity-ui/markdown-editor/issues/805)) ([ce0c9e0](https://github.com/gravity-ui/markdown-editor/commit/ce0c9e0db9548a21c2006a044b6d17c8e80e0b72))
+* **core:** markdown-parser can parse an existing stream of md tokens ([#806](https://github.com/gravity-ui/markdown-editor/issues/806)) ([e642c51](https://github.com/gravity-ui/markdown-editor/commit/e642c517b17e68f1971d2b870e42fb2814702399))
+* **forms:** allow custom upload hints ([#802](https://github.com/gravity-ui/markdown-editor/issues/802)) ([b407ce4](https://github.com/gravity-ui/markdown-editor/commit/b407ce423b96c6ca0cb18997bb701b24776d63d0))
+
 ## [15.15.0](https://github.com/gravity-ui/markdown-editor/compare/v15.14.2...v15.15.0) (2025-07-03)
 
 
