@@ -374,6 +374,29 @@ function withoutTrailingNewline(str: string) {
     return str[str.length - 1] === '\n' || str.endsWith('\\n') ? str.slice(0, str.length - 1) : str;
 }
 
+export type ProcessToken = (
+    token: Token,
+    index: number,
+    rawMarkup: string,
+    allowedAttrs?: string[],
+) => Token;
+export type ProcessNodeAttrs = (
+    token: Token,
+    attrs: TokenAttrs,
+    allowedAttrs?: string[],
+) => TokenAttrs;
+export type ProcessNode = (node: Node) => Node;
+
+export interface ElementProcessor {
+    processToken?: ProcessToken[];
+    processNodeAttrs?: ProcessNodeAttrs[];
+    processNode?: ProcessNode[];
+}
+
+export interface MarkdownParserDynamicModifierConfig {
+    [elementType: string]: ElementProcessor;
+}
+
 /**
  * Class MarkdownParserDynamicModifier
  *
@@ -425,34 +448,6 @@ function withoutTrailingNewline(str: string) {
  * - Modifying token metadata.
  * - Logging or customizing processing steps for debugging.
  */
-
-/** @internal */
-export type ProcessToken = (
-    token: Token,
-    index: number,
-    rawMarkup: string,
-    allowedAttrs?: string[],
-) => Token;
-export type ProcessNodeAttrs = (
-    token: Token,
-    attrs: TokenAttrs,
-    allowedAttrs?: string[],
-) => TokenAttrs;
-export type ProcessNode = (node: Node) => Node;
-
-/** @internal */
-export interface ElementProcessor {
-    processToken?: ProcessToken[];
-    processNodeAttrs?: ProcessNodeAttrs[];
-    processNode?: ProcessNode[];
-}
-
-/** @internal */
-export interface MarkdownParserDynamicModifierConfig {
-    [elementType: string]: ElementProcessor;
-}
-
-/** @internal */
 export class MarkdownParserDynamicModifier {
     private elementProcessors: Map<string, ElementProcessor>;
 
