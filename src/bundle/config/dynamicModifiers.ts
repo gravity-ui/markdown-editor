@@ -19,7 +19,7 @@ export function createDynamicModifiers(markupManager: MarkupManager): DynamicMod
             process: (token, _, rawMarkup) => {
                 const {map} = token;
 
-                if (map) {
+                if (map && rawMarkup !== null) {
                     const content = rawMarkup.split('\n').slice(map[0], map[1]).join('\n').trim();
                     const tokenId = v5(content, markupManager.getNamespace());
 
