@@ -8,8 +8,9 @@ class SlowTestsReporter implements Reporter {
 
     onTestEnd(test: TestCase, {duration}: TestResult) {
         if (duration > DELTA) {
+            const [_, browser, ...rest] = test.titlePath();
             this.slowTests.push({
-                title: `${test.titlePath().join(' › ')}`,
+                title: `[${browser}] › ${rest.join(' › ')}`,
                 duration,
             });
         }
@@ -19,7 +20,9 @@ class SlowTestsReporter implements Reporter {
         if (this.slowTests.length > 0) {
             console.log('---');
             console.log(`Slow tests (duration > ${DELTA}), total ${this.slowTests.length}:`);
-            this.slowTests.forEach((test, index) => {
+
+            const sorted = this.slowTests.sort((a, b) => b.duration - a.duration);
+            sorted.forEach((test, index) => {
                 console.log(
                     `${index + 1}. ${test.title} (${(test.duration / ONE_SECOND).toFixed(1)}s)`,
                 );
