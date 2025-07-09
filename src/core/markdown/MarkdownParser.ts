@@ -463,13 +463,17 @@ export class MarkdownParserDynamicModifier {
     processTokens(tokens: Token[], rawMarkup: string | null): Token[] {
         return tokens.map((token, index) => {
             const processor = this.elementProcessors.get(cropNodeName(token.type, openSuffix, ''));
-            if (!processor || !processor.processToken || processor.processToken.length === 0) {
-                return token;
+
+            const processedToken =
+                processor?.processToken?.reduce((currentToken, process) => {
+                    return process(currentToken, index, rawMarkup);
+                }, token) || token;
+
+            if (processedToken.children) {
+                processedToken.children = this.processTokens(processedToken.children, rawMarkup);
             }
 
-            return processor.processToken.reduce((currentToken, process) => {
-                return process(currentToken, index, rawMarkup);
-            }, token);
+            return processedToken;
         });
     }
 
