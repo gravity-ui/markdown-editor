@@ -1,5 +1,12 @@
 # Changelog
 
+## [15.16.1](https://github.com/gravity-ui/markdown-editor/compare/v15.16.0...v15.16.1) (2025-07-09)
+
+
+### Bug Fixes
+
+* **core:** process child tokens in MarkdownParserDynamicModifier ([#809](https://github.com/gravity-ui/markdown-editor/issues/809)) ([f1a5088](https://github.com/gravity-ui/markdown-editor/commit/f1a50888aca1fc1ed565888049a72680272feda6))
+
 ## [15.16.0](https://github.com/gravity-ui/markdown-editor/compare/v15.15.0...v15.16.0) (2025-07-08)
 
 
