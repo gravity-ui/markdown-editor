@@ -1,6 +1,6 @@
 # Changelog
 
-## [15.16.1](https://github.com/gravity-ui/markdown-editor/compare/v15.16.0...v15.16.1) (2025-07-09)
+## [15.16.2](https://github.com/gravity-ui/markdown-editor/compare/v15.16.1...v15.16.2) (2025-07-10)
 
 
 ### Bug Fixes
