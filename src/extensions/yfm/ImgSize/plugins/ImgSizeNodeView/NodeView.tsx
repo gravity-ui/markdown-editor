@@ -109,7 +109,7 @@ export const ImageNodeView: React.FC<ReactNodeViewProps> = ({
     );
 
     return (
-        <div ref={imageContainerRef}>
+        <div ref={imageContainerRef} data-qa="g-md-image">
             <Resizable
                 hover={isNodeHovered}
                 resizing={state.resizing}

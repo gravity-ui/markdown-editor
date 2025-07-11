@@ -1,5 +1,15 @@
 import type {StoryObj} from '@storybook/react';
 
+import {
+    textContextItemData,
+    wBoldItemData,
+    wHeading1ItemData,
+    wHeading2ItemData,
+    wItalicItemData,
+    wTextItemData,
+    wToggleHeadingFoldingItemData,
+} from 'src/bundle';
+
 import {Preset as component} from './Preset';
 import {toolbarPresets} from './presets';
 
@@ -28,6 +38,19 @@ export const Full: StoryObj<typeof component> = {
 export const Custom: StoryObj<typeof component> = {
     args: {
         toolbarsPreset: custom,
+        wysiwygConfig: {
+            extensionOptions: {
+                commandMenu: {
+                    actions: [wTextItemData, wHeading1ItemData, wHeading2ItemData],
+                },
+                selectionContext: {
+                    config: [
+                        [wToggleHeadingFoldingItemData, textContextItemData],
+                        [wBoldItemData, wItalicItemData],
+                    ],
+                },
+            },
+        },
     },
 };
 

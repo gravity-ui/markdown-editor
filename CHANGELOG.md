@@ -1,5 +1,41 @@
 # Changelog
 
+## [15.16.2](https://github.com/gravity-ui/markdown-editor/compare/v15.16.1...v15.16.2) (2025-07-10)
+
+
+### Bug Fixes
+
+* **core:** process child tokens in MarkdownParserDynamicModifier ([#809](https://github.com/gravity-ui/markdown-editor/issues/809)) ([f1a5088](https://github.com/gravity-ui/markdown-editor/commit/f1a50888aca1fc1ed565888049a72680272feda6))
+
+## [15.16.0](https://github.com/gravity-ui/markdown-editor/compare/v15.15.0...v15.16.0) (2025-07-08)
+
+
+### Features
+
+* **core:** make dynamic modifiers are public ([#805](https://github.com/gravity-ui/markdown-editor/issues/805)) ([ce0c9e0](https://github.com/gravity-ui/markdown-editor/commit/ce0c9e0db9548a21c2006a044b6d17c8e80e0b72))
+* **core:** markdown-parser can parse an existing stream of md tokens ([#806](https://github.com/gravity-ui/markdown-editor/issues/806)) ([e642c51](https://github.com/gravity-ui/markdown-editor/commit/e642c517b17e68f1971d2b870e42fb2814702399))
+* **forms:** allow custom upload hints ([#802](https://github.com/gravity-ui/markdown-editor/issues/802)) ([b407ce4](https://github.com/gravity-ui/markdown-editor/commit/b407ce423b96c6ca0cb18997bb701b24776d63d0))
+
+## [15.15.0](https://github.com/gravity-ui/markdown-editor/compare/v15.14.2...v15.15.0) (2025-07-03)
+
+
+### Features
+
+* **YfmTable:** support for ignoring splitters in table content ([#800](https://github.com/gravity-ui/markdown-editor/issues/800)) ([23c68ac](https://github.com/gravity-ui/markdown-editor/commit/23c68acb1aa7bbd583cad33795056263b4857005))
+
+
+### Bug Fixes
+
+* correct TextAreaFixed display name ([#796](https://github.com/gravity-ui/markdown-editor/issues/796)) ([7b65f78](https://github.com/gravity-ui/markdown-editor/commit/7b65f786e8f5fa75d1bd68a0ae4ff203e0537535))
+* **Link:** paste URL with trailing question mark ([#798](https://github.com/gravity-ui/markdown-editor/issues/798)) ([51d0fe7](https://github.com/gravity-ui/markdown-editor/commit/51d0fe7976ca30c9fe4a130ab99f0e5c13294b5f))
+
+## [15.14.2](https://github.com/gravity-ui/markdown-editor/compare/v15.14.1...v15.14.2) (2025-06-30)
+
+
+### Bug Fixes
+
+* **view:** support anchor links using `name` instead of `id` ([#792](https://github.com/gravity-ui/markdown-editor/issues/792)) ([3079054](https://github.com/gravity-ui/markdown-editor/commit/3079054a4bf3b05af1cdda22f28970a06a9c03d5))
+
 ## [15.14.1](https://github.com/gravity-ui/markdown-editor/compare/v15.14.0...v15.14.1) (2025-06-18)
 
 

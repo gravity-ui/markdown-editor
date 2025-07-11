@@ -17,6 +17,106 @@ type MarkdownEditorToolbarsLocators = Record<
     Locator
 >;
 
+class Colorify {
+    protected readonly page: Page;
+    protected readonly expect: Expect;
+    protected readonly editor: Locator;
+    protected readonly mainToolbar: Locator;
+    protected readonly selectionToolbar: Locator;
+
+    constructor(
+        page: Page,
+        expect: Expect,
+        locators: {toolbars: MarkdownEditorToolbarsLocators} & {editor: Locator},
+    ) {
+        this.page = page;
+        this.expect = expect;
+        this.editor = locators.editor;
+        this.mainToolbar = locators.toolbars.main;
+        this.selectionToolbar = locators.toolbars.selection;
+    }
+    /**
+     * Asserts that the main toolbar color button has the "default" qa attribute.
+     */
+    async assertMainToolbarColorButtonDefault() {
+        const button = this.mainToolbar.getByLabel('Text color');
+        await this.expect(button).toHaveAttribute('data-selected-color', 'default');
+    }
+
+    /**
+     * Asserts that the main toolbar color button does not have the "default" qa attribute.
+     */
+    async assertMainToolbarColorButtonNotDefault() {
+        const button = this.mainToolbar.getByLabel('Text color');
+        await this.expect(button).not.toHaveAttribute('data-selected-color', 'default');
+    }
+
+    /**
+     * Asserts that the selection toolbar color button has the "default" qa attribute.
+     */
+    async assertSelectionToolbarColorButtonDefault() {
+        const button = this.selectionToolbar.getByLabel('Text color');
+        await this.expect(button).toHaveAttribute('data-selected-color', 'default');
+    }
+
+    /**
+     * Asserts that the selection toolbar color button does not have the "default" qa attribute.
+     */
+    async assertSelectionToolbarColorButtonNotDefault() {
+        const button = this.selectionToolbar.getByLabel('Text color');
+        await this.expect(button).not.toHaveAttribute('data-selected-color', 'default');
+    }
+}
+
+class Image {
+    protected readonly imageSettingsButton: Locator;
+    protected readonly imageSettingsMenu: Locator;
+    protected readonly image: Locator;
+
+    constructor(page: Page) {
+        this.imageSettingsButton = page.getByTestId('g-md-image-settings-button');
+        this.imageSettingsMenu = page.getByTestId('g-md-image-settings-menu');
+        this.image = page.getByTestId('g-md-image');
+    }
+
+    async clickImageSettingsButton() {
+        const button = this.imageSettingsButton;
+        await button.click();
+    }
+
+    async clickImageSettingsMenu(label: string) {
+        const button = this.imageSettingsMenu.getByLabel(label);
+        await button.click();
+    }
+}
+
+class Link {
+    protected readonly expect: Expect;
+    protected readonly form: Locator;
+
+    constructor(page: Page, expect: Expect) {
+        this.expect = expect;
+        this.form = page.getByTestId('g-md-link-form');
+    }
+
+    async assertFormToBeVisible() {
+        await this.expect(this.form).toBeVisible();
+    }
+}
+
+class YfmNote {
+    protected readonly yfmNoteToolbar: Locator;
+
+    constructor(page: Page) {
+        this.yfmNoteToolbar = page.getByTestId('g-md-toolbar-yfm-note');
+    }
+
+    async clickYfmNoteToolbarButton(label: string) {
+        const button = this.yfmNoteToolbar.getByLabel(label);
+        await button.click();
+    }
+}
+
 class YfmTable {
     readonly buttonPlusRowLocator;
     readonly buttonPlusColumnLocator;
@@ -93,70 +193,6 @@ class YfmTable {
     }
 }
 
-class Colorify {
-    protected readonly page: Page;
-    protected readonly expect: Expect;
-    protected readonly editor: Locator;
-    protected readonly mainToolbar: Locator;
-    protected readonly selectionToolbar: Locator;
-
-    constructor(
-        page: Page,
-        expect: Expect,
-        locators: {toolbars: MarkdownEditorToolbarsLocators} & {editor: Locator},
-    ) {
-        this.page = page;
-        this.expect = expect;
-        this.editor = locators.editor;
-        this.mainToolbar = locators.toolbars.main;
-        this.selectionToolbar = locators.toolbars.selection;
-    }
-    /**
-     * Asserts that the main toolbar color button has the "default" qa attribute.
-     */
-    async assertMainToolbarColorButtonDefault() {
-        const button = this.mainToolbar.getByLabel('Text color');
-        await this.expect(button).toHaveAttribute('data-selected-color', 'default');
-    }
-
-    /**
-     * Asserts that the main toolbar color button does not have the "default" qa attribute.
-     */
-    async assertMainToolbarColorButtonNotDefault() {
-        const button = this.mainToolbar.getByLabel('Text color');
-        await this.expect(button).not.toHaveAttribute('data-selected-color', 'default');
-    }
-
-    /**
-     * Asserts that the selection toolbar color button has the "default" qa attribute.
-     */
-    async assertSelectionToolbarColorButtonDefault() {
-        const button = this.selectionToolbar.getByLabel('Text color');
-        await this.expect(button).toHaveAttribute('data-selected-color', 'default');
-    }
-
-    /**
-     * Asserts that the selection toolbar color button does not have the "default" qa attribute.
-     */
-    async assertSelectionToolbarColorButtonNotDefault() {
-        const button = this.selectionToolbar.getByLabel('Text color');
-        await this.expect(button).not.toHaveAttribute('data-selected-color', 'default');
-    }
-}
-
-class YfmNote {
-    protected readonly yfmNoteToolbar: Locator;
-
-    constructor(page: Page) {
-        this.yfmNoteToolbar = page.getByTestId('g-md-toolbar-yfm-note');
-    }
-
-    async clickYfmNoteToolbarButton(label: string) {
-        const button = this.yfmNoteToolbar.getByLabel(label);
-        await button.click();
-    }
-}
-
 class MarkdownEditorLocators {
     readonly component;
     readonly contenteditable;
@@ -205,6 +241,8 @@ export class MarkdownEditorPage {
     readonly yfmTable;
     readonly colorify;
     readonly yfmNote;
+    readonly image;
+    readonly link;
     protected readonly page: Page;
     protected readonly expect: Expect;
 
@@ -216,6 +254,8 @@ export class MarkdownEditorPage {
         this.yfmTable = new YfmTable(page);
         this.colorify = new Colorify(page, expect, this.locators);
         this.yfmNote = new YfmNote(page);
+        this.image = new Image(page);
+        this.link = new Link(page, expect);
     }
 
     /**
