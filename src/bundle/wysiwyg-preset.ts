@@ -42,6 +42,7 @@ export type BundlePresetOptions = ExtensionsOptions &
         directiveSyntax: DirectiveSyntaxContext;
         // MAJOR: remove markdown-it-attrs
         disableMdAttrs?: boolean;
+        mobile?: boolean;
     };
 
 declare global {
@@ -94,7 +95,7 @@ export const BundlePreset: ExtensionAuto<BundlePresetOptions> = (builder, opts) 
 
                 return typeof value === 'function'
                     ? value()
-                    : value ?? i18nPlaceholder('doc_empty');
+                    : value ?? i18nPlaceholder(opts.mobile ? 'doc_empty_mobile' : 'doc_empty');
             },
             preserveEmptyRows: opts.preserveEmptyRows,
             ...opts.baseSchema,

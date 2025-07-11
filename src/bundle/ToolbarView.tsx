@@ -69,6 +69,7 @@ export function ToolbarView<T>({
                 focus={toolbarFocus}
                 dotsTitle={i18n('more_action')}
                 onClick={(id, attrs) => editor.emit('toolbar-action', {id, attrs, editorMode})}
+                mobile={editor.mobile}
             />
             {children}
         </div>

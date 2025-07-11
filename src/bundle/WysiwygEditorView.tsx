@@ -43,6 +43,7 @@ export const WysiwygEditorView = memo<WysiwygEditorViewProps>((props) => {
         children,
         stickyToolbar = true,
     } = props;
+
     useRenderTime((time) => {
         globalLogger.metrics({
             component: 'wysiwyg-editor',
@@ -55,6 +56,7 @@ export const WysiwygEditorView = memo<WysiwygEditorViewProps>((props) => {
             duration: time,
         });
     });
+
     return (
         <div className={b({toolbar: toolbarVisible}, [className])} data-qa={qa}>
             {toolbarVisible ? (
