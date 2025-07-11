@@ -23,7 +23,6 @@ export type ToolbarViewProps<T> = ClassNameProps &
         hiddenActionsConfig?: ToolbarItemData<T>[];
         children?: React.ReactNode;
         stickyToolbar: boolean;
-        mobile?: boolean;
     };
 
 export function ToolbarView<T>({
@@ -38,7 +37,6 @@ export function ToolbarView<T>({
     children,
     stickyToolbar,
     qa,
-    mobile,
 }: ToolbarViewProps<T>) {
     const rerender = useUpdate();
     useLayoutEffect(() => {
@@ -71,7 +69,7 @@ export function ToolbarView<T>({
                 focus={toolbarFocus}
                 dotsTitle={i18n('more_action')}
                 onClick={(id, attrs) => editor.emit('toolbar-action', {id, attrs, editorMode})}
-                mobile={mobile}
+                mobile={editor.mobile}
             />
             {children}
         </div>

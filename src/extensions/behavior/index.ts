@@ -37,7 +37,6 @@ export type BehaviorPresetOptions = {
     selectionContext?: SelectionContextOptions;
 
     commandMenu?: CommandMenuOptions;
-    mobile?: boolean;
 };
 
 export const BehaviorPreset: ExtensionAuto<BehaviorPresetOptions> = (builder, opts) => {
@@ -52,7 +51,7 @@ export const BehaviorPreset: ExtensionAuto<BehaviorPresetOptions> = (builder, op
         .use(WidgetDecoration)
         .use(SelectionContext, opts.selectionContext ?? {});
 
-    if (opts.commandMenu && !opts.mobile) builder.use(CommandMenu, opts.commandMenu);
+    if (opts.commandMenu) builder.use(CommandMenu, opts.commandMenu);
     builder.use(FilePaste);
     builder.use(ClicksOnEdges);
 };
