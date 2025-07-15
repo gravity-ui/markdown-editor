@@ -21,6 +21,10 @@ export type ToolbarItemData<E> = QAProps & {
     hotkey?: HotkeyProps['value'];
     preview?: React.ReactNode;
     /**
+     * Alternative IDs that can be used to find this command
+     */
+    aliases?: string[];
+    /**
      * Show hint when _isEnable()_ returns false
      *
      * `false` – don't show hint;
