@@ -1,5 +1,17 @@
 # Changelog
 
+## [15.17.0](https://github.com/gravity-ui/markdown-editor/compare/v15.16.2...v15.17.0) (2025-07-16)
+
+
+### Features
+
+* add aliases to heading toolbar ([#814](https://github.com/gravity-ui/markdown-editor/issues/814)) ([2d1e1fb](https://github.com/gravity-ui/markdown-editor/commit/2d1e1fbfba796ce84dabd699bf48cb250c9a67ba))
+
+
+### Bug Fixes
+
+* **Link:** fix popup position when anchor DOM changes ([#815](https://github.com/gravity-ui/markdown-editor/issues/815)) ([0b19930](https://github.com/gravity-ui/markdown-editor/commit/0b19930ea063b27c12253260fc8accac9e980e1b))
+
 ## [15.16.2](https://github.com/gravity-ui/markdown-editor/compare/v15.16.1...v15.16.2) (2025-07-10)
 
 
