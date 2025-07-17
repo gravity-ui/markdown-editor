@@ -82,25 +82,25 @@ class SelectionTooltip implements PluginView {
     private normalizeUrl;
 
     private view: EditorView;
+    private show: boolean;
 
     private textNode?: ReturnType<typeof getTextNode>;
     private textNodeRef: HTMLElement | undefined;
 
-    private isTooltipOpen = false;
     private manualHidden = false;
 
     private renderItem?: RendererItem;
-    private selectionTooltipProps: SelectionTooltipViewBaseProps = {show: false};
 
     constructor(view: EditorView, deps: ExtensionDeps) {
         this.normalizeUrl = normalizeUrlFactory(deps);
 
         this.view = view;
+        this.show = false;
 
-        this.update(view, null);
+        this.update(view);
     }
 
-    update(view: EditorView, prevState?: EditorState | null) {
+    update(view: EditorView) {
         if (!view.dom.parentNode) {
             this.hideTooltip();
             return;
@@ -108,46 +108,33 @@ class SelectionTooltip implements PluginView {
 
         const {state} = view;
 
-        if (prevState && prevState.doc.eq(state.doc) && prevState.selection.eq(state.selection))
-            return;
-
-        this.textNode = getTextNode(view.state);
+        this.textNode = getTextNode(state);
 
         const prevRef = this.textNodeRef;
-        this.updateTextNodeRef();
-
-        if (!this.textNode || !this.textNodeRef) {
-            this.hideTooltip();
-            return;
-        }
+        this.textNodeRef = this.view.dom.getElementsByClassName(className)[0] as
+            | HTMLElement
+            | undefined;
 
         if (prevRef !== this.textNodeRef) {
             this.manualHidden = false;
         }
 
-        if (this.manualHidden) {
+        if (this.manualHidden || !this.textNode || !this.textNodeRef) {
             this.hideTooltip();
-        } else {
-            this.renderTooltip({
-                show: true,
-                domElem: this.textNodeRef,
-                onCancel: () => this.cancelPopup(),
-                attrs: this.getMarkAttrs(),
-                onChange: this.changeAttrs.bind(this),
-                onOpenChange: this.onOpenChange,
-            });
+            return;
         }
+
+        this.showTooltip();
     }
 
     destroy() {
-        this.isTooltipOpen = false;
-        this.selectionTooltipProps = {show: false};
+        this.show = false;
         this.renderItem?.remove();
         this.renderItem = undefined;
     }
 
     onEscapeDown(): boolean {
-        if (this.isTooltipOpen) {
+        if (this.show) {
             this.removePlaceholderLink(this.textNode);
             this.manualHidden = true;
             this.hideTooltip();
@@ -157,26 +144,25 @@ class SelectionTooltip implements PluginView {
         return false;
     }
 
-    private updateTextNodeRef() {
-        const decoElem = this.view.dom.getElementsByClassName(className)[0];
-        this.textNodeRef = decoElem as HTMLElement | undefined;
-    }
-
     private getMarkAttrs() {
         const {textNode} = this;
         const linkMark = textNode && findMark(textNode.node, linkType(this.view.state.schema));
         return linkMark?.attrs;
     }
 
-    private hideTooltip() {
-        this.renderTooltip({show: false});
-    }
-
-    private renderTooltip(props: SelectionTooltipViewBaseProps) {
-        this.isTooltipOpen = props.show;
-        this.selectionTooltipProps = props;
+    private renderTooltip() {
         this.renderItem = this.renderItem ?? this.createRenderItem();
         this.renderItem.rerender();
+    }
+
+    private hideTooltip() {
+        this.show = false;
+        this.renderTooltip();
+    }
+
+    private showTooltip() {
+        this.show = true;
+        this.renderTooltip();
     }
 
     private onOpenChange: NonNullable<PopupProps['onOpenChange']> = (open, _e, reason) => {
@@ -184,11 +170,11 @@ class SelectionTooltip implements PluginView {
         if (reason === 'escape-key') {
             this.cancelPopup();
         } else {
-            this.onOutisdeClick();
+            this.onOutsideClick();
         }
     };
 
-    private onOutisdeClick = () => {
+    private onOutsideClick = () => {
         this.removePlaceholderLink(this.textNode);
         this.hideTooltip();
         this.manualHidden = true;
@@ -239,7 +225,14 @@ class SelectionTooltip implements PluginView {
     private createRenderItem() {
         return getReactRendererFromState(this.view.state).createItem('link-tooltip', () => (
             <ErrorLoggerBoundary>
-                <SelectionTooltipView {...this.selectionTooltipProps} />
+                <SelectionTooltipView
+                    show={this.show}
+                    domElem={this.textNodeRef as HTMLElement}
+                    onCancel={this.cancelPopup.bind(this)}
+                    attrs={this.getMarkAttrs()}
+                    onChange={this.changeAttrs.bind(this)}
+                    onOpenChange={this.onOpenChange}
+                />
             </ErrorLoggerBoundary>
         ));
     }
