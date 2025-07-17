@@ -210,4 +210,6 @@ export type MarkdownEditorOptions = {
     /** Options for wysiwyg mode */
     wysiwygConfig?: MarkdownEditorWysiwygConfig;
     logger?: Logger2.ILogger;
+    /** Mobile view */
+    mobile?: boolean;
 };
