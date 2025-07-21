@@ -1,6 +1,15 @@
-// so that cursor is always cursor:grabbing
-$dnd-cursor-back: 100500;
-// ghost for drag and drop. has to be always above other elements
-$dnd-ghost: 100499;
+// z-index system values
+$z-index-map: (
+    'background': -1,
+    'default': 0,
+    'forefront': 1,
+    'img-settings-button': 2,
+    'table-view-button': 100,
+    'table-cell-button': 110,
+    'sticky-toolbar': 2000,
+    'sticky-toolbar-popup': 2100,
+);
 
-$sticky-toolbar: 2000; // more than has popup
+:root {
+    --md-editor-sticky-toolbar-popup-z-index: #{map-get($z-index-map, 'sticky-toolbar-popup')};
+}
