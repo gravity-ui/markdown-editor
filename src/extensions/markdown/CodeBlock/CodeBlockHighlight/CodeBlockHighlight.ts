@@ -66,18 +66,20 @@ export const CodeBlockHighlight: ExtensionAuto<CodeBlockHighlightOptions> = (bui
             key,
             state: {
                 init: (_, state) => {
-                    loadModules().then(() => {
-                        modulesLoaded = true;
+                    loadModules().then((loaded) => {
+                        modulesLoaded = loaded;
 
-                        for (const lang of Object.keys(langs)) {
-                            const defs = langs[lang](hljs);
-                            selectItems.push({
-                                value: lang,
-                                content: defs.name || capitalize(lang),
-                            });
-                            if (defs.aliases) {
-                                for (const alias of defs.aliases) {
-                                    mapping[alias] = lang;
+                        if (modulesLoaded) {
+                            for (const lang of Object.keys(langs)) {
+                                const defs = langs[lang](hljs);
+                                selectItems.push({
+                                    value: lang,
+                                    content: defs.name || capitalize(lang),
+                                });
+                                if (defs.aliases) {
+                                    for (const alias of defs.aliases) {
+                                        mapping[alias] = lang;
+                                    }
                                 }
                             }
                         }
