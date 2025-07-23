@@ -160,6 +160,7 @@ const EditorWrapper = forwardRef<HTMLDivElement, EditorWrapperProps>(
             splitModeEnabled: editor.splitModeEnabled,
             stickyToolbar,
             toolbarVisibility: editor.toolbarVisible && !showPreview,
+            mobile: editor.mobile,
         };
 
         const areSettingsVisible =
