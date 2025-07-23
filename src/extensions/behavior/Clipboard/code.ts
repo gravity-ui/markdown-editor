@@ -1,7 +1,7 @@
 import dd from 'ts-dedent';
 
 import {getLoggerFromState} from '#core';
-import type {Mark} from '#pm/model';
+import {Fragment, type Mark} from '#pm/model';
 import {type EditorState, Plugin} from '#pm/state';
 
 import {DataTransferType, isFilesOnly, isIosSafariShare} from './utils';
@@ -70,17 +70,17 @@ export const handlePasteIntoCodePlugin = () => {
                     getLoggerFromState(state).event({
                         codeType,
                         dataFormat,
+                        empty: !text,
                         domEvent: 'paste',
                         event: 'paste-into-code',
                         dataTypes: clipboardData.types,
                     });
 
                     event.preventDefault();
-                    dispatch(
-                        state.tr
-                            .replaceSelectionWith(state.schema.text(text), true)
-                            .scrollIntoView(),
-                    );
+                    const {tr} = state;
+                    if (text) tr.replaceSelectionWith(state.schema.text(text), true);
+                    else tr.replaceWith(tr.selection.from, tr.selection.to, Fragment.empty);
+                    dispatch(tr.scrollIntoView());
 
                     return true;
                 },
