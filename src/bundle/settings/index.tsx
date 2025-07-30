@@ -10,6 +10,7 @@ import {
     HelpMark,
     Icon,
     Menu,
+    Popup,
     type PopupPlacement,
     type QAProps,
 } from '@gravity-ui/uikit';
@@ -21,7 +22,6 @@ import {noop} from '../../lodash';
 import {useBooleanState} from '../../react-utils/hooks';
 import {ToolbarTooltipDelay} from '../../toolbar';
 import {VERSION} from '../../version';
-import {PlatformPopup} from '../PlatformPopup';
 import type {MarkdownEditorMode, MarkdownEditorSplitMode} from '../types';
 
 import {MarkdownHints} from './MarkdownHints';
@@ -36,6 +36,7 @@ const bContent = cn('settings-content');
 export type EditorSettingsProps = Omit<SettingsContentProps, 'onClose'> & {
     renderPreviewButton?: boolean;
     settingsVisible?: boolean | SettingItems[];
+    mobile?: boolean;
 };
 
 export const EditorSettings = memo<EditorSettingsProps>(function EditorSettings(props) {
@@ -91,11 +92,10 @@ export const EditorSettings = memo<EditorSettingsProps>(function EditorSettings(
                     >
                         <Icon data={Gear} />
                     </Button>
-                    <PlatformPopup
-                        mobile={mobile}
-                        open={popupShown}
-                        onClose={hidePopup}
+                    <Popup
                         anchorElement={chevronElement}
+                        open={popupShown}
+                        onOpenChange={hidePopup}
                         placement={placement}
                     >
                         <SettingsContent
@@ -103,8 +103,9 @@ export const EditorSettings = memo<EditorSettingsProps>(function EditorSettings(
                             qa="g-md-settings-content"
                             onClose={hidePopup}
                             className={bSettings('content')}
+                            disableMark={mobile}
                         />
-                    </PlatformPopup>
+                    </Popup>
                 </>
             )}
         </div>
@@ -126,7 +127,7 @@ type SettingsContentProps = ClassNameProps &
         splitMode?: MarkdownEditorSplitMode;
         splitModeEnabled?: boolean;
         onSplitModeChange?: (splitModeEnabled: boolean) => void;
-        mobile?: boolean;
+        disableMark?: boolean;
     };
 
 const mdHelpPlacement: PopupPlacement = ['bottom', 'bottom-end', 'right-start', 'right', 'left'];
@@ -144,7 +145,7 @@ const SettingsContent: React.FC<SettingsContentProps> = function SettingsContent
     showPreview,
     settingsVisible,
     qa,
-    mobile,
+    disableMark,
 }) {
     const isSettingsArray = Array.isArray(settingsVisible);
     const showModeSetting = isSettingsArray ? settingsVisible?.includes('mode') : true;
@@ -176,7 +177,7 @@ const SettingsContent: React.FC<SettingsContentProps> = function SettingsContent
                         iconStart={<Icon data={LogoMarkdown} />}
                     >
                         {i18n('settings_markup')}
-                        {!mobile && (
+                        {!disableMark && (
                             <HelpMark
                                 popoverProps={{
                                     placement: mdHelpPlacement,

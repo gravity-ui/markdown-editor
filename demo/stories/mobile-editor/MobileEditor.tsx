@@ -8,11 +8,6 @@ import {toolbarPreset} from './preset';
 export const MobileEditor = memo(() => {
     const editor = useMarkdownEditor({
         mobile: true,
-        wysiwygConfig: {
-            extensionOptions: {
-                commandMenu: undefined,
-            },
-        },
     });
 
     return (

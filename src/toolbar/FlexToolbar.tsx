@@ -30,7 +30,15 @@ export function FlexToolbar<E>(props: FlexToolbarProps<E>) {
         });
     });
 
-    const {data, className, hiddenActions, mobile} = props;
+    const {
+        data,
+        className,
+        hiddenActions,
+        display = 'shrink',
+        disableTooltip,
+        disablePreview,
+        disableHotkey,
+    } = props;
 
     const [ref, {width}] = useMeasure<HTMLDivElement>();
     const {data: items, dots} = useMemo(() => {
@@ -50,13 +58,20 @@ export function FlexToolbar<E>(props: FlexToolbarProps<E>) {
 
         // Finding only actions tha are not present in the main toolbar config
         const filteredHiddenAction = hiddenActions?.filter((a) => !toolbarButtonIds.includes(a.id));
+
+        if (display === 'scroll') {
+            return {
+                data,
+                dots: filteredHiddenAction?.length ? filteredHiddenAction : undefined,
+            };
+        }
+
         return shrinkToolbarData({
             data,
             availableWidth: width,
             hiddenActions: filteredHiddenAction,
-            mobile,
         });
-    }, [data, hiddenActions, mobile, width]);
+    }, [data, display, hiddenActions, width]);
 
     return (
         <div ref={ref} className={b(null, [className])}>
@@ -74,7 +89,9 @@ export function FlexToolbar<E>(props: FlexToolbarProps<E>) {
                         onClick={props.onClick}
                         className={b('dots')}
                         alwaysActive={true}
-                        mobile={mobile}
+                        disableTooltip={disableTooltip}
+                        disableHotkey={disablePreview}
+                        disablePreview={disableHotkey}
                     />
                 )}
             </div>

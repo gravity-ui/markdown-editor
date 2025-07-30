@@ -49,6 +49,9 @@ export function ToolbarView<T>({
     const wrapperRef = useRef<HTMLDivElement>(null);
     const isStickyActive = useSticky(wrapperRef) && stickyToolbar;
 
+    const mobile = editor.mobile;
+    const display = mobile ? 'scroll' : 'shrink';
+
     return (
         <div
             data-qa={qa}
@@ -69,7 +72,10 @@ export function ToolbarView<T>({
                 focus={toolbarFocus}
                 dotsTitle={i18n('more_action')}
                 onClick={(id, attrs) => editor.emit('toolbar-action', {id, attrs, editorMode})}
-                mobile={editor.mobile}
+                display={display}
+                disableTooltip={mobile}
+                disableHotkey={mobile}
+                disablePreview={mobile}
             />
             {children}
         </div>

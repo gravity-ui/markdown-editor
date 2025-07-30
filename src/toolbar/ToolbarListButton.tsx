@@ -1,9 +1,7 @@
 import {Fragment, useEffect, useState} from 'react';
 
 import {ChevronDown} from '@gravity-ui/icons';
-import {HelpMark, Hotkey, Icon, Menu, Popover} from '@gravity-ui/uikit';
-
-import {PlatformPopup} from 'src/bundle/PlatformPopup';
+import {HelpMark, Hotkey, Icon, Menu, Popover, Popup} from '@gravity-ui/uikit';
 
 import {cn} from '../classname';
 import {i18n} from '../i18n/common';
@@ -44,8 +42,10 @@ export function ToolbarListButton<E>({
     replaceActiveIcon,
     qa,
     qaMenu,
-    mobile,
     qaActionDisabledPopover = 'g-md-toolbar-action-disabled-hint',
+    disableHotkey,
+    disablePreview,
+    disableTooltip,
 }: ToolbarListButtonProps<E>) {
     const [anchorElement, setAnchorElement] = useElementState();
     const [open, , hide, toggleOpen] = useBooleanState(false);
@@ -90,15 +90,11 @@ export function ToolbarListButton<E>({
                     if (popupItem) setPopupItem(undefined);
                     else toggleOpen();
                 }}
+                disableTooltip={disableTooltip}
             >
                 {buttonContent}
             </ToolbarButtonView>
-            <PlatformPopup
-                mobile={mobile}
-                open={popupOpen}
-                onClose={hide}
-                anchorElement={anchorElement}
-            >
+            <Popup open={popupOpen} onOpenChange={hide} anchorElement={anchorElement}>
                 <Menu size="l" className={b('menu')} qa={qaMenu} data-toolbar-menu-for={titleText}>
                     {data
                         .map((data) => {
@@ -156,7 +152,7 @@ export function ToolbarListButton<E>({
                                     key={id}
                                 >
                                     {(props, ref) => (
-                                        <PreviewTooltip preview={preview} mobile={mobile}>
+                                        <PreviewTooltip preview={preview} disabled={disablePreview}>
                                             <Menu.Item
                                                 key={id}
                                                 ref={ref}
@@ -173,7 +169,7 @@ export function ToolbarListButton<E>({
                                             >
                                                 <div className={b('item')}>
                                                     {titleText}
-                                                    {!mobile && (
+                                                    {!disableHotkey && (
                                                         <div className={b('extra')}>
                                                             {hotkey && <Hotkey value={hotkey} />}
                                                             {hintText && (
@@ -195,7 +191,7 @@ export function ToolbarListButton<E>({
                         })
                         .filter(Boolean)}
                 </Menu>
-            </PlatformPopup>
+            </Popup>
             {popupItem
                 ? popupItem.renderPopup({
                       ...popupItem,

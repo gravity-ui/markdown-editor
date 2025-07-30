@@ -23,7 +23,9 @@ export function ToolbarButtonGroup<E>({
     data,
     focus,
     onClick,
-    mobile,
+    disableTooltip,
+    disablePreview,
+    disableHotkey,
 }: ToolbarGroupProps<E>) {
     return (
         <div className={b(null, [className])}>
@@ -37,7 +39,7 @@ export function ToolbarButtonGroup<E>({
                             focus={focus}
                             onClick={onClick}
                             className={b(item.type, {id: item.id}, [item.className])}
-                            mobile={mobile}
+                            disableTooltip={disableTooltip}
                         />
                     );
                 }
@@ -51,6 +53,7 @@ export function ToolbarButtonGroup<E>({
                             focus={focus}
                             onClick={onClick}
                             className={b(item.type, {id: item.id}, item.className)}
+                            disableTooltip={disableTooltip}
                         />
                     );
                 }
@@ -65,7 +68,9 @@ export function ToolbarButtonGroup<E>({
                             focus={focus}
                             onClick={onClick}
                             className={b(item.type, {id: item.id}, [item.className])}
-                            mobile={mobile}
+                            disablePreview={disablePreview}
+                            disableHotkey={disableHotkey}
+                            disableTooltip={disableTooltip}
                         />
                     );
                 }

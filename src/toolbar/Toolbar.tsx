@@ -15,9 +15,20 @@ export type ToolbarProps<E> = ToolbarBaseProps<E> & {
     data: ToolbarData<E>;
 };
 
-export function Toolbar<E>({editor, data, className, focus, onClick, mobile, qa}: ToolbarProps<E>) {
+export function Toolbar<E>({
+    editor,
+    data,
+    className,
+    focus,
+    onClick,
+    display,
+    qa,
+    disableHotkey,
+    disablePreview,
+    disableTooltip,
+}: ToolbarProps<E>) {
     return (
-        <div className={b(null, [className])} data-qa={qa}>
+        <div className={b({display}, [className])} data-qa={qa}>
             {data.map<React.ReactNode>((group, index) => {
                 const isLastGroup = index === data.length - 1;
 
@@ -29,7 +40,9 @@ export function Toolbar<E>({editor, data, className, focus, onClick, mobile, qa}
                             focus={focus}
                             onClick={onClick}
                             className={b('group')}
-                            mobile={mobile}
+                            disableHotkey={disableHotkey}
+                            disablePreview={disablePreview}
+                            disableTooltip={disableTooltip}
                         />
                         {isLastGroup || <div className={b('group-separator')} />}
                     </Fragment>

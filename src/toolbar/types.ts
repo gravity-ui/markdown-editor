@@ -7,7 +7,10 @@ export type ToolbarBaseProps<E> = ClassNameProps &
         editor: E;
         focus(): void;
         onClick?(id: string, attrs?: {[key: string]: any}): void;
-        mobile?: boolean;
+        display?: 'shrink' | 'scroll';
+        disableTooltip?: boolean;
+        disablePreview?: boolean;
+        disableHotkey?: boolean;
     };
 
 export type ToolbarIconData = Pick<IconProps, 'data' | 'size'>;
@@ -101,6 +104,8 @@ export type ToolbarListButtonData<E> = {
     hideDisabled?: boolean;
     /** When state changes to active, replace default icon with icon of first active item */
     replaceActiveIcon?: boolean;
+    disableHotkey?: boolean;
+    disablePreview?: boolean;
 };
 
 /**

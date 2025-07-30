@@ -7,7 +7,9 @@
         border-left: 1px solid var(--g-color-line-generic);
     }
 
-    &_mobile {
-        overflow: auto;
+    &_display {
+        &_scroll {
+            overflow: auto;
+        }
     }
 }
