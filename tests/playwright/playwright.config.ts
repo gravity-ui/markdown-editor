@@ -23,6 +23,7 @@ const aliasesFromTsConf = (() => {
 })();
 
 const ctViteConfig: InlineConfig = {
+    publicDir: pathFromRoot('visual-tests/public'),
     css: {
         preprocessorOptions: {
             scss: {
@@ -56,7 +57,7 @@ const config: PlaywrightTestConfig = {
     /* Retry on CI only */
     retries: process.env.CI ? 2 : 0,
     /* Opt out of parallel tests on CI. */
-    workers: process.env.CI ? 2 : 2,
+    workers: process.env.CI ? 4 : 4,
     /* Reporter to use. See https://playwright.dev/docs/test-reporters */
     reporter: [
         ['list'],
@@ -70,6 +71,7 @@ const config: PlaywrightTestConfig = {
                 ),
             },
         ],
+        ['./slow-tests-reporter.ts'],
     ],
     /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
     use: {
@@ -90,13 +92,6 @@ const config: PlaywrightTestConfig = {
             name: 'chromium',
             use: {
                 ...devices['Desktop Chrome'],
-                deviceScaleFactor: 2,
-            },
-        },
-        {
-            name: 'webkit',
-            use: {
-                ...devices['Desktop Safari'],
                 deviceScaleFactor: 2,
             },
         },

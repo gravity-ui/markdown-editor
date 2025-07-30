@@ -252,12 +252,18 @@ export class CommandHandler implements AutocompleteHandler {
     }
 }
 
-function filterActions(actions: readonly CommandAction[], text: string): CommandAction[] {
-    return actions.filter(
-        (action) =>
-            action.id.toLowerCase().includes(text) ||
-            (isFunction(action.title) ? action.title() : action.title).toLowerCase().includes(text),
-    );
+export function filterActions(actions: readonly CommandAction[], text: string): CommandAction[] {
+    return actions.filter((action) => {
+        const lowerText = text.toLowerCase();
+        const matchesId = action.id.toLowerCase().includes(lowerText);
+        const matchesTitle = (isFunction(action.title) ? action.title() : action.title)
+            .toLowerCase()
+            .includes(lowerText);
+        const matchesAliases =
+            action.aliases?.some((alias) => alias.toLowerCase().includes(lowerText)) ?? false;
+
+        return matchesId || matchesTitle || matchesAliases;
+    });
 }
 
 const CHARS_TO_HIDE = 4;
