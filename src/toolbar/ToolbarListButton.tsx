@@ -94,7 +94,7 @@ export function ToolbarListButton<E>({
             >
                 {buttonContent}
             </ToolbarButtonView>
-            <Popup open={popupOpen} onOpenChange={hide} anchorElement={anchorElement}>
+            <Popup anchorElement={anchorElement} open={popupOpen} onOpenChange={hide}>
                 <Menu size="l" className={b('menu')} qa={qaMenu} data-toolbar-menu-for={titleText}>
                     {data
                         .map((data) => {

@@ -43,7 +43,7 @@ export function useMarkdownEditor(
         const directiveSyntax = new DirectiveSyntaxContext(experimental.directiveSyntax);
 
         const extensions: Extension = (builder) => {
-            const extensionOptions = wysiwygConfig.extensionOptions ?? {};
+            const extensionOptions = wysiwygConfig.extensionOptions;
 
             builder.use(BundlePreset, {
                 ...extensionOptions,

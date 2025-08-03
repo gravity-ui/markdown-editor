@@ -49,8 +49,7 @@ export const BehaviorPreset: ExtensionAuto<BehaviorPresetOptions> = (builder, op
         .use(History, opts.history ?? {})
         .use(Clipboard, opts.clipboard ?? {})
         .use(ReactRendererExtension, opts.reactRenderer)
-        .use(WidgetDecoration)
-        .use(SelectionContext, opts.selectionContext ?? {});
+        .use(WidgetDecoration);
 
     if (!opts.mobile) {
         builder.use(SelectionContext, opts.selectionContext ?? {});

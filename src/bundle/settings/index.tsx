@@ -36,18 +36,11 @@ const bContent = cn('settings-content');
 export type EditorSettingsProps = Omit<SettingsContentProps, 'onClose'> & {
     renderPreviewButton?: boolean;
     settingsVisible?: boolean | SettingItems[];
-    mobile?: boolean;
 };
 
 export const EditorSettings = memo<EditorSettingsProps>(function EditorSettings(props) {
-    const {
-        className,
-        onShowPreviewChange,
-        showPreview,
-        renderPreviewButton,
-        settingsVisible,
-        mobile,
-    } = props;
+    const {className, onShowPreviewChange, showPreview, renderPreviewButton, settingsVisible} =
+        props;
     const [chevronElement, setChevronElement] = useState<HTMLButtonElement | null>(null);
     const [popupShown, , hidePopup, togglePopup] = useBooleanState(false);
 
@@ -93,17 +86,16 @@ export const EditorSettings = memo<EditorSettingsProps>(function EditorSettings(
                         <Icon data={Gear} />
                     </Button>
                     <Popup
-                        anchorElement={chevronElement}
                         open={popupShown}
-                        onOpenChange={hidePopup}
+                        anchorElement={chevronElement}
                         placement={placement}
+                        onOpenChange={hidePopup}
                     >
                         <SettingsContent
                             {...props}
                             qa="g-md-settings-content"
                             onClose={hidePopup}
                             className={bSettings('content')}
-                            disableMark={mobile}
                         />
                     </Popup>
                 </>

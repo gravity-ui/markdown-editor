@@ -109,8 +109,6 @@ export type ToolbarListButtonData<E> = {
     hideDisabled?: boolean;
     /** When state changes to active, replace default icon with icon of first active item */
     replaceActiveIcon?: boolean;
-    disableHotkey?: boolean;
-    disablePreview?: boolean;
 };
 
 /**
