@@ -167,6 +167,8 @@ const EditorWrapper = forwardRef<HTMLDivElement, EditorWrapperProps>(
             settingsVisibleProp === true ||
             (Array.isArray(settingsVisibleProp) && settingsVisibleProp.length > 0);
 
+        const toolbarDisplay = editor.mobile ? 'scroll' : 'shrink';
+
         return (
             <div
                 className={b('editor-wrapper')}
@@ -199,6 +201,7 @@ const EditorWrapper = forwardRef<HTMLDivElement, EditorWrapperProps>(
                                 className={b('editor', {mode: editorMode})}
                                 toolbarClassName={b('toolbar')}
                                 stickyToolbar={stickyToolbar}
+                                toolbarDisplay={toolbarDisplay}
                             >
                                 <Settings
                                     {...settingsProps}
@@ -219,6 +222,7 @@ const EditorWrapper = forwardRef<HTMLDivElement, EditorWrapperProps>(
                                 className={b('editor', {mode: editorMode})}
                                 toolbarClassName={b('toolbar')}
                                 stickyToolbar={stickyToolbar}
+                                toolbarDisplay={toolbarDisplay}
                             >
                                 <Settings
                                     {...settingsProps}

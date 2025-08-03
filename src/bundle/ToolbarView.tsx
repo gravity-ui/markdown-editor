@@ -6,7 +6,7 @@ import {useUpdate} from 'react-use';
 import type {ClassNameProps} from '../classname';
 import {i18n} from '../i18n/menubar';
 import {useSticky} from '../react-utils/useSticky';
-import {FlexToolbar, type ToolbarData, type ToolbarItemData} from '../toolbar';
+import {FlexToolbar, type ToolbarData, type ToolbarDisplay, type ToolbarItemData} from '../toolbar';
 
 import type {EditorInt} from './Editor';
 import {stickyCn} from './sticky';
@@ -23,6 +23,7 @@ export type ToolbarViewProps<T> = ClassNameProps &
         hiddenActionsConfig?: ToolbarItemData<T>[];
         children?: React.ReactNode;
         stickyToolbar: boolean;
+        toolbarDisplay?: ToolbarDisplay;
     };
 
 export function ToolbarView<T>({
@@ -31,6 +32,7 @@ export function ToolbarView<T>({
     toolbarEditor,
     toolbarFocus,
     toolbarConfig,
+    toolbarDisplay,
     hiddenActionsConfig,
     settingsVisible,
     className,
@@ -50,7 +52,6 @@ export function ToolbarView<T>({
     const isStickyActive = useSticky(wrapperRef) && stickyToolbar;
 
     const mobile = editor.mobile;
-    const display = mobile ? 'scroll' : 'shrink';
 
     return (
         <div
@@ -72,7 +73,7 @@ export function ToolbarView<T>({
                 focus={toolbarFocus}
                 dotsTitle={i18n('more_action')}
                 onClick={(id, attrs) => editor.emit('toolbar-action', {id, attrs, editorMode})}
-                display={display}
+                display={toolbarDisplay}
                 disableTooltip={mobile}
                 disableHotkey={mobile}
                 disablePreview={mobile}

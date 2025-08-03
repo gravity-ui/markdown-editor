@@ -24,8 +24,8 @@ export type ToolbarButtonViewProps = Pick<
     onClick: () => void;
     id?: string;
     className?: string;
-    disableTooltip?: boolean;
-} & (Pick<ToolbarItemData<unknown>, 'icon'> | {children: ReactNode});
+} & (Pick<ToolbarItemData<unknown>, 'icon'> | {children: ReactNode}) &
+    Pick<ToolbarBaseProps<unknown>, 'disableTooltip'>;
 
 const DEFAULT_ICON_SIZE = 16;
 

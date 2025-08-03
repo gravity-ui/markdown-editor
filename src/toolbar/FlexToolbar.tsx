@@ -34,10 +34,10 @@ export function FlexToolbar<E>(props: FlexToolbarProps<E>) {
         data,
         className,
         hiddenActions,
-        display = 'shrink',
         disableTooltip,
         disablePreview,
         disableHotkey,
+        display = 'shrink',
     } = props;
 
     const [ref, {width}] = useMeasure<HTMLDivElement>();

@@ -7,7 +7,7 @@ export type ToolbarBaseProps<E> = ClassNameProps &
         editor: E;
         focus(): void;
         onClick?(id: string, attrs?: {[key: string]: any}): void;
-        display?: 'shrink' | 'scroll';
+        display?: ToolbarDisplay;
         disableTooltip?: boolean;
         disablePreview?: boolean;
         disableHotkey?: boolean;
@@ -16,6 +16,7 @@ export type ToolbarBaseProps<E> = ClassNameProps &
 export type ToolbarIconData = Pick<IconProps, 'data' | 'size'>;
 export type ToolbarGroupData<E> = Array<ToolbarGroupItemData<E>>;
 export type ToolbarData<E> = ToolbarGroupData<E>[];
+export type ToolbarDisplay = 'shrink' | 'scroll';
 
 export type ToolbarItemData<E> = QAProps & {
     id: string;
