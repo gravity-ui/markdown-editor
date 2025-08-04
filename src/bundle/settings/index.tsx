@@ -119,6 +119,7 @@ type SettingsContentProps = ClassNameProps &
         splitMode?: MarkdownEditorSplitMode;
         splitModeEnabled?: boolean;
         onSplitModeChange?: (splitModeEnabled: boolean) => void;
+        disableMark?: boolean;
     };
 
 const mdHelpPlacement: PopupPlacement = ['bottom', 'bottom-end', 'right-start', 'right', 'left'];
@@ -136,6 +137,7 @@ const SettingsContent: React.FC<SettingsContentProps> = function SettingsContent
     showPreview,
     settingsVisible,
     qa,
+    disableMark,
 }) {
     const isSettingsArray = Array.isArray(settingsVisible);
     const showModeSetting = isSettingsArray ? settingsVisible?.includes('mode') : true;
@@ -167,23 +169,25 @@ const SettingsContent: React.FC<SettingsContentProps> = function SettingsContent
                         iconStart={<Icon data={LogoMarkdown} />}
                     >
                         {i18n('settings_markup')}
-                        <HelpMark
-                            popoverProps={{
-                                placement: mdHelpPlacement,
-                                modal: false,
-                            }}
-                            className={bContent('mode-help')}
-                        >
-                            <div
-                                onClick={(e) => {
-                                    // stop clicks propagation
-                                    // because otherwise click in MarkdownHints handled as click on MenuItem
-                                    e.stopPropagation();
+                        {!disableMark && (
+                            <HelpMark
+                                popoverProps={{
+                                    placement: mdHelpPlacement,
+                                    modal: false,
                                 }}
+                                className={bContent('mode-help')}
                             >
-                                <MarkdownHints />
-                            </div>
-                        </HelpMark>
+                                <div
+                                    onClick={(e) => {
+                                        // stop clicks propagation
+                                        // because otherwise click in MarkdownHints handled as click on MenuItem
+                                        e.stopPropagation();
+                                    }}
+                                >
+                                    <MarkdownHints />
+                                </div>
+                            </HelpMark>
+                        )}
                     </Menu.Item>
                 </Menu>
             )}

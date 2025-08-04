@@ -30,6 +30,7 @@ export function useMarkdownEditor(
             markupConfig = {},
             wysiwygConfig = {},
             logger = new Logger2(),
+            mobile,
         } = props;
 
         const preset: MarkdownEditorPreset = props.preset ?? 'full';
@@ -65,6 +66,7 @@ export function useMarkdownEditor(
                 needToSetDimensionsForUploadedImages:
                     experimental.needToSetDimensionsForUploadedImages,
                 enableNewImageSizeCalculation: experimental.enableNewImageSizeCalculation,
+                mobile,
             });
             {
                 const extraExtensions = wysiwygConfig.extensions;

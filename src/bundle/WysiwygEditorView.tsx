@@ -10,7 +10,7 @@ import {useRenderTime} from '../react-utils/hooks';
 import type {EditorInt} from './Editor';
 import {ToolbarView} from './ToolbarView';
 import {WysiwygEditorComponent} from './WysiwygEditorComponent';
-import type {WToolbarData, WToolbarItemData} from './toolbar/types';
+import type {ToolbarDisplay, WToolbarData, WToolbarItemData} from './toolbar/types';
 
 import './WysiwygEditorView.scss';
 
@@ -27,6 +27,7 @@ export type WysiwygEditorViewProps = ClassNameProps &
         toolbarClassName?: string;
         hiddenActionsConfig?: WToolbarItemData[];
         children?: React.ReactNode;
+        toolbarDisplay?: ToolbarDisplay;
     };
 
 export const WysiwygEditorView = memo<WysiwygEditorViewProps>((props) => {
@@ -42,7 +43,9 @@ export const WysiwygEditorView = memo<WysiwygEditorViewProps>((props) => {
         toolbarClassName,
         children,
         stickyToolbar = true,
+        toolbarDisplay,
     } = props;
+
     useRenderTime((time) => {
         globalLogger.metrics({
             component: 'wysiwyg-editor',
@@ -55,6 +58,7 @@ export const WysiwygEditorView = memo<WysiwygEditorViewProps>((props) => {
             duration: time,
         });
     });
+
     return (
         <div className={b({toolbar: toolbarVisible}, [className])} data-qa={qa}>
             {toolbarVisible ? (
@@ -69,6 +73,7 @@ export const WysiwygEditorView = memo<WysiwygEditorViewProps>((props) => {
                     hiddenActionsConfig={hiddenActionsConfig}
                     settingsVisible={settingsVisible}
                     className={b('toolbar', [toolbarClassName])}
+                    toolbarDisplay={toolbarDisplay}
                 >
                     {children}
                 </ToolbarView>

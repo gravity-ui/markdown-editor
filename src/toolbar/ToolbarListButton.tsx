@@ -43,6 +43,9 @@ export function ToolbarListButton<E>({
     qa,
     qaMenu,
     qaActionDisabledPopover = 'g-md-toolbar-action-disabled-hint',
+    disableHotkey,
+    disablePreview,
+    disableTooltip,
 }: ToolbarListButtonProps<E>) {
     const [anchorElement, setAnchorElement] = useElementState();
     const [open, , hide, toggleOpen] = useBooleanState(false);
@@ -87,6 +90,7 @@ export function ToolbarListButton<E>({
                     if (popupItem) setPopupItem(undefined);
                     else toggleOpen();
                 }}
+                disableTooltip={disableTooltip}
             >
                 {buttonContent}
             </ToolbarButtonView>
@@ -148,7 +152,7 @@ export function ToolbarListButton<E>({
                                     key={id}
                                 >
                                     {(props, ref) => (
-                                        <PreviewTooltip preview={preview}>
+                                        <PreviewTooltip preview={preview} disabled={disablePreview}>
                                             <Menu.Item
                                                 key={id}
                                                 ref={ref}
@@ -165,17 +169,19 @@ export function ToolbarListButton<E>({
                                             >
                                                 <div className={b('item')}>
                                                     {titleText}
-                                                    <div className={b('extra')}>
-                                                        {hotkey && <Hotkey value={hotkey} />}
-                                                        {hintText && (
-                                                            <HelpMark
-                                                                className={b('hint')}
-                                                                popoverProps={{modal: false}}
-                                                            >
-                                                                {hintText}
-                                                            </HelpMark>
-                                                        )}
-                                                    </div>
+                                                    {!disableHotkey && (
+                                                        <div className={b('extra')}>
+                                                            {hotkey && <Hotkey value={hotkey} />}
+                                                            {hintText && (
+                                                                <HelpMark
+                                                                    className={b('hint')}
+                                                                    popoverProps={{modal: false}}
+                                                                >
+                                                                    {hintText}
+                                                                </HelpMark>
+                                                            )}
+                                                        </div>
+                                                    )}
                                                 </div>
                                             </Menu.Item>
                                         </PreviewTooltip>
