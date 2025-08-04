@@ -1,5 +1,18 @@
 # Changelog
 
+## [15.18.0](https://github.com/gravity-ui/markdown-editor/compare/v15.17.0...v15.18.0) (2025-08-04)
+
+
+### Features
+
+* support mobile view ([#588](https://github.com/gravity-ui/markdown-editor/issues/588)) ([4c32e51](https://github.com/gravity-ui/markdown-editor/commit/4c32e51ff0f2470c28b95e2996134152fbfaadf1))
+
+
+### Bug Fixes
+
+* **CodeBlock:** skip lang init on import fail ([#817](https://github.com/gravity-ui/markdown-editor/issues/817)) ([7c4827a](https://github.com/gravity-ui/markdown-editor/commit/7c4827a687f5ea1af9e614fa92aa97fc730cc876))
+* **wysiwyg:** fix pasting empty text into code and from code editor ([#820](https://github.com/gravity-ui/markdown-editor/issues/820)) ([efd9be1](https://github.com/gravity-ui/markdown-editor/commit/efd9be1ab702985df44b485b91aba4a85abaa799))
+
 ## [15.17.0](https://github.com/gravity-ui/markdown-editor/compare/v15.16.2...v15.17.0) (2025-07-16)
 
 
