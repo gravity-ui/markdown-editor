@@ -187,4 +187,23 @@ export class TableDesc {
     getRowNodeType() {
         return this.rowsDesc[0].node.type;
     }
+
+    getCellInfo(node: Node) {
+        let desc: {node: Node; offset: number; row: number; column: number} | null = null;
+        for (let i = 0; i < this.rowsDesc.length; i++) {
+            const row = this.rowsDesc[i];
+            for (let j = 0; j < row.cells.length; j++) {
+                const cell = row.cells[j];
+                if (cell.type === 'real' && cell.node === node) {
+                    desc = {
+                        node: cell.node,
+                        offset: this.getOffsetForRow(i) + 1 + cell.offset,
+                        row: i,
+                        column: j,
+                    };
+                }
+            }
+        }
+        return desc;
+    }
 }

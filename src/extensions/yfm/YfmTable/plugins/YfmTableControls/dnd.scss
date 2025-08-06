@@ -1,0 +1,15 @@
+.g-md-yfm-table-dnd-cursor-background {
+    position: fixed;
+    z-index: 100500;
+    inset: 0;
+
+    overflow: hidden;
+
+    cursor: grabbing;
+
+    background: transparent;
+}
+
+.g-md-yfm-table-dnd-dragged-row, .g-md-yfm-table-dnd-dragged-column-cell {
+    opacity: 0.3;
+}

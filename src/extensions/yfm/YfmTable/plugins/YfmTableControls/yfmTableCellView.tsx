@@ -24,6 +24,7 @@ import {getReactRendererFromState} from '../../../../behavior/ReactRenderer';
 import {YfmTableAttr} from '../../const';
 
 import {controlActions} from './actions';
+import {YfmTableDnDHandler} from './dnd';
 
 import './yfmTableCellView.scss';
 
@@ -34,6 +35,7 @@ interface Props {
     columnNumber: number;
     rowNumber: number;
     view: EditorView;
+    dndHandler: YfmTableDnDHandler;
     getParentTable: () => NodeWithPos | undefined;
     isInFirstRow: boolean;
     isFirstInRow: boolean;
@@ -43,6 +45,7 @@ const Controls: React.FC<Props> = function Controls({
     columnNumber,
     rowNumber,
     view,
+    dndHandler,
     getParentTable,
     isInFirstRow,
     isFirstInRow,
@@ -57,7 +60,15 @@ const Controls: React.FC<Props> = function Controls({
                 key={1}
                 switcherWrapperClassName={b('left-button')}
                 renderSwitcher={(props) => (
-                    <Button view={'outlined'} size={'s'} qa="g-md-yfm-table-row-btn" {...props}>
+                    <Button
+                        view={'outlined'}
+                        size={'s'}
+                        qa="g-md-yfm-table-row-btn"
+                        {...props}
+                        onMouseDown={dndHandler.row.control_handleMouseDown}
+                        onMouseMove={dndHandler.row.control_handleMouseMove}
+                        onMouseUp={dndHandler.row.control_handleMouseUp}
+                    >
                         <Icon data={EllipsisVertical} />
                     </Button>
                 )}
@@ -135,7 +146,15 @@ const Controls: React.FC<Props> = function Controls({
                 key={2}
                 switcherWrapperClassName={b('upper-button')}
                 renderSwitcher={(props) => (
-                    <Button view={'outlined'} size={'s'} qa="g-md-yfm-table-column-btn" {...props}>
+                    <Button
+                        view={'outlined'}
+                        size={'s'}
+                        qa="g-md-yfm-table-column-btn"
+                        {...props}
+                        onMouseDown={dndHandler.column.control_handleMouseDown}
+                        onMouseMove={dndHandler.column.control_handleMouseMove}
+                        onMouseUp={dndHandler.column.control_handleMouseUp}
+                    >
                         <Icon data={EllipsisVertical} />
                     </Button>
                 )}
@@ -249,6 +268,8 @@ export const yfmTableCellView: NodeViewConstructor = (node, view, getPos): NodeV
     dom.appendChild(contentDOM);
     dom.appendChild(control);
 
+    const dndHandler = new YfmTableDnDHandler(view, {node, getPos});
+
     const renderItem = getReactRendererFromState(view.state).createItem(
         'yfm-table-cell-view',
         () => (
@@ -259,6 +280,7 @@ export const yfmTableCellView: NodeViewConstructor = (node, view, getPos): NodeV
                         rowNumber={rowIndex}
                         isFirstInRow={isFirstColumn}
                         isInFirstRow={isFirstRow}
+                        dndHandler={dndHandler}
                         getParentTable={getParentTable}
                         view={view}
                     />
@@ -277,6 +299,8 @@ export const yfmTableCellView: NodeViewConstructor = (node, view, getPos): NodeV
             return mutation.target === control || control.contains(mutation.target);
         },
         update(n) {
+            dndHandler.update(n);
+
             const {rows: nRows, cols: nCols} = getTableDimensions(n);
             const {rows, cols} = getTableDimensions(node);
 
