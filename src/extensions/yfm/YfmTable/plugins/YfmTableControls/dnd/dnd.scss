@@ -1,0 +1,28 @@
+.g-md-yfm-table-dnd-cursor-background {
+    position: fixed;
+    z-index: 100500;
+    inset: 0;
+
+    overflow: hidden;
+
+    cursor: grabbing;
+
+    background: transparent;
+}
+
+.yfm.ProseMirror {
+    .g-md-yfm-table-dnd-dragged-row,
+    .g-md-yfm-table-dnd-dragged-column-cell {
+        opacity: 0.3;
+        background-color: var(--g-color-base-selection);
+        // --yfm-color-border: var(--g-color-line-brand);
+    }
+}
+
+.yfm.ProseMirror {
+    .g-md-yfm-table-active-row,
+    .g-md-yfm-table-active-column-cell {
+        background-color: var(--g-color-base-selection);
+        // --yfm-color-border: var(--g-color-line-brand);
+    }
+}

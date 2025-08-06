@@ -165,7 +165,11 @@ export const BundlePreset: ExtensionAuto<BundlePresetOptions> = (builder, opts) 
             yfmNoteTitlePlaceholder: () => i18nPlaceholder('note_title'),
             ...opts.yfmNote,
         },
-        yfmTable: {yfmTableCellPlaceholder: () => i18nPlaceholder('table_cell'), ...opts.yfmTable},
+        yfmTable: {
+            yfmTableCellPlaceholder: () => i18nPlaceholder('table_cell'),
+            ...opts.yfmTable,
+            controls: opts.mobile ? false : opts.yfmTable?.controls,
+        },
         yfmFile: {
             fileUploadHandler: opts.fileUploadHandler,
             needToSetDimensionsForUploadedImages: opts.needToSetDimensionsForUploadedImages,
