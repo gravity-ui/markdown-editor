@@ -1,13 +1,10 @@
-import type {Node} from 'prosemirror-model';
+import type {CommandWithAttrs} from '#core';
+import type {Node} from '#pm/model';
+import {appendColumn, appendRow, removeColumn, removeRow} from 'src/table-utils';
+import {defineActions} from 'src/utils/actions';
+import {removeNode} from 'src/utils/remove-node';
 
-import type {CommandWithAttrs} from '../../../../../core';
-import {appendColumn, appendRow, removeColumn, removeRow} from '../../../../../table-utils';
-import {defineActions} from '../../../../../utils/actions';
-import {removeNode} from '../../../../../utils/remove-node';
-
-import {tableControlsPluginKey} from './buttons';
-
-const removeYfmTable: CommandWithAttrs<{
+export const removeYfmTable: CommandWithAttrs<{
     tablePos: number;
     tableNode: Node;
 }> = (state, dispatch, _, attrs) => {
@@ -15,13 +12,10 @@ const removeYfmTable: CommandWithAttrs<{
     const {tablePos, tableNode} = attrs;
 
     if (dispatch) {
-        const tr = state.tr;
-        // After removing node plugin state doesn't change and it crashes
-        tr.setMeta(tableControlsPluginKey, null);
         removeNode({
             node: tableNode,
             pos: tablePos,
-            tr: tr,
+            tr: state.tr,
             dispatch,
         });
     }
