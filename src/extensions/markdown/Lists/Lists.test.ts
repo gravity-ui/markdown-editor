@@ -25,9 +25,9 @@ const {doc, p, li, ul, ol} = builders<'doc' | 'p' | 'li' | 'ul' | 'ol'>(schema, 
 const {same} = createMarkupChecker({parser, serializer});
 
 describe('Lists extension', () => {
-    it('should parse bullet list', () => {
+    it('should parse bullet list (tight)', () => {
         same(
-            '* one\n\n* two',
+            '* one\n* two',
             doc(
                 ul(
                     {[ListsAttr.Markup]: '*'},
@@ -38,9 +38,22 @@ describe('Lists extension', () => {
         );
     });
 
-    it('should parse ordered list with dots', () => {
+    it('should parse bullet list (non tight)', () => {
         same(
-            '1. one\n\n2. two',
+            '* one\n\n* two',
+            doc(
+                ul(
+                    {[ListsAttr.Markup]: '*', [ListsAttr.Tight]: false},
+                    li({[ListsAttr.Markup]: '*'}, p('one')),
+                    li({[ListsAttr.Markup]: '*'}, p('two')),
+                ),
+            ),
+        );
+    });
+
+    it('should parse ordered list with dots (tight)', () => {
+        same(
+            '1. one\n2. two',
             doc(
                 ol(
                     li({[ListsAttr.Markup]: '.'}, p('one')),
@@ -50,12 +63,38 @@ describe('Lists extension', () => {
         );
     });
 
-    it('should parse ordered list with parenthesis', () => {
+    it('should parse ordered list with dots (non tight)', () => {
+        same(
+            '1. one\n\n2. two',
+            doc(
+                ol(
+                    {[ListsAttr.Tight]: false},
+                    li({[ListsAttr.Markup]: '.'}, p('one')),
+                    li({[ListsAttr.Markup]: '.'}, p('two')),
+                ),
+            ),
+        );
+    });
+
+    it('should parse ordered list with parenthesis (tight)', () => {
+        same(
+            '1) one\n2) two',
+            doc(
+                ol(
+                    {[ListsAttr.Markup]: ')'},
+                    li({[ListsAttr.Markup]: ')'}, p('one')),
+                    li({[ListsAttr.Markup]: ')'}, p('two')),
+                ),
+            ),
+        );
+    });
+
+    it('should parse ordered list with parenthesis (non tight)', () => {
         same(
             '1) one\n\n2) two',
             doc(
                 ol(
-                    {[ListsAttr.Markup]: ')'},
+                    {[ListsAttr.Markup]: ')', [ListsAttr.Tight]: false},
                     li({[ListsAttr.Markup]: ')'}, p('one')),
                     li({[ListsAttr.Markup]: ')'}, p('two')),
                 ),
@@ -80,11 +119,12 @@ describe('Lists extension', () => {
             markup,
             doc(
                 ul(
-                    {[ListsAttr.Markup]: '-'},
+                    {[ListsAttr.Markup]: '-', [ListsAttr.Tight]: false},
                     li(
                         {[ListsAttr.Markup]: '-'},
                         p('one'),
                         ol(
+                            {[ListsAttr.Tight]: false},
                             li(
                                 {[ListsAttr.Markup]: '.'},
                                 p('two'),
@@ -110,15 +150,15 @@ describe('Lists extension', () => {
             '- + * 2. item',
             doc(
                 ul(
-                    {[ListsAttr.Markup]: '-'},
+                    {[ListsAttr.Markup]: '-', [ListsAttr.Tight]: false},
                     li(
                         {[ListsAttr.Markup]: '-'},
                         ul(
-                            {[ListsAttr.Markup]: '+'},
+                            {[ListsAttr.Markup]: '+', [ListsAttr.Tight]: false},
                             li(
                                 {[ListsAttr.Markup]: '+'},
                                 ul(
-                                    {[ListsAttr.Markup]: '*'},
+                                    {[ListsAttr.Markup]: '*', [ListsAttr.Tight]: false},
                                     li(
                                         {[ListsAttr.Markup]: '*'},
                                         ol(
