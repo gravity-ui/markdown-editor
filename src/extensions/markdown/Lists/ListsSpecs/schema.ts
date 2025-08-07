@@ -5,7 +5,6 @@ import {ListNode, ListsAttr, Markup} from './const';
 export const schemaSpecs: Record<ListNode, NodeSpec> = {
     [ListNode.ListItem]: {
         attrs: {
-            [ListsAttr.Tight]: {default: true},
             [ListsAttr.Markup]: {default: null},
         },
         content: '(paragraph|block)+',
