@@ -1,0 +1,76 @@
+$block: '.g-md-dnd-grip-popup';
+
+$transition-duration: 100ms;
+$transition-distance: 10px;
+
+#{$block} {
+    --_--background-color: var(--g-popup-background-color, var(--g-color-base-float));
+    --_--border-color: var(--g-popup-border-color, var(--g-color-line-generic-solid));
+    --_--border-width: var(--g-popup-border-width, 1px);
+
+    position: relative;
+
+    visibility: hidden;
+
+    border-radius: 4px;
+    outline: none;
+    background-color: var(--_--background-color);
+    box-shadow:
+        0 0 0 var(--_--border-width) var(--_--border-color),
+        0 8px 20px var(--_--border-width) var(--g-color-sfx-shadow);
+
+    transition-timing-function: ease-out;
+    transition-property: opacity, transform;
+
+    &_open {
+        visibility: visible;
+    }
+
+    &_disable-transition {
+        transition: none;
+    }
+
+    & > :first-child:not(#{$block}__arrow),
+    & > #{$block}__arrow + * {
+        border-start-start-radius: inherit;
+        border-start-end-radius: inherit;
+    }
+
+    & > :last-child {
+        border-end-end-radius: inherit;
+        border-end-start-radius: inherit;
+    }
+
+    /* stylelint-disable-next-line order/order */
+    @at-root [data-floating-ui-status='open'] > &,
+        [data-floating-ui-status='close'] > & {
+        transition-duration: $transition-duration;
+    }
+
+    @at-root [data-floating-ui-status='initial'] > &,
+        [data-floating-ui-status='close'] > & {
+        opacity: 0;
+
+        transform: translate(0, 0);
+    }
+
+    @at-root [data-floating-ui-status='initial'][data-floating-ui-placement*='bottom'] > &,
+        [data-floating-ui-status='close'][data-floating-ui-placement*='bottom'] > & {
+        transform: translateY($transition-distance);
+    }
+
+    @at-root [data-floating-ui-status='initial'][data-floating-ui-placement*='top'] > &,
+        [data-floating-ui-status='close'][data-floating-ui-placement*='top'] > & {
+        transform: translateY(-$transition-distance);
+    }
+
+    @at-root [data-floating-ui-status='initial'][data-floating-ui-placement*='left'] > &,
+        [data-floating-ui-status='close'][data-floating-ui-placement*='left'] > & {
+        transform: translateX(-$transition-distance);
+    }
+
+    @at-root [data-floating-ui-status='initial'][data-floating-ui-placement*='right'] > &,
+        [data-floating-ui-status='close'][data-floating-ui-placement*='right'] > & {
+        transform: translateX($transition-distance);
+    }
+}

@@ -29,12 +29,12 @@ export const yfmTableView: NodeViewConstructor = (node, view, getPos) => {
     const controls = document.createElement('div');
     controls.setAttribute('contenteditable', 'false');
 
-    const hackStrip = document.createElement('div');
+    // const hackStrip = document.createElement('div');
     // this is a strip of a table height. it's a hack so that content of table doesn't get outside of editor borders
     // and thus editing buttons are not cropped
-    hackStrip.classList.add(viewB('hack-strip'));
+    // hackStrip.classList.add(viewB('hack-strip'));
 
-    viewElem.appendChild(hackStrip);
+    // viewElem.appendChild(hackStrip);
     viewElem.appendChild(tableElem);
     viewElem.appendChild(controls);
     wrapperElem.appendChild(viewElem);

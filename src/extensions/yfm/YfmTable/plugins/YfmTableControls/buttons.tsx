@@ -8,14 +8,11 @@ import {
 } from 'prosemirror-utils';
 import {Decoration, DecorationSet, type EditorView} from 'prosemirror-view';
 
-import {throttle} from '../../../../../lodash';
-import {
-    isTableBodyNode,
-    isTableCellNode,
-    isTableNode,
-    isTableRowNode,
-} from '../../../../../table-utils';
-import {getChildrenOfNode} from '../../../../../utils';
+import {throttle} from 'src/lodash';
+import {isTableBodyNode, isTableCellNode, isTableNode, isTableRowNode} from 'src/table-utils';
+import {TableDesc} from 'src/table-utils/table-desc';
+import {getChildrenOfNode} from 'src/utils';
+
 import {YfmTableNode} from '../../YfmTableSpecs';
 
 import {viewB, yfmTableView} from './view';
@@ -27,6 +24,9 @@ type Meta = State | undefined;
 type State = null | {
     upper: {from: number; to: number};
     left: {from: number; to: number};
+    rowIdx: number;
+    columnIdx: number;
+    tablePos: number;
 };
 
 function shouldUpdateState(prev: State, curr: State): boolean {
@@ -95,10 +95,11 @@ export const yfmTableControlsPlugin = () =>
                     const cell = findParentNodeClosestToPos($pos, isTableCellNode);
                     const row = findParentNodeClosestToPos($pos, isTableRowNode);
                     const tbody = findParentNodeClosestToPos($pos, isTableBodyNode);
+                    const table = findParentNodeClosestToPos($pos, isTableNode);
 
                     let state: State = null;
 
-                    if (cell && row && tbody) {
+                    if (cell && row && tbody && table) {
                         const cellIndex = getChildrenOfNode(row.node).findIndex(
                             (child) => child.node === cell.node,
                         );
@@ -106,7 +107,9 @@ export const yfmTableControlsPlugin = () =>
                             tbody.node.firstChild || Fragment.empty,
                         )[cellIndex];
 
-                        if (firstRowCell) {
+                        const cellInfo = TableDesc.create(table.node)?.getCellInfo(cell.node);
+
+                        if (firstRowCell && cellInfo) {
                             const upperFrom = tbody.pos + 2 + firstRowCell.offset;
                             const upperTo = upperFrom + firstRowCell.node.nodeSize;
 
@@ -116,6 +119,9 @@ export const yfmTableControlsPlugin = () =>
                             state = {
                                 upper: {from: upperFrom, to: upperTo},
                                 left: {from: leftFrom, to: leftTo},
+                                rowIdx: cellInfo.row,
+                                columnIdx: cellInfo.column,
+                                tablePos: table.pos,
                             };
                         }
                     }
