@@ -1,4 +1,4 @@
-import {memo} from 'react';
+import {memo, useCallback} from 'react';
 
 import type {QAProps} from '@gravity-ui/uikit';
 
@@ -62,6 +62,8 @@ export const MarkupEditorView = memo<MarkupEditorViewProps>((props) => {
         });
     });
 
+    const toolbarFocus = useCallback(() => editor.focus(), [editor]);
+
     return (
         <div className={b({toolbar: toolbarVisible}, [className])} data-qa={qa}>
             {toolbarVisible ? (
@@ -80,7 +82,7 @@ export const MarkupEditorView = memo<MarkupEditorViewProps>((props) => {
                         hiddenActionsConfig={hiddenActionsConfig}
                         stickyToolbar={stickyToolbar}
                         toolbarConfig={toolbarConfig}
-                        toolbarFocus={() => editor.focus()}
+                        toolbarFocus={toolbarFocus}
                         settingsVisible={settingsVisible}
                         className={b('toolbar', [toolbarClassName])}
                         toolbarDisplay={toolbarDisplay}

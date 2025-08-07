@@ -1,4 +1,4 @@
-import {memo} from 'react';
+import {memo, useCallback} from 'react';
 
 import type {QAProps} from '@gravity-ui/uikit';
 
@@ -59,6 +59,8 @@ export const WysiwygEditorView = memo<WysiwygEditorViewProps>((props) => {
         });
     });
 
+    const toolbarFocus = useCallback(() => editor.focus(), [editor]);
+
     return (
         <div className={b({toolbar: toolbarVisible}, [className])} data-qa={qa}>
             {toolbarVisible ? (
@@ -69,7 +71,7 @@ export const WysiwygEditorView = memo<WysiwygEditorViewProps>((props) => {
                     toolbarEditor={editor}
                     stickyToolbar={stickyToolbar}
                     toolbarConfig={toolbarConfig}
-                    toolbarFocus={() => editor.focus()}
+                    toolbarFocus={toolbarFocus}
                     hiddenActionsConfig={hiddenActionsConfig}
                     settingsVisible={settingsVisible}
                     className={b('toolbar', [toolbarClassName])}

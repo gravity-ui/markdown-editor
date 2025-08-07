@@ -1,4 +1,4 @@
-import {useLayoutEffect, useRef} from 'react';
+import {memo, useCallback, useLayoutEffect, useRef} from 'react';
 
 import type {QAProps} from '@gravity-ui/uikit';
 import {useUpdate} from 'react-use';
@@ -6,7 +6,12 @@ import {useUpdate} from 'react-use';
 import type {ClassNameProps} from '../classname';
 import {i18n} from '../i18n/menubar';
 import {useSticky} from '../react-utils/useSticky';
-import {FlexToolbar, type ToolbarData, type ToolbarDisplay, type ToolbarItemData} from '../toolbar';
+import {
+    FlexToolbar as FlexToolbarExternal,
+    type ToolbarData,
+    type ToolbarDisplay,
+    type ToolbarItemData,
+} from '../toolbar';
 
 import type {EditorInt} from './Editor';
 import {stickyCn} from './sticky';
@@ -25,6 +30,8 @@ export type ToolbarViewProps<T> = ClassNameProps &
         stickyToolbar: boolean;
         toolbarDisplay?: ToolbarDisplay;
     };
+
+const FlexToolbar = memo(FlexToolbarExternal) as typeof FlexToolbarExternal;
 
 export function ToolbarView<T>({
     editor,
@@ -53,6 +60,13 @@ export function ToolbarView<T>({
 
     const mobile = editor.mobile;
 
+    const handleClick = useCallback(
+        (id: string, attrs: {[key: string]: any} | undefined) => {
+            editor.emit('toolbar-action', {id, attrs, editorMode});
+        },
+        [editor, editorMode],
+    );
+
     return (
         <div
             data-qa={qa}
@@ -72,7 +86,7 @@ export function ToolbarView<T>({
                 editor={toolbarEditor}
                 focus={toolbarFocus}
                 dotsTitle={i18n('more_action')}
-                onClick={(id, attrs) => editor.emit('toolbar-action', {id, attrs, editorMode})}
+                onClick={handleClick}
                 display={toolbarDisplay}
                 disableTooltip={mobile}
                 disableHotkey={mobile}
