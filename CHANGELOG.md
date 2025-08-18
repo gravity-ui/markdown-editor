@@ -1,5 +1,12 @@
 # Changelog
 
+## [15.19.0](https://github.com/gravity-ui/markdown-editor/compare/v15.18.0...v15.19.0) (2025-08-12)
+
+
+### Features
+
+* **view/useFilesGallery:** add possibility to override gallery item props ([#824](https://github.com/gravity-ui/markdown-editor/issues/824)) ([5d6269f](https://github.com/gravity-ui/markdown-editor/commit/5d6269ff5899d0a22dabf969bb025413cfca89a2))
+
 ## [15.18.0](https://github.com/gravity-ui/markdown-editor/compare/v15.17.0...v15.18.0) (2025-08-04)
 
 

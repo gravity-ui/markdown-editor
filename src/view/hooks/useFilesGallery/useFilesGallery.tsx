@@ -1,12 +1,31 @@
 import * as React from 'react';
 
-import {getGalleryItemImage, getGalleryItemVideo, useGallery} from '@gravity-ui/components';
+import {
+    type GalleryItemAction,
+    getGalleryItemCopyLinkAction,
+    getGalleryItemDownloadAction,
+    getGalleryItemImage,
+    getGalleryItemVideo,
+    useGallery,
+} from '@gravity-ui/components';
+import {useToaster} from '@gravity-ui/uikit';
+
+import {i18n} from 'src/i18n/gallery';
 
 import {extensionRegex, supportedExtensions, supportedVideoExtensions} from './constants';
-import type {GalleryItemPropsWithUrl} from './types';
+import type {FilesGalleryItemType, GalleryItemPropsWithUrl, UseFilesGalleryOptions} from './types';
 
-export function useFilesGallery(customFiles?: GalleryItemPropsWithUrl[]) {
+export function useFilesGallery(
+    customFiles?: GalleryItemPropsWithUrl[],
+    {
+        download: getItemDownloladUrl,
+        overrideItemProps,
+        copyUrl: getItemCopyUrl,
+    }: UseFilesGalleryOptions = {},
+) {
     const {openGallery} = useGallery();
+
+    const toaster = useToaster();
 
     return {
         openFilesGallery: React.useCallback(
@@ -44,11 +63,61 @@ export function useFilesGallery(customFiles?: GalleryItemPropsWithUrl[]) {
                                     ? element.getAttribute('alt')
                                     : element.getAttribute('title')) || '';
 
-                            result.push({
-                                ...(supportedVideoExtensions.includes(extension)
+                            const filesGalleryItemType: FilesGalleryItemType =
+                                supportedVideoExtensions.includes(extension) ? 'video' : 'image';
+                            const galleryItemActions: GalleryItemAction[] = [];
+
+                            const itemCopyUrl = getItemCopyUrl?.(
+                                link,
+                                filesGalleryItemType,
+                                element,
+                            );
+
+                            if (itemCopyUrl) {
+                                const handleLinkCopied = () => {
+                                    toaster.add({
+                                        theme: 'success',
+                                        name: 'g-md-editor-gallery-copy-link',
+                                        title: i18n('link_copied'),
+                                    });
+                                };
+
+                                galleryItemActions.push(
+                                    getGalleryItemCopyLinkAction({
+                                        copyUrl: itemCopyUrl,
+                                        onCopy: handleLinkCopied,
+                                    }),
+                                );
+                            }
+
+                            const downloadUrl = getItemDownloladUrl?.(
+                                link,
+                                filesGalleryItemType,
+                                element,
+                            );
+
+                            if (downloadUrl) {
+                                galleryItemActions.push(
+                                    getGalleryItemDownloadAction({downloadUrl}),
+                                );
+                            }
+
+                            const galleryItemProps = {
+                                ...(filesGalleryItemType === 'video'
                                     ? getGalleryItemVideo({src: link, name: name})
                                     : getGalleryItemImage({src: link, name: name})),
                                 url: link,
+                                actions: galleryItemActions,
+                            };
+
+                            result.push({
+                                ...galleryItemProps,
+                                ...overrideItemProps?.(
+                                    link,
+                                    filesGalleryItemType,
+                                    element,
+                                    galleryItemProps,
+                                ),
                             });
                         }
                     }
@@ -68,7 +137,14 @@ export function useFilesGallery(customFiles?: GalleryItemPropsWithUrl[]) {
 
                 return false;
             },
-            [customFiles, openGallery],
+            [
+                customFiles,
+                getItemCopyUrl,
+                getItemDownloladUrl,
+                overrideItemProps,
+                toaster,
+                openGallery,
+            ],
         ),
     };
 }
