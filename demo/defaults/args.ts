@@ -5,6 +5,7 @@ import type {PlaygroundMiniProps} from '../components/PlaygroundMini';
 export const args: Meta<PlaygroundMiniProps>['args'] = {
     initialEditor: 'wysiwyg',
     settingsVisible: true,
+    mobile: false,
     allowHTML: true,
     breaks: true,
     linkify: true,

@@ -6,6 +6,7 @@ import {getInitialMd} from '../../utils/getInitialMd';
 
 export const Story: StoryObj<typeof component> = {
     args: {
+        mobile: false,
         disableMarkdownItAttrs: true,
     },
 };

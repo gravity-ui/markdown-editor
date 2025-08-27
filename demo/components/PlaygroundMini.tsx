@@ -6,6 +6,7 @@ import {Playground, type PlaygroundProps} from './Playground';
 
 export type PlaygroundMiniProps = Pick<
     PlaygroundProps,
+    | 'mobile'
     | 'initialEditor'
     | 'settingsVisible'
     | 'breaks'
