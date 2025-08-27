@@ -76,7 +76,10 @@ export const ToolbarColors: React.FC<ToolbarColorsProps> = (props) => {
 
     return (
         <ToolbarButtonWithPopupMenu
-            {...props}
+            qa={props.qa}
+            focus={props.focus}
+            onClick={props.onClick}
+            className={props.className}
             qaMenu="g-md-toolbar-menu"
             title={i18n('colorify')}
             menuItems={items}

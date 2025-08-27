@@ -56,6 +56,7 @@ const wCommandMenuConfig = wysiwygToolbarConfigs.wCommandMenuConfig.concat(
 );
 
 export type PlaygroundProps = {
+    mobile?: boolean;
     initial?: MarkupString;
     allowHTML?: boolean;
     settingsVisible?: boolean | SettingItems[];
@@ -107,6 +108,7 @@ logger.setLogger({
 
 export const Playground = memo<PlaygroundProps>((props) => {
     const {
+        mobile,
         initial,
         initialEditor,
         initialSplitModeEnabled,
@@ -174,6 +176,7 @@ export const Playground = memo<PlaygroundProps>((props) => {
     const mdEditor = useMarkdownEditor(
         {
             logger,
+            mobile,
             preset: 'full',
             wysiwygConfig: {
                 placeholderOptions: placeholderOptions,
@@ -261,6 +264,7 @@ export const Playground = memo<PlaygroundProps>((props) => {
             },
         },
         [
+            mobile,
             allowHTML,
             linkify,
             linkifyTlds,

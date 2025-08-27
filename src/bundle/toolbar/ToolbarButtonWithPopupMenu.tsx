@@ -31,20 +31,20 @@ export type MenuItem = {
     ignoreActive?: boolean;
 };
 
-export type ToolbarButtonWithPopupMenuProps = Omit<
-    ToolbarBaseProps<never> &
-        Pick<PopupProps, 'disablePortal'> & {
-            icon: ToolbarIconData;
-            iconClassName?: string;
-            chevronIconClassName?: string;
-            title: string | (() => string);
-            menuItems: MenuItem[];
-            /** @default 'classic' */
-            _selectionType?: 'classic' | 'light';
-            qaMenu?: string;
-        },
-    'editor'
->;
+export type ToolbarButtonWithPopupMenuProps = Pick<
+    ToolbarBaseProps<never>,
+    'className' | 'focus' | 'onClick' | 'qa'
+> &
+    Pick<PopupProps, 'disablePortal'> & {
+        icon: ToolbarIconData;
+        iconClassName?: string;
+        chevronIconClassName?: string;
+        title: string | (() => string);
+        menuItems: MenuItem[];
+        /** @default 'classic' */
+        _selectionType?: 'classic' | 'light';
+        qaMenu?: string;
+    };
 
 export const ToolbarButtonWithPopupMenu: React.FC<ToolbarButtonWithPopupMenuProps> = ({
     disablePortal,
