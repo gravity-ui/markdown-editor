@@ -1,353 +1,279 @@
 export const markup = `
-{% cut "First" %}
+&nbsp;
+
+Welcome to the editor! Start typing the character \`/\`
+
+![Markdown Editor](https://github.com/user-attachments/assets/0b4e5f65-54cf-475f-9c68-557a4e9edb46 =700x)
+
+## Markdown WYSIWYG and markup editor
+
+MarkdownEditor is a powerful tool for working with Markdown, which combines WYSIWYG and Markup modes. This means that you can create and edit content in a convenient visual mode, as well as have full control over the markup.
+
+The editor supports following formats:
+
+* WYSIWYG
+
+* markup
+
+Click on the gear in the upper right corner to change the mode and see the \`md\` markup.
+
+### Various blocks included
+
+{% cut "Combine different blocks" %}
+
+{% note info "Block for notes, tips, warnings, and alerts" %}
+
+Depending on the content, notes with different titles and formats are used:
+
+* Note: provides additional information.
+* Tip: offers a recommendation.
+* Warning: issues a warning.
+* Alert: indicates a restriction.
+
+{% endnote %}
+
+> [Improve](https://github.com/gravity-ui/markdown-editor/blob/main/docs/how-to-add-preview.md) the editor interface
+>
+> *improved by you*
+
+{% endcut %}
+
+Or write your extension using a [convenient api](https://github.com/gravity-ui/markdown-editor/blob/main/docs/how-to-create-extension.md)
+
+### A user-friendly API is provided
+
+Easily connect to your React app with a hook:
+
+\`\`\`plaintext
+import React from 'react';
+import { useMarkdownEditor, MarkdownEditorView } from '@gravity-ui/markdown-editor';
+import { toaster } from '@gravity-ui/uikit/toaster-singleton';
+
+function Editor({ onSubmit }) {
+  const editor = useMarkdownEditor({ allowHTML: false });
+
+  React.useEffect(() => {
+    function submitHandler() {
+      // Serialize current content to markdown markup
+      const value = editor.getValue();
+      onSubmit(value);
+    }
+
+    editor.on('submit', submitHandler);
+    return () => {
+      editor.off('submit', submitHandler);
+    };
+  }, [onSubmit]);
+
+  return <MarkdownEditorView stickyToolbar autofocus editor={editor} />;
+}
+\`\`\`
+
+### Convenient UX control is equipped
+
+#### Hot keys
+
+{% list tabs %}
+
+- WYSIWYG mode
+
+
+
+  |Formatting|Windows Shortcut|Mac OS Shortcut|
+  |:---|:---|:---|
+  |Bold text|Ctrl \\+ B|⌘ \\+ B|
+  |Italic|Ctrl \\+ I|⌘ \\+ I|
+  |Underlined text|Ctrl \\+ U|⌘ \\+ U|
+  |Strikethrough text|Ctrl \\+ Shift \\+ S|⌘ \\+ Shift \\+ S|
+
+- Markup mode
+
+
+
+  |Formatting|Markup|Result|
+  |:---|:---|:---|
+  |Bold text|\`**Bold**\`|**Bold**|
+  |Italic|\`*Italic*\`|*Italic*|
+  |Underlined text|\`++Underlined++\`|++Underlined++|
+  |Strikethrough text|\`~~Strikethrough~~\`|~~Strikethrough~~|
+
+{% endlist %}
+
+#### Context menu
+
+Select this text and you will see **a context menu**.
+
+#### Auto-conversion
+
+Quickly create blocks by entering characters that will be replaced by blocks. For example, the automatic conversion of \`-\` and space creates a list, \`>\` and space creates a quote. Try it out.
+
+---
+
+### Current and future features
+
+[X] Some already finished things
+
+[ ] VS Code plugin
+
+[ ] Mobile version
+
+### And a multitude of other functionalities :sweat_smile: :fire:
+
+See <https://github.com/gravity-ui/markdown-editor>
+
+# More examples  {#anchor}
+
+{% cut "Headings" %}
+
+# Heading 1
+
+## Heading 2
+
+### Heading 3
+
+#### Heading 4
+
+##### Heading 5
+
+###### Heading 6
+
+{% endcut %}
+
+{% cut "This is a cut heading" %}
+
+**A** *here* ~~it~~ ++is awesome++ ^c^~o~^n^~t~^e^~n~^t^
+
+> Done deal - deal done \`(quote)\`
+
+{% endcut %}
+
+{% cut "Formulas" %}
+
+This is an inline formula: $\\sqrt{3x-1}+(1+x)^2$
+
+And here is a block formula:
+
+$$f(\\relax{x}) = \\int_{-\\infty}^\\infty
+    \\hat f(\\xi)\\,e^{2 \\pi i \\xi x}
+    \\,d\\xi
+$$
+
+*Click on the formula to edit it*
+
+{% endcut %}
+
+---
 
 #|
 ||
 
-{gray}(Lorem ipsum dolor sit amet, consectetur adipiscing elit.)
+Category
 
 |
 
->
+Subcategory
 
 |
 
-{orange}(Donec id tristique elit.)
-
-|
-
-{red}(Nulla ac neque eu diam porta pretium quis at nulla.)
-
-|
-
-{green}(Nullam consectetur nec sapien eget euismod.)
-
-|
-
-{blue}(Cras sit amet sapien lacus.)
-
-|
-
-{violet}(Maecenas vehicula sagittis purus, ac venenatis ligula scelerisque eu.)
-
-|
-
->
+Description
 
 ||
 ||
 
-{gray}(Suspendisse feugiat ex id ex sollicitudin, consectetur imperdiet mi gravida.)
+**Technology**
 
 |
 
-{yellow}(Nulla facilisi.)
+==Programming==
 
 |
 
-{orange}(Proin nisi turpis, tincidunt quis nisl in, bibendum euismod magna.)
-
-|
-
-{red}(Quisque nec congue risus, eget commodo enim.)
-
-|
-
-{green}(Donec pharetra venenatis felis, non elementum risus imperdiet non.)
-
-|
-
-{blue}(Aliquam elit nunc, sagittis vel sem pharetra, rhoncus luctus ante.)
-
-|
-
-{violet}(Phasellus vitae augue nec ante commodo semper eget non odio.)
-
-|
-
-Cras sed dolor sapien.
+***Innovative coding techniques and tools***
 
 ||
 ||
 
-{gray}(Vestibulum in consectetur urna.)
+**Science**
 
 |
 
-{yellow}(Maecenas imperdiet tincidunt ultrices.)
+==Physics==
 
 |
 
->
-
-|
-
-{red}(Mauris accumsan scelerisque porta.)
-
-|
-
-{green}(Quisque fringilla eleifend est sed interdum.)
-
-|
-
-{blue}(Proin vestibulum lorem vitae ex consequat pharetra.)
-
-|
-
-{violet}(Integer finibus velit ex, sed fringilla urna faucibus in.)
-
-|
-
-Etiam a lacus nisi.
+Understanding the laws of the universe and fundamental forces
 
 ||
 ||
 
-{gray}(Etiam sollicitudin, diam suscipit gravida accumsan, metus nisl gravida augue, id laoreet lorem elit id urna.)
+**Literature**
 
 |
 
-{yellow}(Praesent ultricies erat urna, finibus ultrices lectus tincidunt molestie.)
+==Fiction==
 
 |
 
-{orange}(Nunc vel dolor malesuada, venenatis mi vitae, suscipit orci.)
-
-|
-
-{red}(Sed finibus facilisis orci sed fringilla.)
-
-|
-
-{green}(Vivamus sed mollis dolor.)
-
-|
-
-{blue}(Mauris sit amet augue posuere, suscipit nulla non, gravida sem.)
-
-|
-
-{violet}(Vivamus augue augue, cursus et auctor quis, porttitor non ipsum.)
-
-|
-
-Nam sollicitudin molestie tortor.
+Exploring imaginary worlds and character-driven stories
 
 ||
 ||
 
-{gray}(Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.)
+**Education**
 
 |
 
-{yellow}(Donec aliquam dapibus sapien in laoreet.)
+==E-learning==
 
 |
 
-{orange}(Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.)
+!!!!!!!!!!!!!!!!!!!!!!!!
+
+New approaches to learning in the digital age
+
+||
+||
+
+**Health**
 
 |
 
-{red}(Aenean at magna eget tortor fringilla porta at eu lacus.)
+==Nutrition==
 
 |
 
-{green}(Proin ac hendrerit nisl.)
-
-|
-
->
-
-|
-
-{violet}(Vestibulum eleifend id diam ut efficitur.)
-
-|
-
-Aenean auctor non orci in fringilla.
+~~++Balanced diets++~~ for a healthy lifestyle
 
 ||
 |#
 
-{% endcut %}
+---
 
-{% cut "Second" %}
+{% note info "Attention, please!" %}
 
-#|
-||
+* Thank
 
-{gray}(Lorem ipsum dolor sit amet, consectetur adipiscing elit.)
+  1. you
 
-|
+  2. for
 
-{gray}(Curabitur laoreet in dui non auctor.)
+     1. your
 
-|
+  3. attention
 
-{gray}(Donec id tristique elit.)
+* (nested lists)
 
-|
+> > > Quotes
+> >
+> > Nested
+>
+> As well
 
-{gray}(Nulla ac neque eu diam porta pretium quis at nulla.)
+And ##monospace## can be **##com##**##bined\\*##
 
-|
+{% endnote %}
 
-{gray}(Nullam consectetur nec sapien eget euismod.)
-
-||
-||
-
-^|
-
-{yellow}(Maecenas vehicula sagittis purus, ac venenatis ligula scelerisque eu.)
-
-|
-
-{yellow}(Vestibulum sit amet ipsum ipsum.)
-
-|
-
-{yellow}(Fusce vitae dui placerat nisi tempor aliquam id molestie magna.)
-
-|
-
-{yellow}(Sed pretium tortor tortor, quis efficitur nisi congue nec.)
-
-||
-||
-
-{orange}(Sed bibendum pharetra turpis, sed dictum mi ornare et.)
-
-|
-
-{orange}(Proin sagittis, augue ac eleifend elementum, turpis enim consequat arcu, ut tincidunt augue ex nec risus.)
-
-|^|
-
-{orange}(Nulla facilisi.)
-
-|
-
-{orange}(Proin nisi turpis, tincidunt quis nisl in, bibendum euismod magna.)
-
-||
-||
-
-{red}(Quisque nec congue risus, eget commodo enim.)
-
-|
-
-{red}(Donec pharetra venenatis felis, non elementum risus imperdiet non.)
-
-|
-
-{red}(Aliquam elit nunc, sagittis vel sem pharetra, rhoncus luctus ante.)
-
-|
-
-{red}(Phasellus vitae augue nec ante commodo semper eget non odio.)
-
-|
-
-{red}(Cras sed dolor sapien.)
-
-||
-||
-
-{green}(Fusce metus dolor, suscipit sit amet diam sodales, cursus accumsan mi.)
-
-|
-
-{green}(In lacinia ut urna et cursus.)
-
-|
-
-{green}(Suspendisse non tincidunt mi, ac porta neque.)
-
-|
-
-{green}(Pellentesque elementum sit amet felis sed viverra.)
-
-|
-
-{green}(Vivamus eu suscipit dolor, a malesuada dolor.)
-
-||
-||
-
-{blue}(Vestibulum in consectetur urna.)
-
-|
-
-{blue}(Maecenas imperdiet tincidunt ultrices.)
-
-|
-
-{blue}(Donec sit amet lectus id est mattis gravida vitae non lorem.)
-
-|
-
-{blue}(Mauris accumsan scelerisque porta.)
-
-|^
-||
-||
-
-{violet}(Proin vestibulum lorem vitae ex consequat pharetra.)
-
-|
-
-{violet}(Integer finibus velit ex, sed fringilla urna faucibus in.)
-
-|
-
-{violet}(Donec pellentesque non neque et porttitor.)
-
-|
-
-{violet}(Etiam a lacus nisi.)
-
-|
-
-{violet}(Quisque ut turpis diam. Maecenas ultrices ipsum at lacinia sagittis.)
-
-||
-||
-
-^|
-
-Praesent ultricies erat urna, finibus ultrices lectus tincidunt molestie.
-
-|
-
-Nunc vel dolor malesuada, venenatis mi vitae, suscipit orci.
-
-|
-
-Sed finibus facilisis orci sed fringilla.
-
-|
-
-Vivamus sed mollis dolor.
-
-||
-|#
-
-{% endcut %}
-
-{% cut "Third" %}
-
-#|
-||11|12|13|14|15|16|17||
-||21|22|23|24|25|26|27||
-||31|32|33|> |> |36|37||
-||41|42|^ |^ |^ |46|47||
-||51|52|^ |^ |^ |56|57||
-||61|62|63|64|65|66|67||
-||71|72|73|74|75|76|77||
-|#
-
-{% endcut %}
+---
 
 `.trim();
 
