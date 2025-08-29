@@ -1,5 +1,14 @@
 # Changelog
 
+## [15.19.1](https://github.com/gravity-ui/markdown-editor/compare/v15.19.0...v15.19.1) (2025-08-28)
+
+
+### Bug Fixes
+
+* **bundle:** dont pass invalid props to dom in ToolbarColors component ([#836](https://github.com/gravity-ui/markdown-editor/issues/836)) ([93a97b6](https://github.com/gravity-ui/markdown-editor/commit/93a97b645d1a1b1411b4b07804248302db620a07))
+* ellipsis rule in inline code ([#829](https://github.com/gravity-ui/markdown-editor/issues/829)) ([53cc46f](https://github.com/gravity-ui/markdown-editor/commit/53cc46f6b67b2667225d66453f4160dab304c8f6))
+* **Lists:** enable tight lists by default to eliminate unnecessary spacing ([#826](https://github.com/gravity-ui/markdown-editor/issues/826)) ([28b7368](https://github.com/gravity-ui/markdown-editor/commit/28b736899b9de7198a9d53e2fa6826cc7b6fdee8))
+
 ## [15.19.0](https://github.com/gravity-ui/markdown-editor/compare/v15.18.0...v15.19.0) (2025-08-12)
 
 
