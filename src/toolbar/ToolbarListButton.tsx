@@ -90,7 +90,7 @@ export function ToolbarListButton<E>({
                     if (popupItem) setPopupItem(undefined);
                     else toggleOpen();
                 }}
-                disableTooltip={disableTooltip}
+                disableTooltip={disableTooltip || popupOpen}
             >
                 {buttonContent}
             </ToolbarButtonView>
