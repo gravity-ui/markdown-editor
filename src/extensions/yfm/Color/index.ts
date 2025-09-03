@@ -35,6 +35,10 @@ export const Color: ExtensionAuto = (builder) => {
                     if (!hasMark) return true;
 
                     // remove mark
+                    // TODO: @makhnatkin currently params[colorMarkName] = '' is sent
+                    //  when clicking the same color repeatedly
+                    // because of this we can't determine which color it was, we need to always send the color,
+                    // but handle the removal logic differently
                     return toggleMark(type, params)(state, dispatch);
                 }
 
