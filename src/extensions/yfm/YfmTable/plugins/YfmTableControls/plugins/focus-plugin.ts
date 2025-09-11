@@ -1,4 +1,4 @@
-import {Plugin, PluginKey, type Transaction} from '#pm/state';
+import {type EditorState, Plugin, PluginKey, type Transaction} from '#pm/state';
 import {findParentNode, findParentNodeClosestToPos, findSelectedNodeOfType} from '#pm/utils';
 import {Decoration, DecorationSet, type EditorView} from '#pm/view';
 import {throttle} from 'src/lodash';
@@ -49,46 +49,12 @@ export const yfmTableFocusPlugin = () => {
     return new Plugin<PluginState>({
         key: pluginKey,
         state: {
-            init() {
-                return {hover: null, activeTablePos: null, decorations: DecorationSet.empty};
+            init(_config, state) {
+                return updateAfterChanges(state);
             },
             apply: (tr, prev) => {
                 if (tr.selectionSet || tr.docChanged) {
-                    const table =
-                        findParentNode(isTableNode)(tr.selection) ||
-                        findSelectedNodeOfType(yfmTableType(tr.doc.type.schema))(tr.selection);
-                    if (table) {
-                        const tableFrom = table.pos;
-                        const tableTo = tableFrom + table.node.nodeSize;
-                        const decos = prev.decorations
-                            .map(tr.mapping, tr.doc)
-                            .find(
-                                tableFrom,
-                                tableTo,
-                                (spec) =>
-                                    spec[decoTypeKey] === DecoType.ShowRowControl ||
-                                    spec[decoTypeKey] === DecoType.ShowColumnControl,
-                            );
-                        return {
-                            hover: null,
-                            activeTablePos: table.pos,
-                            decorations: DecorationSet.create(tr.doc, [
-                                ...decos,
-                                Decoration.node(
-                                    table.pos,
-                                    table.pos + table.node.nodeSize,
-                                    {class: FOCUSED_CLASSNAME},
-                                    {[decoTypeKey]: DecoType.FocusTable},
-                                ),
-                            ]),
-                        };
-                    } else {
-                        return {
-                            hover: null,
-                            activeTablePos: null,
-                            decorations: DecorationSet.empty,
-                        };
-                    }
+                    return updateAfterChanges(tr, prev);
                 }
 
                 const meta: Meta = tr.getMeta(pluginKey);
@@ -207,3 +173,45 @@ export const yfmTableFocusPlugin = () => {
         },
     });
 };
+
+function updateAfterChanges(state: EditorState): PluginState;
+function updateAfterChanges(tr: Transaction, prev: PluginState): PluginState;
+function updateAfterChanges(tr: EditorState | Transaction, prev?: PluginState) {
+    const table =
+        findParentNode(isTableNode)(tr.selection) ||
+        findSelectedNodeOfType(yfmTableType(tr.doc.type.schema))(tr.selection);
+    if (table) {
+        const tableFrom = table.pos;
+        const tableTo = tableFrom + table.node.nodeSize;
+        const decos = prev
+            ? prev.decorations
+                  .map((tr as Transaction).mapping, tr.doc)
+                  .find(
+                      tableFrom,
+                      tableTo,
+                      (spec) =>
+                          spec[decoTypeKey] === DecoType.ShowRowControl ||
+                          spec[decoTypeKey] === DecoType.ShowColumnControl,
+                  )
+            : [];
+        return {
+            hover: null,
+            activeTablePos: table.pos,
+            decorations: DecorationSet.create(tr.doc, [
+                ...decos,
+                Decoration.node(
+                    table.pos,
+                    table.pos + table.node.nodeSize,
+                    {class: FOCUSED_CLASSNAME},
+                    {[decoTypeKey]: DecoType.FocusTable},
+                ),
+            ]),
+        };
+    } else {
+        return {
+            hover: null,
+            activeTablePos: null,
+            decorations: DecorationSet.empty,
+        };
+    }
+}
