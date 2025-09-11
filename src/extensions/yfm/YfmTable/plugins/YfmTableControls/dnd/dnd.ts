@@ -1,4 +1,4 @@
-import type {Node} from '#pm/model';
+import {type Node, Slice} from '#pm/model';
 import {TextSelection} from '#pm/state';
 import {findParentNodeClosestToPos} from '#pm/utils';
 import type {EditorView} from '#pm/view';
@@ -27,6 +27,9 @@ import {
 import './dnd.scss';
 
 const MOUSE_MOVE_DEBOUNCE = 100; // ms
+const DRAG_START_THRESHOLD = 4; // px
+
+type PageCoords = Pick<MouseEvent, 'pageX' | 'pageY'>;
 
 export type DnDControlHandler = {
     canDrag(): boolean;
@@ -84,7 +87,7 @@ class YfmTableRowDnDHandler implements TableHandler, DnDControlHandler {
 
     private _dragging = false;
     private _destroyed = false;
-    private _dragMouseDown = false;
+    private _dragMouseDown: false | PageCoords = false;
 
     constructor(view: EditorView, params: YfmTableDnDHandlerParams) {
         this._editorView = view;
@@ -111,8 +114,8 @@ class YfmTableRowDnDHandler implements TableHandler, DnDControlHandler {
         return rowRange.safeTopBoundary && rowRange.safeBottomBoundary;
     }
 
-    control_handleMouseDown: React.MouseEventHandler<HTMLButtonElement> = () => {
-        this._dragMouseDown = true;
+    control_handleMouseDown: React.MouseEventHandler<HTMLButtonElement> = (event) => {
+        this._dragMouseDown = {pageX: event.pageX, pageY: event.pageY};
         this._dropCursor.clear();
     };
 
@@ -120,8 +123,8 @@ class YfmTableRowDnDHandler implements TableHandler, DnDControlHandler {
         this._dragMouseDown = false;
     };
 
-    control_handleMouseMove: React.MouseEventHandler<HTMLButtonElement> = () => {
-        if (!this._dragMouseDown) return;
+    control_handleMouseMove: React.MouseEventHandler<HTMLButtonElement> = (event) => {
+        if (!this._dragMouseDown || !isDragThresholdPassed(this._dragMouseDown, event)) return;
 
         if (this._editorView.dragging || this._dragging) return;
         this._startDragging();
@@ -333,7 +336,7 @@ class YfmTableColumnDnDHandler implements TableHandler, DnDControlHandler {
 
     private _dragging = false;
     private _destroyed = false;
-    private _dragMouseDown = false;
+    private _dragMouseDown: false | PageCoords = false;
 
     constructor(view: EditorView, params: YfmTableDnDHandlerParams) {
         this._editorView = view;
@@ -360,8 +363,8 @@ class YfmTableColumnDnDHandler implements TableHandler, DnDControlHandler {
         return rowRange.safeLeftBoundary && rowRange.safeRightBoundary;
     }
 
-    control_handleMouseDown: React.MouseEventHandler<HTMLButtonElement> = () => {
-        this._dragMouseDown = true;
+    control_handleMouseDown: React.MouseEventHandler<HTMLButtonElement> = (event) => {
+        this._dragMouseDown = {pageX: event.pageX, pageY: event.pageY};
         this._dropCursor.clear();
     };
 
@@ -369,8 +372,8 @@ class YfmTableColumnDnDHandler implements TableHandler, DnDControlHandler {
         this._dragMouseDown = false;
     };
 
-    control_handleMouseMove: React.MouseEventHandler<HTMLButtonElement> = () => {
-        if (!this._dragMouseDown) return;
+    control_handleMouseMove: React.MouseEventHandler<HTMLButtonElement> = (event) => {
+        if (!this._dragMouseDown || !isDragThresholdPassed(this._dragMouseDown, event)) return;
 
         if (this._editorView.dragging || this._editorView.composing) return;
         this._startDragging();
@@ -421,9 +424,12 @@ class YfmTableColumnDnDHandler implements TableHandler, DnDControlHandler {
             selectDraggedColumn(tr, realPos);
             this._editorView.dispatch(tr);
         }
-        // todo: записывать в dragging слайс с первой ячейкой в столбце
-
-        // =====
+        {
+            this._editorView.dragging = {
+                move: true,
+                slice: Slice.empty,
+            };
+        }
 
         const dndBackground = document.createElement('div');
         dndBackground.classList.add('g-md-yfm-table-dnd-cursor-background');
@@ -615,4 +621,11 @@ class YfmTableColumnDnDHandler implements TableHandler, DnDControlHandler {
 function getCellPos(pos: CellPos, dir: 'start' | 'end'): number {
     if (pos.type === 'virtual') return pos.closestPos;
     return dir === 'start' ? pos.from : pos.to;
+}
+
+function isDragThresholdPassed(init: PageCoords, curr: PageCoords): boolean {
+    return (
+        Math.abs(init.pageX - curr.pageX) >= DRAG_START_THRESHOLD ||
+        Math.abs(init.pageY - curr.pageY) >= DRAG_START_THRESHOLD
+    );
 }
