@@ -1,16 +1,17 @@
 import {useEffect} from 'react';
 
 import {Plus as PlusIcon} from '@gravity-ui/icons';
-import {Button, Flex, Icon} from '@gravity-ui/uikit';
+import {Button, Flex, Icon, type QAProps} from '@gravity-ui/uikit';
 
 import {useBooleanState} from 'src/react-utils';
 
-export type PlusButtonProps = {
+export type PlusButtonProps = QAProps & {
     onClick: () => void;
     onHoverChange: (hover: boolean) => void;
 };
 
 export const PlusButton: React.FC<PlusButtonProps> = function YfmTablePlusButton({
+    qa,
     onClick,
     onHoverChange,
 }) {
@@ -32,6 +33,7 @@ export const PlusButton: React.FC<PlusButtonProps> = function YfmTablePlusButton
             }}
         >
             <Button
+                qa={qa}
                 size="xs"
                 pin="circle-circle"
                 view={hovered ? 'outlined-action' : 'normal'}

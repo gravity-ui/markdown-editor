@@ -34,7 +34,11 @@ export const FloatingPlusButton: React.FC<FloatingPlusButtonProps> =
                     offset={offsetByType[type]}
                     style={styles}
                 >
-                    <PlusButton {...btnProps} onHoverChange={setHovered} />
+                    <PlusButton
+                        {...btnProps}
+                        onHoverChange={setHovered}
+                        qa={`g-md-yfm-table-plus-${type}`}
+                    />
                 </FloatingPopup>
                 {hovered && <InsertCursor anchor={anchor} type={type} />}
             </>

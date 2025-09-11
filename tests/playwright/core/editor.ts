@@ -120,7 +120,7 @@ class YfmNote {
 class YfmTable {
     readonly buttonPlusRowLocator;
     readonly buttonPlusColumnLocator;
-    private readonly tableWrapperLocator;
+    private readonly tableLocator;
 
     private readonly rowButtonLocator;
     private readonly columnButtonLocator;
@@ -128,7 +128,7 @@ class YfmTable {
     private readonly cellMenuActions: Readonly<Record<YfmTableActionKind, Locator>>;
 
     constructor(page: Page) {
-        this.tableWrapperLocator = page.getByTestId('g-md-yfm-table-wrapper');
+        this.tableLocator = page.locator('table');
         this.buttonPlusRowLocator = page.getByTestId('g-md-yfm-table-plus-row');
         this.buttonPlusColumnLocator = page.getByTestId('g-md-yfm-table-plus-column');
 
@@ -154,23 +154,23 @@ class YfmTable {
     }
 
     async getTable(locator?: Locator) {
-        return locator?.locator(this.tableWrapperLocator) ?? this.tableWrapperLocator;
+        return locator?.locator(this.tableLocator) ?? this.tableLocator;
     }
 
     async getRows(table?: Locator) {
-        return (table || (await this.getTable())).first().locator('table > tbody > tr');
+        return (table || (await this.getTable())).first().locator('> tbody > tr');
     }
 
     async getCells(table?: Locator) {
-        return (table || (await this.getTable())).first().locator('table > tbody > tr > td');
+        return (table || (await this.getTable())).first().locator('> tbody > tr > td');
     }
 
-    async getRowButtons(table?: Locator) {
-        return (table || (await this.getTable())).first().locator(this.rowButtonLocator);
+    async getRowButtons(_table?: Locator) {
+        return this.rowButtonLocator;
     }
 
-    async getColumnButtons(table?: Locator) {
-        return (table || (await this.getTable())).first().locator(this.columnButtonLocator);
+    async getColumnButtons(_table?: Locator) {
+        return this.columnButtonLocator;
     }
 
     async doCellAction(menuType: YfmTableCellMenuType, kind: YfmTableActionKind) {
@@ -180,16 +180,12 @@ class YfmTable {
         await menu.waitFor({state: 'hidden'});
     }
 
-    async clickPlusRow(locator?: Locator) {
-        const btnLoc = this.buttonPlusRowLocator;
-        const loc = locator?.locator(btnLoc) ?? btnLoc;
-        await loc.click();
+    async clickPlusRow(_locator?: Locator) {
+        await this.buttonPlusRowLocator.last().click();
     }
 
-    async clickPlusColumn(locator?: Locator) {
-        const btnLoc = this.buttonPlusColumnLocator;
-        const loc = locator?.locator(btnLoc) ?? btnLoc;
-        await loc.click();
+    async clickPlusColumn(_locator?: Locator) {
+        await this.buttonPlusColumnLocator.last().click();
     }
 }
 
