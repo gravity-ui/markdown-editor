@@ -12,6 +12,8 @@ import {insertEmptyRow} from '../commands/insert-empty-row';
 import {FloatingPlusControl} from '../components/FloatingPlusControl';
 import {YfmTableDecorationType, YfmTableDecorationTypeKey} from '../const';
 
+import './yfm-table-view.scss';
+
 type GetPos = () => number | undefined;
 
 export const yfmTableView: NodeViewConstructor = (node, view, getPos, decorations): NodeView => {
@@ -40,6 +42,7 @@ class YfmTableNewView implements NodeView {
         });
 
         this.dom = this.contentDOM = view.dom.ownerDocument.createElement('table');
+        this.dom.classList.add('g-md-yfm-table-view');
 
         this._updateFocusedState(decorations);
         this._renderer = getReactRendererFromState(view.state).createItem('yfm-table-view', () => {
