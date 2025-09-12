@@ -320,7 +320,8 @@ export class TableDesc {
                 let safeLeftBoundary = true;
                 for (const row of this.rowsDesc) {
                     const cell = row.cells[i];
-                    if (cell.type === 'virtual') safeLeftBoundary &&= !cell.colspan;
+                    if (cell.type === 'virtual' && cell.colspan)
+                        safeLeftBoundary &&= cell.colspan[1] === i;
                 }
 
                 ranges.push(
