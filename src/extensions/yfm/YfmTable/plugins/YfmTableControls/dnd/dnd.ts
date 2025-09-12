@@ -78,49 +78,46 @@ export class YfmTableDnDHandler implements TableHandler {
     }
 }
 
-class YfmTableRowDnDHandler implements TableHandler, DnDControlHandler {
-    private _cellNode: Node;
-    private readonly _cellGetPos: () => number | undefined;
-    private readonly _editorView: EditorView;
-    private readonly _logger: Logger2.ILogger;
-    private _dropCursor: RowDropCursor;
+abstract class YfmTableDnDAbstractHandler implements TableHandler, DnDControlHandler {
+    protected readonly _cellGetPos: () => number | undefined;
+    protected readonly _editorView: EditorView;
+    protected readonly _logger: Logger2.ILogger;
+    protected readonly _dropCursor: RowDropCursor;
 
-    private _dragging = false;
-    private _destroyed = false;
-    private _dragMouseDown: false | PageCoords = false;
+    private __cellNode: Node;
+    private __dragging = false;
+    private __destroyed = false;
+    private __dragMouseDown: false | PageCoords = false;
 
-    constructor(view: EditorView, params: YfmTableDnDHandlerParams) {
+    constructor(
+        view: EditorView,
+        params: Omit<YfmTableDnDHandlerParams, 'dropCursor'> & {dropCursor: RowDropCursor},
+    ) {
         this._editorView = view;
-        this._cellNode = params.cellNode;
+        this.__cellNode = params.cellNode;
         this._cellGetPos = params.cellGetPos;
-        this._logger = params.logger.nested({component: 'row-dnd-handler'});
-
-        this._dropCursor = new RowDropCursor(view, params.dropCursor);
+        this._logger = params.logger;
+        this._dropCursor = params.dropCursor;
     }
 
     update(cellnode: Node) {
-        this._cellNode = cellnode;
+        this.__cellNode = cellnode;
     }
 
     destroy() {
-        this._destroyed = true;
-        this._dropCursor.clear();
+        this.__destroyed = true;
+        this._clearDragging();
     }
 
-    canDrag(): boolean {
-        const res = this._getTableDescAndCellInfo();
-        if (!res) return false;
-        const rowRange = res.tableDesc.base.getRowRangeByRowIdx(res.cellInfo.row);
-        return rowRange.safeTopBoundary && rowRange.safeBottomBoundary;
-    }
+    abstract canDrag(): boolean;
 
     control_handleMouseDown: React.MouseEventHandler<HTMLButtonElement> = (event) => {
-        this._dragMouseDown = {pageX: event.pageX, pageY: event.pageY};
+        this.__dragMouseDown = {pageX: event.pageX, pageY: event.pageY};
         this._dropCursor.clear();
     };
 
     control_handleMouseUp: React.MouseEventHandler<HTMLButtonElement> = () => {
-        this._dragMouseDown = false;
+        this.__dragMouseDown = false;
     };
 
     control_handleMouseMove: React.MouseEventHandler<HTMLButtonElement> = (event) => {
@@ -130,7 +127,29 @@ class YfmTableRowDnDHandler implements TableHandler, DnDControlHandler {
         this._startDragging();
     };
 
-    private _getTableDescAndCellInfo() {
+    protected get _cellNode(): Node {
+        return this.__cellNode;
+    }
+
+    protected get _dragging() {
+        return this.__dragging;
+    }
+
+    protected set _dragging(val: boolean) {
+        this.__dragging = val;
+    }
+
+    protected get _destroyed() {
+        return this.__destroyed;
+    }
+
+    protected get _dragMouseDown() {
+        return this.__dragMouseDown;
+    }
+
+    protected abstract _startDragging(): void;
+
+    protected _getTableDescAndCellInfo() {
         const tcellPos = this._cellGetPos();
         const tableNode =
             tcellPos === undefined
@@ -151,7 +170,32 @@ class YfmTableRowDnDHandler implements TableHandler, DnDControlHandler {
             : null;
     }
 
-    private _startDragging = () => {
+    protected _clearDragging() {
+        this.__dragging = false;
+        this.__dragMouseDown = false;
+        this._dropCursor.clear();
+        this._editorView.dragging = null;
+        this._editorView.dispatch(clearAllSelections(this._editorView.state.tr));
+    }
+}
+
+class YfmTableRowDnDHandler extends YfmTableDnDAbstractHandler {
+    constructor(view: EditorView, params: YfmTableDnDHandlerParams) {
+        super(view, {
+            ...params,
+            logger: params.logger.nested({component: 'row-dnd-handler'}),
+            dropCursor: new RowDropCursor(view, params.dropCursor),
+        });
+    }
+
+    canDrag(): boolean {
+        const res = this._getTableDescAndCellInfo();
+        if (!res) return false;
+        const rowRange = res.tableDesc.base.getRowRangeByRowIdx(res.cellInfo.row);
+        return rowRange.safeTopBoundary && rowRange.safeBottomBoundary;
+    }
+
+    protected _startDragging = () => {
         const info = this._getTableDescAndCellInfo();
         if (!info) return;
 
@@ -188,12 +232,12 @@ class YfmTableRowDnDHandler implements TableHandler, DnDControlHandler {
         dndBackground.classList.add('g-md-yfm-table-dnd-cursor-background');
         document.body.append(dndBackground);
 
+        const draggedRangeIdx = rowRanges.indexOf(currRowRange);
+
         const onMove = debounce(
             (event: MouseEvent) => {
-                const draggedRangeIdx = rowRanges.indexOf(currRowRange);
                 this._moveDragging(event, {
                     rangeIdx: draggedRangeIdx,
-                    ranges: rowRanges,
                     tableDesc,
                 });
             },
@@ -209,7 +253,7 @@ class YfmTableRowDnDHandler implements TableHandler, DnDControlHandler {
                 onMove.flush();
                 dndBackground.remove();
                 document.removeEventListener('mousemove', onMove);
-                this._endDragging(currRowRange);
+                this._endDragging(currRowRange, tableDesc);
             },
             {once: true},
         );
@@ -219,15 +263,24 @@ class YfmTableRowDnDHandler implements TableHandler, DnDControlHandler {
         event: MouseEvent,
         {
             rangeIdx,
-            ranges,
-            tableDesc,
+            tableDesc: initialTableDesc,
         }: {
             rangeIdx: number;
-            ranges: readonly Readonly<TableRowRange>[];
             tableDesc: TableDescBinded;
         },
     ) {
-        const boxes = ranges.map((range) => {
+        if (this._destroyed || !this._dragging) return;
+
+        const info = this._getTableDescAndCellInfo();
+        if (!info || info.tableDesc.base !== initialTableDesc.base) {
+            this._clearDragging();
+            return;
+        }
+
+        const {tableDesc} = info;
+        const ranges = tableDesc.base.getRowRanges();
+
+        const boxes = ranges.map((range: Readonly<TableRowRange>) => {
             const firstRowStartPos = tableDesc.getPosForRow(range.startIdx).from;
             const lastRowPos = tableDesc.getPosForRow(range.endIdx);
             const lastRowStartPos = lastRowPos.from;
@@ -281,24 +334,20 @@ class YfmTableRowDnDHandler implements TableHandler, DnDControlHandler {
         else this._dropCursor.clear();
     }
 
-    private _endDragging(draggedRange: Readonly<TableRowRange>) {
+    private _endDragging(draggedRange: Readonly<TableRowRange>, initialTableDesc: TableDescBinded) {
         if (this._destroyed || !this._dragging) return;
 
-        this._dragging = false;
-        this._dragMouseDown = false;
-        this._editorView.dispatch(clearAllSelections(this._editorView.state.tr));
-        this._editorView.dragging = null;
+        const point = this._dropCursor.getPos();
+        this._clearDragging();
         this._logger.event({event: 'row-drag-end'});
 
-        const point = this._dropCursor.getPos();
-        this._dropCursor.clear();
         if (point === null) {
             this._editorView.focus();
             return;
         }
 
         const info = this._getTableDescAndCellInfo();
-        if (!info) {
+        if (!info || info.tableDesc.base !== initialTableDesc.base) {
             this._editorView.focus();
             return;
         }
@@ -327,33 +376,13 @@ class YfmTableRowDnDHandler implements TableHandler, DnDControlHandler {
     }
 }
 
-class YfmTableColumnDnDHandler implements TableHandler, DnDControlHandler {
-    private _cellNode: Node;
-    private readonly _cellGetPos: () => number | undefined;
-    private readonly _editorView: EditorView;
-    private readonly _dropCursor: TableColumnDropCursor;
-    private readonly _logger: Logger2.ILogger;
-
-    private _dragging = false;
-    private _destroyed = false;
-    private _dragMouseDown: false | PageCoords = false;
-
+class YfmTableColumnDnDHandler extends YfmTableDnDAbstractHandler {
     constructor(view: EditorView, params: YfmTableDnDHandlerParams) {
-        this._editorView = view;
-        this._cellNode = params.cellNode;
-        this._cellGetPos = params.cellGetPos;
-        this._logger = params.logger.nested({component: 'column-dnd-handler'});
-
-        this._dropCursor = new TableColumnDropCursor(view, params.dropCursor);
-    }
-
-    update(node: Node): void {
-        this._cellNode = node;
-    }
-
-    destroy(): void {
-        this._destroyed = true;
-        this._dropCursor.clear();
+        super(view, {
+            ...params,
+            logger: params.logger.nested({component: 'column-dnd-handler'}),
+            dropCursor: new TableColumnDropCursor(view, params.dropCursor),
+        });
     }
 
     canDrag(): boolean {
@@ -363,44 +392,7 @@ class YfmTableColumnDnDHandler implements TableHandler, DnDControlHandler {
         return rowRange.safeLeftBoundary && rowRange.safeRightBoundary;
     }
 
-    control_handleMouseDown: React.MouseEventHandler<HTMLButtonElement> = (event) => {
-        this._dragMouseDown = {pageX: event.pageX, pageY: event.pageY};
-        this._dropCursor.clear();
-    };
-
-    control_handleMouseUp: React.MouseEventHandler<HTMLButtonElement> = () => {
-        this._dragMouseDown = false;
-    };
-
-    control_handleMouseMove: React.MouseEventHandler<HTMLButtonElement> = (event) => {
-        if (!this._dragMouseDown || !isDragThresholdPassed(this._dragMouseDown, event)) return;
-
-        if (this._editorView.dragging || this._editorView.composing) return;
-        this._startDragging();
-    };
-
-    private _getTableDescAndCellInfo() {
-        const tcellPos = this._cellGetPos();
-        const tableNode =
-            tcellPos === undefined
-                ? undefined
-                : findParentNodeClosestToPos(
-                      this._editorView.state.doc.resolve(tcellPos),
-                      isTableNode,
-                  );
-        const tableDesc = tableNode && TableDesc.create(tableNode.node)?.bind(tableNode.pos);
-        const cellInfo = tableDesc?.base.getCellInfo(this._cellNode);
-        return cellInfo
-            ? {
-                  cellPos: tcellPos!,
-                  table: tableNode!,
-                  tableDesc: tableDesc!,
-                  cellInfo,
-              }
-            : null;
-    }
-
-    private _startDragging() {
+    protected _startDragging() {
         const info = this._getTableDescAndCellInfo();
         if (!info) return;
 
@@ -435,12 +427,12 @@ class YfmTableColumnDnDHandler implements TableHandler, DnDControlHandler {
         dndBackground.classList.add('g-md-yfm-table-dnd-cursor-background');
         document.body.append(dndBackground);
 
+        const draggedRangeIdx = columnRanges.indexOf(currColumnRange);
+
         const onMove = debounce(
             (event: MouseEvent) => {
-                const draggedRangeIdx = columnRanges.indexOf(currColumnRange);
                 this._moveDragging(event, {
                     rangeIdx: draggedRangeIdx,
-                    ranges: columnRanges,
                     tableDesc,
                 });
             },
@@ -456,7 +448,7 @@ class YfmTableColumnDnDHandler implements TableHandler, DnDControlHandler {
                 onMove.flush();
                 dndBackground.remove();
                 document.removeEventListener('mousemove', onMove);
-                this._endDragging(currColumnRange);
+                this._endDragging(currColumnRange, tableDesc);
             },
             {once: true},
         );
@@ -466,15 +458,24 @@ class YfmTableColumnDnDHandler implements TableHandler, DnDControlHandler {
         event: MouseEvent,
         {
             rangeIdx,
-            ranges,
-            tableDesc,
+            tableDesc: initialTableDesc,
         }: {
             rangeIdx: number;
-            ranges: readonly Readonly<TableColumnRange>[];
             tableDesc: TableDescBinded;
         },
     ) {
-        const boxes = ranges.map((range) => {
+        if (this._destroyed || !this._dragging) return;
+
+        const info = this._getTableDescAndCellInfo();
+        if (!info || info.tableDesc.base !== initialTableDesc.base) {
+            this._clearDragging();
+            return;
+        }
+
+        const {tableDesc} = info;
+        const ranges = tableDesc.base.getColumnRanges();
+
+        const boxes = ranges.map((range: Readonly<TableColumnRange>) => {
             const firstColStartPos = getCellPos(
                 tableDesc.getPosForCell(0, range.startIdx),
                 'start',
@@ -531,24 +532,23 @@ class YfmTableColumnDnDHandler implements TableHandler, DnDControlHandler {
         else this._dropCursor.clear();
     }
 
-    private _endDragging(draggedRange: Readonly<TableColumnRange>) {
+    private _endDragging(
+        draggedRange: Readonly<TableColumnRange>,
+        initialTableDesc: TableDescBinded,
+    ) {
         if (this._destroyed || !this._dragging) return;
 
-        this._dragging = false;
-        this._dragMouseDown = false;
-        this._editorView.dispatch(clearAllSelections(this._editorView.state.tr));
-        this._editorView.dragging = null;
+        const point = this._dropCursor.getPos();
+        this._clearDragging();
         this._logger.event({event: 'column-drag-end'});
 
-        const point = this._dropCursor.getPos();
-        this._dropCursor.clear();
         if (point === null) {
             this._editorView.focus();
             return;
         }
 
         const info = this._getTableDescAndCellInfo();
-        if (!info) {
+        if (!info || info.tableDesc.base !== initialTableDesc.base) {
             this._editorView.focus();
             return;
         }
