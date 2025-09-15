@@ -120,6 +120,18 @@ export class TableDesc {
             });
         });
 
+        // ---> validation
+        const rowsCount = rows.length;
+        const colsCount = rows[0].cells.length;
+        for (let r = 0; r < rowsCount; r++) {
+            if (!rows[r] || rows[r].cells.length !== colsCount) return null;
+
+            for (let c = 0; c < colsCount; c++) {
+                if (!rows[r].cells[c]) return null;
+            }
+        }
+        // <--- validation
+
         const desc = new this(rows.length, rows[0].cells.length, rows, baseOffset);
         this.__cache.set(table, desc);
         return desc;
