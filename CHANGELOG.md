@@ -1,5 +1,18 @@
 # Changelog
 
+## [15.20.0](https://github.com/gravity-ui/markdown-editor/compare/v15.19.1...v15.20.0) (2025-09-15)
+
+
+### Features
+
+* **icons:** update monospace, tabs, mermaid and drawio icons ([#837](https://github.com/gravity-ui/markdown-editor/issues/837)) ([1acf377](https://github.com/gravity-ui/markdown-editor/commit/1acf3772166665be6458682ee5e175b462ff85ce))
+* **YfmTable:** rework table controls – add drag-n-drop, rows and columns insertion ([#831](https://github.com/gravity-ui/markdown-editor/issues/831)) ([f8fd37f](https://github.com/gravity-ui/markdown-editor/commit/f8fd37ff59ea2e318513c670f144bb6c956559bc))
+
+
+### Bug Fixes
+
+* **toolbar:** hide tooltip when menu open to prevent overlap ([#839](https://github.com/gravity-ui/markdown-editor/issues/839)) ([9c80b9d](https://github.com/gravity-ui/markdown-editor/commit/9c80b9d25ff24e500975e435e26edcaee9761b3f))
+
 ## [15.19.1](https://github.com/gravity-ui/markdown-editor/compare/v15.19.0...v15.19.1) (2025-08-28)
 
 
