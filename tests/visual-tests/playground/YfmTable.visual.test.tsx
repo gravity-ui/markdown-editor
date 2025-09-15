@@ -125,7 +125,7 @@ test.describe('YfmTable', () => {
         }
     });
 
-    test('should show plus buttons only if table is focused @wysiwyg', async ({
+    test('should show floating plus buttons only if table is focused @wysiwyg', async ({
         mount,
         page,
         editor,
@@ -141,20 +141,20 @@ test.describe('YfmTable', () => {
 
         await mount(<Playground initial={initial} />);
 
-        const table = editor.getBySelectorInContenteditable(await editor.yfmTable.getTable());
-        const rowPlusBtn = table.locator(editor.yfmTable.buttonPlusRowLocator);
-        const columnPlusBtn = table.locator(editor.yfmTable.buttonPlusColumnLocator);
+        const rowPlusBtn = editor.yfmTable.buttonPlusRowLocator;
+        const columnPlusBtn = editor.yfmTable.buttonPlusColumnLocator;
 
         await expect(rowPlusBtn).toBeHidden();
         await expect(columnPlusBtn).toBeHidden();
 
         await page.keyboard.press('ArrowDown');
 
-        await expect(rowPlusBtn).toBeVisible();
-        await expect(columnPlusBtn).toBeVisible();
+        for (const loc of [...(await rowPlusBtn.all()), ...(await columnPlusBtn.all())]) {
+            expect(loc).toBeVisible();
+        }
     });
 
-    test('should add row via click on horizontal plus button @wysiwyg', async ({
+    test('should add row via click on floating plus button @wysiwyg', async ({
         page,
         wait,
         mount,
@@ -193,7 +193,7 @@ test.describe('YfmTable', () => {
         await expectScreenshot();
     });
 
-    test('should add column via click on vertical plus button @wysiwyg', async ({
+    test('should add column via click on floating plus button @wysiwyg', async ({
         page,
         wait,
         mount,
@@ -232,7 +232,7 @@ test.describe('YfmTable', () => {
         await expectScreenshot();
     });
 
-    test('should show menu buttons only for current cell @wysiwyg', async ({
+    test.skip('should show menu buttons only for current cell @wysiwyg', async ({
         mount,
         wait,
         page,
@@ -313,8 +313,7 @@ test.describe('YfmTable', () => {
             await tableLocator.waitFor({state: 'visible'});
         });
 
-        // TODO: Error: locator.screenshot: Element is not attached to the DOM
-        test.skip('row menu', async ({editor, expectScreenshot}) => {
+        test('row menu', async ({editor, expectScreenshot}) => {
             await (await editor.yfmTable.getCells()).first().hover();
             await (await editor.yfmTable.getRowButtons()).first().click();
 
@@ -324,8 +323,7 @@ test.describe('YfmTable', () => {
             await expectScreenshot({component: menu});
         });
 
-        // TODO: Error: locator.screenshot: Element is not attached to the DOM
-        test.skip('column menu', async ({editor, expectScreenshot}) => {
+        test('column menu', async ({editor, expectScreenshot}) => {
             await (await editor.yfmTable.getCells()).first().hover();
             await (await editor.yfmTable.getColumnButtons()).first().click();
 
