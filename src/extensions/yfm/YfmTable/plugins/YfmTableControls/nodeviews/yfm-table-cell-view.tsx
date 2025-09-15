@@ -42,15 +42,15 @@ const dropCursorParams: DropCursorParams = {
 };
 
 type GetPos = () => number | undefined;
-
-export const yfmTableCellView: NodeViewConstructor = (
-    node,
-    view,
-    getPos,
-    decorations,
-): NodeView => {
-    return new YfmTableCellView(node, view, getPos, decorations);
+type YfmTableCellViewOptions = {
+    dndEnabled: boolean;
 };
+
+export const yfmTableCellView =
+    (opts: YfmTableCellViewOptions): NodeViewConstructor =>
+    (node, view, getPos, decorations): NodeView => {
+        return new YfmTableCellView(node, view, getPos, decorations, opts);
+    };
 
 class YfmTableCellView implements NodeView {
     dom: HTMLElement;
@@ -61,6 +61,7 @@ class YfmTableCellView implements NodeView {
     private readonly _getPos: GetPos;
     private readonly _renderer;
     private readonly _logger: Logger2.ILogger;
+    private readonly _dndEnabled: boolean;
 
     private _decoRowUniqKey: number | null = null;
     private _decoColumnUniqKey: number | null = null;
@@ -74,7 +75,13 @@ class YfmTableCellView implements NodeView {
     };
     private _dndHandler: YfmTableDnDHandler | null;
 
-    constructor(node: Node, view: EditorView, getPos: GetPos, decorations: readonly Decoration[]) {
+    constructor(
+        node: Node,
+        view: EditorView,
+        getPos: GetPos,
+        decorations: readonly Decoration[],
+        opts: YfmTableCellViewOptions,
+    ) {
         this._node = node;
         this._view = view;
         this._getPos = getPos;
@@ -82,6 +89,7 @@ class YfmTableCellView implements NodeView {
         this._logger = getLoggerFromState(view.state).nested({
             node: 'yfm-table',
         });
+        this._dndEnabled = opts.dndEnabled;
 
         this.dom = document.createElement('td');
         this._updateDom();
@@ -93,7 +101,7 @@ class YfmTableCellView implements NodeView {
         this._renderer = getReactRendererFromState(view.state).createItem(
             'yfm-table-cell-view',
             () => {
-                if (!this._dndHandler || !this._cellInfo) return null;
+                if (!this._cellInfo) return null;
 
                 const {showRowControl, showColumnControl, rowRange, columnRange} = this._cellInfo;
 
@@ -103,7 +111,7 @@ class YfmTableCellView implements NodeView {
                             <FloatingMenuControl
                                 type="row"
                                 acnhorElement={this.dom}
-                                dndHandler={this._dndHandler.row}
+                                dndHandler={this._dndHandler?.row}
                                 multiple={rowRange.rowsCount > 1}
                                 onMenuOpenToggle={this._onRowControlOpenToggle}
                                 onClearCellsClick={this._onRowClearCellsClick}
@@ -117,7 +125,7 @@ class YfmTableCellView implements NodeView {
                             <FloatingMenuControl
                                 type="column"
                                 acnhorElement={this.dom}
-                                dndHandler={this._dndHandler.column}
+                                dndHandler={this._dndHandler?.column}
                                 multiple={columnRange.columnsCount > 1}
                                 onMenuOpenToggle={this._onColumnControlOpenToggle}
                                 onClearCellsClick={this._onColumnClearCellsClick}
@@ -166,14 +174,14 @@ class YfmTableCellView implements NodeView {
                 info.showColumnControl ||= type === DecoType.OpenColumnMenu;
             }
 
-            if (!this._dndHandler)
+            if (this._dndEnabled && !this._dndHandler)
                 this._dndHandler = new YfmTableDnDHandler(this._view, {
                     cellNode: node,
                     cellGetPos: this._getPos,
                     logger: this._logger,
                     dropCursor: dropCursorParams,
                 });
-            this._dndHandler.update(node);
+            this._dndHandler?.update(node);
         } else {
             this._cellInfo = null;
             this._dndHandler?.destroy();

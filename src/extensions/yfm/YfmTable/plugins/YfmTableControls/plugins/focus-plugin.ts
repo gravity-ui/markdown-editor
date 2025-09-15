@@ -45,7 +45,7 @@ export function hideHoverDecos(tr: Transaction) {
     return tr.setMeta(pluginKey, meta);
 }
 
-export const yfmTableFocusPlugin = () => {
+export const yfmTableFocusPlugin = (opts: {dndEnabled: boolean}) => {
     return new Plugin<PluginState>({
         key: pluginKey,
         state: {
@@ -112,7 +112,7 @@ export const yfmTableFocusPlugin = () => {
         props: {
             nodeViews: {
                 [YfmTableNode.Table]: yfmTableView,
-                [YfmTableNode.Cell]: yfmTableCellView,
+                [YfmTableNode.Cell]: yfmTableCellView(opts),
             },
             decorations(state) {
                 return pluginKey.getState(state)?.decorations;

@@ -8,9 +8,10 @@ import {markup} from './markup';
 
 export type YfmTableDnDDemoProps = {
     mobile: boolean;
+    dnd: boolean;
 };
 
-export const YfmTableDnDDemo = memo<YfmTableDnDDemoProps>(function YfmTableDnDDemo({mobile}) {
+export const YfmTableDnDDemo = memo<YfmTableDnDDemoProps>(function YfmTableDnDDemo({mobile, dnd}) {
     const editor = useMarkdownEditor(
         {
             mobile,
@@ -18,8 +19,15 @@ export const YfmTableDnDDemo = memo<YfmTableDnDDemoProps>(function YfmTableDnDDe
                 mode: 'wysiwyg',
                 markup,
             },
+            wysiwygConfig: {
+                extensionOptions: {
+                    yfmTable: {
+                        dnd,
+                    },
+                },
+            },
         },
-        [mobile],
+        [mobile, dnd],
     );
 
     return (

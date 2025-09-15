@@ -5,6 +5,7 @@ import {YfmTableDnDDemo as component} from './YfmTableDnD';
 export const Story: StoryObj<typeof component> = {
     args: {
         mobile: false,
+        dnd: true,
     },
 };
 Story.storyName = "YFM Table D'n'D";

@@ -26,6 +26,13 @@ export type YfmTableOptions = YfmTableSpecsOptions & {
      * @default true
      */
     controls?: boolean;
+    /**
+     * Enables drag-d-drop rows and columns in table.
+     * The `controls` property must also be `true`.
+     *
+     * @default true
+     */
+    dnd?: boolean;
 };
 
 export const YfmTable: ExtensionWithOptions<YfmTableOptions> = (builder, options) => {
@@ -42,7 +49,7 @@ export const YfmTable: ExtensionWithOptions<YfmTableOptions> = (builder, options
     builder.addPlugin(yfmTableTransformPastedPlugin);
 
     if (options.controls !== false) {
-        builder.addPlugin(yfmTableControlsPlugins);
+        builder.addPlugin(yfmTableControlsPlugins({dndEnabled: options.dnd !== false}));
     }
 };
 

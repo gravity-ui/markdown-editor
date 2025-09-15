@@ -20,7 +20,7 @@ export type FloatingMenuControlProps = {
     acnhorElement: Element;
     multiple: boolean;
     type: FloatingMenuProps['dirtype'];
-    dndHandler: DnDControlHandler;
+    dndHandler?: DnDControlHandler;
     onMenuOpenToggle: FloatingMenuProps['onOpenToggle'];
     onClearCellsClick: () => void;
     onInsertBeforeClick: () => void;
@@ -97,14 +97,18 @@ export const FloatingMenuControl: React.FC<FloatingMenuControlProps> =
         return (
             <FloatingMenu
                 dirtype={type}
-                canDrag={dndHandler.canDrag()}
+                canDrag={dndHandler ? dndHandler.canDrag() : false}
                 onOpenToggle={onMenuOpenToggle}
                 anchorElement={acnhorElement}
-                switcherMouseProps={{
-                    onMouseDown: dndHandler.control_handleMouseDown,
-                    onMouseMove: dndHandler.control_handleMouseMove,
-                    onMouseUp: dndHandler.control_handleMouseUp,
-                }}
+                switcherMouseProps={
+                    dndHandler
+                        ? {
+                              onMouseDown: dndHandler.control_handleMouseDown,
+                              onMouseMove: dndHandler.control_handleMouseMove,
+                              onMouseUp: dndHandler.control_handleMouseUp,
+                          }
+                        : undefined
+                }
                 dropdownItems={dropdownItems}
             />
         );
