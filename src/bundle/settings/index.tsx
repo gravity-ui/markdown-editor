@@ -15,6 +15,9 @@ import {
     type QAProps,
 } from '@gravity-ui/uikit';
 
+import {CLASSNAME_BY_LAYER_MAP} from 'src/common/layersMap';
+import {getTargetZIndex} from 'src/utils/get-target-z-index';
+
 import {type ClassNameProps, cn} from '../../classname';
 import {i18n} from '../../i18n/bundle';
 import WysiwygModeIcon from '../../icons/WysiwygMode';
@@ -90,6 +93,7 @@ export const EditorSettings = memo<EditorSettingsProps>(function EditorSettings(
                         anchorElement={chevronElement}
                         placement={placement}
                         onOpenChange={hidePopup}
+                        zIndex={getTargetZIndex(CLASSNAME_BY_LAYER_MAP.STICKY_TOOLBAR)}
                     >
                         <SettingsContent
                             {...props}
@@ -174,6 +178,10 @@ const SettingsContent: React.FC<SettingsContentProps> = function SettingsContent
                                 popoverProps={{
                                     placement: mdHelpPlacement,
                                     modal: false,
+                                    zIndex: getTargetZIndex(
+                                        CLASSNAME_BY_LAYER_MAP.STICKY_TOOLBAR,
+                                        20,
+                                    ),
                                 }}
                                 className={bContent('mode-help')}
                             >

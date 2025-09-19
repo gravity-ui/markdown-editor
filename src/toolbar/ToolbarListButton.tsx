@@ -3,6 +3,9 @@ import {Fragment, useEffect, useState} from 'react';
 import {ChevronDown} from '@gravity-ui/icons';
 import {HelpMark, Hotkey, Icon, Menu, Popover, Popup} from '@gravity-ui/uikit';
 
+import {getTargetZIndex} from 'src/utils/get-target-z-index';
+import {CLASSNAME_BY_LAYER_MAP} from 'src/common/layersMap';
+
 import {cn} from '../classname';
 import {i18n} from '../i18n/common';
 import {isFunction} from '../lodash';
@@ -94,7 +97,12 @@ export function ToolbarListButton<E>({
             >
                 {buttonContent}
             </ToolbarButtonView>
-            <Popup anchorElement={anchorElement} open={popupOpen} onOpenChange={hide}>
+            <Popup
+                anchorElement={anchorElement}
+                open={popupOpen}
+                onOpenChange={hide}
+                zIndex={getTargetZIndex(CLASSNAME_BY_LAYER_MAP.STICKY_TOOLBAR)}
+            >
                 <Menu size="l" className={b('menu')} qa={qaMenu} data-toolbar-menu-for={titleText}>
                     {data
                         .map((data) => {
