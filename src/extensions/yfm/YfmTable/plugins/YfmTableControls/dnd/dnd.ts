@@ -106,7 +106,7 @@ abstract class YfmTableDnDAbstractHandler implements TableHandler, DnDControlHan
 
     destroy() {
         this.__destroyed = true;
-        this._clearDragging();
+        this._clearDragging(false);
     }
 
     abstract canDrag(): boolean;
@@ -170,12 +170,13 @@ abstract class YfmTableDnDAbstractHandler implements TableHandler, DnDControlHan
             : null;
     }
 
-    protected _clearDragging() {
+    protected _clearDragging(clearDecorations?: boolean) {
         this.__dragging = false;
         this.__dragMouseDown = false;
         this._dropCursor.clear();
         this._editorView.dragging = null;
-        this._editorView.dispatch(clearAllSelections(this._editorView.state.tr));
+        if (clearDecorations !== false)
+            this._editorView.dispatch(clearAllSelections(this._editorView.state.tr));
     }
 }
 
