@@ -1,5 +1,18 @@
 # Changelog
 
+## [15.21.0](https://github.com/gravity-ui/markdown-editor/compare/v15.20.0...v15.21.0) (2025-09-23)
+
+
+### Features
+
+* **view:** support `no-stripe-table` modifier ([8f4cfb0](https://github.com/gravity-ui/markdown-editor/commit/8f4cfb048ccef957119f054a385c1f5f8f22032e))
+* **YfmConfigs:** support yfm modifiers ([26157cd](https://github.com/gravity-ui/markdown-editor/commit/26157cd73e7c44e20f0780a6c894ee71577b9759))
+
+
+### Bug Fixes
+
+* **YfmTableControls:** fix row deletion when dnd is enabled ([#844](https://github.com/gravity-ui/markdown-editor/issues/844)) ([b696dd3](https://github.com/gravity-ui/markdown-editor/commit/b696dd3c6cbdc2da6c798f9470c0e2893d76c38e))
+
 ## [15.20.0](https://github.com/gravity-ui/markdown-editor/compare/v15.19.1...v15.20.0) (2025-09-15)
 
 
