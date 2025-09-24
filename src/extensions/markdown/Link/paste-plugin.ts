@@ -1,11 +1,13 @@
 import {Plugin, TextSelection, type Transaction} from 'prosemirror-state';
 
-import {type ExtensionDeps, type Parser, getLoggerFromState} from '../../../core';
-import {isNodeSelection, isTextSelection} from '../../../utils/selection';
-import {DataTransferType, isIosSafariShare} from '../../behavior/Clipboard/utils';
+import {type ExtensionDeps, type Parser, getLoggerFromState} from '#core';
+import {DataTransferType, isIosSafariShare} from 'src/extensions/behavior/Clipboard/utils';
+import {isNodeSelection, isTextSelection} from 'src/utils/selection';
+
 import {imageType} from '../Image';
 
-import {LinkAttr, linkType} from './index';
+import {LinkAttr, linkType} from './LinkSpecs';
+import {SuggestAction} from './LinkTransformSuggest/plugin';
 
 export function linkPasteEnhance({markupParser: parser}: ExtensionDeps) {
     return new Plugin({
@@ -30,15 +32,16 @@ export function linkPasteEnhance({markupParser: parser}: ExtensionDeps) {
                             const url = getUrl(e.clipboardData, parser);
                             if (url) {
                                 const linkMarkType = linkType(state.schema);
-                                tr = state.tr.replaceSelectionWith(
-                                    state.schema.text(url, [
-                                        ...$from
-                                            .marks()
-                                            .filter((mark) => mark.type !== linkMarkType),
-                                        linkMarkType.create({[LinkAttr.Href]: url}),
-                                    ]),
-                                    false,
-                                );
+                                const textNode = state.schema.text(url, [
+                                    ...$from.marks().filter((mark) => mark.type !== linkMarkType),
+                                    linkMarkType.create({[LinkAttr.Href]: url}),
+                                ]);
+                                tr = state.tr.replaceSelectionWith(textNode, false);
+                                SuggestAction.appendTr.open(tr, {
+                                    url,
+                                    from: $from.pos,
+                                    to: $from.pos + textNode.nodeSize,
+                                });
                                 logger.event({
                                     event: 'paste-url',
                                 });
