@@ -24,6 +24,7 @@ import {
     DropCursor as RowDropCursor,
     TableColumnDropCursor,
 } from './dnd-drop-cursor';
+import {YfmTableDnDGhost} from './dnd-ghost';
 
 import './dnd.scss';
 
@@ -125,7 +126,7 @@ abstract class YfmTableDnDAbstractHandler implements TableHandler, DnDControlHan
         if (!this._dragMouseDown || !isDragThresholdPassed(this._dragMouseDown, event)) return;
 
         if (this._editorView.dragging || this._dragging) return;
-        this._startDragging();
+        this._startDragging(event);
     };
 
     protected get _cellNode(): Node {
@@ -148,7 +149,7 @@ abstract class YfmTableDnDAbstractHandler implements TableHandler, DnDControlHan
         return this.__dragMouseDown;
     }
 
-    protected abstract _startDragging(): void;
+    protected abstract _startDragging(event: React.MouseEvent): void;
 
     protected _getTableDescAndCellInfo() {
         const tcellPos = this._cellGetPos();
@@ -197,7 +198,7 @@ class YfmTableRowDnDHandler extends YfmTableDnDAbstractHandler {
         return rowRange.safeTopBoundary && rowRange.safeBottomBoundary;
     }
 
-    protected _startDragging = () => {
+    protected _startDragging = (event: React.MouseEvent) => {
         const info = this._getTableDescAndCellInfo();
         if (!info) return;
 
@@ -225,13 +226,16 @@ class YfmTableRowDnDHandler extends YfmTableDnDAbstractHandler {
             };
         }
 
-        const dndBackground = document.createElement('div');
-        dndBackground.classList.add('g-md-yfm-table-dnd-cursor-background');
-        document.body.append(dndBackground);
-
         const draggedRangeIdx = rowRanges.indexOf(currRowRange);
 
-        const onMove = debounce(
+        const ghost = new YfmTableDnDGhost(this._editorView, {
+            type: 'row',
+            initial: event,
+            rangeIdx: draggedRangeIdx,
+            tableDesc,
+        });
+
+        const onMoveDebounced = debounce(
             (event: MouseEvent) => {
                 this._moveDragging(event, {
                     rangeIdx: draggedRangeIdx,
@@ -242,13 +246,18 @@ class YfmTableRowDnDHandler extends YfmTableDnDAbstractHandler {
             {maxWait: MOUSE_MOVE_DEBOUNCE},
         );
 
+        const onMove = (event: MouseEvent) => {
+            ghost.move(event);
+            onMoveDebounced(event);
+        };
+
         document.addEventListener('mousemove', onMove);
 
         document.addEventListener(
             'mouseup',
             () => {
-                onMove.flush();
-                dndBackground.remove();
+                onMoveDebounced.flush();
+                ghost.destroy();
                 document.removeEventListener('mousemove', onMove);
                 this._endDragging(currRowRange, tableDesc);
             },
@@ -389,7 +398,7 @@ class YfmTableColumnDnDHandler extends YfmTableDnDAbstractHandler {
         return rowRange.safeLeftBoundary && rowRange.safeRightBoundary;
     }
 
-    protected _startDragging() {
+    protected _startDragging(event: React.MouseEvent) {
         const info = this._getTableDescAndCellInfo();
         if (!info) return;
 
@@ -414,13 +423,16 @@ class YfmTableColumnDnDHandler extends YfmTableDnDAbstractHandler {
             };
         }
 
-        const dndBackground = document.createElement('div');
-        dndBackground.classList.add('g-md-yfm-table-dnd-cursor-background');
-        document.body.append(dndBackground);
-
         const draggedRangeIdx = columnRanges.indexOf(currColumnRange);
 
-        const onMove = debounce(
+        const ghost = new YfmTableDnDGhost(this._editorView, {
+            type: 'column',
+            initial: event,
+            rangeIdx: draggedRangeIdx,
+            tableDesc,
+        });
+
+        const onMoveDebounced = debounce(
             (event: MouseEvent) => {
                 this._moveDragging(event, {
                     rangeIdx: draggedRangeIdx,
@@ -431,13 +443,18 @@ class YfmTableColumnDnDHandler extends YfmTableDnDAbstractHandler {
             {maxWait: MOUSE_MOVE_DEBOUNCE},
         );
 
+        const onMove = (event: MouseEvent) => {
+            ghost.move(event);
+            onMoveDebounced(event);
+        };
+
         document.addEventListener('mousemove', onMove);
 
         document.addEventListener(
             'mouseup',
             () => {
-                onMove.flush();
-                dndBackground.remove();
+                onMoveDebounced.flush();
+                ghost.destroy();
                 document.removeEventListener('mousemove', onMove);
                 this._endDragging(currColumnRange, tableDesc);
             },
