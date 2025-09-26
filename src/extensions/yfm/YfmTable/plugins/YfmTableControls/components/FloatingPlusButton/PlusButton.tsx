@@ -38,13 +38,18 @@ export const PlusButton: React.FC<PlusButtonProps> = function YfmTablePlusButton
                 pin="circle-circle"
                 view={hovered ? 'outlined-action' : 'normal'}
                 onClick={onClick}
-                style={{
-                    '--g-button-height': hovered ? undefined : '4px',
-                    '--_--background-color-hover': hovered
-                        ? 'var(--g-color-base-background)'
-                        : undefined,
-                    color: hovered ? undefined : 'var(--g-color-base-generic)',
-                }}
+                style={
+                    hovered
+                        ? {
+                              '--g-button-background-color-hover': 'var(--g-color-base-background)',
+                          }
+                        : {
+                              color: 'transparent',
+                              '--g-button-height': '4px',
+                              '--g-button-background-color': 'var(--g-color-line-generic-accent)',
+                              '--g-button-border-color': 'var(--g-color-line-generic-accent)',
+                          }
+                }
             >
                 <Icon data={PlusIcon} />
             </Button>
