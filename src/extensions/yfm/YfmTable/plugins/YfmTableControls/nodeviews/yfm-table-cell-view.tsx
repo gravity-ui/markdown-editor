@@ -8,7 +8,6 @@ import type {Logger2} from 'src/logger';
 import {ErrorLoggerBoundary} from 'src/react-utils/ErrorBoundary';
 import {isTableNode} from 'src/table-utils';
 import {
-    type CellPos,
     type TableColumnRange,
     TableDesc,
     type TableDescBinded,
@@ -35,6 +34,7 @@ import {
     deactivateColumn,
     deactivateRow,
 } from '../plugins/dnd-plugin';
+import {getSelectedCellsForColumns, getSelectedCellsForRows} from '../utils';
 
 const dropCursorParams: DropCursorParams = {
     color: 'var(--g-color-line-brand)',
@@ -241,9 +241,7 @@ class YfmTableCellView implements NodeView {
         const rowRange = info.tableDesc.base.getRowRangeByRowIdx(info.cell.row);
         const tr = activateRows(this._view.state.tr, {
             controlCell: {from: info.pos, to: info.pos + this._node.nodeSize},
-            rows: iterate(rowRange.startIdx, rowRange.endIdx + 1).map((rowIdx) =>
-                info.tableDesc.getPosForRow(rowIdx),
-            ),
+            cells: getSelectedCellsForRows(info.tableDesc, rowRange),
             uniqKey: this._decoRowUniqKey,
         });
         this._view.dispatch(tr);
@@ -264,14 +262,10 @@ class YfmTableCellView implements NodeView {
         if (!info) return;
 
         this._decoColumnUniqKey = Date.now();
-        const currColumnRange = info.tableDesc.base.getColumnRangeByColumnIdx(info.cell.column);
-        const cells: CellPos[] = [];
-        for (const i of iterate(currColumnRange.startIdx, currColumnRange.endIdx + 1)) {
-            cells.push(...info.tableDesc.getPosForColumn(i));
-        }
+        const columnRange = info.tableDesc.base.getColumnRangeByColumnIdx(info.cell.column);
         const tr = activateColumns(this._view.state.tr, {
             controlCell: {from: info.pos, to: info.pos + this._node.nodeSize},
-            cells: cells.filter((pos) => pos.type === 'real'),
+            cells: getSelectedCellsForColumns(info.tableDesc, columnRange),
             uniqKey: this._decoColumnUniqKey,
         });
         this._view.dispatch(tr);

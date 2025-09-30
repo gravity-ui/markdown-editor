@@ -41,19 +41,75 @@
     z-index: 2;
 }
 
-.yfm.ProseMirror {
-    .g-md-yfm-table-dnd-dragged-row,
-    .g-md-yfm-table-dnd-dragged-column-cell {
-        opacity: 0.3;
-        background-color: var(--g-color-base-selection);
-        // --yfm-color-border: var(--g-color-line-brand);
-    }
-}
+.yfm.ProseMirror table {
+    td {
+        $selectedCell: 'g-md-yfm-table-selected-cell';
 
-.yfm.ProseMirror {
-    .g-md-yfm-table-active-row,
-    .g-md-yfm-table-active-column-cell {
-        background-color: var(--g-color-base-selection);
-        // --yfm-color-border: var(--g-color-line-brand);
+        position: relative;
+
+        &.#{$selectedCell} {
+            overflow: unset;
+
+            border-color: var(--g-color-line-brand);
+            background-color: var(--g-color-base-selection);
+
+            &::after {
+                position: absolute;
+                z-index: 2;
+                inset: -1px;
+
+                display: inline-block;
+
+                content: '';
+                pointer-events: none;
+
+                border: 1px solid var(--g-color-line-brand);
+            }
+
+            &_first-row::after {
+                top: 0;
+            }
+
+            &_last-row::after {
+                bottom: 0;
+            }
+
+            &_first-column::after {
+                left: 0;
+            }
+
+            &_last-column::after {
+                right: 0;
+            }
+
+            &_first-row.#{$selectedCell}_first-column::after {
+                border-top-left-radius: 8px;
+            }
+
+            &_first-row.#{$selectedCell}_last-column::after {
+                border-top-right-radius: 8px;
+            }
+
+            &_last-row.#{$selectedCell}_first-column::after {
+                border-bottom-left-radius: 8px;
+            }
+
+            &_last-row.#{$selectedCell}_last-column::after {
+                border-bottom-right-radius: 8px;
+            }
+
+            &.dragged-cell::before {
+                position: absolute;
+                inset: 0;
+
+                display: inline-block;
+
+                content: '';
+                pointer-events: none;
+
+                opacity: 0.7;
+                background-color: var(--g-color-base-background);
+            }
+        }
     }
 }

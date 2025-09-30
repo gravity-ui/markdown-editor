@@ -2,7 +2,7 @@ import {type Node, Slice} from '#pm/model';
 import {TextSelection} from '#pm/state';
 import {findParentNodeClosestToPos} from '#pm/utils';
 import type {EditorView} from '#pm/view';
-import {debounce, range as iterate} from 'src/lodash';
+import {debounce} from 'src/lodash';
 import type {Logger2} from 'src/logger';
 import {isTableNode} from 'src/table-utils';
 import {
@@ -17,6 +17,7 @@ import {
 import {YfmTableNode} from '../../../YfmTableSpecs';
 import {clearAllSelections, selectDraggedColumn, selectDraggedRow} from '../plugins/dnd-plugin';
 import {hideHoverDecos} from '../plugins/focus-plugin';
+import {getSelectedCellsForColumns, getSelectedCellsForRows} from '../utils';
 
 import {
     type DropCursorParams,
@@ -212,12 +213,7 @@ class YfmTableRowDnDHandler extends YfmTableDnDAbstractHandler {
         {
             const {tr} = this._editorView.state;
             hideHoverDecos(tr);
-            selectDraggedRow(
-                tr,
-                iterate(currRowRange.startIdx, currRowRange.endIdx + 1).map((rowIdx) =>
-                    tableDesc.getPosForRow(rowIdx),
-                ),
-            );
+            selectDraggedRow(tr, getSelectedCellsForRows(info.tableDesc, currRowRange));
             this._editorView.dispatch(tr);
         }
 
@@ -415,15 +411,9 @@ class YfmTableColumnDnDHandler extends YfmTableDnDAbstractHandler {
         this._logger.event({event: 'column-drag-start'});
 
         {
-            const columnCellsPos: CellPos[] = [];
-            for (const i of iterate(currColumnRange.startIdx, currColumnRange.endIdx + 1)) {
-                columnCellsPos.push(...tableDesc.getPosForColumn(i));
-            }
-            const realPos = columnCellsPos.filter((cell) => cell.type === 'real');
-
             const {tr} = this._editorView.state;
             hideHoverDecos(tr);
-            selectDraggedColumn(tr, realPos);
+            selectDraggedColumn(tr, getSelectedCellsForColumns(tableDesc, currColumnRange));
             this._editorView.dispatch(tr);
         }
         {
