@@ -10,19 +10,103 @@
     background: transparent;
 }
 
-.yfm.ProseMirror {
-    .g-md-yfm-table-dnd-dragged-row,
-    .g-md-yfm-table-dnd-dragged-column-cell {
-        opacity: 0.3;
-        background-color: var(--g-color-base-selection);
-        // --yfm-color-border: var(--g-color-line-brand);
-    }
-}
+.yfm.ProseMirror table {
+    td {
+        position: relative;
 
-.yfm.ProseMirror {
-    .g-md-yfm-table-active-row,
-    .g-md-yfm-table-active-column-cell {
-        background-color: var(--g-color-base-selection);
-        // --yfm-color-border: var(--g-color-line-brand);
+        &.g-md-yfm-table-selected-cell {
+            overflow: unset;
+            background-color: var(--g-color-base-selection);
+            border-color: var(--g-color-line-brand);
+
+            &::after {
+                position: absolute;
+                content: '';
+                inset: -1px;
+                display: inline-block;
+                pointer-events: none;
+                border: 1px solid var(--g-color-line-brand);
+                z-index: 2;
+            }
+
+            // &:first-of-type::after {
+            //     left: 0;
+            // }
+
+            // &:last-of-type::after {
+            //     right: 0;
+            // }
+
+            &_first-row::after {
+                top: 0;
+            }
+
+            &_last-row::after {
+                bottom: 0;
+            }
+
+            &_first-column::after {
+                left: 0;
+            }
+
+            &_last-column::after {
+                right: 0;
+            }
+
+            &_first-row.g-md-yfm-table-selected-cell_first-column::after {
+                border-top-left-radius: 8px;
+            }
+
+            &_first-row.g-md-yfm-table-selected-cell_last-column::after {
+                border-top-right-radius: 8px;
+            }
+
+            &_last-row.g-md-yfm-table-selected-cell_first-column::after {
+                border-bottom-left-radius: 8px;
+            }
+
+            &_last-row.g-md-yfm-table-selected-cell_last-column::after {
+                border-bottom-right-radius: 8px;
+            }
+
+            &.dragged-cell::before {
+                position: absolute;
+                content: '';
+                inset: 0;
+                pointer-events: none;
+                display: inline-block;
+
+                background-color: var(--g-color-base-background);
+                opacity: 0.7;
+            }
+        }
     }
+
+    // tr:first-of-type > td.selected-cell {
+    //     &::after {
+    //         top: 0;
+    //     }
+
+    //     &:first-of-type::after {
+    //         border-top-left-radius: 8px;
+    //     }
+
+    //     &:last-of-type::after {
+    //         border-top-right-radius: 8px;
+    //     }
+    // }
+
+    // tr:last-of-type > td.selected-cell {
+    //     &::after {
+    //         bottom: 0;
+    //     }
+
+    //     &:first-of-type::after {
+    //         border-bottom-left-radius: 8px;
+    //     }
+
+    //     &:last-of-type::after {
+    //         border-bottom-right-radius: 8px;
+    //     }
+    // }
 }

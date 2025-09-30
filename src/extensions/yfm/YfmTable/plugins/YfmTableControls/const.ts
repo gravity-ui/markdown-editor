@@ -10,9 +10,9 @@ export enum YfmTableDecorationType {
     OpenRowMenu = 'cell--open-row-menu', // sign of opening the row menu in the cell
     OpenColumnMenu = 'cell--open-column-menu', // sign of opening the column menu in the cell
 
-    ActivateRow = 'row--active',
+    ActivateRowCells = 'cell--active-row',
     ActivateColumnCells = 'cell--active-column',
 
-    ActivateDangerRow = 'row--danger',
+    ActivateDangerRowCells = 'cell--danger-row',
     ActivateDangerColumnCells = 'cell--danger-column',
 }
