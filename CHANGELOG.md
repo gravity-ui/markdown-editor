@@ -1,5 +1,23 @@
 # Changelog
 
+## [15.22.0](https://github.com/gravity-ui/markdown-editor/compare/v15.21.0...v15.22.0) (2025-10-02)
+
+
+### Features
+
+* add autosave while editing Mermaid and YfmHtmlblock ([#852](https://github.com/gravity-ui/markdown-editor/issues/852)) ([5ddd9d5](https://github.com/gravity-ui/markdown-editor/commit/5ddd9d5ee8c56510a380b9841c5a9d5971f76045))
+* **YfmTable:** add ghost when dragging rows and columns ([#849](https://github.com/gravity-ui/markdown-editor/issues/849)) ([b1ca9c6](https://github.com/gravity-ui/markdown-editor/commit/b1ca9c64c7b4610c3d12b5611c880278db228468))
+* **YfmTable:** change border color for selected cells ([#850](https://github.com/gravity-ui/markdown-editor/issues/850)) ([46f5168](https://github.com/gravity-ui/markdown-editor/commit/46f516883a25b3b5bf8bcd0026ccbcd68d0d4ee4))
+* **YfmTableControls:** update plus button styles ([#848](https://github.com/gravity-ui/markdown-editor/issues/848)) ([2482d89](https://github.com/gravity-ui/markdown-editor/commit/2482d8931a88f5ab6a9ebfe4ca77051905fb686a))
+
+
+### Bug Fixes
+
+* **BaseSchema:** fix serialization of empty paragraphs inside other blocks ([#846](https://github.com/gravity-ui/markdown-editor/issues/846)) ([196f9f6](https://github.com/gravity-ui/markdown-editor/commit/196f9f634a39b4b77d1be1d9f8b243abbc6052c7))
+* **FoldingHeading:** some blocks remained visible when heading was collapsed ([#845](https://github.com/gravity-ui/markdown-editor/issues/845)) ([1c0005d](https://github.com/gravity-ui/markdown-editor/commit/1c0005dd44edc4a480a8b6123ef2a428c50b2356))
+* **YfmTableControls:** fix drag-n-drop false positives ([#853](https://github.com/gravity-ui/markdown-editor/issues/853)) ([ea018a1](https://github.com/gravity-ui/markdown-editor/commit/ea018a1c9474ebf83c787532dd9128e78746805d))
+* **YfmTable:** fix button display while dragging ([#854](https://github.com/gravity-ui/markdown-editor/issues/854)) ([54bd192](https://github.com/gravity-ui/markdown-editor/commit/54bd1922dc1da8dfce74ec907776f5f50652c1b7))
+
 ## [15.21.0](https://github.com/gravity-ui/markdown-editor/compare/v15.20.0...v15.21.0) (2025-09-23)
 
 
