@@ -212,15 +212,18 @@ export class YfmTableDnDGhost {
         const button = target.closest('.g-button');
         if (!button) return null;
 
+        const container = button.ownerDocument.createElement('div');
+        container.classList.add('g-md-yfm-table-dnd-ghost-button');
+
         const rect = button.getBoundingClientRect();
-        const cloned = button.cloneNode(true) as HTMLElement;
+        const cloned = container.appendChild(button.cloneNode(true) as HTMLElement);
 
         removeIdAttributes(cloned);
         cloned.style.cursor = '';
-        cloned.classList.add('g-md-yfm-table-dnd-ghost-button');
+        cloned.style.pointerEvents = 'none';
 
         return {
-            domElement: cloned,
+            domElement: container,
             shiftX: rect.left - this._x,
             shiftY: rect.top - this._y,
         };
