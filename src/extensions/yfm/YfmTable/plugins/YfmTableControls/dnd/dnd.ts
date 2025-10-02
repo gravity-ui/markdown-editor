@@ -38,6 +38,7 @@ export type DnDControlHandler = {
     control_handleMouseDown: React.MouseEventHandler<HTMLButtonElement>;
     control_handleMouseMove: React.MouseEventHandler<HTMLButtonElement>;
     control_handleMouseUp: React.MouseEventHandler<HTMLButtonElement>;
+    control_handleMouseLeave: React.MouseEventHandler<HTMLButtonElement>;
 };
 
 interface TableHandler {
@@ -119,6 +120,10 @@ abstract class YfmTableDnDAbstractHandler implements TableHandler, DnDControlHan
     };
 
     control_handleMouseUp: React.MouseEventHandler<HTMLButtonElement> = () => {
+        this.__dragMouseDown = false;
+    };
+
+    control_handleMouseLeave: React.MouseEventHandler<HTMLButtonElement> = () => {
         this.__dragMouseDown = false;
     };
 

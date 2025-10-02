@@ -103,6 +103,7 @@ export const FloatingMenuControl: React.FC<FloatingMenuControlProps> =
                 switcherMouseProps={
                     dndHandler
                         ? {
+                              onMouseLeave: dndHandler.control_handleMouseLeave,
                               onMouseDown: dndHandler.control_handleMouseDown,
                               onMouseMove: dndHandler.control_handleMouseMove,
                               onMouseUp: dndHandler.control_handleMouseUp,
