@@ -10,11 +10,18 @@
     background: transparent;
 }
 
-.yfm.g-md-yfm-table-dnd-ghost {
-    position: absolute;
+.yfm.g-md-yfm-table-dnd-ghost,
+.g-button.g-md-yfm-table-dnd-ghost-button {
+    position: fixed;
 
     cursor: grabbing;
+    pointer-events: none;
 
+    transition: none;
+    will-change: transform;
+}
+
+.yfm.g-md-yfm-table-dnd-ghost {
     & > table {
         border-color: var(--g-color-line-brand);
         box-shadow: 0 8px 20px 1px var(--g-color-sfx-shadow);
@@ -31,10 +38,7 @@
     --g-button-border-color: var(--g-color-line-brand);
     --g-button-text-color: var(--g-color-text-brand);
 
-    position: absolute;
     z-index: 2;
-
-    cursor: grabbing;
 }
 
 .yfm.ProseMirror {

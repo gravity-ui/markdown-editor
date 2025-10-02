@@ -36,7 +36,9 @@ export class YfmTableDnDGhost {
         this._x = params.initial.clientX;
         this._y = params.initial.clientY;
 
-        this._dndBackgroundElem = view.dom.ownerDocument.createElement('div');
+        const document = view.dom.ownerDocument;
+
+        this._dndBackgroundElem = document.createElement('div');
         this._dndBackgroundElem.classList.add('g-md-yfm-table-dnd-cursor-background');
 
         {
@@ -93,12 +95,16 @@ export class YfmTableDnDGhost {
     }
 
     private _updatePositions() {
-        this._ghostTable.style.top = this._y + this._tblShiftY + 'px';
-        this._ghostTable.style.left = this._x + this._tblShiftX + 'px';
+        {
+            const tx = this._x + this._tblShiftX;
+            const ty = this._y + this._tblShiftY;
+            this._ghostTable.style.transform = `translate(${tx}px, ${ty}px)`;
+        }
 
         if (this._ghostButton) {
-            this._ghostButton.style.top = this._y + this._btnShiftY + 'px';
-            this._ghostButton.style.left = this._x + this._btnShiftX + 'px';
+            const tx = this._x + this._btnShiftX;
+            const ty = this._y + this._btnShiftY;
+            this._ghostButton.style.transform = `translate(${tx}px, ${ty}px)`;
         }
     }
 
@@ -143,6 +149,8 @@ export class YfmTableDnDGhost {
                 }
             }
         }
+
+        removeIdAttributes(table);
 
         return {domElement: container, shiftX, shiftY};
     }
@@ -191,6 +199,8 @@ export class YfmTableDnDGhost {
             }
         }
 
+        removeIdAttributes(table);
+
         return {domElement: container, shiftX, shiftY};
     }
 
@@ -204,6 +214,8 @@ export class YfmTableDnDGhost {
 
         const rect = button.getBoundingClientRect();
         const cloned = button.cloneNode(true) as HTMLElement;
+
+        removeIdAttributes(cloned);
         cloned.style.cursor = '';
         cloned.classList.add('g-md-yfm-table-dnd-ghost-button');
 
@@ -216,11 +228,16 @@ export class YfmTableDnDGhost {
 
     private _buildGhostContainer(view: EditorView): HTMLElement {
         const container = view.dom.ownerDocument.createElement('div');
-        const yfmClasses = view.dom.classList
-            .entries()
-            .map(([, val]) => val)
-            .filter((val) => val.startsWith('yfm_'));
+        container.setAttribute('aria-hidden', 'true');
+
+        const yfmClasses = Array.from(view.dom.classList).filter((val) => val.startsWith('yfm_'));
         container.classList.add('g-md-yfm-table-dnd-ghost', 'yfm', ...yfmClasses);
+
         return container;
     }
+}
+
+function removeIdAttributes(elem: HTMLElement) {
+    elem.removeAttribute('id');
+    elem.querySelectorAll('[id]').forEach((el) => el.removeAttribute('id'));
 }
