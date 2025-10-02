@@ -11,7 +11,7 @@ import {
     type PopupProps,
 } from '@gravity-ui/uikit';
 
-import {CLASSNAME_BY_LAYER_MAP} from 'src/common/layersMap';
+import {LAYOUT_MAP} from 'src/common/layoutMap';
 import {getTargetZIndex} from 'src/utils/get-target-z-index';
 
 import {cn} from '../../classname';
@@ -130,7 +130,7 @@ export const ToolbarButtonWithPopupMenu: React.FC<ToolbarButtonWithPopupMenuProp
                 onOpenChange={(open) => {
                     if (!open) hide();
                 }}
-                zIndex={getTargetZIndex(CLASSNAME_BY_LAYER_MAP.STICKY_TOOLBAR)}
+                zIndex={getTargetZIndex(LAYOUT_MAP.STICKY_TOOLBAR)}
             >
                 <Menu size="l" qa={qaMenu} data-toolbar-menu-for={textTitle}>
                     {Object.entries(groups).map(([label, items], key) => {

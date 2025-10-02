@@ -1,5 +1,5 @@
-export function getTargetZIndex(targetClassName: string, offset = 10) {
-    const targetLayerElement = document.querySelector(`.${targetClassName}`);
+export function getTargetZIndex(dataLayoutSelector: string, offset = 10) {
+    const targetLayerElement = document.querySelector(`[data-layout="${dataLayoutSelector}"]`);
 
     if (!targetLayerElement) {
         return offset;
