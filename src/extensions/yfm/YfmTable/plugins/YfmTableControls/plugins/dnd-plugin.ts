@@ -1,5 +1,6 @@
 import {Plugin, PluginKey, type Transaction} from '#pm/state';
 import {Decoration, DecorationSet} from '#pm/view';
+import {cn} from 'src/classname';
 
 import {
     YfmTableDecorationType,
@@ -7,25 +8,43 @@ import {
     YfmTableDecorationUniqKey,
 } from '../const';
 
+const b = cn('yfm-table-selected-cell');
+
 type FromTo = {
     from: number;
     to: number;
 };
 
+type CellMods = {
+    'first-row'?: boolean;
+    'last-row'?: boolean;
+    'first-column'?: boolean;
+    'last-column'?: boolean;
+};
+
+export type SelectedCellPos = FromTo & {
+    mods: CellMods;
+};
+
 type DndMeta =
-    | {action: 'row-control-active'; controlCell: FromTo; rows: FromTo[]; uniqKey: number}
-    | {action: 'column-control-active'; controlCell: FromTo; cells: FromTo[]; uniqKey: number}
+    | {action: 'row-control-active'; controlCell: FromTo; cells: SelectedCellPos[]; uniqKey: number}
+    | {
+          action: 'column-control-active';
+          controlCell: FromTo;
+          cells: SelectedCellPos[];
+          uniqKey: number;
+      }
     | {action: 'row-control-non-active'; uniqKey: number}
     | {action: 'column-control-non-active'; uniqKey: number}
-    | {action: 'drag-rows'; rows: FromTo[]}
-    | {action: 'drag-columns'; cells: FromTo[]}
+    | {action: 'drag-rows'; cells: SelectedCellPos[]}
+    | {action: 'drag-columns'; cells: SelectedCellPos[]}
     | {action: 'hide'};
 
 const key = new PluginKey<DecorationSet>('yfm-table-dnd-decos');
 
 export function activateRows(
     tr: Transaction,
-    params: {controlCell: FromTo; rows: FromTo[]; uniqKey: number},
+    params: {controlCell: FromTo; cells: SelectedCellPos[]; uniqKey: number},
 ): Transaction {
     const meta: DndMeta = {action: 'row-control-active', ...params};
     tr.setMeta(key, meta);
@@ -40,7 +59,7 @@ export function deactivateRow(tr: Transaction, uniqKey: number): Transaction {
 
 export function activateColumns(
     tr: Transaction,
-    params: {controlCell: FromTo; cells: FromTo[]; uniqKey: number},
+    params: {controlCell: FromTo; cells: SelectedCellPos[]; uniqKey: number},
 ): Transaction {
     const meta: DndMeta = {action: 'column-control-active', ...params};
     tr.setMeta(key, meta);
@@ -53,13 +72,13 @@ export function deactivateColumn(tr: Transaction, uniqKey: number): Transaction 
     return tr;
 }
 
-export function selectDraggedRow(tr: Transaction, rows: FromTo[]): Transaction {
-    const meta: DndMeta = {action: 'drag-rows', rows};
+export function selectDraggedRow(tr: Transaction, cells: SelectedCellPos[]): Transaction {
+    const meta: DndMeta = {action: 'drag-rows', cells};
     tr.setMeta(key, meta);
     return tr;
 }
 
-export function selectDraggedColumn(tr: Transaction, cells: FromTo[]): Transaction {
+export function selectDraggedColumn(tr: Transaction, cells: SelectedCellPos[]): Transaction {
     const meta: DndMeta = {action: 'drag-columns', cells};
     tr.setMeta(key, meta);
     return tr;
@@ -86,7 +105,7 @@ export const yfmTableDndPlugin = () => {
                 }
 
                 if (meta?.action === 'row-control-active') {
-                    const {controlCell, rows, uniqKey} = meta;
+                    const {controlCell, cells, uniqKey} = meta;
                     return DecorationSet.create(tr.doc, [
                         Decoration.node(
                             controlCell.from,
@@ -97,14 +116,15 @@ export const yfmTableDndPlugin = () => {
                                 [YfmTableDecorationTypeKey]: YfmTableDecorationType.OpenRowMenu,
                             },
                         ),
-                        ...rows.map((row) =>
+                        ...cells.map((cell) =>
                             Decoration.node(
-                                row.from,
-                                row.to,
-                                {class: 'g-md-yfm-table-active-row'},
+                                cell.from,
+                                cell.to,
+                                {class: b(cell.mods)},
                                 {
                                     [YfmTableDecorationUniqKey]: uniqKey,
-                                    [YfmTableDecorationTypeKey]: YfmTableDecorationType.ActivateRow,
+                                    [YfmTableDecorationTypeKey]:
+                                        YfmTableDecorationType.ActivateRowCells,
                                 },
                             ),
                         ),
@@ -137,7 +157,7 @@ export const yfmTableDndPlugin = () => {
                             Decoration.node(
                                 pos.from,
                                 pos.to,
-                                {class: 'g-md-yfm-table-active-column-cell'},
+                                {class: b(pos.mods)},
                                 {
                                     [YfmTableDecorationUniqKey]: uniqKey,
                                     [YfmTableDecorationTypeKey]:
@@ -161,9 +181,9 @@ export const yfmTableDndPlugin = () => {
                 if (meta?.action === 'drag-rows') {
                     return DecorationSet.create(
                         tr.doc,
-                        meta.rows.map((row) =>
-                            Decoration.node(row.from, row.to, {
-                                class: 'g-md-yfm-table-dnd-dragged-row',
+                        meta.cells.map((cell) =>
+                            Decoration.node(cell.from, cell.to, {
+                                class: b(cell.mods, 'dragged-cell'),
                             }),
                         ),
                     );
@@ -174,7 +194,7 @@ export const yfmTableDndPlugin = () => {
                         tr.doc,
                         meta.cells.map((cell) =>
                             Decoration.node(cell.from, cell.to, {
-                                class: 'g-md-yfm-table-dnd-dragged-column-cell',
+                                class: b(cell.mods, 'dragged-cell'),
                             }),
                         ),
                     );

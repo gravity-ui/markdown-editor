@@ -2,7 +2,7 @@ import {type Node, Slice} from '#pm/model';
 import {TextSelection} from '#pm/state';
 import {findParentNodeClosestToPos} from '#pm/utils';
 import type {EditorView} from '#pm/view';
-import {debounce, range as iterate} from 'src/lodash';
+import {debounce} from 'src/lodash';
 import type {Logger2} from 'src/logger';
 import {isTableNode} from 'src/table-utils';
 import {
@@ -17,12 +17,14 @@ import {
 import {YfmTableNode} from '../../../YfmTableSpecs';
 import {clearAllSelections, selectDraggedColumn, selectDraggedRow} from '../plugins/dnd-plugin';
 import {hideHoverDecos} from '../plugins/focus-plugin';
+import {getSelectedCellsForColumns, getSelectedCellsForRows} from '../utils';
 
 import {
     type DropCursorParams,
     DropCursor as RowDropCursor,
     TableColumnDropCursor,
 } from './dnd-drop-cursor';
+import {YfmTableDnDGhost} from './dnd-ghost';
 
 import './dnd.scss';
 
@@ -36,6 +38,7 @@ export type DnDControlHandler = {
     control_handleMouseDown: React.MouseEventHandler<HTMLButtonElement>;
     control_handleMouseMove: React.MouseEventHandler<HTMLButtonElement>;
     control_handleMouseUp: React.MouseEventHandler<HTMLButtonElement>;
+    control_handleMouseLeave: React.MouseEventHandler<HTMLButtonElement>;
 };
 
 interface TableHandler {
@@ -120,11 +123,15 @@ abstract class YfmTableDnDAbstractHandler implements TableHandler, DnDControlHan
         this.__dragMouseDown = false;
     };
 
+    control_handleMouseLeave: React.MouseEventHandler<HTMLButtonElement> = () => {
+        this.__dragMouseDown = false;
+    };
+
     control_handleMouseMove: React.MouseEventHandler<HTMLButtonElement> = (event) => {
         if (!this._dragMouseDown || !isDragThresholdPassed(this._dragMouseDown, event)) return;
 
         if (this._editorView.dragging || this._dragging) return;
-        this._startDragging();
+        this._startDragging(event);
     };
 
     protected get _cellNode(): Node {
@@ -147,7 +154,7 @@ abstract class YfmTableDnDAbstractHandler implements TableHandler, DnDControlHan
         return this.__dragMouseDown;
     }
 
-    protected abstract _startDragging(): void;
+    protected abstract _startDragging(event: React.MouseEvent): void;
 
     protected _getTableDescAndCellInfo() {
         const tcellPos = this._cellGetPos();
@@ -196,7 +203,7 @@ class YfmTableRowDnDHandler extends YfmTableDnDAbstractHandler {
         return rowRange.safeTopBoundary && rowRange.safeBottomBoundary;
     }
 
-    protected _startDragging = () => {
+    protected _startDragging = (event: React.MouseEvent) => {
         const info = this._getTableDescAndCellInfo();
         if (!info) return;
 
@@ -211,12 +218,7 @@ class YfmTableRowDnDHandler extends YfmTableDnDAbstractHandler {
         {
             const {tr} = this._editorView.state;
             hideHoverDecos(tr);
-            selectDraggedRow(
-                tr,
-                iterate(currRowRange.startIdx, currRowRange.endIdx + 1).map((rowIdx) =>
-                    tableDesc.getPosForRow(rowIdx),
-                ),
-            );
+            selectDraggedRow(tr, getSelectedCellsForRows(info.tableDesc, currRowRange));
             this._editorView.dispatch(tr);
         }
 
@@ -229,13 +231,16 @@ class YfmTableRowDnDHandler extends YfmTableDnDAbstractHandler {
             };
         }
 
-        const dndBackground = document.createElement('div');
-        dndBackground.classList.add('g-md-yfm-table-dnd-cursor-background');
-        document.body.append(dndBackground);
-
         const draggedRangeIdx = rowRanges.indexOf(currRowRange);
 
-        const onMove = debounce(
+        const ghost = new YfmTableDnDGhost(this._editorView, {
+            type: 'row',
+            initial: event,
+            rangeIdx: draggedRangeIdx,
+            tableDesc,
+        });
+
+        const onMoveDebounced = debounce(
             (event: MouseEvent) => {
                 this._moveDragging(event, {
                     rangeIdx: draggedRangeIdx,
@@ -246,13 +251,18 @@ class YfmTableRowDnDHandler extends YfmTableDnDAbstractHandler {
             {maxWait: MOUSE_MOVE_DEBOUNCE},
         );
 
+        const onMove = (event: MouseEvent) => {
+            ghost.move(event);
+            onMoveDebounced(event);
+        };
+
         document.addEventListener('mousemove', onMove);
 
         document.addEventListener(
             'mouseup',
             () => {
-                onMove.flush();
-                dndBackground.remove();
+                onMoveDebounced.flush();
+                ghost.destroy();
                 document.removeEventListener('mousemove', onMove);
                 this._endDragging(currRowRange, tableDesc);
             },
@@ -393,7 +403,7 @@ class YfmTableColumnDnDHandler extends YfmTableDnDAbstractHandler {
         return rowRange.safeLeftBoundary && rowRange.safeRightBoundary;
     }
 
-    protected _startDragging() {
+    protected _startDragging(event: React.MouseEvent) {
         const info = this._getTableDescAndCellInfo();
         if (!info) return;
 
@@ -406,15 +416,9 @@ class YfmTableColumnDnDHandler extends YfmTableDnDAbstractHandler {
         this._logger.event({event: 'column-drag-start'});
 
         {
-            const columnCellsPos: CellPos[] = [];
-            for (const i of iterate(currColumnRange.startIdx, currColumnRange.endIdx + 1)) {
-                columnCellsPos.push(...tableDesc.getPosForColumn(i));
-            }
-            const realPos = columnCellsPos.filter((cell) => cell.type === 'real');
-
             const {tr} = this._editorView.state;
             hideHoverDecos(tr);
-            selectDraggedColumn(tr, realPos);
+            selectDraggedColumn(tr, getSelectedCellsForColumns(tableDesc, currColumnRange));
             this._editorView.dispatch(tr);
         }
         {
@@ -424,13 +428,16 @@ class YfmTableColumnDnDHandler extends YfmTableDnDAbstractHandler {
             };
         }
 
-        const dndBackground = document.createElement('div');
-        dndBackground.classList.add('g-md-yfm-table-dnd-cursor-background');
-        document.body.append(dndBackground);
-
         const draggedRangeIdx = columnRanges.indexOf(currColumnRange);
 
-        const onMove = debounce(
+        const ghost = new YfmTableDnDGhost(this._editorView, {
+            type: 'column',
+            initial: event,
+            rangeIdx: draggedRangeIdx,
+            tableDesc,
+        });
+
+        const onMoveDebounced = debounce(
             (event: MouseEvent) => {
                 this._moveDragging(event, {
                     rangeIdx: draggedRangeIdx,
@@ -441,13 +448,18 @@ class YfmTableColumnDnDHandler extends YfmTableDnDAbstractHandler {
             {maxWait: MOUSE_MOVE_DEBOUNCE},
         );
 
+        const onMove = (event: MouseEvent) => {
+            ghost.move(event);
+            onMoveDebounced(event);
+        };
+
         document.addEventListener('mousemove', onMove);
 
         document.addEventListener(
             'mouseup',
             () => {
-                onMove.flush();
-                dndBackground.remove();
+                onMoveDebounced.flush();
+                ghost.destroy();
                 document.removeEventListener('mousemove', onMove);
                 this._endDragging(currColumnRange, tableDesc);
             },

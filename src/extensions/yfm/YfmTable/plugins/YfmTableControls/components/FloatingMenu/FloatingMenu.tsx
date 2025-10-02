@@ -23,7 +23,10 @@ export type FloatingMenuProps = {
     canDrag: boolean;
     anchorElement: Element;
     dropdownItems: DropdownMenuProps<unknown>['items'];
-    switcherMouseProps?: Pick<ButtonButtonProps, 'onMouseDown' | 'onMouseMove' | 'onMouseUp'>;
+    switcherMouseProps?: Pick<
+        ButtonButtonProps,
+        'onMouseDown' | 'onMouseMove' | 'onMouseUp' | 'onMouseLeave'
+    >;
     onOpenToggle: NonNullable<DropdownMenuProps<unknown>['onOpenToggle']>;
 };
 
