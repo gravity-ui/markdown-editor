@@ -28,6 +28,7 @@ export type PlaygroundMiniProps = Pick<
     | 'directiveSyntax'
     | 'disabledHTMLBlockModes'
     | 'disableMarkdownItAttrs'
+    | 'storyAdditionalControls'
 > & {withDefaultInitialContent?: boolean};
 
 export const PlaygroundMini = memo<PlaygroundMiniProps>(

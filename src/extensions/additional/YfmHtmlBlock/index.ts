@@ -11,6 +11,10 @@ import {addYfmHtmlBlock} from './actions';
 export interface YfmHtmlBlockOptions
     extends Omit<PluginOptions, 'runtimeJsPath' | 'containerClasses' | 'bundle' | 'embeddingMode'> {
     useConfig?: () => IHTMLIFrameElementConfig | undefined;
+    autoSave?: {
+        enabled: boolean;
+        delay?: number; // по умолчанию 1000ms
+    };
 }
 
 export const YfmHtmlBlock: ExtensionAuto<YfmHtmlBlockOptions> = (
