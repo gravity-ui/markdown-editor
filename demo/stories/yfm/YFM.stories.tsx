@@ -57,7 +57,7 @@ export const YfmHtmlBlock: Story = {
         initial: markup.yfmHtmlBlock,
         storyAdditionalControls: {
             yfmHtmlBlockAutoSaveEnabled: false,
-            yfmHtmlBlockAutoSaveDelay: 1000,
+            yfmHtmlBlockAutoSaveDelay: 2000,
         },
     },
 };
@@ -83,7 +83,7 @@ export const MermaidDiagram: Story = {
         initial: markup.mermaidDiagram,
         storyAdditionalControls: {
             mermaidAutoSaveEnabled: false,
-            mermaidAutoSaveDelay: 1000,
+            mermaidAutoSaveDelay: 2000,
         },
     },
 };
