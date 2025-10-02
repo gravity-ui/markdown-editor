@@ -3,4 +3,5 @@ export const excludedControls = [
     'withDefaultInitialContent',
     'onChangeEditorType',
     'onChangeSplitModeEnabled',
+    'storyAdditionalControls',
 ];

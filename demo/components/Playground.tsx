@@ -86,6 +86,7 @@ export type PlaygroundProps = {
     disableMarkdownItAttrs?: boolean;
     markupParseHtmlOnPaste?: boolean;
     style?: React.CSSProperties;
+    storyAdditionalControls?: Record<string, any>;
 } & Pick<UseMarkdownEditorProps, 'experimental' | 'wysiwygConfig'> &
     Pick<
         MarkdownEditorViewProps,
@@ -141,6 +142,7 @@ export const Playground = memo<PlaygroundProps>((props) => {
         disableMarkdownItAttrs,
         markupParseHtmlOnPaste,
         style,
+        storyAdditionalControls,
     } = props;
     const [editorMode, setEditorMode] = useState<MarkdownEditorMode>(initialEditor ?? 'wysiwyg');
     const [mdRaw, setMdRaw] = useState<MarkupString>(initial || '');
@@ -200,11 +202,20 @@ export const Playground = memo<PlaygroundProps>((props) => {
                                     /* webpackChunkName: "mermaid-runtime" */ '@diplodoc/mermaid-extension/runtime'
                                 );
                             },
+                            autoSave: {
+                                enabled: storyAdditionalControls?.mermaidAutoSaveEnabled ?? true,
+                                delay: storyAdditionalControls?.mermaidAutoSaveDelay ?? 1000,
+                            },
                         })
                         .use(FoldingHeading)
                         .use(YfmHtmlBlock, {
                             useConfig: useYfmHtmlBlockStyles,
                             sanitize: getSanitizeYfmHtmlBlock({options: defaultOptions}),
+                            autoSave: {
+                                enabled:
+                                    storyAdditionalControls?.yfmHtmlBlockAutoSaveEnabled ?? true,
+                                delay: storyAdditionalControls?.yfmHtmlBlockAutoSaveDelay ?? 1000,
+                            },
                             head: `
                         <base target="_blank" />
                         <style>
