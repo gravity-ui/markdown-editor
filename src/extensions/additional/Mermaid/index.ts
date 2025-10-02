@@ -5,11 +5,17 @@ import {MermaidSpecs} from './MermaidSpecs';
 import {MermaidAction} from './MermaidSpecs/const';
 import {addMermaid} from './actions';
 
-export type MermaidOptions = {loadRuntimeScript: () => void};
+export type MermaidOptions = {
+    loadRuntimeScript: () => void;
+    autoSave?: {
+        enabled: boolean;
+        delay?: number;
+    };
+};
 
-export const Mermaid: ExtensionAuto<MermaidOptions> = (builder, {loadRuntimeScript}) => {
+export const Mermaid: ExtensionAuto<MermaidOptions> = (builder, options) => {
     builder.use(MermaidSpecs, {
-        nodeView: MermaidNodeViewFactory({loadRuntimeScript}),
+        nodeView: MermaidNodeViewFactory(options),
     });
 
     builder.addAction(MermaidAction, () => addMermaid);
@@ -17,12 +23,9 @@ export const Mermaid: ExtensionAuto<MermaidOptions> = (builder, {loadRuntimeScri
 
 const MermaidNodeViewFactory: (
     opts: MermaidOptions,
-) => (deps: ExtensionDeps) => NodeViewConstructor =
-    ({loadRuntimeScript}) =>
-    () =>
-    (node, view, getPos) => {
-        return new WMermaidNodeView(node, view, getPos, {loadRuntimeScript});
-    };
+) => (deps: ExtensionDeps) => NodeViewConstructor = (options) => () => (node, view, getPos) => {
+    return new WMermaidNodeView(node, view, getPos, options);
+};
 
 declare global {
     namespace WysiwygEditor {

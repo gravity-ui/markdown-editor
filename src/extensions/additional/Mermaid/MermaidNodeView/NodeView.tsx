@@ -20,6 +20,7 @@ export class WMermaidNodeView implements NodeView {
     private readonly getPos;
     private readonly renderItem;
     private readonly loadRuntimeScript: () => void;
+    private readonly options: MermaidOptions;
 
     constructor(
         node: Node,
@@ -35,6 +36,7 @@ export class WMermaidNodeView implements NodeView {
         this.view = view;
         this.getPos = getPos;
         this.loadRuntimeScript = loadRuntimeScript;
+        this.options = opts;
         this.initializeMermaid();
         this.renderItem = getReactRendererFromState(view.state).createItem(
             'mermaid-view',
@@ -121,6 +123,7 @@ export class WMermaidNodeView implements NodeView {
                     node={this.node}
                     getMermaidInstance={this.getMermaidInstance}
                     getPos={this.getPos}
+                    options={this.options}
                 />
             </Portal>
         );

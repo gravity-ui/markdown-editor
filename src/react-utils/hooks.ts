@@ -59,3 +59,10 @@ export function useDebounce<Fn extends AnyFunction>(cb: Fn, wait: number) {
 
     return debouncedFn;
 }
+
+export {
+    useAutoSave,
+    type AutoSaveOptions,
+    type UseAutoSaveProps,
+    type UseAutoSaveReturn,
+} from './hooks/useAutoSave';

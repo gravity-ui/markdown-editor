@@ -12,7 +12,7 @@ import {SharedStateKey} from 'src/extensions/behavior/SharedState';
 import {TextAreaFixed as TextArea} from 'src/forms/TextInput';
 import {i18n} from 'src/i18n/common';
 import {debounce} from 'src/lodash';
-import {useBooleanState, useElementState} from 'src/react-utils/hooks';
+import {useAutoSave, useBooleanState, useElementState} from 'src/react-utils/hooks';
 import {useSharedEditingState} from 'src/react-utils/useSharedEditingState';
 import {removeNode} from 'src/utils/remove-node';
 
@@ -194,8 +194,14 @@ const CodeEditMode: React.FC<{
     initialText: string;
     onSave: (v: string) => void;
     onCancel: () => void;
-}> = ({initialText, onSave, onCancel}) => {
-    const [text, setText] = useState(initialText || '\n');
+    options: YfmHtmlBlockOptions;
+}> = ({initialText, onSave, onCancel, options: {autoSave}}) => {
+    const {value, handleChange, handleManualSave, isSaveDisabled} = useAutoSave({
+        initialValue: initialText || '\n',
+        onSave,
+        onClose: onCancel,
+        autoSave,
+    });
 
     return (
         <div className={b({editing: true})}>
@@ -204,10 +210,8 @@ const CodeEditMode: React.FC<{
                     controlProps={{
                         className: STOP_EVENT_CLASSNAME,
                     }}
-                    value={text}
-                    onUpdate={(v) => {
-                        setText(v);
-                    }}
+                    value={value}
+                    onUpdate={handleChange}
                     autoFocus
                 />
 
@@ -216,7 +220,11 @@ const CodeEditMode: React.FC<{
                         <Button onClick={onCancel} view={'flat'}>
                             <span className={STOP_EVENT_CLASSNAME}>{i18n('cancel')}</span>
                         </Button>
-                        <Button onClick={() => onSave(text)} view={'action'}>
+                        <Button
+                            onClick={handleManualSave}
+                            view={'action'}
+                            disabled={isSaveDisabled}
+                        >
                             <span className={STOP_EVENT_CLASSNAME}>{i18n('save')}</span>
                         </Button>
                     </div>
@@ -232,13 +240,8 @@ export const YfmHtmlBlockView: React.FC<{
     onChange: (attrs: {[YfmHtmlBlockConsts.NodeAttrs.srcdoc]: string}) => void;
     options: YfmHtmlBlockOptions;
     view: EditorView;
-}> = ({
-    onChange,
-    node,
-    getPos,
-    view,
-    options: {useConfig, sanitize, styles, baseTarget = '_parent', head: headContent = ''},
-}) => {
+}> = ({onChange, node, getPos, view, options}) => {
+    const {useConfig, sanitize, styles, baseTarget = '_parent', head: headContent = ''} = options;
     const entityId: string = node.attrs[YfmHtmlBlockConsts.NodeAttrs.EntityId];
     const entityKey = useMemo(
         () => SharedStateKey.define<YfmHtmlBlockEntitySharedState>({name: entityId}),
@@ -258,8 +261,8 @@ export const YfmHtmlBlockView: React.FC<{
                 onCancel={unsetEditing}
                 onSave={(v) => {
                     onChange({[YfmHtmlBlockConsts.NodeAttrs.srcdoc]: v});
-                    unsetEditing();
                 }}
+                options={options}
             />
         );
     }
