@@ -11,7 +11,7 @@
 }
 
 .yfm.g-md-yfm-table-dnd-ghost,
-.g-button.g-md-yfm-table-dnd-ghost-button {
+.g-md-yfm-table-dnd-ghost-button {
     position: fixed;
 
     cursor: grabbing;
@@ -32,7 +32,7 @@
     }
 }
 
-.g-button.g-md-yfm-table-dnd-ghost-button {
+.g-md-yfm-table-dnd-ghost-button {
     --g-button-background-color-hover: var(--g-color-base-background);
     --g-button-background-color: var(--g-color-base-background);
     --g-button-border-color: var(--g-color-line-brand);
