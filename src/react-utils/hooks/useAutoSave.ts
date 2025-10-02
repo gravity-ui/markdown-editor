@@ -22,7 +22,10 @@ export interface UseAutoSaveReturn {
     isSaveDisabled: boolean;
 }
 
-const DEFAULT_AUTOSAVE_DELAY = 1000;
+const DEFAULT_AUTOSAVE = {
+    enabled: true,
+    delay: 500,
+};
 
 /**
  * autosave functionality for extensions with edit block
@@ -33,7 +36,8 @@ export const useAutoSave = ({
     onClose,
     onSave,
 }: UseAutoSaveProps): UseAutoSaveReturn => {
-    const isAutoSaveEnabled = Boolean(autoSave?.enabled);
+    const {enabled: autoSaveEnabled, delay: autoSaveDelay} = autoSave ?? DEFAULT_AUTOSAVE;
+    const isAutoSaveEnabled = Boolean(autoSaveEnabled);
 
     const [value, setValue] = useState(initialValue || '');
     const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
@@ -53,7 +57,7 @@ export const useAutoSave = ({
         if (isAutoSaveEnabled && hasChanges) {
             handleClearTimeout();
 
-            const delay = autoSave?.delay ?? DEFAULT_AUTOSAVE_DELAY;
+            const delay = autoSaveDelay ?? DEFAULT_AUTOSAVE.delay;
             autoSaveTimeoutRef.current = setTimeout(() => {
                 onSave(newValue);
                 setHasUnsavedChanges(false);
