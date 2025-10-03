@@ -1,3 +1,3 @@
-export const LAYOUT_MAP = {
+export const LAYOUT = {
     STICKY_TOOLBAR: 'sticky-toolbar',
 };
