@@ -34,6 +34,18 @@ export const createImageNode =
                 logger.error({error: err});
             }
         }
+
+        const isSvg = checkSvg(result.url) || file.type === 'image/svg+xml';
+
+        if (isSvg) {
+            const sizes = await loadImage(file).then(getImageSizeNew);
+            return imgType.create({
+                ...attrs,
+                [ImgSizeAttr.Width]: sizes.width,
+                [ImgSizeAttr.Height]: sizes.height,
+            });
+        }
+
         return imgType.create(attrs);
     };
 
@@ -63,4 +75,8 @@ export function getImageSizeNew({width, height}: HTMLImageElement): {
         imgMaxHeight: IMG_MAX_HEIGHT,
     });
     return {width: String(size.width), height: String(size.height)};
+}
+
+export function checkSvg(imageUrl?: string) {
+    return imageUrl && (/\.svg($|\?|#)/i.test(imageUrl) || imageUrl.startsWith('data:image/svg'));
 }
