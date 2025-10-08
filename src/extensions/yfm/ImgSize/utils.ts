@@ -38,12 +38,15 @@ export const createImageNode =
         const isSvg = checkSvg(result.url) || file.type === 'image/svg+xml';
 
         if (isSvg) {
-            const sizes = await loadImage(file).then(
-                opts.enableNewImageSizeCalculation ? getImageSizeNew : getImageSize,
-            );
+            const image = await loadImage(file);
+
+            const sizes = opts.enableNewImageSizeCalculation
+                ? getImageSizeNew(image)
+                : getImageSize(image);
+
             return imgType.create({
-                width: DEFAULT_SVG_WIDTH,
                 ...attrs,
+                width: image.width || DEFAULT_SVG_WIDTH,
                 ...sizes,
             });
         }
