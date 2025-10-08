@@ -71,7 +71,7 @@ const DiagramEditMode: React.FC<{
     onCancel: () => void;
     options: MermaidOptions;
 }> = ({initialText, onSave, onCancel, mermaidInstance, options: {autoSave}}) => {
-    const {value, handleChange, handleManualSave, isSaveDisabled} = useAutoSave({
+    const {value, handleChange, handleManualSave, isSaveDisabled, isAutoSaveEnabled} = useAutoSave({
         initialValue: initialText || '',
         onSave,
         onClose: onCancel,
@@ -95,15 +95,19 @@ const DiagramEditMode: React.FC<{
                 <div className={b('Controls')}>
                     <div>
                         <Button onClick={onCancel} view={'flat'}>
-                            <span className={STOP_EVENT_CLASSNAME}>{i18n('cancel')}</span>
+                            <span className={STOP_EVENT_CLASSNAME}>
+                                {isAutoSaveEnabled ? i18n('close') : i18n('cancel')}
+                            </span>
                         </Button>
-                        <Button
-                            onClick={handleManualSave}
-                            view={'action'}
-                            disabled={isSaveDisabled}
-                        >
-                            <span className={STOP_EVENT_CLASSNAME}>{i18n('save')}</span>
-                        </Button>
+                        {!isAutoSaveEnabled && (
+                            <Button
+                                onClick={handleManualSave}
+                                view={'action'}
+                                disabled={isSaveDisabled}
+                            >
+                                <span className={STOP_EVENT_CLASSNAME}>{i18n('save')}</span>
+                            </Button>
+                        )}
                     </div>
                 </div>
             </div>
