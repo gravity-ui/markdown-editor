@@ -5,7 +5,7 @@ import {type UploadSuccessItem, getProportionalSize} from '../../../utils';
 import {imageNodeName} from '../../markdown';
 import {ImgSizeAttr} from '../../specs';
 
-import {IMG_MAX_HEIGHT} from './const';
+import {DEFAULT_SVG_WIDTH, IMG_MAX_HEIGHT} from './const';
 
 export function isImageNode(node: Node): boolean {
     return node.type.name === imageNodeName;
@@ -38,11 +38,13 @@ export const createImageNode =
         const isSvg = checkSvg(result.url) || file.type === 'image/svg+xml';
 
         if (isSvg) {
-            const sizes = await loadImage(file).then(getImageSizeNew);
+            const sizes = await loadImage(file).then(
+                opts.enableNewImageSizeCalculation ? getImageSizeNew : getImageSize,
+            );
             return imgType.create({
+                width: DEFAULT_SVG_WIDTH,
                 ...attrs,
-                [ImgSizeAttr.Width]: sizes.width,
-                [ImgSizeAttr.Height]: sizes.height,
+                ...sizes,
             });
         }
 
@@ -58,6 +60,15 @@ export async function loadImage(imgFile: File) {
             resolve(img);
         };
         img.onerror = (_e, _s, _l, _c, error) => reject(error);
+    });
+}
+
+export async function loadImageFromUrl(url: string): Promise<HTMLImageElement> {
+    return new Promise<HTMLImageElement>((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => resolve(img);
+        img.onerror = (_e, _s, _l, _c, error) => reject(error);
+        img.src = url;
     });
 }
 

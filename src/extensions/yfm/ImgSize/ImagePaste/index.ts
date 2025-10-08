@@ -12,8 +12,15 @@ import type {FileUploadHandler} from '../../../../utils';
 import {clipboardUtils} from '../../../behavior/Clipboard';
 import {DataTransferType} from '../../../behavior/Clipboard/utils';
 import {ImageAttr, ImgSizeAttr, imageType} from '../../../specs';
-import {DEFAULT_SVG_HEIGHT, DEFAULT_SVG_WIDTH} from '../const';
-import {type CreateImageNodeOptions, checkSvg, isImageNode} from '../utils';
+import {DEFAULT_SVG_WIDTH} from '../const';
+import {
+    type CreateImageNodeOptions,
+    checkSvg,
+    getImageSize,
+    getImageSizeNew,
+    isImageNode,
+    loadImageFromUrl,
+} from '../utils';
 
 import {ImagesUploadProcess} from './upload';
 
@@ -85,79 +92,47 @@ export const ImagePaste: ExtensionAuto<ImagePasteOptions> = (builder, opts) => {
 
                                 const isSvg = checkSvg(imageUrl);
 
+                                const imageNode = imageType(view.state.schema).create({
+                                    src: imageUrl,
+                                    alt: title,
+                                });
+
+                                const tr = view.state.tr.replaceSelectionWith(imageNode);
+                                view.dispatch(tr.scrollIntoView());
+                                logger.event({event: 'paste-url-as-image'});
+
                                 if (isSvg) {
-                                    const img = new Image();
-                                    let loaded = false;
+                                    const insertedPos = tr.selection.from - imageNode.nodeSize;
 
-                                    const createImageNode = (
-                                        width: number,
-                                        height: number,
-                                        logType: string,
-                                    ) => {
-                                        const imageNode = imageType(view.state.schema).create({
-                                            src: imageUrl,
-                                            alt: title,
-                                            [ImgSizeAttr.Width]: width,
-                                            [ImgSizeAttr.Height]: height,
-                                        });
+                                    loadImageFromUrl(imageUrl)
+                                        .then((img) => {
+                                            const sizes = opts?.enableNewImageSizeCalculation
+                                                ? getImageSizeNew(img)
+                                                : getImageSize(img);
 
-                                        const tr = view.state.tr.replaceSelectionWith(imageNode);
-                                        view.dispatch(tr.scrollIntoView());
-                                        logger.event({
-                                            event: 'paste-url-as-image',
-                                            type: logType,
-                                        });
-                                    };
-
-                                    const timeoutId = setTimeout(() => {
-                                        if (!loaded) {
-                                            createImageNode(
-                                                DEFAULT_SVG_WIDTH,
-                                                DEFAULT_SVG_HEIGHT,
-                                                'svg-timeout',
+                                            const updateTr = view.state.tr.setNodeMarkup(
+                                                insertedPos,
+                                                undefined,
+                                                {
+                                                    ...imageNode.attrs,
+                                                    width: img.width || DEFAULT_SVG_WIDTH,
+                                                    ...sizes,
+                                                },
                                             );
-                                        }
-                                    }, 2000);
+                                            view.dispatch(updateTr);
 
-                                    img.onload = () => {
-                                        loaded = true;
-
-                                        clearTimeout(timeoutId);
-
-                                        const width =
-                                            img.naturalWidth > 0
-                                                ? img.naturalWidth
-                                                : DEFAULT_SVG_WIDTH;
-                                        const height =
-                                            img.naturalHeight > 0
-                                                ? img.naturalHeight
-                                                : DEFAULT_SVG_HEIGHT;
-
-                                        createImageNode(width, height, 'svg-with-dimensions');
-                                    };
-
-                                    img.onerror = () => {
-                                        loaded = true;
-
-                                        clearTimeout(timeoutId);
-
-                                        createImageNode(
-                                            DEFAULT_SVG_WIDTH,
-                                            DEFAULT_SVG_HEIGHT,
-                                            'svg-error-fallback',
-                                        );
-                                    };
-
-                                    img.src = imageUrl;
-                                } else {
-                                    const imageNode = imageType(view.state.schema).create({
-                                        src: imageUrl,
-                                        alt: title,
-                                    });
-
-                                    const tr = view.state.tr.replaceSelectionWith(imageNode);
-                                    view.dispatch(tr.scrollIntoView());
-                                    logger.event({event: 'paste-url-as-image'});
+                                            logger.event({
+                                                event: 'svg-dimensions-updated',
+                                                position: insertedPos,
+                                                sizes,
+                                            });
+                                        })
+                                        .catch((error) => {
+                                            logger.error({
+                                                event: 'svg-dimensions-load-failed',
+                                                error: error.message,
+                                            });
+                                        });
                                 }
 
                                 return true;
