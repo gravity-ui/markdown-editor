@@ -82,8 +82,8 @@ export const MermaidDiagram: Story = {
     args: {
         initial: markup.mermaidDiagram,
         storyAdditionalControls: {
-            mermaidAutoSaveEnabled: false,
-            mermaidAutoSaveDelay: 2000,
+            mermaidAutoSaveEnabled: true,
+            mermaidAutoSaveDelay: 500,
         },
     },
 };
