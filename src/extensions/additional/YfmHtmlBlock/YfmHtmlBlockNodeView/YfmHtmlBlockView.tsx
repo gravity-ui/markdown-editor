@@ -1,20 +1,24 @@
-import {useEffect, useRef, useState} from 'react';
+import {useEffect, useMemo, useRef, useState} from 'react';
 
 import {getStyles} from '@diplodoc/html-extension';
 import type {IHTMLIFrameElementConfig} from '@diplodoc/html-extension/runtime';
 import {Ellipsis as DotsIcon, Eye} from '@gravity-ui/icons';
 import {Button, Icon, Label, Menu, Popup} from '@gravity-ui/uikit';
-import debounce from 'lodash/debounce';
 import type {Node} from 'prosemirror-model';
 import type {EditorView} from 'prosemirror-view';
 
-import {cn} from '../../../../classname';
-import {TextAreaFixed as TextArea} from '../../../../forms/TextInput';
-import {i18n} from '../../../../i18n/common';
-import {useBooleanState, useElementState} from '../../../../react-utils/hooks';
-import {removeNode} from '../../../../utils/remove-node';
+import {cn} from 'src/classname';
+import {SharedStateKey} from 'src/extensions/behavior/SharedState';
+import {TextAreaFixed as TextArea} from 'src/forms/TextInput';
+import {i18n} from 'src/i18n/common';
+import {debounce} from 'src/lodash';
+import {useAutoSave, useBooleanState, useElementState} from 'src/react-utils/hooks';
+import {useSharedEditingState} from 'src/react-utils/useSharedEditingState';
+import {removeNode} from 'src/utils/remove-node';
+
 import {YfmHtmlBlockConsts} from '../YfmHtmlBlockSpecs/const';
 import type {YfmHtmlBlockOptions} from '../index';
+import type {YfmHtmlBlockEntitySharedState} from '../types';
 
 import './YfmHtmlBlock.scss';
 
@@ -25,7 +29,7 @@ const b = cnYfmHtmlBlock;
 
 interface YfmHtmlBlockViewProps {
     html: string;
-    onСlick: () => void;
+    onClick: () => void;
     config?: IHTMLIFrameElementConfig;
 }
 
@@ -48,7 +52,7 @@ const createLinkCLickHandler = (value: Element, document: Document) => (event: E
     }
 };
 
-const YfmHtmlBlockPreview: React.FC<YfmHtmlBlockViewProps> = ({html, onСlick, config}) => {
+const YfmHtmlBlockPreview: React.FC<YfmHtmlBlockViewProps> = ({html, onClick, config}) => {
     const ref = useRef<HTMLIFrameElement>(null);
     const styles = useRef<Record<string, string>>({});
     const classNames = useRef<string[]>([]);
@@ -69,7 +73,7 @@ const YfmHtmlBlockPreview: React.FC<YfmHtmlBlockViewProps> = ({html, onСlick, c
         if (contentWindow) {
             const frameDocument = contentWindow.document;
             frameDocument.addEventListener('dblclick', () => {
-                onСlick();
+                onClick();
             });
         }
     };
@@ -190,8 +194,14 @@ const CodeEditMode: React.FC<{
     initialText: string;
     onSave: (v: string) => void;
     onCancel: () => void;
-}> = ({initialText, onSave, onCancel}) => {
-    const [text, setText] = useState(initialText || '\n');
+    options: YfmHtmlBlockOptions;
+}> = ({initialText, onSave, onCancel, options: {autoSave}}) => {
+    const {value, handleChange, handleManualSave, isSaveDisabled} = useAutoSave({
+        initialValue: initialText || '\n',
+        onSave,
+        onClose: onCancel,
+        autoSave,
+    });
 
     return (
         <div className={b({editing: true})}>
@@ -200,10 +210,8 @@ const CodeEditMode: React.FC<{
                     controlProps={{
                         className: STOP_EVENT_CLASSNAME,
                     }}
-                    value={text}
-                    onUpdate={(v) => {
-                        setText(v);
-                    }}
+                    value={value}
+                    onUpdate={handleChange}
                     autoFocus
                 />
 
@@ -212,7 +220,11 @@ const CodeEditMode: React.FC<{
                         <Button onClick={onCancel} view={'flat'}>
                             <span className={STOP_EVENT_CLASSNAME}>{i18n('cancel')}</span>
                         </Button>
-                        <Button onClick={() => onSave(text)} view={'action'}>
+                        <Button
+                            onClick={handleManualSave}
+                            view={'action'}
+                            disabled={isSaveDisabled}
+                        >
                             <span className={STOP_EVENT_CLASSNAME}>{i18n('save')}</span>
                         </Button>
                     </div>
@@ -228,25 +240,19 @@ export const YfmHtmlBlockView: React.FC<{
     onChange: (attrs: {[YfmHtmlBlockConsts.NodeAttrs.srcdoc]: string}) => void;
     options: YfmHtmlBlockOptions;
     view: EditorView;
-}> = ({
-    onChange,
-    node,
-    getPos,
-    view,
-    options: {useConfig, sanitize, styles, baseTarget = '_parent', head: headContent = ''},
-}) => {
-    const [editing, setEditing, unsetEditing, toggleEditing] = useBooleanState(
-        Boolean(node.attrs[YfmHtmlBlockConsts.NodeAttrs.newCreated]),
+}> = ({onChange, node, getPos, view, options}) => {
+    const {useConfig, sanitize, styles, baseTarget = '_parent', head: headContent = ''} = options;
+    const entityId: string = node.attrs[YfmHtmlBlockConsts.NodeAttrs.EntityId];
+    const entityKey = useMemo(
+        () => SharedStateKey.define<YfmHtmlBlockEntitySharedState>({name: entityId}),
+        [entityId],
     );
 
     const config = useConfig?.();
 
+    const [editing, setEditing, unsetEditing] = useSharedEditingState(view, entityKey);
     const [menuOpen, _openMenu, closeMenu, toggleMenuOpen] = useBooleanState(false);
     const [anchorElement, setAnchorElement] = useElementState();
-
-    const handleClick = () => {
-        setEditing();
-    };
 
     if (editing) {
         return (
@@ -255,8 +261,8 @@ export const YfmHtmlBlockView: React.FC<{
                 onCancel={unsetEditing}
                 onSave={(v) => {
                     onChange({[YfmHtmlBlockConsts.NodeAttrs.srcdoc]: v});
-                    unsetEditing();
                 }}
+                options={options}
             />
         );
     }
@@ -274,14 +280,16 @@ export const YfmHtmlBlockView: React.FC<{
     const body = `<body>${node.attrs[YfmHtmlBlockConsts.NodeAttrs.srcdoc] ?? ''}</body>`;
     const html = `<!DOCTYPE html><html>${head}${body}</html>`;
 
-    const resultHtml = sanitize ? sanitize(html) : html;
+    const sanitizeFunction = typeof sanitize === 'function' ? sanitize : sanitize?.body;
+
+    const resultHtml = sanitizeFunction ? sanitizeFunction(html) : html;
 
     return (
         <div className={b()} onDoubleClick={setEditing}>
             <Label className={b('label')} icon={<Icon size={16} data={Eye} />}>
                 {i18n('preview')}
             </Label>
-            <YfmHtmlBlockPreview html={resultHtml} onСlick={handleClick} config={config} />
+            <YfmHtmlBlockPreview html={resultHtml} onClick={setEditing} config={config} />
 
             <div className={b('menu')}>
                 <Button
@@ -301,7 +309,7 @@ export const YfmHtmlBlockView: React.FC<{
                     <Menu>
                         <Menu.Item
                             onClick={() => {
-                                toggleEditing();
+                                setEditing();
                                 closeMenu();
                             }}
                         >

@@ -1,5 +1,5 @@
-import {offset, shift} from '@floating-ui/react'; // eslint-disable-line import/no-extraneous-dependencies
-import {Popup, type PopupProps} from '@gravity-ui/uikit';
+import type {VirtualElement} from '@floating-ui/react'; // eslint-disable-line import/no-extraneous-dependencies
+import {Popup, type PopupPlacement, type PopupProps} from '@gravity-ui/uikit';
 import type {EditorState} from 'prosemirror-state';
 import type {EditorView} from 'prosemirror-view';
 
@@ -46,21 +46,37 @@ export type ContextGroupItemData =
 export type ContextGroupData = ContextGroupItemData[];
 export type ContextConfig = ContextGroupData[];
 
+export type TooltipViewParams = {
+    /** @default 'bottom' */
+    placement?: 'top' | 'bottom';
+    /** @default false */
+    flip?: boolean;
+};
+
 export class TooltipView {
     #isTooltipOpen = false;
 
-    private logger: Logger2.ILogger;
-    private actions: ActionStorage;
-    private menuConfig: ContextConfig;
+    private readonly logger: Logger2.ILogger;
+    private readonly actions: ActionStorage;
+    private readonly menuConfig: ContextConfig;
+    private readonly placement: PopupPlacement;
 
     private view!: EditorView;
     private baseProps: SelectionTooltipBaseProps = {show: false, poppupProps: {}};
     private _tooltipRenderItem: RendererItem | null = null;
 
-    constructor(actions: ActionStorage, menuConfig: ContextConfig, logger: Logger2.ILogger) {
+    constructor(
+        actions: ActionStorage,
+        menuConfig: ContextConfig,
+        logger: Logger2.ILogger,
+        params: TooltipViewParams,
+    ) {
         this.logger = logger;
         this.actions = actions;
         this.menuConfig = menuConfig;
+
+        const {flip, placement = 'bottom'} = params;
+        this.placement = flip ? placement : [placement];
     }
 
     get isTooltipOpen(): boolean {
@@ -95,6 +111,7 @@ export class TooltipView {
     private getSelectionTooltipProps(): SelectionTooltipProps {
         return {
             ...this.baseProps,
+            qa: 'g-md-toolbar-selection',
             focus: () => this.view.focus(),
             data: this.getFilteredConfig(),
             editor: this.actions,
@@ -141,43 +158,36 @@ export class TooltipView {
     }
 
     private calcPosition(view: EditorView): PopupProps {
-        const viewDom = view.dom as Element;
-        // The box in which the tooltip is positioned, to use as base
-        const viewBox = viewDom.getBoundingClientRect();
+        const virtualElem: VirtualElement = {
+            getBoundingClientRect() {
+                // These are in screen coordinates
+                const start = view.coordsAtPos(view.state.selection.from);
+                const end = view.coordsAtPos(view.state.selection.to);
+                // Find a center-ish x position from the selection endpoints (when
+                // crossing lines, end may be more to the left)
+                const yCenter = Math.max((start.left + end.left) / 2, start.left + 3);
 
-        const viewWidth = viewBox.right - viewBox.left;
-        const viewHalfWidth = viewWidth / 2;
+                const top = start.top;
+                const left = yCenter - 1;
+                const width = 2;
+                const height = end.bottom - start.top;
 
-        // These are in screen coordinates
-        const start = view.coordsAtPos(view.state.selection.from);
-        const end = view.coordsAtPos(view.state.selection.to);
-
-        // Find a center-ish x position from the selection endpoints (when
-        // crossing lines, end may be more to the left)
-        const left = Math.max((start.left + end.left) / 2, start.left + 3);
-
-        const leftOffset = left - (viewBox.left + viewHalfWidth);
-        const bottomOffset = -(viewBox.bottom - end.bottom) + this.popupTextOffset;
+                return {
+                    top,
+                    left,
+                    right: left + width,
+                    bottom: top + height,
+                    y: top,
+                    x: left,
+                    height,
+                    width,
+                };
+            },
+        };
 
         return {
-            placement: 'bottom',
-            anchorElement: viewDom,
-            // override floating middlewares
-            floatingMiddlewares: [
-                offset({
-                    mainAxis: bottomOffset,
-                    crossAxis: leftOffset,
-                }),
-                shift({
-                    mainAxis: true,
-                    crossAxis: false,
-                    padding: 4,
-                }),
-            ],
+            placement: this.placement,
+            anchorElement: virtualElem,
         };
-    }
-
-    private get popupTextOffset() {
-        return 4; // 4px offset from text selection
     }
 }

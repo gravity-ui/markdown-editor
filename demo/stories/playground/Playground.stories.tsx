@@ -4,13 +4,18 @@ import {type PlaygroundProps, Playground as component} from '../../components/Pl
 import {args} from '../../defaults/args';
 import {getInitialMd} from '../../utils/getInitialMd';
 
-export const Story: StoryObj<typeof component> = {};
+export const Story: StoryObj<typeof component> = {
+    args: {
+        mobile: false,
+        disableMarkdownItAttrs: true,
+    },
+};
 Story.storyName = 'Playground';
 
 const meta: Meta<PlaygroundProps> = {
     title: 'Playground',
-    component: component,
-    args: args,
+    component,
+    args,
     beforeEach: (context) => {
         /* eslint-disable no-param-reassign */
         context.args.initial = getInitialMd();

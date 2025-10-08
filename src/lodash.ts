@@ -9,17 +9,21 @@ import isString from 'lodash/isString';
 import noop from 'lodash/noop';
 import omit from 'lodash/omit';
 import partial from 'lodash/partial';
+import range from 'lodash/range';
 import throttle from 'lodash/throttle';
+import uniqWith from 'lodash/uniqWith';
 import uniqueId from 'lodash/uniqueId';
 
 export {
     noop,
     omit,
     clamp,
+    range,
     groupBy,
     partial,
     debounce,
     throttle,
+    uniqWith,
     uniqueId,
     isString,
     capitalize,

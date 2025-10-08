@@ -163,6 +163,11 @@ export type MarkdownEditorMarkupConfig = {
      * The function, used to determine if the pasted text is the image url and should be inserted as an image
      */
     parseInsertedUrlAsImage?: ParseInsertedUrlAsImage;
+    /**
+     * Show search panel in the editor.
+     * @default true
+     */
+    searchPanel?: boolean;
 };
 
 // do not export this type
@@ -178,6 +183,13 @@ export type MarkdownEditorWysiwygConfig = {
     extensionOptions?: ExtensionsOptions;
     escapeConfig?: EscapeConfig;
     placeholderOptions?: WysiwygPlaceholderOptions;
+    // MAJOR: remove markdown-it-attrs
+    /**
+     * Disable the markdown-it-attrs plugin in the markup parser.
+     *
+     * Note: The use of the markdown-it-attrs plugin will be removed in the next major version.
+     */
+    disableMarkdownAttrs?: boolean;
 };
 
 export type MarkdownEditorOptions = {
@@ -198,4 +210,6 @@ export type MarkdownEditorOptions = {
     /** Options for wysiwyg mode */
     wysiwygConfig?: MarkdownEditorWysiwygConfig;
     logger?: Logger2.ILogger;
+    /** Mobile view */
+    mobile?: boolean;
 };

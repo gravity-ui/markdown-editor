@@ -17,6 +17,8 @@ import {
     placeholder,
 } from '@codemirror/view';
 
+import {InputState} from 'src/utils/input-state';
+
 import type {ParseInsertedUrlAsImage} from '../../bundle';
 import type {EventMap} from '../../bundle/Editor';
 import {ActionName} from '../../bundle/config/action-names';
@@ -61,6 +63,8 @@ export type {YfmLangOptions};
 
 type Autocompletion = Parameters<typeof autocompletion>[0];
 
+const linkRegex = /\[[\s\S]*?]\([\s\S]*?\)/g;
+
 export type CreateCodemirrorParams = {
     doc: EditorViewConfig['doc'];
     placeholder: Parameters<typeof placeholder>[0];
@@ -86,6 +90,7 @@ export type CreateCodemirrorParams = {
     autocompletion?: Autocompletion;
     directiveSyntax: DirectiveSyntaxContext;
     preserveEmptyRows: boolean;
+    searchPanel?: boolean;
 };
 
 export function createCodemirror(params: CreateCodemirrorParams) {
@@ -109,6 +114,7 @@ export function createCodemirror(params: CreateCodemirrorParams) {
         parseInsertedUrlAsImage,
         directiveSyntax,
         preserveEmptyRows,
+        searchPanel = true,
     } = params;
 
     const extensions: Extension[] = [gravityTheme, placeholder(placeholderContent)];
@@ -116,6 +122,8 @@ export function createCodemirror(params: CreateCodemirrorParams) {
     if (!disabledExtensions.history) {
         extensions.push(history());
     }
+
+    const inputState = new InputState();
 
     extensions.push(
         syntaxHighlighting(gravityHighlightStyle),
@@ -173,8 +181,14 @@ export function createCodemirror(params: CreateCodemirrorParams) {
             scroll(event) {
                 onScroll(event);
             },
+            keydown(event) {
+                inputState.keydown(event);
+            },
+            keyup(event) {
+                inputState.keyup(event);
+            },
             paste(event, editor) {
-                if (!event.clipboardData) return;
+                if (!event.clipboardData) return false;
 
                 const pasteLogger = logger.nested({
                     domEvent: 'paste',
@@ -193,7 +207,7 @@ export function createCodemirror(params: CreateCodemirrorParams) {
                     logger.event({event: 'paste-markup'});
                     const reindentedYfmContent = smartReindent(yfmContent, currentLine);
                     editor.dispatch(editor.state.replaceSelection(reindentedYfmContent));
-                    return;
+                    return true;
                 }
 
                 // checking if a copy buffer content is suitable for convertion
@@ -227,26 +241,37 @@ export function createCodemirror(params: CreateCodemirrorParams) {
                             currentLine,
                         );
                         editor.dispatch(editor.state.replaceSelection(reindentedHtmlContent));
-                        return;
+                        return true;
                     }
                 }
 
-                if (parseInsertedUrlAsImage) {
-                    const {imageUrl, title} =
-                        parseInsertedUrlAsImage(
-                            event.clipboardData.getData(DataTransferType.Text) ?? '',
-                        ) || {};
+                if (!inputState.shiftKey && parseInsertedUrlAsImage) {
+                    const linkMatches = currentLine.matchAll(linkRegex);
+                    const cursorPositionInCurrentLine = from - line.from;
+                    const isInsertedInsideLink = linkMatches.some(
+                        (item) =>
+                            cursorPositionInCurrentLine >= item.index &&
+                            cursorPositionInCurrentLine <= item.index + (item[0]?.length ?? 0),
+                    );
 
-                    if (imageUrl) {
-                        event.preventDefault();
-                        logger.event({event: 'paste-url-as-image'});
-                        insertImages([
-                            {
-                                url: imageUrl,
-                                alt: title,
-                                title,
-                            },
-                        ])(editor);
+                    if (!isInsertedInsideLink) {
+                        const {imageUrl, title} =
+                            parseInsertedUrlAsImage(
+                                event.clipboardData.getData(DataTransferType.Text) ?? '',
+                            ) || {};
+
+                        if (imageUrl) {
+                            event.preventDefault();
+                            logger.event({event: 'paste-url-as-image'});
+                            insertImages([
+                                {
+                                    url: imageUrl,
+                                    alt: title,
+                                    title,
+                                },
+                            ])(editor);
+                            return true;
+                        }
                     }
                 }
 
@@ -257,14 +282,22 @@ export function createCodemirror(params: CreateCodemirrorParams) {
                 if (pastedText !== reindentedText) {
                     editor.dispatch(editor.state.replaceSelection(reindentedText));
                     event.preventDefault();
+                    return true;
                 }
+
+                return false;
             },
         }),
-        SearchPanelPlugin({
-            anchorSelector: '.g-md-search-anchor',
-            receiver,
-        }),
     );
+
+    if (searchPanel) {
+        extensions.push(
+            SearchPanelPlugin({
+                anchorSelector: '.g-md-search-anchor',
+                receiver,
+            }),
+        );
+    }
 
     if (preserveEmptyRows) {
         extensions.push(

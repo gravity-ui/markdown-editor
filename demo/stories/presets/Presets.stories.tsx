@@ -1,24 +1,19 @@
 import type {StoryObj} from '@storybook/react';
 
-import {ActionName as Action} from 'src/bundle/config/action-names';
-import {ToolbarName as Toolbar} from 'src/modules/toolbars/constants';
 import {
-    boldItemView,
-    boldItemWysiwyg,
-    colorifyItemMarkup,
-    colorifyItemView,
-    colorifyItemWysiwyg,
-    italicItemMarkup,
-    italicItemView,
-    redoItemMarkup,
-    redoItemView,
-    redoItemWysiwyg,
-    undoItemMarkup,
-    undoItemView,
-    undoItemWysiwyg,
-} from 'src/modules/toolbars/items';
+    textContextItemData,
+    wBoldItemData,
+    wHeading1ItemData,
+    wHeading2ItemData,
+    wItalicItemData,
+    wTextItemData,
+    wToggleHeadingFoldingItemData,
+} from 'src/bundle';
 
 import {Preset as component} from './Preset';
+import {toolbarPresets} from './presets';
+
+const {custom} = toolbarPresets;
 
 export const Zero: StoryObj<typeof component> = {
     args: {preset: 'zero'},
@@ -42,43 +37,18 @@ export const Full: StoryObj<typeof component> = {
 
 export const Custom: StoryObj<typeof component> = {
     args: {
-        toolbarsPreset: {
-            items: {
-                [Action.undo]: {
-                    view: undoItemView,
-                    wysiwyg: undoItemWysiwyg,
-                    markup: undoItemMarkup,
+        toolbarsPreset: custom,
+        wysiwygConfig: {
+            extensionOptions: {
+                commandMenu: {
+                    actions: [wTextItemData, wHeading1ItemData, wHeading2ItemData],
                 },
-                [Action.redo]: {
-                    view: redoItemView,
-                    wysiwyg: redoItemWysiwyg,
-                    markup: redoItemMarkup,
+                selectionContext: {
+                    config: [
+                        [wToggleHeadingFoldingItemData, textContextItemData],
+                        [wBoldItemData, wItalicItemData],
+                    ],
                 },
-                [Action.bold]: {
-                    view: boldItemView,
-                    wysiwyg: boldItemWysiwyg,
-                },
-                [Action.italic]: {
-                    view: italicItemView,
-                    markup: italicItemMarkup,
-                },
-                [Action.colorify]: {
-                    view: colorifyItemView,
-                    wysiwyg: colorifyItemWysiwyg,
-                    markup: colorifyItemMarkup,
-                },
-            },
-            orders: {
-                [Toolbar.wysiwygMain]: [
-                    [Action.colorify],
-                    [Action.bold],
-                    [Action.undo, Action.redo],
-                ],
-                [Toolbar.markupMain]: [
-                    [Action.colorify],
-                    [Action.italic],
-                    [Action.undo, Action.redo],
-                ],
             },
         },
     },

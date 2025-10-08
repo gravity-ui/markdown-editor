@@ -5,7 +5,6 @@ import {ListNode, ListsAttr, Markup} from './const';
 export const schemaSpecs: Record<ListNode, NodeSpec> = {
     [ListNode.ListItem]: {
         attrs: {
-            [ListsAttr.Tight]: {default: false},
             [ListsAttr.Markup]: {default: null},
         },
         content: '(paragraph|block)+',
@@ -24,7 +23,7 @@ export const schemaSpecs: Record<ListNode, NodeSpec> = {
         content: `${ListNode.ListItem}+`,
         group: 'block',
         attrs: {
-            [ListsAttr.Tight]: {default: false},
+            [ListsAttr.Tight]: {default: true},
             [ListsAttr.Markup]: {default: Markup.bullet.default},
         },
         parseDOM: [
@@ -46,7 +45,7 @@ export const schemaSpecs: Record<ListNode, NodeSpec> = {
     [ListNode.OrderedList]: {
         attrs: {
             [ListsAttr.Order]: {default: 1},
-            [ListsAttr.Tight]: {default: false},
+            [ListsAttr.Tight]: {default: true},
             [ListsAttr.Markup]: {default: Markup.ordered.default},
         },
         content: `${ListNode.ListItem}+`,

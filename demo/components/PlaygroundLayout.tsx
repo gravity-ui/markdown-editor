@@ -22,6 +22,7 @@ export type PlaygroundLayoutProps = {
     editor: MarkdownEditorInstance;
     view: RenderFn;
     viewHeight?: React.CSSProperties['height'];
+    viewWidth?: React.CSSProperties['width'];
     actions?: RenderFn;
     style?: React.CSSProperties;
 };
@@ -49,20 +50,29 @@ export const PlaygroundLayout: React.FC<PlaygroundLayoutProps> = function Playgr
             <div className={b('actions')}>{props.actions?.({})}</div>
 
             <hr />
+            <div className={b('editor-markup')}>
+                <StrictMode>
+                    <div
+                        className={b('editor')}
+                        style={{
+                            height: props.viewHeight ?? 'initial',
+                            width: props.viewWidth ?? 'initial',
+                        }}
+                    >
+                        {props.view({className: b('editor-view')})}
 
-            <StrictMode>
-                <div className={b('editor')} style={{height: props.viewHeight ?? 'initial'}}>
-                    {props.view({className: b('editor-view')})}
+                        <WysiwygDevTools editor={editor} />
+                        <WysiwygSelection editor={editor} className={b('pm-selection')} />
+                    </div>
+                </StrictMode>
 
-                    <WysiwygDevTools editor={editor} />
-                    <WysiwygSelection editor={editor} className={b('pm-selection')} />
+                <hr />
+
+                <div className={b('preview')}>
+                    {editor.currentMode === 'wysiwyg' && (
+                        <pre className={b('markup')}>{mdMarkup}</pre>
+                    )}
                 </div>
-            </StrictMode>
-
-            <hr />
-
-            <div className={b('preview')}>
-                {editor.currentMode === 'wysiwyg' && <pre className={b('markup')}>{mdMarkup}</pre>}
             </div>
         </div>
     );

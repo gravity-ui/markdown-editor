@@ -125,71 +125,134 @@ describe('findNotEmptyContentPosses', () => {
 });
 
 describe('trimContent', () => {
-    it('removes empty list items at the start and end of a bullet list', () => {
-        const fragment = doc(ul(li(), li(p('11')), li(p('22')), li())).content;
+    describe('should trim empty list items at both ends', () => {
+        it('of bullet list', () => {
+            const fragment = doc(ul(li(), li(p('11')), li(p('22')), li())).content;
+
+            const trimmedFragment = trimContent(fragment);
+            expect(schema.nodes.doc.create(null, trimmedFragment)).toMatchNode(
+                doc(ul(li(p('11')), li(p('22')))),
+            );
+        });
+
+        it('of bullet list with nested list', () => {
+            const fragment = doc(
+                ul(li(), li(p('Outer item'), ul(li(p('Nested item')))), li()),
+            ).content;
+
+            const trimmedFragment = trimContent(fragment);
+            expect(schema.nodes.doc.create(null, trimmedFragment)).toMatchNode(
+                doc(ul(li(p('Outer item'), ul(li(p('Nested item')))))),
+            );
+        });
+
+        it('of ordered list', () => {
+            const fragment = doc(ol(li(), li(p('11')), li(p('22')), li())).content;
+
+            const trimmedFragment = trimContent(fragment);
+            expect(schema.nodes.doc.create(null, trimmedFragment)).toMatchNode(
+                doc(ol(li(p('11')), li(p('22')))),
+            );
+        });
+
+        it('of bullet list with nested list', () => {
+            const fragment = doc(ul(li(), li(ul(li(ul(li(ul(li(p('Deep'))))))), li()))).content;
+            const trimmedFragment = trimContent(fragment);
+            expect(schema.nodes.doc.create(null, trimmedFragment)).toMatchNode(
+                doc(ul(li(ul(li(ul(li(ul(li(p('Deep')))))))))),
+            );
+        });
+
+        it('of mixed lists', () => {
+            const fragment = doc(
+                ul(li(), li(p('11')), li(), li(p('22')), li()),
+                ol(li(), li(p('aaa')), li(p('bbb')), li()),
+            ).content;
+
+            const trimmedFragment = trimContent(fragment);
+            expect(schema.nodes.doc.create(null, trimmedFragment)).toMatchNode(
+                doc(ul(li(p('11')), li(), li(p('22')), li()), ol(li(), li(p('aaa')), li(p('bbb')))),
+            );
+        });
+    });
+
+    describe('should preserve empty list items', () => {
+        it('in the middle of bullet list', () => {
+            const fragment = doc(ul(li(), li(p('11')), li(), li(p('22')), li())).content;
+
+            const trimmedFragment = trimContent(fragment);
+            expect(schema.nodes.doc.create(null, trimmedFragment)).toMatchNode(
+                doc(ul(li(p('11')), li(), li(p('22')))),
+            );
+        });
+
+        it('in the middle of bullet list with nested list', () => {
+            const fragment = doc(
+                ul(li(ul(li(p('Begin')), li())), li(ul(li(), li(p('End'))))),
+            ).content;
+            const trimmedFragment = trimContent(fragment);
+            expect(schema.nodes.doc.create(null, trimmedFragment)).toMatchNode(
+                doc(ul(li(ul(li(p('Begin')), li())), li(ul(li(), li(p('End')))))),
+            );
+        });
+
+        it('in the middle and end of bullet list', () => {
+            const fragment = doc(
+                p('Some text'),
+                ul(li(), li(p('11')), li(p('22')), li()),
+                p('More text'),
+            ).content;
+
+            const trimmedFragment = trimContent(fragment);
+            expect(schema.nodes.doc.create(null, trimmedFragment)).toMatchNode(
+                doc(p('Some text'), ul(li(), li(p('11')), li(p('22')), li()), p('More text')),
+            );
+        });
+    });
+
+    it('should trim empty items at boundaries of multi-level nested lists', () => {
+        const fragment = doc(
+            ul(
+                li(),
+                li(
+                    p('Level 1'),
+                    ul(li(), li(p('Level 2'), ul(li(), li(p('Level 3')), li())), li()),
+                ),
+                li(),
+            ),
+        ).content;
 
         const trimmedFragment = trimContent(fragment);
         expect(schema.nodes.doc.create(null, trimmedFragment)).toMatchNode(
-            doc(ul(li(p('11')), li(p('22')))),
+            doc(ul(li(p('Level 1'), ul(li(), li(p('Level 2'), ul(li(), li(p('Level 3')))))))),
         );
     });
-
-    it('removes empty list items at the start and end of an ordered list', () => {
-        const fragment = doc(ol(li(), li(p('11')), li(p('22')), li())).content;
+    it('should preserve only nested not-empty content', () => {
+        const fragment = doc(ul(li(), li(ul(li(), li(p('Nested content')), li())), li())).content;
 
         const trimmedFragment = trimContent(fragment);
         expect(schema.nodes.doc.create(null, trimmedFragment)).toMatchNode(
-            doc(ol(li(p('11')), li(p('22')))),
+            doc(ul(li(ul(li(p('Nested content')))))),
         );
     });
-
-    it('removes only empty list items at the start and end, keeping empty ones in the middle', () => {
-        const fragment = doc(ul(li(), li(p('11')), li(), li(p('22')), li())).content;
-
+    it('should remove list items containing only whitespace', () => {
+        const fragment = doc(ul(li(p('   ')), li(p('111')), li(p('\t\n')))).content;
         const trimmedFragment = trimContent(fragment);
-        expect(schema.nodes.doc.create(null, trimmedFragment)).toMatchNode(
-            doc(ul(li(p('11')), li(), li(p('22')))),
-        );
+        expect(schema.nodes.doc.create(null, trimmedFragment)).toMatchNode(doc(ul(li(p('111')))));
     });
 
-    it('does not modify a list with no empty items', () => {
-        const fragment = doc(ul(li(p('11')), li(p('22')))).content;
-
-        const trimmedFragment = trimContent(fragment);
-        expect(schema.nodes.doc.create(null, trimmedFragment)).toMatchNode(
-            doc(ul(li(p('11')), li(p('22')))),
-        );
-    });
-
-    it('trims a list to one empty list item if it contains only empty list items', () => {
+    it('should return empty fragment when all list items are empty', () => {
         const fragment = doc(ul(li(), li(), li())).content;
 
         const trimmedFragment = trimContent(fragment);
         expect(schema.nodes.doc.create(null, trimmedFragment)).toMatchNode(doc());
     });
-
-    it('correctly handles multiple lists in a single fragment', () => {
-        const fragment = doc(
-            ul(li(), li(p('11')), li(), li(p('22')), li()),
-            ol(li(), li(p('A')), li(p('B')), li()),
-        ).content;
+    it('should not modify lists without empty items', () => {
+        const fragment = doc(ul(li(p('11')), li(p('22')))).content;
 
         const trimmedFragment = trimContent(fragment);
         expect(schema.nodes.doc.create(null, trimmedFragment)).toMatchNode(
-            doc(ul(li(p('11')), li(), li(p('22')), li()), ol(li(), li(p('A')), li(p('B')))),
-        );
-    });
-
-    it('does not modify paragraphs and other nodes outside lists', () => {
-        const fragment = doc(
-            p('Some text'),
-            ul(li(), li(p('11')), li(p('22')), li()),
-            p('More text'),
-        ).content;
-
-        const trimmedFragment = trimContent(fragment);
-        expect(schema.nodes.doc.create(null, trimmedFragment)).toMatchNode(
-            doc(p('Some text'), ul(li(), li(p('11')), li(p('22')), li()), p('More text')),
+            doc(ul(li(p('11')), li(p('22')))),
         );
     });
 });

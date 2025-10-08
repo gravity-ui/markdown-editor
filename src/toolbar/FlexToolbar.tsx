@@ -30,7 +30,15 @@ export function FlexToolbar<E>(props: FlexToolbarProps<E>) {
         });
     });
 
-    const {data, className, hiddenActions} = props;
+    const {
+        data,
+        className,
+        hiddenActions,
+        disableTooltip,
+        disablePreview,
+        disableHotkey,
+        display = 'shrink',
+    } = props;
 
     const [ref, {width}] = useMeasure<HTMLDivElement>();
     const {data: items, dots} = useMemo(() => {
@@ -50,12 +58,20 @@ export function FlexToolbar<E>(props: FlexToolbarProps<E>) {
 
         // Finding only actions tha are not present in the main toolbar config
         const filteredHiddenAction = hiddenActions?.filter((a) => !toolbarButtonIds.includes(a.id));
+
+        if (display === 'scroll') {
+            return {
+                data,
+                dots: filteredHiddenAction?.length ? filteredHiddenAction : undefined,
+            };
+        }
+
         return shrinkToolbarData({
             data,
             availableWidth: width,
             hiddenActions: filteredHiddenAction,
         });
-    }, [data, width, hiddenActions]);
+    }, [data, display, hiddenActions, width]);
 
     return (
         <div ref={ref} className={b(null, [className])}>
@@ -63,6 +79,8 @@ export function FlexToolbar<E>(props: FlexToolbarProps<E>) {
                 <Toolbar {...props} data={items} className={b('bar')} />
                 {dots?.length && (
                     <ToolbarListButton
+                        qa="g-md-toolbar-more-action"
+                        qaMenu="g-md-toolbar-additional"
                         data={dots}
                         icon={{data: Ellipsis}}
                         title={props.dotsTitle}
@@ -71,6 +89,9 @@ export function FlexToolbar<E>(props: FlexToolbarProps<E>) {
                         onClick={props.onClick}
                         className={b('dots')}
                         alwaysActive={true}
+                        disableTooltip={disableTooltip}
+                        disableHotkey={disablePreview}
+                        disablePreview={disableHotkey}
                     />
                 )}
             </div>

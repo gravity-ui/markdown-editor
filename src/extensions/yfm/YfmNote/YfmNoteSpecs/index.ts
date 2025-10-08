@@ -1,8 +1,9 @@
-import log from '@diplodoc/transform/lib/log.js';
+import {log} from '@diplodoc/transform/lib/log.js';
 import yfmPlugin from '@diplodoc/transform/lib/plugins/notes/index.js';
 import type {NodeSpec} from 'prosemirror-model';
 
-import type {ExtensionAuto} from '../../../../core';
+import {getConfig} from 'src/configure';
+import type {ExtensionAuto} from 'src/core';
 
 import {NoteNode} from './const';
 import {parserTokens} from './parser';
@@ -23,7 +24,7 @@ export const YfmNoteSpecs: ExtensionAuto<YfmNoteSpecsOptions> = (builder, opts) 
     const schemaSpecs = getSchemaSpecs(opts, builder.context.get('placeholder'));
 
     builder
-        .configureMd((md) => md.use(yfmPlugin, {log}))
+        .configureMd((md) => md.use(yfmPlugin, {log, lang: getConfig().lang || 'en'}))
         .addNode(NoteNode.Note, () => ({
             spec: schemaSpecs[NoteNode.Note],
             toMd: serializerTokens[NoteNode.Note],

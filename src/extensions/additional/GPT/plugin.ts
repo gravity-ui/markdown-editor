@@ -35,9 +35,9 @@ export const gptWidgetPlugin = <
                 const meta = tr.getMeta(key) as GptWidgetMeta | undefined;
                 const paramsGpt = params;
 
-                paramsGpt.disablePromptPresets = false;
-
                 if (meta?.action === 'show') {
+                    paramsGpt.disablePromptPresets = false;
+
                     if (meta.to === meta.from) {
                         const spanElem = document.createElement('span');
                         spanElem.className = WIDGET_DECO_CLASS_NAME;

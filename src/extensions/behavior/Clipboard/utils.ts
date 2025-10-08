@@ -62,7 +62,13 @@ export function extractTextContentFromHtml(html: string) {
     return null;
 }
 
-export function findNotEmptyContentPosses(fragment: Fragment): [number, number, number, number] {
+type ContentBoundaryPositions = [
+    firstNotEmptyPos: number,
+    lastNotEmptyPos: number,
+    firstPos: number,
+    lastPos: number,
+];
+export function findNotEmptyContentPosses(fragment: Fragment): ContentBoundaryPositions {
     let firstNodePos = -1;
     let lastNodePos = -1;
     let firstNotEmptyNodePos = -1;
@@ -78,10 +84,10 @@ export function findNotEmptyContentPosses(fragment: Fragment): [number, number, 
             if (isListNode(contentNode) || isListItemNode(contentNode)) {
                 const [start, end] = findNotEmptyContentPosses(contentNode.content);
                 if (firstNotEmptyNodePos === -1 && start !== -1) {
-                    firstNotEmptyNodePos = offset + start;
+                    firstNotEmptyNodePos = offset + start + 1;
                 }
                 if (end !== -1) {
-                    lastNotEmptyNodePos = offset + end;
+                    lastNotEmptyNodePos = offset + end + 1;
                 }
             } else {
                 if (firstNotEmptyNodePos === -1) {
@@ -104,5 +110,5 @@ export function trimContent(fragment: Fragment, creatEmptyFragment?: () => Fragm
         return creatEmptyFragment ? creatEmptyFragment() : Fragment.empty;
     }
 
-    return fragment.cut(notEmptyStart + 1, notEmptyEnd + 1);
+    return fragment.cut(notEmptyStart, notEmptyEnd);
 }

@@ -30,6 +30,7 @@ export function useMarkdownEditor(
             markupConfig = {},
             wysiwygConfig = {},
             logger = new Logger2(),
+            mobile,
         } = props;
 
         const preset: MarkdownEditorPreset = props.preset ?? 'full';
@@ -57,6 +58,7 @@ export function useMarkdownEditor(
                     editor.emit('submit', null);
                     return true;
                 },
+                disableMdAttrs: wysiwygConfig.disableMarkdownAttrs,
                 preserveEmptyRows: experimental.preserveEmptyRows,
                 placeholderOptions: wysiwygConfig.placeholderOptions,
                 mdBreaks: md.breaks,
@@ -64,6 +66,7 @@ export function useMarkdownEditor(
                 needToSetDimensionsForUploadedImages:
                     experimental.needToSetDimensionsForUploadedImages,
                 enableNewImageSizeCalculation: experimental.enableNewImageSizeCalculation,
+                mobile,
             });
             {
                 const extraExtensions = wysiwygConfig.extensions;

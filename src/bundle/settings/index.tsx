@@ -12,7 +12,11 @@ import {
     Menu,
     Popup,
     type PopupPlacement,
+    type QAProps,
 } from '@gravity-ui/uikit';
+
+import {LAYOUT} from 'src/common/layout';
+import {getTargetZIndex} from 'src/utils/get-target-z-index';
 
 import {type ClassNameProps, cn} from '../../classname';
 import {i18n} from '../../i18n/bundle';
@@ -34,7 +38,7 @@ const bContent = cn('settings-content');
 
 export type EditorSettingsProps = Omit<SettingsContentProps, 'onClose'> & {
     renderPreviewButton?: boolean;
-    settingsVisible?: boolean;
+    settingsVisible?: boolean | SettingItems[];
 };
 
 export const EditorSettings = memo<EditorSettingsProps>(function EditorSettings(props) {
@@ -42,6 +46,9 @@ export const EditorSettings = memo<EditorSettingsProps>(function EditorSettings(
         props;
     const [chevronElement, setChevronElement] = useState<HTMLButtonElement | null>(null);
     const [popupShown, , hidePopup, togglePopup] = useBooleanState(false);
+
+    const areSettingsVisible =
+        settingsVisible === true || (Array.isArray(settingsVisible) && settingsVisible.length > 0);
 
     return (
         <div className={bSettings(null, [className])}>
@@ -54,6 +61,7 @@ export const EditorSettings = memo<EditorSettingsProps>(function EditorSettings(
                         hotkey="mod+shift+p"
                     >
                         <Button
+                            qa="g-md-markup-preview-button"
                             size="m"
                             view="flat"
                             pin="round-round"
@@ -67,7 +75,7 @@ export const EditorSettings = memo<EditorSettingsProps>(function EditorSettings(
                     {settingsVisible && <div className={bSettings('separator')} />}
                 </>
             )}
-            {settingsVisible && (
+            {areSettingsVisible && (
                 <>
                     <Button
                         size="m"
@@ -75,6 +83,7 @@ export const EditorSettings = memo<EditorSettingsProps>(function EditorSettings(
                         pin="round-round"
                         onClick={togglePopup}
                         ref={setChevronElement}
+                        qa="g-md-settings-button"
                         className={bSettings('dropdown-button')}
                     >
                         <Icon data={Gear} />
@@ -84,9 +93,11 @@ export const EditorSettings = memo<EditorSettingsProps>(function EditorSettings(
                         anchorElement={chevronElement}
                         placement={placement}
                         onOpenChange={hidePopup}
+                        zIndex={getTargetZIndex(LAYOUT.STICKY_TOOLBAR)}
                     >
                         <SettingsContent
                             {...props}
+                            qa="g-md-settings-content"
                             onClose={hidePopup}
                             className={bSettings('content')}
                         />
@@ -97,18 +108,23 @@ export const EditorSettings = memo<EditorSettingsProps>(function EditorSettings(
     );
 });
 
-type SettingsContentProps = ClassNameProps & {
-    mode: MarkdownEditorMode;
-    onClose: () => void;
-    onModeChange: (mode: MarkdownEditorMode) => void;
-    onShowPreviewChange: (showPreview: boolean) => void;
-    showPreview: boolean;
-    toolbarVisibility: boolean;
-    onToolbarVisibilityChange: (val: boolean) => void;
-    splitMode?: MarkdownEditorSplitMode;
-    splitModeEnabled?: boolean;
-    onSplitModeChange?: (splitModeEnabled: boolean) => void;
-};
+export type SettingItems = 'mode' | 'toolbar' | 'split';
+
+type SettingsContentProps = ClassNameProps &
+    QAProps & {
+        mode: MarkdownEditorMode;
+        onClose: () => void;
+        onModeChange: (mode: MarkdownEditorMode) => void;
+        onShowPreviewChange: (showPreview: boolean) => void;
+        showPreview: boolean;
+        toolbarVisibility: boolean;
+        settingsVisible?: SettingItems[] | boolean;
+        onToolbarVisibilityChange: (val: boolean) => void;
+        splitMode?: MarkdownEditorSplitMode;
+        splitModeEnabled?: boolean;
+        onSplitModeChange?: (splitModeEnabled: boolean) => void;
+        disableMark?: boolean;
+    };
 
 const mdHelpPlacement: PopupPlacement = ['bottom', 'bottom-end', 'right-start', 'right', 'left'];
 
@@ -123,50 +139,67 @@ const SettingsContent: React.FC<SettingsContentProps> = function SettingsContent
     splitModeEnabled,
     className,
     showPreview,
+    settingsVisible,
+    qa,
+    disableMark,
 }) {
+    const isSettingsArray = Array.isArray(settingsVisible);
+    const showModeSetting = isSettingsArray ? settingsVisible?.includes('mode') : true;
+    const showToolbarSetting = isSettingsArray ? settingsVisible?.includes('toolbar') : true;
+    const showSplitModeSetting = isSettingsArray ? settingsVisible?.includes('split') : true;
+
     return (
-        <div className={bContent(null, [className])}>
-            <Menu size="l" className={bContent('mode')}>
-                <Menu.Item
-                    active={mode === 'wysiwyg'}
-                    onClick={() => {
-                        onModeChange('wysiwyg');
-                        onClose();
-                    }}
-                    iconStart={<Icon data={WysiwygModeIcon} />}
-                >
-                    {i18n('settings_wysiwyg')}
-                </Menu.Item>
-                <Menu.Item
-                    active={mode === 'markup'}
-                    onClick={() => {
-                        onModeChange('markup');
-                        onClose();
-                    }}
-                    iconStart={<Icon data={LogoMarkdown} />}
-                >
-                    {i18n('settings_markup')}
-                    <HelpMark
-                        popoverProps={{
-                            placement: mdHelpPlacement,
-                            modal: false,
+        <div className={bContent(null, [className])} data-qa={qa}>
+            {showModeSetting && (
+                <Menu size="l" className={bContent('mode')}>
+                    <Menu.Item
+                        qa="g-md-settings-mode-wysiwyg"
+                        active={mode === 'wysiwyg'}
+                        onClick={() => {
+                            onModeChange('wysiwyg');
+                            onClose();
                         }}
-                        className={bContent('mode-help')}
+                        iconStart={<Icon data={WysiwygModeIcon} />}
                     >
-                        <div
-                            onClick={(e) => {
-                                // stop clicks propagation
-                                // because otherwise click in MarkdownHints handled as click on MenuItem
-                                e.stopPropagation();
-                            }}
-                        >
-                            <MarkdownHints />
-                        </div>
-                    </HelpMark>
-                </Menu.Item>
-            </Menu>
-            <div className={bContent('separator')} />
-            {!showPreview && (
+                        {i18n('settings_wysiwyg')}
+                    </Menu.Item>
+                    <Menu.Item
+                        qa="g-md-settings-mode-markup"
+                        active={mode === 'markup'}
+                        onClick={() => {
+                            onModeChange('markup');
+                            onClose();
+                        }}
+                        iconStart={<Icon data={LogoMarkdown} />}
+                    >
+                        {i18n('settings_markup')}
+                        {!disableMark && (
+                            <HelpMark
+                                popoverProps={{
+                                    placement: mdHelpPlacement,
+                                    modal: false,
+                                    zIndex: getTargetZIndex(LAYOUT.STICKY_TOOLBAR),
+                                }}
+                                className={bContent('mode-help')}
+                            >
+                                <div
+                                    onClick={(e) => {
+                                        // stop clicks propagation
+                                        // because otherwise click in MarkdownHints handled as click on MenuItem
+                                        e.stopPropagation();
+                                    }}
+                                >
+                                    <MarkdownHints />
+                                </div>
+                            </HelpMark>
+                        )}
+                    </Menu.Item>
+                </Menu>
+            )}
+            {showModeSetting && (showSplitModeSetting || showToolbarSetting) && (
+                <div className={bContent('separator')} />
+            )}
+            {showToolbarSetting && !showPreview && (
                 <div className={bContent('toolbar')}>
                     <Checkbox
                         size="m"
@@ -178,7 +211,7 @@ const SettingsContent: React.FC<SettingsContentProps> = function SettingsContent
                     <div className={bContent('toolbar-hint')}>{i18n('settings_hint')}</div>
                 </div>
             )}
-            {splitMode && (
+            {showSplitModeSetting && splitMode && (
                 <div className={bContent('split-mode')}>
                     <Checkbox
                         size="m"

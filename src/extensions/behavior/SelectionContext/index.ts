@@ -1,4 +1,5 @@
 import {keydownHandler} from 'prosemirror-keymap';
+import type {Node} from 'prosemirror-model';
 import {
     AllSelection,
     type EditorState,
@@ -6,6 +7,8 @@ import {
     type PluginSpec,
     TextSelection,
 } from 'prosemirror-state';
+// @ts-ignore // TODO: fix cjs build
+import {hasParentNode} from 'prosemirror-utils';
 import type {EditorProps, EditorView} from 'prosemirror-view';
 
 import type {ActionStorage, ExtensionAuto} from '../../../core';
@@ -21,12 +24,25 @@ export type {
 
 export type SelectionContextOptions = {
     config?: ContextConfig;
+    /**
+     * Placement of context popup
+     *
+     * @default 'bottom'
+     */
+    placement?: 'top' | 'bottom';
+    /**
+     * Prevents context popup from overflowing
+     *
+     * @default false
+     */
+    flip?: boolean;
 };
 
-export const SelectionContext: ExtensionAuto<SelectionContextOptions> = (builder, {config}) => {
+export const SelectionContext: ExtensionAuto<SelectionContextOptions> = (builder, opts) => {
+    const {config} = opts;
     if (Array.isArray(config) && config.length > 0) {
         builder.addPlugin(
-            ({actions}) => new Plugin(new SelectionTooltip(actions, config, builder.logger)),
+            ({actions}) => new Plugin(new SelectionTooltip(actions, config, builder.logger, opts)),
         );
     }
 };
@@ -41,8 +57,13 @@ class SelectionTooltip implements PluginSpec<unknown> {
 
     private _isMousePressed = false;
 
-    constructor(actions: ActionStorage, menuConfig: ContextConfig, logger: Logger2.ILogger) {
-        this.tooltip = new TooltipView(actions, menuConfig, logger);
+    constructor(
+        actions: ActionStorage,
+        menuConfig: ContextConfig,
+        logger: Logger2.ILogger,
+        options: SelectionContextOptions,
+    ) {
+        this.tooltip = new TooltipView(actions, menuConfig, logger, options);
     }
 
     get props(): EditorProps {
@@ -119,8 +140,13 @@ class SelectionTooltip implements PluginSpec<unknown> {
             return;
         }
 
-        // Hide the tooltip when one side of selection inside codeblock
-        if (isCodeBlock(selection.$from.parent) || isCodeBlock(selection.$to.parent)) {
+        if (
+            // Hide tooltip when one side of selection is inside a codeblock
+            isCodeBlock(selection.$from.parent) ||
+            isCodeBlock(selection.$to.parent) ||
+            // or when selection is inside node where context menu is disabled
+            hasParentNode((node: Node) => node.type.spec.selectionContext === false)(selection)
+        ) {
             this.tooltip.hide(view);
             return;
         }
@@ -146,5 +172,12 @@ class SelectionTooltip implements PluginSpec<unknown> {
             clearTimeout(this.hideTimeoutRef);
             this.hideTimeoutRef = null;
         }
+    }
+}
+
+declare module 'prosemirror-model' {
+    interface NodeSpec {
+        /** Set false to disable the selection-context menu within this node */
+        selectionContext?: boolean | undefined;
     }
 }

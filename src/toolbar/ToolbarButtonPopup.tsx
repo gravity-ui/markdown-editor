@@ -6,7 +6,8 @@ import type {ToolbarBaseProps, ToolbarButtonPopupData} from './types';
 export type ToolbarButtonPopupProps<E> = ToolbarBaseProps<E> & ToolbarButtonPopupData<E>;
 
 export function ToolbarButtonPopup<E>(props: ToolbarButtonPopupProps<E>) {
-    const {className, editor, isActive, isEnable, renderPopup, ...buttonProps} = props;
+    const {className, editor, isActive, isEnable, renderPopup, disableTooltip, ...buttonProps} =
+        props;
 
     const [anchorElement, setAnchorElement] = useElementState();
     const [isOpen, , close, toggle] = useBooleanState(false);
@@ -23,6 +24,7 @@ export function ToolbarButtonPopup<E>(props: ToolbarButtonPopupProps<E>) {
                 enabled={enabled}
                 className={className}
                 onClick={toggle}
+                disableTooltip={disableTooltip || isOpen}
             />
             {isOpen &&
                 renderPopup({

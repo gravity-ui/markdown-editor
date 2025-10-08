@@ -19,7 +19,7 @@ export type ToolbarImagePopuProps = Omit<ToolbarBaseProps<never>, 'editor'> & {
     onSuccessUpload?: (res: BatchUploadResult) => void;
     hide: () => void;
     anchorElement: HTMLElement | null;
-} & Pick<ImageFormProps, 'onSubmit'>;
+} & Pick<ImageFormProps, 'onSubmit' | 'imageTitle' | 'uploadHint'>;
 
 export const ToolbarImagePopup: React.FC<ToolbarImagePopuProps> = ({
     className,
@@ -30,6 +30,8 @@ export const ToolbarImagePopup: React.FC<ToolbarImagePopuProps> = ({
     onClick,
     uploadImages,
     onSuccessUpload,
+    imageTitle,
+    uploadHint,
 }) => {
     const toaster = useToaster();
     const [loading, showLoading, hideLoading] = useBooleanState(false);
@@ -79,6 +81,8 @@ export const ToolbarImagePopup: React.FC<ToolbarImagePopuProps> = ({
                     onClick?.('addImage');
                 }}
                 loading={loading}
+                imageTitle={imageTitle}
+                uploadHint={uploadHint}
             />
         </Popup>
     );

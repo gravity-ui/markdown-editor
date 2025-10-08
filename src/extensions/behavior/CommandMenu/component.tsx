@@ -43,7 +43,13 @@ export const CommandMenuComponent: React.FC<CommandMenuComponentProps> = ({
     if (!anchorElement) return null;
 
     return (
-        <Popup open anchorElement={anchorElement} placement={placement} onOpenChange={onOpenChange}>
+        <Popup
+            open
+            anchorElement={anchorElement}
+            placement={placement}
+            onOpenChange={onOpenChange}
+            qa="g-md-toolbar-command-menu"
+        >
             <div className={b()}>
                 <List<CommandMenuItem>
                     virtualized

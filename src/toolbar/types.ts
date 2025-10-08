@@ -1,24 +1,34 @@
-import type {HotkeyProps, IconProps} from '@gravity-ui/uikit';
+import type {HotkeyProps, IconProps, QAProps} from '@gravity-ui/uikit';
 
 import type {ClassNameProps} from '../classname';
 
-export type ToolbarBaseProps<E> = ClassNameProps & {
-    editor: E;
-    focus(): void;
-    onClick?(id: string, attrs?: {[key: string]: any}): void;
-};
+export type ToolbarBaseProps<E> = ClassNameProps &
+    QAProps & {
+        editor: E;
+        focus(): void;
+        onClick?(id: string, attrs?: {[key: string]: any}): void;
+        display?: ToolbarDisplay;
+        disableTooltip?: boolean;
+        disablePreview?: boolean;
+        disableHotkey?: boolean;
+    };
 
 export type ToolbarIconData = Pick<IconProps, 'data' | 'size'>;
 export type ToolbarGroupData<E> = Array<ToolbarGroupItemData<E>>;
 export type ToolbarData<E> = ToolbarGroupData<E>[];
+export type ToolbarDisplay = 'shrink' | 'scroll';
 
-export type ToolbarItemData<E> = {
+export type ToolbarItemData<E> = QAProps & {
     id: string;
     icon: ToolbarIconData;
     title: string | (() => string);
     hint?: string | (() => string);
     hotkey?: HotkeyProps['value'];
     preview?: React.ReactNode;
+    /**
+     * Alternative IDs that can be used to find this command
+     */
+    aliases?: string[];
     /**
      * Show hint when _isEnable()_ returns false
      *
@@ -97,6 +107,8 @@ export type ToolbarListButtonData<E> = {
     data: ToolbarListButtonItemData<E>[];
     alwaysActive?: boolean;
     hideDisabled?: boolean;
+    /** When state changes to active, replace default icon with icon of first active item */
+    replaceActiveIcon?: boolean;
 };
 
 /**

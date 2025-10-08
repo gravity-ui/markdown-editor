@@ -40,6 +40,9 @@ export type BundlePresetOptions = ExtensionsOptions &
         needToSetDimensionsForUploadedImages?: boolean;
         enableNewImageSizeCalculation?: boolean;
         directiveSyntax: DirectiveSyntaxContext;
+        // MAJOR: remove markdown-it-attrs
+        disableMdAttrs?: boolean;
+        mobile?: boolean;
     };
 
 declare global {
@@ -92,7 +95,7 @@ export const BundlePreset: ExtensionAuto<BundlePresetOptions> = (builder, opts) 
 
                 return typeof value === 'function'
                     ? value()
-                    : value ?? i18nPlaceholder('doc_empty');
+                    : value ?? i18nPlaceholder(opts.mobile ? 'doc_empty_mobile' : 'doc_empty');
             },
             preserveEmptyRows: opts.preserveEmptyRows,
             ...opts.baseSchema,
@@ -136,6 +139,7 @@ export const BundlePreset: ExtensionAuto<BundlePresetOptions> = (builder, opts) 
     };
     const yfmOptions: BehaviorPresetOptions & YfmPresetOptions = {
         ...defaultOptions,
+        yfmConfigs: {disableAttrs: opts.disableMdAttrs, ...opts.yfmConfigs},
         selectionContext: {config: wSelectionMenuConfigByPreset.yfm, ...opts.selectionContext},
         commandMenu: {actions: wCommandMenuConfigByPreset.yfm, ...opts.commandMenu},
         underline: {underlineKey: f.toPM(A.Underline), ...opts.underline},
@@ -161,7 +165,11 @@ export const BundlePreset: ExtensionAuto<BundlePresetOptions> = (builder, opts) 
             yfmNoteTitlePlaceholder: () => i18nPlaceholder('note_title'),
             ...opts.yfmNote,
         },
-        yfmTable: {yfmTableCellPlaceholder: () => i18nPlaceholder('table_cell'), ...opts.yfmTable},
+        yfmTable: {
+            yfmTableCellPlaceholder: () => i18nPlaceholder('table_cell'),
+            ...opts.yfmTable,
+            controls: opts.mobile ? false : opts.yfmTable?.controls,
+        },
         yfmFile: {
             fileUploadHandler: opts.fileUploadHandler,
             needToSetDimensionsForUploadedImages: opts.needToSetDimensionsForUploadedImages,

@@ -82,10 +82,12 @@ export const removeNote: Command = (state, dispatch, view) => {
         if (dispatch) {
             const noteTitleNode = $cursor.parent;
             const noteNode = $cursor.node(-1);
-            const content = noteNode.content.replaceChild(
-                0,
-                pType(schema).create(null, noteTitleNode.content),
+
+            const noteContentNode = noteNode.lastChild!;
+            const content = Fragment.from(pType(schema).create(null, noteTitleNode.content)).append(
+                noteContentNode.content,
             );
+
             const from = $cursor.before(-1);
             const to = from + noteNode.nodeSize;
             const tr = state.tr.replaceWith(from, to, content);
@@ -107,18 +109,22 @@ export const backToNoteTitle: Command = (state, dispatch, view) => {
     if (!$cursor) return false;
     if (
         !isSameNodeType($cursor.parent, pType(schema)) ||
-        !isSameNodeType($cursor.node(-1), noteType(schema))
+        !isSameNodeType($cursor.node(-1), noteContentType(schema)) ||
+        !isSameNodeType($cursor.node(-2), noteType(schema))
     ) {
         return false;
     }
-    const noteNode = $cursor.node(-1);
-    if ($cursor.parent !== noteNode.maybeChild(1)) return false;
+
+    const noteNode = $cursor.node(-2);
+    const noteContentNode = $cursor.node(-1);
+    if ($cursor.parent !== noteContentNode.firstChild) return false;
+
     if (view?.endOfTextblock('backward', state)) {
         if (dispatch) {
             const noteTitleNode = noteNode.firstChild!;
             dispatch(
                 state.tr.setSelection(
-                    TextSelection.create(state.doc, $cursor.before(-1) + noteTitleNode.nodeSize),
+                    TextSelection.create(state.doc, $cursor.before(-2) + noteTitleNode.nodeSize),
                 ),
             );
         }

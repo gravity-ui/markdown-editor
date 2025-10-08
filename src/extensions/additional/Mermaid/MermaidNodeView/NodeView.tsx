@@ -3,9 +3,11 @@ import type {Mermaid} from 'mermaid' with {'resolution-mode': 'import'};
 import type {Node} from 'prosemirror-model';
 import type {EditorView, NodeView} from 'prosemirror-view';
 
+import {getReactRendererFromState} from 'src/extensions/behavior/ReactRenderer';
+import {generateEntityId, isInvalidEntityId} from 'src/utils/entity-id';
+
 import type {MermaidOptions} from '..';
-import {getReactRendererFromState} from '../../../behavior';
-import type {MermaidConsts} from '../MermaidSpecs/const';
+import {MermaidConsts, defaultMermaidEntityId} from '../MermaidSpecs/const';
 
 import {MermaidView, STOP_EVENT_CLASSNAME} from './MermaidView';
 
@@ -18,6 +20,7 @@ export class WMermaidNodeView implements NodeView {
     private readonly getPos;
     private readonly renderItem;
     private readonly loadRuntimeScript: () => void;
+    private readonly options: MermaidOptions;
 
     constructor(
         node: Node,
@@ -33,11 +36,14 @@ export class WMermaidNodeView implements NodeView {
         this.view = view;
         this.getPos = getPos;
         this.loadRuntimeScript = loadRuntimeScript;
+        this.options = opts;
         this.initializeMermaid();
         this.renderItem = getReactRendererFromState(view.state).createItem(
             'mermaid-view',
             this.renderMermaid.bind(this),
         );
+
+        this.validateEntityId();
     }
 
     initializeMermaid() {
@@ -70,6 +76,25 @@ export class WMermaidNodeView implements NodeView {
         return target.classList.contains(STOP_EVENT_CLASSNAME);
     }
 
+    private validateEntityId() {
+        if (
+            isInvalidEntityId({
+                node: this.node,
+                doc: this.view.state.doc,
+                defaultId: defaultMermaidEntityId,
+            })
+        ) {
+            const newId = generateEntityId(MermaidConsts.NodeName);
+            this.view.dispatch(
+                this.view.state.tr.setNodeAttribute(
+                    this.getPos()!,
+                    MermaidConsts.NodeAttrs.EntityId,
+                    newId,
+                ),
+            );
+        }
+    }
+
     private onChange(attrs: {[MermaidConsts.NodeAttrs.content]: string}) {
         const pos = this.getPos();
         if (pos === undefined) return;
@@ -98,6 +123,7 @@ export class WMermaidNodeView implements NodeView {
                     node={this.node}
                     getMermaidInstance={this.getMermaidInstance}
                     getPos={this.getPos}
+                    options={this.options}
                 />
             </Portal>
         );

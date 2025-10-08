@@ -53,7 +53,13 @@ export const YfmTabs: Story = {
 
 export const YfmHtmlBlock: Story = {
     name: 'YFM HTML',
-    args: {initial: markup.yfmHtmlBlock},
+    args: {
+        initial: markup.yfmHtmlBlock,
+        storyAdditionalControls: {
+            yfmHtmlBlockAutoSaveEnabled: false,
+            yfmHtmlBlockAutoSaveDelay: 2000,
+        },
+    },
 };
 
 export const YfmFile: Story = {
@@ -73,5 +79,11 @@ export const LaTeXFormulas: Story = {
 
 export const MermaidDiagram: Story = {
     name: 'Mermaid diagram',
-    args: {initial: markup.mermaidDiagram},
+    args: {
+        initial: markup.mermaidDiagram,
+        storyAdditionalControls: {
+            mermaidAutoSaveEnabled: false,
+            mermaidAutoSaveDelay: 2000,
+        },
+    },
 };

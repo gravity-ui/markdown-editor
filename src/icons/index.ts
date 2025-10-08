@@ -1,10 +1,7 @@
 import GPTIcon from './GPT';
 import GPTLoading from './GPTLoading';
-import MermaidIcon from './Mermaid';
-import MonoIcon from './Mono';
-import TabsIcon from './Tabs';
 
-export {MermaidIcon, MonoIcon, TabsIcon, GPTIcon, GPTLoading};
+export {GPTIcon, GPTLoading};
 
 export {
     ArrowUturnCcwLeft as UndoIcon,
@@ -14,6 +11,7 @@ export {
     Italic as ItalicIcon,
     Underline as UnderlineIcon,
     Strikethrough as StrikethroughIcon,
+    LetterM as MonoIcon,
     FontCursor as MarkIcon,
     //
     Text as TextIcon,
@@ -47,6 +45,7 @@ export {
     Picture as ImageIcon,
     Person as UserIcon,
     FaceSmile as EmojiIcon,
+    LayoutTabs as TabsIcon,
     //
     Code as CodeInlineIcon,
     FileCode as CodeBlockIcon,
@@ -58,7 +57,9 @@ export {
     SquareDashedText as BlockIcon,
     LayoutColumns3 as LayoutIcon,
     //
-    Pencil as DrawIoIcon,
+    LogoDrawIo as DrawIoIcon,
+    LogoMermaid as MermaidIcon,
     FolderCode as HtmlBlockIcon,
     ArrowChevronRight as FoldingHeadingIcon,
+    CircleLink as QuoteLinkIcon,
 } from '@gravity-ui/icons';

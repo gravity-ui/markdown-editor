@@ -1,5 +1,7 @@
 import {memo} from 'react';
 
+import type {QAProps} from '@gravity-ui/uikit';
+
 import {type ClassNameProps, cn} from '../classname';
 import {ReactRendererComponent} from '../extensions';
 import {globalLogger} from '../logger';
@@ -9,26 +11,28 @@ import type {EditorInt} from './Editor';
 import {MarkupEditorComponent} from './MarkupEditorComponent';
 import {ToolbarView} from './ToolbarView';
 import {MarkupToolbarContextProvider} from './toolbar/markup/context';
-import type {MToolbarData, MToolbarItemData} from './toolbar/types';
+import type {MToolbarData, MToolbarItemData, ToolbarDisplay} from './toolbar/types';
 import type {MarkdownEditorSplitMode} from './types';
 
 import './MarkupEditorView.scss';
 
 const b = cn('markup-editor');
 
-export type MarkupEditorViewProps = ClassNameProps & {
-    editor: EditorInt;
-    autofocus?: boolean;
-    toolbarConfig: MToolbarData;
-    settingsVisible?: boolean;
-    toolbarVisible?: boolean;
-    stickyToolbar?: boolean;
-    toolbarClassName?: string;
-    splitMode?: MarkdownEditorSplitMode;
-    splitModeEnabled: boolean;
-    hiddenActionsConfig?: MToolbarItemData[];
-    children?: React.ReactNode;
-};
+export type MarkupEditorViewProps = ClassNameProps &
+    QAProps & {
+        editor: EditorInt;
+        autofocus?: boolean;
+        toolbarConfig: MToolbarData;
+        settingsVisible?: boolean;
+        toolbarVisible?: boolean;
+        stickyToolbar?: boolean;
+        toolbarClassName?: string;
+        splitMode?: MarkdownEditorSplitMode;
+        splitModeEnabled: boolean;
+        hiddenActionsConfig?: MToolbarItemData[];
+        children?: React.ReactNode;
+        toolbarDisplay?: ToolbarDisplay;
+    };
 
 export const MarkupEditorView = memo<MarkupEditorViewProps>((props) => {
     const {
@@ -38,10 +42,12 @@ export const MarkupEditorView = memo<MarkupEditorViewProps>((props) => {
         toolbarVisible,
         toolbarConfig,
         hiddenActionsConfig,
+        qa,
         className,
         toolbarClassName,
         children,
         stickyToolbar = true,
+        toolbarDisplay,
     } = props;
     useRenderTime((time) => {
         globalLogger.metrics({
@@ -57,7 +63,7 @@ export const MarkupEditorView = memo<MarkupEditorViewProps>((props) => {
     });
 
     return (
-        <div className={b({toolbar: toolbarVisible}, [className])}>
+        <div className={b({toolbar: toolbarVisible}, [className])} data-qa={qa}>
             {toolbarVisible ? (
                 <MarkupToolbarContextProvider
                     value={{
@@ -67,6 +73,7 @@ export const MarkupEditorView = memo<MarkupEditorViewProps>((props) => {
                     }}
                 >
                     <ToolbarView
+                        qa="g-md-toolbar-main"
                         editor={editor}
                         editorMode="markup"
                         toolbarEditor={editor}
@@ -76,6 +83,7 @@ export const MarkupEditorView = memo<MarkupEditorViewProps>((props) => {
                         toolbarFocus={() => editor.focus()}
                         settingsVisible={settingsVisible}
                         className={b('toolbar', [toolbarClassName])}
+                        toolbarDisplay={toolbarDisplay}
                     >
                         {children}
                     </ToolbarView>

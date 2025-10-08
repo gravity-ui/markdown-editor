@@ -2,6 +2,7 @@ import {Popup} from '@gravity-ui/uikit';
 
 import type {CommonAnswer} from '../ErrorScreen/types';
 import {GptDialog, type GptDialogProps} from '../GptDialog/GptDialog';
+import {gptPopupPlacement} from '../constants';
 import {cnGptPopup} from '../gptExtension/view';
 
 type Props<AnswerData extends CommonAnswer = CommonAnswer, PromptData extends unknown = unknown> = {
@@ -24,6 +25,7 @@ export function renderPopup<
                 if (!open) props.onClose();
             }}
             anchorElement={anchor}
+            placement={gptPopupPlacement}
         >
             <div className={cnGptPopup('content')}>
                 <GptDialog

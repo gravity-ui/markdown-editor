@@ -1,4 +1,4 @@
-import {useCallback, useRef, useState} from 'react';
+import {useCallback, useEffect, useRef, useState} from 'react';
 
 import {ArrowRight, ArrowRotateLeft, ThumbsDown, ThumbsUp} from '@gravity-ui/icons';
 import {ActionTooltip, Alert, type AlertProps, Button, Icon, TextInput} from '@gravity-ui/uikit';
@@ -6,7 +6,6 @@ import {ActionTooltip, Alert, type AlertProps, Button, Icon, TextInput} from '@g
 import {cn} from '../../../../classname';
 import {i18n} from '../../../../i18n/gpt/dialog';
 import gptIcon from '../../../../icons/GPT';
-import {useAutoFocus} from '../../../../react-utils/useAutoFocus';
 import {ErrorScreen} from '../ErrorScreen/ErrorScreen';
 import type {CommonAnswer, GptRequestData, PromptPreset} from '../ErrorScreen/types';
 import {IconRefuge} from '../IconRefuge/IconRefuge';
@@ -118,7 +117,11 @@ export const GptDialog = <
         setShowedGptAlert(false);
     }, [gptAlert]);
 
-    useAutoFocus(customPromptContainerRef, [showAnswer]);
+    useEffect(() => {
+        if (customPromptContainerRef.current) {
+            customPromptContainerRef.current.focus();
+        }
+    }, [customPromptContainerRef.current]);
 
     useGptHotKeys(gptHotKeys.tryAgainGpt, handleTryAgain);
     useGptHotKeys(gptHotKeys.freshStartGpt, handleFreshStart);

@@ -88,6 +88,7 @@ export interface EditorInt
     readonly preset: EditorPreset;
     readonly mdOptions: Readonly<MarkdownEditorMdOptions>;
     readonly directiveSyntax: DirectiveSyntaxContext;
+    readonly mobile: boolean;
 
     /** @internal used in demo for dev-tools */
     readonly _wysiwygView?: PMEditorView;
@@ -126,7 +127,7 @@ export type ChangeEditorModeOptions = {
 
 export type EditorOptions = Pick<
     MarkdownEditorOptions,
-    'md' | 'initial' | 'handlers' | 'experimental' | 'markupConfig' | 'wysiwygConfig'
+    'md' | 'initial' | 'handlers' | 'experimental' | 'markupConfig' | 'wysiwygConfig' | 'mobile'
 > & {
     logger: Logger2.ILogger;
     renderStorage: ReactRenderStorage;
@@ -165,6 +166,7 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
     #beforeEditorModeChange?: (
         options: Pick<ChangeEditorModeOptions, 'mode' | 'reason'>,
     ) => boolean | undefined;
+    #mobile: boolean;
 
     get _wysiwygView(): PMEditorView {
         // @ts-expect-error internal typing
@@ -309,6 +311,7 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
                     autocompletion: this.#markupConfig.autocompletion,
                     directiveSyntax: this.directiveSyntax,
                     receiver: this,
+                    searchPanel: this.#markupConfig.searchPanel,
                 }),
             );
         }
@@ -335,6 +338,10 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
         return this.#enableNewImageSizeCalculation;
     }
 
+    get mobile(): boolean {
+        return this.#mobile;
+    }
+
     constructor(opts: EditorOptions) {
         const {logger} = opts;
 
@@ -352,6 +359,7 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
             experimental = {},
             markupConfig = {},
             wysiwygConfig = {},
+            mobile = false,
         } = opts;
 
         this.#logger = logger;
@@ -387,6 +395,7 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
         this.#prepareRawMarkup = experimental.prepareRawMarkup;
         this.#escapeConfig = wysiwygConfig.escapeConfig;
         this.#beforeEditorModeChange = experimental.beforeEditorModeChange;
+        this.#mobile = mobile;
     }
 
     // ---> implements CodeEditor

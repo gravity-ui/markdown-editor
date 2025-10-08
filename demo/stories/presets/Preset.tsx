@@ -1,9 +1,11 @@
 import {StrictMode, memo, useCallback, useEffect, useState} from 'react';
 
 import {
+    type MarkdownEditorMarkupConfig,
     type MarkdownEditorMode,
     type MarkdownEditorPreset,
     MarkdownEditorView,
+    type MarkdownEditorWysiwygConfig,
     type MarkupString,
     type RenderPreview,
     useMarkdownEditor,
@@ -41,6 +43,8 @@ export type PresetDemoProps = {
     stickyToolbar?: boolean;
     height?: React.CSSProperties['height'];
     toolbarsPreset?: ToolbarsPreset;
+    wysiwygConfig?: MarkdownEditorWysiwygConfig;
+    markupConfig?: MarkdownEditorMarkupConfig;
 };
 
 export const Preset = memo<PresetDemoProps>((props) => {
@@ -55,6 +59,8 @@ export const Preset = memo<PresetDemoProps>((props) => {
         stickyToolbar,
         height,
         toolbarsPreset,
+        wysiwygConfig,
+        markupConfig,
     } = props;
     const [editorMode, setEditorMode] = useState<MarkdownEditorMode>('wysiwyg');
     const [mdRaw, setMdRaw] = useState<MarkupString>('');
@@ -90,16 +96,19 @@ export const Preset = memo<PresetDemoProps>((props) => {
             splitModeEnabled: true,
         },
         wysiwygConfig: {
+            disableMarkdownAttrs: true,
             extensionOptions: {
                 imgSize: {
                     parseInsertedUrlAsImage,
                 },
             },
+            ...wysiwygConfig,
         },
         markupConfig: {
             splitMode: splitModeOrientation,
             renderPreview,
             parseInsertedUrlAsImage,
+            ...markupConfig,
         },
     });
 
@@ -129,25 +138,27 @@ export const Preset = memo<PresetDemoProps>((props) => {
                 <span className={b('version')}>{VERSION}</span>
             </div>
             <hr />
-            <StrictMode>
-                <div className={b('editor')} style={{height: height ?? 'initial'}}>
-                    <MarkdownEditorView
-                        autofocus
-                        toolbarsPreset={toolbarsPreset}
-                        className={b('editor-view')}
-                        stickyToolbar={Boolean(stickyToolbar)}
-                        settingsVisible={settingsVisible}
-                        editor={mdEditor}
-                    />
-                    <WysiwygDevTools editor={mdEditor} />
-                    <WysiwygSelection editor={mdEditor} className={b('pm-selection')} />
+            <div className={b('editor-markup')}>
+                <StrictMode>
+                    <div className={b('editor')} style={{height: height ?? 'initial'}}>
+                        <MarkdownEditorView
+                            autofocus
+                            toolbarsPreset={toolbarsPreset}
+                            className={b('editor-view')}
+                            stickyToolbar={Boolean(stickyToolbar)}
+                            settingsVisible={settingsVisible}
+                            editor={mdEditor}
+                        />
+                        <WysiwygDevTools editor={mdEditor} />
+                        <WysiwygSelection editor={mdEditor} className={b('pm-selection')} />
+                    </div>
+                </StrictMode>
+
+                <hr />
+
+                <div className={b('preview')}>
+                    {editorMode === 'wysiwyg' && <pre className={b('markup')}>{mdRaw}</pre>}
                 </div>
-            </StrictMode>
-
-            <hr />
-
-            <div className={b('preview')}>
-                {editorMode === 'wysiwyg' && <pre className={b('markup')}>{mdRaw}</pre>}
             </div>
         </div>
     );

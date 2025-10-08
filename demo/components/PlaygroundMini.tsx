@@ -6,6 +6,7 @@ import {Playground, type PlaygroundProps} from './Playground';
 
 export type PlaygroundMiniProps = Pick<
     PlaygroundProps,
+    | 'mobile'
     | 'initialEditor'
     | 'settingsVisible'
     | 'breaks'
@@ -15,14 +16,19 @@ export type PlaygroundMiniProps = Pick<
     | 'sanitizeHtml'
     | 'prepareRawMarkup'
     | 'splitModeOrientation'
+    | 'searchPanel'
     | 'stickyToolbar'
     | 'initialSplitModeEnabled'
     | 'renderPreviewDefined'
     | 'height'
+    | 'width'
     | 'initial'
     | 'onChangeEditorType'
     | 'onChangeSplitModeEnabled'
     | 'directiveSyntax'
+    | 'disabledHTMLBlockModes'
+    | 'disableMarkdownItAttrs'
+    | 'storyAdditionalControls'
 > & {withDefaultInitialContent?: boolean};
 
 export const PlaygroundMini = memo<PlaygroundMiniProps>(

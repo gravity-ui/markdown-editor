@@ -1,10 +1,11 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
 import {transform} from '@diplodoc/mermaid-extension';
 
-import type {ExtensionAuto, ExtensionNodeSpec} from '../../../../core';
+import type {ExtensionAuto, ExtensionNodeSpec} from '#core';
+import {generateEntityId} from 'src/utils/entity-id';
 
-import {MermaidConsts, mermaidNodeName} from './const';
-export {mermaidNodeName} from './const';
+import {MermaidConsts, defaultMermaidEntityId, mermaidNodeName} from './const';
+export {mermaidNodeName, MermaidConsts} from './const';
 
 export type MermaidSpecsOptions = {
     nodeView?: ExtensionNodeSpec['view'];
@@ -18,7 +19,10 @@ const MermaidSpecsExtension: ExtensionAuto<MermaidSpecsOptions> = (builder, {nod
                 tokenSpec: {
                     name: mermaidNodeName,
                     type: 'node',
-                    getAttrs: ({content}) => ({content}),
+                    getAttrs: ({content}) => ({
+                        [MermaidConsts.NodeAttrs.content]: content,
+                        [MermaidConsts.NodeAttrs.EntityId]: generateEntityId(mermaidNodeName),
+                    }),
                 },
             },
             spec: {
@@ -28,6 +32,7 @@ const MermaidSpecsExtension: ExtensionAuto<MermaidSpecsOptions> = (builder, {nod
                 attrs: {
                     [MermaidConsts.NodeAttrs.content]: {default: ''},
                     [MermaidConsts.NodeAttrs.class]: {default: 'mermaid'},
+                    [MermaidConsts.NodeAttrs.EntityId]: {default: defaultMermaidEntityId},
                     [MermaidConsts.NodeAttrs.newCreated]: {default: null},
                 },
                 parseDOM: [],

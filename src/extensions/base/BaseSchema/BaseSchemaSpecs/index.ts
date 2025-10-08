@@ -85,7 +85,8 @@ export const BaseSchemaSpecs: ExtensionAuto<BaseSchemaSpecsOptions> = (builder, 
                     }
 
                     if (!isParentEmpty) {
-                        state.write('&nbsp;\n\n');
+                        state.write('&nbsp;\n');
+                        state.write('\n');
                     }
                 } else {
                     state.renderInline(node);

@@ -26,6 +26,7 @@ export const wHeading1ItemData: WToolbarListButtonItemData = {
     exec: (e) => e.actions.toH1.run(),
     isActive: (e) => e.actions.toH1.isActive(),
     isEnable: (e) => e.actions.toH1.isEnable(),
+    aliases: ['h1'],
     preview: <HeadingPreview level={1} />,
 };
 export const wHeading2ItemData: WToolbarListButtonItemData = {
@@ -36,6 +37,7 @@ export const wHeading2ItemData: WToolbarListButtonItemData = {
     exec: (e) => e.actions.toH2.run(),
     isActive: (e) => e.actions.toH2.isActive(),
     isEnable: (e) => e.actions.toH2.isEnable(),
+    aliases: ['h2'],
     preview: <HeadingPreview level={2} />,
 };
 export const wHeading3ItemData: WToolbarListButtonItemData = {
@@ -46,6 +48,7 @@ export const wHeading3ItemData: WToolbarListButtonItemData = {
     exec: (e) => e.actions.toH3.run(),
     isActive: (e) => e.actions.toH3.isActive(),
     isEnable: (e) => e.actions.toH3.isEnable(),
+    aliases: ['h3'],
     preview: <HeadingPreview level={3} />,
 };
 export const wHeading4ItemData: WToolbarListButtonItemData = {
@@ -56,6 +59,7 @@ export const wHeading4ItemData: WToolbarListButtonItemData = {
     exec: (e) => e.actions.toH4.run(),
     isActive: (e) => e.actions.toH4.isActive(),
     isEnable: (e) => e.actions.toH4.isEnable(),
+    aliases: ['h4'],
     preview: <HeadingPreview level={4} />,
 };
 export const wHeading5ItemData: WToolbarListButtonItemData = {
@@ -66,6 +70,7 @@ export const wHeading5ItemData: WToolbarListButtonItemData = {
     exec: (e) => e.actions.toH5.run(),
     isActive: (e) => e.actions.toH5.isActive(),
     isEnable: (e) => e.actions.toH5.isEnable(),
+    aliases: ['h5'],
     preview: <HeadingPreview level={5} />,
 };
 export const wHeading6ItemData: WToolbarListButtonItemData = {
@@ -76,12 +81,14 @@ export const wHeading6ItemData: WToolbarListButtonItemData = {
     exec: (e) => e.actions.toH6.run(),
     isActive: (e) => e.actions.toH6.isActive(),
     isEnable: (e) => e.actions.toH6.isEnable(),
+    aliases: ['h6'],
     preview: <HeadingPreview level={6} />,
 };
 
 export const wHeadingListConfig: WToolbarListButtonData = {
     icon: icons.headline,
     withArrow: true,
+    replaceActiveIcon: true,
     title: i18n.bind(null, 'heading'),
     data: [
         wTextItemData,
