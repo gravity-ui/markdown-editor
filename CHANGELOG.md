@@ -1,5 +1,13 @@
 # Changelog
 
+## [15.22.1](https://github.com/gravity-ui/markdown-editor/compare/v15.22.0...v15.22.1) (2025-10-08)
+
+
+### Bug Fixes
+
+* **Mermaid, YfmHtmlBlock:** improve autosave UI behavior ([#858](https://github.com/gravity-ui/markdown-editor/issues/858)) ([6da142b](https://github.com/gravity-ui/markdown-editor/commit/6da142bc6ac6b9c59b3c80363d9de134eb9f9bfe))
+* **toolbar:** use helper to adjust z-index for popups ([#544](https://github.com/gravity-ui/markdown-editor/issues/544)) ([d452b02](https://github.com/gravity-ui/markdown-editor/commit/d452b0225d10de319a7181731ac2ac0042a16e0c))
+
 ## [15.22.0](https://github.com/gravity-ui/markdown-editor/compare/v15.21.0...v15.22.0) (2025-10-02)
 
 
