@@ -3,8 +3,6 @@ import {useLayoutEffect, useRef} from 'react';
 import type {QAProps} from '@gravity-ui/uikit';
 import {useUpdate} from 'react-use';
 
-import {LAYOUT} from 'src/common/layout';
-
 import type {ClassNameProps} from '../classname';
 import {i18n} from '../i18n/menubar';
 import {useSticky} from '../react-utils/useSticky';
@@ -67,7 +65,6 @@ export function ToolbarView<T>({
                 },
                 [className],
             )}
-            data-layout={LAYOUT.STICKY_TOOLBAR}
         >
             <FlexToolbar
                 data={toolbarConfig}
