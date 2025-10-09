@@ -19,14 +19,14 @@ import {
     keymap,
 } from '@codemirror/view';
 
-import type { MarkdownEditorMode } from '../../../bundle';
-import type { EventMap } from '../../../bundle/Editor';
-import type { RendererItem } from '../../../extensions';
-import { debounce } from '../../../lodash';
-import type { Receiver } from '../../../utils';
-import { ReactRendererFacet } from '../react-facet';
+import type {MarkdownEditorMode} from '../../../bundle';
+import type {EventMap} from '../../../bundle/Editor';
+import type {RendererItem} from '../../../extensions';
+import {debounce} from '../../../lodash';
+import type {Receiver} from '../../../utils';
+import {ReactRendererFacet} from '../react-facet';
 
-import { renderSearchPopup } from './view/SearchPopup';
+import {renderSearchPopup} from './view/SearchPopup';
 
 type SearchQueryConfig = ConstructorParameters<typeof SearchQuery>[0];
 
@@ -122,21 +122,21 @@ export const SearchPanelPlugin = (params: SearchPanelPluginParams) =>
                     ...this.searchConfig,
                 });
 
-                this.view.dispatch({ effects: setSearchQuery.of(searchQuery) });
+                this.view.dispatch({effects: setSearchQuery.of(searchQuery)});
             }
 
-            handleEditorModeChange({ mode }: { mode: MarkdownEditorMode }) {
+            handleEditorModeChange({mode}: {mode: MarkdownEditorMode}) {
                 if (mode === 'wysiwyg') {
                     closeSearchPanel(this.view);
                 }
             }
 
             handleChange(search: string) {
-                this.setViewSearchWithDelay({ search });
+                this.setViewSearchWithDelay({search});
             }
 
             handleClose() {
-                this.setViewSearch({ search: '' });
+                this.setViewSearch({search: ''});
                 closeSearchPanel(this.view);
             }
 
@@ -153,12 +153,12 @@ export const SearchPanelPlugin = (params: SearchPanelPluginParams) =>
             }
 
             handleReplaceNext(query: string, replacement: string) {
-                this.setViewSearch({ search: query, replace: replacement });
+                this.setViewSearch({search: query, replace: replacement});
                 replaceNext(this.view);
             }
 
             handleReplaceAll(query: string, replacement: string) {
-                this.setViewSearch({ search: query, replace: replacement });
+                this.setViewSearch({search: query, replace: replacement});
                 replaceAll(this.view);
             }
         },

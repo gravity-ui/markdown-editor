@@ -1,7 +1,7 @@
-import { useRef, useState } from 'react';
+import {useRef, useState} from 'react';
 
-import type { SearchQuery } from '@codemirror/search';
-import { ChevronDown, ChevronUp, Xmark } from '@gravity-ui/icons';
+import type {SearchQuery} from '@codemirror/search';
+import {ChevronDown, ChevronUp, Xmark} from '@gravity-ui/icons';
 import {
     Button,
     Card,
@@ -13,12 +13,13 @@ import {
     sp,
 } from '@gravity-ui/uikit';
 
-import { cn } from '../../../../classname';
-import { i18n } from '../../../../i18n/search';
-import { enterKeyHandler } from '../../../../utils/handlers';
+import {cn} from '../../../../classname';
+import {i18n} from '../../../../i18n/search';
+import {enterKeyHandler} from '../../../../utils/handlers';
+
+import {ReplaceAllIcon, ReplaceIcon} from './ReplaceIcons';
 
 import './SearchPopup.scss';
-import { ReplaceIcon, ReplaceAllIcon } from './ReplaceIcons';
 
 type SearchInitial = Pick<SearchQuery, 'search' | 'caseSensitive' | 'wholeWord'>;
 type SearchConfig = Pick<SearchInitial, 'caseSensitive' | 'wholeWord'>;
@@ -37,7 +38,7 @@ interface SearchCardProps {
 
 const b = cn('search-card');
 
-const noop = () => { };
+const noop = () => {};
 const inverse = (val: boolean) => !val;
 
 export const SearchCard: React.FC<SearchCardProps> = ({
@@ -121,7 +122,7 @@ export const SearchCard: React.FC<SearchCardProps> = ({
             </div>
             <TextInput
                 controlRef={textInputRef}
-                className={sp({ mb: 2 })}
+                className={sp({mb: 2})}
                 size="s"
                 autoFocus
                 onKeyPress={handleSearchKeyPress}
@@ -140,16 +141,28 @@ export const SearchCard: React.FC<SearchCardProps> = ({
             />
             <TextInput
                 placeholder={i18n('replace_placeholder')}
-                className={sp({ mb: 2 })}
+                className={sp({mb: 2})}
                 size="s"
                 onUpdate={setReplacement}
                 value={replacement}
                 endContent={
                     <>
-                        <Button size="s" onClick={handleReplace} pin="round-brick" disabled={!query} title={i18n('action_replace')}>
+                        <Button
+                            size="s"
+                            onClick={handleReplace}
+                            pin="round-brick"
+                            disabled={!query}
+                            title={i18n('action_replace')}
+                        >
                             <ReplaceIcon width={12} height={12} />
                         </Button>
-                        <Button size="s" onClick={handleReplaceAll} pin="brick-round" disabled={!query} title={i18n('action_replace_all')}>
+                        <Button
+                            size="s"
+                            onClick={handleReplaceAll}
+                            pin="brick-round"
+                            disabled={!query}
+                            title={i18n('action_replace_all')}
+                        >
                             <ReplaceAllIcon width={12} height={12} />
                         </Button>
                     </>
@@ -159,7 +172,7 @@ export const SearchCard: React.FC<SearchCardProps> = ({
                 size="m"
                 onUpdate={handleIsCaseSensitive}
                 checked={isCaseSensitive}
-                className={sp({ mr: 4 })}
+                className={sp({mr: 4})}
             >
                 {i18n('label_case-sensitive')}
             </Checkbox>
@@ -176,7 +189,7 @@ export interface SearchPopupProps extends SearchCardProps {
     onClose: () => void;
 }
 
-export const SearchPopup: React.FC<SearchPopupProps> = ({ open, anchor, ...props }) => {
+export const SearchPopup: React.FC<SearchPopupProps> = ({open, anchor, ...props}) => {
     return (
         <Popup
             open={open}
@@ -199,6 +212,6 @@ interface SearchPopupWithRefProps extends Omit<SearchPopupProps, 'anchor'> {
     anchor: HTMLElement | null;
 }
 
-export function renderSearchPopup({ anchor, ...props }: SearchPopupWithRefProps) {
+export function renderSearchPopup({anchor, ...props}: SearchPopupWithRefProps) {
     return <>{anchor && <SearchPopup anchor={anchor} {...props} />}</>;
 }
