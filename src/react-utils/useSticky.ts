@@ -18,19 +18,32 @@ export function useSticky<T extends HTMLElement>(elemRef: React.RefObject<T>) {
     const stickyRef = useLatest(sticky);
 
     useEffectOnce(() => {
+        let rafId: number | null = null;
+
         observe();
 
         for (const eventName of events) {
-            window.addEventListener(eventName, observe, true);
+            window.addEventListener(eventName, scheduleObserve, true);
         }
 
         return () => {
+            if (rafId !== null) {
+                cancelAnimationFrame(rafId);
+            }
             for (const eventName of events) {
-                window.removeEventListener(eventName, observe, true);
+                window.removeEventListener(eventName, scheduleObserve, true);
             }
         };
 
+        function scheduleObserve() {
+            if (rafId !== null) {
+                cancelAnimationFrame(rafId);
+            }
+            rafId = requestAnimationFrame(observe);
+        }
+
         function observe() {
+            rafId = null;
             if (!elemRef.current) return;
             const refPageOffset = elemRef.current.getBoundingClientRect().top;
             const stickyOffset = parseInt(getComputedStyle(elemRef.current).top, 10);

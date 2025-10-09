@@ -5,3 +5,4 @@ export * from './useNodeEditing';
 export * from './useNodeHovered';
 export * from './useSharedEditingState';
 export * from './useSticky';
+export * from './useTargetZIndex';
