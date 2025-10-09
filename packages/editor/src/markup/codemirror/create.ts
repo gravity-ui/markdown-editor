@@ -14,6 +14,7 @@ import {
     type EditorViewConfig,
     type KeyBinding,
     keymap,
+    lineNumbers,
     placeholder,
     tooltips,
 } from '@codemirror/view';
@@ -22,6 +23,7 @@ import {InputState} from 'src/utils/input-state';
 
 import {ActionName} from '../../bundle/config/action-names';
 import type {EventMap} from '../../bundle/events';
+import type {MarkupLineNumbersConfig} from '../../bundle/types';
 import type {ReactRenderStorage} from '../../extensions';
 import {type Logger2, globalLogger} from '../../logger';
 import {Action as A, formatter as f} from '../../shortcuts';
@@ -54,6 +56,7 @@ import {type FileUploadHandler, FileUploadHandlerFacet} from './files-upload-fac
 import {FilesUploadPlugin} from './files-upload-plugin';
 import {gravityHighlightStyle, gravityTheme} from './gravity';
 import {MarkdownConverter} from './html-to-markdown/converters';
+import {lineHighlight} from './line-highlight';
 import {LoggerFacet} from './logger-facet';
 import {PairingCharactersExtension} from './pairing-chars';
 import {ReactRendererFacet} from './react-facet';
@@ -95,6 +98,7 @@ export type CreateCodemirrorParams = {
     directiveSyntax: DirectiveSyntaxContext;
     preserveEmptyRows: boolean;
     searchPanel?: boolean;
+    lineNumbers?: MarkupLineNumbersConfig;
 };
 
 export function createCodemirror(params: CreateCodemirrorParams) {
@@ -326,6 +330,19 @@ export function createCodemirror(params: CreateCodemirrorParams) {
 
     if (tooltipsConfig) {
         extensions.push(tooltips(tooltipsConfig));
+    }
+
+    if (params.lineNumbers?.enabled) {
+        if (params.lineNumbers.highlightLines) {
+            extensions.push(
+                lineHighlight({
+                    initialRange: params.lineNumbers.initialSelectedLines,
+                    onLineClick: params.lineNumbers.onLineClick,
+                }),
+            );
+        } else {
+            extensions.push(lineNumbers());
+        }
     }
 
     if (extraExtensions) {

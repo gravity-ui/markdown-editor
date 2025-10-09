@@ -30,6 +30,15 @@ export const gravityTheme = EditorView.baseTheme({
     '&.cm-focused': {
         outline: 'none',
     },
+    '.cm-gutters': {
+        backgroundColor: 'var(--g-color-base-background)',
+        borderRight: '1px solid var(--g-color-line-generic)',
+        color: 'var(--g-color-text-hint)',
+    },
+    '.cm-lineNumbers .cm-gutterElement': {
+        padding: '0 8px 0 4px',
+        minWidth: '20px',
+    },
     '.cm-placeholder': {
         color: 'var(--g-color-text-secondary)',
     },

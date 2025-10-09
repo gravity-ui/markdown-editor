@@ -34,6 +34,14 @@ export const MarkupEditorComponent: React.FC<MarkupEditorComponentProps> =
             }
         }, [editor.markupEditor]);
 
+        // scroll to line on mount
+        useEffect(() => {
+            const scrollToLine = editor.markupConfig.lineNumbers?.scrollToLine;
+            if (editor.markupConfig.lineNumbers?.enabled && scrollToLine !== undefined) {
+                editor.moveCursor({line: scrollToLine});
+            }
+        }, []);
+
         return (
             // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
             <div
