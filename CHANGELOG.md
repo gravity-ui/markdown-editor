@@ -1,5 +1,12 @@
 # Changelog
 
+## [15.22.2](https://github.com/gravity-ui/markdown-editor/compare/v15.22.1...v15.22.2) (2025-10-09)
+
+
+### Bug Fixes
+
+* **toolbar:** revert broken z-index logic for popups ([#861](https://github.com/gravity-ui/markdown-editor/issues/861)) ([2859f7c](https://github.com/gravity-ui/markdown-editor/commit/2859f7cbb09bd9d24332e0bbe74f6816af84767c))
+
 ## [15.22.1](https://github.com/gravity-ui/markdown-editor/compare/v15.22.0...v15.22.1) (2025-10-08)
 
 
