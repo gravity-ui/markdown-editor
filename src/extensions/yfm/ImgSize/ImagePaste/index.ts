@@ -12,7 +12,15 @@ import type {FileUploadHandler} from '../../../../utils';
 import {clipboardUtils} from '../../../behavior/Clipboard';
 import {DataTransferType} from '../../../behavior/Clipboard/utils';
 import {ImageAttr, ImgSizeAttr, imageType} from '../../../specs';
-import {type CreateImageNodeOptions, isImageNode} from '../utils';
+import {DEFAULT_SVG_WIDTH} from '../const';
+import {
+    type CreateImageNodeOptions,
+    checkSvg,
+    getImageSize,
+    getImageSizeNew,
+    isImageNode,
+    loadImageFromUrl,
+} from '../utils';
 
 import {ImagesUploadProcess} from './upload';
 
@@ -82,6 +90,8 @@ export const ImagePaste: ExtensionAuto<ImagePasteOptions> = (builder, opts) => {
 
                                 e.preventDefault();
 
+                                const isSvg = checkSvg(imageUrl);
+
                                 const imageNode = imageType(view.state.schema).create({
                                     src: imageUrl,
                                     alt: title,
@@ -90,6 +100,40 @@ export const ImagePaste: ExtensionAuto<ImagePasteOptions> = (builder, opts) => {
                                 const tr = view.state.tr.replaceSelectionWith(imageNode);
                                 view.dispatch(tr.scrollIntoView());
                                 logger.event({event: 'paste-url-as-image'});
+
+                                if (isSvg) {
+                                    const insertedPos = tr.selection.from - imageNode.nodeSize;
+
+                                    loadImageFromUrl(imageUrl)
+                                        .then((img) => {
+                                            const sizes = opts?.enableNewImageSizeCalculation
+                                                ? getImageSizeNew(img)
+                                                : getImageSize(img);
+
+                                            const updateTr = view.state.tr.setNodeMarkup(
+                                                insertedPos,
+                                                undefined,
+                                                {
+                                                    ...imageNode.attrs,
+                                                    width: img.width || DEFAULT_SVG_WIDTH,
+                                                    ...sizes,
+                                                },
+                                            );
+                                            view.dispatch(updateTr);
+
+                                            logger.event({
+                                                event: 'svg-dimensions-updated',
+                                                position: insertedPos,
+                                                sizes,
+                                            });
+                                        })
+                                        .catch((error) => {
+                                            logger.error({
+                                                event: 'svg-dimensions-load-failed',
+                                                error: error.message,
+                                            });
+                                        });
+                                }
 
                                 return true;
                             }

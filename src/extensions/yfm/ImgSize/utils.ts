@@ -5,7 +5,7 @@ import {type UploadSuccessItem, getProportionalSize} from '../../../utils';
 import {imageNodeName} from '../../markdown';
 import {ImgSizeAttr} from '../../specs';
 
-import {IMG_MAX_HEIGHT} from './const';
+import {DEFAULT_SVG_WIDTH, IMG_MAX_HEIGHT} from './const';
 
 export function isImageNode(node: Node): boolean {
     return node.type.name === imageNodeName;
@@ -34,6 +34,23 @@ export const createImageNode =
                 logger.error({error: err});
             }
         }
+
+        const isSvg = checkSvg(result.url) || file.type === 'image/svg+xml';
+
+        if (isSvg) {
+            const image = await loadImage(file);
+
+            const sizes = opts.enableNewImageSizeCalculation
+                ? getImageSizeNew(image)
+                : getImageSize(image);
+
+            return imgType.create({
+                ...attrs,
+                width: image.width || DEFAULT_SVG_WIDTH,
+                ...sizes,
+            });
+        }
+
         return imgType.create(attrs);
     };
 
@@ -46,6 +63,15 @@ export async function loadImage(imgFile: File) {
             resolve(img);
         };
         img.onerror = (_e, _s, _l, _c, error) => reject(error);
+    });
+}
+
+export async function loadImageFromUrl(url: string): Promise<HTMLImageElement> {
+    return new Promise<HTMLImageElement>((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => resolve(img);
+        img.onerror = (_e, _s, _l, _c, error) => reject(error);
+        img.src = url;
     });
 }
 
@@ -63,4 +89,8 @@ export function getImageSizeNew({width, height}: HTMLImageElement): {
         imgMaxHeight: IMG_MAX_HEIGHT,
     });
     return {width: String(size.width), height: String(size.height)};
+}
+
+export function checkSvg(imageUrl?: string) {
+    return imageUrl && (/\.svg($|\?|#)/i.test(imageUrl) || imageUrl.startsWith('data:image/svg'));
 }
