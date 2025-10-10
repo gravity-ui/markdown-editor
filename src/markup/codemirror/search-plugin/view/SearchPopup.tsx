@@ -17,6 +17,8 @@ import {cn} from '../../../../classname';
 import {i18n} from '../../../../i18n/search';
 import {enterKeyHandler} from '../../../../utils/handlers';
 
+import {ReplaceAllIcon, ReplaceIcon} from './ReplaceIcons';
+
 import './SearchPopup.scss';
 
 type SearchInitial = Pick<SearchQuery, 'search' | 'caseSensitive' | 'wholeWord'>;
@@ -29,6 +31,8 @@ interface SearchCardProps {
     onClose?: (query: string) => void;
     onSearchPrev?: (query: string) => void;
     onSearchNext?: (query: string) => void;
+    onReplaceNext?: (query: string, replacement: string) => void;
+    onReplaceAll?: (query: string, replacement: string) => void;
     onConfigChange?: (config: SearchConfig) => void;
 }
 
@@ -43,11 +47,14 @@ export const SearchCard: React.FC<SearchCardProps> = ({
     onClose = noop,
     onSearchPrev = noop,
     onSearchNext = noop,
+    onReplaceNext = noop,
+    onReplaceAll = noop,
     onConfigChange = noop,
 }) => {
     const [query, setQuery] = useState<string>(initial.search);
     const [isCaseSensitive, setIsCaseSensitive] = useState<boolean>(initial.caseSensitive);
     const [isWholeWord, setIsWholeWord] = useState<boolean>(initial.wholeWord);
+    const [replacement, setReplacement] = useState<string>('');
     const textInputRef = useRef<HTMLInputElement>(null);
 
     const setInputFocus = () => {
@@ -72,6 +79,16 @@ export const SearchCard: React.FC<SearchCardProps> = ({
 
     const handleNext = () => {
         onSearchNext(query);
+        setInputFocus();
+    };
+
+    const handleReplace = () => {
+        onReplaceNext(query, replacement);
+        setInputFocus();
+    };
+
+    const handleReplaceAll = () => {
+        onReplaceAll(query, replacement);
         setInputFocus();
     };
 
@@ -113,11 +130,40 @@ export const SearchCard: React.FC<SearchCardProps> = ({
                 value={query}
                 endContent={
                     <>
-                        <Button onClick={handlePrev}>
+                        <Button onClick={handlePrev} pin="round-brick">
                             <Icon data={ChevronUp} size={12} />
                         </Button>
-                        <Button onClick={handleNext}>
+                        <Button onClick={handleNext} pin="brick-round">
                             <Icon data={ChevronDown} size={12} />
+                        </Button>
+                    </>
+                }
+            />
+            <TextInput
+                placeholder={i18n('replace_placeholder')}
+                className={sp({mb: 2})}
+                size="s"
+                onUpdate={setReplacement}
+                value={replacement}
+                endContent={
+                    <>
+                        <Button
+                            size="s"
+                            onClick={handleReplace}
+                            pin="round-brick"
+                            disabled={!query}
+                            title={i18n('action_replace')}
+                        >
+                            <ReplaceIcon width={12} height={12} />
+                        </Button>
+                        <Button
+                            size="s"
+                            onClick={handleReplaceAll}
+                            pin="brick-round"
+                            disabled={!query}
+                            title={i18n('action_replace_all')}
+                        >
+                            <ReplaceAllIcon width={12} height={12} />
                         </Button>
                     </>
                 }

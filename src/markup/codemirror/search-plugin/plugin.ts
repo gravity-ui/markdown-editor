@@ -4,6 +4,8 @@ import {
     findNext,
     findPrevious,
     getSearchQuery,
+    replaceAll,
+    replaceNext,
     search,
     searchKeymap,
     searchPanelOpen,
@@ -48,6 +50,7 @@ export const SearchPanelPlugin = (params: SearchPanelPluginParams) =>
                 search: '',
                 caseSensitive: false,
                 wholeWord: false,
+                replace: '',
             };
             receiver: Receiver<EventMap> | undefined;
 
@@ -64,6 +67,8 @@ export const SearchPanelPlugin = (params: SearchPanelPluginParams) =>
                 this.handleChange = this.handleChange.bind(this);
                 this.handleSearchNext = this.handleSearchNext.bind(this);
                 this.handleSearchPrev = this.handleSearchPrev.bind(this);
+                this.handleReplaceNext = this.handleReplaceNext.bind(this);
+                this.handleReplaceAll = this.handleReplaceAll.bind(this);
                 this.handleSearchConfigChange = this.handleSearchConfigChange.bind(this);
                 this.handleEditorModeChange = this.handleEditorModeChange.bind(this);
 
@@ -91,6 +96,8 @@ export const SearchPanelPlugin = (params: SearchPanelPluginParams) =>
                                 onClose: this.handleClose,
                                 onSearchNext: this.handleSearchNext,
                                 onSearchPrev: this.handleSearchPrev,
+                                onReplaceNext: this.handleReplaceNext,
+                                onReplaceAll: this.handleReplaceAll,
                                 onConfigChange: this.handleSearchConfigChange,
                             }),
                         );
@@ -143,6 +150,16 @@ export const SearchPanelPlugin = (params: SearchPanelPluginParams) =>
 
             handleSearchConfigChange(config: Partial<SearchQueryConfig>) {
                 this.setViewSearch(config);
+            }
+
+            handleReplaceNext(query: string, replacement: string) {
+                this.setViewSearch({search: query, replace: replacement});
+                replaceNext(this.view);
+            }
+
+            handleReplaceAll(query: string, replacement: string) {
+                this.setViewSearch({search: query, replace: replacement});
+                replaceAll(this.view);
             }
         },
         {
