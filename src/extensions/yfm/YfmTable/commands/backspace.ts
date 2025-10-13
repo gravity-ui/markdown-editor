@@ -1,17 +1,13 @@
-import {chainCommands} from 'prosemirror-commands';
-import type {Node} from 'prosemirror-model';
-import {type Command, TextSelection} from 'prosemirror-state';
+import {chainCommands} from '#pm/commands';
+import type {Node, NodeType, ResolvedPos} from '#pm/model';
+import {type Command, TextSelection} from '#pm/state';
+import {pType} from 'src/extensions/base/specs';
+import {range} from 'src/lodash';
+import {isTableCellNode, isTableNode, isTableRowNode} from 'src/table-utils';
+import {TableDesc} from 'src/table-utils/table-desc';
+import {isNodeSelection, isTextSelection} from 'src/utils/selection';
 
-import {
-    findChildTableCells,
-    findChildTableRows,
-    findParentTableBodyFromPos,
-    findParentTableCellFromPos,
-    findParentTableFromPos,
-    isTableCellNode,
-    isTableRowNode,
-} from '../../../../table-utils';
-import {isNodeSelection, isTextSelection} from '../../../../utils/selection';
+import {yfmTableBodyType, yfmTableRowType, yfmTableType} from '../utils';
 
 const removeCellNodeContent: Command = (state, dispatch) => {
     const sel = state.selection;
@@ -36,114 +32,79 @@ const removeCellNodeContent: Command = (state, dispatch) => {
     return false;
 };
 
-// eslint-disable-next-line complexity
 export const clearSelectedCells: Command = (state, dispatch) => {
     const sel = state.selection;
     if (!isTextSelection(sel)) return false;
     const {$from, $to} = sel;
 
-    const fromCell = findParentTableCellFromPos($from);
-    const toCell = findParentTableCellFromPos($to);
-    const fromTBody = findParentTableBodyFromPos($from);
-    const toTBody = findParentTableBodyFromPos($to);
-    const fromTable = findParentTableFromPos($to);
+    const sharedDepth = $from.sharedDepth($to.pos);
+    const commonAncestor = $from.node(sharedDepth);
+    const {schema} = commonAncestor.type;
 
-    if (!fromCell || !toCell || !fromTBody || !toTBody || !fromTable) return false;
+    if (
+        !isAnyOfTypes(commonAncestor, [
+            yfmTableType(schema),
+            yfmTableBodyType(schema),
+            yfmTableRowType(schema),
+        ])
+    )
+        return false;
 
-    if (fromCell.node === toCell.node) {
-        // selection inside table cell
-        return false; // should executes default command
-    }
+    const tablePos = findTablePos($from, sharedDepth);
+    if (typeof tablePos !== 'number') return false;
+    const tableNode = $from.doc.nodeAt(tablePos);
+    if (!tableNode) return false;
+    const tableDesc = TableDesc.create(tableNode)?.bind(tablePos);
+    if (!tableDesc) return false;
 
-    if (fromTBody && toTBody && fromTBody.pos === toTBody.pos) {
-        if (dispatch) {
-            const table = fromTable;
-            const tBody = fromTBody;
+    if (dispatch) {
+        const tr = state.tr;
 
-            const fromCellIndexInRow = $from.index(fromCell.depth - 1);
-            const toCellIndexInRow = $to.index(toCell.depth - 1);
+        const cells = range(0, tableDesc.rows)
+            .flatMap((rowIdx) => tableDesc.getPosForRowCells(rowIdx))
+            .filter((cell) => cell.type === 'real');
 
-            const fromRowIndexInBody = $from.index(fromCell.depth - 2);
-            const toRowIndexInBody = $to.index(toCell.depth - 2);
+        const isAllSelected =
+            $from.pos <= cells[0].from + 2 && $to.pos >= cells[cells.length - 1].to - 2;
 
-            const bodyRows = findChildTableRows(tBody.node);
+        if (isAllSelected) {
+            // all table content is selected, we should remove table
+            tr.replaceWith(tablePos, tablePos + tableNode.nodeSize, pType(schema).create());
+            tr.setSelection(TextSelection.create(tr.doc, tablePos + 1));
+        } else {
+            for (const cell of cells) {
+                if ($from.pos > cell.to) continue;
+                if ($to.pos < cell.from) break;
 
-            let tr = state.tr;
-            tr = tr.delete(toCell.start, $to.pos);
+                const from = Math.max($from.pos, cell.from + 1);
+                const to = Math.min($to.pos, cell.to - 1);
 
-            let rowIndex = toRowIndexInBody;
-            while (rowIndex >= fromRowIndexInBody) {
-                const row = bodyRows[rowIndex];
-                const rowCells = findChildTableCells(row.node);
-
-                let cellIndex =
-                    rowIndex === toRowIndexInBody ? toCellIndexInRow - 1 : rowCells.length - 1;
-                while (cellIndex > (rowIndex === fromRowIndexInBody ? fromCellIndexInRow : -1)) {
-                    const cell = rowCells[cellIndex];
-
-                    const from = tBody.pos + row.pos + cell.pos + 3;
-                    const to = from + cell.node.nodeSize - 2;
-
-                    tr = tr.delete(from, to);
-
-                    cellIndex--;
-                }
-
-                if (rowIndex !== fromRowIndexInBody) {
-                    const rowPos = tBody.pos + row.pos + 1;
-                    const trRow = tr.doc.nodeAt(rowPos);
-                    if (trRow && isEmptyTableRow(trRow)) {
-                        tr = tr.delete(rowPos, rowPos + trRow.nodeSize);
-                    }
-                }
-
-                rowIndex--;
+                tr.delete(tr.mapping.map(from), tr.mapping.map(to));
+                tr.setSelection(TextSelection.create(tr.doc, tr.mapping.map(to)));
             }
-
-            tr = tr.delete($from.pos, fromCell.pos + fromCell.node.nodeSize);
-
-            const fromRowPos = tBody.pos + bodyRows[fromRowIndexInBody].pos + 1;
-            const trFromRow = tr.doc.nodeAt(fromRowPos);
-            if (fromCellIndexInRow === 0 && trFromRow && isEmptyTableRow(trFromRow)) {
-                const rowsCountBeforeDelete = tr.doc.nodeAt(tBody.pos)!.childCount;
-                tr = tr.delete(fromRowPos, fromRowPos + tr.doc.nodeAt(fromRowPos)!.nodeSize);
-
-                const trTable = tr.doc.nodeAt(table.pos);
-                if (rowsCountBeforeDelete <= 1) {
-                    if (trTable) {
-                        if (trTable.childCount <= 1) {
-                            tr = tr.delete(table.pos, trTable.nodeSize);
-                        }
-                    } else {
-                        tr = tr.delete(tBody.pos, tBody.pos + tr.doc.nodeAt(tBody.pos)!.nodeSize);
-                    }
-                }
-            }
-            tr = tr.setSelection(TextSelection.create(tr.doc, tr.mapping.map(sel.head)));
-
-            dispatch(tr);
         }
 
-        return true;
+        dispatch(tr.scrollIntoView());
     }
 
-    return false;
+    return true;
 };
 
 export const backspaceCommand = chainCommands(removeCellNodeContent, clearSelectedCells);
 
-function isEmptyTableRow(node: Node) {
-    if (!isTableRowNode(node)) return false;
-    if (node.childCount === 0) return true;
-    let isRowEmpty = true;
-    node.forEach((cellNode) => {
-        isRowEmpty = isEmptyTableCell(cellNode);
-    });
-    return isRowEmpty;
+function isAnyOfTypes(node: Node, types: NodeType[]): boolean {
+    return types.some((type) => type === node.type);
 }
 
-function isEmptyTableCell(node: Node): boolean {
-    if (!isTableCellNode(node)) return false;
-    if (node.childCount === 0) return true;
-    return node.childCount === 1 && node.child(0).isTextblock && node.child(0).childCount === 0;
+function findTablePos($pos: ResolvedPos, startDepth: number): number | null {
+    const ASCENTS = 5;
+    let depth = startDepth;
+    while (depth >= 0 && startDepth - depth <= ASCENTS) {
+        const node = $pos.node(depth);
+        if (isTableNode(node)) {
+            return $pos.before(depth);
+        }
+        depth--;
+    }
+    return null;
 }
