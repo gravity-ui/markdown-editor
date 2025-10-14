@@ -1,5 +1,8 @@
 {
   "label_case-sensitive": "С учетом регистра",
   "label_whole-word": "Слово целиком",
-  "title": "Найти в коде"
+  "title": "Найти в коде",
+  "action_replace": "Заменить",
+  "action_replace_all": "Заменить всё",
+  "replace_placeholder": "Текст замены"
 }
