@@ -80,7 +80,7 @@ export const clearSelectedCells: Command = (state, dispatch) => {
                 const to = Math.min($to.pos, cell.to - 1);
 
                 tr.delete(tr.mapping.map(from), tr.mapping.map(to));
-                tr.setSelection(TextSelection.create(tr.doc, tr.mapping.map(to)));
+                tr.setSelection(TextSelection.near(tr.doc.resolve(tr.mapping.map(to)), -1));
             }
         }
 
