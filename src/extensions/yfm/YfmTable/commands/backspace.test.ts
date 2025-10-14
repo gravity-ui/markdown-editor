@@ -89,7 +89,7 @@ describe('YfmTable commands', () => {
             );
         });
 
-        it('should delete selected row', () => {
+        it('should clear cells in selected row', () => {
             const state = EditorState.create({
                 schema,
                 doc: templateDoc,
@@ -104,6 +104,7 @@ describe('YfmTable commands', () => {
                     t(
                         tb(
                             trow(td(p('qwe')), td(p('rty')), td(p('uio'))),
+                            trow(td(p()), td(p()), td(p())),
                             trow(td(p('zxc')), td(p('vbn')), td(p('m<>'))),
                         ),
                     ),
@@ -111,7 +112,7 @@ describe('YfmTable commands', () => {
             );
         });
 
-        it('should clear cells and delete row between', () => {
+        it('should clear selected cells (selection covers intermediate trow)', () => {
             const state = EditorState.create({
                 schema,
                 doc: templateDoc,
@@ -126,6 +127,7 @@ describe('YfmTable commands', () => {
                     t(
                         tb(
                             trow(td(p('qwe')), td(p('rty')), td(p(''))),
+                            trow(td(p()), td(p()), td(p())),
                             trow(td(p('')), td(p('vbn')), td(p('m<>'))),
                         ),
                     ),
@@ -133,7 +135,7 @@ describe('YfmTable commands', () => {
             );
         });
 
-        it('should clear selected cells in first row and delete other rows', () => {
+        it('should clear selected cells in first row and clear other rows', () => {
             const state = EditorState.create({
                 schema,
                 doc: templateDoc,
@@ -143,7 +145,17 @@ describe('YfmTable commands', () => {
             const {res, tr} = applyCommand(state, clearSelectedCells);
 
             expect(res).toBe(true);
-            expect(tr.doc).toMatchNode(doc(t(tb(trow(td(p('qwe')), td(p('')), td(p('')))))));
+            expect(tr.doc).toMatchNode(
+                doc(
+                    t(
+                        tb(
+                            trow(td(p('qwe')), td(p('')), td(p(''))),
+                            trow(td(p()), td(p()), td(p())),
+                            trow(td(p()), td(p()), td(p())),
+                        ),
+                    ),
+                ),
+            );
         });
 
         it('should delete table', () => {
