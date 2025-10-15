@@ -99,7 +99,7 @@ export const ImagePaste: ExtensionAuto<ImagePasteOptions> = (builder, opts) => {
 
                                 const tr = view.state.tr.replaceSelectionWith(imageNode);
                                 view.dispatch(tr.scrollIntoView());
-                                logger.event({event: 'paste-url-as-image'});
+                                logger.log('paste-url-as-image');
 
                                 if (isSvg) {
                                     const insertedPos = tr.selection.from - imageNode.nodeSize;
@@ -110,20 +110,27 @@ export const ImagePaste: ExtensionAuto<ImagePasteOptions> = (builder, opts) => {
                                                 ? getImageSizeNew(img)
                                                 : getImageSize(img);
 
-                                            const updateTr = view.state.tr.setNodeMarkup(
-                                                insertedPos,
-                                                undefined,
-                                                {
-                                                    ...imageNode.attrs,
-                                                    width: img.width || DEFAULT_SVG_WIDTH,
-                                                    ...sizes,
-                                                },
+                                            const currentState = view.state;
+                                            const actualPos = insertedPos;
+
+                                            const nodeAtPos = currentState.doc.nodeAt(actualPos);
+
+                                            if (!nodeAtPos) {
+                                                logger.error('svg-node-not-found');
+                                                return;
+                                            }
+
+                                            const updateTr = currentState.tr.setNodeAttribute(
+                                                actualPos,
+                                                'width',
+                                                img.width || DEFAULT_SVG_WIDTH,
                                             );
+
                                             view.dispatch(updateTr);
 
                                             logger.event({
                                                 event: 'svg-dimensions-updated',
-                                                position: insertedPos,
+                                                position: actualPos,
                                                 sizes,
                                             });
                                         })

@@ -23,32 +23,28 @@ export const createImageNode =
             [ImgSizeAttr.Src]: result.url,
             [ImgSizeAttr.Alt]: result.name ?? file.name,
         };
-        if (opts.needDimensions) {
-            try {
-                const sizes = await loadImage(file).then(
-                    opts.enableNewImageSizeCalculation ? getImageSizeNew : getImageSize,
-                );
-                Object.assign(attrs, sizes);
-            } catch (err) {
-                globalLogger.error(err);
-                logger.error({error: err});
-            }
-        }
 
         const isSvg = checkSvg(result.url) || file.type === 'image/svg+xml';
 
-        if (isSvg) {
-            const image = await loadImage(file);
+        if (opts.needDimensions || isSvg) {
+            try {
+                const image = await loadImage(file);
 
-            const sizes = opts.enableNewImageSizeCalculation
-                ? getImageSizeNew(image)
-                : getImageSize(image);
+                const sizes = opts.enableNewImageSizeCalculation
+                    ? getImageSizeNew(image)
+                    : getImageSize(image);
 
-            return imgType.create({
-                ...attrs,
-                width: image.width || DEFAULT_SVG_WIDTH,
-                ...sizes,
-            });
+                Object.assign(attrs, sizes);
+
+                if (isSvg && !opts.enableNewImageSizeCalculation) {
+                    Object.assign(attrs, {width: image.width || DEFAULT_SVG_WIDTH});
+                }
+            } catch (err) {
+                globalLogger.error(err);
+                logger.error({error: err});
+
+                if (isSvg) attrs.width = String(DEFAULT_SVG_WIDTH);
+            }
         }
 
         return imgType.create(attrs);
