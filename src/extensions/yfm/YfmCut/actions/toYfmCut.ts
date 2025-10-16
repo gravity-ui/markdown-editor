@@ -1,13 +1,13 @@
-import type {Fragment, Node, Schema} from 'prosemirror-model';
-import {type Command, TextSelection} from 'prosemirror-state';
-// @ts-ignore // TODO: fix cjs build
-import {findParentNodeClosestToPos} from 'prosemirror-utils';
+import type {ActionSpec} from '#core';
+import type {Fragment, Node, Schema} from '#pm/model';
+import {type Command, TextSelection} from '#pm/state';
+import {findParentNodeClosestToPos} from '#pm/utils';
 
-import type {ActionSpec} from '../../../../core';
-import {cutContentType, cutTitleType, cutType} from '../const';
+import {YfmCutClassName, cutContentType, cutTitleType, cutType} from '../const';
 
 const createYfmCutNode = (schema: Schema) => (content?: Node | Node[] | Fragment) => {
-    return cutType(schema).create({class: 'yfm-cut open'}, [
+    const className = `${YfmCutClassName.Cut} ${YfmCutClassName.Open}` as const;
+    return cutType(schema).create({class: className}, [
         cutTitleType(schema).create(null),
         cutContentType(schema).create(null, content),
     ]);

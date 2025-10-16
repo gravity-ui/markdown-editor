@@ -1,13 +1,10 @@
-import type {NodeType, ResolvedPos} from 'prosemirror-model';
-import {Plugin} from 'prosemirror-state';
-// @ts-ignore // TODO: fix cjs build
-import type {NodeWithPos} from 'prosemirror-utils';
-import {Decoration, DecorationSet} from 'prosemirror-view';
+import type {NodeType, ResolvedPos} from '#pm/model';
+import {Plugin} from '#pm/state';
+import type {NodeWithPos} from '#pm/utils';
+import {Decoration, DecorationSet} from '#pm/view';
+import {isNodeSelection, isTextSelection} from 'src/utils/selection';
 
-import {isNodeSelection, isTextSelection} from '../../../../utils/selection';
-import {cutType} from '../const';
-
-const YFM_CUT_ACTIVE_CLASSNAME = 'yfm-cut-active';
+import {YfmCutClassName, cutType} from '../const';
 
 export const cutActivePlugin = () => {
     return new Plugin({
@@ -20,7 +17,7 @@ export const cutActivePlugin = () => {
                 const createDeco = ({pos, node}: NodeWithPos) => {
                     decos.push(
                         Decoration.node(pos, pos + node.nodeSize, {
-                            class: YFM_CUT_ACTIVE_CLASSNAME,
+                            class: YfmCutClassName.Active,
                         }),
                     );
                 };

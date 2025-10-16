@@ -1,13 +1,13 @@
 import {transform as yfmCut} from '@diplodoc/cut-extension';
 
-import type {ExtensionAuto, ExtensionNodeSpec} from '../../../../core';
+import type {ExtensionAuto, ExtensionNodeSpec} from '#core';
 
 import {CutNode} from './const';
 import {parserTokens} from './parser';
 import {type YfmCutSchemaOptions, getSchemaSpecs} from './schema';
 import {getSerializerTokens} from './serializer';
 
-export {CutAttr, CutNode, cutType, cutTitleType, cutContentType} from './const';
+export {CutAttr, CutNode, cutType, cutTitleType, cutContentType, YfmCutClassName} from './const';
 
 declare global {
     namespace MarkdownEditor {
