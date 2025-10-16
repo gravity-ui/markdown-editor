@@ -1,5 +1,17 @@
 # Changelog
 
+## [15.23.0](https://github.com/gravity-ui/markdown-editor/compare/v15.22.2...v15.23.0) (2025-10-14)
+
+
+### Features
+
+* add replace func to markup search ([#860](https://github.com/gravity-ui/markdown-editor/issues/860)) ([5c36b3d](https://github.com/gravity-ui/markdown-editor/commit/5c36b3df0c56db79c74715d537a9383c9131b03e))
+
+
+### Bug Fixes
+
+* **YfmTable:** fix clearing table cells when pressing backspace ([#866](https://github.com/gravity-ui/markdown-editor/issues/866)) ([776de5c](https://github.com/gravity-ui/markdown-editor/commit/776de5ca649479874280875297177bd3c9cb6a53))
+
 ## [15.22.2](https://github.com/gravity-ui/markdown-editor/compare/v15.22.1...v15.22.2) (2025-10-09)
 
 
