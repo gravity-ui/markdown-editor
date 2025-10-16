@@ -3,9 +3,12 @@ import {Fragment, useEffect, useState} from 'react';
 import {ChevronDown} from '@gravity-ui/icons';
 import {HelpMark, Hotkey, Icon, Menu, Popover, Popup} from '@gravity-ui/uikit';
 
+import {LAYOUT} from 'src/common/layout';
+
 import {cn} from '../classname';
 import {i18n} from '../i18n/common';
 import {isFunction} from '../lodash';
+import {useTargetZIndex} from '../react-utils';
 import {useBooleanState, useElementState} from '../react-utils/hooks';
 
 import {PreviewTooltip} from './PreviewTooltip';
@@ -50,6 +53,7 @@ export function ToolbarListButton<E>({
     const [anchorElement, setAnchorElement] = useElementState();
     const [open, , hide, toggleOpen] = useBooleanState(false);
     const [popupItem, setPopupItem] = useState<ToolbarButtonPopupData<E>>();
+    const zIndex = useTargetZIndex(LAYOUT.STICKY_TOOLBAR);
 
     const everyDisabled = alwaysActive ? false : data.every((item) => !item.isEnable(editor));
     const popupOpen = everyDisabled ? false : open;
@@ -94,7 +98,12 @@ export function ToolbarListButton<E>({
             >
                 {buttonContent}
             </ToolbarButtonView>
-            <Popup anchorElement={anchorElement} open={popupOpen} onOpenChange={hide}>
+            <Popup
+                anchorElement={anchorElement}
+                open={popupOpen}
+                onOpenChange={hide}
+                zIndex={typeof zIndex === 'number' ? zIndex : undefined}
+            >
                 <Menu size="l" className={b('menu')} qa={qaMenu} data-toolbar-menu-for={titleText}>
                     {data
                         .map((data) => {
