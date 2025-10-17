@@ -1,5 +1,32 @@
 # Changelog
 
+## [15.23.0](https://github.com/gravity-ui/markdown-editor/compare/v15.22.2...v15.23.0) (2025-10-14)
+
+
+### Features
+
+* add replace func to markup search ([#860](https://github.com/gravity-ui/markdown-editor/issues/860)) ([5c36b3d](https://github.com/gravity-ui/markdown-editor/commit/5c36b3df0c56db79c74715d537a9383c9131b03e))
+
+
+### Bug Fixes
+
+* **YfmTable:** fix clearing table cells when pressing backspace ([#866](https://github.com/gravity-ui/markdown-editor/issues/866)) ([776de5c](https://github.com/gravity-ui/markdown-editor/commit/776de5ca649479874280875297177bd3c9cb6a53))
+
+## [15.22.2](https://github.com/gravity-ui/markdown-editor/compare/v15.22.1...v15.22.2) (2025-10-09)
+
+
+### Bug Fixes
+
+* **toolbar:** revert broken z-index logic for popups ([#861](https://github.com/gravity-ui/markdown-editor/issues/861)) ([2859f7c](https://github.com/gravity-ui/markdown-editor/commit/2859f7cbb09bd9d24332e0bbe74f6816af84767c))
+
+## [15.22.1](https://github.com/gravity-ui/markdown-editor/compare/v15.22.0...v15.22.1) (2025-10-08)
+
+
+### Bug Fixes
+
+* **Mermaid, YfmHtmlBlock:** improve autosave UI behavior ([#858](https://github.com/gravity-ui/markdown-editor/issues/858)) ([6da142b](https://github.com/gravity-ui/markdown-editor/commit/6da142bc6ac6b9c59b3c80363d9de134eb9f9bfe))
+* **toolbar:** use helper to adjust z-index for popups ([#544](https://github.com/gravity-ui/markdown-editor/issues/544)) ([d452b02](https://github.com/gravity-ui/markdown-editor/commit/d452b0225d10de319a7181731ac2ac0042a16e0c))
+
 ## [15.22.0](https://github.com/gravity-ui/markdown-editor/compare/v15.21.0...v15.22.0) (2025-10-02)
 
 

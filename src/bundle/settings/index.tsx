@@ -16,12 +16,12 @@ import {
 } from '@gravity-ui/uikit';
 
 import {LAYOUT} from 'src/common/layout';
-import {getTargetZIndex} from 'src/utils/get-target-z-index';
 
 import {type ClassNameProps, cn} from '../../classname';
 import {i18n} from '../../i18n/bundle';
 import WysiwygModeIcon from '../../icons/WysiwygMode';
 import {noop} from '../../lodash';
+import {useTargetZIndex} from '../../react-utils';
 import {useBooleanState} from '../../react-utils/hooks';
 import {ToolbarTooltipDelay} from '../../toolbar';
 import {VERSION} from '../../version';
@@ -36,7 +36,7 @@ const placement: PopupPlacement = ['bottom-end', 'top-end'];
 const bSettings = cn('editor-settings');
 const bContent = cn('settings-content');
 
-export type EditorSettingsProps = Omit<SettingsContentProps, 'onClose'> & {
+export type EditorSettingsProps = Omit<SettingsContentProps, 'onClose' | 'zIndex'> & {
     renderPreviewButton?: boolean;
     settingsVisible?: boolean | SettingItems[];
 };
@@ -46,6 +46,7 @@ export const EditorSettings = memo<EditorSettingsProps>(function EditorSettings(
         props;
     const [chevronElement, setChevronElement] = useState<HTMLButtonElement | null>(null);
     const [popupShown, , hidePopup, togglePopup] = useBooleanState(false);
+    const zIndex = useTargetZIndex(LAYOUT.STICKY_TOOLBAR);
 
     const areSettingsVisible =
         settingsVisible === true || (Array.isArray(settingsVisible) && settingsVisible.length > 0);
@@ -93,13 +94,14 @@ export const EditorSettings = memo<EditorSettingsProps>(function EditorSettings(
                         anchorElement={chevronElement}
                         placement={placement}
                         onOpenChange={hidePopup}
-                        zIndex={getTargetZIndex(LAYOUT.STICKY_TOOLBAR)}
+                        zIndex={zIndex}
                     >
                         <SettingsContent
                             {...props}
                             qa="g-md-settings-content"
                             onClose={hidePopup}
                             className={bSettings('content')}
+                            zIndex={zIndex}
                         />
                     </Popup>
                 </>
@@ -124,6 +126,7 @@ type SettingsContentProps = ClassNameProps &
         splitModeEnabled?: boolean;
         onSplitModeChange?: (splitModeEnabled: boolean) => void;
         disableMark?: boolean;
+        zIndex?: number;
     };
 
 const mdHelpPlacement: PopupPlacement = ['bottom', 'bottom-end', 'right-start', 'right', 'left'];
@@ -142,6 +145,7 @@ const SettingsContent: React.FC<SettingsContentProps> = function SettingsContent
     settingsVisible,
     qa,
     disableMark,
+    zIndex,
 }) {
     const isSettingsArray = Array.isArray(settingsVisible);
     const showModeSetting = isSettingsArray ? settingsVisible?.includes('mode') : true;
@@ -178,7 +182,7 @@ const SettingsContent: React.FC<SettingsContentProps> = function SettingsContent
                                 popoverProps={{
                                     placement: mdHelpPlacement,
                                     modal: false,
-                                    zIndex: getTargetZIndex(LAYOUT.STICKY_TOOLBAR),
+                                    zIndex,
                                 }}
                                 className={bContent('mode-help')}
                             >

@@ -12,11 +12,11 @@ import {
 } from '@gravity-ui/uikit';
 
 import {LAYOUT} from 'src/common/layout';
-import {getTargetZIndex} from 'src/utils/get-target-z-index';
 
 import {cn} from '../../classname';
 import type {Action} from '../../core';
 import {groupBy, isFunction} from '../../lodash';
+import {useTargetZIndex} from '../../react-utils';
 import {useBooleanState, useElementState} from '../../react-utils/hooks';
 import {type ToolbarBaseProps, type ToolbarIconData, ToolbarTooltipDelay} from '../../toolbar';
 
@@ -66,6 +66,7 @@ export const ToolbarButtonWithPopupMenu: React.FC<ToolbarButtonWithPopupMenuProp
 }) => {
     const [anchorElement, setAnchorElement] = useElementState();
     const [open, , hide, toggleOpen] = useBooleanState(false);
+    const zIndex = useTargetZIndex(LAYOUT.STICKY_TOOLBAR);
     const groups = useMemo(
         () =>
             groupBy(
@@ -130,7 +131,7 @@ export const ToolbarButtonWithPopupMenu: React.FC<ToolbarButtonWithPopupMenuProp
                 onOpenChange={(open) => {
                     if (!open) hide();
                 }}
-                zIndex={getTargetZIndex(LAYOUT.STICKY_TOOLBAR)}
+                zIndex={typeof zIndex === 'number' ? zIndex : undefined}
             >
                 <Menu size="l" qa={qaMenu} data-toolbar-menu-for={textTitle}>
                     {Object.entries(groups).map(([label, items], key) => {
