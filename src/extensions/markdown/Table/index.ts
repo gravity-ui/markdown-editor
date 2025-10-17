@@ -4,7 +4,7 @@ import {goToNextCell} from 'src/table-utils';
 import {TableSpecs} from './TableSpecs';
 import {createTableAction, deleteTableAction} from './actions/tableActions';
 import * as TableActions from './actions/tableActions';
-import {ignoreIfInTableCell} from './commands';
+import {moveToNextRowCommand} from './commands';
 import * as TableHelpers from './helpers';
 import {tableCellContextPlugin} from './plugins/TableCellContextPlugin';
 
@@ -17,7 +17,8 @@ export const Table: ExtensionAuto = (builder) => {
     builder.addKeymap(() => ({
         Tab: goToNextCell('next'),
         'Shift-Tab': goToNextCell('prev'),
-        Enter: ignoreIfInTableCell,
+        Enter: moveToNextRowCommand,
+        'Shift-Enter': moveToNextRowCommand,
     }));
 
     builder.addAction('createTable', createTableAction);
