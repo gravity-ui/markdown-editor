@@ -15,6 +15,7 @@ type ImsizeTypedAttributes = {
     [ImgSizeAttr.Width]: string | null;
     [ImgSizeAttr.Height]: string | null;
     [ImgSizeAttr.Loading]: string | null;
+    [ImgSizeAttr.Id]: string | null;
 };
 
 export {ImgSizeAttr};
@@ -40,6 +41,7 @@ export const ImgSizeSpecs: ExtensionAuto<ImgSizeSpecsOptions> = (builder, opts) 
                 [ImgSizeAttr.Height]: {default: null},
                 [ImgSizeAttr.Width]: {default: null},
                 [ImgSizeAttr.Loading]: {default: null},
+                [ImgSizeAttr.Id]: {default: null},
             },
             placeholder: placeholderContent ? {content: placeholderContent} : opts.placeholder,
             group: 'inline',
@@ -60,6 +62,7 @@ export const ImgSizeSpecs: ExtensionAuto<ImgSizeSpecsOptions> = (builder, opts) 
                             ),
                             [ImgSizeAttr.Height]: isNumber(height) ? height : null,
                             [ImgSizeAttr.Width]: isNumber(width) ? height : null,
+                            [ImgSizeAttr.Id]: (dom as Element).getAttribute(ImgSizeAttr.Id),
                         };
                     },
                 },
@@ -79,6 +82,7 @@ export const ImgSizeSpecs: ExtensionAuto<ImgSizeSpecsOptions> = (builder, opts) 
                     [ImgSizeAttr.Width]: tok.attrGet(ImgSizeAttr.Width),
                     [ImgSizeAttr.Loading]: tok.attrGet(ImgSizeAttr.Loading),
                     [ImgSizeAttr.Alt]: tok.children?.[0]?.content || null,
+                    [ImgSizeAttr.Id]: tok.attrGet(ImgSizeAttr.Id),
                 }),
             },
         },

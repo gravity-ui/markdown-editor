@@ -92,18 +92,21 @@ export const ImagePaste: ExtensionAuto<ImagePasteOptions> = (builder, opts) => {
 
                                 const isSvg = checkSvg(imageUrl);
 
+                                const trackingId = isSvg
+                                    ? `svg-${Math.random().toString(36).slice(2)}`
+                                    : undefined;
+
                                 const imageNode = imageType(view.state.schema).create({
                                     src: imageUrl,
                                     alt: title,
+                                    ...(trackingId && {id: trackingId}),
                                 });
 
                                 const tr = view.state.tr.replaceSelectionWith(imageNode);
                                 view.dispatch(tr.scrollIntoView());
                                 logger.log('paste-url-as-image');
 
-                                if (isSvg) {
-                                    const insertedPos = tr.selection.from - imageNode.nodeSize;
-
+                                if (isSvg && trackingId) {
                                     loadImageFromUrl(imageUrl)
                                         .then((img) => {
                                             const sizes = opts?.enableNewImageSizeCalculation
@@ -111,26 +114,40 @@ export const ImagePaste: ExtensionAuto<ImagePasteOptions> = (builder, opts) => {
                                                 : getImageSize(img);
 
                                             const currentState = view.state;
-                                            const actualPos = insertedPos;
 
-                                            const nodeAtPos = currentState.doc.nodeAt(actualPos);
+                                            let targetPos: number | null = null;
+                                            currentState.doc.descendants((node, pos) => {
+                                                if (
+                                                    isImageNode(node) &&
+                                                    node.attrs.id === trackingId
+                                                ) {
+                                                    targetPos = pos;
+                                                    return false;
+                                                }
+                                                return true;
+                                            });
 
-                                            if (!nodeAtPos) {
-                                                logger.error('svg-node-not-found');
+                                            if (targetPos === null) {
+                                                logger.error({
+                                                    event: 'svg-node-not-found',
+                                                    trackingId,
+                                                });
                                                 return;
                                             }
 
-                                            const updateTr = currentState.tr.setNodeAttribute(
-                                                actualPos,
-                                                'width',
-                                                img.width || DEFAULT_SVG_WIDTH,
-                                            );
+                                            const updateTr = currentState.tr
+                                                .setNodeAttribute(
+                                                    targetPos,
+                                                    'width',
+                                                    img.width || DEFAULT_SVG_WIDTH,
+                                                )
+                                                .setNodeAttribute(targetPos, 'id', null);
 
                                             view.dispatch(updateTr);
 
                                             logger.event({
                                                 event: 'svg-dimensions-updated',
-                                                position: actualPos,
+                                                position: targetPos,
                                                 sizes,
                                             });
                                         })
