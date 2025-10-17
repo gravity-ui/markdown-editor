@@ -78,3 +78,17 @@ export function getImageSizeNew({width, height}: HTMLImageElement): {
 export function checkSvg(imageUrl?: string) {
     return imageUrl && (/\.svg($|\?|#)/i.test(imageUrl) || imageUrl.startsWith('data:image/svg'));
 }
+
+export function findImageNode(doc: Node, id: string): {node: Node; pos: number} | null {
+    let result: {node: Node; pos: number} | null = null;
+
+    doc.descendants((node, pos) => {
+        if (isImageNode(node) && node.attrs.id === id) {
+            result = {node, pos};
+            return false;
+        }
+        return true;
+    });
+
+    return result;
+}

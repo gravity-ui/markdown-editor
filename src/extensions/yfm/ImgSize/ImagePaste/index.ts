@@ -15,6 +15,7 @@ import {ImageAttr, ImgSizeAttr, imageType} from '../../../specs';
 import {
     type CreateImageNodeOptions,
     checkSvg,
+    findImageNode,
     getImageSize,
     getImageSizeNew,
     isImageNode,
@@ -96,45 +97,40 @@ export const ImagePaste: ExtensionAuto<ImagePasteOptions> = (builder, opts) => {
                                 const imageNode = imageType(view.state.schema).create({
                                     src: imageUrl,
                                     alt: title,
-                                    ...(trackingId && {id: trackingId}),
+                                    id: trackingId,
                                 });
 
                                 const tr = view.state.tr.replaceSelectionWith(imageNode);
                                 view.dispatch(tr.scrollIntoView());
-                                logger.log('paste-url-as-image');
+                                logger.event({event: 'paste-url-as-image'});
 
-                                if (trackingId) {
-                                    loadImageFromUrl(imageUrl)
-                                        .then((img) => {
-                                            const sizes: {
-                                                [ImgSizeAttr.Height]?: string;
-                                                [ImgSizeAttr.Width]?: string;
-                                            } =
-                                                opts?.enableNewImageSizeCalculation || isSvg
-                                                    ? getImageSizeNew(img)
-                                                    : getImageSize(img);
-
+                                loadImageFromUrl(imageUrl)
+                                    .then((img) =>
+                                        opts?.enableNewImageSizeCalculation || isSvg
+                                            ? getImageSizeNew(img)
+                                            : getImageSize(img),
+                                    )
+                                    .then(
+                                        (sizes: {
+                                            [ImgSizeAttr.Height]?: string;
+                                            [ImgSizeAttr.Width]?: string;
+                                        }) => {
                                             const currentState = view.state;
 
-                                            let targetPos: number | null = null;
-                                            currentState.doc.descendants((node, pos) => {
-                                                if (
-                                                    isImageNode(node) &&
-                                                    node.attrs.id === trackingId
-                                                ) {
-                                                    targetPos = pos;
-                                                    return false;
-                                                }
-                                                return true;
-                                            });
+                                            const imageResult = findImageNode(
+                                                currentState.doc,
+                                                trackingId,
+                                            );
 
-                                            if (targetPos === null) {
+                                            if (imageResult === null) {
                                                 logger.error({
                                                     event: 'img-node-not-found',
                                                     trackingId,
                                                 });
                                                 return;
                                             }
+
+                                            const {pos: targetPos} = imageResult;
 
                                             const updateTr = currentState.tr
                                                 .setNodeAttribute(
@@ -156,14 +152,14 @@ export const ImagePaste: ExtensionAuto<ImagePasteOptions> = (builder, opts) => {
                                                 position: targetPos,
                                                 sizes,
                                             });
-                                        })
-                                        .catch((error) => {
-                                            logger.error({
-                                                event: 'img-dimensions-load-failed',
-                                                error: error.message,
-                                            });
+                                        },
+                                    )
+                                    .catch((error) => {
+                                        logger.error({
+                                            event: 'img-dimensions-load-failed',
+                                            error: error.message,
                                         });
-                                }
+                                    });
 
                                 return true;
                             }
