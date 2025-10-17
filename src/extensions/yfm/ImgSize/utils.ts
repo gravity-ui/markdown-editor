@@ -5,7 +5,7 @@ import {type UploadSuccessItem, getProportionalSize} from '../../../utils';
 import {imageNodeName} from '../../markdown';
 import {ImgSizeAttr} from '../../specs';
 
-import {DEFAULT_SVG_WIDTH, IMG_MAX_HEIGHT} from './const';
+import {IMG_MAX_HEIGHT} from './const';
 
 export function isImageNode(node: Node): boolean {
     return node.type.name === imageNodeName;
@@ -24,29 +24,17 @@ export const createImageNode =
             [ImgSizeAttr.Alt]: result.name ?? file.name,
         };
 
-        const isSvg = checkSvg(result.url) || file.type === 'image/svg+xml';
-
-        if (opts.needDimensions || isSvg) {
+        if (opts.needDimensions) {
             try {
-                const image = await loadImage(file);
-
-                const sizes = opts.enableNewImageSizeCalculation
-                    ? getImageSizeNew(image)
-                    : getImageSize(image);
-
+                const sizes = await loadImage(file).then(
+                    opts.enableNewImageSizeCalculation ? getImageSizeNew : getImageSize,
+                );
                 Object.assign(attrs, sizes);
-
-                if (isSvg && !opts.enableNewImageSizeCalculation) {
-                    Object.assign(attrs, {width: image.width || DEFAULT_SVG_WIDTH});
-                }
             } catch (err) {
                 globalLogger.error(err);
                 logger.error({error: err});
-
-                if (isSvg) attrs.width = String(DEFAULT_SVG_WIDTH);
             }
         }
-
         return imgType.create(attrs);
     };
 

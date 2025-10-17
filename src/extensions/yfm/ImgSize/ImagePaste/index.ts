@@ -12,7 +12,6 @@ import type {FileUploadHandler} from '../../../../utils';
 import {clipboardUtils} from '../../../behavior/Clipboard';
 import {DataTransferType} from '../../../behavior/Clipboard/utils';
 import {ImageAttr, ImgSizeAttr, imageType} from '../../../specs';
-import {DEFAULT_SVG_WIDTH} from '../const';
 import {
     type CreateImageNodeOptions,
     checkSvg,
@@ -92,9 +91,7 @@ export const ImagePaste: ExtensionAuto<ImagePasteOptions> = (builder, opts) => {
 
                                 const isSvg = checkSvg(imageUrl);
 
-                                const trackingId = isSvg
-                                    ? `svg-${Math.random().toString(36).slice(2)}`
-                                    : undefined;
+                                const trackingId = `img-${Math.random().toString(36).slice(2)}`;
 
                                 const imageNode = imageType(view.state.schema).create({
                                     src: imageUrl,
@@ -106,12 +103,16 @@ export const ImagePaste: ExtensionAuto<ImagePasteOptions> = (builder, opts) => {
                                 view.dispatch(tr.scrollIntoView());
                                 logger.log('paste-url-as-image');
 
-                                if (isSvg && trackingId) {
+                                if (trackingId) {
                                     loadImageFromUrl(imageUrl)
                                         .then((img) => {
-                                            const sizes = opts?.enableNewImageSizeCalculation
-                                                ? getImageSizeNew(img)
-                                                : getImageSize(img);
+                                            const sizes: {
+                                                [ImgSizeAttr.Height]?: string;
+                                                [ImgSizeAttr.Width]?: string;
+                                            } =
+                                                opts?.enableNewImageSizeCalculation || isSvg
+                                                    ? getImageSizeNew(img)
+                                                    : getImageSize(img);
 
                                             const currentState = view.state;
 
@@ -129,7 +130,7 @@ export const ImagePaste: ExtensionAuto<ImagePasteOptions> = (builder, opts) => {
 
                                             if (targetPos === null) {
                                                 logger.error({
-                                                    event: 'svg-node-not-found',
+                                                    event: 'img-node-not-found',
                                                     trackingId,
                                                 });
                                                 return;
@@ -138,22 +139,27 @@ export const ImagePaste: ExtensionAuto<ImagePasteOptions> = (builder, opts) => {
                                             const updateTr = currentState.tr
                                                 .setNodeAttribute(
                                                     targetPos,
-                                                    'width',
-                                                    img.width || DEFAULT_SVG_WIDTH,
+                                                    ImgSizeAttr.Height,
+                                                    sizes.height,
+                                                )
+                                                .setNodeAttribute(
+                                                    targetPos,
+                                                    ImgSizeAttr.Width,
+                                                    sizes.width,
                                                 )
                                                 .setNodeAttribute(targetPos, 'id', null);
 
                                             view.dispatch(updateTr);
 
                                             logger.event({
-                                                event: 'svg-dimensions-updated',
+                                                event: 'img-dimensions-updated',
                                                 position: targetPos,
                                                 sizes,
                                             });
                                         })
                                         .catch((error) => {
                                             logger.error({
-                                                event: 'svg-dimensions-load-failed',
+                                                event: 'img-dimensions-load-failed',
                                                 error: error.message,
                                             });
                                         });
