@@ -2,10 +2,11 @@ import {InputRule} from 'prosemirror-inputrules';
 import {Fragment, type Mark, type MarkType, type Node} from 'prosemirror-model';
 import {type EditorState, TextSelection} from 'prosemirror-state';
 
-import {codeType} from '../extensions/markdown/specs';
-import {isFunction} from '../lodash';
-import {isMarkActive} from '../utils/marks';
-// TODO: remove explicit import from code extension
+// TODO: remove explicit import from base and code extensions
+import {pType} from 'src/extensions/base/specs';
+import {codeType} from 'src/extensions/markdown/specs';
+import {isFunction} from 'src/lodash';
+import {isMarkActive} from 'src/utils/marks';
 
 export function hasCodeMark(
     state: EditorState,
@@ -18,6 +19,15 @@ export function hasCodeMark(
     if (isMarkActive(state, codeMarkType)) return true;
     if (state.doc.rangeHasMark(start, end, codeMarkType)) return true;
     return false;
+}
+
+export function inDefaultTextblock(
+    state: EditorState,
+    _match: RegExpMatchArray,
+    start: number,
+    _end: number,
+): boolean {
+    return state.doc.resolve(start).parent.type === pType(state.schema);
 }
 
 export {textblockTypeInputRule, wrappingInputRule} from './rulebuilders';

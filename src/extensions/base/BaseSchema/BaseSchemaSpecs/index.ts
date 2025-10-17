@@ -1,9 +1,7 @@
-import type {NodeSpec} from 'prosemirror-model';
-
-import {isEmptyString} from 'src/utils';
-
-import type {ExtensionAuto} from '../../../../core';
-import {nodeTypeFactory} from '../../../../utils/schema';
+import type {ExtensionAuto} from '#core';
+import type {NodeSpec} from '#pm/model';
+import {isEmptyString} from 'src/utils/nodes';
+import {nodeTypeFactory} from 'src/utils/schema';
 
 export enum BaseNode {
     Doc = 'doc',
