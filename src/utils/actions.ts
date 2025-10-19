@@ -10,7 +10,9 @@ export function defineActions<Keys extends string>(actions: Record<Keys, ActionS
 }
 
 export function createToggleMarkAction(markType: MarkType): ActionSpec {
-    const command = toggleMark(markType);
+    const command = toggleMark(markType, undefined, {
+        removeWhenPresent: false,
+    });
     return {
         isActive: (state) => Boolean(isMarkActive(state, markType)),
         isEnable: command,
