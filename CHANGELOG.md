@@ -1,5 +1,20 @@
 # Changelog
 
+## [15.24.0](https://github.com/gravity-ui/markdown-editor/compare/v15.23.0...v15.24.0) (2025-10-18)
+
+
+### Features
+
+* **toolbar:** add dynamic z-index sync via useTargetZIndex hook ([#863](https://github.com/gravity-ui/markdown-editor/issues/863)) ([d03f6c9](https://github.com/gravity-ui/markdown-editor/commit/d03f6c905250bc610d5cc30f611ec86f4a6fa170))
+* **YfmCut:** support diplodoc/cut-extension v1.x.x ([#869](https://github.com/gravity-ui/markdown-editor/issues/869)) ([14bf513](https://github.com/gravity-ui/markdown-editor/commit/14bf513f085203f5ecfbb967d981a2905ce196ca))
+
+
+### Bug Fixes
+
+* **imageSize:** fixed the insertion of the svg image ([#857](https://github.com/gravity-ui/markdown-editor/issues/857)) ([e70da1b](https://github.com/gravity-ui/markdown-editor/commit/e70da1be6deb09ef42041b0153c9522c747e3d97))
+* **Table:** go to next row when pressing Enter or Shift+Enter ([#871](https://github.com/gravity-ui/markdown-editor/issues/871)) ([5cbdf0a](https://github.com/gravity-ui/markdown-editor/commit/5cbdf0a338e6993b855daf00ccac8c886f1f4bc9))
+* **wysiwyg:** dont apply wrapping input rules within non-default textblocks ([#870](https://github.com/gravity-ui/markdown-editor/issues/870)) ([cd3cddd](https://github.com/gravity-ui/markdown-editor/commit/cd3cddd96944e4e70e4dc3454cb9aa7cfaed48e7))
+
 ## [15.23.0](https://github.com/gravity-ui/markdown-editor/compare/v15.22.2...v15.23.0) (2025-10-14)
 
 
