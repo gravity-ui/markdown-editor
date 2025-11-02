@@ -1,16 +1,20 @@
 import type {Node} from 'prosemirror-model';
-import {TextSelection} from 'prosemirror-state';
+import {EditorState, TextSelection} from 'prosemirror-state';
 import {builders} from 'prosemirror-test-builder';
+import {EditorView} from 'prosemirror-view';
 
 import {ExtensionsManager} from '../../../core';
 import {BaseNode, BaseSchema} from '../../base/BaseSchema';
 import {Blockquote, blockquoteNodeName} from '../../markdown/Blockquote';
+import {CodeSpecs, codeMarkName} from '../../markdown/Code/CodeSpecs';
 import {CodeBlockSpecs, codeBlockNodeName} from '../../markdown/CodeBlock/CodeBlockSpecs';
+import {ListNode, ListsSpecs} from '../../markdown/Lists/ListsSpecs';
 import {YfmTable, YfmTableNode} from '../../yfm/YfmTable';
 import {GapCursorSelection} from '../Cursor/GapCursorSelection';
 
 import {
     type Direction,
+    arrowRight,
     findFakeParaPosForTextSelection,
     findNextFakeParaPosForGapCursorSelection,
 } from './commands';
@@ -21,6 +25,8 @@ const {schema} = new ExtensionsManager({
             .use(BaseSchema, {})
             .use(Blockquote, {})
             .use(CodeBlockSpecs, {})
+            .use(CodeSpecs, {})
+            .use(ListsSpecs, {})
             .use(YfmTable, {})
             .addNode('testnode', () => ({
                 spec: {content: `block*`, group: 'block', gapcursor: false},
@@ -29,8 +35,9 @@ const {schema} = new ExtensionsManager({
             })),
 }).buildDeps();
 
-const {doc, p, bq, codeBlock, table, tbody, tr, td, testnode} = builders<
-    'doc' | 'p' | 'bq' | 'codeBlock' | 'table' | 'tbody' | 'tr' | 'td' | 'testnode'
+const {doc, p, bq, codeBlock, table, tbody, tr, td, testnode, ul, li, c} = builders<
+    'doc' | 'p' | 'bq' | 'codeBlock' | 'table' | 'tbody' | 'tr' | 'td' | 'testnode' | 'ul' | 'li',
+    'c'
 >(schema, {
     doc: {nodeType: BaseNode.Doc},
     p: {nodeType: BaseNode.Paragraph},
@@ -40,6 +47,9 @@ const {doc, p, bq, codeBlock, table, tbody, tr, td, testnode} = builders<
     tbody: {nodeType: YfmTableNode.Body},
     tr: {nodeType: YfmTableNode.Row},
     td: {nodeType: YfmTableNode.Cell},
+    ul: {nodeType: ListNode.BulletList},
+    li: {nodeType: ListNode.ListItem},
+    c: {nodeType: codeMarkName},
 });
 
 function shouldFindPos(doc: Node, dir: Direction, selPos: number, fakePos: number) {
@@ -252,4 +262,54 @@ describe('Selection arrow commands: findFakeParaPosForTextSelection', () => {
             shouldNotFindNextPos(doc(bq(bq(p()), bq(p()))), dir, 5);
         },
     );
+});
+
+describe('Selection arrow commands: inline code boundary navigation', () => {
+    describe('arrowRight at inline code boundary', () => {
+        it('should not move cursor to fake paragraph when at the end of inline code', () => {
+            // Structure: ul > li > p > "text " + code("code") + " more"
+            // Position 12: end of inline code "code" (marks=[code])
+            const testDoc = doc(ul(li(p('text ', c('code'), ' more'))));
+            const state = EditorState.create({
+                doc: testDoc,
+                selection: TextSelection.create(testDoc, 12),
+            });
+            const view = new EditorView(null, {state});
+            view.endOfTextblock = () => true;
+
+            let commandExecuted = false;
+            arrowRight(
+                state,
+                () => {
+                    commandExecuted = true;
+                },
+                view,
+            );
+
+            expect(commandExecuted).toBe(false);
+        });
+
+        it('should not move cursor to fake paragraph when at the end of inline code at end of textblock', () => {
+            // Structure: ul > li > p > "text " + code("code")
+            // Position 12: end of inline code at end of paragraph
+            const testDoc = doc(ul(li(p('text ', c('code')))));
+            const state = EditorState.create({
+                doc: testDoc,
+                selection: TextSelection.create(testDoc, 12),
+            });
+            const view = new EditorView(null, {state});
+            view.endOfTextblock = () => true;
+
+            let commandExecuted = false;
+            arrowRight(
+                state,
+                () => {
+                    commandExecuted = true;
+                },
+                view,
+            );
+
+            expect(commandExecuted).toBe(false);
+        });
+    });
 });

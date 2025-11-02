@@ -31,6 +31,37 @@ function isEdgeTextblock($cursor: ResolvedPos, dir: Direction): boolean {
     return false;
 }
 
+/**
+ * Check if cursor is at the boundary of an inline code mark.
+ * This is used to let prosemirror-codemark handle navigation at code boundaries.
+ *
+ * @param $cursor - The resolved position of the cursor
+ * @param dir - The direction of navigation ('before' or 'after')
+ * @returns True if cursor is at an inline code boundary
+ */
+function isAtInlineCodeBoundary($cursor: ResolvedPos, dir: Direction): boolean {
+    const codeMarkType = $cursor.doc.type.schema.marks.code;
+    if (!codeMarkType) return false;
+
+    const currentMarks = $cursor.marks();
+    const hasCodeMark = Boolean(codeMarkType.isInSet(currentMarks));
+
+    if (dir === 'before') {
+        // Check if we're at the start of inline code or just before it
+        if ($cursor.parentOffset === 0) {
+            return hasCodeMark;
+        }
+        const prevPos = $cursor.doc.resolve(Math.max(0, $cursor.pos - 1));
+        const prevHasCode = Boolean(codeMarkType.isInSet(prevPos.marks()));
+        return hasCodeMark !== prevHasCode;
+    } else {
+        // Check if we're at the end of inline code or just after it
+        const nextPos = $cursor.doc.resolve(Math.min($cursor.doc.content.size, $cursor.pos + 1));
+        const nextHasCode = Boolean(codeMarkType.isInSet(nextPos.marks()));
+        return hasCodeMark !== nextHasCode;
+    }
+}
+
 export const findNextFakeParaPosForGapCursorSelection: GapCursorSelectionFinder = ({$pos}, dir) => {
     if ($pos.pos !== $pos.start() && $pos.pos !== $pos.end()) return null;
     return findFakeParaPosClosestToPos($pos, $pos.depth, dir);
@@ -151,6 +182,13 @@ const arrow =
         }
 
         if (isTextSelection(selection) && view?.endOfTextblock(dir)) {
+            // Don't handle navigation if we're at an inline code boundary
+            // Let prosemirror-codemark handle it instead
+            const $cursor = direction === 'before' ? selection.$from : selection.$to;
+            if (isAtInlineCodeBoundary($cursor, direction)) {
+                return false;
+            }
+
             $pos = findFakeParaPosForTextSelection(selection, direction);
         }
 
