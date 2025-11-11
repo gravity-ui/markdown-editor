@@ -43,7 +43,10 @@ export const getSchemaSpecs = (
     },
 
     [CutNode.CutTitle]: {
-        attrs: {class: {default: YfmCutClassName.Title}},
+        attrs: {
+            [CutAttr.Class]: {default: YfmCutClassName.Title},
+            [CutAttr.Line]: {default: null},
+        },
         content: 'inline*',
         group: 'block yfm-cut',
         parseDOM: [{tag: `.${YfmCutClassName.Title}`}],

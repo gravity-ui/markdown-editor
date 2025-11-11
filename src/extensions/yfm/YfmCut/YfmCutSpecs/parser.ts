@@ -10,6 +10,19 @@ const getAttrs: ParserToken['getAttrs'] = (tok) => {
 
 export const parserTokens: Record<CutNode, ParserToken> = {
     [CutNode.Cut]: {name: CutNode.Cut, type: 'block', getAttrs},
-    [CutNode.CutTitle]: {name: CutNode.CutTitle, type: 'block'},
+    [CutNode.CutTitle]: {
+        name: CutNode.CutTitle,
+        type: 'block',
+        getAttrs: (token, tokens, index) => {
+            let dataLine = token.attrGet('data-line');
+            if (!dataLine) {
+                const prevToken = tokens[index - 1];
+                if (prevToken?.type === 'yfm_cut_open') {
+                    dataLine = prevToken.attrGet('data-line');
+                }
+            }
+            return {[CutAttr.Line]: dataLine};
+        },
+    },
     [CutNode.CutContent]: {name: CutNode.CutContent, type: 'block'},
 };
