@@ -9,6 +9,7 @@ const TOKENS: readonly string[] = [
     'code_block',
     'fence',
     'list_item_open',
+    'tr_open',
 ];
 
 export const lineNumbersPlugin: PluginSimple = (md) => {
