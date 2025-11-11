@@ -7,4 +7,5 @@ export enum NoteNode {
 export enum NoteAttrs {
     Class = 'class',
     Type = 'note-type',
+    Line = 'data-line',
 }

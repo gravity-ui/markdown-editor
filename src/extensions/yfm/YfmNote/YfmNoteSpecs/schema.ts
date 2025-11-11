@@ -39,6 +39,7 @@ export const getSchemaSpecs = (
     },
 
     [NoteNode.NoteTitle]: {
+        attrs: {[NoteAttrs.Line]: {default: null}},
         content: 'inline*',
         group: 'block yfm-note',
         parseDOM: [
@@ -47,8 +48,8 @@ export const getSchemaSpecs = (
                 priority: 100,
             },
         ],
-        toDOM() {
-            return ['p', {class: 'yfm-note-title'}, 0];
+        toDOM(node) {
+            return ['p', {class: 'yfm-note-title', ...node.attrs}, 0];
         },
         selectable: false,
         allowSelection: false,
