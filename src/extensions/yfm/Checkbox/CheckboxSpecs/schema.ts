@@ -19,6 +19,7 @@ export const getSchemaSpecs = (
         allowSelection: false,
         attrs: {
             [CheckboxAttr.Class]: {default: b()},
+            [CheckboxAttr.Line]: {default: null},
         },
         parseDOM: [
             {
