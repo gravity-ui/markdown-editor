@@ -13,6 +13,7 @@ const TOKENS: readonly string[] = [
     'dt_open',
     'checkbox_open',
     'yfm_note_open',
+    'yfm_cut_open',
 ];
 
 export const lineNumbersPlugin: PluginSimple = (md) => {
