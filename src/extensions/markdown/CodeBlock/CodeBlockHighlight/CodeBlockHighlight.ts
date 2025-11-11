@@ -145,6 +145,11 @@ export const CodeBlockHighlight: ExtensionAuto<CodeBlockHighlightOptions> = (bui
                         let prevLang = node.attrs[CodeBlockNodeAttr.Lang];
 
                         const dom = document.createElement('pre');
+                        updateDomAttribute(
+                            dom,
+                            CodeBlockNodeAttr.Line,
+                            node.attrs[CodeBlockNodeAttr.Line],
+                        );
 
                         const contentDOM = document.createElement('code');
                         contentDOM.classList.add('hljs');
@@ -165,14 +170,18 @@ export const CodeBlockHighlight: ExtensionAuto<CodeBlockHighlightOptions> = (bui
                                 const newLang = newNode.attrs[CodeBlockNodeAttr.Lang];
                                 if (prevLang !== newLang) {
                                     contentDOM.className = 'hljs';
+                                    updateDomAttribute(dom, CodeBlockNodeAttr.Lang, newLang);
                                     if (newLang) {
-                                        dom.setAttribute(CodeBlockNodeAttr.Lang, newLang);
                                         contentDOM.classList.add(newLang);
-                                    } else {
-                                        dom.removeAttribute(CodeBlockNodeAttr.Lang);
                                     }
                                     prevLang = newLang;
                                 }
+
+                                updateDomAttribute(
+                                    dom,
+                                    CodeBlockNodeAttr.Line,
+                                    newNode.attrs[CodeBlockNodeAttr.Line],
+                                );
 
                                 return true;
                             },
@@ -241,4 +250,12 @@ function parseNodes(
 function stepHasFromTo(step: Step): step is Step & {from: number; to: number} {
     // @ts-expect-error
     return typeof step.from === 'number' && typeof step.to === 'number';
+}
+
+function updateDomAttribute(elem: Element, attr: string, value: string | null | undefined) {
+    if (value) {
+        elem.setAttribute(attr, value);
+    } else {
+        elem.removeAttribute(attr);
+    }
 }

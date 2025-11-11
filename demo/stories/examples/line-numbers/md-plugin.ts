@@ -3,7 +3,7 @@ import type {RuleCore} from 'markdown-it/lib/parser_core';
 
 const RULE_NAME = 'line_numbers';
 
-const TOKENS: readonly string[] = ['paragraph_open', 'heading_open'];
+const TOKENS: readonly string[] = ['paragraph_open', 'heading_open', 'code_block', 'fence'];
 
 export const lineNumbersPlugin: PluginSimple = (md) => {
     const rule: RuleCore = ({tokens}) => {
