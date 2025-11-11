@@ -8,7 +8,10 @@ export const parserTokens: Record<ListNode, ParserToken> = {
     [ListNode.ListItem]: {
         name: ListNode.ListItem,
         type: 'block',
-        getAttrs: (token) => ({[ListsAttr.Markup]: token.markup}),
+        getAttrs: (token) => ({
+            [ListsAttr.Markup]: token.markup,
+            [ListsAttr.Line]: token.attrGet('data-line'),
+        }),
     },
 
     [ListNode.BulletList]: {
