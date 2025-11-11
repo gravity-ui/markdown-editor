@@ -1,5 +1,12 @@
 # Changelog
 
+## [15.24.1](https://github.com/gravity-ui/markdown-editor/compare/v15.24.0...v15.24.1) (2025-11-11)
+
+
+### Bug Fixes
+
+* **BaseSchema:** get paragraph attributes from token attributes ([#875](https://github.com/gravity-ui/markdown-editor/issues/875)) ([17a58e5](https://github.com/gravity-ui/markdown-editor/commit/17a58e53a86fc863638badbfa46aad579c43ccd1))
+
 ## [15.24.0](https://github.com/gravity-ui/markdown-editor/compare/v15.23.0...v15.24.0) (2025-10-18)
 
 
