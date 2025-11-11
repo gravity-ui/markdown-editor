@@ -11,6 +11,7 @@ const TOKENS: readonly string[] = [
     'list_item_open',
     'tr_open',
     'dt_open',
+    'checkbox_open',
 ];
 
 export const lineNumbersPlugin: PluginSimple = (md) => {
