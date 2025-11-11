@@ -10,7 +10,15 @@ export const parserTokens: Record<TableNode, ParserToken> = {
 
     [TableNode.Body]: {name: TableNode.Body, type: 'block'},
 
-    [TableNode.Row]: {name: TableNode.Row, type: 'block'},
+    [TableNode.Row]: {
+        name: TableNode.Row,
+        type: 'block',
+        getAttrs(token) {
+            return {
+                [TableAttrs.Line]: token.attrGet('data-line'),
+            };
+        },
+    },
 
     [TableNode.HeaderCell]: {
         name: TableNode.HeaderCell,
