@@ -4,6 +4,7 @@ import {nodeTypeFactory} from '../../../../utils/schema';
 export const CodeBlockNodeAttr = {
     Lang: 'data-language',
     Markup: 'data-markup',
+    Line: 'data-line',
 } as const;
 
 export const codeBlockNodeName = 'code_block';
@@ -38,6 +39,7 @@ export const CodeBlockSpecs: ExtensionAuto<CodeBlockSpecsOptions> = (builder, op
             attrs: {
                 [CodeBlockNodeAttr.Lang]: {default: ''},
                 [CodeBlockNodeAttr.Markup]: {default: '```'},
+                [CodeBlockNodeAttr.Line]: {default: null},
             },
             content: 'text*',
             group: 'block',
@@ -65,6 +67,11 @@ export const CodeBlockSpecs: ExtensionAuto<CodeBlockSpecsOptions> = (builder, op
                 name: codeBlockNodeName,
                 type: 'block',
                 noCloseToken: true,
+                getAttrs: (tok) => {
+                    return {
+                        [CodeBlockNodeAttr.Line]: tok.attrGet('data-line'),
+                    };
+                },
                 prepareContent: removeNewLineAtEnd, // content of code blocks contains extra \n at the end
             },
         },
@@ -90,8 +97,9 @@ export const CodeBlockSpecs: ExtensionAuto<CodeBlockSpecsOptions> = (builder, op
                 type: 'block',
                 noCloseToken: true,
                 getAttrs: (tok) => {
-                    const attrs: Record<string, string> = {
+                    const attrs: Record<string, string | null> = {
                         [CodeBlockNodeAttr.Markup]: tok.markup,
+                        [CodeBlockNodeAttr.Line]: tok.attrGet('data-line'),
                     };
                     if (tok.info) {
                         // like in markdown-it
