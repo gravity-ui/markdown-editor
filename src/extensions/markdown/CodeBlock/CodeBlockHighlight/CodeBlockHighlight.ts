@@ -16,6 +16,8 @@ import {CodeBlockNodeAttr, codeBlockNodeName, codeBlockType} from '../CodeBlockS
 
 import {codeLangSelectTooltipViewCreator} from './TooltipPlugin';
 
+import './CodeBlockHighlight.scss';
+
 export type HighlightLangMap = Options['highlightLangs'];
 
 type Lowlight = ReturnType<typeof createLowlight>;
@@ -146,33 +148,48 @@ export const CodeBlockHighlight: ExtensionAuto<CodeBlockHighlightOptions> = (bui
 
                         const dom = document.createElement('pre');
 
-                        const contentDOM = document.createElement('code');
-                        contentDOM.classList.add('hljs');
+                        const code = document.createElement('code');
+                        code.classList.add('hljs');
 
                         if (prevLang) {
                             dom.setAttribute(CodeBlockNodeAttr.Lang, prevLang);
-                            contentDOM.classList.add(prevLang);
+                            code.classList.add(prevLang);
                         }
 
-                        dom.append(contentDOM);
+                        const contentDOM = document.createElement('div');
+
+                        let lineNumbersContainer = initializeLineNumbers(node, code);
+
+                        code.append(contentDOM);
+                        dom.append(code);
 
                         return {
                             dom,
                             contentDOM,
+                            ignoreMutation: (mutation) => {
+                                if (mutation.type === 'attributes') return true;
+                                return false;
+                            },
                             update(newNode) {
                                 if (node.type !== newNode.type) return false;
 
                                 const newLang = newNode.attrs[CodeBlockNodeAttr.Lang];
                                 if (prevLang !== newLang) {
-                                    contentDOM.className = 'hljs';
+                                    code.className = 'hljs';
                                     if (newLang) {
                                         dom.setAttribute(CodeBlockNodeAttr.Lang, newLang);
-                                        contentDOM.classList.add(newLang);
+                                        code.classList.add(newLang);
                                     } else {
                                         dom.removeAttribute(CodeBlockNodeAttr.Lang);
                                     }
                                     prevLang = newLang;
                                 }
+
+                                lineNumbersContainer = updateLineNumbers(
+                                    newNode,
+                                    code,
+                                    lineNumbersContainer,
+                                );
 
                                 return true;
                             },
@@ -241,4 +258,66 @@ function parseNodes(
 function stepHasFromTo(step: Step): step is Step & {from: number; to: number} {
     // @ts-expect-error
     return typeof step.from === 'number' && typeof step.to === 'number';
+}
+
+function initializeLineNumbers(node: Node, code: HTMLElement) {
+    const showLineNumbers = node.attrs[CodeBlockNodeAttr.ShowLineNumbers];
+
+    if (!showLineNumbers) {
+        return undefined;
+    }
+
+    const lineNumbersContainer = document.createElement('div');
+    lineNumbersContainer.className = 'yfm-line-numbers';
+    lineNumbersContainer.contentEditable = 'false';
+
+    const lineNumbersContent = createLineNumbersContent(node.textContent);
+    lineNumbersContainer.innerHTML = lineNumbersContent;
+
+    code.prepend(lineNumbersContainer);
+    code.classList.add('show-line-numbers');
+
+    return lineNumbersContainer;
+}
+
+function updateLineNumbers(
+    node: Node,
+    code: HTMLElement,
+    prevLineNumbersContainer?: HTMLDivElement,
+) {
+    const showLineNumbers = node.attrs[CodeBlockNodeAttr.ShowLineNumbers];
+
+    if (!prevLineNumbersContainer && showLineNumbers !== 'true') {
+        return undefined;
+    } else if (!prevLineNumbersContainer && showLineNumbers === 'true') {
+        return initializeLineNumbers(node, code);
+    } else if (prevLineNumbersContainer && showLineNumbers !== 'true') {
+        code.removeChild(prevLineNumbersContainer);
+        code.classList.remove('show-line-numbers');
+        return undefined;
+    }
+
+    if (!prevLineNumbersContainer) {
+        return prevLineNumbersContainer;
+    }
+
+    const lineNumbersContent = createLineNumbersContent(node.textContent);
+    prevLineNumbersContainer.innerHTML = lineNumbersContent;
+    code.classList.add('show-line-numbers');
+
+    return prevLineNumbersContainer;
+}
+
+function createLineNumbersContent(content: string) {
+    const lines = content ? content.split('\n') : [''];
+    const lineCount = lines.length;
+    const maxDigits = String(lineCount).length;
+
+    let lineNumbersHtml = '';
+    for (let i = 1; i <= lineCount; i++) {
+        const num = String(i).padStart(maxDigits, ' ');
+        lineNumbersHtml += `<div class="yfm-line-number">${num}</div>`;
+    }
+
+    return lineNumbersHtml;
 }
