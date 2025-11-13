@@ -4,6 +4,8 @@ import {EditorView as CMEditorView} from '@codemirror/view';
 import {TextSelection} from 'prosemirror-state';
 import type {EditorView as PMEditorView} from 'prosemirror-view';
 
+import {getDescedantByAttribute} from 'src/utils/node-descedants';
+
 import type {CommonEditor, MarkupString} from '../common';
 import {
     type ActionStorage,
@@ -516,45 +518,80 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
 
         switch (mode) {
             case 'markup': {
-                const view = this.markupEditor.cm;
-
-                let cmLine = line + 1; // lines in codemirror is 1-based
-                cmLine = Math.max(cmLine, 1);
-                cmLine = Math.min(cmLine, view.state.doc.lines);
-
-                const yMargin = getTopOffset(view.dom);
-                const anchor = view.state.doc.line(cmLine).from;
-                view.dispatch({
-                    scrollIntoView: true,
-                    selection: {anchor},
-                    effects: [
-                        CMEditorView.scrollIntoView(anchor, {y: 'start', x: 'start', yMargin}),
-                    ],
-                });
-
+                this.markupMoveToLine(line);
                 break;
-
-                // eslint-disable-next-line no-inner-declarations
             }
             case 'wysiwyg': {
-                const elem = this.wysiwygEditor.dom.querySelector(`[data-line="${line}"]`);
-
-                if (elem) {
-                    const elemTop = elem.getBoundingClientRect().top;
-                    const topOffset = getTopOffset(this.wysiwygEditor.dom);
-                    window.scrollTo({top: elemTop + window.scrollY - topOffset});
-
-                    const position = this._wysiwygView.posAtDOM(elem, 0);
-                    const {tr} = this._wysiwygView.state;
-                    this._wysiwygView.dispatch(
-                        tr.setSelection(TextSelection.create(tr.doc, position)),
-                    );
-                }
-
+                this.wysiwygMoveToLine(line);
                 break;
             }
             default:
                 throw new Error('Unknown editor mode: ' + mode);
+        }
+    }
+
+    private markupMoveToLine(line: number): void {
+        const view = this.markupEditor.cm;
+        const isConnected = Boolean(view.dom.parentElement);
+
+        let cmLine = line + 1; // lines in codemirror is 1-based
+        cmLine = Math.max(cmLine, 1);
+        cmLine = Math.min(cmLine, view.state.doc.lines);
+
+        const anchor = view.state.doc.line(cmLine).from;
+        view.dispatch({
+            scrollIntoView: true,
+            selection: {anchor},
+            effects: isConnected
+                ? [
+                      CMEditorView.scrollIntoView(anchor, {
+                          y: 'start',
+                          x: 'start',
+                          yMargin: getTopOffset(view.dom),
+                      }),
+                  ]
+                : undefined,
+        });
+    }
+
+    private wysiwygMoveToLine(line: number): void {
+        const DATA_LINE = 'data-line';
+        const SELECTOR = `[${DATA_LINE}="${line}"]` as const;
+
+        const view = this._wysiwygView;
+        const isConnected = Boolean(view.dom.parentElement);
+
+        const setSelection = (pos: number) => {
+            const {tr} = view.state;
+            view.dispatch(tr.setSelection(TextSelection.near(tr.doc.resolve(pos), 1)));
+        };
+
+        const scrollIntoView = (elemTop: number) => {
+            const topOffset = getTopOffset(this.wysiwygEditor.dom);
+            window.scrollTo({top: elemTop + window.scrollY - topOffset});
+        };
+
+        const elem = this.wysiwygEditor.dom.querySelector(SELECTOR);
+        if (elem) {
+            const position = this._wysiwygView.posAtDOM(elem, 0);
+            setSelection(position);
+
+            if (isConnected) {
+                const elemTop = elem.getBoundingClientRect().top;
+                scrollIntoView(elemTop);
+            }
+
+            return;
+        }
+
+        const node = getDescedantByAttribute(view.state.doc, DATA_LINE, [line, String(line)]);
+        if (node) {
+            setSelection(node.pos);
+
+            if (isConnected) {
+                const elemTop = view.coordsAtPos(node.pos).top;
+                scrollIntoView(elemTop);
+            }
         }
     }
 
