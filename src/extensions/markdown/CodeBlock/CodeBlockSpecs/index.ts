@@ -4,6 +4,7 @@ import {nodeTypeFactory} from '../../../../utils/schema';
 export const CodeBlockNodeAttr = {
     Lang: 'data-language',
     Markup: 'data-markup',
+    ShowLineNumbers: 'data-show-line-numbers',
 } as const;
 
 export const codeBlockNodeName = 'code_block';
@@ -38,6 +39,7 @@ export const CodeBlockSpecs: ExtensionAuto<CodeBlockSpecsOptions> = (builder, op
             attrs: {
                 [CodeBlockNodeAttr.Lang]: {default: ''},
                 [CodeBlockNodeAttr.Markup]: {default: '```'},
+                [CodeBlockNodeAttr.ShowLineNumbers]: {default: ''},
             },
             content: 'text*',
             group: 'block',
@@ -71,8 +73,15 @@ export const CodeBlockSpecs: ExtensionAuto<CodeBlockSpecsOptions> = (builder, op
         toMd: (state, node) => {
             const lang: string = node.attrs[CodeBlockNodeAttr.Lang];
             const markup: string = node.attrs[CodeBlockNodeAttr.Markup];
+            const showLineNumbers: string = node.attrs[CodeBlockNodeAttr.ShowLineNumbers];
 
-            state.write(markup + lang + '\n');
+            let info = lang;
+
+            if (showLineNumbers === 'true') {
+                info += ' showLineNumbers';
+            }
+
+            state.write(markup + info + '\n');
             state.text(node.textContent, false);
             // Add a newline to the current content before adding closing marker
             state.write('\n');
@@ -96,7 +105,12 @@ export const CodeBlockSpecs: ExtensionAuto<CodeBlockSpecsOptions> = (builder, op
                     if (tok.info) {
                         // like in markdown-it
                         // https://github.com/markdown-it/markdown-it/blob/d07d585b6b15aaee2bc8f7a54b994526dad4dbc5/lib/renderer.mjs#L36-L37
-                        attrs[CodeBlockNodeAttr.Lang] = tok.info.split(/(\s+)/g)[0];
+                        const parts = tok.info.split(/\s+/);
+                        attrs[CodeBlockNodeAttr.Lang] = parts[0];
+
+                        if (parts.includes('showLineNumbers')) {
+                            attrs[CodeBlockNodeAttr.ShowLineNumbers] = 'true';
+                        }
                     }
                     return attrs;
                 },

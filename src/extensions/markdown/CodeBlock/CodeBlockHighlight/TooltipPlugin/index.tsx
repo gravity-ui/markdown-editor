@@ -1,5 +1,7 @@
+import type {ChangeEventHandler} from 'react';
+
 import {TrashBin} from '@gravity-ui/icons';
-import {Select, type SelectOption} from '@gravity-ui/uikit';
+import {Checkbox, Select, type SelectOption} from '@gravity-ui/uikit';
 import type {Node} from 'prosemirror-model';
 import type {EditorView} from 'prosemirror-view';
 
@@ -22,6 +24,7 @@ type CodeMenuProps = {
 
 const CodeMenu: React.FC<CodeMenuProps> = ({view, pos, node, selectItems, mapping}) => {
     const lang = node.attrs[CodeBlockNodeAttr.Lang];
+    const showLineNumbers = node.attrs[CodeBlockNodeAttr.ShowLineNumbers];
     const value = mapping[lang] ?? lang;
 
     const handleClick = (type: string) => {
@@ -31,6 +34,7 @@ const CodeMenu: React.FC<CodeMenuProps> = ({view, pos, node, selectItems, mappin
         view.dispatch(
             view.state.tr.setNodeMarkup(pos, null, {
                 [CodeBlockNodeAttr.Lang]: type,
+                [CodeBlockNodeAttr.ShowLineNumbers]: showLineNumbers,
             }),
         );
     };
@@ -52,6 +56,35 @@ const CodeMenu: React.FC<CodeMenuProps> = ({view, pos, node, selectItems, mappin
             )}
             // TODO: in onOpenChange return focus to view.dom after press Esc in Select
             // after https://github.com/gravity-ui/uikit/issues/2075
+        />
+    );
+};
+
+type ShowLineNumbersProps = {
+    view: EditorView;
+    pos: number;
+    node: Node;
+};
+
+const ShowLineNumbers: React.FC<ShowLineNumbersProps> = ({view, pos, node}) => {
+    const lang = node.attrs[CodeBlockNodeAttr.Lang];
+    const showLineNumbers = node.attrs[CodeBlockNodeAttr.ShowLineNumbers] === 'true';
+
+    const handleChange: ChangeEventHandler<HTMLInputElement> = (event) => {
+        view.dispatch(
+            view.state.tr.setNodeMarkup(pos, null, {
+                [CodeBlockNodeAttr.Lang]: lang,
+                [CodeBlockNodeAttr.ShowLineNumbers]: event.target.checked ? 'true' : undefined,
+            }),
+        );
+    };
+
+    return (
+        <Checkbox
+            checked={showLineNumbers}
+            className="g-md-code-block__show-line-numbers"
+            content={i18n('show_line_numbers')}
+            onChange={handleChange}
         />
     );
 };
@@ -84,6 +117,14 @@ export const codeLangSelectTooltipViewCreator = (
                                     mapping={mapping}
                                 />
                             ),
+                            width: 28,
+                        },
+                    ],
+                    [
+                        {
+                            id: 'code-block-showlinenumbers',
+                            type: ToolbarDataType.ReactComponent,
+                            component: () => <ShowLineNumbers view={view} pos={pos} node={node} />,
                             width: 28,
                         },
                     ],
