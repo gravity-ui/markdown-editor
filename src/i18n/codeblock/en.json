@@ -1,4 +1,5 @@
 {
   "remove": "Remove",
-  "empty_option": "No matches found"
+  "empty_option": "No matches found",
+  "show_line_numbers": "Line numbers"
 }

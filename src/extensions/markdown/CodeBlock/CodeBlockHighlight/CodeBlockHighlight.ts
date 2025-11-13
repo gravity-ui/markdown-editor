@@ -186,7 +186,50 @@ export const CodeBlockHighlight: ExtensionAuto<CodeBlockHighlightOptions> = (bui
     function getDecorations(doc: Node) {
         const decos: Decoration[] = [];
 
+        for (const {node, pos} of findChildrenByType(doc, codeBlockType(doc.type.schema), true)) {
+            const showLineNumbers: string = node.attrs[CodeBlockNodeAttr.ShowLineNumbers];
+
+            if (showLineNumbers !== 'true') {
+                continue;
+            }
+
+            const from = pos + 1;
+            let lineNumber = 1;
+            const lines = node.textContent.split('\n');
+            const lineCount = lines.length;
+            const maxDigits = String(lineCount).length;
+
+            const createLineNumberDecoration = (position: number, num: number) => {
+                return Decoration.widget(
+                    position,
+                    () => {
+                        const lineNumEl = document.createElement('span');
+                        lineNumEl.className = 'yfm-line-number';
+                        lineNumEl.textContent = String(num).padStart(maxDigits, ' ');
+
+                        return lineNumEl;
+                    },
+                    {side: -1, ignoreSelection: true},
+                );
+            };
+
+            decos.push(createLineNumberDecoration(from, 1));
+
+            for (let i = 0; i < node.textContent.length; i++) {
+                if (node.textContent[i] !== '\n') {
+                    continue;
+                }
+
+                lineNumber++;
+
+                decos.push(createLineNumberDecoration(from + i + 1, lineNumber));
+            }
+        }
+
         if (!lowlight) {
+            if (decos.length) {
+                return DecorationSet.create(doc, decos);
+            }
             return DecorationSet.empty;
         }
 
