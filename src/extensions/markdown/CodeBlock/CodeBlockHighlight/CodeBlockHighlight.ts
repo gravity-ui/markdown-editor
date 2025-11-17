@@ -12,9 +12,16 @@ import {Decoration, DecorationSet} from 'prosemirror-view';
 import type {ExtensionAuto} from '../../../../core';
 import {capitalize} from '../../../../lodash';
 import {globalLogger} from '../../../../logger';
-import {CodeBlockNodeAttr, codeBlockNodeName, codeBlockType} from '../CodeBlockSpecs';
+import {
+    CodeBlockNodeAttr,
+    type LineNumbersOptions,
+    codeBlockNodeName,
+    codeBlockType,
+} from '../CodeBlockSpecs';
 
 import {codeLangSelectTooltipViewCreator} from './TooltipPlugin';
+
+import './CodeBlockHighlight.scss';
 
 export type HighlightLangMap = Options['highlightLangs'];
 
@@ -29,6 +36,7 @@ type LangSelectItem = {
 const key = new PluginKey<DecorationSet>('code_block_highlight');
 
 export type CodeBlockHighlightOptions = {
+    lineNumbers?: LineNumbersOptions;
     langs?: HighlightLangMap;
 };
 
@@ -135,7 +143,13 @@ export const CodeBlockHighlight: ExtensionAuto<CodeBlockHighlightOptions> = (bui
                     return decos.map(tr.mapping, tr.doc);
                 },
             },
-            view: (view) => codeLangSelectTooltipViewCreator(view, selectItems, mapping),
+            view: (view) =>
+                codeLangSelectTooltipViewCreator(
+                    view,
+                    selectItems,
+                    mapping,
+                    Boolean(opts.lineNumbers?.enabled),
+                ),
             props: {
                 decorations: (state) => {
                     return key.getState(state);
@@ -151,15 +165,24 @@ export const CodeBlockHighlight: ExtensionAuto<CodeBlockHighlightOptions> = (bui
                             node.attrs[CodeBlockNodeAttr.Line],
                         );
 
-                        const contentDOM = document.createElement('code');
-                        contentDOM.classList.add('hljs');
+                        const code = document.createElement('code');
+                        code.classList.add('hljs');
 
                         if (prevLang) {
                             dom.setAttribute(CodeBlockNodeAttr.Lang, prevLang);
-                            contentDOM.classList.add(prevLang);
+                            code.classList.add(prevLang);
                         }
 
-                        dom.append(contentDOM);
+                        const contentDOM = document.createElement('div');
+
+                        let lineNumbersContainer: HTMLDivElement | undefined;
+
+                        if (opts.lineNumbers?.enabled) {
+                            lineNumbersContainer = initializeLineNumbers(node, code);
+                        }
+
+                        code.append(contentDOM);
+                        dom.append(code);
 
                         return {
                             dom,
@@ -169,10 +192,10 @@ export const CodeBlockHighlight: ExtensionAuto<CodeBlockHighlightOptions> = (bui
 
                                 const newLang = newNode.attrs[CodeBlockNodeAttr.Lang];
                                 if (prevLang !== newLang) {
-                                    contentDOM.className = 'hljs';
+                                    code.className = 'hljs';
                                     updateDomAttribute(dom, CodeBlockNodeAttr.Lang, newLang);
                                     if (newLang) {
-                                        contentDOM.classList.add(newLang);
+                                        code.classList.add(newLang);
                                     }
                                     prevLang = newLang;
                                 }
@@ -182,6 +205,14 @@ export const CodeBlockHighlight: ExtensionAuto<CodeBlockHighlightOptions> = (bui
                                     CodeBlockNodeAttr.Line,
                                     newNode.attrs[CodeBlockNodeAttr.Line],
                                 );
+
+                                if (opts.lineNumbers?.enabled) {
+                                    lineNumbersContainer = updateLineNumbers(
+                                        newNode,
+                                        code,
+                                        lineNumbersContainer,
+                                    );
+                                }
 
                                 return true;
                             },
@@ -258,4 +289,65 @@ function updateDomAttribute(elem: Element, attr: string, value: string | null | 
     } else {
         elem.removeAttribute(attr);
     }
+}
+function initializeLineNumbers(node: Node, code: HTMLElement) {
+    const showLineNumbers = node.attrs[CodeBlockNodeAttr.ShowLineNumbers];
+
+    if (!showLineNumbers) {
+        return undefined;
+    }
+
+    const lineNumbersContainer = document.createElement('div');
+    lineNumbersContainer.className = 'yfm-line-numbers';
+    lineNumbersContainer.contentEditable = 'false';
+
+    const lineNumbersContent = createLineNumbersContent(node.textContent);
+    lineNumbersContainer.innerHTML = lineNumbersContent;
+
+    code.prepend(lineNumbersContainer);
+    code.classList.add('show-line-numbers');
+
+    return lineNumbersContainer;
+}
+
+function updateLineNumbers(
+    node: Node,
+    code: HTMLElement,
+    prevLineNumbersContainer?: HTMLDivElement,
+) {
+    const showLineNumbers = node.attrs[CodeBlockNodeAttr.ShowLineNumbers];
+
+    if (!prevLineNumbersContainer && showLineNumbers !== 'true') {
+        return undefined;
+    } else if (!prevLineNumbersContainer && showLineNumbers === 'true') {
+        return initializeLineNumbers(node, code);
+    } else if (prevLineNumbersContainer && showLineNumbers !== 'true') {
+        code.removeChild(prevLineNumbersContainer);
+        code.classList.remove('show-line-numbers');
+        return undefined;
+    }
+
+    if (!prevLineNumbersContainer) {
+        return prevLineNumbersContainer;
+    }
+
+    const lineNumbersContent = createLineNumbersContent(node.textContent);
+    prevLineNumbersContainer.innerHTML = lineNumbersContent;
+    code.classList.add('show-line-numbers');
+
+    return prevLineNumbersContainer;
+}
+
+function createLineNumbersContent(content: string) {
+    const lines = content ? content.split('\n') : [''];
+    const lineCount = lines.length;
+    const maxDigits = String(lineCount).length;
+
+    let lineNumbersHtml = '';
+    for (let i = 1; i <= lineCount; i++) {
+        const num = String(i).padStart(maxDigits, ' ');
+        lineNumbersHtml += `<div class="yfm-line-number">${num}</div>`;
+    }
+
+    return lineNumbersHtml;
 }

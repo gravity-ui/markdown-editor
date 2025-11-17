@@ -1,0 +1,9 @@
+.yfm .hljs.show-line-numbers {
+    display: flex;
+
+    white-space: pre;
+}
+
+.yfm pre > code > .yfm-line-numbers > .yfm-line-number {
+    display: block;
+}

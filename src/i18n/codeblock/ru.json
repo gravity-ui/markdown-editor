@@ -1,4 +1,5 @@
 {
   "remove": "Удалить",
-  "empty_option": "Ничего не найдено"
+  "empty_option": "Ничего не найдено",
+  "show_line_numbers": "Нумерация строк"
 }
