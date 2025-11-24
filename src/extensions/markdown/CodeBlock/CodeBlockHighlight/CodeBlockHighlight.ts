@@ -179,7 +179,7 @@ export const CodeBlockHighlight: ExtensionAuto<CodeBlockHighlightOptions> = (bui
                         let prevLineCount = 0;
 
                         if (opts.lineNumbers?.enabled) {
-                            const result = initializeLineNumbers(node, code);
+                            const result = manageLineNumbers(node, code);
                             lineNumbersContainer = result.container;
                             prevLineCount = result.lineCount;
                         }
@@ -210,7 +210,7 @@ export const CodeBlockHighlight: ExtensionAuto<CodeBlockHighlightOptions> = (bui
                                 );
 
                                 if (opts.lineNumbers?.enabled) {
-                                    const result = updateLineNumbers(
+                                    const result = manageLineNumbers(
                                         newNode,
                                         code,
                                         lineNumbersContainer,
@@ -296,102 +296,62 @@ function updateDomAttribute(elem: Element, attr: string, value: string | null | 
         elem.removeAttribute(attr);
     }
 }
-function initializeLineNumbers(
+
+function manageLineNumbers(
     node: Node,
     code: HTMLElement,
-): {container?: HTMLDivElement; lineCount: number} {
-    const showLineNumbers = node.attrs[CodeBlockNodeAttr.ShowLineNumbers];
-
-    if (!showLineNumbers) {
-        return {container: undefined, lineCount: 0};
-    }
-
-    const lineNumbersContainer = document.createElement('div');
-    lineNumbersContainer.className = 'yfm-line-numbers';
-    lineNumbersContainer.contentEditable = 'false';
-
-    const lines = node.textContent ? node.textContent.split('\n') : [''];
-    const lineCount = lines.length;
-
-    appendLineNumbers(lineNumbersContainer, 1, lineCount);
-
-    code.prepend(lineNumbersContainer);
-    code.classList.add('show-line-numbers');
-
-    return {container: lineNumbersContainer, lineCount};
-}
-
-function updateLineNumbers(
-    node: Node,
-    code: HTMLElement,
-    prevLineNumbersContainer?: HTMLDivElement,
+    prevContainer?: HTMLDivElement,
     prevLineCount = 0,
 ): {container?: HTMLDivElement; lineCount: number} {
-    const showLineNumbers = node.attrs[CodeBlockNodeAttr.ShowLineNumbers];
+    const showLineNumbers = node.attrs[CodeBlockNodeAttr.ShowLineNumbers] === 'true';
 
-    if (!prevLineNumbersContainer && showLineNumbers !== 'true') {
+    if (!showLineNumbers) {
+        if (prevContainer) {
+            code.removeChild(prevContainer);
+            code.classList.remove('show-line-numbers');
+        }
         return {container: undefined, lineCount: 0};
-    } else if (!prevLineNumbersContainer && showLineNumbers === 'true') {
-        return initializeLineNumbers(node, code);
-    } else if (prevLineNumbersContainer && showLineNumbers !== 'true') {
-        code.removeChild(prevLineNumbersContainer);
-        code.classList.remove('show-line-numbers');
-        return {container: undefined, lineCount: 0};
-    }
-
-    if (!prevLineNumbersContainer) {
-        return {container: prevLineNumbersContainer, lineCount: prevLineCount};
     }
 
     const lines = node.textContent ? node.textContent.split('\n') : [''];
     const currentLineCount = lines.length;
 
+    let container = prevContainer;
+    if (!container) {
+        container = document.createElement('div');
+        container.className = 'yfm-line-numbers';
+        container.contentEditable = 'false';
+        code.prepend(container);
+    }
+
     code.classList.add('show-line-numbers');
 
-    if (currentLineCount === prevLineCount) {
-        return {container: prevLineNumbersContainer, lineCount: prevLineCount};
-    }
+    if (currentLineCount !== prevLineCount) {
+        const maxDigits = String(currentLineCount).length;
+        const prevMaxDigits = String(prevLineCount).length;
 
-    if (currentLineCount > prevLineCount) {
-        appendLineNumbers(prevLineNumbersContainer, prevLineCount + 1, currentLineCount);
-    } else if (currentLineCount < prevLineCount) {
-        removeExcessLineNumbers(prevLineNumbersContainer, currentLineCount, prevLineCount);
-    }
+        if (currentLineCount > prevLineCount) {
+            for (let i = prevLineCount + 1; i <= currentLineCount; i++) {
+                const lineNumberElement = document.createElement('div');
+                lineNumberElement.className = 'yfm-line-number';
+                lineNumberElement.textContent = String(i).padStart(maxDigits, ' ');
+                container.appendChild(lineNumberElement);
+            }
+        } else if (currentLineCount < prevLineCount) {
+            for (let i = prevLineCount; i > currentLineCount; i--) {
+                if (container.lastChild) {
+                    container.removeChild(container.lastChild);
+                }
+            }
+        }
 
-    return {container: prevLineNumbersContainer, lineCount: currentLineCount};
-}
-
-function appendLineNumbers(container: HTMLDivElement, startLine: number, endLine: number) {
-    const maxDigits = String(endLine).length;
-
-    for (let i = startLine; i <= endLine; i++) {
-        const lineNumberElement = document.createElement('div');
-        lineNumberElement.className = 'yfm-line-number';
-        lineNumberElement.textContent = String(i).padStart(maxDigits, ' ');
-        container.appendChild(lineNumberElement);
-    }
-
-    // Update padding on all line numbers if digit count changed
-    if (startLine === 1) {
-        updateLineNumberPadding(container, maxDigits);
-    }
-}
-
-function removeExcessLineNumbers(container: HTMLDivElement, keepCount: number, prevCount: number) {
-    for (let i = prevCount; i > keepCount; i--) {
-        if (container.lastChild) {
-            container.removeChild(container.lastChild);
+        if (maxDigits !== prevMaxDigits) {
+            Array.from(container.children).forEach((lineNumber, index) => {
+                const lineNum = index + 1;
+                lineNumber.textContent = String(lineNum).padStart(maxDigits, ' ');
+            });
         }
     }
 
-    // Update padding on remaining line numbers if digit count changed
-    const maxDigits = String(keepCount).length;
-    updateLineNumberPadding(container, maxDigits);
-}
-
-function updateLineNumberPadding(container: HTMLDivElement, maxDigits: number) {
-    Array.from(container.children).forEach((lineNumber, index) => {
-        const lineNum = index + 1;
-        lineNumber.textContent = String(lineNum).padStart(maxDigits, ' ');
-    });
+    return {container, lineCount: currentLineCount};
 }
