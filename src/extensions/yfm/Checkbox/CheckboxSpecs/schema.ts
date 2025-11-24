@@ -46,7 +46,7 @@ export const getSchemaSpecs = (
                 tag: 'input[type=checkbox]',
                 priority: 50,
                 getContent(node, schema) {
-                    const element = node as HTMLElement;
+                    const element = node instanceof HTMLInputElement ? node : undefined;
                     const id = element.id;
                     const checked = (element as HTMLInputElement).checked ? 'true' : null;
 
