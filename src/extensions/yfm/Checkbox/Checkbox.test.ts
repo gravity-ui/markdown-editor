@@ -23,6 +23,7 @@ const {
 
 const {
     doc,
+    p,
     b,
     checkbox,
     cbInput,
@@ -134,6 +135,32 @@ describe('Checkbox extension', () => {
 <label>todo without id</label>
 `,
             doc(checkbox(cbInput(), cbLabel('todo without id'))),
+            [fixPastePlugin()],
+        );
+    });
+
+    it('should parse dom with multiple checkboxes without id', () => {
+        parseDOM(
+            schema,
+            `
+<input type="checkbox">
+<label>First checkbox</label>
+<input type="checkbox" checked="">
+<label>Second checkbox</label>
+`,
+            doc(
+                checkbox(cbInput(), cbLabel('First checkbox')),
+                checkbox(cbInput({checked: 'true'}), cbLabel('Second checkbox')),
+            ),
+            [fixPastePlugin()],
+        );
+    });
+
+    it('should create empty label when next sibling is not a label', () => {
+        parseDOM(
+            schema,
+            `<input type="checkbox"><span>Not a label</span>`,
+            doc(checkbox(cbInput(), cbLabel()), p('Not a label')),
             [fixPastePlugin()],
         );
     });
