@@ -48,9 +48,12 @@ export const getSchemaSpecs = (
                 getContent(node, schema) {
                     const id = (node as HTMLElement).id;
                     const checked = (node as HTMLInputElement).checked ? 'true' : null;
-                    const text = node.parentNode?.querySelector<HTMLLabelElement>(
-                        `label[for=${id}]`,
-                    )?.textContent;
+
+                    // find label by id if present, otherwise find any label
+                    const text =
+                        node.parentNode?.querySelector<HTMLLabelElement>(
+                            id ? `label[for="${id}"]` : 'label',
+                        )?.textContent || undefined;
 
                     return Fragment.from([
                         checkboxInputType(schema).create({[CheckboxAttr.Checked]: checked}),
@@ -93,8 +96,15 @@ export const getSchemaSpecs = (
             },
             {
                 // input handled by checkbox node parse rule
-                // ignore label
+                // ignore label with for attribute
                 tag: 'input[type=checkbox] ~ label[for]',
+                ignore: true,
+                consuming: true,
+            },
+            {
+                // input handled by checkbox node parse rule
+                // ignore label without for attribute
+                tag: 'input[type=checkbox] ~ label',
                 ignore: true,
                 consuming: true,
             },

@@ -125,4 +125,16 @@ describe('Checkbox extension', () => {
             [fixPastePlugin()],
         );
     });
+
+    it('should parse dom with input[type=checkbox] without id', () => {
+        parseDOM(
+            schema,
+            `
+<input type="checkbox" disabled="">
+<label>todo without id</label>
+`,
+            doc(checkbox(cbInput(), cbLabel('todo without id'))),
+            [fixPastePlugin()],
+        );
+    });
 });
