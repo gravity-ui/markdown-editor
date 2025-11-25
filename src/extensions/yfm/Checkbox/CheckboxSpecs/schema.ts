@@ -26,24 +26,30 @@ export const getSchemaSpecs = (
                 tag: 'div.checkbox',
                 priority: 100,
                 getContent(node, schema) {
-                    const input = (node as HTMLElement).querySelector<HTMLInputElement>(
-                        'input[type=checkbox]',
-                    );
-                    if (!input) {
-                        return Fragment.empty;
-                    }
+                    if (node instanceof HTMLElement) {
+                        const input = node.querySelector<HTMLInputElement>('input[type=checkbox]');
 
-                    const label = findLabelForInput(input);
-                    return createCheckboxFragment(schema, input.checked, label?.textContent);
+                        if (input && input instanceof HTMLInputElement) {
+                            const label = findLabelForInput(input);
+                            return createCheckboxFragment(
+                                schema,
+                                input.checked,
+                                label?.textContent,
+                            );
+                        }
+                    }
+                    return Fragment.empty;
                 },
             },
             {
                 tag: 'input[type=checkbox]',
                 priority: 50,
-                getContent(node, schema) {
-                    const input = node as HTMLInputElement;
-                    const label = findLabelForInput(input);
-                    return createCheckboxFragment(schema, input.checked, label?.textContent);
+                getContent(input, schema) {
+                    if (input instanceof HTMLInputElement) {
+                        const label = findLabelForInput(input);
+                        return createCheckboxFragment(schema, input.checked, label?.textContent);
+                    }
+                    return Fragment.empty;
                 },
             },
         ],
@@ -78,13 +84,6 @@ export const getSchemaSpecs = (
                 getAttrs: (node) => ({
                     [CheckboxAttr.For]: (node as Element).getAttribute(CheckboxAttr.For) || '',
                 }),
-            },
-            {
-                // input handled by checkbox node parse rule
-                // ignore label with for attribute
-                tag: 'input[type=checkbox] ~ label[for]',
-                ignore: true,
-                consuming: true,
             },
             {
                 // input handled by checkbox node parse rule
