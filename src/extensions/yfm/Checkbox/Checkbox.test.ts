@@ -164,4 +164,44 @@ describe('Checkbox extension', () => {
             [fixPastePlugin()],
         );
     });
+
+    it('should parse multiple checkboxes wrapped in div.checkbox', () => {
+        parseDOM(
+            schema,
+            `
+<div class="checkbox">
+  <input type="checkbox" id="checkbox0">
+  <label for="checkbox0">Task 1</label>
+</div>
+<div class="checkbox">
+  <input type="checkbox" id="checkbox1" checked="true">
+  <label for="checkbox1">Task 2</label>
+</div>`,
+            doc(
+                checkbox(cbInput(), cbLabel('Task 1')),
+                checkbox(cbInput({checked: 'true'}), cbLabel('Task 2')),
+            ),
+            [fixPastePlugin()],
+        );
+    });
+
+    it('should parse checkboxes with special characters in id', () => {
+        parseDOM(
+            schema,
+            `
+<div class="checkbox">
+  <input type="checkbox" id="my:invalid[id]">
+  <label for="my:invalid[id]">Task with invalid ID</label>
+</div>
+<div class="checkbox">
+  <input type="checkbox" id="checkbox1" checked="true">
+  <label for="checkbox1">Task with valid ID</label>
+</div>`,
+            doc(
+                checkbox(cbInput(), cbLabel('Task with invalid ID')),
+                checkbox(cbInput({checked: 'true'}), cbLabel('Task with valid ID')),
+            ),
+            [fixPastePlugin()],
+        );
+    });
 });

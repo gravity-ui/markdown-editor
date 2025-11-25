@@ -1,4 +1,4 @@
-import {Fragment, type NodeSpec} from 'prosemirror-model';
+import {Fragment, type NodeSpec, type Schema} from 'prosemirror-model';
 
 import type {PlaceholderOptions} from '../../../../utils/placeholder';
 
@@ -29,40 +29,21 @@ export const getSchemaSpecs = (
                     const input = (node as HTMLElement).querySelector<HTMLInputElement>(
                         'input[type=checkbox]',
                     );
-                    const label = (node as HTMLElement).querySelector<HTMLLabelElement>(
-                        'label[for]',
-                    );
+                    if (!input) {
+                        return Fragment.empty;
+                    }
 
-                    const checked = input?.checked ? 'true' : null;
-                    const text = label?.textContent;
-
-                    return Fragment.from([
-                        checkboxInputType(schema).create({[CheckboxAttr.Checked]: checked}),
-                        checkboxLabelType(schema).create(null, text ? schema.text(text) : null),
-                    ]);
+                    const label = findLabelForInput(input);
+                    return createCheckboxFragment(schema, input.checked, label?.textContent);
                 },
             },
             {
                 tag: 'input[type=checkbox]',
                 priority: 50,
                 getContent(node, schema) {
-                    const element = node instanceof HTMLInputElement ? node : undefined;
-                    const id = element.id;
-                    const checked = (element as HTMLInputElement).checked ? 'true' : null;
-
-                    // find label by id if present, otherwise find next sibling label
-                    const labelById = element.parentNode?.querySelector<HTMLLabelElement>(
-                        `label[for="${id}"]`,
-                    );
-                    const nextSibling = element.nextElementSibling;
-                    const labelNext =
-                        nextSibling?.tagName === 'LABEL' ? (nextSibling as HTMLLabelElement) : null;
-                    const text = (id ? labelById : labelNext)?.textContent || undefined;
-
-                    return Fragment.from([
-                        checkboxInputType(schema).create({[CheckboxAttr.Checked]: checked}),
-                        checkboxLabelType(schema).create(null, text ? schema.text(text) : null),
-                    ]);
+                    const input = node as HTMLInputElement;
+                    const label = findLabelForInput(input);
+                    return createCheckboxFragment(schema, input.checked, label?.textContent);
                 },
             },
         ],
@@ -133,3 +114,24 @@ export const getSchemaSpecs = (
         complex: 'leaf',
     },
 });
+
+// fallback for invalid HTML (input without id + label without for)
+function findNextSiblingLabel(element: HTMLInputElement): HTMLLabelElement | null {
+    const nextSibling = element.nextElementSibling;
+    return nextSibling instanceof HTMLLabelElement ? nextSibling : null;
+}
+
+function findLabelForInput(element: HTMLInputElement): HTMLLabelElement | null {
+    return element.labels?.[0] || findNextSiblingLabel(element);
+}
+
+function createCheckboxFragment(
+    schema: Schema<any, any>,
+    checked: boolean | null,
+    labelText: string | null | undefined,
+): Fragment {
+    return Fragment.from([
+        checkboxInputType(schema).create({[CheckboxAttr.Checked]: checked ? 'true' : null}),
+        checkboxLabelType(schema).create(null, labelText ? schema.text(labelText) : null),
+    ]);
+}
