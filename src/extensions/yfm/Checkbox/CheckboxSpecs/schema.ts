@@ -87,7 +87,7 @@ export const getSchemaSpecs = (
             },
             {
                 // input handled by checkbox node parse rule
-                // ignore label without for attribute
+                // ignore label
                 tag: 'input[type=checkbox] ~ label',
                 ignore: true,
                 consuming: true,
