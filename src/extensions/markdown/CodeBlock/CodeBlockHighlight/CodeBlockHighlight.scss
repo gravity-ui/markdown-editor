@@ -1,9 +1,9 @@
-.g-md-wysiwyg-editor .yfm .hljs.show-line-numbers {
+.yfm.ProseMirror .hljs.show-line-numbers {
     display: flex;
 
     white-space: pre;
 }
 
-.g-md-wysiwyg-editor .yfm pre > code > .yfm-line-numbers > .yfm-line-number {
+.yfm.ProseMirror pre > code > .yfm-line-numbers > .yfm-line-number {
     display: block;
 }
