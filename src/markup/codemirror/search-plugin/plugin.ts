@@ -19,13 +19,15 @@ import {
     keymap,
 } from '@codemirror/view';
 
-import type {MarkdownEditorMode} from '../../../bundle';
-import type {EventMap} from '../../../bundle/Editor';
-import type {RendererItem} from '../../../extensions';
-import {debounce} from '../../../lodash';
-import type {Receiver} from '../../../utils';
+import type {MarkdownEditorMode} from 'src/bundle';
+import type {EventMap} from 'src/bundle/Editor';
+import type {RendererItem} from 'src/extensions';
+import {debounce} from 'src/lodash';
+import type {Receiver} from 'src/utils';
+
 import {ReactRendererFacet} from '../react-facet';
 
+import {searchTheme} from './theme';
 import {renderSearchPopup} from './view/SearchPopup';
 
 type SearchQueryConfig = ConstructorParameters<typeof SearchQuery>[0];
@@ -165,6 +167,7 @@ export const SearchPanelPlugin = (params: SearchPanelPluginParams) =>
         {
             provide: () => [
                 keymap.of(searchKeymap),
+                searchTheme,
                 search({
                     createPanel: () => ({
                         // Create an empty search panel
