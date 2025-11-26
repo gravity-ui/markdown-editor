@@ -1,4 +1,4 @@
-import {Fragment, type NodeSpec} from 'prosemirror-model';
+import {Fragment, type NodeSpec, type Schema} from 'prosemirror-model';
 
 import type {PlaceholderOptions} from '../../../../utils/placeholder';
 
@@ -26,36 +26,30 @@ export const getSchemaSpecs = (
                 tag: 'div.checkbox',
                 priority: 100,
                 getContent(node, schema) {
-                    const input = (node as HTMLElement).querySelector<HTMLInputElement>(
-                        'input[type=checkbox]',
-                    );
-                    const label = (node as HTMLElement).querySelector<HTMLLabelElement>(
-                        'label[for]',
-                    );
+                    if (node instanceof HTMLElement) {
+                        const input = node.querySelector<HTMLInputElement>('input[type=checkbox]');
 
-                    const checked = input?.checked ? 'true' : null;
-                    const text = label?.textContent;
-
-                    return Fragment.from([
-                        checkboxInputType(schema).create({[CheckboxAttr.Checked]: checked}),
-                        checkboxLabelType(schema).create(null, text ? schema.text(text) : null),
-                    ]);
+                        if (input && input instanceof HTMLInputElement) {
+                            const label = findLabelForInput(input);
+                            return createCheckboxFragment(
+                                schema,
+                                input.checked,
+                                label?.textContent,
+                            );
+                        }
+                    }
+                    return Fragment.empty;
                 },
             },
             {
                 tag: 'input[type=checkbox]',
                 priority: 50,
-                getContent(node, schema) {
-                    const id = (node as HTMLElement).id;
-                    const checked = (node as HTMLInputElement).checked ? 'true' : null;
-                    const text = node.parentNode?.querySelector<HTMLLabelElement>(
-                        `label[for=${id}]`,
-                    )?.textContent;
-
-                    return Fragment.from([
-                        checkboxInputType(schema).create({[CheckboxAttr.Checked]: checked}),
-                        checkboxLabelType(schema).create(null, text ? schema.text(text) : null),
-                    ]);
+                getContent(input, schema) {
+                    if (input instanceof HTMLInputElement) {
+                        const label = findLabelForInput(input);
+                        return createCheckboxFragment(schema, input.checked, label?.textContent);
+                    }
+                    return Fragment.empty;
                 },
             },
         ],
@@ -94,7 +88,7 @@ export const getSchemaSpecs = (
             {
                 // input handled by checkbox node parse rule
                 // ignore label
-                tag: 'input[type=checkbox] ~ label[for]',
+                tag: 'input[type=checkbox] ~ label',
                 ignore: true,
                 consuming: true,
             },
@@ -119,3 +113,24 @@ export const getSchemaSpecs = (
         complex: 'leaf',
     },
 });
+
+// fallback for invalid HTML (input without id + label without for)
+function findNextSiblingLabel(element: HTMLInputElement): HTMLLabelElement | null {
+    const nextSibling = element.nextElementSibling;
+    return nextSibling instanceof HTMLLabelElement ? nextSibling : null;
+}
+
+function findLabelForInput(element: HTMLInputElement): HTMLLabelElement | null {
+    return element.labels?.[0] || findNextSiblingLabel(element);
+}
+
+function createCheckboxFragment(
+    schema: Schema<any, any>,
+    checked: boolean | null,
+    labelText: string | null | undefined,
+): Fragment {
+    return Fragment.from([
+        checkboxInputType(schema).create({[CheckboxAttr.Checked]: checked ? 'true' : null}),
+        checkboxLabelType(schema).create(null, labelText ? schema.text(labelText) : null),
+    ]);
+}

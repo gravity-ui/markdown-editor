@@ -23,6 +23,7 @@ const {
 
 const {
     doc,
+    p,
     b,
     checkbox,
     cbInput,
@@ -122,6 +123,72 @@ describe('Checkbox extension', () => {
 <label for="checkbox2">todo2</label>
 `,
             doc(checkbox(cbInput(), cbLabel('todo2'))),
+            [fixPastePlugin()],
+        );
+    });
+
+    it('should parse dom with multiple checkboxes without id', () => {
+        parseDOM(
+            schema,
+            `
+<input type="checkbox">
+<label>First checkbox</label>
+<input type="checkbox" checked="">
+<label>Second checkbox</label>
+`,
+            doc(
+                checkbox(cbInput(), cbLabel('First checkbox')),
+                checkbox(cbInput({checked: 'true'}), cbLabel('Second checkbox')),
+            ),
+            [fixPastePlugin()],
+        );
+    });
+
+    it('should create empty label when next sibling is not a label', () => {
+        parseDOM(
+            schema,
+            `<input type="checkbox"><span>Not a label</span>`,
+            doc(checkbox(cbInput(), cbLabel()), p('Not a label')),
+            [fixPastePlugin()],
+        );
+    });
+
+    it('should parse multiple checkboxes wrapped in div.checkbox', () => {
+        parseDOM(
+            schema,
+            `
+<div class="checkbox">
+  <input type="checkbox" id="checkbox0">
+  <label for="checkbox0">Task 1</label>
+</div>
+<div class="checkbox">
+  <input type="checkbox" id="checkbox1" checked="true">
+  <label for="checkbox1">Task 2</label>
+</div>`,
+            doc(
+                checkbox(cbInput(), cbLabel('Task 1')),
+                checkbox(cbInput({checked: 'true'}), cbLabel('Task 2')),
+            ),
+            [fixPastePlugin()],
+        );
+    });
+
+    it('should parse checkboxes with special characters in id', () => {
+        parseDOM(
+            schema,
+            `
+<div class="checkbox">
+  <input type="checkbox" id="my:invalid[id]">
+  <label for="my:invalid[id]">Task with invalid ID</label>
+</div>
+<div class="checkbox">
+  <input type="checkbox" id="checkbox1" checked="true">
+  <label for="checkbox1">Task with valid ID</label>
+</div>`,
+            doc(
+                checkbox(cbInput(), cbLabel('Task with invalid ID')),
+                checkbox(cbInput({checked: 'true'}), cbLabel('Task with valid ID')),
+            ),
             [fixPastePlugin()],
         );
     });
