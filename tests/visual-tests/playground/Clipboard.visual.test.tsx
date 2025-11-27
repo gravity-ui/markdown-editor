@@ -195,7 +195,7 @@ test.describe('Clipboard', () => {
                 expectScreenshot,
             }) => {
                 await editor.fill('```\nLorem ipsum dolor sit amet');
-                await editor.selectTextIn('pre code');
+                await editor.selectTextIn('pre code > div:last-child');
                 await editor.paste('https://gravity-ui.com/');
                 await editor.blur();
 
