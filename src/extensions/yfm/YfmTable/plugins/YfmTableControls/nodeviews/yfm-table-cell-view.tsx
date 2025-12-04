@@ -66,6 +66,7 @@ class YfmTableCellView implements NodeView {
     private _decoRowUniqKey: number | null = null;
     private _decoColumnUniqKey: number | null = null;
     private _cellInfo: null | {
+        tablePos: number;
         rowIndex: number;
         columnIndex: number;
         rowRange: Readonly<TableRowRange>;
@@ -103,14 +104,18 @@ class YfmTableCellView implements NodeView {
             () => {
                 if (!this._cellInfo) return null;
 
-                const {showRowControl, showColumnControl, rowRange, columnRange} = this._cellInfo;
+                const {showRowControl, showColumnControl, rowRange, columnRange, tablePos} =
+                    this._cellInfo;
+
+                const tableElem = this._view.domAtPos(tablePos + 1).node as Element;
 
                 return (
                     <ErrorLoggerBoundary>
                         {showRowControl && (
                             <FloatingMenuControl
                                 type="row"
-                                acnhorElement={this.dom}
+                                cellElement={this.dom}
+                                tableElement={tableElem}
                                 dndHandler={this._dndHandler?.row}
                                 multiple={rowRange.rowsCount > 1}
                                 onMenuOpenToggle={this._onRowControlOpenToggle}
@@ -124,7 +129,8 @@ class YfmTableCellView implements NodeView {
                         {showColumnControl && (
                             <FloatingMenuControl
                                 type="column"
-                                acnhorElement={this.dom}
+                                cellElement={this.dom}
+                                tableElement={tableElem}
                                 dndHandler={this._dndHandler?.column}
                                 multiple={columnRange.columnsCount > 1}
                                 onMenuOpenToggle={this._onColumnControlOpenToggle}
@@ -154,6 +160,7 @@ class YfmTableCellView implements NodeView {
 
         if (cellInfo && (cellInfo.cell.row === 0 || cellInfo.cell.column === 0)) {
             const info = (this._cellInfo = {
+                tablePos: cellInfo.table.pos,
                 rowIndex: cellInfo.cell.row,
                 columnIndex: cellInfo.cell.column,
                 showRowControl: false as boolean,
