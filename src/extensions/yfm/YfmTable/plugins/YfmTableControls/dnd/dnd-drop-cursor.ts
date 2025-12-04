@@ -1,6 +1,6 @@
 import {findParentNodeClosestToPos} from '#pm/utils';
 import type {EditorView} from '#pm/view';
-import {isTableCellNode, isTableNode} from 'src/table-utils';
+import {isTableCellNode, isTableNode, isTableRowNode} from 'src/table-utils';
 
 /** Same as `DropCursorOptions` from _prosemirror-dropcursor_ package */
 export type DropCursorParams = {
@@ -128,6 +128,45 @@ export class DropCursor {
         this.cursorElem.style.top = rect.top - parentTop + 'px';
         this.cursorElem.style.width = rect.right - rect.left + 'px';
         this.cursorElem.style.height = rect.bottom - rect.top + 'px';
+    }
+}
+
+export class TableRowDropCursor extends DropCursor {
+    update() {
+        const cursorPos = this.getPos();
+        if (cursorPos === null) return;
+
+        const $cursorPos = this.editorView.state.doc.resolve(cursorPos);
+        const parentTable = findParentNodeClosestToPos($cursorPos, isTableNode);
+        if (!parentTable) return;
+
+        let side: 'top' | 'bottom';
+        let trowPos: number;
+        if ($cursorPos.nodeAfter && isTableRowNode($cursorPos.nodeAfter)) {
+            side = 'top';
+            trowPos = cursorPos;
+        } else if ($cursorPos.nodeBefore && isTableRowNode($cursorPos.nodeBefore)) {
+            side = 'bottom';
+            trowPos = cursorPos - $cursorPos.nodeBefore.nodeSize;
+        } else {
+            this.cursorElem?.remove();
+            this.cursorElem = null;
+            return;
+        }
+
+        const trElem = this.editorView.nodeDOM(trowPos);
+        const tableElem = this.editorView.nodeDOM(parentTable.pos);
+
+        const trRect = (trElem as HTMLElement).getBoundingClientRect();
+        const tableRect = (tableElem as HTMLElement).getBoundingClientRect();
+
+        const rect: Rect = {
+            top: trRect[side] - this.width / 2,
+            bottom: trRect[side] + this.width / 2,
+            left: tableRect.left,
+            right: tableRect.right,
+        };
+        this.render(rect, {isBlock: true});
     }
 }
 
