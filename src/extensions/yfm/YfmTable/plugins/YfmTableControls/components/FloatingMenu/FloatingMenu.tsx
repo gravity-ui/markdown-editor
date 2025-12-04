@@ -12,7 +12,7 @@ import {
 
 import {useBooleanState} from 'src/react-utils';
 
-import {FloatingPopup, type FloatingPopupProps} from '../FloatingPopup';
+import {FloatingPopup, type FloatingPopupProps, type ReferenceType} from '../FloatingPopup';
 
 const popupOffset: FloatingPopupProps['offset'] = {
     mainAxis: -9.5,
@@ -21,7 +21,7 @@ const popupOffset: FloatingPopupProps['offset'] = {
 export type FloatingMenuProps = {
     dirtype: 'row' | 'column';
     canDrag: boolean;
-    anchorElement: Element;
+    anchorElement: ReferenceType;
     dropdownItems: DropdownMenuProps<unknown>['items'];
     switcherMouseProps?: Pick<
         ButtonButtonProps,
