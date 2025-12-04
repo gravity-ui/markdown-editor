@@ -114,6 +114,7 @@ export class YfmTableDnDGhost {
     ): BuildGhostResult {
         let shiftX = 0;
         let shiftY = 0;
+        let isHorizontallyScrolled = false;
 
         const document = view.dom.ownerDocument;
         const container = this._buildGhostContainer(view);
@@ -122,10 +123,12 @@ export class YfmTableDnDGhost {
         const tbody = table.appendChild(document.createElement('tbody'));
 
         {
-            const tablePos = tableDesc.pos;
-            const tableNode = view.domAtPos(tablePos + 1).node;
-            const rect = (tableNode as Element).getBoundingClientRect();
-            table.style.width = rect.width + 'px';
+            const tableNode = view.domAtPos(tableDesc.pos + 1).node;
+            isHorizontallyScrolled = (tableNode as Element).scrollLeft > 0;
+
+            const tbodyNode = view.domAtPos(tableDesc.bodyPos + 1).node;
+            const tbodyRect = (tbodyNode as Element).getBoundingClientRect();
+            tbody.style.width = tbodyRect.width + 'px';
         }
 
         const range = tableDesc.base.getRowRanges()[rangeIdx];
@@ -148,6 +151,10 @@ export class YfmTableDnDGhost {
                     }
                 }
             }
+        }
+
+        if (isHorizontallyScrolled) {
+            shiftX = 0;
         }
 
         removeIdAttributes(table);
