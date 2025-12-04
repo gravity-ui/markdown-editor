@@ -1,6 +1,6 @@
-import {useState} from 'react';
+import {forwardRef, useState} from 'react';
 
-import {FloatingPopup, type FloatingPopupProps} from '../FloatingPopup';
+import {FloatingPopup, type FloatingPopupProps, type FloatingPopupRef} from '../FloatingPopup';
 
 import {InsertCursor, type InsertCursorProps} from './InsertCursor';
 import {PlusButton, type PlusButtonProps} from './PlusButton';
@@ -18,18 +18,23 @@ const offsetByType: Record<InsertCursorProps['type'], FloatingPopupProps['offset
     column: {alignmentAxis: -10},
 };
 
-export type FloatingPlusButtonProps = Pick<PlusButtonProps, 'onClick'> &
+export type FloatingPlusButtonRef = FloatingPopupRef & {};
+
+export type FloatingPlusButtonProps = Pick<FloatingPopupProps, 'floatingStyles'> &
+    Pick<PlusButtonProps, 'onClick'> &
     Pick<InsertCursorProps, 'type' | 'anchor'>;
 
-export const FloatingPlusButton: React.FC<FloatingPlusButtonProps> =
-    function YfmTableFloatingPlusButton({anchor, type, ...btnProps}) {
+export const FloatingPlusButton = forwardRef<FloatingPlusButtonRef, FloatingPlusButtonProps>(
+    function YfmTableFloatingPlusButton({anchor, type, floatingStyles, ...btnProps}, ref) {
         const [hovered, setHovered] = useState(false);
 
         return (
             <>
                 <FloatingPopup
                     open
+                    ref={ref}
                     anchorElement={anchor}
+                    floatingStyles={floatingStyles}
                     placement={placementByType[type]}
                     offset={offsetByType[type]}
                     style={styles}
@@ -43,4 +48,5 @@ export const FloatingPlusButton: React.FC<FloatingPlusButtonProps> =
                 {hovered && <InsertCursor anchor={anchor} type={type} />}
             </>
         );
-    };
+    },
+);
