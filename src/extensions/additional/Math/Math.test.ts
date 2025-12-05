@@ -71,20 +71,23 @@ describe('latex-paste-plugin utilities', () => {
             expect(result).toEqual(['E = mc^2', 'e^{i\\pi} + 1 = 0']);
         });
 
-        it('should filter out comment lines starting with %', () => {
+        it('should preserve comment lines starting with %', () => {
             const input = `% Einstein equation
 E = mc^2
 
 % Euler formula
 e^{i\\pi} + 1 = 0`;
             const result = parseLatexFormulas(input);
-            expect(result).toEqual(['E = mc^2', 'e^{i\\pi} + 1 = 0']);
+            expect(result).toEqual([
+                '% Einstein equation\nE = mc^2',
+                '% Euler formula\ne^{i\\pi} + 1 = 0',
+            ]);
         });
 
-        it('should return empty array for only comments', () => {
+        it('should return comments as formulas', () => {
             const input = '% Comment 1\n% Comment 2';
             const result = parseLatexFormulas(input);
-            expect(result).toEqual([]);
+            expect(result).toEqual(['% Comment 1\n% Comment 2']);
         });
     });
 });
