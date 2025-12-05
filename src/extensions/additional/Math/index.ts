@@ -14,12 +14,14 @@ import {
     removeEmptyMathInlineIfCursorIsAtBeginning,
 } from './commands';
 import {mathBType, mathIType} from './const';
+import {latexPastePlugin} from './latex-paste-plugin';
 import {type MathNodeViewOptions, mathViewAndEditPlugin} from './view-and-edit';
 
 import './index.scss';
 
 export {MathNode, mathBType, mathIType} from './MathSpecs';
 export {MathBlockNodeView, MathInlineNodeView} from './view-and-edit';
+export {isLatexMode, parseLatexFormulas} from './utils';
 
 const mathIAction = 'addMathInline';
 const mathBAction = 'toMathBlock';
@@ -45,6 +47,7 @@ export const Math: ExtensionAuto<MathOptions> = (builder, opts) => {
     }));
 
     builder
+        .addPlugin(latexPastePlugin, builder.Priority.High)
         .addPlugin(() =>
             mathViewAndEditPlugin({
                 ...opts,

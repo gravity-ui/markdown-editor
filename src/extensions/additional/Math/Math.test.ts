@@ -5,6 +5,7 @@ import {ExtensionsManager} from '../../../core';
 import {BaseNode, BaseSchemaSpecs} from '../../base/specs';
 
 import {MathNode, MathSpecs} from './MathSpecs';
+import {isLatexMode, parseLatexFormulas} from './utils';
 
 const {
     schema,
@@ -45,5 +46,45 @@ describe('Math extension', () => {
 \\end{array}
 `.trim();
         same(`$$${formula}$$\n\n`, doc(mathB(formula)));
+    });
+});
+
+describe('latex-paste-plugin utilities', () => {
+    describe('isLatexMode', () => {
+        it('should return true for tex/latex modes', () => {
+            expect(isLatexMode('tex')).toBe(true);
+            expect(isLatexMode('latex')).toBe(true);
+            expect(isLatexMode('bibtex')).toBe(true);
+        });
+
+        it('should return false for non-latex modes', () => {
+            expect(isLatexMode('javascript')).toBe(false);
+            expect(isLatexMode('python')).toBe(false);
+            expect(isLatexMode(undefined)).toBe(false);
+        });
+    });
+
+    describe('parseLatexFormulas', () => {
+        it('should split formulas by double newlines', () => {
+            const input = 'E = mc^2\n\ne^{i\\pi} + 1 = 0';
+            const result = parseLatexFormulas(input);
+            expect(result).toEqual(['E = mc^2', 'e^{i\\pi} + 1 = 0']);
+        });
+
+        it('should filter out comment lines starting with %', () => {
+            const input = `% Einstein equation
+E = mc^2
+
+% Euler formula
+e^{i\\pi} + 1 = 0`;
+            const result = parseLatexFormulas(input);
+            expect(result).toEqual(['E = mc^2', 'e^{i\\pi} + 1 = 0']);
+        });
+
+        it('should return empty array for only comments', () => {
+            const input = '% Comment 1\n% Comment 2';
+            const result = parseLatexFormulas(input);
+            expect(result).toEqual([]);
+        });
     });
 });
