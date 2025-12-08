@@ -190,6 +190,11 @@ export type MarkdownEditorWysiwygConfig = {
      * Note: The use of the markdown-it-attrs plugin will be removed in the next major version.
      */
     disableMarkdownAttrs?: boolean;
+    /**
+     * Show search panel in the editor.
+     * @default true
+     */
+    searchPanel?: boolean;
 };
 
 export type MarkdownEditorOptions = {
