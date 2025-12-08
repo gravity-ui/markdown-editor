@@ -1,8 +1,15 @@
 {
   "label_case-sensitive": "Case sensitive",
   "label_whole-word": "Whole word",
-  "title": "Search in code",
+  "title": "Search and replace",
+  "action_close": "Close",
   "action_replace": "Replace",
   "action_replace_all": "Replace all",
-  "replace_placeholder": "Replacement text"
+  "action_next": "Find next",
+  "action_prev": "Find previous",
+  "action_expand": "Expand the replacement form",
+  "title_search": "Find",
+  "title_replace": "Replace with",
+  "search_counter": "{{current}} of {{total}}",
+  "search_placeholder": "Text search"
 }
