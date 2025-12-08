@@ -1,8 +1,15 @@
 {
   "label_case-sensitive": "С учетом регистра",
-  "label_whole-word": "Слово целиком",
-  "title": "Найти в коде",
+  "label_whole-word": "Точное совпадение",
+  "title": "Поиск и замена",
+  "action_close": "Закрыть",
   "action_replace": "Заменить",
   "action_replace_all": "Заменить всё",
-  "replace_placeholder": "Текст замены"
+  "action_next": "Следующий",
+  "action_prev": "Предыдущий",
+  "action_expand": "Раскрыть окно замены",
+  "title_search": "Найти",
+  "title_replace": "Заменить на",
+  "search_counter": "{{current}} из {{total}}",
+  "search_placeholder": "Поиск по тексту"
 }
