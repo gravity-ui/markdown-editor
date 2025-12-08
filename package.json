@@ -208,6 +208,7 @@
     "prosemirror-keymap": "^1.2.2",
     "prosemirror-model": "^1.24.1",
     "prosemirror-schema-list": "^1.5.0",
+    "prosemirror-search": "^1.1.0",
     "prosemirror-state": "^1.4.3",
     "prosemirror-test-builder": "^1.1.1",
     "prosemirror-transform": "^1.10.2",
