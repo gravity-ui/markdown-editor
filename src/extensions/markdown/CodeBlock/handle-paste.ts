@@ -3,7 +3,6 @@ import dd from 'ts-dedent';
 import {getLoggerFromState} from '#core';
 import {Fragment} from '#pm/model';
 import type {EditorProps} from '#pm/view';
-import {isLatexMode} from 'src/extensions/additional/Math/utils';
 import {DataTransferType, isVSCode, tryParseVSCodeData} from 'src/utils/clipboard';
 
 import {CodeBlockNodeAttr} from './CodeBlockSpecs';
@@ -45,10 +44,6 @@ function getCodeData(data: DataTransfer): null | {editor: string; mode?: string;
         if (isVSCode(data)) {
             editor = 'vscode';
             mode = tryParseVSCodeData(data)?.mode;
-
-            if (isLatexMode(mode)) {
-                return null;
-            }
         } else return null;
 
         return {editor, mode, value: dd(data.getData(DataTransferType.Text))};

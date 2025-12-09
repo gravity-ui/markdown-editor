@@ -47,7 +47,7 @@ export const Math: ExtensionAuto<MathOptions> = (builder, opts) => {
     }));
 
     builder
-        .addPlugin(latexPastePlugin, builder.Priority.High)
+        .addPlugin(latexPastePlugin, builder.Priority.VeryHigh)
         .addPlugin(() =>
             mathViewAndEditPlugin({
                 ...opts,
