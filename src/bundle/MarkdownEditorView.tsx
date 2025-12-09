@@ -160,11 +160,14 @@ const EditorWrapper = forwardRef<HTMLDivElement, EditorWrapperProps>(
             splitModeEnabled: editor.splitModeEnabled,
             stickyToolbar,
             toolbarVisibility: editor.toolbarVisible && !showPreview,
+            disableMark: editor.mobile,
         };
 
         const areSettingsVisible =
             settingsVisibleProp === true ||
             (Array.isArray(settingsVisibleProp) && settingsVisibleProp.length > 0);
+
+        const toolbarDisplay = editor.mobile ? 'scroll' : 'shrink';
 
         return (
             <div
@@ -198,6 +201,7 @@ const EditorWrapper = forwardRef<HTMLDivElement, EditorWrapperProps>(
                                 className={b('editor', {mode: editorMode})}
                                 toolbarClassName={b('toolbar')}
                                 stickyToolbar={stickyToolbar}
+                                toolbarDisplay={toolbarDisplay}
                             >
                                 <Settings
                                     {...settingsProps}
@@ -218,6 +222,7 @@ const EditorWrapper = forwardRef<HTMLDivElement, EditorWrapperProps>(
                                 className={b('editor', {mode: editorMode})}
                                 toolbarClassName={b('toolbar')}
                                 stickyToolbar={stickyToolbar}
+                                toolbarDisplay={toolbarDisplay}
                             >
                                 <Settings
                                     {...settingsProps}
@@ -228,7 +233,7 @@ const EditorWrapper = forwardRef<HTMLDivElement, EditorWrapperProps>(
                         <Settings
                             {...settingsProps}
                             settingsVisible={!editor.toolbarVisible && settingsVisibleProp}
-                            renderPreviewButton={!editor.toolbarVisible && editorMode === 'markup'}
+                            renderPreviewButton={!editor.toolbarVisible && canRenderPreview}
                         />
                     </>
                 )}

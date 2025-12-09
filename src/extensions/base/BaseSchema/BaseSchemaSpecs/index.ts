@@ -1,9 +1,7 @@
-import type {NodeSpec} from 'prosemirror-model';
-
-import {isEmptyString} from 'src/utils';
-
-import type {ExtensionAuto} from '../../../../core';
-import {nodeTypeFactory} from '../../../../utils/schema';
+import type {ExtensionAuto} from '#core';
+import type {NodeSpec} from '#pm/model';
+import {isEmptyString} from 'src/utils/nodes';
+import {nodeTypeFactory} from 'src/utils/schema';
 
 export enum BaseNode {
     Doc = 'doc',
@@ -65,7 +63,15 @@ export const BaseSchemaSpecs: ExtensionAuto<BaseSchemaSpecsOptions> = (builder, 
                       }
                     : undefined,
             },
-            fromMd: {tokenSpec: {name: BaseNode.Paragraph, type: 'block'}},
+            fromMd: {
+                tokenSpec: {
+                    name: BaseNode.Paragraph,
+                    type: 'block',
+                    getAttrs(token) {
+                        return Object.fromEntries(token.attrs || []);
+                    },
+                },
+            },
             toMd: (state, node, parent) => {
                 /*
                     An empty line is added only if there is some content in the parent element.
@@ -85,7 +91,8 @@ export const BaseSchemaSpecs: ExtensionAuto<BaseSchemaSpecsOptions> = (builder, 
                     }
 
                     if (!isParentEmpty) {
-                        state.write('&nbsp;\n\n');
+                        state.write('&nbsp;\n');
+                        state.write('\n');
                     }
                 } else {
                     state.renderInline(node);

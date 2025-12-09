@@ -1,0 +1,19 @@
+$block: '.g-md-yfm-table-floating-popup';
+
+#{$block} {
+    position: relative;
+
+    border-radius: var(--g-border-radius-xs);
+    outline: none;
+    background-color: var(--g-color-base-float);
+
+    & > :first-child {
+        border-start-start-radius: inherit;
+        border-start-end-radius: inherit;
+    }
+
+    & > :last-child {
+        border-end-end-radius: inherit;
+        border-end-start-radius: inherit;
+    }
+}

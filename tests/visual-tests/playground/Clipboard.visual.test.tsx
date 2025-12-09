@@ -33,8 +33,10 @@ test.describe('Clipboard', () => {
         await editor.paste(emphasisMarkup);
         await editor.press(keys.selectAll);
         await editor.press(keys.copy);
-        await editor.clearContent();
+
         await editor.switchMode('markup');
+        await editor.clearContent();
+
         await editor.press(keys.paste);
 
         await page.waitForTimeout(500);
@@ -46,7 +48,7 @@ test.describe('Clipboard', () => {
         browserName,
         helpers: {keys},
         editor,
-        page,
+        wait,
     }) => {
         test.skip(browserName === 'webkit', 'Clipboard does not work correctly in webkit');
 
@@ -54,11 +56,13 @@ test.describe('Clipboard', () => {
         await editor.paste(emphasisMarkup);
         await editor.press(keys.selectAll);
         await editor.press(keys.copy);
-        await editor.clearContent();
+
         await editor.switchMode('wysiwyg');
+        await editor.clearContent();
+
         await editor.press(keys.paste);
 
-        await page.waitForTimeout(500);
+        await wait.timeout(500);
         await expectScreenshot();
     });
 
@@ -70,8 +74,8 @@ test.describe('Clipboard', () => {
         test('should copy and paste with preserve markup', async ({
             helpers: {keys},
             editor,
-            page,
             expectScreenshot,
+            wait,
         }) => {
             await editor.paste(emphasisMarkup);
             await editor.press(keys.selectAll);
@@ -80,7 +84,7 @@ test.describe('Clipboard', () => {
             await editor.press('Enter');
             await editor.press(keys.paste);
 
-            await page.waitForTimeout(500);
+            await wait.timeout(500);
             await expectScreenshot();
         });
 
@@ -96,7 +100,7 @@ test.describe('Clipboard', () => {
                     'Skip in webkit on linux, see https://github.com/microsoft/playwright/issues/34307',
                 );
 
-                await editor.paste('## Lorem *ipsum* **dolor** ~~sit~~ amet');
+                await editor.paste('## Lorem *ipsum* __dolor__ ~~sit~~ amet');
                 await editor.press(helpers.keys.selectAll);
                 await editor.press(helpers.keys.copy);
 
@@ -105,7 +109,7 @@ test.describe('Clipboard', () => {
                 expect(data).toStrictEqual({
                     'text/plain': 'Lorem ipsum dolor sit amet',
                     'text/html':
-                        '<h2 data-pm-slice="1 1 []">Lorem <em>ipsum</em> <strong>dolor</strong> <strike>sit</strike> amet</h2>',
+                        '<h2 data-pm-slice="1 1 []">Lorem <em data-markup="*">ipsum</em> <strong data-markup="__">dolor</strong> <strike>sit</strike> amet</h2>',
                 });
             });
         });
@@ -122,7 +126,7 @@ test.describe('Clipboard', () => {
                     'Skip in webkit on linux, see https://github.com/microsoft/playwright/issues/34307',
                 );
 
-                await editor.paste('## Lorem *ipsum* **dolor** ~~sit~~ amet');
+                await editor.paste('## Lorem _ipsum_ **dolor** ~~sit~~ amet');
                 await editor.press(helpers.keys.selectAll);
                 await editor.press(helpers.keys.cut);
 
@@ -131,7 +135,7 @@ test.describe('Clipboard', () => {
                 expect(data).toStrictEqual({
                     'text/plain': 'Lorem ipsum dolor sit amet',
                     'text/html':
-                        '<h2 data-pm-slice="1 1 []">Lorem <em>ipsum</em> <strong>dolor</strong> <strike>sit</strike> amet</h2>',
+                        '<h2 data-pm-slice="1 1 []">Lorem <em data-markup="_">ipsum</em> <strong data-markup="**">dolor</strong> <strike>sit</strike> amet</h2>',
                 });
             });
         });
@@ -190,9 +194,8 @@ test.describe('Clipboard', () => {
                 page,
                 expectScreenshot,
             }) => {
-                await editor.fill('```');
-                await editor.fill('Lorem ipsum dolor sit amet');
-                await editor.selectTextIn('pre code');
+                await editor.fill('```\nLorem ipsum dolor sit amet');
+                await editor.selectTextIn('pre code > div:last-child');
                 await editor.paste('https://gravity-ui.com/');
                 await editor.blur();
 
@@ -204,9 +207,12 @@ test.describe('Clipboard', () => {
                 editor,
                 page,
                 expectScreenshot,
+                wait,
             }) => {
-                await editor.paste('`Code:`');
-                await editor.press('ArrowLeft');
+                await editor.paste('`Code: (begin)  (end)`');
+                await wait.timeout();
+
+                await editor.press('ArrowLeft', 6);
                 await editor.press('Space');
 
                 await editor.paste('## Lorem *ipsum* **dolor** ~~sit~~ amet');
@@ -267,6 +273,7 @@ test.describe('Clipboard', () => {
         </div>`;
 
         test('should parse HTML in wysiwyg mode', async ({editor, expectScreenshot, wait}) => {
+            await editor.switchMode('wysiwyg');
             await editor.paste({'text/html': HTML});
             await editor.blur();
             await wait.timeout(500);

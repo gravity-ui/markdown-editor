@@ -37,6 +37,7 @@ export type BehaviorPresetOptions = {
     selectionContext?: SelectionContextOptions;
 
     commandMenu?: CommandMenuOptions;
+    mobile?: boolean;
 };
 
 export const BehaviorPreset: ExtensionAuto<BehaviorPresetOptions> = (builder, opts) => {
@@ -48,10 +49,13 @@ export const BehaviorPreset: ExtensionAuto<BehaviorPresetOptions> = (builder, op
         .use(History, opts.history ?? {})
         .use(Clipboard, opts.clipboard ?? {})
         .use(ReactRendererExtension, opts.reactRenderer)
-        .use(WidgetDecoration)
-        .use(SelectionContext, opts.selectionContext ?? {});
+        .use(WidgetDecoration);
 
-    if (opts.commandMenu) builder.use(CommandMenu, opts.commandMenu);
+    if (!opts.mobile) {
+        builder.use(SelectionContext, opts.selectionContext ?? {});
+        if (opts.commandMenu) builder.use(CommandMenu, opts.commandMenu);
+    }
+
     builder.use(FilePaste);
     builder.use(ClicksOnEdges);
 };

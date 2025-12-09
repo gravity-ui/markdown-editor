@@ -1,5 +1,7 @@
-import type {Node} from 'prosemirror-model';
-import type {NodeView} from 'prosemirror-view';
+import type {Node} from '#pm/model';
+import type {NodeView} from '#pm/view';
+
+import {CutAttr, YfmCutClassName} from '../const';
 
 import './yfm-cut-title.scss';
 
@@ -13,20 +15,50 @@ export class YfmCutTitleNodeView implements NodeView {
         this.node = node;
 
         this.dom = document.createElement('div');
-        this.dom.classList.add('yfm-cut-title');
-        this.dom.replaceChildren((this.contentDOM = document.createElement('div')));
-        this.contentDOM.classList.add('g-md-yfm-cut-title-inner');
-        this.contentDOM.addEventListener('click', (e) => {
-            // ignore clicking on the title content
-            // you can open/close yfm-cut by clicking on the arrow icon
-            e.stopPropagation();
-            e.preventDefault();
-        });
+        this.dom.classList.add(YfmCutClassName.Title);
+        this.dom.addEventListener('click', this._onTitleClick);
+        updateDomAttribute(this.dom, CutAttr.Line, node.attrs[CutAttr.Line]);
+
+        this.contentDOM = this.dom.appendChild(document.createElement('div'));
+        this.contentDOM.classList.add(YfmCutClassName.TitleInner);
+        this.contentDOM.addEventListener('click', this._onTitleInnerClick);
     }
 
     update(node: Node): boolean {
         if (this.node.type !== node.type) return false;
         this.node = node;
+        updateDomAttribute(this.dom, CutAttr.Line, node.attrs[CutAttr.Line]);
         return true;
+    }
+
+    destroy() {
+        this.dom.removeEventListener('click', this._onTitleClick);
+        this.contentDOM.removeEventListener('click', this._onTitleInnerClick);
+    }
+
+    private _onTitleClick = (e: MouseEvent) => {
+        const {currentTarget} = e;
+        if (currentTarget instanceof HTMLElement) {
+            const parent = currentTarget.parentElement;
+            if (parent?.classList.contains(YfmCutClassName.Cut)) {
+                // TODO: toggle open classname via prosemirror decoration
+                parent.classList.toggle(YfmCutClassName.Open);
+            }
+        }
+    };
+
+    private _onTitleInnerClick = (e: MouseEvent) => {
+        // ignore clicking on the title content
+        // you can open/close yfm-cut by clicking on the arrow icon
+        e.stopPropagation();
+        e.preventDefault();
+    };
+}
+
+function updateDomAttribute(elem: Element, attr: string, value: string | null | undefined) {
+    if (value) {
+        elem.setAttribute(attr, value);
+    } else {
+        elem.removeAttribute(attr);
     }
 }

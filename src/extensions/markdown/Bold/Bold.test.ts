@@ -5,7 +5,7 @@ import {createMarkupChecker} from '../../../../tests/sameMarkup';
 import {ExtensionsManager} from '../../../core';
 import {BaseNode, BaseSchemaSpecs} from '../../base/specs';
 
-import {BoldSpecs, boldMarkName} from './BoldSpecs';
+import {BoldAttrs, BoldSpecs, boldMarkName} from './BoldSpecs';
 
 const {
     schema,
@@ -23,15 +23,19 @@ const {doc, p, b} = builders<'doc' | 'p', 'b'>(schema, {
 
 const {same} = createMarkupChecker({parser, serializer});
 
-describe('Bold extension', () => {
-    it('should parse bold **', () => same('**hello!**', doc(p(b('hello!')))));
+const astAttrs = {[BoldAttrs.Markup]: '**'}; // asterisk
+const undAttrs = {[BoldAttrs.Markup]: '__'}; // underscore
+const nullAttrs = {[BoldAttrs.Markup]: null}; // null
 
-    it.skip('should parse bold __', () => same('__hello!__', doc(p(b('hello!')))));
+describe('Bold extension', () => {
+    it('should parse bold **', () => same('**hello!**', doc(p(b(astAttrs, 'hello!')))));
+
+    it('should parse bold __', () => same('__hello!__', doc(p(b(undAttrs, 'hello!')))));
 
     it('should parse bold inside text', () =>
-        same('he**llo wor**ld!', doc(p('he', b('llo wor'), 'ld!'))));
+        same('he**llo wor**ld!', doc(p('he', b(astAttrs, 'llo wor'), 'ld!'))));
 
-    it('should parse html - em tag', () => {
+    it('should parse html - b tag', () => {
         parseDOM(schema, '<p><b>text in b tag</b></p>', doc(p(b('text in b tag'))));
     });
 
@@ -39,7 +43,23 @@ describe('Bold extension', () => {
         parseDOM(
             schema,
             '<div><strong>text in strong tag</strong></div>',
-            doc(p(b('text in strong tag'))),
+            doc(p(b(nullAttrs, 'text in strong tag'))),
+        );
+    });
+
+    it('should parse html - strong tag - with asterisk markup', () => {
+        parseDOM(
+            schema,
+            '<div><strong data-markup="**">text in strong tag</strong></div>',
+            doc(p(b(astAttrs, 'text in strong tag'))),
+        );
+    });
+
+    it('should parse html - strong tag - with underscore markup', () => {
+        parseDOM(
+            schema,
+            '<div><strong data-markup="__">text in strong tag</strong></div>',
+            doc(p(b(undAttrs, 'text in strong tag'))),
         );
     });
 

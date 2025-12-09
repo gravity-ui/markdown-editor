@@ -11,9 +11,12 @@ import {
     type PopupProps,
 } from '@gravity-ui/uikit';
 
+import {LAYOUT} from 'src/common/layout';
+
 import {cn} from '../../classname';
 import type {Action} from '../../core';
 import {groupBy, isFunction} from '../../lodash';
+import {useTargetZIndex} from '../../react-utils';
 import {useBooleanState, useElementState} from '../../react-utils/hooks';
 import {type ToolbarBaseProps, type ToolbarIconData, ToolbarTooltipDelay} from '../../toolbar';
 
@@ -31,19 +34,20 @@ export type MenuItem = {
     ignoreActive?: boolean;
 };
 
-export type ToolbarButtonWithPopupMenuProps = Omit<
-    ToolbarBaseProps<never> &
-        Pick<PopupProps, 'disablePortal'> & {
-            icon: ToolbarIconData;
-            iconClassName?: string;
-            chevronIconClassName?: string;
-            title: string | (() => string);
-            menuItems: MenuItem[];
-            /** @default 'classic' */
-            _selectionType?: 'classic' | 'light';
-        },
-    'editor'
->;
+export type ToolbarButtonWithPopupMenuProps = Pick<
+    ToolbarBaseProps<never>,
+    'className' | 'focus' | 'onClick' | 'qa'
+> &
+    Pick<PopupProps, 'disablePortal'> & {
+        icon: ToolbarIconData;
+        iconClassName?: string;
+        chevronIconClassName?: string;
+        title: string | (() => string);
+        menuItems: MenuItem[];
+        /** @default 'classic' */
+        _selectionType?: 'classic' | 'light';
+        qaMenu?: string;
+    };
 
 export const ToolbarButtonWithPopupMenu: React.FC<ToolbarButtonWithPopupMenuProps> = ({
     disablePortal,
@@ -56,9 +60,13 @@ export const ToolbarButtonWithPopupMenu: React.FC<ToolbarButtonWithPopupMenuProp
     title,
     menuItems,
     _selectionType,
+    qa,
+    qaMenu,
+    ...props
 }) => {
     const [anchorElement, setAnchorElement] = useElementState();
     const [open, , hide, toggleOpen] = useBooleanState(false);
+    const zIndex = useTargetZIndex(LAYOUT.STICKY_TOOLBAR);
     const groups = useMemo(
         () =>
             groupBy(
@@ -89,13 +97,15 @@ export const ToolbarButtonWithPopupMenu: React.FC<ToolbarButtonWithPopupMenuProp
               ] as const)
             : ([someActive || popupOpen ? 'normal' : 'flat', someActive] as const);
 
+    const textTitle = isFunction(title) ? title() : title;
+
     return (
         <>
             <ActionTooltip
                 disabled={popupOpen}
                 openDelay={ToolbarTooltipDelay.Open}
                 closeDelay={ToolbarTooltipDelay.Close}
-                title={isFunction(title) ? title() : title}
+                title={textTitle}
             >
                 <Button
                     size="m"
@@ -105,6 +115,9 @@ export const ToolbarButtonWithPopupMenu: React.FC<ToolbarButtonWithPopupMenuProp
                     disabled={everyDisabled}
                     className={b(null, [className])}
                     onClick={toggleOpen}
+                    aria-label={textTitle}
+                    qa={qa}
+                    {...props}
                 >
                     <Icon data={icon.data} size={icon.size} className={iconClassName} />
                     {''}
@@ -118,8 +131,9 @@ export const ToolbarButtonWithPopupMenu: React.FC<ToolbarButtonWithPopupMenuProp
                 onOpenChange={(open) => {
                     if (!open) hide();
                 }}
+                zIndex={typeof zIndex === 'number' ? zIndex : undefined}
             >
-                <Menu size="l">
+                <Menu size="l" qa={qaMenu} data-toolbar-menu-for={textTitle}>
                     {Object.entries(groups).map(([label, items], key) => {
                         return (
                             <Menu.Group label={label} key={key} className={b('menu-group')}>

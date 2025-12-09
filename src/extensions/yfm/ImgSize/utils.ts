@@ -23,6 +23,7 @@ export const createImageNode =
             [ImgSizeAttr.Src]: result.url,
             [ImgSizeAttr.Alt]: result.name ?? file.name,
         };
+
         if (opts.needDimensions) {
             try {
                 const sizes = await loadImage(file).then(
@@ -49,6 +50,15 @@ export async function loadImage(imgFile: File) {
     });
 }
 
+export async function loadImageFromUrl(url: string): Promise<HTMLImageElement> {
+    return new Promise<HTMLImageElement>((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => resolve(img);
+        img.onerror = (_e, _s, _l, _c, error) => reject(error);
+        img.src = url;
+    });
+}
+
 export function getImageSize(img: HTMLImageElement): {[ImgSizeAttr.Height]?: string} {
     return {height: String(Math.min(IMG_MAX_HEIGHT, img.height))};
 }
@@ -63,4 +73,22 @@ export function getImageSizeNew({width, height}: HTMLImageElement): {
         imgMaxHeight: IMG_MAX_HEIGHT,
     });
     return {width: String(size.width), height: String(size.height)};
+}
+
+export function checkSvg(imageUrl?: string) {
+    return imageUrl && (/\.svg($|\?|#)/i.test(imageUrl) || imageUrl.startsWith('data:image/svg'));
+}
+
+export function findImageNode(doc: Node, id: string): {node: Node; pos: number} | null {
+    let result: {node: Node; pos: number} | null = null;
+
+    doc.descendants((node, pos) => {
+        if (isImageNode(node) && node.attrs.id === id) {
+            result = {node, pos};
+            return false;
+        }
+        return true;
+    });
+
+    return result;
 }

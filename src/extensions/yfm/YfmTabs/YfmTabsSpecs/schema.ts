@@ -37,7 +37,7 @@ export const getSchemaSpecs: (
         group: 'block',
         parseDOM: [{tag: 'div.yfm-tab'}],
         toDOM(node) {
-            return ['div', node.attrs, 0];
+            return ['div', {draggable: 'false', ...node.attrs}, 0];
         },
         placeholder: {
             content:
@@ -46,6 +46,7 @@ export const getSchemaSpecs: (
                 DEFAULT_PLACEHOLDERS.TabTitle,
             alwaysVisible: true,
         },
+        selectionContext: false,
         selectable: false,
         allowSelection: false,
         complex: 'leaf',
@@ -164,6 +165,7 @@ export const getSchemaSpecs: (
             content: placeholder?.[TabsNode.RadioTab] ?? DEFAULT_PLACEHOLDERS.RadioTabLabelTitle,
             alwaysVisible: true,
         },
+        selectionContext: false,
         selectable: false,
         allowSelection: false,
         complex: 'leaf',

@@ -3,9 +3,12 @@ import {Fragment, useEffect, useState} from 'react';
 import {ChevronDown} from '@gravity-ui/icons';
 import {HelpMark, Hotkey, Icon, Menu, Popover, Popup} from '@gravity-ui/uikit';
 
+import {LAYOUT} from 'src/common/layout';
+
 import {cn} from '../classname';
 import {i18n} from '../i18n/common';
 import {isFunction} from '../lodash';
+import {useTargetZIndex} from '../react-utils';
 import {useBooleanState, useElementState} from '../react-utils/hooks';
 
 import {PreviewTooltip} from './PreviewTooltip';
@@ -23,7 +26,11 @@ const b = cn('toolbar-list-button');
 
 export type {ToolbarListButtonData};
 
-export type ToolbarListButtonProps<E> = ToolbarBaseProps<E> & ToolbarListButtonData<E>;
+export type ToolbarListButtonProps<E> = ToolbarBaseProps<E> &
+    ToolbarListButtonData<E> & {
+        qaMenu?: string;
+        qaActionDisabledPopover?: string;
+    };
 
 export function ToolbarListButton<E>({
     className,
@@ -37,14 +44,21 @@ export function ToolbarListButton<E>({
     alwaysActive,
     replaceActiveIcon,
     qa,
+    qaMenu,
+    qaActionDisabledPopover = 'g-md-toolbar-action-disabled-hint',
+    disableHotkey,
+    disablePreview,
+    disableTooltip,
 }: ToolbarListButtonProps<E>) {
     const [anchorElement, setAnchorElement] = useElementState();
     const [open, , hide, toggleOpen] = useBooleanState(false);
     const [popupItem, setPopupItem] = useState<ToolbarButtonPopupData<E>>();
+    const zIndex = useTargetZIndex(LAYOUT.STICKY_TOOLBAR);
 
     const everyDisabled = alwaysActive ? false : data.every((item) => !item.isEnable(editor));
     const popupOpen = everyDisabled ? false : open;
     const shouldForceHide = open && !popupOpen;
+
     useEffect(() => {
         if (shouldForceHide) {
             hide();
@@ -65,6 +79,7 @@ export function ToolbarListButton<E>({
         buttonContent.push(<Fragment key={2}>{''}</Fragment>);
         buttonContent.push(<Icon key={3} data={ChevronDown} size={16} />);
     }
+    const titleText: string = isFunction(title) ? title() : title;
 
     return (
         <>
@@ -79,11 +94,17 @@ export function ToolbarListButton<E>({
                     if (popupItem) setPopupItem(undefined);
                     else toggleOpen();
                 }}
+                disableTooltip={disableTooltip || popupOpen}
             >
                 {buttonContent}
             </ToolbarButtonView>
-            <Popup anchorElement={anchorElement} open={popupOpen} onOpenChange={hide}>
-                <Menu size="l" className={b('menu')}>
+            <Popup
+                anchorElement={anchorElement}
+                open={popupOpen}
+                onOpenChange={hide}
+                zIndex={typeof zIndex === 'number' ? zIndex : undefined}
+            >
+                <Menu size="l" className={b('menu')} qa={qaMenu} data-toolbar-menu-for={titleText}>
                     {data
                         .map((data) => {
                             const {
@@ -136,10 +157,11 @@ export function ToolbarListButton<E>({
                                     placement="left"
                                     modal={false}
                                     disabled={hideHintWhenDisabled}
+                                    qa={qaActionDisabledPopover}
                                     key={id}
                                 >
                                     {(props, ref) => (
-                                        <PreviewTooltip preview={preview}>
+                                        <PreviewTooltip preview={preview} disabled={disablePreview}>
                                             <Menu.Item
                                                 key={id}
                                                 ref={ref}
@@ -156,17 +178,19 @@ export function ToolbarListButton<E>({
                                             >
                                                 <div className={b('item')}>
                                                     {titleText}
-                                                    <div className={b('extra')}>
-                                                        {hotkey && <Hotkey value={hotkey} />}
-                                                        {hintText && (
-                                                            <HelpMark
-                                                                className={b('hint')}
-                                                                popoverProps={{modal: false}}
-                                                            >
-                                                                {hintText}
-                                                            </HelpMark>
-                                                        )}
-                                                    </div>
+                                                    {!disableHotkey && (
+                                                        <div className={b('extra')}>
+                                                            {hotkey && <Hotkey value={hotkey} />}
+                                                            {hintText && (
+                                                                <HelpMark
+                                                                    className={b('hint')}
+                                                                    popoverProps={{modal: false}}
+                                                                >
+                                                                    {hintText}
+                                                                </HelpMark>
+                                                            )}
+                                                        </div>
+                                                    )}
                                                 </div>
                                             </Menu.Item>
                                         </PreviewTooltip>

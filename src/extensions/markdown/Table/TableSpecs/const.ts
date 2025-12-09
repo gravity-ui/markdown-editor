@@ -9,6 +9,7 @@ export enum TableNode {
 
 export enum TableAttrs {
     CellAlign = 'cell-align',
+    Line = 'data-line',
 }
 
 export enum CellAlign {

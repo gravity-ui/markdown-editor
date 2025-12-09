@@ -12,9 +12,10 @@ import {useSharedEditingState} from 'src/react-utils/useSharedEditingState';
 import {cn} from '../../../../classname';
 import {TextAreaFixed as TextArea} from '../../../../forms/TextInput';
 import {i18n} from '../../../../i18n/common';
-import {useBooleanState, useElementState} from '../../../../react-utils';
+import {useAutoSave, useBooleanState, useElementState} from '../../../../react-utils';
 import {removeNode} from '../../../../utils';
 import {MermaidConsts} from '../MermaidSpecs/const';
+import type {MermaidOptions} from '../index';
 import type {MermaidEntitySharedState} from '../types';
 
 export const cnMermaid = cn('Mermaid');
@@ -68,33 +69,45 @@ const DiagramEditMode: React.FC<{
     mermaidInstance: Mermaid | null;
     onSave: (v: string) => void;
     onCancel: () => void;
-}> = ({initialText, onSave, onCancel, mermaidInstance}) => {
-    const [text, setText] = useState(initialText || '');
+    options: MermaidOptions;
+}> = ({initialText, onSave, onCancel, mermaidInstance, options: {autoSave}}) => {
+    const {value, handleChange, handleManualSave, isSaveDisabled, isAutoSaveEnabled} = useAutoSave({
+        initialValue: initialText || '',
+        onSave,
+        onClose: onCancel,
+        autoSave,
+    });
 
     return (
         <div className={b()}>
-            <MermaidPreview mermaidInstance={mermaidInstance} text={text} />
+            <MermaidPreview mermaidInstance={mermaidInstance} text={value} />
             <div className={b('Editor')}>
                 <div>
                     <TextArea
                         controlProps={{
                             className: STOP_EVENT_CLASSNAME,
                         }}
-                        value={text}
-                        onUpdate={(v) => {
-                            setText(v);
-                        }}
+                        value={value}
+                        onUpdate={handleChange}
                         autoFocus
                     />
                 </div>
                 <div className={b('Controls')}>
                     <div>
                         <Button onClick={onCancel} view={'flat'}>
-                            <span className={STOP_EVENT_CLASSNAME}>{i18n('cancel')}</span>
+                            <span className={STOP_EVENT_CLASSNAME}>
+                                {isAutoSaveEnabled ? i18n('close') : i18n('cancel')}
+                            </span>
                         </Button>
-                        <Button onClick={() => onSave(text)} view={'action'}>
-                            <span className={STOP_EVENT_CLASSNAME}>{i18n('save')}</span>
-                        </Button>
+                        {!isAutoSaveEnabled && (
+                            <Button
+                                onClick={handleManualSave}
+                                view={'action'}
+                                disabled={isSaveDisabled}
+                            >
+                                <span className={STOP_EVENT_CLASSNAME}>{i18n('save')}</span>
+                            </Button>
+                        )}
                     </div>
                 </div>
             </div>
@@ -108,7 +121,8 @@ export const MermaidView: React.FC<{
     getMermaidInstance: () => Mermaid;
     node: Node;
     getPos: () => number | undefined;
-}> = ({onChange, node, getPos, view, getMermaidInstance}) => {
+    options: MermaidOptions;
+}> = ({onChange, node, getPos, view, getMermaidInstance, options}) => {
     const enitityId: string = node.attrs[MermaidConsts.NodeAttrs.EntityId];
     const entityKey = useMemo(
         () => SharedStateKey.define<MermaidEntitySharedState>({name: enitityId}),
@@ -144,8 +158,8 @@ export const MermaidView: React.FC<{
                 onCancel={unsetEditing}
                 onSave={(v) => {
                     onChange({[MermaidConsts.NodeAttrs.content]: v});
-                    unsetEditing();
                 }}
+                options={options}
             />
         );
     }

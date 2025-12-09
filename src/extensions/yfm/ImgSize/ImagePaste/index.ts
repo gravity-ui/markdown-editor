@@ -12,7 +12,15 @@ import type {FileUploadHandler} from '../../../../utils';
 import {clipboardUtils} from '../../../behavior/Clipboard';
 import {DataTransferType} from '../../../behavior/Clipboard/utils';
 import {ImageAttr, ImgSizeAttr, imageType} from '../../../specs';
-import {type CreateImageNodeOptions, isImageNode} from '../utils';
+import {
+    type CreateImageNodeOptions,
+    checkSvg,
+    findImageNode,
+    getImageSize,
+    getImageSizeNew,
+    isImageNode,
+    loadImageFromUrl,
+} from '../utils';
 
 import {ImagesUploadProcess} from './upload';
 
@@ -82,14 +90,76 @@ export const ImagePaste: ExtensionAuto<ImagePasteOptions> = (builder, opts) => {
 
                                 e.preventDefault();
 
+                                const isSvg = checkSvg(imageUrl);
+
+                                const trackingId = `img-${Math.random().toString(36).slice(2)}`;
+
                                 const imageNode = imageType(view.state.schema).create({
                                     src: imageUrl,
                                     alt: title,
+                                    id: trackingId,
                                 });
 
                                 const tr = view.state.tr.replaceSelectionWith(imageNode);
                                 view.dispatch(tr.scrollIntoView());
                                 logger.event({event: 'paste-url-as-image'});
+
+                                loadImageFromUrl(imageUrl)
+                                    .then((img) =>
+                                        opts?.enableNewImageSizeCalculation || isSvg
+                                            ? getImageSizeNew(img)
+                                            : getImageSize(img),
+                                    )
+                                    .then(
+                                        (sizes: {
+                                            [ImgSizeAttr.Height]?: string;
+                                            [ImgSizeAttr.Width]?: string;
+                                        }) => {
+                                            const currentState = view.state;
+
+                                            const imageResult = findImageNode(
+                                                currentState.doc,
+                                                trackingId,
+                                            );
+
+                                            if (imageResult === null) {
+                                                logger.error({
+                                                    event: 'img-node-not-found',
+                                                    trackingId,
+                                                });
+                                                return;
+                                            }
+
+                                            const {pos: targetPos} = imageResult;
+
+                                            const updateTr = currentState.tr
+                                                .setNodeAttribute(
+                                                    targetPos,
+                                                    ImgSizeAttr.Height,
+                                                    sizes.height,
+                                                )
+                                                .setNodeAttribute(
+                                                    targetPos,
+                                                    ImgSizeAttr.Width,
+                                                    sizes.width,
+                                                )
+                                                .setNodeAttribute(targetPos, 'id', null);
+
+                                            view.dispatch(updateTr);
+
+                                            logger.event({
+                                                event: 'img-dimensions-updated',
+                                                position: targetPos,
+                                                sizes,
+                                            });
+                                        },
+                                    )
+                                    .catch((error) => {
+                                        logger.error({
+                                            event: 'img-dimensions-load-failed',
+                                            error: error.message,
+                                        });
+                                    });
 
                                 return true;
                             }

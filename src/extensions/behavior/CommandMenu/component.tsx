@@ -48,7 +48,7 @@ export const CommandMenuComponent: React.FC<CommandMenuComponentProps> = ({
             anchorElement={anchorElement}
             placement={placement}
             onOpenChange={onOpenChange}
-            qa="g-md-command-menu"
+            qa="g-md-toolbar-command-menu"
         >
             <div className={b()}>
                 <List<CommandMenuItem>

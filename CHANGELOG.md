@@ -1,5 +1,249 @@
 # Changelog
 
+## [15.25.0](https://github.com/gravity-ui/markdown-editor/compare/v15.24.1...v15.25.0) (2025-11-14)
+
+
+### Features
+
+* **bundle:** improve cursor movement to specified line in wysiwyg mode ([fd04b7f](https://github.com/gravity-ui/markdown-editor/commit/fd04b7f57f14fa1c2d282eaf0b7f00e13b81f5c6))
+* **Checkbox:** add data-line attribute to checkbox ([283c7d1](https://github.com/gravity-ui/markdown-editor/commit/283c7d1e9f6e2e31b8f8f23260062fa4d6ec120e))
+* **CodeBlock:** add data-line attribute to code block ([783f099](https://github.com/gravity-ui/markdown-editor/commit/783f0997d26158f655b034fec44b83be1db0c261))
+* **Deflist:** add data-line attribute to term ([86347bc](https://github.com/gravity-ui/markdown-editor/commit/86347bc656e99924ac18f6ce75dd8cd06d85a6ea))
+* **Lists:** add data-line attribute to list item ([1077ae9](https://github.com/gravity-ui/markdown-editor/commit/1077ae994827b5ab4b98db40d844b602ffd7e4ce))
+* **Table:** add data-line attribute to table row ([b956c55](https://github.com/gravity-ui/markdown-editor/commit/b956c5500b1a3c776130435ef4a869d960b20765))
+* **YfmCut:** add data-line attribute to cut title ([426bfcf](https://github.com/gravity-ui/markdown-editor/commit/426bfcf541ea021251fdb544670ab3ff09ac0f9a))
+* **YfmNote:** add data-line attribute to note title ([f55d176](https://github.com/gravity-ui/markdown-editor/commit/f55d176c13d25ec5b0240955900e7a981369941a))
+
+## [15.24.1](https://github.com/gravity-ui/markdown-editor/compare/v15.24.0...v15.24.1) (2025-11-11)
+
+
+### Bug Fixes
+
+* **BaseSchema:** get paragraph attributes from token attributes ([#875](https://github.com/gravity-ui/markdown-editor/issues/875)) ([17a58e5](https://github.com/gravity-ui/markdown-editor/commit/17a58e53a86fc863638badbfa46aad579c43ccd1))
+
+## [15.24.0](https://github.com/gravity-ui/markdown-editor/compare/v15.23.0...v15.24.0) (2025-10-18)
+
+
+### Features
+
+* **toolbar:** add dynamic z-index sync via useTargetZIndex hook ([#863](https://github.com/gravity-ui/markdown-editor/issues/863)) ([d03f6c9](https://github.com/gravity-ui/markdown-editor/commit/d03f6c905250bc610d5cc30f611ec86f4a6fa170))
+* **YfmCut:** support diplodoc/cut-extension v1.x.x ([#869](https://github.com/gravity-ui/markdown-editor/issues/869)) ([14bf513](https://github.com/gravity-ui/markdown-editor/commit/14bf513f085203f5ecfbb967d981a2905ce196ca))
+
+
+### Bug Fixes
+
+* **imageSize:** fixed the insertion of the svg image ([#857](https://github.com/gravity-ui/markdown-editor/issues/857)) ([e70da1b](https://github.com/gravity-ui/markdown-editor/commit/e70da1be6deb09ef42041b0153c9522c747e3d97))
+* **Table:** go to next row when pressing Enter or Shift+Enter ([#871](https://github.com/gravity-ui/markdown-editor/issues/871)) ([5cbdf0a](https://github.com/gravity-ui/markdown-editor/commit/5cbdf0a338e6993b855daf00ccac8c886f1f4bc9))
+* **wysiwyg:** dont apply wrapping input rules within non-default textblocks ([#870](https://github.com/gravity-ui/markdown-editor/issues/870)) ([cd3cddd](https://github.com/gravity-ui/markdown-editor/commit/cd3cddd96944e4e70e4dc3454cb9aa7cfaed48e7))
+
+## [15.23.0](https://github.com/gravity-ui/markdown-editor/compare/v15.22.2...v15.23.0) (2025-10-14)
+
+
+### Features
+
+* add replace func to markup search ([#860](https://github.com/gravity-ui/markdown-editor/issues/860)) ([5c36b3d](https://github.com/gravity-ui/markdown-editor/commit/5c36b3df0c56db79c74715d537a9383c9131b03e))
+
+
+### Bug Fixes
+
+* **YfmTable:** fix clearing table cells when pressing backspace ([#866](https://github.com/gravity-ui/markdown-editor/issues/866)) ([776de5c](https://github.com/gravity-ui/markdown-editor/commit/776de5ca649479874280875297177bd3c9cb6a53))
+
+## [15.22.2](https://github.com/gravity-ui/markdown-editor/compare/v15.22.1...v15.22.2) (2025-10-09)
+
+
+### Bug Fixes
+
+* **toolbar:** revert broken z-index logic for popups ([#861](https://github.com/gravity-ui/markdown-editor/issues/861)) ([2859f7c](https://github.com/gravity-ui/markdown-editor/commit/2859f7cbb09bd9d24332e0bbe74f6816af84767c))
+
+## [15.22.1](https://github.com/gravity-ui/markdown-editor/compare/v15.22.0...v15.22.1) (2025-10-08)
+
+
+### Bug Fixes
+
+* **Mermaid, YfmHtmlBlock:** improve autosave UI behavior ([#858](https://github.com/gravity-ui/markdown-editor/issues/858)) ([6da142b](https://github.com/gravity-ui/markdown-editor/commit/6da142bc6ac6b9c59b3c80363d9de134eb9f9bfe))
+* **toolbar:** use helper to adjust z-index for popups ([#544](https://github.com/gravity-ui/markdown-editor/issues/544)) ([d452b02](https://github.com/gravity-ui/markdown-editor/commit/d452b0225d10de319a7181731ac2ac0042a16e0c))
+
+## [15.22.0](https://github.com/gravity-ui/markdown-editor/compare/v15.21.0...v15.22.0) (2025-10-02)
+
+
+### Features
+
+* add autosave while editing Mermaid and YfmHtmlblock ([#852](https://github.com/gravity-ui/markdown-editor/issues/852)) ([5ddd9d5](https://github.com/gravity-ui/markdown-editor/commit/5ddd9d5ee8c56510a380b9841c5a9d5971f76045))
+* **YfmTable:** add ghost when dragging rows and columns ([#849](https://github.com/gravity-ui/markdown-editor/issues/849)) ([b1ca9c6](https://github.com/gravity-ui/markdown-editor/commit/b1ca9c64c7b4610c3d12b5611c880278db228468))
+* **YfmTable:** change border color for selected cells ([#850](https://github.com/gravity-ui/markdown-editor/issues/850)) ([46f5168](https://github.com/gravity-ui/markdown-editor/commit/46f516883a25b3b5bf8bcd0026ccbcd68d0d4ee4))
+* **YfmTableControls:** update plus button styles ([#848](https://github.com/gravity-ui/markdown-editor/issues/848)) ([2482d89](https://github.com/gravity-ui/markdown-editor/commit/2482d8931a88f5ab6a9ebfe4ca77051905fb686a))
+
+
+### Bug Fixes
+
+* **BaseSchema:** fix serialization of empty paragraphs inside other blocks ([#846](https://github.com/gravity-ui/markdown-editor/issues/846)) ([196f9f6](https://github.com/gravity-ui/markdown-editor/commit/196f9f634a39b4b77d1be1d9f8b243abbc6052c7))
+* **FoldingHeading:** some blocks remained visible when heading was collapsed ([#845](https://github.com/gravity-ui/markdown-editor/issues/845)) ([1c0005d](https://github.com/gravity-ui/markdown-editor/commit/1c0005dd44edc4a480a8b6123ef2a428c50b2356))
+* **YfmTableControls:** fix drag-n-drop false positives ([#853](https://github.com/gravity-ui/markdown-editor/issues/853)) ([ea018a1](https://github.com/gravity-ui/markdown-editor/commit/ea018a1c9474ebf83c787532dd9128e78746805d))
+* **YfmTable:** fix button display while dragging ([#854](https://github.com/gravity-ui/markdown-editor/issues/854)) ([54bd192](https://github.com/gravity-ui/markdown-editor/commit/54bd1922dc1da8dfce74ec907776f5f50652c1b7))
+
+## [15.21.0](https://github.com/gravity-ui/markdown-editor/compare/v15.20.0...v15.21.0) (2025-09-23)
+
+
+### Features
+
+* **view:** support `no-stripe-table` modifier ([8f4cfb0](https://github.com/gravity-ui/markdown-editor/commit/8f4cfb048ccef957119f054a385c1f5f8f22032e))
+* **YfmConfigs:** support yfm modifiers ([26157cd](https://github.com/gravity-ui/markdown-editor/commit/26157cd73e7c44e20f0780a6c894ee71577b9759))
+
+
+### Bug Fixes
+
+* **YfmTableControls:** fix row deletion when dnd is enabled ([#844](https://github.com/gravity-ui/markdown-editor/issues/844)) ([b696dd3](https://github.com/gravity-ui/markdown-editor/commit/b696dd3c6cbdc2da6c798f9470c0e2893d76c38e))
+
+## [15.20.0](https://github.com/gravity-ui/markdown-editor/compare/v15.19.1...v15.20.0) (2025-09-15)
+
+
+### Features
+
+* **icons:** update monospace, tabs, mermaid and drawio icons ([#837](https://github.com/gravity-ui/markdown-editor/issues/837)) ([1acf377](https://github.com/gravity-ui/markdown-editor/commit/1acf3772166665be6458682ee5e175b462ff85ce))
+* **YfmTable:** rework table controls – add drag-n-drop, rows and columns insertion ([#831](https://github.com/gravity-ui/markdown-editor/issues/831)) ([f8fd37f](https://github.com/gravity-ui/markdown-editor/commit/f8fd37ff59ea2e318513c670f144bb6c956559bc))
+
+
+### Bug Fixes
+
+* **toolbar:** hide tooltip when menu open to prevent overlap ([#839](https://github.com/gravity-ui/markdown-editor/issues/839)) ([9c80b9d](https://github.com/gravity-ui/markdown-editor/commit/9c80b9d25ff24e500975e435e26edcaee9761b3f))
+
+## [15.19.1](https://github.com/gravity-ui/markdown-editor/compare/v15.19.0...v15.19.1) (2025-08-28)
+
+
+### Bug Fixes
+
+* **bundle:** dont pass invalid props to dom in ToolbarColors component ([#836](https://github.com/gravity-ui/markdown-editor/issues/836)) ([93a97b6](https://github.com/gravity-ui/markdown-editor/commit/93a97b645d1a1b1411b4b07804248302db620a07))
+* ellipsis rule in inline code ([#829](https://github.com/gravity-ui/markdown-editor/issues/829)) ([53cc46f](https://github.com/gravity-ui/markdown-editor/commit/53cc46f6b67b2667225d66453f4160dab304c8f6))
+* **Lists:** enable tight lists by default to eliminate unnecessary spacing ([#826](https://github.com/gravity-ui/markdown-editor/issues/826)) ([28b7368](https://github.com/gravity-ui/markdown-editor/commit/28b736899b9de7198a9d53e2fa6826cc7b6fdee8))
+
+## [15.19.0](https://github.com/gravity-ui/markdown-editor/compare/v15.18.0...v15.19.0) (2025-08-12)
+
+
+### Features
+
+* **view/useFilesGallery:** add possibility to override gallery item props ([#824](https://github.com/gravity-ui/markdown-editor/issues/824)) ([5d6269f](https://github.com/gravity-ui/markdown-editor/commit/5d6269ff5899d0a22dabf969bb025413cfca89a2))
+
+## [15.18.0](https://github.com/gravity-ui/markdown-editor/compare/v15.17.0...v15.18.0) (2025-08-04)
+
+
+### Features
+
+* support mobile view ([#588](https://github.com/gravity-ui/markdown-editor/issues/588)) ([4c32e51](https://github.com/gravity-ui/markdown-editor/commit/4c32e51ff0f2470c28b95e2996134152fbfaadf1))
+
+
+### Bug Fixes
+
+* **CodeBlock:** skip lang init on import fail ([#817](https://github.com/gravity-ui/markdown-editor/issues/817)) ([7c4827a](https://github.com/gravity-ui/markdown-editor/commit/7c4827a687f5ea1af9e614fa92aa97fc730cc876))
+* **wysiwyg:** fix pasting empty text into code and from code editor ([#820](https://github.com/gravity-ui/markdown-editor/issues/820)) ([efd9be1](https://github.com/gravity-ui/markdown-editor/commit/efd9be1ab702985df44b485b91aba4a85abaa799))
+
+## [15.17.0](https://github.com/gravity-ui/markdown-editor/compare/v15.16.2...v15.17.0) (2025-07-16)
+
+
+### Features
+
+* add aliases to heading toolbar ([#814](https://github.com/gravity-ui/markdown-editor/issues/814)) ([2d1e1fb](https://github.com/gravity-ui/markdown-editor/commit/2d1e1fbfba796ce84dabd699bf48cb250c9a67ba))
+
+
+### Bug Fixes
+
+* **Link:** fix popup position when anchor DOM changes ([#815](https://github.com/gravity-ui/markdown-editor/issues/815)) ([0b19930](https://github.com/gravity-ui/markdown-editor/commit/0b19930ea063b27c12253260fc8accac9e980e1b))
+
+## [15.16.2](https://github.com/gravity-ui/markdown-editor/compare/v15.16.1...v15.16.2) (2025-07-10)
+
+
+### Bug Fixes
+
+* **core:** process child tokens in MarkdownParserDynamicModifier ([#809](https://github.com/gravity-ui/markdown-editor/issues/809)) ([f1a5088](https://github.com/gravity-ui/markdown-editor/commit/f1a50888aca1fc1ed565888049a72680272feda6))
+
+## [15.16.0](https://github.com/gravity-ui/markdown-editor/compare/v15.15.0...v15.16.0) (2025-07-08)
+
+
+### Features
+
+* **core:** make dynamic modifiers are public ([#805](https://github.com/gravity-ui/markdown-editor/issues/805)) ([ce0c9e0](https://github.com/gravity-ui/markdown-editor/commit/ce0c9e0db9548a21c2006a044b6d17c8e80e0b72))
+* **core:** markdown-parser can parse an existing stream of md tokens ([#806](https://github.com/gravity-ui/markdown-editor/issues/806)) ([e642c51](https://github.com/gravity-ui/markdown-editor/commit/e642c517b17e68f1971d2b870e42fb2814702399))
+* **forms:** allow custom upload hints ([#802](https://github.com/gravity-ui/markdown-editor/issues/802)) ([b407ce4](https://github.com/gravity-ui/markdown-editor/commit/b407ce423b96c6ca0cb18997bb701b24776d63d0))
+
+## [15.15.0](https://github.com/gravity-ui/markdown-editor/compare/v15.14.2...v15.15.0) (2025-07-03)
+
+
+### Features
+
+* **YfmTable:** support for ignoring splitters in table content ([#800](https://github.com/gravity-ui/markdown-editor/issues/800)) ([23c68ac](https://github.com/gravity-ui/markdown-editor/commit/23c68acb1aa7bbd583cad33795056263b4857005))
+
+
+### Bug Fixes
+
+* correct TextAreaFixed display name ([#796](https://github.com/gravity-ui/markdown-editor/issues/796)) ([7b65f78](https://github.com/gravity-ui/markdown-editor/commit/7b65f786e8f5fa75d1bd68a0ae4ff203e0537535))
+* **Link:** paste URL with trailing question mark ([#798](https://github.com/gravity-ui/markdown-editor/issues/798)) ([51d0fe7](https://github.com/gravity-ui/markdown-editor/commit/51d0fe7976ca30c9fe4a130ab99f0e5c13294b5f))
+
+## [15.14.2](https://github.com/gravity-ui/markdown-editor/compare/v15.14.1...v15.14.2) (2025-06-30)
+
+
+### Bug Fixes
+
+* **view:** support anchor links using `name` instead of `id` ([#792](https://github.com/gravity-ui/markdown-editor/issues/792)) ([3079054](https://github.com/gravity-ui/markdown-editor/commit/3079054a4bf3b05af1cdda22f28970a06a9c03d5))
+
+## [15.14.1](https://github.com/gravity-ui/markdown-editor/compare/v15.14.0...v15.14.1) (2025-06-18)
+
+
+### Bug Fixes
+
+* **GPT:** fixed open gpt-widget in safari browser ([#781](https://github.com/gravity-ui/markdown-editor/issues/781)) ([5a21ae6](https://github.com/gravity-ui/markdown-editor/commit/5a21ae66de9f768ddf11710f2e704fc7f6756586))
+
+## [15.14.0](https://github.com/gravity-ui/markdown-editor/compare/v15.13.3...v15.14.0) (2025-06-17)
+
+
+### Features
+
+* added data attribute for searching toolbar button ([#783](https://github.com/gravity-ui/markdown-editor/issues/783)) ([0aca8d8](https://github.com/gravity-ui/markdown-editor/commit/0aca8d855090a978bdeec673249e225bc9666184))
+
+## [15.13.3](https://github.com/gravity-ui/markdown-editor/compare/v15.13.2...v15.13.3) (2025-06-05)
+
+
+### Bug Fixes
+
+* **YfmNote:** improved note removal on Backspace ([#778](https://github.com/gravity-ui/markdown-editor/issues/778)) ([2c5c0f6](https://github.com/gravity-ui/markdown-editor/commit/2c5c0f67f3122c804d40dad41a3bb720dcc4bc9b))
+
+## [15.13.2](https://github.com/gravity-ui/markdown-editor/compare/v15.13.1...v15.13.2) (2025-05-29)
+
+
+### Bug Fixes
+
+* **wysiwyg:** preserve markup for bold and italic marks ([#774](https://github.com/gravity-ui/markdown-editor/issues/774)) ([ef69f89](https://github.com/gravity-ui/markdown-editor/commit/ef69f892035b1b6f2d2db8753317ab9f185459a0))
+* **YfmTable:** fixed styles and added qa attrs ([cc2582b](https://github.com/gravity-ui/markdown-editor/commit/cc2582ba45e8adaf6595d373e994283dd5918f82))
+
+## [15.13.1](https://github.com/gravity-ui/markdown-editor/compare/v15.13.0...v15.13.1) (2025-05-27)
+
+
+### Bug Fixes
+
+* **SelectionContext:** fixed ESM import error for `prosemirror-utils` ([#771](https://github.com/gravity-ui/markdown-editor/issues/771)) ([10ce81c](https://github.com/gravity-ui/markdown-editor/commit/10ce81c3ebbd0b76c58e445fc7e3eca7e6c2183e))
+
+## [15.13.0](https://github.com/gravity-ui/markdown-editor/compare/v15.12.1...v15.13.0) (2025-05-27)
+
+
+### Features
+
+* **core, Сolor:** added support for custom escape characters ([#746](https://github.com/gravity-ui/markdown-editor/issues/746)) ([1ad1ba4](https://github.com/gravity-ui/markdown-editor/commit/1ad1ba4a0732feaa4537d0671bcbab15c716975f))
+* **SelectionContext:** allow to disabling context menu within node via node spec ([8b12d87](https://github.com/gravity-ui/markdown-editor/commit/8b12d8787494b4d0aa0e530ada34a92275a39387))
+* **view:** `openFilesGallery` returns true if the gallery was opened ([#769](https://github.com/gravity-ui/markdown-editor/issues/769)) ([4bad59f](https://github.com/gravity-ui/markdown-editor/commit/4bad59fb5588c00ceaa5cd43e158d58bbb5771d0))
+
+
+### Bug Fixes
+
+* **Link:** fixed addLink action behavior ([#763](https://github.com/gravity-ui/markdown-editor/issues/763)) ([7472f56](https://github.com/gravity-ui/markdown-editor/commit/7472f56292536b51ce17bf99b573b06aa56b1a1e))
+* **YfmTabs:** disable drag of tab title ([#766](https://github.com/gravity-ui/markdown-editor/issues/766)) ([86468b2](https://github.com/gravity-ui/markdown-editor/commit/86468b258ca8b370919e5c1f9a01e8355dc3f5ab))
+* **YfmTabs:** disable selection-context menu inside tab title ([dce8e11](https://github.com/gravity-ui/markdown-editor/commit/dce8e11a6412d4d6ba42b0c0f1101a4ddfae88d6))
+
+## [15.12.1](https://github.com/gravity-ui/markdown-editor/compare/v15.12.0...v15.12.1) (2025-05-19)
+
+
+### Bug Fixes
+
+* **bundle:** do not render preview button if there is no preview ([#762](https://github.com/gravity-ui/markdown-editor/issues/762)) ([ef962e1](https://github.com/gravity-ui/markdown-editor/commit/ef962e1224155ad5f21a133266bdd3657b1edf53))
+* **GPT:** fixed popup position in markup mode ([#760](https://github.com/gravity-ui/markdown-editor/issues/760)) ([bb6fbf1](https://github.com/gravity-ui/markdown-editor/commit/bb6fbf11ffe07815f03e3d94e19c90f99417d84a))
+
 ## [15.12.0](https://github.com/gravity-ui/markdown-editor/compare/v15.11.1...v15.12.0) (2025-05-15)
 
 

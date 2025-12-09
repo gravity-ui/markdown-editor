@@ -7,4 +7,5 @@ export const ImgSizeAttr = {
     Width: ImsizeAttr.Width,
     Height: ImsizeAttr.Height,
     Loading: 'loading',
+    Id: 'id',
 } as const;

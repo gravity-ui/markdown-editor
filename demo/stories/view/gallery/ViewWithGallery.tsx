@@ -8,8 +8,14 @@ import './ViewWithGallery.scss';
 
 export type ViewWithGalleryProps = YfmStaticViewProps;
 
+const getCopyUrl = (url: string) => url;
+const getDownloadUrl = (url: string) => url;
+
 const ViewWithGalleryContent: FC<ViewWithGalleryProps> = (props) => {
-    const {openFilesGallery} = useFilesGallery();
+    const {openFilesGallery} = useFilesGallery(undefined, {
+        copyUrl: getCopyUrl,
+        download: getDownloadUrl,
+    });
 
     return (
         // eslint-disable-next-line jsx-a11y/click-events-have-key-events,jsx-a11y/no-static-element-interactions

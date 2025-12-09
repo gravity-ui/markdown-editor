@@ -56,6 +56,7 @@ const wCommandMenuConfig = wysiwygToolbarConfigs.wCommandMenuConfig.concat(
 );
 
 export type PlaygroundProps = {
+    mobile?: boolean;
     initial?: MarkupString;
     allowHTML?: boolean;
     settingsVisible?: boolean | SettingItems[];
@@ -73,6 +74,7 @@ export type PlaygroundProps = {
     initialSplitModeEnabled?: boolean;
     renderPreviewDefined?: boolean;
     height?: CSSProperties['height'];
+    width?: CSSProperties['width'];
     markupConfigExtensions?: Extension[];
     wysiwygCommandMenuConfig?: wysiwygToolbarConfigs.WToolbarItemData[];
     markupToolbarConfig?: ToolbarGroupData<CodeEditor>[];
@@ -83,6 +85,8 @@ export type PlaygroundProps = {
     disabledHTMLBlockModes?: EmbeddingMode[];
     disableMarkdownItAttrs?: boolean;
     markupParseHtmlOnPaste?: boolean;
+    style?: React.CSSProperties;
+    storyAdditionalControls?: Record<string, any>;
 } & Pick<UseMarkdownEditorProps, 'experimental' | 'wysiwygConfig'> &
     Pick<
         MarkdownEditorViewProps,
@@ -105,6 +109,7 @@ logger.setLogger({
 
 export const Playground = memo<PlaygroundProps>((props) => {
     const {
+        mobile,
         initial,
         initialEditor,
         initialSplitModeEnabled,
@@ -121,6 +126,7 @@ export const Playground = memo<PlaygroundProps>((props) => {
         stickyToolbar,
         renderPreviewDefined,
         height,
+        width,
         wysiwygConfig,
         toolbarsPreset,
         wysiwygToolbarConfig,
@@ -135,6 +141,8 @@ export const Playground = memo<PlaygroundProps>((props) => {
         disabledHTMLBlockModes,
         disableMarkdownItAttrs,
         markupParseHtmlOnPaste,
+        style,
+        storyAdditionalControls,
     } = props;
     const [editorMode, setEditorMode] = useState<MarkdownEditorMode>(initialEditor ?? 'wysiwyg');
     const [mdRaw, setMdRaw] = useState<MarkupString>(initial || '');
@@ -152,7 +160,11 @@ export const Playground = memo<PlaygroundProps>((props) => {
                 linkifyTlds={md.linkifyTlds}
                 breaks={md.breaks}
                 needToSanitizeHtml={sanitizeHtml}
-                plugins={getPlugins({directiveSyntax})}
+                plugins={getPlugins({
+                    directiveSyntax,
+                    table_ignoreSplittersInBlockMath: true,
+                    table_ignoreSplittersInInlineMath: true,
+                })}
                 disableMarkdownItAttrs={disableMarkdownItAttrs}
                 htmlRuntimeConfig={{disabledModes: disabledHTMLBlockModes}}
             />
@@ -166,6 +178,7 @@ export const Playground = memo<PlaygroundProps>((props) => {
     const mdEditor = useMarkdownEditor(
         {
             logger,
+            mobile,
             preset: 'full',
             wysiwygConfig: {
                 placeholderOptions: placeholderOptions,
@@ -189,11 +202,20 @@ export const Playground = memo<PlaygroundProps>((props) => {
                                     /* webpackChunkName: "mermaid-runtime" */ '@diplodoc/mermaid-extension/runtime'
                                 );
                             },
+                            autoSave: {
+                                enabled: storyAdditionalControls?.mermaidAutoSaveEnabled ?? true,
+                                delay: storyAdditionalControls?.mermaidAutoSaveDelay ?? 1000,
+                            },
                         })
                         .use(FoldingHeading)
                         .use(YfmHtmlBlock, {
                             useConfig: useYfmHtmlBlockStyles,
                             sanitize: getSanitizeYfmHtmlBlock({options: defaultOptions}),
+                            autoSave: {
+                                enabled:
+                                    storyAdditionalControls?.yfmHtmlBlockAutoSaveEnabled ?? true,
+                                delay: storyAdditionalControls?.yfmHtmlBlockAutoSaveDelay ?? 1000,
+                            },
                             head: `
                         <base target="_blank" />
                         <style>
@@ -210,6 +232,12 @@ export const Playground = memo<PlaygroundProps>((props) => {
                     commandMenu: {actions: wysiwygCommandMenuConfig ?? wCommandMenuConfig},
                     imgSize: {
                         parseInsertedUrlAsImage,
+                    },
+                    yfmTable: {
+                        table_ignoreSplittersInBlockCode: true,
+                        table_ignoreSplittersInBlockMath: true,
+                        table_ignoreSplittersInInlineCode: true,
+                        table_ignoreSplittersInInlineMath: true,
                     },
                     ...wysiwygConfig?.extensionOptions,
                 },
@@ -247,6 +275,7 @@ export const Playground = memo<PlaygroundProps>((props) => {
             },
         },
         [
+            mobile,
             allowHTML,
             linkify,
             linkifyTlds,
@@ -316,8 +345,10 @@ export const Playground = memo<PlaygroundProps>((props) => {
 
     return (
         <PlaygroundLayout
+            style={style}
             editor={mdEditor}
             viewHeight={height}
+            viewWidth={width}
             view={({className}) => (
                 <MarkdownEditorView
                     autofocus

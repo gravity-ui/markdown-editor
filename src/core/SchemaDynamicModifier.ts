@@ -2,6 +2,14 @@ import type {NodeSpec} from 'prosemirror-model';
 
 export type TokenAttrs = {[name: string]: unknown};
 
+export interface NodeSpecProcessor {
+    allowedAttrs?: string[];
+}
+
+export interface SchemaDynamicModifierConfig {
+    [elementType: string]: NodeSpecProcessor;
+}
+
 /**
  * Class SchemaDynamicModifier
  *
@@ -19,18 +27,6 @@ export type TokenAttrs = {[name: string]: unknown};
  * });
  * ```
  */
-
-/** @internal */
-export interface NodeSpecProcessor {
-    allowedAttrs?: string[];
-}
-
-/** @internal */
-export interface SchemaDynamicModifierConfig {
-    [elementType: string]: NodeSpecProcessor;
-}
-
-/** @internal */
 export class SchemaDynamicModifier {
     private nodeSpecsProcessors: Map<string, NodeSpecProcessor>;
 

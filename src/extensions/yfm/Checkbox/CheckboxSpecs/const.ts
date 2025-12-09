@@ -13,6 +13,7 @@ export const CheckboxAttr = {
     Id: 'id',
     Checked: 'checked',
     For: 'for',
+    Line: 'data-line',
 } as const;
 
 export const idPrefix = 'yfm-editor-checkbox';

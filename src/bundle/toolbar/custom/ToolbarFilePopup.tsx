@@ -20,7 +20,7 @@ export type ToolbarFilePopupProps = Omit<ToolbarBaseProps<never>, 'editor'> & {
 
     uploadHandler?: FileUploadHandler;
     onSuccessUpload?: (result: BatchUploadResult) => void;
-} & Pick<FileFormProps, 'onSubmit'>;
+} & Pick<FileFormProps, 'onSubmit' | 'uploadHint'>;
 
 export const ToolbarFilePopup: React.FC<ToolbarFilePopupProps> = ({
     className,
@@ -32,6 +32,7 @@ export const ToolbarFilePopup: React.FC<ToolbarFilePopupProps> = ({
     onClick,
     uploadHandler,
     onSuccessUpload,
+    uploadHint,
 }) => {
     const toaster = useToaster();
     const [loading, showLoading, hideLoading] = useBooleanState(false);
@@ -82,6 +83,7 @@ export const ToolbarFilePopup: React.FC<ToolbarFilePopupProps> = ({
                     onClick?.('addFile');
                 }}
                 loading={loading}
+                uploadHint={uploadHint}
             />
         </Popup>
     );

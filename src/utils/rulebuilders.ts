@@ -7,7 +7,7 @@ import {InputRule} from 'prosemirror-inputrules';
 import type {Attrs, Node, NodeType} from 'prosemirror-model';
 import {canJoin, findWrapping} from 'prosemirror-transform';
 
-import {hasCodeMark} from './inputrules';
+import {hasCodeMark, inDefaultTextblock} from './inputrules';
 
 /// Build an input rule for automatically wrapping a textblock when a
 /// given string is typed. The `regexp` argument is
@@ -32,6 +32,7 @@ export function wrappingInputRule(
 ) {
     return new InputRule(regexp, (state, match, start, end) => {
         if (hasCodeMark(state, match, start, end)) return null;
+        if (!inDefaultTextblock(state, match, start, end)) return null;
 
         const attrs = getAttrs instanceof Function ? getAttrs(match) : getAttrs;
         const tr = state.tr.delete(start, end);
