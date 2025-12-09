@@ -20,9 +20,10 @@ import {hideHoverDecos} from '../plugins/focus-plugin';
 import {getSelectedCellsForColumns, getSelectedCellsForRows} from '../utils';
 
 import {
+    type DropCursor,
     type DropCursorParams,
-    DropCursor as RowDropCursor,
     TableColumnDropCursor,
+    TableRowDropCursor,
 } from './dnd-drop-cursor';
 import {YfmTableDnDGhost} from './dnd-ghost';
 
@@ -85,7 +86,7 @@ abstract class YfmTableDnDAbstractHandler implements TableHandler, DnDControlHan
     protected readonly _cellGetPos: () => number | undefined;
     protected readonly _editorView: EditorView;
     protected readonly _logger: Logger2.ILogger;
-    protected readonly _dropCursor: RowDropCursor;
+    protected readonly _dropCursor: DropCursor;
 
     private __cellNode: Node;
     private __dragging = false;
@@ -94,7 +95,7 @@ abstract class YfmTableDnDAbstractHandler implements TableHandler, DnDControlHan
 
     constructor(
         view: EditorView,
-        params: Omit<YfmTableDnDHandlerParams, 'dropCursor'> & {dropCursor: RowDropCursor},
+        params: Omit<YfmTableDnDHandlerParams, 'dropCursor'> & {dropCursor: DropCursor},
     ) {
         this._editorView = view;
         this.__cellNode = params.cellNode;
@@ -192,7 +193,7 @@ class YfmTableRowDnDHandler extends YfmTableDnDAbstractHandler {
         super(view, {
             ...params,
             logger: params.logger.nested({component: 'row-dnd-handler'}),
-            dropCursor: new RowDropCursor(view, params.dropCursor),
+            dropCursor: new TableRowDropCursor(view, params.dropCursor),
         });
     }
 
