@@ -8,6 +8,7 @@ export enum CutNode {
 
 export enum CutAttr {
     Class = 'class',
+    Line = 'data-line',
     Markup = 'data-markup',
 }
 

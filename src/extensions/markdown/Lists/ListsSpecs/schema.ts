@@ -6,12 +6,13 @@ export const schemaSpecs: Record<ListNode, NodeSpec> = {
     [ListNode.ListItem]: {
         attrs: {
             [ListsAttr.Markup]: {default: null},
+            [ListsAttr.Line]: {default: null},
         },
         content: '(paragraph|block)+',
         defining: true,
         parseDOM: [{tag: 'li'}],
-        toDOM() {
-            return ['li', 0];
+        toDOM(node) {
+            return ['li', node.attrs, 0];
         },
         selectable: true,
         allowSelection: false,

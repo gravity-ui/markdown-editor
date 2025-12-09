@@ -1,6 +1,6 @@
 import {YfmCutClassName as YfmCutClassNameSpecs} from './YfmCutSpecs/const';
 
-export {CutNode, cutType, cutTitleType, cutContentType} from './YfmCutSpecs/const';
+export {CutNode, CutAttr, cutType, cutTitleType, cutContentType} from './YfmCutSpecs/const';
 
 export const YfmCutClassName = {
     ...YfmCutClassNameSpecs,

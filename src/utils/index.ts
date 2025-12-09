@@ -11,6 +11,7 @@ export * from './inputrules';
 export * from './keymap';
 export * from './marks';
 export * from './node-children';
+export * from './node-descedants';
 export * from './nodes';
 export * from './placeholder';
 export * from './platform';

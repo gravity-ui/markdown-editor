@@ -1,5 +1,26 @@
 # Changelog
 
+## [15.25.0](https://github.com/gravity-ui/markdown-editor/compare/v15.24.1...v15.25.0) (2025-11-14)
+
+
+### Features
+
+* **bundle:** improve cursor movement to specified line in wysiwyg mode ([fd04b7f](https://github.com/gravity-ui/markdown-editor/commit/fd04b7f57f14fa1c2d282eaf0b7f00e13b81f5c6))
+* **Checkbox:** add data-line attribute to checkbox ([283c7d1](https://github.com/gravity-ui/markdown-editor/commit/283c7d1e9f6e2e31b8f8f23260062fa4d6ec120e))
+* **CodeBlock:** add data-line attribute to code block ([783f099](https://github.com/gravity-ui/markdown-editor/commit/783f0997d26158f655b034fec44b83be1db0c261))
+* **Deflist:** add data-line attribute to term ([86347bc](https://github.com/gravity-ui/markdown-editor/commit/86347bc656e99924ac18f6ce75dd8cd06d85a6ea))
+* **Lists:** add data-line attribute to list item ([1077ae9](https://github.com/gravity-ui/markdown-editor/commit/1077ae994827b5ab4b98db40d844b602ffd7e4ce))
+* **Table:** add data-line attribute to table row ([b956c55](https://github.com/gravity-ui/markdown-editor/commit/b956c5500b1a3c776130435ef4a869d960b20765))
+* **YfmCut:** add data-line attribute to cut title ([426bfcf](https://github.com/gravity-ui/markdown-editor/commit/426bfcf541ea021251fdb544670ab3ff09ac0f9a))
+* **YfmNote:** add data-line attribute to note title ([f55d176](https://github.com/gravity-ui/markdown-editor/commit/f55d176c13d25ec5b0240955900e7a981369941a))
+
+## [15.24.1](https://github.com/gravity-ui/markdown-editor/compare/v15.24.0...v15.24.1) (2025-11-11)
+
+
+### Bug Fixes
+
+* **BaseSchema:** get paragraph attributes from token attributes ([#875](https://github.com/gravity-ui/markdown-editor/issues/875)) ([17a58e5](https://github.com/gravity-ui/markdown-editor/commit/17a58e53a86fc863638badbfa46aad579c43ccd1))
+
 ## [15.24.0](https://github.com/gravity-ui/markdown-editor/compare/v15.23.0...v15.24.0) (2025-10-18)
 
 
