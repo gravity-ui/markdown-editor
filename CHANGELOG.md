@@ -1,5 +1,22 @@
 # Changelog
 
+## [15.26.0](https://github.com/gravity-ui/markdown-editor/compare/v15.25.0...v15.26.0) (2025-12-10)
+
+
+### Features
+
+* **code-block:** support line numbers in code blocks ([#879](https://github.com/gravity-ui/markdown-editor/issues/879)) ([f57f153](https://github.com/gravity-ui/markdown-editor/commit/f57f153e17ec1e7c296188ef85b2ae3b43ab16fc))
+* **Math:** parse TeX formulas when pasting from code editor and paste them as math block ([#888](https://github.com/gravity-ui/markdown-editor/issues/888)) ([c3c7a7f](https://github.com/gravity-ui/markdown-editor/commit/c3c7a7f87582df5caaf5d0b72b711a8f00c2611e))
+* support yfm theme colors ([#889](https://github.com/gravity-ui/markdown-editor/issues/889)) ([5505a42](https://github.com/gravity-ui/markdown-editor/commit/5505a42e5c24a62060b487e3299f7d6eae115408))
+
+
+### Bug Fixes
+
+* **Checkbox:** handle checkbox without id attribute ([#883](https://github.com/gravity-ui/markdown-editor/issues/883)) ([578c103](https://github.com/gravity-ui/markdown-editor/commit/578c103a72135d002abe89bb64c56f36d5c545d4))
+* **YfmTable:** fixed dragging a row in horizontally scrolled table ([cf6c9e4](https://github.com/gravity-ui/markdown-editor/commit/cf6c9e458cc6d22d073a7590acdbc4daff0462a0))
+* **YfmTable:** fixed position of floating plus buttons when table is scrolled horizontally ([4f1e8cd](https://github.com/gravity-ui/markdown-editor/commit/4f1e8cdb0dc73ff36aa74784fd1925f2a411121c))
+* **YfmTable:** fixed position of floating row and column controls when table scrolling horizontally ([acb01e2](https://github.com/gravity-ui/markdown-editor/commit/acb01e2d772f58161e3211c4d3a0ed96ab9fc523))
+
 ## [15.25.0](https://github.com/gravity-ui/markdown-editor/compare/v15.24.1...v15.25.0) (2025-11-14)
 
 
