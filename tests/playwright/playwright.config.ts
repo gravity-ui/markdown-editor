@@ -28,6 +28,7 @@ const ctViteConfig: InlineConfig = {
         preprocessorOptions: {
             scss: {
                 api: 'modern-compiler',
+                loadPaths: [resolve(__dirname, '../../node_modules')],
             },
         },
     },
@@ -36,6 +37,9 @@ const ctViteConfig: InlineConfig = {
             ...aliasesFromTsConf,
             '~@gravity-ui/uikit/styles/mixins': '@gravity-ui/uikit/styles/mixins',
         },
+    },
+    optimizeDeps: {
+        include: ['@gravity-ui/components'],
     },
 };
 

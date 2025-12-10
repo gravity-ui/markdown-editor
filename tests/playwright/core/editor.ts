@@ -181,11 +181,20 @@ class YfmTable {
     }
 
     async clickPlusRow(_locator?: Locator) {
+        await this.buttonPlusRowLocator.last().waitFor({state: 'visible'});
         await this.buttonPlusRowLocator.last().click();
     }
 
     async clickPlusColumn(_locator?: Locator) {
+        await this.buttonPlusColumnLocator.last().waitFor({state: 'visible'});
         await this.buttonPlusColumnLocator.last().click();
+    }
+
+    async focusFirstCell(tableLocator?: Locator) {
+        const cells = await this.getCells(tableLocator);
+        const firstCell = cells.first();
+        await firstCell.waitFor({state: 'visible'});
+        await firstCell.click();
     }
 }
 
