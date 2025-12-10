@@ -1,6 +1,7 @@
 import type {Expect, Locator, Page} from '@playwright/test';
 
 import type {DataTransferType, MarkdownEditorMode} from 'src';
+import {SearchQA} from 'src/modules/search';
 
 type YfmTableCellMenuType = 'row' | 'column';
 type YfmTableActionKind =
@@ -198,6 +199,84 @@ class YfmTable {
     }
 }
 
+class SearchPanel {
+    readonly panelLocator;
+
+    readonly closeButtonLocator;
+    readonly expandButtonLocator;
+
+    readonly counterLocator;
+    readonly nextButtonLocator;
+    readonly prevButtonLocator;
+
+    readonly searchInputLocator;
+    readonly replaceInputLocator;
+
+    readonly caseSensitiveCheckboxLocator;
+    readonly wholeWordCheckboxLocator;
+
+    readonly replaceButtonLocator;
+    readonly replaceAllButtonLocator;
+
+    constructor(page: Page) {
+        this.panelLocator = page.getByTestId(SearchQA.Panel);
+
+        this.closeButtonLocator = this.panelLocator.getByTestId(SearchQA.CloseBtn);
+        this.expandButtonLocator = this.panelLocator.getByTestId(SearchQA.ExpandBtn);
+
+        this.counterLocator = this.panelLocator.getByTestId(SearchQA.Counter);
+        this.nextButtonLocator = this.panelLocator.getByTestId(SearchQA.NextBtn);
+        this.prevButtonLocator = this.panelLocator.getByTestId(SearchQA.PrevBtn);
+
+        this.searchInputLocator = this.panelLocator.getByTestId(SearchQA.FindInput);
+        this.replaceInputLocator = this.panelLocator.getByTestId(SearchQA.ReplaceInput);
+
+        this.caseSensitiveCheckboxLocator = this.panelLocator.getByTestId(
+            SearchQA.CaseSensitiveCheck,
+        );
+        this.wholeWordCheckboxLocator = this.panelLocator.getByTestId(SearchQA.WholeWordCheck);
+
+        this.replaceButtonLocator = this.panelLocator.getByTestId(SearchQA.ReplaceBtn);
+        this.replaceAllButtonLocator = this.panelLocator.getByTestId(SearchQA.ReplaceAllBtn);
+    }
+
+    waitForVisible() {
+        return this.panelLocator.waitFor({state: 'visible'});
+    }
+
+    waitForHidden() {
+        return this.panelLocator.waitFor({state: 'hidden'});
+    }
+
+    close() {
+        return this.closeButtonLocator.click();
+    }
+
+    expand() {
+        return this.expandButtonLocator.click();
+    }
+
+    getCounterText() {
+        return this.counterLocator.textContent();
+    }
+
+    fillFindText(text: string) {
+        return this.searchInputLocator.locator('input').fill(text);
+    }
+
+    fillReplaceText(text: string) {
+        return this.replaceInputLocator.locator('input').fill(text);
+    }
+
+    replace() {
+        return this.replaceButtonLocator.click();
+    }
+
+    replaceAll() {
+        return this.replaceAllButtonLocator.click();
+    }
+}
+
 class MarkdownEditorLocators {
     readonly component;
     readonly contenteditable;
@@ -248,6 +327,7 @@ export class MarkdownEditorPage {
     readonly yfmNote;
     readonly image;
     readonly link;
+    readonly searchPanel;
     protected readonly page: Page;
     protected readonly expect: Expect;
 
@@ -261,6 +341,7 @@ export class MarkdownEditorPage {
         this.yfmNote = new YfmNote(page);
         this.image = new Image(page);
         this.link = new Link(page, expect);
+        this.searchPanel = new SearchPanel(page);
     }
 
     /**
@@ -697,5 +778,11 @@ export class MarkdownEditorPage {
      */
     async waitForCMAutocomplete() {
         await this.locators.cmAutocomplete.waitFor({state: 'visible'});
+    }
+
+    async openSearchPanel() {
+        await this.focus();
+        await this.locators.contenteditable.press('Meta+F');
+        await this.searchPanel.waitForVisible();
     }
 }
