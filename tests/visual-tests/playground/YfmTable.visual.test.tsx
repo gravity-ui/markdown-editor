@@ -82,6 +82,7 @@ test.describe('YfmTable', () => {
     test('should move focus to the adjacent cell @wysiwyg', async ({
         mount,
         page,
+        editor,
         browserName,
         platform,
     }) => {
@@ -95,6 +96,11 @@ test.describe('YfmTable', () => {
         `;
 
         await mount(<Playground initial={initial} />);
+
+        const tableLocator = (
+            await editor.yfmTable.getTable(editor.locators.contenteditable)
+        ).first();
+        await editor.yfmTable.focusFirstCell(tableLocator);
 
         await page.keyboard.press('Tab');
         let selText = await page.evaluate(getSelText);
@@ -150,7 +156,7 @@ test.describe('YfmTable', () => {
         await page.keyboard.press('ArrowDown');
 
         for (const loc of [...(await rowPlusBtn.all()), ...(await columnPlusBtn.all())]) {
-            expect(loc).toBeVisible();
+            await expect(loc).toBeVisible();
         }
     });
 
@@ -175,6 +181,8 @@ test.describe('YfmTable', () => {
         ).first();
         const rowsLocator = await editor.yfmTable.getRows(tableLocator);
         const cellsLocator = await editor.yfmTable.getCells(tableLocator);
+
+        await editor.yfmTable.focusFirstCell(tableLocator);
 
         await editor.yfmTable.clickPlusRow(tableLocator);
         await expect(rowsLocator).toHaveCount(3);
@@ -214,6 +222,8 @@ test.describe('YfmTable', () => {
         ).first();
         const rowsLocator = await editor.yfmTable.getRows(tableLocator);
         const cellsLocator = await editor.yfmTable.getCells(tableLocator);
+
+        await editor.yfmTable.focusFirstCell(tableLocator);
 
         await editor.yfmTable.clickPlusColumn(tableLocator);
         await expect(rowsLocator).toHaveCount(2);
@@ -311,11 +321,14 @@ test.describe('YfmTable', () => {
             ).first();
 
             await tableLocator.waitFor({state: 'visible'});
+            await editor.yfmTable.focusFirstCell(tableLocator);
         });
 
         test('row menu', async ({editor, expectScreenshot}) => {
             await (await editor.yfmTable.getCells()).first().hover();
-            await (await editor.yfmTable.getRowButtons()).first().click();
+            const rowButton = (await editor.yfmTable.getRowButtons()).first();
+            await rowButton.waitFor({state: 'visible'});
+            await rowButton.click();
 
             const menu = editor.yfmTable.getMenuLocator('row');
             await menu.waitFor({state: 'visible'});
@@ -325,7 +338,9 @@ test.describe('YfmTable', () => {
 
         test('column menu', async ({editor, expectScreenshot}) => {
             await (await editor.yfmTable.getCells()).first().hover();
-            await (await editor.yfmTable.getColumnButtons()).first().click();
+            const columnButton = (await editor.yfmTable.getColumnButtons()).first();
+            await columnButton.waitFor({state: 'visible'});
+            await columnButton.click();
 
             const menu = editor.yfmTable.getMenuLocator('column');
             await menu.waitFor({state: 'visible'});
