@@ -38,7 +38,7 @@ fi
 
 if [[ ! -d "$NODE_MODULES_CACHE_DIR" ]]; then
   mkdir -p "$NODE_MODULES_CACHE_DIR"
-  run_command 'npm ci'
+  run_command 'corepack enable && pnpm install --frozen-lockfile'
 fi
 
 run_command "$@"

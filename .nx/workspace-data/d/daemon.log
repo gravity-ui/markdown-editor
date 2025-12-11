@@ -1,0 +1,158 @@
+[NX v22.2.0 Daemon Server] - 2025-12-11T14:33:58.197Z - Started listening on: /private/var/folders/yq/yznfl3w139v1s1ynw2gfb27m0000gn/T/390da12000eddacad919/d.sock
+[NX v22.2.0 Daemon Server] - 2025-12-11T14:33:58.200Z - [WATCHER]: Subscribed to changes within: /Users/makhnatkin/dev/gravity-ui/markdown-editor (native)
+[NX v22.2.0 Daemon Server] - 2025-12-11T14:33:58.201Z - [NX-CONSOLE]: Pulling latest Nx (latest) to check console status...
+Fetching nx...
+[NX v22.2.0 Daemon Server] - 2025-12-11T14:33:58.211Z - Established a connection. Number of open connections: 1
+[NX v22.2.0 Daemon Server] - 2025-12-11T14:33:58.212Z - Established a connection. Number of open connections: 2
+[NX v22.2.0 Daemon Server] - 2025-12-11T14:33:58.213Z - Closed a connection. Number of open connections: 1
+[NX v22.2.0 Daemon Server] - 2025-12-11T14:33:58.213Z - Received raw message of length 32
+[NX v22.2.0 Daemon Server] - 2025-12-11T14:33:58.213Z - Received json message of type GET_NX_CONSOLE_STATUS
+[NX v22.2.0 Daemon Server] - 2025-12-11T14:33:58.214Z - Serializing response for GET_NX_CONSOLE_STATUS message in json mode
+[NX v22.2.0 Daemon Server] - 2025-12-11T14:33:58.214Z - Responding to GET_NX_CONSOLE_STATUS message
+[NX v22.2.0 Daemon Server] - 2025-12-11T14:33:58.214Z - [REQUEST]: Responding to the client. handleGetNxConsoleStatus
+[NX v22.2.0 Daemon Server] - 2025-12-11T14:33:58.214Z - Done responding to the client handleGetNxConsoleStatus
+[NX v22.2.0 Daemon Server] - 2025-12-11T14:33:58.214Z - Handled json message GET_NX_CONSOLE_STATUS. Handling time: 0. Response time: 0.
+[NX v22.2.0 Daemon Server] - 2025-12-11T14:33:58.228Z - Received raw message of length 32
+[NX v22.2.0 Daemon Server] - 2025-12-11T14:33:58.228Z - Received json message of type REQUEST_PROJECT_GRAPH
+[NX v22.2.0 Daemon Server] - 2025-12-11T14:33:58.228Z - [REQUEST]: Client Request for Project Graph Received
+Time for 'plugin worker 19649 code loading' 2.540667000000001
+Time for 'plugin worker 19647 code loading' 2.9345409999999994
+Time for 'plugin worker 19650 code loading' 3.1456660000000003
+Time for 'plugin worker 19648 code loading' 3.4068749999999994
+[NX v22.2.0 Daemon Server] - 2025-12-11T14:33:58.351Z - Time taken for 'Load Nx Plugin: /Users/makhnatkin/dev/gravity-ui/markdown-editor/node_modules/.pnpm/nx@22.2.0/node_modules/nx/src/plugins/project-json/build-nodes/project-json' 122.45012499999999ms
+[NX v22.2.0 Daemon Server] - 2025-12-11T14:33:58.352Z - Time taken for 'Load Nx Plugin: /Users/makhnatkin/dev/gravity-ui/markdown-editor/node_modules/.pnpm/nx@22.2.0/node_modules/nx/src/plugins/package-json' 123.50566699999999ms
+[NX v22.2.0 Daemon Server] - 2025-12-11T14:33:58.358Z - Time taken for 'loadDefaultNxPlugins' 129.667584ms
+[NX v22.2.0 Daemon Server] - 2025-12-11T14:33:58.420Z - [REQUEST]: Updated workspace context based on watched changes, recomputing project graph...
+[NX v22.2.0 Daemon Server] - 2025-12-11T14:33:58.420Z - [REQUEST]: 
+[NX v22.2.0 Daemon Server] - 2025-12-11T14:33:58.420Z - [REQUEST]: 
+[NX v22.2.0 Daemon Server] - 2025-12-11T14:33:58.422Z - No files changed, but no in-memory cached project graph found. Recomputing it...
+[NX v22.2.0 Daemon Server] - 2025-12-11T14:33:58.425Z - Time taken for 'loadSpecifiedNxPlugins' 190.19520799999998ms
+Time for 'nx/core/project-json:createNodes' 0.11691700000000083
+Time for 'nx/core/package-json:createNodes' 7.082084000000009
+Time for 'nx/js/dependencies-and-lockfile:createNodes' 89.78716700000001
+[NX v22.2.0 Daemon Server] - 2025-12-11T14:33:58.536Z - Time taken for 'build-project-configs' 98.51554099999998ms
+DEBUG nx::native::plugins::js::ts_import_locators: /Users/makhnatkin/dev/gravity-ui/markdown-editor/src/extensions/behavior/CommandMenu/component.tsx:68:17 Unexpected token. Did you mean `{'>'}` or `&gt;`?
+DEBUG nx::native::plugins::js::ts_import_locators: /Users/makhnatkin/dev/gravity-ui/markdown-editor/src/extensions/behavior/CommandMenu/component.tsx:72:0 Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+DEBUG nx::native::plugins::js::ts_import_locators: /Users/makhnatkin/dev/gravity-ui/markdown-editor/src/extensions/yfm/Emoji/EmojiSuggest/EmojiSuggestComponent.tsx:58:17 Unexpected token. Did you mean `{'>'}` or `&gt;`?
+DEBUG nx::native::plugins::js::ts_import_locators: /Users/makhnatkin/dev/gravity-ui/markdown-editor/src/extensions/yfm/Emoji/EmojiSuggest/EmojiSuggestComponent.tsx:62:0 Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+DEBUG nx::native::plugins::js::ts_import_locators: /Users/makhnatkin/dev/gravity-ui/markdown-editor/src/view/hocs/withLatex/index.tsx:18:66 Unexpected token. Did you mean `{'>'}` or `&gt;`?
+DEBUG nx::native::plugins::js::ts_import_locators: /Users/makhnatkin/dev/gravity-ui/markdown-editor/src/view/hocs/withLatex/index.tsx:19:7 Unexpected token. Did you mean `{'>'}` or `&gt;`?
+DEBUG nx::native::plugins::js::ts_import_locators: /Users/makhnatkin/dev/gravity-ui/markdown-editor/src/view/hocs/withLatex/index.tsx:33:0 Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+DEBUG nx::native::plugins::js::ts_import_locators: /Users/makhnatkin/dev/gravity-ui/markdown-editor/src/view/hocs/withMermaid/index.tsx:21:66 Unexpected token. Did you mean `{'>'}` or `&gt;`?
+DEBUG nx::native::plugins::js::ts_import_locators: /Users/makhnatkin/dev/gravity-ui/markdown-editor/src/view/hocs/withMermaid/index.tsx:22:7 Unexpected token. Did you mean `{'>'}` or `&gt;`?
+DEBUG nx::native::plugins::js::ts_import_locators: /Users/makhnatkin/dev/gravity-ui/markdown-editor/src/view/hocs/withMermaid/index.tsx:36:0 Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+DEBUG nx::native::plugins::js::ts_import_locators: /Users/makhnatkin/dev/gravity-ui/markdown-editor/src/view/hocs/withYfmHtml/index.tsx:24:66 Unexpected token. Did you mean `{'>'}` or `&gt;`?
+DEBUG nx::native::plugins::js::ts_import_locators: /Users/makhnatkin/dev/gravity-ui/markdown-editor/src/view/hocs/withYfmHtml/index.tsx:25:7 Unexpected token. Did you mean `{'>'}` or `&gt;`?
+DEBUG nx::native::plugins::js::ts_import_locators: /Users/makhnatkin/dev/gravity-ui/markdown-editor/src/view/hocs/withYfmHtml/index.tsx:44:0 Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+DEBUG nx::native::plugins::js::ts_import_locators: /Users/makhnatkin/dev/gravity-ui/markdown-editor/src/extensions/additional/GPT/GptDialog/GptDialog.tsx:70:44 Unexpected token. Did you mean `{'>'}` or `&gt;`?
+DEBUG nx::native::plugins::js::ts_import_locators: /Users/makhnatkin/dev/gravity-ui/markdown-editor/src/extensions/additional/GPT/PresetList/PresetList.tsx:42:44 Unexpected token. Did you mean `{'>'}` or `&gt;`?
+DEBUG nx::native::plugins::js::ts_import_locators: /Users/makhnatkin/dev/gravity-ui/markdown-editor/src/extensions/additional/GPT/PresetList/PresetList.tsx:73:45 Unexpected token. Did you mean `{'>'}` or `&gt;`?
+DEBUG nx::native::plugins::js::ts_import_locators: /Users/makhnatkin/dev/gravity-ui/markdown-editor/src/extensions/additional/GPT/hooks/useGpt.tsx:39:41 Unexpected token. Did you mean `{'>'}` or `&gt;`?
+DEBUG nx::native::plugins::js::ts_import_locators: /Users/makhnatkin/dev/gravity-ui/markdown-editor/src/react-utils/react-node-view.tsx:126:45 Unexpected token. Did you mean `{'>'}` or `&gt;`?
+DEBUG nx::native::plugins::js::ts_import_locators: /Users/makhnatkin/dev/gravity-ui/markdown-editor/src/react-utils/react-node-view.tsx:128:3 Unexpected token. Did you mean `{'>'}` or `&gt;`?
+DEBUG nx::native::plugins::js::ts_import_locators: /Users/makhnatkin/dev/gravity-ui/markdown-editor/src/react-utils/react-node-view.tsx:128:28 Unexpected token. Did you mean `{'>'}` or `&gt;`?
+DEBUG nx::native::plugins::js::ts_import_locators: /Users/makhnatkin/dev/gravity-ui/markdown-editor/src/react-utils/react-node-view.tsx:129:26 Unexpected token. Did you mean `{'>'}` or `&gt;`?
+DEBUG nx::native::plugins::js::ts_import_locators: /Users/makhnatkin/dev/gravity-ui/markdown-editor/src/react-utils/react-node-view.tsx:130:20 Unexpected token. Did you mean `{'>'}` or `&gt;`?
+DEBUG nx::native::plugins::js::ts_import_locators: /Users/makhnatkin/dev/gravity-ui/markdown-editor/src/react-utils/react-node-view.tsx:131:26 Unexpected token. Did you mean `{'>'}` or `&gt;`?
+Time for 'build typescript dependencies' 246.01604199999997
+[NX v22.2.0 Daemon Server] - 2025-12-11T14:33:58.814Z - [SYNC]: collect registered sync generators
+[NX v22.2.0 Daemon Server] - 2025-12-11T14:33:58.819Z - Wrote project graph cache to /Users/makhnatkin/dev/gravity-ui/markdown-editor/.nx/workspace-data/project-graph.json
+[NX v22.2.0 Daemon Server] - 2025-12-11T14:33:58.819Z - Serializing response for REQUEST_PROJECT_GRAPH message in json mode
+[NX v22.2.0 Daemon Server] - 2025-12-11T14:33:58.819Z - Responding to REQUEST_PROJECT_GRAPH message
+[NX v22.2.0 Daemon Server] - 2025-12-11T14:33:58.819Z - [REQUEST]: Responding to the client. project-graph
+[NX v22.2.0 Daemon Server] - 2025-12-11T14:33:58.819Z - Time taken for 'total for creating and serializing project graph' 590.7151250000001ms
+[NX v22.2.0 Daemon Server] - 2025-12-11T14:33:58.821Z - Done responding to the client project-graph
+[NX v22.2.0 Daemon Server] - 2025-12-11T14:33:58.821Z - Handled json message REQUEST_PROJECT_GRAPH. Handling time: 591. Response time: 2.
+[NX v22.2.0 Daemon Server] - 2025-12-11T14:33:58.847Z - Closed a connection. Number of open connections: 0
+[NX v22.2.0 Daemon Server] - 2025-12-11T14:34:01.479Z - [NX-CONSOLE]: Successfully pulled latest Nx to /private/var/folders/yq/yznfl3w139v1s1ynw2gfb27m0000gn/T/tmp-19637-JIXKUQ6SA6BX
+[NX v22.2.0 Daemon Server] - 2025-12-11T14:34:01.572Z - [NX-CONSOLE]: Using local implementation (NX_USE_LOCAL=true or inner call)
+DEBUG nx::native::ide::install: Detected editor: Cursor
+DEBUG nx::native::ide::install: Checking if Nx Console extension is installed with: cursor --list-extensions
+DEBUG nx::native::ide::install: Command 'cursor' not found, cannot check extension status
+[NX v22.2.0 Daemon Server] - 2025-12-11T14:34:01.574Z - [NX-CONSOLE]: Console status check completed, shouldPrompt: true
+[NX v22.2.0 Daemon Server] - 2025-12-11T14:34:04.371Z - Established a connection. Number of open connections: 1
+[NX v22.2.0 Daemon Server] - 2025-12-11T14:34:04.372Z - Closed a connection. Number of open connections: 0
+[NX v22.2.0 Daemon Server] - 2025-12-11T14:34:04.372Z - Established a connection. Number of open connections: 1
+[NX v22.2.0 Daemon Server] - 2025-12-11T14:34:04.380Z - Received raw message of length 32
+[NX v22.2.0 Daemon Server] - 2025-12-11T14:34:04.380Z - Received json message of type GET_NX_CONSOLE_STATUS
+[NX v22.2.0 Daemon Server] - 2025-12-11T14:34:04.380Z - Serializing response for GET_NX_CONSOLE_STATUS message in json mode
+[NX v22.2.0 Daemon Server] - 2025-12-11T14:34:04.380Z - Responding to GET_NX_CONSOLE_STATUS message
+[NX v22.2.0 Daemon Server] - 2025-12-11T14:34:04.380Z - [REQUEST]: Responding to the client. handleGetNxConsoleStatus
+[NX v22.2.0 Daemon Server] - 2025-12-11T14:34:04.380Z - Done responding to the client handleGetNxConsoleStatus
+[NX v22.2.0 Daemon Server] - 2025-12-11T14:34:04.380Z - Handled json message GET_NX_CONSOLE_STATUS. Handling time: 0. Response time: 0.
+[NX v22.2.0 Daemon Server] - 2025-12-11T14:34:04.409Z - Received raw message of length 32
+[NX v22.2.0 Daemon Server] - 2025-12-11T14:34:04.409Z - Received json message of type REQUEST_PROJECT_GRAPH
+[NX v22.2.0 Daemon Server] - 2025-12-11T14:34:04.409Z - [REQUEST]: Client Request for Project Graph Received
+[NX v22.2.0 Daemon Server] - 2025-12-11T14:34:04.409Z - Reusing in-memory cached project graph because no files changed.
+[NX v22.2.0 Daemon Server] - 2025-12-11T14:34:04.412Z - Wrote project graph cache to /Users/makhnatkin/dev/gravity-ui/markdown-editor/.nx/workspace-data/project-graph.json
+[NX v22.2.0 Daemon Server] - 2025-12-11T14:34:04.412Z - Serializing response for REQUEST_PROJECT_GRAPH message in json mode
+[NX v22.2.0 Daemon Server] - 2025-12-11T14:34:04.412Z - Responding to REQUEST_PROJECT_GRAPH message
+[NX v22.2.0 Daemon Server] - 2025-12-11T14:34:04.412Z - [REQUEST]: Responding to the client. project-graph
+[NX v22.2.0 Daemon Server] - 2025-12-11T14:34:04.413Z - Time taken for 'total for creating and serializing project graph' 3.738749999999527ms
+[NX v22.2.0 Daemon Server] - 2025-12-11T14:34:04.415Z - Done responding to the client project-graph
+[NX v22.2.0 Daemon Server] - 2025-12-11T14:34:04.415Z - Handled json message REQUEST_PROJECT_GRAPH. Handling time: 3. Response time: 3.
+[NX v22.2.0 Daemon Server] - 2025-12-11T14:34:04.738Z - Closed a connection. Number of open connections: 0
+[NX v22.2.0 Daemon Server] - 2025-12-11T14:34:04.798Z - [WATCHER]: dependency-graph.json was created or restored
+[NX v22.2.0 Daemon Server] - 2025-12-11T14:34:04.798Z - [WATCHER]: Processing file changes in outputs
+[NX v22.2.0 Daemon Server] - 2025-12-11T14:34:04.900Z - [REQUEST]: Updated workspace context based on watched changes, recomputing project graph...
+[NX v22.2.0 Daemon Server] - 2025-12-11T14:34:04.900Z - [REQUEST]: dependency-graph.json
+[NX v22.2.0 Daemon Server] - 2025-12-11T14:34:04.900Z - [REQUEST]: 
+[NX v22.2.0 Daemon Server] - 2025-12-11T14:34:04.904Z - Time taken for 'hash changed files from watcher' 1.401582999999846ms
+Time for 'nx/core/project-json:createNodes' 2.045375000000604
+Time for 'nx/core/package-json:createNodes' 10.980374999999185
+Time for 'nx/js/dependencies-and-lockfile:createNodes' 15.080915999999888
+[NX v22.2.0 Daemon Server] - 2025-12-11T14:34:04.938Z - Time taken for 'build-project-configs' 22.14612500000021ms
+Time for 'build typescript dependencies' 1.4434579999997368
+[NX v22.2.0 Daemon Server] - 2025-12-11T14:34:04.959Z - [SYNC]: collect registered sync generators
+[NX v22.2.0 Daemon Server] - 2025-12-11T14:34:04.960Z - [SYNC]: project graph hash is the same, not collecting task sync generators
+[NX v22.2.0 Daemon Server] - 2025-12-11T14:34:04.960Z - [SYNC]: nx.json hash is the same, not collecting global sync generators
+[NX v22.2.0 Daemon Server] - 2025-12-11T14:34:04.960Z - Time taken for 'total execution time for createProjectGraph()' 28.18291600000066ms
+[NX v22.2.0 Daemon Server] - 2025-12-11T14:34:10.204Z - [WATCHER]: dependency-graph.json was deleted
+[NX v22.2.0 Daemon Server] - 2025-12-11T14:34:10.204Z - [WATCHER]: Processing file changes in outputs
+[NX v22.2.0 Daemon Server] - 2025-12-11T14:34:10.406Z - [REQUEST]: Updated workspace context based on watched changes, recomputing project graph...
+[NX v22.2.0 Daemon Server] - 2025-12-11T14:34:10.406Z - [REQUEST]: 
+[NX v22.2.0 Daemon Server] - 2025-12-11T14:34:10.406Z - [REQUEST]: dependency-graph.json
+[NX v22.2.0 Daemon Server] - 2025-12-11T14:34:10.409Z - Time taken for 'hash changed files from watcher' 1.689749999999549ms
+Time for 'nx/core/project-json:createNodes' 0.2318329999998241
+Time for 'nx/core/package-json:createNodes' 2.2385830000002898
+Time for 'nx/js/dependencies-and-lockfile:createNodes' 7.615042000001267
+[NX v22.2.0 Daemon Server] - 2025-12-11T14:34:10.429Z - Time taken for 'build-project-configs' 13.998665999999503ms
+Time for 'build typescript dependencies' 0.014417000000321423
+[NX v22.2.0 Daemon Server] - 2025-12-11T14:34:10.443Z - [SYNC]: collect registered sync generators
+[NX v22.2.0 Daemon Server] - 2025-12-11T14:34:10.443Z - [SYNC]: project graph hash is the same, not collecting task sync generators
+[NX v22.2.0 Daemon Server] - 2025-12-11T14:34:10.443Z - [SYNC]: nx.json hash is the same, not collecting global sync generators
+[NX v22.2.0 Daemon Server] - 2025-12-11T14:34:10.443Z - Time taken for 'total execution time for createProjectGraph()' 17.051958000000013ms
+[NX v22.2.0 Daemon Server] - 2025-12-11T14:34:18.089Z - [WATCHER]: package.json was modified
+[NX v22.2.0 Daemon Server] - 2025-12-11T14:34:18.089Z - [WATCHER]: Processing file changes in outputs
+[NX v22.2.0 Daemon Server] - 2025-12-11T14:34:18.492Z - [REQUEST]: Updated workspace context based on watched changes, recomputing project graph...
+[NX v22.2.0 Daemon Server] - 2025-12-11T14:34:18.492Z - [REQUEST]: package.json
+[NX v22.2.0 Daemon Server] - 2025-12-11T14:34:18.492Z - [REQUEST]: 
+[NX v22.2.0 Daemon Server] - 2025-12-11T14:34:18.494Z - Time taken for 'hash changed files from watcher' 1.206332999998267ms
+Time for 'nx/core/project-json:createNodes' 0.13904200000251876
+Time for 'nx/core/package-json:createNodes' 1.3011249999981374
+Time for 'nx/js/dependencies-and-lockfile:createNodes' 6.15454200000022
+[NX v22.2.0 Daemon Server] - 2025-12-11T14:34:18.515Z - Time taken for 'build-project-configs' 13.135749999997643ms
+Time for 'build typescript dependencies' 3.663291000000754
+[NX v22.2.0 Daemon Server] - 2025-12-11T14:34:18.538Z - [SYNC]: collect registered sync generators
+[NX v22.2.0 Daemon Server] - 2025-12-11T14:34:18.539Z - [SYNC]: nx.json hash is the same, not collecting global sync generators
+[NX v22.2.0 Daemon Server] - 2025-12-11T14:34:18.539Z - Time taken for 'total execution time for createProjectGraph()' 28.22954199999731ms
+[NX v22.2.0 Daemon Server] - 2025-12-11T14:34:37.699Z - [WATCHER]: _tmp_20178_17b6e51829b6c8cdc0fc93eab5689a0f was deleted
+[NX v22.2.0 Daemon Server] - 2025-12-11T14:34:37.699Z - [WATCHER]: Processing file changes in outputs
+[NX v22.2.0 Daemon Server] - 2025-12-11T14:34:38.503Z - [REQUEST]: Updated workspace context based on watched changes, recomputing project graph...
+[NX v22.2.0 Daemon Server] - 2025-12-11T14:34:38.503Z - [REQUEST]: 
+[NX v22.2.0 Daemon Server] - 2025-12-11T14:34:38.503Z - [REQUEST]: _tmp_20178_17b6e51829b6c8cdc0fc93eab5689a0f
+Time for 'nx/core/project-json:createNodes' 0.0796249999984866
+[NX v22.2.0 Daemon Server] - 2025-12-11T14:34:38.506Z - Time taken for 'hash changed files from watcher' 2.2977089999985765ms
+Time for 'nx/core/package-json:createNodes' 1.6137499999967986
+Time for 'nx/js/dependencies-and-lockfile:createNodes' 5.936207999999169
+[NX v22.2.0 Daemon Server] - 2025-12-11T14:34:38.525Z - Time taken for 'build-project-configs' 11.35858300000109ms
+Time for 'build typescript dependencies' 0.021457999995618593
+[NX v22.2.0 Daemon Server] - 2025-12-11T14:34:38.542Z - [SYNC]: collect registered sync generators
+[NX v22.2.0 Daemon Server] - 2025-12-11T14:34:38.542Z - [SYNC]: project graph hash is the same, not collecting task sync generators
+[NX v22.2.0 Daemon Server] - 2025-12-11T14:34:38.542Z - [SYNC]: nx.json hash is the same, not collecting global sync generators
+[NX v22.2.0 Daemon Server] - 2025-12-11T14:34:38.543Z - Time taken for 'total execution time for createProjectGraph()' 20.702040999996825ms
+[NX v22.2.0 Daemon Server] - 2025-12-11T14:34:42.746Z - [WATCHER]: Processing file changes in outputs
+[NX v22.2.0 Daemon Server] - 2025-12-11T14:34:42.748Z - [WATCHER]: Stopping the watcher for /Users/makhnatkin/dev/gravity-ui/markdown-editor (sources)
+[NX v22.2.0 Daemon Server] - 2025-12-11T14:34:42.748Z - [WATCHER]: Stopping the watcher for /Users/makhnatkin/dev/gravity-ui/markdown-editor (outputs)
+[NX v22.2.0 Daemon Server] - 2025-12-11T14:34:42.748Z - [NX-CONSOLE]: Cleaning up latest Nx installation from /private/var/folders/yq/yznfl3w139v1s1ynw2gfb27m0000gn/T/tmp-19637-JIXKUQ6SA6BX
+[NX v22.2.0 Daemon Server] - 2025-12-11T14:34:42.748Z - Server stopped because: "LOCK_FILES_CHANGED"

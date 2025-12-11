@@ -1,0 +1,66 @@
+{
+  "name": "@gravity-ui/markdown-editor-core",
+  "version": "0.1.0",
+  "description": "Core package for Gravity UI Markdown Editor",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/gravity-ui/markdown-editor",
+    "directory": "packages/core"
+  },
+  "main": "build/cjs/index.js",
+  "module": "build/esm/index.js",
+  "types": "build/esm/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./build/esm/index.d.ts",
+        "default": "./build/esm/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/index.d.ts",
+        "default": "./build/cjs/index.js"
+      }
+    }
+  },
+  "files": [
+    "build"
+  ],
+  "scripts": {
+    "build": "echo 'TODO: implement build'",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "peerDependencies": {
+    "react": "^16.14.0 || ^17.0.0 || ^18.0.0 || ^19.0.0",
+    "react-dom": "^16.14.0 || ^17.0.0 || ^18.0.0 || ^19.0.0"
+  },
+  "dependencies": {
+    "@bem-react/classname": "^1.6.0",
+    "@codemirror/autocomplete": "^6.18.4",
+    "@codemirror/commands": "^6.8.0",
+    "@codemirror/lang-markdown": "^6.3.2",
+    "@codemirror/language": "^6.10.8",
+    "@codemirror/search": "^6.5.8",
+    "@codemirror/state": "^6.5.1",
+    "@codemirror/view": "^6.36.2",
+    "@gravity-ui/i18n": "^1.7.0",
+    "@gravity-ui/icons": "^2.12.0",
+    "@lezer/highlight": "^1.2.1",
+    "@lezer/markdown": "^1.4.0",
+    "prosemirror-commands": "^1.6.2",
+    "prosemirror-dropcursor": "^1.8.1",
+    "prosemirror-history": "^1.4.1",
+    "prosemirror-inputrules": "^1.5.0",
+    "prosemirror-keymap": "^1.2.2",
+    "prosemirror-model": "^1.24.1",
+    "prosemirror-schema-list": "^1.5.0",
+    "prosemirror-state": "^1.4.3",
+    "prosemirror-transform": "^1.10.2",
+    "prosemirror-view": "^1.38.0",
+    "tslib": "^2.3.1"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.3"
+  }
+}
+

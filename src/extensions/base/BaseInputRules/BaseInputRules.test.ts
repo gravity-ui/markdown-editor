@@ -31,7 +31,7 @@ describe('BaseInputRules', () => {
         const from = view.state.selection.from;
         let handled = false;
         view.someProp('handleTextInput', (f) => {
-            handled = f(view, from, from, '...') || false;
+            handled = f(view, from, from, '...', () => view.state.tr.insertText('...', from, from)) || false;
         });
         if (!handled) {
             view.dispatch(view.state.tr.insertText('...', from, from));
@@ -52,7 +52,7 @@ describe('BaseInputRules', () => {
         const from = view.state.selection.from;
         let handled = false;
         view.someProp('handleTextInput', (f) => {
-            handled = f(view, from, from, '...') || false;
+            handled = f(view, from, from, '...', () => view.state.tr.insertText('...', from, from)) || false;
         });
         if (!handled) {
             view.dispatch(view.state.tr.insertText('...', from, from));
