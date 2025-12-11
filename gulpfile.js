@@ -39,7 +39,7 @@ gulp.task('scss', () => {
         .pipe(
             replace(/@(import|use) '~.+'/g, (match) => match.replace('~', NODE_MODULES_DIR + '/')),
         )
-        .pipe(sass())
+        .pipe(sass({loadPaths: [NODE_MODULES_DIR]}))
         .pipe(gulp.dest(BUILD_DIR_CJS))
         .pipe(gulp.dest(BUILD_DIR_ESM))
         .pipe(concat('styles.css')) // also bundle all css to single file
