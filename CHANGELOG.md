@@ -1,5 +1,13 @@
 # Changelog
 
+## [15.26.1](https://github.com/gravity-ui/markdown-editor/compare/v15.26.0...v15.26.1) (2025-12-11)
+
+
+### Bug Fixes
+
+* **build:** resolve SCSS imports from node_modules ([#892](https://github.com/gravity-ui/markdown-editor/issues/892)) ([30f239b](https://github.com/gravity-ui/markdown-editor/commit/30f239b23cd60fe496808b28ece25f66e7780fe0))
+* **view:** disable shadow mode by default to prevent XSS ([#891](https://github.com/gravity-ui/markdown-editor/issues/891)) ([bdfb039](https://github.com/gravity-ui/markdown-editor/commit/bdfb0394a047ef35dbab90c857080afa4099d8f7))
+
 ## [15.26.0](https://github.com/gravity-ui/markdown-editor/compare/v15.25.0...v15.26.0) (2025-12-10)
 
 
