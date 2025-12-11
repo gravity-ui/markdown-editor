@@ -314,9 +314,6 @@
     },
     "lowlight": {
       "optional": true
-    },
-    "@gravity-ui/components": {
-      "optional": true
     }
   },
   "peerDependencies": {
