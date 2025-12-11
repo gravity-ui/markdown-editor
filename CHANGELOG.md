@@ -1,5 +1,14 @@
 # Changelog
 
+## [15.27.0](https://github.com/gravity-ui/markdown-editor/compare/v15.26.1...v15.27.0) (2025-12-11)
+
+
+### Features
+
+* **markup:** update search match styles ([437dc16](https://github.com/gravity-ui/markdown-editor/commit/437dc1640d18233364c5c63692af6b134b8d74fa))
+* update appearance of search panel in markup mode ([13e2ec9](https://github.com/gravity-ui/markdown-editor/commit/13e2ec946be2fb488e6f028edec55162d010fabc))
+* **wysiwyg:** add search and replace functionality to wysiwyg mode ([d168ab6](https://github.com/gravity-ui/markdown-editor/commit/d168ab64f3c78439080301601544fa08afd7e642))
+
 ## [15.26.1](https://github.com/gravity-ui/markdown-editor/compare/v15.26.0...v15.26.1) (2025-12-11)
 
 
