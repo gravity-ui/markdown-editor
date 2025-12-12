@@ -1,5 +1,12 @@
 # Changelog
 
+## [15.27.1](https://github.com/gravity-ui/markdown-editor/compare/v15.27.0...v15.27.1) (2025-12-12)
+
+
+### Bug Fixes
+
+* **deps:** mark `@gravity-ui/components` as a required dependency ([#896](https://github.com/gravity-ui/markdown-editor/issues/896)) ([5638196](https://github.com/gravity-ui/markdown-editor/commit/5638196bd1e4c05bb7db86fcb62b268bbf4ea52d))
+
 ## [15.27.0](https://github.com/gravity-ui/markdown-editor/compare/v15.26.1...v15.27.0) (2025-12-11)
 
 
