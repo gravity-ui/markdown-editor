@@ -14,13 +14,28 @@
     "codemirror",
     "prosemirror"
   ],
+  "packageManager": "pnpm@10.17.1",
+  "devEngines": {
+    "runtime": {
+      "name": "node",
+      "version": "24",
+      "onFail": "warn"
+    },
+    "packageManager": {
+      "name": "pnpm",
+      "version": "10.17.1",
+      "onFail": "error"
+    }
+  },
   "scripts": {
-    "start": "npm run storybook:start",
+    "deps:global": "npm install -g pnpm@10.17.1",
+    "deps:ci": "pnpm i --frozen-lockfile",
+    "start": "pnpm run sb:start",
     "clean": "gulp clean",
     "build": "gulp",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "storybook:start": "storybook dev -p 8888 -c .storybook",
-    "storybook:build": "storybook build -c .storybook -o storybook-static",
+    "sb:start": "storybook dev -p 8888 -c .storybook",
+    "sb:build": "storybook build -c .storybook -o storybook-static",
     "lint": "run-p -cs lint:*",
     "lint:js": "eslint \"{src,demo}/**/*.{js,jsx,ts,tsx}\"",
     "lint:styles": "stylelint \"{src,demo}/**/*.{css,scss}\"",
@@ -30,19 +45,19 @@
     "test:cov": "jest --coverage",
     "test:watch": "jest --watchAll",
     "test:esbuild": "node tests/esbuild-test/esbuild-tester.js",
-    "prepublishOnly": "npm run lint && npm run build",
+    "prepublishOnly": "pnpm run lint && pnpm run build",
     "playwright:install": "playwright install chromium webkit --with-deps",
     "playwright": "playwright test --config=tests/playwright/playwright.config.ts",
     "playwright:generate": "node scripts/generate-playwright-test.js",
-    "playwright:watch": "npm run playwright -- --ui",
+    "playwright:watch": "pnpm run playwright --ui",
     "playwright:headed": "playwright test --config=tests/playwright/playwright.config.ts --headed",
-    "playwright:update": "npm run playwright -- -u",
+    "playwright:update": "pnpm run playwright -u",
     "playwright:clear": "rm -rf ./tests/playwright/.cache",
-    "playwright:report": "npx playwright show-report playwright-report",
-    "playwright:docker": "./scripts/playwright-docker.sh 'npm run playwright'",
-    "playwright:docker:update": "./scripts/playwright-docker.sh 'npm run playwright:update'",
+    "playwright:report": "playwright show-report playwright-report",
+    "playwright:docker": "./scripts/playwright-docker.sh test",
+    "playwright:docker:update": "./scripts/playwright-docker.sh update",
     "playwright:docker:clear": "./scripts/playwright-docker.sh clear",
-    "playwright:docker:report": "npx playwright show-report playwright-report-docker"
+    "playwright:docker:report": "playwright show-report playwright-report-docker"
   },
   "exports": {
     ".": {
@@ -185,6 +200,7 @@
     "@codemirror/view": "^6.36.2",
     "@diplodoc/color-extension": "0.1.1",
     "@diplodoc/utils": "^2.1.0",
+    "@floating-ui/react": "^0.27.16",
     "@gravity-ui/i18n": "^1.7.0",
     "@gravity-ui/icons": "^2.12.0",
     "@lezer/highlight": "^1.2.1",
@@ -199,6 +215,7 @@
     "markdown-it-ins": "^3.0.1",
     "markdown-it-mark": "^3.0.1",
     "markdown-it-sub": "^1.0.0",
+    "orderedmap": "^2.1.1",
     "prosemirror-autocomplete": "^0.4.3",
     "prosemirror-codemark": "^0.4.2",
     "prosemirror-commands": "^1.6.2",
@@ -245,10 +262,10 @@
     "@playwright/test": "1.49.0",
     "@storybook/addon-docs": "10.1.10",
     "@storybook/addon-webpack5-compiler-babel": "4.0.0",
-    "@storybook/cli": "^10.1.10",
+    "@storybook/cli": "10.1.10",
     "@storybook/preset-scss": "1.0.3",
     "@storybook/react": "10.1.10",
-    "@storybook/react-webpack5": "^10.1.10",
+    "@storybook/react-webpack5": "10.1.10",
     "@types/gulp": "4.0.9",
     "@types/gulp-sass": "5.0.0",
     "@types/jest": "^29.5.14",
@@ -262,6 +279,7 @@
     "@types/sanitize-html": "2.11.0",
     "bem-cn-lite": "4.1.0",
     "dpdm": "3.14.0",
+    "esbuild": "0.21.5",
     "esbuild-sass-plugin": "2.15.0",
     "eslint": "8.57.1",
     "eslint-plugin-lodash": "7.4.0",
@@ -295,7 +313,8 @@
     "stylelint": "15.11.0",
     "ts-jest": "^29.2.5",
     "typescript": "^5.7.3",
-    "url": "0.11.4"
+    "url": "0.11.4",
+    "webpack": "^5.97.1"
   },
   "peerDependenciesMeta": {
     "@diplodoc/folding-headings-extension": {

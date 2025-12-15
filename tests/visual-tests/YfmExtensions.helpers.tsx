@@ -2,7 +2,9 @@ import {composeStories} from '@storybook/react';
 
 import * as DefaultYFMStories from '../../demo/stories/yfm/YFM.stories';
 
-export const YFMStories = composeStories(DefaultYFMStories, {
+type Stories = ReturnType<typeof composeStories<typeof DefaultYFMStories>>;
+
+export const YFMStories: Stories = composeStories(DefaultYFMStories, {
     argsEnhancers: [
         () => ({
             stickyToolbar: false,

@@ -1,10 +1,9 @@
-import type {Match} from 'linkify-it'; // eslint-disable-line import/no-extraneous-dependencies
 import type MarkdownIt from 'markdown-it';
 import type Token from 'markdown-it/lib/token';
 import {Mark, type MarkType, type Node, type NodeType, type Schema} from 'prosemirror-model';
 
 import {type Logger2, logger} from '../../logger';
-import type {Parser, ParserToken} from '../types/parser';
+import type {LinkMatch, Parser, ParserToken} from '../types/parser';
 
 import {ProseMirrorTransformer, type TransformFn} from './ProseMirrorTransformer';
 
@@ -73,7 +72,7 @@ export class MarkdownParser implements Parser {
         return this.tokenizer.normalizeLinkText(url);
     }
 
-    matchLinks(text: string): Readonly<Match>[] | null {
+    matchLinks(text: string): Readonly<LinkMatch>[] | null {
         return this.tokenizer.linkify.match(text);
     }
 

@@ -1,7 +1,11 @@
 import {useCallback, useEffect, useState} from 'react';
 
-// eslint-disable-next-line import/no-extraneous-dependencies
-import {type Placement, type ReferenceElement, autoUpdate, computePosition} from '@floating-ui/dom';
+import {
+    type Placement,
+    type ReferenceElement,
+    autoUpdate,
+    computePosition,
+} from '@floating-ui/react';
 import {Portal} from '@gravity-ui/uikit';
 import {useLatest} from 'react-use';
 
