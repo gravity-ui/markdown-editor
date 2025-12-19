@@ -7,7 +7,7 @@ import {Plugin, PluginKey} from 'prosemirror-state';
 import type {Step} from 'prosemirror-transform';
 // @ts-ignore // TODO: fix cjs build
 import {findChildrenByType} from 'prosemirror-utils';
-import {Decoration, DecorationSet} from 'prosemirror-view';
+import {Decoration, DecorationSet, type EditorView} from 'prosemirror-view';
 
 import type {ExtensionAuto} from '../../../../core';
 import {capitalize} from '../../../../lodash';
@@ -64,6 +64,7 @@ export const CodeBlockHighlight: ExtensionAuto<CodeBlockHighlightOptions> = (bui
 
     builder.addPlugin(() => {
         let modulesLoaded = false;
+        let view: EditorView | null = null;
 
         const selectItems: LangSelectItem[] = [];
         const mapping: Record<string, string> = {};
@@ -90,6 +91,8 @@ export const CodeBlockHighlight: ExtensionAuto<CodeBlockHighlightOptions> = (bui
                                     }
                                 }
                             }
+
+                            view?.dispatch(view.state.tr.setMeta(key, {modulesLoaded}));
                         }
                     });
                     return getDecorations(state.doc);
@@ -97,6 +100,10 @@ export const CodeBlockHighlight: ExtensionAuto<CodeBlockHighlightOptions> = (bui
                 apply: (tr, decos, oldState, newState) => {
                     if (!modulesLoaded) {
                         return DecorationSet.empty;
+                    }
+
+                    if (tr.getMeta(key)?.modulesLoaded) {
+                        return getDecorations(tr.doc);
                     }
 
                     if (tr.docChanged) {
@@ -143,13 +150,15 @@ export const CodeBlockHighlight: ExtensionAuto<CodeBlockHighlightOptions> = (bui
                     return decos.map(tr.mapping, tr.doc);
                 },
             },
-            view: (view) =>
-                codeLangSelectTooltipViewCreator(
+            view: (v) => {
+                view = v;
+                return codeLangSelectTooltipViewCreator(
                     view,
                     selectItems,
                     mapping,
                     Boolean(opts.lineNumbers?.enabled),
-                ),
+                );
+            },
             props: {
                 decorations: (state) => {
                     return key.getState(state);
