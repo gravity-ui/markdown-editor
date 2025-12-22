@@ -1,5 +1,28 @@
 # Changelog
 
+## [15.27.2](https://github.com/gravity-ui/markdown-editor/compare/v15.27.1...v15.27.2) (2025-12-19)
+
+
+### Bug Fixes
+
+* **CodeBlock:** apply syntax highlighting on initial render ([#902](https://github.com/gravity-ui/markdown-editor/issues/902)) ([87d7d98](https://github.com/gravity-ui/markdown-editor/commit/87d7d981e7a2815ecae5d11bd0170abdfee5c45f))
+
+## [15.27.1](https://github.com/gravity-ui/markdown-editor/compare/v15.27.0...v15.27.1) (2025-12-12)
+
+
+### Bug Fixes
+
+* **deps:** mark `@gravity-ui/components` as a required dependency ([#896](https://github.com/gravity-ui/markdown-editor/issues/896)) ([5638196](https://github.com/gravity-ui/markdown-editor/commit/5638196bd1e4c05bb7db86fcb62b268bbf4ea52d))
+
+## [15.27.0](https://github.com/gravity-ui/markdown-editor/compare/v15.26.1...v15.27.0) (2025-12-11)
+
+
+### Features
+
+* **markup:** update search match styles ([437dc16](https://github.com/gravity-ui/markdown-editor/commit/437dc1640d18233364c5c63692af6b134b8d74fa))
+* update appearance of search panel in markup mode ([13e2ec9](https://github.com/gravity-ui/markdown-editor/commit/13e2ec946be2fb488e6f028edec55162d010fabc))
+* **wysiwyg:** add search and replace functionality to wysiwyg mode ([d168ab6](https://github.com/gravity-ui/markdown-editor/commit/d168ab64f3c78439080301601544fa08afd7e642))
+
 ## [15.26.1](https://github.com/gravity-ui/markdown-editor/compare/v15.26.0...v15.26.1) (2025-12-11)
 
 

@@ -1,6 +1,6 @@
 {
   "name": "@gravity-ui/markdown-editor",
-  "version": "15.26.1",
+  "version": "15.27.2",
   "description": "Markdown wysiwyg and markup editor",
   "license": "MIT",
   "repository": {
@@ -222,6 +222,9 @@
     "uuid": "11.0.5"
   },
   "devDependencies": {
+    "@babel/preset-env": "7.28.5",
+    "@babel/preset-react": "7.28.5",
+    "@babel/preset-typescript": "7.28.5",
     "@diplodoc/cut-extension": "^1.1.0",
     "@diplodoc/folding-headings-extension": "^0.1.2",
     "@diplodoc/html-extension": "^2.9.1",
@@ -240,15 +243,12 @@
     "@gravity-ui/uikit": "^7.13.1",
     "@playwright/experimental-ct-react": "1.49.0",
     "@playwright/test": "1.49.0",
-    "@storybook/addon-docs": "8.4.1",
-    "@storybook/addon-essentials": "^8.4.1",
-    "@storybook/addon-webpack5-compiler-babel": "3.0.3",
-    "@storybook/blocks": "8.4.1",
-    "@storybook/cli": "^8.4.1",
+    "@storybook/addon-docs": "10.1.10",
+    "@storybook/addon-webpack5-compiler-babel": "4.0.0",
+    "@storybook/cli": "^10.1.10",
     "@storybook/preset-scss": "1.0.3",
-    "@storybook/react": "8.4.1",
-    "@storybook/react-webpack5": "^8.4.1",
-    "@storybook/theming": "^8.4.1",
+    "@storybook/react": "10.1.10",
+    "@storybook/react-webpack5": "^10.1.10",
     "@types/gulp": "4.0.9",
     "@types/gulp-sass": "5.0.0",
     "@types/jest": "^29.5.14",
@@ -281,17 +281,21 @@
     "markdown-it-testgen": "^0.1.6",
     "mermaid": "11.10.0",
     "npm-run-all": "^4.1.5",
+    "path-browserify": "1.0.1",
     "postcss": "^8.4.27",
     "prettier": "3.1.1",
+    "process": "0.11.10",
     "prosemirror-dev-toolkit": "1.1.8",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "rimraf": "3.0.2",
     "sass": "^1.84.0",
     "sass-loader": "^13.3.2",
+    "storybook": "^10.1.10",
     "stylelint": "15.11.0",
     "ts-jest": "^29.2.5",
-    "typescript": "^5.7.3"
+    "typescript": "^5.7.3",
+    "url": "0.11.4"
   },
   "peerDependenciesMeta": {
     "@diplodoc/folding-headings-extension": {
@@ -313,9 +317,6 @@
       "optional": true
     },
     "lowlight": {
-      "optional": true
-    },
-    "@gravity-ui/components": {
       "optional": true
     }
   },

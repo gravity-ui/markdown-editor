@@ -1,8 +1,15 @@
-import {resolve} from 'node:path';
+import {resolve, dirname} from 'node:path';
+import {fileURLToPath} from 'node:url';
+import {createRequire} from 'node:module';
 import webpack from 'webpack';
 import type {StorybookConfig} from '@storybook/react-webpack5';
-import pkg from '../package.json';
-import tsConfig from '../tsconfig.json';
+
+const require = createRequire(import.meta.url);
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+const pkg = require('../package.json');
+const tsConfig = require('../tsconfig.json');
 
 const config: StorybookConfig = {
     framework: {
@@ -11,9 +18,8 @@ const config: StorybookConfig = {
     },
     stories: ['../demo/**/*.mdx', '../demo/**/*.stories.@(js|jsx|ts|tsx)'],
     addons: [
-        './addons/generateDocs',
+        './addons/generateDocs.ts',
         '@storybook/preset-scss',
-        {name: '@storybook/addon-essentials', options: {backgrounds: false}},
         '@storybook/addon-webpack5-compiler-babel',
         '@storybook/addon-docs',
     ],
@@ -26,16 +32,29 @@ const config: StorybookConfig = {
             new webpack.DefinePlugin({
                 __VERSION__: `'${pkg.version}-storybook'`,
             }),
+            new webpack.ProvidePlugin({
+                process: 'process/browser',
+            }),
         );
 
         config.resolve ||= {};
         config.resolve.alias ||= {};
+        config.resolve.fallback ||= {};
+
+        // Node.js polyfills for browser
+        config.resolve.fallback = {
+            ...config.resolve.fallback,
+            fs: false,
+            path: require.resolve('path-browserify'),
+            url: require.resolve('url/'),
+            process: require.resolve('process/browser'),
+        };
 
         const baseUrl = resolve(__dirname, '..', tsConfig.compilerOptions.baseUrl);
         const paths = tsConfig.compilerOptions.paths;
 
         for (const alias in paths) {
-            config.resolve.alias[alias] = resolve(baseUrl, paths[alias][0])
+            config.resolve.alias[alias] = resolve(baseUrl, paths[alias][0]);
         }
 
         config.resolve.alias['demo/*'] = resolve(__dirname, '..', 'demo/*');
