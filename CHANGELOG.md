@@ -1,5 +1,12 @@
 # Changelog
 
+## [15.27.2](https://github.com/gravity-ui/markdown-editor/compare/v15.27.1...v15.27.2) (2025-12-19)
+
+
+### Bug Fixes
+
+* **CodeBlock:** apply syntax highlighting on initial render ([#902](https://github.com/gravity-ui/markdown-editor/issues/902)) ([87d7d98](https://github.com/gravity-ui/markdown-editor/commit/87d7d981e7a2815ecae5d11bd0170abdfee5c45f))
+
 ## [15.27.1](https://github.com/gravity-ui/markdown-editor/compare/v15.27.0...v15.27.1) (2025-12-12)
 
 
