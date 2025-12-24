@@ -108,8 +108,12 @@ export class EmojiHandler implements AutocompleteHandler {
     onEnter(action: AutocompleteAction): boolean {
         this.updateState(action);
 
-        this.select();
+        const emojiDef = this._emojiCarousel?.currentItem;
+        if (!emojiDef) {
+            return false;
+        }
 
+        this.select();
         return true;
     }
 
@@ -243,7 +247,7 @@ function filterEmojis(defs: readonly EmojiDef[], text: string): readonly EmojiDe
     return byShortcuts.concat(byName);
 }
 
-const CHARS_TO_HIDE = 4;
+const CHARS_TO_HIDE = 1;
 function needToHide(defs: readonly EmojiDef[], text: string): boolean {
     let iter = 1;
     do {
