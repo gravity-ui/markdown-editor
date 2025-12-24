@@ -1,5 +1,5 @@
 import type MarkdownIt from 'markdown-it';
-import type OrderedMap from 'orderedmap'; // eslint-disable-line import/no-extraneous-dependencies
+import type OrderedMap from 'orderedmap';
 import type {MarkSpec, NodeSpec, Schema} from 'prosemirror-model';
 import type {Plugin} from 'prosemirror-state';
 

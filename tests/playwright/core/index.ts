@@ -9,7 +9,9 @@ import {mount} from './mount';
 import type {Fixtures} from './types';
 import {wait} from './wait';
 
-export const test = base.extend<Fixtures>({
+type Test = ReturnType<typeof base.extend<Fixtures>>
+
+export const test: Test = base.extend<Fixtures>({
     mount,
     expectScreenshot,
     wait,

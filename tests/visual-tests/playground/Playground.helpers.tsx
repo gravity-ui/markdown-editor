@@ -2,7 +2,9 @@ import {composeStories} from '@storybook/react';
 
 import * as DefaultPlaygroundStories from '../../../demo/stories/playground/Playground.stories';
 
-const PlaygroundStories = composeStories(DefaultPlaygroundStories, {
+type Stories = ReturnType<typeof composeStories<typeof DefaultPlaygroundStories>>;
+
+const PlaygroundStories: Stories = composeStories(DefaultPlaygroundStories, {
     argsEnhancers: [
         () => ({
             stickyToolbar: false,
@@ -10,4 +12,4 @@ const PlaygroundStories = composeStories(DefaultPlaygroundStories, {
     ],
 });
 
-export const Playground = PlaygroundStories.Story;
+export const Playground: typeof PlaygroundStories.Story = PlaygroundStories.Story;

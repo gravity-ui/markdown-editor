@@ -12,20 +12,30 @@ jobs:
     if: github.event.workflow_run.event == 'pull_request'
     runs-on: ubuntu-latest
     steps:
+      - name: Create token
+        id: app-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.GRAVITY_UI_APP_ID }}
+          private-key: ${{ secrets.GRAVITY_UI_APP_PRIVATE_KEY }}
+
       - name: Download Artifacts
         uses: actions/download-artifact@v4
         with:
-          github-token: ${{ secrets.GRAVITY_UI_BOT_GITHUB_TOKEN }}
+          github-token: ${{ steps.app-token.outputs.token }}
           run-id: ${{ github.event.workflow_run.id }}
+
       - name: Extract PR Number
         id: pr
         run: echo "::set-output name=id::$(<pr/pr-id.txt)"
         shell: bash
+
       - name: Install AWS CLI
         uses: unfor19/install-aws-cli-action@v1
         with:
           version: 2.22.35
           arch: amd64
+
       - name: Upload to S3
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.STORYBOOK_S3_KEY_ID }}
@@ -34,10 +44,11 @@ jobs:
           AWS_EC2_METADATA_DISABLED: true
         run: aws s3 cp playwright-report s3://playwright-reports/markdown-editor/pulls/${{ steps.pr.outputs.id}}/ --endpoint-url=https://storage.yandexcloud.net  --recursive
         shell: bash
+
       - name: Create Comment
         uses: marocchino/sticky-pull-request-comment@v2
         with:
-          GITHUB_TOKEN: ${{ secrets.GRAVITY_UI_BOT_GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
           number: ${{ steps.pr.outputs.id }}
           header: visual tests report
-          message: '[Visual Tests Report](https://storage.yandexcloud.net/playwright-reports/markdown-editor/pulls/${{ steps.pr.outputs.id }}/index.html) is ready.'
+          message: '[![🎭 Playwright Report](https://img.shields.io/badge/%F0%9F%8E%AD%20Playwright-Report-45ba4b?style=for-the-badge&labelColor=2b3137)](https://storage.yandexcloud.net/playwright-reports/markdown-editor/pulls/${{ steps.pr.outputs.id }}/index.html)'

@@ -1,7 +1,6 @@
 import {memo, useEffect, useMemo, useRef, useState} from 'react';
 
-// eslint-disable-next-line import/no-extraneous-dependencies
-import type {VirtualElement} from '@floating-ui/dom';
+import type {VirtualElement} from '@floating-ui/react';
 import {useEffectOnce} from 'react-use';
 
 import {useRafThrottle} from '../../hooks/use-raf-throttle';

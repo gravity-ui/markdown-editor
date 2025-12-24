@@ -2,7 +2,6 @@ import {resolve} from 'node:path';
 
 import type {PlaywrightTestConfig} from '@playwright/experimental-ct-react';
 import {defineConfig, devices} from '@playwright/experimental-ct-react';
-import type {InlineConfig} from 'vite'; // eslint-disable-line import/no-extraneous-dependencies
 
 import tsConfig from '../../tsconfig.json';
 
@@ -22,7 +21,9 @@ const aliasesFromTsConf = (() => {
     }, {});
 })();
 
-const ctViteConfig: InlineConfig = {
+type ViteInlineConfig = NonNullable<NonNullable<PlaywrightTestConfig['use']>['ctViteConfig']>;
+
+const ctViteConfig: ViteInlineConfig = {
     publicDir: pathFromRoot('visual-tests/public'),
     css: {
         preprocessorOptions: {

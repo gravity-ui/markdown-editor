@@ -5,6 +5,7 @@ set -euo pipefail
 IMAGE_NAME="mcr.microsoft.com/playwright"
 IMAGE_TAG="v1.49.0-jammy" # This version have to be synchronized with playwright version from package.json
 
+PNPM_STORE_CACHE_DIR="$HOME/.cache/markdown-editor-playwright-docker-pnpm-store"
 NODE_MODULES_CACHE_DIR="$HOME/.cache/markdown-editor-playwright-docker-node-modules"
 
 command_exists() {
@@ -36,9 +37,30 @@ if [[ "$1" = "clear" ]]; then
   exit 0
 fi
 
+init_pnpm() {
+  run_command 'COREPACK_INTEGRITY_KEYS=0 corepack pnpm -v'
+  run_command "COREPACK_INTEGRITY_KEYS=0 corepack pnpm config set store-dir $PNPM_STORE_CACHE_DIR"
+}
+
 if [[ ! -d "$NODE_MODULES_CACHE_DIR" ]]; then
   mkdir -p "$NODE_MODULES_CACHE_DIR"
-  run_command 'npm ci'
+  init_pnpm
+  run_command "COREPACK_INTEGRITY_KEYS=0 corepack pnpm i --frozen-lockfile"
+else
+  init_pnpm
 fi
 
-run_command "$@"
+if [[ "$1" = "test" ]]; then
+  echo "Running playwright tests"
+  run_command 'COREPACK_INTEGRITY_KEYS=0 corepack pnpm run playwright'
+  exit 0
+fi
+
+if [[ "$1" = "update" ]]; then
+  echo "Running playwright tests (update)"
+  run_command 'COREPACK_INTEGRITY_KEYS=0 corepack pnpm run playwright:update'
+  exit 0
+fi
+
+echo "Unknown command: $1"
+exit 1

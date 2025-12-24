@@ -4,28 +4,36 @@ on: workflow_dispatch
 
 jobs:
     main:
-        name: Build and Deploy
+        name: Build and Deploy Storybook [Branch]
         runs-on: ubuntu-latest
         steps:
-            - name: Checkout
-              uses: actions/checkout@v3
-              with:
-                  ref: ${{ github.event.pull_request.head.sha }}
-            - name: Setup Node
-              uses: actions/setup-node@v3
-              with:
-                  node-version: 24
-                  cache: npm
-            - name: Install Packages
-              run: npm ci
-              shell: bash
-            - name: Build Storybook
-              run: npm run storybook:build
-              shell: bash
-            - name: Upload to S3
-              uses: gravity-ui/preview-upload-to-s3-action@v1
-              with:
-                  src-path: storybook-static
-                  dest-path: /md-editor/branches/${{ github.ref_name }}/
-                  s3-key-id: ${{ secrets.STORYBOOK_S3_KEY_ID }}
-                  s3-secret-key: ${{ secrets.STORYBOOK_S3_SECRET_KEY }}
+          - name: Checkout
+            uses: actions/checkout@v6
+            with:
+              ref: ${{ github.event.pull_request.head.sha }}
+
+          - name: Setup pnpm
+            uses: pnpm/action-setup@v4
+
+          - name: Setup Node
+            uses: actions/setup-node@v6
+            with:
+              node-version-file: '.nvmrc'
+              cache: pnpm
+
+          - name: Install dependencies
+            run: pnpm run deps:ci
+
+          - name: Install Storybook CLI
+            run: pnpm i @storybook/cli@8.4.1
+
+          - name: Build Storybook
+            run: pnpm run sb:build
+
+          - name: Upload to S3
+            uses: gravity-ui/preview-upload-to-s3-action@v1
+            with:
+              src-path: storybook-static
+              dest-path: /md-editor/branches/${{ github.ref_name }}/
+              s3-key-id: ${{ secrets.STORYBOOK_S3_KEY_ID }}
+              s3-secret-key: ${{ secrets.STORYBOOK_S3_SECRET_KEY }}
