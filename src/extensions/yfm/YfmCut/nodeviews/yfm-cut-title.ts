@@ -1,7 +1,7 @@
 import type {Node} from '#pm/model';
 import type {NodeView} from '#pm/view';
 
-import {YfmCutClassName} from '../const';
+import {CutAttr, YfmCutClassName} from '../const';
 
 import './yfm-cut-title.scss';
 
@@ -17,6 +17,7 @@ export class YfmCutTitleNodeView implements NodeView {
         this.dom = document.createElement('div');
         this.dom.classList.add(YfmCutClassName.Title);
         this.dom.addEventListener('click', this._onTitleClick);
+        updateDomAttribute(this.dom, CutAttr.Line, node.attrs[CutAttr.Line]);
 
         this.contentDOM = this.dom.appendChild(document.createElement('div'));
         this.contentDOM.classList.add(YfmCutClassName.TitleInner);
@@ -26,6 +27,7 @@ export class YfmCutTitleNodeView implements NodeView {
     update(node: Node): boolean {
         if (this.node.type !== node.type) return false;
         this.node = node;
+        updateDomAttribute(this.dom, CutAttr.Line, node.attrs[CutAttr.Line]);
         return true;
     }
 
@@ -51,4 +53,12 @@ export class YfmCutTitleNodeView implements NodeView {
         e.stopPropagation();
         e.preventDefault();
     };
+}
+
+function updateDomAttribute(elem: Element, attr: string, value: string | null | undefined) {
+    if (value) {
+        elem.setAttribute(attr, value);
+    } else {
+        elem.removeAttribute(attr);
+    }
 }

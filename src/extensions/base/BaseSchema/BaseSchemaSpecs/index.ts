@@ -63,7 +63,15 @@ export const BaseSchemaSpecs: ExtensionAuto<BaseSchemaSpecsOptions> = (builder, 
                       }
                     : undefined,
             },
-            fromMd: {tokenSpec: {name: BaseNode.Paragraph, type: 'block'}},
+            fromMd: {
+                tokenSpec: {
+                    name: BaseNode.Paragraph,
+                    type: 'block',
+                    getAttrs(token) {
+                        return Object.fromEntries(token.attrs || []);
+                    },
+                },
+            },
             toMd: (state, node, parent) => {
                 /*
                     An empty line is added only if there is some content in the parent element.

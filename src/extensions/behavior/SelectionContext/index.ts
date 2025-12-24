@@ -4,8 +4,11 @@ import {
     AllSelection,
     type EditorState,
     Plugin,
+    PluginKey,
     type PluginSpec,
+    type StateField,
     TextSelection,
+    type Transaction,
 } from 'prosemirror-state';
 // @ts-ignore // TODO: fix cjs build
 import {hasParentNode} from 'prosemirror-utils';
@@ -47,9 +50,21 @@ export const SelectionContext: ExtensionAuto<SelectionContextOptions> = (builder
     }
 };
 
+const HideMetaKey = 'hide-selection-menu';
+
+export const hideSelectionMenu = (tr: Transaction) => {
+    return tr.setMeta(HideMetaKey, true);
+};
+
+const pluginKey = new PluginKey<PluginState>('selection-context');
+
+type PluginState = {
+    disabled: boolean;
+};
+
 type TinyState = Pick<EditorState, 'doc' | 'selection'>;
 
-class SelectionTooltip implements PluginSpec<unknown> {
+class SelectionTooltip implements PluginSpec<PluginState> {
     private destroyed = false;
 
     private tooltip: TooltipView;
@@ -64,6 +79,10 @@ class SelectionTooltip implements PluginSpec<unknown> {
         options: SelectionContextOptions,
     ) {
         this.tooltip = new TooltipView(actions, menuConfig, logger, options);
+    }
+
+    get key(): PluginKey<PluginState> {
+        return pluginKey;
     }
 
     get props(): EditorProps {
@@ -101,6 +120,15 @@ class SelectionTooltip implements PluginSpec<unknown> {
         };
     }
 
+    get state(): StateField<PluginState> {
+        return {
+            init: () => ({disabled: false}),
+            apply(tr) {
+                return {disabled: Boolean(tr.getMeta(HideMetaKey))};
+            },
+        };
+    }
+
     view(view: EditorView) {
         this.update(view);
         return {
@@ -118,9 +146,11 @@ class SelectionTooltip implements PluginSpec<unknown> {
 
         this.cancelTooltipHiding();
 
+        const hideFromTr = pluginKey.getState(view.state)?.disabled;
+
         // Don't show tooltip if editor not mounted to the DOM
         // or when view is out of focus
-        if (!view.dom.parentNode || !view.hasFocus()) {
+        if (hideFromTr || !view.dom.parentNode || !view.hasFocus()) {
             this.tooltip.hide(view);
             return;
         }

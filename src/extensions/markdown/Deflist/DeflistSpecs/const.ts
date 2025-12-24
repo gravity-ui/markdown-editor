@@ -3,3 +3,7 @@ export enum DeflistNode {
     Term = 'dt',
     Desc = 'dd',
 }
+
+export const DeflistAttr = {
+    Line: 'data-line',
+} as const;

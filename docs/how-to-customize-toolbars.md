@@ -2,6 +2,34 @@
 
 ## How to customize toolbars
 
+### Understanding Presets
+
+> **Important:** The editor uses two independent types of presets:
+
+1. **Editor Preset** (`MarkdownEditorPreset`) - Defines the set of extensions and functionality available in the WYSIWYG editor. Configured via the `preset` property when initializing the editor.
+   - Available values: `'zero'`, `'commonmark'`, `'default'`, `'yfm'`, `'full'`
+   - Example: `useMarkdownEditor({ preset: 'default' })`
+
+2. **Toolbar Preset** (`ToolbarsPreset`) - Defines which buttons appear in the toolbars and their order.
+   - Configured via the **optional** `toolbarsPreset` property in the `MarkdownEditorView` component
+   - Example: `<MarkdownEditorView toolbarsPreset={customToolbarPreset} />`
+
+**How toolbar preset is determined:**
+
+- **If `toolbarsPreset` is NOT provided** – automatically uses the toolbar preset matching the editor preset name
+- **If `toolbarsPreset` is provided** – uses your custom toolbar configuration
+
+For example:
+```ts
+// Editor preset is 'default', toolbar preset is also 'default' (automatic)
+const editor = useMarkdownEditor({ preset: 'default' });
+<MarkdownEditorView editor={editor} />
+
+// Editor preset is 'default', but toolbar preset is custom (override)
+const editor = useMarkdownEditor({ preset: 'default' });
+<MarkdownEditorView editor={editor} toolbarsPreset={myCustomToolbar} />
+```
+
 ### Toolbar Types
 
 The editor currently provides six types of toolbars:
@@ -19,13 +47,15 @@ More details can be found in [issue #508](https://github.com/gravity-ui/markdown
 
 Starting from `@gravity-ui/markdown-editor@14.10.2`, all toolbars—except the selection-based and slash-triggered toolbars—are configured using a shared dictionary of items and arrays defining the order of those items.
 
-Base toolbar configurations are available in the `gravity-ui/markdown-editor` repository:
+Built-in **toolbar presets** are available in the `gravity-ui/markdown-editor` repository:
 
 - [`zero`](https://github.com/gravity-ui/markdown-editor/blob/main/src/modules/toolbars/presets.ts#L109)
 - [`commonmark`](https://github.com/gravity-ui/markdown-editor/blob/main/src/modules/toolbars/presets.ts#L128)
 - [`default`](https://github.com/gravity-ui/markdown-editor/blob/main/src/modules/toolbars/presets.ts#L303)
 - [`yfm`](https://github.com/gravity-ui/markdown-editor/blob/main/src/modules/toolbars/presets.ts#L384)
 - [`full`](https://github.com/gravity-ui/markdown-editor/blob/main/src/modules/toolbars/presets.ts#L517)
+
+> **Note:** These toolbar presets have the same names as editor presets for convenience. When you don't specify `toolbarsPreset`, the editor automatically selects the toolbar preset matching your editor preset name.
 
 ### Configuration Details
 
@@ -36,22 +66,26 @@ Base toolbar configurations are available in the `gravity-ui/markdown-editor` re
 
 ### Example Configuration
 
-The `default` preset defines a shared `items` dictionary, specifies the display order in `orders`, and connects the corresponding extensions in the `extensions` section.
+The `default` **editor preset** defines a set of extensions, while the `default` **toolbar preset** defines the toolbar configuration:
 
-1. Extension set:
+1. **Editor preset** - Extension set:
    [src/presets/default.ts#L10](https://github.com/gravity-ui/markdown-editor/blob/c1a23b649f2f69ad71a49989d66ba4a9224e40af/src/presets/default.ts#L10)
-2. Toolbar items dictionary:
+2. **Toolbar preset** - Toolbar items dictionary:
    [src/modules/toolbars/presets.ts#L308](https://github.com/gravity-ui/markdown-editor/blob/c1a23b649f2f69ad71a49989d66ba4a9224e40af/src/modules/toolbars/presets.ts#L308)
-3. Toolbar order definition:
+3. **Toolbar preset** - Toolbar order definition:
    [src/modules/toolbars/presets.ts#L316](https://github.com/gravity-ui/markdown-editor/blob/c1a23b649f2f69ad71a49989d66ba4a9224e40af/src/modules/toolbars/presets.ts#L316)
 
 ### Customizing the Toolbar
 
-The library provides a set of predefined presets that cannot be overridden directly. If none of the built-in presets suit your needs, you can define a custom toolbar configuration. Below is an example of how to do that:
+The library provides a set of predefined toolbar presets that cannot be overridden directly. If none of the built-in toolbar presets suit your needs, you can define a custom toolbar configuration. Below is an example of how to do that:
 
 - [Live demo (custom preset)](https://preview.gravity-ui.com/md-editor/?path=/story/extensions-presets--custom)
 - [Presets.stories.tsx#L30](https://github.com/gravity-ui/markdown-editor/blob/main/demo/stories/presets/Presets.stories.tsx#L30)
 - [presets.ts#L21](https://github.com/gravity-ui/markdown-editor/blob/main/demo/stories/presets/presets.ts#L21)
+
+#### Step 1: Define your custom toolbar preset
+
+Create a `ToolbarsPreset` object with `items` and `orders`:
 
 ```ts
 export const toolbarPresets: Record<string, ToolbarsPreset> = {
@@ -88,6 +122,29 @@ export const toolbarPresets: Record<string, ToolbarsPreset> = {
     },
 };
 ```
+
+#### Step 2: Use your custom toolbar preset with the editor
+
+```ts
+import {useMarkdownEditor, MarkdownEditorView} from '@gravity-ui/markdown-editor';
+import {toolbarPresets} from './your-toolbar-presets';
+
+function MyEditor() {
+    // Initialize editor with an editor preset (defines functionality)
+    const editor = useMarkdownEditor({
+        preset: 'default', // or 'zero', 'commonmark', 'yfm', 'full'
+    });
+
+    return (
+        <MarkdownEditorView
+            editor={editor}
+            toolbarsPreset={toolbarPresets.custom} // Override with custom toolbar preset
+        />
+    );
+}
+```
+
+> **Key point:** By providing `toolbarsPreset`, you override the default toolbar configuration. Without it, the editor would use the built-in `'default'` toolbar preset (matching the editor preset name).
 
 ### Conditional Toolbar Items
 

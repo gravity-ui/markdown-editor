@@ -2,7 +2,7 @@ import type {NodeSpec} from 'prosemirror-model';
 
 import type {PlaceholderOptions} from '../../../../utils/placeholder';
 
-import {DeflistNode} from './const';
+import {DeflistAttr, DeflistNode} from './const';
 
 import type {DeflistSpecsOptions} from './index';
 
@@ -28,12 +28,13 @@ export const getSchemaSpecs = (
     },
 
     [DeflistNode.Term]: {
+        attrs: {[DeflistAttr.Line]: {default: null}},
         defining: true,
         group: 'block',
         content: 'inline*',
         parseDOM: [{tag: 'dt'}],
-        toDOM() {
-            return ['dt', 0];
+        toDOM(node) {
+            return ['dt', node.attrs, 0];
         },
         placeholder: {
             content:

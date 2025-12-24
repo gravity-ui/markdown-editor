@@ -8,6 +8,8 @@ import type {PluginRuntime, TransformMeta} from '../withMermaid/types';
 
 import {useYfmHtmlBlockRuntime} from './useYfmHtmlBlockRuntime';
 
+export {DEFAULT_HTML_RUNTIME_CONFIG} from './useYfmHtmlBlockRuntime';
+
 export type WithYfmHtmlBlockOptions = {
     runtime: PluginRuntime;
 };

@@ -48,11 +48,12 @@ export const schemaSpecs: Record<TableNode, NodeSpec> = {
 
     [TableNode.Row]: {
         group: 'block',
+        attrs: {[TableAttrs.Line]: {default: null}},
         content: `(${TableNode.HeaderCell}|${TableNode.DataCell})+`,
         isolating: true,
         parseDOM: [{tag: 'tr'}],
-        toDOM() {
-            return ['tr', 0];
+        toDOM(node) {
+            return ['tr', node.attrs, 0];
         },
         tableRole: TableRole.Row,
         selectable: false,

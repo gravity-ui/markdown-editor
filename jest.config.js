@@ -14,7 +14,7 @@ module.exports = {
         '.+\\.(svg|png|jpg)$': 'identity-obj-proxy',
     },
     moduleFileExtensions: ['tsx', 'ts', 'js'],
-    transformIgnorePatterns: ['node_modules/(?!cheerio)'],
+    transformIgnorePatterns: ['node_modules/(?!(cheerio|@diplodoc))'],
     transform: {
         '.ts(x)?': [
             'ts-jest',

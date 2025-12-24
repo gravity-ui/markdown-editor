@@ -293,7 +293,7 @@ export function createCodemirror(params: CreateCodemirrorParams) {
     if (searchPanel) {
         extensions.push(
             SearchPanelPlugin({
-                anchorSelector: '.g-md-search-anchor',
+                anchorSelector: '.g-md-search-markup-anchor',
                 receiver,
             }),
         );

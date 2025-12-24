@@ -380,6 +380,10 @@ class TableDescBinded {
     readonly pos: number;
     readonly base: TableDesc;
 
+    get bodyPos(): number {
+        return this.pos + 1;
+    }
+
     get rows(): number {
         return this.base.rows;
     }

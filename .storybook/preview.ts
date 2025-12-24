@@ -1,5 +1,5 @@
-import type {Preview} from '@storybook/react';
-import {MINIMAL_VIEWPORTS} from '@storybook/addon-viewport';
+import type {Preview} from '@storybook/react-webpack5';
+import {MINIMAL_VIEWPORTS} from 'storybook/viewport';
 import {withThemeProvider} from '../demo/hocs/withThemeProvider';
 import {withLang} from '../demo/hocs/withLang';
 import {withToaster} from '../demo/hocs/withToaster';
@@ -9,7 +9,7 @@ const preview: Preview = {
     parameters: {
         jsx: {showFunctions: true}, // To show functions in sources
         viewport: {
-            viewports: MINIMAL_VIEWPORTS,
+            options: MINIMAL_VIEWPORTS,
         },
         options: {
             storySort: {
