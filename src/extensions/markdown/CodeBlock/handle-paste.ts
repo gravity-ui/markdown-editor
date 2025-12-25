@@ -12,6 +12,7 @@ export type CodePasteData = {
     editor: string;
     value: string;
     inline: boolean;
+    mode?: string;
 };
 
 type InsertCodeParams = {
@@ -35,7 +36,15 @@ export const handlePaste: NonNullable<EditorProps['handlePaste']> = (view, e) =>
     const $from = selection.$from;
     const inCodeBlock = Boolean($from.parent.type.spec.code);
 
-    logPasteEvent(state, code, data);
+    getLoggerFromState(state).event({
+        domEvent: 'paste',
+        event: 'paste-from-code-editor',
+        editor: code.editor,
+        editorMode: code.mode,
+        empty: !code.value,
+        inline: code.inline,
+        dataTypes: Array.from(data.types),
+    });
 
     if (!code.value) {
         return false;
@@ -54,21 +63,6 @@ export const handlePaste: NonNullable<EditorProps['handlePaste']> = (view, e) =>
     e.preventDefault();
     return true;
 };
-
-function logPasteEvent(
-    state: Parameters<NonNullable<EditorProps['handlePaste']>>[0]['state'],
-    code: CodePasteData,
-    data: DataTransfer,
-): void {
-    getLoggerFromState(state).event({
-        domEvent: 'paste',
-        event: 'paste-from-code-editor',
-        editor: code.editor,
-        empty: !code.value,
-        inline: code.inline,
-        dataTypes: Array.from(data.types),
-    });
-}
 
 export function insertCode({tr, schema, code, from, to, inCodeBlock}: InsertCodeParams): void {
     if (inCodeBlock) {
@@ -98,38 +92,34 @@ export function getCodeData(data: DataTransfer): CodePasteData | null {
     const text = data.getData(DataTransferType.Text);
     if (!text) return null;
 
-    const vscodeData = parseVSCodeData(data, text);
-    if (vscodeData) return vscodeData;
+    if (isVSCode(data)) {
+        return processVSCodePaste(data, text);
+    }
 
-    const htmlData = parseHtmlCodeData(data, text);
-    if (htmlData) return htmlData;
+    const html = data.getData('text/html') || '';
+    if (html && (html.includes('<pre') || html.includes('<code'))) {
+        return processHtmlPaste(data, text);
+    }
 
     return null;
 }
 
-function parseVSCodeData(data: DataTransfer, text: string): CodePasteData | null {
-    if (!isVSCode(data)) return null;
-
-    tryParseVSCodeData(data);
+function processVSCodePaste(data: DataTransfer, text: string): CodePasteData {
+    const vsCodeData = tryParseVSCodeData(data);
     return {
         editor: 'vscode',
-        value: dedentIfMultiline(text),
+        value: dd(text),
         inline: isInlineCode(text),
+        mode: vsCodeData?.mode,
     };
 }
 
-function parseHtmlCodeData(data: DataTransfer, text: string): CodePasteData | null {
+function processHtmlPaste(data: DataTransfer, text: string): CodePasteData {
     const html = data.getData('text/html') || '';
-
-    if (!html || (!html.includes('<pre') && !html.includes('<code'))) {
-        return null;
-    }
-
     const inline = isInlineCodeFromHtml(html, text);
-
     return {
         editor: 'code-editor',
-        value: inline ? text : dedentIfMultiline(text),
+        value: inline ? text : dd(text),
         inline,
     };
 }
@@ -138,10 +128,6 @@ export function isInlineCode(text: string): boolean {
     return !text.includes('\n');
 }
 
-export function isInlineCodeFromHtml(html: string, text: string): boolean {
+function isInlineCodeFromHtml(html: string, text: string): boolean {
     return html.includes('<code') && !html.includes('<pre') && isInlineCode(text);
-}
-
-function dedentIfMultiline(value: string): string {
-    return value.includes('\n') ? dd(value) : value;
 }
