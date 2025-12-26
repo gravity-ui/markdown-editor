@@ -3,9 +3,11 @@ import {builders} from 'prosemirror-test-builder';
 import {parseDOM} from '../../../../tests/parse-dom';
 import {createMarkupChecker} from '../../../../tests/sameMarkup';
 import {ExtensionsManager} from '../../../core';
+import {DataTransferType} from '../../../utils/clipboard';
 import {BaseNode, BaseSchemaSpecs} from '../../base/specs';
 
 import {CodeBlockNodeAttr, CodeBlockSpecs, codeBlockNodeName} from './CodeBlockSpecs';
+import {getCodeData, isInlineCode} from './handle-paste';
 
 const {
     schema,
@@ -22,6 +24,21 @@ const {doc, p, cb} = builders<'doc' | 'p' | 'cb'>(schema, {
 });
 
 const {same, parse} = createMarkupChecker({parser, serializer});
+
+function createMockDataTransfer(data: Record<string, string>): DataTransfer {
+    const types = Object.keys(data);
+    return {
+        types,
+        getData: (type: string) => data[type] || '',
+        setData: jest.fn(),
+        clearData: jest.fn(),
+        setDragImage: jest.fn(),
+        dropEffect: 'none',
+        effectAllowed: 'all',
+        files: [] as unknown as FileList,
+        items: [] as unknown as DataTransferItemList,
+    } as DataTransfer;
+}
 
 describe('CodeBlock extension', () => {
     it('should parse a code block', () =>
@@ -52,4 +69,61 @@ describe('CodeBlock extension', () => {
 
     it('should support different markup', () =>
         same('~~~\n123\n~~~', doc(cb({[CodeBlockNodeAttr.Markup]: '~~~'}, '123'))));
+});
+
+describe('CodeBlock paste handling', () => {
+    it('should detect inline code for single line text', () => {
+        expect(isInlineCode('const x = 1')).toBe(true);
+        expect(isInlineCode('const x = 1\nconst y = 2')).toBe(false);
+    });
+
+    it('should detect VSCode paste as inline for single line', () => {
+        const data = createMockDataTransfer({
+            [DataTransferType.Text]: 'const x = 1',
+            [DataTransferType.VSCodeData]: '{"version":1}',
+        });
+        const result = getCodeData(data);
+
+        expect(result).toEqual({
+            editor: 'vscode',
+            value: 'const x = 1',
+            inline: true,
+        });
+    });
+
+    it('should detect VSCode paste as block for multiline', () => {
+        const data = createMockDataTransfer({
+            [DataTransferType.Text]: 'const x = 1\nconst y = 2',
+            [DataTransferType.VSCodeData]: '{"version":1}',
+        });
+        const result = getCodeData(data);
+
+        expect(result).toEqual({
+            editor: 'vscode',
+            value: 'const x = 1\nconst y = 2',
+            inline: false,
+        });
+    });
+
+    it('should detect inline code from HTML <code> tag', () => {
+        const data = createMockDataTransfer({
+            [DataTransferType.Text]: 'x',
+            [DataTransferType.Html]: '<code>x</code>',
+        });
+        const result = getCodeData(data);
+
+        expect(result).toEqual({
+            editor: 'code-editor',
+            value: 'x',
+            inline: true,
+        });
+    });
+
+    it('should return null when no code-related data', () => {
+        const data = createMockDataTransfer({
+            [DataTransferType.Text]: 'some text',
+            [DataTransferType.Html]: '<div>some text</div>',
+        });
+        expect(getCodeData(data)).toBeNull();
+    });
 });
