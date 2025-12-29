@@ -242,6 +242,8 @@
     "@babel/preset-env": "7.28.5",
     "@babel/preset-react": "7.28.5",
     "@babel/preset-typescript": "7.28.5",
+    "@commitlint/cli": "20.2.0",
+    "@commitlint/config-conventional": "20.2.0",
     "@diplodoc/cut-extension": "^1.1.0",
     "@diplodoc/folding-headings-extension": "^0.1.2",
     "@diplodoc/html-extension": "^2.9.1",
