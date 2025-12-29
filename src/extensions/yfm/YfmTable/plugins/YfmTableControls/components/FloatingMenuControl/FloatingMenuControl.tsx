@@ -1,7 +1,6 @@
 import {useMemo} from 'react';
 
-// eslint-disable-next-line import/no-extraneous-dependencies
-import type {ClientRectObject, VirtualElement} from '@floating-ui/dom';
+import type {ClientRectObject, VirtualElement} from '@floating-ui/react';
 import {
     ArrowDown,
     ArrowLeft,

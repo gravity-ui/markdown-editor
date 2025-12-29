@@ -10,50 +10,70 @@ jobs:
     name: Verify Files
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout
-      uses: actions/checkout@v3
-    - name: Setup Node
-      uses: actions/setup-node@v3
-      with:
-        node-version: 24
-        cache: npm
-    - name: Install Packages
-      run: npm ci
-    - name: Lint Files
-      run: npm run lint
-    - name: Typecheck
-      run: npm run typecheck
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version-file: '.nvmrc'
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm run deps:ci
+
+      - name: Lint Files
+        run: pnpm run lint
+
+      - name: Typecheck
+        run: pnpm run typecheck
 
   tests:
     name: Tests
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout
-      uses: actions/checkout@v3
-    - name: Setup Node
-      uses: actions/setup-node@v3
-      with:
-        node-version: 24
-        cache: npm
-    - name: Install Packages
-      run: npm ci
-    - name: Unit Tests
-      run: npm run test
-    - name: ESBuild compatability
-      run: npm run test:esbuild
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version-file: '.nvmrc'
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm run deps:ci
+
+      - name: Unit Tests
+        run: pnpm run test
+
+      - name: ESBuild compatability
+        run: pnpm run test:esbuild
 
   check_circular_deps:
     name: Check Circular Dependencies
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout
-      uses: actions/checkout@v3
-    - name: Setup Node
-      uses: actions/setup-node@v3
-      with:
-        node-version: 24
-        cache: npm
-    - name: Install Packages
-      run: npm ci
-    - name: Check circular dependencies
-      run: npm run check-circular-deps
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version-file: '.nvmrc'
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm run deps:ci
+
+      - name: Check circular dependencies
+        run: pnpm run check-circular-deps
