@@ -109,13 +109,13 @@ interface GetToolbarsConfigsArgs {
 export const getToolbarsConfigs = ({toolbarsPreset, props, preset}: GetToolbarsConfigsArgs) => {
     const wysiwygToolbarConfig = toolbarsPreset
         ? createToolbarConfig<WToolbarData>('wysiwyg', toolbarsPreset, ToolbarName.wysiwygMain)
-        : props.wysiwygToolbarConfig ??
-          createToolbarConfig<WToolbarData>('wysiwyg', preset, ToolbarName.wysiwygMain);
+        : (props.wysiwygToolbarConfig ??
+          createToolbarConfig<WToolbarData>('wysiwyg', preset, ToolbarName.wysiwygMain));
 
     const markupToolbarConfig = toolbarsPreset
         ? createToolbarConfig<MToolbarData>('markup', toolbarsPreset, ToolbarName.markupMain)
-        : props.markupToolbarConfig ??
-          createToolbarConfig<MToolbarData>('markup', preset, ToolbarName.markupMain);
+        : (props.markupToolbarConfig ??
+          createToolbarConfig<MToolbarData>('markup', preset, ToolbarName.markupMain));
 
     const wysiwygHiddenActionsConfig = toolbarsPreset
         ? flattenPreset(
@@ -125,19 +125,19 @@ export const getToolbarsConfigs = ({toolbarsPreset, props, preset}: GetToolbarsC
                   ToolbarName.wysiwygHidden,
               ),
           )
-        : props.wysiwygHiddenActionsConfig ??
+        : (props.wysiwygHiddenActionsConfig ??
           flattenPreset(
               createToolbarConfig<WToolbarData>('wysiwyg', preset, ToolbarName.wysiwygHidden),
-          );
+          ));
 
     const markupHiddenActionsConfig = toolbarsPreset
         ? flattenPreset(
               createToolbarConfig<MToolbarData>('markup', toolbarsPreset, ToolbarName.markupHidden),
           )
-        : props.markupHiddenActionsConfig ??
+        : (props.markupHiddenActionsConfig ??
           flattenPreset(
               createToolbarConfig<MToolbarData>('markup', preset, ToolbarName.markupHidden),
-          );
+          ));
 
     return {
         wysiwygToolbarConfig,

@@ -22,14 +22,12 @@ export {
 export type YfmTableOptions = YfmTableSpecsOptions & {
     /**
      * Enables floating controls for table.
-     *
      * @default true
      */
     controls?: boolean;
     /**
      * Enables drag-d-drop rows and columns in table.
      * The `controls` property must also be `true`.
-     *
      * @default true
      */
     dnd?: boolean;

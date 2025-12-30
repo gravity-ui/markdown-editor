@@ -5,7 +5,6 @@
 
 import {forwardRef, useEffect, useImperativeHandle, useMemo} from 'react';
 
-// eslint-disable-next-line import/no-extraneous-dependencies
 import {
     FloatingNode,
     FloatingTree,

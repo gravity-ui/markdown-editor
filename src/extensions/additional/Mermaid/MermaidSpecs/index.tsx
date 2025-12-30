@@ -1,4 +1,3 @@
-// eslint-disable-next-line import/no-extraneous-dependencies
 import {transform} from '@diplodoc/mermaid-extension';
 
 import type {ExtensionAuto, ExtensionNodeSpec} from '#core';

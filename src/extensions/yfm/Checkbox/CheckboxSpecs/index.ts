@@ -18,7 +18,7 @@ export {
 
 export type CheckboxSpecsOptions = {
     /**
-     * @deprecated: use placeholder option in BehaviorPreset instead.
+     * @deprecated use placeholder option in BehaviorPreset instead.
      */
     checkboxLabelPlaceholder?: NonNullable<NodeSpec['placeholder']>['content'];
     inputView?: ExtensionNodeSpec['view'];

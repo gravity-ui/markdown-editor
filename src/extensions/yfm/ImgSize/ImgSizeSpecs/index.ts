@@ -22,7 +22,7 @@ export {ImgSizeAttr};
 
 export type ImgSizeSpecsOptions = {
     /**
-     * @deprecated: use placeholder option in BehaviorPreset instead.
+     * @deprecated use placeholder option in BehaviorPreset instead.
      */
     placeholder?: NodeSpec['placeholder'];
 };

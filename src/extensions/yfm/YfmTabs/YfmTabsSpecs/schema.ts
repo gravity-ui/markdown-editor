@@ -11,7 +11,7 @@ const DEFAULT_PLACEHOLDERS = {
 
 export type YfmTabsSchemaOptions = {
     /**
-     * @deprecated: use placeholder option in BehaviorPreset instead.
+     * @deprecated use placeholder option in BehaviorPreset instead.
      */
     tabPlaceholder?: NonNullable<NodeSpec['placeholder']>['content'];
 };

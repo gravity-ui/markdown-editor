@@ -19,7 +19,7 @@ const useColResize = ({onStart, onMove, onEnd}: UseDragHandlersParams) => {
 
     const handleMove = useCallback(
         (e: MouseEvent | TouchEvent) => {
-            const currentX = 'touches' in e ? e.touches[0]?.clientX ?? 0 : e.clientX;
+            const currentX = 'touches' in e ? (e.touches[0]?.clientX ?? 0) : e.clientX;
 
             if (currentXPosition.current === currentX) {
                 return;
@@ -40,7 +40,7 @@ const useColResize = ({onStart, onMove, onEnd}: UseDragHandlersParams) => {
 
             document.body.style.removeProperty('user-select');
 
-            const currentX = 'touches' in e ? e.touches[0]?.clientX ?? 0 : e.clientX;
+            const currentX = 'touches' in e ? (e.touches[0]?.clientX ?? 0) : e.clientX;
             const delta = initialXPosition.current - currentX;
 
             onEnd(delta);
@@ -50,7 +50,7 @@ const useColResize = ({onStart, onMove, onEnd}: UseDragHandlersParams) => {
 
     const handleStart: React.EventHandler<React.MouseEvent | React.TouchEvent> = useCallback(
         (e) => {
-            const currentX = 'touches' in e ? e.touches[0]?.clientX ?? 0 : e.clientX;
+            const currentX = 'touches' in e ? (e.touches[0]?.clientX ?? 0) : e.clientX;
             initialXPosition.current = currentX;
             currentXPosition.current = currentX;
 

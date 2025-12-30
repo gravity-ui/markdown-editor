@@ -1,4 +1,4 @@
-import type {VirtualElement} from '@floating-ui/react'; // eslint-disable-line import/no-extraneous-dependencies
+import type {VirtualElement} from '@floating-ui/react';
 import {Popup, type PopupPlacement, type PopupProps} from '@gravity-ui/uikit';
 import type {EditorState} from 'prosemirror-state';
 import type {EditorView} from 'prosemirror-view';

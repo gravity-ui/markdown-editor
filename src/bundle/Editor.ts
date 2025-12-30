@@ -77,11 +77,7 @@ export interface Editor extends Receiver<EventMap>, CommonEditor {
 
 /** @internal */
 export interface EditorInt
-    extends CommonEditor,
-        Emitter<EventMapInt>,
-        Receiver<EventMapInt>,
-        ActionStorage,
-        CodeEditor {
+    extends CommonEditor, Emitter<EventMapInt>, Receiver<EventMapInt>, ActionStorage, CodeEditor {
     readonly logger: Logger2.ILogger;
     readonly currentMode: EditorMode;
     readonly toolbarVisible: boolean;

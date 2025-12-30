@@ -227,7 +227,6 @@ export class WysiwygEditor implements CommonEditor, ActionStorage {
 
 declare global {
     namespace WysiwygEditor {
-        // eslint-disable-next-line @typescript-eslint/no-empty-interface
         interface Actions {}
     }
 }

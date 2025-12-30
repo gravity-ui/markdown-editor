@@ -34,7 +34,6 @@ export type BundlePresetOptions = ExtensionsOptions &
         placeholderOptions?: WysiwygPlaceholderOptions;
         /**
          * If we need to set dimensions for uploaded images
-         *
          * @default false
          */
         needToSetDimensionsForUploadedImages?: boolean;
@@ -97,7 +96,7 @@ export const BundlePreset: ExtensionAuto<BundlePresetOptions> = (builder, opts) 
 
                 return typeof value === 'function'
                     ? value()
-                    : value ?? i18nPlaceholder(opts.mobile ? 'doc_empty_mobile' : 'doc_empty');
+                    : (value ?? i18nPlaceholder(opts.mobile ? 'doc_empty_mobile' : 'doc_empty'));
             },
             preserveEmptyRows: opts.preserveEmptyRows,
             ...opts.baseSchema,
