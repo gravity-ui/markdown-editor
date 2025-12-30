@@ -99,6 +99,7 @@ export type PlaygroundProps = {
     >;
 
 logger.setLogger({
+    // eslint-disable-next-line no-console
     log: (...data) => console.log('[Deprecated logger]', ...data),
     info: (...data) => console.info('[Deprecated logger]', ...data),
     warn: (...data) => console.warn('[Deprecated logger]', ...data),
