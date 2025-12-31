@@ -1,19 +1,9 @@
 {
-  "name": "@gravity-ui/markdown-editor",
-  "version": "15.31.0",
-  "description": "Markdown wysiwyg and markup editor",
+  "name": "markdown-editor-monorepo",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Monorepository of @gravity-ui/markdown-editor packages",
   "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/gravity-ui/markdown-editor"
-  },
-  "keywords": [
-    "yfm",
-    "wysiwyg",
-    "markdown",
-    "codemirror",
-    "prosemirror"
-  ],
   "packageManager": "pnpm@10.17.1",
   "devEngines": {
     "runtime": {
@@ -30,12 +20,10 @@
   "scripts": {
     "deps:global": "npm install -g pnpm@10.17.1",
     "deps:ci": "pnpm i --frozen-lockfile",
-    "start": "pnpm run sb:start",
-    "clean": "gulp clean",
-    "build": "gulp",
-    "typecheck": "tsc -p tsconfig.json --noEmit",
-    "sb:start": "storybook dev -p 8888 -c .storybook",
-    "sb:build": "storybook build -c .storybook -o storybook-static",
+    "start": "pnpm --filter '@markdown-editor/demo' sb:start",
+    "clean": "pnpm --filter '@gravity-ui/*' clean",
+    "build": "pnpm --filter '@gravity-ui/*' build",
+    "typecheck": "pnpm -r typecheck",
     "lint": "run-p -cs lint:*",
     "lint:js": "eslint \"{src,demo}/**/*.{js,jsx,ts,tsx}\"",
     "lint:styles": "stylelint \"{src,demo}/**/*.{css,scss}\"",
@@ -46,320 +34,24 @@
     "test:watch": "jest --watchAll",
     "test:esbuild": "node tests/esbuild-test/esbuild-tester.js",
     "prepublishOnly": "pnpm run lint && pnpm run build",
-    "playwright:install": "playwright install chromium webkit --with-deps",
-    "playwright": "playwright test --config=tests/playwright/playwright.config.ts",
-    "playwright:generate": "node scripts/generate-playwright-test.js",
-    "playwright:watch": "pnpm run playwright --ui",
-    "playwright:headed": "playwright test --config=tests/playwright/playwright.config.ts --headed",
-    "playwright:update": "pnpm run playwright -u",
-    "playwright:clear": "rm -rf ./tests/playwright/.cache",
-    "playwright:report": "playwright show-report playwright-report",
-    "playwright:docker": "./scripts/playwright-docker.sh test",
-    "playwright:docker:update": "./scripts/playwright-docker.sh update",
-    "playwright:docker:clear": "./scripts/playwright-docker.sh clear",
-    "playwright:docker:report": "playwright show-report playwright-report-docker"
+    "ci:playwright": "pnpm --filter '@markdown-editor/demo' playwright"
   },
-  "exports": {
-    ".": {
-      "import": {
-        "types": "./build/esm/index.d.ts",
-        "default": "./build/esm/index.js"
-      },
-      "require": {
-        "types": "./build/cjs/index.d.ts",
-        "default": "./build/cjs/index.js"
-      }
-    },
-    "./core": {
-      "import": {
-        "types": "./build/esm/core/index.d.ts",
-        "default": "./build/esm/core/index.js"
-      },
-      "require": {
-        "types": "./build/cjs/core/index.d.ts",
-        "default": "./build/cjs/core/index.js"
-      }
-    },
-    "./i18n": {
-      "import": {
-        "types": "./build/esm/i18n/i18n.d.ts",
-        "default": "./build/esm/i18n/i18n.js"
-      },
-      "require": {
-        "types": "./build/cjs/i18n/i18n.d.ts",
-        "default": "./build/cjs/i18n/i18n.js"
-      }
-    },
-    "./specs": {
-      "import": {
-        "types": "./build/esm/extensions/specs.d.ts",
-        "default": "./build/esm/extensions/specs.js"
-      },
-      "require": {
-        "types": "./build/cjs/extensions/specs.d.ts",
-        "default": "./build/cjs/extensions/specs.js"
-      }
-    },
-    "./extensions": {
-      "import": {
-        "types": "./build/esm/extensions/index.d.ts",
-        "default": "./build/esm/extensions/index.js"
-      },
-      "require": {
-        "types": "./build/cjs/extensions/index.d.ts",
-        "default": "./build/cjs/extensions/index.js"
-      }
-    },
-    "./extensions/*": {
-      "import": {
-        "types": "./build/esm/extensions/*",
-        "default": "./build/esm/extensions/*"
-      },
-      "require": {
-        "types": "./build/cjs/extensions/*",
-        "default": "./build/cjs/extensions/*"
-      }
-    },
-    "./view": {
-      "import": {
-        "types": "./build/esm/view/index.d.ts",
-        "default": "./build/esm/view/index.js"
-      },
-      "require": {
-        "types": "./build/cjs/view/index.d.ts",
-        "default": "./build/cjs/view/index.js"
-      }
-    },
-    "./view/*": {
-      "import": {
-        "types": "./build/esm/view/*",
-        "default": "./build/esm/view/*"
-      },
-      "require": {
-        "types": "./build/cjs/view/*",
-        "default": "./build/cjs/view/*"
-      }
-    },
-    "./cm/*": {
-      "import": {
-        "types": "./build/esm/cm/*.d.ts",
-        "default": "./build/esm/cm/*"
-      },
-      "require": {
-        "types": "./build/cjs/cm/*.d.ts",
-        "default": "./build/cjs/cm/*"
-      }
-    },
-    "./pm/*": {
-      "import": {
-        "types": "./build/esm/pm/*.d.ts",
-        "default": "./build/esm/pm/*"
-      },
-      "require": {
-        "types": "./build/cjs/pm/*.d.ts",
-        "default": "./build/cjs/pm/*"
-      }
-    },
-    "./markdown-it/*": {
-      "import": {
-        "types": "./build/esm/markdown-it/*.d.ts",
-        "default": "./build/esm/markdown-it/*"
-      },
-      "require": {
-        "types": "./build/cjs/markdown-it/*.d.ts",
-        "default": "./build/cjs/markdown-it/*"
-      }
-    },
-    "./_/*": {
-      "import": {
-        "types": "./build/esm/*",
-        "default": "./build/esm/*"
-      },
-      "require": {
-        "types": "./build/cjs/*",
-        "default": "./build/cjs/*"
-      }
-    },
-    "./styles/*": "./build/esm/styles/*"
-  },
-  "main": "build/cjs/index.js",
-  "module": "build/esm/index.js",
-  "types": "build/esm/index.d.ts",
-  "files": [
-    "build"
-  ],
-  "dependencies": {
-    "@bem-react/classname": "^1.6.0",
-    "@bem-react/classnames": "1.3.10",
-    "@codemirror/autocomplete": "^6.18.4",
-    "@codemirror/commands": "^6.8.0",
-    "@codemirror/lang-markdown": "^6.3.2",
-    "@codemirror/language": "^6.10.8",
-    "@codemirror/search": "^6.5.8",
-    "@codemirror/state": "^6.5.1",
-    "@codemirror/view": "^6.36.2",
-    "@diplodoc/color-extension": "0.1.1",
-    "@diplodoc/utils": "^2.1.0",
-    "@floating-ui/react": "^0.27.16",
-    "@gravity-ui/i18n": "^1.7.0",
-    "@gravity-ui/icons": "^2.12.0",
-    "@lezer/highlight": "^1.2.1",
-    "@lezer/markdown": "^1.4.0",
-    "@types/is-number": "^7.0.1",
-    "@types/markdown-it": "^12.2.3",
-    "base64-arraybuffer": "1.0.2",
-    "is-number": "^7.0.0",
-    "lodash": "^4.17.21",
-    "markdown-it-attrs": "^4.2.0",
-    "markdown-it-emoji": "2.0.2",
-    "markdown-it-ins": "^3.0.1",
-    "markdown-it-mark": "^3.0.1",
-    "markdown-it-sub": "^1.0.0",
-    "orderedmap": "^2.1.1",
-    "prosemirror-autocomplete": "^0.4.3",
-    "prosemirror-codemark": "^0.4.2",
-    "prosemirror-commands": "^1.6.2",
-    "prosemirror-dropcursor": "^1.8.1",
-    "prosemirror-history": "^1.4.1",
-    "prosemirror-inputrules": "^1.5.0",
-    "prosemirror-keymap": "^1.2.2",
-    "prosemirror-model": "^1.24.1",
-    "prosemirror-schema-list": "^1.5.0",
-    "prosemirror-search": "^1.1.0",
-    "prosemirror-state": "^1.4.3",
-    "prosemirror-test-builder": "^1.1.1",
-    "prosemirror-transform": "^1.10.2",
-    "prosemirror-utils": "^1.2.2",
-    "prosemirror-view": "^1.38.0",
-    "react-error-boundary": "^3.1.4",
-    "react-hotkeys-hook": "^4.5.0",
-    "react-use": "^17.3.2",
-    "ts-dedent": "2.2.0",
-    "tslib": "^2.3.1",
-    "uuid": "11.0.5"
-  },
+  "dependencies": {},
   "devDependencies": {
-    "@babel/preset-env": "7.28.5",
-    "@babel/preset-react": "7.28.5",
-    "@babel/preset-typescript": "7.28.5",
     "@commitlint/cli": "20.2.0",
     "@commitlint/config-conventional": "20.2.0",
-    "@diplodoc/cut-extension": "^1.1.0",
-    "@diplodoc/folding-headings-extension": "^0.1.2",
-    "@diplodoc/html-extension": "^2.9.1",
-    "@diplodoc/latex-extension": "^1.4.1",
-    "@diplodoc/mermaid-extension": "^1.4.0",
-    "@diplodoc/quote-link-extension": "0.1.3",
-    "@diplodoc/tabs-extension": "^3.7.5",
-    "@diplodoc/themes": "^1.0.0",
-    "@diplodoc/transform": "4.66.0",
-    "@gravity-ui/components": "4.10.0",
-    "@gravity-ui/eslint-config": "4.2.0",
-    "@gravity-ui/gulp-utils": "1.0.3",
-    "@gravity-ui/prettier-config": "1.1.0",
-    "@gravity-ui/stylelint-config": "5.0.0",
-    "@gravity-ui/tsconfig": "1.0.0",
-    "@gravity-ui/uikit": "^7.13.1",
-    "@playwright/experimental-ct-react": "1.49.0",
-    "@playwright/test": "1.49.0",
-    "@storybook/addon-docs": "10.1.10",
-    "@storybook/addon-webpack5-compiler-babel": "4.0.0",
-    "@storybook/cli": "10.1.10",
-    "@storybook/preset-scss": "1.0.3",
-    "@storybook/react": "10.1.10",
-    "@storybook/react-webpack5": "10.1.10",
-    "@types/gulp": "4.0.9",
-    "@types/gulp-sass": "5.0.0",
-    "@types/jest": "^29.5.14",
-    "@types/jsdom": "21.1.7",
-    "@types/katex": "0.16.7",
-    "@types/lodash": "^4.14.177",
-    "@types/markdown-it-emoji": "2.0.2",
-    "@types/react": "18.0.28",
-    "@types/react-dom": "18.0.11",
-    "@types/rimraf": "3.0.2",
-    "@types/sanitize-html": "2.11.0",
-    "bem-cn-lite": "4.1.0",
-    "dpdm": "3.14.0",
-    "esbuild": "0.25.0",
-    "esbuild-sass-plugin": "2.15.0",
-    "eslint": "9.39.2",
-    "eslint-plugin-lodash": "8.0.0",
-    "eslint-plugin-react": "7.37.5",
-    "gulp": "5.0.0",
-    "gulp-cli": "3.0.0",
-    "gulp-concat": "2.6.1",
-    "gulp-replace": "1.1.3",
-    "gulp-sass": "6.0.0",
-    "gulp-sourcemaps": "3.0.0",
-    "identity-obj-proxy": "^3.0.0",
-    "ist": "1.1.7",
-    "jest": "^29.7.0",
-    "jest-css-modules": "^2.1.0",
-    "jest-environment-jsdom": "^29.7.0",
-    "jsdom": "25.0.1",
-    "lowlight": "3.0.0",
-    "markdown-it-testgen": "^0.1.6",
-    "mermaid": "11.10.0",
+    "@gravity-ui/eslint-config": "catalog:linters",
+    "@gravity-ui/prettier-config": "catalog:linters",
+    "@gravity-ui/stylelint-config": "catalog:linters",
+    "@gravity-ui/tsconfig": "catalog:ts",
+    "eslint": "catalog:linters",
+    "eslint-plugin-lodash": "catalog:linters",
+    "eslint-plugin-react": "catalog:linters",
     "npm-run-all": "^4.1.5",
-    "path-browserify": "1.0.1",
-    "postcss": "8.5.6",
-    "prettier": "3.7.4",
-    "process": "0.11.10",
-    "prosemirror-dev-toolkit": "1.1.8",
-    "react": "18.2.0",
-    "react-dom": "18.2.0",
-    "rimraf": "3.0.2",
-    "sass": "^1.84.0",
-    "sass-loader": "^13.3.2",
-    "storybook": "10.1.10",
-    "stylelint": "16.26.1",
-    "ts-jest": "^29.2.5",
-    "typescript": "^5.9.3",
-    "url": "0.11.4",
-    "webpack": "^5.97.1"
-  },
-  "peerDependenciesMeta": {
-    "@diplodoc/folding-headings-extension": {
-      "optional": true
-    },
-    "@diplodoc/html-extension": {
-      "optional": true
-    },
-    "@diplodoc/latex-extension": {
-      "optional": true
-    },
-    "@diplodoc/mermaid-extension": {
-      "optional": true
-    },
-    "@diplodoc/quote-link-extension": {
-      "optional": true
-    },
-    "highlight.js": {
-      "optional": true
-    },
-    "lowlight": {
-      "optional": true
-    }
-  },
-  "peerDependencies": {
-    "@diplodoc/cut-extension": "^0.5.0 || ^0.6.1 || ^0.7.1 || ^1.0.0",
-    "@diplodoc/file-extension": "^0.2.1",
-    "@diplodoc/folding-headings-extension": "^0.1.0",
-    "@diplodoc/html-extension": "^2.3.2",
-    "@diplodoc/latex-extension": "^1.0.3",
-    "@diplodoc/mermaid-extension": "^1.0.0",
-    "@diplodoc/quote-link-extension": "^0.1.3",
-    "@diplodoc/tabs-extension": "^3.5.1",
-    "@diplodoc/transform": "^4.43.0",
-    "@gravity-ui/components": "^4.10.0",
-    "@gravity-ui/uikit": "^7.1.0",
-    "highlight.js": "^11.8.0",
-    "katex": "^0.16.9",
-    "lowlight": "^3.0.0",
-    "markdown-it": "^13.0.0",
-    "react": "^16.14.0 || ^17.0.0 || ^18.0.0 || ^19.0.0",
-    "react-dom": "^16.14.0 || ^17.0.0 || ^18.0.0 || ^19.0.0"
+    "postcss": "catalog:linters",
+    "prettier": "catalog:linters",
+    "stylelint": "catalog:linters",
+    "typescript": "catalog:ts"
   },
   "lint-staged": {
     "*.{css,scss}": [
@@ -371,13 +63,5 @@
       "prettier --write"
     ],
     "*.{md,json,yaml,yml}": "prettier --write"
-  },
-  "sideEffects": [
-    "*.css",
-    "*.scss",
-    "src/shortcuts/index.ts",
-    "src/shortcuts/default.ts",
-    "build/**/shortcuts/index.js",
-    "build/**/shortcuts/default.js"
-  ]
+  }
 }

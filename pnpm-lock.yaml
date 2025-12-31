@@ -4,9 +4,328 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+catalogs:
+  default:
+    '@types/markdown-it':
+      specifier: ^13.0.0
+      version: 13.0.9
+    '@types/node':
+      specifier: ^24.10.4
+      version: 24.10.9
+    react-use:
+      specifier: ^17.3.2
+      version: 17.4.0
+  linters:
+    '@gravity-ui/eslint-config':
+      specifier: 4.2.0
+      version: 4.2.0
+    '@gravity-ui/prettier-config':
+      specifier: 1.1.0
+      version: 1.1.0
+    '@gravity-ui/stylelint-config':
+      specifier: 5.0.0
+      version: 5.0.0
+    eslint:
+      specifier: 9.39.2
+      version: 9.39.2
+    eslint-plugin-lodash:
+      specifier: 8.0.0
+      version: 8.0.0
+    eslint-plugin-react:
+      specifier: 7.37.5
+      version: 7.37.5
+    postcss:
+      specifier: 8.5.6
+      version: 8.5.6
+    prettier:
+      specifier: 3.7.4
+      version: 3.7.4
+    stylelint:
+      specifier: 16.26.1
+      version: 16.26.1
+  peer-diplodoc:
+    '@diplodoc/cut-extension':
+      specifier: ^1.1.0
+      version: 1.1.0
+    '@diplodoc/file-extension':
+      specifier: ^0.2.1
+      version: 0.2.1
+    '@diplodoc/folding-headings-extension':
+      specifier: ^0.1.2
+      version: 0.1.2
+    '@diplodoc/html-extension':
+      specifier: ^2.9.1
+      version: 2.9.1
+    '@diplodoc/latex-extension':
+      specifier: ^1.4.1
+      version: 1.4.1
+    '@diplodoc/mermaid-extension':
+      specifier: ^1.4.0
+      version: 1.4.0
+    '@diplodoc/quote-link-extension':
+      specifier: 0.1.3
+      version: 0.1.3
+    '@diplodoc/tabs-extension':
+      specifier: ^3.7.5
+      version: 3.8.0
+    '@diplodoc/transform':
+      specifier: 4.66.0
+      version: 4.66.0
+  peer-gravity:
+    '@gravity-ui/components':
+      specifier: 4.10.0
+      version: 4.10.0
+    '@gravity-ui/uikit':
+      specifier: ^7.13.1
+      version: 7.13.1
+  peers:
+    highlight.js:
+      specifier: ^11.8.0
+      version: 11.8.0
+    katex:
+      specifier: ^0.16.9
+      version: 0.16.27
+    lowlight:
+      specifier: 3.0.0
+      version: 3.0.0
+    markdown-it:
+      specifier: ^13.0.0
+      version: 13.0.2
+  react:
+    '@types/react':
+      specifier: 18.0.28
+      version: 18.0.28
+    '@types/react-dom':
+      specifier: 18.0.11
+      version: 18.0.11
+    react:
+      specifier: 18.2.0
+      version: 18.2.0
+    react-dom:
+      specifier: 18.2.0
+      version: 18.2.0
+  ts:
+    '@gravity-ui/tsconfig':
+      specifier: 1.0.0
+      version: 1.0.0
+    tslib:
+      specifier: ^2.3.1
+      version: 2.8.1
+    typescript:
+      specifier: ^5.9.3
+      version: 5.9.3
+
 importers:
 
   .:
+    devDependencies:
+      '@commitlint/cli':
+        specifier: 20.2.0
+        version: 20.2.0(@types/node@24.10.9)(typescript@5.9.3)
+      '@commitlint/config-conventional':
+        specifier: 20.2.0
+        version: 20.2.0
+      '@gravity-ui/eslint-config':
+        specifier: catalog:linters
+        version: 4.2.0(@types/eslint@8.44.1)(eslint@9.39.2(jiti@2.6.1))(prettier@3.7.4)(typescript@5.9.3)
+      '@gravity-ui/prettier-config':
+        specifier: catalog:linters
+        version: 1.1.0(prettier@3.7.4)
+      '@gravity-ui/stylelint-config':
+        specifier: catalog:linters
+        version: 5.0.0(postcss@8.5.6)(prettier@3.7.4)(stylelint@16.26.1(typescript@5.9.3))
+      '@gravity-ui/tsconfig':
+        specifier: catalog:ts
+        version: 1.0.0
+      eslint:
+        specifier: catalog:linters
+        version: 9.39.2(jiti@2.6.1)
+      eslint-plugin-lodash:
+        specifier: catalog:linters
+        version: 8.0.0(eslint@9.39.2(jiti@2.6.1))
+      eslint-plugin-react:
+        specifier: catalog:linters
+        version: 7.37.5(eslint@9.39.2(jiti@2.6.1))
+      npm-run-all:
+        specifier: ^4.1.5
+        version: 4.1.5
+      postcss:
+        specifier: catalog:linters
+        version: 8.5.6
+      prettier:
+        specifier: catalog:linters
+        version: 3.7.4
+      stylelint:
+        specifier: catalog:linters
+        version: 16.26.1(typescript@5.9.3)
+      typescript:
+        specifier: catalog:ts
+        version: 5.9.3
+
+  demo:
+    dependencies:
+      '@diplodoc/cut-extension':
+        specifier: catalog:peer-diplodoc
+        version: 1.1.0(@types/markdown-it@13.0.9)(markdown-it@13.0.2)(react@18.2.0)
+      '@diplodoc/file-extension':
+        specifier: catalog:peer-diplodoc
+        version: 0.2.1(@types/markdown-it@13.0.9)(markdown-it@13.0.2)
+      '@diplodoc/folding-headings-extension':
+        specifier: catalog:peer-diplodoc
+        version: 0.1.2
+      '@diplodoc/html-extension':
+        specifier: catalog:peer-diplodoc
+        version: 2.9.1(@diplodoc/transform@4.66.0(@types/markdown-it@13.0.9)(highlight.js@11.8.0)(react@18.2.0))(@types/markdown-it@13.0.9)(markdown-it@13.0.2)(react@18.2.0)
+      '@diplodoc/latex-extension':
+        specifier: catalog:peer-diplodoc
+        version: 1.4.1(katex@0.16.27)(markdown-it@13.0.2)(react@18.2.0)
+      '@diplodoc/mermaid-extension':
+        specifier: catalog:peer-diplodoc
+        version: 1.4.0(markdown-it@13.0.2)(react@18.2.0)
+      '@diplodoc/quote-link-extension':
+        specifier: catalog:peer-diplodoc
+        version: 0.1.3(react@18.2.0)
+      '@diplodoc/tabs-extension':
+        specifier: catalog:peer-diplodoc
+        version: 3.8.0(react@18.2.0)
+      '@diplodoc/transform':
+        specifier: catalog:peer-diplodoc
+        version: 4.66.0(@types/markdown-it@13.0.9)(highlight.js@11.8.0)(react@18.2.0)
+      '@gravity-ui/components':
+        specifier: catalog:peer-gravity
+        version: 4.10.0(@gravity-ui/uikit@7.13.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+      '@gravity-ui/markdown-editor':
+        specifier: workspace:*
+        version: link:../packages/markdown-editor
+      '@gravity-ui/uikit':
+        specifier: catalog:peer-gravity
+        version: 7.13.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+      markdown-it:
+        specifier: catalog:peers
+        version: 13.0.2
+    devDependencies:
+      '@babel/preset-env':
+        specifier: 7.28.5
+        version: 7.28.5(@babel/core@7.28.5)
+      '@babel/preset-react':
+        specifier: 7.28.5
+        version: 7.28.5(@babel/core@7.28.5)
+      '@babel/preset-typescript':
+        specifier: 7.28.5
+        version: 7.28.5(@babel/core@7.28.5)
+      '@bem-react/classname':
+        specifier: ^1.6.0
+        version: 1.6.0
+      '@gravity-ui/eslint-config':
+        specifier: catalog:linters
+        version: 4.2.0(@types/eslint@8.44.1)(eslint@9.39.2(jiti@2.6.1))(prettier@3.7.4)(typescript@5.9.3)
+      '@gravity-ui/icons':
+        specifier: ^2.12.0
+        version: 2.13.0(react@18.2.0)
+      '@gravity-ui/prettier-config':
+        specifier: catalog:linters
+        version: 1.1.0(prettier@3.7.4)
+      '@gravity-ui/stylelint-config':
+        specifier: catalog:linters
+        version: 5.0.0(postcss@8.5.6)(prettier@3.7.4)(stylelint@16.26.1(typescript@5.9.3))
+      '@gravity-ui/tsconfig':
+        specifier: catalog:ts
+        version: 1.0.0
+      '@playwright/experimental-ct-react':
+        specifier: 1.49.0
+        version: 1.49.0(@types/node@24.10.9)(sass@1.84.0)(terser@5.38.2)(vite@5.4.21(@types/node@24.10.9)(sass@1.84.0)(terser@5.38.2))
+      '@playwright/test':
+        specifier: 1.49.0
+        version: 1.49.0
+      '@storybook/addon-docs':
+        specifier: 10.1.10
+        version: 10.1.10(@types/react@18.0.28)(esbuild@0.25.0)(rollup@4.35.0)(storybook@10.1.10(@testing-library/dom@10.4.1)(prettier@3.7.4)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(vite@5.4.21(@types/node@24.10.9)(sass@1.84.0)(terser@5.38.2))(webpack@5.97.1(esbuild@0.25.0))
+      '@storybook/addon-webpack5-compiler-babel':
+        specifier: 4.0.0
+        version: 4.0.0(webpack@5.97.1(esbuild@0.25.0))
+      '@storybook/cli':
+        specifier: 10.1.10
+        version: 10.1.10(@babel/preset-env@7.28.5(@babel/core@7.28.5))(@testing-library/dom@10.4.1)(prettier@3.7.4)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+      '@storybook/preset-scss':
+        specifier: 1.0.3
+        version: 1.0.3(css-loader@7.1.2(webpack@5.97.1(esbuild@0.25.0)))(sass-loader@13.3.2(sass@1.84.0)(webpack@5.97.1(esbuild@0.25.0)))(style-loader@4.0.0(webpack@5.97.1(esbuild@0.25.0)))
+      '@storybook/react':
+        specifier: 10.1.10
+        version: 10.1.10(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(storybook@10.1.10(@testing-library/dom@10.4.1)(prettier@3.7.4)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.9.3)
+      '@storybook/react-webpack5':
+        specifier: 10.1.10
+        version: 10.1.10(esbuild@0.25.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(storybook@10.1.10(@testing-library/dom@10.4.1)(prettier@3.7.4)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.9.3)(vite@5.4.21(@types/node@24.10.9)(sass@1.84.0)(terser@5.38.2))
+      '@types/markdown-it':
+        specifier: 'catalog:'
+        version: 13.0.9
+      '@types/node':
+        specifier: 'catalog:'
+        version: 24.10.9
+      '@types/react':
+        specifier: catalog:react
+        version: 18.0.28
+      '@types/react-dom':
+        specifier: catalog:react
+        version: 18.0.11
+      eslint:
+        specifier: catalog:linters
+        version: 9.39.2(jiti@2.6.1)
+      eslint-plugin-lodash:
+        specifier: catalog:linters
+        version: 8.0.0(eslint@9.39.2(jiti@2.6.1))
+      eslint-plugin-react:
+        specifier: catalog:linters
+        version: 7.37.5(eslint@9.39.2(jiti@2.6.1))
+      lowlight:
+        specifier: catalog:peers
+        version: 3.0.0
+      npm-run-all:
+        specifier: ^4.1.5
+        version: 4.1.5
+      path-browserify:
+        specifier: 1.0.1
+        version: 1.0.1
+      postcss:
+        specifier: catalog:linters
+        version: 8.5.6
+      prettier:
+        specifier: catalog:linters
+        version: 3.7.4
+      process:
+        specifier: 0.11.10
+        version: 0.11.10
+      prosemirror-dev-toolkit:
+        specifier: 1.1.8
+        version: 1.1.8(svelte@5.19.10)
+      react:
+        specifier: catalog:react
+        version: 18.2.0
+      react-dom:
+        specifier: catalog:react
+        version: 18.2.0(react@18.2.0)
+      react-use:
+        specifier: 'catalog:'
+        version: 17.4.0(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+      storybook:
+        specifier: 10.1.10
+        version: 10.1.10(@testing-library/dom@10.4.1)(prettier@3.7.4)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+      stylelint:
+        specifier: catalog:linters
+        version: 16.26.1(typescript@5.9.3)
+      ts-dedent:
+        specifier: 2.2.0
+        version: 2.2.0
+      typescript:
+        specifier: catalog:ts
+        version: 5.9.3
+      url:
+        specifier: 0.11.4
+        version: 0.11.4
+      webpack:
+        specifier: ^5.97.1
+        version: 5.97.1(esbuild@0.25.0)
+
+  packages/markdown-editor:
     dependencies:
       '@bem-react/classname':
         specifier: ^1.6.0
@@ -38,9 +357,6 @@ importers:
       '@diplodoc/color-extension':
         specifier: 0.1.1
         version: 0.1.1
-      '@diplodoc/file-extension':
-        specifier: ^0.2.1
-        version: 0.2.1(@types/markdown-it@12.2.3)(markdown-it@13.0.2)
       '@diplodoc/utils':
         specifier: ^2.1.0
         version: 2.1.0(react@18.2.0)
@@ -63,26 +379,17 @@ importers:
         specifier: ^7.0.1
         version: 7.0.3
       '@types/markdown-it':
-        specifier: ^12.2.3
-        version: 12.2.3
+        specifier: 'catalog:'
+        version: 13.0.9
       base64-arraybuffer:
         specifier: 1.0.2
         version: 1.0.2
-      highlight.js:
-        specifier: ^11.8.0
-        version: 11.8.0
       is-number:
         specifier: ^7.0.0
         version: 7.0.0
-      katex:
-        specifier: ^0.16.9
-        version: 0.16.27
       lodash:
         specifier: ^4.17.21
         version: 4.17.23
-      markdown-it:
-        specifier: ^13.0.0
-        version: 13.0.2
       markdown-it-attrs:
         specifier: ^4.2.0
         version: 4.2.0(markdown-it@13.0.2)
@@ -153,105 +460,60 @@ importers:
         specifier: ^4.5.0
         version: 4.5.0(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       react-use:
-        specifier: ^17.3.2
+        specifier: 'catalog:'
         version: 17.4.0(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       ts-dedent:
         specifier: 2.2.0
         version: 2.2.0
       tslib:
-        specifier: ^2.3.1
+        specifier: catalog:ts
         version: 2.8.1
       uuid:
         specifier: 11.0.5
         version: 11.0.5
     devDependencies:
-      '@babel/preset-env':
-        specifier: 7.28.5
-        version: 7.28.5(@babel/core@7.28.5)
-      '@babel/preset-react':
-        specifier: 7.28.5
-        version: 7.28.5(@babel/core@7.28.5)
-      '@babel/preset-typescript':
-        specifier: 7.28.5
-        version: 7.28.5(@babel/core@7.28.5)
-      '@commitlint/cli':
-        specifier: 20.2.0
-        version: 20.2.0(@types/node@22.8.6)(typescript@5.9.3)
-      '@commitlint/config-conventional':
-        specifier: 20.2.0
-        version: 20.2.0
       '@diplodoc/cut-extension':
-        specifier: ^1.1.0
-        version: 1.1.0(@types/markdown-it@12.2.3)(markdown-it@13.0.2)(react@18.2.0)
+        specifier: catalog:peer-diplodoc
+        version: 1.1.0(@types/markdown-it@13.0.9)(markdown-it@13.0.2)(react@18.2.0)
+      '@diplodoc/file-extension':
+        specifier: catalog:peer-diplodoc
+        version: 0.2.1(@types/markdown-it@13.0.9)(markdown-it@13.0.2)
       '@diplodoc/folding-headings-extension':
-        specifier: ^0.1.2
+        specifier: catalog:peer-diplodoc
         version: 0.1.2
       '@diplodoc/html-extension':
-        specifier: ^2.9.1
-        version: 2.9.1(@diplodoc/transform@4.66.0(@types/markdown-it@12.2.3)(highlight.js@11.8.0)(react@18.2.0))(@types/markdown-it@12.2.3)(markdown-it@13.0.2)(react@18.2.0)
+        specifier: catalog:peer-diplodoc
+        version: 2.9.1(@diplodoc/transform@4.66.0(@types/markdown-it@13.0.9)(highlight.js@11.8.0)(react@18.2.0))(@types/markdown-it@13.0.9)(markdown-it@13.0.2)(react@18.2.0)
       '@diplodoc/latex-extension':
-        specifier: ^1.4.1
+        specifier: catalog:peer-diplodoc
         version: 1.4.1(katex@0.16.27)(markdown-it@13.0.2)(react@18.2.0)
       '@diplodoc/mermaid-extension':
-        specifier: ^1.4.0
+        specifier: catalog:peer-diplodoc
         version: 1.4.0(markdown-it@13.0.2)(react@18.2.0)
       '@diplodoc/quote-link-extension':
-        specifier: 0.1.3
+        specifier: catalog:peer-diplodoc
         version: 0.1.3(react@18.2.0)
       '@diplodoc/tabs-extension':
-        specifier: ^3.7.5
-        version: 3.7.5(react@18.2.0)
+        specifier: catalog:peer-diplodoc
+        version: 3.8.0(react@18.2.0)
       '@diplodoc/themes':
         specifier: ^1.0.0
         version: 1.2.0
       '@diplodoc/transform':
-        specifier: 4.66.0
-        version: 4.66.0(@types/markdown-it@12.2.3)(highlight.js@11.8.0)(react@18.2.0)
+        specifier: catalog:peer-diplodoc
+        version: 4.66.0(@types/markdown-it@13.0.9)(highlight.js@11.8.0)(react@18.2.0)
       '@gravity-ui/components':
-        specifier: 4.10.0
+        specifier: catalog:peer-gravity
         version: 4.10.0(@gravity-ui/uikit@7.13.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
-      '@gravity-ui/eslint-config':
-        specifier: 4.2.0
-        version: 4.2.0(@types/eslint@8.44.1)(eslint@9.39.2(jiti@2.6.1))(prettier@3.7.4)(typescript@5.9.3)
       '@gravity-ui/gulp-utils':
         specifier: 1.0.3
         version: 1.0.3(typescript@5.9.3)
-      '@gravity-ui/prettier-config':
-        specifier: 1.1.0
-        version: 1.1.0(prettier@3.7.4)
-      '@gravity-ui/stylelint-config':
-        specifier: 5.0.0
-        version: 5.0.0(postcss@8.5.6)(prettier@3.7.4)(stylelint@16.26.1(typescript@5.9.3))
       '@gravity-ui/tsconfig':
-        specifier: 1.0.0
+        specifier: catalog:ts
         version: 1.0.0
       '@gravity-ui/uikit':
-        specifier: ^7.13.1
+        specifier: catalog:peer-gravity
         version: 7.13.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
-      '@playwright/experimental-ct-react':
-        specifier: 1.49.0
-        version: 1.49.0(@types/node@22.8.6)(sass@1.84.0)(terser@5.38.2)(vite@5.4.21(@types/node@22.8.6)(sass@1.84.0)(terser@5.38.2))
-      '@playwright/test':
-        specifier: 1.49.0
-        version: 1.49.0
-      '@storybook/addon-docs':
-        specifier: 10.1.10
-        version: 10.1.10(@types/react@18.0.28)(esbuild@0.25.0)(rollup@4.35.0)(storybook@10.1.10(@testing-library/dom@10.4.1)(prettier@3.7.4)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(vite@5.4.21(@types/node@22.8.6)(sass@1.84.0)(terser@5.38.2))(webpack@5.97.1(esbuild@0.25.0))
-      '@storybook/addon-webpack5-compiler-babel':
-        specifier: 4.0.0
-        version: 4.0.0(webpack@5.97.1(esbuild@0.25.0))
-      '@storybook/cli':
-        specifier: 10.1.10
-        version: 10.1.10(@babel/preset-env@7.28.5(@babel/core@7.28.5))(@testing-library/dom@10.4.1)(prettier@3.7.4)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
-      '@storybook/preset-scss':
-        specifier: 1.0.3
-        version: 1.0.3(css-loader@7.1.2(webpack@5.97.1(esbuild@0.25.0)))(sass-loader@13.3.2(sass@1.84.0)(webpack@5.97.1(esbuild@0.25.0)))(style-loader@4.0.0(webpack@5.97.1(esbuild@0.25.0)))
-      '@storybook/react':
-        specifier: 10.1.10
-        version: 10.1.10(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(storybook@10.1.10(@testing-library/dom@10.4.1)(prettier@3.7.4)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.9.3)
-      '@storybook/react-webpack5':
-        specifier: 10.1.10
-        version: 10.1.10(esbuild@0.25.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(storybook@10.1.10(@testing-library/dom@10.4.1)(prettier@3.7.4)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.9.3)(vite@5.4.21(@types/node@22.8.6)(sass@1.84.0)(terser@5.38.2))
       '@types/gulp':
         specifier: 4.0.9
         version: 4.0.9
@@ -274,10 +536,10 @@ importers:
         specifier: 2.0.2
         version: 2.0.2
       '@types/react':
-        specifier: 18.0.28
+        specifier: catalog:react
         version: 18.0.28
       '@types/react-dom':
-        specifier: 18.0.11
+        specifier: catalog:react
         version: 18.0.11
       '@types/rimraf':
         specifier: 3.0.2
@@ -292,20 +554,11 @@ importers:
         specifier: 3.14.0
         version: 3.14.0
       esbuild:
-        specifier: 0.25.0
-        version: 0.25.0
+        specifier: 0.21.5
+        version: 0.21.5
       esbuild-sass-plugin:
         specifier: 2.15.0
-        version: 2.15.0(esbuild@0.25.0)
-      eslint:
-        specifier: 9.39.2
-        version: 9.39.2(jiti@2.6.1)
-      eslint-plugin-lodash:
-        specifier: 8.0.0
-        version: 8.0.0(eslint@9.39.2(jiti@2.6.1))
-      eslint-plugin-react:
-        specifier: 7.37.5
-        version: 7.37.5(eslint@9.39.2(jiti@2.6.1))
+        version: 2.15.0(esbuild@0.21.5)
       gulp:
         specifier: 5.0.0
         version: 5.0.0
@@ -324,6 +577,9 @@ importers:
       gulp-sourcemaps:
         specifier: 3.0.0
         version: 3.0.0
+      highlight.js:
+        specifier: catalog:peers
+        version: 11.8.0
       identity-obj-proxy:
         specifier: ^3.0.0
         version: 3.0.0
@@ -342,9 +598,15 @@ importers:
       jsdom:
         specifier: 25.0.1
         version: 25.0.1
+      katex:
+        specifier: catalog:peers
+        version: 0.16.27
       lowlight:
-        specifier: 3.0.0
+        specifier: catalog:peers
         version: 3.0.0
+      markdown-it:
+        specifier: catalog:peers
+        version: 13.0.2
       markdown-it-testgen:
         specifier: ^0.1.6
         version: 0.1.6
@@ -354,26 +616,17 @@ importers:
       npm-run-all:
         specifier: ^4.1.5
         version: 4.1.5
-      path-browserify:
-        specifier: 1.0.1
-        version: 1.0.1
       postcss:
-        specifier: 8.5.6
+        specifier: catalog:linters
         version: 8.5.6
       prettier:
-        specifier: 3.7.4
+        specifier: catalog:linters
         version: 3.7.4
-      process:
-        specifier: 0.11.10
-        version: 0.11.10
-      prosemirror-dev-toolkit:
-        specifier: 1.1.8
-        version: 1.1.8(svelte@5.19.10)
       react:
-        specifier: 18.2.0
+        specifier: catalog:react
         version: 18.2.0
       react-dom:
-        specifier: 18.2.0
+        specifier: catalog:react
         version: 18.2.0(react@18.2.0)
       rimraf:
         specifier: 3.0.2
@@ -383,25 +636,13 @@ importers:
         version: 1.84.0
       sass-loader:
         specifier: ^13.3.2
-        version: 13.3.2(sass@1.84.0)(webpack@5.97.1(esbuild@0.25.0))
-      storybook:
-        specifier: 10.1.10
-        version: 10.1.10(@testing-library/dom@10.4.1)(prettier@3.7.4)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
-      stylelint:
-        specifier: 16.26.1
-        version: 16.26.1(typescript@5.9.3)
+        version: 13.3.2(sass@1.84.0)(webpack@5.97.1(esbuild@0.21.5))
       ts-jest:
         specifier: ^29.2.5
-        version: 29.2.5(@babel/core@7.28.5)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.28.5))(esbuild@0.25.0)(jest@29.7.0(@types/node@22.8.6))(typescript@5.9.3)
+        version: 29.2.5(@babel/core@7.28.5)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.28.5))(esbuild@0.21.5)(jest@29.7.0(@types/node@22.8.6))(typescript@5.9.3)
       typescript:
-        specifier: ^5.9.3
+        specifier: catalog:ts
         version: 5.9.3
-      url:
-        specifier: 0.11.4
-        version: 0.11.4
-      webpack:
-        specifier: ^5.97.1
-        version: 5.97.1(esbuild@0.25.0)
 
 packages:
 
@@ -1075,10 +1316,6 @@ packages:
     peerDependencies:
       '@babel/core': ^7.0.0-0
 
-  '@babel/runtime@7.28.4':
-    resolution: {integrity: sha512-Q/N6JNWvIvPnLDvjlE1OUBLPQHH6l3CltCEsHIujp45zQUSSh8K+gHnaEX45yAT1nyngnINhvWtzN+Nb9D8RAQ==}
-    engines: {node: '>=6.9.0'}
-
   '@babel/runtime@7.28.6':
     resolution: {integrity: sha512-05WQkdpL9COIMz4LjTxGpPNCdlpyimKppYNoJ5Di5EUObifl8t4tuLuUBBZEpoLYOmfvIWrsp9fCl0HoPRVTdA==}
     engines: {node: '>=6.9.0'}
@@ -1308,14 +1545,6 @@ packages:
 
   '@diplodoc/quote-link-extension@0.1.3':
     resolution: {integrity: sha512-1Q/pNkg7tOFuxhDny2iRxL6dSyXOarKFBzx0RyTjMipKhVFOeonFMT3XoeO34Wns7loi88CTO+jJCsqc3K4BUw==}
-
-  '@diplodoc/tabs-extension@3.7.5':
-    resolution: {integrity: sha512-iBUvaLAPXPfIEneOjyJ9Sr/vRf1Hhx31vZIPlMfCg/F6/d5qE34XEqOtQ4Bwn3SUZENdyxnMcqrj9xrUsFuPfg==}
-    peerDependencies:
-      react: ^16.8.0  || ^17.0.0 || ^18.0.0 || ^19.0.0
-    peerDependenciesMeta:
-      react:
-        optional: true
 
   '@diplodoc/tabs-extension@3.8.0':
     resolution: {integrity: sha512-Ar6YGC+VWFX1dRCZ5wYVlKcOf1lqzknsAVnyW5Bian4s6Vp0llLmGtY7n4bbN7IQdIT5X5OU0mBnbDwA9X+9nA==}
@@ -1656,10 +1885,6 @@ packages:
     peerDependencies:
       eslint: ^6.0.0 || ^7.0.0 || >=8.0.0
 
-  '@eslint-community/regexpp@4.10.0':
-    resolution: {integrity: sha512-Cu96Sd2By9mCNTx2iyKOmq10v22jUVQv0lQnlGNy16oE9589yE+QADPbrMGCkA51cKZSg3Pu/aTJVTGfL/qjUA==}
-    engines: {node: ^12.0.0 || ^14.0.0 || >=16.0.0}
-
   '@eslint-community/regexpp@4.12.2':
     resolution: {integrity: sha512-EriSTlt5OC9/7SXkRSCAhfSxxoSUgBm33OH+IkwbdpgoqsSsUg7y3uh+IICI/Qg4BBWr3U2i39RpmycbxMq4ew==}
     engines: {node: ^12.0.0 || ^14.0.0 || >=16.0.0}
@@ -1903,9 +2128,6 @@ packages:
 
   '@jridgewell/source-map@0.3.5':
     resolution: {integrity: sha512-UTYAUj/wviwdsMfzoSJspJxbkH5o1snzwX0//0ENX1u/55kkZZkcTZP6u9bwKGkv+dkk9at4m1Cpt0uY80kcpQ==}
-
-  '@jridgewell/sourcemap-codec@1.5.0':
-    resolution: {integrity: sha512-gv3ZRaISU3fjPAgNsriBRqGWQL6quFx04YMPW/zD8XMLsU32mhCCbfbO6KZFLjvYpCZ8zyDEgqsgf+PwPaM7GQ==}
 
   '@jridgewell/sourcemap-codec@1.5.5':
     resolution: {integrity: sha512-cYQ9310grqxueWbl+WuIUIaiUaDcj7WOq5fVhEljNVgRfOUhY9fy2zTvfoqWsnebh8Sl70VScFbICvJnLKB0Og==}
@@ -2543,8 +2765,8 @@ packages:
   '@types/markdown-it-emoji@2.0.2':
     resolution: {integrity: sha512-2ln8Wjbcj/0oRi/6VnuMeWEHHuK8uapFttvcLmDIe1GKCsFBLOLBX+D+xhDa9oWOQV0IpvxwrSfKKssAqqroog==}
 
-  '@types/markdown-it@12.2.3':
-    resolution: {integrity: sha512-GKMHFfv3458yYy+v/N8gjufHO6MSZKCOXpZc5GXIWWy8uldwfmPn98vp81gZ5f9SVw8YYBctgfJ22a2d7AOMeQ==}
+  '@types/markdown-it@13.0.9':
+    resolution: {integrity: sha512-1XPwR0+MgXLWfTn9gCsZ55AHOKW1WN+P9vr0PaQh5aerR9LLQXUbjfEAFhjmEmyoYFWAyuN2Mqkn40MZ4ukjBw==}
 
   '@types/mdurl@1.0.2':
     resolution: {integrity: sha512-eC4U9MlIcu2q0KQmXszyn5Akca/0jrQmwDRgpAMJai7qBWq4amIQhZyNau4VYGtCeALvW1/NtjzJJ567aZxfKA==}
@@ -2563,6 +2785,9 @@ packages:
 
   '@types/node@22.8.6':
     resolution: {integrity: sha512-tosuJYKrIqjQIlVCM4PEGxOmyg3FCPa/fViuJChnGeEIhjA46oy8FMVoF9su1/v8PNs2a8Q0iFNyOx0uOF91nw==}
+
+  '@types/node@24.10.9':
+    resolution: {integrity: sha512-ne4A0IpG3+2ETuREInjPNhUGis1SFjv1d5asp8MzEAGtOZeTeHVDOYqOgqfhvseqg/iXty2hjBf1zAOb7RNiNw==}
 
   '@types/prop-types@15.7.5':
     resolution: {integrity: sha512-JCB8C6SnDoQf0cNycqd/35A7MjcnK+ZTqE7judS6o7utxUCg6imJg3QK2qzHKszlTjcj2cn+NwMB2i96ubpj7w==}
@@ -2658,10 +2883,6 @@ packages:
     peerDependencies:
       eslint: ^8.57.0 || ^9.0.0
       typescript: '>=4.8.4 <6.0.0'
-
-  '@typescript-eslint/types@8.24.0':
-    resolution: {integrity: sha512-VacJCBTyje7HGAw7xp11q439A+zeGG0p0/p2zsZwpnMzjPB5WteaWqt4g2iysgGFafrqvyLWqq6ZPZAOCoefCw==}
-    engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
 
   '@typescript-eslint/types@8.51.0':
     resolution: {integrity: sha512-TizAvWYFM6sSscmEakjY3sPqGwxZRSywSsPEiuZF6d5GmGD9Gvlsv0f6N8FvAAA0CD06l3rIcWNbsN1e5F/9Ag==}
@@ -4290,10 +4511,6 @@ packages:
     resolution: {integrity: sha512-wpc+LXeiyiisxPlEkUzU6svyS1frIO3Mgxj1fdy7Pm8Ygzguax2N3Fa/D/ag1WqbOprdI+uY6wMUl8/a2G+iag==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
 
-  eslint-visitor-keys@4.2.0:
-    resolution: {integrity: sha512-UyLnSehNt62FFhSwjZlHmeokpRK59rcz29j+F1/aDgbkbRTk7wIc9XzdoasMUbRNKDM0qQt/+BJ4BrpFeABemw==}
-    engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
-
   eslint-visitor-keys@4.2.1:
     resolution: {integrity: sha512-Uhdk5sfqcee/9H/rCOJikYz67o0a2Tw2hGRPOG2Y1R2dg7brRe1uG0yaNQDHu+TO/uQPF/5eCapvYSmHUjt7JQ==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
@@ -4323,10 +4540,6 @@ packages:
     resolution: {integrity: sha512-eGuFFw7Upda+g4p+QHvnW0RyTX/SVeJBDM/gCtMARO0cLuT2HcEKnTPvhjV6aGeqrCB/sbNop0Kszm0jsaWU4A==}
     engines: {node: '>=4'}
     hasBin: true
-
-  esquery@1.5.0:
-    resolution: {integrity: sha512-YQLXUplAwJgCydQ78IMJywZCceoqk1oH01OERdSAJc/7U2AylwjhSCLDEtqwg811idIS/9fIU5GjG73IgjKMVg==}
-    engines: {node: '>=0.10'}
 
   esquery@1.6.0:
     resolution: {integrity: sha512-ca9pw9fomFcKPvFLXhBKUK90ZvGibiGOvRJNbjljY7s7uq/5YO4BOzcYtJqExdx99rF6aAcnRxHmcUHcz6sQsg==}
@@ -4497,9 +4710,6 @@ packages:
 
   flat-cache@6.1.19:
     resolution: {integrity: sha512-l/K33newPTZMTGAnnzaiqSl6NnH7Namh8jBNjrgjprWxGmZUuxx/sJNIRaijOh3n7q7ESbhNZC+pvVZMFdeU4A==}
-
-  flatted@3.2.9:
-    resolution: {integrity: sha512-36yxDn5H7OFZQla0/jFJmbIKTdZAQHngCedGxiMmpNfEZM0sdEeT+WczLQrjK6D7o2aiyLYDnkw0R3JK0Qv1RQ==}
 
   flatted@3.3.3:
     resolution: {integrity: sha512-GX+ysw4PBCz0PzosHDepZGANEuFCMLrnRTiEy9McGjmkCQYwRq4A/X786G/fjM/+OjsWSU1ZrY5qyARZmO/uwg==}
@@ -5607,9 +5817,6 @@ packages:
     resolution: {integrity: sha512-h5bgJWpxJNswbU7qCrV0tIKQCaS3blPDrqKWx+QxzuzL1zGUzij9XCWLrSLsJPu5t+eWA/ycetzYAO5IOMcWAQ==}
     hasBin: true
 
-  magic-string@0.30.17:
-    resolution: {integrity: sha512-sNPKHvyjVf7gyjwS4xGTaW/mCnF8wnjtifKBEhxfZ7E/S8tQ0rssrwGNn6q8JH/ohItJfSQp9mBtQYuTlH5QnA==}
-
   magic-string@0.30.21:
     resolution: {integrity: sha512-vd2F4YUyEXKGcLHoq+TEyCjxueSeHnFxyyjNp80yg0XV4vUhnDer/lvvlqM/arB5bXQN5K2/3oinyCRyx8T2CQ==}
 
@@ -5777,9 +5984,6 @@ packages:
   minimatch@9.0.5:
     resolution: {integrity: sha512-G6T0ZX48xgozx7587koeX9Ys2NYy6Gmv//P89sEte9V9whIapMNF4idKxnW2QtCcLiTWlb/wfCabAtAFWhhBow==}
     engines: {node: '>=16 || 14 >=14.17'}
-
-  minimist@1.2.6:
-    resolution: {integrity: sha512-Jsjnk4bw3YJqYzbdyBiNsPWHPfO++UGG749Cxs6peCu5Xg4nrena6OVxOYxrQTqww0Jmwt+Ref8rggumkTLz9Q==}
 
   minimist@1.2.8:
     resolution: {integrity: sha512-2yyAR8qBkN3YuheJanUpWC5U3bb5osDywNB8RzDVlDwDHbocAJveqqj1u8+SVD7jkWT4yvsHCpWqqWqAxb0zCA==}
@@ -7321,6 +7525,9 @@ packages:
   undici-types@6.19.8:
     resolution: {integrity: sha512-ve2KP6f/JnbPBFyobGHuerC9g1FYGn/F8n1LWTwNxCEzd6IfqTwUQcNXgEtmmQ6DlRrC1hrSrBnCZPokRrDHjw==}
 
+  undici-types@7.16.0:
+    resolution: {integrity: sha512-Zz+aZWSj8LE6zoxD+xrjh4VfkIG8Ya6LvYkZqtUQGJPZjYl53ypCaUwWqo7eI0x66KBGeRo+mlBEkMSeSZ38Nw==}
+
   undici@6.21.3:
     resolution: {integrity: sha512-gBLkYIlEnSp8pFbT64yFgGE6UIB9tAkhukC23PmMDCe5Nd+cRqKxSjw5y54MK2AZMgZfJWMaNE4nYUHgi1XEOw==}
     engines: {node: '>=18.17'}
@@ -7718,7 +7925,7 @@ snapshots:
 
   '@babel/core@7.28.5':
     dependencies:
-      '@babel/code-frame': 7.27.1
+      '@babel/code-frame': 7.28.6
       '@babel/generator': 7.28.5
       '@babel/helper-compilation-targets': 7.27.2
       '@babel/helper-module-transforms': 7.28.3(@babel/core@7.28.5)
@@ -8525,19 +8732,17 @@ snapshots:
       pirates: 4.0.6
       source-map-support: 0.5.21
 
-  '@babel/runtime@7.28.4': {}
-
   '@babel/runtime@7.28.6': {}
 
   '@babel/template@7.27.2':
     dependencies:
-      '@babel/code-frame': 7.27.1
+      '@babel/code-frame': 7.28.6
       '@babel/parser': 7.28.5
       '@babel/types': 7.28.5
 
   '@babel/traverse@7.28.5':
     dependencies:
-      '@babel/code-frame': 7.27.1
+      '@babel/code-frame': 7.28.6
       '@babel/generator': 7.28.5
       '@babel/helper-globals': 7.28.0
       '@babel/parser': 7.28.5
@@ -8674,11 +8879,11 @@ snapshots:
       style-mod: 4.1.2
       w3c-keyname: 2.2.6
 
-  '@commitlint/cli@20.2.0(@types/node@22.8.6)(typescript@5.9.3)':
+  '@commitlint/cli@20.2.0(@types/node@24.10.9)(typescript@5.9.3)':
     dependencies:
       '@commitlint/format': 20.2.0
       '@commitlint/lint': 20.2.0
-      '@commitlint/load': 20.2.0(@types/node@22.8.6)(typescript@5.9.3)
+      '@commitlint/load': 20.2.0(@types/node@24.10.9)(typescript@5.9.3)
       '@commitlint/read': 20.2.0
       '@commitlint/types': 20.2.0
       tinyexec: 1.0.2
@@ -8725,7 +8930,7 @@ snapshots:
       '@commitlint/rules': 20.2.0
       '@commitlint/types': 20.2.0
 
-  '@commitlint/load@20.2.0(@types/node@22.8.6)(typescript@5.9.3)':
+  '@commitlint/load@20.2.0(@types/node@24.10.9)(typescript@5.9.3)':
     dependencies:
       '@commitlint/config-validator': 20.2.0
       '@commitlint/execute-rule': 20.0.0
@@ -8733,7 +8938,7 @@ snapshots:
       '@commitlint/types': 20.2.0
       chalk: 5.6.2
       cosmiconfig: 9.0.0(typescript@5.9.3)
-      cosmiconfig-typescript-loader: 6.2.0(@types/node@22.8.6)(cosmiconfig@9.0.0(typescript@5.9.3))(typescript@5.9.3)
+      cosmiconfig-typescript-loader: 6.2.0(@types/node@24.10.9)(cosmiconfig@9.0.0(typescript@5.9.3))(typescript@5.9.3)
       lodash.isplainobject: 4.0.6
       lodash.merge: 4.6.2
       lodash.uniq: 4.5.0
@@ -8803,37 +9008,37 @@ snapshots:
 
   '@diplodoc/color-extension@0.1.1': {}
 
-  '@diplodoc/cut-extension@1.1.0(@types/markdown-it@12.2.3)(markdown-it@13.0.2)(react@18.2.0)':
+  '@diplodoc/cut-extension@1.1.0(@types/markdown-it@13.0.9)(markdown-it@13.0.2)(react@18.2.0)':
     dependencies:
-      '@diplodoc/directive': 0.3.3(@types/markdown-it@12.2.3)(markdown-it@13.0.2)
+      '@diplodoc/directive': 0.3.3(@types/markdown-it@13.0.9)(markdown-it@13.0.2)
       '@diplodoc/utils': 2.1.0(react@18.2.0)
     transitivePeerDependencies:
       - '@types/markdown-it'
       - markdown-it
       - react
 
-  '@diplodoc/directive@0.3.3(@types/markdown-it@12.2.3)(markdown-it@13.0.2)':
+  '@diplodoc/directive@0.3.3(@types/markdown-it@13.0.9)(markdown-it@13.0.2)':
     dependencies:
-      markdown-it-directive: 2.0.6(@types/markdown-it@12.2.3)(markdown-it@13.0.2)
+      markdown-it-directive: 2.0.6(@types/markdown-it@13.0.9)(markdown-it@13.0.2)
     transitivePeerDependencies:
       - '@types/markdown-it'
       - markdown-it
 
-  '@diplodoc/file-extension@0.2.1(@types/markdown-it@12.2.3)(markdown-it@13.0.2)':
+  '@diplodoc/file-extension@0.2.1(@types/markdown-it@13.0.9)(markdown-it@13.0.2)':
     dependencies:
-      '@diplodoc/directive': 0.3.3(@types/markdown-it@12.2.3)(markdown-it@13.0.2)
+      '@diplodoc/directive': 0.3.3(@types/markdown-it@13.0.9)(markdown-it@13.0.2)
       markdown-it: 13.0.2
     transitivePeerDependencies:
       - '@types/markdown-it'
 
   '@diplodoc/folding-headings-extension@0.1.2': {}
 
-  '@diplodoc/html-extension@2.9.1(@diplodoc/transform@4.66.0(@types/markdown-it@12.2.3)(highlight.js@11.8.0)(react@18.2.0))(@types/markdown-it@12.2.3)(markdown-it@13.0.2)(react@18.2.0)':
+  '@diplodoc/html-extension@2.9.1(@diplodoc/transform@4.66.0(@types/markdown-it@13.0.9)(highlight.js@11.8.0)(react@18.2.0))(@types/markdown-it@13.0.9)(markdown-it@13.0.2)(react@18.2.0)':
     dependencies:
-      '@diplodoc/directive': 0.3.3(@types/markdown-it@12.2.3)(markdown-it@13.0.2)
+      '@diplodoc/directive': 0.3.3(@types/markdown-it@13.0.9)(markdown-it@13.0.2)
       markdown-it: 13.0.2
     optionalDependencies:
-      '@diplodoc/transform': 4.66.0(@types/markdown-it@12.2.3)(highlight.js@11.8.0)(react@18.2.0)
+      '@diplodoc/transform': 4.66.0(@types/markdown-it@13.0.9)(highlight.js@11.8.0)(react@18.2.0)
       react: 18.2.0
     transitivePeerDependencies:
       - '@types/markdown-it'
@@ -8863,20 +9068,16 @@ snapshots:
     transitivePeerDependencies:
       - react
 
-  '@diplodoc/tabs-extension@3.7.5(react@18.2.0)':
-    optionalDependencies:
-      react: 18.2.0
-
   '@diplodoc/tabs-extension@3.8.0(react@18.2.0)':
     optionalDependencies:
       react: 18.2.0
 
   '@diplodoc/themes@1.2.0': {}
 
-  '@diplodoc/transform@4.66.0(@types/markdown-it@12.2.3)(highlight.js@11.8.0)(react@18.2.0)':
+  '@diplodoc/transform@4.66.0(@types/markdown-it@13.0.9)(highlight.js@11.8.0)(react@18.2.0)':
     dependencies:
-      '@diplodoc/cut-extension': 1.1.0(@types/markdown-it@12.2.3)(markdown-it@13.0.2)(react@18.2.0)
-      '@diplodoc/file-extension': 0.2.1(@types/markdown-it@12.2.3)(markdown-it@13.0.2)
+      '@diplodoc/cut-extension': 1.1.0(@types/markdown-it@13.0.9)(markdown-it@13.0.2)(react@18.2.0)
+      '@diplodoc/file-extension': 0.2.1(@types/markdown-it@13.0.9)(markdown-it@13.0.2)
       '@diplodoc/tabs-extension': 3.8.0(react@18.2.0)
       '@diplodoc/utils': 2.1.0(react@18.2.0)
       chalk: 4.1.2
@@ -8928,8 +9129,8 @@ snapshots:
 
   '@es-joy/jsdoccomment@0.50.2':
     dependencies:
-      '@types/estree': 1.0.6
-      '@typescript-eslint/types': 8.24.0
+      '@types/estree': 1.0.8
+      '@typescript-eslint/types': 8.51.0
       comment-parser: 1.4.1
       esquery: 1.6.0
       jsdoc-type-pratt-parser: 4.1.0
@@ -9082,8 +9283,6 @@ snapshots:
     dependencies:
       eslint: 9.39.2(jiti@2.6.1)
       eslint-visitor-keys: 3.4.3
-
-  '@eslint-community/regexpp@4.10.0': {}
 
   '@eslint-community/regexpp@4.12.2': {}
 
@@ -9479,7 +9678,7 @@ snapshots:
 
   '@jridgewell/gen-mapping@0.3.13':
     dependencies:
-      '@jridgewell/sourcemap-codec': 1.5.0
+      '@jridgewell/sourcemap-codec': 1.5.5
       '@jridgewell/trace-mapping': 0.3.31
 
   '@jridgewell/remapping@2.3.5':
@@ -9494,14 +9693,12 @@ snapshots:
       '@jridgewell/gen-mapping': 0.3.13
       '@jridgewell/trace-mapping': 0.3.31
 
-  '@jridgewell/sourcemap-codec@1.5.0': {}
-
   '@jridgewell/sourcemap-codec@1.5.5': {}
 
   '@jridgewell/trace-mapping@0.3.31':
     dependencies:
       '@jridgewell/resolve-uri': 3.1.0
-      '@jridgewell/sourcemap-codec': 1.5.0
+      '@jridgewell/sourcemap-codec': 1.5.5
 
   '@keyv/bigmap@1.3.0(keyv@5.5.5)':
     dependencies:
@@ -9645,11 +9842,11 @@ snapshots:
 
   '@pkgr/core@0.2.9': {}
 
-  '@playwright/experimental-ct-core@1.49.0(@types/node@22.8.6)(sass@1.84.0)(terser@5.38.2)':
+  '@playwright/experimental-ct-core@1.49.0(@types/node@24.10.9)(sass@1.84.0)(terser@5.38.2)':
     dependencies:
       playwright: 1.49.0
       playwright-core: 1.49.0
-      vite: 5.4.21(@types/node@22.8.6)(sass@1.84.0)(terser@5.38.2)
+      vite: 5.4.21(@types/node@24.10.9)(sass@1.84.0)(terser@5.38.2)
     transitivePeerDependencies:
       - '@types/node'
       - less
@@ -9660,10 +9857,10 @@ snapshots:
       - sugarss
       - terser
 
-  '@playwright/experimental-ct-react@1.49.0(@types/node@22.8.6)(sass@1.84.0)(terser@5.38.2)(vite@5.4.21(@types/node@22.8.6)(sass@1.84.0)(terser@5.38.2))':
+  '@playwright/experimental-ct-react@1.49.0(@types/node@24.10.9)(sass@1.84.0)(terser@5.38.2)(vite@5.4.21(@types/node@24.10.9)(sass@1.84.0)(terser@5.38.2))':
     dependencies:
-      '@playwright/experimental-ct-core': 1.49.0(@types/node@22.8.6)(sass@1.84.0)(terser@5.38.2)
-      '@vitejs/plugin-react': 4.3.4(vite@5.4.21(@types/node@22.8.6)(sass@1.84.0)(terser@5.38.2))
+      '@playwright/experimental-ct-core': 1.49.0(@types/node@24.10.9)(sass@1.84.0)(terser@5.38.2)
+      '@vitejs/plugin-react': 4.3.4(vite@5.4.21(@types/node@24.10.9)(sass@1.84.0)(terser@5.38.2))
     transitivePeerDependencies:
       - '@types/node'
       - less
@@ -9749,10 +9946,10 @@ snapshots:
     dependencies:
       '@sinonjs/commons': 3.0.1
 
-  '@storybook/addon-docs@10.1.10(@types/react@18.0.28)(esbuild@0.25.0)(rollup@4.35.0)(storybook@10.1.10(@testing-library/dom@10.4.1)(prettier@3.7.4)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(vite@5.4.21(@types/node@22.8.6)(sass@1.84.0)(terser@5.38.2))(webpack@5.97.1(esbuild@0.25.0))':
+  '@storybook/addon-docs@10.1.10(@types/react@18.0.28)(esbuild@0.25.0)(rollup@4.35.0)(storybook@10.1.10(@testing-library/dom@10.4.1)(prettier@3.7.4)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(vite@5.4.21(@types/node@24.10.9)(sass@1.84.0)(terser@5.38.2))(webpack@5.97.1(esbuild@0.25.0))':
     dependencies:
       '@mdx-js/react': 3.1.0(@types/react@18.0.28)(react@18.2.0)
-      '@storybook/csf-plugin': 10.1.10(esbuild@0.25.0)(rollup@4.35.0)(storybook@10.1.10(@testing-library/dom@10.4.1)(prettier@3.7.4)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(vite@5.4.21(@types/node@22.8.6)(sass@1.84.0)(terser@5.38.2))(webpack@5.97.1(esbuild@0.25.0))
+      '@storybook/csf-plugin': 10.1.10(esbuild@0.25.0)(rollup@4.35.0)(storybook@10.1.10(@testing-library/dom@10.4.1)(prettier@3.7.4)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(vite@5.4.21(@types/node@24.10.9)(sass@1.84.0)(terser@5.38.2))(webpack@5.97.1(esbuild@0.25.0))
       '@storybook/icons': 2.0.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@storybook/react-dom-shim': 10.1.10(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(storybook@10.1.10(@testing-library/dom@10.4.1)(prettier@3.7.4)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))
       react: 18.2.0
@@ -9774,17 +9971,17 @@ snapshots:
       - supports-color
       - webpack
 
-  '@storybook/builder-webpack5@10.1.10(esbuild@0.25.0)(storybook@10.1.10(@testing-library/dom@10.4.1)(prettier@3.7.4)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.9.3)(vite@5.4.21(@types/node@22.8.6)(sass@1.84.0)(terser@5.38.2))':
+  '@storybook/builder-webpack5@10.1.10(esbuild@0.25.0)(storybook@10.1.10(@testing-library/dom@10.4.1)(prettier@3.7.4)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.9.3)(vite@5.4.21(@types/node@24.10.9)(sass@1.84.0)(terser@5.38.2))':
     dependencies:
       '@storybook/core-webpack': 10.1.10(storybook@10.1.10(@testing-library/dom@10.4.1)(prettier@3.7.4)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))
-      '@vitest/mocker': 3.2.4(vite@5.4.21(@types/node@22.8.6)(sass@1.84.0)(terser@5.38.2))
+      '@vitest/mocker': 3.2.4(vite@5.4.21(@types/node@24.10.9)(sass@1.84.0)(terser@5.38.2))
       case-sensitive-paths-webpack-plugin: 2.4.0
       cjs-module-lexer: 1.4.1
       css-loader: 7.1.2(webpack@5.97.1(esbuild@0.25.0))
       es-module-lexer: 1.5.4
       fork-ts-checker-webpack-plugin: 9.1.0(typescript@5.9.3)(webpack@5.97.1(esbuild@0.25.0))
       html-webpack-plugin: 5.6.3(webpack@5.97.1(esbuild@0.25.0))
-      magic-string: 0.30.17
+      magic-string: 0.30.21
       storybook: 10.1.10(@testing-library/dom@10.4.1)(prettier@3.7.4)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       style-loader: 4.0.0(webpack@5.97.1(esbuild@0.25.0))
       terser-webpack-plugin: 5.3.16(esbuild@0.25.0)(webpack@5.97.1(esbuild@0.25.0))
@@ -9847,14 +10044,14 @@ snapshots:
       storybook: 10.1.10(@testing-library/dom@10.4.1)(prettier@3.7.4)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       ts-dedent: 2.2.0
 
-  '@storybook/csf-plugin@10.1.10(esbuild@0.25.0)(rollup@4.35.0)(storybook@10.1.10(@testing-library/dom@10.4.1)(prettier@3.7.4)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(vite@5.4.21(@types/node@22.8.6)(sass@1.84.0)(terser@5.38.2))(webpack@5.97.1(esbuild@0.25.0))':
+  '@storybook/csf-plugin@10.1.10(esbuild@0.25.0)(rollup@4.35.0)(storybook@10.1.10(@testing-library/dom@10.4.1)(prettier@3.7.4)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(vite@5.4.21(@types/node@24.10.9)(sass@1.84.0)(terser@5.38.2))(webpack@5.97.1(esbuild@0.25.0))':
     dependencies:
       storybook: 10.1.10(@testing-library/dom@10.4.1)(prettier@3.7.4)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       unplugin: 2.3.11
     optionalDependencies:
       esbuild: 0.25.0
       rollup: 4.35.0
-      vite: 5.4.21(@types/node@22.8.6)(sass@1.84.0)(terser@5.38.2)
+      vite: 5.4.21(@types/node@24.10.9)(sass@1.84.0)(terser@5.38.2)
       webpack: 5.97.1(esbuild@0.25.0)
 
   '@storybook/global@5.0.0': {}
@@ -9869,12 +10066,12 @@ snapshots:
       '@storybook/core-webpack': 10.1.10(storybook@10.1.10(@testing-library/dom@10.4.1)(prettier@3.7.4)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))
       '@storybook/react-docgen-typescript-plugin': 1.0.6--canary.9.0c3f3b7.0(typescript@5.9.3)(webpack@5.97.1(esbuild@0.25.0))
       '@types/semver': 7.5.0
-      magic-string: 0.30.17
+      magic-string: 0.30.21
       react: 18.2.0
       react-docgen: 7.1.1
       react-dom: 18.2.0(react@18.2.0)
       resolve: 1.22.11
-      semver: 7.7.1
+      semver: 7.7.3
       storybook: 10.1.10(@testing-library/dom@10.4.1)(prettier@3.7.4)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       tsconfig-paths: 4.2.0
       webpack: 5.97.1(esbuild@0.25.0)
@@ -9913,9 +10110,9 @@ snapshots:
       react-dom: 18.2.0(react@18.2.0)
       storybook: 10.1.10(@testing-library/dom@10.4.1)(prettier@3.7.4)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
 
-  '@storybook/react-webpack5@10.1.10(esbuild@0.25.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(storybook@10.1.10(@testing-library/dom@10.4.1)(prettier@3.7.4)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.9.3)(vite@5.4.21(@types/node@22.8.6)(sass@1.84.0)(terser@5.38.2))':
+  '@storybook/react-webpack5@10.1.10(esbuild@0.25.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(storybook@10.1.10(@testing-library/dom@10.4.1)(prettier@3.7.4)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.9.3)(vite@5.4.21(@types/node@24.10.9)(sass@1.84.0)(terser@5.38.2))':
     dependencies:
-      '@storybook/builder-webpack5': 10.1.10(esbuild@0.25.0)(storybook@10.1.10(@testing-library/dom@10.4.1)(prettier@3.7.4)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.9.3)(vite@5.4.21(@types/node@22.8.6)(sass@1.84.0)(terser@5.38.2))
+      '@storybook/builder-webpack5': 10.1.10(esbuild@0.25.0)(storybook@10.1.10(@testing-library/dom@10.4.1)(prettier@3.7.4)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.9.3)(vite@5.4.21(@types/node@24.10.9)(sass@1.84.0)(terser@5.38.2))
       '@storybook/preset-react-webpack': 10.1.10(esbuild@0.25.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(storybook@10.1.10(@testing-library/dom@10.4.1)(prettier@3.7.4)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.9.3)
       '@storybook/react': 10.1.10(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(storybook@10.1.10(@testing-library/dom@10.4.1)(prettier@3.7.4)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.9.3)
       react: 18.2.0
@@ -9950,7 +10147,7 @@ snapshots:
     dependencies:
       '@typescript-eslint/utils': 8.51.0(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3)
       eslint: 9.39.2(jiti@2.6.1)
-      eslint-visitor-keys: 4.2.0
+      eslint-visitor-keys: 4.2.1
       espree: 10.4.0
       estraverse: 5.3.0
       picomatch: 4.0.3
@@ -10035,7 +10232,7 @@ snapshots:
 
   '@types/cross-spawn@6.0.6':
     dependencies:
-      '@types/node': 22.8.6
+      '@types/node': 24.10.9
 
   '@types/d3-array@3.2.1': {}
 
@@ -10161,11 +10358,11 @@ snapshots:
   '@types/eslint-scope@3.7.7':
     dependencies:
       '@types/eslint': 8.44.1
-      '@types/estree': 1.0.6
+      '@types/estree': 1.0.8
 
   '@types/eslint@8.44.1':
     dependencies:
-      '@types/estree': 1.0.6
+      '@types/estree': 1.0.8
       '@types/json-schema': 7.0.15
 
   '@types/estree@1.0.6': {}
@@ -10255,9 +10452,9 @@ snapshots:
 
   '@types/markdown-it-emoji@2.0.2':
     dependencies:
-      '@types/markdown-it': 12.2.3
+      '@types/markdown-it': 13.0.9
 
-  '@types/markdown-it@12.2.3':
+  '@types/markdown-it@13.0.9':
     dependencies:
       '@types/linkify-it': 3.0.2
       '@types/mdurl': 1.0.2
@@ -10277,6 +10474,10 @@ snapshots:
   '@types/node@22.8.6':
     dependencies:
       undici-types: 6.19.8
+
+  '@types/node@24.10.9':
+    dependencies:
+      undici-types: 7.16.0
 
   '@types/prop-types@15.7.5': {}
 
@@ -10348,7 +10549,7 @@ snapshots:
 
   '@typescript-eslint/eslint-plugin@8.51.0(@typescript-eslint/parser@8.51.0(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3)':
     dependencies:
-      '@eslint-community/regexpp': 4.10.0
+      '@eslint-community/regexpp': 4.12.2
       '@typescript-eslint/parser': 8.51.0(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3)
       '@typescript-eslint/scope-manager': 8.51.0
       '@typescript-eslint/type-utils': 8.51.0(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3)
@@ -10404,8 +10605,6 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@typescript-eslint/types@8.24.0': {}
-
   '@typescript-eslint/types@8.51.0': {}
 
   '@typescript-eslint/typescript-estree@8.51.0(typescript@5.9.3)':
@@ -10416,7 +10615,7 @@ snapshots:
       '@typescript-eslint/visitor-keys': 8.51.0
       debug: 4.4.3
       minimatch: 9.0.5
-      semver: 7.7.1
+      semver: 7.7.3
       tinyglobby: 0.2.15
       ts-api-utils: 2.3.0(typescript@5.9.3)
       typescript: 5.9.3
@@ -10498,14 +10697,14 @@ snapshots:
   '@unrs/resolver-binding-win32-x64-msvc@1.11.1':
     optional: true
 
-  '@vitejs/plugin-react@4.3.4(vite@5.4.21(@types/node@22.8.6)(sass@1.84.0)(terser@5.38.2))':
+  '@vitejs/plugin-react@4.3.4(vite@5.4.21(@types/node@24.10.9)(sass@1.84.0)(terser@5.38.2))':
     dependencies:
       '@babel/core': 7.28.5
       '@babel/plugin-transform-react-jsx-self': 7.25.9(@babel/core@7.28.5)
       '@babel/plugin-transform-react-jsx-source': 7.25.9(@babel/core@7.28.5)
       '@types/babel__core': 7.20.5
       react-refresh: 0.14.2
-      vite: 5.4.21(@types/node@22.8.6)(sass@1.84.0)(terser@5.38.2)
+      vite: 5.4.21(@types/node@24.10.9)(sass@1.84.0)(terser@5.38.2)
     transitivePeerDependencies:
       - supports-color
 
@@ -10517,13 +10716,13 @@ snapshots:
       chai: 5.3.3
       tinyrainbow: 2.0.0
 
-  '@vitest/mocker@3.2.4(vite@5.4.21(@types/node@22.8.6)(sass@1.84.0)(terser@5.38.2))':
+  '@vitest/mocker@3.2.4(vite@5.4.21(@types/node@24.10.9)(sass@1.84.0)(terser@5.38.2))':
     dependencies:
       '@vitest/spy': 3.2.4
       estree-walker: 3.0.3
-      magic-string: 0.30.17
+      magic-string: 0.30.21
     optionalDependencies:
-      vite: 5.4.21(@types/node@22.8.6)(sass@1.84.0)(terser@5.38.2)
+      vite: 5.4.21(@types/node@24.10.9)(sass@1.84.0)(terser@5.38.2)
 
   '@vitest/pretty-format@3.2.4':
     dependencies:
@@ -11324,9 +11523,9 @@ snapshots:
     dependencies:
       layout-base: 2.0.1
 
-  cosmiconfig-typescript-loader@6.2.0(@types/node@22.8.6)(cosmiconfig@9.0.0(typescript@5.9.3))(typescript@5.9.3):
+  cosmiconfig-typescript-loader@6.2.0(@types/node@24.10.9)(cosmiconfig@9.0.0(typescript@5.9.3))(typescript@5.9.3):
     dependencies:
-      '@types/node': 22.8.6
+      '@types/node': 24.10.9
       cosmiconfig: 9.0.0(typescript@5.9.3)
       jiti: 2.6.1
       typescript: 5.9.3
@@ -11366,7 +11565,7 @@ snapshots:
 
   create-storybook@10.1.10(@testing-library/dom@10.4.1)(prettier@3.7.4)(react-dom@18.2.0(react@18.2.0))(react@18.2.0):
     dependencies:
-      semver: 7.7.1
+      semver: 7.7.3
       storybook: 10.1.10(@testing-library/dom@10.4.1)(prettier@3.7.4)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
     transitivePeerDependencies:
       - '@testing-library/dom'
@@ -11412,7 +11611,7 @@ snapshots:
       postcss-modules-scope: 3.2.1(postcss@8.5.6)
       postcss-modules-values: 4.0.0(postcss@8.5.6)
       postcss-value-parser: 4.2.0
-      semver: 7.7.1
+      semver: 7.7.3
     optionalDependencies:
       webpack: 5.97.1(esbuild@0.25.0)
 
@@ -11814,7 +12013,7 @@ snapshots:
 
   dom-helpers@5.2.1:
     dependencies:
-      '@babel/runtime': 7.28.4
+      '@babel/runtime': 7.28.6
       csstype: 3.1.1
 
   dom-serializer@1.4.1:
@@ -12066,9 +12265,9 @@ snapshots:
       es6-iterator: 2.0.3
       es6-symbol: 3.1.4
 
-  esbuild-sass-plugin@2.15.0(esbuild@0.25.0):
+  esbuild-sass-plugin@2.15.0(esbuild@0.21.5):
     dependencies:
-      esbuild: 0.25.0
+      esbuild: 0.21.5
       resolve: 1.22.11
       sass: 1.84.0
 
@@ -12125,6 +12324,7 @@ snapshots:
       '@esbuild/win32-arm64': 0.25.0
       '@esbuild/win32-ia32': 0.25.0
       '@esbuild/win32-x64': 0.25.0
+    optional: true
 
   escalade@3.2.0: {}
 
@@ -12312,8 +12512,6 @@ snapshots:
 
   eslint-visitor-keys@3.4.3: {}
 
-  eslint-visitor-keys@4.2.0: {}
-
   eslint-visitor-keys@4.2.1: {}
 
   eslint@9.39.2(jiti@2.6.1):
@@ -12329,7 +12527,7 @@ snapshots:
       '@humanfs/node': 0.16.7
       '@humanwhocodes/module-importer': 1.0.1
       '@humanwhocodes/retry': 0.4.3
-      '@types/estree': 1.0.6
+      '@types/estree': 1.0.8
       ajv: 6.12.6
       chalk: 4.1.2
       cross-spawn: 7.0.6
@@ -12338,7 +12536,7 @@ snapshots:
       eslint-scope: 8.4.0
       eslint-visitor-keys: 4.2.1
       espree: 10.4.0
-      esquery: 1.5.0
+      esquery: 1.6.0
       esutils: 2.0.3
       fast-deep-equal: 3.1.3
       file-entry-cache: 8.0.0
@@ -12374,10 +12572,6 @@ snapshots:
 
   esprima@4.0.1: {}
 
-  esquery@1.5.0:
-    dependencies:
-      estraverse: 5.3.0
-
   esquery@1.6.0:
     dependencies:
       estraverse: 5.3.0
@@ -12396,7 +12590,7 @@ snapshots:
 
   estree-walker@3.0.3:
     dependencies:
-      '@types/estree': 1.0.6
+      '@types/estree': 1.0.8
 
   esutils@2.0.3: {}
 
@@ -12553,13 +12747,13 @@ snapshots:
 
   flat-cache@3.2.0:
     dependencies:
-      flatted: 3.2.9
+      flatted: 3.3.3
       keyv: 4.5.4
       rimraf: 3.0.2
 
   flat-cache@4.0.1:
     dependencies:
-      flatted: 3.2.9
+      flatted: 3.3.3
       keyv: 4.5.4
 
   flat-cache@6.1.19:
@@ -12567,8 +12761,6 @@ snapshots:
       cacheable: 2.3.1
       flatted: 3.3.3
       hookified: 1.14.0
-
-  flatted@3.2.9: {}
 
   flatted@3.3.3: {}
 
@@ -12591,7 +12783,7 @@ snapshots:
 
   fork-ts-checker-webpack-plugin@9.1.0(typescript@5.9.3)(webpack@5.97.1(esbuild@0.25.0)):
     dependencies:
-      '@babel/code-frame': 7.27.1
+      '@babel/code-frame': 7.28.6
       chalk: 4.1.2
       chokidar: 4.0.3
       cosmiconfig: 8.3.6(typescript@5.9.3)
@@ -12601,7 +12793,7 @@ snapshots:
       minimatch: 3.1.2
       node-abort-controller: 3.1.1
       schema-utils: 3.3.0
-      semver: 7.7.1
+      semver: 7.7.3
       tapable: 2.2.1
       typescript: 5.9.3
       webpack: 5.97.1(esbuild@0.25.0)
@@ -13119,7 +13311,7 @@ snapshots:
 
   is-bun-module@2.0.0:
     dependencies:
-      semver: 7.7.1
+      semver: 7.7.3
 
   is-callable@1.2.7: {}
 
@@ -13286,7 +13478,7 @@ snapshots:
       '@babel/parser': 7.28.5
       '@istanbuljs/schema': 0.1.3
       istanbul-lib-coverage: 3.2.2
-      semver: 7.7.1
+      semver: 7.7.3
     transitivePeerDependencies:
       - supports-color
 
@@ -13496,7 +13688,7 @@ snapshots:
 
   jest-message-util@29.7.0:
     dependencies:
-      '@babel/code-frame': 7.27.1
+      '@babel/code-frame': 7.28.6
       '@jest/types': 29.6.3
       '@types/stack-utils': 2.0.3
       chalk: 4.1.2
@@ -13611,7 +13803,7 @@ snapshots:
       jest-util: 29.7.0
       natural-compare: 1.4.0
       pretty-format: 29.7.0
-      semver: 7.7.1
+      semver: 7.7.3
     transitivePeerDependencies:
       - supports-color
 
@@ -13646,7 +13838,7 @@ snapshots:
 
   jest-worker@27.5.1:
     dependencies:
-      '@types/node': 22.8.6
+      '@types/node': 24.10.9
       merge-stream: 2.0.0
       supports-color: 8.1.1
 
@@ -13974,10 +14166,6 @@ snapshots:
 
   lz-string@1.5.0: {}
 
-  magic-string@0.30.17:
-    dependencies:
-      '@jridgewell/sourcemap-codec': 1.5.0
-
   magic-string@0.30.21:
     dependencies:
       '@jridgewell/sourcemap-codec': 1.5.5
@@ -13993,7 +14181,7 @@ snapshots:
 
   make-dir@4.0.0:
     dependencies:
-      semver: 7.7.1
+      semver: 7.7.3
 
   make-error@1.3.6: {}
 
@@ -14009,9 +14197,9 @@ snapshots:
 
   markdown-it-deflist@2.1.0: {}
 
-  markdown-it-directive@2.0.6(@types/markdown-it@12.2.3)(markdown-it@13.0.2):
+  markdown-it-directive@2.0.6(@types/markdown-it@13.0.9)(markdown-it@13.0.2):
     dependencies:
-      '@types/markdown-it': 12.2.3
+      '@types/markdown-it': 13.0.9
       markdown-it: 13.0.2
 
   markdown-it-emoji@2.0.2: {}
@@ -14143,8 +14331,6 @@ snapshots:
   minimatch@9.0.5:
     dependencies:
       brace-expansion: 2.0.1
-
-  minimist@1.2.6: {}
 
   minimist@1.2.8: {}
 
@@ -14754,7 +14940,7 @@ snapshots:
 
   rc-slider@11.1.8(react-dom@18.2.0(react@18.2.0))(react@18.2.0):
     dependencies:
-      '@babel/runtime': 7.28.4
+      '@babel/runtime': 7.28.6
       classnames: 2.5.1
       rc-util: 5.44.3(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       react: 18.2.0
@@ -14762,14 +14948,14 @@ snapshots:
 
   rc-util@5.44.3(react-dom@18.2.0(react@18.2.0))(react@18.2.0):
     dependencies:
-      '@babel/runtime': 7.28.4
+      '@babel/runtime': 7.28.6
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
       react-is: 18.3.1
 
   react-beautiful-dnd@13.1.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0):
     dependencies:
-      '@babel/runtime': 7.28.4
+      '@babel/runtime': 7.28.6
       css-box-model: 1.2.1
       memoize-one: 5.2.1
       raf-schd: 4.0.3
@@ -14823,7 +15009,7 @@ snapshots:
 
   react-error-boundary@3.1.4(react@18.2.0):
     dependencies:
-      '@babel/runtime': 7.28.4
+      '@babel/runtime': 7.28.6
       react: 18.2.0
 
   react-hotkeys-hook@4.5.0(react-dom@18.2.0(react@18.2.0))(react@18.2.0):
@@ -14839,7 +15025,7 @@ snapshots:
 
   react-redux@7.2.9(react-dom@18.2.0(react@18.2.0))(react@18.2.0):
     dependencies:
-      '@babel/runtime': 7.28.4
+      '@babel/runtime': 7.28.6
       '@types/react-redux': 7.1.34
       hoist-non-react-statics: 3.3.2
       loose-envify: 1.4.0
@@ -14853,7 +15039,7 @@ snapshots:
 
   react-transition-group@4.4.5(react-dom@18.2.0(react@18.2.0))(react@18.2.0):
     dependencies:
-      '@babel/runtime': 7.28.4
+      '@babel/runtime': 7.28.6
       dom-helpers: 5.2.1
       loose-envify: 1.4.0
       prop-types: 15.8.1
@@ -14891,7 +15077,7 @@ snapshots:
 
   react-window@1.8.11(react-dom@18.2.0(react@18.2.0))(react@18.2.0):
     dependencies:
-      '@babel/runtime': 7.28.4
+      '@babel/runtime': 7.28.6
       memoize-one: 5.2.1
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
@@ -14947,7 +15133,7 @@ snapshots:
 
   redux@4.2.1:
     dependencies:
-      '@babel/runtime': 7.28.4
+      '@babel/runtime': 7.28.6
 
   reflect.getprototypeof@1.0.10:
     dependencies:
@@ -15112,7 +15298,7 @@ snapshots:
 
   rtl-css-js@1.16.0:
     dependencies:
-      '@babel/runtime': 7.28.4
+      '@babel/runtime': 7.28.6
 
   run-applescript@7.1.0: {}
 
@@ -15157,6 +15343,13 @@ snapshots:
       is-plain-object: 5.0.0
       parse-srcset: 1.0.2
       postcss: 8.5.6
+
+  sass-loader@13.3.2(sass@1.84.0)(webpack@5.97.1(esbuild@0.21.5)):
+    dependencies:
+      neo-async: 2.6.2
+      webpack: 5.97.1(esbuild@0.21.5)
+    optionalDependencies:
+      sass: 1.84.0
 
   sass-loader@13.3.2(sass@1.84.0)(webpack@5.97.1(esbuild@0.25.0)):
     dependencies:
@@ -15379,7 +15572,7 @@ snapshots:
       '@testing-library/user-event': 14.6.1(@testing-library/dom@10.4.1)
       '@vitest/expect': 3.2.4
       '@vitest/spy': 3.2.4
-      esbuild: 0.25.0
+      esbuild: 0.21.5
       open: 10.2.0
       recast: 0.23.9
       semver: 7.7.3
@@ -15669,6 +15862,17 @@ snapshots:
     dependencies:
       rimraf: 2.6.3
 
+  terser-webpack-plugin@5.3.16(esbuild@0.21.5)(webpack@5.97.1(esbuild@0.21.5)):
+    dependencies:
+      '@jridgewell/trace-mapping': 0.3.31
+      jest-worker: 27.5.1
+      schema-utils: 4.3.0
+      serialize-javascript: 6.0.2
+      terser: 5.38.2
+      webpack: 5.97.1(esbuild@0.21.5)
+    optionalDependencies:
+      esbuild: 0.21.5
+
   terser-webpack-plugin@5.3.16(esbuild@0.25.0)(webpack@5.97.1(esbuild@0.25.0)):
     dependencies:
       '@jridgewell/trace-mapping': 0.3.31
@@ -15782,7 +15986,7 @@ snapshots:
 
   ts-easing@0.2.0: {}
 
-  ts-jest@29.2.5(@babel/core@7.28.5)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.28.5))(esbuild@0.25.0)(jest@29.7.0(@types/node@22.8.6))(typescript@5.9.3):
+  ts-jest@29.2.5(@babel/core@7.28.5)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.28.5))(esbuild@0.21.5)(jest@29.7.0(@types/node@22.8.6))(typescript@5.9.3):
     dependencies:
       bs-logger: 0.2.6
       ejs: 3.1.10
@@ -15792,7 +15996,7 @@ snapshots:
       json5: 2.2.3
       lodash.memoize: 4.1.2
       make-error: 1.3.6
-      semver: 7.7.1
+      semver: 7.7.3
       typescript: 5.9.3
       yargs-parser: 21.1.1
     optionalDependencies:
@@ -15800,7 +16004,7 @@ snapshots:
       '@jest/transform': 29.7.0
       '@jest/types': 29.6.3
       babel-jest: 29.7.0(@babel/core@7.28.5)
-      esbuild: 0.25.0
+      esbuild: 0.21.5
 
   tsconfig-paths@3.15.0:
     dependencies:
@@ -15812,7 +16016,7 @@ snapshots:
   tsconfig-paths@4.2.0:
     dependencies:
       json5: 2.2.3
-      minimist: 1.2.6
+      minimist: 1.2.8
       strip-bom: 3.0.0
 
   tslib@2.8.1: {}
@@ -15889,6 +16093,8 @@ snapshots:
       undertaker-registry: 2.0.0
 
   undici-types@6.19.8: {}
+
+  undici-types@7.16.0: {}
 
   undici@6.21.3: {}
 
@@ -16048,13 +16254,13 @@ snapshots:
       replace-ext: 2.0.0
       teex: 1.0.1
 
-  vite@5.4.21(@types/node@22.8.6)(sass@1.84.0)(terser@5.38.2):
+  vite@5.4.21(@types/node@24.10.9)(sass@1.84.0)(terser@5.38.2):
     dependencies:
       esbuild: 0.21.5
       postcss: 8.5.6
       rollup: 4.35.0
     optionalDependencies:
-      '@types/node': 22.8.6
+      '@types/node': 24.10.9
       fsevents: 2.3.3
       sass: 1.84.0
       terser: 5.38.2
@@ -16121,10 +16327,40 @@ snapshots:
 
   webpack-virtual-modules@0.6.2: {}
 
+  webpack@5.97.1(esbuild@0.21.5):
+    dependencies:
+      '@types/eslint-scope': 3.7.7
+      '@types/estree': 1.0.8
+      '@webassemblyjs/ast': 1.14.1
+      '@webassemblyjs/wasm-edit': 1.14.1
+      '@webassemblyjs/wasm-parser': 1.14.1
+      acorn: 8.15.0
+      browserslist: 4.28.1
+      chrome-trace-event: 1.0.3
+      enhanced-resolve: 5.18.1
+      es-module-lexer: 1.5.4
+      eslint-scope: 5.1.1
+      events: 3.3.0
+      glob-to-regexp: 0.4.1
+      graceful-fs: 4.2.11
+      json-parse-even-better-errors: 2.3.1
+      loader-runner: 4.3.0
+      mime-types: 2.1.35
+      neo-async: 2.6.2
+      schema-utils: 3.3.0
+      tapable: 2.2.1
+      terser-webpack-plugin: 5.3.16(esbuild@0.21.5)(webpack@5.97.1(esbuild@0.21.5))
+      watchpack: 2.4.2
+      webpack-sources: 3.2.3
+    transitivePeerDependencies:
+      - '@swc/core'
+      - esbuild
+      - uglify-js
+
   webpack@5.97.1(esbuild@0.25.0):
     dependencies:
       '@types/eslint-scope': 3.7.7
-      '@types/estree': 1.0.6
+      '@types/estree': 1.0.8
       '@webassemblyjs/ast': 1.14.1
       '@webassemblyjs/wasm-edit': 1.14.1
       '@webassemblyjs/wasm-parser': 1.14.1
