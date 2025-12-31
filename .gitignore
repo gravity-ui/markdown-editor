@@ -22,7 +22,8 @@ build/
 coverage/
 storybook-static/
 .eslintcache
-demo/docs
+demo/src/docs
+debug-storybook.log
 
 # tests
 playwright-report*
