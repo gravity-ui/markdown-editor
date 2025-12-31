@@ -137,8 +137,8 @@ export function nodeInputRule(
                 start - 1,
                 end,
                 isFunction(fragment)
-                    ? fragment(matchStr) ?? Fragment.empty
-                    : fragment ?? Fragment.empty,
+                    ? (fragment(matchStr) ?? Fragment.empty)
+                    : (fragment ?? Fragment.empty),
             ).setSelection(new TextSelection(tr.doc.resolve(start + selectionOffset)));
         }
 

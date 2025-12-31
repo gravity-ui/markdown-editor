@@ -17,8 +17,10 @@ export const removeRow: Command = (
 
     if (tablePos === undefined || rowNumber === undefined) return false;
 
-    const tableNode = findParentNodeClosestToPos(state.doc.resolve(tablePos + 1), isTableNode)
-        ?.node;
+    const tableNode = findParentNodeClosestToPos(
+        state.doc.resolve(tablePos + 1),
+        isTableNode,
+    )?.node;
 
     if (!tableNode) return false;
 

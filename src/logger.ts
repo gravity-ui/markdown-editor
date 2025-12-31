@@ -238,7 +238,6 @@ class Logger implements MdEditorLogger.Logger {
 export const logger = new Logger();
 /**
  * Alias for global singleton logger instance
- *
  * @deprecated
  */
 export const globalLogger = logger;

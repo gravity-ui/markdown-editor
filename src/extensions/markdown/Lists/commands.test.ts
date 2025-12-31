@@ -1,4 +1,3 @@
-// eslint-disable-next-line import/no-extraneous-dependencies
 import ist from 'ist';
 import type {Node} from 'prosemirror-model';
 import {

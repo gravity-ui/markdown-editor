@@ -15,7 +15,7 @@ export {noteType, noteTitleType} from './utils';
 
 export type YfmNoteSpecsOptions = {
     /**
-     * @deprecated: use placeholder option in BehaviorPreset instead.
+     * @deprecated use placeholder option in BehaviorPreset instead.
      */
     yfmNoteTitlePlaceholder?: NonNullable<NodeSpec['placeholder']>['content'];
 };

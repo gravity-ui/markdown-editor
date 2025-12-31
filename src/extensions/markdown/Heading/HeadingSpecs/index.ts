@@ -12,7 +12,7 @@ const DEFAULT_PLACEHOLDER = (node: Node) => 'Heading ' + node.attrs[headingLevel
 
 export type HeadingSpecsOptions = {
     /**
-     * @deprecated: use placeholder option in BehaviorPreset instead.
+     * @deprecated use placeholder option in BehaviorPreset instead.
      */
     headingPlaceholder?: NonNullable<NodeSpec['placeholder']>['content'];
 };

@@ -1,7 +1,6 @@
 import {Action as A, Key as K, ModKey as MK} from './const';
 import {formatter} from './formatter';
 
-/* eslint-disable */
 formatter
     .set(A.__debug, [MK.Mod, MK.Option, ']'])
 
@@ -39,4 +38,3 @@ formatter
 
     .set(A.Cut, {pc: [MK.Ctrl, MK.Shift, '7'], mac: [MK.Cmd, MK.Option, '7']})
     .set(A.Note, {pc: [MK.Ctrl, MK.Shift, '8'], mac: [MK.Cmd, MK.Option, '8']});
-/* eslint-enable */

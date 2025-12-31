@@ -37,7 +37,6 @@ export type ToolbarItemData<E> = QAProps & {
      * `true` – show default hint;
      *
      * `string` or `() => string` – show hint with custom message.
-     *
      * @default true
      */
     hintWhenDisabled?: boolean | string | (() => string);
@@ -113,7 +112,7 @@ export type ToolbarListButtonData<E> = {
 
 /**
  * @deprecated Use ReactComponent type instead
- * */
+ */
 export type ToolbarReactNodeData = {
     id: string;
     type: ToolbarDataType.ReactNode;
@@ -123,7 +122,7 @@ export type ToolbarReactNodeData = {
 
 /**
  * @deprecated Use ReactComponent type instead
- * */
+ */
 export type ToolbarReactNodeFnData<E> = {
     id: string;
     type: ToolbarDataType.ReactNodeFn;
