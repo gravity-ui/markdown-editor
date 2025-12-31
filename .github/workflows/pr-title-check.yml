@@ -30,7 +30,7 @@ jobs:
           cache: pnpm
 
       - name: Install dependencies
-        run: pnpm run deps:ci
+        run: pnpm run ci:deps
 
       - name: Run Commitlint
         run: echo '${{github.event.pull_request.title}}' | pnpm commitlint

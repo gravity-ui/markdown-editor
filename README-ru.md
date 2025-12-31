@@ -64,11 +64,10 @@ function Editor({onSubmit}) {
 
 ### Разработка
 
-Для запуска Storybook в режиме разработки выполните следующую команду:
-
-```shell
-npm start
-```
+1. Установите оркжуение Nodejs, нужная версия указано в файле `.nvmrc`. Мы рекомендуем использовать [NVM](https://github.com/nvm-sh/nvm) или похожий инструмент.
+2. Установите [pnpm](https://pnpm.io/installation), нужная версия указана в файле `package.json` в поле "packageManager".
+3. Установите зависимости: `pnpm i`
+4. Запустите дев-сервер Storybook: `pnpm start`
 
 ### i18n
 

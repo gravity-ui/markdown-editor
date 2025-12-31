@@ -7,7 +7,13 @@ Visual testing is performed by comparing reference and generated screenshots. Sc
 
 ## Running Tests
 
-Available commands:
+From root of monorepository:
+```shell
+pnpm run test:e2e                        # Run tests in Docker
+pnpm run test:e2e:report                 # Display test results report
+```
+
+Available commands from `demo/` subpackage:
 
 ```shell
 pnpm run playwright:install              # Install Playwright and browsers

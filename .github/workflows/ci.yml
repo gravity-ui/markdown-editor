@@ -23,7 +23,7 @@ jobs:
           cache: pnpm
 
       - name: Install dependencies
-        run: pnpm run deps:ci
+        run: pnpm run ci:deps
 
       - name: Lint Files
         run: pnpm run lint
@@ -48,13 +48,13 @@ jobs:
           cache: pnpm
 
       - name: Install dependencies
-        run: pnpm run deps:ci
+        run: pnpm run ci:deps
 
       - name: Unit Tests
-        run: pnpm run test
+        run: pnpm ci:test:unit
 
       - name: ESBuild compatability
-        run: pnpm run test:esbuild
+        run: pnpm ci:test:esbuild
 
   check_circular_deps:
     name: Check Circular Dependencies
@@ -73,7 +73,7 @@ jobs:
           cache: pnpm
 
       - name: Install dependencies
-        run: pnpm run deps:ci
+        run: pnpm run ci:deps
 
       - name: Check circular dependencies
-        run: pnpm run check-circular-deps
+        run: pnpm ci:test:circular-deps
