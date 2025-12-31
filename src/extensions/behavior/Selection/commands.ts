@@ -114,11 +114,48 @@ export function findFakeParaPosClosestToPos(
 
         if (dir === 'before') {
             if (isFirstChild || !isTextblock(parent.child(index - 1))) {
-                return $pos.doc.resolve($pos.before(depth));
+                const $target = $pos.doc.resolve($pos.before(depth));
+
+                const prevNode = $target.nodeBefore;
+                const nextNode = $target.nodeAfter;
+                if (prevNode && nextNode) {
+                    const prevIsBlockContainer =
+                        prevNode.isBlock && prevNode.type.spec.content?.includes('block');
+                    const nextIsBlockContainer =
+                        nextNode.isBlock && nextNode.type.spec.content?.includes('block');
+
+                    if (prevIsBlockContainer && nextIsBlockContainer) {
+                        // skip this depth, try next one
+                        continue;
+                    }
+                }
+
+                return $target;
             }
         } else if (dir === 'after') {
             if (isLastChild || !isTextblock(parent.child(index + 1))) {
-                return $pos.doc.resolve($pos.after(depth));
+                const $target = $pos.doc.resolve($pos.after(depth));
+
+                const prevNode = $target.nodeBefore;
+                const nextNode = $target.nodeAfter;
+
+                if (!nextNode && isLastChild && depth > 1) {
+                    continue;
+                }
+
+                if (prevNode && nextNode && isLastChild && depth > 1) {
+                    const prevIsBlockContainer =
+                        prevNode.isBlock && prevNode.type.spec.content?.includes('block');
+                    const nextIsBlockContainer =
+                        nextNode.isBlock && nextNode.type.spec.content?.includes('block');
+
+                    if (prevIsBlockContainer && nextIsBlockContainer) {
+                        // skip this depth, try next one
+                        continue;
+                    }
+                }
+
+                return $target;
             }
         }
 
