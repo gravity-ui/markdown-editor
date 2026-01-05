@@ -89,11 +89,13 @@ export const CodeBlockHighlight: ExtensionAuto<CodeBlockHighlightOptions> = (bui
                                     for (const alias of defs.aliases) {
                                         mapping[alias] = lang;
                                     }
-                                }
                             }
-
-                            view?.dispatch(view.state.tr.setMeta(key, {modulesLoaded}));
                         }
+
+                        if (view && !view.isDestroyed) {
+                            view.dispatch(view.state.tr.setMeta(key, {modulesLoaded}));
+                        }
+                    }
                     });
                     return getDecorations(state.doc);
                 },
