@@ -69,6 +69,7 @@ export const EditorSettings = memo<EditorSettingsProps>(function EditorSettings(
                             className={bSettings('preview-button')}
                             onClick={() => onShowPreviewChange?.(!showPreview)}
                             selected={showPreview}
+                            aria-label={i18n('preview_hint')}
                         >
                             <Icon data={Eye} />
                         </Button>
@@ -86,6 +87,7 @@ export const EditorSettings = memo<EditorSettingsProps>(function EditorSettings(
                         ref={setChevronElement}
                         qa="g-md-settings-button"
                         className={bSettings('dropdown-button')}
+                        aria-label={i18n('settings_label')}
                     >
                         <Icon data={Gear} />
                     </Button>
