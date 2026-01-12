@@ -1,4 +1,4 @@
-import * as React from 'react';
+import {useCallback} from 'react';
 
 import {
     type GalleryItemAction,
@@ -13,6 +13,7 @@ import {useToaster} from '@gravity-ui/uikit';
 import {i18n} from 'src/i18n/gallery';
 
 import {extensionRegex, supportedExtensions, supportedVideoExtensions} from './constants';
+import {buildLinkObject} from './helpers';
 import type {FilesGalleryItemType, GalleryItemPropsWithUrl, UseFilesGalleryOptions} from './types';
 
 export function useFilesGallery(
@@ -28,40 +29,32 @@ export function useFilesGallery(
     const toaster = useToaster();
 
     return {
-        openFilesGallery: React.useCallback(
+        openFilesGallery: useCallback(
             (event: React.MouseEvent<HTMLDivElement>) => {
                 if (!(event.target instanceof HTMLElement)) {
                     return false;
                 }
 
-                let fileLink = '';
+                if (event.target.tagName === 'IMG' && event.target.closest('a')) return false;
 
-                if (event.target.tagName === 'IMG' && !event.target.closest('a')) {
-                    fileLink = event.target.getAttribute('src') ?? '';
-                } else if (event.target.tagName === 'A') {
-                    fileLink = event.target.getAttribute('href') ?? '';
-                }
+                const targetFile = buildLinkObject(event.target);
 
-                if (!fileLink) {
-                    return false;
-                }
+                if (!targetFile || !targetFile.link) return false;
 
                 const filesFromContent = [
                     ...(event.currentTarget?.querySelectorAll('img,a') ?? []),
                 ].reduce<GalleryItemPropsWithUrl[]>((result, element) => {
-                    const isImage = element.tagName === 'IMG';
-                    const link = isImage
-                        ? element.getAttribute('src')
-                        : element.getAttribute('href');
+                    const linkObj = buildLinkObject(element);
 
-                    if (link && !customFiles?.some((item) => item.url === link)) {
-                        const extension = link.match(extensionRegex)?.[0] || '';
+                    if (linkObj?.link && !customFiles?.some((item) => item.url === linkObj.link)) {
+                        const extension =
+                            linkObj.mimetype?.match(extensionRegex)?.[0] ||
+                            linkObj.link.match(extensionRegex)?.[0] ||
+                            '';
 
-                        if (isImage || supportedExtensions.includes(extension)) {
-                            const name =
-                                (isImage
-                                    ? element.getAttribute('alt')
-                                    : element.getAttribute('title')) || '';
+                        if (linkObj.type === 'image' || supportedExtensions.includes(extension)) {
+                            const link = linkObj.link;
+                            const name = linkObj.name || '';
 
                             const filesGalleryItemType: FilesGalleryItemType =
                                 supportedVideoExtensions.includes(extension) ? 'video' : 'image';
@@ -127,7 +120,7 @@ export function useFilesGallery(
 
                 const files = [...(customFiles ?? []), ...filesFromContent];
 
-                const initialItemIndex = files.findIndex((item) => item.url === fileLink);
+                const initialItemIndex = files.findIndex((item) => item.url === targetFile.link);
 
                 if (initialItemIndex !== -1) {
                     event.preventDefault();
