@@ -92,7 +92,9 @@ export const CodeBlockHighlight: ExtensionAuto<CodeBlockHighlightOptions> = (bui
                                 }
                             }
 
-                            view?.dispatch(view.state.tr.setMeta(key, {modulesLoaded}));
+                            if (view && !view.isDestroyed) {
+                                view.dispatch(view.state.tr.setMeta(key, {modulesLoaded}));
+                            }
                         }
                     });
                     return getDecorations(state.doc);
