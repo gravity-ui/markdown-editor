@@ -1,6 +1,11 @@
+import {isMac} from 'src/utils';
+
 export const supportedImageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'avif', 'bmp'];
 
-export const supportedVideoExtensions = ['mp4', 'webm', 'ogg'];
+const commonVideoExtensions = ['mp4', 'webm', 'ogg'];
+const platformVideoExtensions = isMac() ? ['mov'] : [];
+
+export const supportedVideoExtensions = [...commonVideoExtensions, ...platformVideoExtensions];
 
 export const supportedExtensions = [...supportedImageExtensions, ...supportedVideoExtensions];
 

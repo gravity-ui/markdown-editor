@@ -1,8 +1,14 @@
-import {resolve, dirname} from 'node:path';
-import {fileURLToPath} from 'node:url';
 import {createRequire} from 'node:module';
-import webpack from 'webpack';
+import {dirname, resolve} from 'node:path';
+import {fileURLToPath} from 'node:url';
+
 import type {StorybookConfig} from '@storybook/react-webpack5';
+import webpack from 'webpack';
+
+import {generateDocs} from './generateDocs';
+
+// generate documentation before initialization
+await generateDocs();
 
 const require = createRequire(import.meta.url);
 const __filename = fileURLToPath(import.meta.url);
@@ -18,7 +24,6 @@ const config: StorybookConfig = {
     },
     stories: ['../demo/**/*.mdx', '../demo/**/*.stories.@(js|jsx|ts|tsx)'],
     addons: [
-        './addons/generateDocs.ts',
         '@storybook/preset-scss',
         '@storybook/addon-webpack5-compiler-babel',
         '@storybook/addon-docs',
