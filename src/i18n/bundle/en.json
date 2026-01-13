@@ -8,6 +8,6 @@
   "split-mode-text": "Preview",
   "settings_split-mode-hint": "Splitting the editor into two windows: preview and editing",
   "markup_placeholder": "Add your markup here",
-  "preview_hint": "Preview",
+  "preview_label": "Preview",
   "settings_label": "Settings"
 }
