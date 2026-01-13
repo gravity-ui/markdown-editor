@@ -58,7 +58,7 @@ export const EditorSettings = memo<EditorSettingsProps>(function EditorSettings(
                     <ActionTooltip
                         openDelay={ToolbarTooltipDelay.Open}
                         closeDelay={ToolbarTooltipDelay.Close}
-                        title={i18n('preview_hint')}
+                        title={i18n('preview_label')}
                         hotkey="mod+shift+p"
                     >
                         <Button
@@ -69,6 +69,7 @@ export const EditorSettings = memo<EditorSettingsProps>(function EditorSettings(
                             className={bSettings('preview-button')}
                             onClick={() => onShowPreviewChange?.(!showPreview)}
                             selected={showPreview}
+                            aria-label={i18n('preview_label')}
                         >
                             <Icon data={Eye} />
                         </Button>
@@ -86,6 +87,7 @@ export const EditorSettings = memo<EditorSettingsProps>(function EditorSettings(
                         ref={setChevronElement}
                         qa="g-md-settings-button"
                         className={bSettings('dropdown-button')}
+                        aria-label={i18n('settings_label')}
                     >
                         <Icon data={Gear} />
                     </Button>

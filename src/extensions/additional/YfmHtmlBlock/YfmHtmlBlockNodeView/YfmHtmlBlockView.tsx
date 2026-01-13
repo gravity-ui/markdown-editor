@@ -301,6 +301,7 @@ export const YfmHtmlBlockView: React.FC<{
                     ref={setAnchorElement}
                     size="s"
                     className={STOP_EVENT_CLASSNAME}
+                    aria-label={i18n('actions')}
                 >
                     <Icon data={DotsIcon} className={STOP_EVENT_CLASSNAME} />
                 </Button>
