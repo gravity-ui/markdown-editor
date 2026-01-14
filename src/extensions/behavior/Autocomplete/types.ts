@@ -9,8 +9,10 @@ export type {
 
 export {ActionKind as AutocompleteActionKind} from 'prosemirror-autocomplete';
 
-export interface AutocompleteHandler
-    extends Pick<Options, 'onArrow' | 'onClose' | 'onEnter' | 'onFilter' | 'onOpen'> {
+export interface AutocompleteHandler extends Pick<
+    Options,
+    'onArrow' | 'onClose' | 'onEnter' | 'onFilter' | 'onOpen'
+> {
     onDestroy?: () => void;
 }
 

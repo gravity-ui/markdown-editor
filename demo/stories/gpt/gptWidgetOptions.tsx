@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import type {GptWidgetOptions} from 'src/index';
 
 const gptRequestHandler = async ({

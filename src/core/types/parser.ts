@@ -1,6 +1,8 @@
-import type {Match} from 'linkify-it'; // eslint-disable-line import/no-extraneous-dependencies
+import type MarkdownIt from 'markdown-it';
 import type Token from 'markdown-it/lib/token';
 import type {Node} from 'prosemirror-model';
+
+export type LinkMatch = Readonly<NonNullable<ReturnType<MarkdownIt['linkify']['match']>>[number]>;
 
 export interface Parser {
     /** Parse raw markup to prosemirror's root node */
@@ -10,7 +12,7 @@ export interface Parser {
     validateLink(url: string): boolean;
     normalizeLink(url: string): string;
     normalizeLinkText(url: string): string;
-    matchLinks(text: string): Readonly<Match>[] | null;
+    matchLinks(text: string): LinkMatch[] | null;
 }
 
 export interface ParserToken {

@@ -10,17 +10,50 @@ jobs:
   release:
     runs-on: ubuntu-latest
     steps:
-      - name: Release from ${{ github.ref_name }}
-        uses: gravity-ui/release-action@v1
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
         with:
-          github-token: ${{ secrets.GRAVITY_UI_BOT_GITHUB_TOKEN }}
-          npm-token: ${{ secrets.GRAVITY_UI_BOT_NPM_TOKEN }}
-          node-version: 24
+          node-version-file: '.nvmrc'
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm run deps:ci
+
+      - name: Run tests
+        shell: bash
+        run: pnpm test
+
+      - name: Get package info
+        uses: codex-team/action-nodejs-package-info@v1.1
+        id: package
+
+      - name: Release please
+        uses: google-github-actions/release-please-action@v3
+        id: release
+        with:
+          token: ${{ secrets.GRAVITY_UI_BOT_GITHUB_TOKEN }}
+          release-type: node
+          package-name: ${{ steps.package.outputs.name }}
+          bump-minor-pre-major: true
           default-branch: ${{ github.ref_name != 'main' && github.ref_name || null }}
-          npm-dist-tag: ${{ github.ref_name != 'main' && 'untagged' || 'latest' }}
           changelog-types: >
             [{"type":"feat","section":"Features","hidden":false},
              {"type":"fix","section":"Bug Fixes","hidden":false},
              {"type":"refactor","section":"Refactoring","hidden":false},
              {"type":"perf","section":"Performance Improvements","hidden":false}]
-
+      
+      - name: Publish version
+        if: steps.release.outputs.release_created == 'true'
+        shell: bash
+        run: |
+          echo "steps.release.outputs.release_created: ${{ steps.release.outputs.release_created }}"
+          pnpm publish --tag ${{ github.ref_name != 'main' && 'untagged' || 'latest' }} --access public --report-summary
+          cat pnpm-publish-summary.json
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GRAVITY_UI_BOT_NPM_TOKEN }}

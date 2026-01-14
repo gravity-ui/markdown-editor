@@ -5,11 +5,11 @@ import {CutAttr, CutNode, YfmCutClassName} from './const';
 
 export type YfmCutSchemaOptions = {
     /**
-     * @deprecated: use placeholder option in BehaviorPreset instead.
+     * @deprecated use placeholder option in BehaviorPreset instead.
      */
     yfmCutTitlePlaceholder?: NonNullable<NodeSpec['placeholder']>['content'];
     /**
-     * @deprecated: use placeholder option in BehaviorPreset instead.
+     * @deprecated use placeholder option in BehaviorPreset instead.
      */
     yfmCutContentPlaceholder?: NonNullable<NodeSpec['placeholder']>['content'];
 };

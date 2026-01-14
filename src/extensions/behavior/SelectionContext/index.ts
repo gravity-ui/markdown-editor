@@ -29,13 +29,11 @@ export type SelectionContextOptions = {
     config?: ContextConfig;
     /**
      * Placement of context popup
-     *
      * @default 'bottom'
      */
     placement?: 'top' | 'bottom';
     /**
      * Prevents context popup from overflowing
-     *
      * @default false
      */
     flip?: boolean;

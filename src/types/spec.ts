@@ -18,7 +18,6 @@ declare module 'prosemirror-model' {
 
         /**
          * Set `false` to disable gapcursor selection inside this node.
-         *
          * @default true
          */
         gapcursor?: boolean;

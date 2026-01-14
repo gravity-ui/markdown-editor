@@ -8,8 +8,10 @@ import {YfmHtmlBlockSpecs} from './YfmHtmlBlockSpecs';
 import {YfmHtmlBlockAction} from './YfmHtmlBlockSpecs/const';
 import {addYfmHtmlBlock} from './actions';
 
-export interface YfmHtmlBlockOptions
-    extends Omit<PluginOptions, 'runtimeJsPath' | 'containerClasses' | 'bundle' | 'embeddingMode'> {
+export interface YfmHtmlBlockOptions extends Omit<
+    PluginOptions,
+    'runtimeJsPath' | 'containerClasses' | 'bundle' | 'embeddingMode'
+> {
     useConfig?: () => IHTMLIFrameElementConfig | undefined;
     autoSave?: {
         enabled: boolean;

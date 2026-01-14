@@ -16,11 +16,11 @@ export const defDescType = nodeTypeFactory(DeflistNode.Desc);
 
 export type DeflistSpecsOptions = {
     /**
-     * @deprecated: use placeholder option in BehaviorPreset instead.
+     * @deprecated use placeholder option in BehaviorPreset instead.
      */
     deflistTermPlaceholder?: NonNullable<NodeSpec['placeholder']>['content'];
     /**
-     * @deprecated: use placeholder option in BehaviorPreset instead.
+     * @deprecated use placeholder option in BehaviorPreset instead.
      */
     deflistDescPlaceholder?: NonNullable<NodeSpec['placeholder']>['content'];
 };
