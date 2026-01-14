@@ -30,6 +30,7 @@ jobs:
         shell: bash
         run: |
           pnpm pkg set version="0.0.0-rc-$(git branch --show-current | tr '/' '-')-$(date '+%Y%m%d%H%M')"
+          pnpm config set '//registry.npmjs.org/:_authToken' "${NODE_AUTH_TOKEN}"
           pnpm publish --no-tag --report-summary --no-git-checks
           cat pnpm-publish-summary.json
         env:
