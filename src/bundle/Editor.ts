@@ -307,6 +307,7 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
                         }).concat(this.#markupConfig?.languageData || []),
                     },
                     autocompletion: this.#markupConfig.autocompletion,
+                    tooltips: this.#markupConfig.tooltips,
                     directiveSyntax: this.directiveSyntax,
                     receiver: this,
                     searchPanel: this.#markupConfig.searchPanel,
