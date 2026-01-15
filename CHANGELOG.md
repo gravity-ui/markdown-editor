@@ -1,5 +1,12 @@
 # Changelog
 
+## [15.28.1](https://github.com/gravity-ui/markdown-editor/compare/v15.28.0...v15.28.1) (2026-01-15)
+
+
+### Bug Fixes
+
+* **useFilesGallery:** do not open the gallery if the user wants to open file in a new tab ([#925](https://github.com/gravity-ui/markdown-editor/issues/925)) ([cac5cd5](https://github.com/gravity-ui/markdown-editor/commit/cac5cd5a605b7d04777bda17ae460e69a99e3d6a))
+
 ## [15.28.0](https://github.com/gravity-ui/markdown-editor/compare/v15.27.2...v15.28.0) (2026-01-13)
 
 
