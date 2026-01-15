@@ -24,7 +24,7 @@ export const gravityHighlightStyle = HighlightStyle.define(
 );
 
 export const gravityTheme = EditorView.baseTheme({
-    '&': {
+    '&.cm-editor': {
         overflow: 'hidden',
         height: '100%',
     },
