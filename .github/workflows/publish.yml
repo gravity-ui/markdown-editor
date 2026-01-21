@@ -68,7 +68,3 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GRAVITY_UI_BOT_NPM_TOKEN }}
           NPM_CONFIG_PROVENANCE: true
-
-      - name: Show publish summary
-        if: ${{ github.event.inputs.dry_run == 'false' }}
-        run: cat pnpm-publish-summary.json
