@@ -1,0 +1,70 @@
+# This workflow is used to publish the packages to npm.
+# This workflow must be run manually after the release workflow is run.
+
+name: Publish
+
+on:
+  # Manually trigger the publish workflow
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Override version to publish'
+        required: true
+        type: string
+        default: ''
+      tag:
+        description: 'Publish with tag'
+        required: true
+        type: choice
+        default: 'untagged'
+        options:
+          - untagged
+          - latest
+      dry_run:
+        description: 'Dry run'
+        required: true
+        type: boolean
+        default: true
+
+jobs:
+  publish:
+    name: Publish
+    runs-on: ubuntu-latest
+
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version-file: '.nvmrc'
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm run deps:ci
+
+      - name: Configure npm authentication
+        shell: bash
+        run: echo "//registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}" > ~/.npmrc
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GRAVITY_UI_BOT_NPM_TOKEN }}
+
+      - name: Set package version
+        if: ${{ github.event.inputs.version != '' }}
+        shell: bash
+        run: pnpm pkg set version="${{ github.event.inputs.version }}"
+
+      - name: Publish package
+        shell: bash
+        run: pnpm publish --tag ${{ github.event.inputs.tag }} --access public --report-summary --no-git-checks --dry-run ${{ github.event.inputs.dry_run }}
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GRAVITY_UI_BOT_NPM_TOKEN }}
+          NPM_CONFIG_PROVENANCE: true
+
+      - name: Show publish report
+        run: cat pnpm-publish-summary.json
