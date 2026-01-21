@@ -9,7 +9,7 @@ on:
     inputs:
       version:
         description: 'Override version to publish'
-        required: true
+        required: false
         type: string
         default: ''
       tag:
@@ -30,7 +30,6 @@ jobs:
   publish:
     name: Publish
     runs-on: ubuntu-latest
-
     timeout-minutes: 10
     steps:
       - name: Checkout
