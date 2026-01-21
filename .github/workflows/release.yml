@@ -51,10 +51,4 @@ jobs:
       - name: Publish version
         if: steps.release.outputs.release_created == 'true'
         shell: bash
-        run: |
-          echo "steps.release.outputs.release_created: ${{ steps.release.outputs.release_created }}"
-          pnpm config set '//registry.npmjs.org/:_authToken' "${NODE_AUTH_TOKEN}"
-          pnpm publish --tag ${{ github.ref_name != 'main' && 'untagged' || 'latest' }} --access public --report-summary
-          cat pnpm-publish-summary.json
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.GRAVITY_UI_BOT_NPM_TOKEN }}
+        run: echo "Please run publish workflow manually"

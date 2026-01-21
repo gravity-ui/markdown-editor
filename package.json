@@ -24,7 +24,7 @@
     "packageManager": {
       "name": "pnpm",
       "version": "10.17.1",
-      "onFail": "error"
+      "onFail": "warn"
     }
   },
   "scripts": {
