@@ -26,6 +26,10 @@ on:
         type: boolean
         default: true
 
+permissions:
+  contents: read
+  id-token: write  # Required for OIDC
+
 jobs:
   publish:
     name: Publish
@@ -65,5 +69,6 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.GRAVITY_UI_BOT_NPM_TOKEN }}
           NPM_CONFIG_PROVENANCE: true
 
-      - name: Show publish report
+      - name: Show publish summary
+        if: ${{ github.event.inputs.dry_run == 'false' }}
         run: cat pnpm-publish-summary.json
