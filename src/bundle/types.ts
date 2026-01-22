@@ -157,6 +157,8 @@ export type MarkdownEditorMarkupConfig = {
     languageData?: YfmLangOptions['languageData'];
     /** Config for @codemirror/autocomplete https://codemirror.net/docs/ref/#autocomplete.autocompletion%5Econfig */
     autocompletion?: CreateCodemirrorParams['autocompletion'];
+    /** Config for tooltips https://codemirror.net/docs/ref/#view.tooltips */
+    tooltips?: CreateCodemirrorParams['tooltips'];
     /**
      * The function, used to determine if the pasted text is the image url and should be inserted as an image
      */
