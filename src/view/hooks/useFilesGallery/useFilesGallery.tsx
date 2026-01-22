@@ -37,6 +37,11 @@ export function useFilesGallery(
 
                 if (event.target.tagName === 'IMG' && event.target.closest('a')) return false;
 
+                // Opening the context menu or opening the link in the new tab
+                if (event.ctrlKey || event.metaKey) {
+                    return false;
+                }
+
                 const targetFile = buildLinkObject(event.target);
 
                 if (!targetFile || !targetFile.link) return false;
