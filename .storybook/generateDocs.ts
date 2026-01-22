@@ -1,13 +1,13 @@
 import * as fs from 'fs/promises';
 import * as path from 'path';
-import {fileURLToPath} from 'url';
 import {dirname} from 'path';
+import {fileURLToPath} from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-const inputDir = path.join(__dirname, '../../docs');
-const outputDir = path.join(__dirname, '../../demo/docs');
+const inputDir = path.join(__dirname, '../docs');
+const outputDir = path.join(__dirname, '../demo/docs');
 
 /**
  * Converts a kebab-case string to camelCase
@@ -63,7 +63,7 @@ const clearOutputDir = async (): Promise<void> => {
 /**
  * Generate MDX files from Markdown
  */
-const generateDocs = async (): Promise<void> => {
+export const generateDocs = async (): Promise<void> => {
     console.log('Running docs:generate...');
     try {
         await clearOutputDir();

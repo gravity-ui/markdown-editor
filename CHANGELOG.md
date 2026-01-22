@@ -1,5 +1,35 @@
 # Changelog
 
+## [15.29.0](https://github.com/gravity-ui/markdown-editor/compare/v15.28.1...v15.29.0) (2026-01-22)
+
+
+### Features
+
+* **bundle:** tidy up the layout of the settings panel contents ([#933](https://github.com/gravity-ui/markdown-editor/issues/933)) ([6273508](https://github.com/gravity-ui/markdown-editor/commit/6273508a8a9b32990d6032d498f539edb2423e34))
+* **markup:** adjust overflow to prevent tooltip clipping ([#927](https://github.com/gravity-ui/markdown-editor/issues/927)) ([fdf0867](https://github.com/gravity-ui/markdown-editor/commit/fdf0867c2a44cc5295fd4fcd2088b1cac2331c20))
+* **markup:** support codemirror tooltips config ([#923](https://github.com/gravity-ui/markdown-editor/issues/923)) ([089bd64](https://github.com/gravity-ui/markdown-editor/commit/089bd64eb75651614c5dbba5408c426bacc42012))
+
+## [15.28.1](https://github.com/gravity-ui/markdown-editor/compare/v15.28.0...v15.28.1) (2026-01-15)
+
+
+### Bug Fixes
+
+* **useFilesGallery:** do not open the gallery if the user wants to open file in a new tab ([#925](https://github.com/gravity-ui/markdown-editor/issues/925)) ([cac5cd5](https://github.com/gravity-ui/markdown-editor/commit/cac5cd5a605b7d04777bda17ae460e69a99e3d6a))
+
+## [15.28.0](https://github.com/gravity-ui/markdown-editor/compare/v15.27.2...v15.28.0) (2026-01-13)
+
+
+### Features
+
+* improve button a11y with aria labels ([#920](https://github.com/gravity-ui/markdown-editor/issues/920)) ([4bde8ba](https://github.com/gravity-ui/markdown-editor/commit/4bde8ba84023d1e220a6d80f9562e324acb14dc8))
+* **view:** add support of yfm-files to `useFilesGallery()` hook ([#917](https://github.com/gravity-ui/markdown-editor/issues/917)) ([37e078c](https://github.com/gravity-ui/markdown-editor/commit/37e078ca8c4e6bfecdb4239d4bb852791490f7fb))
+
+
+### Bug Fixes
+
+* **CodeBlock:** prevent dispatch on destroyed `EditorView` ([#916](https://github.com/gravity-ui/markdown-editor/issues/916)) ([721b275](https://github.com/gravity-ui/markdown-editor/commit/721b275692a61404a036b97dbab9041d22be169b))
+* **useFilesGallery:** add mov extension to the supported gallery video extensions ([#921](https://github.com/gravity-ui/markdown-editor/issues/921)) ([ec286eb](https://github.com/gravity-ui/markdown-editor/commit/ec286eb46f54ec3e30d3b82a30752d5c0a6ca54f))
+
 ## [15.27.2](https://github.com/gravity-ui/markdown-editor/compare/v15.27.1...v15.27.2) (2025-12-19)
 
 

@@ -5,14 +5,18 @@ import {memo, useState} from 'react';
 import {Eye, Gear, LogoMarkdown} from '@gravity-ui/icons';
 import {
     ActionTooltip,
+    Box,
     Button,
     Checkbox,
+    type CheckboxProps,
     HelpMark,
     Icon,
     Menu,
     Popup,
     type PopupPlacement,
     type QAProps,
+    Text,
+    sp,
 } from '@gravity-ui/uikit';
 
 import {LAYOUT} from 'src/common/layout';
@@ -52,13 +56,13 @@ export const EditorSettings = memo<EditorSettingsProps>(function EditorSettings(
         settingsVisible === true || (Array.isArray(settingsVisible) && settingsVisible.length > 0);
 
     return (
-        <div className={bSettings(null, [className])}>
+        <div className={bSettings(null, className)}>
             {renderPreviewButton && (
                 <>
                     <ActionTooltip
                         openDelay={ToolbarTooltipDelay.Open}
                         closeDelay={ToolbarTooltipDelay.Close}
-                        title={i18n('preview_hint')}
+                        title={i18n('preview_label')}
                         hotkey="mod+shift+p"
                     >
                         <Button
@@ -69,6 +73,7 @@ export const EditorSettings = memo<EditorSettingsProps>(function EditorSettings(
                             className={bSettings('preview-button')}
                             onClick={() => onShowPreviewChange?.(!showPreview)}
                             selected={showPreview}
+                            aria-label={i18n('preview_label')}
                         >
                             <Icon data={Eye} />
                         </Button>
@@ -86,6 +91,7 @@ export const EditorSettings = memo<EditorSettingsProps>(function EditorSettings(
                         ref={setChevronElement}
                         qa="g-md-settings-button"
                         className={bSettings('dropdown-button')}
+                        aria-label={i18n('settings_label')}
                     >
                         <Icon data={Gear} />
                     </Button>
@@ -204,33 +210,56 @@ const SettingsContent: React.FC<SettingsContentProps> = function SettingsContent
                 <div className={bContent('separator')} />
             )}
             {showToolbarSetting && !showPreview && (
-                <div className={bContent('toolbar')}>
-                    <Checkbox
-                        size="m"
-                        checked={toolbarVisibility}
-                        onUpdate={onToolbarVisibilityChange}
-                    >
-                        {i18n('settings_menubar')}
-                    </Checkbox>
-                    <div className={bContent('toolbar-hint')}>{i18n('settings_hint')}</div>
-                </div>
+                <CheckboxWithHint
+                    checked={toolbarVisibility}
+                    className={bContent('toolbar')}
+                    onUpdate={onToolbarVisibilityChange}
+                    title={i18n('settings_menubar')}
+                    hint={i18n('settings_hint')}
+                />
             )}
             {showSplitModeSetting && splitMode && (
-                <div className={bContent('split-mode')}>
-                    <Checkbox
-                        size="m"
-                        disabled={mode !== 'markup'}
-                        checked={splitModeEnabled}
-                        onUpdate={onSplitModeChange ?? noop}
-                    >
-                        {i18n('settings_split-mode')}
-                    </Checkbox>
-                    <div className={bContent('toolbar-hint')}>
-                        {i18n('settings_split-mode-hint')}
-                    </div>
-                </div>
+                <CheckboxWithHint
+                    checked={splitModeEnabled}
+                    disabled={mode !== 'markup'}
+                    className={bContent('split-mode')}
+                    onUpdate={onSplitModeChange ?? noop}
+                    title={i18n('settings_split-mode')}
+                    hint={i18n('settings_split-mode-hint')}
+                />
             )}
-            <span className={bContent('version')}>{VERSION}</span>
+            <Text variant="code-inline-1" className={bContent('version')}>
+                {VERSION}
+            </Text>
         </div>
     );
 };
+
+type CheckboxWithHintProps = {
+    checked?: boolean;
+    disabled?: boolean;
+    onUpdate: CheckboxProps['onUpdate'];
+    title: string;
+    hint: string;
+    className: string;
+};
+
+function CheckboxWithHint({
+    checked,
+    disabled,
+    onUpdate,
+    title,
+    hint,
+    className,
+}: CheckboxWithHintProps) {
+    return (
+        <Box spacing={{px: 4, pt: 2, pb: 3}} className={bContent('check-box', className)}>
+            <Checkbox size="m" disabled={disabled} checked={checked} onUpdate={onUpdate}>
+                {title}
+            </Checkbox>
+            <Text as="div" color="secondary" className={bContent('check-hint', sp({mt: 1, pl: 6}))}>
+                {hint}
+            </Text>
+        </Box>
+    );
+}

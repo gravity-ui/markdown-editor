@@ -8,5 +8,6 @@
   "settings_split-mode-hint": "Разделение редактора на два окна: предпросмотр и редактирование",
   "split-mode-text": "Предпросмотр",
   "markup_placeholder": "Добавьте вашу разметку",
-  "preview_hint": "Предпросмотр"
+  "preview_label": "Предпросмотр",
+  "settings_label": "Настройки"
 }
