@@ -79,7 +79,7 @@ importers:
         version: 0.16.27
       lodash:
         specifier: ^4.17.21
-        version: 4.17.21
+        version: 4.17.23
       markdown-it:
         specifier: ^13.0.0
         version: 13.0.2
@@ -424,6 +424,10 @@ packages:
 
   '@babel/code-frame@7.27.1':
     resolution: {integrity: sha512-cjQ7ZlQ0Mv3b47hABuTevyTuYN4i+loJKGeV9flcCgIK37cCXRh+L1bd3iBHlynerhQ7BhCkn2BPbQUL+rGqFg==}
+    engines: {node: '>=6.9.0'}
+
+  '@babel/code-frame@7.28.6':
+    resolution: {integrity: sha512-JYgintcMjRiCvS8mMECzaEn+m3PfoQiyqukOMCCVQtoJGYJw8j/8LBJEiqkHLkfwCcs74E3pbAUFNg7d9VNJ+Q==}
     engines: {node: '>=6.9.0'}
 
   '@babel/compat-data@7.28.5':
@@ -1073,6 +1077,10 @@ packages:
 
   '@babel/runtime@7.28.4':
     resolution: {integrity: sha512-Q/N6JNWvIvPnLDvjlE1OUBLPQHH6l3CltCEsHIujp45zQUSSh8K+gHnaEX45yAT1nyngnINhvWtzN+Nb9D8RAQ==}
+    engines: {node: '>=6.9.0'}
+
+  '@babel/runtime@7.28.6':
+    resolution: {integrity: sha512-05WQkdpL9COIMz4LjTxGpPNCdlpyimKppYNoJ5Di5EUObifl8t4tuLuUBBZEpoLYOmfvIWrsp9fCl0HoPRVTdA==}
     engines: {node: '>=6.9.0'}
 
   '@babel/template@7.27.2':
@@ -1740,6 +1748,9 @@ packages:
   '@jridgewell/sourcemap-codec@1.5.0':
     resolution: {integrity: sha512-gv3ZRaISU3fjPAgNsriBRqGWQL6quFx04YMPW/zD8XMLsU32mhCCbfbO6KZFLjvYpCZ8zyDEgqsgf+PwPaM7GQ==}
 
+  '@jridgewell/sourcemap-codec@1.5.5':
+    resolution: {integrity: sha512-cYQ9310grqxueWbl+WuIUIaiUaDcj7WOq5fVhEljNVgRfOUhY9fy2zTvfoqWsnebh8Sl70VScFbICvJnLKB0Og==}
+
   '@jridgewell/trace-mapping@0.3.31':
     resolution: {integrity: sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw==}
 
@@ -2297,6 +2308,9 @@ packages:
 
   '@types/estree@1.0.6':
     resolution: {integrity: sha512-AYnb1nQyY49te+VRAVgmzfcgjYS91mY5P0TKUDCLEM+gNnA+3T6rWITXRLYCpahpqSQbN5cE+gHpnPyXjHWxcw==}
+
+  '@types/estree@1.0.8':
+    resolution: {integrity: sha512-dWHzHa2WqEXI/O1E9OjrocMTKJl2mSrEolh1Iomrv6U+JuNwaHXsXx9bLu5gG7BUWFIN0skIQJQ/L1rIex4X6w==}
 
   '@types/expect@1.20.4':
     resolution: {integrity: sha512-Q5Vn3yjTDyCMV50TB6VRIbQNxSE4OmZR86VSbGaNpfUolm0iePBB4KdEEHmxoY5sT2+2DIvXW0rvMDP2nHZ4Mg==}
@@ -4154,8 +4168,8 @@ packages:
     resolution: {integrity: sha512-ca9pw9fomFcKPvFLXhBKUK90ZvGibiGOvRJNbjljY7s7uq/5YO4BOzcYtJqExdx99rF6aAcnRxHmcUHcz6sQsg==}
     engines: {node: '>=0.10'}
 
-  esrap@1.4.4:
-    resolution: {integrity: sha512-tDN6xP/r/b3WmdpWm7LybrD252hY52IokcycPnO+WHfhFF0+n5AWtcLLK7VNV6m0uYgVRhGVs8OkZwRyfC7HzQ==}
+  esrap@1.4.9:
+    resolution: {integrity: sha512-3OMlcd0a03UGuZpPeUC1HxR3nA23l+HEyCiZw3b3FumJIN9KphoGzDJKMXI1S72jVS1dsenDyQC0kJlO1U9E1g==}
 
   esrecurse@4.3.0:
     resolution: {integrity: sha512-KmfKL3b6G+RXvP8N1vr3Tq1kL/oCFgn2NYXEtqP8/L3pKapUA4G8cFVaoF3SU323CD4XypR/ffioHmkti6/Tag==}
@@ -5396,6 +5410,9 @@ packages:
   lodash@4.17.21:
     resolution: {integrity: sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==}
 
+  lodash@4.17.23:
+    resolution: {integrity: sha512-LgVTMpQtIopCi79SJeDiP0TfWi5CNEc/L/aRdTh3yIvmZXTnheWpKjSZhnvMl8iXbC1tFg9gdHHDMLoV7CnG+w==}
+
   log-symbols@4.1.0:
     resolution: {integrity: sha512-8XPvpAA8uyhfteu8pIvQxpJZ7SYYdpUivZpGy6sFsBuKRY/7rQGavedeB8aK+Zkyq6upMFVL/9AW6vOYzfRyLg==}
     engines: {node: '>=10'}
@@ -5428,6 +5445,9 @@ packages:
 
   magic-string@0.30.17:
     resolution: {integrity: sha512-sNPKHvyjVf7gyjwS4xGTaW/mCnF8wnjtifKBEhxfZ7E/S8tQ0rssrwGNn6q8JH/ohItJfSQp9mBtQYuTlH5QnA==}
+
+  magic-string@0.30.21:
+    resolution: {integrity: sha512-vd2F4YUyEXKGcLHoq+TEyCjxueSeHnFxyyjNp80yg0XV4vUhnDer/lvvlqM/arB5bXQN5K2/3oinyCRyx8T2CQ==}
 
   make-dir@2.1.0:
     resolution: {integrity: sha512-LS9X+dc8KLxXCb8dni79fLIIUA5VyZoyjSMCwTluaXA0o27cCK0bhXkpgw+sTXVpPy/lSO57ilRixqk0vDmtRA==}
@@ -7365,10 +7385,12 @@ packages:
   whatwg-encoding@2.0.0:
     resolution: {integrity: sha512-p41ogyeMUrw3jWclHWTQg1k05DSVXPLcVxRTYsXUk+ZooOCZLcoYgPZ/HL/D/N+uQPOtcp1me1WhBEaX02mhWg==}
     engines: {node: '>=12'}
+    deprecated: Use @exodus/bytes instead for a more spec-conformant and faster implementation
 
   whatwg-encoding@3.1.1:
     resolution: {integrity: sha512-6qN4hJdMwfYBtE3YBTTHhoeuUrDBPZmbQaxWAqSALV/MeEnR5z1xd8UKud2RAkFoPkmB+hli1TZSnyi84xz1vQ==}
     engines: {node: '>=18'}
+    deprecated: Use @exodus/bytes instead for a more spec-conformant and faster implementation
 
   whatwg-mimetype@3.0.0:
     resolution: {integrity: sha512-nt+N2dzIutVRxARx1nghPKGv1xHikU7HKdfafKkLNLindmPU/ch3U31NOCGGA/dmPcmb1VlofO0vnKAcsm0o/Q==}
@@ -7495,8 +7517,8 @@ packages:
     resolution: {integrity: sha512-4LCcse/U2MHZ63HAJVE+v71o7yOdIe4cZ70Wpf8D/IyjDKYQLV5GD46B+hSTjJsvV5PztjvHoU580EftxjDZFQ==}
     engines: {node: '>=12.20'}
 
-  zimmerframe@1.1.2:
-    resolution: {integrity: sha512-rAbqEGa8ovJy4pyBxZM70hg4pE6gDgaQ0Sl9M3enG3I0d6H4XSAM3GeNGLKnsBpuijUow064sf7ww1nutC5/3w==}
+  zimmerframe@1.1.4:
+    resolution: {integrity: sha512-B58NGBEoc8Y9MWWCQGl/gq9xBCe4IiKM0a2x7GZdQKOW5Exr8S1W24J6OgM1njK8xCRGvAJIL/MxXHf6SkmQKQ==}
 
 snapshots:
 
@@ -7517,6 +7539,12 @@ snapshots:
   '@antfu/utils@8.1.1': {}
 
   '@babel/code-frame@7.27.1':
+    dependencies:
+      '@babel/helper-validator-identifier': 7.28.5
+      js-tokens: 4.0.0
+      picocolors: 1.1.1
+
+  '@babel/code-frame@7.28.6':
     dependencies:
       '@babel/helper-validator-identifier': 7.28.5
       js-tokens: 4.0.0
@@ -8335,6 +8363,8 @@ snapshots:
 
   '@babel/runtime@7.28.4': {}
 
+  '@babel/runtime@7.28.6': {}
+
   '@babel/template@7.27.2':
     dependencies:
       '@babel/code-frame': 7.27.1
@@ -8885,7 +8915,7 @@ snapshots:
       '@gravity-ui/i18n': 1.8.0
       '@gravity-ui/icons': 2.13.0(react@18.2.0)
       '@gravity-ui/uikit': 7.13.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
-      lodash: 4.17.21
+      lodash: 4.17.23
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
       universal-cookie: 7.2.2
@@ -8893,7 +8923,7 @@ snapshots:
   '@gravity-ui/date-utils@2.5.6':
     dependencies:
       dayjs: 1.11.10
-      lodash: 4.17.21
+      lodash: 4.17.23
 
   '@gravity-ui/eslint-config@4.2.0(@types/eslint@8.44.1)(eslint@9.39.2(jiti@2.6.1))(prettier@3.7.4)(typescript@5.9.3)':
     dependencies:
@@ -8965,7 +8995,7 @@ snapshots:
       '@gravity-ui/icons': 2.13.0(react@18.2.0)
       '@tanstack/react-virtual': 3.13.8(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       blueimp-md5: 2.19.0
-      lodash: 4.17.21
+      lodash: 4.17.23
       rc-slider: 11.1.8(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       react: 18.2.0
       react-beautiful-dnd: 13.1.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -9222,6 +9252,8 @@ snapshots:
       '@jridgewell/trace-mapping': 0.3.31
 
   '@jridgewell/sourcemap-codec@1.5.0': {}
+
+  '@jridgewell/sourcemap-codec@1.5.5': {}
 
   '@jridgewell/trace-mapping@0.3.31':
     dependencies:
@@ -9693,8 +9725,8 @@ snapshots:
 
   '@testing-library/dom@10.4.1':
     dependencies:
-      '@babel/code-frame': 7.27.1
-      '@babel/runtime': 7.28.4
+      '@babel/code-frame': 7.28.6
+      '@babel/runtime': 7.28.6
       '@types/aria-query': 5.0.4
       aria-query: 5.3.0
       dom-accessibility-api: 0.5.16
@@ -9894,6 +9926,8 @@ snapshots:
       '@types/json-schema': 7.0.15
 
   '@types/estree@1.0.6': {}
+
+  '@types/estree@1.0.8': {}
 
   '@types/expect@1.20.4': {}
 
@@ -11949,7 +11983,7 @@ snapshots:
   eslint-plugin-lodash@8.0.0(eslint@9.39.2(jiti@2.6.1)):
     dependencies:
       eslint: 9.39.2(jiti@2.6.1)
-      lodash: 4.17.21
+      lodash: 4.17.23
 
   eslint-plugin-prettier@5.5.4(@types/eslint@8.44.1)(eslint-config-prettier@10.1.8(eslint@9.39.2(jiti@2.6.1)))(eslint@9.39.2(jiti@2.6.1))(prettier@3.7.4):
     dependencies:
@@ -12077,9 +12111,9 @@ snapshots:
     dependencies:
       estraverse: 5.3.0
 
-  esrap@1.4.4:
+  esrap@1.4.9:
     dependencies:
-      '@jridgewell/sourcemap-codec': 1.5.0
+      '@jridgewell/sourcemap-codec': 1.5.5
 
   esrecurse@4.3.0:
     dependencies:
@@ -12651,7 +12685,7 @@ snapshots:
     dependencies:
       '@types/html-minifier-terser': 6.1.0
       html-minifier-terser: 6.1.0
-      lodash: 4.17.21
+      lodash: 4.17.23
       pretty-error: 4.0.0
       tapable: 2.2.1
     optionalDependencies:
@@ -12888,7 +12922,7 @@ snapshots:
 
   is-reference@3.0.3:
     dependencies:
-      '@types/estree': 1.0.6
+      '@types/estree': 1.0.8
 
   is-regex@1.2.1:
     dependencies:
@@ -13634,6 +13668,8 @@ snapshots:
 
   lodash@4.17.21: {}
 
+  lodash@4.17.23: {}
+
   log-symbols@4.1.0:
     dependencies:
       chalk: 4.1.2
@@ -13670,6 +13706,10 @@ snapshots:
   magic-string@0.30.17:
     dependencies:
       '@jridgewell/sourcemap-codec': 1.5.0
+
+  magic-string@0.30.21:
+    dependencies:
+      '@jridgewell/sourcemap-codec': 1.5.5
 
   make-dir@2.1.0:
     dependencies:
@@ -14282,7 +14322,7 @@ snapshots:
 
   pretty-error@4.0.0:
     dependencies:
-      lodash: 4.17.21
+      lodash: 4.17.23
       renderkid: 3.0.0
 
   pretty-format@27.5.1:
@@ -14690,7 +14730,7 @@ snapshots:
       css-select: 4.3.0
       dom-converter: 0.2.0
       htmlparser2: 6.1.0
-      lodash: 4.17.21
+      lodash: 4.17.23
       strip-ansi: 6.0.1
 
   replace-ext@1.0.1: {}
@@ -15302,19 +15342,19 @@ snapshots:
   svelte@5.19.10:
     dependencies:
       '@ampproject/remapping': 2.3.0
-      '@jridgewell/sourcemap-codec': 1.5.0
-      '@types/estree': 1.0.6
+      '@jridgewell/sourcemap-codec': 1.5.5
+      '@types/estree': 1.0.8
       acorn: 8.15.0
       acorn-typescript: 1.4.13(acorn@8.15.0)
       aria-query: 5.3.2
       axobject-query: 4.1.0
       clsx: 2.1.1
       esm-env: 1.2.2
-      esrap: 1.4.4
+      esrap: 1.4.9
       is-reference: 3.0.3
       locate-character: 3.0.0
-      magic-string: 0.30.17
-      zimmerframe: 1.1.2
+      magic-string: 0.30.21
+      zimmerframe: 1.1.4
 
   sver@1.8.4:
     optionalDependencies:
@@ -15986,4 +16026,4 @@ snapshots:
 
   yocto-queue@1.2.2: {}
 
-  zimmerframe@1.1.2: {}
+  zimmerframe@1.1.4: {}
