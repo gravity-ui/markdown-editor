@@ -1,12 +1,6 @@
-@use '~@gravity-ui/uikit/styles/mixins' as uikit;
-
 .g-md-editor-settings {
     display: flex;
     flex-wrap: nowrap;
-
-    &__mode-button {
-        margin-right: 1px;
-    }
 
     &__preview-button {
         margin: 0 2px;
@@ -24,6 +18,11 @@
 .g-md-settings-content {
     width: 300px;
 
+    &__mode {
+        border-start-start-radius: inherit;
+        border-start-end-radius: inherit;
+    }
+
     &__mode-help {
         position: relative;
         top: 8px;
@@ -35,16 +34,10 @@
         border-bottom: 1px solid var(--g-color-line-generic);
     }
 
-    &__toolbar,
-    &__split-mode {
-        padding: 8px 16px 12px;
-    }
-
-    &__toolbar-hint {
-        margin-top: 3px;
-        padding-left: 19px;
-
-        color: var(--g-color-text-secondary);
+    &__check-box {
+        .g-control-label__text {
+            margin-left: calc(var(--g-spacing-2) + var(--g-spacing-half));
+        }
     }
 
     &__version {
@@ -55,7 +48,5 @@
         opacity: 0.03;
 
         transform: translateX(-50%);
-
-        @include uikit.text-code-inline-1();
     }
 }

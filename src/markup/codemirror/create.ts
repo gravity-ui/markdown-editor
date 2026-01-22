@@ -15,6 +15,7 @@ import {
     type KeyBinding,
     keymap,
     placeholder,
+    tooltips,
 } from '@codemirror/view';
 
 import {InputState} from 'src/utils/input-state';
@@ -62,6 +63,7 @@ import {type YfmLangOptions, yfmLang} from './yfm';
 export type {YfmLangOptions};
 
 type Autocompletion = Parameters<typeof autocompletion>[0];
+type Tooltips = Parameters<typeof tooltips>[0];
 
 const linkRegex = /\[[\s\S]*?]\([\s\S]*?\)/g;
 
@@ -88,6 +90,7 @@ export type CreateCodemirrorParams = {
     receiver?: Receiver<EventMap>;
     yfmLangOptions?: YfmLangOptions;
     autocompletion?: Autocompletion;
+    tooltips?: Tooltips;
     directiveSyntax: DirectiveSyntaxContext;
     preserveEmptyRows: boolean;
     searchPanel?: boolean;
@@ -110,6 +113,7 @@ export function createCodemirror(params: CreateCodemirrorParams) {
         extensions: extraExtensions,
         placeholder: placeholderContent,
         autocompletion: autocompletionConfig,
+        tooltips: tooltipsConfig,
         parseHtmlOnPaste,
         parseInsertedUrlAsImage,
         directiveSyntax,
@@ -315,6 +319,10 @@ export function createCodemirror(params: CreateCodemirrorParams) {
                 enableNewImageSizeCalculation: params.enableNewImageSizeCalculation,
             }),
         );
+    }
+
+    if (tooltipsConfig) {
+        extensions.push(tooltips(tooltipsConfig));
     }
 
     if (extraExtensions) {
