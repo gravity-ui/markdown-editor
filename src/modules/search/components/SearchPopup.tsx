@@ -1,3 +1,5 @@
+import {useRef} from 'react';
+
 import {Popup} from '@gravity-ui/uikit';
 
 import {cn} from 'src/classname';
@@ -8,6 +10,10 @@ import type {SearchCounter} from '../types';
 
 import {SearchCardView} from './SearchCardView';
 import {SeachCompactView} from './SearchCompactView';
+import {
+    type UseObserveIntersectionProps,
+    useObserveIntersection,
+} from './hooks/useObserveIntersection';
 
 import './SearchPopup.scss';
 
@@ -18,6 +24,10 @@ export type SearchPopupProps = UseSearchProps & {
     anchor: Element;
     counter?: SearchCounter;
     onClose: () => void;
+    intersectionTracking: Pick<
+        UseObserveIntersectionProps,
+        'container' | 'selector' | 'observerOptions'
+    >;
 };
 
 export const SearchPopup: React.FC<SearchPopupProps> = ({
@@ -25,9 +35,17 @@ export const SearchPopup: React.FC<SearchPopupProps> = ({
     anchor,
     counter,
     onClose,
+    intersectionTracking,
     ...props
 }) => {
     const {isCompact, searchState, handlers} = useSearch(props);
+    const floatingRef = useRef<HTMLDivElement>(null);
+    const {intersection} = useObserveIntersection({
+        floatingRef,
+        container: intersectionTracking.container,
+        selector: intersectionTracking.selector,
+        observerOptions: intersectionTracking.observerOptions,
+    });
 
     return (
         <Popup
@@ -35,6 +53,8 @@ export const SearchPopup: React.FC<SearchPopupProps> = ({
             qa={SearchQA.Panel}
             anchorElement={anchor}
             placement="bottom-end"
+            floatingRef={floatingRef}
+            floatingStyles={{opacity: intersection ? 0.8 : 1}}
             className={b({compact: isCompact})}
             onOpenChange={(_open, _event, reason) => {
                 if (reason === 'escape-key') {
