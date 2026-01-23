@@ -7,8 +7,10 @@ import {YfmHtmlBlockConsts, defaultYfmHtmlBlockEntityId} from './const';
 
 export {yfmHtmlBlockNodeName, YfmHtmlBlockConsts} from './const';
 
-export interface YfmHtmlBlockSpecsOptions
-    extends Omit<PluginOptions, 'runtimeJsPath' | 'containerClasses' | 'bundle' | 'embeddingMode'> {
+export interface YfmHtmlBlockSpecsOptions extends Omit<
+    PluginOptions,
+    'runtimeJsPath' | 'containerClasses' | 'bundle' | 'embeddingMode'
+> {
     nodeView?: ExtensionNodeSpec['view'];
 }
 

@@ -1,12 +1,11 @@
-import type {ResolvedPos} from 'prosemirror-model';
-import {Plugin, PluginKey, type PluginView} from 'prosemirror-state';
-// @ts-ignore // TODO: fix cjs build
-import {findDomRefAtPos} from 'prosemirror-utils';
-import type {EditorView} from 'prosemirror-view';
+import type {ResolvedPos} from '#pm/model';
+import {Plugin, PluginKey, type PluginView} from '#pm/state';
+import {findDomRefAtPos} from '#pm/utils';
+import type {EditorView} from '#pm/view';
+import {throttle} from 'src/lodash';
+import {isTextSelection} from 'src/utils/selection';
 
-import {throttle} from '../../../../lodash';
-import {isTextSelection} from '../../../../utils/selection';
-import {cutContentType, cutType} from '../const';
+import {YfmCutClassName, cutContentType, cutType} from '../const';
 
 const key = new PluginKey('yfm-cut-auto-open');
 
@@ -44,7 +43,7 @@ function openParentYfmCuts($pos: ResolvedPos, domAtPos: EditorView['domAtPos']):
         if ($pos.node(depth).type === cutContentType(schema)) {
             if ($pos.node(depth - 1).type === cutType(schema)) {
                 const {node: cutDomNode} = domAtPos($pos.start(depth - 1), 0);
-                (cutDomNode as Element).classList.add('open');
+                (cutDomNode as Element).classList.add(YfmCutClassName.Open);
                 depth--;
             }
         }
@@ -53,7 +52,8 @@ function openParentYfmCuts($pos: ResolvedPos, domAtPos: EditorView['domAtPos']):
 }
 
 class CutAutoOpenOnDragOver implements PluginView {
-    private static readonly YFM_CUT_SELECTOR = '.yfm-cut:not(.open)';
+    private static readonly YFM_CUT_SELECTOR =
+        `.${YfmCutClassName.Cut}:not(.${YfmCutClassName.Open})` as const;
     private static readonly OPEN_TIMEOUT = 500; //ms
     private static readonly THROTTLE_WAIT = 50; //ms
 
@@ -104,7 +104,7 @@ class CutAutoOpenOnDragOver implements PluginView {
 
     private _openCut() {
         if (this._editorView.dragging) {
-            this._cutElem?.classList.add('open');
+            this._cutElem?.classList.add(YfmCutClassName.Open);
         }
         this._clear();
     }

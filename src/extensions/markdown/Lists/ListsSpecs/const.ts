@@ -9,6 +9,7 @@ export enum ListsAttr {
     /** used in ordered list only */
     Order = 'order',
     Markup = 'markup',
+    Line = 'data-line',
 }
 
 export const Markup = {

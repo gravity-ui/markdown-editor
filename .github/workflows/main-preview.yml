@@ -6,26 +6,34 @@ on:
 
 jobs:
   main:
-    name: Build and Deploy
+    name: Build and Deploy Storybook [Main]
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-    - name: Setup Node
-      uses: actions/setup-node@v4
-      with:
-        node-version: 18
-        cache: npm
-    - name: Install Packages
-      run: npm ci
-      shell: bash
-    - name: Build Storybook
-      run: npm run storybook:build
-      shell: bash
-    - name: Upload to S3
-      uses: gravity-ui/preview-upload-to-s3-action@v1
-      with:
-        src-path: storybook-static
-        dest-path: /md-editor/main/
-        s3-key-id: ${{ secrets.STORYBOOK_S3_KEY_ID }}
-        s3-secret-key: ${{ secrets.STORYBOOK_S3_SECRET_KEY }}
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version-file: '.nvmrc'
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm run deps:ci
+
+      - name: Install Storybook CLI
+        run: pnpm i @storybook/cli@8.4.1
+
+      - name: Build Storybook
+        run: pnpm run sb:build
+
+      - name: Upload to S3
+        uses: gravity-ui/preview-upload-to-s3-action@v1
+        with:
+          src-path: storybook-static
+          dest-path: /md-editor/main/
+          s3-key-id: ${{ secrets.STORYBOOK_S3_KEY_ID }}
+          s3-secret-key: ${{ secrets.STORYBOOK_S3_SECRET_KEY }}

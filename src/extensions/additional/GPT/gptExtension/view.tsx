@@ -35,8 +35,7 @@ export type GptWidgetDecoViewParams<
 export class GptWidgetDecoView<
     AnswerData extends CommonAnswer = CommonAnswer,
     PromptData extends unknown = unknown,
-> implements Required<PluginView>
-{
+> implements Required<PluginView> {
     private readonly _view;
     private readonly _renderer;
 
@@ -216,7 +215,6 @@ export class GptWidgetDecoView<
         return this._getPluginState()?.find(
             undefined,
             undefined,
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return
             (spec) => spec[WIDGET_DECO_SPEC_FLAG],
         )[0];
     }

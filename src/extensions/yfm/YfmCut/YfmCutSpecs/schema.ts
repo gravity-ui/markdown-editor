@@ -1,16 +1,15 @@
-import type {NodeSpec} from 'prosemirror-model';
+import type {NodeSpec} from '#pm/model';
+import type {PlaceholderOptions} from 'src/utils/placeholder';
 
-import type {PlaceholderOptions} from '../../../../utils/placeholder';
-
-import {CutAttr, CutNode} from './const';
+import {CutAttr, CutNode, YfmCutClassName} from './const';
 
 export type YfmCutSchemaOptions = {
     /**
-     * @deprecated: use placeholder option in BehaviorPreset instead.
+     * @deprecated use placeholder option in BehaviorPreset instead.
      */
     yfmCutTitlePlaceholder?: NonNullable<NodeSpec['placeholder']>['content'];
     /**
-     * @deprecated: use placeholder option in BehaviorPreset instead.
+     * @deprecated use placeholder option in BehaviorPreset instead.
      */
     yfmCutContentPlaceholder?: NonNullable<NodeSpec['placeholder']>['content'];
 };
@@ -25,12 +24,12 @@ export const getSchemaSpecs = (
     placeholder?: PlaceholderOptions,
 ): Record<CutNode, NodeSpec> => ({
     [CutNode.Cut]: {
-        attrs: {class: {default: 'yfm-cut'}, [CutAttr.Markup]: {default: null}},
+        attrs: {class: {default: YfmCutClassName.Cut}, [CutAttr.Markup]: {default: null}},
         content: `${CutNode.CutTitle} ${CutNode.CutContent}`,
         group: 'block yfm-cut',
         parseDOM: [
             {
-                tag: '.yfm-cut',
+                tag: `.${YfmCutClassName.Cut}`,
                 getAttrs: (node) => ({[CutAttr.Markup]: node.getAttribute(CutAttr.Markup)}),
             },
         ],
@@ -44,10 +43,13 @@ export const getSchemaSpecs = (
     },
 
     [CutNode.CutTitle]: {
-        attrs: {class: {default: 'yfm-cut-title'}},
+        attrs: {
+            [CutAttr.Class]: {default: YfmCutClassName.Title},
+            [CutAttr.Line]: {default: null},
+        },
         content: 'inline*',
         group: 'block yfm-cut',
-        parseDOM: [{tag: '.yfm-cut-title'}],
+        parseDOM: [{tag: `.${YfmCutClassName.Title}`}],
         toDOM(node) {
             return ['div', node.attrs, 0];
         },
@@ -65,10 +67,10 @@ export const getSchemaSpecs = (
     },
 
     [CutNode.CutContent]: {
-        attrs: {class: {default: 'yfm-cut-content'}},
+        attrs: {class: {default: YfmCutClassName.Content}},
         content: '(block | paragraph)+',
         group: 'block yfm-cut',
-        parseDOM: [{tag: '.yfm-cut-content'}],
+        parseDOM: [{tag: `.${YfmCutClassName.Content}`}],
         toDOM(node) {
             return ['div', node.attrs, 0];
         },

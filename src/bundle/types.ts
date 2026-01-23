@@ -29,12 +29,14 @@ export type ParseInsertedUrlAsImage = (text: string) => {imageUrl: string; title
 
 export type WysiwygPlaceholderOptions = {
     value?: string | (() => string);
-    /** Default – empty-doc
-    Values:
-    - 'empty-doc' – The placeholder will only be shown when the document is completely empty;
-    - 'empty-row-top-level' – The placeholder will be displayed in an empty line that is at the top level of the document structure;
-    - 'empty-row' – The placeholder will be shown in any empty line within the document, regardless of its nesting level.
-    */
+    /**
+     * Default – empty-doc.
+     *
+     * Values:
+     * - 'empty-doc' – The placeholder will only be shown when the document is completely empty;
+     * - 'empty-row-top-level' – The placeholder will be displayed in an empty line that is at the top level of the document structure;
+     * - 'empty-row' – The placeholder will be shown in any empty line within the document, regardless of its nesting level.
+     */
     behavior?: 'empty-doc' | 'empty-row-top-level' | 'empty-row';
 };
 
@@ -67,13 +69,11 @@ export type MarkdownEditorHandlers = {
 export type MarkdownEditorExperimentalOptions = {
     /**
      * If we need to set dimensions for uploaded images
-     *
      * @default false
      */
     needToSetDimensionsForUploadedImages?: boolean;
     /**
      * If we need to enable new image size calculations
-     *
      * @default false
      */
     enableNewImageSizeCalculation?: boolean;
@@ -107,7 +107,6 @@ export type MarkdownEditorExperimentalOptions = {
     directiveSyntax?: DirectiveSyntaxOption;
     /**
      * If we need support for empty strings
-     *
      * @default false
      */
     preserveEmptyRows?: boolean;
@@ -118,7 +117,6 @@ export type MarkdownEditorExperimentalOptions = {
      * **Use case:** Maintain consistent markup when switching modes
      *
      * **Note:** Applies to tracked blocks: `yfm_table`
-     *
      * @default false
      */
     preserveMarkupFormatting?: boolean;
@@ -159,6 +157,8 @@ export type MarkdownEditorMarkupConfig = {
     languageData?: YfmLangOptions['languageData'];
     /** Config for @codemirror/autocomplete https://codemirror.net/docs/ref/#autocomplete.autocompletion%5Econfig */
     autocompletion?: CreateCodemirrorParams['autocompletion'];
+    /** Config for tooltips https://codemirror.net/docs/ref/#view.tooltips */
+    tooltips?: CreateCodemirrorParams['tooltips'];
     /**
      * The function, used to determine if the pasted text is the image url and should be inserted as an image
      */
@@ -190,12 +190,16 @@ export type MarkdownEditorWysiwygConfig = {
      * Note: The use of the markdown-it-attrs plugin will be removed in the next major version.
      */
     disableMarkdownAttrs?: boolean;
+    /**
+     * Show search panel in the editor.
+     * @default true
+     */
+    searchPanel?: boolean;
 };
 
 export type MarkdownEditorOptions = {
     /**
      * A set of plug-in extensions.
-     *
      * @default 'full'
      */
     preset?: MarkdownEditorPreset;

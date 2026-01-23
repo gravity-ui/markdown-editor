@@ -9,6 +9,7 @@ import {FilePaste} from './FilePaste';
 import {History, type HistoryOptions} from './History';
 import {Placeholder} from './Placeholder';
 import {type ReactRenderer, ReactRendererExtension} from './ReactRenderer';
+import {Search, type SearchOptions} from './Search';
 import {Selection} from './Selection';
 import {SelectionContext, type SelectionContextOptions} from './SelectionContext';
 import {SharedState} from './SharedState';
@@ -35,7 +36,7 @@ export type BehaviorPresetOptions = {
     placeholder?: PlaceholderOptions;
     reactRenderer: ReactRenderer;
     selectionContext?: SelectionContextOptions;
-
+    search?: SearchOptions;
     commandMenu?: CommandMenuOptions;
     mobile?: boolean;
 };
@@ -54,6 +55,7 @@ export const BehaviorPreset: ExtensionAuto<BehaviorPresetOptions> = (builder, op
     if (!opts.mobile) {
         builder.use(SelectionContext, opts.selectionContext ?? {});
         if (opts.commandMenu) builder.use(CommandMenu, opts.commandMenu);
+        if (opts.search) builder.use(Search, opts.search);
     }
 
     builder.use(FilePaste);

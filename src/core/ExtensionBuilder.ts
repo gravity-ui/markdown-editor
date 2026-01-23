@@ -1,5 +1,5 @@
 import type MarkdownIt from 'markdown-it';
-import OrderedMap from 'orderedmap'; // eslint-disable-line import/no-extraneous-dependencies
+import OrderedMap from 'orderedmap';
 import {inputRules} from 'prosemirror-inputrules';
 import {keymap} from 'prosemirror-keymap';
 import type {Plugin} from 'prosemirror-state';
@@ -22,13 +22,11 @@ type ExtensionWithParams = (builder: ExtensionBuilder, ...params: any[]) => void
 type ConfigureMdParams = {
     /**
      * Apply this configurtion to text parser
-     *
      * @default true
      */
     text?: boolean;
     /**
      * Apply this configurtion to markup parser
-     *
      * @default true
      */
     markup?: boolean;

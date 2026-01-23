@@ -420,7 +420,7 @@ MarkdownEditorView.displayName = 'MarkdownEditorView';
 interface MarkupSearchAnchorProps extends Pick<EditorSettingsProps, 'mode'> {}
 
 const MarkupSearchAnchor: React.FC<MarkupSearchAnchorProps> = ({mode}) => (
-    <>{mode === 'markup' && <div className="g-md-search-anchor"></div>}</>
+    <div className={`g-md-search-${mode}-anchor`}></div>
 );
 
 function Settings(props: EditorSettingsProps & {stickyToolbar: boolean}) {

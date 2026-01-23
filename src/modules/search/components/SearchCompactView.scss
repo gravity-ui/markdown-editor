@@ -1,0 +1,8 @@
+@use './constants' as const;
+
+.g-md-search-compact {
+    display: flex;
+    align-items: center;
+
+    width: const.$width;
+}

@@ -1,8 +1,13 @@
 import * as fs from 'fs/promises';
 import * as path from 'path';
+import {dirname} from 'path';
+import {fileURLToPath} from 'url';
 
-const inputDir = path.join(__dirname, '../../docs');
-const outputDir = path.join(__dirname, '../../demo/docs');
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+const inputDir = path.join(__dirname, '../docs');
+const outputDir = path.join(__dirname, '../demo/docs');
 
 /**
  * Converts a kebab-case string to camelCase
@@ -19,7 +24,7 @@ const getContent = (title: string, updatedContent: string): string => `
 This file is auto-generated. Any changes made to this file will be overwritten
 */}
 
-import { Meta, Markdown } from '@storybook/blocks';
+import { Meta, Markdown } from '@storybook/addon-docs/blocks';
 
 <Meta title="Docs / ${title}" />
 
@@ -58,7 +63,7 @@ const clearOutputDir = async (): Promise<void> => {
 /**
  * Generate MDX files from Markdown
  */
-const generateDocs = async (): Promise<void> => {
+export const generateDocs = async (): Promise<void> => {
     console.log('Running docs:generate...');
     try {
         await clearOutputDir();
@@ -95,7 +100,7 @@ const generateDocs = async (): Promise<void> => {
  */
 export default {
     name: 'generate-docs',
-    async managerEntries(entries: string[] = []): Promise<string[]> {
+    async previewAnnotations(entries: string[] = []): Promise<string[]> {
         try {
             await generateDocs();
         } catch (error) {

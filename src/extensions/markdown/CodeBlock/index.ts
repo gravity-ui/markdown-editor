@@ -8,7 +8,11 @@ import {textblockTypeInputRule} from '../../../utils/inputrules';
 import {withLogAction} from '../../../utils/keymap';
 
 import {CodeBlockHighlight, type HighlightLangMap} from './CodeBlockHighlight/CodeBlockHighlight';
-import {CodeBlockSpecs, type CodeBlockSpecsOptions} from './CodeBlockSpecs';
+import {
+    CodeBlockSpecs,
+    type CodeBlockSpecsOptions,
+    type LineNumbersOptions,
+} from './CodeBlockSpecs';
 import {newlineInCode, resetCodeblock, setCodeBlockType} from './commands';
 import {cbAction, codeBlockType} from './const';
 import {codeBlockPastePlugin} from './plugins/codeBlockPastePlugin';
@@ -21,11 +25,27 @@ export type CodeBlockOptions = CodeBlockSpecsOptions & {
     langs?: HighlightLangMap;
 };
 
+export const lineNumbersOptionsDefault: LineNumbersOptions = {enabled: true, showByDefault: true};
+
 export const CodeBlock: ExtensionAuto<CodeBlockOptions> = (builder, opts) => {
-    builder.use(CodeBlockSpecs, opts);
+    const optsNormalized: CodeBlockOptions = {
+        ...opts,
+        lineNumbers: {
+            enabled:
+                typeof opts.lineNumbers?.enabled === 'boolean'
+                    ? opts.lineNumbers.enabled
+                    : lineNumbersOptionsDefault.enabled,
+            showByDefault:
+                typeof opts.lineNumbers?.showByDefault === 'boolean'
+                    ? opts.lineNumbers.showByDefault
+                    : lineNumbersOptionsDefault.showByDefault,
+        },
+    };
+
+    builder.use(CodeBlockSpecs, optsNormalized);
 
     builder.addKeymap((deps) => {
-        const {codeBlockKey} = opts;
+        const {codeBlockKey} = optsNormalized;
         const bindings: Keymap = {Enter: newlineInCode, Backspace: resetCodeblock};
         if (codeBlockKey) {
             bindings[codeBlockKey] = withLogAction('code_block', setCodeBlockType(deps));
@@ -45,10 +65,13 @@ export const CodeBlock: ExtensionAuto<CodeBlockOptions> = (builder, opts) => {
 
     builder.addPlugin(codeBlockPastePlugin, builder.Priority.High);
 
-    if (isFunction(opts.langs)) {
-        builder.use(opts.langs);
+    if (isFunction(optsNormalized.langs)) {
+        builder.use(optsNormalized.langs);
     } else {
-        builder.use(CodeBlockHighlight, opts.langs ?? {});
+        builder.use(CodeBlockHighlight, {
+            langs: optsNormalized.langs,
+            lineNumbers: optsNormalized.lineNumbers,
+        });
     }
 };
 

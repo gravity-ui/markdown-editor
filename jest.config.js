@@ -1,7 +1,9 @@
 const {pathsToModuleNameMapper} = require('ts-jest');
 const {compilerOptions} = require('./tsconfig.json');
 
-/** @type {import('ts-jest/dist/types').InitialOptionsTsJest} */
+const esmModules = ['cheerio', '@diplodoc'];
+
+/** @type {import('ts-jest/dist/types').JestConfigWithTsJest} */
 // eslint-disable-next-line no-undef
 module.exports = {
     preset: 'ts-jest/presets/js-with-ts',
@@ -14,7 +16,7 @@ module.exports = {
         '.+\\.(svg|png|jpg)$': 'identity-obj-proxy',
     },
     moduleFileExtensions: ['tsx', 'ts', 'js'],
-    transformIgnorePatterns: ['node_modules/(?!cheerio)'],
+    transformIgnorePatterns: [`node_modules/(?!(?:.pnpm/)?(${esmModules.join('|')}))`],
     transform: {
         '.ts(x)?': [
             'ts-jest',

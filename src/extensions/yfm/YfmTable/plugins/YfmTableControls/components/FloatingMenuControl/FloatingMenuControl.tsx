@@ -1,5 +1,6 @@
 import {useMemo} from 'react';
 
+import type {ClientRectObject, VirtualElement} from '@floating-ui/react';
 import {
     ArrowDown,
     ArrowLeft,
@@ -16,10 +17,13 @@ import {i18n} from 'src/i18n/yfm-table';
 import type {DnDControlHandler} from '../../dnd/dnd';
 import {FloatingMenu, type FloatingMenuProps} from '../FloatingMenu/FloatingMenu';
 
+type ControlType = FloatingMenuProps['dirtype'];
+
 export type FloatingMenuControlProps = {
-    acnhorElement: Element;
+    cellElement: Element;
+    tableElement: Element;
     multiple: boolean;
-    type: FloatingMenuProps['dirtype'];
+    type: ControlType;
     dndHandler?: DnDControlHandler;
     onMenuOpenToggle: FloatingMenuProps['onOpenToggle'];
     onClearCellsClick: () => void;
@@ -34,7 +38,8 @@ export const FloatingMenuControl: React.FC<FloatingMenuControlProps> =
         type,
         multiple,
         dndHandler,
-        acnhorElement,
+        cellElement,
+        tableElement,
         onMenuOpenToggle,
         onClearCellsClick,
         onInsertBeforeClick,
@@ -94,12 +99,17 @@ export const FloatingMenuControl: React.FC<FloatingMenuControlProps> =
             ],
         );
 
+        const anchor = useMemo(
+            () => getVirtualAnchor(type, tableElement, cellElement),
+            [type, tableElement, cellElement],
+        );
+
         return (
             <FloatingMenu
                 dirtype={type}
                 canDrag={dndHandler ? dndHandler.canDrag() : false}
                 onOpenToggle={onMenuOpenToggle}
-                anchorElement={acnhorElement}
+                anchorElement={anchor}
                 switcherMouseProps={
                     dndHandler
                         ? {
@@ -114,3 +124,73 @@ export const FloatingMenuControl: React.FC<FloatingMenuControlProps> =
             />
         );
     };
+
+function getVirtualAnchor(
+    type: ControlType,
+    tableElem: Element,
+    cellElem: Element,
+): VirtualElement {
+    if (type === 'row') {
+        return {
+            contextElement: cellElem,
+            getBoundingClientRect() {
+                const cellRect = cellElem.getBoundingClientRect();
+                const tableRect: ClientRectObject = tableElem.getBoundingClientRect().toJSON();
+
+                {
+                    // fix table rect
+                    tableRect.x += 1;
+                    tableRect.width -= 2;
+                    tableRect.left += 1;
+                    tableRect.right -= 1;
+                }
+
+                return {
+                    // from table
+                    x: tableRect.x,
+                    width: tableRect.width,
+                    left: tableRect.left,
+                    right: tableRect.right,
+                    // from cell
+                    y: cellRect.y,
+                    height: cellRect.height,
+                    top: cellRect.top,
+                    bottom: cellRect.top,
+                };
+            },
+        };
+    }
+
+    if (type === 'column') {
+        return {
+            contextElement: cellElem,
+            getBoundingClientRect() {
+                const cellRect: ClientRectObject = cellElem.getBoundingClientRect().toJSON();
+                const tableRect = tableElem.getBoundingClientRect();
+
+                const EDGE_OFFSET = 16;
+
+                const cellMiddle = cellRect.x + cellRect.width / 2;
+
+                // left border of table
+                if (cellMiddle - EDGE_OFFSET <= tableRect.left) {
+                    const visible = cellRect.right - tableRect.left;
+                    cellRect.width = (visible - EDGE_OFFSET) * 2;
+                    cellRect.left = cellRect.right - cellRect.width;
+                    cellRect.x = cellRect.left;
+                }
+
+                // right border of table
+                if (cellMiddle + EDGE_OFFSET >= tableRect.right) {
+                    const visible = tableRect.right - cellRect.left;
+                    cellRect.width = (visible - EDGE_OFFSET) * 2;
+                    cellRect.right = cellRect.left + cellRect.width;
+                }
+
+                return cellRect;
+            },
+        };
+    }
+
+    throw new Error(`Unknown control type: ${type}`);
+}

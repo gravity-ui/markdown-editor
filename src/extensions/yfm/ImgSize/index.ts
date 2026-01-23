@@ -10,7 +10,6 @@ import {imgSizeNodeViewPlugin} from './plugins/ImgSizeNodeView';
 export type ImgSizeOptions = ImgSizeSpecsOptions & {
     /**
      * If we need to set dimensions for uploaded images
-     *
      * @default false
      */
     needToSetDimensionsForUploadedImages?: boolean;
