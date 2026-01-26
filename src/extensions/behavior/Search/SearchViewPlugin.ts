@@ -5,11 +5,12 @@ import {type Command, Plugin, type PluginView, TextSelection} from '#pm/state';
 import {findParentNodeClosestToPos} from '#pm/utils';
 import type {EditorView} from '#pm/view';
 import {type SearchCounter, type SearchState, renderSearchPopup} from 'src/modules/search';
+import {isElementInViewport} from 'src/utils/dom';
 
 import {getReactRendererFromState} from '../ReactRenderer';
 
 import {closeSearch, findNext, findPrev, replaceAll, replaceNext} from './commands';
-import {pluginKey} from './const';
+import {SearchClassName, pluginKey} from './const';
 import {searchKeyHandler} from './key-handler';
 import type {SearchViewState} from './types';
 import {startTracking} from './utils/connect-tracker';
@@ -166,10 +167,12 @@ class SeachPluginView implements PluginView {
 
     private _onSearchPrev = () => {
         this._preserveFocus(findPrev);
+        requestAnimationFrame(() => this._scrollToActiveIfNeeded());
     };
 
     private _onSearchNext = () => {
         this._preserveFocus(findNext);
+        requestAnimationFrame(() => this._scrollToActiveIfNeeded());
     };
 
     private _onReplaceNext = () => {
@@ -186,4 +189,17 @@ class SeachPluginView implements PluginView {
         command(this._view.state, this._view.dispatch, this._view);
         this._focusManager.restoreFocus({preventScroll: true});
     }
+
+    private _scrollToActiveIfNeeded = () => {
+        const activeElem = this._view.dom
+            .getElementsByClassName(SearchClassName.ActiveMatch)
+            .item(0);
+
+        if (activeElem && !isElementInViewport(activeElem)) {
+            activeElem.scrollIntoView({
+                block: 'nearest',
+                inline: 'nearest',
+            });
+        }
+    };
 }
