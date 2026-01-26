@@ -26,6 +26,7 @@ export const getSchemaSpecs = (
         attrs: {
             [CheckboxAttr.Class]: {default: b(null, 'checkbox')},
             [CheckboxAttr.Line]: {default: null},
+            ...(opts?.multiline ? {[CheckboxAttr.Tight]: {default: null}} : undefined),
         },
         parseDOM: [
             {

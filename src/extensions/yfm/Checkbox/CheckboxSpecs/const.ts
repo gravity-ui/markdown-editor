@@ -14,6 +14,7 @@ export const CheckboxAttr = {
     Checked: 'checked',
     For: 'for',
     Line: 'data-line',
+    Tight: 'data-tight',
 } as const;
 
 export const idPrefix = 'yfm-editor-checkbox';
@@ -24,3 +25,6 @@ export const b = cn('checkbox');
 export const checkboxType = nodeTypeFactory(CheckboxNode.Checkbox);
 export const checkboxLabelType = nodeTypeFactory(CheckboxNode.Label);
 export const checkboxInputType = nodeTypeFactory(CheckboxNode.Input);
+
+export const CHECKBOX_OPEN_TOKEN = 'checkbox_open';
+export const CHECKBOX_CLOSE_TOKEN = 'checkbox_close';

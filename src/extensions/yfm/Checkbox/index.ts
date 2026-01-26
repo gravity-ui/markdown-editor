@@ -26,6 +26,7 @@ export type CheckboxOptions = Pick<CheckboxSpecsOptions, 'checkboxLabelPlacehold
      * Available with @diplodoc/transform v4.68.0 or higher.
      * @default false
      */
+    // TODO [MAJOR]: enable by default and remove option
     multiline?: boolean;
 };
 
