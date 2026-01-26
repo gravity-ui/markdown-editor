@@ -54,12 +54,7 @@ export const Breaks: ExtensionAuto<BreaksOptions> = (builder, opts) => {
 const addBr = (br: NodeType) =>
     chainCommands(exitCode, (state, dispatch) => {
         const {selection: sel, schema} = state;
-        if (
-            !isTextSelection(sel) ||
-            !sel.empty ||
-            // breaks can only be in the paragraph
-            sel.$cursor?.parent.type !== pType(schema)
-        )
+        if (!isTextSelection(sel) || !sel.$cursor || !canContainBreaks(sel.$cursor.parent))
             return false;
 
         if (isBreakNode(sel.$cursor.nodeBefore)) {
@@ -100,6 +95,14 @@ declare global {
     }
 }
 
-function isBreakNode(node?: Node | null | undefined): boolean {
+function canContainBreaks(node: Node): boolean {
+    return (
+        Boolean(node.type.spec.canContainBreaks) ||
+        // always allow breaks in paragraph
+        node.type === pType(node.type.schema)
+    );
+}
+
+export function isBreakNode(node: Node | null | undefined): boolean {
     return Boolean(node?.type.spec.isBreak);
 }

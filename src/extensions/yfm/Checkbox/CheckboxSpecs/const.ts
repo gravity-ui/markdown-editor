@@ -18,6 +18,7 @@ export const CheckboxAttr = {
 
 export const idPrefix = 'yfm-editor-checkbox';
 
+// TODO [MAJOR]: remove custom classname
 export const b = cn('checkbox');
 
 export const checkboxType = nodeTypeFactory(CheckboxNode.Checkbox);
