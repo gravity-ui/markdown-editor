@@ -1,11 +1,10 @@
 import checkboxPlugin from '@diplodoc/transform/lib/plugins/checkbox/index.js';
-import type {NodeSpec} from 'prosemirror-model';
 
-import type {ExtensionAuto, ExtensionNodeSpec} from '../../../../core';
+import type {ExtensionAuto, ExtensionNodeSpec} from '#core';
 
 import {CheckboxNode, b, idPrefix} from './const';
 import {parserTokens} from './parser';
-import {getSchemaSpecs} from './schema';
+import {type GetSchemaSpecsOptions, getSchemaSpecs} from './schema';
 import {serializerTokens} from './serializer';
 
 export {
@@ -16,11 +15,7 @@ export {
     checkboxInputType,
 } from './const';
 
-export type CheckboxSpecsOptions = {
-    /**
-     * @deprecated use placeholder option in BehaviorPreset instead.
-     */
-    checkboxLabelPlaceholder?: NonNullable<NodeSpec['placeholder']>['content'];
+export type CheckboxSpecsOptions = GetSchemaSpecsOptions & {
     inputView?: ExtensionNodeSpec['view'];
     labelView?: ExtensionNodeSpec['view'];
     checkboxView?: ExtensionNodeSpec['view'];
@@ -30,7 +25,7 @@ export const CheckboxSpecs: ExtensionAuto<CheckboxSpecsOptions> = (builder, opts
     const schemaSpecs = getSchemaSpecs(opts, builder.context.get('placeholder'));
 
     builder
-        .configureMd((md) => md.use(checkboxPlugin, {idPrefix, divClass: b()}))
+        .configureMd((md) => md.use(checkboxPlugin, {idPrefix, divClass: b(null, 'checkbox')}))
         .addNode(CheckboxNode.Checkbox, () => ({
             spec: schemaSpecs[CheckboxNode.Checkbox],
             toMd: serializerTokens[CheckboxNode.Checkbox],

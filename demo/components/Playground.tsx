@@ -230,6 +230,7 @@ export const Playground = memo<PlaygroundProps>((props) => {
                     if (wysiwygConfig?.extensions) builder.use(wysiwygConfig.extensions);
                 },
                 extensionOptions: {
+                    checkbox: {multiline: true},
                     commandMenu: {actions: wysiwygCommandMenuConfig ?? wCommandMenuConfig},
                     imgSize: {
                         parseInsertedUrlAsImage,

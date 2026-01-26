@@ -20,7 +20,14 @@ export {
     checkboxInputType,
 } from './CheckboxSpecs';
 
-export type CheckboxOptions = Pick<CheckboxSpecsOptions, 'checkboxLabelPlaceholder'> & {};
+export type CheckboxOptions = Pick<CheckboxSpecsOptions, 'checkboxLabelPlaceholder'> & {
+    /**
+     * Allow multiline label in checkboxes.
+     * Available with @diplodoc/transform v4.68.0 or higher.
+     * @default false
+     */
+    multiline?: boolean;
+};
 
 export const Checkbox: ExtensionAuto<CheckboxOptions> = (builder, opts) => {
     builder.use(CheckboxSpecs, {
@@ -29,7 +36,7 @@ export const Checkbox: ExtensionAuto<CheckboxOptions> = (builder, opts) => {
     });
 
     builder
-        .addPlugin(keymapPlugin, builder.Priority.High)
+        .addPlugin(() => keymapPlugin(opts), builder.Priority.High)
         .addPlugin(fixPastePlugin)
         .addAction(checkboxAction, () => addCheckbox())
         .addInputRules(({schema}) => ({

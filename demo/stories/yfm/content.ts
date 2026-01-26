@@ -279,7 +279,9 @@ Text after other table||
 ## Task lists (additional feature)
 
 - [x] ~~Write the press release~~
-- [ ] Update the website
+- [ ] Update
+  the
+  website
 - [ ] Contact the media
 `.trim(),
 

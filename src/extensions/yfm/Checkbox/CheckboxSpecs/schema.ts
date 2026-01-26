@@ -1,15 +1,21 @@
 import {Fragment, type NodeSpec, type Schema} from 'prosemirror-model';
 
-import type {PlaceholderOptions} from '../../../../utils/placeholder';
+import type {PlaceholderOptions} from 'src/utils/placeholder';
 
 import {CheckboxAttr, CheckboxNode, b, checkboxInputType, checkboxLabelType} from './const';
 
-import type {CheckboxSpecsOptions} from './index';
-
 const DEFAULT_LABEL_PLACEHOLDER = 'Checkbox';
 
+export type GetSchemaSpecsOptions = {
+    multiline?: boolean;
+    /**
+     * @deprecated use placeholder option in BehaviorPreset instead.
+     */
+    checkboxLabelPlaceholder?: NonNullable<NodeSpec['placeholder']>['content'];
+};
+
 export const getSchemaSpecs = (
-    opts?: Pick<CheckboxSpecsOptions, 'checkboxLabelPlaceholder'>,
+    opts?: GetSchemaSpecsOptions,
     placeholder?: PlaceholderOptions,
 ): Record<CheckboxNode, NodeSpec> => ({
     [CheckboxNode.Checkbox]: {
@@ -18,7 +24,7 @@ export const getSchemaSpecs = (
         selectable: true,
         allowSelection: false,
         attrs: {
-            [CheckboxAttr.Class]: {default: b()},
+            [CheckboxAttr.Class]: {default: b(null, 'checkbox')},
             [CheckboxAttr.Line]: {default: null},
         },
         parseDOM: [
@@ -110,6 +116,7 @@ export const getSchemaSpecs = (
         selectable: false,
         allowSelection: false,
         disableGapCursor: true,
+        canContainBreaks: Boolean(opts?.multiline),
         complex: 'leaf',
     },
 });

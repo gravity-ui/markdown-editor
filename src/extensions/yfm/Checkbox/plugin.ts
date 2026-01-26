@@ -4,8 +4,9 @@ import {type Command, TextSelection} from 'prosemirror-state';
 // @ts-ignore // TODO: fix cjs build
 import {findParentNodeOfType} from 'prosemirror-utils';
 
-import {isWholeSelection} from '../../../utils/selection';
-import {pType} from '../../base/BaseSchema';
+import {pType} from 'src/extensions/base/BaseSchema';
+import {isBreakNode} from 'src/extensions/markdown/Breaks';
+import {isWholeSelection} from 'src/utils/selection';
 
 import {checkboxInputType, checkboxLabelType, checkboxType} from './utils';
 
@@ -53,6 +54,12 @@ export const splitCheckbox: (replaceWithParagraph?: boolean) => Command =
                     tr.doc.resolve(tr.selection.$from.after() + (replaceWithParagraph ? 2 : 4)),
                 ),
             );
+
+            // remove break before cursor
+            if (isBreakNode($from.nodeBefore)) {
+                tr.replaceWith($from.pos - 1, $from.pos, Fragment.empty);
+            }
+
             dispatch?.(tr);
 
             return true;
@@ -91,9 +98,13 @@ const removeCheckbox: Command = (state, dispatch) => {
     return false;
 };
 
-export const keymapPlugin = () =>
+type KeymapPluginOptions = {
+    multiline?: boolean;
+};
+
+export const keymapPlugin = (props: KeymapPluginOptions) =>
     keymap({
         Enter: splitCheckbox(),
         Backspace: removeCheckbox,
-        'Shift-Enter': splitCheckbox(true),
+        ...(props.multiline ? undefined : {'Shift-Enter': splitCheckbox(true)}),
     });

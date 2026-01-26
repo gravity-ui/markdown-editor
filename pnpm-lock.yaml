@@ -188,7 +188,7 @@ importers:
         version: 0.1.2
       '@diplodoc/html-extension':
         specifier: ^2.9.1
-        version: 2.9.1(@diplodoc/transform@4.65.0(@types/markdown-it@12.2.3)(highlight.js@11.8.0)(react@18.2.0))(@types/markdown-it@12.2.3)(markdown-it@13.0.2)(react@18.2.0)
+        version: 2.9.1(@diplodoc/transform@4.66.0(@types/markdown-it@12.2.3)(highlight.js@11.8.0)(react@18.2.0))(@types/markdown-it@12.2.3)(markdown-it@13.0.2)(react@18.2.0)
       '@diplodoc/latex-extension':
         specifier: ^1.4.1
         version: 1.4.1(katex@0.16.27)(markdown-it@13.0.2)(react@18.2.0)
@@ -205,8 +205,8 @@ importers:
         specifier: ^1.0.0
         version: 1.2.0
       '@diplodoc/transform':
-        specifier: ^4.65.0
-        version: 4.65.0(@types/markdown-it@12.2.3)(highlight.js@11.8.0)(react@18.2.0)
+        specifier: 4.66.0
+        version: 4.66.0(@types/markdown-it@12.2.3)(highlight.js@11.8.0)(react@18.2.0)
       '@gravity-ui/components':
         specifier: 4.10.0
         version: 4.10.0(@gravity-ui/uikit@7.13.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -1317,11 +1317,20 @@ packages:
       react:
         optional: true
 
+  '@diplodoc/tabs-extension@3.8.0':
+    resolution: {integrity: sha512-Ar6YGC+VWFX1dRCZ5wYVlKcOf1lqzknsAVnyW5Bian4s6Vp0llLmGtY7n4bbN7IQdIT5X5OU0mBnbDwA9X+9nA==}
+    engines: {node: '>=22', npm: '>=11.5.1'}
+    peerDependencies:
+      react: ^16.8.0  || ^17.0.0 || ^18.0.0 || ^19.0.0
+    peerDependenciesMeta:
+      react:
+        optional: true
+
   '@diplodoc/themes@1.2.0':
     resolution: {integrity: sha512-fb1iPz9TN0PjLXaKT4fudJxoBPdyR6AxYG9yp40a+A833vGtIKXBLrrKhNWk/eGdAheTgROtGk5N6o2vYnnltg==}
 
-  '@diplodoc/transform@4.65.0':
-    resolution: {integrity: sha512-njXo2NXtVQEi3mct6WfOCBi/NXjzg/eme3VAgKKjeKtReKV0HO1pGqttGp/z4SIZgVeUJpdiFwg/XkjCo4BrlQ==}
+  '@diplodoc/transform@4.66.0':
+    resolution: {integrity: sha512-ExG3uCcfZonP39MIDlCl8LLa3Uc3c3s/5gPaCeUt3TBBOzRlNVhdVIM9MYGHYMOzxnX/U7AN4xZ1+ZwyVU7wfg==}
     engines: {npm: '>=11.5.1'}
     peerDependencies:
       highlight.js: ^10.0.3 || ^11
@@ -8819,12 +8828,12 @@ snapshots:
 
   '@diplodoc/folding-headings-extension@0.1.2': {}
 
-  '@diplodoc/html-extension@2.9.1(@diplodoc/transform@4.65.0(@types/markdown-it@12.2.3)(highlight.js@11.8.0)(react@18.2.0))(@types/markdown-it@12.2.3)(markdown-it@13.0.2)(react@18.2.0)':
+  '@diplodoc/html-extension@2.9.1(@diplodoc/transform@4.66.0(@types/markdown-it@12.2.3)(highlight.js@11.8.0)(react@18.2.0))(@types/markdown-it@12.2.3)(markdown-it@13.0.2)(react@18.2.0)':
     dependencies:
       '@diplodoc/directive': 0.3.3(@types/markdown-it@12.2.3)(markdown-it@13.0.2)
       markdown-it: 13.0.2
     optionalDependencies:
-      '@diplodoc/transform': 4.65.0(@types/markdown-it@12.2.3)(highlight.js@11.8.0)(react@18.2.0)
+      '@diplodoc/transform': 4.66.0(@types/markdown-it@12.2.3)(highlight.js@11.8.0)(react@18.2.0)
       react: 18.2.0
     transitivePeerDependencies:
       - '@types/markdown-it'
@@ -8858,13 +8867,17 @@ snapshots:
     optionalDependencies:
       react: 18.2.0
 
+  '@diplodoc/tabs-extension@3.8.0(react@18.2.0)':
+    optionalDependencies:
+      react: 18.2.0
+
   '@diplodoc/themes@1.2.0': {}
 
-  '@diplodoc/transform@4.65.0(@types/markdown-it@12.2.3)(highlight.js@11.8.0)(react@18.2.0)':
+  '@diplodoc/transform@4.66.0(@types/markdown-it@12.2.3)(highlight.js@11.8.0)(react@18.2.0)':
     dependencies:
       '@diplodoc/cut-extension': 1.1.0(@types/markdown-it@12.2.3)(markdown-it@13.0.2)(react@18.2.0)
       '@diplodoc/file-extension': 0.2.1(@types/markdown-it@12.2.3)(markdown-it@13.0.2)
-      '@diplodoc/tabs-extension': 3.7.5(react@18.2.0)
+      '@diplodoc/tabs-extension': 3.8.0(react@18.2.0)
       '@diplodoc/utils': 2.1.0(react@18.2.0)
       chalk: 4.1.2
       cheerio: 1.0.0
