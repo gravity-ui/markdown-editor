@@ -1,10 +1,12 @@
 import {builders} from 'prosemirror-test-builder';
+import dd from 'ts-dedent';
+
+import {ExtensionsManager} from '#core';
+import {BaseNode, BaseSchemaSpecs} from 'src/extensions/base/specs';
+import {BoldSpecs, BreakNodeName, BreaksSpecs, boldMarkName} from 'src/extensions/markdown/specs';
 
 import {parseDOM} from '../../../../tests/parse-dom';
 import {createMarkupChecker} from '../../../../tests/sameMarkup';
-import {ExtensionsManager} from '../../../core';
-import {BaseNode, BaseSchemaSpecs} from '../../base/specs';
-import {BoldSpecs, boldMarkName} from '../../markdown/specs';
 
 import {CheckboxAttr, CheckboxNode, CheckboxSpecs} from './CheckboxSpecs';
 import {fixPastePlugin} from './plugins/fix-paste';
@@ -191,5 +193,100 @@ describe('Checkbox extension', () => {
             ),
             [fixPastePlugin()],
         );
+    });
+
+    describe('allow multiline', () => {
+        const {
+            schema,
+            markupParser: parser,
+            serializer,
+        } = new ExtensionsManager({
+            extensions: (builder) =>
+                builder.use(BaseSchemaSpecs, {}).use(BreaksSpecs, {}).use(CheckboxSpecs, {
+                    multiline: true,
+                    checkboxLabelPlaceholder: 'checklist',
+                }),
+        }).buildDeps();
+
+        const {doc, p, soft, chBox, chInput, chLabel} = builders<
+            'doc' | 'p' | 'soft' | 'chBox' | 'chInput' | 'chLabel'
+        >(schema, {
+            doc: {nodeType: BaseNode.Doc},
+            p: {nodeType: BaseNode.Paragraph},
+            soft: {nodeType: BreakNodeName.SoftBreak},
+            chBox: {nodeType: CheckboxNode.Checkbox},
+            chInput: {nodeType: CheckboxNode.Input},
+            chLabel: {nodeType: CheckboxNode.Label},
+        });
+
+        const checker = createMarkupChecker({parser, serializer});
+
+        it('should parse multiline checkbox', () => {
+            checker.same(
+                dd`
+                [ ] long
+                long
+                checkbox
+                `,
+                doc(
+                    chBox(
+                        chInput({[CheckboxAttr.Id]: 'yfm-editor-checkbox0'}),
+                        chLabel(
+                            {[CheckboxAttr.For]: 'yfm-editor-checkbox0'},
+                            'long',
+                            soft(),
+                            'long',
+                            soft(),
+                            'checkbox',
+                        ),
+                    ),
+                ),
+            );
+        });
+
+        it('should remember tight checkboxes', () => {
+            checker.same(
+                dd`
+                [ ] one
+                [ ] two
+
+                [X] three
+                3
+                [X] four
+                4
+
+                five
+                `,
+                doc(
+                    chBox(
+                        {[CheckboxAttr.Tight]: true},
+                        chInput({[CheckboxAttr.Id]: 'yfm-editor-checkbox1'}),
+                        chLabel({[CheckboxAttr.For]: 'yfm-editor-checkbox1'}, 'one'),
+                    ),
+                    chBox(
+                        {[CheckboxAttr.Tight]: false},
+                        chInput({[CheckboxAttr.Id]: 'yfm-editor-checkbox2'}),
+                        chLabel({[CheckboxAttr.For]: 'yfm-editor-checkbox2'}, 'two'),
+                    ),
+                    chBox(
+                        {[CheckboxAttr.Tight]: true},
+                        chInput({
+                            [CheckboxAttr.Checked]: 'true',
+                            [CheckboxAttr.Id]: 'yfm-editor-checkbox3',
+                        }),
+                        chLabel({[CheckboxAttr.For]: 'yfm-editor-checkbox3'}, 'three', soft(), '3'),
+                    ),
+                    chBox(
+                        {[CheckboxAttr.Tight]: null},
+                        chInput({
+                            [CheckboxAttr.Checked]: 'true',
+                            [CheckboxAttr.Id]: 'yfm-editor-checkbox4',
+                        }),
+                        chLabel({[CheckboxAttr.For]: 'yfm-editor-checkbox4'}, 'four', soft(), '4'),
+                    ),
+                    p('five'),
+                ),
+            );
+        });
     });
 });
