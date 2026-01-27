@@ -1,5 +1,20 @@
 # Changelog
 
+## [15.30.0](https://github.com/gravity-ui/markdown-editor/compare/v15.29.0...v15.30.0) (2026-01-27)
+
+
+### Features
+
+* **Checkbox:** allow multi-line labels in checkboxes ([#938](https://github.com/gravity-ui/markdown-editor/issues/938)) ([fa94c5b](https://github.com/gravity-ui/markdown-editor/commit/fa94c5b544ad03ce54127765dfb5233021acd3b7))
+* **Checkbox:** preserve newlines between checkboxes ([#939](https://github.com/gravity-ui/markdown-editor/issues/939)) ([befe4c3](https://github.com/gravity-ui/markdown-editor/commit/befe4c3d053e7f0fe6395866cd39d85a9b77e3df))
+* **search:** make search panel semi-transparent when overlapping active search match ([#937](https://github.com/gravity-ui/markdown-editor/issues/937)) ([a96b4d6](https://github.com/gravity-ui/markdown-editor/commit/a96b4d684adabf87982f63faec31977d7a485c5b))
+
+
+### Bug Fixes
+
+* **Emoji:** allow Enter to create new line when no emoji is selected ([#906](https://github.com/gravity-ui/markdown-editor/issues/906)) ([d09ddc6](https://github.com/gravity-ui/markdown-editor/commit/d09ddc65e2e99a4998cda362d80a887a74167e6d))
+* **Search:** auto-scroll to search match when only one result found ([#936](https://github.com/gravity-ui/markdown-editor/issues/936)) ([07b7738](https://github.com/gravity-ui/markdown-editor/commit/07b7738aadd0d40547c51276e08b4e6a6942b476))
+
 ## [15.29.0](https://github.com/gravity-ui/markdown-editor/compare/v15.28.1...v15.29.0) (2026-01-22)
 
 
