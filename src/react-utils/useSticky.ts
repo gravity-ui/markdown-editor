@@ -2,16 +2,7 @@ import {useState} from 'react';
 
 import {useEffectOnce, useLatest} from 'react-use';
 
-const events: ReadonlySet<keyof WindowEventMap> = new Set<keyof WindowEventMap>([
-    'resize',
-    'scroll',
-    'touchstart',
-    'touchmove',
-    'touchend',
-    'pageshow',
-    'load',
-    'orientationchange',
-]);
+import {REFLOW_EVENTS} from 'src/utils/dom';
 
 export function useSticky<T extends HTMLElement>(elemRef: React.RefObject<T>) {
     const [sticky, setSticky] = useState(false);
@@ -22,7 +13,7 @@ export function useSticky<T extends HTMLElement>(elemRef: React.RefObject<T>) {
 
         observe();
 
-        for (const eventName of events) {
+        for (const eventName of REFLOW_EVENTS) {
             window.addEventListener(eventName, scheduleObserve, true);
         }
 
@@ -30,7 +21,7 @@ export function useSticky<T extends HTMLElement>(elemRef: React.RefObject<T>) {
             if (rafId !== null) {
                 cancelAnimationFrame(rafId);
             }
-            for (const eventName of events) {
+            for (const eventName of REFLOW_EVENTS) {
                 window.removeEventListener(eventName, scheduleObserve, true);
             }
         };

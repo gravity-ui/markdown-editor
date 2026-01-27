@@ -105,6 +105,16 @@ export const SearchPanelPlugin = (params: SearchPanelPluginParams) =>
                         onSearchPrev: this.handleSearchPrev,
                         onReplaceNext: this.handleReplaceNext,
                         onReplaceAll: this.handleReplaceAll,
+                        intersectionTracking: {
+                            container: this.view.contentDOM,
+                            selector: '.cm-searchMatch-selected',
+                            observerOptions: {
+                                childList: true,
+                                subtree: true,
+                                attributes: true,
+                                attributeFilter: ['class'],
+                            },
+                        },
                     });
                 });
             }

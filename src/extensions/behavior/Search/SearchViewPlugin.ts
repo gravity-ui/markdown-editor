@@ -129,6 +129,16 @@ class SeachPluginView implements PluginView {
                 onSearchNext: this._onSearchNext,
                 onReplaceNext: this._onReplaceNext,
                 onReplaceAll: this._onReplaceAll,
+                intersectionTracking: {
+                    container: this._view.dom,
+                    selector: `.${SearchClassName.ActiveMatch}`,
+                    observerOptions: {
+                        childList: true,
+                        subtree: true,
+                        attributes: true,
+                        attributeFilter: ['class'],
+                    },
+                },
             });
         });
     }
