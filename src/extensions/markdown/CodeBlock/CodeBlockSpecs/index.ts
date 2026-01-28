@@ -1,5 +1,5 @@
-import type {ExtensionAuto, ExtensionNodeSpec} from '../../../../core';
-import {nodeTypeFactory} from '../../../../utils/schema';
+import type {ExtensionAuto, ExtensionNodeSpec} from '#core';
+import {nodeTypeFactory} from 'src/utils/schema';
 
 export const CodeBlockNodeAttr = {
     Lang: 'data-language',
@@ -11,7 +11,20 @@ export const CodeBlockNodeAttr = {
 export const codeBlockNodeName = 'code_block';
 export const codeBlockType = nodeTypeFactory(codeBlockNodeName);
 
-export type LineNumbersOptions = {enabled?: boolean; showByDefault?: boolean};
+export type LineNumbersOptions = {
+    /**
+     * Allow line numbers in codeblock.
+     * Available with @diplodoc/transform v4.55.0 or higher.
+     * @default true
+     */
+    // TODO [MAJOR]: enable by default and remove option
+    enabled?: boolean;
+    /**
+     * By default, new code blocks are added with line numbers.
+     * @default false
+     */
+    showByDefault?: boolean;
+};
 
 export type CodeBlockSpecsOptions = {
     nodeview?: ExtensionNodeSpec['view'];

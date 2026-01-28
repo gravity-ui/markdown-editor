@@ -1,20 +1,14 @@
-import type {NodeType} from 'prosemirror-model';
-// @ts-ignore // TODO: fix cjs build
-import {hasParentNodeOfType} from 'prosemirror-utils';
-
-import type {Action, ExtensionAuto, Keymap} from '../../../core';
-import {isFunction} from '../../../lodash';
-import {textblockTypeInputRule} from '../../../utils/inputrules';
-import {withLogAction} from '../../../utils/keymap';
+import type {Action, ExtensionAuto, Keymap} from '#core';
+import type {NodeType} from '#pm/model';
+import {hasParentNodeOfType} from '#pm/utils';
+import {isFunction} from 'src/lodash';
+import {textblockTypeInputRule} from 'src/utils/inputrules';
+import {withLogAction} from 'src/utils/keymap';
 
 import {CodeBlockHighlight, type HighlightLangMap} from './CodeBlockHighlight/CodeBlockHighlight';
-import {
-    CodeBlockSpecs,
-    type CodeBlockSpecsOptions,
-    type LineNumbersOptions,
-} from './CodeBlockSpecs';
+import {CodeBlockSpecs, type CodeBlockSpecsOptions} from './CodeBlockSpecs';
 import {newlineInCode, resetCodeblock, setCodeBlockType} from './commands';
-import {cbAction, codeBlockType} from './const';
+import {cbAction, codeBlockType, lineNumbersOptionsDefault} from './const';
 import {codeBlockPastePlugin} from './plugins/codeBlockPastePlugin';
 
 export {resetCodeblock} from './commands';
@@ -24,8 +18,6 @@ export type CodeBlockOptions = CodeBlockSpecsOptions & {
     codeBlockKey?: string | null;
     langs?: HighlightLangMap;
 };
-
-export const lineNumbersOptionsDefault: LineNumbersOptions = {enabled: true, showByDefault: true};
 
 export const CodeBlock: ExtensionAuto<CodeBlockOptions> = (builder, opts) => {
     const optsNormalized: CodeBlockOptions = {
