@@ -1,5 +1,12 @@
 # Changelog
 
+## [15.31.0](https://github.com/gravity-ui/markdown-editor/compare/v15.30.0...v15.31.0) (2026-01-28)
+
+
+### Features
+
+* **CodeBlock:** create new code blocks without line numbers ([#940](https://github.com/gravity-ui/markdown-editor/issues/940)) ([b641ae8](https://github.com/gravity-ui/markdown-editor/commit/b641ae8fa91e2761eafe3bee36a53922627f45ad))
+
 ## [15.30.0](https://github.com/gravity-ui/markdown-editor/compare/v15.29.0...v15.30.0) (2026-01-27)
 
 
