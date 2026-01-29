@@ -29,7 +29,7 @@
   },
   "scripts": {
     "clean": "gulp clean",
-    "build": "gulp",
+    "build": "gulp build",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "lint": "run-p -cs lint:*",
     "lint:js": "eslint \"{src,demo}/**/*.{js,jsx,ts,tsx}\"",
@@ -40,7 +40,7 @@
     "test:cov": "jest --coverage",
     "test:watch": "jest --watchAll",
     "test:esbuild": "node tests/esbuild-test/esbuild-tester.js",
-    "prepublishOnly": "pnpm run lint && pnpm run build"
+    "prepublishOnly": "pnpm run lint && pnpm run clean && pnpm run build"
   },
   "exports": {
     ".": {

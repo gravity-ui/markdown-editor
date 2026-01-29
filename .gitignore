@@ -29,3 +29,6 @@ debug-storybook.log
 playwright-report*
 test-results/
 
+# nx
+.nx/cache
+.nx/workspace-data

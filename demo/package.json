@@ -79,5 +79,54 @@
     "typescript": "catalog:ts",
     "url": "0.11.4",
     "webpack": "^5.97.1"
+  },
+  "nx": {
+    "targets": {
+      "playwright": {
+        "dependsOn": [
+          "^clean",
+          "^build"
+        ]
+      },
+      "sb:build": {
+        "dependsOn": [
+          "^clean",
+          "^build"
+        ],
+        "outputs": [
+          "{projectRoot}/demo/storybook-static"
+        ],
+        "cache": true
+      },
+      "sb:start": {
+        "continuous": true,
+        "dependsOn": [
+          "^clean",
+          "^build",
+          "watch-deps"
+        ]
+      },
+      "build-deps": {
+        "dependsOn": [
+          "^build"
+        ],
+        "configurations": {},
+        "options": {},
+        "parallelism": true,
+        "executor": "nx:noop"
+      },
+      "watch-deps": {
+        "continuous": true,
+        "dependsOn": [
+          "build-deps"
+        ],
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "pnpm exec nx watch --projects @markdown-editor/demo --includeDependentProjects -- pnpm exec nx build-deps @markdown-editor/demo"
+        },
+        "configurations": {},
+        "parallelism": true
+      }
+    }
   }
 }

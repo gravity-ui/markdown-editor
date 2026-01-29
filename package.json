@@ -18,9 +18,11 @@
     }
   },
   "scripts": {
+    "ci:sb:build": "nx sb:build @markdown-editor/demo",
+    "ci:playwright": "nx playwright @markdown-editor/demo",
     "deps:global": "npm install -g pnpm@10.17.1",
     "deps:ci": "pnpm i --frozen-lockfile",
-    "start": "pnpm --filter '@markdown-editor/demo' sb:start",
+    "start": "nx sb:start @markdown-editor/demo",
     "clean": "pnpm --filter '@gravity-ui/*' clean",
     "build": "pnpm --filter '@gravity-ui/*' build",
     "typecheck": "pnpm -r typecheck",
@@ -33,8 +35,7 @@
     "test:cov": "jest --coverage",
     "test:watch": "jest --watchAll",
     "test:esbuild": "node tests/esbuild-test/esbuild-tester.js",
-    "prepublishOnly": "pnpm run lint && pnpm run build",
-    "ci:playwright": "pnpm --filter '@markdown-editor/demo' playwright"
+    "prepublishOnly": "pnpm run lint && pnpm run build"
   },
   "dependencies": {},
   "devDependencies": {
@@ -51,7 +52,8 @@
     "postcss": "catalog:linters",
     "prettier": "catalog:linters",
     "stylelint": "catalog:linters",
-    "typescript": "catalog:ts"
+    "typescript": "catalog:ts",
+    "nx": "22.3.3"
   },
   "lint-staged": {
     "*.{css,scss}": [

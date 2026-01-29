@@ -24,11 +24,8 @@ jobs:
           - name: Install dependencies
             run: pnpm run deps:ci
 
-          - name: Build packages
-            run: pnpm run build
-
           - name: Build Storybook
-            run: pnpm --filter @markdown-editor/demo sb:build
+            run: pnpm run ci:sb:build
 
           - name: Upload to S3
             uses: gravity-ui/preview-upload-to-s3-action@v1
