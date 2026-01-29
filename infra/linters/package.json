@@ -1,0 +1,36 @@
+{
+  "name": "@markdown-editor/linters",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "files": [
+    "eslint",
+    "prettier",
+    "stylelint"
+  ],
+  "exports": {
+    "./eslint/lib": "./eslint/lib.js",
+    "./eslint/common": "./eslint/common.js",
+    "./prettier": "./prettier/common.js",
+    "./stylelint": "./stylelint/common.js"
+  },
+  "dependencies": {
+    "@gravity-ui/eslint-config": "4.2.0",
+    "@gravity-ui/prettier-config": "1.1.0",
+    "@gravity-ui/stylelint-config": "5.0.0",
+    "eslint-plugin-lodash": "8.0.0",
+    "eslint-plugin-react": "7.37.5"
+  },
+  "devDependencies": {
+    "eslint": "catalog:linters",
+    "postcss": "catalog:linters",
+    "prettier": "catalog:linters",
+    "stylelint": "catalog:linters"
+  },
+  "peerDependencies": {
+    "postcss": "^8.0.0",
+    "prettier": "^3.0.0",
+    "stylelint": "^16.18.0",
+    "typescript": "^5.8.3"
+  }
+}

@@ -25,9 +25,6 @@ jobs:
       - name: Install dependencies
         run: pnpm run deps:ci
 
-      - name: Build packages
-        run: pnpm run build
-
       - name: Run Visual Tests
         run: pnpm run ci:playwright
         env:
