@@ -11,7 +11,7 @@ import {BlockquoteSpecs, blockquoteNodeName} from '../../markdown/Blockquote/Blo
 
 import {YfmTableNode, YfmTableSpecs} from './YfmTableSpecs';
 import {YfmTableAttr} from './const';
-import {fixPastedTableBodies} from './paste';
+import {fixPastedTableBodies, unpackSingleCellTable} from './paste';
 
 const {
     schema,
@@ -154,6 +154,20 @@ nested table
             transformPasted: (slice) => fixPastedTableBodies(slice, schema),
         });
         dispatchPasteEvent(view, {'text/html': html, 'text/plain': text});
+        expect(view.state.doc).toMatchNode(
+            doc(table(tbody(tr(td(p('content in thead'))), tr(td(p('content in tbody')))))),
+        );
+    });
+
+    it('should transform pasted table into slice with content from single cell', () => {
+        const text = 'content from cell';
+        const html = '<table><tbody><tr><td>content from cell</td></tr></tbody></table>';
+        const view = new EditorView(null, {
+            state: EditorState.create({schema}),
+            transformPasted: (slice) => unpackSingleCellTable(slice),
+        });
+        dispatchPasteEvent(view, {'text/html': html, 'text/plain': text});
+        expect(view.state.doc).toMatchNode(doc(p('content from cell')));
     });
 
     it('should parse table with rowspan and colspan', () => {
