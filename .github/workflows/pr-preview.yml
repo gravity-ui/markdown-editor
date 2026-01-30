@@ -23,16 +23,13 @@ jobs:
       - name: Install dependencies
         run: pnpm run deps:ci
 
-      - name: Install Storybook CLI
-        run: pnpm i @storybook/cli@8.4.1
-
       - name: Build Storybook
-        run: pnpm run sb:build
+        run: pnpm run ci:sb:build
 
       - name: Upload to S3
         uses: gravity-ui/preview-upload-to-s3-action@v1
         with:
-          src-path: storybook-static
+          src-path: demo/storybook-static
           dest-path: /md-editor/pulls/${{ github.event.pull_request.number }}/
           s3-key-id: ${{ secrets.STORYBOOK_S3_KEY_ID }}
           s3-secret-key: ${{ secrets.STORYBOOK_S3_SECRET_KEY }}

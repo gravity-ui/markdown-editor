@@ -51,10 +51,10 @@ jobs:
         run: pnpm run deps:ci
 
       - name: Unit Tests
-        run: pnpm run test
+        run: pnpm --filter '@gravity-ui/*' test
 
       - name: ESBuild compatability
-        run: pnpm run test:esbuild
+        run: pnpm --filter '@gravity-ui/*' test:esbuild
 
   check_circular_deps:
     name: Check Circular Dependencies
@@ -76,4 +76,4 @@ jobs:
         run: pnpm run deps:ci
 
       - name: Check circular dependencies
-        run: pnpm run check-circular-deps
+        run: pnpm --filter '@gravity-ui/*' check-circular-deps
