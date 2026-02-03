@@ -1,15 +1,16 @@
-import {Fragment, type Node, type ResolvedPos, type Schema, Slice} from 'prosemirror-model';
-import {type EditorState, Plugin, type Selection} from 'prosemirror-state';
-import type {EditorView} from 'prosemirror-view';
+import {type Parser, type Serializer, trackTransactionMetrics} from '#core';
+import {Fragment, type Node, type ResolvedPos, type Schema, Slice} from '#pm/model';
+import {type EditorState, Plugin, type Selection} from '#pm/state';
+import type {EditorView} from '#pm/view';
+import {type Logger2, globalLogger} from 'src/logger';
+import 'src/types/spec';
+import {tryCatch} from 'src/utils/helpers';
+import {isNodeSelection, isTextSelection, isWholeSelection} from 'src/utils/selection';
 
-import {type Parser, type Serializer, trackTransactionMetrics} from '../../../core';
-import {type Logger2, globalLogger} from '../../../logger';
-import '../../../types/spec';
-import {tryCatch} from '../../../utils/helpers';
-import {isNodeSelection, isTextSelection, isWholeSelection} from '../../../utils/selection';
 import {BaseNode, pType} from '../../base/BaseSchema';
 
 import {isInsideCode} from './code';
+import {trimEmptyTableCells} from './table';
 import {DataTransferType, extractTextContentFromHtml, isIosSafariShare, trimContent} from './utils';
 
 export type ClipboardPluginOptions = {
@@ -236,6 +237,7 @@ function serializeSelected(view: EditorView, serializer: Serializer): SerializeR
 
     if (sel.empty) return null;
 
+    // handle selection in codeblocks
     if (getSharedDepthNode(sel).type.spec.code) {
         const fragment = sel.content().content;
         return {text: fragment.textBetween(0, fragment.size)};
@@ -255,14 +257,10 @@ function setClipboardData(data: DataTransfer, result: SerializeResult) {
 }
 
 function getCopyContent(state: EditorState): Slice {
-    const sel = state.selection;
+    let sel = state.selection;
 
     if (isWholeSelection(sel)) {
         return new Slice(state.doc.content, 0, 0);
-    }
-
-    if (isTextSelectionWithinSameTextBlock(sel)) {
-        return new Slice(createFragmentFromInlineSelection(state), 0, 0);
     }
 
     if (isNodeSelection(sel)) {
@@ -287,6 +285,14 @@ function getCopyContent(state: EditorState): Slice {
         } else {
             return new Slice(Fragment.from(node), 1, 1);
         }
+    }
+
+    if (isTextSelection(sel)) {
+        sel = trimEmptyTableCells(sel);
+    }
+
+    if (isTextSelectionWithinSameTextBlock(sel)) {
+        return new Slice(createFragmentFromInlineSelection(state, sel), 0, 0);
     }
 
     let slice = getSelectionContent(sel);
@@ -330,8 +336,7 @@ function isTextSelectionWithinSameTextBlock(sel: Selection) {
     return isTextSelection(sel) && sel.$from.sameParent(sel.$to) && sel.$from.parent.isTextblock;
 }
 
-function createFragmentFromInlineSelection(state: EditorState) {
-    const sel = state.selection;
+function createFragmentFromInlineSelection(state: EditorState, sel: Selection) {
     const inlineSlice = state.doc.slice(sel.from, sel.to);
     const isComplexTextblock = Boolean(sel.$from.parent.type.spec.complex);
     const isAllContentSelected = sel.$from.parent.content.eq(inlineSlice.content);
