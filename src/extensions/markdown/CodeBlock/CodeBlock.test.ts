@@ -126,4 +126,32 @@ describe('CodeBlock paste handling', () => {
         });
         expect(getCodeData(data)).toBeNull();
     });
+
+    describe('mixed content handling', () => {
+        it('should return null for mixed HTML (link + code + table + text)', () => {
+            const html = `
+                <a href="https://example.com">Link</a>
+                <pre><code>const x = 1;</code></pre>
+                <table><tr><td>cell</td></tr></table>
+                <p>Some text</p>
+                <pre><code>const y = 2;</code></pre>
+            `;
+            const data = createMockDataTransfer({
+                [DataTransferType.Text]: 'Link\nconst x = 1;\ncell\nSome text\nconst y = 2;',
+                [DataTransferType.Html]: html,
+            });
+            expect(getCodeData(data)).toBeNull();
+        });
+
+        it('should handle code-only HTML as code block', () => {
+            const html = '<pre><code>const x = 1;\nconst y = 2;</code></pre>';
+            const data = createMockDataTransfer({
+                [DataTransferType.Text]: 'const x = 1;\nconst y = 2;',
+                [DataTransferType.Html]: html,
+            });
+            const result = getCodeData(data);
+            expect(result).not.toBeNull();
+            expect(result?.editor).toBe('code-editor');
+        });
+    });
 });

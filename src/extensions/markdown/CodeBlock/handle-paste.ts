@@ -114,14 +114,37 @@ function processVSCodePaste(data: DataTransfer, text: string): CodePasteData {
     };
 }
 
-function processHtmlPaste(data: DataTransfer, text: string): CodePasteData {
+function processHtmlPaste(data: DataTransfer, text: string): CodePasteData | null {
     const html = data.getData('text/html') || '';
+
+    if (!isCodeOnlyHtml(html)) {
+        return null;
+    }
+
     const inline = isInlineCodeFromHtml(html, text);
     return {
         editor: 'code-editor',
         value: inline ? text : dd(text),
         inline,
     };
+}
+
+function isCodeOnlyHtml(html: string): boolean {
+    const div = document.createElement('div');
+    div.innerHTML = html;
+
+    div.querySelectorAll('meta, style, script').forEach((el) => el.remove());
+
+    const codeElements = div.querySelectorAll('pre, code');
+    if (codeElements.length === 0) {
+        return false;
+    }
+
+    const clone = div.cloneNode(true) as HTMLElement;
+    clone.querySelectorAll('pre, code').forEach((el) => el.remove());
+
+    const remainingText = clone.textContent?.trim() || '';
+    return remainingText.length === 0;
 }
 
 export function isInlineCode(text: string): boolean {
