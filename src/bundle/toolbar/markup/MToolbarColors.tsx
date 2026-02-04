@@ -10,6 +10,7 @@ export const MToolbarColors: React.FC<MToolbarColorsProps> = ({
     focus,
     onClick,
 }) => {
+    // TODO: @makhnatkin check markup mode
     return (
         <ToolbarColors
             enable
