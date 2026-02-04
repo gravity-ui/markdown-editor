@@ -112,12 +112,12 @@
     },
     "./extensions/*": {
       "import": {
-        "types": "./build/esm/extensions/*",
-        "default": "./build/esm/extensions/*"
+        "types": "./build/esm/extensions/*/index.d.ts",
+        "default": "./build/esm/extensions/*/index.js"
       },
       "require": {
-        "types": "./build/cjs/extensions/*",
-        "default": "./build/cjs/extensions/*"
+        "types": "./build/cjs/extensions/*/index.d.ts",
+        "default": "./build/cjs/extensions/*/index.js"
       }
     },
     "./view": {
@@ -132,12 +132,12 @@
     },
     "./view/*": {
       "import": {
-        "types": "./build/esm/view/*",
-        "default": "./build/esm/view/*"
+        "types": "./build/esm/view/*/index.d.ts",
+        "default": "./build/esm/view/*/index.js"
       },
       "require": {
-        "types": "./build/cjs/view/*",
-        "default": "./build/cjs/view/*"
+        "types": "./build/cjs/view/*/index.d.ts",
+        "default": "./build/cjs/view/*/index.js"
       }
     },
     "./cm/*": {
