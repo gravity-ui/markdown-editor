@@ -29,6 +29,12 @@ export function isVSCode(data: DataTransfer): boolean {
     return data.types.includes(DataTransferType.VSCodeData);
 }
 
+export function isJetBrains(data: DataTransfer): boolean {
+    if (!data.types.includes(DataTransferType.Rtf)) return false;
+    const rtf = data.getData(DataTransferType.Rtf);
+    return rtf.indexOf('\\fmodern JetBrains') > 0;
+}
+
 export type VSCodeData = {
     version: number;
     isFromEmptySelection: boolean;

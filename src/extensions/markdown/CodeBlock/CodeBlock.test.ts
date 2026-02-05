@@ -105,21 +105,37 @@ describe('CodeBlock paste handling', () => {
         });
     });
 
-    it('should detect inline code from HTML <code> tag', () => {
+    it('should detect JetBrains paste as inline for single line', () => {
         const data = createMockDataTransfer({
-            [DataTransferType.Text]: 'x',
-            [DataTransferType.Html]: '<code>x</code>',
+            [DataTransferType.Text]: 'const x = 1',
+            [DataTransferType.Html]: '<pre>const x = 1</pre>',
+            [DataTransferType.Rtf]: '{\\rtf1\\fmodern JetBrains Mono}',
         });
         const result = getCodeData(data);
 
         expect(result).toEqual({
-            editor: 'code-editor',
-            value: 'x',
+            editor: 'jetbrains',
+            value: 'const x = 1',
             inline: true,
         });
     });
 
-    it('should return null when no code-related data', () => {
+    it('should detect JetBrains paste as block for multiline', () => {
+        const data = createMockDataTransfer({
+            [DataTransferType.Text]: 'const x = 1\nconst y = 2',
+            [DataTransferType.Html]: '<pre>const x = 1\nconst y = 2</pre>',
+            [DataTransferType.Rtf]: '{\\rtf1\\fmodern JetBrains Mono}',
+        });
+        const result = getCodeData(data);
+
+        expect(result).toEqual({
+            editor: 'jetbrains',
+            value: 'const x = 1\nconst y = 2',
+            inline: false,
+        });
+    });
+
+    it('should return null when no code-related data (let ProseMirror handle it)', () => {
         const data = createMockDataTransfer({
             [DataTransferType.Text]: 'some text',
             [DataTransferType.Html]: '<div>some text</div>',
@@ -127,31 +143,12 @@ describe('CodeBlock paste handling', () => {
         expect(getCodeData(data)).toBeNull();
     });
 
-    describe('mixed content handling', () => {
-        it('should return null for mixed HTML (link + code + table + text)', () => {
-            const html = `
-                <a href="https://example.com">Link</a>
-                <pre><code>const x = 1;</code></pre>
-                <table><tr><td>cell</td></tr></table>
-                <p>Some text</p>
-                <pre><code>const y = 2;</code></pre>
-            `;
-            const data = createMockDataTransfer({
-                [DataTransferType.Text]: 'Link\nconst x = 1;\ncell\nSome text\nconst y = 2;',
-                [DataTransferType.Html]: html,
-            });
-            expect(getCodeData(data)).toBeNull();
+    it('should return null for HTML with code tags (let ProseMirror handle it)', () => {
+        const html = '<pre><code>const x = 1;</code></pre>';
+        const data = createMockDataTransfer({
+            [DataTransferType.Text]: 'const x = 1;',
+            [DataTransferType.Html]: html,
         });
-
-        it('should handle code-only HTML as code block', () => {
-            const html = '<pre><code>const x = 1;\nconst y = 2;</code></pre>';
-            const data = createMockDataTransfer({
-                [DataTransferType.Text]: 'const x = 1;\nconst y = 2;',
-                [DataTransferType.Html]: html,
-            });
-            const result = getCodeData(data);
-            expect(result).not.toBeNull();
-            expect(result?.editor).toBe('code-editor');
-        });
+        expect(getCodeData(data)).toBeNull();
     });
 });
