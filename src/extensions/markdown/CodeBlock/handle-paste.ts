@@ -4,7 +4,7 @@ import dd from 'ts-dedent';
 
 import {getLoggerFromState} from '#core';
 import type {EditorProps} from '#pm/view';
-import {DataTransferType, isVSCode, tryParseVSCodeData} from 'src/utils/clipboard';
+import {DataTransferType, isJetBrains, isVSCode, tryParseVSCodeData} from 'src/utils/clipboard';
 
 import {codeBlockType} from './const';
 
@@ -96,9 +96,8 @@ export function getCodeData(data: DataTransfer): CodePasteData | null {
         return processVSCodePaste(data, text);
     }
 
-    const html = data.getData('text/html') || '';
-    if (html && (html.includes('<pre') || html.includes('<code'))) {
-        return processHtmlPaste(data, text);
+    if (isJetBrains(data)) {
+        return processJetBrainsPaste(text);
     }
 
     return null;
@@ -114,20 +113,14 @@ function processVSCodePaste(data: DataTransfer, text: string): CodePasteData {
     };
 }
 
-function processHtmlPaste(data: DataTransfer, text: string): CodePasteData {
-    const html = data.getData('text/html') || '';
-    const inline = isInlineCodeFromHtml(html, text);
+function processJetBrainsPaste(text: string): CodePasteData {
     return {
-        editor: 'code-editor',
-        value: inline ? text : dd(text),
-        inline,
+        editor: 'jetbrains',
+        value: dd(text),
+        inline: isInlineCode(text),
     };
 }
 
 export function isInlineCode(text: string): boolean {
     return !text.includes('\n');
-}
-
-function isInlineCodeFromHtml(html: string, text: string): boolean {
-    return html.includes('<code') && !html.includes('<pre') && isInlineCode(text);
 }
