@@ -1,18 +1,28 @@
-import type {ChangeEventHandler} from 'react';
-
-import {TrashBin} from '@gravity-ui/icons';
-import {Checkbox, Select, type SelectOption} from '@gravity-ui/uikit';
+import {
+    ListOl as LineNumbersIcon,
+    TrashBin as RemoveIcon,
+    ArrowUturnCwLeft as WrappingIcon,
+} from '@gravity-ui/icons';
+import {ClipboardButton, Select, type SelectOption} from '@gravity-ui/uikit';
 import type {Node} from 'prosemirror-model';
 import type {EditorView} from 'prosemirror-view';
 
 import {cn} from 'src/classname';
+import {isTruthy} from 'src/utils/truthy';
 
 import {i18n} from '../../../../../i18n/codeblock';
 import {i18n as i18nPlaceholder} from '../../../../../i18n/placeholder';
 import {BaseTooltipPluginView} from '../../../../../plugins/BaseTooltip';
-import {Toolbar, type ToolbarData, ToolbarDataType} from '../../../../../toolbar';
+import {Toolbar, ToolbarDataType, type ToolbarGroupItemData} from '../../../../../toolbar';
 import {removeNode} from '../../../../../utils/remove-node';
 import {CodeBlockNodeAttr, codeBlockType} from '../../CodeBlockSpecs';
+import {
+    disableLineWrapping,
+    enableLineWrapping,
+    isNodeHasLineWrapping,
+} from '../plugins/codeBlockLineWrappingPlugin';
+
+import {isLineNumbersVisible, toggleLineNumbers} from './utils';
 
 import './TooltipView.scss';
 
@@ -65,53 +75,22 @@ const CodeMenu: React.FC<CodeMenuProps> = ({view, pos, node, selectItems, mappin
     );
 };
 
-type ShowLineNumbersProps = {
-    view: EditorView;
-    pos: number;
-    node: Node;
-};
-
-const ShowLineNumbers: React.FC<ShowLineNumbersProps> = ({view, pos, node}) => {
-    const lang = node.attrs[CodeBlockNodeAttr.Lang];
-    const showLineNumbers = node.attrs[CodeBlockNodeAttr.ShowLineNumbers] === 'true';
-
-    const handleChange: ChangeEventHandler<HTMLInputElement> = (event) => {
-        view.dispatch(
-            view.state.tr.setNodeMarkup(pos, null, {
-                [CodeBlockNodeAttr.Lang]: lang,
-                [CodeBlockNodeAttr.ShowLineNumbers]: event.target.checked ? 'true' : '',
-            }),
-        );
-    };
-
-    return (
-        <Checkbox
-            checked={showLineNumbers}
-            className={bCodeBlock('show-line-numbers')}
-            content={i18n('show_line_numbers')}
-            onChange={handleChange}
-        />
-    );
+type Options = {
+    showCodeWrapping: boolean;
+    showLineNumbers: boolean;
 };
 
 export const codeLangSelectTooltipViewCreator = (
     view: EditorView,
     langItems: SelectOption[],
     mapping: Record<string, string> = {},
-    showLineNumbers: boolean,
+    {showCodeWrapping, showLineNumbers}: Options,
 ) => {
     return new BaseTooltipPluginView(view, {
         idPrefix: 'code-block-tooltip',
         nodeType: codeBlockType(view.state.schema),
         popupPlacement: ['bottom', 'top'],
-        content: (view, {node, pos}) => {
-            const lineNumbersCheckbox: ToolbarData<{}>[number][number] = {
-                id: 'code-block-showlinenumbers',
-                type: ToolbarDataType.ReactComponent,
-                component: () => <ShowLineNumbers view={view} pos={pos} node={node} />,
-                width: 28,
-            };
-
+        content: (view, {node, pos}, _onChange, _forceEdit, _onOutsideClick, rerender) => {
             return (
                 <Toolbar
                     editor={{}}
@@ -134,12 +113,54 @@ export const codeLangSelectTooltipViewCreator = (
                                 width: 28,
                             },
                         ],
-                        ...(showLineNumbers ? [[lineNumbersCheckbox]] : []),
+                        [
+                            showCodeWrapping &&
+                                ({
+                                    id: 'code-block-wrapping',
+                                    icon: {data: WrappingIcon},
+                                    // title: i18n('wrap_code'),
+                                    title: 'Code wrapping',
+                                    type: ToolbarDataType.SingleButton,
+                                    isActive: () => isNodeHasLineWrapping(view.state, pos),
+                                    isEnable: () => true,
+                                    exec: () => {
+                                        let tr = view.state.tr;
+                                        tr = isNodeHasLineWrapping(view.state, pos)
+                                            ? disableLineWrapping(tr, pos)
+                                            : enableLineWrapping(tr, pos);
+                                        view.dispatch(tr);
+                                        rerender?.();
+                                    },
+                                } satisfies ToolbarGroupItemData<{}>),
+                            showLineNumbers &&
+                                ({
+                                    id: 'code-block-linenumbers',
+                                    icon: {data: LineNumbersIcon},
+                                    title: i18n('show_line_numbers'),
+                                    type: ToolbarDataType.SingleButton,
+                                    isActive: () => isLineNumbersVisible(node),
+                                    isEnable: () => true,
+                                    exec: () =>
+                                        toggleLineNumbers({
+                                            pos,
+                                            node,
+                                            tr: view.state.tr,
+                                            dispatch: view.dispatch,
+                                        }),
+                                } satisfies ToolbarGroupItemData<{}>),
+                            {
+                                id: 'code-block-copy',
+                                type: ToolbarDataType.ReactNodeFn,
+                                width: 28,
+                                content: () => <ClipboardButton text={node.textContent} />,
+                            } satisfies ToolbarGroupItemData<{}>,
+                        ].filter(isTruthy),
                         [
                             {
                                 id: 'code-block-remove',
-                                icon: {data: TrashBin},
+                                icon: {data: RemoveIcon},
                                 title: i18n('remove'),
+                                theme: 'danger',
                                 type: ToolbarDataType.SingleButton,
                                 isActive: () => false,
                                 isEnable: () => true,

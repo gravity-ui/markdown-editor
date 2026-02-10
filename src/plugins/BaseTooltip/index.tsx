@@ -23,6 +23,7 @@ export type TooltipContentCb = (
     onChange?: (attrs: Record<string, string>) => void,
     forceEdit?: boolean,
     onOutsideClick?: () => void,
+    rerender?: () => void,
 ) => React.ReactElement | null;
 
 export interface BaseTooltipPluginOptions {
@@ -242,7 +243,14 @@ export class BaseTooltipPluginView implements PluginView {
                 onOpenChange={this.popupOpenChangeHandler}
             >
                 <div className={b()}>
-                    {this.content(this.view, currentNode, this.changeAttrsCb)}
+                    {this.content(
+                        this.view,
+                        currentNode,
+                        this.changeAttrsCb,
+                        undefined,
+                        undefined,
+                        () => this.render(),
+                    )}
                 </div>
             </Popup>
         );
