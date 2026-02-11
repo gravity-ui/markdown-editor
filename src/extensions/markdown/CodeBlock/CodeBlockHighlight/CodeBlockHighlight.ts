@@ -21,6 +21,7 @@ import {
 
 import {CodeBlockNodeView} from './CodeBlockNodeView';
 import {codeLangSelectTooltipViewCreator} from './TooltipPlugin';
+import {PlainTextLang} from './const';
 import {codeBlockLineNumbersPlugin} from './plugins/codeBlockLineNumbersPlugin';
 import {codeBlockLineWrappingPlugin} from './plugins/codeBlockLineWrappingPlugin';
 
@@ -39,6 +40,9 @@ type LangSelectItem = {
 const key = new PluginKey<DecorationSet>('code_block_highlight');
 
 export type CodeBlockHighlightOptions = {
+    lineWrapping?: {
+        enabled?: boolean;
+    };
     lineNumbers?: LineNumbersOptions;
     langs?: HighlightLangMap;
 };
@@ -66,13 +70,14 @@ export const CodeBlockHighlight: ExtensionAuto<CodeBlockHighlightOptions> = (bui
     };
 
     // TODO: add if statement
-    builder.addPlugin(codeBlockLineWrappingPlugin);
-    builder.addPlugin(codeBlockLineNumbersPlugin);
+    if (opts.lineWrapping?.enabled) builder.addPlugin(codeBlockLineWrappingPlugin);
+    if (opts.lineNumbers?.enabled) builder.addPlugin(codeBlockLineNumbersPlugin);
 
     builder.addPlugin(() => {
         let modulesLoaded = false;
         let view: EditorView | null = null;
 
+        // empty array by default, but is filled after loading modules
         const selectItems: LangSelectItem[] = [];
         const mapping: Record<string, string> = {};
 
@@ -98,6 +103,8 @@ export const CodeBlockHighlight: ExtensionAuto<CodeBlockHighlightOptions> = (bui
                                     }
                                 }
                             }
+
+                            selectItems.sort(sortLangs);
 
                             if (view && !view.isDestroyed) {
                                 view.dispatch(view.state.tr.setMeta(key, {modulesLoaded}));
@@ -162,7 +169,7 @@ export const CodeBlockHighlight: ExtensionAuto<CodeBlockHighlightOptions> = (bui
             view: (v) => {
                 view = v;
                 return codeLangSelectTooltipViewCreator(view, selectItems, mapping, {
-                    showCodeWrapping: true, // todo
+                    showCodeWrapping: Boolean(opts.lineWrapping?.enabled),
                     showLineNumbers: Boolean(opts.lineNumbers?.enabled),
                 });
             },
@@ -235,4 +242,11 @@ function parseNodes(
 function stepHasFromTo(step: Step): step is Step & {from: number; to: number} {
     // @ts-expect-error
     return typeof step.from === 'number' && typeof step.to === 'number';
+}
+
+function sortLangs(a: LangSelectItem, b: LangSelectItem): number {
+    // plaintext always goes first
+    if (a.value === PlainTextLang) return -1;
+    if (b.value === PlainTextLang) return 1;
+    return 0;
 }

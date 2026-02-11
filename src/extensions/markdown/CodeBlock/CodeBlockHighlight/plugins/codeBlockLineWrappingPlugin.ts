@@ -3,12 +3,6 @@ import {Decoration, DecorationSet} from '#pm/view';
 
 import {codeBlockType} from '../../CodeBlockSpecs';
 
-// TODO: remove
-const counter = (() => {
-    let i = 0;
-    return () => i++;
-})();
-
 type StateShape = {
     decorations: DecorationSet;
 };
@@ -20,12 +14,18 @@ type Meta = {
     pos: number;
 };
 
-const isLineWrappingDecoration = (deco: Decoration) => deco.spec?.lineWrapping === true;
+const WRAPPING_SPEC_KEY = '__code_block_line_wrapping';
+const WRAPPING_SPEC_VALUE = true;
 
+const isLineWrappingDecoration = (deco: Decoration) =>
+    deco.spec?.[WRAPPING_SPEC_KEY] === WRAPPING_SPEC_VALUE;
+
+/** @internal */
 export const hasLineWrappingDecoration = (decorations: readonly Decoration[]): boolean => {
     return decorations.some(isLineWrappingDecoration);
 };
 
+/** @internal */
 export const isNodeHasLineWrapping = (state: EditorState, pos: number): boolean => {
     const node = state.doc.nodeAt(pos);
     if (!node || node.type !== codeBlockType(state.doc.type.schema)) return false;
@@ -33,14 +33,17 @@ export const isNodeHasLineWrapping = (state: EditorState, pos: number): boolean 
     return decos?.some(isLineWrappingDecoration) ?? false;
 };
 
+/** @internal */
 export function enableLineWrapping(tr: Transaction, pos: number): Transaction {
     return tr.setMeta(pluginKey, {type: 'add', pos} satisfies Meta);
 }
 
+/** @internal */
 export function disableLineWrapping(tr: Transaction, pos: number): Transaction {
     return tr.setMeta(pluginKey, {type: 'remove', pos} satisfies Meta);
 }
 
+/** @internal */
 export const codeBlockLineWrappingPlugin = () => {
     return new Plugin<StateShape>({
         key: pluginKey,
@@ -51,7 +54,7 @@ export const codeBlockLineWrappingPlugin = () => {
                 };
             },
             apply(tr, value) {
-                let decos = value.decorations.map(tr.mapping, tr.doc);
+                let decorations = value.decorations.map(tr.mapping, tr.doc);
 
                 if (tr.getMeta(pluginKey)) {
                     const meta = tr.getMeta(pluginKey) as Meta;
@@ -61,13 +64,12 @@ export const codeBlockLineWrappingPlugin = () => {
                         if (node?.type === codeBlockType(tr.doc.type.schema)) {
                             const from = meta.pos;
                             const to = meta.pos + node.nodeSize;
-                            const id = counter();
-                            decos = decos.add(tr.doc, [
+                            decorations = decorations.add(tr.doc, [
                                 Decoration.node(
                                     from,
                                     to,
-                                    {'data-line-wrapping': String(id)},
-                                    {lineWrapping: true, id},
+                                    {},
+                                    {[WRAPPING_SPEC_KEY]: WRAPPING_SPEC_VALUE},
                                 ),
                             ]);
                         }
@@ -76,13 +78,13 @@ export const codeBlockLineWrappingPlugin = () => {
                         if (node?.type === codeBlockType(tr.doc.type.schema)) {
                             const start = meta.pos + 1;
                             const end = meta.pos + node.nodeSize - 1;
-                            const found = decos.find(start, end);
-                            decos = decos.remove(found);
+                            const found = decorations.find(start, end);
+                            decorations = decorations.remove(found);
                         }
                     }
                 }
 
-                return {decorations: decos};
+                return {decorations};
             },
         },
         props: {

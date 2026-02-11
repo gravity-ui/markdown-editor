@@ -1,4 +1,4 @@
-// import type {Node} from '#pm/model';
+import type {Node} from '#pm/model';
 import type {
     NodeView,
     NodeViewConstructor,
@@ -9,13 +9,15 @@ import type {
 import {CodeBlockNodeAttr, type LineNumbersOptions} from '../CodeBlockSpecs';
 
 import {hasLineWrappingDecoration} from './plugins/codeBlockLineWrappingPlugin';
-// import {isLineNumbersVisible} from './utils';
+import {isLineNumbersVisible} from './utils';
 
+/** @internal */
 export type CodeBlockNodeViewOpts = {
-    lineWrapping?: boolean;
+    lineWrapping?: {enabled?: boolean};
     lineNumbers?: LineNumbersOptions;
 };
 
+/** @internal */
 export class CodeBlockNodeView implements NodeView {
     static withOpts(opts: CodeBlockNodeViewOpts): NodeViewConstructor {
         return (node, view, getPos, decorations, innerDecorations) =>
@@ -25,16 +27,13 @@ export class CodeBlockNodeView implements NodeView {
     readonly dom: HTMLElement;
     readonly contentDOM: HTMLElement;
 
-    // private readonly _view: EditorView;
-
     private _lang: string | undefined;
     private readonly _codeElem: HTMLElement;
     private readonly _opts: CodeBlockNodeViewOpts;
 
-    // private _applyLineNumbersResult: ReturnType<typeof applyLineNumbers> | undefined;
+    private _applyLineNumbersResult: ReturnType<typeof applyLineNumbers> | undefined;
 
-    constructor({node, view}: NodeViewProps, opts: CodeBlockNodeViewOpts) {
-        // this._view = view;
+    constructor({node, view, decorations}: NodeViewProps, opts: CodeBlockNodeViewOpts) {
         this._opts = opts;
         this._lang = node.attrs[CodeBlockNodeAttr.Lang];
 
@@ -53,8 +52,9 @@ export class CodeBlockNodeView implements NodeView {
 
         this.contentDOM = document.createElement('div');
 
-        if (this._opts.lineNumbers?.enabled) {
-            // this._applyLineNumbersResult = applyLineNumbers(node, this._codeElem);
+        const hasLineWrapping = hasLineWrappingDecoration(decorations);
+        if (this._opts.lineNumbers?.enabled && hasLineWrapping) {
+            this._applyLineNumbersResult = applyLineNumbers(node, this._codeElem, true);
         }
 
         this._codeElem.append(this.contentDOM);
@@ -78,12 +78,13 @@ export class CodeBlockNodeView implements NodeView {
         this._codeElem.classList.toggle('wrap', hasLineWrapping);
 
         if (this._opts.lineNumbers?.enabled) {
-            // this._applyLineNumbersResult = applyLineNumbers(
-            //     node,
-            //     this._codeElem,
-            //     this._applyLineNumbersResult?.container,
-            //     this._applyLineNumbersResult?.lineCount,
-            // );
+            this._applyLineNumbersResult = applyLineNumbers(
+                node,
+                this._codeElem,
+                hasLineWrapping,
+                this._applyLineNumbersResult?.container,
+                this._applyLineNumbersResult?.lineCount,
+            );
         }
 
         return true;
@@ -98,62 +99,45 @@ function updateDomAttribute(elem: Element, attr: string, value: string | null | 
     }
 }
 
-// function applyLineNumbers(
-//     node: Node,
-//     code: HTMLElement,
-//     prevContainer?: HTMLDivElement,
-//     prevLineCount = 0,
-// ): {container?: HTMLDivElement; lineCount: number} {
-//     const document = code.ownerDocument;
-//     const showLineNumbers = isLineNumbersVisible(node);
+function applyLineNumbers(
+    node: Node,
+    code: HTMLElement,
+    hasLineWrapping: boolean,
+    prevContainer?: HTMLDivElement,
+    prevLineCount = 0,
+): {container?: HTMLDivElement; lineCount: number} {
+    const document = code.ownerDocument;
+    const showLineNumbers = isLineNumbersVisible(node);
 
-//     if (!showLineNumbers) {
-//         if (prevContainer) {
-//             code.removeChild(prevContainer);
-//             code.classList.remove('show-line-numbers');
-//         }
-//         return {container: undefined, lineCount: 0};
-//     }
+    if (!showLineNumbers || !hasLineWrapping) {
+        if (prevContainer) {
+            code.removeChild(prevContainer);
+            code.classList.remove('show-line-numbers');
+        }
+        return {container: undefined, lineCount: 0};
+    }
 
-//     const lines = node.textContent ? node.textContent.split('\n') : [''];
-//     const currentLineCount = lines.length;
+    const lines = node.textContent ? node.textContent.split('\n') : [''];
+    const currentLineCount = lines.length;
 
-//     let container = prevContainer;
-//     if (!container) {
-//         container = document.createElement('div');
-//         container.className = 'yfm-line-numbers';
-//         container.contentEditable = 'false';
-//         code.prepend(container);
-//     }
+    let container = prevContainer;
+    if (!container) {
+        container = document.createElement('div');
+        container.className = 'yfm-line-numbers';
+        container.contentEditable = 'false';
+        code.prepend(container);
+    }
 
-//     code.classList.add('show-line-numbers');
+    code.classList.add('show-line-numbers');
 
-//     if (currentLineCount !== prevLineCount) {
-//         const maxDigits = String(currentLineCount).length;
-//         const prevMaxDigits = String(prevLineCount).length;
+    if (currentLineCount !== prevLineCount) {
+        const maxDigits = String(currentLineCount).length;
 
-//         if (currentLineCount > prevLineCount) {
-//             for (let i = prevLineCount + 1; i <= currentLineCount; i++) {
-//                 const lineNumberElement = document.createElement('div');
-//                 lineNumberElement.className = 'yfm-line-number';
-//                 lineNumberElement.textContent = String(i).padStart(maxDigits, ' ');
-//                 container.appendChild(lineNumberElement);
-//             }
-//         } else if (currentLineCount < prevLineCount) {
-//             for (let i = prevLineCount; i > currentLineCount; i--) {
-//                 if (container.lastChild) {
-//                     container.removeChild(container.lastChild);
-//                 }
-//             }
-//         }
+        const lineNumberElement = document.createElement('div');
+        lineNumberElement.classList.add('yfm-line-number', 'fake-line-number');
+        lineNumberElement.textContent = ''.padStart(maxDigits, '0');
+        container.replaceChildren(lineNumberElement);
+    }
 
-//         if (maxDigits !== prevMaxDigits) {
-//             Array.from(container.children).forEach((lineNumber, index) => {
-//                 const lineNum = index + 1;
-//                 lineNumber.textContent = String(lineNum).padStart(maxDigits, ' ');
-//             });
-//         }
-//     }
-
-//     return {container, lineCount: currentLineCount};
-// }
+    return {container, lineCount: currentLineCount};
+}

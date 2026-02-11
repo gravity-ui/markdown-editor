@@ -8,6 +8,7 @@ import {isLineNumbersVisible} from '../utils';
 
 const pluginKey = new PluginKey<DecorationSet>('code_block_line_numbers_decorations');
 
+/** @internal */
 export const codeBlockLineNumbersPlugin = () => {
     return new Plugin<DecorationSet>({
         key: pluginKey,
@@ -47,32 +48,12 @@ function getDecorations(doc: Node) {
             const line = contentByLines[i];
 
             {
-                const from = pos + shift + 1;
-                const to = from + line.length;
-                decos.push(
-                    Decoration.inline(from, to + 2, {
-                        class: 'yfm-line',
-                        nodeName: 'span',
-                        'data-line': String(i + 1),
-                    }),
-                );
-            }
-
-            {
                 const elem = document.createElement('span');
                 elem.classList.add('yfm-line-number');
                 elem.textContent = String(i + 1).padStart(maxDigits, ' ');
 
-                const before = document.createElement('span');
-                before.classList.add('yfm-line-number-before');
-
-                const after = document.createElement('span');
-                after.classList.add('yfm-line-number-after');
-
                 decos.push(
-                    Decoration.widget(pos + shift + 1, before, {side: 1, ignoreSelection: true}),
                     Decoration.widget(pos + shift + 1, elem, {side: 1, ignoreSelection: true}),
-                    Decoration.widget(pos + shift + 1, after, {side: 1, ignoreSelection: true}),
                 );
             }
 
