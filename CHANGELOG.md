@@ -1,5 +1,17 @@
 # Changelog
 
+## [15.32.0](https://github.com/gravity-ui/markdown-editor/compare/v15.31.0...v15.32.0) (2026-02-06)
+
+
+### Features
+
+* **YfmTable:** unpack single-cell tables on paste ([#943](https://github.com/gravity-ui/markdown-editor/issues/943)) ([c825e92](https://github.com/gravity-ui/markdown-editor/commit/c825e92d777021c2e12d9d3abce9f64d7afcc20e))
+
+
+### Bug Fixes
+
+* **CodeBlock:** handle pasting only from code-editors known to us ([#946](https://github.com/gravity-ui/markdown-editor/issues/946)) ([badebdc](https://github.com/gravity-ui/markdown-editor/commit/badebdc567aa592865c66fbac80f11675337f00b))
+
 ## [15.31.0](https://github.com/gravity-ui/markdown-editor/compare/v15.30.0...v15.31.0) (2026-01-28)
 
 
