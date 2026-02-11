@@ -8,21 +8,18 @@ import type {Node} from 'prosemirror-model';
 import type {EditorView} from 'prosemirror-view';
 
 import {cn} from 'src/classname';
+import {i18n} from 'src/i18n/codeblock';
+import {i18n as i18nPlaceholder} from 'src/i18n/placeholder';
+import {BaseTooltipPluginView} from 'src/plugins/BaseTooltip';
+import {Toolbar, ToolbarDataType, type ToolbarGroupItemData} from 'src/toolbar';
+import {removeNode} from 'src/utils/remove-node';
 import {isTruthy} from 'src/utils/truthy';
 
-import {i18n} from '../../../../../i18n/codeblock';
-import {i18n as i18nPlaceholder} from '../../../../../i18n/placeholder';
-import {BaseTooltipPluginView} from '../../../../../plugins/BaseTooltip';
-import {Toolbar, ToolbarDataType, type ToolbarGroupItemData} from '../../../../../toolbar';
-import {removeNode} from '../../../../../utils/remove-node';
 import {CodeBlockNodeAttr, codeBlockType} from '../../CodeBlockSpecs';
-import {
-    disableLineWrapping,
-    enableLineWrapping,
-    isNodeHasLineWrapping,
-} from '../plugins/codeBlockLineWrappingPlugin';
+import {PlainTextLang} from '../const';
+import {isNodeHasLineWrapping} from '../plugins/codeBlockLineWrappingPlugin';
 
-import {isLineNumbersVisible, toggleLineNumbers} from './utils';
+import {isLineNumbersVisible, toggleLineNumbers, toggleLineWrapping} from './utils';
 
 import './TooltipView.scss';
 
@@ -39,19 +36,13 @@ type CodeMenuProps = {
 
 const CodeMenu: React.FC<CodeMenuProps> = ({view, pos, node, selectItems, mapping}) => {
     const lang = node.attrs[CodeBlockNodeAttr.Lang];
-    const showLineNumbers = node.attrs[CodeBlockNodeAttr.ShowLineNumbers];
-    const value = mapping[lang] ?? lang;
+    const value = mapping[lang] || lang || PlainTextLang;
 
     const handleClick = (type: string) => {
         view.focus();
         if (type === value) return;
 
-        view.dispatch(
-            view.state.tr.setNodeMarkup(pos, null, {
-                [CodeBlockNodeAttr.Lang]: type,
-                [CodeBlockNodeAttr.ShowLineNumbers]: showLineNumbers,
-            }),
-        );
+        view.dispatch(view.state.tr.setNodeAttribute(pos, CodeBlockNodeAttr.Lang, type));
     };
 
     return (
@@ -98,37 +89,37 @@ export const codeLangSelectTooltipViewCreator = (
                     className={bToolbar()}
                     data={[
                         [
-                            {
-                                id: 'code-block-type',
-                                type: ToolbarDataType.ReactComponent,
-                                component: () => (
-                                    <CodeMenu
-                                        view={view}
-                                        pos={pos}
-                                        node={node}
-                                        selectItems={langItems}
-                                        mapping={mapping}
-                                    />
-                                ),
-                                width: 28,
-                            },
-                        ],
-                        [
+                            langItems.length > 0 &&
+                                ({
+                                    id: 'code-block-type',
+                                    type: ToolbarDataType.ReactComponent,
+                                    component: () => (
+                                        <CodeMenu
+                                            view={view}
+                                            pos={pos}
+                                            node={node}
+                                            selectItems={langItems}
+                                            mapping={mapping}
+                                        />
+                                    ),
+                                    width: 28,
+                                } satisfies ToolbarGroupItemData<{}>),
                             showCodeWrapping &&
                                 ({
                                     id: 'code-block-wrapping',
                                     icon: {data: WrappingIcon},
-                                    // title: i18n('wrap_code'),
-                                    title: 'Code wrapping',
+                                    title: i18n('code_wrapping'),
                                     type: ToolbarDataType.SingleButton,
                                     isActive: () => isNodeHasLineWrapping(view.state, pos),
                                     isEnable: () => true,
                                     exec: () => {
-                                        let tr = view.state.tr;
-                                        tr = isNodeHasLineWrapping(view.state, pos)
-                                            ? disableLineWrapping(tr, pos)
-                                            : enableLineWrapping(tr, pos);
-                                        view.dispatch(tr);
+                                        toggleLineWrapping({
+                                            pos,
+                                            node,
+                                            state: view.state,
+                                            dispatch: view.dispatch,
+                                        });
+                                        // forcing rerender because editor's toolbar isn't updated when the decorations change
                                         rerender?.();
                                     },
                                 } satisfies ToolbarGroupItemData<{}>),
@@ -144,7 +135,7 @@ export const codeLangSelectTooltipViewCreator = (
                                         toggleLineNumbers({
                                             pos,
                                             node,
-                                            tr: view.state.tr,
+                                            state: view.state,
                                             dispatch: view.dispatch,
                                         }),
                                 } satisfies ToolbarGroupItemData<{}>),

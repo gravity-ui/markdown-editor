@@ -1,5 +1,6 @@
 {
   "remove": "Удалить",
   "empty_option": "Ничего не найдено",
+  "code_wrapping": "Перенос текста",
   "show_line_numbers": "Нумерация строк"
 }
