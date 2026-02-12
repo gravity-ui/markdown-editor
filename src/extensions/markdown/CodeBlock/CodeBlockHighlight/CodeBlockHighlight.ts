@@ -69,7 +69,6 @@ export const CodeBlockHighlight: ExtensionAuto<CodeBlockHighlightOptions> = (bui
         }
     };
 
-    // TODO: add if statement
     if (opts.lineWrapping?.enabled) builder.addPlugin(codeBlockLineWrappingPlugin);
     if (opts.lineNumbers?.enabled) builder.addPlugin(codeBlockLineNumbersPlugin);
 
