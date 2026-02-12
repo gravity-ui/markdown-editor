@@ -28,6 +28,7 @@ export type LineNumbersOptions = {
 
 export type CodeBlockSpecsOptions = {
     nodeview?: ExtensionNodeSpec['view'];
+    /** Configure line numbers in code block */
     lineNumbers?: LineNumbersOptions;
 };
 

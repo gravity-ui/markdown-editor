@@ -19,7 +19,11 @@ import {
     codeBlockType,
 } from '../CodeBlockSpecs';
 
+import {CodeBlockNodeView} from './CodeBlockNodeView';
 import {codeLangSelectTooltipViewCreator} from './TooltipPlugin';
+import {PlainTextLang} from './const';
+import {codeBlockLineNumbersPlugin} from './plugins/codeBlockLineNumbersPlugin';
+import {codeBlockLineWrappingPlugin} from './plugins/codeBlockLineWrappingPlugin';
 
 import './CodeBlockHighlight.scss';
 
@@ -36,6 +40,9 @@ type LangSelectItem = {
 const key = new PluginKey<DecorationSet>('code_block_highlight');
 
 export type CodeBlockHighlightOptions = {
+    lineWrapping?: {
+        enabled?: boolean;
+    };
     lineNumbers?: LineNumbersOptions;
     langs?: HighlightLangMap;
 };
@@ -62,10 +69,14 @@ export const CodeBlockHighlight: ExtensionAuto<CodeBlockHighlightOptions> = (bui
         }
     };
 
+    if (opts.lineWrapping?.enabled) builder.addPlugin(codeBlockLineWrappingPlugin);
+    if (opts.lineNumbers?.enabled) builder.addPlugin(codeBlockLineNumbersPlugin);
+
     builder.addPlugin(() => {
         let modulesLoaded = false;
         let view: EditorView | null = null;
 
+        // empty array by default, but is filled after loading modules
         const selectItems: LangSelectItem[] = [];
         const mapping: Record<string, string> = {};
 
@@ -91,6 +102,8 @@ export const CodeBlockHighlight: ExtensionAuto<CodeBlockHighlightOptions> = (bui
                                     }
                                 }
                             }
+
+                            selectItems.sort(sortLangs);
 
                             if (view && !view.isDestroyed) {
                                 view.dispatch(view.state.tr.setMeta(key, {modulesLoaded}));
@@ -154,87 +167,17 @@ export const CodeBlockHighlight: ExtensionAuto<CodeBlockHighlightOptions> = (bui
             },
             view: (v) => {
                 view = v;
-                return codeLangSelectTooltipViewCreator(
-                    view,
-                    selectItems,
-                    mapping,
-                    Boolean(opts.lineNumbers?.enabled),
-                );
+                return codeLangSelectTooltipViewCreator(view, selectItems, mapping, {
+                    showCodeWrapping: Boolean(opts.lineWrapping?.enabled),
+                    showLineNumbers: Boolean(opts.lineNumbers?.enabled),
+                });
             },
             props: {
                 decorations: (state) => {
                     return key.getState(state);
                 },
                 nodeViews: {
-                    [codeBlockNodeName]: (node) => {
-                        let prevLang = node.attrs[CodeBlockNodeAttr.Lang];
-
-                        const dom = document.createElement('pre');
-                        updateDomAttribute(
-                            dom,
-                            CodeBlockNodeAttr.Line,
-                            node.attrs[CodeBlockNodeAttr.Line],
-                        );
-
-                        const code = document.createElement('code');
-                        code.classList.add('hljs');
-
-                        if (prevLang) {
-                            dom.setAttribute(CodeBlockNodeAttr.Lang, prevLang);
-                            code.classList.add(prevLang);
-                        }
-
-                        const contentDOM = document.createElement('div');
-
-                        let lineNumbersContainer: HTMLDivElement | undefined;
-                        let prevLineCount = 0;
-
-                        if (opts.lineNumbers?.enabled) {
-                            const result = manageLineNumbers(node, code);
-                            lineNumbersContainer = result.container;
-                            prevLineCount = result.lineCount;
-                        }
-
-                        code.append(contentDOM);
-                        dom.append(code);
-
-                        return {
-                            dom,
-                            contentDOM,
-                            update(newNode) {
-                                if (node.type !== newNode.type) return false;
-
-                                const newLang = newNode.attrs[CodeBlockNodeAttr.Lang];
-                                if (prevLang !== newLang) {
-                                    code.className = 'hljs';
-                                    updateDomAttribute(dom, CodeBlockNodeAttr.Lang, newLang);
-                                    if (newLang) {
-                                        code.classList.add(newLang);
-                                    }
-                                    prevLang = newLang;
-                                }
-
-                                updateDomAttribute(
-                                    dom,
-                                    CodeBlockNodeAttr.Line,
-                                    newNode.attrs[CodeBlockNodeAttr.Line],
-                                );
-
-                                if (opts.lineNumbers?.enabled) {
-                                    const result = manageLineNumbers(
-                                        newNode,
-                                        code,
-                                        lineNumbersContainer,
-                                        prevLineCount,
-                                    );
-                                    lineNumbersContainer = result.container;
-                                    prevLineCount = result.lineCount;
-                                }
-
-                                return true;
-                            },
-                        };
-                    },
+                    [codeBlockNodeName]: CodeBlockNodeView.withOpts(opts),
                 },
             },
         });
@@ -300,69 +243,9 @@ function stepHasFromTo(step: Step): step is Step & {from: number; to: number} {
     return typeof step.from === 'number' && typeof step.to === 'number';
 }
 
-function updateDomAttribute(elem: Element, attr: string, value: string | null | undefined) {
-    if (value) {
-        elem.setAttribute(attr, value);
-    } else {
-        elem.removeAttribute(attr);
-    }
-}
-
-function manageLineNumbers(
-    node: Node,
-    code: HTMLElement,
-    prevContainer?: HTMLDivElement,
-    prevLineCount = 0,
-): {container?: HTMLDivElement; lineCount: number} {
-    const showLineNumbers = node.attrs[CodeBlockNodeAttr.ShowLineNumbers] === 'true';
-
-    if (!showLineNumbers) {
-        if (prevContainer) {
-            code.removeChild(prevContainer);
-            code.classList.remove('show-line-numbers');
-        }
-        return {container: undefined, lineCount: 0};
-    }
-
-    const lines = node.textContent ? node.textContent.split('\n') : [''];
-    const currentLineCount = lines.length;
-
-    let container = prevContainer;
-    if (!container) {
-        container = document.createElement('div');
-        container.className = 'yfm-line-numbers';
-        container.contentEditable = 'false';
-        code.prepend(container);
-    }
-
-    code.classList.add('show-line-numbers');
-
-    if (currentLineCount !== prevLineCount) {
-        const maxDigits = String(currentLineCount).length;
-        const prevMaxDigits = String(prevLineCount).length;
-
-        if (currentLineCount > prevLineCount) {
-            for (let i = prevLineCount + 1; i <= currentLineCount; i++) {
-                const lineNumberElement = document.createElement('div');
-                lineNumberElement.className = 'yfm-line-number';
-                lineNumberElement.textContent = String(i).padStart(maxDigits, ' ');
-                container.appendChild(lineNumberElement);
-            }
-        } else if (currentLineCount < prevLineCount) {
-            for (let i = prevLineCount; i > currentLineCount; i--) {
-                if (container.lastChild) {
-                    container.removeChild(container.lastChild);
-                }
-            }
-        }
-
-        if (maxDigits !== prevMaxDigits) {
-            Array.from(container.children).forEach((lineNumber, index) => {
-                const lineNum = index + 1;
-                lineNumber.textContent = String(lineNum).padStart(maxDigits, ' ');
-            });
-        }
-    }
-
-    return {container, lineCount: currentLineCount};
+function sortLangs(a: LangSelectItem, b: LangSelectItem): number {
+    // plaintext always goes first
+    if (a.value === PlainTextLang) return -1;
+    if (b.value === PlainTextLang) return 1;
+    return 0;
 }

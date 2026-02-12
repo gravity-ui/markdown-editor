@@ -1,18 +1,25 @@
-import type {ChangeEventHandler} from 'react';
-
-import {TrashBin} from '@gravity-ui/icons';
-import {Checkbox, Select, type SelectOption} from '@gravity-ui/uikit';
+import {
+    ListOl as LineNumbersIcon,
+    TrashBin as RemoveIcon,
+    ArrowUturnCwLeft as WrappingIcon,
+} from '@gravity-ui/icons';
+import {ClipboardButton, Select, type SelectOption} from '@gravity-ui/uikit';
 import type {Node} from 'prosemirror-model';
 import type {EditorView} from 'prosemirror-view';
 
 import {cn} from 'src/classname';
+import {i18n} from 'src/i18n/codeblock';
+import {i18n as i18nPlaceholder} from 'src/i18n/placeholder';
+import {BaseTooltipPluginView} from 'src/plugins/BaseTooltip';
+import {Toolbar, ToolbarDataType, type ToolbarGroupItemData} from 'src/toolbar';
+import {removeNode} from 'src/utils/remove-node';
+import {isTruthy} from 'src/utils/truthy';
 
-import {i18n} from '../../../../../i18n/codeblock';
-import {i18n as i18nPlaceholder} from '../../../../../i18n/placeholder';
-import {BaseTooltipPluginView} from '../../../../../plugins/BaseTooltip';
-import {Toolbar, type ToolbarData, ToolbarDataType} from '../../../../../toolbar';
-import {removeNode} from '../../../../../utils/remove-node';
 import {CodeBlockNodeAttr, codeBlockType} from '../../CodeBlockSpecs';
+import {PlainTextLang} from '../const';
+import {isNodeHasLineWrapping} from '../plugins/codeBlockLineWrappingPlugin';
+
+import {isLineNumbersVisible, toggleLineNumbers, toggleLineWrapping} from './utils';
 
 import './TooltipView.scss';
 
@@ -29,19 +36,13 @@ type CodeMenuProps = {
 
 const CodeMenu: React.FC<CodeMenuProps> = ({view, pos, node, selectItems, mapping}) => {
     const lang = node.attrs[CodeBlockNodeAttr.Lang];
-    const showLineNumbers = node.attrs[CodeBlockNodeAttr.ShowLineNumbers];
-    const value = mapping[lang] ?? lang;
+    const value = mapping[lang] || lang || PlainTextLang;
 
     const handleClick = (type: string) => {
         view.focus();
         if (type === value) return;
 
-        view.dispatch(
-            view.state.tr.setNodeMarkup(pos, null, {
-                [CodeBlockNodeAttr.Lang]: type,
-                [CodeBlockNodeAttr.ShowLineNumbers]: showLineNumbers,
-            }),
-        );
+        view.dispatch(view.state.tr.setNodeAttribute(pos, CodeBlockNodeAttr.Lang, type));
     };
 
     return (
@@ -65,53 +66,22 @@ const CodeMenu: React.FC<CodeMenuProps> = ({view, pos, node, selectItems, mappin
     );
 };
 
-type ShowLineNumbersProps = {
-    view: EditorView;
-    pos: number;
-    node: Node;
-};
-
-const ShowLineNumbers: React.FC<ShowLineNumbersProps> = ({view, pos, node}) => {
-    const lang = node.attrs[CodeBlockNodeAttr.Lang];
-    const showLineNumbers = node.attrs[CodeBlockNodeAttr.ShowLineNumbers] === 'true';
-
-    const handleChange: ChangeEventHandler<HTMLInputElement> = (event) => {
-        view.dispatch(
-            view.state.tr.setNodeMarkup(pos, null, {
-                [CodeBlockNodeAttr.Lang]: lang,
-                [CodeBlockNodeAttr.ShowLineNumbers]: event.target.checked ? 'true' : '',
-            }),
-        );
-    };
-
-    return (
-        <Checkbox
-            checked={showLineNumbers}
-            className={bCodeBlock('show-line-numbers')}
-            content={i18n('show_line_numbers')}
-            onChange={handleChange}
-        />
-    );
+type Options = {
+    showCodeWrapping: boolean;
+    showLineNumbers: boolean;
 };
 
 export const codeLangSelectTooltipViewCreator = (
     view: EditorView,
     langItems: SelectOption[],
     mapping: Record<string, string> = {},
-    showLineNumbers: boolean,
+    {showCodeWrapping, showLineNumbers}: Options,
 ) => {
     return new BaseTooltipPluginView(view, {
         idPrefix: 'code-block-tooltip',
         nodeType: codeBlockType(view.state.schema),
         popupPlacement: ['bottom', 'top'],
-        content: (view, {node, pos}) => {
-            const lineNumbersCheckbox: ToolbarData<{}>[number][number] = {
-                id: 'code-block-showlinenumbers',
-                type: ToolbarDataType.ReactComponent,
-                component: () => <ShowLineNumbers view={view} pos={pos} node={node} />,
-                width: 28,
-            };
-
+        content: (view, {node, pos}, _onChange, _forceEdit, _onOutsideClick, rerender) => {
             return (
                 <Toolbar
                     editor={{}}
@@ -119,27 +89,69 @@ export const codeLangSelectTooltipViewCreator = (
                     className={bToolbar()}
                     data={[
                         [
+                            langItems.length > 0 &&
+                                ({
+                                    id: 'code-block-type',
+                                    type: ToolbarDataType.ReactComponent,
+                                    component: () => (
+                                        <CodeMenu
+                                            view={view}
+                                            pos={pos}
+                                            node={node}
+                                            selectItems={langItems}
+                                            mapping={mapping}
+                                        />
+                                    ),
+                                    width: 28,
+                                } satisfies ToolbarGroupItemData<{}>),
+                            showCodeWrapping &&
+                                ({
+                                    id: 'code-block-wrapping',
+                                    icon: {data: WrappingIcon},
+                                    title: i18n('code_wrapping'),
+                                    type: ToolbarDataType.SingleButton,
+                                    isActive: () => isNodeHasLineWrapping(view.state, pos),
+                                    isEnable: () => true,
+                                    exec: () => {
+                                        toggleLineWrapping({
+                                            pos,
+                                            node,
+                                            state: view.state,
+                                            dispatch: view.dispatch,
+                                        });
+                                        // forcing rerender because editor's toolbar isn't updated when the decorations change
+                                        rerender?.();
+                                    },
+                                } satisfies ToolbarGroupItemData<{}>),
+                            showLineNumbers &&
+                                ({
+                                    id: 'code-block-linenumbers',
+                                    icon: {data: LineNumbersIcon},
+                                    title: i18n('show_line_numbers'),
+                                    type: ToolbarDataType.SingleButton,
+                                    isActive: () => isLineNumbersVisible(node),
+                                    isEnable: () => true,
+                                    exec: () =>
+                                        toggleLineNumbers({
+                                            pos,
+                                            node,
+                                            state: view.state,
+                                            dispatch: view.dispatch,
+                                        }),
+                                } satisfies ToolbarGroupItemData<{}>),
                             {
-                                id: 'code-block-type',
-                                type: ToolbarDataType.ReactComponent,
-                                component: () => (
-                                    <CodeMenu
-                                        view={view}
-                                        pos={pos}
-                                        node={node}
-                                        selectItems={langItems}
-                                        mapping={mapping}
-                                    />
-                                ),
+                                id: 'code-block-copy',
+                                type: ToolbarDataType.ReactNodeFn,
                                 width: 28,
-                            },
-                        ],
-                        ...(showLineNumbers ? [[lineNumbersCheckbox]] : []),
+                                content: () => <ClipboardButton text={node.textContent} />,
+                            } satisfies ToolbarGroupItemData<{}>,
+                        ].filter(isTruthy),
                         [
                             {
                                 id: 'code-block-remove',
-                                icon: {data: TrashBin},
+                                icon: {data: RemoveIcon},
                                 title: i18n('remove'),
+                                theme: 'danger',
                                 type: ToolbarDataType.SingleButton,
                                 isActive: () => false,
                                 isEnable: () => true,
