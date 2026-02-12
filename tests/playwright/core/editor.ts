@@ -105,6 +105,27 @@ class Link {
     }
 }
 
+class CodeBlock {
+    protected readonly codeBlockToolbar: Locator;
+
+    constructor(page: Page) {
+        this.codeBlockToolbar = page.locator('.g-md-code-block-toolbar');
+    }
+
+    async waitForToolbarVisible() {
+        return this.codeBlockToolbar.waitFor({state: 'visible'});
+    }
+
+    async waitForToolbarHidden() {
+        return this.codeBlockToolbar.waitFor({state: 'hidden'});
+    }
+
+    async clickCodeBlockToolbarButton(label: string) {
+        const button = this.codeBlockToolbar.getByLabel(label);
+        await button.click();
+    }
+}
+
 class YfmNote {
     protected readonly yfmNoteToolbar: Locator;
 
@@ -328,6 +349,7 @@ export class MarkdownEditorPage {
     readonly image;
     readonly link;
     readonly searchPanel;
+    readonly codeBlock;
     protected readonly page: Page;
     protected readonly expect: Expect;
 
@@ -342,6 +364,7 @@ export class MarkdownEditorPage {
         this.image = new Image(page);
         this.link = new Link(page, expect);
         this.searchPanel = new SearchPanel(page);
+        this.codeBlock = new CodeBlock(page);
     }
 
     /**

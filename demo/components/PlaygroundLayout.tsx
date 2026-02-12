@@ -68,7 +68,7 @@ export const PlaygroundLayout: React.FC<PlaygroundLayoutProps> = function Playgr
 
                 <hr />
 
-                <div className={b('preview')}>
+                <div className={b('preview')} style={{width: props.viewWidth ?? 'initial'}}>
                     {editor.currentMode === 'wysiwyg' && (
                         <pre className={b('markup')}>{mdMarkup}</pre>
                     )}
