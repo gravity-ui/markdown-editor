@@ -8,7 +8,7 @@ import {markup} from './markup';
 
 export type YfmTableDnDDemoProps = {
     lineWrapping: 'disabled' | 'enabled';
-    lineNumbers: 'disabled' | 'enabled' | 'by-default';
+    lineNumbers: 'disabled' | 'enabled' | 'default';
 };
 
 export const CodeBlockDemo = memo<YfmTableDnDDemoProps>(function YfmTableDnDDemo({
@@ -29,7 +29,7 @@ export const CodeBlockDemo = memo<YfmTableDnDDemoProps>(function YfmTableDnDDemo
                         },
                         lineNumbers: {
                             enabled: lineNumbers !== 'disabled',
-                            showByDefault: lineNumbers === 'by-default',
+                            showByDefault: lineNumbers === 'default',
                         },
                     },
                 },

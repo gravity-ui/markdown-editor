@@ -53,8 +53,8 @@ export class CodeBlockNodeView implements NodeView {
         this.contentDOM = document.createElement('div');
 
         const hasLineWrapping = hasLineWrappingDecoration(decorations);
-        if (this._opts.lineNumbers?.enabled && hasLineWrapping) {
-            this._applyLineNumbersResult = applyLineNumbers(node, this._codeElem, true);
+        if (this._opts.lineNumbers?.enabled) {
+            this._applyLineNumbersResult = applyLineNumbers(node, this._codeElem, hasLineWrapping);
         }
 
         this._codeElem.append(this.contentDOM);
