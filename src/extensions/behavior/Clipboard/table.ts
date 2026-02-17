@@ -40,36 +40,36 @@ export function trimTableEdgeCell($pos: ResolvedPos, dir: 'backward' | 'forward'
         }
     }
 
-    if (!isAtEdgeOfInlineBlocks || depth < 2) {
+    if (!isAtEdgeOfInlineBlocks || depth < 1 || !$pos.node(depth).isTextblock) {
         return $pos.pos;
     }
 
-    {
-        const node = $pos.node(depth);
-        const parentNode = $pos.node(depth - 1);
+    // {
+    //     const node = $pos.node(depth);
+    //     const parentNode = $pos.node(depth - 1);
 
-        const isInTable = node.type.spec.tableRole || parentNode.type.spec.tableRole;
-        if (!isInTable || !node.isTextblock) {
-            return $pos.pos;
-        }
+    //     const isInTable = node.type.spec.tableRole || parentNode.type.spec.tableRole;
+    //     if (!isInTable || !node.isTextblock) {
+    //         return $pos.pos;
+    //     }
 
-        if (!node.type.spec.tableRole) {
-            // up to tableCell depth
-            depth -= 1;
+    //     if (!node.type.spec.tableRole) {
+    //         // up to tableCell depth
+    //         depth -= 1;
 
-            // Check if we're at the edge of the cell (not just the textblock)
-            const edgeNode = dir === 'forward' ? parentNode.lastChild : parentNode.firstChild;
-            if (edgeNode !== node) {
-                return $pos.pos;
-            }
-        }
-    }
+    //         // Check if we're at the edge of the cell (not just the textblock)
+    //         const edgeNode = dir === 'forward' ? parentNode.lastChild : parentNode.firstChild;
+    //         if (edgeNode !== node) {
+    //             return $pos.pos;
+    //         }
+    //     }
+    // }
 
     while (depth > 0) {
         const node = $pos.node(depth);
         const parentNode = $pos.node(depth - 1);
 
-        if (!node.type.spec.tableRole || !parentNode.type.spec.tableRole) break;
+        // if (!node.type.spec.tableRole || !parentNode.type.spec.tableRole) break;
 
         const edgeNode = dir === 'forward' ? parentNode.lastChild : parentNode.firstChild;
         if (node !== edgeNode) break;
