@@ -37,7 +37,7 @@ export function withCodeBlockActions({
     return <T extends {html: string}>(
         Component: ComponentType<T & RefAttributes<HTMLDivElement>>,
     ) =>
-        forwardRef<HTMLDivElement, T>(function WithLatex(props, ref) {
+        forwardRef<HTMLDivElement, T>(function WithCodeBlockActions(props, ref) {
             const {html} = props;
             const [codeBlockElements, setCodeBlockElements] = useState<HTMLElement[]>([]);
 
@@ -57,12 +57,14 @@ export function withCodeBlockActions({
                 const destructors = elements.map((element) => {
                     element.classList.add(VIEWER_CODEBLOCK_CN);
 
-                    const container = element.appendChild(document.createElement('div'));
+                    const container = element.appendChild(
+                        element.ownerDocument.createElement('div'),
+                    );
                     container.classList.add(VIEWER_CODEBLOCK_FLOATING_CN);
 
                     return () => {
                         element.classList.remove(VIEWER_CODEBLOCK_CN);
-                        element.removeChild(container);
+                        container.parentNode?.removeChild(container);
                     };
                 });
 
@@ -80,8 +82,11 @@ export function withCodeBlockActions({
                         );
                         if (!container) return null;
 
+                        const id = element.id;
+                        const line = element.dataset.line;
+
                         return (
-                            <Portal key={idx} container={container}>
+                            <Portal key={id || line || idx} container={container}>
                                 {lineWrappingButton && (
                                     <CodeTextWrappingToggleButton codeElement={element} />
                                 )}

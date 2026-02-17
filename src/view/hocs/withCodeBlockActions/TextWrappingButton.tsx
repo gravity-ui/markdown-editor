@@ -3,24 +3,26 @@ import {useState} from 'react';
 import {ArrowUturnCwLeft as WrappingIcon} from '@gravity-ui/icons';
 import {ActionTooltip, Button, Icon} from '@gravity-ui/uikit';
 
+import {i18n} from 'src/i18n/viewer';
+
 export type CodeTextWrappingToggleButtonProps = {
     codeElement: HTMLElement;
 };
 
 export function CodeTextWrappingToggleButton({codeElement}: CodeTextWrappingToggleButtonProps) {
-    const [hasWrapping, setHasWrapping] = useState(() =>
-        codeElement.querySelector<HTMLElement>('pre code')?.classList.contains('wrap'),
+    const [hasWrapping, setHasWrapping] = useState<boolean>(() =>
+        Boolean(codeElement.querySelector<HTMLElement>('pre code')?.classList?.contains('wrap')),
     );
 
     return (
-        <ActionTooltip title="Перенос текста">
+        <ActionTooltip title={i18n('code_wrapping')}>
             <Button
                 size="m"
                 view="flat"
                 selected={hasWrapping}
                 onClick={() => {
                     const preCode = codeElement.querySelector<HTMLElement>('pre code');
-                    setHasWrapping(preCode?.classList.toggle('wrap'));
+                    setHasWrapping(Boolean(preCode?.classList?.toggle('wrap')));
                 }}
             >
                 <Button.Icon>
