@@ -1,0 +1,37 @@
+.g-md-viewer-code-block {
+    position: relative;
+
+    pre code.wrap {
+        white-space: pre-wrap;
+    }
+
+    // for built-in floating controls from yfm for codeblock
+    .yfm-code-floating,
+    .yfm-clipboard-button {
+        display: none;
+    }
+
+    .g-md-viewer-code-block-floating-container {
+        position: absolute;
+        z-index: 1;
+        top: 8px;
+        right: 8px;
+
+        opacity: 0;
+
+        transition: opacity 0.2s ease-in-out;
+    }
+
+    .g-md-viewer-code-block-floating-container,
+    .g-md-viewer-code-block-floating-container > [data-floating-ui-portal] {
+        display: flex;
+        flex-wrap: nowrap;
+        gap: var(--g-spacing-1);
+    }
+
+    &:hover {
+        .g-md-viewer-code-block-floating-container {
+            opacity: 1;
+        }
+    }
+}
