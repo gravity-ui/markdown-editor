@@ -17,7 +17,7 @@ export type ToolbarButtonProps<E> = ToolbarBaseProps<E> & ToolbarItemData<E>;
 
 export type ToolbarButtonViewProps = Pick<
     ToolbarItemData<unknown>,
-    'title' | 'hint' | 'hotkey' | 'hintWhenDisabled' | 'qa'
+    'title' | 'hint' | 'hotkey' | 'hintWhenDisabled' | 'qa' | 'theme'
 > & {
     active: boolean;
     enabled: boolean;
@@ -35,6 +35,7 @@ export const ToolbarButtonView = forwardRef<HTMLButtonElement, ToolbarButtonView
             title,
             hint,
             hotkey,
+            theme = 'normal',
             hintWhenDisabled,
             active,
             enabled,
@@ -84,7 +85,9 @@ export const ToolbarButtonView = forwardRef<HTMLButtonElement, ToolbarButtonView
                                 }}
                                 selected={active}
                                 disabled={disabled}
-                                view={active ? 'normal' : 'flat'}
+                                view={
+                                    theme === 'danger' ? 'flat-danger' : active ? 'normal' : 'flat'
+                                }
                                 onClick={onClick}
                                 className={b(null, [className])}
                                 aria-label={titleText}

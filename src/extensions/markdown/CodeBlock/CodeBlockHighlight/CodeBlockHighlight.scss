@@ -1,9 +1,34 @@
-.yfm.ProseMirror .hljs.show-line-numbers {
-    display: flex;
+.g-md-editor.ProseMirror {
+    &.yfm pre > code {
+        // disable line wrapping
+        white-space: pre;
+    }
 
-    white-space: pre;
-}
+    pre > code {
+        &.wrap {
+            // enable line wrapping
+            /* stylelint-disable */
+            white-space: pre-wrap;
+            white-space: break-spaces;
+            /* stylelint-enable */
 
-.yfm.ProseMirror pre > code > .yfm-line-numbers > .yfm-line-number {
-    display: block;
+            .yfm-line-number.ProseMirror-widget {
+                position: absolute;
+                // inline padding in code element
+                left: 16px;
+
+                padding: 0;
+            }
+        }
+
+        &.show-line-numbers {
+            position: relative;
+
+            display: flex;
+        }
+
+        .fake-line-number {
+            opacity: 0;
+        }
+    }
 }

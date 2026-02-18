@@ -25,6 +25,7 @@ export type ToolbarItemData<E> = QAProps & {
     hint?: string | (() => string);
     hotkey?: HotkeyProps['value'];
     preview?: React.ReactNode;
+    theme?: 'normal' | 'danger';
     /**
      * Alternative IDs that can be used to find this command
      */

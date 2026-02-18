@@ -235,6 +235,9 @@ export const Playground = memo<PlaygroundProps>((props) => {
                     imgSize: {
                         parseInsertedUrlAsImage,
                     },
+                    codeBlock: {
+                        lineWrapping: {enabled: true},
+                    },
                     yfmTable: {
                         table_ignoreSplittersInBlockCode: true,
                         table_ignoreSplittersInBlockMath: true,

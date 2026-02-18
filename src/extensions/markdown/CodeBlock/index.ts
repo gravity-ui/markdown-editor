@@ -17,11 +17,22 @@ export {codeBlockNodeName, CodeBlockNodeAttr, codeBlockType} from './CodeBlockSp
 export type CodeBlockOptions = CodeBlockSpecsOptions & {
     codeBlockKey?: string | null;
     langs?: HighlightLangMap;
+    /** Configure line wrapping toggle in code block */
+    lineWrapping?: {
+        /**
+         * Enable line wrapping toggling in code block
+         * @default false
+         */
+        enabled?: boolean;
+    };
 };
 
 export const CodeBlock: ExtensionAuto<CodeBlockOptions> = (builder, opts) => {
     const optsNormalized: CodeBlockOptions = {
         ...opts,
+        lineWrapping: {
+            enabled: opts.lineWrapping?.enabled || false,
+        },
         lineNumbers: {
             enabled:
                 typeof opts.lineNumbers?.enabled === 'boolean'
@@ -63,6 +74,7 @@ export const CodeBlock: ExtensionAuto<CodeBlockOptions> = (builder, opts) => {
         builder.use(CodeBlockHighlight, {
             langs: optsNormalized.langs,
             lineNumbers: optsNormalized.lineNumbers,
+            lineWrapping: optsNormalized.lineWrapping,
         });
     }
 };
