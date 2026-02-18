@@ -1,5 +1,13 @@
 # Changelog
 
+## [15.33.0](https://github.com/gravity-ui/markdown-editor/compare/v15.32.0...v15.33.0) (2026-02-18)
+
+
+### Features
+
+* **CodeBlock:** redesign the floating toolbar and add a toggle for text wrapping ([#949](https://github.com/gravity-ui/markdown-editor/issues/949)) ([cacfcf3](https://github.com/gravity-ui/markdown-editor/commit/cacfcf30da97e8f02723dad030107ea5bd08b412))
+* **view:** add a HOC that adds floating actions to code blocks ([#950](https://github.com/gravity-ui/markdown-editor/issues/950)) ([57528f2](https://github.com/gravity-ui/markdown-editor/commit/57528f2590151a819bb034d9d44e2d595182be31))
+
 ## [15.32.0](https://github.com/gravity-ui/markdown-editor/compare/v15.31.0...v15.32.0) (2026-02-06)
 
 
