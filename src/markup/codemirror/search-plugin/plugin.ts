@@ -33,6 +33,7 @@ type SearchQueryConfig = ConstructorParameters<typeof SearchQuery>[0];
 
 export interface SearchPanelPluginParams {
     anchorSelector: string;
+    editorSelector?: string;
     inputDelay?: number;
     receiver?: Receiver<EventMap>;
 }
@@ -89,9 +90,11 @@ export const SearchPanelPlugin = (params: SearchPanelPluginParams) =>
                 return this.view.state.facet(ReactRendererFacet).createItem('cm-search', () => {
                     if (!this.panelOpened || !this.searchState) return null;
 
-                    const anchor = this.view.dom.ownerDocument.querySelector(
-                        this.params.anchorSelector,
-                    );
+                    const {dom: viewDom} = this.view;
+                    const container: globalThis.ParentNode =
+                        (params.editorSelector && viewDom.closest(params.editorSelector)) ||
+                        viewDom.ownerDocument;
+                    const anchor = container.querySelector(params.anchorSelector);
 
                     if (!anchor) return null;
 

@@ -21,6 +21,7 @@ import './search-plugin.scss';
 
 export interface SearchViewPluginParams {
     anchorSelector: string;
+    editorSelector?: string;
 }
 
 export const searchViewPlugin = (params: SearchViewPluginParams) => {
@@ -106,7 +107,9 @@ class SeachPluginView implements PluginView {
         this._onClose();
     };
 
-    private _createRenderer(params: Pick<SearchViewPluginParams, 'anchorSelector'>) {
+    private _createRenderer(
+        params: Pick<SearchViewPluginParams, 'anchorSelector' | 'editorSelector'>,
+    ) {
         return getReactRendererFromState(this._view.state).createItem('search-view', () => {
             const {
                 _viewState: viewState,
@@ -116,7 +119,11 @@ class SeachPluginView implements PluginView {
 
             if (!domConnected || !viewState?.open || !searchState) return null;
 
-            const anchor = this._view.dom.ownerDocument.querySelector(params.anchorSelector);
+            const {dom: viewDom} = this._view;
+            const container: globalThis.ParentNode =
+                (params.editorSelector && viewDom.closest(params.editorSelector)) ||
+                viewDom.ownerDocument;
+            const anchor = container.querySelector(params.anchorSelector);
 
             return renderSearchPopup({
                 anchor,

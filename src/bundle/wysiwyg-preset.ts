@@ -73,7 +73,12 @@ export const BundlePreset: ExtensionAuto<BundlePresetOptions> = (builder, opts) 
             },
         },
         cursor: {dropOptions: dropCursor},
-        search: opts.searchPanel ? {anchorSelector: '.g-md-search-wysiwyg-anchor'} : undefined,
+        search: opts.searchPanel
+            ? {
+                  editorSelector: '.g-md-editor-component',
+                  anchorSelector: '.g-md-search-wysiwyg-anchor',
+              }
+            : undefined,
         clipboard: {pasteFileHandler: opts.fileUploadHandler, ...opts.clipboard},
         selectionContext: {config: wSelectionMenuConfigByPreset.zero, ...opts.selectionContext},
         commandMenu: {actions: wCommandMenuConfigByPreset.zero, ...opts.commandMenu},
