@@ -4,55 +4,242 @@ import {builders} from 'prosemirror-test-builder';
 import {ExtensionsManager} from '../../../core';
 import {MathNode, MathSpecs} from '../../additional/Math/MathSpecs';
 import {BaseNode, BaseSchemaSpecs} from '../../base/BaseSchema/BaseSchemaSpecs';
+import {BlockquoteSpecs, blockquoteNodeName} from '../../markdown/Blockquote/BlockquoteSpecs';
 import {TableNode, TableSpecs} from '../../markdown/Table/TableSpecs';
 import {YfmTableNode, YfmTableSpecs} from '../../yfm/YfmTable/YfmTableSpecs';
 
-import {trimEmptyTableCells, trimTableEdgeCell} from './table';
+import {trimTextSelection, trimTextSelectionOnEdge} from './trim-selection';
 
 // Build schema tables
 function buildDeps() {
     return new ExtensionsManager({
         extensions: (builder) => {
-            builder.use(BaseSchemaSpecs, {}).use(TableSpecs).use(YfmTableSpecs, {}).use(MathSpecs);
+            builder
+                .use(BaseSchemaSpecs, {})
+                .use(BlockquoteSpecs)
+                .use(TableSpecs)
+                .use(YfmTableSpecs, {})
+                .use(MathSpecs);
         },
     }).buildDeps();
 }
 
 const {schema} = buildDeps();
 
-// Builders for tables
-const {doc, p, table, thead, tbody, tr, th, td, yfmTable, yfmTbody, yfmTr, yfmTd, mathInline} =
-    builders<
-        | 'doc'
-        | 'p'
-        | 'table'
-        | 'thead'
-        | 'tbody'
-        | 'tr'
-        | 'th'
-        | 'td'
-        | 'yfmTable'
-        | 'yfmTbody'
-        | 'yfmTr'
-        | 'yfmTd'
-        | 'mathInline'
-    >(schema, {
-        doc: {nodeType: BaseNode.Doc},
-        p: {nodeType: BaseNode.Paragraph},
-        table: {nodeType: TableNode.Table},
-        thead: {nodeType: TableNode.Head},
-        tbody: {nodeType: TableNode.Body},
-        tr: {nodeType: TableNode.Row},
-        th: {nodeType: TableNode.HeaderCell},
-        td: {nodeType: TableNode.DataCell},
-        yfmTable: {nodeType: YfmTableNode.Table},
-        yfmTbody: {nodeType: YfmTableNode.Body},
-        yfmTr: {nodeType: YfmTableNode.Row},
-        yfmTd: {nodeType: YfmTableNode.Cell},
-        mathInline: {nodeType: MathNode.Inline},
+const {
+    doc,
+    p,
+    bquote,
+    table,
+    thead,
+    tbody,
+    tr,
+    th,
+    td,
+    yfmTable,
+    yfmTbody,
+    yfmTr,
+    yfmTd,
+    mathInline,
+} = builders<
+    | 'doc'
+    | 'p'
+    | 'bquote'
+    | 'table'
+    | 'thead'
+    | 'tbody'
+    | 'tr'
+    | 'th'
+    | 'td'
+    | 'yfmTable'
+    | 'yfmTbody'
+    | 'yfmTr'
+    | 'yfmTd'
+    | 'mathInline'
+>(schema, {
+    doc: {nodeType: BaseNode.Doc},
+    p: {nodeType: BaseNode.Paragraph},
+    bquote: {nodeType: blockquoteNodeName},
+    table: {nodeType: TableNode.Table},
+    thead: {nodeType: TableNode.Head},
+    tbody: {nodeType: TableNode.Body},
+    tr: {nodeType: TableNode.Row},
+    th: {nodeType: TableNode.HeaderCell},
+    td: {nodeType: TableNode.DataCell},
+    yfmTable: {nodeType: YfmTableNode.Table},
+    yfmTbody: {nodeType: YfmTableNode.Body},
+    yfmTr: {nodeType: YfmTableNode.Row},
+    yfmTd: {nodeType: YfmTableNode.Cell},
+    mathInline: {nodeType: MathNode.Inline},
+});
+
+describe('trimTextSelectionOnEdge', () => {
+    describe('Blockquote (BlockquoteSpecs)', () => {
+        describe('forward direction', () => {
+            it('should NOT move position when cursor at start of textblock', () => {
+                const node = doc(bquote(p('text1')), p('text2'));
+                const pos = 2; // Start of 'text1' in blockquote
+                const $pos = node.resolve(pos);
+                const result = trimTextSelectionOnEdge($pos, 'forward');
+
+                // Should NOT move position
+                expect(result).toBe(pos);
+            });
+
+            it('should move position when cursor at end of last paragraph', () => {
+                const node = doc(p('before'), bquote(p('text1')), p('after'));
+                const pos = 15; // End of 'text1' in blockquote
+                const $pos = node.resolve(pos);
+                const result = trimTextSelectionOnEdge($pos, 'forward');
+
+                // Should move to start of 'after'
+                expect(result).toBe(18);
+            });
+
+            it('should move position when cursor at end of non-last paragraph in blockquote', () => {
+                const node = doc(bquote(p('text1'), p('text2')));
+                const pos = 7; // End of 'text1'
+                const $pos = node.resolve(pos);
+                const result = trimTextSelectionOnEdge($pos, 'forward');
+
+                // Should move to start of 'text2'
+                expect(result).toBe(9);
+            });
+
+            it('should move position when cursor at end of outer paragraph before nested blockquote', () => {
+                const node = doc(bquote(p('outer'), bquote(p('inner'))));
+                const pos = 7; // End of 'outer'
+                const $pos = node.resolve(pos);
+                const result = trimTextSelectionOnEdge($pos, 'forward');
+
+                // Should move to start of 'inner'
+                expect(result).toBe(10);
+            });
+
+            it('should NOT move position when cursor at end of nested blockquote', () => {
+                const node = doc(bquote(bquote(p('inner')), p('outer')));
+                const pos = 8; // End of 'inner' in nested blockquote
+                const $pos = node.resolve(pos);
+                const result = trimTextSelectionOnEdge($pos, 'forward');
+
+                // Should move to start of 'outer'
+                expect(result).toBe(11);
+            });
+
+            it('should move position when first paragraph is empty', () => {
+                const node = doc(bquote(p(''), p('text')));
+                const pos = 2; // Empty first paragraph
+                const $pos = node.resolve(pos);
+                const result = trimTextSelectionOnEdge($pos, 'forward');
+
+                // Should move to start of 'text'
+                expect(result).toBe(4);
+            });
+
+            it('should NOT change position when cursor in middle of text', () => {
+                const node = doc(p('before'), bquote(p('quote')), p('after'));
+                const pos = 12; // Middle of 'quote' (qu|ote)
+                const $pos = node.resolve(pos);
+                const result = trimTextSelectionOnEdge($pos, 'forward');
+
+                // Position should not change
+                expect(result).toBe(pos);
+            });
+
+            it('should NOT move position when cursor at end of inline formula (last element)', () => {
+                const node = doc(bquote(p('text', mathInline('x^2'))), p('after'));
+                const pos = 10; // End of 'x^2' in mathInline
+                const $pos = node.resolve(pos);
+                const result = trimTextSelectionOnEdge($pos, 'forward');
+
+                // Should move to start of 'after'
+                expect(result).toBe(14);
+            });
+        });
+
+        describe('backward direction', () => {
+            it('should NOT move position out of blockquote when cursor not at start', () => {
+                const node = doc(p('text1'), bquote(p('text2')));
+                const pos = 14; // End of 'text2'
+                const $pos = node.resolve(pos);
+                const result = trimTextSelectionOnEdge($pos, 'backward');
+
+                // Should not move
+                expect(result).toBe(pos);
+            });
+
+            it('should move position when cursor at start of first paragraph', () => {
+                const node = doc(p('before'), bquote(p('text1')), p('after'));
+                const pos = 10; // Start of 'text1' in blockquote
+                const $pos = node.resolve(pos);
+                const result = trimTextSelectionOnEdge($pos, 'backward');
+
+                // Should move to end of 'before'
+                expect(result).toBe(7);
+            });
+
+            it('should move position when cursor at start of non-first paragraph in blockquote', () => {
+                const node = doc(bquote(p('text1'), p('text2')));
+                const pos = 9; // Start of 'text2'
+                const $pos = node.resolve(pos);
+                const result = trimTextSelectionOnEdge($pos, 'backward');
+
+                // Should move to end of 'text1'
+                expect(result).toBe(7);
+            });
+
+            it('should move position when cursor at start of nested blockquote', () => {
+                const node = doc(bquote(p('outer'), bquote(p('inner'))));
+                const pos = 10; // Start of 'inner' in nested blockquote
+                const $pos = node.resolve(pos);
+                const result = trimTextSelectionOnEdge($pos, 'backward');
+
+                // Should move to end of 'outer'
+                expect(result).toBe(7);
+            });
+
+            it('should move position when cursor at start of paragraph after nested blockquote', () => {
+                const node = doc(bquote(bquote(p('inner')), p('outer')));
+                const pos = 11; // Start of 'outer'
+                const $pos = node.resolve(pos);
+                const result = trimTextSelectionOnEdge($pos, 'backward');
+
+                // Should move to end of 'inner'
+                expect(result).toBe(8);
+            });
+
+            it('should move position when last paragraph is empty', () => {
+                const node = doc(bquote(p('text'), p('')));
+                const pos = 8; // Empty last paragraph
+                const $pos = node.resolve(pos);
+                const result = trimTextSelectionOnEdge($pos, 'backward');
+
+                // Should move to end of 'text'
+                expect(result).toBe(6);
+            });
+
+            it('should NOT change position when cursor in middle of text', () => {
+                const node = doc(p('before'), bquote(p('quote')), p('after'));
+                const pos = 12; // Middle of 'quote' (qu|ote)
+                const $pos = node.resolve(pos);
+                const result = trimTextSelectionOnEdge($pos, 'backward');
+
+                // Position should not change
+                expect(result).toBe(pos);
+            });
+
+            it('should move position when cursor at start of inline formula (first element)', () => {
+                const node = doc(p('before'), bquote(p(mathInline('x^2'), 'text')));
+                const pos = 11; // Start of 'x^2' in mathInline
+                const $pos = node.resolve(pos);
+                const result = trimTextSelectionOnEdge($pos, 'backward');
+
+                // Should move to end of 'before'
+                expect(result).toBe(7);
+            });
+        });
     });
 
-describe('trimTableEdgeCell', () => {
     describe('Single-line tables (TableSpecs)', () => {
         describe('forward direction', () => {
             it('should NOT move position out of first cell when cursor at start', () => {
@@ -61,7 +248,7 @@ describe('trimTableEdgeCell', () => {
                 );
                 const pos = 22; // Start of 'text1' in first cell of tbody
                 const $pos = node.resolve(pos);
-                const result = trimTableEdgeCell($pos, 'forward');
+                const result = trimTextSelectionOnEdge($pos, 'forward');
 
                 // Should NOT move out of the first cell
                 expect(result).toBe(pos);
@@ -76,7 +263,7 @@ describe('trimTableEdgeCell', () => {
                 );
                 const pos = 41; // End of 'text2' in middle cell
                 const $pos = node.resolve(pos);
-                const result = trimTableEdgeCell($pos, 'forward');
+                const result = trimTextSelectionOnEdge($pos, 'forward');
 
                 // Should move to start of next cell (text3)
                 expect(result).toBeGreaterThan(pos);
@@ -94,7 +281,7 @@ describe('trimTableEdgeCell', () => {
                 );
                 const pos = 34; // End of 'text2' in last cell of first row of tbody
                 const $pos = node.resolve(pos);
-                const result = trimTableEdgeCell($pos, 'forward');
+                const result = trimTextSelectionOnEdge($pos, 'forward');
 
                 // Should move to start of first cell in next row (text3)
                 expect(result).toBeGreaterThan(pos);
@@ -111,7 +298,7 @@ describe('trimTableEdgeCell', () => {
                 );
                 const pos = 42; // End of 'text2' in last cell
                 const $pos = node.resolve(pos);
-                const result = trimTableEdgeCell($pos, 'forward');
+                const result = trimTextSelectionOnEdge($pos, 'forward');
 
                 // Should exit table and be in the paragraph after
                 expect(result).toBeGreaterThan(pos);
@@ -127,7 +314,7 @@ describe('trimTableEdgeCell', () => {
                 );
                 const pos = 16; // End of 'head2' in thead
                 const $pos = node.resolve(pos);
-                const result = trimTableEdgeCell($pos, 'forward');
+                const result = trimTextSelectionOnEdge($pos, 'forward');
 
                 // Should move to start of first cell in tbody (text1)
                 expect(result).toBeGreaterThan(pos);
@@ -142,7 +329,7 @@ describe('trimTableEdgeCell', () => {
                 );
                 const pos = 24; // Middle of 'text1' (te|xt1)
                 const $pos = node.resolve(pos);
-                const result = trimTableEdgeCell($pos, 'forward');
+                const result = trimTextSelectionOnEdge($pos, 'forward');
 
                 // Position should not change
                 expect(result).toBe(pos);
@@ -154,7 +341,7 @@ describe('trimTableEdgeCell', () => {
                 );
                 const pos = 22; // Empty first cell of tbody
                 const $pos = node.resolve(pos);
-                const result = trimTableEdgeCell($pos, 'forward');
+                const result = trimTextSelectionOnEdge($pos, 'forward');
 
                 // Should move to start of next cell (text2)
                 expect(result).toBeGreaterThan(pos);
@@ -173,7 +360,7 @@ describe('trimTableEdgeCell', () => {
                 // Position at end of 'x^2' inside mathInline (last char of formula)
                 const pos = 30; // End of 'x^2' in mathInline
                 const $pos = node.resolve(pos);
-                const result = trimTableEdgeCell($pos, 'forward');
+                const result = trimTextSelectionOnEdge($pos, 'forward');
 
                 // Should move to next cell - cursor at end of last inline block
                 expect(result).toBeGreaterThan(pos);
@@ -190,7 +377,7 @@ describe('trimTableEdgeCell', () => {
                 );
                 const pos = 34; // End of 'text2' in last cell
                 const $pos = node.resolve(pos);
-                const result = trimTableEdgeCell($pos, 'backward');
+                const result = trimTextSelectionOnEdge($pos, 'backward');
 
                 // Should not move
                 expect(result).toBe(pos);
@@ -205,7 +392,7 @@ describe('trimTableEdgeCell', () => {
                 );
                 const pos = 36; // Start of 'text2' in middle cell
                 const $pos = node.resolve(pos);
-                const result = trimTableEdgeCell($pos, 'backward');
+                const result = trimTextSelectionOnEdge($pos, 'backward');
 
                 // Should move to end of previous cell (text1)
                 expect(result).toBeLessThan(pos);
@@ -223,7 +410,7 @@ describe('trimTableEdgeCell', () => {
                 );
                 const pos = 38; // Start of 'text3' in first cell of second row
                 const $pos = node.resolve(pos);
-                const result = trimTableEdgeCell($pos, 'backward');
+                const result = trimTextSelectionOnEdge($pos, 'backward');
 
                 // Should move to end of last cell in previous row (text2)
                 expect(result).toBeLessThan(pos);
@@ -240,7 +427,7 @@ describe('trimTableEdgeCell', () => {
                 );
                 const pos = 12; // Start of 'head1' in first cell
                 const $pos = node.resolve(pos);
-                const result = trimTableEdgeCell($pos, 'backward');
+                const result = trimTextSelectionOnEdge($pos, 'backward');
 
                 // Should exit table and be in the paragraph before
                 expect(result).toBeLessThan(pos);
@@ -256,7 +443,7 @@ describe('trimTableEdgeCell', () => {
                 );
                 const pos = 22; // Start of 'text1' in first cell of tbody
                 const $pos = node.resolve(pos);
-                const result = trimTableEdgeCell($pos, 'backward');
+                const result = trimTextSelectionOnEdge($pos, 'backward');
 
                 // Should move to end of last cell in thead (head2)
                 expect(result).toBeLessThan(pos);
@@ -271,7 +458,7 @@ describe('trimTableEdgeCell', () => {
                 );
                 const pos = 31; // Middle of 'text2' (te|xt2)
                 const $pos = node.resolve(pos);
-                const result = trimTableEdgeCell($pos, 'backward');
+                const result = trimTextSelectionOnEdge($pos, 'backward');
 
                 // Position should not change
                 expect(result).toBe(pos);
@@ -283,7 +470,7 @@ describe('trimTableEdgeCell', () => {
                 );
                 const pos = 29; // Empty last cell
                 const $pos = node.resolve(pos);
-                const result = trimTableEdgeCell($pos, 'backward');
+                const result = trimTextSelectionOnEdge($pos, 'backward');
 
                 // Should move to end of previous cell (text1)
                 expect(result).toBeLessThan(pos);
@@ -302,7 +489,7 @@ describe('trimTableEdgeCell', () => {
                 // Position at start of 'x^2' inside mathInline (first char of formula)
                 const pos = 29; // Start of 'x^2' in mathInline
                 const $pos = node.resolve(pos);
-                const result = trimTableEdgeCell($pos, 'backward');
+                const result = trimTextSelectionOnEdge($pos, 'backward');
 
                 // Should move to previous cell - cursor at start of first inline block
                 expect(result).toBeLessThan(pos);
@@ -319,7 +506,7 @@ describe('trimTableEdgeCell', () => {
                 const node = doc(yfmTable(yfmTbody(yfmTr(yfmTd(p('text1')), yfmTd(p('text2'))))));
                 const pos = 5; // Start of 'text1' in first cell
                 const $pos = node.resolve(pos);
-                const result = trimTableEdgeCell($pos, 'forward');
+                const result = trimTextSelectionOnEdge($pos, 'forward');
 
                 // Should not move
                 expect(result).toBe(pos);
@@ -333,7 +520,7 @@ describe('trimTableEdgeCell', () => {
                 );
                 const pos = 19; // End of 'text2' in middle cell
                 const $pos = node.resolve(pos);
-                const result = trimTableEdgeCell($pos, 'forward');
+                const result = trimTextSelectionOnEdge($pos, 'forward');
 
                 // Should move to start of next cell (text3)
                 expect(result).toBeGreaterThan(pos);
@@ -353,7 +540,7 @@ describe('trimTableEdgeCell', () => {
                 );
                 const pos = 19; // End of 'text2' in last cell of first row
                 const $pos = node.resolve(pos);
-                const result = trimTableEdgeCell($pos, 'forward');
+                const result = trimTextSelectionOnEdge($pos, 'forward');
 
                 // Should move to start of first cell in next row (text3)
                 expect(result).toBeGreaterThan(pos);
@@ -370,7 +557,7 @@ describe('trimTableEdgeCell', () => {
                 );
                 const pos = 27; // End of 'text2' in last cell
                 const $pos = node.resolve(pos);
-                const result = trimTableEdgeCell($pos, 'forward');
+                const result = trimTextSelectionOnEdge($pos, 'forward');
 
                 // Should exit table and be in the paragraph after
                 expect(result).toBeGreaterThan(pos);
@@ -380,16 +567,16 @@ describe('trimTableEdgeCell', () => {
                 expect(result).toBe(33);
             });
 
-            it('should NOT change position when cursor at end of non-last paragraph in cell', () => {
+            it('should move to start of next textblock when cursor at end of non-last paragraph in cell', () => {
                 const node = doc(
                     yfmTable(yfmTbody(yfmTr(yfmTd(p('text1'), p('text2')), yfmTd(p('text3'))))),
                 );
                 const pos = 10; // End of 'text1' (first paragraph in cell with two paragraphs)
                 const $pos = node.resolve(pos);
-                const result = trimTableEdgeCell($pos, 'forward');
+                const result = trimTextSelectionOnEdge($pos, 'forward');
 
-                // Position should not change (not at end of cell)
-                expect(result).toBe(pos);
+                // Should move to start of 'text2'
+                expect(result).toBe(12);
             });
 
             it('should NOT change position when cursor at start of first paragraph (not at end for forward)', () => {
@@ -398,7 +585,7 @@ describe('trimTableEdgeCell', () => {
                 );
                 const pos = 5; // Start of 'text1' (first paragraph)
                 const $pos = node.resolve(pos);
-                const result = trimTableEdgeCell($pos, 'forward');
+                const result = trimTextSelectionOnEdge($pos, 'forward');
 
                 // Position should not change (cursor at start, not end for forward)
                 expect(result).toBe(pos);
@@ -408,7 +595,7 @@ describe('trimTableEdgeCell', () => {
                 const node = doc(yfmTable(yfmTbody(yfmTr(yfmTd(p('')), yfmTd(p('text'))))));
                 const pos = 5; // Empty first cell
                 const $pos = node.resolve(pos);
-                const result = trimTableEdgeCell($pos, 'forward');
+                const result = trimTextSelectionOnEdge($pos, 'forward');
 
                 // Should move to start of next cell (text)
                 expect(result).toBeGreaterThan(pos);
@@ -426,7 +613,7 @@ describe('trimTableEdgeCell', () => {
                 // Position at end of 'x^2' inside mathInline (last char of formula)
                 const pos = 13; // End of 'x^2' in mathInline
                 const $pos = node.resolve(pos);
-                const result = trimTableEdgeCell($pos, 'forward');
+                const result = trimTextSelectionOnEdge($pos, 'forward');
 
                 // Should move to next cell - cursor at end of last inline block in paragraph
                 expect(result).toBeGreaterThan(pos);
@@ -441,7 +628,7 @@ describe('trimTableEdgeCell', () => {
                 const node = doc(yfmTable(yfmTbody(yfmTr(yfmTd(p('text1')), yfmTd(p('text2'))))));
                 const pos = 19; // End of 'text2' in last cell
                 const $pos = node.resolve(pos);
-                const result = trimTableEdgeCell($pos, 'backward');
+                const result = trimTextSelectionOnEdge($pos, 'backward');
 
                 // Should not move
                 expect(result).toBe(pos);
@@ -455,7 +642,7 @@ describe('trimTableEdgeCell', () => {
                 );
                 const pos = 14; // Start of 'text2' in middle cell
                 const $pos = node.resolve(pos);
-                const result = trimTableEdgeCell($pos, 'backward');
+                const result = trimTextSelectionOnEdge($pos, 'backward');
 
                 // Should move to end of previous cell (text1)
                 expect(result).toBeLessThan(pos);
@@ -475,7 +662,7 @@ describe('trimTableEdgeCell', () => {
                 );
                 const pos = 25; // Start of 'text3' in first cell of second row
                 const $pos = node.resolve(pos);
-                const result = trimTableEdgeCell($pos, 'backward');
+                const result = trimTextSelectionOnEdge($pos, 'backward');
 
                 // Should move to end of last cell in previous row (text2)
                 expect(result).toBeLessThan(pos);
@@ -492,7 +679,7 @@ describe('trimTableEdgeCell', () => {
                 );
                 const pos = 13; // Start of 'text1' in first cell
                 const $pos = node.resolve(pos);
-                const result = trimTableEdgeCell($pos, 'backward');
+                const result = trimTextSelectionOnEdge($pos, 'backward');
 
                 // Should exit table and be in the paragraph before
                 expect(result).toBeLessThan(pos);
@@ -502,16 +689,16 @@ describe('trimTableEdgeCell', () => {
                 expect(result).toBe(7);
             });
 
-            it('should NOT change position when cursor at start of non-first paragraph in cell', () => {
+            it('should move to end of prev textblock when cursor at start of non-first paragraph in cell', () => {
                 const node = doc(
                     yfmTable(yfmTbody(yfmTr(yfmTd(p('text1'), p('text2')), yfmTd(p('text3'))))),
                 );
                 const pos = 12; // Start of 'text2' (second paragraph in cell)
                 const $pos = node.resolve(pos);
-                const result = trimTableEdgeCell($pos, 'backward');
+                const result = trimTextSelectionOnEdge($pos, 'backward');
 
-                // Position should not change (not at start of cell)
-                expect(result).toBe(pos);
+                // Should move to end of 'text1'
+                expect(result).toBe(10);
             });
 
             it('should NOT change position when cursor at end of last paragraph (not at start for backward)', () => {
@@ -520,7 +707,7 @@ describe('trimTableEdgeCell', () => {
                 );
                 const pos = 26; // End of 'text3' (last paragraph)
                 const $pos = node.resolve(pos);
-                const result = trimTableEdgeCell($pos, 'backward');
+                const result = trimTextSelectionOnEdge($pos, 'backward');
 
                 // Position should not change (cursor at end, not start for backward)
                 expect(result).toBe(pos);
@@ -530,7 +717,7 @@ describe('trimTableEdgeCell', () => {
                 const node = doc(yfmTable(yfmTbody(yfmTr(yfmTd(p('text')), yfmTd(p(''))))));
                 const pos = 13; // Empty last cell
                 const $pos = node.resolve(pos);
-                const result = trimTableEdgeCell($pos, 'backward');
+                const result = trimTextSelectionOnEdge($pos, 'backward');
 
                 // Should move to end of previous cell (text)
                 expect(result).toBeLessThan(pos);
@@ -548,7 +735,7 @@ describe('trimTableEdgeCell', () => {
                 // Position at start of 'x^2' inside mathInline (first char of formula)
                 const pos = 14; // Start of 'x^2' in mathInline
                 const $pos = node.resolve(pos);
-                const result = trimTableEdgeCell($pos, 'backward');
+                const result = trimTextSelectionOnEdge($pos, 'backward');
 
                 // Should move to previous cell - cursor at start of first inline block in paragraph
                 expect(result).toBeLessThan(pos);
@@ -560,7 +747,7 @@ describe('trimTableEdgeCell', () => {
     });
 });
 
-describe('trimEmptyTableCells', () => {
+describe('trimTextSelection', () => {
     describe('Single-line tables', () => {
         it('should return original selection when no trimming needed (selection within cell)', () => {
             const node = doc(table(tbody(tr(td('text1'), td('text2')))));
@@ -568,7 +755,7 @@ describe('trimEmptyTableCells', () => {
             const to = 8; // 'xt' in 'text1'
             const sel = TextSelection.create(node, from, to);
 
-            const result = trimEmptyTableCells(sel);
+            const result = trimTextSelection(sel);
 
             // Selection should not change
             expect(result.from).toBe(from);
@@ -577,11 +764,11 @@ describe('trimEmptyTableCells', () => {
 
         it('should return new selection when trimming needed (selection across cells)', () => {
             const node = doc(table(tbody(tr(td('text1'), td('text2')))));
-            const from = 5; // Start of 'text1'
-            const to = 11; // End of 'text2'
+            const from = 4; // Start of 'text1'
+            const to = 11; // Start of 'text2'
             const sel = TextSelection.create(node, from, to);
 
-            const result = trimEmptyTableCells(sel);
+            const result = trimTextSelection(sel);
 
             // Selection should be trimmed
             expect(result.from !== from || result.to !== to).toBe(true);
@@ -589,11 +776,11 @@ describe('trimEmptyTableCells', () => {
 
         it('should return original selection when entire cell content is selected', () => {
             const node = doc(table(tbody(tr(td('text1'), td('text2')))));
-            const from = 5; // Start of 'text1'
-            const to = 10; // End of 'text1'
+            const from = 4; // Start of 'text1'
+            const to = 9; // End of 'text1'
             const sel = TextSelection.create(node, from, to);
 
-            const result = trimEmptyTableCells(sel);
+            const result = trimTextSelection(sel);
 
             // Selection should not change (entire cell content selected)
             expect(result.from).toBe(from);
@@ -608,7 +795,7 @@ describe('trimEmptyTableCells', () => {
             const to = 9; // 'xt' in 'text1'
             const sel = TextSelection.create(node, from, to);
 
-            const result = trimEmptyTableCells(sel);
+            const result = trimTextSelection(sel);
 
             // Selection should not change
             expect(result.from).toBe(from);
@@ -624,7 +811,7 @@ describe('trimEmptyTableCells', () => {
             const to = 23; // Start of 'text3'
             const sel = TextSelection.create(node, from, to);
 
-            const result = trimEmptyTableCells(sel);
+            const result = trimTextSelection(sel);
 
             // Selection should be trimmed
             expect(result.from !== from && result.to !== to).toBe(true);
@@ -638,7 +825,7 @@ describe('trimEmptyTableCells', () => {
             const to = 19; // End of 'text1'
             const sel = TextSelection.create(node, from, to);
 
-            const result = trimEmptyTableCells(sel);
+            const result = trimTextSelection(sel);
 
             // Selection should not change (entire cell content selected)
             expect(result.from).toBe(from);
@@ -651,11 +838,75 @@ describe('trimEmptyTableCells', () => {
             const to = 9; // Start of second empty cell
             const sel = TextSelection.create(node, from, to);
 
-            const result = trimEmptyTableCells(sel);
+            const result = trimTextSelection(sel);
 
             // Selection should not change (entire cell content selected)
             expect(result.from).toBe(result.to);
             expect(result.from).toBe(from);
+        });
+    });
+
+    describe('Blockquotes', () => {
+        it('should return original selection when no trimming needed (selection within blockquote)', () => {
+            const node = doc(p('before'), bquote(p('quote')), p('after'));
+            const from = 10; // start of 'quote'
+            const to = 15; // end of 'quote'
+            const sel = TextSelection.create(node, from, to);
+
+            const result = trimTextSelection(sel);
+
+            // Selection should not change
+            expect(result.from).toBe(from);
+            expect(result.to).toBe(to);
+        });
+
+        it('should return new selection when trimming needed (selection across blockquote boundary)', () => {
+            const node = doc(p('before'), bquote(p('quote')), p('after'));
+            const from = 7; // End of 'before'
+            const to = 15; // End of 'quote' in blockquote
+            const sel = TextSelection.create(node, from, to);
+
+            const result = trimTextSelection(sel);
+
+            // Selection should be trimmed
+            expect(result.from).not.toBe(from);
+            expect(result.to).toBe(to);
+        });
+
+        it('should return empty selection when no text content within selection', () => {
+            const node = doc(bquote(p('text1'), p('text2'), p('text3')));
+            const from = 7; // End of 'text1'
+            const to = 9; // Start of 'text2'
+            const sel = TextSelection.create(node, from, to);
+
+            const result = trimTextSelection(sel);
+
+            // Selection should be empty (cursor selection)
+            expect(result.from).toBe(result.to);
+        });
+
+        it('should return empty selection when no text content within selection [2]', () => {
+            const node = doc(bquote(p('outer'), bquote(p('inner'))));
+            const from = 7; // End of 'outer'
+            const to = 10; // Start of 'inner'
+            const sel = TextSelection.create(node, from, to);
+
+            const result = trimTextSelection(sel);
+
+            // Selection should be empty (cursor selection)
+            expect(result.from).toBe(result.to);
+        });
+
+        it('should return empty selection when blockquote paragraph is empty', () => {
+            const node = doc(p('before'), bquote(p()), p('after'));
+            const from = 10; // Empty paragraph in blockquote
+            const to = 10;
+            const sel = TextSelection.create(node, from, to);
+
+            const result = trimTextSelection(sel);
+
+            // Selection should be empty (cursor selection)
+            expect(result.from).toBe(result.to);
         });
     });
 });

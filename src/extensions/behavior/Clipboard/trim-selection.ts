@@ -2,17 +2,17 @@ import type {ResolvedPos} from '#pm/model';
 import {TextSelection} from '#pm/state';
 
 /** @internal */
-export function trimEmptyTableCells(sel: TextSelection): TextSelection {
+export function trimTextSelection(sel: TextSelection): TextSelection {
     const {$from, $to} = sel;
-    const from = trimTableEdgeCell($from, 'forward');
-    const to = trimTableEdgeCell($to, 'backward');
+    const from = trimTextSelectionOnEdge($from, 'forward');
+    const to = trimTextSelectionOnEdge($to, 'backward');
     if ($from.pos === from && $to.pos === to) return sel;
     if (from > to) return TextSelection.create($from.doc, to, to);
     return TextSelection.create($from.doc, from, to);
 }
 
 /** @internal */
-export function trimTableEdgeCell($pos: ResolvedPos, dir: 'backward' | 'forward'): number {
+export function trimTextSelectionOnEdge($pos: ResolvedPos, dir: 'backward' | 'forward'): number {
     let depth = $pos.depth;
     let isAtEdgeOfInlineBlocks = true;
 
@@ -44,32 +44,9 @@ export function trimTableEdgeCell($pos: ResolvedPos, dir: 'backward' | 'forward'
         return $pos.pos;
     }
 
-    // {
-    //     const node = $pos.node(depth);
-    //     const parentNode = $pos.node(depth - 1);
-
-    //     const isInTable = node.type.spec.tableRole || parentNode.type.spec.tableRole;
-    //     if (!isInTable || !node.isTextblock) {
-    //         return $pos.pos;
-    //     }
-
-    //     if (!node.type.spec.tableRole) {
-    //         // up to tableCell depth
-    //         depth -= 1;
-
-    //         // Check if we're at the edge of the cell (not just the textblock)
-    //         const edgeNode = dir === 'forward' ? parentNode.lastChild : parentNode.firstChild;
-    //         if (edgeNode !== node) {
-    //             return $pos.pos;
-    //         }
-    //     }
-    // }
-
     while (depth > 0) {
         const node = $pos.node(depth);
         const parentNode = $pos.node(depth - 1);
-
-        // if (!node.type.spec.tableRole || !parentNode.type.spec.tableRole) break;
 
         const edgeNode = dir === 'forward' ? parentNode.lastChild : parentNode.firstChild;
         if (node !== edgeNode) break;

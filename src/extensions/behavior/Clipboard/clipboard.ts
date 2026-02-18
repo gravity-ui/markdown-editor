@@ -10,7 +10,7 @@ import {isNodeSelection, isTextSelection, isWholeSelection} from 'src/utils/sele
 import {BaseNode, pType} from '../../base/BaseSchema';
 
 import {isInsideCode} from './code';
-import {trimEmptyTableCells} from './table';
+import {trimTextSelection} from './trim-selection';
 import {DataTransferType, extractTextContentFromHtml, isIosSafariShare, trimContent} from './utils';
 
 export type ClipboardPluginOptions = {
@@ -288,7 +288,7 @@ function getCopyContent(state: EditorState): Slice {
     }
 
     if (isTextSelection(sel)) {
-        sel = trimEmptyTableCells(sel);
+        sel = trimTextSelection(sel);
     }
 
     if (isTextSelectionWithinSameTextBlock(sel)) {
