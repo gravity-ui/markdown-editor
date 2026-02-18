@@ -1,5 +1,12 @@
 # Changelog
 
+## [15.34.0](https://github.com/gravity-ui/markdown-editor/compare/v15.33.0...v15.34.0) (2026-02-18)
+
+
+### Features
+
+* **Clipboard:** remove empty blocks at edges of selected content when copying ([#945](https://github.com/gravity-ui/markdown-editor/issues/945)) ([5f76172](https://github.com/gravity-ui/markdown-editor/commit/5f761728018b3cfe08652e6909d3720a182063ed))
+
 ## [15.33.0](https://github.com/gravity-ui/markdown-editor/compare/v15.32.0...v15.33.0) (2026-02-18)
 
 
