@@ -1,5 +1,12 @@
 # Changelog
 
+## [15.34.2](https://github.com/gravity-ui/markdown-editor/compare/v15.34.1...v15.34.2) (2026-02-18)
+
+
+### Bug Fixes
+
+* **view:** fix i18n for codeblock floating buttons ([#957](https://github.com/gravity-ui/markdown-editor/issues/957)) ([0825933](https://github.com/gravity-ui/markdown-editor/commit/0825933e72225209ae3a8326df30491e38ebe59f))
+
 ## [15.34.1](https://github.com/gravity-ui/markdown-editor/compare/v15.34.0...v15.34.1) (2026-02-18)
 
 
