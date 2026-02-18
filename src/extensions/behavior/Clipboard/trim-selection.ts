@@ -14,14 +14,14 @@ export function trimTextSelection(sel: TextSelection): TextSelection {
 /** @internal */
 export function trimTextSelectionOnEdge($pos: ResolvedPos, dir: 'backward' | 'forward'): number {
     let depth = $pos.depth;
-    let isAtEdgeOfInlineBlocks = true;
+    let isAtTextblockEdge = true;
 
     {
         const edgePos = dir === 'forward' ? $pos.end() : $pos.start();
-        isAtEdgeOfInlineBlocks = $pos.pos === edgePos;
+        isAtTextblockEdge = $pos.pos === edgePos;
     }
 
-    if (isAtEdgeOfInlineBlocks && !$pos.parent.isTextblock) {
+    if (isAtTextblockEdge && !$pos.parent.isTextblock) {
         while (depth > 0) {
             const node = $pos.node(depth);
             const parentNode = $pos.node(depth - 1);
@@ -32,7 +32,7 @@ export function trimTextSelectionOnEdge($pos: ResolvedPos, dir: 'backward' | 'fo
 
             const edgeNode = dir === 'forward' ? parentNode.lastChild : parentNode.firstChild;
             if (node !== edgeNode) {
-                isAtEdgeOfInlineBlocks = false;
+                isAtTextblockEdge = false;
                 break;
             }
 
@@ -40,7 +40,7 @@ export function trimTextSelectionOnEdge($pos: ResolvedPos, dir: 'backward' | 'fo
         }
     }
 
-    if (!isAtEdgeOfInlineBlocks || depth < 1 || !$pos.node(depth).isTextblock) {
+    if (!isAtTextblockEdge || depth < 1 || !$pos.node(depth).isTextblock) {
         return $pos.pos;
     }
 
