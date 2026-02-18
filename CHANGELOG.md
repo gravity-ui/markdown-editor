@@ -1,5 +1,13 @@
 # Changelog
 
+## [15.34.1](https://github.com/gravity-ui/markdown-editor/compare/v15.34.0...v15.34.1) (2026-02-18)
+
+
+### Bug Fixes
+
+* **search:** always anchor search panel to current editor instance ([#955](https://github.com/gravity-ui/markdown-editor/issues/955)) ([de93f3e](https://github.com/gravity-ui/markdown-editor/commit/de93f3e099f4e30447c8d3c5bdba34316c7742ff))
+* **view:** fixed styles for codeblock floating buttons ([#954](https://github.com/gravity-ui/markdown-editor/issues/954)) ([e579ad2](https://github.com/gravity-ui/markdown-editor/commit/e579ad2c634f584ae96dfd0aa953bb509b3acb5e))
+
 ## [15.34.0](https://github.com/gravity-ui/markdown-editor/compare/v15.33.0...v15.34.0) (2026-02-18)
 
 
