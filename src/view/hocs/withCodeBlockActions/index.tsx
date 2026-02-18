@@ -14,15 +14,16 @@ import {CodeTextWrappingToggleButton} from './TextWrappingButton';
 import './styles.scss';
 
 const VIEWER_CODEBLOCK_CN = 'g-md-viewer-code-block';
+const VIEWER_CODEBLOCK_BUTTON_CN = 'g-md-viewer-code-button';
 const VIEWER_CODEBLOCK_FLOATING_CN = 'g-md-viewer-code-block-floating-container';
-const CODEBLOCK_DEFAULT_SELECTOR = '.yfm-code-floating-container';
+const CODEBLOCK_DEFAULT_SELECTOR = '.yfm-clipboard, .yfm-code-floating-container';
 
 export type WithCodeBlockActionsOptions = {
     /** @default true */
     copyButton?: boolean;
     /** @default false */
     lineWrappingButton?: boolean;
-    /** @default '.yfm-code-floating-container' */
+    /** @default '.yfm-clipboard, .yfm-code-floating-container' */
     codeBlockSelector?: string;
     /** Override how text is copied */
     getCodeBlockText?: (element: HTMLElement) => string;
@@ -88,12 +89,16 @@ export function withCodeBlockActions({
                         return (
                             <Portal key={id || line || idx} container={container}>
                                 {lineWrappingButton && (
-                                    <CodeTextWrappingToggleButton codeElement={element} />
+                                    <CodeTextWrappingToggleButton
+                                        codeElement={element}
+                                        className={VIEWER_CODEBLOCK_BUTTON_CN}
+                                    />
                                 )}
                                 {copyButton && (
                                     <ClipboardButton
                                         size="m"
                                         text={() => getCodeBlockText(element)}
+                                        className={VIEWER_CODEBLOCK_BUTTON_CN}
                                     />
                                 )}
                             </Portal>

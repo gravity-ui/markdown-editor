@@ -6,9 +6,13 @@
     }
 
     // for built-in floating controls from yfm for codeblock
-    .yfm-code-floating,
-    .yfm-clipboard-button {
-        display: none;
+    &,
+    &.yfm-clipboard,
+    &.yfm-code-floating-container {
+        .yfm-code-floating,
+        .yfm-clipboard-button {
+            display: none;
+        }
     }
 
     .g-md-viewer-code-block-floating-container {
@@ -29,7 +33,8 @@
         gap: var(--g-spacing-1);
     }
 
-    &:hover {
+    &:hover,
+    &:has(.g-md-viewer-code-button:focus) {
         .g-md-viewer-code-block-floating-container {
             opacity: 1;
         }
