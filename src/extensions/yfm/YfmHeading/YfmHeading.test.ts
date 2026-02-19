@@ -104,8 +104,33 @@ describe('Heading extension', () => {
         );
     });
 
-    it('should parse headings with id without markdown-it-attrs', () => {
-        const markup = dd`
+    describe('without markdown-it-attrs', () => {
+        const {
+            schema,
+            markupParser: parser,
+            serializer,
+        } = new ExtensionsManager({
+            extensions: (builder) =>
+                builder
+                    .use(BaseSchemaSpecs, {})
+                    .use(BoldSpecs)
+                    .use(YfmConfigsSpecs, {disableAttrs: true})
+                    .use(YfmHeadingSpecs, {}),
+        }).buildDeps();
+        const {same} = createMarkupChecker({parser, serializer});
+
+        const {doc, b, p, h} = builders<
+            'doc' | 'b' | 'p' | 'h' | 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6',
+            'b'
+        >(schema, {
+            doc: {nodeType: BaseNode.Doc},
+            b: {markType: boldMarkName},
+            p: {nodeType: BaseNode.Paragraph},
+            h: {nodeType: headingNodeName},
+        });
+
+        it('should parse headings with id', () => {
+            const markup = dd`
             # h1 {#one}
 
             ## h2 {#two}
@@ -121,40 +146,59 @@ describe('Heading extension', () => {
             para
             `.trim();
 
-        const {
-            schema,
-            markupParser: parser,
-            serializer,
-        } = new ExtensionsManager({
-            extensions: (builder) =>
-                builder
-                    .use(BaseSchemaSpecs, {})
-                    .use(YfmConfigsSpecs, {disableAttrs: true})
-                    .use(YfmHeadingSpecs, {}),
-        }).buildDeps();
-        const {same} = createMarkupChecker({parser, serializer});
-
-        const {doc, p, h} = builders<
-            'doc' | 'p' | 'h' | 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6',
-            'b'
-        >(schema, {
-            doc: {nodeType: BaseNode.Doc},
-            p: {nodeType: BaseNode.Paragraph},
-            h: {nodeType: headingNodeName},
+            same(
+                markup,
+                doc(
+                    h({[YfmHeadingAttr.Level]: 1, [YfmHeadingAttr.Id]: 'one'}, 'h1'),
+                    h({[YfmHeadingAttr.Level]: 2, [YfmHeadingAttr.Id]: 'two'}, 'h2'),
+                    h({[YfmHeadingAttr.Level]: 3, [YfmHeadingAttr.Id]: 'three'}, 'h3'),
+                    h({[YfmHeadingAttr.Level]: 4, [YfmHeadingAttr.Id]: 'four'}, 'h4'),
+                    h({[YfmHeadingAttr.Level]: 5, [YfmHeadingAttr.Id]: 'five'}, 'h5'),
+                    h({[YfmHeadingAttr.Level]: 6, [YfmHeadingAttr.Id]: 'six'}, 'h6'),
+                    p('para'),
+                ),
+            );
         });
 
-        same(
-            markup,
-            doc(
-                h({[YfmHeadingAttr.Level]: 1, [YfmHeadingAttr.Id]: 'one'}, 'h1'),
-                h({[YfmHeadingAttr.Level]: 2, [YfmHeadingAttr.Id]: 'two'}, 'h2'),
-                h({[YfmHeadingAttr.Level]: 3, [YfmHeadingAttr.Id]: 'three'}, 'h3'),
-                h({[YfmHeadingAttr.Level]: 4, [YfmHeadingAttr.Id]: 'four'}, 'h4'),
-                h({[YfmHeadingAttr.Level]: 5, [YfmHeadingAttr.Id]: 'five'}, 'h5'),
-                h({[YfmHeadingAttr.Level]: 6, [YfmHeadingAttr.Id]: 'six'}, 'h6'),
-                p('para'),
-            ),
-        );
+        it('should parse id with dots', () => {
+            const markup = dd`
+            ## Heading2 {#heading.two}
+            `.trim();
+
+            same(
+                markup,
+                doc(h({[YfmHeadingAttr.Level]: 2, [YfmHeadingAttr.Id]: 'heading.two'}, 'Heading2')),
+            );
+        });
+
+        it('should parse id in russian', () => {
+            const markup = dd`
+            ## Заголовок2 {#якорь.два}
+            `.trim();
+
+            same(
+                markup,
+                doc(h({[YfmHeadingAttr.Level]: 2, [YfmHeadingAttr.Id]: 'якорь.два'}, 'Заголовок2')),
+            );
+        });
+
+        it('should parse id in heading with inline markup', () => {
+            const markup = dd`
+            ## Head**ing**two {#anchor.second}
+            `.trim();
+
+            same(
+                markup,
+                doc(
+                    h(
+                        {[YfmHeadingAttr.Level]: 2, [YfmHeadingAttr.Id]: 'anchor.second'},
+                        'Head',
+                        b('ing'),
+                        'two',
+                    ),
+                ),
+            );
+        });
     });
 
     it.each([1, 2, 3, 4, 5, 6])('should parse html - h%s tag', (lvl) => {
