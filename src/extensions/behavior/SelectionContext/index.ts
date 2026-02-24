@@ -147,16 +147,22 @@ class SelectionTooltip implements PluginSpec<PluginState> {
         const hideFromTr = pluginKey.getState(view.state)?.disabled;
 
         // Don't show tooltip if editor not mounted to the DOM
-        // or when view is out of focus
-        if (hideFromTr || !view.dom.parentNode || !view.hasFocus()) {
+        if (hideFromTr || !view.dom.parentNode) {
             this.tooltip.hide(view);
             return;
         }
 
         const {state} = view;
         // Don't do anything if the document/selection didn't change
-        if (prevState && prevState.doc.eq(state.doc) && prevState.selection.eq(state.selection))
+        if (prevState && prevState.doc.eq(state.doc) && prevState.selection.eq(state.selection)) {
             return;
+        }
+
+        // Don't show tooltip if editor out of focus
+        if (!view.hasFocus()) {
+            this.tooltip.hide(view);
+            return;
+        }
 
         const {selection} = state;
         // Hide the tooltip if the selection is empty
