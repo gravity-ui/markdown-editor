@@ -1,5 +1,14 @@
 # Changelog
 
+## [15.34.3](https://github.com/gravity-ui/markdown-editor/compare/v15.34.2...v15.34.3) (2026-02-25)
+
+
+### Bug Fixes
+
+* **SelectionContext:** skip updates on attribute-only DOM mutations ([#961](https://github.com/gravity-ui/markdown-editor/issues/961)) ([23ee605](https://github.com/gravity-ui/markdown-editor/commit/23ee6058d4597a27a1efc9d27db9b2a4b0f63f77))
+* **styles:** added YFM styles overrides layer ([#951](https://github.com/gravity-ui/markdown-editor/issues/951)) ([ab8773d](https://github.com/gravity-ui/markdown-editor/commit/ab8773d05f00377196a41843a9eb3133c3c34c4d))
+* **YfmHeading:** fix parsing custom ids in headings ([#959](https://github.com/gravity-ui/markdown-editor/issues/959)) ([a690b15](https://github.com/gravity-ui/markdown-editor/commit/a690b15274338dc4ffe7bf26a790361ccfbf23e0))
+
 ## [15.34.2](https://github.com/gravity-ui/markdown-editor/compare/v15.34.1...v15.34.2) (2026-02-18)
 
 
