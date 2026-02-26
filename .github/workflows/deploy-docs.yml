@@ -1,0 +1,65 @@
+name: Deploy Docs (GitHub Pages)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build static docs
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout repo sources.
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Minimal build: create a single static HTML file.
+      - name: Build docs (minimal)
+        run: |
+          mkdir -p docs-dist
+          cat > docs-dist/index.html <<'HTML'
+          <!doctype html>
+          <html lang="en">
+            <head>
+              <meta charset="utf-8" />
+              <meta name="viewport" content="width=device-width, initial-scale=1" />
+              <title>Markdown Editor Docs</title>
+            </head>
+            <body>
+              <h1>Markdown Editor Docs</h1>
+              <p>Deployed via GitHub Pages.</p>
+            </body>
+          </html>
+          HTML
+
+      # Configure GitHub Pages.
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      # Upload the static site folder as an artifact for deployment.
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: ./docs-dist
+
+  deploy:
+    name: Deploy to GitHub Pages
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      # The deploy action outputs the final Pages URL here.
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      # Deploy the uploaded artifact to GitHub Pages.
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4
