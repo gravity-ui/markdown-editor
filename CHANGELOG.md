@@ -1,5 +1,12 @@
 # Changelog
 
+## [15.34.4](https://github.com/gravity-ui/markdown-editor/compare/v15.34.3...v15.34.4) (2026-02-26)
+
+
+### Bug Fixes
+
+* mermaid edit theme dependency ([#962](https://github.com/gravity-ui/markdown-editor/issues/962)) ([059d74b](https://github.com/gravity-ui/markdown-editor/commit/059d74b2dc1bd7d0e2345a79810045d57f44d462))
+
 ## [15.34.3](https://github.com/gravity-ui/markdown-editor/compare/v15.34.2...v15.34.3) (2026-02-25)
 
 
