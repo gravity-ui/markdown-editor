@@ -1,7 +1,7 @@
 import {useEffect, useMemo, useState} from 'react';
 
 import {Ellipsis as DotsIcon} from '@gravity-ui/icons';
-import {Button, Icon, Loader, Menu, Popup} from '@gravity-ui/uikit';
+import {Button, Icon, Loader, Menu, Popup, useThemeType} from '@gravity-ui/uikit';
 import type {Mermaid} from 'mermaid' with {'resolution-mode': 'import'};
 import type {Node} from 'prosemirror-model';
 import type {EditorView} from 'prosemirror-view';
@@ -33,12 +33,16 @@ const MermaidPreview: React.FC<{mermaidInstance: Mermaid | null; text: string}> 
     const [svg, setSvg] = useState<string>();
     const [error, setError] = useState<string | null>(null);
 
+    const theme = useThemeType();
+
     useEffect(() => {
         const p = async () => {
             if (mermaidInstance) {
                 try {
                     // Validates syntax and throws error if text is invalid
                     await mermaidInstance.parse(text);
+
+                    mermaidInstance.initialize({theme: theme === 'dark' ? 'dark' : 'forest'});
 
                     const {svg: S} = await mermaidInstance.render(`mermaid-${Date.now()}`, text);
 
@@ -51,7 +55,7 @@ const MermaidPreview: React.FC<{mermaidInstance: Mermaid | null; text: string}> 
         };
 
         p();
-    }, [mermaidInstance, text]);
+    }, [mermaidInstance, text, theme]);
 
     if (error) {
         return <div className={b('Error')}>{error && <div>{error}</div>}</div>;

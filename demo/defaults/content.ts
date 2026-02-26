@@ -273,6 +273,14 @@ And ##monospace## can be **##com##**##bined\\*##
 
 {% endnote %}
 
+Small mermaid example: 
+
+\`\`\`mermaid
+sequenceDiagram
+	Alice->>Bob: Hi Bob
+	Bob->>Alice: Hi Alice
+\`\`\`
+
 ---
 
 `.trim();
