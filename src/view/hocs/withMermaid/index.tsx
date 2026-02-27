@@ -28,7 +28,7 @@ export function withMermaid(opts: WithMermaidOptions) {
             useMermaidRuntime(meta, opts.runtime);
 
             useEffect(() => {
-                renderMermaid(mermaidConfig);
+                renderMermaid(mermaidConfig).catch(() => {});
             }, [html, mermaidConfig, renderMermaid]);
 
             return <Component {...props} ref={ref} />;
