@@ -1,6 +1,6 @@
 {
   "name": "@markdown-editor/monorepo",
-  "version": "0.0.0",
+  "version": "15.16.2",
   "private": true,
   "description": "Monorepository of @gravity-ui/markdown-editor packages",
   "license": "MIT",

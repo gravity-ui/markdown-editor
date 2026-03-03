@@ -1,3 +1,4 @@
 {
-  "packages/editor": "15.34.5"
+  "packages/editor": "15.34.5",
+  ".": "15.16.2"
 }
