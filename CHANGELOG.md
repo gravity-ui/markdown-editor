@@ -1,5 +1,12 @@
 # Changelog
 
+## [15.34.5](https://github.com/gravity-ui/markdown-editor/compare/v15.34.4...v15.34.5) (2026-03-03)
+
+
+### Performance Improvements
+
+* **Placeholder:** optimize placeholders rendering ([#966](https://github.com/gravity-ui/markdown-editor/issues/966)) ([966a92e](https://github.com/gravity-ui/markdown-editor/commit/966a92eb121982741b0b73f946ca8a6734e4970a))
+
 ## [15.34.4](https://github.com/gravity-ui/markdown-editor/compare/v15.34.3...v15.34.4) (2026-02-26)
 
 
