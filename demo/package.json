@@ -64,7 +64,7 @@
     "react": "catalog:react",
     "react-dom": "catalog:react",
     "react-use": "catalog:",
-    "storybook": "10.1.10",
+    "storybook": "10.2.10",
     "stylelint": "catalog:linters",
     "ts-dedent": "2.2.0",
     "typescript": "catalog:ts",
