@@ -64,8 +64,6 @@ Read more:
 
 1. Install Nodejs environment, version is specified in `.nvmrc` file. We recommend using [NVM](https://github.com/nvm-sh/nvm) or a similar tool.
 2. Install [pnpm](https://pnpm.io/installation), version is specified in `package.json` in "packageManager" property.
-  
-   You can use [Corepack](https://nodejs.org/api/corepack.html), or just install via npm: run `npm deps:global --force`.
 3. Install dependencies: `pnpm i`
 4. Run storybook dev-server: `pnpm start`
 

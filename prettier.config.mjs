@@ -1,4 +1,4 @@
-import config from '@gravity-ui/prettier-config';
+import config from '@markdown-editor/linters/prettier';
 
 /**
  * @see https://prettier.io/docs/configuration

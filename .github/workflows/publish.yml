@@ -7,11 +7,13 @@ on:
   # Manually trigger the publish workflow
   workflow_dispatch:
     inputs:
-      version:
-        description: 'Override version to publish'
-        required: false
-        type: string
-        default: ''
+      package:
+        description: 'Package to publish'
+        required: true
+        type: choice
+        default: 'packages/editor'
+        options:
+          - 'packages/editor'
       tag:
         description: 'Publish with tag'
         required: true
@@ -49,7 +51,7 @@ jobs:
           cache: pnpm
 
       - name: Install dependencies
-        run: pnpm run deps:ci
+        run: pnpm run ci:deps
 
       - name: Configure npm authentication
         shell: bash
@@ -57,14 +59,9 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GRAVITY_UI_BOT_NPM_TOKEN }}
 
-      - name: Set package version
-        if: ${{ github.event.inputs.version != '' }}
-        shell: bash
-        run: pnpm pkg set version="${{ github.event.inputs.version }}"
-
       - name: Publish package
         shell: bash
-        run: pnpm publish --tag ${{ github.event.inputs.tag }} --access public --report-summary --no-git-checks --dry-run ${{ github.event.inputs.dry_run }}
+        run: pnpm publish ${{ github.event.inputs.package }} --tag ${{ github.event.inputs.tag }} --access public --report-summary --no-git-checks --dry-run ${{ github.event.inputs.dry_run }}
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GRAVITY_UI_BOT_NPM_TOKEN }}
           NPM_CONFIG_PROVENANCE: true
