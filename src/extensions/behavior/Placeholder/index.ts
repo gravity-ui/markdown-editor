@@ -1,15 +1,14 @@
 import type {Node, Schema} from 'prosemirror-model';
 import {type EditorState, Plugin, PluginKey, type Transaction} from 'prosemirror-state';
 // @ts-ignore // TODO: fix cjs build
-import {findChildren, findParentNodeClosestToPos} from 'prosemirror-utils';
+import {findParentNodeClosestToPos} from 'prosemirror-utils';
 import {Decoration, DecorationSet} from 'prosemirror-view';
 
-import {cn} from '../../../classname';
-import type {ExtensionAuto} from '../../../core';
-import {isEqual} from '../../../lodash';
-import {isNodeEmpty} from '../../../utils/nodes';
-import {type PlaceholderOptions, getPlaceholderContent} from '../../../utils/placeholder';
-import {isTextSelection} from '../../../utils/selection';
+import {cn} from 'src/classname';
+import type {ExtensionAuto} from 'src/core';
+import {isEqual} from 'src/lodash';
+import {type PlaceholderOptions, getPlaceholderContent} from 'src/utils/placeholder';
+import {isTextSelection} from 'src/utils/selection';
 
 import './index.scss';
 
@@ -49,15 +48,38 @@ export const createPlaceholder = (node: Node, parent: Node | null, focus?: boole
 };
 
 const placeholderNeeded = (node: Node) => {
-    const childrenWithPlaceholderVisible = findChildren(node, (n: Node) =>
-        Boolean(n.type.spec.placeholder?.alwaysVisible),
-    );
+    // Combine all checks in a single descendants pass
+    let hasAlwaysVisiblePlaceholder = false;
+    let hasNonEmptyContent = false;
 
-    return (
-        isNodeEmpty(node) &&
-        // If there are child nodes with constant placeholder - give them the priority
-        !childrenWithPlaceholderVisible.length
-    );
+    node.descendants((n: Node) => {
+        // Check for alwaysVisible placeholder
+        if (n.type.spec.placeholder?.alwaysVisible) {
+            hasAlwaysVisiblePlaceholder = true;
+            return false; // Stop traversal early
+        }
+
+        // Check if node has non-empty content (same logic as isNodeEmpty)
+        if (n.isAtom) {
+            hasNonEmptyContent = true;
+            return false; // Stop traversal early
+        }
+
+        if (n.isText && n.textContent) {
+            hasNonEmptyContent = true;
+            return false; // Stop traversal early
+        }
+
+        // Non-empty paragraph or other block with content
+        if (n.content.size > 0 && n.type.name !== 'paragraph') {
+            hasNonEmptyContent = true;
+            return false; // Stop traversal early
+        }
+
+        return true;
+    });
+
+    return !hasNonEmptyContent && !hasAlwaysVisiblePlaceholder;
 };
 
 const addDecoration = (
@@ -102,7 +124,11 @@ type WidgetSpec = {
     spec?: DecoWidgetParameters[2];
 };
 
-type PlaceholderPluginState = {decorationSet: DecorationSet; hasFocus: boolean};
+type PlaceholderPluginState = {
+    decorationSet: DecorationSet;
+    hasFocus: boolean;
+    pluginKeys: PluginKey<DecorationSet>[];
+};
 
 type WidgetsMap = Record<number, WidgetSpec | PluginKey>;
 
@@ -136,13 +162,13 @@ export const Placeholder: ExtensionAuto<PlaceholderOptions> = (builder, opts) =>
     );
 };
 
-function getPlaceholderWidgetSpecs(state: EditorState) {
+function getPlaceholderWidgetSpecs(state: EditorState, pluginKeys: PluginKey<DecorationSet>[]) {
     const globalState: ApplyGlobalState = {hasFocus: false};
     const widgetsMap: WidgetsMap = {};
     const {selection} = state;
     const cursorPos = isTextSelection(selection) ? selection.$cursor?.pos : null;
 
-    getPlaceholderPluginKeys(state.schema).forEach((f) => {
+    pluginKeys.forEach((f) => {
         // We use find because it can be used to iterate over the DecorationSet.
         f.getState(state)?.find(undefined, undefined, (spec) => {
             widgetsMap[spec.pos] = f;
@@ -150,7 +176,7 @@ function getPlaceholderWidgetSpecs(state: EditorState) {
         });
     });
 
-    // Fraw placeholder for all nodes where placeholder is alwaysVisible
+    // Draw placeholder for all nodes where placeholder is alwaysVisible
     const decorate = (node: Node, pos: number, parent: Node | null) => {
         const placeholderSpec = node.type.spec.placeholder;
 
@@ -187,36 +213,52 @@ function getPlaceholderWidgetSpecs(state: EditorState) {
 }
 
 function initState(state: EditorState): PlaceholderPluginState {
-    const {widgetSpecs, hasFocus} = getPlaceholderWidgetSpecs(state);
+    const pluginKeys = getPlaceholderPluginKeys(state.schema);
+    const {widgetSpecs, hasFocus} = getPlaceholderWidgetSpecs(state, pluginKeys);
     const decorationSet = DecorationSet.create(
         state.doc,
         widgetSpecs.map((widget) => Decoration.widget(widget.pos, widget.toDOM, widget.spec)),
     );
 
-    return {decorationSet, hasFocus};
+    return {decorationSet, hasFocus, pluginKeys};
 }
 
 function applyState(
     tr: Transaction,
     oldPluginState: PlaceholderPluginState,
-    _oldState: EditorState,
+    oldState: EditorState,
     newState: EditorState,
 ): PlaceholderPluginState {
-    const {widgetSpecs, hasFocus} = getPlaceholderWidgetSpecs(newState);
+    // Early return if document hasn't changed and selection hasn't changed
+    // This avoids unnecessary recalculation of decorations
+    if (!tr.docChanged && !tr.selectionSet) {
+        return oldPluginState;
+    }
+
+    // Reuse cached plugin keys if schema hasn't changed
+    const pluginKeys =
+        oldState.schema === newState.schema
+            ? oldPluginState.pluginKeys
+            : getPlaceholderPluginKeys(newState.schema);
+
+    const {widgetSpecs, hasFocus} = getPlaceholderWidgetSpecs(newState, pluginKeys);
     const {decorationSet} = oldPluginState;
     const oldMappedSet = decorationSet.map(tr.mapping, tr.doc);
 
     // Find all decorations that are present in old and new set
-    const decorationsThatDidNotChange = widgetSpecs.reduce((a: Decoration[], {pos, spec}) => {
-        const deco = oldMappedSet.find(pos, pos);
-        if (deco.length && isEqual(deco[0].spec, spec)) a.push(...deco);
-        return a;
-    }, []);
+    const unchangedPositions = new Set<number>();
+    const decorationsThatDidNotChange: Decoration[] = [];
 
-    // Those are decorations that are presenr only in new set
-    const newAddedDecorations = widgetSpecs.filter(
-        ({pos}) => !decorationsThatDidNotChange.map(({from}) => from).includes(pos),
-    );
+    widgetSpecs.forEach(({pos, spec}) => {
+        const deco = oldMappedSet.find(pos, pos);
+        if (deco.length && isEqual(deco[0].spec, spec)) {
+            unchangedPositions.add(pos);
+            decorationsThatDidNotChange.push(...deco);
+        }
+    });
+
+    // Those are decorations that are present only in new set
+    const newAddedDecorations = widgetSpecs.filter(({pos}) => !unchangedPositions.has(pos));
 
     // That is a set with decorations that are present in old set and absent in new set
     const notRelevantDecorations = oldMappedSet.remove(decorationsThatDidNotChange);
@@ -232,7 +274,7 @@ function applyState(
             ),
         );
 
-    return {decorationSet: newSet, hasFocus};
+    return {decorationSet: newSet, hasFocus, pluginKeys};
 }
 
 declare module 'prosemirror-model' {
