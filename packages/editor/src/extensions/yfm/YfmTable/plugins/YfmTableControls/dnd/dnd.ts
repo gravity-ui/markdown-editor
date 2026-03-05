@@ -19,6 +19,7 @@ import {clearAllSelections, selectDraggedColumn, selectDraggedRow} from '../plug
 import {hideHoverDecos} from '../plugins/focus-plugin';
 import {getSelectedCellsForColumns, getSelectedCellsForRows} from '../utils';
 
+import {DnDAutoScroller} from './dnd-auto-scroll';
 import {
     type DropCursor,
     type DropCursorParams,
@@ -241,6 +242,11 @@ class YfmTableRowDnDHandler extends YfmTableDnDAbstractHandler {
             tableDesc,
         });
 
+        const scrollContainer = findScrollableAncestor(this._editorView.dom, 'vertical');
+        const autoScroller = scrollContainer
+            ? new DnDAutoScroller(scrollContainer, 'vertical')
+            : null;
+
         const onMoveDebounced = debounce(
             (event: MouseEvent) => {
                 this._moveDragging(event, {
@@ -254,6 +260,7 @@ class YfmTableRowDnDHandler extends YfmTableDnDAbstractHandler {
 
         const onMove = (event: MouseEvent) => {
             ghost.move(event);
+            autoScroller?.update(event.clientX, event.clientY);
             onMoveDebounced(event);
         };
 
@@ -263,6 +270,7 @@ class YfmTableRowDnDHandler extends YfmTableDnDAbstractHandler {
             'mouseup',
             () => {
                 onMoveDebounced.flush();
+                autoScroller?.destroy();
                 ghost.destroy();
                 document.removeEventListener('mousemove', onMove);
                 this._endDragging(currRowRange, tableDesc);
@@ -438,6 +446,10 @@ class YfmTableColumnDnDHandler extends YfmTableDnDAbstractHandler {
             tableDesc,
         });
 
+        const {node: tableElem} = this._editorView.domAtPos(tableDesc.pos + 1);
+        const autoScroller =
+            tableElem instanceof HTMLElement ? new DnDAutoScroller(tableElem, 'horizontal') : null;
+
         const onMoveDebounced = debounce(
             (event: MouseEvent) => {
                 this._moveDragging(event, {
@@ -451,6 +463,7 @@ class YfmTableColumnDnDHandler extends YfmTableDnDAbstractHandler {
 
         const onMove = (event: MouseEvent) => {
             ghost.move(event);
+            autoScroller?.update(event.clientX, event.clientY);
             onMoveDebounced(event);
         };
 
@@ -460,6 +473,7 @@ class YfmTableColumnDnDHandler extends YfmTableDnDAbstractHandler {
             'mouseup',
             () => {
                 onMoveDebounced.flush();
+                autoScroller?.destroy();
                 ghost.destroy();
                 document.removeEventListener('mousemove', onMove);
                 this._endDragging(currColumnRange, tableDesc);
@@ -642,4 +656,33 @@ function isDragThresholdPassed(init: PageCoords, curr: PageCoords): boolean {
         Math.abs(init.pageX - curr.pageX) >= DRAG_START_THRESHOLD ||
         Math.abs(init.pageY - curr.pageY) >= DRAG_START_THRESHOLD
     );
+}
+
+function findScrollableAncestor(
+    element: HTMLElement,
+    axis: 'vertical' | 'horizontal',
+): HTMLElement | null {
+    const prop = axis === 'vertical' ? 'overflowY' : 'overflowX';
+    let current = element.parentElement;
+
+    while (current && current !== document.documentElement) {
+        const overflow = getComputedStyle(current)[prop];
+        if (overflow === 'auto' || overflow === 'scroll') {
+            const hasScroll =
+                axis === 'vertical'
+                    ? current.scrollHeight > current.clientHeight
+                    : current.scrollWidth > current.clientWidth;
+            if (hasScroll) return current;
+        }
+        current = current.parentElement;
+    }
+
+    const docEl = element.ownerDocument.documentElement;
+    const hasDocScroll =
+        axis === 'vertical'
+            ? docEl.scrollHeight > docEl.clientHeight
+            : docEl.scrollWidth > docEl.clientWidth;
+    if (hasDocScroll) return docEl;
+
+    return null;
 }
