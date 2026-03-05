@@ -11,7 +11,7 @@
     "playwright:generate": "node scripts/generate-playwright-test.js",
     "playwright:watch": "pnpm run playwright --ui",
     "playwright:headed": "playwright test --config=tests/playwright/playwright.config.ts --headed",
-    "playwright:update": "pnpm run playwright -u",
+    "playwright:update": "playwright test --config=tests/playwright/playwright.config.ts -u",
     "playwright:clear": "rm -rf ./tests/playwright/.cache",
     "playwright:report": "playwright show-report playwright-report",
     "playwright:docker": "./scripts/playwright-docker.sh test",
