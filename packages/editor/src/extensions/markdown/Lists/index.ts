@@ -5,7 +5,7 @@ import {withLogAction} from '../../../utils/keymap';
 
 import {ListsSpecs, blType, liType, olType} from './ListsSpecs';
 import {actions} from './actions';
-import {joinPrevList, sinkOnlySelectedListItem, toList} from './commands';
+import {joinPrevList, liftEmptyListItem, sinkOnlySelectedListItem, toList} from './commands';
 import {ListAction} from './const';
 import {ListsInputRulesExtension, type ListsInputRulesOptions} from './inputrules';
 import {collapseListsPlugin} from './plugins/CollapseListsPlugin';
@@ -31,6 +31,7 @@ export const Lists: ExtensionAuto<ListsOptions> = (builder, opts) => {
         return {
             Tab: sinkOnlySelectedListItem(liType(schema)),
             'Shift-Tab': liftListItem(liType(schema)),
+            Backspace: liftEmptyListItem(liType(schema)),
 
             'Mod-[': liftListItem(liType(schema)),
             'Mod-]': sinkOnlySelectedListItem(liType(schema)),
