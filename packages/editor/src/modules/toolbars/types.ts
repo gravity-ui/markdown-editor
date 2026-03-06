@@ -60,6 +60,7 @@ type ToolbarItemEditor<T, E> = Partial<EditorActions<E>> & {
         : T extends ToolbarDataType.ReactComponent
           ? {
                 width: number;
+                noRerenderOnUpdate?: boolean;
                 component: React.ComponentType<ToolbarBaseProps<E>>;
             }
           : {});

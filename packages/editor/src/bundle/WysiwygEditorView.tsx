@@ -1,5 +1,3 @@
-import {memo} from 'react';
-
 import type {QAProps} from '@gravity-ui/uikit';
 
 import {type ClassNameProps, cn} from '../classname';
@@ -30,7 +28,7 @@ export type WysiwygEditorViewProps = ClassNameProps &
         toolbarDisplay?: ToolbarDisplay;
     };
 
-export const WysiwygEditorView = memo<WysiwygEditorViewProps>((props) => {
+export const WysiwygEditorView: React.FC<WysiwygEditorViewProps> = (props) => {
     const {
         editor,
         autofocus,
@@ -69,7 +67,6 @@ export const WysiwygEditorView = memo<WysiwygEditorViewProps>((props) => {
                     toolbarEditor={editor}
                     stickyToolbar={stickyToolbar}
                     toolbarConfig={toolbarConfig}
-                    toolbarFocus={() => editor.focus()}
                     hiddenActionsConfig={hiddenActionsConfig}
                     settingsVisible={settingsVisible}
                     className={b('toolbar', [toolbarClassName])}
@@ -83,5 +80,5 @@ export const WysiwygEditorView = memo<WysiwygEditorViewProps>((props) => {
             </WysiwygEditorComponent>
         </div>
     );
-});
+};
 WysiwygEditorView.displayName = 'MarkdownWysiwgEditorView';

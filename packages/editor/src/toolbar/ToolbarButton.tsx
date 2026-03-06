@@ -7,6 +7,7 @@ import {i18n} from '../i18n/common';
 import {isFunction} from '../lodash';
 
 import {ToolbarTooltipDelay} from './const';
+import {useActionState} from './hooks';
 import type {ToolbarBaseProps, ToolbarItemData} from './types';
 
 import './ToolbarButton.scss';
@@ -111,10 +112,8 @@ export const ToolbarButtonView = forwardRef<HTMLButtonElement, ToolbarButtonView
 );
 
 export function ToolbarButton<E>(props: ToolbarButtonProps<E>) {
-    const {id, editor, focus, isActive, isEnable, exec, onClick} = props;
-
-    const active = isActive(editor);
-    const enabled = isEnable(editor);
+    const {id, editor, focus, exec, onClick} = props;
+    const {active, enabled} = useActionState(editor, props);
 
     const handleClick = () => {
         focus();

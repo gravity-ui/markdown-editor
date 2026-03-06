@@ -13,6 +13,7 @@ import {useBooleanState, useElementState} from '../react-utils/hooks';
 
 import {PreviewTooltip} from './PreviewTooltip';
 import {ToolbarButtonView} from './ToolbarButton';
+import {useActionsState} from './hooks';
 import type {
     ToolbarBaseProps,
     ToolbarButtonPopupData,
@@ -55,7 +56,9 @@ export function ToolbarListButton<E>({
     const [popupItem, setPopupItem] = useState<ToolbarButtonPopupData<E>>();
     const zIndex = useTargetZIndex(LAYOUT.STICKY_TOOLBAR);
 
-    const everyDisabled = alwaysActive ? false : data.every((item) => !item.isEnable(editor));
+    const actionsState = useActionsState(editor, data);
+
+    const everyDisabled = alwaysActive ? false : actionsState.every((item) => !item.enabled);
     const popupOpen = everyDisabled ? false : open;
     const shouldForceHide = open && !popupOpen;
 
@@ -67,7 +70,9 @@ export function ToolbarListButton<E>({
 
     if (data.length === 0) return null;
 
-    const activeItem = data.find((item) => item.isActive(editor) && !item.doNotActivateList);
+    const activeItem = data.find(
+        (item, idx) => actionsState[idx].active && !item.doNotActivateList,
+    );
     const someActive = alwaysActive ? false : Boolean(activeItem);
 
     if (replaceActiveIcon && someActive && activeItem) {
@@ -106,24 +111,15 @@ export function ToolbarListButton<E>({
             >
                 <Menu size="l" className={b('menu')} qa={qaMenu} data-toolbar-menu-for={titleText}>
                     {data
-                        .map((data) => {
-                            const {
-                                id,
-                                title,
-                                icon,
-                                hotkey,
-                                isActive,
-                                isEnable,
-                                exec,
-                                hint,
-                                hintWhenDisabled,
-                                preview,
-                            } = data;
+                        .map((data, idx) => {
+                            const {id, title, icon, hotkey, exec, hint, hintWhenDisabled, preview} =
+                                data;
 
                             const titleText = isFunction(title) ? title() : title;
                             const hintText = isFunction(hint) ? hint() : hint;
 
-                            const disabled = !isEnable(editor);
+                            const actionState = actionsState[idx];
+                            const disabled = !actionState.enabled;
 
                             const hideHintWhenDisabled = hintWhenDisabled === false || !disabled;
                             const hintWhenDisabledText =
@@ -165,8 +161,8 @@ export function ToolbarListButton<E>({
                                             <Menu.Item
                                                 key={id}
                                                 ref={ref}
-                                                active={isActive(editor)}
-                                                disabled={!isEnable(editor)}
+                                                active={actionState.active}
+                                                disabled={disabled}
                                                 onClick={handleClick}
                                                 iconStart={
                                                     <Icon data={icon.data} size={icon.size ?? 16} />

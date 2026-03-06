@@ -776,10 +776,12 @@ export const colorifyItemView: ToolbarItemView<ToolbarDataType.ReactComponent> =
 };
 export const colorifyItemWysiwyg: ToolbarItemWysiwyg<ToolbarDataType.ReactComponent> = {
     component: WToolbarColors,
+    noRerenderOnUpdate: true, // WToolbarColors uses toolbar context to update its own state
     width: 42,
 };
 export const colorifyItemMarkup: ToolbarItemMarkup<ToolbarDataType.ReactComponent> = {
     component: MToolbarColors,
+    noRerenderOnUpdate: true, // static state in markup mode
     width: 42,
 };
 
