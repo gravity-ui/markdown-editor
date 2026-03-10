@@ -32,7 +32,7 @@ export function withMermaid(opts: WithMermaidOptions) {
                 // because they are handled differently (no data-content attribute)
                 // and the editor is managing their render itself
                 renderMermaid(mermaidConfig, {
-                    querySelector: '.mermaid:not(.g-md-editor-component .mermaid)',
+                    querySelector: '.mermaid:not(.g-md-wysiwyg-editor .mermaid)',
                 });
             }, [html, mermaidConfig, renderMermaid]);
 
