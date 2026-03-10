@@ -29,7 +29,7 @@ export function withMermaid(opts: WithMermaidOptions) {
 
             useEffect(() => {
                 // do not render mermaid diagrams inside the editor component
-                // because they are handleded differently (no data-content attribute)
+                // because they are handled differently (no data-content attribute)
                 // and the editor is managing their render itself
                 renderMermaid(mermaidConfig, {
                     querySelector: '.mermaid:not(.g-md-editor-component .mermaid)',
