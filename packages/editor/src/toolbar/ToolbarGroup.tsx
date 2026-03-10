@@ -1,10 +1,9 @@
-import {Fragment} from 'react';
-
 import {cn} from '../classname';
 
 import {ToolbarButton} from './ToolbarButton';
 import {ToolbarButtonPopup} from './ToolbarButtonPopup';
 import {ToolbarListButton} from './ToolbarListButton';
+import {ToolbarUpdateOnRerender} from './ToolbarRerender';
 import {type ToolbarBaseProps, ToolbarDataType, type ToolbarGroupData} from './types';
 
 import './ToolbarGroup.scss';
@@ -77,24 +76,33 @@ export function ToolbarButtonGroup<E>({
 
                 if (item.type === ToolbarDataType.ReactComponent) {
                     const Component = item.component;
-                    return (
+                    const renderFn = () => (
                         <Component
                             {...item.props}
-                            key={item.id}
                             editor={editor}
                             focus={focus}
                             onClick={onClick}
                             className={b(item.type, {id: item.id}, [item.className])}
                         />
                     );
+                    return item.noRerenderOnUpdate ? (
+                        renderFn()
+                    ) : (
+                        <ToolbarUpdateOnRerender key={item.id} content={renderFn} />
+                    );
                 }
 
                 if (item.type === ToolbarDataType.ReactNode) {
-                    return <Fragment key={item.id}>{item.content}</Fragment>;
+                    return <ToolbarUpdateOnRerender key={item.id} content={() => item.content} />;
                 }
 
                 if (item.type === ToolbarDataType.ReactNodeFn) {
-                    return <Fragment key={item.id}>{item.content(editor)}</Fragment>;
+                    return (
+                        <ToolbarUpdateOnRerender
+                            key={item.id}
+                            content={() => item.content(editor)}
+                        />
+                    );
                 }
 
                 return null;

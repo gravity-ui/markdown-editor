@@ -487,6 +487,7 @@ export const wToolbarConfig: WToolbarData = [
             id: 'colorify',
             type: ToolbarDataType.ReactComponent,
             component: WToolbarColors,
+            noRerenderOnUpdate: true, // WToolbarColors uses toolbar context to update its own state
             width: 42,
         },
         wLinkItemData,
@@ -521,6 +522,7 @@ export const wSelectionMenuConfig: SelectionContextConfig = [
             id: 'colorify',
             type: ToolbarDataType.ReactComponent,
             component: WToolbarColors,
+            noRerenderOnUpdate: true, // WToolbarColors uses toolbar context to update its own state
             props: {disablePortal: true} satisfies Partial<WToolbarColorsProps>,
             width: 42,
         },

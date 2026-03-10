@@ -535,6 +535,7 @@ export const mToolbarConfig: MToolbarData = [
         {
             id: 'colorify',
             type: ToolbarDataType.ReactComponent,
+            noRerenderOnUpdate: true, // static state in markup mode
             component: MToolbarColors,
             width: 42,
         },

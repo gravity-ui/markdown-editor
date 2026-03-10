@@ -83,6 +83,7 @@ export type ToolbarReactComponentData<E> = {
     width: number;
     className?: string;
     component: React.ComponentType<ToolbarBaseProps<E>>;
+    noRerenderOnUpdate?: boolean;
     props?: object;
 };
 

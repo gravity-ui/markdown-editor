@@ -3,6 +3,7 @@ import {Fragment} from 'react';
 import {cn} from '../classname';
 
 import {ToolbarButtonGroup} from './ToolbarGroup';
+import {ToolbarWrapToContext} from './ToolbarRerender';
 import type {ToolbarBaseProps, ToolbarData} from './types';
 
 import './Toolbar.scss';
@@ -15,6 +16,10 @@ export type ToolbarProps<E> = ToolbarBaseProps<E> & {
     data: ToolbarData<E>;
 };
 
+/**
+ The component is not memoized. To optimize number of rerenders,
+ memoize component yourself and wrap it in a toolbar context (use ToolbarProvider component).
+ */
 export function Toolbar<E>({
     editor,
     data,
@@ -28,26 +33,28 @@ export function Toolbar<E>({
     disableTooltip,
 }: ToolbarProps<E>) {
     return (
-        <div className={b({display}, [className])} data-qa={qa}>
-            {data.map<React.ReactNode>((group, index) => {
-                const isLastGroup = index === data.length - 1;
+        <ToolbarWrapToContext editor={editor}>
+            <div className={b({display}, [className])} data-qa={qa}>
+                {data.map<React.ReactNode>((group, index) => {
+                    const isLastGroup = index === data.length - 1;
 
-                return (
-                    <Fragment key={index}>
-                        <ToolbarButtonGroup
-                            data={group}
-                            editor={editor}
-                            focus={focus}
-                            onClick={onClick}
-                            className={b('group')}
-                            disableHotkey={disableHotkey}
-                            disablePreview={disablePreview}
-                            disableTooltip={disableTooltip}
-                        />
-                        {isLastGroup || <div className={b('group-separator')} />}
-                    </Fragment>
-                );
-            })}
-        </div>
+                    return (
+                        <Fragment key={index}>
+                            <ToolbarButtonGroup
+                                data={group}
+                                editor={editor}
+                                focus={focus}
+                                onClick={onClick}
+                                className={b('group')}
+                                disableHotkey={disableHotkey}
+                                disablePreview={disablePreview}
+                                disableTooltip={disableTooltip}
+                            />
+                            {isLastGroup || <div className={b('group-separator')} />}
+                        </Fragment>
+                    );
+                })}
+            </div>
+        </ToolbarWrapToContext>
     );
 }
