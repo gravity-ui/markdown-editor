@@ -296,7 +296,7 @@
     "@diplodoc/folding-headings-extension": "^0.1.0",
     "@diplodoc/html-extension": "^2.3.2",
     "@diplodoc/latex-extension": "^1.0.3",
-    "@diplodoc/mermaid-extension": "^1.0.0",
+    "@diplodoc/mermaid-extension": "^2.0.0",
     "@diplodoc/quote-link-extension": "^0.1.3",
     "@diplodoc/tabs-extension": "^3.5.1",
     "@diplodoc/transform": "^4.43.0",
