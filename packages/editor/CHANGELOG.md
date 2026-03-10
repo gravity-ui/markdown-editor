@@ -1,5 +1,33 @@
 # Changelog
 
+## [15.16.2](https://github.com/gravity-ui/markdown-editor/compare/markdown-editor-v15.34.5...markdown-editor-v15.16.2) (2026-03-10)
+
+
+### chore
+
+* release 14.12.2 ([12a8ef1](https://github.com/gravity-ui/markdown-editor/commit/12a8ef1d6a4b8fba5f9741d0d974a8549992acc6))
+* trigger release 15.16.2 ([ff59299](https://github.com/gravity-ui/markdown-editor/commit/ff592993f6c3b5c01ecdf246ee87a123a333374d))
+
+
+### Features
+
+* **deps:** allow to use `@diplodoc/mermaid-extension` v2.x.x in peer dependencies ([#981](https://github.com/gravity-ui/markdown-editor/issues/981)) ([f220d2f](https://github.com/gravity-ui/markdown-editor/commit/f220d2f314c1cf8bc92539801e396629b71e4c62))
+* **dnd:** scroll table when dnd is out boundaries ([#976](https://github.com/gravity-ui/markdown-editor/issues/976)) ([1c1801f](https://github.com/gravity-ui/markdown-editor/commit/1c1801f436275e16132721c7d04544f06502e8ed))
+* **emoji:** add check, red and green circles emoji ([#975](https://github.com/gravity-ui/markdown-editor/issues/975)) ([05d6653](https://github.com/gravity-ui/markdown-editor/commit/05d66530981c8a3a25a6893488656935cd30175a))
+* **lists:** exit from list by press Backspace ([#977](https://github.com/gravity-ui/markdown-editor/issues/977)) ([9a48b4b](https://github.com/gravity-ui/markdown-editor/commit/9a48b4b85553983f1a5ab4897b5ef22e232c68f9))
+
+
+### Bug Fixes
+
+* **styles:** normalize hr horizontal margin ([#974](https://github.com/gravity-ui/markdown-editor/issues/974)) ([52ea523](https://github.com/gravity-ui/markdown-editor/commit/52ea523b710fdc9c286a9462e727d391124843f2))
+* **toolbar:** revert broken z-index logic for popups ([#861](https://github.com/gravity-ui/markdown-editor/issues/861)) ([2859f7c](https://github.com/gravity-ui/markdown-editor/commit/2859f7cbb09bd9d24332e0bbe74f6816af84767c))
+* **view:** do not render mermaid inside wysiwyg editor ([#979](https://github.com/gravity-ui/markdown-editor/issues/979)) ([d30d9b1](https://github.com/gravity-ui/markdown-editor/commit/d30d9b16868eeb3c0bef7ed10a542e7af129097d))
+
+
+### Performance Improvements
+
+* optimize toolbar rendering ([#978](https://github.com/gravity-ui/markdown-editor/issues/978)) ([c771392](https://github.com/gravity-ui/markdown-editor/commit/c771392ff4069b72e23736512efa28825a19047a))
+
 ## [15.34.5](https://github.com/gravity-ui/markdown-editor/compare/v15.34.4...v15.34.5) (2026-03-03)
 
 
