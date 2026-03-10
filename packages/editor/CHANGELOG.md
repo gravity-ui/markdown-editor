@@ -1,12 +1,6 @@
 # Changelog
 
-## [15.16.2](https://github.com/gravity-ui/markdown-editor/compare/markdown-editor-v15.34.5...markdown-editor-v15.16.2) (2026-03-10)
-
-
-### chore
-
-* release 14.12.2 ([12a8ef1](https://github.com/gravity-ui/markdown-editor/commit/12a8ef1d6a4b8fba5f9741d0d974a8549992acc6))
-* trigger release 15.16.2 ([ff59299](https://github.com/gravity-ui/markdown-editor/commit/ff592993f6c3b5c01ecdf246ee87a123a333374d))
+## [15.35.0](https://github.com/gravity-ui/markdown-editor/compare/v15.34.5...markdown-editor-v15.35.0) (2026-03-10)
 
 
 ### Features
