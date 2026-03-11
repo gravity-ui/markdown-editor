@@ -28,7 +28,12 @@ export function withMermaid(opts: WithMermaidOptions) {
             useMermaidRuntime(meta, opts.runtime);
 
             useEffect(() => {
-                renderMermaid(mermaidConfig);
+                // do not render mermaid diagrams inside the editor component
+                // because they are handled differently (no data-content attribute)
+                // and the editor is managing their render itself
+                renderMermaid(mermaidConfig, {
+                    querySelector: '.mermaid:not(.g-md-wysiwyg-editor .mermaid)',
+                });
             }, [html, mermaidConfig, renderMermaid]);
 
             return <Component {...props} ref={ref} />;

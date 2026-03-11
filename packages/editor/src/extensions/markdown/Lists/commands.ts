@@ -1,9 +1,11 @@
+import {liftEmptyBlock} from 'prosemirror-commands';
 import {Fragment, type NodeRange, type NodeType, Slice} from 'prosemirror-model';
 import {wrapInList} from 'prosemirror-schema-list';
 import type {Command, Transaction} from 'prosemirror-state';
 import {ReplaceAroundStep, liftTarget} from 'prosemirror-transform';
 
 import {joinPreviousBlock} from '../../../commands/join';
+import {get$CursorAtBlockStart} from '../../../utils/selection';
 
 import {findAnyParentList, isListNode, isListOrItemNode} from './utils';
 
@@ -24,6 +26,21 @@ export const joinPrevList = joinPreviousBlock({
     checkPrevNode: isListNode,
     skipNode: isListOrItemNode,
 });
+
+export function liftEmptyListItem(itemType: NodeType): Command {
+    return (state, dispatch) => {
+        const $cursor = get$CursorAtBlockStart(state.selection);
+        if (
+            !$cursor ||
+            $cursor.parent.content.size !== 0 ||
+            $cursor.node(-1).type !== itemType ||
+            $cursor.node(-1).childCount !== 1
+        )
+            return false;
+
+        return liftEmptyBlock(state, dispatch);
+    };
+}
 
 /*
     Simplified `sinkListItem` from `prosemirror-schema-list` without `state`/`dispatch`,
