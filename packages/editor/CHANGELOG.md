@@ -1,5 +1,12 @@
 # Changelog
 
+## [15.35.1](https://github.com/gravity-ui/markdown-editor/compare/markdown-editor-v15.35.0...markdown-editor-v15.35.1) (2026-03-11)
+
+
+### Bug Fixes
+
+* **Mermaid:** support configurable mermaid theme via options ([#982](https://github.com/gravity-ui/markdown-editor/issues/982)) ([27ecef1](https://github.com/gravity-ui/markdown-editor/commit/27ecef126dcd874d9f26e8e61020cc8ea8201450))
+
 ## [15.35.0](https://github.com/gravity-ui/markdown-editor/compare/v15.34.5...markdown-editor-v15.35.0) (2026-03-10)
 
 
