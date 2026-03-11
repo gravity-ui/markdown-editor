@@ -4,7 +4,6 @@ import type HLJS from 'highlight.js/lib/core';
 import type {createLowlight} from 'lowlight' with {'resolution-mode': 'import'};
 import type {Node} from 'prosemirror-model';
 import {Plugin, PluginKey} from 'prosemirror-state';
-import type {Step} from 'prosemirror-transform';
 // @ts-ignore // TODO: fix cjs build
 import {findChildrenByType} from 'prosemirror-utils';
 import {Decoration, DecorationSet, type EditorView} from 'prosemirror-view';
@@ -24,6 +23,7 @@ import {codeLangSelectTooltipViewCreator} from './TooltipPlugin';
 import {PlainTextLang} from './const';
 import {codeBlockLineNumbersPlugin} from './plugins/codeBlockLineNumbersPlugin';
 import {codeBlockLineWrappingPlugin} from './plugins/codeBlockLineWrappingPlugin';
+import {getChangedRanges} from './utils';
 
 import './CodeBlockHighlight.scss';
 
@@ -37,7 +37,17 @@ type LangSelectItem = {
     content: string;
 };
 
-const key = new PluginKey<DecorationSet>('code_block_highlight');
+const pluginKey = new PluginKey<PluginState>('code_block_highlight');
+
+// Cache for parsed highlight results, using ProseMirror nodes as keys
+type HighlightCache = WeakMap<Node, HighlightParsedTree>;
+
+type HighlightParsedTree = {text: string; classes: readonly string[]}[];
+
+type PluginState = {
+    cache: HighlightCache;
+    decoSet: DecorationSet;
+};
 
 export type CodeBlockHighlightOptions = {
     lineWrapping?: {
@@ -82,8 +92,8 @@ export const CodeBlockHighlight: ExtensionAuto<CodeBlockHighlightOptions> = (bui
 
         // TODO: add TAB key handler
         // TODO: Remove constant selection of block
-        return new Plugin<DecorationSet>({
-            key,
+        return new Plugin<PluginState>({
+            key: pluginKey,
             state: {
                 init: (_, state) => {
                     loadModules().then((loaded) => {
@@ -106,63 +116,66 @@ export const CodeBlockHighlight: ExtensionAuto<CodeBlockHighlightOptions> = (bui
                             selectItems.sort(sortLangs);
 
                             if (view && !view.isDestroyed) {
-                                view.dispatch(view.state.tr.setMeta(key, {modulesLoaded}));
+                                view.dispatch(view.state.tr.setMeta(pluginKey, {modulesLoaded}));
                             }
                         }
                     });
-                    return getDecorations(state.doc);
+
+                    const cache: HighlightCache = new WeakMap();
+
+                    return {
+                        cache,
+                        decoSet: modulesLoaded
+                            ? DecorationSet.empty
+                            : getDecorations(state.doc, cache),
+                    };
                 },
-                apply: (tr, decos, oldState, newState) => {
+                apply: (tr, {cache, decoSet}) => {
                     if (!modulesLoaded) {
-                        return DecorationSet.empty;
+                        return {cache, decoSet: DecorationSet.empty};
                     }
 
-                    if (tr.getMeta(key)?.modulesLoaded) {
-                        return getDecorations(tr.doc);
+                    if (tr.getMeta(pluginKey)?.modulesLoaded) {
+                        return {cache, decoSet: getDecorations(tr.doc, cache)};
                     }
 
-                    if (tr.docChanged) {
-                        const oldNodeName = oldState.selection.$head.parent.type.name;
-                        const newNodeName = newState.selection.$head.parent.type.name;
+                    if (!tr.docChanged) return {cache, decoSet};
 
-                        // Apply decorations if:
-                        if (
-                            oldNodeName === codeBlockNodeName ||
-                            newNodeName === codeBlockNodeName
-                        ) {
-                            // selection includes codeblock node,
-                            return getDecorations(tr.doc);
-                        } else {
-                            const oldNodes = findChildrenByType(
-                                oldState.doc,
-                                codeBlockType(oldState.schema),
-                            );
-                            const newNodes = findChildrenByType(
-                                newState.doc,
-                                codeBlockType(newState.schema),
-                            );
-                            if (
-                                // OR transaction adds/removes codeblock nodes,
-                                newNodes.length !== oldNodes.length ||
-                                // OR transaction has changes that completely encapsulate a node
-                                // (for example, a transaction that affects the entire document).
-                                // Such transactions can happen during collab syncing via y-prosemirror, for example.
-                                tr.steps.some((step) => {
-                                    return (
-                                        stepHasFromTo(step) &&
-                                        oldNodes.some(
-                                            (node: {node: Node; pos: number}) =>
-                                                node.pos >= step.from &&
-                                                node.pos + node.node.nodeSize <= step.to,
-                                        )
-                                    );
-                                })
-                            ) {
-                                return getDecorations(tr.doc);
+                    decoSet = decoSet.map(tr.mapping, tr.doc);
+
+                    const changedRanges = getChangedRanges(tr);
+
+                    for (const {from, to} of changedRanges) {
+                        // eslint-disable-next-line @typescript-eslint/no-loop-func
+                        tr.doc.nodesBetween(from, to, (node, pos) => {
+                            if (node.type.name !== codeBlockNodeName) return true;
+
+                            const lang: string | undefined = node.attrs[CodeBlockNodeAttr.Lang];
+
+                            if (!lang || !lowlight.registered(lang)) {
+                                decoSet = decoSet.remove(decoSet.find(pos, pos + node.nodeSize));
+                                return false;
                             }
-                        }
+
+                            const cached = cache.get(node);
+                            if (cached) {
+                                // node is in cache, but decorations may be missing (for example, after undo)
+                                if (!decoSet.find(pos, pos + node.nodeSize).length) {
+                                    decoSet = decoSet.add(tr.doc, renderTree(cached, pos + 1));
+                                }
+                            } else {
+                                decoSet = decoSet.remove(decoSet.find(pos, pos + node.nodeSize));
+
+                                const ast = lowlight.highlight(lang, node.textContent);
+                                const parsed = parseNodes(ast.children);
+                                cache.set(node, parsed);
+                                decoSet = decoSet.add(tr.doc, renderTree(parsed, pos + 1));
+                            }
+                            return false;
+                        });
                     }
-                    return decos.map(tr.mapping, tr.doc);
+
+                    return {cache, decoSet};
                 },
             },
             view: (v) => {
@@ -173,8 +186,8 @@ export const CodeBlockHighlight: ExtensionAuto<CodeBlockHighlightOptions> = (bui
                 });
             },
             props: {
-                decorations: (state) => {
-                    return key.getState(state);
+                decorations(state) {
+                    return pluginKey.getState(state)?.decoSet;
                 },
                 nodeViews: {
                     [codeBlockNodeName]: CodeBlockNodeView.withOpts(opts),
@@ -183,64 +196,78 @@ export const CodeBlockHighlight: ExtensionAuto<CodeBlockHighlightOptions> = (bui
         });
     });
 
-    function getDecorations(doc: Node) {
-        const decos: Decoration[] = [];
-
+    function getDecorations(doc: Node, cache: HighlightCache) {
         if (!lowlight) {
             return DecorationSet.empty;
         }
 
-        for (const {node, pos} of findChildrenByType(doc, codeBlockType(doc.type.schema), true)) {
-            let from = pos + 1;
-            let nodes: Root['children'];
+        const decos: Decoration[] = [];
 
+        for (const {node, pos} of findChildrenByType(doc, codeBlockType(doc.type.schema), true)) {
             const lang: string | undefined = node.attrs[CodeBlockNodeAttr.Lang];
-            if (lang && lowlight.registered(lang)) {
-                nodes = lowlight.highlight(lang, node.textContent).children;
-            } else {
+            if (!lang || !lowlight.registered(lang)) {
                 continue;
             }
 
-            for (const {text, classes} of parseNodes(nodes)) {
-                const to = from + text.length;
-                if (classes.length) {
-                    decos.push(
-                        Decoration.inline(from, to, {
-                            class: classes.join(' '),
-                        }),
-                    );
-                }
-                from = to;
+            // Try to get parsed result from cache using node as key
+            let parsedNodes = cache.get(node);
+            if (!parsedNodes) {
+                // Compute, parse and cache using the node itself as key
+                const nodes = lowlight.highlight(lang, node.textContent).children;
+                parsedNodes = parseNodes(nodes);
+                cache.set(node, parsedNodes);
             }
+
+            decos.push(...renderTree(parsedNodes, pos + 1));
         }
 
         return DecorationSet.create(doc, decos);
     }
 };
 
+function renderTree(parsedNodes: HighlightParsedTree, from: number): Decoration[] {
+    const decos: Decoration[] = [];
+
+    for (const {text, classes} of parsedNodes) {
+        const to = from + text.length;
+        if (classes.length) {
+            decos.push(
+                Decoration.inline(from, to, {
+                    class: classes.join(' '),
+                }),
+            );
+        }
+        from = to;
+    }
+
+    return decos;
+}
+
 function parseNodes(
     nodes: Root['children'],
     className: readonly string[] = [],
-): {text: string; classes: readonly string[]}[] {
-    return nodes
-        .map((node) => {
-            let classes = className;
-            if (node.type === 'element') {
-                classes = classes.concat((node.properties.className as string[]) ?? []);
-                return parseNodes(node.children, classes);
-            }
-
-            return {
-                text: node.type === 'comment' || node.type === 'text' ? node.value : '',
-                classes,
-            };
-        })
-        .flat();
+): HighlightParsedTree {
+    const result: HighlightParsedTree = [];
+    collectNodes(nodes, className, result);
+    return result;
 }
 
-function stepHasFromTo(step: Step): step is Step & {from: number; to: number} {
-    // @ts-expect-error
-    return typeof step.from === 'number' && typeof step.to === 'number';
+function collectNodes(
+    nodes: Root['children'],
+    className: readonly string[],
+    result: HighlightParsedTree,
+): void {
+    for (const node of nodes) {
+        if (node.type === 'element') {
+            const classes = className.concat((node.properties.className as string[]) ?? []);
+            collectNodes(node.children, classes, result);
+        } else {
+            result.push({
+                text: node.type === 'comment' || node.type === 'text' ? node.value : '',
+                classes: className,
+            });
+        }
+    }
 }
 
 function sortLangs(a: LangSelectItem, b: LangSelectItem): number {
