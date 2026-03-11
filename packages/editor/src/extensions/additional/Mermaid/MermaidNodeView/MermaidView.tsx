@@ -26,10 +26,11 @@ import './Mermaid.scss';
 
 const b = cnMermaid;
 
-const MermaidPreview: React.FC<{mermaidInstance: Mermaid | null; text: string}> = ({
-    mermaidInstance,
-    text = '',
-}) => {
+const MermaidPreview: React.FC<{
+    mermaidInstance: Mermaid | null;
+    text: string;
+    options: MermaidOptions;
+}> = ({mermaidInstance, text = '', options}) => {
     const [svg, setSvg] = useState<string>();
     const [error, setError] = useState<string | null>(null);
 
@@ -42,7 +43,11 @@ const MermaidPreview: React.FC<{mermaidInstance: Mermaid | null; text: string}> 
                     // Validates syntax and throws error if text is invalid
                     await mermaidInstance.parse(text);
 
-                    mermaidInstance.initialize({theme: theme === 'dark' ? 'dark' : 'forest'});
+                    if (options.theme) {
+                        mermaidInstance.initialize({
+                            theme: theme === 'dark' ? options.theme.dark : options.theme.light,
+                        });
+                    }
 
                     const {svg: S} = await mermaidInstance.render(`mermaid-${Date.now()}`, text);
 
@@ -55,7 +60,7 @@ const MermaidPreview: React.FC<{mermaidInstance: Mermaid | null; text: string}> 
         };
 
         p();
-    }, [mermaidInstance, text, theme]);
+    }, [mermaidInstance, text, theme, options.theme]);
 
     if (error) {
         return <div className={b('Error')}>{error && <div>{error}</div>}</div>;
@@ -74,17 +79,17 @@ const DiagramEditMode: React.FC<{
     onSave: (v: string) => void;
     onCancel: () => void;
     options: MermaidOptions;
-}> = ({initialText, onSave, onCancel, mermaidInstance, options: {autoSave}}) => {
+}> = ({initialText, onSave, onCancel, mermaidInstance, options}) => {
     const {value, handleChange, handleManualSave, isSaveDisabled, isAutoSaveEnabled} = useAutoSave({
         initialValue: initialText || '',
         onSave,
         onClose: onCancel,
-        autoSave,
+        autoSave: options.autoSave,
     });
 
     return (
         <div className={b()}>
-            <MermaidPreview mermaidInstance={mermaidInstance} text={value} />
+            <MermaidPreview mermaidInstance={mermaidInstance} text={value} options={options} />
             <div className={b('Editor')}>
                 <div>
                     <TextArea
@@ -173,6 +178,7 @@ export const MermaidView: React.FC<{
             <MermaidPreview
                 mermaidInstance={mermaidInstance}
                 text={node.attrs[MermaidConsts.NodeAttrs.content]}
+                options={options}
             />
             <div>
                 <Button
