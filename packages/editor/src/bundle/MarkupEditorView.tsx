@@ -80,7 +80,6 @@ export const MarkupEditorView = memo<MarkupEditorViewProps>((props) => {
                         hiddenActionsConfig={hiddenActionsConfig}
                         stickyToolbar={stickyToolbar}
                         toolbarConfig={toolbarConfig}
-                        toolbarFocus={() => editor.focus()}
                         settingsVisible={settingsVisible}
                         className={b('toolbar', [toolbarClassName])}
                         toolbarDisplay={toolbarDisplay}
