@@ -206,6 +206,7 @@ export const Playground = memo<PlaygroundProps>((props) => {
                                 enabled: storyAdditionalControls?.mermaidAutoSaveEnabled ?? true,
                                 delay: storyAdditionalControls?.mermaidAutoSaveDelay ?? 1000,
                             },
+                            theme: {dark: 'dark', light: 'forest'},
                         })
                         .use(FoldingHeading)
                         .use(YfmHtmlBlock, {

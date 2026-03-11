@@ -1,3 +1,5 @@
+import type {MermaidConfig} from 'mermaid' with {'resolution-mode': 'import'};
+
 import type {Action, ExtensionAuto, ExtensionDeps, NodeViewConstructor} from '../../../core';
 
 import {WMermaidNodeView} from './MermaidNodeView';
@@ -10,6 +12,10 @@ export type MermaidOptions = {
     autoSave?: {
         enabled: boolean;
         delay?: number;
+    };
+    theme?: {
+        dark: MermaidConfig['theme'];
+        light: MermaidConfig['theme'];
     };
 };
 
