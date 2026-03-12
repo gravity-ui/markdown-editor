@@ -98,6 +98,10 @@ export class TooltipView {
 
     hide(view: EditorView) {
         this.view = view;
+
+        // do not rerender popup if it is already hidden
+        if (!this.#isTooltipOpen && !this.baseProps.show) return;
+
         this.#isTooltipOpen = false;
         this.baseProps = {show: false, poppupProps: {}};
         this.renderPopup();
