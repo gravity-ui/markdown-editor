@@ -23,7 +23,7 @@ import {codeLangSelectTooltipViewCreator} from './TooltipPlugin';
 import {PlainTextLang} from './const';
 import {codeBlockLineNumbersPlugin} from './plugins/codeBlockLineNumbersPlugin';
 import {codeBlockLineWrappingPlugin} from './plugins/codeBlockLineWrappingPlugin';
-import {getChangedRanges} from './utils';
+import {processChangedCodeBlocks} from './utils';
 
 import './CodeBlockHighlight.scss';
 
@@ -141,39 +141,28 @@ export const CodeBlockHighlight: ExtensionAuto<CodeBlockHighlightOptions> = (bui
 
                     if (!tr.docChanged) return {cache, decoSet};
 
-                    decoSet = decoSet.map(tr.mapping, tr.doc);
+                    decoSet = processChangedCodeBlocks(tr, decoSet, (node, pos, decoSet) => {
+                        const lang: string | undefined = node.attrs[CodeBlockNodeAttr.Lang];
 
-                    const changedRanges = getChangedRanges(tr);
+                        if (!lang || !lowlight.registered(lang)) {
+                            return decoSet.remove(decoSet.find(pos, pos + node.nodeSize));
+                        }
 
-                    for (const {from, to} of changedRanges) {
-                        // eslint-disable-next-line @typescript-eslint/no-loop-func
-                        tr.doc.nodesBetween(from, to, (node, pos) => {
-                            if (node.type.name !== codeBlockNodeName) return true;
-
-                            const lang: string | undefined = node.attrs[CodeBlockNodeAttr.Lang];
-
-                            if (!lang || !lowlight.registered(lang)) {
-                                decoSet = decoSet.remove(decoSet.find(pos, pos + node.nodeSize));
-                                return false;
+                        const cached = cache.get(node);
+                        if (cached) {
+                            // node is in cache, but decorations may be missing (for example, after undo)
+                            if (!decoSet.find(pos, pos + node.nodeSize).length) {
+                                return decoSet.add(tr.doc, renderTree(cached, pos + 1));
                             }
+                            return decoSet;
+                        }
 
-                            const cached = cache.get(node);
-                            if (cached) {
-                                // node is in cache, but decorations may be missing (for example, after undo)
-                                if (!decoSet.find(pos, pos + node.nodeSize).length) {
-                                    decoSet = decoSet.add(tr.doc, renderTree(cached, pos + 1));
-                                }
-                            } else {
-                                decoSet = decoSet.remove(decoSet.find(pos, pos + node.nodeSize));
-
-                                const ast = lowlight.highlight(lang, node.textContent);
-                                const parsed = parseNodes(ast.children);
-                                cache.set(node, parsed);
-                                decoSet = decoSet.add(tr.doc, renderTree(parsed, pos + 1));
-                            }
-                            return false;
-                        });
-                    }
+                        decoSet = decoSet.remove(decoSet.find(pos, pos + node.nodeSize));
+                        const ast = lowlight.highlight(lang, node.textContent);
+                        const parsed = parseNodes(ast.children);
+                        cache.set(node, parsed);
+                        return decoSet.add(tr.doc, renderTree(parsed, pos + 1));
+                    });
 
                     return {cache, decoSet};
                 },

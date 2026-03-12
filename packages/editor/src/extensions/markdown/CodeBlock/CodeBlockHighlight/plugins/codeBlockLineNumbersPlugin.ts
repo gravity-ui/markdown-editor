@@ -3,8 +3,8 @@ import {Plugin, PluginKey} from '#pm/state';
 import {findChildrenByType} from '#pm/utils';
 import {Decoration, DecorationSet} from '#pm/view';
 
-import {codeBlockNodeName, codeBlockType} from '../../CodeBlockSpecs';
-import {getChangedRanges, isLineNumbersVisible} from '../utils';
+import {codeBlockType} from '../../CodeBlockSpecs';
+import {isLineNumbersVisible, processChangedCodeBlocks} from '../utils';
 
 type LineNumberCache = WeakSet<Node>;
 
@@ -27,33 +27,23 @@ export const codeBlockLineNumbersPlugin = () => {
             apply(tr, {cache, decoSet}) {
                 if (!tr.docChanged) return {cache, decoSet};
 
-                decoSet = decoSet.map(tr.mapping, tr.doc);
+                decoSet = processChangedCodeBlocks(tr, decoSet, (node, pos, decoSet) => {
+                    if (!isLineNumbersVisible(node)) {
+                        return decoSet.remove(decoSet.find(pos, pos + node.nodeSize));
+                    }
 
-                const changedRanges = getChangedRanges(tr);
-
-                for (const {from, to} of changedRanges) {
-                    // eslint-disable-next-line @typescript-eslint/no-loop-func
-                    tr.doc.nodesBetween(from, to, (node, pos) => {
-                        if (node.type.name !== codeBlockNodeName) return true;
-
-                        if (!isLineNumbersVisible(node)) {
-                            decoSet = decoSet.remove(decoSet.find(pos, pos + node.nodeSize));
-                            return false;
+                    if (cache.has(node)) {
+                        // node has not changed, but decorations may be missing (after undo/redo)
+                        if (!decoSet.find(pos, pos + node.nodeSize).length) {
+                            return decoSet.add(tr.doc, buildNodeDecorations(node, pos));
                         }
+                        return decoSet;
+                    }
 
-                        if (cache.has(node)) {
-                            // node has not changed, but decorations may be missing (after undo/redo)
-                            if (!decoSet.find(pos, pos + node.nodeSize).length) {
-                                decoSet = decoSet.add(tr.doc, buildNodeDecorations(node, pos));
-                            }
-                        } else {
-                            decoSet = decoSet.remove(decoSet.find(pos, pos + node.nodeSize));
-                            cache.add(node);
-                            decoSet = decoSet.add(tr.doc, buildNodeDecorations(node, pos));
-                        }
-                        return false;
-                    });
-                }
+                    decoSet = decoSet.remove(decoSet.find(pos, pos + node.nodeSize));
+                    cache.add(node);
+                    return decoSet.add(tr.doc, buildNodeDecorations(node, pos));
+                });
 
                 return {cache, decoSet};
             },

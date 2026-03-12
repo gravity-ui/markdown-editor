@@ -1,8 +1,9 @@
 import type {Node} from '#pm/model';
 import type {Transaction} from '#pm/state';
-import {AttrStep} from '#pm/transform';
+import type {DecorationSet} from '#pm/view';
+import {forEachChangedNode} from 'src/utils/transaction';
 
-import {CodeBlockNodeAttr} from '../CodeBlockSpecs';
+import {CodeBlockNodeAttr, codeBlockNodeName} from '../CodeBlockSpecs';
 
 /** @internal */
 export function isLineNumbersVisible(node: Node): boolean {
@@ -10,33 +11,26 @@ export function isLineNumbersVisible(node: Node): boolean {
 }
 
 /** @internal */
-export function getChangedRanges(tr: Transaction): {from: number; to: number}[] {
-    const ranges: {from: number; to: number}[] = [];
-    const {maps} = tr.mapping;
+export function processChangedCodeBlocks(
+    tr: Transaction,
+    decoSet: DecorationSet,
+    onCodeBlock: (node: Node, pos: number, decoSet: DecorationSet) => DecorationSet,
+): DecorationSet {
+    decoSet = decoSet.map(tr.mapping, tr.doc);
 
-    tr.steps.forEach((step, i) => {
-        if (step instanceof AttrStep) {
-            let pos = step.pos;
-            for (let j = i + 1; j < maps.length; j++) {
-                pos = maps[j].map(pos);
+    forEachChangedNode(tr, (node, pos) => {
+        if (node.type.name !== codeBlockNodeName) {
+            if (node.isTextblock) {
+                // Remove stale decorations from non-code_block textblocks
+                // (e.g. when a code_block is converted to a paragraph)
+                decoSet = decoSet.remove(decoSet.find(pos, pos + node.nodeSize));
+                return false;
             }
-            const node = tr.doc.nodeAt(pos);
-            if (node) {
-                ranges.push({from: pos, to: pos + node.nodeSize});
-            }
-            return;
+            return true;
         }
-
-        step.getMap().forEach((_oldStart, _oldEnd, newStart, newEnd) => {
-            let from = newStart;
-            let to = newEnd;
-            for (let j = i + 1; j < maps.length; j++) {
-                from = maps[j].map(from, -1);
-                to = maps[j].map(to, 1);
-            }
-            ranges.push({from, to});
-        });
+        decoSet = onCodeBlock(node, pos, decoSet);
+        return false;
     });
 
-    return ranges;
+    return decoSet;
 }
