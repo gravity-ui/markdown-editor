@@ -1,5 +1,5 @@
 import type {Action, ExtensionAuto} from '../../../core';
-import {createToggleMarkAction} from '../../../utils/actions';
+import {createMarkdownInlineMarkAction} from '../../../utils/actions';
 import {markInputRule} from '../../../utils/inputrules';
 
 import {MonospaceSpecs, monospaceType} from './MonospaceSpecs';
@@ -11,7 +11,7 @@ export const Monospace: ExtensionAuto = (builder) => {
     builder.use(MonospaceSpecs);
 
     builder
-        .addAction(monoAction, ({schema}) => createToggleMarkAction(monospaceType(schema)))
+        .addAction(monoAction, ({schema}) => createMarkdownInlineMarkAction(monospaceType(schema)))
         .addInputRules(({schema}) => ({
             rules: [
                 markInputRule({open: '##', close: '##', ignoreBetween: '#'}, monospaceType(schema)),
