@@ -1,7 +1,7 @@
 import {toggleMark} from 'prosemirror-commands';
 
 import type {Action, ExtensionAuto} from '../../../core';
-import {createToggleMarkAction} from '../../../utils/actions';
+import {createMarkdownInlineMarkAction} from '../../../utils/actions';
 import {markInputRule} from '../../../utils/inputrules';
 import {withLogAction} from '../../../utils/keymap';
 
@@ -17,7 +17,7 @@ export type ItalicOptions = {
 export const Italic: ExtensionAuto<ItalicOptions> = (builder, opts) => {
     builder.use(ItalicSpecs);
 
-    builder.addAction(iAction, ({schema}) => createToggleMarkAction(italicType(schema)));
+    builder.addAction(iAction, ({schema}) => createMarkdownInlineMarkAction(italicType(schema)));
 
     builder.addInputRules(({schema}) => ({
         rules: [
