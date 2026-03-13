@@ -92,6 +92,7 @@ export const getSchemaSpecs = (
         },
         tableRole: TableRole.Cell,
         selectable: false,
+        selectContent: true,
         allowSelection: false,
         complex: 'leaf',
     },
