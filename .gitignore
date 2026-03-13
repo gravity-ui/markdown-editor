@@ -32,3 +32,4 @@ test-results/
 # nx
 .nx/cache
 .nx/workspace-data
+.pnpm-store

@@ -3,7 +3,7 @@ import {toggleMark} from 'prosemirror-commands';
 import {Plugin} from 'prosemirror-state';
 
 import type {Action, ExtensionAuto} from '../../../core';
-import {createToggleMarkAction} from '../../../utils/actions';
+import {createMarkdownInlineMarkAction} from '../../../utils/actions';
 import {withLogAction} from '../../../utils/keymap';
 
 import {CodeSpecs, codeType} from './CodeSpecs';
@@ -19,7 +19,7 @@ export type CodeOptions = {
 
 export const Code: ExtensionAuto<CodeOptions> = (builder, opts) => {
     builder.use(CodeSpecs);
-    builder.addAction(codeAction, ({schema}) => createToggleMarkAction(codeType(schema)));
+    builder.addAction(codeAction, ({schema}) => createMarkdownInlineMarkAction(codeType(schema)));
 
     if (opts?.codeKey) {
         const {codeKey} = opts;
