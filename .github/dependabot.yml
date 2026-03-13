@@ -1,0 +1,82 @@
+# To get started with Dependabot version updates, you'll need to specify which
+# package ecosystems to update and where the package manifests are located.
+# Please see the documentation for all configuration options:
+# https://docs.github.com/github/administering-a-repository/configuration-options-for-dependency-updates
+
+# Note: Dependabot security updates are enabled automatically by GitHub
+# when dependabot.yml exists. Security updates create PRs for vulnerabilities
+# independently of the regular update schedule above.
+
+version: 2
+updates:
+  # GitHub Actions
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
+      day: monday
+
+  # npm — root
+  - package-ecosystem: npm
+    directory: "/"
+    schedule:
+      interval: weekly
+      day: monday
+    exclude-paths:
+      - "/demo"
+      - "/packages/*"
+      - "/infra/*"
+    ignore:
+      - dependency-name: "*"
+        update-types:
+          - "version-update:semver-major"
+
+  # npm — demo
+  - package-ecosystem: npm
+    directory: "/demo"
+    schedule:
+      interval: weekly
+      day: monday
+    groups:
+      storybook:
+        patterns:
+          - "@storybook/*"
+          - "storybook"
+    ignore:
+      - dependency-name: "*"
+        update-types:
+          - "version-update:semver-major"
+
+  # npm — packages/*
+  - package-ecosystem: npm
+    directories:
+      - "/packages/*"
+    schedule:
+      interval: weekly
+      day: monday
+    groups:
+      prosemirror:
+        patterns:
+          - "orderedmap"
+          - "prosemirror-*"
+      codemirror:
+        patterns:
+          - "@lezer/*"
+          - "@codemirror/*"
+          - "codemirror"
+    ignore:
+      - dependency-name: "*"
+        update-types:
+          - "version-update:semver-major"
+
+  # npm — infra/*
+  - package-ecosystem: npm
+    directories:
+      - "/infra/*"
+    schedule:
+      interval: weekly
+      day: monday
+    ignore:
+      - dependency-name: "*"
+        update-types:
+          - "version-update:semver-major"
