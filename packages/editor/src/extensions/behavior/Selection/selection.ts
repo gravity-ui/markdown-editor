@@ -15,7 +15,7 @@ import {Decoration, DecorationSet, type EditorView} from 'prosemirror-view';
 import {isSelectableNode} from '../../../utils/nodes';
 import {isNodeSelection} from '../../../utils/selection';
 
-import {arrowDown, arrowLeft, arrowRight, arrowUp, backspace} from './commands';
+import {arrowDown, arrowLeft, arrowRight, arrowUp, backspace, selectAll} from './commands';
 
 import './selection.scss';
 
@@ -28,6 +28,7 @@ export const selection = () =>
                 ArrowUp: arrowUp,
                 ArrowDown: arrowDown,
                 Backspace: backspace,
+                'Mod-a': selectAll,
             }),
             decorations(state) {
                 return getDecorations(state.tr);
@@ -53,6 +54,7 @@ export const selection = () =>
 declare module 'prosemirror-model' {
     interface NodeSpec {
         allowSelection?: boolean | undefined;
+        selectContent?: boolean | undefined;
     }
 }
 

@@ -1,8 +1,8 @@
 import type {Node, ResolvedPos} from 'prosemirror-model';
 import type {Command, NodeSelection, TextSelection, Transaction} from 'prosemirror-state';
-import {Selection} from 'prosemirror-state';
+import {Selection, TextSelection as TextSel} from 'prosemirror-state';
 
-import {isCodeBlock} from '../../../utils/nodes';
+import {isCodeBlock, isNodeEmpty} from '../../../utils/nodes';
 import {isNodeSelection, isTextSelection} from '../../../utils/selection';
 import {GapCursorSelection, isGapCursorSelection} from '../Cursor/GapCursorSelection';
 
@@ -184,5 +184,44 @@ export const backspace: Command = (state, dispatch) => {
             return true;
         }
     }
+    return false;
+};
+
+function hasContentToSelect(node: Node): boolean {
+    if (node.isTextblock) return node.content.size > 0;
+    return !isNodeEmpty(node);
+}
+
+export const selectAll: Command = (state, dispatch) => {
+    const {selection} = state;
+    const {$from, $to} = selection;
+    const sharedDepth = $from.sharedDepth($to.pos);
+
+    for (let depth = sharedDepth; depth > 0; depth--) {
+        const node = $from.node(depth);
+        const {spec} = node.type;
+        if (spec.selectContent === false) continue;
+        if (!spec.code && !spec.selectContent) continue;
+
+        if (!hasContentToSelect(node)) continue;
+
+        const start = $from.start(depth);
+        const end = start + node.content.size;
+
+        const startCursor = Selection.findFrom(state.doc.resolve(start), 1);
+        const endCursor = Selection.findFrom(state.doc.resolve(end), -1);
+
+        if (
+            startCursor &&
+            endCursor &&
+            selection.from <= startCursor.from &&
+            selection.to >= endCursor.to
+        )
+            continue;
+
+        dispatch?.(state.tr.setSelection(TextSel.create(state.doc, start, end)));
+        return true;
+    }
+
     return false;
 };
