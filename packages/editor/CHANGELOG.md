@@ -1,5 +1,13 @@
 # Changelog
 
+## [15.35.2](https://github.com/gravity-ui/markdown-editor/compare/markdown-editor-v15.35.1...markdown-editor-v15.35.2) (2026-03-15)
+
+
+### Performance Improvements
+
+* **CodeBlock:** optimization rerender line numbers and code highlighting in code blocks ([#984](https://github.com/gravity-ui/markdown-editor/issues/984)) ([8349f2a](https://github.com/gravity-ui/markdown-editor/commit/8349f2a29c3da24cc661bfb2849860705cfa58d7))
+* **SelectionContext:** do not rerender hidden floating panel ([#985](https://github.com/gravity-ui/markdown-editor/issues/985)) ([c1b89b1](https://github.com/gravity-ui/markdown-editor/commit/c1b89b1a16f275d91b6898888b0d57a4c354fadc))
+
 ## [15.35.1](https://github.com/gravity-ui/markdown-editor/compare/markdown-editor-v15.35.0...markdown-editor-v15.35.1) (2026-03-11)
 
 
