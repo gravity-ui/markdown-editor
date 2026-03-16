@@ -1,16 +1,7 @@
 import type {Mark, MarkType, Node} from 'prosemirror-model';
 import type {EditorState} from 'prosemirror-state';
 
-// Mirrors markdown-it's isPunctChar — covers ASCII punct + General/Supplemental Punctuation blocks
-const PUNCT_RE = /[!"#$%&'()*+,\-./:;<=>?@[\\\]^_`{|}~\u2000-\u206F\u2E00-\u2E7F]/u;
-
-function isPunct(ch: string): boolean {
-    return PUNCT_RE.test(ch);
-}
-
-function isWordChar(ch: string): boolean {
-    return !/\s/.test(ch) && !isPunct(ch);
-}
+import {getParserFromState} from '../core/utils/parser';
 
 export const findMark = (node: Node, markType: MarkType): Mark | undefined => {
     return node.marks.find((mark) => mark.type.name === markType.name);
@@ -41,6 +32,10 @@ export function canApplyInlineMarkInMarkdown(state: EditorState): boolean {
     if (!text) {
         return true;
     }
+
+    const parser = getParserFromState(state);
+    const isPunct = (ch: string) => parser.isPunctChar(ch);
+    const isWordChar = (ch: string) => !/\s/.test(ch) && !isPunct(ch);
 
     const chars = [...text];
     const firstChar = chars[0];

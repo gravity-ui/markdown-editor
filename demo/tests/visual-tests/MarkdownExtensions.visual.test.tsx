@@ -57,7 +57,8 @@ test.describe('Extensions, Markdown', () => {
             rootStyle: {height: 'auto', width: 1200},
         });
         await page.addStyleTag({
-            content: '.cm-editor { height: auto !important; } .cm-scroller { overflow: visible !important; }',
+            content:
+                '.cm-editor { height: auto !important; } .cm-scroller { overflow: visible !important; }',
         });
         await page.waitForTimeout(300);
         await expectScreenshot({
