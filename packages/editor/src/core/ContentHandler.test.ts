@@ -35,6 +35,9 @@ const fakeParser: Parser = {
     normalizeLinkText(_url: string): string {
         throw new Error('Function not implemented.');
     },
+    isPunctChar(_char: string): boolean {
+        throw new Error('Function not implemented.');
+    },
 };
 
 describe('WysiwygContentHandler', () => {

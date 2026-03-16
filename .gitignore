@@ -2,6 +2,9 @@
 npm-debug.log*
 node_modules
 
+#pnpm
+.pnpm-store
+
 #temporary
 tmp/
 temp/

@@ -21,6 +21,7 @@ import {bindActions} from './utils/actions';
 import {convertDynamicModifiersConfigs} from './utils/dynamicModifiers';
 import {LoggerFacet} from './utils/logger';
 import {logTransactionMetrics} from './utils/metrics';
+import {ParserFacet} from './utils/parser';
 
 type OnChange = (editor: WysiwygEditor) => void;
 
@@ -129,6 +130,7 @@ export class WysiwygEditor implements CommonEditor, ActionStorage {
         );
 
         plugins.unshift(LoggerFacet.of(logger));
+        plugins.unshift(ParserFacet.of(parser));
 
         const state = EditorState.create({
             schema,

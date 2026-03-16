@@ -3,6 +3,7 @@ export * from './ExtensionBuilder';
 export * from './ExtensionsManager';
 export {bindActions} from './utils/actions';
 export {getLoggerFromState} from './utils/logger';
+export {getParserFromState} from './utils/parser';
 export {trackTransactionMetrics} from './utils/metrics';
 export type {Keymap} from './types/keymap';
 export type {ActionSpec, Action, ActionStorage, CommandWithAttrs} from './types/actions';

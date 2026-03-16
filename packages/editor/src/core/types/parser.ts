@@ -13,6 +13,7 @@ export interface Parser {
     normalizeLink(url: string): string;
     normalizeLinkText(url: string): string;
     matchLinks(text: string): LinkMatch[] | null;
+    isPunctChar(char: string): boolean;
 }
 
 export interface ParserToken {
