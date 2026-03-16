@@ -60,6 +60,10 @@ export class MarkdownParser implements Parser {
         this.logger = opts.logger.nested({module: 'markdown-parser'});
     }
 
+    isPunctChar(char: string): boolean {
+        return this.tokenizer.utils.isPunctChar(char);
+    }
+
     validateLink(url: string): boolean {
         return this.tokenizer.validateLink(url);
     }
