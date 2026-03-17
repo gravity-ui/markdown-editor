@@ -1,5 +1,9 @@
+import MarkdownIt from 'markdown-it';
 import {Schema} from 'prosemirror-model';
 import {EditorState, TextSelection} from 'prosemirror-state';
+
+import type {Parser} from '../core/types/parser';
+import {ParserFacet} from '../core/utils/parser';
 
 import {canApplyInlineMarkInMarkdown} from './marks';
 
@@ -11,12 +15,25 @@ const schema = new Schema({
     },
 });
 
+const md = new MarkdownIt();
+const mockParser: Parser = {
+    isPunctChar: (ch: string) => md.utils.isPunctChar(ch),
+    parse: () => {
+        throw new Error('not implemented');
+    },
+    validateLink: () => true,
+    normalizeLink: (url) => url,
+    normalizeLinkText: (url) => url,
+    matchLinks: () => null,
+};
+const parserPlugin = ParserFacet.of(mockParser);
+
 // from/to are character indices (0-based) within the text string
 function canApply(text: string, from: number, to: number): boolean {
     const doc = schema.node('doc', null, [schema.node('paragraph', null, [schema.text(text)])]);
     // ProseMirror positions: 0 = before doc, 1 = start of paragraph content
     const sel = TextSelection.create(doc, from + 1, to + 1);
-    const state = EditorState.create({doc, selection: sel});
+    const state = EditorState.create({doc, selection: sel, plugins: [parserPlugin]});
     return canApplyInlineMarkInMarkdown(state);
 }
 
