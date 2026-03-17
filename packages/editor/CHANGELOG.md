@@ -1,5 +1,19 @@
 # Changelog
 
+## [15.36.0](https://github.com/gravity-ui/markdown-editor/compare/markdown-editor-v15.35.1...markdown-editor-v15.36.0) (2026-03-17)
+
+
+### Features
+
+* expose `parser` via `ParserFacet` in editor state ([#993](https://github.com/gravity-ui/markdown-editor/issues/993)) ([afb3216](https://github.com/gravity-ui/markdown-editor/commit/afb32167f6058149cb9c03d787e6931f51ffc6b6))
+* prevent applying inline marks on invalid markdown boundaries ([#987](https://github.com/gravity-ui/markdown-editor/issues/987)) ([672b26f](https://github.com/gravity-ui/markdown-editor/commit/672b26f7ef12db1702a60c15059adc72f542b4a8))
+
+
+### Performance Improvements
+
+* **CodeBlock:** optimization rerender line numbers and code highlighting in code blocks ([#984](https://github.com/gravity-ui/markdown-editor/issues/984)) ([8349f2a](https://github.com/gravity-ui/markdown-editor/commit/8349f2a29c3da24cc661bfb2849860705cfa58d7))
+* **SelectionContext:** do not rerender hidden floating panel ([#985](https://github.com/gravity-ui/markdown-editor/issues/985)) ([c1b89b1](https://github.com/gravity-ui/markdown-editor/commit/c1b89b1a16f275d91b6898888b0d57a4c354fadc))
+
 ## [15.35.1](https://github.com/gravity-ui/markdown-editor/compare/markdown-editor-v15.35.0...markdown-editor-v15.35.1) (2026-03-11)
 
 
