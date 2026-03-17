@@ -46,7 +46,7 @@ jobs:
         shell: bash
 
       - name: Create Comment
-        uses: marocchino/sticky-pull-request-comment@v2
+        uses: marocchino/sticky-pull-request-comment@v3
         with:
           GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
           number: ${{ steps.pr.outputs.id }}
