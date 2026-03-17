@@ -51,4 +51,18 @@ test.describe('Extensions, Markdown', () => {
         await mount(<MarkdownStories.DefinitionList />);
         await expectScreenshot();
     });
+    test('Punctuation boundaries', async ({mount, expectScreenshot, page}) => {
+        await page.setViewportSize({width: 1280, height: 1400});
+        await mount(<MarkdownStories.PunctuationBoundaries />, {
+            rootStyle: {height: 'auto', width: 1200},
+        });
+        await page.addStyleTag({
+            content:
+                '.cm-editor { height: auto !important; } .cm-scroller { overflow: visible !important; }',
+        });
+        await page.waitForTimeout(300);
+        await expectScreenshot({
+            component: page.locator('.playwright-wrapper-test'),
+        });
+    });
 });

@@ -321,6 +321,58 @@ Autoconverted link https://gravity-ui.com/components (linkify must be enabled)
 :wink: :cry: :laughing: :yum:
 `.trim(),
 
+    punctuationBoundaries: `
+&nbsp;
+
+## Inline mark at punctuation boundaries
+
+### Allowed — mark applied correctly
+
+**hello,** — trailing punct, nothing after
+
+**hello, world** — comma followed by space inside selection
+
+**,** — isolated punctuation
+
+**,.** — multiple punct, spaces on both sides
+
+**hello ,** — space before comma, nothing after
+
+**, world** — comma followed by space at start
+
+### Blocked — mark not applied
+
+hello**,**world — comma between words
+
+hello**,** — comma preceded by word char
+
+**,**world — comma followed by word char
+
+hello**,.**world — multiple punct between words
+
+hello**—**world — em dash between words
+
+### One blocked case per mark
+
+hello**,**world — bold (**)
+
+hello__,__world — bold (__)
+
+hello*,*world — italic (*)
+
+hello_,_world — italic (_)
+
+hello~~,~~world — strikethrough
+
+hello++,++world — underline
+
+hello==,==world — highlight
+
+hello\`,\`world — code
+
+hello##,##world — monospace
+`.trim(),
+
     deflist: `
 &nbsp;
 

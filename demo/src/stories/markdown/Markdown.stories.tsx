@@ -55,6 +55,16 @@ export const DefinitionList: StoryObj<typeof component> = {
     args: {initial: markup.deflist},
 };
 
+export const PunctuationBoundaries: StoryObj<typeof component> = {
+    name: 'Punctuation boundaries',
+    args: {
+        initial: markup.punctuationBoundaries,
+        initialEditor: 'markup',
+        initialSplitModeEnabled: true,
+        splitModeOrientation: 'horizontal',
+    },
+};
+
 export default {
     title: 'Extensions / Markdown',
     component,
