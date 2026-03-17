@@ -35,6 +35,7 @@ export const mount: PlaywrightFixture<MountFixture> = async ({mount: baseMount},
                         `}
                     </style>
                 )}
+                {options?.styles && <style>{options.styles}</style>}
                 {component}
             </div>,
             options,

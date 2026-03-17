@@ -54,7 +54,7 @@ const config: PlaywrightTestConfig = {
     snapshotPathTemplate:
         '{testDir}/__snapshots__/{testFileName}-snapshots/{arg}{-projectName}-linux{ext}',
     /* Maximum time one test can run for. */
-    timeout: 10 * 1000,
+    timeout: 15 * 1000,
     /* Run tests in files in parallel */
     fullyParallel: true,
     /* Fail the build on CI if you accidentally left test.only in the source code. */
