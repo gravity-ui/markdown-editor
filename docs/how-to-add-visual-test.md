@@ -40,7 +40,7 @@ On the first run, install the required dependencies (Docker or alternatives, Pla
 ```shell
 brew install podman
 podman machine init
-podman machine set --cpus 2 --memory 8192
+podman machine set --cpus 4 --memory 12288
 podman machine start
 ```
 

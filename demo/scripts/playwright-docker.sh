@@ -10,7 +10,7 @@ cd "$REPO_ROOT"
 echo "Running in $(pwd)"
 
 IMAGE_NAME="mcr.microsoft.com/playwright"
-IMAGE_TAG="v1.49.0-jammy" # This version have to be synchronized with playwright version from package.json
+IMAGE_TAG="v1.52.0-jammy" # This version have to be synchronized with playwright version from package.json
 
 PNPM_STORE_CACHE_DIR="$HOME/.cache/markdown-editor-playwright-docker-pnpm-store"
 NODE_MODULES_CACHE_DIR="$HOME/.cache/markdown-editor-playwright-docker-node-modules"
@@ -21,8 +21,11 @@ command_exists() {
 
 run_command() {
   $CONTAINER_TOOL run --rm --network host -it -w /work \
+    --platform linux/arm64 \
+    --ipc=host \
     -v $(pwd):/work \
     -v "$NODE_MODULES_CACHE_DIR:/work/node_modules" \
+    -v "$PNPM_STORE_CACHE_DIR:/root/.local/share/pnpm/store" \
     -e IS_DOCKER=1 \
     -e NODE_OPTIONS="--max-old-space-size=8192" \
     "$IMAGE_NAME:$IMAGE_TAG" \
@@ -40,6 +43,7 @@ fi
 
 if [[ "$1" = "clear" ]]; then
   rm -rf "$NODE_MODULES_CACHE_DIR"
+  rm -rf "$PNPM_STORE_CACHE_DIR"
   rm -rf "./demo/tests/playwright/.cache-docker"
   exit 0
 fi
@@ -49,8 +53,10 @@ init_pnpm() {
   run_command "COREPACK_INTEGRITY_KEYS=0 corepack pnpm config set store-dir $PNPM_STORE_CACHE_DIR"
 }
 
-if [[ ! -d "$NODE_MODULES_CACHE_DIR" ]]; then
-  mkdir -p "$NODE_MODULES_CACHE_DIR"
+mkdir -p "$NODE_MODULES_CACHE_DIR"
+mkdir -p "$PNPM_STORE_CACHE_DIR"
+
+if [[ -z "$(ls -A "$NODE_MODULES_CACHE_DIR")" ]]; then
   init_pnpm
   run_command "COREPACK_INTEGRITY_KEYS=0 corepack pnpm i --frozen-lockfile"
 else
@@ -59,8 +65,14 @@ fi
 
 if [[ "$1" = "test" ]]; then
   echo "Running playwright tests"
+  EXTRA_ARGS=""
+  if [[ $# -ge 2 ]]; then
+    for arg in "${@:2}"; do
+      EXTRA_ARGS="$EXTRA_ARGS $(printf '%q' "$arg")"
+    done
+  fi
   run_command 'COREPACK_INTEGRITY_KEYS=0 corepack pnpm --filter '@gravity-ui/*' build'
-  run_command 'COREPACK_INTEGRITY_KEYS=0 corepack pnpm --filter '@markdown-editor/demo' run playwright'
+  run_command "cd demo && COREPACK_INTEGRITY_KEYS=0 corepack pnpm exec playwright test --config=tests/playwright/playwright.config.ts $EXTRA_ARGS"
   exit 0
 fi
 
