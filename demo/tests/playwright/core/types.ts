@@ -24,6 +24,7 @@ interface ComponentFixtures {
             width?: number | string;
             rootStyle?: React.CSSProperties;
             hidePlaygroundBlocks?: boolean;
+            styles?: string;
         },
     ): Promise<MountResult>;
 }

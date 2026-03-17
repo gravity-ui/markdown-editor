@@ -61,7 +61,7 @@ export const PunctuationBoundaries: StoryObj<typeof component> = {
         initial: markup.punctuationBoundaries,
         initialEditor: 'markup',
         initialSplitModeEnabled: true,
-        splitModeOrientation: 'horizontal',
+        splitModeOrientation: 'vertical',
     },
 };
 

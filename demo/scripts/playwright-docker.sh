@@ -66,8 +66,14 @@ fi
 
 if [[ "$1" = "update" ]]; then
   echo "Running playwright tests (update)"
+  EXTRA_ARGS=""
+  if [[ $# -ge 2 ]]; then
+    for arg in "${@:2}"; do
+      EXTRA_ARGS="$EXTRA_ARGS $(printf '%q' "$arg")"
+    done
+  fi
   run_command 'COREPACK_INTEGRITY_KEYS=0 corepack pnpm --filter '@gravity-ui/*' build'
-  run_command 'COREPACK_INTEGRITY_KEYS=0 corepack pnpm --filter '@markdown-editor/demo' run playwright:update'
+  run_command "cd demo && COREPACK_INTEGRITY_KEYS=0 corepack pnpm exec playwright test --config=tests/playwright/playwright.config.ts -u $EXTRA_ARGS"
   exit 0
 fi
 
