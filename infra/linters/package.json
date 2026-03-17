@@ -14,7 +14,7 @@
     "./stylelint": "./stylelint.js"
   },
   "dependencies": {
-    "@gravity-ui/eslint-config": "4.2.0",
+    "@gravity-ui/eslint-config": "4.2.1",
     "@gravity-ui/prettier-config": "1.1.0",
     "@gravity-ui/stylelint-config": "5.0.0",
     "eslint-plugin-lodash": "8.0.0",
