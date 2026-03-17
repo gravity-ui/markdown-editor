@@ -23,9 +23,9 @@ updates:
       interval: weekly
       day: monday
     exclude-paths:
-      - "/demo"
-      - "/packages/*"
-      - "/infra/*"
+      - "demo"
+      - "packages/*"
+      - "infra/*"
     ignore:
       - dependency-name: "*"
         update-types:
