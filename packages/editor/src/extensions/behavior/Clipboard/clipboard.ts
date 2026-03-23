@@ -10,6 +10,7 @@ import {isNodeSelection, isTextSelection, isWholeSelection} from 'src/utils/sele
 import {BaseNode, pType} from '../../base/BaseSchema';
 
 import {isInsideCode} from './code';
+import {getSelectionContent} from './selection-content';
 import {trimTextSelection} from './trim-selection';
 import {DataTransferType, extractTextContentFromHtml, isIosSafariShare, trimContent} from './utils';
 
@@ -346,19 +347,6 @@ function createFragmentFromInlineSelection(state: EditorState, sel: Selection) {
         return Fragment.from(state.schema.node(BaseNode.Paragraph, {}, inlineSlice.content));
     }
     return Fragment.from(sel.$from.parent.copy(inlineSlice.content));
-}
-
-/**
- * Like `selection.content()`, but smarter.
- * Copy a structure of complex nodes,
- * e.g. if select part of cut title it creates slice with yfm-cut –> yfm-cut-title -> selected text
- * it works well with simple nodes, but to handle cases as described above, custom logic needed
- */
-function getSelectionContent(sel: Selection) {
-    const sharedNodeType = getSharedDepthNode(sel).type;
-    const sharedNodeComplex = sharedNodeType.spec.complex;
-    const includeParents = sharedNodeComplex && sharedNodeComplex !== 'leaf';
-    return sel.$from.doc.slice(sel.$from.pos, sel.to, includeParents);
 }
 
 function getSharedDepthNode({$from, $to}: {$from: ResolvedPos; $to: ResolvedPos}): Node {
