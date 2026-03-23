@@ -22,14 +22,42 @@ Available commands from `demo/` subpackage:
 
 ```shell
 pnpm run playwright:install              # Install Playwright and browsers
-pnpm run playwright                      # Run tests
-pnpm run playwright:update               # Update reference screenshots
-pnpm run playwright:clear                # Clear test cache
-pnpm run playwright:report               # Display test results report
-pnpm run playwright:docker               # Run tests in Docker
-pnpm run playwright:docker:update        # Update screenshots in Docker
+pnpm run playwright:docker               # Run all tests in Docker
+pnpm run playwright:docker:update        # Update all screenshots in Docker
 pnpm run playwright:docker:clear         # Clear cache in Docker
 pnpm run playwright:docker:report        # Display test results report in Docker
+```
+
+### Running a specific test
+
+Use `--grep` to filter by test name (supports substring and regex):
+
+```shell
+# Run in demo/
+pnpm run playwright:docker --grep 'Punctuation boundaries'
+
+# Run from root
+pnpm run test:e2e --grep 'Punctuation boundaries'
+```
+
+### Updating screenshots
+
+Update all snapshots:
+
+```shell
+pnpm run playwright:docker:update
+```
+
+Update snapshots for a specific test:
+
+```shell
+pnpm run playwright:docker:update --grep 'Punctuation boundaries'
+```
+
+Update only snapshots that failed in the last run:
+
+```shell
+pnpm run playwright:docker:update --last-failed
 ```
 Tests use the configuration file `playwright.config.ts`. The build is handled by Vite, available in `@playwright/experimental-ct-react`. The Vite configuration is specified in `ctViteConfig` in `playwright.config.ts`. To stabilize tests, `mountFixture` and `expectScreenshotFixture` are also used.
 

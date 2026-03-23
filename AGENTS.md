@@ -17,11 +17,16 @@ podman machine start
 | Task | Command |
 |------|---------|
 | Run visual (Playwright) tests | `pnpm run playwright:docker` (in `demo/`) |
-| Update snapshots | `pnpm run playwright:docker:update` |
+| Run specific test | `pnpm run playwright:docker --grep 'Test name'` |
+| Update all snapshots | `pnpm run playwright:docker:update` |
+| Update specific snapshot | `pnpm run playwright:docker:update --grep 'Test name'` |
+| Update only failed snapshots | `pnpm run playwright:docker:update --last-failed` |
 | Clear test cache | `pnpm run playwright:docker:clear` |
 | Show test report | `pnpm run playwright:docker:report` |
 | Run from root | `nx playwright:docker @markdown-editor/demo` |
 | Run unit tests | `pnpm test` (root) |
+
+For more details on filtering and updating snapshots see [`docs/how-to-add-visual-test.md`](docs/how-to-add-visual-test.md).
 
 ### Never use
 
