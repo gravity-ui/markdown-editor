@@ -7,6 +7,11 @@ Visual testing is performed by comparing reference and generated screenshots. Sc
 
 ## Running Tests
 
+> **Always run tests in Docker** to match CI results. Before running, start the Podman machine:
+> ```shell
+> podman machine start
+> ```
+
 From root of monorepository:
 ```shell
 pnpm run test:e2e                        # Run tests in Docker
