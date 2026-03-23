@@ -1,14 +1,8 @@
-import type {ActionSpec} from '../../../core';
+import type {ActionSpec} from '#core';
+import type {NodeType} from '#pm/model';
+import {headingAction as headingActionBase} from 'src/extensions/markdown/Heading/actions';
 
-import {hasParentHeading} from './YfmHeadingSpecs/utils';
-import {toHeading} from './commands';
 import type {HeadingLevel} from './const';
 
-export const headingAction = (level: HeadingLevel): ActionSpec => {
-    const cmd = toHeading(level);
-    return {
-        isActive: hasParentHeading(level),
-        isEnable: cmd,
-        run: cmd,
-    };
-};
+export const headingAction = (level: HeadingLevel): ActionSpec =>
+    headingActionBase({} as NodeType, level);
