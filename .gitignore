@@ -18,6 +18,9 @@ temp/
 # git merge leftovers
 *.orig
 
+# generated during pack
+packages/editor/README.md
+
 # build
 .cache
 .cache*
