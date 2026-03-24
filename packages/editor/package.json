@@ -150,6 +150,16 @@
         "default": "./build/cjs/*"
       }
     },
+    "./styles-string": {
+      "import": {
+        "types": "./build/styles-string.d.ts",
+        "default": "./build/styles-string.js"
+      },
+      "require": {
+        "types": "./build/styles-string.d.ts",
+        "default": "./build/styles-string.cjs"
+      }
+    },
     "./styles/*": "./build/esm/styles/*"
   },
   "main": "build/cjs/index.js",

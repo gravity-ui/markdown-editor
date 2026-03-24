@@ -1,5 +1,6 @@
 /* global require, __dirname -- Globals defined by Nodejs */
 
+const fs = require('node:fs');
 const path = require('node:path');
 
 const utils = require('@gravity-ui/gulp-utils');
@@ -46,7 +47,21 @@ gulp.task('scss', () => {
         .pipe(gulp.dest(BUILD_DIR));
 });
 
-gulp.task('build', gulp.parallel('ts', 'json', 'scss'));
+gulp.task('styles-string', (done) => {
+    const css = fs.readFileSync(path.join(BUILD_DIR, 'styles.css'), 'utf8');
+    const escaped = css.replace(/\\/g, '\\\\').replace(/`/g, '\\`').replace(/\$\{/g, '\\${');
+    const content = `\`${escaped}\``;
+
+    fs.writeFileSync(path.join(BUILD_DIR, 'styles-string.js'), `export default ${content};\n`);
+    fs.writeFileSync(path.join(BUILD_DIR, 'styles-string.cjs'), `module.exports = ${content};\n`);
+    fs.writeFileSync(
+        path.join(BUILD_DIR, 'styles-string.d.ts'),
+        `declare const styles: string;\nexport default styles;\n`,
+    );
+    done();
+});
+
+gulp.task('build', gulp.series(gulp.parallel('ts', 'json', 'scss'), 'styles-string'));
 
 gulp.task('default', gulp.series('clean', 'build'));
 
