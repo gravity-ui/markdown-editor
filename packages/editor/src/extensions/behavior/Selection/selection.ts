@@ -53,8 +53,22 @@ export const selection = () =>
 
 declare module 'prosemirror-model' {
     interface NodeSpec {
+        /**
+         * Whether clicking directly on this node creates a NodeSelection for it.
+         * Typically `true` for root complex nodes (tables, cuts, notes)
+         * and `false` for their inner parts and leaf elements.
+         */
         allowSelection?: boolean | undefined;
-        selectContent?: boolean | undefined;
+        /**
+         * Controls how this node participates in hierarchical select-all (Cmd+A / Ctrl+A).
+         * Each press of select-all walks up the node tree and selects the nearest matching ancestor.
+         *
+         * - `'content'` — select the node's content (TextSelection over inner content range)
+         * - `'node'` — select the node itself (NodeSelection)
+         * - `false` — skip this node during select-all traversal
+         * - `undefined` — default: textblocks and code nodes select their content, others are skipped
+         */
+        selectAll?: false | 'node' | 'content' | undefined;
     }
 }
 

@@ -1,6 +1,6 @@
 import type {Node, ResolvedPos} from 'prosemirror-model';
-import type {Command, NodeSelection, TextSelection, Transaction} from 'prosemirror-state';
-import {Selection, TextSelection as TextSel} from 'prosemirror-state';
+import type {Command, TextSelection, Transaction} from 'prosemirror-state';
+import {NodeSelection, Selection, TextSelection as TextSel} from 'prosemirror-state';
 
 import {isCodeBlock, isNodeEmpty} from '../../../utils/nodes';
 import {isNodeSelection, isTextSelection} from '../../../utils/selection';
@@ -200,10 +200,25 @@ export const selectAll: Command = (state, dispatch) => {
     for (let depth = sharedDepth; depth > 0; depth--) {
         const node = $from.node(depth);
         const {spec} = node.type;
-        if (spec.selectContent === false) continue;
-        if (!spec.code && !spec.selectContent) continue;
+
+        if (spec.selectAll === false) continue;
+
+        let mode: 'content' | 'node';
+        if (spec.selectAll) mode = spec.selectAll;
+        else if (node.isTextblock || spec.code) mode = 'content';
+        else continue;
 
         if (!hasContentToSelect(node)) continue;
+
+        if (mode === 'node') {
+            const nodePos = $from.before(depth);
+            const nodeSel = NodeSelection.create(state.doc, nodePos);
+
+            if (selection.from <= nodeSel.from && selection.to >= nodeSel.to) continue;
+
+            dispatch?.(state.tr.setSelection(nodeSel));
+            return true;
+        }
 
         const start = $from.start(depth);
         const end = start + node.content.size;

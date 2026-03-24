@@ -27,7 +27,6 @@ export const MathSpecs: ExtensionAuto = (builder) => {
                     ['span', {class: CLASSNAMES.Inline.Sharp, contenteditable: 'false'}, '$'],
                 ],
                 parseDOM: [{tag: `span.${CLASSNAMES.Inline.Content}`, priority: 200}],
-                selectContent: false,
             },
             fromMd: {
                 tokenName: 'math_inline',

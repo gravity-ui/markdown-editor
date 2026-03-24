@@ -1,5 +1,5 @@
 import type {Node} from 'prosemirror-model';
-import {EditorState, TextSelection} from 'prosemirror-state';
+import {EditorState, NodeSelection, TextSelection} from 'prosemirror-state';
 import {builders} from 'prosemirror-test-builder';
 
 import {ExtensionsManager} from '../../../core';
@@ -29,7 +29,7 @@ const {schema} = new ExtensionsManager({
                 toMd: () => {},
             }))
             .addNode('selectContentNode', () => ({
-                spec: {content: `block+`, group: 'block', selectContent: true},
+                spec: {content: `block+`, group: 'block', selectAll: 'content'},
                 fromMd: {tokenSpec: {name: 'selectContentNode', type: 'block', ignore: true}},
                 toMd: () => {},
             })),
@@ -333,14 +333,14 @@ describe('selectAll', () => {
             expect(result).toBeNull();
         });
 
-        it('should select content of selectContent node with non-empty paragraph', () => {
+        it('should select paragraph content first inside selectContent node', () => {
             const d = doc(selectContentNode(p('text')));
             const state = createState(d, 3); // cursor in "text"
             const result = runSelectAll(state);
 
             expect(result).toBeTruthy();
-            expect(result!.selection.from).toBe(1);
-            expect(result!.selection.to).toBe(7);
+            expect(result!.selection.from).toBe(2);
+            expect(result!.selection.to).toBe(6);
         });
     });
 
@@ -348,9 +348,19 @@ describe('selectAll', () => {
         // selectContentNode(p('hello'), p('world'))
         // positions: 0[scn]1[p]2 hello 7[/p]8[p]9 world 14[/p]15[/scn]16
 
-        it('should select all content when cursor is inside', () => {
+        it('should select paragraph content first when cursor is inside', () => {
             const d = doc(selectContentNode(p('hello'), p('world')));
             const state = createState(d, 4); // cursor in "hello"
+            const result = runSelectAll(state);
+
+            expect(result).toBeTruthy();
+            expect(result!.selection.from).toBe(2);
+            expect(result!.selection.to).toBe(7);
+        });
+
+        it('should select all content after paragraph content is selected', () => {
+            const d = doc(selectContentNode(p('hello'), p('world')));
+            const state = createState(d, 2, 7); // first paragraph content selected
             const result = runSelectAll(state);
 
             expect(result).toBeTruthy();
@@ -386,18 +396,61 @@ describe('selectAll', () => {
         });
     });
 
-    describe('no matching nodes', () => {
-        it('should return false when cursor is in a regular paragraph', () => {
+    describe('textblock', () => {
+        it('should select paragraph content when cursor is inside', () => {
             const d = doc(p('hello'));
             const state = createState(d, 3);
+            const result = runSelectAll(state);
+
+            expect(result).toBeTruthy();
+            expect(result!.selection.from).toBe(1);
+            expect(result!.selection.to).toBe(6);
+        });
+
+        it('should return false when paragraph content is already selected', () => {
+            const d = doc(p('hello'));
+            const state = createState(d, 1, 6);
             const result = runSelectAll(state);
 
             expect(result).toBeNull();
         });
 
-        it('should return false when cursor is in a blockquote', () => {
+        it('should skip empty paragraph', () => {
+            const d = doc(p());
+            const state = createState(d, 1);
+            const result = runSelectAll(state);
+
+            expect(result).toBeNull();
+        });
+    });
+
+    describe('selectContent: node', () => {
+        it('should select paragraph content first, then blockquote as node', () => {
             const d = doc(bq(p('hello')));
-            const state = createState(d, 4);
+
+            // First Cmd+A: select paragraph content
+            const state1 = createState(d, 4);
+            const result1 = runSelectAll(state1);
+
+            expect(result1).toBeTruthy();
+            expect(result1!.selection.from).toBe(2);
+            expect(result1!.selection.to).toBe(7);
+
+            // Second Cmd+A: select blockquote as NodeSelection
+            const result2 = runSelectAll(result1!);
+
+            expect(result2).toBeTruthy();
+            expect(result2!.selection).toBeInstanceOf(NodeSelection);
+            expect(result2!.selection.from).toBe(0);
+            expect(result2!.selection.to).toBe(9);
+        });
+
+        it('should return false when node is already selected', () => {
+            const d = doc(bq(p('hello')));
+            const state = EditorState.create({
+                doc: d,
+                selection: NodeSelection.create(d, 0),
+            });
             const result = runSelectAll(state);
 
             expect(result).toBeNull();

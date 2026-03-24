@@ -68,6 +68,7 @@ export const getSchemaSpecs: (
         },
         selectable: false,
         allowSelection: false,
+        selectAll: 'content',
         complex: 'leaf',
         isolating: true,
     },
@@ -85,6 +86,7 @@ export const getSchemaSpecs: (
             return ['div', node.attrs, 0];
         },
         selectable: true,
+        selectAll: 'node',
         complex: 'root',
     },
 
@@ -115,6 +117,7 @@ export const getSchemaSpecs: (
         toDOM(node) {
             return ['div', node.attrs, 0];
         },
+        selectAll: 'node',
         complex: 'root',
     },
     [TabsNode.RadioTab]: {
