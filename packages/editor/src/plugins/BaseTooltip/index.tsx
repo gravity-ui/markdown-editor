@@ -232,8 +232,6 @@ export class BaseTooltipPluginView implements PluginView {
 
     protected renderContent(currentNode: BaseTooltipNode): React.ReactNode {
         if (!this.content) return null;
-        // hack for popup rerender
-        window.dispatchEvent(new CustomEvent('scroll'));
         return (
             <Popup
                 open
@@ -249,7 +247,7 @@ export class BaseTooltipPluginView implements PluginView {
                         this.changeAttrsCb,
                         undefined,
                         undefined,
-                        () => this.render(),
+                        this.rerenderCb,
                     )}
                 </div>
             </Popup>
@@ -263,4 +261,8 @@ export class BaseTooltipPluginView implements PluginView {
             ) : null,
         );
     }
+
+    private rerenderCb = () => {
+        this.render();
+    };
 }

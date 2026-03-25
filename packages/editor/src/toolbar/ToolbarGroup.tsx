@@ -93,11 +93,17 @@ export function ToolbarButtonGroup<E>({
                 }
 
                 if (item.type === ToolbarDataType.ReactNode) {
-                    return <ToolbarUpdateOnRerender key={item.id} content={() => item.content} />;
+                    return item.noRerenderOnUpdate ? (
+                        item.content
+                    ) : (
+                        <ToolbarUpdateOnRerender key={item.id} content={() => item.content} />
+                    );
                 }
 
                 if (item.type === ToolbarDataType.ReactNodeFn) {
-                    return (
+                    return item.noRerenderOnUpdate ? (
+                        item.content(editor)
+                    ) : (
                         <ToolbarUpdateOnRerender
                             key={item.id}
                             content={() => item.content(editor)}
