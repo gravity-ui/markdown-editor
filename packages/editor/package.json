@@ -153,7 +153,7 @@
     "./styles-string": {
       "import": {
         "types": "./build/styles-string.d.ts",
-        "default": "./build/styles-string.js"
+        "default": "./build/styles-string.mjs"
       },
       "require": {
         "types": "./build/styles-string.d.ts",

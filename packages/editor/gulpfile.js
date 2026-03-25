@@ -48,11 +48,29 @@ gulp.task('scss', () => {
 });
 
 gulp.task('styles-string', (done) => {
-    const css = fs.readFileSync(path.join(BUILD_DIR, 'styles.css'), 'utf8');
+    // External CSS files imported directly from @diplodoc/* packages in TS source.
+    // These are not processed by the 'scss' task and would be missing from styles.css.
+    const externalCssPaths = [
+        require.resolve('@diplodoc/transform/dist/css/base.css'),
+        require.resolve('@diplodoc/transform/dist/css/_yfm-only.css'),
+        require.resolve('@diplodoc/cut-extension/runtime/styles.css'),
+        require.resolve('@diplodoc/file-extension/runtime/styles.css'),
+        require.resolve('@diplodoc/tabs-extension/runtime/styles.css'),
+        require.resolve('@diplodoc/quote-link-extension/runtime/styles.css'),
+        require.resolve('@diplodoc/folding-headings-extension/runtime/styles.css'),
+    ];
+
+    const externalCss = externalCssPaths.map((p) => fs.readFileSync(p, 'utf8')).join('\n');
+    const editorCss = fs.readFileSync(path.join(BUILD_DIR, 'styles.css'), 'utf8');
+    const css = externalCss + '\n' + editorCss;
+
     const escaped = css.replace(/\\/g, '\\\\').replace(/`/g, '\\`').replace(/\$\{/g, '\\${');
     const content = `\`${escaped}\``;
 
-    fs.writeFileSync(path.join(BUILD_DIR, 'styles-string.js'), `export default ${content};\n`);
+    // Use .mjs extension: always treated as ESM regardless of package.json "type" field.
+    // A plain .js in the build root (which has no "type": "module") would cause
+    // SyntaxError: Unexpected token 'export' when required as CommonJS.
+    fs.writeFileSync(path.join(BUILD_DIR, 'styles-string.mjs'), `export default ${content};\n`);
     fs.writeFileSync(path.join(BUILD_DIR, 'styles-string.cjs'), `module.exports = ${content};\n`);
     fs.writeFileSync(
         path.join(BUILD_DIR, 'styles-string.d.ts'),
