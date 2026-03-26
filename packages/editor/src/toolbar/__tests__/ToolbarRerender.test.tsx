@@ -1,19 +1,28 @@
 /**
- * Tests for noRerenderOnUpdate flag in ToolbarGroup.
+ * Tests for the noRerenderOnUpdate flag in ToolbarGroup.
  *
- * Background: toolbar items of type ReactNode / ReactNodeFn are normally wrapped in
- * <ToolbarUpdateOnRerender>, which subscribes to the toolbar context's "update" event bus
- * and calls forceUpdate() every time the event fires.  That event is emitted by
- * <ToolbarWrapToContext> after every render of any ancestor that owns the context, causing
- * the toolbar items to re-render even when nothing about them actually changed.
+ * Context
+ * -------
+ * For item types that embed arbitrary React content — ReactComponent, ReactNode,
+ * ReactNodeFn — the toolbar has no knowledge of what is rendered inside. To
+ * ensure those items always reflect the current editor state, the toolbar
+ * wraps them in <ToolbarUpdateOnRerender> by DEFAULT.
  *
- * For fully static items (e.g. a ClipboardButton that just copies fixed text) this is
- * wasteful and can break internal state (e.g. the "Copied!" flash resets on every keystroke).
+ * <ToolbarUpdateOnRerender> subscribes to the toolbar context's "update" event
+ * and calls forceUpdate() every time it fires, so the item's content is
+ * re-evaluated even if React's own reconciliation would have skipped it.
  *
- * The fix: set noRerenderOnUpdate: true on the item descriptor.  ToolbarButtonGroup then
- * renders the item in a plain <Fragment> instead of inside <ToolbarUpdateOnRerender>, so the
- * item's content function is called only during regular React tree traversal – never as a
- * side-effect of the event bus.
+ * The "update" event is emitted by <ToolbarWrapToContext> after every render
+ * of any ancestor that owns the context (useEffect with no dep-array).
+ *
+ * Opt-out
+ * -------
+ * Set noRerenderOnUpdate: true when the item is static (e.g. a copy button
+ * whose only job is to read the current text at click time) or when the item
+ * manages its own subscriptions and doesn't need the toolbar to drive it.
+ * The toolbar then renders the item in a plain <Fragment> instead of inside
+ * <ToolbarUpdateOnRerender>, so extra renders triggered by the event bus are
+ * completely avoided.
  */
 
 import React from 'react';
@@ -26,6 +35,7 @@ import type {ToolbarContextValue, ToolbarEvents} from '../context';
 import {ToolbarUpdateOnRerender} from '../ToolbarRerender';
 import {ToolbarButtonGroup} from '../ToolbarGroup';
 import {ToolbarDataType} from '../types';
+import type {ToolbarBaseProps} from '../types';
 
 // ---------------------------------------------------------------------------
 // helpers
@@ -54,10 +64,10 @@ function teardown(root: Root, container: HTMLDivElement) {
 }
 
 // ---------------------------------------------------------------------------
-// ToolbarUpdateOnRerender unit tests
+// ToolbarUpdateOnRerender — the default wrapping mechanism
 // ---------------------------------------------------------------------------
 
-describe('ToolbarUpdateOnRerender', () => {
+describe('ToolbarUpdateOnRerender (default wrapping mechanism)', () => {
     let container: HTMLDivElement;
     let root: Root;
 
@@ -79,7 +89,7 @@ describe('ToolbarUpdateOnRerender', () => {
                     <ToolbarUpdateOnRerender
                         content={() => {
                             renderCount++;
-                            return <span>hi</span>;
+                            return <span>content</span>;
                         }}
                     />
                 </ToolbarProvider>,
@@ -89,7 +99,7 @@ describe('ToolbarUpdateOnRerender', () => {
         expect(renderCount).toBe(1);
     });
 
-    it('re-renders content each time "update" event is emitted', () => {
+    it('re-renders content on each "update" event — this is the default behaviour the flag opts out of', () => {
         const {context, eventBus} = makeContext();
         let renderCount = 0;
 
@@ -99,7 +109,7 @@ describe('ToolbarUpdateOnRerender', () => {
                     <ToolbarUpdateOnRerender
                         content={() => {
                             renderCount++;
-                            return <span>hi</span>;
+                            return <span>content</span>;
                         }}
                     />
                 </ToolbarProvider>,
@@ -121,10 +131,10 @@ describe('ToolbarUpdateOnRerender', () => {
 });
 
 // ---------------------------------------------------------------------------
-// ToolbarButtonGroup – noRerenderOnUpdate behaviour
+// noRerenderOnUpdate for ReactNodeFn items
 // ---------------------------------------------------------------------------
 
-describe('ToolbarButtonGroup – noRerenderOnUpdate', () => {
+describe('ToolbarButtonGroup – ReactNodeFn', () => {
     let container: HTMLDivElement;
     let root: Root;
 
@@ -137,14 +147,14 @@ describe('ToolbarButtonGroup – noRerenderOnUpdate', () => {
     });
 
     /**
-     * Helper that renders a ToolbarButtonGroup with two ReactNodeFn items –
-     * one with noRerenderOnUpdate: true and one without – and returns render
-     * counters together with a function to emit an "update" event.
+     * Renders two ReactNodeFn items side-by-side:
+     *   - one WITHOUT noRerenderOnUpdate (default: toolbar forces re-renders)
+     *   - one WITH    noRerenderOnUpdate (opt-out: toolbar leaves it alone)
      */
-    function renderWithTwoItems() {
+    function renderTwoItems() {
         const {context, eventBus} = makeContext();
-        let countWithFlag = 0;
-        let countWithoutFlag = 0;
+        let countDefault = 0; // no flag → default forced re-renders
+        let countOptOut = 0; // noRerenderOnUpdate: true → no forced re-renders
 
         act(() => {
             root.render(
@@ -154,22 +164,21 @@ describe('ToolbarButtonGroup – noRerenderOnUpdate', () => {
                         focus={() => {}}
                         data={[
                             {
-                                id: 'item-with-rerender',
+                                id: 'default-rerender',
                                 type: ToolbarDataType.ReactNodeFn,
                                 width: 28,
-                                // NO noRerenderOnUpdate → wrapped in ToolbarUpdateOnRerender
                                 content: () => {
-                                    countWithoutFlag++;
+                                    countDefault++;
                                     return <span>dynamic</span>;
                                 },
                             },
                             {
-                                id: 'item-no-rerender',
+                                id: 'no-rerender',
                                 type: ToolbarDataType.ReactNodeFn,
                                 width: 28,
                                 noRerenderOnUpdate: true,
                                 content: () => {
-                                    countWithFlag++;
+                                    countOptOut++;
                                     return <span>static</span>;
                                 },
                             },
@@ -180,8 +189,8 @@ describe('ToolbarButtonGroup – noRerenderOnUpdate', () => {
         });
 
         return {
-            countWithFlag: () => countWithFlag,
-            countWithoutFlag: () => countWithoutFlag,
+            countDefault: () => countDefault,
+            countOptOut: () => countOptOut,
             emitUpdate: () =>
                 act(() => {
                     eventBus.emit('update', null);
@@ -189,46 +198,94 @@ describe('ToolbarButtonGroup – noRerenderOnUpdate', () => {
         };
     }
 
-    it('both items render once on initial mount', () => {
-        const {countWithFlag, countWithoutFlag} = renderWithTwoItems();
-        expect(countWithoutFlag()).toBe(1);
-        expect(countWithFlag()).toBe(1);
+    it('both items are rendered once on initial mount', () => {
+        const {countDefault, countOptOut} = renderTwoItems();
+        expect(countDefault()).toBe(1);
+        expect(countOptOut()).toBe(1);
     });
 
-    it('item WITHOUT noRerenderOnUpdate re-renders on "update" event', () => {
-        const {countWithoutFlag, emitUpdate} = renderWithTwoItems();
-        const before = countWithoutFlag();
+    it('default item (no flag) is re-rendered on each "update" event', () => {
+        const {countDefault, emitUpdate} = renderTwoItems();
         emitUpdate();
-        expect(countWithoutFlag()).toBe(before + 1);
+        expect(countDefault()).toBe(2);
+        emitUpdate();
+        expect(countDefault()).toBe(3);
     });
 
-    it('item WITH noRerenderOnUpdate does NOT re-render on "update" event', () => {
-        const {countWithFlag, emitUpdate} = renderWithTwoItems();
-        const before = countWithFlag();
+    it('opt-out item (noRerenderOnUpdate: true) is NOT re-rendered on "update" events', () => {
+        const {countOptOut, emitUpdate} = renderTwoItems();
         emitUpdate();
-        expect(countWithFlag()).toBe(before); // count must not change
+        emitUpdate();
+        emitUpdate();
+        // Only the initial render — the event bus never triggers extra renders.
+        expect(countOptOut()).toBe(1);
     });
 
-    it('multiple "update" events only affect items without noRerenderOnUpdate', () => {
-        const {countWithFlag, countWithoutFlag, emitUpdate} = renderWithTwoItems();
+    it('multiple events accumulate only for the default item', () => {
+        const {countDefault, countOptOut, emitUpdate} = renderTwoItems();
+        emitUpdate();
+        emitUpdate();
+        emitUpdate();
+        expect(countDefault()).toBe(4); // 1 initial + 3 forced
+        expect(countOptOut()).toBe(1); // 1 initial only
+    });
+});
 
-        emitUpdate();
-        emitUpdate();
-        emitUpdate();
+// ---------------------------------------------------------------------------
+// noRerenderOnUpdate for ReactNode items
+// ---------------------------------------------------------------------------
 
-        expect(countWithoutFlag()).toBe(4); // 1 initial + 3 updates
-        expect(countWithFlag()).toBe(1); // only initial render
+describe('ToolbarButtonGroup – ReactNode', () => {
+    let container: HTMLDivElement;
+    let root: Root;
+
+    beforeEach(() => {
+        ({container, root} = setup());
     });
 
-    // ---  ReactNode variant ------------------------------------------------
+    afterEach(() => {
+        teardown(root, container);
+    });
 
-    it('ReactNode with noRerenderOnUpdate does NOT re-render on "update" event', () => {
+    it('default item (no flag) is re-rendered on "update" event', () => {
         const {context, eventBus} = makeContext();
         let renderCount = 0;
 
-        // ReactNode items hold a static React.ReactNode, not a function.
-        // The content is evaluated when the data array is built, so the
-        // render counter must live inside a component we embed in content.
+        function Counter() {
+            renderCount++;
+            return <span>node</span>;
+        }
+
+        act(() => {
+            root.render(
+                <ToolbarProvider value={context}>
+                    <ToolbarButtonGroup
+                        editor={{}}
+                        focus={() => {}}
+                        data={[
+                            {
+                                id: 'default-node',
+                                type: ToolbarDataType.ReactNode,
+                                width: 28,
+                                content: <Counter />,
+                            },
+                        ]}
+                    />
+                </ToolbarProvider>,
+            );
+        });
+
+        expect(renderCount).toBe(1);
+        act(() => {
+            eventBus.emit('update', null);
+        });
+        expect(renderCount).toBe(2);
+    });
+
+    it('opt-out item (noRerenderOnUpdate: true) is NOT re-rendered on "update" event', () => {
+        const {context, eventBus} = makeContext();
+        let renderCount = 0;
+
         function Counter() {
             renderCount++;
             return <span>node</span>;
@@ -255,25 +312,44 @@ describe('ToolbarButtonGroup – noRerenderOnUpdate', () => {
         });
 
         expect(renderCount).toBe(1);
-
         act(() => {
             eventBus.emit('update', null);
         });
-
-        // Counter is a stable React element; without ToolbarUpdateOnRerender
-        // forcing a re-render, React reuses the existing fiber and does not
-        // re-invoke the function component.
+        // Counter is a stable element; without ToolbarUpdateOnRerender forcing a
+        // re-render, React reuses the existing fiber and does not re-invoke Counter.
         expect(renderCount).toBe(1);
     });
+});
 
-    it('ReactNode without noRerenderOnUpdate re-renders on "update" event', () => {
+// ---------------------------------------------------------------------------
+// noRerenderOnUpdate for ReactComponent items
+// ---------------------------------------------------------------------------
+
+describe('ToolbarButtonGroup – ReactComponent', () => {
+    let container: HTMLDivElement;
+    let root: Root;
+
+    beforeEach(() => {
+        ({container, root} = setup());
+    });
+
+    afterEach(() => {
+        teardown(root, container);
+    });
+
+    function makeComponent(counter: {count: number}) {
+        // A component that increments a counter on every render.
+        const Comp: React.FC<ToolbarBaseProps<unknown>> = () => {
+            counter.count++;
+            return <span>component</span>;
+        };
+        return Comp;
+    }
+
+    it('default component (no flag) is re-rendered on "update" event', () => {
         const {context, eventBus} = makeContext();
-        let renderCount = 0;
-
-        function Counter() {
-            renderCount++;
-            return <span>node</span>;
-        }
+        const counter = {count: 0};
+        const Comp = makeComponent(counter);
 
         act(() => {
             root.render(
@@ -283,11 +359,10 @@ describe('ToolbarButtonGroup – noRerenderOnUpdate', () => {
                         focus={() => {}}
                         data={[
                             {
-                                id: 'dynamic-node',
-                                type: ToolbarDataType.ReactNode,
+                                id: 'default-component',
+                                type: ToolbarDataType.ReactComponent,
                                 width: 28,
-                                // no noRerenderOnUpdate → wrapped in ToolbarUpdateOnRerender
-                                content: <Counter />,
+                                component: Comp,
                             },
                         ]}
                     />
@@ -295,12 +370,42 @@ describe('ToolbarButtonGroup – noRerenderOnUpdate', () => {
             );
         });
 
-        expect(renderCount).toBe(1);
-
+        expect(counter.count).toBe(1);
         act(() => {
             eventBus.emit('update', null);
         });
+        expect(counter.count).toBe(2);
+    });
 
-        expect(renderCount).toBe(2);
+    it('opt-out component (noRerenderOnUpdate: true) is NOT re-rendered on "update" event', () => {
+        const {context, eventBus} = makeContext();
+        const counter = {count: 0};
+        const Comp = makeComponent(counter);
+
+        act(() => {
+            root.render(
+                <ToolbarProvider value={context}>
+                    <ToolbarButtonGroup
+                        editor={{}}
+                        focus={() => {}}
+                        data={[
+                            {
+                                id: 'static-component',
+                                type: ToolbarDataType.ReactComponent,
+                                width: 28,
+                                noRerenderOnUpdate: true,
+                                component: Comp,
+                            },
+                        ]}
+                    />
+                </ToolbarProvider>,
+            );
+        });
+
+        expect(counter.count).toBe(1);
+        act(() => {
+            eventBus.emit('update', null);
+        });
+        expect(counter.count).toBe(1);
     });
 });
