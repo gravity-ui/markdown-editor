@@ -1,3 +1,5 @@
+import {Fragment} from 'react';
+
 import {cn} from '../classname';
 
 import {ToolbarButton} from './ToolbarButton';
@@ -86,18 +88,24 @@ export function ToolbarButtonGroup<E>({
                         />
                     );
                     return item.noRerenderOnUpdate ? (
-                        renderFn()
+                        <Fragment key={item.id}>{renderFn()}</Fragment>
                     ) : (
                         <ToolbarUpdateOnRerender key={item.id} content={renderFn} />
                     );
                 }
 
                 if (item.type === ToolbarDataType.ReactNode) {
-                    return <ToolbarUpdateOnRerender key={item.id} content={() => item.content} />;
+                    return item.noRerenderOnUpdate ? (
+                        <Fragment key={item.id}>{item.content}</Fragment>
+                    ) : (
+                        <ToolbarUpdateOnRerender key={item.id} content={() => item.content} />
+                    );
                 }
 
                 if (item.type === ToolbarDataType.ReactNodeFn) {
-                    return (
+                    return item.noRerenderOnUpdate ? (
+                        <Fragment key={item.id}>{item.content(editor)}</Fragment>
+                    ) : (
                         <ToolbarUpdateOnRerender
                             key={item.id}
                             content={() => item.content(editor)}
