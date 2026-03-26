@@ -121,7 +121,7 @@ export function CodeBlockToolbar({
                     id: 'code-block-copy',
                     type: ToolbarDataType.ReactNodeFn,
                     width: 28,
-                    content: () => <ClipboardButton text={copyText} />,
+                    content: () => <ClipboardButtonTracked text={copyText} />,
                     noRerenderOnUpdate: true,
                 } satisfies ToolbarGroupItemData<EditorView>,
             ].filter(isTruthy),
@@ -165,4 +165,13 @@ export function CodeBlockToolbar({
             />
         </ToolbarWrapToContext>
     );
+}
+
+// DEV ONLY — удалить после измерений
+let _copyRenderCount = 0;
+export function ClipboardButtonTracked({text}: {text: () => string}) {
+    _copyRenderCount++;
+    // eslint-disable-next-line no-console
+    console.log(`[copy button] render #${_copyRenderCount}`);
+    return <ClipboardButton text={text} />;
 }
