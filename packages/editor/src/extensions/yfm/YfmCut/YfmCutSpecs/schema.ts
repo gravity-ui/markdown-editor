@@ -38,6 +38,7 @@ export const getSchemaSpecs = (
         },
         selectable: true,
         allowSelection: true,
+        selectAll: 'node',
         defining: true,
         complex: 'root',
     },
@@ -84,6 +85,7 @@ export const getSchemaSpecs = (
         definingAsContext: true,
         selectable: false,
         allowSelection: false,
+        selectAll: 'content',
         complex: 'leaf',
     },
 });

@@ -56,6 +56,7 @@ export const QuoteLinkSpecs: ExtensionAuto = (builder) => {
                     return ['blockquote', node.attrs, 0];
                 },
                 selectable: true,
+                selectAll: 'node',
             },
             fromMd: {
                 tokenSpec: {

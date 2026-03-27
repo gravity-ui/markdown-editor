@@ -35,6 +35,7 @@ export const getSchemaSpecs = (
         },
         selectable: true,
         allowSelection: true,
+        selectAll: 'node',
         complex: 'root',
     },
 
@@ -76,6 +77,7 @@ export const getSchemaSpecs = (
         },
         selectable: false,
         allowSelection: false,
+        selectAll: 'content',
         placeholder: {
             content: placeholder?.[NoteNode.NoteContent] ?? DEFAULT_CONTENT_PLACEHOLDER,
             alwaysVisible: true,
