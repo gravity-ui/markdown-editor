@@ -1,9 +1,8 @@
-import type {SelectOption} from '@gravity-ui/uikit';
-
 import type {EditorView} from '#pm/view';
 import {BaseTooltipPluginView} from 'src/plugins/BaseTooltip';
 
 import {codeBlockType} from '../../CodeBlockSpecs';
+import {getCodeBlockLangsState} from '../plugins/codeBlockLangsPlugin';
 
 import {CodeBlockToolbar} from './CodeBlockToolbar';
 
@@ -16,8 +15,6 @@ type Options = {
 
 export const codeLangSelectTooltipViewCreator = (
     view: EditorView,
-    langItems: SelectOption[],
-    mapping: Record<string, string> = {},
     {showCodeWrapping, showLineNumbers}: Options,
 ) => {
     return new BaseTooltipPluginView(view, {
@@ -25,12 +22,14 @@ export const codeLangSelectTooltipViewCreator = (
         nodeType: codeBlockType(view.state.schema),
         popupPlacement: ['bottom', 'top'],
         content: (view, {node, pos}, _onChange, _forceEdit, _onOutsideClick, rerender) => {
+            const {langItems, aliasMapping} = getCodeBlockLangsState(view.state);
+
             return (
                 <CodeBlockToolbar
                     pos={pos}
                     node={node}
                     editorView={view}
-                    mapping={mapping}
+                    mapping={aliasMapping}
                     langItems={langItems}
                     rerenderTooltip={rerender}
                     showLineNumbers={showLineNumbers}

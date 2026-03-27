@@ -1,16 +1,11 @@
-import type {Options} from '@diplodoc/transform';
-// importing only type, because lowlight and highlight.js is optional deps
-import type HLJS from 'highlight.js/lib/core';
-import type {createLowlight} from 'lowlight' with {'resolution-mode': 'import'};
 import type {Node} from 'prosemirror-model';
 import {Plugin, PluginKey} from 'prosemirror-state';
 // @ts-ignore // TODO: fix cjs build
 import {findChildrenByType} from 'prosemirror-utils';
-import {Decoration, DecorationSet, type EditorView} from 'prosemirror-view';
+import {Decoration, DecorationSet} from 'prosemirror-view';
 
-import type {ExtensionAuto} from '../../../../core';
-import {capitalize} from '../../../../lodash';
-import {globalLogger} from '../../../../logger';
+import type {ExtensionAuto} from '#core';
+
 import {
     CodeBlockNodeAttr,
     type LineNumbersOptions,
@@ -20,22 +15,21 @@ import {
 
 import {CodeBlockNodeView} from './CodeBlockNodeView';
 import {codeLangSelectTooltipViewCreator} from './TooltipPlugin';
-import {PlainTextLang} from './const';
+import {
+    type HighlightLangMap,
+    type LLRoot,
+    type Lowlight,
+    codeBlockLangsPlugin,
+    codeBlockLangsPluginKey,
+    getCodeBlockLangsState,
+} from './plugins/codeBlockLangsPlugin';
 import {codeBlockLineNumbersPlugin} from './plugins/codeBlockLineNumbersPlugin';
 import {codeBlockLineWrappingPlugin} from './plugins/codeBlockLineWrappingPlugin';
 import {processChangedCodeBlocks} from './utils';
 
 import './CodeBlockHighlight.scss';
 
-export type HighlightLangMap = Options['highlightLangs'];
-
-type Lowlight = ReturnType<typeof createLowlight>;
-type Root = ReturnType<Lowlight['highlight']>;
-
-type LangSelectItem = {
-    value: string;
-    content: string;
-};
+export type {HighlightLangMap};
 
 const pluginKey = new PluginKey<PluginState>('code_block_highlight');
 
@@ -58,85 +52,34 @@ export type CodeBlockHighlightOptions = {
 };
 
 export const CodeBlockHighlight: ExtensionAuto<CodeBlockHighlightOptions> = (builder, opts) => {
-    let langs: NonNullable<HighlightLangMap>;
-    let lowlight: Lowlight;
-    let hljs: typeof HLJS;
-
-    const loadModules = async () => {
-        try {
-            hljs = (await import('highlight.js/lib/core')).default;
-            const low = await import('lowlight');
-
-            const all: HighlightLangMap = low.all;
-            const create: typeof createLowlight = low.createLowlight;
-            langs = {...all, ...opts.langs};
-            lowlight = create(langs);
-            return true;
-        } catch (e) {
-            globalLogger.info('Skip code_block highlighting');
-            builder.logger.log('Skip code_block highlighting');
-            return false;
-        }
-    };
-
     if (opts.lineWrapping?.enabled) builder.addPlugin(codeBlockLineWrappingPlugin);
     if (opts.lineNumbers?.enabled) builder.addPlugin(codeBlockLineNumbersPlugin);
 
+    builder.addPlugin(() => codeBlockLangsPlugin(opts.langs, builder.logger));
+
     builder.addPlugin(() => {
-        let modulesLoaded = false;
-        let view: EditorView | null = null;
-
-        // empty array by default, but is filled after loading modules
-        const selectItems: LangSelectItem[] = [];
-        const mapping: Record<string, string> = {};
-
         // TODO: add TAB key handler
         // TODO: Remove constant selection of block
         return new Plugin<PluginState>({
             key: pluginKey,
             state: {
-                init: (_, state) => {
-                    loadModules().then((loaded) => {
-                        modulesLoaded = loaded;
-
-                        if (modulesLoaded) {
-                            for (const lang of Object.keys(langs)) {
-                                const defs = langs[lang](hljs);
-                                selectItems.push({
-                                    value: lang,
-                                    content: defs.name || capitalize(lang),
-                                });
-                                if (defs.aliases) {
-                                    for (const alias of defs.aliases) {
-                                        mapping[alias] = lang;
-                                    }
-                                }
-                            }
-
-                            selectItems.sort(sortLangs);
-
-                            if (view && !view.isDestroyed) {
-                                view.dispatch(view.state.tr.setMeta(pluginKey, {modulesLoaded}));
-                            }
-                        }
-                    });
-
+                init: (_config, _state) => {
                     const cache: HighlightCache = new WeakMap();
-
-                    return {
-                        cache,
-                        decoSet: modulesLoaded
-                            ? DecorationSet.empty
-                            : getDecorations(state.doc, cache),
-                    };
+                    return {cache, decoSet: DecorationSet.empty};
                 },
-                apply: (tr, {cache, decoSet}) => {
-                    if (!modulesLoaded) {
-                        return {cache, decoSet: DecorationSet.empty};
+                apply: (tr, {cache, decoSet}, _oldState, newState) => {
+                    const langsUpdate = tr.getMeta(codeBlockLangsPluginKey);
+                    if (langsUpdate?.loaded && langsUpdate.lowlight) {
+                        return {
+                            cache,
+                            decoSet: getDecorations(tr.doc, cache, langsUpdate.lowlight),
+                        };
                     }
 
-                    if (tr.getMeta(pluginKey)?.modulesLoaded) {
-                        return {cache, decoSet: getDecorations(tr.doc, cache)};
+                    const {lowlight} = getCodeBlockLangsState(newState);
+
+                    if (!lowlight) {
+                        return {cache, decoSet: DecorationSet.empty};
                     }
 
                     if (!tr.docChanged) return {cache, decoSet};
@@ -167,9 +110,8 @@ export const CodeBlockHighlight: ExtensionAuto<CodeBlockHighlightOptions> = (bui
                     return {cache, decoSet};
                 },
             },
-            view: (v) => {
-                view = v;
-                return codeLangSelectTooltipViewCreator(view, selectItems, mapping, {
+            view: (view) => {
+                return codeLangSelectTooltipViewCreator(view, {
                     showCodeWrapping: Boolean(opts.lineWrapping?.enabled),
                     showLineNumbers: Boolean(opts.lineNumbers?.enabled),
                 });
@@ -185,11 +127,7 @@ export const CodeBlockHighlight: ExtensionAuto<CodeBlockHighlightOptions> = (bui
         });
     });
 
-    function getDecorations(doc: Node, cache: HighlightCache) {
-        if (!lowlight) {
-            return DecorationSet.empty;
-        }
-
+    function getDecorations(doc: Node, cache: HighlightCache, lowlight: Lowlight) {
         const decos: Decoration[] = [];
 
         for (const {node, pos} of findChildrenByType(doc, codeBlockType(doc.type.schema), true)) {
@@ -233,7 +171,7 @@ function renderTree(parsedNodes: HighlightParsedTree, from: number): Decoration[
 }
 
 function parseNodes(
-    nodes: Root['children'],
+    nodes: LLRoot['children'],
     className: readonly string[] = [],
 ): HighlightParsedTree {
     const result: HighlightParsedTree = [];
@@ -242,7 +180,7 @@ function parseNodes(
 }
 
 function collectNodes(
-    nodes: Root['children'],
+    nodes: LLRoot['children'],
     className: readonly string[],
     result: HighlightParsedTree,
 ): void {
@@ -257,11 +195,4 @@ function collectNodes(
             });
         }
     }
-}
-
-function sortLangs(a: LangSelectItem, b: LangSelectItem): number {
-    // plaintext always goes first
-    if (a.value === PlainTextLang) return -1;
-    if (b.value === PlainTextLang) return 1;
-    return 0;
 }
