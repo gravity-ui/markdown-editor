@@ -36,9 +36,11 @@ test.describe('Empty rows', () => {
             await editor.switchMode('markup');
         });
 
-        test('should show autocomplete', async ({editor, expectScreenshot}) => {
+        test('should show autocomplete', async ({editor, wait, expectScreenshot}) => {
             await editor.press('&');
             await editor.waitForCMAutocomplete();
+            // wait for tooltip to display completely
+            await wait.timeout(300);
             await expectScreenshot({nameSuffix: 'tooltip'});
 
             await editor.press('Enter');
