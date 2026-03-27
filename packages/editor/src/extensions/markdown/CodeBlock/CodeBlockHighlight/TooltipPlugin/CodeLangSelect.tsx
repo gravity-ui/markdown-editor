@@ -1,8 +1,8 @@
 import {memo} from 'react';
 
-import {cn} from '@bem-react/classname';
 import {Select, type SelectOption} from '@gravity-ui/uikit';
 
+import {cn} from 'src/classname';
 import {i18n} from 'src/i18n/codeblock';
 import {i18n as i18nPlaceholder} from 'src/i18n/placeholder';
 
