@@ -1,5 +1,30 @@
 # Changelog
 
+## [15.37.0](https://github.com/gravity-ui/markdown-editor/compare/markdown-editor-v15.36.0...markdown-editor-v15.37.0) (2026-03-27)
+
+
+### Features
+
+* **Selection:** add smart hierarchical "select-all" behavior ([#989](https://github.com/gravity-ui/markdown-editor/issues/989)) ([984428c](https://github.com/gravity-ui/markdown-editor/commit/984428cf41e84ef3737690a24aee415db44ba97d))
+
+
+### Bug Fixes
+
+* **Clipboard:** copying no longer includes unrelated ancestor nodes ([#1020](https://github.com/gravity-ui/markdown-editor/issues/1020)) ([da0544e](https://github.com/gravity-ui/markdown-editor/commit/da0544edd83871124bf4110e8233f168bb226bbb))
+* **CodeBlock:** fix styles of lang select in codeblock tooltip ([#1034](https://github.com/gravity-ui/markdown-editor/issues/1034)) ([58749fb](https://github.com/gravity-ui/markdown-editor/commit/58749fb2b107c9b4dccc67e7d8dea027d80fe9ef))
+* **YfmNote:** fix yfm-note tooltip view and active state ([#1031](https://github.com/gravity-ui/markdown-editor/issues/1031)) ([27d023d](https://github.com/gravity-ui/markdown-editor/commit/27d023d84f93e53c79ef93cec31aa4f2ebf1b9d5))
+
+
+### Refactoring
+
+* **CodeBlock:** store lowlight instance in separate plugin state ([#1033](https://github.com/gravity-ui/markdown-editor/issues/1033)) ([1dd60c6](https://github.com/gravity-ui/markdown-editor/commit/1dd60c67deb2046d7d68b39f77c4116d1d4570b1))
+
+
+### Performance Improvements
+
+* **CodeBlock:** reduce number of code block tooltip re-renders ([#1029](https://github.com/gravity-ui/markdown-editor/issues/1029)) ([de59564](https://github.com/gravity-ui/markdown-editor/commit/de5956479deb03aecc9067aebc33f298ecdaf0fb))
+* **YfmNote:** reduce number of yfm-note tooltip re-renders ([#1030](https://github.com/gravity-ui/markdown-editor/issues/1030)) ([cf56b15](https://github.com/gravity-ui/markdown-editor/commit/cf56b15497e4c9be4e921d826d6e918b7e557de9))
+
 ## [15.36.0](https://github.com/gravity-ui/markdown-editor/compare/markdown-editor-v15.35.1...markdown-editor-v15.36.0) (2026-03-17)
 
 
