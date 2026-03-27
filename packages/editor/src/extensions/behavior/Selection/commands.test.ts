@@ -1,5 +1,5 @@
 import type {Node} from 'prosemirror-model';
-import {EditorState, NodeSelection, TextSelection} from 'prosemirror-state';
+import {EditorState, TextSelection} from 'prosemirror-state';
 import {builders} from 'prosemirror-test-builder';
 
 import {ExtensionsManager} from '../../../core';
@@ -307,7 +307,7 @@ describe('selectAll', () => {
 
         it('should select code block content when partial selection exists', () => {
             const d = doc(codeBlock('hello'));
-            const state = createState(d, 2, 4); // partial selection "ell"
+            const state = createState(d, 2, 4); // partial selection "el"
             const result = runSelectAll(state);
 
             expect(result).toBeTruthy();
@@ -425,7 +425,7 @@ describe('selectAll', () => {
     });
 
     describe('selectContent: node', () => {
-        it('should select paragraph content first, then blockquote as node', () => {
+        it('should select paragraph content first, then blockquote', () => {
             const d = doc(bq(p('hello')));
 
             // First Cmd+A: select paragraph content
@@ -436,11 +436,11 @@ describe('selectAll', () => {
             expect(result1!.selection.from).toBe(2);
             expect(result1!.selection.to).toBe(7);
 
-            // Second Cmd+A: select blockquote as NodeSelection
+            // Second Cmd+A: select blockquote as TextSelection
             const result2 = runSelectAll(result1!);
 
             expect(result2).toBeTruthy();
-            expect(result2!.selection).toBeInstanceOf(NodeSelection);
+            expect(result2!.selection).toBeInstanceOf(TextSelection);
             expect(result2!.selection.from).toBe(0);
             expect(result2!.selection.to).toBe(9);
         });
@@ -449,7 +449,7 @@ describe('selectAll', () => {
             const d = doc(bq(p('hello')));
             const state = EditorState.create({
                 doc: d,
-                selection: NodeSelection.create(d, 0),
+                selection: TextSelection.create(d, 0, d.nodeSize - 2),
             });
             const result = runSelectAll(state);
 

@@ -1,10 +1,17 @@
 import type {Node, ResolvedPos} from 'prosemirror-model';
-import type {Command, TextSelection, Transaction} from 'prosemirror-state';
-import {NodeSelection, Selection, TextSelection as TextSel} from 'prosemirror-state';
+import {
+    type Command,
+    type NodeSelection,
+    Selection,
+    TextSelection as TextSel,
+    TextSelection,
+    type Transaction,
+} from 'prosemirror-state';
 
 import {isCodeBlock, isNodeEmpty} from '../../../utils/nodes';
 import {isNodeSelection, isTextSelection} from '../../../utils/selection';
 import {GapCursorSelection, isGapCursorSelection} from '../Cursor/GapCursorSelection';
+import {hideSelectionMenu} from '../SelectionContext';
 
 export type Direction = 'before' | 'after';
 type ArrowDirection = 'up' | 'right' | 'down' | 'left';
@@ -211,12 +218,15 @@ export const selectAll: Command = (state, dispatch) => {
         if (!hasContentToSelect(node)) continue;
 
         if (mode === 'node') {
-            const nodePos = $from.before(depth);
-            const nodeSel = NodeSelection.create(state.doc, nodePos);
+            const selAroundNode = TextSelection.create(
+                state.doc,
+                $from.before(depth),
+                $from.after(depth),
+            );
 
-            if (selection.from <= nodeSel.from && selection.to >= nodeSel.to) continue;
+            if (selection.from <= selAroundNode.from && selection.to >= selAroundNode.to) continue;
 
-            dispatch?.(state.tr.setSelection(nodeSel));
+            dispatch?.(hideSelectionMenu(state.tr.setSelection(selAroundNode)));
             return true;
         }
 
