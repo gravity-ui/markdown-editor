@@ -66,6 +66,7 @@ class SelectionTooltip implements PluginSpec<PluginState> {
     private destroyed = false;
 
     private tooltip: TooltipView;
+    private editorView: EditorView | null = null;
     private hideTimeoutRef: ReturnType<typeof setTimeout> | null = null;
 
     private _isMousePressed = false;
@@ -76,7 +77,13 @@ class SelectionTooltip implements PluginSpec<PluginState> {
         logger: Logger2.ILogger,
         options: SelectionContextOptions,
     ) {
-        this.tooltip = new TooltipView(actions, menuConfig, logger, options);
+        this.tooltip = new TooltipView(actions, menuConfig, logger, {
+            ...options,
+            onPopupOpenChange: (_open, _event, reason) => {
+                if (reason !== 'escape-key' && this.editorView)
+                    this.scheduleTooltipHiding(this.editorView);
+            },
+        });
     }
 
     get key(): PluginKey<PluginState> {
@@ -140,6 +147,8 @@ class SelectionTooltip implements PluginSpec<PluginState> {
     }
 
     private update(view: EditorView, prevState?: TinyState) {
+        this.editorView = view;
+
         if (this._isMousePressed) return;
 
         this.cancelTooltipHiding();
@@ -185,11 +194,7 @@ class SelectionTooltip implements PluginSpec<PluginState> {
             return;
         }
 
-        this.tooltip.show(view, {
-            onOpenChange: (_open, _event, reason) => {
-                if (reason !== 'escape-key') this.scheduleTooltipHiding(view);
-            },
-        });
+        this.tooltip.show(view);
     }
 
     private scheduleTooltipHiding(view: EditorView) {
