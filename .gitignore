@@ -38,3 +38,13 @@ test-results/
 # nx
 .nx/cache
 .nx/workspace-data
+
+# AI
+plans
+.claude
+!.claude/CLAUDE.md
+.cursor
+.codex
+.gemini
+.roo
+CLAUDE.local.md
