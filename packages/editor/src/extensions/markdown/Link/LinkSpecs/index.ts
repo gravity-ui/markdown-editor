@@ -2,6 +2,7 @@ import type {Mark, Node} from 'prosemirror-model';
 
 import type {ExtensionAuto} from '../../../../core';
 import {markTypeFactory} from '../../../../utils/schema';
+import {linkifyRawHrefPlugin} from '../linkifyRawHrefPlugin';
 
 export const linkMarkName = 'link';
 export const linkType = markTypeFactory(linkMarkName);
@@ -15,6 +16,7 @@ export enum LinkAttr {
 }
 
 export const LinkSpecs: ExtensionAuto = (builder) => {
+    builder.configureMd((md) => linkifyRawHrefPlugin(md));
     builder.addMark(
         linkMarkName,
         () => ({
