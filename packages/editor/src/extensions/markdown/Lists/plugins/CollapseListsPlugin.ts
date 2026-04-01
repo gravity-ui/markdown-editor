@@ -1,5 +1,5 @@
 import {Fragment, type Node, type Schema} from 'prosemirror-model';
-import {Plugin, TextSelection, type Transaction} from 'prosemirror-state';
+import {Plugin, Selection, type Transaction} from 'prosemirror-state';
 // @ts-ignore // TODO: fix cjs build
 import {hasParentNode} from 'prosemirror-utils';
 
@@ -8,7 +8,7 @@ import {isListItemNode, isListNode, liType} from '../utils';
 const MAX_COLLAPSE_DEPTH = 100;
 
 /**
- * Collapses parasitic nested lists inside list items
+ * Collapses redundant nested lists inside list items
  *
  * Converts structures where a list item starts with
  * a nested list into a flat list structure
@@ -35,15 +35,13 @@ export const collapseListsPlugin = () =>
 
             const {tr} = newState;
 
-            // collapse of parasitic nested lists
+            // collapse of redundant nested lists
             const lastCollapsePos = collapseAllNestedListItems(tr);
 
             // restore cursor position
             if (lastCollapsePos !== null) {
-                const cursorPos = findClosestTextNodePos(tr.doc, lastCollapsePos);
-                if (cursorPos !== null) {
-                    tr.setSelection(TextSelection.create(tr.doc, cursorPos));
-                }
+                const clampedPos = Math.min(lastCollapsePos, tr.doc.content.size);
+                tr.setSelection(Selection.near(tr.doc.resolve(clampedPos)));
             }
 
             return tr.docChanged ? tr : null;
@@ -57,7 +55,7 @@ interface Replacement {
 }
 
 /**
- * Finds list items with parasitic nesting, collapses them recursively,
+ * Finds list items with redundant nesting, collapses them recursively,
  * and applies replacements in reverse document order
  */
 export function collapseAllNestedListItems(tr: Transaction): number | null {
@@ -69,7 +67,9 @@ export function collapseAllNestedListItems(tr: Transaction): number | null {
     let skipUntil = -1;
 
     tr.doc.descendants((node, pos) => {
-        if (pos < skipUntil) return false;
+        if (pos < skipUntil || node.isTextblock) {
+            return false;
+        }
 
         if (!isListItemNode(node)) {
             return true;
@@ -111,10 +111,10 @@ export function collapseAllNestedListItems(tr: Transaction): number | null {
 }
 
 /**
- * Recursively collapses a list item with parasitic nesting
+ * Recursively collapses a list item with redundant nesting
  * into a Fragment of flat list items
  *
- * A parasitically nested list item has a list as its first child
+ * A redundantly nested list item has a list as its first child
  * (instead of a paragraph)
  */
 function collapseListItemContent(itemNode: Node, schema: Schema, depth: number): Fragment | null {
@@ -146,27 +146,3 @@ function collapseListItemContent(itemNode: Node, schema: Schema, depth: number):
     return result;
 }
 
-/**
- * Finds the nearest text node position by searching forward then backward from pos
- */
-export function findClosestTextNodePos(doc: Node, pos: number): number | null {
-    const size = doc.content.size;
-    if (size === 0) {
-        return null;
-    }
-
-    const start = Math.max(0, Math.min(pos, size - 1));
-
-    for (let fwd = start; fwd < size; fwd++) {
-        if (doc.nodeAt(fwd)?.isText) {
-            return fwd;
-        }
-    }
-    for (let bwd = start - 1; bwd >= 0; bwd--) {
-        if (doc.nodeAt(bwd)?.isText) {
-            return bwd;
-        }
-    }
-
-    return null;
-}

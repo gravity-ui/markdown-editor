@@ -177,7 +177,7 @@ describe('CollapseListsPlugin', () => {
         }).not.toThrow();
 
         const resultDoc = view.state.doc;
-        expect(hasParasiticNesting(resultDoc)).toBe(false);
+        expect(hasRedundantNesting(resultDoc)).toBe(false);
 
         let listItemCount = 0;
         resultDoc.descendants((node) => {
@@ -272,7 +272,7 @@ describe('CollapseListsPlugin + MergeListsPlugin integration', () => {
 
         const resultDoc = view.state.doc;
 
-        expect(hasParasiticNesting(resultDoc)).toBe(false);
+        expect(hasRedundantNesting(resultDoc)).toBe(false);
 
         // count top-level bullet_list nodes — the first two items should
         // be in one list (merged), the third after the paragraph in another
@@ -284,7 +284,7 @@ describe('CollapseListsPlugin + MergeListsPlugin integration', () => {
     });
 
     it('should merge adjacent same-type lists produced by collapse', () => {
-        // two separate bullet lists that each contain parasitic nesting
+        // two separate bullet lists that each contain redundant nesting
         // after collapse, the lists are adjacent and should be merged
         const view = new EditorView(null, {
             state: EditorState.create({
@@ -293,7 +293,7 @@ describe('CollapseListsPlugin + MergeListsPlugin integration', () => {
             }),
         });
 
-        // two separate top-level bullet lists, each with parasitic nesting
+        // two separate top-level bullet lists, each with redundant nesting
         const initialDoc = doc(ul(li(ul(li(p('A'))))), ul(li(ul(li(p('B'))))));
 
         view.dispatch(
@@ -301,7 +301,7 @@ describe('CollapseListsPlugin + MergeListsPlugin integration', () => {
         );
 
         const resultDoc = view.state.doc;
-        expect(hasParasiticNesting(resultDoc)).toBe(false);
+        expect(hasRedundantNesting(resultDoc)).toBe(false);
 
         // after collapse both items are flat, and merge should
         // combine the two adjacent bullet_lists into one
@@ -315,7 +315,7 @@ describe('CollapseListsPlugin + MergeListsPlugin integration', () => {
     });
 });
 
-function hasParasiticNesting(node: Node): boolean {
+function hasRedundantNesting(node: Node): boolean {
     let found = false;
     node.descendants((child) => {
         if (found) return false;
