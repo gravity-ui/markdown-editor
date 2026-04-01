@@ -145,4 +145,3 @@ function collapseListItemContent(itemNode: Node, schema: Schema, depth: number):
 
     return result;
 }
-
