@@ -57,7 +57,7 @@ export const TextSelectionTooltip: React.FC<TextSelectionTooltipProps> =
         return (
             <Popup
                 open
-                className={sp({py: 1, px: 2})}
+                className={sp({p: '0.5'})}
                 placement={popupPlacement}
                 anchorElement={popupAnchor}
                 onOpenChange={popupOnOpenChange}
