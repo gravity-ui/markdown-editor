@@ -228,6 +228,9 @@ export class MarkdownSerializerState {
         for (let i = 0; i < lines.length; i++) {
             const startOfLine = this.atBlank() || this.closed;
             this.write();
+            // Escape ! before [ to prevent being parsed as image syntax
+            if (escape === false && lines[i][0] === '[' && /(^|[^\\])!$/.test(this.out))
+                this.out = this.out.slice(0, this.out.length - 1) + '\\!';
             let text = lines[i];
             if (escape !== false && this.options.escape !== false) text = this.esc(text, startOfLine as any)
             if (this.escapeWhitespace) text = this.escWhitespace(text);
@@ -380,7 +383,7 @@ export class MarkdownSerializerState {
     // have special meaning only at the start of the line.
     esc(str: string, startOfLine = false) {
         // eslint-disable-next-line no-useless-escape
-        const defaultEsc = /[`\^+*\\\|~\[\]\{\}<>\$_]/g;
+        const defaultEsc = /[`\^+*\\\|~\[\]\{\}<>\$]/g;
         const extraChars = this.escapeCharacters?.length ? this.escapeCharacters.map(c => '\\' + c).join('') : '';
         const escRegexp = this.options?.commonEscape ||
             // Compose the escape regexp from default, options, and extra characters
@@ -389,6 +392,12 @@ export class MarkdownSerializerState {
         const startOfLineEscRegexp = this.options?.startOfLineEscape || /^[:#\-*+>]/;
 
         str = str.replace(escRegexp, '\\$&');
+        // Smart underscore: don't escape _ between word characters (e.g. foo_bar)
+        str = str.replace(/_/g, (m, i) =>
+            i > 0 && i + 1 < str.length && /\w/.test(str[i - 1]) && /\w/.test(str[i + 1])
+                ? m
+                : '\\' + m
+        );
         if (startOfLine) str = str.replace(startOfLineEscRegexp, '\\$&').replace(/^(\s*\d+)\./, '$1\\.');
         return str;
     }

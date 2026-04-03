@@ -11,7 +11,7 @@ import type {Parser} from '../types/parser';
 import type {SerializerNodeToken} from '../types/serializer';
 
 import {MarkdownParser} from './MarkdownParser';
-import {MarkdownSerializer} from './MarkdownSerializer';
+import {MarkdownSerializer, MarkdownSerializerState} from './MarkdownSerializer';
 
 const {schema} = builder;
 schema.nodes['hard_break'].spec.isBreak = true;
@@ -213,5 +213,29 @@ describe('markdown', () => {
                 ),
             ),
         );
+    });
+
+    it('escapes exclamation mark before image syntax', () => {
+        same('hello !\\[alt\\](path/to/image)', doc(p('hello ![alt](path/to/image)')));
+    });
+
+    it('escapes exclamation mark before non-escaped bracket in text()', () => {
+        // Directly tests the fix: when text() is called with escape=false
+        // and content starts with [, a preceding ! must become \!
+        const state = new MarkdownSerializerState({}, {}, {});
+        state.out = 'hello!';
+        state.text('[link](url)', false);
+        expect(state.out).toBe('hello\\![link](url)');
+    });
+
+    it('does not escape underscore between word characters', () => {
+        same('foo_bar', doc(p('foo_bar')));
+        same('a_b_c', doc(p('a_b_c')));
+    });
+
+    it('escapes underscore at word boundaries', () => {
+        same('\\_leading', doc(p('_leading')));
+        same('trailing\\_', doc(p('trailing_')));
+        same('space \\_ space', doc(p('space _ space')));
     });
 });
