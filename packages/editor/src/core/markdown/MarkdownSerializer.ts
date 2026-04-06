@@ -31,6 +31,24 @@ interface SerializerOptions {
     escape?: boolean; // Added to fix types
 }
 
+function regexpEqual(a?: RegExp, b?: RegExp): boolean {
+    if (a === b) return true;
+    if (!a || !b) return false;
+    return a.source === b.source && a.flags === b.flags;
+}
+
+function optionsEqual(a: Partial<SerializerOptions>, b: Partial<SerializerOptions>): boolean {
+    return (
+        a.tightLists === b.tightLists &&
+        a.strict === b.strict &&
+        a.escape === b.escape &&
+        a.hardBreakNodeName === b.hardBreakNodeName &&
+        regexpEqual(a.commonEscape, b.commonEscape) &&
+        regexpEqual(a.startOfLineEscape, b.startOfLineEscape) &&
+        regexpEqual(a.escapeExtraCharacters, b.escapeExtraCharacters)
+    );
+}
+
 const blankMark: SerializerMarkToken = {open: '', close: '', mixable: false};
 
 interface MarkMap {
@@ -45,6 +63,10 @@ export class MarkdownSerializer {
     private readonly nodes: NodeMap;
     private readonly marks: MarkMap;
     private readonly dynamicModifier?: MarkdownSerializerDynamicModifier;
+
+    private _lastNode: Node | null = null;
+    private _lastOptions: Partial<SerializerOptions> = {};
+    private _lastResult = '';
 
     // :: (Object<(state: MarkdownSerializerState, node: Node, parent: Node, index: number)>, Object)
     // Construct a serializer with the given configuration. The `nodes`
@@ -97,6 +119,15 @@ export class MarkdownSerializer {
     // Serialize the content of the given node to
     // [CommonMark](http://commonmark.org/).
     serialize(content: Node, options: Partial<SerializerOptions> = {}): string {
+        if (
+            this._lastNode === content &&
+            (this._lastOptions === options || optionsEqual(this._lastOptions, options))
+        ) {
+            return this._lastResult;
+        }
+
+        const savedOptions = {...options};
+
         const state = new MarkdownSerializerState(
             this.nodes,
             this.marks,
@@ -104,7 +135,18 @@ export class MarkdownSerializer {
             this.dynamicModifier,
         );
         state.renderContent(content);
+
+        this._lastNode = content;
+        this._lastOptions = savedOptions;
+        this._lastResult = state.out;
+
         return state.out;
+    }
+
+    clearCache(): void {
+        this._lastNode = null;
+        this._lastOptions = {};
+        this._lastResult = '';
     }
 
     // for tests (implements SerializerTests interface)
@@ -256,15 +298,13 @@ export class MarkdownSerializerState {
             } else {
                 callback(this, node, parent, index);
             }
-        } else {
-            if (this.options.strict !== false) {
+        } else if (this.options.strict !== false) {
                 throw new Error('Token type `' + node.type.name + '` not supported by Markdown renderer');
             } else if (!node.type.isLeaf) {
                 if (node.type.inlineContent) this.renderInline(node);
                 else this.renderContent(node);
                 if (node.isBlock) this.closeBlock(node);
             }
-        }
     }
 
     // :: (Node)
@@ -483,7 +523,7 @@ export class MarkdownSerializerState {
         for (;; index++) {
             if (index >= parent.childCount) return false;
             const next = parent.child(index);
-            if (!next.type.spec.isBreak) return !!mark.isInSet(next.marks);
+            if (!next.type.spec.isBreak) return Boolean(mark.isInSet(next.marks));
         }
     }
 

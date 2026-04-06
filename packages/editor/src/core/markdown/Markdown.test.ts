@@ -420,4 +420,93 @@ describe('markdown (fork-specific)', () => {
             );
         });
     });
+
+    describe('document-level cache', () => {
+        let renderContentCallCount: number;
+        const origRenderContent = MarkdownSerializerState.prototype.renderContent;
+
+        beforeEach(() => {
+            serializer.clearCache();
+            renderContentCallCount = 0;
+            MarkdownSerializerState.prototype.renderContent = function (parent) {
+                renderContentCallCount++;
+                return origRenderContent.call(this, parent);
+            };
+        });
+
+        afterEach(() => {
+            MarkdownSerializerState.prototype.renderContent = origRenderContent;
+            serializer.clearCache();
+        });
+
+        it('returns cached result for the same doc node', () => {
+            const document = doc(p('hello'));
+            const result1 = serializer.serialize(document);
+            renderContentCallCount = 0;
+            const result2 = serializer.serialize(document);
+            expect(result2).toBe('hello');
+            expect(result2).toBe(result1);
+            expect(renderContentCallCount).toBe(0);
+        });
+
+        it('re-serializes when doc node changes', () => {
+            const doc1 = doc(p('hello'));
+            const doc2 = doc(p('world'));
+            const result1 = serializer.serialize(doc1);
+            const result2 = serializer.serialize(doc2);
+            expect(result1).toBe('hello');
+            expect(result2).toBe('world');
+        });
+
+        it('cache hit when options objects differ by reference but equal by content', () => {
+            const document = doc(p('hello'));
+            serializer.serialize(document, {tightLists: true});
+            renderContentCallCount = 0;
+            const result = serializer.serialize(document, {tightLists: true});
+            expect(result).toBe('hello');
+            expect(renderContentCallCount).toBe(0);
+        });
+
+        it('cache miss when options actually differ', () => {
+            const document = doc(p('hello'));
+            serializer.serialize(document, {strict: true});
+            renderContentCallCount = 0;
+            serializer.serialize(document, {strict: false});
+            expect(renderContentCallCount).toBeGreaterThan(0);
+        });
+
+        it('cache hit when RegExp options are equal but different objects', () => {
+            const document = doc(p('hello'));
+            serializer.serialize(document, {commonEscape: /[abc]/g});
+            renderContentCallCount = 0;
+            serializer.serialize(document, {commonEscape: /[abc]/g});
+            expect(renderContentCallCount).toBe(0);
+        });
+
+        it('cache miss when RegExp options differ', () => {
+            const document = doc(p('hello'));
+            serializer.serialize(document, {commonEscape: /[abc]/g});
+            renderContentCallCount = 0;
+            serializer.serialize(document, {commonEscape: /[xyz]/g});
+            expect(renderContentCallCount).toBeGreaterThan(0);
+        });
+
+        it('clearCache forces re-serialization', () => {
+            const document = doc(p('hello'));
+            serializer.serialize(document);
+            serializer.clearCache();
+            renderContentCallCount = 0;
+            serializer.serialize(document);
+            expect(renderContentCallCount).toBeGreaterThan(0);
+        });
+
+        it('cache hit with same options reference (fast path)', () => {
+            const document = doc(p('hello'));
+            const opts = {tightLists: true, commonEscape: /test/g};
+            serializer.serialize(document, opts);
+            renderContentCallCount = 0;
+            serializer.serialize(document, opts);
+            expect(renderContentCallCount).toBe(0);
+        });
+    });
 });
