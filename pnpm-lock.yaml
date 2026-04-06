@@ -202,8 +202,8 @@ importers:
         specifier: 10.3.3
         version: 10.3.3(@types/react@18.0.28)(esbuild@0.27.3)(rollup@4.35.0)(storybook@10.3.3(@testing-library/dom@10.4.1)(prettier@3.7.4)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(vite@6.4.1(@types/node@24.10.9)(jiti@2.6.1)(sass@1.84.0)(terser@5.46.0)(yaml@2.8.2))(webpack@5.104.1(esbuild@0.27.3))
       '@storybook/addon-webpack5-compiler-babel':
-        specifier: 4.0.0
-        version: 4.0.0(webpack@5.104.1(esbuild@0.27.3))
+        specifier: 4.0.1
+        version: 4.0.1(webpack@5.104.1(esbuild@0.27.3))
       '@storybook/cli':
         specifier: 10.3.3
         version: 10.3.3(@babel/preset-env@7.28.5(@babel/core@7.28.5))(@testing-library/dom@10.4.1)(prettier@3.7.4)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -2648,8 +2648,8 @@ packages:
     peerDependencies:
       storybook: ^10.3.3
 
-  '@storybook/addon-webpack5-compiler-babel@4.0.0':
-    resolution: {integrity: sha512-dNcFCBPX1FO2TvUrAoDim8vekVVTivIAi5lo3lFF3BwDK29dNi0TF805XXWu+7LMauPq8sf51DQVSE3lrwCcnw==}
+  '@storybook/addon-webpack5-compiler-babel@4.0.1':
+    resolution: {integrity: sha512-1oTh6264hFGl40D5YCPhnpuirXeBSNo+7L8MZ4pKMLRLOsnK8CKC3Yp4L+tGySsJFsem8RXau8eZAQskf2Re/g==}
 
   '@storybook/builder-webpack5@10.3.3':
     resolution: {integrity: sha512-A7hop0VXG/06EZ7l2WIuhsrnpiV6NOOcOiVqjYDLplbVelkiiL98LTL+Om87u0n32sAfXWgFk2jIhSc3bbXlsQ==}
@@ -10585,7 +10585,7 @@ snapshots:
       - vite
       - webpack
 
-  '@storybook/addon-webpack5-compiler-babel@4.0.0(webpack@5.104.1(esbuild@0.27.3))':
+  '@storybook/addon-webpack5-compiler-babel@4.0.1(webpack@5.104.1(esbuild@0.27.3))':
     dependencies:
       '@babel/core': 7.28.5
       babel-loader: 10.0.0(@babel/core@7.28.5)(webpack@5.104.1(esbuild@0.27.3))
