@@ -35,7 +35,7 @@
     "markdown-it": "catalog:peers"
   },
   "devDependencies": {
-    "@babel/preset-env": "7.28.5",
+    "@babel/preset-env": "7.29.2",
     "@babel/preset-react": "7.28.5",
     "@babel/preset-typescript": "7.28.5",
     "@bem-react/classname": "^1.6.0",
