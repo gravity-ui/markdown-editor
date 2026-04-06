@@ -69,7 +69,7 @@
     "ts-dedent": "2.2.0",
     "typescript": "catalog:ts",
     "url": "0.11.4",
-    "webpack": "^5.97.1"
+    "webpack": "^5.105.4"
   },
   "nx": {
     "targets": {
