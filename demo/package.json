@@ -43,7 +43,7 @@
     "@playwright/experimental-ct-react": "1.52.0",
     "@playwright/test": "1.52.0",
     "@storybook/addon-docs": "10.3.3",
-    "@storybook/addon-webpack5-compiler-babel": "4.0.0",
+    "@storybook/addon-webpack5-compiler-babel": "4.0.1",
     "@storybook/cli": "10.3.3",
     "@storybook/preset-scss": "1.0.3",
     "@storybook/react": "10.3.3",
