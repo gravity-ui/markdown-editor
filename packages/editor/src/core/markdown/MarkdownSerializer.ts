@@ -3,6 +3,8 @@
 // prettier-ignore
 import type {Mark, Node} from "prosemirror-model";
 
+import {isEmptyString} from 'src/utils/nodes';
+
 import type {MarkdownSerializerDynamicModifier} from './MarkdownSerializerDynamicModifier';
 
 export interface SerializerNodeToken {
@@ -345,6 +347,14 @@ export class MarkdownSerializerState {
 
         parent.forEach((child, _, i) => {
             const prevClosedTypeName = this.closed ? this.closed.type.name : '';
+
+            // Don't cache empty nodes — their output may depend on siblings
+            // (e.g. empty paragraphs with preserveEmptyRows check isParentEmpty)
+            if (isEmptyString(child)) {
+                this.render(child, parent, i);
+                return;
+            }
+
             const cached = cache.get(child);
 
             if (cached && cached.prevClosedTypeName === prevClosedTypeName) {
