@@ -37,6 +37,12 @@ function regexpEqual(a?: RegExp, b?: RegExp): boolean {
     return a.source === b.source && a.flags === b.flags;
 }
 
+interface TopLevelNodeCacheEntry {
+    prevClosedTypeName: string;
+    output: string;
+    closed: 'node' | false;
+}
+
 function optionsEqual(a: Partial<SerializerOptions>, b: Partial<SerializerOptions>): boolean {
     return (
         a.tightLists === b.tightLists &&
@@ -67,6 +73,8 @@ export class MarkdownSerializer {
     private _lastNode: Node | null = null;
     private _lastOptions: Partial<SerializerOptions> = {};
     private _lastResult = '';
+    private _topLevelNodeCache = new WeakMap<Node, TopLevelNodeCacheEntry>();
+    private _topLevelNodeCacheOptions: Partial<SerializerOptions> = {};
 
     // :: (Object<(state: MarkdownSerializerState, node: Node, parent: Node, index: number)>, Object)
     // Construct a serializer with the given configuration. The `nodes`
@@ -128,13 +136,23 @@ export class MarkdownSerializer {
 
         const savedOptions = {...options};
 
+        // Invalidate top-level node cache when options change
+        if (
+            this._topLevelNodeCacheOptions !== options &&
+            !optionsEqual(this._topLevelNodeCacheOptions, options)
+        ) {
+            this._topLevelNodeCache = new WeakMap();
+            this._topLevelNodeCacheOptions = savedOptions;
+        }
+
         const state = new MarkdownSerializerState(
             this.nodes,
             this.marks,
             options,
             this.dynamicModifier,
+            this._topLevelNodeCache,
         );
-        state.renderContent(content);
+        state.renderTopLevelContent(content);
 
         this._lastNode = content;
         this._lastOptions = savedOptions;
@@ -147,6 +165,8 @@ export class MarkdownSerializer {
         this._lastNode = null;
         this._lastOptions = {};
         this._lastResult = '';
+        this._topLevelNodeCache = new WeakMap();
+        this._topLevelNodeCacheOptions = {};
     }
 
     // for tests (implements SerializerTests interface)
@@ -179,8 +199,9 @@ export class MarkdownSerializerState {
     private delim: string;
     private closed: Node | false;
     private readonly dynamicModifier?: MarkdownSerializerDynamicModifier;
+    private readonly topLevelNodeCache?: WeakMap<Node, TopLevelNodeCacheEntry>;
 
-    constructor(nodes: NodeMap, marks: MarkMap, options: Partial<SerializerOptions> = {}, dynamicModifier?: MarkdownSerializerDynamicModifier) {
+    constructor(nodes: NodeMap, marks: MarkMap, options: Partial<SerializerOptions> = {}, dynamicModifier?: MarkdownSerializerDynamicModifier, topLevelNodeCache?: WeakMap<Node, TopLevelNodeCacheEntry>) {
         this.nodes = nodes;
         this.marks = marks;
         this.delim = this.out = '';
@@ -198,6 +219,7 @@ export class MarkdownSerializerState {
         //   Defaults to false.
         this.options = options || {};
         this.dynamicModifier = dynamicModifier;
+        this.topLevelNodeCache = topLevelNodeCache;
         if (typeof this.options.tightLists === 'undefined') { this.options.tightLists = false }
     }
 
@@ -311,6 +333,31 @@ export class MarkdownSerializerState {
     // Render the contents of `parent` as block nodes.
     renderContent(parent: Node) {
         parent.forEach((node, _, i) => this.render(node, parent, i));
+    }
+
+    // Render top-level children of `parent` with per-node caching.
+    renderTopLevelContent(parent: Node) {
+        const cache = this.topLevelNodeCache;
+        if (!cache) {
+            this.renderContent(parent);
+            return;
+        }
+
+        parent.forEach((child, _, i) => {
+            const prevClosedTypeName = this.closed ? this.closed.type.name : '';
+            const cached = cache.get(child);
+
+            if (cached && cached.prevClosedTypeName === prevClosedTypeName) {
+                this.out += cached.output;
+                this.closed = cached.closed === 'node' ? child : false;
+            } else {
+                const outBefore = this.out;
+                this.render(child, parent, i);
+                const output = this.out.slice(outBefore.length);
+                const closed = this.closed ? 'node' as const : false;
+                cache.set(child, {prevClosedTypeName, output, closed});
+            }
+        });
     }
 
     // Render the contents of `parent` as inline content.
