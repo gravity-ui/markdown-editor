@@ -5,7 +5,7 @@ import {parseDOM} from '../../../../tests/parse-dom';
 import {createMarkupChecker} from '../../../../tests/sameMarkup';
 import {ExtensionsManager} from '../../../core';
 import {BaseNode, BaseSchemaSpecs} from '../../base/specs';
-import {BoldSpecs, boldMarkName, headingNodeName} from '../../markdown/specs';
+import {BoldSpecs, HeadingSpecs, boldMarkName, headingNodeName} from '../../markdown/specs';
 import {YfmConfigsSpecs} from '../specs';
 
 import {YfmHeadingAttr, YfmHeadingSpecs} from './YfmHeadingSpecs';
@@ -18,6 +18,7 @@ const {
     extensions: (builder) =>
         builder
             .use(BaseSchemaSpecs, {})
+            .use(HeadingSpecs, {})
             .use(YfmConfigsSpecs, {attrs: {allowedAttributes: ['id']}})
             .use(YfmHeadingSpecs, {})
             .use(BoldSpecs),
@@ -114,6 +115,7 @@ describe('Heading extension', () => {
                 builder
                     .use(BaseSchemaSpecs, {})
                     .use(BoldSpecs)
+                    .use(HeadingSpecs, {})
                     .use(YfmConfigsSpecs, {disableAttrs: true})
                     .use(YfmHeadingSpecs, {}),
         }).buildDeps();

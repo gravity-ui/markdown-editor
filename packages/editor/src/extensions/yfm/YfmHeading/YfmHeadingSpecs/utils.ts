@@ -1,5 +1,7 @@
 import type {TagParseRule} from 'prosemirror-model';
 
+import type {SerializerNodeToken} from '#core';
+
 import {type HeadingLevel, YfmHeadingAttr} from '../const';
 export {hasParentHeading, headingRule} from '../../../markdown/Heading/utils';
 export {headingType} from '../../../markdown/Heading/HeadingSpecs';
@@ -28,3 +30,18 @@ function getFoldingAttr(node: HTMLElement): boolean | null {
 //         lower: true,
 //         remove: /[*+~.()'"!:@]/g,
 //     });
+
+export const renderYfmHeadingMarkup: SerializerNodeToken = (state, node) => {
+    const folding = node.attrs[YfmHeadingAttr.Folding];
+    const level = node.attrs[YfmHeadingAttr.Level];
+
+    state.write(state.repeat('#', level) + (typeof folding === 'boolean' ? '+' : '') + ' ');
+};
+
+export const renderYfmHeadingAttributes: SerializerNodeToken = (state, node) => {
+    const anchor = node.attrs[YfmHeadingAttr.Id];
+
+    if (anchor /*&& anchor !== node.firstChild?.textContent*/) {
+        state.write(` {#${anchor}}`);
+    }
+};

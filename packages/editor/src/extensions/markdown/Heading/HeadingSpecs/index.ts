@@ -1,12 +1,11 @@
-import type {Node, NodeSpec} from 'prosemirror-model';
+import type {ExtensionAuto} from '#core';
+import type {Node, NodeSpec} from '#pm/model';
 
-import type {ExtensionAuto} from '../../../../core';
-import {nodeTypeFactory} from '../../../../utils/schema';
+import {headingLevelAttr, headingLineNumberAttr, headingNodeName} from './const';
+import {headingToMarkdown} from './utils';
 
-export const headingNodeName = 'heading';
-export const headingLevelAttr = 'level';
-export const headingLineNumberAttr = 'data-line';
-export const headingType = nodeTypeFactory(headingNodeName);
+export * from './const';
+export {headingToMarkdown} from './utils';
 
 const DEFAULT_PLACEHOLDER = (node: Node) => 'Heading ' + node.attrs[headingLevelAttr];
 
@@ -56,10 +55,6 @@ export const HeadingSpecs: ExtensionAuto<HeadingSpecsOptions> = (builder, opts) 
                 getAttrs: (tok) => ({[headingLevelAttr]: Number(tok.tag.slice(1))}),
             },
         },
-        toMd: (state, node) => {
-            state.write(state.repeat('#', node.attrs[headingLevelAttr]) + ' ');
-            state.renderInline(node);
-            state.closeBlock(node);
-        },
+        toMd: headingToMarkdown(),
     }));
 };

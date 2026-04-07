@@ -1,121 +1,97 @@
 import type {ExtensionAuto} from '#core';
-import type {Node, NodeSpec} from '#pm/model';
+import {
+    type HeadingSpecsOptions,
+    headingToMarkdown,
+} from 'src/extensions/markdown/Heading/HeadingSpecs';
 
 import {YfmHeadingAttr, headingNodeName} from './const';
 import {headingIdsPlugin} from './markdown/heading-ids';
-import {getNodeAttrs} from './utils';
-
-const DEFAULT_PLACEHOLDER = (node: Node) => 'Heading ' + node.attrs[YfmHeadingAttr.Level];
+import {getNodeAttrs, renderYfmHeadingAttributes, renderYfmHeadingMarkup} from './utils';
 
 export {YfmHeadingAttr} from './const';
+export {renderYfmHeadingAttributes, renderYfmHeadingMarkup} from './utils';
 
-export type YfmHeadingSpecsOptions = {
-    /**
-     * @deprecated: use placeholder option in BehaviorPreset instead.
-     */
-    headingPlaceholder?: NonNullable<NodeSpec['placeholder']>['content'];
-};
+export type YfmHeadingSpecsOptions = HeadingSpecsOptions & {};
 
 /** YfmHeading extension needs markdown-it-attrs plugin */
-export const YfmHeadingSpecs: ExtensionAuto<YfmHeadingSpecsOptions> = (builder, opts) => {
+export const YfmHeadingSpecs: ExtensionAuto<YfmHeadingSpecsOptions> = (builder, _opts) => {
     builder.configureMd((md) => md.use(headingIdsPlugin));
-    builder.addNode(headingNodeName, () => ({
-        spec: {
-            attrs: {
-                [YfmHeadingAttr.Id]: {default: ''},
-                [YfmHeadingAttr.Level]: {default: 1},
-                [YfmHeadingAttr.DataLine]: {default: null},
-                [YfmHeadingAttr.Folding]: {default: null},
-            },
-            content: '(text | inline)*',
-            group: 'block',
-            defining: true,
-            selectable: true,
-            parseDOM: [
-                {tag: 'h1', getAttrs: getNodeAttrs(1), priority: 100, consuming: true},
-                {tag: 'h2', getAttrs: getNodeAttrs(2), priority: 100, consuming: true},
-                {tag: 'h3', getAttrs: getNodeAttrs(3), priority: 100, consuming: true},
-                {tag: 'h4', getAttrs: getNodeAttrs(4), priority: 100, consuming: true},
-                {tag: 'h5', getAttrs: getNodeAttrs(5), priority: 100, consuming: true},
-                {tag: 'h6', getAttrs: getNodeAttrs(6), priority: 100, consuming: true},
-                {
-                    // ignore anchor link inside headings
-                    tag: 'a.yfm-anchor',
-                    context: `${headingNodeName}/`,
-                    skip: true,
-                    ignore: true,
-                    priority: 1000,
-                },
-            ],
-            toDOM(node) {
-                const id = node.attrs[YfmHeadingAttr.Id];
-                const lineNumber = node.attrs[YfmHeadingAttr.DataLine];
-                const folding = node.attrs[YfmHeadingAttr.Folding];
-                return [
-                    'h' + node.attrs[YfmHeadingAttr.Level],
-                    {
-                        id: id || null,
-                        [YfmHeadingAttr.DataLine]: lineNumber,
-                        [`data-${YfmHeadingAttr.Folding}`]: folding,
-                    },
-                    0,
-                    // [
-                    //     'a',
-                    //     {
-                    //         href: `#${node.attrs[YfmHeadingAttr.Id]}`,
-                    //         class: 'yfm-anchor',
-                    //         'aria-hidden': 'true',
-                    //         contenteditable: 'false',
-                    //     },
-                    // ],
-                    // ['span', 0],
-                ];
-            },
-            placeholder: {
-                content:
-                    builder.context.get('placeholder')?.heading ??
-                    opts.headingPlaceholder ??
-                    DEFAULT_PLACEHOLDER,
-                alwaysVisible: true,
-            },
-        },
-        fromMd: {
-            tokenSpec: {
-                name: headingNodeName,
-                type: 'block',
-                getAttrs: (token) => {
-                    if (token.type.endsWith('_close')) return {};
 
-                    const attrs = Object.fromEntries(token.attrs || []);
-                    // if (!attrs[YfmHeadingAttr.Id]) {
-                    //     // calculate id if it was not specified
-                    //     // tokens[index + 1] is child inline token
-                    //     attrs[YfmHeadingAttr.Id] = slugify(tokens[index + 1].content);
-                    // }
-
-                    // attrs have id only if it explicitly specified manually
-                    return {
-                        [YfmHeadingAttr.Level]: Number(token.tag.slice(1)),
-                        [YfmHeadingAttr.Folding]: token.meta?.folding === true ? true : null,
-                        ...attrs,
-                    };
-                },
-            },
+    builder.overrideNodeSpec(headingNodeName, (prev) => ({
+        ...prev,
+        attrs: {
+            ...prev.attrs,
+            [YfmHeadingAttr.Id]: {default: ''},
+            [YfmHeadingAttr.Folding]: {default: null},
         },
-        toMd: (state, node) => {
+        selectable: true,
+        parseDOM: [
+            {tag: 'h1', getAttrs: getNodeAttrs(1), priority: 100, consuming: true},
+            {tag: 'h2', getAttrs: getNodeAttrs(2), priority: 100, consuming: true},
+            {tag: 'h3', getAttrs: getNodeAttrs(3), priority: 100, consuming: true},
+            {tag: 'h4', getAttrs: getNodeAttrs(4), priority: 100, consuming: true},
+            {tag: 'h5', getAttrs: getNodeAttrs(5), priority: 100, consuming: true},
+            {tag: 'h6', getAttrs: getNodeAttrs(6), priority: 100, consuming: true},
+            {
+                // ignore anchor link inside headings
+                tag: 'a.yfm-anchor',
+                context: `${headingNodeName}/`,
+                skip: true,
+                ignore: true,
+                priority: 1000,
+            },
+        ],
+        toDOM(node) {
+            const id = node.attrs[YfmHeadingAttr.Id];
+            const lineNumber = node.attrs[YfmHeadingAttr.DataLine];
             const folding = node.attrs[YfmHeadingAttr.Folding];
-            const level = node.attrs[YfmHeadingAttr.Level];
-
-            state.write(state.repeat('#', level) + (typeof folding === 'boolean' ? '+' : '') + ' ');
-            state.renderInline(node);
-
-            const anchor = node.attrs[YfmHeadingAttr.Id];
-
-            if (anchor /*&& anchor !== node.firstChild?.textContent*/) {
-                state.write(` {#${anchor}}`);
-            }
-
-            state.closeBlock(node);
+            return [
+                'h' + node.attrs[YfmHeadingAttr.Level],
+                {
+                    id: id || null,
+                    [YfmHeadingAttr.DataLine]: lineNumber,
+                    [`data-${YfmHeadingAttr.Folding}`]: folding,
+                },
+                0,
+                // [
+                //     'a',
+                //     {
+                //         href: `#${node.attrs[YfmHeadingAttr.Id]}`,
+                //         class: 'yfm-anchor',
+                //         'aria-hidden': 'true',
+                //         contenteditable: 'false',
+                //     },
+                // ],
+                // ['span', 0],
+            ];
         },
     }));
+
+    builder.overrideMarkdownTokenParserSpec(headingNodeName, (prev) => ({
+        ...prev,
+        getAttrs: (token) => {
+            if (token.type.endsWith('_close')) return {};
+
+            const attrs = Object.fromEntries(token.attrs || []);
+            // if (!attrs[YfmHeadingAttr.Id]) {
+            //     // calculate id if it was not specified
+            //     // tokens[index + 1] is child inline token
+            //     attrs[YfmHeadingAttr.Id] = slugify(tokens[index + 1].content);
+            // }
+
+            // attrs have id only if it explicitly specified manually
+            return {
+                [YfmHeadingAttr.Level]: Number(token.tag.slice(1)),
+                [YfmHeadingAttr.Folding]: token.meta?.folding === true ? true : null,
+                ...attrs,
+            };
+        },
+    }));
+
+    builder.overrideNodeSerializerSpec(headingNodeName, () =>
+        headingToMarkdown({
+            renderMarkup: renderYfmHeadingMarkup,
+            renderAttributes: renderYfmHeadingAttributes,
+        }),
+    );
 };
