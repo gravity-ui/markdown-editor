@@ -26,7 +26,6 @@ export interface SerializerMarkToken {
 interface SerializerOptions {
     tightLists?: boolean;
     escapeExtraCharacters?: RegExp;
-    hardBreakNodeName?: string;
     strict?: boolean;
     commonEscape?: RegExp;
     startOfLineEscape?: RegExp;
@@ -50,7 +49,6 @@ function optionsEqual(a: Partial<SerializerOptions>, b: Partial<SerializerOption
         a.tightLists === b.tightLists &&
         a.strict === b.strict &&
         a.escape === b.escape &&
-        a.hardBreakNodeName === b.hardBreakNodeName &&
         regexpEqual(a.commonEscape, b.commonEscape) &&
         regexpEqual(a.startOfLineEscape, b.startOfLineEscape) &&
         regexpEqual(a.escapeExtraCharacters, b.escapeExtraCharacters)
@@ -76,7 +74,6 @@ export class MarkdownSerializer {
     private _lastOptions: Partial<SerializerOptions> = {};
     private _lastResult = '';
     private _topLevelNodeCache = new WeakMap<Node, TopLevelNodeCacheEntry>();
-    private _topLevelNodeCacheOptions: Partial<SerializerOptions> = {};
 
     // :: (Object<(state: MarkdownSerializerState, node: Node, parent: Node, index: number)>, Object)
     // Construct a serializer with the given configuration. The `nodes`
@@ -136,15 +133,9 @@ export class MarkdownSerializer {
             return this._lastResult;
         }
 
-        const savedOptions = {...options};
-
         // Invalidate top-level node cache when options change
-        if (
-            this._topLevelNodeCacheOptions !== options &&
-            !optionsEqual(this._topLevelNodeCacheOptions, options)
-        ) {
+        if (this._lastOptions !== options && !optionsEqual(this._lastOptions, options)) {
             this._topLevelNodeCache = new WeakMap();
-            this._topLevelNodeCacheOptions = savedOptions;
         }
 
         const state = new MarkdownSerializerState(
@@ -157,7 +148,7 @@ export class MarkdownSerializer {
         state.renderTopLevelContent(content);
 
         this._lastNode = content;
-        this._lastOptions = savedOptions;
+        this._lastOptions = options;
         this._lastResult = state.out;
 
         return state.out;
@@ -168,7 +159,6 @@ export class MarkdownSerializer {
         this._lastOptions = {};
         this._lastResult = '';
         this._topLevelNodeCache = new WeakMap();
-        this._topLevelNodeCacheOptions = {};
     }
 
     // for tests (implements SerializerTests interface)
@@ -219,7 +209,7 @@ export class MarkdownSerializerState {
         //   Whether to render lists in a tight style. This can be overridden
         //   on a node level by specifying a tight attribute on the node.
         //   Defaults to false.
-        this.options = options || {};
+        this.options = {...options};
         this.dynamicModifier = dynamicModifier;
         this.topLevelNodeCache = topLevelNodeCache;
         if (typeof this.options.tightLists === 'undefined') { this.options.tightLists = false }
