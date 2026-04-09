@@ -1,5 +1,17 @@
 # Changelog
 
+## [15.38.1](https://github.com/gravity-ui/markdown-editor/compare/markdown-editor-v15.38.0...markdown-editor-v15.38.1) (2026-04-09)
+
+
+### Bug Fixes
+
+* **YfmHtmlBlock:** deprecate local sanitize utils ([#1050](https://github.com/gravity-ui/markdown-editor/issues/1050)) ([61360f0](https://github.com/gravity-ui/markdown-editor/commit/61360f04a18b7917763b8ac817eb6f4c5d0ae831))
+
+
+### Performance Improvements
+
+* **core:** add document-level and block-level caching to pm→markdown serialization ([#1047](https://github.com/gravity-ui/markdown-editor/issues/1047)) ([8fe6fa7](https://github.com/gravity-ui/markdown-editor/commit/8fe6fa73630a10c125d852d325c24284624afa5c))
+
 ## [15.38.0](https://github.com/gravity-ui/markdown-editor/compare/markdown-editor-v15.37.0...markdown-editor-v15.38.0) (2026-04-07)
 
 
