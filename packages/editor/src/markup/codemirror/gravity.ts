@@ -58,6 +58,8 @@ export const gravityTheme = EditorView.baseTheme({
         borderRadius: '4px',
 
         '& > ul': {
+            fontFamily: 'var(--g-font-family-monospace, monospace)',
+
             '& > completion-section': {
                 color: 'var(--g-color-text-hint)',
                 fontWeight: 'var(--g-text-accent-font-weight)',
