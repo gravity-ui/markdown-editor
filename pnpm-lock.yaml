@@ -30,8 +30,8 @@ catalogs:
       version: 16.26.1
   peer-diplodoc:
     '@diplodoc/cut-extension':
-      specifier: ^1.1.0
-      version: 1.1.0
+      specifier: ^1.1.1
+      version: 1.1.1
     '@diplodoc/file-extension':
       specifier: ^0.2.1
       version: 0.2.1
@@ -136,7 +136,7 @@ importers:
     dependencies:
       '@diplodoc/cut-extension':
         specifier: catalog:peer-diplodoc
-        version: 1.1.0(@types/markdown-it@13.0.9)(markdown-it@13.0.2)(react@18.2.0)
+        version: 1.1.1(@types/markdown-it@13.0.9)(markdown-it@13.0.2)(react@18.2.0)
       '@diplodoc/file-extension':
         specifier: catalog:peer-diplodoc
         version: 0.2.1(@types/markdown-it@13.0.9)(markdown-it@13.0.2)
@@ -469,7 +469,7 @@ importers:
     devDependencies:
       '@diplodoc/cut-extension':
         specifier: catalog:peer-diplodoc
-        version: 1.1.0(@types/markdown-it@13.0.9)(markdown-it@13.0.2)(react@18.2.0)
+        version: 1.1.1(@types/markdown-it@13.0.9)(markdown-it@13.0.2)(react@18.2.0)
       '@diplodoc/file-extension':
         specifier: catalog:peer-diplodoc
         version: 0.2.1(@types/markdown-it@13.0.9)(markdown-it@13.0.2)
@@ -1492,9 +1492,6 @@ packages:
 
   '@diplodoc/color-extension@0.1.1':
     resolution: {integrity: sha512-213m29bWa5O/dcnYe9MxEqbfm9Cp3uMurRK20ICKahlXa6TZ52NTbcpCbFrOEWA0LcvQjAl0VKZ3eK+pVzRsZw==}
-
-  '@diplodoc/cut-extension@1.1.0':
-    resolution: {integrity: sha512-dgkcwtdABnJAygG3YtNetcZIRp2E/DMV03peNUlzFttGfDjgMg8MLT1XH4hKzqJeVCFooZ71FcwOuy1Idttbxg==}
 
   '@diplodoc/cut-extension@1.1.1':
     resolution: {integrity: sha512-+D7IPDrLg+ANhVusUA9t7n+sXpGzuoq9Lsr8BzgDBv8KWKD0DLGNfhspHKqi1prVVM8BZadmVR4BLsnTrV3zcA==}
@@ -9494,15 +9491,6 @@ snapshots:
       postcss-selector-parser: 7.1.1
 
   '@diplodoc/color-extension@0.1.1': {}
-
-  '@diplodoc/cut-extension@1.1.0(@types/markdown-it@13.0.9)(markdown-it@13.0.2)(react@18.2.0)':
-    dependencies:
-      '@diplodoc/directive': 0.3.3(@types/markdown-it@13.0.9)(markdown-it@13.0.2)
-      '@diplodoc/utils': 2.1.0(react@18.2.0)
-    transitivePeerDependencies:
-      - '@types/markdown-it'
-      - markdown-it
-      - react
 
   '@diplodoc/cut-extension@1.1.1(@types/markdown-it@13.0.9)(markdown-it@13.0.2)(react@18.2.0)':
     dependencies:
