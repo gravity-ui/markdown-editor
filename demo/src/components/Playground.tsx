@@ -1,7 +1,7 @@
 import {type CSSProperties, memo, useCallback, useEffect, useMemo, useState} from 'react';
 
 import type {EmbeddingMode} from '@diplodoc/html-extension';
-import {defaultOptions} from '@diplodoc/transform/lib/sanitize';
+import {htmlBlockDefaultSanitizer} from '@diplodoc/html-extension';
 import {
     type DirectiveSyntaxValue,
     type FileUploadHandler,
@@ -28,7 +28,6 @@ import {FoldingHeading} from '@gravity-ui/markdown-editor/extensions/additional/
 import {Math} from '@gravity-ui/markdown-editor/extensions/additional/Math/index.js';
 import {Mermaid} from '@gravity-ui/markdown-editor/extensions/additional/Mermaid/index.js';
 import {YfmHtmlBlock} from '@gravity-ui/markdown-editor/extensions/additional/YfmHtmlBlock/index.js';
-import {getSanitizeYfmHtmlBlock} from '@gravity-ui/markdown-editor/extensions/additional/YfmHtmlBlock/utils.js';
 import {Button, DropdownMenu} from '@gravity-ui/uikit';
 
 import {getPlugins} from '../defaults/md-plugins';
@@ -211,7 +210,7 @@ export const Playground = memo<PlaygroundProps>((props) => {
                         .use(FoldingHeading)
                         .use(YfmHtmlBlock, {
                             useConfig: useYfmHtmlBlockStyles,
-                            sanitize: getSanitizeYfmHtmlBlock({options: defaultOptions}),
+                            sanitize: htmlBlockDefaultSanitizer,
                             autoSave: {
                                 enabled:
                                     storyAdditionalControls?.yfmHtmlBlockAutoSaveEnabled ?? true,

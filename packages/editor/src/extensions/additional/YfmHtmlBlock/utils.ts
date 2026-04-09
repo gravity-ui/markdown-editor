@@ -1,8 +1,8 @@
+// MAJOR: delete this file, use `htmlBlockDefaultSanitizer` from `@diplodoc/html-extension`
 import type {SanitizeOptions} from '@diplodoc/transform/lib/sanitize.js';
 
 import {getSanitize} from 'src/utils/getSanitize';
 
-// MAJOR: use `import {sanitize} from '@diplodoc/transform/lib/sanitize.js'`
 const diplodocSanitize = getSanitize('YfmHtmlBlock');
 
 // yfmHtmlBlock additional css properties white list
@@ -88,6 +88,9 @@ const yfmHtmlBlockAllowedAttributes = {
     style: [],
 };
 
+/**
+ * @deprecated Use `htmlBlockDefaultSanitizer` from `@diplodoc/html-extension` instead.
+ */
 export const getYfmHtmlBlockOptions = (defaultOptions: SanitizeOptions): SanitizeOptions => {
     type AllowedAttributesType = Record<
         string,
@@ -112,10 +115,16 @@ export const getYfmHtmlBlockOptions = (defaultOptions: SanitizeOptions): Sanitiz
     };
 };
 
+/**
+ * @deprecated Use `htmlBlockDefaultSanitizer` from `@diplodoc/html-extension` instead.
+ */
 export interface GetSanitizeYfmHtmlBlockArgs {
     options: SanitizeOptions;
     sanitize?: (html: string, options?: SanitizeOptions) => string;
 }
+/**
+ * @deprecated Use `htmlBlockDefaultSanitizer` from `@diplodoc/html-extension` instead.
+ */
 export const getSanitizeYfmHtmlBlock =
     ({options, sanitize = diplodocSanitize}: GetSanitizeYfmHtmlBlockArgs) =>
     (content: string) =>
