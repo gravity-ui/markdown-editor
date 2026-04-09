@@ -5,13 +5,28 @@ import {EditorState, TextSelection} from 'prosemirror-state';
 import type {Parser} from '../core/types/parser';
 import {ParserFacet} from '../core/utils/parser';
 
-import {canApplyInlineMarkInMarkdown} from './marks';
+import {canApplyInlineMarkInMarkdown, selectionAllHasMarkWithAttr} from './marks';
 
 const schema = new Schema({
     nodes: {
         doc: {content: 'block+'},
         paragraph: {content: 'inline*', group: 'block'},
         text: {group: 'inline'},
+    },
+});
+
+// Schema with a color mark (parameterised, excludes itself)
+const colorSchema = new Schema({
+    nodes: {
+        doc: {content: 'block+'},
+        paragraph: {content: 'inline*', group: 'block', marks: '_'},
+        text: {group: 'inline'},
+    },
+    marks: {
+        color: {
+            attrs: {color: {}},
+            excludes: '_',
+        },
     },
 });
 
@@ -36,6 +51,87 @@ function canApply(text: string, from: number, to: number): boolean {
     const state = EditorState.create({doc, selection: sel, plugins: [parserPlugin]});
     return canApplyInlineMarkInMarkdown(state);
 }
+
+// ─── helpers for selectionAllHasMarkWithAttr tests ───────────────────────────
+
+const colorMark = colorSchema.marks.color;
+
+/**
+ * Build a state whose paragraph contains segments described by `parts`.
+ * Each part is either a plain string, or {text, color} for a colored segment.
+ * `from`/`to` are 0-based character indices inside the paragraph text.
+ */
+function makeColorState(
+    parts: Array<string | {text: string; color: string}>,
+    from: number,
+    to: number,
+): EditorState {
+    const nodes = parts.map((p) => {
+        if (typeof p === 'string') return colorSchema.text(p);
+        return colorSchema.text(p.text, [colorMark.create({color: p.color})]);
+    });
+    const doc = colorSchema.node('doc', null, [colorSchema.node('paragraph', null, nodes)]);
+    // PM positions: 0=before doc, 1=start of paragraph content
+    const sel = TextSelection.create(doc, from + 1, to + 1);
+    return EditorState.create({doc, selection: sel});
+}
+
+function allHasColor(
+    parts: Array<string | {text: string; color: string}>,
+    from: number,
+    to: number,
+    color: string,
+): boolean {
+    const state = makeColorState(parts, from, to);
+    return selectionAllHasMarkWithAttr(state, colorMark, 'color', color);
+}
+
+describe('selectionAllHasMarkWithAttr', () => {
+    it('returns true when entire selection has the exact color', () => {
+        // "ABC" all red — select all 3 chars
+        expect(allHasColor([{text: 'ABC', color: 'red'}], 0, 3, 'red')).toBe(true);
+    });
+
+    it('returns false when part of the selection has no color', () => {
+        // "AB" red, "C" plain — select all 3
+        expect(allHasColor([{text: 'AB', color: 'red'}, 'C'], 0, 3, 'red')).toBe(false);
+    });
+
+    it('returns false when part of the selection has a different color', () => {
+        // "AB" red, "C" blue — select all 3, check for red
+        expect(
+            allHasColor(
+                [
+                    {text: 'AB', color: 'red'},
+                    {text: 'C', color: 'blue'},
+                ],
+                0,
+                3,
+                'red',
+            ),
+        ).toBe(false);
+    });
+
+    it('returns false when checking a color that is not applied', () => {
+        // "ABC" all red — check for blue
+        expect(allHasColor([{text: 'ABC', color: 'red'}], 0, 3, 'blue')).toBe(false);
+    });
+
+    it('returns true when selection covers only a whitespace-only node (skipped)', () => {
+        // "   " plain spaces — whitespace-only nodes are skipped, so result is vacuously true
+        expect(allHasColor(['   '], 0, 3, 'red')).toBe(true);
+    });
+
+    it('returns true for sub-selection that is entirely colored', () => {
+        // "A" plain, "BCD" red, "E" plain — select chars 1–4 (BCD)
+        expect(allHasColor(['A', {text: 'BCD', color: 'red'}, 'E'], 1, 4, 'red')).toBe(true);
+    });
+
+    it('returns false for sub-selection that spans colored and plain', () => {
+        // "AB" plain, "CD" red — select chars 1–4 (BCD)
+        expect(allHasColor(['AB', {text: 'CD', color: 'red'}], 1, 4, 'red')).toBe(false);
+    });
+});
 
 describe('canApplyInlineMarkInMarkdown', () => {
     it('allows empty selection (cursor)', () => {

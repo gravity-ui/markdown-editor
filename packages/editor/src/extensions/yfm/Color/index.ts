@@ -1,11 +1,12 @@
 import {toggleMark} from 'prosemirror-commands';
+import {TextSelection} from 'prosemirror-state';
 
 import type {Action, ExtensionAuto} from '../../../core';
-import {isMarkActive} from '../../../utils/marks';
+import {selectionAllHasMarkWithAttr} from '../../../utils/marks';
 
 import {ColorSpecs, colorType} from './ColorSpecs';
 import {type Colors, colorAction, colorMarkName} from './const';
-import {chainAND, parseStyleColorValue, validateClassNameColorName} from './utils';
+import {parseStyleColorValue, validateClassNameColorName} from './utils';
 
 import './colors.scss';
 
@@ -25,29 +26,63 @@ export const Color: ExtensionAuto = (builder) => {
     builder.addAction(colorAction, ({schema}) => {
         const type = colorType(schema);
         return {
-            isActive: (state) => Boolean(isMarkActive(state, type)),
+            isActive: (state) =>
+                Boolean(type.isInSet(state.storedMarks ?? state.selection.$to.marks())),
             isEnable: toggleMark(type),
             run: (state, dispatch, _view, attrs) => {
                 const params = attrs as ColorActionParams | undefined;
-                const hasMark = isMarkActive(state, type);
+                const color = params?.[colorMarkName];
 
-                if (!params || !params[colorMarkName]) {
-                    if (!hasMark) return true;
+                if (dispatch) {
+                    const {empty, $cursor} = state.selection as TextSelection;
 
-                    // remove mark
-                    return toggleMark(type, params)(state, dispatch);
+                    if (empty && $cursor) {
+                        // cursor only — toggle stored marks
+                        const storedMark = type.isInSet(state.storedMarks ?? $cursor.marks());
+                        if (!color || storedMark?.attrs[colorMarkName] === color) {
+                            dispatch(state.tr.removeStoredMark(type));
+                        } else {
+                            dispatch(
+                                state.tr.addStoredMark(type.create({[colorMarkName]: color})),
+                            );
+                        }
+                        return true;
+                    }
+
+                    const tr = state.tr;
+                    if (!color) {
+                        // "default" / remove color: always strip
+                        state.selection.ranges.forEach(({$from, $to}) =>
+                            tr.removeMark($from.pos, $to.pos, type),
+                        );
+                    } else {
+                        const allSameColor = selectionAllHasMarkWithAttr(
+                            state,
+                            type,
+                            colorMarkName,
+                            color,
+                        );
+                        state.selection.ranges.forEach(({$from, $to}) => {
+                            if (allSameColor) {
+                                tr.removeMark($from.pos, $to.pos, type);
+                            } else {
+                                // addMark replaces any existing color mark (same type = mutually exclusive)
+                                tr.addMark(
+                                    $from.pos,
+                                    $to.pos,
+                                    type.create({[colorMarkName]: color}),
+                                );
+                            }
+                        });
+                    }
+                    dispatch(tr.scrollIntoView());
                 }
-
-                if (hasMark) {
-                    // remove old mark, then add new with new color
-                    return chainAND(toggleMark(type), toggleMark(type, params))(state, dispatch);
-                }
-
-                // add mark
-                return toggleMark(type, params)(state, dispatch);
+                return true;
             },
             meta(state): Colors {
-                return type.isInSet(state.selection.$to.marks())?.attrs[colorMarkName];
+                return type.isInSet(state.storedMarks ?? state.selection.$to.marks())?.attrs[
+                    colorMarkName
+                ];
             },
         };
     });

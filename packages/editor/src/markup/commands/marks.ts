@@ -1,6 +1,7 @@
-import {inlineWrapTo, toggleInlineMarkupFactory} from './helpers';
+import {toggleInlineMarkupFactory} from './helpers';
 
-export const colorify = (color: string) => inlineWrapTo(`{${color}}(`, ')');
+export const colorify = (color: string) =>
+    toggleInlineMarkupFactory({before: `{${color}}(`, after: ')'});
 
 export const toggleBold = toggleInlineMarkupFactory('**');
 export const toggleItalic = toggleInlineMarkupFactory('_');
