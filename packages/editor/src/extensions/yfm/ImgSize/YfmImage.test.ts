@@ -3,6 +3,7 @@ import {builders} from 'prosemirror-test-builder';
 import {createMarkupChecker} from '../../../../tests/sameMarkup';
 import {ExtensionsManager} from '../../../core';
 import {BaseNode, BaseSchema} from '../../base';
+import {ImageSpecs} from '../../markdown/Image/ImageSpecs';
 
 import {ImgSizeSpecs} from './ImgSizeSpecs';
 import {ImgSizeAttr, imageNodeName} from './const';
@@ -12,7 +13,7 @@ const {
     markupParser: parser,
     serializer,
 } = new ExtensionsManager({
-    extensions: (builder) => builder.use(BaseSchema, {}).use(ImgSizeSpecs, {}),
+    extensions: (builder) => builder.use(BaseSchema, {}).use(ImageSpecs).use(ImgSizeSpecs, {}),
 }).buildDeps();
 
 const {doc, p, img, img2, img3, img4} = builders<'doc' | 'p' | 'img' | 'img2' | 'img3' | 'img4'>(

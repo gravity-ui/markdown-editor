@@ -47,7 +47,6 @@ export type YfmSpecsPresetOptions = Omit<DefaultSpecsPresetOptions, 'heading' | 
 export const YfmSpecsPreset: ExtensionAuto<YfmSpecsPresetOptions> = (builder, opts) => {
     builder.use(DefaultSpecsPreset, {
         ...opts,
-        image: false,
         heading: opts.yfmHeading,
     } satisfies DefaultSpecsPresetOptions);
 
