@@ -3,6 +3,8 @@
 // prettier-ignore
 import type {Mark, Node} from "prosemirror-model";
 
+import {isEmptyString} from 'src/utils/nodes';
+
 import type {MarkdownSerializerDynamicModifier} from './MarkdownSerializerDynamicModifier';
 
 export interface SerializerNodeToken {
@@ -24,11 +26,33 @@ export interface SerializerMarkToken {
 interface SerializerOptions {
     tightLists?: boolean;
     escapeExtraCharacters?: RegExp;
-    hardBreakNodeName?: string;
     strict?: boolean;
     commonEscape?: RegExp;
     startOfLineEscape?: RegExp;
     escape?: boolean; // Added to fix types
+}
+
+function regexpEqual(a?: RegExp, b?: RegExp): boolean {
+    if (a === b) return true;
+    if (!a || !b) return false;
+    return a.source === b.source && a.flags === b.flags;
+}
+
+interface TopLevelNodeCacheEntry {
+    prevClosedTypeName: string;
+    output: string;
+    closed: 'node' | false;
+}
+
+function optionsEqual(a: Partial<SerializerOptions>, b: Partial<SerializerOptions>): boolean {
+    return (
+        a.tightLists === b.tightLists &&
+        a.strict === b.strict &&
+        a.escape === b.escape &&
+        regexpEqual(a.commonEscape, b.commonEscape) &&
+        regexpEqual(a.startOfLineEscape, b.startOfLineEscape) &&
+        regexpEqual(a.escapeExtraCharacters, b.escapeExtraCharacters)
+    );
 }
 
 const blankMark: SerializerMarkToken = {open: '', close: '', mixable: false};
@@ -45,6 +69,11 @@ export class MarkdownSerializer {
     private readonly nodes: NodeMap;
     private readonly marks: MarkMap;
     private readonly dynamicModifier?: MarkdownSerializerDynamicModifier;
+
+    private _lastNode: Node | null = null;
+    private _lastOptions: Partial<SerializerOptions> = {};
+    private _lastResult = '';
+    private _topLevelNodeCache = new WeakMap<Node, TopLevelNodeCacheEntry>();
 
     // :: (Object<(state: MarkdownSerializerState, node: Node, parent: Node, index: number)>, Object)
     // Construct a serializer with the given configuration. The `nodes`
@@ -97,14 +126,39 @@ export class MarkdownSerializer {
     // Serialize the content of the given node to
     // [CommonMark](http://commonmark.org/).
     serialize(content: Node, options: Partial<SerializerOptions> = {}): string {
+        if (
+            this._lastNode === content &&
+            (this._lastOptions === options || optionsEqual(this._lastOptions, options))
+        ) {
+            return this._lastResult;
+        }
+
+        // Invalidate top-level node cache when options change
+        if (this._lastOptions !== options && !optionsEqual(this._lastOptions, options)) {
+            this._topLevelNodeCache = new WeakMap();
+        }
+
         const state = new MarkdownSerializerState(
             this.nodes,
             this.marks,
             options,
             this.dynamicModifier,
+            this._topLevelNodeCache,
         );
-        state.renderContent(content);
+        state.renderTopLevelContent(content);
+
+        this._lastNode = content;
+        this._lastOptions = options;
+        this._lastResult = state.out;
+
         return state.out;
+    }
+
+    clearCache(): void {
+        this._lastNode = null;
+        this._lastOptions = {};
+        this._lastResult = '';
+        this._topLevelNodeCache = new WeakMap();
     }
 
     // for tests (implements SerializerTests interface)
@@ -137,8 +191,9 @@ export class MarkdownSerializerState {
     private delim: string;
     private closed: Node | false;
     private readonly dynamicModifier?: MarkdownSerializerDynamicModifier;
+    private readonly topLevelNodeCache?: WeakMap<Node, TopLevelNodeCacheEntry>;
 
-    constructor(nodes: NodeMap, marks: MarkMap, options: Partial<SerializerOptions> = {}, dynamicModifier?: MarkdownSerializerDynamicModifier) {
+    constructor(nodes: NodeMap, marks: MarkMap, options: Partial<SerializerOptions> = {}, dynamicModifier?: MarkdownSerializerDynamicModifier, topLevelNodeCache?: WeakMap<Node, TopLevelNodeCacheEntry>) {
         this.nodes = nodes;
         this.marks = marks;
         this.delim = this.out = '';
@@ -154,8 +209,9 @@ export class MarkdownSerializerState {
         //   Whether to render lists in a tight style. This can be overridden
         //   on a node level by specifying a tight attribute on the node.
         //   Defaults to false.
-        this.options = options || {};
+        this.options = {...options};
         this.dynamicModifier = dynamicModifier;
+        this.topLevelNodeCache = topLevelNodeCache;
         if (typeof this.options.tightLists === 'undefined') { this.options.tightLists = false }
     }
 
@@ -256,21 +312,52 @@ export class MarkdownSerializerState {
             } else {
                 callback(this, node, parent, index);
             }
-        } else {
-            if (this.options.strict !== false) {
+        } else if (this.options.strict !== false) {
                 throw new Error('Token type `' + node.type.name + '` not supported by Markdown renderer');
             } else if (!node.type.isLeaf) {
                 if (node.type.inlineContent) this.renderInline(node);
                 else this.renderContent(node);
                 if (node.isBlock) this.closeBlock(node);
             }
-        }
     }
 
     // :: (Node)
     // Render the contents of `parent` as block nodes.
     renderContent(parent: Node) {
         parent.forEach((node, _, i) => this.render(node, parent, i));
+    }
+
+    // Render top-level children of `parent` with per-node caching.
+    renderTopLevelContent(parent: Node) {
+        const cache = this.topLevelNodeCache;
+        if (!cache) {
+            this.renderContent(parent);
+            return;
+        }
+
+        parent.forEach((child, _, i) => {
+            const prevClosedTypeName = this.closed ? this.closed.type.name : '';
+
+            // Don't cache empty nodes — their output may depend on siblings
+            // (e.g. empty paragraphs with preserveEmptyRows check isParentEmpty)
+            if (isEmptyString(child)) {
+                this.render(child, parent, i);
+                return;
+            }
+
+            const cached = cache.get(child);
+
+            if (cached && cached.prevClosedTypeName === prevClosedTypeName) {
+                this.out += cached.output;
+                this.closed = cached.closed === 'node' ? child : false;
+            } else {
+                const outBefore = this.out;
+                this.render(child, parent, i);
+                const output = this.out.slice(outBefore.length);
+                const closed = this.closed ? 'node' as const : false;
+                cache.set(child, {prevClosedTypeName, output, closed});
+            }
+        });
     }
 
     // Render the contents of `parent` as inline content.
@@ -483,7 +570,7 @@ export class MarkdownSerializerState {
         for (;; index++) {
             if (index >= parent.childCount) return false;
             const next = parent.child(index);
-            if (!next.type.spec.isBreak) return !!mark.isInSet(next.marks);
+            if (!next.type.spec.isBreak) return Boolean(mark.isInSet(next.marks));
         }
     }
 
