@@ -39,8 +39,8 @@ catalogs:
       specifier: ^0.1.2
       version: 0.1.2
     '@diplodoc/html-extension':
-      specifier: ^2.9.1
-      version: 2.9.1
+      specifier: ^2.9.3
+      version: 2.9.3
     '@diplodoc/latex-extension':
       specifier: ^1.4.1
       version: 1.4.1
@@ -145,7 +145,7 @@ importers:
         version: 0.1.2
       '@diplodoc/html-extension':
         specifier: catalog:peer-diplodoc
-        version: 2.9.1(@diplodoc/transform@4.69.0(@types/markdown-it@13.0.9)(highlight.js@11.8.0)(react@18.2.0))(@types/markdown-it@13.0.9)(markdown-it@13.0.2)(react@18.2.0)
+        version: 2.9.3(@diplodoc/transform@4.69.0(@types/markdown-it@13.0.9)(highlight.js@11.8.0)(react@18.2.0))(@types/markdown-it@13.0.9)(markdown-it@13.0.2)(react@18.2.0)
       '@diplodoc/latex-extension':
         specifier: catalog:peer-diplodoc
         version: 1.4.1(katex@0.16.27)(markdown-it@13.0.2)(react@18.2.0)
@@ -202,8 +202,8 @@ importers:
         specifier: 10.3.3
         version: 10.3.3(@types/react@18.0.28)(esbuild@0.27.3)(rollup@4.35.0)(storybook@10.3.3(@testing-library/dom@10.4.1)(prettier@3.7.4)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(vite@6.4.1(@types/node@24.10.9)(jiti@2.6.1)(sass@1.84.0)(terser@5.46.0)(yaml@2.8.2))(webpack@5.104.1(esbuild@0.27.3))
       '@storybook/addon-webpack5-compiler-babel':
-        specifier: 4.0.0
-        version: 4.0.0(webpack@5.104.1(esbuild@0.27.3))
+        specifier: 4.0.1
+        version: 4.0.1(webpack@5.104.1(esbuild@0.27.3))
       '@storybook/cli':
         specifier: 10.3.3
         version: 10.3.3(@babel/preset-env@7.28.5(@babel/core@7.28.5))(@testing-library/dom@10.4.1)(prettier@3.7.4)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -392,8 +392,8 @@ importers:
         specifier: 2.0.2
         version: 2.0.2
       markdown-it-ins:
-        specifier: ^3.0.1
-        version: 3.0.1
+        specifier: ^4.0.0
+        version: 4.0.0
       markdown-it-mark:
         specifier: ^3.0.1
         version: 3.0.1
@@ -478,7 +478,7 @@ importers:
         version: 0.1.2
       '@diplodoc/html-extension':
         specifier: catalog:peer-diplodoc
-        version: 2.9.1(@diplodoc/transform@4.69.0(@types/markdown-it@13.0.9)(highlight.js@11.8.0)(react@18.2.0))(@types/markdown-it@13.0.9)(markdown-it@13.0.2)(react@18.2.0)
+        version: 2.9.3(@diplodoc/transform@4.69.0(@types/markdown-it@13.0.9)(highlight.js@11.8.0)(react@18.2.0))(@types/markdown-it@13.0.9)(markdown-it@13.0.2)(react@18.2.0)
       '@diplodoc/latex-extension':
         specifier: catalog:peer-diplodoc
         version: 1.4.1(katex@0.16.27)(markdown-it@13.0.2)(react@18.2.0)
@@ -1312,6 +1312,10 @@ packages:
     resolution: {integrity: sha512-05WQkdpL9COIMz4LjTxGpPNCdlpyimKppYNoJ5Di5EUObifl8t4tuLuUBBZEpoLYOmfvIWrsp9fCl0HoPRVTdA==}
     engines: {node: '>=6.9.0'}
 
+  '@babel/runtime@7.29.2':
+    resolution: {integrity: sha512-JiDShH45zKHWyGe4ZNVRrCjBz8Nh9TMmZG1kh4QTK8hCBTWBi8Da+i7s1fJw7/lYpM4ccepSNfqzZ/QvABBi5g==}
+    engines: {node: '>=6.9.0'}
+
   '@babel/template@7.27.2':
     resolution: {integrity: sha512-LPDZ85aEJyYSd18/DkjNh4/y1ntkE5KwUHWTiqgRxruuZL2F1yuHligVHLvcHY2vMHXttKFpJn6LwfI7cw7ODw==}
     engines: {node: '>=6.9.0'}
@@ -1512,8 +1516,9 @@ packages:
   '@diplodoc/folding-headings-extension@0.1.2':
     resolution: {integrity: sha512-EVY3tyCYAw2phQeGXQMwsAWoKfO0qDAzc04XezfSEXyTZAN2ZIbVp+0yyebdshwEowNH4pgB9TK+702WX7lTUQ==}
 
-  '@diplodoc/html-extension@2.9.1':
-    resolution: {integrity: sha512-BIeZJD/F/6BFKDBF7Oo0BkRUmv2n/r7O8RbPivWyIuVQlnsHfZzFuK//gfiM7nnXqEMjaIGSNmsNr5eeM2cCig==}
+  '@diplodoc/html-extension@2.9.3':
+    resolution: {integrity: sha512-rXnAUqzXUo+QEjqfhDgcLvf86PZbaZDtNpnVwSFHa38jg5hXjvLwan1d0f43kef2GunuPmbxLk3i/FJWGb+eyA==}
+    engines: {npm: '>=11.5.1'}
     peerDependencies:
       '@diplodoc/transform': ^4.0.0
       markdown-it: ^13.0.1
@@ -2648,8 +2653,8 @@ packages:
     peerDependencies:
       storybook: ^10.3.3
 
-  '@storybook/addon-webpack5-compiler-babel@4.0.0':
-    resolution: {integrity: sha512-dNcFCBPX1FO2TvUrAoDim8vekVVTivIAi5lo3lFF3BwDK29dNi0TF805XXWu+7LMauPq8sf51DQVSE3lrwCcnw==}
+  '@storybook/addon-webpack5-compiler-babel@4.0.1':
+    resolution: {integrity: sha512-1oTh6264hFGl40D5YCPhnpuirXeBSNo+7L8MZ4pKMLRLOsnK8CKC3Yp4L+tGySsJFsem8RXau8eZAQskf2Re/g==}
 
   '@storybook/builder-webpack5@10.3.3':
     resolution: {integrity: sha512-A7hop0VXG/06EZ7l2WIuhsrnpiV6NOOcOiVqjYDLplbVelkiiL98LTL+Om87u0n32sAfXWgFk2jIhSc3bbXlsQ==}
@@ -6252,8 +6257,8 @@ packages:
   markdown-it-emoji@2.0.2:
     resolution: {integrity: sha512-zLftSaNrKuYl0kR5zm4gxXjHaOI3FAOEaloKmRA5hijmJZvSjmxcokOLlzycb/HXlUFWzXqpIEoyEMCE4i9MvQ==}
 
-  markdown-it-ins@3.0.1:
-    resolution: {integrity: sha512-32SSfZqSzqyAmmQ4SHvhxbFqSzPDqsZgMHDwxqPzp+v+t8RsmqsBZRG+RfRQskJko9PfKC2/oxyOs4Yg/CfiRw==}
+  markdown-it-ins@4.0.0:
+    resolution: {integrity: sha512-sWbjK2DprrkINE4oYDhHdCijGT+MIDhEupjSHLXe5UXeVr5qmVxs/nTUVtgi0Oh/qtF+QKV0tNWDhQBEPxiMew==}
 
   markdown-it-mark@3.0.1:
     resolution: {integrity: sha512-HyxjAu6BRsdt6Xcv6TKVQnkz/E70TdGXEFHRYBGLncRE9lBFwDNLVtFojKxjJWgJ+5XxUwLaHXy+2sGBbDn+4A==}
@@ -9214,6 +9219,8 @@ snapshots:
 
   '@babel/runtime@7.28.6': {}
 
+  '@babel/runtime@7.29.2': {}
+
   '@babel/template@7.27.2':
     dependencies:
       '@babel/code-frame': 7.29.0
@@ -9529,7 +9536,7 @@ snapshots:
 
   '@diplodoc/folding-headings-extension@0.1.2': {}
 
-  '@diplodoc/html-extension@2.9.1(@diplodoc/transform@4.69.0(@types/markdown-it@13.0.9)(highlight.js@11.8.0)(react@18.2.0))(@types/markdown-it@13.0.9)(markdown-it@13.0.2)(react@18.2.0)':
+  '@diplodoc/html-extension@2.9.3(@diplodoc/transform@4.69.0(@types/markdown-it@13.0.9)(highlight.js@11.8.0)(react@18.2.0))(@types/markdown-it@13.0.9)(markdown-it@13.0.2)(react@18.2.0)':
     dependencies:
       '@diplodoc/directive': 0.3.3(@types/markdown-it@13.0.9)(markdown-it@13.0.2)
       markdown-it: 13.0.2
@@ -10585,7 +10592,7 @@ snapshots:
       - vite
       - webpack
 
-  '@storybook/addon-webpack5-compiler-babel@4.0.0(webpack@5.104.1(esbuild@0.27.3))':
+  '@storybook/addon-webpack5-compiler-babel@4.0.1(webpack@5.104.1(esbuild@0.27.3))':
     dependencies:
       '@babel/core': 7.28.5
       babel-loader: 10.0.0(@babel/core@7.28.5)(webpack@5.104.1(esbuild@0.27.3))
@@ -10784,7 +10791,7 @@ snapshots:
   '@testing-library/dom@10.4.1':
     dependencies:
       '@babel/code-frame': 7.29.0
-      '@babel/runtime': 7.28.6
+      '@babel/runtime': 7.29.2
       '@types/aria-query': 5.0.4
       aria-query: 5.3.0
       dom-accessibility-api: 0.5.16
@@ -15054,7 +15061,7 @@ snapshots:
 
   markdown-it-emoji@2.0.2: {}
 
-  markdown-it-ins@3.0.1: {}
+  markdown-it-ins@4.0.0: {}
 
   markdown-it-mark@3.0.1: {}
 

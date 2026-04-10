@@ -1,6 +1,6 @@
 {
   "name": "@gravity-ui/markdown-editor",
-  "version": "15.37.0",
+  "version": "15.38.1",
   "description": "Markdown wysiwyg and markup editor",
   "license": "MIT",
   "repository": {
@@ -185,7 +185,7 @@
     "lodash": "^4.17.21",
     "markdown-it-attrs": "^4.2.0",
     "markdown-it-emoji": "2.0.2",
-    "markdown-it-ins": "^3.0.1",
+    "markdown-it-ins": "^4.0.0",
     "markdown-it-mark": "^3.0.1",
     "markdown-it-sub": "^1.0.0",
     "orderedmap": "^2.1.1",
