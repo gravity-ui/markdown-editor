@@ -1,4 +1,4 @@
-import {type EditorState, Plugin, PluginKey, type Transaction} from '#pm/state';
+import {type EditorState, Plugin, type Transaction} from '#pm/state';
 import {findParentNode, findParentNodeClosestToPos, findSelectedNodeOfType} from '#pm/utils';
 import {Decoration, DecorationSet, type EditorView} from '#pm/view';
 import {throttle} from 'src/lodash';
@@ -13,20 +13,11 @@ import {
 import {yfmTableCellView} from '../nodeviews/yfm-table-cell-view';
 import {yfmTableView} from '../nodeviews/yfm-table-view';
 
-const pluginKey = new PluginKey<PluginState>('TableControlsPlugin');
+import {type HoverState, type PluginState, focusPluginKey as pluginKey} from './focus-plugin-key';
+
 const FOCUSED_CLASSNAME = 'yfm-table-focused';
 
 type Meta = {newState: HoverState} | undefined;
-type HoverState = null | {
-    rowIdx: number;
-    columnIdx: number;
-    tablePos: number;
-};
-type PluginState = {
-    hover: HoverState;
-    activeTablePos: number | null;
-    decorations: DecorationSet;
-};
 
 function shouldUpdateState(prev: HoverState, curr: HoverState): boolean {
     if (prev === null && curr === null) return false;
@@ -38,11 +29,6 @@ function shouldUpdateState(prev: HoverState, curr: HoverState): boolean {
     )
         return false;
     return true;
-}
-
-export function hideHoverDecos(tr: Transaction) {
-    const meta: Meta = {newState: null};
-    return tr.setMeta(pluginKey, meta);
 }
 
 export const yfmTableFocusPlugin = (opts: {dndEnabled: boolean}) => {
