@@ -1,5 +1,6 @@
 /* global require, __dirname -- Globals defined by Nodejs */
 
+const fs = require('node:fs');
 const path = require('node:path');
 
 const utils = require('@gravity-ui/gulp-utils');
@@ -46,7 +47,39 @@ gulp.task('scss', () => {
         .pipe(gulp.dest(BUILD_DIR));
 });
 
-gulp.task('build', gulp.parallel('ts', 'json', 'scss'));
+gulp.task('styles-string', (done) => {
+    // External CSS files imported directly from @diplodoc/* packages in TS source.
+    // These are not processed by the 'scss' task and would be missing from styles.css.
+    const externalCssPaths = [
+        require.resolve('@diplodoc/transform/dist/css/base.css'),
+        require.resolve('@diplodoc/transform/dist/css/_yfm-only.css'),
+        require.resolve('@diplodoc/cut-extension/runtime/styles.css'),
+        require.resolve('@diplodoc/file-extension/runtime/styles.css'),
+        require.resolve('@diplodoc/tabs-extension/runtime/styles.css'),
+        require.resolve('@diplodoc/quote-link-extension/runtime/styles.css'),
+        require.resolve('@diplodoc/folding-headings-extension/runtime/styles.css'),
+    ];
+
+    const externalCss = externalCssPaths.map((p) => fs.readFileSync(p, 'utf8')).join('\n');
+    const editorCss = fs.readFileSync(path.join(BUILD_DIR, 'styles.css'), 'utf8');
+    const css = externalCss + '\n' + editorCss;
+
+    const escaped = css.replace(/\\/g, '\\\\').replace(/`/g, '\\`').replace(/\$\{/g, '\\${');
+    const content = `\`${escaped}\``;
+
+    // Use .mjs extension: always treated as ESM regardless of package.json "type" field.
+    // A plain .js in the build root (which has no "type": "module") would cause
+    // SyntaxError: Unexpected token 'export' when required as CommonJS.
+    fs.writeFileSync(path.join(BUILD_DIR, 'styles-string.mjs'), `export default ${content};\n`);
+    fs.writeFileSync(path.join(BUILD_DIR, 'styles-string.cjs'), `module.exports = ${content};\n`);
+    fs.writeFileSync(
+        path.join(BUILD_DIR, 'styles-string.d.ts'),
+        `declare const styles: string;\nexport default styles;\n`,
+    );
+    done();
+});
+
+gulp.task('build', gulp.series(gulp.parallel('ts', 'json', 'scss'), 'styles-string'));
 
 gulp.task('default', gulp.series('clean', 'build'));
 

@@ -38,6 +38,20 @@ const esbuildOptions = {
     alias: ['fs', 'path', 'stream'].reduce((acc, name) => ({...acc, [name]: paths.aliases}), {}),
 };
 
+// Smoke test: verify styles-string export before esbuild bundling test
+const stylesStringCjs = require(path.join(__dirname, '../../build/styles-string.cjs'));
+if (typeof stylesStringCjs !== 'string' || stylesStringCjs.length === 0) {
+    throw new Error('styles-string CJS export is invalid: expected non-empty string');
+}
+const stylesStringMjs = fs.readFileSync(
+    path.join(__dirname, '../../build/styles-string.mjs'),
+    'utf8',
+);
+if (!stylesStringMjs.startsWith('export default `')) {
+    throw new Error('styles-string ESM file is invalid: expected "export default `..."');
+}
+console.log('styles-string smoke test: OK (length:', stylesStringCjs.length, ')');
+
 esbuild
     .build({...esbuildOptions, entryPoints: [paths.esbuildToTest]})
     .then(async () => {
