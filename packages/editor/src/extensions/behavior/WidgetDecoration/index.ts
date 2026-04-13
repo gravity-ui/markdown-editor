@@ -3,7 +3,7 @@ import type {ExtensionAuto} from '../../../core';
 import {WidgetDecorationPlugin} from './plugin';
 
 export {removeDecoration} from './actions';
-export {widgetDecorationPluginKey} from './plugin';
+export {widgetDecorationPluginKey} from './plugin-key';
 export {WidgetDescriptor} from './WidgetDescriptor';
 export {ReactWidgetDescriptor} from './ReactWidgetDescriptor';
 

@@ -1,6 +1,6 @@
 import type {Transaction} from 'prosemirror-state';
 
-import {widgetDecorationPluginKey} from './plugin';
+import {widgetDecorationPluginKey} from './plugin-key';
 import type {Meta} from './types';
 
 export const removeDecoration = (tr: Transaction, id: string) => {

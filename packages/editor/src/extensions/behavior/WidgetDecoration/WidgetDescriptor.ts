@@ -4,7 +4,7 @@ import type {EditorView} from 'prosemirror-view';
 import {uniqueId} from '../../../lodash';
 
 import {removeDecoration} from './actions';
-import {widgetDecorationPluginKey} from './plugin';
+import {widgetDecorationPluginKey} from './plugin-key';
 import type {Meta} from './types';
 
 export abstract class WidgetDescriptor {
