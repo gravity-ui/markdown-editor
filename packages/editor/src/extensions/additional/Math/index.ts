@@ -4,7 +4,8 @@ import {type Command, TextSelection} from 'prosemirror-state';
 import {hasParentNodeOfType} from 'prosemirror-utils';
 
 import type {Action, ExtensionAuto} from '../../../core';
-import {inlineNodeInputRule, textblockTypeInputRule} from '../../../utils/inputrules';
+import {inlineNodeInputRule} from '../../../utils/inputrules';
+import {textblockTypeInputRule} from '../../../utils/rulebuilders';
 import {isTextSelection} from '../../../utils/selection';
 
 import {MathSpecs} from './MathSpecs';
