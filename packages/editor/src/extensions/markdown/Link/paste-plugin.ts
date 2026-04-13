@@ -5,7 +5,7 @@ import {isNodeSelection, isTextSelection} from '../../../utils/selection';
 import {DataTransferType, isIosSafariShare} from '../../behavior/Clipboard/utils';
 import {imageType} from '../Image';
 
-import {LinkAttr, linkType} from './index';
+import {LinkAttr, linkType} from './LinkSpecs';
 
 export function linkPasteEnhance({markupParser: parser}: ExtensionDeps) {
     return new Plugin({
