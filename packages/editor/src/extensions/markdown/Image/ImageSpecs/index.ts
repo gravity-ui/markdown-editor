@@ -5,7 +5,7 @@ import {ImageAttr, imageNodeName} from './const';
 import {imageToMarkdown} from './utils';
 
 export {ImageAttr, imageNodeName} from './const';
-export {imageToMarkdown} from './utils';
+export {imageToMarkdown, type ImageToMarkdownParams} from './utils';
 
 export const imageType = nodeTypeFactory(imageNodeName);
 

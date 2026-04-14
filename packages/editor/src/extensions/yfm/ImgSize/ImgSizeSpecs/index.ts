@@ -3,12 +3,12 @@ import imsize from '@diplodoc/transform/lib/plugins/imsize/index.js';
 import isNumber from 'is-number';
 import type {NodeSpec} from 'prosemirror-model';
 
-import type {ExtensionAuto} from '../../../../core';
-import {imageToMarkdown} from '../../../markdown/Image/ImageSpecs';
-import {imageNodeName} from '../../../markdown/Image/const';
+import type {ExtensionAuto} from '#core';
 
-import {ImgSizeAttr} from './const';
-import {renderImgSizeExtra} from './utils';
+import {ImageSpecs} from '../../../markdown/Image/ImageSpecs';
+
+import {ImgSizeAttr, imageNodeName} from './const';
+import {imageToMarkdown, renderImgSizeExtra} from './utils';
 
 export {ImgSizeAttr};
 
@@ -21,6 +21,10 @@ export type ImgSizeSpecsOptions = {
 
 export const ImgSizeSpecs: ExtensionAuto<ImgSizeSpecsOptions> = (builder, opts) => {
     const placeholderContent = builder.context.get('placeholder')?.imgSize;
+
+    if (!builder.hasNodeSpec(imageNodeName)) {
+        builder.use(ImageSpecs);
+    }
 
     builder.configureMd((md) => md.use(imsize, {log, enableInlineStyling: true}));
 

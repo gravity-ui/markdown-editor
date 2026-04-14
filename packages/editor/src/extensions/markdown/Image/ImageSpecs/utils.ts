@@ -4,7 +4,7 @@ import type {SerializerNodeToken} from '#core';
 
 import {ImageAttr} from './const';
 
-type ImageToMarkdownParams = {
+export type ImageToMarkdownParams = {
     /** Extra content to append before the closing ')'. Receives state and node, returns string. */
     renderExtra?: (state: Parameters<SerializerNodeToken>[0], node: Node) => string;
 };
