@@ -3,7 +3,7 @@ import {builders} from 'prosemirror-test-builder';
 import {createMarkupChecker} from '../../../../../tests/sameMarkup';
 import {ExtensionsManager} from '../../../../core';
 import {BaseNode, BaseSchemaSpecs} from '../../../base/specs';
-import {HeadingSpecs, ItalicSpecs, headingNodeName, italicMarkName} from '../../../markdown/specs';
+import {ItalicSpecs, headingNodeName, italicMarkName} from '../../../markdown/specs';
 import {YfmHeadingAttr, YfmHeadingSpecs} from '../../../yfm/specs';
 
 import {FoldingHeadingSpecs} from './FoldingHeadingSpecs';
@@ -13,7 +13,6 @@ const {schema, markupParser, serializer} = new ExtensionsManager({
         builder
             .use(BaseSchemaSpecs, {})
             .use(ItalicSpecs)
-            .use(HeadingSpecs, {})
             .use(YfmHeadingSpecs, {})
             .use(FoldingHeadingSpecs),
 }).buildDeps();
