@@ -1073,4 +1073,133 @@ describe('ExtensionBuilder', () => {
             expect(em!.toMd).toEqual({open: '*', close: '*'});
         });
     });
+
+    describe('hasNodeSpec() and hasMarkSpec() helpers', () => {
+        it('should return true for registered node via addNode', () => {
+            const builder = new ExtensionBuilder(logger).addNode('node1', () => ({
+                spec: {},
+                fromMd: {tokenSpec: {type: 'block', name: 'node1'}},
+                toMd: () => {},
+            }));
+
+            expect(builder.hasNodeSpec('node1')).toBe(true);
+        });
+
+        it('should return true for registered node via addNodeSpec', () => {
+            const builder = new ExtensionBuilder(logger).addNodeSpec('myNode', () => ({
+                group: 'block',
+            }));
+
+            expect(builder.hasNodeSpec('myNode')).toBe(true);
+        });
+
+        it('should return false for unregistered node', () => {
+            const builder = new ExtensionBuilder(logger);
+
+            expect(builder.hasNodeSpec('unknown')).toBe(false);
+        });
+
+        it('should return false for unregistered node even after adding other nodes', () => {
+            const builder = new ExtensionBuilder(logger).addNode('node1', () => ({
+                spec: {},
+                fromMd: {tokenSpec: {type: 'block', name: 'node1'}},
+                toMd: () => {},
+            }));
+
+            expect(builder.hasNodeSpec('node2')).toBe(false);
+        });
+
+        it('should return true for registered mark via addMark', () => {
+            const builder = new ExtensionBuilder(logger).addMark('mark1', () => ({
+                spec: {},
+                fromMd: {tokenSpec: {type: 'mark', name: 'mark1'}},
+                toMd: {open: '', close: ''},
+            }));
+
+            expect(builder.hasMarkSpec('mark1')).toBe(true);
+        });
+
+        it('should return true for registered mark via addMarkSpec', () => {
+            const builder = new ExtensionBuilder(logger).addMarkSpec('myMark', () => ({
+                parseDOM: [{tag: 'em'}],
+                toDOM() {
+                    return ['em'];
+                },
+            }));
+
+            expect(builder.hasMarkSpec('myMark')).toBe(true);
+        });
+
+        it('should return false for unregistered mark', () => {
+            const builder = new ExtensionBuilder(logger);
+
+            expect(builder.hasMarkSpec('unknown')).toBe(false);
+        });
+
+        it('should return false for unregistered mark even after adding other marks', () => {
+            const builder = new ExtensionBuilder(logger).addMark('mark1', () => ({
+                spec: {},
+                fromMd: {tokenSpec: {type: 'mark', name: 'mark1'}},
+                toMd: {open: '', close: ''},
+            }));
+
+            expect(builder.hasMarkSpec('mark2')).toBe(false);
+        });
+
+        it('should allow checking before adding to avoid conflicts', () => {
+            const builder = new ExtensionBuilder(logger).addNode('node1', () => ({
+                spec: {},
+                fromMd: {tokenSpec: {type: 'block', name: 'node1'}},
+                toMd: () => {},
+            }));
+
+            if (!builder.hasNodeSpec('node1')) {
+                builder.addNode('node1', () => ({
+                    spec: {},
+                    fromMd: {tokenSpec: {type: 'block', name: 'node1'}},
+                    toMd: () => {},
+                }));
+            }
+
+            expect(builder.hasNodeSpec('node1')).toBe(true);
+        });
+
+        it('should work with mixed addNode and addNodeSpec', () => {
+            const builder = new ExtensionBuilder(logger)
+                .addNode('node1', () => ({
+                    spec: {},
+                    fromMd: {tokenSpec: {type: 'block', name: 'node1'}},
+                    toMd: () => {},
+                }))
+                .addNodeSpec('node2', () => ({group: 'block'}))
+                .addMarkdownTokenParserSpec('node2_token', () => ({
+                    name: 'node2',
+                    type: 'block',
+                }))
+                .addNodeSerializerSpec('node2', () => () => {});
+
+            expect(builder.hasNodeSpec('node1')).toBe(true);
+            expect(builder.hasNodeSpec('node2')).toBe(true);
+            expect(builder.hasNodeSpec('node3')).toBe(false);
+        });
+
+        it('should work with mixed addMark and addMarkSpec', () => {
+            const builder = new ExtensionBuilder(logger)
+                .addMark('mark1', () => ({
+                    spec: {},
+                    fromMd: {tokenSpec: {type: 'mark', name: 'mark1'}},
+                    toMd: {open: '', close: ''},
+                }))
+                .addMarkSpec('mark2', () => ({}))
+                .addMarkdownTokenParserSpec('mark2_token', () => ({
+                    name: 'mark2',
+                    type: 'mark',
+                }))
+                .addMarkSerializerSpec('mark2', () => ({open: '', close: ''}));
+
+            expect(builder.hasMarkSpec('mark1')).toBe(true);
+            expect(builder.hasMarkSpec('mark2')).toBe(true);
+            expect(builder.hasMarkSpec('mark3')).toBe(false);
+        });
+    });
 });

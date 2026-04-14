@@ -189,6 +189,14 @@ export class ExtensionBuilder {
         return this;
     }
 
+    hasNodeSpec(name: string): boolean {
+        return Boolean(this.#nodeSpecs[name]) || Boolean(this.#rawNodeSpecs[name]);
+    }
+
+    hasMarkSpec(name: string): boolean {
+        return Boolean(this.#markSpecs[name]) || Boolean(this.#rawMarkSpecs[name]);
+    }
+
     /**
      * @deprecated Will be removed in the next major version.
      * Use addNodeSpec() + addMarkdownTokenParserSpec() + addNodeSerializerSpec() instead.
