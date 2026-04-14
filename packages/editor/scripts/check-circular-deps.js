@@ -3,10 +3,14 @@ const process = require('process');
 
 const {parseDependencyTree, parseCircular, prettyCircular} = require('dpdm');
 
-const threshold = parseInt(process.argv[2], 10) || 99; // Default to 99 if no argument provided
+const threshold = process.argv[2] !== undefined ? parseInt(process.argv[2], 10) : 0;
+if (isNaN(threshold)) {
+    console.error(`Invalid threshold argument: "${process.argv[2]}"`);
+    process.exit(1);
+}
 
 parseDependencyTree('./src/index.ts', {
-    /* options, see https://github.com/acrazing/dpdm?tab=readme-ov-file#api-reference */
+    transform: true,
 }).then((tree) => {
     const circulars = parseCircular(tree);
     if (circulars.length > threshold) {
