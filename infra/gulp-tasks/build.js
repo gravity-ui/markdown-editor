@@ -6,7 +6,7 @@ import concat from 'gulp-concat';
 import replace from 'gulp-replace';
 import gulpSass from 'gulp-sass';
 import sourcemaps from 'gulp-sourcemaps';
-import rimraf from 'rimraf';
+import {rimraf} from 'rimraf';
 import * as jsSass from 'sass';
 
 const sass = gulpSass(jsSass);
@@ -29,7 +29,7 @@ export function registerBuildTasks({version, buildDir, nodeModulesDir}) {
     const BUILD_DIR_ESM = path.resolve(BUILD_DIR, 'esm');
     const NODE_MODULES_DIR = nodeModulesDir;
 
-    gulp.task('clean', (done) => rimraf(BUILD_DIR, done));
+    gulp.task('clean', () => rimraf(BUILD_DIR));
 
     gulp.task('ts-cjs', () => compileTS({module: Module.CJS, destPath: BUILD_DIR_CJS}));
     gulp.task('ts-esm', () => compileTS({module: Module.ESM, destPath: BUILD_DIR_ESM}));
