@@ -326,8 +326,8 @@ importers:
         specifier: 4.3.1
         version: 4.3.1(@types/eslint@9.6.1)(eslint@9.39.2(jiti@2.6.1))(prettier@3.7.4)(typescript@5.9.3)
       '@gravity-ui/prettier-config':
-        specifier: 1.1.0
-        version: 1.1.0(prettier@3.7.4)
+        specifier: 1.1.1
+        version: 1.1.1(prettier@3.7.4)
       '@gravity-ui/stylelint-config':
         specifier: 5.0.0
         version: 5.0.0(postcss@8.5.6)(prettier@3.7.4)(stylelint@16.26.1(typescript@5.9.3))
@@ -2137,8 +2137,8 @@ packages:
       react:
         optional: true
 
-  '@gravity-ui/prettier-config@1.1.0':
-    resolution: {integrity: sha512-Q97lMSOqdAf337qblkq06mLgK9OEEGglPAj8ncs3WnaZ2rBtOxtNsCIubv5U64TZkxaNPzxd7rDL24VIv1sxJg==}
+  '@gravity-ui/prettier-config@1.1.1':
+    resolution: {integrity: sha512-PfZOESiTrfTIzIwFtWcI6q7q1viqkTksn158r7HfwFPiQvhbOZNk4ULJu1Bble+NbdG6vccdKTJ+//X2lwoyrg==}
     peerDependencies:
       prettier: '*'
 
@@ -9874,7 +9874,7 @@ snapshots:
     optionalDependencies:
       react: 18.2.0
 
-  '@gravity-ui/prettier-config@1.1.0(prettier@3.7.4)':
+  '@gravity-ui/prettier-config@1.1.1(prettier@3.7.4)':
     dependencies:
       prettier: 3.7.4
 
