@@ -61,8 +61,8 @@ catalogs:
       version: 4.69.0
   peer-gravity:
     '@gravity-ui/components':
-      specifier: 4.10.0
-      version: 4.10.0
+      specifier: 4.19.0
+      version: 4.19.0
     '@gravity-ui/uikit':
       specifier: ^7.13.1
       version: 7.13.1
@@ -166,7 +166,7 @@ importers:
         version: 4.69.0(@types/markdown-it@13.0.9)(highlight.js@11.8.0)(react@18.2.0)
       '@gravity-ui/components':
         specifier: catalog:peer-gravity
-        version: 4.10.0(@gravity-ui/uikit@7.13.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+        version: 4.19.0(@gravity-ui/uikit@7.13.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@gravity-ui/markdown-editor':
         specifier: workspace:*
         version: link:../packages/editor
@@ -539,7 +539,7 @@ importers:
         version: 4.69.0(@types/markdown-it@13.0.9)(highlight.js@11.8.0)(react@18.2.0)
       '@gravity-ui/components':
         specifier: catalog:peer-gravity
-        version: 4.10.0(@gravity-ui/uikit@7.13.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+        version: 4.19.0(@gravity-ui/uikit@7.13.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@gravity-ui/uikit':
         specifier: catalog:peer-gravity
         version: 7.13.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -2100,10 +2100,10 @@ packages:
   '@floating-ui/utils@0.2.10':
     resolution: {integrity: sha512-aGTxbpbg8/b5JfU1HXSrbH3wXZuLPJcNEcZQFMxLs3oSzgtVu6nFPkbbGGUvBcUjKV2YyB9Wxxabo+HEH9tcRQ==}
 
-  '@gravity-ui/components@4.10.0':
-    resolution: {integrity: sha512-zt2chMT3cggAyK1ZweMfyR04PjxJKtHATssDENcKlACp6JBvqodznM/URlYIZQqbRmR/Uaid5VqkCCJ5yxKuDA==}
+  '@gravity-ui/components@4.19.0':
+    resolution: {integrity: sha512-O1S7DXLk+m01suAUxKdt42Pzhu2KMzenPYrM7qVKHs11HOOogoG2UdR+mzOFZAt5NiWHRPWVpnYS0WOLdM/HQA==}
     peerDependencies:
-      '@gravity-ui/uikit': ^7.0.0
+      '@gravity-ui/uikit': ^7.21.0
       react: ^16.14.0 || ^17.0.0 || ^18.0.0
       react-dom: ^16.14.0 || ^17.0.0 || ^18.0.0
 
@@ -9812,11 +9812,10 @@ snapshots:
 
   '@floating-ui/utils@0.2.10': {}
 
-  '@gravity-ui/components@4.10.0(@gravity-ui/uikit@7.13.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react-dom@18.2.0(react@18.2.0))(react@18.2.0)':
+  '@gravity-ui/components@4.19.0(@gravity-ui/uikit@7.13.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react-dom@18.2.0(react@18.2.0))(react@18.2.0)':
     dependencies:
       '@bem-react/classname': 1.6.0
       '@gravity-ui/date-utils': 2.5.6
-      '@gravity-ui/i18n': 1.8.0
       '@gravity-ui/icons': 2.13.0(react@18.2.0)
       '@gravity-ui/uikit': 7.13.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       lodash: 4.17.23
