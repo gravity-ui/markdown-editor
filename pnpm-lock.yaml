@@ -12,6 +12,9 @@ catalogs:
     '@types/node':
       specifier: ^24.10.4
       version: 24.10.9
+    gulp-cli:
+      specifier: 3.1.0
+      version: 3.1.0
     react-use:
       specifier: ^17.3.2
       version: 17.4.0
@@ -586,7 +589,7 @@ importers:
         specifier: 2.15.0
         version: 2.15.0(esbuild@0.21.5)
       gulp-cli:
-        specifier: 3.1.0
+        specifier: 'catalog:'
         version: 3.1.0
       highlight.js:
         specifier: catalog:peers
