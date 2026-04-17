@@ -100,13 +100,13 @@ describe('ExtensionBuilder', () => {
         const marksList: {name: string; spec: ExtensionMarkSpec}[] = [];
         marksOrderedMap.forEach((name, spec) => marksList.push({name, spec}));
         expect(marksList[0].name).toBe('mark0');
-        expect(marksList[0].spec === mark0).toBe(true);
+        expect(marksList[0].spec.spec).toBe(mark0.spec);
         expect(marksList[1].name).toBe('mark1');
-        expect(marksList[1].spec === mark1).toBe(true);
+        expect(marksList[1].spec.spec).toBe(mark1.spec);
         expect(marksList[2].name).toBe('mark2');
-        expect(marksList[2].spec === mark2).toBe(true);
+        expect(marksList[2].spec.spec).toBe(mark2.spec);
         expect(marksList[3].name).toBe('mark3');
-        expect(marksList[3].spec === mark3).toBe(true);
+        expect(marksList[3].spec.spec).toBe(mark3.spec);
     });
 
     it('should add plugins', () => {
@@ -732,6 +732,72 @@ describe('ExtensionBuilder', () => {
                 new ExtensionBuilder(logger).overrideMarkSerializerSpec('unknown', (prev) => prev),
             ).toThrow(/not registered/);
         });
+
+        it('should chain multiple parser overrides receiving previous result as prev', () => {
+            const nodes = new ExtensionBuilder(logger)
+                .addNodeSpec('myNode', () => ({}))
+                .addMarkdownTokenParserSpec('my_tok', () => ({
+                    name: 'myNode',
+                    type: 'block',
+                }))
+                .addNodeSerializerSpec('myNode', () => () => {})
+                .overrideMarkdownTokenParserSpec('my_tok', (prev) => ({
+                    ...prev,
+                    noCloseToken: true,
+                }))
+                .overrideMarkdownTokenParserSpec('my_tok', (prev) => {
+                    // Must see the previous override applied
+                    expect(prev.noCloseToken).toBe(true);
+                    return {...prev, ignore: true};
+                })
+                .build()
+                .nodes();
+
+            const myNode = nodes.get('myNode');
+            expect(myNode!.fromMd.tokenSpec.noCloseToken).toBe(true);
+            expect(myNode!.fromMd.tokenSpec.ignore).toBe(true);
+        });
+
+        it('should chain multiple serializer overrides receiving previous result as prev', () => {
+            const firstToMd = jest.fn();
+            const secondToMd = jest.fn();
+
+            const nodes = new ExtensionBuilder(logger)
+                .addNode('node', () => ({
+                    spec: {},
+                    fromMd: {tokenSpec: {type: 'block', name: 'node'}},
+                    toMd: () => {},
+                }))
+                .overrideNodeSerializerSpec('node', () => firstToMd)
+                .overrideNodeSerializerSpec('node', (prev) => {
+                    // Must see the previous override result
+                    expect(prev).toBe(firstToMd);
+                    return secondToMd;
+                })
+                .build()
+                .nodes();
+
+            expect(nodes.get('node')!.toMd).toBe(secondToMd);
+        });
+
+        it('should apply multiple overrideNodeSpec cascades in order', () => {
+            const nodes = new ExtensionBuilder(logger)
+                .addNodeSpec('myNode', () => ({group: 'block'}))
+                .addMarkdownTokenParserSpec('my_tok', () => ({name: 'myNode', type: 'block'}))
+                .addNodeSerializerSpec('myNode', () => () => {})
+                .overrideNodeSpec('myNode', (prev) => ({...prev, content: 'inline*'}))
+                .overrideNodeSpec('myNode', (prev) => {
+                    expect(prev.content).toBe('inline*');
+                    return {...prev, marks: ''};
+                })
+                .build()
+                .nodes();
+
+            const myNode = nodes.get('myNode');
+            expect(myNode!.spec.group).toBe('block');
+            expect(myNode!.spec.content).toBe('inline*');
+            expect(myNode!.spec.marks).toBe('');
+        });
     });
 
     describe('addNode/addMark conflict with granular methods', () => {
@@ -1200,6 +1266,125 @@ describe('ExtensionBuilder', () => {
             expect(builder.hasMarkSpec('mark1')).toBe(true);
             expect(builder.hasMarkSpec('mark2')).toBe(true);
             expect(builder.hasMarkSpec('mark3')).toBe(false);
+        });
+    });
+
+    describe('insertion order preservation across APIs', () => {
+        it('should preserve insertion order across addNode and addNodeSpec', () => {
+            const nodeNames: string[] = [];
+            new ExtensionBuilder(logger)
+                .addNode('a', () => ({
+                    spec: {},
+                    fromMd: {tokenSpec: {type: 'block', name: 'a'}},
+                    toMd: () => {},
+                }))
+                .addNodeSpec('b', () => ({group: 'block'}))
+                .addMarkdownTokenParserSpec('b_tok', () => ({name: 'b', type: 'block'}))
+                .addNodeSerializerSpec('b', () => () => {})
+                .addNode('c', () => ({
+                    spec: {},
+                    fromMd: {tokenSpec: {type: 'block', name: 'c'}},
+                    toMd: () => {},
+                }))
+                .build()
+                .nodes()
+                .forEach((name) => nodeNames.push(name));
+
+            expect(nodeNames).toEqual(['a', 'b', 'c']);
+        });
+
+        it('should preserve insertion order among marks with same explicit priority', () => {
+            const markNames: string[] = [];
+            new ExtensionBuilder(logger)
+                .addMark(
+                    'a',
+                    () => ({
+                        spec: {},
+                        fromMd: {tokenSpec: {type: 'mark', name: 'a'}},
+                        toMd: {open: '', close: ''},
+                    }),
+                    ExtensionBuilder.Priority.High,
+                )
+                .addMark(
+                    'b',
+                    () => ({
+                        spec: {},
+                        fromMd: {tokenSpec: {type: 'mark', name: 'b'}},
+                        toMd: {open: '', close: ''},
+                    }),
+                    ExtensionBuilder.Priority.High,
+                )
+                .addMark(
+                    'c',
+                    () => ({
+                        spec: {},
+                        fromMd: {tokenSpec: {type: 'mark', name: 'c'}},
+                        toMd: {open: '', close: ''},
+                    }),
+                    ExtensionBuilder.Priority.High,
+                )
+                .build()
+                .marks()
+                .forEach((name) => markNames.push(name));
+
+            expect(markNames).toEqual(['a', 'b', 'c']);
+        });
+
+        it('should inherit entity priority for extra parser-only mark entries', () => {
+            const markNames: string[] = [];
+            new ExtensionBuilder(logger)
+                .addMark(
+                    'lowPriority',
+                    () => ({
+                        spec: {},
+                        fromMd: {tokenSpec: {type: 'mark', name: 'lowPriority'}},
+                        toMd: {open: '', close: ''},
+                    }),
+                    ExtensionBuilder.Priority.Low,
+                )
+                .addMark(
+                    'highPriority',
+                    () => ({
+                        spec: {},
+                        fromMd: {tokenSpec: {type: 'mark', name: 'highPriority'}},
+                        toMd: {open: '', close: ''},
+                    }),
+                    ExtensionBuilder.Priority.High,
+                )
+                // Extra parser-only token targeting the high-priority mark
+                // must inherit its priority and sort before the low-priority mark.
+                .addMarkdownTokenParserSpec('high_extra', () => ({
+                    name: 'highPriority',
+                    type: 'mark',
+                }))
+                .build()
+                .marks()
+                .forEach((name) => markNames.push(name));
+
+            expect(markNames).toEqual(['highPriority', 'high_extra', 'lowPriority']);
+        });
+
+        it('should preserve insertion order across addMark and addMarkSpec with equal priority', () => {
+            const markNames: string[] = [];
+            new ExtensionBuilder(logger)
+                .addMark('a', () => ({
+                    spec: {},
+                    fromMd: {tokenSpec: {type: 'mark', name: 'a'}},
+                    toMd: {open: '', close: ''},
+                }))
+                .addMarkSpec('b', () => ({}))
+                .addMarkdownTokenParserSpec('b_tok', () => ({name: 'b', type: 'mark'}))
+                .addMarkSerializerSpec('b', () => ({open: '', close: ''}))
+                .addMark('c', () => ({
+                    spec: {},
+                    fromMd: {tokenSpec: {type: 'mark', name: 'c'}},
+                    toMd: {open: '', close: ''},
+                }))
+                .build()
+                .marks()
+                .forEach((name) => markNames.push(name));
+
+            expect(markNames).toEqual(['a', 'b', 'c']);
         });
     });
 });
