@@ -2,8 +2,8 @@ import type {Action, ExtensionAuto, Keymap} from '#core';
 import type {NodeType} from '#pm/model';
 import {hasParentNodeOfType} from '#pm/utils';
 import {isFunction} from 'src/lodash';
-import {textblockTypeInputRule} from 'src/utils/inputrules';
 import {withLogAction} from 'src/utils/keymap';
+import {textblockTypeInputRule} from 'src/utils/rulebuilders';
 
 import {CodeBlockHighlight, type HighlightLangMap} from './CodeBlockHighlight/CodeBlockHighlight';
 import {CodeBlockSpecs, type CodeBlockSpecsOptions} from './CodeBlockSpecs';
