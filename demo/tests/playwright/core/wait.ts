@@ -23,5 +23,11 @@ export const wait: PlaywrightFixture<WaitFixture> = async ({page}, use) => {
         timeout: async (delay = DEFAULT_DELAY) => {
             await page.waitForTimeout(delay);
         },
+        markupRendered: async () => {
+            await page.waitForFunction(() => {
+                const el = document.querySelector('.playground__markup');
+                return Boolean(el?.textContent?.trim());
+            });
+        },
     });
 };
