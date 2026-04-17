@@ -16,7 +16,7 @@ import {
 
 import {YfmTableNode} from '../../../YfmTableSpecs';
 import {clearAllSelections, selectDraggedColumn, selectDraggedRow} from '../plugins/dnd-plugin';
-import {hideHoverDecos} from '../plugins/focus-plugin';
+import {hideHoverDecos} from '../plugins/focus-plugin-key';
 import {getSelectedCellsForColumns, getSelectedCellsForRows} from '../utils';
 
 import {DnDAutoScroller} from './dnd-auto-scroll';
