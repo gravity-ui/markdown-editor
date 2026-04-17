@@ -23,8 +23,11 @@ test.describe('Extensions, YFM', () => {
         await mount(<YFMStories.YfmTabs />);
         await expectScreenshot();
     });
-    test('YFM HTML', async ({mount, expectScreenshot, wait}) => {
+    test('YFM HTML', async ({mount, expectScreenshot, page, wait}) => {
         await mount(<YFMStories.YfmHtmlBlock />);
+
+        // TODO: @makhnatkin Improve iframe height stabilization wait
+        await page.waitForTimeout(200);
         await wait.markupRendered();
         await expectScreenshot();
     });
