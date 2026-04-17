@@ -96,6 +96,7 @@ function resolveParserPipeline(
     const primaryParserToken = {...initialPrimaryTokens};
     const parsers = {...initialParsers};
     const extraTokenNames: string[] = [];
+    const overriddenTokens = new Set<string>();
 
     for (const entry of pipeline) {
         if (entry.type === 'addParserSpec') {
@@ -105,6 +106,13 @@ function resolveParserPipeline(
             if (primaryParserToken[entityName] === entry.tokenName) {
                 // Same-name token for addNode/addMark entity — skip, already covered
                 continue;
+            }
+
+            if (entry.tokenName in initialParsers) {
+                throw new Error(
+                    `Parser token "${entry.tokenName}" is already owned by an entity registered via addNode/addMark. ` +
+                        `Use overrideMarkdownTokenParserSpec() to modify it, or choose a different tokenName.`,
+                );
             }
 
             if (primaryParserToken[entityName]) {
@@ -123,26 +131,29 @@ function resolveParserPipeline(
                     tokenName: existing.tokenName,
                     tokenSpec: entry.cb(existing.tokenSpec),
                 };
+                overriddenTokens.add(entry.tokenName);
             }
         }
     }
 
-    return {parsers, primaryParserToken, extraTokenNames};
+    return {parsers, primaryParserToken, extraTokenNames, overriddenTokens};
 }
 
 function resolveSerializerPipeline<T>(
     pipeline: SerializerPipelineEntry<T>[],
     initialSerializers: Record<string, T>,
-): Record<string, T> {
+): {serializers: Record<string, T>; overriddenNames: Set<string>} {
     const serializers = {...initialSerializers};
+    const overriddenNames = new Set<string>();
     for (const entry of pipeline) {
         if (entry.type === 'addSerializer') {
             serializers[entry.name] = entry.cb();
         } else {
             serializers[entry.name] = entry.cb(serializers[entry.name]);
+            overriddenNames.add(entry.name);
         }
     }
-    return serializers;
+    return {serializers, overriddenNames};
 }
 
 function validateGranularSpecs(
@@ -200,6 +211,10 @@ function processEntityPipeline<EntitySpec extends ExtensionNodeSpec | ExtensionM
     const granularEntities = new Set<string>();
     const initPrimaryTokens: Record<string, string> = {};
     const priorityByEntity: Record<string, number> = {};
+    // Originals from addEntity — preserved as-is in assembly when no overrides were applied.
+    // This keeps reference identity (and any extra fields) for unmodified entries.
+    const originals: Record<string, EntitySpec> = {};
+    const modified = new Set<string>();
 
     // Pass 1: entityPipeline → specs, order, raw parsers/serializers from addEntity
     for (const entry of entityPipeline) {
@@ -215,6 +230,7 @@ function processEntityPipeline<EntitySpec extends ExtensionNodeSpec | ExtensionM
             priorityByEntity[name] = entry.priority;
             initSerializers[name] = base.toMd;
             views[name] = base.view;
+            originals[name] = base;
         } else if (entry.type === 'addEntitySpec') {
             order.push({name, priority: entry.priority});
             specs[name] = entry.cb();
@@ -223,11 +239,12 @@ function processEntityPipeline<EntitySpec extends ExtensionNodeSpec | ExtensionM
         } else {
             // overrideEntitySpec
             specs[name] = entry.cb(specs[name]);
+            modified.add(name);
         }
     }
 
     // Pass 2: parserPipeline → fill/override parsers, add extra parser-only entries
-    const {parsers, primaryParserToken, extraTokenNames} = resolveParserPipeline(
+    const {parsers, primaryParserToken, extraTokenNames, overriddenTokens} = resolveParserPipeline(
         parserPipeline,
         initPrimaryTokens,
         initParsers,
@@ -238,9 +255,21 @@ function processEntityPipeline<EntitySpec extends ExtensionNodeSpec | ExtensionM
         const priority = entityName ? (priorityByEntity[entityName] ?? 0) : 0;
         order.push({name: tokenName, priority});
     }
+    // Map primary-token overrides back to their owning addEntity names
+    for (const entityName of Object.keys(originals)) {
+        if (overriddenTokens.has(initPrimaryTokens[entityName])) {
+            modified.add(entityName);
+        }
+    }
 
     // Pass 3: serializerPipeline → fill/override serializers
-    const serializers = resolveSerializerPipeline(serializerPipeline, initSerializers);
+    const {serializers, overriddenNames: overriddenSerializers} = resolveSerializerPipeline(
+        serializerPipeline,
+        initSerializers,
+    );
+    for (const name of overriddenSerializers) {
+        modified.add(name);
+    }
 
     validateGranularSpecs(granularEntities, entityType, primaryParserToken, serializers);
 
@@ -253,6 +282,11 @@ function processEntityPipeline<EntitySpec extends ExtensionNodeSpec | ExtensionM
     // Assemble
     let map = OrderedMap.from<EntitySpec>({});
     for (const {name} of order) {
+        // Fast path: unmodified addEntity registrations keep their original object reference.
+        if (originals[name] && !modified.has(name)) {
+            map = map.addToEnd(name, originals[name]);
+            continue;
+        }
         const parserKey = primaryParserToken[name] ?? name;
         map = map.addToEnd(
             name,
