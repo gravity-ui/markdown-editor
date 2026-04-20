@@ -32,6 +32,10 @@ updates:
       - "demo"
       - "packages/*"
       - "infra/*"
+    groups:
+      commitlint:
+        patterns:
+          - "@commitlint/*"
     ignore:
       - dependency-name: "*"
         update-types:
