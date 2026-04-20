@@ -42,7 +42,7 @@ jobs:
           private-key: ${{ secrets.GRAVITY_UI_APP_PRIVATE_KEY }}
 
       - name: Create Comment
-        uses: marocchino/sticky-pull-request-comment@v2
+        uses: marocchino/sticky-pull-request-comment@v3
         with:
           GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
           header: preview
