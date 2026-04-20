@@ -62,4 +62,5 @@ export {
     FolderCode as HtmlBlockIcon,
     ArrowChevronRight as FoldingHeadingIcon,
     CircleLink as QuoteLinkIcon,
+    LayoutHeaderCursor as PageConstructorIcon,
 } from '@gravity-ui/icons';

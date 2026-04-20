@@ -28,6 +28,7 @@ import {
     MermaidIcon,
     MonoIcon,
     NoteIcon,
+    PageConstructorIcon,
     QuoteIcon,
     QuoteLinkIcon,
     RedoIcon,
@@ -83,6 +84,7 @@ type Icon =
     | 'tabs'
     | 'mermaid'
     | 'html'
+    | 'pageConstructor'
     | 'foldingHeading'
     | 'gpt';
 
@@ -142,6 +144,7 @@ export const icons: Icons = {
 
     tabs: {data: TabsIcon},
     mermaid: {data: MermaidIcon},
+    pageConstructor: {data: PageConstructorIcon},
 
     foldingHeading: {data: FoldingHeadingIcon},
 

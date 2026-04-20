@@ -5,6 +5,7 @@ import '@diplodoc/folding-headings-extension/runtime';
 import {transform as yfmHtmlBlock} from '@diplodoc/html-extension';
 import {transform as latex} from '@diplodoc/latex-extension';
 import {transform as mermaid} from '@diplodoc/mermaid-extension';
+import {transform as yfmPageConstructor} from '@diplodoc/page-constructor-extension';
 import {transform as yfmTabs} from '@diplodoc/tabs-extension';
 import anchors from '@diplodoc/transform/lib/plugins/anchors';
 import checkbox from '@diplodoc/transform/lib/plugins/checkbox';
@@ -80,6 +81,7 @@ export function getPlugins({
                 table_ignoreSplittersInInlineMath: options.table_ignoreSplittersInInlineMath,
             }),
     ];
+
     const extendedPlugins = defaultPlugins.concat(
         (md) => md.use(emoji, {defs: emojiDefs}),
         checkbox,
@@ -88,6 +90,7 @@ export function getPlugins({
         latex({bundle: false, validate: false, runtime: LATEX_RUNTIME}),
         mark,
         mermaid({bundle: false, runtime: MERMAID_RUNTIME}),
+        yfmPageConstructor({bundle: false}),
         sub,
         yfmHtmlBlock({
             bundle: false,

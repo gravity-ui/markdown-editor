@@ -38,6 +38,7 @@ const names = [
     'mathInline',
     'mermaid',
     'mono',
+    'pageConstructor',
     'orderedList',
     'paragraph',
     'quote',

@@ -26,11 +26,13 @@
     "@diplodoc/html-extension": "catalog:peer-diplodoc",
     "@diplodoc/latex-extension": "catalog:peer-diplodoc",
     "@diplodoc/mermaid-extension": "catalog:peer-diplodoc",
+    "@diplodoc/page-constructor-extension": "catalog:peer-diplodoc",
     "@diplodoc/quote-link-extension": "catalog:peer-diplodoc",
     "@diplodoc/tabs-extension": "catalog:peer-diplodoc",
     "@diplodoc/transform": "catalog:peer-diplodoc",
     "@gravity-ui/components": "catalog:peer-gravity",
     "@gravity-ui/markdown-editor": "workspace:*",
+    "@gravity-ui/markdown-editor-latex-extension": "workspace:*",
     "@gravity-ui/uikit": "catalog:peer-gravity",
     "markdown-it": "catalog:peers"
   },

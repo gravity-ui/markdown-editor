@@ -23,11 +23,12 @@ test.describe('Extensions, YFM', () => {
         await mount(<YFMStories.YfmTabs />);
         await expectScreenshot();
     });
-    test('YFM HTML', async ({mount, expectScreenshot, page}) => {
+    test('YFM HTML', async ({mount, expectScreenshot, page, wait}) => {
         await mount(<YFMStories.YfmHtmlBlock />);
 
         // TODO: @makhnatkin Improve iframe height stabilization wait
         await page.waitForTimeout(200);
+        await wait.markupRendered();
         await expectScreenshot();
     });
     test('YFM File', async ({mount, expectScreenshot}) => {
@@ -46,6 +47,12 @@ test.describe('Extensions, YFM', () => {
     });
     test('Mermaid diagram', async ({mount, expectScreenshot, wait}) => {
         await mount(<YFMStories.MermaidDiagram />);
+        await wait.loadersHidden();
+
+        await expectScreenshot();
+    });
+    test('YFM Page Constructor', async ({mount, expectScreenshot, wait}) => {
+        await mount(<YFMStories.YfmPageConstructor />);
         await wait.loadersHidden();
 
         await expectScreenshot();
