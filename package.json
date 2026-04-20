@@ -39,7 +39,7 @@
   },
   "dependencies": {},
   "devDependencies": {
-    "@commitlint/cli": "20.2.0",
+    "@commitlint/cli": "20.5.0",
     "@commitlint/config-conventional": "20.2.0",
     "@markdown-editor/linters": "workspace:*",
     "eslint": "catalog:linters",
