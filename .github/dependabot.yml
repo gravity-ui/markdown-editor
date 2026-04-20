@@ -15,6 +15,8 @@ updates:
     schedule:
       interval: weekly
       day: monday
+    commit-message:
+      prefix: "ci(github)"
 
   # npm — root
   - package-ecosystem: npm
