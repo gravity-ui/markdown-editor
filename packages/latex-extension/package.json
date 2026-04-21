@@ -1,6 +1,6 @@
 {
   "name": "@gravity-ui/markdown-editor-latex-extension",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Latex extension for @gravity-ui/markdown-editor",
   "license": "MIT",
   "repository": {
