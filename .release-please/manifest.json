@@ -1,3 +1,4 @@
 {
-  "packages/editor": "15.38.1"
+  "packages/editor": "15.38.1",
+  "packages/latex-extension": "0.0.0"
 }
