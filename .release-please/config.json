@@ -11,6 +11,7 @@
     {"type": "perf", "section": "Performance Improvements", "hidden": false}
   ],
   "packages": {
-    "packages/editor": {}
+    "packages/editor": {},
+    "packages/latex-extension": {}
   }
 }

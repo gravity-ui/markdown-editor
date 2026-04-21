@@ -5,10 +5,16 @@ import {nodeTypeFactory} from 'src/utils/schema';
 
 import {CLASSNAMES, MathNode, MathToken} from './const';
 
-export {MathNode} from './const';
+export {
+    /** @deprecated Use LatexNodeName from `@gravity-ui/markdown-editor-latex-extension` */
+    MathNode,
+};
+/** @deprecated Use LatexNodeType.Inline from `@gravity-ui/markdown-editor-latex-extension` */
 export const mathIType = nodeTypeFactory(MathNode.Inline);
+/** @deprecated Use LatexNodeType.Block from `@gravity-ui/markdown-editor-latex-extension` */
 export const mathBType = nodeTypeFactory(MathNode.Block);
 
+/** @deprecated Use LatexSpecsExtension from `@gravity-ui/markdown-editor-latex-extension` */
 export const MathSpecs: ExtensionAuto = (builder) => {
     builder.configureMd((md) => md.use(transform({bundle: false, validate: false}), {output: ''}));
 
