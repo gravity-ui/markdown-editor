@@ -24,7 +24,7 @@
     "lint:styles": "stylelint './**/*.{css,scss}' --allow-empty-input",
     "lint:prettier": "prettier --check './**/*.{js,jsx,mjs,ts,tsx,css,scss}'",
     "test": "exit 0",
-    "prepublishOnly": "pnpm run lint && pnpm run clean && pnpm run build"
+    "prepublishOnly": "nx lint && nx clean && nx build"
   },
   "exports": {
     ".": {
