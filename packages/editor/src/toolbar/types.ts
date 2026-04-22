@@ -120,6 +120,7 @@ export type ToolbarReactNodeData = {
     type: ToolbarDataType.ReactNode;
     width: number;
     content: React.ReactNode;
+    noRerenderOnUpdate?: boolean;
 };
 
 /**
@@ -130,4 +131,5 @@ export type ToolbarReactNodeFnData<E> = {
     type: ToolbarDataType.ReactNodeFn;
     width: number;
     content: (e: E) => React.ReactNode;
+    noRerenderOnUpdate?: boolean;
 };

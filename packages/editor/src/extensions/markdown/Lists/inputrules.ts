@@ -1,7 +1,7 @@
 import type {NodeType} from 'prosemirror-model';
 
 import type {ExtensionWithOptions} from '../../../core';
-import {wrappingInputRule} from '../../../utils/inputrules';
+import {wrappingInputRule} from '../../../utils/rulebuilders';
 
 import {ListsAttr} from './ListsSpecs';
 import {blType, olType} from './utils';

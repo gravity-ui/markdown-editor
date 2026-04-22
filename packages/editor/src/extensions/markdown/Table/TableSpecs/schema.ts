@@ -14,6 +14,7 @@ export const schemaSpecs: Record<TableNode, NodeSpec> = {
         },
         selectable: true,
         allowSelection: true,
+        selectAll: 'node',
         tableRole: TableRole.Table,
         complex: 'root',
     },

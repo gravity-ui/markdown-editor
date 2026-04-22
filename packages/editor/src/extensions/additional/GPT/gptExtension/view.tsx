@@ -10,13 +10,13 @@ import {useMount} from 'react-use';
 
 import {cn} from '../../../../classname';
 import type {Parser, Serializer} from '../../../../core';
-import {getReactRendererFromState} from '../../../behavior';
+import {getReactRendererFromState} from '../../../behavior/ReactRenderer';
 import type {CommonAnswer} from '../ErrorScreen/types';
 import type {GptDialogProps} from '../GptDialog/GptDialog';
 import {GptDialog} from '../GptDialog/GptDialog';
 import {WIDGET_DECO_CLASS_NAME, WIDGET_DECO_SPEC_FLAG, gptPopupPlacement} from '../constants';
 import type {GptWidgetMeta} from '../plugin';
-import {pluginKey} from '../plugin';
+import {pluginKey} from '../plugin-key';
 
 import './view.scss';
 

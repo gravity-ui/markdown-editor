@@ -1,96 +1,147 @@
-import {Fragment, type Node} from 'prosemirror-model';
-import {Plugin, TextSelection, type Transaction} from 'prosemirror-state';
+import {Fragment, type Node, type Schema} from 'prosemirror-model';
+import {Plugin, Selection, type Transaction} from 'prosemirror-state';
 // @ts-ignore // TODO: fix cjs build
-import {findChildren, hasParentNode} from 'prosemirror-utils';
+import {hasParentNode} from 'prosemirror-utils';
 
-import {getChildrenOfNode} from '../../../../utils';
 import {isListItemNode, isListNode, liType} from '../utils';
 
+const MAX_COLLAPSE_DEPTH = 100;
+
+/**
+ * Collapses redundant nested lists inside list items
+ *
+ * Converts structures where a list item starts with
+ * a nested list into a flat list structure
+ *
+ * IMPORTANT: must be registered AFTER MergeListsPlugin.
+ * Collapsing may create adjacent lists that require merging
+ */
 export const collapseListsPlugin = () =>
     new Plugin({
         appendTransaction(trs, oldState, newState) {
+            // early exit if document unchanged
             const docChanged = trs.some((tr) => tr.docChanged);
-            if (!docChanged) return null;
+            if (!docChanged) {
+                return null;
+            }
 
+            // early exit if not inside a list
             const hasParentList =
                 hasParentNode(isListNode)(newState.selection) ||
                 hasParentNode(isListNode)(oldState.selection);
-            if (!hasParentList) return null;
+            if (!hasParentList) {
+                return null;
+            }
 
             const {tr} = newState;
-            let prevStepsCount = -1;
-            let currentStepsCount = 0;
 
-            // execute until there are no nested lists.
-            while (prevStepsCount !== currentStepsCount) {
-                const listNodes = findChildren(tr.doc, isListNode, true);
-                prevStepsCount = currentStepsCount;
-                currentStepsCount = collapseEmptyListItems(tr, listNodes);
+            // collapse of redundant nested lists
+            const lastCollapsePos = collapseAllNestedListItems(tr);
+
+            // restore cursor position
+            if (lastCollapsePos !== null) {
+                const clampedPos = Math.min(lastCollapsePos, tr.doc.content.size);
+                tr.setSelection(Selection.near(tr.doc.resolve(clampedPos)));
             }
 
             return tr.docChanged ? tr : null;
         },
     });
 
-export function collapseEmptyListItems(
-    tr: Transaction,
-    nodes: ReturnType<typeof findChildren>,
-): number {
-    const stepsCountBefore = tr.steps.length;
-    // TODO: fix cjs build
-    nodes.reverse().forEach((list: {node: Node; pos: number}) => {
-        const listNode = list.node;
-        const listPos = list.pos;
-        const childrenOfList = getChildrenOfNode(listNode).reverse();
-
-        childrenOfList.forEach(({node: itemNode, offset}) => {
-            if (isListItemNode(itemNode)) {
-                const {firstChild} = itemNode;
-                const listItemNodePos = listPos + 1 + offset;
-
-                // if the first child of a list element is a list,
-                // then collapse is required
-                if (firstChild && isListNode(firstChild)) {
-                    const nestedList = firstChild.content;
-
-                    // nodes at the same level as the list
-                    const remainingNodes = itemNode.content.content.slice(1);
-
-                    const listItems = remainingNodes.length
-                        ? nestedList.append(
-                              Fragment.from(
-                                  liType(tr.doc.type.schema).create(null, remainingNodes),
-                              ),
-                          )
-                        : nestedList;
-
-                    const mappedStart = tr.mapping.map(listItemNodePos);
-                    const mappedEnd = tr.mapping.map(listItemNodePos + itemNode.nodeSize);
-
-                    tr.replaceWith(mappedStart, mappedEnd, listItems);
-
-                    const closestTextNodePos = findClosestTextNodePos(
-                        tr.doc,
-                        mappedStart + nestedList.size,
-                    );
-                    if (closestTextNodePos) {
-                        tr.setSelection(TextSelection.create(tr.doc, closestTextNodePos));
-                    }
-                }
-            }
-        });
-    });
-
-    return tr.steps.length - stepsCountBefore;
+interface Replacement {
+    from: number;
+    to: number;
+    content: Fragment;
 }
 
-function findClosestTextNodePos(doc: Node, pos: number): number | null {
-    while (pos < doc.content.size) {
-        const node = doc.nodeAt(pos);
-        if (node && node.isText) {
-            return pos;
+/**
+ * Finds list items with redundant nesting, collapses them recursively,
+ * and applies replacements in reverse document order
+ */
+export function collapseAllNestedListItems(tr: Transaction): number | null {
+    const replacements: Replacement[] = [];
+    const schema = tr.doc.type.schema;
+
+    // skipUntil prevents re-processing children that were already collapsed
+    // by the recursive call in collapseListItemContent
+    let skipUntil = -1;
+
+    tr.doc.descendants((node, pos) => {
+        if (pos < skipUntil || node.isTextblock) {
+            return false;
         }
-        pos++;
+
+        if (!isListItemNode(node)) {
+            return true;
+        }
+
+        const {firstChild} = node;
+        if (!firstChild || !isListNode(firstChild)) {
+            return true;
+        }
+
+        const collapsedContent = collapseListItemContent(node, schema, 0);
+        if (collapsedContent === null) {
+            return true;
+        }
+
+        replacements.push({
+            from: pos,
+            to: pos + node.nodeSize,
+            content: collapsedContent,
+        });
+        skipUntil = pos + node.nodeSize;
+
+        return false;
+    });
+
+    if (replacements.length === 0) {
+        return null;
     }
-    return null;
+
+    // apply from end to start so earlier positions stay valid
+    for (let i = replacements.length - 1; i >= 0; i--) {
+        const {from, to, content} = replacements[i];
+        tr.replaceWith(from, to, content);
+    }
+
+    // map the original end of the last replacement to its post-edit position
+    const last = replacements[replacements.length - 1];
+    return tr.mapping.map(last.to);
+}
+
+/**
+ * Recursively collapses a list item with redundant nesting
+ * into a Fragment of flat list items
+ *
+ * A redundantly nested list item has a list as its first child
+ * (instead of a paragraph)
+ */
+function collapseListItemContent(itemNode: Node, schema: Schema, depth: number): Fragment | null {
+    const {firstChild} = itemNode;
+    if (!firstChild || !isListNode(firstChild)) {
+        return null;
+    }
+    if (depth >= MAX_COLLAPSE_DEPTH) {
+        return null;
+    }
+
+    // .slice(1) = all children except firstChild
+    const remaining = itemNode.content.content.slice(1);
+
+    let result = Fragment.empty;
+    firstChild.forEach((child) => {
+        if (isListItemNode(child)) {
+            const collapsed = collapseListItemContent(child, schema, depth + 1);
+            result = result.append(collapsed ?? Fragment.from(child));
+        } else {
+            result = result.append(Fragment.from(child));
+        }
+    });
+
+    if (remaining.length) {
+        result = result.append(Fragment.from(liType(schema).create(null, remaining)));
+    }
+
+    return result;
 }

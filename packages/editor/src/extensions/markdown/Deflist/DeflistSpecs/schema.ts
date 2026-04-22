@@ -24,6 +24,7 @@ export const getSchemaSpecs = (
         },
         selectable: true,
         allowSelection: true,
+        selectAll: 'node',
         complex: 'root',
     },
 
@@ -65,6 +66,7 @@ export const getSchemaSpecs = (
         },
         selectable: false,
         allowSelection: false,
+        selectAll: 'node',
         complex: 'leaf',
     },
 });

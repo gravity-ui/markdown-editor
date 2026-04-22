@@ -14,39 +14,29 @@ concurrency:
 
 jobs:
   build:
-    name: Build static docs
+    name: Build docs
     runs-on: ubuntu-latest
     steps:
-      # Checkout repo sources.
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
-      # Minimal build: create a single static HTML file.
-      - name: Build docs (minimal)
-        run: |
-          mkdir -p docs-dist
-          cat > docs-dist/index.html <<'HTML'
-          <!doctype html>
-          <html lang="en">
-            <head>
-              <meta charset="utf-8" />
-              <meta name="viewport" content="width=device-width, initial-scale=1" />
-              <title>Markdown Editor Docs</title>
-            </head>
-            <body>
-              <h1>Markdown Editor Docs</h1>
-              <p>Deployed via GitHub Pages.</p>
-            </body>
-          </html>
-          HTML
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v5
 
-      # Configure GitHub Pages.
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version-file: '.nvmrc'
+          cache: pnpm
+
+      - name: Build HTML docs with Diplodoc CLI
+        run: pnpm run ci:docs:build
+
       - name: Configure Pages
-        uses: actions/configure-pages@v5
+        uses: actions/configure-pages@v6
 
-      # Upload the static site folder as an artifact for deployment.
       - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v4
+        uses: actions/upload-pages-artifact@v5
         with:
           path: ./docs-dist
 
@@ -56,10 +46,8 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: github-pages
-      # The deploy action outputs the final Pages URL here.
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      # Deploy the uploaded artifact to GitHub Pages.
       - name: Deploy
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5

@@ -1,5 +1,69 @@
 # Changelog
 
+## [15.38.1](https://github.com/gravity-ui/markdown-editor/compare/markdown-editor-v15.38.0...markdown-editor-v15.38.1) (2026-04-09)
+
+
+### Bug Fixes
+
+* **YfmHtmlBlock:** deprecate local sanitize utils ([#1050](https://github.com/gravity-ui/markdown-editor/issues/1050)) ([61360f0](https://github.com/gravity-ui/markdown-editor/commit/61360f04a18b7917763b8ac817eb6f4c5d0ae831))
+
+
+### Performance Improvements
+
+* **core:** add document-level and block-level caching to pm→markdown serialization ([#1047](https://github.com/gravity-ui/markdown-editor/issues/1047)) ([8fe6fa7](https://github.com/gravity-ui/markdown-editor/commit/8fe6fa73630a10c125d852d325c24284624afa5c))
+
+## [15.38.0](https://github.com/gravity-ui/markdown-editor/compare/markdown-editor-v15.37.0...markdown-editor-v15.38.0) (2026-04-07)
+
+
+### Features
+
+* **core:** allow independent registration and override of node/mark specs in extensions ([#990](https://github.com/gravity-ui/markdown-editor/issues/990)) ([e4b156c](https://github.com/gravity-ui/markdown-editor/commit/e4b156cc38394dd9548820e2b669d3d4c90bad2b))
+* **core:** backport 4 improvements to serializer from prosemirror-markdown upstream ([#1046](https://github.com/gravity-ui/markdown-editor/issues/1046)) ([aa6891b](https://github.com/gravity-ui/markdown-editor/commit/aa6891be59b63f137efa5cf4ffefac3bf1b3d3d3))
+* **deps:** bump markdown-it-ins to 4.0.0 ([#1040](https://github.com/gravity-ui/markdown-editor/issues/1040)) ([0f6b5bb](https://github.com/gravity-ui/markdown-editor/commit/0f6b5bb40a012aa80cf0bd443a8610d0073652e5))
+* **SelectionContext:** update selection context panel view ([#1044](https://github.com/gravity-ui/markdown-editor/issues/1044)) ([65b57bc](https://github.com/gravity-ui/markdown-editor/commit/65b57bcc7f562d04c340edd69a0f27741e310df3))
+
+
+### Bug Fixes
+
+* **core:** smarter underscore and exclamation mark escaping when serializing to markdown ([#1045](https://github.com/gravity-ui/markdown-editor/issues/1045)) ([69fcd72](https://github.com/gravity-ui/markdown-editor/commit/69fcd722a2ee0fa64e59d14b07e80d549d2ecddd))
+* **Lists:** improve nested list collapse for deep structures ([#1041](https://github.com/gravity-ui/markdown-editor/issues/1041)) ([6dca6ae](https://github.com/gravity-ui/markdown-editor/commit/6dca6ae116ee0e9632b3d27ec31c4f36951e52b6))
+
+
+### Refactoring
+
+* **CodeBlock:** replace addNode workaround with direct parser token registration ([#991](https://github.com/gravity-ui/markdown-editor/issues/991)) ([66c3c08](https://github.com/gravity-ui/markdown-editor/commit/66c3c089a70d1c1b3d7de5112c16eb96e79c7572))
+* **Heading,YfmHeading:** extend Heading base extension instead of replacing it entirely ([#1023](https://github.com/gravity-ui/markdown-editor/issues/1023)) ([b7f7d55](https://github.com/gravity-ui/markdown-editor/commit/b7f7d550fef3c444823c7af958126a9672cf44ae))
+
+
+### Performance Improvements
+
+* **SelectionContext:** reduce number of selection context tooltip re-renders ([#1037](https://github.com/gravity-ui/markdown-editor/issues/1037)) ([6372f3e](https://github.com/gravity-ui/markdown-editor/commit/6372f3efba782fa1aaeb2a4816b2fcba32397463))
+
+## [15.37.0](https://github.com/gravity-ui/markdown-editor/compare/markdown-editor-v15.36.0...markdown-editor-v15.37.0) (2026-03-27)
+
+
+### Features
+
+* **Selection:** add smart hierarchical "select-all" behavior ([#989](https://github.com/gravity-ui/markdown-editor/issues/989)) ([984428c](https://github.com/gravity-ui/markdown-editor/commit/984428cf41e84ef3737690a24aee415db44ba97d))
+
+
+### Bug Fixes
+
+* **Clipboard:** copying no longer includes unrelated ancestor nodes ([#1020](https://github.com/gravity-ui/markdown-editor/issues/1020)) ([da0544e](https://github.com/gravity-ui/markdown-editor/commit/da0544edd83871124bf4110e8233f168bb226bbb))
+* **CodeBlock:** fix styles of lang select in codeblock tooltip ([#1034](https://github.com/gravity-ui/markdown-editor/issues/1034)) ([58749fb](https://github.com/gravity-ui/markdown-editor/commit/58749fb2b107c9b4dccc67e7d8dea027d80fe9ef))
+* **YfmNote:** fix yfm-note tooltip view and active state ([#1031](https://github.com/gravity-ui/markdown-editor/issues/1031)) ([27d023d](https://github.com/gravity-ui/markdown-editor/commit/27d023d84f93e53c79ef93cec31aa4f2ebf1b9d5))
+
+
+### Refactoring
+
+* **CodeBlock:** store lowlight instance in separate plugin state ([#1033](https://github.com/gravity-ui/markdown-editor/issues/1033)) ([1dd60c6](https://github.com/gravity-ui/markdown-editor/commit/1dd60c67deb2046d7d68b39f77c4116d1d4570b1))
+
+
+### Performance Improvements
+
+* **CodeBlock:** reduce number of code block tooltip re-renders ([#1029](https://github.com/gravity-ui/markdown-editor/issues/1029)) ([de59564](https://github.com/gravity-ui/markdown-editor/commit/de5956479deb03aecc9067aebc33f298ecdaf0fb))
+* **YfmNote:** reduce number of yfm-note tooltip re-renders ([#1030](https://github.com/gravity-ui/markdown-editor/issues/1030)) ([cf56b15](https://github.com/gravity-ui/markdown-editor/commit/cf56b15497e4c9be4e921d826d6e918b7e557de9))
+
 ## [15.36.0](https://github.com/gravity-ui/markdown-editor/compare/markdown-editor-v15.35.1...markdown-editor-v15.36.0) (2026-03-17)
 
 

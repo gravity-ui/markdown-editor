@@ -124,44 +124,34 @@ export const CodeBlockSpecs: ExtensionAuto<CodeBlockSpecsOptions> = (builder, op
             state.closeBlock(node);
         },
     }));
-    builder.addNode('fence', () => ({
-        //  we adding this node only for define specific 'fence' parser token,
-        //  which parse fence md token to code_block node
-        spec: {},
-        fromMd: {
-            tokenSpec: {
-                name: codeBlockNodeName,
-                type: 'block',
-                noCloseToken: true,
-                getAttrs: (tok) => {
-                    const attrs: Record<string, string | null> = {
-                        [CodeBlockNodeAttr.Markup]: tok.markup,
-                        [CodeBlockNodeAttr.Line]: tok.attrGet('data-line'),
-                    };
-                    if (tok.info) {
-                        // like in markdown-it
-                        // https://github.com/markdown-it/markdown-it/blob/d07d585b6b15aaee2bc8f7a54b994526dad4dbc5/lib/renderer.mjs#L36-L37
-                        const parts = tok.info.split(/\s+/);
+    builder.addMarkdownTokenParserSpec('fence', () => ({
+        name: codeBlockNodeName,
+        type: 'block',
+        noCloseToken: true,
+        getAttrs: (tok) => {
+            const attrs: Record<string, string | null> = {
+                [CodeBlockNodeAttr.Markup]: tok.markup,
+                [CodeBlockNodeAttr.Line]: tok.attrGet('data-line'),
+            };
+            if (tok.info) {
+                // like in markdown-it
+                // https://github.com/markdown-it/markdown-it/blob/d07d585b6b15aaee2bc8f7a54b994526dad4dbc5/lib/renderer.mjs#L36-L37
+                const parts = tok.info.split(/\s+/);
 
-                        const isFirstPartForLineNumbers =
-                            opts.lineNumbers?.enabled && parts[0] === 'showLineNumbers';
+                const isFirstPartForLineNumbers =
+                    opts.lineNumbers?.enabled && parts[0] === 'showLineNumbers';
 
-                        attrs[CodeBlockNodeAttr.Lang] = isFirstPartForLineNumbers ? '' : parts[0];
-                    }
-                    if (opts.lineNumbers?.enabled && tok.info?.includes('showLineNumbers')) {
-                        attrs[CodeBlockNodeAttr.ShowLineNumbers] = 'true';
-                    } else {
-                        attrs[CodeBlockNodeAttr.ShowLineNumbers] = '';
-                    }
+                attrs[CodeBlockNodeAttr.Lang] = isFirstPartForLineNumbers ? '' : parts[0];
+            }
+            if (opts.lineNumbers?.enabled && tok.info?.includes('showLineNumbers')) {
+                attrs[CodeBlockNodeAttr.ShowLineNumbers] = 'true';
+            } else {
+                attrs[CodeBlockNodeAttr.ShowLineNumbers] = '';
+            }
 
-                    return attrs;
-                },
-                prepareContent: removeNewLineAtEnd, // content of fence blocks contains extra \n at the end
-            },
+            return attrs;
         },
-        toMd: () => {
-            throw new Error('Unexpected toMd() call on fence node');
-        },
+        prepareContent: removeNewLineAtEnd, // content of fence blocks contains extra \n at the end
     }));
     builder.addKeymap(() => ({
         Tab: (state, dispatch) => {

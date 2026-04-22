@@ -7,6 +7,7 @@ import {
     Underline,
     type UnderlineOptions,
 } from '../extensions/markdown';
+import {ImageSpecs} from '../extensions/markdown/Image/ImageSpecs';
 import {
     Checkbox,
     type CheckboxOptions,
@@ -47,7 +48,11 @@ export type YfmPresetOptions = Omit<DefaultPresetOptions, 'heading' | 'image'> &
 };
 
 export const YfmPreset: ExtensionAuto<YfmPresetOptions> = (builder, opts) => {
-    builder.use(DefaultPreset, {...opts, image: false, heading: false});
+    builder.use(DefaultPreset, {
+        ...opts,
+        image: ImageSpecs,
+        heading: opts.yfmHeading,
+    } satisfies DefaultPresetOptions);
 
     builder
         .use(Deflist, opts.deflist ?? {})

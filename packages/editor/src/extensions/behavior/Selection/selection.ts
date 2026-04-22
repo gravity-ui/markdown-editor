@@ -15,7 +15,7 @@ import {Decoration, DecorationSet, type EditorView} from 'prosemirror-view';
 import {isSelectableNode} from '../../../utils/nodes';
 import {isNodeSelection} from '../../../utils/selection';
 
-import {arrowDown, arrowLeft, arrowRight, arrowUp, backspace} from './commands';
+import {arrowDown, arrowLeft, arrowRight, arrowUp, backspace, selectAll} from './commands';
 
 import './selection.scss';
 
@@ -28,6 +28,7 @@ export const selection = () =>
                 ArrowUp: arrowUp,
                 ArrowDown: arrowDown,
                 Backspace: backspace,
+                'Mod-a': selectAll,
             }),
             decorations(state) {
                 return getDecorations(state.tr);
@@ -52,7 +53,22 @@ export const selection = () =>
 
 declare module 'prosemirror-model' {
     interface NodeSpec {
+        /**
+         * Whether clicking directly on this node creates a NodeSelection for it.
+         * Typically `true` for root complex nodes (tables, cuts, notes)
+         * and `false` for their inner parts and leaf elements.
+         */
         allowSelection?: boolean | undefined;
+        /**
+         * Controls how this node participates in hierarchical select-all (Cmd+A / Ctrl+A).
+         * Each press of select-all walks up the node tree and selects the nearest matching ancestor.
+         *
+         * - `'content'` — select the node's content (TextSelection over inner content range)
+         * - `'node'` — select the node itself (NodeSelection)
+         * - `false` — skip this node during select-all traversal
+         * - `undefined` — default: textblocks and code nodes select their content, others are skipped
+         */
+        selectAll?: false | 'node' | 'content' | undefined;
     }
 }
 

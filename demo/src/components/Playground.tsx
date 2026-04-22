@@ -1,7 +1,7 @@
 import {type CSSProperties, memo, useCallback, useEffect, useMemo, useState} from 'react';
 
 import type {EmbeddingMode} from '@diplodoc/html-extension';
-import {defaultOptions} from '@diplodoc/transform/lib/sanitize';
+import {htmlBlockDefaultSanitizer} from '@diplodoc/html-extension';
 import {
     type DirectiveSyntaxValue,
     type FileUploadHandler,
@@ -25,10 +25,13 @@ import type {SettingItems} from '@gravity-ui/markdown-editor/_/bundle/settings/i
 import type {CodeEditor} from '@gravity-ui/markdown-editor/_/markup/index.js';
 import type {Extension} from '@gravity-ui/markdown-editor/cm/state';
 import {FoldingHeading} from '@gravity-ui/markdown-editor/extensions/additional/FoldingHeading/index.js';
-import {Math} from '@gravity-ui/markdown-editor/extensions/additional/Math/index.js';
 import {Mermaid} from '@gravity-ui/markdown-editor/extensions/additional/Mermaid/index.js';
 import {YfmHtmlBlock} from '@gravity-ui/markdown-editor/extensions/additional/YfmHtmlBlock/index.js';
-import {getSanitizeYfmHtmlBlock} from '@gravity-ui/markdown-editor/extensions/additional/YfmHtmlBlock/utils.js';
+import {LatexExtension} from '@gravity-ui/markdown-editor-latex-extension';
+import {
+    wLatexBlockItemData,
+    wLatexInlineItemData,
+} from '@gravity-ui/markdown-editor-latex-extension/configs';
 import {Button, DropdownMenu} from '@gravity-ui/uikit';
 
 import {getPlugins} from '../defaults/md-plugins';
@@ -48,8 +51,8 @@ const fileUploadHandler: FileUploadHandler = async (file) => {
 };
 
 const wCommandMenuConfig = wysiwygToolbarConfigs.wCommandMenuConfig.concat(
-    wysiwygToolbarConfigs.wMathInlineItemData,
-    wysiwygToolbarConfigs.wMathBlockItemData,
+    wLatexInlineItemData,
+    wLatexBlockItemData,
     wysiwygToolbarConfigs.wMermaidItemData,
     wysiwygToolbarConfigs.wYfmHtmlBlockItemData,
 );
@@ -185,7 +188,7 @@ export const Playground = memo<PlaygroundProps>((props) => {
                 disableMarkdownAttrs: disableMarkdownItAttrs,
                 extensions: (builder) => {
                     builder
-                        .use(Math, {
+                        .use(LatexExtension, {
                             loadRuntimeScript: () => {
                                 import(
                                     /* webpackChunkName: "latex-runtime" */ '@diplodoc/latex-extension/runtime'
@@ -211,7 +214,7 @@ export const Playground = memo<PlaygroundProps>((props) => {
                         .use(FoldingHeading)
                         .use(YfmHtmlBlock, {
                             useConfig: useYfmHtmlBlockStyles,
-                            sanitize: getSanitizeYfmHtmlBlock({options: defaultOptions}),
+                            sanitize: htmlBlockDefaultSanitizer,
                             autoSave: {
                                 enabled:
                                     storyAdditionalControls?.yfmHtmlBlockAutoSaveEnabled ?? true,

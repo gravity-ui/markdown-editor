@@ -1,56 +1,23 @@
 import type {VirtualElement} from '@floating-ui/react';
-import {Popup, type PopupPlacement, type PopupProps} from '@gravity-ui/uikit';
-import type {EditorState} from 'prosemirror-state';
+import type {PopupPlacement, PopupProps} from '@gravity-ui/uikit';
 import type {EditorView} from 'prosemirror-view';
 
 import type {ActionStorage} from '../../../core';
-import {isFunction} from '../../../lodash';
 import {type Logger2, globalLogger} from '../../../logger';
 import {ErrorLoggerBoundary} from '../../../react-utils/ErrorBoundary';
-import {Toolbar} from '../../../toolbar';
-import type {
-    ToolbarButtonPopupData,
-    ToolbarGroupItemData,
-    ToolbarProps,
-    ToolbarSingleItemData,
-} from '../../../toolbar';
 import {type RendererItem, getReactRendererFromState} from '../ReactRenderer';
 
-type SelectionTooltipBaseProps = {
-    show?: boolean;
-    poppupProps: PopupProps;
-};
-type SelectionTooltipProps = SelectionTooltipBaseProps & ToolbarProps<ActionStorage>;
+import {TextSelectionTooltip} from './TextSelectionTooltip';
+import type {ContextConfig} from './types';
 
-const SelectionTooltip: React.FC<SelectionTooltipProps> = ({
-    show,
-    poppupProps,
-    ...toolbarProps
-}) => {
-    if (!show) return null;
-    return (
-        <Popup open {...poppupProps} style={{padding: '4px 8px'}}>
-            <Toolbar {...toolbarProps} />
-        </Popup>
-    );
-};
-
-export type ContextGroupItemData =
-    | (ToolbarGroupItemData<ActionStorage> & {
-          condition?: (state: EditorState) => void;
-      })
-    | ((ToolbarSingleItemData<ActionStorage> | ToolbarButtonPopupData<ActionStorage>) & {
-          condition?: 'enabled';
-      });
-
-export type ContextGroupData = ContextGroupItemData[];
-export type ContextConfig = ContextGroupData[];
+export type {ContextGroupItemData, ContextGroupData, ContextConfig} from './types';
 
 export type TooltipViewParams = {
     /** @default 'bottom' */
     placement?: 'top' | 'bottom';
     /** @default false */
     flip?: boolean;
+    onPopupOpenChange: PopupProps['onOpenChange'];
 };
 
 export class TooltipView {
@@ -60,9 +27,11 @@ export class TooltipView {
     private readonly actions: ActionStorage;
     private readonly menuConfig: ContextConfig;
     private readonly placement: PopupPlacement;
+    private readonly onPopupOpenChange: PopupProps['onOpenChange'];
 
     private view!: EditorView;
-    private baseProps: SelectionTooltipBaseProps = {show: false, poppupProps: {}};
+    private visible = false;
+    private anchor: PopupProps['anchorElement'] = undefined;
     private _tooltipRenderItem: RendererItem | null = null;
 
     constructor(
@@ -75,24 +44,20 @@ export class TooltipView {
         this.actions = actions;
         this.menuConfig = menuConfig;
 
-        const {flip, placement = 'bottom'} = params;
+        const {flip, placement = 'bottom', onPopupOpenChange} = params;
         this.placement = flip ? placement : [placement];
+        this.onPopupOpenChange = onPopupOpenChange;
     }
 
     get isTooltipOpen(): boolean {
         return this.#isTooltipOpen;
     }
 
-    show(view: EditorView, popupProps?: PopupProps) {
+    show(view: EditorView) {
         this.view = view;
         this.#isTooltipOpen = true;
-        this.baseProps = {
-            show: true,
-            poppupProps: {
-                ...popupProps,
-                ...this.calcPosition(view),
-            },
-        };
+        this.visible = true;
+        this.anchor ??= this.createVirtualElement(view);
         this.renderPopup();
     }
 
@@ -100,10 +65,11 @@ export class TooltipView {
         this.view = view;
 
         // do not rerender popup if it is already hidden
-        if (!this.#isTooltipOpen && !this.baseProps.show) return;
+        if (!this.#isTooltipOpen && !this.visible) return;
 
         this.#isTooltipOpen = false;
-        this.baseProps = {show: false, poppupProps: {}};
+        this.visible = false;
+        this.anchor = undefined;
         this.renderPopup();
     }
 
@@ -112,38 +78,11 @@ export class TooltipView {
         this._tooltipRenderItem = null;
     }
 
-    private getSelectionTooltipProps(): SelectionTooltipProps {
-        return {
-            ...this.baseProps,
-            qa: 'g-md-toolbar-selection',
-            focus: () => this.view.focus(),
-            data: this.getFilteredConfig(),
-            editor: this.actions,
-            onClick: (id) => {
-                globalLogger.action({mode: 'wysiwyg', source: 'context-menu', action: id});
-                this.logger.action({source: 'context-menu', action: id});
-            },
-        };
-    }
-
-    private getFilteredConfig(): ContextConfig {
-        return this.baseProps.show
-            ? this.menuConfig
-                  .map((groupData) =>
-                      groupData.filter((item) => {
-                          const {condition} = item;
-                          if (condition === 'enabled') {
-                              return item.isEnable(this.actions);
-                          }
-                          if (isFunction(condition)) {
-                              return condition(this.view.state);
-                          }
-                          return true;
-                      }),
-                  )
-                  .filter((groupData) => Boolean(groupData.length))
-            : [];
-    }
+    private readonly handleFocus = () => this.view.focus();
+    private readonly handleClick = (id: string) => {
+        globalLogger.action({mode: 'wysiwyg', source: 'context-menu', action: id});
+        this.logger.action({source: 'context-menu', action: id});
+    };
 
     private renderPopup() {
         this.tooltipRenderItem.rerender();
@@ -152,17 +91,29 @@ export class TooltipView {
     private get tooltipRenderItem() {
         if (!this._tooltipRenderItem) {
             const reactRenderer = getReactRendererFromState(this.view.state);
-            this._tooltipRenderItem = reactRenderer.createItem('selection_context', () => (
-                <ErrorLoggerBoundary>
-                    <SelectionTooltip {...this.getSelectionTooltipProps()} />
-                </ErrorLoggerBoundary>
-            ));
+            this._tooltipRenderItem = reactRenderer.createItem('selection_context', () => {
+                if (!this.visible) return null;
+                return (
+                    <ErrorLoggerBoundary>
+                        <TextSelectionTooltip
+                            config={this.menuConfig}
+                            editor={this.actions}
+                            editorView={this.view}
+                            focus={this.handleFocus}
+                            onClick={this.handleClick}
+                            popupPlacement={this.placement}
+                            popupAnchor={this.anchor}
+                            popupOnOpenChange={this.onPopupOpenChange}
+                        />
+                    </ErrorLoggerBoundary>
+                );
+            });
         }
         return this._tooltipRenderItem;
     }
 
-    private calcPosition(view: EditorView): PopupProps {
-        const virtualElem: VirtualElement = {
+    private createVirtualElement(view: EditorView): VirtualElement {
+        return {
             getBoundingClientRect() {
                 // These are in screen coordinates
                 const start = view.coordsAtPos(view.state.selection.from);
@@ -187,11 +138,6 @@ export class TooltipView {
                     width,
                 };
             },
-        };
-
-        return {
-            placement: this.placement,
-            anchorElement: virtualElem,
         };
     }
 }

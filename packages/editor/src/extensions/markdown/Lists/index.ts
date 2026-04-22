@@ -50,8 +50,8 @@ export const Lists: ExtensionAuto<ListsOptions> = (builder, opts) => {
 
     builder.use(ListsInputRulesExtension, {bulletListInputRule: opts?.ulInputRules});
 
+    // Order matters: merge must run before collapse (see CollapseListsPlugin.ts)
     builder.addPlugin(mergeListsPlugin);
-
     builder.addPlugin(collapseListsPlugin);
 
     builder
