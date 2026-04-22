@@ -4,7 +4,8 @@ import {type Command, TextSelection} from 'prosemirror-state';
 import {hasParentNodeOfType} from 'prosemirror-utils';
 
 import type {Action, ExtensionAuto} from '../../../core';
-import {inlineNodeInputRule, textblockTypeInputRule} from '../../../utils/inputrules';
+import {inlineNodeInputRule} from '../../../utils/inputrules';
+import {textblockTypeInputRule} from '../../../utils/rulebuilders';
 import {isTextSelection} from '../../../utils/selection';
 
 import {MathSpecs} from './MathSpecs';
@@ -30,11 +31,13 @@ const mathITemplate = 'f(x)=';
 
 // !!! YfmPreset/YfmSpecsPreset does not use or re-export the Math extension
 
+/** @deprecated Use LatexExtensionOptions from `@gravity-ui/markdown-editor-latex-extension` */
 export type MathOptions = Pick<
     MathNodeViewOptions,
     'loadRuntimeScript' | 'sanitize' | 'katexOptions'
 >;
 
+/** @deprecated Use LatexExtension from `@gravity-ui/markdown-editor-latex-extension` */
 export const Math: ExtensionAuto<MathOptions> = (builder, opts) => {
     builder.use(MathSpecs);
 

@@ -43,6 +43,25 @@ type AddPmKeymapCallback = (deps: ExtensionDeps) => Keymap;
 type AddPmInputRulesCallback = (deps: ExtensionDeps) => InputRulesConfig;
 type AddActionCallback = (deps: ExtensionDeps) => ActionSpec;
 
+type EntityPipelineEntry<EntitySpec, SpecBody> =
+    | {type: 'addEntity'; name: string; cb: () => EntitySpec; priority: number}
+    | {type: 'addEntitySpec'; name: string; cb: () => SpecBody; priority: number}
+    | {type: 'overrideEntitySpec'; name: string; cb: (prev: SpecBody) => SpecBody};
+
+type NodePipelineEntry = EntityPipelineEntry<ExtensionNodeSpec, NodeSpec>;
+type MarkPipelineEntry = EntityPipelineEntry<ExtensionMarkSpec, MarkSpec>;
+
+type ParserPipelineEntry =
+    | {type: 'addParserSpec'; tokenName: string; cb: () => ParserToken}
+    | {type: 'overrideParserSpec'; tokenName: string; cb: (prev: ParserToken) => ParserToken};
+
+type SerializerPipelineEntry<SerializerToken> =
+    | {type: 'addSerializer'; name: string; cb: () => SerializerToken}
+    | {type: 'overrideSerializer'; name: string; cb: (prev: SerializerToken) => SerializerToken};
+
+type NodeSerializerPipelineEntry = SerializerPipelineEntry<SerializerNodeToken>;
+type MarkSerializerPipelineEntry = SerializerPipelineEntry<SerializerMarkToken>;
+
 enum Priority {
     Highest = 1_000_000,
     VeryHigh = 100_000,
@@ -67,42 +86,96 @@ declare global {
     }
 }
 
-function applyOverrides<T>(initial: T, overrides?: Array<(prev: T) => T>): T {
-    return overrides ? overrides.reduce((acc, fn) => fn(acc), initial) : initial;
-}
-
 type ResolvedParserEntry = {tokenName: string; tokenSpec: ParserToken};
-type ParserOverridesMap = Record<string, Array<(prev: ParserToken) => ParserToken>>;
 
-function resolveParserEntry(
-    entry: {tokenName: string; tokenSpec: ParserToken},
-    overrides: ParserOverridesMap,
-): ResolvedParserEntry {
-    return {
-        tokenName: entry.tokenName,
-        tokenSpec: applyOverrides(entry.tokenSpec, overrides[entry.tokenName]),
-    };
-}
+function resolveParserPipeline(
+    pipeline: ParserPipelineEntry[],
+    initialPrimaryTokens: Record<string, string>,
+    initialParsers: Record<string, ResolvedParserEntry>,
+) {
+    const primaryParserToken = {...initialPrimaryTokens};
+    const parsers = {...initialParsers};
+    const extraTokenNames: string[] = [];
+    const overriddenTokens = new Set<string>();
 
-function resolveGranularParserEntries(
-    entityName: string,
-    entityType: 'node' | 'mark',
-    parserSpecsByEntity: Record<string, ResolvedParserEntry[]>,
-    overrides: ParserOverridesMap,
-): {primary: ResolvedParserEntry; extra: ResolvedParserEntry[]} {
-    const entries = parserSpecsByEntity[entityName];
-    if (!entries || entries.length === 0) {
-        throw new Error(
-            `Incomplete ${entityType} spec for "${entityName}": missing parser spec. ` +
-                `Use addMarkdownTokenParserSpec() to register a parser for this ${entityType}.`,
-        );
+    for (const entry of pipeline) {
+        if (entry.type === 'addParserSpec') {
+            const tokenSpec = entry.cb();
+            const entityName = tokenSpec.name;
+
+            if (primaryParserToken[entityName] === entry.tokenName) {
+                // Same-name token for addNode/addMark entity — skip, already covered
+                continue;
+            }
+
+            if (entry.tokenName in initialParsers) {
+                throw new Error(
+                    `Parser token "${entry.tokenName}" is already owned by an entity registered via addNode/addMark. ` +
+                        `Use overrideMarkdownTokenParserSpec() to modify it, or choose a different tokenName.`,
+                );
+            }
+
+            if (primaryParserToken[entityName]) {
+                // Extra parser-only token targeting an existing entity
+                extraTokenNames.push(entry.tokenName);
+            } else {
+                // Primary parser for a granular entity
+                primaryParserToken[entityName] = entry.tokenName;
+            }
+            parsers[entry.tokenName] = {tokenName: entry.tokenName, tokenSpec};
+        } else {
+            // overrideParserSpec
+            const existing = parsers[entry.tokenName];
+            if (existing) {
+                parsers[entry.tokenName] = {
+                    tokenName: existing.tokenName,
+                    tokenSpec: entry.cb(existing.tokenSpec),
+                };
+                overriddenTokens.add(entry.tokenName);
+            }
+        }
     }
 
-    const [primaryRaw, ...extraRaw] = entries;
-    return {
-        primary: resolveParserEntry(primaryRaw, overrides),
-        extra: extraRaw.map((e) => resolveParserEntry(e, overrides)),
-    };
+    return {parsers, primaryParserToken, extraTokenNames, overriddenTokens};
+}
+
+function resolveSerializerPipeline<T>(
+    pipeline: SerializerPipelineEntry<T>[],
+    initialSerializers: Record<string, T>,
+): {serializers: Record<string, T>; overriddenNames: Set<string>} {
+    const serializers = {...initialSerializers};
+    const overriddenNames = new Set<string>();
+    for (const entry of pipeline) {
+        if (entry.type === 'addSerializer') {
+            serializers[entry.name] = entry.cb();
+        } else {
+            serializers[entry.name] = entry.cb(serializers[entry.name]);
+            overriddenNames.add(entry.name);
+        }
+    }
+    return {serializers, overriddenNames};
+}
+
+function validateGranularSpecs(
+    granularNames: Set<string>,
+    entityType: 'node' | 'mark',
+    primaryParserToken: Record<string, string>,
+    serializers: Record<string, unknown>,
+): void {
+    for (const name of granularNames) {
+        if (!primaryParserToken[name]) {
+            throw new Error(
+                `Incomplete ${entityType} spec for "${name}": missing parser spec. ` +
+                    `Use addMarkdownTokenParserSpec() to register a parser for this ${entityType}.`,
+            );
+        }
+        if (!serializers[name]) {
+            throw new Error(
+                `Incomplete ${entityType} spec for "${name}": missing serializer. ` +
+                    `Use add${entityType === 'node' ? 'Node' : 'Mark'}SerializerSpec() to register a serializer for this ${entityType}.`,
+            );
+        }
+    }
 }
 
 function buildParserOnlyNodeEntry(resolved: ResolvedParserEntry): ExtensionNodeSpec {
@@ -123,6 +196,113 @@ function buildParserOnlyMarkEntry(resolved: ResolvedParserEntry): ExtensionMarkS
     };
 }
 
+function processEntityPipeline<EntitySpec extends ExtensionNodeSpec | ExtensionMarkSpec>(
+    entityType: 'node' | 'mark',
+    entityPipeline: EntityPipelineEntry<EntitySpec, EntitySpec['spec']>[],
+    parserPipeline: ParserPipelineEntry[],
+    serializerPipeline: SerializerPipelineEntry<EntitySpec['toMd']>[],
+    buildParserOnlyEntry: (resolved: ResolvedParserEntry) => EntitySpec,
+): OrderedMap<EntitySpec> {
+    const order: {name: string; priority: number}[] = [];
+    const specs: Record<string, EntitySpec['spec']> = {};
+    const initParsers: Record<string, ResolvedParserEntry> = {};
+    const initSerializers: Record<string, EntitySpec['toMd']> = {};
+    const views: Record<string, EntitySpec['view']> = {};
+    const granularEntities = new Set<string>();
+    const initPrimaryTokens: Record<string, string> = {};
+    const priorityByEntity: Record<string, number> = {};
+    // Originals from addEntity — preserved as-is in assembly when no overrides were applied.
+    // This keeps reference identity (and any extra fields) for unmodified entries.
+    const originals: Record<string, EntitySpec> = {};
+    const modified = new Set<string>();
+
+    // Pass 1: entityPipeline → specs, order, raw parsers/serializers from addEntity
+    for (const entry of entityPipeline) {
+        const {name} = entry;
+
+        if (entry.type === 'addEntity') {
+            const base = entry.cb();
+            const tokenName = base.fromMd.tokenName ?? name;
+            order.push({name, priority: entry.priority});
+            specs[name] = base.spec;
+            initParsers[tokenName] = {tokenName, tokenSpec: base.fromMd.tokenSpec};
+            initPrimaryTokens[name] = tokenName;
+            priorityByEntity[name] = entry.priority;
+            initSerializers[name] = base.toMd;
+            views[name] = base.view;
+            originals[name] = base;
+        } else if (entry.type === 'addEntitySpec') {
+            order.push({name, priority: entry.priority});
+            specs[name] = entry.cb();
+            priorityByEntity[name] = entry.priority;
+            granularEntities.add(name);
+        } else {
+            // overrideEntitySpec
+            specs[name] = entry.cb(specs[name]);
+            modified.add(name);
+        }
+    }
+
+    // Pass 2: parserPipeline → fill/override parsers, add extra parser-only entries
+    const {parsers, primaryParserToken, extraTokenNames, overriddenTokens} = resolveParserPipeline(
+        parserPipeline,
+        initPrimaryTokens,
+        initParsers,
+    );
+    for (const tokenName of extraTokenNames) {
+        // Inherit priority from the entity this token targets
+        const entityName = parsers[tokenName]?.tokenSpec.name;
+        const priority = entityName ? (priorityByEntity[entityName] ?? 0) : 0;
+        order.push({name: tokenName, priority});
+    }
+    // Map primary-token overrides back to their owning addEntity names
+    for (const entityName of Object.keys(originals)) {
+        if (overriddenTokens.has(initPrimaryTokens[entityName])) {
+            modified.add(entityName);
+        }
+    }
+
+    // Pass 3: serializerPipeline → fill/override serializers
+    const {serializers, overriddenNames: overriddenSerializers} = resolveSerializerPipeline(
+        serializerPipeline,
+        initSerializers,
+    );
+    for (const name of overriddenSerializers) {
+        modified.add(name);
+    }
+
+    validateGranularSpecs(granularEntities, entityType, primaryParserToken, serializers);
+
+    if (entityType === 'mark') {
+        // The order of marks in schema is important when serializing pm-document to DOM or markup
+        // https://discuss.prosemirror.net/t/marks-priority/4463
+        order.sort((a, b) => b.priority - a.priority);
+    }
+
+    // Assemble
+    let map = OrderedMap.from<EntitySpec>({});
+    for (const {name} of order) {
+        // Fast path: unmodified addEntity registrations keep their original object reference.
+        if (originals[name] && !modified.has(name)) {
+            map = map.addToEnd(name, originals[name]);
+            continue;
+        }
+        const parserKey = primaryParserToken[name] ?? name;
+        map = map.addToEnd(
+            name,
+            serializers[name]
+                ? ({
+                      spec: specs[name] ?? {},
+                      fromMd: parsers[parserKey],
+                      toMd: serializers[name],
+                      ...(views[name] !== undefined && {view: views[name]}),
+                  } as EntitySpec)
+                : buildParserOnlyEntry(parsers[name]),
+        );
+    }
+    return map;
+}
+
 export class ExtensionBuilder {
     static createContext(): BuilderContext<WysiwygEditor.Context> {
         return new Map();
@@ -135,30 +315,22 @@ export class ExtensionBuilder {
 
     readonly #logger: Logger2.ILogger;
     #confMdCbs: {cb: ConfigureMdCallback; params: Required<ConfigureMdParams>}[] = [];
-    #nodeSpecs: Record<string, {name: string; cb: AddPmNodeCallback}> = {};
-    #markSpecs: Record<string, {name: string; cb: AddPmMarkCallback; priority: number}> = {};
     #plugins: {cb: AddPmPluginCallback; priority: number}[] = [];
     #actions: [string, AddActionCallback][] = [];
 
-    // Granular add storage
-    #rawNodeSpecs: Record<string, () => NodeSpec> = {};
-    #rawMarkSpecs: Record<string, {cb: () => MarkSpec; priority: number}> = {};
-    #rawParserSpecs: Record<string, {tokenName: string; cb: () => ParserToken}> = {};
-    #rawNodeSerializers: Record<string, () => SerializerNodeToken> = {};
-    #rawMarkSerializers: Record<string, () => SerializerMarkToken> = {};
+    // Unified pipelines — preserve registration order across legacy and granular APIs
+    #nodePipeline: NodePipelineEntry[] = [];
+    #nodeIndex: Record<string, {source: 'addNode' | 'addNodeSpec'}> = {};
+    #markPipeline: MarkPipelineEntry[] = [];
+    #markIndex: Record<string, {source: 'addMark' | 'addMarkSpec'}> = {};
 
-    // Override chains
-    #nodeSpecOverrides: Record<string, Array<(prev: NodeSpec) => NodeSpec>> = {};
-    #markSpecOverrides: Record<string, Array<(prev: MarkSpec) => MarkSpec>> = {};
-    #parserSpecOverrides: Record<string, Array<(prev: ParserToken) => ParserToken>> = {};
-    #nodeSerializerOverrides: Record<
-        string,
-        Array<(prev: SerializerNodeToken) => SerializerNodeToken>
-    > = {};
-    #markSerializerOverrides: Record<
-        string,
-        Array<(prev: SerializerMarkToken) => SerializerMarkToken>
-    > = {};
+    // Parser and serializer pipelines
+    #parserPipeline: ParserPipelineEntry[] = [];
+    #parserIndex = new Set<string>();
+    #nodeSerializerPipeline: NodeSerializerPipelineEntry[] = [];
+    #nodeSerializerIndex = new Set<string>();
+    #markSerializerPipeline: MarkSerializerPipelineEntry[] = [];
+    #markSerializerIndex = new Set<string>();
 
     readonly context: BuilderContext<WysiwygEditor.Context>;
 
@@ -190,11 +362,11 @@ export class ExtensionBuilder {
     }
 
     hasNodeSpec(name: string): boolean {
-        return Boolean(this.#nodeSpecs[name]) || Boolean(this.#rawNodeSpecs[name]);
+        return Boolean(this.#nodeIndex[name]);
     }
 
     hasMarkSpec(name: string): boolean {
-        return Boolean(this.#markSpecs[name]) || Boolean(this.#rawMarkSpecs[name]);
+        return Boolean(this.#markIndex[name]);
     }
 
     /**
@@ -202,22 +374,23 @@ export class ExtensionBuilder {
      * Use addNodeSpec() + addMarkdownTokenParserSpec() + addNodeSerializerSpec() instead.
      */
     addNode(name: string, cb: AddPmNodeCallback): this {
-        if (this.#nodeSpecs[name]) {
+        if (this.#nodeIndex[name]?.source === 'addNode') {
             throw new Error(`ProseMirror node with this name "${name}" already exist`);
         }
-        if (this.#rawNodeSpecs[name]) {
+        if (this.#nodeIndex[name]?.source === 'addNodeSpec') {
             throw new Error(
                 `Node with name "${name}" already registered via addNodeSpec. ` +
                     `Cannot use addNode for a node that already has granular registrations.`,
             );
         }
-        if (this.#rawNodeSerializers[name]) {
+        if (this.#nodeSerializerIndex.has(name)) {
             throw new Error(
                 `Node serializer for "${name}" already registered via addNodeSerializerSpec. ` +
                     `Cannot use addNode for a node that already has granular registrations.`,
             );
         }
-        this.#nodeSpecs[name] = {name, cb};
+        this.#nodePipeline.push({type: 'addEntity', name, cb, priority: 0});
+        this.#nodeIndex[name] = {source: 'addNode'};
         return this;
     }
 
@@ -226,22 +399,23 @@ export class ExtensionBuilder {
      * Use addMarkSpec() + addMarkdownTokenParserSpec() + addMarkSerializerSpec() instead.
      */
     addMark(name: string, cb: AddPmMarkCallback, priority = DEFAULT_PRIORITY): this {
-        if (this.#markSpecs[name]) {
+        if (this.#markIndex[name]?.source === 'addMark') {
             throw new Error(`ProseMirror mark with this name "${name}" already exist`);
         }
-        if (this.#rawMarkSpecs[name]) {
+        if (this.#markIndex[name]?.source === 'addMarkSpec') {
             throw new Error(
                 `Mark with name "${name}" already registered via addMarkSpec. ` +
                     `Cannot use addMark for a mark that already has granular registrations.`,
             );
         }
-        if (this.#rawMarkSerializers[name]) {
+        if (this.#markSerializerIndex.has(name)) {
             throw new Error(
                 `Mark serializer for "${name}" already registered via addMarkSerializerSpec. ` +
                     `Cannot use addMark for a mark that already has granular registrations.`,
             );
         }
-        this.#markSpecs[name] = {name, cb, priority};
+        this.#markPipeline.push({type: 'addEntity', name, cb, priority});
+        this.#markIndex[name] = {source: 'addMark'};
         return this;
     }
 
@@ -271,88 +445,93 @@ export class ExtensionBuilder {
     }
 
     addNodeSpec(name: string, cb: () => NodeSpec): this {
-        if (this.#rawNodeSpecs[name]) {
+        if (this.#nodeIndex[name]?.source === 'addNodeSpec') {
             throw new Error(`Node spec with name "${name}" already registered via addNodeSpec`);
         }
-        if (this.#nodeSpecs[name]) {
+        if (this.#nodeIndex[name]?.source === 'addNode') {
             throw new Error(
                 `Node with name "${name}" already registered via addNode. Use overrideNodeSpec to modify it.`,
             );
         }
-        this.#rawNodeSpecs[name] = cb;
+        this.#nodePipeline.push({type: 'addEntitySpec', name, cb, priority: 0});
+        this.#nodeIndex[name] = {source: 'addNodeSpec'};
         return this;
     }
 
     addMarkSpec(name: string, cb: () => MarkSpec, priority = DEFAULT_PRIORITY): this {
-        if (this.#rawMarkSpecs[name]) {
+        if (this.#markIndex[name]?.source === 'addMarkSpec') {
             throw new Error(`Mark spec with name "${name}" already registered via addMarkSpec`);
         }
-        if (this.#markSpecs[name]) {
+        if (this.#markIndex[name]?.source === 'addMark') {
             throw new Error(
                 `Mark with name "${name}" already registered via addMark. Use overrideMarkSpec to modify it.`,
             );
         }
-        this.#rawMarkSpecs[name] = {cb, priority};
+        this.#markPipeline.push({type: 'addEntitySpec', name, cb, priority});
+        this.#markIndex[name] = {source: 'addMarkSpec'};
         return this;
     }
 
     addMarkdownTokenParserSpec(tokenName: string, cb: () => ParserToken): this {
-        if (this.#rawParserSpecs[tokenName]) {
+        if (this.#parserIndex.has(tokenName)) {
             throw new Error(
                 `Parser spec for token "${tokenName}" already registered via addMarkdownTokenParserSpec`,
             );
         }
-        this.#rawParserSpecs[tokenName] = {tokenName, cb};
+        this.#parserPipeline.push({type: 'addParserSpec', tokenName, cb});
+        this.#parserIndex.add(tokenName);
         return this;
     }
 
     addNodeSerializerSpec(name: string, cb: () => SerializerNodeToken): this {
-        if (this.#rawNodeSerializers[name]) {
+        if (this.#nodeSerializerIndex.has(name)) {
             throw new Error(
                 `Node serializer for "${name}" already registered via addNodeSerializerSpec`,
             );
         }
-        if (this.#nodeSpecs[name]) {
+        if (this.#nodeIndex[name]?.source === 'addNode') {
             throw new Error(
                 `Node with name "${name}" already registered via addNode. Use overrideNodeSerializerSpec to modify it.`,
             );
         }
-        this.#rawNodeSerializers[name] = cb;
+        this.#nodeSerializerPipeline.push({type: 'addSerializer', name, cb});
+        this.#nodeSerializerIndex.add(name);
         return this;
     }
 
     addMarkSerializerSpec(name: string, cb: () => SerializerMarkToken): this {
-        if (this.#rawMarkSerializers[name]) {
+        if (this.#markSerializerIndex.has(name)) {
             throw new Error(
                 `Mark serializer for "${name}" already registered via addMarkSerializerSpec`,
             );
         }
-        if (this.#markSpecs[name]) {
+        if (this.#markIndex[name]?.source === 'addMark') {
             throw new Error(
                 `Mark with name "${name}" already registered via addMark. Use overrideMarkSerializerSpec to modify it.`,
             );
         }
-        this.#rawMarkSerializers[name] = cb;
+        this.#markSerializerPipeline.push({type: 'addSerializer', name, cb});
+        this.#markSerializerIndex.add(name);
         return this;
     }
 
     overrideNodeSpec(name: string, cb: (prev: NodeSpec) => NodeSpec): this {
-        if (!this.#nodeSpecs[name] && !this.#rawNodeSpecs[name]) {
+        if (!this.#nodeIndex[name]) {
             throw new Error(
                 `Cannot override node spec "${name}": not registered. Use addNode() or addNodeSpec() first.`,
             );
         }
-        (this.#nodeSpecOverrides[name] ??= []).push(cb);
+        this.#nodePipeline.push({type: 'overrideEntitySpec', name, cb});
         return this;
     }
 
     overrideMarkSpec(name: string, cb: (prev: MarkSpec) => MarkSpec): this {
-        if (!this.#markSpecs[name] && !this.#rawMarkSpecs[name]) {
+        if (!this.#markIndex[name]) {
             throw new Error(
                 `Cannot override mark spec "${name}": not registered. Use addMark() or addMarkSpec() first.`,
             );
         }
-        (this.#markSpecOverrides[name] ??= []).push(cb);
+        this.#markPipeline.push({type: 'overrideEntitySpec', name, cb});
         return this;
     }
 
@@ -361,16 +540,16 @@ export class ExtensionBuilder {
         cb: (prev: ParserToken) => ParserToken,
     ): this {
         if (
-            !this.#rawParserSpecs[tokenName] &&
-            !this.#nodeSpecs[tokenName] &&
-            !this.#markSpecs[tokenName]
+            !this.#parserIndex.has(tokenName) &&
+            !this.#nodeIndex[tokenName] &&
+            !this.#markIndex[tokenName]
         ) {
             throw new Error(
                 `Cannot override parser spec for token "${tokenName}": not registered. ` +
                     `Use addMarkdownTokenParserSpec(), addNode(), or addMark() first.`,
             );
         }
-        (this.#parserSpecOverrides[tokenName] ??= []).push(cb);
+        this.#parserPipeline.push({type: 'overrideParserSpec', tokenName, cb});
         return this;
     }
 
@@ -378,12 +557,12 @@ export class ExtensionBuilder {
         name: string,
         cb: (prev: SerializerNodeToken) => SerializerNodeToken,
     ): this {
-        if (!this.#nodeSpecs[name] && !this.#rawNodeSerializers[name]) {
+        if (this.#nodeIndex[name]?.source !== 'addNode' && !this.#nodeSerializerIndex.has(name)) {
             throw new Error(
                 `Cannot override node serializer "${name}": not registered. Use addNode() or addNodeSerializerSpec() first.`,
             );
         }
-        (this.#nodeSerializerOverrides[name] ??= []).push(cb);
+        this.#nodeSerializerPipeline.push({type: 'overrideSerializer', name, cb});
         return this;
     }
 
@@ -391,45 +570,24 @@ export class ExtensionBuilder {
         name: string,
         cb: (prev: SerializerMarkToken) => SerializerMarkToken,
     ): this {
-        if (!this.#markSpecs[name] && !this.#rawMarkSerializers[name]) {
+        if (this.#markIndex[name]?.source !== 'addMark' && !this.#markSerializerIndex.has(name)) {
             throw new Error(
                 `Cannot override mark serializer "${name}": not registered. Use addMark() or addMarkSerializerSpec() first.`,
             );
         }
-        (this.#markSerializerOverrides[name] ??= []).push(cb);
+        this.#markSerializerPipeline.push({type: 'overrideSerializer', name, cb});
         return this;
     }
 
     build(): ExtensionSpec {
         const confMd = this.#confMdCbs.slice();
-        const nodes = {...this.#nodeSpecs};
-        const marks = {...this.#markSpecs};
+        const nodePipeline = this.#nodePipeline.slice();
+        const markPipeline = this.#markPipeline.slice();
+        const parserPipeline = this.#parserPipeline.slice();
+        const nodeSerializerPipeline = this.#nodeSerializerPipeline.slice();
+        const markSerializerPipeline = this.#markSerializerPipeline.slice();
         const plugins = this.#plugins.slice();
         const actions = this.#actions.slice();
-
-        const rawNodeSpecs = {...this.#rawNodeSpecs};
-        const rawMarkSpecs = {...this.#rawMarkSpecs};
-        const rawParserSpecs = {...this.#rawParserSpecs};
-        const rawNodeSerializers = {...this.#rawNodeSerializers};
-        const rawMarkSerializers = {...this.#rawMarkSerializers};
-
-        const nodeSpecOverrides = {...this.#nodeSpecOverrides};
-        const markSpecOverrides = {...this.#markSpecOverrides};
-        const parserSpecOverrides = {...this.#parserSpecOverrides};
-        const nodeSerializerOverrides = {...this.#nodeSerializerOverrides};
-        const markSerializerOverrides = {...this.#markSerializerOverrides};
-
-        // Pre-build entity name → parser specs lookup for O(1) access
-        // Multiple markdown-it tokens can map to the same ProseMirror entity
-        // (e.g. both 'fence' and 'code_block' tokens → 'code_block' node)
-        const parserSpecsByEntity: Record<
-            string,
-            Array<{tokenName: string; tokenSpec: ParserToken}>
-        > = {};
-        for (const {tokenName, cb} of Object.values(rawParserSpecs)) {
-            const tokenSpec = cb();
-            (parserSpecsByEntity[tokenSpec.name] ??= []).push({tokenName, tokenSpec});
-        }
 
         return {
             configureMd: (md, parserType) =>
@@ -442,205 +600,22 @@ export class ExtensionBuilder {
                     }
                     return pMd;
                 }, md),
-            nodes: () => {
-                let map = OrderedMap.from<ExtensionNodeSpec>({});
-
-                // 1. Process addNode entries with overrides
-                for (const {name, cb} of Object.values(nodes)) {
-                    const base = cb();
-                    const tokenName = base.fromMd.tokenName ?? name;
-                    const hasOverrides =
-                        nodeSpecOverrides[name] ||
-                        parserSpecOverrides[tokenName] ||
-                        nodeSerializerOverrides[name];
-
-                    if (hasOverrides) {
-                        map = map.addToEnd(name, {
-                            spec: applyOverrides(base.spec, nodeSpecOverrides[name]),
-                            fromMd: {
-                                tokenName: base.fromMd.tokenName,
-                                tokenSpec: applyOverrides(
-                                    base.fromMd.tokenSpec,
-                                    parserSpecOverrides[tokenName],
-                                ),
-                            },
-                            toMd: applyOverrides(base.toMd, nodeSerializerOverrides[name]),
-                            view: base.view,
-                        });
-                    } else {
-                        map = map.addToEnd(name, base);
-                    }
-                }
-
-                // 1b. Add parser-only entries for rawParserSpecs tokens targeting addNode entities
-                for (const {name} of Object.values(nodes)) {
-                    const entries = parserSpecsByEntity[name];
-                    if (entries) {
-                        for (const entry of entries) {
-                            // Skip when tokenName matches the entity name —
-                            // the full spec was already added in step 1
-                            if (entry.tokenName === name) continue;
-                            map = map.addToEnd(
-                                entry.tokenName,
-                                buildParserOnlyNodeEntry(
-                                    resolveParserEntry(entry, parserSpecOverrides),
-                                ),
-                            );
-                        }
-                    }
-                }
-
-                // 2. Process granular-only nodes
-                for (const name of Object.keys(rawNodeSpecs)) {
-                    const spec = applyOverrides(rawNodeSpecs[name](), nodeSpecOverrides[name]);
-
-                    const {primary, extra} = resolveGranularParserEntries(
-                        name,
-                        'node',
-                        parserSpecsByEntity,
-                        parserSpecOverrides,
-                    );
-
-                    if (!rawNodeSerializers[name]) {
-                        throw new Error(
-                            `Incomplete node spec for "${name}": missing serializer. ` +
-                                `Use addNodeSerializerSpec() to register a serializer for this node.`,
-                        );
-                    }
-                    const toMd = applyOverrides(
-                        rawNodeSerializers[name](),
-                        nodeSerializerOverrides[name],
-                    );
-
-                    map = map.addToEnd(name, {
-                        spec,
-                        fromMd: {tokenName: primary.tokenName, tokenSpec: primary.tokenSpec},
-                        toMd,
-                    });
-
-                    for (const entry of extra) {
-                        map = map.addToEnd(entry.tokenName, buildParserOnlyNodeEntry(entry));
-                    }
-                }
-
-                return map;
-            },
-            marks: () => {
-                // The order of marks in schema is important when serializing pm-document to DOM or markup
-                // https://discuss.prosemirror.net/t/marks-priority/4463
-
-                // 1. Process addMark entries with overrides
-                const allMarks: {
-                    name: string;
-                    priority: number;
-                    buildSpec: () => ExtensionMarkSpec;
-                }[] = [];
-
-                for (const {name, cb, priority} of Object.values(marks)) {
-                    allMarks.push({
-                        name,
-                        priority,
-                        buildSpec: () => {
-                            const base = cb();
-                            const tokenName = base.fromMd.tokenName ?? name;
-                            const hasOverrides =
-                                markSpecOverrides[name] ||
-                                parserSpecOverrides[tokenName] ||
-                                markSerializerOverrides[name];
-
-                            if (hasOverrides) {
-                                return {
-                                    spec: applyOverrides(base.spec, markSpecOverrides[name]),
-                                    fromMd: {
-                                        tokenName: base.fromMd.tokenName,
-                                        tokenSpec: applyOverrides(
-                                            base.fromMd.tokenSpec,
-                                            parserSpecOverrides[tokenName],
-                                        ),
-                                    },
-                                    toMd: applyOverrides(base.toMd, markSerializerOverrides[name]),
-                                    view: base.view,
-                                };
-                            }
-                            return base;
-                        },
-                    });
-                }
-
-                // 1b. Add parser-only entries for rawParserSpecs tokens targeting addMark entities
-                for (const {name, priority} of Object.values(marks)) {
-                    const entries = parserSpecsByEntity[name];
-                    if (entries) {
-                        for (const entry of entries) {
-                            // Skip when tokenName matches the entity name —
-                            // the full spec was already added in step 1
-                            if (entry.tokenName === name) continue;
-                            allMarks.push({
-                                name: entry.tokenName,
-                                priority,
-                                buildSpec: () =>
-                                    buildParserOnlyMarkEntry(
-                                        resolveParserEntry(entry, parserSpecOverrides),
-                                    ),
-                            });
-                        }
-                    }
-                }
-
-                // 2. Process granular-only marks
-                for (const name of Object.keys(rawMarkSpecs)) {
-                    const {cb: specCb, priority} = rawMarkSpecs[name];
-
-                    const {primary, extra} = resolveGranularParserEntries(
-                        name,
-                        'mark',
-                        parserSpecsByEntity,
-                        parserSpecOverrides,
-                    );
-
-                    if (!rawMarkSerializers[name]) {
-                        throw new Error(
-                            `Incomplete mark spec for "${name}": missing serializer. ` +
-                                `Use addMarkSerializerSpec() to register a serializer for this mark.`,
-                        );
-                    }
-
-                    allMarks.push({
-                        name,
-                        priority,
-                        buildSpec: () => {
-                            const spec = applyOverrides(specCb(), markSpecOverrides[name]);
-                            const toMd = applyOverrides(
-                                rawMarkSerializers[name](),
-                                markSerializerOverrides[name],
-                            );
-                            return {
-                                spec,
-                                fromMd: {
-                                    tokenName: primary.tokenName,
-                                    tokenSpec: primary.tokenSpec,
-                                },
-                                toMd,
-                            };
-                        },
-                    });
-
-                    for (const entry of extra) {
-                        allMarks.push({
-                            name: entry.tokenName,
-                            priority,
-                            buildSpec: () => buildParserOnlyMarkEntry(entry),
-                        });
-                    }
-                }
-
-                allMarks.sort((a, b) => b.priority - a.priority);
-                let map = OrderedMap.from<ExtensionMarkSpec>({});
-                for (const {name, buildSpec} of allMarks) {
-                    map = map.addToEnd(name, buildSpec());
-                }
-                return map;
-            },
+            nodes: () =>
+                processEntityPipeline<ExtensionNodeSpec>(
+                    'node',
+                    nodePipeline,
+                    parserPipeline,
+                    nodeSerializerPipeline,
+                    buildParserOnlyNodeEntry,
+                ),
+            marks: () =>
+                processEntityPipeline<ExtensionMarkSpec>(
+                    'mark',
+                    markPipeline,
+                    parserPipeline,
+                    markSerializerPipeline,
+                    buildParserOnlyMarkEntry,
+                ),
             plugins: (deps) => {
                 return plugins
                     .sort((a, b) => b.priority - a.priority)

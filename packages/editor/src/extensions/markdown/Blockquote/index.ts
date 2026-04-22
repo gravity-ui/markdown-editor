@@ -4,8 +4,8 @@ import type {NodeType} from 'prosemirror-model';
 import {hasParentNodeOfType} from 'prosemirror-utils';
 
 import type {Action, ExtensionAuto} from '../../../core';
-import {wrappingInputRule} from '../../../utils/inputrules';
 import {withLogAction} from '../../../utils/keymap';
+import {wrappingInputRule} from '../../../utils/rulebuilders';
 
 import {BlockquoteSpecs, blockquoteType} from './BlockquoteSpecs';
 import {joinPrevQuote, liftFromQuote, toggleQuote} from './commands';
