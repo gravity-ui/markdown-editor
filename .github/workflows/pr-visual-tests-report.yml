@@ -14,7 +14,7 @@ jobs:
     steps:
       - name: Create token
         id: app-token
-        uses: actions/create-github-app-token@v2
+        uses: actions/create-github-app-token@v3
         with:
           app-id: ${{ secrets.GRAVITY_UI_APP_ID }}
           private-key: ${{ secrets.GRAVITY_UI_APP_PRIVATE_KEY }}

@@ -31,6 +31,7 @@
     "@diplodoc/transform": "catalog:peer-diplodoc",
     "@gravity-ui/components": "catalog:peer-gravity",
     "@gravity-ui/markdown-editor": "workspace:*",
+    "@gravity-ui/markdown-editor-latex-extension": "workspace:*",
     "@gravity-ui/uikit": "catalog:peer-gravity",
     "markdown-it": "catalog:peers"
   },
@@ -69,7 +70,7 @@
     "ts-dedent": "2.2.0",
     "typescript": "catalog:ts",
     "url": "0.11.4",
-    "webpack": "^5.97.1"
+    "webpack": "^5.106.2"
   },
   "nx": {
     "targets": {
