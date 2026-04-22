@@ -69,11 +69,11 @@
     "tslib": "catalog:ts"
   },
   "devDependencies": {
-    "@gravity-ui/markdown-editor": "workspace:*",
-    "@gravity-ui/uikit": "catalog:peer-gravity",
-    "@gravity-ui/page-constructor": "catalog:peer-gravity",
-    "@gravity-ui/icons": "^2.12.0",
     "@diplodoc/page-constructor-extension": "catalog:peer-diplodoc",
+    "@gravity-ui/icons": "^2.12.0",
+    "@gravity-ui/markdown-editor": "workspace:*",
+    "@gravity-ui/page-constructor": "catalog:peer-gravity",
+    "@gravity-ui/uikit": "catalog:peer-gravity",
     "@markdown-editor/gulp-tasks": "workspace:*",
     "@markdown-editor/linters": "workspace:*",
     "@markdown-editor/tsconfig": "workspace:*",
