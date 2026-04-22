@@ -17,6 +17,10 @@ updates:
       day: monday
     commit-message:
       prefix: "ci(github)"
+    groups:
+      github-actions:
+        patterns:
+          - "actions/*"
 
   # npm — root
   - package-ecosystem: npm
@@ -28,6 +32,10 @@ updates:
       - "demo"
       - "packages/*"
       - "infra/*"
+    groups:
+      commitlint:
+        patterns:
+          - "@commitlint/*"
     ignore:
       - dependency-name: "*"
         update-types:
