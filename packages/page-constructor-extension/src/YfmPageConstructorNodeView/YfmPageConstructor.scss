@@ -1,0 +1,82 @@
+.g-md-YfmPageConstructor {
+    position: relative;
+
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+
+    min-height: 30px;
+    padding: 4px;
+
+    border: 1px solid var(--g-color-line-generic);
+    border-radius: var(--g-border-radius-m);
+
+    &_edit {
+        display: flex;
+    }
+
+    &__Constructor {
+        flex: 1 1 auto;
+
+        min-width: 0;
+        height: fit-content;
+
+        .pc-layout {
+            min-height: auto;
+        }
+    }
+
+    &__Error {
+        flex: 1 1 auto;
+
+        font-family: var(--g-font-family-monospace);
+        white-space: pre-wrap;
+        word-break: break-word;
+
+        color: var(--g-color-text-danger);
+    }
+
+    &__Preview {
+        flex: 1 1 auto;
+
+        min-width: 0;
+        height: fit-content;
+
+        .pc-layout {
+            min-height: auto;
+        }
+    }
+
+    &__Editor {
+        flex: 1 1 auto;
+
+        min-width: 320px;
+
+        white-space: nowrap;
+        caret-color: auto;
+    }
+
+    &__Controls {
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+
+        margin-top: 8px;
+    }
+
+    &__Menu {
+        position: absolute;
+        z-index: 10;
+        top: 0;
+        right: 0;
+
+        padding: 2px;
+
+        border-radius: var(--g-border-radius-s);
+        background: var(--g-color-base-background);
+    }
+}
+
+.yfm-page-constructor-container {
+    padding-bottom: 20px;
+}
