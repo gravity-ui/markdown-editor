@@ -1,9 +1,8 @@
-import {Plugin, PluginKey} from 'prosemirror-state';
+import {Plugin} from 'prosemirror-state';
 import {Decoration, DecorationSet} from 'prosemirror-view';
 
+import {widgetDecorationPluginKey} from './plugin-key';
 import type {Meta, WidgetSpec} from './types';
-
-export const widgetDecorationPluginKey = new PluginKey<DecorationSet>();
 
 export const WidgetDecorationPlugin = () => {
     return new Plugin<DecorationSet>({

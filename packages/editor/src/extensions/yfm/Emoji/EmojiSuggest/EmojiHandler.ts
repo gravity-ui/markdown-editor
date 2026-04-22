@@ -3,7 +3,6 @@ import type {EditorView} from 'prosemirror-view';
 
 import {AutocompletePopupCloser} from '../../../../utils/autocomplete-popup';
 import {ArrayCarousel} from '../../../../utils/carousel';
-import {type RendererItem, getReactRendererFromState} from '../../../behavior';
 import {
     type AutocompleteAction,
     AutocompleteActionKind,
@@ -11,6 +10,7 @@ import {
     closeAutocomplete,
     getAutocompleteState,
 } from '../../../behavior/Autocomplete';
+import {type RendererItem, getReactRendererFromState} from '../../../behavior/ReactRenderer';
 import {EmojiConsts} from '../EmojiSpecs';
 
 import {type EmojiSuggestComponentProps, render} from './EmojiSuggestComponent';

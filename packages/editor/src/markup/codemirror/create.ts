@@ -51,6 +51,7 @@ import {
 
 import {DirectiveSyntaxFacet} from './directive-facet';
 import {type FileUploadHandler, FileUploadHandlerFacet} from './files-upload-facet';
+import {FilesUploadPlugin} from './files-upload-plugin';
 import {gravityHighlightStyle, gravityTheme} from './gravity';
 import {MarkdownConverter} from './html-to-markdown/converters';
 import {LoggerFacet} from './logger-facet';
@@ -313,6 +314,7 @@ export function createCodemirror(params: CreateCodemirrorParams) {
     }
 
     if (params.uploadHandler) {
+        extensions.push(FilesUploadPlugin.extension);
         extensions.push(
             FileUploadHandlerFacet.of({
                 fn: params.uploadHandler,

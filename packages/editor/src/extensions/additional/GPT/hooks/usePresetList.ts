@@ -5,7 +5,7 @@ import type {DropdownMenuItem} from '@gravity-ui/uikit';
 import type {CommonAnswer} from '../ErrorScreen/types';
 import type {GptDialogProps} from '../GptDialog/GptDialog';
 import type {PresetListProps} from '../PresetList/PresetList';
-import {cnGptDialogPresetList} from '../PresetList/PresetList';
+import {cnGptDialogPresetList} from '../PresetList/classname';
 
 import {useOverflowingHorizontalItems} from './useOverflowingHorizontalItems';
 

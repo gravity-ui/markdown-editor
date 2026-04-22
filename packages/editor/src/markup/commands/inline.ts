@@ -1,7 +1,7 @@
 import {snippet} from '@codemirror/autocomplete';
 import type {StateCommand} from '@codemirror/state';
 
-import {DirectiveSyntaxFacet} from '../codemirror';
+import {DirectiveSyntaxFacet} from '../codemirror/directive-facet';
 
 const defaultLinkSnippet = snippet(`[#{2:link}](#{1:url} "#{3:title}")`);
 export const insertLink: StateCommand = ({state, dispatch}) => {
