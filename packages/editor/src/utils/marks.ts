@@ -1,4 +1,4 @@
-import type {Mark, MarkType, Node} from 'prosemirror-model';
+import type {Attrs, Mark, MarkType, Node} from 'prosemirror-model';
 import type {EditorState} from 'prosemirror-state';
 
 import {getParserFromState} from '../core/utils/parser';
@@ -15,6 +15,37 @@ export function isMarkActive(state: EditorState, type: MarkType) {
     }
 
     return state.doc.rangeHasMark(from, to, type);
+}
+
+/**
+ * Returns `true` if every non-whitespace text node in the selection has the given mark type
+ * with the given attr key set to exactly `attrValue`.
+ *
+ * Used to decide whether applying a parameterised mark (e.g. color) should toggle it off
+ * (full coverage with the same value) or apply it to the whole selection.
+ */
+export function selectionAllHasMarkWithAttr(
+    state: EditorState,
+    markType: MarkType,
+    attrKey: string,
+    attrValue: Attrs[string],
+): boolean {
+    return state.selection.ranges.every((r) => {
+        let allHave = true;
+        state.doc.nodesBetween(r.$from.pos, r.$to.pos, (node, _pos, parent) => {
+            if (!allHave) return false;
+            if (
+                node.isText &&
+                parent?.type.allowsMarkType(markType) &&
+                !/^\s*$/.test(node.text!)
+            ) {
+                const mark = markType.isInSet(node.marks);
+                allHave = Boolean(mark) && mark!.attrs[attrKey] === attrValue;
+            }
+            return undefined;
+        });
+        return allHave;
+    });
 }
 
 /**

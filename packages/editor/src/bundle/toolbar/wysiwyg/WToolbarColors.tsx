@@ -27,7 +27,7 @@ export const WToolbarColors: React.FC<WToolbarColorsProps> = ({
             enable={enabled}
             currentColor={currentColor}
             exec={(color) => {
-                action.run({color: color === currentColor ? '' : color});
+                action.run({color});
             }}
             disablePortal={disablePortal}
             className={className}
