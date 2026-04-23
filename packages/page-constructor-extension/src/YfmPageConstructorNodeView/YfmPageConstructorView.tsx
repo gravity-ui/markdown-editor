@@ -1,4 +1,4 @@
-import {Suspense, lazy, useCallback, useMemo, useState} from 'react';
+import {Suspense, lazy, useCallback, useEffect, useMemo, useState} from 'react';
 
 import {Ellipsis as DotsIcon} from '@gravity-ui/icons';
 import {
@@ -10,8 +10,8 @@ import {
     useSharedEditingState,
 } from '@gravity-ui/markdown-editor';
 import {Button, Flex, Icon, Loader, Menu, Popup, type PopupPlacement} from '@gravity-ui/uikit';
-import type {Node} from 'prosemirror-model';
-import type {EditorView} from 'prosemirror-view';
+import type {Node} from '@gravity-ui/markdown-editor/pm/model';
+import type {EditorView} from '@gravity-ui/markdown-editor/pm/view';
 
 import {TextAreaFixed as TextArea} from '../TextAreaFixed';
 import {YfmPageConstructorConsts} from '../YfmPageConstructorSpecs/const';
@@ -113,10 +113,16 @@ export const YfmPageConstructorView: React.FC<{
     const [anchorElement, setAnchorElement] = useElementState();
     const [menuOpen, , closeMenu, toggleMenuOpen] = useBooleanState(false);
 
-    // Local state mirrors ProseMirror attribute; updates preview optimistically
     const [content, setContent] = useState(
         () => node.attrs[YfmPageConstructorConsts.NodeAttrs.content] || '',
     );
+
+    // Sync local state from node.attrs on external updates (undo, collab) when not editing
+    useEffect(() => {
+        if (!editing) {
+            setContent(node.attrs[YfmPageConstructorConsts.NodeAttrs.content] || '');
+        }
+    }, [node, editing]);
 
     const handleChange = useCallback(
         (newContent: string) => {

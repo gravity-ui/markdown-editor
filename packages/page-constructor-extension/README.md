@@ -10,6 +10,12 @@ Provides a WYSIWYG editing experience for [Page Constructor](https://github.com/
 npm install @gravity-ui/markdown-editor-page-constructor-extension
 ```
 
+### Required peer dependencies
+
+```bash
+npm install @gravity-ui/markdown-editor @gravity-ui/uikit @gravity-ui/icons @gravity-ui/page-constructor @diplodoc/page-constructor-extension react react-dom react-error-boundary
+```
+
 ## Usage
 
 ### WYSIWYG extension
@@ -25,13 +31,13 @@ builder.use(YfmPageConstructor, {
 ### Toolbar button
 
 ```typescript
-import {wYfmPageConstructorItemData} from '@gravity-ui/markdown-editor-page-constructor-extension/toolbar';
+import {wYfmPageConstructorItemData} from '@gravity-ui/markdown-editor-page-constructor-extension/configs';
 ```
 
 ### Split-mode preview HOC
 
 ```typescript
-import {withYfmPageConstructor} from '@gravity-ui/markdown-editor-page-constructor-extension/hocs/withYfmPageConstructor';
+import {withYfmPageConstructor} from '@gravity-ui/markdown-editor-page-constructor-extension/view';
 
 const Preview = withYfmPageConstructor()(YfmStaticView);
 ```

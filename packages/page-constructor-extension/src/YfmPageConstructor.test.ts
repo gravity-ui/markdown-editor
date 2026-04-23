@@ -6,7 +6,7 @@ import {
     ExtensionsManager,
     blockquoteNodeName,
 } from '@gravity-ui/markdown-editor';
-import type {Node} from 'prosemirror-model';
+import type {Node} from '@gravity-ui/markdown-editor/pm/model';
 import {builders} from 'prosemirror-test-builder';
 import dd from 'ts-dedent';
 

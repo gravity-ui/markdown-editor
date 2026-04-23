@@ -32,6 +32,8 @@ import {
     wLatexBlockItemData,
     wLatexInlineItemData,
 } from '@gravity-ui/markdown-editor-latex-extension/configs';
+import {YfmPageConstructor} from '@gravity-ui/markdown-editor-page-constructor-extension';
+import {wYfmPageConstructorItemData} from '@gravity-ui/markdown-editor-page-constructor-extension/configs';
 import {Button, DropdownMenu} from '@gravity-ui/uikit';
 
 import {getPlugins} from '../defaults/md-plugins';
@@ -54,6 +56,7 @@ const wCommandMenuConfig = wysiwygToolbarConfigs.wCommandMenuConfig.concat(
     wLatexInlineItemData,
     wLatexBlockItemData,
     wysiwygToolbarConfigs.wMermaidItemData,
+    wYfmPageConstructorItemData,
     wysiwygToolbarConfigs.wYfmHtmlBlockItemData,
 );
 
@@ -210,6 +213,16 @@ export const Playground = memo<PlaygroundProps>((props) => {
                                 delay: storyAdditionalControls?.mermaidAutoSaveDelay ?? 1000,
                             },
                             theme: {dark: 'dark', light: 'forest'},
+                        })
+                        .use(YfmPageConstructor, {
+                            autoSave: {
+                                enabled:
+                                    storyAdditionalControls?.yfmPageConstructorAutoSaveEnabled ??
+                                    true,
+                                delay:
+                                    storyAdditionalControls?.yfmPageConstructorAutoSaveDelay ??
+                                    1000,
+                            },
                         })
                         .use(FoldingHeading)
                         .use(YfmHtmlBlock, {

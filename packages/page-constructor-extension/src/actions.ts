@@ -1,6 +1,6 @@
 import type {ActionSpec} from '@gravity-ui/markdown-editor';
 import {SharedStateKey, generateEntityId, get$Cursor, pType} from '@gravity-ui/markdown-editor';
-import type {Command} from 'prosemirror-state';
+import type {Command} from '@gravity-ui/markdown-editor/pm/state';
 
 import {YfmPageConstructorConsts} from './YfmPageConstructorSpecs';
 import type {YfmPageConstructorEntitySharedState} from './types';

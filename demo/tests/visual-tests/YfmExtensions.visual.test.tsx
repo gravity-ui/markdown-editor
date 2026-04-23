@@ -51,4 +51,10 @@ test.describe('Extensions, YFM', () => {
 
         await expectScreenshot();
     });
+    test('YFM Page Constructor', async ({mount, expectScreenshot, wait}) => {
+        await mount(<YFMStories.YfmPageConstructor />);
+        await wait.loadersHidden();
+
+        await expectScreenshot();
+    });
 });

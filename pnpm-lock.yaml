@@ -161,6 +161,9 @@ importers:
       '@diplodoc/mermaid-extension':
         specifier: catalog:peer-diplodoc
         version: 2.0.0(markdown-it@13.0.2)(react@18.2.0)
+      '@diplodoc/page-constructor-extension':
+        specifier: catalog:peer-diplodoc
+        version: 0.13.2(@diplodoc/transform@4.69.0(@types/markdown-it@13.0.9)(highlight.js@11.8.0)(react@18.2.0))(@gravity-ui/uikit@7.13.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/markdown-it@13.0.9)(@types/react@18.0.28)(markdown-it@13.0.2)(react-dom@18.2.0(react@18.2.0))(react-is@18.3.1)(react@18.2.0)
       '@diplodoc/quote-link-extension':
         specifier: catalog:peer-diplodoc
         version: 0.1.3(react@18.2.0)
@@ -179,6 +182,12 @@ importers:
       '@gravity-ui/markdown-editor-latex-extension':
         specifier: workspace:*
         version: link:../packages/latex-extension
+      '@gravity-ui/markdown-editor-page-constructor-extension':
+        specifier: workspace:*
+        version: link:../packages/page-constructor-extension
+      '@gravity-ui/page-constructor':
+        specifier: catalog:peer-gravity
+        version: 7.25.0(@diplodoc/transform@4.69.0(highlight.js@11.8.0)(react@18.2.0))(@gravity-ui/uikit@7.13.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.0.28)(js-yaml@4.1.1)(react-dom@18.2.0(react@18.2.0))(react-is@18.3.1)(react@18.2.0)
       '@gravity-ui/uikit':
         specifier: catalog:peer-gravity
         version: 7.13.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -270,6 +279,9 @@ importers:
       react-dom:
         specifier: catalog:react
         version: 18.2.0(react@18.2.0)
+      react-error-boundary:
+        specifier: ^3.1.4
+        version: 3.1.4(react@18.2.0)
       react-use:
         specifier: 'catalog:'
         version: 17.4.0(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -718,7 +730,7 @@ importers:
         version: link:../editor
       '@gravity-ui/page-constructor':
         specifier: catalog:peer-gravity
-        version: 7.25.0(@diplodoc/transform@4.69.0(@types/markdown-it@13.0.9)(highlight.js@11.8.0)(react@18.2.0))(@gravity-ui/uikit@7.13.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.0.28)(js-yaml@4.1.1)(react-dom@18.2.0(react@18.2.0))(react-is@18.3.1)(react@18.2.0)
+        version: 7.25.0(@diplodoc/transform@4.69.0(highlight.js@11.8.0)(react@18.2.0))(@gravity-ui/uikit@7.13.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.0.28)(js-yaml@4.1.1)(react-dom@18.2.0(react@18.2.0))(react-is@18.3.1)(react@18.2.0)
       '@gravity-ui/uikit':
         specifier: catalog:peer-gravity
         version: 7.13.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -749,18 +761,9 @@ importers:
       npm-run-all:
         specifier: ^4.1.5
         version: 4.1.5
-      prosemirror-model:
-        specifier: ^1.24.1
-        version: 1.24.1
-      prosemirror-state:
-        specifier: ^1.4.3
-        version: 1.4.3
       prosemirror-test-builder:
         specifier: ^1.1.1
         version: 1.1.1
-      prosemirror-view:
-        specifier: ^1.38.0
-        version: 1.39.1
       react:
         specifier: catalog:react
         version: 18.2.0
@@ -770,9 +773,6 @@ importers:
       react-error-boundary:
         specifier: ^3.1.4
         version: 3.1.4(react@18.2.0)
-      react-use:
-        specifier: 'catalog:'
-        version: 17.4.0(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       ts-dedent:
         specifier: ^2.2.0
         version: 2.2.0
@@ -9750,7 +9750,7 @@ snapshots:
       '@diplodoc/directive': 0.3.3(@types/markdown-it@13.0.9)(markdown-it@13.0.2)
       '@diplodoc/transform': 4.69.0(@types/markdown-it@13.0.9)(highlight.js@11.8.0)(react@18.2.0)
       '@diplodoc/utils': 2.1.0(react@18.2.0)
-      '@gravity-ui/page-constructor': 7.25.0(@diplodoc/transform@4.69.0(@types/markdown-it@13.0.9)(highlight.js@11.8.0)(react@18.2.0))(@gravity-ui/uikit@7.13.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.0.28)(js-yaml@4.1.1)(react-dom@18.2.0(react@18.2.0))(react-is@18.3.1)(react@18.2.0)
+      '@gravity-ui/page-constructor': 7.25.0(@diplodoc/transform@4.69.0(highlight.js@11.8.0)(react@18.2.0))(@gravity-ui/uikit@7.13.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.0.28)(js-yaml@4.1.1)(react-dom@18.2.0(react@18.2.0))(react-is@18.3.1)(react@18.2.0)
       cheerio: 1.0.0
       js-yaml: 4.1.1
       lodash: 4.17.23
@@ -10221,7 +10221,7 @@ snapshots:
     optionalDependencies:
       react: 18.2.0
 
-  '@gravity-ui/page-constructor@7.25.0(@diplodoc/transform@4.69.0(@types/markdown-it@13.0.9)(highlight.js@11.8.0)(react@18.2.0))(@gravity-ui/uikit@7.13.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.0.28)(js-yaml@4.1.1)(react-dom@18.2.0(react@18.2.0))(react-is@18.3.1)(react@18.2.0)':
+  '@gravity-ui/page-constructor@7.25.0(@diplodoc/transform@4.69.0(highlight.js@11.8.0)(react@18.2.0))(@gravity-ui/uikit@7.13.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.0.28)(js-yaml@4.1.1)(react-dom@18.2.0(react@18.2.0))(react-is@18.3.1)(react@18.2.0)':
     dependencies:
       '@bem-react/classname': 1.6.0
       '@diplodoc/transform': 4.69.0(@types/markdown-it@13.0.9)(highlight.js@11.8.0)(react@18.2.0)

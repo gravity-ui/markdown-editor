@@ -1,6 +1,10 @@
+import {useEffect} from 'react';
+
 /** @internal */
 export function useYfmPageConstructorRuntime() {
-    import(
-        /* webpackChunkName: "page-constructor-runtime" */ '@diplodoc/page-constructor-extension/runtime'
-    );
+    useEffect(() => {
+        import(
+            /* webpackChunkName: "page-constructor-runtime" */ '@diplodoc/page-constructor-extension/runtime'
+        );
+    }, []);
 }

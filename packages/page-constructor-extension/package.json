@@ -37,24 +37,24 @@
         "default": "./build/cjs/index.js"
       }
     },
-    "./toolbar": {
+    "./configs": {
       "import": {
-        "types": "./build/esm/toolbar.d.ts",
-        "default": "./build/esm/toolbar.js"
+        "types": "./build/esm/configs.d.ts",
+        "default": "./build/esm/configs.js"
       },
       "require": {
-        "types": "./build/cjs/toolbar.d.ts",
-        "default": "./build/cjs/toolbar.js"
+        "types": "./build/cjs/configs.d.ts",
+        "default": "./build/cjs/configs.js"
       }
     },
-    "./hocs/withYfmPageConstructor": {
+    "./view": {
       "import": {
-        "types": "./build/esm/hocs/withYfmPageConstructor/index.d.ts",
-        "default": "./build/esm/hocs/withYfmPageConstructor/index.js"
+        "types": "./build/esm/view.d.ts",
+        "default": "./build/esm/view.js"
       },
       "require": {
-        "types": "./build/cjs/hocs/withYfmPageConstructor/index.d.ts",
-        "default": "./build/cjs/hocs/withYfmPageConstructor/index.js"
+        "types": "./build/cjs/view.d.ts",
+        "default": "./build/cjs/view.js"
       }
     }
   },
@@ -83,14 +83,10 @@
     "gulp-cli": "catalog:",
     "jest": "^29.7.0",
     "npm-run-all": "^4.1.5",
-    "prosemirror-model": "^1.24.1",
-    "prosemirror-state": "^1.4.3",
     "prosemirror-test-builder": "^1.1.1",
-    "prosemirror-view": "^1.38.0",
     "react": "catalog:react",
     "react-dom": "catalog:react",
     "react-error-boundary": "^3.1.4",
-    "react-use": "catalog:",
     "ts-dedent": "^2.2.0",
     "ts-jest": "^29.2.0",
     "typescript": "catalog:ts"
@@ -101,24 +97,9 @@
     "@gravity-ui/markdown-editor": "workspace:^15.38.1",
     "@gravity-ui/page-constructor": "^7.0.0",
     "@gravity-ui/uikit": "^7.1.0",
-    "prosemirror-model": "^1.24.1",
-    "prosemirror-state": "^1.4.3",
-    "prosemirror-view": "^1.38.0",
-    "react": "^18.0.0 || ^19.0.0",
-    "react-dom": "^18.0.0 || ^19.0.0",
-    "react-error-boundary": "^3.1.4",
-    "react-use": "^17.0.0"
-  },
-  "peerDependenciesMeta": {
-    "@gravity-ui/page-constructor": {
-      "optional": true
-    },
-    "react-error-boundary": {
-      "optional": true
-    },
-    "react-use": {
-      "optional": true
-    }
+    "react": "^16.14.0 || ^17.0.0 || ^18.0.0 || ^19.0.0",
+    "react-dom": "^16.14.0 || ^17.0.0 || ^18.0.0 || ^19.0.0",
+    "react-error-boundary": "^3.1.4"
   },
   "sideEffects": [
     "*.css",
