@@ -2,23 +2,16 @@ import type MarkdownIt from 'markdown-it';
 import OrderedMap from 'orderedmap';
 import {inputRules} from 'prosemirror-inputrules';
 import {keymap} from 'prosemirror-keymap';
-import type {MarkSpec, NodeSpec} from 'prosemirror-model';
+import type {MarkSpec, NodeSpec, Schema} from 'prosemirror-model';
 import type {Plugin} from 'prosemirror-state';
 
 import type {Logger2} from '../logger';
 
-import type {ActionSpec} from './types/actions';
-import type {
-    Extension,
-    ExtensionDeps,
-    ExtensionMarkSpec,
-    ExtensionNodeSpec,
-    ExtensionSpec,
-    ExtensionWithOptions,
-} from './types/extension';
+import type {ActionSpec, ActionStorage} from './types/actions';
 import type {Keymap} from './types/keymap';
-import type {ParserToken} from './types/parser';
-import type {SerializerMarkToken, SerializerNodeToken} from './types/serializer';
+import type {MarkViewConstructor, NodeViewConstructor} from './types/node-views';
+import type {Parser, ParserToken} from './types/parser';
+import type {Serializer, SerializerMarkToken, SerializerNodeToken} from './types/serializer';
 
 type InputRulesConfig = Parameters<typeof inputRules>[0];
 type ExtensionWithParams = (builder: ExtensionBuilder, ...params: any[]) => void;
@@ -302,6 +295,46 @@ function processEntityPipeline<EntitySpec extends ExtensionNodeSpec | ExtensionM
     }
     return map;
 }
+
+export type Extension = (builder: ExtensionBuilder) => void;
+export type ExtensionWithOptions<T> = (builder: ExtensionBuilder, options: T) => void;
+export type ExtensionAuto<T = void> = T extends void ? Extension : ExtensionWithOptions<T>;
+
+export type ExtensionSpec = {
+    configureMd(md: MarkdownIt, parserType: 'text' | 'markup'): MarkdownIt;
+    nodes(): OrderedMap<ExtensionNodeSpec>;
+    marks(): OrderedMap<ExtensionMarkSpec>;
+    plugins(deps: ExtensionDeps): Plugin[];
+    actions(deps: ExtensionDeps): Record<string, ActionSpec>;
+};
+
+export type ExtensionNodeSpec = {
+    spec: NodeSpec;
+    view?: (deps: ExtensionDeps) => NodeViewConstructor;
+    fromMd: {
+        tokenName?: string;
+        tokenSpec: ParserToken;
+    };
+    toMd: SerializerNodeToken;
+};
+
+export type ExtensionMarkSpec = {
+    spec: MarkSpec;
+    view?: (deps: ExtensionDeps) => MarkViewConstructor;
+    fromMd: {
+        tokenName?: string;
+        tokenSpec: ParserToken;
+    };
+    toMd: SerializerMarkToken;
+};
+
+export type ExtensionDeps = {
+    readonly schema: Schema;
+    readonly textParser: Parser;
+    readonly markupParser: Parser;
+    readonly serializer: Serializer;
+    readonly actions: ActionStorage;
+};
 
 export class ExtensionBuilder {
     static createContext(): BuilderContext<WysiwygEditor.Context> {

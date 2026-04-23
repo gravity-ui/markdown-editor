@@ -26,6 +26,8 @@ import type {DirectiveSyntaxContext} from '../utils/directive';
 
 import {MarkupManager} from './MarkupManager';
 import {createDynamicModifiers} from './config/dynamicModifiers';
+import type {ChangeEditorModeOptions, MarkdownEditorInstance} from './editor-public-types';
+import type {EventMap, ToolbarActionData} from './events';
 import type {
     MarkdownEditorMode as EditorMode,
     MarkdownEditorPreset as EditorPreset,
@@ -37,23 +39,7 @@ import type {
     MarkdownEditorSplitMode as SplitMode,
 } from './types';
 
-export type ToolbarActionData = {
-    editorMode: EditorMode;
-    id: string;
-    attrs?: {[key: string]: any};
-};
-
-export interface EventMap {
-    change: null;
-    cancel: null;
-    submit: null;
-
-    'toolbar-action': ToolbarActionData;
-
-    'change-editor-mode': {mode: EditorMode};
-    'change-toolbar-visibility': {visible: boolean};
-    'change-split-mode-enabled': {splitModeEnabled: boolean};
-}
+export type {ToolbarActionData, EventMap, ChangeEditorModeOptions};
 
 // internal events
 interface EventMapInt extends EventMap {
@@ -62,18 +48,7 @@ interface EventMapInt extends EventMap {
     'cm-scroll': {event: Event};
 }
 
-export interface Editor extends Receiver<EventMap>, CommonEditor {
-    readonly logger: Logger2.LogReceiver;
-    readonly currentMode: EditorMode;
-    readonly toolbarVisible: boolean;
-
-    setEditorMode(mode: EditorMode, opts?: SetEditorModeOptions): void;
-
-    moveCursor(position: 'start' | 'end' | {line: number}): void;
-
-    /** @internal used in demo for dev-tools */
-    readonly _wysiwygView?: PMEditorView;
-}
+export type Editor = MarkdownEditorInstance;
 
 /** @internal */
 export interface EditorInt
@@ -116,12 +91,6 @@ export interface EditorInt
 }
 
 type SetEditorModeOptions = Pick<ChangeEditorModeOptions, 'emit'>;
-
-export type ChangeEditorModeOptions = {
-    mode: EditorMode;
-    reason: 'error-boundary' | 'settings' | 'manually';
-    emit?: boolean;
-};
 
 export type EditorOptions = Pick<
     MarkdownEditorOptions,

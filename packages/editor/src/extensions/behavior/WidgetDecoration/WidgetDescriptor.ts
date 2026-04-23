@@ -4,8 +4,8 @@ import type {EditorView} from 'prosemirror-view';
 import {uniqueId} from '../../../lodash';
 
 import {removeDecoration} from './actions';
+import type {Meta} from './meta';
 import {widgetDecorationPluginKey} from './plugin-key';
-import type {Meta} from './types';
 
 export abstract class WidgetDescriptor {
     #id: string;
@@ -48,11 +48,10 @@ export abstract class WidgetDescriptor {
     }
 
     applyTo(tr: Transaction) {
-        const meta: Meta = {
+        return tr.setMeta(widgetDecorationPluginKey, {
             type: 'add',
             descriptor: this,
-        };
-        return tr.setMeta(widgetDecorationPluginKey, meta);
+        } satisfies Meta<WidgetDescriptor>);
     }
 
     rmDeco(tr: Transaction) {
