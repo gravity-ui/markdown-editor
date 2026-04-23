@@ -26,7 +26,7 @@ test.describe('Extensions, YFM', () => {
     test('YFM HTML', async ({mount, expectScreenshot, page}) => {
         await mount(<YFMStories.YfmHtmlBlock />);
 
-        await page.waitForTimeout(700);
+        await page.waitForTimeout(2000);
         await expectScreenshot();
     });
     test('YFM File', async ({mount, expectScreenshot}) => {
