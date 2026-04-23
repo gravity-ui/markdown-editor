@@ -42,8 +42,8 @@ catalogs:
       specifier: ^0.1.2
       version: 0.1.2
     '@diplodoc/html-extension':
-      specifier: ^2.9.3
-      version: 2.9.3
+      specifier: ^2.9.6
+      version: 2.9.6
     '@diplodoc/latex-extension':
       specifier: ^1.4.1
       version: 1.4.1
@@ -154,7 +154,7 @@ importers:
         version: 0.1.2
       '@diplodoc/html-extension':
         specifier: catalog:peer-diplodoc
-        version: 2.9.3(@diplodoc/transform@4.69.0(@types/markdown-it@13.0.9)(highlight.js@11.8.0)(react@18.2.0))(@types/markdown-it@13.0.9)(markdown-it@13.0.2)(react@18.2.0)
+        version: 2.9.6(@diplodoc/transform@4.69.0(@types/markdown-it@13.0.9)(highlight.js@11.8.0)(react@18.2.0))(@types/markdown-it@13.0.9)(markdown-it@13.0.2)(react@18.2.0)
       '@diplodoc/latex-extension':
         specifier: catalog:peer-diplodoc
         version: 1.4.1(katex@0.16.27)(markdown-it@13.0.2)(react@18.2.0)
@@ -527,7 +527,7 @@ importers:
         version: 0.1.2
       '@diplodoc/html-extension':
         specifier: catalog:peer-diplodoc
-        version: 2.9.3(@diplodoc/transform@4.69.0(@types/markdown-it@13.0.9)(highlight.js@11.8.0)(react@18.2.0))(@types/markdown-it@13.0.9)(markdown-it@13.0.2)(react@18.2.0)
+        version: 2.9.6(@diplodoc/transform@4.69.0(@types/markdown-it@13.0.9)(highlight.js@11.8.0)(react@18.2.0))(@types/markdown-it@13.0.9)(markdown-it@13.0.2)(react@18.2.0)
       '@diplodoc/latex-extension':
         specifier: catalog:peer-diplodoc
         version: 1.4.1(katex@0.16.27)(markdown-it@13.0.2)(react@18.2.0)
@@ -1656,8 +1656,8 @@ packages:
   '@diplodoc/folding-headings-extension@0.1.2':
     resolution: {integrity: sha512-EVY3tyCYAw2phQeGXQMwsAWoKfO0qDAzc04XezfSEXyTZAN2ZIbVp+0yyebdshwEowNH4pgB9TK+702WX7lTUQ==}
 
-  '@diplodoc/html-extension@2.9.3':
-    resolution: {integrity: sha512-rXnAUqzXUo+QEjqfhDgcLvf86PZbaZDtNpnVwSFHa38jg5hXjvLwan1d0f43kef2GunuPmbxLk3i/FJWGb+eyA==}
+  '@diplodoc/html-extension@2.9.6':
+    resolution: {integrity: sha512-hSfkQM0SMjf1ttHuYlvIcDHSb291PqwxfetNwEkjQvRUoNvzmwIJE6s3+IfP24ZuVy6gEgoQ6NQjK38Qp0Yxig==}
     engines: {npm: '>=11.5.1'}
     peerDependencies:
       '@diplodoc/transform': ^4.0.0
@@ -4770,6 +4770,10 @@ packages:
     resolution: {integrity: sha512-V0hjH4dGPh9Ao5p0MoRY6BVqtwCjhz6vI5LT8AJ55H+4g9/4vbHx1I54fS0XuclLhDHArPQCiMjDxjaL8fPxhw==}
     engines: {node: '>=0.12'}
 
+  entities@8.0.0:
+    resolution: {integrity: sha512-zwfzJecQ/Uej6tusMqwAqU/6KL2XaB2VZ2Jg54Je6ahNBGNH6Ek6g3jjNCF0fG9EWQKGZNddNjU5F1ZQn/sBnA==}
+    engines: {node: '>=20.19.0'}
+
   env-paths@2.2.1:
     resolution: {integrity: sha512-+h1lkLKhZMTYjog1VEpJNG7NZJWcuc2DDk/qsqSTRRCOXiLjeQ1d1/udrUGhqMxUgAlwKNZ0cf2uqan5GLuS2A==}
     engines: {node: '>=6'}
@@ -6797,6 +6801,9 @@ packages:
 
   parse5@7.2.1:
     resolution: {integrity: sha512-BuBYQYlv1ckiPdQi/ohiivi9Sagc9JG+Ozs0r7b/0iK3sKmrb0b9FdWdBbOdx6hBCM/F9Ir82ofnBhtZOjCRPQ==}
+
+  parse5@8.0.1:
+    resolution: {integrity: sha512-z1e/HMG90obSGeidlli3hj7cbocou0/wa5HacvI3ASx34PecNjNQeaHNo5WIZpWofN9kgkqV1q5YvXe3F0FoPw==}
 
   pascal-case@3.1.2:
     resolution: {integrity: sha512-uWlGT3YSnK9x3BQJaOdcZwrnV6hPpd8jFH1/ucpiLRPh/2zCVJKS19E4GvYHvaCcACn3foXZ0cLB9Wrx1KGe5g==}
@@ -9710,10 +9717,11 @@ snapshots:
 
   '@diplodoc/folding-headings-extension@0.1.2': {}
 
-  '@diplodoc/html-extension@2.9.3(@diplodoc/transform@4.69.0(@types/markdown-it@13.0.9)(highlight.js@11.8.0)(react@18.2.0))(@types/markdown-it@13.0.9)(markdown-it@13.0.2)(react@18.2.0)':
+  '@diplodoc/html-extension@2.9.6(@diplodoc/transform@4.69.0(@types/markdown-it@13.0.9)(highlight.js@11.8.0)(react@18.2.0))(@types/markdown-it@13.0.9)(markdown-it@13.0.2)(react@18.2.0)':
     dependencies:
       '@diplodoc/directive': 0.3.3(@types/markdown-it@13.0.9)(markdown-it@13.0.2)
       markdown-it: 13.0.2
+      parse5: 8.0.1
     optionalDependencies:
       '@diplodoc/transform': 4.69.0(@types/markdown-it@13.0.9)(highlight.js@11.8.0)(react@18.2.0)
       react: 18.2.0
@@ -13087,6 +13095,8 @@ snapshots:
 
   entities@4.5.0: {}
 
+  entities@8.0.0: {}
+
   env-paths@2.2.1: {}
 
   error-ex@1.3.2:
@@ -15697,6 +15707,10 @@ snapshots:
   parse5@7.2.1:
     dependencies:
       entities: 4.5.0
+
+  parse5@8.0.1:
+    dependencies:
+      entities: 8.0.0
 
   pascal-case@3.1.2:
     dependencies:
