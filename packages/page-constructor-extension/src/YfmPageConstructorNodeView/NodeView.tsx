@@ -4,9 +4,9 @@ import {
     isInvalidEntityId,
     removeNode,
 } from '@gravity-ui/markdown-editor';
-import {Portal} from '@gravity-ui/uikit';
 import type {Node} from '@gravity-ui/markdown-editor/pm/model';
 import type {EditorView, NodeView} from '@gravity-ui/markdown-editor/pm/view';
+import {Portal} from '@gravity-ui/uikit';
 
 import type {YfmPageConstructorOptions} from '..';
 import {

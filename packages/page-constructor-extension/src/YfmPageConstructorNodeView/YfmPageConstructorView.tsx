@@ -9,9 +9,9 @@ import {
     useElementState,
     useSharedEditingState,
 } from '@gravity-ui/markdown-editor';
-import {Button, Flex, Icon, Loader, Menu, Popup, type PopupPlacement} from '@gravity-ui/uikit';
 import type {Node} from '@gravity-ui/markdown-editor/pm/model';
 import type {EditorView} from '@gravity-ui/markdown-editor/pm/view';
+import {Button, Flex, Icon, Loader, Menu, Popup, type PopupPlacement} from '@gravity-ui/uikit';
 
 import {TextAreaFixed as TextArea} from '../TextAreaFixed';
 import {YfmPageConstructorConsts} from '../YfmPageConstructorSpecs/const';
