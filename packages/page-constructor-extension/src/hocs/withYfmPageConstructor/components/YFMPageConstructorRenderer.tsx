@@ -1,7 +1,6 @@
 import {PageConstructor, PageConstructorProvider, type Theme} from '@gravity-ui/page-constructor';
 import {Flex, Portal, Text} from '@gravity-ui/uikit';
 import {ErrorBoundary} from 'react-error-boundary';
-import '@diplodoc/page-constructor-extension/styles'; // eslint-disable-line import/order
 
 import type {PageConstructorConfig} from '../types';
 import {useSelectContainers} from '../useSelectContainers';
