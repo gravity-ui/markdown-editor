@@ -1,50 +1,26 @@
 import {useCallback, useEffect, useRef, useState} from 'react';
 
 import {ArrowRight, ArrowRotateLeft, ThumbsDown, ThumbsUp} from '@gravity-ui/icons';
-import {ActionTooltip, Alert, type AlertProps, Button, Icon, TextInput} from '@gravity-ui/uikit';
+import {ActionTooltip, Alert, Button, Icon, TextInput} from '@gravity-ui/uikit';
 
 import {cn} from '../../../../classname';
 import {i18n} from '../../../../i18n/gpt/dialog';
 import gptIcon from '../../../../icons/GPT';
 import {ErrorScreen} from '../ErrorScreen/ErrorScreen';
-import type {CommonAnswer, GptRequestData, PromptPreset} from '../ErrorScreen/types';
+import type {CommonAnswer} from '../ErrorScreen/types';
 import {IconRefuge} from '../IconRefuge/IconRefuge';
 import {PresetList} from '../PresetList/PresetList';
 import {gptHotKeys} from '../constants';
 import {useGpt} from '../hooks/useGpt';
 import {useGptHotKeys} from '../hooks/useGptHotKeys';
+import type {GptDialogProps} from '../types';
 import {getAlertGptInfo, getDisableReplaceButtonText, getInputPlaceHolder} from '../utils';
 
 import {LoadingScreen} from './LoadingScreen/LoadingScreen';
 
 import './GptDialog.scss';
 
-export type GptDialogProps<
-    AnswerData extends CommonAnswer = CommonAnswer,
-    PromptData extends unknown = unknown,
-> = {
-    markup: string;
-    answerRender: (data: AnswerData) => JSX.Element;
-    onApplyResult: (markup: string) => void;
-    promptPresets?: PromptPreset<PromptData>[];
-    disablePromptPresets?: boolean;
-    customPromptPlaceholder?: string;
-    disabledPromptPlaceholder?: string;
-    onCustomPromptApply?: (data: GptRequestData<PromptData>) => Promise<AnswerData | undefined>;
-    onPromptPresetClick?: (data: GptRequestData<PromptData>) => Promise<AnswerData | undefined>;
-    onTryAgain?: (data: GptRequestData<PromptData>) => Promise<AnswerData | undefined>;
-    onLike?: (data: GptRequestData<PromptData>) => Promise<void>;
-    onDislike?: (data: GptRequestData<PromptData>) => Promise<void>;
-    onClose?: () => void;
-    onUpdate?: (value: AnswerData | undefined) => void;
-    gptAlertProps?: {
-        showedGptAlert: boolean;
-        onCloseGptAlert?: () => void;
-        message?: string;
-        theme?: AlertProps['theme'];
-        className?: string;
-    };
-};
+export type {GptDialogProps};
 
 export const cnGptDialog = cn('gpt-dialog');
 

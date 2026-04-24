@@ -6,19 +6,11 @@ import {WIDGET_DECO_CLASS_NAME, WIDGET_DECO_SPEC_FLAG} from './constants';
 import type {GptWidgetDecoViewParams} from './gptExtension/view';
 import {GptWidgetDecoView} from './gptExtension/view';
 import {pluginKey} from './plugin-key';
+import type {GptWidgetMeta} from './plugin-key';
 import {isEmptyGptPrompts} from './utils';
 
 export {pluginKey};
-
-export type GptWidgetMeta =
-    | {
-          action: 'show';
-          from: number;
-          to: number;
-      }
-    | {
-          action: 'hide';
-      };
+export type {GptWidgetMeta};
 
 export const gptWidgetPlugin = <
     AnswerData extends CommonAnswer = CommonAnswer,
