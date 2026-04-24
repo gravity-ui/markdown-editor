@@ -1,1 +1,1 @@
-export {wYfmPageConstructorItemData} from './toolbar';
+export {wYfmPageConstructorItemData} from './extension/toolbar';

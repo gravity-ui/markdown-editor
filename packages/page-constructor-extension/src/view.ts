@@ -1,5 +1,6 @@
 export {withYfmPageConstructor} from './hocs/withYfmPageConstructor';
 export type {
-    YfmPageConstructorConfig,
+    WithYfmPageConstructorOptions,
     WithYfmPageConstructorProps,
 } from './hocs/withYfmPageConstructor';
+export type {PageConstructorConfig, PluginRuntime} from './hocs/withYfmPageConstructor/types';

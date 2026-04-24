@@ -67,7 +67,6 @@
     "prosemirror-dev-toolkit": "1.1.8",
     "react": "catalog:react",
     "react-dom": "catalog:react",
-    "react-error-boundary": "^3.1.4",
     "react-use": "catalog:",
     "storybook": "10.3.5",
     "stylelint": "catalog:linters",

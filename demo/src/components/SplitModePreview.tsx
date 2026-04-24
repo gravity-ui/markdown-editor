@@ -15,7 +15,12 @@ import {withYfmPageConstructor} from '@gravity-ui/markdown-editor-page-construct
 import {useThemeValue} from '@gravity-ui/uikit';
 import type MarkdownIt from 'markdown-it';
 
-import {LATEX_RUNTIME, MERMAID_RUNTIME, YFM_HTML_BLOCK_RUNTIME} from '../defaults/md-plugins';
+import {
+    LATEX_RUNTIME,
+    MERMAID_RUNTIME,
+    PAGE_CONSTRUCTOR_RUNTIME,
+    YFM_HTML_BLOCK_RUNTIME,
+} from '../defaults/md-plugins';
 import useYfmHtmlBlockStyles from '../hooks/useYfmHtmlBlockStyles';
 
 const ML_ATTR = 'data-ml';
@@ -23,7 +28,7 @@ const mermaidConfig: MermaidConfig = {theme: 'forest'};
 
 const Preview = withMermaid({runtime: MERMAID_RUNTIME})(
     withLatex({runtime: LATEX_RUNTIME})(
-        withYfmPageConstructor()(
+        withYfmPageConstructor({runtime: PAGE_CONSTRUCTOR_RUNTIME})(
             withYfmHtmlBlock({runtime: YFM_HTML_BLOCK_RUNTIME})(YfmStaticView),
         ),
     ),

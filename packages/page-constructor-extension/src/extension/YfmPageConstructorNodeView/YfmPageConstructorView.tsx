@@ -9,13 +9,13 @@ import {
     useElementState,
     useSharedEditingState,
 } from '@gravity-ui/markdown-editor';
+import {TextAreaFixed as TextArea} from '@gravity-ui/markdown-editor/_/forms/TextInput.js';
 import type {Node} from '@gravity-ui/markdown-editor/pm/model';
 import type {EditorView} from '@gravity-ui/markdown-editor/pm/view';
 import {Button, Flex, Icon, Loader, Menu, Popup, type PopupPlacement} from '@gravity-ui/uikit';
 
-import {TextAreaFixed as TextArea} from '../TextAreaFixed';
+import {i18n} from '../../i18n';
 import {YfmPageConstructorConsts} from '../YfmPageConstructorSpecs/const';
-import {i18n} from '../i18n';
 import type {YfmPageConstructorOptions} from '../index';
 import type {YfmPageConstructorEntitySharedState} from '../types';
 

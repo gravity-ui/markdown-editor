@@ -7,11 +7,11 @@ import {
     blockquoteNodeName,
 } from '@gravity-ui/markdown-editor';
 import type {Node} from '@gravity-ui/markdown-editor/pm/model';
-import {builders} from 'prosemirror-test-builder';
+import {builders} from '@gravity-ui/markdown-editor/pm/test-builder';
 import dd from 'ts-dedent';
 
-import {YfmPageConstructorSpecs} from './YfmPageConstructorSpecs';
-import {YfmPageConstructorAttrs, yfmPageConstructorNodeName} from './const';
+import {YfmPageConstructorSpecs} from './extension/YfmPageConstructorSpecs';
+import {YfmPageConstructorAttrs, yfmPageConstructorNodeName} from './extension/const';
 
 jest.mock('@gravity-ui/markdown-editor', () => {
     const actual = jest.requireActual('@gravity-ui/markdown-editor');

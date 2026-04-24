@@ -1,42 +1,46 @@
-import {type ComponentType, type RefAttributes, forwardRef, useEffect} from 'react';
+import {type ComponentType, type RefAttributes, forwardRef, useRef} from 'react';
 
-import {usePageConstructor} from '@diplodoc/page-constructor-extension/react';
+import {setRef} from '@gravity-ui/uikit';
 
-import type {TransformMeta} from './types';
-import {useYfmPageConstructorRuntime} from './useYfmPageConstructorRuntime';
+import {YFMPageConstructor} from './components';
+import type {PageConstructorConfig, PluginRuntime, TransformMeta} from './types';
 
-import './withYfmPageConstructor.scss';
-
-export type YfmPageConstructorConfig = {
-    theme?: string;
-    preMountHook?: (container: HTMLElement) => void;
+export type WithYfmPageConstructorOptions = {
+    runtime: PluginRuntime;
 };
 
 export type WithYfmPageConstructorProps = {
-    meta?: TransformMeta;
-    yfmPageConstructorConfig?: YfmPageConstructorConfig;
+    meta: TransformMeta;
+    pcConfig?: PageConstructorConfig;
 };
 
-export function withYfmPageConstructor() {
+export function withYfmPageConstructor(opts: WithYfmPageConstructorOptions) {
     return <T extends {html: string}>(
         Component: ComponentType<T & RefAttributes<HTMLDivElement>>,
     ) =>
         forwardRef<HTMLDivElement, T & WithYfmPageConstructorProps>(
             function WithYfmPageConstructor(props, ref) {
-                const {html, yfmPageConstructorConfig} = props;
+                const containerRef = useRef<HTMLDivElement>(null);
+                const {meta, html, pcConfig} = props;
 
-                const renderPageConstructor = usePageConstructor({
-                    theme: yfmPageConstructorConfig?.theme,
-                    preMountHook: yfmPageConstructorConfig?.preMountHook,
-                });
-
-                useYfmPageConstructorRuntime();
-
-                useEffect(() => {
-                    renderPageConstructor();
-                }, [html, renderPageConstructor]);
-
-                return <Component {...(props as T)} ref={ref} />;
+                return (
+                    <>
+                        <Component
+                            {...props}
+                            ref={(elem) => {
+                                setRef(ref, elem);
+                                setRef(containerRef, elem);
+                            }}
+                        />
+                        <YFMPageConstructor
+                            html={html}
+                            meta={meta}
+                            config={pcConfig}
+                            runtime={opts.runtime}
+                            containerRef={containerRef}
+                        />
+                    </>
+                );
             },
         );
 }

@@ -1,7 +1,7 @@
 import {LayoutHeaderCursor as PageConstructorIcon} from '@gravity-ui/icons';
 import {ToolbarDataType, type WToolbarSingleItemData} from '@gravity-ui/markdown-editor';
 
-import {i18n} from './i18n';
+import {i18n} from '../i18n';
 
 export const wYfmPageConstructorItemData: WToolbarSingleItemData = {
     id: 'pageConstructor',

@@ -13,7 +13,7 @@ npm install @gravity-ui/markdown-editor-page-constructor-extension
 ### Required peer dependencies
 
 ```bash
-npm install @gravity-ui/markdown-editor @gravity-ui/uikit @gravity-ui/icons @gravity-ui/page-constructor @diplodoc/page-constructor-extension react react-dom react-error-boundary
+npm install @gravity-ui/markdown-editor @gravity-ui/uikit @gravity-ui/page-constructor @diplodoc/page-constructor-extension react react-dom
 ```
 
 ## Usage
@@ -39,7 +39,9 @@ import {wYfmPageConstructorItemData} from '@gravity-ui/markdown-editor-page-cons
 ```typescript
 import {withYfmPageConstructor} from '@gravity-ui/markdown-editor-page-constructor-extension/view';
 
-const Preview = withYfmPageConstructor()(YfmStaticView);
+const PAGE_CONSTRUCTOR_RUNTIME = 'extension:page-constructor';
+
+const Preview = withYfmPageConstructor({runtime: PAGE_CONSTRUCTOR_RUNTIME})(YfmStaticView);
 ```
 
 ## License

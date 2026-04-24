@@ -31,6 +31,7 @@ import type {PluginWithParams} from 'markdown-it/lib';
 export const LATEX_RUNTIME = 'extension:latex';
 export const MERMAID_RUNTIME = 'extension:mermaid';
 export const YFM_HTML_BLOCK_RUNTIME = 'extension:yfm-html-block';
+export const PAGE_CONSTRUCTOR_RUNTIME = 'extension:page-constructor';
 
 type GetPluginsOptions = {
     directiveSyntax?: RenderPreviewParams['directiveSyntax'];
@@ -89,7 +90,7 @@ export function getPlugins({
         latex({bundle: false, validate: false, runtime: LATEX_RUNTIME}),
         mark,
         mermaid({bundle: false, runtime: MERMAID_RUNTIME}),
-        yfmPageConstructor({bundle: false}),
+        yfmPageConstructor({bundle: false, runtime: PAGE_CONSTRUCTOR_RUNTIME}),
         sub,
         yfmHtmlBlock({
             bundle: false,
