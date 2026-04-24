@@ -1,6 +1,5 @@
 import {WidgetType} from '@codemirror/view';
 
-import type {GptWidgetOptions} from '../../..';
 import {
     Decoration,
     type DecorationSet,
@@ -9,9 +8,10 @@ import {
     ViewPlugin,
     type ViewUpdate,
 } from '../../../../cm/view';
-import {ReactRendererFacet} from '../../../../markup';
+import {ReactRendererFacet} from '../../../../markup/codemirror/react-facet';
 import type {CommonAnswer} from '../ErrorScreen/types';
 import {WIDGET_DECO_CLASS_NAME} from '../constants';
+import type {GptWidgetOptions} from '../gptExtension/gptExtension';
 import {isEmptyGptPrompts} from '../utils';
 
 import {hideMarkupGpt} from './commands';

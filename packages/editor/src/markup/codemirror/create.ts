@@ -20,15 +20,15 @@ import {
 
 import {InputState} from 'src/utils/input-state';
 
-import type {ParseInsertedUrlAsImage} from '../../bundle';
-import type {EventMap} from '../../bundle/Editor';
 import {ActionName} from '../../bundle/config/action-names';
+import type {EventMap} from '../../bundle/events';
 import type {ReactRenderStorage} from '../../extensions';
 import {type Logger2, globalLogger} from '../../logger';
 import {Action as A, formatter as f} from '../../shortcuts';
 import type {Receiver} from '../../utils';
 import {DataTransferType, shouldSkipHtmlConversion} from '../../utils/clipboard';
 import type {DirectiveSyntaxContext} from '../../utils/directive';
+import type {ParseInsertedUrlAsImage} from '../../utils/upload';
 import {
     insertEmptyRow,
     insertImages,

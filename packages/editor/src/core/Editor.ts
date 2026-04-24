@@ -7,14 +7,14 @@ import {Logger2} from '../logger';
 
 import type {ActionsManager} from './ActionsManager';
 import {WysiwygContentHandler} from './ContentHandler';
+import type {Extension} from './ExtensionBuilder';
 import {ExtensionsManager} from './ExtensionsManager';
 import {SchemaDynamicModifier} from './SchemaDynamicModifier';
 import {MarkdownParserDynamicModifier} from './markdown/MarkdownParser';
-import {MarkdownSerializerDynamicModifier} from './markdown/MarkdownSerializerDynamicModifier';
+import {MarkdownSerializerDynamicModifier} from './markdown/MarkdownSerializer';
 import type {TransformFn} from './markdown/ProseMirrorTransformer';
 import type {ActionStorage} from './types/actions';
 import type {DynamicModifiers} from './types/dynamicModifiers';
-import type {Extension} from './types/extension';
 import type {Parser} from './types/parser';
 import type {Serializer} from './types/serializer';
 import {bindActions} from './utils/actions';

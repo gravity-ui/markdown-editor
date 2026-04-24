@@ -4,7 +4,16 @@ import type {PlaceholderOptions} from '../../../../utils/placeholder';
 
 import {DeflistAttr, DeflistNode} from './const';
 
-import type {DeflistSpecsOptions} from './index';
+export type DeflistSchemaOptions = {
+    /**
+     * @deprecated use placeholder option in BehaviorPreset instead.
+     */
+    deflistTermPlaceholder?: NonNullable<NodeSpec['placeholder']>['content'];
+    /**
+     * @deprecated use placeholder option in BehaviorPreset instead.
+     */
+    deflistDescPlaceholder?: NonNullable<NodeSpec['placeholder']>['content'];
+};
 
 const DEFAULT_PLACEHOLDERS = {
     Term: 'Definition term',
@@ -12,7 +21,7 @@ const DEFAULT_PLACEHOLDERS = {
 };
 
 export const getSchemaSpecs = (
-    opts?: DeflistSpecsOptions,
+    opts?: DeflistSchemaOptions,
     placeholder?: PlaceholderOptions,
 ): Record<DeflistNode, NodeSpec> => ({
     [DeflistNode.List]: {
