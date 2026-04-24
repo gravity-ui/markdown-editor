@@ -9,6 +9,6 @@ export const wYfmPageConstructorItemData: WToolbarSingleItemData = {
     title: i18n.bind(null, 'page-constructor'),
     icon: {data: PageConstructorIcon},
     exec: (e) => e.actions.createYfmPageConstructor.run(),
-    isActive: () => false,
+    isActive: (e) => e.actions.createYfmPageConstructor.isActive(),
     isEnable: (e) => e.actions.createYfmPageConstructor.isEnable(),
 };

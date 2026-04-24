@@ -1,5 +1,5 @@
 import {transform} from '@diplodoc/page-constructor-extension/plugin/csr';
-import type {ExtensionAuto, ExtensionNodeSpec} from '@gravity-ui/markdown-editor';
+import type {ExtensionAuto} from '@gravity-ui/markdown-editor';
 import {generateEntityId} from '@gravity-ui/markdown-editor';
 
 import {
@@ -11,65 +11,50 @@ import {
 
 export {yfmPageConstructorNodeName, YfmPageConstructorConsts} from './const';
 
-export type YfmPageConstructorSpecsOptions = {
-    nodeView?: ExtensionNodeSpec['view'];
-};
-
-const YfmPageConstructorSpecsExtension: ExtensionAuto<YfmPageConstructorSpecsOptions> = (
-    builder,
-    {nodeView},
-) => {
+export const YfmPageConstructorSpecsExtension: ExtensionAuto = (builder) => {
     builder
         .configureMd((md) => md.use(transform({bundle: false}), {}))
-        .addNode(yfmPageConstructorNodeName, () => ({
-            fromMd: {
-                tokenName: yfmPageConstructorTokenName,
-                tokenSpec: {
-                    name: yfmPageConstructorNodeName,
-                    type: 'node',
-                    noCloseToken: true,
-                    getAttrs: ({content}) => ({
-                        [YfmPageConstructorConsts.NodeAttrs.content]: content,
-                        [YfmPageConstructorConsts.NodeAttrs.EntityId]: generateEntityId(
-                            yfmPageConstructorNodeName,
-                        ),
-                    }),
+        .addNodeSpec(yfmPageConstructorNodeName, () => ({
+            selectable: true,
+            atom: true,
+            group: 'block',
+            attrs: {
+                [YfmPageConstructorConsts.NodeAttrs.content]: {default: ''},
+                [YfmPageConstructorConsts.NodeAttrs.EntityId]: {
+                    default: defaultYfmPageConstructorEntityId,
                 },
             },
-            spec: {
-                selectable: true,
-                atom: true,
-                group: 'block',
-                attrs: {
-                    [YfmPageConstructorConsts.NodeAttrs.content]: {default: ''},
-                    [YfmPageConstructorConsts.NodeAttrs.EntityId]: {
-                        default: defaultYfmPageConstructorEntityId,
-                    },
-                },
-                parseDOM: [],
-                toDOM(node) {
-                    return ['div', node.attrs];
-                },
-                dnd: {props: {offset: [8, 1]}},
+            parseDOM: [],
+            toDOM(node) {
+                return ['div', node.attrs];
             },
-            toMd: (state, node) => {
-                const content = String(
-                    node.attrs[YfmPageConstructorConsts.NodeAttrs.content] || '',
-                );
+            dnd: {props: {offset: [8, 1]}},
+        }))
+        .addMarkdownTokenParserSpec(yfmPageConstructorTokenName, () => ({
+            name: yfmPageConstructorNodeName,
+            type: 'node',
+            noCloseToken: true,
+            getAttrs: ({content}) => ({
+                [YfmPageConstructorConsts.NodeAttrs.content]: content,
+                [YfmPageConstructorConsts.NodeAttrs.EntityId]: generateEntityId(
+                    yfmPageConstructorNodeName,
+                ),
+            }),
+        }))
+        .addNodeSerializerSpec(yfmPageConstructorNodeName, () => (state, node) => {
+            const content = String(node.attrs[YfmPageConstructorConsts.NodeAttrs.content] || '');
 
-                state.write('::: page-constructor');
+            state.write('::: page-constructor');
+            state.ensureNewLine();
+
+            if (content) {
+                state.text(content.trimEnd(), false);
                 state.ensureNewLine();
+            }
 
-                if (content) {
-                    state.text(content.trimEnd(), false);
-                    state.ensureNewLine();
-                }
-
-                state.write(':::');
-                state.closeBlock(node);
-            },
-            view: nodeView,
-        }));
+            state.write(':::');
+            state.closeBlock(node);
+        });
 };
 
 export const YfmPageConstructorSpecs = Object.assign(

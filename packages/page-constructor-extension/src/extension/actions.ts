@@ -2,7 +2,7 @@ import type {ActionSpec} from '@gravity-ui/markdown-editor';
 import {SharedStateKey, generateEntityId, get$Cursor, pType} from '@gravity-ui/markdown-editor';
 import type {Command} from '@gravity-ui/markdown-editor/pm/state';
 
-import {YfmPageConstructorConsts} from './YfmPageConstructorSpecs';
+import {YfmPageConstructorConsts} from './YfmPageConstructorSpecs/const';
 import type {YfmPageConstructorEntitySharedState} from './types';
 
 const defaultYfmPageConstructorContent = [
@@ -40,6 +40,9 @@ const createYfmPageConstructor: Command = (state, dispatch) => {
 };
 
 export const addYfmPageConstructor: ActionSpec = {
+    isActive() {
+        return false;
+    },
     isEnable(state) {
         return createYfmPageConstructor(state);
     },

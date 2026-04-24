@@ -1,13 +1,13 @@
 export {
     YfmPageConstructorSpecs,
+    YfmPageConstructorSpecsExtension,
     YfmPageConstructorConsts,
     yfmPageConstructorNodeName,
 } from './extension/YfmPageConstructorSpecs';
-export type {YfmPageConstructorSpecsOptions} from './extension/YfmPageConstructorSpecs';
 export {
     YfmPageConstructorAttrs,
     yfmPageConstructorTokenName,
     yfmPageConstructorNodeType,
-    YfmPageConstructorAction,
     defaultYfmPageConstructorEntityId,
 } from './extension/YfmPageConstructorSpecs/const';
+export {YfmPageConstructorAction} from './extension/const';

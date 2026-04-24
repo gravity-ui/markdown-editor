@@ -32,7 +32,7 @@ import {
     wLatexBlockItemData,
     wLatexInlineItemData,
 } from '@gravity-ui/markdown-editor-latex-extension/configs';
-import {YfmPageConstructor} from '@gravity-ui/markdown-editor-page-constructor-extension';
+import {YfmPageConstructorExtension} from '@gravity-ui/markdown-editor-page-constructor-extension';
 import {wYfmPageConstructorItemData} from '@gravity-ui/markdown-editor-page-constructor-extension/configs';
 import {Button, DropdownMenu} from '@gravity-ui/uikit';
 
@@ -214,7 +214,7 @@ export const Playground = memo<PlaygroundProps>((props) => {
                             },
                             theme: {dark: 'dark', light: 'forest'},
                         })
-                        .use(YfmPageConstructor, {
+                        .use(YfmPageConstructorExtension, {
                             autoSave: {
                                 enabled:
                                     storyAdditionalControls?.yfmPageConstructorAutoSaveEnabled ??

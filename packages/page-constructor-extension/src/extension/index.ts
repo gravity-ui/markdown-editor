@@ -1,37 +1,44 @@
-import type {
-    Action,
-    ExtensionAuto,
-    ExtensionDeps,
-    NodeViewConstructor,
-} from '@gravity-ui/markdown-editor';
+import type {Action, ExtensionAuto} from '@gravity-ui/markdown-editor';
+import {Plugin} from '@gravity-ui/markdown-editor/pm/state';
 
 import {WYfmPageConstructorNodeView} from './YfmPageConstructorNodeView';
 import type {TransformerOptions} from './YfmPageConstructorNodeView/YfmPageConstructorPreview';
 export type {TransformerOptions as YfmPageConstructorTransformerOptions};
 import {YfmPageConstructorSpecs} from './YfmPageConstructorSpecs';
-import {YfmPageConstructorAction} from './YfmPageConstructorSpecs/const';
+import {yfmPageConstructorNodeName} from './YfmPageConstructorSpecs/const';
 import {addYfmPageConstructor} from './actions';
+import {YfmPageConstructorAction} from './const';
 
 export type YfmPageConstructorOptions = {
+    /** Whether the user can edit page-constructor blocks in WYSIWYG mode. @default true */
     canEdit?: boolean;
+    /** Auto-save configuration for the YAML editor inside the node view. */
     autoSave?: {
+        /** Enable auto-save. When true, changes are saved automatically after a delay. */
         enabled: boolean;
+        /** Delay in milliseconds before auto-saving after the last edit. */
         delay?: number;
     };
+    /** Options for server-side content transformation, or `false` to disable it. */
     transformerOptions?: TransformerOptions;
 };
 
-function createNodeViewFactory(
-    options: YfmPageConstructorOptions,
-): (deps: ExtensionDeps) => NodeViewConstructor {
-    return () => (node, view, getPos) => {
-        return new WYfmPageConstructorNodeView(node, view, getPos, options);
-    };
-}
+export const YfmPageConstructorExtension: ExtensionAuto<YfmPageConstructorOptions> = (
+    builder,
+    options,
+) => {
+    builder.use(YfmPageConstructorSpecs);
 
-export const YfmPageConstructor: ExtensionAuto<YfmPageConstructorOptions> = (builder, options) => {
-    builder.use(YfmPageConstructorSpecs, {
-        nodeView: createNodeViewFactory(options),
+    builder.addPlugin(() => {
+        return new Plugin({
+            props: {
+                nodeViews: {
+                    [yfmPageConstructorNodeName]: (node, view, getPos) => {
+                        return new WYfmPageConstructorNodeView(node, view, getPos, options);
+                    },
+                },
+            },
+        });
     });
 
     builder.addAction(YfmPageConstructorAction, () => addYfmPageConstructor);

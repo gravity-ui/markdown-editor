@@ -43,14 +43,14 @@ export const YfmPageConstructorPreview: React.FC<{
 
     if (!loadResult.success) {
         return (
-            <div className={b('Error')}>
+            <div className={b('error')}>
                 <div>{String(loadResult.error)}</div>
             </div>
         );
     }
 
     return (
-        <div className={b('Preview')}>
+        <div className={b('preview')}>
             <ErrorBoundary
                 fallbackRender={({error}) => (
                     <Flex justifyContent="center" alignItems="center" width="100%" height="100%">

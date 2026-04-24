@@ -1,4 +1,4 @@
-.g-md-YfmPageConstructor {
+.g-md-yfm-page-constructor {
     position: relative;
 
     display: flex;
@@ -15,7 +15,7 @@
         display: flex;
     }
 
-    &__Constructor {
+    &__constructor {
         flex: 1 1 auto;
 
         min-width: 0;
@@ -26,7 +26,7 @@
         }
     }
 
-    &__Error {
+    &__error {
         flex: 1 1 auto;
 
         font-family: var(--g-font-family-monospace);
@@ -36,7 +36,7 @@
         color: var(--g-color-text-danger);
     }
 
-    &__Preview {
+    &__preview {
         flex: 1 1 auto;
 
         min-width: 0;
@@ -47,7 +47,7 @@
         }
     }
 
-    &__Editor {
+    &__editor {
         flex: 1 1 auto;
 
         min-width: 320px;
@@ -56,7 +56,7 @@
         caret-color: auto;
     }
 
-    &__Controls {
+    &__controls {
         display: flex;
         justify-content: flex-end;
         gap: 8px;
@@ -64,7 +64,7 @@
         margin-top: 8px;
     }
 
-    &__Menu {
+    &__menu {
         position: absolute;
         z-index: 10;
         top: 0;

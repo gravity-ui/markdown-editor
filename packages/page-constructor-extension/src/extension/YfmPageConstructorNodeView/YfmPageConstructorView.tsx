@@ -24,7 +24,7 @@ import type {TransformerOptions} from './YfmPageConstructorPreview';
 import './YfmPageConstructor.scss';
 
 export {type TransformerOptions};
-export const cnYfmPageConstructor: (...args: unknown[]) => string = cn('YfmPageConstructor');
+export const cnYfmPageConstructor: (...args: unknown[]) => string = cn('yfm-page-constructor');
 export const STOP_EVENT_CLASSNAME = 'prosemirror-stop-event';
 
 const b = cnYfmPageConstructor;
@@ -67,16 +67,16 @@ const PageConstructorEditMode: React.FC<{
             <YfmPageConstructorPreview
                 text={value}
                 transformerOptions={transformerOptions}
-                className={b('Constructor')}
+                className={b('constructor')}
             />
-            <div className={b('Editor')} style={{whiteSpace: 'nowrap', caretColor: 'auto'}}>
+            <div className={b('editor')} style={{whiteSpace: 'nowrap', caretColor: 'auto'}}>
                 <TextArea
                     controlProps={{className: STOP_EVENT_CLASSNAME}}
                     value={value}
                     onUpdate={handleChange}
                     autoFocus
                 />
-                <Flex justifyContent="flex-end" spacing={{mt: 2}} className={b('Controls')}>
+                <Flex justifyContent="flex-end" spacing={{mt: 2}} className={b('controls')}>
                     <Button onClick={onCancel} view="flat">
                         <span className={STOP_EVENT_CLASSNAME}>
                             {isAutoSaveEnabled ? i18n('close') : i18n('cancel')}
@@ -152,10 +152,10 @@ export const YfmPageConstructorView: React.FC<{
             <YfmPageConstructorPreview
                 text={content}
                 transformerOptions={transformerOptions}
-                className={b('Constructor')}
+                className={b('constructor')}
             />
             {canEdit && (
-                <div className={b('Menu')}>
+                <div className={b('menu')}>
                     <Button
                         size="s"
                         onClick={toggleMenuOpen}

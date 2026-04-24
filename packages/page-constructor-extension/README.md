@@ -21,9 +21,9 @@ npm install @gravity-ui/markdown-editor @gravity-ui/uikit @gravity-ui/page-const
 ### WYSIWYG extension
 
 ```typescript
-import {YfmPageConstructor} from '@gravity-ui/markdown-editor-page-constructor-extension';
+import {YfmPageConstructorExtension} from '@gravity-ui/markdown-editor-page-constructor-extension';
 
-builder.use(YfmPageConstructor, {
+builder.use(YfmPageConstructorExtension, {
     autoSave: {enabled: true, delay: 1000},
 });
 ```
