@@ -11,7 +11,7 @@ import {
 
 export {yfmPageConstructorNodeName, YfmPageConstructorConsts} from './const';
 
-export const YfmPageConstructorSpecsExtension: ExtensionAuto = (builder) => {
+const YfmPageConstructorSpecsExtensionFn: ExtensionAuto = (builder) => {
     builder
         .configureMd((md) => md.use(transform({bundle: false}), {}))
         .addNodeSpec(yfmPageConstructorNodeName, () => ({
@@ -57,7 +57,7 @@ export const YfmPageConstructorSpecsExtension: ExtensionAuto = (builder) => {
         });
 };
 
-export const YfmPageConstructorSpecs = Object.assign(
-    YfmPageConstructorSpecsExtension,
+export const YfmPageConstructorSpecsExtension = Object.assign(
+    YfmPageConstructorSpecsExtensionFn,
     YfmPageConstructorConsts,
 );

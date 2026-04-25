@@ -8,7 +8,7 @@ import type {Node} from '@gravity-ui/markdown-editor/pm/model';
 import type {EditorView, NodeView} from '@gravity-ui/markdown-editor/pm/view';
 import {Portal} from '@gravity-ui/uikit';
 
-import type {YfmPageConstructorOptions} from '..';
+import type {YfmPageConstructorExtensionOptions} from '..';
 import {
     YfmPageConstructorConsts,
     defaultYfmPageConstructorEntityId,
@@ -22,13 +22,13 @@ export class WYfmPageConstructorNodeView implements NodeView {
     private readonly view: EditorView;
     private readonly getPos: () => number | undefined;
     private readonly renderItem;
-    private readonly options: YfmPageConstructorOptions;
+    private readonly options: YfmPageConstructorExtensionOptions;
 
     constructor(
         node: Node,
         view: EditorView,
         getPos: () => number | undefined,
-        options: YfmPageConstructorOptions,
+        options: YfmPageConstructorExtensionOptions,
     ) {
         this.node = node;
         this.view = view;

@@ -16,7 +16,7 @@ import {Button, Flex, Icon, Loader, Menu, Popup, type PopupPlacement} from '@gra
 
 import {i18n} from '../../i18n';
 import {YfmPageConstructorConsts} from '../YfmPageConstructorSpecs/const';
-import type {YfmPageConstructorOptions} from '../index';
+import type {YfmPageConstructorExtensionOptions} from '../index';
 import type {YfmPageConstructorEntitySharedState} from '../types';
 
 import type {TransformerOptions} from './YfmPageConstructorPreview';
@@ -24,10 +24,9 @@ import type {TransformerOptions} from './YfmPageConstructorPreview';
 import './YfmPageConstructor.scss';
 
 export {type TransformerOptions};
-export const cnYfmPageConstructor: (...args: unknown[]) => string = cn('yfm-page-constructor');
 export const STOP_EVENT_CLASSNAME = 'prosemirror-stop-event';
 
-const b = cnYfmPageConstructor;
+const b = cn('yfm-page-constructor');
 
 const popupPlacement: PopupPlacement = ['bottom-end'];
 
@@ -52,7 +51,7 @@ const PageConstructorEditMode: React.FC<{
     initialText: string;
     onSave: (v: string) => void;
     onCancel: () => void;
-    autoSave: YfmPageConstructorOptions['autoSave'];
+    autoSave: YfmPageConstructorExtensionOptions['autoSave'];
     transformerOptions: TransformerOptions;
 }> = ({initialText, onSave, onCancel, autoSave, transformerOptions}) => {
     const {value, handleChange, handleManualSave, isSaveDisabled, isAutoSaveEnabled} = useAutoSave({
@@ -99,7 +98,7 @@ export const YfmPageConstructorView: React.FC<{
     onChange: (content: string) => void;
     onRemove: () => void;
     canEdit: boolean;
-    autoSave: YfmPageConstructorOptions['autoSave'];
+    autoSave: YfmPageConstructorExtensionOptions['autoSave'];
     transformerOptions: TransformerOptions;
 }> = ({view, node, onChange, onRemove, canEdit, autoSave, transformerOptions}) => {
     const entityId: string = node.attrs[YfmPageConstructorConsts.NodeAttrs.EntityId];

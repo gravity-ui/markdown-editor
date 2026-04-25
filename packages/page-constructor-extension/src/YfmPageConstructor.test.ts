@@ -10,7 +10,7 @@ import type {Node} from '@gravity-ui/markdown-editor/pm/model';
 import {builders} from '@gravity-ui/markdown-editor/pm/test-builder';
 import dd from 'ts-dedent';
 
-import {YfmPageConstructorSpecs} from './extension/YfmPageConstructorSpecs';
+import {YfmPageConstructorSpecsExtension} from './extension/YfmPageConstructorSpecs';
 import {YfmPageConstructorAttrs, yfmPageConstructorNodeName} from './extension/const';
 
 jest.mock('@gravity-ui/markdown-editor', () => {
@@ -44,7 +44,7 @@ const {
     serializer,
 } = new ExtensionsManager({
     extensions: (builder) =>
-        builder.use(BaseSchemaSpecs, {}).use(BlockquoteSpecs).use(YfmPageConstructorSpecs, {}),
+        builder.use(BaseSchemaSpecs, {}).use(BlockquoteSpecs).use(YfmPageConstructorSpecsExtension),
 }).buildDeps();
 
 const {doc, yfmPageConstructor, quote} = builders<'doc' | 'yfmPageConstructor' | 'quote'>(schema, {

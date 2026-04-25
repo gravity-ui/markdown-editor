@@ -1,6 +1,7 @@
 import {useMemo} from 'react';
 
 import {loadPageContent} from '@diplodoc/page-constructor-extension/plugin/csr';
+import {cn} from '@gravity-ui/markdown-editor';
 import {
     PageConstructor as PageConstructorContent,
     PageConstructorProvider,
@@ -12,9 +13,7 @@ import {contentTransformer} from '@gravity-ui/page-constructor/server';
 import {Flex, Text, useThemeType} from '@gravity-ui/uikit';
 import {ErrorBoundary} from 'react-error-boundary';
 
-import {cnYfmPageConstructor} from './YfmPageConstructorView';
-
-const b = cnYfmPageConstructor;
+const b = cn('yfm-page-constructor');
 
 export type TransformerOptions = false | ContentTransformerProps['options'];
 

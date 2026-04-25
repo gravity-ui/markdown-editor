@@ -1,5 +1,4 @@
 export {
-    YfmPageConstructorSpecs,
     YfmPageConstructorSpecsExtension,
     YfmPageConstructorConsts,
     yfmPageConstructorNodeName,
@@ -10,4 +9,3 @@ export {
     yfmPageConstructorNodeType,
     defaultYfmPageConstructorEntityId,
 } from './extension/YfmPageConstructorSpecs/const';
-export {YfmPageConstructorAction} from './extension/const';

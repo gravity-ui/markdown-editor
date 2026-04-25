@@ -4,12 +4,12 @@ import {Plugin} from '@gravity-ui/markdown-editor/pm/state';
 import {WYfmPageConstructorNodeView} from './YfmPageConstructorNodeView';
 import type {TransformerOptions} from './YfmPageConstructorNodeView/YfmPageConstructorPreview';
 export type {TransformerOptions as YfmPageConstructorTransformerOptions};
-import {YfmPageConstructorSpecs} from './YfmPageConstructorSpecs';
+import {YfmPageConstructorSpecsExtension} from './YfmPageConstructorSpecs';
 import {yfmPageConstructorNodeName} from './YfmPageConstructorSpecs/const';
 import {addYfmPageConstructor} from './actions';
 import {YfmPageConstructorAction} from './const';
 
-export type YfmPageConstructorOptions = {
+export type YfmPageConstructorExtensionOptions = {
     /** Whether the user can edit page-constructor blocks in WYSIWYG mode. @default true */
     canEdit?: boolean;
     /** Auto-save configuration for the YAML editor inside the node view. */
@@ -23,11 +23,11 @@ export type YfmPageConstructorOptions = {
     transformerOptions?: TransformerOptions;
 };
 
-export const YfmPageConstructorExtension: ExtensionAuto<YfmPageConstructorOptions> = (
+export const YfmPageConstructorExtension: ExtensionAuto<YfmPageConstructorExtensionOptions> = (
     builder,
     options,
 ) => {
-    builder.use(YfmPageConstructorSpecs);
+    builder.use(YfmPageConstructorSpecsExtension);
 
     builder.addPlugin(() => {
         return new Plugin({
