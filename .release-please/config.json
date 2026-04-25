@@ -12,6 +12,7 @@
   ],
   "packages": {
     "packages/editor": {},
-    "packages/latex-extension": {}
+    "packages/latex-extension": {},
+    "packages/page-constructor-extension": {}
   }
 }
