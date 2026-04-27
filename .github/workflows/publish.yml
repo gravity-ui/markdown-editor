@@ -15,6 +15,7 @@ on:
         options:
           - 'packages/editor'
           - 'packages/latex-extension'
+          - 'packages/page-constructor-extension'
       tag:
         description: 'Publish with tag'
         required: true
