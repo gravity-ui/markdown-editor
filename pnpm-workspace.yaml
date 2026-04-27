@@ -26,7 +26,7 @@ catalogs:
     '@diplodoc/page-constructor-extension': ^0.13.3
     '@diplodoc/quote-link-extension': 0.1.3
     '@diplodoc/tabs-extension': ^3.7.5
-    '@diplodoc/transform': 4.69.0
+    '@diplodoc/transform': 4.74.0
 
   peer-gravity:
     '@gravity-ui/components': 4.10.0
