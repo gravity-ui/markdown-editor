@@ -54,8 +54,8 @@ catalogs:
       specifier: ^0.13.3
       version: 0.13.2
     '@diplodoc/quote-link-extension':
-      specifier: 0.1.3
-      version: 0.1.3
+      specifier: 0.1.4
+      version: 0.1.4
     '@diplodoc/tabs-extension':
       specifier: ^3.7.5
       version: 3.8.0
@@ -166,7 +166,7 @@ importers:
         version: 0.13.2(@diplodoc/transform@4.69.0(@types/markdown-it@13.0.9)(highlight.js@11.8.0)(react@18.2.0))(@gravity-ui/uikit@7.13.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/markdown-it@13.0.9)(@types/react@18.0.28)(markdown-it@13.0.2)(react-dom@18.2.0(react@18.2.0))(react-is@18.3.1)(react@18.2.0)
       '@diplodoc/quote-link-extension':
         specifier: catalog:peer-diplodoc
-        version: 0.1.3(react@18.2.0)
+        version: 0.1.4(react@18.2.0)
       '@diplodoc/tabs-extension':
         specifier: catalog:peer-diplodoc
         version: 3.8.0(react@18.2.0)
@@ -545,7 +545,7 @@ importers:
         version: 2.0.0(markdown-it@13.0.2)(react@18.2.0)
       '@diplodoc/quote-link-extension':
         specifier: catalog:peer-diplodoc
-        version: 0.1.3(react@18.2.0)
+        version: 0.1.4(react@18.2.0)
       '@diplodoc/tabs-extension':
         specifier: catalog:peer-diplodoc
         version: 3.8.0(react@18.2.0)
@@ -1692,8 +1692,9 @@ packages:
       react: ^16.8.0  || ^17.0.0 || ^18.0.0 || ^19.0.0
       react-dom: ^16.8.0  || ^17.0.0 || ^18.0.0 || ^19.0.0
 
-  '@diplodoc/quote-link-extension@0.1.3':
-    resolution: {integrity: sha512-1Q/pNkg7tOFuxhDny2iRxL6dSyXOarKFBzx0RyTjMipKhVFOeonFMT3XoeO34Wns7loi88CTO+jJCsqc3K4BUw==}
+  '@diplodoc/quote-link-extension@0.1.4':
+    resolution: {integrity: sha512-e8LPaUhSnRpgV+SBs/fJSCUwyJNyc3DqvsIR1PXilSjr/4PVgxj3zh+tag/L5TPboGLHu2WEH9qRm61DUiZI3w==}
+    engines: {npm: '>=11.5.1'}
 
   '@diplodoc/tabs-extension@3.8.0':
     resolution: {integrity: sha512-Ar6YGC+VWFX1dRCZ5wYVlKcOf1lqzknsAVnyW5Bian4s6Vp0llLmGtY7n4bbN7IQdIT5X5OU0mBnbDwA9X+9nA==}
@@ -9758,7 +9759,7 @@ snapshots:
       - '@types/react'
       - react-is
 
-  '@diplodoc/quote-link-extension@0.1.3(react@18.2.0)':
+  '@diplodoc/quote-link-extension@0.1.4(react@18.2.0)':
     dependencies:
       '@diplodoc/utils': 2.1.0(react@18.2.0)
     transitivePeerDependencies:
