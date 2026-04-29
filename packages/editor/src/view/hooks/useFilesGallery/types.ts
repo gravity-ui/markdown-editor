@@ -18,7 +18,7 @@ export type UseFilesGalleryOptions = {
     ) => GalleryItemProps;
     resolveCustomItem?: (
         url: string,
-        type: FilesGalleryItemType,
+        type: 'file',
         element: Element,
         linkObj: {name?: string | null; mimetype?: string | null},
     ) => GalleryItemProps | undefined;

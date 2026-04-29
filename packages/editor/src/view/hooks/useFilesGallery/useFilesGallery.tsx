@@ -49,7 +49,7 @@ export function useFilesGallery(
                     element: Element,
                     baseProps: GalleryItemPropsWithUrl,
                 ): GalleryItemPropsWithUrl => {
-                    const galleryItemActions: GalleryItemAction[] = [];
+                    const galleryItemActions: GalleryItemAction[] = [...(baseProps.actions ?? [])];
 
                     const itemCopyUrl = getItemCopyUrl?.(link, type, element);
                     if (itemCopyUrl) {
@@ -113,6 +113,7 @@ export function useFilesGallery(
                                     ? getGalleryItemVideo({src: link, name})
                                     : getGalleryItemImage({src: link, name})),
                                 url: link,
+                                actions: undefined,
                             };
 
                             result.push(buildItem(link, type, element, baseProps));

@@ -27,7 +27,7 @@ _UseFilesGalleryOptions_
 | download          | `(url: string, type: FilesGalleryItemType, element: Element) => string or undefined`                              |          |        |         | The file download link getter (if you want to show the download action)                       |
 | copyUrl          | `(url: string, type: FilesGalleryItemType, element: Element) => string or undefined`                              |          |        |         | The file copy link getter (if you want to show the copy link action)                          |
 | overrideItemProps | `(url: string, type: FilesGalleryItemType, element: Element, currentProps: GalleryItemProps) => GalleryItemProps` |          |        |         | The custom gallery item props getter (if you want to override the default gallery item props) |
-| resolveCustomItem | `(url: string, type: FilesGalleryItemType, element: Element, linkObj: {name?: string or null; mimetype?: string or null}) => GalleryItemProps or undefined` |          |        |         | Resolves base `GalleryItemProps` for elements not handled by the default image/video logic (e.g. arbitrary file links). Return `undefined` to skip the element. The returned props go through the same `download`/`copyUrl`/`overrideItemProps` pipeline with `type: 'file'`. Note: `FilesGalleryItemType` is now `'image' \| 'video' \| 'file'` — callers doing exhaustive `switch` on `type` in other options may need to handle the new `'file'` case. |
+| resolveCustomItem | `(url: string, type: 'file', element: Element, linkObj: {name?: string or null; mimetype?: string or null}) => GalleryItemProps or undefined` |          |        |         | Resolves base `GalleryItemProps` for elements not handled by the default image/video logic (e.g. arbitrary file links). Return `undefined` to skip the element. The returned props go through the same `download`/`copyUrl`/`overrideItemProps` pipeline with `type: 'file'`. If the returned props contain `actions`, they are merged with the auto-generated download/copy actions. Note: `FilesGalleryItemType` is now `'image' \| 'video' \| 'file'` — callers doing exhaustive `switch` on `type` in other options may need to handle the new `'file'` case. |
 
 
 _useFilesGallery returns function `openFilesGallery` with the following args_:
@@ -130,7 +130,7 @@ If you want to handle custom file types (e.g. PDF links) that are not images or 
 import {YfmStaticView, useFilesGallery} from '@gravity-ui/markdown-editor/view';
 import {getGalleryItemImage} from '@gravity-ui/components';
 
-function resolveCustomItem(url: string, type: 'image' | 'video' | 'file', element: Element, {name, mimetype}: {name?: string | null; mimetype?: string | null}) {
+function resolveCustomItem(url: string, type: 'file', element: Element, {name, mimetype}: {name?: string | null; mimetype?: string | null}) {
     if (mimetype !== 'application/pdf') return undefined;
     return getGalleryItemImage({src: '/icons/pdf.svg', name: name ?? url});
 }
