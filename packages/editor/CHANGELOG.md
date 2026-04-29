@@ -1,5 +1,12 @@
 # Changelog
 
+## [15.40.0](https://github.com/gravity-ui/markdown-editor/compare/markdown-editor-v15.39.0...markdown-editor-v15.40.0) (2026-04-29)
+
+
+### Features
+
+* **view:** support gallery preview for custom file types beyond images and videos ([#1110](https://github.com/gravity-ui/markdown-editor/issues/1110)) ([765022d](https://github.com/gravity-ui/markdown-editor/commit/765022d152508446abd199cd783f93e71a7e8b7b))
+
 ## [15.39.0](https://github.com/gravity-ui/markdown-editor/compare/markdown-editor-v15.38.1...markdown-editor-v15.39.0) (2026-04-24)
 
 
