@@ -91,14 +91,16 @@ function getPastedLink(data: DataTransfer | null, parser: Parser): PastedLink | 
     const text = data.getData(DataTransferType.Text);
     const match = parser.matchLinks(text);
     if (match?.[0]) {
-        const {raw} = match[0];
+        const m = match[0];
+        const {raw} = m;
         if (raw === text) {
-            const href = parser.normalizeLink(text);
+            const href = parser.normalizeLink(m.schema ? text : m.url);
             if (!parser.validateLink(href)) {
                 return null;
             }
 
-            return {href, label: text};
+            const label = m.schema ? text : m.raw;
+            return {href, label};
         }
         if (text.endsWith('?') && raw + '?' === text && parser.validateLink(text)) {
             const href = parser.normalizeLink(text);

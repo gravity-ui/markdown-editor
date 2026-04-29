@@ -31,7 +31,7 @@ const {doc, p, lnk, lnkYa} = builders<'doc' | 'p' | 'lnk' | 'lnkYa'>(schema, {
     doc: {nodeType: BaseNode.Doc},
     p: {nodeType: BaseNode.Paragraph},
     lnk: {markType: linkMarkName, [LinkAttr.Href]: 'http://example.com?'},
-    lnkYa: {markType: linkMarkName, [LinkAttr.Href]: 'ya.ru'},
+    lnkYa: {markType: linkMarkName, [LinkAttr.Href]: 'http://ya.ru'},
 });
 
 const {same} = createMarkupChecker({parser, serializer});
@@ -42,7 +42,7 @@ describe('link paste plugin', () => {
         expect(match?.[0]?.raw).toBe('http://example.com');
     });
 
-    it('pastes bare hostname without adding scheme to href', () => {
+    it('pastes bare hostname: text without scheme, href with http', () => {
         const startDoc = doc(p('<a>'));
         const state = EditorState.create({
             schema,
@@ -53,7 +53,7 @@ describe('link paste plugin', () => {
         const view = new EditorView(null, {state});
         dispatchPasteEvent(view, {'text/plain': 'ya.ru'});
         expect(view.state.doc).toMatchNode(doc(p(lnkYa('ya.ru'))));
-        same('[ya.ru](ya.ru)', view.state.doc);
+        same('[ya.ru](http://ya.ru)', view.state.doc);
     });
 
     it('pastes url ending with question mark as link for selected text', () => {
