@@ -7,6 +7,8 @@ import {imageType} from '../Image';
 
 import {LinkAttr, linkType} from './LinkSpecs';
 
+type PastedLink = {href: string; label: string};
+
 export function linkPasteEnhance({markupParser: parser}: ExtensionDeps) {
     return new Plugin({
         props: {
@@ -27,15 +29,15 @@ export function linkPasteEnhance({markupParser: parser}: ExtensionDeps) {
                     ) {
                         const {$from, $to} = sel;
                         if ($from.pos === $to.pos) {
-                            const url = getUrl(e.clipboardData, parser);
-                            if (url) {
+                            const pasted = getPastedLink(e.clipboardData, parser);
+                            if (pasted) {
                                 const linkMarkType = linkType(state.schema);
                                 tr = state.tr.replaceSelectionWith(
-                                    state.schema.text(url, [
+                                    state.schema.text(pasted.label, [
                                         ...$from
                                             .marks()
                                             .filter((mark) => mark.type !== linkMarkType),
-                                        linkMarkType.create({[LinkAttr.Href]: url}),
+                                        linkMarkType.create({[LinkAttr.Href]: pasted.href}),
                                     ]),
                                     false,
                                 );
@@ -44,13 +46,13 @@ export function linkPasteEnhance({markupParser: parser}: ExtensionDeps) {
                                 });
                             }
                         } else if ($from.sameParent($to)) {
-                            const url = getUrl(e.clipboardData, parser);
-                            if (url) {
+                            const pasted = getPastedLink(e.clipboardData, parser);
+                            if (pasted) {
                                 tr = state.tr.addMark(
                                     $from.pos,
                                     $to.pos,
                                     linkType(state.schema).create({
-                                        [LinkAttr.Href]: url,
+                                        [LinkAttr.Href]: pasted.href,
                                     }),
                                 );
                                 tr.setSelection(TextSelection.create(tr.doc, $to.pos));
@@ -74,17 +76,35 @@ export function linkPasteEnhance({markupParser: parser}: ExtensionDeps) {
     });
 }
 
-function getUrl(data: DataTransfer | null, parser: Parser): string | null {
+function getPastedLink(data: DataTransfer | null, parser: Parser): PastedLink | null {
     if (!data || data.types.includes(DataTransferType.Yfm)) return null;
-    if (isIosSafariShare(data)) return data.getData(DataTransferType.UriList);
+    if (isIosSafariShare(data)) {
+        const href = data.getData(DataTransferType.UriList);
+        if (!href) {
+            return null;
+        }
+
+        const trimmed = href.trim();
+        return {href: trimmed, label: trimmed};
+    }
     // TODO: should we process HTML here?
     const text = data.getData(DataTransferType.Text);
     const match = parser.matchLinks(text);
     if (match?.[0]) {
-        const {raw, url} = match[0];
-        if (raw === text) return url;
+        const m = match[0];
+        const {raw} = m;
+        if (raw === text) {
+            const href = parser.normalizeLink(m.schema ? text : m.url);
+            if (!parser.validateLink(href)) {
+                return null;
+            }
+
+            const label = m.schema ? text : m.raw;
+            return {href, label};
+        }
         if (text.endsWith('?') && raw + '?' === text && parser.validateLink(text)) {
-            return parser.normalizeLink(text);
+            const href = parser.normalizeLink(text);
+            return {href, label: text};
         }
     }
     return null;
