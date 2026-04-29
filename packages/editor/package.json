@@ -163,7 +163,7 @@
   ],
   "dependencies": {
     "@bem-react/classname": "^1.6.0",
-    "@bem-react/classnames": "1.3.10",
+    "@bem-react/classnames": "1.5.0",
     "@codemirror/autocomplete": "^6.18.4",
     "@codemirror/commands": "^6.8.0",
     "@codemirror/lang-markdown": "^6.3.2",
