@@ -22,6 +22,7 @@ export function useFilesGallery(
         download: getItemDownloladUrl,
         overrideItemProps,
         copyUrl: getItemCopyUrl,
+        resolveCustomItem,
     }: UseFilesGalleryOptions = {},
 ) {
     const {openGallery} = useGallery();
@@ -42,6 +43,48 @@ export function useFilesGallery(
                     return false;
                 }
 
+                const buildItem = (
+                    link: string,
+                    type: FilesGalleryItemType,
+                    element: Element,
+                    baseProps: GalleryItemPropsWithUrl,
+                ): GalleryItemPropsWithUrl => {
+                    const galleryItemActions: GalleryItemAction[] = [];
+
+                    const itemCopyUrl = getItemCopyUrl?.(link, type, element);
+                    if (itemCopyUrl) {
+                        const handleLinkCopied = () => {
+                            toaster.add({
+                                theme: 'success',
+                                name: 'g-md-editor-gallery-copy-link',
+                                title: i18n('link_copied'),
+                            });
+                        };
+                        galleryItemActions.push(
+                            getGalleryItemCopyLinkAction({
+                                copyUrl: itemCopyUrl,
+                                onCopy: handleLinkCopied,
+                            }),
+                        );
+                    }
+
+                    const downloadUrl = getItemDownloladUrl?.(link, type, element);
+                    if (downloadUrl) {
+                        galleryItemActions.push(getGalleryItemDownloadAction({downloadUrl}));
+                    }
+
+                    const galleryItemProps: GalleryItemPropsWithUrl = {
+                        ...baseProps,
+                        url: link,
+                        actions: galleryItemActions,
+                    };
+
+                    return {
+                        ...galleryItemProps,
+                        ...overrideItemProps?.(link, type, element, galleryItemProps),
+                    };
+                };
+
                 const targetFile = buildLinkObject(event.target);
 
                 if (!targetFile || !targetFile.link) return false;
@@ -60,63 +103,29 @@ export function useFilesGallery(
                         if (linkObj.type === 'image' || supportedExtensions.includes(extension)) {
                             const link = linkObj.link;
                             const name = linkObj.name || '';
-
-                            const filesGalleryItemType: FilesGalleryItemType =
-                                supportedVideoExtensions.includes(extension) ? 'video' : 'image';
-                            const galleryItemActions: GalleryItemAction[] = [];
-
-                            const itemCopyUrl = getItemCopyUrl?.(
-                                link,
-                                filesGalleryItemType,
-                                element,
-                            );
-
-                            if (itemCopyUrl) {
-                                const handleLinkCopied = () => {
-                                    toaster.add({
-                                        theme: 'success',
-                                        name: 'g-md-editor-gallery-copy-link',
-                                        title: i18n('link_copied'),
-                                    });
-                                };
-
-                                galleryItemActions.push(
-                                    getGalleryItemCopyLinkAction({
-                                        copyUrl: itemCopyUrl,
-                                        onCopy: handleLinkCopied,
-                                    }),
-                                );
-                            }
-
-                            const downloadUrl = getItemDownloladUrl?.(
-                                link,
-                                filesGalleryItemType,
-                                element,
-                            );
-
-                            if (downloadUrl) {
-                                galleryItemActions.push(
-                                    getGalleryItemDownloadAction({downloadUrl}),
-                                );
-                            }
-
-                            const galleryItemProps = {
-                                ...(filesGalleryItemType === 'video'
-                                    ? getGalleryItemVideo({src: link, name: name})
-                                    : getGalleryItemImage({src: link, name: name})),
+                            const type: FilesGalleryItemType = supportedVideoExtensions.includes(
+                                extension,
+                            )
+                                ? 'video'
+                                : 'image';
+                            const baseProps: GalleryItemPropsWithUrl = {
+                                ...(type === 'video'
+                                    ? getGalleryItemVideo({src: link, name})
+                                    : getGalleryItemImage({src: link, name})),
                                 url: link,
-                                actions: galleryItemActions,
                             };
 
-                            result.push({
-                                ...galleryItemProps,
-                                ...overrideItemProps?.(
-                                    link,
-                                    filesGalleryItemType,
-                                    element,
-                                    galleryItemProps,
-                                ),
+                            result.push(buildItem(link, type, element, baseProps));
+                        } else if (resolveCustomItem) {
+                            const link = linkObj.link;
+                            const baseProps = resolveCustomItem(link, 'file', element, {
+                                name: linkObj.name,
+                                mimetype: linkObj.mimetype,
                             });
+
+                            if (baseProps) {
+                                result.push(buildItem(link, 'file', element, baseProps));
+                            }
                         }
                     }
 
@@ -140,6 +149,7 @@ export function useFilesGallery(
                 getItemCopyUrl,
                 getItemDownloladUrl,
                 overrideItemProps,
+                resolveCustomItem,
                 toaster,
                 openGallery,
             ],
