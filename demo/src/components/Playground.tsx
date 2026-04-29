@@ -25,9 +25,15 @@ import type {SettingItems} from '@gravity-ui/markdown-editor/_/bundle/settings/i
 import type {CodeEditor} from '@gravity-ui/markdown-editor/_/markup/index.js';
 import type {Extension} from '@gravity-ui/markdown-editor/cm/state';
 import {FoldingHeading} from '@gravity-ui/markdown-editor/extensions/additional/FoldingHeading/index.js';
-import {Math} from '@gravity-ui/markdown-editor/extensions/additional/Math/index.js';
 import {Mermaid} from '@gravity-ui/markdown-editor/extensions/additional/Mermaid/index.js';
 import {YfmHtmlBlock} from '@gravity-ui/markdown-editor/extensions/additional/YfmHtmlBlock/index.js';
+import {LatexExtension} from '@gravity-ui/markdown-editor-latex-extension';
+import {
+    wLatexBlockItemData,
+    wLatexInlineItemData,
+} from '@gravity-ui/markdown-editor-latex-extension/configs';
+import {YfmPageConstructorExtension} from '@gravity-ui/markdown-editor-page-constructor-extension';
+import {wYfmPageConstructorItemData} from '@gravity-ui/markdown-editor-page-constructor-extension/configs';
 import {Button, DropdownMenu} from '@gravity-ui/uikit';
 
 import {getPlugins} from '../defaults/md-plugins';
@@ -47,9 +53,10 @@ const fileUploadHandler: FileUploadHandler = async (file) => {
 };
 
 const wCommandMenuConfig = wysiwygToolbarConfigs.wCommandMenuConfig.concat(
-    wysiwygToolbarConfigs.wMathInlineItemData,
-    wysiwygToolbarConfigs.wMathBlockItemData,
+    wLatexInlineItemData,
+    wLatexBlockItemData,
     wysiwygToolbarConfigs.wMermaidItemData,
+    wYfmPageConstructorItemData,
     wysiwygToolbarConfigs.wYfmHtmlBlockItemData,
 );
 
@@ -184,7 +191,7 @@ export const Playground = memo<PlaygroundProps>((props) => {
                 disableMarkdownAttrs: disableMarkdownItAttrs,
                 extensions: (builder) => {
                     builder
-                        .use(Math, {
+                        .use(LatexExtension, {
                             loadRuntimeScript: () => {
                                 import(
                                     /* webpackChunkName: "latex-runtime" */ '@diplodoc/latex-extension/runtime'
@@ -206,6 +213,16 @@ export const Playground = memo<PlaygroundProps>((props) => {
                                 delay: storyAdditionalControls?.mermaidAutoSaveDelay ?? 1000,
                             },
                             theme: {dark: 'dark', light: 'forest'},
+                        })
+                        .use(YfmPageConstructorExtension, {
+                            autoSave: {
+                                enabled:
+                                    storyAdditionalControls?.yfmPageConstructorAutoSaveEnabled ??
+                                    true,
+                                delay:
+                                    storyAdditionalControls?.yfmPageConstructorAutoSaveDelay ??
+                                    1000,
+                            },
                         })
                         .use(FoldingHeading)
                         .use(YfmHtmlBlock, {

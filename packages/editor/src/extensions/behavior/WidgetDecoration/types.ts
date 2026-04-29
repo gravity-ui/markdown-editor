@@ -1,6 +1,7 @@
 import type {WidgetDescriptor} from './WidgetDescriptor';
+import type {Meta as MetaGeneric} from './meta';
 
-export type Meta = {type: 'add'; descriptor: WidgetDescriptor} | {type: 'remove'; id: string};
+export type Meta = MetaGeneric<WidgetDescriptor>;
 
 export type WidgetSpec = {
     id: string;

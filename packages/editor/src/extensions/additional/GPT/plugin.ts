@@ -1,25 +1,16 @@
-import {Plugin, PluginKey} from 'prosemirror-state';
+import {Plugin} from 'prosemirror-state';
 import {Decoration, DecorationSet} from 'prosemirror-view';
 
 import type {CommonAnswer} from './ErrorScreen/types';
 import {WIDGET_DECO_CLASS_NAME, WIDGET_DECO_SPEC_FLAG} from './constants';
 import type {GptWidgetDecoViewParams} from './gptExtension/view';
 import {GptWidgetDecoView} from './gptExtension/view';
+import {pluginKey} from './plugin-key';
+import type {GptWidgetMeta} from './plugin-key';
 import {isEmptyGptPrompts} from './utils';
 
-export type GptWidgetMeta =
-    | {
-          action: 'show';
-          from: number;
-          to: number;
-      }
-    | {
-          action: 'hide';
-      };
-
-const key = new PluginKey<DecorationSet>('gpt-widget');
-
-export {key as pluginKey};
+export {pluginKey};
+export type {GptWidgetMeta};
 
 export const gptWidgetPlugin = <
     AnswerData extends CommonAnswer = CommonAnswer,
@@ -28,11 +19,11 @@ export const gptWidgetPlugin = <
     params: GptWidgetDecoViewParams<AnswerData, PromptData>,
 ): Plugin => {
     return new Plugin({
-        key,
+        key: pluginKey,
         state: {
             init: () => DecorationSet.empty,
             apply: (tr, decos) => {
-                const meta = tr.getMeta(key) as GptWidgetMeta | undefined;
+                const meta = tr.getMeta(pluginKey) as GptWidgetMeta | undefined;
                 const paramsGpt = params;
 
                 if (meta?.action === 'show') {
@@ -76,7 +67,7 @@ export const gptWidgetPlugin = <
             },
         },
         props: {
-            decorations: (state) => key.getState(state),
+            decorations: (state) => pluginKey.getState(state),
         },
         view: (view) => new GptWidgetDecoView(view, params),
     });

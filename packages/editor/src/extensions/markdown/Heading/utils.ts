@@ -3,7 +3,7 @@ import type {EditorState} from 'prosemirror-state';
 // @ts-ignore // TODO: fix cjs build
 import {hasParentNode} from 'prosemirror-utils';
 
-import {textblockTypeInputRule} from '../../../utils/inputrules';
+import {textblockTypeInputRule} from '../../../utils/rulebuilders';
 
 import {headingType} from './HeadingSpecs';
 import {type HeadingLevel, headingLevelAttr} from './const';

@@ -5,7 +5,8 @@ import {hasParentNodeOfType} from 'prosemirror-utils';
 
 import type {Action, ExtensionAuto} from '#core';
 import {linkType} from 'src/extensions';
-import {isMarkActive, wrappingInputRule} from 'src/utils';
+import {isMarkActive} from 'src/utils';
+import {wrappingInputRule} from 'src/utils/rulebuilders';
 
 import {QuoteLinkSpecs, quoteLinkType} from './QuoteLinkSpecs';
 import {addQuoteLink, toggleQuote} from './commands';
