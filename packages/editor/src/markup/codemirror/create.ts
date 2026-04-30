@@ -23,7 +23,6 @@ import {InputState} from 'src/utils/input-state';
 
 import {ActionName} from '../../bundle/config/action-names';
 import type {EventMap} from '../../bundle/events';
-import type {MarkupLineNumbersConfig} from '../../bundle/types';
 import type {ReactRenderStorage} from '../../extensions';
 import {type Logger2, globalLogger} from '../../logger';
 import {Action as A, formatter as f} from '../../shortcuts';
@@ -57,6 +56,7 @@ import {FilesUploadPlugin} from './files-upload-plugin';
 import {gravityHighlightStyle, gravityTheme} from './gravity';
 import {MarkdownConverter} from './html-to-markdown/converters';
 import {lineHighlight} from './line-highlight';
+import type {MarkupLineNumbersConfig} from './line-highlight/types';
 import {LoggerFacet} from './logger-facet';
 import {PairingCharactersExtension} from './pairing-chars';
 import {ReactRendererFacet} from './react-facet';

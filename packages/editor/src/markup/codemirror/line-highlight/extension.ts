@@ -15,10 +15,7 @@ import {
     lineNumbers,
 } from '@codemirror/view';
 
-export interface LineRange {
-    from: number;
-    to: number;
-}
+import type {LineRange} from './types';
 
 export interface LineHighlightOptions {
     initialRange?: LineRange;

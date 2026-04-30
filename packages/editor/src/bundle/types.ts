@@ -5,7 +5,9 @@ import type {ReactNode} from 'react';
 import type {MarkupString} from '../common';
 import type {EscapeConfig, Extension} from '../core';
 import type {Logger2} from '../logger';
-import type {CreateCodemirrorParams, LineRange, YfmLangOptions} from '../markup';
+import type {CreateCodemirrorParams} from '../markup/codemirror/create';
+import type {MarkupLineNumbersConfig} from '../markup/codemirror/line-highlight/types';
+import type {YfmLangOptions} from '../markup/codemirror/yfm';
 import type {FileUploadHandler} from '../utils';
 import type {DirectiveSyntaxContext, DirectiveSyntaxOption} from '../utils/directive';
 import type {ParseInsertedUrlAsImage} from '../utils/upload';
@@ -117,19 +119,7 @@ export type MarkdownEditorExperimentalOptions = {
      */
     preserveMarkupFormatting?: boolean;
 };
-
-export interface MarkupLineNumbersConfig {
-    /** Show line numbers in the gutter. Default: false */
-    enabled?: boolean;
-    /** Enable line highlighting (clickable line numbers + highlight decoration). Default: false */
-    highlightLines?: boolean;
-    /** Initial line range to highlight on mount (0-based, inclusive) */
-    initialSelectedLines?: LineRange;
-    /** Called when user clicks on a line number (only when highlightLines is true). 0-based line number. */
-    onLineClick?: (line: number) => void;
-    /** 0-based line number to scroll to on mount in markup mode */
-    scrollToLine?: number;
-}
+export type {MarkupLineNumbersConfig};
 
 export type MarkdownEditorMarkupConfig = {
     /**
