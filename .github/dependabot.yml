@@ -54,6 +54,10 @@ updates:
         patterns:
           - "@storybook/*"
           - "storybook"
+      playwright:
+        patterns:
+          - "@playwright/*"
+          - "playwright"
     ignore:
       - dependency-name: "*"
         update-types:
