@@ -209,7 +209,7 @@
     "react-use": "catalog:",
     "ts-dedent": "2.2.0",
     "tslib": "catalog:ts",
-    "uuid": "11.0.5"
+    "uuid": "11.1.1"
   },
   "devDependencies": {
     "@diplodoc/cut-extension": "catalog:peer-diplodoc",
