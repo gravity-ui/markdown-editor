@@ -10,7 +10,7 @@ cd "$REPO_ROOT"
 echo "Running in $(pwd)"
 
 IMAGE_NAME="mcr.microsoft.com/playwright"
-IMAGE_TAG="v1.52.0-jammy" # This version have to be synchronized with playwright version from package.json
+IMAGE_TAG="v1.59.1-jammy" # This version have to be synchronized with playwright version from package.json
 
 PNPM_STORE_CACHE_DIR="$HOME/.cache/markdown-editor-playwright-docker-pnpm-store"
 NODE_MODULES_CACHE_DIR="$HOME/.cache/markdown-editor-playwright-docker-node-modules"
