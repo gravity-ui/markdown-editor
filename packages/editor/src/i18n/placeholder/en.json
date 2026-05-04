@@ -12,6 +12,6 @@
   "note_content": "Add content for note",
   "block": "Block with decoration",
   "layout_cell": "Text",
-  "table_cell": "Cell content",
+  "table_cell": "Text",
   "select_filter": "Search"
 }
