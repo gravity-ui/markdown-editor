@@ -40,6 +40,8 @@ updates:
       - dependency-name: "*"
         update-types:
           - "version-update:semver-major"
+      - dependency-name: "@diplodoc/*"
+      - dependency-name: "@gravity-ui/*"
 
   # npm — demo
   - package-ecosystem: npm
@@ -56,6 +58,8 @@ updates:
       - dependency-name: "*"
         update-types:
           - "version-update:semver-major"
+      - dependency-name: "@diplodoc/*"
+      - dependency-name: "@gravity-ui/*"
 
   # npm — packages/*
   - package-ecosystem: npm
@@ -78,6 +82,8 @@ updates:
       - dependency-name: "*"
         update-types:
           - "version-update:semver-major"
+      - dependency-name: "@diplodoc/*"
+      - dependency-name: "@gravity-ui/*"
 
   # npm — infra/*
   - package-ecosystem: npm
