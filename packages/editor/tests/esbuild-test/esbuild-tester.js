@@ -7,6 +7,7 @@
 const fs = require('node:fs');
 const fsPromises = require('node:fs/promises');
 const path = require('node:path');
+const {pathToFileURL} = require('node:url');
 
 const esbuild = require('esbuild');
 const {sassPlugin} = require('esbuild-sass-plugin');
@@ -38,20 +39,38 @@ const esbuildOptions = {
     alias: ['fs', 'path', 'stream'].reduce((acc, name) => ({...acc, [name]: paths.aliases}), {}),
 };
 
-esbuild
-    .build({...esbuildOptions, entryPoints: [paths.esbuildToTest]})
-    .then(async () => {
-        const allExports = (await import(paths.compiledEsBuildToTest)).default;
-        // Make a file that exports everything from src
-        await fsPromises.writeFile(paths.tempTest, `import {${allExports}} from '../../src'`);
-        await esbuild.build({...esbuildOptions, entryPoints: [paths.tempTest]});
-    })
-    .finally(() => {
-        // Cleanup
-        if (fs.existsSync(paths.localBuild))
-            fs.rmSync(paths.localBuild, {
-                force: true,
-                recursive: true,
-            });
-        if (fs.existsSync(paths.tempTest)) fs.rmSync(paths.tempTest);
-    });
+run().finally(() => {
+    // Cleanup
+    if (fs.existsSync(paths.localBuild))
+        fs.rmSync(paths.localBuild, {
+            force: true,
+            recursive: true,
+        });
+    if (fs.existsSync(paths.tempTest)) fs.rmSync(paths.tempTest);
+});
+
+async function run() {
+    const stylesStringCjs = require(path.join(__dirname, '../../build/styles-string.cjs'));
+
+    if (typeof stylesStringCjs !== 'string' || stylesStringCjs.length === 0) {
+        throw new Error('styles-string CJS export is invalid: expected non-empty string');
+    }
+
+    const {default: stylesStringMjs} = await import(
+        pathToFileURL(path.join(__dirname, '../../build/styles-string.mjs')).href
+    );
+
+    if (stylesStringMjs !== stylesStringCjs) {
+        throw new Error('styles-string ESM export is invalid: expected the same CSS as CJS');
+    }
+
+    console.info('styles-string smoke test: OK (length:', stylesStringCjs.length, ')');
+
+    await esbuild.build({...esbuildOptions, entryPoints: [paths.esbuildToTest]});
+
+    const allExports = (await import(paths.compiledEsBuildToTest)).default;
+
+    // Make a file that exports everything from src
+    await fsPromises.writeFile(paths.tempTest, `import {${allExports}} from '../../src'`);
+    await esbuild.build({...esbuildOptions, entryPoints: [paths.tempTest]});
+}
