@@ -7,6 +7,7 @@ import {
     ArrowRight,
     ArrowUp,
     BroomMotion as ClearCells,
+    Palette as ColorPalette,
     TrashBin,
     Xmark,
 } from '@gravity-ui/icons';
@@ -15,6 +16,7 @@ import {Icon} from '@gravity-ui/uikit';
 import {i18n} from 'src/i18n/yfm-table';
 
 import type {DnDControlHandler} from '../../dnd/dnd';
+import {CellBgPalette} from '../CellBgPalette/CellBgPalette';
 import {FloatingMenu, type FloatingMenuProps} from '../FloatingMenu/FloatingMenu';
 
 type ControlType = FloatingMenuProps['dirtype'];
@@ -31,6 +33,9 @@ export type FloatingMenuControlProps = {
     onInsertAfterClick: () => void;
     onRemoveRangeClick: () => void;
     onRemoveTableClick: () => void;
+    cellBackgroundEnabled?: boolean;
+    currentCellBg?: string | null;
+    onCellBgChange?: (color: string | null) => void;
 };
 
 export const FloatingMenuControl: React.FC<FloatingMenuControlProps> =
@@ -46,6 +51,9 @@ export const FloatingMenuControl: React.FC<FloatingMenuControlProps> =
         onInsertAfterClick,
         onRemoveRangeClick,
         onRemoveTableClick,
+        cellBackgroundEnabled,
+        currentCellBg,
+        onCellBgChange,
     }) {
         const dropdownItems = useMemo<FloatingMenuProps['dropdownItems']>(
             () =>
@@ -64,6 +72,28 @@ export const FloatingMenuControl: React.FC<FloatingMenuControlProps> =
                             iconStart: <Icon data={type === 'row' ? ArrowDown : ArrowRight} />,
                         },
                     ],
+                    ...(cellBackgroundEnabled && onCellBgChange
+                        ? [
+                              [
+                                  {
+                                      text: i18n('cells.bg'),
+                                      qa: `g-md-yfm-table-${type}-cell-bg`,
+                                      iconStart: <Icon data={ColorPalette} />,
+                                      items: [
+                                          {
+                                              text: (
+                                                  <CellBgPalette
+                                                      value={currentCellBg}
+                                                      onSelect={onCellBgChange}
+                                                  />
+                                              ),
+                                              action: () => {},
+                                          },
+                                      ],
+                                  },
+                              ],
+                          ]
+                        : []),
                     [
                         {
                             text: i18n('cells.clear'),
@@ -91,6 +121,9 @@ export const FloatingMenuControl: React.FC<FloatingMenuControlProps> =
             [
                 type,
                 multiple,
+                cellBackgroundEnabled,
+                currentCellBg,
+                onCellBgChange,
                 onClearCellsClick,
                 onInsertAfterClick,
                 onInsertBeforeClick,

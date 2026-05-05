@@ -1,0 +1,23 @@
+.yfm table td {
+    &.cell-bg-info {
+        background-color: var(--g-color-base-info-medium);
+    }
+    &.cell-bg-positive {
+        background-color: var(--g-color-base-positive-medium);
+    }
+    &.cell-bg-warning {
+        background-color: var(--g-color-base-warning-medium);
+    }
+    &.cell-bg-danger {
+        background-color: var(--g-color-base-danger-medium);
+    }
+    &.cell-bg-utility {
+        background-color: var(--g-color-base-utility-medium);
+    }
+    &.cell-bg-misc {
+        background-color: var(--g-color-base-misc-medium);
+    }
+    &.cell-bg-neutral {
+        background-color: var(--g-color-base-neutral-medium);
+    }
+}

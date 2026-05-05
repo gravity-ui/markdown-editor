@@ -1,6 +1,7 @@
 import {EditorState} from 'prosemirror-state';
 import {builders} from 'prosemirror-test-builder';
 import {EditorView} from 'prosemirror-view';
+import dd from 'ts-dedent';
 
 import {dispatchPasteEvent} from '../../../../tests/dispatch-event';
 import {parseDOM} from '../../../../tests/parse-dom';
@@ -513,6 +514,87 @@ nested table
                         tr(td(p('5')), td(p('6'))),
                         tr(td({[YfmTableAttr.Rowspan]: '2'}, p('7-9')), td(p('8'))),
                         tr(td(p('10'))),
+                    ),
+                ),
+            ),
+        );
+    });
+
+    // TODO: enable when @diplodoc/transform >= 4.75.0 is released (parses ::{bg=...} cell attrs)
+    it.skip('should serialize cell-bg on first cell (same line as ||)', () => {
+        const markup = dd`
+            #|
+            || ::{bg="info"}
+
+            cell11
+
+            ||
+            |#
+
+            `.trimStart();
+
+        same(
+            markup,
+            doc(table(tbody(tr(td({[YfmTableAttr.CellBg]: 'info'}, p('cell11'), p('')))))),
+        );
+    });
+
+    it.skip('should serialize cell-bg on non-first cell (same line as |)', () => {
+        const markup = dd`
+            #|
+            ||
+
+            cell11
+
+            |::{bg="warning"}
+
+            cell12
+
+            ||
+            |#
+
+            `.trimStart();
+
+        same(
+            markup,
+            doc(
+                table(
+                    tbody(
+                        tr(
+                            td(p('cell11'), p('')),
+                            td({[YfmTableAttr.CellBg]: 'warning'}, p('cell12'), p('')),
+                        ),
+                    ),
+                ),
+            ),
+        );
+    });
+
+    it.skip('should serialize cell-bg on multiple cells', () => {
+        const markup = dd`
+            #|
+            || ::{bg="info"}
+
+            cell11
+
+            |::{bg="danger"}
+
+            cell12
+
+            ||
+            |#
+
+            `.trimStart();
+
+        same(
+            markup,
+            doc(
+                table(
+                    tbody(
+                        tr(
+                            td({[YfmTableAttr.CellBg]: 'info'}, p('cell11'), p('')),
+                            td({[YfmTableAttr.CellBg]: 'danger'}, p('cell12'), p('')),
+                        ),
                     ),
                 ),
             ),

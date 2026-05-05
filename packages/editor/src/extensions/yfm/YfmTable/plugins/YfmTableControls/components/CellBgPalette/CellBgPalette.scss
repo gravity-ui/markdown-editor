@@ -1,0 +1,62 @@
+.g-md-yfm-table-cell-bg-palette {
+    &__swatch {
+        display: block;
+
+        width: 16px;
+        height: 16px;
+
+        border: 1px solid var(--g-color-line-generic);
+        border-radius: var(--g-border-radius-xs);
+
+        &_none {
+            position: relative;
+
+            overflow: hidden;
+
+            background-color: transparent;
+
+            &::after {
+                position: absolute;
+                inset: 0;
+
+                content: '';
+
+                background: linear-gradient(
+                    to bottom right,
+                    transparent calc(50% - 1px),
+                    var(--g-color-line-danger) calc(50% - 1px),
+                    var(--g-color-line-danger) calc(50% + 1px),
+                    transparent calc(50% + 1px)
+                );
+            }
+        }
+
+        &_color_info {
+            background-color: var(--g-color-base-info-medium);
+        }
+
+        &_color_positive {
+            background-color: var(--g-color-base-positive-medium);
+        }
+
+        &_color_warning {
+            background-color: var(--g-color-base-warning-medium);
+        }
+
+        &_color_danger {
+            background-color: var(--g-color-base-danger-medium);
+        }
+
+        &_color_utility {
+            background-color: var(--g-color-base-utility-medium);
+        }
+
+        &_color_misc {
+            background-color: var(--g-color-base-misc-medium);
+        }
+
+        &_color_neutral {
+            background-color: var(--g-color-base-neutral-medium);
+        }
+    }
+}

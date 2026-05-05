@@ -20,7 +20,10 @@ export const serializerTokens: Record<YfmTableNode, SerializerNodeToken> = {
         const rowspanStack: Record<number, number> = {};
 
         tbody.forEach((trow) => {
-            state.write('||');
+            const firstCellBg = trow.firstChild?.attrs[YfmTableAttr.CellBg];
+            const firstCellAttrs =
+                typeof firstCellBg === 'string' ? ` ::{bg="${firstCellBg}"}` : '';
+            state.write(`||${firstCellAttrs}`);
             state.ensureNewLine();
             state.write('\n');
 
@@ -39,7 +42,9 @@ export const serializerTokens: Record<YfmTableNode, SerializerNodeToken> = {
                 }
 
                 if (colIndex > 0) {
-                    state.write('|');
+                    const cellBg = td.attrs[YfmTableAttr.CellBg];
+                    const cellAttrs = typeof cellBg === 'string' ? `::{bg="${cellBg}"}` : '';
+                    state.write(cellAttrs ? `|${cellAttrs}` : '|');
                     state.ensureNewLine();
                     state.write('\n');
                 }
