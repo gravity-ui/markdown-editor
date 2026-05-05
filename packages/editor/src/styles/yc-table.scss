@@ -1,0 +1,36 @@
+.yfm table th,
+.yfm table td {
+    &.cell-bg-grey {
+        background-color: var(--g-color-base-generic);
+    }
+    &.cell-bg-yellow-light {
+        background-color: var(--g-color-base-warning-light);
+    }
+    &.cell-bg-yellow {
+        background-color: var(--g-color-base-warning-medium);
+    }
+    &.cell-bg-red-light {
+        background-color: var(--g-color-base-danger-light);
+    }
+    &.cell-bg-red {
+        background-color: var(--g-color-base-danger-medium);
+    }
+    &.cell-bg-purple-light {
+        background-color: var(--g-color-base-utility-light);
+    }
+    &.cell-bg-purple {
+        background-color: var(--g-color-base-utility-medium);
+    }
+    &.cell-bg-blue-light {
+        background-color: var(--g-color-base-info-light);
+    }
+    &.cell-bg-blue {
+        background-color: var(--g-color-base-info-medium);
+    }
+    &.cell-bg-green-light {
+        background-color: var(--g-color-base-positive-light);
+    }
+    &.cell-bg-green {
+        background-color: var(--g-color-base-positive-medium);
+    }
+}
