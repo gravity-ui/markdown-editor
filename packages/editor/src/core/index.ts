@@ -14,7 +14,7 @@ export type {
     ExtensionDeps,
     ExtensionNodeSpec,
     ExtensionMarkSpec,
-} from './types/extension';
+} from './ExtensionBuilder';
 export type {Parser, ParserToken} from './types/parser';
 export type {
     Serializer,

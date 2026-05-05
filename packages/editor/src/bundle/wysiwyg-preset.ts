@@ -19,7 +19,7 @@ import type {FileUploadHandler} from '../utils/upload';
 
 import {wCommandMenuConfigByPreset, wSelectionMenuConfigByPreset} from './config/wysiwyg';
 import {emojiDefs} from './emoji';
-import type {MarkdownEditorPreset, WysiwygPlaceholderOptions} from './types';
+import type {MarkdownEditorPreset, WysiwygPlaceholderOptions} from './preset-base-types';
 
 const DEFAULT_IGNORED_KEYS = ['Tab', 'Shift-Tab'] as const;
 

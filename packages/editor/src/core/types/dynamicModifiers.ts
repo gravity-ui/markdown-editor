@@ -1,5 +1,5 @@
 import type {ProcessNode, ProcessNodeAttrs, ProcessToken} from '../markdown/MarkdownParser';
-import type {SerializerProcessNode} from '../markdown/MarkdownSerializerDynamicModifier';
+import type {SerializerProcessNode} from '../markdown/MarkdownSerializer';
 
 export type DynamicModifiers =
     | ParserTokenModifier

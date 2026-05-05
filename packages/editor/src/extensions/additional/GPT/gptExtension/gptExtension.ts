@@ -4,30 +4,10 @@ import {showGptWidget} from '../actions';
 import {runGpt} from '../commands';
 import {gptHotKeys} from '../constants';
 import {gptWidgetPlugin} from '../plugin';
+import type {GptWidgetOptions} from '../types';
 
-import type {GptWidgetDecoViewParams} from './view';
-
+export type {GptWidgetOptions};
 export const gptActionName = 'addGptWidget';
-
-export type GptWidgetOptions<
-    AnswerData extends CommonAnswer = CommonAnswer,
-    PromptData extends unknown = unknown,
-> = Pick<
-    GptWidgetDecoViewParams<AnswerData, PromptData>,
-    | 'answerRender'
-    | 'onApplyResult'
-    | 'promptPresets'
-    | 'customPromptPlaceholder'
-    | 'disabledPromptPlaceholder'
-    | 'onCustomPromptApply'
-    | 'onPromptPresetClick'
-    | 'onTryAgain'
-    | 'onLike'
-    | 'onDislike'
-    | 'onClose'
-    | 'onUpdate'
-    | 'gptAlertProps'
->;
 
 export const gptExtension = <
     AnswerData extends CommonAnswer = CommonAnswer,

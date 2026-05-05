@@ -1,0 +1,115 @@
+{
+  "name": "@gravity-ui/markdown-editor-page-constructor-extension",
+  "version": "0.1.0",
+  "description": "Page Constructor extension for @gravity-ui/markdown-editor",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/gravity-ui/markdown-editor"
+  },
+  "keywords": [
+    "md",
+    "yfm",
+    "wysiwyg",
+    "markdown",
+    "prosemirror",
+    "page-constructor"
+  ],
+  "scripts": {
+    "clean": "gulp clean",
+    "build": "gulp build",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "run-p -cs lint:*",
+    "lint:js": "eslint './**/*.{js,jsx,mjs,ts,tsx}'",
+    "lint:styles": "stylelint './**/*.{css,scss}' --allow-empty-input",
+    "lint:prettier": "prettier --check './**/*.{js,jsx,mjs,ts,tsx,css,scss}'",
+    "test": "jest --config jest.config.cjs",
+    "prepublishOnly": "nx lint && nx clean && nx build"
+  },
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./build/esm/index.d.ts",
+        "default": "./build/esm/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/index.d.ts",
+        "default": "./build/cjs/index.js"
+      }
+    },
+    "./specs": {
+      "import": {
+        "types": "./build/esm/specs.d.ts",
+        "default": "./build/esm/specs.js"
+      },
+      "require": {
+        "types": "./build/cjs/specs.d.ts",
+        "default": "./build/cjs/specs.js"
+      }
+    },
+    "./configs": {
+      "import": {
+        "types": "./build/esm/configs.d.ts",
+        "default": "./build/esm/configs.js"
+      },
+      "require": {
+        "types": "./build/cjs/configs.d.ts",
+        "default": "./build/cjs/configs.js"
+      }
+    },
+    "./view": {
+      "import": {
+        "types": "./build/esm/view.d.ts",
+        "default": "./build/esm/view.js"
+      },
+      "require": {
+        "types": "./build/cjs/view.d.ts",
+        "default": "./build/cjs/view.js"
+      }
+    }
+  },
+  "main": "build/cjs/index.js",
+  "module": "build/esm/index.js",
+  "types": "build/esm/index.d.ts",
+  "files": [
+    "build",
+    "README.md"
+  ],
+  "dependencies": {
+    "@gravity-ui/icons": "^2.12.0",
+    "react-error-boundary": "^3.1.4",
+    "tslib": "catalog:ts"
+  },
+  "devDependencies": {
+    "@diplodoc/page-constructor-extension": "catalog:peer-diplodoc",
+    "@gravity-ui/markdown-editor": "workspace:*",
+    "@gravity-ui/page-constructor": "catalog:peer-gravity",
+    "@gravity-ui/uikit": "catalog:peer-gravity",
+    "@markdown-editor/gulp-tasks": "workspace:*",
+    "@markdown-editor/linters": "workspace:*",
+    "@markdown-editor/tsconfig": "workspace:*",
+    "@types/jest": "^29.5.0",
+    "@types/react": "catalog:react",
+    "@types/react-dom": "catalog:react",
+    "gulp-cli": "catalog:",
+    "jest": "^29.7.0",
+    "npm-run-all": "^4.1.5",
+    "react": "catalog:react",
+    "react-dom": "catalog:react",
+    "ts-dedent": "^2.2.0",
+    "ts-jest": "^29.2.0",
+    "typescript": "catalog:ts"
+  },
+  "peerDependencies": {
+    "@diplodoc/page-constructor-extension": "^0.13.3",
+    "@gravity-ui/markdown-editor": "workspace:^15.38.1",
+    "@gravity-ui/page-constructor": "^7.0.0",
+    "@gravity-ui/uikit": "^7.1.0",
+    "react": "^16.14.0 || ^17.0.0 || ^18.0.0 || ^19.0.0",
+    "react-dom": "^16.14.0 || ^17.0.0 || ^18.0.0 || ^19.0.0"
+  },
+  "sideEffects": [
+    "*.css",
+    "*.scss"
+  ]
+}

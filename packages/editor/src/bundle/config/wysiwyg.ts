@@ -11,6 +11,7 @@ import type {
 import {i18n as i18nHint} from '../../i18n/hints';
 import {i18n} from '../../i18n/menubar';
 import {Action as A, formatter as f} from '../../shortcuts';
+import type {MarkdownEditorPreset} from '../preset-base-types';
 import {ToolbarDataType} from '../toolbar/types';
 import type {
     WToolbarData,
@@ -26,7 +27,6 @@ import {
     WToolbarTextSelect,
     type WToolbarTextSelectProps,
 } from '../toolbar/wysiwyg/WToolbarTextSelect';
-import type {MarkdownEditorPreset} from '../types';
 
 import {ActionName} from './action-names';
 import {icons} from './icons';

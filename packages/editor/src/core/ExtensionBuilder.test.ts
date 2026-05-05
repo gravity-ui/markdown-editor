@@ -3,7 +3,7 @@ import {Plugin} from 'prosemirror-state';
 import {Logger2} from '../logger';
 
 import {ExtensionBuilder} from './ExtensionBuilder';
-import type {ExtensionDeps, ExtensionMarkSpec, ExtensionNodeSpec} from './types/extension';
+import type {ExtensionDeps, ExtensionMarkSpec, ExtensionNodeSpec} from './ExtensionBuilder';
 
 const logger = new Logger2().nested({env: 'test'});
 

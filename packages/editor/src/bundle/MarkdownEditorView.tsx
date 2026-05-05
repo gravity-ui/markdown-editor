@@ -28,7 +28,7 @@ import {useMarkdownEditorContext} from './context';
 import {cnEditorComponent} from './editor-classname';
 import {EditorSettings, type EditorSettingsProps, type SettingItems} from './settings';
 import {stickyCn} from './sticky';
-import type {MToolbarData, MToolbarItemData, WToolbarData, WToolbarItemData} from './toolbar/types';
+import type {ToolbarConfigs} from './toolbar/types';
 import {getToolbarsConfigs} from './toolbar/utils/toolbarsConfigs';
 import type {MarkdownEditorMode} from './types';
 
@@ -243,25 +243,6 @@ const EditorWrapper = forwardRef<HTMLDivElement, EditorWrapperProps>(
 );
 
 EditorWrapper.displayName = 'EditorWrapper';
-
-type ToolbarConfigs = {
-    /**
-     * @deprecated use `toolbarsPreset` instead
-     */
-    markupToolbarConfig?: MToolbarData;
-    /**
-     * @deprecated use `toolbarsPreset` instead
-     */
-    wysiwygToolbarConfig?: WToolbarData;
-    /**
-     * @deprecated use `toolbarsPreset` instead
-     */
-    markupHiddenActionsConfig?: MToolbarItemData[];
-    /**
-     * @deprecated use `toolbarsPreset` instead
-     */
-    wysiwygHiddenActionsConfig?: WToolbarItemData[];
-};
 
 type ViewProps = {
     editor?: Editor;

@@ -4,6 +4,7 @@
   "bump-minor-pre-major": true,
   "bump-patch-for-minor-pre-major": true,
   "separate-pull-requests": true,
+  "bootstrap-sha": "0aaeb738572e33accc35a39caf646bcb1724b834",
   "changelog-sections": [
     {"type": "feat", "section": "Features", "hidden": false},
     {"type": "fix", "section": "Bug Fixes", "hidden": false},
@@ -12,6 +13,7 @@
   ],
   "packages": {
     "packages/editor": {},
-    "packages/latex-extension": {}
+    "packages/latex-extension": {},
+    "packages/page-constructor-extension": {}
   }
 }

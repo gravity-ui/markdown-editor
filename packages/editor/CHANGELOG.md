@@ -1,5 +1,41 @@
 # Changelog
 
+## [15.40.0](https://github.com/gravity-ui/markdown-editor/compare/markdown-editor-v15.39.0...markdown-editor-v15.40.0) (2026-04-29)
+
+
+### Features
+
+* **view:** support gallery preview for custom file types beyond images and videos ([#1110](https://github.com/gravity-ui/markdown-editor/issues/1110)) ([765022d](https://github.com/gravity-ui/markdown-editor/commit/765022d152508446abd199cd783f93e71a7e8b7b))
+
+## [15.39.0](https://github.com/gravity-ui/markdown-editor/compare/markdown-editor-v15.38.1...markdown-editor-v15.39.0) (2026-04-24)
+
+
+### Features
+
+* **core:** add hasNodeSpec() and hasMarkSpec() helper methods to extensions builder ([#1063](https://github.com/gravity-ui/markdown-editor/issues/1063)) ([b7d8ccd](https://github.com/gravity-ui/markdown-editor/commit/b7d8ccdd39408021ae9b64c98b5876a163657190))
+
+
+### Bug Fixes
+
+* **behavior:** fix circular deps ([#1055](https://github.com/gravity-ui/markdown-editor/issues/1055)) ([97a83ce](https://github.com/gravity-ui/markdown-editor/commit/97a83ce7228457ae2cf289542a5b154fe9e5ef9e))
+* **bundle:** fix circular deps ([#1061](https://github.com/gravity-ui/markdown-editor/issues/1061)) ([0baa85d](https://github.com/gravity-ui/markdown-editor/commit/0baa85d0d14eb33ae3ee35ada49d5d60dbb636b8))
+* **gpt:** fix circular deps ([#1060](https://github.com/gravity-ui/markdown-editor/issues/1060)) ([a22ebfd](https://github.com/gravity-ui/markdown-editor/commit/a22ebfdd1d1b04f1a953a69756cd0273358a647b))
+* **link:** fix circular deps ([#1058](https://github.com/gravity-ui/markdown-editor/issues/1058)) ([1fab434](https://github.com/gravity-ui/markdown-editor/commit/1fab434d882936b40576d962ff8fd2f9c082ae45))
+* **markup:** fix circular deps ([#1057](https://github.com/gravity-ui/markdown-editor/issues/1057)) ([445923b](https://github.com/gravity-ui/markdown-editor/commit/445923be77a1ba19795a233295099ada59d449e9))
+* **types:** fix circular deps ([#1099](https://github.com/gravity-ui/markdown-editor/issues/1099)) ([e0a96fa](https://github.com/gravity-ui/markdown-editor/commit/e0a96fa22009eec2ee54b6c235a80a67c983a0aa))
+* **utils:** fix circular deps ([#1056](https://github.com/gravity-ui/markdown-editor/issues/1056)) ([54c1338](https://github.com/gravity-ui/markdown-editor/commit/54c1338db225566766224d325d7f804ef56f31bc))
+* **yfm:** fix circular deps ([#1059](https://github.com/gravity-ui/markdown-editor/issues/1059)) ([06cc299](https://github.com/gravity-ui/markdown-editor/commit/06cc299a3bcc3f55aad9213c8c5e437fcbda8644))
+* **YfmHeading:** remove implicit HeadingSpecs dependency ([#1065](https://github.com/gravity-ui/markdown-editor/issues/1065)) ([96c9e14](https://github.com/gravity-ui/markdown-editor/commit/96c9e14bc8f06e82fdf5136f434547289e44a063))
+
+
+### Refactoring
+
+* **BaseSchema:** use new builder methods to register nodes ([#1068](https://github.com/gravity-ui/markdown-editor/issues/1068)) ([3f27c6f](https://github.com/gravity-ui/markdown-editor/commit/3f27c6f3fc7193c315b510ef9df55fa2c96aaba0))
+* **core:** unify node/mark/parser/serializer pipelines in ExtensionBuilder ([#1072](https://github.com/gravity-ui/markdown-editor/issues/1072)) ([81f9cb4](https://github.com/gravity-ui/markdown-editor/commit/81f9cb434acbe83cf25b9c8fe5bc902b709b8a6e))
+* **Image,ImgSize:** extend Image base extension instead of replacing it ([#1052](https://github.com/gravity-ui/markdown-editor/issues/1052)) ([560df45](https://github.com/gravity-ui/markdown-editor/commit/560df45efdbfb10488d3740fa23089cfacf8e693))
+* **Math:** deprecate the Math extension ([fa322c0](https://github.com/gravity-ui/markdown-editor/commit/fa322c0e4c617fa88e72d5d9736cdd5aad181e57))
+* **Math:** use new builder methods to register nodes ([#1066](https://github.com/gravity-ui/markdown-editor/issues/1066)) ([bf23706](https://github.com/gravity-ui/markdown-editor/commit/bf23706d91dd8636adeacdb625569d1ce8794fd9))
+
 ## [15.38.1](https://github.com/gravity-ui/markdown-editor/compare/markdown-editor-v15.38.0...markdown-editor-v15.38.1) (2026-04-09)
 
 

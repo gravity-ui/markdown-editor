@@ -1,9 +1,10 @@
 import {Popup} from '@gravity-ui/uikit';
 
 import type {CommonAnswer} from '../ErrorScreen/types';
-import {GptDialog, type GptDialogProps} from '../GptDialog/GptDialog';
+import {GptDialog} from '../GptDialog/GptDialog';
 import {gptPopupPlacement} from '../constants';
 import {cnGptPopup} from '../gptExtension/view';
+import type {GptDialogProps} from '../types';
 
 type Props<AnswerData extends CommonAnswer = CommonAnswer, PromptData extends unknown = unknown> = {
     onClose: () => void;
