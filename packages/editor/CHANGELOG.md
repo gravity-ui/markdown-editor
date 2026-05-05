@@ -1,5 +1,12 @@
 # Changelog
 
+## [15.40.1](https://github.com/gravity-ui/markdown-editor/compare/markdown-editor-v15.40.0...markdown-editor-v15.40.1) (2026-05-05)
+
+
+### Bug Fixes
+
+* **i18n:** fix English copy issues (step 3) ([#1123](https://github.com/gravity-ui/markdown-editor/issues/1123)) ([5c21055](https://github.com/gravity-ui/markdown-editor/commit/5c210557a00fe0f8b96bf45cc87ebe2abcd8fabb))
+
 ## [15.40.0](https://github.com/gravity-ui/markdown-editor/compare/markdown-editor-v15.39.0...markdown-editor-v15.40.0) (2026-04-29)
 
 
