@@ -8,7 +8,7 @@
   "common_sizes": "Size, px",
   "image_name": "Title",
   "image_link_href": "Image link",
-  "image_link_href_help": "Adress the image link leads to.",
+  "image_link_href_help": "Address the image link leads to.",
   "image_alt": "Alt text",
   "image_alt_help": "Alt text is displayed if the image cannot be loaded.",
   "image_upload_help": "JPEG, GIF or PNG image no larger than 1 MB.",
