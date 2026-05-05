@@ -21,6 +21,7 @@ import {insertEmptyColumn} from '../commands/insert-empty-column';
 import {insertEmptyRow} from '../commands/insert-empty-row';
 import {removeColumnRange} from '../commands/remove-column-range';
 import {removeRowRange} from '../commands/remove-row-range';
+import {setCellBg} from '../commands/set-cell-bg';
 import {canMakeRowHeader, toggleHeaderRows} from '../commands/toggle-header-rows';
 import {FloatingMenuControl} from '../components/FloatingMenuControl';
 import {
@@ -46,6 +47,7 @@ type GetPos = () => number | undefined;
 type YfmTableCellViewOptions = {
     dndEnabled: boolean;
     headerRowsEnabled: boolean;
+    cellBackgroundEnabled: boolean;
 };
 
 export const yfmTableCellView =
@@ -65,6 +67,7 @@ class YfmTableCellView implements NodeView {
     private readonly _logger: Logger2.ILogger;
     private readonly _dndEnabled: boolean;
     private readonly _headerRowsEnabled: boolean;
+    private readonly _cellBackgroundEnabled: boolean;
 
     private _isHeader: boolean;
     private _decoRowUniqKey: number | null = null;
@@ -98,6 +101,7 @@ class YfmTableCellView implements NodeView {
         });
         this._dndEnabled = opts.dndEnabled;
         this._headerRowsEnabled = opts.headerRowsEnabled;
+        this._cellBackgroundEnabled = opts.cellBackgroundEnabled;
 
         this._isHeader = this._computeIsHeader(node);
         this.dom = document.createElement(this._isHeader ? 'th' : 'td');
@@ -118,6 +122,8 @@ class YfmTableCellView implements NodeView {
 
                 const tableElem = this._view.domAtPos(tablePos + 1).node as Element;
 
+                const currentCellBg = this._node.attrs[YfmTableAttr.CellBg] ?? null;
+
                 return (
                     <ErrorLoggerBoundary>
                         {showRowControl && (
@@ -137,6 +143,9 @@ class YfmTableCellView implements NodeView {
                                 canUnsetRowHeader={this._cellInfo.canUnsetRowHeader}
                                 onMakeRowHeader={this._onRowMakeHeaderClick}
                                 onUnsetRowHeader={this._onRowUnsetHeaderClick}
+                                cellBackgroundEnabled={this._cellBackgroundEnabled}
+                                currentCellBg={currentCellBg}
+                                onCellBgChange={this._onRowSetCellBg}
                             />
                         )}
                         {showColumnControl && (
@@ -156,6 +165,9 @@ class YfmTableCellView implements NodeView {
                                 canUnsetRowHeader={false}
                                 onMakeRowHeader={this._onColumnMakeHeaderClick}
                                 onUnsetRowHeader={this._onColumnUnsetHeaderClick}
+                                cellBackgroundEnabled={this._cellBackgroundEnabled}
+                                currentCellBg={currentCellBg}
+                                onCellBgChange={this._onColumnSetCellBg}
                             />
                         )}
                     </ErrorLoggerBoundary>
@@ -235,6 +247,10 @@ class YfmTableCellView implements NodeView {
             this.dom.classList.remove(prev.attrs[YfmTableAttr.CellAlign]);
         }
 
+        if (prev?.attrs[YfmTableAttr.CellBg]) {
+            this.dom.classList.remove(`cell-bg-${prev.attrs[YfmTableAttr.CellBg]}`);
+        }
+
         if (this._node.attrs[YfmTableAttr.Colspan])
             this.dom.setAttribute('colspan', this._node.attrs[YfmTableAttr.Colspan]);
         else this.dom.removeAttribute('colspan');
@@ -248,6 +264,13 @@ class YfmTableCellView implements NodeView {
             this.dom.setAttribute(YfmTableAttr.CellAlign, this._node.attrs[YfmTableAttr.Rowspan]);
         } else {
             this.dom.removeAttribute(YfmTableAttr.CellAlign);
+        }
+
+        if (this._node.attrs[YfmTableAttr.CellBg] && this._cellBackgroundEnabled) {
+            this.dom.classList.add(`cell-bg-${this._node.attrs[YfmTableAttr.CellBg]}`);
+            this.dom.setAttribute(YfmTableAttr.CellBg, this._node.attrs[YfmTableAttr.CellBg]);
+        } else {
+            this.dom.removeAttribute(YfmTableAttr.CellBg);
         }
     }
 
@@ -323,6 +346,38 @@ class YfmTableCellView implements NodeView {
             clearCells({
                 tablePos: info.table.pos,
                 cols: iterate(colRange.startIdx, colRange.endIdx + 1),
+            })(this._view.state, this._view.dispatch);
+        }
+
+        this._view.focus();
+    };
+
+    private _onRowSetCellBg = (bg: string | null) => {
+        this._logger.event({event: 'row-set-cell-bg', source: 'row-menu'});
+
+        const info = this._getCellInfo();
+        if (info) {
+            const rowRange = info.tableDesc.base.getRowRangeByRowIdx(info.cell.row);
+            setCellBg({
+                tablePos: info.table.pos,
+                rows: iterate(rowRange.startIdx, rowRange.endIdx + 1),
+                bg,
+            })(this._view.state, this._view.dispatch);
+        }
+
+        this._view.focus();
+    };
+
+    private _onColumnSetCellBg = (bg: string | null) => {
+        this._logger.event({event: 'column-set-cell-bg', source: 'column-menu'});
+
+        const info = this._getCellInfo();
+        if (info) {
+            const colRange = info.tableDesc.base.getColumnRangeByColumnIdx(info.cell.column);
+            setCellBg({
+                tablePos: info.table.pos,
+                cols: iterate(colRange.startIdx, colRange.endIdx + 1),
+                bg,
             })(this._view.state, this._view.dispatch);
         }
 

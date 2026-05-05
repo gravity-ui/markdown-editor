@@ -266,6 +266,7 @@ export const Playground = memo<PlaygroundProps>((props) => {
                         table_ignoreSplittersInBlockMath: true,
                         table_ignoreSplittersInInlineCode: true,
                         table_ignoreSplittersInInlineMath: true,
+                        cellBackground: true,
                     },
                     ...wysiwygConfig?.extensionOptions,
                 },

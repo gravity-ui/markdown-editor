@@ -544,7 +544,7 @@ nested table
             ||
             |#
 
-            
+
             `;
 
         same(
@@ -594,7 +594,7 @@ nested table
             ||
             |#
 
-            
+
             `;
 
         same(
@@ -641,5 +641,87 @@ cell11
                 ),
             ),
         );
+    });
+
+    describe('cell-bg serialization', () => {
+        it('should serialize cell-bg on first cell (same line as ||)', () => {
+            const markup = dd`
+                #|
+                ||::{bg="info"}
+
+                cell11
+
+                ||
+                |#
+
+                
+                `.trimStart();
+
+            same(markup, doc(table(tbody(tr(td({[YfmTableAttr.CellBg]: 'info'}, p('cell11')))))));
+        });
+
+        it('should serialize cell-bg on non-first cell (same line as |)', () => {
+            const markup = dd`
+                #|
+                ||
+
+                cell11
+
+                |::{bg="warning"}
+
+                cell12
+
+                ||
+                |#
+
+                
+                `.trimStart();
+
+            same(
+                markup,
+                doc(
+                    table(
+                        tbody(
+                            tr(
+                                td(p('cell11')),
+                                td({[YfmTableAttr.CellBg]: 'warning'}, p('cell12')),
+                            ),
+                        ),
+                    ),
+                ),
+            );
+        });
+
+        it('should serialize cell-bg on multiple cells', () => {
+            const markup = dd`
+                #|
+                ||::{bg="info"}
+
+                cell11
+
+                |::{bg="danger"}
+
+                cell12
+
+                ||
+                |#
+
+                
+                `.trimStart();
+
+            same(
+                markup,
+                doc(
+                    table(
+                        tbody(
+                            tr(
+                                td({[YfmTableAttr.CellBg]: 'info'}, p('cell11')),
+                                td({[YfmTableAttr.CellBg]: 'danger'}, p('cell12')),
+                            ),
+                        ),
+                    ),
+                ),
+            );
+        });
     });
 });

@@ -7,6 +7,7 @@ import {
     ArrowRight,
     ArrowUp,
     BroomMotion as ClearCells,
+    BucketPaint as ColorPalette,
     LayoutHeader as HeaderRow,
     TrashBin,
     Xmark,
@@ -16,6 +17,7 @@ import {type DropdownMenuItem, Flex, Icon, Switch} from '@gravity-ui/uikit';
 import {i18n} from 'src/i18n/yfm-table';
 
 import type {DnDControlHandler} from '../../dnd/dnd';
+import {CellBgPalette} from '../CellBgPalette/CellBgPalette';
 import {FloatingMenu, type FloatingMenuProps} from '../FloatingMenu/FloatingMenu';
 
 type ControlType = FloatingMenuProps['dirtype'];
@@ -36,6 +38,10 @@ export type FloatingMenuControlProps = {
     canUnsetRowHeader: boolean;
     onMakeRowHeader: () => void;
     onUnsetRowHeader: () => void;
+
+    cellBackgroundEnabled?: boolean;
+    currentCellBg?: string | null;
+    onCellBgChange?: (color: string | null) => void;
 };
 
 export const FloatingMenuControl: React.FC<FloatingMenuControlProps> =
@@ -55,6 +61,10 @@ export const FloatingMenuControl: React.FC<FloatingMenuControlProps> =
         canUnsetRowHeader,
         onMakeRowHeader,
         onUnsetRowHeader,
+
+        cellBackgroundEnabled,
+        currentCellBg,
+        onCellBgChange,
     }) {
         const dropdownItems = useMemo<FloatingMenuProps['dropdownItems']>(() => {
             const headerItems: DropdownMenuItem[] = [];
@@ -83,6 +93,28 @@ export const FloatingMenuControl: React.FC<FloatingMenuControlProps> =
 
             return [
                 ...headerItems,
+                ...(cellBackgroundEnabled && onCellBgChange
+                    ? [
+                          [
+                              {
+                                  text: i18n('cells.bg'),
+                                  qa: `g-md-yfm-table-${type}-cell-bg`,
+                                  iconStart: <Icon data={ColorPalette} />,
+                                  items: [
+                                      {
+                                          text: (
+                                              <CellBgPalette
+                                                  value={currentCellBg}
+                                                  onSelect={onCellBgChange}
+                                              />
+                                          ),
+                                          action: () => {},
+                                      },
+                                  ],
+                              },
+                          ],
+                      ]
+                    : []),
                 [
                     {
                         text: i18n(`${type}.add.before`),
