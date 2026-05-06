@@ -1,3 +1,4 @@
+import {existsSync, rmSync} from 'node:fs';
 import process from 'node:process';
 
 import {Assembler} from './assembler.mjs';
@@ -80,10 +81,20 @@ function runAssemble() {
     new Assembler(DOCS_GEN_DIR, DOCS_SRC_DIR).run();
 }
 
+function clearEnrichedDocs() {
+    const enrichedDir = `${DOCS_GEN_DIR}/enriched`;
+
+    if (existsSync(enrichedDir)) {
+        logger.info(`Removing stale enriched docs from ${enrichedDir}/`);
+        rmSync(enrichedDir, {recursive: true, force: true});
+    }
+}
+
 /**
  * Full pipeline: generate -> extract -> assemble
  */
 function runBuild() {
+    clearEnrichedDocs();
     runGenerate();
     runExtract();
     runAssemble();
