@@ -12,11 +12,11 @@ import {cn} from '../../../../classname';
 import type {Parser, Serializer} from '../../../../core';
 import {getReactRendererFromState} from '../../../behavior/ReactRenderer';
 import type {CommonAnswer} from '../ErrorScreen/types';
-import type {GptDialogProps} from '../GptDialog/GptDialog';
 import {GptDialog} from '../GptDialog/GptDialog';
 import {WIDGET_DECO_CLASS_NAME, WIDGET_DECO_SPEC_FLAG, gptPopupPlacement} from '../constants';
-import type {GptWidgetMeta} from '../plugin';
+import type {GptWidgetMeta} from '../plugin-key';
 import {pluginKey} from '../plugin-key';
+import type {GptDialogProps} from '../types';
 
 import './view.scss';
 

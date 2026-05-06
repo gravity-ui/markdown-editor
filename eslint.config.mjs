@@ -60,4 +60,21 @@ export default defineConfig(
             },
         },
     },
+    {
+        files: ['./packages/page-constructor-extension/**/*'],
+        languageOptions: {
+            parserOptions: {
+                project: './packages/page-constructor-extension/tsconfig.json',
+                tsconfigRootDir: import.meta.dirname,
+            },
+        },
+        settings: {
+            'import/resolver': {
+                typescript: {
+                    alwaysTryTypes: true,
+                    project: './packages/page-constructor-extension/tsconfig.json',
+                },
+            },
+        },
+    },
 );

@@ -5,7 +5,7 @@ export type GalleryItemPropsWithUrl = GalleryItemProps & {
     url?: string;
 };
 
-export type FilesGalleryItemType = 'image' | 'video';
+export type FilesGalleryItemType = 'image' | 'video' | 'file';
 
 export type UseFilesGalleryOptions = {
     download?: (url: string, type: FilesGalleryItemType, element: Element) => string | undefined;
@@ -16,4 +16,10 @@ export type UseFilesGalleryOptions = {
         element: Element,
         currentProps: GalleryItemProps,
     ) => GalleryItemProps;
+    resolveCustomItem?: (
+        url: string,
+        type: 'file',
+        element: Element,
+        linkObj: {name?: string | null; mimetype?: string | null},
+    ) => GalleryItemProps | undefined;
 };
