@@ -76,6 +76,7 @@ export const getSchemaSpecs = (
             [YfmTableAttr.Colspan]: {default: null},
             [YfmTableAttr.Rowspan]: {default: null},
             [YfmTableAttr.CellAlign]: {default: null},
+            [YfmTableAttr.CellBg]: {default: null},
         },
         parseDOM: [
             {tag: 'td', priority: 200},

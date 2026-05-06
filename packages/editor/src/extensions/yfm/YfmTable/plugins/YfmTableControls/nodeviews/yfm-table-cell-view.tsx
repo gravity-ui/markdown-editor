@@ -21,6 +21,7 @@ import {insertEmptyColumn} from '../commands/insert-empty-column';
 import {insertEmptyRow} from '../commands/insert-empty-row';
 import {removeColumnRange} from '../commands/remove-column-range';
 import {removeRowRange} from '../commands/remove-row-range';
+import {setCellBg} from '../commands/set-cell-bg';
 import {FloatingMenuControl} from '../components/FloatingMenuControl';
 import {
     YfmTableDecorationType as DecoType,
@@ -44,6 +45,7 @@ const dropCursorParams: DropCursorParams = {
 type GetPos = () => number | undefined;
 type YfmTableCellViewOptions = {
     dndEnabled: boolean;
+    cellBackground: boolean;
 };
 
 export const yfmTableCellView =
@@ -62,6 +64,7 @@ class YfmTableCellView implements NodeView {
     private readonly _renderer;
     private readonly _logger: Logger2.ILogger;
     private readonly _dndEnabled: boolean;
+    private readonly _cellBackground: boolean;
 
     private _decoRowUniqKey: number | null = null;
     private _decoColumnUniqKey: number | null = null;
@@ -91,6 +94,7 @@ class YfmTableCellView implements NodeView {
             node: 'yfm-table',
         });
         this._dndEnabled = opts.dndEnabled;
+        this._cellBackground = opts.cellBackground;
 
         this.dom = document.createElement('td');
         this._updateDom();
@@ -109,6 +113,8 @@ class YfmTableCellView implements NodeView {
 
                 const tableElem = this._view.domAtPos(tablePos + 1).node as Element;
 
+                const currentCellBg = this._node.attrs[YfmTableAttr.CellBg] ?? null;
+
                 return (
                     <ErrorLoggerBoundary>
                         {showRowControl && (
@@ -124,6 +130,9 @@ class YfmTableCellView implements NodeView {
                                 onInsertAfterClick={this._onRowInsertAfterClick}
                                 onRemoveRangeClick={this._onRowRemoveRangeClick}
                                 onRemoveTableClick={this._onRemoveTableClick}
+                                cellBackgroundEnabled={this._cellBackground}
+                                currentCellBg={currentCellBg}
+                                onCellBgChange={this._onRowSetCellBg}
                             />
                         )}
                         {showColumnControl && (
@@ -139,6 +148,9 @@ class YfmTableCellView implements NodeView {
                                 onInsertAfterClick={this._onColumnInsertAfterClick}
                                 onRemoveRangeClick={this._onColumnRemoveRangeClick}
                                 onRemoveTableClick={this._onRemoveTableClick}
+                                cellBackgroundEnabled={this._cellBackground}
+                                currentCellBg={currentCellBg}
+                                onCellBgChange={this._onColumnSetCellBg}
                             />
                         )}
                     </ErrorLoggerBoundary>
@@ -214,6 +226,10 @@ class YfmTableCellView implements NodeView {
             this.dom.classList.remove(prev.attrs[YfmTableAttr.CellAlign]);
         }
 
+        if (prev?.attrs[YfmTableAttr.CellBg]) {
+            this.dom.classList.remove(`cell-bg-${prev.attrs[YfmTableAttr.CellBg]}`);
+        }
+
         if (this._node.attrs[YfmTableAttr.Colspan])
             this.dom.setAttribute('colspan', this._node.attrs[YfmTableAttr.Colspan]);
         else this.dom.removeAttribute('colspan');
@@ -227,6 +243,13 @@ class YfmTableCellView implements NodeView {
             this.dom.setAttribute(YfmTableAttr.CellAlign, this._node.attrs[YfmTableAttr.Rowspan]);
         } else {
             this.dom.removeAttribute(YfmTableAttr.CellAlign);
+        }
+
+        if (this._node.attrs[YfmTableAttr.CellBg] && this._cellBackground) {
+            this.dom.classList.add(`cell-bg-${this._node.attrs[YfmTableAttr.CellBg]}`);
+            this.dom.setAttribute(YfmTableAttr.CellBg, this._node.attrs[YfmTableAttr.CellBg]);
+        } else {
+            this.dom.removeAttribute(YfmTableAttr.CellBg);
         }
     }
 
@@ -302,6 +325,38 @@ class YfmTableCellView implements NodeView {
             clearCells({
                 tablePos: info.table.pos,
                 cols: iterate(colRange.startIdx, colRange.endIdx + 1),
+            })(this._view.state, this._view.dispatch);
+        }
+
+        this._view.focus();
+    };
+
+    private _onRowSetCellBg = (bg: string | null) => {
+        this._logger.event({event: 'row-set-cell-bg', source: 'row-menu'});
+
+        const info = this._getCellInfo();
+        if (info) {
+            const rowRange = info.tableDesc.base.getRowRangeByRowIdx(info.cell.row);
+            setCellBg({
+                tablePos: info.table.pos,
+                rows: iterate(rowRange.startIdx, rowRange.endIdx + 1),
+                bg,
+            })(this._view.state, this._view.dispatch);
+        }
+
+        this._view.focus();
+    };
+
+    private _onColumnSetCellBg = (bg: string | null) => {
+        this._logger.event({event: 'column-set-cell-bg', source: 'column-menu'});
+
+        const info = this._getCellInfo();
+        if (info) {
+            const colRange = info.tableDesc.base.getColumnRangeByColumnIdx(info.cell.column);
+            setCellBg({
+                tablePos: info.table.pos,
+                cols: iterate(colRange.startIdx, colRange.endIdx + 1),
+                bg,
             })(this._view.state, this._view.dispatch);
         }
 
