@@ -1,6 +1,6 @@
-import {readFileSync, readdirSync, writeFileSync} from 'node:fs';
+import {readFileSync, writeFileSync} from 'node:fs';
 import {createRequire} from 'node:module';
-import {dirname, extname, resolve} from 'node:path';
+import {dirname, resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
 
 import {parallel, series, task} from '@markdown-editor/gulp-tasks';
@@ -13,9 +13,16 @@ const require = createRequire(import.meta.url);
 
 const BUILD_DIR = resolve('build');
 const NODE_MODULES_DIR = resolve(__dirname, 'node_modules');
-const SOURCE_DIR = resolve('src');
-const SOURCE_EXTENSIONS = new Set(['.js', '.jsx', '.ts', '.tsx']);
-const EXTERNAL_CSS_IMPORT_RE = /^\s*import\s+(?:.+?\s+from\s+)?['"]([^./'"][^'"]*\.css)['"];?/gm;
+// Keep this list aligned with non-relative CSS imports required by the default editor setup.
+const SHADOW_STYLE_IMPORTS = Object.freeze([
+    '@diplodoc/transform/dist/css/base.css',
+    '@diplodoc/transform/dist/css/_yfm-only.css',
+    '@diplodoc/cut-extension/runtime/styles.css',
+    '@diplodoc/file-extension/runtime/styles.css',
+    '@diplodoc/tabs-extension/runtime/styles.css',
+    '@diplodoc/quote-link-extension/runtime/styles.css',
+    '@diplodoc/folding-headings-extension/runtime/styles.css',
+]);
 
 registerBuildTasks({
     version: pkg.version,
@@ -23,52 +30,61 @@ registerBuildTasks({
     nodeModulesDir: NODE_MODULES_DIR,
 });
 
-task('styles-string', (done) => {
-    const externalCss = collectExternalCss();
+task('shadow-styles', (done) => {
+    const externalCss = readExternalShadowStyles();
     const editorCss = readFileSync(resolve(BUILD_DIR, 'styles.css'), 'utf8');
     const styles = [externalCss, editorCss].filter(Boolean).join('\n');
-    const content = toTemplateLiteral(styles);
+    const moduleCode = createShadowStylesModule(styles);
 
-    writeFileSync(resolve(BUILD_DIR, 'styles-string.mjs'), `export default ${content};\n`);
-    writeFileSync(resolve(BUILD_DIR, 'styles-string.cjs'), `module.exports = ${content};\n`);
+    writeFileSync(resolve(BUILD_DIR, 'shadow-styles.mjs'), moduleCode.esm);
+    writeFileSync(resolve(BUILD_DIR, 'shadow-styles.cjs'), moduleCode.cjs);
     writeFileSync(
-        resolve(BUILD_DIR, 'styles-string.d.ts'),
-        'declare const styles: string;\nexport default styles;\n',
+        resolve(BUILD_DIR, 'shadow-styles.d.ts'),
+        [
+            'export declare const cssText: string;',
+            'export declare function createStyleSheet(): CSSStyleSheet;',
+            '',
+        ].join('\n'),
     );
     done();
 });
 
-task('build', series(parallel('ts', 'json', 'scss'), 'styles-string'));
+task('build', series(parallel('ts', 'json', 'scss'), 'shadow-styles'));
 task('default', series('clean', 'build'));
 
-function collectExternalCss() {
-    const cssImports = new Set();
-
-    for (const sourceFile of getSourceFiles(SOURCE_DIR)) {
-        const sourceCode = readFileSync(sourceFile, 'utf8');
-
-        for (const match of sourceCode.matchAll(EXTERNAL_CSS_IMPORT_RE)) {
-            cssImports.add(match[1]);
-        }
-    }
-
-    return Array.from(cssImports)
-        .map((cssImport) => readFileSync(require.resolve(cssImport), 'utf8'))
-        .join('\n');
+function readExternalShadowStyles() {
+    return SHADOW_STYLE_IMPORTS.map((cssImport) =>
+        readFileSync(require.resolve(cssImport), 'utf8'),
+    ).join('\n');
 }
 
-function getSourceFiles(dir) {
-    return readdirSync(dir, {withFileTypes: true})
-        .sort((left, right) => left.name.localeCompare(right.name))
-        .flatMap((entry) => {
-            const entryPath = resolve(dir, entry.name);
+function createShadowStylesModule(value) {
+    const cssText = toTemplateLiteral(value);
+    const createStyleSheetBody = [
+        'function createStyleSheet() {',
+        "    if (typeof CSSStyleSheet === 'undefined') {",
+        "        throw new Error('Constructable stylesheets are not available in this environment.');",
+        '    }',
+        '    const styleSheet = new CSSStyleSheet();',
+        '    styleSheet.replaceSync(cssText);',
+        '    return styleSheet;',
+        '}',
+    ].join('\n');
 
-            if (entry.isDirectory()) {
-                return getSourceFiles(entryPath);
-            }
-
-            return SOURCE_EXTENSIONS.has(extname(entry.name)) ? [entryPath] : [];
-        });
+    return {
+        esm: [`export const cssText = ${cssText};`, '', `export ${createStyleSheetBody}`, ''].join(
+            '\n',
+        ),
+        cjs: [
+            `const cssText = ${cssText};`,
+            '',
+            createStyleSheetBody,
+            '',
+            'exports.cssText = cssText;',
+            'exports.createStyleSheet = createStyleSheet;',
+            '',
+        ].join('\n'),
+    };
 }
 
 function toTemplateLiteral(value) {

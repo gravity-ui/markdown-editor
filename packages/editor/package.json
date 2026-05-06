@@ -152,14 +152,14 @@
         "default": "./build/cjs/*"
       }
     },
-    "./styles-string": {
+    "./shadow-styles": {
       "import": {
-        "types": "./build/styles-string.d.ts",
-        "default": "./build/styles-string.mjs"
+        "types": "./build/shadow-styles.d.ts",
+        "default": "./build/shadow-styles.mjs"
       },
       "require": {
-        "types": "./build/styles-string.d.ts",
-        "default": "./build/styles-string.cjs"
+        "types": "./build/shadow-styles.d.ts",
+        "default": "./build/shadow-styles.cjs"
       }
     },
     "./styles/*": "./build/esm/styles/*"
