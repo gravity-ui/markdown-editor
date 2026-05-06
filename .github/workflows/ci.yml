@@ -77,3 +77,25 @@ jobs:
 
       - name: Check circular dependencies
         run: pnpm ci:test:circular-deps
+
+  check_shadow_styles_imports:
+    name: Check Shadow Styles Imports
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v5
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version-file: '.nvmrc'
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm run ci:deps
+
+      - name: Check shadow styles imports
+        run: pnpm ci:test:shadow-styles

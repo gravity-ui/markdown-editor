@@ -14,7 +14,8 @@ const require = createRequire(import.meta.url);
 const BUILD_DIR = resolve('build');
 const NODE_MODULES_DIR = resolve(__dirname, 'node_modules');
 // Keep this list aligned with non-relative CSS imports required by the default editor setup.
-const SHADOW_STYLE_IMPORTS = Object.freeze([
+// Drift is enforced by scripts/check-shadow-styles-imports.js.
+export const SHADOW_STYLE_IMPORTS = Object.freeze([
     '@diplodoc/transform/dist/css/base.css',
     '@diplodoc/transform/dist/css/_yfm-only.css',
     '@diplodoc/cut-extension/runtime/styles.css',
@@ -23,6 +24,12 @@ const SHADOW_STYLE_IMPORTS = Object.freeze([
     '@diplodoc/quote-link-extension/runtime/styles.css',
     '@diplodoc/folding-headings-extension/runtime/styles.css',
 ]);
+
+const OPTIONAL_PEERS = new Set(
+    Object.entries(pkg.peerDependenciesMeta ?? {})
+        .filter(([, meta]) => meta?.optional)
+        .map(([name]) => name),
+);
 
 registerBuildTasks({
     version: pkg.version,
@@ -53,9 +60,28 @@ task('build', series(parallel('ts', 'json', 'scss'), 'shadow-styles'));
 task('default', series('clean', 'build'));
 
 function readExternalShadowStyles() {
-    return SHADOW_STYLE_IMPORTS.map((cssImport) =>
-        readFileSync(require.resolve(cssImport), 'utf8'),
-    ).join('\n');
+    return SHADOW_STYLE_IMPORTS.map((cssImport) => {
+        try {
+            return readFileSync(require.resolve(cssImport), 'utf8');
+        } catch (err) {
+            if (err?.code === 'MODULE_NOT_FOUND' && isOptionalPeerImport(cssImport)) {
+                console.warn(
+                    `[shadow-styles] Skipping optional peer CSS '${cssImport}' (package not installed).`,
+                );
+                return '';
+            }
+            throw err;
+        }
+    })
+        .filter(Boolean)
+        .join('\n');
+}
+
+function isOptionalPeerImport(cssImport) {
+    const pkgName = cssImport.startsWith('@')
+        ? cssImport.split('/', 2).join('/')
+        : cssImport.split('/', 1)[0];
+    return OPTIONAL_PEERS.has(pkgName);
 }
 
 function createShadowStylesModule(value) {

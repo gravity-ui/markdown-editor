@@ -27,6 +27,7 @@
     "test:watch": "jest --watchAll",
     "test:esbuild": "node tests/esbuild-test/esbuild-tester.js",
     "test:circular-deps": "node scripts/check-circular-deps.js 0",
+    "test:shadow-styles": "node scripts/check-shadow-styles-imports.js",
     "prepack": "cp ../../README.md ./README.md",
     "postpack": "rm -f ./README.md",
     "prepublishOnly": "pnpm run lint && pnpm run clean && pnpm run build"
