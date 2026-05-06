@@ -12,7 +12,6 @@ export function generateRawMd(ext, presetMap, version) {
     lines.push(`extension: ${ext.name}`);
     lines.push(`version: ${version}`);
     lines.push(`category: ${ext.category}`);
-    lines.push(`generated: ${new Date().toISOString()}`);
     lines.push('---');
     lines.push('');
     lines.push(`# ${ext.name}`);

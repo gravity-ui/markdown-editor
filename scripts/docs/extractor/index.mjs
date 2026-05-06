@@ -1,6 +1,7 @@
 import {existsSync, mkdirSync, rmSync, writeFileSync} from 'node:fs';
 import {basename, dirname, join, relative} from 'node:path';
 
+import {isInternalExtension} from '../config.mjs';
 import {logger} from '../logger.mjs';
 import {listDirs, readAllTsFiles, readText} from '../utils.mjs';
 
@@ -114,6 +115,7 @@ export class ExtensionExtractor {
         for (const category of CATEGORIES) {
             const catDir = join(this.extensionsDir, category);
             for (const dir of listDirs(catDir)) {
+                if (isInternalExtension(dir)) continue;
                 const extDir = join(catDir, dir);
                 try {
                     extensions.push(this.scan(extDir, category));

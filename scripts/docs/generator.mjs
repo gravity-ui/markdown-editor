@@ -8,7 +8,6 @@ import {
     writeFileSync,
 } from 'node:fs';
 import {dirname, join} from 'node:path';
-import process from 'node:process';
 
 import {logger} from './logger.mjs';
 import {slugify, yamlQuote} from './utils.mjs';
@@ -63,8 +62,9 @@ export class Generator {
      */
     collectDocs() {
         if (!existsSync(this.docsDir)) {
-            logger.error(`source directory "${this.docsDir}" does not exist`);
-            process.exit(1);
+            const message = `source directory "${this.docsDir}" does not exist`;
+            logger.error(message);
+            throw new Error(message);
         }
 
         const files = readdirSync(this.docsDir)
@@ -152,10 +152,9 @@ export class Generator {
         for (const doc of docs) {
             const outPath = this.computeOutputPath(doc);
             if (seen.has(outPath)) {
-                logger.error(
-                    `duplicate output path "${outPath}" from "${doc.sourceFile}" and "${seen.get(outPath)}"`,
-                );
-                process.exit(1);
+                const message = `duplicate output path "${outPath}" from "${doc.sourceFile}" and "${seen.get(outPath)}"`;
+                logger.error(message);
+                throw new Error(message);
             }
             seen.set(outPath, doc.sourceFile);
         }

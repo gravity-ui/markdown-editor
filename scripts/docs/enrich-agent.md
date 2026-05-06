@@ -10,6 +10,7 @@ You are enriching documentation for the `@gravity-ui/markdown-editor` library.
    - Find all `<!-- AI:NEEDED:{section} -->` markers.
    - For each marker, read the extension source code at the path from `dirPath` in the IR, then write a replacement text (see section templates below).
    - Write the result to `docs-gen/enriched/{Name}.md` — same content as raw but with markers replaced by your text.
+   - Keep the file ready for commit: `docs-gen/enriched/*.md` is a publish input for strict docs builds.
 3. Skip these extensions (infrastructure, no user-facing docs needed):
    - BaseInputRules, BaseKeymap, BaseStyles, ReactRenderer, SharedState
 
@@ -42,6 +43,13 @@ Each extension IR entry has `dirPath` — relative path to the extension directo
 ## How to write the enriched file
 
 Take the raw file content, replace each `<!-- AI:NEEDED:section -->` with your text, write to `docs-gen/enriched/{Name}.md`. Keep everything else unchanged (frontmatter, deterministic sections, etc.).
+
+## Publish requirement
+
+`docs:assemble`, `docs:build`, and `ci:docs:build` are strict. They fail if:
+- a publishable extension has no matching `docs-gen/enriched/{Name}.md`;
+- an enriched file still contains `AI:NEEDED` or `AI:FAILED` markers;
+- an orphan enriched file exists for an extension that is no longer in the IR.
 
 ## Scope control
 

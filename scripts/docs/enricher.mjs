@@ -1,8 +1,7 @@
 import {existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync} from 'node:fs';
 import {basename, join} from 'node:path';
-import process from 'node:process';
 
-import {config} from './config.mjs';
+import {config, isInternalExtension} from './config.mjs';
 import {logger} from './logger.mjs';
 
 const AI_MARKER_RE = /<!-- AI:NEEDED:(\w+) -->/g;
@@ -24,12 +23,14 @@ export class Enricher {
      */
     load() {
         if (!existsSync(this.rawDir)) {
-            logger.error(`${this.rawDir} not found. Run extract first.`);
-            process.exit(1);
+            const message = `${this.rawDir} not found. Run extract first.`;
+            logger.error(message);
+            throw new Error(message);
         }
         if (!existsSync(this.irPath)) {
-            logger.error(`${this.irPath} not found. Run extract first.`);
-            process.exit(1);
+            const message = `${this.irPath} not found. Run extract first.`;
+            logger.error(message);
+            throw new Error(message);
         }
 
         this.extensions = JSON.parse(readFileSync(this.irPath, 'utf-8'));
@@ -47,7 +48,7 @@ export class Enricher {
         for (const file of this.rawFiles) {
             const extName = basename(file, '.md');
             if (opts.only && !opts.only.includes(extName)) continue;
-            if (config.skipEnrichment?.includes(extName)) continue;
+            if (isInternalExtension(extName)) continue;
 
             const rawContent = readFileSync(join(this.rawDir, file), 'utf-8');
             const extInfo = this.extensions.find((e) => e.name === extName);
@@ -90,6 +91,7 @@ export class Enricher {
         for (const file of this.rawFiles) {
             const extName = basename(file, '.md');
             if (opts.only && !opts.only.includes(extName)) continue;
+            if (isInternalExtension(extName)) continue;
 
             const rawContent = readFileSync(join(this.rawDir, file), 'utf-8');
             const extInfo = this.extensions.find((e) => e.name === extName);
@@ -149,6 +151,7 @@ export class Enricher {
         let count = 0;
         for (const file of this.rawFiles) {
             const extName = basename(file, '.md');
+            if (isInternalExtension(extName)) continue;
             const responsePath = join(responsesDir, `${extName}.json`);
             if (!existsSync(responsePath)) continue;
 

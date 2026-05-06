@@ -1,3 +1,5 @@
+const internalExtensions = ['BaseInputRules', 'BaseKeymap', 'BaseStyles', 'ReactRenderer', 'SharedState'];
+
 /**
  * Configuration for the extension documentation generation pipeline
  */
@@ -105,7 +107,7 @@ Write in markdown format.`,
         },
     },
 
-    skipEnrichment: ['BaseInputRules', 'BaseKeymap', 'BaseStyles', 'ReactRenderer', 'SharedState'],
+    internalExtensions,
 
     categories: {
         order: ['markdown', 'yfm', 'additional', 'behavior', 'base'],
@@ -118,3 +120,7 @@ Write in markdown format.`,
         },
     },
 };
+
+export function isInternalExtension(name) {
+    return config.internalExtensions.includes(name);
+}

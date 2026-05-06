@@ -38,6 +38,9 @@ test-results/
 # generated docs
 docs-src/
 docs-dist/
+docs-gen/*
+!docs-gen/enriched/
+!docs-gen/enriched/*.md
 
 # nx
 .nx/cache
