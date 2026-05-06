@@ -131,6 +131,90 @@ describe('selectionAllHasMarkWithAttr', () => {
         // "AB" plain, "CD" red — select chars 1–4 (BCD)
         expect(allHasColor(['AB', {text: 'CD', color: 'red'}], 1, 4, 'red')).toBe(false);
     });
+
+    // ─── H1-H4: edge cases (risk 4 support) ──────────────────────────────────
+
+    it('H1: range across two adjacent same-color text nodes → true', () => {
+        // PM may keep adjacent same-marked text in two nodes if attrs differ in
+        // intermediate operations; explicitly construct that and assert.
+        // "AB" red + "CD" red — both nodes carry the same mark instance,
+        // so the helper should report true across the join.
+        expect(
+            allHasColor(
+                [
+                    {text: 'AB', color: 'red'},
+                    {text: 'CD', color: 'red'},
+                ],
+                0,
+                4,
+                'red',
+            ),
+        ).toBe(true);
+    });
+
+    it('H2: same attr key, different attr value → false', () => {
+        // "ABC" all red — but check for color="blue".
+        // Already covered by an earlier case; H2 strengthens it by mixing
+        // both: "AB" red + "CD" blue, ask for red across all 4 → false.
+        expect(
+            allHasColor(
+                [
+                    {text: 'AB', color: 'red'},
+                    {text: 'CD', color: 'blue'},
+                ],
+                0,
+                4,
+                'red',
+            ),
+        ).toBe(false);
+    });
+
+    it('H3: parent that does not allow the mark type → text node is skipped', () => {
+        // Build a schema where one block disallows the color mark, so any text
+        // inside it is skipped by `parent.allowsMarkType` in the helper.
+        // We use an explicit `marks: ''` paragraph variant.
+        const restrictedSchema = new Schema({
+            nodes: {
+                doc: {content: 'block+'},
+                // paragraph that allows the color mark (default — `_` already opts in)
+                paragraph: {content: 'inline*', group: 'block', marks: '_'},
+                // paragraph that explicitly forbids any mark
+                noMarkPara: {content: 'inline*', group: 'block', marks: ''},
+                text: {group: 'inline'},
+            },
+            marks: {
+                color: {attrs: {color: {}}, excludes: '_'},
+            },
+        });
+        const restrictedColor = restrictedSchema.marks.color;
+
+        // doc:
+        //   <paragraph> "AB" colored red </paragraph>     (chars 0..2)
+        //   <noMarkPara> "CD" plain </noMarkPara>          (chars 4..6)
+        // Selection spans both blocks — text inside `noMarkPara` is skipped per
+        // `parent.allowsMarkType`. Since the only counted node ("AB") is fully
+        // red, the helper returns true.
+        const doc = restrictedSchema.node('doc', null, [
+            restrictedSchema.node('paragraph', null, [
+                restrictedSchema.text('AB', [restrictedColor.create({color: 'red'})]),
+            ]),
+            restrictedSchema.node('noMarkPara', null, [restrictedSchema.text('CD')]),
+        ]);
+        // PM positions: doc(0) p(1) "A"(1..2) "B"(2..3) /p(3..4) noMark(4..5)
+        // "C"(5..6) "D"(6..7) /noMark(7..8)
+        const sel = TextSelection.create(doc, 1, 7);
+        const state = EditorState.create({doc, selection: sel});
+        expect(selectionAllHasMarkWithAttr(state, restrictedColor, 'color', 'red')).toBe(true);
+    });
+
+    it('H4: empty range (cursor) → true (no nodes to fail the check)', () => {
+        // Document the vacuous-true behaviour explicitly so callers (e.g.
+        // Color.run) can rely on it: the cursor-only branch must NOT be routed
+        // through this helper because every cursor would look "fully covered".
+        // Color.run does the right thing — it short-circuits empty selection
+        // before calling the helper.
+        expect(allHasColor([{text: 'ABC', color: 'red'}], 1, 1, 'red')).toBe(true);
+    });
 });
 
 describe('canApplyInlineMarkInMarkdown', () => {
