@@ -3,8 +3,7 @@ import type React from 'react';
 import {i18n} from '../../../i18n/gpt/dialog';
 
 import type {CommonAnswer} from './ErrorScreen/types';
-import type {GptDialogProps} from './GptDialog/GptDialog';
-import type {GptWidgetOptions} from './gptExtension/gptExtension';
+import type {GptDialogProps, GptWidgetOptions} from './types';
 
 type CombinedKeyboardEvent = KeyboardEvent | React.KeyboardEvent;
 

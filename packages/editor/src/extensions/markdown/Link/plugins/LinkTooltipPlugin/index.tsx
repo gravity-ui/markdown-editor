@@ -10,7 +10,8 @@ import type {ExtensionDeps} from '../../../../../core';
 import {ErrorLoggerBoundary} from '../../../../../react-utils/ErrorBoundary';
 import {findMark, isMarkActive} from '../../../../../utils/marks';
 import {type RendererItem, getReactRendererFromState} from '../../../../behavior/ReactRenderer';
-import {LinkAttr, linkType, normalizeUrlFactory} from '../../../index';
+import {LinkAttr, linkType} from '../../LinkSpecs';
+import {normalizeUrlFactory} from '../../utils';
 
 import {LinkForm} from './TooltipView';
 

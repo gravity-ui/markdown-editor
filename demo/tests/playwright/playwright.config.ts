@@ -37,6 +37,7 @@ const ctViteConfig: ViteInlineConfig = {
         alias: {
             ...aliasesFromTsConf,
             '~@gravity-ui/uikit/styles/mixins': '@gravity-ui/uikit/styles/mixins',
+            '~@diplodoc/transform/dist/css/yfm.css': '@diplodoc/transform/dist/css/yfm.css',
         },
     },
     optimizeDeps: {

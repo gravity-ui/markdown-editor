@@ -5,10 +5,10 @@ import {dropPoint} from 'prosemirror-transform';
 
 import {InputState} from 'src/utils/input-state';
 
-import type {ParseInsertedUrlAsImage} from '../../../../bundle';
 import {type ExtensionAuto, getLoggerFromState} from '../../../../core';
 import {isFunction} from '../../../../lodash';
 import type {FileUploadHandler} from '../../../../utils';
+import type {ParseInsertedUrlAsImage} from '../../../../utils/upload';
 import {clipboardUtils} from '../../../behavior/Clipboard';
 import {DataTransferType} from '../../../behavior/Clipboard/utils';
 import {ImageAttr, ImgSizeAttr, imageType} from '../../../specs';

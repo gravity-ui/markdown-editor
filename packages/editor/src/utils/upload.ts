@@ -1,4 +1,6 @@
 // --> public API
+export type ParseInsertedUrlAsImage = (text: string) => {imageUrl: string; title?: string} | null;
+
 export type FileUploadResult = {
     url: string;
     /** override file name */

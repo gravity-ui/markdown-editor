@@ -30,8 +30,6 @@ export function inDefaultTextblock(
     return state.doc.resolve(start).parent.type === pType(state.schema);
 }
 
-export {textblockTypeInputRule, wrappingInputRule} from './rulebuilders';
-
 function getMarksBetween(start: number, end: number, state: EditorState) {
     let marks: {start: number; end: number; mark: Mark}[] = [];
 

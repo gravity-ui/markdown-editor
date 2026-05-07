@@ -3,7 +3,7 @@ const {pathsToModuleNameMapper} = require('ts-jest');
 
 const {compilerOptions} = require('./tsconfig.json');
 
-const esmModules = ['cheerio', '@diplodoc'];
+const esmModules = ['cheerio', '@diplodoc', 'parse5', 'entities'];
 
 /** @type {import('ts-jest/dist/types').JestConfigWithTsJest} */
 // eslint-disable-next-line no-undef

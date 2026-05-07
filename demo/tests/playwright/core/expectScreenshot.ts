@@ -36,9 +36,8 @@ export const expectScreenshot: PlaywrightFixture<ExpectScreenshotFixture> = asyn
 
         const themes = paramsThemes || defaultParams.themes;
 
-        // TODO: @makhnatkin simplify with await loader.waitFor({state: 'hidden'});
-        // Wait for loading of all the images
-        const locators = await page.locator('//img').all();
+        // Wait for loading of all the images (img[src] skips hidden CM widget buffer elements)
+        const locators = await page.locator('img[src]').all();
         await Promise.all(
             locators.map((locator) =>
                 locator.evaluate(
@@ -49,7 +48,11 @@ export const expectScreenshot: PlaywrightFixture<ExpectScreenshotFixture> = asyn
             ),
         );
 
-        // Wait for loading fonts
+        // Wait for lazy CSS chunks (YFM fonts, html-extension styles, etc.) to finish loading,
+        // then wait for the browser to finish loading the font files they declare.
+        // Without networkidle, document.fonts.ready may resolve before lazy chunks inject their
+        // @font-face rules, causing a race where screenshots capture the wrong typeface.
+        await page.waitForLoadState('networkidle');
         await page.evaluate(() => document.fonts.ready);
 
         if (themes?.includes('light')) {

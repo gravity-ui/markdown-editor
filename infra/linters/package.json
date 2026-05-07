@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "@gravity-ui/eslint-config": "4.3.1",
-    "@gravity-ui/prettier-config": "1.1.0",
+    "@gravity-ui/prettier-config": "1.1.1",
     "@gravity-ui/stylelint-config": "5.0.0",
     "eslint-plugin-lodash": "8.0.0",
     "eslint-plugin-react": "7.37.5"

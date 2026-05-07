@@ -802,6 +802,13 @@ export class MarkdownEditorPage {
         await this.locators.cmAutocomplete.waitFor({state: 'visible'});
     }
 
+    /**
+     * Waits for the CodeMirror autocomplete popup to become hidden.
+     */
+    async waitForCMAutocompleteHidden() {
+        await this.locators.cmAutocomplete.waitFor({state: 'hidden'});
+    }
+
     async openSearchPanel() {
         await this.focus();
         await this.locators.contenteditable.press('Meta+F');

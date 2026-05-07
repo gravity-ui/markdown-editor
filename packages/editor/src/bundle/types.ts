@@ -8,14 +8,25 @@ import type {Logger2} from '../logger';
 import type {CreateCodemirrorParams, YfmLangOptions} from '../markup';
 import type {FileUploadHandler} from '../utils';
 import type {DirectiveSyntaxContext, DirectiveSyntaxOption} from '../utils/directive';
+import type {ParseInsertedUrlAsImage} from '../utils/upload';
 
-import type {ChangeEditorModeOptions} from './Editor';
+import type {ChangeEditorModeOptions} from './editor-public-types';
+import type {
+    MarkdownEditorMode,
+    MarkdownEditorPreset,
+    MarkdownEditorSplitMode,
+    WysiwygPlaceholderOptions,
+} from './preset-base-types';
 import type {ExtensionsOptions as WysiwygPresetExtensionsOptions} from './wysiwyg-preset';
 
-export type {Editor as MarkdownEditorInstance} from './Editor';
-export type MarkdownEditorMode = 'wysiwyg' | 'markup';
-export type MarkdownEditorPreset = 'zero' | 'commonmark' | 'default' | 'yfm' | 'full';
-export type MarkdownEditorSplitMode = false | 'horizontal' | 'vertical';
+export type {
+    MarkdownEditorMode,
+    MarkdownEditorPreset,
+    MarkdownEditorSplitMode,
+    WysiwygPlaceholderOptions,
+};
+export type {ParseInsertedUrlAsImage};
+export type {MarkdownEditorInstance, ChangeEditorModeOptions} from './editor-public-types';
 
 export type RenderPreviewParams = {
     getValue: () => MarkupString;
@@ -24,21 +35,6 @@ export type RenderPreviewParams = {
     directiveSyntax: Pick<DirectiveSyntaxContext, 'option' | 'valueFor' | 'mdPluginValueFor'>;
 };
 export type RenderPreview = (params: RenderPreviewParams) => ReactNode;
-
-export type ParseInsertedUrlAsImage = (text: string) => {imageUrl: string; title?: string} | null;
-
-export type WysiwygPlaceholderOptions = {
-    value?: string | (() => string);
-    /**
-     * Default – empty-doc.
-     *
-     * Values:
-     * - 'empty-doc' – The placeholder will only be shown when the document is completely empty;
-     * - 'empty-row-top-level' – The placeholder will be displayed in an empty line that is at the top level of the document structure;
-     * - 'empty-row' – The placeholder will be shown in any empty line within the document, regardless of its nesting level.
-     */
-    behavior?: 'empty-doc' | 'empty-row-top-level' | 'empty-row';
-};
 
 export type MarkdownEditorMdOptions = {
     html?: boolean;

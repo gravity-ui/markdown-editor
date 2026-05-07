@@ -4,13 +4,18 @@ import type {PlaceholderOptions} from '../../../../utils/placeholder';
 
 import {NoteAttrs, NoteNode} from './const';
 
-import type {YfmNoteSpecsOptions} from './index';
+export type YfmNoteSchemaOptions = {
+    /**
+     * @deprecated use placeholder option in BehaviorPreset instead.
+     */
+    yfmNoteTitlePlaceholder?: NonNullable<NodeSpec['placeholder']>['content'];
+};
 
 const DEFAULT_TITLE_PLACEHOLDER = 'Note';
 const DEFAULT_CONTENT_PLACEHOLDER = 'Note content';
 
 export const getSchemaSpecs = (
-    opts?: YfmNoteSpecsOptions,
+    opts?: YfmNoteSchemaOptions,
     placeholder?: PlaceholderOptions,
 ): Record<NoteNode, NodeSpec> => ({
     [NoteNode.Note]: {

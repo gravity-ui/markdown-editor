@@ -1,8 +1,10 @@
 import type {ExtensionAuto} from '#core';
+
 import {
+    HeadingSpecs,
     type HeadingSpecsOptions,
     headingToMarkdown,
-} from 'src/extensions/markdown/Heading/HeadingSpecs';
+} from '../../../markdown/Heading/HeadingSpecs';
 
 import {YfmHeadingAttr, headingNodeName} from './const';
 import {headingIdsPlugin} from './markdown/heading-ids';
@@ -14,7 +16,11 @@ export {renderYfmHeadingAttributes, renderYfmHeadingMarkup} from './utils';
 export type YfmHeadingSpecsOptions = HeadingSpecsOptions & {};
 
 /** YfmHeading extension needs markdown-it-attrs plugin */
-export const YfmHeadingSpecs: ExtensionAuto<YfmHeadingSpecsOptions> = (builder, _opts) => {
+export const YfmHeadingSpecs: ExtensionAuto<YfmHeadingSpecsOptions> = (builder, opts) => {
+    if (!builder.hasNodeSpec(headingNodeName)) {
+        builder.use(HeadingSpecs, opts);
+    }
+
     builder.configureMd((md) => md.use(headingIdsPlugin));
 
     builder.overrideNodeSpec(headingNodeName, (prev) => ({

@@ -1,3 +1,4 @@
+import {DOMParser} from 'prosemirror-model';
 import {builders} from 'prosemirror-test-builder';
 
 import {createMarkupChecker} from '../../../../tests/sameMarkup';
@@ -61,5 +62,16 @@ describe('Image extension', () => {
 
     it('should parse image with size, alt and title', () => {
         same('![alt text 2](img4.png "title text 2" =400x300)', doc(p(img4())));
+    });
+
+    it('should correctly parse width and height from HTML img element', () => {
+        const dom = document.createElement('div');
+        dom.innerHTML = '<img src="img.png" width="200" height="100">';
+
+        const parsed = DOMParser.fromSchema(schema).parse(dom);
+        const imgNode = parsed.firstChild!.firstChild!;
+
+        expect(imgNode.attrs[ImgSizeAttr.Width]).toBe('200');
+        expect(imgNode.attrs[ImgSizeAttr.Height]).toBe('100');
     });
 });

@@ -1,15 +1,13 @@
 import type {ExtensionAuto} from '../../../../core';
 import {nodeTypeFactory} from '../../../../utils/schema';
 
-export const imageNodeName = 'image';
-export const imageType = nodeTypeFactory(imageNodeName);
+import {ImageAttr, imageNodeName} from './const';
+import {imageToMarkdown} from './utils';
 
-export const ImageAttr = {
-    Src: 'src',
-    Alt: 'alt',
-    Title: 'title',
-    Loading: 'loading',
-} as const;
+export {ImageAttr, imageNodeName} from './const';
+export {imageToMarkdown, type ImageToMarkdownParams} from './utils';
+
+export const imageType = nodeTypeFactory(imageNodeName);
 
 export const ImageSpecs: ExtensionAuto = (builder) => {
     builder.addNode(imageNodeName, () => ({
@@ -52,26 +50,6 @@ export const ImageSpecs: ExtensionAuto = (builder) => {
                 }),
             },
         },
-        toMd: (state, {attrs}) => {
-            let result = '![';
-
-            if (attrs.alt) {
-                result += state.esc(attrs.alt);
-            }
-
-            result += '](';
-
-            if (attrs.src) {
-                result += state.esc(attrs.src);
-            }
-
-            if (attrs.title) {
-                result += ` ${state.quote(attrs.title)}`;
-            }
-
-            result += ')';
-
-            state.write(result);
-        },
+        toMd: imageToMarkdown(),
     }));
 };

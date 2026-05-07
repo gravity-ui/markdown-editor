@@ -12,7 +12,7 @@ import {type QAProps, useToaster} from '@gravity-ui/uikit';
 import {ErrorBoundary} from 'react-error-boundary';
 import {useEnsuredForwardedRef, useKey, useUpdate} from 'react-use';
 
-import {type ClassNameProps, cn} from '../classname';
+import type {ClassNameProps} from '../classname';
 import {i18n} from '../i18n/bundle';
 import {globalLogger} from '../logger';
 import type {ToolbarsPreset} from '../modules/toolbars/types';
@@ -25,16 +25,16 @@ import {MarkupEditorView} from './MarkupEditorView';
 import {SplitModeView} from './SplitModeView';
 import {WysiwygEditorView} from './WysiwygEditorView';
 import {useMarkdownEditorContext} from './context';
+import {cnEditorComponent} from './editor-classname';
 import {EditorSettings, type EditorSettingsProps, type SettingItems} from './settings';
 import {stickyCn} from './sticky';
-import type {MToolbarData, MToolbarItemData, WToolbarData, WToolbarItemData} from './toolbar/types';
+import type {ToolbarConfigs} from './toolbar/types';
 import {getToolbarsConfigs} from './toolbar/utils/toolbarsConfigs';
 import type {MarkdownEditorMode} from './types';
 
 import '../styles/styles.scss';
 import './MarkdownEditorView.scss'; // eslint-disable-line import/order
 
-export const cnEditorComponent = cn('editor-component');
 const b = cnEditorComponent;
 
 interface EditorWrapperProps extends QAProps, ToolbarConfigs, Omit<ViewProps, 'editor'> {
@@ -243,25 +243,6 @@ const EditorWrapper = forwardRef<HTMLDivElement, EditorWrapperProps>(
 );
 
 EditorWrapper.displayName = 'EditorWrapper';
-
-type ToolbarConfigs = {
-    /**
-     * @deprecated use `toolbarsPreset` instead
-     */
-    markupToolbarConfig?: MToolbarData;
-    /**
-     * @deprecated use `toolbarsPreset` instead
-     */
-    wysiwygToolbarConfig?: WToolbarData;
-    /**
-     * @deprecated use `toolbarsPreset` instead
-     */
-    markupHiddenActionsConfig?: MToolbarItemData[];
-    /**
-     * @deprecated use `toolbarsPreset` instead
-     */
-    wysiwygHiddenActionsConfig?: WToolbarItemData[];
-};
 
 type ViewProps = {
     editor?: Editor;

@@ -11,17 +11,17 @@ import {
 } from 'prosemirror-utils';
 import type {EditorView} from 'prosemirror-view';
 
-import {
-    createFakeParagraph,
-    findFakeParaPosClosestToPos,
-    findFakeParaPosForTextSelection,
-    isGapCursorSelection,
-    pType,
-} from '../../';
 import {throttle} from '../../../lodash';
 import {findChildIndex} from '../../../table-utils/helpers';
 import {isSameNodeType} from '../../../utils';
 import {get$Cursor, isTextSelection} from '../../../utils/selection';
+import {pType} from '../../base/BaseSchema/BaseSchemaSpecs';
+import {isGapCursorSelection} from '../../behavior/Cursor/GapCursorSelection';
+import {
+    createFakeParagraph,
+    findFakeParaPosClosestToPos,
+    findFakeParaPosForTextSelection,
+} from '../../behavior/Selection/commands';
 
 import {TabAttrs, TabPanelAttrs} from './YfmTabsSpecs/const';
 import {

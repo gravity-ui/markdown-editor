@@ -3,6 +3,11 @@ export enum MathNode {
     Block = 'math_display',
 }
 
+export const MathToken = {
+    Inline: 'math_inline',
+    Block: 'math_block',
+} as const;
+
 export const CLASSNAMES = {
     Inline: {
         Container: 'math-inline',

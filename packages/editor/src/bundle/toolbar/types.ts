@@ -1,5 +1,5 @@
 import type {ActionStorage} from '../../core';
-import type {CodeEditor} from '../../markup';
+import type {CodeEditor} from '../../markup/editor';
 import type {ToolbarListButtonData} from '../../toolbar';
 import type {
     ToolbarBaseProps,
@@ -35,3 +35,14 @@ export type MToolbarReactComponentData = ToolbarReactComponentData<CodeEditor>;
 export type MToolbarListButtonData = ToolbarListButtonData<CodeEditor>;
 export type MToolbarListItemData = ToolbarListItemData<CodeEditor>;
 export type MToolbarButtonPopupData = ToolbarButtonPopupData<CodeEditor>;
+
+export type ToolbarConfigs = {
+    /** @deprecated use `toolbarsPreset` instead */
+    markupToolbarConfig?: MToolbarData;
+    /** @deprecated use `toolbarsPreset` instead */
+    wysiwygToolbarConfig?: WToolbarData;
+    /** @deprecated use `toolbarsPreset` instead */
+    markupHiddenActionsConfig?: MToolbarItemData[];
+    /** @deprecated use `toolbarsPreset` instead */
+    wysiwygHiddenActionsConfig?: WToolbarItemData[];
+};

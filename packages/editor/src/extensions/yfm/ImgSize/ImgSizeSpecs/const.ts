@@ -1,11 +1,12 @@
 import {ImsizeAttr} from '@diplodoc/transform/lib/plugins/imsize/const.js';
 
+import {ImageAttr} from '../../../markdown/Image/ImageSpecs/const';
+
+export {imageNodeName} from '../../../markdown/Image/ImageSpecs/const';
+
 export const ImgSizeAttr = {
-    Alt: ImsizeAttr.Alt,
-    Src: ImsizeAttr.Src,
-    Title: ImsizeAttr.Title,
+    ...ImageAttr,
     Width: ImsizeAttr.Width,
     Height: ImsizeAttr.Height,
-    Loading: 'loading',
     Id: 'id',
 } as const;
