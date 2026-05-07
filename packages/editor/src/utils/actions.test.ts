@@ -29,29 +29,26 @@ const mockParser: Parser = {
     normalizeLinkText: (url) => url,
     matchLinks: () => null,
 };
-const parserPlugin = ParserFacet.of(mockParser);
 
 const boldType = schema.marks.bold;
+const parserPlugin = ParserFacet.of(mockParser);
 const action = createMarkdownInlineMarkAction(boldType);
 const command = createMarkdownInlineMarkCommand(boldType);
 
 type Segment = string | {text: string; bold: true};
 
-/**
- * Build a state where the paragraph contains the given segments. `from`/`to`
- * are 0-based character offsets inside the paragraph text.
- */
 function makeState(segments: Segment[], from: number, to: number): EditorState {
-    const nodes = segments.map((seg) => {
-        if (typeof seg === 'string') return schema.text(seg);
-        return schema.text(seg.text, [boldType.create()]);
-    });
+    const nodes = segments.map((segment) =>
+        typeof segment === 'string'
+            ? schema.text(segment)
+            : schema.text(segment.text, [boldType.create()]),
+    );
     const doc = schema.node('doc', null, [schema.node('paragraph', null, nodes)]);
-    const sel = TextSelection.create(doc, from + 1, to + 1);
-    return EditorState.create({doc, selection: sel, plugins: [parserPlugin]});
+    const selection = TextSelection.create(doc, from + 1, to + 1);
+    return EditorState.create({doc, selection, plugins: [parserPlugin]});
 }
 
-function runAction(state: EditorState): EditorState {
+function runAction(state: EditorState) {
     const ref = {state};
     action.run(
         ref.state,
@@ -64,7 +61,7 @@ function runAction(state: EditorState): EditorState {
     return ref.state;
 }
 
-function runCommand(state: EditorState): {handled: boolean; state: EditorState} {
+function runCommand(state: EditorState) {
     const ref = {state};
     const handled = command(
         ref.state,
@@ -73,94 +70,69 @@ function runCommand(state: EditorState): {handled: boolean; state: EditorState} 
         },
         undefined as never,
     );
+
     return {handled, state: ref.state};
 }
 
-/** Whether every text node in the doc has the bold mark. */
-function allBold(state: EditorState): boolean {
-    let result = true;
+function everyTextNodeHasBold(state: EditorState) {
+    let allBold = true;
     state.doc.descendants((node) => {
-        if (node.isText) {
-            const bold = boldType.isInSet(node.marks);
-            if (!bold) result = false;
+        if (node.isText && !boldType.isInSet(node.marks)) {
+            allBold = false;
         }
         return true;
     });
-    return result;
+    return allBold;
 }
 
-/** Whether no text node in the doc has the bold mark. */
-function noneBold(state: EditorState): boolean {
-    let result = true;
+function noTextNodeHasBold(state: EditorState) {
+    let hasBold = false;
     state.doc.descendants((node) => {
-        if (node.isText) {
-            if (boldType.isInSet(node.marks)) result = false;
+        if (node.isText && boldType.isInSet(node.marks)) {
+            hasBold = true;
         }
         return true;
     });
-    return result;
+    return !hasBold;
 }
 
-describe('createMarkdownInlineMarkAction × removeWhenPresent:false (risk 3)', () => {
-    it('B1: partial bold + bad markdown boundary → silent no-op (known limitation)', () => {
-        // "hello," — selection covers the trailing comma which is a flanking issue.
-        // With removeWhenPresent:false the action would try to APPLY bold to the
-        // partial range; canApplyInlineMarkInMarkdown returns false for this
-        // boundary; createMarkdownInlineMarkAction's guard rejects → no-op.
-        // Setup: bold "hello", plain ",". Selection 5..6 (just the comma).
-        const state = makeState([{text: 'hello', bold: true}, ','], 5, 6);
-        const next = runAction(state);
-        expect(next.doc.eq(state.doc)).toBe(true);
-        // Documenting the known limitation: a user who clicks Bold on a partial
-        // selection that ends on a punctuation boundary sees nothing happen.
-        // Pinned here so any future fix updates this test consciously.
-    });
-
-    it('B2: range fully bold + bad boundary → action removes bold (toggle-off)', () => {
-        // Same boundary, but the whole range is already bold → removal path runs,
-        // which the guard explicitly allows (see actions.ts:23 comment).
-        const state = makeState([{text: 'hello,', bold: true}], 5, 6);
-        const next = runAction(state);
-        // After toggle-off the comma node is no longer bold (and probably no node
-        // in doc carries the mark over the original range).
-        let commaIsBold = false;
-        next.doc.nodesBetween(6, 7, (node) => {
-            if (node.isText && boldType.isInSet(node.marks)) commaIsBold = true;
-            return true;
-        });
-        expect(commaIsBold).toBe(false);
-    });
-
-    it('B3: partial bold + safe boundary → action applies bold to whole range (the fix)', () => {
-        // "hello world", selection 0..11, only "hello" is bold initially.
-        // Boundary is whitespace/word-edge, no flanking issue → guard passes →
-        // removeWhenPresent:false makes toggleMark APPLY the mark to the whole
-        // range instead of removing it.
+describe('createMarkdownInlineMarkAction', () => {
+    it('applies the mark to the whole mixed selection', () => {
         const state = makeState([{text: 'hello', bold: true}, ' world'], 0, 11);
         const next = runAction(state);
-        expect(allBold(next)).toBe(true);
+
+        expect(everyTextNodeHasBold(next)).toBe(true);
     });
 
-    it('B3 inverse sanity: full coverage, safe boundary → toggle-off removes bold', () => {
-        // Belt-and-suspenders: confirm the toggle-off path still works on the
-        // happy boundary. selection covers entire bold "hello".
+    it('removes the mark from a fully covered selection', () => {
         const state = makeState([{text: 'hello', bold: true}], 0, 5);
         const next = runAction(state);
-        expect(noneBold(next)).toBe(true);
+
+        expect(noTextNodeHasBold(next)).toBe(true);
+    });
+
+    it('blocks apply on invalid markdown boundaries but still allows removal', () => {
+        const blocked = makeState([{text: 'hello', bold: true}, ','], 5, 6);
+        expect(runAction(blocked).doc.eq(blocked.doc)).toBe(true);
+
+        const removable = makeState([{text: 'hello,', bold: true}], 5, 6);
+        expect(noTextNodeHasBold(runAction(removable))).toBe(true);
     });
 });
 
-describe('createMarkdownInlineMarkCommand × keymap parity', () => {
-    it('K1: partial bold + safe boundary → command applies bold to whole range', () => {
+describe('createMarkdownInlineMarkCommand', () => {
+    it('matches the action behavior on mixed selections', () => {
         const state = makeState([{text: 'hello', bold: true}, ' world'], 0, 11);
         const next = runCommand(state);
+
         expect(next.handled).toBe(true);
-        expect(allBold(next.state)).toBe(true);
+        expect(everyTextNodeHasBold(next.state)).toBe(true);
     });
 
-    it('K2: partial bold + bad markdown boundary → command is blocked', () => {
+    it('is blocked by the same markdown boundary guard', () => {
         const state = makeState([{text: 'hello', bold: true}, ','], 5, 6);
         const next = runCommand(state);
+
         expect(next.handled).toBe(false);
         expect(next.state.doc.eq(state.doc)).toBe(true);
     });

@@ -10,7 +10,6 @@ export const MToolbarColors: React.FC<MToolbarColorsProps> = ({
     focus,
     onClick,
 }) => {
-    // TODO: markup-mode color switching wraps nested instead of replacing — see #1129
     return (
         <ToolbarColors
             enable

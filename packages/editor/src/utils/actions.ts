@@ -11,6 +11,31 @@ export function defineActions<Keys extends string>(actions: Record<Keys, ActionS
 }
 
 export function createToggleMarkCommand(markType: MarkType): Command {
+    return toggleMark(markType);
+}
+
+function selectionAllHasMark(state: Parameters<Command>[0], markType: MarkType): boolean {
+    let hasText = false;
+    const allHave = state.selection.ranges.every(({$from, $to}) => {
+        let rangeAllHave = true;
+        state.doc.nodesBetween($from.pos, $to.pos, (node, _pos, parent) => {
+            if (!rangeAllHave || !node.isText || !parent?.type.allowsMarkType(markType)) {
+                return rangeAllHave;
+            }
+
+            hasText = true;
+            rangeAllHave = Boolean(markType.isInSet(node.marks));
+
+            return rangeAllHave;
+        });
+
+        return rangeAllHave;
+    });
+
+    return hasText && allHave;
+}
+
+export function createPartialToggleMarkCommand(markType: MarkType): Command {
     return toggleMark(markType, undefined, {removeWhenPresent: false});
 }
 
@@ -25,10 +50,22 @@ export function createToggleMarkAction(markType: MarkType): ActionSpec {
     };
 }
 
+export function createPartialToggleMarkAction(markType: MarkType): ActionSpec {
+    const command = createPartialToggleMarkCommand(markType);
+    return {
+        isActive: (state) => Boolean(isMarkActive(state, markType)),
+        isEnable: command,
+        run: (state, dispatch, view) => {
+            command(state, dispatch, view);
+        },
+    };
+}
+
 export function createMarkdownInlineMarkCommand(markType: MarkType): Command {
-    const base = createToggleMarkCommand(markType);
+    const base = createPartialToggleMarkCommand(markType);
     return (state, dispatch, view) => {
-        const isBlocked = !isMarkActive(state, markType) && !canApplyInlineMarkInMarkdown(state);
+        const isBlocked =
+            !selectionAllHasMark(state, markType) && !canApplyInlineMarkInMarkdown(state);
         if (isBlocked) return false;
         return base(state, dispatch, view);
     };
