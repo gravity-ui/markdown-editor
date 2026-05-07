@@ -5,7 +5,7 @@ import {EditorState, TextSelection} from 'prosemirror-state';
 import type {Parser} from '../core/types/parser';
 import {ParserFacet} from '../core/utils/parser';
 
-import {createMarkdownInlineMarkAction} from './actions';
+import {createMarkdownInlineMarkAction, createMarkdownInlineMarkCommand} from './actions';
 
 const schema = new Schema({
     nodes: {
@@ -33,6 +33,7 @@ const parserPlugin = ParserFacet.of(mockParser);
 
 const boldType = schema.marks.bold;
 const action = createMarkdownInlineMarkAction(boldType);
+const command = createMarkdownInlineMarkCommand(boldType);
 
 type Segment = string | {text: string; bold: true};
 
@@ -61,6 +62,18 @@ function runAction(state: EditorState): EditorState {
         undefined,
     );
     return ref.state;
+}
+
+function runCommand(state: EditorState): {handled: boolean; state: EditorState} {
+    const ref = {state};
+    const handled = command(
+        ref.state,
+        (tr) => {
+            ref.state = ref.state.apply(tr);
+        },
+        undefined as never,
+    );
+    return {handled, state: ref.state};
 }
 
 /** Whether every text node in the doc has the bold mark. */
@@ -134,5 +147,21 @@ describe('createMarkdownInlineMarkAction × removeWhenPresent:false (risk 3)', (
         const state = makeState([{text: 'hello', bold: true}], 0, 5);
         const next = runAction(state);
         expect(noneBold(next)).toBe(true);
+    });
+});
+
+describe('createMarkdownInlineMarkCommand × keymap parity', () => {
+    it('K1: partial bold + safe boundary → command applies bold to whole range', () => {
+        const state = makeState([{text: 'hello', bold: true}, ' world'], 0, 11);
+        const next = runCommand(state);
+        expect(next.handled).toBe(true);
+        expect(allBold(next.state)).toBe(true);
+    });
+
+    it('K2: partial bold + bad markdown boundary → command is blocked', () => {
+        const state = makeState([{text: 'hello', bold: true}, ','], 5, 6);
+        const next = runCommand(state);
+        expect(next.handled).toBe(false);
+        expect(next.state.doc.eq(state.doc)).toBe(true);
     });
 });
