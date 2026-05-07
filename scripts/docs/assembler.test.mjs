@@ -34,7 +34,16 @@ function createAssemblerFixture() {
     );
     writeFixtureFile(
         join(docsGenDir, 'extensions.json'),
-        JSON.stringify([{name: 'Bold', category: 'markdown', marks: ['bold'], nodes: [], actions: []}], null, 2),
+        JSON.stringify(
+            {
+                version: '1.2.3',
+                extensions: [
+                    {name: 'Bold', category: 'markdown', marks: ['bold'], nodes: [], actions: []},
+                ],
+            },
+            null,
+            2,
+        ),
     );
     writeFixtureFile(join(docsSrcDir, 'index.md'), '# Markdown Editor\n');
     writeFixtureFile(

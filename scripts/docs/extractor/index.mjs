@@ -117,11 +117,7 @@ export class ExtensionExtractor {
             for (const dir of listDirs(catDir)) {
                 if (isInternalExtension(dir)) continue;
                 const extDir = join(catDir, dir);
-                try {
-                    extensions.push(this.scan(extDir, category));
-                } catch (err) {
-                    logger.warn(`failed to scan ${extDir}: ${err.message}`);
-                }
+                extensions.push(this.scan(extDir, category));
             }
         }
         return extensions;
@@ -150,7 +146,10 @@ export class ExtensionExtractor {
 
         logger.info(`Found ${extensions.length} extensions`);
 
-        writeFileSync(join(this.outDir, 'extensions.json'), JSON.stringify(extensions, null, 2));
+        writeFileSync(
+            join(this.outDir, 'extensions.json'),
+            JSON.stringify({version, extensions}, null, 2),
+        );
 
         for (const ext of extensions) {
             const rawMd = generateRawMd(ext, presetMap, version);

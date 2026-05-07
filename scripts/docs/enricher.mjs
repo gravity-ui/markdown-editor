@@ -6,6 +6,12 @@ import {logger} from './logger.mjs';
 
 const AI_MARKER_RE = /<!-- AI:NEEDED:(\w+) -->/g;
 
+function readExtensionsIR(irPath) {
+    const parsed = JSON.parse(readFileSync(irPath, 'utf-8'));
+    if (Array.isArray(parsed)) return {version: 'unknown', extensions: parsed};
+    return parsed;
+}
+
 /**
  * Enriches raw extension docs with AI-generated content
  */
@@ -33,7 +39,9 @@ export class Enricher {
             throw new Error(message);
         }
 
-        this.extensions = JSON.parse(readFileSync(this.irPath, 'utf-8'));
+        const ir = readExtensionsIR(this.irPath);
+        this.version = ir.version;
+        this.extensions = ir.extensions;
         this.rawFiles = readdirSync(this.rawDir).filter((f) => f.endsWith('.md'));
         logger.info(`Found ${this.rawFiles.length} raw docs, ${this.extensions.length} extensions`);
     }
@@ -54,9 +62,7 @@ export class Enricher {
             const extInfo = this.extensions.find((e) => e.name === extName);
             if (!extInfo) continue;
 
-            const markers = [...rawContent.matchAll(new RegExp(AI_MARKER_RE.source, 'g'))].map(
-                (m) => m[1],
-            );
+            const markers = [...rawContent.matchAll(AI_MARKER_RE)].map((m) => m[1]);
             if (markers.length === 0) continue;
 
             const sourceCode = this.readExtensionSource(extInfo);
@@ -82,56 +88,6 @@ export class Enricher {
     }
 
     /**
-     * Enriches raw docs by calling the OpenAI API
-     */
-    async enrichWithAI(opts) {
-        mkdirSync(this.enrichedDir, {recursive: true});
-
-        let count = 0;
-        for (const file of this.rawFiles) {
-            const extName = basename(file, '.md');
-            if (opts.only && !opts.only.includes(extName)) continue;
-            if (isInternalExtension(extName)) continue;
-
-            const rawContent = readFileSync(join(this.rawDir, file), 'utf-8');
-            const extInfo = this.extensions.find((e) => e.name === extName);
-            if (!extInfo) continue;
-
-            const sourceCode = this.readExtensionSource(extInfo);
-            let enrichedContent = rawContent;
-            let enriched = false;
-
-            const replacements = [];
-            for (const match of rawContent.matchAll(new RegExp(AI_MARKER_RE.source, 'g'))) {
-                const section = match[1];
-                const marker = match[0];
-                const prompt = this.buildPrompt(section, extName, rawContent, sourceCode, extInfo);
-
-                logger.info(`  Enriching ${extName}.${section}...`);
-                try {
-                    const result = await this.callOpenAI(prompt, opts.model);
-                    replacements.push({marker, result});
-                    enriched = true;
-                } catch (err) {
-                    logger.warn(`failed to enrich ${extName}.${section}: ${err.message}`);
-                    replacements.push({marker, result: `<!-- AI:FAILED:${section} -->`});
-                }
-            }
-
-            for (const {marker, result} of replacements) {
-                enrichedContent = enrichedContent.replace(marker, result);
-            }
-
-            if (enriched) {
-                writeFileSync(join(this.enrichedDir, `${extName}.md`), enrichedContent);
-                count++;
-            }
-        }
-
-        return count;
-    }
-
-    /**
      * Applies manually prepared AI responses from docs-gen/responses/ directory
      */
     applyResponses() {
@@ -141,10 +97,10 @@ export class Enricher {
         if (!existsSync(responsesDir)) {
             logger.info(`No responses directory found at ${responsesDir}`);
             logger.info('To use manual enrichment:');
-            logger.info('  1. Run: node scripts/docs/index.mjs enrich --mode prompts');
+            logger.info('  1. Run: pnpm docs:enrich:prompts');
             logger.info(`  2. Process prompts from ${this.promptsDir}/`);
             logger.info(`  3. Save responses in ${responsesDir}/ExtName.json`);
-            logger.info('  4. Run: node scripts/docs/index.mjs enrich --mode apply');
+            logger.info('  4. Run: pnpm docs:enrich:apply');
             return 0;
         }
 
@@ -229,34 +185,6 @@ export class Enricher {
         const interpolate = (tpl) => tpl.replace(/\{(\w+)\}/g, (_, key) => vars[key] ?? '');
         return `${interpolate(templateDef.system)}\n\n${interpolate(templateDef.user)}`;
     }
-
-    /**
-     * Calls the OpenAI chat completions API
-     */
-    async callOpenAI(prompt, model) {
-        const apiKey = process.env.OPENAI_API_KEY;
-        if (!apiKey) throw new Error('OPENAI_API_KEY environment variable is required');
-
-        const response = await fetch('https://api.openai.com/v1/chat/completions', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${apiKey}`,
-            },
-            body: JSON.stringify({
-                model: model || config.ai.model,
-                messages: [{role: 'user', content: prompt}],
-                temperature: config.ai.temperature,
-                max_tokens: config.ai.maxTokens,
-            }),
-        });
-
-        if (!response.ok) {
-            const text = await response.text();
-            throw new Error(`OpenAI API error ${response.status}: ${text}`);
-        }
-
-        const data = await response.json();
-        return data.choices[0].message.content.trim();
-    }
 }
+
+export {readExtensionsIR};

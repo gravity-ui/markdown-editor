@@ -67,14 +67,20 @@ export function extractMarkSpecs(content) {
 }
 
 /**
- * Extracts action IDs from .addAction() calls
+ * Extracts action IDs from builder.addAction() calls (incl. chained .addAction(...).addAction(...))
  * @param content
  */
 export function extractActions(content) {
     const actions = [];
-    const re = /\.addAction\(\s*(?:(\w+\.\w+)|(\w+)|['"]([^'"]+)['"])/g;
+    // builder.addAction(name, ...) — direct call
+    const re = /builder\s*\.addAction\(\s*(?:(\w+\.\w+)|(\w+)|['"]([^'"]+)['"])/g;
     let m;
     while ((m = re.exec(content))) {
+        actions.push(m[3] || m[1] || m[2]);
+    }
+    // Chained: ).addAction(name, ...) — must follow another builder call (closing paren on previous line/inline)
+    const re2 = /\)\s*\.addAction\(\s*(?:(\w+\.\w+)|(\w+)|['"]([^'"]+)['"])/g;
+    while ((m = re2.exec(content))) {
         actions.push(m[3] || m[1] || m[2]);
     }
     return actions;
@@ -102,7 +108,7 @@ function skipWhitespace(content, index) {
     return cursor;
 }
 
-function readBalanced(content, startIndex, openChar, closeChar) {
+export function readBalanced(content, startIndex, openChar, closeChar) {
     let depth = 0;
     let quote = null;
     let inBlockComment = false;

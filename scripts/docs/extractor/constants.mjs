@@ -1,3 +1,5 @@
+import {readBalanced} from './regex.mjs';
+
 /**
  * Extracts constant declarations, enums, and object literals from TypeScript source.
  * Returns a Map of name -> resolved string value.
@@ -13,24 +15,30 @@ export function extractConstants(content) {
     }
 
     // Enum members: enum Foo { Bar = 'baz' }
-    const enumRe = /(?:export\s+)?enum\s+(\w+)\s*\{([^}]+)\}/g;
+    const enumRe = /(?:export\s+)?enum\s+(\w+)\s*\{/g;
     while ((m = enumRe.exec(content))) {
         const enumName = m[1];
-        const entries = m[2].matchAll(/(\w+)\s*=\s*['"]([^'"]+)['"]/g);
+        const block = readBalanced(content, content.indexOf('{', m.index), '{', '}');
+        if (!block) continue;
+        const entries = block.body.matchAll(/(\w+)\s*=\s*['"]([^'"]+)['"]/g);
         for (const e of entries) {
             names.set(`${enumName}.${e[1]}`, e[2]);
         }
+        enumRe.lastIndex = block.endIndex + 1;
     }
 
-    // Object literal properties: const Obj = { Prop: 'val' | varRef }
-    const objRe = /(?:export\s+)?const\s+(\w+)\s*=\s*\{([^}]+)\}/gs;
-    while ((m = objRe.exec(content))) {
+    // Object literal properties: const Obj = { Prop: 'val' | varRef, Nested: { ... } }
+    // Captures only top-level scalar properties; nested objects are skipped via balanced read.
+    const objStartRe = /(?:export\s+)?const\s+(\w+)\s*=\s*\{/g;
+    while ((m = objStartRe.exec(content))) {
         const objName = m[1];
-        const propRe = /(\w+)\s*:\s*(?:['"]([^'"]+)['"]|(\w+))/g;
-        let pm;
-        while ((pm = propRe.exec(m[2]))) {
-            names.set(`${objName}.${pm[1]}`, pm[2] || pm[3]);
+        const braceIndex = content.indexOf('{', m.index);
+        const block = readBalanced(content, braceIndex, '{', '}');
+        if (!block) continue;
+        for (const [key, value] of extractTopLevelScalarProps(block.body)) {
+            names.set(`${objName}.${key}`, value);
         }
+        objStartRe.lastIndex = block.endIndex + 1;
     }
 
     // Const-to-const references: const A = B
@@ -123,4 +131,91 @@ export function resolveAllConstants(rawList, constants) {
     }
 
     return [...new Set(resolved)];
+}
+
+/**
+ * Iterates top-level `key: 'value'` and `key: identifier` pairs from an object literal body.
+ * Skips nested objects, arrays, and function calls so that callers see only direct scalar props.
+ */
+function* extractTopLevelScalarProps(body) {
+    let parenDepth = 0;
+    let braceDepth = 0;
+    let bracketDepth = 0;
+    let quote = null;
+    let inLineComment = false;
+    let inBlockComment = false;
+    let segmentStart = 0;
+    const segments = [];
+
+    for (let index = 0; index < body.length; index++) {
+        const char = body[index];
+        const next = body[index + 1];
+
+        if (inLineComment) {
+            if (char === '\n') inLineComment = false;
+            continue;
+        }
+        if (inBlockComment) {
+            if (char === '*' && next === '/') {
+                inBlockComment = false;
+                index++;
+            }
+            continue;
+        }
+        if (quote) {
+            if (char === '\\') {
+                index++;
+                continue;
+            }
+            if (char === quote) quote = null;
+            continue;
+        }
+        if (char === '/' && next === '/') {
+            inLineComment = true;
+            index++;
+            continue;
+        }
+        if (char === '/' && next === '*') {
+            inBlockComment = true;
+            index++;
+            continue;
+        }
+        if (char === '"' || char === "'" || char === '`') {
+            quote = char;
+            continue;
+        }
+        if (char === '(') parenDepth++;
+        else if (char === ')') parenDepth--;
+        else if (char === '{') braceDepth++;
+        else if (char === '}') braceDepth--;
+        else if (char === '[') bracketDepth++;
+        else if (char === ']') bracketDepth--;
+
+        if (char === ',' && parenDepth === 0 && braceDepth === 0 && bracketDepth === 0) {
+            segments.push(body.slice(segmentStart, index));
+            segmentStart = index + 1;
+        }
+    }
+    const tail = body.slice(segmentStart);
+    if (tail.trim()) segments.push(tail);
+
+    for (const segment of segments) {
+        const trimmed = segment.trim();
+        if (!trimmed || trimmed.startsWith('...')) continue;
+        const colon = trimmed.indexOf(':');
+        if (colon === -1) continue;
+        const rawKey = trimmed.slice(0, colon).trim();
+        if (!rawKey || rawKey.startsWith('[') || !/^[A-Za-z_$][\w$]*$/.test(rawKey)) continue;
+
+        const rawValue = trimmed.slice(colon + 1).trim();
+        const stringMatch = rawValue.match(/^['"]([^'"]*)['"]/);
+        if (stringMatch) {
+            yield [rawKey, stringMatch[1]];
+            continue;
+        }
+        const identMatch = rawValue.match(/^([A-Za-z_$][\w$.]*)/);
+        if (identMatch) {
+            yield [rawKey, identMatch[1]];
+        }
+    }
 }

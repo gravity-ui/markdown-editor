@@ -2,6 +2,7 @@ import {existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync}
 import {basename, join} from 'node:path';
 
 import {config, isInternalExtension} from './config.mjs';
+import {readExtensionsIR} from './enricher.mjs';
 import {logger} from './logger.mjs';
 import {parseFrontmatter, slugify, stripFrontmatter, yamlQuote} from './utils.mjs';
 
@@ -36,12 +37,12 @@ export class Assembler {
             throw new Error(message);
         }
 
-        const extensions = existsSync(this.irPath)
-            ? JSON.parse(readFileSync(this.irPath, 'utf-8'))
-            : [];
-        const publishableExtensions = this.getPublishableExtensions(extensions);
+        const ir = existsSync(this.irPath)
+            ? readExtensionsIR(this.irPath)
+            : {version: 'unknown', extensions: []};
+        const publishableExtensions = this.getPublishableExtensions(ir.extensions);
 
-        const version = this.resolveVersion(publishableExtensions);
+        const version = ir.version;
         logger.info(`Assembling extension docs for v${version}...`);
 
         const docs = this.collectDocs();
@@ -267,18 +268,5 @@ export class Assembler {
         content = content.trimEnd() + '\n\n## Extensions\n\n';
         content += `- [Extensions Reference](extensions-index.md) (v${version})\n`;
         writeFileSync(indexPath, content);
-    }
-
-    /**
-     * Reads version from the first extension's raw doc frontmatter
-     */
-    resolveVersion(extensions) {
-        if (extensions[0]) {
-            const raw = join(this.rawDir, `${extensions[0].name}.md`);
-            if (existsSync(raw)) {
-                return parseFrontmatter(readFileSync(raw, 'utf-8')).version || 'unknown';
-            }
-        }
-        return 'unknown';
     }
 }

@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {test} from 'node:test';
 
-import {extractKeymaps} from './regex.mjs';
+import {extractActions, extractKeymaps} from './regex.mjs';
 
 function readRepoFile(relativePath) {
     return readFileSync(new URL(relativePath, import.meta.url), 'utf-8');
@@ -46,6 +46,27 @@ test('extractKeymaps captures static keymaps from the Lists extension', () => {
         'Mod-]',
         'Enter',
     ]);
+});
+
+test('extractActions captures direct and chained builder.addAction calls', () => {
+    const content = [
+        "builder.addAction('bold', () => boldAction);",
+        'builder',
+        '    .addAction(BoldAction.Toggle, () => toggle)',
+        '    .addAction(BoldAction.Off, () => off);',
+    ].join('\n');
+
+    assert.deepEqual(extractActions(content), ['bold', 'BoldAction.Toggle', 'BoldAction.Off']);
+});
+
+test('extractActions ignores non-builder addAction calls (tr, services)', () => {
+    const content = [
+        "tr.addAction('shouldNotMatch', cb);",
+        "service.addAction('alsoSkip', cb);",
+        "builder.addAction('keepMe', cb);",
+    ].join('\n');
+
+    assert.deepEqual(extractActions(content), ['keepMe']);
 });
 
 test('extractKeymaps captures static bindings from block-body callbacks and ignores dynamic ones', () => {

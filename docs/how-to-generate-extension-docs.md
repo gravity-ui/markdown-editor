@@ -18,7 +18,6 @@ The extension docs pipeline has two kinds of inputs:
 ## Enrichment Options
 
 - `pnpm docs:enrich:prompts` exports prompts for manual or external processing.
-- `pnpm docs:enrich` sends prompts to OpenAI directly and writes results into `docs-gen/enriched/`.
 - `pnpm docs:enrich:apply` applies prepared JSON responses from `docs-gen/responses/`.
 - `pnpm docs:enrich:agent` prints the instruction file for agent-driven enrichment.
 

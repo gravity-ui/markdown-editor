@@ -18,7 +18,7 @@ const DOCS_GEN_DIR = 'docs-gen';
  */
 export function parseArgs(args = process.argv.slice(2)) {
     const command = args[0];
-    const opts = {mode: 'prompts', only: null, model: null};
+    const opts = {mode: 'prompts', only: null};
 
     for (let i = 1; i < args.length; i++) {
         switch (args[i]) {
@@ -27,9 +27,6 @@ export function parseArgs(args = process.argv.slice(2)) {
                 break;
             case '--only':
                 opts.only = args[++i]?.split(',');
-                break;
-            case '--model':
-                opts.model = args[++i];
                 break;
         }
     }
@@ -51,7 +48,7 @@ export function createCommandHandlers(paths = {}) {
         new ExtensionExtractor(editorPkg, docsGenDir).run();
     }
 
-    async function runEnrich(opts) {
+    function runEnrich(opts) {
         const enricher = new Enricher(docsGenDir);
         enricher.load();
 
@@ -60,18 +57,9 @@ export function createCommandHandlers(paths = {}) {
                 const count = enricher.generatePrompts(opts);
                 logger.success(`Generated ${count} prompt files in ${docsGenDir}/prompts/`);
                 logger.info('\nNext steps:');
-                logger.info('  - Process prompts through your AI tool');
+                logger.info('  - Process prompts through your AI tool or agent');
                 logger.info(`  - Save responses in ${docsGenDir}/responses/ExtName.json`);
-                logger.info('  - Run: node scripts/docs/index.mjs enrich --mode apply');
-                logger.info('\nOr with OpenAI API:');
-                logger.info(
-                    '  OPENAI_API_KEY=sk-... node scripts/docs/index.mjs enrich --mode enrich',
-                );
-                break;
-            }
-            case 'enrich': {
-                const count = await enricher.enrichWithAI(opts);
-                logger.success(`Enriched ${count} docs in ${docsGenDir}/enriched/`);
+                logger.info('  - Run: pnpm docs:enrich:apply');
                 break;
             }
             case 'apply': {
@@ -80,9 +68,7 @@ export function createCommandHandlers(paths = {}) {
                 break;
             }
             default:
-                throw new Error(
-                    `Unknown enrich mode: ${opts.mode}. Use --mode prompts|enrich|apply`,
-                );
+                throw new Error(`Unknown enrich mode: ${opts.mode}. Use --mode prompts|apply`);
         }
     }
 
@@ -105,7 +91,7 @@ export function createCommandHandlers(paths = {}) {
     };
 }
 
-export async function main(args = process.argv.slice(2), paths = {}) {
+export function main(args = process.argv.slice(2), paths = {}) {
     const {command, opts} = parseArgs(args);
     const commands = createCommandHandlers(paths);
 
@@ -116,16 +102,18 @@ export async function main(args = process.argv.slice(2), paths = {}) {
     }
 
     if (command === 'enrich') {
-        await handler(opts);
+        handler(opts);
         return;
     }
 
-    await handler();
+    handler();
 }
 
 if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
-    main().catch((err) => {
+    try {
+        main();
+    } catch (err) {
         logger.error(err);
         process.exit(1);
-    });
+    }
 }

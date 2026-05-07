@@ -4,13 +4,6 @@ const internalExtensions = ['BaseInputRules', 'BaseKeymap', 'BaseStyles', 'React
  * Configuration for the extension documentation generation pipeline
  */
 export const config = {
-    ai: {
-        provider: 'openai',
-        model: 'gpt-4o-mini',
-        temperature: 0.3,
-        maxTokens: 1000,
-    },
-
     prompts: {
         description: {
             system: `You are a technical writer for the @gravity-ui/markdown-editor library — a ProseMirror-based WYSIWYG and markup editor. Write concise, accurate documentation in English.`,
