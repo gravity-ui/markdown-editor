@@ -96,6 +96,17 @@ function noTextNodeHasBold(state: EditorState) {
     return !hasBold;
 }
 
+function boldValues(state: EditorState) {
+    const values: boolean[] = [];
+    state.doc.descendants((node) => {
+        if (node.isText) {
+            values.push(Boolean(boldType.isInSet(node.marks)));
+        }
+        return true;
+    });
+    return values;
+}
+
 describe('createMarkdownInlineMarkAction', () => {
     it('applies the mark to the whole mixed selection', () => {
         const state = makeState([{text: 'hello', bold: true}, ' world'], 0, 11);
@@ -116,7 +127,7 @@ describe('createMarkdownInlineMarkAction', () => {
         expect(runAction(blocked).doc.eq(blocked.doc)).toBe(true);
 
         const removable = makeState([{text: 'hello,', bold: true}], 5, 6);
-        expect(noTextNodeHasBold(runAction(removable))).toBe(true);
+        expect(boldValues(runAction(removable))).toEqual([true, false]);
     });
 });
 
@@ -135,5 +146,13 @@ describe('createMarkdownInlineMarkCommand', () => {
 
         expect(next.handled).toBe(false);
         expect(next.state.doc.eq(state.doc)).toBe(true);
+    });
+
+    it('still removes the mark when the blocked punctuation is already fully covered', () => {
+        const state = makeState([{text: 'hello,', bold: true}], 5, 6);
+        const next = runCommand(state);
+
+        expect(next.handled).toBe(true);
+        expect(boldValues(next.state)).toEqual([true, false]);
     });
 });

@@ -98,10 +98,22 @@ describe('Color action', () => {
         expect(colorValues(next)).toEqual([undefined]);
     });
 
+    it('removes the color from a fully covered selection without coloring trailing whitespace', () => {
+        const next = run(makeState([{text: 'ABC', color: 'red'}, ' '], 0, 4), {color: 'red'});
+
+        expect(colorValues(next)).toEqual([undefined]);
+    });
+
     it('replaces a fully covered selection with a different color', () => {
         const next = run(makeState([{text: 'ABC', color: 'blue'}], 0, 3), {color: 'red'});
 
         expect(colorValues(next)).toEqual(['red']);
+    });
+
+    it('replaces the color without extending it to trailing whitespace', () => {
+        const next = run(makeState([{text: 'ABC', color: 'blue'}, ' '], 0, 4), {color: 'red'});
+
+        expect(colorValues(next)).toEqual(['red', undefined]);
     });
 
     it('exposes stored-mark state through isActive and meta', () => {
@@ -109,5 +121,11 @@ describe('Color action', () => {
 
         expect(isActive(next)).toBe(true);
         expect(meta(next)).toBe('red');
+    });
+
+    it('keeps partially colored selections active', () => {
+        const state = makeState([{text: 'AB', color: 'red'}, 'CD'], 0, 4);
+
+        expect(isActive(state)).toBe(true);
     });
 });

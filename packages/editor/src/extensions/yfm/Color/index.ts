@@ -3,6 +3,7 @@ import type {MarkType, ResolvedPos} from 'prosemirror-model';
 import type {EditorState, TextSelection, Transaction} from 'prosemirror-state';
 
 import type {Action, ExtensionAuto} from '../../../core';
+import {isMarkActive} from '../../../utils/marks';
 
 import {ColorSpecs, colorType} from './ColorSpecs';
 import {type Colors, colorAction, colorMarkName} from './const';
@@ -21,12 +22,27 @@ function getEffectiveMarks(state: EditorState, $pos: ResolvedPos = state.selecti
     return state.storedMarks ?? $pos.marks();
 }
 
+function rangeSelectionTextIsWhitespaceOnly(
+    text: string | undefined,
+    from: number,
+    to: number,
+    nodePos: number,
+) {
+    const selectedText = text?.slice(Math.max(0, from - nodePos), Math.max(0, to - nodePos)) ?? '';
+
+    return /^\s*$/.test(selectedText);
+}
+
 function selectionAllHasColor(state: EditorState, type: MarkType, color: string): boolean {
     let hasText = false;
     const allHave = state.selection.ranges.every(({$from, $to}) => {
         let rangeAllHave = true;
-        state.doc.nodesBetween($from.pos, $to.pos, (node, _pos, parent) => {
+        state.doc.nodesBetween($from.pos, $to.pos, (node, pos, parent) => {
             if (!rangeAllHave || !node.isText || !parent?.type.allowsMarkType(type)) {
+                return rangeAllHave;
+            }
+
+            if (rangeSelectionTextIsWhitespaceOnly(node.text, $from.pos, $to.pos, pos)) {
                 return rangeAllHave;
             }
 
@@ -75,7 +91,18 @@ function toggleColorInSelection(
             if (allSameColor) {
                 tr.removeMark($from.pos, $to.pos, type);
             } else {
-                tr.addMark($from.pos, $to.pos, type.create({[colorMarkName]: color}));
+                let from = $from.pos;
+                let to = $to.pos;
+                const start = $from.nodeAfter;
+                const end = $to.nodeBefore;
+                const spaceStart = start?.isText ? /^\s*/.exec(start.text)?.[0].length ?? 0 : 0;
+                const spaceEnd = end?.isText ? /\s*$/.exec(end.text)?.[0].length ?? 0 : 0;
+
+                if (from + spaceStart < to) {
+                    from += spaceStart;
+                    to -= spaceEnd;
+                    tr.addMark(from, to, type.create({[colorMarkName]: color}));
+                }
             }
         });
     } else {
@@ -97,7 +124,7 @@ export const Color: ExtensionAuto = (builder) => {
     builder.addAction(colorAction, ({schema}) => {
         const type = colorType(schema);
         return {
-            isActive: (state) => Boolean(type.isInSet(getEffectiveMarks(state))),
+            isActive: (state) => Boolean(isMarkActive(state, type)),
             isEnable: toggleMark(type),
             run: (state, dispatch, _view, attrs) => {
                 const color = (attrs as ColorActionParams | undefined)?.[colorMarkName];
