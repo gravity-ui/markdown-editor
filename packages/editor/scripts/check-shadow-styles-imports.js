@@ -4,17 +4,33 @@ const path = require('node:path');
 const {pathToFileURL} = require('node:url');
 
 const SRC_DIR = path.resolve(__dirname, '..', 'src');
-const GULPFILE_URL = pathToFileURL(path.resolve(__dirname, '..', 'gulpfile.mjs')).href;
+const IMPORTS_MODULE_URL = pathToFileURL(path.resolve(__dirname, 'shadow-styles-imports.mjs')).href;
 
-// Bare `import 'pkg/path/file.css';` — non-relative, scoped or unscoped, ending in .css.
-const CSS_IMPORT_RE = /(?:^|\s)import\s+['"]((?:@[^'"\s/]+\/)?[^'"\s.][^'"\s]*\.css)['"]/gm;
+// Capture group `(...\.css)` — non-relative specifier ending in .css:
+// scoped (`@scope/pkg/...`) or unscoped (`pkg/...`). Anchored to start-of-line
+// (with optional whitespace) so matches inside string literals can't pollute
+// results. Two regexes — static and dynamic — for readability.
+const CSS_PATH = "((?:@[^'\"\\s/]+/)?[^'\"\\s.][^'\"\\s]*\\.css)";
+
+//   import 'pkg/x.css';
+//   import x from 'pkg/x.css';
+//   import * as x from 'pkg/x.css';
+//   import {x} from 'pkg/x.css';
+const STATIC_CSS_IMPORT_RE = new RegExp(
+    `^\\s*import\\s+(?:[\\w*\\s{},]+\\s+from\\s+)?['"]${CSS_PATH}['"]`,
+    'gm',
+);
+
+//   import('pkg/x.css')
+//   await import('pkg/x.css')
+const DYNAMIC_CSS_IMPORT_RE = new RegExp(`\\bimport\\s*\\(\\s*['"]${CSS_PATH}['"]`, 'g');
 
 const EXCLUDED_SCOPES = ['@gravity-ui/'];
 
 async function main() {
-    const {SHADOW_STYLE_IMPORTS} = await import(GULPFILE_URL);
+    const {SHADOW_STYLE_IMPORTS} = await import(IMPORTS_MODULE_URL);
     if (!Array.isArray(SHADOW_STYLE_IMPORTS)) {
-        console.error('Failed to import SHADOW_STYLE_IMPORTS from gulpfile.mjs');
+        console.error('Failed to import SHADOW_STYLE_IMPORTS from shadow-styles-imports.mjs');
         process.exit(1);
     }
 
@@ -34,7 +50,7 @@ async function main() {
             console.error('  Stale in SHADOW_STYLE_IMPORTS (in list, not used in src):');
             for (const item of stale) console.error(`    - ${item}`);
         }
-        console.error('Update SHADOW_STYLE_IMPORTS in packages/editor/gulpfile.mjs.');
+        console.error('Update SHADOW_STYLE_IMPORTS in packages/editor/scripts/shadow-styles-imports.mjs.');
         process.exit(1);
     }
 
@@ -46,14 +62,25 @@ function collectCssImports(dir) {
     const result = new Set();
     walk(dir, (filePath) => {
         if (!/\.(?:ts|tsx|js|jsx|mjs|cjs)$/.test(filePath)) return;
-        const content = fs.readFileSync(filePath, 'utf8');
-        for (const match of content.matchAll(CSS_IMPORT_RE)) {
-            const spec = match[1];
-            if (EXCLUDED_SCOPES.some((scope) => spec.startsWith(scope))) continue;
-            result.add(spec);
+        const content = stripComments(fs.readFileSync(filePath, 'utf8'));
+        for (const re of [STATIC_CSS_IMPORT_RE, DYNAMIC_CSS_IMPORT_RE]) {
+            for (const match of content.matchAll(re)) {
+                const spec = match[1];
+                if (EXCLUDED_SCOPES.some((scope) => spec.startsWith(scope))) continue;
+                result.add(spec);
+            }
         }
     });
     return result;
+}
+
+// Strip block and line comments so commented-out imports don't show up as
+// drift. Naive replace — acceptable because we never *add* matches by stripping,
+// only remove potential matches. The only edge case is a regex literal like
+// `/foo\/\/bar/` whose `//` would be mistaken for a line comment, but no
+// `import 'pkg/x.css'` can live inside a regex literal anyway.
+function stripComments(source) {
+    return source.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/[^\n\r]*/g, '');
 }
 
 function walk(dir, visit) {

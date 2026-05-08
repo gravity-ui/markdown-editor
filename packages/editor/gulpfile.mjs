@@ -7,23 +7,13 @@ import {parallel, series, task} from '@markdown-editor/gulp-tasks';
 import {registerBuildTasks} from '@markdown-editor/gulp-tasks/build';
 
 import pkg from './package.json' with {type: 'json'};
+import {SHADOW_STYLE_IMPORTS} from './scripts/shadow-styles-imports.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const require = createRequire(import.meta.url);
 
 const BUILD_DIR = resolve('build');
 const NODE_MODULES_DIR = resolve(__dirname, 'node_modules');
-// Keep this list aligned with non-relative CSS imports required by the default editor setup.
-// Drift is enforced by scripts/check-shadow-styles-imports.js.
-export const SHADOW_STYLE_IMPORTS = Object.freeze([
-    '@diplodoc/transform/dist/css/base.css',
-    '@diplodoc/transform/dist/css/_yfm-only.css',
-    '@diplodoc/cut-extension/runtime/styles.css',
-    '@diplodoc/file-extension/runtime/styles.css',
-    '@diplodoc/tabs-extension/runtime/styles.css',
-    '@diplodoc/quote-link-extension/runtime/styles.css',
-    '@diplodoc/folding-headings-extension/runtime/styles.css',
-]);
 
 const OPTIONAL_PEERS = new Set(
     Object.entries(pkg.peerDependenciesMeta ?? {})
@@ -41,6 +31,7 @@ task('shadow-styles', (done) => {
     const externalCss = readExternalShadowStyles();
     const editorCss = readFileSync(resolve(BUILD_DIR, 'styles.css'), 'utf8');
     const styles = [externalCss, editorCss].filter(Boolean).join('\n');
+    assertNoCssImportRules(styles);
     const moduleCode = createShadowStylesModule(styles);
 
     writeFileSync(resolve(BUILD_DIR, 'shadow-styles.mjs'), moduleCode.esm);
@@ -75,6 +66,21 @@ function readExternalShadowStyles() {
     })
         .filter(Boolean)
         .join('\n');
+}
+
+// `CSSStyleSheet.replaceSync()` rejects `@import` rules. If any inlined CSS ever
+// adds one, fail the build instead of letting consumers crash at runtime.
+function assertNoCssImportRules(css) {
+    const stripped = css
+        .replace(/\/\*[\s\S]*?\*\//g, '')
+        .replace(/(["'])(?:\\.|(?!\1).)*\1/g, '');
+    if (/(?:^|[\s;}])@import\b/m.test(stripped)) {
+        throw new Error(
+            "[shadow-styles] '@import' rules are not allowed in cssText: " +
+                'CSSStyleSheet.replaceSync() would reject them at runtime. ' +
+                'Inline the imported file into SHADOW_STYLE_IMPORTS instead.',
+        );
+    }
 }
 
 function isOptionalPeerImport(cssImport) {
