@@ -10,6 +10,7 @@ import {
     TextSelection,
 } from 'prosemirror-state';
 import {doc, eq, li, p, schema, ul} from 'prosemirror-test-builder';
+
 import {
     getSelectedListBlocks,
     liftSelectedListItems,
@@ -64,7 +65,11 @@ function apply(docNode: Node, command: Command, result: Node | null) {
 
     ist(state.doc, result || docNode, eq);
 
-    if (result && (result as TaggedNode).tag.a !== null) {
+    if (
+        result &&
+        (result as TaggedNode).tag.a !== null &&
+        (result as TaggedNode).tag.a !== undefined
+    ) {
         ist(state.selection, selFor(result), eq);
     }
 }
