@@ -9,25 +9,28 @@ import {
 } from 'prosemirror-state';
 import {doc, eq, li, p, schema, ul} from 'prosemirror-test-builder';
 
-import {sinkOnlySelectedListItem} from 'src/extensions/markdown/Lists/commands';
+import {
+    liftSelectedListItems,
+    sinkOnlySelectedListItem,
+} from 'src/extensions/markdown/Lists/commands';
 
-function selFor(doc: Node) {
-    const a = (doc as any).tag.a,
-        b = (doc as any).tag.b;
+function selFor(docNode: Node) {
+    const a = (docNode as any).tag.a,
+        b = (docNode as any).tag.b;
     if (a !== null) {
-        const $a = doc.resolve(a);
+        const $a = docNode.resolve(a);
         if ($a.parent.inlineContent)
-            return new TextSelection($a, b !== null ? doc.resolve(b) : undefined);
+            return new TextSelection($a, b !== null ? docNode.resolve(b) : undefined);
         else return new NodeSelection($a);
     }
-    return Selection.atStart(doc);
+    return Selection.atStart(docNode);
 }
 
-function apply(doc: Node, command: Command, result: Node | null) {
-    let state = EditorState.create({doc, selection: selFor(doc)});
+function apply(docNode: Node, command: Command, result: Node | null) {
+    let state = EditorState.create({doc: docNode, selection: selFor(docNode)});
     // eslint-disable-next-line no-return-assign
     command(state, (tr) => (state = state.apply(tr)));
-    ist(state.doc, result || doc, eq);
+    ist(state.doc, result || docNode, eq);
     // eslint-disable-next-line no-eq-null
     if (result && (result as any).tag.a != null) ist(state.selection, selFor(result), eq);
 }
@@ -160,8 +163,6 @@ describe('sinkOnlySelectedListItem', () => {
             ),
         ));
 
-    // expected result should be the same as
-    // sinks nested list items into a deeper hierarchy when selection spans multiple items
     it('sinks nested list items with an upward staircase selection', () =>
         apply(
             doc(
@@ -226,6 +227,47 @@ describe('sinkOnlySelectedListItem', () => {
                             li(p('ww')),
                         ),
                     ),
+                    li(p('pp')),
+                    li(p('hh')),
+                ),
+            ),
+        ));
+});
+
+describe('liftSelectedListItems', () => {
+    const lift = liftSelectedListItems(schema.nodes.list_item);
+
+    it('lifts a nested list item out by one level', () =>
+        apply(
+            doc(ul(li(p('one'), ul(li(p('t<a><b>wo')))))),
+            lift,
+            doc(ul(li(p('one')), li(p('two')))),
+        ));
+
+    it('lifts reverse staircase selections with standard list-item semantics', () =>
+        apply(
+            doc(
+                ul(
+                    li(p('aa')),
+                    li(
+                        p('bb'),
+                        ul(
+                            li(p('cc')),
+                            li(p('dd'), ul(li(p('ee')), li(p('s<a>s')))),
+                            li(p('z<b>z')),
+                            li(p('ww')),
+                        ),
+                    ),
+                    li(p('pp')),
+                    li(p('hh')),
+                ),
+            ),
+            lift,
+            doc(
+                ul(
+                    li(p('aa')),
+                    li(p('bb'), ul(li(p('cc')), li(p('dd'), ul(li(p('ee')))), li(p('ss')))),
+                    li(p('zz'), ul(li(p('ww')))),
                     li(p('pp')),
                     li(p('hh')),
                 ),
