@@ -14,16 +14,31 @@ import {
     sinkOnlySelectedListItem,
 } from 'src/extensions/markdown/Lists/commands';
 
+type TaggedNode = Node & {
+    tag: {
+        a: number | null | undefined;
+        b: number | null | undefined;
+    };
+};
+
 function selFor(docNode: Node) {
-    const a = (docNode as any).tag.a,
-        b = (docNode as any).tag.b;
-    if (a !== null) {
-        const $a = docNode.resolve(a);
-        if ($a.parent.inlineContent)
-            return new TextSelection($a, b !== null ? docNode.resolve(b) : undefined);
-        else return new NodeSelection($a);
+    const taggedNode = docNode as TaggedNode;
+    const {a, b} = taggedNode.tag;
+
+    if (a === null || a === undefined) {
+        return Selection.atStart(docNode);
     }
-    return Selection.atStart(docNode);
+
+    const $a = docNode.resolve(a);
+
+    if ($a.parent.inlineContent) {
+        return new TextSelection(
+            $a,
+            b !== null && b !== undefined ? docNode.resolve(b) : undefined,
+        );
+    }
+
+    return new NodeSelection($a);
 }
 
 function apply(docNode: Node, command: Command, result: Node | null) {
@@ -31,8 +46,11 @@ function apply(docNode: Node, command: Command, result: Node | null) {
     // eslint-disable-next-line no-return-assign
     command(state, (tr) => (state = state.apply(tr)));
     ist(state.doc, result || docNode, eq);
-    // eslint-disable-next-line no-eq-null
-    if (result && (result as any).tag.a != null) ist(state.selection, selFor(result), eq);
+
+    const taggedResult = result as TaggedNode | null;
+    if (taggedResult && taggedResult.tag.a !== null && taggedResult.tag.a !== undefined) {
+        ist(state.selection, selFor(taggedResult), eq);
+    }
 }
 
 describe('sinkOnlySelectedListItem', () => {
