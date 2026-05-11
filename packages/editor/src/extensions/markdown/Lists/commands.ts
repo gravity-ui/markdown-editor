@@ -304,6 +304,12 @@ function getLiftTransaction(state: EditorState, itemType: NodeType): Transaction
 
 export function liftSelectedListItems(itemType: NodeType): Command {
     return (state, dispatch) => {
+        const selectedItems = collectSelectedListItems(state.selection, itemType);
+
+        if (selectedItems.length <= 1) {
+            return pmLiftListItem(itemType)(state, dispatch);
+        }
+
         const blocks = getSelectedListBlocks(state.selection, itemType);
 
         if (blocks.length === 0) {

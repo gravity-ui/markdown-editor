@@ -255,6 +255,13 @@ describe('sinkOnlySelectedListItem', () => {
 describe('liftSelectedListItems', () => {
     const lift = liftSelectedListItems(schema.nodes.list_item);
 
+    it('lifts a top-level list item into a paragraph', () =>
+        apply(
+            doc(ul(li(p('first')), li(p('s<a><b>econd'))), p('text')),
+            lift,
+            doc(ul(li(p('first'))), p('second'), p('text')),
+        ));
+
     it('lifts a nested list item out by one level', () =>
         apply(
             doc(ul(li(p('one'), ul(li(p('t<a><b>wo')))))),
