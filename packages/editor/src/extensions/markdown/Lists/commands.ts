@@ -1,14 +1,8 @@
 import {liftEmptyBlock} from 'prosemirror-commands';
-import {Fragment, type Node, type NodeRange, type NodeType, Slice} from 'prosemirror-model';
-import {liftListItem as pmLiftListItem, wrapInList} from 'prosemirror-schema-list';
-import {
-    type Command,
-    type EditorState,
-    type Selection,
-    TextSelection,
-    type Transaction,
-} from 'prosemirror-state';
-import {Mapping, ReplaceAroundStep, liftTarget} from 'prosemirror-transform';
+import {Fragment, type Node, NodeRange, type NodeType, Slice} from 'prosemirror-model';
+import {wrapInList} from 'prosemirror-schema-list';
+import type {Command, Selection, Transaction} from 'prosemirror-state';
+import {ReplaceAroundStep, canJoin, liftTarget} from 'prosemirror-transform';
 
 import {joinPreviousBlock} from '../../../commands/join';
 import {get$CursorAtBlockStart} from '../../../utils/selection';
@@ -48,101 +42,7 @@ export function liftEmptyListItem(itemType: NodeType): Command {
     };
 }
 
-/*
-    Simplified `sinkListItem` from `prosemirror-schema-list` without `state`/`dispatch`,
-    sinks list items deeper.
- */
-const sink = (tr: Transaction, range: NodeRange, itemType: NodeType) => {
-    const before = tr.mapping.map(range.start);
-    const after = tr.mapping.map(range.end);
-    const startIndex = tr.mapping.map(range.startIndex);
-
-    const parent = range.parent;
-    const nodeBefore = parent.child(startIndex - 1);
-
-    const nestedBefore = nodeBefore.lastChild && nodeBefore.lastChild.type === parent.type;
-    const inner = Fragment.from(nestedBefore ? itemType.create() : null);
-    const slice = new Slice(
-        Fragment.from(itemType.create(null, Fragment.from(parent.type.create(null, inner)))),
-        nestedBefore ? 3 : 1,
-        0,
-    );
-
-    tr.step(
-        new ReplaceAroundStep(
-            before - (nestedBefore ? 3 : 1),
-            after,
-            before,
-            after,
-            slice,
-            1,
-            true,
-        ),
-    );
-    return true;
-};
-
-export function sinkOnlySelectedListItem(itemType: NodeType): Command {
-    return ({tr, selection}, dispatch) => {
-        const {$from, $to} = selection;
-        const selectionRange = $from.blockRange(
-            $to,
-            (node) =>
-                node.childCount > 0 &&
-                node.firstChild !== null &&
-                node.firstChild.type === itemType,
-        );
-        if (!selectionRange) {
-            return false;
-        }
-
-        const {startIndex, parent, start, end} = selectionRange;
-        if (startIndex === 0) {
-            return false;
-        }
-
-        const nodeBefore = parent.child(startIndex - 1);
-        if (nodeBefore.type !== itemType) {
-            return false;
-        }
-
-        if (dispatch) {
-            // Lifts following list items sequentially to prepare the correct nesting structure.
-            let currentEnd = end - 1;
-            while (currentEnd > start) {
-                const selectionEnd = tr.mapping.map($to.pos);
-
-                const $candidateBlockEnd = tr.doc.resolve(currentEnd);
-                const candidateBlockStartPos = $candidateBlockEnd.before($candidateBlockEnd.depth);
-                const $candidateBlockStart = tr.doc.resolve(candidateBlockStartPos);
-                const candidateBlockRange = $candidateBlockStart.blockRange($candidateBlockEnd);
-
-                if (candidateBlockRange?.start) {
-                    const $rangeStart = tr.doc.resolve(candidateBlockRange.start);
-                    const shouldLift =
-                        candidateBlockRange.start > selectionEnd && isListNode($rangeStart.parent);
-
-                    if (shouldLift) {
-                        currentEnd = candidateBlockRange.start;
-
-                        const targetDepth = liftTarget(candidateBlockRange);
-                        if (targetDepth !== null) {
-                            tr.lift(candidateBlockRange, targetDepth);
-                        }
-                    }
-                }
-
-                currentEnd--;
-            }
-
-            sink(tr, selectionRange, itemType);
-
-            dispatch(tr.scrollIntoView());
-            return true;
-        }
-        return true;
-    };
-}
+type MoveDirection = 'left' | 'right';
 
 type SelectedListItem = {
     depth: number;
@@ -153,18 +53,21 @@ type SelectedListItem = {
     to: number;
 };
 
-type ListBlock = {
+export type ListBlock = {
     depth: number;
     from: number;
     parentListPos: number;
     to: number;
 };
 
-function isListBlockParent(node: Node, itemType: NodeType) {
-    return node.childCount > 0 && node.firstChild !== null && node.firstChild.type === itemType;
-}
+const isListBlockParent = (node: Node, itemType: NodeType) =>
+    node.childCount > 0 && node.firstChild !== null && node.firstChild.type === itemType;
 
-function findClosestListItem(selection: Selection, pos: number, itemType: NodeType) {
+function findClosestListItem(
+    selection: Selection,
+    pos: number,
+    itemType: NodeType,
+): SelectedListItem | null {
     const $pos = selection.$from.doc.resolve(pos);
 
     for (let depth = $pos.depth; depth > 0; depth--) {
@@ -219,7 +122,7 @@ function collectSelectedListItems(selection: Selection, itemType: NodeType): Sel
     return Array.from(items.values()).sort((left, right) => left.pos - right.pos);
 }
 
-function getSelectedListBlocks(selection: Selection, itemType: NodeType): ListBlock[] {
+export function getSelectedListBlocks(selection: Selection, itemType: NodeType): ListBlock[] {
     const groupedItems = new Map<number, SelectedListItem[]>();
 
     for (const item of collectSelectedListItems(selection, itemType)) {
@@ -260,57 +163,189 @@ function getSelectedListBlocks(selection: Selection, itemType: NodeType): ListBl
         });
     }
 
-    return blocks.sort((left, right) => {
+    return blocks.sort((left, right) => left.from - right.from);
+}
+
+function resolveListBlockRange(
+    tr: Transaction,
+    block: ListBlock,
+    itemType: NodeType,
+): NodeRange | null {
+    const mappedFrom = tr.mapping.map(block.from, 1);
+    const mappedTo = tr.mapping.map(block.to, -1);
+
+    if (mappedFrom >= mappedTo) {
+        return null;
+    }
+
+    const $from = tr.doc.resolve(mappedFrom);
+    const $to = tr.doc.resolve(mappedTo);
+
+    return $from.blockRange($to, (node) => isListBlockParent(node, itemType));
+}
+
+function canSinkListBlock(range: NodeRange, itemType: NodeType) {
+    return range.startIndex > 0 && range.parent.child(range.startIndex - 1).type === itemType;
+}
+
+function sinkListBlock(tr: Transaction, range: NodeRange, itemType: NodeType) {
+    if (!canSinkListBlock(range, itemType)) {
+        return false;
+    }
+
+    const before = range.start;
+    const after = range.end;
+    const {parent, startIndex} = range;
+    const nodeBefore = parent.child(startIndex - 1);
+    const nestedBefore = nodeBefore.lastChild && nodeBefore.lastChild.type === parent.type;
+    const inner = Fragment.from(nestedBefore ? itemType.create() : null);
+    const slice = new Slice(
+        Fragment.from(itemType.create(null, Fragment.from(parent.type.create(null, inner)))),
+        nestedBefore ? 3 : 1,
+        0,
+    );
+
+    tr.step(
+        new ReplaceAroundStep(
+            before - (nestedBefore ? 3 : 1),
+            after,
+            before,
+            after,
+            slice,
+            1,
+            true,
+        ),
+    );
+
+    return true;
+}
+
+function liftToOuterList(tr: Transaction, itemType: NodeType, range: NodeRange) {
+    let currentRange = range;
+    const end = range.end;
+    const endOfList = currentRange.$to.end(currentRange.depth);
+
+    if (end < endOfList) {
+        tr.step(
+            new ReplaceAroundStep(
+                end - 1,
+                endOfList,
+                end,
+                endOfList,
+                new Slice(Fragment.from(itemType.create(null, currentRange.parent.copy())), 1, 0),
+                1,
+                true,
+            ),
+        );
+
+        currentRange = new NodeRange(
+            tr.doc.resolve(currentRange.$from.pos),
+            tr.doc.resolve(endOfList),
+            currentRange.depth,
+        );
+    }
+
+    const target = liftTarget(currentRange);
+
+    if (target === null) {
+        return false;
+    }
+
+    tr.lift(currentRange, target);
+
+    const $after = tr.doc.resolve(tr.mapping.map(end, -1) - 1);
+    const {nodeBefore, nodeAfter} = $after;
+
+    if (
+        nodeBefore &&
+        nodeAfter &&
+        canJoin(tr.doc, $after.pos) &&
+        nodeBefore.type === nodeAfter.type
+    ) {
+        tr.join($after.pos);
+    }
+
+    return true;
+}
+
+function liftOutOfList(tr: Transaction, range: NodeRange) {
+    const list = range.parent;
+
+    for (let pos = range.end, index = range.endIndex - 1; index > range.startIndex; index--) {
+        pos -= list.child(index).nodeSize;
+        tr.delete(pos - 1, pos + 1);
+    }
+
+    const $start = tr.doc.resolve(range.start);
+    const item = $start.nodeAfter;
+
+    if (!item) {
+        return false;
+    }
+
+    if (tr.mapping.map(range.end) !== range.start + item.nodeSize) {
+        return false;
+    }
+
+    const atStart = range.startIndex === 0;
+    const atEnd = range.endIndex === list.childCount;
+    const parent = $start.node(-1);
+    const indexBefore = $start.index(-1);
+
+    if (
+        !parent.canReplace(
+            indexBefore + (atStart ? 0 : 1),
+            indexBefore + 1,
+            item.content.append(atEnd ? Fragment.empty : Fragment.from(list)),
+        )
+    ) {
+        return false;
+    }
+
+    const start = $start.pos;
+    const end = start + item.nodeSize;
+
+    tr.step(
+        new ReplaceAroundStep(
+            start - (atStart ? 1 : 0),
+            end + (atEnd ? 1 : 0),
+            start + 1,
+            end - 1,
+            new Slice(
+                (atStart ? Fragment.empty : Fragment.from(list.copy(Fragment.empty))).append(
+                    atEnd ? Fragment.empty : Fragment.from(list.copy(Fragment.empty)),
+                ),
+                atStart ? 0 : 1,
+                atEnd ? 0 : 1,
+            ),
+            atStart ? 0 : 1,
+        ),
+    );
+
+    return true;
+}
+
+function liftListBlock(tr: Transaction, range: NodeRange, itemType: NodeType) {
+    if (range.$from.node(range.depth - 1).type === itemType) {
+        return liftToOuterList(tr, itemType, range);
+    }
+
+    return liftOutOfList(tr, range);
+}
+
+function sortListBlocks(blocks: ListBlock[], direction: MoveDirection) {
+    return [...blocks].sort((left, right) => {
         if (left.depth !== right.depth) {
-            return right.depth - left.depth;
+            return direction === 'right' ? right.depth - left.depth : left.depth - right.depth;
         }
 
         return right.from - left.from;
     });
 }
 
-function resolveListBlockRange(
-    doc: Node,
-    mapping: Mapping,
-    block: ListBlock,
-    itemType: NodeType,
-): NodeRange | null {
-    const mappedFrom = mapping.map(block.from, 1);
-    const mappedTo = mapping.map(block.to, -1);
-
-    if (mappedFrom >= mappedTo) {
-        return null;
-    }
-
-    const $from = doc.resolve(mappedFrom);
-    const $to = doc.resolve(mappedTo);
-
-    return $from.blockRange($to, (node) => isListBlockParent(node, itemType));
-}
-
-function getLiftSelectionFromRange(doc: Node, range: NodeRange) {
-    return TextSelection.between(doc.resolve(range.start), doc.resolve(range.end - 1));
-}
-
-function getLiftTransaction(state: EditorState, itemType: NodeType): Transaction | null {
-    let liftedTr: Transaction | null = null;
-
-    pmLiftListItem(itemType)(state, (tr) => {
-        liftedTr = tr;
-    });
-
-    return liftedTr;
-}
-
-export function liftSelectedListItems(itemType: NodeType): Command {
-    return (state, dispatch) => {
-        const selectedItems = collectSelectedListItems(state.selection, itemType);
-
-        if (selectedItems.length <= 1) {
-            return pmLiftListItem(itemType)(state, dispatch);
-        }
-
-        const blocks = getSelectedListBlocks(state.selection, itemType);
+function moveSelectedListBlocks(itemType: NodeType, direction: MoveDirection): Command {
+    return ({selection, tr}, dispatch) => {
+        const blocks = sortListBlocks(getSelectedListBlocks(selection, itemType), direction);
 
         if (blocks.length === 0) {
             return false;
@@ -318,50 +353,42 @@ export function liftSelectedListItems(itemType: NodeType): Command {
 
         if (!dispatch) {
             return blocks.some((block) => {
-                const range = resolveListBlockRange(state.doc, new Mapping(), block, itemType);
+                const range = resolveListBlockRange(tr, block, itemType);
 
-                if (!range) {
-                    return false;
-                }
-
-                const tempState = state.apply(
-                    state.tr.setSelection(getLiftSelectionFromRange(state.doc, range)),
-                );
-                return pmLiftListItem(itemType)(tempState);
+                return range && (direction === 'left' || canSinkListBlock(range, itemType));
             });
         }
 
-        let nextState = state;
-        const mapping = new Mapping();
         let moved = false;
 
         for (const block of blocks) {
-            const range = resolveListBlockRange(nextState.doc, mapping, block, itemType);
+            const range = resolveListBlockRange(tr, block, itemType);
 
             if (!range) {
                 continue;
             }
 
-            const tempState = nextState.apply(
-                nextState.tr.setSelection(getLiftSelectionFromRange(nextState.doc, range)),
-            );
-
-            const liftedTr = getLiftTransaction(tempState, itemType);
-
-            if (!liftedTr) {
-                continue;
-            }
-
-            mapping.appendMapping(liftedTr.mapping);
-            nextState = nextState.apply(liftedTr);
-            moved = true;
-            dispatch(liftedTr.scrollIntoView());
+            moved =
+                (direction === 'right'
+                    ? sinkListBlock(tr, range, itemType)
+                    : liftListBlock(tr, range, itemType)) || moved;
         }
 
-        return moved;
+        if (!moved) {
+            return false;
+        }
+
+        dispatch(tr.scrollIntoView());
+        return true;
     };
 }
 
 export function sinkSelectedListItems(itemType: NodeType): Command {
-    return sinkOnlySelectedListItem(itemType);
+    return moveSelectedListBlocks(itemType, 'right');
 }
+
+export function liftSelectedListItems(itemType: NodeType): Command {
+    return moveSelectedListBlocks(itemType, 'left');
+}
+
+export const sinkOnlySelectedListItem = sinkSelectedListItems;
