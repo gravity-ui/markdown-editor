@@ -255,6 +255,7 @@ export const Playground = memo<PlaygroundProps>((props) => {
                         lineWrapping: {enabled: true},
                     },
                     yfmTable: {
+                        headerRows: true,
                         table_ignoreSplittersInBlockCode: true,
                         table_ignoreSplittersInBlockMath: true,
                         table_ignoreSplittersInInlineCode: true,

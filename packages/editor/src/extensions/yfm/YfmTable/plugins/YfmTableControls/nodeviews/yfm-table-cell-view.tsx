@@ -21,6 +21,7 @@ import {insertEmptyColumn} from '../commands/insert-empty-column';
 import {insertEmptyRow} from '../commands/insert-empty-row';
 import {removeColumnRange} from '../commands/remove-column-range';
 import {removeRowRange} from '../commands/remove-row-range';
+import {canMakeRowHeader, toggleHeaderRows} from '../commands/toggle-header-rows';
 import {FloatingMenuControl} from '../components/FloatingMenuControl';
 import {
     YfmTableDecorationType as DecoType,
@@ -44,6 +45,7 @@ const dropCursorParams: DropCursorParams = {
 type GetPos = () => number | undefined;
 type YfmTableCellViewOptions = {
     dndEnabled: boolean;
+    headerRowsEnabled: boolean;
 };
 
 export const yfmTableCellView =
@@ -62,7 +64,9 @@ class YfmTableCellView implements NodeView {
     private readonly _renderer;
     private readonly _logger: Logger2.ILogger;
     private readonly _dndEnabled: boolean;
+    private readonly _headerRowsEnabled: boolean;
 
+    private _isHeader: boolean;
     private _decoRowUniqKey: number | null = null;
     private _decoColumnUniqKey: number | null = null;
     private _cellInfo: null | {
@@ -73,6 +77,8 @@ class YfmTableCellView implements NodeView {
         columnRange: Readonly<TableColumnRange>;
         showRowControl: boolean;
         showColumnControl: boolean;
+        canMakeRowHeader: boolean;
+        canUnsetRowHeader: boolean;
     };
     private _dndHandler: YfmTableDnDHandler | null;
 
@@ -91,8 +97,11 @@ class YfmTableCellView implements NodeView {
             node: 'yfm-table',
         });
         this._dndEnabled = opts.dndEnabled;
+        this._headerRowsEnabled = opts.headerRowsEnabled;
 
-        this.dom = document.createElement('td');
+        this._isHeader = this._computeIsHeader(node);
+        this.dom = document.createElement(this._isHeader ? 'th' : 'td');
+        if (this._isHeader) this.dom.setAttribute('scope', 'col');
         this._updateDom();
 
         this.contentDOM = this.dom;
@@ -124,6 +133,10 @@ class YfmTableCellView implements NodeView {
                                 onInsertAfterClick={this._onRowInsertAfterClick}
                                 onRemoveRangeClick={this._onRowRemoveRangeClick}
                                 onRemoveTableClick={this._onRemoveTableClick}
+                                canMakeRowHeader={this._cellInfo.canMakeRowHeader}
+                                canUnsetRowHeader={this._cellInfo.canUnsetRowHeader}
+                                onMakeRowHeader={this._onRowMakeHeaderClick}
+                                onUnsetRowHeader={this._onRowUnsetHeaderClick}
                             />
                         )}
                         {showColumnControl && (
@@ -139,6 +152,10 @@ class YfmTableCellView implements NodeView {
                                 onInsertAfterClick={this._onColumnInsertAfterClick}
                                 onRemoveRangeClick={this._onColumnRemoveRangeClick}
                                 onRemoveTableClick={this._onRemoveTableClick}
+                                canMakeRowHeader={false}
+                                canUnsetRowHeader={false}
+                                onMakeRowHeader={this._onColumnMakeHeaderClick}
+                                onUnsetRowHeader={this._onColumnUnsetHeaderClick}
                             />
                         )}
                     </ErrorLoggerBoundary>
@@ -150,6 +167,8 @@ class YfmTableCellView implements NodeView {
     }
 
     update(node: Node, decorations: readonly Decoration[]): boolean {
+        if (this._computeIsHeader(node) !== this._isHeader) return false;
+
         {
             const prev = this._node;
             this._node = node;
@@ -159,16 +178,18 @@ class YfmTableCellView implements NodeView {
         const cellInfo = this._getCellInfo();
 
         if (cellInfo && (cellInfo.cell.row === 0 || cellInfo.cell.column === 0)) {
-            const info = (this._cellInfo = {
+            const desc = cellInfo.tableDesc.base;
+            const info: YfmTableCellView['_cellInfo'] = (this._cellInfo = {
                 tablePos: cellInfo.table.pos,
                 rowIndex: cellInfo.cell.row,
                 columnIndex: cellInfo.cell.column,
                 showRowControl: false as boolean,
                 showColumnControl: false as boolean,
-                rowRange: cellInfo.tableDesc.base.getRowRangeByRowIdx(cellInfo.cell.row),
-                columnRange: cellInfo.tableDesc.base.getColumnRangeByColumnIdx(
-                    cellInfo.cell.column,
-                ),
+                rowRange: desc.getRowRangeByRowIdx(cellInfo.cell.row),
+                columnRange: desc.getColumnRangeByColumnIdx(cellInfo.cell.column),
+                canMakeRowHeader:
+                    this._headerRowsEnabled && canMakeRowHeader(desc, cellInfo.cell.row),
+                canUnsetRowHeader: desc.isHeaderRow(cellInfo.cell.row),
             });
 
             for (const deco of decorations) {
@@ -404,6 +425,41 @@ class YfmTableCellView implements NodeView {
         this._view.focus();
     };
 
+    private _toggleHeaderRows(
+        event: 'row-set-header' | 'row-unset-header',
+        source: 'row-menu' | 'column-menu',
+        getValue: (rowRange: Readonly<TableRowRange>) => number,
+    ) {
+        this._logger.event({event, source});
+
+        const info = this._getCellInfo();
+        if (info) {
+            const rowRange = info.tableDesc.base.getRowRangeByRowIdx(info.cell.row);
+            toggleHeaderRows({
+                tablePos: info.table.pos,
+                value: getValue(rowRange),
+            })(this._view.state, this._view.dispatch);
+        }
+
+        this._view.focus();
+    }
+
+    private _onRowMakeHeaderClick = () => {
+        this._toggleHeaderRows('row-set-header', 'row-menu', (range) => range.endIdx + 1);
+    };
+
+    private _onRowUnsetHeaderClick = () => {
+        this._toggleHeaderRows('row-unset-header', 'row-menu', (range) => range.startIdx);
+    };
+
+    private _onColumnMakeHeaderClick = () => {
+        this._toggleHeaderRows('row-set-header', 'column-menu', (range) => range.endIdx + 1);
+    };
+
+    private _onColumnUnsetHeaderClick = () => {
+        this._toggleHeaderRows('row-unset-header', 'column-menu', (range) => range.startIdx);
+    };
+
     private _onRemoveTableClick = () => {
         this._logger.event({event: 'table-remove'});
 
@@ -418,10 +474,17 @@ class YfmTableCellView implements NodeView {
         this._view.focus();
     };
 
-    private _getCellInfo() {
+    private _computeIsHeader(node: Node): boolean {
+        if (!this._headerRowsEnabled) return false;
+        const info = this._getCellInfo(node);
+        if (!info) return false;
+        return info.tableDesc.base.isHeaderRow(info.cell.row);
+    }
+
+    private _getCellInfo(node: Node = this._node) {
         const table = this._getParentTable();
         const tableDesc = table ? TableDesc.create(table.node)?.bind(table.pos) : undefined;
-        const cellInfo = tableDesc?.base.getCellInfo(this._node);
+        const cellInfo = tableDesc?.base.getCellInfo(node);
         return cellInfo
             ? {pos: this._getPos()!, table: table!, tableDesc: tableDesc!, cell: cellInfo}
             : undefined;

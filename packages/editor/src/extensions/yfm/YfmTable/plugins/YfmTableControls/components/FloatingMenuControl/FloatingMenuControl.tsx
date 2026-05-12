@@ -7,10 +7,11 @@ import {
     ArrowRight,
     ArrowUp,
     BroomMotion as ClearCells,
+    LayoutHeader as HeaderRow,
     TrashBin,
     Xmark,
 } from '@gravity-ui/icons';
-import {Icon} from '@gravity-ui/uikit';
+import {type DropdownMenuItem, Flex, Icon, Switch} from '@gravity-ui/uikit';
 
 import {i18n} from 'src/i18n/yfm-table';
 
@@ -31,6 +32,10 @@ export type FloatingMenuControlProps = {
     onInsertAfterClick: () => void;
     onRemoveRangeClick: () => void;
     onRemoveTableClick: () => void;
+    canMakeRowHeader: boolean;
+    canUnsetRowHeader: boolean;
+    onMakeRowHeader: () => void;
+    onUnsetRowHeader: () => void;
 };
 
 export const FloatingMenuControl: React.FC<FloatingMenuControlProps> =
@@ -46,58 +51,89 @@ export const FloatingMenuControl: React.FC<FloatingMenuControlProps> =
         onInsertAfterClick,
         onRemoveRangeClick,
         onRemoveTableClick,
+        canMakeRowHeader,
+        canUnsetRowHeader,
+        onMakeRowHeader,
+        onUnsetRowHeader,
     }) {
-        const dropdownItems = useMemo<FloatingMenuProps['dropdownItems']>(
-            () =>
+        const dropdownItems = useMemo<FloatingMenuProps['dropdownItems']>(() => {
+            const headerItems: DropdownMenuItem[] = [];
+            {
+                const isRowHeader = Boolean(canUnsetRowHeader);
+                const hiddenRowHeaderOption = !canMakeRowHeader && !canUnsetRowHeader;
+                if (!hiddenRowHeaderOption) {
+                    headerItems.push({
+                        text: (
+                            <Flex justifyContent="space-between" alignItems="center" gap={4}>
+                                {i18n(`row.header${multiple ? '.multiple' : ''}`)}
+                                <Switch
+                                    size="m"
+                                    checked={isRowHeader}
+                                    disabled={hiddenRowHeaderOption}
+                                />
+                            </Flex>
+                        ),
+                        iconStart: <Icon data={HeaderRow} />,
+                        qa: 'g-md-yfm-table-row-header-toggle',
+                        action: isRowHeader ? onUnsetRowHeader : onMakeRowHeader,
+                        hidden: hiddenRowHeaderOption,
+                    });
+                }
+            }
+
+            return [
+                ...headerItems,
                 [
-                    [
-                        {
-                            text: i18n(`${type}.add.before`),
-                            qa: `g-md-yfm-table-action-add-${type}-before`,
-                            action: onInsertBeforeClick,
-                            iconStart: <Icon data={type === 'row' ? ArrowUp : ArrowLeft} />,
-                        },
-                        {
-                            text: i18n(`${type}.add.after`),
-                            qa: `g-md-yfm-table-action-add-${type}-after`,
-                            action: onInsertAfterClick,
-                            iconStart: <Icon data={type === 'row' ? ArrowDown : ArrowRight} />,
-                        },
-                    ],
-                    [
-                        {
-                            text: i18n('cells.clear'),
-                            qa: `g-md-yfm-table-${type}-clear-cells`,
-                            action: onClearCellsClick,
-                            iconStart: <Icon data={ClearCells} />,
-                        },
-                    ],
-                    [
-                        {
-                            text: i18n(`${type}.remove${multiple ? '.multiple' : ''}`),
-                            qa: `g-md-yfm-table-action-remove-${type}`,
-                            action: onRemoveRangeClick,
-                            iconStart: <Icon data={Xmark} />,
-                        },
-                        {
-                            theme: 'danger',
-                            text: i18n('table.remove'),
-                            qa: 'g-md-yfm-table-action-remove-table',
-                            action: onRemoveTableClick,
-                            iconStart: <Icon data={TrashBin} />,
-                        },
-                    ],
-                ] satisfies FloatingMenuProps['dropdownItems'],
-            [
-                type,
-                multiple,
-                onClearCellsClick,
-                onInsertAfterClick,
-                onInsertBeforeClick,
-                onRemoveRangeClick,
-                onRemoveTableClick,
-            ],
-        );
+                    {
+                        text: i18n(`${type}.add.before`),
+                        qa: `g-md-yfm-table-action-add-${type}-before`,
+                        action: onInsertBeforeClick,
+                        iconStart: <Icon data={type === 'row' ? ArrowUp : ArrowLeft} />,
+                    },
+                    {
+                        text: i18n(`${type}.add.after`),
+                        qa: `g-md-yfm-table-action-add-${type}-after`,
+                        action: onInsertAfterClick,
+                        iconStart: <Icon data={type === 'row' ? ArrowDown : ArrowRight} />,
+                    },
+                ],
+                [
+                    {
+                        text: i18n('cells.clear'),
+                        qa: `g-md-yfm-table-${type}-clear-cells`,
+                        action: onClearCellsClick,
+                        iconStart: <Icon data={ClearCells} />,
+                    },
+                ],
+                [
+                    {
+                        text: i18n(`${type}.remove${multiple ? '.multiple' : ''}`),
+                        qa: `g-md-yfm-table-action-remove-${type}`,
+                        action: onRemoveRangeClick,
+                        iconStart: <Icon data={Xmark} />,
+                    },
+                    {
+                        theme: 'danger',
+                        text: i18n('table.remove'),
+                        qa: 'g-md-yfm-table-action-remove-table',
+                        action: onRemoveTableClick,
+                        iconStart: <Icon data={TrashBin} />,
+                    },
+                ],
+            ] satisfies FloatingMenuProps['dropdownItems'];
+        }, [
+            type,
+            multiple,
+            canMakeRowHeader,
+            canUnsetRowHeader,
+            onMakeRowHeader,
+            onUnsetRowHeader,
+            onClearCellsClick,
+            onInsertAfterClick,
+            onInsertBeforeClick,
+            onRemoveRangeClick,
+            onRemoveTableClick,
+        ]);
 
         const anchor = useMemo(
             () => getVirtualAnchor(type, tableElement, cellElement),

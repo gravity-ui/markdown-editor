@@ -9,9 +9,14 @@ import {markup} from './markup';
 export type YfmTableDnDDemoProps = {
     mobile: boolean;
     dnd: boolean;
+    headerRows: boolean;
 };
 
-export const YfmTableDnDDemo = memo<YfmTableDnDDemoProps>(function YfmTableDnDDemo({mobile, dnd}) {
+export const YfmTableDnDDemo = memo<YfmTableDnDDemoProps>(function YfmTableDnDDemo({
+    mobile,
+    dnd,
+    headerRows,
+}) {
     const editor = useMarkdownEditor(
         {
             mobile,
@@ -26,6 +31,7 @@ export const YfmTableDnDDemo = memo<YfmTableDnDDemoProps>(function YfmTableDnDDe
                     },
                     yfmTable: {
                         dnd,
+                        headerRows,
                     },
                 },
             },
