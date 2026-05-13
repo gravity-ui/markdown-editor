@@ -1,3 +1,4 @@
+import type {YfmMods} from '@gravity-ui/markdown-editor';
 import dd from 'ts-dedent';
 
 import {expect, test} from 'playwright/core';
@@ -506,5 +507,342 @@ test.describe('YfmTable', () => {
         function prepareTexts(texts: readonly string[]): string[] {
             return texts.map((str) => str.trimEnd());
         }
+    });
+
+    test.describe('header rows @wysiwyg', () => {
+        const yfmMods: YfmMods = {'no-stripe-table': true};
+
+        test('should set header on the first row', async ({
+            page,
+            wait,
+            mount,
+            editor,
+            expectScreenshot,
+        }) => {
+            const initial = dd`
+            #|
+            || one   | two  ||
+            || three | four ||
+            |#
+            `;
+
+            await mount(<Playground initial={initial} yfmMods={yfmMods} />);
+
+            const tableLocator = (
+                await editor.yfmTable.getTable(editor.locators.contenteditable)
+            ).first();
+            const rowsLocator = await editor.yfmTable.getRows(tableLocator);
+            const cellsLocator = await editor.yfmTable.getCells(tableLocator);
+            const firstCell = cellsLocator.first();
+            const rowButton = (await editor.yfmTable.getRowButtons(tableLocator)).first();
+
+            await editor.yfmTable.focusFirstCell(tableLocator);
+            await firstCell.hover();
+            await rowButton.click();
+            await editor.yfmTable.doCellAction('row', 'header-toggle');
+
+            await expect(rowsLocator.nth(0)).toHaveAttribute('data-header', 'true');
+            await expect(rowsLocator.nth(1)).not.toHaveAttribute('data-header', 'true');
+
+            await editor.focus();
+            await page.keyboard.press('Escape');
+            await editor.blur();
+
+            await page.mouse.move(-50, -50);
+            await wait.timeout(500);
+            await expectScreenshot();
+        });
+
+        test('should unset header on the first row', async ({
+            page,
+            wait,
+            mount,
+            editor,
+            expectScreenshot,
+        }) => {
+            const initial = dd`
+            #|
+            |:{header-rows="1"}
+            || one   | two  ||
+            || three | four ||
+            |#
+            `;
+
+            await mount(<Playground initial={initial} yfmMods={yfmMods} />);
+
+            const tableLocator = (
+                await editor.yfmTable.getTable(editor.locators.contenteditable)
+            ).first();
+            const rowsLocator = await editor.yfmTable.getRows(tableLocator);
+            const cellsLocator = await editor.yfmTable.getCells(tableLocator);
+            const firstCell = cellsLocator.first();
+            const rowButton = (await editor.yfmTable.getRowButtons(tableLocator)).first();
+
+            await expect(rowsLocator.nth(0)).toHaveAttribute('data-header', 'true');
+
+            await editor.yfmTable.focusFirstCell(tableLocator);
+            await firstCell.hover();
+            await rowButton.click();
+            await editor.yfmTable.doCellAction('row', 'header-toggle');
+
+            await expect(rowsLocator.nth(0)).not.toHaveAttribute('data-header', 'true');
+            await expect(rowsLocator.nth(1)).not.toHaveAttribute('data-header', 'true');
+
+            await editor.focus();
+            await page.keyboard.press('Escape');
+            await editor.blur();
+
+            await page.mouse.move(-50, -50);
+            await wait.timeout(500);
+            await expectScreenshot();
+        });
+
+        test('should set header on the first row via column menu', async ({mount, editor}) => {
+            const initial = dd`
+            #|
+            || one   | two  ||
+            || three | four ||
+            |#
+            `;
+
+            await mount(<Playground initial={initial} yfmMods={yfmMods} />);
+
+            const tableLocator = (
+                await editor.yfmTable.getTable(editor.locators.contenteditable)
+            ).first();
+            const rowsLocator = await editor.yfmTable.getRows(tableLocator);
+            const cellsLocator = await editor.yfmTable.getCells(tableLocator);
+            const firstCell = cellsLocator.first();
+            const columnButton = (await editor.yfmTable.getColumnButtons(tableLocator)).first();
+
+            await editor.yfmTable.focusFirstCell(tableLocator);
+            await firstCell.hover();
+            await columnButton.click();
+            await editor.yfmTable.doCellAction('column', 'header-toggle');
+
+            await expect(rowsLocator.nth(0)).toHaveAttribute('data-header', 'true');
+            await expect(rowsLocator.nth(1)).not.toHaveAttribute('data-header', 'true');
+        });
+
+        test('should make 2nd row a header when rowspan from row 0 covers row 1', async ({
+            wait,
+            mount,
+            editor,
+        }) => {
+            const initial = dd`
+            #|
+            |:{header-rows="1"}
+            || one   | two ||
+            || three | ^   ||
+            || five  | six ||
+            |#
+            `;
+
+            await mount(<Playground initial={initial} yfmMods={yfmMods} />);
+
+            const tableLocator = (
+                await editor.yfmTable.getTable(editor.locators.contenteditable)
+            ).first();
+            const rowsLocator = await editor.yfmTable.getRows(tableLocator);
+            const cellsLocator = await editor.yfmTable.getCells(tableLocator);
+            const rowButton = (await editor.yfmTable.getRowButtons(tableLocator)).first();
+
+            await expect(rowsLocator.nth(0)).toHaveAttribute('data-header', 'true');
+            await expect(rowsLocator.nth(1)).not.toHaveAttribute('data-header', 'true');
+
+            await editor.yfmTable.focusFirstCell(tableLocator);
+
+            // hover the first cell of row 1 (column 0)
+            await cellsLocator.nth(2).hover();
+            await wait.timeout(200);
+            await rowButton.click();
+            await editor.yfmTable.doCellAction('row', 'header-toggle');
+
+            await expect(rowsLocator.nth(0)).toHaveAttribute('data-header', 'true');
+            await expect(rowsLocator.nth(1)).toHaveAttribute('data-header', 'true');
+            await expect(rowsLocator.nth(2)).not.toHaveAttribute('data-header', 'true');
+        });
+
+        test('should make all rows header when first cell rowspan covers entire table', async ({
+            page,
+            wait,
+            mount,
+            editor,
+            expectScreenshot,
+        }) => {
+            const initial = dd`
+            #|
+            || one | two  ||
+            || ^   | four ||
+            || ^   | six  ||
+            |#
+            `;
+
+            await mount(<Playground initial={initial} yfmMods={yfmMods} />);
+
+            const tableLocator = (
+                await editor.yfmTable.getTable(editor.locators.contenteditable)
+            ).first();
+            const rowsLocator = await editor.yfmTable.getRows(tableLocator);
+            const cellsLocator = await editor.yfmTable.getCells(tableLocator);
+            const firstCell = cellsLocator.first();
+            const rowButton = (await editor.yfmTable.getRowButtons(tableLocator)).first();
+
+            await editor.yfmTable.focusFirstCell(tableLocator);
+            await firstCell.hover();
+            await rowButton.click();
+            await editor.yfmTable.doCellAction('row', 'header-toggle');
+
+            await expect(rowsLocator.nth(0)).toHaveAttribute('data-header', 'true');
+            await expect(rowsLocator.nth(1)).toHaveAttribute('data-header', 'true');
+            await expect(rowsLocator.nth(2)).toHaveAttribute('data-header', 'true');
+
+            await editor.focus();
+            await page.keyboard.press('Escape');
+            await editor.blur();
+
+            await page.mouse.move(-50, -50);
+            await wait.timeout(500);
+            await expectScreenshot();
+        });
+
+        test('should unset header for current and all subsequent header rows', async ({
+            wait,
+            mount,
+            editor,
+        }) => {
+            const initial = dd`
+            #|
+            |:{header-rows="3"}
+            || one   | two   ||
+            || three | four  ||
+            || five  | six   ||
+            || seven | eight ||
+            |#
+            `;
+
+            await mount(<Playground initial={initial} yfmMods={yfmMods} />);
+
+            const tableLocator = (
+                await editor.yfmTable.getTable(editor.locators.contenteditable)
+            ).first();
+            const rowsLocator = await editor.yfmTable.getRows(tableLocator);
+            const cellsLocator = await editor.yfmTable.getCells(tableLocator);
+            const rowButton = (await editor.yfmTable.getRowButtons(tableLocator)).first();
+            const rowMenu = editor.yfmTable.getMenuLocator('row');
+            const headerToggle = editor.yfmTable.getCellActionLocator('row', 'header-toggle');
+
+            await expect(rowsLocator.nth(0)).toHaveAttribute('data-header', 'true');
+            await expect(rowsLocator.nth(1)).toHaveAttribute('data-header', 'true');
+            await expect(rowsLocator.nth(2)).toHaveAttribute('data-header', 'true');
+            await expect(rowsLocator.nth(3)).not.toHaveAttribute('data-header', 'true');
+
+            await editor.yfmTable.focusFirstCell(tableLocator);
+
+            // open row menu of row 1 (first cell of row 1 is the 3rd cell overall)
+            await cellsLocator.nth(2).hover();
+            await wait.timeout(200);
+            await rowButton.click();
+            await editor.yfmTable.doCellAction('row', 'header-toggle');
+
+            await expect(rowsLocator.nth(0)).toHaveAttribute('data-header', 'true');
+            await expect(rowsLocator.nth(1)).not.toHaveAttribute('data-header', 'true');
+            await expect(rowsLocator.nth(2)).not.toHaveAttribute('data-header', 'true');
+            await expect(rowsLocator.nth(3)).not.toHaveAttribute('data-header', 'true');
+
+            // re-open row menu of row 1 — header toggle should be hidden now
+            await cellsLocator.nth(2).hover();
+            await wait.timeout(200);
+            await rowButton.click();
+            await rowMenu.waitFor({state: 'visible'});
+            await expect(headerToggle).toBeHidden();
+        });
+
+        test('should shrink header-rows block when inserting a row inside it', async ({
+            wait,
+            mount,
+            editor,
+        }) => {
+            const initial = dd`
+            #|
+            |:{header-rows="3"}
+            || one   | two   ||
+            || three | four  ||
+            || five  | six   ||
+            || seven | eight ||
+            |#
+            `;
+
+            await mount(<Playground initial={initial} yfmMods={yfmMods} />);
+
+            const tableLocator = (
+                await editor.yfmTable.getTable(editor.locators.contenteditable)
+            ).first();
+            const rowsLocator = await editor.yfmTable.getRows(tableLocator);
+            const cellsLocator = await editor.yfmTable.getCells(tableLocator);
+            const rowButton = (await editor.yfmTable.getRowButtons(tableLocator)).first();
+
+            await expect(rowsLocator.nth(0)).toHaveAttribute('data-header', 'true');
+            await expect(rowsLocator.nth(1)).toHaveAttribute('data-header', 'true');
+            await expect(rowsLocator.nth(2)).toHaveAttribute('data-header', 'true');
+            await expect(rowsLocator.nth(3)).not.toHaveAttribute('data-header', 'true');
+
+            await editor.yfmTable.focusFirstCell(tableLocator);
+
+            // open row menu of row 1 (first cell of row 1 is the 3rd cell overall)
+            await cellsLocator.nth(2).hover();
+            await wait.timeout(200);
+            await rowButton.click();
+            await editor.yfmTable.doCellAction('row', 'add-row-before');
+
+            await expect(rowsLocator).toHaveCount(5);
+            await expect(rowsLocator.nth(0)).toHaveAttribute('data-header', 'true');
+            await expect(rowsLocator.nth(1)).not.toHaveAttribute('data-header', 'true');
+            await expect(rowsLocator.nth(2)).not.toHaveAttribute('data-header', 'true');
+            await expect(rowsLocator.nth(3)).not.toHaveAttribute('data-header', 'true');
+            await expect(rowsLocator.nth(4)).not.toHaveAttribute('data-header', 'true');
+        });
+
+        test('should decrease header-rows count by the number of removed header rows', async ({
+            wait,
+            mount,
+            editor,
+        }) => {
+            const initial = dd`
+            #|
+            |:{header-rows="3"}
+            || one   | two   ||
+            || three | four  ||
+            || ^     | six   ||
+            || seven | eight ||
+            |#
+            `;
+
+            await mount(<Playground initial={initial} yfmMods={yfmMods} />);
+
+            const tableLocator = (
+                await editor.yfmTable.getTable(editor.locators.contenteditable)
+            ).first();
+            const rowsLocator = await editor.yfmTable.getRows(tableLocator);
+            const cellsLocator = await editor.yfmTable.getCells(tableLocator);
+            const rowButton = (await editor.yfmTable.getRowButtons(tableLocator)).first();
+
+            await expect(rowsLocator.nth(0)).toHaveAttribute('data-header', 'true');
+            await expect(rowsLocator.nth(1)).toHaveAttribute('data-header', 'true');
+            await expect(rowsLocator.nth(2)).toHaveAttribute('data-header', 'true');
+            await expect(rowsLocator.nth(3)).not.toHaveAttribute('data-header', 'true');
+
+            await editor.yfmTable.focusFirstCell(tableLocator);
+
+            // Open row menu of row 2 (first cell of row 2 is the 3rd cell overall)
+            await cellsLocator.nth(2).hover();
+            await wait.timeout(200);
+            await rowButton.click();
+            await editor.yfmTable.doCellAction('row', 'remove-row');
+
+            await expect(rowsLocator).toHaveCount(2);
+            await expect(rowsLocator.nth(0)).toHaveAttribute('data-header', 'true');
+            await expect(rowsLocator.nth(1)).not.toHaveAttribute('data-header', 'true');
+        });
     });
 });

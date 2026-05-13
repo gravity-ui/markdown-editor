@@ -168,7 +168,7 @@ class YfmTable {
             'remove-column': page.getByTestId('g-md-yfm-table-action-remove-column'),
             'remove-row': page.getByTestId('g-md-yfm-table-action-remove-row'),
             'remove-table': page.getByTestId('g-md-yfm-table-action-remove-table'),
-            'header-toggle': page.getByTestId('g-md-yfm-table-action-header-toggle'),
+            'header-toggle': page.getByTestId('g-md-yfm-table-row-header-toggle'),
         };
     }
 
@@ -189,7 +189,9 @@ class YfmTable {
     }
 
     async getCells(table?: Locator) {
-        return (table || (await this.getTable())).first().locator('> tbody > tr > td');
+        return (table || (await this.getTable()))
+            .first()
+            .locator('> tbody > tr > th, > tbody > tr > td');
     }
 
     async getRowButtons(_table?: Locator) {
