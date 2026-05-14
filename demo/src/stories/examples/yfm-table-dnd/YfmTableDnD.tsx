@@ -21,6 +21,9 @@ export const YfmTableDnDDemo = memo<YfmTableDnDDemoProps>(function YfmTableDnDDe
             },
             wysiwygConfig: {
                 extensionOptions: {
+                    yfmConfigs: {
+                        mods: {'no-stripe-table': true},
+                    },
                     yfmTable: {
                         dnd,
                     },
