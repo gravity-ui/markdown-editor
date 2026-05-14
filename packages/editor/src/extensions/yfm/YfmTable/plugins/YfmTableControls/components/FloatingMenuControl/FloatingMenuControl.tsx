@@ -95,24 +95,22 @@ export const FloatingMenuControl: React.FC<FloatingMenuControlProps> =
                 ...headerItems,
                 ...(cellBackgroundEnabled && onCellBgChange
                     ? [
-                          [
-                              {
-                                  text: i18n('cells.bg'),
-                                  qa: `g-md-yfm-table-${type}-cell-bg`,
-                                  iconStart: <Icon data={ColorPalette} />,
-                                  items: [
-                                      {
-                                          text: (
-                                              <CellBgPalette
-                                                  value={currentCellBg}
-                                                  onSelect={onCellBgChange}
-                                              />
-                                          ),
-                                          action: () => {},
-                                      },
-                                  ],
-                              },
-                          ],
+                          {
+                              text: i18n('cells.bg'),
+                              qa: `g-md-yfm-table-${type}-cell-bg`,
+                              iconStart: <Icon data={ColorPalette} />,
+                              items: [
+                                  {
+                                      text: (
+                                          <CellBgPalette
+                                              value={currentCellBg}
+                                              onSelect={onCellBgChange}
+                                          />
+                                      ),
+                                      action: () => {},
+                                  },
+                              ],
+                          },
                       ]
                     : []),
                 [
@@ -158,6 +156,9 @@ export const FloatingMenuControl: React.FC<FloatingMenuControlProps> =
             multiple,
             canMakeRowHeader,
             canUnsetRowHeader,
+            currentCellBg,
+            cellBackgroundEnabled,
+            onCellBgChange,
             onMakeRowHeader,
             onUnsetRowHeader,
             onClearCellsClick,

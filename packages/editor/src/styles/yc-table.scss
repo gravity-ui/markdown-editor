@@ -1,23 +1,36 @@
+.yfm table th,
 .yfm table td {
-    &.cell-bg-info {
-        background-color: var(--g-color-base-info-medium);
+    &.cell-bg-grey {
+        background-color: var(--g-color-base-generic);
     }
-    &.cell-bg-positive {
-        background-color: var(--g-color-base-positive-medium);
+    &.cell-bg-yellow-light {
+        background-color: var(--g-color-base-warning-light);
     }
-    &.cell-bg-warning {
+    &.cell-bg-yellow {
         background-color: var(--g-color-base-warning-medium);
     }
-    &.cell-bg-danger {
+    &.cell-bg-red-light {
+        background-color: var(--g-color-base-danger-light);
+    }
+    &.cell-bg-red {
         background-color: var(--g-color-base-danger-medium);
     }
-    &.cell-bg-utility {
+    &.cell-bg-purple-light {
+        background-color: var(--g-color-base-utility-light);
+    }
+    &.cell-bg-purple {
         background-color: var(--g-color-base-utility-medium);
     }
-    &.cell-bg-misc {
-        background-color: var(--g-color-base-misc-medium);
+    &.cell-bg-blue-light {
+        background-color: var(--g-color-base-info-light);
     }
-    &.cell-bg-neutral {
-        background-color: var(--g-color-base-neutral-medium);
+    &.cell-bg-blue {
+        background-color: var(--g-color-base-info-medium);
+    }
+    &.cell-bg-green-light {
+        background-color: var(--g-color-base-positive-light);
+    }
+    &.cell-bg-green {
+        background-color: var(--g-color-base-positive-medium);
     }
 }

@@ -1,62 +1,67 @@
+$color-map: (
+    'grey': var(--g-color-base-generic),
+    'yellow-light': var(--g-color-base-warning-light),
+    'yellow': var(--g-color-base-warning-medium),
+    'red-light': var(--g-color-base-danger-light),
+    'red': var(--g-color-base-danger-medium),
+    'purple-light': var(--g-color-base-utility-light),
+    'purple': var(--g-color-base-utility-medium),
+    'blue-light': var(--g-color-base-info-light),
+    'blue': var(--g-color-base-info-medium),
+    'green-light': var(--g-color-base-positive-light),
+    'green': var(--g-color-base-positive-medium),
+);
+
 .g-md-yfm-table-cell-bg-palette {
+    display: grid;
+    grid-template-columns: repeat(6, auto);
+    gap: 0;
+
+    &__item {
+        cursor: pointer;
+
+        border-radius: var(--g-border-radius-m);
+
+        &:hover {
+            background: var(--g-color-base-generic);
+        }
+    }
+
     &__swatch {
+        position: relative;
+
         display: block;
 
         width: 16px;
         height: 16px;
+        padding: 0;
+
+        cursor: pointer;
 
         border: 1px solid var(--g-color-line-generic);
         border-radius: var(--g-border-radius-xs);
+        background-color: transparent;
 
-        &_none {
-            position: relative;
-
-            overflow: hidden;
-
-            background-color: transparent;
-
-            &::after {
-                position: absolute;
-                inset: 0;
-
-                content: '';
-
-                background: linear-gradient(
-                    to bottom right,
-                    transparent calc(50% - 1px),
-                    var(--g-color-line-danger) calc(50% - 1px),
-                    var(--g-color-line-danger) calc(50% + 1px),
-                    transparent calc(50% + 1px)
-                );
+        @each $name, $color in $color-map {
+            &_color_#{$name} {
+                border-color: $color;
+                background-color: $color;
             }
         }
 
-        &_color_info {
-            background-color: var(--g-color-base-info-medium);
+        &_none {
+            background-color: transparent;
         }
+    }
 
-        &_color_positive {
-            background-color: var(--g-color-base-positive-medium);
-        }
+    &__check {
+        position: absolute;
+        inset: 0;
 
-        &_color_warning {
-            background-color: var(--g-color-base-warning-medium);
-        }
+        display: flex;
+        justify-content: center;
+        align-items: center;
 
-        &_color_danger {
-            background-color: var(--g-color-base-danger-medium);
-        }
-
-        &_color_utility {
-            background-color: var(--g-color-base-utility-medium);
-        }
-
-        &_color_misc {
-            background-color: var(--g-color-base-misc-medium);
-        }
-
-        &_color_neutral {
-            background-color: var(--g-color-base-neutral-medium);
-        }
+        color: var(--g-color-text-primary);
     }
 }
