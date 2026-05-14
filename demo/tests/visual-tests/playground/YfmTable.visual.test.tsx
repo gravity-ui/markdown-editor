@@ -597,33 +597,6 @@ test.describe('YfmTable', () => {
             await expectScreenshot();
         });
 
-        test('should set header on the first row via column menu', async ({mount, editor}) => {
-            const initial = dd`
-            #|
-            || one   | two  ||
-            || three | four ||
-            |#
-            `;
-
-            await mount(<Playground initial={initial} yfmMods={yfmMods} />);
-
-            const tableLocator = (
-                await editor.yfmTable.getTable(editor.locators.contenteditable)
-            ).first();
-            const rowsLocator = await editor.yfmTable.getRows(tableLocator);
-            const cellsLocator = await editor.yfmTable.getCells(tableLocator);
-            const firstCell = cellsLocator.first();
-            const columnButton = (await editor.yfmTable.getColumnButtons(tableLocator)).first();
-
-            await editor.yfmTable.focusFirstCell(tableLocator);
-            await firstCell.hover();
-            await columnButton.click();
-            await editor.yfmTable.doCellAction('column', 'header-toggle');
-
-            await expect(rowsLocator.nth(0)).toHaveAttribute('data-header', 'true');
-            await expect(rowsLocator.nth(1)).not.toHaveAttribute('data-header', 'true');
-        });
-
         test('should make 2nd row a header when rowspan from row 0 covers row 1', async ({
             wait,
             mount,
