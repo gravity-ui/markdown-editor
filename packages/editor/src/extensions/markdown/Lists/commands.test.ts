@@ -12,8 +12,8 @@ import {
 import {doc, eq, li, p, schema, ul} from 'prosemirror-test-builder';
 
 import {
-    getSelectedListBlocks,
     liftSelectedListItems,
+    planSelectedListBlocks,
     sinkSelectedListItems,
 } from 'src/extensions/markdown/Lists/commands';
 
@@ -74,10 +74,10 @@ function apply(docNode: Node, command: Command, result: Node | null) {
     }
 }
 
-function getBlockTexts(docNode: Node) {
+function getPlannedBlockTexts(docNode: Node) {
     const state = createState(docNode);
 
-    return getSelectedListBlocks(state.selection, schema.nodes.list_item).map((block) => {
+    return planSelectedListBlocks(state.selection, schema.nodes.list_item).blocks.map((block) => {
         const range = docNode
             .resolve(block.from)
             .blockRange(
@@ -103,16 +103,22 @@ function getBlockTexts(docNode: Node) {
     });
 }
 
-describe('getSelectedListBlocks', () => {
-    it('collects a simple selected list item', () => {
-        expect(getBlockTexts(doc(ul(li(p('11')), li(p('2<a><b>2')), li(p('33')))))).toEqual([
+describe('planSelectedListBlocks', () => {
+    it('plans a single selected item as one block', () => {
+        expect(getPlannedBlockTexts(doc(ul(li(p('11')), li(p('2<a><b>2')), li(p('33')))))).toEqual([
             ['22'],
         ]);
     });
 
-    it('collects downward staircase selections as separate list-level blocks', () => {
+    it('plans a flat sibling group as one contiguous block', () => {
         expect(
-            getBlockTexts(
+            getPlannedBlockTexts(doc(ul(li(p('aa')), li(p('b<a>b')), li(p('c<b>c')), li(p('dd'))))),
+        ).toEqual([['bb', 'cc']]);
+    });
+
+    it('plans downward staircase selections as separate list-level blocks', () => {
+        expect(
+            getPlannedBlockTexts(
                 doc(
                     ul(
                         li(p('aa')),
@@ -133,9 +139,9 @@ describe('getSelectedListBlocks', () => {
         ).toEqual([['bb'], ['cc']]);
     });
 
-    it('collects reverse staircase selections from inner to outer items', () => {
+    it('plans upward staircase selections from inner items back to outer siblings', () => {
         expect(
-            getBlockTexts(
+            getPlannedBlockTexts(
                 doc(
                     ul(
                         li(p('aa')),
@@ -156,9 +162,9 @@ describe('getSelectedListBlocks', () => {
         ).toEqual([['ss'], ['zz']]);
     });
 
-    it('groups mixed multi-level selections into contiguous sibling runs', () => {
+    it('plans mixed multi-level selections by expanding nested tails into sibling runs', () => {
         expect(
-            getBlockTexts(
+            getPlannedBlockTexts(
                 doc(
                     ul(
                         li(p('aa')),
@@ -427,7 +433,7 @@ describe('liftSelectedListItems', () => {
             ),
         ));
 
-    it('undoes a multi-block lift in a single history step', () => {
+    it('keeps a multi-block lift in one history step with stable selection on undo', () => {
         const docNode = doc(
             ul(
                 li(p('aa')),

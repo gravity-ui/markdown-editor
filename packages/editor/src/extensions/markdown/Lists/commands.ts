@@ -44,7 +44,7 @@ export function liftEmptyListItem(itemType: NodeType): Command {
 
 type MoveDirection = 'left' | 'right';
 
-type SelectedListItem = {
+export type ListSelectionItem = {
     depth: number;
     from: number;
     index: number;
@@ -60,15 +60,22 @@ export type ListBlock = {
     to: number;
 };
 
+export type ListSelectionPlan = {
+    blocks: ListBlock[];
+    expandedItems: ListSelectionItem[];
+    explicitItems: ListSelectionItem[];
+};
+
+type PlannedListBlockMove = {
+    block: ListBlock;
+    direction: MoveDirection;
+};
+
 const isListNodeForItemType = (node: Node, itemType: NodeType) =>
     node.childCount > 0 && node.firstChild !== null && node.firstChild.type === itemType;
 
-function findClosestListItem(
-    selection: Selection,
-    pos: number,
-    itemType: NodeType,
-): SelectedListItem | null {
-    const $pos = selection.$from.doc.resolve(pos);
+function findClosestListItem(doc: Node, pos: number, itemType: NodeType): ListSelectionItem | null {
+    const $pos = doc.resolve(pos);
 
     for (let depth = $pos.depth; depth > 0; depth--) {
         if ($pos.node(depth).type !== itemType) {
@@ -91,13 +98,13 @@ function findClosestListItem(
     return null;
 }
 
-function collectSelectedListItems(selection: Selection, itemType: NodeType): SelectedListItem[] {
-    const items = new Map<number, SelectedListItem>();
+function collectSelectedListItems(selection: Selection, itemType: NodeType): ListSelectionItem[] {
+    const items = new Map<number, ListSelectionItem>();
     const {from, to} = selection;
     const {doc} = selection.$from;
 
     const addItemAt = (pos: number) => {
-        const item = findClosestListItem(selection, pos, itemType);
+        const item = findClosestListItem(doc, pos, itemType);
 
         if (item) {
             items.set(item.pos, item);
@@ -122,11 +129,11 @@ function collectSelectedListItems(selection: Selection, itemType: NodeType): Sel
     return Array.from(items.values()).sort((left, right) => left.pos - right.pos);
 }
 
-function createSelectedListItem(
+function createListSelectionItem(
     doc: Node,
     itemPos: number,
     itemType: NodeType,
-): SelectedListItem | null {
+): ListSelectionItem | null {
     const itemNode = doc.nodeAt(itemPos);
 
     if (!itemNode || itemNode.type !== itemType) {
@@ -153,7 +160,7 @@ function createSelectedListItem(
     return null;
 }
 
-function findNestedList(item: SelectedListItem, doc: Node, itemType: NodeType) {
+function findNestedList(item: ListSelectionItem, doc: Node, itemType: NodeType) {
     const itemNode = doc.nodeAt(item.pos);
 
     if (!itemNode) {
@@ -175,13 +182,41 @@ function findNestedList(item: SelectedListItem, doc: Node, itemType: NodeType) {
     return null;
 }
 
+function expandNestedTailSelection(
+    doc: Node,
+    itemType: NodeType,
+    itemsByPos: Map<number, ListSelectionItem>,
+    nestedList: NonNullable<ReturnType<typeof findNestedList>>,
+    selectedChildren: ListSelectionItem[],
+) {
+    let changed = false;
+    let childPos = nestedList.listPos + 1;
+
+    for (let childIndex = 0; childIndex < nestedList.listNode.childCount; childIndex++) {
+        const childNode = nestedList.listNode.child(childIndex);
+
+        if (childIndex >= selectedChildren[0].index && !itemsByPos.has(childPos)) {
+            const childItem = createListSelectionItem(doc, childPos, itemType);
+
+            if (childItem) {
+                itemsByPos.set(childPos, childItem);
+                changed = true;
+            }
+        }
+
+        childPos += childNode.nodeSize;
+    }
+
+    return changed;
+}
+
 function expandSelectedListItems(
     selection: Selection,
     itemType: NodeType,
-    selectedItems: SelectedListItem[],
-): SelectedListItem[] {
+    explicitItems: ListSelectionItem[],
+): ListSelectionItem[] {
     const {doc} = selection.$from;
-    const itemsByPos = new Map(selectedItems.map((item) => [item.pos, item]));
+    const itemsByPos = new Map(explicitItems.map((item) => [item.pos, item]));
     let changed = true;
 
     while (changed) {
@@ -190,15 +225,15 @@ function expandSelectedListItems(
         const currentItems = Array.from(itemsByPos.values()).sort(
             (left, right) => left.pos - right.pos,
         );
-        const groupedItems = new Map<number, SelectedListItem[]>();
+        const itemsByParentList = new Map<number, ListSelectionItem[]>();
 
         for (const item of currentItems) {
-            const siblingGroup = groupedItems.get(item.parentListPos) ?? [];
+            const siblingGroup = itemsByParentList.get(item.parentListPos) ?? [];
             siblingGroup.push(item);
-            groupedItems.set(item.parentListPos, siblingGroup);
+            itemsByParentList.set(item.parentListPos, siblingGroup);
         }
 
-        for (const siblings of groupedItems.values()) {
+        for (const siblings of itemsByParentList.values()) {
             siblings.sort((left, right) => left.index - right.index);
 
             for (let siblingIndex = 1; siblingIndex < siblings.length; siblingIndex++) {
@@ -217,26 +252,14 @@ function expandSelectedListItems(
                     continue;
                 }
 
-                let childPos = nestedList.listPos + 1;
-
-                for (
-                    let childIndex = 0;
-                    childIndex < nestedList.listNode.childCount;
-                    childIndex++
-                ) {
-                    const childNode = nestedList.listNode.child(childIndex);
-
-                    if (childIndex >= selectedChildren[0].index && !itemsByPos.has(childPos)) {
-                        const childItem = createSelectedListItem(doc, childPos, itemType);
-
-                        if (childItem) {
-                            itemsByPos.set(childPos, childItem);
-                            changed = true;
-                        }
-                    }
-
-                    childPos += childNode.nodeSize;
-                }
+                changed =
+                    expandNestedTailSelection(
+                        doc,
+                        itemType,
+                        itemsByPos,
+                        nestedList,
+                        selectedChildren,
+                    ) || changed;
             }
         }
     }
@@ -244,23 +267,18 @@ function expandSelectedListItems(
     return Array.from(itemsByPos.values()).sort((left, right) => left.pos - right.pos);
 }
 
-export function getSelectedListBlocks(selection: Selection, itemType: NodeType): ListBlock[] {
-    const groupedItems = new Map<number, SelectedListItem[]>();
-    const items = expandSelectedListItems(
-        selection,
-        itemType,
-        collectSelectedListItems(selection, itemType),
-    );
+function groupSelectedListItemsIntoBlocks(items: ListSelectionItem[]): ListBlock[] {
+    const itemsByParentList = new Map<number, ListSelectionItem[]>();
 
     for (const item of items) {
-        const siblingGroup = groupedItems.get(item.parentListPos) ?? [];
+        const siblingGroup = itemsByParentList.get(item.parentListPos) ?? [];
         siblingGroup.push(item);
-        groupedItems.set(item.parentListPos, siblingGroup);
+        itemsByParentList.set(item.parentListPos, siblingGroup);
     }
 
     const blocks: ListBlock[] = [];
 
-    for (const siblingGroup of groupedItems.values()) {
+    for (const siblingGroup of itemsByParentList.values()) {
         siblingGroup.sort((left, right) => left.index - right.index);
 
         let blockStart = siblingGroup[0];
@@ -291,6 +309,48 @@ export function getSelectedListBlocks(selection: Selection, itemType: NodeType):
     }
 
     return blocks.sort((left, right) => left.from - right.from);
+}
+
+export function planSelectedListBlocks(
+    selection: Selection,
+    itemType: NodeType,
+): ListSelectionPlan {
+    const explicitItems = collectSelectedListItems(selection, itemType);
+    const expandedItems = expandSelectedListItems(selection, itemType, explicitItems);
+
+    return {
+        blocks: groupSelectedListItemsIntoBlocks(expandedItems),
+        expandedItems,
+        explicitItems,
+    };
+}
+
+export function getSelectedListBlocks(selection: Selection, itemType: NodeType): ListBlock[] {
+    return planSelectedListBlocks(selection, itemType).blocks;
+}
+
+function sortListBlocks(blocks: ListBlock[], direction: MoveDirection) {
+    return [...blocks].sort((left, right) => {
+        if (direction === 'right' && left.from !== right.from) {
+            return right.from - left.from;
+        }
+
+        if (left.depth !== right.depth) {
+            return direction === 'right' ? right.depth - left.depth : left.depth - right.depth;
+        }
+
+        return right.from - left.from;
+    });
+}
+
+function createPlannedListBlockMoves(
+    selection: Selection,
+    itemType: NodeType,
+    direction: MoveDirection,
+): PlannedListBlockMove[] {
+    const {blocks} = planSelectedListBlocks(selection, itemType);
+
+    return sortListBlocks(blocks, direction).map((block) => ({block, direction}));
 }
 
 function resolveListBlockRange(
@@ -382,12 +442,12 @@ function liftTrailingNestedItems(tr: Transaction, range: NodeRange, effectiveEnd
 function getEffectiveSinkEnd(
     tr: Transaction,
     block: ListBlock,
-    blocks: ListBlock[],
+    plannedBlocks: ListBlock[],
     selectionEnd: number,
 ) {
     let effectiveEnd = tr.mapping.map(Math.min(selectionEnd, block.to), -1);
 
-    for (const nestedBlock of blocks) {
+    for (const nestedBlock of plannedBlocks) {
         if (
             nestedBlock.depth > block.depth &&
             nestedBlock.from >= block.from &&
@@ -559,55 +619,57 @@ function liftListBlock(tr: Transaction, range: NodeRange, itemType: NodeType) {
     return liftOutOfList(tr, range);
 }
 
-function sortListBlocks(blocks: ListBlock[], direction: MoveDirection) {
-    return [...blocks].sort((left, right) => {
-        if (direction === 'right' && left.from !== right.from) {
-            return right.from - left.from;
-        }
+function applyPlannedListBlockMove(
+    tr: Transaction,
+    move: PlannedListBlockMove,
+    allMoves: PlannedListBlockMove[],
+    itemType: NodeType,
+    selectionEnd: number,
+) {
+    const range = resolveListBlockRange(tr, move.block, itemType);
 
-        if (left.depth !== right.depth) {
-            return direction === 'right' ? right.depth - left.depth : left.depth - right.depth;
-        }
+    if (!range) {
+        return false;
+    }
 
-        return right.from - left.from;
-    });
+    if (move.direction === 'right') {
+        return sinkListBlock(
+            tr,
+            move.block,
+            range,
+            itemType,
+            getEffectiveSinkEnd(
+                tr,
+                move.block,
+                allMoves.map(({block}) => block),
+                selectionEnd,
+            ),
+        );
+    }
+
+    return liftListBlock(tr, range, itemType);
 }
 
 function moveSelectedListBlocks(itemType: NodeType, direction: MoveDirection): Command {
     return ({selection, tr}, dispatch) => {
-        const blocks = sortListBlocks(getSelectedListBlocks(selection, itemType), direction);
+        const moves = createPlannedListBlockMoves(selection, itemType, direction);
 
-        if (blocks.length === 0) {
+        if (moves.length === 0) {
             return false;
         }
 
         if (!dispatch) {
-            return blocks.some((block) => {
+            return moves.some(({block, direction: moveDirection}) => {
                 const range = resolveListBlockRange(tr, block, itemType);
 
-                return range && (direction === 'left' || canSinkListBlock(range, itemType));
+                return range && (moveDirection === 'left' || canSinkListBlock(range, itemType));
             });
         }
 
         let moved = false;
 
-        for (const block of blocks) {
-            const range = resolveListBlockRange(tr, block, itemType);
-
-            if (!range) {
-                continue;
-            }
-
-            moved =
-                (direction === 'right'
-                    ? sinkListBlock(
-                          tr,
-                          block,
-                          range,
-                          itemType,
-                          getEffectiveSinkEnd(tr, block, blocks, selection.to),
-                      )
-                    : liftListBlock(tr, range, itemType)) || moved;
+        for (const move of moves) {
+            moved = applyPlannedListBlockMove(tr, move, moves, itemType, selection.to) || moved;
         }
 
         if (!moved) {
