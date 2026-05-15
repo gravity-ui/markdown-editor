@@ -1,5 +1,5 @@
 import {Check} from '@gravity-ui/icons';
-import {Box, Icon, Tooltip} from '@gravity-ui/uikit';
+import {Icon, Tooltip, spacing} from '@gravity-ui/uikit';
 
 import {cn} from 'src/classname';
 import {i18n} from 'src/i18n/yfm-table';
@@ -40,22 +40,36 @@ export const CellBgPalette: React.FC<CellBgPaletteProps> = function YfmTableCell
                         placement={isTopRow ? 'top' : 'bottom'}
                         content={i18n(swatch.i18nKey)}
                     >
-                        <Box className={b('item')} spacing={{p: 1}}>
-                            <button
-                                type="button"
+                        <button
+                            type="button"
+                            className={spacing({p: 1}, b('item'))}
+                            aria-label={i18n(swatch.i18nKey)}
+                            aria-pressed={isSelected}
+                            onClick={() => handleClick(swatch.value)}
+                            // Parent Menu.Item listens for Enter/Space and re-opens its popup,
+                            // shadowing the button's native activation. Handle the keys here
+                            // and stop propagation so the swatch is actually selected.
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter' || e.key === ' ') {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    handleClick(swatch.value);
+                                }
+                            }}
+                        >
+                            <span
                                 className={b('swatch', {
                                     none: swatch.value === NO_COLOR_VALUE,
                                     color: swatch.value || undefined,
                                 })}
-                                onClick={() => handleClick(swatch.value)}
                             >
                                 {isSelected && (
                                     <span className={b('check')}>
                                         <Icon data={Check} size={16} />
                                     </span>
                                 )}
-                            </button>
-                        </Box>
+                            </span>
+                        </button>
                     </Tooltip>
                 );
             })}

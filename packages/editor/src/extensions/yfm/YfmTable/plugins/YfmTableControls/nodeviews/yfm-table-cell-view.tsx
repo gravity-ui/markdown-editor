@@ -364,8 +364,6 @@ class YfmTableCellView implements NodeView {
                 bg,
             })(this._view.state, this._view.dispatch);
         }
-
-        this._view.focus();
     };
 
     private _onColumnSetCellBg = (bg: string | null) => {
@@ -380,8 +378,6 @@ class YfmTableCellView implements NodeView {
                 bg,
             })(this._view.state, this._view.dispatch);
         }
-
-        this._view.focus();
     };
 
     private _onRowInsertBeforeClick = () => {

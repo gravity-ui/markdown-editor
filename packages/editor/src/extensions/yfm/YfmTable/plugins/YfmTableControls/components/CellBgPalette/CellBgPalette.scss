@@ -18,12 +18,31 @@ $color-map: (
     gap: 0;
 
     &__item {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        font: inherit;
         cursor: pointer;
 
+        color: inherit;
+        border: 0;
         border-radius: var(--g-border-radius-m);
+        background: transparent;
+
+        appearance: none;
 
         &:hover {
             background: var(--g-color-base-generic);
+        }
+
+        &:focus {
+            outline: none;
+        }
+
+        &:focus-visible {
+            outline: 1px solid var(--g-color-line-focus);
+            outline-offset: -1px;
         }
     }
 
