@@ -101,7 +101,7 @@ class YfmTableCellView implements NodeView {
         this._dndEnabled = opts.dndEnabled;
         this._headerRowsEnabled = opts.headerRowsEnabled;
 
-        this._isHeader = this._computeIsHeader();
+        this._isHeader = this._computeIsHeader(undefined);
         this.dom = document.createElement('td');
         this._updateDom();
 
@@ -166,14 +166,12 @@ class YfmTableCellView implements NodeView {
     }
 
     update(node: Node, decorations: readonly Decoration[]): boolean {
-        {
-            const prev = this._node;
-            this._node = node;
-            this._isHeader = this._computeIsHeader();
-            this._updateDom(prev);
-        }
+        const prev = this._node;
+        this._node = node;
 
         const cellInfo = this._getCellInfo();
+        this._isHeader = this._computeIsHeader(cellInfo);
+        this._updateDom(prev);
 
         if (cellInfo && (cellInfo.cell.row === 0 || cellInfo.cell.column === 0)) {
             const desc = cellInfo.tableDesc.base;
@@ -473,11 +471,10 @@ class YfmTableCellView implements NodeView {
         this._view.focus();
     };
 
-    private _computeIsHeader(): boolean {
+    private _computeIsHeader(cellInfo: ReturnType<YfmTableCellView['_getCellInfo']>): boolean {
         if (!this._headerRowsEnabled) return false;
-        const info = this._getCellInfo();
-        if (!info) return false;
-        return info.tableDesc.base.isHeaderRow(info.cell.row);
+        if (!cellInfo) return false;
+        return cellInfo.tableDesc.base.isHeaderRow(cellInfo.cell.row);
     }
 
     private _getCellInfo(node: Node = this._node) {
