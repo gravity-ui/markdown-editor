@@ -16,6 +16,7 @@ import {
     type ToolbarsPreset,
     type UseMarkdownEditorProps,
     type WysiwygPlaceholderOptions,
+    type YfmMods,
     logger,
     useMarkdownEditor,
     wysiwygToolbarConfigs,
@@ -92,6 +93,7 @@ export type PlaygroundProps = {
     markupParseHtmlOnPaste?: boolean;
     style?: React.CSSProperties;
     storyAdditionalControls?: Record<string, any>;
+    yfmMods?: YfmMods;
 } & Pick<UseMarkdownEditorProps, 'experimental' | 'wysiwygConfig'> &
     Pick<
         MarkdownEditorViewProps,
@@ -149,6 +151,7 @@ export const Playground = memo<PlaygroundProps>((props) => {
         markupParseHtmlOnPaste,
         style,
         storyAdditionalControls,
+        yfmMods,
     } = props;
     const [editorMode, setEditorMode] = useState<MarkdownEditorMode>(initialEditor ?? 'wysiwyg');
     const [mdRaw, setMdRaw] = useState<MarkupString>(initial || '');
@@ -246,6 +249,9 @@ export const Playground = memo<PlaygroundProps>((props) => {
                     if (wysiwygConfig?.extensions) builder.use(wysiwygConfig.extensions);
                 },
                 extensionOptions: {
+                    yfmConfigs: {
+                        mods: yfmMods,
+                    },
                     checkbox: {multiline: true},
                     commandMenu: {actions: wysiwygCommandMenuConfig ?? wCommandMenuConfig},
                     imgSize: {
@@ -255,6 +261,7 @@ export const Playground = memo<PlaygroundProps>((props) => {
                         lineWrapping: {enabled: true},
                     },
                     yfmTable: {
+                        headerRows: true,
                         table_ignoreSplittersInBlockCode: true,
                         table_ignoreSplittersInBlockMath: true,
                         table_ignoreSplittersInInlineCode: true,

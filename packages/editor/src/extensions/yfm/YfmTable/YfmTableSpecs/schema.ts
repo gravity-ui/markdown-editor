@@ -23,9 +23,25 @@ export const getSchemaSpecs = (
         content: `${YfmTableNode.Body}`,
         isolating: true,
         definingAsContext: true,
-        parseDOM: [{tag: 'table', priority: 200}],
-        toDOM() {
-            return ['table', 0];
+        attrs: {
+            [YfmTableAttr.HeaderRows]: {default: 0},
+        },
+        parseDOM: [
+            {
+                tag: 'table',
+                priority: 200,
+                getAttrs(dom) {
+                    const attr = dom.getAttribute(YfmTableAttr.HeaderRows);
+                    const fromDataAttr = attr ? Math.max(0, parseInt(attr, 10) || 0) : 0;
+                    const theadRows = dom.querySelectorAll('thead > tr').length;
+                    return {[YfmTableAttr.HeaderRows]: fromDataAttr || theadRows};
+                },
+            },
+        ],
+        toDOM(node) {
+            const headerRows = node.attrs[YfmTableAttr.HeaderRows];
+            const attrs = headerRows ? node.attrs : {};
+            return ['table', attrs, 0];
         },
         selectable: true,
         allowSelection: true,

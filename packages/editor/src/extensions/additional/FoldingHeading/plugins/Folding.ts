@@ -1,16 +1,10 @@
 import type {Node} from 'prosemirror-model';
-import {Plugin, type Transaction} from 'prosemirror-state';
-import {
-    AddMarkStep,
-    AddNodeMarkStep,
-    DocAttrStep,
-    RemoveMarkStep,
-    RemoveNodeMarkStep,
-    ReplaceStep,
-} from 'prosemirror-transform';
+import {Plugin} from 'prosemirror-state';
 // @ts-ignore // TODO: fix cjs build
 import {findChildren} from 'prosemirror-utils';
 import {Decoration, type DecorationAttrs, DecorationSet} from 'prosemirror-view';
+
+import {isNonStructuralTr} from 'src/utils/transaction';
 
 import {YfmHeadingAttr} from '../const';
 import {
@@ -37,7 +31,7 @@ export const foldingPlugin = () => {
                 if (
                     !tr.docChanged ||
                     // Optimization: ignoring trs, that don't change position of blocks in doc
-                    canSafelyIgnoreTr(tr)
+                    isNonStructuralTr(tr)
                 ) {
                     return prev.map(tr.mapping, tr.doc);
                 }
@@ -73,31 +67,6 @@ function isLeftPaddingClick(event: MouseEvent): boolean {
     if (Number.isNaN(leftPadding)) return true;
 
     return event.offsetX < leftPadding;
-}
-
-const safeSteps = [AddMarkStep, AddNodeMarkStep, DocAttrStep, RemoveMarkStep, RemoveNodeMarkStep];
-function canSafelyIgnoreTr(tr: Transaction): boolean {
-    if (isInputTr(tr) || isTextBackspaceTr(tr)) return true;
-    if (tr.steps.every((step) => safeSteps.some((SafeStep) => step instanceof SafeStep)))
-        return true;
-    return false;
-}
-
-function isInputTr(tr: Transaction): boolean {
-    if (tr.steps.length !== 1) return false;
-    const [step] = tr.steps;
-    return (
-        step instanceof ReplaceStep &&
-        step.from === step.to &&
-        step.slice.content.childCount === 1 &&
-        step.slice.content.child(0).type.name === 'text'
-    );
-}
-
-function isTextBackspaceTr(tr: Transaction): boolean {
-    if (tr.steps.length !== 1) return false;
-    const [step] = tr.steps;
-    return step instanceof ReplaceStep && step.to - step.from === 1 && step.slice.size === 0;
 }
 
 // eslint-disable-next-line complexity
