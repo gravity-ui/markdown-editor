@@ -37,6 +37,8 @@ import {
 } from '../plugins/dnd-plugin';
 import {getSelectedCellsForColumns, getSelectedCellsForRows} from '../utils';
 
+import './yfm-table-cell-view.scss';
+
 const dropCursorParams: DropCursorParams = {
     color: 'var(--g-color-line-brand)',
     width: 2,
