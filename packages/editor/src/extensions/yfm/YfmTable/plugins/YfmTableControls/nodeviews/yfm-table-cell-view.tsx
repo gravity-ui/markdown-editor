@@ -99,9 +99,8 @@ class YfmTableCellView implements NodeView {
         this._dndEnabled = opts.dndEnabled;
         this._headerRowsEnabled = opts.headerRowsEnabled;
 
-        this._isHeader = this._computeIsHeader(node);
-        this.dom = document.createElement(this._isHeader ? 'th' : 'td');
-        if (this._isHeader) this.dom.setAttribute('scope', 'col');
+        this._isHeader = this._computeIsHeader();
+        this.dom = document.createElement('td');
         this._updateDom();
 
         this.contentDOM = this.dom;
@@ -165,11 +164,10 @@ class YfmTableCellView implements NodeView {
     }
 
     update(node: Node, decorations: readonly Decoration[]): boolean {
-        if (this._computeIsHeader(node) !== this._isHeader) return false;
-
         {
             const prev = this._node;
             this._node = node;
+            this._isHeader = this._computeIsHeader();
             this._updateDom(prev);
         }
 
@@ -231,6 +229,13 @@ class YfmTableCellView implements NodeView {
     }
 
     private _updateDom(prev?: Node) {
+        if (this._isHeader) {
+            if (this.dom.getAttribute('role') !== 'columnheader')
+                this.dom.setAttribute('role', 'columnheader');
+        } else if (this.dom.hasAttribute('role')) {
+            this.dom.removeAttribute('role');
+        }
+
         if (prev?.attrs[YfmTableAttr.CellAlign]) {
             this.dom.classList.remove(prev.attrs[YfmTableAttr.CellAlign]);
         }
@@ -466,9 +471,9 @@ class YfmTableCellView implements NodeView {
         this._view.focus();
     };
 
-    private _computeIsHeader(node: Node): boolean {
+    private _computeIsHeader(): boolean {
         if (!this._headerRowsEnabled) return false;
-        const info = this._getCellInfo(node);
+        const info = this._getCellInfo();
         if (!info) return false;
         return info.tableDesc.base.isHeaderRow(info.cell.row);
     }

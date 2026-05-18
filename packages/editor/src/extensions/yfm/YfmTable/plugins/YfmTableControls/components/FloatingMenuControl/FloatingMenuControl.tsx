@@ -59,7 +59,13 @@ export const FloatingMenuControl: React.FC<FloatingMenuControlProps> =
                     text: (
                         <Flex justifyContent="space-between" alignItems="center" gap={4}>
                             {i18n(`row.header${multiple ? '.multiple' : ''}`)}
-                            <Switch size="m" checked={isRowHeader} />
+                            <Switch
+                                size="m"
+                                checked={isRowHeader}
+                                // pointerEvents:none prevents the Switch's label from generating
+                                // a synthetic click on its <input>, which would trigger action twice
+                                style={{pointerEvents: 'none'}}
+                            />
                         </Flex>
                     ),
                     iconStart: <Icon data={HeaderRow} />,
