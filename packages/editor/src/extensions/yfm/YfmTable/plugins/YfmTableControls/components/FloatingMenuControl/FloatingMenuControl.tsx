@@ -32,10 +32,8 @@ export type FloatingMenuControlProps = {
     onInsertAfterClick: () => void;
     onRemoveRangeClick: () => void;
     onRemoveTableClick: () => void;
-    canMakeRowHeader: boolean;
-    canUnsetRowHeader: boolean;
-    onMakeRowHeader: () => void;
-    onUnsetRowHeader: () => void;
+    isRowHeader?: boolean;
+    onRowHeaderChange?: (value: boolean) => void;
 };
 
 export const FloatingMenuControl: React.FC<FloatingMenuControlProps> =
@@ -51,34 +49,23 @@ export const FloatingMenuControl: React.FC<FloatingMenuControlProps> =
         onInsertAfterClick,
         onRemoveRangeClick,
         onRemoveTableClick,
-        canMakeRowHeader,
-        canUnsetRowHeader,
-        onMakeRowHeader,
-        onUnsetRowHeader,
+        isRowHeader = false,
+        onRowHeaderChange,
     }) {
         const dropdownItems = useMemo<FloatingMenuProps['dropdownItems']>(() => {
             const headerItems: DropdownMenuItem[] = [];
-            {
-                const isRowHeader = Boolean(canUnsetRowHeader);
-                const hiddenRowHeaderOption = !canMakeRowHeader && !canUnsetRowHeader;
-                if (!hiddenRowHeaderOption) {
-                    headerItems.push({
-                        text: (
-                            <Flex justifyContent="space-between" alignItems="center" gap={4}>
-                                {i18n(`row.header${multiple ? '.multiple' : ''}`)}
-                                <Switch
-                                    size="m"
-                                    checked={isRowHeader}
-                                    disabled={hiddenRowHeaderOption}
-                                />
-                            </Flex>
-                        ),
-                        iconStart: <Icon data={HeaderRow} />,
-                        qa: 'g-md-yfm-table-row-header-toggle',
-                        action: isRowHeader ? onUnsetRowHeader : onMakeRowHeader,
-                        hidden: hiddenRowHeaderOption,
-                    });
-                }
+            if (onRowHeaderChange) {
+                headerItems.push({
+                    text: (
+                        <Flex justifyContent="space-between" alignItems="center" gap={4}>
+                            {i18n(`row.header${multiple ? '.multiple' : ''}`)}
+                            <Switch size="m" checked={isRowHeader} />
+                        </Flex>
+                    ),
+                    iconStart: <Icon data={HeaderRow} />,
+                    qa: 'g-md-yfm-table-row-header-toggle',
+                    action: () => onRowHeaderChange(!isRowHeader),
+                });
             }
 
             return [
@@ -124,10 +111,8 @@ export const FloatingMenuControl: React.FC<FloatingMenuControlProps> =
         }, [
             type,
             multiple,
-            canMakeRowHeader,
-            canUnsetRowHeader,
-            onMakeRowHeader,
-            onUnsetRowHeader,
+            isRowHeader,
+            onRowHeaderChange,
             onClearCellsClick,
             onInsertAfterClick,
             onInsertBeforeClick,

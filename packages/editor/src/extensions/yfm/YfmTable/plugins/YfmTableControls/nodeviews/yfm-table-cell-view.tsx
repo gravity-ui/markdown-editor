@@ -77,8 +77,8 @@ class YfmTableCellView implements NodeView {
         columnRange: Readonly<TableColumnRange>;
         showRowControl: boolean;
         showColumnControl: boolean;
-        canMakeRowHeader: boolean;
-        canUnsetRowHeader: boolean;
+        isRowHeader: boolean;
+        canToggleRowHeader: boolean;
     };
     private _dndHandler: YfmTableDnDHandler | null;
 
@@ -133,10 +133,12 @@ class YfmTableCellView implements NodeView {
                                 onInsertAfterClick={this._onRowInsertAfterClick}
                                 onRemoveRangeClick={this._onRowRemoveRangeClick}
                                 onRemoveTableClick={this._onRemoveTableClick}
-                                canMakeRowHeader={this._cellInfo.canMakeRowHeader}
-                                canUnsetRowHeader={this._cellInfo.canUnsetRowHeader}
-                                onMakeRowHeader={this._onRowMakeHeaderClick}
-                                onUnsetRowHeader={this._onRowUnsetHeaderClick}
+                                isRowHeader={this._cellInfo.isRowHeader}
+                                onRowHeaderChange={
+                                    this._cellInfo.canToggleRowHeader
+                                        ? this._onRowHeaderChange
+                                        : undefined
+                                }
                             />
                         )}
                         {showColumnControl && (
@@ -152,10 +154,6 @@ class YfmTableCellView implements NodeView {
                                 onInsertAfterClick={this._onColumnInsertAfterClick}
                                 onRemoveRangeClick={this._onColumnRemoveRangeClick}
                                 onRemoveTableClick={this._onRemoveTableClick}
-                                canMakeRowHeader={false}
-                                canUnsetRowHeader={false}
-                                onMakeRowHeader={this._onColumnMakeHeaderClick}
-                                onUnsetRowHeader={this._onColumnUnsetHeaderClick}
                             />
                         )}
                     </ErrorLoggerBoundary>
@@ -179,6 +177,7 @@ class YfmTableCellView implements NodeView {
 
         if (cellInfo && (cellInfo.cell.row === 0 || cellInfo.cell.column === 0)) {
             const desc = cellInfo.tableDesc.base;
+            const isRowHeader = desc.isHeaderRow(cellInfo.cell.row);
             const info: YfmTableCellView['_cellInfo'] = (this._cellInfo = {
                 tablePos: cellInfo.table.pos,
                 rowIndex: cellInfo.cell.row,
@@ -187,9 +186,10 @@ class YfmTableCellView implements NodeView {
                 showColumnControl: false as boolean,
                 rowRange: desc.getRowRangeByRowIdx(cellInfo.cell.row),
                 columnRange: desc.getColumnRangeByColumnIdx(cellInfo.cell.column),
-                canMakeRowHeader:
-                    this._headerRowsEnabled && canMakeRowHeader(desc, cellInfo.cell.row),
-                canUnsetRowHeader: desc.isHeaderRow(cellInfo.cell.row),
+                isRowHeader,
+                canToggleRowHeader:
+                    this._headerRowsEnabled &&
+                    (isRowHeader || canMakeRowHeader(desc, cellInfo.cell.row)),
             });
 
             for (const deco of decorations) {
@@ -444,20 +444,12 @@ class YfmTableCellView implements NodeView {
         this._view.focus();
     }
 
-    private _onRowMakeHeaderClick = () => {
-        this._toggleHeaderRows('row-set-header', 'row-menu', (range) => range.endIdx + 1);
-    };
-
-    private _onRowUnsetHeaderClick = () => {
-        this._toggleHeaderRows('row-unset-header', 'row-menu', (range) => range.startIdx);
-    };
-
-    private _onColumnMakeHeaderClick = () => {
-        this._toggleHeaderRows('row-set-header', 'column-menu', (range) => range.endIdx + 1);
-    };
-
-    private _onColumnUnsetHeaderClick = () => {
-        this._toggleHeaderRows('row-unset-header', 'column-menu', (range) => range.startIdx);
+    private _onRowHeaderChange = (value: boolean) => {
+        this._toggleHeaderRows(
+            value ? 'row-set-header' : 'row-unset-header',
+            'row-menu',
+            (range) => (value ? range.endIdx + 1 : range.startIdx),
+        );
     };
 
     private _onRemoveTableClick = () => {

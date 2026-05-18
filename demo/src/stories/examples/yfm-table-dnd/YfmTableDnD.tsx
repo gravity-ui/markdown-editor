@@ -36,7 +36,7 @@ export const YfmTableDnDDemo = memo<YfmTableDnDDemoProps>(function YfmTableDnDDe
                 },
             },
         },
-        [mobile, dnd],
+        [mobile, dnd, headerRows],
     );
 
     return (
