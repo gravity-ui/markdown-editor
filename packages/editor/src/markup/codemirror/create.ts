@@ -14,7 +14,6 @@ import {
     type EditorViewConfig,
     type KeyBinding,
     keymap,
-    lineNumbers,
     placeholder,
     tooltips,
 } from '@codemirror/view';
@@ -55,7 +54,7 @@ import {type FileUploadHandler, FileUploadHandlerFacet} from './files-upload-fac
 import {FilesUploadPlugin} from './files-upload-plugin';
 import {gravityHighlightStyle, gravityTheme} from './gravity';
 import {MarkdownConverter} from './html-to-markdown/converters';
-import {lineHighlight} from './line-highlight';
+import {markupLineNumbers} from './line-highlight';
 import type {MarkupLineNumbersConfig} from './line-highlight/types';
 import {LoggerFacet} from './logger-facet';
 import {PairingCharactersExtension} from './pairing-chars';
@@ -333,16 +332,7 @@ export function createCodemirror(params: CreateCodemirrorParams) {
     }
 
     if (params.lineNumbers?.enabled) {
-        if (params.lineNumbers.highlightLines) {
-            extensions.push(
-                lineHighlight({
-                    initialRange: params.lineNumbers.initialSelectedLines,
-                    onLineClick: params.lineNumbers.onLineClick,
-                }),
-            );
-        } else {
-            extensions.push(lineNumbers());
-        }
+        extensions.push(markupLineNumbers(params.lineNumbers));
     }
 
     if (extraExtensions) {

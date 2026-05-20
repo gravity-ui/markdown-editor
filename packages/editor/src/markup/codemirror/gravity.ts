@@ -36,8 +36,8 @@ export const gravityTheme = EditorView.baseTheme({
         color: 'var(--g-color-text-hint)',
     },
     '.cm-lineNumbers .cm-gutterElement': {
-        padding: '0 8px 0 4px',
-        minWidth: '20px',
+        padding: '0 var(--g-spacing-2) 0 var(--g-spacing-1)',
+        minWidth: 'var(--g-spacing-5)',
     },
     '.cm-placeholder': {
         color: 'var(--g-color-text-secondary)',

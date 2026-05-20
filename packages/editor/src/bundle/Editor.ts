@@ -63,6 +63,7 @@ export interface EditorInt
     readonly directiveSyntax: DirectiveSyntaxContext;
     readonly mobile: boolean;
     readonly markupConfig: MarkupConfig;
+    readonly initialScrollToLine: number | undefined;
 
     /** @internal used in demo for dev-tools */
     readonly _wysiwygView?: PMEditorView;

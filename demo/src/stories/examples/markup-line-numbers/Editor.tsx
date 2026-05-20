@@ -114,7 +114,10 @@ export const MarkupLineNumbersEditor = memo<MarkupLineNumbersEditorProps>(
         const markupLineNumbers: MarkupLineNumbersConfig | undefined = lineNumbers
             ? {
                   ...lineNumbers,
-                  onLineClick: (line) => setLastClickedLine(line),
+                  onLineClick: (line) => {
+                      lineNumbers.onLineClick?.(line);
+                      setLastClickedLine(line);
+                  },
               }
             : undefined;
 
