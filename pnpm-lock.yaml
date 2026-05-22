@@ -1710,6 +1710,7 @@ packages:
   '@diplodoc/transform@4.75.1':
     resolution: {integrity: sha512-/GTGBtgd3UGnCHVmVFZaV8B+W3aBJp9ELQOO9kb6QlBz/fgw1IH/0/8crEW65lKj7vK1SXYyMZ0YN+cxU3zbpw==}
     engines: {npm: '>=11.5.1'}
+    deprecated: tables error
     peerDependencies:
       highlight.js: ^10.0.3 || ^11
     peerDependenciesMeta:
@@ -3140,6 +3141,9 @@ packages:
 
   '@types/estree@1.0.8':
     resolution: {integrity: sha512-dWHzHa2WqEXI/O1E9OjrocMTKJl2mSrEolh1Iomrv6U+JuNwaHXsXx9bLu5gG7BUWFIN0skIQJQ/L1rIex4X6w==}
+
+  '@types/estree@1.0.9':
+    resolution: {integrity: sha512-GhdPgy1el4/ImP05X05Uw4cw2/M93BCUmnEvWZNStlCzEKME4Fkk+YpoA5OiHNQmoS7Cafb8Xa3Pya8m1Qrzeg==}
 
   '@types/expect@1.20.4':
     resolution: {integrity: sha512-Q5Vn3yjTDyCMV50TB6VRIbQNxSE4OmZR86VSbGaNpfUolm0iePBB4KdEEHmxoY5sT2+2DIvXW0rvMDP2nHZ4Mg==}
@@ -8236,8 +8240,8 @@ packages:
     resolution: {integrity: sha512-508e6IcKLrhxKdBbcA2b4KQZlLVp2+J5UwQ6F7Drckkc5N9ZJwFa4TgWtsww9UG8fGHbm6gbV19TdM5pQ4GaIA==}
     hasBin: true
 
-  uuid@11.1.0:
-    resolution: {integrity: sha512-0/A9rDy9P7cJ+8w1c9WD9V//9Wj15Ce2MPz8Ri6032usz+NfePxx5AcN3bN+r6ZL6jEo066/yNYB3tn4pQEx+A==}
+  uuid@11.1.1:
+    resolution: {integrity: sha512-vIYxrBCC/N/K+Js3qSN88go7kIfNPssr/hHCesKCQNAjmgvYS2oqr69kIufEG+O4+PfezOH4EbIeHCfFov8ZgQ==}
     hasBin: true
 
   uuid@9.0.1:
@@ -11259,6 +11263,8 @@ snapshots:
   '@types/estree@1.0.6': {}
 
   '@types/estree@1.0.8': {}
+
+  '@types/estree@1.0.9': {}
 
   '@types/expect@1.20.4': {}
 
@@ -14355,7 +14361,7 @@ snapshots:
 
   is-reference@3.0.3:
     dependencies:
-      '@types/estree': 1.0.8
+      '@types/estree': 1.0.9
 
   is-regex@1.2.1:
     dependencies:
@@ -15276,7 +15282,7 @@ snapshots:
       roughjs: 4.6.6
       stylis: 4.3.6
       ts-dedent: 2.2.0
-      uuid: 11.1.0
+      uuid: 11.1.1
 
   micromatch@4.0.8:
     dependencies:
@@ -16927,7 +16933,7 @@ snapshots:
     dependencies:
       '@ampproject/remapping': 2.3.0
       '@jridgewell/sourcemap-codec': 1.5.5
-      '@types/estree': 1.0.8
+      '@types/estree': 1.0.9
       acorn: 8.16.0
       acorn-typescript: 1.4.13(acorn@8.16.0)
       aria-query: 5.3.2
@@ -17308,7 +17314,7 @@ snapshots:
 
   uuid@11.0.5: {}
 
-  uuid@11.1.0: {}
+  uuid@11.1.1: {}
 
   uuid@9.0.1: {}
 
