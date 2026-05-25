@@ -9,6 +9,7 @@ export const parserTokens: Record<YfmTableNode, ParserToken> = {
         getAttrs: (token) => {
             return {
                 [YfmTableAttr.HeaderRows]: token.meta?.headerRows || 0,
+                [YfmTableAttr.Colwidths]: token.meta?.colwidths || null,
             };
         },
     },

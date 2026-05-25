@@ -7,7 +7,10 @@ import {
     TableDesc,
 } from 'src/table-utils/table-desc';
 
-import {yfmTableCellType} from '../../../YfmTableSpecs';
+import {YfmTableAttr, yfmTableCellType} from '../../../YfmTableSpecs';
+import {formatColwidths, parseColwidths} from '../utils';
+
+const DEFAULT_INSERTED_COLUMN_WIDTH = '100px';
 
 export type InsertEmptyColumnParams = {
     tablePos: number;
@@ -59,6 +62,18 @@ export const insertEmptyColumn = (params: InsertEmptyColumnParams): Command => {
             for (const pos of posToInsert) {
                 tr.insert(tr.mapping.map(pos), td.createAndFill()!);
             }
+
+            const colwidths = table.attrs[YfmTableAttr.Colwidths] as string | null;
+            if (colwidths) {
+                const widths = parseColwidths(colwidths, tableDesc.cols);
+                widths.splice(colIdx, 0, DEFAULT_INSERTED_COLUMN_WIDTH);
+                tr.setNodeAttribute(
+                    params.tablePos,
+                    YfmTableAttr.Colwidths,
+                    formatColwidths(widths),
+                );
+            }
+
             tr.setSelection(TextSelection.near(tr.doc.resolve(posToInsert[0]), 1));
             dispatch(tr.scrollIntoView());
         }

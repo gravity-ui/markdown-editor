@@ -1,6 +1,7 @@
 import isNumber from 'is-number';
 
 import type {SerializerNodeToken} from '../../../../core';
+import {isAllAuto} from '../plugins/YfmTableControls/utils';
 
 import {YfmTableAttr, YfmTableNode} from './const';
 
@@ -10,9 +11,17 @@ export const serializerTokens: Record<YfmTableNode, SerializerNodeToken> = {
         state.write('#|');
         state.ensureNewLine();
 
+        const options: string[] = [];
         const headerRows = Number(node.attrs[YfmTableAttr.HeaderRows]) || 0;
         if (headerRows > 0) {
-            state.write(`|:{header-rows="${headerRows}"}`);
+            options.push(`header-rows="${headerRows}"`);
+        }
+        const colwidths = node.attrs[YfmTableAttr.Colwidths] as string | null;
+        if (colwidths && !isAllAuto(colwidths)) {
+            options.push(`colwidths="${colwidths}"`);
+        }
+        if (options.length > 0) {
+            state.write(`|:{${options.join(' ')}}`);
             state.ensureNewLine();
         }
 

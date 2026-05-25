@@ -24,6 +24,13 @@ export function formatColwidths(arr: string[]): string {
     return arr.join(' ');
 }
 
+export function isAllAuto(value: string): boolean {
+    return value
+        .split(/\s+/)
+        .filter(Boolean)
+        .every((token) => token === 'auto');
+}
+
 /**
  * Measure real px width of each column by finding the first real cell in each column
  * (skipping virtual cells from colspan) and reading its bounding rect.

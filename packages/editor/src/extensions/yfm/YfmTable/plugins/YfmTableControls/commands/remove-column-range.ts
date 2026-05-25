@@ -1,15 +1,18 @@
-import {Fragment} from '#pm/model';
+import {Fragment, type Node} from '#pm/model';
 import type {Command, Transaction} from '#pm/state';
 import {
     type CellPos,
     type RealCellPos,
     type TableCellRealDesc,
+    type TableColumnRange,
     TableDesc,
     type TableDescBinded,
     type VirtualCellPos,
 } from 'src/table-utils/table-desc';
 
+import {YfmTableAttr} from '../../../YfmTableSpecs/const';
 import {yfmTableCellType} from '../../../YfmTableSpecs/utils';
+import {formatColwidths, isAllAuto, parseColwidths} from '../utils';
 
 export type RemoveColumnRangeParams = {
     tablePos: number;
@@ -74,6 +77,7 @@ export const removeColumnRange = (params: RemoveColumnRangeParams): Command => {
             }
 
             updateColspan(tr, tableDesc, diffColspan);
+            updateColwidths(tr, table, params.tablePos, tableDesc.cols, range);
 
             dispatch(tr);
         }
@@ -108,6 +112,27 @@ function updateColspan(
             );
         }
     }
+}
+
+function updateColwidths(
+    tr: Transaction,
+    table: Node,
+    tablePos: number,
+    cols: number,
+    range: TableColumnRange,
+) {
+    const colwidths = table.attrs[YfmTableAttr.Colwidths] as string | null;
+    if (!colwidths) return;
+
+    const widths = parseColwidths(colwidths, cols);
+    widths.splice(range.startIdx, range.endIdx - range.startIdx + 1);
+    const newColwidths = formatColwidths(widths);
+
+    tr.setNodeAttribute(
+        tablePos,
+        YfmTableAttr.Colwidths,
+        isAllAuto(newColwidths) ? null : newColwidths,
+    );
 }
 
 function keys<O extends object>(obj: O): (keyof O)[] {
