@@ -1,9 +1,9 @@
-import {memo, useEffect, useMemo, useRef, useState} from 'react';
+import {memo, useMemo, useRef, useState} from 'react';
 
 import type {VirtualElement} from '@floating-ui/react';
-import {useEffectOnce} from 'react-use';
 
 import {useRafThrottle} from '../../hooks/use-raf-throttle';
+import {useScrollAncestorsListener} from '../../hooks/use-scroll-ancestors-listener';
 import {
     FloatingPlusButton,
     type FloatingPlusButtonProps,
@@ -58,31 +58,15 @@ export const FloatingPlusControl = memo<FloatingPlusControlProps>(
         const [visible, setVisible] = useState(() => shouldBeVisible(type, cellElem, tableElem));
         const buttonRef = useRef<FloatingPlusButtonRef>(null);
 
-        const updateVisibility = () => {
-            const newVisible = shouldBeVisible(type, cellElem, tableElem);
-            if (visible !== newVisible) setVisible(newVisible);
-        };
-
+        // autoUpdate inside FloatingPopup watches overflow ancestors of contextElement (tableElem),
+        // but NOT tableElem itself — which has display:inline-block + overflow:auto in diplodoc styles.
+        // useScrollAncestorsListener explicitly includes tableElem in the subscription list.
         const onChange = useRafThrottle(() => {
             buttonRef.current?.forceUpdate();
-            updateVisibility();
+            setVisible(shouldBeVisible(type, cellElem, tableElem));
         });
 
-        // Update after first render
-        useEffectOnce(updateVisibility);
-
-        useEffect(() => {
-            if (type !== 'column') return undefined;
-
-            const observer = new ResizeObserver(onChange);
-            observer.observe(tableElem);
-            tableElem.addEventListener('scroll', onChange);
-
-            return () => {
-                observer.unobserve(tableElem);
-                tableElem.removeEventListener('scroll', onChange);
-            };
-        }, [tableElem, onChange, type]);
+        useScrollAncestorsListener(tableElem, onChange);
 
         return (
             <FloatingPlusButton

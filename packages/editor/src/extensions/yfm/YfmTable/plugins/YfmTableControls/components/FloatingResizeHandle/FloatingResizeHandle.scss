@@ -1,0 +1,42 @@
+.g-md-yfm-table-resize-handle {
+    position: relative;
+
+    width: 8px;
+    height: 1px; // Height is set by segments absolutely
+
+    cursor: col-resize;
+    pointer-events: none;
+
+    transform: translateX(-50%);
+
+    &__segment {
+        position: absolute;
+        left: 0;
+
+        width: 100%;
+
+        cursor: col-resize;
+        pointer-events: all;
+
+        &::before {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 50%;
+
+            width: 2px;
+
+            content: '';
+
+            background-color: transparent;
+
+            transition: background-color 0.1s ease;
+            transform: translateX(-50%);
+        }
+
+        &:hover::before,
+        .g-md-yfm-table-resize-handle_active &::before {
+            background-color: var(--g-color-line-generic-accent-hover, rgba(0, 0, 0, 0.3));
+        }
+    }
+}

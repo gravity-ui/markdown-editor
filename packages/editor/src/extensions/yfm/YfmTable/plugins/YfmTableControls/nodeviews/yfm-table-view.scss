@@ -1,4 +1,44 @@
+.yfm .g-md-yfm-table-wrapper {
+    display: inline-block;
+    overflow: auto;
+
+    width: auto;
+    max-width: 100%;
+    margin-block: var(--yfm-text-block-margin-block, 0 15px);
+    margin-inline: var(--yfm-text-block-margin-inline, 0);
+
+    border: 1px solid var(--yfm-color-table-border, var(--yfm-color-table-border-private));
+    border-radius: 8px;
+    background: var(--g-color-base-background);
+    scrollbar-width: thin;
+}
+
 .yfm table.g-md-yfm-table-view {
     --yfm-color-border: var(--g-color-line-generic);
-    background: var(--g-color-base-background);
+
+    // Override diplodoc .yfm table styles — the wrapper owns these now.
+    display: table;
+    overflow: visible;
+
+    width: auto;
+    max-width: none;
+    margin-block: 0;
+    margin-inline: 0;
+
+    table-layout: fixed;
+
+    border: none;
+    border-radius: 0;
+    background: transparent;
+}
+
+// While a resize handle is being dragged, disable pointer interactions on all
+// other floating table controls (other resize handles, plus buttons, menus).
+// Uses :root:has() so it works regardless of which container floating popups
+// are portaled into. Excludes the floating-popup that contains the active
+// handle, so the active handle itself stays interactive.
+
+:root:has(.g-md-yfm-table-resize-handle_active)
+    .g-md-yfm-table-floating-popup:not(:has(.g-md-yfm-table-resize-handle_active)) {
+    pointer-events: none;
 }

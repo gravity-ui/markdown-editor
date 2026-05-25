@@ -25,6 +25,7 @@ export const getSchemaSpecs = (
         definingAsContext: true,
         attrs: {
             [YfmTableAttr.HeaderRows]: {default: 0},
+            [YfmTableAttr.Colwidths]: {default: null},
         },
         parseDOM: [
             {

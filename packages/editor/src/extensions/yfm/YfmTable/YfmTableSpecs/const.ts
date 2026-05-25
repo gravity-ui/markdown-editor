@@ -10,4 +10,5 @@ export enum YfmTableAttr {
     Rowspan = 'rowspan',
     CellAlign = 'data-cell-align',
     HeaderRows = 'data-header-rows',
+    Colwidths = 'colwidths',
 }

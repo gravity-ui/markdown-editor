@@ -9,7 +9,7 @@ import {parserTokens} from './parser';
 import {type YfmTableSchemaOptions, getSchemaSpecs} from './schema';
 import {serializerTokens} from './serializer';
 
-export {YfmTableNode} from './const';
+export {YfmTableNode, YfmTableAttr} from './const';
 export {yfmTableType, yfmTableBodyType, yfmTableRowType, yfmTableCellType} from './utils';
 
 export type YfmTableSpecsOptions = YfmTableSchemaOptions &
