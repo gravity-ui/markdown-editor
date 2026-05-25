@@ -12,6 +12,8 @@ export type SetCellBgParams = {
 
 export const setCellBg = (params: SetCellBgParams): Command => {
     return (state, dispatch) => {
+        if (!params.rows && !params.cols) return false;
+
         const table = state.doc.nodeAt(params.tablePos);
         const tableDesc = table && TableDesc.create(table)?.bind(params.tablePos);
         if (!tableDesc) return false;

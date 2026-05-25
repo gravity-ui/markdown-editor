@@ -1,5 +1,7 @@
+export const NO_COLOR_VALUE = '';
+
 export const CELL_BG_SWATCHES = [
-    {value: '', i18nKey: 'cells.bg.none'},
+    {value: NO_COLOR_VALUE, i18nKey: 'cells.bg.none'},
     {value: 'yellow-light', i18nKey: 'cells.bg.yellow-light'},
     {value: 'red-light', i18nKey: 'cells.bg.red-light'},
     {value: 'purple-light', i18nKey: 'cells.bg.purple-light'},

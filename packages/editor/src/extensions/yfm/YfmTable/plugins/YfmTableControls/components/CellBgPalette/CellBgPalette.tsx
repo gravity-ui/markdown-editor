@@ -4,13 +4,11 @@ import {Icon, Tooltip, spacing} from '@gravity-ui/uikit';
 import {cn} from 'src/classname';
 import {i18n} from 'src/i18n/yfm-table';
 
-import {CELL_BG_SWATCHES} from './colors';
+import {CELL_BG_SWATCHES, NO_COLOR_VALUE} from './colors';
 
 import './CellBgPalette.scss';
 
 const b = cn('yfm-table-cell-bg-palette');
-
-const NO_COLOR_VALUE = '';
 
 export type CellBgPaletteProps = {
     value?: string | null;
