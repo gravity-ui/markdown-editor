@@ -9,6 +9,13 @@ export const serializerTokens: Record<YfmTableNode, SerializerNodeToken> = {
         state.ensureNewLine();
         state.write('#|');
         state.ensureNewLine();
+
+        const headerRows = Number(node.attrs[YfmTableAttr.HeaderRows]) || 0;
+        if (headerRows > 0) {
+            state.write(`|:{header-rows="${headerRows}"}`);
+            state.ensureNewLine();
+        }
+
         state.renderContent(node);
         state.write('|#');
         state.ensureNewLine();

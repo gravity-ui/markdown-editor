@@ -10,7 +10,8 @@ type YfmTableActionKind =
     | 'add-column-before'
     | 'add-column-after'
     | 'add-row-before'
-    | 'add-row-after';
+    | 'add-row-after'
+    | 'header-toggle';
 
 type MarkdownEditorToolbarsLocators = Record<
     'main' | 'additional' | 'selection' | 'commandMenu',
@@ -167,11 +168,16 @@ class YfmTable {
             'remove-column': page.getByTestId('g-md-yfm-table-action-remove-column'),
             'remove-row': page.getByTestId('g-md-yfm-table-action-remove-row'),
             'remove-table': page.getByTestId('g-md-yfm-table-action-remove-table'),
+            'header-toggle': page.getByTestId('g-md-yfm-table-row-header-toggle'),
         };
     }
 
     getMenuLocator(type: YfmTableCellMenuType) {
         return this.cellMenus[type];
+    }
+
+    getCellActionLocator(menuType: YfmTableCellMenuType, kind: YfmTableActionKind) {
+        return this.cellMenus[menuType].locator(this.cellMenuActions[kind]);
     }
 
     async getTable(locator?: Locator) {
@@ -183,7 +189,9 @@ class YfmTable {
     }
 
     async getCells(table?: Locator) {
-        return (table || (await this.getTable())).first().locator('> tbody > tr > td');
+        return (table || (await this.getTable()))
+            .first()
+            .locator('> tbody > tr > th, > tbody > tr > td');
     }
 
     async getRowButtons(_table?: Locator) {

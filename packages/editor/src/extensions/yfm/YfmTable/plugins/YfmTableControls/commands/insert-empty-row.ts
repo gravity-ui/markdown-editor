@@ -4,6 +4,7 @@ import {isEqual, range, uniqWith} from 'src/lodash';
 import {type RealCellPos, type TableCellRealDesc, TableDesc} from 'src/table-utils/table-desc';
 
 import {yfmTableCellType, yfmTableRowType} from '../../../YfmTableSpecs';
+import {YfmTableAttr} from '../../../YfmTableSpecs/const';
 
 export type InsertEmptyRowParams = {
     tablePos: number;
@@ -48,6 +49,13 @@ export const insertEmptyRow = (params: InsertEmptyRowParams): Command => {
             }
             tr.insert(posToInsert, createSimpleRow(state.schema, newCellsCount));
             tr.setSelection(TextSelection.near(tr.doc.resolve(posToInsert), 1));
+
+            // If the new row is inserted inside the header-rows block, shrink the block
+            // so the new row and everything below it stop being header rows.
+            if (tableDesc.base.isHeaderRow(rowIdx)) {
+                tr.setNodeAttribute(params.tablePos, YfmTableAttr.HeaderRows, rowIdx);
+            }
+
             dispatch(tr.scrollIntoView());
         }
 
