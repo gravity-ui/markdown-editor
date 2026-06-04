@@ -31,6 +31,14 @@ export type YfmTableOptions = YfmTableSpecsOptions & {
      * @default true
      */
     dnd?: boolean;
+    /**
+     * Enables header rows functionality in table (toggle row as header, visual decoration).
+     * The `controls` property must also be `true`.
+     *
+     * Available with @diplodoc/transform v4.75.0 or higher.
+     * @default false
+     */
+    headerRows?: boolean;
 };
 
 export const YfmTable: ExtensionWithOptions<YfmTableOptions> = (builder, options) => {
@@ -47,7 +55,12 @@ export const YfmTable: ExtensionWithOptions<YfmTableOptions> = (builder, options
     builder.addPlugin(yfmTableTransformPastedPlugin);
 
     if (options.controls !== false) {
-        builder.addPlugin(yfmTableControlsPlugins({dndEnabled: options.dnd !== false}));
+        builder.addPlugin(
+            yfmTableControlsPlugins({
+                dndEnabled: options.dnd !== false,
+                headerRowsEnabled: options.headerRows === true,
+            }),
+        );
     }
 };
 

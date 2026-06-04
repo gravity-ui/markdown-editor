@@ -15,6 +15,7 @@
     "playwright:clear": "rm -rf ./tests/playwright/.cache",
     "playwright:report": "playwright show-report playwright-report",
     "playwright:docker": "./scripts/playwright-docker.sh test",
+    "playwright:docker:ui": "./scripts/playwright-docker.sh test --ui-port 8082 --ui-host 0.0.0.0",
     "playwright:docker:update": "./scripts/playwright-docker.sh update",
     "playwright:docker:clear": "./scripts/playwright-docker.sh clear",
     "playwright:docker:report": "playwright show-report playwright-report-docker"

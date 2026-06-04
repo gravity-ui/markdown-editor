@@ -3,6 +3,8 @@
   "column.add.after": "Добавить столбец после",
   "column.remove": "Удалить столбец",
   "column.remove.multiple": "Удалить столбцы",
+  "row.header": "Заглавная строка",
+  "row.header.multiple": "Заглавные строки",
   "row.add.before": "Добавить строку до",
   "row.add.after": "Добавить строку после",
   "row.remove": "Удалить строку",

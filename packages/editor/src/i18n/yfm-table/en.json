@@ -3,6 +3,8 @@
   "column.add.after": "Add column after",
   "column.remove": "Remove column",
   "column.remove.multiple": "Remove columns",
+  "row.header": "Header row",
+  "row.header.multiple": "Header rows",
   "row.add.before": "Add row before",
   "row.add.after": "Add row after",
   "row.remove": "Remove row",
