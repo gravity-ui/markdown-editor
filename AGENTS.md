@@ -46,6 +46,7 @@ Project docs live in `docs/`. Read the relevant file before working on the corre
 |--------------------------|------|
 | Visual / Playwright tests | [`docs/how-to-add-visual-test.md`](docs/how-to-add-visual-test.md) |
 | Creating a new extension | [`docs/how-to-create-extension.md`](docs/how-to-create-extension.md) |
+| Generating extension docs | [`docs/how-to-generate-extension-docs.md`](docs/how-to-generate-extension-docs.md) |
 | Adding Markdown text bindings | [`docs/how-to-add-text-binding-extension-in-markdown.md`](docs/how-to-add-text-binding-extension-in-markdown.md) |
 | Customizing toolbars | [`docs/how-to-customize-toolbars.md`](docs/how-to-customize-toolbars.md) |
 | Customizing the editor | [`docs/how-to-customize-the-editor.md`](docs/how-to-customize-the-editor.md) |
