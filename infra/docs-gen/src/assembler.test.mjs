@@ -28,9 +28,15 @@ function createAssemblerFixture() {
 
     writeFixtureFile(
         join(docsGenDir, 'raw', 'Bold.md'),
-        ['---', 'extension: Bold', 'version: 1.2.3', 'category: markdown', '---', '', '# Bold'].join(
-            '\n',
-        ),
+        [
+            '---',
+            'extension: Bold',
+            'version: 1.2.3',
+            'category: markdown',
+            '---',
+            '',
+            '# Bold',
+        ].join('\n'),
     );
     writeFixtureFile(
         join(docsGenDir, 'extensions.json'),
@@ -48,9 +54,13 @@ function createAssemblerFixture() {
     writeFixtureFile(join(docsSrcDir, 'index.md'), '# Markdown Editor\n');
     writeFixtureFile(
         join(docsSrcDir, 'toc.yaml'),
-        ['title: Markdown Editor', 'href: index.md', 'items:', '  - name: Overview', '    href: index.md'].join(
-            '\n',
-        ),
+        [
+            'title: Markdown Editor',
+            'href: index.md',
+            'items:',
+            '  - name: Overview',
+            '    href: index.md',
+        ].join('\n'),
     );
 
     return {docsGenDir, docsSrcDir};
@@ -60,19 +70,22 @@ test('assemble fails when enriched docs are missing for publishable extensions',
     const {docsGenDir, docsSrcDir} = createAssemblerFixture();
     const assembler = new Assembler(docsGenDir, docsSrcDir);
 
-    assert.throws(
-        () => assembler.run(),
-        /Missing enriched docs for publishable extensions: Bold/,
-    );
+    assert.throws(() => assembler.run(), /Missing enriched docs for publishable extensions: Bold/);
 });
 
 test('assemble fails when enriched docs still contain AI markers', () => {
     const {docsGenDir, docsSrcDir} = createAssemblerFixture();
     writeFixtureFile(
         join(docsGenDir, 'enriched', 'Bold.md'),
-        ['---', 'extension: Bold', 'version: 1.2.3', 'category: markdown', '---', '', '<!-- AI:NEEDED:description -->'].join(
-            '\n',
-        ),
+        [
+            '---',
+            'extension: Bold',
+            'version: 1.2.3',
+            'category: markdown',
+            '---',
+            '',
+            '<!-- AI:NEEDED:description -->',
+        ].join('\n'),
     );
 
     const assembler = new Assembler(docsGenDir, docsSrcDir);
@@ -86,15 +99,27 @@ test('assemble fails when orphan enriched docs are present', () => {
     const {docsGenDir, docsSrcDir} = createAssemblerFixture();
     writeFixtureFile(
         join(docsGenDir, 'enriched', 'Bold.md'),
-        ['---', 'extension: Bold', 'version: 1.2.3', 'category: markdown', '---', '', 'Bold description.'].join(
-            '\n',
-        ),
+        [
+            '---',
+            'extension: Bold',
+            'version: 1.2.3',
+            'category: markdown',
+            '---',
+            '',
+            'Bold description.',
+        ].join('\n'),
     );
     writeFixtureFile(
         join(docsGenDir, 'enriched', 'Ghost.md'),
-        ['---', 'extension: Ghost', 'version: 1.2.3', 'category: markdown', '---', '', 'Ghost description.'].join(
-            '\n',
-        ),
+        [
+            '---',
+            'extension: Ghost',
+            'version: 1.2.3',
+            'category: markdown',
+            '---',
+            '',
+            'Ghost description.',
+        ].join('\n'),
     );
 
     const assembler = new Assembler(docsGenDir, docsSrcDir);
@@ -128,6 +153,12 @@ test('assemble removes stale extension pages before writing refreshed output', (
 
     assert.equal(existsSync(join(docsSrcDir, 'extensions', 'stale.md')), false);
     assert.equal(existsSync(join(docsSrcDir, 'extensions', 'bold.md')), true);
-    assert.match(readFileSync(join(docsSrcDir, 'extensions', 'bold.md'), 'utf-8'), /Bold description\./);
-    assert.match(readFileSync(join(docsSrcDir, 'extensions-index.md'), 'utf-8'), /\[Bold\]\(extensions\/bold\.md\)/);
+    assert.match(
+        readFileSync(join(docsSrcDir, 'extensions', 'bold.md'), 'utf-8'),
+        /Bold description\./,
+    );
+    assert.match(
+        readFileSync(join(docsSrcDir, 'extensions-index.md'), 'utf-8'),
+        /\[Bold\]\(extensions\/bold\.md\)/,
+    );
 });

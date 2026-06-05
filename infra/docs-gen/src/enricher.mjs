@@ -97,10 +97,10 @@ export class Enricher {
         if (!existsSync(responsesDir)) {
             logger.info(`No responses directory found at ${responsesDir}`);
             logger.info('To use manual enrichment:');
-            logger.info('  1. Run: pnpm docs:enrich:prompts');
+            logger.info('  1. Run: docs-gen enrich --mode prompts');
             logger.info(`  2. Process prompts from ${this.promptsDir}/`);
             logger.info(`  3. Save responses in ${responsesDir}/ExtName.json`);
-            logger.info('  4. Run: pnpm docs:enrich:apply');
+            logger.info('  4. Run: docs-gen enrich --mode apply');
             return 0;
         }
 

@@ -36,7 +36,9 @@ test('extractKeymaps merges returned object literals with spread bindings', () =
 });
 
 test('extractKeymaps captures static keymaps from the Lists extension', () => {
-    const content = readRepoFile('../../../packages/editor/src/extensions/markdown/Lists/index.ts');
+    const content = readRepoFile(
+        '../../../../packages/editor/src/extensions/markdown/Lists/index.ts',
+    );
 
     assert.deepEqual(extractKeymaps(content), [
         'Tab',
@@ -71,13 +73,13 @@ test('extractActions ignores non-builder addAction calls (tr, services)', () => 
 
 test('extractKeymaps captures static bindings from block-body callbacks and ignores dynamic ones', () => {
     const headingContent = readRepoFile(
-        '../../../packages/editor/src/extensions/markdown/Heading/index.ts',
+        '../../../../packages/editor/src/extensions/markdown/Heading/index.ts',
     );
     const historyContent = readRepoFile(
-        '../../../packages/editor/src/extensions/behavior/History/index.ts',
+        '../../../../packages/editor/src/extensions/behavior/History/index.ts',
     );
     const editorModeContent = readRepoFile(
-        '../../../packages/editor/src/extensions/behavior/EditorModeKeymap/index.ts',
+        '../../../../packages/editor/src/extensions/behavior/EditorModeKeymap/index.ts',
     );
 
     assert.deepEqual(extractKeymaps(headingContent), ['Backspace']);

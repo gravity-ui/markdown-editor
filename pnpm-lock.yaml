@@ -301,6 +301,8 @@ importers:
         specifier: ^5.106.2
         version: 5.106.2(esbuild@0.27.3)
 
+  infra/docs-gen: {}
+
   infra/gulp-tasks:
     dependencies:
       '@gravity-ui/gulp-utils':

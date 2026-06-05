@@ -1,4 +1,10 @@
-const internalExtensions = ['BaseInputRules', 'BaseKeymap', 'BaseStyles', 'ReactRenderer', 'SharedState'];
+const internalExtensions = [
+    'BaseInputRules',
+    'BaseKeymap',
+    'BaseStyles',
+    'ReactRenderer',
+    'SharedState',
+];
 
 /**
  * Configuration for the extension documentation generation pipeline

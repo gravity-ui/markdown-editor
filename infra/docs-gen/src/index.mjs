@@ -1,3 +1,6 @@
+#!/usr/bin/env node
+import {existsSync} from 'node:fs';
+import {dirname, isAbsolute, join} from 'node:path';
 import process from 'node:process';
 import {fileURLToPath} from 'node:url';
 
@@ -11,6 +14,19 @@ const EDITOR_PKG = 'packages/editor';
 const DOCS_DIR = 'docs';
 const DOCS_SRC_DIR = 'docs-src';
 const DOCS_GEN_DIR = 'docs-gen';
+
+export function findRepoRoot(startDir = dirname(fileURLToPath(import.meta.url))) {
+    let dir = startDir;
+    while (dir !== dirname(dir)) {
+        if (existsSync(join(dir, 'pnpm-workspace.yaml'))) return dir;
+        dir = dirname(dir);
+    }
+    throw new Error('Could not locate monorepo root (pnpm-workspace.yaml not found)');
+}
+
+function resolveFromRoot(rootDir, path) {
+    return isAbsolute(path) ? path : join(rootDir, path);
+}
 
 /**
  * Parses CLI arguments into a command and options object
@@ -35,10 +51,11 @@ export function parseArgs(args = process.argv.slice(2)) {
 }
 
 export function createCommandHandlers(paths = {}) {
-    const editorPkg = paths.editorPkg || EDITOR_PKG;
-    const docsDir = paths.docsDir || DOCS_DIR;
-    const docsSrcDir = paths.docsSrcDir || DOCS_SRC_DIR;
-    const docsGenDir = paths.docsGenDir || DOCS_GEN_DIR;
+    const rootDir = paths.rootDir || process.cwd();
+    const editorPkg = resolveFromRoot(rootDir, paths.editorPkg || EDITOR_PKG);
+    const docsDir = resolveFromRoot(rootDir, paths.docsDir || DOCS_DIR);
+    const docsSrcDir = resolveFromRoot(rootDir, paths.docsSrcDir || DOCS_SRC_DIR);
+    const docsGenDir = resolveFromRoot(rootDir, paths.docsGenDir || DOCS_GEN_DIR);
 
     function runGenerate() {
         new Generator(docsDir, docsSrcDir).run();
@@ -59,7 +76,7 @@ export function createCommandHandlers(paths = {}) {
                 logger.info('\nNext steps:');
                 logger.info('  - Process prompts through your AI tool or agent');
                 logger.info(`  - Save responses in ${docsGenDir}/responses/ExtName.json`);
-                logger.info('  - Run: pnpm docs:enrich:apply');
+                logger.info('  - Run: docs-gen enrich --mode apply');
                 break;
             }
             case 'apply': {
@@ -93,7 +110,8 @@ export function createCommandHandlers(paths = {}) {
 
 export function main(args = process.argv.slice(2), paths = {}) {
     const {command, opts} = parseArgs(args);
-    const commands = createCommandHandlers(paths);
+    const rootDir = paths.rootDir || findRepoRoot();
+    const commands = createCommandHandlers({...paths, rootDir});
 
     const handler = commands[command];
     if (!handler) {

@@ -35,6 +35,7 @@ Write 2-4 bullet points: when would a developer include this extension? One conc
 ## How to find source code
 
 Each extension IR entry has `dirPath` — relative path to the extension directory. Read the key files there:
+
 - `index.ts` — main extension wiring (actions, keymaps, plugins)
 - `*Specs/index.ts` — schema, parser, serializer definitions
 - `*Specs/const.ts` — node/mark names, attribute enums
@@ -46,7 +47,8 @@ Take the raw file content, replace each `<!-- AI:NEEDED:section -->` with your t
 
 ## Publish requirement
 
-`docs:assemble`, `docs:build`, and `ci:docs:build` are strict. They fail if:
+`assemble`, `build`, and `ci:docs:build` are strict. They fail if:
+
 - a publishable extension has no matching `docs-gen/enriched/{Name}.md`;
 - an enriched file still contains `AI:NEEDED` or `AI:FAILED` markers;
 - an orphan enriched file exists for an extension that is no longer in the IR.
@@ -75,4 +77,5 @@ When the user gives you this file, they may add a scope line at the bottom. If n
 <!-- --only Bold,Heading,Lists -->
 <!-- --category markdown -->
 <!-- --all -->
+
 --all

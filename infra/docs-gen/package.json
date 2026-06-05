@@ -1,0 +1,21 @@
+{
+  "name": "@markdown-editor/docs-gen",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "docs-gen": "./src/index.mjs"
+  },
+  "files": [
+    "src",
+    "enrich-agent.md"
+  ],
+  "scripts": {
+    "extract": "node src/index.mjs extract",
+    "enrich:prompts": "node src/index.mjs enrich --mode prompts",
+    "enrich:apply": "node src/index.mjs enrich --mode apply",
+    "assemble": "node src/index.mjs generate && node src/index.mjs assemble",
+    "build": "node src/index.mjs build",
+    "test": "node --test src/*.test.mjs src/extractor/*.test.mjs"
+  }
+}
