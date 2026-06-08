@@ -3,6 +3,9 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
+  "nx": {
+    "name": "@markdown-editor/infra/docs-gen"
+  },
   "scripts": {
     "build": "cd ../.. && node infra/docs-gen/src/generate-docs.mjs"
   }
