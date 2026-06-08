@@ -29,6 +29,9 @@ jobs:
           node-version-file: '.nvmrc'
           cache: pnpm
 
+      - name: Install dependencies
+        run: pnpm run ci:deps
+
       - name: Build HTML docs with Diplodoc CLI
         run: pnpm run ci:docs:build
 
