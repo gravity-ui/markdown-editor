@@ -7,6 +7,9 @@
     "name": "@markdown-editor/infra/docs-gen"
   },
   "scripts": {
-    "build": "cd ../.. && node infra/docs-gen/src/generate-docs.mjs && npx -y @diplodoc/cli -i ./docs-src -o ./docs-dist"
+    "build": "node src/generate-docs.mjs && yfm -i ../../docs-src -o ../../docs-dist"
+  },
+  "dependencies": {
+    "@diplodoc/cli": "5.43.0"
   }
 }

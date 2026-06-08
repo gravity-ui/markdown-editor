@@ -7,11 +7,13 @@ import {
     rmSync,
     writeFileSync,
 } from 'node:fs';
-import {dirname, join} from 'node:path';
+import {dirname, join, resolve} from 'node:path';
 import process from 'node:process';
+import {fileURLToPath} from 'node:url';
 
-const DOCS_DIR = 'docs';
-const OUT_DIR = 'docs-src';
+const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '../../..');
+const DOCS_DIR = join(REPO_ROOT, 'docs');
+const OUT_DIR = join(REPO_ROOT, 'docs-src');
 const GITHUB_RAW_RE =
     /https:\/\/raw\.githubusercontent\.com\/gravity-ui\/markdown-editor\/(?:refs\/heads\/[^/]+|[^/]+)\/docs\//g;
 
