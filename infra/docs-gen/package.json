@@ -7,6 +7,6 @@
     "name": "@markdown-editor/infra/docs-gen"
   },
   "scripts": {
-    "build": "cd ../.. && node infra/docs-gen/src/generate-docs.mjs"
+    "build": "cd ../.. && node infra/docs-gen/src/generate-docs.mjs && npx -y @diplodoc/cli -i ./docs-src -o ./docs-dist"
   }
 }
