@@ -158,4 +158,43 @@ describe('WysiwygContentHandler', () => {
         });
         expect(fn).toThrow();
     });
+
+    it('should insertAt with negative index — insert at the beginning (prepend)', () => {
+        const view = new EditorView(null, {
+            state: EditorState.create({
+                doc: doc(p('hello')),
+            }),
+        });
+        const contentHandler = new WysiwygContentHandler(view, fakeParser);
+        contentHandler.insertAt('start', -1);
+        expect(view.state.doc.firstChild?.textContent).toBe('start');
+        expect(view.state.doc.textContent).toContain('hello');
+    });
+
+    it('should insertAt without index — insert inline at current cursor position', () => {
+        const document = doc(p('hello world'));
+        const view = new EditorView(null, {
+            state: EditorState.create({
+                doc: document,
+                selection: TextSelection.create(document, 6),
+            }),
+        });
+        const contentHandler = new WysiwygContentHandler(view, fakeParser);
+        contentHandler.insertAt(' inserted');
+        expect(view.state.doc.firstChild?.textContent).toBe('hello inserted world');
+    });
+
+    it('should insertAt with large index — insert at the end (append)', () => {
+        const view = new EditorView(null, {
+            state: EditorState.create({
+                doc: doc(p('hello')),
+            }),
+        });
+        const contentHandler = new WysiwygContentHandler(view, fakeParser);
+        contentHandler.insertAt('end', 9999);
+        expect(view.state.doc.textContent).toContain('hello');
+        expect(view.state.doc.textContent).toContain('end');
+        const text = view.state.doc.textContent;
+        expect(text.indexOf('hello')).toBeLessThan(text.indexOf('end'));
+    });
 });

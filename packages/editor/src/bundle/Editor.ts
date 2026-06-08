@@ -463,6 +463,10 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
         return this.currentEditor.append(markup);
     }
 
+    insertAt(markup: MarkupString, index?: number): void {
+        return this.currentEditor.insertAt(markup, index);
+    }
+
     moveCursor(
         position:
             | 'start'

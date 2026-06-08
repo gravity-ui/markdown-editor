@@ -96,4 +96,36 @@ describe('MarkupContentHandler', () => {
         });
         expect(fn).toThrow();
     });
+
+    it('should insertAt with negative index — insert at the beginning (prepend)', () => {
+        const cm = new EditorView({
+            doc: 'hello',
+        });
+        const contentHandler = new Editor(cm);
+        contentHandler.insertAt('start\n\n', -1);
+        expect(cm.state.sliceDoc().startsWith('start')).toBe(true);
+        expect(cm.state.sliceDoc()).toContain('hello');
+    });
+
+    it('should insertAt without index — insert at current cursor position', () => {
+        const cm = new EditorView({
+            doc: 'hello world',
+            selection: {anchor: 5},
+        });
+        const contentHandler = new Editor(cm);
+        contentHandler.insertAt(' inserted');
+        expect(cm.state.sliceDoc()).toBe('hello inserted world');
+    });
+
+    it('should insertAt with large index — insert at the end (append)', () => {
+        const cm = new EditorView({
+            doc: 'hello',
+        });
+        const contentHandler = new Editor(cm);
+        contentHandler.insertAt('end', 9999);
+        expect(cm.state.sliceDoc()).toContain('hello');
+        expect(cm.state.sliceDoc()).toContain('end');
+        const doc = cm.state.sliceDoc();
+        expect(doc.indexOf('hello')).toBeLessThan(doc.indexOf('end'));
+    });
 });

@@ -1,6 +1,6 @@
 import type {EditorView as PMEditorView} from 'prosemirror-view';
 
-import type {CommonEditor} from '../common';
+import type {CommonEditor, MarkupString} from '../common';
 import type {Logger2} from '../logger';
 import type {Receiver} from '../utils';
 
@@ -19,6 +19,11 @@ export interface MarkdownEditorInstance extends Receiver<EventMap>, CommonEditor
     readonly toolbarVisible: boolean;
     setEditorMode(mode: MarkdownEditorMode, opts?: Pick<ChangeEditorModeOptions, 'emit'>): void;
     moveCursor(position: 'start' | 'end' | {line: number}): void;
+    /**
+     * Insert markup at the current cursor position.
+     * If `index` is provided, insert at that absolute position instead.
+     */
+    insertAt(markup: MarkupString, index?: number): void;
     /** @internal used in demo for dev-tools */
     readonly _wysiwygView?: PMEditorView;
 }
