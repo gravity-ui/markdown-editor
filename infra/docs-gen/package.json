@@ -4,10 +4,17 @@
   "private": true,
   "type": "module",
   "nx": {
-    "name": "@markdown-editor/infra/docs-gen"
+    "name": "@markdown-editor/infra/docs-gen",
+    "targets": {
+      "build": {
+        "outputs": [
+          "{workspaceRoot}/dist/docs"
+        ]
+      }
+    }
   },
   "scripts": {
-    "build": "node src/generate-docs.mjs && yfm -i ../../docs-src -o ../../docs-dist"
+    "build": "node src/generate-docs.mjs && yfm -i ../../tmp/docs-src -o ../../dist/docs"
   },
   "dependencies": {
     "@diplodoc/cli": "5.43.0"
