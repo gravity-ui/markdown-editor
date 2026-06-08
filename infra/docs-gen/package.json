@@ -4,6 +4,6 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "node src/index.mjs"
+    "build": "cd ../.. && node infra/docs-gen/src/generate-docs.mjs"
   }
 }
