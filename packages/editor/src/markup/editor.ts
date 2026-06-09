@@ -78,31 +78,11 @@ export class Editor implements CommonEditor, CodeEditor {
         this.#cm.dispatch({changes: {from: doc.length, insert}});
     }
 
-    insertAt(markup: MarkupString, index?: number): void {
-        const docLength = this.#cm.state.doc.length;
-
-        if (index === undefined) {
-            const pos = this.#cm.state.selection.main.head;
-            this.#cm.dispatch({
-                changes: {from: pos, insert: markup},
-                selection: {anchor: pos + markup.length},
-            });
-            return;
-        }
-
-        if (index < 0) {
-            this.prepend(markup);
-            return;
-        }
-
-        if (index > docLength) {
-            this.append(markup);
-            return;
-        }
-
+    insert(markup: MarkupString): void {
+        const pos = this.#cm.state.selection.main.head;
         this.#cm.dispatch({
-            changes: {from: index, insert: markup},
-            selection: {anchor: index + markup.length},
+            changes: {from: pos, insert: markup},
+            selection: {anchor: pos + markup.length},
         });
     }
 

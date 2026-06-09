@@ -52,32 +52,13 @@ export class WysiwygContentHandler implements ContentHandler {
         this.#view.dispatch(tr);
     }
 
-    insertAt(markup: MarkupString, index?: number): void {
+    insert(markup: MarkupString): void {
         const {state} = this.#view;
-        const docSize = state.doc.nodeSize - 2;
-
-        if (index === undefined) {
-            const pos = state.selection.from;
-            const inlineContent = this.#parser.parse(markup).firstChild?.content;
-            if (inlineContent && inlineContent.size > 0) {
-                this.#view.dispatch(state.tr.insert(pos, inlineContent));
-            }
-            return;
-        }
-
-        if (index < 0) {
-            this.prepend(markup);
-            return;
-        }
-
-        if (index > docSize) {
-            this.append(markup);
-            return;
-        }
-
+        const pos = state.selection.from;
         const inlineContent = this.#parser.parse(markup).firstChild?.content;
+
         if (inlineContent && inlineContent.size > 0) {
-            this.#view.dispatch(state.tr.insert(index, inlineContent));
+            this.#view.dispatch(state.tr.insert(pos, inlineContent));
         }
     }
 

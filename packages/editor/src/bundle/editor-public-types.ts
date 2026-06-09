@@ -19,11 +19,7 @@ export interface MarkdownEditorInstance extends Receiver<EventMap>, CommonEditor
     readonly toolbarVisible: boolean;
     setEditorMode(mode: MarkdownEditorMode, opts?: Pick<ChangeEditorModeOptions, 'emit'>): void;
     moveCursor(position: 'start' | 'end' | {line: number}): void;
-    /**
-     * Insert markup at the current cursor position.
-     * If `index` is provided, insert at that absolute position instead.
-     */
-    insertAt(markup: MarkupString, index?: number): void;
+    insert(markup: MarkupString): void;
     /** @internal used in demo for dev-tools */
     readonly _wysiwygView?: PMEditorView;
 }

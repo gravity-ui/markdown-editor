@@ -13,9 +13,5 @@ export interface ContentHandler {
     prepend(markup: MarkupString): void;
     append(markup: MarkupString): void;
     moveCursor(position: 'start' | 'end'): void;
-    /**
-     * Insert markup at the current cursor position.
-     * If `index` is provided, insert at that position instead.
-     */
-    insertAt(markup: MarkupString, index?: number): void;
+    insert(markup: MarkupString): void;
 }

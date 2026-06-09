@@ -208,8 +208,8 @@ export class WysiwygEditor implements CommonEditor, ActionStorage {
         return this.#contentHandler.append(markup);
     }
 
-    insertAt(markup: MarkupString, index?: number): void {
-        return this.#contentHandler.insertAt(markup, index);
+    insert(markup: MarkupString): void {
+        return this.#contentHandler.insert(markup);
     }
 
     moveCursor(position: 'start' | 'end'): void {
