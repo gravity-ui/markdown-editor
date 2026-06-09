@@ -1,4 +1,3 @@
-import {readBalanced} from './regex.mjs';
 import {
     CONST_REF_RE,
     ENUM_ENTRY_RE,
@@ -9,6 +8,7 @@ import {
     STRING_CONST_RE,
     STRING_VALUE_RE,
 } from './patterns.mjs';
+import {readBalanced} from './regex.mjs';
 
 /**
  * Resets shared global regex cursors.
