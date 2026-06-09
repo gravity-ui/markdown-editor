@@ -1,155 +1,13 @@
-import {existsSync, mkdirSync, rmSync, writeFileSync} from 'node:fs';
-import {basename, dirname, join, relative} from 'node:path';
+import {existsSync, mkdirSync, rmSync} from 'node:fs';
+import {join} from 'node:path';
 
 import {EXTENSION_CATEGORIES, isInternalExtension} from '../config.mjs';
 import {logger} from '../logger.mjs';
-import {listDirs, readAllTsFiles, readText} from '../utils.mjs';
+import {listDirs, readText} from '../utils.mjs';
 
-import {extractConstants, resolveAllConstants} from './constants.mjs';
-import {generateRawMd} from './markdown-gen.mjs';
+import {writeExtensionsJson, writeRawMarkdownFiles} from './output.mjs';
 import {getPresetsForExtension, parsePresets} from './presets.mjs';
-import {
-    extractActions,
-    extractAddMark,
-    extractAddNode,
-    extractInputRules,
-    extractKeymaps,
-    extractMarkSpecs,
-    extractMdPlugins,
-    extractNodeSpecs,
-    extractOptionsType,
-    extractPlugins,
-    extractSerializerSyntax,
-    extractTestExamples,
-} from './regex.mjs';
-
-/**
- * Checks whether a file path points to a TypeScript test file.
- */
-function isTestFile(path) {
-    return /\.test\.tsx?$/.test(path);
-}
-
-/**
- * Selects production files from all extension files.
- */
-function selectSourceFiles(files) {
-    return files.filter((file) => !isTestFile(file.path));
-}
-
-/**
- * Joins file contents into one source string.
- */
-function joinContents(files) {
-    return files.map((file) => file.content).join('\n');
-}
-
-/**
- * Checks whether a source file can contain schema metadata.
- */
-function isSpecSourceFile(file, extDir) {
-    return (
-        file.path.includes('Specs') ||
-        file.path.includes('const') ||
-        file.path.includes('schema') ||
-        file.path.includes('parser') ||
-        (file.path.endsWith('/index.ts') && dirname(file.path) === extDir)
-    );
-}
-
-/**
- * Selects files that can contain schema registrations.
- */
-function selectSpecFiles(files, extDir) {
-    return files.filter((file) => isSpecSourceFile(file, extDir));
-}
-
-/**
- * Selects files that can contain serializer hints.
- */
-function selectSerializerFiles(files) {
-    return files.filter((file) => file.path.includes('serializer') || file.path.includes('Specs'));
-}
-
-/**
- * Finds an extension root index file.
- */
-function findRootIndexFile(files, extDir) {
-    return files.find((file) => file.path.endsWith('/index.ts') && dirname(file.path) === extDir);
-}
-
-/**
- * Finds a specs index file.
- */
-function findSpecsIndexFile(files) {
-    return files.find((file) => file.path.includes('Specs') && file.path.endsWith('/index.ts'));
-}
-
-/**
- * Extracts schema nodes and marks.
- */
-function extractSchema(specContent, constants) {
-    return {
-        nodes: resolveAllConstants(
-            [...extractAddNode(specContent), ...extractNodeSpecs(specContent)],
-            constants,
-        ),
-        marks: resolveAllConstants(
-            [...extractAddMark(specContent), ...extractMarkSpecs(specContent)],
-            constants,
-        ),
-    };
-}
-
-/**
- * Extracts extension options from root or specs index files.
- */
-function extractOptions(sourceFiles, extDir) {
-    const rootIndexFile = findRootIndexFile(sourceFiles, extDir);
-    const specsIndexFile = findSpecsIndexFile(sourceFiles);
-    const options = rootIndexFile ? extractOptionsType(rootIndexFile.content) : [];
-
-    if (options.length === 0 && specsIndexFile) {
-        options.push(...extractOptionsType(specsIndexFile.content));
-    }
-
-    return options;
-}
-
-/**
- * Extracts unique markup examples from test files.
- */
-function extractMarkupExamples(files) {
-    return [
-        ...new Set(
-            files
-                .filter((file) => isTestFile(file.path))
-                .flatMap((file) => extractTestExamples(file.content)),
-        ),
-    ];
-}
-
-/**
- * Writes extension IR as JSON.
- */
-function writeExtensionsJson(outDir, version, extensions) {
-    writeFileSync(
-        join(outDir, 'extensions.json'),
-        JSON.stringify({version, extensions}, null, 2) + '\n',
-    );
-}
-
-/**
- * Writes raw Markdown files for extensions.
- */
-function writeRawMarkdownFiles(rawDir, extensions, presetMap, version) {
-    for (const extension of extensions) {
-        writeFileSync(
-            join(rawDir, `${extension.name}.md`),
-            generateRawMd(extension, presetMap, version),
-        );
-    }
-}
+import {scanExtension} from './scan.mjs';
 
 export class ExtensionExtractor {
     /**
@@ -168,32 +26,7 @@ export class ExtensionExtractor {
      * Scans one extension directory into raw metadata.
      */
     scan(extDir, category) {
-        const name = basename(extDir);
-        const allFiles = readAllTsFiles(extDir);
-        const sourceFiles = selectSourceFiles(allFiles);
-        const allContent = joinContents(sourceFiles);
-        const constants = extractConstants(allContent);
-        const specContent = joinContents(selectSpecFiles(sourceFiles, extDir));
-        const {nodes, marks} = extractSchema(specContent, constants);
-        const actions = resolveAllConstants(extractActions(allContent), constants);
-        const serializerContent = joinContents(selectSerializerFiles(sourceFiles));
-
-        return {
-            name,
-            sourcePath: relative(this.repoRoot, extDir),
-            category,
-            nodes,
-            marks,
-            actions,
-            keymaps: extractKeymaps(allContent),
-            inputRules: extractInputRules(allContent),
-            plugins: [...new Set(extractPlugins(allContent))],
-            mdPlugins: [...new Set(extractMdPlugins(allContent))],
-            serializerHints: [...new Set(extractSerializerSyntax(serializerContent))],
-            options: extractOptions(sourceFiles, extDir),
-            markupExamples: extractMarkupExamples(allFiles),
-            presets: [],
-        };
+        return scanExtension({extDir, category, repoRoot: this.repoRoot});
     }
 
     /**
