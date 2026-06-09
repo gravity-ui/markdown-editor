@@ -7,20 +7,14 @@ import {
     rmSync,
     writeFileSync,
 } from 'node:fs';
-import {dirname, join, resolve} from 'node:path';
+import {dirname, join} from 'node:path';
 import process from 'node:process';
-import {fileURLToPath} from 'node:url';
 
-const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '../../..');
-const DOCS_DIR = join(REPO_ROOT, 'docs');
-const OUT_DIR = join(REPO_ROOT, 'tmp/docs-src');
-const GITHUB_RAW_RE =
-    /https:\/\/raw\.githubusercontent\.com\/gravity-ui\/markdown-editor\/(?:refs\/heads\/[^/]+|[^/]+)\/docs\//g;
+import {DOCS_DIR, DOCS_SRC_DIR, GITHUB_RAW_RE, HEADER_RE} from './config.mjs';
 
 // Source docs use ##### as a metadata header (not rendered).
 // Format: "##### Category / Title" or "##### Title" (no category).
 // This line is stripped from the output; the rest becomes the page content.
-const HEADER_RE = /^#{5}\s+(.+)$/;
 
 /**
  * Converts a string to a URL-friendly slug.
@@ -50,10 +44,10 @@ function parseHeader(firstLine) {
 
 /** Removes all generated content from the output directory. */
 function cleanOutDir() {
-    if (existsSync(OUT_DIR)) {
-        rmSync(OUT_DIR, {recursive: true, force: true});
+    if (existsSync(DOCS_SRC_DIR)) {
+        rmSync(DOCS_SRC_DIR, {recursive: true, force: true});
     }
-    mkdirSync(OUT_DIR, {recursive: true});
+    mkdirSync(DOCS_SRC_DIR, {recursive: true});
 }
 
 /** Reads all markdown files from the source directory and parses their headers. */
@@ -153,7 +147,7 @@ function rewriteAssetUrls(content, doc) {
 function writeDocFiles(docs) {
     checkDuplicatePaths(docs);
     for (const doc of docs) {
-        const outPath = join(OUT_DIR, computeOutputPath(doc));
+        const outPath = join(DOCS_SRC_DIR, computeOutputPath(doc));
         mkdirSync(dirname(outPath), {recursive: true});
         writeFileSync(outPath, rewriteAssetUrls(doc.content, doc));
     }
@@ -195,7 +189,7 @@ function generateTocYaml(categories, topLevel) {
         lines.push(`    href: ${computeOutputPath(doc)}`);
     }
 
-    writeFileSync(join(OUT_DIR, 'toc.yaml'), lines.join('\n') + '\n');
+    writeFileSync(join(DOCS_SRC_DIR, 'toc.yaml'), lines.join('\n') + '\n');
 }
 
 /**
@@ -224,20 +218,20 @@ function generateIndexMd(categories, topLevel) {
         lines.push('');
     }
 
-    writeFileSync(join(OUT_DIR, 'index.md'), lines.join('\n'));
+    writeFileSync(join(DOCS_SRC_DIR, 'index.md'), lines.join('\n'));
 }
 
 /** Copies the `assets/` directory from source docs to the output directory. */
 function copyAssets() {
     const assetsDir = join(DOCS_DIR, 'assets');
     if (existsSync(assetsDir)) {
-        cpSync(assetsDir, join(OUT_DIR, 'assets'), {recursive: true});
+        cpSync(assetsDir, join(DOCS_SRC_DIR, 'assets'), {recursive: true});
     }
 }
 
 /** Writes the `.yfm` Diplodoc config into the output directory. */
 function writeYfmConfig() {
-    writeFileSync(join(OUT_DIR, '.yfm'), 'allowHTML: true\n');
+    writeFileSync(join(DOCS_SRC_DIR, '.yfm'), 'allowHTML: true\n');
 }
 
 /** Entry point: cleans output, collects docs, and generates the documentation site. */

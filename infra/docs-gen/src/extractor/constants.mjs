@@ -1,33 +1,58 @@
 import {readBalanced} from './regex.mjs';
+import {
+    CONST_REF_RE,
+    ENUM_ENTRY_RE,
+    ENUM_START_RE,
+    IDENTIFIER_RE,
+    IDENTIFIER_VALUE_RE,
+    OBJECT_CONST_START_RE,
+    STRING_CONST_RE,
+    STRING_VALUE_RE,
+} from './patterns.mjs';
+
+/**
+ * Resets shared global regex cursors.
+ */
+function resetConstantPatterns() {
+    for (const pattern of [
+        STRING_CONST_RE,
+        ENUM_START_RE,
+        ENUM_ENTRY_RE,
+        OBJECT_CONST_START_RE,
+        CONST_REF_RE,
+    ]) {
+        pattern.lastIndex = 0;
+    }
+}
 
 /**
  * Extracts string-valued constants, enums, and scalar object members.
  */
 export function extractConstants(content) {
+    resetConstantPatterns();
+
     const names = new Map();
     let match;
 
-    const constRe = /(?:export\s+)?const\s+(\w+)\s*=\s*['"]([^'"]+)['"]/g;
-    while ((match = constRe.exec(content))) {
+    while ((match = STRING_CONST_RE.exec(content))) {
         names.set(match[1], match[2]);
     }
 
-    const enumRe = /(?:export\s+)?enum\s+(\w+)\s*\{/g;
-    while ((match = enumRe.exec(content))) {
+    while ((match = ENUM_START_RE.exec(content))) {
         const enumName = match[1];
         const block = readBalanced(content, content.indexOf('{', match.index), '{', '}');
         if (!block) continue;
 
-        const entries = block.body.matchAll(/(\w+)\s*=\s*['"]([^'"]+)['"]/g);
+        ENUM_ENTRY_RE.lastIndex = 0;
+        const entries = block.body.matchAll(ENUM_ENTRY_RE);
         for (const entry of entries) {
             names.set(`${enumName}.${entry[1]}`, entry[2]);
         }
 
-        enumRe.lastIndex = block.endIndex + 1;
+        ENUM_START_RE.lastIndex = block.endIndex + 1;
     }
 
-    const objStartRe = /(?:export\s+)?const\s+(\w+)\s*=\s*\{/g;
-    while ((match = objStartRe.exec(content))) {
+    while ((match = OBJECT_CONST_START_RE.exec(content))) {
         const objName = match[1];
         const braceIndex = content.indexOf('{', match.index);
         const block = readBalanced(content, braceIndex, '{', '}');
@@ -37,12 +62,11 @@ export function extractConstants(content) {
             names.set(`${objName}.${key}`, value);
         }
 
-        objStartRe.lastIndex = block.endIndex + 1;
+        OBJECT_CONST_START_RE.lastIndex = block.endIndex + 1;
     }
 
     const refs = [];
-    const refRe = /(?:export\s+)?const\s+(\w+)\s*=\s*(\w+)\s*;/g;
-    while ((match = refRe.exec(content))) {
+    while ((match = CONST_REF_RE.exec(content))) {
         refs.push([match[1], match[2]]);
     }
 
@@ -202,18 +226,18 @@ function* extractTopLevelScalarProps(body) {
         if (colon === -1) continue;
 
         const rawKey = trimmed.slice(0, colon).trim();
-        if (!rawKey || rawKey.startsWith('[') || !/^[A-Za-z_$][\w$]*$/.test(rawKey)) {
+        if (!rawKey || rawKey.startsWith('[') || !IDENTIFIER_RE.test(rawKey)) {
             continue;
         }
 
         const rawValue = trimmed.slice(colon + 1).trim();
-        const stringMatch = rawValue.match(/^['"]([^'"]*)['"]/);
+        const stringMatch = rawValue.match(STRING_VALUE_RE);
         if (stringMatch) {
             yield [rawKey, stringMatch[1]];
             continue;
         }
 
-        const identMatch = rawValue.match(/^([A-Za-z_$][\w$.]*)/);
+        const identMatch = rawValue.match(IDENTIFIER_VALUE_RE);
         if (identMatch) {
             yield [rawKey, identMatch[1]];
         }

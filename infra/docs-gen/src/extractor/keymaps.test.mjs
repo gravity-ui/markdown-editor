@@ -1,8 +1,15 @@
 import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
 import {test} from 'node:test';
 
-import {extractKeymaps} from '../../src/extractor/regex.mjs';
-import {readRepoFile} from '../helpers/read-repo-file.mjs';
+import {extractKeymaps} from './regex.mjs';
+
+/**
+ * Reads a repository file as UTF-8 text.
+ */
+function readRepoFile(relativePath) {
+    return readFileSync(new URL(`../../../../${relativePath}`, import.meta.url), 'utf-8');
+}
 
 test('extractKeymaps handles direct object returns and ignores computed keys', () => {
     const content = [

@@ -1,15 +1,10 @@
 import {existsSync} from 'node:fs';
 import {join} from 'node:path';
 
+import {PRESET_DEFS} from '../config.mjs';
 import {readText} from '../utils.mjs';
 
-const PRESET_DEFS = [
-    {name: 'ZeroPreset', file: 'zero.ts', parent: null},
-    {name: 'CommonMarkPreset', file: 'commonmark.ts', parent: 'ZeroPreset'},
-    {name: 'DefaultPreset', file: 'default.ts', parent: 'CommonMarkPreset'},
-    {name: 'YfmPreset', file: 'yfm.ts', parent: 'DefaultPreset'},
-    {name: 'FullPreset', file: 'full.ts', parent: 'YfmPreset'},
-];
+import {PRESET_USE_RE} from './patterns.mjs';
 
 /**
  * Parses preset files into inherited extension membership.
@@ -23,10 +18,10 @@ export function parsePresets(presetsDir) {
 
         const content = readText(filePath);
         const directUses = [];
-        const useRe = /\.use\(\s*(\w+)/g;
         let match;
 
-        while ((match = useRe.exec(content))) {
+        PRESET_USE_RE.lastIndex = 0;
+        while ((match = PRESET_USE_RE.exec(content))) {
             const extensionName = match[1];
             if (!extensionName.endsWith('Preset') && !extensionName.endsWith('Specs')) {
                 directUses.push(extensionName);

@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import {test} from 'node:test';
 
-import {extractActions} from '../../src/extractor/regex.mjs';
+import {extractActions} from './regex.mjs';
 
 test('extractActions captures direct and chained builder.addAction calls', () => {
     const content = [

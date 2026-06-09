@@ -1,84 +1,92 @@
+import {
+    ADD_PLUGIN_RE,
+    BUILDER_ADD_ACTION_RE,
+    BUILDER_ADD_MARK_RE,
+    BUILDER_ADD_NODE_RE,
+    CHAINED_ADD_ACTION_RE,
+    CHAINED_ADD_MARK_RE,
+    CHAINED_ADD_NODE_RE,
+    IDENTIFIER_RE,
+    INPUT_RULE_RE,
+    KEYMAP_OBJECT_DECL_RE,
+    MARK_SPEC_RE,
+    MD_PLUGIN_RE,
+    NODE_SPEC_RE,
+    OPTION_FIELD_RE,
+    OPTIONS_TYPE_RE,
+    SAME_SINGLE_QUOTE_RE,
+    SAME_TEMPLATE_RE,
+    STATE_TEXT_RE,
+    STATE_WRITE_RE,
+    STATIC_COMPUTED_ASSIGNMENT_RE,
+    STATIC_MEMBER_ASSIGNMENT_RE,
+} from './patterns.mjs';
+
+/**
+ * Resets a global regular expression before scanning.
+ */
+function resetPattern(pattern) {
+    pattern.lastIndex = 0;
+    return pattern;
+}
+
+/**
+ * Reads the first defined capture group from a match.
+ */
+function firstCapture(match) {
+    return match[3] || match[1] || match[2];
+}
+
+/**
+ * Extracts names from one or more regular expressions.
+ */
+function extractCapturedNames(content, patterns) {
+    const names = [];
+
+    for (const pattern of patterns) {
+        let match;
+        const re = resetPattern(pattern);
+        while ((match = re.exec(content))) {
+            names.push(firstCapture(match));
+        }
+    }
+
+    return names;
+}
+
 /**
  * Extracts ProseMirror node registrations from builder calls.
  */
 export function extractAddNode(content) {
-    const nodes = [];
-    const re = /builder\s*\.addNode\(\s*(?:(\w+\.\w+)|(\w+)|['"]([^'"]+)['"])\s*,\s*(?:\(|$)/gm;
-    let match;
-    while ((match = re.exec(content))) {
-        nodes.push(match[3] || match[1] || match[2]);
-    }
-
-    const chainedRe = /\)\s*\.addNode\(\s*(?:(\w+\.\w+)|(\w+)|['"]([^'"]+)['"])\s*,\s*(?:\(|$)/gm;
-    while ((match = chainedRe.exec(content))) {
-        nodes.push(match[3] || match[1] || match[2]);
-    }
-
-    return nodes;
+    return extractCapturedNames(content, [BUILDER_ADD_NODE_RE, CHAINED_ADD_NODE_RE]);
 }
 
 /**
  * Extracts ProseMirror mark registrations from builder calls.
  */
 export function extractAddMark(content) {
-    const marks = [];
-    const re = /builder\s*\.addMark\(\s*\n?\s*(?:(\w+\.\w+)|(\w+)|['"]([^'"]+)['"])\s*,/g;
-    let match;
-    while ((match = re.exec(content))) {
-        marks.push(match[3] || match[1] || match[2]);
-    }
-
-    const chainedRe = /\)\s*\n\s*\.addMark\(\s*\n?\s*(?:(\w+\.\w+)|(\w+)|['"]([^'"]+)['"])\s*,/g;
-    while ((match = chainedRe.exec(content))) {
-        marks.push(match[3] || match[1] || match[2]);
-    }
-
-    return marks;
+    return extractCapturedNames(content, [BUILDER_ADD_MARK_RE, CHAINED_ADD_MARK_RE]);
 }
 
 /**
  * Extracts node names from node spec registrations.
  */
 export function extractNodeSpecs(content) {
-    const nodes = [];
-    const re = /\.addNodeSpec\(\s*\{\s*name:\s*(?:(\w+\.\w+)|(\w+)|['"]([^'"]+)['"])/g;
-    let match;
-    while ((match = re.exec(content))) {
-        nodes.push(match[3] || match[1] || match[2]);
-    }
-    return nodes;
+    return extractCapturedNames(content, [NODE_SPEC_RE]);
 }
 
 /**
  * Extracts mark names from mark spec registrations.
  */
 export function extractMarkSpecs(content) {
-    const marks = [];
-    const re = /\.addMarkSpec\(\s*\{\s*name:\s*(?:(\w+\.\w+)|(\w+)|['"]([^'"]+)['"])/g;
-    let match;
-    while ((match = re.exec(content))) {
-        marks.push(match[3] || match[1] || match[2]);
-    }
-    return marks;
+    return extractCapturedNames(content, [MARK_SPEC_RE]);
 }
 
 /**
  * Extracts editor action identifiers from builder calls.
  */
 export function extractActions(content) {
-    const actions = [];
-    const re = /builder\s*\.addAction\(\s*(?:(\w+\.\w+)|(\w+)|['"]([^'"]+)['"])/g;
-    let match;
-    while ((match = re.exec(content))) {
-        actions.push(match[3] || match[1] || match[2]);
-    }
-
-    const chainedRe = /\)\s*\.addAction\(\s*(?:(\w+\.\w+)|(\w+)|['"]([^'"]+)['"])/g;
-    while ((match = chainedRe.exec(content))) {
-        actions.push(match[3] || match[1] || match[2]);
-    }
-
-    return actions;
+    return extractCapturedNames(content, [BUILDER_ADD_ACTION_RE, CHAINED_ADD_ACTION_RE]);
 }
 
 /**
@@ -86,8 +94,8 @@ export function extractActions(content) {
  */
 export function extractPlugins(content) {
     const plugins = [];
-    const re = /\.addPlugin\(\s*(\w+)/g;
     let match;
+    const re = resetPattern(ADD_PLUGIN_RE);
     while ((match = re.exec(content))) {
         plugins.push(match[1]);
     }
@@ -435,7 +443,7 @@ function extractObjectLiteralKeys(content, knownObjects = new Map()) {
             continue;
         }
 
-        if (/^[A-Za-z_$][\w$]*$/.test(rawKey)) {
+        if (IDENTIFIER_RE.test(rawKey)) {
             keys.push(rawKey);
         }
     }
@@ -448,7 +456,7 @@ function extractObjectLiteralKeys(content, knownObjects = new Map()) {
  */
 function extractKnownKeymapObjects(blockBody) {
     const knownObjects = new Map();
-    const declarationRe = /(?:const|let|var)\s+(\w+)(?::[^=;]+)?=\s*\{/g;
+    const declarationRe = resetPattern(KEYMAP_OBJECT_DECL_RE);
     let match;
 
     while ((match = declarationRe.exec(blockBody))) {
@@ -463,14 +471,14 @@ function extractKnownKeymapObjects(blockBody) {
         declarationRe.lastIndex = objectLiteral.endIndex + 1;
     }
 
-    const staticComputedAssignmentRe = /(\w+)\s*\[\s*(?:'([^']+)'|"([^"]+)")\s*\]\s*=/g;
+    const staticComputedAssignmentRe = resetPattern(STATIC_COMPUTED_ASSIGNMENT_RE);
     while ((match = staticComputedAssignmentRe.exec(blockBody))) {
         const keys = knownObjects.get(match[1]) || [];
         keys.push(match[2] || match[3]);
         knownObjects.set(match[1], keys);
     }
 
-    const staticMemberAssignmentRe = /(\w+)\.(\w+)\s*=/g;
+    const staticMemberAssignmentRe = resetPattern(STATIC_MEMBER_ASSIGNMENT_RE);
     while ((match = staticMemberAssignmentRe.exec(blockBody))) {
         const keys = knownObjects.get(match[1]) || [];
         keys.push(match[2]);
@@ -639,8 +647,7 @@ export function extractKeymaps(content) {
  */
 export function extractInputRules(content) {
     const rules = [];
-    const re =
-        /(?:markInputRule|textblockTypeInputRule|nodeInputRule|wrappingInputRule|inlineNodeInputRule)\s*\(\s*(?:\/([^/]+)\/|{[^}]*open:\s*'([^']*)'[^}]*close:\s*'([^']*)'[^}]*})/g;
+    const re = resetPattern(INPUT_RULE_RE);
     let match;
 
     while ((match = re.exec(content))) {
@@ -659,7 +666,7 @@ export function extractInputRules(content) {
  */
 export function extractMdPlugins(content) {
     const plugins = [];
-    const re = /md\.use\(\s*(\w+)/g;
+    const re = resetPattern(MD_PLUGIN_RE);
     let match;
     while ((match = re.exec(content))) {
         plugins.push(match[1]);
@@ -672,12 +679,12 @@ export function extractMdPlugins(content) {
  */
 export function extractOptionsType(content) {
     const fields = [];
-    const re = /export\s+type\s+\w+Options\s*(?:=\s*(?:\w+\s*&\s*)?)?(?:\{([^}]*)\}|([^;]*))/gs;
+    const re = resetPattern(OPTIONS_TYPE_RE);
     const match = re.exec(content);
     if (!match) return fields;
 
     const block = match[1] || match[2] || '';
-    const fieldRe = /(\w+)\??\s*:\s*([^;]+)/g;
+    const fieldRe = resetPattern(OPTION_FIELD_RE);
     let fieldMatch;
 
     while ((fieldMatch = fieldRe.exec(block))) {
@@ -696,13 +703,13 @@ export function extractOptionsType(content) {
  */
 export function extractTestExamples(content) {
     const examples = [];
-    const singleQuoteRe = /same\(\s*'([^']+)'/g;
+    const singleQuoteRe = resetPattern(SAME_SINGLE_QUOTE_RE);
     let match;
     while ((match = singleQuoteRe.exec(content))) {
         examples.push(match[1]);
     }
 
-    const templateRe = /same\(\s*`([^`]+)`/g;
+    const templateRe = resetPattern(SAME_TEMPLATE_RE);
     while ((match = templateRe.exec(content))) {
         examples.push(match[1]);
     }
@@ -715,13 +722,13 @@ export function extractTestExamples(content) {
  */
 export function extractSerializerSyntax(content) {
     const snippets = [];
-    const writeRe = /state\.write\(\s*[`'"]([^`'"]*)[`'"]/g;
+    const writeRe = resetPattern(STATE_WRITE_RE);
     let match;
     while ((match = writeRe.exec(content))) {
         if (match[1].trim()) snippets.push(match[1]);
     }
 
-    const textRe = /state\.text\(\s*[`'"]([^`'"]*)[`'"]/g;
+    const textRe = resetPattern(STATE_TEXT_RE);
     while ((match = textRe.exec(content))) {
         if (match[1].trim()) snippets.push(match[1]);
     }

@@ -1,7 +1,7 @@
 import {existsSync, mkdirSync, rmSync, writeFileSync} from 'node:fs';
 import {basename, dirname, join, relative} from 'node:path';
 
-import {extensionCategories, isInternalExtension} from '../config.mjs';
+import {EXTENSION_CATEGORIES, isInternalExtension} from '../config.mjs';
 import {logger} from '../logger.mjs';
 import {listDirs, readAllTsFiles, readText} from '../utils.mjs';
 
@@ -30,6 +30,127 @@ function isTestFile(path) {
     return /\.test\.tsx?$/.test(path);
 }
 
+/**
+ * Selects production files from all extension files.
+ */
+function selectSourceFiles(files) {
+    return files.filter((file) => !isTestFile(file.path));
+}
+
+/**
+ * Joins file contents into one source string.
+ */
+function joinContents(files) {
+    return files.map((file) => file.content).join('\n');
+}
+
+/**
+ * Checks whether a source file can contain schema metadata.
+ */
+function isSpecSourceFile(file, extDir) {
+    return (
+        file.path.includes('Specs') ||
+        file.path.includes('const') ||
+        file.path.includes('schema') ||
+        file.path.includes('parser') ||
+        (file.path.endsWith('/index.ts') && dirname(file.path) === extDir)
+    );
+}
+
+/**
+ * Selects files that can contain schema registrations.
+ */
+function selectSpecFiles(files, extDir) {
+    return files.filter((file) => isSpecSourceFile(file, extDir));
+}
+
+/**
+ * Selects files that can contain serializer hints.
+ */
+function selectSerializerFiles(files) {
+    return files.filter((file) => file.path.includes('serializer') || file.path.includes('Specs'));
+}
+
+/**
+ * Finds an extension root index file.
+ */
+function findRootIndexFile(files, extDir) {
+    return files.find((file) => file.path.endsWith('/index.ts') && dirname(file.path) === extDir);
+}
+
+/**
+ * Finds a specs index file.
+ */
+function findSpecsIndexFile(files) {
+    return files.find((file) => file.path.includes('Specs') && file.path.endsWith('/index.ts'));
+}
+
+/**
+ * Extracts schema nodes and marks.
+ */
+function extractSchema(specContent, constants) {
+    return {
+        nodes: resolveAllConstants(
+            [...extractAddNode(specContent), ...extractNodeSpecs(specContent)],
+            constants,
+        ),
+        marks: resolveAllConstants(
+            [...extractAddMark(specContent), ...extractMarkSpecs(specContent)],
+            constants,
+        ),
+    };
+}
+
+/**
+ * Extracts extension options from root or specs index files.
+ */
+function extractOptions(sourceFiles, extDir) {
+    const rootIndexFile = findRootIndexFile(sourceFiles, extDir);
+    const specsIndexFile = findSpecsIndexFile(sourceFiles);
+    const options = rootIndexFile ? extractOptionsType(rootIndexFile.content) : [];
+
+    if (options.length === 0 && specsIndexFile) {
+        options.push(...extractOptionsType(specsIndexFile.content));
+    }
+
+    return options;
+}
+
+/**
+ * Extracts unique markup examples from test files.
+ */
+function extractMarkupExamples(files) {
+    return [
+        ...new Set(
+            files
+                .filter((file) => isTestFile(file.path))
+                .flatMap((file) => extractTestExamples(file.content)),
+        ),
+    ];
+}
+
+/**
+ * Writes extension IR as JSON.
+ */
+function writeExtensionsJson(outDir, version, extensions) {
+    writeFileSync(
+        join(outDir, 'extensions.json'),
+        JSON.stringify({version, extensions}, null, 2) + '\n',
+    );
+}
+
+/**
+ * Writes raw Markdown files for extensions.
+ */
+function writeRawMarkdownFiles(rawDir, extensions, presetMap, version) {
+    for (const extension of extensions) {
+        writeFileSync(
+            join(rawDir, `${extension.name}.md`),
+            generateRawMd(extension, presetMap, version),
+        );
+    }
+}
+
 export class ExtensionExtractor {
     /**
      * Creates an extension extractor for editor source paths.
@@ -49,46 +170,13 @@ export class ExtensionExtractor {
     scan(extDir, category) {
         const name = basename(extDir);
         const allFiles = readAllTsFiles(extDir);
-        const sourceFiles = allFiles.filter((file) => !isTestFile(file.path));
-        const allContent = sourceFiles.map((file) => file.content).join('\n');
+        const sourceFiles = selectSourceFiles(allFiles);
+        const allContent = joinContents(sourceFiles);
         const constants = extractConstants(allContent);
-
-        const specFiles = sourceFiles.filter(
-            (file) =>
-                file.path.includes('Specs') ||
-                file.path.includes('const') ||
-                file.path.includes('schema') ||
-                file.path.includes('parser') ||
-                (file.path.endsWith('/index.ts') && dirname(file.path) === extDir),
-        );
-        const specContent = specFiles.map((file) => file.content).join('\n');
-
-        const nodes = resolveAllConstants(
-            [...extractAddNode(specContent), ...extractNodeSpecs(specContent)],
-            constants,
-        );
-        const marks = resolveAllConstants(
-            [...extractAddMark(specContent), ...extractMarkSpecs(specContent)],
-            constants,
-        );
+        const specContent = joinContents(selectSpecFiles(sourceFiles, extDir));
+        const {nodes, marks} = extractSchema(specContent, constants);
         const actions = resolveAllConstants(extractActions(allContent), constants);
-
-        const serializerContent = sourceFiles
-            .filter((file) => file.path.includes('serializer') || file.path.includes('Specs'))
-            .map((file) => file.content)
-            .join('\n');
-
-        const rootIndexFile = sourceFiles.find(
-            (file) => file.path.endsWith('/index.ts') && dirname(file.path) === extDir,
-        );
-        const specsIndexFile = sourceFiles.find(
-            (file) => file.path.includes('Specs') && file.path.endsWith('/index.ts'),
-        );
-
-        const options = rootIndexFile ? extractOptionsType(rootIndexFile.content) : [];
-        if (options.length === 0 && specsIndexFile) {
-            options.push(...extractOptionsType(specsIndexFile.content));
-        }
+        const serializerContent = joinContents(selectSerializerFiles(sourceFiles));
 
         return {
             name,
@@ -102,14 +190,8 @@ export class ExtensionExtractor {
             plugins: [...new Set(extractPlugins(allContent))],
             mdPlugins: [...new Set(extractMdPlugins(allContent))],
             serializerHints: [...new Set(extractSerializerSyntax(serializerContent))],
-            options,
-            markupExamples: [
-                ...new Set(
-                    allFiles
-                        .filter((file) => isTestFile(file.path))
-                        .flatMap((file) => extractTestExamples(file.content)),
-                ),
-            ],
+            options: extractOptions(sourceFiles, extDir),
+            markupExamples: extractMarkupExamples(allFiles),
             presets: [],
         };
     }
@@ -121,7 +203,7 @@ export class ExtensionExtractor {
         const onlySet = only?.length ? new Set(only) : null;
         const extensions = [];
 
-        for (const category of extensionCategories) {
+        for (const category of EXTENSION_CATEGORIES) {
             const categoryDir = join(this.extensionsDir, category);
             for (const dirName of listDirs(categoryDir)) {
                 if (isInternalExtension(dirName) || (onlySet && !onlySet.has(dirName))) continue;
@@ -152,17 +234,8 @@ export class ExtensionExtractor {
             extension.presets = getPresetsForExtension(presetMap, extension.name);
         }
 
-        writeFileSync(
-            join(this.outDir, 'extensions.json'),
-            JSON.stringify({version, extensions}, null, 2) + '\n',
-        );
-
-        for (const extension of extensions) {
-            writeFileSync(
-                join(this.rawDir, `${extension.name}.md`),
-                generateRawMd(extension, presetMap, version),
-            );
-        }
+        writeExtensionsJson(this.outDir, version, extensions);
+        writeRawMarkdownFiles(this.rawDir, extensions, presetMap, version);
 
         logger.success(`Raw data written to ${this.outDir}`);
         logger.info(`Extensions: ${extensions.length}`);

@@ -1,12 +1,11 @@
 #!/usr/bin/env node
-import {isAbsolute, join, resolve} from 'node:path';
+import {isAbsolute, join} from 'node:path';
 import process from 'node:process';
 import {fileURLToPath} from 'node:url';
 
+import {DOCS_GEN_DIR, EDITOR_PKG_DIR, REPO_ROOT} from './config.mjs';
 import {ExtensionExtractor} from './extractor/index.mjs';
 import {logger} from './logger.mjs';
-
-const REPO_ROOT = resolve(fileURLToPath(new URL('../../..', import.meta.url)));
 
 /**
  * Resolves a path from the repository root.
@@ -20,8 +19,8 @@ function resolveFromRoot(path) {
  */
 export function parseArgs(args = process.argv.slice(2)) {
     const opts = {
-        editorPkg: join(REPO_ROOT, 'packages/editor'),
-        outDir: join(REPO_ROOT, 'tmp/docs-gen'),
+        editorPkg: EDITOR_PKG_DIR,
+        outDir: DOCS_GEN_DIR,
         only: null,
     };
 
