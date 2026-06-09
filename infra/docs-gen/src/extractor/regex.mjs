@@ -1,3 +1,6 @@
+/**
+ * Extracts ProseMirror node registrations from builder calls.
+ */
 export function extractAddNode(content) {
     const nodes = [];
     const re = /builder\s*\.addNode\(\s*(?:(\w+\.\w+)|(\w+)|['"]([^'"]+)['"])\s*,\s*(?:\(|$)/gm;
@@ -14,6 +17,9 @@ export function extractAddNode(content) {
     return nodes;
 }
 
+/**
+ * Extracts ProseMirror mark registrations from builder calls.
+ */
 export function extractAddMark(content) {
     const marks = [];
     const re = /builder\s*\.addMark\(\s*\n?\s*(?:(\w+\.\w+)|(\w+)|['"]([^'"]+)['"])\s*,/g;
@@ -30,6 +36,9 @@ export function extractAddMark(content) {
     return marks;
 }
 
+/**
+ * Extracts node names from node spec registrations.
+ */
 export function extractNodeSpecs(content) {
     const nodes = [];
     const re = /\.addNodeSpec\(\s*\{\s*name:\s*(?:(\w+\.\w+)|(\w+)|['"]([^'"]+)['"])/g;
@@ -40,6 +49,9 @@ export function extractNodeSpecs(content) {
     return nodes;
 }
 
+/**
+ * Extracts mark names from mark spec registrations.
+ */
 export function extractMarkSpecs(content) {
     const marks = [];
     const re = /\.addMarkSpec\(\s*\{\s*name:\s*(?:(\w+\.\w+)|(\w+)|['"]([^'"]+)['"])/g;
@@ -50,6 +62,9 @@ export function extractMarkSpecs(content) {
     return marks;
 }
 
+/**
+ * Extracts editor action identifiers from builder calls.
+ */
 export function extractActions(content) {
     const actions = [];
     const re = /builder\s*\.addAction\(\s*(?:(\w+\.\w+)|(\w+)|['"]([^'"]+)['"])/g;
@@ -66,6 +81,9 @@ export function extractActions(content) {
     return actions;
 }
 
+/**
+ * Extracts ProseMirror plugin factory names.
+ */
 export function extractPlugins(content) {
     const plugins = [];
     const re = /\.addPlugin\(\s*(\w+)/g;
@@ -76,6 +94,9 @@ export function extractPlugins(content) {
     return plugins;
 }
 
+/**
+ * Finds the next non-whitespace character index.
+ */
 function skipWhitespace(content, index) {
     let cursor = index;
     while (cursor < content.length && /\s/.test(content[cursor])) {
@@ -84,6 +105,9 @@ function skipWhitespace(content, index) {
     return cursor;
 }
 
+/**
+ * Reads a balanced bracketed block while ignoring comments and strings.
+ */
 export function readBalanced(content, startIndex, openChar, closeChar) {
     let depth = 0;
     let quote = null;
@@ -149,6 +173,9 @@ export function readBalanced(content, startIndex, openChar, closeChar) {
     return null;
 }
 
+/**
+ * Reads an expression until a top-level stop character.
+ */
 function readExpression(content, startIndex, stopChars) {
     let parenDepth = 0;
     let braceDepth = 0;
@@ -220,6 +247,9 @@ function readExpression(content, startIndex, stopChars) {
     return {body: content.slice(startIndex).trim(), endIndex: content.length};
 }
 
+/**
+ * Splits content by top-level commas.
+ */
 function splitTopLevel(content) {
     const parts = [];
     let segmentStart = 0;
@@ -292,6 +322,9 @@ function splitTopLevel(content) {
     return parts;
 }
 
+/**
+ * Finds a top-level arrow token.
+ */
 function findArrowIndex(content, startIndex) {
     let parenDepth = 0;
     let braceDepth = 0;
@@ -364,6 +397,9 @@ function findArrowIndex(content, startIndex) {
     return -1;
 }
 
+/**
+ * Extracts static keys from an object literal.
+ */
 function extractObjectLiteralKeys(content, knownObjects = new Map()) {
     let objectBody = content.trim();
     if (objectBody.startsWith('(') && objectBody.endsWith(')')) {
@@ -407,6 +443,9 @@ function extractObjectLiteralKeys(content, knownObjects = new Map()) {
     return keys;
 }
 
+/**
+ * Extracts named keymap objects declared inside a callback body.
+ */
 function extractKnownKeymapObjects(blockBody) {
     const knownObjects = new Map();
     const declarationRe = /(?:const|let|var)\s+(\w+)(?::[^=;]+)?=\s*\{/g;
@@ -441,6 +480,9 @@ function extractKnownKeymapObjects(blockBody) {
     return new Map([...knownObjects.entries()].map(([name, keys]) => [name, [...new Set(keys)]]));
 }
 
+/**
+ * Extracts static keys from a returned keymap expression.
+ */
 function extractReturnedKeys(blockBody) {
     const knownObjects = extractKnownKeymapObjects(blockBody);
     let parenDepth = 0;
@@ -529,6 +571,9 @@ function extractReturnedKeys(blockBody) {
     return [];
 }
 
+/**
+ * Extracts callback bodies passed to addKeymap.
+ */
 function extractKeymapCallbackBodies(content) {
     const bodies = [];
     let index = 0;
@@ -569,6 +614,9 @@ function extractKeymapCallbackBodies(content) {
     return bodies;
 }
 
+/**
+ * Extracts static key bindings from addKeymap callbacks.
+ */
 export function extractKeymaps(content) {
     const keymaps = [];
 
@@ -586,6 +634,9 @@ export function extractKeymaps(content) {
     return [...new Set(keymaps)];
 }
 
+/**
+ * Extracts input-rule syntax patterns.
+ */
 export function extractInputRules(content) {
     const rules = [];
     const re =
@@ -603,6 +654,9 @@ export function extractInputRules(content) {
     return rules;
 }
 
+/**
+ * Extracts markdown-it plugin registrations.
+ */
 export function extractMdPlugins(content) {
     const plugins = [];
     const re = /md\.use\(\s*(\w+)/g;
@@ -613,6 +667,9 @@ export function extractMdPlugins(content) {
     return plugins;
 }
 
+/**
+ * Extracts exported extension options fields.
+ */
 export function extractOptionsType(content) {
     const fields = [];
     const re = /export\s+type\s+\w+Options\s*(?:=\s*(?:\w+\s*&\s*)?)?(?:\{([^}]*)\}|([^;]*))/gs;
@@ -634,6 +691,9 @@ export function extractOptionsType(content) {
     return fields;
 }
 
+/**
+ * Extracts markdown examples from serializer test helpers.
+ */
 export function extractTestExamples(content) {
     const examples = [];
     const singleQuoteRe = /same\(\s*'([^']+)'/g;
@@ -650,6 +710,9 @@ export function extractTestExamples(content) {
     return examples;
 }
 
+/**
+ * Extracts serializer output snippets.
+ */
 export function extractSerializerSyntax(content) {
     const snippets = [];
     const writeRe = /state\.write\(\s*[`'"]([^`'"]*)[`'"]/g;

@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import {test} from 'node:test';
 
-import {extractConstants, resolveAllConstants} from './constants.mjs';
+import {extractConstants, resolveAllConstants} from '../../src/extractor/constants.mjs';
 
 test('extractConstants captures top-level scalar object props with nested objects', () => {
     const content = [

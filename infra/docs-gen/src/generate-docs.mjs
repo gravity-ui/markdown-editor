@@ -23,8 +23,7 @@ const GITHUB_RAW_RE =
 const HEADER_RE = /^#{5}\s+(.+)$/;
 
 /**
- * Converts a string to a URL-friendly slug (lowercase, alphanumeric, hyphens).
- * @param str
+ * Converts a string to a URL-friendly slug.
  */
 function slugify(str) {
     return str
@@ -34,8 +33,7 @@ function slugify(str) {
 }
 
 /**
- * Extracts category and title from a `##### Category / Title` header line.
- * @param firstLine
+ * Extracts category and title from a metadata header.
  */
 function parseHeader(firstLine) {
     const match = firstLine.match(HEADER_RE);
@@ -94,8 +92,7 @@ function collectDocs() {
 }
 
 /**
- * Splits docs into a category map and a top-level (uncategorized) list.
- * @param docs
+ * Splits docs into categorized and top-level groups.
  */
 function groupByCategory(docs) {
     const categories = new Map();
@@ -116,8 +113,7 @@ function groupByCategory(docs) {
 }
 
 /**
- * Builds a relative output file path from the doc's category and title slugs.
- * @param doc
+ * Builds a relative output file path.
  */
 function computeOutputPath(doc) {
     if (doc.category) {
@@ -127,8 +123,7 @@ function computeOutputPath(doc) {
 }
 
 /**
- * Ensures no two docs resolve to the same output path; exits on collision.
- * @param docs
+ * Ensures no two docs resolve to the same output path.
  */
 function checkDuplicatePaths(docs) {
     const seen = new Map();
@@ -145,9 +140,7 @@ function checkDuplicatePaths(docs) {
 }
 
 /**
- * Rewrites absolute GitHub raw URLs to relative paths based on doc nesting depth.
- * @param content
- * @param doc
+ * Rewrites absolute GitHub raw URLs to relative asset paths.
  */
 function rewriteAssetUrls(content, doc) {
     const prefix = doc.category ? '../' : './';
@@ -155,8 +148,7 @@ function rewriteAssetUrls(content, doc) {
 }
 
 /**
- * Writes stripped markdown content to categorized output paths.
- * @param docs
+ * Writes stripped Markdown content to categorized output paths.
  */
 function writeDocFiles(docs) {
     checkDuplicatePaths(docs);
@@ -168,8 +160,7 @@ function writeDocFiles(docs) {
 }
 
 /**
- * Wraps a string in double quotes if it contains YAML special characters.
- * @param str
+ * Wraps YAML values that contain special characters.
  */
 function yamlQuote(str) {
     if (/[:#"'{}[\],&*?|>!%@`]/.test(str)) {
@@ -179,9 +170,7 @@ function yamlQuote(str) {
 }
 
 /**
- * Generates the `toc.yaml` table of contents for the YFM documentation site.
- * @param categories
- * @param topLevel
+ * Generates the table of contents for the documentation site.
  */
 function generateTocYaml(categories, topLevel) {
     const lines = [
@@ -210,9 +199,7 @@ function generateTocYaml(categories, topLevel) {
 }
 
 /**
- * Generates the `index.md` landing page with links to all doc pages.
- * @param categories
- * @param topLevel
+ * Generates the landing page with links to all doc pages.
  */
 function generateIndexMd(categories, topLevel) {
     const lines = [

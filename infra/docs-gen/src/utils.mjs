@@ -1,10 +1,16 @@
 import {existsSync, readFileSync, readdirSync, statSync} from 'node:fs';
 import {join} from 'node:path';
 
+/**
+ * Reads a UTF-8 text file.
+ */
 export function readText(filePath) {
     return readFileSync(filePath, 'utf-8');
 }
 
+/**
+ * Lists uppercase-named child directories.
+ */
 export function listDirs(dir) {
     if (!existsSync(dir)) return [];
 
@@ -16,6 +22,9 @@ export function listDirs(dir) {
         .sort();
 }
 
+/**
+ * Finds recursive directory entries matching a pattern.
+ */
 export function findFiles(dir, pattern) {
     if (!existsSync(dir)) return [];
 
@@ -25,6 +34,9 @@ export function findFiles(dir, pattern) {
         .sort();
 }
 
+/**
+ * Reads recursive TypeScript source files.
+ */
 export function readAllTsFiles(dir) {
     return findFiles(dir, /\.tsx?$/).map((path) => ({path, content: readText(path)}));
 }

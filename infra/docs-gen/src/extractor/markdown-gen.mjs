@@ -1,9 +1,15 @@
 import {getPresetsForExtension} from './presets.mjs';
 
+/**
+ * Formats a value as inline Markdown code.
+ */
 function code(value) {
     return `\`${String(value).replace(/\|/g, '\\|').replace(/\n/g, '\\n')}\``;
 }
 
+/**
+ * Adds a Markdown list section when values are present.
+ */
 function addList(lines, title, values) {
     if (values.length === 0) return;
 
@@ -14,6 +20,9 @@ function addList(lines, title, values) {
     lines.push('');
 }
 
+/**
+ * Generates a raw Markdown page for extracted extension data.
+ */
 export function generateRawMd(extension, presetMap, version) {
     const presets = getPresetsForExtension(presetMap, extension.name);
     const lines = [

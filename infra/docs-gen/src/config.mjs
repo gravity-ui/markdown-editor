@@ -8,6 +8,9 @@ export const internalExtensions = [
     'SharedState',
 ];
 
+/**
+ * Checks whether an extension is internal-only infrastructure.
+ */
 export function isInternalExtension(name) {
     return internalExtensions.includes(name);
 }

@@ -8,10 +8,16 @@ import {logger} from './logger.mjs';
 
 const REPO_ROOT = resolve(fileURLToPath(new URL('../../..', import.meta.url)));
 
+/**
+ * Resolves a path from the repository root.
+ */
 function resolveFromRoot(path) {
     return isAbsolute(path) ? path : join(REPO_ROOT, path);
 }
 
+/**
+ * Parses CLI options for extension data extraction.
+ */
 export function parseArgs(args = process.argv.slice(2)) {
     const opts = {
         editorPkg: join(REPO_ROOT, 'packages/editor'),
@@ -47,6 +53,9 @@ export function parseArgs(args = process.argv.slice(2)) {
     return opts;
 }
 
+/**
+ * Prints command usage information.
+ */
 function printHelp() {
     logger.info('Usage: pnpm --filter @markdown-editor/docs-gen run extract [options]');
     logger.info('');
@@ -56,6 +65,9 @@ function printHelp() {
     logger.info('  --editor-pkg path      Override packages/editor path');
 }
 
+/**
+ * Runs extension data extraction from CLI arguments.
+ */
 export function main(args = process.argv.slice(2)) {
     const opts = parseArgs(args);
     if (opts.help) {

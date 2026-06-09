@@ -11,6 +11,9 @@ const PRESET_DEFS = [
     {name: 'FullPreset', file: 'full.ts', parent: 'YfmPreset'},
 ];
 
+/**
+ * Parses preset files into inherited extension membership.
+ */
 export function parsePresets(presetsDir) {
     const presetMap = new Map();
 
@@ -37,6 +40,9 @@ export function parsePresets(presetsDir) {
     return presetMap;
 }
 
+/**
+ * Finds presets that include an extension.
+ */
 export function getPresetsForExtension(presetMap, extensionName) {
     const presets = [];
 

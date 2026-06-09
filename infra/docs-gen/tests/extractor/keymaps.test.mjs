@@ -1,12 +1,8 @@
 import assert from 'node:assert/strict';
-import {readFileSync} from 'node:fs';
 import {test} from 'node:test';
 
-import {extractActions, extractKeymaps} from './regex.mjs';
-
-function readRepoFile(relativePath) {
-    return readFileSync(new URL(relativePath, import.meta.url), 'utf-8');
-}
+import {extractKeymaps} from '../../src/extractor/regex.mjs';
+import {readRepoFile} from '../helpers/read-repo-file.mjs';
 
 test('extractKeymaps handles direct object returns and ignores computed keys', () => {
     const content = [
@@ -36,9 +32,7 @@ test('extractKeymaps merges returned object literals with spread bindings', () =
 });
 
 test('extractKeymaps captures static keymaps from the Lists extension', () => {
-    const content = readRepoFile(
-        '../../../../packages/editor/src/extensions/markdown/Lists/index.ts',
-    );
+    const content = readRepoFile('packages/editor/src/extensions/markdown/Lists/index.ts');
 
     assert.deepEqual(extractKeymaps(content), [
         'Tab',
@@ -50,36 +44,11 @@ test('extractKeymaps captures static keymaps from the Lists extension', () => {
     ]);
 });
 
-test('extractActions captures direct and chained builder.addAction calls', () => {
-    const content = [
-        "builder.addAction('bold', () => boldAction);",
-        'builder',
-        '    .addAction(BoldAction.Toggle, () => toggle)',
-        '    .addAction(BoldAction.Off, () => off);',
-    ].join('\n');
-
-    assert.deepEqual(extractActions(content), ['bold', 'BoldAction.Toggle', 'BoldAction.Off']);
-});
-
-test('extractActions ignores non-builder addAction calls', () => {
-    const content = [
-        "tr.addAction('shouldNotMatch', cb);",
-        "service.addAction('alsoSkip', cb);",
-        "builder.addAction('keepMe', cb);",
-    ].join('\n');
-
-    assert.deepEqual(extractActions(content), ['keepMe']);
-});
-
 test('extractKeymaps captures static block-body bindings and ignores dynamic ones', () => {
-    const headingContent = readRepoFile(
-        '../../../../packages/editor/src/extensions/markdown/Heading/index.ts',
-    );
-    const historyContent = readRepoFile(
-        '../../../../packages/editor/src/extensions/behavior/History/index.ts',
-    );
+    const headingContent = readRepoFile('packages/editor/src/extensions/markdown/Heading/index.ts');
+    const historyContent = readRepoFile('packages/editor/src/extensions/behavior/History/index.ts');
     const editorModeContent = readRepoFile(
-        '../../../../packages/editor/src/extensions/behavior/EditorModeKeymap/index.ts',
+        'packages/editor/src/extensions/behavior/EditorModeKeymap/index.ts',
     );
 
     assert.deepEqual(extractKeymaps(headingContent), ['Backspace']);

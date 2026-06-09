@@ -1,5 +1,8 @@
 import {readBalanced} from './regex.mjs';
 
+/**
+ * Extracts string-valued constants, enums, and scalar object members.
+ */
 export function extractConstants(content) {
     const names = new Map();
     let match;
@@ -60,6 +63,9 @@ export function extractConstants(content) {
     return names;
 }
 
+/**
+ * Resolves one raw identifier through the constants map.
+ */
 export function resolveConstant(raw, constants) {
     if (!raw) return raw;
     if (raw.startsWith("'") || raw.startsWith('"')) return raw.slice(1, -1);
@@ -76,6 +82,9 @@ export function resolveConstant(raw, constants) {
     return raw;
 }
 
+/**
+ * Resolves a list of raw identifiers and expands constant namespaces.
+ */
 export function resolveAllConstants(rawList, constants) {
     const resolved = [];
 
@@ -119,6 +128,9 @@ export function resolveAllConstants(rawList, constants) {
     return [...new Set(resolved)];
 }
 
+/**
+ * Yields scalar properties from top-level object literal segments.
+ */
 function* extractTopLevelScalarProps(body) {
     let parenDepth = 0;
     let braceDepth = 0;

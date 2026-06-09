@@ -23,11 +23,17 @@ import {
     extractTestExamples,
 } from './regex.mjs';
 
+/**
+ * Checks whether a file path points to a TypeScript test file.
+ */
 function isTestFile(path) {
     return /\.test\.tsx?$/.test(path);
 }
 
 export class ExtensionExtractor {
+    /**
+     * Creates an extension extractor for editor source paths.
+     */
     constructor({editorPkg, outDir, repoRoot}) {
         this.editorPkg = editorPkg;
         this.repoRoot = repoRoot;
@@ -37,6 +43,9 @@ export class ExtensionExtractor {
         this.rawDir = join(outDir, 'raw');
     }
 
+    /**
+     * Scans one extension directory into raw metadata.
+     */
     scan(extDir, category) {
         const name = basename(extDir);
         const allFiles = readAllTsFiles(extDir);
@@ -105,6 +114,9 @@ export class ExtensionExtractor {
         };
     }
 
+    /**
+     * Scans all configured extension categories.
+     */
     scanAll({only} = {}) {
         const onlySet = only?.length ? new Set(only) : null;
         const extensions = [];
@@ -121,6 +133,9 @@ export class ExtensionExtractor {
         return extensions;
     }
 
+    /**
+     * Writes extracted JSON IR and raw Markdown files.
+     */
     run({only} = {}) {
         logger.info('Extracting raw extension data...');
 
@@ -155,6 +170,9 @@ export class ExtensionExtractor {
         return {version, extensions};
     }
 
+    /**
+     * Reads the editor package version.
+     */
     getEditorVersion() {
         const pkg = JSON.parse(readText(join(this.editorPkg, 'package.json')));
         return pkg.version;
