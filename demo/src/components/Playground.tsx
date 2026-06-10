@@ -431,6 +431,13 @@ export const Playground = memo<PlaygroundProps>((props) => {
                             }}
                         />
                         <DropdownMenu.Item
+                            text="Insert"
+                            action={() => {
+                                mdEditor.insert('> insert');
+                                mdEditor.focus();
+                            }}
+                        />
+                        <DropdownMenu.Item
                             text="Move cursor to start"
                             action={() => {
                                 mdEditor.moveCursor('start');
