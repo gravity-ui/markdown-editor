@@ -15,38 +15,80 @@ function resolveFromRoot(path) {
 }
 
 /**
- * Parses CLI options for extension data extraction.
+ * Creates default CLI options.
  */
-export function parseArgs(args = process.argv.slice(2)) {
-    const opts = {
+function createDefaultOptions() {
+    return {
         editorPkg: EDITOR_PKG_DIR,
         outDir: DOCS_GEN_DIR,
         only: null,
     };
+}
+
+/**
+ * Reads a required option value.
+ */
+function readOptionValue(args, index, optionName) {
+    const value = args[index + 1];
+    if (!value || value.startsWith('--')) {
+        throw new Error(`Missing value for ${optionName}`);
+    }
+
+    return value;
+}
+
+/**
+ * Parses comma-separated extension names.
+ */
+function parseOnlyOption(value) {
+    return value
+        .split(',')
+        .map((item) => item.trim())
+        .filter(Boolean);
+}
+
+/**
+ * Applies one CLI option to a new options object.
+ */
+function applyOption(opts, args, index) {
+    const arg = args[index];
+
+    switch (arg) {
+        case '--editor-pkg':
+            return {
+                nextIndex: index + 1,
+                opts: {...opts, editorPkg: resolveFromRoot(readOptionValue(args, index, arg))},
+            };
+        case '--out-dir':
+            return {
+                nextIndex: index + 1,
+                opts: {...opts, outDir: resolveFromRoot(readOptionValue(args, index, arg))},
+            };
+        case '--only':
+            return {
+                nextIndex: index + 1,
+                opts: {...opts, only: parseOnlyOption(readOptionValue(args, index, arg))},
+            };
+        case '--help':
+            return {nextIndex: index, opts: {...opts, help: true}};
+        default:
+            throw new Error(`Unknown option: ${arg}`);
+    }
+}
+
+/**
+ * Parses CLI options for extension data extraction.
+ */
+export function parseArgs(args = process.argv.slice(2)) {
+    let opts = createDefaultOptions();
 
     for (let index = 0; index < args.length; index++) {
         const arg = args[index];
-        switch (arg) {
-            case '--':
-                break;
-            case '--editor-pkg':
-                opts.editorPkg = resolveFromRoot(args[++index]);
-                break;
-            case '--out-dir':
-                opts.outDir = resolveFromRoot(args[++index]);
-                break;
-            case '--only':
-                opts.only = args[++index]
-                    ?.split(',')
-                    .map((value) => value.trim())
-                    .filter(Boolean);
-                break;
-            case '--help':
-                opts.help = true;
-                break;
-            default:
-                throw new Error(`Unknown option: ${arg}`);
-        }
+        if (arg === '--') return opts;
+
+        const parsedOption = applyOption(opts, args, index);
+        opts = parsedOption.opts;
+        index = parsedOption.nextIndex;
     }
 
     return opts;

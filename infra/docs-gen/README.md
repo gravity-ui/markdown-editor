@@ -30,11 +30,16 @@
 - `src/extractor/markdown-gen.mjs` renders one raw extension Markdown file from extracted metadata.
 - `src/extractor/presets.mjs` parses editor preset files and resolves inherited preset membership.
 - `src/extractor/constants.mjs` extracts string constants, enum values, object scalar members, and resolves references between them.
-- `src/extractor/regex.mjs` contains the source scanners for schema names, actions, keymaps, options, plugins, serializer hints, and markup examples.
+- `src/extractor/options.mjs` extracts extension option fields from local TypeScript option declarations.
+- `src/extractor/examples.mjs` extracts serializer test markup examples from `same(...)` calls and simple local string expressions.
+- `src/extractor/regex.mjs` contains shared scanner helpers and the source scanners for schema names, actions, keymaps, plugins, input rules, markdown-it plugins, and serializer hints.
 - `src/extractor/patterns.mjs` keeps the regular expressions used by extractor modules.
 - `src/extractor/actions.test.mjs` covers action extraction behavior.
+- `src/extractor/cli.test.mjs` covers extraction CLI argument parsing.
 - `src/extractor/constants.test.mjs` covers constant extraction and reference resolution behavior.
+- `src/extractor/examples.test.mjs` covers markup example extraction behavior.
 - `src/extractor/keymaps.test.mjs` covers keymap extraction behavior.
+- `src/extractor/options.test.mjs` covers option declaration extraction behavior.
 
 ## Output
 

@@ -12,10 +12,6 @@ import {
     MARK_SPEC_RE,
     MD_PLUGIN_RE,
     NODE_SPEC_RE,
-    OPTIONS_TYPE_RE,
-    OPTION_FIELD_RE,
-    SAME_SINGLE_QUOTE_RE,
-    SAME_TEMPLATE_RE,
     STATE_TEXT_RE,
     STATE_WRITE_RE,
     STATIC_COMPUTED_ASSIGNMENT_RE,
@@ -25,7 +21,7 @@ import {
 /**
  * Resets a global regular expression before scanning.
  */
-function resetPattern(pattern) {
+export function resetPattern(pattern) {
     pattern.lastIndex = 0;
     return pattern;
 }
@@ -105,7 +101,7 @@ export function extractPlugins(content) {
 /**
  * Finds the next non-whitespace character index.
  */
-function skipWhitespace(content, index) {
+export function skipWhitespace(content, index) {
     let cursor = index;
     while (cursor < content.length && /\s/.test(content[cursor])) {
         cursor++;
@@ -184,7 +180,7 @@ export function readBalanced(content, startIndex, openChar, closeChar) {
 /**
  * Reads an expression until a top-level stop character.
  */
-function readExpression(content, startIndex, stopChars) {
+export function readExpression(content, startIndex, stopChars) {
     let parenDepth = 0;
     let braceDepth = 0;
     let bracketDepth = 0;
@@ -256,14 +252,15 @@ function readExpression(content, startIndex, stopChars) {
 }
 
 /**
- * Splits content by top-level commas.
+ * Splits content by top-level separators.
  */
-function splitTopLevel(content) {
+export function splitTopLevelBy(content, separators, {trackAngles = false} = {}) {
     const parts = [];
     let segmentStart = 0;
     let parenDepth = 0;
     let braceDepth = 0;
     let bracketDepth = 0;
+    let angleDepth = 0;
     let quote = null;
     let inBlockComment = false;
     let inLineComment = false;
@@ -317,8 +314,18 @@ function splitTopLevel(content) {
         else if (char === '}') braceDepth--;
         else if (char === '[') bracketDepth++;
         else if (char === ']') bracketDepth--;
+        else if (trackAngles && char === '<') angleDepth++;
+        else if (trackAngles && char === '>' && content[index - 1] !== '=' && angleDepth > 0) {
+            angleDepth--;
+        }
 
-        if (char === ',' && parenDepth === 0 && braceDepth === 0 && bracketDepth === 0) {
+        if (
+            separators.includes(char) &&
+            parenDepth === 0 &&
+            braceDepth === 0 &&
+            bracketDepth === 0 &&
+            angleDepth === 0
+        ) {
             parts.push(content.slice(segmentStart, index).trim());
             segmentStart = index + 1;
         }
@@ -328,6 +335,13 @@ function splitTopLevel(content) {
     if (tail) parts.push(tail);
 
     return parts;
+}
+
+/**
+ * Splits content by top-level commas.
+ */
+export function splitTopLevel(content) {
+    return splitTopLevelBy(content, [',']);
 }
 
 /**
@@ -672,49 +686,6 @@ export function extractMdPlugins(content) {
         plugins.push(match[1]);
     }
     return plugins;
-}
-
-/**
- * Extracts exported extension options fields.
- */
-export function extractOptionsType(content) {
-    const fields = [];
-    const re = resetPattern(OPTIONS_TYPE_RE);
-    const match = re.exec(content);
-    if (!match) return fields;
-
-    const block = match[1] || match[2] || '';
-    const fieldRe = resetPattern(OPTION_FIELD_RE);
-    let fieldMatch;
-
-    while ((fieldMatch = fieldRe.exec(block))) {
-        const name = fieldMatch[1].trim();
-        const type = fieldMatch[2].trim().replace(/\s+/g, ' ');
-        if (name && !name.startsWith('//')) {
-            fields.push({name, type});
-        }
-    }
-
-    return fields;
-}
-
-/**
- * Extracts markdown examples from serializer test helpers.
- */
-export function extractTestExamples(content) {
-    const examples = [];
-    const singleQuoteRe = resetPattern(SAME_SINGLE_QUOTE_RE);
-    let match;
-    while ((match = singleQuoteRe.exec(content))) {
-        examples.push(match[1]);
-    }
-
-    const templateRe = resetPattern(SAME_TEMPLATE_RE);
-    while ((match = templateRe.exec(content))) {
-        examples.push(match[1]);
-    }
-
-    return examples;
 }
 
 /**

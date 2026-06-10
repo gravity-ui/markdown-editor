@@ -3,6 +3,8 @@ import {basename, relative} from 'node:path';
 import {readAllTsFiles} from '../utils.mjs';
 
 import {extractConstants, resolveAllConstants} from './constants.mjs';
+import {extractTestExamples} from './examples.mjs';
+import {extractOptionsType} from './options.mjs';
 import {
     extractActions,
     extractAddMark,
@@ -12,10 +14,8 @@ import {
     extractMarkSpecs,
     extractMdPlugins,
     extractNodeSpecs,
-    extractOptionsType,
     extractPlugins,
     extractSerializerSyntax,
-    extractTestExamples,
 } from './regex.mjs';
 import {
     findRootIndexFile,
@@ -72,18 +72,26 @@ export function extractSchema(specContent, constants) {
 }
 
 /**
- * Extracts extension options from root or specs index files.
+ * Builds option declaration names preferred for an extension.
  */
-export function extractOptions(sourceFiles, extDir) {
+function buildPreferredOptionNames(extensionName) {
+    return [`${extensionName}Options`, `${extensionName}SpecsOptions`];
+}
+
+/**
+ * Extracts extension options from local source declarations.
+ */
+export function extractOptions(sourceFiles, extDir, extensionName) {
     const rootIndexFile = findRootIndexFile(sourceFiles, extDir);
     const specsIndexFile = findSpecsIndexFile(sourceFiles);
-    const options = rootIndexFile ? extractOptionsType(rootIndexFile.content) : [];
+    const preferredNames = buildPreferredOptionNames(extensionName);
+    const allOptions = extractOptionsType(joinContents(sourceFiles), preferredNames);
 
-    if (options.length === 0 && specsIndexFile) {
-        options.push(...extractOptionsType(specsIndexFile.content));
-    }
+    if (allOptions.length > 0) return allOptions;
+    if (rootIndexFile) return extractOptionsType(rootIndexFile.content, preferredNames);
+    if (specsIndexFile) return extractOptionsType(specsIndexFile.content, preferredNames);
 
-    return options;
+    return [];
 }
 
 /**
@@ -183,7 +191,7 @@ export function scanExtension({extDir, category, repoRoot}) {
         plugins: extractPluginNames(allContent),
         mdPlugins: extractMdPluginNames(allContent),
         serializerHints: extractSerializerHints(sourceFiles),
-        options: extractOptions(sourceFiles, extDir),
+        options: extractOptions(sourceFiles, extDir, name),
         markupExamples: extractMarkupExamples(allFiles),
     });
 }

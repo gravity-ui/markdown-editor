@@ -15,11 +15,13 @@ flowchart TD
 
     SourceText --> Constants["extractConstants()<br/>src/extractor/constants.mjs"]
     SourceText --> RegexScanners["Source scanners<br/>src/extractor/regex.mjs + patterns.mjs"]
+    SourceText --> Options["Option declarations<br/>src/extractor/options.mjs"]
     SerializerFiles --> SerializerHints["Serializer hints"]
-    TestFiles --> MarkupExamples["Markup examples"]
+    TestFiles --> MarkupExamples["Markup examples<br/>src/extractor/examples.mjs"]
 
     Constants --> Schema["Schema names<br/>nodes and marks"]
-    RegexScanners --> ExtractedFields["Actions, keymaps, input rules,<br/>plugins, md plugins, options"]
+    RegexScanners --> ExtractedFields["Actions, keymaps, input rules,<br/>plugins, md plugins"]
+    Options --> ExtractedFields
     Schema --> IR["Extension IR record"]
     ExtractedFields --> IR
     SerializerHints --> IR
@@ -36,5 +38,5 @@ The extractor keeps orchestration and parsing separate:
 - `index.mjs` decides which extension directories are scanned and when output is written.
 - `scan.mjs` builds one extension record from source files and parser results.
 - `source-files.mjs` owns file selection rules.
-- `regex.mjs`, `constants.mjs`, and `patterns.mjs` own source parsing details.
+- `regex.mjs`, `options.mjs`, `examples.mjs`, `constants.mjs`, and `patterns.mjs` own source parsing details.
 - `output.mjs` and `markdown-gen.mjs` own generated artifacts.
