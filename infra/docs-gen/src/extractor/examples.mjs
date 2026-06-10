@@ -221,7 +221,7 @@ function extractSameFirstArguments(content) {
 
         const [firstArg] = splitTopLevel(callBody.body);
         if (firstArg) {
-            args.push(firstArg);
+            args.push({expression: firstArg, index: match.index});
         }
 
         re.lastIndex = callBody.endIndex + 1;
@@ -234,9 +234,9 @@ function extractSameFirstArguments(content) {
  * Extracts markdown examples from serializer test helpers.
  */
 export function extractTestExamples(content) {
-    const bindings = collectStringBindings(content);
-
     return extractSameFirstArguments(content)
-        .map((expression) => resolveStringExpression(expression, bindings))
+        .map(({expression, index}) =>
+            resolveStringExpression(expression, collectStringBindings(content.slice(0, index))),
+        )
         .filter((example) => example !== null);
 }
