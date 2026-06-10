@@ -5,7 +5,9 @@ import type {ReactNode} from 'react';
 import type {MarkupString} from '../common';
 import type {EscapeConfig, Extension} from '../core';
 import type {Logger2} from '../logger';
-import type {CreateCodemirrorParams, YfmLangOptions} from '../markup';
+import type {CreateCodemirrorParams} from '../markup/codemirror/create';
+import type {MarkupLineNumbersConfig} from '../markup/codemirror/line-highlight/types';
+import type {YfmLangOptions} from '../markup/codemirror/yfm';
 import type {FileUploadHandler} from '../utils';
 import type {DirectiveSyntaxContext, DirectiveSyntaxOption} from '../utils/directive';
 import type {ParseInsertedUrlAsImage} from '../utils/upload';
@@ -117,6 +119,7 @@ export type MarkdownEditorExperimentalOptions = {
      */
     preserveMarkupFormatting?: boolean;
 };
+export type {MarkupLineNumbersConfig};
 
 export type MarkdownEditorMarkupConfig = {
     /**
@@ -164,6 +167,15 @@ export type MarkdownEditorMarkupConfig = {
      * @default true
      */
     searchPanel?: boolean;
+    /**
+     * Line numbers configuration for the markup editor.
+     *
+     * When `enabled` is true, line numbers gutter is shown.
+     * When `highlightLines` is true, line highlighting extension is enabled
+     * (includes clickable line numbers and highlight decoration).
+     * @default undefined
+     */
+    lineNumbers?: MarkupLineNumbersConfig;
 };
 
 // do not export this type

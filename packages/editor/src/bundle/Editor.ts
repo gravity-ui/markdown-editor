@@ -62,6 +62,7 @@ export interface EditorInt
     readonly mdOptions: Readonly<MarkdownEditorMdOptions>;
     readonly directiveSyntax: DirectiveSyntaxContext;
     readonly mobile: boolean;
+    readonly markupConfig: MarkupConfig;
 
     /** @internal used in demo for dev-tools */
     readonly _wysiwygView?: PMEditorView;
@@ -280,6 +281,7 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
                     directiveSyntax: this.directiveSyntax,
                     receiver: this,
                     searchPanel: this.#markupConfig.searchPanel,
+                    lineNumbers: this.#markupConfig.lineNumbers,
                 }),
             );
         }
@@ -308,6 +310,14 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
 
     get mobile(): boolean {
         return this.#mobile;
+    }
+
+    get initialScrollToLine(): number | undefined {
+        return this.#markupConfig.lineNumbers?.scrollToLine;
+    }
+
+    get markupConfig(): MarkupConfig {
+        return this.#markupConfig;
     }
 
     constructor(opts: EditorOptions) {

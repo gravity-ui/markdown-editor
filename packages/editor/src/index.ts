@@ -13,7 +13,15 @@ export * from './view';
 export * from './utils';
 export * from './bundle';
 
-export {DirectiveSyntaxFacet, ReactRendererFacet, getImageDimensions} from './markup';
+export type {LineRange, LineHighlightOptions} from './markup';
+export type {MarkupLineNumbersConfig} from './bundle/types';
+export {
+    DirectiveSyntaxFacet,
+    ReactRendererFacet,
+    getImageDimensions,
+    lineHighlight,
+    setHighlightedLine,
+} from './markup';
 export * as MarkupCommands from './markup/commands';
 export * as MarkupHelpers from './markup/commands/helpers';
 
