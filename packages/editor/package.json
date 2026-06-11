@@ -232,7 +232,7 @@
     "@types/react": "catalog:react",
     "@types/react-dom": "catalog:react",
     "@types/rimraf": "3.0.2",
-    "@types/sanitize-html": "2.11.0",
+    "@types/sanitize-html": "2.16.1",
     "@markdown-editor/gulp-tasks": "workspace:*",
     "@markdown-editor/tsconfig": "workspace:*",
     "bem-cn-lite": "4.1.0",
