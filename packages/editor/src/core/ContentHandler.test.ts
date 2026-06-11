@@ -13,11 +13,17 @@ const schema = new Schema({
         doc: {content: 'block+'},
         text: {group: 'inline'},
         paragraph: {group: 'block', content: 'text*', toDOM: () => ['p', 0]},
+        code_block: {
+            group: 'block',
+            content: 'text*',
+            code: true,
+            toDOM: () => ['pre', ['code', 0]],
+        },
     },
     marks: {},
 });
 
-const {doc, paragraph: p} = builders(schema);
+const {doc, paragraph: p, code_block: cb} = builders(schema);
 
 const fakeParser: Parser = {
     parse(markup) {
@@ -170,5 +176,22 @@ describe('WysiwygContentHandler', () => {
         const contentHandler = new WysiwygContentHandler(view, fakeParser);
         contentHandler.insert(' inserted');
         expect(view.state.doc.firstChild?.textContent).toBe('hello inserted world');
+    });
+
+    it('should insert as plain text when cursor is inside a code block', () => {
+        const document = doc(cb('existing code'));
+        const view = new EditorView(null, {
+            state: EditorState.create({
+                doc: document,
+                selection: TextSelection.create(document, 9),
+            }),
+        });
+        const contentHandler = new WysiwygContentHandler(view, fakeParser);
+        contentHandler.insert('![](https://example.com/img.png)');
+        expect(view.state.doc.childCount).toBe(1);
+        expect(view.state.doc.firstChild?.type.spec.code).toBe(true);
+        expect(view.state.doc.firstChild?.textContent).toBe(
+            'existing![](https://example.com/img.png) code',
+        );
     });
 });

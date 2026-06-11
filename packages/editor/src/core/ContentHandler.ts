@@ -1,4 +1,4 @@
-import {Slice} from 'prosemirror-model';
+import {type Fragment, Slice} from 'prosemirror-model';
 import {AllSelection, TextSelection, type Transaction} from 'prosemirror-state';
 import type {EditorView} from 'prosemirror-view';
 
@@ -54,12 +54,21 @@ export class WysiwygContentHandler implements ContentHandler {
 
     insert(markup: MarkupString): void {
         const {state} = this.#view;
-        const pos = state.selection.from;
-        const inlineContent = this.#parser.parse(markup).firstChild?.content;
 
-        if (inlineContent && inlineContent.size > 0) {
-            this.#view.dispatch(state.tr.insert(pos, inlineContent));
+        const $from = state.selection.$from;
+        if ($from.parent.type.spec.code) {
+            const {tr} = state;
+            tr.replaceSelectionWith(state.schema.text(markup), true);
+            this.#view.dispatch(tr.scrollIntoView());
+            return;
         }
+
+        const content = this.#parser.parse(markup).content;
+
+        if (content.size === 0) return;
+
+        const slice = getSliceFromMarkupFragment(content);
+        this.#view.dispatch(state.tr.replaceSelection(slice).scrollIntoView());
     }
 
     moveCursor(position: 'start' | 'end'): void {
@@ -97,4 +106,16 @@ export class WysiwygContentHandler implements ContentHandler {
     private appendContentTr(tr: Transaction, markup: MarkupString) {
         return tr.insert(tr.doc.nodeSize - 2, this.#parser.parse(markup).content);
     }
+}
+
+function getSliceFromMarkupFragment(fragment: Fragment): Slice {
+    let start = 0;
+    let end = 0;
+    if (fragment.firstChild?.isTextblock) {
+        start = 1;
+        if (fragment.childCount === 1) {
+            end = 1;
+        }
+    }
+    return new Slice(fragment, start, end);
 }

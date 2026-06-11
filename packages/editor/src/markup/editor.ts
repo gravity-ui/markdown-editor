@@ -79,11 +79,7 @@ export class Editor implements CommonEditor, CodeEditor {
     }
 
     insert(markup: MarkupString): void {
-        const pos = this.#cm.state.selection.main.head;
-        this.#cm.dispatch({
-            changes: {from: pos, insert: markup},
-            selection: {anchor: pos + markup.length},
-        });
+        this.#cm.dispatch(this.#cm.state.replaceSelection(markup));
     }
 
     moveCursor(position: 'start' | 'end'): void {
