@@ -31,7 +31,11 @@ function shouldUpdateState(prev: HoverState, curr: HoverState): boolean {
     return true;
 }
 
-export const yfmTableFocusPlugin = (opts: {dndEnabled: boolean; headerRowsEnabled: boolean}) => {
+export const yfmTableFocusPlugin = (opts: {
+    dndEnabled: boolean;
+    headerRowsEnabled: boolean;
+    cellBackgroundEnabled: boolean;
+}) => {
     return new Plugin<PluginState>({
         key: pluginKey,
         state: {

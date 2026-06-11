@@ -2,20 +2,21 @@ import {useMemo} from 'react';
 
 import type {ClientRectObject, VirtualElement} from '@floating-ui/react';
 import {
-    ArrowDown,
-    ArrowLeft,
-    ArrowRight,
-    ArrowUp,
-    BroomMotion as ClearCells,
-    LayoutHeader as HeaderRow,
-    TrashBin,
-    Xmark,
+    ArrowShapeRightFromLine as AddColumnAfterIcon,
+    ArrowShapeLeftFromLine as AddColumnBeforeIcon,
+    ArrowShapeDownFromLine as AddRowAfterIcon,
+    ArrowShapeUpFromLine as AddRowBeforeIcon,
+    BroomMotion as ClearCellsIcon,
+    LayoutHeader as HeaderRowIcon,
+    Xmark as RemoveRowOrColumnIcon,
+    TrashBin as RemoveTableIcon,
 } from '@gravity-ui/icons';
-import {type DropdownMenuItem, Flex, Icon, Switch} from '@gravity-ui/uikit';
+import {DropdownMenu, Flex, Icon, Menu, Switch} from '@gravity-ui/uikit';
 
 import {i18n} from 'src/i18n/yfm-table';
 
 import type {DnDControlHandler} from '../../dnd/dnd';
+import {CellBgMenuItem} from '../CellBgMenuItem';
 import {FloatingMenu, type FloatingMenuProps} from '../FloatingMenu/FloatingMenu';
 
 type ControlType = FloatingMenuProps['dirtype'];
@@ -34,6 +35,8 @@ export type FloatingMenuControlProps = {
     onRemoveTableClick: () => void;
     isRowHeader?: boolean;
     onRowHeaderChange?: (value: boolean) => void;
+    currentCellBg?: string | null;
+    onCellBgChange?: (color: string | null) => void;
 };
 
 export const FloatingMenuControl: React.FC<FloatingMenuControlProps> =
@@ -51,80 +54,88 @@ export const FloatingMenuControl: React.FC<FloatingMenuControlProps> =
         onRemoveTableClick,
         isRowHeader = false,
         onRowHeaderChange,
+        currentCellBg,
+        onCellBgChange,
     }) {
-        const dropdownItems = useMemo<FloatingMenuProps['dropdownItems']>(() => {
-            const headerItems: DropdownMenuItem[] = [];
-            if (onRowHeaderChange) {
-                headerItems.push({
-                    text: (
-                        <Flex justifyContent="space-between" alignItems="center" gap={4}>
-                            {i18n(`row.header${multiple ? '.multiple' : ''}`)}
-                            <Switch
-                                size="m"
-                                checked={isRowHeader}
-                                // pointerEvents:none prevents the Switch's label from generating
-                                // a synthetic click on its <input>, which would trigger action twice
-                                style={{pointerEvents: 'none'}}
+        const dropdownContent = (
+            <Menu qa={`g-md-yfm-table-${type}-menu`}>
+                {(onRowHeaderChange || onCellBgChange) && (
+                    <Menu.Group>
+                        {onRowHeaderChange && (
+                            <DropdownMenu.Item
+                                qa="g-md-yfm-table-row-header-toggle"
+                                iconStart={<Icon data={HeaderRowIcon} />}
+                                text={
+                                    <Flex
+                                        gap={4}
+                                        alignItems="center"
+                                        justifyContent="space-between"
+                                    >
+                                        {i18n(`row.header${multiple ? '.multiple' : ''}`)}
+                                        <Switch
+                                            size="m"
+                                            checked={isRowHeader}
+                                            // pointerEvents:none prevents the Switch's label from generating
+                                            // a synthetic click on its <input>, which would trigger action twice
+                                            style={{pointerEvents: 'none'}}
+                                        />
+                                    </Flex>
+                                }
+                                action={() => onRowHeaderChange(!isRowHeader)}
                             />
-                        </Flex>
-                    ),
-                    iconStart: <Icon data={HeaderRow} />,
-                    qa: 'g-md-yfm-table-row-header-toggle',
-                    action: () => onRowHeaderChange(!isRowHeader),
-                });
-            }
+                        )}
+                        {onCellBgChange && (
+                            <CellBgMenuItem
+                                qa={`g-md-yfm-table-${type}-cell-bg`}
+                                currentCellBg={currentCellBg}
+                                onCellBgChange={onCellBgChange}
+                            />
+                        )}
+                    </Menu.Group>
+                )}
 
-            return [
-                ...headerItems,
-                [
-                    {
-                        text: i18n(`${type}.add.before`),
-                        qa: `g-md-yfm-table-action-add-${type}-before`,
-                        action: onInsertBeforeClick,
-                        iconStart: <Icon data={type === 'row' ? ArrowUp : ArrowLeft} />,
-                    },
-                    {
-                        text: i18n(`${type}.add.after`),
-                        qa: `g-md-yfm-table-action-add-${type}-after`,
-                        action: onInsertAfterClick,
-                        iconStart: <Icon data={type === 'row' ? ArrowDown : ArrowRight} />,
-                    },
-                ],
-                [
-                    {
-                        text: i18n('cells.clear'),
-                        qa: `g-md-yfm-table-${type}-clear-cells`,
-                        action: onClearCellsClick,
-                        iconStart: <Icon data={ClearCells} />,
-                    },
-                ],
-                [
-                    {
-                        text: i18n(`${type}.remove${multiple ? '.multiple' : ''}`),
-                        qa: `g-md-yfm-table-action-remove-${type}`,
-                        action: onRemoveRangeClick,
-                        iconStart: <Icon data={Xmark} />,
-                    },
-                    {
-                        theme: 'danger',
-                        text: i18n('table.remove'),
-                        qa: 'g-md-yfm-table-action-remove-table',
-                        action: onRemoveTableClick,
-                        iconStart: <Icon data={TrashBin} />,
-                    },
-                ],
-            ] satisfies FloatingMenuProps['dropdownItems'];
-        }, [
-            type,
-            multiple,
-            isRowHeader,
-            onRowHeaderChange,
-            onClearCellsClick,
-            onInsertAfterClick,
-            onInsertBeforeClick,
-            onRemoveRangeClick,
-            onRemoveTableClick,
-        ]);
+                <Menu.Group>
+                    <DropdownMenu.Item
+                        qa={`g-md-yfm-table-action-add-${type}-before`}
+                        iconStart={
+                            <Icon data={type === 'row' ? AddRowBeforeIcon : AddColumnBeforeIcon} />
+                        }
+                        text={i18n(`${type}.add.before`)}
+                        action={onInsertBeforeClick}
+                    />
+                    <DropdownMenu.Item
+                        qa={`g-md-yfm-table-action-add-${type}-after`}
+                        iconStart={
+                            <Icon data={type === 'row' ? AddRowAfterIcon : AddColumnAfterIcon} />
+                        }
+                        text={i18n(`${type}.add.after`)}
+                        action={onInsertAfterClick}
+                    />
+                    <DropdownMenu.Item
+                        qa={`g-md-yfm-table-${type}-clear-cells`}
+                        iconStart={<Icon data={ClearCellsIcon} />}
+                        text={i18n('cells.clear')}
+                        action={onClearCellsClick}
+                    />
+                </Menu.Group>
+
+                <Menu.Group>
+                    <DropdownMenu.Item
+                        qa={`g-md-yfm-table-action-remove-${type}`}
+                        iconStart={<Icon data={RemoveRowOrColumnIcon} />}
+                        text={i18n(`${type}.remove${multiple ? '.multiple' : ''}`)}
+                        action={onRemoveRangeClick}
+                    />
+                    <DropdownMenu.Item
+                        qa="g-md-yfm-table-action-remove-table"
+                        theme="danger"
+                        iconStart={<Icon data={RemoveTableIcon} />}
+                        text={i18n('table.remove')}
+                        action={onRemoveTableClick}
+                    />
+                </Menu.Group>
+            </Menu>
+        );
 
         const anchor = useMemo(
             () => getVirtualAnchor(type, tableElement, cellElement),
@@ -147,8 +158,9 @@ export const FloatingMenuControl: React.FC<FloatingMenuControlProps> =
                           }
                         : undefined
                 }
-                dropdownItems={dropdownItems}
-            />
+            >
+                {dropdownContent}
+            </FloatingMenu>
         );
     };
 

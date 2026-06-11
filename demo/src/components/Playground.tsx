@@ -262,6 +262,7 @@ export const Playground = memo<PlaygroundProps>((props) => {
                     },
                     yfmTable: {
                         headerRows: true,
+                        cellBackground: true,
                         table_ignoreSplittersInBlockCode: true,
                         table_ignoreSplittersInBlockMath: true,
                         table_ignoreSplittersInInlineCode: true,

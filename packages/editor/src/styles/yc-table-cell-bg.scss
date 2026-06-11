@@ -1,0 +1,13 @@
+$cell-bg-colors: (
+    'grey': var(--g-color-base-generic),
+    'yellow-light': var(--g-color-base-warning-light),
+    'yellow': var(--g-color-base-warning-medium),
+    'red-light': var(--g-color-base-danger-light),
+    'red': var(--g-color-base-danger-medium),
+    'purple-light': var(--g-color-base-utility-light),
+    'purple': var(--g-color-base-utility-medium),
+    'blue-light': var(--g-color-base-info-light),
+    'blue': var(--g-color-base-info-medium),
+    'green-light': var(--g-color-base-positive-light),
+    'green': var(--g-color-base-positive-medium),
+);

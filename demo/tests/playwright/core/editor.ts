@@ -11,7 +11,9 @@ type YfmTableActionKind =
     | 'add-column-after'
     | 'add-row-before'
     | 'add-row-after'
-    | 'header-toggle';
+    | 'header-toggle'
+    | 'row-cell-bg-open'
+    | 'column-cell-bg-open';
 
 type MarkdownEditorToolbarsLocators = Record<
     'main' | 'additional' | 'selection' | 'commandMenu',
@@ -142,6 +144,7 @@ class YfmNote {
 class YfmTable {
     readonly buttonPlusRowLocator;
     readonly buttonPlusColumnLocator;
+    readonly cellBgPaletteLocator: Locator;
     private readonly tableLocator;
 
     private readonly rowButtonLocator;
@@ -169,7 +172,10 @@ class YfmTable {
             'remove-row': page.getByTestId('g-md-yfm-table-action-remove-row'),
             'remove-table': page.getByTestId('g-md-yfm-table-action-remove-table'),
             'header-toggle': page.getByTestId('g-md-yfm-table-row-header-toggle'),
+            'row-cell-bg-open': page.getByTestId('g-md-yfm-table-row-cell-bg'),
+            'column-cell-bg-open': page.getByTestId('g-md-yfm-table-column-cell-bg'),
         };
+        this.cellBgPaletteLocator = page.locator('.g-md-yfm-table-cell-bg-palette');
     }
 
     getMenuLocator(type: YfmTableCellMenuType) {
@@ -224,6 +230,31 @@ class YfmTable {
         const firstCell = cells.first();
         await firstCell.waitFor({state: 'visible'});
         await firstCell.click();
+    }
+
+    getCellBgSwatchLocator(label: string) {
+        return this.cellBgPaletteLocator.getByLabel(label, {exact: true});
+    }
+
+    async openCellBgPalette(menuType: YfmTableCellMenuType) {
+        const menu = this.cellMenus[menuType];
+        await menu.waitFor({state: 'visible'});
+        const actionKey: YfmTableActionKind =
+            menuType === 'row' ? 'row-cell-bg-open' : 'column-cell-bg-open';
+        await menu.locator(this.cellMenuActions[actionKey]).hover();
+        await this.cellBgPaletteLocator.waitFor({state: 'visible'});
+    }
+
+    async selectCellBg(menuType: YfmTableCellMenuType, swatchLabel: string) {
+        await this.openCellBgPalette(menuType);
+        await this.getCellBgSwatchLocator(swatchLabel).click();
+    }
+
+    async closeMenu(menuType: YfmTableCellMenuType) {
+        const button =
+            menuType === 'row' ? this.rowButtonLocator.first() : this.columnButtonLocator.first();
+        await button.click();
+        await this.cellMenus[menuType].waitFor({state: 'hidden'});
     }
 }
 
