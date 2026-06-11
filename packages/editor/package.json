@@ -238,7 +238,7 @@
     "bem-cn-lite": "4.1.0",
     "dpdm": "3.14.0",
     "esbuild": "0.21.5",
-    "esbuild-sass-plugin": "2.15.0",
+    "esbuild-sass-plugin": "2.16.1",
     "gulp-cli": "catalog:",
     "highlight.js": "catalog:peers",
     "identity-obj-proxy": "^3.0.0",
