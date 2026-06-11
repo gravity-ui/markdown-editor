@@ -13,4 +13,5 @@ export interface ContentHandler {
     prepend(markup: MarkupString): void;
     append(markup: MarkupString): void;
     moveCursor(position: 'start' | 'end'): void;
+    insert(markup: MarkupString): void;
 }
