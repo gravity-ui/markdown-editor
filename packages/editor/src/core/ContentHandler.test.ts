@@ -13,6 +13,11 @@ const schema = new Schema({
         doc: {content: 'block+'},
         text: {group: 'inline'},
         paragraph: {group: 'block', content: 'text*', toDOM: () => ['p', 0]},
+        blockquote: {
+            group: 'block',
+            content: 'block+',
+            toDOM: () => ['blockquote', 0],
+        },
         code_block: {
             group: 'block',
             content: 'text*',
@@ -23,7 +28,7 @@ const schema = new Schema({
     marks: {},
 });
 
-const {doc, paragraph: p, code_block: cb} = builders(schema);
+const {doc, paragraph: p, blockquote: bq, code_block: cb} = builders(schema);
 
 const fakeParser: Parser = {
     parse(markup) {
@@ -176,6 +181,40 @@ describe('WysiwygContentHandler', () => {
         const contentHandler = new WysiwygContentHandler(view, fakeParser);
         contentHandler.insert(' inserted');
         expect(view.state.doc.firstChild?.textContent).toBe('hello inserted world');
+    });
+
+    it('should replace selected text on insert', () => {
+        const document = doc(p('hello world'));
+        const view = new EditorView(null, {
+            state: EditorState.create({
+                doc: document,
+                selection: TextSelection.create(document, 7, 12),
+            }),
+        });
+        const contentHandler = new WysiwygContentHandler(view, fakeParser);
+        contentHandler.insert('there');
+        expect(view.state.doc.firstChild?.textContent).toBe('hello there');
+    });
+
+    it('should insert block content at cursor position', () => {
+        const document = doc(p('before'), p('after'));
+        const blockParser: Parser = {
+            ...fakeParser,
+            parse(_markup) {
+                return doc(bq(p('quoted')));
+            },
+        };
+        const view = new EditorView(null, {
+            state: EditorState.create({
+                doc: document,
+                selection: TextSelection.create(document, 7),
+            }),
+        });
+        const contentHandler = new WysiwygContentHandler(view, blockParser);
+        contentHandler.insert('> quoted');
+        expect(view.state.doc.childCount).toBe(3);
+        expect(view.state.doc.child(1).type.name).toBe('blockquote');
+        expect(view.state.doc.child(1).firstChild?.textContent).toBe('quoted');
     });
 
     it('should insert as plain text when cursor is inside a code block', () => {
