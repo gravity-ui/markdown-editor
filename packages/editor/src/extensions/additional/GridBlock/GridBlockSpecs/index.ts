@@ -23,7 +23,7 @@ const indent = (text: string, by = '  ') =>
         .map((line) => (line ? by + line : line))
         .join('\n');
 
-/** Assembles the static HTML the prototype writes into a fenced ```html block. */
+/** Assembles the static HTML the prototype writes into a YFM HTML block. */
 export const buildGridHtml = (node: Node): string => {
     const containerCss: string = node.attrs[GridBlockConsts.NodeAttrs.containerCss] || '';
     const containerStyle = containerCss.trim() ? ` style="${containerCss.trim()}"` : '';
@@ -69,11 +69,11 @@ const GridBlockSpecsExtension: ExtensionAuto<GridBlockSpecsOptions> = (builder, 
             dnd: {props: {offset: [8, 1]}},
         },
         toMd: (state, node) => {
-            state.write('```html');
-            state.ensureNewLine();
+            state.write('::: html');
+            state.write('\n');
             state.write(buildGridHtml(node));
             state.ensureNewLine();
-            state.write('```');
+            state.write(':::');
             state.closeBlock(node);
         },
         view: nodeView,
