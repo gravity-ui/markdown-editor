@@ -1,3 +1,8 @@
+/**
+ * English: Resolves local constants used by AST extractor fields.
+ *
+ * Русский: Резолвит локальные константы, используемые полями AST extractor-а.
+ */
 import ts from 'typescript';
 
 import {

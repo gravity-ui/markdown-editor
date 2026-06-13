@@ -1,3 +1,8 @@
+/**
+ * English: Renders raw extension metadata records into markdown files.
+ *
+ * Русский: Рендерит сырые metadata records расширений в markdown-файлы.
+ */
 import {getPresetsForExtension} from './presets.mjs';
 
 /**

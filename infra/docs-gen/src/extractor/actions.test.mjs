@@ -1,3 +1,8 @@
+/**
+ * English: Unit coverage for AST-based action extraction.
+ *
+ * Русский: Unit-покрытие AST-based извлечения actions.
+ */
 import assert from 'node:assert/strict';
 import {test} from 'node:test';
 

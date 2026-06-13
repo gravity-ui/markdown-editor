@@ -1,3 +1,8 @@
+/**
+ * English: Unit coverage for constant extraction and reference resolution.
+ *
+ * Русский: Unit-покрытие извлечения констант и резолва ссылок.
+ */
 import assert from 'node:assert/strict';
 import {test} from 'node:test';
 

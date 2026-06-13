@@ -1,3 +1,8 @@
+/**
+ * English: Builds Diplodoc input files from repository markdown documentation.
+ *
+ * Русский: Собирает входные файлы Diplodoc из markdown-документации репозитория.
+ */
 import {
     cpSync,
     existsSync,

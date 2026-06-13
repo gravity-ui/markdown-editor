@@ -1,3 +1,8 @@
+/**
+ * English: Shared docs-gen paths, field contracts, extension filters, and preset definitions.
+ *
+ * Русский: Общие пути docs-gen, контракт полей, фильтры расширений и определения пресетов.
+ */
 import {dirname, join, resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
 

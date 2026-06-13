@@ -1,3 +1,8 @@
+/**
+ * English: Filesystem helpers shared by docs-gen build and extraction flows.
+ *
+ * Русский: Filesystem helper-ы, общие для build и extraction flow docs-gen.
+ */
 import {existsSync, readFileSync, readdirSync, statSync} from 'node:fs';
 import {join} from 'node:path';
 

@@ -1,3 +1,8 @@
+/**
+ * English: Maps extensions to editor presets by scanning preset source files.
+ *
+ * Русский: Сопоставляет расширения с editor presets через сканирование исходников пресетов.
+ */
 import {existsSync} from 'node:fs';
 import {join} from 'node:path';
 

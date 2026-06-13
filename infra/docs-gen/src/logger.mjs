@@ -1,3 +1,8 @@
+/**
+ * English: Minimal console logger shared by docs-gen command-line scripts.
+ *
+ * Русский: Минимальный console logger для command-line скриптов docs-gen.
+ */
 /* eslint-disable no-console */
 
 export class Logger {

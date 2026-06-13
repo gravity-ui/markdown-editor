@@ -1,3 +1,8 @@
+/**
+ * English: Orchestrates extension discovery, filtering, scanning, enrichment, and output.
+ *
+ * Русский: Управляет обнаружением, фильтрацией, сканированием, обогащением и выводом расширений.
+ */
 import {existsSync, mkdirSync, rmSync} from 'node:fs';
 import {join} from 'node:path';
 

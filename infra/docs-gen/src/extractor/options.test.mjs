@@ -1,3 +1,8 @@
+/**
+ * English: Unit coverage for TypeScript option declaration extraction.
+ *
+ * Русский: Unit-покрытие извлечения TypeScript option declarations.
+ */
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {test} from 'node:test';

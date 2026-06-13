@@ -1,3 +1,8 @@
+/**
+ * English: Extracts markdown examples from serializer tests using TypeScript AST.
+ *
+ * Русский: Извлекает markdown examples из serializer tests через TypeScript AST.
+ */
 import ts from 'typescript';
 
 import {forEachNode, parseSource, unwrapExpression} from './ast.mjs';

@@ -1,3 +1,8 @@
+/**
+ * English: Unit coverage for serializer markdown example extraction.
+ *
+ * Русский: Unit-покрытие извлечения markdown examples из serializer tests.
+ */
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {test} from 'node:test';

@@ -24,15 +24,22 @@
 ## Extractor Files
 
 - `src/extractor/index.mjs` contains `ExtensionExtractor`, the high-level orchestrator that scans extension categories, enriches records with presets, and writes output.
+- `src/extractor/README.md` maps extractor modules and field ownership in English and Russian.
 - `src/extractor/scan.mjs` scans one filtered extension directory and assembles the raw extension IR record from `EXTENSION_DOC_FIELD_CONFIG`.
+- `src/extractor/extension-sources.mjs` reads extension files and prepares source text groups.
+- `src/extractor/schema.mjs` resolves schema node and mark names from spec files.
+- `src/extractor/record-fields.mjs` maps raw IR fields to their extractor functions.
 - `src/extractor/source-files.mjs` selects source, spec, serializer, root index, specs index, and test files from an extension directory.
 - `src/extractor/output.mjs` writes extracted JSON and raw Markdown artifacts.
 - `src/extractor/markdown-gen.mjs` renders one raw extension Markdown file from extracted metadata.
 - `src/extractor/presets.mjs` parses editor preset files and resolves inherited preset membership.
 - `src/extractor/constants.mjs` extracts string constants, enum values, object scalar members, and resolves references between them.
-- `src/extractor/options.mjs` extracts extension option fields from local TypeScript option declarations.
+- `src/extractor/options.mjs` extracts extension option fields through focused modules in `src/extractor/options/`.
 - `src/extractor/examples.mjs` extracts serializer test markup examples from `same(...)` calls and simple local string expressions.
-- `src/extractor/ast.mjs` contains TypeScript AST helpers and the source scanners for schema names, actions, keymaps, plugins, input rules, markdown-it plugins, and serializer hints.
+- `src/extractor/ast.mjs` re-exports all AST helpers and source scanners.
+- `src/extractor/ast/core.mjs` contains generic TypeScript AST utilities.
+- `src/extractor/ast/builder.mjs` recognizes extension builder call chains.
+- `src/extractor/ast/actions.mjs`, `schema.mjs`, `keymaps.mjs`, `plugins.mjs`, `input-rules.mjs`, `md-plugins.mjs`, and `serializer.mjs` extract one metadata family each.
 - `src/extractor/actions.test.mjs` covers action extraction behavior.
 - `src/extractor/cli.test.mjs` covers extraction CLI argument parsing.
 - `src/extractor/constants.test.mjs` covers constant extraction and reference resolution behavior.

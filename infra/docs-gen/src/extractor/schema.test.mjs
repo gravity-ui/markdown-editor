@@ -1,3 +1,8 @@
+/**
+ * English: Unit coverage for AST-based schema registration extraction.
+ *
+ * Русский: Unit-покрытие AST-based извлечения schema registrations.
+ */
 import assert from 'node:assert/strict';
 import {test} from 'node:test';
 

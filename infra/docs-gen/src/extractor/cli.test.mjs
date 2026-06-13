@@ -1,3 +1,8 @@
+/**
+ * English: Unit coverage for extension extraction CLI argument parsing.
+ *
+ * Русский: Unit-покрытие парсинга аргументов CLI извлечения расширений.
+ */
 import assert from 'node:assert/strict';
 import {test} from 'node:test';
 

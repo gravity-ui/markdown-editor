@@ -1,3 +1,8 @@
+/**
+ * English: Selects relevant extension source, spec, serializer, and test files.
+ *
+ * Русский: Выбирает релевантные source, spec, serializer и test файлы расширения.
+ */
 import {dirname} from 'node:path';
 
 /**

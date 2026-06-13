@@ -1,4 +1,9 @@
 #!/usr/bin/env node
+/**
+ * English: CLI entry point for raw extension metadata extraction.
+ *
+ * Русский: CLI-точка входа для извлечения сырых метаданных расширений.
+ */
 import {isAbsolute, join} from 'node:path';
 import process from 'node:process';
 import {fileURLToPath} from 'node:url';

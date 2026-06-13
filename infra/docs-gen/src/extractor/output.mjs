@@ -1,3 +1,8 @@
+/**
+ * English: Writes extracted raw JSON and markdown artifacts to disk.
+ *
+ * Русский: Записывает извлеченные raw JSON и markdown artifacts на диск.
+ */
 import {writeFileSync} from 'node:fs';
 import {join} from 'node:path';
 

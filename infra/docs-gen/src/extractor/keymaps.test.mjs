@@ -1,3 +1,8 @@
+/**
+ * English: Unit coverage for AST-based keymap extraction.
+ *
+ * Русский: Unit-покрытие AST-based извлечения keymap.
+ */
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {test} from 'node:test';

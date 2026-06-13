@@ -9,19 +9,20 @@ flowchart TD
     Filter --> Scan["scanExtension()<br/>src/extractor/scan.mjs"]
 
     Scan --> FieldConfig["Docs field config<br/>EXTENSION_DOC_FIELD_CONFIG"]
-    Scan --> Files["readExtensionSources()<br/>src/utils.mjs"]
+    Scan --> Files["readExtensionSources()<br/>src/extractor/extension-sources.mjs"]
     Files --> Selectors["Source file selectors<br/>src/extractor/source-files.mjs"]
     Selectors --> SourceText["Production source text"]
     Selectors --> TestFiles["Test files"]
     Selectors --> SerializerFiles["Serializer and Specs files"]
 
     SourceText --> Constants["extractConstants()<br/>src/extractor/constants.mjs"]
-    SourceText --> AstScanners["AST source scanners<br/>src/extractor/ast.mjs"]
+    SourceText --> AstBarrel["AST extractor API<br/>src/extractor/ast.mjs"]
+    AstBarrel --> AstScanners["Focused AST scanners<br/>src/extractor/ast/*.mjs"]
     SourceText --> Options["Option declarations<br/>src/extractor/options.mjs"]
     SerializerFiles --> SerializerHints["Serializer hints"]
     TestFiles --> MarkupExamples["Markup examples<br/>src/extractor/examples.mjs"]
 
-    Constants --> Schema["Schema names<br/>nodes and marks"]
+    Constants --> Schema["Schema names<br/>src/extractor/schema.mjs"]
     AstScanners --> ExtractedFields["Actions, keymaps, input rules,<br/>plugins, md plugins"]
     Options --> ExtractedFields
     FieldConfig --> IR["Extension IR record"]
@@ -39,7 +40,7 @@ flowchart TD
 The extractor keeps orchestration and parsing separate:
 
 - `index.mjs` collects all extension directories, filters them by blacklist and `--only`, and decides when output is written.
-- `scan.mjs` builds one extension record from source files and parser results.
+- `scan.mjs` coordinates one extension scan; `extension-sources.mjs`, `schema.mjs`, and `record-fields.mjs` own the focused extraction steps.
 - `source-files.mjs` owns file selection rules.
-- `ast.mjs`, `options.mjs`, `examples.mjs`, and `constants.mjs` own TypeScript AST parsing details.
+- `ast.mjs` exposes focused AST scanners from `ast/*.mjs`; `options.mjs`, `examples.mjs`, and `constants.mjs` own their TypeScript AST parsing details.
 - `output.mjs` and `markdown-gen.mjs` own generated artifacts.
