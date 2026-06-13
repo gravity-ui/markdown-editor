@@ -2,15 +2,15 @@ import {useEffect, useMemo, useRef, useState} from 'react';
 
 import {getStyles} from '@diplodoc/html-extension';
 import type {IHTMLIFrameElementConfig} from '@diplodoc/html-extension/runtime';
-import {Ellipsis as DotsIcon, Eye} from '@gravity-ui/icons';
+import {Ellipsis as DotsIcon, Eye, LayoutHeaderColumns} from '@gravity-ui/icons';
 import {Button, Icon, Label, Menu, Popup} from '@gravity-ui/uikit';
 import type {Node} from 'prosemirror-model';
 import type {EditorView} from 'prosemirror-view';
 
-import {cn} from 'src/classname';
 import {SharedStateKey} from 'src/extensions/behavior/SharedState';
 import {TextAreaFixed as TextArea} from 'src/forms/TextInput';
 import {i18n} from 'src/i18n/common';
+import {i18n as i18nTemplates} from 'src/i18n/yfm-html-block';
 import {debounce} from 'src/lodash';
 import {useAutoSave, useBooleanState, useElementState} from 'src/react-utils/hooks';
 import {useSharedEditingState} from 'src/react-utils/useSharedEditingState';
@@ -18,12 +18,15 @@ import {removeNode} from 'src/utils/remove-node';
 
 import {YfmHtmlBlockConsts} from '../YfmHtmlBlockSpecs/const';
 import type {YfmHtmlBlockOptions} from '../index';
+import {type HtmlTemplate, mergeTemplatesById, readStoredTemplates} from '../templates';
 import type {YfmHtmlBlockEntitySharedState} from '../types';
+
+import {TemplatesPopup} from './TemplatesPopup';
+import {STOP_EVENT_CLASSNAME, cnYfmHtmlBlock} from './const';
 
 import './YfmHtmlBlock.scss';
 
-export const cnYfmHtmlBlock = cn('yfm-html-block');
-export const STOP_EVENT_CLASSNAME = 'prosemirror-stop-event';
+export {STOP_EVENT_CLASSNAME, cnYfmHtmlBlock} from './const';
 
 const b = cnYfmHtmlBlock;
 
@@ -245,7 +248,14 @@ export const YfmHtmlBlockView: React.FC<{
     options: YfmHtmlBlockOptions;
     view: EditorView;
 }> = ({onChange, node, getPos, view, options}) => {
-    const {useConfig, sanitize, styles, baseTarget = '_parent', head: headContent = ''} = options;
+    const {
+        useConfig,
+        sanitize,
+        styles,
+        baseTarget = '_parent',
+        head: headContent = '',
+        templates,
+    } = options;
     const entityId: string = node.attrs[YfmHtmlBlockConsts.NodeAttrs.EntityId];
     const entityKey = useMemo(
         () => SharedStateKey.define<YfmHtmlBlockEntitySharedState>({name: entityId}),
@@ -257,6 +267,22 @@ export const YfmHtmlBlockView: React.FC<{
     const [editing, setEditing, unsetEditing] = useSharedEditingState(view, entityKey);
     const [menuOpen, _openMenu, closeMenu, toggleMenuOpen] = useBooleanState(false);
     const [anchorElement, setAnchorElement] = useElementState();
+
+    const allowAdd = Boolean(templates?.allowAdd);
+    const [storedTemplates, setStoredTemplates] = useState<HtmlTemplate[]>(readStoredTemplates);
+    const effectiveTemplates = useMemo(
+        () => mergeTemplatesById(templates?.items ?? [], storedTemplates),
+        [templates?.items, storedTemplates],
+    );
+    const showTemplatesButton =
+        Boolean(templates?.showButton) && (allowAdd || effectiveTemplates.length > 0);
+    const [templatesOpen, , closeTemplates, toggleTemplatesOpen] = useBooleanState(false);
+    const [templatesAnchor, setTemplatesAnchor] = useElementState();
+
+    const applyTemplate = (template: HtmlTemplate) => {
+        onChange({[YfmHtmlBlockConsts.NodeAttrs.srcdoc]: template.content});
+        closeTemplates();
+    };
 
     if (editing) {
         return (
@@ -296,6 +322,28 @@ export const YfmHtmlBlockView: React.FC<{
             <YfmHtmlBlockPreview html={resultHtml} onClick={setEditing} config={config} />
 
             <div className={b('menu')}>
+                {showTemplatesButton && (
+                    <>
+                        <Button
+                            onClick={toggleTemplatesOpen}
+                            ref={setTemplatesAnchor}
+                            size="s"
+                            className={STOP_EVENT_CLASSNAME}
+                            aria-label={i18nTemplates('templates')}
+                        >
+                            <Icon data={LayoutHeaderColumns} className={STOP_EVENT_CLASSNAME} />
+                        </Button>
+                        <TemplatesPopup
+                            anchor={templatesAnchor}
+                            open={templatesOpen}
+                            templates={effectiveTemplates}
+                            allowAdd={allowAdd}
+                            onClose={closeTemplates}
+                            onApply={applyTemplate}
+                            onAdded={setStoredTemplates}
+                        />
+                    </>
+                )}
                 <Button
                     onClick={toggleMenuOpen}
                     ref={setAnchorElement}
