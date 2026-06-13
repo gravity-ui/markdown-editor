@@ -7,6 +7,7 @@ import {WYfmHtmlBlockNodeView} from './YfmHtmlBlockNodeView';
 import {YfmHtmlBlockSpecs} from './YfmHtmlBlockSpecs';
 import {YfmHtmlBlockAction} from './YfmHtmlBlockSpecs/const';
 import {addYfmHtmlBlock} from './actions';
+import type {YfmHtmlBlockTemplatesOptions} from './templates';
 
 export interface YfmHtmlBlockOptions extends Omit<
     PluginOptions,
@@ -17,6 +18,7 @@ export interface YfmHtmlBlockOptions extends Omit<
         enabled: boolean;
         delay?: number; // по умолчанию 1000ms
     };
+    templates?: YfmHtmlBlockTemplatesOptions;
 }
 
 export const YfmHtmlBlock: ExtensionAuto<YfmHtmlBlockOptions> = (
