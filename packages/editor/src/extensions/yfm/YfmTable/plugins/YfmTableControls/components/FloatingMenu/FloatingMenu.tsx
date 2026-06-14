@@ -22,7 +22,8 @@ export type FloatingMenuProps = {
     dirtype: 'row' | 'column';
     canDrag: boolean;
     anchorElement: ReferenceType;
-    dropdownItems: DropdownMenuProps<unknown>['items'];
+    dropdownItems?: DropdownMenuProps<unknown>['items'];
+    children?: React.ReactNode;
     switcherMouseProps?: Pick<
         ButtonButtonProps,
         'onMouseDown' | 'onMouseMove' | 'onMouseUp' | 'onMouseLeave'
@@ -31,8 +32,15 @@ export type FloatingMenuProps = {
 };
 
 export const FloatingMenu: React.FC<FloatingMenuProps> = function YfmTableFloatingMenu(props) {
-    const {dirtype, canDrag, anchorElement, dropdownItems, switcherMouseProps, onOpenToggle} =
-        props;
+    const {
+        dirtype,
+        canDrag,
+        anchorElement,
+        dropdownItems,
+        children,
+        switcherMouseProps,
+        onOpenToggle,
+    } = props;
 
     const [isMenuOpened, setMenuOpened] = useState(false);
     const [isHovered, setHovered, unsetHovered] = useBooleanState(false);
@@ -102,7 +110,9 @@ export const FloatingMenu: React.FC<FloatingMenuProps> = function YfmTableFloati
                 }}
                 menuProps={{qa: `g-md-yfm-table-${dirtype}-menu`}}
                 items={dropdownItems}
-            />
+            >
+                {children}
+            </DropdownMenu>
         </FloatingPopup>
     );
 };

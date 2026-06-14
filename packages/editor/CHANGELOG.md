@@ -1,5 +1,20 @@
 # Changelog
 
+## [15.41.0](https://github.com/gravity-ui/markdown-editor/compare/markdown-editor-v15.40.0...markdown-editor-v15.41.0) (2026-06-11)
+
+
+### Features
+
+* add `insert()` method to editor API ([#1140](https://github.com/gravity-ui/markdown-editor/issues/1140)) ([6d78eb7](https://github.com/gravity-ui/markdown-editor/commit/6d78eb76d830074b401c7c8a097be01d1547ef5a))
+* **Link:** do not insert url protocol for links from buffer in visible text ([#1043](https://github.com/gravity-ui/markdown-editor/issues/1043)) ([e8739a5](https://github.com/gravity-ui/markdown-editor/commit/e8739a5b2112ca34ab6b5c628aee5740591af760))
+* **YfmTable:** add background color picker for rows and columns ([#1126](https://github.com/gravity-ui/markdown-editor/issues/1126)) ([d663632](https://github.com/gravity-ui/markdown-editor/commit/d663632c8e249ea8995ca2f537e0324919cdc991))
+* **YfmTable:** support header rows in yfm-table ([#1132](https://github.com/gravity-ui/markdown-editor/issues/1132)) ([022fba6](https://github.com/gravity-ui/markdown-editor/commit/022fba6faae868d82ab5fe20a5e834d5e0183451))
+
+
+### Bug Fixes
+
+* **i18n:** fix English copy issues (step 3) ([#1123](https://github.com/gravity-ui/markdown-editor/issues/1123)) ([5c21055](https://github.com/gravity-ui/markdown-editor/commit/5c210557a00fe0f8b96bf45cc87ebe2abcd8fabb))
+
 ## [15.40.0](https://github.com/gravity-ui/markdown-editor/compare/markdown-editor-v15.39.0...markdown-editor-v15.40.0) (2026-04-29)
 
 

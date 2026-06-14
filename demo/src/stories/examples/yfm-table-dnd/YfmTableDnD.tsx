@@ -10,12 +10,14 @@ export type YfmTableDnDDemoProps = {
     mobile: boolean;
     dnd: boolean;
     headerRows: boolean;
+    cellBackground: boolean;
 };
 
 export const YfmTableDnDDemo = memo<YfmTableDnDDemoProps>(function YfmTableDnDDemo({
     mobile,
     dnd,
     headerRows,
+    cellBackground,
 }) {
     const editor = useMarkdownEditor(
         {
@@ -32,11 +34,12 @@ export const YfmTableDnDDemo = memo<YfmTableDnDDemoProps>(function YfmTableDnDDe
                     yfmTable: {
                         dnd,
                         headerRows,
+                        cellBackground,
                     },
                 },
             },
         },
-        [mobile, dnd, headerRows],
+        [mobile, dnd, headerRows, cellBackground],
     );
 
     return (

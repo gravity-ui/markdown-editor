@@ -7,6 +7,7 @@ import {yfmTableHeaderRowsPlugin} from './plugins/header-rows-plugin';
 export type YfmTableControlsPluginsOpts = {
     dndEnabled: boolean;
     headerRowsEnabled: boolean;
+    cellBackgroundEnabled: boolean;
 };
 
 export const yfmTableControlsPlugins =

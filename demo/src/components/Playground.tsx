@@ -269,6 +269,7 @@ export const Playground = memo<PlaygroundProps>((props) => {
                     },
                     yfmTable: {
                         headerRows: true,
+                        cellBackground: true,
                         table_ignoreSplittersInBlockCode: true,
                         table_ignoreSplittersInBlockMath: true,
                         table_ignoreSplittersInInlineCode: true,
@@ -434,6 +435,20 @@ export const Playground = memo<PlaygroundProps>((props) => {
                             text="Replace"
                             action={() => {
                                 mdEditor.replace('> replace');
+                                mdEditor.focus();
+                            }}
+                        />
+                        <DropdownMenu.Item
+                            text="Insert"
+                            action={() => {
+                                mdEditor.insert('> insert');
+                                mdEditor.focus();
+                            }}
+                        />
+                        <DropdownMenu.Item
+                            text="Insert(inline)"
+                            action={() => {
+                                mdEditor.insert('insert(inline)');
                                 mdEditor.focus();
                             }}
                         />
