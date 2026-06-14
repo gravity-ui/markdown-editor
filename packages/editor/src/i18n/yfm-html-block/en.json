@@ -1,0 +1,9 @@
+{
+  "templates": "HTML templates",
+  "add_template": "Add",
+  "search_templates": "Search by name",
+  "templates_empty": "No templates",
+  "templates_input_placeholder": "<template id=\"hero\" title=\"Hero\">\n  <div>Your HTML</div>\n</template>",
+  "save": "Save",
+  "cancel": "Cancel"
+}
