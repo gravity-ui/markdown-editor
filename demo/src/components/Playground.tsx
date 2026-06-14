@@ -242,6 +242,7 @@ export const Playground = memo<PlaygroundProps>((props) => {
                                 showButton: true,
                                 allowAdd: true,
                             },
+                            editablePreview: true,
                             head: `
                         <base target="_blank" />
                         <style>

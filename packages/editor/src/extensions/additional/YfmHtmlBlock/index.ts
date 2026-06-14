@@ -19,6 +19,13 @@ export interface YfmHtmlBlockOptions extends Omit<
         delay?: number; // по умолчанию 1000ms
     };
     templates?: YfmHtmlBlockTemplatesOptions;
+    /**
+     * Double-clicking the preview edits text inline inside the iframe instead of
+     * opening the raw HTML code editor. The code editor stays reachable via the
+     * "Edit" menu item.
+     * @default false
+     */
+    editablePreview?: boolean;
 }
 
 export const YfmHtmlBlock: ExtensionAuto<YfmHtmlBlockOptions> = (

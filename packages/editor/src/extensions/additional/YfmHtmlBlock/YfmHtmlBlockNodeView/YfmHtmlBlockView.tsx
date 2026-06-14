@@ -34,6 +34,8 @@ interface YfmHtmlBlockViewProps {
     html: string;
     onClick: () => void;
     config?: IHTMLIFrameElementConfig;
+    editablePreview?: boolean;
+    onInlineSave?: (innerHtml: string) => void;
 }
 
 export function generateID() {
@@ -55,11 +57,18 @@ const createLinkCLickHandler = (value: Element, document: Document) => (event: E
     }
 };
 
-const YfmHtmlBlockPreview: React.FC<YfmHtmlBlockViewProps> = ({html, onClick, config}) => {
+const YfmHtmlBlockPreview: React.FC<YfmHtmlBlockViewProps> = ({
+    html,
+    onClick,
+    config,
+    editablePreview,
+    onInlineSave,
+}) => {
     const ref = useRef<HTMLIFrameElement>(null);
     const styles = useRef<Record<string, string>>({});
     const classNames = useRef<string[]>([]);
     const resizeConfig = useRef<Record<string, number>>({});
+    const isInlineEditing = useRef(false);
 
     const [height, setHeight] = useState('100%');
 
@@ -68,17 +77,51 @@ const YfmHtmlBlockPreview: React.FC<YfmHtmlBlockViewProps> = ({html, onClick, co
         setClassNames(config?.classNames);
     }, [config, ref.current?.contentWindow?.document?.body]);
 
+    const enterInlineEdit = () => {
+        const body = ref.current?.contentWindow?.document.body;
+        if (!body) return;
+        isInlineEditing.current = true;
+        body.contentEditable = 'true';
+        body.style.cursor = 'text';
+        body.focus();
+    };
+
+    const handleBodyBlur = () => {
+        const body = ref.current?.contentWindow?.document.body;
+        if (!body || !isInlineEditing.current) return;
+        isInlineEditing.current = false;
+        body.contentEditable = 'false';
+        body.style.removeProperty('cursor');
+        onInlineSave?.(body.innerHTML);
+    };
+
+    const handleDblClick = () => {
+        if (editablePreview) {
+            enterInlineEdit();
+        } else {
+            onClick();
+        }
+    };
+
     const handleLoadIFrame = () => {
         const contentWindow = ref.current?.contentWindow;
 
+        // fresh document after reload: not editing yet
+        isInlineEditing.current = false;
         handleResizeIFrame();
 
         if (contentWindow) {
             const frameDocument = contentWindow.document;
-            frameDocument.addEventListener('dblclick', () => {
-                onClick();
-            });
+            frameDocument.addEventListener('dblclick', handleDblClick);
+            // blur does not bubble; capture catches focus leaving the body
+            frameDocument.body?.addEventListener('blur', handleBodyBlur, true);
         }
+    };
+
+    const handleUnloadIFrame = () => {
+        const frameDocument = ref.current?.contentWindow?.document;
+        frameDocument?.removeEventListener('dblclick', handleDblClick);
+        frameDocument?.body?.removeEventListener('blur', handleBodyBlur, true);
     };
 
     const handleResizeIFrame = () => {
@@ -162,11 +205,13 @@ const YfmHtmlBlockPreview: React.FC<YfmHtmlBlockViewProps> = ({html, onClick, co
     };
 
     useEffect(() => {
-        ref.current?.addEventListener('load', handleLoadIFrame);
-        ref.current?.addEventListener('load', createAnchorLinkHandlers('add'));
+        const iframe = ref.current;
+        iframe?.addEventListener('load', handleLoadIFrame);
+        iframe?.addEventListener('load', createAnchorLinkHandlers('add'));
         return () => {
-            ref.current?.removeEventListener('load', handleLoadIFrame);
-            ref.current?.removeEventListener('load', createAnchorLinkHandlers('remove'));
+            handleUnloadIFrame();
+            iframe?.removeEventListener('load', handleLoadIFrame);
+            iframe?.removeEventListener('load', createAnchorLinkHandlers('remove'));
         };
     }, [html]);
 
@@ -255,6 +300,7 @@ export const YfmHtmlBlockView: React.FC<{
         baseTarget = '_parent',
         head: headContent = '',
         templates,
+        editablePreview,
     } = options;
     const entityId: string = node.attrs[YfmHtmlBlockConsts.NodeAttrs.EntityId];
     const entityKey = useMemo(
@@ -282,6 +328,12 @@ export const YfmHtmlBlockView: React.FC<{
     const applyTemplate = (template: HtmlTemplate) => {
         onChange({[YfmHtmlBlockConsts.NodeAttrs.srcdoc]: template.content});
         closeTemplates();
+    };
+
+    const handleInlineSave = (innerHtml: string) => {
+        const current = node.attrs[YfmHtmlBlockConsts.NodeAttrs.srcdoc] ?? '';
+        if (innerHtml === current) return;
+        onChange({[YfmHtmlBlockConsts.NodeAttrs.srcdoc]: innerHtml});
     };
 
     if (editing) {
@@ -319,7 +371,13 @@ export const YfmHtmlBlockView: React.FC<{
             <Label className={b('label')} icon={<Icon size={16} data={Eye} />}>
                 {i18n('preview')}
             </Label>
-            <YfmHtmlBlockPreview html={resultHtml} onClick={setEditing} config={config} />
+            <YfmHtmlBlockPreview
+                html={resultHtml}
+                onClick={setEditing}
+                config={config}
+                editablePreview={editablePreview}
+                onInlineSave={handleInlineSave}
+            />
 
             <div className={b('menu')}>
                 {showTemplatesButton && (
