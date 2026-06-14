@@ -3,7 +3,7 @@
 `infra/docs-gen` contains tooling for two documentation flows:
 
 - building Diplodoc input from `docs/*.md`;
-- extracting raw extension metadata from `packages/editor/src/extensions`.
+- extracting raw extension metadata from configured extension entry points.
 
 ## Commands
 
@@ -15,7 +15,7 @@
 
 - `package.json` defines the local docs-gen package, scripts, and Nx target.
 - `EXTRACTION_PIPELINE.md` documents the raw extension extraction flow with a Mermaid diagram.
-- `src/config.mjs` stores shared paths, extension categories, extension blacklist entries, raw docs field sources, preset definitions, and generator constants.
+- `src/config.mjs` stores shared paths, extension entry points, extension categories, extension blacklist entries, raw docs field sources, preset definitions, and generator constants.
 - `src/extract-extension-data.mjs` provides the CLI entry point for raw extension extraction.
 - `src/generate-docs.mjs` builds the Diplodoc source tree from repository markdown files.
 - `src/logger.mjs` contains the small console logger used by docs-gen CLIs.
@@ -23,8 +23,9 @@
 
 ## Extractor Files
 
-- `src/extractor/index.mjs` contains `ExtensionExtractor`, the high-level orchestrator that scans extension categories, enriches records with presets, and writes output.
+- `src/extractor/index.mjs` contains `ExtensionExtractor`, the high-level orchestrator that collects configured extension entry points, enriches records with presets, and writes output.
 - `src/extractor/README.md` maps extractor modules and field ownership in English and Russian.
+- `src/extractor/extension-refs.mjs` collects all configured extension references and applies blacklist and `--only` filters before scanning.
 - `src/extractor/scan.mjs` scans one filtered extension directory and assembles the raw extension IR record from `EXTENSION_DOC_FIELD_CONFIG`.
 - `src/extractor/extension-sources.mjs` reads extension files and prepares source text groups.
 - `src/extractor/schema.mjs` resolves schema node and mark names from spec files.

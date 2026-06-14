@@ -6,6 +6,8 @@
 pipeline intentionally keeps each step narrow:
 
 - `index.mjs` orchestrates discovery, filtering, scanning, preset enrichment, and output.
+- `extension-refs.mjs` collects all configured package entry points, then applies blacklist
+  and `--only` filters before any extension scan starts.
 - `scan.mjs` builds one extension record from `EXTENSION_DOC_FIELD_CONFIG`.
 - `extension-sources.mjs` reads extension source files and builds source text groups.
 - `schema.mjs` resolves schema node and mark names from spec source.
@@ -25,9 +27,11 @@ pipeline intentionally keeps each step narrow:
 - `presets.mjs` maps extensions to editor presets.
 - `markdown-gen.mjs` and `output.mjs` render and write the raw artifacts.
 
-`EXTENSION_DOC_FIELD_CONFIG` in `../config.mjs` is the contract for which fields are
-written and where each field comes from. Add a field there first, then add the matching
-extractor in `scan.mjs`.
+`EXTENSION_ENTRY_POINTS` in `../config.mjs` defines where extension entry points come
+from. It currently covers the editor package category directories and the
+page-constructor extension package. `EXTENSION_DOC_FIELD_CONFIG` is the contract for
+which fields are written and where each field comes from. Add a field there first, then
+add the matching extractor in `record-fields.mjs`.
 
 ## Русский
 
@@ -35,6 +39,8 @@ extractor in `scan.mjs`.
 Пайплайн специально разбит на узкие шаги:
 
 - `index.mjs` управляет обнаружением, фильтрацией, сканированием, пресетами и выводом.
+- `extension-refs.mjs` собирает все сконфигурированные package entry points, затем
+  применяет blacklist и `--only` до запуска scan по расширениям.
 - `scan.mjs` собирает одну запись расширения по `EXTENSION_DOC_FIELD_CONFIG`.
 - `extension-sources.mjs` читает source files расширения и собирает группы source text.
 - `schema.mjs` резолвит имена schema node и mark из spec source.
@@ -54,6 +60,8 @@ extractor in `scan.mjs`.
 - `presets.mjs` сопоставляет расширения с editor presets.
 - `markdown-gen.mjs` и `output.mjs` рендерят и записывают raw artifacts.
 
-`EXTENSION_DOC_FIELD_CONFIG` в `../config.mjs` задает контракт: какие поля пишутся и
-откуда каждое поле берется. Новое поле сначала добавляется туда, затем для него
-добавляется extractor в `scan.mjs`.
+`EXTENSION_ENTRY_POINTS` в `../config.mjs` задает, откуда брать extension entry points.
+Сейчас там есть category directories пакета editor и отдельный пакет page-constructor
+extension. `EXTENSION_DOC_FIELD_CONFIG` задает контракт: какие поля пишутся и откуда
+каждое поле берется. Новое поле сначала добавляется туда, затем для него добавляется
+extractor в `record-fields.mjs`.

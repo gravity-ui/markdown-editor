@@ -98,6 +98,8 @@ function extractSerializerHints(sourceFiles) {
 
 const FIELD_EXTRACTORS = {
     name: ({name}) => name,
+    packageName: ({packageName}) => packageName,
+    entryPoint: ({entryPoint}) => entryPoint,
     sourcePath: ({sourcePath}) => sourcePath,
     category: ({category}) => category,
     nodes: ({schema}) => schema.nodes,

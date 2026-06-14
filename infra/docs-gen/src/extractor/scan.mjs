@@ -13,8 +13,14 @@ import {extractSchema} from './schema.mjs';
 /**
  * Scans one extension directory into raw metadata.
  */
-export function scanExtension({extDir, category, repoRoot}) {
-    const name = basename(extDir);
+export function scanExtension({
+    extDir,
+    name = basename(extDir),
+    packageName,
+    entryPoint,
+    category,
+    repoRoot,
+}) {
     const {allFiles, sourceFiles, allContent} = readExtensionSources(extDir);
     const constants = extractConstants(allContent);
     const schema = extractSchema(buildSchemaContent(sourceFiles, extDir), constants);
@@ -22,6 +28,8 @@ export function scanExtension({extDir, category, repoRoot}) {
     return createExtensionRecord({
         extDir,
         name,
+        packageName,
+        entryPoint,
         sourcePath: relative(repoRoot, extDir),
         category,
         allFiles,

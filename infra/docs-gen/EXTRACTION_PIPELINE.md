@@ -3,9 +3,10 @@
 ```mermaid
 flowchart TD
     CLI["extract-extension-data.mjs<br/>Parse CLI options"] --> Extractor["ExtensionExtractor<br/>src/extractor/index.mjs"]
-    Extractor --> Categories["Extension categories<br/>src/config.mjs"]
-    Categories --> Collect["collectExtensionRefs()<br/>Collect all extension dirs"]
-    Collect --> Filter["filterExtensionRefs()<br/>Apply blacklist and --only"]
+    Extractor --> EntryPoints["Extension entry points<br/>EXTENSION_ENTRY_POINTS"]
+    EntryPoints --> Collect["collectExtensionRefs()<br/>src/extractor/extension-refs.mjs"]
+    Collect --> AllRefs["Full extension ref list"]
+    AllRefs --> Filter["filterExtensionRefs()<br/>Apply blacklist and --only"]
     Filter --> Scan["scanExtension()<br/>src/extractor/scan.mjs"]
 
     Scan --> FieldConfig["Docs field config<br/>EXTENSION_DOC_FIELD_CONFIG"]
@@ -39,7 +40,8 @@ flowchart TD
 
 The extractor keeps orchestration and parsing separate:
 
-- `index.mjs` collects all extension directories, filters them by blacklist and `--only`, and decides when output is written.
+- `index.mjs` asks `extension-refs.mjs` to collect all configured extension entry points,
+  filters them by blacklist and `--only`, and only then scans each remaining extension.
 - `scan.mjs` coordinates one extension scan; `extension-sources.mjs`, `schema.mjs`, and `record-fields.mjs` own the focused extraction steps.
 - `source-files.mjs` owns file selection rules.
 - `ast.mjs` exposes focused AST scanners from `ast/*.mjs`; `options.mjs`, `examples.mjs`, and `constants.mjs` own their TypeScript AST parsing details.

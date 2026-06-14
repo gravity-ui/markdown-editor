@@ -8,7 +8,7 @@ import {isAbsolute, join} from 'node:path';
 import process from 'node:process';
 import {fileURLToPath} from 'node:url';
 
-import {DOCS_GEN_DIR, EDITOR_PKG_DIR, REPO_ROOT} from './config.mjs';
+import {DOCS_GEN_DIR, EDITOR_PKG_DIR, REPO_ROOT, createExtensionEntryPoints} from './config.mjs';
 import {ExtensionExtractor} from './extractor/index.mjs';
 import {logger} from './logger.mjs';
 
@@ -108,7 +108,7 @@ function printHelp() {
     logger.info('Options:');
     logger.info('  --only Bold,Link       Extract selected extension names');
     logger.info('  --out-dir tmp/docs-gen Override output directory');
-    logger.info('  --editor-pkg path      Override packages/editor path');
+    logger.info('  --editor-pkg path      Override configured editor package path');
 }
 
 /**
@@ -122,9 +122,10 @@ export function main(args = process.argv.slice(2)) {
     }
 
     new ExtensionExtractor({
-        editorPkg: opts.editorPkg,
+        entryPoints: createExtensionEntryPoints({editorPkg: opts.editorPkg}),
         outDir: opts.outDir,
         repoRoot: REPO_ROOT,
+        versionPackageDir: opts.editorPkg,
     }).run({only: opts.only});
 }
 

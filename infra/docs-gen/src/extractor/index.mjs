@@ -6,23 +6,22 @@
 import {existsSync, mkdirSync, rmSync} from 'node:fs';
 import {join} from 'node:path';
 
-import {EXTENSION_CATEGORIES, isBlacklistedExtension} from '../config.mjs';
 import {logger} from '../logger.mjs';
-import {listDirs, readText} from '../utils.mjs';
+import {readText} from '../utils.mjs';
 
+import {collectExtensionRefs, filterExtensionRefs} from './extension-refs.mjs';
 import {writeExtensionsJson, writeRawMarkdownFiles} from './output.mjs';
 import {getPresetsForExtension, parsePresets} from './presets.mjs';
 import {scanExtension} from './scan.mjs';
 
 export class ExtensionExtractor {
     /**
-     * Creates an extension extractor for editor source paths.
+     * Creates an extension extractor for configured source paths.
      */
-    constructor({editorPkg, outDir, repoRoot}) {
-        this.editorPkg = editorPkg;
+    constructor({entryPoints, outDir, repoRoot, versionPackageDir}) {
+        this.entryPoints = entryPoints;
         this.repoRoot = repoRoot;
-        this.extensionsDir = join(editorPkg, 'src/extensions');
-        this.presetsDir = join(editorPkg, 'src/presets');
+        this.versionPackageDir = versionPackageDir;
         this.outDir = outDir;
         this.rawDir = join(outDir, 'raw');
     }
@@ -30,53 +29,31 @@ export class ExtensionExtractor {
     /**
      * Scans one extension directory into raw metadata.
      */
-    scan(extDir, category) {
-        return scanExtension({extDir, category, repoRoot: this.repoRoot});
+    scan(ref) {
+        return scanExtension({...ref, repoRoot: this.repoRoot});
     }
 
     /**
-     * Collects all configured extension directories before filtering.
-     */
-    collectExtensionRefs() {
-        const refs = [];
-
-        for (const category of EXTENSION_CATEGORIES) {
-            const categoryDir = join(this.extensionsDir, category);
-            for (const dirName of listDirs(categoryDir)) {
-                refs.push({
-                    name: dirName,
-                    category,
-                    extDir: join(categoryDir, dirName),
-                });
-            }
-        }
-
-        return refs;
-    }
-
-    /**
-     * Applies configured extension filters after the full list is known.
-     */
-    filterExtensionRefs(refs, {only} = {}) {
-        const onlySet = only?.length ? new Set(only) : null;
-
-        return refs.filter((ref) => {
-            if (isBlacklistedExtension(ref.name)) return false;
-            return !onlySet || onlySet.has(ref.name);
-        });
-    }
-
-    /**
-     * Scans all configured extension categories.
+     * Scans all configured extension entry points.
      */
     scanAll({only} = {}) {
-        const allRefs = this.collectExtensionRefs();
-        const extensionRefs = this.filterExtensionRefs(allRefs, {only});
+        const allRefs = collectExtensionRefs(this.entryPoints);
+        const extensionRefs = filterExtensionRefs(allRefs, {only});
 
         return {
             totalCount: allRefs.length,
-            extensions: extensionRefs.map((ref) => this.scan(ref.extDir, ref.category)),
+            extensions: extensionRefs.map((ref) => this.scan(ref)),
         };
+    }
+
+    /**
+     * Parses presets from the configured editor entry point.
+     */
+    getPresetMap() {
+        const presetEntryPoint = this.entryPoints.find((entryPoint) => entryPoint.presetsDir);
+        if (!presetEntryPoint) return new Map();
+
+        return parsePresets(join(presetEntryPoint.packageDir, presetEntryPoint.presetsDir));
     }
 
     /**
@@ -92,7 +69,7 @@ export class ExtensionExtractor {
 
         const version = this.getEditorVersion();
         const {totalCount, extensions} = this.scanAll({only});
-        const presetMap = parsePresets(this.presetsDir);
+        const presetMap = this.getPresetMap();
 
         for (const extension of extensions) {
             extension.presets = getPresetsForExtension(presetMap, extension.name);
@@ -112,7 +89,7 @@ export class ExtensionExtractor {
      * Reads the editor package version.
      */
     getEditorVersion() {
-        const pkg = JSON.parse(readText(join(this.editorPkg, 'package.json')));
+        const pkg = JSON.parse(readText(join(this.versionPackageDir, 'package.json')));
         return pkg.version;
     }
 }
