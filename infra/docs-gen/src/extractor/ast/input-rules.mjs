@@ -30,10 +30,6 @@ function describeInputRuleCall(callExpression) {
     if (!firstArg) return null;
 
     const current = unwrapExpression(firstArg);
-    if (current.kind === ts.SyntaxKind.RegularExpressionLiteral) {
-        return current.getText(callExpression.getSourceFile());
-    }
-
     if (ts.isObjectLiteralExpression(current)) {
         let open = null;
         let close = null;

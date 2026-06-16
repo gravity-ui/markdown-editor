@@ -22,19 +22,25 @@ export function listDirs(dir) {
     return readdirSync(dir)
         .filter((name) => {
             const full = join(dir, name);
-            return statSync(full).isDirectory() && /^[A-Z]/.test(name);
+            const firstChar = name.charAt(0);
+            const startsWithUppercaseLetter =
+                firstChar !== '' &&
+                firstChar === firstChar.toUpperCase() &&
+                firstChar !== firstChar.toLowerCase();
+
+            return statSync(full).isDirectory() && startsWithUppercaseLetter;
         })
         .sort();
 }
 
 /**
- * Finds recursive directory entries matching a pattern.
+ * Finds recursive directory entries matching a predicate.
  */
-export function findFiles(dir, pattern) {
+export function findFiles(dir, predicate) {
     if (!existsSync(dir)) return [];
 
     return readdirSync(dir, {recursive: true})
-        .filter((entry) => pattern.test(entry))
+        .filter((entry) => predicate(entry))
         .map((entry) => join(dir, entry))
         .sort();
 }
@@ -43,5 +49,7 @@ export function findFiles(dir, pattern) {
  * Reads recursive TypeScript source files.
  */
 export function readAllTsFiles(dir) {
-    return findFiles(dir, /\.tsx?$/).map((path) => ({path, content: readText(path)}));
+    return findFiles(dir, (entry) => entry.endsWith('.ts') || entry.endsWith('.tsx')).map(
+        (path) => ({path, content: readText(path)}),
+    );
 }

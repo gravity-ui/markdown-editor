@@ -9,7 +9,7 @@ import {dirname} from 'node:path';
  * Checks whether a file path points to a TypeScript test file.
  */
 export function isTestFile(path) {
-    return /\.test\.tsx?$/.test(path);
+    return path.endsWith('.test.ts') || path.endsWith('.test.tsx');
 }
 
 /**

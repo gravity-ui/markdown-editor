@@ -8,10 +8,33 @@ import ts from 'typescript';
 import {getStaticPropertyName} from '../ast.mjs';
 
 /**
+ * Checks whether a character is a whitespace separator.
+ */
+function isWhitespace(char) {
+    return char === ' ' || char === '\n' || char === '\r' || char === '\t' || char === '\f';
+}
+
+/**
  * Normalizes whitespace in extracted type snippets.
  */
 function normalizeWhitespace(content) {
-    return content.trim().replace(/\s+/g, ' ');
+    const trimmed = content.trim();
+    let result = '';
+    let isInsideWhitespace = false;
+
+    for (const char of trimmed) {
+        if (isWhitespace(char)) {
+            if (!isInsideWhitespace) {
+                result += ' ';
+            }
+            isInsideWhitespace = true;
+        } else {
+            result += char;
+            isInsideWhitespace = false;
+        }
+    }
+
+    return result;
 }
 
 /**

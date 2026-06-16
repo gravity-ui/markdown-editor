@@ -17,6 +17,10 @@ test('parseArgs stops option parsing after separator', () => {
 });
 
 test('parseArgs rejects missing option values', () => {
-    assert.throws(() => parseArgs(['--out-dir']), /Missing value for --out-dir/u);
-    assert.throws(() => parseArgs(['--only', '--help']), /Missing value for --only/u);
+    assert.throws(() => parseArgs(['--out-dir']), {
+        message: 'Missing value for --out-dir',
+    });
+    assert.throws(() => parseArgs(['--only', '--help']), {
+        message: 'Missing value for --only',
+    });
 });

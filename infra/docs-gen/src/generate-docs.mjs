@@ -1,8 +1,3 @@
-/**
- * English: Builds Diplodoc input files from repository markdown documentation.
- *
- * Русский: Собирает входные файлы Diplodoc из markdown-документации репозитория.
- */
 import {
     cpSync,
     existsSync,
@@ -12,17 +7,24 @@ import {
     rmSync,
     writeFileSync,
 } from 'node:fs';
-import {dirname, join} from 'node:path';
+import {dirname, join, resolve} from 'node:path';
 import process from 'node:process';
+import {fileURLToPath} from 'node:url';
 
-import {DOCS_DIR, DOCS_SRC_DIR, GITHUB_RAW_RE, HEADER_RE} from './config.mjs';
+const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '../../..');
+const DOCS_DIR = join(REPO_ROOT, 'docs');
+const OUT_DIR = join(REPO_ROOT, 'tmp/docs-src');
+const GITHUB_RAW_RE =
+    /https:\/\/raw\.githubusercontent\.com\/gravity-ui\/markdown-editor\/(?:refs\/heads\/[^/]+|[^/]+)\/docs\//g;
 
 // Source docs use ##### as a metadata header (not rendered).
 // Format: "##### Category / Title" or "##### Title" (no category).
 // This line is stripped from the output; the rest becomes the page content.
+const HEADER_RE = /^#{5}\s+(.+)$/;
 
 /**
- * Converts a string to a URL-friendly slug.
+ * Converts a string to a URL-friendly slug (lowercase, alphanumeric, hyphens).
+ * @param str
  */
 function slugify(str) {
     return str
@@ -32,7 +34,8 @@ function slugify(str) {
 }
 
 /**
- * Extracts category and title from a metadata header.
+ * Extracts category and title from a `##### Category / Title` header line.
+ * @param firstLine
  */
 function parseHeader(firstLine) {
     const match = firstLine.match(HEADER_RE);
@@ -49,10 +52,10 @@ function parseHeader(firstLine) {
 
 /** Removes all generated content from the output directory. */
 function cleanOutDir() {
-    if (existsSync(DOCS_SRC_DIR)) {
-        rmSync(DOCS_SRC_DIR, {recursive: true, force: true});
+    if (existsSync(OUT_DIR)) {
+        rmSync(OUT_DIR, {recursive: true, force: true});
     }
-    mkdirSync(DOCS_SRC_DIR, {recursive: true});
+    mkdirSync(OUT_DIR, {recursive: true});
 }
 
 /** Reads all markdown files from the source directory and parses their headers. */
@@ -91,7 +94,8 @@ function collectDocs() {
 }
 
 /**
- * Splits docs into categorized and top-level groups.
+ * Splits docs into a category map and a top-level (uncategorized) list.
+ * @param docs
  */
 function groupByCategory(docs) {
     const categories = new Map();
@@ -112,7 +116,8 @@ function groupByCategory(docs) {
 }
 
 /**
- * Builds a relative output file path.
+ * Builds a relative output file path from the doc's category and title slugs.
+ * @param doc
  */
 function computeOutputPath(doc) {
     if (doc.category) {
@@ -122,7 +127,8 @@ function computeOutputPath(doc) {
 }
 
 /**
- * Ensures no two docs resolve to the same output path.
+ * Ensures no two docs resolve to the same output path; exits on collision.
+ * @param docs
  */
 function checkDuplicatePaths(docs) {
     const seen = new Map();
@@ -139,7 +145,9 @@ function checkDuplicatePaths(docs) {
 }
 
 /**
- * Rewrites absolute GitHub raw URLs to relative asset paths.
+ * Rewrites absolute GitHub raw URLs to relative paths based on doc nesting depth.
+ * @param content
+ * @param doc
  */
 function rewriteAssetUrls(content, doc) {
     const prefix = doc.category ? '../' : './';
@@ -147,19 +155,21 @@ function rewriteAssetUrls(content, doc) {
 }
 
 /**
- * Writes stripped Markdown content to categorized output paths.
+ * Writes stripped markdown content to categorized output paths.
+ * @param docs
  */
 function writeDocFiles(docs) {
     checkDuplicatePaths(docs);
     for (const doc of docs) {
-        const outPath = join(DOCS_SRC_DIR, computeOutputPath(doc));
+        const outPath = join(OUT_DIR, computeOutputPath(doc));
         mkdirSync(dirname(outPath), {recursive: true});
         writeFileSync(outPath, rewriteAssetUrls(doc.content, doc));
     }
 }
 
 /**
- * Wraps YAML values that contain special characters.
+ * Wraps a string in double quotes if it contains YAML special characters.
+ * @param str
  */
 function yamlQuote(str) {
     if (/[:#"'{}[\],&*?|>!%@`]/.test(str)) {
@@ -169,7 +179,9 @@ function yamlQuote(str) {
 }
 
 /**
- * Generates the table of contents for the documentation site.
+ * Generates the `toc.yaml` table of contents for the YFM documentation site.
+ * @param categories
+ * @param topLevel
  */
 function generateTocYaml(categories, topLevel) {
     const lines = [
@@ -194,11 +206,13 @@ function generateTocYaml(categories, topLevel) {
         lines.push(`    href: ${computeOutputPath(doc)}`);
     }
 
-    writeFileSync(join(DOCS_SRC_DIR, 'toc.yaml'), lines.join('\n') + '\n');
+    writeFileSync(join(OUT_DIR, 'toc.yaml'), lines.join('\n') + '\n');
 }
 
 /**
- * Generates the landing page with links to all doc pages.
+ * Generates the `index.md` landing page with links to all doc pages.
+ * @param categories
+ * @param topLevel
  */
 function generateIndexMd(categories, topLevel) {
     const lines = [
@@ -223,20 +237,20 @@ function generateIndexMd(categories, topLevel) {
         lines.push('');
     }
 
-    writeFileSync(join(DOCS_SRC_DIR, 'index.md'), lines.join('\n'));
+    writeFileSync(join(OUT_DIR, 'index.md'), lines.join('\n'));
 }
 
 /** Copies the `assets/` directory from source docs to the output directory. */
 function copyAssets() {
     const assetsDir = join(DOCS_DIR, 'assets');
     if (existsSync(assetsDir)) {
-        cpSync(assetsDir, join(DOCS_SRC_DIR, 'assets'), {recursive: true});
+        cpSync(assetsDir, join(OUT_DIR, 'assets'), {recursive: true});
     }
 }
 
 /** Writes the `.yfm` Diplodoc config into the output directory. */
 function writeYfmConfig() {
-    writeFileSync(join(DOCS_SRC_DIR, '.yfm'), 'allowHTML: true\n');
+    writeFileSync(join(OUT_DIR, '.yfm'), 'allowHTML: true\n');
 }
 
 /** Entry point: cleans output, collects docs, and generates the documentation site. */

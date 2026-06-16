@@ -7,18 +7,12 @@ import {dirname, join, resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
 
 export const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '../../..');
-export const DOCS_DIR = join(REPO_ROOT, 'docs');
-export const DOCS_SRC_DIR = join(REPO_ROOT, 'tmp/docs-src');
 export const DOCS_GEN_DIR = join(REPO_ROOT, 'tmp/docs-gen');
 export const EDITOR_PKG_DIR = join(REPO_ROOT, 'packages/editor');
 export const PAGE_CONSTRUCTOR_EXTENSION_PKG_DIR = join(
     REPO_ROOT,
     'packages/page-constructor-extension',
 );
-
-export const GITHUB_RAW_RE =
-    /https:\/\/raw\.githubusercontent\.com\/gravity-ui\/markdown-editor\/(?:refs\/heads\/[^/]+|[^/]+)\/docs\//g;
-export const HEADER_RE = /^#{5}\s+(.+)$/;
 
 export const EXTENSION_CATEGORIES = ['base', 'behavior', 'markdown', 'yfm', 'additional'];
 

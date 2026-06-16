@@ -9,7 +9,7 @@ import {getPresetsForExtension} from './presets.mjs';
  * Formats a value as inline Markdown code.
  */
 function code(value) {
-    return `\`${String(value).replace(/\|/g, '\\|').replace(/\n/g, '\\n')}\``;
+    return `\`${String(value).split('|').join('\\|').split('\n').join('\\n')}\``;
 }
 
 /**
