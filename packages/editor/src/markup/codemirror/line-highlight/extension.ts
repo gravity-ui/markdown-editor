@@ -5,6 +5,7 @@ import {
     RangeSetBuilder,
     StateEffect,
     StateField,
+    type Text,
     type Transaction,
 } from '@codemirror/state';
 import {
@@ -25,48 +26,73 @@ export interface LineHighlightOptions {
 
 export const setHighlightedLine = StateEffect.define<LineRange | null>();
 
-function highlightedLinePositions(state: EditorState, range: LineRange | null): number[] {
-    if (!range) {
-        return [];
-    }
+/** Document positions spanning from the start of the first line to the end of the last line. */
+type HighlightAnchor = {from: number; to: number};
 
-    const docLines = state.doc.lines;
-    const positions: number[] = [];
-
-    for (let line = range.from; line <= range.to; line++) {
-        if (line < 0 || line >= docLines) {
-            continue;
-        }
-        const cmLine = state.doc.line(line + 1);
-        positions.push(cmLine.from);
-    }
-
-    return positions;
-}
-
-function mapLineRange(value: LineRange, tr: Transaction): LineRange | null {
-    const oldDoc = tr.startState.doc;
-    const oldFromLine = Math.max(0, Math.min(value.from, oldDoc.lines - 1));
-    const oldToLine = Math.max(oldFromLine, Math.min(value.to, oldDoc.lines - 1));
-
-    const oldFromPos = oldDoc.line(oldFromLine + 1).from;
-    const oldToPos = oldDoc.line(oldToLine + 1).from;
-
-    const newFromPos = tr.changes.mapPos(oldFromPos);
-    const newToPos = tr.changes.mapPos(oldToPos);
-
-    const newDoc = tr.state.doc;
-    if (newDoc.lines === 0) {
+function lineRangeToAnchor(doc: Text, range: LineRange): HighlightAnchor | null {
+    if (doc.lines === 0) {
         return null;
     }
 
-    const newFromLine = newDoc.lineAt(newFromPos).number - 1;
-    const newToLine = newDoc.lineAt(newToPos).number - 1;
+    const fromLine = Math.max(0, Math.min(range.from, doc.lines - 1));
+    const toLine = Math.max(fromLine, Math.min(range.to, doc.lines - 1));
+    const firstLine = doc.line(fromLine + 1);
+    const lastLine = doc.line(toLine + 1);
 
-    return {
-        from: newFromLine,
-        to: Math.min(newToLine, newDoc.lines - 1),
-    };
+    return {from: firstLine.from, to: lastLine.to};
+}
+
+function anchorOverlapsChanges(anchor: HighlightAnchor, tr: Transaction): boolean {
+    let overlaps = false;
+
+    tr.changes.iterChangedRanges((fromA, toA) => {
+        if (fromA < anchor.to && toA > anchor.from) {
+            overlaps = true;
+        }
+    });
+
+    return overlaps;
+}
+
+function mapHighlightAnchor(anchor: HighlightAnchor, tr: Transaction): HighlightAnchor | null {
+    const newFrom = tr.changes.mapPos(anchor.from, 1);
+    const newTo = tr.changes.mapPos(anchor.to, -1);
+
+    if (tr.state.doc.length === 0) {
+        return null;
+    }
+
+    if (newTo < newFrom) {
+        return null;
+    }
+
+    // When highlighted content is fully removed, mapPos collapses the range to a point.
+    if (newTo === newFrom && anchorOverlapsChanges(anchor, tr)) {
+        return null;
+    }
+
+    return {from: newFrom, to: newTo};
+}
+
+function highlightedLinePositions(state: EditorState, anchor: HighlightAnchor | null): number[] {
+    if (!anchor || anchor.to < anchor.from) {
+        return [];
+    }
+
+    const doc = state.doc;
+    if (doc.length === 0) {
+        return [];
+    }
+
+    const fromLine = doc.lineAt(anchor.from).number;
+    const toLine = doc.lineAt(Math.min(anchor.to, doc.length)).number;
+    const positions: number[] = [];
+
+    for (let line = fromLine; line <= toLine; line++) {
+        positions.push(doc.line(line).from);
+    }
+
+    return positions;
 }
 
 const highlightLineDecoration = Decoration.line({
@@ -93,24 +119,28 @@ const highlightLineTheme = EditorView.baseTheme({
 export function lineHighlight(options?: LineHighlightOptions): Extension {
     const initialRange = options?.initialRange ?? null;
 
-    const highlightedLineField = StateField.define<LineRange | null>({
-        create: () => initialRange,
+    const highlightedLineField = StateField.define<HighlightAnchor | null>({
+        create(state) {
+            return initialRange ? lineRangeToAnchor(state.doc, initialRange) : null;
+        },
         update(value, tr) {
             for (const effect of tr.effects) {
                 if (effect.is(setHighlightedLine)) {
-                    return effect.value;
+                    return effect.value ? lineRangeToAnchor(tr.state.doc, effect.value) : null;
                 }
             }
+
             if (value === null || !tr.docChanged) {
                 return value;
             }
-            return mapLineRange(value, tr);
+
+            return mapHighlightAnchor(value, tr);
         },
     });
 
     const highlightGutterDecoration = gutterLineClass.compute([highlightedLineField], (state) => {
-        const range = state.field(highlightedLineField);
-        const positions = highlightedLinePositions(state, range);
+        const anchor = state.field(highlightedLineField);
+        const positions = highlightedLinePositions(state, anchor);
 
         if (!positions.length) {
             return RangeSet.empty;
@@ -127,8 +157,8 @@ export function lineHighlight(options?: LineHighlightOptions): Extension {
     const highlightLineDecorations = EditorView.decorations.compute(
         [highlightedLineField],
         (state): DecorationSet => {
-            const range = state.field(highlightedLineField);
-            const positions = highlightedLinePositions(state, range);
+            const anchor = state.field(highlightedLineField);
+            const positions = highlightedLinePositions(state, anchor);
 
             if (!positions.length) {
                 return Decoration.none;
@@ -144,7 +174,16 @@ export function lineHighlight(options?: LineHighlightOptions): Extension {
         domEventHandlers: {
             click(view, line) {
                 const lineNum = view.state.doc.lineAt(line.from).number - 1;
-                const current = view.state.field(highlightedLineField);
+                const anchor = view.state.field(highlightedLineField);
+                const current =
+                    anchor === null
+                        ? null
+                        : {
+                              from: view.state.doc.lineAt(anchor.from).number - 1,
+                              to:
+                                  view.state.doc.lineAt(Math.min(anchor.to, view.state.doc.length))
+                                      .number - 1,
+                          };
                 const isSingleSelected =
                     current !== null && current.from === lineNum && current.to === lineNum;
                 view.dispatch({
