@@ -14,9 +14,12 @@
     }
   },
   "scripts": {
-    "build": "node src/generate-docs.mjs && yfm -i ../../tmp/docs-src -o ../../dist/docs"
+    "build": "node src/generate-docs.mjs && yfm -i ../../tmp/docs-src -o ../../dist/docs",
+    "extract:names": "node src/extract-extension-names.mjs",
+    "test": "node --test src/*.test.mjs"
   },
   "dependencies": {
-    "@diplodoc/cli": "5.43.0"
+    "@diplodoc/cli": "5.43.0",
+    "typescript": "catalog:ts"
   }
 }
