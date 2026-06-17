@@ -1,6 +1,6 @@
 import {useState} from 'react';
 
-import {TrashBin} from '@gravity-ui/icons';
+import {FilePlus, TrashBin} from '@gravity-ui/icons';
 import {Button, Icon, Menu, Popup, TextInput} from '@gravity-ui/uikit';
 
 import {TextAreaFixed as TextArea} from 'src/forms/TextInput';
@@ -111,7 +111,11 @@ export function TemplatesPopup<TTemplate extends GridBlockTemplate>({
                             <Menu className={stop}>
                                 {allowAdd && (
                                     <>
-                                        <Menu.Item className={stop} onClick={() => setAdding(true)}>
+                                        <Menu.Item
+                                            className={stop}
+                                            iconStart={<Icon data={FilePlus} />}
+                                            onClick={() => setAdding(true)}
+                                        >
                                             {i18n('add_template')}
                                         </Menu.Item>
                                         <Menu.Item
