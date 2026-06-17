@@ -14,6 +14,19 @@ const tpl = (id: string, title: string, group?: string): GridBlockTemplate => {
     return group ? {...template, group} : template;
 };
 
+const containerTpl = (id: string, title: string, group?: string): GridBlockTemplate => {
+    const template: GridBlockTemplate = {
+        id,
+        title,
+        type: 'container',
+        content: title,
+        containerCss: '',
+        blocks: [],
+    };
+
+    return group ? {...template, group} : template;
+};
+
 describe('groupTemplatesForMenu', () => {
     it('keeps ungrouped templates and groups in first-seen order', () => {
         expect(
@@ -62,6 +75,27 @@ describe('groupTemplatesForMenu', () => {
             ),
         ).toEqual([
             {type: 'group', title: 'Marketing', templates: [tpl('a', 'Hero', 'Marketing')]},
+        ]);
+    });
+
+    it('groups container templates by group', () => {
+        expect(
+            groupTemplatesForMenu(
+                [
+                    containerTpl('a', 'Theme A', 'Shared styles'),
+                    containerTpl('b', 'Theme B', 'Shared styles'),
+                ],
+                '',
+            ),
+        ).toEqual([
+            {
+                type: 'group',
+                title: 'Shared styles',
+                templates: [
+                    containerTpl('a', 'Theme A', 'Shared styles'),
+                    containerTpl('b', 'Theme B', 'Shared styles'),
+                ],
+            },
         ]);
     });
 });

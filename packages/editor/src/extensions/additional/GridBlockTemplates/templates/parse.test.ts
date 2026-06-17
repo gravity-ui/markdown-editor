@@ -135,6 +135,24 @@ describe('parseTemplates', () => {
         });
     });
 
+    it('parses a css-only container template without blocks', () => {
+        const [template] = parseTemplates(`
+            <template id="theme" title="Theme" type="container">
+                <style>
+                    .grid { gap: 16px; }
+                </style>
+            </template>
+        `);
+
+        expect(template).toMatchObject({
+            id: 'theme',
+            title: 'Theme',
+            type: 'container',
+            containerCss: '.grid { gap: 16px; }',
+            blocks: [],
+        });
+    });
+
     it('parses group, style tags and remaining html for a block template', () => {
         const [template] = parseTemplates(`
             <template id="card" title="Card" type="block" group="Theme A">

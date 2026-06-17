@@ -21,13 +21,18 @@ export const rawTemplateBlockToBlock = (block: GridBlockTemplateBlock): GridBloc
     content: block.content,
 });
 
-export const containerTemplateToAttrs = (template: GridBlockContainerTemplate) => ({
+export const containerTemplateToAttrs = (
+    template: GridBlockContainerTemplate,
+    previousBlocks?: GridBlock[],
+) => ({
     customCss: templateCssToRules(template.containerCss, '.grid'),
-    blocks: template.blocks.map((block) => ({
-        id: createGridBlockId(),
-        css: templateCssToRules(block.css),
-        content: block.content,
-    })),
+    blocks: template.blocks.length
+        ? template.blocks.map((block) => ({
+              id: createGridBlockId(),
+              css: templateCssToRules(block.css),
+              content: block.content,
+          }))
+        : (previousBlocks ?? []),
 });
 
 export const buildScopedCss = ({

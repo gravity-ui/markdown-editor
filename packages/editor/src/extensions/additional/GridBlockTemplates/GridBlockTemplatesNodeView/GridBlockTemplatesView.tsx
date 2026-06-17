@@ -114,7 +114,10 @@ export const GridBlockTemplatesView: React.FC<{
     });
 
     const applyContainerTemplate = (template: GridBlockContainerTemplate) => {
-        const {customCss: nextCustomCss, blocks: nextBlocks} = containerTemplateToAttrs(template);
+        const {customCss: nextCustomCss, blocks: nextBlocks} = containerTemplateToAttrs(
+            template,
+            blocks,
+        );
 
         onChange({
             [GridBlockTemplatesConsts.NodeAttrs.customCss]: nextCustomCss,

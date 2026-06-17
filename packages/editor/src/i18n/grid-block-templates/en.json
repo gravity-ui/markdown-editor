@@ -1,6 +1,6 @@
 {
   "add_block": "Add block",
-  "add_template": "Add",
+  "add_template": "Import",
   "block_css": "Block {{index}} CSS",
   "block_actions": "Block {{index}} actions",
   "block_html_input_placeholder": "<div style=\"padding:16px;border-radius:8px;background:#f8fafc\">Block HTML</div>",

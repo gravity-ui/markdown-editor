@@ -1,6 +1,6 @@
 import {useState} from 'react';
 
-import {Plus, TrashBin} from '@gravity-ui/icons';
+import {TrashBin} from '@gravity-ui/icons';
 import {Button, Icon, Menu, Popup, TextInput} from '@gravity-ui/uikit';
 
 import {TextAreaFixed as TextArea} from 'src/forms/TextInput';
@@ -111,22 +111,17 @@ export function TemplatesPopup<TTemplate extends GridBlockTemplate>({
                             <Menu className={stop}>
                                 {allowAdd && (
                                     <>
-                                        <Menu.Item
-                                            className={stop}
-                                            iconStart={<Icon data={Plus} />}
-                                            onClick={() => setAdding(true)}
-                                        >
+                                        <Menu.Item className={stop} onClick={() => setAdding(true)}>
                                             {i18n('add_template')}
                                         </Menu.Item>
-                                        {hasStoredTemplates && (
-                                            <Menu.Item
-                                                className={stop}
-                                                iconStart={<Icon data={TrashBin} />}
-                                                onClick={handleClear}
-                                            >
-                                                {i18n('clear_templates')}
-                                            </Menu.Item>
-                                        )}
+                                        <Menu.Item
+                                            className={stop}
+                                            disabled={!hasStoredTemplates}
+                                            iconStart={<Icon data={TrashBin} />}
+                                            onClick={handleClear}
+                                        >
+                                            {i18n('clear_templates')}
+                                        </Menu.Item>
                                         <div
                                             role="separator"
                                             className={b('templates-separator', [stop])}

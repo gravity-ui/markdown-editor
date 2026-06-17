@@ -1,6 +1,6 @@
 import type {GridBlock} from '../types';
 
-import {buildContainerHtml, parseContainerHtml} from './blockUtils';
+import {buildContainerHtml, containerTemplateToAttrs, parseContainerHtml} from './blockUtils';
 
 const blocks: GridBlock[] = [
     {id: 'block-a', css: '& { color: red; }', content: '<strong>First</strong>'},
@@ -45,6 +45,27 @@ describe('GridBlockTemplates block utils', () => {
 
         it('ignores html without a grid root', () => {
             expect(parseContainerHtml('<section><div>First</div></section>', blocks)).toBeNull();
+        });
+    });
+
+    describe('containerTemplateToAttrs', () => {
+        it('keeps existing blocks when applying a css-only container template', () => {
+            expect(
+                containerTemplateToAttrs(
+                    {
+                        id: 'theme',
+                        title: 'Theme',
+                        type: 'container',
+                        content: '<style>.grid { gap: 16px; }</style>',
+                        containerCss: '.grid { gap: 16px; }',
+                        blocks: [],
+                    },
+                    blocks,
+                ),
+            ).toEqual({
+                customCss: '.grid { gap: 16px; }',
+                blocks,
+            });
         });
     });
 });

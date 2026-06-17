@@ -1,6 +1,6 @@
 {
   "add_block": "Добавить блок",
-  "add_template": "Добавить",
+  "add_template": "Импорт",
   "block_css": "CSS блока {{index}}",
   "block_actions": "Действия блока {{index}}",
   "block_html_input_placeholder": "<div style=\"padding:16px;border-radius:8px;background:#f8fafc\">HTML блока</div>",
