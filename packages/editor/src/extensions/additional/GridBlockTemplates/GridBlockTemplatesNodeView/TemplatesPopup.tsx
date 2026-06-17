@@ -16,19 +16,19 @@ import './TemplatesPopup.scss';
 const b = cnGridBlockTemplates;
 const stop = STOP_EVENT_CLASSNAME;
 
-interface TemplatesPopupProps {
+interface TemplatesPopupProps<TTemplate extends GridBlockTemplate> {
     anchor: HTMLElement | null;
     open: boolean;
-    templates: GridBlockTemplate[];
+    templates: TTemplate[];
     allowAdd: boolean;
     emptyText: string;
     onClose: () => void;
-    onApply: (template: GridBlockTemplate) => void;
+    onApply: (template: TTemplate) => void;
     onAdded: (templates: GridBlockTemplate[]) => void;
     onCleared: (templates: GridBlockTemplate[]) => void;
 }
 
-export const TemplatesPopup: React.FC<TemplatesPopupProps> = ({
+export function TemplatesPopup<TTemplate extends GridBlockTemplate>({
     anchor,
     open,
     templates,
@@ -38,7 +38,7 @@ export const TemplatesPopup: React.FC<TemplatesPopupProps> = ({
     onApply,
     onAdded,
     onCleared,
-}) => {
+}: TemplatesPopupProps<TTemplate>) {
     const [adding, setAdding] = useState(false);
     const [input, setInput] = useState('');
     const [filter, setFilter] = useState('');
@@ -154,4 +154,4 @@ export const TemplatesPopup: React.FC<TemplatesPopupProps> = ({
             </div>
         </Popup>
     );
-};
+}
