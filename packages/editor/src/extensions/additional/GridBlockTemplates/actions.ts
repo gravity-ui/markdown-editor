@@ -17,7 +17,7 @@ export const addGridBlockTemplates: ActionSpec = {
             state.selection.from,
             gridBlockTemplatesNodeType(state.schema).create({
                 [GridBlockTemplatesConsts.NodeAttrs.blocks]: [],
-                [GridBlockTemplatesConsts.NodeAttrs.containerCss]: '',
+                [GridBlockTemplatesConsts.NodeAttrs.customCss]: '',
                 [GridBlockTemplatesConsts.NodeAttrs.EntityId]: entityId,
             }),
         );

@@ -10,7 +10,7 @@ import {i18n} from 'src/i18n/grid-block-templates';
 import {useBooleanState, useElementState} from 'src/react-utils/hooks';
 import {removeNode} from 'src/utils/remove-node';
 
-import {gridScopeClass, scopeCss} from '../css';
+import {blockClass, gridScopeClass, inlineToRule, scopeCss} from '../css';
 import {GridBlockTemplatesConsts} from '../GridBlockTemplatesSpecs/const';
 import type {
     GridBlock,
@@ -34,26 +34,11 @@ const b = cnGridBlockTemplates;
 const stop = STOP_EVENT_CLASSNAME;
 const BLOCK_ID_ATTR = 'data-grid-block-id';
 
-// PROTOTYPE: raw inline declarations, no scoping or sanitization.
-const parseInlineCss = (css: string): React.CSSProperties => {
-    const style: Record<string, string> = {};
-    for (const rule of css.split(';')) {
-        const idx = rule.indexOf(':');
-        if (idx === -1) continue;
-        const prop = rule.slice(0, idx).trim();
-        const value = rule.slice(idx + 1).trim();
-        if (!prop || !value) continue;
-        const camel = prop.replace(/-([a-z])/g, (_, ch) => ch.toUpperCase());
-        style[camel] = value;
-    }
-    return style as React.CSSProperties;
-};
-
 const genId = () => Math.random().toString(36).slice(2, 10);
 
 const toBlock = (template: GridBlockBlockTemplate): GridBlock => ({
     id: genId(),
-    css: template.block.css,
+    css: inlineToRule(template.block.css),
     content: template.block.content,
 });
 
@@ -184,8 +169,8 @@ const BlockSettingsPopup: React.FC<{
                     controlProps={{className: stop}}
                     value={css}
                     onUpdate={onCssChange}
-                    placeholder={'background: #eee;\nborder-radius: 8px;'}
-                    minRows={4}
+                    placeholder={'& {\n  padding: 16px;\n  border-radius: 8px;\n}\nh3 {\n  margin: 0;\n}'}
+                    minRows={5}
                 />
             </div>
         </div>
@@ -196,34 +181,19 @@ const ContainerCssPopup: React.FC<{
     anchor: HTMLElement | null;
     open: boolean;
     onClose: () => void;
-    inlineCss: string;
-    customCss: string;
-    onInlineCssChange: (value: string) => void;
-    onCustomCssChange: (value: string) => void;
-}> = ({anchor, open, onClose, inlineCss, customCss, onInlineCssChange, onCustomCssChange}) => (
+    css: string;
+    onCssChange: (value: string) => void;
+}> = ({anchor, open, onClose, css, onCssChange}) => (
     <Popup anchorElement={anchor} open={open} onOpenChange={onClose} placement="bottom-end">
-        <div className={b('block-settings-editor', [stop])}>
-            <div className={b('field')}>
-                <div className={b('field-label')}>{i18n('grid_css')}</div>
-                <TextArea
-                    controlProps={{className: stop}}
-                    value={inlineCss}
-                    onUpdate={onInlineCssChange}
-                    placeholder={'grid-template-columns: 1fr 1fr;\ngap: 12px;'}
-                    minRows={4}
-                    autoFocus
-                />
-            </div>
-            <div className={b('field')}>
-                <div className={b('field-label')}>{i18n('container_css')}</div>
-                <TextArea
-                    controlProps={{className: stop}}
-                    value={customCss}
-                    onUpdate={onCustomCssChange}
-                    placeholder={'.grid {\n  align-items: center;\n}\n.block-1 {\n  background: #eee;\n}'}
-                    minRows={6}
-                />
-            </div>
+        <div className={b('css-editor', [stop])}>
+            <TextArea
+                controlProps={{className: stop}}
+                value={css}
+                onUpdate={onCssChange}
+                placeholder={'.grid {\n  grid-template-columns: 1fr 1fr;\n  gap: 12px;\n}\n.block-1 {\n  background: #eee;\n}'}
+                minRows={6}
+                autoFocus
+            />
         </div>
     </Popup>
 );
@@ -236,16 +206,22 @@ export const GridBlockTemplatesView: React.FC<{
     options: {templates?: GridBlockTemplatesOptions};
 }> = ({node, getPos, view, onChange, options}) => {
     const entityId: string = node.attrs[GridBlockTemplatesConsts.NodeAttrs.EntityId];
-    const containerCss: string = node.attrs[GridBlockTemplatesConsts.NodeAttrs.containerCss] ?? '';
     const customCss: string = node.attrs[GridBlockTemplatesConsts.NodeAttrs.customCss] ?? '';
     const blocks: GridBlock[] = node.attrs[GridBlockTemplatesConsts.NodeAttrs.blocks] ?? [];
     const {templates} = options;
 
     const scopeClass = useMemo(() => gridScopeClass(entityId), [entityId]);
-    const scopedCustomCss = useMemo(
-        () => (customCss.trim() ? scopeCss(customCss, scopeClass) : ''),
-        [customCss, scopeClass],
-    );
+    const scopedCss = useMemo(() => {
+        const rules = [
+            customCss.trim() && scopeCss(customCss, `.${scopeClass}`).trim(),
+            ...blocks.map(
+                (block, i) =>
+                    block.css.trim() &&
+                    scopeCss(block.css, `.${scopeClass} .${blockClass(i)}`).trim(),
+            ),
+        ].filter(Boolean);
+        return rules.join('\n');
+    }, [customCss, blocks, scopeClass]);
 
     const [containerAnchor, setContainerAnchor] = useElementState();
     const [containerCssOpen, setContainerCssOpen] = useState(false);
@@ -291,11 +267,13 @@ export const GridBlockTemplatesView: React.FC<{
 
     const applyContainerTemplate = (template: GridBlockContainerTemplate) => {
         onChange({
-            [GridBlockTemplatesConsts.NodeAttrs.containerCss]: template.containerCss,
-            [GridBlockTemplatesConsts.NodeAttrs.customCss]: '',
+            [GridBlockTemplatesConsts.NodeAttrs.customCss]: inlineToRule(
+                template.containerCss,
+                '.grid',
+            ),
             [GridBlockTemplatesConsts.NodeAttrs.blocks]: template.blocks.map((block) => ({
                 id: genId(),
-                css: block.css,
+                css: inlineToRule(block.css),
                 content: block.content,
             })),
         });
@@ -399,9 +377,9 @@ export const GridBlockTemplatesView: React.FC<{
         blocks.find((block) => block.id === editingBlockSettingsId) ?? null;
 
     return (
-        <div className={b()}>
-            {/* PROTOTYPE scoping: wraps user CSS into the grid viewport selector. */}
-            <style>{`.${scopeClass}{display:grid;gap:8px;${containerCss}}\n${scopedCustomCss}`}</style>
+        <div className={`${b()} ${scopeClass}`}>
+            {/* PROTOTYPE scoping: selectors in user CSS are prefixed with the instance scope. */}
+            <style>{`.${scopeClass} .grid{display:grid;gap:8px}\n${scopedCss}`}</style>
 
             <div className={b('toolbar', [stop])}>
                 <Button
@@ -456,7 +434,7 @@ export const GridBlockTemplatesView: React.FC<{
                 </Button>
             </div>
 
-            <div className={`${b('grid')} grid ${scopeClass}`}>
+            <div className={`${b('grid')} grid`}>
                 {blocks.map((block, i) => (
                     <div
                         key={block.id}
@@ -466,9 +444,8 @@ export const GridBlockTemplatesView: React.FC<{
                                 dropTarget?.id === block.id && dropTarget.placement === 'before',
                             'drop-after':
                                 dropTarget?.id === block.id && dropTarget.placement === 'after',
-                        })} ${stop} block-${i + 1}`}
+                        })} ${stop} ${blockClass(i)}`}
                         data-grid-block-id={block.id}
-                        style={parseInlineCss(block.css)}
                     >
                         <button
                             type="button"
@@ -549,12 +526,8 @@ export const GridBlockTemplatesView: React.FC<{
                 anchor={containerAnchor}
                 open={containerCssOpen}
                 onClose={() => setContainerCssOpen(false)}
-                inlineCss={containerCss}
-                customCss={customCss}
-                onInlineCssChange={(value) =>
-                    onChange({[GridBlockTemplatesConsts.NodeAttrs.containerCss]: value})
-                }
-                onCustomCssChange={(value) =>
+                css={customCss}
+                onCssChange={(value) =>
                     onChange({[GridBlockTemplatesConsts.NodeAttrs.customCss]: value})
                 }
             />

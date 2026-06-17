@@ -6,9 +6,7 @@ export enum GridBlockTemplatesAttrs {
     EntityId = entityIdAttr,
     /** Array of grid blocks. */
     blocks = 'blocks',
-    /** Inline CSS declarations applied to the grid viewport. */
-    containerCss = 'containerCss',
-    /** Free-form CSS rules with selectors, scoped to this grid instance. */
+    /** CSS rules with selectors, scoped to this grid instance. */
     customCss = 'customCss',
 }
 

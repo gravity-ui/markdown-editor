@@ -1,6 +1,6 @@
 export type GridBlock = {
     id: string;
-    /** Inline CSS applied to this block. */
+    /** CSS rules with selectors, scoped to this block. `&` targets the block root. */
     css: string;
     /** Raw HTML content rendered inside the block. */
     content: string;

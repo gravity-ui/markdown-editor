@@ -2,7 +2,7 @@ import type {Node} from 'prosemirror-model';
 
 import type {ExtensionAuto, ExtensionNodeSpec} from '#core';
 
-import {gridScopeClass, scopeCss} from '../css';
+import {blockClass, gridScopeClass, scopeCss} from '../css';
 import type {GridBlock} from '../types';
 
 import {
@@ -30,25 +30,29 @@ const indent = (text: string, by = '  ') =>
 
 /** Assembles the static HTML written into a YFM HTML block. */
 export const buildGridHtml = (node: Node): string => {
-    const containerCss: string = node.attrs[GridBlockTemplatesConsts.NodeAttrs.containerCss] || '';
     const customCss: string = node.attrs[GridBlockTemplatesConsts.NodeAttrs.customCss] || '';
     const entityId: string = node.attrs[GridBlockTemplatesConsts.NodeAttrs.EntityId];
     const scopeClass = gridScopeClass(entityId);
+    const gridBlocks = readBlocks(node);
 
-    const containerStyle = containerCss.trim() ? ` style="${containerCss.trim()}"` : '';
-
-    const blocks = readBlocks(node)
-        .map((block, i) => {
-            const style = block.css.trim() ? ` style="${block.css.trim()}"` : '';
-            return indent(`<div class="block-${i + 1}"${style}>${block.content ?? ''}</div>`);
-        })
+    const blocks = gridBlocks
+        .map((block, i) => indent(`<div class="${blockClass(i)}">${block.content ?? ''}</div>`))
         .join('\n');
 
-    const styleTag = customCss.trim()
-        ? `<style>\n${indent(scopeCss(customCss.trim(), scopeClass).trim())}\n</style>\n`
-        : '';
+    const rules = [
+        customCss.trim() && scopeCss(customCss, `.${scopeClass}`).trim(),
+        ...gridBlocks.map(
+            (block, i) =>
+                block.css.trim() && scopeCss(block.css, `.${scopeClass} .${blockClass(i)}`).trim(),
+        ),
+    ]
+        .filter(Boolean)
+        .join('\n');
 
-    return `${styleTag}<div class="grid ${scopeClass}"${containerStyle}>\n${blocks}\n</div>`;
+    const styleTag = rules ? `<style>\n${indent(rules.trim())}\n</style>\n` : '';
+    const grid = `<div class="grid">\n${blocks}\n</div>`;
+
+    return `<div class="${scopeClass}">\n${styleTag ? indent(styleTag.trimEnd()) + '\n' : ''}${indent(grid)}\n</div>`;
 };
 
 const GridBlockTemplatesSpecsExtension: ExtensionAuto<GridBlockTemplatesSpecsOptions> = (
@@ -66,7 +70,6 @@ const GridBlockTemplatesSpecsExtension: ExtensionAuto<GridBlockTemplatesSpecsOpt
             group: 'block',
             attrs: {
                 [GridBlockTemplatesConsts.NodeAttrs.blocks]: {default: []},
-                [GridBlockTemplatesConsts.NodeAttrs.containerCss]: {default: ''},
                 [GridBlockTemplatesConsts.NodeAttrs.customCss]: {default: ''},
                 [GridBlockTemplatesConsts.NodeAttrs.EntityId]: {
                     default: defaultGridBlockTemplatesEntityId,
