@@ -31,17 +31,8 @@
         max-height: 280px;
     }
 
-    &__templates-submenu {
-        overflow-y: auto;
-
-        width: 320px;
-        max-width: calc(100vw - 32px);
-        max-height: 280px;
-        padding: 8px;
-
-        border-radius: var(--g-border-radius-m);
-        background: var(--g-color-base-float);
-        box-shadow: 0 2px 10px var(--g-color-sfx-shadow);
+    &__templates-group-template {
+        padding-inline-start: 32px;
     }
 
     &__templates-separator {

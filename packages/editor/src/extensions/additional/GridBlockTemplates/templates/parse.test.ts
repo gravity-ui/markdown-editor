@@ -33,20 +33,14 @@ describe('parseTemplateBlock', () => {
         });
     });
 
-    it('extracts style and html wrappers into block css and html', () => {
+    it('extracts all style tags into css and keeps the remaining html', () => {
         expect(
-            parseTemplateBlock(`
-                <style>
-                    & { padding: 12px; }
-                    strong { color: red; }
-                </style>
-                <html>
-                    <strong>Text</strong>
-                </html>
-            `),
+            parseTemplateBlock(
+                '<h1>Title</h1><style>& { padding: 12px; }</style><div><strong>Text</strong></div><style>strong { color: red; }</style>',
+            ),
         ).toEqual({
-            css: '& { padding: 12px; }\nstrong { color: red; }',
-            content: '<strong>Text</strong>',
+            css: '& { padding: 12px; }\n\nstrong { color: red; }',
+            content: '<h1>Title</h1><div><strong>Text</strong></div>',
         });
     });
 });
@@ -104,25 +98,23 @@ describe('parseTemplates', () => {
         });
     });
 
-    it('parses group, style and html wrappers for a container template', () => {
+    it('parses group, style tags and remaining html for a container template', () => {
         const [template] = parseTemplates(`
             <template id="styled-grid" title="Styled grid" type="container" group="Theme A">
                 <style>
                     .grid { display: grid; gap: 12px; }
                     a { color: inherit; }
                 </style>
-                <html>
-                    <div class="grid">
-                        <div>
-                            <style>
-                                & { padding: 12px; }
-                                strong { color: red; }
-                            </style>
-                            <strong>First</strong>
-                        </div>
-                        <div style="padding:14px">Second</div>
+                <div class="grid">
+                    <div>
+                        <style>
+                            .block-1 { padding: 12px; }
+                            .block-1 strong { color: red; }
+                        </style>
+                        <strong>First</strong>
                     </div>
-                </html>
+                    <div style="padding:14px">Second</div>
+                </div>
             </template>
         `);
 
@@ -131,10 +123,11 @@ describe('parseTemplates', () => {
             title: 'Styled grid',
             group: 'Theme A',
             type: 'container',
-            containerCss: '.grid { display: grid; gap: 12px; }\na { color: inherit; }',
+            containerCss:
+                '.grid { display: grid; gap: 12px; }\na { color: inherit; }\n\n.block-1 { padding: 12px; }\n.block-1 strong { color: red; }',
             blocks: [
                 {
-                    css: '& { padding: 12px; }\nstrong { color: red; }',
+                    css: '',
                     content: '<strong>First</strong>',
                 },
                 {css: 'padding:14px', content: 'Second'},
@@ -142,15 +135,13 @@ describe('parseTemplates', () => {
         });
     });
 
-    it('parses group, style and html wrappers for a block template', () => {
+    it('parses group, style tags and remaining html for a block template', () => {
         const [template] = parseTemplates(`
             <template id="card" title="Card" type="block" group="Theme A">
                 <style>
                     & { padding: 12px; }
                 </style>
-                <html>
-                    <strong>Card text</strong>
-                </html>
+                <strong>Card text</strong>
             </template>
         `);
 

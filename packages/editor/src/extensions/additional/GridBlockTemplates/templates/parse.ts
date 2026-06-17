@@ -44,17 +44,27 @@ const normalizeTemplateHtmlTag = (content: string) =>
         .replace(/<\/html\s*>/gi, `</${htmlTemplateTagName}>`)
         .replace(/<html(\s[^>]*)?>/gi, `<${htmlTemplateTagName}$1>`);
 
-const consumeDirectElements = (node: ParentNode, tagName: string) => {
-    const elements = Array.from(node.childNodes).filter((child): child is Element =>
-        isElementWithTag(child, tagName),
-    );
-
+const consumeElements = (elements: Element[]) => {
     elements.forEach((element) => element.remove());
 
     return elements;
 };
 
-const consumeDirectStyleCss = (node: ParentNode) =>
+const consumeDirectElements = (node: ParentNode, tagName: string) =>
+    consumeElements(
+        Array.from(node.childNodes).filter((child): child is Element =>
+            isElementWithTag(child, tagName),
+        ),
+    );
+
+const consumeStyleCss = (node: ParentNode) =>
+    joinCss(
+        ...consumeElements(Array.from(node.querySelectorAll('style'))).map((style) =>
+            normalizeStyleCss(style.textContent ?? ''),
+        ),
+    );
+
+const consumeLegacyDirectStyleCss = (node: ParentNode) =>
     joinCss(
         ...consumeDirectElements(node, 'style').map((style) =>
             normalizeStyleCss(style.textContent ?? ''),
@@ -79,11 +89,11 @@ const getFragmentHtml = (fragment: DocumentFragment) => {
 
 const getTemplateParts = (content: string) => {
     const fragment = createTemplateFragment(content);
-    if (!fragment) return {css: '', html: content, hasHtmlWrapper: false};
+    if (!fragment) return {css: '', hasExplicitParts: false, html: content};
 
-    const css = consumeDirectStyleCss(fragment);
+    const css = consumeStyleCss(fragment);
     const htmlElements = consumeDirectElements(fragment, htmlTemplateTagName);
-    const hasHtmlWrapper = htmlElements.length > 0;
+    const hasExplicitParts = Boolean(css || htmlElements.length);
     const html = htmlElements.length
         ? htmlElements
               .map((element) => element.innerHTML.trim())
@@ -91,7 +101,7 @@ const getTemplateParts = (content: string) => {
               .join('\n')
         : getFragmentHtml(fragment);
 
-    return {css, html, hasHtmlWrapper};
+    return {css, hasExplicitParts, html};
 };
 
 const resolveCss = ({
@@ -109,9 +119,9 @@ const resolveCss = ({
 };
 
 export const parseTemplateBlock = (content: string): GridBlockTemplateBlock => {
-    const {css: templateCss, hasHtmlWrapper, html} = getTemplateParts(content);
+    const {css: templateCss, hasExplicitParts, html} = getTemplateParts(content);
 
-    if (hasHtmlWrapper) {
+    if (hasExplicitParts) {
         return {css: templateCss, content: html};
     }
 
@@ -122,7 +132,7 @@ export const parseTemplateBlock = (content: string): GridBlockTemplateBlock => {
         return {css: templateCss, content: doc?.body.innerHTML.trim() || html};
     }
 
-    const rootCss = consumeDirectStyleCss(root);
+    const rootCss = consumeLegacyDirectStyleCss(root);
     const inlineCss = getStyle(root);
 
     return {
@@ -146,7 +156,7 @@ const parseContainerTemplate = (
     const {css: templateCss, html} = getTemplateParts(content);
     const doc = parseHtml(html);
     const root = doc?.body.firstElementChild ?? null;
-    const rootCss = root ? consumeDirectStyleCss(root) : '';
+    const rootCss = root ? consumeLegacyDirectStyleCss(root) : '';
     const children = root ? Array.from(root.children) : [];
     const styleCss = joinCss(templateCss, rootCss);
 
@@ -162,7 +172,7 @@ const parseContainerTemplate = (
             inlineSelector: '.grid',
         }),
         blocks: children.map((child) => {
-            const childStyleCss = consumeDirectStyleCss(child);
+            const childStyleCss = consumeLegacyDirectStyleCss(child);
 
             return {
                 css: resolveCss({styleCss: childStyleCss, inlineCss: getStyle(child)}),
