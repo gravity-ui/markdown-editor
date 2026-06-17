@@ -11,6 +11,8 @@
   "custom_html": "Свой HTML",
   "css": "CSS",
   "drag_block": "Перетащить блок {{index}}",
+  "edit_image_src": "Изменить ссылку картинки",
+  "edit_text": "Изменить текст",
   "grid_css": "CSS сетки",
   "html": "HTML",
   "block_html_placeholder": "<button type=\"button\">Текст кнопки</button>",

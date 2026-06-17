@@ -31,8 +31,17 @@
         max-height: 280px;
     }
 
+    &__templates-group-header {
+        margin: 2px 0;
+
+        font-weight: 600;
+
+        border-radius: var(--g-border-radius-xs);
+        background: var(--g-color-base-generic);
+    }
+
     &__templates-group-template {
-        padding-inline-start: 32px;
+        padding-inline-start: 44px;
     }
 
     &__templates-separator {

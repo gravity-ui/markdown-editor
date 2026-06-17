@@ -36,6 +36,7 @@ import {
     templateToBlock,
 } from './blockUtils';
 import {STOP_EVENT_CLASSNAME, cnGridBlockTemplates} from './const';
+import {getBlockTemplatesForMenu} from './derivedBlockTemplates';
 import {useGridBlockDrag} from './drag';
 
 import './GridBlockTemplates.scss';
@@ -78,8 +79,22 @@ export const GridBlockTemplatesView: React.FC<{
         () => mergeTemplatesById(templates?.items ?? [], storedTemplates),
         [templates?.items, storedTemplates],
     );
-    const containerTemplates = effectiveTemplates.filter(isContainerTemplate);
-    const blockTemplates = effectiveTemplates.filter(isBlockTemplate);
+    const containerTemplates = useMemo(
+        () => effectiveTemplates.filter(isContainerTemplate),
+        [effectiveTemplates],
+    );
+    const explicitBlockTemplates = useMemo(
+        () => effectiveTemplates.filter(isBlockTemplate),
+        [effectiveTemplates],
+    );
+    const blockTemplates = useMemo(
+        () =>
+            getBlockTemplatesForMenu({
+                blockTemplates: explicitBlockTemplates,
+                containerTemplates,
+            }),
+        [explicitBlockTemplates, containerTemplates],
+    );
 
     const showContainerTemplatesButton =
         Boolean(templates?.showButton) && (allowAdd || containerTemplates.length > 0);

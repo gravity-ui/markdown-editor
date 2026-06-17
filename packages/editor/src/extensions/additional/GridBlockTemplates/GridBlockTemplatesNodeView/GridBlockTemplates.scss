@@ -108,15 +108,30 @@
     }
 
     &__item-content {
+        position: relative;
+
         min-height: 1.2em;
 
         outline: none;
+    }
 
+    &__item-content-html {
         &:empty::before {
             content: 'Text...';
 
             color: var(--g-color-text-hint);
         }
+    }
+
+    &__inline-edit-button {
+        position: absolute;
+        z-index: 2;
+
+        width: 24px;
+        height: 24px;
+        padding: 0;
+
+        box-shadow: 0 2px 8px rgb(0 0 0 / 12%);
     }
 
     &__inline-text-editor {
@@ -131,6 +146,12 @@
         border: 1px solid var(--g-color-line-focus);
         border-radius: var(--g-border-radius-xs);
         background: var(--g-color-base-background);
+
+        &_src {
+            width: min(100%, 420px);
+
+            resize: none;
+        }
     }
 
     &__settings-editor {

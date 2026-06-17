@@ -36,7 +36,7 @@ function TemplateGroupMenuItem<TTemplate extends GridBlockTemplate>({
     return (
         <>
             <Menu.Item
-                className={stop}
+                className={b('templates-group-header', [stop])}
                 iconEnd={<Icon data={open ? ChevronDown : ChevronRight} />}
                 onClick={() => onToggle(title)}
                 extraProps={{'aria-expanded': open}}
