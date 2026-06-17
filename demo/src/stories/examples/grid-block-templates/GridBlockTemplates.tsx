@@ -10,8 +10,8 @@ import {ToolbarName as Toolbar} from '@gravity-ui/markdown-editor/_/modules/tool
 import {defaultPreset} from '@gravity-ui/markdown-editor/_/modules/toolbars/presets.js';
 import {GridBlockTemplates as GridBlockTemplatesExtension} from '@gravity-ui/markdown-editor/extensions/additional/GridBlockTemplates/index.js';
 
-import {gridBlockTemplates} from '../../../defaults/grid-block-templates';
 import {PlaygroundLayout} from '../../../components/PlaygroundLayout';
+import {gridBlockTemplates} from '../../../defaults/grid-block-templates';
 
 const gridBlockTemplatesItemId = 'gridBlockTemplates';
 
