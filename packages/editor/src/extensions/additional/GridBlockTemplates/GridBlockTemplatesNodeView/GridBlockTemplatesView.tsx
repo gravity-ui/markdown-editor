@@ -1,6 +1,6 @@
 import {useMemo, useState} from 'react';
 
-import {Gear, LayoutHeaderColumns, Plus, TrashBin} from '@gravity-ui/icons';
+import {Gear, GripHorizontal, LayoutHeaderColumns, Plus, TrashBin} from '@gravity-ui/icons';
 import {Button, Icon, Popup} from '@gravity-ui/uikit';
 import type {Node} from 'prosemirror-model';
 import type {EditorView} from 'prosemirror-view';
@@ -54,6 +54,8 @@ const toBlock = (template: GridBlockBlockTemplate): GridBlock => ({
     css: template.block.css,
     content: template.block.content,
 });
+
+type DropPlacement = 'before' | 'after';
 
 const EDITABLE_TEXT_NODE_ATTR = 'data-grid-block-editable-text';
 const EDITABLE_TEXT_NODE_SELECTOR = `[${EDITABLE_TEXT_NODE_ATTR}="true"]`;
@@ -117,6 +119,40 @@ const insertPlainTextAtSelection = (text: string) => {
     range.collapse(true);
     selection.removeAllRanges();
     selection.addRange(range);
+};
+
+const getDropPlacement = (event: React.DragEvent<HTMLElement>): DropPlacement => {
+    const rect = event.currentTarget.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+    const useHorizontalAxis = Math.abs(event.clientX - centerX) > Math.abs(event.clientY - centerY);
+
+    return useHorizontalAxis
+        ? event.clientX < centerX
+            ? 'before'
+            : 'after'
+        : event.clientY < centerY
+          ? 'before'
+          : 'after';
+};
+
+const moveBlock = (
+    blocks: GridBlock[],
+    draggedId: string,
+    targetId: string,
+    placement: DropPlacement,
+) => {
+    if (draggedId === targetId) return blocks;
+
+    const dragged = blocks.find((block) => block.id === draggedId);
+    if (!dragged) return blocks;
+
+    const withoutDragged = blocks.filter((block) => block.id !== draggedId);
+    const targetIndex = withoutDragged.findIndex((block) => block.id === targetId);
+    if (targetIndex === -1) return blocks;
+
+    const insertIndex = placement === 'before' ? targetIndex : targetIndex + 1;
+    return [...withoutDragged.slice(0, insertIndex), dragged, ...withoutDragged.slice(insertIndex)];
 };
 
 const BlockSettingsPopup: React.FC<{
@@ -200,6 +236,11 @@ export const GridBlockTemplatesView: React.FC<{
     const [blockAnchor, setBlockAnchor] = useElementState();
     const [editingBlockSettingsId, setEditingBlockSettingsId] = useState<string | null>(null);
     const [editingBlockContentId, setEditingBlockContentId] = useState<string | null>(null);
+    const [draggedBlockId, setDraggedBlockId] = useState<string | null>(null);
+    const [dropTarget, setDropTarget] = useState<{
+        id: string;
+        placement: DropPlacement;
+    } | null>(null);
 
     const allowAdd = Boolean(templates?.allowAdd);
     const [storedTemplates, setStoredTemplates] =
@@ -250,6 +291,17 @@ export const GridBlockTemplatesView: React.FC<{
 
     const patchBlock = (id: string, patch: Partial<GridBlock>) =>
         setBlocks(blocks.map((block) => (block.id === id ? {...block, ...patch} : block)));
+
+    const clearDragging = () => {
+        setDraggedBlockId(null);
+        setDropTarget(null);
+    };
+
+    const reorderBlocks = (targetId: string, placement: DropPlacement) => {
+        if (!draggedBlockId) return;
+        setBlocks(moveBlock(blocks, draggedBlockId, targetId, placement));
+        clearDragging();
+    };
 
     const editingBlockSettings =
         blocks.find((block) => block.id === editingBlockSettingsId) ?? null;
@@ -316,9 +368,47 @@ export const GridBlockTemplatesView: React.FC<{
                 {blocks.map((block, i) => (
                     <div
                         key={block.id}
-                        className={`${b('item', [stop])} block-${i + 1}`}
+                        className={`${b('item', {
+                            dragged: draggedBlockId === block.id,
+                            'drop-before':
+                                dropTarget?.id === block.id && dropTarget.placement === 'before',
+                            'drop-after':
+                                dropTarget?.id === block.id && dropTarget.placement === 'after',
+                        })} ${stop} block-${i + 1}`}
                         style={parseInlineCss(block.css)}
+                        onDragOver={(e) => {
+                            if (!draggedBlockId) return;
+                            e.preventDefault();
+                            e.dataTransfer.dropEffect = 'move';
+                            setDropTarget({id: block.id, placement: getDropPlacement(e)});
+                        }}
+                        onDragLeave={(e) => {
+                            if (e.currentTarget.contains(e.relatedTarget as globalThis.Node)) {
+                                return;
+                            }
+                            setDropTarget((current) => (current?.id === block.id ? null : current));
+                        }}
+                        onDrop={(e) => {
+                            e.preventDefault();
+                            const placement = dropTarget?.placement ?? getDropPlacement(e);
+                            reorderBlocks(block.id, placement);
+                        }}
                     >
+                        <button
+                            type="button"
+                            draggable
+                            className={`${b('item-drag')} ${stop}`}
+                            onDragStart={(e) => {
+                                e.stopPropagation();
+                                setDraggedBlockId(block.id);
+                                e.dataTransfer.effectAllowed = 'move';
+                                e.dataTransfer.setData('text/plain', block.id);
+                            }}
+                            onDragEnd={clearDragging}
+                            aria-label={i18n('drag_block', {index: String(i + 1)})}
+                        >
+                            <Icon data={GripHorizontal} size={14} />
+                        </button>
                         <Button
                             view="flat"
                             size="s"
@@ -364,27 +454,27 @@ export const GridBlockTemplatesView: React.FC<{
                         />
                     </div>
                 ))}
-
-                <button
-                    type="button"
-                    className={`${b('add', [stop])} ${stop}`}
-                    onClick={(e) => {
-                        setBlockTemplatesAnchor(e.currentTarget);
-                        openBlockTemplates();
-                    }}
-                    aria-label={i18n('add_block')}
-                >
-                    <Icon data={Plus} />
-                </button>
-                <BlockInsertPopup
-                    anchor={blockTemplatesAnchor}
-                    open={blockTemplatesOpen}
-                    templates={blockTemplates}
-                    onClose={closeBlockTemplates}
-                    onApplyTemplate={applyBlockTemplate}
-                    onApplyHtml={applyRawBlock}
-                />
             </div>
+
+            <button
+                type="button"
+                className={`${b('add', [stop])} ${stop}`}
+                onClick={(e) => {
+                    setBlockTemplatesAnchor(e.currentTarget);
+                    openBlockTemplates();
+                }}
+                aria-label={i18n('add_block')}
+            >
+                <Icon data={Plus} />
+            </button>
+            <BlockInsertPopup
+                anchor={blockTemplatesAnchor}
+                open={blockTemplatesOpen}
+                templates={blockTemplates}
+                onClose={closeBlockTemplates}
+                onApplyTemplate={applyBlockTemplate}
+                onApplyHtml={applyRawBlock}
+            />
 
             <CssPopup
                 anchor={containerAnchor}

@@ -10,6 +10,7 @@
   "container_templates_empty": "No container templates",
   "custom_html": "Custom HTML",
   "css": "CSS",
+  "drag_block": "Drag block {{index}}",
   "grid_css": "Grid CSS",
   "html": "HTML",
   "block_html_placeholder": "<button type=\"button\">Button text</button>",

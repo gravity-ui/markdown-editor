@@ -10,6 +10,7 @@
   "container_templates_empty": "Нет шаблонов контейнеров",
   "custom_html": "Свой HTML",
   "css": "CSS",
+  "drag_block": "Перетащить блок {{index}}",
   "grid_css": "CSS сетки",
   "html": "HTML",
   "block_html_placeholder": "<button type=\"button\">Текст кнопки</button>",

@@ -30,6 +30,18 @@
 
         border: 1px dashed var(--g-color-line-generic);
         border-radius: var(--g-border-radius-m);
+
+        &_dragged {
+            opacity: 0.45;
+        }
+
+        &_drop-before {
+            box-shadow: -3px 0 0 var(--g-color-line-focus);
+        }
+
+        &_drop-after {
+            box-shadow: 3px 0 0 var(--g-color-line-focus);
+        }
     }
 
     &__item-gear {
@@ -43,6 +55,43 @@
     }
 
     &__item:hover &__item-gear {
+        opacity: 1;
+    }
+
+    &__item-drag {
+        position: absolute;
+        top: 2px;
+        left: 2px;
+
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        width: 24px;
+        height: 24px;
+        padding: 0;
+
+        cursor: grab;
+
+        opacity: 0;
+        color: var(--g-color-text-secondary);
+        border: 0;
+        border-radius: var(--g-border-radius-xs);
+        background: transparent;
+
+        transition: opacity 0.1s ease-in-out;
+
+        &:active {
+            cursor: grabbing;
+        }
+
+        &:hover {
+            color: var(--g-color-text-primary);
+            background: var(--g-color-base-generic-hover);
+        }
+    }
+
+    &__item:hover &__item-drag {
         opacity: 1;
     }
 
@@ -74,6 +123,8 @@
         justify-content: center;
         align-items: center;
 
+        width: 100%;
+        margin-top: 8px;
         min-height: 56px;
         padding: 12px;
 
