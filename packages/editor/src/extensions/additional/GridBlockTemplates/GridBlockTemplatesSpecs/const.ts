@@ -6,8 +6,10 @@ export enum GridBlockTemplatesAttrs {
     EntityId = entityIdAttr,
     /** Array of grid blocks. */
     blocks = 'blocks',
-    /** CSS rules applied to the grid viewport. */
+    /** Inline CSS declarations applied to the grid viewport. */
     containerCss = 'containerCss',
+    /** Free-form CSS rules with selectors, scoped to this grid instance. */
+    customCss = 'customCss',
 }
 
 export const gridBlockTemplatesNodeName = 'grid_block_templates';

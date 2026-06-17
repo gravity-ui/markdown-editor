@@ -6,6 +6,7 @@
   "block_templates_empty": "Нет шаблонов блоков",
   "cancel": "Отмена",
   "clear_templates": "Очистить все шаблоны",
+  "container_css": "CSS контейнера",
   "container_templates": "Шаблоны контейнеров",
   "container_templates_empty": "Нет шаблонов контейнеров",
   "custom_html": "Свой HTML",

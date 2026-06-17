@@ -2,6 +2,7 @@ import type {Node} from 'prosemirror-model';
 
 import type {ExtensionAuto, ExtensionNodeSpec} from '#core';
 
+import {gridScopeClass, scopeCss} from '../css';
 import type {GridBlock} from '../types';
 
 import {
@@ -30,6 +31,10 @@ const indent = (text: string, by = '  ') =>
 /** Assembles the static HTML written into a YFM HTML block. */
 export const buildGridHtml = (node: Node): string => {
     const containerCss: string = node.attrs[GridBlockTemplatesConsts.NodeAttrs.containerCss] || '';
+    const customCss: string = node.attrs[GridBlockTemplatesConsts.NodeAttrs.customCss] || '';
+    const entityId: string = node.attrs[GridBlockTemplatesConsts.NodeAttrs.EntityId];
+    const scopeClass = gridScopeClass(entityId);
+
     const containerStyle = containerCss.trim() ? ` style="${containerCss.trim()}"` : '';
 
     const blocks = readBlocks(node)
@@ -39,7 +44,11 @@ export const buildGridHtml = (node: Node): string => {
         })
         .join('\n');
 
-    return `<div class="grid"${containerStyle}>\n${blocks}\n</div>`;
+    const styleTag = customCss.trim()
+        ? `<style>\n${indent(scopeCss(customCss.trim(), scopeClass).trim())}\n</style>\n`
+        : '';
+
+    return `${styleTag}<div class="grid ${scopeClass}"${containerStyle}>\n${blocks}\n</div>`;
 };
 
 const GridBlockTemplatesSpecsExtension: ExtensionAuto<GridBlockTemplatesSpecsOptions> = (
@@ -58,6 +67,7 @@ const GridBlockTemplatesSpecsExtension: ExtensionAuto<GridBlockTemplatesSpecsOpt
             attrs: {
                 [GridBlockTemplatesConsts.NodeAttrs.blocks]: {default: []},
                 [GridBlockTemplatesConsts.NodeAttrs.containerCss]: {default: ''},
+                [GridBlockTemplatesConsts.NodeAttrs.customCss]: {default: ''},
                 [GridBlockTemplatesConsts.NodeAttrs.EntityId]: {
                     default: defaultGridBlockTemplatesEntityId,
                 },
