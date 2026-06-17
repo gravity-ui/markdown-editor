@@ -1,4 +1,4 @@
-import {useMemo, useState} from 'react';
+import {useState} from 'react';
 
 import {Code} from '@gravity-ui/icons';
 import {Button, Icon, Menu, Popup, TextInput} from '@gravity-ui/uikit';
@@ -9,6 +9,7 @@ import {i18n} from 'src/i18n/grid-block-templates';
 import {parseRawBlock} from '../templates';
 import type {GridBlockBlockTemplate, GridBlockTemplateBlock} from '../types';
 
+import {GroupedTemplatesMenuItems} from './GroupedTemplatesMenuItems';
 import {STOP_EVENT_CLASSNAME, cnGridBlockTemplates} from './const';
 
 const b = cnGridBlockTemplates;
@@ -35,12 +36,6 @@ export const BlockInsertPopup: React.FC<BlockInsertPopupProps> = ({
     const [input, setInput] = useState('');
     const [filter, setFilter] = useState('');
     const showCustomHtmlEditor = addingCustomHtml || templates.length === 0;
-
-    const filtered = useMemo(() => {
-        const query = filter.trim().toLowerCase();
-        if (!query) return templates;
-        return templates.filter((template) => template.title.toLowerCase().includes(query));
-    }, [templates, filter]);
 
     const close = () => {
         setAddingCustomHtml(false);
@@ -107,23 +102,15 @@ export const BlockInsertPopup: React.FC<BlockInsertPopupProps> = ({
                                     role="separator"
                                     className={b('templates-separator', [stop])}
                                 />
-                                {filtered.map((template) => (
-                                    <Menu.Item
-                                        key={template.id}
-                                        className={stop}
-                                        onClick={() => {
-                                            onApplyTemplate(template);
-                                            close();
-                                        }}
-                                    >
-                                        {template.title}
-                                    </Menu.Item>
-                                ))}
-                                {filtered.length === 0 && (
-                                    <Menu.Item disabled className={stop}>
-                                        {i18n('block_templates_empty')}
-                                    </Menu.Item>
-                                )}
+                                <GroupedTemplatesMenuItems
+                                    templates={templates}
+                                    filter={filter}
+                                    emptyText={i18n('block_templates_empty')}
+                                    onApply={(template) => {
+                                        onApplyTemplate(template);
+                                        close();
+                                    }}
+                                />
                             </Menu>
                         </div>
                     </>

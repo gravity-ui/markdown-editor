@@ -18,6 +18,7 @@ const isTemplateBase = (value: unknown): value is GridBlockTemplate =>
     typeof value.id === 'string' &&
     typeof value.title === 'string' &&
     typeof value.content === 'string' &&
+    (value.group === undefined || typeof value.group === 'string') &&
     (value.type === 'block' || value.type === 'container');
 
 const isBlockTemplate = (value: unknown): value is GridBlockBlockTemplate =>

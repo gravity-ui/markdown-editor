@@ -9,6 +9,13 @@ export const inlineToRule = (declarations: string, selector = '&'): string => {
     return decls === ';' ? '' : `${selector} {\n  ${decls}\n}`;
 };
 
+export const templateCssToRules = (css: string, selector = '&'): string => {
+    const value = css.trim();
+    if (!value) return '';
+
+    return value.includes('{') ? value : inlineToRule(value, selector);
+};
+
 const scopeSelector = (selector: string, base: string) =>
     selector.includes('&') ? selector.replace(/&/g, base) : `${base} ${selector}`;
 

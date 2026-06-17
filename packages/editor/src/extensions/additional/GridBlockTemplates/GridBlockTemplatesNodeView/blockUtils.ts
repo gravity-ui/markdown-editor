@@ -1,4 +1,4 @@
-import {blockClass, gridScopeClass, inlineToRule, scopeCss} from '../css';
+import {blockClass, gridScopeClass, inlineToRule, scopeCss, templateCssToRules} from '../css';
 import type {
     GridBlock,
     GridBlockBlockTemplate,
@@ -11,7 +11,7 @@ export const createGridBlockId = () => Math.random().toString(36).slice(2, 10);
 
 export const templateToBlock = (template: GridBlockBlockTemplate): GridBlock => ({
     id: createGridBlockId(),
-    css: inlineToRule(template.block.css),
+    css: templateCssToRules(template.block.css),
     content: template.block.content,
 });
 
@@ -22,10 +22,10 @@ export const rawTemplateBlockToBlock = (block: GridBlockTemplateBlock): GridBloc
 });
 
 export const containerTemplateToAttrs = (template: GridBlockContainerTemplate) => ({
-    customCss: inlineToRule(template.containerCss, '.grid'),
+    customCss: templateCssToRules(template.containerCss, '.grid'),
     blocks: template.blocks.map((block) => ({
         id: createGridBlockId(),
-        css: inlineToRule(block.css),
+        css: templateCssToRules(block.css),
         content: block.content,
     })),
 });

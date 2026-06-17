@@ -8,22 +8,30 @@ import {
     saveTemplates,
 } from './storage';
 
-const blockTpl = (id: string, title = id): GridBlockTemplate => ({
-    id,
-    title,
-    type: 'block',
-    content: `<div>${id}</div>`,
-    block: {css: 'padding:1px', content: id},
-});
+const blockTpl = (id: string, title = id, group?: string): GridBlockTemplate => {
+    const template: GridBlockTemplate = {
+        id,
+        title,
+        type: 'block',
+        content: `<div>${id}</div>`,
+        block: {css: 'padding:1px', content: id},
+    };
 
-const containerTpl = (id: string, title = id): GridBlockTemplate => ({
-    id,
-    title,
-    type: 'container',
-    content: `<div><div>${id}</div></div>`,
-    containerCss: 'display:grid',
-    blocks: [{css: 'padding:1px', content: id}],
-});
+    return group ? {...template, group} : template;
+};
+
+const containerTpl = (id: string, title = id, group?: string): GridBlockTemplate => {
+    const template: GridBlockTemplate = {
+        id,
+        title,
+        type: 'container',
+        content: `<div><div>${id}</div></div>`,
+        containerCss: 'display:grid',
+        blocks: [{css: 'padding:1px', content: id}],
+    };
+
+    return group ? {...template, group} : template;
+};
 
 beforeEach(() => {
     window.localStorage.clear();
@@ -54,8 +62,8 @@ describe('readStoredTemplates', () => {
         window.localStorage.setItem(
             GRID_BLOCK_TEMPLATES_STORAGE_KEY,
             JSON.stringify([
-                blockTpl('a'),
-                containerTpl('b'),
+                blockTpl('a', 'a', 'Group A'),
+                containerTpl('b', 'b', 'Group B'),
                 {id: 'missing-type', title: 'Missing type', content: '<div />'},
                 {id: 'wrong-type', title: 'Wrong type', type: 'section', content: '<div />'},
                 {id: 'bad-block', title: 'Bad block', type: 'block', content: '<div />'},
@@ -67,10 +75,14 @@ describe('readStoredTemplates', () => {
                     containerCss: '',
                     blocks: [{css: 1, content: 'x'}],
                 },
+                {...blockTpl('bad-group'), group: 1},
             ]),
         );
 
-        expect(readStoredTemplates()).toEqual([blockTpl('a'), containerTpl('b')]);
+        expect(readStoredTemplates()).toEqual([
+            blockTpl('a', 'a', 'Group A'),
+            containerTpl('b', 'b', 'Group B'),
+        ]);
     });
 });
 

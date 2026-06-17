@@ -1,5 +1,6 @@
 import {v4 as uuidv4} from 'uuid';
 
+import {inlineToRule} from '../css';
 import type {
     GridBlockBlockTemplate,
     GridBlockContainerTemplate,
@@ -9,6 +10,7 @@ import type {
 } from '../types';
 
 const genId = () => 'grid-block-template-' + uuidv4();
+const htmlTemplateTagName = 'grid-template-html';
 
 const isTemplateType = (value: string | null): value is GridBlockTemplateType =>
     value === 'block' || value === 'container';
@@ -21,16 +23,110 @@ const parseHtml = (value: string): Document | null => {
 const getStyle = (element: Element | null) =>
     element instanceof HTMLElement ? element.getAttribute('style')?.trim() || '' : '';
 
+const joinCss = (...parts: string[]) =>
+    parts
+        .map((part) => part.trim())
+        .filter(Boolean)
+        .join('\n\n');
+
+const normalizeStyleCss = (css: string) =>
+    css
+        .split('\n')
+        .map((line) => line.trim())
+        .filter(Boolean)
+        .join('\n');
+
+const isElementWithTag = (node: ChildNode, tagName: string): node is Element =>
+    node.nodeType === Node.ELEMENT_NODE && (node as Element).tagName.toLowerCase() === tagName;
+
+const normalizeTemplateHtmlTag = (content: string) =>
+    content
+        .replace(/<\/html\s*>/gi, `</${htmlTemplateTagName}>`)
+        .replace(/<html(\s[^>]*)?>/gi, `<${htmlTemplateTagName}$1>`);
+
+const consumeDirectElements = (node: ParentNode, tagName: string) => {
+    const elements = Array.from(node.childNodes).filter((child): child is Element =>
+        isElementWithTag(child, tagName),
+    );
+
+    elements.forEach((element) => element.remove());
+
+    return elements;
+};
+
+const consumeDirectStyleCss = (node: ParentNode) =>
+    joinCss(
+        ...consumeDirectElements(node, 'style').map((style) =>
+            normalizeStyleCss(style.textContent ?? ''),
+        ),
+    );
+
+const createTemplateFragment = (content: string): DocumentFragment | null => {
+    const doc = parseHtml(`<template>${normalizeTemplateHtmlTag(content)}</template>`);
+    const template = doc?.querySelector('template');
+
+    return typeof HTMLTemplateElement !== 'undefined' && template instanceof HTMLTemplateElement
+        ? (template.content.cloneNode(true) as DocumentFragment)
+        : null;
+};
+
+const getFragmentHtml = (fragment: DocumentFragment) => {
+    const host = document.createElement('div');
+    host.append(...Array.from(fragment.childNodes).map((node) => node.cloneNode(true)));
+
+    return host.innerHTML.trim();
+};
+
+const getTemplateParts = (content: string) => {
+    const fragment = createTemplateFragment(content);
+    if (!fragment) return {css: '', html: content, hasHtmlWrapper: false};
+
+    const css = consumeDirectStyleCss(fragment);
+    const htmlElements = consumeDirectElements(fragment, htmlTemplateTagName);
+    const hasHtmlWrapper = htmlElements.length > 0;
+    const html = htmlElements.length
+        ? htmlElements
+              .map((element) => element.innerHTML.trim())
+              .filter(Boolean)
+              .join('\n')
+        : getFragmentHtml(fragment);
+
+    return {css, html, hasHtmlWrapper};
+};
+
+const resolveCss = ({
+    styleCss,
+    inlineCss,
+    inlineSelector,
+}: {
+    styleCss: string;
+    inlineCss: string;
+    inlineSelector?: string;
+}) => {
+    if (!styleCss) return inlineCss;
+
+    return joinCss(styleCss, inlineCss ? inlineToRule(inlineCss, inlineSelector) : '');
+};
+
 export const parseTemplateBlock = (content: string): GridBlockTemplateBlock => {
-    const doc = parseHtml(content);
+    const {css: templateCss, hasHtmlWrapper, html} = getTemplateParts(content);
+
+    if (hasHtmlWrapper) {
+        return {css: templateCss, content: html};
+    }
+
+    const doc = parseHtml(html);
     const root = doc?.body.firstElementChild ?? null;
 
     if (!root) {
-        return {css: '', content};
+        return {css: templateCss, content: doc?.body.innerHTML.trim() || html};
     }
 
+    const rootCss = consumeDirectStyleCss(root);
+    const inlineCss = getStyle(root);
+
     return {
-        css: getStyle(root),
+        css: resolveCss({styleCss: joinCss(templateCss, rootCss), inlineCss}),
         content: root.innerHTML.trim(),
     };
 };
@@ -44,46 +140,61 @@ export const parseRawBlock = (content: string): GridBlockTemplateBlock => ({
 const parseContainerTemplate = (
     id: string,
     title: string,
+    group: string | undefined,
     content: string,
 ): GridBlockContainerTemplate => {
-    const doc = parseHtml(content);
+    const {css: templateCss, html} = getTemplateParts(content);
+    const doc = parseHtml(html);
     const root = doc?.body.firstElementChild ?? null;
+    const rootCss = root ? consumeDirectStyleCss(root) : '';
     const children = root ? Array.from(root.children) : [];
+    const styleCss = joinCss(templateCss, rootCss);
 
     return {
         id,
         title,
+        group,
         type: 'container',
         content,
-        containerCss: getStyle(root),
-        blocks: children.map((child) => ({
-            css: getStyle(child),
-            content: child.innerHTML.trim(),
-        })),
+        containerCss: resolveCss({
+            styleCss,
+            inlineCss: getStyle(root),
+            inlineSelector: '.grid',
+        }),
+        blocks: children.map((child) => {
+            const childStyleCss = consumeDirectStyleCss(child);
+
+            return {
+                css: resolveCss({styleCss: childStyleCss, inlineCss: getStyle(child)}),
+                content: child.innerHTML.trim(),
+            };
+        }),
     };
 };
 
 const parseBlockTemplate = (
     id: string,
     title: string,
+    group: string | undefined,
     content: string,
 ): GridBlockBlockTemplate => ({
     id,
     title,
+    group,
     type: 'block',
     content,
     block: parseTemplateBlock(content),
 });
 
 /**
- * Parses one or more `<template id="..." title="..." type="block|container">...</template>`
+ * Parses one or more `<template id="..." title="..." type="block|container" group="...">...</template>`
  * blocks. Templates without a valid type are ignored.
  */
 export function parseTemplates(input: string): GridBlockTemplate[] {
     const value = input.trim();
     if (!value) return [];
 
-    const doc = parseHtml(value);
+    const doc = parseHtml(normalizeTemplateHtmlTag(value));
     if (!doc) return [];
 
     return Array.from(doc.querySelectorAll('template')).flatMap((el) => {
@@ -92,10 +203,11 @@ export function parseTemplates(input: string): GridBlockTemplate[] {
 
         const id = el.getAttribute('id')?.trim() || genId();
         const title = el.getAttribute('title')?.trim() || id;
+        const group = el.getAttribute('group')?.trim() || undefined;
         const content = el.innerHTML.trim();
 
         return type === 'container'
-            ? parseContainerTemplate(id, title, content)
-            : parseBlockTemplate(id, title, content);
+            ? parseContainerTemplate(id, title, group, content)
+            : parseBlockTemplate(id, title, group, content);
     });
 }

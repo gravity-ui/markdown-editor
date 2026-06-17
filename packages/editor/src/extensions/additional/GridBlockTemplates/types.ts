@@ -13,6 +13,7 @@ export type GridBlockTemplateBlock = Omit<GridBlock, 'id'>;
 interface GridBlockTemplateBase {
     id: string;
     title: string;
+    group?: string;
     type: GridBlockTemplateType;
     /** Original template inner HTML. */
     content: string;

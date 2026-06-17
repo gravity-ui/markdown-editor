@@ -32,6 +32,23 @@ describe('parseTemplateBlock', () => {
             content: 'Plain text',
         });
     });
+
+    it('extracts style and html wrappers into block css and html', () => {
+        expect(
+            parseTemplateBlock(`
+                <style>
+                    & { padding: 12px; }
+                    strong { color: red; }
+                </style>
+                <html>
+                    <strong>Text</strong>
+                </html>
+            `),
+        ).toEqual({
+            css: '& { padding: 12px; }\nstrong { color: red; }',
+            content: '<strong>Text</strong>',
+        });
+    });
 });
 
 describe('parseTemplates', () => {
@@ -84,6 +101,65 @@ describe('parseTemplates', () => {
                 {css: 'padding:12px', content: 'First'},
                 {css: 'padding:14px', content: '<em>Second</em>'},
             ],
+        });
+    });
+
+    it('parses group, style and html wrappers for a container template', () => {
+        const [template] = parseTemplates(`
+            <template id="styled-grid" title="Styled grid" type="container" group="Theme A">
+                <style>
+                    .grid { display: grid; gap: 12px; }
+                    a { color: inherit; }
+                </style>
+                <html>
+                    <div class="grid">
+                        <div>
+                            <style>
+                                & { padding: 12px; }
+                                strong { color: red; }
+                            </style>
+                            <strong>First</strong>
+                        </div>
+                        <div style="padding:14px">Second</div>
+                    </div>
+                </html>
+            </template>
+        `);
+
+        expect(template).toMatchObject({
+            id: 'styled-grid',
+            title: 'Styled grid',
+            group: 'Theme A',
+            type: 'container',
+            containerCss: '.grid { display: grid; gap: 12px; }\na { color: inherit; }',
+            blocks: [
+                {
+                    css: '& { padding: 12px; }\nstrong { color: red; }',
+                    content: '<strong>First</strong>',
+                },
+                {css: 'padding:14px', content: 'Second'},
+            ],
+        });
+    });
+
+    it('parses group, style and html wrappers for a block template', () => {
+        const [template] = parseTemplates(`
+            <template id="card" title="Card" type="block" group="Theme A">
+                <style>
+                    & { padding: 12px; }
+                </style>
+                <html>
+                    <strong>Card text</strong>
+                </html>
+            </template>
+        `);
+
+        expect(template).toMatchObject({
+            id: 'card',
+            title: 'Card',
+            group: 'Theme A',
+            type: 'block',
+            block: {css: '& { padding: 12px; }', content: '<strong>Card text</strong>'},
         });
     });
 
