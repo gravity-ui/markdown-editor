@@ -6,7 +6,7 @@ import {Button, Icon, Menu, Popup, TextInput} from '@gravity-ui/uikit';
 import {TextAreaFixed as TextArea} from 'src/forms/TextInput';
 import {i18n} from 'src/i18n/grid-block-templates';
 
-import {parseTemplateBlock} from '../templates';
+import {parseRawBlock} from '../templates';
 import type {GridBlockBlockTemplate, GridBlockTemplateBlock} from '../types';
 
 import {STOP_EVENT_CLASSNAME, cnGridBlockTemplates} from './const';
@@ -50,7 +50,7 @@ export const BlockInsertPopup: React.FC<BlockInsertPopupProps> = ({
     };
 
     const handleApplyHtml = () => {
-        onApplyHtml(parseTemplateBlock(input));
+        onApplyHtml(parseRawBlock(input));
         close();
     };
 

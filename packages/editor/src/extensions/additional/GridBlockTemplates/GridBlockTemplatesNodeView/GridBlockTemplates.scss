@@ -60,6 +60,7 @@
 
     &__item-drag {
         position: absolute;
+        z-index: 1;
         top: 2px;
         left: 2px;
 
@@ -73,11 +74,15 @@
 
         cursor: grab;
 
+        // pointer-based drag: keep the gesture on the handle instead of scrolling
+        touch-action: none;
+
         opacity: 0;
         color: var(--g-color-text-secondary);
         border: 0;
         border-radius: var(--g-border-radius-xs);
-        background: transparent;
+        background: var(--g-color-base-float);
+        box-shadow: 0 0 0 1px var(--g-color-line-generic);
 
         transition: opacity 0.1s ease-in-out;
 

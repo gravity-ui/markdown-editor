@@ -1,4 +1,4 @@
-import {useMemo, useState} from 'react';
+import {useEffect, useMemo, useRef, useState} from 'react';
 
 import {Gear, GripHorizontal, LayoutHeaderColumns, Plus, TrashBin} from '@gravity-ui/icons';
 import {Button, Icon, Popup} from '@gravity-ui/uikit';
@@ -31,6 +31,7 @@ export {STOP_EVENT_CLASSNAME, cnGridBlockTemplates} from './const';
 
 const b = cnGridBlockTemplates;
 const stop = STOP_EVENT_CLASSNAME;
+const BLOCK_ID_ATTR = 'data-grid-block-id';
 
 // PROTOTYPE: raw inline declarations, no scoping or sanitization.
 const parseInlineCss = (css: string): React.CSSProperties => {
@@ -121,17 +122,16 @@ const insertPlainTextAtSelection = (text: string) => {
     selection.addRange(range);
 };
 
-const getDropPlacement = (event: React.DragEvent<HTMLElement>): DropPlacement => {
-    const rect = event.currentTarget.getBoundingClientRect();
+const getDropPlacement = (rect: DOMRect, clientX: number, clientY: number): DropPlacement => {
     const centerX = rect.left + rect.width / 2;
     const centerY = rect.top + rect.height / 2;
-    const useHorizontalAxis = Math.abs(event.clientX - centerX) > Math.abs(event.clientY - centerY);
+    const useHorizontalAxis = Math.abs(clientX - centerX) > Math.abs(clientY - centerY);
 
     return useHorizontalAxis
-        ? event.clientX < centerX
+        ? clientX < centerX
             ? 'before'
             : 'after'
-        : event.clientY < centerY
+        : clientY < centerY
           ? 'before'
           : 'after';
 };
@@ -241,6 +241,11 @@ export const GridBlockTemplatesView: React.FC<{
         id: string;
         placement: DropPlacement;
     } | null>(null);
+    const dragStateRef = useRef<{
+        draggedId: string;
+        target: {id: string; placement: DropPlacement} | null;
+    } | null>(null);
+    const cleanupDragListenersRef = useRef<(() => void) | null>(null);
 
     const allowAdd = Boolean(templates?.allowAdd);
     const [storedTemplates, setStoredTemplates] =
@@ -295,13 +300,82 @@ export const GridBlockTemplatesView: React.FC<{
     const clearDragging = () => {
         setDraggedBlockId(null);
         setDropTarget(null);
+        dragStateRef.current = null;
     };
 
-    const reorderBlocks = (targetId: string, placement: DropPlacement) => {
-        if (!draggedBlockId) return;
-        setBlocks(moveBlock(blocks, draggedBlockId, targetId, placement));
-        clearDragging();
+    const beginBlockDrag = (blockId: string, event: React.PointerEvent<HTMLButtonElement>) => {
+        if (event.button !== 0) return;
+
+        event.preventDefault();
+        event.stopPropagation();
+        event.currentTarget.setPointerCapture(event.pointerId);
+
+        cleanupDragListenersRef.current?.();
+
+        dragStateRef.current = {draggedId: blockId, target: null};
+        setDraggedBlockId(blockId);
+        setDropTarget(null);
+
+        const handlePointerMove = (pointerEvent: PointerEvent) => {
+            const target = document
+                .elementFromPoint(pointerEvent.clientX, pointerEvent.clientY)
+                ?.closest<HTMLElement>(`[${BLOCK_ID_ATTR}]`);
+            const targetId = target?.getAttribute(BLOCK_ID_ATTR) ?? null;
+
+            if (!target || !targetId || targetId === blockId) {
+                if (dragStateRef.current) dragStateRef.current.target = null;
+                setDropTarget(null);
+                return;
+            }
+
+            const nextTarget = {
+                id: targetId,
+                placement: getDropPlacement(
+                    target.getBoundingClientRect(),
+                    pointerEvent.clientX,
+                    pointerEvent.clientY,
+                ),
+            };
+
+            if (dragStateRef.current) dragStateRef.current.target = nextTarget;
+            setDropTarget(nextTarget);
+        };
+
+        const handlePointerUp = () => {
+            const dragState = dragStateRef.current;
+            if (dragState?.target) {
+                setBlocks(
+                    moveBlock(
+                        blocks,
+                        dragState.draggedId,
+                        dragState.target.id,
+                        dragState.target.placement,
+                    ),
+                );
+            }
+            cleanupDragListenersRef.current?.();
+            cleanupDragListenersRef.current = null;
+            clearDragging();
+        };
+
+        const handlePointerCancel = () => {
+            cleanupDragListenersRef.current?.();
+            cleanupDragListenersRef.current = null;
+            clearDragging();
+        };
+
+        cleanupDragListenersRef.current = () => {
+            window.removeEventListener('pointermove', handlePointerMove);
+            window.removeEventListener('pointerup', handlePointerUp);
+            window.removeEventListener('pointercancel', handlePointerCancel);
+        };
+
+        window.addEventListener('pointermove', handlePointerMove);
+        window.addEventListener('pointerup', handlePointerUp);
+        window.addEventListener('pointercancel', handlePointerCancel);
     };
+
+    useEffect(() => () => cleanupDragListenersRef.current?.(), []);
 
     const editingBlockSettings =
         blocks.find((block) => block.id === editingBlockSettingsId) ?? null;
@@ -375,36 +449,13 @@ export const GridBlockTemplatesView: React.FC<{
                             'drop-after':
                                 dropTarget?.id === block.id && dropTarget.placement === 'after',
                         })} ${stop} block-${i + 1}`}
+                        data-grid-block-id={block.id}
                         style={parseInlineCss(block.css)}
-                        onDragOver={(e) => {
-                            if (!draggedBlockId) return;
-                            e.preventDefault();
-                            e.dataTransfer.dropEffect = 'move';
-                            setDropTarget({id: block.id, placement: getDropPlacement(e)});
-                        }}
-                        onDragLeave={(e) => {
-                            if (e.currentTarget.contains(e.relatedTarget as globalThis.Node)) {
-                                return;
-                            }
-                            setDropTarget((current) => (current?.id === block.id ? null : current));
-                        }}
-                        onDrop={(e) => {
-                            e.preventDefault();
-                            const placement = dropTarget?.placement ?? getDropPlacement(e);
-                            reorderBlocks(block.id, placement);
-                        }}
                     >
                         <button
                             type="button"
-                            draggable
                             className={`${b('item-drag')} ${stop}`}
-                            onDragStart={(e) => {
-                                e.stopPropagation();
-                                setDraggedBlockId(block.id);
-                                e.dataTransfer.effectAllowed = 'move';
-                                e.dataTransfer.setData('text/plain', block.id);
-                            }}
-                            onDragEnd={clearDragging}
+                            onPointerDown={(e) => beginBlockDrag(block.id, e)}
                             aria-label={i18n('drag_block', {index: String(i + 1)})}
                         >
                             <Icon data={GripHorizontal} size={14} />

@@ -35,6 +35,12 @@ export const parseTemplateBlock = (content: string): GridBlockTemplateBlock => {
     };
 };
 
+/** Keeps user HTML verbatim inside the block; the block div only carries grid CSS. */
+export const parseRawBlock = (content: string): GridBlockTemplateBlock => ({
+    css: '',
+    content: content.trim(),
+});
+
 const parseContainerTemplate = (
     id: string,
     title: string,

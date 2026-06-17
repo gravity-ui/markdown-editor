@@ -1,4 +1,20 @@
-import {parseTemplateBlock, parseTemplates} from './parse';
+import {parseRawBlock, parseTemplateBlock, parseTemplates} from './parse';
+
+describe('parseRawBlock', () => {
+    it('keeps the root element verbatim instead of unwrapping it', () => {
+        expect(parseRawBlock('<div>какой-то текст</div>')).toEqual({
+            css: '',
+            content: '<div>какой-то текст</div>',
+        });
+    });
+
+    it('trims and keeps plain text', () => {
+        expect(parseRawBlock('  Plain text  ')).toEqual({
+            css: '',
+            content: 'Plain text',
+        });
+    });
+});
 
 describe('parseTemplateBlock', () => {
     it('normalizes raw html with a styled root element', () => {
