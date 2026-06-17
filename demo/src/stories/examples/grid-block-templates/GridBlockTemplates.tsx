@@ -11,7 +11,6 @@ import {defaultPreset} from '@gravity-ui/markdown-editor/_/modules/toolbars/pres
 import {GridBlockTemplates as GridBlockTemplatesExtension} from '@gravity-ui/markdown-editor/extensions/additional/GridBlockTemplates/index.js';
 
 import {PlaygroundLayout} from '../../../components/PlaygroundLayout';
-import {gridBlockTemplates} from '../../../defaults/grid-block-templates';
 
 const gridBlockTemplatesItemId = 'gridBlockTemplates';
 
@@ -47,7 +46,6 @@ export const GridBlockTemplatesDemo = memo(function GridBlockTemplatesDemo() {
                 extensions: (builder) =>
                     builder.use(GridBlockTemplatesExtension, {
                         templates: {
-                            items: gridBlockTemplates,
                             showButton: true,
                             allowAdd: true,
                         },

@@ -21,8 +21,3 @@ declare module 'markdown-it-ins' {
     declare const plugin: PluginSimple;
     export = plugin;
 }
-
-declare module '*.svg' {
-    const src: string;
-    export default src;
-}
