@@ -123,6 +123,17 @@
         }
     }
 
+    &__inline-edit-outline {
+        position: absolute;
+        z-index: 1;
+
+        pointer-events: none;
+
+        border: 1px solid var(--g-color-line-focus);
+        border-radius: var(--g-border-radius-xs);
+        background: rgb(82 130 255 / 5%);
+    }
+
     &__inline-edit-button {
         position: absolute;
         z-index: 2;

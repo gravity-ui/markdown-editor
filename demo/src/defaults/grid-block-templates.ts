@@ -3,6 +3,7 @@ import {
     type GridBlockTemplate,
 } from '@gravity-ui/markdown-editor/extensions/additional/GridBlockTemplates/templates/index.js';
 
+import backgroundPlaceholderImage from './grid-block-background-placeholder.svg';
 import placeholderImage from './grid-block-placeholder.svg';
 
 const templateMarkup = `<template id="product-landing-page" title="Product landing" type="container" group="Product landing">
@@ -281,7 +282,7 @@ const templateMarkup = `<template id="product-landing-page" title="Product landi
       padding: 24px;
       align-items: center;
       border-radius: 24px;
-      background: url("${placeholderImage}") no-repeat center / contain;
+      background: url("${backgroundPlaceholderImage}") no-repeat center / contain;
       box-sizing: border-box;
     }
 
@@ -328,51 +329,51 @@ const templateMarkup = `<template id="product-landing-page" title="Product landi
     }
 
     .benefits-banner_dms {
-      background-image: url("${placeholderImage}");
+      background-image: url("${backgroundPlaceholderImage}");
     }
 
     .benefits-banner_dms:hover {
-      background-image: url("${placeholderImage}");
+      background-image: url("${backgroundPlaceholderImage}");
     }
 
     .benefits-banner_food {
-      background-image: url("${placeholderImage}");
+      background-image: url("${backgroundPlaceholderImage}");
     }
 
     .benefits-banner_food:hover {
-      background-image: url("${placeholderImage}");
+      background-image: url("${backgroundPlaceholderImage}");
     }
 
     .benefits-banner_sport {
-      background-image: url("${placeholderImage}");
+      background-image: url("${backgroundPlaceholderImage}");
     }
 
     .benefits-banner_sport:hover {
-      background-image: url("${placeholderImage}");
+      background-image: url("${backgroundPlaceholderImage}");
     }
 
     .benefits-banner_family {
-      background-image: url("${placeholderImage}");
+      background-image: url("${backgroundPlaceholderImage}");
     }
 
     .benefits-banner_family:hover {
-      background-image: url("${placeholderImage}");
+      background-image: url("${backgroundPlaceholderImage}");
     }
 
     .benefits-banner_finance {
-      background-image: url("${placeholderImage}");
+      background-image: url("${backgroundPlaceholderImage}");
     }
 
     .benefits-banner_finance:hover {
-      background-image: url("${placeholderImage}");
+      background-image: url("${backgroundPlaceholderImage}");
     }
 
     .benefits-banner_discounts {
-      background-image: url("${placeholderImage}");
+      background-image: url("${backgroundPlaceholderImage}");
     }
 
     .benefits-banner_discounts:hover {
-      background-image: url("${placeholderImage}");
+      background-image: url("${backgroundPlaceholderImage}");
     }
   </style>
   <a class="benefits-banner benefits-banner_dms" href="https://wiki.yandex-team.ru/hr/kompensacii/straxovanie/" aria-label="ДМС"></a>
@@ -1968,7 +1969,7 @@ const templateMarkup = `<template id="product-landing-page" title="Product landi
       min-height: 360px;
       background:
         linear-gradient(90deg, rgba(21, 25, 31, 0.1), rgba(21, 25, 31, 0)),
-        url("${placeholderImage}") center / cover no-repeat;
+        url("${backgroundPlaceholderImage}") center / cover no-repeat;
     }
 
     .osn-timeline {
@@ -2058,7 +2059,7 @@ const templateMarkup = `<template id="product-landing-page" title="Product landi
     }
 
     .osn-card_cube::before {
-      background-image: url("${placeholderImage}");
+      background-image: url("${backgroundPlaceholderImage}");
     }
 
     .osn-card_cubes {
@@ -2066,7 +2067,7 @@ const templateMarkup = `<template id="product-landing-page" title="Product landi
     }
 
     .osn-card_cubes::before {
-      background-image: url("${placeholderImage}");
+      background-image: url("${backgroundPlaceholderImage}");
     }
 
     .osn-card_numbers {
@@ -2074,7 +2075,7 @@ const templateMarkup = `<template id="product-landing-page" title="Product landi
     }
 
     .osn-card_numbers::before {
-      background-image: url("${placeholderImage}");
+      background-image: url("${backgroundPlaceholderImage}");
     }
 
     .osn-card_code {
@@ -2082,7 +2083,7 @@ const templateMarkup = `<template id="product-landing-page" title="Product landi
     }
 
     .osn-card_code::before {
-      background-image: url("${placeholderImage}");
+      background-image: url("${backgroundPlaceholderImage}");
     }
 
     .osn-card_mail {
@@ -2090,7 +2091,7 @@ const templateMarkup = `<template id="product-landing-page" title="Product landi
     }
 
     .osn-card_mail::before {
-      background-image: url("${placeholderImage}");
+      background-image: url("${backgroundPlaceholderImage}");
     }
 
     .osn-card_store {
@@ -2098,7 +2099,7 @@ const templateMarkup = `<template id="product-landing-page" title="Product landi
     }
 
     .osn-card_store::before {
-      background-image: url("${placeholderImage}");
+      background-image: url("${backgroundPlaceholderImage}");
     }
 
     .block-6 {
@@ -2794,12 +2795,12 @@ const templateMarkup = `<template id="product-landing-page" title="Product landi
     .osn-card_code { background: #4761d6; }
     .osn-card_mail { background: #77e369; }
     .osn-card_store { background: #fae26f; }
-    .osn-card_cube::before { background-image: url("${placeholderImage}"); }
-    .osn-card_cubes::before { background-image: url("${placeholderImage}"); }
-    .osn-card_numbers::before { background-image: url("${placeholderImage}"); }
-    .osn-card_code::before { background-image: url("${placeholderImage}"); }
-    .osn-card_mail::before { background-image: url("${placeholderImage}"); }
-    .osn-card_store::before { background-image: url("${placeholderImage}"); }
+    .osn-card_cube::before { background-image: url("${backgroundPlaceholderImage}"); }
+    .osn-card_cubes::before { background-image: url("${backgroundPlaceholderImage}"); }
+    .osn-card_numbers::before { background-image: url("${backgroundPlaceholderImage}"); }
+    .osn-card_code::before { background-image: url("${backgroundPlaceholderImage}"); }
+    .osn-card_mail::before { background-image: url("${backgroundPlaceholderImage}"); }
+    .osn-card_store::before { background-image: url("${backgroundPlaceholderImage}"); }
   </style>
   <div class="osn-section-heading">
     <h2>Some more cards for your information</h2>

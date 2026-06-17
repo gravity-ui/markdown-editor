@@ -12,10 +12,36 @@ import type {GridBlock} from '../types';
 import {STOP_EVENT_CLASSNAME, cnGridBlockTemplates} from './const';
 import type {DropTarget} from './drag';
 import {getBlockDragAttrs} from './drag';
-import {getTextNodeFromEvent, openInlineImageSrcEditor, openInlineTextEditor} from './textEditing';
+import {getTextNodes, openInlineImageSrcEditor, openInlineTextEditor} from './textEditing';
 
 const b = cnGridBlockTemplates;
 const stop = STOP_EVENT_CLASSNAME;
+const inlineEditButtonSelector = `.${b('inline-edit-button')}`;
+const textTargetSelector = [
+    'h1',
+    'h2',
+    'h3',
+    'h4',
+    'h5',
+    'h6',
+    'p',
+    'a',
+    'span',
+    'strong',
+    'em',
+    'b',
+    'i',
+    'li',
+    'dt',
+    'dd',
+    'blockquote',
+    'figcaption',
+    'cite',
+    'small',
+    'label',
+    'td',
+    'th',
+].join(',');
 
 interface GridBlockItemProps {
     block: GridBlock;
@@ -30,24 +56,72 @@ interface GridBlockItemProps {
 type InlineEditTarget =
     | {
           kind: 'text';
-          textNode: Text;
-          style: CSSProperties;
+          element: HTMLElement;
+          buttonStyle: CSSProperties;
+          outlineStyle: CSSProperties;
       }
     | {
           kind: 'image';
           image: HTMLImageElement;
-          style: CSSProperties;
+          element: HTMLImageElement;
+          buttonStyle: CSSProperties;
+          outlineStyle: CSSProperties;
       };
 
-const getButtonStyle = (
-    root: HTMLElement,
-    coords: Pick<MouseEvent, 'clientX' | 'clientY'>,
-): CSSProperties => {
+const clamp = (value: number, min: number, max: number) =>
+    Math.max(min, Math.min(value, Math.max(min, max)));
+
+const getTargetStyles = (root: HTMLElement, target: HTMLElement) => {
     const rect = root.getBoundingClientRect();
+    const targetRect = target.getBoundingClientRect();
+    const left = targetRect.left - rect.left;
+    const top = targetRect.top - rect.top;
 
     return {
-        left: Math.max(4, Math.min(coords.clientX - rect.left + 8, rect.width - 28)),
-        top: Math.max(4, coords.clientY - rect.top - 18),
+        buttonStyle: {
+            left: clamp(left + targetRect.width - 28, 4, rect.width - 28),
+            top: clamp(top + 4, 4, rect.height - 28),
+        },
+        outlineStyle: {
+            left: Math.max(0, left - 3),
+            top: Math.max(0, top - 3),
+            width: targetRect.width + 6,
+            height: targetRect.height + 6,
+        },
+    };
+};
+
+const getEditableTextElement = (root: HTMLElement, target: Element) => {
+    const element = target.closest<HTMLElement>(textTargetSelector);
+
+    if (!element || !root.contains(element) || !getTextNodes(element).length) return null;
+
+    return element;
+};
+
+const getInlineEditTarget = (
+    root: HTMLElement,
+    target: EventTarget | null,
+): InlineEditTarget | null => {
+    if (!(target instanceof Element) || target.closest(inlineEditButtonSelector)) return null;
+
+    const image = target instanceof HTMLImageElement ? target : target.closest('img');
+    if (image instanceof HTMLImageElement && root.contains(image)) {
+        return {
+            kind: 'image',
+            image,
+            element: image,
+            ...getTargetStyles(root, image),
+        };
+    }
+
+    const element = getEditableTextElement(root, target);
+    if (!element) return null;
+
+    return {
+        kind: 'text',
+        element,
+        ...getTargetStyles(root, element),
     };
 };
 
@@ -77,30 +151,37 @@ export const GridBlockItem: React.FC<GridBlockItemProps> = ({
 
     const handleContentMouseMove = (event: MouseEvent<HTMLDivElement>) => {
         const root = contentRef.current;
-        const target = event.target;
-        if (!root || !(target instanceof Node) || !root.contains(target)) return;
+        if (!root) return;
 
-        if (target instanceof HTMLImageElement) {
-            const imageRect = target.getBoundingClientRect();
-            setInlineEditTarget({
-                kind: 'image',
-                image: target,
-                style: getButtonStyle(root, {
-                    clientX: imageRect.right,
-                    clientY: imageRect.top + 18,
-                }),
-            });
+        const nextTarget = getInlineEditTarget(root, event.target);
+        if (!nextTarget) return;
+
+        setInlineEditTarget((currentTarget) => {
+            if (
+                currentTarget?.kind === nextTarget.kind &&
+                currentTarget.element === nextTarget.element
+            ) {
+                return currentTarget;
+            }
+
+            return nextTarget;
+        });
+    };
+
+    const handleContentMouseOut = (event: MouseEvent<HTMLDivElement>) => {
+        const element = inlineEditTarget?.element;
+        if (!element || !(event.target instanceof Node) || !element.contains(event.target)) return;
+
+        const nextElement = event.relatedTarget;
+        if (
+            nextElement instanceof Node &&
+            (element.contains(nextElement) ||
+                (nextElement instanceof Element && nextElement.closest(inlineEditButtonSelector)))
+        ) {
             return;
         }
 
-        const textNode = getTextNodeFromEvent(root, event);
-        if (!textNode) return;
-
-        setInlineEditTarget({
-            kind: 'text',
-            textNode,
-            style: getButtonStyle(root, event),
-        });
+        setInlineEditTarget(null);
     };
 
     const handleOpenInlineEdit = (event: MouseEvent<HTMLButtonElement>) => {
@@ -111,9 +192,12 @@ export const GridBlockItem: React.FC<GridBlockItemProps> = ({
         if (!root || !inlineEditTarget) return;
 
         if (inlineEditTarget.kind === 'text') {
+            const textNode = getTextNodes(inlineEditTarget.element)[0];
+            if (!textNode) return;
+
             openInlineTextEditor({
                 root,
-                textNode: inlineEditTarget.textNode,
+                textNode,
                 onCommit: (html) => onCommitContent(block.id, html),
             });
         } else {
@@ -158,6 +242,7 @@ export const GridBlockItem: React.FC<GridBlockItemProps> = ({
                 contentEditable={false}
                 suppressContentEditableWarning
                 onMouseMove={handleContentMouseMove}
+                onMouseOut={handleContentMouseOut}
                 onMouseLeave={() => setInlineEditTarget(null)}
             >
                 <div
@@ -166,20 +251,26 @@ export const GridBlockItem: React.FC<GridBlockItemProps> = ({
                     dangerouslySetInnerHTML={{__html: block.content}}
                 />
                 {inlineEditTarget && (
-                    <Button
-                        view="raised"
-                        size="xs"
-                        className={`${b('inline-edit-button')} ${stop}`}
-                        style={inlineEditTarget.style}
-                        onClick={handleOpenInlineEdit}
-                        aria-label={
-                            inlineEditTarget.kind === 'image'
-                                ? i18n('edit_image_src')
-                                : i18n('edit_text')
-                        }
-                    >
-                        <Icon data={Pencil} size={12} className={stop} />
-                    </Button>
+                    <>
+                        <div
+                            className={b('inline-edit-outline')}
+                            style={inlineEditTarget.outlineStyle}
+                        />
+                        <Button
+                            view="raised"
+                            size="xs"
+                            className={`${b('inline-edit-button')} ${stop}`}
+                            style={inlineEditTarget.buttonStyle}
+                            onClick={handleOpenInlineEdit}
+                            aria-label={
+                                inlineEditTarget.kind === 'image'
+                                    ? i18n('edit_image_src')
+                                    : i18n('edit_text')
+                            }
+                        >
+                            <Icon data={Pencil} size={12} className={stop} />
+                        </Button>
+                    </>
                 )}
             </div>
         </div>
