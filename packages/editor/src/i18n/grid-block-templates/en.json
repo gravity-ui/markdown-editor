@@ -1,0 +1,21 @@
+{
+  "add_block": "Add block",
+  "add_template": "Add",
+  "block_css": "Block {{index}} CSS",
+  "block_html_input_placeholder": "<div style=\"padding:16px;border-radius:8px;background:#f8fafc\">Block HTML</div>",
+  "block_templates_empty": "No block templates",
+  "cancel": "Cancel",
+  "clear_templates": "Clear all templates",
+  "container_templates": "Container templates",
+  "container_templates_empty": "No container templates",
+  "custom_html": "Custom HTML",
+  "css": "CSS",
+  "grid_css": "Grid CSS",
+  "html": "HTML",
+  "block_html_placeholder": "<button type=\"button\">Button text</button>",
+  "insert": "Insert",
+  "remove_grid": "Remove grid",
+  "save": "Save",
+  "search_templates": "Search by name",
+  "templates_input_placeholder": "<template id=\"hero\" title=\"Hero\" type=\"container\">\n  <div class=\"grid\" style=\"display:grid;grid-template-columns:1fr 1fr;gap:16px\">\n    <div style=\"padding:16px\">Left</div>\n    <div style=\"padding:16px\">Right</div>\n  </div>\n</template>\n\n<template id=\"card\" title=\"Card\" type=\"block\">\n  <div style=\"padding:16px;border-radius:8px;background:#f8fafc\">Card text</div>\n</template>"
+}

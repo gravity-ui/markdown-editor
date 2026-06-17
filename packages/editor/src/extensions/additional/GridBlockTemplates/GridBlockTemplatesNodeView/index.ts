@@ -1,0 +1,1 @@
+export {WGridBlockTemplatesNodeView} from './NodeView';

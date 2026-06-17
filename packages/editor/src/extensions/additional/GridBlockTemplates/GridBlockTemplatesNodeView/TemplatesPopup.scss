@@ -1,0 +1,27 @@
+.g-md-grid-block-templates {
+    &__templates {
+        width: 320px;
+        max-width: calc(100vw - 32px);
+        padding: 8px;
+    }
+
+    &__templates-editor {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+
+        .g-text-area__control {
+            font-family: var(--g-font-family-monospace);
+        }
+    }
+
+    &__templates-controls {
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+    }
+
+    &__templates-search {
+        margin-bottom: 6px;
+    }
+}

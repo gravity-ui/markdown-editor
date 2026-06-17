@@ -1,0 +1,21 @@
+{
+  "add_block": "Добавить блок",
+  "add_template": "Добавить",
+  "block_css": "CSS блока {{index}}",
+  "block_html_input_placeholder": "<div style=\"padding:16px;border-radius:8px;background:#f8fafc\">HTML блока</div>",
+  "block_templates_empty": "Нет шаблонов блоков",
+  "cancel": "Отмена",
+  "clear_templates": "Очистить все шаблоны",
+  "container_templates": "Шаблоны контейнеров",
+  "container_templates_empty": "Нет шаблонов контейнеров",
+  "custom_html": "Свой HTML",
+  "css": "CSS",
+  "grid_css": "CSS сетки",
+  "html": "HTML",
+  "block_html_placeholder": "<button type=\"button\">Текст кнопки</button>",
+  "insert": "Вставить",
+  "remove_grid": "Удалить сетку",
+  "save": "Сохранить",
+  "search_templates": "Поиск по названию",
+  "templates_input_placeholder": "<template id=\"hero\" title=\"Hero\" type=\"container\">\n  <div class=\"grid\" style=\"display:grid;grid-template-columns:1fr 1fr;gap:16px\">\n    <div style=\"padding:16px\">Left</div>\n    <div style=\"padding:16px\">Right</div>\n  </div>\n</template>\n\n<template id=\"card\" title=\"Card\" type=\"block\">\n  <div style=\"padding:16px;border-radius:8px;background:#f8fafc\">Card text</div>\n</template>"
+}

@@ -1,0 +1,128 @@
+.g-md-grid-block-templates {
+    position: relative;
+
+    margin-bottom: 15px;
+    padding: 32px 12px 12px;
+
+    border: 1px solid var(--g-color-line-generic);
+    border-radius: var(--g-border-radius-m);
+
+    &__toolbar {
+        position: absolute;
+        top: 4px;
+        right: 4px;
+
+        display: flex;
+        gap: 2px;
+    }
+
+    &__grid {
+        display: grid;
+        align-items: stretch;
+        gap: 8px;
+    }
+
+    &__item {
+        position: relative;
+
+        min-height: 56px;
+        padding: 12px;
+
+        border: 1px dashed var(--g-color-line-generic);
+        border-radius: var(--g-border-radius-m);
+    }
+
+    &__item-gear {
+        position: absolute;
+        top: 2px;
+        right: 2px;
+
+        opacity: 0;
+
+        transition: opacity 0.1s ease-in-out;
+    }
+
+    &__item:hover &__item-gear {
+        opacity: 1;
+    }
+
+    &__item-content {
+        min-height: 1.2em;
+
+        outline: none;
+
+        &_editing {
+            outline: 2px solid var(--g-color-line-focus);
+            outline-offset: 2px;
+        }
+
+        &:empty::before {
+            content: 'Text...';
+
+            color: var(--g-color-text-hint);
+        }
+    }
+
+    &__editable-text {
+        outline: 1px solid var(--g-color-line-focus);
+        outline-offset: 1px;
+        background: var(--g-color-base-selection);
+    }
+
+    &__add {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        min-height: 56px;
+        padding: 12px;
+
+        cursor: pointer;
+
+        color: var(--g-color-text-secondary);
+        border: 1px dashed var(--g-color-line-generic);
+        border-radius: var(--g-border-radius-m);
+        background: transparent;
+
+        &:hover {
+            color: var(--g-color-text-primary);
+            border-color: var(--g-color-line-generic-hover);
+            background: var(--g-color-base-generic);
+        }
+    }
+
+    &__css-editor {
+        width: 320px;
+        padding: 8px;
+
+        .g-text-area__control {
+            font-family: var(--g-font-family-monospace);
+        }
+    }
+
+    &__block-settings-editor {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+
+        width: 380px;
+        max-width: calc(100vw - 32px);
+        padding: 8px;
+
+        .g-text-area__control {
+            font-family: var(--g-font-family-monospace);
+        }
+    }
+
+    &__field {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    &__field-label {
+        font-size: var(--g-text-caption-1-font-size);
+        line-height: var(--g-text-caption-1-line-height);
+        color: var(--g-color-text-secondary);
+    }
+}
