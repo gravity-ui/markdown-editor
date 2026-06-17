@@ -129,8 +129,8 @@
         align-items: center;
 
         width: 100%;
-        margin-top: 8px;
         min-height: 56px;
+        margin-top: 8px;
         padding: 12px;
 
         cursor: pointer;
@@ -179,6 +179,7 @@
     &__field-label {
         font-size: var(--g-text-caption-1-font-size);
         line-height: var(--g-text-caption-1-line-height);
+
         color: var(--g-color-text-secondary);
     }
 }

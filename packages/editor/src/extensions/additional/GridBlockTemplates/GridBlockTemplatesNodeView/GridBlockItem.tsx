@@ -1,6 +1,12 @@
+import type {
+    ClipboardEvent,
+    FocusEvent,
+    MouseEvent,
+    PointerEvent as ReactPointerEvent,
+} from 'react';
+
 import {Gear, GripHorizontal} from '@gravity-ui/icons';
 import {Button, Icon} from '@gravity-ui/uikit';
-import type {ClipboardEvent, FocusEvent, MouseEvent, PointerEvent as ReactPointerEvent} from 'react';
 
 import {i18n} from 'src/i18n/grid-block-templates';
 

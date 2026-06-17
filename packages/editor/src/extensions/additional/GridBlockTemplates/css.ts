@@ -10,9 +10,7 @@ export const inlineToRule = (declarations: string, selector = '&'): string => {
 };
 
 const scopeSelector = (selector: string, base: string) =>
-    selector.includes('&')
-        ? selector.replace(/&/g, base)
-        : `${base} ${selector}`;
+    selector.includes('&') ? selector.replace(/&/g, base) : `${base} ${selector}`;
 
 /**
  * Prefixes every top-level selector with `base` so rules stay local. `&` in a selector

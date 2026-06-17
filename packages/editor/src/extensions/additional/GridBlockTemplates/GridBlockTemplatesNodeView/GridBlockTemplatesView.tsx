@@ -10,6 +10,7 @@ import {useBooleanState, useElementState} from 'src/react-utils/hooks';
 import {removeNode} from 'src/utils/remove-node';
 
 import {GridBlockTemplatesConsts} from '../GridBlockTemplatesSpecs/const';
+import {mergeTemplatesById, readStoredTemplates} from '../templates';
 import type {
     GridBlock,
     GridBlockBlockTemplate,
@@ -18,9 +19,11 @@ import type {
     GridBlockTemplateBlock,
     GridBlockTemplatesOptions,
 } from '../types';
-import {mergeTemplatesById, readStoredTemplates} from '../templates';
 
 import {BlockInsertPopup} from './BlockInsertPopup';
+import {GridBlockItem} from './GridBlockItem';
+import {BlockSettingsPopup, ContainerCssPopup} from './SettingsPopups';
+import {TemplatesPopup} from './TemplatesPopup';
 import {
     buildScopedCss,
     containerTemplateToAttrs,
@@ -30,11 +33,8 @@ import {
     rawTemplateBlockToBlock,
     templateToBlock,
 } from './blockUtils';
-import {TemplatesPopup} from './TemplatesPopup';
 import {STOP_EVENT_CLASSNAME, cnGridBlockTemplates} from './const';
 import {useGridBlockDrag} from './drag';
-import {GridBlockItem} from './GridBlockItem';
-import {BlockSettingsPopup, ContainerCssPopup} from './SettingsPopups';
 
 import './GridBlockTemplates.scss';
 
@@ -42,6 +42,7 @@ export {STOP_EVENT_CLASSNAME, cnGridBlockTemplates} from './const';
 
 const b = cnGridBlockTemplates;
 const stop = STOP_EVENT_CLASSNAME;
+const EMPTY_BLOCKS: GridBlock[] = [];
 
 export const GridBlockTemplatesView: React.FC<{
     node: Node;
@@ -52,7 +53,8 @@ export const GridBlockTemplatesView: React.FC<{
 }> = ({node, getPos, view, onChange, options}) => {
     const entityId: string = node.attrs[GridBlockTemplatesConsts.NodeAttrs.EntityId];
     const customCss: string = node.attrs[GridBlockTemplatesConsts.NodeAttrs.customCss] ?? '';
-    const blocks: GridBlock[] = node.attrs[GridBlockTemplatesConsts.NodeAttrs.blocks] ?? [];
+    const blocks: GridBlock[] =
+        node.attrs[GridBlockTemplatesConsts.NodeAttrs.blocks] ?? EMPTY_BLOCKS;
     const {templates} = options;
 
     const scopeClass = useMemo(() => getGridScopeClass(entityId), [entityId]);

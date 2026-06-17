@@ -56,6 +56,5 @@ export const isContainerTemplate = (
     template: GridBlockTemplate,
 ): template is GridBlockContainerTemplate => template.type === 'container';
 
-export const isBlockTemplate = (
-    template: GridBlockTemplate,
-): template is GridBlockBlockTemplate => template.type === 'block';
+export const isBlockTemplate = (template: GridBlockTemplate): template is GridBlockBlockTemplate =>
+    template.type === 'block';

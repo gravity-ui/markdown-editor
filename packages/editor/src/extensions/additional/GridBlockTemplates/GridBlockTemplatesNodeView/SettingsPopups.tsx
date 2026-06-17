@@ -36,7 +36,9 @@ export const BlockSettingsPopup: React.FC<{
                     controlProps={{className: stop}}
                     value={css}
                     onUpdate={onCssChange}
-                    placeholder={'& {\n  padding: 16px;\n  border-radius: 8px;\n}\nh3 {\n  margin: 0;\n}'}
+                    placeholder={
+                        '& {\n  padding: 16px;\n  border-radius: 8px;\n}\nh3 {\n  margin: 0;\n}'
+                    }
                     minRows={5}
                 />
             </div>
@@ -57,7 +59,9 @@ export const ContainerCssPopup: React.FC<{
                 controlProps={{className: stop}}
                 value={css}
                 onUpdate={onCssChange}
-                placeholder={'.grid {\n  grid-template-columns: 1fr 1fr;\n  gap: 12px;\n}\n.block-1 {\n  background: #eee;\n}'}
+                placeholder={
+                    '.grid {\n  grid-template-columns: 1fr 1fr;\n  gap: 12px;\n}\n.block-1 {\n  background: #eee;\n}'
+                }
                 minRows={6}
                 autoFocus
             />

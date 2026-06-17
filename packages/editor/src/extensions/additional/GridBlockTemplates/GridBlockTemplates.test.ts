@@ -47,7 +47,11 @@ describe('GridBlockTemplates extension', () => {
                 doc(
                     gridBlockTemplates({
                         [GridBlockTemplatesAttrs.blocks]: [
-                            {id: 'block-1', css: '& { padding: 12px; }\nh3 { margin: 0; }', content: 'First'},
+                            {
+                                id: 'block-1',
+                                css: '& { padding: 12px; }\nh3 { margin: 0; }',
+                                content: 'First',
+                            },
                         ],
                         [GridBlockTemplatesAttrs.customCss]: '.grid { align-items: center; }',
                         [GridBlockTemplatesAttrs.EntityId]: 'grid_block_templates-1',

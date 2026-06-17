@@ -19,13 +19,11 @@ const getDropPlacement = (rect: DOMRect, clientX: number, clientY: number): Drop
     const centerY = rect.top + rect.height / 2;
     const useHorizontalAxis = Math.abs(clientX - centerX) > Math.abs(clientY - centerY);
 
-    return useHorizontalAxis
-        ? clientX < centerX
-            ? 'before'
-            : 'after'
-        : clientY < centerY
-          ? 'before'
-          : 'after';
+    if (useHorizontalAxis) {
+        return clientX < centerX ? 'before' : 'after';
+    }
+
+    return clientY < centerY ? 'before' : 'after';
 };
 
 const getPointerDropTarget = (
