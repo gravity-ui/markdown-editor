@@ -34,13 +34,29 @@ const HtmlCssSettingsPopup: React.FC<HtmlCssSettingsPopupProps> = ({
     cssPlaceholder,
 }) => {
     const [draftHtml, setDraftHtml] = useState(html);
+    const [draftCss, setDraftCss] = useState(css);
 
     useEffect(() => {
         setDraftHtml(html);
-    }, [html, open]);
+        setDraftCss(css);
+    }, [css, html, open]);
+
+    const handleHtmlUpdate = (value: string) => {
+        setDraftHtml(value);
+        onHtmlCommit(value);
+    };
 
     const commitHtml = () => {
         onHtmlCommit(draftHtml);
+    };
+
+    const handleCssUpdate = (value: string) => {
+        setDraftCss(value);
+        onCssChange(value);
+    };
+
+    const commitCss = () => {
+        onCssChange(draftCss);
     };
 
     return (
@@ -51,7 +67,7 @@ const HtmlCssSettingsPopup: React.FC<HtmlCssSettingsPopupProps> = ({
                     <TextArea
                         controlProps={{className: stop, onBlur: commitHtml}}
                         value={draftHtml}
-                        onUpdate={setDraftHtml}
+                        onUpdate={handleHtmlUpdate}
                         placeholder={htmlPlaceholder}
                         minRows={8}
                         autoFocus
@@ -60,9 +76,9 @@ const HtmlCssSettingsPopup: React.FC<HtmlCssSettingsPopupProps> = ({
                 <div className={b('field')}>
                     <div className={b('field-label')}>{i18n('css')}</div>
                     <TextArea
-                        controlProps={{className: stop}}
-                        value={css}
-                        onUpdate={onCssChange}
+                        controlProps={{className: stop, onBlur: commitCss}}
+                        value={draftCss}
+                        onUpdate={handleCssUpdate}
                         placeholder={cssPlaceholder}
                         minRows={8}
                     />
