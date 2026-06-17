@@ -1,4 +1,4 @@
-import {openInlineImageSrcEditor, openInlineTextEditor} from './textEditing';
+import {openInlineImageSrcEditor, openInlineLinkEditor, openInlineTextEditor} from './textEditing';
 
 const keydown = (target: HTMLElement, key: string) => {
     target.dispatchEvent(new KeyboardEvent('keydown', {key, bubbles: true}));
@@ -78,6 +78,44 @@ describe('GridBlockTemplates inline editing', () => {
         keydown(editor, 'Escape');
 
         expect(root.innerHTML).toBe('<img src="before.png" alt="Preview">');
+        expect(onCommit).not.toHaveBeenCalled();
+    });
+
+    it('commits link text and href changes and preserves other attributes', () => {
+        const root = document.createElement('div');
+        root.innerHTML = '<a href="before.html" class="action">Before</a>';
+        document.body.append(root);
+
+        const link = root.querySelector('a') as HTMLAnchorElement;
+        const onCommit = jest.fn();
+
+        expect(openInlineLinkEditor({root, link, onCommit})).toBe(true);
+
+        const [textInput, hrefInput] = Array.from(root.querySelectorAll('input'));
+        textInput.value = 'After';
+        hrefInput.value = 'after.html';
+        keydown(hrefInput, 'Enter');
+
+        expect(root.innerHTML).toBe('<a href="after.html" class="action">After</a>');
+        expect(onCommit).toHaveBeenCalledWith('<a href="after.html" class="action">After</a>');
+    });
+
+    it('cancels link changes on Escape', () => {
+        const root = document.createElement('div');
+        root.innerHTML = '<a href="before.html">Before</a>';
+        document.body.append(root);
+
+        const link = root.querySelector('a') as HTMLAnchorElement;
+        const onCommit = jest.fn();
+
+        openInlineLinkEditor({root, link, onCommit});
+
+        const [textInput, hrefInput] = Array.from(root.querySelectorAll('input'));
+        textInput.value = 'After';
+        hrefInput.value = 'after.html';
+        keydown(textInput, 'Escape');
+
+        expect(root.innerHTML).toBe('<a href="before.html">Before</a>');
         expect(onCommit).not.toHaveBeenCalled();
     });
 });

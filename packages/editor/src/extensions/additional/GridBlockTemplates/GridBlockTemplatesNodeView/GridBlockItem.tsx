@@ -12,7 +12,12 @@ import type {GridBlock} from '../types';
 import {STOP_EVENT_CLASSNAME, cnGridBlockTemplates} from './const';
 import type {DropTarget} from './drag';
 import {getBlockDragAttrs} from './drag';
-import {getTextNodes, openInlineImageSrcEditor, openInlineTextEditor} from './textEditing';
+import {
+    getTextNodes,
+    openInlineImageSrcEditor,
+    openInlineLinkEditor,
+    openInlineTextEditor,
+} from './textEditing';
 
 const b = cnGridBlockTemplates;
 const stop = STOP_EVENT_CLASSNAME;
@@ -61,6 +66,13 @@ type InlineEditTarget =
           outlineStyle: CSSProperties;
       }
     | {
+          kind: 'link';
+          link: HTMLAnchorElement;
+          element: HTMLAnchorElement;
+          buttonStyle: CSSProperties;
+          outlineStyle: CSSProperties;
+      }
+    | {
           kind: 'image';
           image: HTMLImageElement;
           element: HTMLImageElement;
@@ -79,8 +91,8 @@ const getTargetStyles = (root: HTMLElement, target: HTMLElement) => {
 
     return {
         buttonStyle: {
-            left: clamp(left + targetRect.width - 28, 4, rect.width - 28),
-            top: clamp(top + 4, 4, rect.height - 28),
+            left: clamp(left + targetRect.width - 40, 4, rect.width - 40),
+            top: clamp(top + 4, 4, rect.height - 40),
         },
         outlineStyle: {
             left: Math.max(0, left - 3),
@@ -99,6 +111,14 @@ const getEditableTextElement = (root: HTMLElement, target: Element) => {
     return element;
 };
 
+const getEditableLinkElement = (root: HTMLElement, target: Element) => {
+    const link = target instanceof HTMLAnchorElement ? target : target.closest('a');
+
+    if (!(link instanceof HTMLAnchorElement) || !root.contains(link)) return null;
+
+    return link;
+};
+
 const getInlineEditTarget = (
     root: HTMLElement,
     target: EventTarget | null,
@@ -112,6 +132,16 @@ const getInlineEditTarget = (
             image,
             element: image,
             ...getTargetStyles(root, image),
+        };
+    }
+
+    const link = getEditableLinkElement(root, target);
+    if (link) {
+        return {
+            kind: 'link',
+            link,
+            element: link,
+            ...getTargetStyles(root, link),
         };
     }
 
@@ -184,31 +214,79 @@ export const GridBlockItem: React.FC<GridBlockItemProps> = ({
         setInlineEditTarget(null);
     };
 
-    const handleOpenInlineEdit = (event: MouseEvent<HTMLButtonElement>) => {
-        event.preventDefault();
-        event.stopPropagation();
-
+    const openInlineEditTarget = (target: InlineEditTarget) => {
         const root = contentRef.current;
-        if (!root || !inlineEditTarget) return;
+        if (!root) return false;
 
-        if (inlineEditTarget.kind === 'text') {
-            const textNode = getTextNodes(inlineEditTarget.element)[0];
-            if (!textNode) return;
+        if (target.kind === 'text') {
+            const textNode = getTextNodes(target.element)[0];
+            if (!textNode) return false;
 
             openInlineTextEditor({
                 root,
                 textNode,
                 onCommit: (html) => onCommitContent(block.id, html),
             });
+        } else if (target.kind === 'link') {
+            openInlineLinkEditor({
+                root,
+                link: target.link,
+                onCommit: (html) => onCommitContent(block.id, html),
+            });
         } else {
             openInlineImageSrcEditor({
                 root,
-                image: inlineEditTarget.image,
+                image: target.image,
                 onCommit: (html) => onCommitContent(block.id, html),
             });
         }
 
         setInlineEditTarget(null);
+
+        return true;
+    };
+
+    const handleOpenInlineEdit = (event: MouseEvent<HTMLButtonElement>) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        if (!inlineEditTarget) return;
+
+        openInlineEditTarget(inlineEditTarget);
+    };
+
+    const handleContentClick = (event: MouseEvent<HTMLDivElement>) => {
+        const root = contentRef.current;
+        const target = event.target;
+        if (!root || !(target instanceof Element) || target.closest(inlineEditButtonSelector)) {
+            return;
+        }
+
+        const link = getEditableLinkElement(root, target);
+        if (!link || target.closest('img')) return;
+
+        event.preventDefault();
+        event.stopPropagation();
+
+        openInlineEditTarget({
+            kind: 'link',
+            link,
+            element: link,
+            ...getTargetStyles(root, link),
+        });
+    };
+
+    const handleContentDoubleClick = (event: MouseEvent<HTMLDivElement>) => {
+        const root = contentRef.current;
+        if (!root) return;
+
+        const target = getInlineEditTarget(root, event.target);
+        if (!target) return;
+
+        event.preventDefault();
+        event.stopPropagation();
+
+        openInlineEditTarget(target);
     };
 
     return (
@@ -241,9 +319,11 @@ export const GridBlockItem: React.FC<GridBlockItemProps> = ({
                 className={`${b('item-content')} ${stop}`}
                 contentEditable={false}
                 suppressContentEditableWarning
+                onClick={handleContentClick}
                 onMouseMove={handleContentMouseMove}
                 onMouseOut={handleContentMouseOut}
                 onMouseLeave={() => setInlineEditTarget(null)}
+                onDoubleClick={handleContentDoubleClick}
             >
                 <div
                     ref={contentRef}
@@ -256,20 +336,21 @@ export const GridBlockItem: React.FC<GridBlockItemProps> = ({
                             className={b('inline-edit-outline')}
                             style={inlineEditTarget.outlineStyle}
                         />
-                        <Button
-                            view="raised"
-                            size="xs"
+                        <button
+                            type="button"
                             className={`${b('inline-edit-button')} ${stop}`}
                             style={inlineEditTarget.buttonStyle}
                             onClick={handleOpenInlineEdit}
                             aria-label={
                                 inlineEditTarget.kind === 'image'
                                     ? i18n('edit_image_src')
-                                    : i18n('edit_text')
+                                    : inlineEditTarget.kind === 'link'
+                                      ? i18n('edit_link')
+                                      : i18n('edit_text')
                             }
                         >
-                            <Icon data={Pencil} size={12} className={stop} />
-                        </Button>
+                            <Icon data={Pencil} size={18} className={stop} />
+                        </button>
                     </>
                 )}
             </div>

@@ -1,3 +1,5 @@
+import {i18n} from 'src/i18n/grid-block-templates';
+
 import {STOP_EVENT_CLASSNAME, cnGridBlockTemplates} from './const';
 
 const b = cnGridBlockTemplates;
@@ -207,6 +209,84 @@ export function openInlineImageSrcEditor({
 
     input.focus();
     input.select();
+
+    return true;
+}
+
+export function openInlineLinkEditor({
+    root,
+    link,
+    onCommit,
+}: {
+    root: HTMLElement;
+    link: HTMLAnchorElement;
+    onCommit: (html: string) => void;
+}) {
+    root.querySelector(INLINE_TEXT_EDITOR_SELECTOR)?.remove();
+
+    const originalLink = link.cloneNode(true) as HTMLAnchorElement;
+    const wrapper = document.createElement('span');
+    wrapper.setAttribute(INLINE_TEXT_EDITOR_ATTR, 'true');
+    wrapper.className = `${b('inline-link-editor')} ${stop}`;
+
+    const textInput = document.createElement('input');
+    textInput.className = `${b('inline-link-editor-input')} ${stop}`;
+    textInput.value = link.textContent ?? '';
+    textInput.setAttribute('aria-label', i18n('edit_link_text'));
+    textInput.setAttribute('placeholder', i18n('edit_link_text'));
+
+    const hrefInput = document.createElement('input');
+    hrefInput.className = `${b('inline-link-editor-input')} ${stop}`;
+    hrefInput.value = link.getAttribute('href') ?? '';
+    hrefInput.setAttribute('aria-label', i18n('edit_link_href'));
+    hrefInput.setAttribute('placeholder', i18n('edit_link_href'));
+
+    wrapper.append(textInput, hrefInput);
+
+    let finished = false;
+
+    const commit = () => {
+        if (finished) return;
+        finished = true;
+
+        const nextLink = originalLink.cloneNode(false) as HTMLAnchorElement;
+        nextLink.textContent = textInput.value;
+        nextLink.setAttribute('href', hrefInput.value);
+
+        wrapper.replaceWith(nextLink);
+        onCommit(root.innerHTML);
+    };
+
+    const cancel = () => {
+        if (finished) return;
+        finished = true;
+        wrapper.replaceWith(originalLink);
+    };
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            commit();
+            return;
+        }
+
+        if (event.key === 'Escape') {
+            event.preventDefault();
+            cancel();
+        }
+    };
+
+    wrapper.addEventListener('keydown', handleKeyDown);
+    wrapper.addEventListener('focusout', (event) => {
+        if (event.relatedTarget instanceof Node && wrapper.contains(event.relatedTarget)) return;
+
+        commit();
+    });
+
+    link.replaceWith(wrapper);
+
+    textInput.focus();
+    textInput.select();
 
     return true;
 }
