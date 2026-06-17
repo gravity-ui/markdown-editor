@@ -1,6 +1,5 @@
 import {v4 as uuidv4} from 'uuid';
 
-import {inlineToRule} from '../css';
 import type {
     GridBlockBlockTemplate,
     GridBlockContainerTemplate,
@@ -10,7 +9,6 @@ import type {
 } from '../types';
 
 const genId = () => 'grid-block-template-' + uuidv4();
-const htmlTemplateTagName = 'grid-template-html';
 
 const isTemplateType = (value: string | null): value is GridBlockTemplateType =>
     value === 'block' || value === 'container';
@@ -19,9 +17,6 @@ const parseHtml = (value: string): Document | null => {
     if (typeof window === 'undefined' || typeof window.DOMParser === 'undefined') return null;
     return new DOMParser().parseFromString(value, 'text/html');
 };
-
-const getStyle = (element: Element | null) =>
-    element instanceof HTMLElement ? element.getAttribute('style')?.trim() || '' : '';
 
 const joinCss = (...parts: string[]) =>
     parts
@@ -36,26 +31,11 @@ const normalizeStyleCss = (css: string) =>
         .filter(Boolean)
         .join('\n');
 
-const isElementWithTag = (node: ChildNode, tagName: string): node is Element =>
-    node.nodeType === Node.ELEMENT_NODE && (node as Element).tagName.toLowerCase() === tagName;
-
-const normalizeTemplateHtmlTag = (content: string) =>
-    content
-        .replace(/<\/html\s*>/gi, `</${htmlTemplateTagName}>`)
-        .replace(/<html(\s[^>]*)?>/gi, `<${htmlTemplateTagName}$1>`);
-
 const consumeElements = (elements: Element[]) => {
     elements.forEach((element) => element.remove());
 
     return elements;
 };
-
-const consumeDirectElements = (node: ParentNode, tagName: string) =>
-    consumeElements(
-        Array.from(node.childNodes).filter((child): child is Element =>
-            isElementWithTag(child, tagName),
-        ),
-    );
 
 const consumeStyleCss = (node: ParentNode) =>
     joinCss(
@@ -64,15 +44,8 @@ const consumeStyleCss = (node: ParentNode) =>
         ),
     );
 
-const consumeLegacyDirectStyleCss = (node: ParentNode) =>
-    joinCss(
-        ...consumeDirectElements(node, 'style').map((style) =>
-            normalizeStyleCss(style.textContent ?? ''),
-        ),
-    );
-
 const createTemplateFragment = (content: string): DocumentFragment | null => {
-    const doc = parseHtml(`<template>${normalizeTemplateHtmlTag(content)}</template>`);
+    const doc = parseHtml(`<template>${content}</template>`);
     const template = doc?.querySelector('template');
 
     return typeof HTMLTemplateElement !== 'undefined' && template instanceof HTMLTemplateElement
@@ -89,55 +62,20 @@ const getFragmentHtml = (fragment: DocumentFragment) => {
 
 const getTemplateParts = (content: string) => {
     const fragment = createTemplateFragment(content);
-    if (!fragment) return {css: '', hasExplicitParts: false, html: content};
+    if (!fragment) return {css: '', html: content};
 
     const css = consumeStyleCss(fragment);
-    const htmlElements = consumeDirectElements(fragment, htmlTemplateTagName);
-    const hasExplicitParts = Boolean(css || htmlElements.length);
-    const html = htmlElements.length
-        ? htmlElements
-              .map((element) => element.innerHTML.trim())
-              .filter(Boolean)
-              .join('\n')
-        : getFragmentHtml(fragment);
+    const html = getFragmentHtml(fragment);
 
-    return {css, hasExplicitParts, html};
-};
-
-const resolveCss = ({
-    styleCss,
-    inlineCss,
-    inlineSelector,
-}: {
-    styleCss: string;
-    inlineCss: string;
-    inlineSelector?: string;
-}) => {
-    if (!styleCss) return inlineCss;
-
-    return joinCss(styleCss, inlineCss ? inlineToRule(inlineCss, inlineSelector) : '');
+    return {css, html};
 };
 
 export const parseTemplateBlock = (content: string): GridBlockTemplateBlock => {
-    const {css: templateCss, hasExplicitParts, html} = getTemplateParts(content);
-
-    if (hasExplicitParts) {
-        return {css: templateCss, content: html};
-    }
-
-    const doc = parseHtml(html);
-    const root = doc?.body.firstElementChild ?? null;
-
-    if (!root) {
-        return {css: templateCss, content: doc?.body.innerHTML.trim() || html};
-    }
-
-    const rootCss = consumeLegacyDirectStyleCss(root);
-    const inlineCss = getStyle(root);
+    const {css, html} = getTemplateParts(content);
 
     return {
-        css: resolveCss({styleCss: joinCss(templateCss, rootCss), inlineCss}),
-        content: root.innerHTML.trim(),
+        css,
+        content: html,
     };
 };
 
@@ -153,12 +91,10 @@ const parseContainerTemplate = (
     group: string | undefined,
     content: string,
 ): GridBlockContainerTemplate => {
-    const {css: templateCss, html} = getTemplateParts(content);
+    const {css, html} = getTemplateParts(content);
     const doc = parseHtml(html);
     const root = doc?.body.firstElementChild ?? null;
-    const rootCss = root ? consumeLegacyDirectStyleCss(root) : '';
     const children = root ? Array.from(root.children) : [];
-    const styleCss = joinCss(templateCss, rootCss);
 
     return {
         id,
@@ -166,19 +102,11 @@ const parseContainerTemplate = (
         group,
         type: 'container',
         content,
-        containerCss: resolveCss({
-            styleCss,
-            inlineCss: getStyle(root),
-            inlineSelector: '.grid',
-        }),
-        blocks: children.map((child) => {
-            const childStyleCss = consumeLegacyDirectStyleCss(child);
-
-            return {
-                css: resolveCss({styleCss: childStyleCss, inlineCss: getStyle(child)}),
-                content: child.innerHTML.trim(),
-            };
-        }),
+        containerCss: css,
+        blocks: children.map((child) => ({
+            css: '',
+            content: child.innerHTML.trim(),
+        })),
     };
 };
 
@@ -204,7 +132,7 @@ export function parseTemplates(input: string): GridBlockTemplate[] {
     const value = input.trim();
     if (!value) return [];
 
-    const doc = parseHtml(normalizeTemplateHtmlTag(value));
+    const doc = parseHtml(value);
     if (!doc) return [];
 
     return Array.from(doc.querySelectorAll('template')).flatMap((el) => {

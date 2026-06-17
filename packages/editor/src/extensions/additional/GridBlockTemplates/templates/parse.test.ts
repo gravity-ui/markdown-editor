@@ -17,11 +17,11 @@ describe('parseRawBlock', () => {
 });
 
 describe('parseTemplateBlock', () => {
-    it('normalizes raw html with a styled root element', () => {
+    it('keeps inline style attributes in html instead of extracting them into css', () => {
         expect(parseTemplateBlock('<div style="padding:12px"><strong>Text</strong></div>')).toEqual(
             {
-                css: 'padding:12px',
-                content: '<strong>Text</strong>',
+                css: '',
+                content: '<div style="padding:12px"><strong>Text</strong></div>',
             },
         );
     });
@@ -64,17 +64,17 @@ describe('parseTemplates', () => {
             id: 'layout',
             title: 'Layout',
             type: 'container',
-            containerCss: 'display:grid;grid-template-columns:1fr 1fr',
+            containerCss: '',
             blocks: [
-                {css: 'padding:8px', content: '<strong>Left</strong>'},
-                {css: 'padding:10px', content: 'Right'},
+                {css: '', content: '<strong>Left</strong>'},
+                {css: '', content: 'Right'},
             ],
         });
         expect(result[1]).toMatchObject({
             id: 'card',
             title: 'Card',
             type: 'block',
-            block: {css: 'padding:12px', content: 'Card text'},
+            block: {css: '', content: '<div style="padding:12px">Card text</div>'},
         });
     });
 
@@ -90,10 +90,10 @@ describe('parseTemplates', () => {
 
         expect(template).toMatchObject({
             type: 'container',
-            containerCss: 'display:grid;gap:12px',
+            containerCss: '',
             blocks: [
-                {css: 'padding:12px', content: 'First'},
-                {css: 'padding:14px', content: '<em>Second</em>'},
+                {css: '', content: 'First'},
+                {css: '', content: '<em>Second</em>'},
             ],
         });
     });
@@ -130,7 +130,7 @@ describe('parseTemplates', () => {
                     css: '',
                     content: '<strong>First</strong>',
                 },
-                {css: 'padding:14px', content: 'Second'},
+                {css: '', content: 'Second'},
             ],
         });
     });
