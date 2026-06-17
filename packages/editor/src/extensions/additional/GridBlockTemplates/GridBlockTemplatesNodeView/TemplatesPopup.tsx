@@ -110,43 +110,45 @@ export const TemplatesPopup: React.FC<TemplatesPopupProps> = ({
                                 />
                             </div>
                         )}
-                        <Menu className={stop}>
-                            {allowAdd && (
-                                <>
+                        <div className={b('templates-list', [stop])}>
+                            <Menu className={stop}>
+                                {allowAdd && (
+                                    <>
+                                        <Menu.Item
+                                            className={stop}
+                                            iconStart={<Icon data={Plus} />}
+                                            onClick={() => setAdding(true)}
+                                        >
+                                            {i18n('add_template')}
+                                        </Menu.Item>
+                                        <Menu.Item
+                                            className={stop}
+                                            iconStart={<Icon data={TrashBin} />}
+                                            onClick={handleClear}
+                                        >
+                                            {i18n('clear_templates')}
+                                        </Menu.Item>
+                                    </>
+                                )}
+                                {filtered.map((template) => (
                                     <Menu.Item
+                                        key={template.id}
                                         className={stop}
-                                        iconStart={<Icon data={Plus} />}
-                                        onClick={() => setAdding(true)}
+                                        onClick={() => {
+                                            onApply(template);
+                                            close();
+                                        }}
                                     >
-                                        {i18n('add_template')}
+                                        {template.title}
                                     </Menu.Item>
-                                    <Menu.Item
-                                        className={stop}
-                                        iconStart={<Icon data={TrashBin} />}
-                                        onClick={handleClear}
-                                    >
-                                        {i18n('clear_templates')}
+                                ))}
+                                {filtered.length === 0 && (
+                                    <Menu.Item disabled className={stop}>
+                                        {emptyText}
                                     </Menu.Item>
-                                </>
-                            )}
-                            {filtered.map((template) => (
-                                <Menu.Item
-                                    key={template.id}
-                                    className={stop}
-                                    onClick={() => {
-                                        onApply(template);
-                                        close();
-                                    }}
-                                >
-                                    {template.title}
-                                </Menu.Item>
-                            ))}
-                            {filtered.length === 0 && (
-                                <Menu.Item disabled className={stop}>
-                                    {emptyText}
-                                </Menu.Item>
-                            )}
-                        </Menu>
+                                )}
+                            </Menu>
+                        </div>
                     </>
                 )}
             </div>

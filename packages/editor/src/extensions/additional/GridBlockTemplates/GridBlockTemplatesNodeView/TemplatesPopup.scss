@@ -24,4 +24,10 @@
     &__templates-search {
         margin-bottom: 6px;
     }
+
+    &__templates-list {
+        overflow-y: auto;
+
+        max-height: 280px;
+    }
 }

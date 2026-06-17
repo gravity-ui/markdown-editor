@@ -94,33 +94,35 @@ export const BlockInsertPopup: React.FC<BlockInsertPopupProps> = ({
                                 autoFocus
                             />
                         </div>
-                        <Menu className={stop}>
-                            <Menu.Item
-                                className={stop}
-                                iconStart={<Icon data={Code} />}
-                                onClick={() => setAddingCustomHtml(true)}
-                            >
-                                {i18n('custom_html')}
-                            </Menu.Item>
-                            {filtered.map((template) => (
+                        <div className={b('templates-list', [stop])}>
+                            <Menu className={stop}>
                                 <Menu.Item
-                                    key={template.id}
                                     className={stop}
-                                    iconStart={<Icon data={Plus} />}
-                                    onClick={() => {
-                                        onApplyTemplate(template);
-                                        close();
-                                    }}
+                                    iconStart={<Icon data={Code} />}
+                                    onClick={() => setAddingCustomHtml(true)}
                                 >
-                                    {template.title}
+                                    {i18n('custom_html')}
                                 </Menu.Item>
-                            ))}
-                            {filtered.length === 0 && (
-                                <Menu.Item disabled className={stop}>
-                                    {i18n('block_templates_empty')}
-                                </Menu.Item>
-                            )}
-                        </Menu>
+                                {filtered.map((template) => (
+                                    <Menu.Item
+                                        key={template.id}
+                                        className={stop}
+                                        iconStart={<Icon data={Plus} />}
+                                        onClick={() => {
+                                            onApplyTemplate(template);
+                                            close();
+                                        }}
+                                    >
+                                        {template.title}
+                                    </Menu.Item>
+                                ))}
+                                {filtered.length === 0 && (
+                                    <Menu.Item disabled className={stop}>
+                                        {i18n('block_templates_empty')}
+                                    </Menu.Item>
+                                )}
+                            </Menu>
+                        </div>
                     </>
                 )}
             </div>
