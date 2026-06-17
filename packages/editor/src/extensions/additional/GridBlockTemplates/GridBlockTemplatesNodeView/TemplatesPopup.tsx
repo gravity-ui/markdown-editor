@@ -128,6 +128,10 @@ export function TemplatesPopup<TTemplate extends GridBlockTemplate>({
                                         >
                                             {i18n('clear_templates')}
                                         </Menu.Item>
+                                        <div
+                                            role="separator"
+                                            className={b('templates-separator', [stop])}
+                                        />
                                     </>
                                 )}
                                 {filtered.map((template) => (

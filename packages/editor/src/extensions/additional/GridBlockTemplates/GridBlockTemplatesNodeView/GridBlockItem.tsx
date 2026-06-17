@@ -1,9 +1,4 @@
-import type {
-    ClipboardEvent,
-    FocusEvent,
-    MouseEvent,
-    PointerEvent as ReactPointerEvent,
-} from 'react';
+import type {MouseEvent, PointerEvent as ReactPointerEvent} from 'react';
 
 import {Gear, GripHorizontal} from '@gravity-ui/icons';
 import {Button, Icon} from '@gravity-ui/uikit';
@@ -16,11 +11,7 @@ import type {GridBlock} from '../types';
 import {STOP_EVENT_CLASSNAME, cnGridBlockTemplates} from './const';
 import type {DropTarget} from './drag';
 import {getBlockDragAttrs} from './drag';
-import {
-    enableTextNodeEditing,
-    insertPlainTextAtSelection,
-    readTextOnlyEditedHtml,
-} from './textEditing';
+import {openInlineTextEditor} from './textEditing';
 
 const b = cnGridBlockTemplates;
 const stop = STOP_EVENT_CLASSNAME;
@@ -29,11 +20,9 @@ interface GridBlockItemProps {
     block: GridBlock;
     index: number;
     isDragged: boolean;
-    isEditing: boolean;
     dropTarget: DropTarget | null;
     onBeginDrag: (blockId: string, event: ReactPointerEvent<HTMLButtonElement>) => void;
     onOpenSettings: (blockId: string, anchor: HTMLElement) => void;
-    onStartEdit: (blockId: string) => void;
     onCommitContent: (blockId: string, content: string) => void;
 }
 
@@ -41,11 +30,9 @@ export const GridBlockItem: React.FC<GridBlockItemProps> = ({
     block,
     index,
     isDragged,
-    isEditing,
     dropTarget,
     onBeginDrag,
     onOpenSettings,
-    onStartEdit,
     onCommitContent,
 }) => {
     const number = index + 1;
@@ -57,24 +44,11 @@ export const GridBlockItem: React.FC<GridBlockItemProps> = ({
     };
 
     const handleDoubleClick = (event: MouseEvent<HTMLDivElement>) => {
-        onStartEdit(block.id);
-        enableTextNodeEditing(event.currentTarget);
-    };
-
-    const handlePaste = (event: ClipboardEvent<HTMLDivElement>) => {
-        if (!isEditing) return;
-
-        event.preventDefault();
-        insertPlainTextAtSelection(event.clipboardData.getData('text/plain'));
-    };
-
-    const handleBlur = (event: FocusEvent<HTMLDivElement>) => {
-        const nextFocused = event.relatedTarget;
-        if (nextFocused instanceof window.Node && event.currentTarget.contains(nextFocused)) {
-            return;
-        }
-
-        onCommitContent(block.id, readTextOnlyEditedHtml(event.currentTarget));
+        openInlineTextEditor({
+            root: event.currentTarget,
+            event,
+            onCommit: (html) => onCommitContent(block.id, html),
+        });
     };
 
     const handlePointerDown = (event: ReactPointerEvent<HTMLButtonElement>) => {
@@ -108,12 +82,10 @@ export const GridBlockItem: React.FC<GridBlockItemProps> = ({
                 <Icon data={Gear} size={14} className={stop} />
             </Button>
             <div
-                className={`${b('item-content', {editing: isEditing})} ${stop}`}
+                className={`${b('item-content')} ${stop}`}
                 contentEditable={false}
                 suppressContentEditableWarning
                 onDoubleClick={handleDoubleClick}
-                onPaste={handlePaste}
-                onBlur={handleBlur}
                 dangerouslySetInnerHTML={{__html: block.content}}
             />
         </div>

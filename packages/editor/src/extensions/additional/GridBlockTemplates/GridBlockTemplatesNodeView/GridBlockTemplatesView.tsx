@@ -22,14 +22,16 @@ import type {
 
 import {BlockInsertPopup} from './BlockInsertPopup';
 import {GridBlockItem} from './GridBlockItem';
-import {BlockSettingsPopup, ContainerCssPopup} from './SettingsPopups';
+import {BlockSettingsPopup, ContainerSettingsPopup} from './SettingsPopups';
 import {TemplatesPopup} from './TemplatesPopup';
 import {
+    buildContainerHtml,
     buildScopedCss,
     containerTemplateToAttrs,
     getGridScopeClass,
     isBlockTemplate,
     isContainerTemplate,
+    parseContainerHtml,
     rawTemplateBlockToBlock,
     templateToBlock,
 } from './blockUtils';
@@ -68,7 +70,6 @@ export const GridBlockTemplatesView: React.FC<{
 
     const [blockAnchor, setBlockAnchor] = useElementState();
     const [editingBlockSettingsId, setEditingBlockSettingsId] = useState<string | null>(null);
-    const [editingBlockContentId, setEditingBlockContentId] = useState<string | null>(null);
 
     const allowAdd = Boolean(templates?.allowAdd);
     const [storedTemplates, setStoredTemplates] =
@@ -87,6 +88,7 @@ export const GridBlockTemplatesView: React.FC<{
     const [containerTemplatesAnchor, setContainerTemplatesAnchor] = useElementState();
     const [blockTemplatesOpen, openBlockTemplates, closeBlockTemplates] = useBooleanState(false);
     const [blockTemplatesAnchor, setBlockTemplatesAnchor] = useState<HTMLElement | null>(null);
+    const containerHtml = useMemo(() => buildContainerHtml(blocks), [blocks]);
 
     const setBlocks = (next: GridBlock[]) =>
         onChange({[GridBlockTemplatesConsts.NodeAttrs.blocks]: next});
@@ -126,7 +128,11 @@ export const GridBlockTemplatesView: React.FC<{
 
     const commitBlockContent = (id: string, content: string) => {
         patchBlock(id, {content});
-        setEditingBlockContentId(null);
+    };
+
+    const commitContainerHtml = (html: string) => {
+        const nextBlocks = parseContainerHtml(html, blocks);
+        if (nextBlocks) setBlocks(nextBlocks);
     };
 
     const editingBlockSettings =
@@ -138,18 +144,30 @@ export const GridBlockTemplatesView: React.FC<{
             <style>{`.${scopeClass} .grid{display:grid;gap:8px}\n${scopedCss}`}</style>
 
             <div className={b('toolbar', [stop])}>
-                <Button
-                    view="flat"
-                    size="s"
-                    ref={setContainerAnchor}
-                    className={stop}
-                    onClick={() => setContainerCssOpen((v) => !v)}
-                    aria-label={i18n('grid_css')}
-                >
-                    <Icon data={Gear} className={stop} />
-                </Button>
-                {showContainerTemplatesButton && (
-                    <>
+                <div className={b('toolbar-group', {side: 'left'})}>
+                    <Button
+                        view="flat"
+                        size="s"
+                        ref={setBlockTemplatesAnchor}
+                        className={stop}
+                        onClick={openBlockTemplates}
+                        aria-label={i18n('add_block')}
+                    >
+                        <Icon data={Plus} className={stop} />
+                    </Button>
+                </div>
+                <div className={b('toolbar-group', {side: 'right'})}>
+                    <Button
+                        view="flat"
+                        size="s"
+                        ref={setContainerAnchor}
+                        className={stop}
+                        onClick={() => setContainerCssOpen((v) => !v)}
+                        aria-label={i18n('grid_css')}
+                    >
+                        <Icon data={Gear} className={stop} />
+                    </Button>
+                    {showContainerTemplatesButton && (
                         <Button
                             view="flat"
                             size="s"
@@ -160,32 +178,34 @@ export const GridBlockTemplatesView: React.FC<{
                         >
                             <Icon data={LayoutHeaderColumns} className={stop} />
                         </Button>
-                        <TemplatesPopup
-                            anchor={containerTemplatesAnchor}
-                            open={containerTemplatesOpen}
-                            templates={containerTemplates}
-                            allowAdd={allowAdd}
-                            emptyText={i18n('container_templates_empty')}
-                            onClose={closeContainerTemplates}
-                            onApply={applyContainerTemplate}
-                            onAdded={setStoredTemplates}
-                            onCleared={setStoredTemplates}
-                        />
-                    </>
+                    )}
+                    <Button
+                        view="flat"
+                        size="s"
+                        className={stop}
+                        onClick={() => {
+                            const pos = getPos();
+                            if (pos === undefined) return;
+                            removeNode({node, pos, tr: view.state.tr, dispatch: view.dispatch});
+                        }}
+                        aria-label={i18n('remove_grid')}
+                    >
+                        <Icon data={TrashBin} className={stop} />
+                    </Button>
+                </div>
+                {showContainerTemplatesButton && (
+                    <TemplatesPopup
+                        anchor={containerTemplatesAnchor}
+                        open={containerTemplatesOpen}
+                        templates={containerTemplates}
+                        allowAdd={allowAdd}
+                        emptyText={i18n('container_templates_empty')}
+                        onClose={closeContainerTemplates}
+                        onApply={applyContainerTemplate}
+                        onAdded={setStoredTemplates}
+                        onCleared={setStoredTemplates}
+                    />
                 )}
-                <Button
-                    view="flat"
-                    size="s"
-                    className={stop}
-                    onClick={() => {
-                        const pos = getPos();
-                        if (pos === undefined) return;
-                        removeNode({node, pos, tr: view.state.tr, dispatch: view.dispatch});
-                    }}
-                    aria-label={i18n('remove_grid')}
-                >
-                    <Icon data={TrashBin} className={stop} />
-                </Button>
             </div>
 
             <div className={`${b('grid')} grid`}>
@@ -195,27 +215,14 @@ export const GridBlockTemplatesView: React.FC<{
                         block={block}
                         index={i}
                         isDragged={draggedBlockId === block.id}
-                        isEditing={editingBlockContentId === block.id}
                         dropTarget={dropTarget}
                         onBeginDrag={beginBlockDrag}
                         onOpenSettings={openBlockSettings}
-                        onStartEdit={setEditingBlockContentId}
                         onCommitContent={commitBlockContent}
                     />
                 ))}
             </div>
 
-            <button
-                type="button"
-                className={`${b('add', [stop])} ${stop}`}
-                onClick={(e) => {
-                    setBlockTemplatesAnchor(e.currentTarget);
-                    openBlockTemplates();
-                }}
-                aria-label={i18n('add_block')}
-            >
-                <Icon data={Plus} />
-            </button>
             <BlockInsertPopup
                 anchor={blockTemplatesAnchor}
                 open={blockTemplatesOpen}
@@ -225,11 +232,13 @@ export const GridBlockTemplatesView: React.FC<{
                 onApplyHtml={applyRawBlock}
             />
 
-            <ContainerCssPopup
+            <ContainerSettingsPopup
                 anchor={containerAnchor}
                 open={containerCssOpen}
                 onClose={() => setContainerCssOpen(false)}
+                html={containerHtml}
                 css={customCss}
+                onHtmlCommit={commitContainerHtml}
                 onCssChange={(value) =>
                     onChange({[GridBlockTemplatesConsts.NodeAttrs.customCss]: value})
                 }
@@ -242,7 +251,7 @@ export const GridBlockTemplatesView: React.FC<{
                     onClose={() => setEditingBlockSettingsId(null)}
                     html={editingBlockSettings.content}
                     css={editingBlockSettings.css}
-                    onHtmlChange={(value) => patchBlock(editingBlockSettings.id, {content: value})}
+                    onHtmlCommit={(value) => patchBlock(editingBlockSettings.id, {content: value})}
                     onCssChange={(value) => patchBlock(editingBlockSettings.id, {css: value})}
                 />
             )}

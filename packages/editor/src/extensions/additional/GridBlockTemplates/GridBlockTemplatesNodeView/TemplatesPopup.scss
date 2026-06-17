@@ -30,4 +30,11 @@
 
         max-height: 280px;
     }
+
+    &__templates-separator {
+        height: 1px;
+        margin: 4px 0;
+
+        background: var(--g-color-line-generic);
+    }
 }

@@ -1,6 +1,6 @@
 import {useMemo, useState} from 'react';
 
-import {Code, Plus} from '@gravity-ui/icons';
+import {Code} from '@gravity-ui/icons';
 import {Button, Icon, Menu, Popup, TextInput} from '@gravity-ui/uikit';
 
 import {TextAreaFixed as TextArea} from 'src/forms/TextInput';
@@ -55,7 +55,7 @@ export const BlockInsertPopup: React.FC<BlockInsertPopupProps> = ({
     };
 
     return (
-        <Popup anchorElement={anchor} open={open} onOpenChange={close} placement="bottom-end">
+        <Popup anchorElement={anchor} open={open} onOpenChange={close} placement="bottom-start">
             <div className={b('templates', [stop])}>
                 {showCustomHtmlEditor ? (
                     <div className={b('templates-editor')}>
@@ -103,11 +103,14 @@ export const BlockInsertPopup: React.FC<BlockInsertPopupProps> = ({
                                 >
                                     {i18n('custom_html')}
                                 </Menu.Item>
+                                <div
+                                    role="separator"
+                                    className={b('templates-separator', [stop])}
+                                />
                                 {filtered.map((template) => (
                                     <Menu.Item
                                         key={template.id}
                                         className={stop}
-                                        iconStart={<Icon data={Plus} />}
                                         onClick={() => {
                                             onApplyTemplate(template);
                                             close();

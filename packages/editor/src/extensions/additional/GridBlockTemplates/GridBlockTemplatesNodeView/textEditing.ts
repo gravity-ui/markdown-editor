@@ -3,72 +3,132 @@ import {STOP_EVENT_CLASSNAME, cnGridBlockTemplates} from './const';
 const b = cnGridBlockTemplates;
 const stop = STOP_EVENT_CLASSNAME;
 
-const EDITABLE_TEXT_NODE_ATTR = 'data-grid-block-editable-text';
-const EDITABLE_TEXT_NODE_SELECTOR = `[${EDITABLE_TEXT_NODE_ATTR}="true"]`;
+const INLINE_TEXT_EDITOR_ATTR = 'data-grid-block-inline-text-editor';
+const INLINE_TEXT_EDITOR_SELECTOR = `[${INLINE_TEXT_EDITOR_ATTR}="true"]`;
 
-const focusEditableTextNode = (element: HTMLElement) => {
-    element.focus();
+interface InlineTextEditorOptions {
+    root: HTMLElement;
+    event?: Pick<MouseEvent, 'clientX' | 'clientY'>;
+    textNodeIndex?: number;
+    onCommit: (html: string) => void;
+}
 
-    const selection = window.getSelection();
-    const range = document.createRange();
-    range.selectNodeContents(element);
-    range.collapse(false);
-    selection?.removeAllRanges();
-    selection?.addRange(range);
-};
-
-const getEditableTextNodes = (root: HTMLElement) => {
-    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+const getTextNodes = (root: HTMLElement) => {
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+        acceptNode(node) {
+            return node.nodeValue?.trim() ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+        },
+    });
     const textNodes: Text[] = [];
 
     while (walker.nextNode()) {
-        const current = walker.currentNode as Text;
-        if (current.nodeValue?.trim()) textNodes.push(current);
+        textNodes.push(walker.currentNode as Text);
     }
 
     return textNodes;
 };
 
-const wrapEditableTextNode = (textNode: Text) => {
-    const span = document.createElement('span');
-    span.setAttribute(EDITABLE_TEXT_NODE_ATTR, 'true');
-    span.className = `${b('editable-text')} ${stop}`;
-    span.contentEditable = 'true';
-    span.textContent = textNode.nodeValue;
-    textNode.replaceWith(span);
+const getRangeFromPoint = (clientX: number, clientY: number) => {
+    const doc = document as Document & {
+        caretRangeFromPoint?: (x: number, y: number) => Range | null;
+        caretPositionFromPoint?: (
+            x: number,
+            y: number,
+        ) => {offsetNode: Node; offset: number} | null;
+    };
+
+    const range = doc.caretRangeFromPoint?.(clientX, clientY);
+    if (range) return range;
+
+    const position = doc.caretPositionFromPoint?.(clientX, clientY);
+    if (!position) return null;
+
+    const nextRange = document.createRange();
+    nextRange.setStart(position.offsetNode, position.offset);
+    return nextRange;
 };
 
-export const enableTextNodeEditing = (root: HTMLElement) => {
-    const existingTextNode = root.querySelector<HTMLElement>(EDITABLE_TEXT_NODE_SELECTOR);
-    if (existingTextNode) {
-        focusEditableTextNode(existingTextNode);
-        return;
-    }
+const getTextNodeFromEvent = (
+    root: HTMLElement,
+    event: Pick<MouseEvent, 'clientX' | 'clientY'>,
+) => {
+    const range = getRangeFromPoint(event.clientX, event.clientY);
+    const node = range?.startContainer;
 
-    getEditableTextNodes(root).forEach(wrapEditableTextNode);
+    if (node?.nodeType === Node.TEXT_NODE && root.contains(node)) return node as Text;
 
-    const firstTextNode = root.querySelector<HTMLElement>(EDITABLE_TEXT_NODE_SELECTOR);
-    if (firstTextNode) focusEditableTextNode(firstTextNode);
+    return null;
 };
 
-export const readTextOnlyEditedHtml = (root: HTMLElement) => {
-    const clone = root.cloneNode(true) as HTMLElement;
-    for (const wrapper of clone.querySelectorAll(EDITABLE_TEXT_NODE_SELECTOR)) {
-        wrapper.replaceWith(document.createTextNode(wrapper.textContent ?? ''));
-    }
-    return clone.innerHTML;
-};
+function openTextNodeEditor({
+    root,
+    textNode,
+    textNodeIndex,
+    onCommit,
+}: InlineTextEditorOptions & {textNode: Text; textNodeIndex: number}) {
+    root.querySelector(INLINE_TEXT_EDITOR_SELECTOR)?.remove();
 
-export const insertPlainTextAtSelection = (text: string) => {
-    const selection = window.getSelection();
-    const range = selection?.rangeCount ? selection.getRangeAt(0) : null;
-    if (!selection || !range) return;
+    const textarea = document.createElement('textarea');
+    textarea.setAttribute(INLINE_TEXT_EDITOR_ATTR, 'true');
+    textarea.className = `${b('inline-text-editor')} ${stop}`;
+    textarea.value = textNode.nodeValue ?? '';
+    textarea.rows = 1;
 
-    range.deleteContents();
-    const textNode = document.createTextNode(text);
-    range.insertNode(textNode);
-    range.setStartAfter(textNode);
-    range.collapse(true);
-    selection.removeAllRanges();
-    selection.addRange(range);
-};
+    let committed = false;
+
+    const commit = () => {
+        if (committed) return;
+        committed = true;
+        textarea.replaceWith(document.createTextNode(textarea.value));
+        onCommit(root.innerHTML);
+    };
+
+    const navigate = (direction: 1 | -1) => {
+        const nextIndex = textNodeIndex + direction;
+
+        commit();
+
+        const hasNextTextNode = nextIndex >= 0 && nextIndex < getTextNodes(root).length;
+
+        if (hasNextTextNode) {
+            setTimeout(() => {
+                openInlineTextEditor({root, textNodeIndex: nextIndex, onCommit});
+            });
+        }
+    };
+
+    textarea.addEventListener('keydown', (event) => {
+        if (event.key !== 'Tab') return;
+
+        event.preventDefault();
+        navigate(event.shiftKey ? -1 : 1);
+    });
+    textarea.addEventListener('blur', commit);
+
+    textNode.replaceWith(textarea);
+
+    textarea.focus();
+    textarea.select();
+}
+
+export function openInlineTextEditor({
+    root,
+    event,
+    textNodeIndex,
+    onCommit,
+}: InlineTextEditorOptions) {
+    const textNodes = getTextNodes(root);
+    const textNode =
+        textNodeIndex === undefined
+            ? event && getTextNodeFromEvent(root, event)
+            : textNodes[textNodeIndex];
+
+    if (!textNode) return false;
+
+    const index = textNodeIndex ?? textNodes.indexOf(textNode);
+    if (index === -1) return false;
+
+    openTextNodeEditor({root, event, textNodeIndex: index, textNode, onCommit});
+
+    return true;
+}

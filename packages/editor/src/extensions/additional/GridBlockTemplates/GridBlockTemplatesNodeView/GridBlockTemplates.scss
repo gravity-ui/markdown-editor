@@ -11,7 +11,14 @@
         position: absolute;
         top: 4px;
         right: 4px;
+        left: 4px;
 
+        display: flex;
+        justify-content: space-between;
+        gap: 2px;
+    }
+
+    &__toolbar-group {
         display: flex;
         gap: 2px;
     }
@@ -105,11 +112,6 @@
 
         outline: none;
 
-        &_editing {
-            outline: 2px solid var(--g-color-line-focus);
-            outline-offset: 2px;
-        }
-
         &:empty::before {
             content: 'Text...';
 
@@ -117,51 +119,26 @@
         }
     }
 
-    &__editable-text {
-        outline: 1px solid var(--g-color-line-focus);
-        outline-offset: 1px;
-        background: var(--g-color-base-selection);
-    }
-
-    &__add {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-
+    &__inline-text-editor {
         width: 100%;
-        min-height: 56px;
-        margin-top: 8px;
-        padding: 12px;
+        min-height: 32px;
+        padding: 4px 6px;
 
-        cursor: pointer;
+        font: inherit;
+        resize: vertical;
 
-        color: var(--g-color-text-secondary);
-        border: 1px dashed var(--g-color-line-generic);
-        border-radius: var(--g-border-radius-m);
-        background: transparent;
-
-        &:hover {
-            color: var(--g-color-text-primary);
-            border-color: var(--g-color-line-generic-hover);
-            background: var(--g-color-base-generic);
-        }
+        color: inherit;
+        border: 1px solid var(--g-color-line-focus);
+        border-radius: var(--g-border-radius-xs);
+        background: var(--g-color-base-background);
     }
 
-    &__css-editor {
-        width: 320px;
-        padding: 8px;
-
-        .g-text-area__control {
-            font-family: var(--g-font-family-monospace);
-        }
-    }
-
-    &__block-settings-editor {
-        display: flex;
-        flex-direction: column;
+    &__settings-editor {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
         gap: 10px;
 
-        width: 380px;
+        width: 720px;
         max-width: calc(100vw - 32px);
         padding: 8px;
 

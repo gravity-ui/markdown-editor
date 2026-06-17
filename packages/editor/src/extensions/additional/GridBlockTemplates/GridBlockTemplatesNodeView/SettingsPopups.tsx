@@ -1,3 +1,5 @@
+import {useEffect, useState} from 'react';
+
 import {Popup} from '@gravity-ui/uikit';
 
 import {TextAreaFixed as TextArea} from 'src/forms/TextInput';
@@ -8,63 +10,98 @@ import {STOP_EVENT_CLASSNAME, cnGridBlockTemplates} from './const';
 const b = cnGridBlockTemplates;
 const stop = STOP_EVENT_CLASSNAME;
 
+interface HtmlCssSettingsPopupProps {
+    anchor: HTMLElement | null;
+    open: boolean;
+    onClose: () => void;
+    html: string;
+    css: string;
+    onHtmlCommit: (value: string) => void;
+    onCssChange: (value: string) => void;
+    htmlPlaceholder: string;
+    cssPlaceholder: string;
+}
+
+const HtmlCssSettingsPopup: React.FC<HtmlCssSettingsPopupProps> = ({
+    anchor,
+    open,
+    onClose,
+    html,
+    css,
+    onHtmlCommit,
+    onCssChange,
+    htmlPlaceholder,
+    cssPlaceholder,
+}) => {
+    const [draftHtml, setDraftHtml] = useState(html);
+
+    useEffect(() => {
+        setDraftHtml(html);
+    }, [html, open]);
+
+    const commitHtml = () => {
+        onHtmlCommit(draftHtml);
+    };
+
+    return (
+        <Popup anchorElement={anchor} open={open} onOpenChange={onClose} placement="bottom-end">
+            <div className={b('settings-editor', [stop])}>
+                <div className={b('field')}>
+                    <div className={b('field-label')}>{i18n('html')}</div>
+                    <TextArea
+                        controlProps={{className: stop, onBlur: commitHtml}}
+                        value={draftHtml}
+                        onUpdate={setDraftHtml}
+                        placeholder={htmlPlaceholder}
+                        minRows={8}
+                        autoFocus
+                    />
+                </div>
+                <div className={b('field')}>
+                    <div className={b('field-label')}>{i18n('css')}</div>
+                    <TextArea
+                        controlProps={{className: stop}}
+                        value={css}
+                        onUpdate={onCssChange}
+                        placeholder={cssPlaceholder}
+                        minRows={8}
+                    />
+                </div>
+            </div>
+        </Popup>
+    );
+};
+
 export const BlockSettingsPopup: React.FC<{
     anchor: HTMLElement | null;
     open: boolean;
     onClose: () => void;
     html: string;
     css: string;
-    onHtmlChange: (value: string) => void;
+    onHtmlCommit: (value: string) => void;
     onCssChange: (value: string) => void;
-}> = ({anchor, open, onClose, html, css, onHtmlChange, onCssChange}) => (
-    <Popup anchorElement={anchor} open={open} onOpenChange={onClose} placement="bottom-end">
-        <div className={b('block-settings-editor', [stop])}>
-            <div className={b('field')}>
-                <div className={b('field-label')}>{i18n('html')}</div>
-                <TextArea
-                    controlProps={{className: stop}}
-                    value={html}
-                    onUpdate={onHtmlChange}
-                    placeholder={i18n('block_html_placeholder')}
-                    minRows={6}
-                    autoFocus
-                />
-            </div>
-            <div className={b('field')}>
-                <div className={b('field-label')}>{i18n('css')}</div>
-                <TextArea
-                    controlProps={{className: stop}}
-                    value={css}
-                    onUpdate={onCssChange}
-                    placeholder={
-                        '& {\n  padding: 16px;\n  border-radius: 8px;\n}\nh3 {\n  margin: 0;\n}'
-                    }
-                    minRows={5}
-                />
-            </div>
-        </div>
-    </Popup>
+}> = (props) => (
+    <HtmlCssSettingsPopup
+        {...props}
+        htmlPlaceholder={i18n('block_html_placeholder')}
+        cssPlaceholder={'& {\n  padding: 16px;\n  border-radius: 8px;\n}\nh3 {\n  margin: 0;\n}'}
+    />
 );
 
-export const ContainerCssPopup: React.FC<{
+export const ContainerSettingsPopup: React.FC<{
     anchor: HTMLElement | null;
     open: boolean;
     onClose: () => void;
+    html: string;
     css: string;
+    onHtmlCommit: (value: string) => void;
     onCssChange: (value: string) => void;
-}> = ({anchor, open, onClose, css, onCssChange}) => (
-    <Popup anchorElement={anchor} open={open} onOpenChange={onClose} placement="bottom-end">
-        <div className={b('css-editor', [stop])}>
-            <TextArea
-                controlProps={{className: stop}}
-                value={css}
-                onUpdate={onCssChange}
-                placeholder={
-                    '.grid {\n  grid-template-columns: 1fr 1fr;\n  gap: 12px;\n}\n.block-1 {\n  background: #eee;\n}'
-                }
-                minRows={6}
-                autoFocus
-            />
-        </div>
-    </Popup>
+}> = (props) => (
+    <HtmlCssSettingsPopup
+        {...props}
+        htmlPlaceholder={'<div class="grid">\n  <div>Block HTML</div>\n</div>'}
+        cssPlaceholder={
+            '.grid {\n  grid-template-columns: 1fr 1fr;\n  gap: 12px;\n}\n.block-1 {\n  background: #eee;\n}'
+        }
+    />
 );
