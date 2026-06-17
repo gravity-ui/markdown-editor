@@ -145,6 +145,11 @@ export const GridBlockTemplatesView: React.FC<{
         patchBlock(id, {content});
     };
 
+    const removeBlock = (id: string) => {
+        setBlocks(blocks.filter((block) => block.id !== id));
+        if (editingBlockSettingsId === id) setEditingBlockSettingsId(null);
+    };
+
     const commitContainerHtml = (html: string) => {
         const nextBlocks = parseContainerHtml(html, blocks);
         if (nextBlocks) setBlocks(nextBlocks);
@@ -215,6 +220,7 @@ export const GridBlockTemplatesView: React.FC<{
                         templates={containerTemplates}
                         allowAdd={allowAdd}
                         emptyText={i18n('container_templates_empty')}
+                        hasStoredTemplates={storedTemplates.length > 0}
                         onClose={closeContainerTemplates}
                         onApply={applyContainerTemplate}
                         onAdded={setStoredTemplates}
@@ -234,6 +240,7 @@ export const GridBlockTemplatesView: React.FC<{
                         onBeginDrag={beginBlockDrag}
                         onOpenSettings={openBlockSettings}
                         onCommitContent={commitBlockContent}
+                        onRemove={removeBlock}
                     />
                 ))}
             </div>

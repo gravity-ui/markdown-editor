@@ -51,17 +51,25 @@
         }
     }
 
-    &__item-gear {
+    &__item-controls {
         position: absolute;
+        z-index: 3;
         top: 2px;
         right: 2px;
+
+        display: flex;
+        gap: 2px;
 
         opacity: 0;
 
         transition: opacity 0.1s ease-in-out;
+
+        &_open {
+            opacity: 1;
+        }
     }
 
-    &__item:hover &__item-gear {
+    &__item:hover &__item-controls {
         opacity: 1;
     }
 

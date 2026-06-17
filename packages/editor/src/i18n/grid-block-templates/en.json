@@ -2,6 +2,7 @@
   "add_block": "Add block",
   "add_template": "Add",
   "block_css": "Block {{index}} CSS",
+  "block_actions": "Block {{index}} actions",
   "block_html_input_placeholder": "<div style=\"padding:16px;border-radius:8px;background:#f8fafc\">Block HTML</div>",
   "block_templates_empty": "No block templates",
   "cancel": "Cancel",
@@ -21,6 +22,7 @@
   "block_html_placeholder": "<button type=\"button\">Button text</button>",
   "insert": "Insert",
   "remove_grid": "Remove grid",
+  "remove_block": "Delete block",
   "save": "Save",
   "search_templates": "Search by name",
   "templates_input_placeholder": "<template id=\"hero\" title=\"Hero\" type=\"container\" group=\"Marketing\">\n  <style>\n    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }\n  </style>\n  <div class=\"grid\">\n    <div>Left</div>\n    <div>Right</div>\n  </div>\n</template>\n\n<template id=\"card\" title=\"Card\" type=\"block\" group=\"Marketing\">\n  <style>\n    & { padding: 16px; border-radius: 8px; background: #f8fafc; }\n  </style>\n  <div>Card text</div>\n</template>"

@@ -23,6 +23,7 @@ interface TemplatesPopupProps<TTemplate extends GridBlockTemplate> {
     templates: TTemplate[];
     allowAdd: boolean;
     emptyText: string;
+    hasStoredTemplates: boolean;
     onClose: () => void;
     onApply: (template: TTemplate) => void;
     onAdded: (templates: GridBlockTemplate[]) => void;
@@ -35,6 +36,7 @@ export function TemplatesPopup<TTemplate extends GridBlockTemplate>({
     templates,
     allowAdd,
     emptyText,
+    hasStoredTemplates,
     onClose,
     onApply,
     onAdded,
@@ -60,7 +62,7 @@ export function TemplatesPopup<TTemplate extends GridBlockTemplate>({
 
     const handleClear = () => {
         onCleared(clearStoredTemplates());
-        setFilter('');
+        close();
     };
 
     return (
@@ -116,13 +118,15 @@ export function TemplatesPopup<TTemplate extends GridBlockTemplate>({
                                         >
                                             {i18n('add_template')}
                                         </Menu.Item>
-                                        <Menu.Item
-                                            className={stop}
-                                            iconStart={<Icon data={TrashBin} />}
-                                            onClick={handleClear}
-                                        >
-                                            {i18n('clear_templates')}
-                                        </Menu.Item>
+                                        {hasStoredTemplates && (
+                                            <Menu.Item
+                                                className={stop}
+                                                iconStart={<Icon data={TrashBin} />}
+                                                onClick={handleClear}
+                                            >
+                                                {i18n('clear_templates')}
+                                            </Menu.Item>
+                                        )}
                                         <div
                                             role="separator"
                                             className={b('templates-separator', [stop])}

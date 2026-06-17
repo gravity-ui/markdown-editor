@@ -1,8 +1,8 @@
 import {useRef, useState} from 'react';
 import type {CSSProperties, MouseEvent, PointerEvent as ReactPointerEvent} from 'react';
 
-import {Gear, GripHorizontal, Pencil} from '@gravity-ui/icons';
-import {Button, Icon} from '@gravity-ui/uikit';
+import {Ellipsis, Gear, GripHorizontal, Pencil, TrashBin} from '@gravity-ui/icons';
+import {Button, Icon, Menu, Popup} from '@gravity-ui/uikit';
 
 import {i18n} from 'src/i18n/grid-block-templates';
 
@@ -56,6 +56,7 @@ interface GridBlockItemProps {
     onBeginDrag: (blockId: string, event: ReactPointerEvent<HTMLButtonElement>) => void;
     onOpenSettings: (blockId: string, anchor: HTMLElement) => void;
     onCommitContent: (blockId: string, content: string) => void;
+    onRemove: (blockId: string) => void;
 }
 
 type InlineEditTarget =
@@ -163,9 +164,12 @@ export const GridBlockItem: React.FC<GridBlockItemProps> = ({
     onBeginDrag,
     onOpenSettings,
     onCommitContent,
+    onRemove,
 }) => {
     const contentRef = useRef<HTMLDivElement>(null);
     const [inlineEditTarget, setInlineEditTarget] = useState<InlineEditTarget | null>(null);
+    const [blockMenuAnchor, setBlockMenuAnchor] = useState<HTMLElement | null>(null);
+    const [blockMenuOpen, setBlockMenuOpen] = useState(false);
 
     const number = index + 1;
     const isDropBefore = dropTarget?.id === block.id && dropTarget.placement === 'before';
@@ -173,6 +177,16 @@ export const GridBlockItem: React.FC<GridBlockItemProps> = ({
 
     const handleOpenSettings = (event: MouseEvent<HTMLElement>) => {
         onOpenSettings(block.id, event.currentTarget);
+    };
+
+    const handleToggleBlockMenu = (event: MouseEvent<HTMLElement>) => {
+        setBlockMenuAnchor(event.currentTarget);
+        setBlockMenuOpen((open) => !open);
+    };
+
+    const handleRemoveBlock = () => {
+        setBlockMenuOpen(false);
+        onRemove(block.id);
     };
 
     const handlePointerDown = (event: ReactPointerEvent<HTMLButtonElement>) => {
@@ -306,15 +320,42 @@ export const GridBlockItem: React.FC<GridBlockItemProps> = ({
             >
                 <Icon data={GripHorizontal} size={14} />
             </button>
-            <Button
-                view="flat"
-                size="s"
-                className={`${b('item-gear')} ${stop}`}
-                onClick={handleOpenSettings}
-                aria-label={i18n('block_css', {index: String(number)})}
+            <div className={`${b('item-controls', {open: blockMenuOpen})} ${stop}`}>
+                <Button
+                    view="flat"
+                    size="s"
+                    className={stop}
+                    onClick={handleOpenSettings}
+                    aria-label={i18n('block_css', {index: String(number)})}
+                >
+                    <Icon data={Gear} size={14} className={stop} />
+                </Button>
+                <Button
+                    view="flat"
+                    size="s"
+                    className={stop}
+                    onClick={handleToggleBlockMenu}
+                    aria-label={i18n('block_actions', {index: String(number)})}
+                >
+                    <Icon data={Ellipsis} size={14} className={stop} />
+                </Button>
+            </div>
+            <Popup
+                anchorElement={blockMenuAnchor}
+                open={blockMenuOpen}
+                onOpenChange={setBlockMenuOpen}
+                placement="bottom-end"
             >
-                <Icon data={Gear} size={14} className={stop} />
-            </Button>
+                <Menu className={stop}>
+                    <Menu.Item
+                        className={stop}
+                        iconStart={<Icon data={TrashBin} />}
+                        onClick={handleRemoveBlock}
+                    >
+                        {i18n('remove_block')}
+                    </Menu.Item>
+                </Menu>
+            </Popup>
             <div
                 className={`${b('item-content')} ${stop}`}
                 contentEditable={false}
