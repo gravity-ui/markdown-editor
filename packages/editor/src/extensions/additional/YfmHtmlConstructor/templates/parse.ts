@@ -43,19 +43,19 @@ export class HtmlConstructorTemplateParseError extends Error {
 }
 
 const parseHtml = (value: string): Document | null => {
-    if (typeof DOMParser !== 'undefined') {
-        return new DOMParser().parseFromString(value, 'text/html');
-    }
-
-    if (typeof window !== 'undefined' && typeof window.DOMParser !== 'undefined') {
-        return new window.DOMParser().parseFromString(value, 'text/html');
-    }
-
     if (typeof document !== 'undefined') {
         const doc = document.implementation.createHTMLDocument('');
         doc.body.innerHTML = value;
 
         return doc;
+    }
+
+    if (typeof DOMParser !== 'undefined') {
+        return new DOMParser().parseFromString(`<body>${value}</body>`, 'text/html');
+    }
+
+    if (typeof window !== 'undefined' && typeof window.DOMParser !== 'undefined') {
+        return new window.DOMParser().parseFromString(`<body>${value}</body>`, 'text/html');
     }
 
     return null;
@@ -221,8 +221,7 @@ export function parseTemplates(input: string): HtmlConstructorTemplate[] {
     const value = input.trim();
     if (!value) return [];
 
-    const doc = parseHtml(value);
-    if (!doc) fail('Template parser requires a DOM implementation.');
+    const doc = parseHtml(value) ?? fail('Template parser requires a DOM implementation.');
 
     const familyTemplates: HtmlConstructorFamilyTemplate[] = [];
     const structureTemplates: HtmlConstructorStructureTemplate[] = [];

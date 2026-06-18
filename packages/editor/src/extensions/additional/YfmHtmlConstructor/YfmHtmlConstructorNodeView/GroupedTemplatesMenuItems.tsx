@@ -11,7 +11,11 @@ import type {
 } from '../types';
 
 import {STOP_EVENT_CLASSNAME, cnYfmHtmlConstructor} from './const';
-import type {BlockMenuItem, StructureMenuItem, TemplateMenuGroup} from './groupTemplates';
+import type {
+    BlockMenuItem,
+    StructureMenuItem as GroupedStructureMenuItem,
+    TemplateMenuGroup,
+} from './groupTemplates';
 
 const b = cnYfmHtmlConstructor;
 const stop = STOP_EVENT_CLASSNAME;
@@ -19,7 +23,7 @@ const stop = STOP_EVENT_CLASSNAME;
 const getTitle = (template: {id: string; title?: string}) => template.title?.trim() || template.id;
 
 interface StructureTemplatesMenuItemsProps {
-    groups: TemplateMenuGroup<StructureMenuItem>[];
+    groups: TemplateMenuGroup<GroupedStructureMenuItem>[];
     filter: string;
     emptyText: string;
     onApply: (
