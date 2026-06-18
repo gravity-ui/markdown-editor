@@ -10,8 +10,8 @@ import {ToolbarName as Toolbar} from '@gravity-ui/markdown-editor/_/modules/tool
 import {defaultPreset} from '@gravity-ui/markdown-editor/_/modules/toolbars/presets.js';
 import {YfmHtmlConstructor as YfmHtmlConstructorExtension} from '@gravity-ui/markdown-editor/extensions/additional/YfmHtmlConstructor/index.js';
 
-import {yfmHtmlConstructorTemplates} from '../../../defaults/yfm-html-constructor';
-import {PlaygroundLayout} from '../../../components/PlaygroundLayout';
+import {PlaygroundLayout} from '../../components/PlaygroundLayout';
+import {yfmHtmlConstructorTemplates} from '../../defaults/yfm-html-constructor';
 
 const yfmHtmlConstructorItemId = 'yfmHtmlConstructor';
 
