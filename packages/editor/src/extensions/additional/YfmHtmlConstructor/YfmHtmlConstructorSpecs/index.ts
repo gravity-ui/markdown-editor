@@ -1,0 +1,175 @@
+import type {Node} from 'prosemirror-model';
+
+import type {ExtensionAuto, ExtensionNodeSpec} from '#core';
+
+import {
+    blockClass,
+    blockSelector,
+    htmlConstructorBlockClass,
+    htmlConstructorStructureClass,
+    replaceCssAnchor,
+    structureClass,
+    structureSelector,
+    templateCssToRules,
+} from '../css';
+import type {HtmlConstructorBlock, HtmlConstructorStructure} from '../types';
+
+import {
+    YfmHtmlConstructorConsts,
+    defaultYfmHtmlConstructorEntityId,
+    yfmHtmlConstructorNodeName,
+} from './const';
+
+export {
+    yfmHtmlConstructorNodeName,
+    yfmHtmlConstructorNodeType,
+    YfmHtmlConstructorAttrs,
+    YfmHtmlConstructorConsts,
+} from './const';
+
+export type YfmHtmlConstructorSpecsOptions = {
+    nodeView?: ExtensionNodeSpec['view'];
+};
+
+export const emptyHtmlConstructorStructure = (): HtmlConstructorStructure => ({
+    css: '',
+    content: '',
+    themeIds: [],
+});
+
+const readStructure = (node: Node): HtmlConstructorStructure => {
+    const value = node.attrs[YfmHtmlConstructorConsts.NodeAttrs.structure];
+    if (!value || typeof value !== 'object') return emptyHtmlConstructorStructure();
+
+    return {
+        templateId: typeof value.templateId === 'string' ? value.templateId : undefined,
+        css: typeof value.css === 'string' ? value.css : '',
+        content: typeof value.content === 'string' ? value.content : '',
+        themeIds: Array.isArray(value.themeIds)
+            ? value.themeIds.filter((id: unknown): id is string => typeof id === 'string')
+            : [],
+    };
+};
+
+const readBlocks = (node: Node): HtmlConstructorBlock[] => {
+    const value = node.attrs[YfmHtmlConstructorConsts.NodeAttrs.blocks];
+    if (!Array.isArray(value)) return [];
+
+    return value.flatMap((block): HtmlConstructorBlock[] => {
+        if (!block || typeof block !== 'object') return [];
+
+        return [
+            {
+                id: typeof block.id === 'string' ? block.id : '',
+                templateId: typeof block.templateId === 'string' ? block.templateId : undefined,
+                css: typeof block.css === 'string' ? block.css : '',
+                content: typeof block.content === 'string' ? block.content : '',
+                themeIds: Array.isArray(block.themeIds)
+                    ? block.themeIds.filter((id: unknown): id is string => typeof id === 'string')
+                    : [],
+            },
+        ];
+    });
+};
+
+const indent = (text: string, by = '  ') =>
+    text
+        .split('\n')
+        .map((line) => (line ? by + line : line))
+        .join('\n');
+
+const buildCss = (structure: HtmlConstructorStructure, blocks: HtmlConstructorBlock[]) => {
+    const rules = [
+        structure.css.trim() &&
+            replaceCssAnchor(templateCssToRules(structure.css), structureSelector()).trim(),
+        ...blocks.map(
+            (block, index) =>
+                block.css.trim() &&
+                replaceCssAnchor(templateCssToRules(block.css), blockSelector(index)).trim(),
+        ),
+    ].filter(Boolean);
+
+    return rules.join('\n').replace(/\n{2,}/g, '\n');
+};
+
+const buildStructureContent = (
+    structure: HtmlConstructorStructure,
+    blocks: HtmlConstructorBlock[],
+) => {
+    const children = [
+        structure.content.trim(),
+        ...blocks.map(
+            (block, index) =>
+                `<div id="${blockClass(index)}" class="${htmlConstructorBlockClass} ${blockClass(
+                    index,
+                )}">${block.content ?? ''}</div>`,
+        ),
+    ].filter(Boolean);
+
+    return `<div id="${structureClass()}" class="${htmlConstructorStructureClass} ${structureClass()}">${
+        children.length ? `\n${indent(children.join('\n'))}\n` : ''
+    }</div>`;
+};
+
+/** Assembles the static HTML written into a YFM HTML block. */
+export const buildYfmHtmlConstructorHtml = (node: Node): string => {
+    const structure = readStructure(node);
+    const blocks = readBlocks(node);
+    const css = buildCss(structure, blocks);
+    const styleTag = css ? `<style>\n${indent(css.trim())}\n</style>\n` : '';
+    const html = buildStructureContent(structure, blocks);
+
+    return `${styleTag}${html}`.trim();
+};
+
+const YfmHtmlConstructorSpecsExtension: ExtensionAuto<YfmHtmlConstructorSpecsOptions> = (
+    builder,
+    {nodeView},
+) => {
+    builder.addNode(yfmHtmlConstructorNodeName, () => ({
+        // The node is created via the toolbar action; no markdown token is emitted for it.
+        fromMd: {
+            tokenSpec: {name: yfmHtmlConstructorNodeName, type: 'node', noCloseToken: true},
+        },
+        spec: {
+            atom: true,
+            selectable: true,
+            group: 'block',
+            attrs: {
+                [YfmHtmlConstructorConsts.NodeAttrs.structure]: {
+                    default: emptyHtmlConstructorStructure(),
+                },
+                [YfmHtmlConstructorConsts.NodeAttrs.blocks]: {default: []},
+                [YfmHtmlConstructorConsts.NodeAttrs.EntityId]: {
+                    default: defaultYfmHtmlConstructorEntityId,
+                },
+            },
+            parseDOM: [],
+            toDOM(node) {
+                return [
+                    'div',
+                    {
+                        class: 'yfm-html-constructor',
+                        [YfmHtmlConstructorConsts.NodeAttrs.EntityId]:
+                            node.attrs[YfmHtmlConstructorConsts.NodeAttrs.EntityId],
+                    },
+                ];
+            },
+            dnd: {props: {offset: [8, 1]}},
+        },
+        toMd: (state, node) => {
+            state.write('::: html');
+            state.write('\n');
+            state.write(buildYfmHtmlConstructorHtml(node));
+            state.ensureNewLine();
+            state.write(':::');
+            state.closeBlock(node);
+        },
+        view: nodeView,
+    }));
+};
+
+export const YfmHtmlConstructorSpecs = Object.assign(
+    YfmHtmlConstructorSpecsExtension,
+    YfmHtmlConstructorConsts,
+);

@@ -1,0 +1,961 @@
+<template type="family" id="gravity-ui" title="Gravity UI"></template>
+
+<template type="structure" id="gravity-ui-landing" title="Landing" family="gravity-ui">
+  <style>
+    .g-md-hc-structure {
+      display: grid;
+      gap: 24px;
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 32px 16px;
+      box-sizing: border-box;
+      color: var(--g-color-text-primary, #1d2633);
+      font-family: var(--g-font-family-sans, "YS Text", Arial, sans-serif);
+    }
+
+    .g-md-hc-structure * {
+      box-sizing: border-box;
+    }
+
+    .gravity-ui-landing-intro {
+      display: grid;
+      gap: 12px;
+      padding: 28px;
+      border: 1px solid var(--g-color-line-generic, #dfe4ee);
+      border-radius: 16px;
+      background: var(--g-color-base-background, #ffffff);
+    }
+
+    .gravity-ui-landing-intro__label {
+      width: fit-content;
+      padding: 6px 10px;
+      border: 1px solid var(--g-color-line-generic, #dfe4ee);
+      border-radius: 999px;
+      color: var(--g-color-text-secondary, #657185);
+      font-size: 13px;
+      line-height: 16px;
+    }
+
+    .gravity-ui-landing-intro h1,
+    .gravity-ui-landing-intro p {
+      margin: 0;
+    }
+
+    .gravity-ui-landing-intro h1 {
+      max-width: 760px;
+      font-size: 44px;
+      font-weight: 700;
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+
+    .gravity-ui-landing-intro p {
+      max-width: 720px;
+      color: var(--g-color-text-secondary, #657185);
+      font-size: 17px;
+      line-height: 1.55;
+    }
+  </style>
+
+  <section class="gravity-ui-landing-intro">
+    <span class="gravity-ui-landing-intro__label">Landing template</span>
+    <h1>Скажите привет: Gravity UI</h1>
+    <p>Представляем вашему вниманию основу для современного лендинга на базе дизайн-системы Gravity UI.</p>
+  </section>
+</template>
+
+<template type="block" id="gravity-ui-block-1" title="Header" structure="gravity-ui-landing" family="gravity-ui">
+  <style>
+    .gravity-ui-header {
+      overflow: hidden;
+      display: grid;
+      grid-template-columns: minmax(0, 0.95fr) minmax(360px, 1.05fr);
+      gap: 28px;
+      min-height: 420px;
+      padding: 34px;
+      align-items: center;
+      border: 1px solid var(--g-color-line-generic, #dfe4ee);
+      border-radius: 18px;
+      background:
+        radial-gradient(circle at 82% 20%, rgba(255, 190, 92, 0.32), transparent 34%),
+        linear-gradient(135deg, var(--g-color-base-background, #ffffff), var(--g-color-base-generic, #f6f8fb));
+      color: var(--g-color-text-primary, #1d2633);
+      font-family: var(--g-font-family-sans, "YS Text", Arial, sans-serif);
+    }
+
+    .gravity-ui-header__copy {
+      display: grid;
+      gap: 18px;
+      align-content: center;
+    }
+
+    .gravity-ui-header__label {
+      width: fit-content;
+      padding: 6px 10px;
+      border: 1px solid var(--g-color-line-generic, #dfe4ee);
+      border-radius: 999px;
+      background: var(--g-color-base-background, #ffffff);
+      color: var(--g-color-text-secondary, #657185);
+      font-size: 13px;
+      line-height: 16px;
+    }
+
+    .gravity-ui-header h2,
+    .gravity-ui-header p {
+      margin: 0;
+    }
+
+    .gravity-ui-header h2 {
+      max-width: 560px;
+      font-size: 56px;
+      font-weight: 700;
+      line-height: 1.02;
+      letter-spacing: 0;
+    }
+
+    .gravity-ui-header p {
+      max-width: 520px;
+      color: var(--g-color-text-secondary, #657185);
+      font-size: 18px;
+      line-height: 1.55;
+    }
+
+    .gravity-ui-header__actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .gravity-ui-button {
+      display: inline-flex;
+      min-height: 40px;
+      padding: 0 16px;
+      align-items: center;
+      border: 1px solid var(--g-color-line-generic, #dfe4ee);
+      border-radius: 8px;
+      background: var(--g-color-base-background, #ffffff);
+      color: var(--g-color-text-primary, #1d2633);
+      font-size: 15px;
+      font-weight: 600;
+      text-decoration: none;
+    }
+
+    .gravity-ui-button_primary {
+      border-color: var(--g-color-base-brand, #ffbe5c);
+      background: var(--g-color-base-brand, #ffbe5c);
+      color: #111827;
+    }
+
+    .gravity-ui-header__panel {
+      display: grid;
+      gap: 12px;
+      padding: 18px;
+      border: 1px solid var(--g-color-line-generic, #dfe4ee);
+      border-radius: 16px;
+      background: var(--g-color-base-background, #ffffff);
+      box-shadow: 0 18px 54px rgba(34, 43, 60, 0.14);
+    }
+
+    .gravity-ui-window-bar {
+      display: flex;
+      gap: 7px;
+      align-items: center;
+      min-height: 28px;
+      color: var(--g-color-text-secondary, #657185);
+      font-size: 13px;
+    }
+
+    .gravity-ui-window-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--g-color-line-generic, #dfe4ee);
+    }
+
+    .gravity-ui-header__mock {
+      display: grid;
+      gap: 12px;
+      padding: 18px;
+      border-radius: 12px;
+      background: var(--g-color-base-generic, #f6f8fb);
+    }
+
+    .gravity-ui-header__row {
+      display: grid;
+      grid-template-columns: 1fr 0.7fr 0.4fr;
+      gap: 10px;
+    }
+
+    .gravity-ui-header__cell {
+      min-height: 52px;
+      border: 1px solid var(--g-color-line-generic, #dfe4ee);
+      border-radius: 10px;
+      background: var(--g-color-base-background, #ffffff);
+    }
+
+    @media (max-width: 900px) {
+      .gravity-ui-header {
+        grid-template-columns: 1fr;
+      }
+
+      .gravity-ui-header h2 {
+        font-size: 40px;
+      }
+    }
+  </style>
+
+  <section class="gravity-ui-header">
+    <div class="gravity-ui-header__copy">
+      <span class="gravity-ui-header__label">Header template</span>
+      <h2>Заголовок в хедере</h2>
+      <p>Шаблонный текст для имитации параграфа. Здесь можно описать ценность продукта, сервиса или страницы.</p>
+      <div class="gravity-ui-header__actions">
+        <a class="gravity-ui-button gravity-ui-button_primary" href="#">Основное действие</a>
+        <a class="gravity-ui-button" href="#">Второе действие</a>
+      </div>
+    </div>
+    <div class="gravity-ui-header__panel">
+      <div class="gravity-ui-window-bar">
+        <span class="gravity-ui-window-dot"></span>
+        <span class="gravity-ui-window-dot"></span>
+        <span class="gravity-ui-window-dot"></span>
+        <span>Interface preview</span>
+      </div>
+      <div class="gravity-ui-header__mock">
+        <div class="gravity-ui-header__row">
+          <span class="gravity-ui-header__cell"></span>
+          <span class="gravity-ui-header__cell"></span>
+          <span class="gravity-ui-header__cell"></span>
+        </div>
+        <div class="gravity-ui-header__row">
+          <span class="gravity-ui-header__cell"></span>
+          <span class="gravity-ui-header__cell"></span>
+          <span class="gravity-ui-header__cell"></span>
+        </div>
+      </div>
+    </div>
+  </section>
+</template>
+
+<template type="block" id="gravity-ui-block-2" title="Feature card" structure="gravity-ui-landing" family="gravity-ui">
+  <style>
+    .gravity-ui-card {
+      display: grid;
+      gap: 12px;
+      min-height: 180px;
+      padding: 24px;
+      align-content: start;
+      border: 1px solid var(--g-color-line-generic, #dfe4ee);
+      border-radius: 16px;
+      background: var(--g-color-base-background, #ffffff);
+      color: var(--g-color-text-primary, #1d2633);
+      font-family: var(--g-font-family-sans, "YS Text", Arial, sans-serif);
+    }
+
+    .gravity-ui-card__icon {
+      display: grid;
+      width: 42px;
+      height: 42px;
+      place-items: center;
+      border-radius: 12px;
+      background: var(--g-color-base-brand, #ffbe5c);
+      color: #111827;
+      font-weight: 700;
+    }
+
+    .gravity-ui-card h3,
+    .gravity-ui-card p {
+      margin: 0;
+    }
+
+    .gravity-ui-card h3 {
+      font-size: 24px;
+      line-height: 1.16;
+      letter-spacing: 0;
+    }
+
+    .gravity-ui-card p {
+      color: var(--g-color-text-secondary, #657185);
+      font-size: 15px;
+      line-height: 1.5;
+    }
+  </style>
+
+  <article class="gravity-ui-card">
+    <span class="gravity-ui-card__icon">01</span>
+    <h3>Описание преимущества</h3>
+    <p>Шаблонный текст карточки. Его можно заменить на короткое объяснение пользы или сценария.</p>
+  </article>
+</template>
+
+<template type="block" id="gravity-ui-block-3" title="Components" structure="gravity-ui-landing" family="gravity-ui">
+  <style>
+    .gravity-ui-card_components {
+      background:
+        linear-gradient(180deg, rgba(82, 130, 255, 0.08), transparent 58%),
+        var(--g-color-base-background, #ffffff);
+    }
+
+    .gravity-ui-card__chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    .gravity-ui-chip {
+      padding: 6px 9px;
+      border: 1px solid var(--g-color-line-generic, #dfe4ee);
+      border-radius: 999px;
+      color: var(--g-color-text-secondary, #657185);
+      font-size: 13px;
+      line-height: 16px;
+    }
+  </style>
+
+  <article class="gravity-ui-card gravity-ui-card_components">
+    <span class="gravity-ui-card__icon">02</span>
+    <h3>Заголовок про компоненты</h3>
+    <p>Шаблонный текст для имитации параграфа о наборе интерфейсных элементов.</p>
+    <div class="gravity-ui-card__chips">
+      <span class="gravity-ui-chip">Button</span>
+      <span class="gravity-ui-chip">Card</span>
+      <span class="gravity-ui-chip">Table</span>
+    </div>
+  </article>
+</template>
+
+<template type="block" id="gravity-ui-block-4" title="Theming" structure="gravity-ui-landing" family="gravity-ui">
+  <style>
+    .gravity-ui-card_theming {
+      background:
+        radial-gradient(circle at 18% 20%, rgba(255, 190, 92, 0.22), transparent 34%),
+        var(--g-color-base-background, #ffffff);
+    }
+
+    .gravity-ui-swatches {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-top: 6px;
+    }
+
+    .gravity-ui-swatch {
+      min-height: 44px;
+      border-radius: 10px;
+      border: 1px solid var(--g-color-line-generic, #dfe4ee);
+    }
+
+    .gravity-ui-swatch_brand {
+      background: var(--g-color-base-brand, #ffbe5c);
+    }
+
+    .gravity-ui-swatch_blue {
+      background: #5282ff;
+    }
+
+    .gravity-ui-swatch_green {
+      background: #77e369;
+    }
+
+    .gravity-ui-swatch_gray {
+      background: var(--g-color-base-generic, #f6f8fb);
+    }
+  </style>
+
+  <article class="gravity-ui-card gravity-ui-card_theming">
+    <span class="gravity-ui-card__icon">03</span>
+    <h3>Заголовок про темы</h3>
+    <p>Текст карточки о цветах, токенах и вариантах оформления интерфейса.</p>
+    <div class="gravity-ui-swatches">
+      <span class="gravity-ui-swatch gravity-ui-swatch_brand"></span>
+      <span class="gravity-ui-swatch gravity-ui-swatch_blue"></span>
+      <span class="gravity-ui-swatch gravity-ui-swatch_green"></span>
+      <span class="gravity-ui-swatch gravity-ui-swatch_gray"></span>
+    </div>
+  </article>
+</template>
+
+<template type="block" id="gravity-ui-block-5" title="Integrations" structure="gravity-ui-landing" family="gravity-ui">
+  <style>
+    .gravity-ui-card_integrations {
+      background: var(--g-color-base-background, #ffffff);
+    }
+
+    .gravity-ui-steps {
+      display: grid;
+      gap: 8px;
+      margin-top: 4px;
+      padding: 0;
+      list-style: none;
+    }
+
+    .gravity-ui-steps li {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      color: var(--g-color-text-secondary, #657185);
+      font-size: 14px;
+      line-height: 20px;
+    }
+
+    .gravity-ui-steps li::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      flex: 0 0 auto;
+      border-radius: 50%;
+      background: var(--g-color-base-brand, #ffbe5c);
+    }
+  </style>
+
+  <article class="gravity-ui-card gravity-ui-card_integrations">
+    <span class="gravity-ui-card__icon">04</span>
+    <h3>Заголовок про интеграции</h3>
+    <p>Шаблонный текст для описания связей с редактором, документацией или продуктовым сценарием.</p>
+    <ul class="gravity-ui-steps">
+      <li>Первый пункт шаблонного списка</li>
+      <li>Второй пункт шаблонного списка</li>
+      <li>Третий пункт шаблонного списка</li>
+    </ul>
+  </article>
+</template>
+
+<template type="block" id="gravity-ui-block-6" title="Start" structure="gravity-ui-landing" family="gravity-ui">
+  <style>
+    .gravity-ui-start {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 20px;
+      min-height: 180px;
+      padding: 28px;
+      align-items: center;
+      border: 1px solid var(--g-color-line-generic, #dfe4ee);
+      border-radius: 16px;
+      background: #15191f;
+      color: #ffffff;
+      font-family: var(--g-font-family-sans, "YS Text", Arial, sans-serif);
+    }
+
+    .gravity-ui-start h3,
+    .gravity-ui-start p {
+      margin: 0;
+    }
+
+    .gravity-ui-start h3 {
+      font-size: 30px;
+      line-height: 1.14;
+      letter-spacing: 0;
+    }
+
+    .gravity-ui-start p {
+      max-width: 600px;
+      color: rgba(255, 255, 255, 0.72);
+      font-size: 16px;
+      line-height: 1.5;
+    }
+
+    .gravity-ui-start .gravity-ui-button {
+      border-color: rgba(255, 255, 255, 0.28);
+      background: #ffffff;
+      color: #111827;
+    }
+
+    @media (max-width: 720px) {
+      .gravity-ui-start {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+
+  <section class="gravity-ui-start">
+    <div>
+      <h3>Заголовок финального блока</h3>
+      <p>Текст карточки для короткого призыва к действию или следующего шага.</p>
+    </div>
+    <a class="gravity-ui-button" href="#">Начать</a>
+  </section>
+</template>
+
+<template type="block" id="gravity-ui-block-7" title="Header: text" structure="gravity-ui-landing" block="gravity-ui-block-1" family="gravity-ui">
+  <style>
+    .gravity-ui-header-text {
+      display: grid;
+      gap: 18px;
+      min-height: 340px;
+      padding: 40px;
+      align-content: center;
+      border: 1px solid var(--g-color-line-generic, #dfe4ee);
+      border-radius: 18px;
+      background: var(--g-color-base-background, #ffffff);
+      color: var(--g-color-text-primary, #1d2633);
+      font-family: var(--g-font-family-sans, "YS Text", Arial, sans-serif);
+    }
+
+    .gravity-ui-header-text h2,
+    .gravity-ui-header-text p {
+      margin: 0;
+    }
+
+    .gravity-ui-header-text h2 {
+      max-width: 620px;
+      font-size: 52px;
+      font-weight: 700;
+      line-height: 1.04;
+      letter-spacing: 0;
+    }
+
+    .gravity-ui-header-text p {
+      max-width: 560px;
+      color: var(--g-color-text-secondary, #657185);
+      font-size: 18px;
+      line-height: 1.55;
+    }
+  </style>
+
+  <section class="gravity-ui-header-text">
+    <h2>Заголовок в хедере</h2>
+    <p>Шаблонный текст для имитации параграфа. Этот вариант можно использовать как простой текстовый хедер.</p>
+  </section>
+</template>
+
+<template type="block" id="gravity-ui-block-8" title="Header: image" structure="gravity-ui-landing" block="gravity-ui-block-1" family="gravity-ui">
+  <style>
+    .gravity-ui-header-image {
+      overflow: hidden;
+      display: grid;
+      grid-template-columns: minmax(0, 0.9fr) minmax(320px, 1.1fr);
+      gap: 24px;
+      min-height: 380px;
+      padding: 34px;
+      align-items: center;
+      border: 1px solid var(--g-color-line-generic, #dfe4ee);
+      border-radius: 18px;
+      background: var(--g-color-base-background, #ffffff);
+      color: var(--g-color-text-primary, #1d2633);
+      font-family: var(--g-font-family-sans, "YS Text", Arial, sans-serif);
+    }
+
+    .gravity-ui-header-image__copy {
+      display: grid;
+      gap: 14px;
+    }
+
+    .gravity-ui-header-image h2,
+    .gravity-ui-header-image p {
+      margin: 0;
+    }
+
+    .gravity-ui-header-image h2 {
+      font-size: 46px;
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+
+    .gravity-ui-header-image p {
+      color: var(--g-color-text-secondary, #657185);
+      font-size: 17px;
+      line-height: 1.55;
+    }
+
+    .gravity-ui-header-image__visual {
+      min-height: 270px;
+      border: 1px solid var(--g-color-line-generic, #dfe4ee);
+      border-radius: 16px;
+      background:
+        linear-gradient(135deg, rgba(21, 25, 31, 0.08), rgba(21, 25, 31, 0)),
+        url("https://storage.yandexcloud.net/gravity-landing-static/_next/static/media/card-osn.78e3bedd.jpg") center / cover no-repeat,
+        repeating-linear-gradient(135deg, #f6f8fb 0 12px, #edf0f6 12px 24px);
+    }
+
+    @media (max-width: 900px) {
+      .gravity-ui-header-image {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+
+  <section class="gravity-ui-header-image">
+    <div class="gravity-ui-header-image__copy">
+      <h2>Заголовок в хедере</h2>
+      <p>Шаблонный текст для имитации параграфа. Справа находится изображение-паттерн в стиле Gravity UI.</p>
+    </div>
+    <div class="gravity-ui-header-image__visual" aria-label="Gravity UI pattern preview"></div>
+  </section>
+</template>
+
+<template type="block" id="gravity-ui-block-9" title="Header: features" structure="gravity-ui-landing" block="gravity-ui-block-1" family="gravity-ui">
+  <style>
+    .gravity-ui-header-features {
+      display: grid;
+      gap: 24px;
+      min-height: 380px;
+      padding: 34px;
+      border: 1px solid var(--g-color-line-generic, #dfe4ee);
+      border-radius: 18px;
+      background: var(--g-color-base-background, #ffffff);
+      color: var(--g-color-text-primary, #1d2633);
+      font-family: var(--g-font-family-sans, "YS Text", Arial, sans-serif);
+    }
+
+    .gravity-ui-header-features h2,
+    .gravity-ui-header-features h3,
+    .gravity-ui-header-features p {
+      margin: 0;
+    }
+
+    .gravity-ui-header-features h2 {
+      max-width: 720px;
+      font-size: 46px;
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+
+    .gravity-ui-feature-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .gravity-ui-mini-feature {
+      display: grid;
+      gap: 8px;
+      min-height: 150px;
+      padding: 18px;
+      align-content: start;
+      border: 1px solid var(--g-color-line-generic, #dfe4ee);
+      border-radius: 14px;
+      background: var(--g-color-base-generic, #f6f8fb);
+    }
+
+    .gravity-ui-mini-feature h3 {
+      font-size: 18px;
+      line-height: 1.18;
+    }
+
+    .gravity-ui-mini-feature p {
+      color: var(--g-color-text-secondary, #657185);
+      font-size: 14px;
+      line-height: 1.45;
+    }
+
+    @media (max-width: 760px) {
+      .gravity-ui-feature-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+
+  <section class="gravity-ui-header-features">
+    <h2>Заголовок в хедере</h2>
+    <div class="gravity-ui-feature-grid">
+      <article class="gravity-ui-mini-feature">
+        <h3>Фича один</h3>
+        <p>Текст карточки для короткого описания.</p>
+      </article>
+      <article class="gravity-ui-mini-feature">
+        <h3>Фича два</h3>
+        <p>Текст карточки для короткого описания.</p>
+      </article>
+      <article class="gravity-ui-mini-feature">
+        <h3>Фича три</h3>
+        <p>Текст карточки для короткого описания.</p>
+      </article>
+    </div>
+  </section>
+</template>
+
+<template type="theme" id="gravity-ui-layout-hero-3-2" title="Layout: hero + 3 + 2" structure="gravity-ui-landing" family="gravity-ui" priority="10">
+  <style>
+    .g-md-hc-structure {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 20px;
+    }
+
+    .g-md-hc-structure > .gravity-ui-landing-intro,
+    .g-md-hc-structure .g-md-hc-block-1 {
+      grid-column: 1 / -1;
+    }
+
+    .g-md-hc-structure .g-md-hc-block-2,
+    .g-md-hc-structure .g-md-hc-block-3,
+    .g-md-hc-structure .g-md-hc-block-4 {
+      grid-column: span 2;
+    }
+
+    .g-md-hc-structure .g-md-hc-block-5,
+    .g-md-hc-structure .g-md-hc-block-6 {
+      grid-column: span 3;
+    }
+
+    @media (max-width: 900px) {
+      .g-md-hc-structure {
+        grid-template-columns: 1fr;
+      }
+
+      .g-md-hc-structure > .gravity-ui-landing-intro,
+      .g-md-hc-structure .g-md-hc-block-1,
+      .g-md-hc-structure .g-md-hc-block-2,
+      .g-md-hc-structure .g-md-hc-block-3,
+      .g-md-hc-structure .g-md-hc-block-4,
+      .g-md-hc-structure .g-md-hc-block-5,
+      .g-md-hc-structure .g-md-hc-block-6 {
+        grid-column: 1;
+      }
+    }
+  </style>
+</template>
+
+<template type="theme" id="gravity-ui-layout-tiles-3x2" title="Layout: 3 x 2 tiles" structure="gravity-ui-landing" family="gravity-ui" priority="20">
+  <style>
+    .g-md-hc-structure {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .g-md-hc-structure > .gravity-ui-landing-intro {
+      grid-column: 1 / -1;
+    }
+
+    .g-md-hc-structure .g-md-hc-block-1,
+    .g-md-hc-structure .g-md-hc-block-2,
+    .g-md-hc-structure .g-md-hc-block-3,
+    .g-md-hc-structure .g-md-hc-block-4,
+    .g-md-hc-structure .g-md-hc-block-5,
+    .g-md-hc-structure .g-md-hc-block-6 {
+      grid-column: span 1;
+    }
+
+    .g-md-hc-structure .g-md-hc-block-1 .gravity-ui-header {
+      grid-template-columns: 1fr;
+      min-height: 360px;
+    }
+
+    @media (max-width: 900px) {
+      .g-md-hc-structure {
+        grid-template-columns: 1fr;
+      }
+
+      .g-md-hc-structure > .gravity-ui-landing-intro,
+      .g-md-hc-structure .g-md-hc-block-1,
+      .g-md-hc-structure .g-md-hc-block-2,
+      .g-md-hc-structure .g-md-hc-block-3,
+      .g-md-hc-structure .g-md-hc-block-4,
+      .g-md-hc-structure .g-md-hc-block-5,
+      .g-md-hc-structure .g-md-hc-block-6 {
+        grid-column: 1;
+      }
+    }
+  </style>
+</template>
+
+<template type="theme" id="gravity-ui-layout-hero-sidebar" title="Layout: hero + sidebar" structure="gravity-ui-landing" family="gravity-ui" priority="30">
+  <style>
+    .g-md-hc-structure {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 20px;
+    }
+
+    .g-md-hc-structure > .gravity-ui-landing-intro {
+      grid-column: 1 / -1;
+    }
+
+    .g-md-hc-structure .g-md-hc-block-1 {
+      grid-column: span 2;
+    }
+
+    .g-md-hc-structure .g-md-hc-block-2 {
+      grid-column: span 1;
+    }
+
+    .g-md-hc-structure .g-md-hc-block-3,
+    .g-md-hc-structure .g-md-hc-block-4,
+    .g-md-hc-structure .g-md-hc-block-5 {
+      grid-column: span 1;
+    }
+
+    .g-md-hc-structure .g-md-hc-block-6 {
+      grid-column: 1 / -1;
+    }
+
+    @media (max-width: 900px) {
+      .g-md-hc-structure {
+        grid-template-columns: 1fr;
+      }
+
+      .g-md-hc-structure > .gravity-ui-landing-intro,
+      .g-md-hc-structure .g-md-hc-block-1,
+      .g-md-hc-structure .g-md-hc-block-2,
+      .g-md-hc-structure .g-md-hc-block-3,
+      .g-md-hc-structure .g-md-hc-block-4,
+      .g-md-hc-structure .g-md-hc-block-5,
+      .g-md-hc-structure .g-md-hc-block-6 {
+        grid-column: 1;
+      }
+    }
+  </style>
+</template>
+
+<template type="theme" id="gravity-ui-layout-sidebar-hero" title="Layout: sidebar + hero" structure="gravity-ui-landing" family="gravity-ui" priority="40">
+  <style>
+    .g-md-hc-structure {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 20px;
+    }
+
+    .g-md-hc-structure > .gravity-ui-landing-intro {
+      grid-column: 1 / -1;
+    }
+
+    .g-md-hc-structure .g-md-hc-block-2 {
+      grid-column: span 1;
+      grid-row: span 1;
+    }
+
+    .g-md-hc-structure .g-md-hc-block-1 {
+      grid-column: span 2;
+    }
+
+    .g-md-hc-structure .g-md-hc-block-3,
+    .g-md-hc-structure .g-md-hc-block-4 {
+      grid-column: span 1;
+    }
+
+    .g-md-hc-structure .g-md-hc-block-5 {
+      grid-column: span 2;
+    }
+
+    .g-md-hc-structure .g-md-hc-block-6 {
+      grid-column: 1 / -1;
+    }
+
+    @media (max-width: 900px) {
+      .g-md-hc-structure {
+        grid-template-columns: 1fr;
+      }
+
+      .g-md-hc-structure > .gravity-ui-landing-intro,
+      .g-md-hc-structure .g-md-hc-block-1,
+      .g-md-hc-structure .g-md-hc-block-2,
+      .g-md-hc-structure .g-md-hc-block-3,
+      .g-md-hc-structure .g-md-hc-block-4,
+      .g-md-hc-structure .g-md-hc-block-5,
+      .g-md-hc-structure .g-md-hc-block-6 {
+        grid-column: 1;
+      }
+    }
+  </style>
+</template>
+
+<template type="theme" id="gravity-ui-block-7-animated" title="Header text: animated" structure="gravity-ui-landing" block="gravity-ui-block-7" family="gravity-ui" priority="10">
+  <style>
+    .g-md-hc-block .gravity-ui-header-text {
+      position: relative;
+      overflow: hidden;
+      min-height: 390px;
+      padding: 46px;
+      align-content: center;
+      justify-items: start;
+      background:
+        radial-gradient(circle at 18% 24%, rgba(255, 190, 92, 0.38), transparent 30%),
+        radial-gradient(circle at 86% 18%, rgba(82, 130, 255, 0.28), transparent 32%),
+        #15191f;
+      color: #ffffff;
+    }
+
+    .g-md-hc-block .gravity-ui-header-text::before {
+      content: "";
+      position: absolute;
+      inset: -40%;
+      background:
+        repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.07) 0 1px, transparent 1px 72px),
+        repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.06) 0 1px, transparent 1px 72px);
+      animation: gravity-ui-grid-shift 16s linear infinite;
+    }
+
+    .g-md-hc-block .gravity-ui-header-text > * {
+      position: relative;
+      z-index: 1;
+    }
+
+    .g-md-hc-block .gravity-ui-header-text p {
+      color: rgba(255, 255, 255, 0.76);
+    }
+
+    @keyframes gravity-ui-grid-shift {
+      from {
+        transform: translate3d(0, 0, 0);
+      }
+
+      to {
+        transform: translate3d(72px, 72px, 0);
+      }
+    }
+  </style>
+</template>
+
+<template type="theme" id="gravity-ui-block-7-minimal" title="Header text: minimal" structure="gravity-ui-landing" block="gravity-ui-block-7" family="gravity-ui" priority="20">
+  <style>
+    .g-md-hc-block .gravity-ui-header-text {
+      min-height: 340px;
+      padding: 42px;
+      align-content: center;
+      justify-items: start;
+      border-color: transparent;
+      background: transparent;
+      box-shadow: none;
+    }
+
+    .g-md-hc-block .gravity-ui-header-text h2 {
+      max-width: 620px;
+    }
+  </style>
+</template>
+
+<template type="theme" id="gravity-ui-block-7-compact" title="Header text: compact" structure="gravity-ui-landing" block="gravity-ui-block-7" family="gravity-ui" priority="30">
+  <style>
+    .g-md-hc-block .gravity-ui-header-text {
+      min-height: 260px;
+      padding: 24px;
+      align-content: center;
+      justify-items: start;
+      border-color: var(--g-color-line-generic, #dfe4ee);
+      background: var(--g-color-base-background, #ffffff);
+    }
+
+    .g-md-hc-block .gravity-ui-header-text h2 {
+      max-width: 560px;
+      font-size: 38px;
+    }
+
+    .g-md-hc-block .gravity-ui-header-text p {
+      max-width: 520px;
+      font-size: 16px;
+    }
+  </style>
+</template>
+
+<template type="theme" id="gravity-ui-block-7-centered" title="Header text: centered" structure="gravity-ui-landing" block="gravity-ui-block-7" family="gravity-ui" priority="40">
+  <style>
+    .g-md-hc-block .gravity-ui-header-text {
+      min-height: 340px;
+      padding: 42px;
+      align-content: center;
+      justify-items: center;
+      text-align: center;
+      background:
+        radial-gradient(circle at 50% 0%, rgba(255, 190, 92, 0.22), transparent 36%),
+        var(--g-color-base-background, #ffffff);
+    }
+
+    .g-md-hc-block .gravity-ui-header-text h2,
+    .g-md-hc-block .gravity-ui-header-text p {
+      margin-right: auto;
+      margin-left: auto;
+    }
+  </style>
+</template>
