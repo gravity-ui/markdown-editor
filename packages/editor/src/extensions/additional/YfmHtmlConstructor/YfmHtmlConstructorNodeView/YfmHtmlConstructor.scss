@@ -18,7 +18,7 @@
         align-items: stretch;
 
         max-width: min(760px, calc(100vw - 32px));
-        padding: 6px;
+        padding: 8px;
 
         white-space: nowrap;
         pointer-events: none;
@@ -57,18 +57,14 @@
     }
 
     &__floating-toolbar_expanded {
-        max-height: calc(100vh - 32px);
-
-        white-space: normal;
-    }
-
-    &__floating-toolbar_editor {
         position: fixed;
         top: clamp(12px, 9vh, 88px);
 
-        width: min(920px, calc(100vw - 48px));
+        width: min(520px, calc(100vw - 48px));
         max-width: calc(100vw - 48px);
+        max-height: calc(100vh - 32px);
 
+        white-space: normal;
         pointer-events: auto;
 
         opacity: 1;
@@ -76,28 +72,40 @@
         transform: translate(-50%, 0);
     }
 
+    &__floating-toolbar_editor {
+        width: min(920px, calc(100vw - 48px));
+        max-width: calc(100vw - 48px);
+    }
+
     &__floating-toolbar-row {
         display: flex;
         align-items: center;
-        gap: 2px;
+        gap: 4px;
 
         min-width: 0;
     }
 
-    &__floating-toolbar_editor &__floating-toolbar-row {
+    &__floating-toolbar_expanded &__floating-toolbar-row {
         align-self: center;
 
         max-width: 100%;
     }
 
+    &__floating-toolbar-row .g-button_selected {
+        --g-button-background-color: var(--g-color-base-warning-light);
+        --g-button-background-color-hover: var(--g-color-base-warning-medium);
+        --g-button-text-color: var(--g-color-text-warning-heavy);
+        --g-button-text-color-hover: var(--g-color-text-warning-heavy);
+    }
+
     &__floating-toolbar-panel {
         overflow-y: auto;
 
-        width: min(360px, calc(100vw - 64px));
+        width: 100%;
         max-width: 100%;
         max-height: min(560px, calc(100vh - 144px));
-        margin-top: 8px;
-        padding: 12px 6px 4px;
+        margin-top: 10px;
+        padding: 14px 8px 6px;
 
         white-space: normal;
 
@@ -107,7 +115,6 @@
     }
 
     &__floating-toolbar-panel_editor {
-        width: 100%;
         max-height: calc(100vh - 136px);
         padding: 16px;
 
@@ -116,7 +123,7 @@
         background: var(--g-color-base-generic);
     }
 
-    &__floating-toolbar_editor &__floating-toolbar-tail {
+    &__floating-toolbar_expanded &__floating-toolbar-tail {
         display: none;
     }
 
@@ -156,8 +163,8 @@
 
     &__floating-toolbar-separator {
         width: 1px;
-        height: 22px;
-        margin: 0 4px;
+        height: 24px;
+        margin: 0 6px;
 
         background: var(--g-color-line-generic);
     }
@@ -170,7 +177,7 @@
 
     &__floating-menu {
         min-width: 168px;
-        padding: 6px;
+        padding: 8px;
 
         border: 1px solid var(--g-color-line-generic);
         border-radius: 10px;
@@ -201,7 +208,7 @@
         align-items: center;
 
         width: 100%;
-        padding: 8px 10px;
+        padding: 9px 12px;
 
         font: inherit;
         cursor: pointer;
@@ -385,7 +392,7 @@
         }
     }
 
-    &__item > &__floating-toolbar {
+    &__item > &__floating-toolbar:not(.g-md-yfm-html-constructor__floating-toolbar_expanded) {
         top: -46px;
     }
 
@@ -595,12 +602,17 @@
 
 @media (max-width: 720px) {
     .g-md-yfm-html-constructor {
-        &__floating-toolbar_editor {
+        &__floating-toolbar_expanded {
             top: 8px;
 
             width: calc(100vw - 16px);
             max-width: calc(100vw - 16px);
             max-height: calc(100vh - 16px);
+        }
+
+        &__floating-toolbar_editor {
+            width: calc(100vw - 16px);
+            max-width: calc(100vw - 16px);
         }
 
         &__floating-toolbar-panel_editor {

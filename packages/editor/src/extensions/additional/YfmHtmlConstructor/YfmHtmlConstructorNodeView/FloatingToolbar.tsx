@@ -88,6 +88,7 @@ export const FloatingToolbar: FC<FloatingToolbarProps> = ({
     const [roundAnchor, setRoundAnchor] = useElementState<HTMLButtonElement>();
     const [borderAnchor, setBorderAnchor] = useElementState<HTMLButtonElement>();
     const toolbarOpen = openMenu !== null || Boolean(expandedContent);
+    const settingsSelected = Boolean(expandedContent) && expandedContentView === 'editor';
 
     const toggleMenu = (menu: Exclude<ToolbarMenu, null>) => (event: MouseEvent) => {
         event.preventDefault();
@@ -122,6 +123,7 @@ export const FloatingToolbar: FC<FloatingToolbarProps> = ({
                 view="flat"
                 size="s"
                 className={stop}
+                selected={settingsSelected}
                 onClick={handleOpenSettings}
                 aria-label={codeLabel}
             >

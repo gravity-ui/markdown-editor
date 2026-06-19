@@ -1,14 +1,14 @@
 .g-md-yfm-html-constructor {
     &__templates {
-        width: 320px;
-        max-width: calc(100vw - 32px);
-        padding: 8px;
+        width: 100%;
+        max-width: 100%;
+        padding: 2px;
     }
 
     &__templates-editor {
         display: flex;
         flex-direction: column;
-        gap: 8px;
+        gap: 12px;
 
         .g-text-area__control {
             font-family: var(--g-font-family-monospace);
@@ -22,13 +22,13 @@
     }
 
     &__templates-search {
-        margin-bottom: 6px;
+        margin-bottom: 10px;
     }
 
     &__templates-list {
         overflow-y: auto;
 
-        max-height: 280px;
+        max-height: min(360px, calc(100vh - 220px));
     }
 
     &__templates-group-header {
@@ -63,7 +63,7 @@
 
     &__templates-separator {
         height: 1px;
-        margin: 4px 0;
+        margin: 6px 0;
 
         background: var(--g-color-line-generic);
     }
