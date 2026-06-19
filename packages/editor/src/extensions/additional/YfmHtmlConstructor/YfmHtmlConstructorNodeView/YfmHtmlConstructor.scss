@@ -108,7 +108,7 @@
 
     &__floating-toolbar-panel {
         position: absolute;
-        top: calc(100% + 8px);
+        top: calc(100% - 1px);
         left: 50%;
 
         overflow-y: auto;
@@ -122,11 +122,12 @@
         white-space: normal;
 
         border: 1px solid var(--g-color-line-generic);
-        border-radius: var(--g-border-radius-l);
+        border-radius: 0 0 var(--g-border-radius-l) var(--g-border-radius-l);
         background: var(--g-color-base-float);
         box-shadow: 0 18px 42px -14px rgb(0 0 0 / 24%);
 
         transform: translateX(-50%);
+        transform-origin: top center;
         animation: g-md-yfm-html-constructor-panel-in 0.14s ease-out;
     }
 
@@ -685,11 +686,11 @@
     from {
         opacity: 0;
 
-        transform: translateY(-4px);
+        transform: translateX(-50%) scaleY(0.98);
     }
     to {
         opacity: 1;
 
-        transform: translateY(0);
+        transform: translateX(-50%) scaleY(1);
     }
 }
