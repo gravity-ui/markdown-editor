@@ -105,11 +105,6 @@
     }
 
     &__floating-menu {
-        position: absolute;
-        z-index: 30;
-        top: calc(100% + 8px);
-        left: 0;
-
         min-width: 168px;
         padding: 6px;
 

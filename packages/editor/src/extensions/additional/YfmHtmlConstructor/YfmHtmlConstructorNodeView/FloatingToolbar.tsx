@@ -2,9 +2,10 @@ import {useState} from 'react';
 import type {CSSProperties, FC, MouseEvent, ReactNode} from 'react';
 
 import {BucketPaint, ChevronDown, Code, Font, TrashBin} from '@gravity-ui/icons';
-import {Button, Icon} from '@gravity-ui/uikit';
+import {Button, Icon, Popup} from '@gravity-ui/uikit';
 
 import {i18n} from 'src/i18n/yfm-html-constructor';
+import {useElementState} from 'src/react-utils/hooks';
 
 import {
     HTML_CONSTRUCTOR_BACKGROUND_COLORS,
@@ -78,6 +79,10 @@ export const FloatingToolbar: FC<FloatingToolbarProps> = ({
 }) => {
     const enabled = getEnabledHtmlConstructorSettings(settings);
     const [openMenu, setOpenMenu] = useState<ToolbarMenu>(null);
+    const [backgroundAnchor, setBackgroundAnchor] = useElementState<HTMLButtonElement>();
+    const [textColorAnchor, setTextColorAnchor] = useElementState<HTMLButtonElement>();
+    const [roundAnchor, setRoundAnchor] = useElementState<HTMLButtonElement>();
+    const [borderAnchor, setBorderAnchor] = useElementState<HTMLButtonElement>();
     const toolbarOpen = openMenu !== null;
 
     const toggleMenu = (menu: Exclude<ToolbarMenu, null>) => (event: MouseEvent) => {
@@ -99,6 +104,10 @@ export const FloatingToolbar: FC<FloatingToolbarProps> = ({
     const handleRemove = () => {
         setOpenMenu(null);
         onRemove?.();
+    };
+
+    const closeMenuOnPopupClose = (open: boolean) => {
+        if (!open) setOpenMenu(null);
     };
 
     const renderRawButton = () => {
@@ -124,6 +133,7 @@ export const FloatingToolbar: FC<FloatingToolbarProps> = ({
         return (
             <div className={b('floating-control', [stop])}>
                 <Button
+                    ref={setBackgroundAnchor}
                     view="flat"
                     size="s"
                     className={stop}
@@ -139,15 +149,24 @@ export const FloatingToolbar: FC<FloatingToolbarProps> = ({
                     </span>
                     <Icon data={ChevronDown} size={12} className={stop} />
                 </Button>
-                {openMenu === 'background' && (
+                <Popup
+                    anchorElement={backgroundAnchor}
+                    open={openMenu === 'background'}
+                    onOpenChange={closeMenuOnPopupClose}
+                    placement="bottom-start"
+                >
                     <div className={b('floating-menu', {colors: true}, [stop])}>
                         {HTML_CONSTRUCTOR_BACKGROUND_COLORS.map((color) => (
                             <button
                                 key={color}
                                 type="button"
-                                className={b('floating-swatch', {
-                                    active: quickStyle?.background === color,
-                                })}
+                                className={b(
+                                    'floating-swatch',
+                                    {
+                                        active: quickStyle?.background === color,
+                                    },
+                                    [stop],
+                                )}
                                 style={{background: color}}
                                 title={color}
                                 onClick={() => updateQuickStyle({background: color})}
@@ -161,7 +180,7 @@ export const FloatingToolbar: FC<FloatingToolbarProps> = ({
                             {i18n('reset')}
                         </button>
                     </div>
-                )}
+                </Popup>
             </div>
         );
     };
@@ -172,6 +191,7 @@ export const FloatingToolbar: FC<FloatingToolbarProps> = ({
         return (
             <div className={b('floating-control', [stop])}>
                 <Button
+                    ref={setTextColorAnchor}
                     view="flat"
                     size="s"
                     className={stop}
@@ -191,16 +211,25 @@ export const FloatingToolbar: FC<FloatingToolbarProps> = ({
                     </span>
                     <Icon data={ChevronDown} size={12} className={stop} />
                 </Button>
-                {openMenu === 'textColor' && (
+                <Popup
+                    anchorElement={textColorAnchor}
+                    open={openMenu === 'textColor'}
+                    onOpenChange={closeMenuOnPopupClose}
+                    placement="bottom-start"
+                >
                     <div className={b('floating-menu', {text: true}, [stop])}>
                         {HTML_CONSTRUCTOR_TEXT_COLORS.map((color) => (
                             <button
                                 key={color || 'auto'}
                                 type="button"
-                                className={b('floating-text-swatch', {
-                                    active: (quickStyle?.textColor ?? '') === color,
-                                    auto: !color,
-                                })}
+                                className={b(
+                                    'floating-text-swatch',
+                                    {
+                                        active: (quickStyle?.textColor ?? '') === color,
+                                        auto: !color,
+                                    },
+                                    [stop],
+                                )}
                                 style={color ? {color} : undefined}
                                 title={color || i18n('auto')}
                                 onClick={() => updateQuickStyle({textColor: color || undefined})}
@@ -209,7 +238,7 @@ export const FloatingToolbar: FC<FloatingToolbarProps> = ({
                             </button>
                         ))}
                     </div>
-                )}
+                </Popup>
             </div>
         );
     };
@@ -220,6 +249,7 @@ export const FloatingToolbar: FC<FloatingToolbarProps> = ({
         return (
             <div className={b('floating-control', [stop])}>
                 <Button
+                    ref={setRoundAnchor}
                     view="flat"
                     size="s"
                     className={stop}
@@ -231,7 +261,12 @@ export const FloatingToolbar: FC<FloatingToolbarProps> = ({
                     </span>
                     <Icon data={ChevronDown} size={12} className={stop} />
                 </Button>
-                {openMenu === 'round' && (
+                <Popup
+                    anchorElement={roundAnchor}
+                    open={openMenu === 'round'}
+                    onOpenChange={closeMenuOnPopupClose}
+                    placement="bottom-start"
+                >
                     <div className={b('floating-menu', [stop])}>
                         {HTML_CONSTRUCTOR_BORDER_RADIUS.map((radius) => (
                             <button
@@ -248,7 +283,7 @@ export const FloatingToolbar: FC<FloatingToolbarProps> = ({
                             </button>
                         ))}
                     </div>
-                )}
+                </Popup>
             </div>
         );
     };
@@ -259,6 +294,7 @@ export const FloatingToolbar: FC<FloatingToolbarProps> = ({
         return (
             <div className={b('floating-control', [stop])}>
                 <Button
+                    ref={setBorderAnchor}
                     view="flat"
                     size="s"
                     className={stop}
@@ -270,7 +306,12 @@ export const FloatingToolbar: FC<FloatingToolbarProps> = ({
                     </span>
                     <Icon data={ChevronDown} size={12} className={stop} />
                 </Button>
-                {openMenu === 'border' && (
+                <Popup
+                    anchorElement={borderAnchor}
+                    open={openMenu === 'border'}
+                    onOpenChange={closeMenuOnPopupClose}
+                    placement="bottom-start"
+                >
                     <div className={b('floating-menu', [stop])}>
                         <button
                             type="button"
@@ -294,7 +335,7 @@ export const FloatingToolbar: FC<FloatingToolbarProps> = ({
                             </button>
                         ))}
                     </div>
-                )}
+                </Popup>
             </div>
         );
     };
@@ -320,10 +361,7 @@ export const FloatingToolbar: FC<FloatingToolbarProps> = ({
     };
 
     return (
-        <div
-            className={b('floating-toolbar', {open: toolbarOpen}, [stop])}
-            onMouseLeave={() => setOpenMenu(null)}
-        >
+        <div className={b('floating-toolbar', {open: toolbarOpen}, [stop])}>
             {leftSlot}
             {leftSlot && <span className={b('floating-toolbar-separator', [stop])} />}
             {renderRawButton()}
