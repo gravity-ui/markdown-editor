@@ -1,7 +1,7 @@
-import {useState} from 'react';
+import {useLayoutEffect, useRef, useState} from 'react';
 import type {CSSProperties, FC, MouseEvent, ReactNode} from 'react';
 
-import {BucketPaint, ChevronDown, Code, Font, TrashBin} from '@gravity-ui/icons';
+import {BucketPaint, ChevronDown, Code, Ellipsis, Font, TrashBin} from '@gravity-ui/icons';
 import {Button, Icon, Popup} from '@gravity-ui/uikit';
 
 import {i18n} from 'src/i18n/yfm-html-constructor';
@@ -24,8 +24,30 @@ import {STOP_EVENT_CLASSNAME, cnYfmHtmlConstructor} from './const';
 
 const b = cnYfmHtmlConstructor;
 const stop = STOP_EVENT_CLASSNAME;
+const TOOLBAR_MAX_WIDTH_RATIO = 0.9;
+const TOOLBAR_HORIZONTAL_PADDING = 16;
+const TOOLBAR_ITEM_GAP = 4;
+const MORE_BUTTON_FALLBACK_WIDTH = 32;
 
 type ToolbarMenu = 'background' | 'textColor' | 'round' | 'border' | null;
+type ToolbarActionId =
+    | 'leftSlot'
+    | 'raw'
+    | 'background'
+    | 'textColor'
+    | 'round'
+    | 'border'
+    | 'delete';
+
+const HIDE_ACTION_ORDER: ToolbarActionId[] = [
+    'delete',
+    'border',
+    'round',
+    'textColor',
+    'background',
+    'raw',
+    'leftSlot',
+];
 
 type FloatingToolbarProps = {
     settings?: HtmlConstructorTemplateSettings;
@@ -69,6 +91,10 @@ const getBorderLabel = (value: HtmlConstructorBorderStyle | undefined) => {
     return i18n('border_default');
 };
 
+const getToolbarWidth = (ids: ToolbarActionId[], widths: Record<string, number>) =>
+    ids.reduce((sum, id) => sum + (widths[id] ?? 0), 0) +
+    Math.max(0, ids.length - 1) * TOOLBAR_ITEM_GAP;
+
 export const FloatingToolbar: FC<FloatingToolbarProps> = ({
     settings,
     quickStyle,
@@ -87,6 +113,11 @@ export const FloatingToolbar: FC<FloatingToolbarProps> = ({
     const [textColorAnchor, setTextColorAnchor] = useElementState<HTMLButtonElement>();
     const [roundAnchor, setRoundAnchor] = useElementState<HTMLButtonElement>();
     const [borderAnchor, setBorderAnchor] = useElementState<HTMLButtonElement>();
+    const [moreAnchor, setMoreAnchor] = useElementState<HTMLButtonElement>();
+    const [moreOpen, setMoreOpen] = useState(false);
+    const toolbarRowRef = useRef<HTMLDivElement>(null);
+    const [availableToolbarWidth, setAvailableToolbarWidth] = useState(Number.POSITIVE_INFINITY);
+    const [toolbarItemWidths, setToolbarItemWidths] = useState<Record<string, number>>({});
     const toolbarOpen = openMenu !== null || Boolean(expandedContent);
     const settingsSelected = Boolean(expandedContent) && expandedContentView === 'editor';
 
@@ -99,19 +130,27 @@ export const FloatingToolbar: FC<FloatingToolbarProps> = ({
     const updateQuickStyle = (patch: Partial<HtmlConstructorQuickStyle>) => {
         onQuickStyleChange(getNextQuickStyle(quickStyle, patch));
         setOpenMenu(null);
+        setMoreOpen(false);
     };
 
     const handleOpenSettings = () => {
         setOpenMenu(null);
+        setMoreOpen(false);
         onOpenSettings();
     };
 
     const handleRemove = () => {
         setOpenMenu(null);
+        setMoreOpen(false);
         onRemove?.();
     };
 
     const closeMenuOnPopupClose = (open: boolean) => {
+        if (!open) setOpenMenu(null);
+    };
+
+    const closeMoreOnPopupClose = (open: boolean) => {
+        setMoreOpen(open);
         if (!open) setOpenMenu(null);
     };
 
@@ -365,6 +404,97 @@ export const FloatingToolbar: FC<FloatingToolbarProps> = ({
         );
     };
 
+    const toolbarActions = [
+        leftSlot && {
+            id: 'leftSlot' as const,
+            node: (
+                <>
+                    {leftSlot}
+                    <span className={b('floating-toolbar-separator', [stop])} />
+                </>
+            ),
+        },
+        enabled.hasRaw && {id: 'raw' as const, node: renderRawButton()},
+        enabled.hasBackground && {
+            id: 'background' as const,
+            node: renderBackgroundControl(),
+        },
+        enabled.hasTextColor && {
+            id: 'textColor' as const,
+            node: renderTextColorControl(),
+        },
+        enabled.hasRound && {id: 'round' as const, node: renderRoundControl()},
+        enabled.hasBorder && {id: 'border' as const, node: renderBorderControl()},
+        enabled.hasDelete && onRemove && {id: 'delete' as const, node: renderDeleteButton()},
+    ].filter(Boolean) as {id: ToolbarActionId; node: ReactNode}[];
+    const toolbarActionIds = toolbarActions.map((action) => action.id);
+    const toolbarActionIdsKey = toolbarActionIds.join('|');
+    const measuredActions = toolbarActionIds.every((id) => toolbarItemWidths[id]);
+    const hiddenActionIds = (() => {
+        if (!measuredActions) return [];
+
+        let visibleIds = [...toolbarActionIds];
+
+        if (getToolbarWidth(visibleIds, toolbarItemWidths) <= availableToolbarWidth) return [];
+
+        const availableWidth = availableToolbarWidth - MORE_BUTTON_FALLBACK_WIDTH;
+
+        for (const actionId of HIDE_ACTION_ORDER) {
+            if (!visibleIds.includes(actionId)) continue;
+
+            visibleIds = visibleIds.filter((id) => id !== actionId);
+
+            const nextWidth =
+                getToolbarWidth(visibleIds, toolbarItemWidths) +
+                (visibleIds.length ? TOOLBAR_ITEM_GAP : 0);
+
+            if (nextWidth <= availableWidth) break;
+        }
+
+        return toolbarActionIds.filter((id) => !visibleIds.includes(id));
+    })();
+    const hiddenActionIdSet = new Set(hiddenActionIds);
+    const visibleActions = toolbarActions.filter((action) => !hiddenActionIdSet.has(action.id));
+    const hiddenActions = toolbarActions.filter((action) => hiddenActionIdSet.has(action.id));
+
+    useLayoutEffect(() => {
+        const updateToolbarSizes = () => {
+            const toolbarRow = toolbarRowRef.current;
+            if (!toolbarRow) return;
+
+            setToolbarItemWidths((currentWidths) => {
+                const nextWidths = {...currentWidths};
+                let hasChanges = false;
+
+                toolbarRow
+                    .querySelectorAll<HTMLElement>('[data-toolbar-action-id]')
+                    .forEach((item) => {
+                        const id = item.dataset.toolbarActionId;
+                        if (!id || currentWidths[id] === item.offsetWidth) return;
+
+                        nextWidths[id] = item.offsetWidth;
+                        hasChanges = true;
+                    });
+
+                return hasChanges ? nextWidths : currentWidths;
+            });
+
+            const nextAvailableWidth =
+                Math.floor(window.innerWidth * TOOLBAR_MAX_WIDTH_RATIO) -
+                TOOLBAR_HORIZONTAL_PADDING;
+            setAvailableToolbarWidth((currentWidth) => {
+                if (currentWidth === nextAvailableWidth) return currentWidth;
+
+                return nextAvailableWidth;
+            });
+        };
+
+        updateToolbarSizes();
+        window.addEventListener('resize', updateToolbarSizes);
+
+        return () => window.removeEventListener('resize', updateToolbarSizes);
+    }, [toolbarActionIdsKey]);
+
     return (
         <div
             className={b(
@@ -377,15 +507,47 @@ export const FloatingToolbar: FC<FloatingToolbarProps> = ({
                 [stop],
             )}
         >
-            <div className={b('floating-toolbar-row', [stop])}>
-                {leftSlot}
-                {leftSlot && <span className={b('floating-toolbar-separator', [stop])} />}
-                {renderRawButton()}
-                {renderBackgroundControl()}
-                {renderTextColorControl()}
-                {renderRoundControl()}
-                {renderBorderControl()}
-                {renderDeleteButton()}
+            <div ref={toolbarRowRef} className={b('floating-toolbar-row', [stop])}>
+                {visibleActions.map((action) => (
+                    <div
+                        key={action.id}
+                        className={b('floating-toolbar-item', [stop])}
+                        data-toolbar-action-id={action.id}
+                    >
+                        {action.node}
+                    </div>
+                ))}
+                {hiddenActions.length > 0 && (
+                    <div className={b('floating-toolbar-item', {more: true}, [stop])}>
+                        <Button
+                            ref={setMoreAnchor}
+                            view="flat"
+                            size="s"
+                            className={stop}
+                            onClick={() => setMoreOpen((open) => !open)}
+                            aria-label={i18n('more_actions')}
+                        >
+                            <Icon data={Ellipsis} size={14} className={stop} />
+                        </Button>
+                        <Popup
+                            anchorElement={moreAnchor}
+                            open={moreOpen}
+                            onOpenChange={closeMoreOnPopupClose}
+                            placement="bottom-end"
+                        >
+                            <div className={b('floating-menu', {overflow: true}, [stop])}>
+                                {hiddenActions.map((action) => (
+                                    <div
+                                        key={action.id}
+                                        className={b('floating-menu-item', [stop])}
+                                    >
+                                        {action.node}
+                                    </div>
+                                ))}
+                            </div>
+                        </Popup>
+                    </div>
+                )}
             </div>
             {expandedContent && (
                 <div

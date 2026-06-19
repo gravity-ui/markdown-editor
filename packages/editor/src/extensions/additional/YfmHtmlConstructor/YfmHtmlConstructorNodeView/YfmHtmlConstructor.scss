@@ -15,9 +15,9 @@
 
         display: flex;
         flex-direction: column;
-        align-items: stretch;
+        align-items: center;
 
-        max-width: min(760px, calc(100vw - 32px));
+        max-width: 90vw;
         padding: 8px;
 
         white-space: nowrap;
@@ -60,8 +60,8 @@
         position: fixed;
         top: clamp(12px, 9vh, 88px);
 
-        width: min(520px, calc(100vw - 48px));
-        max-width: calc(100vw - 48px);
+        width: fit-content;
+        max-width: 90vw;
         max-height: calc(100vh - 32px);
 
         white-space: normal;
@@ -73,8 +73,8 @@
     }
 
     &__floating-toolbar_editor {
-        width: min(920px, calc(100vw - 48px));
-        max-width: calc(100vw - 48px);
+        width: fit-content;
+        max-width: 90vw;
     }
 
     &__floating-toolbar-row {
@@ -85,10 +85,18 @@
         min-width: 0;
     }
 
+    &__floating-toolbar-item {
+        display: flex;
+        flex: 0 0 auto;
+        align-items: center;
+
+        min-width: 0;
+    }
+
     &__floating-toolbar_expanded &__floating-toolbar-row {
         align-self: center;
 
-        max-width: 100%;
+        max-width: calc(90vw - 16px);
     }
 
     &__floating-toolbar-row .g-button_selected {
@@ -99,28 +107,35 @@
     }
 
     &__floating-toolbar-panel {
+        position: absolute;
+        top: calc(100% + 8px);
+        left: 50%;
+
         overflow-y: auto;
 
-        width: 100%;
+        width: min(520px, 90vw);
         max-width: 100%;
         max-height: min(560px, calc(100vh - 144px));
-        margin-top: 10px;
-        padding: 14px 8px 6px;
+        margin-top: 0;
+        padding: 12px;
 
         white-space: normal;
 
-        border-top: 1px solid var(--g-color-line-generic);
+        border: 1px solid var(--g-color-line-generic);
+        border-radius: var(--g-border-radius-l);
+        background: var(--g-color-base-float);
+        box-shadow: 0 18px 42px -14px rgb(0 0 0 / 24%);
 
+        transform: translateX(-50%);
         animation: g-md-yfm-html-constructor-panel-in 0.14s ease-out;
     }
 
     &__floating-toolbar-panel_editor {
-        max-height: calc(100vh - 136px);
-        padding: 16px;
+        overflow: hidden;
 
-        border: 1px solid var(--g-color-line-generic);
-        border-radius: var(--g-border-radius-l);
-        background: var(--g-color-base-generic);
+        width: min(1200px, 90vw);
+        max-height: calc(100vh - 136px);
+        padding: 0;
     }
 
     &__floating-toolbar_expanded &__floating-toolbar-tail {
@@ -201,6 +216,23 @@
             min-width: 0;
             padding: 10px;
         }
+
+        &_overflow {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+
+            min-width: 0;
+        }
+    }
+
+    &__floating-menu_overflow &__floating-toolbar-separator {
+        display: none;
+    }
+
+    &__floating-menu-item {
+        display: flex;
+        align-items: center;
     }
 
     &__floating-menu-button {
@@ -555,23 +587,26 @@
     &__settings-editor {
         display: grid;
         grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-        gap: 18px;
+        gap: 0;
 
         min-width: 0;
+        min-height: min(620px, calc(100vh - 190px));
         padding: 0;
     }
 
     &__settings-field {
         display: flex;
         flex-direction: column;
-        gap: 10px;
+        gap: 8px;
 
         min-width: 0;
-        padding: 14px;
+        padding: 16px 18px 18px;
 
-        border: 1px solid var(--g-color-line-generic);
-        border-radius: var(--g-border-radius-l);
-        background: var(--g-color-base-float);
+        background: transparent;
+
+        & + & {
+            border-left: 1px solid var(--g-color-line-generic);
+        }
     }
 
     &__settings-field-label {
@@ -584,18 +619,19 @@
 
     &__settings-textarea {
         min-width: 0;
+        height: 100%;
 
         .g-text-area__control {
-            min-height: min(420px, calc(100vh - 282px));
+            min-height: min(560px, calc(100vh - 262px));
             padding: 12px 14px;
 
             font-family: var(--g-font-family-monospace);
             line-height: 1.45;
 
-            border: 1px solid var(--g-color-line-generic);
-            border-radius: var(--g-border-radius-m);
+            border: 0;
+            border-radius: 0;
             background: var(--g-color-base-background);
-            box-shadow: inset 0 1px 2px rgb(0 0 0 / 4%);
+            box-shadow: none;
         }
     }
 }
