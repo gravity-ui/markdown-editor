@@ -31,9 +31,11 @@ type FloatingToolbarProps = {
     settings?: HtmlConstructorTemplateSettings;
     quickStyle?: HtmlConstructorQuickStyle;
     onQuickStyleChange: (quickStyle: HtmlConstructorQuickStyle) => void;
-    onOpenSettings: (anchor: HTMLElement) => void;
+    onOpenSettings: () => void;
     onRemove?: () => void;
     leftSlot?: ReactNode;
+    expandedContent?: ReactNode;
+    expandedContentView?: 'menu' | 'editor';
     codeLabel: string;
     removeLabel: string;
 };
@@ -74,6 +76,8 @@ export const FloatingToolbar: FC<FloatingToolbarProps> = ({
     onOpenSettings,
     onRemove,
     leftSlot,
+    expandedContent,
+    expandedContentView = 'menu',
     codeLabel,
     removeLabel,
 }) => {
@@ -83,7 +87,7 @@ export const FloatingToolbar: FC<FloatingToolbarProps> = ({
     const [textColorAnchor, setTextColorAnchor] = useElementState<HTMLButtonElement>();
     const [roundAnchor, setRoundAnchor] = useElementState<HTMLButtonElement>();
     const [borderAnchor, setBorderAnchor] = useElementState<HTMLButtonElement>();
-    const toolbarOpen = openMenu !== null;
+    const toolbarOpen = openMenu !== null || Boolean(expandedContent);
 
     const toggleMenu = (menu: Exclude<ToolbarMenu, null>) => (event: MouseEvent) => {
         event.preventDefault();
@@ -96,9 +100,9 @@ export const FloatingToolbar: FC<FloatingToolbarProps> = ({
         setOpenMenu(null);
     };
 
-    const handleOpenSettings = (event: MouseEvent<HTMLElement>) => {
+    const handleOpenSettings = () => {
         setOpenMenu(null);
-        onOpenSettings(event.currentTarget);
+        onOpenSettings();
     };
 
     const handleRemove = () => {
@@ -120,7 +124,6 @@ export const FloatingToolbar: FC<FloatingToolbarProps> = ({
                 className={stop}
                 onClick={handleOpenSettings}
                 aria-label={codeLabel}
-                title={i18n('show_code')}
             >
                 <Icon data={Code} size={14} className={stop} />
             </Button>
@@ -361,15 +364,38 @@ export const FloatingToolbar: FC<FloatingToolbarProps> = ({
     };
 
     return (
-        <div className={b('floating-toolbar', {open: toolbarOpen}, [stop])}>
-            {leftSlot}
-            {leftSlot && <span className={b('floating-toolbar-separator', [stop])} />}
-            {renderRawButton()}
-            {renderBackgroundControl()}
-            {renderTextColorControl()}
-            {renderRoundControl()}
-            {renderBorderControl()}
-            {renderDeleteButton()}
+        <div
+            className={b(
+                'floating-toolbar',
+                {
+                    open: toolbarOpen,
+                    expanded: Boolean(expandedContent),
+                    editor: expandedContentView === 'editor',
+                },
+                [stop],
+            )}
+        >
+            <div className={b('floating-toolbar-row', [stop])}>
+                {leftSlot}
+                {leftSlot && <span className={b('floating-toolbar-separator', [stop])} />}
+                {renderRawButton()}
+                {renderBackgroundControl()}
+                {renderTextColorControl()}
+                {renderRoundControl()}
+                {renderBorderControl()}
+                {renderDeleteButton()}
+            </div>
+            {expandedContent && (
+                <div
+                    className={b(
+                        'floating-toolbar-panel',
+                        {editor: expandedContentView === 'editor'},
+                        [stop],
+                    )}
+                >
+                    {expandedContent}
+                </div>
+            )}
             <div className={b('floating-toolbar-tail', [stop])} />
         </div>
     );

@@ -7,7 +7,6 @@ import type {Node} from 'prosemirror-model';
 import type {EditorView} from 'prosemirror-view';
 
 import {i18n} from 'src/i18n/yfm-html-constructor';
-import {useBooleanState, useElementState} from 'src/react-utils/hooks';
 import {removeNode} from 'src/utils/remove-node';
 
 import {YfmHtmlConstructorConsts, emptyHtmlConstructorStructure} from '../YfmHtmlConstructorSpecs';
@@ -30,11 +29,11 @@ import type {
     YfmHtmlConstructorOptions,
 } from '../types';
 
-import {BlockInsertPopup} from './BlockInsertPopup';
+import {BlockInsertPanel} from './BlockInsertPopup';
 import {FloatingToolbar} from './FloatingToolbar';
 import {HtmlBlockItem} from './HtmlBlockItem';
-import {BlockSettingsPopup, StructureSettingsPopup} from './SettingsPopups';
-import {TemplatesPopup} from './TemplatesPopup';
+import {StructureSettingsPanel} from './SettingsPopups';
+import {TemplatesPanel} from './TemplatesPopup';
 import {
     blockTemplateToBlock,
     buildPreviewCss,
@@ -52,6 +51,7 @@ export {STOP_EVENT_CLASSNAME, cnYfmHtmlConstructor} from './const';
 const b = cnYfmHtmlConstructor;
 const stop = STOP_EVENT_CLASSNAME;
 const EMPTY_BLOCKS: HtmlConstructorBlock[] = [];
+type StructurePanel = 'blocks' | 'templates' | 'settings' | null;
 
 const parseInlineStyle = (value: string): CSSProperties =>
     Object.fromEntries(
@@ -164,12 +164,7 @@ export const YfmHtmlConstructorView: FC<{
         [structure.content],
     );
     const previewCss = useMemo(() => buildPreviewCss({blocks, structure}), [blocks, structure]);
-
-    const [structureAnchor, setStructureAnchor] = useElementState();
-    const [structureSettingsOpen, setStructureSettingsOpen] = useState(false);
-
-    const [blockAnchor, setBlockAnchor] = useElementState();
-    const [editingBlockSettingsId, setEditingBlockSettingsId] = useState<string | null>(null);
+    const [structurePanel, setStructurePanel] = useState<StructurePanel>(null);
 
     const allowAdd = Boolean(templates?.allowAdd);
     const [storedTemplates, setStoredTemplates] =
@@ -185,11 +180,11 @@ export const YfmHtmlConstructorView: FC<{
     );
     const showStructureTemplatesButton =
         Boolean(templates?.showButton) && (allowAdd || hasStructureTemplates);
-    const [structureTemplatesOpen, , closeStructureTemplates, toggleStructureTemplatesOpen] =
-        useBooleanState(false);
-    const [structureTemplatesAnchor, setStructureTemplatesAnchor] = useElementState();
-    const [blockTemplatesOpen, openBlockTemplates, closeBlockTemplates] = useBooleanState(false);
-    const [blockTemplatesAnchor, setBlockTemplatesAnchor] = useState<HTMLElement | null>(null);
+
+    const closeStructurePanel = () => setStructurePanel(null);
+    const toggleStructurePanel = (panel: Exclude<StructurePanel, null>) => {
+        setStructurePanel((current) => (current === panel ? null : panel));
+    };
 
     const setStructure = (next: HtmlConstructorStructure) =>
         onChange({[YfmHtmlConstructorConsts.NodeAttrs.structure]: next});
@@ -211,7 +206,7 @@ export const YfmHtmlConstructorView: FC<{
             [YfmHtmlConstructorConsts.NodeAttrs.structure]: attrs.structure,
             [YfmHtmlConstructorConsts.NodeAttrs.blocks]: attrs.blocks,
         });
-        closeStructureTemplates();
+        closeStructurePanel();
     };
 
     const applyBlockTemplate = (
@@ -219,12 +214,12 @@ export const YfmHtmlConstructorView: FC<{
         theme?: HtmlConstructorThemeTemplate,
     ) => {
         setBlocks([...blocks, blockTemplateToBlock(template, theme)]);
-        closeBlockTemplates();
+        closeStructurePanel();
     };
 
     const applyRawBlock = (block: HtmlConstructorTemplateBlock) => {
         setBlocks([...blocks, rawTemplateBlockToBlock(block)]);
-        closeBlockTemplates();
+        closeStructurePanel();
     };
 
     const patchStructure = (patch: Partial<HtmlConstructorStructure>) =>
@@ -233,13 +228,12 @@ export const YfmHtmlConstructorView: FC<{
     const patchBlock = (id: string, patch: Partial<HtmlConstructorBlock>) =>
         setBlocks(blocks.map((block) => (block.id === id ? {...block, ...patch} : block)));
 
-    const openBlockSettings = (id: string, anchor: HTMLElement) => {
-        setBlockAnchor(anchor);
-        setEditingBlockSettingsId(id);
-    };
-
     const commitBlockContent = (id: string, content: string) => {
         patchBlock(id, {content});
+    };
+
+    const updateBlockCss = (id: string, css: string) => {
+        patchBlock(id, {css});
     };
 
     const updateBlockQuickStyle = (id: string, quickStyle: HtmlConstructorQuickStyle) => {
@@ -248,11 +242,51 @@ export const YfmHtmlConstructorView: FC<{
 
     const removeBlock = (id: string) => {
         setBlocks(blocks.filter((block) => block.id !== id));
-        if (editingBlockSettingsId === id) setEditingBlockSettingsId(null);
     };
 
-    const editingBlockSettings =
-        blocks.find((block) => block.id === editingBlockSettingsId) ?? null;
+    const renderStructurePanelContent = () => {
+        if (structurePanel === 'blocks') {
+            return (
+                <BlockInsertPanel
+                    templates={effectiveTemplates}
+                    activeStructureId={activeStructureId}
+                    onClose={closeStructurePanel}
+                    onApplyTemplate={applyBlockTemplate}
+                    onApplyHtml={applyRawBlock}
+                />
+            );
+        }
+
+        if (structurePanel === 'templates') {
+            return (
+                <TemplatesPanel
+                    templates={effectiveTemplates}
+                    allowAdd={allowAdd}
+                    emptyText={i18n('structure_templates_empty')}
+                    hasStoredTemplates={storedTemplates.length > 0}
+                    onClose={closeStructurePanel}
+                    onApply={applyStructureTemplate}
+                    onAdded={setStoredTemplates}
+                    onCleared={setStoredTemplates}
+                />
+            );
+        }
+
+        if (structurePanel === 'settings') {
+            return (
+                <StructureSettingsPanel
+                    html={structure.content}
+                    css={structure.css}
+                    onHtmlCommit={(value) => patchStructure({content: value})}
+                    onCssChange={(value) => patchStructure({css: value})}
+                />
+            );
+        }
+
+        return null;
+    };
+
+    const structurePanelContent = renderStructurePanelContent();
 
     return (
         <div className={b()}>
@@ -262,10 +296,7 @@ export const YfmHtmlConstructorView: FC<{
                 settings={structure.settings}
                 quickStyle={structure.quickStyle}
                 onQuickStyleChange={(quickStyle) => patchStructure({quickStyle})}
-                onOpenSettings={(anchor) => {
-                    setStructureAnchor(anchor);
-                    setStructureSettingsOpen((v) => !v);
-                }}
+                onOpenSettings={() => toggleStructurePanel('settings')}
                 onRemove={() => {
                     const pos = getPos();
                     if (pos === undefined) return;
@@ -278,11 +309,10 @@ export const YfmHtmlConstructorView: FC<{
                         <Button
                             view="flat"
                             size="s"
-                            ref={setBlockTemplatesAnchor}
                             className={stop}
-                            onClick={openBlockTemplates}
+                            selected={structurePanel === 'blocks'}
+                            onClick={() => toggleStructurePanel('blocks')}
                             aria-label={i18n('add_block')}
-                            title={i18n('add_block')}
                         >
                             <Icon data={Plus} className={stop} />
                         </Button>
@@ -290,32 +320,19 @@ export const YfmHtmlConstructorView: FC<{
                             <Button
                                 view="flat"
                                 size="s"
-                                ref={setStructureTemplatesAnchor}
                                 className={stop}
-                                onClick={toggleStructureTemplatesOpen}
+                                selected={structurePanel === 'templates'}
+                                onClick={() => toggleStructurePanel('templates')}
                                 aria-label={i18n('structure_templates')}
-                                title={i18n('structure_templates')}
                             >
                                 <Icon data={LayoutHeaderColumns} className={stop} />
                             </Button>
                         )}
                     </>
                 }
+                expandedContentView={structurePanel === 'settings' ? 'editor' : 'menu'}
+                expandedContent={structurePanelContent}
             />
-            {showStructureTemplatesButton && (
-                <TemplatesPopup
-                    anchor={structureTemplatesAnchor}
-                    open={structureTemplatesOpen}
-                    templates={effectiveTemplates}
-                    allowAdd={allowAdd}
-                    emptyText={i18n('structure_templates_empty')}
-                    hasStoredTemplates={storedTemplates.length > 0}
-                    onClose={closeStructureTemplates}
-                    onApply={applyStructureTemplate}
-                    onAdded={setStoredTemplates}
-                    onCleared={setStoredTemplates}
-                />
-            )}
             <div
                 id={structureClass()}
                 className={`${b('structure')} ${htmlConstructorStructureClass} ${structureClass()}`}
@@ -330,45 +347,13 @@ export const YfmHtmlConstructorView: FC<{
                         isDragged={draggedBlockId === block.id}
                         dropTarget={dropTarget}
                         onBeginDrag={beginBlockDrag}
-                        onOpenSettings={openBlockSettings}
                         onCommitContent={commitBlockContent}
+                        onCssChange={updateBlockCss}
                         onQuickStyleChange={updateBlockQuickStyle}
                         onRemove={removeBlock}
                     />
                 ))}
             </div>
-
-            <BlockInsertPopup
-                anchor={blockTemplatesAnchor}
-                open={blockTemplatesOpen}
-                templates={effectiveTemplates}
-                activeStructureId={activeStructureId}
-                onClose={closeBlockTemplates}
-                onApplyTemplate={applyBlockTemplate}
-                onApplyHtml={applyRawBlock}
-            />
-
-            <StructureSettingsPopup
-                anchor={structureAnchor}
-                open={structureSettingsOpen}
-                onClose={() => setStructureSettingsOpen(false)}
-                html={structure.content}
-                css={structure.css}
-                onHtmlCommit={(value) => patchStructure({content: value})}
-                onCssChange={(value) => patchStructure({css: value})}
-            />
-
-            {editingBlockSettings && (
-                <BlockSettingsPopup
-                    anchor={blockAnchor}
-                    open
-                    onClose={() => setEditingBlockSettingsId(null)}
-                    html={editingBlockSettings.content}
-                    css={editingBlockSettings.css}
-                    onHtmlCommit={(value) => patchBlock(editingBlockSettings.id, {content: value})}
-                    onCssChange={(value) => patchBlock(editingBlockSettings.id, {css: value})}
-                />
-            )}
         </div>
     );
 };

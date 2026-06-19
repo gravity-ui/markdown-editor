@@ -17,6 +17,7 @@ import {htmlConstructorQuickStyleToReactStyle} from '../quickStyle';
 import type {HtmlConstructorBlock, HtmlConstructorQuickStyle} from '../types';
 
 import {FloatingToolbar} from './FloatingToolbar';
+import {BlockSettingsPanel} from './SettingsPopups';
 import {STOP_EVENT_CLASSNAME, cnYfmHtmlConstructor} from './const';
 import type {DropTarget} from './drag';
 import {getBlockDragAttrs} from './drag';
@@ -62,8 +63,8 @@ interface HtmlBlockItemProps {
     isDragged: boolean;
     dropTarget: DropTarget | null;
     onBeginDrag: (blockId: string, event: ReactPointerEvent<HTMLButtonElement>) => void;
-    onOpenSettings: (blockId: string, anchor: HTMLElement) => void;
     onCommitContent: (blockId: string, content: string) => void;
+    onCssChange: (blockId: string, css: string) => void;
     onQuickStyleChange: (blockId: string, quickStyle: HtmlConstructorQuickStyle) => void;
     onRemove: (blockId: string) => void;
 }
@@ -171,13 +172,14 @@ export const HtmlBlockItem: FC<HtmlBlockItemProps> = ({
     isDragged,
     dropTarget,
     onBeginDrag,
-    onOpenSettings,
     onCommitContent,
+    onCssChange,
     onQuickStyleChange,
     onRemove,
 }) => {
     const contentRef = useRef<HTMLDivElement>(null);
     const [inlineEditTarget, setInlineEditTarget] = useState<InlineEditTarget | null>(null);
+    const [settingsOpen, setSettingsOpen] = useState(false);
 
     const number = index + 1;
     const isDropBefore = dropTarget?.id === block.id && dropTarget.placement === 'before';
@@ -342,10 +344,24 @@ export const HtmlBlockItem: FC<HtmlBlockItemProps> = ({
                 settings={block.settings}
                 quickStyle={block.quickStyle}
                 onQuickStyleChange={(quickStyle) => onQuickStyleChange(block.id, quickStyle)}
-                onOpenSettings={(anchor) => onOpenSettings(block.id, anchor)}
-                onRemove={() => onRemove(block.id)}
+                onOpenSettings={() => setSettingsOpen((open) => !open)}
+                onRemove={() => {
+                    setSettingsOpen(false);
+                    onRemove(block.id);
+                }}
                 codeLabel={i18n('block_css', {index: String(number)})}
                 removeLabel={i18n('remove_block')}
+                expandedContentView="editor"
+                expandedContent={
+                    settingsOpen && (
+                        <BlockSettingsPanel
+                            html={block.content}
+                            css={block.css}
+                            onHtmlCommit={(value) => onCommitContent(block.id, value)}
+                            onCssChange={(value) => onCssChange(block.id, value)}
+                        />
+                    )
+                }
             />
             <div
                 className={`${b('item-content')} ${stop}`}

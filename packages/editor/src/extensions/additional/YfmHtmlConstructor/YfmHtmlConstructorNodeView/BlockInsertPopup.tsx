@@ -22,9 +22,7 @@ import {buildBlockMenuGroups} from './groupTemplates';
 const b = cnYfmHtmlConstructor;
 const stop = STOP_EVENT_CLASSNAME;
 
-interface BlockInsertPopupProps {
-    anchor: HTMLElement | null;
-    open: boolean;
+interface BlockInsertPanelProps {
     templates: HtmlConstructorTemplate[];
     activeStructureId?: string;
     onClose: () => void;
@@ -35,9 +33,7 @@ interface BlockInsertPopupProps {
     onApplyHtml: (block: HtmlConstructorTemplateBlock) => void;
 }
 
-export const BlockInsertPopup: FC<BlockInsertPopupProps> = ({
-    anchor,
-    open,
+export const BlockInsertPanel: FC<BlockInsertPanelProps> = ({
     templates,
     activeStructureId,
     onClose,
@@ -66,72 +62,78 @@ export const BlockInsertPopup: FC<BlockInsertPopupProps> = ({
     };
 
     return (
-        <Popup anchorElement={anchor} open={open} onOpenChange={close} placement="bottom-start">
-            <div className={b('templates', [stop])}>
-                {showCustomHtmlEditor ? (
-                    <div className={b('templates-editor')}>
-                        <TextArea
+        <div className={b('templates', [stop])}>
+            {showCustomHtmlEditor ? (
+                <div className={b('templates-editor')}>
+                    <TextArea
+                        controlProps={{className: stop}}
+                        value={input}
+                        onUpdate={setInput}
+                        placeholder={i18n('block_html_input_placeholder')}
+                        minRows={8}
+                        autoFocus
+                    />
+                    <div className={b('templates-controls')}>
+                        <Button view="flat" className={stop} onClick={close}>
+                            <span className={stop}>{i18n('cancel')}</span>
+                        </Button>
+                        <Button
+                            view="action"
+                            className={stop}
+                            disabled={!input.trim()}
+                            onClick={handleApplyHtml}
+                        >
+                            <span className={stop}>{i18n('insert')}</span>
+                        </Button>
+                    </div>
+                </div>
+            ) : (
+                <>
+                    <div className={b('templates-search')}>
+                        <TextInput
+                            className={stop}
                             controlProps={{className: stop}}
-                            value={input}
-                            onUpdate={setInput}
-                            placeholder={i18n('block_html_input_placeholder')}
-                            minRows={8}
+                            size="s"
+                            value={filter}
+                            onUpdate={setFilter}
+                            placeholder={i18n('search_templates')}
                             autoFocus
                         />
-                        <div className={b('templates-controls')}>
-                            <Button view="flat" className={stop} onClick={close}>
-                                <span className={stop}>{i18n('cancel')}</span>
-                            </Button>
-                            <Button
-                                view="action"
-                                className={stop}
-                                disabled={!input.trim()}
-                                onClick={handleApplyHtml}
-                            >
-                                <span className={stop}>{i18n('insert')}</span>
-                            </Button>
-                        </div>
                     </div>
-                ) : (
-                    <>
-                        <div className={b('templates-search')}>
-                            <TextInput
+                    <div className={b('templates-list', [stop])}>
+                        <Menu className={stop}>
+                            <Menu.Item
                                 className={stop}
-                                controlProps={{className: stop}}
-                                size="s"
-                                value={filter}
-                                onUpdate={setFilter}
-                                placeholder={i18n('search_templates')}
-                                autoFocus
+                                iconStart={<Icon data={Code} />}
+                                onClick={() => setAddingCustomHtml(true)}
+                            >
+                                {i18n('custom_html')}
+                            </Menu.Item>
+                            <div role="separator" className={b('templates-separator', [stop])} />
+                            <BlockTemplatesMenuItems
+                                groups={groups}
+                                filter={filter}
+                                emptyText={i18n('block_templates_empty')}
+                                onApply={(template, theme) => {
+                                    onApplyTemplate(template, theme);
+                                    close();
+                                }}
                             />
-                        </div>
-                        <div className={b('templates-list', [stop])}>
-                            <Menu className={stop}>
-                                <Menu.Item
-                                    className={stop}
-                                    iconStart={<Icon data={Code} />}
-                                    onClick={() => setAddingCustomHtml(true)}
-                                >
-                                    {i18n('custom_html')}
-                                </Menu.Item>
-                                <div
-                                    role="separator"
-                                    className={b('templates-separator', [stop])}
-                                />
-                                <BlockTemplatesMenuItems
-                                    groups={groups}
-                                    filter={filter}
-                                    emptyText={i18n('block_templates_empty')}
-                                    onApply={(template, theme) => {
-                                        onApplyTemplate(template, theme);
-                                        close();
-                                    }}
-                                />
-                            </Menu>
-                        </div>
-                    </>
-                )}
-            </div>
-        </Popup>
+                        </Menu>
+                    </div>
+                </>
+            )}
+        </div>
     );
 };
+
+interface BlockInsertPopupProps extends BlockInsertPanelProps {
+    anchor: HTMLElement | null;
+    open: boolean;
+}
+
+export const BlockInsertPopup: FC<BlockInsertPopupProps> = ({anchor, open, ...props}) => (
+    <Popup anchorElement={anchor} open={open} onOpenChange={props.onClose} placement="bottom-start">
+        <BlockInsertPanel {...props} />
+    </Popup>
+);

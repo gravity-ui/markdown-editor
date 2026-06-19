@@ -27,9 +27,7 @@ import './TemplatesPopup.scss';
 const b = cnYfmHtmlConstructor;
 const stop = STOP_EVENT_CLASSNAME;
 
-interface TemplatesPopupProps {
-    anchor: HTMLElement | null;
-    open: boolean;
+interface TemplatesPanelProps {
     templates: HtmlConstructorTemplate[];
     allowAdd: boolean;
     emptyText: string;
@@ -43,9 +41,7 @@ interface TemplatesPopupProps {
     onCleared: (templates: HtmlConstructorTemplate[]) => void;
 }
 
-export function TemplatesPopup({
-    anchor,
-    open,
+export function TemplatesPanel({
     templates,
     allowAdd,
     emptyText,
@@ -54,7 +50,7 @@ export function TemplatesPopup({
     onApply,
     onAdded,
     onCleared,
-}: TemplatesPopupProps) {
+}: TemplatesPanelProps) {
     const [adding, setAdding] = useState(false);
     const [input, setInput] = useState('');
     const [filter, setFilter] = useState('');
@@ -91,90 +87,106 @@ export function TemplatesPopup({
     };
 
     return (
-        <Popup anchorElement={anchor} open={open} onOpenChange={close} placement="bottom-end">
-            <div className={b('templates', [stop])}>
-                {adding ? (
-                    <div className={b('templates-editor')}>
-                        <TextArea
-                            controlProps={{className: stop}}
-                            value={input}
-                            onUpdate={(value) => {
-                                setInput(value);
-                                setError('');
-                            }}
-                            placeholder={i18n('templates_input_placeholder')}
-                            minRows={8}
-                            autoFocus
-                        />
-                        {error && <div className={b('templates-error')}>{error}</div>}
-                        <div className={b('templates-controls')}>
-                            <Button view="flat" className={stop} onClick={() => setAdding(false)}>
-                                <span className={stop}>{i18n('cancel')}</span>
-                            </Button>
-                            <Button
-                                view="action"
-                                className={stop}
-                                disabled={!input.trim()}
-                                onClick={handleSave}
-                            >
-                                <span className={stop}>{i18n('save')}</span>
-                            </Button>
-                        </div>
+        <div className={b('templates', [stop])}>
+            {adding ? (
+                <div className={b('templates-editor')}>
+                    <TextArea
+                        controlProps={{className: stop}}
+                        value={input}
+                        onUpdate={(value) => {
+                            setInput(value);
+                            setError('');
+                        }}
+                        placeholder={i18n('templates_input_placeholder')}
+                        minRows={8}
+                        autoFocus
+                    />
+                    {error && <div className={b('templates-error')}>{error}</div>}
+                    <div className={b('templates-controls')}>
+                        <Button view="flat" className={stop} onClick={() => setAdding(false)}>
+                            <span className={stop}>{i18n('cancel')}</span>
+                        </Button>
+                        <Button
+                            view="action"
+                            className={stop}
+                            disabled={!input.trim()}
+                            onClick={handleSave}
+                        >
+                            <span className={stop}>{i18n('save')}</span>
+                        </Button>
                     </div>
-                ) : (
-                    <>
-                        {templates.length > 0 && (
-                            <div className={b('templates-search')}>
-                                <TextInput
-                                    className={stop}
-                                    controlProps={{className: stop}}
-                                    size="s"
-                                    value={filter}
-                                    onUpdate={setFilter}
-                                    placeholder={i18n('search_templates')}
-                                    autoFocus
-                                />
-                            </div>
-                        )}
-                        <div className={b('templates-list', [stop])}>
-                            <Menu className={stop}>
-                                {allowAdd && (
-                                    <>
-                                        <Menu.Item
-                                            className={stop}
-                                            iconStart={<Icon data={FilePlus} />}
-                                            onClick={() => setAdding(true)}
-                                        >
-                                            {i18n('add_template')}
-                                        </Menu.Item>
-                                        <Menu.Item
-                                            className={stop}
-                                            disabled={!hasStoredTemplates}
-                                            iconStart={<Icon data={TrashBin} />}
-                                            onClick={handleClear}
-                                        >
-                                            {i18n('clear_templates')}
-                                        </Menu.Item>
-                                        <div
-                                            role="separator"
-                                            className={b('templates-separator', [stop])}
-                                        />
-                                    </>
-                                )}
-                                <StructureTemplatesMenuItems
-                                    groups={groups}
-                                    filter={filter}
-                                    emptyText={emptyText}
-                                    onApply={(structure, theme) => {
-                                        onApply(structure, theme);
-                                        close();
-                                    }}
-                                />
-                            </Menu>
+                </div>
+            ) : (
+                <>
+                    {templates.length > 0 && (
+                        <div className={b('templates-search')}>
+                            <TextInput
+                                className={stop}
+                                controlProps={{className: stop}}
+                                size="s"
+                                value={filter}
+                                onUpdate={setFilter}
+                                placeholder={i18n('search_templates')}
+                                autoFocus
+                            />
                         </div>
-                    </>
-                )}
-            </div>
+                    )}
+                    <div className={b('templates-list', [stop])}>
+                        <Menu className={stop}>
+                            {allowAdd && (
+                                <>
+                                    <Menu.Item
+                                        className={stop}
+                                        iconStart={<Icon data={FilePlus} />}
+                                        onClick={() => setAdding(true)}
+                                    >
+                                        {i18n('add_template')}
+                                    </Menu.Item>
+                                    <Menu.Item
+                                        className={stop}
+                                        disabled={!hasStoredTemplates}
+                                        iconStart={<Icon data={TrashBin} />}
+                                        onClick={handleClear}
+                                    >
+                                        {i18n('clear_templates')}
+                                    </Menu.Item>
+                                    <div
+                                        role="separator"
+                                        className={b('templates-separator', [stop])}
+                                    />
+                                </>
+                            )}
+                            <StructureTemplatesMenuItems
+                                groups={groups}
+                                filter={filter}
+                                emptyText={emptyText}
+                                onApply={(structure, theme) => {
+                                    onApply(structure, theme);
+                                    close();
+                                }}
+                            />
+                        </Menu>
+                    </div>
+                </>
+            )}
+        </div>
+    );
+}
+
+interface TemplatesPopupProps extends TemplatesPanelProps {
+    anchor: HTMLElement | null;
+    open: boolean;
+}
+
+export function TemplatesPopup({anchor, open, ...props}: TemplatesPopupProps) {
+    return (
+        <Popup
+            anchorElement={anchor}
+            open={open}
+            onOpenChange={props.onClose}
+            placement="bottom-end"
+        >
+            <TemplatesPanel {...props} />
         </Popup>
     );
 }
