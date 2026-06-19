@@ -34,7 +34,19 @@
             transform 0.14s ease;
         transform: translate(-50%, 6px);
 
+        &::before {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            left: 0;
+
+            height: 18px;
+
+            content: '';
+        }
+
         &_open,
+        &:hover,
         &:focus-within {
             pointer-events: auto;
 
@@ -320,6 +332,7 @@
 
     &__item:hover > &__floating-toolbar,
     &__item > &__floating-toolbar_open,
+    &__item > &__floating-toolbar:hover,
     &__item > &__floating-toolbar:focus-within {
         pointer-events: auto;
 
