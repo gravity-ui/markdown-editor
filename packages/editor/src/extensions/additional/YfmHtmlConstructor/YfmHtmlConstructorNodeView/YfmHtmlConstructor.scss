@@ -133,9 +133,9 @@
     &__floating-toolbar-panel_editor {
         overflow: hidden;
 
-        width: min(1200px, 90vw);
-        max-width: 90vw;
-        max-height: calc(100vh - 136px);
+        width: min(1360px, 95vw);
+        max-width: 95vw;
+        max-height: calc(100vh - 120px);
         padding: 0;
     }
 
@@ -591,17 +591,19 @@
         gap: 0;
 
         min-width: 0;
-        min-height: min(620px, calc(100vh - 190px));
+        min-height: min(680px, calc(100vh - 172px));
         padding: 0;
+
+        background: var(--g-color-base-background);
     }
 
     &__settings-field {
         display: flex;
         flex-direction: column;
-        gap: 8px;
+        gap: 14px;
 
         min-width: 0;
-        padding: 16px 18px 18px;
+        padding: 22px 28px 26px;
 
         background: transparent;
 
@@ -612,10 +614,12 @@
 
     &__settings-field-label {
         font-size: var(--g-text-caption-1-font-size);
-        font-weight: 600;
+        font-weight: 400;
         line-height: var(--g-text-caption-1-line-height);
+        letter-spacing: 0;
+        text-transform: uppercase;
 
-        color: var(--g-color-text-primary);
+        color: var(--g-color-text-secondary);
     }
 
     &__settings-textarea {
@@ -623,15 +627,15 @@
         height: 100%;
 
         .g-text-area__control {
-            min-height: min(560px, calc(100vh - 262px));
-            padding: 12px 14px;
+            min-height: min(600px, calc(100vh - 254px));
+            padding: 0;
 
             font-family: var(--g-font-family-monospace);
             line-height: 1.45;
 
             border: 0;
             border-radius: 0;
-            background: var(--g-color-base-background);
+            background: transparent;
             box-shadow: none;
         }
     }
@@ -654,11 +658,19 @@
 
         &__floating-toolbar-panel_editor {
             max-height: calc(100vh - 92px);
-            padding: 12px;
         }
 
         &__settings-editor {
             grid-template-columns: minmax(0, 1fr);
+        }
+
+        &__settings-field {
+            padding: 18px;
+
+            & + & {
+                border-top: 1px solid var(--g-color-line-generic);
+                border-left: 0;
+            }
         }
 
         &__settings-textarea {
