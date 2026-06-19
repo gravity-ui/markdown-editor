@@ -137,7 +137,11 @@
         width: min(1360px, 95vw);
         max-width: 95vw;
         max-height: calc(100vh - 120px);
-        padding: 0;
+        padding: 14px;
+
+        border-radius: 0 0 14px 14px;
+        background: var(--g-color-base-float);
+        box-shadow: 0 22px 48px -20px rgb(0 0 0 / 30%);
     }
 
     &__floating-toolbar_expanded &__floating-toolbar-tail {
@@ -588,23 +592,26 @@
 
     &__settings-editor {
         display: grid;
+        overflow: hidden;
         grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
         gap: 0;
 
         min-width: 0;
-        min-height: min(680px, calc(100vh - 172px));
+        min-height: min(660px, calc(100vh - 184px));
         padding: 0;
 
+        border: 1px solid var(--g-color-line-generic);
+        border-radius: var(--g-border-radius-l);
         background: var(--g-color-base-background);
     }
 
     &__settings-field {
         display: flex;
         flex-direction: column;
-        gap: 14px;
+        gap: 12px;
 
         min-width: 0;
-        padding: 22px 28px 26px;
+        padding: 22px 28px 28px;
 
         background: transparent;
 
@@ -618,7 +625,6 @@
         font-weight: 400;
         line-height: var(--g-text-caption-1-line-height);
         letter-spacing: 0;
-        text-transform: uppercase;
 
         color: var(--g-color-text-secondary);
     }
@@ -627,8 +633,16 @@
         min-width: 0;
         height: 100%;
 
+        .g-text-area__content {
+            color: var(--g-color-text-primary);
+            border: 0;
+            border-radius: 0;
+            background: transparent;
+            box-shadow: none;
+        }
+
         .g-text-area__control {
-            min-height: min(600px, calc(100vh - 254px));
+            min-height: min(580px, calc(100vh - 276px));
             padding: 0;
 
             font-family: var(--g-font-family-monospace);
@@ -659,6 +673,7 @@
 
         &__floating-toolbar-panel_editor {
             max-height: calc(100vh - 92px);
+            padding: 10px;
         }
 
         &__settings-editor {
