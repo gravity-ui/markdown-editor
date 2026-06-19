@@ -331,6 +331,7 @@ export const YfmHtmlConstructorView: FC<{
                     </>
                 }
                 expandedContentView={structurePanel === 'settings' ? 'editor' : 'menu'}
+                onCloseExpandedContent={closeStructurePanel}
                 expandedContent={structurePanelContent}
             />
             <div

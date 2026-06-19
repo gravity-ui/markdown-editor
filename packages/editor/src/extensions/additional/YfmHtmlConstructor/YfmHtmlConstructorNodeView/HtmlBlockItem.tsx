@@ -352,6 +352,7 @@ export const HtmlBlockItem: FC<HtmlBlockItemProps> = ({
                 codeLabel={i18n('block_css', {index: String(number)})}
                 removeLabel={i18n('remove_block')}
                 expandedContentView="editor"
+                onCloseExpandedContent={() => setSettingsOpen(false)}
                 expandedContent={
                     settingsOpen && (
                         <BlockSettingsPanel

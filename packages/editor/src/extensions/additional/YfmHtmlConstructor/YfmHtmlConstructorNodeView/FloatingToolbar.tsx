@@ -1,4 +1,4 @@
-import {useLayoutEffect, useRef, useState} from 'react';
+import {useCallback, useEffect, useLayoutEffect, useRef, useState} from 'react';
 import type {CSSProperties, FC, MouseEvent, ReactNode} from 'react';
 
 import {BucketPaint, ChevronDown, Code, Ellipsis, Font, TrashBin} from '@gravity-ui/icons';
@@ -58,6 +58,7 @@ type FloatingToolbarProps = {
     leftSlot?: ReactNode;
     expandedContent?: ReactNode;
     expandedContentView?: 'menu' | 'editor';
+    onCloseExpandedContent?: () => void;
     codeLabel: string;
     removeLabel: string;
 };
@@ -104,6 +105,7 @@ export const FloatingToolbar: FC<FloatingToolbarProps> = ({
     leftSlot,
     expandedContent,
     expandedContentView = 'menu',
+    onCloseExpandedContent,
     codeLabel,
     removeLabel,
 }) => {
@@ -115,6 +117,7 @@ export const FloatingToolbar: FC<FloatingToolbarProps> = ({
     const [borderAnchor, setBorderAnchor] = useElementState<HTMLButtonElement>();
     const [moreAnchor, setMoreAnchor] = useElementState<HTMLButtonElement>();
     const [moreOpen, setMoreOpen] = useState(false);
+    const toolbarRef = useRef<HTMLDivElement>(null);
     const toolbarRowRef = useRef<HTMLDivElement>(null);
     const [availableToolbarWidth, setAvailableToolbarWidth] = useState(Number.POSITIVE_INFINITY);
     const [toolbarItemWidths, setToolbarItemWidths] = useState<Record<string, number>>({});
@@ -153,6 +156,12 @@ export const FloatingToolbar: FC<FloatingToolbarProps> = ({
         setMoreOpen(open);
         if (!open) setOpenMenu(null);
     };
+
+    const closeExpandedContent = useCallback(() => {
+        setOpenMenu(null);
+        setMoreOpen(false);
+        onCloseExpandedContent?.();
+    }, [onCloseExpandedContent]);
 
     const renderRawButton = () => {
         if (!enabled.hasRaw) return null;
@@ -495,8 +504,34 @@ export const FloatingToolbar: FC<FloatingToolbarProps> = ({
         return () => window.removeEventListener('resize', updateToolbarSizes);
     }, [toolbarActionIdsKey]);
 
+    useEffect(() => {
+        if (!expandedContent || !onCloseExpandedContent) return undefined;
+
+        const closeOnOutsidePointerDown = (event: PointerEvent) => {
+            const target = event.target;
+            if (!(target instanceof Element)) return;
+
+            if (toolbarRef.current?.contains(target)) return;
+            if (target.closest(`.${b('floating-menu')}`)) return;
+
+            closeExpandedContent();
+        };
+        const closeOnEscape = (event: KeyboardEvent) => {
+            if (event.key === 'Escape') closeExpandedContent();
+        };
+
+        document.addEventListener('pointerdown', closeOnOutsidePointerDown, true);
+        document.addEventListener('keydown', closeOnEscape);
+
+        return () => {
+            document.removeEventListener('pointerdown', closeOnOutsidePointerDown, true);
+            document.removeEventListener('keydown', closeOnEscape);
+        };
+    }, [closeExpandedContent, expandedContent, onCloseExpandedContent]);
+
     return (
         <div
+            ref={toolbarRef}
             className={b(
                 'floating-toolbar',
                 {
