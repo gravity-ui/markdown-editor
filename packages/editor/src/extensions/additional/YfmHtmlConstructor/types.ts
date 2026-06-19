@@ -12,6 +12,15 @@ export type HtmlConstructorTemplateSettings = {
     preset: HtmlConstructorTemplatePreset;
 };
 
+export type HtmlConstructorBorderStyle = 'solid' | 'dashed' | 'dotted' | 'none';
+
+export type HtmlConstructorQuickStyle = {
+    background?: string;
+    textColor?: string;
+    borderRadius?: string;
+    borderStyle?: HtmlConstructorBorderStyle;
+};
+
 interface HtmlConstructorTemplateBase {
     id: string;
     type: HtmlConstructorTemplateType;
@@ -70,6 +79,8 @@ export type HtmlConstructorStructure = {
     css: string;
     content: string;
     themeIds: string[];
+    settings?: HtmlConstructorTemplateSettings;
+    quickStyle?: HtmlConstructorQuickStyle;
 };
 
 export type HtmlConstructorBlock = {
@@ -78,6 +89,8 @@ export type HtmlConstructorBlock = {
     css: string;
     content: string;
     themeIds: string[];
+    settings?: HtmlConstructorTemplateSettings;
+    quickStyle?: HtmlConstructorQuickStyle;
 };
 
 export interface YfmHtmlConstructorOptions {

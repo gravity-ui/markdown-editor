@@ -7,14 +7,16 @@ import type {
     PointerEvent as ReactPointerEvent,
 } from 'react';
 
-import {Code, Ellipsis, GripHorizontal, Pencil, TrashBin} from '@gravity-ui/icons';
-import {Button, Icon, Menu, Popup} from '@gravity-ui/uikit';
+import {GripHorizontal, Pencil} from '@gravity-ui/icons';
+import {Icon} from '@gravity-ui/uikit';
 
 import {i18n} from 'src/i18n/yfm-html-constructor';
 
 import {blockClass, htmlConstructorBlockClass} from '../css';
-import type {HtmlConstructorBlock} from '../types';
+import {htmlConstructorQuickStyleToReactStyle} from '../quickStyle';
+import type {HtmlConstructorBlock, HtmlConstructorQuickStyle} from '../types';
 
+import {FloatingToolbar} from './FloatingToolbar';
 import {STOP_EVENT_CLASSNAME, cnYfmHtmlConstructor} from './const';
 import type {DropTarget} from './drag';
 import {getBlockDragAttrs} from './drag';
@@ -62,6 +64,7 @@ interface HtmlBlockItemProps {
     onBeginDrag: (blockId: string, event: ReactPointerEvent<HTMLButtonElement>) => void;
     onOpenSettings: (blockId: string, anchor: HTMLElement) => void;
     onCommitContent: (blockId: string, content: string) => void;
+    onQuickStyleChange: (blockId: string, quickStyle: HtmlConstructorQuickStyle) => void;
     onRemove: (blockId: string) => void;
 }
 
@@ -170,30 +173,15 @@ export const HtmlBlockItem: FC<HtmlBlockItemProps> = ({
     onBeginDrag,
     onOpenSettings,
     onCommitContent,
+    onQuickStyleChange,
     onRemove,
 }) => {
     const contentRef = useRef<HTMLDivElement>(null);
     const [inlineEditTarget, setInlineEditTarget] = useState<InlineEditTarget | null>(null);
-    const [blockMenuAnchor, setBlockMenuAnchor] = useState<HTMLElement | null>(null);
-    const [blockMenuOpen, setBlockMenuOpen] = useState(false);
 
     const number = index + 1;
     const isDropBefore = dropTarget?.id === block.id && dropTarget.placement === 'before';
     const isDropAfter = dropTarget?.id === block.id && dropTarget.placement === 'after';
-
-    const handleOpenSettings = (event: MouseEvent<HTMLElement>) => {
-        onOpenSettings(block.id, event.currentTarget);
-    };
-
-    const handleToggleBlockMenu = (event: MouseEvent<HTMLElement>) => {
-        setBlockMenuAnchor(event.currentTarget);
-        setBlockMenuOpen((open) => !open);
-    };
-
-    const handleRemoveBlock = () => {
-        setBlockMenuOpen(false);
-        onRemove(block.id);
-    };
 
     const handlePointerDown = (event: ReactPointerEvent<HTMLButtonElement>) => {
         onBeginDrag(block.id, event);
@@ -339,6 +327,7 @@ export const HtmlBlockItem: FC<HtmlBlockItemProps> = ({
                 'drop-before': isDropBefore,
                 'drop-after': isDropAfter,
             })} ${stop} ${htmlConstructorBlockClass} ${blockClass(index)}`}
+            style={htmlConstructorQuickStyleToReactStyle(block.quickStyle)}
             {...getBlockDragAttrs(block.id)}
         >
             <button
@@ -349,42 +338,15 @@ export const HtmlBlockItem: FC<HtmlBlockItemProps> = ({
             >
                 <Icon data={GripHorizontal} size={14} />
             </button>
-            <div className={`${b('item-controls', {open: blockMenuOpen})} ${stop}`}>
-                <Button
-                    view="flat"
-                    size="s"
-                    className={stop}
-                    onClick={handleOpenSettings}
-                    aria-label={i18n('block_css', {index: String(number)})}
-                >
-                    <Icon data={Code} size={14} className={stop} />
-                </Button>
-                <Button
-                    view="flat"
-                    size="s"
-                    className={stop}
-                    onClick={handleToggleBlockMenu}
-                    aria-label={i18n('block_actions', {index: String(number)})}
-                >
-                    <Icon data={Ellipsis} size={14} className={stop} />
-                </Button>
-            </div>
-            <Popup
-                anchorElement={blockMenuAnchor}
-                open={blockMenuOpen}
-                onOpenChange={setBlockMenuOpen}
-                placement="bottom-end"
-            >
-                <Menu className={stop}>
-                    <Menu.Item
-                        className={stop}
-                        iconStart={<Icon data={TrashBin} />}
-                        onClick={handleRemoveBlock}
-                    >
-                        {i18n('remove_block')}
-                    </Menu.Item>
-                </Menu>
-            </Popup>
+            <FloatingToolbar
+                settings={block.settings}
+                quickStyle={block.quickStyle}
+                onQuickStyleChange={(quickStyle) => onQuickStyleChange(block.id, quickStyle)}
+                onOpenSettings={(anchor) => onOpenSettings(block.id, anchor)}
+                onRemove={() => onRemove(block.id)}
+                codeLabel={i18n('block_css', {index: String(number)})}
+                removeLabel={i18n('remove_block')}
+            />
             <div
                 className={`${b('item-content')} ${stop}`}
                 contentEditable={false}

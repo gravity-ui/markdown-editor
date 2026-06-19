@@ -1,3 +1,7 @@
+import type {Node} from 'prosemirror-model';
+
+import {buildYfmHtmlConstructorHtml} from '../YfmHtmlConstructorSpecs';
+import {getEnabledHtmlConstructorSettings} from '../settings';
 import {parseTemplates} from '../templates';
 
 import {
@@ -34,6 +38,56 @@ const templates = () =>
     `);
 
 describe('YfmHtmlConstructor utils', () => {
+    it('enables all toolbar controls for default or missing settings', () => {
+        expect(getEnabledHtmlConstructorSettings(undefined)).toEqual({
+            hasBackground: true,
+            hasRound: true,
+            hasBorder: true,
+            hasTextColor: true,
+            hasDelete: true,
+            hasRaw: true,
+        });
+        expect(
+            getEnabledHtmlConstructorSettings({
+                hasBackground: false,
+                hasRound: false,
+                hasBorder: false,
+                hasTextColor: false,
+                hasDelete: false,
+                hasRaw: false,
+                preset: 'default',
+            }),
+        ).toEqual({
+            hasBackground: true,
+            hasRound: true,
+            hasBorder: true,
+            hasTextColor: true,
+            hasDelete: true,
+            hasRaw: true,
+        });
+    });
+
+    it('enables only explicit toolbar controls for none preset', () => {
+        expect(
+            getEnabledHtmlConstructorSettings({
+                hasBackground: true,
+                hasRound: false,
+                hasBorder: true,
+                hasTextColor: false,
+                hasDelete: true,
+                hasRaw: false,
+                preset: 'none',
+            }),
+        ).toEqual({
+            hasBackground: true,
+            hasRound: false,
+            hasBorder: true,
+            hasTextColor: false,
+            hasDelete: true,
+            hasRaw: false,
+        });
+    });
+
     it('finds direct blocks for a structure without block states', () => {
         expect(
             getDirectStructureBlocks(templates(), 'landing').map((template) => template.id),
@@ -111,5 +165,38 @@ describe('YfmHtmlConstructor utils', () => {
                 blocks: [blockTemplateToBlock(block)],
             }),
         ).toContain('.g-md-hc-block.g-md-hc-block-1 { padding: 12px; }');
+    });
+
+    it('serializes quick styles to structure and block wrappers', () => {
+        const html = buildYfmHtmlConstructorHtml({
+            attrs: {
+                structure: {
+                    css: '',
+                    content: '<section>Intro</section>',
+                    themeIds: [],
+                    quickStyle: {
+                        background: '#ffffff',
+                        borderRadius: '12px',
+                    },
+                },
+                blocks: [
+                    {
+                        id: 'block',
+                        css: '',
+                        content: '<article>Block</article>',
+                        themeIds: [],
+                        quickStyle: {
+                            textColor: '#2f6fe0',
+                            borderStyle: 'dashed',
+                        },
+                    },
+                ],
+            },
+        } as unknown as Node);
+
+        expect(html).toContain('style="background: #ffffff; border-radius: 12px;"');
+        expect(html).toContain(
+            'style="color: #2f6fe0; border: 1px dashed var(--g-color-line-generic);"',
+        );
     });
 });

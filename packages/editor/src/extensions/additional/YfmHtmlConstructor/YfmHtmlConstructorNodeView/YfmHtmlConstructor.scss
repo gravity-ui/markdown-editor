@@ -1,26 +1,265 @@
 .g-md-yfm-html-constructor {
     position: relative;
 
-    margin-bottom: 15px;
-    padding: 32px 12px 12px;
+    margin: 44px 0 15px;
+    padding: 12px;
 
     border: 1px solid var(--g-color-line-generic);
     border-radius: var(--g-border-radius-m);
 
-    &__toolbar {
+    &__floating-toolbar {
         position: absolute;
-        top: 4px;
-        right: 4px;
-        left: 4px;
+        z-index: 20;
+        top: -42px;
+        left: 50%;
 
         display: flex;
-        justify-content: space-between;
+        align-items: center;
         gap: 2px;
+
+        max-width: min(760px, calc(100vw - 32px));
+        padding: 6px;
+
+        white-space: nowrap;
+        pointer-events: none;
+
+        opacity: 0;
+        border: 1px solid var(--g-color-line-generic);
+        border-radius: 12px;
+        background: var(--g-color-base-float);
+        box-shadow: 0 12px 32px -10px rgb(0 0 0 / 22%);
+
+        transition:
+            opacity 0.14s ease,
+            transform 0.14s ease;
+        transform: translate(-50%, 6px);
+
+        &_open,
+        &:focus-within {
+            pointer-events: auto;
+
+            opacity: 1;
+
+            transform: translate(-50%, 0);
+        }
     }
 
-    &__toolbar-group {
+    &:hover > &__floating-toolbar {
+        pointer-events: auto;
+
+        opacity: 1;
+
+        transform: translate(-50%, 0);
+    }
+
+    &:has(&__item:hover)
+        > &__floating-toolbar:not(:focus-within):not(
+            .g-md-yfm-html-constructor__floating-toolbar_open
+        ) {
+        pointer-events: none;
+
+        opacity: 0;
+
+        transform: translate(-50%, 6px);
+    }
+
+    &__floating-toolbar-tail {
+        position: absolute;
+        bottom: -6px;
+        left: 50%;
+
+        width: 11px;
+        height: 11px;
+
+        border-right: 1px solid var(--g-color-line-generic);
+        border-bottom: 1px solid var(--g-color-line-generic);
+        background: var(--g-color-base-float);
+
+        transform: translateX(-50%) rotate(45deg);
+    }
+
+    &__floating-toolbar-separator {
+        width: 1px;
+        height: 22px;
+        margin: 0 4px;
+
+        background: var(--g-color-line-generic);
+    }
+
+    &__floating-control {
+        position: relative;
+
         display: flex;
-        gap: 2px;
+    }
+
+    &__floating-menu {
+        position: absolute;
+        z-index: 30;
+        top: calc(100% + 8px);
+        left: 0;
+
+        min-width: 168px;
+        padding: 6px;
+
+        border: 1px solid var(--g-color-line-generic);
+        border-radius: 10px;
+        background: var(--g-color-base-float);
+        box-shadow: 0 14px 34px -10px rgb(0 0 0 / 22%);
+
+        &_colors {
+            display: grid;
+            grid-template-columns: repeat(5, 24px);
+            gap: 8px;
+
+            min-width: 0;
+            padding: 10px;
+        }
+
+        &_text {
+            display: grid;
+            grid-template-columns: repeat(5, 28px);
+            gap: 8px;
+
+            min-width: 0;
+            padding: 10px;
+        }
+    }
+
+    &__floating-menu-button {
+        display: flex;
+        align-items: center;
+
+        width: 100%;
+        padding: 8px 10px;
+
+        font: inherit;
+        cursor: pointer;
+        text-align: left;
+
+        color: var(--g-color-text-primary);
+        border: 0;
+        border-radius: var(--g-border-radius-xs);
+        background: transparent;
+
+        &:hover {
+            background: var(--g-color-base-generic-hover);
+        }
+
+        &_active {
+            color: var(--g-color-text-brand);
+            background: var(--g-color-base-selection);
+        }
+    }
+
+    &__floating-menu_colors &__floating-menu-button {
+        justify-content: center;
+        grid-column: 1 / -1;
+    }
+
+    &__floating-swatch {
+        width: 24px;
+        height: 24px;
+        padding: 0;
+
+        cursor: pointer;
+
+        border: 1px solid rgb(0 0 0 / 8%);
+        border-radius: 50%;
+
+        transition: transform 0.1s ease;
+
+        &:hover {
+            transform: scale(1.12);
+        }
+
+        &_active {
+            border-color: transparent;
+            box-shadow:
+                0 0 0 2px var(--g-color-base-float),
+                0 0 0 4px var(--g-color-line-focus);
+        }
+    }
+
+    &__floating-color-dot {
+        display: inline-grid;
+        place-items: center;
+
+        width: 18px;
+        height: 18px;
+
+        color: var(--g-color-text-secondary);
+        border: 1px solid var(--g-color-line-generic);
+        border-radius: 50%;
+    }
+
+    &__floating-text-color {
+        position: relative;
+
+        display: inline-grid;
+        place-items: center;
+
+        width: 18px;
+        height: 18px;
+        padding-bottom: 3px;
+
+        color: var(--g-color-text-primary);
+
+        &::after {
+            position: absolute;
+            right: 2px;
+            bottom: 0;
+            left: 2px;
+
+            height: 3px;
+
+            content: '';
+
+            border-radius: 2px;
+            background: var(--g-md-hc-text-color, var(--g-color-text-primary));
+        }
+    }
+
+    &__floating-text-swatch {
+        display: grid;
+        place-items: center;
+
+        width: 28px;
+        height: 28px;
+        padding: 0;
+
+        font-weight: 700;
+        cursor: pointer;
+
+        color: inherit;
+        border: 1px solid var(--g-color-line-generic);
+        border-radius: var(--g-border-radius-xs);
+        background: var(--g-color-base-generic);
+
+        transition: transform 0.1s ease;
+
+        &:hover {
+            transform: scale(1.1);
+        }
+
+        &_auto {
+            color: transparent;
+            background: linear-gradient(135deg, #fff 0 50%, #1c1c20 50% 100%);
+        }
+
+        &_active {
+            border-color: transparent;
+            box-shadow:
+                0 0 0 2px var(--g-color-base-float),
+                0 0 0 4px var(--g-color-line-focus);
+        }
+    }
+
+    &__floating-button-label {
+        overflow: hidden;
+
+        max-width: 96px;
+
+        text-overflow: ellipsis;
     }
 
     &__structure {
@@ -35,8 +274,32 @@
         min-height: 56px;
         padding: 12px;
 
-        border: 1px dashed var(--g-color-line-generic);
+        border: 1px solid transparent;
         border-radius: var(--g-border-radius-m);
+
+        transition:
+            border-color 0.12s ease,
+            background-color 0.12s ease;
+
+        &::before {
+            position: absolute;
+            z-index: 0;
+            inset: -2px;
+
+            content: '';
+            pointer-events: none;
+
+            opacity: 0;
+            border: 2px dashed var(--g-color-line-focus);
+            border-radius: inherit;
+            background: rgb(82 130 255 / 5%);
+
+            transition: opacity 0.12s ease;
+        }
+
+        &:hover::before {
+            opacity: 1;
+        }
 
         &_dragged {
             opacity: 0.45;
@@ -51,26 +314,18 @@
         }
     }
 
-    &__item-controls {
-        position: absolute;
-        z-index: 3;
-        top: 2px;
-        right: 2px;
-
-        display: flex;
-        gap: 2px;
-
-        opacity: 0;
-
-        transition: opacity 0.1s ease-in-out;
-
-        &_open {
-            opacity: 1;
-        }
+    &__item > &__floating-toolbar {
+        top: -46px;
     }
 
-    &__item:hover &__item-controls {
+    &__item:hover > &__floating-toolbar,
+    &__item > &__floating-toolbar_open,
+    &__item > &__floating-toolbar:focus-within {
+        pointer-events: auto;
+
         opacity: 1;
+
+        transform: translate(-50%, 0);
     }
 
     &__item-drag {
@@ -117,6 +372,7 @@
 
     &__item-content {
         position: relative;
+        z-index: 1;
 
         min-height: 1.2em;
 

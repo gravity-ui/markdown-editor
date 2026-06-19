@@ -1,7 +1,7 @@
 import {createElement, useMemo, useState} from 'react';
 import type {CSSProperties, FC, ReactNode} from 'react';
 
-import {Code, LayoutHeaderColumns, Plus, TrashBin} from '@gravity-ui/icons';
+import {LayoutHeaderColumns, Plus} from '@gravity-ui/icons';
 import {Button, Icon} from '@gravity-ui/uikit';
 import type {Node} from 'prosemirror-model';
 import type {EditorView} from 'prosemirror-view';
@@ -12,10 +12,16 @@ import {removeNode} from 'src/utils/remove-node';
 
 import {YfmHtmlConstructorConsts, emptyHtmlConstructorStructure} from '../YfmHtmlConstructorSpecs';
 import {htmlConstructorStructureClass, structureClass} from '../css';
+import {
+    htmlConstructorQuickStyleToReactStyle,
+    normalizeHtmlConstructorQuickStyle,
+} from '../quickStyle';
+import {normalizeHtmlConstructorTemplateSettings} from '../settings';
 import {mergeTemplatesById, readStoredTemplates} from '../templates';
 import type {
     HtmlConstructorBlock,
     HtmlConstructorBlockTemplate,
+    HtmlConstructorQuickStyle,
     HtmlConstructorStructure,
     HtmlConstructorStructureTemplate,
     HtmlConstructorTemplate,
@@ -25,6 +31,7 @@ import type {
 } from '../types';
 
 import {BlockInsertPopup} from './BlockInsertPopup';
+import {FloatingToolbar} from './FloatingToolbar';
 import {HtmlBlockItem} from './HtmlBlockItem';
 import {BlockSettingsPopup, StructureSettingsPopup} from './SettingsPopups';
 import {TemplatesPopup} from './TemplatesPopup';
@@ -113,7 +120,32 @@ const readStructure = (node: Node): HtmlConstructorStructure => {
         themeIds: Array.isArray(value.themeIds)
             ? value.themeIds.filter((id: unknown): id is string => typeof id === 'string')
             : [],
+        settings: normalizeHtmlConstructorTemplateSettings(value.settings),
+        quickStyle: normalizeHtmlConstructorQuickStyle(value.quickStyle),
     };
+};
+
+const readBlocks = (node: Node): HtmlConstructorBlock[] => {
+    const value = node.attrs[YfmHtmlConstructorConsts.NodeAttrs.blocks];
+    if (!Array.isArray(value)) return EMPTY_BLOCKS;
+
+    return value.flatMap((block): HtmlConstructorBlock[] => {
+        if (!block || typeof block !== 'object') return [];
+
+        return [
+            {
+                id: typeof block.id === 'string' ? block.id : '',
+                templateId: typeof block.templateId === 'string' ? block.templateId : undefined,
+                css: typeof block.css === 'string' ? block.css : '',
+                content: typeof block.content === 'string' ? block.content : '',
+                themeIds: Array.isArray(block.themeIds)
+                    ? block.themeIds.filter((id: unknown): id is string => typeof id === 'string')
+                    : [],
+                settings: normalizeHtmlConstructorTemplateSettings(block.settings),
+                quickStyle: normalizeHtmlConstructorQuickStyle(block.quickStyle),
+            },
+        ];
+    });
 };
 
 export const YfmHtmlConstructorView: FC<{
@@ -124,8 +156,7 @@ export const YfmHtmlConstructorView: FC<{
     options: {templates?: YfmHtmlConstructorOptions};
 }> = ({node, getPos, view, onChange, options}) => {
     const structure = readStructure(node);
-    const blocks: HtmlConstructorBlock[] =
-        node.attrs[YfmHtmlConstructorConsts.NodeAttrs.blocks] ?? EMPTY_BLOCKS;
+    const blocks = readBlocks(node);
     const {templates} = options;
 
     const renderedStructureContent = useMemo(
@@ -211,6 +242,10 @@ export const YfmHtmlConstructorView: FC<{
         patchBlock(id, {content});
     };
 
+    const updateBlockQuickStyle = (id: string, quickStyle: HtmlConstructorQuickStyle) => {
+        patchBlock(id, {quickStyle});
+    };
+
     const removeBlock = (id: string) => {
         setBlocks(blocks.filter((block) => block.id !== id));
         if (editingBlockSettingsId === id) setEditingBlockSettingsId(null);
@@ -223,75 +258,68 @@ export const YfmHtmlConstructorView: FC<{
         <div className={b()}>
             {previewCss && <style>{previewCss}</style>}
 
-            <div className={b('toolbar', [stop])}>
-                <div className={b('toolbar-group', {side: 'left'})}>
-                    <Button
-                        view="flat"
-                        size="s"
-                        ref={setBlockTemplatesAnchor}
-                        className={stop}
-                        onClick={openBlockTemplates}
-                        aria-label={i18n('add_block')}
-                    >
-                        <Icon data={Plus} className={stop} />
-                    </Button>
-                </div>
-                <div className={b('toolbar-group', {side: 'right'})}>
-                    <Button
-                        view="flat"
-                        size="s"
-                        ref={setStructureAnchor}
-                        className={stop}
-                        onClick={() => setStructureSettingsOpen((v) => !v)}
-                        aria-label={i18n('structure_settings')}
-                    >
-                        <Icon data={Code} className={stop} />
-                    </Button>
-                    {showStructureTemplatesButton && (
+            <FloatingToolbar
+                settings={structure.settings}
+                quickStyle={structure.quickStyle}
+                onQuickStyleChange={(quickStyle) => patchStructure({quickStyle})}
+                onOpenSettings={(anchor) => {
+                    setStructureAnchor(anchor);
+                    setStructureSettingsOpen((v) => !v);
+                }}
+                onRemove={() => {
+                    const pos = getPos();
+                    if (pos === undefined) return;
+                    removeNode({node, pos, tr: view.state.tr, dispatch: view.dispatch});
+                }}
+                codeLabel={i18n('structure_settings')}
+                removeLabel={i18n('remove_constructor')}
+                leftSlot={
+                    <>
                         <Button
                             view="flat"
                             size="s"
-                            ref={setStructureTemplatesAnchor}
+                            ref={setBlockTemplatesAnchor}
                             className={stop}
-                            onClick={toggleStructureTemplatesOpen}
-                            aria-label={i18n('structure_templates')}
+                            onClick={openBlockTemplates}
+                            aria-label={i18n('add_block')}
+                            title={i18n('add_block')}
                         >
-                            <Icon data={LayoutHeaderColumns} className={stop} />
+                            <Icon data={Plus} className={stop} />
                         </Button>
-                    )}
-                    <Button
-                        view="flat"
-                        size="s"
-                        className={stop}
-                        onClick={() => {
-                            const pos = getPos();
-                            if (pos === undefined) return;
-                            removeNode({node, pos, tr: view.state.tr, dispatch: view.dispatch});
-                        }}
-                        aria-label={i18n('remove_constructor')}
-                    >
-                        <Icon data={TrashBin} className={stop} />
-                    </Button>
-                </div>
-                {showStructureTemplatesButton && (
-                    <TemplatesPopup
-                        anchor={structureTemplatesAnchor}
-                        open={structureTemplatesOpen}
-                        templates={effectiveTemplates}
-                        allowAdd={allowAdd}
-                        emptyText={i18n('structure_templates_empty')}
-                        hasStoredTemplates={storedTemplates.length > 0}
-                        onClose={closeStructureTemplates}
-                        onApply={applyStructureTemplate}
-                        onAdded={setStoredTemplates}
-                        onCleared={setStoredTemplates}
-                    />
-                )}
-            </div>
-
+                        {showStructureTemplatesButton && (
+                            <Button
+                                view="flat"
+                                size="s"
+                                ref={setStructureTemplatesAnchor}
+                                className={stop}
+                                onClick={toggleStructureTemplatesOpen}
+                                aria-label={i18n('structure_templates')}
+                                title={i18n('structure_templates')}
+                            >
+                                <Icon data={LayoutHeaderColumns} className={stop} />
+                            </Button>
+                        )}
+                    </>
+                }
+            />
+            {showStructureTemplatesButton && (
+                <TemplatesPopup
+                    anchor={structureTemplatesAnchor}
+                    open={structureTemplatesOpen}
+                    templates={effectiveTemplates}
+                    allowAdd={allowAdd}
+                    emptyText={i18n('structure_templates_empty')}
+                    hasStoredTemplates={storedTemplates.length > 0}
+                    onClose={closeStructureTemplates}
+                    onApply={applyStructureTemplate}
+                    onAdded={setStoredTemplates}
+                    onCleared={setStoredTemplates}
+                />
+            )}
             <div
                 id={structureClass()}
                 className={`${b('structure')} ${htmlConstructorStructureClass} ${structureClass()}`}
+                style={htmlConstructorQuickStyleToReactStyle(structure.quickStyle)}
             >
                 {renderedStructureContent}
                 {blocks.map((block, i) => (
@@ -304,6 +332,7 @@ export const YfmHtmlConstructorView: FC<{
                         onBeginDrag={beginBlockDrag}
                         onOpenSettings={openBlockSettings}
                         onCommitContent={commitBlockContent}
+                        onQuickStyleChange={updateBlockQuickStyle}
                         onRemove={removeBlock}
                     />
                 ))}

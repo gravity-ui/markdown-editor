@@ -29,6 +29,7 @@ export const structureTemplateToState = (
     css: withThemeStyles(template.styles, theme),
     content: template.content,
     themeIds: theme ? [theme.id] : [],
+    settings: template.settings,
 });
 
 export const blockTemplateToBlock = (
@@ -40,6 +41,7 @@ export const blockTemplateToBlock = (
     css: withThemeStyles(template.styles, theme),
     content: template.content,
     themeIds: theme ? [theme.id] : [],
+    settings: template.settings,
 });
 
 export const rawTemplateBlockToBlock = (

@@ -137,6 +137,31 @@ describe('parseTemplates', () => {
         ).toEqual(['theme-a', 'theme-b']);
     });
 
+    it('parses none preset with explicitly enabled template controls', () => {
+        const [template] = parseTemplates(`
+            <template
+                type="block"
+                id="card"
+                data-preset="none"
+                data-has-background
+                data-has-border
+            ></template>
+        `);
+
+        expect(template).toMatchObject({
+            type: 'block',
+            settings: {
+                hasBackground: true,
+                hasRound: false,
+                hasBorder: true,
+                hasTextColor: false,
+                hasDelete: false,
+                hasRaw: false,
+                preset: 'none',
+            },
+        });
+    });
+
     it.each([
         ['unknown attribute', '<template type="block" id="x" group="bad"></template>'],
         [

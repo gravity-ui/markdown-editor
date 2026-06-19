@@ -12,6 +12,8 @@ import {
     structureSelector,
     templateCssToRules,
 } from '../css';
+import {htmlConstructorQuickStyleToCss, normalizeHtmlConstructorQuickStyle} from '../quickStyle';
+import {normalizeHtmlConstructorTemplateSettings} from '../settings';
 import type {HtmlConstructorBlock, HtmlConstructorStructure} from '../types';
 
 import {
@@ -37,6 +39,15 @@ export const emptyHtmlConstructorStructure = (): HtmlConstructorStructure => ({
     themeIds: [],
 });
 
+const escapeHtmlAttr = (value: string) =>
+    value
+        .replace(/&/g, '&amp;')
+        .replace(/"/g, '&quot;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+
+const styleAttr = (style: string) => (style ? ` style="${escapeHtmlAttr(style)}"` : '');
+
 const readStructure = (node: Node): HtmlConstructorStructure => {
     const value = node.attrs[YfmHtmlConstructorConsts.NodeAttrs.structure];
     if (!value || typeof value !== 'object') return emptyHtmlConstructorStructure();
@@ -48,6 +59,8 @@ const readStructure = (node: Node): HtmlConstructorStructure => {
         themeIds: Array.isArray(value.themeIds)
             ? value.themeIds.filter((id: unknown): id is string => typeof id === 'string')
             : [],
+        settings: normalizeHtmlConstructorTemplateSettings(value.settings),
+        quickStyle: normalizeHtmlConstructorQuickStyle(value.quickStyle),
     };
 };
 
@@ -67,6 +80,8 @@ const readBlocks = (node: Node): HtmlConstructorBlock[] => {
                 themeIds: Array.isArray(block.themeIds)
                     ? block.themeIds.filter((id: unknown): id is string => typeof id === 'string')
                     : [],
+                settings: normalizeHtmlConstructorTemplateSettings(block.settings),
+                quickStyle: normalizeHtmlConstructorQuickStyle(block.quickStyle),
             },
         ];
     });
@@ -96,17 +111,19 @@ const buildStructureContent = (
     structure: HtmlConstructorStructure,
     blocks: HtmlConstructorBlock[],
 ) => {
+    const structureStyle = styleAttr(htmlConstructorQuickStyleToCss(structure.quickStyle));
     const children = [
         structure.content.trim(),
-        ...blocks.map(
-            (block, index) =>
-                `<div id="${blockClass(index)}" class="${htmlConstructorBlockClass} ${blockClass(
-                    index,
-                )}">${block.content ?? ''}</div>`,
-        ),
+        ...blocks.map((block, index) => {
+            const blockStyle = styleAttr(htmlConstructorQuickStyleToCss(block.quickStyle));
+
+            return `<div id="${blockClass(index)}" class="${htmlConstructorBlockClass} ${blockClass(
+                index,
+            )}"${blockStyle}>${block.content ?? ''}</div>`;
+        }),
     ].filter(Boolean);
 
-    return `<div id="${structureClass()}" class="${htmlConstructorStructureClass} ${structureClass()}">${
+    return `<div id="${structureClass()}" class="${htmlConstructorStructureClass} ${structureClass()}"${structureStyle}>${
         children.length ? `\n${indent(children.join('\n'))}\n` : ''
     }</div>`;
 };
