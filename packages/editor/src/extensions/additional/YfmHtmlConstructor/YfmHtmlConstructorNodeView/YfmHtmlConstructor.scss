@@ -588,6 +588,19 @@
         transform: translate(-50%, 0);
     }
 
+    // While dragging, the block body is the moving ghost — hide its toolbar entirely
+    // so it doesn't linger half-faded/shifted over the page. The `:not(...)` bumps
+    // specificity above the hover rule above (hover is unreliable during drag) and
+    // keeps an opened editor panel untouched. It reappears on hover after drop.
+    &__item_dragged
+        > &__floating-toolbar:not(.g-md-yfm-html-constructor__floating-toolbar_expanded) {
+        pointer-events: none;
+
+        opacity: 0;
+
+        transform: translate(-50%, 0);
+    }
+
     &__item-drag {
         // Sits above the toolbar (z-index: 20) and content so the grab target is
         // never covered by neighbouring blocks or inline controls.
