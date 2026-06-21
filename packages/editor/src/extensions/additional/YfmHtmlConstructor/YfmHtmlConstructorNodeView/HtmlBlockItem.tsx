@@ -8,7 +8,7 @@ import type {
 } from 'react';
 
 import {BucketPaint, GripHorizontal, Pencil, Sliders} from '@gravity-ui/icons';
-import {Button, Icon} from '@gravity-ui/uikit';
+import {Button, Icon, Popup, TextArea, TextInput} from '@gravity-ui/uikit';
 
 import {i18n} from 'src/i18n/yfm-html-constructor';
 
@@ -36,12 +36,7 @@ import {
 import {STOP_EVENT_CLASSNAME, cnYfmHtmlConstructor} from './const';
 import type {DropTarget} from './drag';
 import {getBlockDragAttrs} from './drag';
-import {
-    getTextNodes,
-    openInlineImageSrcEditor,
-    openInlineLinkEditor,
-    openInlineTextEditor,
-} from './textEditing';
+import {getTextNodes, setImageSrc, setLinkValues, setTextNodeValue} from './textEditing';
 import type {ConfirmFn} from './useConfirm';
 
 const b = cnYfmHtmlConstructor;
@@ -112,6 +107,21 @@ type InlineEditTarget =
           image: HTMLImageElement;
           element: HTMLImageElement;
           buttonStyle: CSSProperties;
+          outlineStyle: CSSProperties;
+      };
+
+type EditTarget =
+    | {kind: 'text'; anchor: HTMLElement; node: Text; outlineStyle: CSSProperties}
+    | {
+          kind: 'link';
+          anchor: HTMLAnchorElement;
+          node: HTMLAnchorElement;
+          outlineStyle: CSSProperties;
+      }
+    | {
+          kind: 'image';
+          anchor: HTMLImageElement;
+          node: HTMLImageElement;
           outlineStyle: CSSProperties;
       };
 
@@ -229,6 +239,9 @@ export const HtmlBlockItem: FC<HtmlBlockItemProps> = ({
 }) => {
     const contentRef = useRef<HTMLDivElement>(null);
     const [inlineEditTarget, setInlineEditTarget] = useState<InlineEditTarget | null>(null);
+    const [editTarget, setEditTarget] = useState<EditTarget | null>(null);
+    const [editValue, setEditValue] = useState('');
+    const [editHref, setEditHref] = useState('');
     const [blockPanel, setBlockPanel] = useState<BlockPanel>(null);
 
     const number = index + 1;
@@ -255,7 +268,7 @@ export const HtmlBlockItem: FC<HtmlBlockItemProps> = ({
 
     const handleContentMouseMove = (event: MouseEvent<HTMLDivElement>) => {
         const root = contentRef.current;
-        if (!root) return;
+        if (!root || editTarget) return;
 
         const nextTarget = getInlineEditTarget(root, event.target);
         if (!nextTarget) return;
@@ -290,6 +303,97 @@ export const HtmlBlockItem: FC<HtmlBlockItemProps> = ({
 
     const clearInlineEditTarget = () => setInlineEditTarget(null);
 
+    const cancelEditing = () => setEditTarget(null);
+
+    const commitEditing = () => {
+        const root = contentRef.current;
+        if (!root || !editTarget) {
+            setEditTarget(null);
+            return;
+        }
+
+        if (editTarget.kind === 'text') {
+            setTextNodeValue(editTarget.node, editValue);
+        } else if (editTarget.kind === 'link') {
+            setLinkValues(editTarget.node, editValue, editHref);
+        } else {
+            setImageSrc(editTarget.node, editValue);
+        }
+
+        onCommitContent(block.id, root.innerHTML);
+        setEditTarget(null);
+    };
+
+    const handleEditPopupKeyDown = (event: KeyboardEvent<HTMLElement>) => {
+        if (event.key === 'Escape') {
+            event.preventDefault();
+            event.stopPropagation();
+            cancelEditing();
+            return;
+        }
+
+        // Enter saves for single-line fields; in the multiline text editor it inserts
+        // a newline and Cmd/Ctrl+Enter saves instead.
+        if (event.key === 'Enter') {
+            const multiline = editTarget?.kind === 'text';
+            if (!multiline || event.metaKey || event.ctrlKey) {
+                event.preventDefault();
+                commitEditing();
+            }
+        }
+    };
+
+    const renderEditFields = () => {
+        if (!editTarget) return null;
+
+        const controlProps = {onKeyDown: handleEditPopupKeyDown, className: stop};
+
+        if (editTarget.kind === 'link') {
+            return (
+                <>
+                    <TextInput
+                        controlProps={controlProps}
+                        value={editValue}
+                        onUpdate={setEditValue}
+                        placeholder={i18n('edit_link_text')}
+                        autoFocus
+                    />
+                    <TextInput
+                        controlProps={controlProps}
+                        value={editHref}
+                        onUpdate={setEditHref}
+                        placeholder={i18n('edit_link_href')}
+                    />
+                </>
+            );
+        }
+
+        if (editTarget.kind === 'image') {
+            return (
+                <TextInput
+                    controlProps={controlProps}
+                    value={editValue}
+                    onUpdate={setEditValue}
+                    placeholder={i18n('edit_image_src')}
+                    autoFocus
+                />
+            );
+        }
+
+        return (
+            <TextArea
+                controlProps={controlProps}
+                value={editValue}
+                onUpdate={setEditValue}
+                minRows={1}
+                maxRows={8}
+                autoFocus
+            />
+        );
+    };
+
+    // Editing happens in a popup anchored to the element rather than inline, so the
+    // content keeps its place (no layout jump) while the user types.
     const openInlineEditTarget = (target: InlineEditTarget) => {
         const root = contentRef.current;
         if (!root) return false;
@@ -298,23 +402,30 @@ export const HtmlBlockItem: FC<HtmlBlockItemProps> = ({
             const textNode = getTextNodes(target.element)[0];
             if (!textNode) return false;
 
-            openInlineTextEditor({
-                root,
-                textNode,
-                onCommit: (html) => onCommitContent(block.id, html),
+            setEditTarget({
+                kind: 'text',
+                anchor: target.element,
+                node: textNode,
+                outlineStyle: target.outlineStyle,
             });
+            setEditValue(textNode.nodeValue ?? '');
         } else if (target.kind === 'link') {
-            openInlineLinkEditor({
-                root,
-                link: target.link,
-                onCommit: (html) => onCommitContent(block.id, html),
+            setEditTarget({
+                kind: 'link',
+                anchor: target.link,
+                node: target.link,
+                outlineStyle: target.outlineStyle,
             });
+            setEditValue(target.link.textContent ?? '');
+            setEditHref(target.link.getAttribute('href') ?? '');
         } else {
-            openInlineImageSrcEditor({
-                root,
-                image: target.image,
-                onCommit: (html) => onCommitContent(block.id, html),
+            setEditTarget({
+                kind: 'image',
+                anchor: target.image,
+                node: target.image,
+                outlineStyle: target.outlineStyle,
             });
+            setEditValue(target.image.getAttribute('src') ?? '');
         }
 
         setInlineEditTarget(null);
@@ -622,7 +733,7 @@ export const HtmlBlockItem: FC<HtmlBlockItemProps> = ({
                     className={b('item-content-html')}
                     dangerouslySetInnerHTML={{__html: block.content}}
                 />
-                {inlineEditTarget && (
+                {inlineEditTarget && !editTarget && (
                     <>
                         <div
                             className={b('inline-edit-outline')}
@@ -637,6 +748,44 @@ export const HtmlBlockItem: FC<HtmlBlockItemProps> = ({
                         >
                             <Icon data={Pencil} size={15} className={stop} />
                         </button>
+                    </>
+                )}
+                {editTarget && (
+                    <>
+                        <div
+                            className={b('inline-edit-outline', {active: true})}
+                            style={editTarget.outlineStyle}
+                        />
+                        <Popup
+                            open
+                            anchorElement={editTarget.anchor}
+                            placement={['bottom-start', 'top-start', 'bottom', 'top']}
+                            onOpenChange={(open) => {
+                                if (!open) cancelEditing();
+                            }}
+                        >
+                            <div className={`${b('inline-edit-popup')} ${stop}`}>
+                                {renderEditFields()}
+                                <div className={`${b('inline-edit-popup-actions')} ${stop}`}>
+                                    <Button
+                                        view="flat"
+                                        size="s"
+                                        className={stop}
+                                        onClick={cancelEditing}
+                                    >
+                                        {i18n('cancel')}
+                                    </Button>
+                                    <Button
+                                        view="action"
+                                        size="s"
+                                        className={stop}
+                                        onClick={commitEditing}
+                                    >
+                                        {i18n('save')}
+                                    </Button>
+                                </div>
+                            </div>
+                        </Popup>
                     </>
                 )}
             </div>
