@@ -675,9 +675,12 @@
 
         pointer-events: none;
 
-        border: 1px solid var(--g-color-line-focus);
-        border-radius: var(--g-border-radius-xs);
-        background: rgb(82 130 255 / 5%);
+        border: 1.5px solid var(--g-color-line-focus);
+        border-radius: var(--g-border-radius-s);
+        background: rgb(82 130 255 / 6%);
+        box-shadow: 0 0 0 4px rgb(82 130 255 / 7%);
+
+        animation: g-md-yfm-html-constructor-inline-edit-in 0.13s ease;
     }
 
     &__inline-edit-button {
@@ -688,21 +691,33 @@
         justify-content: center;
         align-items: center;
 
-        width: 40px;
-        height: 40px;
-        padding: 10px;
+        width: 28px;
+        height: 28px;
+        padding: 0;
 
         cursor: pointer;
 
-        color: var(--g-color-text-primary);
-        border: 1px solid var(--g-color-line-generic);
-        border-radius: var(--g-border-radius-m);
-        background: var(--g-color-base-float);
-        box-shadow: 0 8px 18px rgb(0 0 0 / 14%);
+        color: var(--g-color-text-light-primary);
+        border: 2px solid var(--g-color-base-background);
+        border-radius: 50%;
+        background: var(--g-color-base-brand);
+        box-shadow: 0 4px 12px -2px rgb(0 0 0 / 28%);
+
+        transition:
+            transform 0.12s ease,
+            background-color 0.12s ease,
+            box-shadow 0.12s ease;
+        animation: g-md-yfm-html-constructor-inline-edit-pop 0.16s cubic-bezier(0.2, 0.9, 0.3, 1.2);
 
         &:hover {
-            border-color: var(--g-color-line-focus);
-            background: var(--g-color-base-generic);
+            background: var(--g-color-base-brand-hover);
+            box-shadow: 0 6px 16px -2px rgb(0 0 0 / 32%);
+
+            transform: scale(1.08);
+        }
+
+        &:active {
+            transform: scale(0.92);
         }
     }
 
@@ -738,15 +753,17 @@
     &__inline-text-editor {
         width: 100%;
         min-height: 32px;
-        padding: 4px 6px;
+        padding: 4px 8px;
 
         font: inherit;
         resize: vertical;
 
         color: inherit;
-        border: 1px solid var(--g-color-line-focus);
-        border-radius: var(--g-border-radius-xs);
+        border: 1.5px solid var(--g-color-line-focus);
+        border-radius: var(--g-border-radius-s);
+        outline: none;
         background: var(--g-color-base-background);
+        box-shadow: 0 0 0 3px rgb(82 130 255 / 10%);
 
         &_src {
             width: min(100%, 420px);
@@ -1030,5 +1047,27 @@
         opacity: 1;
 
         transform: translateX(-50%) scaleY(1);
+    }
+}
+
+@keyframes g-md-yfm-html-constructor-inline-edit-in {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes g-md-yfm-html-constructor-inline-edit-pop {
+    from {
+        opacity: 0;
+
+        transform: scale(0.6);
+    }
+    to {
+        opacity: 1;
+
+        transform: scale(1);
     }
 }

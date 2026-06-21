@@ -116,22 +116,36 @@ type InlineEditTarget =
 const clamp = (value: number, min: number, max: number) =>
     Math.max(min, Math.min(value, Math.max(min, max)));
 
+const INLINE_EDIT_OUTLINE_PADDING = 4;
+const INLINE_EDIT_BUTTON_SIZE = 28;
+
 const getTargetStyles = (root: HTMLElement, target: HTMLElement) => {
     const rect = root.getBoundingClientRect();
     const targetRect = target.getBoundingClientRect();
     const left = targetRect.left - rect.left;
     const top = targetRect.top - rect.top;
 
+    const outlineLeft = Math.max(0, left - INLINE_EDIT_OUTLINE_PADDING);
+    const outlineTop = Math.max(0, top - INLINE_EDIT_OUTLINE_PADDING);
+    const outlineWidth = targetRect.width + INLINE_EDIT_OUTLINE_PADDING * 2;
+    const outlineHeight = targetRect.height + INLINE_EDIT_OUTLINE_PADDING * 2;
+
     return {
         buttonStyle: {
-            left: clamp(left + targetRect.width - 40, 4, rect.width - 40),
-            top: clamp(top + 4, 4, rect.height - 40),
+            // A compact badge pinned to the highlight's top-right corner, nudged
+            // outward so it rests on the corner rather than on top of the text.
+            left: clamp(
+                outlineLeft + outlineWidth - INLINE_EDIT_BUTTON_SIZE + 8,
+                4,
+                rect.width - INLINE_EDIT_BUTTON_SIZE,
+            ),
+            top: clamp(outlineTop - 8, 0, rect.height - INLINE_EDIT_BUTTON_SIZE),
         },
         outlineStyle: {
-            left: Math.max(0, left - 3),
-            top: Math.max(0, top - 3),
-            width: targetRect.width + 6,
-            height: targetRect.height + 6,
+            left: outlineLeft,
+            top: outlineTop,
+            width: outlineWidth,
+            height: outlineHeight,
         },
     };
 };
@@ -598,7 +612,7 @@ export const HtmlBlockItem: FC<HtmlBlockItemProps> = ({
                             onClick={handleOpenInlineEdit}
                             aria-label={getInlineEditLabel(inlineEditTarget)}
                         >
-                            <Icon data={Pencil} size={18} className={stop} />
+                            <Icon data={Pencil} size={15} className={stop} />
                         </button>
                     </>
                 )}
