@@ -13,6 +13,11 @@ import {STOP_EVENT_CLASSNAME, cnYfmHtmlConstructor} from './const';
 const b = cnYfmHtmlConstructor;
 const stop = STOP_EVENT_CLASSNAME;
 
+// Kept in sync with `&__code-gutter` line-height and vertical padding in the
+// stylesheet; used to count how many line numbers fill the visible body.
+const GUTTER_LINE_HEIGHT = 20;
+const GUTTER_PADDING_Y = 24;
+
 type CodeKind = 'html' | 'css';
 
 /** Non-editable wrapper lines shown around editable HTML (the spec block markup). */
@@ -44,7 +49,9 @@ const CodeEditorPane: FC<CodeEditorPaneProps> = ({
     frame,
 }) => {
     const gutterRef = useRef<HTMLDivElement>(null);
+    const bodyRef = useRef<HTMLDivElement>(null);
     const controlRef = useRef<HTMLTextAreaElement>(null);
+    const [visibleRows, setVisibleRows] = useState(0);
 
     useEffect(() => {
         if (!autoFocus) return undefined;
@@ -52,6 +59,23 @@ const CodeEditorPane: FC<CodeEditorPaneProps> = ({
         const timer = setTimeout(() => controlRef.current?.focus(), 30);
         return () => clearTimeout(timer);
     }, [autoFocus]);
+
+    // Track how many gutter rows fit in the visible body so the line numbers can
+    // keep going past the last line instead of dead-ending into empty space.
+    useLayoutEffect(() => {
+        const node = bodyRef.current;
+        if (!node) return undefined;
+
+        const measure = () => {
+            const available = node.clientHeight - GUTTER_PADDING_Y;
+            setVisibleRows(Math.max(0, Math.floor(available / GUTTER_LINE_HEIGHT)));
+        };
+        measure();
+
+        const observer = new ResizeObserver(measure);
+        observer.observe(node);
+        return () => observer.disconnect();
+    }, []);
 
     const contentLines = value ? value.split('\n').length : 1;
 
@@ -66,13 +90,14 @@ const CodeEditorPane: FC<CodeEditorPaneProps> = ({
     }, [frame, value]);
 
     const lineNumbers = useMemo(() => {
-        const total = frame ? contentLines + 2 : contentLines;
+        const contentTotal = frame ? contentLines + 2 : contentLines;
+        const total = Math.max(contentTotal, visibleRows);
         let result = '';
         for (let line = 1; line <= total; line++) {
             result += line === 1 ? '1' : `\n${line}`;
         }
         return result;
-    }, [frame, contentLines]);
+    }, [frame, contentLines, visibleRows]);
 
     const syncScroll = (event: UIEvent<HTMLTextAreaElement>) => {
         if (gutterRef.current) gutterRef.current.scrollTop = event.currentTarget.scrollTop;
@@ -99,7 +124,7 @@ const CodeEditorPane: FC<CodeEditorPaneProps> = ({
     return (
         <div className={b('code', [stop])}>
             {showLabel && <div className={b('code-label', [stop])}>{label}</div>}
-            <div className={b('code-body', {framed: Boolean(frame)}, [stop])}>
+            <div ref={bodyRef} className={b('code-body', {framed: Boolean(frame)}, [stop])}>
                 <div
                     ref={gutterRef}
                     className={b('code-gutter', {framed: Boolean(frame)}, [stop])}

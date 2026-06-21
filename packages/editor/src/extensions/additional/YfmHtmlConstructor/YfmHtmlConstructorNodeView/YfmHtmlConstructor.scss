@@ -962,7 +962,10 @@
         left: 0;
         z-index: 1;
 
+        // Fill the body height so the grey gutter (and its continued numbering)
+        // reaches the bottom even when the code is short.
         overflow: visible;
+        align-self: stretch;
     }
 
     &__code-stack {
