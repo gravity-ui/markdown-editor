@@ -14,6 +14,7 @@
   "block_html_input_placeholder": "<div style=\"padding:16px;border-radius:8px;background:#f8fafc\">HTML блока</div>",
   "block_html_placeholder": "<button type=\"button\">Текст кнопки</button>",
   "block_templates_empty": "Нет шаблонов блоков",
+  "blocks_title": "Выбор блока",
   "cancel": "Отмена",
   "clear_templates": "Очистить все шаблоны",
   "close": "Закрыть",
@@ -57,6 +58,7 @@
   "text_color": "Цвет текста",
   "themes_count": ["{{count}} тема", "{{count}} темы", "{{count}} тем", "{{count}} тем"],
   "themes_empty": "Нет тем",
+  "variants_count": ["{{count}} вариант", "{{count}} варианта", "{{count}} вариантов", "{{count}} вариантов"],
   "templates_input_placeholder": "<template type=\"family\" id=\"marketing\" title=\"Marketing\"></template>\n\n<template type=\"structure\" id=\"landing\" title=\"Landing\" family=\"marketing\">\n  <style>\n    .g-md-hc-structure { display: grid; gap: 16px; }\n  </style>\n  <section>Intro</section>\n</template>\n\n<template type=\"block\" id=\"card\" title=\"Card\" structure=\"landing\" family=\"marketing\">\n  <style>\n    & { padding: 16px; border-radius: 8px; background: #f8fafc; }\n  </style>\n  <div>Card text</div>\n</template>\n\n<template type=\"theme\" id=\"landing-compact\" title=\"Compact\" structure=\"landing\" family=\"marketing\">\n  <style>\n    .g-md-hc-structure { gap: 8px; }\n  </style>\n</template>",
   "templates_parse_error": "Не удалось разобрать шаблоны"
 }

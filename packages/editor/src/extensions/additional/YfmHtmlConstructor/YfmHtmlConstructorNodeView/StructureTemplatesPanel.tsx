@@ -28,6 +28,7 @@ import type {
     HtmlConstructorThemeTemplate,
 } from '../types';
 
+import {LivePreview} from './TemplatePreview';
 import {buildPreviewCss, structureTemplateToAttrs} from './blockUtils';
 import {STOP_EVENT_CLASSNAME, cnYfmHtmlConstructor} from './const';
 import {buildStructureMenuGroups} from './groupTemplates';
@@ -37,7 +38,6 @@ import './StructureTemplatesPanel.scss';
 
 const b = cnYfmHtmlConstructor;
 const stop = STOP_EVENT_CLASSNAME;
-const PREVIEW_DESIGN_WIDTH = 1040;
 
 const getTitle = (template: {id: string; title?: string}) => template.title?.trim() || template.id;
 
@@ -46,10 +46,6 @@ const StructurePreview: FC<{
     structure: HtmlConstructorStructureTemplate;
     theme?: HtmlConstructorThemeTemplate;
 }> = ({templates, structure, theme}) => {
-    const frameRef = useRef<HTMLDivElement>(null);
-    const hostRef = useRef<HTMLDivElement>(null);
-    const [scale, setScale] = useState(0.3);
-
     const {markup, css} = useMemo(() => {
         const {structure: state, blocks} = structureTemplateToAttrs(templates, structure, theme);
         const blocksHtml = blocks
@@ -65,37 +61,7 @@ const StructurePreview: FC<{
         };
     }, [structure, templates, theme]);
 
-    useEffect(() => {
-        const host = hostRef.current;
-        if (!host) return;
-
-        const root = host.shadowRoot ?? host.attachShadow({mode: 'open'});
-        root.innerHTML = `<style>:host{display:block}*{box-sizing:border-box}img{max-width:100%}${css}</style>${markup}`;
-    }, [css, markup]);
-
-    useEffect(() => {
-        const frame = frameRef.current;
-        if (!frame || typeof ResizeObserver === 'undefined') return undefined;
-
-        const update = () => setScale(frame.clientWidth / PREVIEW_DESIGN_WIDTH);
-        update();
-
-        const observer = new ResizeObserver(update);
-        observer.observe(frame);
-
-        return () => observer.disconnect();
-    }, []);
-
-    return (
-        <span ref={frameRef} className={b('structure-preview')} aria-hidden="true">
-            <span
-                className={b('structure-preview-scale')}
-                style={{width: PREVIEW_DESIGN_WIDTH, transform: `scale(${scale})`}}
-            >
-                <span ref={hostRef} />
-            </span>
-        </span>
-    );
+    return <LivePreview markup={markup} css={css} />;
 };
 
 const THEMES_CLOSE_DELAY = 140;

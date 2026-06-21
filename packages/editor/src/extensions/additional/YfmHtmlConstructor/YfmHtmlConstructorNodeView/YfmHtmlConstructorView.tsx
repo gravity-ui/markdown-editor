@@ -30,7 +30,7 @@ import type {
     YfmHtmlConstructorOptions,
 } from '../types';
 
-import {BlockInsertPanel} from './BlockInsertPopup';
+import {BlockTemplatesPanel} from './BlockTemplatesPanel';
 import {FloatingToolbar, type FloatingToolbarPrimaryAction} from './FloatingToolbar';
 import {HtmlBlockItem} from './HtmlBlockItem';
 import {StructureSettingsPanel} from './SettingsPopups';
@@ -303,9 +303,10 @@ export const YfmHtmlConstructorView: FC<{
     const renderStructurePanelContent = () => {
         if (structurePanel === 'blocks') {
             return (
-                <BlockInsertPanel
+                <BlockTemplatesPanel
                     templates={effectiveTemplates}
                     activeStructureId={activeStructureId}
+                    emptyText={i18n('block_templates_empty')}
                     onClose={closeStructurePanel}
                     onApplyTemplate={applyBlockTemplate}
                     onApplyHtml={applyRawBlock}
@@ -431,7 +432,7 @@ export const YfmHtmlConstructorView: FC<{
                 expandedContentView={
                     structurePanel === 'settings'
                         ? 'editor'
-                        : structurePanel === 'templates'
+                        : structurePanel === 'templates' || structurePanel === 'blocks'
                           ? 'panel'
                           : 'menu'
                 }
