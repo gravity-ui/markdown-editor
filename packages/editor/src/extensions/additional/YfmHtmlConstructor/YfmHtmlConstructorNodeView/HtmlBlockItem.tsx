@@ -332,14 +332,10 @@ export const HtmlBlockItem: FC<HtmlBlockItemProps> = ({
             return;
         }
 
-        // Enter saves for single-line fields; in the multiline text editor it inserts
-        // a newline and Cmd/Ctrl+Enter saves instead.
-        if (event.key === 'Enter') {
-            const multiline = editTarget?.kind === 'text';
-            if (!multiline || event.metaKey || event.ctrlKey) {
-                event.preventDefault();
-                commitEditing();
-            }
+        // Enter saves; Shift+Enter inserts a newline (handled natively by the textarea).
+        if (event.key === 'Enter' && !event.shiftKey) {
+            event.preventDefault();
+            commitEditing();
         }
     };
 
