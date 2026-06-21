@@ -1,4 +1,4 @@
-import {useEffect, useMemo, useRef, useState} from 'react';
+import {useEffect, useLayoutEffect, useMemo, useRef, useState} from 'react';
 import type {FC, UIEvent} from 'react';
 
 import {Xmark} from '@gravity-ui/icons';
@@ -13,6 +13,12 @@ const stop = STOP_EVENT_CLASSNAME;
 
 type CodeKind = 'html' | 'css';
 
+/** Non-editable wrapper lines shown around editable HTML (the spec block markup). */
+export interface CodeFrame {
+    top: string;
+    bottom: string;
+}
+
 interface CodeEditorPaneProps {
     label: string;
     value: string;
@@ -21,6 +27,8 @@ interface CodeEditorPaneProps {
     autoFocus: boolean;
     onUpdate: (value: string) => void;
     onCommit: () => void;
+    /** When set, renders read-only wrapper lines around the editable content. */
+    frame?: CodeFrame;
 }
 
 const CodeEditorPane: FC<CodeEditorPaneProps> = ({
@@ -31,6 +39,7 @@ const CodeEditorPane: FC<CodeEditorPaneProps> = ({
     autoFocus,
     onUpdate,
     onCommit,
+    frame,
 }) => {
     const gutterRef = useRef<HTMLDivElement>(null);
     const controlRef = useRef<HTMLTextAreaElement>(null);
@@ -42,41 +51,73 @@ const CodeEditorPane: FC<CodeEditorPaneProps> = ({
         return () => clearTimeout(timer);
     }, [autoFocus]);
 
+    const contentLines = value ? value.split('\n').length : 1;
+
+    // In framed mode the wrapper lines and content share one scroll area, so the
+    // textarea must grow to fit its content instead of scrolling on its own.
+    useLayoutEffect(() => {
+        if (!frame) return;
+        const node = controlRef.current;
+        if (!node) return;
+        node.style.height = 'auto';
+        node.style.height = `${node.scrollHeight}px`;
+    }, [frame, value]);
+
     const lineNumbers = useMemo(() => {
-        const lines = value ? value.split('\n').length : 1;
+        const total = frame ? contentLines + 2 : contentLines;
         let result = '';
-        for (let line = 1; line <= lines; line++) {
+        for (let line = 1; line <= total; line++) {
             result += line === 1 ? '1' : `\n${line}`;
         }
         return result;
-    }, [value]);
+    }, [frame, contentLines]);
 
     const syncScroll = (event: UIEvent<HTMLTextAreaElement>) => {
         if (gutterRef.current) gutterRef.current.scrollTop = event.currentTarget.scrollTop;
     };
 
+    const control = (
+        <textarea
+            ref={controlRef}
+            className={`${b('code-input', {framed: Boolean(frame)})} ${stop}`}
+            value={value}
+            spellCheck={false}
+            autoComplete="off"
+            autoCapitalize="off"
+            autoCorrect="off"
+            wrap="off"
+            placeholder={placeholder}
+            aria-label={label}
+            onChange={(event) => onUpdate(event.target.value)}
+            onBlur={onCommit}
+            onScroll={frame ? undefined : syncScroll}
+        />
+    );
+
     return (
         <div className={b('code', [stop])}>
             {showLabel && <div className={b('code-label', [stop])}>{label}</div>}
-            <div className={b('code-body', [stop])}>
-                <div ref={gutterRef} className={b('code-gutter', [stop])} aria-hidden="true">
+            <div className={b('code-body', {framed: Boolean(frame)}, [stop])}>
+                <div
+                    ref={gutterRef}
+                    className={b('code-gutter', {framed: Boolean(frame)}, [stop])}
+                    aria-hidden="true"
+                >
                     {lineNumbers}
                 </div>
-                <textarea
-                    ref={controlRef}
-                    className={`${b('code-input')} ${stop}`}
-                    value={value}
-                    spellCheck={false}
-                    autoComplete="off"
-                    autoCapitalize="off"
-                    autoCorrect="off"
-                    wrap="off"
-                    placeholder={placeholder}
-                    aria-label={label}
-                    onChange={(event) => onUpdate(event.target.value)}
-                    onBlur={onCommit}
-                    onScroll={syncScroll}
-                />
+                {frame ? (
+                    <div className={b('code-stack', [stop])}>
+                        <div className={b('code-frame', {top: true}, [stop])} aria-hidden="true">
+                            {frame.top}
+                        </div>
+                        {control}
+                        <div className={b('code-frame', {bottom: true}, [stop])} aria-hidden="true">
+                            {frame.bottom}
+                        </div>
+                    </div>
+                ) : (
+                    control
+                )}
             </div>
         </div>
     );
@@ -89,6 +130,7 @@ interface HtmlCssSettingsPanelProps {
     onCssChange: (value: string) => void;
     htmlPlaceholder: string;
     cssPlaceholder: string;
+    htmlFrame?: CodeFrame;
     onClose?: () => void;
 }
 
@@ -99,6 +141,7 @@ const HtmlCssSettingsPanel: FC<HtmlCssSettingsPanelProps> = ({
     onCssChange,
     htmlPlaceholder,
     cssPlaceholder,
+    htmlFrame,
     onClose,
 }) => {
     const [draftHtml, setDraftHtml] = useState(html);
@@ -135,6 +178,7 @@ const HtmlCssSettingsPanel: FC<HtmlCssSettingsPanelProps> = ({
             autoFocus={compact ? activeTab === 'html' : true}
             onUpdate={handleHtmlUpdate}
             onCommit={commitHtml}
+            frame={htmlFrame}
         />
     );
 
@@ -205,6 +249,7 @@ export const BlockSettingsPanel: FC<{
     css: string;
     onHtmlCommit: (value: string) => void;
     onCssChange: (value: string) => void;
+    htmlFrame?: CodeFrame;
     onClose?: () => void;
 }> = (props) => (
     <HtmlCssSettingsPanel

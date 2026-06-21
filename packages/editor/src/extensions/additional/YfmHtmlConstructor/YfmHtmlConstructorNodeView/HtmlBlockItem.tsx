@@ -417,6 +417,10 @@ export const HtmlBlockItem: FC<HtmlBlockItemProps> = ({
                 <BlockSettingsPanel
                     html={block.content}
                     css={block.css}
+                    htmlFrame={{
+                        top: `<div class="${htmlConstructorBlockClass} ${blockClass(index)}">`,
+                        bottom: '</div>',
+                    }}
                     onHtmlCommit={(value) => onCommitContent(block.id, value)}
                     onCssChange={(value) => onCssChange(block.id, value)}
                     onClose={closeBlockPanel}
