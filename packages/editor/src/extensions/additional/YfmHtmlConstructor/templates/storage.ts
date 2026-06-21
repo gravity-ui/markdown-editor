@@ -49,14 +49,17 @@ const isReferencedTemplateBase = (
     Number.isFinite(value.priority);
 
 const isFamilyTemplate = (value: unknown): value is HtmlConstructorFamilyTemplate =>
-    isTemplateBase(value) && value.type === 'family' && typeof value.title === 'string';
+    isTemplateBase(value) &&
+    value.type === 'family' &&
+    typeof value.title === 'string' &&
+    typeof value.content === 'string' &&
+    isStringArray(value.styles);
 
 const isStructureTemplate = (value: unknown): value is HtmlConstructorStructureTemplate =>
     isReferencedTemplateBase(value) &&
     value.type === 'structure' &&
     isSettings(value.settings) &&
-    isStringArray(value.styles) &&
-    typeof value.content === 'string';
+    isStringArray(value.styles);
 
 const isBlockTemplate = (value: unknown): value is HtmlConstructorBlockTemplate =>
     isReferencedTemplateBase(value) &&

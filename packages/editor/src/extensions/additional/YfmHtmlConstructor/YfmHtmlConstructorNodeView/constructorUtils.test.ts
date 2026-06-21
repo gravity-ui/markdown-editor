@@ -116,7 +116,7 @@ describe('YfmHtmlConstructor utils', () => {
 
         expect(result.structure).toMatchObject({
             templateId: 'landing',
-            content: '<section>Intro</section>',
+            content: '',
             themeIds: ['compact'],
         });
         expect(result.structure.css).toContain('& { display: grid; }');

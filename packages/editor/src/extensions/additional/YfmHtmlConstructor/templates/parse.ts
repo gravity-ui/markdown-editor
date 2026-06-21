@@ -253,10 +253,16 @@ export function parseTemplates(input: string): HtmlConstructorTemplate[] {
 
         if (typeValue === 'family') {
             const familyTitle = title || fail(`Family template "${id}" is missing title.`);
+            // The HTML/CSS inside a family template is never rendered by the editor;
+            // it is captured only to be used as the family cover in the external
+            // templates marketplace.
+            const {styles, content} = getTemplateParts(templateElement);
             const familyTemplate: HtmlConstructorFamilyTemplate = {
                 ...base,
                 type: 'family',
                 title: familyTitle,
+                styles,
+                content,
             };
             template = familyTemplate;
             familyTemplates.push(familyTemplate);
@@ -270,13 +276,14 @@ export function parseTemplates(input: string): HtmlConstructorTemplate[] {
             };
 
             if (typeValue === 'structure') {
-                const {styles, content} = getTemplateParts(templateElement);
+                // A structure is only a layout container for its blocks, so any
+                // markup it contains is discarded — only its styles are kept.
+                const {styles} = getTemplateParts(templateElement);
                 template = {
                     ...referencedBase,
                     type: 'structure',
                     settings: parseSettings(templateElement),
                     styles,
-                    content,
                 };
                 structureTemplates.push(template);
             } else if (typeValue === 'block') {

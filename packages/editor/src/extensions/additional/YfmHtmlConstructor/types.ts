@@ -38,13 +38,25 @@ interface HtmlConstructorReferencedTemplateBase extends HtmlConstructorTemplateB
 export interface HtmlConstructorFamilyTemplate extends HtmlConstructorTemplateBase {
     type: 'family';
     title: string;
+    /**
+     * Family-level HTML used as the family cover in the templates marketplace
+     * (an external resource — not the editor). The editor itself never renders it.
+     */
+    content: string;
+    /**
+     * Family-level CSS that styles the marketplace cover. Ignored by the editor.
+     */
+    styles: string[];
 }
 
 export interface HtmlConstructorStructureTemplate extends HtmlConstructorReferencedTemplateBase {
     type: 'structure';
     settings: HtmlConstructorTemplateSettings;
+    /**
+     * Structure-level CSS (layout). A structure is a container composed only of
+     * its blocks; any non-block markup inside the structure template is discarded.
+     */
     styles: string[];
-    content: string;
 }
 
 export interface HtmlConstructorBlockTemplate extends HtmlConstructorReferencedTemplateBase {

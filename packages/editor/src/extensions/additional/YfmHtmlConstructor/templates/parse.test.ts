@@ -54,13 +54,16 @@ describe('parseTemplates', () => {
 
         expect(result.filter((template) => template.type === 'family')).toHaveLength(1);
         expect(result.filter((template) => template.type === 'structure')).toHaveLength(1);
-        expect(result.filter((template) => template.type === 'block')).toHaveLength(9);
+        expect(result.filter((template) => template.type === 'block')).toHaveLength(10);
         expect(result.filter((template) => template.type === 'theme')).toHaveLength(8);
     });
 
     it('parses families, structures, blocks and themes', () => {
         const result = parseTemplates(`
-            <template type="family" id="marketing" title="Marketing"></template>
+            <template type="family" id="marketing" title="Marketing">
+                <style>.cover { color: red; }</style>
+                <div class="cover">Cover</div>
+            </template>
             <template type="structure" id="landing" title="Landing" family="marketing" data-has-raw>
                 <style>
                     .g-md-hc-structure { display: grid; }
@@ -77,15 +80,21 @@ describe('parseTemplates', () => {
             </template>
         `);
 
-        expect(result[0]).toMatchObject({type: 'family', id: 'marketing', title: 'Marketing'});
+        expect(result[0]).toMatchObject({
+            type: 'family',
+            id: 'marketing',
+            title: 'Marketing',
+            styles: ['.cover { color: red; }'],
+            content: '<div class="cover">Cover</div>',
+        });
         expect(result[1]).toMatchObject({
             type: 'structure',
             id: 'landing',
             family: 'marketing',
             settings: {hasRaw: true, preset: 'default'},
             styles: ['.g-md-hc-structure { display: grid; }'],
-            content: '<section>Intro</section>',
         });
+        expect(result[1]).not.toHaveProperty('content');
         expect(result[2]).toMatchObject({
             type: 'block',
             id: 'card',

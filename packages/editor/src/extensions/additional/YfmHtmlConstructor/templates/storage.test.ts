@@ -23,6 +23,8 @@ const familyTpl = (id: string, title = id): HtmlConstructorTemplate => ({
     title,
     type: 'family',
     declarationIndex: 0,
+    styles: [],
+    content: '',
 });
 
 const structureTpl = (id: string, title = id, family?: string): HtmlConstructorTemplate => ({
@@ -34,7 +36,6 @@ const structureTpl = (id: string, title = id, family?: string): HtmlConstructorT
     priority: 0,
     settings,
     styles: ['.g-md-hc-structure { display: grid; }'],
-    content: `<section>${id}</section>`,
 });
 
 const blockTpl = (id: string, title = id, family?: string): HtmlConstructorTemplate => ({

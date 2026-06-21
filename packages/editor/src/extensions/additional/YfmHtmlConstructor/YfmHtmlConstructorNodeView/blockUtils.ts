@@ -27,7 +27,8 @@ export const structureTemplateToState = (
 ): HtmlConstructorStructure => ({
     templateId: template.id,
     css: withThemeStyles(template.styles, theme),
-    content: template.content,
+    // Structures hold no markup of their own; their blocks provide all content.
+    content: '',
     themeIds: theme ? [theme.id] : [],
     settings: template.settings,
 });
