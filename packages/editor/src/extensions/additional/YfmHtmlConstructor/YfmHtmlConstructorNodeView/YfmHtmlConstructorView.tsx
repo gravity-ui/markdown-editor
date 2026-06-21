@@ -38,12 +38,16 @@ import {StructureTemplatesPanel} from './StructureTemplatesPanel';
 import {ThemesPanel} from './TemplateActionsPanel';
 import {
     applyStructureThemeToState,
+    assembleStructureCss,
+    assembleStructureHtml,
     blockTemplateToBlock,
     buildPreviewCss,
     cloneHtmlConstructorBlock,
     getActiveStructureTemplateId,
+    getStructureHtmlFrame,
     getStructureTemplateById,
     getStructureThemeTemplates,
+    parseStructureHtml,
     rawTemplateBlockToBlock,
     structureTemplateToAttrs,
 } from './blockUtils';
@@ -247,6 +251,27 @@ export const YfmHtmlConstructorView: FC<{
     const patchStructure = (patch: Partial<HtmlConstructorStructure>) =>
         setStructure({...structure, ...patch});
 
+    // The structure code editor shows the full assembled document. On commit the inner
+    // markup is split back into structure content + blocks, and all CSS is consolidated
+    // into the structure stylesheet (per-block CSS is cleared, as it now lives there).
+    const commitStructureDocumentHtml = (html: string) => {
+        const {content, blocks: nextBlocks} = parseStructureHtml(html, structure, blocks);
+        onChange({
+            [YfmHtmlConstructorConsts.NodeAttrs.structure]: {...structure, content},
+            [YfmHtmlConstructorConsts.NodeAttrs.blocks]: nextBlocks,
+        });
+    };
+
+    const commitStructureDocumentCss = (css: string) => {
+        onChange({
+            [YfmHtmlConstructorConsts.NodeAttrs.structure]: {...structure, css},
+            [YfmHtmlConstructorConsts.NodeAttrs.blocks]: blocks.map((block) => ({
+                ...block,
+                css: '',
+            })),
+        });
+    };
+
     const patchBlock = (id: string, patch: Partial<HtmlConstructorBlock>) =>
         setBlocks(blocks.map((block) => (block.id === id ? {...block, ...patch} : block)));
 
@@ -343,10 +368,11 @@ export const YfmHtmlConstructorView: FC<{
         if (structurePanel === 'settings') {
             return (
                 <StructureSettingsPanel
-                    html={structure.content}
-                    css={structure.css}
-                    onHtmlCommit={(value) => patchStructure({content: value})}
-                    onCssChange={(value) => patchStructure({css: value})}
+                    html={assembleStructureHtml(structure, blocks)}
+                    css={assembleStructureCss(structure, blocks)}
+                    htmlFrame={getStructureHtmlFrame()}
+                    onHtmlCommit={commitStructureDocumentHtml}
+                    onCssChange={commitStructureDocumentCss}
                     onClose={closeStructurePanel}
                 />
             );

@@ -131,6 +131,12 @@ interface HtmlCssSettingsPanelProps {
     htmlPlaceholder: string;
     cssPlaceholder: string;
     htmlFrame?: CodeFrame;
+    /**
+     * When false, edits are committed only on blur instead of on every keystroke.
+     * Used by the structure editor, whose committed value is re-assembled (and thus
+     * differs from the raw input), so live commits would fight the typing cursor.
+     */
+    liveUpdate?: boolean;
     onClose?: () => void;
 }
 
@@ -142,6 +148,7 @@ const HtmlCssSettingsPanel: FC<HtmlCssSettingsPanelProps> = ({
     htmlPlaceholder,
     cssPlaceholder,
     htmlFrame,
+    liveUpdate = true,
     onClose,
 }) => {
     const [draftHtml, setDraftHtml] = useState(html);
@@ -156,17 +163,21 @@ const HtmlCssSettingsPanel: FC<HtmlCssSettingsPanelProps> = ({
 
     const handleHtmlUpdate = (value: string) => {
         setDraftHtml(value);
-        onHtmlCommit(value);
+        if (liveUpdate) onHtmlCommit(value);
     };
 
-    const commitHtml = () => onHtmlCommit(draftHtml);
+    const commitHtml = () => {
+        if (draftHtml !== html) onHtmlCommit(draftHtml);
+    };
 
     const handleCssUpdate = (value: string) => {
         setDraftCss(value);
-        onCssChange(value);
+        if (liveUpdate) onCssChange(value);
     };
 
-    const commitCss = () => onCssChange(draftCss);
+    const commitCss = () => {
+        if (draftCss !== css) onCssChange(draftCss);
+    };
 
     const htmlPane = (
         <CodeEditorPane
@@ -262,12 +273,14 @@ export const BlockSettingsPanel: FC<{
 export const StructureSettingsPanel: FC<{
     html: string;
     css: string;
+    htmlFrame?: CodeFrame;
     onHtmlCommit: (value: string) => void;
     onCssChange: (value: string) => void;
     onClose?: () => void;
 }> = (props) => (
     <HtmlCssSettingsPanel
         {...props}
+        liveUpdate={false}
         htmlPlaceholder={'<section>\n  <h2>Structure intro</h2>\n</section>'}
         cssPlaceholder={
             '.g-md-hc-structure {\n  display: grid;\n  gap: 16px;\n}\n& {\n  padding: 24px;\n}'

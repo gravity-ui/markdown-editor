@@ -9,10 +9,13 @@ import {
     applyBlockTemplateToBlock,
     applyBlockThemeToBlock,
     applyStructureThemeToState,
+    assembleStructureCss,
+    assembleStructureHtml,
     blockTemplateToBlock,
     buildPreviewCss,
     cloneHtmlConstructorBlock,
     getDirectStructureBlocks,
+    parseStructureHtml,
     structureTemplateToAttrs,
 } from './blockUtils';
 
@@ -324,6 +327,81 @@ describe('YfmHtmlConstructor utils', () => {
         expect(nextBlock.css).toContain('.card { color: red; }');
         expect(nextBlock.css).toContain('.g-md-hc-block { background: #000; }');
         expect(nextBlock.css).not.toContain('old block theme');
+    });
+
+    it('assembles the full structure document with locked-free inner block markup', () => {
+        const structure = {css: '', content: '<header>Intro</header>', themeIds: []};
+        const blocks = [
+            {id: 'a', css: '', content: '<section>One</section>', themeIds: []},
+            {id: 'b', css: '', content: '<section>Two</section>', themeIds: []},
+        ];
+
+        const html = assembleStructureHtml(structure, blocks);
+
+        expect(html).toContain('<header>Intro</header>');
+        expect(html).toContain('<div class="g-md-hc-block g-md-hc-block-1">');
+        expect(html).toContain('<section>One</section>');
+        expect(html).toContain('<div class="g-md-hc-block g-md-hc-block-2">');
+        expect(html).toContain('<section>Two</section>');
+        // The outer structure wrapper lives in the locked frame, not in the body.
+        expect(html).not.toContain('g-md-hc-structure');
+    });
+
+    it('round-trips structure document html preserving block identity and css', () => {
+        const structure = {css: '', content: '<header>Intro</header>', themeIds: []};
+        const blocks = [
+            {id: 'a', css: '& { color: red; }', content: '<section>One</section>', themeIds: []},
+            {id: 'b', css: '& { color: blue; }', content: '<section>Two</section>', themeIds: []},
+        ];
+
+        const html = assembleStructureHtml(structure, blocks);
+        const result = parseStructureHtml(html, structure, blocks);
+
+        expect(result.content).toBe('<header>Intro</header>');
+        expect(result.blocks).toMatchObject([
+            {id: 'a', css: '& { color: red; }', content: '<section>One</section>'},
+            {id: 'b', css: '& { color: blue; }', content: '<section>Two</section>'},
+        ]);
+    });
+
+    it('edits block markup and drops blocks removed from the document', () => {
+        const blocks = [
+            {id: 'a', css: 'a-css', content: '<section>One</section>', themeIds: []},
+            {id: 'b', css: 'b-css', content: '<section>Two</section>', themeIds: []},
+        ];
+        const structure = {css: '', content: '', themeIds: []};
+
+        const result = parseStructureHtml(
+            '<div class="g-md-hc-block g-md-hc-block-1"><section>Edited</section></div>',
+            structure,
+            blocks,
+        );
+
+        expect(result.blocks).toHaveLength(1);
+        expect(result.blocks[0]).toMatchObject({id: 'a', css: 'a-css'});
+        expect(result.blocks[0]?.content).toBe('<section>Edited</section>');
+    });
+
+    it('treats non-block markup as structure content', () => {
+        const result = parseStructureHtml(
+            '<header>Hi</header><div class="g-md-hc-block g-md-hc-block-1"><p>Body</p></div>',
+            {css: '', content: '', themeIds: []},
+            [{id: 'a', css: '', content: '<p>old</p>', themeIds: []}],
+        );
+
+        expect(result.content).toBe('<header>Hi</header>');
+        expect(result.blocks).toHaveLength(1);
+        expect(result.blocks[0]?.content).toBe('<p>Body</p>');
+    });
+
+    it('assembles the combined structure stylesheet with resolved selectors', () => {
+        const structure = {css: '.g-md-hc-structure { display: grid; }', content: '', themeIds: []};
+        const blocks = [{id: 'a', css: '& { padding: 12px; }', content: '', themeIds: []}];
+
+        const css = assembleStructureCss(structure, blocks);
+
+        expect(css).toContain('.g-md-hc-structure { display: grid; }');
+        expect(css).toContain('.g-md-hc-block.g-md-hc-block-1 { padding: 12px; }');
     });
 
     it('applies border quick style patches from the combined border dropdown', () => {

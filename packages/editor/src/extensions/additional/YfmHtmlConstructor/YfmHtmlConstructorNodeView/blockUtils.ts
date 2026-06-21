@@ -1,4 +1,13 @@
-import {blockSelector, replaceCssAnchor, structureSelector, templateCssToRules} from '../css';
+import {
+    blockClass,
+    blockSelector,
+    htmlConstructorBlockClass,
+    htmlConstructorStructureClass,
+    replaceCssAnchor,
+    structureClass,
+    structureSelector,
+    templateCssToRules,
+} from '../css';
 import type {
     HtmlConstructorBlock,
     HtmlConstructorBlockTemplate,
@@ -135,6 +144,101 @@ export const buildPreviewCss = ({
 
     return rules.join('\n').replace(/\n{2,}/g, '\n');
 };
+
+/** The locked wrapper lines shown around the structure's editable inner markup. */
+export const getStructureHtmlFrame = () => ({
+    top: `<div class="${htmlConstructorStructureClass} ${structureClass()}">`,
+    bottom: '</div>',
+});
+
+const indentLines = (value: string, pad = '  ') =>
+    value
+        .split('\n')
+        .map((line) => (line.trim() ? `${pad}${line}` : line))
+        .join('\n');
+
+/**
+ * Builds the full editable inner markup of a structure: its own content followed by
+ * every block wrapped in its `g-md-hc-block` div, mirroring the serialized output.
+ */
+export const assembleStructureHtml = (
+    structure: HtmlConstructorStructure,
+    blocks: HtmlConstructorBlock[],
+): string => {
+    const parts: string[] = [];
+
+    const content = structure.content.trim();
+    if (content) parts.push(content);
+
+    blocks.forEach((block, index) => {
+        const inner = block.content.trim();
+        const body = inner ? `\n${indentLines(inner)}\n` : '';
+        parts.push(`<div class="${htmlConstructorBlockClass} ${blockClass(index)}">${body}</div>`);
+    });
+
+    return parts.join('\n\n');
+};
+
+/**
+ * Reconstructs the structure content + blocks from edited inner markup. Top-level
+ * `g-md-hc-block` wrappers map back to blocks (preserving existing block metadata by
+ * position); anything else becomes the structure's own content. Mangled wrappers
+ * simply fall back into the structure content — editing may break blocks, and that's ok.
+ */
+export const parseStructureHtml = (
+    html: string,
+    structure: HtmlConstructorStructure,
+    blocks: HtmlConstructorBlock[],
+): {content: string; blocks: HtmlConstructorBlock[]} => {
+    if (typeof document === 'undefined') {
+        return {content: structure.content, blocks};
+    }
+
+    const template = document.createElement('template');
+    template.innerHTML = html;
+
+    const contentParts: string[] = [];
+    const nextBlocks: HtmlConstructorBlock[] = [];
+
+    for (const node of Array.from(template.content.childNodes)) {
+        if (node instanceof HTMLElement && node.classList.contains(htmlConstructorBlockClass)) {
+            const existing = blocks[nextBlocks.length];
+            const content = node.innerHTML.trim();
+            nextBlocks.push(
+                existing
+                    ? {...existing, content}
+                    : {id: createHtmlConstructorBlockId(), css: '', content, themeIds: []},
+            );
+            continue;
+        }
+
+        if (node instanceof HTMLElement) {
+            contentParts.push(node.outerHTML);
+        } else if (node.textContent && node.textContent.trim()) {
+            contentParts.push(node.textContent.trim());
+        }
+    }
+
+    return {content: contentParts.join('\n'), blocks: nextBlocks};
+};
+
+/**
+ * Builds the full combined stylesheet of a structure for the code editor: structure
+ * rules followed by every block's rules, each resolved to its real selector. Unlike
+ * {@link buildPreviewCss} it keeps blank lines between rules for readability.
+ */
+export const assembleStructureCss = (
+    structure: HtmlConstructorStructure,
+    blocks: HtmlConstructorBlock[],
+): string =>
+    [
+        structure.css.trim() && prepareCss(structure.css, structureSelector()),
+        ...blocks.map(
+            (block, index) => block.css.trim() && prepareCss(block.css, blockSelector(index)),
+        ),
+    ]
+        .filter(Boolean)
+        .join('\n\n');
 
 export const getActiveStructureTemplateId = (structure: HtmlConstructorStructure) =>
     structure.templateId;
