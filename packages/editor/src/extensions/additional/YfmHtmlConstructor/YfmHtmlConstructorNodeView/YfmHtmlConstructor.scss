@@ -686,7 +686,7 @@
         gap: 0;
 
         min-width: 0;
-        min-height: min(660px, calc(100vh - 184px));
+        height: min(660px, calc(100vh - 184px));
         padding: 0;
 
         border: 1px solid var(--g-color-line-generic);
@@ -700,7 +700,10 @@
         gap: 12px;
 
         min-width: 0;
+        min-height: 0;
         padding: 22px 28px 28px;
+        overflow-y: auto;
+        overscroll-behavior: contain;
 
         background: transparent;
 
@@ -720,7 +723,6 @@
 
     &__settings-textarea {
         min-width: 0;
-        height: 100%;
 
         .g-text-area__content {
             color: var(--g-color-text-primary);
@@ -767,10 +769,15 @@
 
         &__settings-editor {
             grid-template-columns: minmax(0, 1fr);
+            height: auto;
+            max-height: calc(100vh - 140px);
+            overflow-y: auto;
+            overscroll-behavior: contain;
         }
 
         &__settings-field {
             padding: 18px;
+            overflow: visible;
 
             & + & {
                 border-top: 1px solid var(--g-color-line-generic);

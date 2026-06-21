@@ -102,13 +102,14 @@ const nodeToReact = (node: ChildNode, key: string): ReactNode => {
 };
 
 const htmlToReactNodes = (html: string): ReactNode[] => {
-    if (!html.trim() || typeof window === 'undefined' || typeof window.DOMParser === 'undefined') {
+    if (!html.trim() || typeof document === 'undefined') {
         return [];
     }
 
-    const doc = new DOMParser().parseFromString(`<template>${html}</template>`, 'text/html');
-    const template = doc.body.firstElementChild;
-    if (!(template instanceof HTMLTemplateElement)) return [];
+    // A `<template>` element is used instead of `DOMParser` because parsing a string that starts
+    // with `<template>` puts that element into `<head>`, leaving `document.body` empty.
+    const template = document.createElement('template');
+    template.innerHTML = html;
 
     return Array.from(template.content.childNodes).map((node, index) =>
         nodeToReact(node, `structure-${index}`),
