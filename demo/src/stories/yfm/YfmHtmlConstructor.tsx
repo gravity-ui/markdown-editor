@@ -11,7 +11,11 @@ import {defaultPreset} from '@gravity-ui/markdown-editor/_/modules/toolbars/pres
 import {YfmHtmlConstructor as YfmHtmlConstructorExtension} from '@gravity-ui/markdown-editor/extensions/additional/YfmHtmlConstructor/index.js';
 
 import {PlaygroundLayout} from '../../components/PlaygroundLayout';
-import {yfmHtmlConstructorTemplates} from '../../defaults/yfm-html-constructor';
+import {seedYfmHtmlConstructorTemplates} from '../../defaults/yfm-html-constructor';
+
+// Seed the bundled "Gravity UI" templates into localStorage once so the picker
+// reads them from storage (and can clear them) instead of static `items`.
+seedYfmHtmlConstructorTemplates();
 
 const yfmHtmlConstructorItemId = 'yfmHtmlConstructor';
 
@@ -47,7 +51,6 @@ export const YfmHtmlConstructorDemo = memo(function YfmHtmlConstructorDemo() {
                 extensions: (builder) =>
                     builder.use(YfmHtmlConstructorExtension, {
                         templates: {
-                            items: yfmHtmlConstructorTemplates,
                             showButton: true,
                             allowAdd: true,
                         },
