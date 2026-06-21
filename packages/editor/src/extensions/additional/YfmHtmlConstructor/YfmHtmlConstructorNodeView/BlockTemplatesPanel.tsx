@@ -8,7 +8,6 @@ import {TextAreaFixed as TextArea} from 'src/forms/TextInput';
 import {i18n} from 'src/i18n/yfm-html-constructor';
 
 import {blockClass} from '../css';
-import {parseRawBlock} from '../templates';
 import type {
     HtmlConstructorBlockTemplate,
     HtmlConstructorStructure,
@@ -233,7 +232,8 @@ export const BlockTemplatesPanel: FC<BlockTemplatesPanelProps> = ({
     onApplyHtml,
 }) => {
     const [filter, setFilter] = useState('');
-    const [input, setInput] = useState('');
+    const [customHtml, setCustomHtml] = useState('');
+    const [customCss, setCustomCss] = useState('');
     const hasAnyBlocks = useMemo(
         () => buildBlockMenuGroups(templates, activeStructureId).length > 0,
         [activeStructureId, templates],
@@ -259,21 +259,23 @@ export const BlockTemplatesPanel: FC<BlockTemplatesPanelProps> = ({
         );
     };
 
-    const handleInsertHtml = () => {
-        onApplyHtml(parseRawBlock(input));
-        setInput('');
+    const handleInsertCustom = () => {
+        onApplyHtml({content: customHtml.trim(), css: customCss.trim()});
+        setCustomHtml('');
+        setCustomCss('');
     };
 
-    const cancelHtml = () => {
+    const cancelCustom = () => {
         if (hasAnyBlocks) {
             setAddingHtml(false);
-            setInput('');
+            setCustomHtml('');
+            setCustomCss('');
         } else {
             onClose();
         }
     };
 
-    const showHtmlEditor = addingHtml || !hasAnyBlocks;
+    const showCustomEditor = addingHtml || !hasAnyBlocks;
 
     return (
         <div className={b('structures', [stop])}>
@@ -290,26 +292,39 @@ export const BlockTemplatesPanel: FC<BlockTemplatesPanelProps> = ({
                 </Button>
             </div>
 
-            {showHtmlEditor ? (
+            {showCustomEditor ? (
                 <div className={b('structures-import')}>
-                    <TextArea
-                        controlProps={{className: stop}}
-                        value={input}
-                        onUpdate={setInput}
-                        placeholder={i18n('block_html_input_placeholder')}
-                        minRows={10}
-                        autoFocus
-                    />
+                    <div className={b('structures-custom-field')}>
+                        <div className={b('structures-custom-label')}>{i18n('html')}</div>
+                        <TextArea
+                            controlProps={{className: stop}}
+                            value={customHtml}
+                            onUpdate={setCustomHtml}
+                            placeholder={i18n('block_html_input_placeholder')}
+                            minRows={6}
+                            autoFocus
+                        />
+                    </div>
+                    <div className={b('structures-custom-field')}>
+                        <div className={b('structures-custom-label')}>{i18n('css')}</div>
+                        <TextArea
+                            controlProps={{className: stop}}
+                            value={customCss}
+                            onUpdate={setCustomCss}
+                            placeholder={'& {\n  padding: 16px;\n  border-radius: 8px;\n}'}
+                            minRows={6}
+                        />
+                    </div>
                     <div className={b('structures-import-actions')}>
-                        <Button view="flat" size="l" className={stop} onClick={cancelHtml}>
+                        <Button view="flat" size="l" className={stop} onClick={cancelCustom}>
                             {i18n('cancel')}
                         </Button>
                         <Button
                             view="action"
                             size="l"
                             className={stop}
-                            disabled={!input.trim()}
-                            onClick={handleInsertHtml}
+                            disabled={!customHtml.trim() && !customCss.trim()}
+                            onClick={handleInsertCustom}
                         >
                             {i18n('insert')}
                         </Button>
@@ -342,7 +357,7 @@ export const BlockTemplatesPanel: FC<BlockTemplatesPanelProps> = ({
                                 onClick={() => setAddingHtml(true)}
                             >
                                 <Icon data={Code} size={16} />
-                                {i18n('custom_html')}
+                                {i18n('custom_block')}
                             </Button>
                         </div>
                     </div>
