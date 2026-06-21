@@ -172,36 +172,40 @@
             content: '';
 
             position: absolute;
-            z-index: 0;
             inset: 0;
 
             background: var(--g-color-base-float);
             border: 1px solid var(--g-color-line-generic);
             border-radius: 12px;
+
+            transition: border-color 0.1s ease-out;
         }
 
+        // The closer layer sits right behind the preview, the farther one below it.
         &::before {
-            transform: translate(5px, 5px);
+            z-index: 1;
+            transform: translate(6px, 6px);
         }
 
         &::after {
-            transform: translate(10px, 10px);
+            z-index: 0;
+            transform: translate(12px, 12px);
         }
     }
 
     &__structure-card-frame_expanded {
         &::before {
-            transform: translate(7px, 8px);
+            transform: translate(8px, 8px);
         }
 
         &::after {
-            transform: translate(14px, 16px);
+            transform: translate(16px, 16px);
         }
     }
 
     &__structure-card-preview {
         position: relative;
-        z-index: 1;
+        z-index: 2;
 
         display: block;
         overflow: hidden;
@@ -212,11 +216,17 @@
         border: 1px solid var(--g-color-line-generic);
         border-radius: 12px;
 
-        transition: border-color 0.1s ease-out, box-shadow 0.1s ease-out;
+        transition: border-color 0.1s ease-out;
 
         .g-md-yfm-html-constructor__structure-card:hover & {
             border-color: var(--g-color-line-brand);
-            box-shadow: 0 0 0 1px var(--g-color-line-brand);
+        }
+    }
+
+    &__structure-card:hover &__structure-card-frame_stacked {
+        &::before,
+        &::after {
+            border-color: var(--g-color-line-brand);
         }
     }
 
@@ -245,7 +255,7 @@
 
     &__structure-card-badge {
         position: absolute;
-        z-index: 2;
+        z-index: 3;
         right: 10px;
         bottom: 10px;
 
