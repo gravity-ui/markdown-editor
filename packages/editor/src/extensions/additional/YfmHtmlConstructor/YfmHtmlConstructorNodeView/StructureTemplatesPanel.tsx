@@ -2,7 +2,7 @@ import {useEffect, useMemo, useRef, useState} from 'react';
 import type {FC} from 'react';
 
 import {
-    ArrowUpFromSquare,
+    ArrowDownToSquare,
     ChevronDown,
     ChevronRight,
     Layers,
@@ -384,7 +384,7 @@ export const StructureTemplatesPanel: FC<StructureTemplatesPanelProps> = ({
                                     className={stop}
                                     onClick={() => setAdding(true)}
                                 >
-                                    <Icon data={ArrowUpFromSquare} size={16} />
+                                    <Icon data={ArrowDownToSquare} size={16} />
                                     {i18n('add_template')}
                                 </Button>
                                 <Button
