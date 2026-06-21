@@ -554,12 +554,11 @@
         }
 
         &_dragged {
-            opacity: 0.55;
             box-shadow: 0 12px 28px -12px rgb(0 0 0 / 35%);
 
-            transform: scale(0.985);
-
             // The ghost is being moved; hide its drop hints and hover frame.
+            // The dim + scale live on the content (see `&__item-content`) so the
+            // floating toolbar — a sibling — keeps its opacity and size.
             &::before {
                 opacity: 0;
             }
@@ -659,6 +658,18 @@
         min-height: 1.2em;
 
         outline: none;
+
+        transition:
+            opacity 0.16s ease,
+            transform 0.16s ease;
+    }
+
+    // Compress and dim only the block body while dragging; the toolbar and drag
+    // handle (siblings) stay crisp.
+    &__item_dragged &__item-content {
+        opacity: 0.55;
+
+        transform: scale(0.985);
     }
 
     &__item-content-html {
