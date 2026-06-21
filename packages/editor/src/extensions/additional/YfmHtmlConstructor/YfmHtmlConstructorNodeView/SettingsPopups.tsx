@@ -183,12 +183,12 @@ const HtmlCssSettingsPanel: FC<HtmlCssSettingsPanelProps> = ({
                     {onClose && (
                         <Button
                             view="flat"
-                            size="s"
+                            size="l"
                             className={stop}
                             onClick={onClose}
                             aria-label={i18n('close')}
                         >
-                            <Icon data={Xmark} size={16} className={stop} />
+                            <Icon data={Xmark} size={18} className={stop} />
                         </Button>
                     )}
                 </div>
