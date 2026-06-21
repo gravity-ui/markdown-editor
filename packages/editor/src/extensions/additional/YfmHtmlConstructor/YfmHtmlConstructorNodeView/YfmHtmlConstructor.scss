@@ -485,7 +485,10 @@
 
         transition:
             border-color 0.12s ease,
-            background-color 0.12s ease;
+            background-color 0.12s ease,
+            box-shadow 0.16s ease,
+            transform 0.16s ease,
+            opacity 0.16s ease;
 
         &::before {
             position: absolute;
@@ -508,7 +511,15 @@
         }
 
         &_dragged {
-            opacity: 0.45;
+            opacity: 0.55;
+            box-shadow: 0 12px 28px -12px rgb(0 0 0 / 35%);
+
+            transform: scale(0.985);
+
+            // The ghost is being moved; hide its drop hints and hover frame.
+            &::before {
+                opacity: 0;
+            }
         }
 
         &_drop-before {
@@ -536,10 +547,12 @@
     }
 
     &__item-drag {
+        // Sits above the toolbar (z-index: 20) and content so the grab target is
+        // never covered by neighbouring blocks or inline controls.
         position: absolute;
-        z-index: 1;
-        top: 2px;
-        left: 2px;
+        z-index: 30;
+        top: 8px;
+        left: 8px;
 
         display: flex;
         justify-content: center;
@@ -557,24 +570,43 @@
         opacity: 0;
         color: var(--g-color-text-secondary);
         border: 0;
-        border-radius: var(--g-border-radius-xs);
+        border-radius: var(--g-border-radius-s);
         background: var(--g-color-base-float);
         box-shadow: 0 0 0 1px var(--g-color-line-generic);
 
-        transition: opacity 0.1s ease-in-out;
-
-        &:active {
-            cursor: grabbing;
-        }
+        transition:
+            opacity 0.12s ease-in-out,
+            transform 0.12s ease,
+            color 0.12s ease,
+            background-color 0.12s ease,
+            box-shadow 0.12s ease;
 
         &:hover {
             color: var(--g-color-text-primary);
             background: var(--g-color-base-generic-hover);
+            box-shadow:
+                0 0 0 1px var(--g-color-line-generic),
+                0 4px 12px -4px rgb(0 0 0 / 25%);
+        }
+
+        &:active {
+            cursor: grabbing;
+
+            transform: scale(0.9);
         }
     }
 
-    &__item:hover &__item-drag {
+    &__item:hover &__item-drag,
+    &__item_dragged &__item-drag {
         opacity: 1;
+    }
+
+    &__item_dragged &__item-drag {
+        cursor: grabbing;
+
+        color: var(--g-color-text-primary);
+
+        transform: scale(0.9);
     }
 
     &__item-content {
