@@ -1,12 +1,10 @@
 import {composeStories} from '@storybook/react';
 
 import * as DefaultYFMStories from '../../src/stories/yfm/YFM.stories';
-import * as ConstructorStories from '../../src/stories/yfm/YfmHtmlConstructor.stories';
 
 type Stories = ReturnType<typeof composeStories<typeof DefaultYFMStories>>;
-type ConstructorStory = ReturnType<typeof composeStories<typeof ConstructorStories>>;
 
-export const YFMStories: Stories & ConstructorStory = {
+export const YFMStories: Stories = {
     ...composeStories(DefaultYFMStories, {
         argsEnhancers: [
             () => ({
@@ -14,5 +12,4 @@ export const YFMStories: Stories & ConstructorStory = {
             }),
         ],
     }),
-    ...composeStories(ConstructorStories),
 };
