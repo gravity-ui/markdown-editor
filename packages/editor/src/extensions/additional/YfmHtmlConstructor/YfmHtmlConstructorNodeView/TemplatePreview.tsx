@@ -1,6 +1,8 @@
 import {useEffect, useRef, useState} from 'react';
 import type {FC} from 'react';
 
+import {HTML_CONSTRUCTOR_VARIABLES_CSS} from '../cssVariables';
+
 import {cnYfmHtmlConstructor} from './const';
 
 const b = cnYfmHtmlConstructor;
@@ -22,7 +24,7 @@ export const LivePreview: FC<{markup: string; css: string}> = ({markup, css}) =>
         if (!host) return;
 
         const root = host.shadowRoot ?? host.attachShadow({mode: 'open'});
-        root.innerHTML = `<style>:host{display:block}*{box-sizing:border-box}img{max-width:100%}${css}</style>${markup}`;
+        root.innerHTML = `<style>:host{display:block}*{box-sizing:border-box}img{max-width:100%}${HTML_CONSTRUCTOR_VARIABLES_CSS}${css}</style>${markup}`;
     }, [css, markup]);
 
     useEffect(() => {

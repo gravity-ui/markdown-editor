@@ -1,5 +1,4 @@
-import type {CSSProperties} from 'react';
-
+import {quickStyleToCssVarDeclarations, quickStyleToReactVars} from './cssVariables';
 import type {HtmlConstructorBorderStyle, HtmlConstructorQuickStyle} from './types';
 
 export const HTML_CONSTRUCTOR_BACKGROUND_COLORS = [
@@ -65,37 +64,11 @@ export const normalizeHtmlConstructorQuickStyle = (
     return Object.keys(quickStyle).length ? quickStyle : undefined;
 };
 
-export const htmlConstructorQuickStyleToReactStyle = (
-    quickStyle: HtmlConstructorQuickStyle | undefined,
-): CSSProperties | undefined => {
-    if (!quickStyle) return undefined;
+/**
+ * Quick styles are serialized as CSS custom properties (the public theming
+ * contract) rather than concrete properties, so user themes can react to them.
+ * See {@link ./cssVariables}.
+ */
+export const htmlConstructorQuickStyleToReactStyle = quickStyleToReactVars;
 
-    const style: CSSProperties = {};
-    if (quickStyle.background) style.background = quickStyle.background;
-    if (quickStyle.textColor) style.color = quickStyle.textColor;
-    if (quickStyle.borderRadius) style.borderRadius = quickStyle.borderRadius;
-    if (quickStyle.borderStyle) {
-        style.border =
-            quickStyle.borderStyle === 'none'
-                ? '0'
-                : `1px ${quickStyle.borderStyle} var(--g-color-line-generic)`;
-    }
-
-    return Object.keys(style).length ? style : undefined;
-};
-
-export const htmlConstructorQuickStyleToCss = (
-    quickStyle: HtmlConstructorQuickStyle | undefined,
-) => {
-    const declarations = [
-        quickStyle?.background && `background: ${quickStyle.background}`,
-        quickStyle?.textColor && `color: ${quickStyle.textColor}`,
-        quickStyle?.borderRadius && `border-radius: ${quickStyle.borderRadius}`,
-        quickStyle?.borderStyle &&
-            (quickStyle.borderStyle === 'none'
-                ? 'border: 0'
-                : `border: 1px ${quickStyle.borderStyle} var(--g-color-line-generic)`),
-    ].filter(Boolean);
-
-    return declarations.length ? `${declarations.join('; ')};` : '';
-};
+export const htmlConstructorQuickStyleToCss = quickStyleToCssVarDeclarations;

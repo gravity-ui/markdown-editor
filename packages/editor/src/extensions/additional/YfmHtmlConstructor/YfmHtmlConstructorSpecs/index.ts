@@ -12,6 +12,7 @@ import {
     structureSelector,
     templateCssToRules,
 } from '../css';
+import {HTML_CONSTRUCTOR_VARIABLES_CSS} from '../cssVariables';
 import {htmlConstructorQuickStyleToCss, normalizeHtmlConstructorQuickStyle} from '../quickStyle';
 import {normalizeHtmlConstructorTemplateSettings} from '../settings';
 import type {HtmlConstructorBlock, HtmlConstructorStructure} from '../types';
@@ -104,7 +105,18 @@ const buildCss = (structure: HtmlConstructorStructure, blocks: HtmlConstructorBl
         ),
     ].filter(Boolean);
 
-    return rules.join('\n').replace(/\n{2,}/g, '\n');
+    const usesVariables =
+        Boolean(structure.quickStyle) || blocks.some((block) => Boolean(block.quickStyle));
+
+    // Nothing to style and no quick-style variables to resolve — skip the
+    // contract stylesheet entirely so plain blocks stay markup-only.
+    if (!rules.length && !usesVariables) return '';
+
+    const ruleCss = rules.join('\n').replace(/\n{2,}/g, '\n');
+
+    // The contract stylesheet comes first so block/theme rules (higher
+    // specificity) and inline quick-style variables can override it.
+    return [HTML_CONSTRUCTOR_VARIABLES_CSS, ruleCss].filter(Boolean).join('\n');
 };
 
 const buildStructureContent = (

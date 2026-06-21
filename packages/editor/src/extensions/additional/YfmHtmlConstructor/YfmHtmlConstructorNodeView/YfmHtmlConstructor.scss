@@ -428,9 +428,40 @@
     }
 
     &__structure {
+        // Resolve the active light/dark theme companions; @see ../cssVariables.ts.
+        --g-md-hc-background-current: var(--g-md-hc-background-light);
+        --g-md-hc-text-color-current: var(--g-md-hc-text-color-light);
+        --g-md-hc-border-radius-current: var(--g-md-hc-border-radius-light);
+        --g-md-hc-border-current: var(--g-md-hc-border-light);
+
         display: grid;
         align-items: stretch;
         gap: 8px;
+
+        // Quick-style override -> theme companion -> neutral fallback.
+        color: var(--g-md-hc-text-color, var(--g-md-hc-text-color-current, inherit));
+        border: var(--g-md-hc-border, var(--g-md-hc-border-current, none));
+        border-radius: var(--g-md-hc-border-radius, var(--g-md-hc-border-radius-current, 0));
+        background: var(--g-md-hc-background, var(--g-md-hc-background-current, transparent));
+    }
+
+    .g-root_theme_dark &__item,
+    .g-root_theme_dark-hc &__item,
+    .g-root_theme_dark &__structure,
+    .g-root_theme_dark-hc &__structure {
+        --g-md-hc-background-current: var(
+            --g-md-hc-background-dark,
+            var(--g-md-hc-background-light)
+        );
+        --g-md-hc-text-color-current: var(
+            --g-md-hc-text-color-dark,
+            var(--g-md-hc-text-color-light)
+        );
+        --g-md-hc-border-radius-current: var(
+            --g-md-hc-border-radius-dark,
+            var(--g-md-hc-border-radius-light)
+        );
+        --g-md-hc-border-current: var(--g-md-hc-border-dark, var(--g-md-hc-border-light));
     }
 
     &__initial {
@@ -475,13 +506,25 @@
     }
 
     &__item {
+        // Resolve the active light/dark theme companions; @see ../cssVariables.ts.
+        --g-md-hc-background-current: var(--g-md-hc-background-light);
+        --g-md-hc-text-color-current: var(--g-md-hc-text-color-light);
+        --g-md-hc-border-radius-current: var(--g-md-hc-border-radius-light);
+        --g-md-hc-border-current: var(--g-md-hc-border-light);
+
         position: relative;
 
         min-height: 56px;
         padding: 12px;
 
-        border: 1px solid transparent;
-        border-radius: var(--g-border-radius-m);
+        // Quick-style override -> theme companion -> editor chrome fallback.
+        color: var(--g-md-hc-text-color, var(--g-md-hc-text-color-current, inherit));
+        border: var(--g-md-hc-border, var(--g-md-hc-border-current, 1px solid transparent));
+        border-radius: var(
+            --g-md-hc-border-radius,
+            var(--g-md-hc-border-radius-current, var(--g-border-radius-m))
+        );
+        background: var(--g-md-hc-background, var(--g-md-hc-background-current, transparent));
 
         transition:
             border-color 0.12s ease,

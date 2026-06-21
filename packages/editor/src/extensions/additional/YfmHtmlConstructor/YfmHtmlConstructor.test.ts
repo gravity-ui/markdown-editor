@@ -5,6 +5,12 @@ import {BaseNode, BaseSchemaSpecs} from '../../specs';
 
 import {YfmHtmlConstructorSpecs} from './YfmHtmlConstructorSpecs';
 import {YfmHtmlConstructorAttrs, yfmHtmlConstructorNodeName} from './YfmHtmlConstructorSpecs/const';
+import {HTML_CONSTRUCTOR_VARIABLES_CSS} from './cssVariables';
+
+/** Matches the 2-space indentation `buildYfmHtmlConstructorHtml` applies inside `<style>`. */
+const indentedContractCss = HTML_CONSTRUCTOR_VARIABLES_CSS.split('\n').map((line) =>
+    line ? `  ${line}` : line,
+);
 
 const {schema, serializer} = new ExtensionsManager({
     extensions: (builder) => builder.use(BaseSchemaSpecs, {}).use(YfmHtmlConstructorSpecs, {}),
@@ -81,6 +87,7 @@ describe('YfmHtmlConstructor extension', () => {
             [
                 '::: html',
                 '<style>',
+                ...indentedContractCss,
                 '  .g-md-hc-structure.g-md-hc-structure-1 { display: grid; }',
                 '  .g-md-hc-structure { gap: 12px; }',
                 '  .g-md-hc-block.g-md-hc-block-1 { padding: 12px; }',

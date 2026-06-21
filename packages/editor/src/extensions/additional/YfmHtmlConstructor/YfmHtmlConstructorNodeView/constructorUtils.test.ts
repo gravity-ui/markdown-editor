@@ -202,9 +202,11 @@ describe('YfmHtmlConstructor utils', () => {
             },
         } as unknown as Node);
 
-        expect(html).toContain('style="background: #ffffff; border-radius: 12px;"');
         expect(html).toContain(
-            'style="color: #2f6fe0; border: 1px dashed var(--g-color-line-generic);"',
+            'style="--g-md-hc-background: #ffffff; --g-md-hc-border-radius: 12px;"',
+        );
+        expect(html).toContain(
+            'style="--g-md-hc-text-color: #2f6fe0; --g-md-hc-border: 1px dashed var(--g-color-line-generic);"',
         );
     });
 
