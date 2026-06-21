@@ -42,6 +42,7 @@
   "round_pill": "Пилюля",
   "rounding": "Скругление",
   "save": "Сохранить",
+  "search_structures": "Поиск структуры…",
   "search_templates": "Поиск по названию",
   "show_code": "Показать код",
   "select_palette": "Выбрать палитру",
@@ -52,7 +53,9 @@
   "structure_settings": "Настройки структуры",
   "structure_templates": "Шаблоны структур",
   "structure_templates_empty": "Нет шаблонов структур",
+  "structures_title": "Выбор структуры",
   "text_color": "Цвет текста",
+  "themes_count": ["{{count}} тема", "{{count}} темы", "{{count}} тем", "{{count}} тем"],
   "themes_empty": "Нет тем",
   "templates_input_placeholder": "<template type=\"family\" id=\"marketing\" title=\"Marketing\"></template>\n\n<template type=\"structure\" id=\"landing\" title=\"Landing\" family=\"marketing\">\n  <style>\n    .g-md-hc-structure { display: grid; gap: 16px; }\n  </style>\n  <section>Intro</section>\n</template>\n\n<template type=\"block\" id=\"card\" title=\"Card\" structure=\"landing\" family=\"marketing\">\n  <style>\n    & { padding: 16px; border-radius: 8px; background: #f8fafc; }\n  </style>\n  <div>Card text</div>\n</template>\n\n<template type=\"theme\" id=\"landing-compact\" title=\"Compact\" structure=\"landing\" family=\"marketing\">\n  <style>\n    .g-md-hc-structure { gap: 8px; }\n  </style>\n</template>",
   "templates_parse_error": "Не удалось разобрать шаблоны"

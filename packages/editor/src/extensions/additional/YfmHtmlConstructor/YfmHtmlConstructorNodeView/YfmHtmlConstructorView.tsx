@@ -34,8 +34,8 @@ import {BlockInsertPanel} from './BlockInsertPopup';
 import {FloatingToolbar, type FloatingToolbarPrimaryAction} from './FloatingToolbar';
 import {HtmlBlockItem} from './HtmlBlockItem';
 import {StructureSettingsPanel} from './SettingsPopups';
+import {StructureTemplatesModal} from './StructureTemplatesModal';
 import {ThemesPanel} from './TemplateActionsPanel';
-import {TemplatesPanel} from './TemplatesPopup';
 import {
     applyStructureThemeToState,
     blockTemplateToBlock,
@@ -313,21 +313,6 @@ export const YfmHtmlConstructorView: FC<{
             );
         }
 
-        if (structurePanel === 'templates') {
-            return (
-                <TemplatesPanel
-                    templates={effectiveTemplates}
-                    allowAdd={allowAdd}
-                    emptyText={i18n('structure_templates_empty')}
-                    hasStoredTemplates={storedTemplates.length > 0}
-                    onClose={closeStructurePanel}
-                    onApply={applyStructureTemplate}
-                    onAdded={setStoredTemplates}
-                    onCleared={setStoredTemplates}
-                />
-            );
-        }
-
         if (structurePanel === 'themes') {
             return (
                 <ThemesPanel
@@ -432,6 +417,19 @@ export const YfmHtmlConstructorView: FC<{
                 onCloseExpandedContent={closeStructurePanel}
                 expandedContent={structurePanelContent}
             />
+            {showStructureTemplatesButton && (
+                <StructureTemplatesModal
+                    open={structurePanel === 'templates'}
+                    templates={effectiveTemplates}
+                    allowAdd={allowAdd}
+                    emptyText={i18n('structure_templates_empty')}
+                    hasStoredTemplates={storedTemplates.length > 0}
+                    onClose={closeStructurePanel}
+                    onApply={applyStructureTemplate}
+                    onAdded={setStoredTemplates}
+                    onCleared={setStoredTemplates}
+                />
+            )}
             <div
                 id={structureClass()}
                 className={`${b('structure')} ${htmlConstructorStructureClass} ${structureClass()}`}

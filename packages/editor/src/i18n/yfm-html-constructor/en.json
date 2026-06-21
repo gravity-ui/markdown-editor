@@ -42,6 +42,7 @@
   "round_pill": "Pill",
   "rounding": "Rounding",
   "save": "Save",
+  "search_structures": "Search structure…",
   "search_templates": "Search by name",
   "show_code": "Show code",
   "select_palette": "Select palette",
@@ -52,7 +53,9 @@
   "structure_settings": "Structure settings",
   "structure_templates": "Structure templates",
   "structure_templates_empty": "No structure templates",
+  "structures_title": "Select structure",
   "text_color": "Text color",
+  "themes_count": ["{{count}} theme", "{{count}} themes", "{{count}} themes", "{{count}} themes"],
   "themes_empty": "No themes",
   "templates_input_placeholder": "<template type=\"family\" id=\"marketing\" title=\"Marketing\"></template>\n\n<template type=\"structure\" id=\"landing\" title=\"Landing\" family=\"marketing\">\n  <style>\n    .g-md-hc-structure { display: grid; gap: 16px; }\n  </style>\n  <section>Intro</section>\n</template>\n\n<template type=\"block\" id=\"card\" title=\"Card\" structure=\"landing\" family=\"marketing\">\n  <style>\n    & { padding: 16px; border-radius: 8px; background: #f8fafc; }\n  </style>\n  <div>Card text</div>\n</template>\n\n<template type=\"theme\" id=\"landing-compact\" title=\"Compact\" structure=\"landing\" family=\"marketing\">\n  <style>\n    .g-md-hc-structure { gap: 8px; }\n  </style>\n</template>",
   "templates_parse_error": "Could not parse templates"
