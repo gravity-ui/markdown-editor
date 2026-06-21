@@ -145,6 +145,41 @@ export const buildPreviewCss = ({
     return rules.join('\n').replace(/\n{2,}/g, '\n');
 };
 
+const PREVIEW_STRUCTURE: HtmlConstructorStructure = {css: '', content: '', themeIds: []};
+
+/** Markup + CSS for previewing a single block template (optionally themed). */
+export const buildBlockPreviewParts = (
+    template: HtmlConstructorBlockTemplate,
+    theme?: HtmlConstructorThemeTemplate,
+) => {
+    const block = blockTemplateToBlock(template, theme);
+
+    return {
+        markup: `<div class="${htmlConstructorBlockClass} ${blockClass(0)}">${block.content}</div>`,
+        css: buildPreviewCss({structure: PREVIEW_STRUCTURE, blocks: [block]}),
+    };
+};
+
+/** Markup + CSS for previewing a whole structure template with its blocks (optionally themed). */
+export const buildStructurePreviewParts = (
+    templates: HtmlConstructorTemplate[],
+    structure: HtmlConstructorStructureTemplate,
+    theme?: HtmlConstructorThemeTemplate,
+) => {
+    const {structure: state, blocks} = structureTemplateToAttrs(templates, structure, theme);
+    const blocksHtml = blocks
+        .map(
+            (block, index) =>
+                `<div class="${htmlConstructorBlockClass} ${blockClass(index)}">${block.content}</div>`,
+        )
+        .join('');
+
+    return {
+        markup: `<div class="${htmlConstructorStructureClass} ${structureClass()}">${state.content}${blocksHtml}</div>`,
+        css: buildPreviewCss({structure: state, blocks}),
+    };
+};
+
 /** The locked wrapper lines shown around the structure's editable inner markup. */
 export const getStructureHtmlFrame = () => ({
     top: `<div class="${htmlConstructorStructureClass} ${structureClass()}">`,

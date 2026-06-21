@@ -7,13 +7,7 @@ import type {
     PointerEvent as ReactPointerEvent,
 } from 'react';
 
-import {
-    BucketPaint,
-    ChevronDown,
-    GripHorizontal,
-    Pencil,
-    SquareDashedText,
-} from '@gravity-ui/icons';
+import {BucketPaint, GripHorizontal, Pencil, Sliders} from '@gravity-ui/icons';
 import {Button, Icon} from '@gravity-ui/uikit';
 
 import {i18n} from 'src/i18n/yfm-html-constructor';
@@ -30,10 +24,12 @@ import type {
 
 import {FloatingToolbar, type FloatingToolbarPrimaryAction} from './FloatingToolbar';
 import {BlockSettingsPanel} from './SettingsPopups';
-import {BlockStatesPanel, ThemesPanel} from './TemplateActionsPanel';
+import {TemplatePickerPanel} from './TemplatePicker';
+import type {PickerCardModel, PickerGroup} from './TemplatePicker';
 import {
     applyBlockTemplateToBlock,
     applyBlockThemeToBlock,
+    buildBlockPreviewParts,
     getBlockTemplateById,
     getBlockTemplateStateGroup,
 } from './blockUtils';
@@ -49,6 +45,7 @@ import {
 
 const b = cnYfmHtmlConstructor;
 const stop = STOP_EVENT_CLASSNAME;
+const getTitle = (template: {id: string; title?: string}) => template.title?.trim() || template.id;
 const inlineEditButtonSelector = `.${b('inline-edit-button')}`;
 const textTargetSelector = [
     'h1',
@@ -387,27 +384,90 @@ export const HtmlBlockItem: FC<HtmlBlockItemProps> = ({
         closeBlockPanel();
     };
 
+    const buildStateGroups = (): PickerGroup[] => {
+        if (states.length === 0) return [];
+
+        return [
+            {
+                title: '',
+                cards: states.map((state): PickerCardModel => {
+                    const stateThemes = themesByBlockId[state.id] ?? [];
+
+                    return {
+                        id: state.id,
+                        title: getTitle(state),
+                        preview: buildBlockPreviewParts(state),
+                        active: state.id === block.templateId,
+                        badge: stateThemes.length
+                            ? i18n('variants_count', {count: stateThemes.length})
+                            : undefined,
+                        onApply: () => applyBlockState(state),
+                        variants: stateThemes.map((theme) => ({
+                            key: theme.id,
+                            label: getTitle(theme),
+                            preview: buildBlockPreviewParts(state, theme),
+                            onApply: () => applyBlockState(state, theme),
+                        })),
+                    };
+                }),
+            },
+        ];
+    };
+
+    const buildThemeGroups = (): PickerGroup[] => {
+        if (!activeBlockTemplate || blockThemes.length === 0) return [];
+
+        const hasActiveTheme = blockThemes.some((theme) => block.themeIds.includes(theme.id));
+        const autoCard: PickerCardModel = {
+            id: '__auto',
+            title: i18n('auto'),
+            preview: buildBlockPreviewParts(activeBlockTemplate),
+            active: !hasActiveTheme,
+            onApply: () => applyBlockTheme(undefined),
+            variants: [],
+        };
+
+        return [
+            {
+                title: '',
+                cards: [
+                    autoCard,
+                    ...blockThemes.map(
+                        (theme): PickerCardModel => ({
+                            id: theme.id,
+                            title: getTitle(theme),
+                            preview: buildBlockPreviewParts(activeBlockTemplate, theme),
+                            active: block.themeIds.includes(theme.id),
+                            onApply: () => applyBlockTheme(theme),
+                            variants: [],
+                        }),
+                    ),
+                ],
+            },
+        ];
+    };
+
     const renderBlockPanelContent = () => {
         if (blockPanel === 'state') {
             return (
-                <BlockStatesPanel
-                    states={states}
-                    activeTemplateId={block.templateId}
-                    themesByBlockId={themesByBlockId}
-                    activeThemeIds={block.themeIds}
+                <TemplatePickerPanel
+                    title={i18n('select_state')}
                     emptyText={i18n('states_empty')}
-                    onApply={applyBlockState}
+                    showSearch={false}
+                    buildGroups={buildStateGroups}
+                    onClose={closeBlockPanel}
                 />
             );
         }
 
         if (blockPanel === 'theme') {
             return (
-                <ThemesPanel
-                    themes={blockThemes}
-                    activeThemeIds={block.themeIds}
+                <TemplatePickerPanel
+                    title={i18n('select_theme')}
                     emptyText={i18n('themes_empty')}
-                    onApply={applyBlockTheme}
+                    showSearch={false}
+                    buildGroups={buildThemeGroups}
+                    onClose={closeBlockPanel}
                 />
             );
         }
@@ -440,14 +500,13 @@ export const HtmlBlockItem: FC<HtmlBlockItemProps> = ({
                     view="flat"
                     size="s"
                     className={stop}
-                    disabled={states.length === 0}
+                    disabled={states.length <= 1}
                     selected={blockPanel === 'state'}
                     onClick={() => toggleBlockPanel('state')}
                     aria-label={i18n('select_state')}
                     title={i18n('select_state')}
                 >
-                    <Icon data={SquareDashedText} className={stop} />
-                    <Icon data={ChevronDown} size={12} className={stop} />
+                    <Icon data={Sliders} className={stop} />
                 </Button>
             ),
         },
@@ -503,7 +562,7 @@ export const HtmlBlockItem: FC<HtmlBlockItemProps> = ({
                 duplicateLabel={i18n('duplicate_block')}
                 removeLabel={i18n('remove_block')}
                 lockLabel={i18n('lock_block')}
-                expandedContentView={blockPanel === 'settings' ? 'editor' : 'menu'}
+                expandedContentView={blockPanel === 'settings' ? 'editor' : 'panel'}
                 onCloseExpandedContent={closeBlockPanel}
                 expandedContent={blockPanelContent}
             />

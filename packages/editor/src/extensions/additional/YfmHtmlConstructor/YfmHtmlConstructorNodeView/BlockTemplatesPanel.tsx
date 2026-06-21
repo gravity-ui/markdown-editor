@@ -3,35 +3,21 @@ import type {FC} from 'react';
 
 import {i18n} from 'src/i18n/yfm-html-constructor';
 
-import {blockClass} from '../css';
 import type {
     HtmlConstructorBlockTemplate,
-    HtmlConstructorStructure,
     HtmlConstructorTemplate,
     HtmlConstructorThemeTemplate,
 } from '../types';
 
 import {TemplatePickerPanel} from './TemplatePicker';
-import type {PickerCardModel, PickerGroup, PickerPreview} from './TemplatePicker';
-import {blockTemplateToBlock, buildPreviewCss} from './blockUtils';
+import type {PickerCardModel, PickerGroup} from './TemplatePicker';
+import {buildBlockPreviewParts} from './blockUtils';
 import {buildBlockMenuGroups} from './groupTemplates';
 import type {BlockMenuItem} from './groupTemplates';
 
 const getTitle = (template: {id: string; title?: string}) => template.title?.trim() || template.id;
 
-const EMPTY_STRUCTURE: HtmlConstructorStructure = {css: '', content: '', themeIds: []};
-
-const blockPreview = (
-    template: HtmlConstructorBlockTemplate,
-    theme?: HtmlConstructorThemeTemplate,
-): PickerPreview => {
-    const block = blockTemplateToBlock(template, theme);
-
-    return {
-        markup: `<div class="g-md-hc-block ${blockClass(0)}">${block.content}</div>`,
-        css: buildPreviewCss({structure: EMPTY_STRUCTURE, blocks: [block]}),
-    };
-};
+const blockPreview = buildBlockPreviewParts;
 
 const variantLabel = (
     base: HtmlConstructorBlockTemplate,

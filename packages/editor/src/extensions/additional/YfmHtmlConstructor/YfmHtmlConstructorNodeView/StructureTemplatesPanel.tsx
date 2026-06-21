@@ -7,7 +7,6 @@ import {Button, Icon} from '@gravity-ui/uikit';
 import {TextAreaFixed as TextArea} from 'src/forms/TextInput';
 import {i18n} from 'src/i18n/yfm-html-constructor';
 
-import {blockClass, structureClass} from '../css';
 import {
     HtmlConstructorTemplateParseError,
     clearStoredTemplates,
@@ -21,8 +20,8 @@ import type {
 } from '../types';
 
 import {TemplatePickerPanel} from './TemplatePicker';
-import type {PickerCardModel, PickerEditor, PickerGroup, PickerPreview} from './TemplatePicker';
-import {buildPreviewCss, structureTemplateToAttrs} from './blockUtils';
+import type {PickerCardModel, PickerEditor, PickerGroup} from './TemplatePicker';
+import {buildStructurePreviewParts} from './blockUtils';
 import {STOP_EVENT_CLASSNAME, cnYfmHtmlConstructor} from './const';
 import {buildStructureMenuGroups} from './groupTemplates';
 
@@ -31,24 +30,7 @@ const stop = STOP_EVENT_CLASSNAME;
 
 const getTitle = (template: {id: string; title?: string}) => template.title?.trim() || template.id;
 
-const structurePreview = (
-    templates: HtmlConstructorTemplate[],
-    structure: HtmlConstructorStructureTemplate,
-    theme?: HtmlConstructorThemeTemplate,
-): PickerPreview => {
-    const {structure: state, blocks} = structureTemplateToAttrs(templates, structure, theme);
-    const blocksHtml = blocks
-        .map(
-            (block, index) =>
-                `<div class="g-md-hc-block ${blockClass(index)}">${block.content}</div>`,
-        )
-        .join('');
-
-    return {
-        markup: `<div class="g-md-hc-structure ${structureClass()}">${state.content}${blocksHtml}</div>`,
-        css: buildPreviewCss({structure: state, blocks}),
-    };
-};
+const structurePreview = buildStructurePreviewParts;
 
 const structureCard = (
     templates: HtmlConstructorTemplate[],

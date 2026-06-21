@@ -35,13 +35,15 @@ import {FloatingToolbar, type FloatingToolbarPrimaryAction} from './FloatingTool
 import {HtmlBlockItem} from './HtmlBlockItem';
 import {StructureSettingsPanel} from './SettingsPopups';
 import {StructureTemplatesPanel} from './StructureTemplatesPanel';
-import {ThemesPanel} from './TemplateActionsPanel';
+import {TemplatePickerPanel} from './TemplatePicker';
+import type {PickerCardModel, PickerGroup} from './TemplatePicker';
 import {
     applyStructureThemeToState,
     assembleStructureCss,
     assembleStructureHtml,
     blockTemplateToBlock,
     buildPreviewCss,
+    buildStructurePreviewParts,
     cloneHtmlConstructorBlock,
     getActiveStructureTemplateId,
     getStructureHtmlFrame,
@@ -247,6 +249,45 @@ export const YfmHtmlConstructorView: FC<{
         closeStructurePanel();
     };
 
+    const buildStructureThemeGroups = (): PickerGroup[] => {
+        if (!activeStructureTemplate || structureThemes.length === 0) return [];
+
+        const hasActiveTheme = structureThemes.some((theme) =>
+            structure.themeIds.includes(theme.id),
+        );
+        const autoCard: PickerCardModel = {
+            id: '__auto',
+            title: i18n('auto'),
+            preview: buildStructurePreviewParts(effectiveTemplates, activeStructureTemplate),
+            active: !hasActiveTheme,
+            onApply: () => applyStructureTheme(undefined),
+            variants: [],
+        };
+
+        return [
+            {
+                title: '',
+                cards: [
+                    autoCard,
+                    ...structureThemes.map(
+                        (theme): PickerCardModel => ({
+                            id: theme.id,
+                            title: theme.title?.trim() || theme.id,
+                            preview: buildStructurePreviewParts(
+                                effectiveTemplates,
+                                activeStructureTemplate,
+                                theme,
+                            ),
+                            active: structure.themeIds.includes(theme.id),
+                            onApply: () => applyStructureTheme(theme),
+                            variants: [],
+                        }),
+                    ),
+                ],
+            },
+        ];
+    };
+
     const applyBlockTemplate = (
         template: HtmlConstructorBlockTemplate,
         theme?: HtmlConstructorThemeTemplate,
@@ -369,11 +410,12 @@ export const YfmHtmlConstructorView: FC<{
 
         if (structurePanel === 'themes') {
             return (
-                <ThemesPanel
-                    themes={structureThemes}
-                    activeThemeIds={structure.themeIds}
+                <TemplatePickerPanel
+                    title={i18n('select_theme')}
                     emptyText={i18n('themes_empty')}
-                    onApply={applyStructureTheme}
+                    showSearch={false}
+                    buildGroups={buildStructureThemeGroups}
+                    onClose={closeStructurePanel}
                 />
             );
         }
@@ -468,13 +510,7 @@ export const YfmHtmlConstructorView: FC<{
                 duplicateLabel={i18n('duplicate_constructor')}
                 removeLabel={i18n('remove_constructor')}
                 lockLabel={i18n('lock_constructor')}
-                expandedContentView={
-                    structurePanel === 'settings'
-                        ? 'editor'
-                        : structurePanel === 'templates' || structurePanel === 'blocks'
-                          ? 'panel'
-                          : 'menu'
-                }
+                expandedContentView={structurePanel === 'settings' ? 'editor' : 'panel'}
                 onCloseExpandedContent={closeStructurePanel}
                 expandedContent={structurePanelContent}
             />

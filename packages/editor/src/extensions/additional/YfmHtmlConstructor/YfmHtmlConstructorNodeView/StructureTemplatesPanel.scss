@@ -245,6 +245,15 @@
         }
     }
 
+    &__structure-card_active &__structure-card-preview {
+        border-color: var(--g-color-line-brand);
+        box-shadow: 0 0 0 1px var(--g-color-line-brand);
+    }
+
+    &__structure-card_active &__structure-card-title {
+        color: var(--g-color-text-brand);
+    }
+
     &__structure-preview {
         position: relative;
 

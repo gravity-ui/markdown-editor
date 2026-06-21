@@ -32,6 +32,8 @@ export type PickerCardModel = {
     preview: PickerPreview;
     /** Caption shown in the stacked-card corner, e.g. "3 themes". */
     badge?: ReactNode;
+    /** Highlights the card as the currently applied option. */
+    active?: boolean;
     variants: PickerVariant[];
     onApply: () => void;
 };
@@ -84,7 +86,7 @@ const PickerCard: FC<{card: PickerCardModel}> = ({card}) => {
         >
             <button
                 type="button"
-                className={b('structure-card', [stop])}
+                className={b('structure-card', {active: card.active}, [stop])}
                 onClick={card.onApply}
                 title={card.title}
             >
@@ -168,16 +170,18 @@ const PickerGroupView: FC<{group: PickerGroup; open: boolean; onToggle: () => vo
 
 export interface TemplatePickerPanelProps {
     title: string;
-    searchPlaceholder: string;
+    searchPlaceholder?: string;
     emptyText: string;
     buildGroups: (filter: string) => PickerGroup[];
     onClose: () => void;
+    /** Show the search field and toolbar. Defaults to true. */
+    showSearch?: boolean;
 
     /** Built-in "custom" entry that lets the user type raw HTML and CSS. */
-    customLabel: string;
-    customHtmlPlaceholder: string;
-    customCssPlaceholder: string;
-    onApplyCustom: (value: {content: string; css: string}) => void;
+    customLabel?: string;
+    customHtmlPlaceholder?: string;
+    customCssPlaceholder?: string;
+    onApplyCustom?: (value: {content: string; css: string}) => void;
     /** Opens the custom editor up front when there are no templates to pick from. */
     customByDefault?: boolean;
 
@@ -193,6 +197,7 @@ export const TemplatePickerPanel: FC<TemplatePickerPanelProps> = ({
     emptyText,
     buildGroups,
     onClose,
+    showSearch = true,
     customLabel,
     customHtmlPlaceholder,
     customCssPlaceholder,
@@ -209,8 +214,9 @@ export const TemplatePickerPanel: FC<TemplatePickerPanelProps> = ({
         () => buildGroups('').some((group) => group.cards.length > 0),
         [buildGroups],
     );
+    const hasCustom = Boolean(onApplyCustom);
     const [activeEditor, setActiveEditor] = useState<string | null>(
-        customByDefault && !hasAnyCards ? 'custom' : null,
+        hasCustom && customByDefault && !hasAnyCards ? 'custom' : null,
     );
     const [openGroups, setOpenGroups] = useState<string[]>(() =>
         buildGroups('')
@@ -239,7 +245,7 @@ export const TemplatePickerPanel: FC<TemplatePickerPanelProps> = ({
     };
 
     const applyCustom = () => {
-        onApplyCustom({content: customHtml.trim(), css: customCss.trim()});
+        onApplyCustom?.({content: customHtml.trim(), css: customCss.trim()});
         setCustomHtml('');
         setCustomCss('');
     };
@@ -286,66 +292,89 @@ export const TemplatePickerPanel: FC<TemplatePickerPanelProps> = ({
         </div>
     );
 
+    const hasActions = hasCustom || (editors?.length ?? 0) > 0 || Boolean(extraActions);
+    const showToolbar = showSearch || hasActions;
+
     const listView = (
         <>
-            <div className={b('structures-toolbar')}>
-                <TextInput
-                    className={b('structures-search', [stop])}
-                    controlProps={{className: stop}}
-                    size="l"
-                    value={filter}
-                    onUpdate={setFilter}
-                    placeholder={searchPlaceholder}
-                    startContent={
-                        <Icon data={Magnifier} size={16} className={b('structures-search-icon')} />
-                    }
-                    hasClear
-                />
-                <div className={b('structures-actions')}>
-                    <Button
-                        view="flat"
-                        size="l"
-                        className={stop}
-                        onClick={() => setActiveEditor('custom')}
-                    >
-                        <Icon data={Code} size={16} />
-                        {customLabel}
-                    </Button>
-                    {editors?.map((editor) => (
-                        <Button
-                            key={editor.id}
-                            view="flat"
+            {showToolbar && (
+                <div className={b('structures-toolbar')}>
+                    {showSearch && (
+                        <TextInput
+                            className={b('structures-search', [stop])}
+                            controlProps={{className: stop}}
                             size="l"
-                            className={stop}
-                            onClick={() => setActiveEditor(editor.id)}
-                        >
-                            <Icon data={editor.icon} size={16} />
-                            {editor.label}
-                        </Button>
-                    ))}
-                    {extraActions}
+                            value={filter}
+                            onUpdate={setFilter}
+                            placeholder={searchPlaceholder}
+                            startContent={
+                                <Icon
+                                    data={Magnifier}
+                                    size={16}
+                                    className={b('structures-search-icon')}
+                                />
+                            }
+                            hasClear
+                        />
+                    )}
+                    {hasActions && (
+                        <div className={b('structures-actions')}>
+                            {hasCustom && (
+                                <Button
+                                    view="flat"
+                                    size="l"
+                                    className={stop}
+                                    onClick={() => setActiveEditor('custom')}
+                                >
+                                    <Icon data={Code} size={16} />
+                                    {customLabel}
+                                </Button>
+                            )}
+                            {editors?.map((editor) => (
+                                <Button
+                                    key={editor.id}
+                                    view="flat"
+                                    size="l"
+                                    className={stop}
+                                    onClick={() => setActiveEditor(editor.id)}
+                                >
+                                    <Icon data={editor.icon} size={16} />
+                                    {editor.label}
+                                </Button>
+                            ))}
+                            {extraActions}
+                        </div>
+                    )}
                 </div>
-            </div>
+            )}
 
             <div className={b('structures-body')}>
                 {groups.length === 0 ? (
                     <div className={b('structures-empty')}>{emptyText}</div>
                 ) : (
-                    groups.map((group) => (
-                        <PickerGroupView
-                            key={group.title}
-                            group={group}
-                            open={hasFilter || openGroups.includes(group.title)}
-                            onToggle={() => toggleGroup(group.title)}
-                        />
-                    ))
+                    groups.map((group, index) =>
+                        group.title ? (
+                            <PickerGroupView
+                                key={group.title}
+                                group={group}
+                                open={hasFilter || openGroups.includes(group.title)}
+                                onToggle={() => toggleGroup(group.title)}
+                            />
+                        ) : (
+                            <div key={`__flat-${index}`} className={b('structure-grid')}>
+                                {group.cards.map((card) => (
+                                    <PickerCard key={card.id} card={card} />
+                                ))}
+                            </div>
+                        ),
+                    )
                 )}
             </div>
         </>
     );
 
     let panelBody: ReactNode = listView;
-    if (activeEditor === 'custom') panelBody = customEditor;
+    if (hasCustom && activeEditor === 'custom') panelBody = customEditor;
     else if (activeExtraEditor) panelBody = activeExtraEditor.render(closeEditor);
 
     return (
