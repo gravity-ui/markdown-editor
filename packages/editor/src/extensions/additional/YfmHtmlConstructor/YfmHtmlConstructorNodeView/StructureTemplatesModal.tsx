@@ -10,7 +10,7 @@ import {
     TrashBin,
     Xmark,
 } from '@gravity-ui/icons';
-import {Button, Icon, Modal, TextInput} from '@gravity-ui/uikit';
+import {Button, Icon, Modal, Popup, TextInput} from '@gravity-ui/uikit';
 
 import {TextAreaFixed as TextArea} from 'src/forms/TextInput';
 import {i18n} from 'src/i18n/yfm-html-constructor';
@@ -43,13 +43,14 @@ const getTitle = (template: {id: string; title?: string}) => template.title?.tri
 const StructurePreview: FC<{
     templates: HtmlConstructorTemplate[];
     structure: HtmlConstructorStructureTemplate;
-}> = ({templates, structure}) => {
+    theme?: HtmlConstructorThemeTemplate;
+}> = ({templates, structure, theme}) => {
     const frameRef = useRef<HTMLDivElement>(null);
     const hostRef = useRef<HTMLDivElement>(null);
     const [scale, setScale] = useState(0.3);
 
     const {markup, css} = useMemo(() => {
-        const {structure: state, blocks} = structureTemplateToAttrs(templates, structure);
+        const {structure: state, blocks} = structureTemplateToAttrs(templates, structure, theme);
         const blocksHtml = blocks
             .map(
                 (block, index) =>
@@ -61,7 +62,7 @@ const StructurePreview: FC<{
             markup: `<div class="g-md-hc-structure ${structureClass()}">${state.content}${blocksHtml}</div>`,
             css: buildPreviewCss({structure: state, blocks}),
         };
-    }, [structure, templates]);
+    }, [structure, templates, theme]);
 
     useEffect(() => {
         const host = hostRef.current;
@@ -96,6 +97,8 @@ const StructurePreview: FC<{
     );
 };
 
+const THEMES_CLOSE_DELAY = 140;
+
 const StructureCard: FC<{
     templates: HtmlConstructorTemplate[];
     item: StructureMenuItem;
@@ -106,26 +109,95 @@ const StructureCard: FC<{
 }> = ({templates, item, onApply}) => {
     const {structure, themes} = item;
     const hasThemes = themes.length > 0;
+    const [anchor, setAnchor] = useState<HTMLDivElement | null>(null);
+    const [open, setOpen] = useState(false);
+    const closeTimer = useRef<ReturnType<typeof setTimeout>>();
+
+    const cancelClose = () => {
+        if (closeTimer.current) {
+            clearTimeout(closeTimer.current);
+            closeTimer.current = undefined;
+        }
+    };
+
+    const scheduleClose = () => {
+        cancelClose();
+        closeTimer.current = setTimeout(() => setOpen(false), THEMES_CLOSE_DELAY);
+    };
+
+    const handleEnter = () => {
+        if (!hasThemes) return;
+        cancelClose();
+        setOpen(true);
+    };
+
+    useEffect(() => cancelClose, []);
 
     return (
-        <button
-            type="button"
-            className={b('structure-card')}
-            onClick={() => onApply(structure)}
-            title={getTitle(structure)}
+        <div
+            ref={setAnchor}
+            className={b('structure-card-wrap')}
+            onMouseEnter={handleEnter}
+            onMouseLeave={scheduleClose}
         >
-            <span className={b('structure-card-frame', {stacked: hasThemes})}>
-                <span className={b('structure-card-preview')}>
-                    <StructurePreview templates={templates} structure={structure} />
-                </span>
-                {hasThemes && (
-                    <span className={b('structure-card-badge')}>
-                        {i18n('themes_count', {count: themes.length})}
+            <button
+                type="button"
+                className={b('structure-card')}
+                onClick={() => onApply(structure)}
+                title={getTitle(structure)}
+            >
+                <span className={b('structure-card-frame', {stacked: hasThemes, expanded: open})}>
+                    <span className={b('structure-card-preview')}>
+                        <StructurePreview templates={templates} structure={structure} />
                     </span>
-                )}
-            </span>
-            <span className={b('structure-card-title')}>{getTitle(structure)}</span>
-        </button>
+                    {hasThemes && (
+                        <span className={b('structure-card-badge')}>
+                            {i18n('themes_count', {count: themes.length})}
+                        </span>
+                    )}
+                </span>
+                <span className={b('structure-card-title')}>{getTitle(structure)}</span>
+            </button>
+
+            {hasThemes && (
+                <Popup
+                    anchorElement={anchor}
+                    open={open}
+                    placement="bottom"
+                    hasArrow
+                    onOpenChange={(nextOpen) => {
+                        if (!nextOpen) setOpen(false);
+                    }}
+                >
+                    <div
+                        className={b('structure-themes')}
+                        onMouseEnter={cancelClose}
+                        onMouseLeave={scheduleClose}
+                    >
+                        {themes.map((theme) => (
+                            <button
+                                key={theme.id}
+                                type="button"
+                                className={b('structure-theme')}
+                                onClick={() => onApply(structure, theme)}
+                                title={getTitle(theme)}
+                            >
+                                <span className={b('structure-theme-preview')}>
+                                    <StructurePreview
+                                        templates={templates}
+                                        structure={structure}
+                                        theme={theme}
+                                    />
+                                </span>
+                                <span className={b('structure-theme-title')}>
+                                    {getTitle(theme)}
+                                </span>
+                            </button>
+                        ))}
+                    </div>
+                </Popup>
+            )}
+        </div>
     );
 };
 

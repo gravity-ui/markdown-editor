@@ -141,11 +141,17 @@
         padding: 8px 8px 16px;
     }
 
+    &__structure-card-wrap {
+        position: relative;
+        display: block;
+    }
+
     &__structure-card {
         display: flex;
         flex-direction: column;
         gap: 10px;
 
+        width: 100%;
         margin: 0;
         padding: 0;
 
@@ -179,6 +185,16 @@
 
         &::after {
             transform: translate(10px, 10px);
+        }
+    }
+
+    &__structure-card-frame_expanded {
+        &::before {
+            transform: translate(7px, 8px);
+        }
+
+        &::after {
+            transform: translate(14px, 16px);
         }
     }
 
@@ -248,5 +264,61 @@
         font-size: var(--g-text-body-1-font-size);
         line-height: var(--g-text-body-1-line-height);
         color: var(--g-color-text-primary);
+    }
+
+    &__structure-themes {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(180px, 1fr));
+        gap: 10px;
+
+        overflow-y: auto;
+
+        max-width: min(440px, 92vw);
+        max-height: 60vh;
+        padding: 10px;
+    }
+
+    &__structure-theme {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+
+        margin: 0;
+        padding: 0;
+
+        text-align: left;
+        cursor: pointer;
+        background: transparent;
+        border: 0;
+    }
+
+    &__structure-theme-preview {
+        position: relative;
+
+        display: block;
+        overflow: hidden;
+
+        height: 104px;
+
+        background: var(--g-color-base-float);
+        border: 1px solid var(--g-color-line-generic);
+        border-radius: 10px;
+
+        transition: border-color 0.1s ease-out, box-shadow 0.1s ease-out;
+
+        .g-md-yfm-html-constructor__structure-theme:hover & {
+            border-color: var(--g-color-line-brand);
+            box-shadow: 0 0 0 1px var(--g-color-line-brand);
+        }
+    }
+
+    &__structure-theme-title {
+        overflow: hidden;
+
+        font-size: var(--g-text-caption-2-font-size);
+        line-height: var(--g-text-caption-2-line-height);
+        color: var(--g-color-text-secondary);
+        text-overflow: ellipsis;
+        white-space: nowrap;
     }
 }
