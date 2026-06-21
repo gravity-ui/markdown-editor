@@ -16,6 +16,7 @@ import {
     cloneHtmlConstructorBlock,
     getDirectStructureBlocks,
     parseStructureHtml,
+    regenerateHtmlIds,
     structureTemplateToAttrs,
 } from './blockUtils';
 
@@ -283,6 +284,31 @@ describe('YfmHtmlConstructor utils', () => {
 
         expect(result).toMatchObject({...block, id: expect.any(String)});
         expect(result.id).not.toBe(block.id);
+    });
+
+    it('regenerates element ids and their references when cloning a block', () => {
+        const block = {
+            id: 'block',
+            css: '',
+            content:
+                '<label for="name">Name</label><input id="name"><a href="#name">jump</a><span id="keep"></span>',
+            themeIds: [],
+        };
+
+        const result = cloneHtmlConstructorBlock(block);
+
+        // The original ids must be gone…
+        expect(result.content).not.toContain('id="name"');
+        expect(result.content).not.toContain('id="keep"');
+        // …and the label `for` + anchor `href` must point at the new input id.
+        const newInputId = /id="(name-[^"]+)"/.exec(result.content)?.[1];
+        expect(newInputId).toBeTruthy();
+        expect(result.content).toContain(`for="${newInputId}"`);
+        expect(result.content).toContain(`href="#${newInputId}"`);
+    });
+
+    it('leaves content without ids untouched', () => {
+        expect(regenerateHtmlIds('<article>Card</article>')).toBe('<article>Card</article>');
     });
 
     it('replaces block state while preserving runtime id and quick style', () => {

@@ -20,6 +20,56 @@ import type {
 
 export const createHtmlConstructorBlockId = () => Math.random().toString(36).slice(2, 10);
 
+const ID_REF_ATTRS = ['aria-labelledby', 'aria-controls', 'aria-describedby', 'aria-owns'];
+
+/**
+ * Returns a copy of `html` with every element `id` swapped for a fresh unique one,
+ * rewriting in-document references (`href="#id"`, `for`, `aria-*` idrefs) to match.
+ * Keeps a duplicated block self-contained instead of colliding with the original's
+ * ids on the page. A no-op when there are no ids (or outside the browser).
+ */
+export const regenerateHtmlIds = (html: string): string => {
+    if (!html.trim() || typeof document === 'undefined') return html;
+
+    const template = document.createElement('template');
+    template.innerHTML = html;
+
+    const idMap = new Map<string, string>();
+    template.content.querySelectorAll('[id]').forEach((element) => {
+        const oldId = element.getAttribute('id');
+        if (!oldId) return;
+
+        const newId = `${oldId}-${createHtmlConstructorBlockId()}`;
+        idMap.set(oldId, newId);
+        element.setAttribute('id', newId);
+    });
+
+    if (idMap.size === 0) return html;
+
+    template.content.querySelectorAll('*').forEach((element) => {
+        const forAttr = element.getAttribute('for');
+        if (forAttr && idMap.has(forAttr)) element.setAttribute('for', idMap.get(forAttr)!);
+
+        const href = element.getAttribute('href');
+        if (href?.startsWith('#') && idMap.has(href.slice(1))) {
+            element.setAttribute('href', `#${idMap.get(href.slice(1))!}`);
+        }
+
+        for (const attr of ID_REF_ATTRS) {
+            const value = element.getAttribute(attr);
+            if (!value) continue;
+
+            const mapped = value
+                .split(/\s+/)
+                .map((token) => idMap.get(token) ?? token)
+                .join(' ');
+            if (mapped !== value) element.setAttribute(attr, mapped);
+        }
+    });
+
+    return template.innerHTML;
+};
+
 const mergeStyles = (...styles: string[][]) =>
     styles
         .flat()
@@ -57,6 +107,7 @@ export const blockTemplateToBlock = (
 export const cloneHtmlConstructorBlock = (block: HtmlConstructorBlock): HtmlConstructorBlock => ({
     ...block,
     id: createHtmlConstructorBlockId(),
+    content: regenerateHtmlIds(block.content),
 });
 
 export const applyStructureThemeToState = (

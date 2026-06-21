@@ -57,6 +57,7 @@ import {
     getStructureThemeTemplates,
     parseStructureHtml,
     rawTemplateBlockToBlock,
+    regenerateHtmlIds,
     structureTemplateToAttrs,
 } from './blockUtils';
 import {STOP_EVENT_CLASSNAME, cnYfmHtmlConstructor} from './const';
@@ -430,8 +431,13 @@ export const YfmHtmlConstructorView: FC<{
 
         const nextNode = node.type.create({
             ...node.attrs,
-            [YfmHtmlConstructorConsts.NodeAttrs.structure]: {...structure},
+            [YfmHtmlConstructorConsts.NodeAttrs.structure]: {
+                ...structure,
+                content: regenerateHtmlIds(structure.content),
+            },
             [YfmHtmlConstructorConsts.NodeAttrs.blocks]: blocks.map(cloneHtmlConstructorBlock),
+            // Fresh entity id -> fresh scope hash, so the copy's scoped CSS does not
+            // collide with the original instance on the same page.
             [YfmHtmlConstructorConsts.NodeAttrs.EntityId]: generateEntityId(
                 YfmHtmlConstructorConsts.NodeName,
             ),
