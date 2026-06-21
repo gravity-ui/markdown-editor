@@ -7,12 +7,7 @@ import {Button, Icon} from '@gravity-ui/uikit';
 import {TextAreaFixed as TextArea} from 'src/forms/TextInput';
 import {i18n} from 'src/i18n/yfm-html-constructor';
 
-import {
-    HtmlConstructorTemplateParseError,
-    clearStoredTemplates,
-    parseTemplates,
-    saveTemplates,
-} from '../templates';
+import {HtmlConstructorTemplateParseError, parseTemplates, saveTemplates} from '../templates';
 import type {
     HtmlConstructorStructureTemplate,
     HtmlConstructorTemplate,
@@ -118,7 +113,7 @@ interface StructureTemplatesPanelProps {
     ) => void;
     onApplyCustom: (value: {content: string; css: string}) => void;
     onAdded: (templates: HtmlConstructorTemplate[]) => void;
-    onCleared: (templates: HtmlConstructorTemplate[]) => void;
+    onClear: () => void;
 }
 
 export const StructureTemplatesPanel: FC<StructureTemplatesPanelProps> = ({
@@ -130,7 +125,7 @@ export const StructureTemplatesPanel: FC<StructureTemplatesPanelProps> = ({
     onApply,
     onApplyCustom,
     onAdded,
-    onCleared,
+    onClear,
 }) => {
     const buildGroups = useCallback(
         (filter: string): PickerGroup[] =>
@@ -158,7 +153,7 @@ export const StructureTemplatesPanel: FC<StructureTemplatesPanelProps> = ({
             size="l"
             className={stop}
             disabled={!hasStoredTemplates}
-            onClick={() => onCleared(clearStoredTemplates())}
+            onClick={onClear}
         >
             <Icon data={TrashBin} size={16} />
             {i18n('clear_templates')}

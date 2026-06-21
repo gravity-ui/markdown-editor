@@ -23,7 +23,7 @@ import {
     normalizeHtmlConstructorQuickStyle,
 } from '../quickStyle';
 import {normalizeHtmlConstructorTemplateSettings} from '../settings';
-import {mergeTemplatesById, readStoredTemplates} from '../templates';
+import {clearStoredTemplates, mergeTemplatesById, readStoredTemplates} from '../templates';
 import type {
     HtmlConstructorBlock,
     HtmlConstructorBlockTemplate,
@@ -61,6 +61,7 @@ import {
 } from './blockUtils';
 import {STOP_EVENT_CLASSNAME, cnYfmHtmlConstructor} from './const';
 import {useHtmlBlockDrag} from './drag';
+import {useConfirm} from './useConfirm';
 
 import './YfmHtmlConstructor.scss';
 
@@ -217,6 +218,10 @@ export const YfmHtmlConstructorView: FC<{
     const showStructureTemplatesButton =
         Boolean(templates?.showButton) && (allowAdd || hasStructureTemplates);
 
+    const {confirm, confirmElement} = useConfirm();
+
+    const isEmptyConstructor = !structure.content.trim() && blocks.length === 0;
+
     const closeStructurePanel = () => setStructurePanel(null);
     const toggleStructurePanel = (panel: Exclude<StructurePanel, null>) => {
         setStructurePanel((current) => (current === panel ? null : panel));
@@ -233,10 +238,24 @@ export const YfmHtmlConstructorView: FC<{
         onMove: setBlocks,
     });
 
-    const applyStructureTemplate = (
+    // Applying a structure replaces everything. The first time (empty constructor)
+    // it just inserts; afterwards we confirm, since existing content is overwritten.
+    const confirmStructureOverwriteIfNeeded = async () => {
+        if (isEmptyConstructor) return true;
+        return confirm({
+            title: i18n('confirm_replace_structure_title'),
+            message: i18n('confirm_replace_structure_message'),
+            confirmText: i18n('replace'),
+            danger: true,
+        });
+    };
+
+    const applyStructureTemplate = async (
         template: HtmlConstructorStructureTemplate,
         theme?: HtmlConstructorThemeTemplate,
     ) => {
+        if (!(await confirmStructureOverwriteIfNeeded())) return;
+
         const attrs = structureTemplateToAttrs(effectiveTemplates, template, theme);
         onChange({
             [YfmHtmlConstructorConsts.NodeAttrs.structure]: attrs.structure,
@@ -245,7 +264,9 @@ export const YfmHtmlConstructorView: FC<{
         closeStructurePanel();
     };
 
-    const applyCustomStructure = ({content, css}: {content: string; css: string}) => {
+    const applyCustomStructure = async ({content, css}: {content: string; css: string}) => {
+        if (!(await confirmStructureOverwriteIfNeeded())) return;
+
         onChange({
             [YfmHtmlConstructorConsts.NodeAttrs.structure]: {
                 ...emptyHtmlConstructorStructure(),
@@ -255,6 +276,32 @@ export const YfmHtmlConstructorView: FC<{
             [YfmHtmlConstructorConsts.NodeAttrs.blocks]: [],
         });
         closeStructurePanel();
+    };
+
+    const clearTemplates = async () => {
+        const confirmed = await confirm({
+            title: i18n('confirm_clear_templates_title'),
+            message: i18n('confirm_clear_templates_message'),
+            confirmText: i18n('clear'),
+            danger: true,
+        });
+        if (!confirmed) return;
+
+        setStoredTemplates(clearStoredTemplates());
+    };
+
+    const removeConstructor = async () => {
+        const confirmed = await confirm({
+            title: i18n('confirm_remove_constructor_title'),
+            message: i18n('confirm_remove_constructor_message'),
+            confirmText: i18n('remove_constructor'),
+            danger: true,
+        });
+        if (!confirmed) return;
+
+        const pos = getPos();
+        if (pos === undefined) return;
+        removeNode({node, pos, tr: view.state.tr, dispatch: view.dispatch});
     };
 
     const applyStructureTheme = (theme?: HtmlConstructorThemeTemplate) => {
@@ -418,7 +465,7 @@ export const YfmHtmlConstructorView: FC<{
                     onApply={applyStructureTemplate}
                     onApplyCustom={applyCustomStructure}
                     onAdded={setStoredTemplates}
-                    onCleared={setStoredTemplates}
+                    onClear={clearTemplates}
                 />
             );
         }
@@ -503,10 +550,10 @@ export const YfmHtmlConstructorView: FC<{
             ),
         },
     ].filter(Boolean) as FloatingToolbarPrimaryAction[];
-    const isEmptyConstructor = !structure.content.trim() && blocks.length === 0;
 
     return (
         <div className={`${b({empty: isEmptyConstructor})}${scopeClass ? ` ${scopeClass}` : ''}`}>
+            {confirmElement}
             {previewCss && <style>{previewCss}</style>}
 
             <FloatingToolbar
@@ -516,11 +563,7 @@ export const YfmHtmlConstructorView: FC<{
                 onOpenSettings={() => toggleStructurePanel('settings')}
                 primaryActions={structurePrimaryActions}
                 onDuplicate={duplicateConstructor}
-                onRemove={() => {
-                    const pos = getPos();
-                    if (pos === undefined) return;
-                    removeNode({node, pos, tr: view.state.tr, dispatch: view.dispatch});
-                }}
+                onRemove={removeConstructor}
                 codeLabel={i18n('structure_settings')}
                 duplicateLabel={i18n('duplicate_constructor')}
                 removeLabel={i18n('remove_constructor')}
@@ -578,6 +621,7 @@ export const YfmHtmlConstructorView: FC<{
                         onReplace={replaceBlock}
                         onDuplicate={duplicateBlock}
                         onRemove={removeBlock}
+                        confirm={confirm}
                         templates={effectiveTemplates}
                         activeStructureId={activeStructureId}
                     />

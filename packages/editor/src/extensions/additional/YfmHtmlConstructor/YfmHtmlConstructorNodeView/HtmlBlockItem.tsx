@@ -42,6 +42,7 @@ import {
     openInlineLinkEditor,
     openInlineTextEditor,
 } from './textEditing';
+import type {ConfirmFn} from './useConfirm';
 
 const b = cnYfmHtmlConstructor;
 const stop = STOP_EVENT_CLASSNAME;
@@ -87,6 +88,7 @@ interface HtmlBlockItemProps {
     onReplace: (blockId: string, block: HtmlConstructorBlock) => void;
     onDuplicate: (blockId: string) => void;
     onRemove: (blockId: string) => void;
+    confirm: ConfirmFn;
 }
 
 type BlockPanel = 'state' | 'theme' | 'settings' | null;
@@ -223,6 +225,7 @@ export const HtmlBlockItem: FC<HtmlBlockItemProps> = ({
     onReplace,
     onDuplicate,
     onRemove,
+    confirm,
 }) => {
     const contentRef = useRef<HTMLDivElement>(null);
     const [inlineEditTarget, setInlineEditTarget] = useState<InlineEditTarget | null>(null);
@@ -383,10 +386,22 @@ export const HtmlBlockItem: FC<HtmlBlockItemProps> = ({
         openInlineEditTarget(target);
     };
 
-    const applyBlockState = (
+    const applyBlockState = async (
         template: HtmlConstructorBlockTemplate,
         theme?: HtmlConstructorThemeTemplate,
     ) => {
+        // Switching state replaces the block's content, so confirm when there is
+        // something to lose.
+        if (block.content.trim()) {
+            const confirmed = await confirm({
+                title: i18n('confirm_change_state_title'),
+                message: i18n('confirm_change_state_message'),
+                confirmText: i18n('change'),
+                danger: true,
+            });
+            if (!confirmed) return;
+        }
+
         onReplace(block.id, applyBlockTemplateToBlock(block, template, theme));
         closeBlockPanel();
     };
@@ -568,7 +583,15 @@ export const HtmlBlockItem: FC<HtmlBlockItemProps> = ({
                 onOpenSettings={() => toggleBlockPanel('settings')}
                 primaryActions={blockPrimaryActions}
                 onDuplicate={() => onDuplicate(block.id)}
-                onRemove={() => {
+                onRemove={async () => {
+                    const confirmed = await confirm({
+                        title: i18n('confirm_remove_block_title'),
+                        message: i18n('confirm_remove_block_message'),
+                        confirmText: i18n('remove_block'),
+                        danger: true,
+                    });
+                    if (!confirmed) return;
+
                     closeBlockPanel();
                     onRemove(block.id);
                 }}
