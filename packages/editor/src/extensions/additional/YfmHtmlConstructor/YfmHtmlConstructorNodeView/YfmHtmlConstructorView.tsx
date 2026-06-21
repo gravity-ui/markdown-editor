@@ -1,7 +1,7 @@
 import {createElement, useMemo, useState} from 'react';
 import type {CSSProperties, FC, ReactNode} from 'react';
 
-import {BucketPaint, LayoutHeaderColumns, Plus} from '@gravity-ui/icons';
+import {BucketPaint, LayoutCells, LayoutHeaderColumns, Plus} from '@gravity-ui/icons';
 import {Button, Icon} from '@gravity-ui/uikit';
 import type {Node} from 'prosemirror-model';
 import type {EditorView} from 'prosemirror-view';
@@ -407,7 +407,7 @@ export const YfmHtmlConstructorView: FC<{
     const isEmptyConstructor = !structure.content.trim() && blocks.length === 0;
 
     return (
-        <div className={b()}>
+        <div className={b({empty: isEmptyConstructor})}>
             {previewCss && <style>{previewCss}</style>}
 
             <FloatingToolbar
@@ -456,8 +456,8 @@ export const YfmHtmlConstructorView: FC<{
                                     className={stop}
                                     onClick={() => toggleStructurePanel('templates')}
                                 >
-                                    <Icon data={LayoutHeaderColumns} className={stop} />
-                                    <span className={stop}>{i18n('structure_templates')}</span>
+                                    <Icon data={LayoutCells} className={stop} />
+                                    <span className={stop}>{i18n('select_structure')}</span>
                                 </Button>
                             )}
                         </div>

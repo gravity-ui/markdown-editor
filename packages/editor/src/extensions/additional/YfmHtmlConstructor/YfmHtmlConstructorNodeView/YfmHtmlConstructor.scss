@@ -7,6 +7,10 @@
     border: 1px solid var(--g-color-line-generic);
     border-radius: var(--g-border-radius-m);
 
+    &_empty {
+        border-style: dashed;
+    }
+
     &__floating-toolbar {
         position: absolute;
         z-index: 20;
