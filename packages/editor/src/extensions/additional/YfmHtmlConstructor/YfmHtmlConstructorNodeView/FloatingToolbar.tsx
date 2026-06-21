@@ -67,7 +67,7 @@ type FloatingToolbarProps = {
     onDuplicate?: () => void;
     onRemove?: () => void;
     expandedContent?: ReactNode;
-    expandedContentView?: 'menu' | 'editor';
+    expandedContentView?: 'menu' | 'editor' | 'panel';
     onCloseExpandedContent?: () => void;
     codeLabel: string;
     duplicateLabel?: string;
@@ -150,6 +150,7 @@ export const FloatingToolbar: FC<FloatingToolbarProps> = ({
     const [availableToolbarWidth, setAvailableToolbarWidth] = useState(Number.POSITIVE_INFINITY);
     const [toolbarItemWidths, setToolbarItemWidths] = useState<Record<string, number>>({});
     const toolbarOpen = openMenu !== null || Boolean(expandedContent);
+    const chromelessPanel = expandedContentView === 'editor' || expandedContentView === 'panel';
     const settingsSelected = Boolean(expandedContent) && expandedContentView === 'editor';
 
     const toggleMenu = (menu: Exclude<ToolbarMenu, null>) => (event: MouseEvent) => {
@@ -622,7 +623,7 @@ export const FloatingToolbar: FC<FloatingToolbarProps> = ({
                 {
                     open: toolbarOpen,
                     expanded: Boolean(expandedContent),
-                    editor: expandedContentView === 'editor',
+                    editor: chromelessPanel,
                 },
                 [stop],
             )}
@@ -684,11 +685,7 @@ export const FloatingToolbar: FC<FloatingToolbarProps> = ({
             </div>
             {expandedContent && (
                 <div
-                    className={b(
-                        'floating-toolbar-panel',
-                        {editor: expandedContentView === 'editor'},
-                        [stop],
-                    )}
+                    className={b('floating-toolbar-panel', {editor: chromelessPanel}, [stop])}
                 >
                     {expandedContent}
                 </div>

@@ -10,7 +10,7 @@ import {
     TrashBin,
     Xmark,
 } from '@gravity-ui/icons';
-import {Button, Icon, Modal, Popup, TextInput} from '@gravity-ui/uikit';
+import {Button, Icon, Popup, TextInput} from '@gravity-ui/uikit';
 
 import {TextAreaFixed as TextArea} from 'src/forms/TextInput';
 import {i18n} from 'src/i18n/yfm-html-constructor';
@@ -29,13 +29,14 @@ import type {
 } from '../types';
 
 import {buildPreviewCss, structureTemplateToAttrs} from './blockUtils';
-import {cnYfmHtmlConstructor} from './const';
+import {STOP_EVENT_CLASSNAME, cnYfmHtmlConstructor} from './const';
 import {buildStructureMenuGroups} from './groupTemplates';
 import type {StructureMenuItem} from './groupTemplates';
 
-import './StructureTemplatesModal.scss';
+import './StructureTemplatesPanel.scss';
 
 const b = cnYfmHtmlConstructor;
+const stop = STOP_EVENT_CLASSNAME;
 const PREVIEW_DESIGN_WIDTH = 1040;
 
 const getTitle = (template: {id: string; title?: string}) => template.title?.trim() || template.id;
@@ -136,13 +137,13 @@ const StructureCard: FC<{
     return (
         <div
             ref={setAnchor}
-            className={b('structure-card-wrap')}
+            className={b('structure-card-wrap', [stop])}
             onMouseEnter={handleEnter}
             onMouseLeave={scheduleClose}
         >
             <button
                 type="button"
-                className={b('structure-card')}
+                className={b('structure-card', [stop])}
                 onClick={() => onApply(structure)}
                 title={getTitle(structure)}
             >
@@ -170,7 +171,7 @@ const StructureCard: FC<{
                     }}
                 >
                     <div
-                        className={b('structure-themes')}
+                        className={b('structure-themes', [stop])}
                         onMouseEnter={cancelClose}
                         onMouseLeave={scheduleClose}
                     >
@@ -178,7 +179,7 @@ const StructureCard: FC<{
                             <button
                                 key={theme.id}
                                 type="button"
-                                className={b('structure-theme')}
+                                className={b('structure-theme', [stop])}
                                 onClick={() => onApply(structure, theme)}
                                 title={getTitle(theme)}
                             >
@@ -215,7 +216,7 @@ const StructureGroup: FC<{
     <section className={b('structure-group')}>
         <button
             type="button"
-            className={b('structure-group-header')}
+            className={b('structure-group-header', [stop])}
             onClick={onToggle}
             aria-expanded={open}
         >
@@ -242,8 +243,7 @@ const StructureGroup: FC<{
     </section>
 );
 
-interface StructureTemplatesModalProps {
-    open: boolean;
+interface StructureTemplatesPanelProps {
     templates: HtmlConstructorTemplate[];
     allowAdd: boolean;
     emptyText: string;
@@ -257,8 +257,7 @@ interface StructureTemplatesModalProps {
     onCleared: (templates: HtmlConstructorTemplate[]) => void;
 }
 
-export const StructureTemplatesModal: FC<StructureTemplatesModalProps> = ({
-    open,
+export const StructureTemplatesPanel: FC<StructureTemplatesPanelProps> = ({
     templates,
     allowAdd,
     emptyText,
@@ -272,24 +271,14 @@ export const StructureTemplatesModal: FC<StructureTemplatesModalProps> = ({
     const [adding, setAdding] = useState(false);
     const [input, setInput] = useState('');
     const [error, setError] = useState('');
-    const [openGroups, setOpenGroups] = useState<string[]>([]);
+    const [openGroups, setOpenGroups] = useState<string[]>(() =>
+        buildStructureMenuGroups(templates)
+            .slice(0, 1)
+            .map((group) => group.title),
+    );
 
     const groups = useMemo(() => buildStructureMenuGroups(templates, filter), [filter, templates]);
     const hasFilter = Boolean(filter.trim());
-
-    useEffect(() => {
-        if (!open) return;
-
-        setFilter('');
-        setAdding(false);
-        setInput('');
-        setError('');
-        setOpenGroups(
-            buildStructureMenuGroups(templates)
-                .slice(0, 1)
-                .map((group) => group.title),
-        );
-    }, [open, templates]);
 
     const toggleGroup = (title: string) => {
         setOpenGroups((current) =>
@@ -320,110 +309,117 @@ export const StructureTemplatesModal: FC<StructureTemplatesModalProps> = ({
     };
 
     return (
-        <Modal
-            open={open}
-            onOpenChange={(nextOpen) => {
-                if (!nextOpen) onClose();
-            }}
-            contentClassName={b('structures-modal')}
-        >
-            <div className={b('structures')}>
-                <div className={b('structures-header')}>
-                    <h2 className={b('structures-title')}>{i18n('structures_title')}</h2>
-                    <Button
-                        view="flat"
-                        size="l"
-                        onClick={onClose}
-                        aria-label={i18n('close')}
-                    >
-                        <Icon data={Xmark} size={18} />
-                    </Button>
-                </div>
-
-                {adding ? (
-                    <div className={b('structures-import')}>
-                        <TextArea
-                            value={input}
-                            onUpdate={(value) => {
-                                setInput(value);
-                                setError('');
-                            }}
-                            placeholder={i18n('templates_input_placeholder')}
-                            minRows={10}
-                            autoFocus
-                        />
-                        {error && <div className={b('structures-error')}>{error}</div>}
-                        <div className={b('structures-import-actions')}>
-                            <Button view="flat" size="l" onClick={() => setAdding(false)}>
-                                {i18n('cancel')}
-                            </Button>
-                            <Button
-                                view="action"
-                                size="l"
-                                disabled={!input.trim()}
-                                onClick={handleSave}
-                            >
-                                {i18n('save')}
-                            </Button>
-                        </div>
-                    </div>
-                ) : (
-                    <>
-                        <div className={b('structures-toolbar')}>
-                            <TextInput
-                                className={b('structures-search')}
-                                size="l"
-                                value={filter}
-                                onUpdate={setFilter}
-                                placeholder={i18n('search_structures')}
-                                startContent={
-                                    <Icon
-                                        data={Magnifier}
-                                        size={16}
-                                        className={b('structures-search-icon')}
-                                    />
-                                }
-                                hasClear
-                            />
-                            {allowAdd && (
-                                <div className={b('structures-actions')}>
-                                    <Button view="flat" size="l" onClick={() => setAdding(true)}>
-                                        <Icon data={ArrowUpFromSquare} size={16} />
-                                        {i18n('add_template')}
-                                    </Button>
-                                    <Button
-                                        view="flat"
-                                        size="l"
-                                        disabled={!hasStoredTemplates}
-                                        onClick={handleClear}
-                                    >
-                                        <Icon data={TrashBin} size={16} />
-                                        {i18n('clear_templates')}
-                                    </Button>
-                                </div>
-                            )}
-                        </div>
-
-                        <div className={b('structures-body')}>
-                            {groups.length === 0 ? (
-                                <div className={b('structures-empty')}>{emptyText}</div>
-                            ) : (
-                                groups.map((group) => (
-                                    <StructureGroup
-                                        key={group.title}
-                                        templates={templates}
-                                        title={group.title}
-                                        items={group.items}
-                                        open={hasFilter || openGroups.includes(group.title)}
-                                        onToggle={() => toggleGroup(group.title)}
-                                        onApply={onApply}
-                                    />
-                                ))
-                            )}
-                        </div>
-                    </>
-                )}
+        <div className={b('structures', [stop])}>
+            <div className={b('structures-header')}>
+                <h2 className={b('structures-title')}>{i18n('structures_title')}</h2>
+                <Button
+                    view="flat"
+                    size="l"
+                    className={stop}
+                    onClick={onClose}
+                    aria-label={i18n('close')}
+                >
+                    <Icon data={Xmark} size={18} />
+                </Button>
             </div>
-        </Modal>
+
+            {adding ? (
+                <div className={b('structures-import')}>
+                    <TextArea
+                        controlProps={{className: stop}}
+                        value={input}
+                        onUpdate={(value) => {
+                            setInput(value);
+                            setError('');
+                        }}
+                        placeholder={i18n('templates_input_placeholder')}
+                        minRows={10}
+                        autoFocus
+                    />
+                    {error && <div className={b('structures-error')}>{error}</div>}
+                    <div className={b('structures-import-actions')}>
+                        <Button
+                            view="flat"
+                            size="l"
+                            className={stop}
+                            onClick={() => setAdding(false)}
+                        >
+                            {i18n('cancel')}
+                        </Button>
+                        <Button
+                            view="action"
+                            size="l"
+                            className={stop}
+                            disabled={!input.trim()}
+                            onClick={handleSave}
+                        >
+                            {i18n('save')}
+                        </Button>
+                    </div>
+                </div>
+            ) : (
+                <>
+                    <div className={b('structures-toolbar')}>
+                        <TextInput
+                            className={b('structures-search', [stop])}
+                            controlProps={{className: stop}}
+                            size="l"
+                            value={filter}
+                            onUpdate={setFilter}
+                            placeholder={i18n('search_structures')}
+                            startContent={
+                                <Icon
+                                    data={Magnifier}
+                                    size={16}
+                                    className={b('structures-search-icon')}
+                                />
+                            }
+                            hasClear
+                        />
+                        {allowAdd && (
+                            <div className={b('structures-actions')}>
+                                <Button
+                                    view="flat"
+                                    size="l"
+                                    className={stop}
+                                    onClick={() => setAdding(true)}
+                                >
+                                    <Icon data={ArrowUpFromSquare} size={16} />
+                                    {i18n('add_template')}
+                                </Button>
+                                <Button
+                                    view="flat"
+                                    size="l"
+                                    className={stop}
+                                    disabled={!hasStoredTemplates}
+                                    onClick={handleClear}
+                                >
+                                    <Icon data={TrashBin} size={16} />
+                                    {i18n('clear_templates')}
+                                </Button>
+                            </div>
+                        )}
+                    </div>
+
+                    <div className={b('structures-body')}>
+                        {groups.length === 0 ? (
+                            <div className={b('structures-empty')}>{emptyText}</div>
+                        ) : (
+                            groups.map((group) => (
+                                <StructureGroup
+                                    key={group.title}
+                                    templates={templates}
+                                    title={group.title}
+                                    items={group.items}
+                                    open={hasFilter || openGroups.includes(group.title)}
+                                    onToggle={() => toggleGroup(group.title)}
+                                    onApply={onApply}
+                                />
+                            ))
+                        )}
+                    </div>
+                </>
+            )}
+        </div>
     );
 };

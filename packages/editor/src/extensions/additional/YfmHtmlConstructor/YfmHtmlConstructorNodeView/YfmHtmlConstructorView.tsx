@@ -34,7 +34,7 @@ import {BlockInsertPanel} from './BlockInsertPopup';
 import {FloatingToolbar, type FloatingToolbarPrimaryAction} from './FloatingToolbar';
 import {HtmlBlockItem} from './HtmlBlockItem';
 import {StructureSettingsPanel} from './SettingsPopups';
-import {StructureTemplatesModal} from './StructureTemplatesModal';
+import {StructureTemplatesPanel} from './StructureTemplatesPanel';
 import {ThemesPanel} from './TemplateActionsPanel';
 import {
     applyStructureThemeToState,
@@ -313,6 +313,21 @@ export const YfmHtmlConstructorView: FC<{
             );
         }
 
+        if (structurePanel === 'templates') {
+            return (
+                <StructureTemplatesPanel
+                    templates={effectiveTemplates}
+                    allowAdd={allowAdd}
+                    emptyText={i18n('structure_templates_empty')}
+                    hasStoredTemplates={storedTemplates.length > 0}
+                    onClose={closeStructurePanel}
+                    onApply={applyStructureTemplate}
+                    onAdded={setStoredTemplates}
+                    onCleared={setStoredTemplates}
+                />
+            );
+        }
+
         if (structurePanel === 'themes') {
             return (
                 <ThemesPanel
@@ -413,23 +428,16 @@ export const YfmHtmlConstructorView: FC<{
                 duplicateLabel={i18n('duplicate_constructor')}
                 removeLabel={i18n('remove_constructor')}
                 lockLabel={i18n('lock_constructor')}
-                expandedContentView={structurePanel === 'settings' ? 'editor' : 'menu'}
+                expandedContentView={
+                    structurePanel === 'settings'
+                        ? 'editor'
+                        : structurePanel === 'templates'
+                          ? 'panel'
+                          : 'menu'
+                }
                 onCloseExpandedContent={closeStructurePanel}
                 expandedContent={structurePanelContent}
             />
-            {showStructureTemplatesButton && (
-                <StructureTemplatesModal
-                    open={structurePanel === 'templates'}
-                    templates={effectiveTemplates}
-                    allowAdd={allowAdd}
-                    emptyText={i18n('structure_templates_empty')}
-                    hasStoredTemplates={storedTemplates.length > 0}
-                    onClose={closeStructurePanel}
-                    onApply={applyStructureTemplate}
-                    onAdded={setStoredTemplates}
-                    onCleared={setStoredTemplates}
-                />
-            )}
             <div
                 id={structureClass()}
                 className={`${b('structure')} ${htmlConstructorStructureClass} ${structureClass()}`}
