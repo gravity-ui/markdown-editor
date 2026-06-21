@@ -1,4 +1,4 @@
-import {useRef, useState} from 'react';
+import {useMemo, useRef, useState} from 'react';
 import type {
     CSSProperties,
     FC,
@@ -7,17 +7,36 @@ import type {
     PointerEvent as ReactPointerEvent,
 } from 'react';
 
-import {GripHorizontal, Pencil} from '@gravity-ui/icons';
-import {Icon} from '@gravity-ui/uikit';
+import {
+    BucketPaint,
+    ChevronDown,
+    GripHorizontal,
+    Pencil,
+    SquareDashedText,
+} from '@gravity-ui/icons';
+import {Button, Icon} from '@gravity-ui/uikit';
 
 import {i18n} from 'src/i18n/yfm-html-constructor';
 
 import {blockClass, htmlConstructorBlockClass} from '../css';
 import {htmlConstructorQuickStyleToReactStyle} from '../quickStyle';
-import type {HtmlConstructorBlock, HtmlConstructorQuickStyle} from '../types';
+import type {
+    HtmlConstructorBlock,
+    HtmlConstructorBlockTemplate,
+    HtmlConstructorQuickStyle,
+    HtmlConstructorTemplate,
+    HtmlConstructorThemeTemplate,
+} from '../types';
 
-import {FloatingToolbar} from './FloatingToolbar';
+import {FloatingToolbar, type FloatingToolbarPrimaryAction} from './FloatingToolbar';
 import {BlockSettingsPanel} from './SettingsPopups';
+import {BlockStatesPanel, ThemesPanel} from './TemplateActionsPanel';
+import {
+    applyBlockTemplateToBlock,
+    applyBlockThemeToBlock,
+    getBlockTemplateById,
+    getBlockTemplateStateGroup,
+} from './blockUtils';
 import {STOP_EVENT_CLASSNAME, cnYfmHtmlConstructor} from './const';
 import type {DropTarget} from './drag';
 import {getBlockDragAttrs} from './drag';
@@ -62,12 +81,18 @@ interface HtmlBlockItemProps {
     index: number;
     isDragged: boolean;
     dropTarget: DropTarget | null;
+    templates: HtmlConstructorTemplate[];
+    activeStructureId?: string;
     onBeginDrag: (blockId: string, event: ReactPointerEvent<HTMLButtonElement>) => void;
     onCommitContent: (blockId: string, content: string) => void;
     onCssChange: (blockId: string, css: string) => void;
     onQuickStyleChange: (blockId: string, quickStyle: HtmlConstructorQuickStyle) => void;
+    onReplace: (blockId: string, block: HtmlConstructorBlock) => void;
+    onDuplicate: (blockId: string) => void;
     onRemove: (blockId: string) => void;
 }
+
+type BlockPanel = 'state' | 'theme' | 'settings' | null;
 
 type InlineEditTarget =
     | {
@@ -166,24 +191,49 @@ const getInlineEditTarget = (
     };
 };
 
+const getInlineEditLabel = (target: InlineEditTarget) => {
+    if (target.kind === 'image') return i18n('edit_image_src');
+    if (target.kind === 'link') return i18n('edit_link');
+
+    return i18n('edit_text');
+};
+
 export const HtmlBlockItem: FC<HtmlBlockItemProps> = ({
     block,
     index,
     isDragged,
     dropTarget,
+    templates,
+    activeStructureId,
     onBeginDrag,
     onCommitContent,
     onCssChange,
     onQuickStyleChange,
+    onReplace,
+    onDuplicate,
     onRemove,
 }) => {
     const contentRef = useRef<HTMLDivElement>(null);
     const [inlineEditTarget, setInlineEditTarget] = useState<InlineEditTarget | null>(null);
-    const [settingsOpen, setSettingsOpen] = useState(false);
+    const [blockPanel, setBlockPanel] = useState<BlockPanel>(null);
 
     const number = index + 1;
     const isDropBefore = dropTarget?.id === block.id && dropTarget.placement === 'before';
     const isDropAfter = dropTarget?.id === block.id && dropTarget.placement === 'after';
+    const activeBlockTemplate = useMemo(
+        () => getBlockTemplateById(templates, block.templateId),
+        [block.templateId, templates],
+    );
+    const {states, themesByBlockId} = useMemo(
+        () => getBlockTemplateStateGroup(templates, block.templateId, activeStructureId),
+        [activeStructureId, block.templateId, templates],
+    );
+    const blockThemes = activeBlockTemplate ? (themesByBlockId[activeBlockTemplate.id] ?? []) : [];
+
+    const closeBlockPanel = () => setBlockPanel(null);
+    const toggleBlockPanel = (panel: Exclude<BlockPanel, null>) => {
+        setBlockPanel((current) => (current === panel ? null : panel));
+    };
 
     const handlePointerDown = (event: ReactPointerEvent<HTMLButtonElement>) => {
         onBeginDrag(block.id, event);
@@ -322,6 +372,99 @@ export const HtmlBlockItem: FC<HtmlBlockItemProps> = ({
         openInlineEditTarget(target);
     };
 
+    const applyBlockState = (
+        template: HtmlConstructorBlockTemplate,
+        theme?: HtmlConstructorThemeTemplate,
+    ) => {
+        onReplace(block.id, applyBlockTemplateToBlock(block, template, theme));
+        closeBlockPanel();
+    };
+
+    const applyBlockTheme = (theme?: HtmlConstructorThemeTemplate) => {
+        if (!activeBlockTemplate) return;
+
+        onReplace(block.id, applyBlockThemeToBlock(block, activeBlockTemplate, theme));
+        closeBlockPanel();
+    };
+
+    const renderBlockPanelContent = () => {
+        if (blockPanel === 'state') {
+            return (
+                <BlockStatesPanel
+                    states={states}
+                    activeTemplateId={block.templateId}
+                    themesByBlockId={themesByBlockId}
+                    activeThemeIds={block.themeIds}
+                    emptyText={i18n('states_empty')}
+                    onApply={applyBlockState}
+                />
+            );
+        }
+
+        if (blockPanel === 'theme') {
+            return (
+                <ThemesPanel
+                    themes={blockThemes}
+                    activeThemeIds={block.themeIds}
+                    emptyText={i18n('themes_empty')}
+                    onApply={applyBlockTheme}
+                />
+            );
+        }
+
+        if (blockPanel === 'settings') {
+            return (
+                <BlockSettingsPanel
+                    html={block.content}
+                    css={block.css}
+                    onHtmlCommit={(value) => onCommitContent(block.id, value)}
+                    onCssChange={(value) => onCssChange(block.id, value)}
+                />
+            );
+        }
+
+        return null;
+    };
+
+    const blockPanelContent = renderBlockPanelContent();
+    const blockPrimaryActions = [
+        {
+            id: 'blockState',
+            node: (
+                <Button
+                    view="flat"
+                    size="s"
+                    className={stop}
+                    disabled={states.length === 0}
+                    selected={blockPanel === 'state'}
+                    onClick={() => toggleBlockPanel('state')}
+                    aria-label={i18n('select_state')}
+                    title={i18n('select_state')}
+                >
+                    <Icon data={SquareDashedText} className={stop} />
+                    <Icon data={ChevronDown} size={12} className={stop} />
+                </Button>
+            ),
+        },
+        {
+            id: 'blockTheme',
+            node: (
+                <Button
+                    view="flat"
+                    size="s"
+                    className={stop}
+                    disabled={!activeBlockTemplate || blockThemes.length === 0}
+                    selected={blockPanel === 'theme'}
+                    onClick={() => toggleBlockPanel('theme')}
+                    aria-label={i18n('select_theme')}
+                    title={i18n('select_theme')}
+                >
+                    <Icon data={BucketPaint} className={stop} />
+                </Button>
+            ),
+        },
+    ] as FloatingToolbarPrimaryAction[];
+
     return (
         <div
             className={`${b('item', {
@@ -344,25 +487,20 @@ export const HtmlBlockItem: FC<HtmlBlockItemProps> = ({
                 settings={block.settings}
                 quickStyle={block.quickStyle}
                 onQuickStyleChange={(quickStyle) => onQuickStyleChange(block.id, quickStyle)}
-                onOpenSettings={() => setSettingsOpen((open) => !open)}
+                onOpenSettings={() => toggleBlockPanel('settings')}
+                primaryActions={blockPrimaryActions}
+                onDuplicate={() => onDuplicate(block.id)}
                 onRemove={() => {
-                    setSettingsOpen(false);
+                    closeBlockPanel();
                     onRemove(block.id);
                 }}
                 codeLabel={i18n('block_css', {index: String(number)})}
+                duplicateLabel={i18n('duplicate_block')}
                 removeLabel={i18n('remove_block')}
-                expandedContentView="editor"
-                onCloseExpandedContent={() => setSettingsOpen(false)}
-                expandedContent={
-                    settingsOpen && (
-                        <BlockSettingsPanel
-                            html={block.content}
-                            css={block.css}
-                            onHtmlCommit={(value) => onCommitContent(block.id, value)}
-                            onCssChange={(value) => onCssChange(block.id, value)}
-                        />
-                    )
-                }
+                lockLabel={i18n('lock_block')}
+                expandedContentView={blockPanel === 'settings' ? 'editor' : 'menu'}
+                onCloseExpandedContent={closeBlockPanel}
+                expandedContent={blockPanelContent}
             />
             <div
                 className={`${b('item-content')} ${stop}`}
@@ -394,13 +532,7 @@ export const HtmlBlockItem: FC<HtmlBlockItemProps> = ({
                             className={`${b('inline-edit-button')} ${stop}`}
                             style={inlineEditTarget.buttonStyle}
                             onClick={handleOpenInlineEdit}
-                            aria-label={
-                                inlineEditTarget.kind === 'image'
-                                    ? i18n('edit_image_src')
-                                    : inlineEditTarget.kind === 'link'
-                                      ? i18n('edit_link')
-                                      : i18n('edit_text')
-                            }
+                            aria-label={getInlineEditLabel(inlineEditTarget)}
                         >
                             <Icon data={Pencil} size={18} className={stop} />
                         </button>

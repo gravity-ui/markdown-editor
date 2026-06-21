@@ -42,16 +42,31 @@
 
     &__templates-group-template {
         padding-inline-start: 44px;
+
+        &_active {
+            color: var(--g-color-text-brand);
+            background: var(--g-color-base-selection);
+        }
     }
 
     &__templates-group-state {
         padding-inline-start: 60px;
+
+        &_active {
+            color: var(--g-color-text-brand);
+            background: var(--g-color-base-selection);
+        }
     }
 
     &__templates-group-theme {
         padding-inline-start: 60px;
 
         color: var(--g-color-text-secondary);
+
+        &_active {
+            color: var(--g-color-text-brand);
+            background: var(--g-color-base-selection);
+        }
     }
 
     &__templates-error {

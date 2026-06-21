@@ -31,6 +31,35 @@ test.describe('Extensions, YFM', () => {
         await page.waitForTimeout(2000);
         await expectScreenshot();
     });
+    test('YFM HTML Constructor initial state', async ({mount, expectScreenshot, page}) => {
+        await mount(<YFMStories.YfmHtmlConstructor />);
+
+        await page.getByTitle('YFM HTML Constructor').click();
+        await page.waitForTimeout(100);
+
+        await expectScreenshot();
+    });
+    test('YFM HTML Constructor container toolbar', async ({mount, expectScreenshot, page}) => {
+        await mount(<YFMStories.YfmHtmlConstructor />);
+
+        await page.getByTitle('YFM HTML Constructor').click();
+        await page.locator('.g-md-yfm-html-constructor').hover();
+        await page.waitForTimeout(100);
+
+        await expectScreenshot();
+    });
+    test('YFM HTML Constructor block toolbar', async ({mount, expectScreenshot, page}) => {
+        await mount(<YFMStories.YfmHtmlConstructor />);
+
+        await page.getByTitle('YFM HTML Constructor').click();
+        await page.getByRole('button', {name: /Structure templates|Шаблоны структур/}).click();
+        await page.getByText('Gravity UI').click();
+        await page.getByText('Landing', {exact: true}).click();
+        await page.locator('.g-md-yfm-html-constructor__item').first().hover();
+        await page.waitForTimeout(100);
+
+        await expectScreenshot();
+    });
     test('YFM File', async ({mount, expectScreenshot}) => {
         await mount(<YFMStories.YfmFile />);
         await expectScreenshot();

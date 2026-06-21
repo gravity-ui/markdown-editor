@@ -4,9 +4,14 @@ import {buildYfmHtmlConstructorHtml} from '../YfmHtmlConstructorSpecs';
 import {getEnabledHtmlConstructorSettings} from '../settings';
 import {parseTemplates} from '../templates';
 
+import {getNextQuickStyle} from './FloatingToolbar';
 import {
+    applyBlockTemplateToBlock,
+    applyBlockThemeToBlock,
+    applyStructureThemeToState,
     blockTemplateToBlock,
     buildPreviewCss,
+    cloneHtmlConstructorBlock,
     getDirectStructureBlocks,
     structureTemplateToAttrs,
 } from './blockUtils';
@@ -198,5 +203,145 @@ describe('YfmHtmlConstructor utils', () => {
         expect(html).toContain(
             'style="color: #2f6fe0; border: 1px dashed var(--g-color-line-generic);"',
         );
+    });
+
+    it('clones block instances with a new runtime id and preserved data', () => {
+        const block = {
+            id: 'block',
+            templateId: 'card',
+            css: '& { padding: 12px; }',
+            content: '<article>Card</article>',
+            themeIds: ['theme'],
+            quickStyle: {background: '#ffffff'},
+        };
+        const result = cloneHtmlConstructorBlock(block);
+
+        expect(result).toMatchObject({...block, id: expect.any(String)});
+        expect(result.id).not.toBe(block.id);
+    });
+
+    it('replaces block state while preserving runtime id and quick style', () => {
+        const all = templates();
+        const state = all.find(
+            (template) => template.type === 'block' && template.id === 'card-alt',
+        );
+        const theme = all.find(
+            (template) => template.type === 'theme' && template.id === 'card-dark',
+        );
+
+        expect(state?.type).toBe('block');
+        expect(theme?.type).toBe('theme');
+        if (state?.type !== 'block' || theme?.type !== 'theme') return;
+
+        const result = applyBlockTemplateToBlock(
+            {
+                id: 'runtime-id',
+                templateId: 'card',
+                css: 'old css',
+                content: '<article>Edited</article>',
+                themeIds: ['old-theme'],
+                quickStyle: {textColor: '#2f6fe0'},
+            },
+            state,
+            theme,
+        );
+
+        expect(result).toMatchObject({
+            id: 'runtime-id',
+            templateId: 'card-alt',
+            content: '<article>Alt</article>',
+            themeIds: ['card-dark'],
+            quickStyle: {textColor: '#2f6fe0'},
+        });
+        expect(result.css).toContain('& { color: blue; }');
+        expect(result.css).toContain('.g-md-hc-block { background: #000; }');
+    });
+
+    it('replaces structure and block themes without accumulating previous theme css', () => {
+        const all = templates();
+        const structure = all.find(
+            (template) => template.type === 'structure' && template.id === 'landing',
+        );
+        const structureTheme = all.find(
+            (template) => template.type === 'theme' && template.id === 'compact',
+        );
+        const block = all.find((template) => template.type === 'block' && template.id === 'card');
+        const blockTheme = all.find(
+            (template) => template.type === 'theme' && template.id === 'card-dark',
+        );
+
+        expect(structure?.type).toBe('structure');
+        expect(structureTheme?.type).toBe('theme');
+        expect(block?.type).toBe('block');
+        expect(blockTheme?.type).toBe('theme');
+        if (
+            structure?.type !== 'structure' ||
+            structureTheme?.type !== 'theme' ||
+            block?.type !== 'block' ||
+            blockTheme?.type !== 'theme'
+        ) {
+            return;
+        }
+
+        const nextStructure = applyStructureThemeToState(
+            {
+                templateId: 'landing',
+                css: 'old structure theme',
+                content: '<section>Edited intro</section>',
+                themeIds: ['old-theme'],
+                quickStyle: {borderRadius: '12px'},
+            },
+            structure,
+            structureTheme,
+        );
+        const nextBlock = applyBlockThemeToBlock(
+            {
+                id: 'runtime-id',
+                templateId: 'card',
+                css: 'old block theme',
+                content: '<article>Edited card</article>',
+                themeIds: ['old-theme'],
+                quickStyle: {background: '#ffffff'},
+            },
+            block,
+            blockTheme,
+        );
+
+        expect(nextStructure).toMatchObject({
+            content: '<section>Edited intro</section>',
+            themeIds: ['compact'],
+            quickStyle: {borderRadius: '12px'},
+        });
+        expect(nextStructure.css).toContain('& { display: grid; }');
+        expect(nextStructure.css).toContain('.g-md-hc-structure { gap: 8px; }');
+        expect(nextStructure.css).not.toContain('old structure theme');
+
+        expect(nextBlock).toMatchObject({
+            content: '<article>Edited card</article>',
+            themeIds: ['card-dark'],
+            quickStyle: {background: '#ffffff'},
+        });
+        expect(nextBlock.css).toContain('.card { color: red; }');
+        expect(nextBlock.css).toContain('.g-md-hc-block { background: #000; }');
+        expect(nextBlock.css).not.toContain('old block theme');
+    });
+
+    it('applies border quick style patches from the combined border dropdown', () => {
+        expect(
+            getNextQuickStyle(
+                {background: '#ffffff'},
+                {borderStyle: 'dashed', borderRadius: '12px'},
+            ),
+        ).toEqual({
+            background: '#ffffff',
+            borderStyle: 'dashed',
+            borderRadius: '12px',
+        });
+        expect(
+            getNextQuickStyle(
+                {borderStyle: 'dashed', borderRadius: '12px'},
+                {borderStyle: undefined},
+            ),
+        ).toEqual({borderRadius: '12px'});
     });
 });

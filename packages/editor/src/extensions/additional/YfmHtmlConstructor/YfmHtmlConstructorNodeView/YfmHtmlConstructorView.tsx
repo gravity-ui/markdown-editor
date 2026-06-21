@@ -1,12 +1,13 @@
 import {createElement, useMemo, useState} from 'react';
 import type {CSSProperties, FC, ReactNode} from 'react';
 
-import {LayoutHeaderColumns, Plus} from '@gravity-ui/icons';
+import {BucketPaint, LayoutHeaderColumns, Plus} from '@gravity-ui/icons';
 import {Button, Icon} from '@gravity-ui/uikit';
 import type {Node} from 'prosemirror-model';
 import type {EditorView} from 'prosemirror-view';
 
 import {i18n} from 'src/i18n/yfm-html-constructor';
+import {generateEntityId} from 'src/utils/entity-id';
 import {removeNode} from 'src/utils/remove-node';
 
 import {YfmHtmlConstructorConsts, emptyHtmlConstructorStructure} from '../YfmHtmlConstructorSpecs';
@@ -30,14 +31,19 @@ import type {
 } from '../types';
 
 import {BlockInsertPanel} from './BlockInsertPopup';
-import {FloatingToolbar} from './FloatingToolbar';
+import {FloatingToolbar, type FloatingToolbarPrimaryAction} from './FloatingToolbar';
 import {HtmlBlockItem} from './HtmlBlockItem';
 import {StructureSettingsPanel} from './SettingsPopups';
+import {ThemesPanel} from './TemplateActionsPanel';
 import {TemplatesPanel} from './TemplatesPopup';
 import {
+    applyStructureThemeToState,
     blockTemplateToBlock,
     buildPreviewCss,
+    cloneHtmlConstructorBlock,
     getActiveStructureTemplateId,
+    getStructureTemplateById,
+    getStructureThemeTemplates,
     rawTemplateBlockToBlock,
     structureTemplateToAttrs,
 } from './blockUtils';
@@ -51,7 +57,7 @@ export {STOP_EVENT_CLASSNAME, cnYfmHtmlConstructor} from './const';
 const b = cnYfmHtmlConstructor;
 const stop = STOP_EVENT_CLASSNAME;
 const EMPTY_BLOCKS: HtmlConstructorBlock[] = [];
-type StructurePanel = 'blocks' | 'templates' | 'settings' | null;
+type StructurePanel = 'blocks' | 'templates' | 'themes' | 'settings' | null;
 
 const parseInlineStyle = (value: string): CSSProperties =>
     Object.fromEntries(
@@ -175,6 +181,14 @@ export const YfmHtmlConstructorView: FC<{
     );
 
     const activeStructureId = getActiveStructureTemplateId(structure);
+    const activeStructureTemplate = useMemo(
+        () => getStructureTemplateById(effectiveTemplates, activeStructureId),
+        [activeStructureId, effectiveTemplates],
+    );
+    const structureThemes = useMemo(
+        () => getStructureThemeTemplates(effectiveTemplates, activeStructureId),
+        [activeStructureId, effectiveTemplates],
+    );
     const hasStructureTemplates = effectiveTemplates.some(
         (template) => template.type === 'structure',
     );
@@ -209,6 +223,13 @@ export const YfmHtmlConstructorView: FC<{
         closeStructurePanel();
     };
 
+    const applyStructureTheme = (theme?: HtmlConstructorThemeTemplate) => {
+        if (!activeStructureTemplate) return;
+
+        setStructure(applyStructureThemeToState(structure, activeStructureTemplate, theme));
+        closeStructurePanel();
+    };
+
     const applyBlockTemplate = (
         template: HtmlConstructorBlockTemplate,
         theme?: HtmlConstructorThemeTemplate,
@@ -240,8 +261,42 @@ export const YfmHtmlConstructorView: FC<{
         patchBlock(id, {quickStyle});
     };
 
+    const replaceBlock = (id: string, nextBlock: HtmlConstructorBlock) => {
+        setBlocks(blocks.map((block) => (block.id === id ? nextBlock : block)));
+    };
+
+    const duplicateBlock = (id: string) => {
+        const blockIndex = blocks.findIndex((block) => block.id === id);
+        if (blockIndex === -1) return;
+
+        const block = blocks[blockIndex];
+        if (!block) return;
+
+        setBlocks([
+            ...blocks.slice(0, blockIndex + 1),
+            cloneHtmlConstructorBlock(block),
+            ...blocks.slice(blockIndex + 1),
+        ]);
+    };
+
     const removeBlock = (id: string) => {
         setBlocks(blocks.filter((block) => block.id !== id));
+    };
+
+    const duplicateConstructor = () => {
+        const pos = getPos();
+        if (pos === undefined) return;
+
+        const nextNode = node.type.create({
+            ...node.attrs,
+            [YfmHtmlConstructorConsts.NodeAttrs.structure]: {...structure},
+            [YfmHtmlConstructorConsts.NodeAttrs.blocks]: blocks.map(cloneHtmlConstructorBlock),
+            [YfmHtmlConstructorConsts.NodeAttrs.EntityId]: generateEntityId(
+                YfmHtmlConstructorConsts.NodeName,
+            ),
+        });
+
+        view.dispatch(view.state.tr.insert(pos + node.nodeSize, nextNode));
     };
 
     const renderStructurePanelContent = () => {
@@ -272,6 +327,17 @@ export const YfmHtmlConstructorView: FC<{
             );
         }
 
+        if (structurePanel === 'themes') {
+            return (
+                <ThemesPanel
+                    themes={structureThemes}
+                    activeThemeIds={structure.themeIds}
+                    emptyText={i18n('themes_empty')}
+                    onApply={applyStructureTheme}
+                />
+            );
+        }
+
         if (structurePanel === 'settings') {
             return (
                 <StructureSettingsPanel
@@ -287,6 +353,58 @@ export const YfmHtmlConstructorView: FC<{
     };
 
     const structurePanelContent = renderStructurePanelContent();
+    const structurePrimaryActions = [
+        {
+            id: 'addBlock',
+            node: (
+                <Button
+                    view="flat"
+                    size="s"
+                    className={stop}
+                    selected={structurePanel === 'blocks'}
+                    onClick={() => toggleStructurePanel('blocks')}
+                    aria-label={i18n('add_block')}
+                    title={i18n('add_block')}
+                >
+                    <Icon data={Plus} className={stop} />
+                </Button>
+            ),
+        },
+        showStructureTemplatesButton && {
+            id: 'selectStructure',
+            node: (
+                <Button
+                    view="flat"
+                    size="s"
+                    className={stop}
+                    selected={structurePanel === 'templates'}
+                    onClick={() => toggleStructurePanel('templates')}
+                    aria-label={i18n('structure_templates')}
+                    title={i18n('structure_templates')}
+                >
+                    <Icon data={LayoutHeaderColumns} className={stop} />
+                </Button>
+            ),
+        },
+        {
+            id: 'structureTheme',
+            node: (
+                <Button
+                    view="flat"
+                    size="s"
+                    className={stop}
+                    disabled={!activeStructureTemplate || structureThemes.length === 0}
+                    selected={structurePanel === 'themes'}
+                    onClick={() => toggleStructurePanel('themes')}
+                    aria-label={i18n('select_theme')}
+                    title={i18n('select_theme')}
+                >
+                    <Icon data={BucketPaint} className={stop} />
+                </Button>
+            ),
+        },
+    ].filter(Boolean) as FloatingToolbarPrimaryAction[];
+    const isEmptyConstructor = !structure.content.trim() && blocks.length === 0;
 
     return (
         <div className={b()}>
@@ -297,39 +415,17 @@ export const YfmHtmlConstructorView: FC<{
                 quickStyle={structure.quickStyle}
                 onQuickStyleChange={(quickStyle) => patchStructure({quickStyle})}
                 onOpenSettings={() => toggleStructurePanel('settings')}
+                primaryActions={structurePrimaryActions}
+                onDuplicate={duplicateConstructor}
                 onRemove={() => {
                     const pos = getPos();
                     if (pos === undefined) return;
                     removeNode({node, pos, tr: view.state.tr, dispatch: view.dispatch});
                 }}
                 codeLabel={i18n('structure_settings')}
+                duplicateLabel={i18n('duplicate_constructor')}
                 removeLabel={i18n('remove_constructor')}
-                leftSlot={
-                    <>
-                        <Button
-                            view="flat"
-                            size="s"
-                            className={stop}
-                            selected={structurePanel === 'blocks'}
-                            onClick={() => toggleStructurePanel('blocks')}
-                            aria-label={i18n('add_block')}
-                        >
-                            <Icon data={Plus} className={stop} />
-                        </Button>
-                        {showStructureTemplatesButton && (
-                            <Button
-                                view="flat"
-                                size="s"
-                                className={stop}
-                                selected={structurePanel === 'templates'}
-                                onClick={() => toggleStructurePanel('templates')}
-                                aria-label={i18n('structure_templates')}
-                            >
-                                <Icon data={LayoutHeaderColumns} className={stop} />
-                            </Button>
-                        )}
-                    </>
-                }
+                lockLabel={i18n('lock_constructor')}
                 expandedContentView={structurePanel === 'settings' ? 'editor' : 'menu'}
                 onCloseExpandedContent={closeStructurePanel}
                 expandedContent={structurePanelContent}
@@ -339,7 +435,36 @@ export const YfmHtmlConstructorView: FC<{
                 className={`${b('structure')} ${htmlConstructorStructureClass} ${structureClass()}`}
                 style={htmlConstructorQuickStyleToReactStyle(structure.quickStyle)}
             >
-                {renderedStructureContent}
+                {isEmptyConstructor ? (
+                    <div className={b('initial', [stop])}>
+                        <h2 className={b('initial-title', [stop])}>HTML Constructor</h2>
+                        <p className={b('initial-subtitle', [stop])}>{i18n('initial_subtitle')}</p>
+                        <div className={b('initial-actions', [stop])}>
+                            <Button
+                                view="action"
+                                size="l"
+                                className={stop}
+                                onClick={() => toggleStructurePanel('blocks')}
+                            >
+                                <Icon data={Plus} className={stop} />
+                                <span className={stop}>{i18n('add_block')}</span>
+                            </Button>
+                            {showStructureTemplatesButton && (
+                                <Button
+                                    view="normal"
+                                    size="l"
+                                    className={stop}
+                                    onClick={() => toggleStructurePanel('templates')}
+                                >
+                                    <Icon data={LayoutHeaderColumns} className={stop} />
+                                    <span className={stop}>{i18n('structure_templates')}</span>
+                                </Button>
+                            )}
+                        </div>
+                    </div>
+                ) : (
+                    renderedStructureContent
+                )}
                 {blocks.map((block, i) => (
                     <HtmlBlockItem
                         key={block.id}
@@ -351,7 +476,11 @@ export const YfmHtmlConstructorView: FC<{
                         onCommitContent={commitBlockContent}
                         onCssChange={updateBlockCss}
                         onQuickStyleChange={updateBlockQuickStyle}
+                        onReplace={replaceBlock}
+                        onDuplicate={duplicateBlock}
                         onRemove={removeBlock}
+                        templates={effectiveTemplates}
+                        activeStructureId={activeStructureId}
                     />
                 ))}
             </div>
