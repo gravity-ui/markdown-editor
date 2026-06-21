@@ -346,6 +346,7 @@ export const YfmHtmlConstructorView: FC<{
                     css={structure.css}
                     onHtmlCommit={(value) => patchStructure({content: value})}
                     onCssChange={(value) => patchStructure({css: value})}
+                    onClose={closeStructurePanel}
                 />
             );
         }

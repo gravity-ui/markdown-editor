@@ -151,16 +151,17 @@
     }
 
     &__floating-toolbar-panel_editor {
-        overflow: hidden;
+        overflow: visible;
 
-        width: min(1360px, 95vw);
+        width: auto;
         max-width: 95vw;
         max-height: calc(100vh - 120px);
-        padding: 14px;
+        padding: 0;
 
+        border: 0;
         border-radius: 14px;
-        background: var(--g-color-base-float);
-        box-shadow: 0 22px 48px -20px rgb(0 0 0 / 30%);
+        background: transparent;
+        box-shadow: none;
     }
 
     &__floating-toolbar_expanded &__floating-toolbar-tail {
@@ -679,70 +680,168 @@
         }
     }
 
-    &__settings-editor {
+    &__code-editor {
+        display: flex;
+        overflow: hidden;
+        flex-direction: column;
+
+        width: min(1120px, 94vw);
+        max-width: 94vw;
+
+        border: 1px solid var(--g-color-line-generic);
+        border-radius: 14px;
+        background: var(--g-color-base-float);
+        box-shadow: 0 22px 48px -20px rgb(0 0 0 / 30%);
+    }
+
+    &__code-editor_compact {
+        width: min(640px, 92vw);
+    }
+
+    &__code-editor-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+
+        min-height: 44px;
+        padding: 6px 8px 6px 12px;
+
+        border-bottom: 1px solid var(--g-color-line-generic);
+    }
+
+    &__code-tabs {
+        display: flex;
+        flex: 1 1 auto;
+        gap: 2px;
+
+        min-width: 0;
+    }
+
+    &__code-tab {
+        position: relative;
+
+        margin: 0;
+        padding: 8px 10px;
+
+        font-size: var(--g-text-body-1-font-size);
+        line-height: var(--g-text-body-1-line-height);
+        color: var(--g-color-text-secondary);
+
+        cursor: pointer;
+
+        background: transparent;
+        border: 0;
+        border-radius: var(--g-border-radius-s);
+
+        &:hover {
+            color: var(--g-color-text-primary);
+            background: var(--g-color-base-simple-hover);
+        }
+
+        &_active {
+            color: var(--g-color-text-primary);
+
+            &::after {
+                content: '';
+
+                position: absolute;
+                right: 10px;
+                bottom: -7px;
+                left: 10px;
+
+                height: 2px;
+
+                background: var(--g-color-line-brand);
+            }
+        }
+    }
+
+    &__code-editor-actions {
+        display: flex;
+        flex: 0 0 auto;
+        align-items: center;
+        gap: 6px;
+    }
+
+    &__code-editor-body {
         display: grid;
         overflow: hidden;
         grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-        gap: 0;
 
-        min-width: 0;
-        height: min(660px, calc(100vh - 184px));
-        padding: 0;
-
-        border: 1px solid var(--g-color-line-generic);
-        border-radius: var(--g-border-radius-l);
-        background: var(--g-color-base-background);
+        min-height: 0;
     }
 
-    &__settings-field {
+    &__code-editor_compact &__code-editor-body {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    &__code {
         display: flex;
         flex-direction: column;
-        gap: 12px;
 
         min-width: 0;
-        min-height: 0;
-        padding: 22px 28px 28px;
-        overflow-y: auto;
-        overscroll-behavior: contain;
-
-        background: transparent;
 
         & + & {
             border-left: 1px solid var(--g-color-line-generic);
         }
     }
 
-    &__settings-field-label {
-        font-size: var(--g-text-caption-1-font-size);
-        font-weight: 400;
-        line-height: var(--g-text-caption-1-line-height);
-        letter-spacing: 0;
+    &__code-label {
+        padding: 10px 14px 4px;
 
+        font-size: var(--g-text-caption-1-font-size);
+        line-height: var(--g-text-caption-1-line-height);
         color: var(--g-color-text-secondary);
     }
 
-    &__settings-textarea {
+    &__code-body {
+        display: flex;
+        overflow: hidden;
+
+        height: min(520px, 64vh);
+    }
+
+    &__code-gutter {
+        flex: 0 0 auto;
+        overflow: hidden;
+
+        padding: 12px 8px 12px 14px;
+
+        font-family: var(--g-font-family-monospace);
+        font-size: 13px;
+        line-height: 20px;
+        text-align: right;
+        white-space: pre;
+        color: var(--g-color-text-hint);
+        user-select: none;
+
+        background: var(--g-color-base-generic);
+    }
+
+    &__code-input {
+        flex: 1 1 auto;
+        overflow: auto;
+        overscroll-behavior: contain;
+
         min-width: 0;
+        margin: 0;
+        padding: 12px 14px;
 
-        .g-text-area__content {
-            color: var(--g-color-text-primary);
-            border: 0;
-            border-radius: 0;
-            background: transparent;
-            box-shadow: none;
-        }
+        font-family: var(--g-font-family-monospace);
+        font-size: 13px;
+        line-height: 20px;
+        tab-size: 2;
+        white-space: pre;
+        color: var(--g-color-text-primary);
 
-        .g-text-area__control {
-            min-height: min(580px, calc(100vh - 276px));
-            padding: 0;
+        resize: none;
+        border: 0;
+        outline: none;
+        background: transparent;
 
-            font-family: var(--g-font-family-monospace);
-            line-height: 1.45;
-
-            border: 0;
-            border-radius: 0;
-            background: transparent;
-            box-shadow: none;
+        &::placeholder {
+            color: var(--g-color-text-hint);
         }
     }
 }
@@ -763,32 +862,29 @@
         }
 
         &__floating-toolbar-panel_editor {
-            max-height: calc(100vh - 92px);
-            padding: 10px;
+            max-height: calc(100vh - 24px);
+            padding: 0;
         }
 
-        &__settings-editor {
+        &__code-editor,
+        &__code-editor_compact {
+            width: calc(100vw - 16px);
+            max-width: calc(100vw - 16px);
+        }
+
+        &__code-editor-body {
             grid-template-columns: minmax(0, 1fr);
-            height: auto;
-            max-height: calc(100vh - 140px);
-            overflow-y: auto;
-            overscroll-behavior: contain;
         }
 
-        &__settings-field {
-            padding: 18px;
-            overflow: visible;
-
+        &__code {
             & + & {
                 border-top: 1px solid var(--g-color-line-generic);
                 border-left: 0;
             }
         }
 
-        &__settings-textarea {
-            .g-text-area__control {
-                min-height: 180px;
-            }
+        &__code-body {
+            height: min(260px, 38vh);
         }
     }
 }

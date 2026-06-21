@@ -419,6 +419,7 @@ export const HtmlBlockItem: FC<HtmlBlockItemProps> = ({
                     css={block.css}
                     onHtmlCommit={(value) => onCommitContent(block.id, value)}
                     onCssChange={(value) => onCssChange(block.id, value)}
+                    onClose={closeBlockPanel}
                 />
             );
         }
