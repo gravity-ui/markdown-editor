@@ -228,6 +228,18 @@ export const YfmHtmlConstructorView: FC<{
         closeStructurePanel();
     };
 
+    const applyCustomStructure = ({content, css}: {content: string; css: string}) => {
+        onChange({
+            [YfmHtmlConstructorConsts.NodeAttrs.structure]: {
+                ...emptyHtmlConstructorStructure(),
+                content,
+                css,
+            },
+            [YfmHtmlConstructorConsts.NodeAttrs.blocks]: [],
+        });
+        closeStructurePanel();
+    };
+
     const applyStructureTheme = (theme?: HtmlConstructorThemeTemplate) => {
         if (!activeStructureTemplate) return;
 
@@ -348,6 +360,7 @@ export const YfmHtmlConstructorView: FC<{
                     hasStoredTemplates={storedTemplates.length > 0}
                     onClose={closeStructurePanel}
                     onApply={applyStructureTemplate}
+                    onApplyCustom={applyCustomStructure}
                     onAdded={setStoredTemplates}
                     onCleared={setStoredTemplates}
                 />

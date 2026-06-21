@@ -1,10 +1,11 @@
 import {useEffect, useMemo, useRef, useState} from 'react';
-import type {FC} from 'react';
+import type {FC, ReactNode} from 'react';
 
 import {
     ArrowDownToSquare,
     ChevronDown,
     ChevronRight,
+    Code,
     Layers,
     Magnifier,
     TrashBin,
@@ -219,6 +220,7 @@ interface StructureTemplatesPanelProps {
         structure: HtmlConstructorStructureTemplate,
         theme?: HtmlConstructorThemeTemplate,
     ) => void;
+    onApplyCustom: (value: {content: string; css: string}) => void;
     onAdded: (templates: HtmlConstructorTemplate[]) => void;
     onCleared: (templates: HtmlConstructorTemplate[]) => void;
 }
@@ -230,11 +232,15 @@ export const StructureTemplatesPanel: FC<StructureTemplatesPanelProps> = ({
     hasStoredTemplates,
     onClose,
     onApply,
+    onApplyCustom,
     onAdded,
     onCleared,
 }) => {
     const [filter, setFilter] = useState('');
     const [adding, setAdding] = useState(false);
+    const [customizing, setCustomizing] = useState(false);
+    const [customHtml, setCustomHtml] = useState('');
+    const [customCss, setCustomCss] = useState('');
     const [input, setInput] = useState('');
     const [error, setError] = useState('');
     const [openGroups, setOpenGroups] = useState<string[]>(() =>
@@ -274,6 +280,159 @@ export const StructureTemplatesPanel: FC<StructureTemplatesPanelProps> = ({
         onCleared(clearStoredTemplates());
     };
 
+    const handleApplyCustom = () => {
+        onApplyCustom({content: customHtml.trim(), css: customCss.trim()});
+        setCustomHtml('');
+        setCustomCss('');
+        setCustomizing(false);
+    };
+
+    const customEditor = (
+        <div className={b('structures-import')}>
+            <div className={b('structures-custom-field')}>
+                <div className={b('structures-custom-label')}>{i18n('html')}</div>
+                <TextArea
+                    controlProps={{className: stop}}
+                    value={customHtml}
+                    onUpdate={setCustomHtml}
+                    placeholder={'<section>\n  <h2>Structure intro</h2>\n</section>'}
+                    minRows={6}
+                    autoFocus
+                />
+            </div>
+            <div className={b('structures-custom-field')}>
+                <div className={b('structures-custom-label')}>{i18n('css')}</div>
+                <TextArea
+                    controlProps={{className: stop}}
+                    value={customCss}
+                    onUpdate={setCustomCss}
+                    placeholder={'.g-md-hc-structure {\n  display: grid;\n  gap: 16px;\n}'}
+                    minRows={6}
+                />
+            </div>
+            <div className={b('structures-import-actions')}>
+                <Button view="flat" size="l" className={stop} onClick={() => setCustomizing(false)}>
+                    {i18n('cancel')}
+                </Button>
+                <Button
+                    view="action"
+                    size="l"
+                    className={stop}
+                    disabled={!customHtml.trim() && !customCss.trim()}
+                    onClick={handleApplyCustom}
+                >
+                    {i18n('insert')}
+                </Button>
+            </div>
+        </div>
+    );
+
+    const importEditor = (
+        <div className={b('structures-import')}>
+            <TextArea
+                controlProps={{className: stop}}
+                value={input}
+                onUpdate={(value) => {
+                    setInput(value);
+                    setError('');
+                }}
+                placeholder={i18n('templates_input_placeholder')}
+                minRows={10}
+                autoFocus
+            />
+            {error && <div className={b('structures-error')}>{error}</div>}
+            <div className={b('structures-import-actions')}>
+                <Button view="flat" size="l" className={stop} onClick={() => setAdding(false)}>
+                    {i18n('cancel')}
+                </Button>
+                <Button
+                    view="action"
+                    size="l"
+                    className={stop}
+                    disabled={!input.trim()}
+                    onClick={handleSave}
+                >
+                    {i18n('save')}
+                </Button>
+            </div>
+        </div>
+    );
+
+    const listView = (
+        <>
+            <div className={b('structures-toolbar')}>
+                <TextInput
+                    className={b('structures-search', [stop])}
+                    controlProps={{className: stop}}
+                    size="l"
+                    value={filter}
+                    onUpdate={setFilter}
+                    placeholder={i18n('search_structures')}
+                    startContent={
+                        <Icon data={Magnifier} size={16} className={b('structures-search-icon')} />
+                    }
+                    hasClear
+                />
+                <div className={b('structures-actions')}>
+                    <Button
+                        view="flat"
+                        size="l"
+                        className={stop}
+                        onClick={() => setCustomizing(true)}
+                    >
+                        <Icon data={Code} size={16} />
+                        {i18n('custom_structure')}
+                    </Button>
+                    {allowAdd && (
+                        <>
+                            <Button
+                                view="flat"
+                                size="l"
+                                className={stop}
+                                onClick={() => setAdding(true)}
+                            >
+                                <Icon data={ArrowDownToSquare} size={16} />
+                                {i18n('add_template')}
+                            </Button>
+                            <Button
+                                view="flat"
+                                size="l"
+                                className={stop}
+                                disabled={!hasStoredTemplates}
+                                onClick={handleClear}
+                            >
+                                <Icon data={TrashBin} size={16} />
+                                {i18n('clear_templates')}
+                            </Button>
+                        </>
+                    )}
+                </div>
+            </div>
+
+            <div className={b('structures-body')}>
+                {groups.length === 0 ? (
+                    <div className={b('structures-empty')}>{emptyText}</div>
+                ) : (
+                    groups.map((group) => (
+                        <StructureGroup
+                            key={group.title}
+                            templates={templates}
+                            title={group.title}
+                            items={group.items}
+                            open={hasFilter || openGroups.includes(group.title)}
+                            onToggle={() => toggleGroup(group.title)}
+                            onApply={onApply}
+                        />
+                    ))
+                )}
+            </div>
+        </>
+    );
+
+    let panelBody: ReactNode = listView;
+    if (customizing) panelBody = customEditor;
+    else if (adding) panelBody = importEditor;
+
     return (
         <div className={b('structures', [stop])}>
             <div className={b('structures-header')}>
@@ -289,103 +448,7 @@ export const StructureTemplatesPanel: FC<StructureTemplatesPanelProps> = ({
                 </Button>
             </div>
 
-            {adding ? (
-                <div className={b('structures-import')}>
-                    <TextArea
-                        controlProps={{className: stop}}
-                        value={input}
-                        onUpdate={(value) => {
-                            setInput(value);
-                            setError('');
-                        }}
-                        placeholder={i18n('templates_input_placeholder')}
-                        minRows={10}
-                        autoFocus
-                    />
-                    {error && <div className={b('structures-error')}>{error}</div>}
-                    <div className={b('structures-import-actions')}>
-                        <Button
-                            view="flat"
-                            size="l"
-                            className={stop}
-                            onClick={() => setAdding(false)}
-                        >
-                            {i18n('cancel')}
-                        </Button>
-                        <Button
-                            view="action"
-                            size="l"
-                            className={stop}
-                            disabled={!input.trim()}
-                            onClick={handleSave}
-                        >
-                            {i18n('save')}
-                        </Button>
-                    </div>
-                </div>
-            ) : (
-                <>
-                    <div className={b('structures-toolbar')}>
-                        <TextInput
-                            className={b('structures-search', [stop])}
-                            controlProps={{className: stop}}
-                            size="l"
-                            value={filter}
-                            onUpdate={setFilter}
-                            placeholder={i18n('search_structures')}
-                            startContent={
-                                <Icon
-                                    data={Magnifier}
-                                    size={16}
-                                    className={b('structures-search-icon')}
-                                />
-                            }
-                            hasClear
-                        />
-                        {allowAdd && (
-                            <div className={b('structures-actions')}>
-                                <Button
-                                    view="flat"
-                                    size="l"
-                                    className={stop}
-                                    onClick={() => setAdding(true)}
-                                >
-                                    <Icon data={ArrowDownToSquare} size={16} />
-                                    {i18n('add_template')}
-                                </Button>
-                                <Button
-                                    view="flat"
-                                    size="l"
-                                    className={stop}
-                                    disabled={!hasStoredTemplates}
-                                    onClick={handleClear}
-                                >
-                                    <Icon data={TrashBin} size={16} />
-                                    {i18n('clear_templates')}
-                                </Button>
-                            </div>
-                        )}
-                    </div>
-
-                    <div className={b('structures-body')}>
-                        {groups.length === 0 ? (
-                            <div className={b('structures-empty')}>{emptyText}</div>
-                        ) : (
-                            groups.map((group) => (
-                                <StructureGroup
-                                    key={group.title}
-                                    templates={templates}
-                                    title={group.title}
-                                    items={group.items}
-                                    open={hasFilter || openGroups.includes(group.title)}
-                                    onToggle={() => toggleGroup(group.title)}
-                                    onApply={onApply}
-                                />
-                            ))
-                        )}
-                    </div>
-                </>
-            )}
+            {panelBody}
         </div>
     );
 };

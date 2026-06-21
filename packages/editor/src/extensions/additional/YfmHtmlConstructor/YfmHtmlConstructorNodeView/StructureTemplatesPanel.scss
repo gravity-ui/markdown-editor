@@ -84,6 +84,19 @@
         gap: 8px;
     }
 
+    &__structures-custom-field {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    &__structures-custom-label {
+        font-size: var(--g-text-body-1-font-size);
+        font-weight: 500;
+        line-height: var(--g-text-body-1-line-height);
+        color: var(--g-color-text-secondary);
+    }
+
     &__structures-error {
         font-size: var(--g-text-body-1-font-size);
         line-height: var(--g-text-body-1-line-height);
