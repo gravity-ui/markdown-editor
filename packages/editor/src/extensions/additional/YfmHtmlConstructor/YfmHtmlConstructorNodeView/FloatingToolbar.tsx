@@ -598,7 +598,11 @@ export const FloatingToolbar: FC<FloatingToolbarProps> = ({
             if (!(target instanceof Element)) return;
 
             if (toolbarRef.current?.contains(target)) return;
-            if (target.closest(`.${b('floating-menu')}`)) return;
+            // Popups (theme picker, color menus, …) render in a portal outside the
+            // toolbar, but they still belong to the constructor and carry the stop
+            // class. Treat them as inside so a click there is not swallowed by the
+            // close handler before it reaches the element's own onClick.
+            if (target.closest(`.${stop}`)) return;
 
             closeExpandedContent();
         };
@@ -684,9 +688,7 @@ export const FloatingToolbar: FC<FloatingToolbarProps> = ({
                 )}
             </div>
             {expandedContent && (
-                <div
-                    className={b('floating-toolbar-panel', {editor: chromelessPanel}, [stop])}
-                >
+                <div className={b('floating-toolbar-panel', {editor: chromelessPanel}, [stop])}>
                     {expandedContent}
                 </div>
             )}
