@@ -6,6 +6,8 @@ import {Button, Icon, Popup, Switch} from '@gravity-ui/uikit';
 
 import {i18n} from 'src/i18n/yfm-html-constructor';
 
+import {useHtmlConstructorPreference} from '../preferences';
+
 import {STOP_EVENT_CLASSNAME, cnYfmHtmlConstructor} from './const';
 
 const b = cnYfmHtmlConstructor;
@@ -153,7 +155,7 @@ const HtmlCssSettingsPanel: FC<HtmlCssSettingsPanelProps> = ({
 }) => {
     const [draftHtml, setDraftHtml] = useState(html);
     const [draftCss, setDraftCss] = useState(css);
-    const [compact, setCompact] = useState(true);
+    const [compact, setCompact] = useHtmlConstructorPreference('compactCodeView');
     const [activeTab, setActiveTab] = useState<CodeKind>('html');
 
     useEffect(() => {

@@ -878,6 +878,10 @@
     }
 
     &__code-body_framed {
+        // Lay gutter + stack out at their natural height so the body itself becomes
+        // the scroll container; with the default `stretch` the textarea's overflow
+        // is not counted and the pane cannot scroll vertically.
+        align-items: flex-start;
         overflow: auto;
         overscroll-behavior: contain;
     }
