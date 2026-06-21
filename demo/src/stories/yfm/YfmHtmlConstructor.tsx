@@ -50,6 +50,9 @@ export const YfmHtmlConstructorDemo = memo(function YfmHtmlConstructorDemo() {
             wysiwygConfig: {
                 extensions: (builder) =>
                     builder.use(YfmHtmlConstructorExtension, {
+                        // Experimental: isolate each constructor's CSS so styles
+                        // from one don't leak into another on the same page.
+                        scopeStyles: true,
                         templates: {
                             showButton: true,
                             allowAdd: true,

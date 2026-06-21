@@ -11,7 +11,13 @@ import {generateEntityId} from 'src/utils/entity-id';
 import {removeNode} from 'src/utils/remove-node';
 
 import {YfmHtmlConstructorConsts, emptyHtmlConstructorStructure} from '../YfmHtmlConstructorSpecs';
-import {htmlConstructorStructureClass, structureClass} from '../css';
+import {
+    hashToScopeId,
+    htmlConstructorScopeClassName,
+    htmlConstructorStructureClass,
+    scopeCss,
+    structureClass,
+} from '../css';
 import {
     htmlConstructorQuickStyleToReactStyle,
     normalizeHtmlConstructorQuickStyle,
@@ -27,7 +33,7 @@ import type {
     HtmlConstructorTemplate,
     HtmlConstructorTemplateBlock,
     HtmlConstructorThemeTemplate,
-    YfmHtmlConstructorOptions,
+    YfmHtmlConstructorExtensionOptions,
 } from '../types';
 
 import {BlockTemplatesPanel} from './BlockTemplatesPanel';
@@ -166,17 +172,26 @@ export const YfmHtmlConstructorView: FC<{
     getPos: () => number | undefined;
     view: EditorView;
     onChange: (attrs: Partial<Node['attrs']>) => void;
-    options: {templates?: YfmHtmlConstructorOptions};
+    options: YfmHtmlConstructorExtensionOptions;
 }> = ({node, getPos, view, onChange, options}) => {
     const structure = readStructure(node);
     const blocks = readBlocks(node);
-    const {templates} = options;
+    const {templates, scopeStyles} = options;
+
+    const scopeClass = scopeStyles
+        ? htmlConstructorScopeClassName(
+              hashToScopeId(String(node.attrs[YfmHtmlConstructorConsts.NodeAttrs.EntityId] ?? '')),
+          )
+        : undefined;
 
     const renderedStructureContent = useMemo(
         () => htmlToReactNodes(structure.content),
         [structure.content],
     );
-    const previewCss = useMemo(() => buildPreviewCss({blocks, structure}), [blocks, structure]);
+    const previewCss = useMemo(() => {
+        const css = buildPreviewCss({blocks, structure});
+        return scopeClass && css ? scopeCss(css, `.${scopeClass}`) : css;
+    }, [blocks, structure, scopeClass]);
     const [structurePanel, setStructurePanel] = useState<StructurePanel>(null);
 
     const allowAdd = Boolean(templates?.allowAdd);
@@ -491,7 +506,7 @@ export const YfmHtmlConstructorView: FC<{
     const isEmptyConstructor = !structure.content.trim() && blocks.length === 0;
 
     return (
-        <div className={b({empty: isEmptyConstructor})}>
+        <div className={`${b({empty: isEmptyConstructor})}${scopeClass ? ` ${scopeClass}` : ''}`}>
             {previewCss && <style>{previewCss}</style>}
 
             <FloatingToolbar

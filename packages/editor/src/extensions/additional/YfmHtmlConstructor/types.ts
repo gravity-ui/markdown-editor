@@ -113,3 +113,15 @@ export interface YfmHtmlConstructorOptions {
     /** Show the "add template" button (writes to localStorage). */
     allowAdd?: boolean;
 }
+
+export interface YfmHtmlConstructorExtensionOptions {
+    templates?: YfmHtmlConstructorOptions;
+    /**
+     * Experimental. Scope each constructor's generated CSS to its own instance
+     * by wrapping it in a unique class (derived from the node's entity id), so
+     * styles from one constructor don't leak into another on the same page.
+     *
+     * Off by default — flip it on to evaluate whether the isolation is needed.
+     */
+    scopeStyles?: boolean;
+}

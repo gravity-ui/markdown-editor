@@ -5,9 +5,12 @@ import type {ExtensionAuto, ExtensionNodeSpec} from '#core';
 import {
     blockClass,
     blockSelector,
+    hashToScopeId,
     htmlConstructorBlockClass,
+    htmlConstructorScopeClassName,
     htmlConstructorStructureClass,
     replaceCssAnchor,
+    scopeCss,
     structureClass,
     structureSelector,
     templateCssToRules,
@@ -32,6 +35,8 @@ export {
 
 export type YfmHtmlConstructorSpecsOptions = {
     nodeView?: ExtensionNodeSpec['view'];
+    /** Experimental: scope each instance's generated CSS. @see YfmHtmlConstructorExtensionOptions */
+    scopeStyles?: boolean;
 };
 
 export const emptyHtmlConstructorStructure = (): HtmlConstructorStructure => ({
@@ -94,7 +99,11 @@ const indent = (text: string, by = '  ') =>
         .map((line) => (line ? by + line : line))
         .join('\n');
 
-const buildCss = (structure: HtmlConstructorStructure, blocks: HtmlConstructorBlock[]) => {
+const buildCss = (
+    structure: HtmlConstructorStructure,
+    blocks: HtmlConstructorBlock[],
+    scopeSelector?: string,
+) => {
     const rules = [
         structure.css.trim() &&
             replaceCssAnchor(templateCssToRules(structure.css), structureSelector()).trim(),
@@ -112,7 +121,10 @@ const buildCss = (structure: HtmlConstructorStructure, blocks: HtmlConstructorBl
     // contract stylesheet entirely so plain blocks stay markup-only.
     if (!rules.length && !usesVariables) return '';
 
-    const ruleCss = rules.join('\n').replace(/\n{2,}/g, '\n');
+    let ruleCss = rules.join('\n').replace(/\n{2,}/g, '\n');
+    // The generic contract stylesheet stays unscoped (it's identical for every
+    // instance); only the per-instance rules are isolated.
+    if (scopeSelector && ruleCss) ruleCss = scopeCss(ruleCss, scopeSelector);
 
     // The contract stylesheet comes first so block/theme rules (higher
     // specificity) and inline quick-style variables can override it.
@@ -140,20 +152,31 @@ const buildStructureContent = (
     }</div>`;
 };
 
+const readScopeId = (node: Node): string =>
+    hashToScopeId(String(node.attrs[YfmHtmlConstructorConsts.NodeAttrs.EntityId] ?? ''));
+
 /** Assembles the static HTML written into a YFM HTML block. */
-export const buildYfmHtmlConstructorHtml = (node: Node): string => {
+export const buildYfmHtmlConstructorHtml = (
+    node: Node,
+    {scopeStyles}: {scopeStyles?: boolean} = {},
+): string => {
     const structure = readStructure(node);
     const blocks = readBlocks(node);
-    const css = buildCss(structure, blocks);
+
+    const scopeClass = scopeStyles ? htmlConstructorScopeClassName(readScopeId(node)) : undefined;
+    const css = buildCss(structure, blocks, scopeClass && `.${scopeClass}`);
     const styleTag = css ? `<style>\n${indent(css.trim())}\n</style>\n` : '';
     const html = buildStructureContent(structure, blocks);
+    const body = `${styleTag}${html}`.trim();
 
-    return `${styleTag}${html}`.trim();
+    // Wrap in the instance scope so the scoped CSS selectors have an ancestor to
+    // match against, isolating this constructor from others on the same page.
+    return scopeClass ? `<div class="${scopeClass}">\n${indent(body)}\n</div>` : body;
 };
 
 const YfmHtmlConstructorSpecsExtension: ExtensionAuto<YfmHtmlConstructorSpecsOptions> = (
     builder,
-    {nodeView},
+    {nodeView, scopeStyles},
 ) => {
     builder.addNode(yfmHtmlConstructorNodeName, () => ({
         // The node is created via the toolbar action; no markdown token is emitted for it.
@@ -189,7 +212,7 @@ const YfmHtmlConstructorSpecsExtension: ExtensionAuto<YfmHtmlConstructorSpecsOpt
         toMd: (state, node) => {
             state.write('::: html');
             state.write('\n');
-            state.write(buildYfmHtmlConstructorHtml(node));
+            state.write(buildYfmHtmlConstructorHtml(node, {scopeStyles}));
             state.ensureNewLine();
             state.write(':::');
             state.closeBlock(node);

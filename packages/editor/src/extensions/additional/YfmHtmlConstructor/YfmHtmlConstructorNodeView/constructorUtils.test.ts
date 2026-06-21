@@ -210,6 +210,66 @@ describe('YfmHtmlConstructor utils', () => {
         );
     });
 
+    it('does not scope styles by default', () => {
+        const node = {
+            attrs: {
+                'data-entity-id': 'yfm_html_constructor-abc',
+                structure: {css: '& { gap: 8px; }', content: '', themeIds: []},
+                blocks: [{id: 'b', css: '& { padding: 12px; }', content: 'X', themeIds: []}],
+            },
+        } as unknown as Node;
+
+        const html = buildYfmHtmlConstructorHtml(node);
+
+        expect(html).not.toContain('g-md-hc-scope-');
+        expect(html).toContain('.g-md-hc-structure.g-md-hc-structure-1 { gap: 8px; }');
+        expect(html).toContain('.g-md-hc-block.g-md-hc-block-1 { padding: 12px; }');
+    });
+
+    it('scopes per-instance css and wraps markup when scopeStyles is enabled', () => {
+        const node = {
+            attrs: {
+                'data-entity-id': 'yfm_html_constructor-abc',
+                structure: {css: '& { gap: 8px; }', content: '', themeIds: []},
+                blocks: [
+                    {id: 'b', css: '.g-md-hc-block { padding: 12px; }', content: 'X', themeIds: []},
+                ],
+            },
+        } as unknown as Node;
+
+        const html = buildYfmHtmlConstructorHtml(node, {scopeStyles: true});
+
+        const scopeMatch = html.match(/g-md-hc-scope-[a-z0-9]+/);
+        expect(scopeMatch).not.toBeNull();
+        const scope = scopeMatch![0];
+
+        // Markup is wrapped in the unique scope class.
+        expect(html).toContain(`<div class="${scope}">`);
+        // Per-instance selectors are prefixed with the scope, the generic
+        // contract stylesheet stays unscoped.
+        expect(html).toContain(`.${scope} .g-md-hc-structure.g-md-hc-structure-1 { gap: 8px; }`);
+        expect(html).toContain(`.${scope} .g-md-hc-block { padding: 12px; }`);
+        // The generic contract stylesheet keeps its unscoped, comma-separated selector.
+        expect(html).toMatch(/\.g-md-hc-structure,\s*\n\s*\.g-md-hc-block \{/);
+    });
+
+    it('derives a stable scope from the entity id', () => {
+        const make = (id: string) =>
+            buildYfmHtmlConstructorHtml(
+                {
+                    attrs: {
+                        'data-entity-id': id,
+                        structure: {css: '& { gap: 8px; }', content: '', themeIds: []},
+                        blocks: [],
+                    },
+                } as unknown as Node,
+                {scopeStyles: true},
+            ).match(/g-md-hc-scope-[a-z0-9]+/)![0];
+
+        expect(make('yfm_html_constructor-one')).toBe(make('yfm_html_constructor-one'));
+        expect(make('yfm_html_constructor-one')).not.toBe(make('yfm_html_constructor-two'));
+    });
+
     it('clones block instances with a new runtime id and preserved data', () => {
         const block = {
             id: 'block',

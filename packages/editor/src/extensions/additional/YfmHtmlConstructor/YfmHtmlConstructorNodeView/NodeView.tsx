@@ -9,7 +9,7 @@ import {
     YfmHtmlConstructorConsts,
     defaultYfmHtmlConstructorEntityId,
 } from '../YfmHtmlConstructorSpecs/const';
-import type {YfmHtmlConstructorOptions} from '../types';
+import type {YfmHtmlConstructorExtensionOptions} from '../types';
 
 import {YfmHtmlConstructorView} from './YfmHtmlConstructorView';
 import {STOP_EVENT_CLASSNAME} from './const';
@@ -19,7 +19,7 @@ export class WYfmHtmlConstructorNodeView implements NodeView {
     private node: Node;
     private readonly view: EditorView;
     private readonly getPos: () => number | undefined;
-    private readonly options: {templates?: YfmHtmlConstructorOptions};
+    private readonly options: YfmHtmlConstructorExtensionOptions;
     private readonly renderItem;
 
     constructor({
@@ -31,7 +31,7 @@ export class WYfmHtmlConstructorNodeView implements NodeView {
         node: Node;
         view: EditorView;
         getPos: () => number | undefined;
-        options: {templates?: YfmHtmlConstructorOptions};
+        options: YfmHtmlConstructorExtensionOptions;
     }) {
         this.node = node;
         this.dom = document.createElement('div');
