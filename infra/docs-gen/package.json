@@ -17,6 +17,6 @@
     "build": "node src/generate-docs.mjs && yfm -i ../../tmp/docs-src -o ../../dist/docs"
   },
   "dependencies": {
-    "@diplodoc/cli": "5.43.0"
+    "@diplodoc/cli": "5.46.1"
   }
 }
