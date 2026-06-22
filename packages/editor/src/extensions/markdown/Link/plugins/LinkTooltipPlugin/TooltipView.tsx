@@ -29,6 +29,8 @@ type LinkProps = {
     onCancel?: () => void;
     onRemove?: () => void;
     onUrlChange?: (url: string) => void;
+    autoFocus?: boolean;
+    onOpenInNewTab?: () => void;
 };
 
 export const Link = memo<LinkProps>(function Link({
@@ -39,6 +41,8 @@ export const Link = memo<LinkProps>(function Link({
     onChange,
     onRemove,
     onUrlChange,
+    autoFocus,
+    onOpenInNewTab,
 }) {
     const [url, setUrl] = useState(href);
 
@@ -53,6 +57,7 @@ export const Link = memo<LinkProps>(function Link({
     const inputEnterKeyHandler: TextInputProps['onKeyDown'] = enterKeyHandler(handleSubmit);
 
     useEffect(() => {
+        setUrl(href);
         onUrlChange?.(href);
     }, [href, onUrlChange]);
 
@@ -73,7 +78,7 @@ export const Link = memo<LinkProps>(function Link({
                     className={b('input')}
                     onUpdate={handleUrlUpdate}
                     placeholder="https://"
-                    autoFocus
+                    autoFocus={autoFocus}
                     onKeyDown={inputEnterKeyHandler}
                 />
                 {onRemove && (
@@ -84,7 +89,15 @@ export const Link = memo<LinkProps>(function Link({
                     </ActionTooltip>
                 )}
                 <ActionTooltip title={i18n('link_open_help')}>
-                    <Button className={b('button')} view="flat" size="m" href={url} target="_blank">
+                    <Button
+                        className={b('button')}
+                        view="flat"
+                        size="m"
+                        href={url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={onOpenInNewTab}
+                    >
                         <Icon data={LinkIcon} size={16} />
                     </Button>
                 </ActionTooltip>

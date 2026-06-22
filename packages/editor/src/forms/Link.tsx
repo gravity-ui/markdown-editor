@@ -71,7 +71,14 @@ export const Link = memo<LinkProps>(function LinkForm({
                     onKeyDown={inputEnterKeyHandler}
                 />
                 <ActionTooltip title={i18n('link_open_help')}>
-                    <Button className={b('button')} view="flat" size="m" href={url} target="_blank">
+                    <Button
+                        className={b('button')}
+                        view="flat"
+                        size="m"
+                        href={url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
                         <Icon data={LinkIcon} size={16} />
                     </Button>
                 </ActionTooltip>

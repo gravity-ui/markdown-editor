@@ -192,12 +192,12 @@ class SelectionTooltip implements PluginView {
     private onOutsideClick = () => {
         const url = this.currentUrl.trim();
 
-        if (url) {
-            this.changeAttrs({href: url});
-        } else {
+        if (!url) {
             this.removeLink();
+            return;
         }
 
+        this.changeAttrs({href: url});
         this.hideTooltip();
         this.manualHidden = true;
     };
@@ -256,10 +256,15 @@ class SelectionTooltip implements PluginView {
 
         this.manualHidden = true;
         this.hideTooltip();
+        view.focus();
     }
 
     private onUrlChange(url: string) {
         this.currentUrl = url;
+    }
+
+    private onOpenInNewTab() {
+        this.view.focus();
     }
 
     private createRenderItem() {
@@ -274,6 +279,7 @@ class SelectionTooltip implements PluginView {
                     onRemove={this.removeLink.bind(this)}
                     onOpenChange={this.onOpenChange}
                     onUrlChange={this.onUrlChange.bind(this)}
+                    onOpenInNewTab={this.onOpenInNewTab.bind(this)}
                 />
             </ErrorLoggerBoundary>
         ));
@@ -290,6 +296,7 @@ type SelectionTooltipViewBaseProps<T = boolean> = T extends false
           onChange: (opts: {href: string}) => void;
           onRemove: () => void;
           onUrlChange: (url: string) => void;
+          onOpenInNewTab: () => void;
           attrs?: {[LinkAttr.Href]?: string; [LinkAttr.IsPlaceholder]?: boolean};
           onOpenChange: NonNullable<PopupProps['onOpenChange']>;
       };
@@ -301,8 +308,18 @@ const SelectionTooltipView: React.FC<SelectionTooltipViewProps> = (props) => {
 
     if (!show) return null;
 
-    const {domElem, onChange, onCancel, onRemove, onOpenChange, onUrlChange, attrs = {}} = props;
+    const {
+        domElem,
+        onChange,
+        onCancel,
+        onRemove,
+        onOpenChange,
+        onUrlChange,
+        onOpenInNewTab,
+        attrs = {},
+    } = props;
     const href = attrs[LinkAttr.Href];
+    const autoFocus = Boolean(attrs[LinkAttr.IsPlaceholder]);
 
     return (
         <Link
@@ -315,6 +332,8 @@ const SelectionTooltipView: React.FC<SelectionTooltipViewProps> = (props) => {
             onCancel={onCancel}
             onRemove={onRemove}
             onUrlChange={onUrlChange}
+            autoFocus={autoFocus}
+            onOpenInNewTab={onOpenInNewTab}
         />
     );
 };
