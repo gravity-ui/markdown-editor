@@ -132,4 +132,28 @@ test.describe('Link', () => {
             await expectScreenshot();
         });
     });
+
+    test('should save new link on outside click when url is filled @wysiwyg', async ({
+        browserName,
+        editor,
+        actions,
+        wait,
+        expectScreenshot,
+        page,
+    }) => {
+        test.skip(browserName === 'webkit', 'fillFocused does not work correctly in webkit');
+
+        await editor.clickMainToolbarButton('Link');
+        await editor.link.assertFormToBeVisible();
+        await wait.timeout(300);
+
+        await actions.fillFocused('gravity-ui.com');
+
+        await expectScreenshot({nameSuffix: 'form-with-url'});
+
+        await page.mouse.click(400, 400);
+        await wait.timeout(300);
+
+        await expect(editor.getByTextInContenteditable('gravity-ui.com')).toBeVisible();
+    });
 });

@@ -1,59 +1,94 @@
-import {memo, useState} from 'react';
+import {memo, useEffect, useState} from 'react';
 
-import type {TextInputProps} from '@gravity-ui/uikit';
+import {ArrowUpRightFromSquare as LinkIcon, LinkSlash as UnlinkIcon} from '@gravity-ui/icons';
+import {
+    ActionTooltip,
+    Button,
+    Icon,
+    Popup,
+    type PopupPlacement,
+    type PopupProps,
+    type TextInputProps,
+} from '@gravity-ui/uikit';
 
+import {cn} from '../../../../../classname';
 import {TextInputFixed} from '../../../../../forms/TextInput';
-import {UrlInputRow} from '../../../../../forms/UrlInputRow';
-import Form from '../../../../../forms/base';
 import {i18n} from '../../../../../i18n/forms';
 import {enterKeyHandler} from '../../../../../utils/handlers';
 
-type LinkFormProps = {
+import './TooltipView.scss';
+
+const b = cn('link-tooltip-view');
+
+type LinkProps = {
     href: string;
-    autoFocus?: boolean;
+    anchorElement: HTMLElement;
+    placement: PopupPlacement;
+    onOpenChange: NonNullable<PopupProps['onOpenChange']>;
     onChange?: (opts: {href: string}) => void;
     onCancel?: () => void;
+    onRemove?: () => void;
+    onUrlChange?: (url: string) => void;
 };
 
-export const LinkForm = memo<LinkFormProps>(function LinkForm({
+export const Link = memo<LinkProps>(function Link({
     href,
-    autoFocus,
+    anchorElement,
+    placement,
+    onOpenChange,
     onChange,
-    onCancel,
+    onRemove,
+    onUrlChange,
 }) {
     const [url, setUrl] = useState(href);
+
+    const handleUrlUpdate = (v: string) => {
+        setUrl(v);
+        onUrlChange?.(v);
+    };
 
     const handleSubmit = () => {
         onChange?.({href: url});
     };
-    const inputEnterKeyHandler: TextInputProps['onKeyPress'] = enterKeyHandler(handleSubmit);
+    const inputEnterKeyHandler: TextInputProps['onKeyDown'] = enterKeyHandler(handleSubmit);
+
+    useEffect(() => {
+        onUrlChange?.(href);
+    }, [href, onUrlChange]);
 
     return (
-        <Form.Form>
-            <Form.Layout>
-                <Form.Row
-                    label={i18n('common_link')}
-                    help={i18n('link_url_help')}
-                    control={
-                        <UrlInputRow
-                            href={url}
-                            input={
-                                <TextInputFixed
-                                    size="s"
-                                    hasClear
-                                    view="normal"
-                                    value={url}
-                                    onUpdate={setUrl}
-                                    placeholder="https://"
-                                    autoFocus={autoFocus}
-                                    onKeyPress={inputEnterKeyHandler}
-                                />
-                            }
-                        />
-                    }
+        <Popup
+            open
+            anchorElement={anchorElement}
+            className={b('popup')}
+            placement={placement}
+            onOpenChange={onOpenChange}
+        >
+            <div className={b()}>
+                <TextInputFixed
+                    size="l"
+                    hasClear
+                    view="clear"
+                    value={url}
+                    className={b('input')}
+                    onUpdate={handleUrlUpdate}
+                    placeholder="https://"
+                    autoFocus
+                    onKeyDown={inputEnterKeyHandler}
                 />
-            </Form.Layout>
-            <Form.Footer onCancel={onCancel} onSubmit={handleSubmit} />
-        </Form.Form>
+                {onRemove && (
+                    <ActionTooltip title={i18n('link_remove_help')}>
+                        <Button className={b('button')} view="flat" size="m" onClick={onRemove}>
+                            <Icon data={UnlinkIcon} size={16} />
+                        </Button>
+                    </ActionTooltip>
+                )}
+                <ActionTooltip title={i18n('link_open_help')}>
+                    <Button className={b('button')} view="flat" size="m" href={url} target="_blank">
+                        <Icon data={LinkIcon} size={16} />
+                    </Button>
+                </ActionTooltip>
+            </div>
+        </Popup>
     );
 });

@@ -1,4 +1,4 @@
-import {Popup, type PopupPlacement, type PopupProps} from '@gravity-ui/uikit';
+import type {PopupPlacement, PopupProps} from '@gravity-ui/uikit';
 import {keydownHandler} from 'prosemirror-keymap';
 import type {Node} from 'prosemirror-model';
 import {type EditorState, Plugin, type PluginView, TextSelection} from 'prosemirror-state';
@@ -13,7 +13,7 @@ import {type RendererItem, getReactRendererFromState} from '../../../../behavior
 import {LinkAttr, linkType} from '../../LinkSpecs';
 import {normalizeUrlFactory} from '../../utils';
 
-import {LinkForm} from './TooltipView';
+import {Link} from './TooltipView';
 
 const className = 'pm-link-focus-deco';
 const placement: PopupPlacement = ['bottom-start', 'bottom-end', 'top-start', 'top-end'];
@@ -89,6 +89,7 @@ class SelectionTooltip implements PluginView {
     private textNodeRef: HTMLElement | undefined;
 
     private manualHidden = false;
+    private currentUrl = '';
 
     private renderItem?: RendererItem;
 
@@ -166,17 +167,37 @@ class SelectionTooltip implements PluginView {
         this.renderTooltip();
     }
 
-    private onOpenChange: NonNullable<PopupProps['onOpenChange']> = (open, _e, reason) => {
+    private onOpenChange: NonNullable<PopupProps['onOpenChange']> = (open, event, reason) => {
         if (open) return;
+
         if (reason === 'escape-key') {
             this.cancelPopup();
-        } else {
-            this.onOutsideClick();
+            return;
         }
+
+        const target = (event as MouseEvent | undefined)?.target as HTMLElement | null;
+        const isUndoRedoClick = Boolean(
+            target?.closest('[data-toolbar-item="undo"], [data-toolbar-item="redo"]'),
+        );
+
+        if (isUndoRedoClick) {
+            this.manualHidden = true;
+            this.hideTooltip();
+            return;
+        }
+
+        this.onOutsideClick();
     };
 
     private onOutsideClick = () => {
-        this.removePlaceholderLink(this.textNode);
+        const url = this.currentUrl.trim();
+
+        if (url) {
+            this.changeAttrs({href: url});
+        } else {
+            this.removeLink();
+        }
+
         this.hideTooltip();
         this.manualHidden = true;
     };
@@ -223,6 +244,24 @@ class SelectionTooltip implements PluginView {
         }
     }
 
+    private removeLink() {
+        const {view, textNode} = this;
+
+        if (!textNode) return;
+
+        const {from, to} = textNode;
+        const tr = view.state.tr.removeMark(from, to, linkType(view.state.schema));
+
+        view.dispatch(tr);
+
+        this.manualHidden = true;
+        this.hideTooltip();
+    }
+
+    private onUrlChange(url: string) {
+        this.currentUrl = url;
+    }
+
     private createRenderItem() {
         return getReactRendererFromState(this.view.state).createItem('link-tooltip', () => (
             <ErrorLoggerBoundary>
@@ -232,7 +271,9 @@ class SelectionTooltip implements PluginView {
                     onCancel={this.cancelPopup.bind(this)}
                     attrs={this.getMarkAttrs()}
                     onChange={this.changeAttrs.bind(this)}
+                    onRemove={this.removeLink.bind(this)}
                     onOpenChange={this.onOpenChange}
+                    onUrlChange={this.onUrlChange.bind(this)}
                 />
             </ErrorLoggerBoundary>
         ));
@@ -247,8 +288,11 @@ type SelectionTooltipViewBaseProps<T = boolean> = T extends false
           domElem: HTMLElement;
           onCancel: () => void;
           onChange: (opts: {href: string}) => void;
+          onRemove: () => void;
+          onUrlChange: (url: string) => void;
           attrs?: {[LinkAttr.Href]?: string; [LinkAttr.IsPlaceholder]?: boolean};
-      } & Pick<PopupProps, 'onOpenChange'>;
+          onOpenChange: NonNullable<PopupProps['onOpenChange']>;
+      };
 
 type SelectionTooltipViewProps = SelectionTooltipViewBaseProps;
 
@@ -257,24 +301,20 @@ const SelectionTooltipView: React.FC<SelectionTooltipViewProps> = (props) => {
 
     if (!show) return null;
 
-    const {domElem, onChange, onCancel, onOpenChange, attrs = {}} = props;
+    const {domElem, onChange, onCancel, onRemove, onOpenChange, onUrlChange, attrs = {}} = props;
     const href = attrs[LinkAttr.Href];
-    const autoFocus = attrs[LinkAttr.IsPlaceholder];
 
     return (
-        <Popup
-            open
+        <Link
             key={href}
+            href={href ?? ''}
             anchorElement={domElem}
             placement={placement}
             onOpenChange={onOpenChange}
-        >
-            <LinkForm
-                href={href ?? ''}
-                autoFocus={autoFocus}
-                onChange={onChange}
-                onCancel={onCancel}
-            />
-        </Popup>
+            onChange={onChange}
+            onCancel={onCancel}
+            onRemove={onRemove}
+            onUrlChange={onUrlChange}
+        />
     );
 };

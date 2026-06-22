@@ -1,0 +1,25 @@
+.g-md-link-tooltip-view {
+    display: flex;
+    align-items: center;
+    gap: var(--g-spacing-1);
+
+    padding-right: var(--g-spacing-1);
+
+    &__popup {
+        border-radius: var(--g-border-radius-l);
+    }
+
+    &__input {
+        flex-grow: 1;
+
+        box-sizing: border-box;
+        width: 340px;
+        padding-left: var(--g-spacing-3);
+
+        border-right: 1px solid var(--g-color-line-generic);
+    }
+
+    &__button {
+        flex-shrink: 0;
+    }
+}
