@@ -16,7 +16,7 @@
   "scripts": {
     "build": "node src/generate-docs.mjs && yfm -i ../../tmp/docs-src -o ../../dist/docs",
     "extract": "node src/extract-extension-data.mjs",
-    "test": "node --test src/extractor/*.test.mjs"
+    "test": "node --test src/*.test.mjs"
   },
   "dependencies": {
     "@diplodoc/cli": "5.43.0",
