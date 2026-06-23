@@ -10,14 +10,12 @@ export const PAGE_CONSTRUCTOR_EXTENSION_DIR = join(
 );
 
 export const EXTENSION_CATEGORIES = ['base', 'behavior', 'markdown', 'yfm', 'additional'];
-export const EXTRA_EXTENSION_REFS = [
-    {name: 'YfmPageConstructorExtension', dir: PAGE_CONSTRUCTOR_EXTENSION_DIR},
-];
+export const EXTRA_EXTENSION_DIRS = [PAGE_CONSTRUCTOR_EXTENSION_DIR];
 export const EXTENSION_BLACKLIST = [
     'BaseInputRules',
     'BaseKeymap',
     'BaseStyles',
-    'ReactRenderer',
+    'ReactRendererExtension',
     'Resizable',
     'SharedState',
     'YfmCut',

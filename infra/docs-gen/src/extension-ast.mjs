@@ -93,8 +93,19 @@ function isObjectAssignFromKnownExtension(initializer, extensionImplementations)
     );
 }
 
-/** Checks whether a source file exports an extension-like declaration. */
-export function sourceHasExtensionExport(content) {
+/** Detects exported declarations that represent extensions. */
+function isExtensionExport({statement, declaration}, extensionImplementations) {
+    if (!hasExportModifier(statement)) return false;
+
+    return (
+        isExtensionDeclaration(declaration) ||
+        isBuilderExtensionInitializer(declaration.initializer) ||
+        isObjectAssignFromKnownExtension(declaration.initializer, extensionImplementations)
+    );
+}
+
+/** Reads extension export names from a source file. */
+export function readExtensionExportNames(content) {
     const sourceFile = ts.createSourceFile('source.tsx', content, ts.ScriptTarget.Latest, true);
     const declarations = readVariableDeclarations(sourceFile);
     const extensionImplementations = new Set(
@@ -103,13 +114,7 @@ export function sourceHasExtensionExport(content) {
             .map(({declaration}) => declaration.name.text),
     );
 
-    return declarations.some(({statement, declaration}) => {
-        if (!hasExportModifier(statement)) return false;
-
-        return (
-            isExtensionDeclaration(declaration) ||
-            isBuilderExtensionInitializer(declaration.initializer) ||
-            isObjectAssignFromKnownExtension(declaration.initializer, extensionImplementations)
-        );
-    });
+    return declarations
+        .filter((entry) => isExtensionExport(entry, extensionImplementations))
+        .map(({declaration}) => declaration.name.text);
 }

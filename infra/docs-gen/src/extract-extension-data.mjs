@@ -5,37 +5,16 @@ import {join} from 'node:path';
 import process from 'node:process';
 import {fileURLToPath} from 'node:url';
 
-import {sourceHasExtensionExport} from './extension-ast.mjs';
+import {readExtensionExportNames} from './extension-ast.mjs';
 import {
     DOCS_GEN_DIR,
     EDITOR_EXTENSIONS_DIR,
     EXTENSION_BLACKLIST,
     EXTENSION_CATEGORIES,
-    EXTRA_EXTENSION_REFS,
+    EXTRA_EXTENSION_DIRS,
 } from './extension-config.mjs';
 
-/** Checks that a candidate directory starts with an uppercase letter. */
-function startsWithUppercaseLetter(name) {
-    const firstChar = name.charAt(0);
-
-    return (
-        firstChar !== '' &&
-        firstChar === firstChar.toUpperCase() &&
-        firstChar !== firstChar.toLowerCase()
-    );
-}
-
-/** Lists uppercase extension candidate directories under one category. */
-function listExtensionRefs(dir) {
-    if (!existsSync(dir)) return [];
-
-    return readdirSync(dir, {withFileTypes: true})
-        .filter((entry) => entry.isDirectory() && startsWithUppercaseLetter(entry.name))
-        .map((entry) => ({name: entry.name, dir: join(dir, entry.name)}))
-        .sort((left, right) => left.name.localeCompare(right.name));
-}
-
-/** Reads TypeScript sources from a candidate directory recursively. */
+/** Reads TypeScript sources from a directory recursively. */
 function readSourceFiles(dir) {
     if (!existsSync(dir)) return [];
 
@@ -53,28 +32,26 @@ function readSourceFiles(dir) {
     return files;
 }
 
-/** Checks whether any source in a candidate directory exports an extension. */
-function refHasExtensionExport(ref) {
-    return readSourceFiles(ref.dir).some(sourceHasExtensionExport);
+/** Builds configured source roots for extension scanning. */
+function listExtensionSourceDirs(extensionsDir, categories, extraExtensionDirs) {
+    return categories.map((category) => join(extensionsDir, category)).concat(extraExtensionDirs);
 }
 
 /** Builds the filtered list of public extension names. */
 export function listExtensionNames({
     extensionsDir = EDITOR_EXTENSIONS_DIR,
     categories = EXTENSION_CATEGORIES,
-    extraExtensionRefs = EXTRA_EXTENSION_REFS,
+    extraExtensionDirs = EXTRA_EXTENSION_DIRS,
     blacklist = EXTENSION_BLACKLIST,
 } = {}) {
     const blacklistSet = new Set(blacklist);
-    const categoryRefs = categories.flatMap((category) =>
-        listExtensionRefs(join(extensionsDir, category)),
-    );
-    const refs = categoryRefs.concat(extraExtensionRefs);
+    const names = listExtensionSourceDirs(extensionsDir, categories, extraExtensionDirs)
+        .flatMap(readSourceFiles)
+        .flatMap(readExtensionExportNames);
 
-    return refs
-        .filter((ref) => !blacklistSet.has(ref.name))
-        .filter(refHasExtensionExport)
-        .map((ref) => ref.name);
+    return [...new Set(names)]
+        .filter((name) => !blacklistSet.has(name))
+        .sort((left, right) => left.localeCompare(right));
 }
 
 /** Converts extension names into JSON records. */

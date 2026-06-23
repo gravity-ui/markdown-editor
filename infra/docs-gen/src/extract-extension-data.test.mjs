@@ -32,17 +32,26 @@ afterEach(() => {
     }
 });
 
-test('listExtensionNames keeps AST-backed extension dirs and applies blacklist', () => {
+test('listExtensionNames extracts AST-backed extension names and applies blacklist to exports', () => {
     const extensionsDir = makeExtensionsRoot();
     const extraDir = makeExtensionsRoot();
 
     addExtensionFile(
         extensionsDir,
         'base',
-        'BaseKeymap',
+        'base-keymap',
         'export const BaseKeymap: ExtensionAuto = () => {};',
     );
-    addExtensionFile(extensionsDir, 'base', 'Bold', 'export const Bold: ExtensionAuto = () => {};');
+    addExtensionFile(extensionsDir, 'base', 'bold', 'export const Bold: ExtensionAuto = () => {};');
+    addExtensionFile(
+        extensionsDir,
+        'base',
+        'mixed',
+        [
+            'export const One: ExtensionAuto = () => {};',
+            'export const Two: ExtensionAuto = () => {};',
+        ].join('\n'),
+    );
     addExtensionFile(
         extensionsDir,
         'behavior',
@@ -65,9 +74,9 @@ test('listExtensionNames keeps AST-backed extension dirs and applies blacklist',
         listExtensionNames({
             extensionsDir,
             categories: ['base', 'behavior', 'additional'],
-            extraExtensionRefs: [{name: 'YfmPageConstructorExtension', dir: extraDir}],
+            extraExtensionDirs: [extraDir],
         }),
-        ['Bold', 'GPT', 'YfmPageConstructorExtension'],
+        ['Bold', 'One', 'Two', 'YfmPageConstructorExtension', 'gptExtension'],
     );
 });
 
