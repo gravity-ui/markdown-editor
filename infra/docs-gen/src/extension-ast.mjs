@@ -53,8 +53,13 @@ function readVariableDeclarations(sourceFile) {
     });
 }
 
+/** Detects declarations typed as configured extensions. */
+function isExtensionDeclaration(declaration) {
+    return isTypeReferenceTo(declaration.type, EXTENSION_TYPE_NAMES);
+}
+
 /** Detects builder-style extension initializers. */
-function isExtensionInitializer(initializer) {
+function isBuilderExtensionInitializer(initializer) {
     const current = initializer && unwrapExpression(initializer);
 
     return (
@@ -94,7 +99,7 @@ export function sourceHasExtensionExport(content) {
     const declarations = readVariableDeclarations(sourceFile);
     const extensionImplementations = new Set(
         declarations
-            .filter(({declaration}) => isTypeReferenceTo(declaration.type, EXTENSION_TYPE_NAMES))
+            .filter(({declaration}) => isExtensionDeclaration(declaration))
             .map(({declaration}) => declaration.name.text),
     );
 
@@ -102,8 +107,8 @@ export function sourceHasExtensionExport(content) {
         if (!hasExportModifier(statement)) return false;
 
         return (
-            isTypeReferenceTo(declaration.type, EXTENSION_TYPE_NAMES) ||
-            isExtensionInitializer(declaration.initializer) ||
+            isExtensionDeclaration(declaration) ||
+            isBuilderExtensionInitializer(declaration.initializer) ||
             isObjectAssignFromKnownExtension(declaration.initializer, extensionImplementations)
         );
     });

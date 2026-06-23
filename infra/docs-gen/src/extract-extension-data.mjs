@@ -14,16 +14,6 @@ import {
     EXTRA_EXTENSION_REFS,
 } from './extension-config.mjs';
 
-export {
-    DOCS_GEN_DIR,
-    EDITOR_EXTENSIONS_DIR,
-    EXTENSION_BLACKLIST,
-    EXTENSION_CATEGORIES,
-    EXTRA_EXTENSION_REFS,
-    PAGE_CONSTRUCTOR_EXTENSION_DIR,
-    REPO_ROOT,
-} from './extension-config.mjs';
-
 /** Checks that a candidate directory starts with an uppercase letter. */
 function startsWithUppercaseLetter(name) {
     const firstChar = name.charAt(0);
@@ -76,10 +66,14 @@ export function listExtensionNames({
     blacklist = EXTENSION_BLACKLIST,
 } = {}) {
     const blacklistSet = new Set(blacklist);
-    const refs = categories.flatMap((category) => listExtensionRefs(join(extensionsDir, category)));
+    const categoryRefs = categories.flatMap((category) =>
+        listExtensionRefs(join(extensionsDir, category)),
+    );
+    const refs = categoryRefs.concat(extraExtensionRefs);
 
-    return [...refs, ...extraExtensionRefs]
-        .filter((ref) => !blacklistSet.has(ref.name) && refHasExtensionExport(ref))
+    return refs
+        .filter((ref) => !blacklistSet.has(ref.name))
+        .filter(refHasExtensionExport)
         .map((ref) => ref.name);
 }
 
