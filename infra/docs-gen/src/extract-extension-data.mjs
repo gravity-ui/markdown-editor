@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/* eslint-disable jsdoc/require-param, jsdoc/require-returns */
 import {existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync} from 'node:fs';
 import {join} from 'node:path';
 import process from 'node:process';
@@ -23,6 +24,7 @@ export {
     REPO_ROOT,
 } from './extension-config.mjs';
 
+/** Checks that a candidate directory starts with an uppercase letter. */
 function startsWithUppercaseLetter(name) {
     const firstChar = name.charAt(0);
 
@@ -33,6 +35,7 @@ function startsWithUppercaseLetter(name) {
     );
 }
 
+/** Lists uppercase extension candidate directories under one category. */
 function listExtensionRefs(dir) {
     if (!existsSync(dir)) return [];
 
@@ -42,6 +45,7 @@ function listExtensionRefs(dir) {
         .sort((left, right) => left.name.localeCompare(right.name));
 }
 
+/** Reads TypeScript sources from a candidate directory recursively. */
 function readSourceFiles(dir) {
     if (!existsSync(dir)) return [];
 
@@ -59,10 +63,12 @@ function readSourceFiles(dir) {
     return files;
 }
 
+/** Checks whether any source in a candidate directory exports an extension. */
 function refHasExtensionExport(ref) {
     return readSourceFiles(ref.dir).some(sourceHasExtensionExport);
 }
 
+/** Builds the filtered list of public extension names. */
 export function listExtensionNames({
     extensionsDir = EDITOR_EXTENSIONS_DIR,
     categories = EXTENSION_CATEGORIES,
@@ -77,10 +83,12 @@ export function listExtensionNames({
         .map((ref) => ref.name);
 }
 
+/** Converts extension names into JSON records. */
 export function createExtensionRecords(names) {
     return names.map((name) => ({name}));
 }
 
+/** Writes generated extension records into the docs-gen output directory. */
 export function writeExtensionsJson(outDir = DOCS_GEN_DIR, names = listExtensionNames()) {
     mkdirSync(outDir, {recursive: true});
     writeFileSync(
@@ -89,6 +97,7 @@ export function writeExtensionsJson(outDir = DOCS_GEN_DIR, names = listExtension
     );
 }
 
+/** Runs the extension data extraction CLI. */
 export function main() {
     writeExtensionsJson();
 }
