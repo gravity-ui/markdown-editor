@@ -1,7 +1,6 @@
 import ts from 'typescript';
 
-const EXTENSION_TYPE_NAMES = new Set(['Extension', 'ExtensionAuto', 'ExtensionWithOptions']);
-const EXTENSION_BUILDER_TYPE_NAMES = new Set(['ExtensionBuilder']);
+import {EXTENSION_BUILDER_TYPE_NAMES, EXTENSION_TYPE_NAMES} from './extension-config.mjs';
 
 function getTypeReferenceName(typeName) {
     if (ts.isIdentifier(typeName)) return typeName.text;

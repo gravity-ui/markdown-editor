@@ -1,31 +1,27 @@
 #!/usr/bin/env node
 import {existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync} from 'node:fs';
-import {dirname, join, resolve} from 'node:path';
+import {join} from 'node:path';
 import process from 'node:process';
 import {fileURLToPath} from 'node:url';
 
 import {sourceHasExtensionExport} from './extension-ast.mjs';
+import {
+    DOCS_GEN_DIR,
+    EDITOR_EXTENSIONS_DIR,
+    EXTENSION_BLACKLIST,
+    EXTENSION_CATEGORIES,
+    EXTRA_EXTENSION_REFS,
+} from './extension-config.mjs';
 
-export const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '../../..');
-export const DOCS_GEN_DIR = join(REPO_ROOT, 'tmp/docs-gen');
-export const EDITOR_EXTENSIONS_DIR = join(REPO_ROOT, 'packages/editor/src/extensions');
-export const PAGE_CONSTRUCTOR_EXTENSION_DIR = join(
+export {
+    DOCS_GEN_DIR,
+    EDITOR_EXTENSIONS_DIR,
+    EXTENSION_BLACKLIST,
+    EXTENSION_CATEGORIES,
+    EXTRA_EXTENSION_REFS,
+    PAGE_CONSTRUCTOR_EXTENSION_DIR,
     REPO_ROOT,
-    'packages/page-constructor-extension/src/extension',
-);
-export const EXTENSION_CATEGORIES = ['base', 'behavior', 'markdown', 'yfm', 'additional'];
-export const EXTRA_EXTENSION_REFS = [
-    {name: 'YfmPageConstructorExtension', dir: PAGE_CONSTRUCTOR_EXTENSION_DIR},
-];
-export const EXTENSION_BLACKLIST = [
-    'BaseInputRules',
-    'BaseKeymap',
-    'BaseStyles',
-    'ReactRenderer',
-    'Resizable',
-    'SharedState',
-    'YfmCut',
-];
+} from './extension-config.mjs';
 
 function startsWithUppercaseLetter(name) {
     const firstChar = name.charAt(0);
