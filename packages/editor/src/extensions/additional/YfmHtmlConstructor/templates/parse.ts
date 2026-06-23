@@ -24,6 +24,7 @@ const COMMON_ATTRS = new Set([
     'type',
     'id',
     'title',
+    'version',
     'family',
     'structure',
     'block',
@@ -31,7 +32,8 @@ const COMMON_ATTRS = new Set([
     'data-preset',
     ...BOOLEAN_SETTING_ATTRS,
 ]);
-const FAMILY_ATTRS = new Set(['type', 'id', 'title']);
+const FAMILY_ATTRS = new Set(['type', 'id', 'title', 'version']);
+const DATA_PREFIX = 'data-';
 const ELEMENT_NODE = 1;
 const TEXT_NODE = 3;
 
@@ -165,12 +167,22 @@ const getTemplateParts = (template: HTMLTemplateElement) => {
     };
 };
 
+const isDataAttr = (name: string) => name.startsWith(DATA_PREFIX);
+
 const validateAttributes = (template: HTMLTemplateElement, type: HtmlConstructorTemplateType) => {
     for (const attr of Array.from(template.attributes)) {
-        if (!COMMON_ATTRS.has(attr.name)) fail(`Unknown template attribute "${attr.name}".`);
-        if (type === 'family' && !FAMILY_ATTRS.has(attr.name)) {
-            fail(`Family template "${getAttr(template, 'id') ?? ''}" has invalid attribute.`);
+        // A family accepts type/id/title/version plus arbitrary `data-*` metadata,
+        // so it is validated separately from the other (settings-bound) types.
+        if (type === 'family') {
+            if (!FAMILY_ATTRS.has(attr.name) && !isDataAttr(attr.name)) {
+                fail(
+                    `Family template "${getAttr(template, 'id') ?? ''}" has invalid attribute "${attr.name}".`,
+                );
+            }
+            continue;
         }
+
+        if (!COMMON_ATTRS.has(attr.name)) fail(`Unknown template attribute "${attr.name}".`);
         if (
             type === 'theme' &&
             (attr.name === 'data-preset' ||
@@ -179,6 +191,14 @@ const validateAttributes = (template: HTMLTemplateElement, type: HtmlConstructor
             fail(`Theme template "${getAttr(template, 'id') ?? ''}" has settings attributes.`);
         }
     }
+};
+
+const parseFamilyMeta = (template: HTMLTemplateElement): Record<string, string> | undefined => {
+    const meta: Record<string, string> = {};
+    for (const attr of Array.from(template.attributes)) {
+        if (isDataAttr(attr.name)) meta[attr.name.slice(DATA_PREFIX.length)] = attr.value;
+    }
+    return Object.keys(meta).length ? meta : undefined;
 };
 
 const readReference = (template: HTMLTemplateElement, name: 'family' | 'structure' | 'block') => {
@@ -246,7 +266,8 @@ export function parseTemplates(input: string): HtmlConstructorTemplate[] {
         if (byId.has(id)) fail(`Duplicate template id "${id}".`);
 
         const title = getAttr(templateElement, 'title');
-        const base = {id, type: typeValue, title, declarationIndex};
+        const version = getAttr(templateElement, 'version');
+        const base = {id, type: typeValue, title, declarationIndex, ...(version ? {version} : {})};
         declarationIndex += 1;
 
         let template: HtmlConstructorTemplate;
@@ -257,12 +278,14 @@ export function parseTemplates(input: string): HtmlConstructorTemplate[] {
             // it is captured only to be used as the family cover in the external
             // templates marketplace.
             const {styles, content} = getTemplateParts(templateElement);
+            const meta = parseFamilyMeta(templateElement);
             const familyTemplate: HtmlConstructorFamilyTemplate = {
                 ...base,
                 type: 'family',
                 title: familyTitle,
                 styles,
                 content,
+                ...(meta ? {meta} : {}),
             };
             template = familyTemplate;
             familyTemplates.push(familyTemplate);

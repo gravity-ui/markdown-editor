@@ -1,7 +1,7 @@
-import {createElement, useMemo, useState} from 'react';
-import type {CSSProperties, FC, ReactNode} from 'react';
+import {useMemo, useState} from 'react';
+import type {FC} from 'react';
 
-import {BucketPaint, LayoutCells, LayoutHeaderColumns, Plus} from '@gravity-ui/icons';
+import {LayoutCells, LayoutHeaderColumns, Palette, Plus} from '@gravity-ui/icons';
 import {Button, Icon} from '@gravity-ui/uikit';
 import type {Node} from 'prosemirror-model';
 import type {EditorView} from 'prosemirror-view';
@@ -52,6 +52,7 @@ import {
     buildStructurePreviewParts,
     cloneHtmlConstructorBlock,
     getActiveStructureTemplateId,
+    getStructureCssFrame,
     getStructureHtmlFrame,
     getStructureTemplateById,
     getStructureThemeTemplates,
@@ -63,6 +64,7 @@ import {
 import {STOP_EVENT_CLASSNAME, cnYfmHtmlConstructor} from './const';
 import {useHtmlBlockDrag} from './drag';
 import {useConfirm} from './useConfirm';
+import {useInlineHtmlEditing} from './useInlineHtmlEditing';
 
 import './YfmHtmlConstructor.scss';
 
@@ -72,63 +74,6 @@ const b = cnYfmHtmlConstructor;
 const stop = STOP_EVENT_CLASSNAME;
 const EMPTY_BLOCKS: HtmlConstructorBlock[] = [];
 type StructurePanel = 'blocks' | 'templates' | 'themes' | 'settings' | null;
-
-const parseInlineStyle = (value: string): CSSProperties =>
-    Object.fromEntries(
-        value
-            .split(';')
-            .map((declaration) => declaration.trim())
-            .filter(Boolean)
-            .map((declaration) => {
-                const [property, ...parts] = declaration.split(':');
-                return [
-                    property
-                        .trim()
-                        .replace(/-([a-z])/g, (_match, letter: string) => letter.toUpperCase()),
-                    parts.join(':').trim(),
-                ];
-            })
-            .filter(([property, valuePart]) => property && valuePart),
-    );
-
-const nodeToReact = (node: ChildNode, key: string): ReactNode => {
-    if (node.nodeType === window.Node.TEXT_NODE) return node.textContent;
-    if (!(node instanceof HTMLElement)) return null;
-
-    const props: Record<string, unknown> = {key};
-    for (const attr of Array.from(node.attributes)) {
-        if (attr.name === 'class') {
-            props.className = attr.value;
-        } else if (attr.name === 'style') {
-            props.style = parseInlineStyle(attr.value);
-        } else if (attr.name === 'for') {
-            props.htmlFor = attr.value;
-        } else {
-            props[attr.name] = attr.value;
-        }
-    }
-
-    return createElement(
-        node.tagName.toLowerCase(),
-        props,
-        ...Array.from(node.childNodes).map((child, index) => nodeToReact(child, `${key}-${index}`)),
-    );
-};
-
-const htmlToReactNodes = (html: string): ReactNode[] => {
-    if (!html.trim() || typeof document === 'undefined') {
-        return [];
-    }
-
-    // A `<template>` element is used instead of `DOMParser` because parsing a string that starts
-    // with `<template>` puts that element into `<head>`, leaving `document.body` empty.
-    const template = document.createElement('template');
-    template.innerHTML = html;
-
-    return Array.from(template.content.childNodes).map((node, index) =>
-        nodeToReact(node, `structure-${index}`),
-    );
-};
 
 const readStructure = (node: Node): HtmlConstructorStructure => {
     const value = node.attrs[YfmHtmlConstructorConsts.NodeAttrs.structure];
@@ -186,10 +131,6 @@ export const YfmHtmlConstructorView: FC<{
           )
         : undefined;
 
-    const renderedStructureContent = useMemo(
-        () => htmlToReactNodes(structure.content),
-        [structure.content],
-    );
     const previewCss = useMemo(() => {
         const css = buildPreviewCss({blocks, structure});
         return scopeClass && css ? scopeCss(css, `.${scopeClass}`) : css;
@@ -233,6 +174,10 @@ export const YfmHtmlConstructorView: FC<{
 
     const setBlocks = (next: HtmlConstructorBlock[]) =>
         onChange({[YfmHtmlConstructorConsts.NodeAttrs.blocks]: next});
+
+    const structureEditing = useInlineHtmlEditing({
+        onCommit: (content) => setStructure({...structure, content}),
+    });
 
     const {beginBlockDrag, draggedBlockId, dropTarget} = useHtmlBlockDrag({
         blocks,
@@ -295,7 +240,7 @@ export const YfmHtmlConstructorView: FC<{
         const confirmed = await confirm({
             title: i18n('confirm_remove_constructor_title'),
             message: i18n('confirm_remove_constructor_message'),
-            confirmText: i18n('remove_constructor'),
+            confirmText: i18n('confirm_remove_constructor_action'),
             danger: true,
         });
         if (!confirmed) return;
@@ -494,6 +439,7 @@ export const YfmHtmlConstructorView: FC<{
                     html={assembleStructureHtml(structure, blocks)}
                     css={assembleStructureCss(structure, blocks)}
                     htmlFrame={getStructureHtmlFrame()}
+                    cssFrame={getStructureCssFrame()}
                     onHtmlCommit={commitStructureDocumentHtml}
                     onCssChange={commitStructureDocumentCss}
                     onClose={closeStructurePanel}
@@ -551,7 +497,7 @@ export const YfmHtmlConstructorView: FC<{
                     aria-label={i18n('select_theme')}
                     title={i18n('select_theme')}
                 >
-                    <Icon data={BucketPaint} className={stop} />
+                    <Icon data={Palette} className={stop} />
                 </Button>
             ),
         },
@@ -566,6 +512,7 @@ export const YfmHtmlConstructorView: FC<{
                 settings={structure.settings}
                 quickStyle={structure.quickStyle}
                 onQuickStyleChange={(quickStyle) => patchStructure({quickStyle})}
+                styleDisabled={isEmptyConstructor}
                 onOpenSettings={() => toggleStructurePanel('settings')}
                 primaryActions={structurePrimaryActions}
                 onDuplicate={duplicateConstructor}
@@ -579,9 +526,13 @@ export const YfmHtmlConstructorView: FC<{
                 expandedContent={structurePanelContent}
             />
             <div
+                ref={structureEditing.boundsRef}
                 id={structureClass()}
                 className={`${b('structure')} ${htmlConstructorStructureClass} ${structureClass()}`}
                 style={htmlConstructorQuickStyleToReactStyle(structure.quickStyle)}
+                contentEditable={false}
+                suppressContentEditableWarning
+                {...structureEditing.containerHandlers}
             >
                 {isEmptyConstructor ? (
                     <div className={b('initial', [stop])}>
@@ -611,7 +562,11 @@ export const YfmHtmlConstructorView: FC<{
                         </div>
                     </div>
                 ) : (
-                    renderedStructureContent
+                    <div
+                        ref={structureEditing.contentRef}
+                        className={b('structure-content')}
+                        dangerouslySetInnerHTML={{__html: structure.content}}
+                    />
                 )}
                 {blocks.map((block, i) => (
                     <HtmlBlockItem
@@ -632,6 +587,7 @@ export const YfmHtmlConstructorView: FC<{
                         activeStructureId={activeStructureId}
                     />
                 ))}
+                {!isEmptyConstructor && structureEditing.overlay}
             </div>
         </div>
     );

@@ -8,6 +8,7 @@ import {
     structureSelector,
     templateCssToRules,
 } from '../css';
+import {HTML_CONSTRUCTOR_VARIABLES_CSS} from '../cssVariables';
 import type {
     HtmlConstructorBlock,
     HtmlConstructorBlockTemplate,
@@ -235,6 +236,19 @@ export const buildStructurePreviewParts = (
 export const getStructureHtmlFrame = () => ({
     top: `<div class="${htmlConstructorStructureClass} ${structureClass()}">`,
     bottom: '</div>',
+});
+
+/**
+ * The structure CSS editor shows the full generated stylesheet: the shared contract
+ * stylesheet (theme-variable resolution + dark-theme companions, identical for every
+ * constructor) is rendered as a read-only frame above the editable per-instance rules,
+ * mirroring the serialized `<style>` order — contract first, then the structure's own
+ * rules. This way the editor always shows all of the structure's CSS, not just the
+ * hand-authored part.
+ */
+export const getStructureCssFrame = () => ({
+    top: HTML_CONSTRUCTOR_VARIABLES_CSS,
+    bottom: '',
 });
 
 const indentLines = (value: string, pad = '  ') =>

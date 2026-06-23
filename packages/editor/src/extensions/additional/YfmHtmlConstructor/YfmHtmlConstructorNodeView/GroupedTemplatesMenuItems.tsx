@@ -1,7 +1,7 @@
 import {useState} from 'react';
 import type {FC, ReactNode} from 'react';
 
-import {BucketPaint, ChevronDown, ChevronRight} from '@gravity-ui/icons';
+import {ChevronDown, ChevronRight, Palette} from '@gravity-ui/icons';
 import {Icon, Menu} from '@gravity-ui/uikit';
 
 import type {
@@ -140,7 +140,7 @@ const StructureMenuItem: FC<{
             <Menu.Item
                 key={theme.id}
                 className={b('templates-group-theme', [stop])}
-                iconStart={<Icon data={BucketPaint} />}
+                iconStart={<Icon data={Palette} />}
                 onClick={() => onApply(structure, theme)}
             >
                 {getTitle(theme)}
@@ -217,7 +217,7 @@ const BlockStateMenuItems: FC<{
             <Menu.Item
                 key={theme.id}
                 className={b('templates-group-theme', [stop])}
-                iconStart={<Icon data={BucketPaint} />}
+                iconStart={<Icon data={Palette} />}
                 onClick={() => onApply(block, theme)}
             >
                 {getTitle(theme)}

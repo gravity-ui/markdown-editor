@@ -254,26 +254,28 @@ export const TemplatePickerPanel: FC<TemplatePickerPanelProps> = ({
 
     const customEditor = (
         <div className={b('structures-import')}>
-            <div className={b('structures-custom-field')}>
-                <div className={b('structures-custom-label')}>{i18n('html')}</div>
-                <TextArea
-                    controlProps={{className: stop}}
-                    value={customHtml}
-                    onUpdate={setCustomHtml}
-                    placeholder={customHtmlPlaceholder}
-                    minRows={6}
-                    autoFocus
-                />
-            </div>
-            <div className={b('structures-custom-field')}>
-                <div className={b('structures-custom-label')}>{i18n('css')}</div>
-                <TextArea
-                    controlProps={{className: stop}}
-                    value={customCss}
-                    onUpdate={setCustomCss}
-                    placeholder={customCssPlaceholder}
-                    minRows={6}
-                />
+            <div className={b('structures-import-fields')}>
+                <div className={b('structures-custom-field')}>
+                    <div className={b('structures-custom-label')}>{i18n('html')}</div>
+                    <TextArea
+                        controlProps={{className: stop}}
+                        value={customHtml}
+                        onUpdate={setCustomHtml}
+                        placeholder={customHtmlPlaceholder}
+                        minRows={6}
+                        autoFocus
+                    />
+                </div>
+                <div className={b('structures-custom-field')}>
+                    <div className={b('structures-custom-label')}>{i18n('css')}</div>
+                    <TextArea
+                        controlProps={{className: stop}}
+                        value={customCss}
+                        onUpdate={setCustomCss}
+                        placeholder={customCssPlaceholder}
+                        minRows={6}
+                    />
+                </div>
             </div>
             <div className={b('structures-import-actions')}>
                 <Button view="flat" size="l" className={stop} onClick={cancelCustom}>

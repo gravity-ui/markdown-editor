@@ -71,18 +71,20 @@ const StructureImportEditor: FC<{
 
     return (
         <div className={b('structures-import')}>
-            <TextArea
-                controlProps={{className: stop}}
-                value={input}
-                onUpdate={(value) => {
-                    setInput(value);
-                    setError('');
-                }}
-                placeholder={i18n('templates_input_placeholder')}
-                minRows={10}
-                autoFocus
-            />
-            {error && <div className={b('structures-error')}>{error}</div>}
+            <div className={b('structures-import-fields')}>
+                <TextArea
+                    controlProps={{className: stop}}
+                    value={input}
+                    onUpdate={(value) => {
+                        setInput(value);
+                        setError('');
+                    }}
+                    placeholder={i18n('templates_input_placeholder')}
+                    minRows={10}
+                    autoFocus
+                />
+                {error && <div className={b('structures-error')}>{error}</div>}
+            </div>
             <div className={b('structures-import-actions')}>
                 <Button view="flat" size="l" className={stop} onClick={onClose}>
                     {i18n('cancel')}

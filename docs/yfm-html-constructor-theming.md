@@ -21,14 +21,42 @@ The block resolves the final value as a fallback chain:
 
 ```
 --g-md-hc-<name>                       (toolbar override, highest priority)
-  └─ --g-md-hc-<name>-current          (theme value for the active light/dark theme)
-       └─ neutral fallback             (transparent / inherit / 0 / none)
+  └─ --g-md-hc-<name>-current          (resolved by the container, see below)
 ```
 
-`*-current` is computed automatically from the `*-light` / `*-dark` companions
-depending on the active Gravity UI theme (`.g-root_theme_dark` /
-`.g-root_theme_dark-hc` switch to the dark companions, everything else uses the
-light ones).
+`*-current` is computed automatically by the container (the constructor
+contract) from the `*-light` / `*-dark` companions depending on the active
+Gravity UI theme (`.g-root_theme_dark` / `.g-root_theme_dark-hc` switch to the
+dark companions, everything else uses the light ones), and falls back to the
+constructor default when no companion is set.
+
+### Constructor defaults (live on the container)
+
+The defaults are baked into the container's `*-current` resolution
+(`HTML_CONSTRUCTOR_DEFAULTS` in `cssVariables.ts`), not into individual
+templates. They use Gravity UI semantic tokens, which already flip between light
+and dark themes:
+
+| `<name>`        | Default                                  |
+| --------------- | ---------------------------------------- |
+| `background`    | `var(--g-color-base-generic-ultralight)` |
+| `text-color`    | `var(--g-color-text-primary)`            |
+| `border`        | `1px solid var(--g-color-line-generic)`  |
+| `border-radius` | `var(--g-border-radius-l)`               |
+
+Because the default lives on the container, a template never carries its own
+fallback. It simply reads the resolved value:
+
+```css
+& {
+  background: var(--g-md-hc-background, var(--g-md-hc-background-current));
+  color: var(--g-md-hc-text-color, var(--g-md-hc-text-color-current));
+}
+```
+
+The value (override -> theme companion -> default) comes from the container, so
+a bare structure/block already reads as a subtle, adaptive card. Set the
+companions only when you want a look different from the default.
 
 ### Available aspects
 

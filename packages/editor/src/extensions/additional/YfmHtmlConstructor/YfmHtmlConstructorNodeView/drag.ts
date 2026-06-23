@@ -43,23 +43,33 @@ const getPointerDropTarget = (
     };
 };
 
-const moveBlock = (
+const getReorderedBlocks = (
     blocks: HtmlConstructorBlock[],
     draggedId: string,
     targetId: string,
     placement: DropPlacement,
 ) => {
-    if (draggedId === targetId) return blocks;
+    if (draggedId === targetId) return null;
 
     const dragged = blocks.find((block) => block.id === draggedId);
-    if (!dragged) return blocks;
+    if (!dragged) return null;
 
     const withoutDragged = blocks.filter((block) => block.id !== draggedId);
     const targetIndex = withoutDragged.findIndex((block) => block.id === targetId);
-    if (targetIndex === -1) return blocks;
+    if (targetIndex === -1) return null;
 
     const insertIndex = placement === 'before' ? targetIndex : targetIndex + 1;
-    return [...withoutDragged.slice(0, insertIndex), dragged, ...withoutDragged.slice(insertIndex)];
+    const next = [
+        ...withoutDragged.slice(0, insertIndex),
+        dragged,
+        ...withoutDragged.slice(insertIndex),
+    ];
+
+    // Dropping right next to the block's current slot (e.g. "before the next
+    // block") keeps the same order. Report it as no move so the UI doesn't show a
+    // drop indicator that wouldn't actually reorder anything.
+    const isSameOrder = next.every((block, index) => block.id === blocks[index]?.id);
+    return isSameOrder ? null : next;
 };
 
 export const useHtmlBlockDrag = ({
@@ -74,6 +84,7 @@ export const useHtmlBlockDrag = ({
     const dragStateRef = useRef<{
         draggedId: string;
         target: DropTarget | null;
+        reordered: HtmlConstructorBlock[] | null;
     } | null>(null);
     const cleanupDragListenersRef = useRef<(() => void) | null>(null);
 
@@ -97,28 +108,30 @@ export const useHtmlBlockDrag = ({
 
         stopListening();
 
-        dragStateRef.current = {draggedId: blockId, target: null};
+        dragStateRef.current = {draggedId: blockId, target: null, reordered: null};
         setDraggedBlockId(blockId);
         setDropTarget(null);
 
         const handlePointerMove = (pointerEvent: PointerEvent) => {
-            const nextTarget = getPointerDropTarget(pointerEvent, blockId);
+            const candidate = getPointerDropTarget(pointerEvent, blockId);
+            const reordered = candidate
+                ? getReorderedBlocks(blocks, blockId, candidate.id, candidate.placement)
+                : null;
+            // Only surface a drop target when it would actually change the order,
+            // so the indicator never appears for a drop that does nothing.
+            const nextTarget = reordered ? candidate : null;
 
-            if (dragStateRef.current) dragStateRef.current.target = nextTarget;
+            if (dragStateRef.current) {
+                dragStateRef.current.target = nextTarget;
+                dragStateRef.current.reordered = reordered;
+            }
             setDropTarget(nextTarget);
         };
 
         const handlePointerUp = () => {
             const dragState = dragStateRef.current;
-            if (dragState?.target) {
-                onMove(
-                    moveBlock(
-                        blocks,
-                        dragState.draggedId,
-                        dragState.target.id,
-                        dragState.target.placement,
-                    ),
-                );
+            if (dragState?.reordered) {
+                onMove(dragState.reordered);
             }
             stopListening();
             clearDragging();

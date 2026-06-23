@@ -1,6 +1,7 @@
 import type {Node} from 'prosemirror-model';
 
 import {buildYfmHtmlConstructorHtml} from '../YfmHtmlConstructorSpecs';
+import {normalizeHtmlConstructorQuickStyle, setThemedColor} from '../quickStyle';
 import {getEnabledHtmlConstructorSettings} from '../settings';
 import {parseTemplates} from '../templates';
 
@@ -184,7 +185,7 @@ describe('YfmHtmlConstructor utils', () => {
                     content: '<section>Intro</section>',
                     themeIds: [],
                     quickStyle: {
-                        background: '#ffffff',
+                        background: {light: '#ffffff', dark: '#1c1c20'},
                         borderRadius: '12px',
                     },
                 },
@@ -195,7 +196,7 @@ describe('YfmHtmlConstructor utils', () => {
                         content: '<article>Block</article>',
                         themeIds: [],
                         quickStyle: {
-                            textColor: '#2f6fe0',
+                            textColor: {light: '#2f6fe0'},
                             borderStyle: 'dashed',
                         },
                     },
@@ -204,10 +205,10 @@ describe('YfmHtmlConstructor utils', () => {
         } as unknown as Node);
 
         expect(html).toContain(
-            'style="--g-md-hc-background: #ffffff; --g-md-hc-border-radius: 12px;"',
+            'style="--g-md-hc-background-light: #ffffff; --g-md-hc-background-dark: #1c1c20; --g-md-hc-border-radius: 12px;"',
         );
         expect(html).toContain(
-            'style="--g-md-hc-text-color: #2f6fe0; --g-md-hc-border: 1px dashed var(--g-color-line-generic);"',
+            'style="--g-md-hc-text-color-light: #2f6fe0; --g-md-hc-border: 1px dashed var(--g-color-line-generic);"',
         );
     });
 
@@ -278,7 +279,7 @@ describe('YfmHtmlConstructor utils', () => {
             css: '& { padding: 12px; }',
             content: '<article>Card</article>',
             themeIds: ['theme'],
-            quickStyle: {background: '#ffffff'},
+            quickStyle: {background: {light: '#ffffff'}},
         };
         const result = cloneHtmlConstructorBlock(block);
 
@@ -331,7 +332,7 @@ describe('YfmHtmlConstructor utils', () => {
                 css: 'old css',
                 content: '<article>Edited</article>',
                 themeIds: ['old-theme'],
-                quickStyle: {textColor: '#2f6fe0'},
+                quickStyle: {textColor: {light: '#2f6fe0'}},
             },
             state,
             theme,
@@ -342,7 +343,7 @@ describe('YfmHtmlConstructor utils', () => {
             templateId: 'card-alt',
             content: '<article>Alt</article>',
             themeIds: ['card-dark'],
-            quickStyle: {textColor: '#2f6fe0'},
+            quickStyle: {textColor: {light: '#2f6fe0'}},
         });
         expect(result.css).toContain('& { color: blue; }');
         expect(result.css).toContain('.g-md-hc-block { background: #000; }');
@@ -392,7 +393,7 @@ describe('YfmHtmlConstructor utils', () => {
                 css: 'old block theme',
                 content: '<article>Edited card</article>',
                 themeIds: ['old-theme'],
-                quickStyle: {background: '#ffffff'},
+                quickStyle: {background: {light: '#ffffff'}},
             },
             block,
             blockTheme,
@@ -410,7 +411,7 @@ describe('YfmHtmlConstructor utils', () => {
         expect(nextBlock).toMatchObject({
             content: '<article>Edited card</article>',
             themeIds: ['card-dark'],
-            quickStyle: {background: '#ffffff'},
+            quickStyle: {background: {light: '#ffffff'}},
         });
         expect(nextBlock.css).toContain('.card { color: red; }');
         expect(nextBlock.css).toContain('.g-md-hc-block { background: #000; }');
@@ -495,11 +496,11 @@ describe('YfmHtmlConstructor utils', () => {
     it('applies border quick style patches from the combined border dropdown', () => {
         expect(
             getNextQuickStyle(
-                {background: '#ffffff'},
+                {background: {light: '#ffffff'}},
                 {borderStyle: 'dashed', borderRadius: '12px'},
             ),
         ).toEqual({
-            background: '#ffffff',
+            background: {light: '#ffffff'},
             borderStyle: 'dashed',
             borderRadius: '12px',
         });
@@ -509,5 +510,64 @@ describe('YfmHtmlConstructor utils', () => {
                 {borderStyle: undefined},
             ),
         ).toEqual({borderRadius: '12px'});
+    });
+
+    describe('themed colors', () => {
+        it('sets a color for one theme without touching the other', () => {
+            expect(setThemedColor(undefined, 'light', '#ffffff')).toEqual({light: '#ffffff'});
+            expect(setThemedColor({light: '#ffffff'}, 'dark', '#1c1c20')).toEqual({
+                light: '#ffffff',
+                dark: '#1c1c20',
+            });
+        });
+
+        it('clears a theme and drops the entry when both sides are empty', () => {
+            expect(setThemedColor({light: '#ffffff', dark: '#1c1c20'}, 'dark', undefined)).toEqual({
+                light: '#ffffff',
+            });
+            expect(setThemedColor({light: '#ffffff'}, 'light', undefined)).toBeUndefined();
+        });
+
+        it('serializes themed colors to light/dark CSS variables', () => {
+            const html = buildYfmHtmlConstructorHtml({
+                attrs: {
+                    structure: {css: '', content: '', themeIds: []},
+                    blocks: [
+                        {
+                            id: 'block',
+                            css: '',
+                            content: '<article>Block</article>',
+                            themeIds: [],
+                            quickStyle: {
+                                background: {light: '#ffffff', dark: '#1c1c20'},
+                                textColor: {dark: '#ffffff'},
+                            },
+                        },
+                    ],
+                },
+            } as unknown as Node);
+
+            expect(html).toContain(
+                '--g-md-hc-background-light: #ffffff; --g-md-hc-background-dark: #1c1c20; --g-md-hc-text-color-dark: #ffffff;',
+            );
+        });
+
+        it('normalizes a legacy bare color string to both themes', () => {
+            expect(normalizeHtmlConstructorQuickStyle({background: '#ffffff'})).toEqual({
+                background: {light: '#ffffff', dark: '#ffffff'},
+            });
+        });
+
+        it('normalizes the themed object shape and ignores invalid colors', () => {
+            expect(
+                normalizeHtmlConstructorQuickStyle({
+                    background: {light: '#ffffff', dark: 'not-a-color'},
+                    textColor: {dark: '#2f6fe0'},
+                }),
+            ).toEqual({
+                background: {light: '#ffffff'},
+                textColor: {dark: '#2f6fe0'},
+            });
+        });
     });
 });

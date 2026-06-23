@@ -146,6 +146,34 @@ describe('parseTemplates', () => {
         ).toEqual(['theme-a', 'theme-b']);
     });
 
+    it('accepts the optional version attribute on any template type', () => {
+        const result = parseTemplates(`
+            <template type="family" id="wikib2b" title="WikiB2b" version="1.0.0"></template>
+            <template type="structure" id="page" family="wikib2b" version="2.1.0"></template>
+        `);
+
+        expect(result[0]).toMatchObject({type: 'family', id: 'wikib2b', version: '1.0.0'});
+        expect(result[1]).toMatchObject({type: 'structure', id: 'page', version: '2.1.0'});
+    });
+
+    it('captures arbitrary data-* metadata on a family template', () => {
+        const [family] = parseTemplates(`
+            <template
+                type="family"
+                id="wikib2b"
+                title="WikiB2b"
+                data-author="Wiki Team"
+                data-category="marketing"
+            ></template>
+        `);
+
+        expect(family).toMatchObject({
+            type: 'family',
+            id: 'wikib2b',
+            meta: {author: 'Wiki Team', category: 'marketing'},
+        });
+    });
+
     it('parses none preset with explicitly enabled template controls', () => {
         const [template] = parseTemplates(`
             <template

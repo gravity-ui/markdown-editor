@@ -12,7 +12,7 @@ import {
     SquareDashedText,
     TrashBin,
 } from '@gravity-ui/icons';
-import {Button, Icon, Popup} from '@gravity-ui/uikit';
+import {Button, Icon, Popup, useThemeType} from '@gravity-ui/uikit';
 
 import {i18n} from 'src/i18n/yfm-html-constructor';
 import {useElementState} from 'src/react-utils/hooks';
@@ -21,11 +21,14 @@ import {
     HTML_CONSTRUCTOR_BACKGROUND_COLORS,
     HTML_CONSTRUCTOR_BORDER_RADIUS,
     HTML_CONSTRUCTOR_BORDER_STYLES,
+    HTML_CONSTRUCTOR_COLOR_NAME_KEYS,
     HTML_CONSTRUCTOR_TEXT_COLORS,
+    setThemedColor,
 } from '../quickStyle';
 import {getEnabledHtmlConstructorSettings} from '../settings';
 import type {
     HtmlConstructorBorderStyle,
+    HtmlConstructorColorTheme,
     HtmlConstructorQuickStyle,
     HtmlConstructorTemplateSettings,
 } from '../types';
@@ -62,6 +65,14 @@ type FloatingToolbarProps = {
     settings?: HtmlConstructorTemplateSettings;
     quickStyle?: HtmlConstructorQuickStyle;
     onQuickStyleChange: (quickStyle: HtmlConstructorQuickStyle) => void;
+    /** Disable the quick-style zone (background/text color/border) when there is nothing to style yet. */
+    styleDisabled?: boolean;
+    /**
+     * Cap the toolbar width to its positioned parent (the block) instead of the
+     * viewport, so a corner-anchored block toolbar collapses extra controls into
+     * the overflow menu rather than spilling outside the block.
+     */
+    constrainToParent?: boolean;
     onOpenSettings: () => void;
     primaryActions?: FloatingToolbarPrimaryAction[];
     onDuplicate?: () => void;
@@ -86,6 +97,14 @@ export const getNextQuickStyle = (
     }
 
     return next;
+};
+
+const resolveColorTheme = (theme: string): HtmlConstructorColorTheme =>
+    theme === 'dark' ? 'dark' : 'light';
+
+const getColorName = (color: string) => {
+    const key = HTML_CONSTRUCTOR_COLOR_NAME_KEYS[color.toLowerCase()];
+    return key ? i18n(key as Parameters<typeof i18n>[0]) : color;
 };
 
 const getRadiusLabel = (value: string | undefined) => {
@@ -126,6 +145,7 @@ export const FloatingToolbar: FC<FloatingToolbarProps> = ({
     settings,
     quickStyle,
     onQuickStyleChange,
+    styleDisabled = false,
     onOpenSettings,
     primaryActions = [],
     onDuplicate,
@@ -137,8 +157,15 @@ export const FloatingToolbar: FC<FloatingToolbarProps> = ({
     duplicateLabel,
     removeLabel,
     lockLabel,
+    constrainToParent = false,
 }) => {
     const enabled = getEnabledHtmlConstructorSettings(settings);
+    const activeTheme = resolveColorTheme(useThemeType());
+    // The palette edits one theme's color at a time and defaults to the editor's
+    // active theme, so switching the editor theme re-targets the palette ("при
+    // переключении темы меняется палитра"). The author can still flip the toggle
+    // to set the other theme without leaving.
+    const [paletteTheme, setPaletteTheme] = useState<HtmlConstructorColorTheme>(activeTheme);
     const [openMenu, setOpenMenu] = useState<ToolbarMenu>(null);
     const [backgroundAnchor, setBackgroundAnchor] = useElementState<HTMLButtonElement>();
     const [textColorAnchor, setTextColorAnchor] = useElementState<HTMLButtonElement>();
@@ -153,6 +180,10 @@ export const FloatingToolbar: FC<FloatingToolbarProps> = ({
     const chromelessPanel = expandedContentView === 'editor' || expandedContentView === 'panel';
     const settingsSelected = Boolean(expandedContent) && expandedContentView === 'editor';
 
+    useEffect(() => {
+        setPaletteTheme(activeTheme);
+    }, [activeTheme]);
+
     const toggleMenu = (menu: Exclude<ToolbarMenu, null>) => (event: MouseEvent) => {
         event.preventDefault();
         event.stopPropagation();
@@ -164,6 +195,33 @@ export const FloatingToolbar: FC<FloatingToolbarProps> = ({
         setOpenMenu(null);
         setMoreOpen(false);
     };
+
+    // Color swatches keep the menu open so the author can set the other theme via
+    // the light/dark toggle without reopening the palette.
+    const setThemedQuickStyle = (key: 'background' | 'textColor', color: string | undefined) => {
+        onQuickStyleChange(
+            getNextQuickStyle(quickStyle, {
+                [key]: setThemedColor(quickStyle?.[key], paletteTheme, color),
+            }),
+        );
+    };
+
+    const renderPaletteThemeToggle = () => (
+        <div className={b('floating-theme-toggle', [stop])} role="tablist">
+            {(['light', 'dark'] as const).map((theme) => (
+                <button
+                    key={theme}
+                    type="button"
+                    role="tab"
+                    aria-selected={paletteTheme === theme}
+                    className={b('floating-theme-tab', {active: paletteTheme === theme}, [stop])}
+                    onClick={() => setPaletteTheme(theme)}
+                >
+                    {i18n(theme === 'light' ? 'theme_light' : 'theme_dark')}
+                </button>
+            ))}
+        </div>
+    );
 
     const handleOpenSettings = () => {
         setOpenMenu(null);
@@ -200,6 +258,7 @@ export const FloatingToolbar: FC<FloatingToolbarProps> = ({
 
     const renderRawButton = () => {
         if (!enabled.hasRaw) return null;
+        if (styleDisabled) return renderDisabledButton(codeLabel, Code);
 
         return (
             <Button
@@ -226,6 +285,10 @@ export const FloatingToolbar: FC<FloatingToolbarProps> = ({
 
     const renderBackgroundControl = () => {
         if (!enabled.hasBackground) return null;
+        if (styleDisabled) return renderDisabledButton(i18n('background_color'), BucketPaint);
+
+        const activeColor = quickStyle?.background?.[activeTheme];
+        const selectedColor = quickStyle?.background?.[paletteTheme];
 
         return (
             <div className={b('floating-control', [stop])}>
@@ -238,13 +301,17 @@ export const FloatingToolbar: FC<FloatingToolbarProps> = ({
                     aria-label={i18n('background_color')}
                     title={i18n('background_color')}
                 >
-                    <span
-                        className={b('floating-color-dot', [stop])}
-                        style={{background: quickStyle?.background ?? 'transparent'}}
-                    >
-                        {!quickStyle?.background && <Icon data={BucketPaint} size={14} />}
+                    <span className={b('floating-control-inner', [stop])}>
+                        {activeColor ? (
+                            <span
+                                className={b('floating-color-dot', [stop])}
+                                style={{background: activeColor}}
+                            />
+                        ) : (
+                            <Icon data={BucketPaint} size={14} className={stop} />
+                        )}
+                        <Icon data={ChevronDown} size={12} className={stop} />
                     </span>
-                    <Icon data={ChevronDown} size={12} className={stop} />
                 </Button>
                 <Popup
                     anchorElement={backgroundAnchor}
@@ -253,29 +320,31 @@ export const FloatingToolbar: FC<FloatingToolbarProps> = ({
                     placement="bottom-start"
                 >
                     <div className={b('floating-menu', {colors: true}, [stop])}>
-                        {HTML_CONSTRUCTOR_BACKGROUND_COLORS.map((color) => (
-                            <button
-                                key={color}
-                                type="button"
-                                className={b(
-                                    'floating-swatch',
-                                    {
-                                        active: quickStyle?.background === color,
-                                    },
-                                    [stop],
-                                )}
-                                style={{background: color}}
-                                title={color}
-                                onClick={() => updateQuickStyle({background: color})}
-                            />
-                        ))}
-                        <button
-                            type="button"
-                            className={b('floating-menu-button', [stop])}
-                            onClick={() => updateQuickStyle({background: undefined})}
+                        {renderPaletteThemeToggle()}
+                        <div className={b('floating-swatches', [stop])}>
+                            {HTML_CONSTRUCTOR_BACKGROUND_COLORS.map((color) => (
+                                <button
+                                    key={color}
+                                    type="button"
+                                    className={b(
+                                        'floating-swatch',
+                                        {active: selectedColor === color},
+                                        [stop],
+                                    )}
+                                    style={{background: color}}
+                                    title={getColorName(color)}
+                                    onClick={() => setThemedQuickStyle('background', color)}
+                                />
+                            ))}
+                        </div>
+                        <Button
+                            view="normal"
+                            width="max"
+                            className={b('floating-menu-reset', [stop])}
+                            onClick={() => setThemedQuickStyle('background', undefined)}
                         >
                             {i18n('reset')}
-                        </button>
+                        </Button>
                     </div>
                 </Popup>
             </div>
@@ -284,6 +353,10 @@ export const FloatingToolbar: FC<FloatingToolbarProps> = ({
 
     const renderTextColorControl = () => {
         if (!enabled.hasTextColor) return null;
+        if (styleDisabled) return renderDisabledButton(i18n('text_color'), Font);
+
+        const activeColor = quickStyle?.textColor?.[activeTheme];
+        const selectedColor = quickStyle?.textColor?.[paletteTheme] ?? '';
 
         return (
             <div className={b('floating-control', [stop])}>
@@ -296,17 +369,19 @@ export const FloatingToolbar: FC<FloatingToolbarProps> = ({
                     aria-label={i18n('text_color')}
                     title={i18n('text_color')}
                 >
-                    <span
-                        className={b('floating-text-color', [stop])}
-                        style={
-                            {
-                                '--g-md-hc-text-color': quickStyle?.textColor,
-                            } as CSSProperties
-                        }
-                    >
-                        <Icon data={Font} size={14} />
+                    <span className={b('floating-control-inner', [stop])}>
+                        <span
+                            className={b('floating-text-color', [stop])}
+                            style={
+                                {
+                                    '--g-md-hc-text-color': activeColor,
+                                } as CSSProperties
+                            }
+                        >
+                            <Icon data={Font} size={14} />
+                        </span>
+                        <Icon data={ChevronDown} size={12} className={stop} />
                     </span>
-                    <Icon data={ChevronDown} size={12} className={stop} />
                 </Button>
                 <Popup
                     anchorElement={textColorAnchor}
@@ -315,25 +390,31 @@ export const FloatingToolbar: FC<FloatingToolbarProps> = ({
                     placement="bottom-start"
                 >
                     <div className={b('floating-menu', {text: true}, [stop])}>
-                        {HTML_CONSTRUCTOR_TEXT_COLORS.map((color) => (
-                            <button
-                                key={color || 'auto'}
-                                type="button"
-                                className={b(
-                                    'floating-text-swatch',
-                                    {
-                                        active: (quickStyle?.textColor ?? '') === color,
-                                        auto: !color,
-                                    },
-                                    [stop],
-                                )}
-                                style={color ? {color} : undefined}
-                                title={color || i18n('auto')}
-                                onClick={() => updateQuickStyle({textColor: color || undefined})}
-                            >
-                                A
-                            </button>
-                        ))}
+                        {renderPaletteThemeToggle()}
+                        <div className={b('floating-text-swatches', [stop])}>
+                            {HTML_CONSTRUCTOR_TEXT_COLORS.map((color) => (
+                                <button
+                                    key={color || 'auto'}
+                                    type="button"
+                                    className={b(
+                                        'floating-text-swatch',
+                                        {
+                                            active: selectedColor === color,
+                                            auto: !color,
+                                            light: color.toLowerCase() === '#ffffff',
+                                        },
+                                        [stop],
+                                    )}
+                                    style={color ? {color} : undefined}
+                                    title={color ? getColorName(color) : i18n('auto')}
+                                    onClick={() =>
+                                        setThemedQuickStyle('textColor', color || undefined)
+                                    }
+                                >
+                                    A
+                                </button>
+                            ))}
+                        </div>
                     </div>
                 </Popup>
             </div>
@@ -342,6 +423,20 @@ export const FloatingToolbar: FC<FloatingToolbarProps> = ({
 
     const renderBorderControl = () => {
         if (!enabled.hasBorder && !enabled.hasRound) return null;
+        if (styleDisabled) {
+            return (
+                <Button
+                    view="flat"
+                    size="s"
+                    className={stop}
+                    disabled
+                    aria-label={i18n('border')}
+                    title={i18n('border')}
+                >
+                    <span className={b('floating-border-preview', [stop])} />
+                </Button>
+            );
+        }
 
         return (
             <div className={b('floating-control', [stop])}>
@@ -351,10 +446,25 @@ export const FloatingToolbar: FC<FloatingToolbarProps> = ({
                     size="s"
                     className={stop}
                     onClick={toggleMenu('border')}
+                    aria-label={i18n('border')}
                     title={i18n('border')}
                 >
-                    <span className={b('floating-button-label', [stop])}>{i18n('border')}</span>
-                    <Icon data={ChevronDown} size={12} className={stop} />
+                    <span className={b('floating-control-inner', [stop])}>
+                        <span
+                            className={b(
+                                'floating-border-preview',
+                                {none: quickStyle?.borderStyle === 'none'},
+                                [stop],
+                            )}
+                            style={{
+                                borderStyle:
+                                    quickStyle?.borderStyle && quickStyle.borderStyle !== 'none'
+                                        ? quickStyle.borderStyle
+                                        : 'solid',
+                            }}
+                        />
+                        <Icon data={ChevronDown} size={12} className={stop} />
+                    </span>
                 </Button>
                 <Popup
                     anchorElement={borderAnchor}
@@ -574,9 +684,18 @@ export const FloatingToolbar: FC<FloatingToolbarProps> = ({
                 return hasChanges ? nextWidths : currentWidths;
             });
 
-            const nextAvailableWidth =
+            const viewportWidth =
                 Math.floor(window.innerWidth * TOOLBAR_MAX_WIDTH_RATIO) -
                 TOOLBAR_HORIZONTAL_PADDING;
+            // Corner-anchored block toolbars must stay within their block, so cap
+            // the budget to the positioned parent's width and let the rest collapse
+            // into the overflow menu.
+            const parent = toolbarRef.current?.offsetParent as HTMLElement | null;
+            const parentWidth =
+                constrainToParent && parent
+                    ? parent.clientWidth - TOOLBAR_HORIZONTAL_PADDING
+                    : Number.POSITIVE_INFINITY;
+            const nextAvailableWidth = Math.min(viewportWidth, parentWidth);
             setAvailableToolbarWidth((currentWidth) => {
                 if (currentWidth === nextAvailableWidth) return currentWidth;
 
@@ -588,7 +707,7 @@ export const FloatingToolbar: FC<FloatingToolbarProps> = ({
         window.addEventListener('resize', updateToolbarSizes);
 
         return () => window.removeEventListener('resize', updateToolbarSizes);
-    }, [toolbarActionIdsKey]);
+    }, [toolbarActionIdsKey, constrainToParent]);
 
     useEffect(() => {
         if (!expandedContent || !onCloseExpandedContent) return undefined;

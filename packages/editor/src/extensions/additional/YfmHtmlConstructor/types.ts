@@ -14,9 +14,21 @@ export type HtmlConstructorTemplateSettings = {
 
 export type HtmlConstructorBorderStyle = 'solid' | 'dashed' | 'dotted' | 'none';
 
+export type HtmlConstructorColorTheme = 'light' | 'dark';
+
+/**
+ * A color the user can pick separately for the light and the dark color theme.
+ * The block consumes the value matching the reader's active theme, so a single
+ * quick-style choice can invert between themes.
+ */
+export type HtmlConstructorThemedColor = {
+    light?: string;
+    dark?: string;
+};
+
 export type HtmlConstructorQuickStyle = {
-    background?: string;
-    textColor?: string;
+    background?: HtmlConstructorThemedColor;
+    textColor?: HtmlConstructorThemedColor;
     borderRadius?: string;
     borderStyle?: HtmlConstructorBorderStyle;
 };
@@ -25,6 +37,8 @@ interface HtmlConstructorTemplateBase {
     id: string;
     type: HtmlConstructorTemplateType;
     title?: string;
+    /** Optional semver tag. Recommended for `family`, allowed for any type. */
+    version?: string;
     declarationIndex: number;
 }
 
@@ -47,6 +61,12 @@ export interface HtmlConstructorFamilyTemplate extends HtmlConstructorTemplateBa
      * Family-level CSS that styles the marketplace cover. Ignored by the editor.
      */
     styles: string[];
+    /**
+     * Free-form metadata declared via `data-*` attributes on the family template
+     * (key is the part after `data-`). Unlike structure/block/theme, where `data-*`
+     * is restricted to settings, a family may carry arbitrary meta.
+     */
+    meta?: Record<string, string>;
 }
 
 export interface HtmlConstructorStructureTemplate extends HtmlConstructorReferencedTemplateBase {

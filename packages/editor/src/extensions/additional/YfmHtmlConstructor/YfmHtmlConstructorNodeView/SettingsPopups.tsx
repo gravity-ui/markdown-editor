@@ -78,6 +78,8 @@ const CodeEditorPane: FC<CodeEditorPaneProps> = ({
     }, []);
 
     const contentLines = value ? value.split('\n').length : 1;
+    const frameTopLines = frame?.top ? frame.top.split('\n').length : 0;
+    const frameBottomLines = frame?.bottom ? frame.bottom.split('\n').length : 0;
 
     // In framed mode the wrapper lines and content share one scroll area, so the
     // textarea must grow to fit its content instead of scrolling on its own.
@@ -90,14 +92,14 @@ const CodeEditorPane: FC<CodeEditorPaneProps> = ({
     }, [frame, value]);
 
     const lineNumbers = useMemo(() => {
-        const contentTotal = frame ? contentLines + 2 : contentLines;
+        const contentTotal = contentLines + frameTopLines + frameBottomLines;
         const total = Math.max(contentTotal, visibleRows);
         let result = '';
         for (let line = 1; line <= total; line++) {
             result += line === 1 ? '1' : `\n${line}`;
         }
         return result;
-    }, [frame, contentLines, visibleRows]);
+    }, [contentLines, frameTopLines, frameBottomLines, visibleRows]);
 
     const syncScroll = (event: UIEvent<HTMLTextAreaElement>) => {
         if (gutterRef.current) gutterRef.current.scrollTop = event.currentTarget.scrollTop;
@@ -134,13 +136,23 @@ const CodeEditorPane: FC<CodeEditorPaneProps> = ({
                 </div>
                 {frame ? (
                     <div className={b('code-stack', [stop])}>
-                        <div className={b('code-frame', {top: true}, [stop])} aria-hidden="true">
-                            {frame.top}
-                        </div>
+                        {frame.top && (
+                            <div
+                                className={b('code-frame', {top: true}, [stop])}
+                                aria-hidden="true"
+                            >
+                                {frame.top}
+                            </div>
+                        )}
                         {control}
-                        <div className={b('code-frame', {bottom: true}, [stop])} aria-hidden="true">
-                            {frame.bottom}
-                        </div>
+                        {frame.bottom && (
+                            <div
+                                className={b('code-frame', {bottom: true}, [stop])}
+                                aria-hidden="true"
+                            >
+                                {frame.bottom}
+                            </div>
+                        )}
                     </div>
                 ) : (
                     control
@@ -158,6 +170,7 @@ interface HtmlCssSettingsPanelProps {
     htmlPlaceholder: string;
     cssPlaceholder: string;
     htmlFrame?: CodeFrame;
+    cssFrame?: CodeFrame;
     /**
      * When false, edits are committed only on blur instead of on every keystroke.
      * Used by the structure editor, whose committed value is re-assembled (and thus
@@ -175,6 +188,7 @@ const HtmlCssSettingsPanel: FC<HtmlCssSettingsPanelProps> = ({
     htmlPlaceholder,
     cssPlaceholder,
     htmlFrame,
+    cssFrame,
     liveUpdate = true,
     onClose,
 }) => {
@@ -230,6 +244,7 @@ const HtmlCssSettingsPanel: FC<HtmlCssSettingsPanelProps> = ({
             autoFocus={compact && activeTab === 'css'}
             onUpdate={handleCssUpdate}
             onCommit={commitCss}
+            frame={cssFrame}
         />
     );
 
@@ -301,6 +316,7 @@ export const StructureSettingsPanel: FC<{
     html: string;
     css: string;
     htmlFrame?: CodeFrame;
+    cssFrame?: CodeFrame;
     onHtmlCommit: (value: string) => void;
     onCssChange: (value: string) => void;
     onClose?: () => void;

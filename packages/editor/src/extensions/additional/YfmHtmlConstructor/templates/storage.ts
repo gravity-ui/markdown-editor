@@ -18,6 +18,10 @@ const isStringArray = (value: unknown): value is string[] =>
 const isOptionalString = (value: unknown): value is string | undefined =>
     value === undefined || typeof value === 'string';
 
+const isOptionalStringRecord = (value: unknown): value is Record<string, string> | undefined =>
+    value === undefined ||
+    (isObject(value) && Object.values(value).every((item) => typeof item === 'string'));
+
 const isSettings = (value: unknown): value is HtmlConstructorTemplateSettings =>
     isObject(value) &&
     typeof value.hasBackground === 'boolean' &&
@@ -33,7 +37,8 @@ const isTemplateBase = (value: unknown): value is Record<string, unknown> =>
     typeof value.id === 'string' &&
     typeof value.declarationIndex === 'number' &&
     Number.isFinite(value.declarationIndex) &&
-    isOptionalString(value.title);
+    isOptionalString(value.title) &&
+    isOptionalString(value.version);
 
 const isReferencedTemplateBase = (
     value: unknown,
@@ -53,7 +58,8 @@ const isFamilyTemplate = (value: unknown): value is HtmlConstructorFamilyTemplat
     value.type === 'family' &&
     typeof value.title === 'string' &&
     typeof value.content === 'string' &&
-    isStringArray(value.styles);
+    isStringArray(value.styles) &&
+    isOptionalStringRecord(value.meta);
 
 const isStructureTemplate = (value: unknown): value is HtmlConstructorStructureTemplate =>
     isReferencedTemplateBase(value) &&
