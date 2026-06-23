@@ -19,9 +19,9 @@ function DelayedTextAreaComponent(props: DelayedTextAreaProps, ref: React.Ref<HT
 
     // Without this proxy "native" input clear will synchronize value only after specified delay.
     const onChangeProxy: DelayedTextAreaProps['onChange'] = (event) => {
-        if (props.hasClear && event.type === 'click' && event.target.value === '') {
-            textAreaProps.onChange?.(event);
+        textAreaProps.onChange?.(event);
 
+        if (props.hasClear && event.type === 'click' && event.target.value === '') {
             onUpdate('');
         }
     };

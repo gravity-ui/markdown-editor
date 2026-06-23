@@ -3,7 +3,7 @@
 // https://github.com/gravity-ui/components/blob/c31e0b98ce866a8b42da93298c83f81dfb8459f7/src/components/DelayedTextInput/hooks/useDelayedValue.ts
 //
 
-import {useCallback, useEffect, useRef, useState} from 'react';
+import {useCallback, useEffect, useLayoutEffect, useRef, useState} from 'react';
 
 /**
  * Debounce-like hook to delay value update.
@@ -40,6 +40,12 @@ export function useDelayedValue<TValue = unknown>(
     useEffect(() => {
         setCurrentValue((currValue) => (currValue === value ? currValue : value));
     }, [value]);
+
+    useLayoutEffect(() => {
+        return () => {
+            window.clearTimeout(timeoutRef.current);
+        };
+    }, []);
 
     return {
         currentValue,

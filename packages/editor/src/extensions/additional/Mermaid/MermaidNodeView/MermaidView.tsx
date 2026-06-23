@@ -38,11 +38,12 @@ const MermaidPreview: React.FC<{
     const theme = useThemeType();
 
     useEffect(() => {
+        if (!mermaidInstance) return undefined;
+
         let cancelled = false;
         setUpdating(true);
 
         const run = async () => {
-            if (!mermaidInstance) return;
             try {
                 // Validates syntax and throws error if text is invalid
                 await mermaidInstance.parse(text);
@@ -82,10 +83,12 @@ const MermaidPreview: React.FC<{
         return <div className={b('Error')}>{error && <div>{error}</div>}</div>;
     }
 
+    const loading = !svg || updating;
+
     return (
-        <div className={b('Preview', {loading: !svg, updating})}>
-            {svg ? <div className="mermaid" dangerouslySetInnerHTML={{__html: svg}} /> : <Loader />}
-            <Overlay visible={updating}>
+        <div className={b('Preview', {loading})}>
+            {svg && <div className="mermaid" dangerouslySetInnerHTML={{__html: svg}} />}
+            <Overlay visible={loading}>
                 <Loader />
             </Overlay>
         </div>
