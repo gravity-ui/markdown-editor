@@ -13,7 +13,15 @@
     }
 
     &__Preview {
+        position: relative;
+
         flex: 1;
+
+        &_loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
     }
 
     &__Error {

@@ -1,16 +1,16 @@
 import {useEffect, useMemo, useState} from 'react';
 
 import {Ellipsis as DotsIcon} from '@gravity-ui/icons';
-import {Button, Icon, Loader, Menu, Popup, useThemeType} from '@gravity-ui/uikit';
+import {Button, Icon, Loader, Menu, Overlay, Popup, useThemeType} from '@gravity-ui/uikit';
 import type {Mermaid} from 'mermaid' with {'resolution-mode': 'import'};
 import type {Node} from 'prosemirror-model';
 import type {EditorView} from 'prosemirror-view';
 
 import {SharedStateKey} from 'src/extensions/behavior/SharedState';
+import {DelayedTextArea} from 'src/react-utils/components/DelayedTextArea';
 import {useSharedEditingState} from 'src/react-utils/useSharedEditingState';
 
 import {cn} from '../../../../classname';
-import {TextAreaFixed as TextArea} from '../../../../forms/TextInput';
 import {i18n} from '../../../../i18n/common';
 import {useAutoSave, useBooleanState, useElementState} from '../../../../react-utils';
 import {removeNode} from '../../../../utils';
@@ -32,34 +32,50 @@ const MermaidPreview: React.FC<{
     options: MermaidOptions;
 }> = ({mermaidInstance, text = '', options}) => {
     const [svg, setSvg] = useState<string>();
+    const [updating, setUpdating] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
     const theme = useThemeType();
 
     useEffect(() => {
-        const p = async () => {
-            if (mermaidInstance) {
-                try {
-                    // Validates syntax and throws error if text is invalid
-                    await mermaidInstance.parse(text);
+        let cancelled = false;
+        setUpdating(true);
 
-                    if (options.theme) {
-                        mermaidInstance.initialize({
-                            theme: theme === 'dark' ? options.theme.dark : options.theme.light,
-                        });
-                    }
+        const run = async () => {
+            if (!mermaidInstance) return;
+            try {
+                // Validates syntax and throws error if text is invalid
+                await mermaidInstance.parse(text);
 
-                    const {svg: S} = await mermaidInstance.render(`mermaid-${Date.now()}`, text);
-
-                    setSvg(S);
-                    setError(null);
-                } catch (e) {
-                    setError((e as Error).message);
+                if (options.theme) {
+                    mermaidInstance.initialize({
+                        theme: theme === 'dark' ? options.theme.dark : options.theme.light,
+                    });
                 }
+
+                const {svg: S} = await mermaidInstance.render(`mermaid-${Date.now()}`, text);
+
+                if (cancelled) return;
+                setSvg(S);
+                setUpdating(false);
+                setError(null);
+            } catch (e) {
+                if (cancelled) return;
+                setUpdating(false);
+                setError((e as Error).message);
             }
         };
 
-        p();
+        const hasRIC = typeof requestIdleCallback === 'function';
+        const handle = hasRIC
+            ? requestIdleCallback(() => run())
+            : requestAnimationFrame(() => run());
+
+        return () => {
+            cancelled = true;
+            if (hasRIC) cancelIdleCallback(handle);
+            else cancelAnimationFrame(handle);
+        };
     }, [mermaidInstance, text, theme, options.theme]);
 
     if (error) {
@@ -67,8 +83,11 @@ const MermaidPreview: React.FC<{
     }
 
     return (
-        <div className={b('Preview')}>
+        <div className={b('Preview', {loading: !svg, updating})}>
             {svg ? <div className="mermaid" dangerouslySetInnerHTML={{__html: svg}} /> : <Loader />}
+            <Overlay visible={updating}>
+                <Loader />
+            </Overlay>
         </div>
     );
 };
@@ -92,12 +111,13 @@ const DiagramEditMode: React.FC<{
             <MermaidPreview mermaidInstance={mermaidInstance} text={value} options={options} />
             <div className={b('Editor')}>
                 <div>
-                    <TextArea
+                    <DelayedTextArea
                         controlProps={{
                             className: STOP_EVENT_CLASSNAME,
                         }}
                         value={value}
                         onUpdate={handleChange}
+                        delay={400}
                         autoFocus
                     />
                 </div>
