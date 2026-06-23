@@ -151,7 +151,7 @@ test.describe('Link', () => {
 
         await expectScreenshot({nameSuffix: 'form-with-url'});
 
-        await page.mouse.click(400, 400);
+        await page.mouse.click(0, 0);
         await wait.timeout(300);
 
         await expect(editor.getByTextInContenteditable('gravity-ui.com')).toBeVisible();
