@@ -3,9 +3,8 @@
     flex-direction: column;
     gap: var(--g-spacing-2);
 
-    width: 340px;
     box-sizing: border-box;
-
+    width: 340px;
     padding: var(--g-spacing-4);
 
     &__row {
@@ -20,7 +19,6 @@
 
     &__input {
         box-sizing: border-box;
-
     }
 
     &__button {

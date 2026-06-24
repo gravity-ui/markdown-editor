@@ -21,7 +21,7 @@ test.describe('Link', () => {
 
         await wait.timeout(300);
         await actions.fillFocused('gravity-ui.com');
-        await actions.pressFocused('Tab', 3);
+        await actions.pressFocused('Tab', 2);
 
         await actions.fillFocused('gravity');
         await actions.pressFocused('Tab', 2);
@@ -50,7 +50,7 @@ test.describe('Link', () => {
 
         await wait.timeout(300);
         await actions.fillFocused('gravity-ui.com');
-        await actions.pressFocused('Tab', 3);
+        await actions.pressFocused('Tab', 2);
 
         await actions.fillFocused('gravity');
         await actions.pressFocused('Tab', 2);
@@ -149,7 +149,11 @@ test.describe('Link', () => {
 
         await actions.fillFocused('gravity-ui.com');
 
-        await expectScreenshot({nameSuffix: 'form-with-url'});
+        await expectScreenshot({
+            nameSuffix: 'form-with-url',
+            fullPage: true,
+            clip: {x: 0, y: 0, width: 812, height: 1000},
+        });
 
         await page.mouse.click(0, 0);
         await wait.timeout(300);
