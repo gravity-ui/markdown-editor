@@ -97,7 +97,10 @@ export function useFilesGallery(
                     if (linkObj?.link && !customFiles?.some((item) => item.url === linkObj.link)) {
                         const extension =
                             linkObj.mimetype?.match(extensionRegex)?.[0] ||
-                            linkObj.link.match(extensionRegex)?.[0] ||
+                            // skip regex on data URIs to avoid catastrophic backtracking
+                            (linkObj.link.startsWith('data:')
+                                ? ''
+                                : linkObj.link.match(extensionRegex)?.[0]) ||
                             '';
 
                         if (linkObj.type === 'image' || supportedExtensions.includes(extension)) {
