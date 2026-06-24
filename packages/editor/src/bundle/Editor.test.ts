@@ -92,7 +92,6 @@ describe('EditorImpl: changeSplitModeEnabled', () => {
         expect(listener).toHaveBeenCalledTimes(1);
         expect(listener).toHaveBeenCalledWith({splitModeEnabled: true});
     });
-
 });
 
 describe('EditorImpl: mutual exclusion between preview and split mode', () => {
