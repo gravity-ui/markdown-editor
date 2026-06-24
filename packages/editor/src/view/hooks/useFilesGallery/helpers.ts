@@ -37,8 +37,7 @@ export function buildLinkObject(elem: Element): LinkObject | null {
     return obj;
 }
 
-const dataUriMimetypeRegex = /^data:([^;,]+)/;
-function getMimetypeFromDataUri(link: string): string | null {
-    if (!link.startsWith('data:')) return null;
-    return link.match(dataUriMimetypeRegex)?.[1] ?? null;
+const dataUriMimetypeRegex = /^data:([^;,]+)/i;
+function getMimetypeFromDataUri(link: string) {
+    return link.match(dataUriMimetypeRegex)?.[1];
 }

@@ -98,7 +98,7 @@ export function useFilesGallery(
                         const extension =
                             linkObj.mimetype?.match(extensionRegex)?.[0] ||
                             // skip regex on data URIs to avoid catastrophic backtracking
-                            (linkObj.link.startsWith('data:')
+                            (/^data:/i.test(linkObj.link)
                                 ? ''
                                 : linkObj.link.match(extensionRegex)?.[0]) ||
                             '';
