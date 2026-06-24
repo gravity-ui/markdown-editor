@@ -1,7 +1,6 @@
 import {memo, useState} from 'react';
 
-import {ArrowUpRightFromSquare as LinkIcon} from '@gravity-ui/icons';
-import {ActionTooltip, Button, Icon, type TextInputProps} from '@gravity-ui/uikit';
+import {Button, type TextInputProps} from '@gravity-ui/uikit';
 
 import {cn} from '../classname';
 import {i18n} from '../i18n/forms';
@@ -58,44 +57,36 @@ export const Link = memo<LinkProps>(function LinkForm({
 
     return (
         <div className={b()}>
-            <div className={b('row')}>
-                <TextInputFixed
-                    size="l"
-                    hasClear
-                    view="clear"
-                    value={url}
-                    className={b('input')}
-                    onUpdate={handleUrlUpdate}
-                    placeholder="https://"
-                    autoFocus={autoFocus}
-                    onKeyDown={inputEnterKeyHandler}
-                />
-                <ActionTooltip title={i18n('link_open_help')}>
-                    <Button
-                        className={b('button')}
-                        view="flat"
-                        size="m"
-                        href={url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                    >
-                        <Icon data={LinkIcon} size={16} />
-                    </Button>
-                </ActionTooltip>
-            </div>
-            <div className={b('row')}>
-                <TextInputFixed
-                    size="l"
-                    hasClear
-                    view="clear"
-                    value={text}
-                    className={b('input')}
-                    onUpdate={handleTextUpdate}
-                    placeholder={i18n('link_text')}
-                    disabled={readOnlyText}
-                    onKeyDown={inputEnterKeyHandler}
-                />
-            </div>
+            <TextInputFixed
+                size="l"
+                hasClear
+                value={url}
+                className={b('input')}
+                onUpdate={handleUrlUpdate}
+                placeholder={i18n('link-href-placeholder')}
+                autoFocus={autoFocus}
+                onKeyDown={inputEnterKeyHandler}
+            />
+            <TextInputFixed
+                size="l"
+                hasClear
+                value={text}
+                className={b('input')}
+                onUpdate={handleTextUpdate}
+                placeholder={i18n('link-name-placeholder')}
+                disabled={readOnlyText}
+                onKeyDown={inputEnterKeyHandler}
+            />
+            <Button
+                disabled={!url}
+                className={b('submit-button')}
+                view="action"
+                size="l"
+                width="max"
+                onClick={handleSubmit}
+            >
+                {i18n('link_add')}
+            </Button>
         </div>
     );
 });

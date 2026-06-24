@@ -75,32 +75,34 @@ export const Link = memo<LinkProps>(function Link({
                     hasClear
                     view="clear"
                     value={url}
-                    className={b('input')}
+                    className={b('input', {empty: !url})}
                     onUpdate={handleUrlUpdate}
-                    placeholder="https://"
+                    placeholder={i18n('link-href-placeholder')}
                     autoFocus={autoFocus}
                     onKeyDown={inputEnterKeyHandler}
                 />
-                {onRemove && (
+                {url && onRemove && (
                     <ActionTooltip title={i18n('link_remove_help')}>
                         <Button className={b('button')} view="flat" size="m" onClick={onRemove}>
                             <Icon data={UnlinkIcon} size={16} />
                         </Button>
                     </ActionTooltip>
                 )}
-                <ActionTooltip title={i18n('link_open_help')}>
-                    <Button
-                        className={b('button')}
-                        view="flat"
-                        size="m"
-                        href={url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        onClick={onOpenInNewTab}
-                    >
-                        <Icon data={LinkIcon} size={16} />
-                    </Button>
-                </ActionTooltip>
+                {url && (
+                    <ActionTooltip title={i18n('link_open_help')}>
+                        <Button
+                            className={b('button')}
+                            view="flat"
+                            size="m"
+                            href={url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={onOpenInNewTab}
+                        >
+                            <Icon data={LinkIcon} size={16} />
+                        </Button>
+                    </ActionTooltip>
+                )}
             </div>
         </Popup>
     );
