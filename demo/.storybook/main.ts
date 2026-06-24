@@ -17,6 +17,10 @@ const config: StorybookConfig = {
         name: '@storybook/react-webpack5',
         options: {},
     },
+    // Allow access via the local dev hostname alias (http://md-editor:8888).
+    core: {
+        allowedHosts: ['md-editor'],
+    },
     stories: ['../src/**/*.mdx', '../src/**/*.stories.@(js|jsx|ts|tsx)'],
     addons: [
         '@storybook/preset-scss',

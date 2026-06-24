@@ -39,6 +39,7 @@ import {Button, DropdownMenu} from '@gravity-ui/uikit';
 
 import {htmlBlockTemplates} from '../defaults/html-templates';
 import {getPlugins} from '../defaults/md-plugins';
+import {seedYfmHtmlConstructorTemplates} from '../defaults/yfm-html-constructor';
 import {useLogs} from '../hooks/useLogs';
 import useYfmHtmlBlockStyles from '../hooks/useYfmHtmlBlockStyles';
 import {randomDelay} from '../utils/delay';
@@ -61,6 +62,8 @@ const wCommandMenuConfig = wysiwygToolbarConfigs.wCommandMenuConfig.concat(
     wYfmPageConstructorItemData,
     wysiwygToolbarConfigs.wYfmHtmlBlockItemData,
 );
+
+seedYfmHtmlConstructorTemplates();
 
 export type PlaygroundProps = {
     mobile?: boolean;
@@ -241,6 +244,13 @@ export const Playground = memo<PlaygroundProps>((props) => {
                                 items: htmlBlockTemplates,
                                 showButton: true,
                                 allowAdd: true,
+                            },
+                            constructor: {
+                                scopeStyles: true,
+                                templates: {
+                                    showButton: true,
+                                    allowAdd: true,
+                                },
                             },
                             editablePreview: true,
                             head: `

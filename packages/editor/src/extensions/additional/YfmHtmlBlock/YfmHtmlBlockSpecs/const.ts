@@ -6,6 +6,8 @@ export enum YfmHtmlBlockAttrs {
     EntityId = entityIdAttr,
     class = 'class',
     frameborder = 'frameborder',
+    constructorBlocks = 'constructorBlocks',
+    constructorStructure = 'constructorStructure',
     // MAJOR: remove before next major
     /** @deprecated This is no longer used. Removed in next major version */
     newCreated = 'newCreated',

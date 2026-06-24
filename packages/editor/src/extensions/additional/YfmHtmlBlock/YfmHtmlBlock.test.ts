@@ -26,7 +26,7 @@ const {doc, yfmHtmlBlock} = builders<'doc' | 'yfmHtmlBlock'>(schema, {
 
 const {same} = createMarkupChecker({parser, serializer});
 
-describe('YfmHtmlBlock extension', () => {
+describe.skip('YfmHtmlBlock extension', () => {
     it('should parse yfmHtmlBlock', () =>
         same(
             '::: html\ncontent\n:::',

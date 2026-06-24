@@ -1,7 +1,7 @@
-import {useMemo, useState} from 'react';
+import {useEffect, useMemo, useState} from 'react';
 import type {FC} from 'react';
 
-import {LayoutCells, LayoutHeaderColumns, Palette, Plus} from '@gravity-ui/icons';
+import {LayoutCells, Palette, Plus} from '@gravity-ui/icons';
 import {Button, Icon} from '@gravity-ui/uikit';
 import type {Node} from 'prosemirror-model';
 import type {EditorView} from 'prosemirror-view';
@@ -114,21 +114,40 @@ const readBlocks = (node: Node): HtmlConstructorBlock[] => {
     });
 };
 
-export const YfmHtmlConstructorView: FC<{
-    node: Node;
-    getPos: () => number | undefined;
-    view: EditorView;
-    onChange: (attrs: Partial<Node['attrs']>) => void;
+export type YfmHtmlConstructorEditorState = {
+    structure: HtmlConstructorStructure;
+    blocks: HtmlConstructorBlock[];
+};
+
+export const YfmHtmlConstructorEditor: FC<{
+    state: YfmHtmlConstructorEditorState;
+    entityId: string;
     options: YfmHtmlConstructorExtensionOptions;
-}> = ({node, getPos, view, onChange, options}) => {
-    const structure = readStructure(node);
-    const blocks = readBlocks(node);
+    onChange: (state: YfmHtmlConstructorEditorState) => void;
+    onDuplicate?: () => void;
+    onRemove?: () => void | Promise<void>;
+    duplicateLabel?: string;
+    removeLabel?: string;
+    lockLabel?: string;
+    /** External one-shot signal to open one of the structure panels. */
+    openStructurePanelSignal?: {panel: Exclude<StructurePanel, null>; tick: number};
+}> = ({
+    state,
+    entityId,
+    options,
+    onChange,
+    onDuplicate,
+    onRemove,
+    duplicateLabel,
+    removeLabel = i18n('remove_constructor'),
+    lockLabel,
+    openStructurePanelSignal,
+}) => {
+    const {structure, blocks} = state;
     const {templates, scopeStyles} = options;
 
     const scopeClass = scopeStyles
-        ? htmlConstructorScopeClassName(
-              hashToScopeId(String(node.attrs[YfmHtmlConstructorConsts.NodeAttrs.EntityId] ?? '')),
-          )
+        ? htmlConstructorScopeClassName(hashToScopeId(entityId))
         : undefined;
 
     const previewCss = useMemo(() => {
@@ -136,6 +155,11 @@ export const YfmHtmlConstructorView: FC<{
         return scopeClass && css ? scopeCss(css, `.${scopeClass}`) : css;
     }, [blocks, structure, scopeClass]);
     const [structurePanel, setStructurePanel] = useState<StructurePanel>(null);
+
+    useEffect(() => {
+        if (!openStructurePanelSignal) return;
+        setStructurePanel(openStructurePanelSignal.panel);
+    }, [openStructurePanelSignal?.panel, openStructurePanelSignal?.tick]);
 
     const allowAdd = Boolean(templates?.allowAdd);
     const [storedTemplates, setStoredTemplates] =
@@ -170,10 +194,10 @@ export const YfmHtmlConstructorView: FC<{
     };
 
     const setStructure = (next: HtmlConstructorStructure) =>
-        onChange({[YfmHtmlConstructorConsts.NodeAttrs.structure]: next});
+        onChange({structure: next, blocks});
 
     const setBlocks = (next: HtmlConstructorBlock[]) =>
-        onChange({[YfmHtmlConstructorConsts.NodeAttrs.blocks]: next});
+        onChange({structure, blocks: next});
 
     const structureEditing = useInlineHtmlEditing({
         onCommit: (content) => setStructure({...structure, content}),
@@ -203,10 +227,7 @@ export const YfmHtmlConstructorView: FC<{
         if (!(await confirmStructureOverwriteIfNeeded())) return;
 
         const attrs = structureTemplateToAttrs(effectiveTemplates, template, theme);
-        onChange({
-            [YfmHtmlConstructorConsts.NodeAttrs.structure]: attrs.structure,
-            [YfmHtmlConstructorConsts.NodeAttrs.blocks]: attrs.blocks,
-        });
+        onChange({structure: attrs.structure, blocks: attrs.blocks});
         closeStructurePanel();
     };
 
@@ -214,12 +235,12 @@ export const YfmHtmlConstructorView: FC<{
         if (!(await confirmStructureOverwriteIfNeeded())) return;
 
         onChange({
-            [YfmHtmlConstructorConsts.NodeAttrs.structure]: {
+            structure: {
                 ...emptyHtmlConstructorStructure(),
                 content,
                 css,
             },
-            [YfmHtmlConstructorConsts.NodeAttrs.blocks]: [],
+            blocks: [],
         });
         closeStructurePanel();
     };
@@ -237,6 +258,8 @@ export const YfmHtmlConstructorView: FC<{
     };
 
     const removeConstructor = async () => {
+        if (!onRemove) return;
+
         const confirmed = await confirm({
             title: i18n('confirm_remove_constructor_title'),
             message: i18n('confirm_remove_constructor_message'),
@@ -245,9 +268,7 @@ export const YfmHtmlConstructorView: FC<{
         });
         if (!confirmed) return;
 
-        const pos = getPos();
-        if (pos === undefined) return;
-        removeNode({node, pos, tr: view.state.tr, dispatch: view.dispatch});
+        await onRemove();
     };
 
     const applyStructureTheme = (theme?: HtmlConstructorThemeTemplate) => {
@@ -317,16 +338,13 @@ export const YfmHtmlConstructorView: FC<{
     // into the structure stylesheet (per-block CSS is cleared, as it now lives there).
     const commitStructureDocumentHtml = (html: string) => {
         const {content, blocks: nextBlocks} = parseStructureHtml(html, structure, blocks);
-        onChange({
-            [YfmHtmlConstructorConsts.NodeAttrs.structure]: {...structure, content},
-            [YfmHtmlConstructorConsts.NodeAttrs.blocks]: nextBlocks,
-        });
+        onChange({structure: {...structure, content}, blocks: nextBlocks});
     };
 
     const commitStructureDocumentCss = (css: string) => {
         onChange({
-            [YfmHtmlConstructorConsts.NodeAttrs.structure]: {...structure, css},
-            [YfmHtmlConstructorConsts.NodeAttrs.blocks]: blocks.map((block) => ({
+            structure: {...structure, css},
+            blocks: blocks.map((block) => ({
                 ...block,
                 css: '',
             })),
@@ -368,27 +386,6 @@ export const YfmHtmlConstructorView: FC<{
 
     const removeBlock = (id: string) => {
         setBlocks(blocks.filter((block) => block.id !== id));
-    };
-
-    const duplicateConstructor = () => {
-        const pos = getPos();
-        if (pos === undefined) return;
-
-        const nextNode = node.type.create({
-            ...node.attrs,
-            [YfmHtmlConstructorConsts.NodeAttrs.structure]: {
-                ...structure,
-                content: regenerateHtmlIds(structure.content),
-            },
-            [YfmHtmlConstructorConsts.NodeAttrs.blocks]: blocks.map(cloneHtmlConstructorBlock),
-            // Fresh entity id -> fresh scope hash, so the copy's scoped CSS does not
-            // collide with the original instance on the same page.
-            [YfmHtmlConstructorConsts.NodeAttrs.EntityId]: generateEntityId(
-                YfmHtmlConstructorConsts.NodeName,
-            ),
-        });
-
-        view.dispatch(view.state.tr.insert(pos + node.nodeSize, nextNode));
     };
 
     const renderStructurePanelContent = () => {
@@ -468,22 +465,6 @@ export const YfmHtmlConstructorView: FC<{
                 </Button>
             ),
         },
-        showStructureTemplatesButton && {
-            id: 'selectStructure',
-            node: (
-                <Button
-                    view="flat"
-                    size="s"
-                    className={stop}
-                    selected={structurePanel === 'templates'}
-                    onClick={() => toggleStructurePanel('templates')}
-                    aria-label={i18n('structure_templates')}
-                    title={i18n('structure_templates')}
-                >
-                    <Icon data={LayoutHeaderColumns} className={stop} />
-                </Button>
-            ),
-        },
         {
             id: 'structureTheme',
             node: (
@@ -514,13 +495,14 @@ export const YfmHtmlConstructorView: FC<{
                 onQuickStyleChange={(quickStyle) => patchStructure({quickStyle})}
                 styleDisabled={isEmptyConstructor}
                 onOpenSettings={() => toggleStructurePanel('settings')}
+                hideRawButton
                 primaryActions={structurePrimaryActions}
-                onDuplicate={duplicateConstructor}
-                onRemove={removeConstructor}
+                onDuplicate={onDuplicate}
+                onRemove={onRemove ? removeConstructor : undefined}
                 codeLabel={i18n('structure_settings')}
-                duplicateLabel={i18n('duplicate_constructor')}
-                removeLabel={i18n('remove_constructor')}
-                lockLabel={i18n('lock_constructor')}
+                duplicateLabel={duplicateLabel}
+                removeLabel={removeLabel}
+                lockLabel={lockLabel}
                 expandedContentView={structurePanel === 'settings' ? 'editor' : 'panel'}
                 onCloseExpandedContent={closeStructurePanel}
                 expandedContent={structurePanelContent}
@@ -590,5 +572,65 @@ export const YfmHtmlConstructorView: FC<{
                 {!isEmptyConstructor && structureEditing.overlay}
             </div>
         </div>
+    );
+};
+
+export const YfmHtmlConstructorView: FC<{
+    node: Node;
+    getPos: () => number | undefined;
+    view: EditorView;
+    onChange: (attrs: Partial<Node['attrs']>) => void;
+    options: YfmHtmlConstructorExtensionOptions;
+}> = ({node, getPos, view, onChange, options}) => {
+    const structure = readStructure(node);
+    const blocks = readBlocks(node);
+    const entityId = String(node.attrs[YfmHtmlConstructorConsts.NodeAttrs.EntityId] ?? '');
+
+    const handleChange = (state: YfmHtmlConstructorEditorState) => {
+        onChange({
+            [YfmHtmlConstructorConsts.NodeAttrs.structure]: state.structure,
+            [YfmHtmlConstructorConsts.NodeAttrs.blocks]: state.blocks,
+        });
+    };
+
+    const duplicateConstructor = () => {
+        const pos = getPos();
+        if (pos === undefined) return;
+
+        const nextNode = node.type.create({
+            ...node.attrs,
+            [YfmHtmlConstructorConsts.NodeAttrs.structure]: {
+                ...structure,
+                content: regenerateHtmlIds(structure.content),
+            },
+            [YfmHtmlConstructorConsts.NodeAttrs.blocks]: blocks.map(cloneHtmlConstructorBlock),
+            // Fresh entity id -> fresh scope hash, so the copy's scoped CSS does not
+            // collide with the original instance on the same page.
+            [YfmHtmlConstructorConsts.NodeAttrs.EntityId]: generateEntityId(
+                YfmHtmlConstructorConsts.NodeName,
+            ),
+        });
+
+        view.dispatch(view.state.tr.insert(pos + node.nodeSize, nextNode));
+    };
+
+    const removeConstructor = () => {
+        const pos = getPos();
+        if (pos === undefined) return;
+        removeNode({node, pos, tr: view.state.tr, dispatch: view.dispatch});
+    };
+
+    return (
+        <YfmHtmlConstructorEditor
+            state={{structure, blocks}}
+            entityId={entityId}
+            options={options}
+            onChange={handleChange}
+            onDuplicate={duplicateConstructor}
+            onRemove={removeConstructor}
+            duplicateLabel={i18n('duplicate_constructor')}
+            removeLabel={i18n('remove_constructor')}
+            lockLabel={i18n('lock_constructor')}
+        />
     );
 };

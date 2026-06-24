@@ -26,7 +26,7 @@ export interface CodeFrame {
     bottom: string;
 }
 
-interface CodeEditorPaneProps {
+export interface CodeEditorPaneProps {
     label: string;
     value: string;
     placeholder: string;
@@ -38,7 +38,7 @@ interface CodeEditorPaneProps {
     frame?: CodeFrame;
 }
 
-const CodeEditorPane: FC<CodeEditorPaneProps> = ({
+export const CodeEditorPane: FC<CodeEditorPaneProps> = ({
     label,
     value,
     placeholder,

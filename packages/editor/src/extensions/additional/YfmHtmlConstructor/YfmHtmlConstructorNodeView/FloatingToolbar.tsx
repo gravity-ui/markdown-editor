@@ -74,6 +74,8 @@ type FloatingToolbarProps = {
      */
     constrainToParent?: boolean;
     onOpenSettings: () => void;
+    /** Hide the raw/code (open-settings) button. */
+    hideRawButton?: boolean;
     primaryActions?: FloatingToolbarPrimaryAction[];
     onDuplicate?: () => void;
     onRemove?: () => void;
@@ -147,6 +149,7 @@ export const FloatingToolbar: FC<FloatingToolbarProps> = ({
     onQuickStyleChange,
     styleDisabled = false,
     onOpenSettings,
+    hideRawButton = false,
     primaryActions = [],
     onDuplicate,
     onRemove,
@@ -585,11 +588,12 @@ export const FloatingToolbar: FC<FloatingToolbarProps> = ({
             group: 'primary' as const,
             node: action.node,
         })),
-        enabled.hasRaw && {
-            id: 'raw' as const,
-            group: 'primary' as const,
-            node: renderRawButton(),
-        },
+        enabled.hasRaw &&
+            !hideRawButton && {
+                id: 'raw' as const,
+                group: 'primary' as const,
+                node: renderRawButton(),
+            },
         enabled.hasBackground && {
             id: 'background' as const,
             group: 'style' as const,

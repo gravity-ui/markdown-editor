@@ -4,6 +4,9 @@
   "search_templates": "Search by name",
   "templates_empty": "No templates",
   "templates_input_placeholder": "<template id=\"hero\" title=\"Hero\">\n  <div>Your HTML</div>\n</template>",
+  "tab_preview": "Preview",
+  "tab_constructor": "Constructor",
+  "tab_html": "HTML",
   "save": "Save",
   "cancel": "Cancel"
 }
