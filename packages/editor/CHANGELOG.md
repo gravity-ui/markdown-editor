@@ -1,5 +1,13 @@
 # Changelog
 
+## [15.41.1](https://github.com/gravity-ui/markdown-editor/compare/markdown-editor-v15.41.0...markdown-editor-v15.41.1) (2026-06-24)
+
+
+### Bug Fixes
+
+* **Mermaid:** improve preformance when editing mermaid diagram in wysiwyg mode ([#1158](https://github.com/gravity-ui/markdown-editor/issues/1158)) ([0d1ddc1](https://github.com/gravity-ui/markdown-editor/commit/0d1ddc1e49d374054578d8320497e88976105249))
+* **view:** avoid UI freeze when gallery processes data URI links ([#1159](https://github.com/gravity-ui/markdown-editor/issues/1159)) ([2d6be02](https://github.com/gravity-ui/markdown-editor/commit/2d6be02cb2e8ab7aa32a2dcccf576942c62fe6d9))
+
 ## [15.41.0](https://github.com/gravity-ui/markdown-editor/compare/markdown-editor-v15.40.0...markdown-editor-v15.41.0) (2026-06-11)
 
 
