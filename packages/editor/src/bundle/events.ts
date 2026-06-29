@@ -16,4 +16,5 @@ export interface EventMap {
     'change-editor-mode': {mode: MarkdownEditorMode};
     'change-toolbar-visibility': {visible: boolean};
     'change-split-mode-enabled': {splitModeEnabled: boolean};
+    'change-preview-visible': {visible: boolean};
 }
