@@ -56,10 +56,24 @@ const YfmHtmlBlockSpecsExtension: ExtensionAuto<YfmHtmlBlockSpecsOptions> = (
                 toDOM: (node) => ['iframe', node.attrs],
             },
             toMd: (state, node) => {
+                // The parser includes the line break before closing ::: in srcdoc.
+                // Drop only that structural newline; any remaining trailing newline is content.
+                const srcdoc = String(
+                    node.attrs[YfmHtmlBlockConsts.NodeAttrs.srcdoc] || '',
+                ).replace(/\n$/, '');
+
                 state.write('::: html');
-                state.write('\n');
-                state.write(node.attrs[YfmHtmlBlockConsts.NodeAttrs.srcdoc]);
                 state.ensureNewLine();
+
+                if (srcdoc) {
+                    state.text(srcdoc, false);
+                    // At top level, state.text() has no visible delimiter for a final empty line.
+                    if (srcdoc.endsWith('\n') && state.atBlank()) {
+                        state.write('\n');
+                    }
+                    state.ensureNewLine();
+                }
+
                 state.write(':::');
                 state.closeBlock(node);
             },
