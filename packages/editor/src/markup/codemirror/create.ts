@@ -54,6 +54,8 @@ import {type FileUploadHandler, FileUploadHandlerFacet} from './files-upload-fac
 import {FilesUploadPlugin} from './files-upload-plugin';
 import {gravityHighlightStyle, gravityTheme} from './gravity';
 import {MarkdownConverter} from './html-to-markdown/converters';
+import {markupLineNumbers} from './line-highlight';
+import type {MarkupLineNumbersConfig} from './line-highlight/types';
 import {LoggerFacet} from './logger-facet';
 import {PairingCharactersExtension} from './pairing-chars';
 import {ReactRendererFacet} from './react-facet';
@@ -95,6 +97,7 @@ export type CreateCodemirrorParams = {
     directiveSyntax: DirectiveSyntaxContext;
     preserveEmptyRows: boolean;
     searchPanel?: boolean;
+    lineNumbers?: MarkupLineNumbersConfig;
 };
 
 export function createCodemirror(params: CreateCodemirrorParams) {
@@ -326,6 +329,10 @@ export function createCodemirror(params: CreateCodemirrorParams) {
 
     if (tooltipsConfig) {
         extensions.push(tooltips(tooltipsConfig));
+    }
+
+    if (params.lineNumbers?.enabled) {
+        extensions.push(markupLineNumbers(params.lineNumbers));
     }
 
     if (extraExtensions) {
