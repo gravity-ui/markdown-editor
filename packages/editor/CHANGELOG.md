@@ -1,5 +1,12 @@
 # Changelog
 
+## [15.43.0](https://github.com/gravity-ui/markdown-editor/compare/markdown-editor-v15.42.0...markdown-editor-v15.43.0) (2026-07-01)
+
+
+### Features
+
+* **Link:** update link creation and editing view ([#1154](https://github.com/gravity-ui/markdown-editor/issues/1154)) ([c7fb421](https://github.com/gravity-ui/markdown-editor/commit/c7fb421f1614d5428bf26f0d8b6c249affa7c62f))
+
 ## [15.42.0](https://github.com/gravity-ui/markdown-editor/compare/markdown-editor-v15.41.1...markdown-editor-v15.42.0) (2026-06-30)
 
 
