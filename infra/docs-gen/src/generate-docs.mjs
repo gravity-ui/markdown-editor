@@ -11,6 +11,8 @@ import {dirname, join, resolve} from 'node:path';
 import process from 'node:process';
 import {fileURLToPath} from 'node:url';
 
+import {listExtensionNames} from './extract-extension-data.mjs';
+
 const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '../../..');
 const DOCS_DIR = join(REPO_ROOT, 'docs');
 const OUT_DIR = join(REPO_ROOT, 'tmp/docs-src');
@@ -124,6 +126,15 @@ function computeOutputPath(doc) {
         return join(slugify(doc.category), slugify(doc.title) + '.md');
     }
     return slugify(doc.title) + '.md';
+}
+
+function collectExtensionDocs() {
+    return listExtensionNames().map((name) => ({
+        sourceFile: `generated:extension:${name}`,
+        category: 'Extension Reference',
+        title: name,
+        content: `# ${name}\n`,
+    }));
 }
 
 /**
@@ -257,7 +268,7 @@ function writeYfmConfig() {
 function main() {
     cleanOutDir();
 
-    const docs = collectDocs();
+    const docs = [...collectDocs(), ...collectExtensionDocs()];
     const {categories, topLevel} = groupByCategory(docs);
 
     writeYfmConfig();
