@@ -1,5 +1,18 @@
 # Changelog
 
+## [15.42.0](https://github.com/gravity-ui/markdown-editor/compare/markdown-editor-v15.41.1...markdown-editor-v15.42.0) (2026-06-30)
+
+
+### Features
+
+* **bundle:** add changePreviewVisible method to editor api ([#1153](https://github.com/gravity-ui/markdown-editor/issues/1153)) ([2d5a7bb](https://github.com/gravity-ui/markdown-editor/commit/2d5a7bbf0bbeef8ed1d3da82db6d26a716567773))
+
+
+### Bug Fixes
+
+* **bundle:** fixed opening of drop-down list in ToolbarSelect component ([#1165](https://github.com/gravity-ui/markdown-editor/issues/1165)) ([513b3b9](https://github.com/gravity-ui/markdown-editor/commit/513b3b90eac4fb8fc248bd3048995cc7c8eb6a09))
+* **YfmHtmlBlock:** preserve nested html block serialization ([#1162](https://github.com/gravity-ui/markdown-editor/issues/1162)) ([58dffe0](https://github.com/gravity-ui/markdown-editor/commit/58dffe04b93ada8a2c41a271fc9a29c3eb93faba))
+
 ## [15.41.1](https://github.com/gravity-ui/markdown-editor/compare/markdown-editor-v15.41.0...markdown-editor-v15.41.1) (2026-06-24)
 
 
