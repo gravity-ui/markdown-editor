@@ -82,7 +82,6 @@ export const Link = memo<LinkProps>(function LinkForm({
                 className={b('submit-button')}
                 view="action"
                 size="l"
-                width="max"
                 onClick={handleSubmit}
             >
                 {i18n('link_add')}
