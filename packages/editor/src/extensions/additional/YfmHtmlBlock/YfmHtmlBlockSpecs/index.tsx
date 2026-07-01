@@ -47,13 +47,27 @@ const YfmHtmlBlockSpecsExtension: ExtensionAuto<YfmHtmlBlockSpecsOptions> = (
                 group: 'block',
                 attrs: {
                     [YfmHtmlBlockConsts.NodeAttrs.class]: {default: 'yfm-html'},
+                    [YfmHtmlBlockConsts.NodeAttrs.constructorBlocks]: {default: null},
+                    [YfmHtmlBlockConsts.NodeAttrs.constructorStructure]: {default: null},
                     [YfmHtmlBlockConsts.NodeAttrs.frameborder]: {default: ''},
                     [YfmHtmlBlockConsts.NodeAttrs.srcdoc]: {default: ''},
                     [YfmHtmlBlockConsts.NodeAttrs.style]: {default: null},
                     [YfmHtmlBlockConsts.NodeAttrs.newCreated]: {default: null},
                     [YfmHtmlBlockConsts.NodeAttrs.EntityId]: {default: defaultYfmHtmlBlockEntityId},
                 },
-                toDOM: (node) => ['iframe', node.attrs],
+                toDOM: (node) => [
+                    'iframe',
+                    {
+                        [YfmHtmlBlockConsts.NodeAttrs.class]:
+                            node.attrs[YfmHtmlBlockConsts.NodeAttrs.class],
+                        [YfmHtmlBlockConsts.NodeAttrs.frameborder]:
+                            node.attrs[YfmHtmlBlockConsts.NodeAttrs.frameborder],
+                        [YfmHtmlBlockConsts.NodeAttrs.srcdoc]:
+                            node.attrs[YfmHtmlBlockConsts.NodeAttrs.srcdoc],
+                        [YfmHtmlBlockConsts.NodeAttrs.style]:
+                            node.attrs[YfmHtmlBlockConsts.NodeAttrs.style],
+                    },
+                ],
             },
             toMd: (state, node) => {
                 // The parser includes the line break before closing ::: in srcdoc.
