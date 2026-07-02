@@ -968,6 +968,74 @@ test.describe('YfmTable', () => {
             await expect(cellsLocator.nth(1)).toHaveAttribute('data-bg', 'green');
         });
 
+        test('should propagate row background when first cell already has target color', async ({
+            mount,
+            editor,
+        }) => {
+            const initial = dd`
+            #|
+            ||::{bg="yellow"} one   | two  ||
+            ||                three | four ||
+            |#
+            `;
+
+            await mount(<Playground initial={initial} yfmMods={yfmMods} />);
+
+            const tableLocator = (
+                await editor.yfmTable.getTable(editor.locators.contenteditable)
+            ).first();
+            const cellsLocator = await editor.yfmTable.getCells(tableLocator);
+            const firstCell = cellsLocator.first();
+            const rowButton = (await editor.yfmTable.getRowButtons(tableLocator)).first();
+
+            await expect(cellsLocator.nth(0)).toHaveAttribute('data-bg', 'yellow');
+            await expect(cellsLocator.nth(1)).not.toHaveAttribute('data-bg');
+
+            await editor.yfmTable.focusFirstCell(tableLocator);
+            await firstCell.hover();
+            await rowButton.click();
+            await editor.yfmTable.selectCellBg('row', 'Yellow');
+
+            await expect(cellsLocator.nth(0)).toHaveAttribute('data-bg', 'yellow');
+            await expect(cellsLocator.nth(1)).toHaveAttribute('data-bg', 'yellow');
+            await expect(cellsLocator.nth(2)).not.toHaveAttribute('data-bg');
+            await expect(cellsLocator.nth(3)).not.toHaveAttribute('data-bg');
+        });
+
+        test('should propagate column background when first cell already has target color', async ({
+            mount,
+            editor,
+        }) => {
+            const initial = dd`
+            #|
+            ||::{bg="blue"} one   | two  ||
+            ||              three | four ||
+            |#
+            `;
+
+            await mount(<Playground initial={initial} yfmMods={yfmMods} />);
+
+            const tableLocator = (
+                await editor.yfmTable.getTable(editor.locators.contenteditable)
+            ).first();
+            const cellsLocator = await editor.yfmTable.getCells(tableLocator);
+            const firstCell = cellsLocator.first();
+            const columnButton = (await editor.yfmTable.getColumnButtons(tableLocator)).first();
+
+            await expect(cellsLocator.nth(0)).toHaveAttribute('data-bg', 'blue');
+            await expect(cellsLocator.nth(2)).not.toHaveAttribute('data-bg');
+
+            await editor.yfmTable.focusFirstCell(tableLocator);
+            await firstCell.hover();
+            await columnButton.click();
+            await editor.yfmTable.selectCellBg('column', 'Blue');
+
+            await expect(cellsLocator.nth(0)).toHaveAttribute('data-bg', 'blue');
+            await expect(cellsLocator.nth(2)).toHaveAttribute('data-bg', 'blue');
+            await expect(cellsLocator.nth(1)).not.toHaveAttribute('data-bg');
+            await expect(cellsLocator.nth(3)).not.toHaveAttribute('data-bg');
+        });
+
         test('should apply column color independently from row color', async ({
             page,
             wait,
