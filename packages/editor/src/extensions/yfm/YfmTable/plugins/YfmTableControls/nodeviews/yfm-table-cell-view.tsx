@@ -362,7 +362,11 @@ class YfmTableCellView implements NodeView {
     };
 
     private _onRowSetCellBg = (bg: string | null) => {
-        this._logger.event({event: 'row-set-cell-bg', source: 'row-menu'});
+        this._logger.event({
+            event: 'row-set-cell-bg',
+            source: 'row-menu',
+            value: bg || 'no-color',
+        });
 
         const info = this._getCellInfo();
         if (info) {
@@ -376,7 +380,11 @@ class YfmTableCellView implements NodeView {
     };
 
     private _onColumnSetCellBg = (bg: string | null) => {
-        this._logger.event({event: 'column-set-cell-bg', source: 'column-menu'});
+        this._logger.event({
+            event: 'column-set-cell-bg',
+            source: 'column-menu',
+            value: bg || 'no-color',
+        });
 
         const info = this._getCellInfo();
         if (info) {
