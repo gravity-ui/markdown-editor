@@ -1255,7 +1255,7 @@ test.describe('YfmTable', () => {
                 await editor.yfmTable.getTable(editor.locators.contenteditable)
             ).first();
             const cellsLocator = await editor.yfmTable.getCells(tableLocator);
-            const rowButton = (await editor.yfmTable.getRowButtons(tableLocator)).nth(1);
+            const rowButton = (await editor.yfmTable.getRowButtons(tableLocator)).first();
 
             await editor.yfmTable.focusFirstCell(tableLocator);
             await cellsLocator.nth(2).hover(); // second row
@@ -1318,7 +1318,7 @@ test.describe('YfmTable', () => {
                 await editor.yfmTable.getTable(editor.locators.contenteditable)
             ).first();
             const cellsLocator = await editor.yfmTable.getCells(tableLocator);
-            const columnButton = (await editor.yfmTable.getColumnButtons(tableLocator)).nth(1);
+            const columnButton = (await editor.yfmTable.getColumnButtons(tableLocator)).first();
 
             await editor.yfmTable.focusFirstCell(tableLocator);
             await cellsLocator.nth(1).hover(); // second column
