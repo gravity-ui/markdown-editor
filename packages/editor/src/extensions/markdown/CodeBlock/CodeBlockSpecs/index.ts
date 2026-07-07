@@ -105,7 +105,6 @@ export const CodeBlockSpecs: ExtensionAuto<CodeBlockSpecsOptions> = (builder, op
         },
         toMd: (state, node) => {
             const lang: string = node.attrs[CodeBlockNodeAttr.Lang];
-            const markup: string = node.attrs[CodeBlockNodeAttr.Markup];
             const showLineNumbers: string = opts.lineNumbers?.enabled
                 ? node.attrs[CodeBlockNodeAttr.ShowLineNumbers]
                 : '';
@@ -116,11 +115,18 @@ export const CodeBlockSpecs: ExtensionAuto<CodeBlockSpecsOptions> = (builder, op
                 info += ' showLineNumbers';
             }
 
-            state.write(markup + info + '\n');
+            // The fence must be longer than any run of the same fence character
+            // in the content, otherwise such a run would close the block early.
+            const fence = getCodeBlockFence(
+                node.attrs[CodeBlockNodeAttr.Markup] || '',
+                node.textContent,
+            );
+
+            state.write(fence + info + '\n');
             state.text(node.textContent, false);
             // Add a newline to the current content before adding closing marker
             state.write('\n');
-            state.write(markup);
+            state.write(fence);
             state.closeBlock(node);
         },
     }));
@@ -167,4 +173,27 @@ export const CodeBlockSpecs: ExtensionAuto<CodeBlockSpecsOptions> = (builder, op
 
 function removeNewLineAtEnd(content: string): string {
     return content.endsWith('\n') ? content.slice(0, content.length - 1) : content;
+}
+
+/**
+ * Builds a fence that is guaranteed not to be closed by its own content.
+ *
+ * A fenced code block is closed by a line consisting of a run of the fence
+ * character that is at least as long as the opening fence. So if the content
+ * contains such a run, the fence must be made longer than the longest run.
+ */
+function getCodeBlockFence(markup: string, content: string): string {
+    markup = markup.trim() || '```';
+    const fenceChar = markup.startsWith('~') ? '~' : '`';
+    let length = Math.max(markup.length, 3);
+
+    const match = content.match(fenceChar === '~' ? /~{3,}/g : /`{3,}/g);
+    if (match) {
+        const longest = match.reduce((max, run) => Math.max(max, run.length), 0);
+        if (longest >= length) {
+            length = longest + 1;
+        }
+    }
+
+    return fenceChar.repeat(length);
 }

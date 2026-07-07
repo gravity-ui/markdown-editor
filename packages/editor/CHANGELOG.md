@@ -1,5 +1,21 @@
 # Changelog
 
+## [15.43.0](https://github.com/gravity-ui/markdown-editor/compare/markdown-editor-v15.42.0...markdown-editor-v15.43.0) (2026-07-07)
+
+
+### Features
+
+* **Link:** update link creation and editing view ([#1154](https://github.com/gravity-ui/markdown-editor/issues/1154)) ([c7fb421](https://github.com/gravity-ui/markdown-editor/commit/c7fb421f1614d5428bf26f0d8b6c249affa7c62f))
+* **YfmTable:** inherit cell background on row/column add ([#1170](https://github.com/gravity-ui/markdown-editor/issues/1170)) ([c3ebbf7](https://github.com/gravity-ui/markdown-editor/commit/c3ebbf7f9c22a357e75a6293d70f2d463f085f11))
+* **YfmTable:** remove background from selected table cells ([#1169](https://github.com/gravity-ui/markdown-editor/issues/1169)) ([89ca7a6](https://github.com/gravity-ui/markdown-editor/commit/89ca7a67d28b8a4895576bf8d04ebe2c6b23e3fe))
+
+
+### Bug Fixes
+
+* **CodeBlock:** preserve code content containing fence sequences ([#1172](https://github.com/gravity-ui/markdown-editor/issues/1172)) ([fefb171](https://github.com/gravity-ui/markdown-editor/commit/fefb17125f9d556f13f2431b3848c3051c08d665))
+* **YfmTable:** fix color propagation to already colored cells ([#1168](https://github.com/gravity-ui/markdown-editor/issues/1168)) ([0fdabeb](https://github.com/gravity-ui/markdown-editor/commit/0fdabebd4f12cf8b09f2ed2f2a709a13bd48cd4b))
+* **YfmTable:** include color value in row/column bg logging events ([#1173](https://github.com/gravity-ui/markdown-editor/issues/1173)) ([c708421](https://github.com/gravity-ui/markdown-editor/commit/c70842144e8aff345ced6d22c1367e7139624b81))
+
 ## [15.42.0](https://github.com/gravity-ui/markdown-editor/compare/markdown-editor-v15.41.1...markdown-editor-v15.42.0) (2026-06-30)
 
 

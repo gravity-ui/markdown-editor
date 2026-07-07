@@ -143,19 +143,20 @@ test.describe('Link', () => {
     }) => {
         test.skip(browserName === 'webkit', 'fillFocused does not work correctly in webkit');
 
+        await editor.fill('Lorem ipsum dolor sit amet, \nconsectetur adipiscing elit. \n');
+
+        await actions.pressFocused('ArrowUp', 2);
+        await actions.pressFocused('Enter');
+        await actions.pressFocused('ArrowUp');
+
         await editor.clickMainToolbarButton('Link');
         await editor.link.assertFormToBeVisible();
-        await wait.timeout(300);
+        await wait.timeout(500);
 
         await actions.fillFocused('gravity-ui.com');
 
         await page.mouse.move(0, 0);
-
-        await expectScreenshot({
-            nameSuffix: 'form-with-url',
-            fullPage: true,
-            clip: {x: 0, y: 0, width: 812, height: 1000},
-        });
+        await expectScreenshot({nameSuffix: 'form-with-url'});
 
         await page.mouse.click(0, 0);
         await wait.timeout(300);
