@@ -362,7 +362,11 @@ class YfmTableCellView implements NodeView {
     };
 
     private _onRowSetCellBg = (bg: string | null) => {
-        this._logger.event({event: 'row-set-cell-bg', source: 'row-menu'});
+        this._logger.event({
+            event: 'row-set-cell-bg',
+            source: 'row-menu',
+            value: bg || 'no-color',
+        });
 
         const info = this._getCellInfo();
         if (info) {
@@ -376,7 +380,11 @@ class YfmTableCellView implements NodeView {
     };
 
     private _onColumnSetCellBg = (bg: string | null) => {
-        this._logger.event({event: 'column-set-cell-bg', source: 'column-menu'});
+        this._logger.event({
+            event: 'column-set-cell-bg',
+            source: 'column-menu',
+            value: bg || 'no-color',
+        });
 
         const info = this._getCellInfo();
         if (info) {
@@ -395,7 +403,7 @@ class YfmTableCellView implements NodeView {
         const info = this._getCellInfo();
         if (info) {
             const rowRange = info.tableDesc.base.getRowRangeByRowIdx(info.cell.row);
-            this._insertRow(info.tableDesc, rowRange.startIdx);
+            this._insertRow(info.tableDesc, rowRange.startIdx, rowRange.startIdx);
         }
 
         this._view.focus();
@@ -407,14 +415,14 @@ class YfmTableCellView implements NodeView {
         const info = this._getCellInfo();
         if (info) {
             const rowRange = info.tableDesc.base.getRowRangeByRowIdx(info.cell.row);
-            this._insertRow(info.tableDesc, rowRange.endIdx + 1);
+            this._insertRow(info.tableDesc, rowRange.endIdx + 1, rowRange.endIdx);
         }
 
         this._view.focus();
     };
 
-    private _insertRow(tableDesc: TableDescBinded, rowIndex: number) {
-        insertEmptyRow({tablePos: tableDesc.pos, rowIndex})(
+    private _insertRow(tableDesc: TableDescBinded, rowIndex: number, sourceRowIndex: number) {
+        insertEmptyRow({tablePos: tableDesc.pos, rowIndex, sourceRowIndex})(
             this._view.state,
             this._view.dispatch,
             this._view,
@@ -427,7 +435,7 @@ class YfmTableCellView implements NodeView {
         const info = this._getCellInfo();
         if (info) {
             const colRange = info.tableDesc.base.getColumnRangeByColumnIdx(info.cell.column);
-            this._insertColumn(info.tableDesc, colRange.startIdx);
+            this._insertColumn(info.tableDesc, colRange.startIdx, colRange.startIdx);
         }
 
         this._view.focus();
@@ -439,14 +447,14 @@ class YfmTableCellView implements NodeView {
         const info = this._getCellInfo();
         if (info) {
             const colRange = info.tableDesc.base.getColumnRangeByColumnIdx(info.cell.column);
-            this._insertColumn(info.tableDesc, colRange.endIdx + 1);
+            this._insertColumn(info.tableDesc, colRange.endIdx + 1, colRange.endIdx);
         }
 
         this._view.focus();
     };
 
-    private _insertColumn(tableDesc: TableDescBinded, colIndex: number) {
-        insertEmptyColumn({tablePos: tableDesc.pos, colIndex})(
+    private _insertColumn(tableDesc: TableDescBinded, colIndex: number, sourceColIndex: number) {
+        insertEmptyColumn({tablePos: tableDesc.pos, colIndex, sourceColIndex})(
             this._view.state,
             this._view.dispatch,
             this._view,
