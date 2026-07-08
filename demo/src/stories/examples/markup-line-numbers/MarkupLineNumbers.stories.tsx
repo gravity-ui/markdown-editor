@@ -30,3 +30,13 @@ export const InitialSelectionRange: Story = {
     },
 };
 InitialSelectionRange.storyName = 'Initial Selection: Line Range';
+
+export const WithoutLineNumbers: Story = {
+    args: {
+        lineNumbers: {
+            enabled: false,
+            initialSelection: {lineFrom: 5, lineTo: 10},
+        },
+    },
+};
+InitialSelectionRange.storyName = 'Selection without line numbers';
