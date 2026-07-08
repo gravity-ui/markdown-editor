@@ -490,7 +490,7 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
 
     applyInitialLineSelection(): void {
         const selection = this.#markupConfig.lineNumbers?.initialSelection;
-        if (!this.#markupConfig.lineNumbers?.enabled || !selection) {
+        if (!selection) {
             return;
         }
 
