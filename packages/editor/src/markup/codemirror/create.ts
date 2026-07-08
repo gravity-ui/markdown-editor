@@ -18,6 +18,7 @@ import {
     placeholder,
     tooltips,
 } from '@codemirror/view';
+
 import {InputState} from 'src/utils/input-state';
 
 import {ActionName} from '../../bundle/config/action-names';
