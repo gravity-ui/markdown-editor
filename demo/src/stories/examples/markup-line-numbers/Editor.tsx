@@ -1,13 +1,7 @@
-import {memo, useState} from 'react';
+import {memo} from 'react';
 
-import {
-    MarkdownEditorView,
-    NumberInput,
-    setHighlightedLine,
-    useMarkdownEditor,
-} from '@gravity-ui/markdown-editor';
+import {MarkdownEditorView, useMarkdownEditor} from '@gravity-ui/markdown-editor';
 import type {MarkupLineNumbersConfig} from '@gravity-ui/markdown-editor';
-import {Button, Flex} from '@gravity-ui/uikit';
 
 import {PlaygroundLayout} from '../../../components/PlaygroundLayout';
 
@@ -34,15 +28,17 @@ const longMarkup = [
     'clicking on a line number in the gutter will highlight that entire line.',
     'This extension automatically includes line numbers as well.',
     '',
-    'You can also programmatically highlight a line using the',
-    '`setHighlightedLine` StateEffect exported from the package.',
-    '',
-    '### Scroll to Line',
-    '',
-    'The `markupConfig.lineNumbers.scrollToLine` option allows you to scroll the',
-    'editor to a specific line (0-based) on mount. This is useful',
-    'when you want to draw attention to a particular section of',
-    'a long document.',
+    '```typescript',
+    'const editor = useMarkdownEditor({',
+    "    initial: {mode: 'markup'},",
+    '    markupConfig: {',
+    '        lineNumbers: {',
+    '            enabled: true,',
+    '            initialSelection: {lineFrom: 5, lineTo: 10},',
+    '        },',
+    '    },',
+    '});',
+    '```',
     '',
     '## Example Content',
     '',
@@ -60,23 +56,15 @@ const longMarkup = [
     '### Code Block',
     '',
     '```typescript',
-    "import {lineHighlight, useMarkdownEditor} from '@gravity-ui/markdown-editor';",
-    '',
-    'const editor = useMarkdownEditor({',
-    "    initial: {mode: 'markup'},",
-    '    markupConfig: {',
-    '        extensions: [lineHighlight()],',
-    '    },',
-    '});',
+    "import {useMarkdownEditor} from '@gravity-ui/markdown-editor';",
     '```',
     '',
     '### Table',
     '',
     '| Feature | Option | Default |',
     '|---------|--------|---------|',
-    '| Line numbers | `markupConfig.lineNumbers` | `false` |',
-    '| Highlight line | `markupConfig.extensions: [lineHighlight()]` | — |',
-    '| Scroll to line | `markupConfig.lineNumbers.scrollToLine` | `undefined` |',
+    '| Line numbers | `markupConfig.lineNumbers.enabled` | `false` |',
+    '| Initial selection | `markupConfig.lineNumbers.initialSelection` | `undefined` |',
     '',
     '### More Text',
     '',
@@ -90,11 +78,11 @@ const longMarkup = [
     '',
     '### Final Section',
     '',
-    'This is the end of the demo document. If `scrollToLine` is set',
+    'This is the end of the demo document. If `initialSelection.lineFrom` is set',
     'to a value like 20, the editor should scroll to approximately',
     'this area of the document on initialization.',
     '',
-    '> **Tip:** Try clicking on line numbers in the gutter to highlight lines!',
+    '> **Tip:** Click anywhere in the editor to clear the initial selection.',
 ].join('\n');
 
 export type MarkupLineNumbersEditorProps = {
@@ -103,24 +91,6 @@ export type MarkupLineNumbersEditorProps = {
 
 export const MarkupLineNumbersEditor = memo<MarkupLineNumbersEditorProps>(
     function MarkupLineNumbersEditor({lineNumbers}) {
-        const [fromLine, setFromLine] = useState<number | undefined>(
-            lineNumbers?.initialSelectedLines?.from ?? 0,
-        );
-        const [toLine, setToLine] = useState<number | undefined>(
-            lineNumbers?.initialSelectedLines?.to ?? 0,
-        );
-        const [lastClickedLine, setLastClickedLine] = useState<number | null>(null);
-
-        const markupLineNumbers: MarkupLineNumbersConfig | undefined = lineNumbers
-            ? {
-                  ...lineNumbers,
-                  onLineClick: (line) => {
-                      lineNumbers.onLineClick?.(line);
-                      setLastClickedLine(line);
-                  },
-              }
-            : undefined;
-
         const editor = useMarkdownEditor(
             {
                 initial: {
@@ -128,66 +98,16 @@ export const MarkupLineNumbersEditor = memo<MarkupLineNumbersEditorProps>(
                     markup: longMarkup,
                 },
                 markupConfig: {
-                    lineNumbers: markupLineNumbers,
+                    lineNumbers,
                 },
             },
             [],
         );
 
-        const handleHighlightLine = () => {
-            if (typeof fromLine !== 'number' || Number.isNaN(fromLine)) return;
-            if (typeof toLine !== 'number' || Number.isNaN(toLine)) return;
-
-            const cm = (editor as any).cm;
-            if (cm) {
-                cm.dispatch({effects: setHighlightedLine.of({from: fromLine, to: toLine})});
-            }
-        };
-
         return (
             <PlaygroundLayout
                 title="Markup Line Numbers"
                 editor={editor}
-                actions={({className}) =>
-                    lineNumbers?.highlightLines ? (
-                        <Flex gap="2" className={className} alignItems="center">
-                            <span>From line:</span>
-                            <NumberInput
-                                size="s"
-                                value={fromLine}
-                                onUpdate={setFromLine}
-                                min={0}
-                                style={{width: '72px'}}
-                            />
-                            <span>To line:</span>
-                            <NumberInput
-                                size="s"
-                                value={toLine}
-                                onUpdate={setToLine}
-                                min={0}
-                                style={{width: '72px'}}
-                            />
-                            <Button size="s" onClick={handleHighlightLine}>
-                                Highlight
-                            </Button>
-                            <Button
-                                size="s"
-                                view="outlined"
-                                onClick={() => {
-                                    const cm = (editor as any).cm;
-                                    if (cm) {
-                                        cm.dispatch({effects: setHighlightedLine.of(null)});
-                                    }
-                                }}
-                            >
-                                Clear
-                            </Button>
-                            {lastClickedLine !== null && (
-                                <span>Last clicked: line {lastClickedLine + 1}</span>
-                            )}
-                        </Flex>
-                    ) : null
-                }
                 view={({className}) => (
                     <MarkdownEditorView
                         autofocus

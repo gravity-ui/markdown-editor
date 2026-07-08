@@ -11,51 +11,22 @@ export default meta;
 
 type Story = StoryObj<typeof MarkupLineNumbersEditor>;
 
-export const LineNumbersOnly: Story = {
-    args: {
-        lineNumbers: {enabled: true},
-    },
-};
-LineNumbersOnly.storyName = 'Line Numbers Only';
-
-export const HighlightLine: Story = {
-    args: {
-        lineNumbers: {enabled: true, highlightLines: true},
-    },
-};
-HighlightLine.storyName = 'Highlight Line';
-
-export const HighlightMultipleLines: Story = {
+export const InitialSelectionSingleLine: Story = {
     args: {
         lineNumbers: {
             enabled: true,
-            highlightLines: true,
-            initialSelectedLines: {from: 5, to: 10},
+            initialSelection: {lineFrom: 20},
         },
     },
 };
-HighlightMultipleLines.storyName = 'Highlight Multiple Lines';
+InitialSelectionSingleLine.storyName = 'Initial Selection: Single Line';
 
-export const ScrollToLine: Story = {
+export const InitialSelectionRange: Story = {
     args: {
         lineNumbers: {
             enabled: true,
-            scrollToLine: 20,
-            initialSelectedLines: {from: 20, to: 20},
-            highlightLines: true,
+            initialSelection: {lineFrom: 5, lineTo: 10},
         },
     },
 };
-ScrollToLine.storyName = 'Scroll to Line';
-
-export const AllFeatures: Story = {
-    args: {
-        lineNumbers: {
-            enabled: true,
-            highlightLines: true,
-            initialSelectedLines: {from: 20, to: 25},
-            scrollToLine: 20,
-        },
-    },
-};
-AllFeatures.storyName = 'All Features';
+InitialSelectionRange.storyName = 'Initial Selection: Line Range';

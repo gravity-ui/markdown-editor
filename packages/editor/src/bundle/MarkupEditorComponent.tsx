@@ -34,12 +34,9 @@ export const MarkupEditorComponent: React.FC<MarkupEditorComponentProps> =
             }
         }, [editor.markupEditor]);
 
-        // scroll to line on mount
+        // apply initial line selection on mount
         useEffect(() => {
-            const scrollToLine = editor.initialScrollToLine;
-            if (editor.markupConfig.lineNumbers?.enabled && scrollToLine !== undefined) {
-                editor.moveCursor({line: scrollToLine});
-            }
+            editor.applyInitialLineSelection();
         }, [editor]);
 
         return (
