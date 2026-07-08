@@ -5,12 +5,11 @@ import type {ReactNode} from 'react';
 import type {MarkupString} from '../common';
 import type {EscapeConfig, Extension} from '../core';
 import type {Logger2} from '../logger';
-import type {CreateCodemirrorParams} from '../markup/codemirror/create';
+import type {CreateCodemirrorParams, YfmLangOptions} from '../markup/codemirror/create';
 import type {
     InitialLineSelection,
     MarkupLineNumbersConfig,
 } from '../markup/codemirror/line-numbers/types';
-import type {YfmLangOptions} from '../markup/codemirror/yfm';
 import type {FileUploadHandler} from '../utils';
 import type {DirectiveSyntaxContext, DirectiveSyntaxOption} from '../utils/directive';
 import type {ParseInsertedUrlAsImage} from '../utils/upload';
