@@ -11,7 +11,7 @@
   "image_link_href_help": "Адрес, на который ведет картинка.",
   "image_alt": "Альтернативный текст",
   "image_alt_help": "Текст будет отображаться, если не удастся загрузить изображение.",
-  "image_upload_help": "Изображение в формате JPEG, GIF и PNG размером не более 1 МБ.",
+  "image_upload_help": "Изображение в формате JPEG, GIF и PNG.",
   "image_upload_failed": "Не удалось загрузить изображение",
   "image_size_width": "Ширина",
   "image_size_height": "Высота",
