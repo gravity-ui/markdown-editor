@@ -28,6 +28,7 @@
     "start": "nx sb:start @markdown-editor/demo",
     "clean": "nx run-many -t clean",
     "build": "nx run-many -t build",
+    "build:docs": "node -e \"const g=require('@gravity-ui/gulp-utils');g.buildDocs(g.createDefaultDocsConfig('packages/editor'))\"",
     "typecheck": "nx run-many -t typecheck",
     "test": "nx run-many -t test,test:esbuild,test:circular-deps",
     "test:e2e": "nx playwright:docker @markdown-editor/demo",
@@ -42,6 +43,7 @@
   "devDependencies": {
     "@commitlint/cli": "20.5.0",
     "@commitlint/config-conventional": "20.5.0",
+    "@gravity-ui/gulp-utils": "^1.1.0",
     "@markdown-editor/linters": "workspace:*",
     "eslint": "catalog:linters",
     "npm-run-all": "^4.1.5",
