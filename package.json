@@ -28,7 +28,7 @@
     "start": "nx sb:start @markdown-editor/demo",
     "clean": "nx run-many -t clean",
     "build": "nx run-many -t build",
-    "build:docs": "node -e \"const g=require('@gravity-ui/gulp-utils');g.buildDocs(g.createDefaultDocsConfig('packages/editor'))\"",
+    "build:docs": "node -e \"const g=require('@gravity-ui/gulp-utils');const p=require('path');g.buildDocs({rootDir:process.cwd(),outDir:p.resolve('packages/editor/build/docs'),sources:[{title:'Guides',kind:'markdown',baseDir:'docs',outPrefix:'guides',nameFromTitle:true}]})\"",
     "typecheck": "nx run-many -t typecheck",
     "test": "nx run-many -t test,test:esbuild,test:circular-deps",
     "test:e2e": "nx playwright:docker @markdown-editor/demo",
