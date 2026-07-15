@@ -17,6 +17,7 @@
   "scripts": {
     "clean": "gulp clean",
     "build": "gulp build",
+    "build-docs": "gulp build-docs",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "lint": "run-p -cs lint:*",
     "lint:js": "eslint './**/*.{js,jsx,mjs,ts,tsx}'",
@@ -27,10 +28,9 @@
     "test:watch": "jest --watchAll",
     "test:esbuild": "node tests/esbuild-test/esbuild-tester.js",
     "test:circular-deps": "node scripts/check-circular-deps.js 0",
-    "build:docs": "node scripts/build-docs.cjs",
-    "prepack": "cp ../../README.md ./README.md && pnpm run build:docs",
+    "prepack": "cp ../../README.md ./README.md",
     "postpack": "rm -f ./README.md",
-    "prepublishOnly": "pnpm run lint && pnpm run clean && pnpm run build"
+    "prepublishOnly": "pnpm run lint && pnpm run clean && pnpm run build && pnpm run build-docs"
   },
   "exports": {
     ".": {
@@ -224,7 +224,7 @@
     "@diplodoc/themes": "^1.0.0",
     "@diplodoc/transform": "catalog:peer-diplodoc",
     "@gravity-ui/components": "catalog:peer-gravity",
-    "@gravity-ui/gulp-utils": "^1.1.0",
+    "@gravity-ui/gulp-utils": "^1.1.1",
     "@gravity-ui/uikit": "catalog:peer-gravity",
     "@types/jest": "^29.5.14",
     "@types/jsdom": "21.1.7",
