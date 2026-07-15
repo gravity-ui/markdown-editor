@@ -11,6 +11,9 @@ const repoRoot = path.resolve(__dirname, '..', '..', '..');
 
 buildDocs({
     rootDir: repoRoot,
+    // rootDir is the monorepo root (its package.json is @markdown-editor/monorepo);
+    // the docs ship inside the published editor package, so name INDEX after it.
+    packageName: '@gravity-ui/markdown-editor',
     outDir: path.resolve(__dirname, '..', 'build', 'docs'),
     sources: [
         {
