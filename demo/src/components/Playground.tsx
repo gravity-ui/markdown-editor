@@ -16,6 +16,7 @@ import {
     type ToolbarsPreset,
     type UseMarkdownEditorProps,
     type WysiwygPlaceholderOptions,
+    type YfmMods,
     logger,
     useMarkdownEditor,
     wysiwygToolbarConfigs,
@@ -92,6 +93,7 @@ export type PlaygroundProps = {
     markupParseHtmlOnPaste?: boolean;
     style?: React.CSSProperties;
     storyAdditionalControls?: Record<string, any>;
+    yfmMods?: YfmMods;
 } & Pick<UseMarkdownEditorProps, 'experimental' | 'wysiwygConfig'> &
     Pick<
         MarkdownEditorViewProps,
@@ -149,8 +151,10 @@ export const Playground = memo<PlaygroundProps>((props) => {
         markupParseHtmlOnPaste,
         style,
         storyAdditionalControls,
+        yfmMods,
     } = props;
     const [editorMode, setEditorMode] = useState<MarkdownEditorMode>(initialEditor ?? 'wysiwyg');
+    const [previewVisible, setPreviewVisible] = useState(false);
     const [mdRaw, setMdRaw] = useState<MarkupString>(initial || '');
 
     useEffect(() => {
@@ -246,6 +250,9 @@ export const Playground = memo<PlaygroundProps>((props) => {
                     if (wysiwygConfig?.extensions) builder.use(wysiwygConfig.extensions);
                 },
                 extensionOptions: {
+                    yfmConfigs: {
+                        mods: yfmMods,
+                    },
                     checkbox: {multiline: true},
                     commandMenu: {actions: wysiwygCommandMenuConfig ?? wCommandMenuConfig},
                     imgSize: {
@@ -255,6 +262,8 @@ export const Playground = memo<PlaygroundProps>((props) => {
                         lineWrapping: {enabled: true},
                     },
                     yfmTable: {
+                        headerRows: true,
+                        cellBackground: true,
                         table_ignoreSplittersInBlockCode: true,
                         table_ignoreSplittersInBlockMath: true,
                         table_ignoreSplittersInInlineCode: true,
@@ -344,6 +353,10 @@ export const Playground = memo<PlaygroundProps>((props) => {
         function onChangeToolbarVisibility({visible}: {visible: boolean}) {
             console.info('Toolbar visible: ' + visible);
         }
+        function onChangePreviewVisible({visible}: {visible: boolean}) {
+            setPreviewVisible(visible);
+            console.info(`Preview visible: ${visible}`);
+        }
 
         mdEditor.on('cancel', onCancel);
         mdEditor.on('submit', onSubmit);
@@ -352,6 +365,7 @@ export const Playground = memo<PlaygroundProps>((props) => {
         mdEditor.on('change-editor-mode', onChangeEditorType);
         mdEditor.on('change-split-mode-enabled', onChangeSplitModeEnabled);
         mdEditor.on('change-toolbar-visibility', onChangeToolbarVisibility);
+        mdEditor.on('change-preview-visible', onChangePreviewVisible);
 
         return () => {
             mdEditor.off('cancel', onCancel);
@@ -361,6 +375,7 @@ export const Playground = memo<PlaygroundProps>((props) => {
             mdEditor.off('change-editor-mode', onChangeEditorType);
             mdEditor.off('change-split-mode-enabled', onChangeSplitModeEnabled);
             mdEditor.off('change-toolbar-visibility', onChangeToolbarVisibility);
+            mdEditor.off('change-preview-visible', onChangePreviewVisible);
         };
     }, [mdEditor]);
 
@@ -424,6 +439,20 @@ export const Playground = memo<PlaygroundProps>((props) => {
                             }}
                         />
                         <DropdownMenu.Item
+                            text="Insert"
+                            action={() => {
+                                mdEditor.insert('> insert');
+                                mdEditor.focus();
+                            }}
+                        />
+                        <DropdownMenu.Item
+                            text="Insert(inline)"
+                            action={() => {
+                                mdEditor.insert('insert(inline)');
+                                mdEditor.focus();
+                            }}
+                        />
+                        <DropdownMenu.Item
                             text="Move cursor to start"
                             action={() => {
                                 mdEditor.moveCursor('start');
@@ -444,6 +473,14 @@ export const Playground = memo<PlaygroundProps>((props) => {
                                 mdEditor.focus();
                             }}
                         />
+                        {editorMode === 'markup' && (
+                            <DropdownMenu.Item
+                                text={`Toggle Preview (${previewVisible ? 'on' : 'off'})`}
+                                action={() => {
+                                    mdEditor.changePreviewVisible();
+                                }}
+                            />
+                        )}
                     </DropdownMenu>
                     {mdEditor.currentMode === 'markup' && (
                         <MoveToLine

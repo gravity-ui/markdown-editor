@@ -31,7 +31,11 @@ function shouldUpdateState(prev: HoverState, curr: HoverState): boolean {
     return true;
 }
 
-export const yfmTableFocusPlugin = (opts: {dndEnabled: boolean}) => {
+export const yfmTableFocusPlugin = (opts: {
+    dndEnabled: boolean;
+    headerRowsEnabled: boolean;
+    cellBackgroundEnabled: boolean;
+}) => {
     return new Plugin<PluginState>({
         key: pluginKey,
         state: {
@@ -109,12 +113,12 @@ export const yfmTableFocusPlugin = (opts: {dndEnabled: boolean}) => {
 
                     if (
                         e.target instanceof Element &&
-                        e.target.closest('td') &&
+                        e.target.closest('td,th') &&
                         e.target.closest(`.${FOCUSED_CLASSNAME}`)
                     ) {
                         const $pos =
                             (() => {
-                                const td = e.target.closest('td');
+                                const td = e.target.closest('td,th');
                                 const domPos = td && view.posAtDOM(td, 0);
                                 return domPos === null ? null : view.state.doc.resolve(domPos);
                             })() ??

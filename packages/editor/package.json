@@ -1,6 +1,6 @@
 {
   "name": "@gravity-ui/markdown-editor",
-  "version": "15.40.0",
+  "version": "15.44.0",
   "description": "Markdown wysiwyg and markup editor",
   "license": "MIT",
   "repository": {
@@ -17,6 +17,7 @@
   "scripts": {
     "clean": "gulp clean",
     "build": "gulp build",
+    "build-docs": "gulp build-docs",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "lint": "run-p -cs lint:*",
     "lint:js": "eslint './**/*.{js,jsx,mjs,ts,tsx}'",
@@ -29,7 +30,7 @@
     "test:circular-deps": "node scripts/check-circular-deps.js 0",
     "prepack": "cp ../../README.md ./README.md",
     "postpack": "rm -f ./README.md",
-    "prepublishOnly": "pnpm run lint && pnpm run clean && pnpm run build"
+    "prepublishOnly": "pnpm run lint && pnpm run clean && pnpm run build && pnpm run build-docs"
   },
   "exports": {
     ".": {
@@ -223,6 +224,7 @@
     "@diplodoc/themes": "^1.0.0",
     "@diplodoc/transform": "catalog:peer-diplodoc",
     "@gravity-ui/components": "catalog:peer-gravity",
+    "@gravity-ui/gulp-utils": "^1.1.1",
     "@gravity-ui/uikit": "catalog:peer-gravity",
     "@types/jest": "^29.5.14",
     "@types/jsdom": "21.1.7",

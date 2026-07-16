@@ -1,0 +1,74 @@
+@use '../../../../../../../styles/yc-table-cell-bg' as *;
+
+.g-md-yfm-table-cell-bg-palette {
+    display: grid;
+    grid-template-columns: repeat(6, auto);
+    gap: 0;
+
+    &__item {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        font: inherit;
+        cursor: pointer;
+
+        color: inherit;
+        border: 0;
+        border-radius: var(--g-border-radius-m);
+        background: transparent;
+
+        appearance: none;
+
+        &:hover {
+            background: var(--g-color-base-generic);
+        }
+
+        &:focus {
+            outline: none;
+        }
+
+        &:focus-visible {
+            outline: 1px solid var(--g-color-line-focus);
+            outline-offset: -1px;
+        }
+    }
+
+    &__swatch {
+        position: relative;
+
+        display: block;
+
+        width: 16px;
+        height: 16px;
+        padding: 0;
+
+        cursor: pointer;
+
+        border: 1px solid var(--g-color-line-generic);
+        border-radius: var(--g-border-radius-xs);
+        background-color: transparent;
+
+        @each $name, $color in $cell-bg-colors {
+            &_color_#{$name} {
+                border-color: $color;
+                background-color: $color;
+            }
+        }
+
+        &_none {
+            background-color: transparent;
+        }
+    }
+
+    &__check {
+        position: absolute;
+        inset: 0;
+
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        color: var(--g-color-text-primary);
+    }
+}

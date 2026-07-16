@@ -20,7 +20,7 @@
   "scripts": {
     "ci:deps": "pnpm i --frozen-lockfile",
     "ci:demo:build": "nx sb:build @markdown-editor/demo",
-    "ci:docs:build": "node scripts/generate-docs.mjs && npx -y @diplodoc/cli -i ./docs-src -o ./docs-dist",
+    "ci:docs:build": "nx build @markdown-editor/infra/docs-gen",
     "ci:test:visual": "nx playwright @markdown-editor/demo",
     "ci:test:unit": "nx run-many -t test --verbose",
     "ci:test:esbuild": "nx run-many -t test:esbuild --verbose",
@@ -31,6 +31,7 @@
     "typecheck": "nx run-many -t typecheck",
     "test": "nx run-many -t test,test:esbuild,test:circular-deps",
     "test:e2e": "nx playwright:docker @markdown-editor/demo",
+    "test:e2e:ui": "nx playwright:docker:ui @markdown-editor/demo",
     "test:e2e:report": "nx playwright:docker:report @markdown-editor/demo",
     "lint": "run-p -cs lint:*",
     "lint:js": "eslint './**/*.{js,jsx,mjs,ts,tsx}'",

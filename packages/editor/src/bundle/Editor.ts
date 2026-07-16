@@ -91,6 +91,10 @@ export interface EditorInt
 
     changeSplitModeEnabled(opts: {splitModeEnabled: boolean}): void;
 
+    readonly previewVisible: boolean;
+
+    changePreviewVisible(visible?: boolean): void;
+
     destroy(): void;
 }
 
@@ -115,6 +119,7 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
     #toolbarVisible: boolean;
     #splitModeEnabled: boolean;
     #splitMode: SplitMode;
+    #previewVisible: boolean;
     #renderPreview?: RenderPreview;
     #wysiwygEditor?: WysiwygEditor;
     #markupEditor?: MarkupEditor;
@@ -200,6 +205,10 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
 
     get splitMode(): SplitMode {
         return this.#splitMode;
+    }
+
+    get previewVisible(): boolean {
+        return this.#previewVisible;
     }
 
     get preset(): EditorPreset {
@@ -350,6 +359,7 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
         this.#toolbarVisible = initial.toolbarVisible ?? true;
         this.#splitMode = (markupConfig.renderPreview && markupConfig.splitMode) ?? false;
         this.#splitModeEnabled = (this.#splitMode && initial.splitModeEnabled) ?? false;
+        this.#previewVisible = false;
         this.#renderPreview = markupConfig.renderPreview;
 
         this.#markup = initial.markup ?? '';
@@ -442,6 +452,14 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
         this.emit('change-split-mode-enabled', opts);
     }
 
+    changePreviewVisible(visible = !this.#previewVisible): void {
+        if (!this.#renderPreview || this.#splitModeEnabled) return;
+        if (this.#previewVisible === visible) return;
+        this.#previewVisible = visible;
+        this.emit('rerender', null);
+        this.emit('change-preview-visible', {visible});
+    }
+
     focus(): void {
         return this.currentEditor.focus();
     }
@@ -470,6 +488,10 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
 
     append(markup: MarkupString): void {
         return this.currentEditor.append(markup);
+    }
+
+    insert(markup: MarkupString): void {
+        return this.currentEditor.insert(markup);
     }
 
     moveCursor(

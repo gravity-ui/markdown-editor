@@ -1,5 +1,69 @@
 # Changelog
 
+## [15.44.0](https://github.com/gravity-ui/markdown-editor/compare/markdown-editor-v15.43.0...markdown-editor-v15.44.0) (2026-07-16)
+
+
+### Features
+
+* improve agent docs ([#1181](https://github.com/gravity-ui/markdown-editor/issues/1181)) ([0473789](https://github.com/gravity-ui/markdown-editor/commit/047378928dc0450c213afd72e7721e780991503d))
+
+
+### Bug Fixes
+
+* remove text about file size from image_upload_help ([#1178](https://github.com/gravity-ui/markdown-editor/issues/1178)) ([308ab55](https://github.com/gravity-ui/markdown-editor/commit/308ab55e9a16c22abc3ed0117d68a22317101276))
+
+## [15.43.0](https://github.com/gravity-ui/markdown-editor/compare/markdown-editor-v15.42.0...markdown-editor-v15.43.0) (2026-07-07)
+
+
+### Features
+
+* **Link:** update link creation and editing view ([#1154](https://github.com/gravity-ui/markdown-editor/issues/1154)) ([c7fb421](https://github.com/gravity-ui/markdown-editor/commit/c7fb421f1614d5428bf26f0d8b6c249affa7c62f))
+* **YfmTable:** inherit cell background on row/column add ([#1170](https://github.com/gravity-ui/markdown-editor/issues/1170)) ([c3ebbf7](https://github.com/gravity-ui/markdown-editor/commit/c3ebbf7f9c22a357e75a6293d70f2d463f085f11))
+* **YfmTable:** remove background from selected table cells ([#1169](https://github.com/gravity-ui/markdown-editor/issues/1169)) ([89ca7a6](https://github.com/gravity-ui/markdown-editor/commit/89ca7a67d28b8a4895576bf8d04ebe2c6b23e3fe))
+
+
+### Bug Fixes
+
+* **CodeBlock:** preserve code content containing fence sequences ([#1172](https://github.com/gravity-ui/markdown-editor/issues/1172)) ([fefb171](https://github.com/gravity-ui/markdown-editor/commit/fefb17125f9d556f13f2431b3848c3051c08d665))
+* **YfmTable:** fix color propagation to already colored cells ([#1168](https://github.com/gravity-ui/markdown-editor/issues/1168)) ([0fdabeb](https://github.com/gravity-ui/markdown-editor/commit/0fdabebd4f12cf8b09f2ed2f2a709a13bd48cd4b))
+* **YfmTable:** include color value in row/column bg logging events ([#1173](https://github.com/gravity-ui/markdown-editor/issues/1173)) ([c708421](https://github.com/gravity-ui/markdown-editor/commit/c70842144e8aff345ced6d22c1367e7139624b81))
+
+## [15.42.0](https://github.com/gravity-ui/markdown-editor/compare/markdown-editor-v15.41.1...markdown-editor-v15.42.0) (2026-06-30)
+
+
+### Features
+
+* **bundle:** add changePreviewVisible method to editor api ([#1153](https://github.com/gravity-ui/markdown-editor/issues/1153)) ([2d5a7bb](https://github.com/gravity-ui/markdown-editor/commit/2d5a7bbf0bbeef8ed1d3da82db6d26a716567773))
+
+
+### Bug Fixes
+
+* **bundle:** fixed opening of drop-down list in ToolbarSelect component ([#1165](https://github.com/gravity-ui/markdown-editor/issues/1165)) ([513b3b9](https://github.com/gravity-ui/markdown-editor/commit/513b3b90eac4fb8fc248bd3048995cc7c8eb6a09))
+* **YfmHtmlBlock:** preserve nested html block serialization ([#1162](https://github.com/gravity-ui/markdown-editor/issues/1162)) ([58dffe0](https://github.com/gravity-ui/markdown-editor/commit/58dffe04b93ada8a2c41a271fc9a29c3eb93faba))
+
+## [15.41.1](https://github.com/gravity-ui/markdown-editor/compare/markdown-editor-v15.41.0...markdown-editor-v15.41.1) (2026-06-24)
+
+
+### Bug Fixes
+
+* **Mermaid:** improve preformance when editing mermaid diagram in wysiwyg mode ([#1158](https://github.com/gravity-ui/markdown-editor/issues/1158)) ([0d1ddc1](https://github.com/gravity-ui/markdown-editor/commit/0d1ddc1e49d374054578d8320497e88976105249))
+* **view:** avoid UI freeze when gallery processes data URI links ([#1159](https://github.com/gravity-ui/markdown-editor/issues/1159)) ([2d6be02](https://github.com/gravity-ui/markdown-editor/commit/2d6be02cb2e8ab7aa32a2dcccf576942c62fe6d9))
+
+## [15.41.0](https://github.com/gravity-ui/markdown-editor/compare/markdown-editor-v15.40.0...markdown-editor-v15.41.0) (2026-06-11)
+
+
+### Features
+
+* add `insert()` method to editor API ([#1140](https://github.com/gravity-ui/markdown-editor/issues/1140)) ([6d78eb7](https://github.com/gravity-ui/markdown-editor/commit/6d78eb76d830074b401c7c8a097be01d1547ef5a))
+* **Link:** do not insert url protocol for links from buffer in visible text ([#1043](https://github.com/gravity-ui/markdown-editor/issues/1043)) ([e8739a5](https://github.com/gravity-ui/markdown-editor/commit/e8739a5b2112ca34ab6b5c628aee5740591af760))
+* **YfmTable:** add background color picker for rows and columns ([#1126](https://github.com/gravity-ui/markdown-editor/issues/1126)) ([d663632](https://github.com/gravity-ui/markdown-editor/commit/d663632c8e249ea8995ca2f537e0324919cdc991))
+* **YfmTable:** support header rows in yfm-table ([#1132](https://github.com/gravity-ui/markdown-editor/issues/1132)) ([022fba6](https://github.com/gravity-ui/markdown-editor/commit/022fba6faae868d82ab5fe20a5e834d5e0183451))
+
+
+### Bug Fixes
+
+* **i18n:** fix English copy issues (step 3) ([#1123](https://github.com/gravity-ui/markdown-editor/issues/1123)) ([5c21055](https://github.com/gravity-ui/markdown-editor/commit/5c210557a00fe0f8b96bf45cc87ebe2abcd8fabb))
+
 ## [15.40.0](https://github.com/gravity-ui/markdown-editor/compare/markdown-editor-v15.39.0...markdown-editor-v15.40.0) (2026-04-29)
 
 

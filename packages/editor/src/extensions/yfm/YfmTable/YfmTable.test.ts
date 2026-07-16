@@ -1,6 +1,7 @@
 import {EditorState} from 'prosemirror-state';
 import {builders} from 'prosemirror-test-builder';
 import {EditorView} from 'prosemirror-view';
+import dd from 'ts-dedent';
 
 import {dispatchPasteEvent} from '../../../../tests/dispatch-event';
 import {parseDOM} from '../../../../tests/parse-dom';
@@ -519,6 +520,98 @@ nested table
         );
     });
 
+    it('should parse table with header-rows attribute', () => {
+        const markup = dd`
+            #|
+            |:{header-rows="1"}
+            ||
+
+            Header 1
+
+            |
+
+            Header 2
+
+            ||
+            ||
+
+            Cell 1
+
+            |
+
+            Cell 2
+
+            ||
+            |#
+
+
+            `;
+
+        same(
+            markup,
+            doc(
+                table(
+                    {[YfmTableAttr.HeaderRows]: 1},
+                    tbody(
+                        tr(td(p('Header 1')), td(p('Header 2'))),
+                        tr(td(p('Cell 1')), td(p('Cell 2'))),
+                    ),
+                ),
+            ),
+        );
+    });
+
+    it('should parse table with header-rows="2"', () => {
+        const markup = dd`
+            #|
+            |:{header-rows="2"}
+            ||
+
+            H1
+
+            |
+
+            H2
+
+            ||
+            ||
+
+            H3
+
+            |
+
+            H4
+
+            ||
+            ||
+
+            Cell 1
+
+            |
+
+            Cell 2
+
+            ||
+            |#
+
+
+            `;
+
+        same(
+            markup,
+            doc(
+                table(
+                    {[YfmTableAttr.HeaderRows]: 2},
+                    tbody(
+                        tr(td(p('H1')), td(p('H2'))),
+                        tr(td(p('H3')), td(p('H4'))),
+                        tr(td(p('Cell 1')), td(p('Cell 2'))),
+                    ),
+                ),
+            ),
+        );
+    });
+
     it('should preserve cell-align', () => {
         const markup = `
 #|
@@ -548,5 +641,87 @@ cell11
                 ),
             ),
         );
+    });
+
+    describe('cell-bg serialization', () => {
+        it('should serialize cell-bg on first cell (same line as ||)', () => {
+            const markup = dd`
+                #|
+                ||::{bg="info"}
+
+                cell11
+
+                ||
+                |#
+
+                
+                `.trimStart();
+
+            same(markup, doc(table(tbody(tr(td({[YfmTableAttr.CellBg]: 'info'}, p('cell11')))))));
+        });
+
+        it('should serialize cell-bg on non-first cell (same line as |)', () => {
+            const markup = dd`
+                #|
+                ||
+
+                cell11
+
+                |::{bg="warning"}
+
+                cell12
+
+                ||
+                |#
+
+                
+                `.trimStart();
+
+            same(
+                markup,
+                doc(
+                    table(
+                        tbody(
+                            tr(
+                                td(p('cell11')),
+                                td({[YfmTableAttr.CellBg]: 'warning'}, p('cell12')),
+                            ),
+                        ),
+                    ),
+                ),
+            );
+        });
+
+        it('should serialize cell-bg on multiple cells', () => {
+            const markup = dd`
+                #|
+                ||::{bg="info"}
+
+                cell11
+
+                |::{bg="danger"}
+
+                cell12
+
+                ||
+                |#
+
+                
+                `.trimStart();
+
+            same(
+                markup,
+                doc(
+                    table(
+                        tbody(
+                            tr(
+                                td({[YfmTableAttr.CellBg]: 'info'}, p('cell11')),
+                                td({[YfmTableAttr.CellBg]: 'danger'}, p('cell12')),
+                            ),
+                        ),
+                    ),
+                ),
+            );
+        });
     });
 });
