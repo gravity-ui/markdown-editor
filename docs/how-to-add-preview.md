@@ -1,4 +1,4 @@
-# Getting started / Preview
+##### Getting started / Preview
 
 ## How to Add Preview for Markup Mode
 

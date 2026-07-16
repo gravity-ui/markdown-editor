@@ -1,4 +1,4 @@
-# Contributing
+##### Contributing
 
 ## Important Information for Contributors
 
