@@ -1,4 +1,4 @@
-##### Getting started / Toolbars customization
+# Getting started / Toolbars customization
 
 ## How to customize toolbars
 

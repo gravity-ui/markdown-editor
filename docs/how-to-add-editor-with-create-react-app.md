@@ -1,4 +1,4 @@
-##### Getting started / Create react app
+# Getting started / Create react app
 
 ## Installation Guide
 

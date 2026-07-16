@@ -23,11 +23,18 @@ task('build-docs', (done) => {
     buildDocs({
         packageName: '@gravity-ui/markdown-editor',
         outDir: resolve(BUILD_DIR, 'docs'),
+        // rootDir is the published package root (this directory). buildDocs derives
+        // the `node_modules/<pkg>/...` path in INDEX.md from path.relative(rootDir,
+        // outDir), so it must be the package dir, not the monorepo root — otherwise
+        // the shipped path gains a spurious `packages/editor/` segment.
+        rootDir: __dirname,
         sources: [
             {
                 title: 'Guides',
                 kind: 'markdown',
-                baseDir: 'docs',
+                // Guides live in the monorepo-root docs/ folder; resolved relative
+                // to the package dir (rootDir above).
+                baseDir: '../../docs',
                 outPrefix: 'guides',
                 nameFromTitle: true,
             },

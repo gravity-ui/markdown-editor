@@ -1,4 +1,4 @@
-##### Develop / Extension with popup
+# Develop / Extension with popup
 
 ## How to create an extension with popup for Markdown mode with text binding
 
