@@ -112,3 +112,7 @@ A dual-mode Markdown editor for React that combines a WYSIWYG mode (ProseMirror)
 - **Read the value via the instance, not a controlled `value` prop.** Call `editor.getValue()` (e.g. on the `submit` event) to serialize to Markdown; the editor manages its own state.
 - **Peer dependencies are required.** Your project must provide `@diplodoc/transform`, `@gravity-ui/uikit`, `@gravity-ui/components`, `react`, and `react-dom` — check the `peerDependencies` in `package.json`.
 - **Styles and i18n come from uikit.** Set up theming/styles per the uikit docs and call `configure({lang})` from both this package and `@gravity-ui/uikit`.
+
+## Documentation for AI agents
+
+Agent-readable documentation for the installed version is located in `node_modules/@gravity-ui/markdown-editor/build/docs/INDEX.md`.
