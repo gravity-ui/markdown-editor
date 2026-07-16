@@ -306,6 +306,9 @@ importers:
       '@diplodoc/cli':
         specifier: 5.43.0
         version: 5.43.0(@types/markdown-it@13.0.9)(@types/node@25.2.1)(react@18.2.0)
+      typescript:
+        specifier: catalog:ts
+        version: 5.9.3
 
   infra/gulp-tasks:
     dependencies:
