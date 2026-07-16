@@ -17,6 +17,7 @@ import type {EditorProps, EditorView} from 'prosemirror-view';
 import type {ActionStorage, ExtensionAuto} from '../../../core';
 import type {Logger2} from '../../../logger';
 import {isCodeBlock} from '../../../utils/nodes';
+import {isMac} from '../../../utils/platform';
 
 import {type ContextConfig, TooltipView} from './tooltip';
 
@@ -56,20 +57,25 @@ export const hideSelectionMenu = (tr: Transaction) => {
 
 const pluginKey = new PluginKey<PluginState>('selection-context');
 
+/**
+ * A press that may open the native context menu, or any other non-primary press whose
+ * release is unreliable. macOS opens the menu during mousedown — swallowing the following
+ * mouseup — and reports ctrl+click with button 0
+ */
+function isContextMenuPress(event: MouseEvent): boolean {
+    return event.button !== 0 || (isMac() && event.ctrlKey);
+}
+
 type PluginState = {
     disabled: boolean;
 };
 
-type TinyState = Pick<EditorState, 'doc' | 'selection'>;
-
 class SelectionTooltip implements PluginSpec<PluginState> {
-    private destroyed = false;
-
     private tooltip: TooltipView;
     private editorView: EditorView | null = null;
     private hideTimeoutRef: ReturnType<typeof setTimeout> | null = null;
 
-    private _isMousePressed = false;
+    private _releasePressGate: (() => void) | null = null;
 
     constructor(
         actions: ActionStorage,
@@ -104,22 +110,43 @@ class SelectionTooltip implements PluginSpec<PluginState> {
                 },
             }),
             handleDOMEvents: {
-                mousedown: (view) => {
-                    const startState: TinyState = {
-                        doc: view.state.doc,
-                        selection: view.state.selection,
-                    };
-                    this._isMousePressed = true;
+                mousedown: (view, event) => {
                     this.cancelTooltipHiding();
                     this.tooltip.hide(view);
 
-                    const onMouseUp = () => {
-                        if (this.destroyed) return;
-                        this._isMousePressed = false;
-                        this.update(view, startState);
-                    };
+                    // The native menu may swallow the document mouseup, and the press itself
+                    // may select the clicked word. Keep updates gated so the tooltip doesn't
+                    // pop up under the menu, and release the gate on the next input that
+                    // reaches the page
+                    if (isContextMenuPress(event)) {
+                        this.armPressGate({
+                            mousedown: () => true,
+                            keydown: () => true,
+                            mouseup: (e) => e.button === 0,
+                        });
+                        return;
+                    }
 
-                    document.addEventListener('mouseup', onMouseUp, {once: true});
+                    this.armPressGate(
+                        // a chorded secondary-button release must not consume the gate
+                        {mouseup: (e) => e.button === 0},
+                        () => {
+                            // Ignore a release whose editor or plugin was replaced while
+                            // the button was held
+                            if (view.isDestroyed || pluginKey.get(view.state)?.spec !== this) {
+                                return;
+                            }
+                            // Re-evaluate without the mousedown snapshot: mousedown just hid
+                            // the tooltip, so an unchanged doc/selection must show it again,
+                            // not keep it hidden
+                            this.update(view);
+                        },
+                    );
+                },
+                // A press that turns into a native drag ends with dragend, not mouseup —
+                // release the gate and disarm its listeners here
+                dragstart: () => {
+                    this._releasePressGate?.();
                 },
             },
         };
@@ -139,17 +166,25 @@ class SelectionTooltip implements PluginSpec<PluginState> {
         return {
             update: this.update.bind(this),
             destroy: () => {
-                this.destroyed = true;
                 this.cancelTooltipHiding();
                 this.tooltip.destroy();
+                // ProseMirror re-creates plugin views synchronously (destroy, then view())
+                // whenever state.plugins changes identity — a press in flight must keep its
+                // gate through that. Disarm only on a real editor teardown, so the gate's
+                // document listeners don't pin the destroyed view until the next input
+                queueMicrotask(() => {
+                    if (view.isDestroyed) this._releasePressGate?.();
+                });
             },
         };
     }
 
-    private update(view: EditorView, prevState?: TinyState) {
+    private update(view: EditorView, prevState?: EditorState) {
         this.editorView = view;
 
-        if (this._isMousePressed) return;
+        // A press interaction is in flight (button held, or a native context menu
+        // possibly open) — the gate's release will re-evaluate when it ends
+        if (this._releasePressGate) return;
 
         this.cancelTooltipHiding();
 
@@ -195,6 +230,40 @@ class SelectionTooltip implements PluginSpec<PluginState> {
         }
 
         this.tooltip.show(view);
+    }
+
+    /**
+     * Blocks tooltip updates until one of the listed document events passes its release
+     * check; arming a new gate releases the previous one. The gate intentionally survives
+     * plugin view re-creations (its release is the only reliable end of a press
+     * interaction) — only a real editor teardown disarms it early
+     */
+    private armPressGate(
+        releaseOn: {
+            [K in 'mousedown' | 'keydown' | 'mouseup']?: (e: DocumentEventMap[K]) => boolean;
+        },
+        onRelease?: () => void,
+    ) {
+        this._releasePressGate?.();
+
+        const controller = new AbortController();
+        const release = () => {
+            controller.abort();
+            this._releasePressGate = null;
+        };
+        this._releasePressGate = release;
+
+        for (const [type, shouldRelease] of Object.entries(releaseOn)) {
+            document.addEventListener(
+                type,
+                (event) => {
+                    if (!(shouldRelease as (e: Event) => boolean)(event)) return;
+                    release();
+                    onRelease?.();
+                },
+                {capture: true, signal: controller.signal},
+            );
+        }
     }
 
     private scheduleTooltipHiding(view: EditorView) {
