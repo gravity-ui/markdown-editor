@@ -2,15 +2,15 @@ import {useEffect, useMemo, useRef, useState} from 'react';
 
 import {getStyles} from '@diplodoc/html-extension';
 import type {IHTMLIFrameElementConfig} from '@diplodoc/html-extension/runtime';
-import {Ellipsis as DotsIcon, Eye} from '@gravity-ui/icons';
+import {Ellipsis as DotsIcon, Eye, LayoutHeaderColumns} from '@gravity-ui/icons';
 import {Button, Icon, Label, Menu, Popup} from '@gravity-ui/uikit';
 import type {Node} from 'prosemirror-model';
 import type {EditorView} from 'prosemirror-view';
 
-import {cn} from 'src/classname';
 import {SharedStateKey} from 'src/extensions/behavior/SharedState';
 import {TextAreaFixed as TextArea} from 'src/forms/TextInput';
 import {i18n} from 'src/i18n/common';
+import {i18n as i18nTemplates} from 'src/i18n/yfm-html-block';
 import {debounce} from 'src/lodash';
 import {useAutoSave, useBooleanState, useElementState} from 'src/react-utils/hooks';
 import {useSharedEditingState} from 'src/react-utils/useSharedEditingState';
@@ -18,12 +18,15 @@ import {removeNode} from 'src/utils/remove-node';
 
 import {YfmHtmlBlockConsts} from '../YfmHtmlBlockSpecs/const';
 import type {YfmHtmlBlockOptions} from '../index';
+import {type HtmlTemplate, mergeTemplatesById, readStoredTemplates} from '../templates';
 import type {YfmHtmlBlockEntitySharedState} from '../types';
+
+import {TemplatesPopup} from './TemplatesPopup';
+import {STOP_EVENT_CLASSNAME, cnYfmHtmlBlock} from './const';
 
 import './YfmHtmlBlock.scss';
 
-export const cnYfmHtmlBlock = cn('yfm-html-block');
-export const STOP_EVENT_CLASSNAME = 'prosemirror-stop-event';
+export {STOP_EVENT_CLASSNAME, cnYfmHtmlBlock} from './const';
 
 const b = cnYfmHtmlBlock;
 
@@ -31,6 +34,8 @@ interface YfmHtmlBlockViewProps {
     html: string;
     onClick: () => void;
     config?: IHTMLIFrameElementConfig;
+    editablePreview?: boolean;
+    onInlineSave?: (innerHtml: string) => void;
 }
 
 export function generateID() {
@@ -52,11 +57,18 @@ const createLinkCLickHandler = (value: Element, document: Document) => (event: E
     }
 };
 
-const YfmHtmlBlockPreview: React.FC<YfmHtmlBlockViewProps> = ({html, onClick, config}) => {
+const YfmHtmlBlockPreview: React.FC<YfmHtmlBlockViewProps> = ({
+    html,
+    onClick,
+    config,
+    editablePreview,
+    onInlineSave,
+}) => {
     const ref = useRef<HTMLIFrameElement>(null);
     const styles = useRef<Record<string, string>>({});
     const classNames = useRef<string[]>([]);
     const resizeConfig = useRef<Record<string, number>>({});
+    const isInlineEditing = useRef(false);
 
     const [height, setHeight] = useState('100%');
 
@@ -65,17 +77,51 @@ const YfmHtmlBlockPreview: React.FC<YfmHtmlBlockViewProps> = ({html, onClick, co
         setClassNames(config?.classNames);
     }, [config, ref.current?.contentWindow?.document?.body]);
 
+    const enterInlineEdit = () => {
+        const body = ref.current?.contentWindow?.document.body;
+        if (!body) return;
+        isInlineEditing.current = true;
+        body.contentEditable = 'true';
+        body.style.cursor = 'text';
+        body.focus();
+    };
+
+    const handleBodyBlur = () => {
+        const body = ref.current?.contentWindow?.document.body;
+        if (!body || !isInlineEditing.current) return;
+        isInlineEditing.current = false;
+        body.contentEditable = 'false';
+        body.style.removeProperty('cursor');
+        onInlineSave?.(body.innerHTML);
+    };
+
+    const handleDblClick = () => {
+        if (editablePreview) {
+            enterInlineEdit();
+        } else {
+            onClick();
+        }
+    };
+
     const handleLoadIFrame = () => {
         const contentWindow = ref.current?.contentWindow;
 
+        // fresh document after reload: not editing yet
+        isInlineEditing.current = false;
         handleResizeIFrame();
 
         if (contentWindow) {
             const frameDocument = contentWindow.document;
-            frameDocument.addEventListener('dblclick', () => {
-                onClick();
-            });
+            frameDocument.addEventListener('dblclick', handleDblClick);
+            // blur does not bubble; capture catches focus leaving the body
+            frameDocument.body?.addEventListener('blur', handleBodyBlur, true);
         }
+    };
+
+    const handleUnloadIFrame = () => {
+        const frameDocument = ref.current?.contentWindow?.document;
+        frameDocument?.removeEventListener('dblclick', handleDblClick);
+        frameDocument?.body?.removeEventListener('blur', handleBodyBlur, true);
     };
 
     const handleResizeIFrame = () => {
@@ -159,11 +205,13 @@ const YfmHtmlBlockPreview: React.FC<YfmHtmlBlockViewProps> = ({html, onClick, co
     };
 
     useEffect(() => {
-        ref.current?.addEventListener('load', handleLoadIFrame);
-        ref.current?.addEventListener('load', createAnchorLinkHandlers('add'));
+        const iframe = ref.current;
+        iframe?.addEventListener('load', handleLoadIFrame);
+        iframe?.addEventListener('load', createAnchorLinkHandlers('add'));
         return () => {
-            ref.current?.removeEventListener('load', handleLoadIFrame);
-            ref.current?.removeEventListener('load', createAnchorLinkHandlers('remove'));
+            handleUnloadIFrame();
+            iframe?.removeEventListener('load', handleLoadIFrame);
+            iframe?.removeEventListener('load', createAnchorLinkHandlers('remove'));
         };
     }, [html]);
 
@@ -245,7 +293,15 @@ export const YfmHtmlBlockView: React.FC<{
     options: YfmHtmlBlockOptions;
     view: EditorView;
 }> = ({onChange, node, getPos, view, options}) => {
-    const {useConfig, sanitize, styles, baseTarget = '_parent', head: headContent = ''} = options;
+    const {
+        useConfig,
+        sanitize,
+        styles,
+        baseTarget = '_parent',
+        head: headContent = '',
+        templates,
+        editablePreview,
+    } = options;
     const entityId: string = node.attrs[YfmHtmlBlockConsts.NodeAttrs.EntityId];
     const entityKey = useMemo(
         () => SharedStateKey.define<YfmHtmlBlockEntitySharedState>({name: entityId}),
@@ -257,6 +313,28 @@ export const YfmHtmlBlockView: React.FC<{
     const [editing, setEditing, unsetEditing] = useSharedEditingState(view, entityKey);
     const [menuOpen, _openMenu, closeMenu, toggleMenuOpen] = useBooleanState(false);
     const [anchorElement, setAnchorElement] = useElementState();
+
+    const allowAdd = Boolean(templates?.allowAdd);
+    const [storedTemplates, setStoredTemplates] = useState<HtmlTemplate[]>(readStoredTemplates);
+    const effectiveTemplates = useMemo(
+        () => mergeTemplatesById(templates?.items ?? [], storedTemplates),
+        [templates?.items, storedTemplates],
+    );
+    const showTemplatesButton =
+        Boolean(templates?.showButton) && (allowAdd || effectiveTemplates.length > 0);
+    const [templatesOpen, , closeTemplates, toggleTemplatesOpen] = useBooleanState(false);
+    const [templatesAnchor, setTemplatesAnchor] = useElementState();
+
+    const applyTemplate = (template: HtmlTemplate) => {
+        onChange({[YfmHtmlBlockConsts.NodeAttrs.srcdoc]: template.content});
+        closeTemplates();
+    };
+
+    const handleInlineSave = (innerHtml: string) => {
+        const current = node.attrs[YfmHtmlBlockConsts.NodeAttrs.srcdoc] ?? '';
+        if (innerHtml === current) return;
+        onChange({[YfmHtmlBlockConsts.NodeAttrs.srcdoc]: innerHtml});
+    };
 
     if (editing) {
         return (
@@ -293,9 +371,37 @@ export const YfmHtmlBlockView: React.FC<{
             <Label className={b('label')} icon={<Icon size={16} data={Eye} />}>
                 {i18n('preview')}
             </Label>
-            <YfmHtmlBlockPreview html={resultHtml} onClick={setEditing} config={config} />
+            <YfmHtmlBlockPreview
+                html={resultHtml}
+                onClick={setEditing}
+                config={config}
+                editablePreview={editablePreview}
+                onInlineSave={handleInlineSave}
+            />
 
             <div className={b('menu')}>
+                {showTemplatesButton && (
+                    <>
+                        <Button
+                            onClick={toggleTemplatesOpen}
+                            ref={setTemplatesAnchor}
+                            size="s"
+                            className={STOP_EVENT_CLASSNAME}
+                            aria-label={i18nTemplates('templates')}
+                        >
+                            <Icon data={LayoutHeaderColumns} className={STOP_EVENT_CLASSNAME} />
+                        </Button>
+                        <TemplatesPopup
+                            anchor={templatesAnchor}
+                            open={templatesOpen}
+                            templates={effectiveTemplates}
+                            allowAdd={allowAdd}
+                            onClose={closeTemplates}
+                            onApply={applyTemplate}
+                            onAdded={setStoredTemplates}
+                        />
+                    </>
+                )}
                 <Button
                     onClick={toggleMenuOpen}
                     ref={setAnchorElement}
