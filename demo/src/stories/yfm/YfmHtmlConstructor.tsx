@@ -1,0 +1,81 @@
+import {memo} from 'react';
+
+import {LayoutCells} from '@gravity-ui/icons';
+import {
+    MarkdownEditorView,
+    type ToolbarsPreset,
+    useMarkdownEditor,
+} from '@gravity-ui/markdown-editor';
+import {ToolbarName as Toolbar} from '@gravity-ui/markdown-editor/_/modules/toolbars/constants.js';
+import {defaultPreset} from '@gravity-ui/markdown-editor/_/modules/toolbars/presets.js';
+import {YfmHtmlConstructor as YfmHtmlConstructorExtension} from '@gravity-ui/markdown-editor/extensions/additional/YfmHtmlConstructor/index.js';
+
+import {PlaygroundLayout} from '../../components/PlaygroundLayout';
+import {seedYfmHtmlConstructorTemplates} from '../../defaults/yfm-html-constructor';
+
+// Seed the bundled "Gravity UI" templates into localStorage once so the picker
+// reads them from storage (and can clear them) instead of static `items`.
+seedYfmHtmlConstructorTemplates();
+
+const yfmHtmlConstructorItemId = 'yfmHtmlConstructor';
+
+const toolbarsPreset: ToolbarsPreset = {
+    items: {
+        ...defaultPreset.items,
+        [yfmHtmlConstructorItemId]: {
+            view: {
+                icon: {data: LayoutCells},
+                title: 'YFM HTML Constructor',
+            },
+            wysiwyg: {
+                exec: (e) => e.actions.createYfmHtmlConstructor.run(),
+                isActive: (e) => e.actions.createYfmHtmlConstructor.isActive(),
+                isEnable: (e) => e.actions.createYfmHtmlConstructor.isEnable(),
+            },
+        },
+    },
+    orders: {
+        ...defaultPreset.orders,
+        [Toolbar.wysiwygMain]: [
+            [yfmHtmlConstructorItemId],
+            ...defaultPreset.orders[Toolbar.wysiwygMain],
+        ],
+    },
+};
+
+export const YfmHtmlConstructorDemo = memo(function YfmHtmlConstructorDemo() {
+    const editor = useMarkdownEditor(
+        {
+            initial: {mode: 'wysiwyg', markup: ''},
+            wysiwygConfig: {
+                extensions: (builder) =>
+                    builder.use(YfmHtmlConstructorExtension, {
+                        // Experimental: isolate each constructor's CSS so styles
+                        // from one don't leak into another on the same page.
+                        scopeStyles: true,
+                        templates: {
+                            showButton: true,
+                            allowAdd: true,
+                        },
+                    }),
+            },
+        },
+        [],
+    );
+
+    return (
+        <PlaygroundLayout
+            editor={editor}
+            view={({className}) => (
+                <MarkdownEditorView
+                    autofocus
+                    stickyToolbar
+                    settingsVisible
+                    editor={editor}
+                    className={className}
+                    toolbarsPreset={toolbarsPreset}
+                />
+            )}
+        />
+    );
+});

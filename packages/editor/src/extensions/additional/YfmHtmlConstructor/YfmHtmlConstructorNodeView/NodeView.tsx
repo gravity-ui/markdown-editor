@@ -5,17 +5,21 @@ import type {EditorView, NodeView} from 'prosemirror-view';
 import {getReactRendererFromState} from 'src/extensions/behavior/ReactRenderer';
 import {generateEntityId, isInvalidEntityId} from 'src/utils/entity-id';
 
-import {YfmHtmlBlockConsts, defaultYfmHtmlBlockEntityId} from '../YfmHtmlBlockSpecs/const';
-import type {YfmHtmlBlockOptions} from '../index';
+import {
+    YfmHtmlConstructorConsts,
+    defaultYfmHtmlConstructorEntityId,
+} from '../YfmHtmlConstructorSpecs/const';
+import type {YfmHtmlConstructorExtensionOptions} from '../types';
 
-import {STOP_EVENT_CLASSNAME, YfmHtmlBlockView} from './YfmHtmlBlockView';
+import {YfmHtmlConstructorView} from './YfmHtmlConstructorView';
+import {STOP_EVENT_CLASSNAME} from './const';
 
-export class WYfmHtmlBlockNodeView implements NodeView {
+export class WYfmHtmlConstructorNodeView implements NodeView {
     readonly dom: HTMLElement;
     private node: Node;
-    private readonly view;
-    private readonly getPos;
-    private readonly options: YfmHtmlBlockOptions;
+    private readonly view: EditorView;
+    private readonly getPos: () => number | undefined;
+    private readonly options: YfmHtmlConstructorExtensionOptions;
     private readonly renderItem;
 
     constructor({
@@ -27,19 +31,19 @@ export class WYfmHtmlBlockNodeView implements NodeView {
         node: Node;
         view: EditorView;
         getPos: () => number | undefined;
-        options: YfmHtmlBlockOptions;
+        options: YfmHtmlConstructorExtensionOptions;
     }) {
         this.node = node;
         this.dom = document.createElement('div');
-        this.dom.classList.add('yfm-html-block-container');
+        this.dom.classList.add('yfm-html-constructor-root');
         this.dom.contentEditable = 'false';
         this.view = view;
         this.getPos = getPos;
         this.options = options;
 
         this.renderItem = getReactRendererFromState(view.state).createItem(
-            'yfmHtmlBlock-view',
-            this.renderYfmHtmlBlock.bind(this),
+            'yfmHtmlConstructor-view',
+            this.renderYfmHtmlConstructor.bind(this),
         );
 
         this.validateEntityId();
@@ -70,14 +74,14 @@ export class WYfmHtmlBlockNodeView implements NodeView {
             isInvalidEntityId({
                 node: this.node,
                 doc: this.view.state.doc,
-                defaultId: defaultYfmHtmlBlockEntityId,
+                defaultId: defaultYfmHtmlConstructorEntityId,
             })
         ) {
-            const newId = generateEntityId(YfmHtmlBlockConsts.NodeName);
+            const newId = generateEntityId(YfmHtmlConstructorConsts.NodeName);
             this.view.dispatch(
                 this.view.state.tr.setNodeAttribute(
                     this.getPos()!,
-                    YfmHtmlBlockConsts.NodeAttrs.EntityId,
+                    YfmHtmlConstructorConsts.NodeAttrs.EntityId,
                     newId,
                 ),
             );
@@ -88,28 +92,20 @@ export class WYfmHtmlBlockNodeView implements NodeView {
         const pos = this.getPos();
         if (pos === undefined) return;
 
-        const tr = this.view.state.tr.setNodeMarkup(
-            pos,
-            undefined,
-            {
-                ...this.node.attrs,
-                ...attrs,
-            },
-            [],
+        this.view.dispatch(
+            this.view.state.tr.setNodeMarkup(pos, undefined, {...this.node.attrs, ...attrs}, []),
         );
-
-        this.view.dispatch(tr);
     }
 
-    private renderYfmHtmlBlock() {
+    private renderYfmHtmlConstructor() {
         return (
             <Portal container={this.dom}>
-                <YfmHtmlBlockView
-                    getPos={this.getPos}
+                <YfmHtmlConstructorView
                     node={this.node}
+                    getPos={this.getPos}
+                    view={this.view}
                     onChange={this.onChange.bind(this)}
                     options={this.options}
-                    view={this.view}
                 />
             </Portal>
         );
