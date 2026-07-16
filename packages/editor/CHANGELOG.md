@@ -1,5 +1,17 @@
 # Changelog
 
+## [15.44.0](https://github.com/gravity-ui/markdown-editor/compare/markdown-editor-v15.43.0...markdown-editor-v15.44.0) (2026-07-16)
+
+
+### Features
+
+* improve agent docs ([#1181](https://github.com/gravity-ui/markdown-editor/issues/1181)) ([0473789](https://github.com/gravity-ui/markdown-editor/commit/047378928dc0450c213afd72e7721e780991503d))
+
+
+### Bug Fixes
+
+* remove text about file size from image_upload_help ([#1178](https://github.com/gravity-ui/markdown-editor/issues/1178)) ([308ab55](https://github.com/gravity-ui/markdown-editor/commit/308ab55e9a16c22abc3ed0117d68a22317101276))
+
 ## [15.43.0](https://github.com/gravity-ui/markdown-editor/compare/markdown-editor-v15.42.0...markdown-editor-v15.43.0) (2026-07-07)
 
 
