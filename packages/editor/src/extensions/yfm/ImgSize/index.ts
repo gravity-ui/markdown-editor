@@ -13,6 +13,11 @@ export type ImgSizeOptions = ImgSizeSpecsOptions & {
      * @default false
      */
     needToSetDimensionsForUploadedImages?: boolean;
+    /**
+     * Transforms the image src before rendering, e.g. to resolve a relative path.
+     * Affects only the displayed src; the node attrs and markup are left intact.
+     */
+    resolveImageSrc?: (src: string) => string;
 } & Pick<
         ImagePasteOptions,
         'imageUploadHandler' | 'parseInsertedUrlAsImage' | 'enableNewImageSizeCalculation'
@@ -40,7 +45,7 @@ export const ImgSize: ExtensionAuto<ImgSizeOptions> = (builder, opts) => {
 
     builder.addAction(addImageAction, ({schema}) => addImage(schema));
 
-    builder.addPlugin(imgSizeNodeViewPlugin);
+    builder.addPlugin(imgSizeNodeViewPlugin({resolveImageSrc: opts.resolveImageSrc}));
 };
 
 declare global {

@@ -21,11 +21,16 @@ import './ImgNodeView.scss';
 
 export const cnImgSizeNodeView = cn('img-size-node-view');
 
-export const ImageNodeView: React.FC<ReactNodeViewProps> = ({
+export type ImgSizeNodeViewOpts = {
+    resolveImageSrc?: (src: string) => string;
+};
+
+export const ImageNodeView: React.FC<ReactNodeViewProps<ImgSizeNodeViewOpts>> = ({
     node,
     view,
     getPos,
     updateAttributes,
+    extensionOptions,
 }) => {
     const imageContainerRef = useRef<HTMLDivElement>(null);
     const imageRef = useRef<HTMLImageElement>(null);
@@ -34,7 +39,8 @@ export const ImageNodeView: React.FC<ReactNodeViewProps> = ({
     const alt = node.attrs[ImgSizeAttr.Alt] || '';
     const initialHeight = node.attrs[ImgSizeAttr.Height];
     const initialWidth = node.attrs[ImgSizeAttr.Width];
-    const src = node.attrs[ImgSizeAttr.Src] || '';
+    const rawSrc = node.attrs[ImgSizeAttr.Src] || '';
+    const src = extensionOptions?.resolveImageSrc?.(rawSrc) ?? rawSrc;
     const title = node.attrs[ImgSizeAttr.Title] || '';
 
     const isNodeHovered = useNodeHovered(imageContainerRef);
