@@ -54,6 +54,7 @@ const EditorWrapper = forwardRef<HTMLDivElement, EditorWrapperProps>(
             markupHiddenActionsConfig: initialMarkupHiddenActionsConfig,
             markupToolbarConfig: initialMarkupToolbarConfig,
             qa,
+            scrollContainerRef,
             settingsVisible: settingsVisibleProp,
             stickyToolbar,
             toolbarsPreset,
@@ -148,6 +149,7 @@ const EditorWrapper = forwardRef<HTMLDivElement, EditorWrapperProps>(
             onSplitModeChange,
             onToolbarVisibilityChange,
             renderPreviewButton: canRenderPreview,
+            scrollContainerRef,
             showPreview,
             splitMode: editor.splitMode,
             splitModeEnabled: editor.splitModeEnabled,
@@ -195,6 +197,7 @@ const EditorWrapper = forwardRef<HTMLDivElement, EditorWrapperProps>(
                                 toolbarClassName={b('toolbar')}
                                 stickyToolbar={stickyToolbar}
                                 toolbarDisplay={toolbarDisplay}
+                                scrollContainerRef={scrollContainerRef}
                             >
                                 <Settings
                                     {...settingsProps}
@@ -216,6 +219,7 @@ const EditorWrapper = forwardRef<HTMLDivElement, EditorWrapperProps>(
                                 toolbarClassName={b('toolbar')}
                                 stickyToolbar={stickyToolbar}
                                 toolbarDisplay={toolbarDisplay}
+                                scrollContainerRef={scrollContainerRef}
                             >
                                 <Settings
                                     {...settingsProps}
@@ -247,6 +251,7 @@ type ViewProps = {
     stickyToolbar: boolean;
     enableSubmitInPreview?: boolean;
     hidePreviewAfterSubmit?: boolean;
+    scrollContainerRef?: React.RefObject<HTMLElement>;
 };
 
 export type MarkdownEditorViewProps = ClassNameProps & ToolbarConfigs & ViewProps & QAProps & {};
@@ -276,6 +281,7 @@ export const MarkdownEditorView = forwardRef<HTMLDivElement, MarkdownEditorViewP
             markupHiddenActionsConfig,
             markupToolbarConfig,
             qa,
+            scrollContainerRef,
             settingsVisible = true,
             stickyToolbar,
             toolbarsPreset,
@@ -340,6 +346,7 @@ export const MarkdownEditorView = forwardRef<HTMLDivElement, MarkdownEditorViewP
                         {
                             settings: areSettingsVisible,
                             split: markupSplitMode && editor.splitMode,
+                            withScrollContainer: !!scrollContainerRef,
                         },
                         [className],
                     )}
@@ -357,6 +364,7 @@ export const MarkdownEditorView = forwardRef<HTMLDivElement, MarkdownEditorViewP
                         markupToolbarConfig={markupToolbarConfig}
                         qa="g-md-editor-mode"
                         ref={editorWrapperRef}
+                        scrollContainerRef={scrollContainerRef}
                         settingsVisible={settingsVisible}
                         stickyToolbar={stickyToolbar}
                         toolbarsPreset={toolbarsPreset}
@@ -393,9 +401,17 @@ const MarkupSearchAnchor: React.FC<MarkupSearchAnchorProps> = ({mode}) => (
     <div className={`g-md-search-${mode}-anchor`}></div>
 );
 
-function Settings(props: EditorSettingsProps & {stickyToolbar: boolean}) {
+function Settings(
+    props: EditorSettingsProps & {
+        stickyToolbar: boolean;
+        scrollContainerRef?: React.RefObject<HTMLElement>;
+    },
+) {
     const wrapperRef = useRef<HTMLDivElement>(null);
-    const isSticky = useSticky(wrapperRef) && props.toolbarVisibility && props.stickyToolbar;
+    const isSticky =
+        useSticky(wrapperRef, props.scrollContainerRef) &&
+        props.toolbarVisibility &&
+        props.stickyToolbar;
 
     return (
         <>
