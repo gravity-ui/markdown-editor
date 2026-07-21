@@ -95,6 +95,22 @@ export const ImageNodeView: React.FC<ReactNodeViewProps<ImgSizeNodeViewOpts>> = 
         view.focus();
     }, [getPos, node, view]);
 
+    const handleImgError = useCallback(() => {
+        const pos = getPos();
+
+        if (pos === undefined) {
+            return;
+        }
+
+        const text = view.state.schema.text(`![${alt}](${rawSrc})`);
+
+        view.dispatch(
+            view.state.tr
+                .replaceWith(pos, pos + node.nodeSize, text)
+                .setMeta('image-load-failed', rawSrc),
+        );
+    }, [alt, rawSrc, getPos, node, view]);
+
     const createHandleResize =
         (direction: ResizeDirection) => (event: React.MouseEvent<HTMLElement>) => {
             startResizing(event, direction);
@@ -134,7 +150,7 @@ export const ImageNodeView: React.FC<ReactNodeViewProps<ImgSizeNodeViewOpts>> = 
                     onDelete={handleDelete}
                     unsetEdit={unsetEdit}
                 />
-                <img ref={refFn} src={src} alt={alt} style={style} />
+                <img ref={refFn} src={src} alt={alt} style={style} onError={handleImgError} />
             </Resizable>
         </div>
     );
