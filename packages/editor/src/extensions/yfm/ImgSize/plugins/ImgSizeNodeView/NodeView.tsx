@@ -21,11 +21,16 @@ import './ImgNodeView.scss';
 
 export const cnImgSizeNodeView = cn('img-size-node-view');
 
-export const ImageNodeView: React.FC<ReactNodeViewProps> = ({
+export type ImgSizeNodeViewOpts = {
+    resolveImageSrc?: (src: string) => string;
+};
+
+export const ImageNodeView: React.FC<ReactNodeViewProps<ImgSizeNodeViewOpts>> = ({
     node,
     view,
     getPos,
     updateAttributes,
+    extensionOptions,
 }) => {
     const imageContainerRef = useRef<HTMLDivElement>(null);
     const imageRef = useRef<HTMLImageElement>(null);
@@ -34,7 +39,8 @@ export const ImageNodeView: React.FC<ReactNodeViewProps> = ({
     const alt = node.attrs[ImgSizeAttr.Alt] || '';
     const initialHeight = node.attrs[ImgSizeAttr.Height];
     const initialWidth = node.attrs[ImgSizeAttr.Width];
-    const src = node.attrs[ImgSizeAttr.Src] || '';
+    const rawSrc = node.attrs[ImgSizeAttr.Src] || '';
+    const src = extensionOptions?.resolveImageSrc?.(rawSrc) ?? rawSrc;
     const title = node.attrs[ImgSizeAttr.Title] || '';
 
     const isNodeHovered = useNodeHovered(imageContainerRef);
@@ -89,6 +95,22 @@ export const ImageNodeView: React.FC<ReactNodeViewProps> = ({
         view.focus();
     }, [getPos, node, view]);
 
+    const handleImgError = useCallback(() => {
+        const pos = getPos();
+
+        if (pos === undefined) {
+            return;
+        }
+
+        const text = view.state.schema.text(`![${alt}](${rawSrc})`);
+
+        view.dispatch(
+            view.state.tr
+                .replaceWith(pos, pos + node.nodeSize, text)
+                .setMeta('image-load-failed', rawSrc),
+        );
+    }, [alt, rawSrc, getPos, node, view]);
+
     const createHandleResize =
         (direction: ResizeDirection) => (event: React.MouseEvent<HTMLElement>) => {
             startResizing(event, direction);
@@ -128,7 +150,7 @@ export const ImageNodeView: React.FC<ReactNodeViewProps> = ({
                     onDelete={handleDelete}
                     unsetEdit={unsetEdit}
                 />
-                <img ref={refFn} src={src} alt={alt} style={style} />
+                <img ref={refFn} src={src} alt={alt} style={style} onError={handleImgError} />
             </Resizable>
         </div>
     );
