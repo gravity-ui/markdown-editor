@@ -1,7 +1,8 @@
 import {dirname, resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
+import {copyFileSync, rmSync} from 'node:fs';
 
-import {buildDocs} from '@gravity-ui/gulp-utils';
+import {buildDocs} from '@gravity-ui/readme-validator';
 import {series, task} from '@markdown-editor/gulp-tasks';
 import {registerBuildTasks} from '@markdown-editor/gulp-tasks/build';
 
@@ -20,6 +21,14 @@ registerBuildTasks({
 
 // Generates the AI-agent docs tree (INDEX.md + guides) into build/docs.
 task('build-docs', (done) => {
+    // readme-validator's buildDocs reads the package overview from <rootDir>/README.md.
+    // In the repo, the README lives at the monorepo root and is only copied here by
+    // `prepack` — which runs AFTER `prepublishOnly` (and thus after this task) during
+    // `pnpm publish`. Copy it ourselves first, otherwise INDEX.md ships without the
+    // README sections (only the guides list) in the published tarball.
+    const copiedReadme = resolve(__dirname, 'README.md');
+    copyFileSync(resolve(__dirname, '../../README.md'), copiedReadme);
+
     buildDocs({
         packageName: '@gravity-ui/markdown-editor',
         outDir: resolve(BUILD_DIR, 'docs'),
@@ -40,6 +49,12 @@ task('build-docs', (done) => {
             },
         ],
     });
+
+    // Drop the scratch copy so it doesn't linger in the working tree. During
+    // `pnpm publish`, `prepack` re-creates README.md before packing, so the
+    // published tarball still ships it.
+    rmSync(copiedReadme, {force: true});
+
     done();
 });
 
