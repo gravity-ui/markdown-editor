@@ -10,6 +10,7 @@ import {isNodeSelection, isTextSelection, isWholeSelection} from 'src/utils/sele
 import {BaseNode, pType} from '../../base/BaseSchema';
 
 import {isInsideCode} from './code';
+import {detectMarkdown} from './markdown-detect';
 import {getSelectionContent} from './selection-content';
 import {trimTextSelection} from './trim-selection';
 import {DataTransferType, extractTextContentFromHtml, isIosSafariShare, trimContent} from './utils';
@@ -94,6 +95,11 @@ export const clipboard = ({
                             event: 'paste-uri-list',
                         });
                         isPasteHandled = true;
+                        e.preventDefault();
+                        return true;
+                    }
+
+                    if (pasteDetectedMarkdown(view, e.clipboardData, textParser)) {
                         e.preventDefault();
                         return true;
                     }
@@ -215,6 +221,28 @@ export const clipboard = ({
         },
     });
 };
+
+function pasteDetectedMarkdown(
+    view: EditorView,
+    clipboardData: DataTransfer,
+    textParser: Parser,
+): boolean {
+    if (clipboardData.types.includes(DataTransferType.Yfm) || isInsideCode(view.state)) {
+        return false;
+    }
+
+    const doc = detectMarkdown(clipboardData.getData(DataTransferType.Text), textParser);
+    if (!doc) return false;
+
+    const slice = getSliceFromMarkupFragment(doc.content);
+    view.dispatch(
+        trackTransactionMetrics(view.state.tr.replaceSelection(slice), 'paste', {
+            clipboardDataFormat: DataTransferType.Text,
+        }),
+    );
+
+    return true;
+}
 
 function getSliceFromMarkupFragment(fragment: Fragment) {
     let start = 0;
