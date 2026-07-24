@@ -1,5 +1,12 @@
 # Changelog
 
+## [15.45.0](https://github.com/gravity-ui/markdown-editor/compare/markdown-editor-v15.44.0...markdown-editor-v15.45.0) (2026-07-24)
+
+
+### Features
+
+* **ImgSize:** add ability to override relative image URLs ([#1186](https://github.com/gravity-ui/markdown-editor/issues/1186)) ([fa6ca63](https://github.com/gravity-ui/markdown-editor/commit/fa6ca637672e0ecd61b4d19e1a8b3a31f59b1537))
+
 ## [15.44.0](https://github.com/gravity-ui/markdown-editor/compare/markdown-editor-v15.43.0...markdown-editor-v15.44.0) (2026-07-16)
 
 
