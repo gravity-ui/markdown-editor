@@ -1,6 +1,6 @@
+import {copyFileSync, rmSync} from 'node:fs';
 import {dirname, resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
-import {copyFileSync, rmSync} from 'node:fs';
 
 import {buildDocs} from '@gravity-ui/readme-validator';
 import {series, task} from '@markdown-editor/gulp-tasks';
