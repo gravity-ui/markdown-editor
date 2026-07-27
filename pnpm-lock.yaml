@@ -564,9 +564,9 @@ importers:
       '@gravity-ui/components':
         specifier: catalog:peer-gravity
         version: 4.10.0(@gravity-ui/uikit@7.13.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
-      '@gravity-ui/gulp-utils':
-        specifier: ^1.1.1
-        version: 1.1.1(typescript@5.9.3)
+      '@gravity-ui/readme-validator':
+        specifier: ^1.3.0
+        version: 1.3.0
       '@gravity-ui/uikit':
         specifier: catalog:peer-gravity
         version: 7.13.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -733,13 +733,13 @@ importers:
     devDependencies:
       '@diplodoc/page-constructor-extension':
         specifier: catalog:peer-diplodoc
-        version: 0.13.3(@diplodoc/transform@4.76.0(highlight.js@11.11.1)(react@18.2.0))(@gravity-ui/uikit@7.13.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.0.28)(markdown-it@13.0.2)(react-dom@18.2.0(react@18.2.0))(react-is@18.3.1)(react@18.2.0)
+        version: 0.13.3(@diplodoc/transform@4.76.0(@types/markdown-it@13.0.9)(highlight.js@11.11.1)(react@18.2.0))(@gravity-ui/uikit@7.13.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/markdown-it@13.0.9)(@types/react@18.0.28)(markdown-it@13.0.2)(react-dom@18.2.0(react@18.2.0))(react-is@18.3.1)(react@18.2.0)
       '@gravity-ui/markdown-editor':
         specifier: workspace:*
         version: link:../editor
       '@gravity-ui/page-constructor':
         specifier: catalog:peer-gravity
-        version: 7.25.0(@diplodoc/transform@4.76.0(highlight.js@11.11.1)(react@18.2.0))(@gravity-ui/uikit@7.13.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.0.28)(js-yaml@4.1.1)(react-dom@18.2.0(react@18.2.0))(react-is@18.3.1)(react@18.2.0)
+        version: 7.25.0(@diplodoc/transform@4.76.0(@types/markdown-it@13.0.9)(highlight.js@11.11.1)(react@18.2.0))(@gravity-ui/uikit@7.13.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.0.28)(js-yaml@4.1.1)(react-dom@18.2.0(react@18.2.0))(react-is@18.3.1)(react@18.2.0)
       '@gravity-ui/uikit':
         specifier: catalog:peer-gravity
         version: 7.13.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -2376,12 +2376,6 @@ packages:
     peerDependencies:
       typescript: '>=5'
 
-  '@gravity-ui/gulp-utils@1.1.1':
-    resolution: {integrity: sha512-XB7UUyquPDg6BnKLo0fK/ZRHibLJ4FvtdFoOP73bN43gywQFIpak/YFYO72koKjMsv0x22L14fW8SILLtniIOA==}
-    engines: {node: '>=20.19'}
-    peerDependencies:
-      typescript: '>=5'
-
   '@gravity-ui/i18n@1.8.0':
     resolution: {integrity: sha512-bVt/UGjL96Naw0h03QW+3z2tf6t4zvLh1j+eFzpdLlAIMeNu0dRjxn4X6EGtwhwKrfMyIfrlOqmLSroXtCNQAw==}
 
@@ -2405,8 +2399,8 @@ packages:
     peerDependencies:
       prettier: '*'
 
-  '@gravity-ui/readme-validator@1.2.3':
-    resolution: {integrity: sha512-K4pF/0/3wu8wI+z55uAa6YZARSh9aqc+OfO4TJRqrHmd7MbdojVksoMST98c+bd2KK1kqAIM7f1TogP5fSMOqg==}
+  '@gravity-ui/readme-validator@1.3.0':
+    resolution: {integrity: sha512-sQaDHinKqvGCB4ev4psw9O8WLICPxnfEnsbxmKL3adkcili+DJ7GCXJ5yRNsAYkiNBVDf8UALBI7zyFVDntmBA==}
     hasBin: true
 
   '@gravity-ui/stylelint-config@5.0.0':
@@ -5664,6 +5658,7 @@ packages:
   git-raw-commits@5.0.1:
     resolution: {integrity: sha512-Y+csSm2GD/PCSh6Isd/WiMjNAydu0VBiG9J7EdQsNA5P9uXvLayqjmTsNlK5Gs9IhblFZqOU0yid5Il5JPoLiQ==}
     engines: {node: '>=18'}
+    deprecated: Deprecated and no longer maintained. Use @conventional-changelog/git-client instead.
     hasBin: true
 
   github-buttons@2.23.0:
@@ -10423,12 +10418,12 @@ snapshots:
       - '@types/react'
       - react-is
 
-  '@diplodoc/page-constructor-extension@0.13.3(@diplodoc/transform@4.76.0(highlight.js@11.11.1)(react@18.2.0))(@gravity-ui/uikit@7.13.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.0.28)(markdown-it@13.0.2)(react-dom@18.2.0(react@18.2.0))(react-is@18.3.1)(react@18.2.0)':
+  '@diplodoc/page-constructor-extension@0.13.3(@diplodoc/transform@4.76.0(@types/markdown-it@13.0.9)(highlight.js@11.11.1)(react@18.2.0))(@gravity-ui/uikit@7.13.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/markdown-it@13.0.9)(@types/react@18.0.28)(markdown-it@13.0.2)(react-dom@18.2.0(react@18.2.0))(react-is@18.3.1)(react@18.2.0)':
     dependencies:
       '@diplodoc/directive': 0.3.3(@types/markdown-it@13.0.9)(markdown-it@13.0.2)
       '@diplodoc/transform': 4.76.0(@types/markdown-it@13.0.9)(highlight.js@11.11.1)(react@18.2.0)
       '@diplodoc/utils': 2.2.2(react@18.2.0)
-      '@gravity-ui/page-constructor': 7.25.0(@diplodoc/transform@4.76.0(highlight.js@11.11.1)(react@18.2.0))(@gravity-ui/uikit@7.13.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.0.28)(js-yaml@4.1.1)(react-dom@18.2.0(react@18.2.0))(react-is@18.3.1)(react@18.2.0)
+      '@gravity-ui/page-constructor': 7.25.0(@diplodoc/transform@4.76.0(@types/markdown-it@13.0.9)(highlight.js@11.11.1)(react@18.2.0))(@gravity-ui/uikit@7.13.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.0.28)(js-yaml@4.1.1)(react-dom@18.2.0(react@18.2.0))(react-is@18.3.1)(react@18.2.0)
       cheerio: 1.0.0
       js-yaml: 4.1.1
       lodash: 4.17.23
@@ -10997,18 +10992,6 @@ snapshots:
       vinyl: 3.0.1
       vinyl-sourcemaps-apply: 0.2.1
 
-  '@gravity-ui/gulp-utils@1.1.1(typescript@5.9.3)':
-    dependencies:
-      '@gravity-ui/readme-validator': 1.2.3
-      plugin-error: 2.0.1
-      through2: 4.0.2
-      to-through: 3.0.0
-      typescript: 5.9.3
-      vinyl: 3.0.1
-      vinyl-sourcemaps-apply: 0.2.1
-    transitivePeerDependencies:
-      - supports-color
-
   '@gravity-ui/i18n@1.8.0': {}
 
   '@gravity-ui/icons@2.13.0(react@18.2.0)':
@@ -11051,7 +11034,7 @@ snapshots:
       - react-dom
       - react-is
 
-  '@gravity-ui/page-constructor@7.25.0(@diplodoc/transform@4.76.0(highlight.js@11.11.1)(react@18.2.0))(@gravity-ui/uikit@7.13.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.0.28)(js-yaml@4.1.1)(react-dom@18.2.0(react@18.2.0))(react-is@18.3.1)(react@18.2.0)':
+  '@gravity-ui/page-constructor@7.25.0(@diplodoc/transform@4.76.0(@types/markdown-it@13.0.9)(highlight.js@11.11.1)(react@18.2.0))(@gravity-ui/uikit@7.13.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.0.28)(js-yaml@4.1.1)(react-dom@18.2.0(react@18.2.0))(react-is@18.3.1)(react@18.2.0)':
     dependencies:
       '@bem-react/classname': 1.6.0
       '@diplodoc/transform': 4.76.0(@types/markdown-it@13.0.9)(highlight.js@11.11.1)(react@18.2.0)
@@ -11091,7 +11074,7 @@ snapshots:
     dependencies:
       prettier: 3.7.4
 
-  '@gravity-ui/readme-validator@1.2.3':
+  '@gravity-ui/readme-validator@1.3.0':
     dependencies:
       mdast-util-to-string: 3.2.0
       remark-gfm: 3.0.1
