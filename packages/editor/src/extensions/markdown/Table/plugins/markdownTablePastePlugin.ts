@@ -34,7 +34,7 @@ export const markdownTablePastePlugin = ({textParser}: ExtensionDeps) =>
         },
     });
 
-export function isPipedMarkdownTable(text: string): boolean {
+export function isPipeTableCandidate(text: string): boolean {
     const trimmed = text.trim();
     return trimmed.startsWith('|') && trimmed.endsWith('|');
 }
@@ -44,11 +44,13 @@ function shouldHandlePaste(view: EditorView, clipboardData: DataTransfer): boole
 }
 
 function parsePipedMarkdownTable(text: string, parser: Parser): Slice | null {
-    if (!isPipedMarkdownTable(text)) return null;
+    if (!isPipeTableCandidate(text)) return null;
 
     try {
         const content = parser.parse(text).content;
-        return content.firstChild?.type.name === TableNode.Table ? new Slice(content, 0, 0) : null;
+        return content.childCount === 1 && content.firstChild?.type.name === TableNode.Table
+            ? new Slice(content, 0, 0)
+            : null;
     } catch {
         return null;
     }

@@ -11,7 +11,7 @@ import {DataTransferType} from '../../behavior/Clipboard/utils';
 
 import {TableSpecs} from './TableSpecs';
 import {CellAlign, TableAttrs, TableNode} from './const';
-import {isPipedMarkdownTable, markdownTablePastePlugin} from './plugins/markdownTablePastePlugin';
+import {isPipeTableCandidate, markdownTablePastePlugin} from './plugins/markdownTablePastePlugin';
 
 const MARKDOWN_TABLE = [
     '| Name | Role | Office | Tenure |',
@@ -54,11 +54,11 @@ const {doc, p, table, thead, tbody, tr, th, td} = builders<
 });
 
 describe('markdownTablePastePlugin', () => {
-    it('detects pipe-bounded text as a markdown table candidate', () => {
-        expect(isPipedMarkdownTable(MARKDOWN_TABLE)).toBe(true);
-        expect(isPipedMarkdownTable(`\n${MARKDOWN_TABLE}\n`)).toBe(true);
-        expect(isPipedMarkdownTable('plain text')).toBe(false);
-        expect(isPipedMarkdownTable(HTML_TABLE)).toBe(false);
+    it('detects pipe table candidates', () => {
+        expect(isPipeTableCandidate(MARKDOWN_TABLE)).toBe(true);
+        expect(isPipeTableCandidate(`\n${MARKDOWN_TABLE}\n`)).toBe(true);
+        expect(isPipeTableCandidate('plain text')).toBe(false);
+        expect(isPipeTableCandidate(HTML_TABLE)).toBe(false);
     });
 
     it('prefers markdown table from text/plain over text/html', () => {
@@ -77,6 +77,17 @@ describe('markdownTablePastePlugin', () => {
 
         dispatchPasteEvent(view, {
             [DataTransferType.Text]: '| not a table |',
+            [DataTransferType.Html]: '<p>html text</p>',
+        });
+
+        expect(view.state.doc).toMatchNode(doc(p('html text')));
+    });
+
+    it('ignores markdown table when parsed content has extra nodes', () => {
+        const view = createView();
+
+        dispatchPasteEvent(view, {
+            [DataTransferType.Text]: `${MARKDOWN_TABLE}\n\nextra text`,
             [DataTransferType.Html]: '<p>html text</p>',
         });
 
