@@ -41,7 +41,9 @@ export const ToolbarSelect: React.FC<ToolbarSelectProps> = ({
                 view="clear"
                 className={className}
                 disablePortal={disablePortal}
-                onOpenChange={focus}
+                onOpenChange={(open) => {
+                    if (!open) focus();
+                }}
                 value={activeItem ? [activeItem.id] : undefined}
                 options={items.map<SelectOption>((item) => ({
                     data: item,

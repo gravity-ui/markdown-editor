@@ -21,7 +21,7 @@ test.describe('Link', () => {
 
         await wait.timeout(300);
         await actions.fillFocused('gravity-ui.com');
-        await actions.pressFocused('Tab', 3);
+        await actions.pressFocused('Tab', 2);
 
         await actions.fillFocused('gravity');
         await actions.pressFocused('Tab', 2);
@@ -50,7 +50,7 @@ test.describe('Link', () => {
 
         await wait.timeout(300);
         await actions.fillFocused('gravity-ui.com');
-        await actions.pressFocused('Tab', 3);
+        await actions.pressFocused('Tab', 2);
 
         await actions.fillFocused('gravity');
         await actions.pressFocused('Tab', 2);
@@ -131,5 +131,36 @@ test.describe('Link', () => {
 
             await expectScreenshot();
         });
+    });
+
+    test('should save new link on outside click when url is filled @wysiwyg', async ({
+        browserName,
+        editor,
+        actions,
+        wait,
+        expectScreenshot,
+        page,
+    }) => {
+        test.skip(browserName === 'webkit', 'fillFocused does not work correctly in webkit');
+
+        await editor.fill('Lorem ipsum dolor sit amet, \nconsectetur adipiscing elit. \n');
+
+        await actions.pressFocused('ArrowUp', 2);
+        await actions.pressFocused('Enter');
+        await actions.pressFocused('ArrowUp');
+
+        await editor.clickMainToolbarButton('Link');
+        await editor.link.assertFormToBeVisible();
+        await wait.timeout(500);
+
+        await actions.fillFocused('gravity-ui.com');
+
+        await page.mouse.move(0, 0);
+        await expectScreenshot({nameSuffix: 'form-with-url'});
+
+        await page.mouse.click(0, 0);
+        await wait.timeout(300);
+
+        await expect(editor.getByTextInContenteditable('gravity-ui.com')).toBeVisible();
     });
 });

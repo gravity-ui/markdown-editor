@@ -21,16 +21,13 @@ export const setCellBg = (params: SetCellBgParams): Command => {
         if (!dispatch) return true;
 
         const {tr} = state;
+        const newBgValue = params.bg || null;
 
         const apply = (cellPos: ReturnType<typeof tableDesc.getPosForRowCells>[number]) => {
             if (cellPos.type !== 'real') return;
             const node = state.doc.nodeAt(cellPos.from);
-            if (!node) return;
-            tr.setNodeAttribute(
-                tr.mapping.map(cellPos.from),
-                YfmTableAttr.CellBg,
-                params.bg || null,
-            );
+            if (!node || node.attrs[YfmTableAttr.CellBg] === newBgValue) return;
+            tr.setNodeAttribute(tr.mapping.map(cellPos.from), YfmTableAttr.CellBg, newBgValue);
         };
 
         if (params.rows) {

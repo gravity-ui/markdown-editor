@@ -154,6 +154,7 @@ export const Playground = memo<PlaygroundProps>((props) => {
         yfmMods,
     } = props;
     const [editorMode, setEditorMode] = useState<MarkdownEditorMode>(initialEditor ?? 'wysiwyg');
+    const [previewVisible, setPreviewVisible] = useState(false);
     const [mdRaw, setMdRaw] = useState<MarkupString>(initial || '');
 
     useEffect(() => {
@@ -352,6 +353,10 @@ export const Playground = memo<PlaygroundProps>((props) => {
         function onChangeToolbarVisibility({visible}: {visible: boolean}) {
             console.info('Toolbar visible: ' + visible);
         }
+        function onChangePreviewVisible({visible}: {visible: boolean}) {
+            setPreviewVisible(visible);
+            console.info(`Preview visible: ${visible}`);
+        }
 
         mdEditor.on('cancel', onCancel);
         mdEditor.on('submit', onSubmit);
@@ -360,6 +365,7 @@ export const Playground = memo<PlaygroundProps>((props) => {
         mdEditor.on('change-editor-mode', onChangeEditorType);
         mdEditor.on('change-split-mode-enabled', onChangeSplitModeEnabled);
         mdEditor.on('change-toolbar-visibility', onChangeToolbarVisibility);
+        mdEditor.on('change-preview-visible', onChangePreviewVisible);
 
         return () => {
             mdEditor.off('cancel', onCancel);
@@ -369,6 +375,7 @@ export const Playground = memo<PlaygroundProps>((props) => {
             mdEditor.off('change-editor-mode', onChangeEditorType);
             mdEditor.off('change-split-mode-enabled', onChangeSplitModeEnabled);
             mdEditor.off('change-toolbar-visibility', onChangeToolbarVisibility);
+            mdEditor.off('change-preview-visible', onChangePreviewVisible);
         };
     }, [mdEditor]);
 
@@ -466,6 +473,14 @@ export const Playground = memo<PlaygroundProps>((props) => {
                                 mdEditor.focus();
                             }}
                         />
+                        {editorMode === 'markup' && (
+                            <DropdownMenu.Item
+                                text={`Toggle Preview (${previewVisible ? 'on' : 'off'})`}
+                                action={() => {
+                                    mdEditor.changePreviewVisible();
+                                }}
+                            />
+                        )}
                     </DropdownMenu>
                     {mdEditor.currentMode === 'markup' && (
                         <MoveToLine

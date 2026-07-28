@@ -1,0 +1,18 @@
+.g-md-link {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: var(--g-spacing-2);
+
+    box-sizing: border-box;
+    width: 400px;
+    padding: var(--g-spacing-4);
+
+    &__input {
+        box-sizing: border-box;
+    }
+
+    &__submit-button {
+        --g-button-padding: var(--g-spacing-8);
+    }
+}

@@ -968,6 +968,74 @@ test.describe('YfmTable', () => {
             await expect(cellsLocator.nth(1)).toHaveAttribute('data-bg', 'green');
         });
 
+        test('should propagate row background when first cell already has target color', async ({
+            mount,
+            editor,
+        }) => {
+            const initial = dd`
+            #|
+            ||::{bg="yellow"} one   | two  ||
+            ||                three | four ||
+            |#
+            `;
+
+            await mount(<Playground initial={initial} yfmMods={yfmMods} />);
+
+            const tableLocator = (
+                await editor.yfmTable.getTable(editor.locators.contenteditable)
+            ).first();
+            const cellsLocator = await editor.yfmTable.getCells(tableLocator);
+            const firstCell = cellsLocator.first();
+            const rowButton = (await editor.yfmTable.getRowButtons(tableLocator)).first();
+
+            await expect(cellsLocator.nth(0)).toHaveAttribute('data-bg', 'yellow');
+            await expect(cellsLocator.nth(1)).not.toHaveAttribute('data-bg');
+
+            await editor.yfmTable.focusFirstCell(tableLocator);
+            await firstCell.hover();
+            await rowButton.click();
+            await editor.yfmTable.selectCellBg('row', 'Yellow');
+
+            await expect(cellsLocator.nth(0)).toHaveAttribute('data-bg', 'yellow');
+            await expect(cellsLocator.nth(1)).toHaveAttribute('data-bg', 'yellow');
+            await expect(cellsLocator.nth(2)).not.toHaveAttribute('data-bg');
+            await expect(cellsLocator.nth(3)).not.toHaveAttribute('data-bg');
+        });
+
+        test('should propagate column background when first cell already has target color', async ({
+            mount,
+            editor,
+        }) => {
+            const initial = dd`
+            #|
+            ||::{bg="blue"} one   | two  ||
+            ||              three | four ||
+            |#
+            `;
+
+            await mount(<Playground initial={initial} yfmMods={yfmMods} />);
+
+            const tableLocator = (
+                await editor.yfmTable.getTable(editor.locators.contenteditable)
+            ).first();
+            const cellsLocator = await editor.yfmTable.getCells(tableLocator);
+            const firstCell = cellsLocator.first();
+            const columnButton = (await editor.yfmTable.getColumnButtons(tableLocator)).first();
+
+            await expect(cellsLocator.nth(0)).toHaveAttribute('data-bg', 'blue');
+            await expect(cellsLocator.nth(2)).not.toHaveAttribute('data-bg');
+
+            await editor.yfmTable.focusFirstCell(tableLocator);
+            await firstCell.hover();
+            await columnButton.click();
+            await editor.yfmTable.selectCellBg('column', 'Blue');
+
+            await expect(cellsLocator.nth(0)).toHaveAttribute('data-bg', 'blue');
+            await expect(cellsLocator.nth(2)).toHaveAttribute('data-bg', 'blue');
+            await expect(cellsLocator.nth(1)).not.toHaveAttribute('data-bg');
+            await expect(cellsLocator.nth(3)).not.toHaveAttribute('data-bg');
+        });
+
         test('should apply column color independently from row color', async ({
             page,
             wait,
@@ -1141,6 +1209,130 @@ test.describe('YfmTable', () => {
             await page.mouse.move(-50, -50);
             await wait.timeout(500);
             await expectScreenshot();
+        });
+
+        test('should inherit bg when adding row after', async ({wait, mount, editor}) => {
+            const initial = dd`
+            #|
+            ||::{bg="yellow"} one  |::{bg="blue"} two ||
+            ||::{bg="green"} three | four             ||
+            |#
+            `;
+
+            await mount(<Playground initial={initial} yfmMods={yfmMods} />);
+
+            const tableLocator = (
+                await editor.yfmTable.getTable(editor.locators.contenteditable)
+            ).first();
+            const cellsLocator = await editor.yfmTable.getCells(tableLocator);
+            const firstCell = cellsLocator.first();
+            const rowButton = (await editor.yfmTable.getRowButtons(tableLocator)).first();
+
+            await editor.yfmTable.focusFirstCell(tableLocator);
+            await firstCell.hover(); // first row
+            await wait.timeout(200);
+            await rowButton.click();
+            await editor.yfmTable.doCellAction('row', 'add-row-after');
+
+            await expect(cellsLocator).toHaveCount(6);
+            await expect(cellsLocator.nth(2)).toHaveAttribute('data-bg', 'yellow');
+            await expect(cellsLocator.nth(3)).toHaveAttribute('data-bg', 'blue');
+            await expect(cellsLocator.nth(4)).toHaveAttribute('data-bg', 'green');
+            await expect(cellsLocator.nth(5)).not.toHaveAttribute('data-bg');
+        });
+
+        test('should inherit bg when adding row before', async ({wait, mount, editor}) => {
+            const initial = dd`
+            #|
+            ||::{bg="yellow"} one  |::{bg="blue"} two ||
+            ||::{bg="green"} three | four             ||
+            |#
+            `;
+
+            await mount(<Playground initial={initial} yfmMods={yfmMods} />);
+
+            const tableLocator = (
+                await editor.yfmTable.getTable(editor.locators.contenteditable)
+            ).first();
+            const cellsLocator = await editor.yfmTable.getCells(tableLocator);
+            const rowButton = (await editor.yfmTable.getRowButtons(tableLocator)).first();
+
+            await editor.yfmTable.focusFirstCell(tableLocator);
+            await cellsLocator.nth(2).hover(); // second row
+            await wait.timeout(200);
+            await rowButton.click();
+            await editor.yfmTable.doCellAction('row', 'add-row-before');
+
+            await expect(cellsLocator).toHaveCount(6);
+            await expect(cellsLocator.nth(0)).toHaveAttribute('data-bg', 'yellow');
+            await expect(cellsLocator.nth(1)).toHaveAttribute('data-bg', 'blue');
+            await expect(cellsLocator.nth(2)).toHaveAttribute('data-bg', 'green');
+            await expect(cellsLocator.nth(3)).not.toHaveAttribute('data-bg');
+            await expect(cellsLocator.nth(4)).toHaveAttribute('data-bg', 'green');
+            await expect(cellsLocator.nth(5)).not.toHaveAttribute('data-bg');
+        });
+
+        test('should inherit bg when adding column after', async ({wait, mount, editor}) => {
+            const initial = dd`
+            #|
+            ||::{bg="yellow"} one  |::{bg="blue"} two ||
+            ||::{bg="green"} three | four             ||
+            |#
+            `;
+
+            await mount(<Playground initial={initial} yfmMods={yfmMods} />);
+
+            const tableLocator = (
+                await editor.yfmTable.getTable(editor.locators.contenteditable)
+            ).first();
+            const cellsLocator = await editor.yfmTable.getCells(tableLocator);
+            const firstCell = cellsLocator.first();
+            const columnButton = (await editor.yfmTable.getColumnButtons(tableLocator)).first();
+
+            await editor.yfmTable.focusFirstCell(tableLocator);
+            await firstCell.hover(); // first column
+            await wait.timeout(200);
+            await columnButton.click();
+            await editor.yfmTable.doCellAction('column', 'add-column-after');
+
+            await expect(cellsLocator).toHaveCount(6);
+            await expect(cellsLocator.nth(0)).toHaveAttribute('data-bg', 'yellow');
+            await expect(cellsLocator.nth(1)).toHaveAttribute('data-bg', 'yellow');
+            await expect(cellsLocator.nth(2)).toHaveAttribute('data-bg', 'blue');
+            await expect(cellsLocator.nth(3)).toHaveAttribute('data-bg', 'green');
+            await expect(cellsLocator.nth(4)).toHaveAttribute('data-bg', 'green');
+            await expect(cellsLocator.nth(5)).not.toHaveAttribute('data-bg');
+        });
+
+        test('should inherit bg when adding column before', async ({wait, mount, editor}) => {
+            const initial = dd`
+            #|
+            ||::{bg="yellow"} one  |::{bg="blue"} two ||
+            ||::{bg="green"} three | four             ||
+            |#
+            `;
+
+            await mount(<Playground initial={initial} yfmMods={yfmMods} />);
+
+            const tableLocator = (
+                await editor.yfmTable.getTable(editor.locators.contenteditable)
+            ).first();
+            const cellsLocator = await editor.yfmTable.getCells(tableLocator);
+            const columnButton = (await editor.yfmTable.getColumnButtons(tableLocator)).first();
+
+            await editor.yfmTable.focusFirstCell(tableLocator);
+            await cellsLocator.nth(1).hover(); // second column
+            await wait.timeout(200);
+            await columnButton.click();
+            await editor.yfmTable.doCellAction('column', 'add-column-before');
+
+            await expect(cellsLocator).toHaveCount(6);
+            await expect(cellsLocator.nth(0)).toHaveAttribute('data-bg', 'yellow');
+            await expect(cellsLocator.nth(1)).toHaveAttribute('data-bg', 'blue');
+            await expect(cellsLocator.nth(2)).toHaveAttribute('data-bg', 'blue');
+            await expect(cellsLocator.nth(3)).toHaveAttribute('data-bg', 'green');
+            await expect(cellsLocator.nth(4)).not.toHaveAttribute('data-bg');
+            await expect(cellsLocator.nth(5)).not.toHaveAttribute('data-bg');
         });
     });
 });
