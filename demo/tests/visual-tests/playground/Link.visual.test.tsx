@@ -143,15 +143,20 @@ test.describe('Link', () => {
     }) => {
         test.skip(browserName === 'webkit', 'fillFocused does not work correctly in webkit');
 
+        const markupPreview = page.locator('.playground__markup');
+
         await editor.fill('Lorem ipsum dolor sit amet, \nconsectetur adipiscing elit. \n');
 
         await actions.pressFocused('ArrowUp', 2);
         await actions.pressFocused('Enter');
         await actions.pressFocused('ArrowUp');
+        await expect(markupPreview).toHaveText(
+            /Lorem ipsum dolor sit ame\s+t,\s+consectetur adipiscing elit\.\s*/,
+        );
 
         await editor.clickMainToolbarButton('Link');
         await editor.link.assertFormToBeVisible();
-        await wait.timeout(500);
+        await wait.timeout(300);
 
         await actions.fillFocused('gravity-ui.com');
 
