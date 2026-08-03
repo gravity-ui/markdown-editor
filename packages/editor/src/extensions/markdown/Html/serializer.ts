@@ -1,8 +1,8 @@
-import type {SerializerNodeToken} from '../../../core';
+import type {ExtensionAuto, SerializerNodeToken} from '#core';
 
 import {HtmlAttr, HtmlNode} from './const';
 
-export const serializerTokens: Record<HtmlNode, SerializerNodeToken> = {
+const serializerTokens: Record<HtmlNode, SerializerNodeToken> = {
     [HtmlNode.Block]: (state, node) => {
         state.write(node.attrs[HtmlAttr.Content]);
         state.ensureNewLine();
@@ -12,4 +12,10 @@ export const serializerTokens: Record<HtmlNode, SerializerNodeToken> = {
     [HtmlNode.Inline]: (state, node) => {
         state.write(node.attrs[HtmlAttr.Content]);
     },
+};
+
+export const HtmlSerializerSpecs: ExtensionAuto = (builder) => {
+    builder
+        .addNodeSerializerSpec(HtmlNode.Block, () => serializerTokens[HtmlNode.Block])
+        .addNodeSerializerSpec(HtmlNode.Inline, () => serializerTokens[HtmlNode.Inline]);
 };
