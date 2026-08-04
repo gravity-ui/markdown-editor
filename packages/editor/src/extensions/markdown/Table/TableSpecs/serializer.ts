@@ -1,7 +1,8 @@
-import type {SerializerNodeToken} from '../../../../core';
+import type {ExtensionAuto, SerializerNodeToken} from '#core';
+
 import {CellAlign, TableAttrs, TableNode} from '../const';
 
-export const serializerTokens: Record<TableNode, SerializerNodeToken> = {
+const serializerTokens: Record<TableNode, SerializerNodeToken> = {
     [TableNode.Table]: (state, node) => {
         state.ensureNewLine();
         state.write('\n');
@@ -65,4 +66,14 @@ export const serializerTokens: Record<TableNode, SerializerNodeToken> = {
         state.renderInline(node);
         state.closeBlock(node);
     },
+};
+
+export const TableSerializerSpecs: ExtensionAuto = (builder) => {
+    builder
+        .addNodeSerializerSpec(TableNode.Table, () => serializerTokens[TableNode.Table])
+        .addNodeSerializerSpec(TableNode.Head, () => serializerTokens[TableNode.Head])
+        .addNodeSerializerSpec(TableNode.Body, () => serializerTokens[TableNode.Body])
+        .addNodeSerializerSpec(TableNode.Row, () => serializerTokens[TableNode.Row])
+        .addNodeSerializerSpec(TableNode.HeaderCell, () => serializerTokens[TableNode.HeaderCell])
+        .addNodeSerializerSpec(TableNode.DataCell, () => serializerTokens[TableNode.DataCell]);
 };

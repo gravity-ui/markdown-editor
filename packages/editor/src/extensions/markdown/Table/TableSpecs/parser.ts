@@ -1,9 +1,10 @@
 import type Token from 'markdown-it/lib/token';
 
-import type {ParserToken} from '../../../../core';
+import type {ExtensionAuto, ParserToken} from '#core';
+
 import {CellAlign, TableAttrs, TableNode} from '../const';
 
-export const parserTokens: Record<TableNode, ParserToken> = {
+const parserTokens: Record<TableNode, ParserToken> = {
     [TableNode.Table]: {name: TableNode.Table, type: 'block'},
 
     [TableNode.Head]: {name: TableNode.Head, type: 'block'},
@@ -41,3 +42,13 @@ function getTableCellAttrs({attrs}: Token) {
 
     return {[TableAttrs.CellAlign]: align};
 }
+
+export const TableParserSpecs: ExtensionAuto = (builder) => {
+    builder
+        .addMarkdownTokenParserSpec(TableNode.Table, () => parserTokens[TableNode.Table])
+        .addMarkdownTokenParserSpec(TableNode.Head, () => parserTokens[TableNode.Head])
+        .addMarkdownTokenParserSpec(TableNode.Body, () => parserTokens[TableNode.Body])
+        .addMarkdownTokenParserSpec(TableNode.Row, () => parserTokens[TableNode.Row])
+        .addMarkdownTokenParserSpec(TableNode.HeaderCell, () => parserTokens[TableNode.HeaderCell])
+        .addMarkdownTokenParserSpec(TableNode.DataCell, () => parserTokens[TableNode.DataCell]);
+};
