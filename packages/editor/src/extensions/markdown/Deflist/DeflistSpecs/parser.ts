@@ -1,8 +1,10 @@
-import type {ParserToken} from '../../../../core';
+import deflistPlugin from '@diplodoc/transform/lib/plugins/deflist.js';
+
+import type {ExtensionAuto, ParserToken} from '../../../../core';
 
 import {DeflistAttr, DeflistNode} from './const';
 
-export const parserTokens: Record<DeflistNode, ParserToken> = {
+const parserTokens: Record<DeflistNode, ParserToken> = {
     [DeflistNode.List]: {name: DeflistNode.List, type: 'block'},
 
     [DeflistNode.Term]: {
@@ -16,4 +18,12 @@ export const parserTokens: Record<DeflistNode, ParserToken> = {
     },
 
     [DeflistNode.Desc]: {name: DeflistNode.Desc, type: 'block'},
+};
+
+export const DeflistParserSpecs: ExtensionAuto = (builder) => {
+    builder
+        .configureMd((md) => md.use(deflistPlugin))
+        .addMarkdownTokenParserSpec(DeflistNode.List, () => parserTokens[DeflistNode.List])
+        .addMarkdownTokenParserSpec(DeflistNode.Term, () => parserTokens[DeflistNode.Term])
+        .addMarkdownTokenParserSpec(DeflistNode.Desc, () => parserTokens[DeflistNode.Desc]);
 };
