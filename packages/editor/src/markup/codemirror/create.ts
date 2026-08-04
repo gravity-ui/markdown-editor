@@ -6,6 +6,7 @@ import {
     indentWithTab,
     insertNewlineKeepIndent,
     insertTab,
+    toggleBlockComment,
 } from '@codemirror/commands';
 import {syntaxHighlighting} from '@codemirror/language';
 import type {Extension, StateCommand} from '@codemirror/state';
@@ -171,7 +172,11 @@ export function createCodemirror(params: CreateCodemirrorParams) {
                 shift: insertNewlineKeepIndent,
             },
             indentWithTab,
-            ...defaultKeymap,
+            // CodeMirror binds toggleBlockComment to Alt-A, i.e. Opt+Shift+A, which on macOS
+            // is a printable character (Å) — the binding makes it untypable in markup mode.
+            // Block comments stay available via Mod-/: markdown has no line comment syntax,
+            // so toggleComment falls back to block comments.
+            ...defaultKeymap.filter(({run}) => run !== toggleBlockComment),
             ...(disabledExtensions.history ? [] : historyKeymap),
             ...keymaps,
         ]),

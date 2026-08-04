@@ -42,9 +42,9 @@ function dispatchDropWithFiles(view: EditorView, files: File[]) {
     view.contentDOM.dispatchEvent(event);
 }
 
-function createView(uploadHandler: (file: File) => Promise<{url: string}>) {
+function createView(uploadHandler: (file: File) => Promise<{url: string}>, doc = '') {
     return createCodemirror({
-        doc: '',
+        doc,
         placeholder: '',
         logger: new Logger2(),
         onCancel: () => undefined,
@@ -89,6 +89,32 @@ describe('createCodemirror file upload integration', () => {
         expect(uploadHandler).toHaveBeenCalledTimes(1);
         expect(uploadHandler).toHaveBeenCalledWith(file);
         expect(view.state.sliceDoc()).toBe(' ');
+
+        view.destroy();
+    });
+});
+
+describe('createCodemirror keymap', () => {
+    it('should not handle Opt+Shift+A: it is a printable character on macOS', () => {
+        const view = createView(() => Promise.resolve({url: ''}), 'text');
+        view.focus();
+
+        // macOS US layout: Opt+Shift+A produces "Å" while reporting keyCode 65,
+        // which CodeMirror resolves to its default "Alt-A" (toggleBlockComment) binding.
+        const event = new KeyboardEvent('keydown', {
+            key: 'Å',
+            code: 'KeyA',
+            keyCode: 65,
+            altKey: true,
+            shiftKey: true,
+            bubbles: true,
+            cancelable: true,
+        });
+
+        view.contentDOM.dispatchEvent(event);
+
+        expect(view.state.sliceDoc()).toBe('text');
+        expect(event.defaultPrevented).toBe(false);
 
         view.destroy();
     });
