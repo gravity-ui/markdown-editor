@@ -1,29 +1,26 @@
 import assert from 'node:assert/strict';
-import {mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync} from 'node:fs';
+import {mkdirSync, mkdtempSync, rmSync, writeFileSync} from 'node:fs';
 import {tmpdir} from 'node:os';
-import {join} from 'node:path';
+import {dirname, join} from 'node:path';
 import {afterEach, test} from 'node:test';
 
-import {
-    createExtensionRecords,
-    listExtensionNames,
-    writeExtensionsJson,
-} from './extract-extension-data.mjs';
+import {extractExtensionNamesFromSource} from './extension-ast.mjs';
+import {extractExtensionNames} from './extract-extension-data.mjs';
 
 const cleanupDirs = [];
 
-function makeExtensionsRoot() {
-    const root = mkdtempSync(join(tmpdir(), 'docs-gen-extensions-'));
+function makeRepoRoot() {
+    const root = mkdtempSync(join(tmpdir(), 'docs-gen-repo-'));
     cleanupDirs.push(root);
 
     return root;
 }
 
-function addExtensionFile(root, category, name, content) {
-    const dir = join(root, category, name);
+function addFile(root, filePath, content) {
+    const fullPath = join(root, filePath);
 
-    mkdirSync(dir, {recursive: true});
-    writeFileSync(join(dir, 'index.ts'), content);
+    mkdirSync(dirname(fullPath), {recursive: true});
+    writeFileSync(fullPath, content);
 }
 
 afterEach(() => {
@@ -32,60 +29,74 @@ afterEach(() => {
     }
 });
 
-test('listExtensionNames extracts AST-backed extension names and applies blacklist to exports', () => {
-    const extensionsDir = makeExtensionsRoot();
-    const extraDir = makeExtensionsRoot();
-
-    addExtensionFile(
-        extensionsDir,
-        'base',
-        'base-keymap',
-        'export const BaseKeymap: ExtensionAuto = () => {};',
-    );
-    addExtensionFile(extensionsDir, 'base', 'bold', 'export const Bold: ExtensionAuto = () => {};');
-    addExtensionFile(
-        extensionsDir,
-        'base',
-        'mixed',
-        [
-            'export const One: ExtensionAuto = () => {};',
-            'export const Two: ExtensionAuto = () => {};',
-        ].join('\n'),
-    );
-    addExtensionFile(
-        extensionsDir,
-        'behavior',
-        'Resizable',
-        'export const Resizable: React.FC = () => null;',
-    );
-    addExtensionFile(
-        extensionsDir,
-        'additional',
-        'GPT',
-        'export const gptExtension = (builder: ExtensionBuilder) => builder;',
-    );
-    addExtensionFile(extensionsDir, 'additional', 'Widget', 'export const Widget = () => null;');
-    writeFileSync(
-        join(extraDir, 'index.ts'),
-        'export const YfmPageConstructorExtension: ExtensionAuto = () => {};',
-    );
-
+test('extractExtensionNamesFromSource reads exported extension names from AST', () => {
     assert.deepEqual(
-        listExtensionNames({
-            extensionsDir,
-            categories: ['base', 'behavior', 'additional'],
-            extraExtensionDirs: [extraDir],
-        }),
-        ['Bold', 'One', 'Two', 'YfmPageConstructorExtension', 'gptExtension'],
+        extractExtensionNamesFromSource(
+            [
+                'export const Bold: ExtensionAuto<BoldOptions> = () => {};',
+                'export const BoldSpecs = () => {};',
+                'export type BoldOptions = {};',
+                "export {boldMarkName} from './BoldSpecs';",
+            ].join('\n'),
+        ),
+        ['Bold'],
     );
 });
 
-test('writeExtensionsJson writes extension name records', () => {
-    const outDir = makeExtensionsRoot();
+test('extractExtensionNames reads only whitelisted extension entry points', () => {
+    const repoRoot = makeRepoRoot();
 
-    writeExtensionsJson(outDir, ['Bold', 'GPT']);
+    addFile(
+        repoRoot,
+        'packages/editor/src/extensions/markdown/Bold/index.ts',
+        [
+            'export const Bold: ExtensionAuto<BoldOptions> = () => {};',
+            'export const BoldSpecs: ExtensionAuto = () => {};',
+        ].join('\n'),
+    );
+    addFile(
+        repoRoot,
+        'packages/editor/src/extensions/markdown/Heading/index.ts',
+        'export const Heading: ExtensionWithOptions<HeadingOptions> = () => {};',
+    );
+    addFile(
+        repoRoot,
+        'packages/editor/src/extensions/markdown/Italic/index.ts',
+        'export const Italic: ExtensionAuto = () => {};',
+    );
 
-    assert.deepEqual(JSON.parse(readFileSync(join(outDir, 'extensions.json'), 'utf-8')), {
-        extensions: createExtensionRecords(['Bold', 'GPT']),
-    });
+    assert.deepEqual(
+        extractExtensionNames({
+            repoRoot,
+            whitelist: [
+                {name: 'Bold', entry: 'packages/editor/src/extensions/markdown/Bold/index.ts'},
+                {
+                    name: 'Heading',
+                    entry: 'packages/editor/src/extensions/markdown/Heading/index.ts',
+                },
+            ],
+        }),
+        ['Bold', 'Heading'],
+    );
+});
+
+test('extractExtensionNames fails when a whitelisted entry does not export the expected name', () => {
+    const repoRoot = makeRepoRoot();
+
+    addFile(
+        repoRoot,
+        'packages/editor/src/extensions/markdown/Bold/index.ts',
+        'export const NotBold: ExtensionAuto = () => {};',
+    );
+
+    assert.throws(
+        () =>
+            extractExtensionNames({
+                repoRoot,
+                whitelist: [
+                    {name: 'Bold', entry: 'packages/editor/src/extensions/markdown/Bold/index.ts'},
+                ],
+            }),
+        /Expected "packages\/editor\/src\/extensions\/markdown\/Bold\/index.ts" to export extension "Bold"/,
+    );
 });
