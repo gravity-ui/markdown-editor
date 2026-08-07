@@ -69,6 +69,7 @@
     "tslib": "catalog:ts"
   },
   "devDependencies": {
+    "@diplodoc/latex-extension": "catalog:peer-diplodoc",
     "@markdown-editor/gulp-tasks": "workspace:*",
     "@markdown-editor/tsconfig": "workspace:*",
     "gulp-cli": "catalog:",
@@ -76,7 +77,7 @@
     "typescript": "catalog:ts"
   },
   "peerDependencies": {
-    "@diplodoc/latex-extension": "^1.0.3",
+    "@diplodoc/latex-extension": "^1.0.3 || ^2.0.0",
     "@gravity-ui/markdown-editor": "workspace:^15.38.1",
     "@gravity-ui/uikit": "^7.1.0",
     "katex": "^0.16.9",
