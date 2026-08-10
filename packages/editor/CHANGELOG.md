@@ -1,5 +1,34 @@
 # Changelog
 
+## [15.46.0](https://github.com/gravity-ui/markdown-editor/compare/markdown-editor-v15.45.0...markdown-editor-v15.46.0) (2026-08-10)
+
+
+### Features
+
+* allow to use latex-extension v2 ([#1209](https://github.com/gravity-ui/markdown-editor/issues/1209)) ([4db7052](https://github.com/gravity-ui/markdown-editor/commit/4db7052f3f5c77dff7c961031e5e6192aabdaec9))
+
+
+### Bug Fixes
+
+* **docs:** fix build for package docs ([#1187](https://github.com/gravity-ui/markdown-editor/issues/1187)) ([f70a596](https://github.com/gravity-ui/markdown-editor/commit/f70a596f1c2e147ad11ec73645f1a3d2c5f35863))
+* **markup:** keep Opt+Shift+A typable on macOS ([#1208](https://github.com/gravity-ui/markdown-editor/issues/1208)) ([fcab4b7](https://github.com/gravity-ui/markdown-editor/commit/fcab4b757b9493ee951e9c52e8fcec2d023b2e31))
+* **Table:** insert markdown tables from plain text ([#1188](https://github.com/gravity-ui/markdown-editor/issues/1188)) ([3f9aa5e](https://github.com/gravity-ui/markdown-editor/commit/3f9aa5e7872f9814bce0a3101f30a0c920f3219f))
+
+
+### Refactoring
+
+* **Blockquote:** use new builder methods to register nodes ([#1199](https://github.com/gravity-ui/markdown-editor/issues/1199)) ([14c1355](https://github.com/gravity-ui/markdown-editor/commit/14c1355eca197ab1029a83e5b587860ba693bad7))
+* **Bold:** use new builder methods to register marks ([#1200](https://github.com/gravity-ui/markdown-editor/issues/1200)) ([d8e4164](https://github.com/gravity-ui/markdown-editor/commit/d8e416428a3a9ab87a74e2a80e29379f58d2262b))
+* **Breaks:** use new builder methods to register nodes ([#1198](https://github.com/gravity-ui/markdown-editor/issues/1198)) ([c12922c](https://github.com/gravity-ui/markdown-editor/commit/c12922c3eb070ce5ef52b96f543d794c2bc53cef))
+* **Code:** use new builder methods to register marks ([#1201](https://github.com/gravity-ui/markdown-editor/issues/1201)) ([188534e](https://github.com/gravity-ui/markdown-editor/commit/188534ec88e1b0558995251b55585fc411356db2))
+* **Deflist:** use new builder methods to register nodes ([#1196](https://github.com/gravity-ui/markdown-editor/issues/1196)) ([526282e](https://github.com/gravity-ui/markdown-editor/commit/526282e98918bb7dc17500363ef56f1cd974f66b))
+* **Heading:** use new builder methods to register nodes ([#1202](https://github.com/gravity-ui/markdown-editor/issues/1202)) ([ec4224a](https://github.com/gravity-ui/markdown-editor/commit/ec4224a99bd3b2f60e1142f80f09c4bbd313517b))
+* **HorizontalRule:** use new builder methods to register nodes ([#1203](https://github.com/gravity-ui/markdown-editor/issues/1203)) ([39bd1e6](https://github.com/gravity-ui/markdown-editor/commit/39bd1e60307dce39e444ad7ed003b1b9231e7848))
+* **Html:** use new builder methods to register nodes ([#1197](https://github.com/gravity-ui/markdown-editor/issues/1197)) ([30c4d10](https://github.com/gravity-ui/markdown-editor/commit/30c4d100102d47af5ad6357642e132a307f59966))
+* **Image:** use new builder methods to register nodes ([#1205](https://github.com/gravity-ui/markdown-editor/issues/1205)) ([52eb432](https://github.com/gravity-ui/markdown-editor/commit/52eb4321db4114ca79d28b02c03c3b89103345e2))
+* **Italic:** use new builder methods to register marks ([#1206](https://github.com/gravity-ui/markdown-editor/issues/1206)) ([fcb1c73](https://github.com/gravity-ui/markdown-editor/commit/fcb1c73561e9d0ee04a8f2a73308c4fadd1cff14))
+* **Table:** use new builder methods to register nodes ([#1204](https://github.com/gravity-ui/markdown-editor/issues/1204)) ([be939bd](https://github.com/gravity-ui/markdown-editor/commit/be939bd7c150facee25ad2dd4c4876f8392d1c6d))
+
 ## [15.45.0](https://github.com/gravity-ui/markdown-editor/compare/markdown-editor-v15.44.0...markdown-editor-v15.45.0) (2026-07-24)
 
 
