@@ -1,10 +1,10 @@
 import type {Node} from 'prosemirror-model';
 
-import type {SerializerNodeToken} from '../../../../core';
+import type {ExtensionAuto, SerializerNodeToken} from '#core';
 
 import {ListNode, ListsAttr, Markup} from './const';
 
-export const serializerTokens: Record<ListNode, SerializerNodeToken> = {
+const serializerTokens: Record<ListNode, SerializerNodeToken> = {
     [ListNode.ListItem]: (state, node) => {
         state.renderContent(node);
     },
@@ -43,3 +43,10 @@ function getMarkup({
     if (!defs.values.includes(value)) value = defs.default;
     return value;
 }
+
+export const ListsSerializerSpecs: ExtensionAuto = (builder) => {
+    builder
+        .addNodeSerializerSpec(ListNode.ListItem, () => serializerTokens[ListNode.ListItem])
+        .addNodeSerializerSpec(ListNode.BulletList, () => serializerTokens[ListNode.BulletList])
+        .addNodeSerializerSpec(ListNode.OrderedList, () => serializerTokens[ListNode.OrderedList]);
+};
