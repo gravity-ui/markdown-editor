@@ -1,5 +1,19 @@
 # Changelog
 
+## [15.46.1](https://github.com/gravity-ui/markdown-editor/compare/markdown-editor-v15.46.0...markdown-editor-v15.46.1) (2026-08-14)
+
+
+### Refactoring
+
+* **Link:** use new builder methods to register marks ([#1219](https://github.com/gravity-ui/markdown-editor/issues/1219)) ([e833c5c](https://github.com/gravity-ui/markdown-editor/commit/e833c5ca253efee90b839b62b3ca2ccb8ee3d221))
+* **Lists:** use new builder methods to register nodes ([#1213](https://github.com/gravity-ui/markdown-editor/issues/1213)) ([7cb4013](https://github.com/gravity-ui/markdown-editor/commit/7cb4013809816af586e490827ecb18fd38396fbf))
+* **Mark:** use new builder methods to register marks ([#1211](https://github.com/gravity-ui/markdown-editor/issues/1211)) ([580dfc1](https://github.com/gravity-ui/markdown-editor/commit/580dfc107eb5559c951a6a5ad02dd3785a030cbe))
+* **Monospace:** use new builder methods to register marks ([#1218](https://github.com/gravity-ui/markdown-editor/issues/1218)) ([20cb732](https://github.com/gravity-ui/markdown-editor/commit/20cb732b9d50fc9411ee3d9fcf80735aa65f9c7d))
+* **Strike:** use new builder methods to register marks ([#1214](https://github.com/gravity-ui/markdown-editor/issues/1214)) ([928ee27](https://github.com/gravity-ui/markdown-editor/commit/928ee27ad075d579b5ec03894905afe15075bdee))
+* **Subscript:** use new builder methods to register marks ([#1215](https://github.com/gravity-ui/markdown-editor/issues/1215)) ([d788533](https://github.com/gravity-ui/markdown-editor/commit/d78853368966e43445b31eb87f63ccc8a919010b))
+* **Superscript:** use new builder methods to register marks ([#1216](https://github.com/gravity-ui/markdown-editor/issues/1216)) ([3727230](https://github.com/gravity-ui/markdown-editor/commit/37272302bc10bf42294034386fb57e9578dfa389))
+* **Underline:** use new builder methods to register marks ([#1217](https://github.com/gravity-ui/markdown-editor/issues/1217)) ([e584bc5](https://github.com/gravity-ui/markdown-editor/commit/e584bc5996b9ab2ab9d4008852592ce264b6fdeb))
+
 ## [15.46.0](https://github.com/gravity-ui/markdown-editor/compare/markdown-editor-v15.45.0...markdown-editor-v15.46.0) (2026-08-10)
 
 
