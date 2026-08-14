@@ -9,24 +9,20 @@ export const markMarkType = markTypeFactory(markMarkName);
 export const MarkSpecs: ExtensionAuto = (builder) => {
     builder
         .configureMd((md) => md.use(markPlugin))
-        .addMark(markMarkName, () => ({
-            spec: {
-                parseDOM: [{tag: 'mark'}],
-                toDOM() {
-                    return ['mark'];
-                },
+        .addMarkSpec(markMarkName, () => ({
+            parseDOM: [{tag: 'mark'}],
+            toDOM() {
+                return ['mark'];
             },
-            fromMd: {
-                tokenSpec: {
-                    name: markMarkName,
-                    type: 'mark',
-                },
-            },
-            toMd: {
-                open: '==',
-                close: '==',
-                mixable: true,
-                expelEnclosingWhitespace: true,
-            },
+        }))
+        .addMarkdownTokenParserSpec('mark', () => ({
+            name: markMarkName,
+            type: 'mark',
+        }))
+        .addMarkSerializerSpec(markMarkName, () => ({
+            open: '==',
+            close: '==',
+            mixable: true,
+            expelEnclosingWhitespace: true,
         }));
 };
