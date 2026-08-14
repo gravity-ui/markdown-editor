@@ -21,3 +21,8 @@ declare module 'markdown-it-ins' {
     declare const plugin: PluginSimple;
     export = plugin;
 }
+
+declare module '*.html' {
+    const content: string;
+    export default content;
+}

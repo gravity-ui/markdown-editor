@@ -1,0 +1,1413 @@
+.g-md-yfm-html-constructor {
+    position: relative;
+
+    margin: 44px 0 15px;
+    padding: 12px;
+
+    border: 1px solid var(--g-color-line-generic);
+    border-radius: var(--g-border-radius-m);
+
+    &_empty {
+        border-style: dashed;
+    }
+
+    &__floating-toolbar {
+        position: absolute;
+        z-index: 20;
+        top: -42px;
+        left: 50%;
+
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+
+        max-width: 90vw;
+        padding: 8px;
+
+        white-space: nowrap;
+        pointer-events: none;
+
+        opacity: 0;
+        border: 1px solid var(--g-color-line-generic);
+        border-radius: 12px;
+        background: var(--g-color-base-float);
+        box-shadow: 0 12px 32px -10px rgb(0 0 0 / 22%);
+
+        transition:
+            opacity 0.14s ease,
+            transform 0.14s ease;
+        transform: translate(-50%, 6px);
+
+        &::before {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            left: 0;
+
+            height: 18px;
+
+            content: '';
+        }
+
+        &_open,
+        &:hover,
+        &:focus-within {
+            pointer-events: auto;
+
+            opacity: 1;
+
+            transform: translate(-50%, 0);
+        }
+    }
+
+    &__floating-toolbar_expanded {
+        position: fixed;
+        top: clamp(12px, 9vh, 88px);
+
+        width: fit-content;
+        max-width: 90vw;
+        max-height: calc(100vh - 32px);
+
+        white-space: normal;
+        pointer-events: auto;
+
+        opacity: 1;
+
+        transform: translate(-50%, 0);
+    }
+
+    &__floating-toolbar_editor {
+        width: fit-content;
+        max-width: 90vw;
+    }
+
+    &__floating-toolbar-row {
+        display: flex;
+        align-items: center;
+
+        min-width: 0;
+    }
+
+    &__floating-toolbar-group {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+
+        min-width: 0;
+
+        & + & {
+            margin-left: 10px;
+            padding-left: 10px;
+
+            border-left: 1px solid var(--g-color-line-generic);
+        }
+    }
+
+    &__floating-toolbar-item {
+        display: flex;
+        flex: 0 0 auto;
+        align-items: center;
+        gap: 4px;
+
+        min-width: 0;
+    }
+
+    &__floating-toolbar_expanded &__floating-toolbar-row {
+        align-self: center;
+
+        max-width: calc(90vw - 16px);
+    }
+
+    &__floating-toolbar-row .g-button_selected {
+        --g-button-background-color: var(--g-color-base-warning-light);
+        --g-button-background-color-hover: var(--g-color-base-warning-medium);
+        --g-button-text-color: var(--g-color-text-warning-heavy);
+        --g-button-text-color-hover: var(--g-color-text-warning-heavy);
+    }
+
+    &__floating-toolbar-panel {
+        position: absolute;
+        top: calc(100% + 6px);
+        left: 50%;
+
+        overflow-y: auto;
+
+        width: min(520px, 90vw);
+        max-width: 90vw;
+        max-height: min(560px, calc(100vh - 144px));
+        margin-top: 0;
+        padding: 12px;
+
+        white-space: normal;
+
+        border: 1px solid var(--g-color-line-generic);
+        border-radius: var(--g-border-radius-l);
+        background: var(--g-color-base-float);
+        box-shadow: 0 18px 42px -14px rgb(0 0 0 / 24%);
+
+        transform: translateX(-50%);
+        transform-origin: top center;
+        animation: g-md-yfm-html-constructor-panel-in 0.14s ease-out;
+    }
+
+    &__floating-toolbar-panel_editor {
+        overflow: visible;
+
+        width: auto;
+        max-width: 95vw;
+        max-height: calc(100vh - 120px);
+        padding: 0;
+
+        border: 0;
+        border-radius: 14px;
+        background: transparent;
+        box-shadow: none;
+    }
+
+    &__floating-toolbar_expanded &__floating-toolbar-tail {
+        display: none;
+    }
+
+    &:hover > &__floating-toolbar {
+        pointer-events: auto;
+
+        opacity: 1;
+
+        transform: translate(-50%, 0);
+    }
+
+    &:has(&__item:hover)
+        > &__floating-toolbar:not(:focus-within):not(
+            .g-md-yfm-html-constructor__floating-toolbar_open
+        ) {
+        pointer-events: none;
+
+        opacity: 0;
+
+        transform: translate(-50%, 6px);
+    }
+
+    &__floating-toolbar-tail {
+        position: absolute;
+        bottom: -6px;
+        left: 50%;
+
+        width: 11px;
+        height: 11px;
+
+        border-right: 1px solid var(--g-color-line-generic);
+        border-bottom: 1px solid var(--g-color-line-generic);
+        background: var(--g-color-base-float);
+
+        transform: translateX(-50%) rotate(45deg);
+    }
+
+    &__floating-toolbar-separator {
+        width: 1px;
+        height: 24px;
+        margin: 0 6px;
+
+        background: var(--g-color-line-generic);
+    }
+
+    &__floating-control {
+        position: relative;
+
+        display: flex;
+    }
+
+    // Dropdown/labelled controls (background, text color, border) put their content
+    // in `.g-button__text` (a block box on the text baseline), unlike plain icon
+    // buttons which use the flex-centered `.g-button__icon` slot. Center it so the
+    // dot / "A" / border preview line up vertically with the neighbouring icons, and
+    // trim the wide 8px text-slot padding down to the icon buttons' optical edge
+    // (~5px) so the whole row reads with even spacing.
+    &__floating-toolbar-row .g-button__text {
+        display: flex;
+        align-items: center;
+
+        margin: 0 -3px;
+    }
+
+    &__floating-menu {
+        min-width: 168px;
+        padding: 8px;
+
+        border: 1px solid var(--g-color-line-generic);
+        border-radius: 10px;
+        background: var(--g-color-base-float);
+        box-shadow: 0 14px 34px -10px rgb(0 0 0 / 22%);
+
+        &_colors,
+        &_text {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+
+            min-width: 0;
+            padding: 12px;
+        }
+
+        &_overflow {
+            display: flex;
+            align-items: center;
+            gap: 0;
+
+            min-width: 0;
+        }
+    }
+
+    &__floating-menu-group {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+
+        min-width: 0;
+
+        & + & {
+            margin-left: 8px;
+            padding-left: 8px;
+
+            border-left: 1px solid var(--g-color-line-generic);
+        }
+    }
+
+    &__floating-menu-item {
+        display: flex;
+        align-items: center;
+    }
+
+    &__floating-menu-button {
+        display: flex;
+        align-items: center;
+
+        width: 100%;
+        padding: 9px 12px;
+
+        font: inherit;
+        cursor: pointer;
+        text-align: left;
+
+        color: var(--g-color-text-primary);
+        border: 0;
+        border-radius: var(--g-border-radius-xs);
+        background: transparent;
+
+        &:hover {
+            background: var(--g-color-base-generic-hover);
+        }
+
+        &_active {
+            color: var(--g-color-text-brand);
+            background: var(--g-color-base-selection);
+        }
+    }
+
+    &__floating-menu-section {
+        & + & {
+            margin-top: 8px;
+            padding-top: 8px;
+
+            border-top: 1px solid var(--g-color-line-generic);
+        }
+    }
+
+    &__floating-menu-section-title {
+        padding: 4px 12px 6px;
+
+        font-size: var(--g-text-caption-1-font-size);
+        line-height: var(--g-text-caption-1-line-height);
+
+        color: var(--g-color-text-secondary);
+    }
+
+    // The color popup's reset action is a full-width Gravity button under the
+    // swatch grid.
+    &__floating-menu-reset {
+        width: 100%;
+    }
+
+    // A light/dark segmented toggle that selects which color theme the swatches
+    // edit. Defaults to the editor's active theme.
+    &__floating-theme-toggle {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2px;
+
+        padding: 2px;
+
+        border-radius: var(--g-border-radius-m);
+        background: var(--g-color-base-generic);
+    }
+
+    &__floating-theme-tab {
+        padding: 5px 8px;
+
+        font: inherit;
+        font-size: var(--g-text-body-1-font-size, 13px);
+        cursor: pointer;
+        text-align: center;
+
+        color: var(--g-color-text-secondary);
+        border: 0;
+        border-radius: calc(var(--g-border-radius-m) - 2px);
+        background: transparent;
+
+        transition:
+            color 0.1s ease,
+            background-color 0.1s ease;
+
+        &:hover {
+            color: var(--g-color-text-primary);
+        }
+
+        &_active {
+            color: var(--g-color-text-primary);
+            background: var(--g-color-base-float);
+            box-shadow: 0 1px 4px -1px rgb(0 0 0 / 18%);
+        }
+    }
+
+    &__floating-swatches {
+        display: grid;
+        grid-template-columns: repeat(10, 22px);
+        gap: 9px;
+    }
+
+    &__floating-text-swatches {
+        display: grid;
+        grid-template-columns: repeat(6, 28px);
+        gap: 8px;
+    }
+
+    &__floating-swatch {
+        width: 22px;
+        height: 22px;
+        padding: 0;
+
+        cursor: pointer;
+
+        border: 1px solid rgb(0 0 0 / 12%);
+        border-radius: 50%;
+
+        transition: transform 0.1s ease;
+
+        &:hover {
+            transform: scale(1.12);
+        }
+
+        &_active {
+            border-color: transparent;
+            box-shadow:
+                0 0 0 2px var(--g-color-base-float),
+                0 0 0 4px var(--g-color-line-focus);
+        }
+    }
+
+    // Keep the swatch/icon and its chevron on one centered baseline. Wrapping them
+    // in a single span also stops uikit's Button from treating the chevron as a
+    // side icon (which positioned it lower than the swatch).
+    &__floating-control-inner {
+        // `flex` (not `inline-flex`) so the row is centered by the button's flex
+        // content box instead of sitting on the text baseline, which would push the
+        // glyphs a few pixels above the neighbouring plain icons.
+        display: flex;
+        align-items: center;
+        gap: 3px;
+    }
+
+    // All dropdown indicators (color dot, "A" with underline, border preview) share
+    // the same 16x16 box so their glyphs line up at the same height as the plain
+    // 14px action icons next to them.
+    &__floating-color-dot,
+    &__floating-text-color,
+    &__floating-border-preview {
+        flex: 0 0 auto;
+
+        box-sizing: border-box;
+        width: 13px;
+        height: 13px;
+    }
+
+    &__floating-color-dot {
+        display: inline-grid;
+        place-items: center;
+
+        color: var(--g-color-text-secondary);
+        border: 1px solid var(--g-color-line-generic);
+        border-radius: 50%;
+    }
+
+    &__floating-text-color {
+        position: relative;
+
+        display: inline-grid;
+        place-items: center;
+
+        color: var(--g-color-text-primary);
+
+        // Leave room for the color underline at the very bottom while keeping the
+        // glyph optically centered.
+        > svg {
+            margin-top: -2px;
+        }
+
+        &::after {
+            position: absolute;
+            right: 1px;
+            bottom: 1px;
+            left: 1px;
+
+            height: 2px;
+
+            content: '';
+
+            border-radius: 2px;
+            background: var(--g-md-hc-text-color, var(--g-color-text-primary));
+        }
+    }
+
+    &__floating-text-swatch {
+        display: grid;
+        place-items: center;
+
+        width: 28px;
+        height: 28px;
+        padding: 0;
+
+        font-size: 16px;
+        font-weight: 700;
+        line-height: 1;
+        cursor: pointer;
+
+        color: inherit;
+        border: 1px solid transparent;
+        border-radius: var(--g-border-radius-s);
+        background: transparent;
+
+        transition:
+            transform 0.1s ease,
+            box-shadow 0.1s ease;
+
+        &:hover {
+            background: var(--g-color-base-generic-hover);
+        }
+
+        // The "Auto" swatch keeps a colored chip so it reads as a special value.
+        &_auto {
+            color: transparent;
+            border-color: var(--g-color-line-generic);
+            background: linear-gradient(135deg, #fff 0 50%, #1c1c20 50% 100%);
+
+            &:hover {
+                background: linear-gradient(135deg, #fff 0 50%, #1c1c20 50% 100%);
+            }
+        }
+
+        // White text would be invisible on the light popup, so it sits on a dark chip.
+        &_light {
+            border-color: var(--g-color-line-generic);
+            background: #33333a;
+
+            &:hover {
+                background: #33333a;
+            }
+        }
+
+        &_active {
+            border-color: transparent;
+            box-shadow:
+                0 0 0 2px var(--g-color-base-float),
+                0 0 0 4px var(--g-color-line-focus);
+        }
+    }
+
+    &__floating-border-preview {
+        border: 1.25px solid var(--g-color-text-primary);
+        border-radius: 3px;
+
+        &_none {
+            border-color: var(--g-color-line-generic);
+            background: linear-gradient(
+                to top left,
+                transparent calc(50% - 1px),
+                var(--g-color-line-generic) calc(50% - 1px),
+                var(--g-color-line-generic) calc(50% + 1px),
+                transparent calc(50% + 1px)
+            );
+        }
+    }
+
+    &__structure {
+        // Resolve the active light/dark companion, falling back to the
+        // constructor default; @see HTML_CONSTRUCTOR_DEFAULTS in ../cssVariables.ts.
+        --g-md-hc-background-current: var(
+            --g-md-hc-background-light,
+            var(--g-color-base-generic-ultralight)
+        );
+        --g-md-hc-text-color-current: var(--g-md-hc-text-color-light, var(--g-color-text-primary));
+        --g-md-hc-border-radius-current: var(--g-md-hc-border-radius-light, var(--g-border-radius-l));
+        --g-md-hc-border-current: var(
+            --g-md-hc-border-light,
+            1px solid var(--g-color-line-generic)
+        );
+
+        position: relative;
+
+        display: grid;
+        align-items: stretch;
+        gap: 8px;
+
+        // Quick-style override -> resolved companion/default from the container.
+        color: var(--g-md-hc-text-color, var(--g-md-hc-text-color-current));
+        border: var(--g-md-hc-border, var(--g-md-hc-border-current));
+        border-radius: var(--g-md-hc-border-radius, var(--g-md-hc-border-radius-current));
+        background: var(--g-md-hc-background, var(--g-md-hc-background-current));
+    }
+
+    .g-root_theme_dark &__item,
+    .g-root_theme_dark-hc &__item,
+    .g-root_theme_dark &__structure,
+    .g-root_theme_dark-hc &__structure {
+        --g-md-hc-background-current: var(
+            --g-md-hc-background-dark,
+            var(--g-md-hc-background-light, var(--g-color-base-generic-ultralight))
+        );
+        --g-md-hc-text-color-current: var(
+            --g-md-hc-text-color-dark,
+            var(--g-md-hc-text-color-light, var(--g-color-text-primary))
+        );
+        --g-md-hc-border-radius-current: var(
+            --g-md-hc-border-radius-dark,
+            var(--g-md-hc-border-radius-light, var(--g-border-radius-l))
+        );
+        --g-md-hc-border-current: var(
+            --g-md-hc-border-dark,
+            var(--g-md-hc-border-light, 1px solid var(--g-color-line-generic))
+        );
+    }
+
+    // While a floating panel / code editor is open it floats over the constructor as
+    // a modal. Make the structure layer inert so hover affordances and clicks no
+    // longer bleed through to the block underneath — the user interacts with the
+    // panel, not the content behind it. The expanded toolbar (and its panel) re-enable
+    // pointer events for themselves via `&__floating-toolbar_expanded`.
+    &:has(&__floating-toolbar_expanded) &__structure {
+        pointer-events: none;
+    }
+
+    &__initial {
+        display: grid;
+        gap: 18px;
+        justify-items: center;
+
+        padding: 40px 20px 44px;
+
+        text-align: center;
+    }
+
+    &__initial-title {
+        margin: 0;
+
+        font-size: 36px;
+        font-weight: 700;
+        line-height: 42px;
+        letter-spacing: 0;
+
+        color: var(--g-color-text-primary);
+    }
+
+    &__initial-subtitle {
+        margin: -4px 0 18px;
+
+        font-size: 22px;
+        line-height: 28px;
+
+        color: var(--g-color-text-secondary);
+    }
+
+    &__initial-actions {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 18px;
+
+        .g-button {
+            min-width: 240px;
+        }
+    }
+
+    &__item {
+        // Resolve the active light/dark companion, falling back to the
+        // constructor default; @see HTML_CONSTRUCTOR_DEFAULTS in ../cssVariables.ts.
+        --g-md-hc-background-current: var(
+            --g-md-hc-background-light,
+            var(--g-color-base-generic-ultralight)
+        );
+        --g-md-hc-text-color-current: var(--g-md-hc-text-color-light, var(--g-color-text-primary));
+        --g-md-hc-border-radius-current: var(--g-md-hc-border-radius-light, var(--g-border-radius-l));
+        --g-md-hc-border-current: var(
+            --g-md-hc-border-light,
+            1px solid var(--g-color-line-generic)
+        );
+
+        position: relative;
+
+        min-height: 56px;
+        padding: 12px;
+
+        // Quick-style override -> resolved companion/default from the container.
+        color: var(--g-md-hc-text-color, var(--g-md-hc-text-color-current));
+        border: var(--g-md-hc-border, var(--g-md-hc-border-current));
+        border-radius: var(--g-md-hc-border-radius, var(--g-md-hc-border-radius-current));
+        background: var(--g-md-hc-background, var(--g-md-hc-background-current));
+
+        transition:
+            border-color 0.12s ease,
+            background-color 0.12s ease,
+            box-shadow 0.16s ease,
+            transform 0.16s ease,
+            opacity 0.16s ease;
+
+        &::before {
+            position: absolute;
+            z-index: 0;
+            inset: -2px;
+
+            content: '';
+            pointer-events: none;
+
+            opacity: 0;
+            border: 2px dashed var(--g-color-line-focus);
+            border-radius: inherit;
+            background: rgb(82 130 255 / 5%);
+
+            transition: opacity 0.12s ease;
+        }
+
+        &:hover::before {
+            opacity: 1;
+        }
+
+        &_dragged {
+            box-shadow: 0 12px 28px -12px rgb(0 0 0 / 35%);
+
+            // The ghost is being moved; hide its drop hints and hover frame.
+            // The dim + scale live on the content (see `&__item-content`) so the
+            // floating toolbar — a sibling — keeps its opacity and size.
+            &::before {
+                opacity: 0;
+            }
+        }
+
+        &_drop-before {
+            box-shadow: -3px 0 0 var(--g-color-line-focus);
+        }
+
+        &_drop-after {
+            box-shadow: 3px 0 0 var(--g-color-line-focus);
+        }
+    }
+
+    // The block toolbar sits inside the block's top-right corner (the container /
+    // structure toolbar stays centered above the whole constructor). This mirrors
+    // the marketplace `.cb-card__tools` pill: a compact toolbar tucked into the
+    // card corner, revealed on hover — no pointer tail, no slide-in from the side.
+    &__item > &__floating-toolbar:not(.g-md-yfm-html-constructor__floating-toolbar_expanded) {
+        top: 8px;
+        right: 8px;
+        left: auto;
+
+        width: fit-content;
+        padding: 4px;
+
+        // Fade only — the corner toolbar must not drift in from the side/top.
+        transform: none;
+    }
+
+    // The corner toolbar lives within the block's hover area, so it needs neither
+    // the pointer tail nor the invisible hover bridge that the floating container
+    // toolbar uses to connect itself to the block below.
+    &__item > &__floating-toolbar &__floating-toolbar-tail,
+    &__item > &__floating-toolbar::before {
+        display: none;
+    }
+
+    &__item:hover > &__floating-toolbar:not(.g-md-yfm-html-constructor__floating-toolbar_expanded),
+    &__item > &__floating-toolbar_open:not(.g-md-yfm-html-constructor__floating-toolbar_expanded),
+    &__item > &__floating-toolbar:hover:not(.g-md-yfm-html-constructor__floating-toolbar_expanded),
+    &__item
+        > &__floating-toolbar:focus-within:not(
+            .g-md-yfm-html-constructor__floating-toolbar_expanded
+        ) {
+        pointer-events: auto;
+
+        opacity: 1;
+
+        transform: none;
+    }
+
+    // While dragging, the block body is the moving ghost — hide its toolbar entirely
+    // so it doesn't linger half-faded/shifted over the page. The `:not(...)` bumps
+    // specificity above the hover rule above (hover is unreliable during drag) and
+    // keeps an opened editor panel untouched. It reappears on hover after drop.
+    &__item_dragged
+        > &__floating-toolbar:not(.g-md-yfm-html-constructor__floating-toolbar_expanded) {
+        pointer-events: none;
+
+        opacity: 0;
+
+        transform: none;
+    }
+
+    &__item-drag {
+        // Sits above the toolbar (z-index: 20) and content so the grab target is
+        // never covered by neighbouring blocks or inline controls.
+        position: absolute;
+        z-index: 30;
+        top: 8px;
+        left: 8px;
+
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        width: 24px;
+        height: 24px;
+        padding: 0;
+
+        cursor: grab;
+
+        // pointer-based drag: keep the gesture on the handle instead of scrolling
+        touch-action: none;
+
+        opacity: 0;
+        color: var(--g-color-text-secondary);
+        border: 0;
+        border-radius: var(--g-border-radius-s);
+        background: var(--g-color-base-float);
+        box-shadow: 0 0 0 1px var(--g-color-line-generic);
+
+        transition:
+            opacity 0.12s ease-in-out,
+            transform 0.12s ease,
+            color 0.12s ease,
+            background-color 0.12s ease,
+            box-shadow 0.12s ease;
+
+        &:hover {
+            color: var(--g-color-text-primary);
+            background: var(--g-color-base-generic-hover);
+            box-shadow:
+                0 0 0 1px var(--g-color-line-generic),
+                0 4px 12px -4px rgb(0 0 0 / 25%);
+        }
+
+        &:active {
+            cursor: grabbing;
+
+            transform: scale(0.9);
+        }
+    }
+
+    &__item:hover &__item-drag,
+    &__item_dragged &__item-drag {
+        opacity: 1;
+    }
+
+    &__item_dragged &__item-drag {
+        cursor: grabbing;
+
+        color: var(--g-color-text-primary);
+
+        transform: scale(0.9);
+    }
+
+    // While a block panel (settings/state/theme editor) is open it overlays the
+    // block, so the drag handle must not float above it.
+    &__item_panel-open &__item-drag {
+        pointer-events: none;
+
+        opacity: 0;
+    }
+
+    &__item-content {
+        position: relative;
+        z-index: 1;
+
+        min-height: 1.2em;
+
+        outline: none;
+
+        transition:
+            opacity 0.16s ease,
+            transform 0.16s ease;
+    }
+
+    // Compress and dim only the block body while dragging; the toolbar and drag
+    // handle (siblings) stay crisp.
+    &__item_dragged &__item-content {
+        opacity: 0.55;
+
+        transform: scale(0.985);
+    }
+
+    // The structure content is rendered into this wrapper so it can be edited inline
+    // like a block. `display: contents` keeps its children as direct grid items of
+    // the structure, so the original layout is preserved.
+    &__structure-content {
+        display: contents;
+    }
+
+    &__item-content-html,
+    &__structure-content {
+        // Editable nodes open the inline editor on click, so hint that with a
+        // pointer cursor. `:where` keeps specificity at 0 to avoid fighting
+        // template styles.
+        :where(
+            h1,
+            h2,
+            h3,
+            h4,
+            h5,
+            h6,
+            p,
+            a,
+            span,
+            strong,
+            em,
+            b,
+            i,
+            li,
+            dt,
+            dd,
+            blockquote,
+            figcaption,
+            cite,
+            small,
+            label,
+            td,
+            th,
+            div,
+            img,
+            svg
+        ) {
+            cursor: pointer;
+        }
+    }
+
+    &__item-content-html {
+        // A completely empty block would collapse to a bare box (and the corner
+        // toolbar would float over nothing), so always surface a localized
+        // placeholder instead. `attr()` keeps the copy out of CSS.
+        &:empty::before {
+            content: attr(data-placeholder);
+
+            color: var(--g-color-text-hint);
+        }
+    }
+
+    &__inline-edit-outline {
+        position: absolute;
+        z-index: 1;
+
+        pointer-events: none;
+
+        border: 1.5px solid var(--g-color-line-focus);
+        border-radius: var(--g-border-radius-s);
+        background: rgb(82 130 255 / 6%);
+        box-shadow: 0 0 0 4px rgb(82 130 255 / 7%);
+
+        animation: g-md-yfm-html-constructor-inline-edit-in 0.13s ease;
+    }
+
+    &__inline-edit-button {
+        position: absolute;
+        z-index: 2;
+
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+
+        width: 28px;
+        height: 28px;
+        padding: 0;
+
+        cursor: pointer;
+
+        color: var(--g-color-text-light-primary);
+        border: 2px solid var(--g-color-base-background);
+        border-radius: 50%;
+        background: var(--g-color-base-brand);
+        box-shadow: 0 4px 12px -2px rgb(0 0 0 / 28%);
+
+        transition:
+            transform 0.12s ease,
+            background-color 0.12s ease,
+            box-shadow 0.12s ease;
+        animation: g-md-yfm-html-constructor-inline-edit-pop 0.16s cubic-bezier(0.2, 0.9, 0.3, 1.2);
+
+        &:hover {
+            background: var(--g-color-base-brand-hover);
+            box-shadow: 0 6px 16px -2px rgb(0 0 0 / 32%);
+
+            transform: scale(1.08);
+        }
+
+        &:active {
+            transform: scale(0.92);
+        }
+    }
+
+    &__inline-edit-popup {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+
+        width: min(420px, 90vw);
+        max-height: min(70vh, 560px);
+        padding: 10px;
+        overflow-y: auto;
+    }
+
+    &__inline-edit-popup-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+
+        margin-top: 2px;
+    }
+
+    &__inline-edit-field {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    &__inline-edit-field-label {
+        color: var(--g-color-text-secondary);
+        font-size: var(--g-text-body-1-font-size, 13px);
+        line-height: 1;
+    }
+
+    &__inline-edit-hint {
+        padding: 4px 0;
+
+        color: var(--g-color-text-hint);
+        font-size: var(--g-text-body-1-font-size, 13px);
+    }
+
+    &__inline-edit-section {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+
+        padding-top: 8px;
+
+        border-top: 1px solid var(--g-color-line-generic);
+    }
+
+    &__inline-edit-toggle {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+
+        padding: 0;
+
+        cursor: pointer;
+
+        color: var(--g-color-text-secondary);
+        border: none;
+        background: transparent;
+        font-size: var(--g-text-body-1-font-size, 13px);
+
+        transition: color 0.12s ease;
+
+        &:hover {
+            color: var(--g-color-text-primary);
+        }
+    }
+
+    &__inline-edit-toggle-chevron {
+        transition: transform 0.15s ease;
+
+        &_open {
+            transform: rotate(180deg);
+        }
+    }
+
+    &__inline-edit-toggle-count {
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+
+        min-width: 18px;
+        height: 18px;
+        padding: 0 5px;
+
+        color: var(--g-color-text-secondary);
+        border-radius: 9px;
+        background: var(--g-color-base-generic);
+        font-size: 11px;
+    }
+
+    &__inline-edit-attrs {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    &__inline-edit-attr-row {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr) auto;
+        gap: 6px;
+        align-items: center;
+    }
+
+    &__inline-edit-icons {
+        display: grid;
+        overflow-y: auto;
+        grid-template-columns: repeat(6, 1fr);
+        gap: 4px;
+
+        max-height: 280px;
+    }
+
+    &__inline-edit-icon {
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+
+        width: 40px;
+        height: 40px;
+        padding: 0;
+
+        cursor: pointer;
+
+        color: var(--g-color-text-primary);
+        border: 1px solid var(--g-color-line-generic);
+        border-radius: var(--g-border-radius-m);
+        background: transparent;
+
+        transition:
+            border-color 0.12s ease,
+            background-color 0.12s ease;
+
+        &:hover {
+            border-color: var(--g-color-line-brand);
+            background: var(--g-color-base-brand-light);
+        }
+
+        &:active {
+            background: var(--g-color-base-brand-light-hover);
+        }
+
+        &_active {
+            color: var(--g-color-text-brand);
+            border-color: var(--g-color-line-brand);
+            background: var(--g-color-base-brand-light);
+        }
+    }
+
+    &__code-editor {
+        display: flex;
+        overflow: hidden;
+        flex-direction: column;
+
+        width: min(1120px, 94vw);
+        max-width: 94vw;
+
+        border: 1px solid var(--g-color-line-generic);
+        border-radius: 14px;
+        background: var(--g-color-base-float);
+        box-shadow: 0 22px 48px -20px rgb(0 0 0 / 30%);
+    }
+
+    &__code-editor_compact {
+        width: min(640px, 92vw);
+    }
+
+    &__code-editor-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+
+        min-height: 44px;
+        padding: 6px 8px 6px 12px;
+
+        border-bottom: 1px solid var(--g-color-line-generic);
+    }
+
+    &__code-tabs {
+        display: flex;
+        flex: 1 1 auto;
+        gap: 2px;
+
+        min-width: 0;
+    }
+
+    &__code-tab {
+        position: relative;
+
+        margin: 0;
+        padding: 8px 10px;
+
+        font-size: var(--g-text-body-1-font-size);
+        line-height: var(--g-text-body-1-line-height);
+        cursor: pointer;
+
+        color: var(--g-color-text-secondary);
+        border: 0;
+        border-radius: var(--g-border-radius-s);
+        background: transparent;
+
+        &:hover {
+            color: var(--g-color-text-primary);
+            background: var(--g-color-base-simple-hover);
+        }
+
+        &_active {
+            color: var(--g-color-text-primary);
+
+            &::after {
+                position: absolute;
+                right: 10px;
+                bottom: -7px;
+                left: 10px;
+
+                height: 2px;
+
+                content: '';
+
+                background: var(--g-color-line-brand);
+            }
+        }
+    }
+
+    &__code-editor-actions {
+        display: flex;
+        flex: 0 0 auto;
+        align-items: center;
+        gap: 6px;
+    }
+
+    &__code-editor-body {
+        display: grid;
+        overflow: hidden;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+
+        min-height: 0;
+    }
+
+    &__code-editor_compact &__code-editor-body {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    &__code {
+        display: flex;
+        flex-direction: column;
+
+        min-width: 0;
+
+        & + & {
+            border-left: 1px solid var(--g-color-line-generic);
+        }
+    }
+
+    &__code-label {
+        padding: 10px 14px 4px;
+
+        font-size: var(--g-text-caption-1-font-size);
+        line-height: var(--g-text-caption-1-line-height);
+
+        color: var(--g-color-text-secondary);
+    }
+
+    &__code-body {
+        display: flex;
+        overflow: hidden;
+
+        height: min(520px, 64vh);
+    }
+
+    &__code-gutter {
+        overflow: hidden;
+        flex: 0 0 auto;
+
+        padding: 12px 8px 12px 14px;
+
+        font-family: var(--g-font-family-monospace);
+        font-size: 13px;
+        line-height: 20px;
+        user-select: none;
+        text-align: right;
+        white-space: pre;
+
+        color: var(--g-color-text-hint);
+        background: var(--g-color-base-generic);
+    }
+
+    &__code-input {
+        overflow: auto;
+        overscroll-behavior: contain;
+        flex: 1 1 auto;
+
+        min-width: 0;
+        margin: 0;
+        padding: 12px 14px;
+
+        font-family: var(--g-font-family-monospace);
+        font-size: 13px;
+        line-height: 20px;
+        resize: none;
+        white-space: pre;
+        tab-size: 2;
+
+        color: var(--g-color-text-primary);
+        border: 0;
+        outline: none;
+        background: transparent;
+
+        &::placeholder {
+            color: var(--g-color-text-hint);
+        }
+    }
+
+    &__code-body_framed {
+        overflow: auto;
+        overscroll-behavior: contain;
+        // Lay gutter + stack out at their natural height so the body itself becomes
+        // the scroll container; with the default `stretch` the textarea's overflow
+        // is not counted and the pane cannot scroll vertically.
+        align-items: flex-start;
+    }
+
+    &__code-gutter_framed {
+        position: sticky;
+        z-index: 1;
+        left: 0;
+
+        // Fill the body height so the grey gutter (and its continued numbering)
+        // reaches the bottom even when the code is short.
+        overflow: visible;
+        align-self: stretch;
+    }
+
+    &__code-stack {
+        display: flex;
+        flex: 1 1 auto;
+        flex-direction: column;
+
+        min-width: 0;
+    }
+
+    &__code-frame {
+        flex: 0 0 auto;
+
+        padding: 0 14px;
+
+        font-family: var(--g-font-family-monospace);
+        font-size: 13px;
+        line-height: 20px;
+        user-select: text;
+        white-space: pre;
+
+        color: var(--g-color-text-hint);
+        background: var(--g-color-base-generic);
+
+        &_top {
+            padding-top: 12px;
+        }
+
+        &_bottom {
+            padding-bottom: 12px;
+        }
+    }
+
+    &__code-input_framed {
+        overflow: hidden;
+        flex: 0 0 auto;
+
+        height: auto;
+        padding: 0 14px;
+    }
+}
+
+@media (max-width: 720px) {
+    .g-md-yfm-html-constructor {
+        &__floating-toolbar_expanded {
+            top: 8px;
+
+            width: calc(100vw - 16px);
+            max-width: calc(100vw - 16px);
+            max-height: calc(100vh - 16px);
+        }
+
+        &__floating-toolbar_editor {
+            width: calc(100vw - 16px);
+            max-width: calc(100vw - 16px);
+        }
+
+        &__floating-toolbar-panel_editor {
+            max-height: calc(100vh - 24px);
+            padding: 0;
+        }
+
+        &__code-editor,
+        &__code-editor_compact {
+            width: calc(100vw - 16px);
+            max-width: calc(100vw - 16px);
+        }
+
+        &__code-editor-body {
+            grid-template-columns: minmax(0, 1fr);
+        }
+
+        &__code {
+            & + & {
+                border-top: 1px solid var(--g-color-line-generic);
+                border-left: 0;
+            }
+        }
+
+        &__code-body {
+            height: min(260px, 38vh);
+        }
+    }
+}
+
+@keyframes g-md-yfm-html-constructor-panel-in {
+    from {
+        opacity: 0;
+
+        transform: translateX(-50%) scaleY(0.98);
+    }
+    to {
+        opacity: 1;
+
+        transform: translateX(-50%) scaleY(1);
+    }
+}
+
+@keyframes g-md-yfm-html-constructor-inline-edit-in {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes g-md-yfm-html-constructor-inline-edit-pop {
+    from {
+        opacity: 0;
+
+        transform: scale(0.6);
+    }
+    to {
+        opacity: 1;
+
+        transform: scale(1);
+    }
+}

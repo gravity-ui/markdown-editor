@@ -22,7 +22,7 @@ export const addYfmHtmlBlock: ActionSpec = {
             }),
         );
 
-        sharedKey.appendTransaction.set(tr, {editing: true});
+        sharedKey.appendTransaction.set(tr, {editing: true, activeTab: 'html'});
 
         dispatch(tr);
     },

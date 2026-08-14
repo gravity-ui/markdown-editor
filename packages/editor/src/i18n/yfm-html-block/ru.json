@@ -1,0 +1,12 @@
+{
+  "templates": "HTML-шаблоны",
+  "add_template": "Добавить",
+  "search_templates": "Поиск по названию",
+  "templates_empty": "Нет шаблонов",
+  "templates_input_placeholder": "<template id=\"hero\" title=\"Hero\">\n  <div>Ваш HTML</div>\n</template>",
+  "tab_preview": "Превью",
+  "tab_constructor": "Конструктор",
+  "tab_html": "HTML",
+  "save": "Сохранить",
+  "cancel": "Отмена"
+}
