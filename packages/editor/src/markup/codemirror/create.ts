@@ -14,6 +14,7 @@ import {
     type EditorViewConfig,
     type KeyBinding,
     keymap,
+    lineNumbers,
     placeholder,
     tooltips,
 } from '@codemirror/view';
@@ -55,6 +56,7 @@ import {type FileUploadHandler, FileUploadHandlerFacet} from './files-upload-fac
 import {FilesUploadPlugin} from './files-upload-plugin';
 import {gravityHighlightStyle, gravityTheme} from './gravity';
 import {MarkdownConverter} from './html-to-markdown/converters';
+import type {MarkupLineNumbersConfig} from './line-numbers/types';
 import {LoggerFacet} from './logger-facet';
 import {PairingCharactersExtension} from './pairing-chars';
 import {ReactRendererFacet} from './react-facet';
@@ -96,6 +98,7 @@ export type CreateCodemirrorParams = {
     directiveSyntax: DirectiveSyntaxContext;
     preserveEmptyRows: boolean;
     searchPanel?: boolean;
+    lineNumbers?: MarkupLineNumbersConfig;
 };
 
 export function createCodemirror(params: CreateCodemirrorParams) {
@@ -339,6 +342,10 @@ export function createCodemirror(params: CreateCodemirrorParams) {
 
     if (tooltipsConfig) {
         extensions.push(tooltips(tooltipsConfig));
+    }
+
+    if (params.lineNumbers?.enabled) {
+        extensions.push(lineNumbers());
     }
 
     if (extraExtensions) {
