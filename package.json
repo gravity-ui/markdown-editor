@@ -49,7 +49,7 @@
     "prettier": "catalog:linters",
     "stylelint": "catalog:linters",
     "typescript": "catalog:ts",
-    "nx": "22.3.3"
+    "nx": "22.7.2"
   },
   "lint-staged": {
     "*.{css,scss}": [
