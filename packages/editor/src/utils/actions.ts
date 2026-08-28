@@ -1,5 +1,6 @@
 import {toggleMark} from 'prosemirror-commands';
 import type {MarkType} from 'prosemirror-model';
+import type {Command} from 'prosemirror-state';
 
 import type {ActionSpec} from '../core';
 
@@ -9,12 +10,64 @@ export function defineActions<Keys extends string>(actions: Record<Keys, ActionS
     return actions;
 }
 
+export function createToggleMarkCommand(markType: MarkType): Command {
+    return toggleMark(markType);
+}
+
+function selectionAllHasMark(state: Parameters<Command>[0], markType: MarkType): boolean {
+    let hasText = false;
+    const allHave = state.selection.ranges.every(({$from, $to}) => {
+        let rangeAllHave = true;
+        state.doc.nodesBetween($from.pos, $to.pos, (node, _pos, parent) => {
+            if (!rangeAllHave || !node.isText || !parent?.type.allowsMarkType(markType)) {
+                return rangeAllHave;
+            }
+
+            hasText = true;
+            rangeAllHave = Boolean(markType.isInSet(node.marks));
+
+            return rangeAllHave;
+        });
+
+        return rangeAllHave;
+    });
+
+    return hasText && allHave;
+}
+
+export function createPartialToggleMarkCommand(markType: MarkType): Command {
+    return toggleMark(markType, undefined, {removeWhenPresent: false});
+}
+
 export function createToggleMarkAction(markType: MarkType): ActionSpec {
-    const command = toggleMark(markType);
+    const command = createToggleMarkCommand(markType);
     return {
         isActive: (state) => Boolean(isMarkActive(state, markType)),
         isEnable: command,
-        run: command,
+        run: (state, dispatch, view) => {
+            command(state, dispatch, view);
+        },
+    };
+}
+
+export function createPartialToggleMarkAction(markType: MarkType): ActionSpec {
+    const command = createPartialToggleMarkCommand(markType);
+    return {
+        isActive: (state) => Boolean(isMarkActive(state, markType)),
+        isEnable: command,
+        run: (state, dispatch, view) => {
+            command(state, dispatch, view);
+        },
+    };
+}
+
+export function createMarkdownInlineMarkCommand(markType: MarkType): Command {
+    const base = createPartialToggleMarkCommand(markType);
+    return (state, dispatch, view) => {
+        const isBlocked =
+            !selectionAllHasMark(state, markType) && !canApplyInlineMarkInMarkdown(state);
+        if (isBlocked) return false;
+        return base(state, dispatch, view);
     };
 }
 
@@ -24,20 +77,14 @@ export function createToggleMarkAction(markType: MarkType): ActionSpec {
  * Removing the mark (toggling off) is always allowed.
  */
 export function createMarkdownInlineMarkAction(markType: MarkType): ActionSpec {
-    const base = createToggleMarkAction(markType);
+    const base = createMarkdownInlineMarkCommand(markType);
     return {
-        isActive: base.isActive,
-        isEnable: (state, dispatch, view, attrs) => {
-            const isBlocked =
-                !isMarkActive(state, markType) && !canApplyInlineMarkInMarkdown(state);
-            if (isBlocked) return false;
-            return base.isEnable(state, dispatch, view, attrs);
+        isActive: (state) => Boolean(isMarkActive(state, markType)),
+        isEnable: (state, dispatch, view) => {
+            return base(state, dispatch, view);
         },
-        run: (state, dispatch, view, attrs) => {
-            const isBlocked =
-                !isMarkActive(state, markType) && !canApplyInlineMarkInMarkdown(state);
-            if (isBlocked) return;
-            base.run(state, dispatch, view, attrs);
+        run: (state, dispatch, view) => {
+            base(state, dispatch, view);
         },
     };
 }
