@@ -32,6 +32,7 @@ export type MarkupEditorViewProps = ClassNameProps &
         hiddenActionsConfig?: MToolbarItemData[];
         children?: React.ReactNode;
         toolbarDisplay?: ToolbarDisplay;
+        scrollContainerRef?: React.RefObject<HTMLElement>;
     };
 
 export const MarkupEditorView = memo<MarkupEditorViewProps>((props) => {
@@ -48,6 +49,7 @@ export const MarkupEditorView = memo<MarkupEditorViewProps>((props) => {
         children,
         stickyToolbar = true,
         toolbarDisplay,
+        scrollContainerRef,
     } = props;
     useRenderTime((time) => {
         globalLogger.metrics({
@@ -83,6 +85,7 @@ export const MarkupEditorView = memo<MarkupEditorViewProps>((props) => {
                         settingsVisible={settingsVisible}
                         className={b('toolbar', [toolbarClassName])}
                         toolbarDisplay={toolbarDisplay}
+                        scrollContainerRef={scrollContainerRef}
                     >
                         {children}
                     </ToolbarView>
