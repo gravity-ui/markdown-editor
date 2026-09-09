@@ -143,7 +143,7 @@ test.describe('Note', () => {
                 },
             });
 
-            await expect(selection).toContainText('NodeSelection');
+            await expect(selection).toContainText('TextSelection');
             const nestedSelection = await selection.innerText();
             await editor.yfmNote.clickYfmNoteToolbarButton('Alert');
             await page.mouse.move(-1, -1);
@@ -164,7 +164,7 @@ test.describe('Note', () => {
             });
             await wait.timeout();
 
-            await expect(selection).toContainText('NodeSelection');
+            await expect(selection).toContainText('TextSelection');
             const parentSelection = await selection.innerText();
             await editor.yfmNote.clickYfmNoteToolbarButton('Note');
             await page.mouse.move(-1, -1);
