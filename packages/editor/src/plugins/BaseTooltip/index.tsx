@@ -239,7 +239,7 @@ export class BaseTooltipPluginView implements PluginView {
         if (!this.content) return null;
         return (
             <EditorPopup
-                editorElement={this.view.dom}
+                editorView={this.view}
                 anchorElement={currentNode.dom}
                 placement={this.popupPlacement || defaultPlacement}
                 onOpenChange={this.popupOpenChangeHandler}
