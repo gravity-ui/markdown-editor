@@ -29,20 +29,14 @@ const isEnable = () => true;
 
 const changeType: (
     type: YfmNoteType,
-) => (params: {
-    node: Node;
-    pos: number;
-    dispatch: EditorView['dispatch'];
-    tr: Transaction;
-}) => void =
+) => (params: {pos: number; dispatch: EditorView['dispatch']; tr: Transaction}) => void =
     (type) =>
-    ({node, pos, dispatch, tr}) => {
+    ({pos, dispatch, tr}) => {
+        // Attribute steps preserve NodeSelection instead of replacing the selected node.
         dispatch(
-            tr.setNodeMarkup(pos, null, {
-                ...node.attrs,
-                [NoteAttrs.Class]: `yfm-note yfm-accent-${type}`,
-                [NoteAttrs.Type]: type,
-            }),
+            tr
+                .setNodeAttribute(pos, NoteAttrs.Class, `yfm-note yfm-accent-${type}`)
+                .setNodeAttribute(pos, NoteAttrs.Type, type),
         );
     };
 
@@ -73,7 +67,6 @@ export function YfmNoteToolbar({pos, node, editorView}: YfmNoteToolbarProps) {
                     exec: (view) =>
                         changeType(type)({
                             pos: posRef.current,
-                            node: nodeRef.current,
                             tr: view.state.tr,
                             dispatch: view.dispatch,
                         }),
