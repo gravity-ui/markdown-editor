@@ -33,6 +33,7 @@ test.describe('CodeBlock', () => {
         await wait.visible(editor.locators.contenteditable.locator('code'));
         await editor.codeBlock.waitForToolbarVisible();
 
+        // The markup preview updates asynchronously and changes the screenshot height.
         await expect(page.locator('.playground__markup')).toHaveText('```\n\n```');
         await expectScreenshot();
     });
