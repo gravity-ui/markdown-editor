@@ -1,4 +1,4 @@
-import {Popup, type PopupPlacement, type PopupProps} from '@gravity-ui/uikit';
+import type {PopupPlacement, PopupProps} from '@gravity-ui/uikit';
 import type {Mark, MarkType, Node, NodeType} from 'prosemirror-model';
 import {NodeSelection, type PluginView} from 'prosemirror-state';
 // @ts-ignore // TODO: fix cjs build
@@ -11,6 +11,8 @@ import {
     getReactRendererFromState,
 } from '../../extensions/behavior/ReactRenderer';
 import {ErrorLoggerBoundary} from '../../react-utils/ErrorBoundary';
+
+import {EditorPopup} from './EditorPopup';
 
 import './index.scss';
 
@@ -236,9 +238,8 @@ export class BaseTooltipPluginView implements PluginView {
     protected renderContent(currentNode: BaseTooltipNode): React.ReactNode {
         if (!this.content) return null;
         return (
-            <Popup
-                open
-                hasArrow={false}
+            <EditorPopup
+                editorElement={this.view.dom}
                 anchorElement={currentNode.dom}
                 placement={this.popupPlacement || defaultPlacement}
                 onOpenChange={this.popupOpenChangeHandler}
@@ -253,7 +254,7 @@ export class BaseTooltipPluginView implements PluginView {
                         this.rerenderCb,
                     )}
                 </div>
-            </Popup>
+            </EditorPopup>
         );
     }
 
