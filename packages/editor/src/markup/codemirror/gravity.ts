@@ -33,6 +33,11 @@ export const gravityTheme = EditorView.baseTheme({
     '.cm-placeholder': {
         color: 'var(--g-color-text-secondary)',
     },
+    '@supports (-moz-appearance: none)': {
+        '.cm-widgetBuffer:has(+ .cm-placeholder)': {
+            verticalAlign: 'baseline',
+        },
+    },
     '.cm-content': {
         color: 'var(--g-color-text-primary)',
         caretColor: 'currentColor',
