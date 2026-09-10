@@ -249,13 +249,7 @@ test('Editor tooltips keep markdown table menus outside the document', async ({m
         await switcher.click();
         await expect(page.getByRole('menu')).toBeVisible();
         await page.getByText('Align cell content to the right', {exact: true}).click({trial: true});
-        await page.getByRole('menuitem').first().focus();
-        await expect(page.getByRole('menuitem').first()).toBeFocused();
-        await page.keyboard.press('Tab');
-        await expect(page.getByRole('menuitem').nth(1)).toBeFocused();
-        await page.keyboard.press('Shift+Tab');
-        await expect(page.getByRole('menuitem').first()).toBeFocused();
-        await page.keyboard.press('Escape');
+        await page.getByRole('button', {name: 'After editor'}).click();
         await expect(page.getByRole('menu')).toBeHidden();
     }
 
@@ -265,6 +259,23 @@ test('Editor tooltips keep markdown table menus outside the document', async ({m
     const result = await capture.evaluate(({stop}) => stop());
     await capture.dispose();
     expect(result).toEqual([]);
+});
+
+test('Editor tooltips keep markdown table keyboard navigation', async ({mount, page}) => {
+    // Keep the page stationary: DropdownMenu intentionally dismisses on document scroll.
+    await mount(<EditorTooltips markup={'| Header | Other |\n| --- | --- |\n| Body | Cell |'} />);
+    await page.locator('.ProseMirror').getByText('Body', {exact: true}).click();
+    await page.locator('.table-cell-floating-button').click();
+    const first = page.getByRole('menuitem').first();
+    await first.click({trial: true});
+    await first.focus();
+    await expect(first).toBeFocused();
+    await page.keyboard.press('Tab');
+    await expect(page.getByRole('menuitem').nth(1)).toBeFocused();
+    await page.keyboard.press('Shift+Tab');
+    await expect(first).toBeFocused();
+    await page.keyboard.press('Escape');
+    await expect(page.getByRole('menu')).toBeHidden();
 });
 
 test('Editor tooltips keep markdown table commands working', async ({mount, page}) => {
