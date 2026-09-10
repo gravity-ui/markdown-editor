@@ -5,6 +5,7 @@ import {commonmark, defaultPreset, full, yfm, zero} from '../../../modules/toolb
 import type {ToolbarsPreset} from '../../../modules/toolbars/types';
 import {wCommandMenuConfigByPreset, wSelectionMenuConfigByPreset} from '../../config/wysiwyg';
 import type {MarkdownEditorPreset} from '../../types';
+import {ToolbarDataType} from '../types';
 
 import {
     createSelectionToolbarConfig,
@@ -82,6 +83,40 @@ describe('Contextual toolbar presets', () => {
                 },
             }),
         ).toEqual({selection: [], slash: []});
+    });
+
+    it('skips popup buttons and components nested in slash lists', () => {
+        const preset: ToolbarsPreset = {
+            items: {
+                ...full.items,
+                popup: {
+                    view: {...full.items.bold.view, type: ToolbarDataType.ButtonPopup},
+                    wysiwyg: {...full.items.bold.wysiwyg, renderPopup: () => null},
+                },
+                component: {
+                    view: {type: ToolbarDataType.ReactComponent},
+                    wysiwyg: {
+                        ...full.items.bold.wysiwyg,
+                        component: () => null,
+                        width: 20,
+                    },
+                },
+            },
+            orders: {
+                [ToolbarName.wysiwygSlash]: [
+                    [{id: 'heading', items: ['popup', 'component', ActionName.heading1]}],
+                ],
+            },
+        };
+        expect(createSlashToolbarConfig(preset).map(({id}) => id)).toEqual([ActionName.heading1]);
+    });
+
+    it('ignores slash list buttons without an explicit item order', () => {
+        const preset: ToolbarsPreset = {
+            items: full.items,
+            orders: {[ToolbarName.wysiwygSlash]: [['heading', ActionName.paragraph]]},
+        };
+        expect(createSlashToolbarConfig(preset).map(({id}) => id)).toEqual([ActionName.paragraph]);
     });
 
     it('preserves selection conditions and custom component props', () => {

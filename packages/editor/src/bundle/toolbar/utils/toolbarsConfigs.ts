@@ -1,21 +1,10 @@
 import {ToolbarName} from '../../../modules/toolbars/constants';
 import type {ContextualToolbarsConfig} from '../../../modules/toolbars/contextual';
 import {commonmark, defaultPreset, full, yfm, zero} from '../../../modules/toolbars/presets';
-import type {
-    ToolbarItem,
-    ToolbarItemMarkup,
-    ToolbarItemWysiwyg,
-    ToolbarsPreset,
-} from '../../../modules/toolbars/types';
+import type {ToolbarItem, ToolbarsPreset} from '../../../modules/toolbars/types';
 import type {MarkdownEditorPreset} from '../../preset-base-types';
 import {ToolbarDataType} from '../types';
-import type {
-    MToolbarData,
-    ToolbarConfigs,
-    ToolbarIconData,
-    WToolbarData,
-    WToolbarItemData,
-} from '../types';
+import type {MToolbarData, ToolbarConfigs, WToolbarData, WToolbarItemData} from '../types';
 
 import {flattenPreset} from './flattenPreset';
 
@@ -27,55 +16,23 @@ const defaultPresets: Record<MarkdownEditorPreset, ToolbarsPreset> = {
     full,
 };
 
-interface TransformedItem {
-    type: ToolbarDataType;
-    id: string;
-    className?: string;
-    aliases?: string[];
-    title?: string | (() => string);
-    hint?: string | (() => string);
-    icon?: ToolbarIconData;
-    hotkey?: string;
-    withArrow?: boolean;
-    replaceActiveIcon?: true;
-    doNotActivateList?: boolean;
-    preview?: React.ReactNode;
-    wysiwyg?: ToolbarItemWysiwyg<ToolbarDataType>;
-    markup?: ToolbarItemMarkup<ToolbarDataType>;
-}
-
 const transformItem = (
     type: 'wysiwyg' | 'markup',
-    item?: ToolbarItem<ToolbarDataType.SingleButton | ToolbarDataType.ListButton>,
+    item?: ToolbarItem<ToolbarDataType>,
     id = 'unknown',
-): TransformedItem => {
+) => {
     if (!item) {
         console.warn(
             `Toolbar item "${id}" not found, it might not have been added to the items dictionary.`,
         );
-        return {} as TransformedItem;
+        return {};
     }
 
-    const isListButton = item.view.type === ToolbarDataType.ListButton;
-    const isSingleButton = item.view.type === ToolbarDataType.SingleButton;
-
     return {
+        ...item.view,
         type: item.view.type ?? ToolbarDataType.SingleButton,
         id,
-        className: item.view.className,
-        aliases: item.view.aliases,
-        title: item.view.title,
-        hint: item.view.hint,
-        icon: item.view.icon,
-        hotkey: item.view.hotkey,
-        doNotActivateList: item.view.doNotActivateList,
-        ...((isSingleButton || !item.view.type) && {preview: (item.view as any).preview}),
-        ...(isListButton && {
-            withArrow: (item.view as any).withArrow,
-            replaceActiveIcon: (item.view as any).replaceActiveIcon,
-        }),
-        ...(type === 'wysiwyg' && item.wysiwyg && {...item.wysiwyg}),
-        ...(type === 'markup' && item.markup && {...item.markup}),
+        ...item[type],
     };
 };
 
@@ -120,15 +77,15 @@ export const createSelectionToolbarConfig = (
 export const createSlashToolbarConfig = (
     preset: ToolbarsPreset | MarkdownEditorPreset,
 ): WToolbarItemData[] =>
-    createToolbarConfig<WToolbarData>('wysiwyg', preset, ToolbarName.wysiwygSlash)
-        .flatMap((group) =>
-            group.flatMap((item): WToolbarItemData[] => {
-                if (item.type === ToolbarDataType.ListButton) return item.data;
-                if (item.type === ToolbarDataType.SingleButton) return [item];
-                return [];
-            }),
-        )
-        .filter((item) => typeof item.exec === 'function' && typeof item.isEnable === 'function');
+    flattenPreset(
+        createToolbarConfig<WToolbarData>('wysiwyg', preset, ToolbarName.wysiwygSlash),
+    ).filter(
+        (item) =>
+            'type' in item &&
+            item.type === ToolbarDataType.SingleButton &&
+            typeof item.exec === 'function' &&
+            typeof item.isEnable === 'function',
+    );
 
 export const getContextualToolbarsConfig = (preset?: ToolbarsPreset): ContextualToolbarsConfig => ({
     selection: preset?.orders[ToolbarName.wysiwygSelection]

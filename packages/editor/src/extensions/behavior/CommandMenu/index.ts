@@ -3,8 +3,7 @@ import {Plugin} from 'prosemirror-state';
 import type {ExtensionAuto} from '../../../core';
 import {DeflistNode, TableNode} from '../../../extensions/markdown';
 import {CheckboxNode, CutNode, TabsNode, YfmNoteNode} from '../../../extensions/yfm';
-import type {Logger2} from '../../../logger';
-import {Autocomplete, type AutocompleteItemFn} from '../Autocomplete';
+import {Autocomplete} from '../Autocomplete';
 
 import {DecoClassName} from './const';
 import {CommandHandler} from './handler';
@@ -16,15 +15,15 @@ export type CommandMenuOptions = {
     nodesIgnoreList?: readonly string[];
 };
 
-const getCommandMenuAutocompleteItem =
-    (
-        opts: CommandMenuOptions,
-        logger: Logger2.ILogger,
-        onCreate: (handler: CommandHandler) => void,
-    ): AutocompleteItemFn =>
-    ({actions}) => {
-        const handler = new CommandHandler({
-            logger,
+export const CommandMenu: ExtensionAuto<CommandMenuOptions> = (builder, opts) => {
+    // Keep the trigger available for toolbars supplied later by the editor view.
+    if (!builder.context.has('autocomplete')) {
+        builder.use(Autocomplete);
+    }
+    let handler: CommandHandler | undefined;
+    builder.context.get('autocomplete')!.add(({actions}) => {
+        handler = new CommandHandler({
+            logger: builder.logger,
             storage: actions,
             actions: opts.actions,
             // TODO: add commandMenu=false flag to specs:
@@ -38,7 +37,6 @@ const getCommandMenuAutocompleteItem =
                 TabsNode.Tab,
             ]),
         });
-        onCreate(handler);
         return {
             trigger: {
                 name: 'command',
@@ -49,19 +47,7 @@ const getCommandMenuAutocompleteItem =
             },
             handler,
         };
-    };
-
-export const CommandMenu: ExtensionAuto<CommandMenuOptions> = (builder, opts) => {
-    // Keep the trigger available for toolbars supplied later by the editor view.
-    if (!builder.context.has('autocomplete')) {
-        builder.use(Autocomplete);
-    }
-    let handler: CommandHandler | undefined;
-    builder.context.get('autocomplete')!.add(
-        getCommandMenuAutocompleteItem(opts, builder.logger, (created) => {
-            handler = created;
-        }),
-    );
+    });
     builder.addPlugin(
         () =>
             new Plugin({

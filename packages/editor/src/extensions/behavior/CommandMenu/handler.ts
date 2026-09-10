@@ -149,13 +149,13 @@ export class CommandHandler implements AutocompleteHandler {
                 contextualToolbarsKey.getState(prevState)?.slash
         ) {
             this.#view = view;
-            this.filterActions();
-            if (this.actions.length) {
-                this.render();
-            } else {
+            const needToClose = this.filterActions();
+            if (!this.actions.length || needToClose) {
                 this.#menuRenderItem?.remove();
                 this.#menuRenderItem = undefined;
                 this.closeAutocomplete(view);
+            } else {
+                this.render();
             }
         }
     }
@@ -219,7 +219,7 @@ export class CommandHandler implements AutocompleteHandler {
 
         if (currentItem) {
             const newIndex = this.#filteredActionsCarousel.array.findIndex(
-                (item) => item === currentItem,
+                (item) => item.id === currentItem.id,
             );
             if (newIndex !== -1) {
                 this.#filteredActionsCarousel.currentIndex = newIndex;

@@ -187,7 +187,7 @@ Set a contextual order to `[]` to disable that toolbar. The `zero` toolbar prese
 
 #### Migrating existing configurations
 
-The `wysiwygConfig.extensionOptions.selectionContext.config` and `wysiwygConfig.extensionOptions.commandMenu.actions` options remain supported for compatibility. An explicitly supplied contextual order in `toolbarsPreset` takes priority, including an empty array. If that order is omitted, the editor uses the corresponding extension option, or the built-in toolbar preset matching the editor preset.
+The `wysiwygConfig.extensionOptions.selectionContext.config` and `wysiwygConfig.extensionOptions.commandMenu.actions` options are deprecated and remain supported for compatibility. An explicitly supplied contextual order in `toolbarsPreset` takes priority, including an empty array. If that order is omitted, the editor uses the corresponding extension option, or the built-in toolbar preset matching the editor preset.
 
 This lets existing custom presets that configure only the main toolbars continue working. To migrate, move each button's presentation into `items[id].view`, its WYSIWYG behavior into `items[id].wysiwyg`, and its position into the appropriate contextual order. Placement, flipping, and ignored node options still belong to the extensions.
 

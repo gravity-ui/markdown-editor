@@ -78,6 +78,144 @@ test.describe('Contextual toolbar configuration', () => {
         await expect(editor.locators.contenteditable).toHaveText('/h1');
     });
 
+    test('preserves the highlighted slash command when the preset object is replaced', async ({
+        mount,
+        editor,
+        page,
+    }) => {
+        await mount(<ContextualToolbars />);
+        await editor.fill('');
+        await editor.pressSequentially('/');
+        await expect(editor.locators.toolbars.commandMenu).toContainText('Custom heading');
+        await editor.press('ArrowDown');
+        await page.getByRole('button', {name: 'Use refreshed toolbar'}).click();
+        await editor.press('Enter');
+        await editor.pressSequentially('Still a paragraph');
+        await expect(editor.locators.contenteditable.locator('p')).toHaveText('Still a paragraph');
+        await expect(editor.locators.contenteditable.locator('h2')).toHaveCount(0);
+    });
+
+    test('enables initially empty legacy menus and restores their disabled state', async ({
+        mount,
+        editor,
+        page,
+    }) => {
+        await mount(<ContextualToolbars initialConfig="default" legacy="empty" />);
+        await editor.press('ControlOrMeta+a');
+        await expect(editor.locators.toolbars.selection).toBeHidden();
+        await page.getByRole('button', {name: 'Use custom toolbar'}).click();
+        await expect(editor.locators.toolbars.selection.getByRole('button')).toHaveCount(2);
+        await editor.fill('');
+        await editor.pressSequentially('/');
+        await expect(editor.locators.toolbars.commandMenu).toContainText('Custom heading');
+        await page.getByRole('button', {name: 'Use default toolbar'}).click();
+        await expect(editor.locators.toolbars.commandMenu).toBeHidden();
+        await editor.pressSequentially('topic');
+        await expect(editor.locators.contenteditable).toHaveText('/topic');
+    });
+
+    test('closes a filtered slash menu when the replacement preset no longer matches', async ({
+        mount,
+        editor,
+        page,
+    }) => {
+        await mount(<ContextualToolbars />);
+        await editor.fill('');
+        await editor.pressSequentially('/topic');
+        await expect(editor.locators.toolbars.commandMenu).toContainText('Custom heading');
+        await page.getByRole('button', {name: 'Use alternate toolbar'}).click();
+        await expect(editor.locators.toolbars.commandMenu).toBeHidden();
+        await expect(editor.locators.contenteditable).toHaveText('/topic');
+    });
+
+    test('hides an empty selection popup after evaluating visibility conditions', async ({
+        mount,
+        editor,
+        page,
+    }) => {
+        await mount(<ContextualToolbars />);
+        await editor.press('ControlOrMeta+a');
+        await expect(editor.locators.toolbars.selection).toBeVisible();
+        await page.getByRole('button', {name: 'Use conditional toolbar'}).click();
+        await expect(editor.locators.toolbars.selection).toBeHidden();
+        await page.getByRole('button', {name: 'Use custom toolbar'}).click();
+        await expect(editor.locators.toolbars.selection.getByRole('button')).toHaveCount(2);
+    });
+
+    test('preserves formatting undo and redo across toolbar configuration updates', async ({
+        mount,
+        editor,
+        page,
+    }) => {
+        await mount(<ContextualToolbars />);
+        await editor.press('ControlOrMeta+a');
+        await editor.locators.toolbars.selection
+            .getByRole('button', {name: 'Bold', exact: true})
+            .click();
+        await page.getByRole('button', {name: 'Use alternate toolbar'}).click();
+        await editor.press('ControlOrMeta+z');
+        await expect(editor.locators.contenteditable.locator('strong')).toHaveCount(0);
+        await expect(editor.locators.contenteditable).toHaveText('Select this text');
+        await editor.press('ControlOrMeta+Shift+z');
+        await expect(editor.locators.contenteditable.locator('strong')).toHaveText(
+            'Select this text',
+        );
+        await expect(editor.locators.toolbars.selection.getByRole('button')).toHaveAttribute(
+            'aria-label',
+            'Strikethrough',
+        );
+    });
+
+    test('uses the latest contextual preset when first entering WYSIWYG mode', async ({
+        mount,
+        editor,
+        page,
+    }) => {
+        await mount(<ContextualToolbars initialMode="markup" />);
+        await page.getByRole('button', {name: 'Use alternate toolbar'}).click();
+        await editor.switchMode('wysiwyg');
+        await editor.press('ControlOrMeta+a');
+        await expect(editor.locators.toolbars.selection.getByRole('button')).toHaveAttribute(
+            'aria-label',
+            'Strikethrough',
+        );
+        await editor.fill('');
+        await editor.pressSequentially('/');
+        await expect(editor.locators.toolbars.commandMenu).toContainText('Heading 1');
+        await expect(editor.locators.toolbars.commandMenu).not.toContainText('Custom heading');
+    });
+
+    test('keeps selection conditions at block boundaries and hides menus in code blocks', async ({
+        mount,
+        editor,
+    }) => {
+        await mount(
+            <ContextualToolbars
+                initialConfig="default"
+                initialMarkup={'First paragraph\n\nSecond paragraph'}
+            />,
+        );
+        await editor.press('ControlOrMeta+a');
+        await expect(
+            editor.locators.toolbars.selection.getByTestId('g-md-toolbar-text-select'),
+        ).toBeVisible();
+        await editor.press('ControlOrMeta+a');
+        await expect(editor.locators.toolbars.selection).toBeVisible();
+        await expect(
+            editor.locators.toolbars.selection.getByTestId('g-md-toolbar-text-select'),
+        ).toBeHidden();
+        await editor.fill('');
+        await editor.pressSequentially('/code');
+        await editor.press('Enter');
+        await editor.pressSequentially('code');
+        await editor.press('Home');
+        await editor.press('Shift+End');
+        await expect(editor.locators.toolbars.selection).toBeHidden();
+        await editor.press('End');
+        await editor.pressSequentially(' /h1');
+        await expect(editor.locators.toolbars.commandMenu).toBeHidden();
+    });
+
     test('keeps legacy extension options when contextual orders are omitted', async ({
         mount,
         editor,

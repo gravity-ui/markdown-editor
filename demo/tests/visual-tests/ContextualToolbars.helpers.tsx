@@ -55,29 +55,53 @@ const zeroCustom: ToolbarsPreset = {
         [Toolbar.wysiwygSlash]: [[Action.paragraph]],
     },
 };
-const configs = {custom, alternate, empty, mainOnly, zeroCustom, default: undefined};
+const refreshed: ToolbarsPreset = {...custom};
+const conditional: ToolbarsPreset = {
+    items: {
+        hidden: {...full.items.bold, wysiwyg: {...full.items.bold.wysiwyg, condition: () => false}},
+        disabled: {
+            ...full.items.italic,
+            wysiwyg: {...full.items.italic.wysiwyg, condition: 'enabled', isEnable: () => false},
+        },
+    },
+    orders: {[Toolbar.wysiwygSelection]: [['hidden'], ['disabled']]},
+};
+const configs = {
+    custom,
+    alternate,
+    empty,
+    mainOnly,
+    zeroCustom,
+    refreshed,
+    conditional,
+    default: undefined,
+};
 
 export function ContextualToolbars({
     initialConfig = 'custom',
     preset = 'full',
     legacy = false,
     mobile = false,
+    initialMode = 'wysiwyg',
+    initialMarkup = 'Select this text',
 }: {
     initialConfig?: keyof typeof configs;
     preset?: MarkdownEditorPreset;
-    legacy?: boolean;
+    legacy?: boolean | 'empty';
     mobile?: boolean;
+    initialMode?: 'wysiwyg' | 'markup';
+    initialMarkup?: string;
 }) {
     const [config, setConfig] = useState(initialConfig);
     const editor = useMarkdownEditor({
         preset,
         mobile,
-        initial: {markup: 'Select this text', mode: 'wysiwyg'},
+        initial: {markup: initialMarkup, mode: initialMode},
         wysiwygConfig: legacy
             ? {
                   extensionOptions: {
-                      selectionContext: {config: [[wItalicItemData]]},
-                      commandMenu: {actions: [wHeading1ItemData]},
+                      selectionContext: {config: legacy === 'empty' ? [] : [[wItalicItemData]]},
+                      commandMenu: {actions: legacy === 'empty' ? [] : [wHeading1ItemData]},
                   },
               }
             : undefined,
@@ -85,7 +109,17 @@ export function ContextualToolbars({
 
     return (
         <div style={{width: 800}}>
-            {(['custom', 'alternate', 'empty', 'zeroCustom', 'default'] as const).map((name) => (
+            {(
+                [
+                    'custom',
+                    'alternate',
+                    'empty',
+                    'zeroCustom',
+                    'refreshed',
+                    'conditional',
+                    'default',
+                ] as const
+            ).map((name) => (
                 <button
                     key={name}
                     onMouseDown={(event) => event.preventDefault()}
