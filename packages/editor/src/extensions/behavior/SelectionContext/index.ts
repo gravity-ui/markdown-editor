@@ -16,6 +16,7 @@ import type {EditorProps, EditorView} from 'prosemirror-view';
 
 import type {ActionStorage, ExtensionAuto} from '../../../core';
 import type {Logger2} from '../../../logger';
+import {contextualToolbarsKey} from '../../../modules/toolbars/contextual';
 import {isCodeBlock} from '../../../utils/nodes';
 
 import {type ContextConfig, TooltipView} from './tooltip';
@@ -26,6 +27,7 @@ export type {
 } from './tooltip';
 
 export type SelectionContextOptions = {
+    /** @deprecated Use `toolbarsPreset.orders.wysiwygSelection` on MarkdownEditorView. */
     config?: ContextConfig;
     /**
      * Placement of context popup
@@ -40,12 +42,10 @@ export type SelectionContextOptions = {
 };
 
 export const SelectionContext: ExtensionAuto<SelectionContextOptions> = (builder, opts) => {
-    const {config} = opts;
-    if (Array.isArray(config) && config.length > 0) {
-        builder.addPlugin(
-            ({actions}) => new Plugin(new SelectionTooltip(actions, config, builder.logger, opts)),
-        );
-    }
+    // The editor view can supply a toolbar even when the initial config is empty.
+    builder.addPlugin(
+        ({actions}) => new Plugin(new SelectionTooltip(actions, builder.logger, opts)),
+    );
 };
 
 const HideMetaKey = 'hide-selection-menu';
@@ -60,8 +60,6 @@ type PluginState = {
     disabled: boolean;
 };
 
-type TinyState = Pick<EditorState, 'doc' | 'selection'>;
-
 class SelectionTooltip implements PluginSpec<PluginState> {
     private destroyed = false;
 
@@ -70,14 +68,11 @@ class SelectionTooltip implements PluginSpec<PluginState> {
     private hideTimeoutRef: ReturnType<typeof setTimeout> | null = null;
 
     private _isMousePressed = false;
+    private readonly config: ContextConfig;
 
-    constructor(
-        actions: ActionStorage,
-        menuConfig: ContextConfig,
-        logger: Logger2.ILogger,
-        options: SelectionContextOptions,
-    ) {
-        this.tooltip = new TooltipView(actions, menuConfig, logger, {
+    constructor(actions: ActionStorage, logger: Logger2.ILogger, options: SelectionContextOptions) {
+        this.config = options.config ?? [];
+        this.tooltip = new TooltipView(actions, this.config, logger, {
             ...options,
             onPopupOpenChange: (_open, _event, reason) => {
                 if (reason !== 'escape-key' && this.editorView)
@@ -105,10 +100,7 @@ class SelectionTooltip implements PluginSpec<PluginState> {
             }),
             handleDOMEvents: {
                 mousedown: (view) => {
-                    const startState: TinyState = {
-                        doc: view.state.doc,
-                        selection: view.state.selection,
-                    };
+                    const startState = view.state;
                     this._isMousePressed = true;
                     this.cancelTooltipHiding();
                     this.tooltip.hide(view);
@@ -146,7 +138,7 @@ class SelectionTooltip implements PluginSpec<PluginState> {
         };
     }
 
-    private update(view: EditorView, prevState?: TinyState) {
+    private update(view: EditorView, prevState?: EditorState) {
         this.editorView = view;
 
         if (this._isMousePressed) return;
@@ -162,8 +154,18 @@ class SelectionTooltip implements PluginSpec<PluginState> {
         }
 
         const {state} = view;
+        const config = this.getConfig(state);
+        if (!config.some((group) => group.length)) {
+            this.tooltip.hide(view);
+            return;
+        }
         // Don't do anything if the document/selection didn't change
-        if (prevState && prevState.doc.eq(state.doc) && prevState.selection.eq(state.selection)) {
+        if (
+            prevState &&
+            prevState.doc.eq(state.doc) &&
+            prevState.selection.eq(state.selection) &&
+            this.getConfig(prevState) === config
+        ) {
             return;
         }
 
@@ -194,7 +196,11 @@ class SelectionTooltip implements PluginSpec<PluginState> {
             return;
         }
 
-        this.tooltip.show(view);
+        this.tooltip.show(view, config);
+    }
+
+    private getConfig(state: EditorState): ContextConfig {
+        return contextualToolbarsKey.getState(state)?.selection ?? this.config;
     }
 
     private scheduleTooltipHiding(view: EditorView) {
