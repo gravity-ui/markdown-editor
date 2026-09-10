@@ -45,36 +45,50 @@ test.describe('Editor tooltips', () => {
                     childList: true,
                     subtree: true,
                 });
-                const finished = (async () => {
-                    const snapshots = [];
-                    for (let frame = 0; frame < 60; frame += 1) {
-                        await new Promise(requestAnimationFrame);
-                        snapshots.push({
-                            connected: element.isConnected && originalCode?.isConnected,
-                            positions: Array.from(document.querySelectorAll('.g-md-base-tooltip'))
-                                .filter((tooltip) =>
-                                    tooltip.checkVisibility({
-                                        opacityProperty: true,
-                                        visibilityProperty: true,
-                                    }),
-                                )
-                                .map((tooltip) => tooltip.getBoundingClientRect().x),
-                        });
-                    }
-                    observer.disconnect();
-                    return {snapshots, unexpectedFallbacks};
-                })();
-                return {finished};
+                const snapshots: {connected: boolean | undefined; positions: number[]}[] = [];
+                let frameId: number;
+                const sample = () => {
+                    snapshots.push({
+                        connected: element.isConnected && originalCode?.isConnected,
+                        positions: Array.from(document.querySelectorAll('.g-md-base-tooltip'))
+                            .filter((tooltip) =>
+                                tooltip.checkVisibility({
+                                    opacityProperty: true,
+                                    visibilityProperty: true,
+                                }),
+                            )
+                            .map((tooltip) => tooltip.getBoundingClientRect().x),
+                    });
+                    frameId = requestAnimationFrame(sample);
+                };
+                sample();
+                return {
+                    stop: () => {
+                        cancelAnimationFrame(frameId);
+                        observer.disconnect();
+                        return {snapshots, unexpectedFallbacks};
+                    },
+                };
             });
 
             await page.mouse.move(box.x + 5, box.y + box.height / 2);
             await page.mouse.down();
             await page.mouse.move(box.x + 180, box.y + box.height / 2, {steps: 30});
             await page.mouse.up();
+            // The observation window includes the entire gesture and popup transitions.
+            await expect(page.locator('.g-md-base-tooltip')).toHaveCount(2);
+            await page
+                .locator('.g-md-code-block-toolbar')
+                .getByRole('combobox')
+                .click({trial: true});
+            await page
+                .getByTestId('g-md-toolbar-yfm-note')
+                .getByRole('button')
+                .first()
+                .click({trial: true});
+            await page.evaluate(() => new Promise(requestAnimationFrame));
 
-            const {snapshots, unexpectedFallbacks} = await capture.evaluate(
-                ({finished}) => finished,
-            );
+            const {snapshots, unexpectedFallbacks} = await capture.evaluate(({stop}) => stop());
             await capture.dispose();
             expect(unexpectedFallbacks).toEqual([]);
             expect(snapshots.every(({connected}) => connected)).toBe(true);
@@ -180,4 +194,95 @@ test('Editor tooltips follow a different block and scrolling', async ({mount, pa
             })
             .toBeLessThan(2);
     }
+});
+
+test('Editor tooltips keep markdown table menus outside the document', async ({mount, page}) => {
+    await mount(<EditorTooltips markup={'| Header | Other |\n| --- | --- |\n| Body | Cell |'} />, {
+        rootStyle: {minHeight: 1200},
+    });
+    const editor = page.locator('.ProseMirror');
+    const capture = await editor.evaluateHandle((root) => {
+        const table = root.querySelector('table');
+        const cells = Array.from(root.querySelectorAll('td, th'));
+        const unexpectedFallbacks: string[] = [];
+        const observer = new MutationObserver((records) => {
+            for (const record of records) {
+                for (const node of Array.from(record.addedNodes)) {
+                    if (
+                        node instanceof HTMLElement &&
+                        node.matches('span[tabindex="-1"][aria-hidden="true"]')
+                    ) {
+                        unexpectedFallbacks.push(node.outerHTML);
+                    }
+                }
+            }
+        });
+        observer.observe(root, {subtree: true, childList: true});
+        return {
+            connected: () => Boolean(table?.isConnected) && cells.every((cell) => cell.isConnected),
+            stop: () => {
+                observer.disconnect();
+                return unexpectedFallbacks;
+            },
+        };
+    });
+    const switcher = page.locator('.table-cell-floating-button');
+    for (const text of ['Body', 'Cell', 'Body']) {
+        await editor.getByText(text, {exact: true}).click();
+        await expect(switcher).toBeVisible();
+        const scrollY = await page.evaluate(() => window.scrollY);
+        await page.mouse.wheel(0, 20);
+        await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(scrollY + 20);
+        await expect
+            .poll(async () => {
+                const cell = await editor.locator('td').filter({hasText: text}).boundingBox();
+                const popup = await switcher
+                    .locator('xpath=ancestor::*[@data-floating-ui-placement]')
+                    .boundingBox();
+                if (!cell || !popup) return false;
+                return (
+                    Math.abs(popup.x + popup.width - cell.x - 12) < 1 &&
+                    Math.abs(popup.y - cell.y - 2) < 1
+                );
+            })
+            .toBe(true);
+        await switcher.click();
+        await expect(page.getByRole('menu')).toBeVisible();
+        await page.getByText('Align cell content to the right', {exact: true}).click({trial: true});
+        await page.getByRole('menuitem').first().focus();
+        await expect(page.getByRole('menuitem').first()).toBeFocused();
+        await page.keyboard.press('Tab');
+        await expect(page.getByRole('menuitem').nth(1)).toBeFocused();
+        await page.keyboard.press('Shift+Tab');
+        await expect(page.getByRole('menuitem').first()).toBeFocused();
+        await page.keyboard.press('Escape');
+        await expect(page.getByRole('menu')).toBeHidden();
+    }
+
+    expect(await capture.evaluate(({connected}) => connected())).toBe(true);
+    await page.getByRole('button', {name: 'After editor'}).click();
+    await expect(page.getByRole('button', {name: 'After editor'})).toBeFocused();
+    const result = await capture.evaluate(({stop}) => stop());
+    await capture.dispose();
+    expect(result).toEqual([]);
+});
+
+test('Editor tooltips keep markdown table commands working', async ({mount, page}) => {
+    await mount(<EditorTooltips markup={'| Header | Other |\n| --- | --- |\n| Body | Cell |'} />);
+    const editor = page.locator('.ProseMirror');
+    const switcher = page.locator('.table-cell-floating-button');
+    await editor.getByText('Body', {exact: true}).click();
+    await switcher.click();
+    await page.getByText('Align cell content to the right', {exact: true}).click();
+    await expect(editor.locator('td').filter({hasText: 'Body'})).toHaveAttribute(
+        'cell-align',
+        'right',
+    );
+    await editor.getByText('Body', {exact: true}).click();
+    await switcher.click();
+    await page.getByText('Remove table', {exact: true}).click();
+    await expect(editor.locator('table')).toHaveCount(0);
+    await editor.click();
+    await page.keyboard.type('Continue editing');
+    await expect(editor).toContainText('Continue editing');
 });
