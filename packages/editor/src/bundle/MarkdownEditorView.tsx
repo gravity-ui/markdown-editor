@@ -15,6 +15,7 @@ import {useEnsuredForwardedRef, useKey, useUpdate} from 'react-use';
 import type {ClassNameProps} from '../classname';
 import {i18n} from '../i18n/bundle';
 import {globalLogger} from '../logger';
+import {contextualToolbarsKey} from '../modules/toolbars/contextual';
 import type {ToolbarsPreset} from '../modules/toolbars/types';
 import {useSticky} from '../react-utils';
 import {isMac} from '../utils';
@@ -29,7 +30,7 @@ import {cnEditorComponent} from './editor-classname';
 import {EditorSettings, type EditorSettingsProps, type SettingItems} from './settings';
 import {stickyCn} from './sticky';
 import type {ToolbarConfigs} from './toolbar/types';
-import {getToolbarsConfigs} from './toolbar/utils/toolbarsConfigs';
+import {getContextualToolbarsConfig, getToolbarsConfigs} from './toolbar/utils/toolbarsConfigs';
 import type {MarkdownEditorMode} from './types';
 
 import '../styles/styles.scss';
@@ -63,6 +64,32 @@ const EditorWrapper = forwardRef<HTMLDivElement, EditorWrapperProps>(
         ref,
     ) => {
         const showPreview = editor.previewVisible;
+        const contextualConfig = useMemo(
+            () => getContextualToolbarsConfig(toolbarsPreset),
+            [toolbarsPreset],
+        );
+
+        useLayoutEffect(() => {
+            if (editorMode !== 'wysiwyg' || editor.mobile) return undefined;
+            const {view} = editor.wysiwygEditor;
+            return () => {
+                if (!view.isDestroyed)
+                    view.dispatch(view.state.tr.setMeta(contextualToolbarsKey, {}));
+            };
+        }, [editor, editorMode]);
+
+        useLayoutEffect(() => {
+            if (editorMode !== 'wysiwyg' || editor.mobile) return;
+            const {view} = editor.wysiwygEditor;
+            const current = contextualToolbarsKey.getState(view.state);
+            if (
+                current?.selection !== contextualConfig.selection ||
+                current?.slash !== contextualConfig.slash
+            ) {
+                view.dispatch(view.state.tr.setMeta(contextualToolbarsKey, contextualConfig));
+            }
+        }, [editor, editorMode, contextualConfig]);
+
         const {
             wysiwygToolbarConfig,
             markupToolbarConfig,

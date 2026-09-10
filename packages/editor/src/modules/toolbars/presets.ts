@@ -100,6 +100,10 @@ import {
     tabsItemMarkup,
     tabsItemView,
     tabsItemWysiwyg,
+    textContextItemView,
+    textContextItemWisywig,
+    toggleHeadingFoldingItemView,
+    toggleHeadingFoldingItemWysiwyg,
     underlineItemMarkup,
     underlineItemView,
     underlineItemWysiwyg,
@@ -126,12 +130,18 @@ export const zero: ToolbarsPreset = {
     orders: {
         [Toolbar.wysiwygMain]: [[Action.undo, Action.redo]],
         [Toolbar.markupMain]: [[Action.undo, Action.redo]],
+        [Toolbar.wysiwygSelection]: [],
+        [Toolbar.wysiwygSlash]: [],
     },
 };
 
 export const commonmark: ToolbarsPreset = {
     items: {
         ...zero.items,
+        [Action.text]: {
+            view: textContextItemView,
+            wysiwyg: textContextItemWisywig,
+        },
         [Action.bold]: {
             view: boldItemView,
             wysiwyg: boldItemWysiwyg,
@@ -301,6 +311,30 @@ export const commonmark: ToolbarsPreset = {
         ],
         [Toolbar.wysiwygHidden]: [[Action.horizontalRule]],
         [Toolbar.markupHidden]: [[Action.horizontalRule]],
+        [Toolbar.wysiwygSelection]: [
+            [Action.text],
+            [Action.bold, Action.italic, Action.codeInline],
+            [Action.link],
+        ],
+        [Toolbar.wysiwygSlash]: [
+            [
+                Action.paragraph,
+                Action.heading1,
+                Action.heading2,
+                Action.heading3,
+                Action.heading4,
+                Action.heading5,
+                Action.heading6,
+                Action.bulletList,
+                Action.orderedList,
+                Action.sinkListItem,
+                Action.liftListItem,
+                Action.link,
+                Action.quote,
+                Action.codeBlock,
+                Action.horizontalRule,
+            ],
+        ],
     },
 };
 
@@ -314,6 +348,12 @@ export const defaultPreset: ToolbarsPreset = {
         },
     },
     orders: {
+        ...commonmark.orders,
+        [Toolbar.wysiwygSelection]: [
+            [Action.text],
+            [Action.bold, Action.italic, Action.strike, Action.codeInline],
+            [Action.link],
+        ],
         [Toolbar.wysiwygMain]: [
             [Action.undo, Action.redo],
             [Action.bold, Action.italic, Action.strike],
@@ -441,6 +481,38 @@ export const yfm: ToolbarsPreset = {
         },
     },
     orders: {
+        ...defaultPreset.orders,
+        [Toolbar.wysiwygSelection]: [
+            [Action.text],
+            [Action.bold, Action.italic, Action.strike, Action.mono, Action.codeInline],
+            [Action.link],
+        ],
+        [Toolbar.wysiwygSlash]: [
+            [
+                Action.paragraph,
+                Action.heading1,
+                Action.heading2,
+                Action.heading3,
+                Action.heading4,
+                Action.heading5,
+                Action.heading6,
+                Action.bulletList,
+                Action.orderedList,
+                Action.sinkListItem,
+                Action.liftListItem,
+                Action.link,
+                Action.quote,
+                Action.note,
+                Action.cut,
+                Action.codeBlock,
+                Action.checkbox,
+                Action.table,
+                Action.image,
+                Action.horizontalRule,
+                Action.file,
+                Action.tabs,
+            ],
+        ],
         [Toolbar.wysiwygMain]: [
             [Action.undo, Action.redo],
             [Action.bold, Action.italic, Action.underline, Action.strike, Action.mono],
@@ -521,6 +593,10 @@ export const yfm: ToolbarsPreset = {
 export const full: ToolbarsPreset = {
     items: {
         ...yfm.items,
+        [Action.foldingHeading]: {
+            view: toggleHeadingFoldingItemView,
+            wysiwyg: toggleHeadingFoldingItemWysiwyg,
+        },
         [Action.mark]: {
             view: markedItemView,
             wysiwyg: markedItemWysiwyg,
@@ -538,6 +614,47 @@ export const full: ToolbarsPreset = {
         },
     },
     orders: {
+        ...yfm.orders,
+        [Toolbar.wysiwygSelection]: [
+            [Action.foldingHeading, Action.text],
+            [
+                Action.bold,
+                Action.italic,
+                Action.underline,
+                Action.strike,
+                Action.mono,
+                Action.mark,
+                Action.codeInline,
+            ],
+            [Action.colorify, Action.link],
+        ],
+        [Toolbar.wysiwygSlash]: [
+            [
+                Action.paragraph,
+                Action.heading1,
+                Action.heading2,
+                Action.heading3,
+                Action.heading4,
+                Action.heading5,
+                Action.heading6,
+                Action.bulletList,
+                Action.orderedList,
+                Action.sinkListItem,
+                Action.liftListItem,
+                Action.link,
+                Action.quote,
+                Action.note,
+                Action.cut,
+                Action.codeBlock,
+                Action.checkbox,
+                Action.table,
+                Action.image,
+                Action.horizontalRule,
+                Action.emoji,
+                Action.file,
+                Action.tabs,
+            ],
+        ],
         [Toolbar.wysiwygMain]: [
             [Action.undo, Action.redo],
             [Action.bold, Action.italic, Action.underline, Action.strike, Action.mono, Action.mark],

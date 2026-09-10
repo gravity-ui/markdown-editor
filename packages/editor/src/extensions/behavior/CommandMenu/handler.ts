@@ -1,8 +1,10 @@
+import type {EditorState} from 'prosemirror-state';
 import type {EditorView} from 'prosemirror-view';
 
 import type {ActionStorage} from '../../../core';
 import {isFunction} from '../../../lodash';
 import {type Logger2, globalLogger} from '../../../logger';
+import {contextualToolbarsKey} from '../../../modules/toolbars/contextual';
 import {AutocompletePopupCloser} from '../../../utils/autocomplete-popup';
 import {ArrayCarousel} from '../../../utils/carousel';
 import {
@@ -54,14 +56,14 @@ export class CommandHandler implements AutocompleteHandler {
     }
 
     onOpen(action: AutocompleteAction): boolean {
+        this.updateState(action);
         this.findAnchor();
-        if (!this.#anchor || this.shouldIgnore(action)) {
+        if (!this.#anchor || this.shouldIgnore(action) || !this.actions.length) {
             this.closeAutocomplete(action.view);
             return true;
         }
 
         this.#popupCloser = new AutocompletePopupCloser(action.view);
-        this.updateState(action);
         this.filterActions();
         this.render();
 
@@ -140,9 +142,33 @@ export class CommandHandler implements AutocompleteHandler {
         this.clear();
     }
 
+    update(view: EditorView, prevState: EditorState): void {
+        if (
+            this.#view &&
+            contextualToolbarsKey.getState(view.state)?.slash !==
+                contextualToolbarsKey.getState(prevState)?.slash
+        ) {
+            this.#view = view;
+            this.filterActions();
+            if (this.actions.length) {
+                this.render();
+            } else {
+                this.#menuRenderItem?.remove();
+                this.#menuRenderItem = undefined;
+                this.closeAutocomplete(view);
+            }
+        }
+    }
+
+    private get actions(): readonly CommandAction[] {
+        return (
+            (this.#view && contextualToolbarsKey.getState(this.#view.state)?.slash) ?? this.#actions
+        );
+    }
+
     private closeAutocomplete(view: EditorView) {
         setTimeout(() => {
-            closeAutocomplete(view);
+            if (!view.isDestroyed) closeAutocomplete(view);
         });
     }
 
@@ -177,7 +203,7 @@ export class CommandHandler implements AutocompleteHandler {
         const currentItem = this.#filteredActionsCarousel?.currentItem;
         const inputText = this.#filterText;
 
-        const enabledActions = this.#actions.filter((action) =>
+        const enabledActions = this.actions.filter((action) =>
             action.isEnable(this.#actionStorage),
         );
 
