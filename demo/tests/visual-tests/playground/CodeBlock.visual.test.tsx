@@ -1,12 +1,13 @@
 import dd from 'ts-dedent';
 
-import {test} from 'playwright/core';
+import {expect, test} from 'playwright/core';
 
 import {Playground} from './Playground.helpers';
 
 test.describe('CodeBlock', () => {
     test('should insert empty codeblock @wysiwyg', async ({
         mount,
+        page,
         editor,
         wait,
         expectScreenshot,
@@ -32,7 +33,7 @@ test.describe('CodeBlock', () => {
         await wait.visible(editor.locators.contenteditable.locator('code'));
         await editor.codeBlock.waitForToolbarVisible();
 
-        await wait.timeout(100);
+        await expect(page.locator('.playground__markup')).toHaveText('```\n\n```');
         await expectScreenshot();
     });
 
