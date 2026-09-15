@@ -1,7 +1,7 @@
 import type {TagParseRule} from 'prosemirror-model';
 
-import type {ExtensionAuto} from '../../../../core';
-import {nodeTypeFactory} from '../../../../utils/schema';
+import type {ExtensionAuto} from '#core';
+import {nodeTypeFactory} from 'src/utils/schema';
 
 export enum BreakNodeName {
     HardBreak = 'hard_break',
@@ -23,8 +23,8 @@ export const BreaksSpecs: ExtensionAuto<BreaksSpecsOptions> = (builder, opts) =>
 
     const parseDOM: TagParseRule[] = [{tag: 'br'}];
 
-    builder.addNode(BreakNodeName.HardBreak, () => ({
-        spec: {
+    builder
+        .addNodeSpec(BreakNodeName.HardBreak, () => ({
             inline: true,
             group: 'inline break',
             marks: '',
@@ -34,24 +34,26 @@ export const BreaksSpecs: ExtensionAuto<BreaksSpecsOptions> = (builder, opts) =>
             toDOM() {
                 return ['br'];
             },
-        },
-        fromMd: {tokenName: 'hardbreak', tokenSpec: {name: BreakNodeName.HardBreak, type: 'node'}},
-        toMd: (state, node, parent, index) => {
+        }))
+        .addMarkdownTokenParserSpec('hardbreak', () => ({
+            name: BreakNodeName.HardBreak,
+            type: 'node',
+        }))
+        .addNodeSerializerSpec(BreakNodeName.HardBreak, () => (state, node, parent, index) => {
             for (let i = index + 1; i < parent.childCount; i++) {
                 if (parent.child(i).type !== node.type) {
                     state.write('\\\n');
                     return;
                 }
             }
-        },
-    }));
+        });
 
     // TODO: should we handle softbreak differently at different md.options.breaks setting?
 
     // we can safely convert softbreak into hardbreak,
     // but in this case non-edited markup will always be changed – a backspash will be added
-    builder.addNode(BreakNodeName.SoftBreak, () => ({
-        spec: {
+    builder
+        .addNodeSpec(BreakNodeName.SoftBreak, () => ({
             inline: true,
             group: 'inline break',
             marks: '',
@@ -61,15 +63,17 @@ export const BreaksSpecs: ExtensionAuto<BreaksSpecsOptions> = (builder, opts) =>
             toDOM() {
                 return ['br'];
             },
-        },
-        fromMd: {tokenName: 'softbreak', tokenSpec: {name: BreakNodeName.SoftBreak, type: 'node'}},
-        toMd: (state, node, parent, index) => {
+        }))
+        .addMarkdownTokenParserSpec('softbreak', () => ({
+            name: BreakNodeName.SoftBreak,
+            type: 'node',
+        }))
+        .addNodeSerializerSpec(BreakNodeName.SoftBreak, () => (state, node, parent, index) => {
             for (let i = index + 1; i < parent.childCount; i++) {
                 if (parent.child(i).type !== node.type) {
                     state.write('\n');
                     return;
                 }
             }
-        },
-    }));
+        });
 };

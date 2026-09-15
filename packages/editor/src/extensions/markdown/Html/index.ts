@@ -1,10 +1,9 @@
-import type {ExtensionAuto} from '../../../core';
-import {globalLogger} from '../../../logger';
+import type {ExtensionAuto} from '#core';
+import {globalLogger} from 'src/logger';
 
-import {HtmlNode} from './const';
-import {parserTokens} from './parser';
-import {schemaSpecs} from './schema';
-import {serializerTokens} from './serializer';
+import {HtmlParserSpecs} from './parser';
+import {HtmlSchemaSpecs} from './schema';
+import {HtmlSerializerSpecs} from './serializer';
 
 export {HtmlAttr, HtmlNode} from './const';
 
@@ -15,17 +14,7 @@ export const Html: ExtensionAuto = (builder) => {
         return;
     }
 
-    builder.addNode(HtmlNode.Block, () => ({
-        spec: schemaSpecs[HtmlNode.Block],
-        fromMd: {tokenSpec: parserTokens[HtmlNode.Block]},
-        toMd: serializerTokens[HtmlNode.Block],
-    }));
-
-    builder.addNode(HtmlNode.Inline, () => ({
-        spec: schemaSpecs[HtmlNode.Inline],
-        fromMd: {tokenSpec: parserTokens[HtmlNode.Inline]},
-        toMd: serializerTokens[HtmlNode.Inline],
-    }));
+    builder.use(HtmlSchemaSpecs).use(HtmlParserSpecs).use(HtmlSerializerSpecs);
 };
 
 declare global {
