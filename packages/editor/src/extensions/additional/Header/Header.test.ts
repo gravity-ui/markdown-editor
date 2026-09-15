@@ -149,7 +149,10 @@ describe('Header extension', () => {
         `);
 
         expect(parsed).toMatchNode(
-            doc(header(title('Title'), subtitle('Subtitle line.'), actions()), p('Stray paragraph.')),
+            doc(
+                header(title('Title'), subtitle('Subtitle line.'), actions()),
+                p('Stray paragraph.'),
+            ),
         );
     });
 

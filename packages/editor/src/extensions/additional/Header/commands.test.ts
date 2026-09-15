@@ -110,9 +110,9 @@ describe('Header commands', () => {
 
         it('should refuse when the position is not a header', () => {
             const view = editorAt(filled(), 2);
-            expect(setHeaderAttrs(999, {format: HeaderFormat.Small})(view.state, view.dispatch)).toBe(
-                false,
-            );
+            expect(
+                setHeaderAttrs(999, {format: HeaderFormat.Small})(view.state, view.dispatch),
+            ).toBe(false);
         });
     });
 

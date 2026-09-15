@@ -1,0 +1,31 @@
+import type {ExtensionDeps} from '#core';
+import {Plugin} from '#pm/state';
+import {BaseTooltipPluginView} from 'src/plugins/BaseTooltip';
+import type {FileUploadHandler} from 'src/utils/upload';
+
+import {headerType} from '../../HeaderSpecs';
+
+import {HeaderToolbar} from './HeaderToolbar';
+
+export type HeaderTooltipOptions = {
+    fileUploadHandler?: FileUploadHandler;
+};
+
+export const headerTooltipPlugin = (_deps: ExtensionDeps, opts: HeaderTooltipOptions = {}) =>
+    new Plugin({
+        view(view) {
+            return new BaseTooltipPluginView(view, {
+                idPrefix: 'header-tooltip',
+                nodeType: headerType(view.state.schema),
+                popupPlacement: ['top', 'bottom'],
+                content: (editorView, {node, pos}) => (
+                    <HeaderToolbar
+                        node={node}
+                        pos={pos}
+                        editorView={editorView}
+                        fileUploadHandler={opts.fileUploadHandler}
+                    />
+                ),
+            });
+        },
+    });

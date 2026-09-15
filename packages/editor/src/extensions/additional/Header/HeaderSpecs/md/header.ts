@@ -39,7 +39,13 @@ const CLOSE = {
     action: `${HeaderNode.Action}_close`,
 } as const;
 
-function tag(state: StateCore, type: string, name: string, nesting: 1 | -1, className?: string): Token {
+function tag(
+    state: StateCore,
+    type: string,
+    name: string,
+    nesting: 1 | -1,
+    className?: string,
+): Token {
     const token = new state.Token(type, name, nesting);
     if (className) token.attrs = [['class', className]];
     return token;
@@ -50,6 +56,75 @@ function emptyInline(state: StateCore): Token {
     token.content = '';
     token.children = [];
     return token;
+}
+
+/** Индекс парного `header_close` для открывающего токена по индексу `from`. */
+function findContainerEnd(tokens: Token[], from: number): number {
+    let depth = 0;
+    for (let i = from + 1; i < tokens.length; i++) {
+        if (tokens[i].type === OPEN.header) depth++;
+        else if (tokens[i].type === CLOSE.header) {
+            if (depth === 0) return i;
+            depth--;
+        }
+    }
+    return -1;
+}
+
+function takeUntilClose(body: Token[], from: number, closeType: string, into: Token[]): number {
+    let cursor = from;
+    while (cursor < body.length && body[cursor].type !== closeType) into.push(body[cursor++]);
+    if (cursor < body.length) into.push(body[cursor++]);
+    return cursor;
+}
+
+type Slots = {title: Token[]; subtitle?: Token; actions: Token[]; rest: Token[]};
+
+/** Раскладывает плоский поток тела директивы по слотам схемы. */
+function splitBody(body: Token[], bodyLevel: number): Slots {
+    const slots: Slots = {title: [], actions: [], rest: []};
+    let cursor = 0;
+
+    if (body[0]?.type === OPEN.title) cursor = takeUntilClose(body, 0, CLOSE.title, slots.title);
+
+    while (cursor < body.length) {
+        const token = body[cursor];
+        const atTopLevel = token.level === bodyLevel;
+
+        if (atTopLevel && token.type === OPEN.action) {
+            cursor = takeUntilClose(body, cursor, CLOSE.action, slots.actions);
+        } else if (atTopLevel && !slots.subtitle && token.type === 'paragraph_open') {
+            const paragraph: Token[] = [];
+            cursor = takeUntilClose(body, cursor + 1, 'paragraph_close', paragraph);
+            slots.subtitle = paragraph.find((tok) => tok.type === 'inline');
+        } else {
+            slots.rest.push(token);
+            cursor++;
+        }
+    }
+
+    return slots;
+}
+
+function buildSlotTokens(state: StateCore, slots: Slots): Token[] {
+    const tokens: Token[] = slots.title.length
+        ? [...slots.title]
+        : [
+              tag(state, OPEN.title, 'div', 1, HeaderClassName.Title),
+              emptyInline(state),
+              tag(state, CLOSE.title, 'div', -1),
+          ];
+
+    tokens.push(
+        tag(state, OPEN.subtitle, 'div', 1, HeaderClassName.Subtitle),
+        slots.subtitle ?? emptyInline(state),
+        tag(state, CLOSE.subtitle, 'div', -1),
+        tag(state, OPEN.actions, 'div', 1, HeaderClassName.Actions),
+        ...slots.actions,
+        tag(state, CLOSE.actions, 'div', -1),
+    );
+
+    return tokens;
 }
 
 /**
@@ -65,77 +140,16 @@ function structureRule(state: StateCore): void {
     for (let i = 0; i < tokens.length; i++) {
         if (tokens[i].type !== OPEN.header) continue;
 
-        const bodyLevel = tokens[i].level + 1;
-        let depth = 0;
-        let end = i + 1;
-        for (; end < tokens.length; end++) {
-            if (tokens[end].type === OPEN.header) depth++;
-            else if (tokens[end].type === CLOSE.header) {
-                if (depth === 0) break;
-                depth--;
-            }
-        }
-        if (end >= tokens.length) continue;
+        const end = findContainerEnd(tokens, i);
+        if (end === -1) continue;
 
-        const body = tokens.slice(i + 1, end);
-        const title: Token[] = [];
-        const actions: Token[] = [];
-        const rest: Token[] = [];
-        let subtitle: Token | undefined;
+        const slots = splitBody(tokens.slice(i + 1, end), tokens[i].level + 1);
+        const slotTokens = buildSlotTokens(state, slots);
 
-        let cursor = 0;
-        if (body[cursor]?.type === OPEN.title) {
-            while (cursor < body.length && body[cursor].type !== CLOSE.title) title.push(body[cursor++]);
-            title.push(body[cursor++]);
-        }
+        tokens.splice(i + 1, end - i - 1, ...slotTokens);
 
-        while (cursor < body.length) {
-            const token = body[cursor];
-
-            if (token.type === OPEN.action && token.level === bodyLevel) {
-                while (cursor < body.length && body[cursor].type !== CLOSE.action) {
-                    actions.push(body[cursor++]);
-                }
-                actions.push(body[cursor++]);
-                continue;
-            }
-
-            if (!subtitle && token.type === 'paragraph_open' && token.level === bodyLevel) {
-                cursor++;
-                while (cursor < body.length && body[cursor].type !== 'paragraph_close') {
-                    if (body[cursor].type === 'inline') subtitle = body[cursor];
-                    cursor++;
-                }
-                cursor++;
-                subtitle ??= emptyInline(state);
-                continue;
-            }
-
-            rest.push(token);
-            cursor++;
-        }
-
-        const slots: Token[] = title.length
-            ? [...title]
-            : [
-                  tag(state, OPEN.title, 'div', 1, HeaderClassName.Title),
-                  emptyInline(state),
-                  tag(state, CLOSE.title, 'div', -1),
-              ];
-
-        slots.push(
-            tag(state, OPEN.subtitle, 'div', 1, HeaderClassName.Subtitle),
-            subtitle ?? emptyInline(state),
-            tag(state, CLOSE.subtitle, 'div', -1),
-            tag(state, OPEN.actions, 'div', 1, HeaderClassName.Actions),
-            ...actions,
-            tag(state, CLOSE.actions, 'div', -1),
-        );
-
-        tokens.splice(i + 1, end - i - 1, ...slots);
-
-        const closeIdx = i + 1 + slots.length;
-        if (rest.length) tokens.splice(closeIdx + 1, 0, ...rest);
+        const closeIdx = i + 1 + slotTokens.length;
+        if (slots.rest.length) tokens.splice(closeIdx + 1, 0, ...slots.rest);
         i = closeIdx;
     }
 }

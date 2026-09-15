@@ -1,0 +1,9 @@
+.g-md-header-toolbar {
+    &__palette {
+        padding: 4px;
+
+        border-radius: var(--g-border-radius-l);
+        background: var(--g-color-base-float);
+        box-shadow: 0 8px 20px var(--g-color-sfx-shadow);
+    }
+}

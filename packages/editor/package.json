@@ -173,6 +173,7 @@
     "@codemirror/state": "^6.5.1",
     "@codemirror/view": "^6.36.2",
     "@diplodoc/color-extension": "0.1.1",
+    "@diplodoc/directive": "^0.3.4",
     "@diplodoc/utils": "^2.1.0",
     "@floating-ui/react": "^0.27.16",
     "@gravity-ui/i18n": "^1.7.0",

@@ -2,7 +2,6 @@ import type {DOMOutputSpec, NodeSpec} from '#pm/model';
 import type {PlaceholderOptions} from 'src/utils/placeholder';
 
 import {normalizeHeaderActionAttrs, normalizeHeaderAttrs} from './attrs';
-import {headerDecorDom, headerDomAttrs} from './dom';
 import {
     HeaderActionAttr,
     HeaderActionDefaults,
@@ -12,6 +11,7 @@ import {
     HeaderNode,
     type HeaderNodeName,
 } from './const';
+import {headerDecorDom, headerDomAttrs} from './dom';
 
 const DEFAULT_PLACEHOLDERS = {
     Title: 'Header',
@@ -20,7 +20,9 @@ const DEFAULT_PLACEHOLDERS = {
 };
 
 function attrsSpec<T extends Record<string, unknown>>(defaults: T): NodeSpec['attrs'] {
-    return Object.fromEntries(Object.entries(defaults).map(([key, value]) => [key, {default: value}]));
+    return Object.fromEntries(
+        Object.entries(defaults).map(([key, value]) => [key, {default: value}]),
+    );
 }
 
 export const getSchemaSpecs = (

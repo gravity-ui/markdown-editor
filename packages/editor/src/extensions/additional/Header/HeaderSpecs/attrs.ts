@@ -42,13 +42,17 @@ export type HeaderActionAttrs = {
 const fillValues = HEADER_FILL_SWATCHES.map(({value}) => value) as readonly string[];
 
 function oneOf<T extends string>(values: readonly string[], fallback: T) {
-    return (raw: unknown): T => (typeof raw === 'string' && values.includes(raw) ? (raw as T) : fallback);
+    return (raw: unknown): T =>
+        typeof raw === 'string' && values.includes(raw) ? (raw as T) : fallback;
 }
 
 const asFormat = oneOf<HeaderFormatValue>(Object.values(HeaderFormat), HeaderDefaults.format);
 const asEdges = oneOf<HeaderEdgesValue>(Object.values(HeaderEdges), HeaderDefaults.edges);
 const asLayout = oneOf<HeaderLayoutValue>(Object.values(HeaderLayout), HeaderDefaults.layout);
-const asBackground = oneOf<HeaderBackgroundValue>(Object.values(HeaderBackground), HeaderDefaults.bg);
+const asBackground = oneOf<HeaderBackgroundValue>(
+    Object.values(HeaderBackground),
+    HeaderDefaults.bg,
+);
 const asBorder = oneOf<HeaderBorderValue>(Object.values(HeaderBorder), HeaderDefaults.border);
 const asText = oneOf<HeaderTextColorValue>(Object.values(HeaderTextColor), HeaderDefaults.text);
 const asFill = oneOf<HeaderFillValue>(fillValues, HeaderDefaults.fill);
@@ -62,6 +66,10 @@ function asBoolean(raw: unknown, fallback: boolean): boolean {
     if (raw === 'true') return true;
     if (raw === 'false') return false;
     return fallback;
+}
+
+function asString(raw: unknown): string {
+    return typeof raw === 'string' ? raw : '';
 }
 
 function asSeed(raw: unknown): number {
@@ -81,7 +89,7 @@ export function normalizeHeaderAttrs(raw: Record<string, unknown> = {}): HeaderA
         [HeaderAttr.Background]: asBackground(raw[HeaderAttr.Background]),
         [HeaderAttr.Fill]: asFill(raw[HeaderAttr.Fill]),
         [HeaderAttr.Text]: asText(raw[HeaderAttr.Text]),
-        [HeaderAttr.Image]: typeof raw[HeaderAttr.Image] === 'string' ? raw[HeaderAttr.Image] : '',
+        [HeaderAttr.Image]: asString(raw[HeaderAttr.Image]),
         [HeaderAttr.Border]: asBorder(raw[HeaderAttr.Border]),
         [HeaderAttr.Blobs]: asBoolean(raw[HeaderAttr.Blobs], HeaderDefaults.blobs),
         [HeaderAttr.Seed]: asSeed(raw[HeaderAttr.Seed]),
@@ -90,8 +98,7 @@ export function normalizeHeaderAttrs(raw: Record<string, unknown> = {}): HeaderA
 
 export function normalizeHeaderActionAttrs(raw: Record<string, unknown> = {}): HeaderActionAttrs {
     return {
-        [HeaderActionAttr.Href]:
-            typeof raw[HeaderActionAttr.Href] === 'string' ? raw[HeaderActionAttr.Href] : '',
+        [HeaderActionAttr.Href]: asString(raw[HeaderActionAttr.Href]),
         [HeaderActionAttr.Variant]: asVariant(raw[HeaderActionAttr.Variant]),
     };
 }

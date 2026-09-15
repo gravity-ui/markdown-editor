@@ -1,0 +1,261 @@
+@use 'sass:map';
+@use '~@gravity-ui/uikit/styles/mixins' as uikit;
+@use '../../../styles/yc-header-fill.scss' as fills;
+
+.g-md-header {
+    --g-md-header-fill: var(--g-color-base-info-light);
+    --g-md-header-text: var(--g-color-text-dark-primary);
+    --g-md-header-text-secondary: var(--g-color-text-dark-secondary);
+    --g-md-header-scrim: linear-gradient(90deg, rgb(255 255 255 / 82%) 0 30%, transparent 78%);
+    --g-md-header-radius: var(--g-border-radius-xl, 16px);
+    --g-md-header-min-height: 300px;
+    --g-md-header-padding: 48px 56px;
+    --g-md-header-gap: 40px;
+    --g-md-header-visual-width: 420px;
+
+    position: relative;
+
+    display: flex;
+    overflow: hidden;
+    align-items: center;
+
+    box-sizing: border-box;
+    min-height: var(--g-md-header-min-height);
+    padding: var(--g-md-header-padding);
+
+    color: var(--g-md-header-text);
+    border-radius: var(--g-md-header-radius);
+    background-color: var(--g-md-header-fill);
+
+    @each $name, $fill in fills.$header-fills {
+        &[data-fill='#{$name}'] {
+            --g-md-header-fill: #{map.get($fill, bg)};
+
+            @if map.get($fill, scheme) == light {
+                --g-md-header-text: var(--g-color-text-light-primary);
+                --g-md-header-text-secondary: var(--g-color-text-light-secondary);
+                --g-md-header-scrim: linear-gradient(
+                    90deg,
+                    rgb(0 0 0 / 74%) 0 30%,
+                    transparent 78%
+                );
+            }
+        }
+    }
+
+    // Явный выбор автора перебивает схему заливки — например светлый текст на тёмной фотографии
+    &[data-text='light'] {
+        --g-md-header-text: var(--g-color-text-light-primary);
+        --g-md-header-text-secondary: var(--g-color-text-light-secondary);
+        --g-md-header-scrim: linear-gradient(90deg, rgb(0 0 0 / 74%) 0 30%, transparent 78%);
+    }
+
+    &[data-text='dark'] {
+        --g-md-header-text: var(--g-color-text-dark-primary);
+        --g-md-header-text-secondary: var(--g-color-text-dark-secondary);
+        --g-md-header-scrim: linear-gradient(90deg, rgb(255 255 255 / 82%) 0 30%, transparent 78%);
+    }
+
+    &[data-format='small'] {
+        --g-md-header-min-height: 120px;
+        --g-md-header-padding: 22px 44px;
+        --g-md-header-gap: 24px;
+        --g-md-header-visual-width: 260px;
+    }
+
+    &[data-edges='bleed'] {
+        --g-md-header-radius: 0;
+    }
+
+    &[data-border='dashed'],
+    &[data-border='dotted'],
+    &[data-border='solid'] {
+        border: 1.5px solid color-mix(in sRGB, var(--g-md-header-text) 32%, transparent);
+    }
+
+    &[data-border='dashed'] {
+        border-style: dashed;
+    }
+
+    &[data-border='dotted'] {
+        border-style: dotted;
+    }
+
+    // Картинка панорамная (типовой hero — 1200×340), поэтому `auto 100%`: `cover` в компактном
+    // формате срезает иллюстрации верх и низ. Заливка остаётся под картинкой и не даёт белой
+    // вспышки, пока та грузится.
+    &[data-bg='image'] {
+        background-image: var(--g-md-header-image);
+        background-repeat: no-repeat;
+        background-position: right center;
+        background-size: auto 100%;
+
+        // Скрим нейтральный, а не окрашенный в заливку: иначе на стыке с картинкой,
+        // фон которой не совпал с заливкой, видна вертикальная граница.
+        &::before {
+            position: absolute;
+            z-index: 1;
+            inset: 0;
+
+            content: '';
+            pointer-events: none;
+
+            background: var(--g-md-header-scrim);
+        }
+    }
+
+    &[data-image-empty='true'] {
+        background-image: none;
+
+        &::after {
+            position: absolute;
+            z-index: 1;
+            inset: 10px;
+
+            content: '';
+            pointer-events: none;
+
+            border: 2px dashed color-mix(in sRGB, var(--g-md-header-text) 20%, transparent);
+            border-radius: var(--g-border-radius-l);
+        }
+
+        &[data-edges='bleed']::after {
+            inset: 6px;
+        }
+    }
+
+    // Вертикальные и квадратные иллюстрации фоном обрезаются, поэтому им отдельная колонка
+    &[data-bg='image'][data-layout='split'] {
+        display: grid;
+        align-items: center;
+        grid-template-columns: minmax(0, 1fr) var(--g-md-header-visual-width);
+        gap: var(--g-md-header-gap);
+
+        background-image: none;
+
+        &::before {
+            display: none;
+        }
+
+        &::after {
+            align-self: stretch;
+
+            min-height: 204px;
+
+            content: '';
+
+            border-radius: var(--g-border-radius-l);
+            background:
+                var(--g-md-header-image) center center / cover no-repeat,
+                color-mix(in sRGB, var(--g-md-header-fill) 60%, var(--g-color-base-background));
+        }
+
+        &[data-format='small']::after {
+            min-height: 76px;
+        }
+    }
+}
+
+.g-md-header-decor {
+    position: absolute;
+    z-index: 0;
+    inset: 0;
+
+    overflow: hidden;
+
+    pointer-events: none;
+}
+
+.g-md-header-shape {
+    position: absolute;
+
+    background: radial-gradient(
+        130% 130% at 32% 26%,
+        color-mix(in sRGB, var(--g-md-header-fill) 10%, var(--g-color-base-background)) 0%,
+        color-mix(in sRGB, var(--g-md-header-fill) 55%, var(--g-color-base-background)) 58%,
+        color-mix(in sRGB, var(--g-md-header-fill) 92%, var(--g-color-base-background)) 100%
+    );
+}
+
+.g-md-header-content {
+    position: relative;
+    z-index: 2;
+
+    max-width: 520px;
+}
+
+.g-md-header-title {
+    margin-bottom: 12px;
+
+    letter-spacing: -0.02em;
+    @include uikit.text-display-2();
+
+    [data-format='small'] & {
+        margin-bottom: 4px;
+        @include uikit.text-header-2();
+    }
+}
+
+.g-md-header-subtitle {
+    max-width: 440px;
+    margin-bottom: 24px;
+
+    color: var(--g-md-header-text-secondary);
+    @include uikit.text-body-2();
+
+    [data-format='small'] & {
+        margin-bottom: 14px;
+        @include uikit.text-body-1();
+    }
+}
+
+.g-md-header-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 18px;
+
+    [data-format='small'] & {
+        gap: 14px;
+    }
+
+    // Пустой контейнер не должен занимать место и ловить клики мимо кнопок
+    &:empty {
+        display: none;
+    }
+}
+
+.g-md-header-action {
+    display: inline-flex;
+    align-items: center;
+
+    box-sizing: border-box;
+    padding: 13px 22px;
+
+    font-weight: var(--g-text-accent-font-weight, 500);
+    cursor: text;
+    text-decoration: none;
+
+    color: var(--g-md-header-fill);
+    border-radius: var(--g-border-radius-m);
+    background-color: var(--g-md-header-text);
+    @include uikit.text-body-1();
+
+    [data-format='small'] & {
+        padding: 9px 16px;
+    }
+
+    &[data-variant='normal'] {
+        color: var(--g-md-header-text);
+        background-color: color-mix(in sRGB, var(--g-md-header-text) 12%, transparent);
+    }
+
+    &[data-variant='link'] {
+        padding-inline: 0;
+
+        text-decoration: underline;
+
+        color: var(--g-md-header-text);
+        background-color: transparent;
+    }
+}

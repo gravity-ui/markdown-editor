@@ -141,7 +141,8 @@ export const toHeader: Command = (state, dispatch) => {
 
         const {paragraph} = state.schema.nodes;
         const afterHeader = insertAt + header.nodeSize;
-        if (paragraph && afterHeader >= tr.doc.content.size) tr.insert(afterHeader, paragraph.create());
+        if (paragraph && afterHeader >= tr.doc.content.size)
+            tr.insert(afterHeader, paragraph.create());
 
         dispatch(tr.setSelection(TextSelection.create(tr.doc, insertAt + 2)).scrollIntoView());
     }

@@ -17,18 +17,37 @@ export type Blob = {
  */
 const CURATED: Record<HeaderFormatValue, Blob[]> = {
     [HeaderFormat.Large]: [
-        {width: 360, height: 300, right: -96, top: 26, radius: '120px 120px 120px 200px', rotate: -20},
+        {
+            width: 360,
+            height: 300,
+            right: -96,
+            top: 26,
+            radius: '120px 120px 120px 200px',
+            rotate: -20,
+        },
         {width: 190, height: 190, right: 250, top: 24, radius: '50%', rotate: 0},
         {width: 150, height: 150, right: 150, bottom: -56, radius: '50%', rotate: 0},
     ],
     [HeaderFormat.Small]: [
-        {width: 228, height: 188, right: -70, top: -18, radius: '90px 90px 90px 150px', rotate: -20},
+        {
+            width: 228,
+            height: 188,
+            right: -70,
+            top: -18,
+            radius: '90px 90px 90px 150px',
+            rotate: -20,
+        },
         {width: 108, height: 108, right: 170, top: -22, radius: '50%', rotate: 0},
         {width: 92, height: 92, right: 120, bottom: -46, radius: '50%', rotate: 0},
     ],
 };
 
-/** github.com/bryc/code/blob/master/jshash/PRNG.md — детерминированный PRNG на 32 бита. */
+/**
+ * github.com/bryc/code/blob/master/jshash/PRNG.md — детерминированный PRNG на 32 бита.
+ * Побитовые операции здесь и есть алгоритм: узор обязан воспроизводиться из `seed` одинаково
+ * у всех участников совместного редактирования.
+ */
+/* eslint-disable no-bitwise */
 function mulberry32(seed: number): () => number {
     let a = seed >>> 0;
     return () => {
@@ -38,8 +57,14 @@ function mulberry32(seed: number): () => number {
         return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
     };
 }
+/* eslint-enable no-bitwise */
 
-type Profile = {count: [number, number]; size: [number, number]; right: [number, number]; y: [number, number]};
+type Profile = {
+    count: [number, number];
+    size: [number, number];
+    right: [number, number];
+    y: [number, number];
+};
 
 const PROFILES: Record<HeaderFormatValue, Profile[]> = {
     [HeaderFormat.Large]: [
