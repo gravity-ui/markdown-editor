@@ -1,7 +1,8 @@
-import {toggleMark} from 'prosemirror-commands';
-
 import type {Action, ExtensionAuto} from '../../../core';
-import {createMarkdownInlineMarkAction} from '../../../utils/actions';
+import {
+    createMarkdownInlineMarkAction,
+    createMarkdownInlineMarkCommand,
+} from '../../../utils/actions';
 import {markInputRule} from '../../../utils/inputrules';
 import {withLogAction} from '../../../utils/keymap';
 
@@ -29,7 +30,10 @@ export const Italic: ExtensionAuto<ItalicOptions> = (builder, opts) => {
     if (opts?.italicKey) {
         const {italicKey} = opts;
         builder.addKeymap(({schema}) => ({
-            [italicKey]: withLogAction('italic', toggleMark(italicType(schema))),
+            [italicKey]: withLogAction(
+                'italic',
+                createMarkdownInlineMarkCommand(italicType(schema)),
+            ),
         }));
     }
 };
