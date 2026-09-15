@@ -1,7 +1,7 @@
 import {LayoutHeader} from '@gravity-ui/icons';
 
-import {i18n} from 'src/i18n/header';
 import type {WToolbarSingleItemData} from 'src/bundle/toolbar/types';
+import {i18n} from 'src/i18n/header';
 import {ToolbarDataType} from 'src/toolbar';
 
 /**

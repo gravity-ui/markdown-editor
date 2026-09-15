@@ -6,6 +6,9 @@
     --g-md-header-fill: var(--g-color-base-info-light);
     --g-md-header-text: var(--g-color-text-dark-primary);
     --g-md-header-text-secondary: var(--g-color-text-dark-secondary);
+    // Цвет подписи на залитой кнопке: её фон — это цвет текста блока, поэтому подпись обязана
+    // быть противоположной. Заливка блока здесь не годится — это фоновый токен, не текстовый.
+    --g-md-header-text-inverse: var(--g-color-text-light-primary);
     --g-md-header-scrim: linear-gradient(90deg, rgb(255 255 255 / 82%) 0 30%, transparent 78%);
     --g-md-header-radius: var(--g-border-radius-xl, 16px);
     --g-md-header-min-height: 300px;
@@ -47,12 +50,14 @@
     &[data-text='light'] {
         --g-md-header-text: var(--g-color-text-light-primary);
         --g-md-header-text-secondary: var(--g-color-text-light-secondary);
+        --g-md-header-text-inverse: var(--g-color-text-dark-primary);
         --g-md-header-scrim: linear-gradient(90deg, rgb(0 0 0 / 74%) 0 30%, transparent 78%);
     }
 
     &[data-text='dark'] {
         --g-md-header-text: var(--g-color-text-dark-primary);
         --g-md-header-text-secondary: var(--g-color-text-dark-secondary);
+        --g-md-header-text-inverse: var(--g-color-text-light-primary);
         --g-md-header-scrim: linear-gradient(90deg, rgb(255 255 255 / 82%) 0 30%, transparent 78%);
     }
 
@@ -225,7 +230,10 @@
     }
 }
 
-.g-md-header-action {
+// Селектор с родителем: у якорей в редакторе есть свои цвет и подчёркивание, и одного класса
+// не хватает, чтобы их перебить — кнопка рендерилась просто оранжевым текстом.
+
+.g-md-header .g-md-header-action {
     display: inline-flex;
     align-items: center;
 
@@ -236,26 +244,49 @@
     cursor: text;
     text-decoration: none;
 
-    color: var(--g-md-header-fill);
+    color: var(--g-md-header-text-inverse);
     border-radius: var(--g-border-radius-m);
     background-color: var(--g-md-header-text);
     @include uikit.text-body-1();
 
-    [data-format='small'] & {
-        padding: 9px 16px;
+    &:hover,
+    &:active,
+    &:visited {
+        text-decoration: none;
+
+        color: var(--g-md-header-fill);
     }
 
     &[data-variant='normal'] {
-        color: var(--g-md-header-text);
         background-color: color-mix(in sRGB, var(--g-md-header-text) 12%, transparent);
+        &,
+        &:hover,
+        &:active,
+        &:visited {
+            color: var(--g-md-header-text);
+        }
     }
 
     &[data-variant='link'] {
         padding-inline: 0;
 
-        text-decoration: underline;
-
-        color: var(--g-md-header-text);
         background-color: transparent;
+
+        &,
+        &:hover,
+        &:active,
+        &:visited {
+            text-decoration: underline;
+
+            color: var(--g-md-header-text);
+        }
+    }
+}
+
+.g-md-header[data-format='small'] .g-md-header-action {
+    padding: 9px 16px;
+
+    &[data-variant='link'] {
+        padding-inline: 0;
     }
 }

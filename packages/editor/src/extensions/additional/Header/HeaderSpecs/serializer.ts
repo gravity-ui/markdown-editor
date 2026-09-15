@@ -26,7 +26,8 @@ export const serializerTokens: Record<HeaderNodeName, SerializerNodeToken> = {
         if (!isNodeEmpty(subtitle)) {
             state.renderInline(subtitle);
             state.ensureNewLine();
-            state.write('\n');
+            // Пустая строка нужна только чтобы отделить подзаголовок от кнопок
+            if (actions.childCount) state.write('\n');
         }
 
         actions.forEach((action) => {

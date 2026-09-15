@@ -1,5 +1,6 @@
-const HERO = 'https://storage.yandexcloud.net/gravity-ui-assets/hero-portal.png';
-const PORTRAIT = 'https://storage.yandexcloud.net/gravity-ui-assets/hero-portrait.png';
+// Тот же файл, что раздаёт playwright, поэтому снимки не зависят от сети
+const HERO = '/assets/test-image.jpg';
+const PORTRAIT = '/assets/test-image.jpg';
 
 export const markup = {
     empty: `

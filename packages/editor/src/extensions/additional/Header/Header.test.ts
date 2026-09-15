@@ -78,6 +78,16 @@ describe('Header extension', () => {
             ),
         ));
 
+    it('should not leave a blank line when there are no actions', () =>
+        same(
+            dedent`
+            :::header [Welcome]
+            A subtitle and nothing else.
+            :::
+            `,
+            doc(header(title('Welcome'), subtitle('A subtitle and nothing else.'), actions())),
+        ));
+
     it('should keep inline marks inside the title', () =>
         same(
             dedent`
