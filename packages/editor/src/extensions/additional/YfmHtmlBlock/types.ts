@@ -1,3 +1,6 @@
+export type YfmHtmlBlockTab = 'preview' | 'constructor' | 'html';
+
 export type YfmHtmlBlockEntitySharedState = {
-    editing: boolean;
+    editing?: boolean;
+    activeTab?: YfmHtmlBlockTab;
 };

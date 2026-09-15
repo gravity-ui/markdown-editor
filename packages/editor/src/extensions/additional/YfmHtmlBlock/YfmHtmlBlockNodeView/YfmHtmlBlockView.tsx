@@ -1,36 +1,47 @@
-import {useEffect, useMemo, useRef, useState} from 'react';
+import {useEffect, useLayoutEffect, useMemo, useRef, useState} from 'react';
 
 import {getStyles} from '@diplodoc/html-extension';
 import type {IHTMLIFrameElementConfig} from '@diplodoc/html-extension/runtime';
-import {Ellipsis as DotsIcon, Eye} from '@gravity-ui/icons';
-import {Button, Icon, Label, Menu, Popup} from '@gravity-ui/uikit';
+import {Button} from '@gravity-ui/uikit';
 import type {Node} from 'prosemirror-model';
 import type {EditorView} from 'prosemirror-view';
 
-import {cn} from 'src/classname';
 import {SharedStateKey} from 'src/extensions/behavior/SharedState';
-import {TextAreaFixed as TextArea} from 'src/forms/TextInput';
 import {i18n} from 'src/i18n/common';
+import {i18n as i18nTemplates} from 'src/i18n/yfm-html-block';
 import {debounce} from 'src/lodash';
-import {useAutoSave, useBooleanState, useElementState} from 'src/react-utils/hooks';
-import {useSharedEditingState} from 'src/react-utils/useSharedEditingState';
-import {removeNode} from 'src/utils/remove-node';
+import {useAutoSave} from 'src/react-utils/hooks';
 
+import {
+    YfmHtmlConstructorConsts,
+    buildYfmHtmlConstructorHtml,
+    emptyHtmlConstructorStructure,
+} from '../../YfmHtmlConstructor/YfmHtmlConstructorSpecs';
+import {
+    YfmHtmlConstructorEditor,
+    type YfmHtmlConstructorEditorState,
+} from '../../YfmHtmlConstructor/YfmHtmlConstructorNodeView/YfmHtmlConstructorView';
+import {CodeEditorPane} from '../../YfmHtmlConstructor/YfmHtmlConstructorNodeView/SettingsPopups';
+import {normalizeHtmlConstructorQuickStyle} from '../../YfmHtmlConstructor/quickStyle';
+import {normalizeHtmlConstructorTemplateSettings} from '../../YfmHtmlConstructor/settings';
+import type {HtmlConstructorBlock, HtmlConstructorStructure} from '../../YfmHtmlConstructor/types';
 import {YfmHtmlBlockConsts} from '../YfmHtmlBlockSpecs/const';
 import type {YfmHtmlBlockOptions} from '../index';
-import type {YfmHtmlBlockEntitySharedState} from '../types';
+import type {YfmHtmlBlockEntitySharedState, YfmHtmlBlockTab} from '../types';
+
+import {STOP_EVENT_CLASSNAME, cnYfmHtmlBlock} from './const';
 
 import './YfmHtmlBlock.scss';
 
-export const cnYfmHtmlBlock = cn('yfm-html-block');
-export const STOP_EVENT_CLASSNAME = 'prosemirror-stop-event';
+export {STOP_EVENT_CLASSNAME, cnYfmHtmlBlock} from './const';
 
 const b = cnYfmHtmlBlock;
 
 interface YfmHtmlBlockViewProps {
     html: string;
-    onClick: () => void;
     config?: IHTMLIFrameElementConfig;
+    editablePreview?: boolean;
+    onInlineSave?: (innerHtml: string) => void;
 }
 
 export function generateID() {
@@ -39,6 +50,61 @@ export function generateID() {
 
 const DEFAULT_PADDING = 20;
 const DEFAULT_DELAY = 100;
+const HTML_BLOCK_TABS: YfmHtmlBlockTab[] = ['preview', 'html', 'constructor'];
+const HTML_BLOCK_TAB_LABELS: Record<YfmHtmlBlockTab, Parameters<typeof i18nTemplates>[0]> = {
+    preview: 'tab_preview',
+    constructor: 'tab_constructor',
+    html: 'tab_html',
+};
+const EMPTY_CONSTRUCTOR_BLOCKS: HtmlConstructorBlock[] = [];
+
+const readSharedTab = (state?: YfmHtmlBlockEntitySharedState): YfmHtmlBlockTab => {
+    if (state?.activeTab && HTML_BLOCK_TABS.includes(state.activeTab)) return state.activeTab;
+    if (state?.editing) return 'html';
+
+    return 'preview';
+};
+
+const readConstructorStructure = (node: Node, fallbackContent: string): HtmlConstructorStructure => {
+    const value = node.attrs[YfmHtmlBlockConsts.NodeAttrs.constructorStructure];
+    if (!value || typeof value !== 'object') {
+        return {...emptyHtmlConstructorStructure(), content: fallbackContent};
+    }
+
+    return {
+        templateId: typeof value.templateId === 'string' ? value.templateId : undefined,
+        css: typeof value.css === 'string' ? value.css : '',
+        content: typeof value.content === 'string' ? value.content : fallbackContent,
+        themeIds: Array.isArray(value.themeIds)
+            ? value.themeIds.filter((id: unknown): id is string => typeof id === 'string')
+            : [],
+        settings: normalizeHtmlConstructorTemplateSettings(value.settings),
+        quickStyle: normalizeHtmlConstructorQuickStyle(value.quickStyle),
+    };
+};
+
+const readConstructorBlocks = (node: Node): HtmlConstructorBlock[] => {
+    const value = node.attrs[YfmHtmlBlockConsts.NodeAttrs.constructorBlocks];
+    if (!Array.isArray(value)) return EMPTY_CONSTRUCTOR_BLOCKS;
+
+    return value.flatMap((block): HtmlConstructorBlock[] => {
+        if (!block || typeof block !== 'object') return [];
+
+        return [
+            {
+                id: typeof block.id === 'string' ? block.id : '',
+                templateId: typeof block.templateId === 'string' ? block.templateId : undefined,
+                css: typeof block.css === 'string' ? block.css : '',
+                content: typeof block.content === 'string' ? block.content : '',
+                themeIds: Array.isArray(block.themeIds)
+                    ? block.themeIds.filter((id: unknown): id is string => typeof id === 'string')
+                    : [],
+                settings: normalizeHtmlConstructorTemplateSettings(block.settings),
+                quickStyle: normalizeHtmlConstructorQuickStyle(block.quickStyle),
+            },
+        ];
+    });
+};
 
 const createLinkCLickHandler = (value: Element, document: Document) => (event: Event) => {
     event.preventDefault();
@@ -52,11 +118,17 @@ const createLinkCLickHandler = (value: Element, document: Document) => (event: E
     }
 };
 
-const YfmHtmlBlockPreview: React.FC<YfmHtmlBlockViewProps> = ({html, onClick, config}) => {
+const YfmHtmlBlockPreview: React.FC<YfmHtmlBlockViewProps> = ({
+    html,
+    config,
+    editablePreview,
+    onInlineSave,
+}) => {
     const ref = useRef<HTMLIFrameElement>(null);
     const styles = useRef<Record<string, string>>({});
     const classNames = useRef<string[]>([]);
     const resizeConfig = useRef<Record<string, number>>({});
+    const isInlineEditing = useRef(false);
 
     const [height, setHeight] = useState('100%');
 
@@ -65,17 +137,47 @@ const YfmHtmlBlockPreview: React.FC<YfmHtmlBlockViewProps> = ({html, onClick, co
         setClassNames(config?.classNames);
     }, [config, ref.current?.contentWindow?.document?.body]);
 
+    const enterInlineEdit = () => {
+        const body = ref.current?.contentWindow?.document.body;
+        if (!body) return;
+        isInlineEditing.current = true;
+        body.contentEditable = 'true';
+        body.style.cursor = 'text';
+        body.focus();
+    };
+
+    const handleBodyBlur = () => {
+        const body = ref.current?.contentWindow?.document.body;
+        if (!body || !isInlineEditing.current) return;
+        isInlineEditing.current = false;
+        body.contentEditable = 'false';
+        body.style.removeProperty('cursor');
+        onInlineSave?.(body.innerHTML);
+    };
+
+    const handleDblClick = () => {
+        if (editablePreview) enterInlineEdit();
+    };
+
     const handleLoadIFrame = () => {
         const contentWindow = ref.current?.contentWindow;
 
+        // fresh document after reload: not editing yet
+        isInlineEditing.current = false;
         handleResizeIFrame();
 
         if (contentWindow) {
             const frameDocument = contentWindow.document;
-            frameDocument.addEventListener('dblclick', () => {
-                onClick();
-            });
+            frameDocument.addEventListener('dblclick', handleDblClick);
+            // blur does not bubble; capture catches focus leaving the body
+            frameDocument.body?.addEventListener('blur', handleBodyBlur, true);
         }
+    };
+
+    const handleUnloadIFrame = () => {
+        const frameDocument = ref.current?.contentWindow?.document;
+        frameDocument?.removeEventListener('dblclick', handleDblClick);
+        frameDocument?.body?.removeEventListener('blur', handleBodyBlur, true);
     };
 
     const handleResizeIFrame = () => {
@@ -159,11 +261,13 @@ const YfmHtmlBlockPreview: React.FC<YfmHtmlBlockViewProps> = ({html, onClick, co
     };
 
     useEffect(() => {
-        ref.current?.addEventListener('load', handleLoadIFrame);
-        ref.current?.addEventListener('load', createAnchorLinkHandlers('add'));
+        const iframe = ref.current;
+        iframe?.addEventListener('load', handleLoadIFrame);
+        iframe?.addEventListener('load', createAnchorLinkHandlers('add'));
         return () => {
-            ref.current?.removeEventListener('load', handleLoadIFrame);
-            ref.current?.removeEventListener('load', createAnchorLinkHandlers('remove'));
+            handleUnloadIFrame();
+            iframe?.removeEventListener('load', handleLoadIFrame);
+            iframe?.removeEventListener('load', createAnchorLinkHandlers('remove'));
         };
     }, [html]);
 
@@ -206,13 +310,17 @@ const CodeEditMode: React.FC<{
     return (
         <div className={b({editing: true})}>
             <div className={b('editor')}>
-                <TextArea
-                    controlProps={{
-                        className: STOP_EVENT_CLASSNAME,
-                    }}
+                <CodeEditorPane
+                    label={i18nTemplates('tab_html')}
                     value={value}
-                    onUpdate={handleChange}
+                    placeholder={'<div>\n  HTML\n</div>'}
+                    showLabel={false}
                     autoFocus
+                    onUpdate={handleChange}
+                    onCommit={() => {
+                        if (isAutoSaveEnabled) return;
+                        onSave(value);
+                    }}
                 />
 
                 <div className={b('controls')}>
@@ -241,35 +349,101 @@ const CodeEditMode: React.FC<{
 export const YfmHtmlBlockView: React.FC<{
     getPos: () => number | undefined;
     node: Node;
-    onChange: (attrs: {[YfmHtmlBlockConsts.NodeAttrs.srcdoc]: string}) => void;
+    onChange: (attrs: Partial<Node['attrs']>) => void;
     options: YfmHtmlBlockOptions;
     view: EditorView;
-}> = ({onChange, node, getPos, view, options}) => {
-    const {useConfig, sanitize, styles, baseTarget = '_parent', head: headContent = ''} = options;
+}> = ({onChange, node, view, options}) => {
+    const {
+        useConfig,
+        sanitize,
+        styles,
+        baseTarget = '_parent',
+        head: headContent = '',
+        editablePreview,
+    } = options;
+    const rawConstructorOptions = Object.prototype.hasOwnProperty.call(options, 'constructor')
+        ? options.constructor
+        : undefined;
+    const constructorOptions =
+        rawConstructorOptions && typeof rawConstructorOptions === 'object'
+            ? rawConstructorOptions
+            : {};
     const entityId: string = node.attrs[YfmHtmlBlockConsts.NodeAttrs.EntityId];
     const entityKey = useMemo(
         () => SharedStateKey.define<YfmHtmlBlockEntitySharedState>({name: entityId}),
         [entityId],
     );
+    const srcdoc = node.attrs[YfmHtmlBlockConsts.NodeAttrs.srcdoc] ?? '';
 
     const config = useConfig?.();
 
-    const [editing, setEditing, unsetEditing] = useSharedEditingState(view, entityKey);
-    const [menuOpen, _openMenu, closeMenu, toggleMenuOpen] = useBooleanState(false);
-    const [anchorElement, setAnchorElement] = useElementState();
+    const [activeTab, setActiveTabValue] = useState<YfmHtmlBlockTab>('preview');
 
-    if (editing) {
-        return (
-            <CodeEditMode
-                initialText={node.attrs[YfmHtmlBlockConsts.NodeAttrs.srcdoc]}
-                onCancel={unsetEditing}
-                onSave={(v) => {
-                    onChange({[YfmHtmlBlockConsts.NodeAttrs.srcdoc]: v});
-                }}
-                options={options}
-            />
+    useLayoutEffect(() => {
+        setActiveTabValue(readSharedTab(entityKey.getValue(view.state)));
+        return entityKey
+            .getNotifier(view.state)
+            .subscribe((state) => setActiveTabValue(readSharedTab(state)));
+    }, [entityKey, view]);
+
+    const setActiveTab = (tab: YfmHtmlBlockTab) => {
+        setActiveTabValue(tab);
+        view.dispatch(
+            entityKey.appendTransaction.update(view.state.tr, {
+                activeTab: tab,
+                editing: tab === 'html',
+            }),
         );
-    }
+    };
+
+    const [structurePanelSignal] = useState<{
+        panel: 'templates';
+        tick: number;
+    }>();
+
+    const resetConstructorAttrs = {
+        [YfmHtmlBlockConsts.NodeAttrs.constructorStructure]: null,
+        [YfmHtmlBlockConsts.NodeAttrs.constructorBlocks]: null,
+    };
+
+    const updatePlainHtml = (value: string) => {
+        onChange({
+            [YfmHtmlBlockConsts.NodeAttrs.srcdoc]: value,
+            ...resetConstructorAttrs,
+        });
+    };
+
+    const handleInlineSave = (innerHtml: string) => {
+        if (innerHtml === srcdoc) return;
+        updatePlainHtml(innerHtml);
+    };
+
+    const constructorState = useMemo<YfmHtmlConstructorEditorState>(
+        () => ({
+            structure: readConstructorStructure(node, srcdoc),
+            blocks: readConstructorBlocks(node),
+        }),
+        [node, srcdoc],
+    );
+
+    const handleConstructorChange = (state: YfmHtmlConstructorEditorState) => {
+        const constructorNode = {
+            attrs: {
+                [YfmHtmlConstructorConsts.NodeAttrs.structure]: state.structure,
+                [YfmHtmlConstructorConsts.NodeAttrs.blocks]: state.blocks,
+                [YfmHtmlConstructorConsts.NodeAttrs.EntityId]: entityId,
+            },
+        } as unknown as Node;
+        const html = buildYfmHtmlConstructorHtml(constructorNode, {
+            scopeStyles: constructorOptions.scopeStyles,
+        });
+
+        onChange({
+            [YfmHtmlBlockConsts.NodeAttrs.srcdoc]: html,
+            [YfmHtmlBlockConsts.NodeAttrs.constructorStructure]: state.structure,
+            [YfmHtmlBlockConsts.NodeAttrs.constructorBlocks]: state.blocks,
+        });
+    };
 
     let additional = baseTarget ? `<base target="${baseTarget}">` : '';
     if (styles) {
@@ -281,61 +455,69 @@ export const YfmHtmlBlockView: React.FC<{
     }
 
     const head = `<head>${headContent || additional}</head>`;
-    const body = `<body>${node.attrs[YfmHtmlBlockConsts.NodeAttrs.srcdoc] ?? ''}</body>`;
+    const body = `<body>${srcdoc}</body>`;
     const html = `<!DOCTYPE html><html>${head}${body}</html>`;
 
     const sanitizeFunction = typeof sanitize === 'function' ? sanitize : sanitize?.body;
 
     const resultHtml = sanitizeFunction ? sanitizeFunction(html) : html;
 
-    return (
-        <div className={b()} onDoubleClick={setEditing}>
-            <Label className={b('label')} icon={<Icon size={16} data={Eye} />}>
-                {i18n('preview')}
-            </Label>
-            <YfmHtmlBlockPreview html={resultHtml} onClick={setEditing} config={config} />
+    const renderTabPanel = () => {
+        if (activeTab === 'preview') {
+            return (
+                <YfmHtmlBlockPreview
+                    html={resultHtml}
+                    config={config}
+                    editablePreview={editablePreview}
+                    onInlineSave={handleInlineSave}
+                />
+            );
+        }
 
-            <div className={b('menu')}>
-                <Button
-                    onClick={toggleMenuOpen}
-                    ref={setAnchorElement}
-                    size="s"
-                    className={STOP_EVENT_CLASSNAME}
-                    aria-label={i18n('actions')}
-                >
-                    <Icon data={DotsIcon} className={STOP_EVENT_CLASSNAME} />
-                </Button>
-                <Popup
-                    anchorElement={anchorElement}
-                    open={menuOpen}
-                    onOpenChange={closeMenu}
-                    placement="bottom-end"
-                >
-                    <Menu>
-                        <Menu.Item
-                            onClick={() => {
-                                setEditing();
-                                closeMenu();
-                            }}
+        if (activeTab === 'constructor') {
+            return (
+                <YfmHtmlConstructorEditor
+                    state={constructorState}
+                    entityId={entityId}
+                    options={constructorOptions}
+                    onChange={handleConstructorChange}
+                    openStructurePanelSignal={structurePanelSignal}
+                />
+            );
+        }
+
+        return (
+            <CodeEditMode
+                initialText={srcdoc}
+                onCancel={() => setActiveTab('preview')}
+                onSave={updatePlainHtml}
+                options={options}
+            />
+        );
+    };
+
+    return (
+        <div className={b()}>
+            <div className={b('header')}>
+                <div className={b('tabs', [STOP_EVENT_CLASSNAME])} role="tablist">
+                    {HTML_BLOCK_TABS.map((tab) => (
+                        <button
+                            key={tab}
+                            type="button"
+                            role="tab"
+                            aria-selected={activeTab === tab}
+                            className={b('tab', {active: activeTab === tab}, [
+                                STOP_EVENT_CLASSNAME,
+                            ])}
+                            onClick={() => setActiveTab(tab)}
                         >
-                            {i18n('edit')}
-                        </Menu.Item>
-                        <Menu.Item
-                            onClick={() => {
-                                const pos = getPos();
-                                if (pos === undefined) return;
-                                removeNode({
-                                    node,
-                                    pos,
-                                    tr: view.state.tr,
-                                    dispatch: view.dispatch,
-                                });
-                            }}
-                        >
-                            {i18n('remove')}
-                        </Menu.Item>
-                    </Menu>
-                </Popup>
+                            {i18nTemplates(HTML_BLOCK_TAB_LABELS[tab])}
+                        </button>
+                    ))}
+                </div>
+            </div>
+            <div className={b('panel')} role="tabpanel">
+                {renderTabPanel()}
             </div>
         </div>
     );
