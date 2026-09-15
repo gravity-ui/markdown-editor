@@ -1,5 +1,6 @@
 import type {NodeSpec} from 'prosemirror-model';
 
+import type {ExtensionAuto} from '#core';
 import {getSanitize} from 'src/utils/getSanitize';
 
 import {HtmlAttr, HtmlNode} from './const';
@@ -11,7 +12,7 @@ enum DomAttr {
 
 const sanitize = getSanitize('Html');
 
-export const schemaSpecs: Record<HtmlNode, NodeSpec> = {
+const schemaSpecs: Record<HtmlNode, NodeSpec> = {
     [HtmlNode.Block]: {
         atom: true,
         group: 'block',
@@ -59,4 +60,10 @@ export const schemaSpecs: Record<HtmlNode, NodeSpec> = {
             return elem;
         },
     },
+};
+
+export const HtmlSchemaSpecs: ExtensionAuto = (builder) => {
+    builder
+        .addNodeSpec(HtmlNode.Block, () => schemaSpecs[HtmlNode.Block])
+        .addNodeSpec(HtmlNode.Inline, () => schemaSpecs[HtmlNode.Inline]);
 };

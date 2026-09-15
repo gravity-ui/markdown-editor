@@ -1,10 +1,10 @@
 import type Token from 'markdown-it/lib/token';
 
-import type {ParserToken} from '../../../../core';
+import type {ExtensionAuto, ParserToken} from '#core';
 
 import {ListNode, ListsAttr} from './const';
 
-export const parserTokens: Record<ListNode, ParserToken> = {
+const parserTokens: Record<ListNode, ParserToken> = {
     [ListNode.ListItem]: {
         name: ListNode.ListItem,
         type: 'block',
@@ -40,3 +40,10 @@ function listIsTight(tokens: Token[], i: number) {
     }
     return false;
 }
+
+export const ListsParserSpecs: ExtensionAuto = (builder) => {
+    builder
+        .addMarkdownTokenParserSpec('list_item', () => parserTokens[ListNode.ListItem])
+        .addMarkdownTokenParserSpec('bullet_list', () => parserTokens[ListNode.BulletList])
+        .addMarkdownTokenParserSpec('ordered_list', () => parserTokens[ListNode.OrderedList]);
+};

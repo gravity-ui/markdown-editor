@@ -1,9 +1,11 @@
 import type {NodeSpec} from 'prosemirror-model';
 
-import {TableRole} from '../../../../table-utils';
+import type {ExtensionAuto} from '#core';
+import {TableRole} from 'src/table-utils';
+
 import {CellAlign, TableAttrs, TableNode} from '../const';
 
-export const schemaSpecs: Record<TableNode, NodeSpec> = {
+const schemaSpecs: Record<TableNode, NodeSpec> = {
     [TableNode.Table]: {
         group: 'block',
         content: `${TableNode.Head} ${TableNode.Body}`,
@@ -100,3 +102,13 @@ function cellTemplate(tag: 'th' | 'td'): NodeSpec {
         complex: 'leaf',
     };
 }
+
+export const TableSchemaSpecs: ExtensionAuto = (builder) => {
+    builder
+        .addNodeSpec(TableNode.Table, () => schemaSpecs[TableNode.Table])
+        .addNodeSpec(TableNode.Head, () => schemaSpecs[TableNode.Head])
+        .addNodeSpec(TableNode.Body, () => schemaSpecs[TableNode.Body])
+        .addNodeSpec(TableNode.Row, () => schemaSpecs[TableNode.Row])
+        .addNodeSpec(TableNode.HeaderCell, () => schemaSpecs[TableNode.HeaderCell])
+        .addNodeSpec(TableNode.DataCell, () => schemaSpecs[TableNode.DataCell]);
+};

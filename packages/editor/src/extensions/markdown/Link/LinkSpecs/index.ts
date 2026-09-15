@@ -1,7 +1,7 @@
 import type {Mark, Node} from 'prosemirror-model';
 
-import type {ExtensionAuto} from '../../../../core';
-import {markTypeFactory} from '../../../../utils/schema';
+import type {ExtensionAuto} from '#core';
+import {markTypeFactory} from 'src/utils/schema';
 
 export const linkMarkName = 'link';
 export const linkType = markTypeFactory(linkMarkName);
@@ -15,10 +15,10 @@ export enum LinkAttr {
 }
 
 export const LinkSpecs: ExtensionAuto = (builder) => {
-    builder.addMark(
-        linkMarkName,
-        () => ({
-            spec: {
+    builder
+        .addMarkSpec(
+            linkMarkName,
+            () => ({
                 attrs: {
                     [LinkAttr.Href]: {},
                     [LinkAttr.Title]: {default: null},
@@ -40,48 +40,45 @@ export const LinkSpecs: ExtensionAuto = (builder) => {
                 toDOM(node) {
                     return ['a', node.attrs];
                 },
+            }),
+            builder.Priority.High,
+        )
+        .addMarkdownTokenParserSpec('link', () => ({
+            name: linkMarkName,
+            type: 'mark',
+            getAttrs: (tok) => ({
+                href: tok.attrGet('href'),
+                title: tok.attrGet('title') || null,
+            }),
+        }))
+        .addMarkSerializerSpec(linkMarkName, () => ({
+            open(state, mark, parent, index) {
+                // FIXME: Verify and use Node instead of Fragment
+                state.isAutolink = isPlainURL(mark, parent as any, index, 1);
+                if (state.isAutolink) {
+                    if (mark.attrs[LinkAttr.RawLink]) return '';
+                    return '<';
+                }
+                return '[';
             },
-            toMd: {
-                open(state, mark, parent, index) {
-                    // FIXME: Verify and use Node instead of Fragment
-                    state.isAutolink = isPlainURL(mark, parent as any, index, 1);
-                    if (state.isAutolink) {
-                        if (mark.attrs[LinkAttr.RawLink]) return '';
-                        return '<';
-                    }
-                    return '[';
-                },
-                close(state, mark) {
-                    if (state.isAutolink) {
-                        state.isAutolink = undefined;
-                        if (mark.attrs[LinkAttr.RawLink]) return '';
-
-                        return '>';
-                    }
+            close(state, mark) {
+                if (state.isAutolink) {
                     state.isAutolink = undefined;
-                    return (
-                        '](' +
-                        escapeParenthesesInUrl(mark.attrs[LinkAttr.Href]) +
-                        (mark.attrs[LinkAttr.Title]
-                            ? ' ' + state.quote(mark.attrs[LinkAttr.Title])
-                            : '') +
-                        ')'
-                    );
-                },
+                    if (mark.attrs[LinkAttr.RawLink]) return '';
+
+                    return '>';
+                }
+                state.isAutolink = undefined;
+                return (
+                    '](' +
+                    escapeParenthesesInUrl(mark.attrs[LinkAttr.Href]) +
+                    (mark.attrs[LinkAttr.Title]
+                        ? ' ' + state.quote(mark.attrs[LinkAttr.Title])
+                        : '') +
+                    ')'
+                );
             },
-            fromMd: {
-                tokenSpec: {
-                    name: linkMarkName,
-                    type: 'mark',
-                    getAttrs: (tok) => ({
-                        href: tok.attrGet('href'),
-                        title: tok.attrGet('title') || null,
-                    }),
-                },
-            },
-        }),
-        builder.Priority.High,
-    );
+        }));
 };
 
 function isPlainURL(link: Mark, parent: Node, index: number, side: number) {
