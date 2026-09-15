@@ -1,4 +1,5 @@
 import type {DOMOutputSpec, NodeSpec} from '#pm/model';
+import {i18n} from 'src/i18n/header';
 import type {PlaceholderOptions} from 'src/utils/placeholder';
 
 import {normalizeHeaderActionAttrs, normalizeHeaderAttrs} from './attrs';
@@ -13,16 +14,29 @@ import {
 } from './const';
 import {headerDecorDom, headerDomAttrs} from './dom';
 
-const DEFAULT_PLACEHOLDERS = {
-    Title: 'Header',
-    Subtitle: 'Subtitle',
-    Action: 'Button',
-};
-
 function attrsSpec<T extends Record<string, unknown>>(defaults: T): NodeSpec['attrs'] {
     return Object.fromEntries(
         Object.entries(defaults).map(([key, value]) => [key, {default: value}]),
     );
+}
+
+/**
+ * Плейсхолдер резолвится лениво и функцией: словарь приходит из `BehaviorPreset`, который может
+ * подключиться позже Header, а строка не пережила бы смену языка.
+ */
+function placeholderFor(
+    node: HeaderNodeName,
+    fallback: () => string,
+    placeholder?: PlaceholderOptions,
+): NonNullable<NodeSpec['placeholder']> {
+    return {
+        content: (...args) => {
+            const own = placeholder?.[node];
+            if (typeof own === 'function') return own(...args);
+            return own ?? fallback();
+        },
+        alwaysVisible: true,
+    };
 }
 
 export const getSchemaSpecs = (
@@ -69,10 +83,8 @@ export const getSchemaSpecs = (
         toDOM() {
             return ['div', {class: HeaderClassName.Title}, 0];
         },
-        placeholder: {
-            content: placeholder?.[HeaderNode.Title] ?? DEFAULT_PLACEHOLDERS.Title,
-            alwaysVisible: true,
-        },
+        placeholder: placeholderFor(HeaderNode.Title, () => i18n('placeholder.title'), placeholder),
+        commandMenu: false,
         definingAsContext: true,
         selectable: false,
         allowSelection: false,
@@ -85,10 +97,12 @@ export const getSchemaSpecs = (
         toDOM() {
             return ['div', {class: HeaderClassName.Subtitle}, 0];
         },
-        placeholder: {
-            content: placeholder?.[HeaderNode.Subtitle] ?? DEFAULT_PLACEHOLDERS.Subtitle,
-            alwaysVisible: true,
-        },
+        placeholder: placeholderFor(
+            HeaderNode.Subtitle,
+            () => i18n('placeholder.subtitle'),
+            placeholder,
+        ),
+        commandMenu: false,
         definingAsContext: true,
         selectable: false,
         allowSelection: false,
@@ -134,10 +148,12 @@ export const getSchemaSpecs = (
                 0,
             ];
         },
-        placeholder: {
-            content: placeholder?.[HeaderNode.Action] ?? DEFAULT_PLACEHOLDERS.Action,
-            alwaysVisible: true,
-        },
+        placeholder: placeholderFor(
+            HeaderNode.Action,
+            () => i18n('placeholder.action'),
+            placeholder,
+        ),
+        commandMenu: false,
         defining: true,
         selectable: false,
         allowSelection: false,

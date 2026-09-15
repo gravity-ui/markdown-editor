@@ -19,7 +19,8 @@ export function toCssUrl(raw: string): string | null {
 }
 
 export function headerDomAttrs(attrs: HeaderAttrs): Record<string, string> {
-    const dom: Record<string, string> = {class: HeaderClassName.Header};
+    // Стабильный селектор для визуальных тестов: цепляться за классы вёрстки хрупко
+    const dom: Record<string, string> = {class: HeaderClassName.Header, 'data-qa': 'g-md-header'};
 
     for (const [key, value] of Object.entries(attrs)) {
         dom[`data-${key}`] = String(value);
