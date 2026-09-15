@@ -1,7 +1,8 @@
-import type {NodeSpec} from '#pm/model';
+import type {DOMOutputSpec, NodeSpec} from '#pm/model';
 import type {PlaceholderOptions} from 'src/utils/placeholder';
 
 import {normalizeHeaderActionAttrs, normalizeHeaderAttrs} from './attrs';
+import {headerDecorDom, headerDomAttrs} from './dom';
 import {
     HeaderActionAttr,
     HeaderActionDefaults,
@@ -22,10 +23,6 @@ function attrsSpec<T extends Record<string, unknown>>(defaults: T): NodeSpec['at
     return Object.fromEntries(Object.entries(defaults).map(([key, value]) => [key, {default: value}]));
 }
 
-function dataAttrs(attrs: Record<string, unknown>): Record<string, string> {
-    return Object.fromEntries(Object.entries(attrs).map(([key, value]) => [`data-${key}`, String(value)]));
-}
-
 export const getSchemaSpecs = (
     placeholder?: PlaceholderOptions,
 ): Record<HeaderNodeName, NodeSpec> => ({
@@ -39,6 +36,7 @@ export const getSchemaSpecs = (
             {
                 tag: `div.${HeaderClassName.Header}`,
                 priority: 100,
+                contentElement: `.${HeaderClassName.Content}`,
                 getAttrs: (node) => {
                     const raw: Record<string, string | null> = {};
                     for (const key of Object.values(HeaderAttr)) {
@@ -49,7 +47,12 @@ export const getSchemaSpecs = (
             },
         ],
         toDOM(node) {
-            return ['div', {class: HeaderClassName.Header, ...dataAttrs(node.attrs)}, 0];
+            const attrs = normalizeHeaderAttrs(node.attrs);
+            const decor = headerDecorDom(attrs);
+            const content: DOMOutputSpec = ['div', {class: HeaderClassName.Content}, 0];
+            return decor
+                ? ['div', headerDomAttrs(attrs), decor, content]
+                : ['div', headerDomAttrs(attrs), content];
         },
         selectable: true,
         allowSelection: true,
@@ -60,7 +63,6 @@ export const getSchemaSpecs = (
 
     [HeaderNode.Title]: {
         content: 'inline*',
-        group: 'block',
         parseDOM: [{tag: `div.${HeaderClassName.Title}`}],
         toDOM() {
             return ['div', {class: HeaderClassName.Title}, 0];
@@ -77,7 +79,6 @@ export const getSchemaSpecs = (
 
     [HeaderNode.Subtitle]: {
         content: 'inline*',
-        group: 'block',
         parseDOM: [{tag: `div.${HeaderClassName.Subtitle}`}],
         toDOM() {
             return ['div', {class: HeaderClassName.Subtitle}, 0];
@@ -95,7 +96,6 @@ export const getSchemaSpecs = (
     [HeaderNode.Actions]: {
         // `*`, а не `+`: hero без кнопок — штатное состояние, и схема не должна требовать заглушку
         content: `${HeaderNode.Action}*`,
-        group: 'block',
         parseDOM: [{tag: `div.${HeaderClassName.Actions}`}],
         toDOM() {
             return ['div', {class: HeaderClassName.Actions}, 0];

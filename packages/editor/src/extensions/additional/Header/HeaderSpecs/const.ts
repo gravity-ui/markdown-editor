@@ -107,6 +107,7 @@ export const MAX_HEADER_ACTIONS = 2;
 
 export const HeaderClassName = {
     Header: 'g-md-header',
+    Content: 'g-md-header-content',
     Title: 'g-md-header-title',
     Subtitle: 'g-md-header-subtitle',
     Actions: 'g-md-header-actions',
