@@ -1,6 +1,8 @@
 import type {ExtensionAuto} from '#core';
 import {nodeTypeFactory} from 'src/utils/schema';
 
+import {pasteResourceId} from '../../../../paste/tracking';
+
 import {ImageAttr, imageNodeName} from './const';
 import {imageToMarkdown} from './utils';
 
@@ -14,6 +16,7 @@ export const ImageSpecs: ExtensionAuto = (builder) => {
         .addNodeSpec(imageNodeName, () => ({
             inline: true,
             attrs: {
+                [pasteResourceId]: {default: null},
                 [ImageAttr.Src]: {},
                 [ImageAttr.Alt]: {default: null},
                 [ImageAttr.Title]: {default: null},
@@ -35,7 +38,9 @@ export const ImageSpecs: ExtensionAuto = (builder) => {
                 },
             ],
             toDOM(node) {
-                return ['img', node.attrs];
+                const attrs = {...node.attrs};
+                delete attrs[pasteResourceId];
+                return ['img', attrs];
             },
         }))
         .addMarkdownTokenParserSpec(imageNodeName, () => ({

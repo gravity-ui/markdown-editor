@@ -7,6 +7,7 @@ import {
 import type {Node} from 'prosemirror-model';
 
 import type {Extension} from '../../../../core';
+import {pasteResourceId} from '../../../../paste/tracking';
 import {nodeTypeFactory} from '../../../../utils/schema';
 
 import {
@@ -45,7 +46,7 @@ export const YfmFileSpecs: Extension = (builder) => {
         spec: {
             group: 'inline',
             inline: true,
-            attrs: fileNodeAttrsSpec,
+            attrs: {...fileNodeAttrsSpec, [pasteResourceId]: {default: null}},
             parseDOM: [
                 {
                     tag: `a[class="${FileClassName.Link}"]`,
@@ -68,7 +69,7 @@ export const YfmFileSpecs: Extension = (builder) => {
                 a.contentEditable = 'false';
                 a.classList.add(FileClassName.Link);
                 for (const [key, value] of Object.entries(node.attrs)) {
-                    if (value) a.setAttribute(key, value);
+                    if (key !== pasteResourceId && value) a.setAttribute(key, value);
                 }
                 const span = document.createElement('span');
                 span.classList.add(FileClassName.Icon);
@@ -102,7 +103,7 @@ export const YfmFileSpecs: Extension = (builder) => {
 
             const attrsStr = Object.entries(node.attrs)
                 .reduce<string[]>((arr, [key, value]) => {
-                    if (key !== YfmFileAttr.Markup && value) {
+                    if (key !== YfmFileAttr.Markup && key !== pasteResourceId && value) {
                         if (key in LINK_TO_FILE_ATTRS_MAP) {
                             key = LINK_TO_FILE_ATTRS_MAP[key];
                         }

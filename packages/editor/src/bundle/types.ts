@@ -6,6 +6,7 @@ import type {MarkupString} from '../common';
 import type {EscapeConfig, Extension} from '../core';
 import type {Logger2} from '../logger';
 import type {CreateCodemirrorParams, YfmLangOptions} from '../markup';
+import type {PasteIntegration} from '../paste/types';
 import type {FileUploadHandler} from '../utils';
 import type {DirectiveSyntaxContext, DirectiveSyntaxOption} from '../utils/directive';
 import type {ParseInsertedUrlAsImage} from '../utils/upload';
@@ -19,6 +20,14 @@ import type {
 } from './preset-base-types';
 import type {ExtensionsOptions as WysiwygPresetExtensionsOptions} from './wysiwyg-preset';
 
+export type {
+    PasteIntegration,
+    PastedResource,
+    PasteResourceResolution,
+    PasteOperationEvent,
+    PasteOperationStatus,
+    PasteOperationControl,
+} from '../paste/types';
 export type {
     MarkdownEditorMode,
     MarkdownEditorPreset,
@@ -194,6 +203,8 @@ export type MarkdownEditorWysiwygConfig = {
 };
 
 export type MarkdownEditorOptions = {
+    /** Insert clipboard content immediately, then asynchronously resolve its image and attachment URLs. */
+    paste?: PasteIntegration;
     /**
      * A set of plug-in extensions.
      * @default 'full'

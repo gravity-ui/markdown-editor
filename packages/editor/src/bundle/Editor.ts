@@ -1,6 +1,8 @@
 import type {ReactNode} from 'react';
 
 import {EditorView as CMEditorView} from '@codemirror/view';
+import {FILE_TOKEN} from '@diplodoc/file-extension';
+import {DOMParser as PMDOMParser} from 'prosemirror-model';
 import {TextSelection} from 'prosemirror-state';
 import type {EditorView as PMEditorView} from 'prosemirror-view';
 
@@ -21,6 +23,8 @@ import {type Logger2, globalLogger} from '../logger';
 import {createCodemirror} from '../markup';
 import {getAutocompleteConfig} from '../markup/codemirror/autocomplete';
 import {type CodeEditor, Editor as MarkupEditor} from '../markup/editor';
+import {PasteController} from '../paste/controller';
+import type {PasteOperationControl} from '../paste/types';
 import {type Emitter, type FileUploadHandler, type Receiver, SafeEventEmitter} from '../utils';
 import type {DirectiveSyntaxContext} from '../utils/directive';
 
@@ -52,7 +56,13 @@ export type Editor = MarkdownEditorInstance;
 
 /** @internal */
 export interface EditorInt
-    extends CommonEditor, Emitter<EventMapInt>, Receiver<EventMapInt>, ActionStorage, CodeEditor {
+    extends
+        PasteOperationControl,
+        CommonEditor,
+        Emitter<EventMapInt>,
+        Receiver<EventMapInt>,
+        ActionStorage,
+        CodeEditor {
     readonly logger: Logger2.ILogger;
     readonly currentMode: EditorMode;
     readonly toolbarVisible: boolean;
@@ -63,7 +73,10 @@ export interface EditorInt
     readonly directiveSyntax: DirectiveSyntaxContext;
     readonly mobile: boolean;
 
-    /** @internal used in demo for dev-tools */
+    /**
+     * Used for dev tools in the demo.
+     * @internal
+     */
     readonly _wysiwygView?: PMEditorView;
 
     readonly currentEditor: CommonEditor;
@@ -98,7 +111,14 @@ type SetEditorModeOptions = Pick<ChangeEditorModeOptions, 'emit'>;
 
 export type EditorOptions = Pick<
     MarkdownEditorOptions,
-    'md' | 'initial' | 'handlers' | 'experimental' | 'markupConfig' | 'wysiwygConfig' | 'mobile'
+    | 'paste'
+    | 'md'
+    | 'initial'
+    | 'handlers'
+    | 'experimental'
+    | 'markupConfig'
+    | 'wysiwygConfig'
+    | 'mobile'
 > & {
     logger: Logger2.ILogger;
     renderStorage: ReactRenderStorage;
@@ -109,6 +129,7 @@ export type EditorOptions = Pick<
 
 /** @internal */
 export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorInt {
+    readonly #paste: PasteController;
     #logger: Logger2.ILogger;
     #markup: MarkupString;
     #editorMode: EditorMode;
@@ -240,6 +261,7 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
             const mdPreset: NonNullable<WysiwygEditorOptions['mdPreset']> =
                 this.#preset === 'zero' || this.#preset === 'commonmark' ? this.#preset : 'default';
             this.#wysiwygEditor = new WysiwygEditor({
+                pasteController: this.#paste,
                 mdPreset,
                 logger: this.logger.nested({mode: 'wysiwyg'}),
                 initialContent: this.#markup,
@@ -261,6 +283,19 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
         if (!this.#markupEditor) {
             this.#markupEditor = new MarkupEditor(
                 createCodemirror({
+                    pasteController: this.#paste,
+                    pasteParser: () => this.wysiwygEditor.parser,
+                    pasteFileLink: (link) => {
+                        const root = document.createElement('div');
+                        root.append(link.cloneNode(true));
+                        const editor = this.wysiwygEditor;
+                        const parsed = PMDOMParser.fromSchema(editor.view.state.schema).parse(root);
+                        let file = false;
+                        parsed.descendants((node) => {
+                            if (node.type.name === FILE_TOKEN) file = true;
+                        });
+                        return file ? editor.serializer.serialize(parsed).trimEnd() : undefined;
+                    },
                     doc: this.#markup,
                     logger: this.logger.nested({mode: 'markup'}),
                     placeholder: this.#markupConfig.placeholder ?? i18n('markup_placeholder'),
@@ -339,6 +374,11 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
             mobile = false,
         } = opts;
 
+        this.#paste = new PasteController(opts.paste, (error) => logger.error(error));
+        this.#paste.subscribe(() => {
+            this.emit('rerender', null);
+            this.emit('rerender-toolbar', null);
+        });
         this.#logger = logger;
         this.#modifiers = experimental.preserveMarkupFormatting
             ? createDynamicModifiers(
@@ -395,7 +435,20 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
 
     // <--- implements ActionStorage
 
+    getPendingPasteOperations() {
+        return this.#paste.getPendingPasteOperations();
+    }
+
+    getPendingPasteOperation() {
+        return this.#paste.getPendingPasteOperation();
+    }
+
+    cancelPaste(operationId: string) {
+        this.#paste.cancelPaste(operationId);
+    }
+
     destroy() {
+        this.#paste.destroy();
         this.#wysiwygEditor?.destroy();
         this.#markupEditor?.codemirror.destroy();
 
@@ -422,7 +475,11 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
             reason: opts.reason,
         });
 
+        const resources = this.#paste.snapshot();
         this.currentMode = opts.mode;
+        // Construct the target engine before transferring resource identities.
+        this.currentEditor.getValue();
+        this.#paste.activate(opts.mode, resources);
         this.emit('rerender', null);
 
         if (emit) {

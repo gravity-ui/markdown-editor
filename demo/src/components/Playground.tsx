@@ -287,6 +287,26 @@ export const Playground = memo<PlaygroundProps>((props) => {
             handlers: {
                 uploadFile: fileUploadHandler,
             },
+            paste: {
+                async resolvePastedResources(resources) {
+                    console.log('Ресурсы для копирования:', resources);
+
+                    await new Promise((resolve) => setTimeout(resolve, 3000));
+                    return {
+                        replacements: resources.map((resource) => ({
+                            kind: resource.kind,
+                            oldPath: resource.path,
+                            newPath: resource.kind === 'image'
+                                ? 'https://yt3.googleusercontent.com/oX0kXVZOEVQIflrOamdiDwugECEXvKP-2fzw8Pqmdbp6OFQW5x3N0zydtanhC_UF8WcBd0jLNA=s900-c-k-c0x00ffffff-no-rj'
+                                : 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
+                        })),
+
+                    };
+                },
+                onPasteOperationChange(event) {
+                    console.log('Состояние вставки:', event);
+                },
+            },
             experimental: {
                 directiveSyntax,
                 preserveEmptyRows,

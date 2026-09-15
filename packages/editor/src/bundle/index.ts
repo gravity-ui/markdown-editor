@@ -12,3 +12,6 @@ export {markupToolbarConfigs, wysiwygToolbarConfigs};
 
 // MAJOR: remove in next major
 export * from './config';
+
+export {pasteHistoryBoundary} from '../paste/history';
+export {remotePasteTransactionMeta, resolvedPasteMeta} from '../paste/prosemirror';

@@ -2,6 +2,7 @@ import type {EditorView as PMEditorView} from 'prosemirror-view';
 
 import type {CommonEditor, MarkupString} from '../common';
 import type {Logger2} from '../logger';
+import type {PasteOperationControl} from '../paste/types';
 import type {Receiver} from '../utils';
 
 import type {EventMap} from './events';
@@ -13,7 +14,8 @@ export type ChangeEditorModeOptions = {
     emit?: boolean;
 };
 
-export interface MarkdownEditorInstance extends Receiver<EventMap>, CommonEditor {
+export interface MarkdownEditorInstance
+    extends Receiver<EventMap>, CommonEditor, PasteOperationControl {
     readonly logger: Logger2.LogReceiver;
     readonly currentMode: MarkdownEditorMode;
     readonly toolbarVisible: boolean;
@@ -28,6 +30,9 @@ export interface MarkdownEditorInstance extends Receiver<EventMap>, CommonEditor
      * No-op if `renderPreview` is not configured or split mode is currently enabled.
      */
     changePreviewVisible(visible?: boolean): void;
-    /** @internal used in demo for dev-tools */
+    /**
+     * Used for dev tools in the demo.
+     * @internal
+     */
     readonly _wysiwygView?: PMEditorView;
 }
