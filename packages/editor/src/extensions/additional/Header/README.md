@@ -20,18 +20,18 @@ Hero-блок страницы: заголовок, подзаголовок и 
 
 ## Атрибуты
 
-| Ключ | Значения | Дефолт |
-|------|----------|--------|
-| `format` | `large` / `small` | `large` |
-| `edges` | `rounded` / `bleed` | `rounded` |
-| `bg` | `fill` / `image` | `fill` |
-| `layout` | `cover` / `split` — только при `bg=image` | `cover` |
-| `fill` | имя из палитры: `blue-light`, `green-light`, `yellow-light`, `red-light`, `purple-light`, `grey`, `blue`, `green`, `yellow`, `red`, `purple`, `dark` | `blue-light` |
-| `text` | `auto` / `light` / `dark` | `auto` |
-| `image` | URL картинки | `''` |
-| `border` | `none` / `solid` / `dashed` / `dotted` | `none` |
-| `blobs` | `true` / `false` | `true` |
-| `seed` | число, `0` — курируемая раскладка | `0` |
+| Ключ     | Значения                                                                                                                                             | Дефолт       |
+| -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- | ------------ |
+| `format` | `large` / `small`                                                                                                                                    | `large`      |
+| `edges`  | `rounded` / `bleed`                                                                                                                                  | `rounded`    |
+| `bg`     | `fill` / `image`                                                                                                                                     | `fill`       |
+| `layout` | `cover` / `split` — только при `bg=image`                                                                                                            | `cover`      |
+| `fill`   | имя из палитры: `blue-light`, `green-light`, `yellow-light`, `red-light`, `purple-light`, `grey`, `blue`, `green`, `yellow`, `red`, `purple`, `dark` | `blue-light` |
+| `text`   | `auto` / `light` / `dark`                                                                                                                            | `auto`       |
+| `image`  | URL картинки                                                                                                                                         | `''`         |
+| `border` | `none` / `solid` / `dashed` / `dotted`                                                                                                               | `none`       |
+| `blobs`  | `true` / `false`                                                                                                                                     | `true`       |
+| `seed`   | число, `0` — курируемая раскладка                                                                                                                    | `0`          |
 
 У `::action` два атрибута: `href` и `variant` (`primary` / `normal` / `link`). Ссылку можно задать
 и дестинацией: `::action[Текст](/start)`.
@@ -46,12 +46,12 @@ import {Header} from '@gravity-ui/markdown-editor/extensions/additional/Header';
 import {wHeaderItemData} from '@gravity-ui/markdown-editor/extensions/additional/Header/toolbar';
 
 useMarkdownEditor({
-    wysiwygConfig: {
-        extensions: (builder) => builder.use(Header, {fileUploadHandler}),
-        extensionOptions: {
-            commandMenu: {actions: wysiwygToolbarConfigs.wCommandMenuConfig.concat(wHeaderItemData)},
-        },
+  wysiwygConfig: {
+    extensions: (builder) => builder.use(Header, {fileUploadHandler}),
+    extensionOptions: {
+      commandMenu: {actions: wysiwygToolbarConfigs.wCommandMenuConfig.concat(wHeaderItemData)},
     },
+  },
 });
 ```
 
@@ -61,10 +61,10 @@ useMarkdownEditor({
 
 ### Опции
 
-| Опция | Что делает |
-|-------|------------|
+| Опция               | Что делает                                                                                                       |
+| ------------------- | ---------------------------------------------------------------------------------------------------------------- |
 | `fileUploadHandler` | Загрузчик картинки фона. Без него пункт «загрузить» в панели не показывается, но ссылку можно задать из markdown |
-| `headerKey` | Хоткей вставки блока |
+| `headerKey`         | Хоткей вставки блока                                                                                             |
 
 ## Что внутри
 
