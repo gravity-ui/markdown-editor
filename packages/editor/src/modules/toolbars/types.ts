@@ -23,6 +23,8 @@ export type ToolbarItemView<T extends ToolbarDataType = ToolbarDataType.SingleBu
     hotkey?: HotkeyProps['value'];
     type?: ToolbarDataType;
     doNotActivateList?: boolean;
+    /** Alternative search terms for the slash toolbar. */
+    aliases?: string[];
 } & (T extends ToolbarDataType.SingleButton
     ? {
           icon: ToolbarIconData;
@@ -62,6 +64,7 @@ type ToolbarItemEditor<T, E> = Partial<EditorActions<E>> & {
                 width: number;
                 noRerenderOnUpdate?: boolean;
                 component: React.ComponentType<ToolbarBaseProps<E>>;
+                props?: object;
             }
           : {});
 
