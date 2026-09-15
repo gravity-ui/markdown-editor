@@ -1,39 +1,193 @@
 import ist from 'ist';
+import {history, undo} from 'prosemirror-history';
 import type {Node} from 'prosemirror-model';
 import {
     type Command,
     EditorState,
     NodeSelection,
+    type Plugin,
     Selection,
     TextSelection,
 } from 'prosemirror-state';
 import {doc, eq, li, p, schema, ul} from 'prosemirror-test-builder';
 
-import {sinkOnlySelectedListItem} from 'src/extensions/markdown/Lists/commands';
+import {
+    liftSelectedListItems,
+    planSelectedListBlocks,
+    sinkSelectedListItems,
+} from 'src/extensions/markdown/Lists/commands';
 
-function selFor(doc: Node) {
-    const a = (doc as any).tag.a,
-        b = (doc as any).tag.b;
-    if (a !== null) {
-        const $a = doc.resolve(a);
-        if ($a.parent.inlineContent)
-            return new TextSelection($a, b !== null ? doc.resolve(b) : undefined);
-        else return new NodeSelection($a);
+type TaggedNode = Node & {
+    tag: {
+        a: number | null;
+        b: number | null;
+    };
+};
+
+function selFor(docNode: Node) {
+    const taggedNode = docNode as TaggedNode;
+    const a = taggedNode.tag.a;
+    const b = taggedNode.tag.b;
+
+    if (a === null) {
+        return Selection.atStart(docNode);
     }
-    return Selection.atStart(doc);
+
+    const $a = docNode.resolve(a);
+
+    if ($a.parent.inlineContent) {
+        const $b = b === null ? undefined : docNode.resolve(b);
+
+        return new TextSelection($a, $b);
+    }
+
+    return new NodeSelection($a);
 }
 
-function apply(doc: Node, command: Command, result: Node | null) {
-    let state = EditorState.create({doc, selection: selFor(doc)});
-    // eslint-disable-next-line no-return-assign
-    command(state, (tr) => (state = state.apply(tr)));
-    ist(state.doc, result || doc, eq);
-    // eslint-disable-next-line no-eq-null
-    if (result && (result as any).tag.a != null) ist(state.selection, selFor(result), eq);
+function createState(docNode: Node, plugins: Plugin[] = []) {
+    return EditorState.create({doc: docNode, selection: selFor(docNode), plugins});
 }
 
-describe('sinkOnlySelectedListItem', () => {
-    const sink = sinkOnlySelectedListItem(schema.nodes.list_item);
+function runCommand(docNode: Node, command: Command, plugins: Plugin[] = []) {
+    let state = createState(docNode, plugins);
+    let dispatchCount = 0;
+
+    const handled = command(state, (tr) => {
+        dispatchCount += 1;
+        state = state.apply(tr);
+    });
+
+    return {dispatchCount, handled, state};
+}
+
+function apply(docNode: Node, command: Command, result: Node | null) {
+    const {state} = runCommand(docNode, command);
+
+    ist(state.doc, result || docNode, eq);
+
+    if (
+        result &&
+        (result as TaggedNode).tag.a !== null &&
+        (result as TaggedNode).tag.a !== undefined
+    ) {
+        ist(state.selection, selFor(result), eq);
+    }
+}
+
+function getPlannedBlockTexts(docNode: Node) {
+    const state = createState(docNode);
+
+    return planSelectedListBlocks(state.selection, schema.nodes.list_item).blocks.map((block) => {
+        const range = docNode
+            .resolve(block.from)
+            .blockRange(
+                docNode.resolve(block.to),
+                (node) =>
+                    node.childCount > 0 &&
+                    node.firstChild !== null &&
+                    node.firstChild.type === schema.nodes.list_item,
+            );
+
+        if (!range) {
+            throw new Error('Expected a list block range');
+        }
+
+        const texts: string[] = [];
+
+        for (let index = range.startIndex; index < range.endIndex; index++) {
+            const item = range.parent.child(index);
+            texts.push(item.firstChild?.textContent ?? item.textContent);
+        }
+
+        return texts;
+    });
+}
+
+describe('planSelectedListBlocks', () => {
+    it('plans a single selected item as one block', () => {
+        expect(getPlannedBlockTexts(doc(ul(li(p('11')), li(p('2<a><b>2')), li(p('33')))))).toEqual([
+            ['22'],
+        ]);
+    });
+
+    it('plans a flat sibling group as one contiguous block', () => {
+        expect(
+            getPlannedBlockTexts(doc(ul(li(p('aa')), li(p('b<a>b')), li(p('c<b>c')), li(p('dd'))))),
+        ).toEqual([['bb', 'cc']]);
+    });
+
+    it('plans downward staircase selections as separate list-level blocks', () => {
+        expect(
+            getPlannedBlockTexts(
+                doc(
+                    ul(
+                        li(p('aa')),
+                        li(
+                            p('b<a>b'),
+                            ul(
+                                li(p('c<b>c')),
+                                li(p('dd'), ul(li(p('ee')), li(p('ss')))),
+                                li(p('zz')),
+                                li(p('ww')),
+                            ),
+                        ),
+                        li(p('pp')),
+                        li(p('hh')),
+                    ),
+                ),
+            ),
+        ).toEqual([['bb'], ['cc']]);
+    });
+
+    it('plans upward staircase selections from inner items back to outer siblings', () => {
+        expect(
+            getPlannedBlockTexts(
+                doc(
+                    ul(
+                        li(p('aa')),
+                        li(
+                            p('bb'),
+                            ul(
+                                li(p('cc')),
+                                li(p('dd'), ul(li(p('ee')), li(p('s<a>s')))),
+                                li(p('z<b>z')),
+                                li(p('ww')),
+                            ),
+                        ),
+                        li(p('pp')),
+                        li(p('hh')),
+                    ),
+                ),
+            ),
+        ).toEqual([['ss'], ['zz']]);
+    });
+
+    it('plans mixed multi-level selections by expanding nested tails into sibling runs', () => {
+        expect(
+            getPlannedBlockTexts(
+                doc(
+                    ul(
+                        li(p('aa')),
+                        li(
+                            p('b<a>b'),
+                            ul(
+                                li(p('cc')),
+                                li(p('dd'), ul(li(p('e<b>e')), li(p('ss')))),
+                                li(p('zz')),
+                                li(p('ww')),
+                            ),
+                        ),
+                        li(p('pp')),
+                        li(p('hh')),
+                    ),
+                ),
+            ),
+        ).toEqual([['bb'], ['cc', 'dd'], ['ee', 'ss']]);
+    });
+});
+
+describe('sinkSelectedListItems', () => {
+    const sink = sinkSelectedListItems(schema.nodes.list_item);
 
     it('can wrap a simple item in a list', () =>
         apply(
@@ -160,9 +314,7 @@ describe('sinkOnlySelectedListItem', () => {
             ),
         ));
 
-    // expected result should be the same as
-    // sinks nested list items into a deeper hierarchy when selection spans multiple items
-    it('sinks nested list items with an upward staircase selection', () =>
+    it('sinks reverse staircase selections from the innermost item outward', () =>
         apply(
             doc(
                 ul(
@@ -187,7 +339,8 @@ describe('sinkOnlySelectedListItem', () => {
                     li(
                         p('bb'),
                         ul(
-                            li(p('cc'), ul(li(p('dd'), ul(li(p('ee')), li(p('ss')))), li(p('zz')))),
+                            li(p('cc')),
+                            li(p('dd'), ul(li(p('ee'), ul(li(p('ss')))), li(p('zz')))),
                             li(p('ww')),
                         ),
                     ),
@@ -231,4 +384,86 @@ describe('sinkOnlySelectedListItem', () => {
                 ),
             ),
         ));
+});
+
+describe('liftSelectedListItems', () => {
+    const lift = liftSelectedListItems(schema.nodes.list_item);
+
+    it('lifts a top-level list item into a paragraph', () =>
+        apply(
+            doc(ul(li(p('first')), li(p('s<a><b>econd'))), p('text')),
+            lift,
+            doc(ul(li(p('first'))), p('second'), p('text')),
+        ));
+
+    it('lifts a nested list item out by one level', () =>
+        apply(
+            doc(ul(li(p('one'), ul(li(p('t<a><b>wo')))))),
+            lift,
+            doc(ul(li(p('one')), li(p('two')))),
+        ));
+
+    it('keeps the original selection when lifting reverse staircase blocks', () =>
+        apply(
+            doc(
+                ul(
+                    li(p('aa')),
+                    li(
+                        p('bb'),
+                        ul(
+                            li(p('cc')),
+                            li(p('dd'), ul(li(p('ee')), li(p('s<a>s')))),
+                            li(p('z<b>z')),
+                            li(p('ww')),
+                        ),
+                    ),
+                    li(p('pp')),
+                    li(p('hh')),
+                ),
+            ),
+            lift,
+            doc(
+                ul(
+                    li(p('aa')),
+                    li(p('bb'), ul(li(p('cc')), li(p('dd'), ul(li(p('ee')))), li(p('s<a>s')))),
+                    li(p('z<b>z'), ul(li(p('ww')))),
+                    li(p('pp')),
+                    li(p('hh')),
+                ),
+            ),
+        ));
+
+    it('keeps a multi-block lift in one history step with stable selection on undo', () => {
+        const docNode = doc(
+            ul(
+                li(p('aa')),
+                li(
+                    p('bb'),
+                    ul(
+                        li(p('cc')),
+                        li(p('dd'), ul(li(p('ee')), li(p('s<a>s')))),
+                        li(p('z<b>z')),
+                        li(p('ww')),
+                    ),
+                ),
+                li(p('pp')),
+                li(p('hh')),
+            ),
+        );
+
+        let state = createState(docNode, [history()]);
+
+        lift(state, (tr) => {
+            state = state.apply(tr);
+        });
+
+        expect(
+            undo(state, (tr) => {
+                state = state.apply(tr);
+            }),
+        ).toBe(true);
+
+        ist(state.doc, docNode, eq);
+        ist(state.selection, selFor(docNode), eq);
+    });
 });
