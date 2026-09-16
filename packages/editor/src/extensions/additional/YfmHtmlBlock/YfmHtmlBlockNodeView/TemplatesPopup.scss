@@ -12,15 +12,14 @@
     &__editor {
         display: flex;
         flex-direction: column;
-
         gap: 8px;
+
         padding: 8px;
     }
 
     &__controls {
         display: flex;
         justify-content: end;
-
         gap: 8px;
     }
 }
