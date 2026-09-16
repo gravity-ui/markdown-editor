@@ -1,7 +1,7 @@
-import type {Action, ExtensionAuto} from '../../../core';
-import {nodeInputRule} from '../../../utils/inputrules';
+import type {Action, ExtensionAuto} from '#core';
+import {nodeInputRule} from 'src/utils/inputrules';
 
-import {CheckboxSpecs, type CheckboxSpecsOptions} from './CheckboxSpecs';
+import {CheckboxNode, CheckboxSpecs, type CheckboxSpecsOptions} from './CheckboxSpecs';
 import {addCheckbox} from './actions';
 import {CheckboxInputView} from './nodeviews';
 import {keymapPlugin} from './plugin';
@@ -31,10 +31,9 @@ export type CheckboxOptions = Pick<CheckboxSpecsOptions, 'checkboxLabelPlacehold
 };
 
 export const Checkbox: ExtensionAuto<CheckboxOptions> = (builder, opts) => {
-    builder.use(CheckboxSpecs, {
-        ...opts,
-        inputView: () => CheckboxInputView.create,
-    });
+    builder
+        .use(CheckboxSpecs, opts)
+        .addNodeView(CheckboxNode.Input, () => CheckboxInputView.create);
 
     builder
         .addPlugin(() => keymapPlugin(opts), builder.Priority.High)
