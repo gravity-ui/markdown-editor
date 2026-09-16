@@ -1,5 +1,8 @@
 # Pasted resource resolution
 
+See the [detailed architecture diagrams](../../../../../docs/pasted-resources-architecture.md)
+for wiring, transaction flows, resource identity, history, and mode switching.
+
 This module owns asynchronous resource resolution across editor modes. It does not
 parse clipboard contents or depend on ProseMirror, CodeMirror, or React.
 

@@ -1,5 +1,7 @@
 # Resolve resources after paste
 
+For implementation details, see the [architecture diagrams](pasted-resources-architecture.md).
+
 Configure `paste` in `useMarkdownEditor` to asynchronously copy or resolve image and attachment URLs. The editor **inserts the original content immediately**, then calls the application. When the callback finishes, the editor updates the corresponding resources in the current document. Both WYSIWYG and Markdown support this API.
 
 ```tsx
