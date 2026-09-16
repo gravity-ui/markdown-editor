@@ -107,7 +107,7 @@ function quote(value: string): string {
     return `"${value.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`;
 }
 
-function serializeValue(value: string): string {
+export function serializeDirectiveValue(value: string): string {
     return /^[\w-]+$/.test(value) ? value : quote(value);
 }
 
@@ -120,7 +120,7 @@ export function serializeHeaderAttrs(attrs: Partial<HeaderAttrs>): string {
         if (value === HeaderDefaults[key]) continue;
         // Layout applies only to image backgrounds.
         if (key === HeaderAttr.Layout && normalized.bg !== HeaderBackground.Image) continue;
-        pairs.push(`${key}=${serializeValue(value)}`);
+        pairs.push(`${key}=${serializeDirectiveValue(value)}`);
     }
 
     return pairs.length ? ` {${pairs.join(' ')}}` : '';

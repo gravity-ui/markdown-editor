@@ -1,6 +1,11 @@
 import {nodeTypeFactory} from 'src/utils/schema';
 
 export const headerDirectiveName = 'header-block';
+export const HeaderSlotDirective = {
+    Title: 'header-title',
+    Description: 'header-description',
+    Action: 'header-action',
+} as const;
 
 export const HeaderNode = {
     Header: 'header_block',

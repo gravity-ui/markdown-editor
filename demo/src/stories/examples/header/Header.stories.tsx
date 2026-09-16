@@ -78,7 +78,7 @@ export const EveryAttribute: Story = {
     args: {markup: markup.everything},
 };
 
-export const BrokenYaml: Story = {
-    name: 'Broken yaml in the body',
+export const MalformedDirective: Story = {
+    name: 'Malformed directive in the body',
     args: {markup: markup.broken},
 };

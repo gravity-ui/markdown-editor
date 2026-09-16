@@ -12,15 +12,10 @@ export const markup = {
 
     filled: `
 :::header-block
-title: 'Добро пожаловать на портал'
-description: 'Всё, что нужно команде, — на одной странице.'
-actions:
-  - type: 'button'
-    title: 'Начать работу'
-    href: '/start'
-  - type: 'link'
-    title: 'Смотреть разделы'
-    href: '/sections'
+::header-title[Добро пожаловать на портал]
+::header-description[Всё, что нужно команде, — на одной странице.]
+::header-action[Начать работу] {href="/start"}
+::header-action[Смотреть разделы] {href="/sections" type=link}
 :::
 
 Обычный абзац под обложкой.
@@ -28,108 +23,99 @@ actions:
 
     small: `
 :::header-block {format=small fill=green}
-title: 'Отпуска и справки'
-description: 'Документы, заявки и сроки в одном месте.'
-actions:
-  - type: 'button'
-    title: 'Оформить'
-    href: '/vacation'
+::header-title[Отпуска и справки]
+::header-description[Документы, заявки и сроки в одном месте.]
+::header-action[Оформить] {href="/vacation"}
 :::
 `.trim(),
 
     bleed: `
 :::header-block {edges=bleed fill=yellow}
-title: 'Такси для сотрудников'
-description: 'Корпоративный тариф и лимиты по подразделениям.'
+::header-title[Такси для сотрудников]
+::header-description[Корпоративный тариф и лимиты по подразделениям.]
 :::
 `.trim(),
 
     fills: `
 :::header-block {format=small fill=grey}
-title: 'Серый'
+::header-title[Серый]
 :::
 
 :::header-block {format=small fill=blue}
-title: 'Синий'
+::header-title[Синий]
 :::
 
 :::header-block {format=small fill=green}
-title: 'Зелёный'
+::header-title[Зелёный]
 :::
 
 :::header-block {format=small fill=yellow}
-title: 'Жёлтый'
+::header-title[Жёлтый]
 :::
 
 :::header-block {format=small fill=orange}
-title: 'Оранжевый'
+::header-title[Оранжевый]
 :::
 
 :::header-block {format=small fill=red}
-title: 'Красный'
+::header-title[Красный]
 :::
 
 :::header-block {format=small fill=purple}
-title: 'Фиолетовый'
+::header-title[Фиолетовый]
 :::
 
 :::header-block {format=small fill=contrast}
-title: 'Контрастный'
+::header-title[Контрастный]
 :::
 `.trim(),
 
     borders: `
 :::header-block {format=small border=none}
-title: 'Без рамки'
+::header-title[Без рамки]
 :::
 
 :::header-block {format=small border=solid}
-title: 'Сплошная рамка'
+::header-title[Сплошная рамка]
 :::
 
 :::header-block {format=small fill=green border=dashed}
-title: 'Черновик раздела'
-description: 'Пунктирная рамка помечает страницу, которую ещё не опубликовали.'
+::header-title[Черновик раздела]
+::header-description[Пунктирная рамка помечает страницу, которую ещё не опубликовали.]
 :::
 
 :::header-block {format=small border=dotted}
-title: 'Точечная рамка'
+::header-title[Точечная рамка]
 :::
 `.trim(),
 
     image: `
 :::header-block {bg=image fill=purple image="${HERO}"}
-title: 'HR-департамент'
-description: 'Отпуска, справки, командировки и всё остальное.'
-actions:
-  - type: 'button'
-    title: 'Открыть раздел'
-    href: '/hr'
+::header-title[HR-департамент]
+::header-description[Отпуска, справки, командировки и всё остальное.]
+::header-action[Открыть раздел] {href="/hr"}
 :::
 `.trim(),
 
     imageDark: `
 :::header-block {edges=bleed bg=image text=light image="${HERO}"}
-title: 'Ночной эфир'
-description: 'Светлая типографика поверх тёмной иллюстрации.'
+::header-title[Ночной эфир]
+::header-description[Светлая типографика поверх тёмной иллюстрации.]
 :::
 `.trim(),
 
     imageSplit: `
 :::header-block {bg=image layout=split image="${PORTRAIT}"}
-title: 'Онбординг'
-description: 'Вертикальные и квадратные иллюстрации фоном обрезаются, поэтому им отдельная колонка.'
-actions:
-  - type: 'button'
-    title: 'Пройти онбординг'
-    href: '/onboarding'
+::header-title[Онбординг]
+::header-description[Вертикальные и квадратные иллюстрации фоном обрезаются, поэтому им отдельная колонка.]
+::header-action[Пройти онбординг] {href="/onboarding"}
 :::
 `.trim(),
 
     imageEmpty: `
 :::header-block {bg=image}
-title: 'Картинка ещё не загружена'
-description: 'Пунктирный слот виден, пока атрибут image пуст.'
+::header-title[Картинка ещё не загружена]
+::header-description[Пунктирный слот виден, пока атрибут image пуст.]
 :::
 `.trim(),
 
@@ -139,7 +125,7 @@ description: 'Пунктирный слот виден, пока атрибут 
 {% cut "Развернуть" %}
 
 :::header-block {format=small fill=red}
-title: 'Обложка внутри ката'
+::header-title[Обложка внутри ката]
 :::
 
 {% endcut %}
@@ -147,26 +133,21 @@ title: 'Обложка внутри ката'
 
     everything: `
 :::header-block {format=small edges=bleed bg=image layout=split fill=contrast text=light image="${PORTRAIT}" border=dotted}
-title: 'Все атрибуты сразу'
-description: 'Крайний случай: каждый атрибут задан не дефолтным значением.'
-actions:
-  - type: 'button'
-    title: 'Основная'
-    href: '/a'
-  - type: 'link'
-    title: 'Ссылка'
-    href: '/b'
+::header-title[Все атрибуты сразу]
+::header-description[Крайний случай: каждый атрибут задан не дефолтным значением.]
+::header-action[Основная] {href="/a"}
+::header-action[Ссылка] {href="/b" type=link}
 :::
 `.trim(),
 
     // Ломаное тело из чужого документа не должно ронять разбор страницы
     broken: `
 :::header-block {fill=orange}
-title: 'Заголовок есть'
-actions: 'а вот это не список'
-  отступ: [ломаный
+::header-title[Заголовок есть]
+::unknown[Эта директива не поддерживается]
+::header-action[Незакрытая скобка
 :::
 
-Абзац после блока с битым yaml.
+Абзац после блока с некорректной директивой.
 `.trim(),
 };

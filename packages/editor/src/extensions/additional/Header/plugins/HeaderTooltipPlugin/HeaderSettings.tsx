@@ -1,10 +1,12 @@
-import {useLayoutEffect, useRef, useState} from 'react';
+import {type HTMLAttributes, type Ref, useLayoutEffect, useRef, useState} from 'react';
 
 import {
-    ArrowRightArrowLeft,
     ArrowUpFromSquare,
     ArrowUpRightFromSquare,
     Check,
+    ChevronDown,
+    Grip,
+    Plus,
     TrashBin,
 } from '@gravity-ui/icons';
 import {Button, Icon, Tooltip} from '@gravity-ui/uikit';
@@ -36,6 +38,7 @@ import {getHeaderTargets, resolveHeaderTarget} from '../targets';
 import {FillPalette, FillSwatch} from './FillPalette';
 import {LayoutSettings} from './HeaderAppearance';
 import {applyHeaderCommand, useUrlDraft} from './HeaderPopover';
+import {useActionReorder} from './useActionReorder';
 import {useImageUpload} from './useImageUpload';
 
 const b = cn('header-toolbar');
@@ -80,7 +83,7 @@ export function ImageSettings({
     const inputRef = useSettingsInput(true);
     return (
         <div className={b('image')} aria-busy={uploading}>
-            {(attrs.image || pick) && (
+            {attrs.image && (
                 <div className={b('image-heading')}>
                     {attrs.image && (
                         <div
@@ -117,27 +120,42 @@ export function ImageSettings({
                     )}
                 </div>
             )}
-            <div className={b('field')}>
-                <span className={b('field-label')}>{i18n('image.url')}</span>
-                <UrlInput
-                    value={draft.value}
-                    onUpdate={draft.onUpdate}
-                    onSubmit={draft.onSubmit}
-                    controlRef={inputRef}
-                    readOnly={uploading}
-                    aria-label={i18n('image.url')}
-                    placeholder="https://"
-                    actions={
-                        imageUrl ? (
-                            <UrlAction
-                                title={i18n('image.open')}
-                                icon={ArrowUpRightFromSquare}
-                                href={imageUrl}
-                                onClick={draft.onSubmit}
-                            />
-                        ) : undefined
-                    }
-                />
+            <div className={b('image-source')}>
+                <div className={b('field')}>
+                    <UrlInput
+                        value={draft.value}
+                        onUpdate={draft.onUpdate}
+                        onSubmit={draft.onSubmit}
+                        controlRef={inputRef}
+                        readOnly={uploading}
+                        aria-label={i18n('image.url')}
+                        placeholder={i18n('image.url')}
+                        actions={
+                            imageUrl ? (
+                                <UrlAction
+                                    title={i18n('image.open')}
+                                    icon={ArrowUpRightFromSquare}
+                                    href={imageUrl}
+                                    onClick={draft.onSubmit}
+                                />
+                            ) : undefined
+                        }
+                    />
+                </div>
+                {!attrs.image && pick && (
+                    <Button
+                        view="flat"
+                        loading={uploading}
+                        aria-label={i18n('image.upload')}
+                        onClick={() => {
+                            draft.reset();
+                            pick();
+                        }}
+                    >
+                        <Icon data={ArrowUpFromSquare} size={16} />
+                        {i18n('image.upload_short')}
+                    </Button>
+                )}
             </div>
             {attrs.bg === HeaderBackground.Image && (
                 <LayoutSettings value={attrs.layout} onChange={(layout) => update({layout})} />
@@ -164,37 +182,23 @@ export function ActionsSettings({
         );
     });
     const count = targets?.actions.length ?? 0;
+    const reorder = useActionReorder(targets?.actions.map(({id}) => id) ?? [], () => {
+        const current = getHeaderTargets(editorView.state);
+        if (current) applyHeaderCommand(editorView, swapHeaderActions(current.header.pos));
+    });
     return (
         <div className={b('actions')}>
-            <div className={b('actions-heading')}>
-                <span className={b('actions-limit')}>
-                    {i18n('cta.count', {count, max: MAX_HEADER_ACTIONS})}
-                </span>
-                {count === 2 && (
-                    <Button
-                        view="flat"
-                        onClick={() => {
-                            const current = getHeaderTargets(editorView.state);
-                            if (current)
-                                applyHeaderCommand(
-                                    editorView,
-                                    swapHeaderActions(current.header.pos),
-                                );
-                        }}
-                    >
-                        <Icon data={ArrowRightArrowLeft} size={16} />
-                        {i18n('cta.swap')}
-                    </Button>
-                )}
-            </div>
             {!targets?.actions.length && (
                 <div className={b('actions-empty')}>{i18n('cta.empty')}</div>
             )}
-            {targets?.actions.map((target, index) => (
+            {targets?.actions.map((target) => (
                 <ActionSettings
                     key={target.id}
                     targetId={target.id}
-                    index={index}
+                    dragHandle={count === 2 ? reorder.handleProps(target.id) : undefined}
+                    rowRef={reorder.rowRef(target.id)}
+                    dragOffset={reorder.drag?.id === target.id ? reorder.drag.offset : undefined}
+                    dropTarget={reorder.drag?.over === target.id}
                     editorView={editorView}
                     normalizeUrl={normalizeUrl}
                     autoFocus={target.id === focusedId}
@@ -203,10 +207,12 @@ export function ActionsSettings({
             {count < MAX_HEADER_ACTIONS && (
                 <div className={b('actions-footer')}>
                     <div className={b('actions-add')}>
-                        <Button view="outlined" onClick={() => onAdd('button')}>
+                        <Button view="flat" onClick={() => onAdd('button')}>
+                            <Icon data={Plus} size={14} />
                             {i18n('cta.add')}
                         </Button>
-                        <Button view="outlined" onClick={() => onAdd('link')}>
+                        <Button view="flat" onClick={() => onAdd('link')}>
+                            <Icon data={Plus} size={14} />
                             {i18n('cta.add_link')}
                         </Button>
                     </div>
@@ -218,14 +224,20 @@ export function ActionsSettings({
 
 function ActionSettings({
     targetId,
-    index,
+    dragHandle,
+    rowRef,
+    dragOffset,
+    dropTarget,
     editorView,
     normalizeUrl,
     autoFocus,
 }: TargetProps & {
     normalizeUrl: (url: string) => string | null;
     autoFocus: boolean;
-    index: number;
+    dragHandle?: HTMLAttributes<HTMLButtonElement>;
+    rowRef: Ref<HTMLDivElement>;
+    dragOffset?: number;
+    dropTarget: boolean;
 }) {
     const target = resolveHeaderTarget(editorView.state, targetId)!;
     const {href, type, color} = target.node.attrs as HeaderActionAttrs;
@@ -244,86 +256,116 @@ function ActionSettings({
     };
     const url = normalizeUrl(draft.value) || undefined;
     const inputRef = useSettingsInput(autoFocus);
+    const [showColors, setShowColors] = useState(false);
     return (
-        <div className={b('action')} role="group" aria-label={title}>
-            <div className={b('action-heading')}>
-                <span className={b('action-number')} aria-hidden>
-                    {index + 1}
-                </span>
-                <span className={b('action-title')} title={title}>
-                    {title}
-                </span>
-                <div role="group" aria-label={i18n('cta.type')} className={b('action-kind')}>
-                    {(['button', 'link'] as const).map((kind) => (
-                        <Button
-                            key={kind}
-                            view="flat"
-                            size="m"
-                            selected={type === kind}
-                            aria-pressed={type === kind}
-                            onClick={() => update({type: kind})}
-                        >
-                            {i18n(kind === 'link' ? 'cta.type_link' : 'cta.type_button')}
-                        </Button>
-                    ))}
+        <div
+            ref={rowRef}
+            className={b('action', {dragging: dragOffset !== undefined, 'drop-target': dropTarget})}
+            style={
+                dragOffset === undefined ? undefined : {transform: `translateY(${dragOffset}px)`}
+            }
+            role="group"
+            aria-label={title}
+        >
+            <Tooltip content={i18n('cta.drag_hint')}>
+                <button
+                    type="button"
+                    className={b('drag-handle')}
+                    disabled={!dragHandle}
+                    aria-label={i18n('cta.reorder', {title})}
+                    {...dragHandle}
+                >
+                    <Icon data={Grip} size={16} />
+                </button>
+            </Tooltip>
+            <div className={b('action-card')}>
+                <div className={b('action-heading')}>
+                    <span className={b('action-title')} title={title}>
+                        {title}
+                    </span>
+                    <UrlAction
+                        title={i18n('cta.remove')}
+                        icon={TrashBin}
+                        onClick={() => {
+                            const current = resolveHeaderTarget(editorView.state, targetId);
+                            if (!discardAndSubmit()) return;
+                            if (current)
+                                applyHeaderCommand(editorView, removeHeaderActionAt(current.pos));
+                            editorView.focus();
+                        }}
+                    />
                 </div>
-                <UrlAction
-                    title={i18n('cta.remove')}
-                    icon={TrashBin}
-                    onClick={() => {
-                        const current = resolveHeaderTarget(editorView.state, targetId);
-                        if (!discardAndSubmit()) return;
-                        if (current)
-                            applyHeaderCommand(editorView, removeHeaderActionAt(current.pos));
-                        editorView.focus();
-                    }}
-                />
-            </div>
-            <div className={b('field')}>
-                <span className={b('field-label')}>{i18n('cta.href')}</span>
-                <UrlInput
-                    value={draft.value}
-                    onUpdate={draft.onUpdate}
-                    onSubmit={draft.onSubmit}
-                    controlRef={inputRef}
-                    aria-label={i18n('cta.href')}
-                    placeholder={formsI18n('link-href-placeholder')}
-                    actions={
-                        url ? (
-                            <UrlAction
-                                title={formsI18n('link_open_help')}
-                                icon={ArrowUpRightFromSquare}
-                                href={url}
-                                onClick={draft.onSubmit}
-                            />
-                        ) : undefined
-                    }
-                />
-            </div>
-            {type === 'button' && (
-                <div className={b('action-color')} role="group" aria-label={i18n('cta.color')}>
-                    <span className={b('action-color-label')}>{i18n('cta.color')}</span>
-                    <div className={b('action-color-options')}>
-                        <Tooltip content={i18n('cta.color_default')}>
+                <div className={b('field')}>
+                    <UrlInput
+                        value={draft.value}
+                        onUpdate={draft.onUpdate}
+                        onSubmit={draft.onSubmit}
+                        controlRef={inputRef}
+                        aria-label={i18n('cta.href')}
+                        placeholder={formsI18n('link-href-placeholder')}
+                        actions={
+                            url ? (
+                                <UrlAction
+                                    title={formsI18n('link_open_help')}
+                                    icon={ArrowUpRightFromSquare}
+                                    href={url}
+                                    onClick={draft.onSubmit}
+                                />
+                            ) : undefined
+                        }
+                    />
+                </div>
+                <div className={b('action-options')}>
+                    <div role="group" aria-label={i18n('cta.type')} className={b('action-kind')}>
+                        {(['button', 'link'] as const).map((kind) => (
                             <button
+                                key={kind}
                                 type="button"
-                                className={b('default-color')}
-                                aria-label={i18n('cta.color_default')}
-                                aria-pressed={color === 'brand'}
-                                onClick={() => update({color: 'brand'})}
+                                className={b('kind-option', {selected: type === kind})}
+                                aria-pressed={type === kind}
+                                onClick={() => update({type: kind})}
                             >
-                                <FillSwatch value="brand">
-                                    {color === 'brand' && <Icon data={Check} size={16} />}
-                                </FillSwatch>
+                                {i18n(kind === 'link' ? 'cta.type_link' : 'cta.type_button')}
                             </button>
-                        </Tooltip>
-                        <FillPalette
-                            value={color === 'brand' ? undefined : color}
-                            onSelect={(value) => update({color: value})}
-                        />
+                        ))}
                     </div>
+                    {type === 'button' && (
+                        <Button
+                            view="flat"
+                            className={b('color-trigger')}
+                            aria-label={i18n('cta.color')}
+                            aria-expanded={showColors}
+                            onClick={() => setShowColors(!showColors)}
+                        >
+                            <FillSwatch value={color} />
+                            <Icon data={ChevronDown} size={10} />
+                        </Button>
+                    )}
                 </div>
-            )}
+                {type === 'button' && showColors && (
+                    <div className={b('action-color')} role="group" aria-label={i18n('cta.color')}>
+                        <div className={b('action-color-options')}>
+                            <Tooltip content={i18n('cta.color_default')}>
+                                <button
+                                    type="button"
+                                    className={b('default-color')}
+                                    aria-label={i18n('cta.color_default')}
+                                    aria-pressed={color === 'brand'}
+                                    onClick={() => update({color: 'brand'})}
+                                >
+                                    <FillSwatch value="brand">
+                                        {color === 'brand' && <Icon data={Check} size={16} />}
+                                    </FillSwatch>
+                                </button>
+                            </Tooltip>
+                            <FillPalette
+                                value={color === 'brand' ? undefined : color}
+                                onSelect={(value) => update({color: value})}
+                            />
+                        </div>
+                    </div>
+                )}
+            </div>
         </div>
     );
 }

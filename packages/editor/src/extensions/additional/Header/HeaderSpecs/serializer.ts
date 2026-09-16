@@ -11,7 +11,7 @@ function collectActions(actions: Node): HeaderActionData[] {
     return result;
 }
 
-/** The root serializes the YAML body; child serializers handle standalone subtrees. */
+/** The root serializes the directive body; child serializers handle standalone subtrees. */
 export const serializerTokens: Record<HeaderNodeName, SerializerNodeToken> = {
     [HeaderNode.Header]: (state, node) => {
         const [title, description, actions] = [node.child(0), node.child(1), node.child(2)];
@@ -24,7 +24,7 @@ export const serializerTokens: Record<HeaderNodeName, SerializerNodeToken> = {
 
         state.write(`:::${headerDirectiveName}${serializeHeaderAttrs(node.attrs)}`);
         state.ensureNewLine();
-        // text() preserves blockquote prefixes on every YAML line.
+        // text() preserves blockquote prefixes on every directive line.
         if (body) {
             state.text(body.trimEnd(), false);
             state.ensureNewLine();

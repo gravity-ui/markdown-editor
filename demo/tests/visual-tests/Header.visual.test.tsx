@@ -64,8 +64,8 @@ test.describe('Extensions, Header', () => {
         await mount(<HeaderStories.InsideCut />);
         await expectScreenshot();
     });
-    test('Broken yaml in the body', async ({mount, expectScreenshot}) => {
-        await mount(<HeaderStories.BrokenYaml />);
+    test('Malformed directive in the body', async ({mount, expectScreenshot}) => {
+        await mount(<HeaderStories.MalformedDirective />);
         await expectScreenshot();
     });
 
@@ -296,7 +296,7 @@ test.describe('Extensions, Header', () => {
             await header.locator('.g-md-header-title').click();
             const links = page
                 .getByTestId('g-md-toolbar-header')
-                .getByRole('button', {name: 'Buttons and links', exact: true});
+                .getByRole('button', {name: 'Actions', exact: true});
             await expect(links).toBeEnabled();
             await links.click();
             await page
@@ -305,7 +305,7 @@ test.describe('Extensions, Header', () => {
                     exact: true,
                 })
                 .click();
-            await expect(page.getByRole('dialog', {name: 'Buttons and links'})).toBeHidden();
+            await expect(page.getByRole('dialog', {name: 'Actions'})).toBeHidden();
 
             const action = header.locator('.g-md-header-action');
             await expect(links).toBeEnabled();
@@ -340,8 +340,8 @@ test.describe('Extensions, Header', () => {
 
         const links = page
             .getByTestId('g-md-toolbar-header')
-            .getByRole('button', {name: 'Buttons and links', exact: true});
-        await expect(links).toHaveText('Buttons');
+            .getByRole('button', {name: 'Actions', exact: true});
+        await expect(links).toHaveText('Actions');
         await links.click();
         const first = page.getByRole('group', {name: 'Начать работу', exact: true});
         const second = page.getByRole('group', {name: 'Смотреть разделы', exact: true});
@@ -357,7 +357,7 @@ test.describe('Extensions, Header', () => {
         );
         await page.mouse.move(0, 0);
         await expectScreenshot({
-            component: page.getByRole('dialog', {name: 'Buttons and links', exact: true}),
+            component: page.getByRole('dialog', {name: 'Actions', exact: true}),
         });
 
         await secondInput.fill('https://example.com/sections');
@@ -392,12 +392,13 @@ test.describe('Extensions, Header', () => {
         const actions = header.locator('.g-md-header-action');
         const trigger = page
             .getByTestId('g-md-toolbar-header')
-            .getByRole('button', {name: 'Buttons and links', exact: true});
+            .getByRole('button', {name: 'Actions', exact: true});
         await header.locator('.g-md-header-title').click();
         await trigger.click();
         const first = page.getByRole('group', {name: 'Начать работу', exact: true});
         const input = first.getByRole('textbox', {name: 'Link URL'});
         const palette = first.getByRole('group', {name: 'Button colour'});
+        await first.getByRole('button', {name: 'Button colour', exact: true}).click();
         const previousColor = await actions
             .first()
             .evaluate((element) => getComputedStyle(element).backgroundColor);
@@ -412,10 +413,10 @@ test.describe('Extensions, Header', () => {
             'aria-pressed',
             'true',
         );
-        await expect(page.locator('.playground__markup')).toContainText("color: 'green'");
+        await expect(page.locator('.playground__markup')).toContainText('color=green');
         await page.mouse.move(0, 0);
         await expectScreenshot({
-            component: page.getByRole('dialog', {name: 'Buttons and links', exact: true}),
+            component: page.getByRole('dialog', {name: 'Actions', exact: true}),
         });
 
         const kind = first.getByRole('group', {name: 'Button kind'});
@@ -431,9 +432,10 @@ test.describe('Extensions, Header', () => {
         await expect(actions.first()).toHaveAttribute('data-color', 'green');
         await header.locator('.g-md-header-title').click();
         await trigger.click();
+        await first.getByRole('button', {name: 'Button colour', exact: true}).click();
         await palette.getByRole('button', {name: 'Default', exact: true}).click();
         await expect(actions.first()).toHaveAttribute('data-color', 'brand');
-        await expect(page.locator('.playground__markup')).not.toContainText('color:');
+        await expect(page.locator('.playground__markup')).not.toContainText('color=');
     });
 
     test('Actions panel explains the limit and adds a link after removal', async ({
@@ -446,10 +448,10 @@ test.describe('Extensions, Header', () => {
         const actions = header.locator('.g-md-header-action');
         const trigger = page
             .getByTestId('g-md-toolbar-header')
-            .getByRole('button', {name: 'Buttons and links', exact: true});
+            .getByRole('button', {name: 'Actions', exact: true});
         await header.locator('.g-md-header-title').click();
         await trigger.click();
-        await expect(page.getByText('2 of 2 actions', {exact: true})).toBeVisible();
+        await expect(page.getByRole('button', {name: /Reorder /})).toHaveCount(2);
         await expect(page.getByRole('button', {name: 'Add button', exact: true})).toHaveCount(0);
         await expect(page.getByRole('button', {name: 'Add link', exact: true})).toHaveCount(0);
         await page
@@ -468,26 +470,36 @@ test.describe('Extensions, Header', () => {
         await expect(actions.nth(1)).toHaveAttribute('data-type', 'link');
     });
 
-    test('Swapping actions preserves colours and pending URLs', async ({mount, page, editor}) => {
+    test('Dragging actions preserves colours and pending URLs', async ({mount, page, editor}) => {
         await mount(<HeaderStories.Filled />);
         const header = page.getByTestId('g-md-header');
         const actions = header.locator('.g-md-header-action');
         const trigger = page
             .getByTestId('g-md-toolbar-header')
-            .getByRole('button', {name: 'Buttons and links', exact: true});
+            .getByRole('button', {name: 'Actions', exact: true});
         await header.locator('.g-md-header-title').click();
         await trigger.click();
         const first = page.getByRole('group', {name: 'Начать работу', exact: true});
         const second = page.getByRole('group', {name: 'Смотреть разделы', exact: true});
         const firstInput = first.getByRole('textbox', {name: 'Link URL'});
         const secondInput = second.getByRole('textbox', {name: 'Link URL'});
+        await first.getByRole('button', {name: 'Button colour', exact: true}).click();
         await first.getByRole('button', {name: 'Green', exact: true}).click();
+        await first.getByRole('button', {name: 'Button colour', exact: true}).click();
         await firstInput.fill('/first-draft');
         await secondInput.fill('/second-draft');
-        const swap = page.getByRole('button', {name: 'Swap order', exact: true});
-        await swap.focus();
-        await swap.press('Enter');
-        await expect(swap).toBeFocused();
+        const handle = first.getByRole('button', {name: 'Reorder Начать работу'});
+        const source = await handle.boundingBox();
+        const destination = await second.boundingBox();
+        if (!source || !destination) throw new Error('Missing action drag targets');
+        await page.mouse.move(source.x + source.width / 2, source.y + source.height / 2);
+        await page.mouse.down();
+        await page.mouse.move(source.x + source.width / 2, destination.y + destination.height / 2, {
+            steps: 10,
+        });
+        await expect(second).toHaveClass(/drop-target/);
+        await page.mouse.up();
+        await expect(handle).toBeFocused();
         await expect(actions).toHaveText(['Смотреть разделы', 'Начать работу']);
         await expect(actions.nth(1)).toHaveAttribute('data-color', 'green');
         await expect(actions.first()).toHaveAttribute('data-type', 'link');
@@ -500,7 +512,8 @@ test.describe('Extensions, Header', () => {
         await expect(actions.first()).toHaveAttribute('href', '/second-draft');
         await expect(actions.nth(1)).toHaveAttribute('href', '/first-draft');
         await trigger.click();
-        await swap.click();
+        await handle.focus();
+        await handle.press('ArrowUp');
         await page.keyboard.press('Escape');
         await editor.clickMainToolbarButton('Undo');
         await expect(actions).toHaveText(['Смотреть разделы', 'Начать работу']);
@@ -514,12 +527,61 @@ test.describe('Extensions, Header', () => {
         await expect(actions.nth(1)).toHaveAttribute('href', '/second-draft');
     });
 
+    test('Cancelling a drag keeps actions and their URL drafts in place', async ({mount, page}) => {
+        await mount(<HeaderStories.Filled />, {width: 800, hidePlaygroundBlocks: true});
+        const header = page.getByTestId('g-md-header');
+        await header.locator('.g-md-header-title').click();
+        await page
+            .getByTestId('g-md-toolbar-header')
+            .getByRole('button', {name: 'Actions', exact: true})
+            .click();
+        const dialog = page.getByRole('dialog', {name: 'Actions', exact: true});
+        const input = dialog.getByRole('textbox').first();
+        await input.fill('/unsaved');
+        const handle = dialog.getByRole('button', {name: 'Reorder Начать работу'});
+        const source = await handle.boundingBox();
+        const target = await dialog
+            .getByRole('group', {name: 'Смотреть разделы', exact: true})
+            .boundingBox();
+        if (!source || !target) throw new Error('Missing drag targets');
+        await page.mouse.move(source.x + 10, source.y + 10);
+        await page.mouse.down();
+        await page.mouse.move(source.x + 10, target.y + 20, {steps: 5});
+        await page.keyboard.press('Escape');
+        await page.mouse.up();
+        await expect(dialog).toBeVisible();
+        await expect(header.locator('.g-md-header-action')).toHaveText([
+            'Начать работу',
+            'Смотреть разделы',
+        ]);
+        await expect(input).toHaveValue('/unsaved');
+        await handle.press('ArrowUp');
+        await expect(header.locator('.g-md-header-action')).toHaveText([
+            'Начать работу',
+            'Смотреть разделы',
+        ]);
+    });
+
+    test('Empty image settings stay compact', async ({mount, page, expectScreenshot}) => {
+        await mount(<HeaderStories.Empty />, {width: 800, hidePlaygroundBlocks: true});
+        await page.getByTestId('g-md-header').locator('.g-md-header-title').click();
+        await page
+            .getByTestId('g-md-toolbar-header')
+            .getByRole('button', {name: 'Image', exact: true})
+            .click();
+        const dialog = page.getByRole('dialog', {name: 'Image', exact: true});
+        await expect(dialog.getByRole('button', {name: 'Upload image'})).toBeVisible();
+        expect((await dialog.boundingBox())?.height).toBeLessThan(80);
+        await page.mouse.move(0, 0);
+        await expectScreenshot({component: dialog});
+    });
+
     test('Links settings follow keyboard selection', async ({mount, page, editor}) => {
         await mount(<HeaderStories.Filled />);
         const header = page.getByTestId('g-md-header');
         const edit = page
             .getByTestId('g-md-toolbar-header')
-            .getByRole('button', {name: 'Buttons and links', exact: true});
+            .getByRole('button', {name: 'Actions', exact: true});
         const markup = page.locator('.playground__markup');
         await header.locator('.g-md-header-title').click();
         await expect(edit).toBeEnabled();
@@ -617,7 +679,7 @@ test.describe('Extensions, Header', () => {
         await actions.first().click();
         await page
             .getByTestId('g-md-toolbar-header')
-            .getByRole('button', {name: 'Buttons and links', exact: true})
+            .getByRole('button', {name: 'Actions', exact: true})
             .click();
         const input = page
             .getByRole('group', {name: 'Начать работу', exact: true})
@@ -654,7 +716,7 @@ test.describe('Extensions, Header', () => {
         await header.locator('.g-md-header-title').click();
         await page
             .getByTestId('g-md-toolbar-header')
-            .getByRole('button', {name: 'Buttons and links', exact: true})
+            .getByRole('button', {name: 'Actions', exact: true})
             .click();
         const first = page
             .getByRole('group', {name: 'Начать работу', exact: true})
@@ -688,7 +750,7 @@ test.describe('Extensions, Header', () => {
         const action = header.locator('.g-md-header-action').first();
         const links = page
             .getByTestId('g-md-toolbar-header')
-            .getByRole('button', {name: 'Buttons and links', exact: true});
+            .getByRole('button', {name: 'Actions', exact: true});
         const input = page
             .getByRole('group', {name: 'Начать работу', exact: true})
             .getByRole('textbox', {name: 'Link URL', exact: true});
@@ -753,9 +815,9 @@ test.describe('Extensions, Header', () => {
         await header.locator('.g-md-header-title').click();
         await page
             .getByTestId('g-md-toolbar-header')
-            .getByRole('button', {name: 'Buttons and links', exact: true})
+            .getByRole('button', {name: 'Actions', exact: true})
             .click();
-        const dialog = page.getByRole('dialog', {name: 'Buttons and links', exact: true});
+        const dialog = page.getByRole('dialog', {name: 'Actions', exact: true});
         const first = dialog
             .getByRole('group', {name: 'Начать работу', exact: true})
             .getByRole('textbox', {name: 'Link URL', exact: true});
@@ -795,9 +857,9 @@ test.describe('Extensions, Header', () => {
         await header.locator('.g-md-header-title').click();
         await page
             .getByTestId('g-md-toolbar-header')
-            .getByRole('button', {name: 'Buttons and links', exact: true})
+            .getByRole('button', {name: 'Actions', exact: true})
             .click();
-        const dialog = page.getByRole('dialog', {name: 'Buttons and links', exact: true});
+        const dialog = page.getByRole('dialog', {name: 'Actions', exact: true});
         await dialog
             .getByRole('group', {name: 'Смотреть разделы', exact: true})
             .getByRole('textbox', {name: 'Link URL', exact: true})
@@ -835,6 +897,28 @@ test.describe('Extensions, Header', () => {
         await expect(page.getByTestId('g-md-header')).toHaveAttribute('data-layout', 'split');
     });
 
+    test('Clicking popup labels and empty space keeps URL drafts open', async ({mount, page}) => {
+        await mount(<HeaderStories.Filled />, {width: 800, hidePlaygroundBlocks: true});
+        await page.getByTestId('g-md-header').locator('.g-md-header-title').click();
+        for (const name of ['Actions', 'Image']) {
+            await page
+                .getByTestId('g-md-toolbar-header')
+                .getByRole('button', {name, exact: true})
+                .click();
+            const dialog = page.getByRole('dialog', {name, exact: true});
+            const input = dialog.getByRole('textbox').first();
+            await input.fill('/draft');
+            await dialog.click({position: {x: 6, y: 6}});
+            await expect(dialog).toBeVisible();
+            await expect(input).toHaveValue('/draft');
+            if (name === 'Actions') await dialog.getByText('Начать работу', {exact: true}).click();
+            else await dialog.click({position: {x: 6, y: 20}});
+            await expect(dialog).toBeVisible();
+            await expect(input).toHaveValue('/draft');
+            await page.keyboard.press('Escape');
+        }
+    });
+
     test('Header dialogs fit a narrow viewport', async ({mount, page}) => {
         const viewport = {width: 375, height: 800};
         await page.setViewportSize(viewport);
@@ -845,7 +929,7 @@ test.describe('Extensions, Header', () => {
         await page.getByTestId('g-md-header').locator('.g-md-header-title').click();
         const toolbar = page.getByTestId('g-md-toolbar-header');
 
-        for (const name of ['Appearance', 'Image', 'Buttons and links']) {
+        for (const name of ['Appearance', 'Image', 'Actions']) {
             const trigger = toolbar.getByRole('button', {name, exact: true});
             await trigger.click();
             const dialog = page.getByRole('dialog', {name, exact: true});

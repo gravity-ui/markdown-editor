@@ -45,14 +45,15 @@
     "placeholder.description": "Описание",
     "appearance": "Оформление",
     "image.url": "Ссылка на изображение",
-    "cta.actions": "Кнопки и ссылки",
-    "cta.label": "Кнопки",
+    "cta.actions": "Действия",
+    "cta.label": "Действия",
     "cta.add_link": "Добавить ссылку",
     "cta.empty": "Добавьте кнопку или ссылку на обложку.",
     "cta.color": "Цвет кнопки",
     "cta.color_default": "По умолчанию",
-    "cta.count": "{{count}} из {{max}} действий",
-    "cta.swap": "Поменять местами",
     "image.replace": "Заменить картинку",
-    "image.preview": "Превью картинки"
+    "image.preview": "Превью картинки",
+    "cta.reorder": "Переместить «{{title}}»",
+    "cta.drag_hint": "Перетащите или используйте стрелки вверх и вниз",
+    "image.upload_short": "Загрузить"
 }

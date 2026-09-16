@@ -1,6 +1,6 @@
 import {type ReactNode, useRef, useState} from 'react';
 
-import {ChevronDown, LayoutHeader, Picture, TrashBin} from '@gravity-ui/icons';
+import {ChevronDown, LayoutHeader, Picture, Plus, TrashBin} from '@gravity-ui/icons';
 import {Icon} from '@gravity-ui/uikit';
 
 import type {Node} from '#pm/model';
@@ -40,6 +40,7 @@ type Control = {
     preview: ReactNode;
     active: boolean;
     enabled: boolean;
+    chevron: boolean;
     onClick(): void;
     anchor(element: HTMLButtonElement | null): void;
 };
@@ -63,7 +64,7 @@ function HeaderControl({control, className}: ToolbarBaseProps<EditorView> & {con
         >
             <span className={b('control')}>
                 {control.preview}
-                <Icon data={ChevronDown} size={10} className={b('chevron')} />
+                {control.chevron && <Icon data={ChevronDown} size={10} className={b('chevron')} />}
             </span>
         </ToolbarButtonView>
     );
@@ -104,6 +105,7 @@ export function HeaderToolbar({
                 preview,
                 active: panel === id,
                 enabled: true,
+                chevron: id !== 'actions',
                 anchor: (element: HTMLButtonElement | null) => {
                     anchors.current[id] = element;
                 },
@@ -128,7 +130,15 @@ export function HeaderToolbar({
             control('fill', <FillSwatch value={attrs.fill} />),
             control('image', <Icon data={Picture} size={16} />),
         ],
-        [control('actions', i18n('cta.label'))],
+        [
+            control(
+                'actions',
+                <>
+                    <Icon data={Plus} size={14} />
+                    {i18n('cta.label')}
+                </>,
+            ),
+        ],
         [
             {
                 id: 'header-remove',

@@ -4,6 +4,7 @@ import dedent from 'ts-dedent';
 import {ExtensionsManager} from '#core';
 import {DOMParser, DOMSerializer} from '#pm/model';
 import {BaseNode, BaseSchemaSpecs} from 'src/extensions/base/specs';
+import {BlockquoteSpecs} from 'src/extensions/markdown/Blockquote/BlockquoteSpecs';
 import {BoldSpecs} from 'src/extensions/markdown/Bold/BoldSpecs';
 
 import {createMarkupChecker} from '../../../../tests/sameMarkup';
@@ -20,7 +21,6 @@ import {
     HeaderSpecs,
     HeaderTextColor,
     normalizeHeaderAttrs,
-    parseHeaderContent,
     serializeHeaderAttrs,
     serializeHeaderContent,
 } from './HeaderSpecs';
@@ -30,7 +30,8 @@ const {
     markupParser: parser,
     serializer,
 } = new ExtensionsManager({
-    extensions: (builder) => builder.use(BaseSchemaSpecs, {}).use(BoldSpecs, {}).use(HeaderSpecs),
+    extensions: (builder) =>
+        builder.use(BaseSchemaSpecs, {}).use(BoldSpecs, {}).use(BlockquoteSpecs).use(HeaderSpecs),
 }).buildDeps();
 
 const {doc, p, header, title, description, actions, action} = builders<
@@ -62,15 +63,10 @@ describe('Header extension', () => {
         same(
             dedent`
             :::header-block
-            title: 'Welcome to the portal'
-            description: 'Everything the team needs, on one page.'
-            actions:
-              - type: 'button'
-                title: 'Get started'
-                href: '/start'
-              - type: 'link'
-                title: 'Docs'
-                href: '/docs'
+            ::header-title[Welcome to the portal]
+            ::header-description[Everything the team needs, on one page.]
+            ::header-action[Get started] {href="/start"}
+            ::header-action[Docs] {href="/docs" type=link}
             :::
             `,
             doc(
@@ -85,11 +81,11 @@ describe('Header extension', () => {
             ),
         ));
 
-    it('should omit keys of empty slots', () =>
+    it('should omit empty slot directives', () =>
         same(
             dedent`
             :::header-block
-            title: 'Only a title'
+            ::header-title[Only a title]
             :::
             `,
             doc(header(title('Only a title'), description(), actions())),
@@ -101,14 +97,8 @@ describe('Header extension', () => {
             same(
                 dedent`
             :::header-block
-            actions:
-              - type: 'button'
-                title: 'Go'
-                href: '/start'
-                color: '${color}'
-              - type: 'link'
-                title: 'Docs'
-                href: '/docs'
+            ::header-action[Go] {href="/start" color=${color}}
+            ::header-action[Docs] {href="/docs" type=link}
             :::
             `,
                 doc(
@@ -138,16 +128,16 @@ describe('Header extension', () => {
     });
 
     it('should ignore unknown button colors', () => {
-        const parsed = parser.parse(":::header-block\nactions:\n  - color: 'neon'\n:::\n");
+        const parsed = parser.parse(':::header-block\n::header-action[] {color=neon}\n:::\n');
         expect(parsed.firstChild?.child(2).firstChild?.attrs.color).toBe('brand');
-        expect(serializer.serialize(parsed)).not.toContain('color:');
+        expect(serializer.serialize(parsed)).not.toContain('color=');
     });
 
     it('should keep markdown syntax in the text as plain characters', () =>
         same(
             dedent`
             :::header-block
-            title: 'Hello **world**'
+            ::header-title[Hello **world**]
             :::
             `,
             doc(header(title('Hello **world**'), description(), actions())),
@@ -157,7 +147,7 @@ describe('Header extension', () => {
         same(
             dedent`
             :::header-block
-            title: 'Plain'
+            ::header-title[Plain]
             :::
             `,
             doc(
@@ -181,7 +171,7 @@ describe('Header extension', () => {
         same(
             dedent`
             :::header-block {format=small edges=bleed bg=image layout=split fill=contrast text=light image="/hero.png" border=dashed}
-            title: 'Styled'
+            ::header-title[Styled]
             :::
             `,
             doc(
@@ -203,12 +193,12 @@ describe('Header extension', () => {
             ),
         ));
 
-    it('should round-trip text that yaml would otherwise reinterpret', () =>
+    it('should preserve punctuation and dates as plain text', () =>
         same(
             dedent`
             :::header-block
-            title: 'Release: 2020-01-01'
-            description: 'Costs 100% — "quoted", it''s fine'
+            ::header-title[Release: 2020-01-01]
+            ::header-description[Costs 100% — "quoted", it's fine]
             :::
             `,
             doc(
@@ -224,11 +214,11 @@ describe('Header extension', () => {
         same(
             dedent`
             :::header-block
-            title: 'First'
+            ::header-title[First]
             :::
 
             :::header-block {format=small}
-            title: 'Second'
+            ::header-title[Second]
             :::
             `,
             doc(
@@ -251,36 +241,68 @@ describe('Header extension', () => {
         });
     });
 
-    it('should produce an empty block instead of throwing on broken yaml', () => {
-        const parsed = parser.parse(dedent`
+    it('ignores unknown content while retaining valid directives', () => {
+        expect(
+            parser.parse(dedent`
             :::header-block
-            title: 'Kept'
-            actions: 'not a list'
-              indented: [unclosed
+            ::header-title[Kept]
+            ::unknown[Skipped]
+            ::header-action[Broken
             :::
 
             After.
-        `);
-
-        expect(parsed).toMatchNode(doc(header(title(), description(), actions()), p('After.')));
+        `),
+        ).toMatchNode(doc(header(title('Kept'), description(), actions()), p('After.')));
     });
 
-    describe('content', () => {
-        it('should drop actions that are not objects', () => {
-            expect(parseHeaderContent("actions:\n  - 'oops'\n  - type: 'link'\n").actions).toEqual([
-                {type: HeaderActionType.Link, title: '', href: ''},
-            ]);
-        });
+    it('does not interpret header slots outside a header', () => {
+        expect(parser.parse('::header-title[Ordinary text]').firstChild?.type.name).toBe(
+            'paragraph',
+        );
+    });
 
-        it('should fall back to a button for an unknown action type', () => {
-            expect(parseHeaderContent("actions:\n  - type: 'ghost'\n").actions[0].type).toBe(
-                HeaderActionType.Button,
-            );
-        });
+    it('normalizes action attributes and preserves empty actions', () => {
+        expect(
+            parser.parse(':::header-block\n::header-action[] {type=ghost color=neon}\n:::'),
+        ).toMatchNode(doc(header(title(), description(), actions(action()))));
+    });
 
-        it('should write nothing for a block with empty slots', () => {
-            expect(serializeHeaderContent({title: '', description: '', actions: []})).toBe('');
-        });
+    it.each([
+        '[brackets] \\ backslash &amp; & <script> **text**',
+        'first\n:::header-block\n::header-action[Injected]\nlast',
+        '  leading and trailing  ',
+    ])('round-trips directive delimiters and literal text: %s', (text) => {
+        const document = doc(
+            header(title(text), description(text), actions(action({href: '/a?x=1&y=2'}, text))),
+        );
+        expect(parser.parse(serializer.serialize(document))).toMatchNode(document);
+    });
+
+    it.each(['/path with spaces', 'https://example.com/a?x="quoted"&y=two', '/back\\slash'])(
+        'round-trips action URL: %s',
+        (href) => {
+            const document = doc(header(title(), description(), actions(action({href}, 'Go'))));
+            expect(parser.parse(serializer.serialize(document))).toMatchNode(document);
+        },
+    );
+
+    it('preserves directive slots and actions inside blockquotes', () => {
+        const content = header(
+            title('Quoted'),
+            description('Text'),
+            actions(action({href: '/go'}, 'Go')),
+        );
+        const document = schema.nodes.doc.create(
+            null,
+            schema.nodes.blockquote.create(null, content),
+        );
+        const markup = serializer.serialize(document);
+        expect(markup).toContain('> ::header-action[Go] {href="/go"}');
+        expect(parser.parse(markup)).toMatchNode(document);
+    });
+
+    it('writes nothing for empty slots', () => {
+        expect(serializeHeaderContent({title: '', description: '', actions: []})).toBe('');
     });
 
     describe('attribute serialization', () => {

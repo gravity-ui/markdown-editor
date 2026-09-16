@@ -45,14 +45,15 @@
     "placeholder.description": "Description",
     "appearance": "Appearance",
     "image.url": "Image URL",
-    "cta.actions": "Buttons and links",
-    "cta.label": "Buttons",
+    "cta.actions": "Actions",
+    "cta.label": "Actions",
     "cta.add_link": "Add link",
     "cta.empty": "Add a button or link to your header.",
     "cta.color": "Button colour",
     "cta.color_default": "Default",
-    "cta.count": "{{count}} of {{max}} actions",
-    "cta.swap": "Swap order",
     "image.replace": "Replace image",
-    "image.preview": "Image preview"
+    "image.preview": "Image preview",
+    "cta.reorder": "Reorder {{title}}",
+    "cta.drag_hint": "Drag to reorder, or use the up and down arrow keys",
+    "image.upload_short": "Upload"
 }

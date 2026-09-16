@@ -122,6 +122,17 @@ export const HeaderPopover = forwardRef<
                     ref={root}
                     role="dialog"
                     aria-label={title}
+                    onMouseDown={(event) => {
+                        // Clicking captions or padding must not focus the outer editor wrapper.
+                        const control =
+                            event.target instanceof Element
+                                ? event.target.closest(
+                                      'input, textarea, button, a, select, [tabindex]',
+                                  )
+                                : null;
+                        if (!control || !event.currentTarget.contains(control))
+                            event.preventDefault();
+                    }}
                     onKeyDown={(event) => {
                         if (event.key === 'Escape') {
                             event.preventDefault();
