@@ -1,7 +1,4 @@
-import type {DOMOutputSpec} from '#pm/model';
-
 import type {HeaderAttrs} from './attrs';
-import {getBlobs} from './blobs';
 import {HeaderBackground, HeaderClassName} from './const';
 
 /**
@@ -32,23 +29,4 @@ export function headerDomAttrs(attrs: HeaderAttrs): Record<string, string> {
     if (attrs.bg === HeaderBackground.Image && !image) dom['data-image-empty'] = 'true';
 
     return dom;
-}
-
-/** Декоративный слой — чистая функция от `seed`/`format`, поэтому живёт в `toDOM` без нодвью. */
-export function headerDecorDom(attrs: HeaderAttrs): DOMOutputSpec | null {
-    if (!attrs.blobs || attrs.bg === HeaderBackground.Image) return null;
-
-    const shapes = getBlobs(attrs.seed, attrs.format).map((blob): DOMOutputSpec => {
-        const style = [
-            `width:${blob.width}px`,
-            `height:${blob.height}px`,
-            `right:${blob.right}px`,
-            blob.top === undefined ? `bottom:${blob.bottom}px` : `top:${blob.top}px`,
-            `border-radius:${blob.radius}`,
-            `transform:rotate(${blob.rotate}deg)`,
-        ].join(';');
-        return ['span', {class: `${HeaderClassName.Header}-shape`, style}];
-    });
-
-    return ['div', {class: `${HeaderClassName.Header}-decor`, 'aria-hidden': 'true'}, ...shapes];
 }

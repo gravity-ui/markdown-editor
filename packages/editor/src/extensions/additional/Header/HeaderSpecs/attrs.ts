@@ -30,8 +30,6 @@ export type HeaderAttrs = {
     [HeaderAttr.Text]: HeaderTextColorValue;
     [HeaderAttr.Image]: string;
     [HeaderAttr.Border]: HeaderBorderValue;
-    [HeaderAttr.Blobs]: boolean;
-    [HeaderAttr.Seed]: number;
 };
 
 export type HeaderActionAttrs = {
@@ -61,20 +59,8 @@ const asVariant = oneOf<HeaderActionVariantValue>(
     HeaderActionDefaults.variant,
 );
 
-function asBoolean(raw: unknown, fallback: boolean): boolean {
-    if (typeof raw === 'boolean') return raw;
-    if (raw === 'true') return true;
-    if (raw === 'false') return false;
-    return fallback;
-}
-
 function asString(raw: unknown): string {
     return typeof raw === 'string' ? raw : '';
-}
-
-function asSeed(raw: unknown): number {
-    const seed = typeof raw === 'number' ? raw : Number.parseInt(String(raw ?? ''), 10);
-    return Number.isFinite(seed) && seed >= 0 ? Math.trunc(seed) : HeaderDefaults.seed;
 }
 
 /**
@@ -91,8 +77,6 @@ export function normalizeHeaderAttrs(raw: Record<string, unknown> = {}): HeaderA
         [HeaderAttr.Text]: asText(raw[HeaderAttr.Text]),
         [HeaderAttr.Image]: asString(raw[HeaderAttr.Image]),
         [HeaderAttr.Border]: asBorder(raw[HeaderAttr.Border]),
-        [HeaderAttr.Blobs]: asBoolean(raw[HeaderAttr.Blobs], HeaderDefaults.blobs),
-        [HeaderAttr.Seed]: asSeed(raw[HeaderAttr.Seed]),
     };
 }
 
@@ -113,16 +97,13 @@ const SERIALIZED_ATTR_ORDER = [
     HeaderAttr.Text,
     HeaderAttr.Image,
     HeaderAttr.Border,
-    HeaderAttr.Blobs,
-    HeaderAttr.Seed,
 ] as const;
 
 function quote(value: string): string {
     return `"${value.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`;
 }
 
-function serializeValue(value: HeaderAttrs[keyof HeaderAttrs]): string {
-    if (typeof value === 'boolean' || typeof value === 'number') return String(value);
+function serializeValue(value: string): string {
     return /^[\w-]+$/.test(value) ? value : quote(value);
 }
 

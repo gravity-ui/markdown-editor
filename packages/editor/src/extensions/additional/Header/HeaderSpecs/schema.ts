@@ -1,4 +1,4 @@
-import type {DOMOutputSpec, NodeSpec} from '#pm/model';
+import type {NodeSpec} from '#pm/model';
 import {i18n} from 'src/i18n/header';
 import type {PlaceholderOptions} from 'src/utils/placeholder';
 
@@ -12,7 +12,7 @@ import {
     HeaderNode,
     type HeaderNodeName,
 } from './const';
-import {headerDecorDom, headerDomAttrs} from './dom';
+import {headerDomAttrs} from './dom';
 
 function attrsSpec<T extends Record<string, unknown>>(defaults: T): NodeSpec['attrs'] {
     return Object.fromEntries(
@@ -63,12 +63,11 @@ export const getSchemaSpecs = (
             },
         ],
         toDOM(node) {
-            const attrs = normalizeHeaderAttrs(node.attrs);
-            const decor = headerDecorDom(attrs);
-            const content: DOMOutputSpec = ['div', {class: HeaderClassName.Content}, 0];
-            return decor
-                ? ['div', headerDomAttrs(attrs), decor, content]
-                : ['div', headerDomAttrs(attrs), content];
+            return [
+                'div',
+                headerDomAttrs(normalizeHeaderAttrs(node.attrs)),
+                ['div', {class: HeaderClassName.Content}, 0],
+            ];
         },
         selectable: true,
         allowSelection: true,

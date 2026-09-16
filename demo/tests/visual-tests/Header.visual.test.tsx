@@ -35,11 +35,6 @@ test.describe('Extensions, Header', () => {
         await expectScreenshot();
     });
 
-    test('Decorative shapes', async ({mount, expectScreenshot}) => {
-        await mount(<HeaderStories.Blobs />);
-        await expectScreenshot();
-    });
-
     test('Empty image slot', async ({mount, expectScreenshot}) => {
         await mount(<HeaderStories.EmptyImageSlot />);
         await expectScreenshot();

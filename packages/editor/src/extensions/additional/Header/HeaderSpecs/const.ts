@@ -28,8 +28,6 @@ export const HeaderAttr = {
     Text: 'text',
     Image: 'image',
     Border: 'border',
-    Blobs: 'blobs',
-    Seed: 'seed',
 } as const;
 
 export const HeaderActionAttr = {
@@ -64,22 +62,19 @@ export type HeaderActionVariantValue =
     (typeof HeaderActionVariant)[keyof typeof HeaderActionVariant];
 
 /**
- * Словарь заливок. Значение — имя токена, не hex: документ переживает смену темы и ребрендинг.
- * Ключи совпадают с `$header-fill-colors` в `src/styles/yc-header-fill.scss`.
+ * Словарь заливок: один шаг на оттенок, чтобы сво́тчи различались с одного взгляда. Значение —
+ * имя, не цвет: документ переживает смену темы без миграции разметки. Ключи совпадают
+ * с `$header-fills` в `src/styles/yc-header-fill.scss`.
  */
 export const HEADER_FILL_SWATCHES = [
-    {value: 'blue-light', i18nKey: 'fill.blue-light'},
-    {value: 'green-light', i18nKey: 'fill.green-light'},
-    {value: 'yellow-light', i18nKey: 'fill.yellow-light'},
-    {value: 'red-light', i18nKey: 'fill.red-light'},
-    {value: 'purple-light', i18nKey: 'fill.purple-light'},
     {value: 'grey', i18nKey: 'fill.grey'},
     {value: 'blue', i18nKey: 'fill.blue'},
     {value: 'green', i18nKey: 'fill.green'},
     {value: 'yellow', i18nKey: 'fill.yellow'},
+    {value: 'orange', i18nKey: 'fill.orange'},
     {value: 'red', i18nKey: 'fill.red'},
     {value: 'purple', i18nKey: 'fill.purple'},
-    {value: 'dark', i18nKey: 'fill.dark'},
+    {value: 'contrast', i18nKey: 'fill.contrast'},
 ] as const;
 
 export type HeaderFillValue = (typeof HEADER_FILL_SWATCHES)[number]['value'];
@@ -89,12 +84,10 @@ export const HeaderDefaults = {
     [HeaderAttr.Edges]: HeaderEdges.Rounded,
     [HeaderAttr.Layout]: HeaderLayout.Cover,
     [HeaderAttr.Background]: HeaderBackground.Fill,
-    [HeaderAttr.Fill]: 'blue-light',
+    [HeaderAttr.Fill]: 'blue',
     [HeaderAttr.Text]: HeaderTextColor.Auto,
     [HeaderAttr.Image]: '',
     [HeaderAttr.Border]: HeaderBorder.None,
-    [HeaderAttr.Blobs]: true,
-    [HeaderAttr.Seed]: 0,
 } as const;
 
 export const HeaderActionDefaults = {

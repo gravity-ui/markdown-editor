@@ -1,6 +1,6 @@
 // Тот же файл, что раздаёт playwright, поэтому снимки не зависят от сети
-const HERO = '/assets/test-image.jpg';
-const PORTRAIT = '/assets/test-image.jpg';
+const HERO = '/assets/header-cover.svg';
+const PORTRAIT = '/assets/header-portrait.svg';
 
 export const markup = {
     empty: `
@@ -22,7 +22,7 @@ export const markup = {
 `.trim(),
 
     small: `
-:::header [Отпуска и справки] {format=small fill=green-light}
+:::header [Отпуска и справки] {format=small fill=green}
 Документы, заявки и сроки в одном месте.
 
 ::action[Оформить]{href="/vacation"}
@@ -30,34 +30,34 @@ export const markup = {
 `.trim(),
 
     bleed: `
-:::header [Такси для сотрудников] {edges=bleed fill=yellow-light}
+:::header [Такси для сотрудников] {edges=bleed fill=yellow}
 Корпоративный тариф и лимиты по подразделениям.
 :::
 `.trim(),
 
     fills: `
-:::header [Светло-синий] {format=small fill=blue-light}
-:::
-
-:::header [Светло-зелёный] {format=small fill=green-light}
-:::
-
-:::header [Светло-жёлтый] {format=small fill=yellow-light}
-:::
-
-:::header [Светло-красный] {format=small fill=red-light}
-:::
-
-:::header [Светло-фиолетовый] {format=small fill=purple-light}
-:::
-
 :::header [Серый] {format=small fill=grey}
 :::
 
 :::header [Синий] {format=small fill=blue}
 :::
 
-:::header [Тёмный] {format=small fill=dark}
+:::header [Зелёный] {format=small fill=green}
+:::
+
+:::header [Жёлтый] {format=small fill=yellow}
+:::
+
+:::header [Оранжевый] {format=small fill=orange}
+:::
+
+:::header [Красный] {format=small fill=red}
+:::
+
+:::header [Фиолетовый] {format=small fill=purple}
+:::
+
+:::header [Контрастный] {format=small fill=contrast}
 :::
 `.trim(),
 
@@ -68,7 +68,7 @@ export const markup = {
 :::header [Сплошная рамка] {format=small border=solid}
 :::
 
-:::header [Черновик раздела] {format=small border=dashed fill=green-light}
+:::header [Черновик раздела] {format=small border=dashed fill=green}
 Пунктирная рамка помечает страницу, которую ещё не опубликовали.
 :::
 
@@ -76,21 +76,8 @@ export const markup = {
 :::
 `.trim(),
 
-    blobs: `
-:::header [Курируемая раскладка] {seed=0}
-Нулевой seed — раскладка, подобранная дизайнером.
-:::
-
-:::header [Сгенерированная раскладка] {seed=137 fill=purple-light}
-Ненулевой seed разворачивается детерминированным PRNG, поэтому узор одинаков у всех.
-:::
-
-:::header [Без узоров] {blobs=false fill=yellow-light}
-:::
-`.trim(),
-
     image: `
-:::header [HR-департамент] {bg=image image="${HERO}" fill=purple-light}
+:::header [HR-департамент] {bg=image image="${HERO}" fill=purple}
 Отпуска, справки, командировки и всё остальное.
 
 ::action[Открыть раздел]{href="/hr"}
@@ -104,7 +91,7 @@ export const markup = {
 `.trim(),
 
     imageSplit: `
-:::header [Онбординг] {bg=image layout=split image="${PORTRAIT}" fill=blue-light}
+:::header [Онбординг] {bg=image layout=split image="${PORTRAIT}" fill=blue}
 Вертикальные и квадратные иллюстрации фоном обрезаются, поэтому им отдельная колонка.
 
 ::action[Пройти онбординг]{href="/onboarding"}
@@ -122,14 +109,14 @@ export const markup = {
 
 {% cut "Развернуть" %}
 
-:::header [Обложка внутри ката] {format=small fill=red-light}
+:::header [Обложка внутри ката] {format=small fill=red}
 :::
 
 {% endcut %}
 `.trim(),
 
     everything: `
-:::header [Все атрибуты сразу] {format=small edges=bleed bg=image layout=split fill=dark text=light image="${PORTRAIT}" border=dotted blobs=false seed=42}
+:::header [Все атрибуты сразу] {format=small edges=bleed bg=image layout=split fill=contrast text=light image="${PORTRAIT}" border=dotted}
 Крайний случай: каждый атрибут задан не дефолтным значением.
 
 ::action[Основная]{href="/a"}

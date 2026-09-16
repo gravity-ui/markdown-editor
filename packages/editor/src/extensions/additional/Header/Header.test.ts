@@ -109,11 +109,9 @@ describe('Header extension', () => {
                         format: HeaderFormat.Large,
                         edges: HeaderEdges.Rounded,
                         bg: HeaderBackground.Fill,
-                        fill: 'blue-light',
+                        fill: 'blue',
                         text: HeaderTextColor.Auto,
                         border: HeaderBorder.None,
-                        blobs: true,
-                        seed: 0,
                     },
                     title('Plain'),
                     subtitle(),
@@ -125,7 +123,7 @@ describe('Header extension', () => {
     it('should round-trip every non-default attribute', () =>
         same(
             dedent`
-            :::header [Styled] {format=small edges=bleed bg=image layout=split fill=dark text=light image="/hero.png" border=dashed blobs=false seed=7}
+            :::header [Styled] {format=small edges=bleed bg=image layout=split fill=contrast text=light image="/hero.png" border=dashed}
             :::
             `,
             doc(
@@ -135,12 +133,10 @@ describe('Header extension', () => {
                         edges: HeaderEdges.Bleed,
                         bg: HeaderBackground.Image,
                         layout: HeaderLayout.Split,
-                        fill: 'dark',
+                        fill: 'contrast',
                         text: 'light',
                         image: '/hero.png',
                         border: HeaderBorder.Dashed,
-                        blobs: false,
-                        seed: 7,
                     },
                     title('Styled'),
                     subtitle(),
@@ -168,17 +164,15 @@ describe('Header extension', () => {
 
     it('should fall back to defaults on unknown attribute values', () => {
         const parsed = parser.parse(dedent`
-            :::header [Title] {format=gigantic bg=video fill=neon border=groove blobs=maybe seed=-3}
+            :::header [Title] {format=gigantic bg=video fill=neon border=groove}
             :::
         `);
 
         expect(parsed.firstChild?.attrs).toMatchObject({
             format: HeaderFormat.Large,
             bg: HeaderBackground.Fill,
-            fill: 'blue-light',
+            fill: 'blue',
             border: HeaderBorder.None,
-            blobs: true,
-            seed: 0,
         });
     });
 

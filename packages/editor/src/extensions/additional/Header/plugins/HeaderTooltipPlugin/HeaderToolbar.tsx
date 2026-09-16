@@ -1,18 +1,22 @@
 import {useCallback, useMemo} from 'react';
 
 import {
-    ArrowShapeRight,
     ArrowUpFromSquare,
     ArrowsRotateLeft,
-    Circles5Random,
+    BucketPaint,
     Font,
     LayoutHeader,
+    LayoutHeaderCellsLarge,
     LayoutSideContentRight,
+    Moon,
     Palette,
     Picture,
     Plus,
     Square,
     SquareDashed,
+    SquareDot,
+    SquareXmark,
+    Sun,
     TrashBin,
     VectorSquare,
 } from '@gravity-ui/icons';
@@ -69,7 +73,11 @@ const GROUPS = {
         icon: {data: LayoutHeader},
         title: i18n('format'),
         choices: [
-            {value: HeaderFormat.Large, icon: {data: Square}, title: i18n('format.large')},
+            {
+                value: HeaderFormat.Large,
+                icon: {data: LayoutHeaderCellsLarge},
+                title: i18n('format.large'),
+            },
             {value: HeaderFormat.Small, icon: {data: LayoutHeader}, title: i18n('format.small')},
         ],
     }),
@@ -85,17 +93,17 @@ const GROUPS = {
         icon: {data: SquareDashed},
         title: i18n('border'),
         choices: [
-            {value: HeaderBorder.None, icon: {data: Square}, title: i18n('border.none')},
+            {value: HeaderBorder.None, icon: {data: SquareXmark}, title: i18n('border.none')},
             {value: HeaderBorder.Solid, icon: {data: Square}, title: i18n('border.solid')},
             {value: HeaderBorder.Dashed, icon: {data: SquareDashed}, title: i18n('border.dashed')},
-            {value: HeaderBorder.Dotted, icon: {data: SquareDashed}, title: i18n('border.dotted')},
+            {value: HeaderBorder.Dotted, icon: {data: SquareDot}, title: i18n('border.dotted')},
         ],
     }),
     bg: () => ({
         icon: {data: Picture},
         title: i18n('bg'),
         choices: [
-            {value: HeaderBackground.Fill, icon: {data: Palette}, title: i18n('bg.fill')},
+            {value: HeaderBackground.Fill, icon: {data: BucketPaint}, title: i18n('bg.fill')},
             {value: HeaderBackground.Image, icon: {data: Picture}, title: i18n('bg.image')},
         ],
     }),
@@ -116,8 +124,8 @@ const GROUPS = {
         title: i18n('text'),
         choices: [
             {value: HeaderTextColor.Auto, icon: {data: Font}, title: i18n('text.auto')},
-            {value: HeaderTextColor.Light, icon: {data: Font}, title: i18n('text.light')},
-            {value: HeaderTextColor.Dark, icon: {data: Font}, title: i18n('text.dark')},
+            {value: HeaderTextColor.Light, icon: {data: Sun}, title: i18n('text.light')},
+            {value: HeaderTextColor.Dark, icon: {data: Moon}, title: i18n('text.dark')},
         ],
     }),
 } satisfies Partial<Record<AttrKey, () => ChoiceGroup>>;
@@ -168,6 +176,9 @@ export function HeaderToolbar({node, pos, editorView, fileUploadHandler}: Header
                 icon: group.icon,
                 title: group.title,
                 withArrow: true,
+                // У оси всегда есть выбранное значение, поэтому без этого флага кнопка подсвечена
+                // постоянно и панель выглядит залитой. Текущее значение показывает галочка в меню.
+                alwaysActive: true,
                 data: group.choices.map<ToolbarListButtonItemData<EditorView>>((choice) => ({
                     id: `header-${key}-${choice.value}`,
                     icon: choice.icon,
@@ -181,13 +192,13 @@ export function HeaderToolbar({node, pos, editorView, fileUploadHandler}: Header
 
         const isImage = () => attrOf('bg') === HeaderBackground.Image;
 
-        const structure: ToolbarGroupItemData<EditorView>[] = [
+        const shape: ToolbarGroupItemData<EditorView>[] = [
             choiceGroup('format'),
             choiceGroup('edges'),
             choiceGroup('border'),
         ];
 
-        const appearance: ToolbarGroupItemData<EditorView>[] = [
+        const colour: ToolbarGroupItemData<EditorView>[] = [
             {
                 id: 'header-fill',
                 type: ToolbarDataType.ButtonPopup,
@@ -195,7 +206,7 @@ export function HeaderToolbar({node, pos, editorView, fileUploadHandler}: Header
                 title: i18n('fill'),
                 isActive: () => false,
                 isEnable: () => !isImage(),
-                hintWhenDisabled: () => i18n('bg.image'),
+                hintWhenDisabled: () => i18n('fill.hint_image'),
                 exec: () => {},
                 renderPopup: ({hide, anchorElement}) => (
                     <Popup
@@ -216,56 +227,36 @@ export function HeaderToolbar({node, pos, editorView, fileUploadHandler}: Header
                 ),
             },
             choiceGroup('text'),
-            choiceGroup('bg'),
         ];
 
-        const image: ToolbarGroupItemData<EditorView>[] = [choiceGroup('layout')];
-        if (upload.pick) {
-            const pick = upload.pick;
-            image.push({
-                id: 'header-image-upload',
+        const background: ToolbarGroupItemData<EditorView>[] = [choiceGroup('bg')];
+        if (isImage()) {
+            background.push(choiceGroup('layout'));
+            if (upload.pick) {
+                const pick = upload.pick;
+                background.push({
+                    id: 'header-image-upload',
+                    type: ToolbarDataType.SingleButton,
+                    icon: {data: ArrowUpFromSquare},
+                    title: i18n('image.upload'),
+                    isActive: () => false,
+                    isEnable: () => !upload.uploading,
+                    exec: pick,
+                });
+            }
+            background.push({
+                id: 'header-image-reset',
                 type: ToolbarDataType.SingleButton,
-                icon: {data: ArrowUpFromSquare},
-                title: i18n('image.upload'),
-                isActive: () => upload.uploading,
-                isEnable: () => !upload.uploading,
-                exec: pick,
+                icon: {data: ArrowsRotateLeft},
+                title: i18n('image.reset'),
+                isActive: () => false,
+                isEnable: () => Boolean(attrOf('image')),
+                // Сброс возвращает и фон: иначе остаётся пустой слот с пунктирной рамкой
+                exec: () => run({image: '', bg: HeaderBackground.Fill}),
             });
         }
-        image.push({
-            id: 'header-image-reset',
-            type: ToolbarDataType.SingleButton,
-            icon: {data: ArrowsRotateLeft},
-            title: i18n('image.reset'),
-            isActive: () => false,
-            isEnable: () => Boolean(attrOf('image')),
-            // Сброс возвращает и фон: иначе остаётся пустой слот с пунктирной рамкой
-            exec: () => run({image: '', bg: HeaderBackground.Fill}),
-        });
 
-        const decor: ToolbarGroupItemData<EditorView>[] = [
-            {
-                id: 'header-blobs',
-                type: ToolbarDataType.SingleButton,
-                icon: {data: Circles5Random},
-                title: i18n('blobs'),
-                isActive: () => attrOf('blobs'),
-                isEnable: () => !isImage(),
-                exec: () => run({blobs: !attrOf('blobs')}),
-            },
-            {
-                id: 'header-shuffle',
-                type: ToolbarDataType.SingleButton,
-                icon: {data: ArrowShapeRight},
-                title: i18n('shuffle'),
-                isActive: () => false,
-                isEnable: () => attrOf('blobs') && !isImage(),
-                // Ноль зарезервирован под курируемую раскладку, поэтому диапазон с единицы
-                exec: () => run({seed: 1 + Math.floor(Math.random() * 0xffff)}),
-            },
-        ];
-
-        const cta: ToolbarGroupItemData<EditorView>[] = [
+        const block: ToolbarGroupItemData<EditorView>[] = [
             {
                 id: 'header-cta-add',
                 type: ToolbarDataType.SingleButton,
@@ -288,7 +279,7 @@ export function HeaderToolbar({node, pos, editorView, fileUploadHandler}: Header
             },
         ];
 
-        return [structure, appearance, ...(isImage() ? [image] : []), decor, cta];
+        return [shape, colour, background, block];
     }, [editorView, nodeRef, posRef, upload, run]);
 
     return (

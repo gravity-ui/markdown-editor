@@ -17,7 +17,9 @@ export const headerTooltipPlugin = (_deps: ExtensionDeps, opts: HeaderTooltipOpt
             return new BaseTooltipPluginView(view, {
                 idPrefix: 'header-tooltip',
                 nodeType: headerType(view.state.schema),
-                popupPlacement: ['top', 'bottom'],
+                // Обложка обычно первый блок документа, поэтому сверху панель ложится
+                // прямо на липкий тулбар редактора — показываем её под блоком.
+                popupPlacement: ['bottom-start', 'top-start'],
                 content: (editorView, {node, pos}) => (
                     <HeaderToolbar
                         node={node}

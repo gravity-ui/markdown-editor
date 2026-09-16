@@ -1,55 +1,46 @@
 // Единственный источник правды по заливкам обложки: разворачивается и в стили самого блока,
-// и в сво́тчи палитры тулбара. Пара — фон и схема текста, поэтому авто-контраст решается здесь,
-// а не арифметикой по hex в рантайме.
+// и в сво́тчи палитры панели настроек.
 //
-// scheme: dark — тёмный текст на светлой заливке, light — светлый на тёмной.
+// Взяты `*-solid`-ступени, а не семантические `--g-color-base-*-light`: последние полупрозрачны
+// (`--g-color-base-info-light` это `rgba(54,151,241,0.15)`) и рассчитаны на подсветку строки,
+// а не на поверхность в треть экрана — на них все заливки выглядят одинаково белёсыми.
+// Один шаг на оттенок: ступени внутри одного цвета глазом не различаются.
+//
+// Токены сами меняются по теме (`blue-200` — светло-голубой в светлой и тёмно-синий в тёмной),
+// поэтому цвет текста задаётся не статической парой, а ролью поверхности:
+//   normal   — поверхность идёт за темой, значит подходит обычный `--g-color-text-primary`;
+//   inverted — поверхность противоположна теме, значит нужен `--g-color-text-inverted-primary`.
 $header-fills: (
-    'blue-light': (
-        bg: var(--g-color-base-info-light),
-        scheme: dark,
-    ),
-    'green-light': (
-        bg: var(--g-color-base-positive-light),
-        scheme: dark,
-    ),
-    'yellow-light': (
-        bg: var(--g-color-base-warning-light),
-        scheme: dark,
-    ),
-    'red-light': (
-        bg: var(--g-color-base-danger-light),
-        scheme: dark,
-    ),
-    'purple-light': (
-        bg: var(--g-color-base-utility-light),
-        scheme: dark,
-    ),
     'grey': (
-        bg: var(--g-color-base-generic),
-        scheme: dark,
+        bg: var(--g-color-private-cool-grey-150-solid),
+        surface: normal,
     ),
     'blue': (
-        bg: var(--g-color-base-info-medium),
-        scheme: dark,
+        bg: var(--g-color-private-blue-200-solid),
+        surface: normal,
     ),
     'green': (
-        bg: var(--g-color-base-positive-medium),
-        scheme: dark,
+        bg: var(--g-color-private-green-200-solid),
+        surface: normal,
     ),
     'yellow': (
-        bg: var(--g-color-base-warning-medium),
-        scheme: dark,
+        bg: var(--g-color-private-yellow-200-solid),
+        surface: normal,
+    ),
+    'orange': (
+        bg: var(--g-color-private-orange-200-solid),
+        surface: normal,
     ),
     'red': (
-        bg: var(--g-color-base-danger-medium),
-        scheme: dark,
+        bg: var(--g-color-private-red-200-solid),
+        surface: normal,
     ),
     'purple': (
-        bg: var(--g-color-base-utility-medium),
-        scheme: dark,
+        bg: var(--g-color-private-purple-200-solid),
+        surface: normal,
     ),
-    'dark': (
-        bg: var(--g-color-base-neutral-heavy),
-        scheme: light,
+    'contrast': (
+        bg: var(--g-color-private-cool-grey-900-solid),
+        surface: inverted,
     ),
 );

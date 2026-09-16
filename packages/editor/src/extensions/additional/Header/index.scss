@@ -3,18 +3,18 @@
 @use '../../../styles/yc-header-fill.scss' as fills;
 
 .g-md-header {
-    --g-md-header-fill: var(--g-color-base-info-light);
-    --g-md-header-text: var(--g-color-text-dark-primary);
-    --g-md-header-text-secondary: var(--g-color-text-dark-secondary);
-    // Цвет подписи на залитой кнопке: её фон — это цвет текста блока, поэтому подпись обязана
-    // быть противоположной. Заливка блока здесь не годится — это фоновый токен, не текстовый.
-    --g-md-header-text-inverse: var(--g-color-text-light-primary);
-    --g-md-header-scrim: linear-gradient(90deg, rgb(255 255 255 / 82%) 0 30%, transparent 78%);
-    --g-md-header-radius: var(--g-border-radius-xl, 16px);
-    --g-md-header-min-height: 300px;
-    --g-md-header-padding: 48px 56px;
-    --g-md-header-gap: 40px;
-    --g-md-header-visual-width: 420px;
+    --g-md-header-fill: var(--g-color-private-blue-200-solid);
+    --g-md-header-text: var(--g-color-text-primary);
+    --g-md-header-text-secondary: var(--g-color-text-secondary);
+    // Линии выводятся из цвета текста, а не из `--g-color-line-*`: текст уже знает и тему,
+    // и то, что заливка может быть ей противоположна, — значит одного правила хватает на все
+    // сочетания «тема × заливка × ручной `text`».
+    --g-md-header-line: color-mix(in sRGB, var(--g-md-header-text) 20%, transparent);
+    --g-md-header-min-height: 240px;
+    --g-md-header-padding: var(--g-spacing-8) var(--g-spacing-10);
+    --g-md-header-gap: var(--g-spacing-8);
+    --g-md-header-visual-width: 360px;
+    --g-md-header-content-width: 560px;
 
     position: relative;
 
@@ -24,58 +24,52 @@
 
     box-sizing: border-box;
     min-height: var(--g-md-header-min-height);
+    // Тот же вертикальный ритм, что у остальных блоков yfm, иначе обложка липнет к соседям
+    margin-block: var(--yfm-text-block-margin-block, 0 15px);
     padding: var(--g-md-header-padding);
 
     color: var(--g-md-header-text);
-    border-radius: var(--g-md-header-radius);
+    border-radius: var(--g-border-radius-l);
     background-color: var(--g-md-header-fill);
 
     @each $name, $fill in fills.$header-fills {
         &[data-fill='#{$name}'] {
             --g-md-header-fill: #{map.get($fill, bg)};
 
-            @if map.get($fill, scheme) == light {
-                --g-md-header-text: var(--g-color-text-light-primary);
-                --g-md-header-text-secondary: var(--g-color-text-light-secondary);
-                --g-md-header-scrim: linear-gradient(
-                    90deg,
-                    rgb(0 0 0 / 74%) 0 30%,
-                    transparent 78%
-                );
+            @if map.get($fill, surface) == inverted {
+                --g-md-header-text: var(--g-color-text-inverted-primary);
+                --g-md-header-text-secondary: var(--g-color-text-inverted-secondary);
             }
         }
     }
 
-    // Явный выбор автора перебивает схему заливки — например светлый текст на тёмной фотографии
+    // Выбор автора поверх фотографии от темы не зависит: светлость картинки её не слушает
     &[data-text='light'] {
         --g-md-header-text: var(--g-color-text-light-primary);
         --g-md-header-text-secondary: var(--g-color-text-light-secondary);
-        --g-md-header-text-inverse: var(--g-color-text-dark-primary);
-        --g-md-header-scrim: linear-gradient(90deg, rgb(0 0 0 / 74%) 0 30%, transparent 78%);
     }
 
     &[data-text='dark'] {
         --g-md-header-text: var(--g-color-text-dark-primary);
         --g-md-header-text-secondary: var(--g-color-text-dark-secondary);
-        --g-md-header-text-inverse: var(--g-color-text-light-primary);
-        --g-md-header-scrim: linear-gradient(90deg, rgb(255 255 255 / 82%) 0 30%, transparent 78%);
     }
 
     &[data-format='small'] {
-        --g-md-header-min-height: 120px;
-        --g-md-header-padding: 22px 44px;
-        --g-md-header-gap: 24px;
-        --g-md-header-visual-width: 260px;
+        --g-md-header-min-height: 112px;
+        --g-md-header-padding: var(--g-spacing-5) var(--g-spacing-8);
+        --g-md-header-gap: var(--g-spacing-6);
+        --g-md-header-visual-width: 240px;
+        --g-md-header-content-width: 420px;
     }
 
     &[data-edges='bleed'] {
-        --g-md-header-radius: 0;
+        border-radius: 0;
     }
 
+    &[data-border='solid'],
     &[data-border='dashed'],
-    &[data-border='dotted'],
-    &[data-border='solid'] {
-        border: 1.5px solid color-mix(in sRGB, var(--g-md-header-text) 32%, transparent);
+    &[data-border='dotted'] {
+        border: 1px solid var(--g-md-header-line);
     }
 
     &[data-border='dashed'] {
@@ -86,46 +80,46 @@
         border-style: dotted;
     }
 
-    // Картинка панорамная (типовой hero — 1200×340), поэтому `auto 100%`: `cover` в компактном
-    // формате срезает иллюстрации верх и низ. Заливка остаётся под картинкой и не даёт белой
-    // вспышки, пока та грузится.
-    &[data-bg='image'] {
+    // Картинка кроется на всю ширину блока, а не вписывается по высоте с прижатием вправо:
+    // при вписывании её левый край встаёт там, где придётся по пропорциям файла, и маска до
+    // него не достаёт — остаётся вертикальный стык. Заливка под картинкой держит фон, пока та
+    // грузится; иллюстрациям, которым широкий кроп не идёт, есть `split`.
+    &[data-bg='image']::before {
+        position: absolute;
+        z-index: 1;
+        inset: 0;
+
+        content: '';
+        pointer-events: none;
+
         background-image: var(--g-md-header-image);
         background-repeat: no-repeat;
         background-position: right center;
-        background-size: auto 100%;
-
-        // Скрим нейтральный, а не окрашенный в заливку: иначе на стыке с картинкой,
-        // фон которой не совпал с заливкой, видна вертикальная граница.
-        &::before {
-            position: absolute;
-            z-index: 1;
-            inset: 0;
-
-            content: '';
-            pointer-events: none;
-
-            background: var(--g-md-header-scrim);
-        }
+        background-size: cover;
+        // Растушёвка привязана к ширине текстовой колонки, а не к процентам блока: так картинка
+        // не заезжает под текст ни на широком экране, ни на узком.
+        mask-image: linear-gradient(
+            90deg,
+            transparent 0 var(--g-md-header-content-width),
+            #000 calc(var(--g-md-header-content-width) + 160px)
+        );
     }
 
     &[data-image-empty='true'] {
-        background-image: none;
+        &::before {
+            display: none;
+        }
 
         &::after {
             position: absolute;
             z-index: 1;
-            inset: 10px;
+            inset: var(--g-spacing-2);
 
             content: '';
             pointer-events: none;
 
-            border: 2px dashed color-mix(in sRGB, var(--g-md-header-text) 20%, transparent);
-            border-radius: var(--g-border-radius-l);
-        }
-
-        &[data-edges='bleed']::after {
-            inset: 6px;
+            border: 1px dashed var(--g-md-header-line);
+            border-radius: var(--g-border-radius-m);
         }
     }
 
@@ -145,71 +139,47 @@
         &::after {
             align-self: stretch;
 
-            min-height: 204px;
+            min-height: 168px;
 
             content: '';
 
-            border-radius: var(--g-border-radius-l);
+            border-radius: var(--g-border-radius-m);
             background:
                 var(--g-md-header-image) center center / cover no-repeat,
-                color-mix(in sRGB, var(--g-md-header-fill) 60%, var(--g-color-base-background));
+                var(--g-color-base-generic);
         }
 
         &[data-format='small']::after {
-            min-height: 76px;
+            min-height: 72px;
         }
     }
-}
-
-.g-md-header-decor {
-    position: absolute;
-    z-index: 0;
-    inset: 0;
-
-    overflow: hidden;
-
-    pointer-events: none;
-}
-
-.g-md-header-shape {
-    position: absolute;
-
-    background: radial-gradient(
-        130% 130% at 32% 26%,
-        color-mix(in sRGB, var(--g-md-header-fill) 10%, var(--g-color-base-background)) 0%,
-        color-mix(in sRGB, var(--g-md-header-fill) 55%, var(--g-color-base-background)) 58%,
-        color-mix(in sRGB, var(--g-md-header-fill) 92%, var(--g-color-base-background)) 100%
-    );
 }
 
 .g-md-header-content {
     position: relative;
     z-index: 2;
 
-    max-width: 520px;
+    max-width: var(--g-md-header-content-width);
 }
 
 .g-md-header-title {
-    margin-bottom: 12px;
-
-    letter-spacing: -0.02em;
-    @include uikit.text-display-2();
+    margin-bottom: var(--g-spacing-2);
+    @include uikit.text-display-1();
 
     [data-format='small'] & {
-        margin-bottom: 4px;
-        @include uikit.text-header-2();
+        margin-bottom: var(--g-spacing-1);
+        @include uikit.text-header-1();
     }
 }
 
 .g-md-header-subtitle {
-    max-width: 440px;
-    margin-bottom: 24px;
+    margin-bottom: var(--g-spacing-6);
 
     color: var(--g-md-header-text-secondary);
     @include uikit.text-body-2();
 
     [data-format='small'] & {
-        margin-bottom: 14px;
+        margin-bottom: var(--g-spacing-4);
         @include uikit.text-body-1();
     }
 }
@@ -218,11 +188,7 @@
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 18px;
-
-    [data-format='small'] & {
-        gap: 14px;
-    }
+    gap: var(--g-spacing-3);
 
     // Пустой контейнер не должен занимать место и ловить клики мимо кнопок
     &:empty {
@@ -230,35 +196,40 @@
     }
 }
 
-// Селектор с родителем: у якорей в редакторе есть свои цвет и подчёркивание, и одного класса
-// не хватает, чтобы их перебить — кнопка рендерилась просто оранжевым текстом.
+// Селектор с родителем: у якорей в редакторе есть свой цвет и подчёркивание, и одного класса
+// не хватает, чтобы их перебить — кнопка рендерилась просто ссылкой.
+// Геометрия повторяет uikit-кнопку, чтобы обложка не выбивалась из дизайн-системы.
 
 .g-md-header .g-md-header-action {
     display: inline-flex;
     align-items: center;
 
     box-sizing: border-box;
-    padding: 13px 22px;
+    min-height: 36px;
+    padding: 0 var(--g-spacing-4);
 
-    font-weight: var(--g-text-accent-font-weight, 500);
     cursor: text;
     text-decoration: none;
 
-    color: var(--g-md-header-text-inverse);
+    color: var(--g-color-text-brand-contrast);
+    border: 1px solid transparent;
     border-radius: var(--g-border-radius-m);
-    background-color: var(--g-md-header-text);
-    @include uikit.text-body-1();
+    background-color: var(--g-color-base-brand);
+    @include uikit.text-body-2();
 
     &:hover,
     &:active,
     &:visited {
         text-decoration: none;
 
-        color: var(--g-md-header-fill);
+        color: var(--g-color-text-brand-contrast);
     }
 
+    // Вторичная — контурная: своего фона нет, поэтому читается на любой заливке
     &[data-variant='normal'] {
-        background-color: color-mix(in sRGB, var(--g-md-header-text) 12%, transparent);
+        border-color: var(--g-md-header-line);
+        background-color: transparent;
+
         &,
         &:hover,
         &:active,
@@ -268,8 +239,10 @@
     }
 
     &[data-variant='link'] {
-        padding-inline: 0;
+        min-height: 0;
+        padding: 0;
 
+        border-color: transparent;
         background-color: transparent;
 
         &,
@@ -284,9 +257,12 @@
 }
 
 .g-md-header[data-format='small'] .g-md-header-action {
-    padding: 9px 16px;
+    min-height: 28px;
+    padding: 0 var(--g-spacing-3);
+    @include uikit.text-body-1();
 
     &[data-variant='link'] {
-        padding-inline: 0;
+        min-height: 0;
+        padding: 0;
     }
 }

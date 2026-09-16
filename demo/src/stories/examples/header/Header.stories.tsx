@@ -43,11 +43,6 @@ export const Borders: Story = {
     args: {markup: markup.borders},
 };
 
-export const Blobs: Story = {
-    name: 'Decorative shapes and seeds',
-    args: {markup: markup.blobs},
-};
-
 export const BackgroundImage: Story = {
     name: 'Background image',
     args: {markup: markup.image},
