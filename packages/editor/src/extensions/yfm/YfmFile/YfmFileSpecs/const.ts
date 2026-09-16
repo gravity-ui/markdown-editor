@@ -8,6 +8,7 @@ import {
 } from '@diplodoc/file-extension';
 import type {AttributeSpec} from 'prosemirror-model';
 
+export const yfmFileTokenName = FILE_TOKEN;
 export const yfmFileNodeName = FILE_TOKEN;
 
 export const YfmFileAttr = {
