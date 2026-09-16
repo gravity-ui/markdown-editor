@@ -1,4 +1,4 @@
-import {useEffect, useState} from 'react';
+import {useEffect, useId, useState} from 'react';
 
 import {Button, Select, type SelectOption} from '@gravity-ui/uikit';
 
@@ -171,7 +171,45 @@ export function ImageSettings({
     );
 }
 
-export function ActionSettings({
+export function ActionsSettings({
+    actions,
+    selectedIndex,
+    onSelect,
+    editorView,
+    onClose,
+}: {
+    actions: FoundHeader[];
+    selectedIndex: number;
+    onSelect: (index: number) => void;
+    editorView: EditorView;
+    onClose: () => void;
+}) {
+    const action = actions[selectedIndex] ?? actions[0];
+    return (
+        <div className={b('settings')}>
+            <Select
+                disablePortal
+                aria-label={i18n('cta.target')}
+                value={[String(action.pos)]}
+                options={actions.map(({node, pos}, index) => ({
+                    value: String(pos),
+                    content: `${index + 1}. ${node.textContent || i18n(node.attrs.type === 'link' ? 'cta.type_link' : 'cta.type_button')}`,
+                }))}
+                onUpdate={([pos]) =>
+                    onSelect(actions.findIndex((item) => String(item.pos) === pos))
+                }
+            />
+            <ActionSettings
+                key={action.pos}
+                action={action}
+                editorView={editorView}
+                onClose={onClose}
+            />
+        </div>
+    );
+}
+
+function ActionSettings({
     action,
     editorView,
     onClose,
@@ -182,6 +220,7 @@ export function ActionSettings({
 }) {
     const [href, setHref] = useState(action.node.attrs.href as string);
     const [type, setType] = useState(action.node.attrs.type as 'button' | 'link');
+    const hrefId = useId();
     const apply = () => {
         setHeaderActionAttrs(action.pos, {href: href.trim(), type})(
             editorView.state,
@@ -191,10 +230,11 @@ export function ActionSettings({
     };
 
     return (
-        <div className={b('settings')}>
+        <>
+            <label htmlFor={hrefId}>{i18n('cta.href')}</label>
             <TextInputFixed
+                id={hrefId}
                 autoFocus
-                controlProps={{'aria-label': i18n('cta.href')}}
                 placeholder="https://"
                 value={href}
                 onUpdate={setHref}
@@ -228,6 +268,6 @@ export function ActionSettings({
                     {i18n('apply')}
                 </Button>
             </div>
-        </div>
+        </>
     );
 }

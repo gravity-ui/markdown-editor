@@ -38,12 +38,13 @@
     "cta.type": "Button kind",
     "cta.type_button": "Button",
     "cta.type_link": "Link",
-    "cta.href": "Link",
+    "cta.href": "Link URL",
     "placeholder.title": "Header",
     "placeholder.action": "Button",
     "placeholder.description": "Description",
     "appearance": "Appearance",
     "apply": "Apply",
     "image.url": "Image URL",
-    "cta.edit": "Edit button"
+    "cta.links": "Links",
+    "cta.target": "Button or link"
 }

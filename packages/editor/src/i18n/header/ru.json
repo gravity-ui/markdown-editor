@@ -38,12 +38,13 @@
     "cta.type": "Вид кнопки",
     "cta.type_button": "Кнопка",
     "cta.type_link": "Ссылка",
-    "cta.href": "Ссылка",
+    "cta.href": "Адрес ссылки",
     "placeholder.title": "Заголовок",
     "placeholder.action": "Кнопка",
     "placeholder.description": "Описание",
     "appearance": "Оформление",
     "apply": "Применить",
     "image.url": "Ссылка на изображение",
-    "cta.edit": "Настроить кнопку"
+    "cta.links": "Ссылки",
+    "cta.target": "Кнопка или ссылка"
 }

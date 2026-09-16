@@ -11,10 +11,11 @@ import {Toolbar, type ToolbarButtonPopupData, type ToolbarData, ToolbarDataType}
 import type {FileUploadHandler} from 'src/utils/upload';
 
 import {HeaderActionType, type HeaderAttrs} from '../../HeaderSpecs';
-import {addHeaderAction, findHeaderAction, removeHeader, setHeaderAttrs} from '../../commands';
+import {addHeaderAction, removeHeader, setHeaderAttrs} from '../../commands';
 
 import {FillPalette} from './FillPalette';
-import {ActionSettings, AppearanceSettings, ImageSettings} from './HeaderSettings';
+import {HeaderActionsButton} from './HeaderActionsButton';
+import {AppearanceSettings, ImageSettings} from './HeaderSettings';
 
 import './HeaderToolbar.scss';
 
@@ -38,7 +39,6 @@ export function HeaderToolbar({node, pos, editorView, fileUploadHandler}: Header
         if (control instanceof HTMLElement && control.isConnected)
             control.focus({preventScroll: true});
     };
-    const action = findHeaderAction(editorView.state);
 
     const popup = (
         id: string,
@@ -126,18 +126,12 @@ export function HeaderToolbar({node, pos, editorView, fileUploadHandler}: Header
                     exec: () => addHeaderAction(pos, {type})(editorView.state, editorView.dispatch),
                 })),
             },
-            ...(action
-                ? [
-                      popup('header-cta-edit', Link, i18n('cta.edit'), (close) => (
-                          <ActionSettings
-                              key={action.pos}
-                              action={action}
-                              editorView={editorView}
-                              onClose={close}
-                          />
-                      )),
-                  ]
-                : []),
+            {
+                id: 'header-links',
+                type: ToolbarDataType.ReactComponent,
+                component: HeaderActionsButton,
+                width: 90,
+            },
         ],
         [
             {

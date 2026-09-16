@@ -253,6 +253,10 @@ test.describe('Extensions, Header', () => {
             await mount(<HeaderStories.Empty />);
             const header = page.getByTestId('g-md-header');
             await header.locator('.g-md-header-title').click();
+            const links = page
+                .getByTestId('g-md-toolbar-header')
+                .getByRole('button', {name: 'Links', exact: true});
+            await expect(links).toBeDisabled();
             await page
                 .getByTestId('g-md-toolbar-header')
                 .getByRole('button', {name: 'Add button', exact: true})
@@ -260,6 +264,7 @@ test.describe('Extensions, Header', () => {
             await page.getByRole('menuitem', {name: kind, exact: true}).click();
 
             const action = header.locator('.g-md-header-action');
+            await expect(links).toBeEnabled();
             await page.keyboard.type('New button label', {delay: 80});
             await expect(action).toHaveText('New button label');
 
@@ -283,15 +288,58 @@ test.describe('Extensions, Header', () => {
         });
     }
 
-    test('Action link editing follows keyboard selection', async ({mount, page, editor}) => {
+    test('Links are editable from the header toolbar', async ({mount, page, expectScreenshot}) => {
+        await mount(<HeaderStories.Filled />, {width: 800, hidePlaygroundBlocks: true});
+        const header = page.getByTestId('g-md-header');
+        const actions = header.locator('.g-md-header-action');
+        await header.locator('.g-md-header-title').click();
+
+        const links = page
+            .getByTestId('g-md-toolbar-header')
+            .getByRole('button', {name: 'Links', exact: true});
+        await expect(links).toHaveText('Links');
+        await links.click();
+        const target = page.getByRole('combobox', {name: 'Button or link', exact: true});
+        const input = page.getByRole('textbox', {name: 'Link URL', exact: true});
+        await expect(target).toContainText('Начать работу');
+        await expect(input).toBeFocused();
+        await expect(input).toHaveValue('/start');
+        await page.mouse.move(0, 0);
+        await expectScreenshot();
+
+        await target.click();
+        await page.getByRole('option', {name: '2. Смотреть разделы', exact: true}).click();
+        await expect(input).toHaveValue('/sections');
+        await expect(input).toBeFocused();
+        await input.fill('https://example.com/sections');
+        await page.getByRole('button', {name: 'Apply', exact: true}).click();
+        await expect(actions.nth(0)).toHaveAttribute('href', '/start');
+        await expect(actions.nth(1)).toHaveAttribute('href', 'https://example.com/sections');
+
+        await links.click();
+        await expect(input).toHaveValue('/start');
+        await input.fill('/updated');
+        await input.press('Enter');
+        await expect(actions.nth(0)).toHaveAttribute('href', '/updated');
+        await expect(actions.nth(1)).toHaveAttribute('href', 'https://example.com/sections');
+
+        await links.click();
+        await expect(input).toHaveValue('/updated');
+        await input.fill('');
+        await input.press('Enter');
+        await expect(actions.nth(0)).not.toHaveAttribute('href');
+        await expect(actions.nth(0)).toHaveText('Начать работу');
+    });
+
+    test('Links settings follow keyboard selection', async ({mount, page, editor}) => {
         await mount(<HeaderStories.Filled />);
         const header = page.getByTestId('g-md-header');
         const edit = page
             .getByTestId('g-md-toolbar-header')
-            .getByRole('button', {name: 'Edit button', exact: true});
+            .getByRole('button', {name: 'Links', exact: true});
         const markup = page.locator('.playground__markup');
         await header.locator('.g-md-header-title').click();
-        await expect(edit).toHaveCount(0);
+        await expect(edit).toBeEnabled();
         const originalMarkup = await markup.textContent();
 
         await editor.press('Tab', 2);
@@ -299,7 +347,7 @@ test.describe('Extensions, Header', () => {
         await expect(markup).toHaveText(originalMarkup!);
         await edit.click();
 
-        const input = page.getByRole('textbox', {name: 'Link', exact: true});
+        const input = page.getByRole('textbox', {name: 'Link URL', exact: true});
         await expect(input).toBeFocused();
         await expect(input).toHaveValue('/start');
         await input.fill('/updated');
@@ -314,16 +362,24 @@ test.describe('Extensions, Header', () => {
         await expect(actions.nth(1)).toHaveAttribute('href', '/sections');
         await expect(editor.locators.contenteditable).toBeFocused();
         await editor.press('Shift+Tab');
-        await expect(edit).toHaveCount(0);
+        await expect(edit).toBeEnabled();
 
-        await editor.press('Tab');
+        await editor.press('Tab', 2);
         await edit.click();
-        await expect(input).toHaveValue('/updated');
+        await expect(input).toHaveValue('/sections');
         await page.getByRole('button', {name: 'Remove button', exact: true}).click();
         await expect(actions).toHaveCount(1);
-        await expect(actions).toHaveText('Смотреть разделы');
-        await expect(actions).toHaveAttribute('href', '/sections');
+        await expect(actions).toHaveText('Начать работу');
+        await expect(actions).toHaveAttribute('href', '/updated');
         await expect(editor.locators.contenteditable).toBeFocused();
-        await expect(edit).toHaveCount(0);
+        await expect(edit).toBeEnabled();
+
+        await edit.click();
+        await expect(input).toHaveValue('/updated');
+        await input.fill('/discarded');
+        await page.keyboard.press('Escape');
+        await expect(input).toBeHidden();
+        await expect(edit).toBeFocused();
+        await expect(actions).toHaveAttribute('href', '/updated');
     });
 });
