@@ -225,6 +225,64 @@ test.describe('Extensions, Header', () => {
         await expect(fill).toBeFocused();
     });
 
+    test('Action text keeps the caret while typing', async ({mount, page, editor}) => {
+        await mount(<HeaderStories.Filled />);
+        const header = page.getByTestId('g-md-header');
+        const actions = header.locator('.g-md-header-action');
+
+        await actions.first().click();
+        await editor.press('End');
+        await page.keyboard.type(' new label', {delay: 80});
+
+        await expect(actions.first()).toHaveText('Начать работу new label');
+        await expect
+            .poll(() =>
+                actions.first().evaluate((element) => {
+                    const selection = window.getSelection();
+                    return Boolean(
+                        selection?.isCollapsed && element.contains(selection.anchorNode),
+                    );
+                }),
+            )
+            .toBe(true);
+        await expect(editor.locators.contenteditable).toBeFocused();
+    });
+
+    for (const kind of ['Button', 'Link']) {
+        test(`New ${kind} accepts text without moving the caret`, async ({mount, page, editor}) => {
+            await mount(<HeaderStories.Empty />);
+            const header = page.getByTestId('g-md-header');
+            await header.locator('.g-md-header-title').click();
+            await page
+                .getByTestId('g-md-toolbar-header')
+                .getByRole('button', {name: 'Add button', exact: true})
+                .click();
+            await page.getByRole('menuitem', {name: kind, exact: true}).click();
+
+            const action = header.locator('.g-md-header-action');
+            await page.keyboard.type('New button label', {delay: 80});
+            await expect(action).toHaveText('New button label');
+
+            await action.selectText();
+            await page.keyboard.press('Backspace');
+            await action.click();
+            await page.keyboard.type('Replacement label', {delay: 80});
+            await expect(action).toHaveText('Replacement label');
+            await expect
+                .poll(() =>
+                    action.evaluate((element) => {
+                        const selection = window.getSelection();
+                        return Boolean(
+                            selection?.isCollapsed && element.contains(selection.anchorNode),
+                        );
+                    }),
+                )
+                .toBe(true);
+            await expect(editor.locators.contenteditable).toBeFocused();
+            await expect(header.locator('.g-md-header-description')).toHaveText('Description');
+        });
+    }
+
     test('Action link editing follows keyboard selection', async ({mount, page, editor}) => {
         await mount(<HeaderStories.Filled />);
         const header = page.getByTestId('g-md-header');

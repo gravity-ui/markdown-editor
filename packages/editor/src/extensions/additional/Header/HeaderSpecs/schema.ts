@@ -142,7 +142,8 @@ export const getSchemaSpecs = (
                     href: node.attrs[HeaderActionAttr.Href] || null,
                     [`data-${HeaderActionAttr.Type}`]: node.attrs[HeaderActionAttr.Type],
                 },
-                0,
+                // Keep editable text in normal flow inside the flex button.
+                ['span', 0],
             ];
         },
         placeholder: placeholderFor(
