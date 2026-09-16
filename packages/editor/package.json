@@ -236,6 +236,7 @@
     "@types/sanitize-html": "2.11.0",
     "@markdown-editor/gulp-tasks": "workspace:*",
     "@markdown-editor/tsconfig": "workspace:*",
+    "@markdown-editor/vitest-config": "workspace:*",
     "@vitest/coverage-v8": "catalog:testing",
     "bem-cn-lite": "4.1.0",
     "dpdm": "3.14.0",

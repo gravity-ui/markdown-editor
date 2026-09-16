@@ -391,6 +391,12 @@ importers:
         specifier: 1.0.0
         version: 1.0.0
 
+  infra/vitest-config:
+    devDependencies:
+      vitest:
+        specifier: catalog:testing
+        version: 5.0.1(@types/node@25.2.1)(@vitest/coverage-v8@5.0.1)(jsdom@25.0.1)(vite@6.4.1(@types/node@25.2.1)(jiti@2.6.1)(sass@1.99.0)(terser@5.46.0)(yaml@2.8.2))
+
   packages/editor:
     dependencies:
       '@bem-react/classname':
@@ -583,6 +589,9 @@ importers:
       '@markdown-editor/tsconfig':
         specifier: workspace:*
         version: link:../../infra/tsconfig
+      '@markdown-editor/vitest-config':
+        specifier: workspace:*
+        version: link:../../infra/vitest-config
       '@types/jsdom':
         specifier: 21.1.7
         version: 21.1.7
@@ -747,6 +756,9 @@ importers:
       '@markdown-editor/tsconfig':
         specifier: workspace:*
         version: link:../../infra/tsconfig
+      '@markdown-editor/vitest-config':
+        specifier: workspace:*
+        version: link:../../infra/vitest-config
       '@types/react':
         specifier: catalog:react
         version: 18.0.28

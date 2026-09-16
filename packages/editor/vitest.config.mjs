@@ -1,31 +1,22 @@
 import {fileURLToPath} from 'node:url';
 
-import {defineConfig} from 'vitest/config';
+import common from '@markdown-editor/vitest-config';
+import {defineConfig, mergeConfig} from 'vitest/config';
 
-export default defineConfig({
-    resolve: {
-        alias: {
-            '#core': fileURLToPath(new URL('./src/core', import.meta.url)),
-            '#cm': fileURLToPath(new URL('./src/cm', import.meta.url)),
-            '#pm': fileURLToPath(new URL('./src/pm', import.meta.url)),
-            src: fileURLToPath(new URL('./src', import.meta.url)),
-        },
-    },
-    test: {
-        environment: 'jsdom',
-        globals: false,
-        clearMocks: false,
-        include: ['src/**/*.test.{ts,tsx}'],
-        server: {
-            deps: {
-                inline: [/@gravity-ui\//, /@diplodoc\//],
+export default mergeConfig(
+    common,
+    defineConfig({
+        resolve: {
+            alias: {
+                '#core': fileURLToPath(new URL('./src/core', import.meta.url)),
+                '#cm': fileURLToPath(new URL('./src/cm', import.meta.url)),
+                '#pm': fileURLToPath(new URL('./src/pm', import.meta.url)),
+                src: fileURLToPath(new URL('./src', import.meta.url)),
             },
         },
-        setupFiles: ['./tests/setup.ts'],
-        coverage: {
-            provider: 'v8',
-            include: ['src/**/*.{ts,tsx}'],
-            exclude: ['src/**/*.test.{ts,tsx}', 'src/**/*.d.ts'],
+        test: {
+            environment: 'jsdom',
+            setupFiles: ['./tests/setup.ts'],
         },
-    },
-});
+    }),
+);
