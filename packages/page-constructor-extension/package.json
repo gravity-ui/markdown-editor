@@ -96,7 +96,7 @@
     "react-dom": "catalog:react",
     "ts-dedent": "^2.2.0",
     "typescript": "catalog:ts",
-    "vitest": "5.0.1"
+    "vitest": "catalog:testing"
   },
   "peerDependencies": {
     "@diplodoc/page-constructor-extension": "^0.13.3",

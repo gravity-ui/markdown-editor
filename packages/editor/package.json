@@ -236,7 +236,7 @@
     "@types/sanitize-html": "2.11.0",
     "@markdown-editor/gulp-tasks": "workspace:*",
     "@markdown-editor/tsconfig": "workspace:*",
-    "@vitest/coverage-v8": "5.0.1",
+    "@vitest/coverage-v8": "catalog:testing",
     "bem-cn-lite": "4.1.0",
     "dpdm": "3.14.0",
     "esbuild": "0.21.5",
@@ -256,7 +256,7 @@
     "react": "catalog:react",
     "react-dom": "catalog:react",
     "typescript": "catalog:ts",
-    "vitest": "5.0.1"
+    "vitest": "catalog:testing"
   },
   "peerDependenciesMeta": {
     "@diplodoc/folding-headings-extension": {
