@@ -1,6 +1,6 @@
 import {log} from '@diplodoc/transform/lib/log.js';
 
-import type {ExtensionAuto} from '../../../../core';
+import type {ExtensionAuto} from '#core';
 
 import {VideoAttr, videoNodeName} from './const';
 import {
@@ -29,8 +29,8 @@ export const VideoSpecs: ExtensionAuto<VideoSpecsOptions> = (builder, opts) => {
     const options = {...defaults, ...opts, log};
 
     builder.configureMd((md) => md.use(videoPlugin, options));
-    builder.addNode(videoNodeName, () => ({
-        spec: {
+    builder
+        .addNodeSpec(videoNodeName, () => ({
             inline: true,
             atom: true,
             group: 'inline',
@@ -93,19 +93,16 @@ export const VideoSpecs: ExtensionAuto<VideoSpecsOptions> = (builder, opts) => {
 
                 return createViewStub(node);
             },
-        },
-        fromMd: {
-            tokenSpec: {
-                name: videoNodeName,
-                type: 'node',
-                getAttrs: (tok) => ({
-                    [VideoAttr.Service]: (tok as VideoToken).service,
-                    [VideoAttr.VideoID]: (tok as VideoToken).videoID,
-                }),
-            },
-        },
-        toMd: (state, node) => {
+        }))
+        .addMarkdownTokenParserSpec('video', () => ({
+            name: videoNodeName,
+            type: 'node',
+            getAttrs: (tok) => ({
+                [VideoAttr.Service]: (tok as VideoToken).service,
+                [VideoAttr.VideoID]: (tok as VideoToken).videoID,
+            }),
+        }))
+        .addNodeSerializerSpec(videoNodeName, () => (state, node) => {
             state.write(serializeNodeToString(node));
-        },
-    }));
+        });
 };
