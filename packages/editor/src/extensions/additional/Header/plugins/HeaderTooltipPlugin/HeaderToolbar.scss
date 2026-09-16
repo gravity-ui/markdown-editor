@@ -1,31 +1,48 @@
 .g-md-header-toolbar {
     padding: 2px;
 
+    &__popup {
+        max-width: calc(100vw - 24px);
+
+        border-radius: var(--g-border-radius-l);
+    }
+
     &__palette {
         padding: var(--g-spacing-2);
     }
 
-    &__settings {
-        display: flex;
-        flex-direction: column;
-        gap: var(--g-spacing-3);
-
-        box-sizing: border-box;
-        width: 280px;
+    &__image,
+    &__actions {
+        width: 400px;
         max-width: calc(100vw - 24px);
-        padding: var(--g-spacing-3);
     }
 
-    &__field {
-        display: grid;
-        align-items: center;
-        grid-template-columns: 90px minmax(0, 1fr);
-        gap: var(--g-spacing-2);
+    &__action + &__action {
+        border-top: 1px solid var(--g-color-line-generic);
     }
 
-    &__buttons {
+    &__action-heading {
         display: flex;
-        justify-content: space-between;
-        gap: var(--g-spacing-2);
+        align-items: center;
+        gap: var(--g-spacing-1);
+
+        padding: var(--g-spacing-1) var(--g-spacing-1) 0 var(--g-spacing-3);
+    }
+
+    &__action-title {
+        overflow: hidden;
+        flex: 1;
+
+        min-width: 0;
+
+        white-space: nowrap;
+        text-overflow: ellipsis;
+
+        color: var(--g-color-text-secondary);
+    }
+
+    &__action-kind {
+        display: flex;
+        flex-shrink: 0;
     }
 }

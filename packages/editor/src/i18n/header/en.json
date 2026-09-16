@@ -32,6 +32,7 @@
     "text.dark": "Dark",
     "image.upload": "Upload image",
     "image.reset": "Remove image",
+    "image.open": "Open image",
     "image.failed": "Could not upload the image",
     "cta.add": "Add button",
     "cta.remove": "Remove button",
@@ -43,8 +44,6 @@
     "placeholder.action": "Button",
     "placeholder.description": "Description",
     "appearance": "Appearance",
-    "apply": "Apply",
     "image.url": "Image URL",
-    "cta.links": "Links",
-    "cta.target": "Button or link"
+    "cta.links": "Links"
 }

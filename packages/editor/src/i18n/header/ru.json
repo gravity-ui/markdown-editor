@@ -32,6 +32,7 @@
     "text.dark": "Тёмный",
     "image.upload": "Загрузить картинку",
     "image.reset": "Убрать картинку",
+    "image.open": "Открыть картинку",
     "image.failed": "Не удалось загрузить картинку",
     "cta.add": "Добавить кнопку",
     "cta.remove": "Удалить кнопку",
@@ -43,8 +44,6 @@
     "placeholder.action": "Кнопка",
     "placeholder.description": "Описание",
     "appearance": "Оформление",
-    "apply": "Применить",
     "image.url": "Ссылка на изображение",
-    "cta.links": "Ссылки",
-    "cta.target": "Кнопка или ссылка"
+    "cta.links": "Ссылки"
 }

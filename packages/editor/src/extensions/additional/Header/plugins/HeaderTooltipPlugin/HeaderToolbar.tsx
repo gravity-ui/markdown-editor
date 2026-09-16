@@ -1,113 +1,124 @@
-import type {ReactNode} from 'react';
+import {useRef, useState} from 'react';
 
 import {LayoutHeader, Link, Palette, Picture, Pill, Plus, TrashBin} from '@gravity-ui/icons';
-import {Popup} from '@gravity-ui/uikit';
+import {Icon, type IconProps} from '@gravity-ui/uikit';
 
 import type {Node} from '#pm/model';
 import type {EditorView} from '#pm/view';
 import {cn} from 'src/classname';
 import {i18n} from 'src/i18n/header';
-import {Toolbar, type ToolbarButtonPopupData, type ToolbarData, ToolbarDataType} from 'src/toolbar';
+import {
+    Toolbar,
+    type ToolbarBaseProps,
+    ToolbarButtonView,
+    type ToolbarData,
+    ToolbarDataType,
+} from 'src/toolbar';
 import type {FileUploadHandler} from 'src/utils/upload';
 
 import {HeaderActionType, type HeaderAttrs} from '../../HeaderSpecs';
 import {addHeaderAction, removeHeader, setHeaderAttrs} from '../../commands';
+import {getHeaderTargets} from '../targets';
 
 import {FillPalette} from './FillPalette';
-import {HeaderActionsButton} from './HeaderActionsButton';
-import {AppearanceSettings, ImageSettings} from './HeaderSettings';
+import {AppearanceSettings} from './HeaderAppearance';
+import {HeaderPopover, type HeaderPopoverHandle, applyHeaderCommand} from './HeaderPopover';
+import {ActionsSettings, ImageSettings} from './HeaderSettings';
 
 import './HeaderToolbar.scss';
 
 const b = cn('header-toolbar');
+const panelTitles = {
+    appearance: 'appearance',
+    fill: 'fill',
+    image: 'bg.image',
+    links: 'cta.links',
+} as const;
+type Panel = keyof typeof panelTitles;
+type Control = {
+    title: string;
+    icon: IconProps['data'];
+    label?: string;
+    active: boolean;
+    enabled: boolean;
+    onClick(): void;
+    anchor(element: HTMLButtonElement | null): void;
+};
+
+function HeaderControl({control, className}: ToolbarBaseProps<EditorView> & {control?: Control}) {
+    if (!control) return null;
+    return (
+        <ToolbarButtonView
+            ref={(element) => {
+                control.anchor(element);
+                element?.setAttribute('aria-haspopup', 'dialog');
+                element?.setAttribute('aria-expanded', String(control.active));
+            }}
+            title={control.title}
+            active={control.active}
+            enabled={control.enabled}
+            hintWhenDisabled={false}
+            disableTooltip={control.active}
+            onClick={control.onClick}
+            className={className}
+        >
+            <Icon data={control.icon} size={16} />
+            {control.label}
+        </ToolbarButtonView>
+    );
+}
 
 export type HeaderToolbarProps = {
     node: Node;
     pos: number;
     editorView: EditorView;
     fileUploadHandler?: FileUploadHandler;
+    normalizeUrl: (url: string) => string | null;
 };
 
-export function HeaderToolbar({node, pos, editorView, fileUploadHandler}: HeaderToolbarProps) {
+export function HeaderToolbar({
+    node,
+    pos,
+    editorView,
+    fileUploadHandler,
+    normalizeUrl,
+}: HeaderToolbarProps) {
+    const [panel, setPanel] = useState<Panel | null>(null);
+    const anchors = useRef<Partial<Record<Panel, HTMLButtonElement | null>>>({});
+    const popover = useRef<HeaderPopoverHandle>(null);
+    const targets = getHeaderTargets(editorView.state);
     const attrs = node.attrs as HeaderAttrs;
     const focus = () => editorView.focus();
-    const update = (patch: Partial<HeaderAttrs>) => {
-        const control = editorView.dom.ownerDocument.activeElement;
-        // Synchronize the DOM selection before changing a block while a popup owns focus.
-        editorView.focus();
-        setHeaderAttrs(pos, patch)(editorView.state, editorView.dispatch);
-        if (control instanceof HTMLElement && control.isConnected)
-            control.focus({preventScroll: true});
-    };
-
-    const popup = (
-        id: string,
-        icon: ToolbarButtonPopupData<EditorView>['icon']['data'],
-        title: string,
-        content: (close: () => void) => ReactNode,
-    ): ToolbarButtonPopupData<EditorView> => ({
-        id,
-        type: ToolbarDataType.ButtonPopup,
-        icon: {data: icon},
-        title,
-        isActive: () => false,
-        isEnable: () => true,
-        exec: () => {},
-        renderPopup: ({hide, anchorElement}) => {
-            const close = () => {
-                hide();
-                focus();
-            };
-            return (
-                <Popup
-                    open
-                    disablePortal
-                    disableFocusOut
-                    returnFocus={false}
-                    initialFocus={0}
-                    anchorElement={anchorElement}
-                    placement={['bottom', 'top']}
-                    onOpenChange={(open, _event, reason) => {
-                        if (!open) {
-                            hide();
-                            if (reason === 'escape-key') anchorElement?.focus();
-                        }
-                    }}
-                >
-                    {content(close)}
-                </Popup>
-            );
+    const update = (patch: Partial<HeaderAttrs>) =>
+        applyHeaderCommand(editorView, setHeaderAttrs(pos, patch));
+    const close = () => setPanel(null);
+    const control = (id: Panel, icon: IconProps['data'], label?: string) => ({
+        id: `header-${id}`,
+        type: ToolbarDataType.ReactComponent as const,
+        component: HeaderControl,
+        width: label ? 90 : 28,
+        props: {
+            control: {
+                title: i18n(panelTitles[id]),
+                icon,
+                label,
+                active: panel === id,
+                enabled: id !== 'links' || Boolean(targets?.actions.length),
+                anchor: (element: HTMLButtonElement | null) => {
+                    anchors.current[id] = element;
+                },
+                onClick: () => {
+                    if (panel === id) popover.current?.close('outside');
+                    else {
+                        popover.current?.close('outside');
+                        setPanel(id);
+                    }
+                },
+            } satisfies Control,
         },
     });
-
     const data: ToolbarData<EditorView> = [
-        [
-            popup('header-appearance', LayoutHeader, i18n('appearance'), () => (
-                <AppearanceSettings attrs={attrs} onChange={update} />
-            )),
-            popup('header-fill', Palette, i18n('fill'), (close) => (
-                <div className={b('palette')}>
-                    <FillPalette
-                        value={attrs.fill}
-                        onSelect={(fill) => {
-                            update({fill});
-                            close();
-                        }}
-                    />
-                </div>
-            )),
-            popup('header-image', Picture, i18n('bg.image'), (close) => (
-                <ImageSettings
-                    key={pos}
-                    attrs={attrs}
-                    pos={pos}
-                    editorView={editorView}
-                    fileUploadHandler={fileUploadHandler}
-                    onChange={update}
-                    onClose={close}
-                />
-            )),
-        ],
+        [control('appearance', LayoutHeader), control('fill', Palette), control('image', Picture)],
         [
             {
                 id: 'header-cta-add',
@@ -126,12 +137,7 @@ export function HeaderToolbar({node, pos, editorView, fileUploadHandler}: Header
                     exec: () => addHeaderAction(pos, {type})(editorView.state, editorView.dispatch),
                 })),
             },
-            {
-                id: 'header-links',
-                type: ToolbarDataType.ReactComponent,
-                component: HeaderActionsButton,
-                width: 90,
-            },
+            control('links', Link, i18n('cta.links')),
         ],
         [
             {
@@ -146,14 +152,52 @@ export function HeaderToolbar({node, pos, editorView, fileUploadHandler}: Header
             },
         ],
     ];
-
     return (
-        <Toolbar
-            editor={editorView}
-            focus={focus}
-            className={b()}
-            qa="g-md-toolbar-header"
-            data={data}
-        />
+        <>
+            <Toolbar
+                editor={editorView}
+                focus={focus}
+                className={b()}
+                qa="g-md-toolbar-header"
+                data={data}
+            />
+            {panel && targets && (
+                <HeaderPopover
+                    key={panel}
+                    onClose={close}
+                    ref={popover}
+                    anchor={anchors.current[panel] ?? null}
+                    title={i18n(panelTitles[panel])}
+                    editorView={editorView}
+                >
+                    {panel === 'appearance' && (
+                        <AppearanceSettings attrs={attrs} onChange={update} />
+                    )}
+                    {panel === 'fill' && (
+                        <div className={b('palette')}>
+                            <FillPalette
+                                value={attrs.fill}
+                                onSelect={(fill) => {
+                                    update({fill});
+                                    close();
+                                    focus();
+                                }}
+                            />
+                        </div>
+                    )}
+                    {panel === 'image' && (
+                        <ImageSettings
+                            targetId={targets.header.id}
+                            editorView={editorView}
+                            fileUploadHandler={fileUploadHandler}
+                            normalizeUrl={normalizeUrl}
+                        />
+                    )}
+                    {panel === 'links' && (
+                        <ActionsSettings editorView={editorView} normalizeUrl={normalizeUrl} />
+                    )}
+                </HeaderPopover>
+            )}
+        </>
     );
 }

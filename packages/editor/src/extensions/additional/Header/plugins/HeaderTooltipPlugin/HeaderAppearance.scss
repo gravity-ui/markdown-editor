@@ -1,0 +1,39 @@
+.g-md-header-appearance {
+    box-sizing: border-box;
+    width: 304px;
+    max-width: calc(100vw - 24px);
+    padding: var(--g-spacing-1) var(--g-spacing-2);
+
+    &__row {
+        display: grid;
+        align-items: center;
+        grid-template-columns: 84px minmax(0, 1fr);
+        gap: var(--g-spacing-2);
+
+        min-height: 36px;
+    }
+
+    &__label {
+        padding-left: var(--g-spacing-1);
+
+        color: var(--g-color-text-secondary);
+    }
+
+    &__options {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: var(--g-spacing-half);
+
+        min-width: 0;
+    }
+
+    &__layout {
+        display: flex;
+        align-items: center;
+
+        box-sizing: border-box;
+        min-height: 36px;
+        padding: var(--g-spacing-1) var(--g-spacing-2);
+    }
+}

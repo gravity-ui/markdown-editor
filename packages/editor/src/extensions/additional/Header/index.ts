@@ -16,6 +16,7 @@ import {
 import {headerTooltipPlugin} from './plugins/HeaderTooltipPlugin';
 import {headerActivePlugin} from './plugins/active';
 import {headerImageUploadPlugin} from './plugins/imageUpload';
+import {headerTargetsPlugin} from './plugins/targets';
 
 import './index.scss';
 
@@ -35,7 +36,8 @@ export const Header: ExtensionAuto<HeaderOptions> = (builder, opts = {}) => {
 
     builder
         .addPlugin(headerImageUploadPlugin)
-        .addPlugin(() => headerTooltipPlugin({fileUploadHandler: opts.fileUploadHandler}))
+        .addPlugin(headerTargetsPlugin)
+        .addPlugin((deps) => headerTooltipPlugin(deps, {fileUploadHandler: opts.fileUploadHandler}))
         .addPlugin(headerActivePlugin)
         .addAction(headerAction, () => ({
             isEnable: toHeader,

@@ -1,273 +1,228 @@
-import {useEffect, useId, useState} from 'react';
+import {useState} from 'react';
 
-import {Button, Select, type SelectOption} from '@gravity-ui/uikit';
+import {ArrowUpFromSquare, ArrowUpRightFromSquare, LinkSlash, TrashBin} from '@gravity-ui/icons';
+import {Button} from '@gravity-ui/uikit';
 
 import type {EditorView} from '#pm/view';
 import {cn} from 'src/classname';
-import {TextInputFixed} from 'src/forms/TextInput';
+import {UrlAction, UrlInput} from 'src/forms/UrlInput';
+import {i18n as formsI18n} from 'src/i18n/forms';
 import {i18n} from 'src/i18n/header';
 import type {FileUploadHandler} from 'src/utils/upload';
 
-import {
-    type HeaderAttrs,
-    HeaderBackground,
-    HeaderBorder,
-    HeaderEdges,
-    HeaderFormat,
-    HeaderLayout,
-    HeaderTextColor,
-} from '../../HeaderSpecs';
+import {type HeaderAttrs, HeaderBackground} from '../../HeaderSpecs';
 import {toCssUrl} from '../../HeaderSpecs/dom';
-import {type FoundHeader, removeHeaderActionAt, setHeaderActionAttrs} from '../../commands';
+import {
+    findHeaderAction,
+    removeHeaderActionAt,
+    setHeaderActionAttrs,
+    setHeaderAttrs,
+} from '../../commands';
+import {getHeaderTargets, resolveHeaderTarget} from '../targets';
 
+import {LayoutSettings} from './HeaderAppearance';
+import {applyHeaderCommand, useUrlDraft} from './HeaderPopover';
 import {useImageUpload} from './useImageUpload';
 
 const b = cn('header-toolbar');
-type SettingsProps = {attrs: HeaderAttrs; onChange: (patch: Partial<HeaderAttrs>) => void};
-
-function Choice<T extends string>({
-    label,
-    value,
-    options,
-    onChange,
-}: {
-    label: string;
-    value: T;
-    options: SelectOption[];
-    onChange: (value: T) => void;
-}) {
-    return (
-        <div className={b('field')}>
-            <span>{label}</span>
-            <Select
-                disablePortal
-                aria-label={label}
-                value={[value]}
-                options={options}
-                onUpdate={([next]) => onChange(next as T)}
-            />
-        </div>
-    );
-}
-
-export function AppearanceSettings({attrs, onChange}: SettingsProps) {
-    return (
-        <div className={b('settings')}>
-            <Choice
-                label={i18n('format')}
-                value={attrs.format}
-                onChange={(format) => onChange({format})}
-                options={[
-                    {value: HeaderFormat.Large, content: i18n('format.large')},
-                    {value: HeaderFormat.Small, content: i18n('format.small')},
-                ]}
-            />
-            <Choice
-                label={i18n('edges')}
-                value={attrs.edges}
-                onChange={(edges) => onChange({edges})}
-                options={[
-                    {value: HeaderEdges.Rounded, content: i18n('edges.rounded')},
-                    {value: HeaderEdges.Bleed, content: i18n('edges.bleed')},
-                ]}
-            />
-            <Choice
-                label={i18n('border')}
-                value={attrs.border}
-                onChange={(border) => onChange({border})}
-                options={[
-                    {value: HeaderBorder.None, content: i18n('border.none')},
-                    {value: HeaderBorder.Solid, content: i18n('border.solid')},
-                    {value: HeaderBorder.Dashed, content: i18n('border.dashed')},
-                    {value: HeaderBorder.Dotted, content: i18n('border.dotted')},
-                ]}
-            />
-            <Choice
-                label={i18n('text')}
-                value={attrs.text}
-                onChange={(text) => onChange({text})}
-                options={[
-                    {value: HeaderTextColor.Auto, content: i18n('text.auto')},
-                    {value: HeaderTextColor.Light, content: i18n('text.light')},
-                    {value: HeaderTextColor.Dark, content: i18n('text.dark')},
-                ]}
-            />
-        </div>
-    );
-}
+type TargetProps = {targetId: string; editorView: EditorView};
 
 export function ImageSettings({
-    attrs,
-    onChange,
-    pos,
+    targetId,
     editorView,
     fileUploadHandler,
-    onClose,
-}: SettingsProps & {
-    pos: number;
-    editorView: EditorView;
+    normalizeUrl,
+}: TargetProps & {
     fileUploadHandler?: FileUploadHandler;
-    onClose: () => void;
+    normalizeUrl: (url: string) => string | null;
 }) {
-    const [url, setUrl] = useState(attrs.image);
-    const {pick, uploading} = useImageUpload(editorView, pos, fileUploadHandler);
-    useEffect(() => setUrl(attrs.image), [attrs.image]);
-    const valid = Boolean(toCssUrl(url));
-    const apply = () => {
-        if (!valid || uploading) return;
-        onChange({image: url.trim(), bg: HeaderBackground.Image});
-        onClose();
+    const target = resolveHeaderTarget(editorView.state, targetId)!;
+    const attrs = target.node.attrs as HeaderAttrs;
+    const {pick, uploading} = useImageUpload(editorView, target.pos, fileUploadHandler);
+    const update = (patch: Partial<HeaderAttrs>) => {
+        const current = resolveHeaderTarget(editorView.state, targetId);
+        if (current) applyHeaderCommand(editorView, setHeaderAttrs(current.pos, patch));
     };
-
+    const normalize = (value: string) => {
+        const url = normalizeUrl(value);
+        return url && toCssUrl(url) ? url : null;
+    };
+    const draft = useUrlDraft(
+        attrs.image,
+        (image) => update({image, bg: image ? HeaderBackground.Image : HeaderBackground.Fill}),
+        normalize,
+        uploading,
+    );
+    const imageUrl = normalize(draft.value) || undefined;
     return (
-        <div className={b('settings')}>
-            <TextInputFixed
+        <div className={b('image')}>
+            <UrlInput
+                value={draft.value}
+                onUpdate={draft.onUpdate}
+                onSubmit={draft.onSubmit}
                 autoFocus
-                controlProps={{'aria-label': i18n('image.url')}}
-                placeholder="https://"
-                value={url}
-                onUpdate={setUrl}
-                onKeyDown={(event) => {
-                    if (event.key === 'Enter') {
-                        event.preventDefault();
-                        apply();
-                    }
-                }}
+                disabled={uploading}
+                aria-label={i18n('image.url')}
+                placeholder={i18n('image.url')}
+                actions={
+                    pick || attrs.image || imageUrl ? (
+                        <>
+                            {pick && (
+                                <UrlAction
+                                    title={i18n('image.upload')}
+                                    icon={ArrowUpFromSquare}
+                                    loading={uploading}
+                                    onClick={() => {
+                                        draft.reset();
+                                        pick();
+                                    }}
+                                />
+                            )}
+                            {attrs.image && (
+                                <UrlAction
+                                    title={i18n('image.reset')}
+                                    icon={LinkSlash}
+                                    disabled={uploading}
+                                    onClick={() => {
+                                        draft.reset();
+                                        update({image: '', bg: HeaderBackground.Fill});
+                                        draft.onSubmit();
+                                    }}
+                                />
+                            )}
+                            {imageUrl && (
+                                <UrlAction
+                                    title={i18n('image.open')}
+                                    icon={ArrowUpRightFromSquare}
+                                    href={imageUrl}
+                                    onClick={draft.onSubmit}
+                                />
+                            )}
+                        </>
+                    ) : undefined
+                }
             />
-            <div className={b('buttons')}>
-                {pick && (
-                    <Button loading={uploading} onClick={pick}>
-                        {i18n('image.upload')}
-                    </Button>
-                )}
-                <Button view="action" disabled={!valid || uploading} onClick={apply}>
-                    {i18n('apply')}
-                </Button>
-            </div>
             {attrs.bg === HeaderBackground.Image && (
-                <>
-                    <Choice
-                        label={i18n('layout')}
-                        value={attrs.layout}
-                        onChange={(layout) => onChange({layout})}
-                        options={[
-                            {value: HeaderLayout.Cover, content: i18n('layout.cover')},
-                            {value: HeaderLayout.Split, content: i18n('layout.split')},
-                        ]}
-                    />
-                    <Button
-                        view="flat-danger"
-                        disabled={uploading}
-                        onClick={() => {
-                            onChange({image: '', bg: HeaderBackground.Fill});
-                            onClose();
-                        }}
-                    >
-                        {i18n('image.reset')}
-                    </Button>
-                </>
+                <LayoutSettings value={attrs.layout} onChange={(layout) => update({layout})} />
             )}
         </div>
     );
 }
 
 export function ActionsSettings({
-    actions,
-    selectedIndex,
-    onSelect,
     editorView,
-    onClose,
+    normalizeUrl,
 }: {
-    actions: FoundHeader[];
-    selectedIndex: number;
-    onSelect: (index: number) => void;
     editorView: EditorView;
-    onClose: () => void;
+    normalizeUrl: (url: string) => string | null;
 }) {
-    const action = actions[selectedIndex] ?? actions[0];
+    const targets = getHeaderTargets(editorView.state);
+    const [focusedId] = useState(() => {
+        const selected = findHeaderAction(editorView.state);
+        return (
+            targets?.actions.find((target) => target.pos === selected?.pos)?.id ??
+            targets?.actions[0]?.id
+        );
+    });
     return (
-        <div className={b('settings')}>
-            <Select
-                disablePortal
-                aria-label={i18n('cta.target')}
-                value={[String(action.pos)]}
-                options={actions.map(({node, pos}, index) => ({
-                    value: String(pos),
-                    content: `${index + 1}. ${node.textContent || i18n(node.attrs.type === 'link' ? 'cta.type_link' : 'cta.type_button')}`,
-                }))}
-                onUpdate={([pos]) =>
-                    onSelect(actions.findIndex((item) => String(item.pos) === pos))
-                }
-            />
-            <ActionSettings
-                key={action.pos}
-                action={action}
-                editorView={editorView}
-                onClose={onClose}
-            />
+        <div className={b('actions')}>
+            {targets?.actions.map((target) => (
+                <ActionSettings
+                    key={target.id}
+                    targetId={target.id}
+                    editorView={editorView}
+                    normalizeUrl={normalizeUrl}
+                    autoFocus={target.id === focusedId}
+                />
+            ))}
         </div>
     );
 }
 
 function ActionSettings({
-    action,
+    targetId,
     editorView,
-    onClose,
-}: {
-    action: FoundHeader;
-    editorView: EditorView;
-    onClose: () => void;
+    normalizeUrl,
+    autoFocus,
+}: TargetProps & {
+    normalizeUrl: (url: string) => string | null;
+    autoFocus: boolean;
 }) {
-    const [href, setHref] = useState(action.node.attrs.href as string);
-    const [type, setType] = useState(action.node.attrs.type as 'button' | 'link');
-    const hrefId = useId();
-    const apply = () => {
-        setHeaderActionAttrs(action.pos, {href: href.trim(), type})(
-            editorView.state,
-            editorView.dispatch,
-        );
-        onClose();
+    const target = resolveHeaderTarget(editorView.state, targetId)!;
+    const {href, type} = target.node.attrs;
+    const title =
+        target.node.textContent || i18n(type === 'link' ? 'cta.type_link' : 'cta.type_button');
+    const update = (patch: {href?: string; type?: 'button' | 'link'}) => {
+        const current = resolveHeaderTarget(editorView.state, targetId);
+        if (current) applyHeaderCommand(editorView, setHeaderActionAttrs(current.pos, patch));
     };
-
+    const draft = useUrlDraft(href, (url) => update({href: url}), normalizeUrl);
+    const discardAndSubmit = () => {
+        draft.reset();
+        if (draft.onSubmit()) return true;
+        draft.onUpdate(draft.value);
+        return false;
+    };
+    const url = normalizeUrl(draft.value) || undefined;
     return (
-        <>
-            <label htmlFor={hrefId}>{i18n('cta.href')}</label>
-            <TextInputFixed
-                id={hrefId}
-                autoFocus
-                placeholder="https://"
-                value={href}
-                onUpdate={setHref}
-                onKeyDown={(event) => {
-                    if (event.key === 'Enter') {
-                        event.preventDefault();
-                        apply();
-                    }
-                }}
-            />
-            <Choice
-                label={i18n('cta.type')}
-                value={type}
-                onChange={setType}
-                options={[
-                    {value: 'button', content: i18n('cta.type_button')},
-                    {value: 'link', content: i18n('cta.type_link')},
-                ]}
-            />
-            <div className={b('buttons')}>
-                <Button
-                    view="flat-danger"
+        <div className={b('action')} role="group" aria-label={title}>
+            <div className={b('action-heading')}>
+                <span className={b('action-title')} title={title}>
+                    {title}
+                </span>
+                <div role="group" aria-label={i18n('cta.type')} className={b('action-kind')}>
+                    {(['button', 'link'] as const).map((kind) => (
+                        <Button
+                            key={kind}
+                            view="flat"
+                            size="m"
+                            selected={type === kind}
+                            aria-pressed={type === kind}
+                            onClick={() => update({type: kind})}
+                        >
+                            {i18n(kind === 'link' ? 'cta.type_link' : 'cta.type_button')}
+                        </Button>
+                    ))}
+                </div>
+                <UrlAction
+                    title={i18n('cta.remove')}
+                    icon={TrashBin}
                     onClick={() => {
-                        removeHeaderActionAt(action.pos)(editorView.state, editorView.dispatch);
-                        onClose();
+                        const current = resolveHeaderTarget(editorView.state, targetId);
+                        if (!discardAndSubmit()) return;
+                        if (current)
+                            applyHeaderCommand(editorView, removeHeaderActionAt(current.pos));
+                        editorView.focus();
                     }}
-                >
-                    {i18n('cta.remove')}
-                </Button>
-                <Button view="action" onClick={apply}>
-                    {i18n('apply')}
-                </Button>
+                />
             </div>
-        </>
+            <UrlInput
+                value={draft.value}
+                onUpdate={draft.onUpdate}
+                onSubmit={draft.onSubmit}
+                autoFocus={autoFocus}
+                aria-label={i18n('cta.href')}
+                placeholder={formsI18n('link-href-placeholder')}
+                actions={
+                    url ? (
+                        <>
+                            <UrlAction
+                                title={formsI18n('link_remove_help')}
+                                icon={LinkSlash}
+                                onClick={() => {
+                                    if (discardAndSubmit()) update({href: ''});
+                                }}
+                            />
+                            <UrlAction
+                                title={formsI18n('link_open_help')}
+                                icon={ArrowUpRightFromSquare}
+                                href={url}
+                                onClick={draft.onSubmit}
+                            />
+                        </>
+                    ) : undefined
+                }
+            />
+        </div>
     );
 }
