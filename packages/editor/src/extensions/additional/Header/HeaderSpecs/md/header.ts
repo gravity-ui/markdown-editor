@@ -28,11 +28,7 @@ function openHeader(state: StateBlock, params: Parameters<ContainerDirectiveHand
     }
 }
 
-/**
- * Текст слота едет в `content` одного токена, а не в `inline`: `inline` ядро markdown-it
- * разбирает как markdown, а в этом блоке форматирования нет — `**жирный**` должен остаться
- * такими же семью символами, какими его написали в yaml.
- */
+/** A custom token preserves literal text without Markdown inline parsing. */
 function pushText(state: StateBlock, type: string, tag: string, content: string): Token {
     const token = state.push(type, tag, 0);
     token.block = true;
@@ -72,7 +68,7 @@ const headerHandler: ContainerDirectiveHandler = (state, params) => {
     return true;
 };
 
-/** Слоты — не inline-токены, поэтому их текст надо отрисовать самому, иначе в html пустые теги. */
+/** Custom text tokens need an explicit HTML renderer. */
 function renderTextToken(this: void, tokens: Token[], idx: number, md: MarkdownIt): string {
     const token = tokens[idx];
     const attrs = (token.attrs ?? [])
@@ -81,10 +77,7 @@ function renderTextToken(this: void, tokens: Token[], idx: number, md: MarkdownI
     return `<${token.tag}${attrs}>${md.utils.escapeHtml(token.content)}</${token.tag}>`;
 }
 
-/**
- * Header существует только в директивном синтаксисе, поэтому плагин не гейтится опцией
- * `directiveSyntax` — иначе при дефолтном `'disabled'` блок бы молча не парсился.
- */
+/** Header directives are enabled independently of the directiveSyntax option. */
 export const headerDirective: MarkdownIt.PluginSimple = (md) => {
     md.use(directiveParser());
 

@@ -3,10 +3,7 @@ import type {ParserToken} from '#core';
 import {normalizeHeaderActionAttrs, normalizeHeaderAttrs} from './attrs';
 import {HeaderActionAttr, HeaderAttr, HeaderNode, type HeaderNodeName} from './const';
 
-/**
- * `noCloseToken` у текстовых слотов: их содержимое лежит в `content` одного токена и попадает
- * в документ как есть, без разбора markdown.
- */
+/** noCloseToken reads literal text from each slot's token content. */
 export const parserTokens: Record<HeaderNodeName, ParserToken> = {
     [HeaderNode.Header]: {
         name: HeaderNode.Header,

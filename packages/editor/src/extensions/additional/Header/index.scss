@@ -6,9 +6,7 @@
     --g-md-header-fill: var(--g-color-private-blue-200-solid);
     --g-md-header-text: var(--g-color-text-primary);
     --g-md-header-text-secondary: var(--g-color-text-secondary);
-    // Линии выводятся из цвета текста, а не из `--g-color-line-*`: текст уже знает и тему,
-    // и то, что заливка может быть ей противоположна, — значит одного правила хватает на все
-    // сочетания «тема × заливка × ручной `text`».
+    // Derive borders from text so they follow theme and contrast overrides.
     --g-md-header-line: color-mix(in sRGB, var(--g-md-header-text) 20%, transparent);
     --g-md-header-min-height: 240px;
     --g-md-header-padding: var(--g-spacing-8) var(--g-spacing-10);
@@ -24,7 +22,6 @@
 
     box-sizing: border-box;
     min-height: var(--g-md-header-min-height);
-    // Тот же вертикальный ритм, что у остальных блоков yfm, иначе обложка липнет к соседям
     margin-block: var(--yfm-text-block-margin-block, 0 15px);
     padding: var(--g-md-header-padding);
 
@@ -43,7 +40,7 @@
         }
     }
 
-    // Выбор автора поверх фотографии от темы не зависит: светлость картинки её не слушает
+    // Explicit text colors stay fixed across themes for image backgrounds.
     &[data-text='light'] {
         --g-md-header-text: var(--g-color-text-light-primary);
         --g-md-header-text-secondary: var(--g-color-text-light-secondary);
@@ -80,10 +77,7 @@
         border-style: dotted;
     }
 
-    // Картинка кроется на всю ширину блока, а не вписывается по высоте с прижатием вправо:
-    // при вписывании её левый край встаёт там, где придётся по пропорциям файла, и маска до
-    // него не достаёт — остаётся вертикальный стык. Заливка под картинкой держит фон, пока та
-    // грузится; иллюстрациям, которым широкий кроп не идёт, есть `split`.
+    // Cover the block so the image's edge always falls within the fade mask.
     &[data-bg='image']::before {
         position: absolute;
         z-index: 1;
@@ -96,8 +90,7 @@
         background-repeat: no-repeat;
         background-position: right center;
         background-size: cover;
-        // Растушёвка привязана к ширине текстовой колонки, а не к процентам блока: так картинка
-        // не заезжает под текст ни на широком экране, ни на узком.
+        // Keep the image outside the text column.
         mask-image: linear-gradient(
             90deg,
             transparent 0 var(--g-md-header-content-width),
@@ -123,7 +116,6 @@
         }
     }
 
-    // Вертикальные и квадратные иллюстрации фоном обрезаются, поэтому им отдельная колонка
     &[data-bg='image'][data-layout='split'] {
         display: grid;
         align-items: center;
@@ -190,15 +182,12 @@
     align-items: center;
     gap: var(--g-spacing-3);
 
-    // Пустой контейнер не должен занимать место и ловить клики мимо кнопок
     &:empty {
         display: none;
     }
 }
 
-// Селектор с родителем: у якорей в редакторе есть свой цвет и подчёркивание, и одного класса
-// не хватает, чтобы их перебить — кнопка рендерилась просто ссылкой.
-// Геометрия повторяет uikit-кнопку, чтобы обложка не выбивалась из дизайн-системы.
+// Match the specificity of the editor's link styles.
 
 .g-md-header .g-md-header-action {
     display: inline-flex;

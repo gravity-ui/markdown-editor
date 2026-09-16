@@ -3,13 +3,17 @@ import {EditorState, TextSelection} from 'prosemirror-state';
 import {builders} from 'prosemirror-test-builder';
 import {EditorView} from 'prosemirror-view';
 
-import {HeaderBackground, HeaderFormat, getSchemaSpecs} from './HeaderSpecs';
+import {HeaderActionType, HeaderBackground, HeaderFormat, getSchemaSpecs} from './HeaderSpecs';
 import {
     addHeaderAction,
     exitHeaderForward,
     nextHeaderSlot,
+    previousHeaderSlot,
     removeEmptyAction,
     removeHeaderAction,
+    removeHeaderActionAt,
+    setHeaderActionAttrs,
+    setHeaderActionType,
     setHeaderAttrs,
     toHeader,
     unwrapHeader,
@@ -144,6 +148,85 @@ describe('Header commands', () => {
             const view = editorAt(filled(), 2);
             expect(removeHeaderAction(0, 5)(view.state, view.dispatch)).toBe(false);
         });
+
+        it('should edit the captured action after the cursor moves to another action', () => {
+            const pmDoc = doc(
+                header(
+                    title('Title'),
+                    description(),
+                    actions(
+                        action({href: '/first'}, '<first>First'),
+                        action({href: '/second'}, '<second>Second'),
+                    ),
+                ),
+            );
+            const view = editorAt(pmDoc, pmDoc.tag.second);
+
+            expect(
+                setHeaderActionAttrs(pmDoc.tag.first - 1, {
+                    href: '/updated',
+                    type: HeaderActionType.Link,
+                })(view.state, view.dispatch),
+            ).toBe(true);
+
+            expect(view.state.doc.firstChild?.child(2)).toMatchNode(
+                actions(
+                    action({href: '/updated', type: HeaderActionType.Link}, 'First'),
+                    action({href: '/second'}, 'Second'),
+                ),
+            );
+        });
+
+        it('should preserve the URL when changing the selected action type', () => {
+            const pmDoc = doc(
+                header(title(), description(), actions(action({href: '/start'}, '<cursor>Go'))),
+            );
+            const view = editorAt(pmDoc, pmDoc.tag.cursor);
+
+            expect(setHeaderActionType(HeaderActionType.Link)(view.state, view.dispatch)).toBe(
+                true,
+            );
+            expect(view.state.doc.firstChild?.child(2).firstChild?.attrs).toMatchObject({
+                href: '/start',
+                type: HeaderActionType.Link,
+            });
+        });
+
+        it('should ignore an unchanged URL and an invalid action position', () => {
+            const pmDoc = doc(
+                header(title(), description(), actions(action({href: '/start'}, '<cursor>Go'))),
+            );
+            const view = editorAt(pmDoc, pmDoc.tag.cursor);
+            const dispatch = jest.fn();
+
+            expect(
+                setHeaderActionAttrs(pmDoc.tag.cursor - 1, {href: '/start'})(view.state, dispatch),
+            ).toBe(false);
+            expect(setHeaderActionAttrs(999, {href: '/new'})(view.state, dispatch)).toBe(false);
+            expect(setHeaderActionAttrs(0, {href: '/new'})(view.state, dispatch)).toBe(false);
+            expect(dispatch).not.toHaveBeenCalled();
+        });
+
+        it('should remove only the captured action and keep the other link', () => {
+            const pmDoc = doc(
+                header(
+                    title(),
+                    description('Description'),
+                    actions(
+                        action({href: '/first'}, '<first>First'),
+                        action({href: '/second'}, '<second>Second'),
+                    ),
+                ),
+            );
+            const view = editorAt(pmDoc, pmDoc.tag.second);
+
+            expect(removeHeaderActionAt(pmDoc.tag.first - 1)(view.state, view.dispatch)).toBe(true);
+            expect(view.state.doc.firstChild?.child(2)).toMatchNode(
+                actions(action({href: '/second'}, 'Second')),
+            );
+            expect(view.state.selection.$from.parent.textContent).toBe('Description');
+            expect(removeHeaderActionAt(999)(view.state, view.dispatch)).toBe(false);
+        });
     });
 
     describe('keyboard boundaries', () => {
@@ -166,6 +249,51 @@ describe('Header commands', () => {
             expect(nextHeaderSlot(view.state, view.dispatch, view)).toBe(false);
         });
 
+        it('nextHeaderSlot: visits both actions before leaving the header', () => {
+            const pmDoc = doc(
+                header(
+                    title('<cursor>Title'),
+                    description('Description'),
+                    actions(action('First'), action('Second')),
+                ),
+                p('After'),
+            );
+            const view = editorAt(pmDoc, pmDoc.tag.cursor);
+
+            for (const text of ['Description', 'First', 'Second', 'After']) {
+                expect(nextHeaderSlot(view.state, view.dispatch)).toBe(true);
+                expect(view.state.selection.$from.parent.textContent).toBe(text);
+            }
+            expect(view.state.doc).toMatchNode(pmDoc);
+        });
+
+        it('previousHeaderSlot: visits both actions, description and title in reverse', () => {
+            const pmDoc = doc(
+                header(
+                    title('Title'),
+                    description('Description'),
+                    actions(action('First'), action('<cursor>Second')),
+                ),
+            );
+            const view = editorAt(pmDoc, pmDoc.tag.cursor);
+
+            for (const text of ['First', 'Description', 'Title']) {
+                expect(previousHeaderSlot(view.state, view.dispatch)).toBe(true);
+                expect(view.state.selection.$from.parent.textContent).toBe(text);
+            }
+            expect(previousHeaderSlot(view.state, view.dispatch)).toBe(false);
+            expect(view.state.doc).toMatchNode(pmDoc);
+        });
+
+        it('nextHeaderSlot: exits after the description when there are no actions', () => {
+            const pmDoc = doc(header(title('Title'), description('<cursor>Text'), actions()));
+            const view = editorAt(pmDoc, pmDoc.tag.cursor);
+
+            expect(nextHeaderSlot(view.state, view.dispatch)).toBe(true);
+            expect(view.state.selection.$from.parent).toMatchNode(p());
+            expect(view.state.doc.firstChild).toMatchNode(pmDoc.child(0));
+        });
+
         it('exitHeaderForward: reuses the paragraph that already follows', () => {
             const view = editorAt(filled(), 2);
             expect(exitHeaderForward(view.state, view.dispatch, view)).toBe(true);
@@ -179,11 +307,51 @@ describe('Header commands', () => {
             expect(view.state.doc.childCount).toBe(2);
         });
 
-        it('unwrapHeader: turns the block back into paragraphs, keeping the text', () => {
-            const view = editorAt(filled(), 2);
+        it('unwrapHeader: replaces an empty header with a paragraph', () => {
+            const view = editorAt(doc(header(title(), description(), actions())), 2);
             expect(unwrapHeader(view.state, view.dispatch, view)).toBe(true);
-            expect(view.state.doc.child(0)).toMatchNode(p('Title'));
-            expect(view.state.doc.child(1)).toMatchNode(p('Description'));
+            expect(view.state.doc).toMatchNode(doc(p()));
+            expect(view.state.selection.from).toBe(1);
+        });
+
+        it('unwrapHeader: preserves filled content, action URLs and styling', () => {
+            const pmDoc = doc(
+                header(
+                    {fill: 'green'},
+                    title('Title'),
+                    description('Description'),
+                    actions(action({href: '/start'}, 'Go')),
+                ),
+            );
+            const view = editorAt(pmDoc, 2);
+            const dispatch = jest.fn();
+
+            expect(unwrapHeader(view.state, dispatch)).toBe(true);
+            expect(dispatch).not.toHaveBeenCalled();
+            expect(view.state.doc).toMatchNode(pmDoc);
+        });
+
+        it('unwrapHeader: preserves an image-only header', () => {
+            const pmDoc = doc(
+                header(
+                    {bg: HeaderBackground.Image, image: '/cover.png'},
+                    title(),
+                    description(),
+                    actions(),
+                ),
+            );
+            const view = editorAt(pmDoc, 2);
+
+            expect(unwrapHeader(view.state, view.dispatch)).toBe(true);
+            expect(view.state.doc).toMatchNode(pmDoc);
+        });
+
+        it('unwrapHeader: preserves an action with a URL and no label', () => {
+            const pmDoc = doc(header(title(), description(), actions(action({href: '/start'}))));
+            const view = editorAt(pmDoc, 2);
+
+            expect(unwrapHeader(view.state, view.dispatch)).toBe(true);
+            expect(view.state.doc).toMatchNode(pmDoc);
         });
 
         it('unwrapHeader: only fires at the very start of the title', () => {
@@ -192,17 +360,17 @@ describe('Header commands', () => {
         });
 
         it('removeEmptyAction: deletes an empty button instead of merging it', () => {
-            const pmDoc = doc(header(title('T'), description('S'), actions(action())));
-            const actionPos = pmDoc.resolve(1).node().child(2).nodeSize;
-            const view = editorAt(pmDoc, pmDoc.content.size - 3);
+            const pmDoc = doc(header(title('T'), description('S'), actions(action('<cursor>'))));
+            const view = editorAt(pmDoc, pmDoc.tag.cursor);
             expect(view.state.selection.$from.parent.type.name).toBe('header_block_action');
             expect(removeEmptyAction(view.state, view.dispatch, view)).toBe(true);
             expect(view.state.doc.firstChild?.child(2).childCount).toBe(0);
-            expect(actionPos).toBeGreaterThan(0);
+            expect(view.state.selection.$from.parent).toMatchNode(description('S'));
         });
 
         it('removeEmptyAction: leaves a non-empty button alone', () => {
-            const view = editorAt(filled(), 12);
+            const pmDoc = doc(header(title(), description(), actions(action('<cursor>Keep me'))));
+            const view = editorAt(pmDoc, pmDoc.tag.cursor);
             expect(removeEmptyAction(view.state, view.dispatch, view)).toBe(false);
         });
     });

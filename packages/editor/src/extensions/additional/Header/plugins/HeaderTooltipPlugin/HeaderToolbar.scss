@@ -1,9 +1,31 @@
 .g-md-header-toolbar {
-    &__palette {
-        padding: 4px;
+    padding: 2px;
 
-        border-radius: var(--g-border-radius-l);
-        background: var(--g-color-base-float);
-        box-shadow: 0 8px 20px var(--g-color-sfx-shadow);
+    &__palette {
+        padding: var(--g-spacing-2);
+    }
+
+    &__settings {
+        display: flex;
+        flex-direction: column;
+        gap: var(--g-spacing-3);
+
+        box-sizing: border-box;
+        width: 280px;
+        max-width: calc(100vw - 24px);
+        padding: var(--g-spacing-3);
+    }
+
+    &__field {
+        display: grid;
+        align-items: center;
+        grid-template-columns: 90px minmax(0, 1fr);
+        gap: var(--g-spacing-2);
+    }
+
+    &__buttons {
+        display: flex;
+        justify-content: space-between;
+        gap: var(--g-spacing-2);
     }
 }

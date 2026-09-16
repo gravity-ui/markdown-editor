@@ -8,12 +8,14 @@ import {HeaderSpecs} from './HeaderSpecs';
 import {
     exitHeaderForward,
     nextHeaderSlot,
+    previousHeaderSlot,
     removeEmptyAction,
     toHeader,
     unwrapHeader,
 } from './commands';
 import {headerTooltipPlugin} from './plugins/HeaderTooltipPlugin';
 import {headerActivePlugin} from './plugins/active';
+import {headerImageUploadPlugin} from './plugins/imageUpload';
 
 import './index.scss';
 
@@ -23,10 +25,7 @@ export * from './commands';
 const headerAction = 'toHeader';
 
 export type HeaderOptions = {
-    /**
-     * Загрузчик картинки фона. Без него в тулбаре нет пункта загрузки, но ссылку в атрибуте
-     * `image` по-прежнему можно задать из markdown.
-     */
+    /** Uploads background images; URLs can also be entered directly. */
     fileUploadHandler?: FileUploadHandler;
     headerKey?: string | null;
 };
@@ -35,18 +34,19 @@ export const Header: ExtensionAuto<HeaderOptions> = (builder, opts = {}) => {
     builder.use(HeaderSpecs);
 
     builder
-        .addPlugin((deps) => headerTooltipPlugin(deps, {fileUploadHandler: opts.fileUploadHandler}))
+        .addPlugin(headerImageUploadPlugin)
+        .addPlugin(() => headerTooltipPlugin({fileUploadHandler: opts.fileUploadHandler}))
         .addPlugin(headerActivePlugin)
         .addAction(headerAction, () => ({
             isEnable: toHeader,
             isActive: () => false,
             run: toHeader,
         }))
-        // Высокий приоритет: Tab и Backspace иначе перехватывают списки, а Enter — базовый keymap
         .addKeymap(
             () => ({
                 Enter: nextHeaderSlot,
                 Tab: nextHeaderSlot,
+                'Shift-Tab': previousHeaderSlot,
                 Backspace: chainCommands(removeEmptyAction, unwrapHeader),
                 'Mod-Enter': exitHeaderForward,
             }),

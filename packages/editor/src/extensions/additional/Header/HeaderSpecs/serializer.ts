@@ -11,11 +11,7 @@ function collectActions(actions: Node): HeaderActionData[] {
     return result;
 }
 
-/**
- * Директива собирается целиком в токене корня: тело — это один yaml-документ, и разложить его
- * по сериализаторам детей нельзя, не заставив каждого ребёнка знать про соседей. Дети остаются
- * в реестре, но вызываются только при отдельном рендере поддерева.
- */
+/** The root serializes the YAML body; child serializers handle standalone subtrees. */
 export const serializerTokens: Record<HeaderNodeName, SerializerNodeToken> = {
     [HeaderNode.Header]: (state, node) => {
         const [title, description, actions] = [node.child(0), node.child(1), node.child(2)];
@@ -28,8 +24,7 @@ export const serializerTokens: Record<HeaderNodeName, SerializerNodeToken> = {
 
         state.write(`:::${headerDirectiveName}${serializeHeaderAttrs(node.attrs)}`);
         state.ensureNewLine();
-        // `text`, а не `write`: тело многострочное, и только `text` раскладывает его по строкам
-        // с отбивкой блока — иначе внутри цитаты у строк yaml пропадёт `> `.
+        // text() preserves blockquote prefixes on every YAML line.
         if (body) {
             state.text(body.trimEnd(), false);
             state.ensureNewLine();

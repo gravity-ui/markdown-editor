@@ -38,15 +38,6 @@ export const FillPalette: React.FC<FillPaletteProps> = function HeaderFillPalett
                             aria-label={label}
                             aria-pressed={isSelected}
                             onClick={() => onSelect(swatch.value)}
-                            // Родительский Menu.Item слушает Enter/Space и переоткрывает свой
-                            // попап, перехватывая нативную активацию кнопки.
-                            onKeyDown={(e) => {
-                                if (e.key === 'Enter' || e.key === ' ') {
-                                    e.preventDefault();
-                                    e.stopPropagation();
-                                    onSelect(swatch.value);
-                                }
-                            }}
                         >
                             <span className={b('swatch', {color: swatch.value})}>
                                 {isSelected && (

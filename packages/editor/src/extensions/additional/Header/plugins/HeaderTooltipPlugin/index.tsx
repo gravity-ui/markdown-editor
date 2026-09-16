@@ -1,4 +1,3 @@
-import type {ExtensionDeps} from '#core';
 import {Plugin} from '#pm/state';
 import {BaseTooltipPluginView} from 'src/plugins/BaseTooltip';
 import type {FileUploadHandler} from 'src/utils/upload';
@@ -7,19 +6,22 @@ import {headerType} from '../../HeaderSpecs';
 
 import {HeaderToolbar} from './HeaderToolbar';
 
-export type HeaderTooltipOptions = {
-    fileUploadHandler?: FileUploadHandler;
-};
+export type HeaderTooltipOptions = {fileUploadHandler?: FileUploadHandler};
 
-export const headerTooltipPlugin = (_deps: ExtensionDeps, opts: HeaderTooltipOptions = {}) =>
+class HeaderTooltipView extends BaseTooltipPluginView {
+    protected updateTooltipView() {
+        this.setCurrentNode(headerType(this.view.state.schema));
+        this.render();
+    }
+}
+
+export const headerTooltipPlugin = (opts: HeaderTooltipOptions = {}) =>
     new Plugin({
         view(view) {
-            return new BaseTooltipPluginView(view, {
+            return new HeaderTooltipView(view, {
                 idPrefix: 'header-tooltip',
                 nodeType: headerType(view.state.schema),
-                // Обложка обычно первый блок документа, поэтому сверху панель ложится
-                // прямо на липкий тулбар редактора — показываем её под блоком.
-                popupPlacement: ['bottom-start', 'top-start'],
+                popupPlacement: ['bottom', 'top'],
                 content: (editorView, {node, pos}) => (
                     <HeaderToolbar
                         node={node}

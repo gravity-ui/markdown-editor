@@ -20,10 +20,7 @@ function attrsSpec<T extends Record<string, unknown>>(defaults: T): NodeSpec['at
     );
 }
 
-/**
- * Плейсхолдер резолвится лениво и функцией: словарь приходит из `BehaviorPreset`, который может
- * подключиться позже Header, а строка не пережила бы смену языка.
- */
+/** Resolve placeholders lazily to support later configuration and locale changes. */
 function placeholderFor(
     node: HeaderNodeName,
     fallback: () => string,
@@ -44,8 +41,7 @@ export const getSchemaSpecs = (
 ): Record<HeaderNodeName, NodeSpec> => ({
     [HeaderNode.Header]: {
         attrs: attrsSpec(HeaderDefaults),
-        // Жёсткая структура вместо опциональных детей: «непарных» состояний не существует,
-        // поэтому и репарирующий appendTransaction не нужен. Пустота — это пустой контент слота.
+        // Slots always exist; their content may be empty.
         content: `${HeaderNode.Title} ${HeaderNode.Description} ${HeaderNode.Actions}`,
         group: 'block',
         parseDOM: [
@@ -76,9 +72,7 @@ export const getSchemaSpecs = (
         complex: 'root',
     },
 
-    // `text*` и пустые `marks`: внутри блока форматирования нет вовсе — ни жирного, ни ссылки,
-    // ни картинки. Пустая строка, а не перечень разрешённых марок: в минимальных пресетах марок
-    // с такими именами может не быть, и схема упала бы на «Unknown mark type».
+    // Empty marks disable formatting without depending on marks from a preset.
     [HeaderNode.Title]: {
         content: 'text*',
         marks: '',
@@ -114,7 +108,6 @@ export const getSchemaSpecs = (
     },
 
     [HeaderNode.Actions]: {
-        // `*`, а не `+`: hero без кнопок — штатное состояние, и схема не должна требовать заглушку
         content: `${HeaderNode.Action}*`,
         parseDOM: [{tag: `div.${HeaderClassName.Actions}`}],
         toDOM() {

@@ -1,65 +1,51 @@
-import {useCallback, useEffect, useRef, useState} from 'react';
+import {useCallback} from 'react';
 
 import {useToaster} from '@gravity-ui/uikit';
 
+import type {EditorView} from '#pm/view';
 import {i18n} from 'src/i18n/header';
 import type {FileUploadHandler} from 'src/utils/upload';
 
-export type ImageUpload = {
-    /** Открывает файловый диалог; `undefined`, если хост не дал загрузчик. */
-    pick?: () => void;
-    uploading: boolean;
-};
+import {isHeaderImageUploading, uploadHeaderImage} from '../imageUpload';
 
-/**
- * Файловый диалог и загрузка одной картинки. Промис не трогает документ после размонтирования
- * тулбара, а ошибка не остаётся незамеченной — молча исчезающий индикатор загрузки это главный
- * дефект существующей работы с картинками в редакторе.
- */
-export function useImageUpload(
-    handler: FileUploadHandler | undefined,
-    onUploaded: (url: string) => void,
-): ImageUpload {
-    const [uploading, setUploading] = useState(false);
-    const alive = useRef(true);
-    const toaster = useToaster();
-
-    useEffect(() => {
-        alive.current = true;
-        return () => {
-            alive.current = false;
-        };
-    }, []);
-
-    const pick = useCallback(() => {
-        if (!handler) return;
-
+function pickImageFile(): Promise<File | undefined> {
+    return new Promise((resolve, reject) => {
         const input = document.createElement('input');
         input.type = 'file';
         input.accept = 'image/*';
-        input.addEventListener('change', () => {
-            const file = input.files?.[0];
-            if (!file) return;
+        input.hidden = true;
 
-            setUploading(true);
-            handler(file)
-                .then(({url}) => {
-                    if (alive.current) onUploaded(url);
-                })
-                .catch((error: unknown) => {
-                    toaster.add({
-                        name: 'header-image-upload-failed',
-                        theme: 'danger',
-                        title: i18n('image.failed'),
-                        content: error instanceof Error ? error.message : undefined,
-                    });
-                })
-                .finally(() => {
-                    if (alive.current) setUploading(false);
-                });
+        const finish = (file?: File) => {
+            input.remove();
+            resolve(file);
+        };
+        input.addEventListener('change', () => finish(input.files?.[0]), {once: true});
+        input.addEventListener('cancel', () => finish(), {once: true});
+        document.body.append(input);
+        try {
+            input.click();
+        } catch (error) {
+            input.remove();
+            reject(error);
+        }
+    });
+}
+
+export function useImageUpload(view: EditorView, pos: number, handler?: FileUploadHandler) {
+    const toaster = useToaster();
+    const pick = useCallback(() => {
+        if (!handler) return;
+
+        uploadHeaderImage(view, pos, handler, pickImageFile).catch((error: unknown) => {
+            if (view.isDestroyed) return;
+            toaster.add({
+                name: 'header-image-upload-failed',
+                theme: 'danger',
+                title: i18n('image.failed'),
+                content: error instanceof Error ? error.message : undefined,
+            });
         });
-        input.click();
-    }, [handler, onUploaded, toaster]);
+    }, [view, pos, handler, toaster]);
 
-    return {pick: handler ? pick : undefined, uploading};
+    return {pick: handler ? pick : undefined, uploading: isHeaderImageUploading(view.state, pos)};
 }

@@ -4,11 +4,6 @@ import {Decoration, DecorationSet} from '#pm/view';
 import {HeaderClassName} from '../HeaderSpecs';
 import {findHeader} from '../commands';
 
-/**
- * Подсветка активного блока — декорация, а не класс, который nodeview ставит руками: иначе
- * состояние разъезжается с undo и коллаборативными транзакциями. Позиция ищется подъёмом от
- * курсора, поэтому документ целиком не обходится.
- */
 export const headerActivePlugin = () =>
     new Plugin({
         props: {

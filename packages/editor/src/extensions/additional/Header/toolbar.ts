@@ -4,11 +4,7 @@ import type {WToolbarSingleItemData} from 'src/bundle/toolbar/types';
 import {i18n} from 'src/i18n/header';
 import {ToolbarDataType} from 'src/toolbar';
 
-/**
- * Айтем для тулбара и меню `/`. Живёт в расширении, а не в общем конфиге ядра: подключает его
- * приложение, поэтому редактор без Header ничего про него не знает. Гейт через `?.` — чтобы
- * один и тот же конфиг работал и когда расширение не подключено.
- */
+/** Optional toolbar and slash-menu item. */
 export const wHeaderItemData: WToolbarSingleItemData = {
     id: 'header',
     type: ToolbarDataType.SingleButton,

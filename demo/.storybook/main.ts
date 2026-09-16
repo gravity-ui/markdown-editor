@@ -18,7 +18,6 @@ const config: StorybookConfig = {
         options: {},
     },
     stories: ['../src/**/*.mdx', '../src/**/*.stories.@(js|jsx|ts|tsx)'],
-    // Те же статические файлы, что раздаёт playwright, — иначе история и снимок расходятся
     staticDirs: ['../tests/visual-tests/public'],
     addons: [
         '@storybook/preset-scss',

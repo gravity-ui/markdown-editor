@@ -12,13 +12,11 @@ import {wHeaderItemData} from '@gravity-ui/markdown-editor/extensions/additional
 import {PlaygroundLayout} from '../../../components/PlaygroundLayout';
 
 const fileUploadHandler: FileUploadHandler = async (file) => {
-    await new Promise((resolve) => setTimeout(resolve, 600));
     return {url: URL.createObjectURL(file)};
 };
 
 export type HeaderDemoProps = {
     markup: string;
-    /** Без обработчика в панели нет пункта загрузки — проверка деградации. */
     uploadEnabled: boolean;
 };
 

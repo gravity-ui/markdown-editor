@@ -17,16 +17,10 @@ export type HeaderContent = {
 
 export const EMPTY_HEADER_CONTENT: HeaderContent = {title: '', description: '', actions: []};
 
-/**
- * `JSON_SCHEMA`, а не дефолтная: она не поднимает `yes`/`on` в булевы и не разбирает даты,
- * так что заголовок `'2020-01-01'` остаётся строкой, какой его написали.
- */
+// Preserve unquoted dates as strings.
 const LOAD_OPTIONS = {schema: JSON_SCHEMA} as const;
 
-/**
- * Кавычки везде и без переносов: значение — произвольный человеческий текст, и без кавычек
- * двоеточие или `#` в заголовке молча меняют структуру документа при следующем чтении.
- */
+// Quote text to preserve YAML punctuation and avoid line wrapping.
 const DUMP_OPTIONS = {
     quotingType: "'",
     forceQuotes: true,
@@ -41,7 +35,7 @@ function asText(raw: unknown): string {
     return '';
 }
 
-/** Единственный конструктор элемента `actions`: порядок ключей в yaml задаётся здесь. */
+/** Keep action keys in a stable order when serializing. */
 export function makeHeaderAction(attrs: Record<string, unknown>, title: string): HeaderActionData {
     const {type, href} = normalizeHeaderActionAttrs(attrs);
     return {type, title, href};
@@ -54,10 +48,7 @@ function asAction(raw: unknown): HeaderActionData | null {
     return makeHeaderAction(source, asText(source.title));
 }
 
-/**
- * Тело директивы приходит из чужого документа, поэтому любая беда в нём — пустой блок, а не
- * исключение: сломанный yaml не должен ронять разбор всей страницы.
- */
+/** Invalid YAML produces an empty header. */
 export function parseHeaderContent(raw: string): HeaderContent {
     let data: unknown;
     try {
@@ -80,7 +71,6 @@ export function parseHeaderContent(raw: string): HeaderContent {
     };
 }
 
-/** Пустые ключи опускаются: `description: ''` в разметке — это шум, а не состояние. */
 export function serializeHeaderContent(content: HeaderContent): string {
     const data: Record<string, unknown> = {};
     if (content.title) data.title = content.title;

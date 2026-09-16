@@ -63,10 +63,7 @@ function asString(raw: unknown): string {
     return typeof raw === 'string' ? raw : '';
 }
 
-/**
- * Единственная точка приведения значений: её зовут и парсер директивы, и `parseDOM`, и команды
- * тулбара. Неизвестное значение схлопывается в дефолт, а не доезжает до CSS.
- */
+/** Normalize attributes from Markdown and pasted HTML. */
 export function normalizeHeaderAttrs(raw: Record<string, unknown> = {}): HeaderAttrs {
     return {
         [HeaderAttr.Format]: asFormat(raw[HeaderAttr.Format]),
@@ -87,7 +84,7 @@ export function normalizeHeaderActionAttrs(raw: Record<string, unknown> = {}): H
     };
 }
 
-/** Порядок ключей фиксирован, дефолты опускаются — иначе round-trip падает от перестановок. */
+/** Stable attribute order for serialization. */
 const SERIALIZED_ATTR_ORDER = [
     HeaderAttr.Format,
     HeaderAttr.Edges,
@@ -114,7 +111,7 @@ export function serializeHeaderAttrs(attrs: Partial<HeaderAttrs>): string {
     for (const key of SERIALIZED_ATTR_ORDER) {
         const value = normalized[key];
         if (value === HeaderDefaults[key]) continue;
-        // layout осмысленен только поверх картинки — иначе он мусор в разметке
+        // Layout applies only to image backgrounds.
         if (key === HeaderAttr.Layout && normalized.bg !== HeaderBackground.Image) continue;
         pairs.push(`${key}=${serializeValue(value)}`);
     }

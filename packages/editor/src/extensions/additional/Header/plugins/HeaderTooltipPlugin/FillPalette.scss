@@ -3,7 +3,7 @@
 
 .g-md-header-fill-palette {
     display: grid;
-    grid-template-columns: repeat(6, auto);
+    grid-template-columns: repeat(4, auto);
 
     &__item {
         display: flex;
@@ -48,8 +48,13 @@
 
         @each $name, $fill in fills.$header-fills {
             &_color_#{$name} {
+                color: var(--g-color-text-primary);
                 border-color: #{map.get($fill, bg)};
                 background-color: #{map.get($fill, bg)};
+
+                @if map.get($fill, surface) == inverted {
+                    color: var(--g-color-text-inverted-primary);
+                }
             }
         }
     }
@@ -62,6 +67,6 @@
         justify-content: center;
         align-items: center;
 
-        color: var(--g-color-text-primary);
+        color: inherit;
     }
 }

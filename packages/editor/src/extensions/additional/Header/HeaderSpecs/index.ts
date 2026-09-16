@@ -10,10 +10,7 @@ export * from './attrs';
 export * from './content';
 export {getSchemaSpecs};
 
-/**
- * Схема, парсер и сериализатор `:::header-block` без React, DOM и Gravity UI: этот слой поднимается
- * в SSR, в markup-режиме и в round-trip тестах. Всё видимое живёт в `Header`.
- */
+/** Schema and Markdown support without the editing UI. */
 export const HeaderSpecs: ExtensionAuto = (builder) => {
     const schemaSpecs = getSchemaSpecs(builder.context.get('placeholder'));
 

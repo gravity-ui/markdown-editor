@@ -17,7 +17,6 @@ export const headerDescriptionType = nodeTypeFactory(HeaderNode.Description);
 export const headerActionsType = nodeTypeFactory(HeaderNode.Actions);
 export const headerActionType = nodeTypeFactory(HeaderNode.Action);
 
-/** Оформление живёт в атрибутах директивы; содержимое — в её теле, в yaml. */
 export const HeaderAttr = {
     Format: 'format',
     Edges: 'edges',
@@ -29,7 +28,6 @@ export const HeaderAttr = {
     Border: 'border',
 } as const;
 
-/** Ключи одного элемента `actions` в yaml-теле. */
 export const HeaderActionAttr = {
     Type: 'type',
     Href: 'href',
@@ -56,11 +54,7 @@ export type HeaderBorderValue = (typeof HeaderBorder)[keyof typeof HeaderBorder]
 export type HeaderTextColorValue = (typeof HeaderTextColor)[keyof typeof HeaderTextColor];
 export type HeaderActionTypeValue = (typeof HeaderActionType)[keyof typeof HeaderActionType];
 
-/**
- * Словарь заливок: один шаг на оттенок, чтобы сво́тчи различались с одного взгляда. Значение —
- * имя, не цвет: документ переживает смену темы без миграции разметки. Ключи совпадают
- * с `$header-fills` в `src/styles/yc-header-fill.scss`.
- */
+/** Keep values in sync with $header-fills in styles/yc-header-fill.scss. */
 export const HEADER_FILL_SWATCHES = [
     {value: 'grey', i18nKey: 'fill.grey'},
     {value: 'blue', i18nKey: 'fill.blue'},
@@ -90,7 +84,6 @@ export const HeaderActionDefaults = {
     [HeaderActionAttr.Href]: '',
 } as const;
 
-/** Больше двух CTA в hero-блоке — визуальный шум; ограничение разделяют схема, команды и тулбар. */
 export const MAX_HEADER_ACTIONS = 2;
 
 export const HeaderClassName = {
