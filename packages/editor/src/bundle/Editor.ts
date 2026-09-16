@@ -23,8 +23,8 @@ import {type Logger2, globalLogger} from '../logger';
 import {createCodemirror} from '../markup';
 import {getAutocompleteConfig} from '../markup/codemirror/autocomplete';
 import {type CodeEditor, Editor as MarkupEditor} from '../markup/editor';
-import {PasteController} from '../paste/controller';
-import type {PasteOperationControl} from '../paste/types';
+import {PasteController} from '../modules/paste/controller';
+import type {PasteOperationControl} from '../modules/paste/types';
 import {type Emitter, type FileUploadHandler, type Receiver, SafeEventEmitter} from '../utils';
 import type {DirectiveSyntaxContext} from '../utils/directive';
 
@@ -73,10 +73,7 @@ export interface EditorInt
     readonly directiveSyntax: DirectiveSyntaxContext;
     readonly mobile: boolean;
 
-    /**
-     * Used for dev tools in the demo.
-     * @internal
-     */
+    /** @internal used in demo for dev-tools */
     readonly _wysiwygView?: PMEditorView;
 
     readonly currentEditor: CommonEditor;
@@ -129,7 +126,7 @@ export type EditorOptions = Pick<
 
 /** @internal */
 export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorInt {
-    readonly #paste: PasteController;
+    #paste: PasteController;
     #logger: Logger2.ILogger;
     #markup: MarkupString;
     #editorMode: EditorMode;
@@ -437,10 +434,6 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
 
     getPendingPasteOperations() {
         return this.#paste.getPendingPasteOperations();
-    }
-
-    getPendingPasteOperation() {
-        return this.#paste.getPendingPasteOperation();
     }
 
     cancelPaste(operationId: string) {

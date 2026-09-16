@@ -12,19 +12,19 @@ import {
 } from '@codemirror/state';
 import {EditorView} from '@codemirror/view';
 
-import type {Parser} from '../core/types/parser';
-
-import {PasteCodeMirrorHistory} from './codemirror-history';
-import type {PasteController} from './controller';
-import {pasteHistoryBoundary} from './history';
+import type {Parser} from '../../../core/types/parser';
 import {
     ResourceCollection,
     encodeResourceUrl,
-    prepareMarkupResources,
     validateResourceUrl,
-} from './resources';
-import {resourceKey} from './tracking';
-import type {ResourceOccurrence, ResourceTarget} from './tracking';
+} from '../../../extensions/behavior/Clipboard/resources/resources';
+import type {PasteController} from '../../../modules/paste/controller';
+import {resourceKey} from '../../../modules/paste/tracking';
+import type {ResourceOccurrence, ResourceTarget} from '../../../modules/paste/tracking';
+
+import {PasteCodeMirrorHistory} from './history';
+import {pasteHistoryBoundary} from './history-boundary';
+import {prepareMarkupResources} from './resources';
 
 type Anchor = {id: string; from: number; to: number; labelTo?: number};
 const resolved = Annotation.define<boolean>();

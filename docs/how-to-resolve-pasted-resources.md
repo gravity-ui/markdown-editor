@@ -51,7 +51,7 @@ for (const operation of editor.getPendingPasteOperations()) {
 }
 ```
 
-`getPendingPasteOperation()` is deprecated and returns only the oldest pending operation. Cancellation aborts that operation's signal; it does not cancel other pastes. Late responses are ignored. Destroying the editor cancels all pending operations. Cancelling client work does not guarantee server rollback.
+Cancelling an operation aborts its signal; it does not cancel other pastes. Late responses are ignored. Destroying the editor cancels all pending operations. Cancelling client work does not guarantee server rollback.
 
 The default timeout is 120 seconds. Set a finite positive `timeoutMs`. Applications can choose their own save/navigation policy using the lifecycle events; the editor imposes no pending-operation lock.
 

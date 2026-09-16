@@ -58,10 +58,6 @@ export class PasteController implements PasteOperationControl {
         return this.pending.size > 0;
     }
 
-    getPendingPasteOperation() {
-        return this.getPendingPasteOperations()[0];
-    }
-
     getPendingPasteOperations() {
         return [...this.pending.keys()].map((operationId) => ({operationId}));
     }

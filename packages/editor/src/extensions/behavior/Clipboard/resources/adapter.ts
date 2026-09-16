@@ -2,17 +2,21 @@ import {closeHistory, history} from 'prosemirror-history';
 import {type EditorState, Plugin, type Transaction} from 'prosemirror-state';
 import type {EditorView} from 'prosemirror-view';
 
-import {getParserFromState} from '../core/utils/parser';
+import {getParserFromState} from '../../../../core/utils/parser';
+import type {PasteController} from '../../../../modules/paste/controller';
+import {resourceKey} from '../../../../modules/paste/tracking';
+import {
+    type ResourceOccurrence,
+    type ResourceTarget,
+    pasteResourceId,
+} from '../../../../modules/paste/tracking';
 
-import type {PasteController} from './controller';
 import {
     ResourceCollection,
     encodeResourceUrl,
     resourceAttribute,
     validateResourceUrl,
 } from './resources';
-import {resourceKey} from './tracking';
-import {type ResourceOccurrence, type ResourceTarget, pasteResourceId} from './tracking';
 
 // history() uses the history plugin's shared key; no private metadata name is hardcoded.
 const historyKey = history().spec.key;

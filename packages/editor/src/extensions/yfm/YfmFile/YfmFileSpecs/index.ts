@@ -7,7 +7,7 @@ import {
 import type {Node} from 'prosemirror-model';
 
 import type {Extension} from '../../../../core';
-import {pasteResourceId} from '../../../../paste/tracking';
+import {pasteResourceId} from '../../../../modules/paste/tracking';
 import {nodeTypeFactory} from '../../../../utils/schema';
 
 import {

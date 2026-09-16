@@ -3,9 +3,9 @@ import {EditorState, type Transaction} from 'prosemirror-state';
 import {EditorView} from 'prosemirror-view';
 
 import type {CommonEditor, ContentHandler, MarkupString} from '../common';
+import {ProseMirrorPaste} from '../extensions/behavior/Clipboard/resources/adapter';
 import {Logger2} from '../logger';
-import type {PasteController} from '../paste/controller';
-import {ProseMirrorPaste} from '../paste/prosemirror';
+import type {PasteController} from '../modules/paste/controller';
 
 import type {ActionsManager} from './ActionsManager';
 import {WysiwygContentHandler} from './ContentHandler';

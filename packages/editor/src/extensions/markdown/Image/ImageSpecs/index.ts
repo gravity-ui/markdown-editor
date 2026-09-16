@@ -1,7 +1,7 @@
 import type {ExtensionAuto} from '#core';
 import {nodeTypeFactory} from 'src/utils/schema';
 
-import {pasteResourceId} from '../../../../paste/tracking';
+import {pasteResourceId} from '../../../../modules/paste/tracking';
 
 import {ImageAttr, imageNodeName} from './const';
 import {imageToMarkdown} from './utils';

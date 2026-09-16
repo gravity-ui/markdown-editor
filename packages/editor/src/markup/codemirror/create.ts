@@ -25,8 +25,7 @@ import type {EventMap} from '../../bundle/events';
 import type {Parser} from '../../core/types/parser';
 import type {ReactRenderStorage} from '../../extensions';
 import {type Logger2, globalLogger} from '../../logger';
-import {CodeMirrorPaste} from '../../paste/codemirror';
-import type {PasteController} from '../../paste/controller';
+import type {PasteController} from '../../modules/paste/controller';
 import {Action as A, formatter as f} from '../../shortcuts';
 import type {Receiver} from '../../utils';
 import {DataTransferType, shouldSkipHtmlConversion} from '../../utils/clipboard';
@@ -60,6 +59,7 @@ import {gravityHighlightStyle, gravityTheme} from './gravity';
 import {MarkdownConverter} from './html-to-markdown/converters';
 import {LoggerFacet} from './logger-facet';
 import {PairingCharactersExtension} from './pairing-chars';
+import {CodeMirrorPaste} from './paste-resources/adapter';
 import {ReactRendererFacet} from './react-facet';
 import {SearchPanelPlugin} from './search-plugin/plugin';
 import {smartReindent} from './smart-reindent';
@@ -73,9 +73,6 @@ type Tooltips = Parameters<typeof tooltips>[0];
 const linkRegex = /\[[\s\S]*?]\([\s\S]*?\)/g;
 
 export type CreateCodemirrorParams = {
-    pasteController?: PasteController;
-    pasteParser?: () => Parser;
-    pasteFileLink?: (node: HTMLAnchorElement) => string | undefined;
     doc: EditorViewConfig['doc'];
     placeholder: Parameters<typeof placeholder>[0];
     logger: Logger2.ILogger;
@@ -102,6 +99,9 @@ export type CreateCodemirrorParams = {
     directiveSyntax: DirectiveSyntaxContext;
     preserveEmptyRows: boolean;
     searchPanel?: boolean;
+    pasteController?: PasteController;
+    pasteParser?: () => Parser;
+    pasteFileLink?: (node: HTMLAnchorElement) => string | undefined;
 };
 
 export function createCodemirror(params: CreateCodemirrorParams) {
@@ -130,12 +130,16 @@ export function createCodemirror(params: CreateCodemirrorParams) {
     } = params;
 
     const paste =
-        params.pasteController && params.pasteParser
+        params.pasteController?.enabled && params.pasteParser
             ? new CodeMirrorPaste(params.pasteController, params.pasteParser)
             : undefined;
     const extensions: Extension[] = [gravityTheme, placeholder(placeholderContent)];
 
-    if (paste) extensions.push(paste.extension());
+    if (params.pasteController?.enabled && params.pasteParser) {
+        extensions.push(
+            new CodeMirrorPaste(params.pasteController, params.pasteParser).extension()
+        );
+    }
 
     if (!disabledExtensions.history) {
         extensions.push(history());

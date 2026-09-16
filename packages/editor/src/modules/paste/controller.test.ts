@@ -61,7 +61,7 @@ test.each(['cancel', 'destroy', 'reject', 'invalid', 'conflict', 'apply-error'] 
         const test = setup();
         test.start();
         if (kind === 'cancel')
-            test.controller.cancelPaste(test.controller.getPendingPasteOperation()!.operationId);
+            test.controller.cancelPaste(test.controller.getPendingPasteOperations()[0].operationId);
         if (kind === 'destroy') test.controller.destroy();
         if (kind === 'reject') test.reject(new Error('network'));
         if (kind === 'apply-error')
@@ -133,12 +133,12 @@ test('no callback or no resources preserves synchronous insertion', () => {
 test('cancelling an old ID cannot affect a new operation', async () => {
     const test = setup();
     test.start();
-    const first = test.controller.getPendingPasteOperation()!.operationId;
+    const first = test.controller.getPendingPasteOperations()[0].operationId;
     test.controller.cancelPaste(first);
     test.start();
-    const second = test.controller.getPendingPasteOperation()!.operationId;
+    const second = test.controller.getPendingPasteOperations()[0].operationId;
     test.controller.cancelPaste(first);
-    expect(test.controller.getPendingPasteOperation()?.operationId).toBe(second);
+    expect(test.controller.getPendingPasteOperations()).toEqual([{operationId: second}]);
     test.resolve({replacements: []});
     await flush();
     expect(test.events.mock.calls.map(([event]) => event.status)).toEqual([

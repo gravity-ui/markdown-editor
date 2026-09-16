@@ -1,4 +1,5 @@
 export type PastedResource = {
+    // TODO kind of resources
     kind: 'image' | 'file';
     /** Relative path or full URL as represented by the parsed resource. */
     path: string;
@@ -29,7 +30,5 @@ export type PasteIntegration = {
 
 export interface PasteOperationControl {
     getPendingPasteOperations(): Array<{operationId: string}>;
-    /** @deprecated Use getPendingPasteOperations; this returns the oldest pending operation. */
-    getPendingPasteOperation(): {operationId: string} | undefined;
     cancelPaste(operationId: string): void;
 }

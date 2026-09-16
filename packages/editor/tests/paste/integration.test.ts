@@ -3,19 +3,21 @@ import {Transaction as CMTransaction, EditorSelection} from '@codemirror/state';
 import {redo, undo} from 'prosemirror-history';
 import {Plugin, TextSelection} from 'prosemirror-state';
 
-import {BundlePreset} from '../bundle/wysiwyg-preset';
-import {type Extension, WysiwygEditor} from '../core';
-import {ReactRenderStorage} from '../extensions';
-import {Logger2} from '../logger';
-import {createCodemirror} from '../markup/codemirror/create';
-import {DirectiveSyntaxContext} from '../utils/directive';
-
-import {PasteController} from './controller';
-import {pasteHistoryBoundary} from './history';
-import {remotePasteTransactionMeta, resolvedPasteMeta} from './prosemirror';
-import {prepareMarkupResources} from './resources';
-import {resourceKey} from './tracking';
-import type {PasteResourceResolution} from './types';
+import {BundlePreset} from '../../src/bundle/wysiwyg-preset';
+import {type Extension, WysiwygEditor} from '../../src/core';
+import {ReactRenderStorage} from '../../src/extensions';
+import {
+    remotePasteTransactionMeta,
+    resolvedPasteMeta,
+} from '../../src/extensions/behavior/Clipboard/resources/adapter';
+import {Logger2} from '../../src/logger';
+import {createCodemirror} from '../../src/markup/codemirror/create';
+import {pasteHistoryBoundary} from '../../src/markup/codemirror/paste-resources/history-boundary';
+import {prepareMarkupResources} from '../../src/markup/codemirror/paste-resources/resources';
+import {PasteController} from '../../src/modules/paste/controller';
+import {resourceKey} from '../../src/modules/paste/tracking';
+import type {PasteResourceResolution} from '../../src/modules/paste/types';
+import {DirectiveSyntaxContext} from '../../src/utils/directive';
 
 const flush = async () => {
     for (let i = 0; i < 5; i++) await Promise.resolve();

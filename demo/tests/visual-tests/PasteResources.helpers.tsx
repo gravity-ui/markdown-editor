@@ -45,7 +45,7 @@ export function PasteResources({mode = 'wysiwyg'}: {mode?: 'wysiwyg' | 'markup'}
             <button onClick={() => finish.current?.(replacements.current)}>Resolve paste</button>
             <button
                 onClick={() => {
-                    const pending = editor.getPendingPasteOperation();
+                    const [pending] = editor.getPendingPasteOperations();
                     if (pending) editor.cancelPaste(pending.operationId);
                 }}
             >

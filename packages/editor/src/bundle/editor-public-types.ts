@@ -2,7 +2,7 @@ import type {EditorView as PMEditorView} from 'prosemirror-view';
 
 import type {CommonEditor, MarkupString} from '../common';
 import type {Logger2} from '../logger';
-import type {PasteOperationControl} from '../paste/types';
+import type {PasteOperationControl} from '../modules/paste/types';
 import type {Receiver} from '../utils';
 
 import type {EventMap} from './events';
@@ -30,9 +30,6 @@ export interface MarkdownEditorInstance
      * No-op if `renderPreview` is not configured or split mode is currently enabled.
      */
     changePreviewVisible(visible?: boolean): void;
-    /**
-     * Used for dev tools in the demo.
-     * @internal
-     */
+    /** @internal used in demo for dev-tools */
     readonly _wysiwygView?: PMEditorView;
 }

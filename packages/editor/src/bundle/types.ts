@@ -6,7 +6,7 @@ import type {MarkupString} from '../common';
 import type {EscapeConfig, Extension} from '../core';
 import type {Logger2} from '../logger';
 import type {CreateCodemirrorParams, YfmLangOptions} from '../markup';
-import type {PasteIntegration} from '../paste/types';
+import type {PasteIntegration} from '../modules/paste/types';
 import type {FileUploadHandler} from '../utils';
 import type {DirectiveSyntaxContext, DirectiveSyntaxOption} from '../utils/directive';
 import type {ParseInsertedUrlAsImage} from '../utils/upload';
@@ -27,7 +27,7 @@ export type {
     PasteOperationEvent,
     PasteOperationStatus,
     PasteOperationControl,
-} from '../paste/types';
+} from '../modules/paste/types';
 export type {
     MarkdownEditorMode,
     MarkdownEditorPreset,
