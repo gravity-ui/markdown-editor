@@ -36,9 +36,10 @@ type AddPmKeymapCallback = (deps: ExtensionDeps) => Keymap;
 type AddPmInputRulesCallback = (deps: ExtensionDeps) => InputRulesConfig;
 type AddActionCallback = (deps: ExtensionDeps) => ActionSpec;
 
-type EntityPipelineEntry<EntitySpec, SpecBody> =
+type EntityPipelineEntry<EntitySpec extends ExtensionNodeSpec | ExtensionMarkSpec, SpecBody> =
     | {type: 'addEntity'; name: string; cb: () => EntitySpec; priority: number}
     | {type: 'addEntitySpec'; name: string; cb: () => SpecBody; priority: number}
+    | {type: 'addEntityView'; name: string; cb: NonNullable<EntitySpec['view']>}
     | {type: 'overrideEntitySpec'; name: string; cb: (prev: SpecBody) => SpecBody};
 
 type NodePipelineEntry = EntityPipelineEntry<ExtensionNodeSpec, NodeSpec>;
@@ -229,6 +230,12 @@ function processEntityPipeline<EntitySpec extends ExtensionNodeSpec | ExtensionM
             specs[name] = entry.cb();
             priorityByEntity[name] = entry.priority;
             granularEntities.add(name);
+        } else if (entry.type === 'addEntityView') {
+            if (views[name] !== undefined) {
+                throw new Error(`View for ${entityType} "${name}" is already registered`);
+            }
+            views[name] = entry.cb;
+            modified.add(name);
         } else {
             // overrideEntitySpec
             specs[name] = entry.cb(specs[name]);
@@ -354,8 +361,10 @@ export class ExtensionBuilder {
     // Unified pipelines — preserve registration order across legacy and granular APIs
     #nodePipeline: NodePipelineEntry[] = [];
     #nodeIndex: Record<string, {source: 'addNode' | 'addNodeSpec'}> = {};
+    #nodeViewIndex = new Set<string>();
     #markPipeline: MarkPipelineEntry[] = [];
     #markIndex: Record<string, {source: 'addMark' | 'addMarkSpec'}> = {};
+    #markViewIndex = new Set<string>();
 
     // Parser and serializer pipelines
     #parserPipeline: ParserPipelineEntry[] = [];
@@ -502,6 +511,38 @@ export class ExtensionBuilder {
         }
         this.#markPipeline.push({type: 'addEntitySpec', name, cb, priority});
         this.#markIndex[name] = {source: 'addMarkSpec'};
+        return this;
+    }
+
+    /** Adds a node view factory. The factory runs after the schema is built. */
+    addNodeView(name: string, cb: NonNullable<ExtensionNodeSpec['view']>): this {
+        if (!this.#nodeIndex[name]) {
+            throw new Error(
+                `Cannot add node view "${name}": node is not registered. ` +
+                    `Use addNode() or addNodeSpec() first.`,
+            );
+        }
+        if (this.#nodeViewIndex.has(name)) {
+            throw new Error(`Node view for "${name}" is already registered`);
+        }
+        this.#nodePipeline.push({type: 'addEntityView', name, cb});
+        this.#nodeViewIndex.add(name);
+        return this;
+    }
+
+    /** Adds a mark view factory. The factory runs after the schema is built. */
+    addMarkView(name: string, cb: NonNullable<ExtensionMarkSpec['view']>): this {
+        if (!this.#markIndex[name]) {
+            throw new Error(
+                `Cannot add mark view "${name}": mark is not registered. ` +
+                    `Use addMark() or addMarkSpec() first.`,
+            );
+        }
+        if (this.#markViewIndex.has(name)) {
+            throw new Error(`Mark view for "${name}" is already registered`);
+        }
+        this.#markPipeline.push({type: 'addEntityView', name, cb});
+        this.#markViewIndex.add(name);
         return this;
     }
 

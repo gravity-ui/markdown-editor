@@ -1388,6 +1388,157 @@ describe('ExtensionBuilder', () => {
         });
     });
 
+    describe('view methods', () => {
+        it('should add views without calling their factories', () => {
+            const nodeView: NonNullable<ExtensionNodeSpec['view']> = () => {
+                throw new Error('Node view factory was called');
+            };
+            const markView: NonNullable<ExtensionMarkSpec['view']> = () => {
+                throw new Error('Mark view factory was called');
+            };
+            const builder = createViewBuilder();
+
+            expect(builder.addMarkView('mark', markView)).toBe(builder);
+            expect(builder.addNodeView('node', nodeView)).toBe(builder);
+
+            const result = builder.build();
+            const nodes = result.nodes();
+            const marks = result.marks();
+
+            expect(nodes.size).toBe(1);
+            expect(marks.size).toBe(1);
+            expect(nodes.get('node')?.view).toBe(nodeView);
+            expect(marks.get('mark')?.view).toBe(markView);
+        });
+
+        it.each(['addNodeView', 'addMarkView'] as const)(
+            'should reject an unknown entity in %s',
+            (method) => {
+                const builder = createViewBuilder();
+
+                expect(() => builder[method]('missing', viewFactory)).toThrow(/not registered/);
+            },
+        );
+
+        it.each([
+            ['addNodeView', 'mark'],
+            ['addMarkView', 'node'],
+        ] as const)('should reject the wrong entity type in %s', (method, name) => {
+            const builder = createViewBuilder();
+
+            expect(() => builder[method](name, viewFactory)).toThrow(/not registered/);
+        });
+
+        it.each([
+            ['addNodeView', 'node'],
+            ['addMarkView', 'mark'],
+        ] as const)('should reject duplicate calls to %s', (method, name) => {
+            const builder = createViewBuilder();
+            builder[method](name, viewFactory);
+
+            expect(() => builder[method](name, viewFactory)).toThrow(/already registered/);
+        });
+
+        it('should keep views after schema, parser, and serializer overrides', () => {
+            const result = createViewBuilder()
+                .addNodeView('node', viewFactory)
+                .addMarkView('mark', viewFactory)
+                .overrideNodeSpec('node', (prev) => ({...prev, atom: true}))
+                .overrideMarkSpec('mark', (prev) => ({...prev, inclusive: false}))
+                .overrideMarkdownTokenParserSpec('node_token', (prev) => ({
+                    ...prev,
+                    noCloseToken: true,
+                }))
+                .overrideMarkdownTokenParserSpec('mark_token', (prev) => ({
+                    ...prev,
+                    noCloseToken: true,
+                }))
+                .overrideNodeSerializerSpec('node', (prev) => prev)
+                .overrideMarkSerializerSpec('mark', (prev) => ({...prev, mixable: true}))
+                .build();
+
+            expect(result.nodes().get('node')).toMatchObject({
+                view: viewFactory,
+                spec: {atom: true},
+                fromMd: {tokenName: 'node_token', tokenSpec: {noCloseToken: true}},
+            });
+            expect(result.marks().get('mark')).toMatchObject({
+                view: viewFactory,
+                spec: {inclusive: false},
+                fromMd: {tokenName: 'mark_token', tokenSpec: {noCloseToken: true}},
+                toMd: {mixable: true},
+            });
+        });
+
+        it('should keep earlier build results unchanged', () => {
+            const builder = createViewBuilder();
+            const before = builder.build();
+            builder.addNodeView('node', viewFactory).addMarkView('mark', viewFactory);
+            const after = builder.build();
+
+            expect(before.nodes().get('node')?.view).toBeUndefined();
+            expect(before.marks().get('mark')?.view).toBeUndefined();
+            expect(after.nodes().get('node')?.view).toBe(viewFactory);
+            expect(after.marks().get('mark')?.view).toBe(viewFactory);
+        });
+
+        it('should add views to legacy entries without changing the original objects', () => {
+            const node: ExtensionNodeSpec = {
+                spec: {group: 'block'},
+                fromMd: {tokenName: 'node_token', tokenSpec: {type: 'node', name: 'node'}},
+                toMd: () => {},
+            };
+            const mark: ExtensionMarkSpec = {
+                spec: {inclusive: false},
+                fromMd: {tokenName: 'mark_token', tokenSpec: {type: 'mark', name: 'mark'}},
+                toMd: {open: '*', close: '*'},
+            };
+            const builder = new ExtensionBuilder(logger)
+                .addNode('node', () => node)
+                .addMark('mark', () => mark);
+            const before = builder.build();
+            const after = builder
+                .addNodeView('node', viewFactory)
+                .addMarkView('mark', viewFactory)
+                .build();
+
+            expect(after.nodes().get('node')).toEqual({...node, view: viewFactory});
+            expect(after.marks().get('mark')).toEqual({...mark, view: viewFactory});
+            expect(before.nodes().get('node')).toBe(node);
+            expect(before.marks().get('mark')).toBe(mark);
+            expect(node.view).toBeUndefined();
+            expect(mark.view).toBeUndefined();
+        });
+
+        it('should reject a view already provided by addNode', () => {
+            const result = new ExtensionBuilder(logger)
+                .addNode('node', () => ({
+                    spec: {},
+                    fromMd: {tokenSpec: {type: 'node', name: 'node'}},
+                    toMd: () => {},
+                    view: viewFactory,
+                }))
+                .addNodeView('node', viewFactory)
+                .build();
+
+            expect(() => result.nodes()).toThrow(/already registered/);
+        });
+
+        it('should reject a view already provided by addMark', () => {
+            const result = new ExtensionBuilder(logger)
+                .addMark('mark', () => ({
+                    spec: {},
+                    fromMd: {tokenSpec: {type: 'mark', name: 'mark'}},
+                    toMd: {open: '*', close: '*'},
+                    view: viewFactory,
+                }))
+                .addMarkView('mark', viewFactory)
+                .build();
+
+            expect(() => result.marks()).toThrow(/already registered/);
+        });
+    });
+
     describe('regression', () => {
         it('should throw when addMarkdownTokenParserSpec tokenName collides with addNode entity owning that token', () => {
             const builder = new ExtensionBuilder(logger)
@@ -1538,3 +1689,17 @@ describe('ExtensionBuilder', () => {
         });
     });
 });
+
+function createViewBuilder() {
+    return new ExtensionBuilder(logger)
+        .addNodeSpec('node', () => ({group: 'block'}))
+        .addMarkdownTokenParserSpec('node_token', () => ({name: 'node', type: 'node'}))
+        .addNodeSerializerSpec('node', () => () => {})
+        .addMarkSpec('mark', () => ({}))
+        .addMarkdownTokenParserSpec('mark_token', () => ({name: 'mark', type: 'mark'}))
+        .addMarkSerializerSpec('mark', () => ({open: '*', close: '*'}));
+}
+
+function viewFactory() {
+    return () => ({dom: document.createElement('span')});
+}
