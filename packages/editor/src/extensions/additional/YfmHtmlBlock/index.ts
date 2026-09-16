@@ -7,6 +7,7 @@ import {WYfmHtmlBlockNodeView} from './YfmHtmlBlockNodeView';
 import {YfmHtmlBlockSpecs} from './YfmHtmlBlockSpecs';
 import {YfmHtmlBlockAction} from './YfmHtmlBlockSpecs/const';
 import {addYfmHtmlBlock} from './actions';
+import type {YfmHtmlBlockTemplatesOptions} from './templates';
 
 export interface YfmHtmlBlockOptions extends Omit<
     PluginOptions,
@@ -17,6 +18,14 @@ export interface YfmHtmlBlockOptions extends Omit<
         enabled: boolean;
         delay?: number; // по умолчанию 1000ms
     };
+    templates?: YfmHtmlBlockTemplatesOptions;
+    /**
+     * Double-clicking the preview edits text inline inside the iframe instead of
+     * opening the raw HTML code editor. The code editor stays reachable via the
+     * "Edit" menu item.
+     * @default false
+     */
+    editablePreview?: boolean;
 }
 
 export const YfmHtmlBlock: ExtensionAuto<YfmHtmlBlockOptions> = (
