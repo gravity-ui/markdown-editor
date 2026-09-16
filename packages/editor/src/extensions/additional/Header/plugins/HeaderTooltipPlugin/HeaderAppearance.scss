@@ -1,8 +1,8 @@
 .g-md-header-appearance {
     box-sizing: border-box;
-    width: 304px;
+    width: 332px;
     max-width: calc(100vw - 24px);
-    padding: var(--g-spacing-1) var(--g-spacing-2);
+    padding: var(--g-spacing-2) var(--g-spacing-3);
 
     &__row {
         display: grid;
@@ -10,12 +10,10 @@
         grid-template-columns: 84px minmax(0, 1fr);
         gap: var(--g-spacing-2);
 
-        min-height: 36px;
+        min-height: 40px;
     }
 
     &__label {
-        padding-left: var(--g-spacing-1);
-
         color: var(--g-color-text-secondary);
     }
 
@@ -26,6 +24,46 @@
         gap: var(--g-spacing-half);
 
         min-width: 0;
+        padding: var(--g-spacing-half);
+
+        border-radius: var(--g-border-radius-m);
+        background: var(--g-color-base-generic);
+    }
+
+    &__option {
+        flex: 1;
+    }
+
+    &__border {
+        display: inline-block;
+
+        box-sizing: border-box;
+        width: 22px;
+        height: 16px;
+
+        vertical-align: middle;
+
+        border: 1px solid currentColor;
+        border-radius: var(--g-border-radius-xs);
+
+        &_style_none {
+            border-color: var(--g-color-line-generic);
+            background: linear-gradient(
+                to top left,
+                transparent calc(50% - 0.5px),
+                currentColor calc(50% - 0.5px),
+                currentColor calc(50% + 0.5px),
+                transparent calc(50% + 0.5px)
+            );
+        }
+
+        &_style_dashed {
+            border-style: dashed;
+        }
+
+        &_style_dotted {
+            border-style: dotted;
+        }
     }
 
     &__layout {

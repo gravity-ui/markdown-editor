@@ -1,6 +1,24 @@
 .g-md-header-toolbar {
     padding: 2px;
 
+    &__trigger {
+        --g-button-padding: 6px;
+    }
+
+    &__control {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--g-spacing-1);
+
+        height: 28px;
+
+        vertical-align: top;
+    }
+
+    &__chevron {
+        opacity: 0.65;
+    }
+
     &__popup {
         max-width: calc(100vw - 24px);
 

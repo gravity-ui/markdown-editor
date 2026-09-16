@@ -1,3 +1,5 @@
+import type {ReactNode} from 'react';
+
 import {Check} from '@gravity-ui/icons';
 import {Icon, Tooltip, spacing} from '@gravity-ui/uikit';
 
@@ -9,6 +11,14 @@ import {HEADER_FILL_SWATCHES, type HeaderFillValue} from '../../HeaderSpecs';
 import './FillPalette.scss';
 
 const b = cn('header-fill-palette');
+
+export function FillSwatch({value, children}: {value: HeaderFillValue; children?: ReactNode}) {
+    return (
+        <span className={b('swatch', {color: value})} aria-hidden>
+            {children}
+        </span>
+    );
+}
 
 export type FillPaletteProps = {
     value: HeaderFillValue;
@@ -39,13 +49,13 @@ export const FillPalette: React.FC<FillPaletteProps> = function HeaderFillPalett
                             aria-pressed={isSelected}
                             onClick={() => onSelect(swatch.value)}
                         >
-                            <span className={b('swatch', {color: swatch.value})}>
+                            <FillSwatch value={swatch.value}>
                                 {isSelected && (
                                     <span className={b('check')}>
                                         <Icon data={Check} size={16} />
                                     </span>
                                 )}
-                            </span>
+                            </FillSwatch>
                         </button>
                     </Tooltip>
                 );

@@ -1,5 +1,6 @@
-import {Square, SquareDashed, SquareDot, SquareXmark} from '@gravity-ui/icons';
-import {ActionTooltip, Button, Icon, type IconProps} from '@gravity-ui/uikit';
+import type {ReactNode} from 'react';
+
+import {ActionTooltip, Button} from '@gravity-ui/uikit';
 
 import {cn} from 'src/classname';
 import {i18n} from 'src/i18n/header';
@@ -17,7 +18,7 @@ import './HeaderAppearance.scss';
 
 const b = cn('header-appearance');
 
-type ChoiceOption<T> = {value: T; label: string; icon?: IconProps['data']};
+type ChoiceOption<T> = {value: T; label: string; preview?: ReactNode};
 
 function Choices<T extends string>({
     label,
@@ -38,6 +39,7 @@ function Choices<T extends string>({
                         key={option.value}
                         size="m"
                         view="flat"
+                        className={b('option')}
                         selected={option.value === value}
                         aria-label={option.label}
                         aria-pressed={option.value === value}
@@ -45,11 +47,11 @@ function Choices<T extends string>({
                             if (option.value !== value) onChange(option.value);
                         }}
                     >
-                        {option.icon ? <Icon data={option.icon} size={16} /> : option.label}
+                        {option.preview ?? option.label}
                     </Button>
                 );
 
-                return option.icon ? (
+                return option.preview ? (
                     <ActionTooltip key={option.value} title={option.label}>
                         {button}
                     </ActionTooltip>
@@ -99,16 +101,11 @@ export function AppearanceSettings({attrs, onChange}: AppearanceSettingsProps) {
                     label={i18n('border')}
                     value={attrs.border}
                     onChange={(border) => onChange({border})}
-                    options={[
-                        {value: HeaderBorder.None, label: i18n('border.none'), icon: SquareXmark},
-                        {value: HeaderBorder.Solid, label: i18n('border.solid'), icon: Square},
-                        {
-                            value: HeaderBorder.Dashed,
-                            label: i18n('border.dashed'),
-                            icon: SquareDashed,
-                        },
-                        {value: HeaderBorder.Dotted, label: i18n('border.dotted'), icon: SquareDot},
-                    ]}
+                    options={Object.values(HeaderBorder).map((border) => ({
+                        value: border,
+                        label: i18n(`border.${border}`),
+                        preview: <span className={b('border', {style: border})} aria-hidden />,
+                    }))}
                 />
             </div>
             <div className={b('row')}>

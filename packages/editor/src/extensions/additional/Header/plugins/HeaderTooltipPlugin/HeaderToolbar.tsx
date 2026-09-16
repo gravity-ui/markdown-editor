@@ -1,7 +1,7 @@
-import {useRef, useState} from 'react';
+import {type ReactNode, useRef, useState} from 'react';
 
-import {LayoutHeader, Link, Palette, Picture, Pill, Plus, TrashBin} from '@gravity-ui/icons';
-import {Icon, type IconProps} from '@gravity-ui/uikit';
+import {ChevronDown, LayoutHeader, Link, Picture, Pill, Plus, TrashBin} from '@gravity-ui/icons';
+import {Icon} from '@gravity-ui/uikit';
 
 import type {Node} from '#pm/model';
 import type {EditorView} from '#pm/view';
@@ -20,7 +20,7 @@ import {HeaderActionType, type HeaderAttrs} from '../../HeaderSpecs';
 import {addHeaderAction, removeHeader, setHeaderAttrs} from '../../commands';
 import {getHeaderTargets} from '../targets';
 
-import {FillPalette} from './FillPalette';
+import {FillPalette, FillSwatch} from './FillPalette';
 import {AppearanceSettings} from './HeaderAppearance';
 import {HeaderPopover, type HeaderPopoverHandle, applyHeaderCommand} from './HeaderPopover';
 import {ActionsSettings, ImageSettings} from './HeaderSettings';
@@ -37,8 +37,7 @@ const panelTitles = {
 type Panel = keyof typeof panelTitles;
 type Control = {
     title: string;
-    icon: IconProps['data'];
-    label?: string;
+    preview: ReactNode;
     active: boolean;
     enabled: boolean;
     onClick(): void;
@@ -60,10 +59,12 @@ function HeaderControl({control, className}: ToolbarBaseProps<EditorView> & {con
             hintWhenDisabled={false}
             disableTooltip={control.active}
             onClick={control.onClick}
-            className={className}
+            className={b('trigger', [className])}
         >
-            <Icon data={control.icon} size={16} />
-            {control.label}
+            <span className={b('control')}>
+                {control.preview}
+                <Icon data={ChevronDown} size={10} className={b('chevron')} />
+            </span>
         </ToolbarButtonView>
     );
 }
@@ -92,16 +93,15 @@ export function HeaderToolbar({
     const update = (patch: Partial<HeaderAttrs>) =>
         applyHeaderCommand(editorView, setHeaderAttrs(pos, patch));
     const close = () => setPanel(null);
-    const control = (id: Panel, icon: IconProps['data'], label?: string) => ({
+    const control = (id: Panel, preview: ReactNode) => ({
         id: `header-${id}`,
         type: ToolbarDataType.ReactComponent as const,
         component: HeaderControl,
-        width: label ? 90 : 28,
+        width: id === 'links' ? 70 : 42,
         props: {
             control: {
                 title: i18n(panelTitles[id]),
-                icon,
-                label,
+                preview,
                 active: panel === id,
                 enabled: id !== 'links' || Boolean(targets?.actions.length),
                 anchor: (element: HTMLButtonElement | null) => {
@@ -118,7 +118,11 @@ export function HeaderToolbar({
         },
     });
     const data: ToolbarData<EditorView> = [
-        [control('appearance', LayoutHeader), control('fill', Palette), control('image', Picture)],
+        [
+            control('appearance', <Icon data={LayoutHeader} size={16} />),
+            control('fill', <FillSwatch value={attrs.fill} />),
+            control('image', <Icon data={Picture} size={16} />),
+        ],
         [
             {
                 id: 'header-cta-add',
@@ -137,7 +141,7 @@ export function HeaderToolbar({
                     exec: () => addHeaderAction(pos, {type})(editorView.state, editorView.dispatch),
                 })),
             },
-            control('links', Link, i18n('cta.links')),
+            control('links', i18n('cta.links')),
         ],
         [
             {
