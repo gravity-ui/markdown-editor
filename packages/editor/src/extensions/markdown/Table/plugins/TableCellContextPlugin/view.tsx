@@ -36,6 +36,7 @@ export class TableCellContextView implements PluginView {
             () => (
                 <ErrorLoggerBoundary>
                     <TableCellFloatingButton
+                        editorElement={this.#view.dom}
                         actions={this.#actions}
                         dom={TableCellContextView.findCellDom(this.#view, this.#nodeType)}
                     />
