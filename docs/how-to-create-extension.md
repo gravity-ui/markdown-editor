@@ -17,7 +17,7 @@ In our example with the `mermaid` plugin, the code for the markup mode [can be f
 
 Use the granular builder API instead of the deprecated `addNode` method: `addNodeSpec` for the schema, `addMarkdownTokenParserSpec` for parsing Markdown tokens, and `addNodeSerializerSpec` for serialization.
 
-Register a custom NodeView separately through a plugin, as shown in the next step.
+Register a custom NodeView separately with `addNodeView`, as shown in the next step.
 
 ```ts
 const MermaidSpecsExtension: ExtensionAuto = (builder) => {
@@ -68,24 +68,22 @@ export class WMermaidNodeView implements NodeView {
 }
 ```
 
-Register the NodeView through `props.nodeViews` in the extension that uses the specifications:
+Register the NodeView with `addNodeView` in the extension that uses the specifications:
 
 ```ts
-import {Plugin} from 'prosemirror-state';
-
 const MermaidExtension: ExtensionAuto<MermaidOptions> = (builder, options) => {
   builder
     .use(MermaidSpecsExtension)
-    .addPlugin(() => new Plugin({
-      props: {
-        nodeViews: {
-          [mermaidNodeName]: (node, view, getPos) =>
-            new WMermaidNodeView(node, view, getPos, options),
-        },
-      },
-    }));
+    .addNodeView(
+      mermaidNodeName,
+      () => (node, view, getPos) => new WMermaidNodeView(node, view, getPos, options),
+    );
 };
 ```
+
+The factory receives the extension dependencies (`schema`, `textParser`, `markupParser`, `serializer`, `actions`) and returns a `NodeViewConstructor`; it runs after the schema is built. Marks are registered the same way with `addMarkView`, which expects a `MarkViewConstructor`.
+
+The node must already be registered by `addNodeSpec` or `addNode`, and it can have only one view — a second registration for the same node throws.
 
 See the [full example of the extension](https://github.com/gravity-ui/markdown-editor/tree/main/src/extensions/yfm/Mermaid/MermaidNodeView) for more details.
 
