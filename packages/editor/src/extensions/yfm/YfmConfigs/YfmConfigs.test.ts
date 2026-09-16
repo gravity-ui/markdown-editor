@@ -1,5 +1,6 @@
 import MarkdownIt from 'markdown-it';
 import Token from 'markdown-it/lib/token';
+import {describe, expect, it} from 'vitest';
 
 import {ExtensionsManager} from '#core';
 
