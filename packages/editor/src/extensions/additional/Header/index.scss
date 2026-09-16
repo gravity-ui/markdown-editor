@@ -1,0 +1,258 @@
+@use 'sass:map';
+@use '~@gravity-ui/uikit/styles/mixins' as uikit;
+@use '../../../styles/yc-header-fill.scss' as fills;
+
+.g-md-header {
+    --g-md-header-fill: var(--g-color-private-blue-200-solid);
+    --g-md-header-text: var(--g-color-text-primary);
+    --g-md-header-text-secondary: var(--g-color-text-secondary);
+    // Derive borders from text so they follow theme and contrast overrides.
+    --g-md-header-line: color-mix(in sRGB, var(--g-md-header-text) 20%, transparent);
+    --g-md-header-min-height: 240px;
+    --g-md-header-padding: var(--g-spacing-8) var(--g-spacing-10);
+    --g-md-header-gap: var(--g-spacing-8);
+    --g-md-header-visual-width: 360px;
+    --g-md-header-content-width: 560px;
+
+    position: relative;
+
+    display: flex;
+    overflow: hidden;
+    align-items: center;
+
+    box-sizing: border-box;
+    min-height: var(--g-md-header-min-height);
+    margin-block: var(--yfm-text-block-margin-block, 0 15px);
+    padding: var(--g-md-header-padding);
+
+    color: var(--g-md-header-text);
+    border-radius: var(--g-border-radius-l);
+    background-color: var(--g-md-header-fill);
+
+    @each $name, $fill in fills.$header-fills {
+        &[data-fill='#{$name}'] {
+            --g-md-header-fill: #{map.get($fill, bg)};
+
+            @if map.get($fill, surface) == inverted {
+                --g-md-header-text: var(--g-color-text-inverted-primary);
+                --g-md-header-text-secondary: var(--g-color-text-inverted-secondary);
+            }
+        }
+    }
+
+    // Explicit text colors stay fixed across themes for image backgrounds.
+    &[data-text='light'] {
+        --g-md-header-text: var(--g-color-text-light-primary);
+        --g-md-header-text-secondary: var(--g-color-text-light-secondary);
+    }
+
+    &[data-text='dark'] {
+        --g-md-header-text: var(--g-color-text-dark-primary);
+        --g-md-header-text-secondary: var(--g-color-text-dark-secondary);
+    }
+
+    &[data-format='small'] {
+        --g-md-header-min-height: 112px;
+        --g-md-header-padding: var(--g-spacing-5) var(--g-spacing-8);
+        --g-md-header-gap: var(--g-spacing-6);
+        --g-md-header-visual-width: 240px;
+        --g-md-header-content-width: 420px;
+    }
+
+    &[data-edges='bleed'] {
+        border-radius: 0;
+    }
+
+    &[data-border='solid'],
+    &[data-border='dashed'],
+    &[data-border='dotted'] {
+        border: 1px solid var(--g-md-header-line);
+    }
+
+    &[data-border='dashed'] {
+        border-style: dashed;
+    }
+
+    &[data-border='dotted'] {
+        border-style: dotted;
+    }
+
+    // Cover the block so the image's edge always falls within the fade mask.
+    &[data-bg='image']::before {
+        position: absolute;
+        z-index: 1;
+        inset: 0;
+
+        content: '';
+        pointer-events: none;
+
+        background-image: var(--g-md-header-image);
+        background-repeat: no-repeat;
+        background-position: right center;
+        background-size: cover;
+        // Keep the image outside the text column.
+        mask-image: linear-gradient(
+            90deg,
+            transparent 0 var(--g-md-header-content-width),
+            #000 calc(var(--g-md-header-content-width) + 160px)
+        );
+    }
+
+    &[data-image-empty='true'] {
+        &::before {
+            display: none;
+        }
+
+        &::after {
+            position: absolute;
+            z-index: 1;
+            inset: var(--g-spacing-2);
+
+            content: '';
+            pointer-events: none;
+
+            border: 1px dashed var(--g-md-header-line);
+            border-radius: var(--g-border-radius-m);
+        }
+    }
+
+    &[data-bg='image'][data-layout='split'] {
+        display: grid;
+        align-items: center;
+        grid-template-columns: minmax(0, 1fr) var(--g-md-header-visual-width);
+        gap: var(--g-md-header-gap);
+
+        background-image: none;
+
+        &::before {
+            display: none;
+        }
+
+        &::after {
+            align-self: stretch;
+
+            min-height: 168px;
+
+            content: '';
+
+            border-radius: var(--g-border-radius-m);
+            background:
+                var(--g-md-header-image) center center / cover no-repeat,
+                var(--g-color-base-generic);
+        }
+
+        &[data-format='small']::after {
+            min-height: 72px;
+        }
+    }
+}
+
+.g-md-header-content {
+    position: relative;
+    z-index: 2;
+
+    max-width: var(--g-md-header-content-width);
+}
+
+.g-md-header-title {
+    margin-bottom: var(--g-spacing-2);
+    @include uikit.text-display-1();
+
+    [data-format='small'] & {
+        margin-bottom: var(--g-spacing-1);
+        @include uikit.text-header-1();
+    }
+}
+
+.g-md-header-description {
+    margin-bottom: var(--g-spacing-6);
+
+    color: var(--g-md-header-text-secondary);
+    @include uikit.text-body-2();
+
+    [data-format='small'] & {
+        margin-bottom: var(--g-spacing-4);
+        @include uikit.text-body-1();
+    }
+}
+
+.g-md-header-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--g-spacing-3);
+
+    &:empty {
+        display: none;
+    }
+}
+
+// Match the specificity of the editor's link styles.
+
+.g-md-header .g-md-header-action {
+    --g-md-header-action-fill: var(--g-color-base-brand);
+    --g-md-header-action-text: var(--g-color-text-brand-contrast);
+
+    display: inline-flex;
+    align-items: center;
+
+    box-sizing: border-box;
+    min-height: 36px;
+    padding: 0 var(--g-spacing-4);
+
+    cursor: text;
+    text-decoration: none;
+
+    color: var(--g-md-header-action-text);
+    border: 1px solid transparent;
+    border-radius: var(--g-border-radius-m);
+    background-color: var(--g-md-header-action-fill);
+    @include uikit.text-body-2();
+
+    @each $name, $fill in fills.$header-fills {
+        &[data-color='#{$name}'] {
+            --g-md-header-action-fill: #{map.get($fill, bg)};
+            --g-md-header-action-text: var(--g-color-text-primary);
+
+            @if map.get($fill, surface) == inverted {
+                --g-md-header-action-text: var(--g-color-text-inverted-primary);
+            }
+        }
+    }
+
+    &:hover,
+    &:active,
+    &:visited {
+        text-decoration: none;
+
+        color: var(--g-md-header-action-text);
+    }
+
+    &[data-type='link'] {
+        min-height: 0;
+        padding: 0;
+
+        border-color: transparent;
+        background-color: transparent;
+
+        &,
+        &:hover,
+        &:active,
+        &:visited {
+            text-decoration: underline;
+
+            color: var(--g-md-header-text);
+        }
+    }
+}
+
+.g-md-header[data-format='small'] .g-md-header-action {
+    min-height: 28px;
+    padding: 0 var(--g-spacing-3);
+    @include uikit.text-body-1();
+
+    &[data-type='link'] {
+        min-height: 0;
+        padding: 0;
+    }
+}

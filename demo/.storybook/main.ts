@@ -18,6 +18,7 @@ const config: StorybookConfig = {
         options: {},
     },
     stories: ['../src/**/*.mdx', '../src/**/*.stories.@(js|jsx|ts|tsx)'],
+    staticDirs: ['../tests/visual-tests/public'],
     addons: [
         '@storybook/preset-scss',
         '@storybook/addon-webpack5-compiler-babel',
