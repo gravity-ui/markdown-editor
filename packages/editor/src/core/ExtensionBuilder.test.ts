@@ -358,7 +358,7 @@ describe('ExtensionBuilder', () => {
 
         it('should handle multiple parser tokens mapping to the same node', () => {
             const toMd = vi.fn();
-            const nodes = new ExtensionBuilder(logger)
+            const extension = new ExtensionBuilder(logger)
                 .addNodeSpec('code_block', () => ({group: 'block', code: true}))
                 .addMarkdownTokenParserSpec('code_block', () => ({
                     name: 'code_block',
@@ -371,8 +371,10 @@ describe('ExtensionBuilder', () => {
                     noCloseToken: true,
                 }))
                 .addNodeSerializerSpec('code_block', () => toMd)
-                .build()
-                .nodes();
+                .build();
+            const nodes = extension.nodes();
+
+            expect(extension.marks().get('fence')).toBeUndefined();
 
             // Main node entry + parser-only entry for the extra token
             expect(nodes.size).toBe(2);
@@ -394,7 +396,7 @@ describe('ExtensionBuilder', () => {
         it('should handle multiple parser tokens mapping to the same mark', () => {
             const marksList: {name: string; spec: ExtensionMarkSpec}[] = [];
 
-            new ExtensionBuilder(logger)
+            const extension = new ExtensionBuilder(logger)
                 .addMarkSpec('myMark', () => ({}))
                 .addMarkdownTokenParserSpec('em', () => ({
                     name: 'myMark',
@@ -405,9 +407,10 @@ describe('ExtensionBuilder', () => {
                     type: 'mark',
                 }))
                 .addMarkSerializerSpec('myMark', () => ({open: '*', close: '*'}))
-                .build()
-                .marks()
-                .forEach((name, spec) => marksList.push({name, spec}));
+                .build();
+            extension.marks().forEach((name, spec) => marksList.push({name, spec}));
+
+            expect(extension.nodes().get('emphasis')).toBeUndefined();
 
             // Main mark entry + parser-only entry for the extra token
             expect(marksList).toHaveLength(2);
@@ -471,6 +474,72 @@ describe('ExtensionBuilder', () => {
 
             const fence = nodes.get('fence');
             expect(fence!.fromMd.tokenSpec.noCloseToken).toBe(true);
+        });
+
+        it('should keep a parser alias when an override makes it an ignored token', () => {
+            const extension = new ExtensionBuilder(logger)
+                .addNode('code_block', () => ({
+                    spec: {group: 'block'},
+                    fromMd: {tokenSpec: {name: 'code_block', type: 'block'}},
+                    toMd: () => {},
+                }))
+                .addMarkdownTokenParserSpec('fence', () => ({name: 'code_block', type: 'block'}))
+                .overrideMarkdownTokenParserSpec('fence', (prev) => ({
+                    ...prev,
+                    name: '',
+                    ignore: true,
+                }))
+                .build();
+
+            expect(extension.nodes().get('fence')?.fromMd).toEqual({
+                tokenName: 'fence',
+                tokenSpec: {name: '', type: 'block', ignore: true},
+            });
+            expect(extension.marks().get('fence')).toBeUndefined();
+        });
+
+        it('should keep multiple legacy parser aliases in their own entity pipelines', () => {
+            const extension = new ExtensionBuilder(logger)
+                .addMarkdownTokenParserSpec('fence', () => ({
+                    name: 'code_block',
+                    type: 'block',
+                }))
+                .addMarkdownTokenParserSpec('emphasis', () => ({name: 'em', type: 'mark'}))
+                .addMarkdownTokenParserSpec('code_alias', () => ({
+                    name: 'code_block',
+                    type: 'block',
+                }))
+                .addMarkdownTokenParserSpec('em_alias', () => ({name: 'em', type: 'mark'}))
+                .addNode('code_block', () => ({
+                    spec: {group: 'block'},
+                    fromMd: {tokenSpec: {name: 'code_block', type: 'block'}},
+                    toMd: () => {},
+                }))
+                .addMark('em', () => ({
+                    spec: {},
+                    fromMd: {tokenSpec: {name: 'em', type: 'mark'}},
+                    toMd: {open: '*', close: '*'},
+                }))
+                .overrideMarkdownTokenParserSpec('code_alias', (prev) => ({
+                    ...prev,
+                    noCloseToken: true,
+                }))
+                .overrideMarkdownTokenParserSpec('em_alias', (prev) => ({
+                    ...prev,
+                    attrs: {custom: true},
+                }))
+                .build();
+            const nodes = extension.nodes();
+            const marks = extension.marks();
+            const nodeNames: string[] = [];
+            const markNames: string[] = [];
+            nodes.forEach((name) => nodeNames.push(name));
+            marks.forEach((name) => markNames.push(name));
+
+            expect(nodeNames).toEqual(['code_block', 'fence', 'code_alias']);
+            expect(markNames).toEqual(['em', 'emphasis', 'em_alias']);
+            expect(nodes.get('code_alias')!.fromMd.tokenSpec.noCloseToken).toBe(true);
+            expect(marks.get('em_alias')!.fromMd.tokenSpec.attrs).toEqual({custom: true});
         });
 
         it('should allow overrideMarkdownTokenParserSpec on addNode token', () => {
