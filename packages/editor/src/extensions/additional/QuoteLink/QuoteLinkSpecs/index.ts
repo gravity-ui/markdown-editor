@@ -1,4 +1,4 @@
-import {transform as quoteLink} from '@diplodoc/quote-link-extension';
+import {TokenType, transform as quoteLink} from '@diplodoc/quote-link-extension';
 import type {Node} from 'prosemirror-model';
 
 import type {ExtensionAuto} from '#core';
@@ -26,59 +26,53 @@ export const QuoteLinkSpecs: ExtensionAuto = (builder) => {
                 )
                 .use(moveLinkToQuoteAttributes),
         )
-        .addNode(quoteLinkNodeName, () => ({
-            spec: {
-                attrs: {
-                    class: {default: 'yfm-quote-link'},
-                    [QuoteLinkAttr.Cite]: {default: ''},
-                    [QuoteLinkAttr.DataContent]: {default: ''},
-                },
-                content: 'block+',
-                group: 'block',
-                defining: true,
-                parseDOM: [
-                    {
-                        tag: '.yfm-quote-link',
-                        getAttrs(dom) {
-                            return {
-                                [QuoteLinkAttr.Cite]: (dom as Element).getAttribute(
-                                    QuoteLinkAttr.Cite,
-                                ),
-                                [QuoteLinkAttr.DataContent]: (dom as Element).getAttribute(
-                                    QuoteLinkAttr.DataContent,
-                                ),
-                            };
-                        },
-                        priority: builder.Priority.VeryHigh,
+        .addNodeSpec(quoteLinkNodeName, () => ({
+            attrs: {
+                class: {default: 'yfm-quote-link'},
+                [QuoteLinkAttr.Cite]: {default: ''},
+                [QuoteLinkAttr.DataContent]: {default: ''},
+            },
+            content: 'block+',
+            group: 'block',
+            defining: true,
+            parseDOM: [
+                {
+                    tag: '.yfm-quote-link',
+                    getAttrs(dom) {
+                        return {
+                            [QuoteLinkAttr.Cite]: (dom as Element).getAttribute(QuoteLinkAttr.Cite),
+                            [QuoteLinkAttr.DataContent]: (dom as Element).getAttribute(
+                                QuoteLinkAttr.DataContent,
+                            ),
+                        };
                     },
-                ],
-                toDOM(node) {
-                    return ['blockquote', node.attrs, 0];
+                    priority: builder.Priority.VeryHigh,
                 },
-                selectable: true,
-                selectAll: 'node',
+            ],
+            toDOM(node) {
+                return ['blockquote', node.attrs, 0];
             },
-            fromMd: {
-                tokenSpec: {
-                    name: quoteLinkNodeName,
-                    type: 'block',
-                    getAttrs: (tok) => ({
-                        [QuoteLinkAttr.Cite]: tok.attrGet('cite'),
-                        [QuoteLinkAttr.DataContent]: tok.attrGet('data-content') || null,
-                    }),
-                },
-            },
-            toMd: (state, node) => {
-                state.wrapBlock('> ', null, node, () => {
-                    state.write(
-                        `[${node.attrs[QuoteLinkAttr.DataContent]}](${
-                            node.attrs[QuoteLinkAttr.Cite]
-                        }){data-quotelink=true}`,
-                    );
-                    state.write('\n');
-                    state.write('\n');
-                    state.renderContent(node);
-                });
-            },
-        }));
+            selectable: true,
+            selectAll: 'node',
+        }))
+        .addMarkdownTokenParserSpec(TokenType.QuoteLink, () => ({
+            name: quoteLinkNodeName,
+            type: 'block',
+            getAttrs: (tok) => ({
+                [QuoteLinkAttr.Cite]: tok.attrGet('cite'),
+                [QuoteLinkAttr.DataContent]: tok.attrGet('data-content') || null,
+            }),
+        }))
+        .addNodeSerializerSpec(quoteLinkNodeName, () => (state, node) => {
+            state.wrapBlock('> ', null, node, () => {
+                state.write(
+                    `[${node.attrs[QuoteLinkAttr.DataContent]}](${
+                        node.attrs[QuoteLinkAttr.Cite]
+                    }){data-quotelink=true}`,
+                );
+                state.write('\n');
+                state.write('\n');
+                state.renderContent(node);
+            });
+        });
 };
