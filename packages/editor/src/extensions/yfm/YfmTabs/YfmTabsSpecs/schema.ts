@@ -1,6 +1,7 @@
 import type {NodeSpec} from 'prosemirror-model';
 
-import type {PlaceholderOptions} from '../../../../utils/placeholder';
+import type {ExtensionAuto} from '#core';
+import type {PlaceholderOptions} from 'src/utils/placeholder';
 
 import {TabAttrs, TabPanelAttrs, TabsAttrs, TabsListAttrs, TabsNode} from './const';
 
@@ -16,7 +17,7 @@ export type YfmTabsSchemaOptions = {
     tabPlaceholder?: NonNullable<NodeSpec['placeholder']>['content'];
 };
 
-export const getSchemaSpecs: (
+const getSchemaSpecs: (
     opts: YfmTabsSchemaOptions,
     placeholder?: PlaceholderOptions,
 ) => Record<TabsNode, NodeSpec> = (opts, placeholder) => ({
@@ -174,3 +175,17 @@ export const getSchemaSpecs: (
         complex: 'leaf',
     },
 });
+
+export const YfmTabsSchemaSpecs: ExtensionAuto<YfmTabsSchemaOptions> = (builder, opts) => {
+    const schemaSpecs = getSchemaSpecs(opts);
+
+    builder
+        .addNodeSpec(TabsNode.Tab, () => schemaSpecs[TabsNode.Tab])
+        .addNodeSpec(TabsNode.TabsList, () => schemaSpecs[TabsNode.TabsList])
+        .addNodeSpec(TabsNode.TabPanel, () => schemaSpecs[TabsNode.TabPanel])
+        .addNodeSpec(TabsNode.Tabs, () => schemaSpecs[TabsNode.Tabs])
+        .addNodeSpec(TabsNode.RadioTabs, () => schemaSpecs[TabsNode.RadioTabs])
+        .addNodeSpec(TabsNode.RadioTab, () => schemaSpecs[TabsNode.RadioTab])
+        .addNodeSpec(TabsNode.RadioTabInput, () => schemaSpecs[TabsNode.RadioTabInput])
+        .addNodeSpec(TabsNode.RadioTabLabel, () => schemaSpecs[TabsNode.RadioTabLabel]);
+};

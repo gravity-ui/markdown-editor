@@ -1,13 +1,10 @@
-import {transform as yfmTabs} from '@diplodoc/tabs-extension';
-
-import type {ExtensionAuto, ExtensionNodeSpec} from '../../../../core';
-import {nodeTypeFactory} from '../../../../utils/schema';
+import type {ExtensionAuto, ExtensionNodeSpec} from '#core';
+import {nodeTypeFactory} from 'src/utils/schema';
 
 import {TabsNode} from './const';
-import {tabsPostPlugin} from './md-plugin';
-import {parserTokens} from './parser';
-import {type YfmTabsSchemaOptions, getSchemaSpecs} from './schema';
-import {serializerTokens} from './serializer';
+import {YfmTabsParserSpecs} from './parser';
+import {type YfmTabsSchemaOptions, YfmTabsSchemaSpecs} from './schema';
+import {YfmTabsSerializerSpecs} from './serializer';
 
 export {TabsNode} from './const';
 export const tabPanelType = nodeTypeFactory(TabsNode.TabPanel);
@@ -16,105 +13,44 @@ export const tabsType = nodeTypeFactory(TabsNode.Tabs);
 export const tabsListType = nodeTypeFactory(TabsNode.TabsList);
 
 export type YfmTabsSpecsOptions = YfmTabsSchemaOptions & {
+    /** @deprecated Register the view with builder.addNodeView() after the specs. */
     tabView?: ExtensionNodeSpec['view'];
+    /** @deprecated Register the view with builder.addNodeView() after the specs. */
     tabsListView?: ExtensionNodeSpec['view'];
+    /** @deprecated Register the view with builder.addNodeView() after the specs. */
     tabPanelView?: ExtensionNodeSpec['view'];
+    /** @deprecated Register the view with builder.addNodeView() after the specs. */
     tabsView?: ExtensionNodeSpec['view'];
+    /** @deprecated Register the view with builder.addNodeView() after the specs. */
     vtabView?: ExtensionNodeSpec['view'];
+    /** @deprecated Register the view with builder.addNodeView() after the specs. */
     vtabInputView?: ExtensionNodeSpec['view'];
 };
 
 export const YfmTabsSpecs: ExtensionAuto<YfmTabsSpecsOptions> = (builder, opts) => {
-    const schemaSpecs = getSchemaSpecs(opts);
+    builder.use(YfmTabsSchemaSpecs, opts).use(YfmTabsParserSpecs).use(YfmTabsSerializerSpecs);
 
-    builder
-        .configureMd((md) =>
-            md
-                .use(
-                    yfmTabs({
-                        bundle: false,
-                        features: {
-                            enabledVariants: {
-                                regular: true,
-                                radio: true,
-                                dropdown: false,
-                                accordion: false,
-                            },
-                        },
-                    }),
-                )
-                .use(tabsPostPlugin),
-        )
-        .addNode(TabsNode.Tab, () => ({
-            spec: schemaSpecs[TabsNode.Tab],
-            toMd: serializerTokens[TabsNode.Tab],
-            fromMd: {
-                tokenSpec: parserTokens[TabsNode.Tab],
-                tokenName: 'tab',
-            },
-            view: opts.tabView,
-        }))
-        .addNode(TabsNode.TabsList, () => ({
-            spec: schemaSpecs[TabsNode.TabsList],
-            toMd: serializerTokens[TabsNode.TabsList],
-            fromMd: {
-                tokenSpec: parserTokens[TabsNode.TabsList],
-                tokenName: 'tab-list',
-            },
-            view: opts.tabsListView,
-        }))
-        .addNode(TabsNode.TabPanel, () => ({
-            spec: schemaSpecs[TabsNode.TabPanel],
-            toMd: serializerTokens[TabsNode.TabPanel],
-            fromMd: {
-                tokenSpec: parserTokens[TabsNode.TabPanel],
-                tokenName: 'tab-panel',
-            },
-            view: opts.tabPanelView,
-        }))
-        .addNode(TabsNode.Tabs, () => ({
-            spec: schemaSpecs[TabsNode.Tabs],
-            toMd: serializerTokens[TabsNode.Tabs],
-            fromMd: {
-                tokenSpec: parserTokens[TabsNode.Tabs],
-                tokenName: 'tabs',
-            },
-            view: opts.tabsView,
-        }));
+    if (opts.tabView) {
+        builder.addNodeView(TabsNode.Tab, opts.tabView);
+    }
 
-    builder
-        .addNode(TabsNode.RadioTabs, () => ({
-            spec: schemaSpecs[TabsNode.RadioTabs],
-            toMd: serializerTokens[TabsNode.RadioTabs],
-            fromMd: {
-                tokenSpec: parserTokens[TabsNode.RadioTabs],
-                tokenName: 'r-tabs',
-            },
-        }))
-        .addNode(TabsNode.RadioTab, () => ({
-            spec: schemaSpecs[TabsNode.RadioTab],
-            toMd: serializerTokens[TabsNode.RadioTab],
-            fromMd: {
-                tokenSpec: parserTokens[TabsNode.RadioTab],
-                tokenName: 'r-tab',
-            },
-            view: opts.vtabView,
-        }))
-        .addNode(TabsNode.RadioTabInput, () => ({
-            spec: schemaSpecs[TabsNode.RadioTabInput],
-            toMd: serializerTokens[TabsNode.RadioTabInput],
-            fromMd: {
-                tokenSpec: parserTokens[TabsNode.RadioTabInput],
-                tokenName: 'r-tab-input',
-            },
-            view: opts.vtabInputView,
-        }))
-        .addNode(TabsNode.RadioTabLabel, () => ({
-            spec: schemaSpecs[TabsNode.RadioTabLabel],
-            toMd: serializerTokens[TabsNode.RadioTabLabel],
-            fromMd: {
-                tokenSpec: parserTokens[TabsNode.RadioTabLabel],
-                tokenName: 'r-tab-label',
-            },
-        }));
+    if (opts.tabsListView) {
+        builder.addNodeView(TabsNode.TabsList, opts.tabsListView);
+    }
+
+    if (opts.tabPanelView) {
+        builder.addNodeView(TabsNode.TabPanel, opts.tabPanelView);
+    }
+
+    if (opts.tabsView) {
+        builder.addNodeView(TabsNode.Tabs, opts.tabsView);
+    }
+
+    if (opts.vtabView) {
+        builder.addNodeView(TabsNode.RadioTab, opts.vtabView);
+    }
+
+    if (opts.vtabInputView) {
+        builder.addNodeView(TabsNode.RadioTabInput, opts.vtabInputView);
+    }
 };

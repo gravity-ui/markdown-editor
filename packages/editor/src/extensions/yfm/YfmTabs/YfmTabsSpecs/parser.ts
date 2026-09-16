@@ -1,12 +1,14 @@
+import {transform as yfmTabs} from '@diplodoc/tabs-extension';
 import type Token from 'markdown-it/lib/token';
 
-import type {ParserToken} from '../../../../core';
+import type {ExtensionAuto, ParserToken} from '#core';
 
 import {TabsNode} from './const';
+import {tabsPostPlugin} from './md-plugin';
 
 const attrsFromEntries = (token: Token) => (token.attrs ? Object.fromEntries(token.attrs) : {});
 
-export const parserTokens: Record<TabsNode, ParserToken> = {
+const parserTokens: Record<TabsNode, ParserToken> = {
     [TabsNode.TabPanel]: {
         name: TabsNode.TabPanel,
         type: 'block',
@@ -49,4 +51,33 @@ export const parserTokens: Record<TabsNode, ParserToken> = {
         type: 'block',
         getAttrs: attrsFromEntries,
     },
+};
+
+export const YfmTabsParserSpecs: ExtensionAuto = (builder) => {
+    builder
+        .configureMd((md) =>
+            md
+                .use(
+                    yfmTabs({
+                        bundle: false,
+                        features: {
+                            enabledVariants: {
+                                regular: true,
+                                radio: true,
+                                dropdown: false,
+                                accordion: false,
+                            },
+                        },
+                    }),
+                )
+                .use(tabsPostPlugin),
+        )
+        .addMarkdownTokenParserSpec('tab', () => parserTokens[TabsNode.Tab])
+        .addMarkdownTokenParserSpec('tab-list', () => parserTokens[TabsNode.TabsList])
+        .addMarkdownTokenParserSpec('tab-panel', () => parserTokens[TabsNode.TabPanel])
+        .addMarkdownTokenParserSpec('tabs', () => parserTokens[TabsNode.Tabs])
+        .addMarkdownTokenParserSpec('r-tabs', () => parserTokens[TabsNode.RadioTabs])
+        .addMarkdownTokenParserSpec('r-tab', () => parserTokens[TabsNode.RadioTab])
+        .addMarkdownTokenParserSpec('r-tab-input', () => parserTokens[TabsNode.RadioTabInput])
+        .addMarkdownTokenParserSpec('r-tab-label', () => parserTokens[TabsNode.RadioTabLabel]);
 };
