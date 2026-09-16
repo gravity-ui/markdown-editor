@@ -1,3 +1,5 @@
+import {describe, expect, test, vi} from 'vitest';
+
 import type {
     DynamicModifiers,
     ParserNodeAttrsModifier,
@@ -14,7 +16,7 @@ describe('convertDynamicModifiersConfigs', () => {
             {
                 type: 'parserToken',
                 tokenName: 'bold',
-                process: jest.fn(),
+                process: vi.fn(),
             },
         ];
 
@@ -30,7 +32,7 @@ describe('convertDynamicModifiersConfigs', () => {
             {
                 type: 'parserNodeAttrs',
                 tokenName: 'link',
-                process: jest.fn(),
+                process: vi.fn(),
             },
         ];
 
@@ -46,7 +48,7 @@ describe('convertDynamicModifiersConfigs', () => {
             {
                 type: 'serializerNode',
                 nodeName: 'paragraph',
-                process: jest.fn(),
+                process: vi.fn(),
             },
         ];
 
@@ -77,17 +79,17 @@ describe('convertDynamicModifiersConfigs', () => {
             {
                 type: 'parserToken',
                 tokenName: 'bold',
-                process: jest.fn(),
+                process: vi.fn(),
             },
             {
                 type: 'parserNodeAttrs',
                 tokenName: 'link',
-                process: jest.fn(),
+                process: vi.fn(),
             },
             {
                 type: 'serializerNode',
                 nodeName: 'paragraph',
-                process: jest.fn(),
+                process: vi.fn(),
             },
             {
                 type: 'schemaNodeSpec',

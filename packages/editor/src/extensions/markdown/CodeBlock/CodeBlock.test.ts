@@ -1,4 +1,5 @@
 import {builders} from 'prosemirror-test-builder';
+import {describe, expect, it, vi} from 'vitest';
 
 import {parseDOM} from '../../../../tests/parse-dom';
 import {createMarkupChecker} from '../../../../tests/sameMarkup';
@@ -30,9 +31,9 @@ function createMockDataTransfer(data: Record<string, string>): DataTransfer {
     return {
         types,
         getData: (type: string) => data[type] || '',
-        setData: jest.fn(),
-        clearData: jest.fn(),
-        setDragImage: jest.fn(),
+        setData: vi.fn(),
+        clearData: vi.fn(),
+        setDragImage: vi.fn(),
         dropEffect: 'none',
         effectAllowed: 'all',
         files: [] as unknown as FileList,

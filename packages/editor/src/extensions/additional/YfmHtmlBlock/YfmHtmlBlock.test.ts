@@ -1,5 +1,6 @@
 import {builders} from 'prosemirror-test-builder';
 import dd from 'ts-dedent';
+import {describe, it, vi} from 'vitest';
 
 import {createMarkupChecker} from '../../../../tests/sameMarkup';
 import {ExtensionsManager} from '../../../core';
@@ -16,8 +17,8 @@ import {
 import {YfmHtmlBlockSpecs} from './YfmHtmlBlockSpecs';
 import {YfmHtmlBlockAttrs, yfmHtmlBlockNodeName} from './const';
 
-jest.mock<{v4: () => string}>('uuid', () => ({
-    v4: jest.fn().mockReturnValue('8bca-mocked-7abc'),
+vi.mock('uuid', () => ({
+    v4: vi.fn().mockReturnValue('8bca-mocked-7abc'),
 }));
 
 const {

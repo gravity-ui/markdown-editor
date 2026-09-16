@@ -1,5 +1,6 @@
 import {Schema} from 'prosemirror-model';
 import {EditorState} from 'prosemirror-state';
+import {describe, expect, it} from 'vitest';
 
 import type {Parser} from '../types/parser';
 

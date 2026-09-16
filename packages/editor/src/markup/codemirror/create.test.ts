@@ -1,4 +1,5 @@
 import type {EditorView} from '@codemirror/view';
+import {afterEach, describe, expect, it, vi} from 'vitest';
 
 import {ReactRenderStorage} from '../../extensions';
 import {Logger2} from '../../logger';
@@ -32,7 +33,7 @@ function dispatchPasteWithFiles(view: EditorView, files: File[]) {
 }
 
 function dispatchDropWithFiles(view: EditorView, files: File[]) {
-    jest.spyOn(view, 'posAtCoords').mockReturnValue(0);
+    vi.spyOn(view, 'posAtCoords').mockReturnValue(0);
 
     const event = new MouseEvent('drop', {bubbles: true, cancelable: true});
     Object.defineProperty(event, 'dataTransfer', {
@@ -62,12 +63,12 @@ function createView(uploadHandler: (file: File) => Promise<{url: string}>) {
 
 describe('createCodemirror file upload integration', () => {
     afterEach(() => {
-        jest.restoreAllMocks();
+        vi.restoreAllMocks();
     });
 
     it('should start file upload on paste when upload handler is enabled', () => {
         const file = new File(['test'], 'test.txt', {type: 'text/plain'});
-        const uploadHandler = jest.fn(() => new Promise<{url: string}>(() => undefined));
+        const uploadHandler = vi.fn(() => new Promise<{url: string}>(() => undefined));
         const view = createView(uploadHandler);
 
         dispatchPasteWithFiles(view, [file]);
@@ -81,7 +82,7 @@ describe('createCodemirror file upload integration', () => {
 
     it('should start file upload on drop when upload handler is enabled', () => {
         const file = new File(['test'], 'test.txt', {type: 'text/plain'});
-        const uploadHandler = jest.fn(() => new Promise<{url: string}>(() => undefined));
+        const uploadHandler = vi.fn(() => new Promise<{url: string}>(() => undefined));
         const view = createView(uploadHandler);
 
         dispatchDropWithFiles(view, [file]);

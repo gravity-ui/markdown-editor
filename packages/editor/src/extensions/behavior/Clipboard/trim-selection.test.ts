@@ -1,5 +1,6 @@
 import {TextSelection} from 'prosemirror-state';
 import {builders} from 'prosemirror-test-builder';
+import {describe, expect, it} from 'vitest';
 
 import {ExtensionsManager} from '../../../core';
 import {MathNode, MathSpecs} from '../../additional/Math/MathSpecs';

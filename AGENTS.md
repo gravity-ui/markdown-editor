@@ -4,6 +4,8 @@
 
 **Always run tests in Docker. Never run them locally.**
 
+Unit tests use Vitest. Import `describe`, `it`, `expect`, hooks, and `vi` explicitly from `vitest`; globals are disabled.
+
 ### Prerequisites
 
 Before each test run, start the Podman machine:
@@ -57,6 +59,6 @@ Project docs live in `docs/`. Read the relevant file before working on the corre
 
 - TypeScript, React 18
 - CodeMirror 6, ProseMirror
-- Jest (unit), Playwright (visual/e2e)
+- Vitest (unit), Playwright (visual/e2e)
 - pnpm + nx monorepo
 - Podman / Docker for containerized test runs

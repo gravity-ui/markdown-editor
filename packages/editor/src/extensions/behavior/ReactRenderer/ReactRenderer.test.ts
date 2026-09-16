@@ -1,3 +1,5 @@
+import {describe, expect, it, vi} from 'vitest';
+
 import {ReactRenderStorage} from './index';
 
 describe('ReactRenderer extension', () => {
@@ -16,7 +18,7 @@ describe('ReactRenderer extension', () => {
         });
 
         it('should emit event after creating item', () => {
-            const listener = jest.fn();
+            const listener = vi.fn();
             const storage = new ReactRenderStorage();
             storage.on('update', listener);
             storage.createItem('test', () => null);
@@ -24,7 +26,7 @@ describe('ReactRenderer extension', () => {
         });
 
         it('should emit event after removal item', () => {
-            const listener = jest.fn();
+            const listener = vi.fn();
             const storage = new ReactRenderStorage();
             const item = storage.createItem('test', () => null);
             storage.on('update', listener);
@@ -33,7 +35,7 @@ describe('ReactRenderer extension', () => {
         });
 
         it('should emit event after call item.rerender()', () => {
-            const listener = jest.fn();
+            const listener = vi.fn();
             const storage = new ReactRenderStorage();
             const item = storage.createItem('test', () => null);
             storage.getItems()[0].on('rerender', listener);

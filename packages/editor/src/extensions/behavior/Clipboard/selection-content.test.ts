@@ -1,3 +1,5 @@
+import {describe, expect, it} from 'vitest';
+
 import type {Node} from '#pm/model';
 import {TextSelection} from '#pm/state';
 import {builders} from '#pm/test-builder';

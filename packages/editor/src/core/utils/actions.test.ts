@@ -1,10 +1,7 @@
-/**
- * @jest-environment jsdom
- */
-
 import {EditorState} from 'prosemirror-state';
 import {schema} from 'prosemirror-test-builder';
 import {EditorView} from 'prosemirror-view';
+import {describe, expect, it, vi} from 'vitest';
 
 import {bindActions} from './actions';
 
@@ -17,9 +14,9 @@ describe('bindActions', () => {
         const action1 = 'action1';
         const action2 = 'action2';
 
-        const isActive1 = jest.fn((_a1) => false);
-        const isEnable1 = jest.fn((_a1) => true);
-        const run1 = jest.fn((_a1, _a2, _a3, _a4) => {});
+        const isActive1 = vi.fn((_a1) => false);
+        const isEnable1 = vi.fn((_a1) => true);
+        const run1 = vi.fn((_a1, _a2, _a3, _a4) => {});
 
         const actions = bindActions<string>({
             [action1]: {
@@ -28,9 +25,9 @@ describe('bindActions', () => {
                 run: run1,
             },
             [action2]: {
-                isActive: jest.fn((_a1) => true),
-                isEnable: jest.fn((_a1) => false),
-                run: jest.fn((_a1, _a2, _a3, _a4) => {}),
+                isActive: vi.fn((_a1) => true),
+                isEnable: vi.fn((_a1) => false),
+                run: vi.fn((_a1, _a2, _a3, _a4) => {}),
             },
         })(view);
 
