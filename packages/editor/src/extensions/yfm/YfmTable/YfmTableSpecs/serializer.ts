@@ -1,10 +1,10 @@
 import isNumber from 'is-number';
 
-import type {SerializerNodeToken} from '../../../../core';
+import type {ExtensionAuto, SerializerNodeToken} from '#core';
 
 import {YfmTableAttr, YfmTableNode} from './const';
 
-export const serializerTokens: Record<YfmTableNode, SerializerNodeToken> = {
+const serializerTokens: Record<YfmTableNode, SerializerNodeToken> = {
     [YfmTableNode.Table]: (state, node) => {
         state.ensureNewLine();
         state.write('#|');
@@ -109,4 +109,12 @@ export const serializerTokens: Record<YfmTableNode, SerializerNodeToken> = {
             state.write('\n');
         }
     },
+};
+
+export const YfmTableSerializerSpecs: ExtensionAuto = (builder) => {
+    builder
+        .addNodeSerializerSpec(YfmTableNode.Table, () => serializerTokens[YfmTableNode.Table])
+        .addNodeSerializerSpec(YfmTableNode.Body, () => serializerTokens[YfmTableNode.Body])
+        .addNodeSerializerSpec(YfmTableNode.Row, () => serializerTokens[YfmTableNode.Row])
+        .addNodeSerializerSpec(YfmTableNode.Cell, () => serializerTokens[YfmTableNode.Cell]);
 };
