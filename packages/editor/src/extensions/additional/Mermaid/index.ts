@@ -1,9 +1,9 @@
 import type {MermaidConfig} from 'mermaid' with {'resolution-mode': 'import'};
 
-import type {Action, ExtensionAuto, ExtensionDeps, NodeViewConstructor} from '../../../core';
+import type {Action, ExtensionAuto, ExtensionDeps, NodeViewConstructor} from '#core';
 
 import {WMermaidNodeView} from './MermaidNodeView';
-import {MermaidSpecs} from './MermaidSpecs';
+import {MermaidSpecs, mermaidNodeName} from './MermaidSpecs';
 import {MermaidAction} from './MermaidSpecs/const';
 import {addMermaid} from './actions';
 
@@ -20,9 +20,7 @@ export type MermaidOptions = {
 };
 
 export const Mermaid: ExtensionAuto<MermaidOptions> = (builder, options) => {
-    builder.use(MermaidSpecs, {
-        nodeView: MermaidNodeViewFactory(options),
-    });
+    builder.use(MermaidSpecs, {}).addNodeView(mermaidNodeName, MermaidNodeViewFactory(options));
 
     builder.addAction(MermaidAction, () => addMermaid);
 };
