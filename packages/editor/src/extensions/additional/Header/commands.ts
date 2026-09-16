@@ -14,6 +14,9 @@ import {
 
 export type FoundHeader = {pos: number; node: Node};
 
+// Original positions in the new order, used to keep open settings attached to their actions.
+export const HEADER_ACTION_ORDER_META = 'header-action-order';
+
 /** Find the selected header or the header containing the cursor. */
 export function findHeader(state: EditorState): FoundHeader | null {
     const type = headerType(state.schema);
@@ -88,6 +91,43 @@ export const addHeaderAction =
             const insertAt = slotPositions(headerPos, header).actionsPos + actions.nodeSize - 1;
             const tr = state.tr.insert(insertAt, action);
             dispatch(tr.setSelection(TextSelection.create(tr.doc, insertAt + 1)).scrollIntoView());
+        }
+        return true;
+    };
+
+export const swapHeaderActions =
+    (headerPos: number): Command =>
+    (state, dispatch) => {
+        const header = headerAt(state, headerPos);
+        if (!header || header.child(2).childCount !== 2) return false;
+
+        if (dispatch) {
+            const actions = header.child(2);
+            const first = actions.child(0);
+            const second = actions.child(1);
+            const from = slotPositions(headerPos, header).actionsPos + 1;
+            const middle = from + first.nodeSize;
+            const to = middle + second.nodeSize;
+            const tr = state.tr
+                .replaceWith(from, to, [second, first])
+                .setMeta(HEADER_ACTION_ORDER_META, [middle, from]);
+            const {selection} = state;
+
+            // Follow the same action when the editor has a caret or a text selection in it.
+            if (selection instanceof TextSelection) {
+                let shift = 0;
+                if (selection.from > from && selection.to < middle) shift = second.nodeSize;
+                else if (selection.from > middle && selection.to < to) shift = -first.nodeSize;
+                if (shift)
+                    tr.setSelection(
+                        TextSelection.create(
+                            tr.doc,
+                            selection.anchor + shift,
+                            selection.head + shift,
+                        ),
+                    );
+            }
+            dispatch(tr);
         }
         return true;
     };

@@ -6,13 +6,23 @@ import {Icon, Tooltip, spacing} from '@gravity-ui/uikit';
 import {cn} from 'src/classname';
 import {i18n} from 'src/i18n/header';
 
-import {HEADER_FILL_SWATCHES, type HeaderFillValue} from '../../HeaderSpecs';
+import {
+    HEADER_FILL_SWATCHES,
+    type HeaderActionColorValue,
+    type HeaderFillValue,
+} from '../../HeaderSpecs';
 
 import './FillPalette.scss';
 
 const b = cn('header-fill-palette');
 
-export function FillSwatch({value, children}: {value: HeaderFillValue; children?: ReactNode}) {
+export function FillSwatch({
+    value,
+    children,
+}: {
+    value: HeaderActionColorValue;
+    children?: ReactNode;
+}) {
     return (
         <span className={b('swatch', {color: value})} aria-hidden>
             {children}

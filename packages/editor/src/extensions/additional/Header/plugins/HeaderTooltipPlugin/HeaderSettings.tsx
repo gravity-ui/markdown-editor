@@ -1,7 +1,13 @@
-import {useState} from 'react';
+import {useLayoutEffect, useRef, useState} from 'react';
 
-import {ArrowUpFromSquare, ArrowUpRightFromSquare, LinkSlash, TrashBin} from '@gravity-ui/icons';
-import {Button} from '@gravity-ui/uikit';
+import {
+    ArrowRightArrowLeft,
+    ArrowUpFromSquare,
+    ArrowUpRightFromSquare,
+    Check,
+    TrashBin,
+} from '@gravity-ui/icons';
+import {Button, Icon, Tooltip} from '@gravity-ui/uikit';
 
 import type {EditorView} from '#pm/view';
 import {cn} from 'src/classname';
@@ -23,16 +29,26 @@ import {
     removeHeaderActionAt,
     setHeaderActionAttrs,
     setHeaderAttrs,
+    swapHeaderActions,
 } from '../../commands';
 import {getHeaderTargets, resolveHeaderTarget} from '../targets';
 
-import {FillPalette} from './FillPalette';
+import {FillPalette, FillSwatch} from './FillPalette';
 import {LayoutSettings} from './HeaderAppearance';
 import {applyHeaderCommand, useUrlDraft} from './HeaderPopover';
 import {useImageUpload} from './useImageUpload';
 
 const b = cn('header-toolbar');
 type TargetProps = {targetId: string; editorView: EditorView};
+
+function useSettingsInput(autoFocus: boolean) {
+    const ref = useRef<HTMLInputElement>(null);
+    // Focus once on mount, without the delayed autofocus stealing later input.
+    useLayoutEffect(() => {
+        if (autoFocus) ref.current?.focus({preventScroll: true});
+    }, [autoFocus]);
+    return ref;
+}
 
 export function ImageSettings({
     targetId,
@@ -61,54 +77,68 @@ export function ImageSettings({
         uploading,
     );
     const imageUrl = normalize(draft.value) || undefined;
+    const inputRef = useSettingsInput(true);
     return (
         <div className={b('image')} aria-busy={uploading}>
-            <UrlInput
-                value={draft.value}
-                onUpdate={draft.onUpdate}
-                onSubmit={draft.onSubmit}
-                autoFocus
-                readOnly={uploading}
-                aria-label={i18n('image.url')}
-                placeholder={i18n('image.url')}
-                actions={
-                    pick || attrs.image || imageUrl ? (
-                        <>
-                            {pick && (
-                                <UrlAction
-                                    title={i18n('image.upload')}
-                                    icon={ArrowUpFromSquare}
-                                    loading={uploading}
-                                    onClick={() => {
-                                        draft.reset();
-                                        pick();
-                                    }}
-                                />
-                            )}
-                            {attrs.image && (
-                                <UrlAction
-                                    title={i18n('image.reset')}
-                                    icon={LinkSlash}
-                                    disabled={uploading}
-                                    onClick={() => {
-                                        draft.reset();
-                                        update({image: '', bg: HeaderBackground.Fill});
-                                        draft.onSubmit();
-                                    }}
-                                />
-                            )}
-                            {imageUrl && (
-                                <UrlAction
-                                    title={i18n('image.open')}
-                                    icon={ArrowUpRightFromSquare}
-                                    href={imageUrl}
-                                    onClick={draft.onSubmit}
-                                />
-                            )}
-                        </>
-                    ) : undefined
-                }
-            />
+            {(attrs.image || pick) && (
+                <div className={b('image-heading')}>
+                    {attrs.image && (
+                        <div
+                            className={b('image-preview')}
+                            role="img"
+                            aria-label={i18n('image.preview')}
+                            style={{backgroundImage: toCssUrl(attrs.image) ?? undefined}}
+                        />
+                    )}
+                    {pick && (
+                        <Button
+                            view="outlined"
+                            loading={uploading}
+                            onClick={() => {
+                                draft.reset();
+                                pick();
+                            }}
+                        >
+                            <Icon data={ArrowUpFromSquare} size={16} />
+                            {i18n(attrs.image ? 'image.replace' : 'image.upload')}
+                        </Button>
+                    )}
+                    {attrs.image && (
+                        <UrlAction
+                            title={i18n('image.reset')}
+                            icon={TrashBin}
+                            disabled={uploading}
+                            onClick={() => {
+                                draft.reset();
+                                update({image: '', bg: HeaderBackground.Fill});
+                                draft.onSubmit();
+                            }}
+                        />
+                    )}
+                </div>
+            )}
+            <div className={b('field')}>
+                <span className={b('field-label')}>{i18n('image.url')}</span>
+                <UrlInput
+                    value={draft.value}
+                    onUpdate={draft.onUpdate}
+                    onSubmit={draft.onSubmit}
+                    controlRef={inputRef}
+                    readOnly={uploading}
+                    aria-label={i18n('image.url')}
+                    placeholder="https://"
+                    actions={
+                        imageUrl ? (
+                            <UrlAction
+                                title={i18n('image.open')}
+                                icon={ArrowUpRightFromSquare}
+                                href={imageUrl}
+                                onClick={draft.onSubmit}
+                            />
+                        ) : undefined
+                    }
+                />
+            </div>
             {attrs.bg === HeaderBackground.Image && (
                 <LayoutSettings value={attrs.layout} onChange={(layout) => update({layout})} />
             )}
@@ -133,53 +163,69 @@ export function ActionsSettings({
             targets?.actions[0]?.id
         );
     });
+    const count = targets?.actions.length ?? 0;
     return (
         <div className={b('actions')}>
+            <div className={b('actions-heading')}>
+                <span className={b('actions-limit')}>
+                    {i18n('cta.count', {count, max: MAX_HEADER_ACTIONS})}
+                </span>
+                {count === 2 && (
+                    <Button
+                        view="flat"
+                        onClick={() => {
+                            const current = getHeaderTargets(editorView.state);
+                            if (current)
+                                applyHeaderCommand(
+                                    editorView,
+                                    swapHeaderActions(current.header.pos),
+                                );
+                        }}
+                    >
+                        <Icon data={ArrowRightArrowLeft} size={16} />
+                        {i18n('cta.swap')}
+                    </Button>
+                )}
+            </div>
             {!targets?.actions.length && (
                 <div className={b('actions-empty')}>{i18n('cta.empty')}</div>
             )}
-            {targets?.actions.map((target) => (
+            {targets?.actions.map((target, index) => (
                 <ActionSettings
                     key={target.id}
                     targetId={target.id}
+                    index={index}
                     editorView={editorView}
                     normalizeUrl={normalizeUrl}
                     autoFocus={target.id === focusedId}
                 />
             ))}
-            <div className={b('actions-footer')}>
-                <div className={b('actions-add')}>
-                    <Button
-                        view="outlined"
-                        disabled={(targets?.actions.length ?? 0) >= MAX_HEADER_ACTIONS}
-                        onClick={() => onAdd('button')}
-                    >
-                        {i18n('cta.add')}
-                    </Button>
-                    <Button
-                        view="outlined"
-                        disabled={(targets?.actions.length ?? 0) >= MAX_HEADER_ACTIONS}
-                        onClick={() => onAdd('link')}
-                    >
-                        {i18n('cta.add_link')}
-                    </Button>
+            {count < MAX_HEADER_ACTIONS && (
+                <div className={b('actions-footer')}>
+                    <div className={b('actions-add')}>
+                        <Button view="outlined" onClick={() => onAdd('button')}>
+                            {i18n('cta.add')}
+                        </Button>
+                        <Button view="outlined" onClick={() => onAdd('link')}>
+                            {i18n('cta.add_link')}
+                        </Button>
+                    </div>
                 </div>
-                <span className={b('actions-limit')}>
-                    {i18n('cta.limit', {count: MAX_HEADER_ACTIONS})}
-                </span>
-            </div>
+            )}
         </div>
     );
 }
 
 function ActionSettings({
     targetId,
+    index,
     editorView,
     normalizeUrl,
     autoFocus,
 }: TargetProps & {
     normalizeUrl: (url: string) => string | null;
     autoFocus: boolean;
+    index: number;
 }) {
     const target = resolveHeaderTarget(editorView.state, targetId)!;
     const {href, type, color} = target.node.attrs as HeaderActionAttrs;
@@ -197,9 +243,13 @@ function ActionSettings({
         return false;
     };
     const url = normalizeUrl(draft.value) || undefined;
+    const inputRef = useSettingsInput(autoFocus);
     return (
         <div className={b('action')} role="group" aria-label={title}>
             <div className={b('action-heading')}>
+                <span className={b('action-number')} aria-hidden>
+                    {index + 1}
+                </span>
                 <span className={b('action-title')} title={title}>
                     {title}
                 </span>
@@ -229,45 +279,44 @@ function ActionSettings({
                     }}
                 />
             </div>
-            <UrlInput
-                value={draft.value}
-                onUpdate={draft.onUpdate}
-                onSubmit={draft.onSubmit}
-                autoFocus={autoFocus}
-                aria-label={i18n('cta.href')}
-                placeholder={formsI18n('link-href-placeholder')}
-                actions={
-                    url ? (
-                        <>
-                            <UrlAction
-                                title={formsI18n('link_remove_help')}
-                                icon={LinkSlash}
-                                onClick={() => {
-                                    if (discardAndSubmit()) update({href: ''});
-                                }}
-                            />
+            <div className={b('field')}>
+                <span className={b('field-label')}>{i18n('cta.href')}</span>
+                <UrlInput
+                    value={draft.value}
+                    onUpdate={draft.onUpdate}
+                    onSubmit={draft.onSubmit}
+                    controlRef={inputRef}
+                    aria-label={i18n('cta.href')}
+                    placeholder={formsI18n('link-href-placeholder')}
+                    actions={
+                        url ? (
                             <UrlAction
                                 title={formsI18n('link_open_help')}
                                 icon={ArrowUpRightFromSquare}
                                 href={url}
                                 onClick={draft.onSubmit}
                             />
-                        </>
-                    ) : undefined
-                }
-            />
+                        ) : undefined
+                    }
+                />
+            </div>
             {type === 'button' && (
                 <div className={b('action-color')} role="group" aria-label={i18n('cta.color')}>
                     <span className={b('action-color-label')}>{i18n('cta.color')}</span>
                     <div className={b('action-color-options')}>
-                        <Button
-                            view="flat"
-                            selected={color === 'brand'}
-                            aria-pressed={color === 'brand'}
-                            onClick={() => update({color: 'brand'})}
-                        >
-                            {i18n('cta.color_default')}
-                        </Button>
+                        <Tooltip content={i18n('cta.color_default')}>
+                            <button
+                                type="button"
+                                className={b('default-color')}
+                                aria-label={i18n('cta.color_default')}
+                                aria-pressed={color === 'brand'}
+                                onClick={() => update({color: 'brand'})}
+                            >
+                                <FillSwatch value="brand">
+                                    {color === 'brand' && <Icon data={Check} size={16} />}
+                                </FillSwatch>
+                            </button>
+                        </Tooltip>
                         <FillPalette
                             value={color === 'brand' ? undefined : color}
                             onSelect={(value) => update({color: value})}

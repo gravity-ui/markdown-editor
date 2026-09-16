@@ -3,7 +3,7 @@ import {type EditorState, Plugin, PluginKey, type Transaction} from '#pm/state';
 import {ReplaceAroundStep} from '#pm/transform';
 
 import {headerActionType, headerType} from '../HeaderSpecs';
-import {type FoundHeader, findHeader} from '../commands';
+import {type FoundHeader, HEADER_ACTION_ORDER_META, findHeader} from '../commands';
 
 export type HeaderTarget = {id: string; pos: number};
 export type HeaderTargets = {header: HeaderTarget; actions: HeaderTarget[]};
@@ -53,11 +53,20 @@ export function headerTargetsPlugin() {
                   })
                 : [];
         const actions: HeaderTarget[] = [];
+        const reordered = tr?.getMeta(HEADER_ACTION_ORDER_META) as number[] | undefined;
         const actionsStart =
             found.pos + 2 + found.node.child(0).nodeSize + found.node.child(1).nodeSize;
         found.node.child(2).forEach((_node, offset) => {
             const pos = actionsStart + offset;
-            actions.push(previousActions.find((target) => target.pos === pos) ?? createTarget(pos));
+            const moved =
+                sameHeader && reordered
+                    ? previous?.actions.find((target) => target.pos === reordered[actions.length])
+                    : undefined;
+            actions.push(
+                moved
+                    ? {...moved, pos}
+                    : (previousActions.find((target) => target.pos === pos) ?? createTarget(pos)),
+            );
         });
 
         return {header: sameHeader ? mappedHeader : createTarget(found.pos), actions};

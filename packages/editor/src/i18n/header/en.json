@@ -49,7 +49,10 @@
     "cta.label": "Buttons",
     "cta.add_link": "Add link",
     "cta.empty": "Add a button or link to your header.",
-    "cta.limit": "Up to {{count}} buttons or links",
     "cta.color": "Button colour",
-    "cta.color_default": "Default"
+    "cta.color_default": "Default",
+    "cta.count": "{{count}} of {{max}} actions",
+    "cta.swap": "Swap order",
+    "image.replace": "Replace image",
+    "image.preview": "Image preview"
 }

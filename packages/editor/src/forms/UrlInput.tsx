@@ -26,7 +26,14 @@ export type UrlInputProps = {
     actions?: ReactNode;
 } & Pick<
     TextInputProps,
-    'autoFocus' | 'placeholder' | 'disabled' | 'readOnly' | 'onBlur' | 'onKeyDown' | 'className'
+    | 'autoFocus'
+    | 'controlRef'
+    | 'placeholder'
+    | 'disabled'
+    | 'readOnly'
+    | 'onBlur'
+    | 'onKeyDown'
+    | 'className'
 >;
 
 export function UrlInput({

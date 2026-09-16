@@ -132,16 +132,25 @@ export type LayoutSettingsProps = {
 
 export function LayoutSettings({value, onChange}: LayoutSettingsProps) {
     return (
-        <div className={b('layout')}>
-            <Choices
-                label={i18n('layout')}
-                value={value}
-                onChange={onChange}
-                options={[
-                    {value: HeaderLayout.Cover, label: i18n('layout.cover')},
-                    {value: HeaderLayout.Split, label: i18n('layout.split')},
-                ]}
-            />
+        <div className={b('layout')} role="group" aria-label={i18n('layout')}>
+            <span className={b('label')}>{i18n('layout')}</span>
+            <div className={b('layouts')}>
+                {[HeaderLayout.Cover, HeaderLayout.Split].map((layout) => (
+                    <button
+                        key={layout}
+                        type="button"
+                        className={b('layout-option', {selected: value === layout})}
+                        aria-pressed={value === layout}
+                        onClick={() => onChange(layout)}
+                    >
+                        <span className={b('layout-preview', {type: layout})} aria-hidden>
+                            <span className={b('layout-picture')} />
+                            <span className={b('layout-lines')} />
+                        </span>
+                        {i18n(layout === HeaderLayout.Cover ? 'layout.cover' : 'layout.split')}
+                    </button>
+                ))}
+            </div>
         </div>
     );
 }

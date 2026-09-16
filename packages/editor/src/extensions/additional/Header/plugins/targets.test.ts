@@ -3,6 +3,7 @@ import {EditorState, TextSelection} from 'prosemirror-state';
 import {builders} from 'prosemirror-test-builder';
 
 import {getSchemaSpecs} from '../HeaderSpecs';
+import {swapHeaderActions} from '../commands';
 
 import {getHeaderTargets, headerTargetsPlugin, resolveHeaderTarget} from './targets';
 
@@ -69,6 +70,26 @@ describe('Header targets', () => {
         expect(getHeaderTargets(state)).toEqual(before);
         expect(resolveHeaderTarget(state, before.header.id)?.node.attrs.format).toBe('small');
         expect(resolveHeaderTarget(state, before.actions[0].id)?.node.attrs.href).toBe('/updated');
+    });
+
+    it('keeps each action identity through repeated swaps and subsequent edits', () => {
+        let state = createState();
+        const before = getHeaderTargets(state)!;
+        const dispatch = (tr: Parameters<typeof state.apply>[0]) => {
+            state = state.apply(tr);
+        };
+        swapHeaderActions(0)(state, dispatch);
+        expect(getHeaderTargets(state)?.actions.map(({id}) => id)).toEqual([
+            before.actions[1].id,
+            before.actions[0].id,
+        ]);
+        expect(resolveHeaderTarget(state, before.actions[0].id)?.node.textContent).toBe('First');
+        expect(resolveHeaderTarget(state, before.actions[1].id)?.node.textContent).toBe('Second');
+        const moved = resolveHeaderTarget(state, before.actions[0].id)!;
+        dispatch(state.tr.setNodeMarkup(moved.pos, null, {...moved.node.attrs, href: '/moved'}));
+        swapHeaderActions(0)(state, dispatch);
+        expect(getHeaderTargets(state)).toEqual(before);
+        expect(resolveHeaderTarget(state, before.actions[0].id)?.node.attrs.href).toBe('/moved');
     });
 
     it('keeps the second action identity when the first action is deleted', () => {

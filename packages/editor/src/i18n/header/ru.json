@@ -49,7 +49,10 @@
     "cta.label": "Кнопки",
     "cta.add_link": "Добавить ссылку",
     "cta.empty": "Добавьте кнопку или ссылку на обложку.",
-    "cta.limit": "До {{count}} кнопок или ссылок",
     "cta.color": "Цвет кнопки",
-    "cta.color_default": "По умолчанию"
+    "cta.color_default": "По умолчанию",
+    "cta.count": "{{count}} из {{max}} действий",
+    "cta.swap": "Поменять местами",
+    "image.replace": "Заменить картинку",
+    "image.preview": "Превью картинки"
 }

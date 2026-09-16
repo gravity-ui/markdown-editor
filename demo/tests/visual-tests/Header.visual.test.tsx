@@ -132,6 +132,8 @@ test.describe('Extensions, Header', () => {
         await expect(page.getByRole('textbox', {name: 'Image URL'})).toHaveValue(
             '/assets/header-cover.svg',
         );
+        await expect(page.getByRole('img', {name: 'Image preview'})).toBeVisible();
+        await expect(page.getByRole('button', {name: 'Replace image'})).toBeVisible();
         const layout = page.getByRole('group', {name: 'Image layout', exact: true});
         await expect(layout.getByRole('button', {name: 'Background', exact: true})).toHaveAttribute(
             'aria-pressed',
@@ -144,7 +146,7 @@ test.describe('Extensions, Header', () => {
         );
 
         await page.mouse.move(0, 0);
-        await expectScreenshot();
+        await expectScreenshot({component: page.getByRole('dialog', {name: 'Image', exact: true})});
 
         await layout.getByRole('button', {name: 'Beside the text', exact: true}).click();
         await expect(page.getByTestId('g-md-header')).toHaveAttribute('data-layout', 'split');
@@ -354,7 +356,9 @@ test.describe('Extensions, Header', () => {
             '/start',
         );
         await page.mouse.move(0, 0);
-        await expectScreenshot();
+        await expectScreenshot({
+            component: page.getByRole('dialog', {name: 'Buttons and links', exact: true}),
+        });
 
         await secondInput.fill('https://example.com/sections');
         await secondInput.press('Enter');
@@ -369,7 +373,8 @@ test.describe('Extensions, Header', () => {
         await expect(actions.nth(1)).toHaveAttribute('href', 'https://example.com/sections');
 
         await links.click();
-        await first.getByRole('button', {name: 'Remove link', exact: true}).click();
+        await first.locator('.g-text-input__clear').click();
+        await firstInput.press('Enter');
         await expect(actions.nth(0)).not.toHaveAttribute('href');
         await expect(actions.nth(0)).toHaveText('Начать работу');
         await expect(actions.nth(0)).toHaveAttribute('data-type', 'button');
@@ -409,7 +414,9 @@ test.describe('Extensions, Header', () => {
         );
         await expect(page.locator('.playground__markup')).toContainText("color: 'green'");
         await page.mouse.move(0, 0);
-        await expectScreenshot();
+        await expectScreenshot({
+            component: page.getByRole('dialog', {name: 'Buttons and links', exact: true}),
+        });
 
         const kind = first.getByRole('group', {name: 'Button kind'});
         await kind.getByRole('button', {name: 'Link', exact: true}).click();
@@ -442,9 +449,9 @@ test.describe('Extensions, Header', () => {
             .getByRole('button', {name: 'Buttons and links', exact: true});
         await header.locator('.g-md-header-title').click();
         await trigger.click();
-        await expect(page.getByText('Up to 2 buttons or links', {exact: true})).toBeVisible();
-        await expect(page.getByRole('button', {name: 'Add button', exact: true})).toBeDisabled();
-        await expect(page.getByRole('button', {name: 'Add link', exact: true})).toBeDisabled();
+        await expect(page.getByText('2 of 2 actions', {exact: true})).toBeVisible();
+        await expect(page.getByRole('button', {name: 'Add button', exact: true})).toHaveCount(0);
+        await expect(page.getByRole('button', {name: 'Add link', exact: true})).toHaveCount(0);
         await page
             .getByRole('group', {name: 'Смотреть разделы', exact: true})
             .getByRole('button', {name: 'Remove action'})
@@ -459,6 +466,52 @@ test.describe('Extensions, Header', () => {
         await page.keyboard.type('New link');
         await expect(actions.nth(1)).toHaveText('New link');
         await expect(actions.nth(1)).toHaveAttribute('data-type', 'link');
+    });
+
+    test('Swapping actions preserves colours and pending URLs', async ({mount, page, editor}) => {
+        await mount(<HeaderStories.Filled />);
+        const header = page.getByTestId('g-md-header');
+        const actions = header.locator('.g-md-header-action');
+        const trigger = page
+            .getByTestId('g-md-toolbar-header')
+            .getByRole('button', {name: 'Buttons and links', exact: true});
+        await header.locator('.g-md-header-title').click();
+        await trigger.click();
+        const first = page.getByRole('group', {name: 'Начать работу', exact: true});
+        const second = page.getByRole('group', {name: 'Смотреть разделы', exact: true});
+        const firstInput = first.getByRole('textbox', {name: 'Link URL'});
+        const secondInput = second.getByRole('textbox', {name: 'Link URL'});
+        await first.getByRole('button', {name: 'Green', exact: true}).click();
+        await firstInput.fill('/first-draft');
+        await secondInput.fill('/second-draft');
+        const swap = page.getByRole('button', {name: 'Swap order', exact: true});
+        await swap.focus();
+        await swap.press('Enter');
+        await expect(swap).toBeFocused();
+        await expect(actions).toHaveText(['Смотреть разделы', 'Начать работу']);
+        await expect(actions.nth(1)).toHaveAttribute('data-color', 'green');
+        await expect(actions.first()).toHaveAttribute('data-type', 'link');
+        await expect(firstInput).toHaveValue('/first-draft');
+        await expect(secondInput).toHaveValue('/second-draft');
+        // Reordering must not commit, discard or exchange the URL drafts.
+        await expect(actions.first()).toHaveAttribute('href', '/sections');
+        await expect(actions.nth(1)).toHaveAttribute('href', '/start');
+        await secondInput.press('Enter');
+        await expect(actions.first()).toHaveAttribute('href', '/second-draft');
+        await expect(actions.nth(1)).toHaveAttribute('href', '/first-draft');
+        await trigger.click();
+        await swap.click();
+        await page.keyboard.press('Escape');
+        await editor.clickMainToolbarButton('Undo');
+        await expect(actions).toHaveText(['Смотреть разделы', 'Начать работу']);
+        await editor.clickMainToolbarButton('Redo');
+        await expect(actions).toHaveText(['Начать работу', 'Смотреть разделы']);
+        await expect(actions.first()).toHaveAttribute('href', '/first-draft');
+        await expect(actions.first()).toHaveAttribute('data-color', 'green');
+        await editor.switchMode('markup');
+        await editor.switchMode('wysiwyg');
+        await expect(actions).toHaveText(['Начать работу', 'Смотреть разделы']);
+        await expect(actions.nth(1)).toHaveAttribute('href', '/second-draft');
     });
 
     test('Links settings follow keyboard selection', async ({mount, page, editor}) => {
@@ -558,7 +611,7 @@ test.describe('Extensions, Header', () => {
     });
 
     test('Link URL saves when clicking another action', async ({mount, page, editor}) => {
-        await mount(<HeaderStories.Filled />);
+        await mount(<HeaderStories.Filled />, {width: 800, hidePlaygroundBlocks: true});
         const header = page.getByTestId('g-md-header');
         const actions = header.locator('.g-md-header-action');
         await actions.first().click();
@@ -761,6 +814,25 @@ test.describe('Extensions, Header', () => {
         await expect(actions).toHaveAttribute('href', '/kept');
         await expect(actions).toHaveAttribute('data-type', 'link');
         await expect(editor.locators.contenteditable).toBeFocused();
+    });
+
+    test('Image settings fit a narrow viewport', async ({mount, page, expectScreenshot}) => {
+        await page.setViewportSize({width: 375, height: 800});
+        await mount(<HeaderStories.BackgroundImage />, {width: 335, hidePlaygroundBlocks: true});
+        await page.getByTestId('g-md-header').locator('.g-md-header-title').click();
+        await page
+            .getByTestId('g-md-toolbar-header')
+            .getByRole('button', {name: 'Image', exact: true})
+            .click();
+        const dialog = page.getByRole('dialog', {name: 'Image', exact: true});
+        await expect(dialog).toBeVisible();
+        await expect
+            .poll(() => dialog.evaluate((element) => element.scrollWidth <= element.clientWidth))
+            .toBe(true);
+        await page.mouse.move(0, 0);
+        await expectScreenshot({component: dialog});
+        await dialog.getByRole('button', {name: 'Beside the text', exact: true}).click();
+        await expect(page.getByTestId('g-md-header')).toHaveAttribute('data-layout', 'split');
     });
 
     test('Header dialogs fit a narrow viewport', async ({mount, page}) => {

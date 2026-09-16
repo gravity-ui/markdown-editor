@@ -57,6 +57,12 @@
                 }
             }
         }
+
+        &_color_brand {
+            color: var(--g-color-text-brand-contrast);
+            border-color: var(--g-color-base-brand);
+            background-color: var(--g-color-base-brand);
+        }
     }
 
     &__check {

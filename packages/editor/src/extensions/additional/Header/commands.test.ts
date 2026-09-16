@@ -1,3 +1,4 @@
+import {history, redo, undo} from 'prosemirror-history';
 import {Schema} from 'prosemirror-model';
 import {EditorState, TextSelection} from 'prosemirror-state';
 import {builders} from 'prosemirror-test-builder';
@@ -15,6 +16,7 @@ import {
     setHeaderActionAttrs,
     setHeaderActionType,
     setHeaderAttrs,
+    swapHeaderActions,
     toHeader,
     unwrapHeader,
 } from './commands';
@@ -226,6 +228,59 @@ describe('Header commands', () => {
             );
             expect(view.state.selection.$from.parent.textContent).toBe('Description');
             expect(removeHeaderActionAt(999)(view.state, view.dispatch)).toBe(false);
+        });
+    });
+
+    describe('swapHeaderActions', () => {
+        const first = action({href: '/first', color: 'green'}, 'First');
+        const second = action({href: '/second', type: 'link', color: 'purple'}, 'Second');
+
+        it('swaps complete actions in one undoable change', () => {
+            const document = doc(header(title('Title'), description(), actions(first, second)));
+            let state = EditorState.create({
+                schema,
+                doc: document,
+                selection: TextSelection.create(document, 2),
+                plugins: [history()],
+            });
+            const dispatch = (tr: Parameters<typeof state.apply>[0]) => {
+                state = state.apply(tr);
+            };
+            expect(swapHeaderActions(0)(state)).toBe(true);
+            expect(state.doc).toMatchNode(document);
+            swapHeaderActions(0)(state, dispatch);
+            expect(state.doc.firstChild?.child(2)).toMatchNode(actions(second, first));
+            expect(state.selection.from).toBe(2);
+            expect(undo(state, dispatch)).toBe(true);
+            expect(state.doc).toMatchNode(document);
+            expect(redo(state, dispatch)).toBe(true);
+            expect(state.doc.firstChild?.child(2)).toMatchNode(actions(second, first));
+        });
+
+        it.each([0, 1])('keeps the caret and selection in action %s', (index) => {
+            const document = doc(header(title(), description(), actions(first, second)));
+            const pos = 6 + (index === 0 ? 0 : first.nodeSize);
+            const view = editorAt(document, pos + 1);
+            view.dispatch(
+                view.state.tr.setSelection(TextSelection.create(document, pos + 3, pos + 1)),
+            );
+            swapHeaderActions(0)(view.state, view.dispatch);
+            const shift = index === 0 ? second.nodeSize : -first.nodeSize;
+            expect(view.state.selection.anchor).toBe(pos + 3 + shift);
+            expect(view.state.selection.head).toBe(pos + 1 + shift);
+            expect(view.state.selection.$from.parent).toMatchNode(index === 0 ? first : second);
+            view.destroy();
+        });
+
+        it('ignores missing headers and incomplete action pairs', () => {
+            for (const content of [actions(), actions(first)]) {
+                const view = editorAt(doc(header(title(), description(), content)), 2);
+                const dispatch = jest.fn();
+                expect(swapHeaderActions(0)(view.state, dispatch)).toBe(false);
+                expect(swapHeaderActions(999)(view.state, dispatch)).toBe(false);
+                expect(dispatch).not.toHaveBeenCalled();
+                view.destroy();
+            }
         });
     });
 
