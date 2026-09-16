@@ -32,11 +32,11 @@ const schema = new Schema({
 const {
     doc,
     paragraph: p,
-    header,
-    header_title: title,
-    header_subtitle: subtitle,
-    header_actions: actions,
-    header_action: action,
+    header_block: header,
+    header_block_title: title,
+    header_block_description: description,
+    header_block_actions: actions,
+    header_block_action: action,
 } = builders(schema);
 
 function editorAt(pmDoc: ReturnType<typeof doc>, pos: number) {
@@ -50,14 +50,14 @@ function editorAt(pmDoc: ReturnType<typeof doc>, pos: number) {
 }
 
 const filled = () =>
-    doc(header(title('Title'), subtitle('Subtitle'), actions(action('Go'))), p('after'));
+    doc(header(title('Title'), description('Description'), actions(action('Go'))), p('after'));
 
 describe('Header commands', () => {
     describe('toHeader', () => {
         it('should replace an empty paragraph', () => {
             const view = editorAt(doc(p()), 1);
             expect(toHeader(view.state, view.dispatch, view)).toBe(true);
-            expect(view.state.doc.firstChild?.type.name).toBe('header');
+            expect(view.state.doc.firstChild?.type.name).toBe('header_block');
             expect(view.state.doc.childCount).toBe(2);
         });
 
@@ -65,7 +65,7 @@ describe('Header commands', () => {
             const view = editorAt(doc(p('keep me')), 3);
             expect(toHeader(view.state, view.dispatch, view)).toBe(true);
             expect(view.state.doc.child(0)).toMatchNode(p('keep me'));
-            expect(view.state.doc.child(1).type.name).toBe('header');
+            expect(view.state.doc.child(1).type.name).toBe('header_block');
         });
 
         it('should refuse to nest a header inside a header', () => {
@@ -76,7 +76,7 @@ describe('Header commands', () => {
         it('should put the cursor into the title', () => {
             const view = editorAt(doc(p()), 1);
             toHeader(view.state, view.dispatch, view);
-            expect(view.state.selection.$from.parent.type.name).toBe('header_title');
+            expect(view.state.selection.$from.parent.type.name).toBe('header_block_title');
         });
     });
 
@@ -125,7 +125,7 @@ describe('Header commands', () => {
 
         it('should stop at the maximum of two', () => {
             const view = editorAt(
-                doc(header(title('T'), subtitle('S'), actions(action('a'), action('b')))),
+                doc(header(title('T'), description('S'), actions(action('a'), action('b')))),
                 2,
             );
             expect(addHeaderAction(0)(view.state, view.dispatch)).toBe(false);
@@ -133,7 +133,7 @@ describe('Header commands', () => {
 
         it('should remove an action by index', () => {
             const view = editorAt(
-                doc(header(title('T'), subtitle('S'), actions(action('a'), action('b')))),
+                doc(header(title('T'), description('S'), actions(action('a'), action('b')))),
                 2,
             );
             expect(removeHeaderAction(0, 0)(view.state, view.dispatch)).toBe(true);
@@ -147,18 +147,18 @@ describe('Header commands', () => {
     });
 
     describe('keyboard boundaries', () => {
-        it('nextHeaderSlot: title to subtitle', () => {
+        it('nextHeaderSlot: title to description', () => {
             const view = editorAt(filled(), 2);
             expect(nextHeaderSlot(view.state, view.dispatch, view)).toBe(true);
-            expect(view.state.selection.$from.parent.type.name).toBe('header_subtitle');
+            expect(view.state.selection.$from.parent.type.name).toBe('header_block_description');
         });
 
-        it('nextHeaderSlot: subtitle to the first action', () => {
+        it('nextHeaderSlot: description to the first action', () => {
             const pmDoc = filled();
             const view = editorAt(pmDoc, 9);
-            expect(view.state.selection.$from.parent.type.name).toBe('header_subtitle');
+            expect(view.state.selection.$from.parent.type.name).toBe('header_block_description');
             expect(nextHeaderSlot(view.state, view.dispatch, view)).toBe(true);
-            expect(view.state.selection.$from.parent.type.name).toBe('header_action');
+            expect(view.state.selection.$from.parent.type.name).toBe('header_block_action');
         });
 
         it('nextHeaderSlot: stays out of plain paragraphs', () => {
@@ -174,7 +174,7 @@ describe('Header commands', () => {
         });
 
         it('exitHeaderForward: creates a paragraph when the header ends the document', () => {
-            const view = editorAt(doc(header(title('T'), subtitle(), actions())), 2);
+            const view = editorAt(doc(header(title('T'), description(), actions())), 2);
             expect(exitHeaderForward(view.state, view.dispatch, view)).toBe(true);
             expect(view.state.doc.childCount).toBe(2);
         });
@@ -183,7 +183,7 @@ describe('Header commands', () => {
             const view = editorAt(filled(), 2);
             expect(unwrapHeader(view.state, view.dispatch, view)).toBe(true);
             expect(view.state.doc.child(0)).toMatchNode(p('Title'));
-            expect(view.state.doc.child(1)).toMatchNode(p('Subtitle'));
+            expect(view.state.doc.child(1)).toMatchNode(p('Description'));
         });
 
         it('unwrapHeader: only fires at the very start of the title', () => {
@@ -192,10 +192,10 @@ describe('Header commands', () => {
         });
 
         it('removeEmptyAction: deletes an empty button instead of merging it', () => {
-            const pmDoc = doc(header(title('T'), subtitle('S'), actions(action())));
+            const pmDoc = doc(header(title('T'), description('S'), actions(action())));
             const actionPos = pmDoc.resolve(1).node().child(2).nodeSize;
             const view = editorAt(pmDoc, pmDoc.content.size - 3);
-            expect(view.state.selection.$from.parent.type.name).toBe('header_action');
+            expect(view.state.selection.$from.parent.type.name).toBe('header_block_action');
             expect(removeEmptyAction(view.state, view.dispatch, view)).toBe(true);
             expect(view.state.doc.firstChild?.child(2).childCount).toBe(0);
             expect(actionPos).toBeGreaterThan(0);

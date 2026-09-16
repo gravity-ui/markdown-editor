@@ -172,7 +172,7 @@
     }
 }
 
-.g-md-header-subtitle {
+.g-md-header-description {
     margin-bottom: var(--g-spacing-6);
 
     color: var(--g-md-header-text-secondary);
@@ -225,20 +225,7 @@
         color: var(--g-color-text-brand-contrast);
     }
 
-    // Вторичная — контурная: своего фона нет, поэтому читается на любой заливке
-    &[data-variant='normal'] {
-        border-color: var(--g-md-header-line);
-        background-color: transparent;
-
-        &,
-        &:hover,
-        &:active,
-        &:visited {
-            color: var(--g-md-header-text);
-        }
-    }
-
-    &[data-variant='link'] {
+    &[data-type='link'] {
         min-height: 0;
         padding: 0;
 
@@ -261,7 +248,7 @@
     padding: 0 var(--g-spacing-3);
     @include uikit.text-body-1();
 
-    &[data-variant='link'] {
+    &[data-type='link'] {
         min-height: 0;
         padding: 0;
     }

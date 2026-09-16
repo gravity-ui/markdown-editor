@@ -1,24 +1,23 @@
 import {nodeTypeFactory} from 'src/utils/schema';
 
-export const headerDirectiveName = 'header';
-export const actionDirectiveName = 'action';
+export const headerDirectiveName = 'header-block';
 
 export const HeaderNode = {
-    Header: 'header',
-    Title: 'header_title',
-    Subtitle: 'header_subtitle',
-    Actions: 'header_actions',
-    Action: 'header_action',
+    Header: 'header_block',
+    Title: 'header_block_title',
+    Description: 'header_block_description',
+    Actions: 'header_block_actions',
+    Action: 'header_block_action',
 } as const;
 export type HeaderNodeName = (typeof HeaderNode)[keyof typeof HeaderNode];
 
 export const headerType = nodeTypeFactory(HeaderNode.Header);
 export const headerTitleType = nodeTypeFactory(HeaderNode.Title);
-export const headerSubtitleType = nodeTypeFactory(HeaderNode.Subtitle);
+export const headerDescriptionType = nodeTypeFactory(HeaderNode.Description);
 export const headerActionsType = nodeTypeFactory(HeaderNode.Actions);
 export const headerActionType = nodeTypeFactory(HeaderNode.Action);
 
-/** Имена атрибутов директивы; совпадают с именами атрибутов узла, кроме служебных. */
+/** Оформление живёт в атрибутах директивы; содержимое — в её теле, в yaml. */
 export const HeaderAttr = {
     Format: 'format',
     Edges: 'edges',
@@ -30,9 +29,10 @@ export const HeaderAttr = {
     Border: 'border',
 } as const;
 
+/** Ключи одного элемента `actions` в yaml-теле. */
 export const HeaderActionAttr = {
+    Type: 'type',
     Href: 'href',
-    Variant: 'variant',
 } as const;
 
 export const HeaderFormat = {Large: 'large', Small: 'small'} as const;
@@ -46,11 +46,7 @@ export const HeaderBorder = {
     Dotted: 'dotted',
 } as const;
 export const HeaderTextColor = {Auto: 'auto', Light: 'light', Dark: 'dark'} as const;
-export const HeaderActionVariant = {
-    Primary: 'primary',
-    Normal: 'normal',
-    Link: 'link',
-} as const;
+export const HeaderActionType = {Button: 'button', Link: 'link'} as const;
 
 export type HeaderFormatValue = (typeof HeaderFormat)[keyof typeof HeaderFormat];
 export type HeaderEdgesValue = (typeof HeaderEdges)[keyof typeof HeaderEdges];
@@ -58,8 +54,7 @@ export type HeaderLayoutValue = (typeof HeaderLayout)[keyof typeof HeaderLayout]
 export type HeaderBackgroundValue = (typeof HeaderBackground)[keyof typeof HeaderBackground];
 export type HeaderBorderValue = (typeof HeaderBorder)[keyof typeof HeaderBorder];
 export type HeaderTextColorValue = (typeof HeaderTextColor)[keyof typeof HeaderTextColor];
-export type HeaderActionVariantValue =
-    (typeof HeaderActionVariant)[keyof typeof HeaderActionVariant];
+export type HeaderActionTypeValue = (typeof HeaderActionType)[keyof typeof HeaderActionType];
 
 /**
  * Словарь заливок: один шаг на оттенок, чтобы сво́тчи различались с одного взгляда. Значение —
@@ -91,8 +86,8 @@ export const HeaderDefaults = {
 } as const;
 
 export const HeaderActionDefaults = {
+    [HeaderActionAttr.Type]: HeaderActionType.Button,
     [HeaderActionAttr.Href]: '',
-    [HeaderActionAttr.Variant]: HeaderActionVariant.Primary,
 } as const;
 
 /** Больше двух CTA в hero-блоке — визуальный шум; ограничение разделяют схема, команды и тулбар. */
@@ -102,7 +97,7 @@ export const HeaderClassName = {
     Header: 'g-md-header',
     Content: 'g-md-header-content',
     Title: 'g-md-header-title',
-    Subtitle: 'g-md-header-subtitle',
+    Description: 'g-md-header-description',
     Actions: 'g-md-header-actions',
     Action: 'g-md-header-action',
 } as const;

@@ -19,7 +19,7 @@ export const Empty: Story = {
 };
 
 export const Filled: Story = {
-    name: 'Title, subtitle and two buttons',
+    name: 'Title, description and two actions',
     args: {markup: markup.filled},
 };
 
@@ -76,4 +76,9 @@ export const InsideCut: Story = {
 export const EveryAttribute: Story = {
     name: 'Every attribute at once',
     args: {markup: markup.everything},
+};
+
+export const BrokenYaml: Story = {
+    name: 'Broken yaml in the body',
+    args: {markup: markup.broken},
 };

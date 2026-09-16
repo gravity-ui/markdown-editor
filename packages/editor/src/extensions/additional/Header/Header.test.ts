@@ -3,12 +3,13 @@ import dedent from 'ts-dedent';
 
 import {ExtensionsManager} from '#core';
 import {BaseNode, BaseSchemaSpecs} from 'src/extensions/base/specs';
-import {BoldSpecs, boldMarkName} from 'src/extensions/markdown/Bold/BoldSpecs';
+import {BoldSpecs} from 'src/extensions/markdown/Bold/BoldSpecs';
 
 import {createMarkupChecker} from '../../../../tests/sameMarkup';
 
 import {
     HEADER_FILL_SWATCHES,
+    HeaderActionType,
     HeaderBackground,
     HeaderBorder,
     HeaderEdges,
@@ -18,7 +19,9 @@ import {
     HeaderSpecs,
     HeaderTextColor,
     normalizeHeaderAttrs,
+    parseHeaderContent,
     serializeHeaderAttrs,
+    serializeHeaderContent,
 } from './HeaderSpecs';
 
 const {
@@ -29,17 +32,15 @@ const {
     extensions: (builder) => builder.use(BaseSchemaSpecs, {}).use(BoldSpecs, {}).use(HeaderSpecs),
 }).buildDeps();
 
-const {doc, p, b, header, title, subtitle, actions, action} = builders<
-    'doc' | 'p' | 'header' | 'title' | 'subtitle' | 'actions' | 'action',
-    'b'
+const {doc, p, header, title, description, actions, action} = builders<
+    'doc' | 'p' | 'header' | 'title' | 'description' | 'actions' | 'action'
 >(schema, {
     doc: {nodeType: BaseNode.Doc},
     p: {nodeType: BaseNode.Paragraph},
     text: {nodeType: BaseNode.Text},
-    b: {markType: boldMarkName},
     header: {nodeType: HeaderNode.Header},
     title: {nodeType: HeaderNode.Title},
-    subtitle: {nodeType: HeaderNode.Subtitle},
+    description: {nodeType: HeaderNode.Description},
     actions: {nodeType: HeaderNode.Actions},
     action: {nodeType: HeaderNode.Action},
 });
@@ -47,60 +48,67 @@ const {doc, p, b, header, title, subtitle, actions, action} = builders<
 const {same} = createMarkupChecker({parser, serializer});
 
 describe('Header extension', () => {
-    it('should parse a bare header', () =>
+    it('should parse an empty block', () =>
         same(
             dedent`
-            :::header [Welcome]
+            :::header-block
             :::
             `,
-            doc(header(title('Welcome'), subtitle(), actions())),
+            doc(header(title(), description(), actions())),
         ));
 
-    it('should parse title, subtitle and actions', () =>
+    it('should parse title, description and actions', () =>
         same(
             dedent`
-            :::header [Welcome to the portal]
-            Everything the team needs, on one page.
-
-            ::action[Get started]{href="/start"}
-            ::action[Docs]{href="/docs" variant=link}
+            :::header-block
+            title: 'Welcome to the portal'
+            description: 'Everything the team needs, on one page.'
+            actions:
+              - type: 'button'
+                title: 'Get started'
+                href: '/start'
+              - type: 'link'
+                title: 'Docs'
+                href: '/docs'
             :::
             `,
             doc(
                 header(
                     title('Welcome to the portal'),
-                    subtitle('Everything the team needs, on one page.'),
+                    description('Everything the team needs, on one page.'),
                     actions(
-                        action({href: '/start', variant: 'primary'}, 'Get started'),
-                        action({href: '/docs', variant: 'link'}, 'Docs'),
+                        action({type: HeaderActionType.Button, href: '/start'}, 'Get started'),
+                        action({type: HeaderActionType.Link, href: '/docs'}, 'Docs'),
                     ),
                 ),
             ),
         ));
 
-    it('should not leave a blank line when there are no actions', () =>
+    it('should omit keys of empty slots', () =>
         same(
             dedent`
-            :::header [Welcome]
-            A subtitle and nothing else.
+            :::header-block
+            title: 'Only a title'
             :::
             `,
-            doc(header(title('Welcome'), subtitle('A subtitle and nothing else.'), actions())),
+            doc(header(title('Only a title'), description(), actions())),
         ));
 
-    it('should keep inline marks inside the title', () =>
+    it('should keep markdown syntax in the text as plain characters', () =>
         same(
             dedent`
-            :::header [Hello **world**]
+            :::header-block
+            title: 'Hello **world**'
             :::
             `,
-            doc(header(title('Hello ', b('world')), subtitle(), actions())),
+            doc(header(title('Hello **world**'), description(), actions())),
         ));
 
     it('should not serialize default attributes', () =>
         same(
             dedent`
-            :::header [Plain]
+            :::header-block
+            title: 'Plain'
             :::
             `,
             doc(
@@ -114,7 +122,7 @@ describe('Header extension', () => {
                         border: HeaderBorder.None,
                     },
                     title('Plain'),
-                    subtitle(),
+                    description(),
                     actions(),
                 ),
             ),
@@ -123,7 +131,8 @@ describe('Header extension', () => {
     it('should round-trip every non-default attribute', () =>
         same(
             dedent`
-            :::header [Styled] {format=small edges=bleed bg=image layout=split fill=contrast text=light image="/hero.png" border=dashed}
+            :::header-block {format=small edges=bleed bg=image layout=split fill=contrast text=light image="/hero.png" border=dashed}
+            title: 'Styled'
             :::
             `,
             doc(
@@ -139,32 +148,49 @@ describe('Header extension', () => {
                         border: HeaderBorder.Dashed,
                     },
                     title('Styled'),
-                    subtitle(),
+                    description(),
                     actions(),
                 ),
             ),
         ));
 
-    it('should move extra blocks out of the header instead of dropping them', () => {
-        const parsed = parser.parse(dedent`
-            :::header [Title]
-            Subtitle line.
-
-            Stray paragraph.
+    it('should round-trip text that yaml would otherwise reinterpret', () =>
+        same(
+            dedent`
+            :::header-block
+            title: 'Release: 2020-01-01'
+            description: 'Costs 100% — "quoted", it''s fine'
             :::
-        `);
-
-        expect(parsed).toMatchNode(
+            `,
             doc(
-                header(title('Title'), subtitle('Subtitle line.'), actions()),
-                p('Stray paragraph.'),
+                header(
+                    title('Release: 2020-01-01'),
+                    description(`Costs 100% — "quoted", it's fine`),
+                    actions(),
+                ),
             ),
-        );
-    });
+        ));
+
+    it('should survive two blocks in a row', () =>
+        same(
+            dedent`
+            :::header-block
+            title: 'First'
+            :::
+
+            :::header-block {format=small}
+            title: 'Second'
+            :::
+            `,
+            doc(
+                header(title('First'), description(), actions()),
+                header({format: HeaderFormat.Small}, title('Second'), description(), actions()),
+            ),
+        ));
 
     it('should fall back to defaults on unknown attribute values', () => {
         const parsed = parser.parse(dedent`
-            :::header [Title] {format=gigantic bg=video fill=neon border=groove}
+            :::header-block {format=gigantic bg=video fill=neon border=groove}
             :::
         `);
 
@@ -176,20 +202,37 @@ describe('Header extension', () => {
         });
     });
 
-    it('should survive being nested in a blockquote-free document twice', () =>
-        same(
-            dedent`
-            :::header [First]
+    it('should produce an empty block instead of throwing on broken yaml', () => {
+        const parsed = parser.parse(dedent`
+            :::header-block
+            title: 'Kept'
+            actions: 'not a list'
+              indented: [unclosed
             :::
 
-            :::header [Second] {format=small}
-            :::
-            `,
-            doc(
-                header(title('First'), subtitle(), actions()),
-                header({format: HeaderFormat.Small}, title('Second'), subtitle(), actions()),
-            ),
-        ));
+            After.
+        `);
+
+        expect(parsed).toMatchNode(doc(header(title(), description(), actions()), p('After.')));
+    });
+
+    describe('content', () => {
+        it('should drop actions that are not objects', () => {
+            expect(parseHeaderContent("actions:\n  - 'oops'\n  - type: 'link'\n").actions).toEqual([
+                {type: HeaderActionType.Link, title: '', href: ''},
+            ]);
+        });
+
+        it('should fall back to a button for an unknown action type', () => {
+            expect(parseHeaderContent("actions:\n  - type: 'ghost'\n").actions[0].type).toBe(
+                HeaderActionType.Button,
+            );
+        });
+
+        it('should write nothing for a block with empty slots', () => {
+            expect(serializeHeaderContent({title: '', description: '', actions: []})).toBe('');
+        });
+    });
 
     describe('attribute serialization', () => {
         it('should omit layout unless the background is an image', () => {

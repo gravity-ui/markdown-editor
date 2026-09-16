@@ -8,9 +8,11 @@ import {
     LayoutHeader,
     LayoutHeaderCellsLarge,
     LayoutSideContentRight,
+    Link,
     Moon,
     Palette,
     Picture,
+    Pill,
     Plus,
     Square,
     SquareDashed,
@@ -40,6 +42,8 @@ import {ToolbarWrapToContext} from 'src/toolbar/ToolbarRerender';
 import type {FileUploadHandler} from 'src/utils/upload';
 
 import {
+    type HeaderActionAttrs,
+    HeaderActionType,
     type HeaderAttrs,
     HeaderBackground,
     HeaderBorder,
@@ -48,9 +52,14 @@ import {
     HeaderFormat,
     HeaderLayout,
     HeaderTextColor,
-    MAX_HEADER_ACTIONS,
 } from '../../HeaderSpecs';
-import {addHeaderAction, removeHeader, setHeaderAttrs} from '../../commands';
+import {
+    addHeaderAction,
+    findHeaderAction,
+    removeHeader,
+    setHeaderActionType,
+    setHeaderAttrs,
+} from '../../commands';
 
 import {FillPalette} from './FillPalette';
 import {useImageUpload} from './useImageUpload';
@@ -191,6 +200,7 @@ export function HeaderToolbar({node, pos, editorView, fileUploadHandler}: Header
         };
 
         const isImage = () => attrOf('bg') === HeaderBackground.Image;
+        const actionType = () => findHeaderAction(editorView.state)?.node.attrs.type;
 
         const shape: ToolbarGroupItemData<EditorView>[] = [
             choiceGroup('format'),
@@ -256,16 +266,77 @@ export function HeaderToolbar({node, pos, editorView, fileUploadHandler}: Header
             });
         }
 
+        const addAction = (type: HeaderActionAttrs['type']) =>
+            addHeaderAction(posRef.current, {type});
+
         const block: ToolbarGroupItemData<EditorView>[] = [
             {
+                id: 'header-cta-type',
+                type: ToolbarDataType.ListButton,
+                icon: {data: Pill},
+                title: i18n('cta.type'),
+                withArrow: true,
+                alwaysActive: true,
+                // Тип правится у кнопки под курсором: у блока их две, и «текущей» для панели нет
+                data: [
+                    {
+                        id: 'header-cta-type-button',
+                        icon: {data: Pill},
+                        title: i18n('cta.type_button'),
+                        isActive: () => actionType() === HeaderActionType.Button,
+                        isEnable: () =>
+                            setHeaderActionType(HeaderActionType.Button)(editorView.state),
+                        exec: () =>
+                            setHeaderActionType(HeaderActionType.Button)(
+                                editorView.state,
+                                editorView.dispatch,
+                            ),
+                    },
+                    {
+                        id: 'header-cta-type-link',
+                        icon: {data: Link},
+                        title: i18n('cta.type_link'),
+                        isActive: () => actionType() === HeaderActionType.Link,
+                        isEnable: () =>
+                            setHeaderActionType(HeaderActionType.Link)(editorView.state),
+                        exec: () =>
+                            setHeaderActionType(HeaderActionType.Link)(
+                                editorView.state,
+                                editorView.dispatch,
+                            ),
+                    },
+                ],
+            },
+            {
                 id: 'header-cta-add',
-                type: ToolbarDataType.SingleButton,
+                type: ToolbarDataType.ListButton,
                 icon: {data: Plus},
                 title: i18n('cta.add'),
-                isActive: () => false,
-                isEnable: () => addHeaderAction(posRef.current)(editorView.state),
-                hintWhenDisabled: () => i18n('cta.limit', {count: MAX_HEADER_ACTIONS}),
-                exec: () => addHeaderAction(posRef.current)(editorView.state, editorView.dispatch),
+                withArrow: true,
+                alwaysActive: true,
+                data: [
+                    {
+                        id: 'header-cta-add-button',
+                        icon: {data: Pill},
+                        title: i18n('cta.type_button'),
+                        isActive: () => false,
+                        isEnable: () => addAction(HeaderActionType.Button)(editorView.state),
+                        exec: () =>
+                            addAction(HeaderActionType.Button)(
+                                editorView.state,
+                                editorView.dispatch,
+                            ),
+                    },
+                    {
+                        id: 'header-cta-add-link',
+                        icon: {data: Link},
+                        title: i18n('cta.type_link'),
+                        isActive: () => false,
+                        isEnable: () => addAction(HeaderActionType.Link)(editorView.state),
+                        exec: () =>
+                            addAction(HeaderActionType.Link)(editorView.state, editorView.dispatch),
+                    },
+                ],
             },
             {
                 id: 'header-remove',

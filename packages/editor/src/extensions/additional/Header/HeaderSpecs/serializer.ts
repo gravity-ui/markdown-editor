@@ -1,61 +1,56 @@
 import type {SerializerNodeToken} from '#core';
 import type {Node} from '#pm/model';
-import {isNodeEmpty} from 'src/utils/nodes';
 
-import {serializeHeaderActionAttrs, serializeHeaderAttrs} from './attrs';
-import {HeaderNode, type HeaderNodeName, actionDirectiveName, headerDirectiveName} from './const';
+import {serializeHeaderAttrs} from './attrs';
+import {HeaderNode, type HeaderNodeName, headerDirectiveName} from './const';
+import {type HeaderActionData, makeHeaderAction, serializeHeaderContent} from './content';
+
+function collectActions(actions: Node): HeaderActionData[] {
+    const result: HeaderActionData[] = [];
+    actions.forEach((action) => result.push(makeHeaderAction(action.attrs, action.textContent)));
+    return result;
+}
 
 /**
- * Вся директива собирается в токене корневого узла: у `:::header` десяток атрибутов, и размазывать
- * их по сериализаторам детей (как это сделано в YfmCut) означает, что каждый ребёнок лезет
- * в `parent.attrs`. Токены детей остаются валидными на случай отдельного рендера поддерева.
+ * Директива собирается целиком в токене корня: тело — это один yaml-документ, и разложить его
+ * по сериализаторам детей нельзя, не заставив каждого ребёнка знать про соседей. Дети остаются
+ * в реестре, но вызываются только при отдельном рендере поддерева.
  */
 export const serializerTokens: Record<HeaderNodeName, SerializerNodeToken> = {
     [HeaderNode.Header]: (state, node) => {
-        const [title, subtitle, actions] = [node.child(0), node.child(1), node.child(2)];
+        const [title, description, actions] = [node.child(0), node.child(1), node.child(2)];
 
-        state.write(`:::${headerDirectiveName}`);
-        if (!isNodeEmpty(title)) {
-            state.write(' [');
-            state.renderInline(title, false);
-            state.write(']');
-        }
-        state.write(serializeHeaderAttrs(node.attrs));
-        state.ensureNewLine();
-
-        if (!isNodeEmpty(subtitle)) {
-            state.renderInline(subtitle);
-            state.ensureNewLine();
-            // Пустая строка нужна только чтобы отделить подзаголовок от кнопок
-            if (actions.childCount) state.write('\n');
-        }
-
-        actions.forEach((action) => {
-            state.write(`::${actionDirectiveName}[`);
-            state.renderInline(action, false);
-            state.write(`]${serializeHeaderActionAttrs(action.attrs)}`);
-            state.ensureNewLine();
+        const body = serializeHeaderContent({
+            title: title.textContent,
+            description: description.textContent,
+            actions: collectActions(actions),
         });
 
+        state.write(`:::${headerDirectiveName}${serializeHeaderAttrs(node.attrs)}`);
+        state.ensureNewLine();
+        // `text`, а не `write`: тело многострочное, и только `text` раскладывает его по строкам
+        // с отбивкой блока — иначе внутри цитаты у строк yaml пропадёт `> `.
+        if (body) {
+            state.text(body.trimEnd(), false);
+            state.ensureNewLine();
+        }
         state.write(':::');
         state.closeBlock(node);
     },
 
     [HeaderNode.Title]: (state, node) => {
-        state.renderInline(node);
+        state.text(node.textContent, false);
         state.closeBlock(node);
     },
-    [HeaderNode.Subtitle]: (state, node) => {
-        state.renderInline(node);
+    [HeaderNode.Description]: (state, node) => {
+        state.text(node.textContent, false);
         state.closeBlock(node);
     },
     [HeaderNode.Actions]: (state, node) => {
         state.renderContent(node);
     },
-    [HeaderNode.Action]: (state, node: Node) => {
-        state.write(`::${actionDirectiveName}[`);
-        state.renderInline(node, false);
-        state.write(`]${serializeHeaderActionAttrs(node.attrs)}`);
+    [HeaderNode.Action]: (state, node) => {
+        state.text(node.textContent, false);
         state.closeBlock(node);
     },
 };

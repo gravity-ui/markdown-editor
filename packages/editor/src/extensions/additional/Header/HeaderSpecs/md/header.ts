@@ -1,179 +1,85 @@
 import {
-    type ContainerDirectiveParams,
-    type DirectiveAttrs,
-    type LeafBlockDirectiveHandler,
-    createBlockInlineToken,
+    type ContainerDirectiveHandler,
     directiveParser,
     registerContainerDirective,
-    registerLeafBlockDirective,
 } from '@diplodoc/directive';
 import type MarkdownIt from 'markdown-it';
-import type StateCore from 'markdown-it/lib/rules_core/state_core';
+import type StateBlock from 'markdown-it/lib/rules_block/state_block';
 import type Token from 'markdown-it/lib/token';
 
-import {normalizeHeaderActionAttrs, normalizeHeaderAttrs} from '../attrs';
+import {normalizeHeaderAttrs} from '../attrs';
 import {
     HeaderActionAttr,
     HeaderAttr,
     HeaderClassName,
     HeaderNode,
-    actionDirectiveName,
     headerDirectiveName,
 } from '../const';
+import {type HeaderActionData, parseHeaderContent} from '../content';
 
-const STRUCTURE_RULE = 'header_structure';
-
-const OPEN = {
-    header: `${HeaderNode.Header}_open`,
-    title: `${HeaderNode.Title}_open`,
-    subtitle: `${HeaderNode.Subtitle}_open`,
-    actions: `${HeaderNode.Actions}_open`,
-    action: `${HeaderNode.Action}_open`,
-} as const;
-
-const CLOSE = {
-    header: `${HeaderNode.Header}_close`,
-    title: `${HeaderNode.Title}_close`,
-    subtitle: `${HeaderNode.Subtitle}_close`,
-    actions: `${HeaderNode.Actions}_close`,
-    action: `${HeaderNode.Action}_close`,
-} as const;
-
-function tag(
-    state: StateCore,
-    type: string,
-    name: string,
-    nesting: 1 | -1,
-    className?: string,
-): Token {
-    const token = new state.Token(type, name, nesting);
-    if (className) token.attrs = [['class', className]];
-    return token;
-}
-
-function emptyInline(state: StateCore): Token {
-    const token = new state.Token('inline', '', 0);
-    token.content = '';
-    token.children = [];
-    return token;
-}
-
-/** Индекс парного `header_close` для открывающего токена по индексу `from`. */
-function findContainerEnd(tokens: Token[], from: number): number {
-    let depth = 0;
-    for (let i = from + 1; i < tokens.length; i++) {
-        if (tokens[i].type === OPEN.header) depth++;
-        else if (tokens[i].type === CLOSE.header) {
-            if (depth === 0) return i;
-            depth--;
-        }
+function openHeader(state: StateBlock, params: Parameters<ContainerDirectiveHandler>[1]): void {
+    const attrs = normalizeHeaderAttrs({...params.attrs});
+    const token = state.push(`${HeaderNode.Header}_open`, 'div', 1);
+    token.block = true;
+    token.map = [params.startLine, params.endLine];
+    token.attrs = [['class', HeaderClassName.Header]];
+    for (const key of Object.values(HeaderAttr)) {
+        token.attrs.push([`data-${key}`, String(attrs[key])]);
     }
-    return -1;
-}
-
-function takeUntilClose(body: Token[], from: number, closeType: string, into: Token[]): number {
-    let cursor = from;
-    while (cursor < body.length && body[cursor].type !== closeType) into.push(body[cursor++]);
-    if (cursor < body.length) into.push(body[cursor++]);
-    return cursor;
-}
-
-type Slots = {title: Token[]; subtitle?: Token; actions: Token[]; rest: Token[]};
-
-/** Раскладывает плоский поток тела директивы по слотам схемы. */
-function splitBody(body: Token[], bodyLevel: number): Slots {
-    const slots: Slots = {title: [], actions: [], rest: []};
-    let cursor = 0;
-
-    if (body[0]?.type === OPEN.title) cursor = takeUntilClose(body, 0, CLOSE.title, slots.title);
-
-    while (cursor < body.length) {
-        const token = body[cursor];
-        const atTopLevel = token.level === bodyLevel;
-
-        if (atTopLevel && token.type === OPEN.action) {
-            cursor = takeUntilClose(body, cursor, CLOSE.action, slots.actions);
-        } else if (atTopLevel && !slots.subtitle && token.type === 'paragraph_open') {
-            const paragraph: Token[] = [];
-            cursor = takeUntilClose(body, cursor + 1, 'paragraph_close', paragraph);
-            slots.subtitle = paragraph.find((tok) => tok.type === 'inline');
-        } else {
-            slots.rest.push(token);
-            cursor++;
-        }
-    }
-
-    return slots;
-}
-
-function buildSlotTokens(state: StateCore, slots: Slots): Token[] {
-    const tokens: Token[] = slots.title.length
-        ? [...slots.title]
-        : [
-              tag(state, OPEN.title, 'div', 1, HeaderClassName.Title),
-              emptyInline(state),
-              tag(state, CLOSE.title, 'div', -1),
-          ];
-
-    tokens.push(
-        tag(state, OPEN.subtitle, 'div', 1, HeaderClassName.Subtitle),
-        slots.subtitle ?? emptyInline(state),
-        tag(state, CLOSE.subtitle, 'div', -1),
-        tag(state, OPEN.actions, 'div', 1, HeaderClassName.Actions),
-        ...slots.actions,
-        tag(state, CLOSE.actions, 'div', -1),
-    );
-
-    return tokens;
 }
 
 /**
- * Директива отдаёт плоский поток: заголовок (inline-контент), параграфы и пары `::action`.
- * Схема требует ровно `title subtitle actions`, поэтому поток раскладывается по слотам:
- * первый параграф становится подзаголовком, все `::action` собираются в контейнер, а лишние
- * блоки выносятся за `header_close`. Ничего не теряется, а инвариант остаётся выразим схемой —
- * значит, репарирующий appendTransaction не нужен.
+ * Текст слота едет в `content` одного токена, а не в `inline`: `inline` ядро markdown-it
+ * разбирает как markdown, а в этом блоке форматирования нет — `**жирный**` должен остаться
+ * такими же семью символами, какими его написали в yaml.
  */
-function structureRule(state: StateCore): void {
-    const {tokens} = state;
-
-    for (let i = 0; i < tokens.length; i++) {
-        if (tokens[i].type !== OPEN.header) continue;
-
-        const end = findContainerEnd(tokens, i);
-        if (end === -1) continue;
-
-        const slots = splitBody(tokens.slice(i + 1, end), tokens[i].level + 1);
-        const slotTokens = buildSlotTokens(state, slots);
-
-        tokens.splice(i + 1, end - i - 1, ...slotTokens);
-
-        const closeIdx = i + 1 + slotTokens.length;
-        if (slots.rest.length) tokens.splice(closeIdx + 1, 0, ...slots.rest);
-        i = closeIdx;
-    }
+function pushText(state: StateBlock, type: string, tag: string, content: string): Token {
+    const token = state.push(type, tag, 0);
+    token.block = true;
+    token.content = content;
+    return token;
 }
 
-const actionHandler: LeafBlockDirectiveHandler = (state, params) => {
-    if (!params.inlineContent) return false;
-
-    const {href, variant} = normalizeHeaderActionAttrs({
-        ...params.attrs,
-        [HeaderActionAttr.Href]: params.attrs?.[HeaderActionAttr.Href] ?? params.dests?.link,
-    });
-
-    const open = state.push(OPEN.action, 'a', 1);
-    open.attrs = [
+function pushAction(state: StateBlock, action: HeaderActionData): void {
+    const token = pushText(state, HeaderNode.Action, 'a', action.title);
+    token.attrs = [
         ['class', HeaderClassName.Action],
-        ['data-variant', variant],
+        [`data-${HeaderActionAttr.Type}`, action.type],
     ];
-    if (href) open.attrs.push(['href', href]);
+    if (action.href) token.attrs.push([HeaderActionAttr.Href, action.href]);
+}
 
-    createBlockInlineToken(state, params);
-    state.push(CLOSE.action, 'a', -1);
+const headerHandler: ContainerDirectiveHandler = (state, params) => {
+    const content = parseHeaderContent(params.content?.raw ?? '');
+
+    openHeader(state, params);
+
+    pushText(state, HeaderNode.Title, 'div', content.title).attrs = [
+        ['class', HeaderClassName.Title],
+    ];
+    pushText(state, HeaderNode.Description, 'div', content.description).attrs = [
+        ['class', HeaderClassName.Description],
+    ];
+
+    const actionsOpen = state.push(`${HeaderNode.Actions}_open`, 'div', 1);
+    actionsOpen.block = true;
+    actionsOpen.attrs = [['class', HeaderClassName.Actions]];
+    content.actions.forEach((action) => pushAction(state, action));
+    state.push(`${HeaderNode.Actions}_close`, 'div', -1).block = true;
+
+    state.push(`${HeaderNode.Header}_close`, 'div', -1).block = true;
 
     return true;
 };
+
+/** Слоты — не inline-токены, поэтому их текст надо отрисовать самому, иначе в html пустые теги. */
+function renderTextToken(this: void, tokens: Token[], idx: number, md: MarkdownIt): string {
+    const token = tokens[idx];
+    const attrs = (token.attrs ?? [])
+        .map(([name, value]) => ` ${name}="${md.utils.escapeHtml(value)}"`)
+        .join('');
+    return `<${token.tag}${attrs}>${md.utils.escapeHtml(token.content)}</${token.tag}>`;
+}
 
 /**
  * Header существует только в директивном синтаксисе, поэтому плагин не гейтится опцией
@@ -182,30 +88,9 @@ const actionHandler: LeafBlockDirectiveHandler = (state, params) => {
 export const headerDirective: MarkdownIt.PluginSimple = (md) => {
     md.use(directiveParser());
 
-    registerContainerDirective(md, {
-        name: headerDirectiveName,
-        match: () => true,
-        container: {
-            tag: 'div',
-            token: HeaderNode.Header,
-            attrs: (params: ContainerDirectiveParams) => {
-                const attrs = normalizeHeaderAttrs({...params.attrs});
-                const result: DirectiveAttrs = {class: HeaderClassName.Header};
-                for (const key of Object.values(HeaderAttr)) {
-                    result[`data-${key}`] = String(attrs[key]);
-                }
-                return result;
-            },
-        },
-        inlineContent: {
-            tag: 'div',
-            token: HeaderNode.Title,
-            required: false,
-            attrs: {class: HeaderClassName.Title},
-        },
-    });
+    registerContainerDirective(md, headerDirectiveName, headerHandler);
 
-    registerLeafBlockDirective(md, actionDirectiveName, actionHandler);
-
-    md.core.ruler.push(STRUCTURE_RULE, structureRule);
+    for (const type of [HeaderNode.Title, HeaderNode.Description, HeaderNode.Action]) {
+        md.renderer.rules[type] = (tokens, idx) => renderTextToken(tokens, idx, md);
+    }
 };

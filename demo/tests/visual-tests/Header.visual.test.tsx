@@ -3,14 +3,14 @@ import {test} from 'playwright/core';
 import {HeaderStories} from './Header.helpers';
 
 // Весь смысл блока визуальный, поэтому каждое сочетание оформления закрыто снимком, а не
-// проверкой атрибутов: юнит-тесты не поймают ни съехавшую вуаль, ни потерянный контраст.
+// проверкой атрибутов: юнит-тесты не поймают ни съехавшую маску картинки, ни потерянный контраст.
 test.describe('Extensions, Header', () => {
     test('Empty', async ({mount, expectScreenshot}) => {
         await mount(<HeaderStories.Empty />);
         await expectScreenshot();
     });
 
-    test('Title, subtitle and buttons', async ({mount, expectScreenshot}) => {
+    test('Title, description and actions', async ({mount, expectScreenshot}) => {
         await mount(<HeaderStories.Filled />);
         await expectScreenshot();
     });
@@ -62,6 +62,10 @@ test.describe('Extensions, Header', () => {
 
     test('Inside a cut', async ({mount, expectScreenshot}) => {
         await mount(<HeaderStories.InsideCut />);
+        await expectScreenshot();
+    });
+    test('Broken yaml in the body', async ({mount, expectScreenshot}) => {
+        await mount(<HeaderStories.BrokenYaml />);
         await expectScreenshot();
     });
 });

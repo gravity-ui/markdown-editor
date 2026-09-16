@@ -38,13 +38,12 @@
     "image.failed": "Could not upload the image",
     "cta": "Buttons",
     "cta.add": "Add button",
-    "cta.limit": "Up to {{count}} buttons",
     "cta.remove": "Remove button",
+    "cta.type": "Button kind",
+    "cta.type_button": "Button",
+    "cta.type_link": "Link",
     "cta.href": "Link",
-    "cta.variant.primary": "Primary",
-    "cta.variant.normal": "Secondary",
-    "cta.variant.link": "Link",
     "placeholder.title": "Header",
-    "placeholder.subtitle": "Subtitle",
-    "placeholder.action": "Button"
+    "placeholder.action": "Button",
+    "placeholder.description": "Description"
 }

@@ -2,8 +2,8 @@ import {
     HEADER_FILL_SWATCHES,
     HeaderActionAttr,
     HeaderActionDefaults,
-    HeaderActionVariant,
-    type HeaderActionVariantValue,
+    HeaderActionType,
+    type HeaderActionTypeValue,
     HeaderAttr,
     HeaderBackground,
     type HeaderBackgroundValue,
@@ -33,8 +33,8 @@ export type HeaderAttrs = {
 };
 
 export type HeaderActionAttrs = {
+    [HeaderActionAttr.Type]: HeaderActionTypeValue;
     [HeaderActionAttr.Href]: string;
-    [HeaderActionAttr.Variant]: HeaderActionVariantValue;
 };
 
 const fillValues = HEADER_FILL_SWATCHES.map(({value}) => value) as readonly string[];
@@ -54,9 +54,9 @@ const asBackground = oneOf<HeaderBackgroundValue>(
 const asBorder = oneOf<HeaderBorderValue>(Object.values(HeaderBorder), HeaderDefaults.border);
 const asText = oneOf<HeaderTextColorValue>(Object.values(HeaderTextColor), HeaderDefaults.text);
 const asFill = oneOf<HeaderFillValue>(fillValues, HeaderDefaults.fill);
-const asVariant = oneOf<HeaderActionVariantValue>(
-    Object.values(HeaderActionVariant),
-    HeaderActionDefaults.variant,
+const asActionType = oneOf<HeaderActionTypeValue>(
+    Object.values(HeaderActionType),
+    HeaderActionDefaults.type,
 );
 
 function asString(raw: unknown): string {
@@ -82,8 +82,8 @@ export function normalizeHeaderAttrs(raw: Record<string, unknown> = {}): HeaderA
 
 export function normalizeHeaderActionAttrs(raw: Record<string, unknown> = {}): HeaderActionAttrs {
     return {
+        [HeaderActionAttr.Type]: asActionType(raw[HeaderActionAttr.Type]),
         [HeaderActionAttr.Href]: asString(raw[HeaderActionAttr.Href]),
-        [HeaderActionAttr.Variant]: asVariant(raw[HeaderActionAttr.Variant]),
     };
 }
 
@@ -120,14 +120,4 @@ export function serializeHeaderAttrs(attrs: Partial<HeaderAttrs>): string {
     }
 
     return pairs.length ? ` {${pairs.join(' ')}}` : '';
-}
-
-export function serializeHeaderActionAttrs(attrs: Partial<HeaderActionAttrs>): string {
-    const {href, variant} = normalizeHeaderActionAttrs(attrs as Record<string, unknown>);
-    const pairs: string[] = [];
-    if (href) pairs.push(`${HeaderActionAttr.Href}=${quote(href)}`);
-    if (variant !== HeaderActionDefaults.variant) {
-        pairs.push(`${HeaderActionAttr.Variant}=${variant}`);
-    }
-    return pairs.length ? `{${pairs.join(' ')}}` : '';
 }

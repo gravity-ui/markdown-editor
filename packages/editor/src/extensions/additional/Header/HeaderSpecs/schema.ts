@@ -46,7 +46,7 @@ export const getSchemaSpecs = (
         attrs: attrsSpec(HeaderDefaults),
         // Жёсткая структура вместо опциональных детей: «непарных» состояний не существует,
         // поэтому и репарирующий appendTransaction не нужен. Пустота — это пустой контент слота.
-        content: `${HeaderNode.Title} ${HeaderNode.Subtitle} ${HeaderNode.Actions}`,
+        content: `${HeaderNode.Title} ${HeaderNode.Description} ${HeaderNode.Actions}`,
         group: 'block',
         parseDOM: [
             {
@@ -76,8 +76,12 @@ export const getSchemaSpecs = (
         complex: 'root',
     },
 
+    // `text*` и пустые `marks`: внутри блока форматирования нет вовсе — ни жирного, ни ссылки,
+    // ни картинки. Пустая строка, а не перечень разрешённых марок: в минимальных пресетах марок
+    // с такими именами может не быть, и схема упала бы на «Unknown mark type».
     [HeaderNode.Title]: {
-        content: 'inline*',
+        content: 'text*',
+        marks: '',
         parseDOM: [{tag: `div.${HeaderClassName.Title}`}],
         toDOM() {
             return ['div', {class: HeaderClassName.Title}, 0];
@@ -90,15 +94,16 @@ export const getSchemaSpecs = (
         complex: 'leaf',
     },
 
-    [HeaderNode.Subtitle]: {
-        content: 'inline*',
-        parseDOM: [{tag: `div.${HeaderClassName.Subtitle}`}],
+    [HeaderNode.Description]: {
+        content: 'text*',
+        marks: '',
+        parseDOM: [{tag: `div.${HeaderClassName.Description}`}],
         toDOM() {
-            return ['div', {class: HeaderClassName.Subtitle}, 0];
+            return ['div', {class: HeaderClassName.Description}, 0];
         },
         placeholder: placeholderFor(
-            HeaderNode.Subtitle,
-            () => i18n('placeholder.subtitle'),
+            HeaderNode.Description,
+            () => i18n('placeholder.description'),
             placeholder,
         ),
         commandMenu: false,
@@ -124,15 +129,15 @@ export const getSchemaSpecs = (
 
     [HeaderNode.Action]: {
         attrs: attrsSpec(HeaderActionDefaults),
-        content: 'inline*',
+        content: 'text*',
         marks: '',
         parseDOM: [
             {
                 tag: `a.${HeaderClassName.Action}`,
                 getAttrs: (node) =>
                     normalizeHeaderActionAttrs({
-                        [HeaderActionAttr.Href]: node.getAttribute('href'),
-                        [HeaderActionAttr.Variant]: node.getAttribute('data-variant'),
+                        [HeaderActionAttr.Type]: node.getAttribute(`data-${HeaderActionAttr.Type}`),
+                        [HeaderActionAttr.Href]: node.getAttribute(HeaderActionAttr.Href),
                     }),
             },
         ],
@@ -142,7 +147,7 @@ export const getSchemaSpecs = (
                 {
                     class: HeaderClassName.Action,
                     href: node.attrs[HeaderActionAttr.Href] || null,
-                    'data-variant': node.attrs[HeaderActionAttr.Variant],
+                    [`data-${HeaderActionAttr.Type}`]: node.attrs[HeaderActionAttr.Type],
                 },
                 0,
             ];

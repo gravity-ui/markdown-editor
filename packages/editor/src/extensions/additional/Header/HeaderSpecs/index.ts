@@ -7,10 +7,11 @@ import {serializerTokens} from './serializer';
 
 export * from './const';
 export * from './attrs';
+export * from './content';
 export {getSchemaSpecs};
 
 /**
- * Схема, парсер и сериализатор `:::header` без React, DOM и Gravity UI: этот слой поднимается
+ * Схема, парсер и сериализатор `:::header-block` без React, DOM и Gravity UI: этот слой поднимается
  * в SSR, в markup-режиме и в round-trip тестах. Всё видимое живёт в `Header`.
  */
 export const HeaderSpecs: ExtensionAuto = (builder) => {

@@ -38,13 +38,12 @@
     "image.failed": "Не удалось загрузить картинку",
     "cta": "Кнопки",
     "cta.add": "Добавить кнопку",
-    "cta.limit": "Не больше {{count}} кнопок",
     "cta.remove": "Удалить кнопку",
+    "cta.type": "Вид кнопки",
+    "cta.type_button": "Кнопка",
+    "cta.type_link": "Ссылка",
     "cta.href": "Ссылка",
-    "cta.variant.primary": "Основная",
-    "cta.variant.normal": "Второстепенная",
-    "cta.variant.link": "Ссылка",
     "placeholder.title": "Заголовок",
-    "placeholder.subtitle": "Подзаголовок",
-    "placeholder.action": "Кнопка"
+    "placeholder.action": "Кнопка",
+    "placeholder.description": "Описание"
 }

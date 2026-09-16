@@ -8,7 +8,7 @@ import {
     MAX_HEADER_ACTIONS,
     headerActionType,
     headerActionsType,
-    headerSubtitleType,
+    headerDescriptionType,
     headerTitleType,
     headerType,
 } from './HeaderSpecs';
@@ -42,12 +42,12 @@ function headerAt(state: EditorState, pos: number): Node | null {
     return node?.type === headerType(state.schema) ? node : null;
 }
 
-/** Слоты жёстко заданы схемой: title, subtitle, actions. */
+/** Слоты жёстко заданы схемой: title, description, actions. */
 function slotPositions(headerPos: number, header: Node) {
     const titlePos = headerPos + 1;
-    const subtitlePos = titlePos + header.child(0).nodeSize;
-    const actionsPos = subtitlePos + header.child(1).nodeSize;
-    return {titlePos, subtitlePos, actionsPos};
+    const descriptionPos = titlePos + header.child(0).nodeSize;
+    const actionsPos = descriptionPos + header.child(1).nodeSize;
+    return {titlePos, descriptionPos, actionsPos};
 }
 
 /**
@@ -93,6 +93,28 @@ export const addHeaderAction =
             const tr = state.tr.insert(insertAt, action);
             dispatch(tr.setSelection(TextSelection.create(tr.doc, insertAt + 1)).scrollIntoView());
         }
+        return true;
+    };
+
+/** Кнопка, внутри которой стоит курсор: тип правится у неё, а не у блока целиком. */
+export function findHeaderAction(state: EditorState): FoundHeader | null {
+    const type = headerActionType(state.schema);
+    const {$from} = state.selection;
+
+    for (let depth = $from.depth; depth > 0; depth--) {
+        const node = $from.node(depth);
+        if (node.type === type) return {pos: $from.before(depth), node};
+    }
+    return null;
+}
+
+export const setHeaderActionType =
+    (value: HeaderActionAttrs['type']): Command =>
+    (state, dispatch) => {
+        const found = findHeaderAction(state);
+        if (!found || found.node.attrs.type === value) return false;
+
+        dispatch?.(state.tr.setNodeMarkup(found.pos, null, {...found.node.attrs, type: value}));
         return true;
     };
 
@@ -174,20 +196,20 @@ export const nextHeaderSlot: Command = (state, dispatch) => {
 
     const parentType = $from.parent.type;
     const isTitle = parentType === headerTitleType(state.schema);
-    const isSubtitle = parentType === headerSubtitleType(state.schema);
+    const isDescription = parentType === headerDescriptionType(state.schema);
     const isAction = parentType === headerActionType(state.schema);
-    if (!isTitle && !isSubtitle && !isAction) return false;
+    if (!isTitle && !isDescription && !isAction) return false;
 
     const found = findHeader(state);
     if (!found) return false;
 
     if (isTitle) {
-        const {subtitlePos} = slotPositions(found.pos, found.node);
-        dispatch?.(state.tr.setSelection(TextSelection.create(state.doc, subtitlePos + 1)));
+        const {descriptionPos} = slotPositions(found.pos, found.node);
+        dispatch?.(state.tr.setSelection(TextSelection.create(state.doc, descriptionPos + 1)));
         return true;
     }
 
-    if (isSubtitle && found.node.child(2).childCount) {
+    if (isDescription && found.node.child(2).childCount) {
         const {actionsPos} = slotPositions(found.pos, found.node);
         dispatch?.(state.tr.setSelection(TextSelection.create(state.doc, actionsPos + 2)));
         return true;
