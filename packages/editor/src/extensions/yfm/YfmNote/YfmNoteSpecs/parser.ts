@@ -1,8 +1,12 @@
-import type {ParserToken} from '../../../../core';
+import {log} from '@diplodoc/transform/lib/log.js';
+import yfmPlugin from '@diplodoc/transform/lib/plugins/notes/index.js';
+
+import type {ExtensionAuto, ParserToken} from '#core';
+import {getConfig} from 'src/configure';
 
 import {NoteAttrs, NoteNode} from './const';
 
-export const parserTokens: Record<NoteNode, ParserToken> = {
+const parserTokens: Record<NoteNode, ParserToken> = {
     [NoteNode.Note]: {
         name: NoteNode.Note,
         type: 'block',
@@ -23,4 +27,12 @@ export const parserTokens: Record<NoteNode, ParserToken> = {
         },
     },
     [NoteNode.NoteContent]: {name: NoteNode.NoteContent, type: 'block'},
+};
+
+export const YfmNoteParserSpecs: ExtensionAuto = (builder) => {
+    builder
+        .configureMd((md) => md.use(yfmPlugin, {log, lang: getConfig().lang || 'en'}))
+        .addMarkdownTokenParserSpec('yfm_note', () => parserTokens[NoteNode.Note])
+        .addMarkdownTokenParserSpec('yfm_note_title', () => parserTokens[NoteNode.NoteTitle])
+        .addMarkdownTokenParserSpec('yfm_note_content', () => parserTokens[NoteNode.NoteContent]);
 };

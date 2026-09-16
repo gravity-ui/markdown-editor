@@ -1,10 +1,10 @@
-import type {SerializerNodeToken} from '../../../../core';
-import {isNodeEmpty} from '../../../../utils/nodes';
-import {getPlaceholderContent} from '../../../../utils/placeholder';
+import type {ExtensionAuto, SerializerNodeToken} from '#core';
+import {isNodeEmpty} from 'src/utils/nodes';
+import {getPlaceholderContent} from 'src/utils/placeholder';
 
 import {NoteAttrs, NoteNode} from './const';
 
-export const serializerTokens: Record<NoteNode, SerializerNodeToken> = {
+const serializerTokens: Record<NoteNode, SerializerNodeToken> = {
     [NoteNode.Note]: (state, node) => {
         state.renderContent(node);
         state.write('{% endnote %}');
@@ -30,4 +30,11 @@ export const serializerTokens: Record<NoteNode, SerializerNodeToken> = {
         if (!isNodeEmpty(node)) state.renderInline(node);
         else state.write(getPlaceholderContent(node) + '\n\n');
     },
+};
+
+export const YfmNoteSerializerSpecs: ExtensionAuto = (builder) => {
+    builder
+        .addNodeSerializerSpec(NoteNode.Note, () => serializerTokens[NoteNode.Note])
+        .addNodeSerializerSpec(NoteNode.NoteTitle, () => serializerTokens[NoteNode.NoteTitle])
+        .addNodeSerializerSpec(NoteNode.NoteContent, () => serializerTokens[NoteNode.NoteContent]);
 };
