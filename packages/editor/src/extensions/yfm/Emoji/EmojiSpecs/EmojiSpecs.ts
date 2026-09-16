@@ -1,7 +1,7 @@
 import type {Options} from 'markdown-it-emoji';
 import emojiPlugin from 'markdown-it-emoji/bare.js';
 
-import type {ExtensionAuto} from '../../../../core';
+import type {ExtensionAuto} from '#core';
 
 import {EmojiConsts, emojiTokenName, markupDataAttribute} from './const';
 
@@ -14,8 +14,8 @@ export type EmojiSpecsOptions = {
 
 const EmojiSpecsExtension: ExtensionAuto<EmojiSpecsOptions> = (builder, opts) => {
     builder.configureMd((md) => md.use<Options>(emojiPlugin, opts));
-    builder.addNode(EmojiConsts.NodeName, () => ({
-        spec: {
+    builder
+        .addNodeSpec(EmojiConsts.NodeName, () => ({
             attrs: {[EmojiConsts.NodeAttrs.Markup]: {}},
             atom: true,
             inline: true,
@@ -41,22 +41,18 @@ const EmojiSpecsExtension: ExtensionAuto<EmojiSpecsOptions> = (builder, opts) =>
                 const markup = node.attrs[EmojiConsts.NodeAttrs.Markup];
                 return ['span', {contentEditable: false, [markupDataAttribute]: markup}, 0];
             },
-        },
-        fromMd: {
-            tokenName: emojiTokenName,
-            tokenSpec: {
-                name: EmojiConsts.NodeName,
-                type: 'block',
-                noCloseToken: true,
-                getAttrs: (token) => ({
-                    [EmojiConsts.NodeAttrs.Markup]: token.markup,
-                }),
-            },
-        },
-        toMd: (state, node) => {
+        }))
+        .addMarkdownTokenParserSpec(emojiTokenName, () => ({
+            name: EmojiConsts.NodeName,
+            type: 'block',
+            noCloseToken: true,
+            getAttrs: (token) => ({
+                [EmojiConsts.NodeAttrs.Markup]: token.markup,
+            }),
+        }))
+        .addNodeSerializerSpec(EmojiConsts.NodeName, () => (state, node) => {
             state.text(`:${node.attrs[EmojiConsts.NodeAttrs.Markup]}:`, false);
-        },
-    }));
+        });
 };
 
 export const EmojiSpecs = Object.assign(EmojiSpecsExtension, EmojiConsts);
