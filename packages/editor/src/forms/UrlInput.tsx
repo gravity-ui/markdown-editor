@@ -26,7 +26,7 @@ export type UrlInputProps = {
     actions?: ReactNode;
 } & Pick<
     TextInputProps,
-    'autoFocus' | 'placeholder' | 'disabled' | 'onBlur' | 'onKeyDown' | 'className'
+    'autoFocus' | 'placeholder' | 'disabled' | 'readOnly' | 'onBlur' | 'onKeyDown' | 'className'
 >;
 
 export function UrlInput({
@@ -46,7 +46,7 @@ export function UrlInput({
             <TextInputFixed
                 {...inputProps}
                 size="l"
-                hasClear
+                hasClear={!inputProps.readOnly}
                 view="clear"
                 value={value}
                 className={b('input', {actions: Boolean(actions)})}
@@ -54,7 +54,8 @@ export function UrlInput({
                 controlProps={{'aria-label': ariaLabel}}
                 onKeyDown={(event) => {
                     onKeyDown?.(event);
-                    if (!event.defaultPrevented && !inputProps.disabled) submit(event);
+                    if (!event.defaultPrevented && !inputProps.disabled && !inputProps.readOnly)
+                        submit(event);
                 }}
             />
             {actions}

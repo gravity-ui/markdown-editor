@@ -27,6 +27,7 @@ export const parserTokens: Record<HeaderNodeName, ParserToken> = {
             normalizeHeaderActionAttrs({
                 [HeaderActionAttr.Type]: token.attrGet(`data-${HeaderActionAttr.Type}`),
                 [HeaderActionAttr.Href]: token.attrGet(HeaderActionAttr.Href),
+                [HeaderActionAttr.Color]: token.attrGet(`data-${HeaderActionAttr.Color}`),
             }),
     },
 };

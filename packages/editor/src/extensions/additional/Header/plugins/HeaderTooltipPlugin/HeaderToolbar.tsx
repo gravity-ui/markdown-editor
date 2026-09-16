@@ -1,6 +1,6 @@
 import {type ReactNode, useRef, useState} from 'react';
 
-import {ChevronDown, LayoutHeader, Link, Picture, Pill, Plus, TrashBin} from '@gravity-ui/icons';
+import {ChevronDown, LayoutHeader, Picture, TrashBin} from '@gravity-ui/icons';
 import {Icon} from '@gravity-ui/uikit';
 
 import type {Node} from '#pm/model';
@@ -16,7 +16,7 @@ import {
 } from 'src/toolbar';
 import type {FileUploadHandler} from 'src/utils/upload';
 
-import {HeaderActionType, type HeaderAttrs} from '../../HeaderSpecs';
+import type {HeaderActionTypeValue, HeaderAttrs} from '../../HeaderSpecs';
 import {addHeaderAction, removeHeader, setHeaderAttrs} from '../../commands';
 import {getHeaderTargets} from '../targets';
 
@@ -32,7 +32,7 @@ const panelTitles = {
     appearance: 'appearance',
     fill: 'fill',
     image: 'bg.image',
-    links: 'cta.links',
+    actions: 'cta.actions',
 } as const;
 type Panel = keyof typeof panelTitles;
 type Control = {
@@ -97,13 +97,13 @@ export function HeaderToolbar({
         id: `header-${id}`,
         type: ToolbarDataType.ReactComponent as const,
         component: HeaderControl,
-        width: id === 'links' ? 70 : 42,
+        width: id === 'actions' ? 90 : 42,
         props: {
             control: {
                 title: i18n(panelTitles[id]),
                 preview,
                 active: panel === id,
-                enabled: id !== 'links' || Boolean(targets?.actions.length),
+                enabled: true,
                 anchor: (element: HTMLButtonElement | null) => {
                     anchors.current[id] = element;
                 },
@@ -117,32 +117,18 @@ export function HeaderToolbar({
             } satisfies Control,
         },
     });
+    const addAction = (type: HeaderActionTypeValue) => {
+        if (!popover.current?.close('submit')) return;
+        addHeaderAction(pos, {type})(editorView.state, editorView.dispatch);
+        focus();
+    };
     const data: ToolbarData<EditorView> = [
         [
             control('appearance', <Icon data={LayoutHeader} size={16} />),
             control('fill', <FillSwatch value={attrs.fill} />),
             control('image', <Icon data={Picture} size={16} />),
         ],
-        [
-            {
-                id: 'header-cta-add',
-                type: ToolbarDataType.ListButton,
-                icon: {data: Plus},
-                title: i18n('cta.add'),
-                data: [
-                    {type: HeaderActionType.Button, icon: Pill, title: i18n('cta.type_button')},
-                    {type: HeaderActionType.Link, icon: Link, title: i18n('cta.type_link')},
-                ].map(({type, icon, title}) => ({
-                    id: `header-cta-add-${type}`,
-                    icon: {data: icon},
-                    title,
-                    isActive: () => false,
-                    isEnable: () => addHeaderAction(pos, {type})(editorView.state),
-                    exec: () => addHeaderAction(pos, {type})(editorView.state, editorView.dispatch),
-                })),
-            },
-            control('links', i18n('cta.links')),
-        ],
+        [control('actions', i18n('cta.label'))],
         [
             {
                 id: 'header-remove',
@@ -197,8 +183,12 @@ export function HeaderToolbar({
                             normalizeUrl={normalizeUrl}
                         />
                     )}
-                    {panel === 'links' && (
-                        <ActionsSettings editorView={editorView} normalizeUrl={normalizeUrl} />
+                    {panel === 'actions' && (
+                        <ActionsSettings
+                            editorView={editorView}
+                            normalizeUrl={normalizeUrl}
+                            onAdd={addAction}
+                        />
                     )}
                 </HeaderPopover>
             )}

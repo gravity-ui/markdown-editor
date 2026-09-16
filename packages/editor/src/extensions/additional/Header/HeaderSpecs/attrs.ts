@@ -1,6 +1,7 @@
 import {
     HEADER_FILL_SWATCHES,
     HeaderActionAttr,
+    type HeaderActionColorValue,
     HeaderActionDefaults,
     HeaderActionType,
     type HeaderActionTypeValue,
@@ -35,6 +36,7 @@ export type HeaderAttrs = {
 export type HeaderActionAttrs = {
     [HeaderActionAttr.Type]: HeaderActionTypeValue;
     [HeaderActionAttr.Href]: string;
+    [HeaderActionAttr.Color]: HeaderActionColorValue;
 };
 
 const fillValues = HEADER_FILL_SWATCHES.map(({value}) => value) as readonly string[];
@@ -57,6 +59,10 @@ const asFill = oneOf<HeaderFillValue>(fillValues, HeaderDefaults.fill);
 const asActionType = oneOf<HeaderActionTypeValue>(
     Object.values(HeaderActionType),
     HeaderActionDefaults.type,
+);
+const asActionColor = oneOf<HeaderActionColorValue>(
+    ['brand', ...fillValues],
+    HeaderActionDefaults.color,
 );
 
 function asString(raw: unknown): string {
@@ -81,6 +87,7 @@ export function normalizeHeaderActionAttrs(raw: Record<string, unknown> = {}): H
     return {
         [HeaderActionAttr.Type]: asActionType(raw[HeaderActionAttr.Type]),
         [HeaderActionAttr.Href]: asString(raw[HeaderActionAttr.Href]),
+        [HeaderActionAttr.Color]: asActionColor(raw[HeaderActionAttr.Color]),
     };
 }
 

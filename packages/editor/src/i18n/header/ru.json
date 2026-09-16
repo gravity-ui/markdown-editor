@@ -35,7 +35,7 @@
     "image.open": "Открыть картинку",
     "image.failed": "Не удалось загрузить картинку",
     "cta.add": "Добавить кнопку",
-    "cta.remove": "Удалить кнопку",
+    "cta.remove": "Удалить действие",
     "cta.type": "Вид кнопки",
     "cta.type_button": "Кнопка",
     "cta.type_link": "Ссылка",
@@ -45,5 +45,11 @@
     "placeholder.description": "Описание",
     "appearance": "Оформление",
     "image.url": "Ссылка на изображение",
-    "cta.links": "Ссылки"
+    "cta.actions": "Кнопки и ссылки",
+    "cta.label": "Кнопки",
+    "cta.add_link": "Добавить ссылку",
+    "cta.empty": "Добавьте кнопку или ссылку на обложку.",
+    "cta.limit": "До {{count}} кнопок или ссылок",
+    "cta.color": "Цвет кнопки",
+    "cta.color_default": "По умолчанию"
 }

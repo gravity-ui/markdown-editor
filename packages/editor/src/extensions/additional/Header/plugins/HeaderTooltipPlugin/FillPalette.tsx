@@ -21,7 +21,7 @@ export function FillSwatch({value, children}: {value: HeaderFillValue; children?
 }
 
 export type FillPaletteProps = {
-    value: HeaderFillValue;
+    value?: HeaderFillValue;
     onSelect: (value: HeaderFillValue) => void;
 };
 

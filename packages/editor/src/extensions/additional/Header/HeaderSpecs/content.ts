@@ -1,12 +1,18 @@
 import {JSON_SCHEMA, dump, load} from 'js-yaml';
 
 import {normalizeHeaderActionAttrs} from './attrs';
-import type {HeaderActionAttr, HeaderActionTypeValue} from './const';
+import {
+    type HeaderActionAttr,
+    type HeaderActionColorValue,
+    HeaderActionDefaults,
+    type HeaderActionTypeValue,
+} from './const';
 
 export type HeaderActionData = {
     [HeaderActionAttr.Type]: HeaderActionTypeValue;
     title: string;
     [HeaderActionAttr.Href]: string;
+    [HeaderActionAttr.Color]?: HeaderActionColorValue;
 };
 
 export type HeaderContent = {
@@ -37,8 +43,8 @@ function asText(raw: unknown): string {
 
 /** Keep action keys in a stable order when serializing. */
 export function makeHeaderAction(attrs: Record<string, unknown>, title: string): HeaderActionData {
-    const {type, href} = normalizeHeaderActionAttrs(attrs);
-    return {type, title, href};
+    const {type, href, color} = normalizeHeaderActionAttrs(attrs);
+    return {type, title, href, ...(color === HeaderActionDefaults.color ? {} : {color})};
 }
 
 function asAction(raw: unknown): HeaderActionData | null {

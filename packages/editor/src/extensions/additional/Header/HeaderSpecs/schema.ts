@@ -131,6 +131,9 @@ export const getSchemaSpecs = (
                     normalizeHeaderActionAttrs({
                         [HeaderActionAttr.Type]: node.getAttribute(`data-${HeaderActionAttr.Type}`),
                         [HeaderActionAttr.Href]: node.getAttribute(HeaderActionAttr.Href),
+                        [HeaderActionAttr.Color]: node.getAttribute(
+                            `data-${HeaderActionAttr.Color}`,
+                        ),
                     }),
             },
         ],
@@ -141,6 +144,7 @@ export const getSchemaSpecs = (
                     class: HeaderClassName.Action,
                     href: node.attrs[HeaderActionAttr.Href] || null,
                     [`data-${HeaderActionAttr.Type}`]: node.attrs[HeaderActionAttr.Type],
+                    [`data-${HeaderActionAttr.Color}`]: node.attrs[HeaderActionAttr.Color],
                 },
                 // Keep editable text in normal flow inside the flex button.
                 ['span', 0],

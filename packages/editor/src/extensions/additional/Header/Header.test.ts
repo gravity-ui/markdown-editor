@@ -2,6 +2,7 @@ import {builders} from 'prosemirror-test-builder';
 import dedent from 'ts-dedent';
 
 import {ExtensionsManager} from '#core';
+import {DOMParser, DOMSerializer} from '#pm/model';
 import {BaseNode, BaseSchemaSpecs} from 'src/extensions/base/specs';
 import {BoldSpecs} from 'src/extensions/markdown/Bold/BoldSpecs';
 
@@ -93,6 +94,54 @@ describe('Header extension', () => {
             `,
             doc(header(title('Only a title'), description(), actions())),
         ));
+
+    it.each(HEADER_FILL_SWATCHES.map(({value}) => value))(
+        'should round-trip button color=%s',
+        (color) =>
+            same(
+                dedent`
+            :::header-block
+            actions:
+              - type: 'button'
+                title: 'Go'
+                href: '/start'
+                color: '${color}'
+              - type: 'link'
+                title: 'Docs'
+                href: '/docs'
+            :::
+            `,
+                doc(
+                    header(
+                        title(),
+                        description(),
+                        actions(
+                            action({href: '/start', color}, 'Go'),
+                            action({type: 'link', href: '/docs'}, 'Docs'),
+                        ),
+                    ),
+                ),
+            ),
+    );
+
+    it('should preserve a button color when copying HTML', () => {
+        const content = doc(
+            header(
+                title(),
+                description(),
+                actions(action({href: '/start', color: 'contrast'}, 'Go')),
+            ),
+        );
+        const element = document.createElement('div');
+        element.append(DOMSerializer.fromSchema(schema).serializeFragment(content.content));
+        expect(DOMParser.fromSchema(schema).parse(element)).toMatchNode(content);
+    });
+
+    it('should ignore unknown button colors', () => {
+        const parsed = parser.parse(":::header-block\nactions:\n  - color: 'neon'\n:::\n");
+        expect(parsed.firstChild?.child(2).firstChild?.attrs.color).toBe('brand');
+        expect(serializer.serialize(parsed)).not.toContain('color:');
+    });
 
     it('should keep markdown syntax in the text as plain characters', () =>
         same(

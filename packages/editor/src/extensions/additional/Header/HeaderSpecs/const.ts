@@ -31,6 +31,7 @@ export const HeaderAttr = {
 export const HeaderActionAttr = {
     Type: 'type',
     Href: 'href',
+    Color: 'color',
 } as const;
 
 export const HeaderFormat = {Large: 'large', Small: 'small'} as const;
@@ -67,6 +68,7 @@ export const HEADER_FILL_SWATCHES = [
 ] as const;
 
 export type HeaderFillValue = (typeof HEADER_FILL_SWATCHES)[number]['value'];
+export type HeaderActionColorValue = 'brand' | HeaderFillValue;
 
 export const HeaderDefaults = {
     [HeaderAttr.Format]: HeaderFormat.Large,
@@ -82,6 +84,7 @@ export const HeaderDefaults = {
 export const HeaderActionDefaults = {
     [HeaderActionAttr.Type]: HeaderActionType.Button,
     [HeaderActionAttr.Href]: '',
+    [HeaderActionAttr.Color]: 'brand',
 } as const;
 
 export const MAX_HEADER_ACTIONS = 2;

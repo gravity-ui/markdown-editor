@@ -190,6 +190,9 @@
 // Match the specificity of the editor's link styles.
 
 .g-md-header .g-md-header-action {
+    --g-md-header-action-fill: var(--g-color-base-brand);
+    --g-md-header-action-text: var(--g-color-text-brand-contrast);
+
     display: inline-flex;
     align-items: center;
 
@@ -200,18 +203,29 @@
     cursor: text;
     text-decoration: none;
 
-    color: var(--g-color-text-brand-contrast);
+    color: var(--g-md-header-action-text);
     border: 1px solid transparent;
     border-radius: var(--g-border-radius-m);
-    background-color: var(--g-color-base-brand);
+    background-color: var(--g-md-header-action-fill);
     @include uikit.text-body-2();
+
+    @each $name, $fill in fills.$header-fills {
+        &[data-color='#{$name}'] {
+            --g-md-header-action-fill: #{map.get($fill, bg)};
+            --g-md-header-action-text: var(--g-color-text-primary);
+
+            @if map.get($fill, surface) == inverted {
+                --g-md-header-action-text: var(--g-color-text-inverted-primary);
+            }
+        }
+    }
 
     &:hover,
     &:active,
     &:visited {
         text-decoration: none;
 
-        color: var(--g-color-text-brand-contrast);
+        color: var(--g-md-header-action-text);
     }
 
     &[data-type='link'] {

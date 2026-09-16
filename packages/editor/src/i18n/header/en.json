@@ -35,7 +35,7 @@
     "image.open": "Open image",
     "image.failed": "Could not upload the image",
     "cta.add": "Add button",
-    "cta.remove": "Remove button",
+    "cta.remove": "Remove action",
     "cta.type": "Button kind",
     "cta.type_button": "Button",
     "cta.type_link": "Link",
@@ -45,5 +45,11 @@
     "placeholder.description": "Description",
     "appearance": "Appearance",
     "image.url": "Image URL",
-    "cta.links": "Links"
+    "cta.actions": "Buttons and links",
+    "cta.label": "Buttons",
+    "cta.add_link": "Add link",
+    "cta.empty": "Add a button or link to your header.",
+    "cta.limit": "Up to {{count}} buttons or links",
+    "cta.color": "Button colour",
+    "cta.color_default": "Default"
 }

@@ -160,8 +160,16 @@ test.describe('Extensions, Header', () => {
         await header.locator('.g-md-header-title').click();
         await toolbar.getByRole('button', {name: 'Image', exact: true}).click();
 
+        const input = page.getByRole('textbox', {name: 'Image URL'});
+        const inputSurface = page.locator('.g-md-header-toolbar__image .g-text-input__content');
+        const background = await inputSurface.evaluate(
+            (element) => getComputedStyle(element).backgroundColor,
+        );
         const fileChooser = page.waitForEvent('filechooser');
         await page.getByRole('button', {name: 'Upload image', exact: true}).click();
+        await expect(input).toBeEnabled();
+        await expect(input).toHaveJSProperty('readOnly', true);
+        await expect(inputSurface).toHaveCSS('background-color', background);
         await (
             await fileChooser
         ).setFiles({
@@ -192,6 +200,10 @@ test.describe('Extensions, Header', () => {
             return [image.naturalWidth, image.naturalHeight];
         });
         expect(size).toEqual([1, 1]);
+        await header.locator('.g-md-header-title').click();
+        await toolbar.getByRole('button', {name: 'Image', exact: true}).click();
+        await expect(input).toHaveJSProperty('readOnly', false);
+        await expect(inputSurface).toHaveCSS('background-color', background);
     });
 
     test('Image URL works without an upload handler', async ({mount, page, editor}) => {
@@ -282,13 +294,16 @@ test.describe('Extensions, Header', () => {
             await header.locator('.g-md-header-title').click();
             const links = page
                 .getByTestId('g-md-toolbar-header')
-                .getByRole('button', {name: 'Links', exact: true});
-            await expect(links).toBeDisabled();
+                .getByRole('button', {name: 'Buttons and links', exact: true});
+            await expect(links).toBeEnabled();
+            await links.click();
             await page
-                .getByTestId('g-md-toolbar-header')
-                .getByRole('button', {name: 'Add button', exact: true})
+                .getByRole('button', {
+                    name: kind === 'Button' ? 'Add button' : 'Add link',
+                    exact: true,
+                })
                 .click();
-            await page.getByRole('menuitem', {name: kind, exact: true}).click();
+            await expect(page.getByRole('dialog', {name: 'Buttons and links'})).toBeHidden();
 
             const action = header.locator('.g-md-header-action');
             await expect(links).toBeEnabled();
@@ -323,8 +338,8 @@ test.describe('Extensions, Header', () => {
 
         const links = page
             .getByTestId('g-md-toolbar-header')
-            .getByRole('button', {name: 'Links', exact: true});
-        await expect(links).toHaveText('Links');
+            .getByRole('button', {name: 'Buttons and links', exact: true});
+        await expect(links).toHaveText('Buttons');
         await links.click();
         const first = page.getByRole('group', {name: 'Начать работу', exact: true});
         const second = page.getByRole('group', {name: 'Смотреть разделы', exact: true});
@@ -361,12 +376,97 @@ test.describe('Extensions, Header', () => {
         await expect(actions.nth(1)).toHaveAttribute('href', 'https://example.com/sections');
     });
 
+    test('Button colours persist independently of the header and action kind', async ({
+        mount,
+        page,
+        editor,
+        expectScreenshot,
+    }) => {
+        await mount(<HeaderStories.Filled />, {width: 800, hidePlaygroundBlocks: true});
+        const header = page.getByTestId('g-md-header');
+        const actions = header.locator('.g-md-header-action');
+        const trigger = page
+            .getByTestId('g-md-toolbar-header')
+            .getByRole('button', {name: 'Buttons and links', exact: true});
+        await header.locator('.g-md-header-title').click();
+        await trigger.click();
+        const first = page.getByRole('group', {name: 'Начать работу', exact: true});
+        const input = first.getByRole('textbox', {name: 'Link URL'});
+        const palette = first.getByRole('group', {name: 'Button colour'});
+        const previousColor = await actions
+            .first()
+            .evaluate((element) => getComputedStyle(element).backgroundColor);
+        await input.fill('/unsaved');
+        await palette.getByRole('button', {name: 'Green', exact: true}).click();
+        await expect(actions.first()).toHaveAttribute('data-color', 'green');
+        await expect(actions.first()).not.toHaveCSS('background-color', previousColor);
+        await expect(actions.nth(1)).toHaveAttribute('data-color', 'brand');
+        await expect(header).toHaveAttribute('data-fill', 'blue');
+        await expect(input).toHaveValue('/unsaved');
+        await expect(palette.getByRole('button', {name: 'Green', exact: true})).toHaveAttribute(
+            'aria-pressed',
+            'true',
+        );
+        await expect(page.locator('.playground__markup')).toContainText("color: 'green'");
+        await page.mouse.move(0, 0);
+        await expectScreenshot();
+
+        const kind = first.getByRole('group', {name: 'Button kind'});
+        await kind.getByRole('button', {name: 'Link', exact: true}).click();
+        await expect(palette).toBeHidden();
+        await expect(actions.first()).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
+        await kind.getByRole('button', {name: 'Button', exact: true}).click();
+        await expect(actions.first()).toHaveAttribute('data-color', 'green');
+        await page.keyboard.press('Escape');
+        await expect(actions.first()).toHaveAttribute('href', '/start');
+        await editor.switchMode('markup');
+        await editor.switchMode('wysiwyg');
+        await expect(actions.first()).toHaveAttribute('data-color', 'green');
+        await header.locator('.g-md-header-title').click();
+        await trigger.click();
+        await palette.getByRole('button', {name: 'Default', exact: true}).click();
+        await expect(actions.first()).toHaveAttribute('data-color', 'brand');
+        await expect(page.locator('.playground__markup')).not.toContainText('color:');
+    });
+
+    test('Actions panel explains the limit and adds a link after removal', async ({
+        mount,
+        page,
+        editor,
+    }) => {
+        await mount(<HeaderStories.Filled />);
+        const header = page.getByTestId('g-md-header');
+        const actions = header.locator('.g-md-header-action');
+        const trigger = page
+            .getByTestId('g-md-toolbar-header')
+            .getByRole('button', {name: 'Buttons and links', exact: true});
+        await header.locator('.g-md-header-title').click();
+        await trigger.click();
+        await expect(page.getByText('Up to 2 buttons or links', {exact: true})).toBeVisible();
+        await expect(page.getByRole('button', {name: 'Add button', exact: true})).toBeDisabled();
+        await expect(page.getByRole('button', {name: 'Add link', exact: true})).toBeDisabled();
+        await page
+            .getByRole('group', {name: 'Смотреть разделы', exact: true})
+            .getByRole('button', {name: 'Remove action'})
+            .click();
+        await expect(actions).toHaveCount(1);
+        await trigger.click();
+        await page.getByRole('textbox', {name: 'Link URL'}).fill('/saved-before-add');
+        await page.getByRole('button', {name: 'Add link', exact: true}).click();
+        await expect(actions.first()).toHaveAttribute('href', '/saved-before-add');
+        await expect(actions).toHaveCount(2);
+        await expect(editor.locators.contenteditable).toBeFocused();
+        await page.keyboard.type('New link');
+        await expect(actions.nth(1)).toHaveText('New link');
+        await expect(actions.nth(1)).toHaveAttribute('data-type', 'link');
+    });
+
     test('Links settings follow keyboard selection', async ({mount, page, editor}) => {
         await mount(<HeaderStories.Filled />);
         const header = page.getByTestId('g-md-header');
         const edit = page
             .getByTestId('g-md-toolbar-header')
-            .getByRole('button', {name: 'Links', exact: true});
+            .getByRole('button', {name: 'Buttons and links', exact: true});
         const markup = page.locator('.playground__markup');
         await header.locator('.g-md-header-title').click();
         await expect(edit).toBeEnabled();
@@ -404,7 +504,7 @@ test.describe('Extensions, Header', () => {
         await edit.click();
         await expect(secondInput).toBeFocused();
         await expect(secondInput).toHaveValue('/updated-sections');
-        await second.getByRole('button', {name: 'Remove button', exact: true}).click();
+        await second.getByRole('button', {name: 'Remove action', exact: true}).click();
         await expect(actions).toHaveCount(1);
         await expect(actions).toHaveText('Начать работу');
         await expect(actions).toHaveAttribute('href', '/start');
@@ -464,7 +564,7 @@ test.describe('Extensions, Header', () => {
         await actions.first().click();
         await page
             .getByTestId('g-md-toolbar-header')
-            .getByRole('button', {name: 'Links', exact: true})
+            .getByRole('button', {name: 'Buttons and links', exact: true})
             .click();
         const input = page
             .getByRole('group', {name: 'Начать работу', exact: true})
@@ -501,7 +601,7 @@ test.describe('Extensions, Header', () => {
         await header.locator('.g-md-header-title').click();
         await page
             .getByTestId('g-md-toolbar-header')
-            .getByRole('button', {name: 'Links', exact: true})
+            .getByRole('button', {name: 'Buttons and links', exact: true})
             .click();
         const first = page
             .getByRole('group', {name: 'Начать работу', exact: true})
@@ -511,7 +611,7 @@ test.describe('Extensions, Header', () => {
             .getByRole('textbox', {name: 'Link URL', exact: true});
 
         await first.fill('/first-tab');
-        for (let step = 0; step < 10; step++) {
+        for (let step = 0; step < 30; step++) {
             await page.keyboard.press('Tab');
             if (await second.evaluate((element) => element === document.activeElement)) break;
         }
@@ -520,7 +620,7 @@ test.describe('Extensions, Header', () => {
         await expect(actions.first()).toHaveAttribute('href', '/start');
         await second.fill('/second-tab');
 
-        for (let step = 0; step < 10; step++) {
+        for (let step = 0; step < 30; step++) {
             await page.keyboard.press('Tab');
             if (!(await first.isVisible())) break;
         }
@@ -535,7 +635,7 @@ test.describe('Extensions, Header', () => {
         const action = header.locator('.g-md-header-action').first();
         const links = page
             .getByTestId('g-md-toolbar-header')
-            .getByRole('button', {name: 'Links', exact: true});
+            .getByRole('button', {name: 'Buttons and links', exact: true});
         const input = page
             .getByRole('group', {name: 'Начать работу', exact: true})
             .getByRole('textbox', {name: 'Link URL', exact: true});
@@ -600,9 +700,9 @@ test.describe('Extensions, Header', () => {
         await header.locator('.g-md-header-title').click();
         await page
             .getByTestId('g-md-toolbar-header')
-            .getByRole('button', {name: 'Links', exact: true})
+            .getByRole('button', {name: 'Buttons and links', exact: true})
             .click();
-        const dialog = page.getByRole('dialog', {name: 'Links', exact: true});
+        const dialog = page.getByRole('dialog', {name: 'Buttons and links', exact: true});
         const first = dialog
             .getByRole('group', {name: 'Начать работу', exact: true})
             .getByRole('textbox', {name: 'Link URL', exact: true});
@@ -622,7 +722,7 @@ test.describe('Extensions, Header', () => {
         await expect(actions.nth(1)).toHaveAttribute('href', '/sections');
         await dialog
             .getByRole('group', {name: 'Начать работу', exact: true})
-            .getByRole('button', {name: 'Remove button', exact: true})
+            .getByRole('button', {name: 'Remove action', exact: true})
             .click();
         await expect(dialog).toBeVisible();
         await expect(actions).toHaveCount(2);
@@ -642,16 +742,16 @@ test.describe('Extensions, Header', () => {
         await header.locator('.g-md-header-title').click();
         await page
             .getByTestId('g-md-toolbar-header')
-            .getByRole('button', {name: 'Links', exact: true})
+            .getByRole('button', {name: 'Buttons and links', exact: true})
             .click();
-        const dialog = page.getByRole('dialog', {name: 'Links', exact: true});
+        const dialog = page.getByRole('dialog', {name: 'Buttons and links', exact: true});
         await dialog
             .getByRole('group', {name: 'Смотреть разделы', exact: true})
             .getByRole('textbox', {name: 'Link URL', exact: true})
             .fill('/kept');
         await dialog
             .getByRole('group', {name: 'Начать работу', exact: true})
-            .getByRole('button', {name: 'Remove button', exact: true})
+            .getByRole('button', {name: 'Remove action', exact: true})
             .click();
 
         const actions = header.locator('.g-md-header-action');
@@ -673,7 +773,7 @@ test.describe('Extensions, Header', () => {
         await page.getByTestId('g-md-header').locator('.g-md-header-title').click();
         const toolbar = page.getByTestId('g-md-toolbar-header');
 
-        for (const name of ['Appearance', 'Image', 'Links']) {
+        for (const name of ['Appearance', 'Image', 'Buttons and links']) {
             const trigger = toolbar.getByRole('button', {name, exact: true});
             await trigger.click();
             const dialog = page.getByRole('dialog', {name, exact: true});

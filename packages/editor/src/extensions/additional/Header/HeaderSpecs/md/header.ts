@@ -43,6 +43,7 @@ function pushAction(state: StateBlock, action: HeaderActionData): void {
         [`data-${HeaderActionAttr.Type}`, action.type],
     ];
     if (action.href) token.attrs.push([HeaderActionAttr.Href, action.href]);
+    if (action.color) token.attrs.push([`data-${HeaderActionAttr.Color}`, action.color]);
 }
 
 const headerHandler: ContainerDirectiveHandler = (state, params) => {

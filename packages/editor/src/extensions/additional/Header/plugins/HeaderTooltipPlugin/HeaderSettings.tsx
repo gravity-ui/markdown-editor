@@ -10,7 +10,13 @@ import {i18n as formsI18n} from 'src/i18n/forms';
 import {i18n} from 'src/i18n/header';
 import type {FileUploadHandler} from 'src/utils/upload';
 
-import {type HeaderAttrs, HeaderBackground} from '../../HeaderSpecs';
+import {
+    type HeaderActionAttrs,
+    type HeaderActionTypeValue,
+    type HeaderAttrs,
+    HeaderBackground,
+    MAX_HEADER_ACTIONS,
+} from '../../HeaderSpecs';
 import {toCssUrl} from '../../HeaderSpecs/dom';
 import {
     findHeaderAction,
@@ -20,6 +26,7 @@ import {
 } from '../../commands';
 import {getHeaderTargets, resolveHeaderTarget} from '../targets';
 
+import {FillPalette} from './FillPalette';
 import {LayoutSettings} from './HeaderAppearance';
 import {applyHeaderCommand, useUrlDraft} from './HeaderPopover';
 import {useImageUpload} from './useImageUpload';
@@ -55,13 +62,13 @@ export function ImageSettings({
     );
     const imageUrl = normalize(draft.value) || undefined;
     return (
-        <div className={b('image')}>
+        <div className={b('image')} aria-busy={uploading}>
             <UrlInput
                 value={draft.value}
                 onUpdate={draft.onUpdate}
                 onSubmit={draft.onSubmit}
                 autoFocus
-                disabled={uploading}
+                readOnly={uploading}
                 aria-label={i18n('image.url')}
                 placeholder={i18n('image.url')}
                 actions={
@@ -112,9 +119,11 @@ export function ImageSettings({
 export function ActionsSettings({
     editorView,
     normalizeUrl,
+    onAdd,
 }: {
     editorView: EditorView;
     normalizeUrl: (url: string) => string | null;
+    onAdd: (type: HeaderActionTypeValue) => void;
 }) {
     const targets = getHeaderTargets(editorView.state);
     const [focusedId] = useState(() => {
@@ -126,6 +135,9 @@ export function ActionsSettings({
     });
     return (
         <div className={b('actions')}>
+            {!targets?.actions.length && (
+                <div className={b('actions-empty')}>{i18n('cta.empty')}</div>
+            )}
             {targets?.actions.map((target) => (
                 <ActionSettings
                     key={target.id}
@@ -135,6 +147,27 @@ export function ActionsSettings({
                     autoFocus={target.id === focusedId}
                 />
             ))}
+            <div className={b('actions-footer')}>
+                <div className={b('actions-add')}>
+                    <Button
+                        view="outlined"
+                        disabled={(targets?.actions.length ?? 0) >= MAX_HEADER_ACTIONS}
+                        onClick={() => onAdd('button')}
+                    >
+                        {i18n('cta.add')}
+                    </Button>
+                    <Button
+                        view="outlined"
+                        disabled={(targets?.actions.length ?? 0) >= MAX_HEADER_ACTIONS}
+                        onClick={() => onAdd('link')}
+                    >
+                        {i18n('cta.add_link')}
+                    </Button>
+                </div>
+                <span className={b('actions-limit')}>
+                    {i18n('cta.limit', {count: MAX_HEADER_ACTIONS})}
+                </span>
+            </div>
         </div>
     );
 }
@@ -149,10 +182,10 @@ function ActionSettings({
     autoFocus: boolean;
 }) {
     const target = resolveHeaderTarget(editorView.state, targetId)!;
-    const {href, type} = target.node.attrs;
+    const {href, type, color} = target.node.attrs as HeaderActionAttrs;
     const title =
         target.node.textContent || i18n(type === 'link' ? 'cta.type_link' : 'cta.type_button');
-    const update = (patch: {href?: string; type?: 'button' | 'link'}) => {
+    const update = (patch: Partial<HeaderActionAttrs>) => {
         const current = resolveHeaderTarget(editorView.state, targetId);
         if (current) applyHeaderCommand(editorView, setHeaderActionAttrs(current.pos, patch));
     };
@@ -223,6 +256,25 @@ function ActionSettings({
                     ) : undefined
                 }
             />
+            {type === 'button' && (
+                <div className={b('action-color')} role="group" aria-label={i18n('cta.color')}>
+                    <span className={b('action-color-label')}>{i18n('cta.color')}</span>
+                    <div className={b('action-color-options')}>
+                        <Button
+                            view="flat"
+                            selected={color === 'brand'}
+                            aria-pressed={color === 'brand'}
+                            onClick={() => update({color: 'brand'})}
+                        >
+                            {i18n('cta.color_default')}
+                        </Button>
+                        <FillPalette
+                            value={color === 'brand' ? undefined : color}
+                            onSelect={(value) => update({color: value})}
+                        />
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
