@@ -1,0 +1,382 @@
+.g-md-yfm-html-constructor {
+    &__structures {
+        display: flex;
+        overflow: hidden;
+        flex-direction: column;
+
+        box-sizing: border-box;
+        width: min(860px, calc(100vw - 32px));
+        height: min(680px, calc(100dvh - 64px));
+
+        border: 1px solid var(--g-color-line-generic);
+        border-radius: var(--g-border-radius-l);
+        background: var(--g-color-base-float);
+    }
+
+    &__structures-header {
+        display: flex;
+        flex: 0 0 auto;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+
+        padding: 16px 16px 12px 24px;
+    }
+
+    &__structures-title {
+        margin: 0;
+
+        font-size: var(--g-text-header-1-font-size);
+        font-weight: 600;
+        line-height: var(--g-text-header-1-line-height);
+
+        color: var(--g-color-text-primary);
+    }
+
+    &__structures-toolbar {
+        display: flex;
+        flex: 0 0 auto;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 8px;
+
+        padding: 0 24px 16px;
+    }
+
+    &__structures-search {
+        flex: 1 1 240px;
+
+        min-width: 0;
+    }
+
+    &__structures-search-icon {
+        margin: 0 4px 0 8px;
+
+        color: var(--g-color-text-secondary);
+    }
+
+    &__structures-actions {
+        display: flex;
+        flex: 0 0 auto;
+        flex-wrap: wrap;
+        gap: 4px;
+    }
+
+    &__structures-body {
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        flex: 1 1 auto;
+
+        min-height: 0;
+        padding: 4px 20px 24px;
+        scrollbar-gutter: stable;
+    }
+
+    &__structures-empty {
+        padding: 48px 0;
+
+        text-align: center;
+
+        color: var(--g-color-text-secondary);
+    }
+
+    &__structures-import {
+        display: flex;
+        overflow: hidden;
+        flex: 1 1 auto;
+        flex-direction: column;
+        gap: 12px;
+
+        min-height: 0;
+        padding: 0 24px 24px;
+    }
+
+    &__structures-import-fields {
+        display: flex;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        scrollbar-gutter: stable;
+
+        flex: 1 1 auto;
+        flex-direction: column;
+        gap: 12px;
+
+        min-height: 0;
+    }
+
+    &__structures-import-actions {
+        display: flex;
+        flex: 0 0 auto;
+        justify-content: flex-end;
+        gap: 8px;
+    }
+
+    &__structures-custom-field {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    &__structures-custom-label {
+        font-size: var(--g-text-body-1-font-size);
+        font-weight: 500;
+        line-height: var(--g-text-body-1-line-height);
+
+        color: var(--g-color-text-secondary);
+    }
+
+    &__structures-error {
+        font-size: var(--g-text-body-1-font-size);
+        line-height: var(--g-text-body-1-line-height);
+
+        color: var(--g-color-text-danger);
+    }
+
+    &__structure-group {
+        & + & {
+            margin-top: 4px;
+        }
+    }
+
+    &__structure-group-header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+
+        width: 100%;
+        margin: 0;
+        padding: 12px 8px;
+
+        font-size: var(--g-text-subheader-2-font-size);
+        font-weight: 600;
+        line-height: var(--g-text-subheader-2-line-height);
+        cursor: pointer;
+        text-align: left;
+
+        color: var(--g-color-text-primary);
+        border: 0;
+        border-radius: var(--g-border-radius-m);
+        background: transparent;
+
+        &:hover {
+            background: var(--g-color-base-simple-hover);
+        }
+    }
+
+    &__structure-group-icon {
+        flex: 0 0 auto;
+
+        color: var(--g-color-text-secondary);
+    }
+
+    &__structure-group-title {
+        flex: 1 1 auto;
+
+        min-width: 0;
+    }
+
+    &__structure-group-caret {
+        flex: 0 0 auto;
+
+        color: var(--g-color-text-secondary);
+    }
+
+    &__structure-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(min(228px, 100%), 1fr));
+        gap: 20px 16px;
+
+        padding: 8px 8px 16px;
+    }
+
+    &__structure-card-wrap {
+        position: relative;
+
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+
+        min-width: 0;
+    }
+
+    &__structure-card {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+
+        width: 100%;
+        min-width: 0;
+        margin: 0;
+        padding: 0;
+
+        cursor: pointer;
+        text-align: left;
+
+        border: 0;
+        border-radius: var(--g-border-radius-m);
+        background: transparent;
+    }
+
+    &__structure-card-frame {
+        position: relative;
+
+        width: 100%;
+    }
+
+    &__structure-card-preview {
+        position: relative;
+        z-index: 2;
+
+        display: block;
+        overflow: hidden;
+
+        height: 150px;
+
+        border: 1px solid var(--g-color-line-generic);
+        border-radius: var(--g-border-radius-m);
+        background: var(--g-color-base-float);
+
+        transition: border-color 0.1s ease-out;
+
+        .g-md-yfm-html-constructor__structure-card:hover & {
+            border-color: var(--g-color-line-brand);
+        }
+    }
+
+    &__structure-card_active &__structure-card-preview {
+        border-color: var(--g-color-line-brand);
+        box-shadow: 0 0 0 1px var(--g-color-line-brand);
+    }
+
+    &__structure-card_active &__structure-card-title {
+        color: var(--g-color-text-brand);
+    }
+
+    &__structure-preview {
+        position: relative;
+
+        display: block;
+        overflow: hidden;
+
+        width: 100%;
+        height: 100%;
+
+        pointer-events: none;
+    }
+
+    &__structure-preview-scale {
+        // Keep the preview's design width out of the grid's intrinsic sizing.
+        position: absolute;
+        top: 0;
+        left: 0;
+
+        display: block;
+
+        transform-origin: top left;
+    }
+
+    &__structure-card-title {
+        overflow-wrap: anywhere;
+
+        font-size: var(--g-text-body-1-font-size);
+        line-height: var(--g-text-body-1-line-height);
+
+        color: var(--g-color-text-primary);
+    }
+
+    &__structure-themes {
+        display: grid;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        grid-template-columns: repeat(auto-fit, minmax(min(180px, 100%), 1fr));
+        gap: 12px;
+
+        box-sizing: border-box;
+        width: min(416px, calc(100vw - 32px));
+        max-height: min(480px, calc(100dvh - 64px));
+        padding: 12px;
+    }
+
+    &__structure-theme {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+
+        min-width: 0;
+        margin: 0;
+        padding: 0;
+
+        cursor: pointer;
+        text-align: left;
+
+        border: 0;
+        border-radius: var(--g-border-radius-m);
+        background: transparent;
+    }
+
+    &__structure-theme-preview {
+        position: relative;
+
+        display: block;
+        overflow: hidden;
+
+        height: 104px;
+
+        border: 1px solid var(--g-color-line-generic);
+        border-radius: var(--g-border-radius-m);
+        background: var(--g-color-base-float);
+
+        transition:
+            border-color 0.1s ease-out,
+            box-shadow 0.1s ease-out;
+
+        .g-md-yfm-html-constructor__structure-theme:hover & {
+            border-color: var(--g-color-line-brand);
+            box-shadow: 0 0 0 1px var(--g-color-line-brand);
+        }
+    }
+
+    &__structure-theme-title {
+        overflow: hidden;
+
+        font-size: var(--g-text-caption-2-font-size);
+        line-height: var(--g-text-caption-2-line-height);
+        white-space: nowrap;
+        text-overflow: ellipsis;
+
+        color: var(--g-color-text-secondary);
+    }
+
+    &__structure-card:focus-visible,
+    &__structure-theme:focus-visible,
+    &__structure-group-header:focus-visible {
+        outline: 2px solid var(--g-color-line-focus);
+        outline-offset: 3px;
+    }
+}
+
+@media (max-width: 600px) {
+    .g-md-yfm-html-constructor {
+        &__structures-header {
+            padding-inline: 16px;
+        }
+
+        &__structures-toolbar,
+        &__structures-import {
+            padding-inline: 16px;
+        }
+
+        &__structures-body {
+            padding-inline: 8px;
+        }
+
+        &__structures-search {
+            flex-basis: 100%;
+        }
+
+        &__structures-actions {
+            flex-shrink: 1;
+        }
+    }
+}
