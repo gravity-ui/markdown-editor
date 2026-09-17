@@ -37,8 +37,9 @@ export function useSticky<T extends HTMLElement>(elemRef: React.RefObject<T>) {
             rafId = null;
             if (!elemRef.current) return;
             const refPageOffset = elemRef.current.getBoundingClientRect().top;
-            const stickyOffset = parseInt(getComputedStyle(elemRef.current).top, 10);
-            const stickyActive = refPageOffset <= stickyOffset;
+            const stickyOffset = parseFloat(getComputedStyle(elemRef.current).top);
+            // Allow one CSS pixel for subpixel rounding at non-default browser zoom levels.
+            const stickyActive = refPageOffset <= stickyOffset + 1;
 
             if (stickyActive && !stickyRef.current) setSticky(true);
             else if (!stickyActive && stickyRef.current) setSticky(false);
