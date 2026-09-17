@@ -1,12 +1,12 @@
 import type {Node} from 'prosemirror-model';
 
-import type {SerializerNodeToken} from '../../../../core';
-import {getChildrenOfNode} from '../../../../utils/nodes';
-import {getPlaceholderContent} from '../../../../utils/placeholder';
+import type {ExtensionAuto, SerializerNodeToken} from '#core';
+import {getChildrenOfNode} from 'src/utils/nodes';
+import {getPlaceholderContent} from 'src/utils/placeholder';
 
 import {TabsNode} from './const';
 
-export const serializerTokens: Record<TabsNode, SerializerNodeToken> = {
+const serializerTokens: Record<TabsNode, SerializerNodeToken> = {
     [TabsNode.Tab]: (state, node) => {
         state.renderInline(node);
     },
@@ -78,4 +78,22 @@ export const serializerTokens: Record<TabsNode, SerializerNodeToken> = {
     [TabsNode.RadioTabLabel]: (state, node) => {
         state.renderInline(node);
     },
+};
+
+export const YfmTabsSerializerSpecs: ExtensionAuto = (builder) => {
+    builder
+        .addNodeSerializerSpec(TabsNode.Tab, () => serializerTokens[TabsNode.Tab])
+        .addNodeSerializerSpec(TabsNode.TabsList, () => serializerTokens[TabsNode.TabsList])
+        .addNodeSerializerSpec(TabsNode.TabPanel, () => serializerTokens[TabsNode.TabPanel])
+        .addNodeSerializerSpec(TabsNode.Tabs, () => serializerTokens[TabsNode.Tabs])
+        .addNodeSerializerSpec(TabsNode.RadioTabs, () => serializerTokens[TabsNode.RadioTabs])
+        .addNodeSerializerSpec(TabsNode.RadioTab, () => serializerTokens[TabsNode.RadioTab])
+        .addNodeSerializerSpec(
+            TabsNode.RadioTabInput,
+            () => serializerTokens[TabsNode.RadioTabInput],
+        )
+        .addNodeSerializerSpec(
+            TabsNode.RadioTabLabel,
+            () => serializerTokens[TabsNode.RadioTabLabel],
+        );
 };
