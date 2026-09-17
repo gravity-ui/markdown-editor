@@ -1,4 +1,5 @@
 import {Plugin} from 'prosemirror-state';
+import {describe, expect, it, vi} from 'vitest';
 
 import {Logger2} from '../logger';
 
@@ -19,7 +20,7 @@ describe('ExtensionBuilder', () => {
     });
 
     it('should immediately call added by .use() extension', () => {
-        const mockExtension = jest.fn();
+        const mockExtension = vi.fn();
         const builder = new ExtensionBuilder(logger);
         const options = {a: 1, b: 2, c: 3};
 
@@ -214,7 +215,7 @@ describe('ExtensionBuilder', () => {
 
     describe('granular add methods', () => {
         it('should add node via granular methods', () => {
-            const toMd = jest.fn();
+            const toMd = vi.fn();
             const nodes = new ExtensionBuilder(logger)
                 .addNodeSpec('myNode', () => ({group: 'block'}))
                 .addMarkdownTokenParserSpec('my_node', () => ({
@@ -356,7 +357,7 @@ describe('ExtensionBuilder', () => {
         });
 
         it('should handle multiple parser tokens mapping to the same node', () => {
-            const toMd = jest.fn();
+            const toMd = vi.fn();
             const nodes = new ExtensionBuilder(logger)
                 .addNodeSpec('code_block', () => ({group: 'block', code: true}))
                 .addMarkdownTokenParserSpec('code_block', () => ({
@@ -637,8 +638,8 @@ describe('ExtensionBuilder', () => {
         });
 
         it('should override node serializer on addNode entry', () => {
-            const originalToMd = jest.fn();
-            const newToMd = jest.fn();
+            const originalToMd = vi.fn();
+            const newToMd = vi.fn();
 
             const nodes = new ExtensionBuilder(logger)
                 .addNode('node', () => ({
@@ -686,7 +687,7 @@ describe('ExtensionBuilder', () => {
         });
 
         it('should work with addNode entries when no overrides applied', () => {
-            const toMd = jest.fn();
+            const toMd = vi.fn();
             const nodes = new ExtensionBuilder(logger)
                 .addNode('node', () => ({
                     spec: {group: 'block'},
@@ -759,8 +760,8 @@ describe('ExtensionBuilder', () => {
         });
 
         it('should chain multiple serializer overrides receiving previous result as prev', () => {
-            const firstToMd = jest.fn();
-            const secondToMd = jest.fn();
+            const firstToMd = vi.fn();
+            const secondToMd = vi.fn();
 
             const nodes = new ExtensionBuilder(logger)
                 .addNode('node', () => ({
@@ -890,7 +891,7 @@ describe('ExtensionBuilder', () => {
             // Step 1 adds full spec under 'code_block'.
             // Step 1b finds parserSpecsByEntity['code_block'] and calls map.addToEnd('code_block', parserOnlyEntry),
             // which overwrites the full spec with { spec: {}, toMd: () => { throw } }.
-            const realToMd = jest.fn();
+            const realToMd = vi.fn();
 
             const nodes = new ExtensionBuilder(logger)
                 .addNode('code_block', () => ({
@@ -945,7 +946,7 @@ describe('ExtensionBuilder', () => {
         });
 
         it('should preserve addNode full spec when overrideNodeSpec is applied', () => {
-            const realToMd = jest.fn();
+            const realToMd = vi.fn();
 
             const nodes = new ExtensionBuilder(logger)
                 .addNode('heading', () => ({
@@ -965,7 +966,7 @@ describe('ExtensionBuilder', () => {
         });
 
         it('should preserve addNode full spec when overrideMarkdownTokenParserSpec is applied', () => {
-            const realToMd = jest.fn();
+            const realToMd = vi.fn();
 
             const nodes = new ExtensionBuilder(logger)
                 .addNode('image', () => ({
@@ -998,8 +999,8 @@ describe('ExtensionBuilder', () => {
         });
 
         it('should preserve addNode full spec when overrideNodeSerializerSpec is applied', () => {
-            const originalToMd = jest.fn();
-            const newToMd = jest.fn();
+            const originalToMd = vi.fn();
+            const newToMd = vi.fn();
 
             const nodes = new ExtensionBuilder(logger)
                 .addNode('heading', () => ({

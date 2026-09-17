@@ -23,7 +23,7 @@
     "lint:js": "eslint './**/*.{js,jsx,mjs,ts,tsx}'",
     "lint:styles": "stylelint './**/*.{css,scss}' --allow-empty-input",
     "lint:prettier": "prettier --check './**/*.{js,jsx,mjs,ts,tsx,css,scss}'",
-    "test": "jest --config jest.config.cjs",
+    "test": "vitest run",
     "prepublishOnly": "nx lint && nx clean && nx build"
   },
   "exports": {
@@ -88,17 +88,16 @@
     "@markdown-editor/gulp-tasks": "workspace:*",
     "@markdown-editor/linters": "workspace:*",
     "@markdown-editor/tsconfig": "workspace:*",
-    "@types/jest": "^29.5.0",
+    "@markdown-editor/vitest-config": "workspace:*",
     "@types/react": "catalog:react",
     "@types/react-dom": "catalog:react",
     "gulp-cli": "catalog:",
-    "jest": "^29.7.0",
     "npm-run-all": "^4.1.5",
     "react": "catalog:react",
     "react-dom": "catalog:react",
     "ts-dedent": "^2.2.0",
-    "ts-jest": "^29.2.0",
-    "typescript": "catalog:ts"
+    "typescript": "catalog:ts",
+    "vitest": "catalog:testing"
   },
   "peerDependencies": {
     "@diplodoc/page-constructor-extension": "^0.13.3",

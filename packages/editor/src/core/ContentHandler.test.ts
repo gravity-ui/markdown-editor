@@ -2,6 +2,7 @@ import {Schema} from 'prosemirror-model';
 import {EditorState, TextSelection} from 'prosemirror-state';
 import {builders} from 'prosemirror-test-builder';
 import {EditorView} from 'prosemirror-view';
+import {describe, expect, it, vi} from 'vitest';
 
 import {get$Cursor} from '../utils/selection';
 
@@ -164,7 +165,7 @@ describe('WysiwygContentHandler', () => {
             }),
         });
         const contentHandler = new WysiwygContentHandler(view, fakeParser);
-        const fn = jest.fn(() => {
+        const fn = vi.fn(() => {
             contentHandler.moveCursor('test' as 'start');
         });
         expect(fn).toThrow();

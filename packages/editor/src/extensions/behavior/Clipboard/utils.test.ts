@@ -1,4 +1,5 @@
 import {builders} from 'prosemirror-test-builder';
+import {describe, expect, it} from 'vitest';
 
 import {findNotEmptyContentPosses, trimContent} from 'src/extensions/behavior/Clipboard/utils';
 import {CutAttr, CutNode, YfmCutSpecs} from 'src/extensions/yfm/YfmCut/YfmCutSpecs';

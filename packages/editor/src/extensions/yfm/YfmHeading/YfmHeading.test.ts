@@ -1,5 +1,6 @@
 import {builders} from 'prosemirror-test-builder';
 import dd from 'ts-dedent';
+import {describe, it} from 'vitest';
 
 import {parseDOM} from '../../../../tests/parse-dom';
 import {createMarkupChecker} from '../../../../tests/sameMarkup';

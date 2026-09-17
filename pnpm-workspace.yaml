@@ -37,6 +37,10 @@ catalogs:
     tslib: ^2.3.1
     typescript: ^5.9.3
 
+  testing:
+    '@vitest/coverage-v8': 5.0.1
+    vitest: 5.0.1
+
   linters:
     eslint: 9.39.2
     postcss: 8.5.10

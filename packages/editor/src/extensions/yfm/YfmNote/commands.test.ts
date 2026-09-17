@@ -2,6 +2,7 @@ import {Schema} from 'prosemirror-model';
 import {EditorState, TextSelection} from 'prosemirror-state';
 import {builders} from 'prosemirror-test-builder';
 import {EditorView} from 'prosemirror-view';
+import {describe, expect, it} from 'vitest';
 
 import {getSchemaSpecs} from './YfmNoteSpecs/schema';
 import {backToNoteTitle, removeNote} from './commands';

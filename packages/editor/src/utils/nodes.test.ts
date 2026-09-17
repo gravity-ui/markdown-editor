@@ -1,4 +1,5 @@
 import {Schema} from 'prosemirror-model';
+import {describe, expect, it} from 'vitest';
 
 import {isNodeEmpty} from './nodes';
 

@@ -1,5 +1,6 @@
 import {EditorState, Plugin} from 'prosemirror-state';
 import {EditorView} from 'prosemirror-view';
+import {describe, expect, it} from 'vitest';
 
 import {BaseNode, BaseSchemaSpecs} from '../extensions/base/BaseSchema/BaseSchemaSpecs';
 

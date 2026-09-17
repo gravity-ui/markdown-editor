@@ -1,12 +1,13 @@
 import {renderToStaticMarkup} from 'react-dom/server';
+import {describe, expect, it, vi} from 'vitest';
 
 import {FileForm} from './FileForm';
 import {ImageForm} from './ImageForm';
 
 describe('upload hints', () => {
     const commonImageProps = {
-        onSubmit: jest.fn(),
-        onCancel: jest.fn(),
+        onSubmit: vi.fn(),
+        onCancel: vi.fn(),
         onAttach: () => {},
     };
 

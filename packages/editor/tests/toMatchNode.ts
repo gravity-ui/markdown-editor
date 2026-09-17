@@ -1,9 +1,6 @@
-/* eslint-disable @typescript-eslint/no-namespace */
-
 import type {Node} from 'prosemirror-model';
 import {eq} from 'prosemirror-test-builder';
-
-const toJson = (node: Node) => JSON.stringify(node.toJSON());
+import {expect} from 'vitest';
 
 expect.extend({
     toMatchNode: (received: Node, expect: Node) => {
@@ -26,11 +23,13 @@ expect.extend({
     },
 });
 
-declare global {
-    namespace jest {
-        interface Matchers<R> {
-            toMatchNode(expect: Node): R;
-            toMatchNodeJson(expect: Node): R;
-        }
+declare module 'vitest' {
+    interface Matchers<R> {
+        toMatchNode(expect: Node): R;
+        toMatchNodeJson(expect: Node): R;
     }
+}
+
+function toJson(node: Node) {
+    return JSON.stringify(node.toJSON());
 }

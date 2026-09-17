@@ -1,3 +1,5 @@
+import {describe, expect, it} from 'vitest';
+
 import {ToolbarDataType, type WToolbarData} from '../types';
 
 import {flattenPreset} from './flattenPreset';
