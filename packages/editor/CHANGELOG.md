@@ -1,5 +1,34 @@
 # Changelog
 
+## [15.47.0](https://github.com/gravity-ui/markdown-editor/compare/markdown-editor-v15.46.1...markdown-editor-v15.47.0) (2026-09-17)
+
+
+### Features
+
+* **core:** add builder methods to register node and mark views ([#1238](https://github.com/gravity-ui/markdown-editor/issues/1238)) ([fef6dea](https://github.com/gravity-ui/markdown-editor/commit/fef6deaa311a6cc506133dd6e783b477e8ffed37))
+
+
+### Bug Fixes
+
+* preserve block tooltip anchors during selection ([#1221](https://github.com/gravity-ui/markdown-editor/issues/1221)) ([89d4c4f](https://github.com/gravity-ui/markdown-editor/commit/89d4c4f0ea16314a8e3e5046b4f634159f4b77a6))
+
+
+### Refactoring
+
+* **Checkbox:** use new builder methods to register nodes ([#1244](https://github.com/gravity-ui/markdown-editor/issues/1244)) ([2d1890e](https://github.com/gravity-ui/markdown-editor/commit/2d1890e6c5d27f24bd9dcff4e763f767aee3ac02))
+* **Color:** use new builder methods to register marks ([#1230](https://github.com/gravity-ui/markdown-editor/issues/1230)) ([e47e909](https://github.com/gravity-ui/markdown-editor/commit/e47e9090244f20d53ae45a9eb53d061818463b46))
+* **Emoji:** use new builder methods to register nodes ([#1231](https://github.com/gravity-ui/markdown-editor/issues/1231)) ([c6bde5a](https://github.com/gravity-ui/markdown-editor/commit/c6bde5a4743e0a68883d7bd39c6927fcfc6e6770))
+* **Mermaid:** use new builder methods to register nodes ([#1246](https://github.com/gravity-ui/markdown-editor/issues/1246)) ([81a47d3](https://github.com/gravity-ui/markdown-editor/commit/81a47d329ae2099634ea2a5c33b72559b22e3313))
+* **QuoteLink:** use new builder methods to register nodes ([#1233](https://github.com/gravity-ui/markdown-editor/issues/1233)) ([20c5ba0](https://github.com/gravity-ui/markdown-editor/commit/20c5ba01fb12c1ccf46c34566ab74edddba52bdc))
+* **Video:** use new builder methods to register nodes ([#1232](https://github.com/gravity-ui/markdown-editor/issues/1232)) ([2ad1334](https://github.com/gravity-ui/markdown-editor/commit/2ad1334066f6c4121eb6a4b644f0cf32ff7c9627))
+* **YfmConfigs:** use new builder methods to register nodes ([#1237](https://github.com/gravity-ui/markdown-editor/issues/1237)) ([0241035](https://github.com/gravity-ui/markdown-editor/commit/0241035053299d537d429acbf7ea9e53b500708d))
+* **YfmCut:** use new builder methods to register nodes ([#1243](https://github.com/gravity-ui/markdown-editor/issues/1243)) ([9ecde31](https://github.com/gravity-ui/markdown-editor/commit/9ecde31a269e419b48680137acd68b772e40b8cc))
+* **YfmFile:** use new builder methods to register nodes ([#1234](https://github.com/gravity-ui/markdown-editor/issues/1234)) ([56354b4](https://github.com/gravity-ui/markdown-editor/commit/56354b4e9482641af27e60e94aa3c224f5b77bbf))
+* **YfmHtmlBlock:** use new builder methods to register nodes ([#1245](https://github.com/gravity-ui/markdown-editor/issues/1245)) ([047c0e7](https://github.com/gravity-ui/markdown-editor/commit/047c0e77d48aa4996c1342f0553f306bdb8fc638))
+* **YfmNote:** use new builder methods to register nodes ([#1236](https://github.com/gravity-ui/markdown-editor/issues/1236)) ([58376bb](https://github.com/gravity-ui/markdown-editor/commit/58376bb7c582fe6f2c9ff4cb2b8eded8b7c588eb))
+* **YfmTable:** use new builder methods to register nodes ([#1235](https://github.com/gravity-ui/markdown-editor/issues/1235)) ([0a2a680](https://github.com/gravity-ui/markdown-editor/commit/0a2a680af38b6441a21e7caba546dad774e2ae72))
+* **YfmTabs:** use new builder methods to register nodes ([#1247](https://github.com/gravity-ui/markdown-editor/issues/1247)) ([26cc40d](https://github.com/gravity-ui/markdown-editor/commit/26cc40d30c13022e7d111955d4b03aefb949e4a9))
+
 ## [15.46.1](https://github.com/gravity-ui/markdown-editor/compare/markdown-editor-v15.46.0...markdown-editor-v15.46.1) (2026-09-15)
 
 
