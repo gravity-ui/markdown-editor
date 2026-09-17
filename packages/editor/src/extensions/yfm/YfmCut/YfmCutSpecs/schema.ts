@@ -1,3 +1,4 @@
+import type {ExtensionAuto} from '#core';
 import type {NodeSpec} from '#pm/model';
 import type {PlaceholderOptions} from 'src/utils/placeholder';
 
@@ -89,3 +90,12 @@ export const getSchemaSpecs = (
         complex: 'leaf',
     },
 });
+
+export const YfmCutSchemaSpecs: ExtensionAuto<YfmCutSchemaOptions> = (builder, opts) => {
+    const schemaSpecs = getSchemaSpecs(opts, builder.context.get('placeholder'));
+
+    builder
+        .addNodeSpec(CutNode.Cut, () => schemaSpecs[CutNode.Cut])
+        .addNodeSpec(CutNode.CutTitle, () => schemaSpecs[CutNode.CutTitle])
+        .addNodeSpec(CutNode.CutContent, () => schemaSpecs[CutNode.CutContent]);
+};
