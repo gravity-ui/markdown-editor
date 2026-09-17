@@ -10,6 +10,8 @@ import {
     type HeaderBackgroundValue,
     HeaderBorder,
     type HeaderBorderValue,
+    HeaderDecor,
+    type HeaderDecorValue,
     HeaderDefaults,
     HeaderEdges,
     type HeaderEdgesValue,
@@ -28,6 +30,7 @@ export type HeaderAttrs = {
     [HeaderAttr.Layout]: HeaderLayoutValue;
     [HeaderAttr.Background]: HeaderBackgroundValue;
     [HeaderAttr.Fill]: HeaderFillValue;
+    [HeaderAttr.Decor]: HeaderDecorValue;
     [HeaderAttr.Text]: HeaderTextColorValue;
     [HeaderAttr.Image]: string;
     [HeaderAttr.Border]: HeaderBorderValue;
@@ -54,6 +57,7 @@ const asBackground = oneOf<HeaderBackgroundValue>(
     HeaderDefaults.bg,
 );
 const asBorder = oneOf<HeaderBorderValue>(Object.values(HeaderBorder), HeaderDefaults.border);
+const asDecor = oneOf<HeaderDecorValue>(Object.values(HeaderDecor), HeaderDefaults.decor);
 const asText = oneOf<HeaderTextColorValue>(Object.values(HeaderTextColor), HeaderDefaults.text);
 const asFill = oneOf<HeaderFillValue>(fillValues, HeaderDefaults.fill);
 const asActionType = oneOf<HeaderActionTypeValue>(
@@ -77,6 +81,7 @@ export function normalizeHeaderAttrs(raw: Record<string, unknown> = {}): HeaderA
         [HeaderAttr.Layout]: asLayout(raw[HeaderAttr.Layout]),
         [HeaderAttr.Background]: asBackground(raw[HeaderAttr.Background]),
         [HeaderAttr.Fill]: asFill(raw[HeaderAttr.Fill]),
+        [HeaderAttr.Decor]: asDecor(raw[HeaderAttr.Decor]),
         [HeaderAttr.Text]: asText(raw[HeaderAttr.Text]),
         [HeaderAttr.Image]: asString(raw[HeaderAttr.Image]),
         [HeaderAttr.Border]: asBorder(raw[HeaderAttr.Border]),
@@ -98,10 +103,17 @@ const SERIALIZED_ATTR_ORDER = [
     HeaderAttr.Background,
     HeaderAttr.Layout,
     HeaderAttr.Fill,
+    HeaderAttr.Decor,
     HeaderAttr.Text,
     HeaderAttr.Image,
     HeaderAttr.Border,
 ] as const;
+
+/** Axes that only make sense on their own background; on the other one they are markup noise. */
+const BACKGROUND_BOUND: Partial<Record<keyof HeaderAttrs, HeaderBackgroundValue>> = {
+    [HeaderAttr.Layout]: HeaderBackground.Image,
+    [HeaderAttr.Decor]: HeaderBackground.Fill,
+};
 
 function quote(value: string): string {
     return `"${value.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`;
@@ -118,8 +130,10 @@ export function serializeHeaderAttrs(attrs: Partial<HeaderAttrs>): string {
     for (const key of SERIALIZED_ATTR_ORDER) {
         const value = normalized[key];
         if (value === HeaderDefaults[key]) continue;
-        // Layout applies only to image backgrounds.
-        if (key === HeaderAttr.Layout && normalized.bg !== HeaderBackground.Image) continue;
+
+        const boundTo = BACKGROUND_BOUND[key];
+        if (boundTo && normalized.bg !== boundTo) continue;
+
         pairs.push(`${key}=${serializeDirectiveValue(value)}`);
     }
 

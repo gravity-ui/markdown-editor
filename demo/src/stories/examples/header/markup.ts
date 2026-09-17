@@ -70,6 +70,22 @@ export const markup = {
 :::
 `.trim(),
 
+    decor: `
+:::header-block {fill=purple}
+::header-title[Мягкие пятна]
+::header-description[Узор на заливке включён по умолчанию.]
+:::
+
+:::header-block {fill=purple decor=none}
+::header-title[Ровная заливка]
+::header-description[Тот же цвет без узора.]
+:::
+
+:::header-block {format=small fill=contrast}
+::header-title[Компактная на контрастной заливке]
+:::
+`.trim(),
+
     borders: `
 :::header-block {format=small border=none}
 ::header-title[Без рамки]
@@ -131,6 +147,7 @@ export const markup = {
 {% endcut %}
 `.trim(),
 
+    // `decor` сюда не попадает: он осмыслен только при `bg=fill` и с картинкой не сериализуется
     everything: `
 :::header-block {format=small edges=bleed bg=image layout=split fill=contrast text=light image="${PORTRAIT}" border=dotted}
 ::header-title[Все атрибуты сразу]

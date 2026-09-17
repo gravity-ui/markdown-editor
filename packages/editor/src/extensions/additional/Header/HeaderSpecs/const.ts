@@ -28,6 +28,7 @@ export const HeaderAttr = {
     Layout: 'layout',
     Background: 'bg',
     Fill: 'fill',
+    Decor: 'decor',
     Text: 'text',
     Image: 'image',
     Border: 'border',
@@ -43,6 +44,7 @@ export const HeaderFormat = {Large: 'large', Small: 'small'} as const;
 export const HeaderEdges = {Rounded: 'rounded', Bleed: 'bleed'} as const;
 export const HeaderLayout = {Cover: 'cover', Split: 'split'} as const;
 export const HeaderBackground = {Fill: 'fill', Image: 'image'} as const;
+export const HeaderDecor = {Blobs: 'blobs', None: 'none'} as const;
 export const HeaderBorder = {
     None: 'none',
     Solid: 'solid',
@@ -56,6 +58,7 @@ export type HeaderFormatValue = (typeof HeaderFormat)[keyof typeof HeaderFormat]
 export type HeaderEdgesValue = (typeof HeaderEdges)[keyof typeof HeaderEdges];
 export type HeaderLayoutValue = (typeof HeaderLayout)[keyof typeof HeaderLayout];
 export type HeaderBackgroundValue = (typeof HeaderBackground)[keyof typeof HeaderBackground];
+export type HeaderDecorValue = (typeof HeaderDecor)[keyof typeof HeaderDecor];
 export type HeaderBorderValue = (typeof HeaderBorder)[keyof typeof HeaderBorder];
 export type HeaderTextColorValue = (typeof HeaderTextColor)[keyof typeof HeaderTextColor];
 export type HeaderActionTypeValue = (typeof HeaderActionType)[keyof typeof HeaderActionType];
@@ -81,6 +84,7 @@ export const HeaderDefaults = {
     [HeaderAttr.Layout]: HeaderLayout.Cover,
     [HeaderAttr.Background]: HeaderBackground.Fill,
     [HeaderAttr.Fill]: 'blue',
+    [HeaderAttr.Decor]: HeaderDecor.Blobs,
     [HeaderAttr.Text]: HeaderTextColor.Auto,
     [HeaderAttr.Image]: '',
     [HeaderAttr.Border]: HeaderBorder.None,

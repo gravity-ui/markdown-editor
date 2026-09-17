@@ -7,7 +7,9 @@ import {i18n} from 'src/i18n/header';
 
 import {
     type HeaderAttrs,
+    HeaderBackground,
     HeaderBorder,
+    HeaderDecor,
     HeaderEdges,
     HeaderFormat,
     HeaderLayout,
@@ -108,6 +110,21 @@ export function AppearanceSettings({attrs, onChange}: AppearanceSettingsProps) {
                     }))}
                 />
             </div>
+            {/* The pattern lives on the fill; under an image there is nothing to decorate. */}
+            {attrs.bg === HeaderBackground.Fill && (
+                <div className={b('row')}>
+                    <span className={b('label')}>{i18n('decor')}</span>
+                    <Choices
+                        label={i18n('decor')}
+                        value={attrs.decor}
+                        onChange={(decor) => onChange({decor})}
+                        options={[
+                            {value: HeaderDecor.Blobs, label: i18n('decor.blobs')},
+                            {value: HeaderDecor.None, label: i18n('decor.none')},
+                        ]}
+                    />
+                </div>
+            )}
             <div className={b('row')}>
                 <span className={b('label')}>{i18n('text')}</span>
                 <Choices

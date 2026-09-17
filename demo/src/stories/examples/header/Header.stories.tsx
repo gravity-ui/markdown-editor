@@ -38,6 +38,11 @@ export const Fills: Story = {
     args: {markup: markup.fills},
 };
 
+export const Decor: Story = {
+    name: 'Fill pattern on and off',
+    args: {markup: markup.decor},
+};
+
 export const Borders: Story = {
     name: 'Border styles',
     args: {markup: markup.borders},

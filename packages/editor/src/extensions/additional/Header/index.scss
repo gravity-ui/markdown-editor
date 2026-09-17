@@ -2,12 +2,35 @@
 @use '~@gravity-ui/uikit/styles/mixins' as uikit;
 @use '../../../styles/yc-header-fill.scss' as fills;
 
+// Veil the fill with the page background instead of white: a dark theme fill would burn out.
+// Flat until 72% and feathered only at the rim, so the blob reads as a shape, not as a blur.
+@function blob($size, $x, $y) {
+    @return radial-gradient(
+        #{$size} at right #{$x} top #{$y},
+        color-mix(
+                in srgb,
+                var(--g-color-base-background) var(--g-md-header-decor-alpha),
+                transparent
+            )
+            0% 72%,
+        color-mix(
+                in srgb,
+                var(--g-color-base-background) calc(var(--g-md-header-decor-alpha) * 0.55),
+                transparent
+            )
+            94%,
+        transparent 100%
+    );
+}
+
 .g-md-header {
     --g-md-header-fill: var(--g-color-private-blue-200-solid);
     --g-md-header-text: var(--g-color-text-primary);
     --g-md-header-text-secondary: var(--g-color-text-secondary);
     // Derive borders from text so they follow theme and contrast overrides.
     --g-md-header-line: color-mix(in sRGB, var(--g-md-header-text) 20%, transparent);
+    // The same share reads as soft relief on a light fill and burns out a contrast one.
+    --g-md-header-decor-alpha: 48%;
     --g-md-header-min-height: 240px;
     --g-md-header-padding: var(--g-spacing-8) var(--g-spacing-10);
     --g-md-header-gap: var(--g-spacing-8);
@@ -15,6 +38,8 @@
     --g-md-header-content-width: 560px;
 
     position: relative;
+    // The block lives in narrow columns too, and the viewport width says nothing about them.
+    container-type: inline-size;
 
     display: flex;
     overflow: hidden;
@@ -36,6 +61,7 @@
             @if map.get($fill, surface) == inverted {
                 --g-md-header-text: var(--g-color-text-inverted-primary);
                 --g-md-header-text-secondary: var(--g-color-text-inverted-secondary);
+                --g-md-header-decor-alpha: 20%;
             }
         }
     }
@@ -77,7 +103,9 @@
         border-style: dotted;
     }
 
-    // Cover the block so the image's edge always falls within the fade mask.
+    // Background decoration is a layer under the content: the block's own background is the fill,
+    // and neither the image nor the blobs may run over the text.
+    &[data-bg='fill'][data-decor='blobs']::before,
     &[data-bg='image']::before {
         position: absolute;
         z-index: 1;
@@ -85,7 +113,27 @@
 
         content: '';
         pointer-events: none;
+    }
 
+    // Blobs hug the right edge, away from the text. Horizontal offsets are px from that edge,
+    // vertical ones are shares of the height: the block grows with its content.
+    &[data-bg='fill'][data-decor='blobs']::before {
+        background-image: blob(180px 150px, 84px, 59%), blob(95px 95px, 345px, 40%),
+            blob(75px 75px, 225px, 94%);
+
+        // Below this width nothing is left to the right of the text, and the blobs land under it.
+        @container (width < 560px) {
+            display: none;
+        }
+    }
+
+    &[data-format='small'][data-bg='fill'][data-decor='blobs']::before {
+        background-image: blob(114px 94px, 44px, 63%), blob(54px 54px, 224px, 27%),
+            blob(46px 46px, 166px, 100%);
+    }
+
+    // Cover the block so the image's edge always falls within the fade mask.
+    &[data-bg='image']::before {
         background-image: var(--g-md-header-image);
         background-repeat: no-repeat;
         background-position: right center;

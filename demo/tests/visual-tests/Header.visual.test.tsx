@@ -30,6 +30,11 @@ test.describe('Extensions, Header', () => {
         await expectScreenshot();
     });
 
+    test('Fill pattern', async ({mount, expectScreenshot}) => {
+        await mount(<HeaderStories.Decor />);
+        await expectScreenshot();
+    });
+
     test('Border styles', async ({mount, expectScreenshot}) => {
         await mount(<HeaderStories.Borders />);
         await expectScreenshot();

@@ -14,6 +14,7 @@ import {
     HeaderActionType,
     HeaderBackground,
     HeaderBorder,
+    HeaderDecor,
     HeaderEdges,
     HeaderFormat,
     HeaderLayout,
@@ -311,6 +312,13 @@ describe('Header extension', () => {
             expect(
                 serializeHeaderAttrs({bg: HeaderBackground.Image, layout: HeaderLayout.Split}),
             ).toBe(' {bg=image layout=split}');
+        });
+
+        it('should omit decor unless the background is a fill', () => {
+            expect(serializeHeaderAttrs({decor: HeaderDecor.None})).toBe(' {decor=none}');
+            expect(serializeHeaderAttrs({bg: HeaderBackground.Image, decor: HeaderDecor.None})).toBe(
+                ' {bg=image}',
+            );
         });
 
         it('should quote values that are not bare words', () => {
