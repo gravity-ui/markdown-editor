@@ -177,7 +177,7 @@ const getSchemaSpecs: (
 });
 
 export const YfmTabsSchemaSpecs: ExtensionAuto<YfmTabsSchemaOptions> = (builder, opts) => {
-    const schemaSpecs = getSchemaSpecs(opts);
+    const schemaSpecs = getSchemaSpecs(opts, builder.context.get('placeholder'));
 
     builder
         .addNodeSpec(TabsNode.Tab, () => schemaSpecs[TabsNode.Tab])
