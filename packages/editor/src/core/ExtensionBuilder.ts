@@ -82,14 +82,19 @@ declare global {
 
 type ResolvedParserEntry = {tokenName: string; tokenSpec: ParserToken};
 
+/** A token names its own target: `mark` goes to schema.marks, `node`/`block` to schema.nodes. */
+function tokenKind(tokenSpec: ParserToken): 'node' | 'mark' {
+    return tokenSpec.type === 'mark' ? 'mark' : 'node';
+}
+
 function resolveParserPipeline(
+    kind: 'node' | 'mark',
     pipeline: ParserPipelineEntry[],
     initialPrimaryTokens: Record<string, string>,
     initialParsers: Record<string, ResolvedParserEntry>,
 ) {
     const primaryParserToken = {...initialPrimaryTokens};
     const parsers = {...initialParsers};
-    const extraTokenNames: string[] = [];
     const overriddenTokens = new Set<string>();
 
     for (const entry of pipeline) {
@@ -102,6 +107,7 @@ function resolveParserPipeline(
                 continue;
             }
 
+            // Checked before the kind filter: taking over a token is an error whatever it targets.
             if (entry.tokenName in initialParsers) {
                 throw new Error(
                     `Parser token "${entry.tokenName}" is already owned by an entity registered via addNode/addMark. ` +
@@ -109,13 +115,13 @@ function resolveParserPipeline(
                 );
             }
 
-            if (primaryParserToken[entityName]) {
-                // Extra parser-only token targeting an existing entity
-                extraTokenNames.push(entry.tokenName);
-            } else {
-                // Primary parser for a granular entity
-                primaryParserToken[entityName] = entry.tokenName;
+            if (tokenKind(tokenSpec) !== kind) {
+                // Belongs to the other entity pipeline, which walks this same list
+                continue;
             }
+
+            // The first token claiming an entity becomes its primary one; others stay parser-only.
+            primaryParserToken[entityName] ??= entry.tokenName;
             parsers[entry.tokenName] = {tokenName: entry.tokenName, tokenSpec};
         } else {
             // overrideParserSpec
@@ -130,7 +136,7 @@ function resolveParserPipeline(
         }
     }
 
-    return {parsers, primaryParserToken, extraTokenNames, overriddenTokens};
+    return {parsers, primaryParserToken, overriddenTokens};
 }
 
 function resolveSerializerPipeline<T>(
@@ -172,31 +178,18 @@ function validateGranularSpecs(
     }
 }
 
-function buildParserOnlyNodeEntry(resolved: ResolvedParserEntry): ExtensionNodeSpec {
-    return {
-        spec: {},
-        fromMd: {tokenName: resolved.tokenName, tokenSpec: resolved.tokenSpec},
-        toMd: () => {
-            throw new Error(`Unexpected toMd() call on parser-only node "${resolved.tokenName}"`);
-        },
-    };
-}
-
-function buildParserOnlyMarkEntry(resolved: ResolvedParserEntry): ExtensionMarkSpec {
-    return {
-        spec: {},
-        fromMd: {tokenName: resolved.tokenName, tokenSpec: resolved.tokenSpec},
-        toMd: {open: '', close: ''},
-    };
-}
+type EntityPipelineResult<EntitySpec> = {
+    entities: OrderedMap<EntitySpec>;
+    /** Tokens of this kind that no entity claimed as its primary markdown token. */
+    parserOnlyTokens: Record<string, ParserToken>;
+};
 
 function processEntityPipeline<EntitySpec extends ExtensionNodeSpec | ExtensionMarkSpec>(
     entityType: 'node' | 'mark',
     entityPipeline: EntityPipelineEntry<EntitySpec, EntitySpec['spec']>[],
     parserPipeline: ParserPipelineEntry[],
     serializerPipeline: SerializerPipelineEntry<EntitySpec['toMd']>[],
-    buildParserOnlyEntry: (resolved: ResolvedParserEntry) => EntitySpec,
-): OrderedMap<EntitySpec> {
+): EntityPipelineResult<EntitySpec> {
     const order: {name: string; priority: number}[] = [];
     const specs: Record<string, EntitySpec['spec']> = {};
     const initParsers: Record<string, ResolvedParserEntry> = {};
@@ -204,7 +197,6 @@ function processEntityPipeline<EntitySpec extends ExtensionNodeSpec | ExtensionM
     const views: Record<string, EntitySpec['view']> = {};
     const granularEntities = new Set<string>();
     const initPrimaryTokens: Record<string, string> = {};
-    const priorityByEntity: Record<string, number> = {};
     // Originals from addEntity — preserved as-is in assembly when no overrides were applied.
     // This keeps reference identity (and any extra fields) for unmodified entries.
     const originals: Record<string, EntitySpec> = {};
@@ -221,14 +213,12 @@ function processEntityPipeline<EntitySpec extends ExtensionNodeSpec | ExtensionM
             specs[name] = base.spec;
             initParsers[tokenName] = {tokenName, tokenSpec: base.fromMd.tokenSpec};
             initPrimaryTokens[name] = tokenName;
-            priorityByEntity[name] = entry.priority;
             initSerializers[name] = base.toMd;
             views[name] = base.view;
             originals[name] = base;
         } else if (entry.type === 'addEntitySpec') {
             order.push({name, priority: entry.priority});
             specs[name] = entry.cb();
-            priorityByEntity[name] = entry.priority;
             granularEntities.add(name);
         } else if (entry.type === 'addEntityView') {
             if (views[name] !== undefined) {
@@ -243,18 +233,13 @@ function processEntityPipeline<EntitySpec extends ExtensionNodeSpec | ExtensionM
         }
     }
 
-    // Pass 2: parserPipeline → fill/override parsers, add extra parser-only entries
-    const {parsers, primaryParserToken, extraTokenNames, overriddenTokens} = resolveParserPipeline(
+    // Pass 2: parserPipeline → fill/override parsers
+    const {parsers, primaryParserToken, overriddenTokens} = resolveParserPipeline(
+        entityType,
         parserPipeline,
         initPrimaryTokens,
         initParsers,
     );
-    for (const tokenName of extraTokenNames) {
-        // Inherit priority from the entity this token targets
-        const entityName = parsers[tokenName]?.tokenSpec.name;
-        const priority = entityName ? (priorityByEntity[entityName] ?? 0) : 0;
-        order.push({name: tokenName, priority});
-    }
     // Map primary-token overrides back to their owning addEntity names
     for (const entityName of Object.keys(originals)) {
         if (overriddenTokens.has(initPrimaryTokens[entityName])) {
@@ -280,27 +265,32 @@ function processEntityPipeline<EntitySpec extends ExtensionNodeSpec | ExtensionM
     }
 
     // Assemble
-    let map = OrderedMap.from<EntitySpec>({});
+    let entities = OrderedMap.from<EntitySpec>({});
+    const ownedTokens = new Set<string>();
     for (const {name} of order) {
+        const parserKey = primaryParserToken[name];
+        ownedTokens.add(parserKey);
+
         // Fast path: unmodified addEntity registrations keep their original object reference.
         if (originals[name] && !modified.has(name)) {
-            map = map.addToEnd(name, originals[name]);
+            entities = entities.addToEnd(name, originals[name]);
             continue;
         }
-        const parserKey = primaryParserToken[name] ?? name;
-        map = map.addToEnd(
-            name,
-            serializers[name]
-                ? ({
-                      spec: specs[name] ?? {},
-                      fromMd: parsers[parserKey],
-                      toMd: serializers[name],
-                      ...(views[name] !== undefined && {view: views[name]}),
-                  } as EntitySpec)
-                : buildParserOnlyEntry(parsers[name]),
-        );
+        entities = entities.addToEnd(name, {
+            spec: specs[name] ?? {},
+            fromMd: parsers[parserKey],
+            toMd: serializers[name],
+            ...(views[name] !== undefined && {view: views[name]}),
+        } as EntitySpec);
     }
-    return map;
+
+    const parserOnlyTokens: Record<string, ParserToken> = {};
+    for (const {tokenName, tokenSpec} of Object.values(parsers)) {
+        if (!ownedTokens.has(tokenName)) {
+            parserOnlyTokens[tokenName] = tokenSpec;
+        }
+    }
+    return {entities, parserOnlyTokens};
 }
 
 export type Extension = (builder: ExtensionBuilder) => void;
@@ -311,6 +301,8 @@ export type ExtensionSpec = {
     configureMd(md: MarkdownIt, parserType: 'text' | 'markup'): MarkdownIt;
     nodes(): OrderedMap<ExtensionNodeSpec>;
     marks(): OrderedMap<ExtensionMarkSpec>;
+    /** Markdown tokens owned by no node and no mark — they go straight to the parser. */
+    parserOnlyTokens?(): Record<string, ParserToken>;
     plugins(deps: ExtensionDeps): Plugin[];
     actions(deps: ExtensionDeps): Record<string, ActionSpec>;
 };
@@ -653,7 +645,7 @@ export class ExtensionBuilder {
         return this;
     }
 
-    build(): ExtensionSpec {
+    build(): Required<ExtensionSpec> {
         const confMd = this.#confMdCbs.slice();
         const nodePipeline = this.#nodePipeline.slice();
         const markPipeline = this.#markPipeline.slice();
@@ -662,6 +654,35 @@ export class ExtensionBuilder {
         const markSerializerPipeline = this.#markSerializerPipeline.slice();
         const plugins = this.#plugins.slice();
         const actions = this.#actions.slice();
+
+        // A built spec is an immutable snapshot, so each pipeline is resolved at most once.
+        // The two are independent: nodes() never runs mark factories, and vice versa.
+        let nodeResult: EntityPipelineResult<ExtensionNodeSpec> | undefined;
+        const getNodes = () => {
+            nodeResult ??= processEntityPipeline<ExtensionNodeSpec>(
+                'node',
+                nodePipeline,
+                parserPipeline,
+                nodeSerializerPipeline,
+            );
+            return nodeResult;
+        };
+        let markResult: EntityPipelineResult<ExtensionMarkSpec> | undefined;
+        const getMarks = () => {
+            markResult ??= processEntityPipeline<ExtensionMarkSpec>(
+                'mark',
+                markPipeline,
+                parserPipeline,
+                markSerializerPipeline,
+            );
+            return markResult;
+        };
+        let parserOnlyTokens: Record<string, ParserToken> | undefined;
+        const getParserOnlyTokens = () => {
+            // Disjoint: a token goes to exactly one pipeline, decided by its own type
+            parserOnlyTokens ??= {...getNodes().parserOnlyTokens, ...getMarks().parserOnlyTokens};
+            return parserOnlyTokens;
+        };
 
         return {
             configureMd: (md, parserType) =>
@@ -674,22 +695,9 @@ export class ExtensionBuilder {
                     }
                     return pMd;
                 }, md),
-            nodes: () =>
-                processEntityPipeline<ExtensionNodeSpec>(
-                    'node',
-                    nodePipeline,
-                    parserPipeline,
-                    nodeSerializerPipeline,
-                    buildParserOnlyNodeEntry,
-                ),
-            marks: () =>
-                processEntityPipeline<ExtensionMarkSpec>(
-                    'mark',
-                    markPipeline,
-                    parserPipeline,
-                    markSerializerPipeline,
-                    buildParserOnlyMarkEntry,
-                ),
+            nodes: () => getNodes().entities,
+            marks: () => getMarks().entities,
+            parserOnlyTokens: getParserOnlyTokens,
             plugins: (deps) => {
                 return plugins
                     .sort((a, b) => b.priority - a.priority)

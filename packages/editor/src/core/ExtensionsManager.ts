@@ -127,6 +127,11 @@ export class ExtensionsManager {
         this.#mdForText = this.#spec.configureMd(this.#mdForText, 'text');
         this.#spec.nodes().forEach(this.processNode);
         this.#spec.marks().forEach(this.processMark);
+        // A spec without this method keeps every token on a node or mark, so nothing is left to add
+        const parserOnlyTokens = this.#spec.parserOnlyTokens?.() ?? {};
+        for (const [tokenName, tokenSpec] of Object.entries(parserOnlyTokens)) {
+            this.#parserRegistry.addToken(tokenName, tokenSpec);
+        }
     }
 
     private processNode = (name: string, {spec, fromMd, toMd, view}: ExtensionNodeSpec) => {
