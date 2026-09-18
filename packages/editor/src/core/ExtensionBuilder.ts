@@ -86,6 +86,7 @@ function resolveParserPipeline(
     pipeline: ParserPipelineEntry[],
     initialPrimaryTokens: Record<string, string>,
     initialParsers: Record<string, ResolvedParserEntry>,
+    entityNames: ReadonlySet<string>,
 ) {
     const primaryParserToken = {...initialPrimaryTokens};
     const parsers = {...initialParsers};
@@ -111,7 +112,9 @@ function resolveParserPipeline(
 
             if (primaryParserToken[entityName]) {
                 // Extra parser-only token targeting an existing entity
-                extraTokenNames.push(entry.tokenName);
+                if (entityNames.has(entityName)) {
+                    extraTokenNames.push(entry.tokenName);
+                }
             } else {
                 // Primary parser for a granular entity
                 primaryParserToken[entityName] = entry.tokenName;
@@ -248,6 +251,7 @@ function processEntityPipeline<EntitySpec extends ExtensionNodeSpec | ExtensionM
         parserPipeline,
         initPrimaryTokens,
         initParsers,
+        new Set(Object.keys(specs)),
     );
     for (const tokenName of extraTokenNames) {
         // Inherit priority from the entity this token targets
