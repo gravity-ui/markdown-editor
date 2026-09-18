@@ -1,5 +1,12 @@
 # Changelog
 
+## [15.47.1](https://github.com/gravity-ui/markdown-editor/compare/markdown-editor-v15.47.0...markdown-editor-v15.47.1) (2026-09-18)
+
+
+### Bug Fixes
+
+* **core:** keep parser aliases in their entity pipeline ([#1248](https://github.com/gravity-ui/markdown-editor/issues/1248)) ([6ff695e](https://github.com/gravity-ui/markdown-editor/commit/6ff695ef7ef79de00dc2c58e6482db9ca0ccf7c1))
+
 ## [15.47.0](https://github.com/gravity-ui/markdown-editor/compare/markdown-editor-v15.46.1...markdown-editor-v15.47.0) (2026-09-17)
 
 
