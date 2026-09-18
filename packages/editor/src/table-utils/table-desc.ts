@@ -1,7 +1,6 @@
-import isNumber from 'is-number';
 import type {Node} from 'prosemirror-model';
 
-import {isTableBodyNode, isTableNode} from './utils';
+import {isTableBodyNode, isTableCellNode, isTableNode, isTableRowNode} from './utils';
 
 // TableDesc creates a virtual table description containing info about real and virtual cells needed for correct table operations.
 // This description is cached.
@@ -61,7 +60,7 @@ export class TableDesc {
 
         if (!isTableNode(table)) return null;
         const tbody = table.lastChild;
-        if (!tbody || !isTableBodyNode(tbody)) return null;
+        if (!tbody || !isTableBodyNode(tbody) || !tbody.childCount) return null;
 
         // table –> tbody -> ...
         const baseOffset = 2;
@@ -71,14 +70,26 @@ export class TableDesc {
             rows.push({node: trow, offset, cells: []});
         });
 
-        tbody.forEach((trow, _1, trowIndex) => {
-            trow.forEach((tcell, offset, tcellRealIndex) => {
-                const rowDesc = rows[trowIndex];
+        for (let trowIndex = 0; trowIndex < rows.length; trowIndex++) {
+            const rowDesc = rows[trowIndex];
+            const trow = rowDesc.node;
+            if (!isTableRowNode(trow)) return null;
+            let offset = 0;
+            for (let tcellRealIndex = 0; tcellRealIndex < trow.childCount; tcellRealIndex++) {
+                const tcell = trow.child(tcellRealIndex);
+                if (!isTableCellNode(tcell)) return null;
+                const colspan = readSpan(tcell.attrs['colspan']);
+                const rowspan = readSpan(tcell.attrs['rowspan']);
+                if (colspan === null || rowspan === null || trowIndex + rowspan > rows.length)
+                    return null;
 
                 let tcellIndex = tcellRealIndex;
                 while (rowDesc.cells[tcellIndex]) {
                     tcellIndex++;
                 }
+
+                if (!Number.isSafeInteger(tcellIndex + colspan)) return null;
+                if (trowIndex > 0 && tcellIndex + colspan > rows[0].cells.length) return null;
 
                 const cellDesc: TableCellRealDesc = (rowDesc.cells[tcellIndex] = {
                     type: 'real',
@@ -88,10 +99,11 @@ export class TableDesc {
 
                 const map: [number, number] = [trowIndex, tcellIndex];
 
-                if (isNumber(tcell.attrs['colspan'])) {
+                if (tcell.attrs['colspan'] !== null && tcell.attrs['colspan'] !== undefined) {
                     rowDesc.colspan = true;
-                    const colspan = (cellDesc.colspan = parseInt(tcell.attrs['colspan'], 10));
+                    cellDesc.colspan = colspan;
                     for (let i = 1; i < colspan; i++) {
+                        if (rowDesc.cells[tcellIndex + i]) return null;
                         rowDesc.cells[tcellIndex + i] = {
                             type: 'virtual',
                             colspan: map,
@@ -99,12 +111,12 @@ export class TableDesc {
                     }
                 }
 
-                if (isNumber(tcell.attrs['rowspan'])) {
+                if (tcell.attrs['rowspan'] !== null && tcell.attrs['rowspan'] !== undefined) {
                     rowDesc.rowspan = true;
-                    const rowspan = (cellDesc.rowspan = parseInt(tcell.attrs['rowspan'], 10));
+                    cellDesc.rowspan = rowspan;
                     for (let i = 1; i < rowspan; i++) {
-                        const colspan = cellDesc.colspan ?? 1;
                         for (let j = 0; j < colspan; j++) {
+                            if (rows[trowIndex + i].cells[tcellIndex + j]) return null;
                             const cell: TableCellVirtualDesc = (rows[trowIndex + i].cells[
                                 tcellIndex + j
                             ] = {
@@ -117,12 +129,14 @@ export class TableDesc {
                         }
                     }
                 }
-            });
-        });
+                offset += tcell.nodeSize;
+            }
+        }
 
         // ---> validation
         const rowsCount = rows.length;
         const colsCount = rows[0].cells.length;
+        if (!colsCount) return null;
         for (let r = 0; r < rowsCount; r++) {
             if (!rows[r] || rows[r].cells.length !== colsCount) return null;
 
@@ -457,3 +471,12 @@ class TableDescBinded {
 }
 
 export type {TableDescBinded};
+
+function readSpan(value: unknown): number | null {
+    if (value === null || value === undefined) return 1;
+    if (typeof value !== 'number' && typeof value !== 'string') return null;
+    const span = Number(value);
+    return Number.isSafeInteger(span) && span > 0 && parseInt(String(value), 10) === span
+        ? span
+        : null;
+}
