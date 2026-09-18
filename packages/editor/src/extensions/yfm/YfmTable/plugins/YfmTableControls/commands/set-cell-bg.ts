@@ -1,4 +1,5 @@
 import type {Command} from '#pm/state';
+import type {CellRect} from 'src/table-utils/cell-selection';
 import {TableDesc} from 'src/table-utils/table-desc';
 
 import {YfmTableAttr} from '../../../YfmTableSpecs/const';
@@ -7,12 +8,13 @@ export type SetCellBgParams = {
     tablePos: number;
     rows?: number[];
     cols?: number[];
+    rect?: CellRect;
     bg: string | null;
 };
 
 export const setCellBg = (params: SetCellBgParams): Command => {
     return (state, dispatch) => {
-        if (!params.rows && !params.cols) return false;
+        if (!params.rows && !params.cols && !params.rect) return false;
 
         const table = state.doc.nodeAt(params.tablePos);
         const tableDesc = table && TableDesc.create(table)?.bind(params.tablePos);
@@ -38,6 +40,13 @@ export const setCellBg = (params: SetCellBgParams): Command => {
         if (params.cols) {
             for (const colIdx of params.cols) {
                 for (const pos of tableDesc.getPosForColumn(colIdx)) apply(pos);
+            }
+        }
+
+        if (params.rect) {
+            const {top, bottom, left, right} = params.rect;
+            for (let row = top; row < bottom; row++) {
+                for (let col = left; col < right; col++) apply(tableDesc.getPosForCell(row, col));
             }
         }
 

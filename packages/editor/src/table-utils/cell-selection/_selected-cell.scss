@@ -1,0 +1,52 @@
+// Extracted from YfmTableControls/dnd/dnd.scss, not from prosemirror-tables.
+
+@mixin selected-cell($selectedCell) {
+    overflow: unset;
+
+    border-color: var(--g-color-line-brand);
+
+    &::after {
+        position: absolute;
+        z-index: 2;
+        inset: -1px;
+
+        display: inline-block;
+
+        content: '';
+        pointer-events: none;
+
+        border: 1px solid var(--g-color-line-brand);
+    }
+
+    &_first-row::after {
+        top: 0;
+    }
+
+    &_last-row::after {
+        bottom: 0;
+    }
+
+    &_first-column::after {
+        left: 0;
+    }
+
+    &_last-column::after {
+        right: 0;
+    }
+
+    &_first-row.#{$selectedCell}_first-column::after {
+        border-top-left-radius: 8px;
+    }
+
+    &_first-row.#{$selectedCell}_last-column::after {
+        border-top-right-radius: 8px;
+    }
+
+    &_last-row.#{$selectedCell}_first-column::after {
+        border-bottom-left-radius: 8px;
+    }
+
+    &_last-row.#{$selectedCell}_last-column::after {
+        border-bottom-right-radius: 8px;
+    }
+}
