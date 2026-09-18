@@ -3,6 +3,7 @@ import {findParentNode, findParentNodeClosestToPos, findSelectedNodeOfType} from
 import {Decoration, DecorationSet, type EditorView} from '#pm/view';
 import {throttle} from 'src/lodash';
 import {isTableCellNode, isTableNode} from 'src/table-utils';
+import {TableCellSelection} from 'src/table-utils/cell-selection/selection';
 import {TableDesc} from 'src/table-utils/table-desc';
 
 import {YfmTableNode, yfmTableType} from '../../../YfmTableSpecs';
@@ -167,6 +168,10 @@ export const yfmTableFocusPlugin = (opts: {
 function updateAfterChanges(state: EditorState): PluginState;
 function updateAfterChanges(tr: Transaction, prev: PluginState): PluginState;
 function updateAfterChanges(tr: EditorState | Transaction, prev?: PluginState) {
+    if (tr.selection instanceof TableCellSelection) {
+        return {hover: null, activeTablePos: null, decorations: DecorationSet.empty};
+    }
+
     const table =
         findParentNode(isTableNode)(tr.selection) ||
         findSelectedNodeOfType(yfmTableType(tr.doc.type.schema))(tr.selection);
