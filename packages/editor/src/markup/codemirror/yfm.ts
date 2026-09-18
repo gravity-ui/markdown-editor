@@ -8,6 +8,7 @@ import type {DelimiterType, MarkdownConfig} from '@lezer/markdown';
 import {capitalize} from '../../lodash';
 
 import {DirectiveSyntaxFacet} from './directive-facet';
+import {extendedMarkdownLanguage} from './markdown-syntax';
 
 export const customTags = {
     underline: Tag.define(),
@@ -175,6 +176,7 @@ export function yfmLang({languageData = []}: YfmLangOptions = {}): Extension {
     });
 
     return [
+        extendedMarkdownLanguage(mdSupport.language),
         mdSupport,
         mdSupport.language.data.of(mdAutocomplete),
         languageData.map((item) => mdSupport.language.data.of(item)),

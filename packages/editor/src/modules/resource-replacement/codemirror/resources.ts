@@ -1,118 +1,23 @@
-import {markdownLanguage} from '@codemirror/lang-markdown';
-import type {Fragment, Node} from 'prosemirror-model';
+import type {EditorState, Text, Transaction} from '@codemirror/state';
+import {normalizeReference, unescapeAll} from 'markdown-it/lib/common/utils';
 
-import type {Parser} from '../../../core/types/parser';
-import {
-    ResourceCollection,
-    comparableFragment,
-    encodeResourceUrl,
-    mapResourceNodes,
-    resourceOccurrences,
-    validateResourceUrl,
-} from '../prosemirror/document-utils';
+import {validateResourceUrl} from '../prosemirror/document-utils';
 import {resourceKey} from '../tracking';
+import type {ResourceOccurrence} from '../tracking';
 import type {ReplacementResource} from '../types';
 
-/**
- * Locate source spans through the configured parser, without serializing Markdown.
- * A candidate is accepted only if changing it changes resource attributes exclusively.
- * This also excludes code, labels, ordinary links and other occurrences of the same URL.
- */
-export function prepareMarkupResources(source: string, parser: Parser) {
-    const original = parser.parse(source);
-    const comparableOriginal = comparableFragment(original.content);
-    const collection = new ResourceCollection();
-    collection.mapFragment(original.content);
-    const occurrences = resourceOccurrences(original);
-    const spans: Array<{from: number; to: number; key: string; occurrences: number[]}> = [];
-    let marker = 'https://paste-resource.invalid/replacement';
-    while (source.includes(marker)) marker += '-';
+import {urlRange} from './builtins';
+import {type ResourceDefinition, type ResourceSyntaxMatch, resourceHandlers} from './handlers';
+import type {CodeMirrorResourceReplacementOptions} from './options';
+import {completeResourceTree} from './syntax-tree';
 
-    for (const resource of collection.resources) {
-        const variants = new Set([resource.path]);
-        try {
-            variants.add(decodeURI(resource.path));
-        } catch {
-            /* Keep the original URL. */
-        }
-        for (const value of variants) {
-            if (!value) continue;
-            const pattern = Array.from(value, (char) => {
-                const literal = char.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-                const escaped = /[!"#$%&'()*+,\-./:;<=>?@[\\\]^_`{|}~]/.test(char)
-                    ? `(?:\\\\)?${literal}`
-                    : literal;
-                const entity = char === '&' ? '|&amp;' : '';
-                return `(?:${escaped}${entity}|&#0*${char.codePointAt(0)};|&#x0*${char.codePointAt(0)!.toString(16)};)`;
-            }).join('');
-            for (const match of source.matchAll(new RegExp(pattern, 'g'))) {
-                const from = match.index;
-                const to = from + match[0].length;
-                if (spans.some((span) => from < span.to && to > span.from)) continue;
-                const candidate = parser.parse(source.slice(0, from) + marker + source.slice(to));
-                const candidateResources = new ResourceCollection();
-                candidateResources.mapFragment(candidate.content);
-                const changed = candidateResources.resources.find(
-                    (item) => item.kind === resource.kind && item.path === marker,
-                );
-                if (!changed) continue;
-                const restored = candidateResources.mapFragment(
-                    candidate.content,
-                    new Map([[resourceKey(changed), resource.path]]),
-                );
-                if (comparableFragment(restored).eq(comparableOriginal)) {
-                    const changedOccurrences = resourceOccurrences(candidate).flatMap(
-                        (item, index) => (item.path === marker ? [index] : []),
-                    );
-                    spans.push({
-                        from,
-                        to,
-                        key: resourceKey(resource),
-                        occurrences: changedOccurrences,
-                    });
-                }
-            }
-        }
-    }
-
-    const references = referenceImages(source, parser, original, marker);
-
-    return {
-        references,
-        resources: collection.resources,
-        spans,
-        occurrences,
-        replace(replacements: ReadonlyMap<string, string>) {
-            let result = source;
-            for (const resource of collection.resources) {
-                if (
-                    replacements.has(resourceKey(resource)) &&
-                    !spans.some((span) => span.key === resourceKey(resource))
-                ) {
-                    throw new Error('Cannot safely locate the resource URL in Markdown');
-                }
-            }
-            for (const span of spans.sort((a, b) => b.from - a.from)) {
-                const url = replacements.get(span.key);
-                if (url === undefined) continue;
-                if (!parser.validateLink(url)) throw new Error('Invalid resource URL');
-                // Encoding syntax delimiters works in Markdown destinations and HTML/YFM attributes.
-                const encoded = encodeResourceUrl(parser, url);
-                result = result.slice(0, span.from) + encoded + result.slice(span.to);
-            }
-            const expected = collection.mapFragment(
-                original.content,
-                new Map(
-                    [...replacements].map(([key, url]) => [key, encodeResourceUrl(parser, url)]),
-                ),
-            );
-            if (!comparableFragment(parser.parse(result).content).eq(comparableFragment(expected)))
-                throw new Error('Resource replacement would change Markdown structure');
-            return result;
-        },
-    };
-}
-
+export type ResourceSpan = {
+    from: number;
+    to: number;
+    range: {from: number; to: number};
+    key: string;
+    occurrences: number[];
+};
 export type ReferenceImage = {
     from: number;
     to: number;
@@ -122,100 +27,170 @@ export type ReferenceImage = {
     replace(path: string): string;
 };
 
-/** Lezer locates candidates; the configured document parser decides whether they are images. */
-function referenceImages(source: string, parser: Parser, original: Node, marker: string) {
-    const description = original.type.schema.nodes.image?.spec.resource;
-    if (!description || description.urlAttribute !== 'src') return [];
-    const mapNodes = (fragment: Fragment, map: (node: Node) => Node) =>
-        mapResourceNodes(fragment, map);
-    const nodes: Node[] = [];
-    mapNodes(original.content, (node) => {
-        nodes.push(node);
-        return node;
-    });
-    const comparableOriginal = comparableFragment(original.content);
-    const references: ReferenceImage[] = [];
-    markdownLanguage.parser.parse(source).iterate({
-        enter: ({node}) => {
-            if (node.name !== 'Image') return true;
-            const marks = node.getChildren('LinkMark');
-            // An inline destination already has its own independently tracked URL span.
-            if (marks.some((mark) => source.slice(mark.from, mark.to) === '(')) return false;
-            const labelTo = marks[1]?.to;
-            if (labelTo === undefined) return false;
-            const prefix = source.slice(node.from, labelTo);
-            const probe = prefix + '(' + marker + ')';
-            const candidate = parser.parse(
-                source.slice(0, node.from) + probe + source.slice(node.to),
+type Match = {syntax: ResourceSyntaxMatch; resource: ReplacementResource};
+const excluded = new Set(['FencedCode', 'CodeBlock', 'InlineCode', 'Monospace']);
+
+/** Read source locations directly from the complete incremental CodeMirror syntax tree. */
+export function prepareMarkupResources(
+    state: EditorState,
+    options: Pick<CodeMirrorResourceReplacementOptions, 'schema' | 'urls'>,
+    tr?: Transaction,
+) {
+    const doc = tr?.newDoc ?? state.doc;
+    const tree = completeResourceTree(state, tr);
+    const schema = options.schema();
+    const urls = options.urls();
+    const handlers = state.facet(resourceHandlers);
+    const configured = Object.values(schema.nodes).filter((type) => type.spec.resource);
+    for (const type of configured) {
+        if (
+            !handlers.some(
+                (handler) =>
+                    handler.nodeType === type.name &&
+                    handler.urlAttribute === type.spec.resource?.urlAttribute,
+            )
+        )
+            throw new Error(
+                `No CodeMirror resource handler registered for node: ${type.name} (URL attribute: ${type.spec.resource?.urlAttribute})`,
             );
-            let occurrence = -1;
-            let index = 0;
-            mapNodes(candidate.content, (resource) => {
-                if (resource.type.name === 'image' && resource.attrs.src === marker)
-                    occurrence = index;
-                index++;
-                return resource;
-            });
-            const originalNode = nodes[occurrence];
-            if (!originalNode || originalNode.type.name !== 'image') return false;
-            index = 0;
-            const restored = mapNodes(candidate.content, (resource) => {
-                if (index++ !== occurrence) return resource;
-                return resource.type.create(
-                    {
-                        ...resource.attrs,
-                        src: originalNode.attrs.src,
-                        title: originalNode.attrs.title,
-                    },
-                    resource.content,
-                    resource.marks,
-                );
-            });
-            if (!comparableFragment(restored).eq(comparableOriginal)) return false;
-            const resource: ReplacementResource = {
-                kind: description.kind,
-                path: originalNode.attrs.src,
-                ...(description.nameAttribute && originalNode.attrs[description.nameAttribute]
-                    ? {name: originalNode.attrs[description.nameAttribute]}
-                    : {}),
-            };
-            references.push({
-                from: node.from,
-                to: node.to,
-                labelTo,
-                occurrence,
-                resource,
-                replace(path) {
-                    const encoded = validateResourceUrl(parser, path);
-                    const title = originalNode.attrs.title;
-                    const suffix = title
-                        ? ' "' +
-                          String(title).replace(
-                              /[&"\\\r\n]/g,
-                              (char) => '&#' + char.charCodeAt(0) + ';',
-                          ) +
-                          '"'
-                        : '';
-                    const insert = prefix + '(' + encoded + suffix + ')';
-                    const replaced = parser.parse(
-                        source.slice(0, node.from) + insert + source.slice(node.to),
-                    );
-                    let position = 0;
-                    const expected = mapNodes(original.content, (item) => {
-                        if (position++ !== occurrence) return item;
-                        return item.type.create(
-                            {...item.attrs, src: encoded},
-                            item.content,
-                            item.marks,
-                        );
-                    });
-                    if (!comparableFragment(replaced.content).eq(comparableFragment(expected)))
-                        throw new Error('Resource replacement would change Markdown structure');
-                    return insert;
-                },
+    }
+    const definitions = new Map<string, ResourceDefinition>();
+    tree.iterate({
+        enter({node}) {
+            if (excluded.has(node.name)) return false;
+            if (node.name !== 'LinkReference') return true;
+            const label = node.getChild('LinkLabel'),
+                url = node.getChild('URL');
+            if (!label || !url) return false;
+            const id = normalizeReference(doc.sliceString(label.from + 1, label.to - 1));
+            if (definitions.has(id)) return false;
+            const range = urlRange(url, (from, to) => doc.sliceString(from, to));
+            const path = urls.normalizeLink(unescapeAll(doc.sliceString(range.from, range.to)));
+            if (!urls.validateLink(path)) return false;
+            const title = node.getChild('LinkTitle');
+            definitions.set(id, {
+                range: {from: node.from, to: node.to},
+                urlRange: range,
+                path,
+                title: title
+                    ? unescapeAll(doc.sliceString(title.from + 1, title.to - 1))
+                    : undefined,
             });
             return false;
         },
     });
-    return references;
+    const matches: Match[] = [];
+    tree.iterate({
+        enter({node}) {
+            if (excluded.has(node.name)) return false;
+            // First registered handler wins, allowing consumers to override built-in syntax support.
+            for (const handler of handlers) {
+                const description = schema.nodes[handler.nodeType]?.spec.resource;
+                if (
+                    !description ||
+                    handler.urlAttribute !== description.urlAttribute ||
+                    !handler.syntaxNodes.includes(node.name)
+                )
+                    continue;
+                const match = handler.read({state, node, doc, definitions, urls});
+                if (!match) return false;
+                const path = match.attrs[description.urlAttribute];
+                if (typeof path !== 'string' || !urls.validateLink(path)) return false;
+                if (
+                    !validRange(match.range, doc) ||
+                    !validRange(match.urlRange, doc) ||
+                    (match.reference
+                        ? !Number.isInteger(match.reference.labelTo) ||
+                          match.reference.labelTo < match.range.from ||
+                          match.reference.labelTo > match.range.to
+                        : match.urlRange.from < match.range.from ||
+                          match.urlRange.to > match.range.to)
+                )
+                    throw new Error(`Invalid resource source range: ${handler.nodeType}`);
+                const name = description.nameAttribute
+                    ? match.attrs[description.nameAttribute]
+                    : undefined;
+                matches.push({
+                    syntax: match,
+                    resource: {
+                        kind: description.kind,
+                        path,
+                        ...(typeof name === 'string' && name ? {name} : {}),
+                    },
+                });
+                return false;
+            }
+            return true;
+        },
+    });
+    const resources: ReplacementResource[] = [];
+    const keys = new Set<string>();
+    const occurrences: ResourceOccurrence[] = [];
+    const spans: ResourceSpan[] = [];
+    const references: ReferenceImage[] = [];
+    matches.forEach(({syntax, resource}, occurrence) => {
+        occurrences.push({kind: resource.kind, path: resource.path});
+        const key = resourceKey(resource);
+        if (!keys.has(key)) {
+            keys.add(key);
+            resources.push(resource);
+        }
+        if (syntax.reference) {
+            const {labelTo, title} = syntax.reference;
+            references.push({
+                from: syntax.range.from,
+                to: syntax.range.to,
+                labelTo,
+                occurrence,
+                resource,
+                replace(path) {
+                    const url = validateResourceUrl(urls, path);
+                    const escapedTitle = title?.replace(
+                        /[&"\\\r\n]/g,
+                        (char) => '&#' + char.charCodeAt(0) + ';',
+                    );
+                    return (
+                        doc.sliceString(syntax.range.from, labelTo) +
+                        '(' +
+                        url +
+                        (escapedTitle ? ' "' + escapedTitle + '"' : '') +
+                        ')'
+                    );
+                },
+            });
+        } else
+            spans.push({...syntax.urlRange, range: syntax.range, key, occurrences: [occurrence]});
+    });
+    return {
+        references,
+        resources,
+        spans,
+        occurrences,
+        replace(replacements: ReadonlyMap<string, string>) {
+            const edits: Array<{from: number; to: number; insert: string}> = [];
+            for (const span of spans) {
+                const path = replacements.get(span.key);
+                if (path !== undefined)
+                    edits.push({...span, insert: validateResourceUrl(urls, path)});
+            }
+            for (const reference of references) {
+                const path = replacements.get(resourceKey(reference.resource));
+                if (path !== undefined) edits.push({...reference, insert: reference.replace(path)});
+            }
+            let result = doc.toString();
+            for (const edit of edits.sort((a, b) => b.from - a.from))
+                result = result.slice(0, edit.from) + edit.insert + result.slice(edit.to);
+            return result;
+        },
+    };
+}
+
+function validRange(range: {from: number; to: number}, doc: Text) {
+    return (
+        Number.isInteger(range.from) &&
+        Number.isInteger(range.to) &&
+        range.from >= 0 &&
+        range.to >= range.from &&
+        range.to <= doc.length
+    );
 }

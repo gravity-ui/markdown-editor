@@ -346,7 +346,8 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
                                       this.#resourceReplacement.controller,
                                       'markup',
                                   ),
-                                  parser: () => this.wysiwygEditor.parser,
+                                  schema: () => this.wysiwygEditor.view.state.schema,
+                                  urls: () => this.wysiwygEditor.parser,
                                   triggers: this.#resourceReplacement.triggers,
                                   editorInstanceId: this.#editorInstanceId,
                               })

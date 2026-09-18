@@ -115,7 +115,7 @@ Input, paste, cut, drop, toolbar commands, public mutation methods, Undo/Redo, s
 
 Only instances from the corresponding paste are updated, not every matching URL in the document. Local and remote edits may move them. Changed labels, image sizes, surrounding text, focus and selection are preserved. Deleted resources are skipped; the response never recreates deleted content. A URL explicitly changed by the user is not overwritten. The response may therefore update fewer live instances than originally pasted.
 
-Internal WYSIWYG resource IDs are retained in editor state for history and identity. They are excluded from HTML and Markdown serialization. Markdown uses mapped URL ranges and parser checks, preserving surrounding source formatting. Structural comparisons disregard generated tab and checkbox DOM identities, which change on every parse; resource paths, text and other content attributes remain checked.
+Internal WYSIWYG resource IDs are retained in editor state for history and identity. They are excluded from HTML and Markdown serialization. Markdown uses mapped construction/URL ranges and CodeMirror syntax checks, preserving surrounding source formatting. Tracking does not construct temporary ProseMirror documents.
 
 Mode conversion transfers identities through the complete ordered resource list. If custom conversion changes that list, uncertain bindings are not transferred. Reference images are resolved in the context of the full document, including existing definitions. A replaced reference image is converted to an inline image; its label and title are preserved, and the shared definition is unchanged. Other uses of that definition, including images added while the callback runs, keep their paths. Unsupported source spans retain their original value.
 
@@ -214,8 +214,8 @@ enables only the latter. Both accept `{name, allowSameOrigin}` configuration.
 File uploads remain controlled by `handlers.uploadFile` and do not start resource
 replacement. Drop into code is excluded based on the destination.
 
-Both engines read `node.type.spec.resource`. CodeMirror uses the configured
-Markdown parser to create temporary ProseMirror nodes with the same schema metadata;
+Both engines use `NodeSpec.resource` from the same schema. CodeMirror handlers read
+its own Lezer syntax tree and associate each syntax match with a schema node type;
 reference-image handling also respects the selected image description and kind.
 A custom resource node needs a corresponding Markdown parser/serializer to work in
 markup mode and across mode switches. These are node descriptions, not MIME filters.
@@ -250,7 +250,89 @@ The bundle separately supplies paste/drop/Shift/code policy. External `pasteHist
 callbacks belong to that DOM event integration: they run before an eligible paste/drop and after its
 accepted document update. Custom/programmatic sources must manage external history
 boundaries themselves. Built-in CodeMirror history remains integrated with the generic
-extension. Both engines share parser helpers from `modules/resource-replacement/prosemirror/document-utils.ts`.
+extension. Both engines share URL normalization/validation helpers; CodeMirror resource
+tracking does not call the WYSIWYG document parser.
+
+## Custom CodeMirror resource syntax
+
+Image syntax (including reference images and image sizes) and YFM file syntax have
+built-in CodeMirror handlers. These handlers do not enable resource replacement by
+themselves: configure the corresponding node in `resourceReplacement.resources`.
+Legacy file markup is `{% file src="/report.pdf" name="Report" %}`. The directive
+`:file[Report](/report.pdf)` requires
+`experimental: {directiveSyntax: {yfmFile: 'enabled'}}`; it is disabled by default.
+
+New node types need an explicit CodeMirror handler. Register it through
+`markupConfig.extensions`; no changes to the replacement controller are needed.
+For example, suppose a consumer extension already provides an `external_video` node and its
+Markdown parser/serializer for the **custom** syntax `:video[/clip.mp4]`:
+
+```ts
+import {codeMirrorResourceSupport, useMarkdownEditor} from '@gravity-ui/markdown-editor';
+
+const videoSupport = codeMirrorResourceSupport({
+  nodeType: 'external_video',
+  urlAttribute: 'src',
+  syntaxNodes: ['VideoResource'],
+  syntax: {
+    defineNodes: ['VideoResource', 'VideoResourceURL'],
+    parseInline: [{
+      name: 'VideoResource',
+      before: 'Link',
+      parse(cx, next, pos) {
+        if (next !== 58) return -1; // ':'
+        const match = /^:video\[([^\]\s]+)\]/.exec(cx.slice(pos, cx.end));
+        if (!match) return -1;
+        const end = pos + match[0].length;
+        return cx.addElement(cx.elt('VideoResource', pos, end, [
+          cx.elt('VideoResourceURL', pos + 7, end - 1),
+        ]));
+      },
+    }],
+  },
+  read({node, doc, urls}) {
+    const url = node.getChild('VideoResourceURL');
+    if (!url) return undefined;
+    return {
+      range: {from: node.from, to: node.to},
+      urlRange: {from: url.from, to: url.to},
+      attrs: {src: urls.normalizeLink(doc.sliceString(url.from, url.to))},
+    };
+  },
+});
+
+useMarkdownEditor({
+  // Register the consumer's video node/parser/serializer through extensions as usual.
+  markupConfig: {extensions: [videoSupport]},
+  resourceReplacement: {
+    resources: {external_video: {kind: 'video', urlAttribute: 'src'}},
+    triggers: ['paste', 'drop'],
+    resolve: copyResources,
+  },
+});
+```
+
+`syntax` is optional when the editor language already produces the required nodes.
+`read` is pure: it returns source ranges and attributes matching the selected schema
+`urlAttribute`. A handler must match both the node type and the configured URL
+attribute, so changing metadata cannot accidentally rewrite another attribute. All positions refer to `doc`, which is the updated document during a
+transaction; `state` supplies the current configuration. `urlRange` excludes syntax
+delimiters; `range` includes the complete resource. Code and ordinary links are
+excluded. One URL per resource is supported. Custom handlers precede built-ins,
+so consumers can override extraction for a known node type.
+
+A configured resource node with no CodeMirror handler causes an explicit error;
+there is no fallback to the WYSIWYG parser. A new Markdown dialect must therefore
+supply matching PM parsing/serialization and CM syntax support for mode conversion.
+Switching modes transfers target IDs through the ordered kind/path list. The CM
+side reconstructs that list from its syntax tree.
+
+Incomplete CodeMirror trees are completed synchronously with Lezer, reusing available
+fragments and transaction changes; completed trees are cached per immutable document
+and parser. Missing nodes in an unfinished tree are never treated as deleted resources.
+An initial complete parse and whole-tree resource traversal still have a cost on
+large documents. While targets exist, edits validate bindings against the updated
+incremental tree; this is not a complete WYSIWYG/Markdown-it document parse.
 
 ## Verification
 

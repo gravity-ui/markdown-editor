@@ -69,7 +69,7 @@ export class ResourceCollection {
     }
 }
 
-export function encodeResourceUrl(parser: Parser, url: string) {
+export function encodeResourceUrl(parser: Pick<Parser, 'normalizeLink'>, url: string) {
     return parser
         .normalizeLink(url)
         .replace(/[\s<>"'()\\]/g, (char) =>
@@ -129,7 +129,7 @@ export function comparableFragment(fragment: Fragment): Fragment {
     return Fragment.fromArray(nodes);
 }
 
-export function validateResourceUrl(parser: Parser, path: string) {
+export function validateResourceUrl(parser: Pick<Parser, 'normalizeLink' | 'validateLink'>, path: string) {
     const encoded = encodeResourceUrl(parser, path);
     if (!parser.validateLink(path) || !parser.validateLink(encoded))
         throw new Error('Invalid resource URL');

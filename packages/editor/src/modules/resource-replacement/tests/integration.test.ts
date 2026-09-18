@@ -1,6 +1,7 @@
 import {history as cmHistory, redo as cmRedo, undo as cmUndo} from '@codemirror/commands';
 import {
     Annotation,
+    EditorState as CMEditorState,
     Transaction as CMTransaction,
     Compartment,
     EditorSelection,
@@ -22,9 +23,13 @@ import {type Extension, WysiwygEditor} from '../../../core';
 import {ReactRenderStorage} from '../../../extensions';
 import {Logger2} from '../../../logger';
 import {createCodemirror} from '../../../markup/codemirror/create';
+import {DirectiveSyntaxFacet} from '../../../markup/codemirror/directive-facet';
+import {yfmLang} from '../../../markup/codemirror/yfm';
 import {DirectiveSyntaxContext} from '../../../utils/directive';
 import {codeMirrorResourceReplacement, pasteHistoryBoundary} from '../codemirror';
-import {prepareMarkupResources} from '../codemirror/resources';
+import {fileResourceHandler, imageResourceHandler} from '../codemirror/builtins';
+import {codeMirrorResourceSupport} from '../codemirror/handlers';
+import {prepareMarkupResources as readMarkupResources} from '../codemirror/resources';
 import {
     createCodeMirrorResourceIntegration,
     createProseMirrorResourceIntegration,
@@ -204,7 +209,7 @@ test.each([
     '![a](/old.png) ![b](/old.png)',
 ])('Markdown changes only resource URL spans: %s', (source) => {
     const test = setup();
-    const prepared = prepareMarkupResources(source, test.editor.parser);
+    const prepared = prepareMarkupResources(source, test);
     const image = prepared.resources.find((resource) => resource.kind === 'image')!;
     expect(image).toBeDefined();
     const actual = prepared.replace(new Map([[resourceKey(image), '/new.png']]));
@@ -234,12 +239,29 @@ function markup(test: ReturnType<typeof setup>, extensions: any[] = []) {
             ...(test.controller.enabled
                 ? createCodeMirrorResourceIntegration({
                       host: createResourceReplacementHost(test.controller, 'markup'),
-                      parser: () => test.editor.parser,
+                      schema: () => test.editor.view.state.schema,
+                      urls: () => test.editor.parser,
 
                       triggers: ['paste'],
                   })
                 : []),
         ],
+    });
+}
+
+function prepareMarkupResources(source: string, test: ReturnType<typeof setup>) {
+    const state = CMEditorState.create({
+        doc: source,
+        extensions: [
+            yfmLang(),
+            DirectiveSyntaxFacet.of(directiveSyntax),
+            codeMirrorResourceSupport(imageResourceHandler),
+            codeMirrorResourceSupport(fileResourceHandler),
+        ],
+    });
+    return readMarkupResources(state, {
+        schema: () => test.editor.view.state.schema,
+        urls: () => test.editor.parser,
     });
 }
 
@@ -295,7 +317,7 @@ test.each([
     '{% file src="/file.pdf" name="report" %}',
 ])('Markdown source URL encodings and directives: %s', (source) => {
     const test = setup();
-    const prepared = prepareMarkupResources(source, test.editor.parser);
+    const prepared = prepareMarkupResources(source, test);
     expect(prepared.resources.length).toBeGreaterThan(0);
     const actual = prepared.replace(
         new Map(prepared.resources.map((resource) => [resourceKey(resource), '/new.png'])),
@@ -642,7 +664,7 @@ for (const mode of ['wysiwyg', 'markup'] as const) {
         await flush();
         const value = cm?.state.doc.toString() ?? t.editor.getValue();
         expect(value).toContain('/new%20image%281%29.png');
-        expect(prepareMarkupResources(value, t.editor.parser).resources).toHaveLength(1);
+        expect(prepareMarkupResources(value, t).resources).toHaveLength(1);
         cm?.destroy();
         t.editor.destroy();
     });
@@ -1538,7 +1560,8 @@ describe('standalone CodeMirror resource replacement', () => {
                 cmHistory(),
                 codeMirrorResourceReplacement({
                     host: createResourceReplacementHost(t.controller, 'markup'),
-                    parser: () => t.editor.parser,
+                    schema: () => t.editor.view.state.schema,
+                    urls: () => t.editor.parser,
                     shouldTrack: (tr) => tr.annotation(imported) === true,
                 }),
             ],
@@ -1577,7 +1600,8 @@ describe('standalone CodeMirror resource replacement', () => {
                 codeMirrorResourceReplacement({
                     host: createResourceReplacementHost(t.controller, 'markup'),
 
-                    parser: () => t.editor.parser,
+                    schema: () => t.editor.view.state.schema,
+                    urls: () => t.editor.parser,
                     shouldTrack: (tr) => !tr.annotation(imported),
                 }),
             ],
@@ -1613,7 +1637,8 @@ describe('standalone CodeMirror resource replacement', () => {
         const extension = codeMirrorResourceReplacement({
             host: createResourceReplacementHost(t.controller, 'markup'),
 
-            parser: () => t.editor.parser,
+            schema: () => t.editor.view.state.schema,
+            urls: () => t.editor.parser,
             shouldTrack: () => true,
         });
         const view = new CMEditorView({extensions: [cmHistory(), compartment.of(extension)]});
@@ -1766,6 +1791,173 @@ describe.each(['wysiwyg', 'markup'] as const)('resource collection in %s', (mode
             expect(t.callback).toHaveBeenCalledTimes(1);
         } finally {
             cm?.destroy();
+            t.editor.destroy();
+        }
+    });
+});
+
+describe('CodeMirror syntax resource tracking', () => {
+    test('never calls the WYSIWYG document parser for discovery, editing, snapshots, resolution or history', async () => {
+        const t = setup();
+        const view = markup(t);
+        const parse = jest.spyOn(t.editor.parser, 'parse');
+        try {
+            view.dispatch({
+                changes: {
+                    from: 0,
+                    to: 6,
+                    insert: '![inline](/old.png) ![reference][ref]\n\n[ref]: /ref.png',
+                },
+                annotations: CMTransaction.userEvent.of('input.paste'),
+            });
+            expect(t.callback).toHaveBeenCalledTimes(1);
+            view.dispatch({changes: {from: 0, insert: 'prefix '}});
+            const snapshot = t.controller.snapshot();
+            expect(snapshot).toHaveLength(2);
+            expect(snapshot!.every((item) => item.targetId)).toBe(true);
+            t.controller.activate('markup', snapshot);
+            t.resolve({
+                replacements: [
+                    {kind: 'image', oldPath: '/old.png', newPath: '/new.png'},
+                    {kind: 'image', oldPath: '/ref.png', newPath: '/new-ref.png'},
+                ],
+            });
+            await flush();
+            expect(view.state.sliceDoc()).toContain('![reference](/new-ref.png)');
+            cmUndo(view);
+            cmUndo(view);
+            cmRedo(view);
+            cmRedo(view);
+            expect(t.controller.snapshot()!.every((item) => item.targetId)).toBe(true);
+            expect(parse).not.toHaveBeenCalled();
+        } finally {
+            parse.mockRestore();
+            view.destroy();
+            t.editor.destroy();
+        }
+    });
+
+    test.each(['link', 'code'])(
+        'detaches a resource converted to %s even if its URL is untouched; undo restores ownership',
+        async (change) => {
+            const t = setup();
+            const view = markup(t);
+            try {
+                paste(view.contentDOM, {'text/yfm': '![label](/old.png)'});
+                const before = view.state.sliceDoc();
+                const from = before.indexOf('![');
+                if (change === 'link') view.dispatch({changes: {from, to: from + 1}});
+                else
+                    view.dispatch({
+                        changes: [
+                            {from, insert: '`'},
+                            {from: before.length, insert: '`'},
+                        ],
+                    });
+                t.resolve({
+                    replacements: [{kind: 'image', oldPath: '/old.png', newPath: '/new.png'}],
+                });
+                await flush();
+                expect(view.state.sliceDoc()).toContain('/old.png');
+                expect(view.state.sliceDoc()).not.toContain('/new.png');
+                cmUndo(view);
+                expect(view.state.sliceDoc()).toContain('![label](/new.png)');
+            } finally {
+                view.destroy();
+                t.editor.destroy();
+            }
+        },
+    );
+
+    test('a custom CM syntax extension resolves a new schema resource and transfers its identity between modes', async () => {
+        const pattern = /^:video\[([^\]\s]+)\]/;
+        const media: Extension = (builder) => {
+            builder.addNodeSpec('external_video', () => ({
+                inline: true,
+                group: 'inline',
+                atom: true,
+                attrs: {src: {}},
+                resource: {kind: 'video', urlAttribute: 'src'},
+                toDOM: (node) => ['video', {src: node.attrs.src}],
+            }));
+            builder.configureMd((md) => {
+                md.inline.ruler.before('link', 'external_video', (state, silent) => {
+                    const match = pattern.exec(state.src.slice(state.pos));
+                    if (!match) return false;
+                    if (!silent) state.push('external_video', 'video', 0).attrSet('src', match[1]);
+                    state.pos += match[0].length;
+                    return true;
+                });
+                return md;
+            });
+            builder.addMarkdownTokenParserSpec('external_video', () => ({
+                name: 'external_video',
+                type: 'node',
+                getAttrs: (token) => ({src: token.attrGet('src')}),
+            }));
+            builder.addNodeSerializerSpec(
+                'external_video',
+                () => (state, node) => state.write(`:video[${node.attrs.src}]`),
+            );
+        };
+        const support = codeMirrorResourceSupport({
+            nodeType: 'external_video',
+            urlAttribute: 'src',
+            syntaxNodes: ['VideoResource'],
+            syntax: {
+                defineNodes: ['VideoResource', 'VideoResourceURL'],
+                parseInline: [
+                    {
+                        name: 'VideoResource',
+                        before: 'Link',
+                        parse(cx, next, pos) {
+                            if (next !== 58) return -1;
+                            const match = pattern.exec(cx.slice(pos, cx.end));
+                            if (!match) return -1;
+                            const end = pos + match[0].length;
+                            return cx.addElement(
+                                cx.elt('VideoResource', pos, end, [
+                                    cx.elt('VideoResourceURL', pos + 7, end - 1),
+                                ]),
+                            );
+                        },
+                    },
+                ],
+            },
+            read({node, doc, urls}) {
+                const url = node.getChild('VideoResourceURL');
+                if (!url) return undefined;
+                return {
+                    range: {from: node.from, to: node.to},
+                    urlRange: {from: url.from, to: url.to},
+                    attrs: {src: urls.normalizeLink(doc.sliceString(url.from, url.to))},
+                };
+            },
+        });
+        const t = setup(media);
+        const view = markup(t, [support]);
+        try {
+            view.dispatch({
+                changes: {from: 0, to: 6, insert: ':video[/old.mp4]'},
+                annotations: CMTransaction.userEvent.of('input.paste'),
+            });
+            expect(t.callback.mock.calls[0][0]).toEqual([{kind: 'video', path: '/old.mp4'}]);
+            const original = t.controller.snapshot()!;
+            expect(original[0].targetId).toBeDefined();
+            t.editor.replace(view.state.sliceDoc());
+            t.controller.activate('wysiwyg', original);
+            expect(t.controller.snapshot()).toEqual(original);
+            view.dispatch({
+                changes: {from: 0, to: view.state.doc.length, insert: t.editor.getValue()},
+            });
+            t.controller.activate('markup', original);
+            expect(t.controller.snapshot()).toEqual(original);
+            t.resolve({replacements: [{kind: 'video', oldPath: '/old.mp4', newPath: '/new.mp4'}]});
+            await flush();
+            expect(view.state.sliceDoc().trim()).toBe(':video[/new.mp4]');
+            expect(t.callback).toHaveBeenCalledTimes(1);
+        } finally {
+            view.destroy();
             t.editor.destroy();
         }
     });

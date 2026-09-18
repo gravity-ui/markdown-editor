@@ -12,7 +12,7 @@ for the application API.
 | ---------------------- | --------------------------------------------------------------------------------------------- |
 | `index.ts`             | Controller, host factory, application types and engine/target contracts |
 | `prosemirror/index.ts` | `ResourceReplacement`, options and public transaction metadata |
-| `codemirror/index.ts`  | `codeMirrorResourceReplacement`, options and `pasteHistoryBoundary`                           |
+| `codemirror/index.ts`  | `codeMirrorResourceReplacement`, options, `pasteHistoryBoundary`, `codeMirrorResourceSupport` and handler types                           |
 | `integration/index.ts` | PM and CM integration factories used by the bundle                                            |
 
 Consumers outside this module import from these entry points, not implementation
@@ -32,6 +32,8 @@ the public entry points for constructing controllers and extensions.
 The CM extension and its options are internal module exports, not package-root API.
 Applications configure resource replacement through `useMarkdownEditor`; the bundle
 connects the CM extension through this module's integration layer.
+`codeMirrorResourceSupport` and its handler types are exported from the package root
+so applications can register new resource syntax through `markupConfig.extensions`.
 
 ## Layout and dependencies
 
@@ -45,7 +47,10 @@ connects the CM extension through this module's integration layer.
   helpers. The extension installs tracking attributes and wraps HTML/Markdown
   serializers to hide them without changing editor state.
 - `codemirror/`: extension, mapped anchors, source-range detection, history amendment,
-  and the external history-boundary facet. It uses the shared document helpers in
+  and the external history-boundary facet. Resource handlers read CodeMirror/Lezer trees,
+  not temporary PM documents. `syntax-tree.ts` completes missing tree portions using
+  incremental fragments; `builtins.ts` provides image/reference/YFM file handlers.
+  New resource node types require explicit CM handlers. It uses shared URL helpers in
   `prosemirror/document-utils.ts`, but does not import the PM plugin or controller.
 - `integration/`: PM and CM integration factories that assemble transaction policies
   and resource replacement extensions.

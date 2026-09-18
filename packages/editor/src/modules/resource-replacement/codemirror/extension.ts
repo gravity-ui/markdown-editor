@@ -4,6 +4,7 @@ import {
     type ChangeDesc,
     type ChangeSpec,
     EditorState,
+    Prec,
     StateEffect,
     StateField,
     Transaction,
@@ -11,20 +12,26 @@ import {
 import {EditorView, ViewPlugin} from '@codemirror/view';
 import {v4 as uuid} from 'uuid';
 
-import {
-    ResourceCollection,
-    encodeResourceUrl,
-    validateResourceUrl,
-} from '../prosemirror/document-utils';
+import {extendedMarkdownLanguage} from '../../../markup/codemirror/markdown-syntax';
+import {encodeResourceUrl, validateResourceUrl} from '../prosemirror/document-utils';
 import {resourceKey} from '../tracking';
 import type {ResourceOccurrence, ResourceTarget} from '../tracking';
 import type {ResourceReplacementSource} from '../types';
 
+import {fileResourceHandler, imageResourceHandler} from './builtins';
+import {codeMirrorResourceSupport} from './handlers';
 import {ResourceReplacementHistory} from './history';
 import type {CodeMirrorResourceReplacementOptions} from './options';
 import {prepareMarkupResources} from './resources';
 
-type Anchor = {id: string; from: number; to: number; labelTo?: number};
+type Anchor = {
+    id: string;
+    from: number;
+    to: number;
+    labelTo?: number;
+    resourceFrom: number;
+    resourceTo: number;
+};
 const resolved = Annotation.define<boolean>();
 const trackedResources = Annotation.define<{
     targets: ResourceTarget[];
@@ -49,6 +56,8 @@ function mapAnchor(anchor: Anchor, changes: ChangeDesc): Anchor | undefined {
         ...anchor,
         from: changes.mapPos(anchor.from, 1),
         to: changes.mapPos(anchor.to, -1),
+        resourceFrom: changes.mapPos(anchor.resourceFrom, 1),
+        resourceTo: changes.mapPos(anchor.resourceTo, -1),
         ...(anchor.labelTo === undefined ? {} : {labelTo: changes.mapPos(anchor.labelTo, -1)}),
     };
 }
@@ -80,6 +89,11 @@ export function codeMirrorResourceReplacement(options: CodeMirrorResourceReplace
         (view) => new ResourceReplacementView(view, options, history),
     );
     return [
+        Prec.lowest([
+            extendedMarkdownLanguage(),
+            codeMirrorResourceSupport(imageResourceHandler),
+            codeMirrorResourceSupport(fileResourceHandler),
+        ]),
         anchorsField,
         history.compartment.of([]),
         invertedEffects.of((tr) => {
@@ -104,32 +118,42 @@ export function codeMirrorResourceReplacement(options: CodeMirrorResourceReplace
     ];
 }
 
-function trackResources(
-    tr: Transaction,
-    {host, parser, shouldTrack, getSource}: CodeMirrorResourceReplacementOptions,
-) {
+function trackResources(tr: Transaction, options: CodeMirrorResourceReplacementOptions) {
+    const {host, shouldTrack, getSource} = options;
     if (!tr.docChanged) return null;
     let prepared: ReturnType<typeof prepareMarkupResources> | undefined;
     const prepare = () => {
-        prepared ??= prepareMarkupResources(tr.newDoc.toString(), parser());
+        prepared ??= prepareMarkupResources(tr.startState, options, tr);
         return prepared;
     };
-    const removedReferences = tr.annotation(resolved)
+    const detachedTargets = tr.annotation(resolved)
         ? []
         : tr.startState.field(anchorsField).flatMap((anchor) => {
-              if (anchor.labelTo === undefined) return [];
               const mapped = mapAnchor(anchor, tr.changes);
               if (!mapped) return [];
-              const reference = prepare().references.find(
+              const target = host.getTarget(anchor.id);
+              if (!target) return [];
+              const document = prepare();
+              if (anchor.labelTo !== undefined) {
+                  const reference = document.references.find(
+                      (item) => item.from === mapped.from && item.to === mapped.to,
+                  );
+                  return reference?.resource.path === target.resource.path ? [] : [anchor.id];
+              }
+              const span = document.spans.find(
                   (item) => item.from === mapped.from && item.to === mapped.to,
               );
-              return reference?.resource.path === host.getTarget(anchor.id)?.resource.path
-                  ? []
-                  : [anchor.id];
+              const keys = [resourceKey(target.resource)];
+              if (target.replacement !== undefined)
+                  keys.push(
+                      resourceKey({
+                          ...target.resource,
+                          path: encodeResourceUrl(options.urls(), target.replacement),
+                      }),
+                  );
+              return span && keys.includes(span.key) ? [] : [anchor.id];
           });
-    const removal = removedReferences.length
-        ? {effects: [removeAnchors.of(removedReferences)]}
-        : null;
+    const removal = detachedTargets.length ? {effects: [removeAnchors.of(detachedTargets)]} : null;
     if (
         !tr.docChanged ||
         tr.annotation(resolved) ||
@@ -146,58 +170,40 @@ function trackResources(
             ? {effects: [...(removal?.effects ?? []), addAnchors.of(moved)]}
             : removal;
     }
-    const collection = new ResourceCollection();
     const targets: ResourceTarget[] = [];
     const anchors: Anchor[] = [];
     const document = prepare();
-    tr.changes.iterChanges((_from, _to, from, to, text) => {
+    tr.changes.iterChanges((_from, _to, from, to) => {
         for (const reference of document.references) {
             if (reference.from < from || reference.to > to) continue;
-            const {resource} = reference;
-            const collected = collection.add(resource.kind, resource.path, resource.name);
-            const target = {id: uuid(), resource: collected};
+            const target = {id: uuid(), resource: reference.resource};
             targets.push(target);
             anchors.push({
                 id: target.id,
                 from: reference.from,
                 to: reference.to,
                 labelTo: reference.labelTo,
+                resourceFrom: reference.from,
+                resourceTo: reference.to,
             });
         }
-        const fragment = prepareMarkupResources(text.toString(), parser());
-        for (const resource of fragment.resources) {
-            const collected = collection.add(resource.kind, resource.path, resource.name);
-            const spans = fragment.spans.filter(
-                (span) =>
-                    span.key === resourceKey(resource) &&
-                    !span.occurrences.some((index) =>
-                        fragment.references.some((reference) => reference.occurrence === index),
-                    ),
-            );
-            // Even an unsupported source span is reported to the application;
-            // its result must not rewrite unrelated references in the document.
-            if (
-                !spans.length &&
-                !fragment.references.some(
-                    (reference) => resourceKey(reference.resource) === resourceKey(resource),
-                )
-            )
-                targets.push({id: uuid(), resource: collected});
-            for (const span of spans) {
-                const target = {id: uuid(), resource: collected};
-                targets.push(target);
-                const actual = document.spans.find(
-                    (item) => item.from === from + span.from && item.to === from + span.to,
-                );
-                if (actual && actual.occurrences.length === span.occurrences.length) {
-                    anchors.push({id: target.id, from: actual.from, to: actual.to});
-                }
-            }
+        for (const span of document.spans) {
+            if (span.from < from || span.to > to || from === to) continue;
+            const resource = document.resources.find((item) => resourceKey(item) === span.key)!;
+            const target = {id: uuid(), resource};
+            targets.push(target);
+            anchors.push({
+                id: target.id,
+                from: span.from,
+                to: span.to,
+                resourceFrom: span.range.from,
+                resourceTo: span.range.to,
+            });
         }
     });
     if (!targets.length) return removal;
     return {
-        effects: [removeAnchors.of(removedReferences), addAnchors.of(anchors)],
+        effects: [removeAnchors.of(detachedTargets), addAnchors.of(anchors)],
         annotations: [
             trackedResources.of({targets, source: getSource?.(tr)}),
             isolateHistory.of('full'),
@@ -241,6 +247,10 @@ function movedResourceAnchors(
             ...anchor,
             from: anchor.from + offset,
             to: anchor.to + offset,
+            ...(anchor.resourceFrom === undefined
+                ? {}
+                : {resourceFrom: anchor.resourceFrom + offset}),
+            ...(anchor.resourceTo === undefined ? {} : {resourceTo: anchor.resourceTo + offset}),
             ...(anchor.labelTo === undefined ? {} : {labelTo: anchor.labelTo + offset}),
         };
         const document = prepare();
@@ -314,7 +324,7 @@ class ResourceReplacementView {
             if (tracked?.targets.length)
                 this.options.host.resolve(
                     tracked.targets,
-                    (path) => validateResourceUrl(this.options.parser(), path),
+                    (path) => validateResourceUrl(this.options.urls(), path),
                     tracked.source,
                 );
         }
@@ -327,7 +337,7 @@ class ResourceReplacementView {
     }
 
     private snapshot(view: EditorView): ResourceOccurrence[] {
-        const prepared = prepareMarkupResources(view.state.doc.toString(), this.options.parser());
+        const prepared = prepareMarkupResources(view.state, this.options);
         const result = prepared.occurrences;
         for (const anchor of view.state.field(anchorsField)) {
             if (anchor.labelTo !== undefined) {
@@ -349,7 +359,7 @@ class ResourceReplacementView {
                     result[index].path === target.resource.path ||
                     result[index].path ===
                         (target.replacement &&
-                            encodeResourceUrl(this.options.parser(), target.replacement))
+                            encodeResourceUrl(this.options.urls(), target.replacement))
                 )
                     result[index].targetId = anchor.id;
             }
@@ -358,7 +368,7 @@ class ResourceReplacementView {
     }
 
     private restore(view: EditorView, snapshot: ResourceOccurrence[]) {
-        const prepared = prepareMarkupResources(view.state.doc.toString(), this.options.parser());
+        const prepared = prepareMarkupResources(view.state, this.options);
         if (
             prepared.occurrences.length !== snapshot.length ||
             prepared.occurrences.some(
@@ -376,6 +386,8 @@ class ResourceReplacementView {
                     from: reference.from,
                     to: reference.to,
                     labelTo: reference.labelTo,
+                    resourceFrom: reference.from,
+                    resourceTo: reference.to,
                 });
         }
         for (const span of prepared.spans) {
@@ -387,7 +399,13 @@ class ResourceReplacementView {
                 continue;
             const id = snapshot[span.occurrences[0]]?.targetId;
             if (id && span.occurrences.every((index) => snapshot[index].targetId === id))
-                anchors.push({id, from: span.from, to: span.to});
+                anchors.push({
+                    id,
+                    from: span.from,
+                    to: span.to,
+                    resourceFrom: span.range.from,
+                    resourceTo: span.range.to,
+                });
         }
         view.dispatch({
             effects: [
@@ -401,17 +419,17 @@ class ResourceReplacementView {
 
     private flush(view: EditorView) {
         if (this.destroyed || this.applying || !this.options.host.active) return;
-        const parser = this.options.parser();
+        const urls = this.options.urls();
         const candidates = view.state.field(anchorsField).filter((anchor) => {
             const target = this.options.host.getTarget(anchor.id);
             return (
                 target?.replacement !== undefined &&
                 view.state.sliceDoc(anchor.from, anchor.to) !==
-                    encodeResourceUrl(parser, target.replacement)
+                    encodeResourceUrl(urls, target.replacement)
             );
         });
         if (!candidates.length) return;
-        const prepared = prepareMarkupResources(view.state.doc.toString(), parser);
+        const prepared = prepareMarkupResources(view.state, this.options);
         const changes: Array<
             ChangeSpec & {
                 from: number;
@@ -420,6 +438,8 @@ class ResourceReplacementView {
                 id: string;
                 pathOffset?: number;
                 pathLength?: number;
+                resourceFrom: number;
+                resourceTo: number;
             }
         > = [];
         for (const anchor of candidates) {
@@ -432,7 +452,7 @@ class ResourceReplacementView {
                 if (
                     !reference ||
                     reference.resource.path !== target.resource.path ||
-                    reference.resource.path === encodeResourceUrl(parser, target.replacement)
+                    reference.resource.path === encodeResourceUrl(urls, target.replacement)
                 )
                     continue;
                 changes.push({
@@ -443,8 +463,10 @@ class ResourceReplacementView {
                     insert: reference
                         .replace(target.replacement)
                         .slice(reference.labelTo - reference.from),
+                    resourceFrom: reference.from,
+                    resourceTo: reference.to,
                     pathOffset: 1,
-                    pathLength: encodeResourceUrl(parser, target.replacement).length,
+                    pathLength: encodeResourceUrl(urls, target.replacement).length,
                 });
                 continue;
             }
@@ -459,10 +481,15 @@ class ResourceReplacementView {
                 resource.path !== target.resource.path
             )
                 continue;
-            if (!parser.validateLink(target.replacement)) throw new Error('Invalid resource URL');
-            const insert = encodeResourceUrl(parser, target.replacement);
+            if (!urls.validateLink(target.replacement)) throw new Error('Invalid resource URL');
+            const insert = encodeResourceUrl(urls, target.replacement);
             if (view.state.sliceDoc(anchor.from, anchor.to) === insert) continue;
-            changes.push({...anchor, insert});
+            changes.push({
+                ...anchor,
+                insert,
+                resourceFrom: span!.range.from,
+                resourceTo: span!.range.to,
+            });
         }
         if (!changes.length) return;
         if (view.state.readOnly || !view.state.facet(EditorView.editable))
@@ -471,6 +498,8 @@ class ResourceReplacementView {
         const set = view.state.changes(changes);
         const anchors = changes.map((change) => ({
             id: change.id,
+            resourceFrom: set.mapPos(change.resourceFrom, -1),
+            resourceTo: set.mapPos(change.resourceTo, 1),
             from: set.mapPos(change.from, -1) + (change.pathOffset ?? 0),
             to:
                 set.mapPos(change.from, -1) +
