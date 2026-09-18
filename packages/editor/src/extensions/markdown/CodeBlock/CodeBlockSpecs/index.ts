@@ -27,6 +27,7 @@ export type LineNumbersOptions = {
 };
 
 export type CodeBlockSpecsOptions = {
+    /** @deprecated Register the view with builder.addNodeView() after the specs. */
     nodeview?: ExtensionNodeSpec['view'];
     /** Configure line numbers in code block */
     lineNumbers?: LineNumbersOptions;
@@ -51,9 +52,8 @@ const getLangOfNode = (node: Element) => {
 };
 
 export const CodeBlockSpecs: ExtensionAuto<CodeBlockSpecsOptions> = (builder, opts) => {
-    builder.addNode(codeBlockNodeName, () => ({
-        view: opts.nodeview,
-        spec: {
+    builder
+        .addNodeSpec(codeBlockNodeName, () => ({
             attrs: {
                 [CodeBlockNodeAttr.Lang]: {default: ''},
                 [CodeBlockNodeAttr.Markup]: {default: '```'},
@@ -86,24 +86,22 @@ export const CodeBlockSpecs: ExtensionAuto<CodeBlockSpecsOptions> = (builder, op
             toDOM({attrs}) {
                 return ['pre', attrs, ['code', 0]];
             },
-        },
-        fromMd: {
-            tokenSpec: {
-                name: codeBlockNodeName,
-                type: 'block',
-                noCloseToken: true,
-                getAttrs: (tok) => {
-                    return {
-                        [CodeBlockNodeAttr.Line]: tok.attrGet('data-line'),
-                        [CodeBlockNodeAttr.ShowLineNumbers]: tok.info.includes('showLineNumbers')
-                            ? 'true'
-                            : '',
-                    };
-                },
-                prepareContent: removeNewLineAtEnd, // content of code blocks contains extra \n at the end
+        }))
+        .addMarkdownTokenParserSpec('code_block', () => ({
+            name: codeBlockNodeName,
+            type: 'block',
+            noCloseToken: true,
+            getAttrs: (tok) => {
+                return {
+                    [CodeBlockNodeAttr.Line]: tok.attrGet('data-line'),
+                    [CodeBlockNodeAttr.ShowLineNumbers]: tok.info.includes('showLineNumbers')
+                        ? 'true'
+                        : '',
+                };
             },
-        },
-        toMd: (state, node) => {
+            prepareContent: removeNewLineAtEnd, // content of code blocks contains extra \n at the end
+        }))
+        .addNodeSerializerSpec(codeBlockNodeName, () => (state, node) => {
             const lang: string = node.attrs[CodeBlockNodeAttr.Lang];
             const showLineNumbers: string = opts.lineNumbers?.enabled
                 ? node.attrs[CodeBlockNodeAttr.ShowLineNumbers]
@@ -128,8 +126,7 @@ export const CodeBlockSpecs: ExtensionAuto<CodeBlockSpecsOptions> = (builder, op
             state.write('\n');
             state.write(fence);
             state.closeBlock(node);
-        },
-    }));
+        });
     builder.addMarkdownTokenParserSpec('fence', () => ({
         name: codeBlockNodeName,
         type: 'block',
@@ -159,6 +156,10 @@ export const CodeBlockSpecs: ExtensionAuto<CodeBlockSpecsOptions> = (builder, op
         },
         prepareContent: removeNewLineAtEnd, // content of fence blocks contains extra \n at the end
     }));
+    if (opts.nodeview) {
+        builder.addNodeView(codeBlockNodeName, opts.nodeview);
+    }
+
     builder.addKeymap(() => ({
         Tab: (state, dispatch) => {
             const {$anchor, $head} = state.selection;
