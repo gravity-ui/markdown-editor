@@ -1,18 +1,22 @@
-import {FILE_TOKEN} from '@diplodoc/file-extension';
 import {Fragment, type Node, Slice} from 'prosemirror-model';
 
-import type {Parser} from '../../../../core/types/parser';
-import {resourceKey} from '../../../../modules/paste/tracking';
-import type {ResourceOccurrence} from '../../../../modules/paste/tracking';
-import type {PastedResource} from '../../../../modules/paste/types';
-import {CheckboxNode} from '../../../yfm/Checkbox/CheckboxSpecs/const';
-import {TabsNode} from '../../../yfm/YfmTabs/YfmTabsSpecs/const';
+import type {Parser} from '../../../core/types/parser';
+import {CheckboxNode} from '../../../extensions/yfm/Checkbox/CheckboxSpecs/const';
+import {TabsNode} from '../../../extensions/yfm/YfmTabs/YfmTabsSpecs/const';
+import {resourceKey} from '../tracking';
+import type {ResourceOccurrence} from '../tracking';
+import type {ReplacementResource} from '../types';
+
+export function describeResource(node: Node) {
+    const resource = node.type.spec.resource;
+    return resource && typeof node.attrs[resource.urlAttribute] === 'string' ? resource : undefined;
+}
 
 export class ResourceCollection {
-    readonly resources: PastedResource[] = [];
-    private entries = new Map<string, PastedResource>();
+    readonly resources: ReplacementResource[] = [];
+    private entries = new Map<string, ReplacementResource>();
 
-    add(kind: PastedResource['kind'], path: string, name?: string) {
+    add(kind: ReplacementResource['kind'], path: string, name?: string) {
         const key = resourceKey({kind, path});
         let resource = this.entries.get(key);
         if (!resource) {
@@ -33,17 +37,13 @@ export class ResourceCollection {
                 nodes.push(node);
                 return;
             }
-            const attribute =
-                node.type.name === 'image'
-                    ? 'src'
-                    : node.type.name === FILE_TOKEN
-                      ? 'href'
-                      : undefined;
-            if (attribute && typeof node.attrs[attribute] === 'string') {
+            const description = describeResource(node);
+            const attribute = description?.urlAttribute;
+            if (description && attribute) {
                 const resource = this.add(
-                    attribute === 'src' ? 'image' : 'file',
+                    description.kind,
                     node.attrs[attribute],
-                    node.attrs.alt || node.attrs.download,
+                    description.nameAttribute ? node.attrs[description.nameAttribute] : undefined,
                 );
                 const url = replacements.get(resourceKey(resource));
                 if (url !== undefined) {
@@ -81,16 +81,17 @@ export function encodeResourceUrl(parser: Parser, url: string) {
 }
 
 export function resourceAttribute(node: Node) {
-    return node.type.name === 'image' ? 'src' : node.type.name === FILE_TOKEN ? 'href' : undefined;
+    return describeResource(node)?.urlAttribute;
 }
 
 export function resourceOccurrences(doc: Node): ResourceOccurrence[] {
     const occurrences: ResourceOccurrence[] = [];
     doc.descendants((node) => {
         if (node.type.spec.code || node.marks.some((mark) => mark.type.spec.code)) return false;
-        const attr = resourceAttribute(node);
-        if (attr && typeof node.attrs[attr] === 'string') {
-            occurrences.push({kind: attr === 'src' ? 'image' : 'file', path: node.attrs[attr]});
+        const description = describeResource(node);
+        const attr = description?.urlAttribute;
+        if (description && attr) {
+            occurrences.push({kind: description.kind, path: node.attrs[attr]});
         }
         return true;
     });

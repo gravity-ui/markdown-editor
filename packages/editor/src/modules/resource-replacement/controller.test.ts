@@ -1,6 +1,6 @@
-import {PasteController, validateResolution} from './controller';
+import {ResourceReplacementController, validateResolution} from './controller';
 import {resourceKey} from './tracking';
-import type {PasteResourceResolution} from './types';
+import type {ResourceReplacementResult} from './types';
 
 const resources = [{kind: 'image' as const, path: '/old.png'}];
 const flush = async () => {
@@ -9,11 +9,11 @@ const flush = async () => {
 };
 
 function setup() {
-    let resolve!: (value: PasteResourceResolution) => void;
+    let resolve!: (value: ResourceReplacementResult) => void;
     let reject!: (reason: unknown) => void;
     const callback = jest.fn(
         () =>
-            new Promise<PasteResourceResolution>((yes, no) => {
+            new Promise<ResourceReplacementResult>((yes, no) => {
                 resolve = yes;
                 reject = no;
             }),
@@ -21,9 +21,9 @@ function setup() {
     const events = jest.fn();
     const apply = jest.fn();
     const release = jest.fn();
-    const controller = new PasteController({
-        resolvePastedResources: callback,
-        onPasteOperationChange: events,
+    const controller = new ResourceReplacementController({
+        resolve: callback,
+        onChange: events,
         timeoutMs: 100,
     });
     const start = () => controller.start({resources, apply, release});
@@ -34,7 +34,7 @@ function setup() {
         apply,
         release,
         start,
-        resolve: (value: PasteResourceResolution) => resolve(value),
+        resolve: (value: ResourceReplacementResult) => resolve(value),
         reject: (error: unknown) => reject(error),
     };
 }
@@ -61,7 +61,9 @@ test.each(['cancel', 'destroy', 'reject', 'invalid', 'conflict', 'apply-error'] 
         const test = setup();
         test.start();
         if (kind === 'cancel')
-            test.controller.cancelPaste(test.controller.getPendingPasteOperations()[0].operationId);
+            test.controller.cancelResourceReplacement(
+                test.controller.getPendingResourceReplacements()[0].operationId,
+            );
         if (kind === 'destroy') test.controller.destroy();
         if (kind === 'reject') test.reject(new Error('network'));
         if (kind === 'apply-error')
@@ -94,14 +96,14 @@ test('timeout aborts the signal and observer exceptions do not leave pending ope
     jest.useFakeTimers();
     const error = jest.fn();
     let signal!: AbortSignal;
-    const controller = new PasteController(
+    const controller = new ResourceReplacementController(
         {
             timeoutMs: 20,
-            resolvePastedResources: (_resources, context) => {
+            resolve: (_resources, context) => {
                 signal = context.signal;
                 return new Promise(() => {});
             },
-            onPasteOperationChange: () => {
+            onChange: () => {
                 throw new Error('observer');
             },
         },
@@ -116,12 +118,16 @@ test('timeout aborts the signal and observer exceptions do not leave pending ope
 });
 
 test('no callback or no resources preserves synchronous insertion', () => {
-    expect(new PasteController().start({resources, apply: jest.fn(), release: jest.fn()})).toBe(
-        false,
-    );
+    expect(
+        new ResourceReplacementController().start({
+            resources,
+            apply: jest.fn(),
+            release: jest.fn(),
+        }),
+    ).toBe(false);
     const callback = jest.fn();
     expect(
-        new PasteController({resolvePastedResources: callback}).start({
+        new ResourceReplacementController({resolve: callback}).start({
             resources: [],
             apply: jest.fn(),
             release: jest.fn(),
@@ -133,12 +139,12 @@ test('no callback or no resources preserves synchronous insertion', () => {
 test('cancelling an old ID cannot affect a new operation', async () => {
     const test = setup();
     test.start();
-    const first = test.controller.getPendingPasteOperations()[0].operationId;
-    test.controller.cancelPaste(first);
+    const first = test.controller.getPendingResourceReplacements()[0].operationId;
+    test.controller.cancelResourceReplacement(first);
     test.start();
-    const second = test.controller.getPendingPasteOperations()[0].operationId;
-    test.controller.cancelPaste(first);
-    expect(test.controller.getPendingPasteOperations()).toEqual([{operationId: second}]);
+    const second = test.controller.getPendingResourceReplacements()[0].operationId;
+    test.controller.cancelResourceReplacement(first);
+    expect(test.controller.getPendingResourceReplacements()).toEqual([{operationId: second}]);
     test.resolve({replacements: []});
     await flush();
     expect(test.events.mock.calls.map(([event]) => event.status)).toEqual([
@@ -150,10 +156,10 @@ test('cancelling an old ID cannot affect a new operation', async () => {
 });
 
 test('cancelling one concurrent operation does not cancel another', async () => {
-    const resolvers: Array<(value: PasteResourceResolution) => void> = [];
+    const resolvers: Array<(value: ResourceReplacementResult) => void> = [];
     const signals: AbortSignal[] = [];
-    const controller = new PasteController({
-        resolvePastedResources: (_resources, {signal}) => {
+    const controller = new ResourceReplacementController({
+        resolve: (_resources, {signal}) => {
             signals.push(signal);
             return new Promise((resolve) => resolvers.push(resolve));
         },
@@ -162,17 +168,17 @@ test('cancelling one concurrent operation does not cancel another', async () => 
     const second = jest.fn();
     controller.start({resources, apply: first, release: jest.fn()});
     controller.start({resources, apply: second, release: jest.fn()});
-    const [a, b] = controller.getPendingPasteOperations();
-    controller.cancelPaste(a.operationId);
+    const [a, b] = controller.getPendingResourceReplacements();
+    controller.cancelResourceReplacement(a.operationId);
     expect(signals[0].aborted).toBe(true);
     expect(signals[1].aborted).toBe(false);
-    expect(controller.getPendingPasteOperations()).toEqual([b]);
+    expect(controller.getPendingResourceReplacements()).toEqual([b]);
     resolvers[0]({replacements: []});
     resolvers[1]({replacements: []});
     await flush();
     expect(first).not.toHaveBeenCalled();
     expect(second).toHaveBeenCalledTimes(1);
-    expect(controller.getPendingPasteOperations()).toEqual([]);
+    expect(controller.getPendingResourceReplacements()).toEqual([]);
     controller.destroy();
 });
 
@@ -195,5 +201,5 @@ test('matches exact kind/path pairs independently and accepts identical duplicat
         validateResolution(resources.slice(0, 1), {
             replacements: [{kind: 'file', oldPath: '/shared', newPath: '/file'}],
         }),
-    ).toThrow('Unknown paste resource replacement');
+    ).toThrow('Unknown resource replacement');
 });

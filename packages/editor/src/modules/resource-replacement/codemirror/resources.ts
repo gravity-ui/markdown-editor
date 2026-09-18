@@ -1,5 +1,5 @@
 import {markdownLanguage} from '@codemirror/lang-markdown';
-import type {Node} from 'prosemirror-model';
+import type {Fragment, Node} from 'prosemirror-model';
 
 import type {Parser} from '../../../core/types/parser';
 import {
@@ -9,9 +9,9 @@ import {
     mapResourceNodes,
     resourceOccurrences,
     validateResourceUrl,
-} from '../../../extensions/behavior/Clipboard/resources/resources';
-import {resourceKey} from '../../../modules/paste/tracking';
-import type {PastedResource} from '../../../modules/paste/types';
+} from '../prosemirror/document-utils';
+import {resourceKey} from '../tracking';
+import type {ReplacementResource} from '../types';
 
 /**
  * Locate source spans through the configured parser, without serializing Markdown.
@@ -118,14 +118,18 @@ export type ReferenceImage = {
     to: number;
     labelTo: number;
     occurrence: number;
-    resource: PastedResource;
+    resource: ReplacementResource;
     replace(path: string): string;
 };
 
 /** Lezer locates candidates; the configured document parser decides whether they are images. */
 function referenceImages(source: string, parser: Parser, original: Node, marker: string) {
+    const description = original.type.schema.nodes.image?.spec.resource;
+    if (!description || description.urlAttribute !== 'src') return [];
+    const mapNodes = (fragment: Fragment, map: (node: Node) => Node) =>
+        mapResourceNodes(fragment, map);
     const nodes: Node[] = [];
-    mapResourceNodes(original.content, (node) => {
+    mapNodes(original.content, (node) => {
         nodes.push(node);
         return node;
     });
@@ -146,7 +150,7 @@ function referenceImages(source: string, parser: Parser, original: Node, marker:
             );
             let occurrence = -1;
             let index = 0;
-            mapResourceNodes(candidate.content, (resource) => {
+            mapNodes(candidate.content, (resource) => {
                 if (resource.type.name === 'image' && resource.attrs.src === marker)
                     occurrence = index;
                 index++;
@@ -155,7 +159,7 @@ function referenceImages(source: string, parser: Parser, original: Node, marker:
             const originalNode = nodes[occurrence];
             if (!originalNode || originalNode.type.name !== 'image') return false;
             index = 0;
-            const restored = mapResourceNodes(candidate.content, (resource) => {
+            const restored = mapNodes(candidate.content, (resource) => {
                 if (index++ !== occurrence) return resource;
                 return resource.type.create(
                     {
@@ -168,10 +172,12 @@ function referenceImages(source: string, parser: Parser, original: Node, marker:
                 );
             });
             if (!comparableFragment(restored).eq(comparableOriginal)) return false;
-            const resource: PastedResource = {
-                kind: 'image',
+            const resource: ReplacementResource = {
+                kind: description.kind,
                 path: originalNode.attrs.src,
-                ...(originalNode.attrs.alt ? {name: originalNode.attrs.alt} : {}),
+                ...(description.nameAttribute && originalNode.attrs[description.nameAttribute]
+                    ? {name: originalNode.attrs[description.nameAttribute]}
+                    : {}),
             };
             references.push({
                 from: node.from,
@@ -195,7 +201,7 @@ function referenceImages(source: string, parser: Parser, original: Node, marker:
                         source.slice(0, node.from) + insert + source.slice(node.to),
                     );
                     let position = 0;
-                    const expected = mapResourceNodes(original.content, (item) => {
+                    const expected = mapNodes(original.content, (item) => {
                         if (position++ !== occurrence) return item;
                         return item.type.create(
                             {...item.attrs, src: encoded},

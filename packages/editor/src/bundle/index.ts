@@ -12,9 +12,3 @@ export {markupToolbarConfigs, wysiwygToolbarConfigs};
 
 // MAJOR: remove in next major
 export * from './config';
-
-export {pasteHistoryBoundary} from '../markup/codemirror/paste-resources/history-boundary';
-export {
-    remotePasteTransactionMeta,
-    resolvedPasteMeta,
-} from '../extensions/behavior/Clipboard/resources/adapter';

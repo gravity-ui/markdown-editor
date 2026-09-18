@@ -1,0 +1,118 @@
+![Markdown Editor](https://github.com/user-attachments/assets/0b4e5f65-54cf-475f-9c68-557a4e9edb46)
+
+# @gravity-ui/markdown-editor &middot; [![npm package](https://img.shields.io/npm/v/@gravity-ui/markdown-editor)](https://www.npmjs.com/package/@gravity-ui/markdown-editor) [![CI](https://img.shields.io/github/actions/workflow/status/gravity-ui/markdown-editor/ci.yml?branch=main&label=CI)](https://github.com/gravity-ui/markdown-editor/actions/workflows/ci.yml?query=branch:main) [![Release](https://img.shields.io/github/actions/workflow/status/gravity-ui/markdown-editor/release.yml?branch=main&label=Release)](https://github.com/gravity-ui/markdown-editor/actions/workflows/release.yml?query=branch:main) [![storybook](https://img.shields.io/badge/Storybook-deployed-ff4685)](https://preview.gravity-ui.com/md-editor/)
+
+## Markdown wysiwyg and markup editor
+
+MarkdownEditor is a powerful tool for working with Markdown, which combines WYSIWYG and Markup modes. This means that you can create and edit content in a convenient visual mode, as well as have full control over the markup.
+
+### 🔧 Main features
+
+- Support for the basic Markdown and [YFM](https://ydocs.tech) syntax.
+- Extensibility through the use of ProseMirror and CodeMirror engines.
+- The ability to work in WYSIWYG and Markup modes for maximum flexibility.
+
+## Install
+
+```shell
+npm install @gravity-ui/markdown-editor
+```
+
+### Required dependencies
+
+Please note that to start using the package, your project must also have the following installed: `@diplodoc/transform`, `react`, `react-dom`, `@gravity-ui/uikit`, `@gravity-ui/components` and some others. Check out the `peerDependencies` section of `package.json` for accurate information.
+
+## Getting started
+
+The markdown editor is supplied as a React hook to create an instance of editor and a component for rendering the view.\
+To set up styling and theme see [UIKit docs](https://github.com/gravity-ui/uikit?tab=readme-ov-file#styles).
+
+```tsx
+import React from 'react';
+import {useMarkdownEditor, MarkdownEditorView} from '@gravity-ui/markdown-editor';
+
+function Editor({onSubmit}) {
+  const editor = useMarkdownEditor({allowHTML: false});
+
+  React.useEffect(() => {
+    function submitHandler() {
+      // Serialize current content to markdown markup
+      const value = editor.getValue();
+      onSubmit(value);
+    }
+
+    editor.on('submit', submitHandler);
+    return () => {
+      editor.off('submit', submitHandler);
+    };
+  }, [onSubmit]);
+
+  return <MarkdownEditorView stickyToolbar autofocus editor={editor} />;
+}
+```
+Read more:
+- [How to connect the editor in the Create React App](https://preview.gravity-ui.com/md-editor/?path=/docs/docs-getting-started-create-react-app--docs)
+- [How to add preview for markup mode](https://preview.gravity-ui.com/md-editor/?path=/docs/docs-getting-started-preview--docs)
+- [How to add HTML extension](https://preview.gravity-ui.com/md-editor/?path=/docs/docs-extensions-html-block--docs)
+- [How to add Latex extension](https://preview.gravity-ui.com/md-editor/?path=/docs/docs-extensions-latex-extension--docs)
+- [How to add Mermaid extension](https://preview.gravity-ui.com/md-editor/?path=/docs/docs-extensions-mermaid-extension--docs)
+- [How to write extension](https://preview.gravity-ui.com/md-editor/?path=/docs/docs-develop-extension-creation--docs)
+- [How to add GPT extension](https://preview.gravity-ui.com/md-editor/?path=/docs/docs-extensions-gpt--docs)
+- [How to add text binding extension in markdown](https://preview.gravity-ui.com/md-editor/?path=/docs/docs-develop-extension-with-popup--docs)
+
+### Development
+
+1. Install Nodejs environment, version is specified in `.nvmrc` file. We recommend using [NVM](https://github.com/nvm-sh/nvm) or a similar tool.
+2. Install [pnpm](https://pnpm.io/installation), version is specified in `package.json` in "packageManager" property.
+3. Install dependencies: `pnpm i`
+4. Run storybook dev-server: `pnpm start`
+
+
+### i18n
+
+To set up internationalization, you just need to use the `configure`:
+
+```typescript
+import {configure} from '@gravity-ui/markdown-editor';
+
+configure({
+  lang: 'ru',
+});
+```
+
+Don't forget to call `configure()` from [UIKit](https://github.com/gravity-ui/uikit?tab=readme-ov-file#i18n) and other UI libraries.
+
+### Contributing
+
+- [Contributor Guidelines](https://preview.gravity-ui.com/md-editor/?path=/docs/docs-contributing--docs)
+
+## License
+
+Distributed under the MIT License. See [LICENSE](LICENSE.txt) for details.
+
+## For AI agents
+
+A dual-mode Markdown editor for React that combines a WYSIWYG mode (ProseMirror) and a raw markup mode (CodeMirror), with support for basic Markdown and YFM.
+
+### When to use
+
+- Editing Markdown/YFM content with a switchable visual (WYSIWYG) and source (markup) view.
+- You need an extensible editor: custom marks, nodes, toolbar items, and extensions (HTML, LaTeX, Mermaid, GPT) via the ProseMirror/CodeMirror engines.
+- Rendering the editor UI: create the instance with `useMarkdownEditor` and render it with `MarkdownEditorView`.
+
+### When not to use
+
+- Read-only rendering of Markdown to HTML with no editing — transform it with [`@diplodoc/transform`](https://github.com/diplodoc-platform/transform) and render the output instead.
+- Plain multiline text input — use `TextArea` from [`@gravity-ui/uikit`](https://github.com/gravity-ui/uikit).
+- Rich-text that is not Markdown/YFM — this editor is Markdown-first.
+
+### Common pitfalls
+
+- **It is a hook plus a view, not one component.** Create the instance with `useMarkdownEditor(...)` and pass it to `<MarkdownEditorView editor={editor} />`; there is no single `<MarkdownEditor>` you render directly.
+- **Read the value via the instance, not a controlled `value` prop.** Call `editor.getValue()` (e.g. on the `submit` event) to serialize to Markdown; the editor manages its own state.
+- **Peer dependencies are required.** Your project must provide `@diplodoc/transform`, `@gravity-ui/uikit`, `@gravity-ui/components`, `react`, and `react-dom` — check the `peerDependencies` in `package.json`.
+- **Styles and i18n come from uikit.** Set up theming/styles per the uikit docs and call `configure({lang})` from both this package and `@gravity-ui/uikit`.
+
+## Documentation for AI agents
+
+Agent-readable documentation for the installed version is located in `node_modules/@gravity-ui/markdown-editor/build/docs/INDEX.md`.

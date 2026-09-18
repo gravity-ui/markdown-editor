@@ -1,522 +1,618 @@
-# Архитектура обработки ресурсов при вставке
+# Архитектура замены ресурсов
 
-Схема текущей реализации после переноса из `src/paste/`. Проверена по рабочей
-копии **16 сентября 2026 года**. Все пути `src/` ниже относятся к
-`packages/editor/src/`, если явно не указано другое.
+Документ описывает текущую реализацию в рабочем дереве на 17 сентября 2026 года:
+публичный API, распределение ответственности, путь транзакции и асинхронного
+результата, историю, смену режима и время жизни состояния. Возможные дальнейшие
+изменения отмечены отдельно и не являются уже реализованными возможностями.
 
-Документ описывает обработку URL изображений и файлов после вставки. Загрузка
-бинарных файлов рассмотрена отдельно, чтобы показать границу с существующими
-clipboard-плагинами. Пользовательский API описан в
-[руководстве по подключению](how-to-resolve-pasted-resources.md).
+Замена ресурсов — обработка URL уже вставленных изображений, файлов и других
+настроенных узлов. Основной порядок: **вставить содержимое → найти и привязать
+ресурсы → вызвать приложение → применить новые URL**. Пока приложение обрабатывает
+запрос, документ остаётся доступным для редактирования.
+
+Практический пример подключения находится в
+[руководстве по настройке](how-to-resolve-pasted-resources.md).
+Все сокращённые пути `src/` ниже относятся к `packages/editor/src/`.
 
 ## Навигация
 
-1. [Общая карта](#1-общая-карта)
-2. [Файлы и ответственность](#2-файлы-и-ответственность)
-3. [Создание и подключение](#3-создание-и-подключение)
-4. [Данные и идентичность](#4-данные-и-идентичность)
-5. [Жизненный цикл запроса](#5-жизненный-цикл-запроса)
-6. [WYSIWYG: путь вставки](#6-wysiwyg-путь-вставки)
-7. [WYSIWYG: применение результата и история](#7-wysiwyg-применение-результата-и-история)
-8. [Markup: расширение CodeMirror](#8-markup-расширение-codemirror)
-9. [Markup: распознавание и применение](#9-markup-распознавание-и-применение)
-10. [HTML и файловые ссылки](#10-html-и-файловые-ссылки)
-11. [История CodeMirror](#11-история-codemirror)
-12. [Переключение режимов](#12-переключение-режимов)
-13. [Отмена, ошибки и уничтожение](#13-отмена-ошибки-и-уничтожение)
-14. [Бинарные файлы и FilesUploadPlugin](#14-бинарные-файлы-и-filesuploadplugin)
-15. [Границы и особенности текущего подключения](#15-границы-и-особенности-текущего-подключения)
-16. [Сценарии и тесты](#16-сценарии-и-тесты)
+1. [Общая схема и слои](#1-общая-схема-и-слои)
+2. [Публичный API и ответственность приложения](#2-публичный-api-и-ответственность-приложения)
+3. [Сборка и политика выбора транзакций](#3-сборка-и-политика-выбора-транзакций)
+4. [Ресурс, операция, target и привязка](#4-ресурс-операция-target-и-привязка)
+5. [Host и общий контроллер](#5-host-и-общий-контроллер)
+6. [WYSIWYG: отслеживание и применение](#6-wysiwyg-отслеживание-и-применение)
+7. [Markdown: отслеживание и применение](#7-markdown-отслеживание-и-применение)
+8. [Полный жизненный цикл запроса](#8-полный-жизненный-цикл-запроса)
+9. [Undo и Redo](#9-undo-и-redo)
+10. [Переключение режима](#10-переключение-режима)
+11. [Завершение, отмена и очистка](#11-завершение-отмена-и-очистка)
+12. [Кастомные ресурсы и новые источники изменений](#12-кастомные-ресурсы-и-новые-источники-изменений)
+13. [Clipboard, HTML и загрузка файлов](#13-clipboard-html-и-загрузка-файлов)
+14. [Границы, ограничения и дальнейшее развитие](#14-границы-ограничения-и-дальнейшее-развитие)
+15. [Карта файлов](#15-карта-файлов)
+16. [Сценарии проверки](#16-сценарии-проверки)
 
-## 1. Общая карта
+## 1. Общая схема и слои
 
-На схемах компонентов сплошная стрелка означает создание, вызов или использование
-сервиса. Пунктирная стрелка означает уведомление или передачу результата. Это
-связи времени выполнения; таблица файлов ниже уточняет расположение реализаций.
+Архитектура разделяет выбор изменений, идентичность ресурсов, асинхронную работу
+и редактирование документа. Это позволяет использовать один запрос приложения
+при смене движка и не связывать контроллер с моделями PM или CM.
+
+| Слой                 | Основные компоненты                                        | Ответственность                                                                              |
+| -------------------- | ---------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| 1. Публичный API     | `useMarkdownEditor`, `ResourceReplacementConfig`           | Конфигурация ресурсов и callback приложения                                                  |
+| 2. Сборка и политика | `EditorImpl`, PM/CM-интеграции                             | Создание контроллера, подключение расширений, выбор транзакций через `shouldTrack`           |
+| 3. Отслеживание      | `ResourceReplacement`, `codeMirrorResourceReplacement`     | Поиск ресурсов в выбранных изменениях и поддержание привязок к документу                     |
+| 4. Общий сервис      | `ResourceReplacementHost`, `ResourceReplacementController` | Регистрация targets, дедупликация запроса, операции, отмена, проверка и хранение результатов |
+| 5. Применение        | PM-команда и CM `flush`                                    | Обновление URL в активном движке с учётом текущего документа и истории                       |
+
+Слои отслеживания и применения реализованы в расширениях соответствующего движка.
+Это разные обязанности, а не обязательно отдельные пакеты.
 
 ```mermaid
 flowchart TB
-    App["Приложение<br/>resolvePastedResources / onPasteOperationChange"]
-    Hook["useMarkdownEditor"]
-    Bundle["EditorImpl<br/>владелец общего контроллера"]
-    Controller["PasteController<br/>операции, targets, активный движок"]
-    UI["MarkdownEditorView / ToolbarView"]
-
-    subgraph PM["WYSIWYG"]
-        WE["WysiwygEditor"]
-        WA["ProseMirrorPaste"]
-        WP["PM Plugin<br/>DOM events / appendTransaction / view"]
-        WC["Clipboard / штатный PM paste<br/>выбор и разбор формата"]
-        WS["PM EditorState<br/>документ с resource ID"]
-    end
-
-    subgraph CM["Markup"]
-        Factory["createCodemirror"]
-        CA["CodeMirrorPaste<br/>текущее разделение экземпляров — §3"]
-        CE["extension()<br/>StateField / effects / extender / events"]
-        CC["Обработчики create.ts<br/>YFM / HTML / текст"]
-        CS["CM EditorState<br/>текст + anchorsField"]
-        History["PasteCodeMirrorHistory"]
-    end
-
-    Hook --> Bundle
-    Bundle --> Controller
-    Bundle --> WE
-    Bundle --> Factory
-    WE --> WA
-    WA --> WP
-    WC -->|"транзакция"| WA
-    WA -->|"apply"| WS
-    Factory --> CA
-    CA --> CE
-    CC -->|"транзакция"| CE
-    CE --> CS
-    CA --> History
-    WA -->|"createTarget / resolveTargets / register"| Controller
-    CA -->|"createTarget / resolveTargets / register"| Controller
-    Controller -->|"snapshot / restore / flush"| WA
-    Controller -->|"snapshot / restore / flush"| CA
-    Controller -->|"callback с AbortSignal"| App
-    App -.->|"replacements"| Controller
-    Controller -.->|"subscribe: изменение pending"| Bundle
-    Bundle -.->|"rerender / rerender-toolbar"| UI
+    API["useMarkdownEditor<br/>resourceReplacement: resources, triggers,<br/>resolve, onChange, timeoutMs"]
+    Owner["EditorImpl<br/>создание контроллера и подключение расширений"]
+    PMPolicy["PM-интеграция<br/>createProseMirrorResourceIntegration"]
+    CMPolicy["CM-интеграция<br/>createCodeMirrorResourceIntegration"]
+    PM["ResourceReplacement<br/>PM state, appendTransaction, PluginView"]
+    CM["codeMirrorResourceReplacement<br/>StateField, extender, ViewPlugin, listener"]
+    PMHost["host для wysiwyg"]
+    CMHost["host для markup"]
+    Controller["ResourceReplacementController<br/>pending, targets, engines, активный режим"]
+    App["Приложение<br/>resolve(resources, context)"]
+    Apply["flush активного движка"]
+    PMApply["PM: applyResolvedResources<br/>обновление атрибутов по ID"]
+    CMApply["CM: замена текста<br/>по проверенным anchors"]
+    API --> Owner
+    Owner --> PMPolicy
+    Owner --> CMPolicy
+    Owner --> Controller
+    PMPolicy -->|shouldTrack| PM
+    CMPolicy -->|shouldTrack| CM
+    PM --> PMHost
+    CM --> CMHost
+    PMHost --> Controller
+    CMHost --> Controller
+    Controller --> App
+    App -.->|replacements| Controller
+    Controller --> Apply
+    Apply --> PMApply
+    Apply --> CMApply
+    Controller -.->|onChange| App
 ```
 
-Основной порядок: **вставка документа → запрос приложения → изменение URL**.
-Управление редактором остаётся доступным во время запроса.
+Стрелки показывают вызовы и передачу данных, а не только импорты. Приложение
+получает изменения статуса операций через `resourceReplacement.onChange`.
 
-## 2. Файлы и ответственность
+Ключевые границы:
 
-| Файл                                                                                                                | Основные сущности                                               | Ответственность                                                                     |
-| ------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
-| [bundle/useMarkdownEditor.ts](../packages/editor/src/bundle/useMarkdownEditor.ts)                                   | `useMarkdownEditor`                                             | Сборка параметров и жизненный цикл экземпляра редактора                             |
-| [bundle/Editor.ts](../packages/editor/src/bundle/Editor.ts)                                                         | `EditorImpl`                                                    | Создание контроллера; передача его движкам; смена режима; публичные операции отмены |
-| [bundle/types.ts](../packages/editor/src/bundle/types.ts)                                                           | `MarkdownEditorOptions`                                         | Подключение `paste` к API редактора и экспорт типов                                 |
-| [bundle/editor-public-types.ts](../packages/editor/src/bundle/editor-public-types.ts)                               | `MarkdownEditorInstance`                                        | Включение `PasteOperationControl` в публичный интерфейс                             |
-| [modules/paste/types.ts](../packages/editor/src/modules/paste/types.ts)                                             | `PasteIntegration`, `PastedResource`, `PasteResourceResolution` | Контракт приложения                                                                 |
-| [modules/paste/tracking.ts](../packages/editor/src/modules/paste/tracking.ts)                                       | `ResourceTarget`, `ResourceOccurrence`, `PasteEngine`           | Общая идентичность и интерфейс движка                                               |
-| [modules/paste/controller.ts](../packages/editor/src/modules/paste/controller.ts)                                   | `PasteController`, `validateResolution`                         | Асинхронные операции, проверка ответа, отмена, таймауты, сохранение результатов     |
-| [core/Editor.ts](../packages/editor/src/core/Editor.ts)                                                             | `WysiwygEditor`                                                 | Создание PM-адаптера, подключение его плагина и `dispatch`                          |
-| [Clipboard/index.ts](../packages/editor/src/extensions/behavior/Clipboard/index.ts)                                 | `Clipboard`                                                     | Регистрация существующих clipboard-плагинов через builder                           |
-| [Clipboard/clipboard.ts](../packages/editor/src/extensions/behavior/Clipboard/clipboard.ts)                         | `clipboard`                                                     | Чтение форматов буфера и вставка содержимого                                        |
-| [Clipboard/resources/adapter.ts](../packages/editor/src/extensions/behavior/Clipboard/resources/adapter.ts)         | `ProseMirrorPaste`                                              | Идентификация вставки, ID узлов, применение URL, связь с PM history                 |
-| [Clipboard/resources/resources.ts](../packages/editor/src/extensions/behavior/Clipboard/resources/resources.ts)     | `ResourceCollection`, функции обхода и сравнения                | Работа с PM-моделью и проверка URL; используется также Markup-частью                |
-| [ImageSpecs/index.ts](../packages/editor/src/extensions/markdown/Image/ImageSpecs/index.ts)                         | Схема изображения                                               | Атрибут `__pasteResourceId`, исключаемый из HTML                                    |
-| [YfmFileSpecs/index.ts](../packages/editor/src/extensions/yfm/YfmFile/YfmFileSpecs/index.ts)                        | Схема файла                                                     | Атрибут ID, исключаемый из HTML и Markdown                                          |
-| [markup/codemirror/create.ts](../packages/editor/src/markup/codemirror/create.ts)                                   | `createCodemirror`                                              | Создание CM-адаптера, расширений и обработчиков clipboard                           |
-| [paste-resources/adapter.ts](../packages/editor/src/markup/codemirror/paste-resources/adapter.ts)                   | `CodeMirrorPaste`                                               | Диапазоны ресурсов, effects, транзакции и регистрация движка                        |
-| [paste-resources/resources.ts](../packages/editor/src/markup/codemirror/paste-resources/resources.ts)               | `prepareMarkupResources`, `referenceImages`                     | Поиск и проверка исходных диапазонов Markdown                                       |
-| [paste-resources/history.ts](../packages/editor/src/markup/codemirror/paste-resources/history.ts)                   | `PasteCodeMirrorHistory`                                        | Коррекция более раннего события истории CodeMirror                                  |
-| [paste-resources/history-boundary.ts](../packages/editor/src/markup/codemirror/paste-resources/history-boundary.ts) | `pasteHistoryBoundary`                                          | Facet с callbacks для внешней группировки истории                                   |
-| [html-to-markdown/converters.ts](../packages/editor/src/markup/codemirror/html-to-markdown/converters.ts)           | `MarkdownConverter`                                             | Преобразование HTML; callback `fileLink` для файловых вложений                      |
-| [files-upload-plugin/plugin.ts](../packages/editor/src/markup/codemirror/files-upload-plugin/plugin.ts)             | `FilesUploadPlugin`, presenter, widget                          | Отдельная загрузка бинарных файлов                                                  |
+- Интеграция определяет, **когда** нужно начать обработку.
+- Расширение определяет, **какие экземпляры** ресурсов относятся к изменению.
+- Host связывает расширение с сервисами конкретного режима.
+- Контроллер управляет **асинхронной операцией и её результатом**.
+- Приложение получает новые URL, например копирует ресурсы на сервере.
+- Активный движок решает, **где и как** применить результат в текущем документе.
 
-## 3. Создание и подключение
+## 2. Публичный API и ответственность приложения
 
-### 3.1. Общий владелец
+### 2.1. Конфигурация
 
-`EditorImpl` создаёт `PasteController` всегда, даже без callback разрешения ресурсов.
-`controller.enabled` равен наличию `resolvePastedResources`. Параметры callback
-задаются при создании; метода их динамической замены нет.
-
-Движки создаются лениво, при обращении к `wysiwygEditor` и `markupEditor`.
-Каждый получает ссылку на один и тот же контроллер.
-
-```mermaid
-sequenceDiagram
-    participant H as useMarkdownEditor
-    participant B as EditorImpl
-    participant C as PasteController
-    participant W as WysiwygEditor
-    participant P as ProseMirrorPaste
-    participant V as PM EditorView
-    H->>B: new EditorImpl(options)
-    B->>C: new PasteController(options.paste)
-    B->>C: subscribe(rerender callbacks)
-    Note over B,W: WYSIWYG создаётся при первом обращении
-    B->>W: new WysiwygEditor({pasteController})
-    W->>P: new ProseMirrorPaste(controller)
-    W->>P: plugin()
-    W->>V: new EditorView(state + plugins + dispatchTransaction)
-    V->>P: plugin.view(view)
-    P->>C: register(wysiwyg, snapshot / restore / flush)
-```
-
-В PM создание адаптера пока проверяет наличие контроллера, а не `enabled`.
-Существующий `Clipboard` регистрируется через `ExtensionBuilder`; ресурсный
-адаптер подключается напрямую в `core/Editor.ts`.
-
-### 3.2. Фактическое подключение CodeMirror в рабочей копии
-
-На момент составления документа `create.ts` создаёт **два** объекта
-`CodeMirrorPaste`. Это важно для чтения последующих схем.
-
-```mermaid
-flowchart LR
-    F["createCodemirror<br/>enabled + pasteParser"]
-    A["Экземпляр A<br/>const paste"]
-    B["Экземпляр B<br/>new CodeMirrorPaste(...).extension()"]
-    Dispatch["dispatchTransactions"]
-    Attach["Регистрация PasteEngine"]
-    State["EditorState extensions"]
-    HA["A.history.compartment"]
-    HB["B.history.compartment"]
-    Shared["Общие определения модуля<br/>anchorsField / pasted / resolved / effects"]
-    F --> A
-    F --> B
-    A --> Dispatch
-    A --> Attach
-    A --> HA
-    B --> State
-    B --> HB
-    HA -.->|"не тот Compartment, который установлен B"| State
-    A --> Shared
-    B --> Shared
-```
-
-`extension()` замыкает `event`, `shift` и `history` экземпляра B, а `dispatch`,
-`attach`, `restore`, `flush` используют экземпляр A. Определения `StateField`,
-annotations и effects находятся на уровне модуля и поэтому общие.
-
-Однако `history.compartment` создаётся на экземпляр: в состоянии установлен
-Compartment B, а коррекция истории из A обращается к Compartment A. Это разрыв
-связи в текущем подключении. Следующие разделы описывают алгоритмы методов;
-они не являются подтверждением корректной работы двух экземпляров вместе.
-
-Связное подключение одного экземпляра выглядело бы так:
+В текущем API настройка называется `resourceReplacement`, callback — `resolve`.
+Названия `paste` и `resolvePastedResources` относятся к прежней схеме.
 
 ```ts
-const paste =
-  params.pasteController?.enabled && params.pasteParser
-    ? new CodeMirrorPaste(params.pasteController, params.pasteParser)
-    : undefined;
+type ResourceDescription = {
+  kind: string;
+  urlAttribute: string;
+  nameAttribute?: string;
+};
 
-if (paste) extensions.push(paste.extension());
-// Этот же paste используется в dispatchTransactions и attach(view).
+type ResourceTrigger = 'paste' | 'drop' | {
+  name: 'paste' | 'drop';
+  allowSameOrigin?: boolean; // false по умолчанию
+};
+
+type ResourceReplacementConfig = {
+  resources?: Readonly<Record<string, ResourceDescription | false>>;
+  triggers?: readonly ResourceTrigger[];
+  resolve?: (
+    resources: readonly ReplacementResource[],
+    context: {operationId: string; signal: AbortSignal},
+  ) => Promise<ResourceReplacementResult>;
+  onChange?: (event: ResourceReplacementEvent) => void;
+  timeoutMs?: number;
+};
 ```
 
-Это пояснение схемы, а не изменение реализации в рамках документа.
+| Поле        | Смысл                                                             | Поведение по умолчанию                                      |
+| ----------- | ----------------------------------------------------------------- | ----------------------------------------------------------- |
+| `resources` | Описания ресурсов по именам узлов | Нет; без настройки ресурсы не отслеживаются |
+| `triggers`  | Какие источники изменений включает стандартная интеграция         | `[]`; расширения замены не подключаются                     |
+| `resolve`   | Асинхронное получение новых URL                                   | Без callback контроллер и расширения замены не подключаются |
+| `onChange`  | Уведомление о состоянии конкретной операции                       | Необязателен                                                |
+| `timeoutMs` | Максимальное ожидание результата операции                         | `120_000` мс                                                |
 
-## 4. Данные и идентичность
+`timeoutMs` должен быть конечным положительным числом. Это не TTL для targets,
+не срок жизни anchors и не срок хранения результата для Redo.
 
-```mermaid
-flowchart TB
-    Controller["PasteController"]
-    Pending["pending: Map<br/>operationId → Pending"]
-    Operation["Pending<br/>operationId / AbortController / timer / prepared"]
-    Prepared["InsertedPaste<br/>resources / apply / release"]
-    Targets["targets: Map<br/>targetId → ResourceTarget"]
-    Target["ResourceTarget<br/>id / resource / replacement?"]
-    Resource["PastedResource<br/>kind / path / name?"]
-    Engine["engines: Map<br/>mode → PasteEngine"]
-    PMNode["PM node.attrs.__pasteResourceId"]
-    Anchor["CM Anchor<br/>id / from / to / labelTo?"]
-    Snapshot["ResourceOccurrence<br/>kind / path / targetId?"]
-    Controller --> Pending
-    Pending --> Operation
-    Operation --> Prepared
-    Prepared --> Resource
-    Prepared -.->|"apply замыкает targets операции"| Target
-    Controller --> Targets
-    Targets --> Target
-    Target --> Resource
-    Controller --> Engine
-    PMNode -->|"targetId"| Target
-    Anchor -->|"id"| Target
-    Snapshot -->|"targetId"| Target
+Стандартные интеграции обрабатывают `paste` и `drop` независимо.
+Настройка `['paste', 'drop']` включает оба источника; `['drop']` — только drop.
+
+Узлы без `NodeSpec.resource` не отслеживаются; отсутствующий или пустой
+`triggers: []` отключает подключение интеграций обоих движков.
+Это отличается от отсутствующего `resolve`:
+при наличии callback контроллер всё равно создаётся.
+
+### 2.2. Описание ресурса
+
+Ресурсы явно задаются в `useMarkdownEditor`:
+
+```ts
+resourceReplacement: {
+  resources: {
+    image: {kind: 'image', urlAttribute: 'src', nameAttribute: 'alt'},
+    video: {kind: 'video', urlAttribute: 'src'},
+  },
+  triggers: ['paste', 'drop'],
+  resolve: copyResources,
+}
 ```
 
-Три разных понятия:
+- Ключ — имя зарегистрированного узла.
+- `kind` — тип ресурса для callback и сопоставления ответа.
+- `urlAttribute` — атрибут узла со строковым URL.
+- `nameAttribute` — необязательный атрибут с именем или подписью.
 
-- **Операция** — один асинхронный вызов приложения, ID вида `paste-N`.
-- **Ресурс** — пара `kind + path`; `resourceKey` кодирует её через `JSON.stringify`.
-- **Target** — отслеживаемый экземпляр ресурса с UUID. В PM это конкретный узел;
-  в CM обычно исходный диапазон URL или ссылочного изображения.
+Дефолтов нет, в том числе в ImageSpecs и YfmFileSpecs. Отсутствующий `resources`
+или `{}` отключает отслеживание ресурсов. Неуказанные узлы и значения `false`
+не участвуют в замене, даже если пользовательское расширение задало свои метаданные.
+При создании схемы конфигурация хука записывается в `NodeSpec.resource` после
+пользовательских расширений и до подключения плагина замены.
+В PM метаданные читаются из узлов документа; в CM — из временных узлов,
+созданных Markdown-парсером с той же схемой. Частота парсинга CM не меняется.
 
-Одинаковые ресурсы дедуплицируются внутри запроса, но несколько targets могут
-ссылаться на одну пару `kind + path`. Разные вставки имеют отдельные targets.
-Сопоставление ответа ограничено ресурсами конкретной операции.
+### 2.3. Вход и результат resolve
 
-`pending` очищается при завершении операции. `targets` и полученные замены
-сохраняются до уничтожения контроллера: они нужны, если Undo убрал вставку,
-а Redo позже вернул её. Это состояние в памяти, не сохраняемое в Markdown.
+```ts
+type ReplacementResource = {
+  kind: string;
+  path: string;
+  name?: string;
+};
 
-## 5. Жизненный цикл запроса
+type ResourceReplacementResult = {
+  replacements: Array<{
+    kind: string;
+    oldPath: string;
+    newPath: string;
+  }>;
+};
+```
+
+Callback получает описания ресурсов, а не `File`, DOM-узлы, PM-позиции или
+CM-диапазоны. Входные объекты передаются как замороженные копии.
+Результат — объект с `replacements`, а не массив на верхнем уровне.
+
+Пара `kind + oldPath` должна точно соответствовать входной паре `kind + path`.
+Если замена не возвращена, исходный URL сохраняется. `{replacements: []}` —
+допустимый успешный ответ.
+
+Относительные пути передаются так, как их представил парсер. Редактор не угадывает
+исходную страницу. Авторизация, определение источника, копирование на сервере
+и удаление ненужных серверных копий относятся к приложению.
+
+### 2.4. operationId, signal и события
+
+`operationId` идентифицирует один вызов `resolve`, обычно соответствующий одной
+вставке. Это не ID ресурса и не постоянный идентификатор в сохранённом документе.
+Текущая реализация генерирует строки вида `resource-replacement-N`; приложениям
+следует использовать значение как непрозрачный идентификатор.
+
+Он связывает callback, события `onChange`, список pending и явную отмену:
+
+```ts
+editor.getPendingResourceReplacements();
+editor.cancelResourceReplacement(operationId);
+```
+
+`signal` — `AbortSignal`. Контроллер вызывает abort при явной отмене, таймауте,
+ошибке операции и уничтожении владельца редактора. Callback должен передать его
+в `fetch` или обработать самостоятельно. Игнорирование сигнала не позволяет
+применить поздний ответ, но не останавливает выполняемую приложением работу.
+Abort клиентского запроса также не гарантирует отмену серверного копирования.
+
+```ts
+type ResourceReplacementEvent = {
+  operationId: string;
+  status: 'pending' | 'succeeded' | 'failed' | 'cancelled';
+  error?: unknown;
+};
+```
+
+Каждая начатая операция получает `pending` и ровно один конечный статус.
+`succeeded` означает, что результат обработан; число изменённых вхождений может
+быть меньше числа исходных ресурсов или равно нулю.
+
+## 3. Сборка и политика выбора транзакций
+
+### 3.1. EditorImpl как владелец
+
+`useMarkdownEditor` передаёт конфигурацию в `EditorImpl`. При наличии `resolve`
+тот создаёт один `ResourceReplacementController` на экземпляр редактора.
+Оба движка работают с этим контроллером, но получают отдельные hosts.
+
+`id` передаёт приложение в `useMarkdownEditor`; библиотека не
+генерирует его. Обработчики copy/cut и dragstart обоих режимов дописывают ID
+в отдельный формат clipboardData/dataTransfer после штатной сериализации.
+При drop интеграция читает источник из dataTransfer и применяет allowSameOrigin.
+Обработчики записи источника подключаются независимо от
+наличия resolver и триггеров. При вставке интеграция сравнивает ID источника
+с ID получателя и передаёт `source?: {sameEditor: boolean}` через host и контроллер
+в контекст `resolve`. Без любого из ID или при некорректных метаданных источник
+неизвестен. По умолчанию совпадение ID исключает операцию из замены ресурсов:
+не создаются цели, не вызываются `resolve` и `onChange`. Сама вставка выполняется.
+Строковый триггер эквивалентен объекту `{name: 'paste', allowSameOrigin: false}`
+для вставки. Объект `{name: 'paste', allowSameOrigin: true}` разрешает замену
+при совпадении ID; тогда приложение всё ещё может вернуть `{replacements: []}`.
+Неизвестный источник не блокирует замену. Здесь origin означает ID редактора,
+а не origin URL.
+
+Источник хранится в PM plugin state выбранной транзакции или CM annotation,
+поэтому он не теряется при завершении DOM-события и не смешивается между операциями.
+
+Движки создаются лениво. При создании WYSIWYG редактора bundle подключает
+результат `createProseMirrorResourceIntegration(...)` через `builder.use`.
+Эта интеграция собирает policy-плагин и расширение замены. При создании CM
+редактора bundle передаёт результат `createCodeMirrorResourceIntegration(...)`
+в обычный список extensions.
+
+Без `resolve` контроллер и расширения замены не устанавливаются;
+`getPendingResourceReplacements()` возвращает `[]`, отмена ничего не делает.
+Конфигурация контроллера задаётся при создании; отдельного метода динамической
+замены resolver в текущем экземпляре нет.
+
+`EditorImpl` также переносит привязки при смене режима и уничтожает общий
+контроллер перед уничтожением движков. Приложение может обновлять свой UI через
+`resourceReplacement.onChange` и использовать публичные методы просмотра и отмены операций.
+
+### 3.2. Политика ProseMirror
+
+`createProseMirrorResourceIntegration({host, triggers})` возвращает
+расширение, которое подключает `ResourceReplacement` и отдельную политику для
+каждого экземпляра редактора. Политика выбирает paste по `paste: true`,
+drop — по `uiEvent: 'drop'`. Для выбранного триггера проверяются конфигурация
+и источник из метаданных транзакции. Shift исключает только paste;
+drop бинарных файлов остаётся в upload pipeline.
+
+Сопутствующий плагин отслеживает Shift через `keydown`/`keyup`, сбрасывает его
+при blur и уничтожении. Policy-плагин подключается с `Priority.Highest`, а
+расширение замены — с `Priority.Lowest`.
+
+Штатная вставка ProseMirror уже устанавливает `paste: true`. Кастомный clipboard
+handler может поставить этот флаг на обычную транзакцию вставки. Сам ресурсный
+плагин не выбирает HTML/YFM/текст и не реализует `handlePaste`.
+
+### 3.3. Политика CodeMirror
+
+`createCodeMirrorResourceIntegration` соединяет DOM-контекст со свойствами
+транзакции и передаёт расширению предикат. `input.paste` выбирает paste,
+`input.drop` и `move.drop` — drop; для кастомных синхронных обработчиков
+используется тип текущего DOM-события. Проверяются конфигурация триггера,
+источник и признак `plain`.
+
+Здесь `event` — краткоживущий контекст DOM-события paste/drop. Он содержит признак
+`plain`, выставляемый при Shift-paste, drop файлов или вставке в `FencedCode`,
+`CodeBlock`, `InlineCode`. Для drop проверяется позиция по координатам события,
+а не текущее выделение. Контекст очищается после изменения документа, в microtask или
+при потере фокуса. Поэтому для программной транзакции без DOM paste контекст
+Shift и позиции в коде этой веткой не предоставляется; расширение и парсер
+дополнительно проверяют сами ресурсы.
+
+Перед выбранным DOM paste/drop и после принятого изменения вызываются callbacks
+`pasteHistoryBoundary` для внешней истории. Программные источники должны
+организовать такие внешние границы самостоятельно.
+
+### 3.4. shouldTrack — условие выбора, а не запуск запроса
+
+Оба расширения принимают предикат для транзакций. Он не должен запускать запросы
+или менять внешнее состояние: движок может предварительно вычислять состояние,
+не применяя его к view. Для PM требование чистоты указано в типе опции.
+
+Расширение дополнительно отбрасывает собственные замены, Undo/Redo и помеченные
+удалённые изменения. `shouldTrack` не отменяет эти внутренние ограничения.
+Запрос начинается только после принятого обновления view.
+
+Таким образом, для нового источника сначала меняется политика выбора изменений;
+общий контроллер не должен знать о DOM-событии paste, drop или import.
+
+## 4. Ресурс, операция, target и привязка
+
+Эти сущности имеют разные назначения и время жизни.
+
+| Сущность    | Идентичность                              | Где хранится                      | Назначение                           |
+| ----------- | ----------------------------------------- | --------------------------------- | ------------------------------------ |
+| Операция    | `operationId`                             | `controller.pending`              | Один асинхронный запрос и его отмена |
+| Ресурс      | `kind + path`                             | Вход callback и `target.resource` | Дедупликация и сопоставление ответа  |
+| Target      | UUID `id`                                 | `controller.targets`              | Конкретная отслеживаемая цель замены |
+| PM-привязка | `__replaceResourceId`                     | Атрибут узла в EditorState        | Связь узла с target                  |
+| CM-привязка | `id`, `from`, `to`, иногда `labelTo`      | `anchorsField`                    | Связь исходного диапазона с target   |
+| Snapshot    | Упорядоченные `kind`, `path`, `targetId?` | Временный массив при смене режима | Перенос идентичности между движками  |
+
+```ts
+type ResourceTarget = {
+  id: string;
+  resource: ReplacementResource;
+  replacement?: string;
+};
+
+type ResourceOccurrence = {
+  kind: string;
+  path: string;
+  targetId?: string;
+};
+```
+
+`resourceKey` кодирует пару как `JSON.stringify([kind, path])`.
+Имя не входит в ключ. При дедупликации сохраняется описание первого вхождения.
+
+Например, вставка двух изображений с `/a.png` создаёт отдельные PM targets,
+но один входной ресурс `{kind: 'image', path: '/a.png'}`. Возвращённая замена
+применяется к сохранившимся экземплярам этой операции. Изображение с тем же URL,
+которое уже было в документе, не становится её target.
+
+Две разные вставки одинакового URL имеют отдельные targets и отдельные запросы.
+Дедупликации между операциями нет; ответы могут завершаться в любом порядке.
+
+В CM target обычно относится к исходному диапазону. Один диапазон может
+соответствовать нескольким вхождениям в разобранной модели. Также возможен
+найденный ресурс без безопасно определённого диапазона: его можно сообщить
+приложению, но применить ответ к произвольному совпадению URL нельзя.
+
+Нужно различать запись target в контроллере и живую привязку в документе.
+Target может существовать после удаления узла, потери anchor или Undo вставки.
+И наоборот, наличие старого ID без доступного target не даёт результата замены.
+
+## 5. Host и общий контроллер
+
+### 5.1. Контракт расширения
+
+Оба расширения зависят от небольшого интерфейса:
+
+```ts
+interface ResourceReplacementHost {
+  readonly active: boolean;
+  register(engine: ResourceReplacementEngine): () => void;
+  getTarget(id: string): ResourceTarget | undefined;
+  collectGarbage?(): void;
+  resolve(targets: readonly ResourceTarget[], validatePath: (path: string) => void): void;
+}
+
+type ResourceReplacementEngine = {
+  snapshot(): ResourceOccurrence[];
+  restore(occurrences: ResourceOccurrence[]): void;
+  flush(): void;
+  retainedTargets?(): ReadonlySet<string> | undefined;
+  forgetTargets?(ids: ReadonlySet<string>): void;
+};
+```
+
+Host не предоставляет уничтожение контроллера, отмену всех операций или подписки
+приложения. У него нет флага `enabled`: подключение расширения решает владелец.
+`active` означает, что режим этого host сейчас выбран для применения результата.
+
+Движок регистрирует три функции. Контроллер не передаёт в `flush` массив замен:
+движок сам читает targets через `getTarget` и сверяет их с текущим документом.
+
+### 5.2. Адаптер конкретного режима
+
+`createResourceReplacementHost(controller, mode)` связывает общий сервис
+с `wysiwyg` или `markup`. Расширению не нужно передавать имя режима при каждом вызове.
+
+При `host.resolve(targets, validatePath)` адаптер:
+
+1. Не делает ничего для пустого списка.
+2. Регистрирует targets в контроллере, сохраняя назначенные расширением ID.
+3. Дедуплицирует входные ресурсы по `kind + path`.
+4. Активирует свой режим через `controller.activate(mode)`.
+5. Вызывает `controller.resolveTargets(resources, registeredTargets, validatePath)`.
+
+Расширения сначала вычисляют локальные targets. Попадание в общую коллекцию
+контроллера происходит через host после принятого обновления view.
+
+### 5.3. Ответственность контроллера
+
+Контроллер хранит `pending`, `targets`, зарегистрированные `engines`, активный
+режим и настройки callback. Он не импортирует PM, CM или React.
+
+| Метод                                          | Действие                                                      |
+| ---------------------------------------------- | ------------------------------------------------------------- |
+| `register(mode, engine)`                       | Сохраняет функции движка и возвращает unregister              |
+| `createTarget(resource, id)` / `getTarget(id)` | Регистрирует или читает target                                |
+| `resolveTargets(...)`                          | Готовит проверку URL, кеширование и применение результата     |
+| `start(prepared)`                              | Создаёт pending, AbortController, таймер и запускает callback |
+| `cancelResourceReplacement(id)`                | Завершает pending-операцию с `cancelled`                      |
+| `fail(id, error)`                              | Завершает pending-операцию с `failed`                         |
+| `snapshot()`                                   | Получает привязки активного движка                            |
+| `activate(mode, snapshot?)`                    | Выбирает движок, восстанавливает snapshot и вызывает flush    |
+| `destroy()`                                    | Отменяет pending и очищает общее состояние                    |
+
+Внутренний `ResourceReplacementRequest` содержит `resources`, `apply`, `release`.
+`apply` замыкает targets конкретной операции; поэтому одинаковые URL из разных
+операций не смешиваются. В стандартном `resolveTargets` функция `release`
+сейчас пустая и не удаляет targets.
+
+## 6. WYSIWYG: отслеживание и применение
+
+### 6.1. Подключение расширения
+
+`ResourceReplacement` подключается обычным `builder.use`. Расширение проверяет
+метаданные `NodeSpec.resource` зарегистрированных узлов: непустые `kind` и
+`urlAttribute`, наличие URL-атрибута в спецификации. Затем добавляет узлу служебный атрибут
+`__replaceResourceId` с `default: null` и регистрирует плагин.
+
+В том же расширении оборачиваются `toDOM` и Markdown-сериализатор каждого
+настроенного узла. Исходный сериализатор получает отдельную копию узла без ID;
+узел в EditorState не меняется. Это исключает ID даже у сериализаторов, которые
+перечисляют все атрибуты. Image/YfmFile не импортируют модуль замены и не объявляют
+его атрибут самостоятельно. Без расширения ID в их схеме отсутствует.
+
+Узлы и их сериализаторы регистрируются раньше расширения замены.
+Оно обходит `builder.nodeSpecNames()` и подготавливает только узлы с `spec.resource`.
+
+`WysiwygEditor` не содержит специальной установки этого плагина, а его dispatcher
+обычным образом применяет транзакции. Подключение идёт через `ExtensionsManager`.
+
+### 6.2. Принятая транзакция и назначение ID
 
 ```mermaid
 sequenceDiagram
-    participant A as Адаптер активного движка
-    participant C as PasteController
-    participant App as Приложение
-    A->>C: resolveTargets(resources, targets, validatePath)
-    C->>C: start(prepared)
-    C->>C: Записать pending, создать AbortController и timer
-    C-->>App: onPasteOperationChange(pending)
-    Note over C,App: Обработчик pending может сразу отменить операцию
-    C->>App: resolvePastedResources(resources, operationId + signal)
-    App-->>C: Promise с replacements
-    C->>C: Проверить, что операция ещё pending
-    C->>C: validateResolution: структура и точные kind + oldPath
-    C->>A: validatePath для всех новых URL
-    C->>C: Сохранить replacement в targets
-    C->>A: flush() текущего активного движка
-    A->>A: Обновить сохранившиеся привязанные ресурсы
-    C->>C: finish(succeeded): убрать pending и timer, release
-    C-->>App: onPasteOperationChange(succeeded)
+    participant H as Clipboard или native paste
+    participant V as PM EditorView
+    participant P as ResourceReplacement plugin
+    participant Host as Host для wysiwyg
+    H->>V: dispatch транзакции с paste=true
+    V->>P: filterTransaction: начальная граница истории
+    V->>P: state.apply: вычислить изменённые диапазоны
+    P->>V: appendTransaction: назначить ID ресурсам
+    V->>P: Отобразить диапазоны через нормализующие транзакции
+    V->>P: PluginView.update после принятого обновления
+    P->>V: Очистить текущую пачку и закрыть историю
+    P->>Host: resolve оставшихся живых targets
 ```
 
-| Метод контроллера                          | Смысл                                                                         |
-| ------------------------------------------ | ----------------------------------------------------------------------------- |
-| `register(mode, engine)`                   | Сохранить callbacks адаптера; вернуть функцию удаления регистрации            |
-| `activate(mode, snapshot?)`                | Назначить активный режим, при наличии восстановить snapshot, вызвать `flush`  |
-| `snapshot()`                               | Запросить состояние привязок у активного движка, если обработка включена      |
-| `createTarget(resource)` / `getTarget(id)` | Создать или получить идентичность ресурса                                     |
-| `resolveTargets(...)`                      | Подготовить операцию: проверка URL, сохранение результатов, применение        |
-| `start(prepared)`                          | Зарегистрировать pending, таймаут и запустить callback                        |
-| `resolve(operation)`                       | Дождаться ответа, проверить актуальность и применить результат                |
-| `finish(...)`                              | Единожды завершить операцию, освободить её состояние и уведомить наблюдателей |
-| `cancelPaste(id)`                          | Завершить указанную операцию как cancelled                                    |
-| `fail(id, error)`                          | Завершить указанную pending-операцию как failed                               |
-| `getPendingPasteOperations()`              | Вернуть список выполняющихся операций                                         |
-| `subscribe(listener)`                      | Подписать внутреннюю оболочку редактора на изменение pending                  |
-| `destroy()`                                | Отменить все pending и очистить targets, регистрации и подписки               |
+Плагин исключает собственные и appended-транзакции как новые источники,
+помеченные remote/rebased изменения, историю, автоматические замены и контекст
+кода. Только после этого учитывается переданный `shouldTrack`.
 
-`validateResolution` отклоняет неизвестные пары `kind + oldPath`, пустые новые
-пути, неверную структуру и противоречивые дубликаты. Одинаковые дубликаты допустимы.
-Пропущенные ресурсы и пустой список замен сохраняют исходные URL.
+`state.apply` получает диапазоны из step maps и переводит их в конечные
+координаты. Для `AttrStep`, меняющего URL, предусмотрена отдельная обработка:
+такой step может менять ресурс при пустом StepMap. Это позволяет использовать
+кастомный предикат и для выбранных обновлений URL.
 
-Перед сохранением результатов проверяются все возвращённые URL. Если `flush`
-бросает ошибку, кеш замены у targets этой операции очищается. Общий контроллер
-не реализует откат уже применённых транзакций документа.
+`appendTransaction` находит ресурсы внутри отслеживаемых диапазонов и назначает
+UUID. Последующие нормализаторы могут перестроить узлы; диапазоны продолжают
+отображаться через их изменения. Служебные ID входят в событие исходной вставки.
 
-`succeeded` означает, что ответ обработан. Это не гарантирует, что изменено
-столько же вхождений, сколько было вставлено: пользователь мог удалить их,
-изменить URL или выполнить Undo.
+Запрос не запускается из `state.apply` или `appendTransaction`. В
+`PluginView.update` плагин закрывает пачку, отделяет следующие действия в истории,
+проверяет оставшиеся в документе ID и вызывает host. `WeakSet` предотвращает
+повторный запуск для уже обработанной пачки targets.
 
-## 6. WYSIWYG: путь вставки
+### 6.3. Редактирование ресурса пользователем
 
-### 6.1. Плагин и обёртка dispatch
+Для локальных изменений плагин сравнивает URL узлов с одинаковым ID в `tr.before`
+и `tr.doc`. Если пользователь изменил URL, дополнительная транзакция снимает ID.
+Это часть пользовательского события истории; Undo может вернуть и URL, и ID.
 
-```mermaid
-flowchart TB
-    DOM["DOM paste"]
-    Observe["ProseMirrorPaste.plugin<br/>запомнить plain / shift / code / files"]
-    Clipboard["Clipboard / стандартный PM paste<br/>разобрать данные и построить транзакцию"]
-    Dispatch["WysiwygEditor.dispatchTransaction"]
-    Adapter["ProseMirrorPaste.dispatch(view, tr, apply)"]
-    Gate{"Это обрабатываемая вставка?"}
-    Ordinary["Обычная правка:<br/>при ручной смене URL снять resource ID"]
-    Ranges["Вычислить добавленные диапазоны<br/>через tr.mapping"]
-    Targets["Обойти tr.doc в диапазонах<br/>создать targets и записать ID в attrs"]
-    Apply["apply(closeHistory(tr))<br/>EditorState.applyTransaction → updateState"]
-    Accepted{"Транзакция принята<br/>и targets остались?"}
-    Resolve["controller.resolveTargets"]
-    Done["Завершить обработку"]
-    DOM --> Observe
-    Observe -->|"return false"| Clipboard
-    Clipboard --> Dispatch
-    Dispatch --> Adapter
-    Adapter --> Gate
-    Gate -->|"нет"| Ordinary
-    Ordinary -->|"apply(tr)"| Done
-    Gate -->|"да"| Ranges
-    Ranges --> Targets
-    Targets --> Apply
-    Apply --> Accepted
-    Accepted -->|"да"| Resolve
-    Accepted -->|"нет"| Done
-```
+Удалённые, history- и resolved-транзакции исключены из этой процедуры.
+При применении результата всё равно проверяется соответствие исходному URL.
+Изменение подписи, размеров и других атрибутов само по себе не меняет URL-привязку.
 
-Условие вставки включает `enabled`, `docChanged`, контекст DOM paste или
-`uiEvent = paste`. Исключаются собственная замена (`resolvedPasteMeta`), remote
-транзакция и `plain`-контекст. Plain здесь включает Shift, позицию внутри кода
-или специальный случай бинарных файлов. Контекст DOM-события сбрасывается в microtask.
+### 6.4. Применение результата
 
-Существующий `Clipboard` обрабатывает YFM и текст своими parsers, отдельный
-случай iOS URI list, извлекаемый Markdown из HTML и загрузку файлов. Обычный HTML
-может передаваться штатной PM-вставке. Ресурсный адаптер не заменяет эту логику.
+`resourceReplacementTransaction(state, host)` обходит документ и
+строит изменения только для подходящих узлов:
 
-### 6.2. Дополнение транзакции
+1. Host относится к активному режиму.
+2. Узел распознан по настроенному описанию и не находится в коде.
+3. По его ID найден target с `replacement`.
+4. Совпадают kind и исходный URL target.
+5. Новый URL проходит проверку и кодирование парсером.
 
-1. Для подходящих локальных изменений создаётся копия транзакции с отдельными
-   `steps`, `docs`, `mapping`, `meta`. Это защита от предварительного вычисления
-   исходного объекта обёртками dispatch, например DevTools.
-2. Новые диапазоны каждого шага переводятся через оставшиеся mapping в
-   координаты итогового `tr.doc`.
-3. Обход пропускает code-узлы и узлы с code-mark.
-4. `resourceAttribute` распознаёт `image.src` и `FILE_TOKEN.href`.
-5. `ResourceCollection.add` собирает уникальные ресурсы; каждому вхождению
-   назначается target и атрибут `__pasteResourceId`.
-6. Транзакция применяется с границами истории до и после вставки.
-7. Проверяется, вошла ли она в принятые `applyTransaction` транзакции и какие ID
-   присутствуют в итоговом документе. Только оставшиеся targets идут в запрос.
+URL меняется через `setNodeAttribute`; остальные атрибуты, содержимое и выделение
+не заменяются целиком. Транзакция помечается `addToHistory: false` и
+`resolvedResourceMeta`.
 
-Фильтры ProseMirror могут отклонить вставку, а `appendTransaction` других плагинов
-может нормализовать документ. Поэтому запуск запроса находится после `apply`.
+`flush` вызывает команду `applyResolvedResources`, проверяет состояние view и
+возможность редактирования. После dispatch он проверяет, не осталась ли та же
+неприменённая замена: это позволяет обнаружить отклонение изменения.
+Тот же построитель транзакции используется в `appendTransaction` для применения
+сохранённых результатов, в частности после Redo.
 
-## 7. WYSIWYG: применение результата и история
+## 7. Markdown: отслеживание и применение
+
+### 7.1. Самостоятельное CM-расширение
+
+`codeMirrorResourceReplacement({host, parser, shouldTrack})` подключает:
+
+- `anchorsField` — текущие привязки к тексту.
+- Effects добавления и удаления anchors с отображением через изменения.
+- `invertedEffects` для восстановления привязок при Undo/Redo.
+- `transactionExtender` для вычисления ресурсов выбранной транзакции.
+- `ViewPlugin` для регистрации движка и его жизненного цикла.
+- `updateListener` для запуска запросов после принятого обновления.
+- Один history compartment, используемый тем же экземпляром `ResourceReplacementHistory`.
+
+Расширение не импортирует конкретный контроллер и не содержит DOM-policy для
+paste. `createCodemirror` использует обычный механизм расширений и dispatch.
+
+### 7.2. От транзакции к операции
+
+Extender игнорирует изменения без `docChanged`, собственные resolved-транзакции,
+помеченные remote-транзакции и Undo/Redo. Для остальных вызывает `shouldTrack`.
+
+Он разбирает вставленные фрагменты и новый документ, создаёт UUID и anchors,
+добавляет annotation `trackedResources` и `isolateHistory('full')`.
+На этой стадии targets локальны и callback приложения не запускается.
+
+`updateListener` после обновления view вызывает `process(transactions)`.
+Метод через `WeakSet` исключает уже обработанные транзакции, объединяет их targets
+и передаёт в `host.resolve`. Это не обязательное соответствие «одна произвольная
+транзакция — один запрос»: несколько транзакций одного обновления могут попасть
+в одну пачку. После изменений документа также применяется доступный кеш результатов.
+
+### 7.3. Поиск безопасного диапазона URL
+
+В Markdown нельзя заменять все совпадения строки URL: тот же текст может быть
+подписью, кодом, обычной ссылкой или URL другого ресурса. `prepareMarkupResources`
+сверяет исходные диапазоны с настроенным парсером документа.
 
 ```mermaid
 flowchart TD
-    Trigger["controller.flush<br/>или plugin.appendTransaction после docChanged"]
-    Active{"enabled и активен WYSIWYG?"}
-    Traverse["replacements(state): обход документа"]
-    Match{"Есть target по ID,<br/>replacement задан,<br/>URL ещё равен исходному?"}
-    Validate["validateLink + encodeResourceUrl"]
-    Attr["tr.setNodeAttribute(pos, src или href, newUrl)"]
-    Meta["addToHistory = false<br/>resolvedPasteMeta = true"]
-    Apply["Применить транзакцию"]
-    Skip["Пропустить узел / нет транзакции"]
-    Trigger --> Active
-    Active -->|"да"| Traverse
-    Active -->|"нет"| Skip
-    Traverse --> Match
-    Match -->|"да"| Validate
-    Match -->|"нет"| Skip
-    Validate --> Attr
-    Attr --> Meta
-    Meta --> Apply
+    Source["Исходный Markdown"] --> Parse["parser.parse(source)"]
+    Parse --> Resources["Ресурсы и упорядоченные вхождения PM-модели"]
+    Resources --> Candidates["Кандидаты URL в исходном тексте"]
+    Candidates --> Probe["Подставить уникальный marker и повторно разобрать"]
+    Probe --> Restore["В модели вернуть исходный URL"]
+    Restore --> Compare{"Остальная структура совпадает?"}
+    Compare -->|да| Span["Принять span с from, to и occurrences"]
+    Compare -->|нет| Skip["Отбросить кандидат"]
 ```
 
-`flush` также проверяет уничтожение view, редактируемость и отсутствие той же
-неприменённой замены после dispatch. Атрибут меняется отдельным шагом, поэтому
-остальные атрибуты, содержимое узла и выделение не заменяются целиком.
+Поиск учитывает исходный и декодированный URL, экранирование и HTML entities.
+Структурное сравнение игнорирует служебные генерируемые ID вкладок и чекбоксов,
+но сохраняет проверку текста, URL и других значимых атрибутов.
 
-Для обычной локальной правки `dispatch` сравнивает URL по resource ID в
-`tr.before` и `tr.doc`. Изменившемуся URL сбрасывается ID **в той же транзакции**.
-Undo такой правки может восстановить и исходный URL, и привязку.
-Эта процедура исключает remote, собственные замены и транзакции истории.
+Ресурс, для которого не найден надёжный span, может попасть в callback. Его
+ответ не должен переписывать похожий URL без привязки. Наличие ресурса в запросе
+поэтому не гарантирует наличие применимой замены в текущем документе.
 
-При Undo вставки узел исчезает, но target с результатом остаётся в контроллере.
-После Redo узел с ID возвращается; `appendTransaction` снова применяет кешированный
-URL. Повторного запроса приложения не требуется.
+CM использует общие PM-model helpers и настроенный Markdown-парсер, но не
+импортирует PM-расширение замены. В стандартном bundle `parser()` получает
+`this.wysiwygEditor.parser`, что может лениво создать визуальный движок.
 
-## 8. Markup: расширение CodeMirror
+### 7.4. Отображение anchors через изменения
 
-`CodeMirrorPaste` состоит из декларативной настройки состояния и методов,
-которые вызываются из `createCodemirror`.
+Обычный anchor хранит `id`, `from`, `to`. `mapAnchor` пересчитывает координаты
+через `ChangeDesc`. Ввод перед ресурсом сдвигает диапазон; изменение внутри
+отслеживаемого URL обычно снимает привязку.
 
-```mermaid
-flowchart TB
-    Adapter["CodeMirrorPaste"]
-    Ext["extension()"]
-    Field["anchorsField: StateField<br/>Anchor[]"]
-    Effects["addAnchors / removeAnchors<br/>StateEffect"]
-    Inverse["invertedEffects<br/>обратные эффекты истории"]
-    Extender["transactionExtender<br/>классификация вставки, anchors и annotations"]
-    Events["Prec.highest + DOM handlers<br/>shift / code / paste context"]
-    Compartment["history.compartment.of([])"]
-    Dispatch["dispatch(view, transactions, apply)"]
-    Attach["attach(view)<br/>register markup engine"]
-    Flush["flush(view)<br/>применить готовые URL"]
-    Adapter --> Ext
-    Ext --> Field
-    Ext --> Inverse
-    Ext --> Extender
-    Ext --> Events
-    Ext --> Compartment
-    Extender --> Effects
-    Effects --> Field
-    Inverse --> Effects
-    Adapter --> Dispatch
-    Adapter --> Attach
-    Attach --> Flush
-    Dispatch --> Flush
-```
+Для ссылочного изображения дополнительно хранится `labelTo`. Изменение его
+видимой подписи допускается, а изменения остального отслеживаемого синтаксиса
+снимают привязку. При изменении общего reference definition расширение также
+проверяет, сохранился ли исходный ресурс.
 
-| Элемент               | Данные и поведение                                                                                                     |
-| --------------------- | ---------------------------------------------------------------------------------------------------------------------- |
-| `Anchor`              | `id`, `from`, `to`, необязательный `labelTo` для ссылочного изображения                                                |
-| `mapAnchor`           | Пересчитывает позиции через изменения; при затрагивании URL снимает привязку; допускает правку подписи reference image |
-| `anchorsField`        | На каждой транзакции обновляет позиции и применяет add/remove effects                                                  |
-| `addAnchors`          | Добавляет привязки; имеет собственное правило mapping эффекта                                                          |
-| `removeAnchors`       | Удаляет привязки по ID                                                                                                 |
-| `pasted`              | Annotation с targets вставки; соединяет transaction extender и dispatch                                                |
-| `resolved`            | Annotation собственной автоматической замены                                                                           |
-| `invertedEffects`     | Описывает обратные изменения набора привязок для Undo/Redo                                                             |
-| `transactionExtender` | Обнаруживает вставку, создаёт targets, добавляет effects и `isolateHistory`                                            |
-| `attach`              | Регистрирует snapshot/restore/flush; возвращает функцию удаления регистрации                                           |
-| `dispatch`            | Вызывает границы внешней истории, применяет транзакции, запускает запрос и повторное применение кеша                   |
+### 7.5. Применение и ссылочные изображения
 
-`applying` защищает `flush` от повторного входа во время собственного dispatch.
-`destroyed` предотвращает применение после удаления регистрации.
+`flush` работает только для активного, не уничтоженного движка и защищён от
+повторного входа. Он выбирает anchors с готовыми результатами, заново разбирает
+актуальный текст и проверяет kind, путь и диапазон.
 
-## 9. Markup: распознавание и применение
-
-### 9.1. От события до запроса
-
-```mermaid
-sequenceDiagram
-    participant DOM as DOM paste
-    participant E as extension: events + transactionExtender
-    participant H as Обработчик clipboard в create.ts
-    participant R as prepareMarkupResources
-    participant D as CodeMirrorPaste.dispatch
-    participant V as CM EditorView
-    participant C as PasteController
-    DOM->>E: Запомнить shift / code
-    E-->>DOM: false — продолжить обработку
-    DOM->>H: Прочитать YFM / HTML / text
-    H->>E: Создать транзакцию изменения текста
-    E->>R: Разобрать новый документ и вставленные фрагменты
-    R-->>E: resources / spans / occurrences / references
-    E->>C: createTarget(resource)
-    E->>E: addAnchors + pasted(targets) + isolateHistory(full)
-    E->>D: Подготовленные транзакции
-    D->>D: Вызвать pasteHistoryBoundary callbacks
-    D->>V: apply: view.update(transactions)
-    D->>D: Повторно вызвать history boundary callbacks
-    D->>C: resolveTargets(resources, targets, validatePath)
-    D->>D: flush кешированных замен после docChanged
-```
-
-Extender исключает remote-транзакции, `resolved`, plain-контекст и операции,
-которые не являются вставкой. Отдельно проверяет изменения определений
-ссылочных изображений и снимает устаревшие привязки.
-
-### 9.2. Как находится исходный диапазон URL
-
-```mermaid
-flowchart TD
-    Source["Исходный Markdown"]
-    Parse["Настроенный parser.parse(source)"]
-    Collect["PM ResourceCollection + resourceOccurrences"]
-    Candidates["Найти текстовые варианты URL<br/>исходный, decodeURI, escapes, entities"]
-    Probe["Подставить уникальный marker URL<br/>и повторно разобрать Markdown"]
-    Restore["В пробном PM-документе<br/>вернуть исходный URL"]
-    Compare{"comparableFragment<br/>совпадает с исходным?"}
-    Span["Принять span<br/>from / to / key / occurrences"]
-    Reject["Отбросить совпадение"]
-    Ref["Lezer Image candidates<br/>referenceImages"]
-    Source --> Parse
-    Parse --> Collect
-    Collect --> Candidates
-    Candidates --> Probe
-    Probe --> Restore
-    Restore --> Compare
-    Compare -->|"да"| Span
-    Compare -->|"нет"| Reject
-    Source --> Ref
-    Ref -->|"проверка через тот же parser и сравнение PM"| Span
-```
-
-Сравнение исключает случайно генерируемые DOM ID вкладок и чекбоксов. Оно не
-исключает содержание, URL или остальные значимые атрибуты.
-
-Обычный текст, код и адрес обычной ссылки не должны проходить эту проверку как
-ресурс изображения/файла. Неподдерживаемый диапазон может быть сообщён приложению,
-но без надёжной привязки результат не перепишет произвольное совпадение URL.
-
-`prepareMarkupResources` также возвращает вспомогательный `replace(...)` с
-проверкой итоговой структуры. Основной `CodeMirrorPaste.flush` использует найденные
-spans; для reference image вызывает `reference.replace(...)`.
-
-### 9.3. Применение ответа
-
-`flush` выбирает anchors, для которых есть новый URL, затем заново проверяет их
-против актуального текста и parser. Обычный URL заменяется в своём диапазоне.
-
-Reference image переводится в inline image, например:
+Обычный URL заменяется в своём span. Ссылочное изображение имеет отдельный путь:
+его синтаксис определяется Lezer и проверяется настроенным парсером. Выбранное
+вхождение переводится в inline-форму:
 
 ```md
 ![report][attachment]
@@ -524,7 +620,7 @@ Reference image переводится в inline image, например:
 [attachment]: /old.png
 ```
 
-становится для выбранного вхождения:
+После замены:
 
 ```md
 ![report](/new.png)
@@ -532,284 +628,499 @@ Reference image переводится в inline image, например:
 [attachment]: /old.png
 ```
 
-Общее определение сохраняется. Другие использования `attachment` не получают
-замену автоматически. Подпись сохраняется отдельным диапазоном; title также
-сохраняется и экранируется.
+Общее определение остаётся прежним. Другие вхождения, включая добавленные во
+время запроса, автоматически не меняются. Label сохраняется отдельным диапазоном,
+title также сохраняется и экранируется.
 
-Перед dispatch проверяются readOnly/editable. Изменения сортируются, новые
-anchors вычисляются в координатах нового документа. Транзакция получает
-`resolved = true` и `addToHistory = false`, а история корректируется через
-`PasteCodeMirrorHistory.amend`. После dispatch проверяется ожидаемый документ.
+Перед dispatch проверяются readOnly/editable, изменения сортируются, вычисляются
+новые anchors. Транзакция получает `resolved: true`, `addToHistory: false` и
+коррекцию истории через `ResourceReplacementHistory.amend`. После dispatch
+проверяется совпадение фактического документа с ожидаемым.
 
-## 10. HTML и файловые ссылки
-
-```mermaid
-flowchart LR
-    HTML["clipboard text/html"]
-    DOM["Browser DOMParser"]
-    Converter["MarkdownConverter.processNode"]
-    Link["visitLink: HTMLAnchorElement"]
-    Callback["fileLink callback из EditorImpl"]
-    PM["PMDOMParser.fromSchema<br/>схема WysiwygEditor"]
-    Check{"Получен FILE_TOKEN?"}
-    File["serializer.serialize<br/>YFM file markup"]
-    Normal["Обычная Markdown-ссылка"]
-    Insert["Вставка Markdown<br/>дальше resource tracking"]
-    HTML --> DOM --> Converter --> Link
-    Link --> Callback --> PM --> Check
-    Check -->|"да"| File --> Insert
-    Check -->|"нет: undefined"| Normal --> Insert
-```
-
-`fileLink` передаётся конвертеру только при `pasteController.enabled`.
-Callback распознаёт тип по правилам PM-схемы; обычная ссылка не становится файлом
-только из-за расширения `.pdf` или похожего URL.
-
-Без сохранения файловой семантики HTML-вложение стало бы обычной ссылкой и не
-попало бы в обработку ресурсов. Приоритет `text/yfm` позволяет использовать
-готовую разметку без HTML-конвертации, если она есть в буфере.
-
-## 11. История CodeMirror
-
-Вставка сразу меняет документ, а URL приходит позже, возможно после нескольких
-других правок. `addToHistory = false` сам по себе не описывает, как связать позднюю
-замену с более ранним событием вставки. Для этого есть `PasteCodeMirrorHistory`.
+## 8. Полный жизненный цикл запроса
 
 ```mermaid
-flowchart TD
-    Paste["Вставка + addAnchors<br/>isolateHistory(full)"]
-    History["CM historyField<br/>done / undone"]
-    Invert["invertedEffects<br/>removeAnchors для отмены вставки"]
-    Edit["Последующие пользовательские правки"]
-    Patch["Поздняя замена URL"]
-    Amend["history.amend(transaction, owns)"]
-    Find["Найти событие вставки<br/>по removeAnchors с нужным ID"]
-    Mapping["Пересчитать более новые события<br/>и включить inverse patch в отмену вставки"]
-    Install["compartment.reconfigure<br/>historyField.init с исправленной историей"]
-    Paste --> History
-    Paste --> Invert --> History
-    Edit --> History
-    Patch --> Amend
-    History --> Amend
-    Amend --> Find --> Mapping --> Install
+sequenceDiagram
+    participant E as Расширение движка
+    participant H as Host
+    participant C as Контроллер
+    participant A as Приложение
+    participant Active as Активный движок на момент ответа
+    E->>H: resolve(targets, validatePath)
+    H->>C: createTarget для каждого ID
+    H->>H: Дедупликация kind + path
+    H->>C: activate(mode), resolveTargets(...)
+    C->>C: pending + AbortController + timeout
+    C-->>A: onChange(pending)
+    Note over C,A: Обработчик pending может сразу отменить операцию
+    C->>A: resolve(resources, operationId + signal)
+    A-->>C: Promise с replacements
+    C->>C: Операция всё ещё pending?
+    C->>C: validateResolution + validatePath для всех URL
+    C->>C: Сохранить replacement в targets операции
+    C->>Active: flush()
+    Active->>Active: Проверить живые привязки и обновить URL
+    C->>C: finish(succeeded)
+    C-->>A: onChange(succeeded)
 ```
 
-- `tagLast` добавляет effect в последнее событие с изменением документа. Это
-  используется при восстановлении привязок после смены режима.
-- `amend` идёт по истории от новых событий к старым, находит событие нужной
-  вставки и пересчитывает изменения и выделения.
-- Старые объекты истории не изменяются на месте: создаются копии с исходными
-  прототипами.
-- Реализация использует внутреннюю форму `HistoryState/HistoryEvent` из
-  `@codemirror/commands`. Проверка поддерживаемой формы есть в `amend`.
-- Без `historyField` методы коррекции возвращают пустой набор effects.
-- `pasteHistoryBoundary` — отдельный facet для внешних механизмов истории.
-  Он вызывает переданные функции до и после вставки; сам по себе не реализует
-  совместное редактирование или внешнюю историю.
+`start` не создаёт операцию, если контроллер уничтожен, callback отсутствует или
+ресурсов нет. После события `pending` он повторно проверяет наличие операции:
+приложение могло синхронно отменить её из `onChange`.
 
-Для этой схемы принципиально, чтобы установленный Compartment принадлежал
-экземпляру, вызывающему `amend/tagLast`; см. расхождение в §3.2.
+При ответе контроллер проверяет, что в `pending` всё ещё находится именно эта
+операция. Поздний ответ завершённой операции игнорируется до применения.
 
-## 12. Переключение режимов
+`validateResolution` проверяет структуру результата, непустые kind и newPath,
+строковый oldPath, наличие пары во входе и отсутствие противоречивых дубликатов.
+Одинаковые дубликаты допустимы. Затем каждый новый URL проходит предоставленную
+движком `validatePath`, даже если вставка уже отменена через Undo.
+
+Результаты кешируются только после проверки всего ответа. Если последующий
+`flush` бросает ошибку, `replacement` у targets этой операции сбрасывается и
+операция завершается с `failed`. Контроллер не реализует общий транзакционный
+откат уже применённых изменений документа или действий сервера.
+
+`succeeded` возможен и без изменения документа: ресурс удалён, URL отредактирован,
+вставка отменена, безопасная привязка отсутствует или ответ не содержит замен.
+Отсутствующий зарегистрированный движок также не предоставляет контроллеру
+подтверждения применения; результат остаётся в targets.
+
+## 9. Undo и Redo
+
+### 9.1. Зачем результат хранится после успеха
+
+Результат операции и её pending-состояние имеют разное время жизни.
+
+```text
+Вставка A → resolve вернул B → автоматическая замена A на B
+                                    │
+                                  Undo
+                                    │
+                          ресурс исчез из документа
+                                    │
+                                  Redo
+                                    │
+                       ресурс восстановлен с результатом B
+```
+
+Автоматическая замена не является отдельным пользовательским шагом истории.
+В PM исходное событие может восстановить узел с URL A и старым target ID.
+Сохранённая замена позволяет снова применить B без нового обращения к приложению.
+
+Другой порядок: вставка A → Undo → ответ A→B → Redo. В момент ответа живого узла
+нет, но результат сохраняется. При восстановлении узла он применяется по ID.
+Undo вставки сам по себе не отменяет запрос.
+
+### 9.2. История ProseMirror
+
+Начальная транзакция получает границу `closeHistory`, а назначение ID входит
+в исходное событие. Перед callback плагин закрывает историю снова, чтобы
+синхронные действия приложения и последующие правки не склеивались со вставкой.
+
+Замена URL проходит с `addToHistory: false`. При Redo плагин видит восстановленный
+ID и через `appendTransaction` применяет сохранённый результат.
+Снятие ID после ручного изменения URL, напротив, входит в событие пользователя.
+
+### 9.3. История CodeMirror
+
+Одного `addToHistory: false` недостаточно для связи поздней текстовой замены
+с более ранней вставкой, особенно после промежуточных правок.
+
+`invertedEffects` восстанавливает и удаляет anchors вместе с Undo/Redo.
+`ResourceReplacementHistory.amend` находит исходное событие по effects с ID,
+пересчитывает более новые события и включает обратное изменение URL в отмену
+исходной вставки. Изменения и выделения отображаются в новые координаты.
+
+`tagLast` добавляет effect в последнее событие с изменениями документа; это
+используется при восстановлении привязок после смены режима. История обновляется
+через compartment; объекты клонируются с сохранением прототипов, а не мутируются.
+
+Реализация зависит от внутренней формы `HistoryState`/`HistoryEvent` в
+`@codemirror/commands`. В `amend` есть проверка ожидаемой формы. Без `historyField`
+корректирующие методы возвращают пустой набор effects.
+
+### 9.4. Внешняя история и collaboration
+
+Описанные гарантии относятся к штатным историям PM и CM. Произвольный механизм
+истории совместного редактирования требует отдельной интеграции: он должен
+сохранять идентичность и связывать замену с исходным действием.
+
+Для классификации remote-изменений используются `remoteTransactionMeta` или
+`rebased` в PM и `Transaction.remote` в CM. Эти отметки не заменяют адаптер истории.
+`pasteHistoryBoundary` закрывает внешние группы до и после DOM paste, но не
+переписывает внешнюю историю. PM-замены помечены `resolvedResourceMeta`.
+
+## 10. Переключение режима
+
+`EditorImpl` переносит идентичность отдельно от сериализованного содержимого:
 
 ```mermaid
 sequenceDiagram
     participant B as EditorImpl
-    participant C as PasteController
-    participant Old as Старый адаптер
-    participant New as Новый движок и адаптер
+    participant C as Контроллер
+    participant Old as Старый движок
+    participant New as Новый движок
     B->>C: snapshot()
     C->>Old: snapshot()
     Old-->>B: Упорядоченные ResourceOccurrence[]
-    B->>B: currentMode = nextMode: перенос содержимого
-    B->>New: currentEditor.getValue(): обеспечить создание движка
-    B->>C: activate(nextMode, snapshot)
+    B->>B: Сменить режим и перенести содержимое
+    B->>New: Обеспечить создание нового движка
+    B->>C: activate(newMode, snapshot)
     C->>New: restore(snapshot)
-    New->>New: Проверить полный список kind + path
-    alt Список совпадает
-        New->>New: Восстановить ID узлов или anchors
-    else Список изменился
-        New->>New: Не переносить неоднозначные привязки
-    end
-    C->>New: flush() готовых результатов
-    B-->>B: rerender и change-editor-mode
+    New->>New: Проверить весь список kind + path и его порядок
+    C->>New: flush готовых результатов
 ```
 
-Snapshot включает и ресурсы без target ID, чтобы проверить полное соответствие
-порядка. PM восстанавливает ID через транзакцию без истории; CM пересоздаёт anchors
-и связывает их эффекты с историей.
+Snapshot содержит все распознанные ресурсы, включая не имеющие target ID.
+Новый движок сверяет длину, порядок, kind и path. Если преобразование изменило
+список, неоднозначные привязки не восстанавливаются.
 
-Контроллер не отменяет запросы при смене режима. Когда ответ приходит, он
-вызывает `flush` у **текущего** активного движка. Это перенос идентичности ресурсов,
-а не перенос всей истории редактирования между ProseMirror и CodeMirror.
+PM возвращает ID транзакцией без истории. CM пересоздаёт anchors и добавляет
+соответствующие effects в историю. Это перенос идентичности ресурсов, а не всей
+истории редактирования между движками.
 
-## 13. Отмена, ошибки и уничтожение
+Запрос при смене режима не отменяется. Его callback продолжает работу, а результат
+направляется в активный движок на момент применения, даже если вставка была
+в другом режиме.
+
+## 11. Завершение, отмена и очистка
+
+### 11.1. Состояния операции
 
 ```mermaid
 stateDiagram-v2
-    [*] --> Pending: start с callback и непустыми resources
-    Pending --> Succeeded: валидный ответ и успешный apply
-    Pending --> Failed: reject / timeout / invalid result / apply error
-    Pending --> Cancelled: cancelPaste или destroy
+    [*] --> Pending: начало операции
+    Pending --> Succeeded: валидный результат обработан
+    Pending --> Failed: ошибка callback, timeout, validation или apply
+    Pending --> Cancelled: явная отмена или destroy владельца
     Succeeded --> [*]
     Failed --> [*]
     Cancelled --> [*]
 ```
 
-Если callback отсутствует, ресурсов нет или контроллер уничтожен, `start`
-возвращает `false` без создания pending-операции.
+Таймаут завершается как **`failed`** с ошибкой `Resource replacement timed out`.
+Явная отмена и уничтожение редактора завершают pending-операции как **`cancelled`**.
 
 Порядок `finish`:
 
-1. Проверить, что это всё ещё та же pending-операция.
+1. Проверить, что операция ещё pending.
 2. Очистить таймер и удалить запись из `pending`.
-3. Вызвать `prepared.release()`; для `resolveTargets` сейчас это пустая функция.
-4. Для failed/cancelled вызвать `AbortController.abort()`.
-5. Уведомить внутренние подписки и затем `onPasteOperationChange`.
+3. Освободить ссылки на callbacks запроса и вызвать `prepared.release()`;
+   в пути `resolveTargets` это снимает защиту targets от удаления и планирует очистку.
+4. Для `failed` и `cancelled` вызвать abort сигнала; при успехе сигнал не прерывается.
+5. Вызвать `onChange` с конечным статусом.
 
-Повторное завершение и поздний ответ игнорируются. Ошибки наблюдателей передаются
-в `reportError`. Отмена не удаляет уже вставленное содержимое и не обещает
-отката действий сервера. Таймаут по умолчанию — 120 секунд.
+Повторное завершение ничего не делает. Ошибки `release` и `onChange` передаются
+в `reportError`. Отмена не удаляет вставку и не откатывает последующие правки.
 
-### Фактические точки уничтожения
+### 11.2. Два жизненных цикла
 
-```mermaid
-flowchart TD
-    B["EditorImpl.destroy"]
-    C["PasteController.destroy<br/>cancel pending, clear targets / engines / listeners"]
-    W["WysiwygEditor.destroy → PM view.destroy"]
-    WP["PM plugin view.destroy<br/>unregister + controller.destroy"]
-    M["CM view.destroy wrapper"]
-    MA["attach cleanup<br/>destroyed = true + unregister"]
-    B --> C
-    B --> W --> WP --> C
-    B --> M --> MA
-    M --> C
+**Завершение операции не равно удалению target и всех привязок.**
+
+| Исход                  | Pending и таймер      | Signal                      | Targets и сохранённый результат                   |
+| ---------------------- | --------------------- | --------------------------- | ------------------------------------------------- |
+| Успех                  | Удалены               | Не прерывается              | Результаты сохраняются, пока нужны документам или истории |
+| Ошибка                 | Удалены               | Прерывается                 | Targets без результата освобождаются |
+| Таймаут                | Удалены               | Прерывается                 | Targets освобождаются; поздний ответ игнорируется |
+| Явная отмена           | Удалены               | Прерывается                 | Targets освобождаются; поздний ответ игнорируется |
+| `controller.destroy()` | Все pending завершены | Pending-сигналы прерываются | Вся коллекция targets очищается                   |
+
+Контроллер планирует очистку в microtask после принятых обновлений движков и
+завершения операций. Это позволяет закончить вложенные dispatch и перенос привязок
+между режимами до проверки достижимости. Pending-targets защищены от удаления.
+
+Каждый движок сообщает ID из своего документа и обеих веток штатной истории.
+PM-адаптер читает обратные steps, включая ID в AttrStep и узлах slices;
+CM-адаптер — эффекты добавления/удаления anchors. Успешный результат удаляется,
+когда его больше нет ни в одном документе или истории. Сброс Redo и обрезка истории
+также приводят к очистке. После ошибки, отмены или отсутствия замены в частичном
+ответе target освобождается независимо от истории: кешированного результата нет.
+
+Движки удаляют собранные ID/anchors из живого документа без нового шага Undo.
+Старые ID могут остаться в истории и вернуться при Undo/Redo, но больше не ссылаются
+на запись контроллера и не запускают запрос повторно.
+
+При временном отключении движка сохраняется последний набор его ссылок до
+повторной регистрации режима или уничтожения контроллера. Неизвестный формат
+истории или отсутствие `retainedTargets` у стороннего движка отключает удаление
+успешных результатов. Для внешней истории нужен свой адаптер удержания ID;
+без штатного history field встроенный адаптер учитывает только документ.
+
+### 11.3. Владение и уничтожение
+
+`EditorImpl` владеет контроллером и сначала вызывает его `destroy`, затем
+уничтожает движки. Контроллер отменяет pending и очищает targets, engines и данные удержания ресурсов.
+
+Уничтожение PM PluginView или CM ViewPlugin само по себе только удаляет
+регистрацию соответствующего движка. Оно не отменяет общие запросы и не уничтожает
+контроллер: операция может завершиться для другого режима.
+
+При самостоятельном подключении расширения владелец host/controller отвечает
+за окончательную очистку. Если расширение удалено и установлено вновь, перенос
+привязок требует сохранённого владельцем snapshot; одной регистрации движка
+недостаточно для восстановления утраченного состояния.
+
+## 12. Кастомные ресурсы и новые источники изменений
+
+### 12.1. Когда достаточно NodeSpec.resource
+
+Для PM отдельная ветка плагина для каждого kind обычно не нужна. Достаточно, чтобы
+узел был зарегистрирован, имел строковый URL-атрибут и подходил под общее описание.
+Расширение само добавит ID и обернёт HTML/Markdown-сериализаторы узла, исключая
+служебный атрибут из передаваемой им копии. Кастомному узлу не нужна зависимость
+от tracking модуля замены.
+
+Для Markdown дополнительно нужны распознавание узла настроенным парсером и
+возможность безопасно найти исходный URL. Общий поиск spans может работать
+с кастомным синтаксисом без доработки. Но `NodeSpec.resource` не описывает грамматику,
+несколько URL одного узла или правила замены сложной общей ссылки.
+
+| Случай                                                              | Что требуется                                                               |
+| ------------------------------------------------------------------- | --------------------------------------------------------------------------- |
+| Уже поддерживаемый PM-узел с одним URL-атрибутом                    | Описание в `NodeSpec.resource`                                                      |
+| Совершенно новый тип узла                                           | Схема, парсер, отображение/сериализация, затем описание ресурса             |
+| Кастомный Markdown с безопасно определяемым URL                     | Поддержка парсером и проверка общего поиска spans                           |
+| Синтаксис без безопасного span или со специальной семантикой ссылок | Доработка поиска/применения CM                                              |
+| Несколько независимых URL в одном узле                              | Расширение текущего контракта: `NodeSpec.resource` описывает только один URL |
+| Ресурс представлен mark, а не node                                  | Текущий контракт узлов не покрывает этот случай                             |
+
+Специальная обработка reference images сейчас привязана к `image` и `src`;
+она не превращает произвольные кастомные reference-ресурсы в поддерживаемые автоматически.
+
+### 12.2. Drop и новые источники
+
+Drop подключён через политики обоих движков. При совпадении ID и
+`allowSameOrigin: false` новая операция не создаётся. PM сохраняет ID узлов
+при внутреннем перемещении. В CM нативный `move.drop` удаляет и вставляет текст;
+для точного переноса без изменения текста существующие anchors переносятся
+в новый диапазон после проверки ресурсов в итоговом документе. Обратные effects
+восстанавливают их позиции при Undo/Redo. Если перенос нельзя однозначно
+сопоставить, привязки не переносятся.
+
+Для нового источника интеграция расширяет `shouldTrack` и при необходимости
+DOM-контекст и внешние границы истории. Общий контроллер продолжает принимать
+targets и не получает зависимость от `DragEvent`.
+
+В самостоятельной интеграции можно уже сейчас передать свой предикат, например
+выбирающий PM-транзакции по `import-resource` metadata. Важно, чтобы сам источник
+создавал корректное изменение, а предикат оставался чистым. Ресурсное расширение
+не выполняет импорт вместо источника транзакции.
+
+## 13. Clipboard, HTML и загрузка файлов
+
+### 13.1. Выбор формата вставки
+
+Штатные clipboard handlers выбирают и разбирают HTML, YFM или текст, после чего
+вставляют содержимое обычной транзакцией. Ресурсные расширения работают с принятым
+изменением; альтернативные представления одного clipboard не должны создавать
+отдельные операции resolver.
+
+Замена ресурсов не расширяет правила HTML-конвертации. Если в Markdown-режим
+приходит только HTML с файловой ссылкой `<a class="yfm-file">`, обычный конвертер
+создаёт Markdown-ссылку. Стандартные описания ресурсов её не выбирают, поэтому
+`resolve` для такого вложения не вызывается. В WYSIWYG файловый HTML распознаётся
+PM-схемой. Обычный URL с окончанием `.pdf` сам по себе не означает файловый ресурс.
+
+При штатном копировании между режимами файл сохраняется через уже существующие
+форматы буфера:
+
+| Направление         | Представление файла                                            |
+| ------------------- | -------------------------------------------------------------- |
+| WYSIWYG → WYSIWYG   | `text/yfm` с файловой разметкой                                |
+| WYSIWYG → Markdown  | `text/yfm`, который имеет приоритет над HTML-конвертацией      |
+| Markdown → WYSIWYG  | `text/plain` с полной файловой разметкой, разбираемой парсером |
+| Markdown → Markdown | `text/plain` с исходной файловой разметкой                     |
+
+Эти пути не требуют отдельной конвертации файловых HTML-ссылок. Если промежуточное
+приложение или браузер потерял `text/yfm`, остаётся поведение доступного формата;
+копирование из preview также не эквивалентно копированию из WYSIWYG-редактора.
+
+### 13.2. URL-ресурсы и бинарные файлы
+
+| Свойство         | Замена ресурсов                       | Загрузка бинарных файлов                   |
+| ---------------- | ------------------------------------- | ------------------------------------------ |
+| Вход             | URL узлов принятого документа         | Clipboard/drag `File`                      |
+| Callback         | `resourceReplacement.resolve`         | `handlers.uploadFile`                      |
+| Пока идёт запрос | Уже вставленный редактируемый контент | В CM — upload widget и placeholder         |
+| Отслеживание     | PM ID или CM anchors                  | В CM FilesUploadPlugin — decorations       |
+| Отмена           | AbortSignal, статус, таймаут          | Собственный presenter и его состояние      |
+| Смена режима     | Общий контроллер и snapshot/restore   | В CM FilesUploadPlugin такого переноса нет |
+
+В CM `FilesUploadPlugin` создаёт presenter и widget, вызывает upload handler и
+позже заменяет placeholder готовой разметкой. Уничтожение widget вызывает
+`presenter.cancel`; контракт `uploadFile(file)` не предоставляет тот же AbortSignal.
+
+В WYSIWYG существуют отдельные `Clipboard.pasteFileHandler` и `FilePaste`.
+Последний также может вставлять имена файлов как fallback. Drop бинарных файлов
+обрабатывается этими механизмами отдельно от замены URL ресурсов.
+
+## 14. Границы, ограничения и дальнейшее развитие
+
+Это описание текущих свойств и возможных следующих шагов, а не список уже
+реализованных исправлений.
+
+| Область           | Текущее положение                                                   | Следствие или направление развития                                               |
+| ----------------- | ------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
+| Общий контроллер  | Не зависит от PM/CM/React                                           | Новые движки могут реализовать host/engine-контракты                             |
+| CM и модель PM    | CM использует общие PM-model helpers и parser визуального редактора | CM-слой не полностью независим от PM-модели; parser может создать WYSIWYG лениво |
+| Drop              | Только значение в типе                                              | Требует политики источника и проверки истории в обоих движках                    |
+| Кастомные ресурсы | Один URL-атрибут на nodeType                                        | Сложные или составные ресурсы требуют расширения модели                          |
+| Очистка targets   | По ссылкам документов, истории обоих режимов и pending-операций     | Внешняя история требует собственного адаптера удержания ID                     |
+| История CM        | Используется внутренняя форма history state                         | Обновление CM требует проверки amendment и промежуточных правок                  |
+| Внешняя история   | Нет универсального адаптера                                         | Collaboration-интеграция отвечает за свои Undo/Redo                              |
+| Смена режима      | Сопоставление полного списка kind/path по порядку                   | Изменяющее список преобразование может потерять привязки                         |
+| Сериализация      | Служебные ID не являются постоянными данными документа              | После перезагрузки нет журнала операций или кеша результатов                     |
+| Применение        | Зависит от живой проверенной привязки                               | Успешный запрос может не изменить документ                                       |
+| Ошибка применения | Кеш операции сбрасывается                                           | Нет общего отката уже выполненных транзакций и серверных действий                |
+| Поиск CM spans    | Повторный разбор кандидатов и сравнение структуры                   | Для крупных вставок с множеством URL полезно измерять стоимость парсинга         |
+
+Pending не блокирует редактирование, toolbar, Undo/Redo, смену режима, preview,
+submit или публичные операции редактора. Приложение само определяет, нужно ли
+ждать завершения перед сохранением, навигацией или публикацией.
+
+## 15. Карта файлов
+
+Вся реализация функциональности находится в `src/modules/resource-replacement/`.
+Внутри сохранено разделение зависимостей: контроллер не импортирует движки,
+PM и CM используют host, а политики выбора транзакций расположены отдельно.
+
+```text
+modules/resource-replacement/
+  README.md
+  index.ts
+  types.ts
+  tracking.ts
+  controller.ts
+  controller.test.ts
+  collection.test.ts
+  host.ts
+  create-host.ts
+  create-host.test.ts
+  prosemirror/
+    index.ts
+    extension.ts
+    plugin.ts
+    commands.ts
+    options.ts
+    key.ts
+    document-utils.ts
+    history.ts
+  codemirror/
+    index.ts
+    extension.ts
+    options.ts
+    resources.ts
+    history.ts
+    history-boundary.ts
+  integration/
+    index.ts
+    prosemirror-policy.ts
+    codemirror-policy.ts
+  tests/
+    integration.test.ts
 ```
 
-Хотя владельцем контроллера является `EditorImpl`, текущие destroy-hooks движков
-тоже вызывают `controller.destroy()`. Поэтому отдельное уничтожение одного
-движка не изолировано: оно завершает общие операции. Обычное переключение режима
-сохраняет экземпляры движков и не использует этот путь уничтожения.
+### Публичные точки входа модуля
 
-## 14. Бинарные файлы и FilesUploadPlugin
+| Точка входа                                | Контракт                                                                         |
+| ------------------------------------------ | -------------------------------------------------------------------------------- |
+| `modules/resource-replacement`             | Контроллер, создание host, типы приложения и контракты target/engine   |
+| `modules/resource-replacement/prosemirror` | Расширение, options и публичные metadata |
+| `modules/resource-replacement/codemirror`  | CM-расширение, options и facet внешних границ истории                            |
+| `modules/resource-replacement/integration` | Политики выбора транзакций обоих движков                                         |
 
-Это соседняя функциональность с другим входом и жизненным циклом.
+Внешний для модуля production-код использует эти точки входа. Общий `index.ts`
+не реэкспортирует PM, CM и integration: зависимость от контроллера не должна
+подключать реализации движков. Это API модулей внутри репозитория; набор экспортов
+корня npm-пакета определяется отдельно. `remoteTransactionMeta`,
+`resolvedResourceMeta` и `pasteHistoryBoundary` из корня пакета не экспортируются.
 
-```mermaid
-sequenceDiagram
-    participant U as Paste или Drop с File
-    participant P as FilesUploadPlugin
-    participant S as CM state / decorations
-    participant R as FileUploadPresenter
-    participant W as FileUploadWidget
-    participant App as handlers.uploadFile
-    U->>P: Clipboard/FileList
-    P->>S: Пробелы-заглушки + AddUploadWidgetEffect
-    S->>P: update(transactions)
-    P->>R: Создать presenter для File
-    R->>W: Показать uploading
-    R->>App: uploadFile(file)
-    App-->>R: URL, name, type
-    R->>W: Показать success
-    R->>S: RemoveUploadWidgetEffect с готовым Markdown
-    S->>P: Найти decoration по ID и убрать её
-    P->>S: Отложенный dispatch вставки Markdown
-```
+Внутри модуля допустимы прямые импорты реализаций. Служебный ID, plugin key,
+внутреннее состояние, helpers и устройство истории не входят в публичный API.
+Тесты могут обращаться к ним для проверки состояния. Интеграционные тесты
+создают контроллеры и расширения через публичные точки входа.
 
-| Свойство                | FilesUploadPlugin                                    | Paste resources                                          |
-| ----------------------- | ---------------------------------------------------- | -------------------------------------------------------- |
-| Вход                    | Бинарные `File`                                      | URL ресурсов в документе                                 |
-| Пока выполняется запрос | Виджет и пробел-заглушка                             | Уже вставленный редактируемый контент                    |
-| Позиция                 | DecorationSet с mapping                              | PM ID или CM StateField с anchors                        |
-| Настройки               | `FileUploadHandlerFacet`                             | Контроллер и parser, переданные при создании             |
-| Отмена                  | Presenter выставляет canceled и игнорирует результат | AbortSignal, статус, таймаут и защита от позднего ответа |
-| История                 | Обычные транзакции плагина                           | Дополнительное отслеживание и коррекция истории          |
-| Смена режима            | В этом плагине нет переноса операции между движками  | Общий controller + snapshot/restore                      |
+`codeMirrorResourceReplacement` и `CodeMirrorResourceReplacementOptions` доступны
+через внутреннюю точку входа `modules/resource-replacement/codemirror`, но не
+экспортируются из корня библиотеки или через `markup/codemirror/index.ts`.
+Пользователь библиотеки настраивает замену через `useMarkdownEditor`.
 
-`FileUploadWidget` использует `ReactRendererFacet` для отрисовки статуса.
-При уничтожении widget вызывается `presenter.cancel()`. Это логическая отмена;
-контракт `uploadFile(file)` не передаёт AbortSignal.
+Снаружи остаются сборка и lifecycle в `EditorImpl`, публичные типы/реэкспорты,
+стандартные paste metadata в clipboard handlers.
+`Editor.test.ts` проверяет подключение через bundle. Браузерные тесты и demo
+остаются в общем тестовом окружении demo; тесты собственно модуля находятся рядом
+с его реализацией.
 
-В WYSIWYG существуют `Clipboard.pasteFileHandler` и поведение `FilePaste`.
-Последнее вставляет имена файлов как fallback для paste/drop. Эти механизмы
-не являются `ProseMirrorPaste` и не должны смешиваться с разрешением URL.
+| Файл                                                                                                                                                    | Назначение                                                                |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| [bundle/useMarkdownEditor.ts](../packages/editor/src/bundle/useMarkdownEditor.ts)                                                                       | Хук и жизненный цикл экземпляра                                           |
+| [bundle/Editor.ts](../packages/editor/src/bundle/Editor.ts)                                                                                             | Создание контроллера, подключение движков, смена режима, публичная отмена |
+| [bundle/types.ts](../packages/editor/src/bundle/types.ts)                                                                                               | `resourceReplacement` в опциях редактора                                  |
+| [bundle/editor-public-types.ts](../packages/editor/src/bundle/editor-public-types.ts)                                                                   | Методы управления операциями в публичном интерфейсе                       |
+| [modules/resource-replacement/types.ts](../packages/editor/src/modules/resource-replacement/types.ts)                                                   | Описания ресурсов, callback, результат и события                          |
+| [modules/resource-replacement/tracking.ts](../packages/editor/src/modules/resource-replacement/tracking.ts)                                             | Target, occurrence, engine, ключ ресурса и имя ID-атрибута                |
+| [modules/resource-replacement/host.ts](../packages/editor/src/modules/resource-replacement/host.ts)                                                     | Узкий интерфейс сервисов для расширений                                   |
+| [modules/resource-replacement/create-host.ts](../packages/editor/src/modules/resource-replacement/create-host.ts)                                       | Привязка host к режиму, регистрация targets и дедупликация                |
+| [modules/resource-replacement/controller.ts](../packages/editor/src/modules/resource-replacement/controller.ts)                                         | Операции, проверка ответов, отмена, таймеры, хранение результатов         |
+| [modules/resource-replacement/integration/prosemirror-policy.ts](../packages/editor/src/modules/resource-replacement/integration/prosemirror-policy.ts) | PM paste/Shift policy и `shouldTrack`                                     |
+| [modules/resource-replacement/integration/codemirror-policy.ts](../packages/editor/src/modules/resource-replacement/integration/codemirror-policy.ts)   | CM DOM-контекст, `shouldTrack`, внешние границы истории                   |
+| [prosemirror/extension.ts](../packages/editor/src/modules/resource-replacement/prosemirror/extension.ts)                                                | ID-атрибут, обёртки сериализаторов и регистрация PM-плагина               |
+| [prosemirror/plugin.ts](../packages/editor/src/modules/resource-replacement/prosemirror/plugin.ts)                                                      | PM state, ranges, ID, принятие пачки, snapshot/restore                    |
+| [prosemirror/commands.ts](../packages/editor/src/modules/resource-replacement/prosemirror/commands.ts)                                                  | Построение и применение PM-транзакции замены                              |
+| [prosemirror/key.ts](../packages/editor/src/modules/resource-replacement/prosemirror/key.ts)                                                            | Ключ плагина, состояние и метаданные                                      |
+| [modules/resource-replacement/prosemirror/document-utils.ts](../packages/editor/src/modules/resource-replacement/prosemirror/document-utils.ts)         | Общий обход PM-модели, сравнение, проверка и кодирование URL              |
+| [codemirror/extension.ts](../packages/editor/src/modules/resource-replacement/codemirror/extension.ts)                                                  | CM anchors, extender, runtime, snapshot/restore, flush                    |
+| [codemirror/resources.ts](../packages/editor/src/modules/resource-replacement/codemirror/resources.ts)                                                  | Поиск Markdown spans и reference images                                   |
+| [codemirror/history.ts](../packages/editor/src/modules/resource-replacement/codemirror/history.ts)                                                      | Коррекция CM history                                                      |
+| [codemirror/history-boundary.ts](../packages/editor/src/modules/resource-replacement/codemirror/history-boundary.ts)                                    | Facet внешних границ истории                                              |
+| [html-to-markdown/converters.ts](../packages/editor/src/markup/codemirror/html-to-markdown/converters.ts)                                               | Штатная конвертация HTML в Markdown                                       |
+| [files-upload-plugin/plugin.ts](../packages/editor/src/markup/codemirror/files-upload-plugin/plugin.ts)                                                 | Отдельный путь загрузки бинарных файлов                                   |
 
-## 15. Границы и особенности текущего подключения
+## 16. Сценарии проверки
 
-```mermaid
-flowchart LR
-    Common["modules/paste<br/>контроллер + типы"]
-    PM["Clipboard/resources<br/>PM adapter и document helpers"]
-    CM["markup/paste-resources<br/>CM adapter и source helpers"]
-    Parser["WysiwygEditor.parser"]
-    Schema["WysiwygEditor schema + serializer"]
-    Converter["MarkdownConverter.fileLink"]
-    PM -->|"использует контракт"| Common
-    CM -->|"использует контракт"| Common
-    CM -->|"PM model helpers"| PM
-    CM -->|"callback parser()"| Parser
-    Converter -->|"callback из bundle"| Schema
-```
+| Сценарий                                              | Ожидаемая архитектурная гарантия                                               |
+| ----------------------------------------------------- | ------------------------------------------------------------------------------ |
+| Два одинаковых ресурса в одной вставке                | Дедупликация callback, сохранение отдельных привязок                           |
+| Две вставки одного URL завершились в обратном порядке | Независимые операции и targets                                                 |
+| Такой URL уже был в документе                         | Старое вхождение не получает target новой вставки                              |
+| Пользователь ввёл текст перед ресурсом                | Привязка следует за изменениями                                                |
+| Пользователь поменял URL                              | Старый ответ не перезаписывает ручное изменение                                |
+| Пользователь поменял подпись или размеры              | Сохраняются изменения, не разрушающие URL-привязку                             |
+| Ресурс удалён                                         | Ответ не создаёт его заново                                                    |
+| Undo до ответа, затем Redo                            | Результат хранится и применяется без нового callback                           |
+| Поздний ответ после нескольких правок                 | Вставка и последующие правки остаются корректно отменяемыми                    |
+| Смена режима во время запроса                         | Результат применяется через текущий движок и перенесённые ID                   |
+| Преобразование изменило список ресурсов               | Неоднозначные привязки не восстанавливаются                                    |
+| Неверная пара kind/oldPath или недопустимый URL       | Ответ отклоняется до кеширования замен                                         |
+| Частичный или пустой ответ                            | Неуказанные URL сохраняются, операция может завершиться успешно                |
+| Отмена одной операции                                 | Другие запросы продолжаются                                                    |
+| Таймаут                                               | `failed`, abort и игнорирование позднего ответа                                |
+| Уничтожен только один движок                          | Контроллер и общие операции сохраняются                                        |
+| Уничтожен EditorImpl                                  | Pending отменены, общее состояние очищено                                      |
+| ReadOnly или отклонение применимой транзакции         | Ошибка применения обнаруживается                                               |
+| Программная/отклонённая транзакция                    | Предварительное вычисление состояния не запускает callback                     |
+| Ссылочное изображение с общей definition              | Меняется выбранное вхождение, definition и остальные использования сохраняются |
+| Помеченное remote-изменение                           | Не запускает новый resolver; существующие привязки учитывают изменения         |
 
-1. **Контроллер не зависит от движков.** Его зависимости — локальные типы,
-   tracking и генерация UUID.
-2. **Адаптеры не полностью независимы по импорту.** CM использует PM-функции
-   проверки структуры. PM resource helpers не импортируют CodeMirror.
-3. **Parser привязан к визуальному редактору.** Callback
-   `() => this.wysiwygEditor.parser` может лениво создать весь WYSIWYG-движок.
-   Аналогично `pasteFileLink` использует его schema и serializer.
-4. **PM-ядро знает о paste.** `core/Editor.ts` создаёт адаптер и оборачивает
-   dispatch; это не только обычное `builder.addPlugin` внутри `Clipboard`.
-5. **Схемы изображения и файла знают о tracking.** В них объявлен атрибут ID,
-   который исключается из выходной разметки.
-6. **Включение асимметрично.** CM проверяет `enabled`, PM пока проверяет только
-   наличие контроллера. HTML file conversion также зависит от `enabled`.
-7. **В текущем CM-подключении два экземпляра.** Это зафиксировано в §3.2;
-   диаграммы алгоритмов не скрывают эту проблему сборки.
-8. **Destroy движка завершает общий controller.** Это ограничивает независимый
-   жизненный цикл движков; см. §13.
-9. **Метаданные не заменяют интеграцию с collaboration.** PM учитывает
-   `remotePasteTransactionMeta`/`rebased`, CM — `Transaction.remote` при
-   классификации вставки. Внешний код должен корректно маркировать свои операции.
-10. **ID и результаты не сериализуются как постоянное состояние.** Они живут с
-    экземпляром редактора; для произвольной внешней замены всего документа нет
-    универсального восстановления привязок.
+Реализации проверок и примеры сценариев находятся в:
 
-Это наблюдения по текущему коду, а не список уже выполненных исправлений.
-
-## 16. Сценарии и тесты
-
-| Сценарий                                                    | Механизм                                                               |
-| ----------------------------------------------------------- | ---------------------------------------------------------------------- |
-| Две вставки одного URL завершились в обратном порядке       | Отдельные операции и targets; ответ ограничен ресурсами своей операции |
-| Пользователь ввёл текст перед ресурсом                      | PM ID остаётся на узле; CM пересчитывает диапазон                      |
-| Пользователь поменял URL                                    | PM снимает ID; CM снимает или перепроверяет anchor                     |
-| Пользователь поменял подпись                                | URL остаётся связанным; reference image допускает изменения label      |
-| Ресурс удалён или вставка отменена                          | Нет живого узла/anchor; callback не вставляет его заново               |
-| Ответ пришёл после Undo                                     | Результат кешируется в target для последующего Redo                    |
-| В документе уже был такой URL                               | Старое вхождение не получает target текущей вставки                    |
-| Смена режима во время запроса                               | Сопоставление полного списка ресурсов и перенос ID                     |
-| При смене режима изменился список ресурсов                  | Неоднозначные привязки не восстанавливаются                            |
-| Callback вернул неверный URL                                | Проверка ответа и parser validation до сохранения всех замен           |
-| Callback вернул только часть ресурсов                       | Остальные URL сохраняются                                              |
-| Пользователь отменил одну из операций                       | Отменяется только её signal; остальные операции продолжаются           |
-| Поздний ответ после отмены                                  | Проверка актуальности pending отклоняет результат                      |
-| Reference definition используется несколькими изображениями | Замена выбранного вхождения в inline-форме; definition сохраняется     |
-| Редактор стал readOnly перед ответом                        | Адаптер отклоняет требуемое изменение документа                        |
-
-Источники сценариев:
-
-- [controller.test.ts](../packages/editor/src/modules/paste/controller.test.ts) —
-  жизненный цикл, отмена, таймауты, валидация и параллельные операции.
-- [integration.test.ts](../packages/editor/tests/paste/integration.test.ts) —
-  оба движка, форматы clipboard, история, remote mappings, reference images,
-  ручные изменения и отказ применения.
+- [controller.test.ts](../packages/editor/src/modules/resource-replacement/controller.test.ts) —
+  жизненный цикл, статусы, отмена, таймауты, валидация и конкурентные операции.
+- [collection.test.ts](../packages/editor/src/modules/resource-replacement/collection.test.ts) —
+  удержание pending, очистка после завершения, ссылки неактивного режима и неизвестная история.
+- [create-host.test.ts](../packages/editor/src/modules/resource-replacement/create-host.test.ts) —
+  контракт host и связь с контроллером.
+- [Editor.test.ts](../packages/editor/src/bundle/Editor.test.ts) —
+  подключение через bundle и поведение без resolver.
+- [integration.test.ts](../packages/editor/src/modules/resource-replacement/tests/integration.test.ts) —
+  PM/CM, clipboard, история, смена режима, ручные и remote-изменения.
 - [PasteResources.visual.test.tsx](../demo/tests/visual-tests/PasteResources.visual.test.tsx) —
   браузерные сценарии с React-оболочкой.
 - [PasteResources.helpers.tsx](../demo/tests/visual-tests/PasteResources.helpers.tsx) —
-  управляемый callback, кнопки разрешения/отмены и наблюдение событий.
+  управляемый resolver и наблюдение операций.
 
-Наличие сценария в тестах не означает, что текущая изменяемая рабочая копия
-проверена им. При создании этой документации runtime-тесты редактора не запускались;
-отдельно проверяются ссылки и синтаксис Mermaid-диаграмм.
+Перечень сценариев описывает ожидаемое поведение и точки проверки; он не является
+отчётом о запуске тестов при обновлении документа. Тесты проекта запускаются
+в контейнере, с предварительным `podman machine start`, согласно
+[инструкции по тестированию](how-to-add-visual-test.md) и `AGENTS.md`.

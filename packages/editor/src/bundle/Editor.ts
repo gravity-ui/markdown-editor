@@ -1,8 +1,6 @@
 import type {ReactNode} from 'react';
 
 import {EditorView as CMEditorView} from '@codemirror/view';
-import {FILE_TOKEN} from '@diplodoc/file-extension';
-import {DOMParser as PMDOMParser} from 'prosemirror-model';
 import {TextSelection} from 'prosemirror-state';
 import type {EditorView as PMEditorView} from 'prosemirror-view';
 
@@ -23,8 +21,19 @@ import {type Logger2, globalLogger} from '../logger';
 import {createCodemirror} from '../markup';
 import {getAutocompleteConfig} from '../markup/codemirror/autocomplete';
 import {type CodeEditor, Editor as MarkupEditor} from '../markup/editor';
-import {PasteController} from '../modules/paste/controller';
-import type {PasteOperationControl} from '../modules/paste/types';
+import {
+    type ResourceReplacementControl,
+    ResourceReplacementController,
+    type ResourceSpecOverrides,
+    type ResourceTrigger,
+    createResourceReplacementHost,
+} from '../modules/resource-replacement';
+import {
+    createCodeMirrorClipboardSource,
+    createCodeMirrorResourceIntegration,
+    createProseMirrorClipboardSource,
+    createProseMirrorResourceIntegration,
+} from '../modules/resource-replacement/integration';
 import {type Emitter, type FileUploadHandler, type Receiver, SafeEventEmitter} from '../utils';
 import type {DirectiveSyntaxContext} from '../utils/directive';
 
@@ -57,7 +66,7 @@ export type Editor = MarkdownEditorInstance;
 /** @internal */
 export interface EditorInt
     extends
-        PasteOperationControl,
+        ResourceReplacementControl,
         CommonEditor,
         Emitter<EventMapInt>,
         Receiver<EventMapInt>,
@@ -108,7 +117,8 @@ type SetEditorModeOptions = Pick<ChangeEditorModeOptions, 'emit'>;
 
 export type EditorOptions = Pick<
     MarkdownEditorOptions,
-    | 'paste'
+    | 'resourceReplacement'
+    | 'id'
     | 'md'
     | 'initial'
     | 'handlers'
@@ -126,7 +136,12 @@ export type EditorOptions = Pick<
 
 /** @internal */
 export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorInt {
-    #paste: PasteController;
+    readonly #editorInstanceId?: string;
+    readonly #resourceSpecOverrides?: ResourceSpecOverrides;
+    #resourceReplacement?: {
+        controller: ResourceReplacementController;
+        triggers: readonly ResourceTrigger[];
+    };
     #logger: Logger2.ILogger;
     #markup: MarkupString;
     #editorMode: EditorMode;
@@ -258,11 +273,37 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
             const mdPreset: NonNullable<WysiwygEditorOptions['mdPreset']> =
                 this.#preset === 'zero' || this.#preset === 'commonmark' ? this.#preset : 'default';
             this.#wysiwygEditor = new WysiwygEditor({
-                pasteController: this.#paste,
                 mdPreset,
                 logger: this.logger.nested({mode: 'wysiwyg'}),
                 initialContent: this.#markup,
-                extensions: this.#extensions,
+                extensions: (builder) => {
+                    if (this.#extensions) builder.use(this.#extensions);
+                    for (const nodeType of Object.keys(this.#resourceSpecOverrides ?? {})) {
+                        if (!builder.hasNodeSpec(nodeType))
+                            throw new Error(`Unknown resource node type: ${nodeType}`);
+                    }
+                    for (const nodeType of builder.nodeSpecNames()) {
+                        const resource = this.#resourceSpecOverrides?.[nodeType];
+                        builder.overrideNodeSpec(nodeType, (spec) => ({
+                            ...spec,
+                            resource: resource || undefined,
+                        }));
+                    }
+                    if (this.#editorInstanceId)
+                        builder.use(createProseMirrorClipboardSource(this.#editorInstanceId));
+                    if (this.#resourceReplacement?.triggers.length) {
+                        builder.use(
+                            createProseMirrorResourceIntegration({
+                                host: createResourceReplacementHost(
+                                    this.#resourceReplacement.controller,
+                                    'wysiwyg',
+                                ),
+                                triggers: this.#resourceReplacement.triggers,
+                                editorInstanceId: this.#editorInstanceId,
+                            }),
+                        );
+                    }
+                },
                 pmTransformers: this.#pmTransformers,
                 modifiers: this.#modifiers,
                 allowHTML: this.#mdOptions.html,
@@ -280,19 +321,6 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
         if (!this.#markupEditor) {
             this.#markupEditor = new MarkupEditor(
                 createCodemirror({
-                    pasteController: this.#paste,
-                    pasteParser: () => this.wysiwygEditor.parser,
-                    pasteFileLink: (link) => {
-                        const root = document.createElement('div');
-                        root.append(link.cloneNode(true));
-                        const editor = this.wysiwygEditor;
-                        const parsed = PMDOMParser.fromSchema(editor.view.state.schema).parse(root);
-                        let file = false;
-                        parsed.descendants((node) => {
-                            if (node.type.name === FILE_TOKEN) file = true;
-                        });
-                        return file ? editor.serializer.serialize(parsed).trimEnd() : undefined;
-                    },
                     doc: this.#markup,
                     logger: this.logger.nested({mode: 'markup'}),
                     placeholder: this.#markupConfig.placeholder ?? i18n('markup_placeholder'),
@@ -307,7 +335,23 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
                     needImageDimensions: this.needToSetDimensionsForUploadedImages,
                     parseHtmlOnPaste: this.#markupConfig.parseHtmlOnPaste,
                     enableNewImageSizeCalculation: this.enableNewImageSizeCalculation,
-                    extensions: this.#markupConfig.extensions,
+                    extensions: [
+                        ...(this.#markupConfig.extensions ?? []),
+                        ...(this.#editorInstanceId
+                            ? [createCodeMirrorClipboardSource(this.#editorInstanceId)]
+                            : []),
+                        ...(this.#resourceReplacement?.triggers.length
+                            ? createCodeMirrorResourceIntegration({
+                                  host: createResourceReplacementHost(
+                                      this.#resourceReplacement.controller,
+                                      'markup',
+                                  ),
+                                  parser: () => this.wysiwygEditor.parser,
+                                  triggers: this.#resourceReplacement.triggers,
+                                  editorInstanceId: this.#editorInstanceId,
+                              })
+                            : []),
+                    ],
                     disabledExtensions: this.#markupConfig.disabledExtensions,
                     keymaps: this.#markupConfig.keymaps,
                     preserveEmptyRows: this.#preserveEmptyRows,
@@ -354,12 +398,12 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
     constructor(opts: EditorOptions) {
         const {logger} = opts;
 
-        super({
-            onError: (error) => {
-                logger.error(error);
-                globalLogger.error(error);
-            },
-        });
+        const onError = (error: unknown) => {
+            logger.error(error);
+            globalLogger.error(error);
+        };
+
+        super({onError});
 
         const {
             md = {},
@@ -371,11 +415,14 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
             mobile = false,
         } = opts;
 
-        this.#paste = new PasteController(opts.paste, (error) => logger.error(error));
-        this.#paste.subscribe(() => {
-            this.emit('rerender', null);
-            this.emit('rerender-toolbar', null);
-        });
+        this.#editorInstanceId = opts.id;
+        this.#resourceSpecOverrides = opts.resourceReplacement?.resources;
+        if (opts.resourceReplacement?.resolve) {
+            this.#resourceReplacement = {
+                controller: new ResourceReplacementController(opts.resourceReplacement, onError),
+                triggers: opts.resourceReplacement.triggers ?? [],
+            };
+        }
         this.#logger = logger;
         this.#modifiers = experimental.preserveMarkupFormatting
             ? createDynamicModifiers(
@@ -432,16 +479,16 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
 
     // <--- implements ActionStorage
 
-    getPendingPasteOperations() {
-        return this.#paste.getPendingPasteOperations();
+    getPendingResourceReplacements() {
+        return this.#resourceReplacement?.controller.getPendingResourceReplacements() ?? [];
     }
 
-    cancelPaste(operationId: string) {
-        this.#paste.cancelPaste(operationId);
+    cancelResourceReplacement(operationId: string) {
+        this.#resourceReplacement?.controller.cancelResourceReplacement(operationId);
     }
 
     destroy() {
-        this.#paste.destroy();
+        this.#resourceReplacement?.controller.destroy();
         this.#wysiwygEditor?.destroy();
         this.#markupEditor?.codemirror.destroy();
 
@@ -468,11 +515,11 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
             reason: opts.reason,
         });
 
-        const resources = this.#paste.snapshot();
+        const resources = this.#resourceReplacement?.controller.snapshot();
         this.currentMode = opts.mode;
         // Construct the target engine before transferring resource identities.
         this.currentEditor.getValue();
-        this.#paste.activate(opts.mode, resources);
+        this.#resourceReplacement?.controller.activate(opts.mode, resources);
         this.emit('rerender', null);
 
         if (emit) {

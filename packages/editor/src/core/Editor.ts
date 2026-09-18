@@ -1,11 +1,9 @@
 import type {PresetName} from 'markdown-it';
-import {EditorState, type Transaction} from 'prosemirror-state';
+import {EditorState} from 'prosemirror-state';
 import {EditorView} from 'prosemirror-view';
 
 import type {CommonEditor, ContentHandler, MarkupString} from '../common';
-import {ProseMirrorPaste} from '../extensions/behavior/Clipboard/resources/adapter';
 import {Logger2} from '../logger';
-import type {PasteController} from '../modules/paste/controller';
 
 import type {ActionsManager} from './ActionsManager';
 import {WysiwygContentHandler} from './ContentHandler';
@@ -33,10 +31,6 @@ export type EscapeConfig = {
 };
 
 export type WysiwygEditorOptions = {
-    /**
-     * @internal
-     */
-    pasteController?: PasteController;
     domElem?: Element;
     /** markdown markup */
     initialContent?: string;
@@ -52,10 +46,7 @@ export type WysiwygEditorOptions = {
     onChange?: OnChange;
     /** Call only if document change */
     onDocChange?: OnChange;
-    /**
-     * Modifiers adjust the parser and serializer.
-     * @internal
-     */
+    /** @internal Modifiers adjust the parser and serializer */
     modifiers?: DynamicModifiers[];
     logger?: Logger2.ILogger;
 };
@@ -84,17 +75,13 @@ export class WysiwygEditor implements CommonEditor, ActionStorage {
         return this.#actions.actions;
     }
 
-    /**
-     * Used for ProseMirror dev tools in the demo.
-     * @internal
-     */
+    /** @internal used for prosemirror-dev-tools in demo */
     get view() {
         return this.#view;
     }
 
     constructor({
         domElem,
-        pasteController,
         initialContent = '',
         extensions = () => {},
         allowHTML,
@@ -142,8 +129,6 @@ export class WysiwygEditor implements CommonEditor, ActionStorage {
             logger,
         );
 
-        const paste = pasteController ? new ProseMirrorPaste(pasteController) : undefined;
-        if (paste) plugins.unshift(paste.plugin());
         plugins.unshift(LoggerFacet.of(logger));
         plugins.unshift(ParserFacet.of(parser));
 
@@ -160,19 +145,15 @@ export class WysiwygEditor implements CommonEditor, ActionStorage {
             state,
             nodeViews,
             markViews,
-            dispatchTransaction(this: EditorView, tr) {
-                const apply = (tr: Transaction) => {
-                    const {state: newState, transactions} = this.state.applyTransaction(tr);
-                    this.updateState(newState);
-                    thisOnChange();
-                    if (transactions.some((transaction) => transaction.docChanged)) {
-                        thisOnDocChange();
-                    }
-                    logTransactionMetrics(tr, logger);
-                    return transactions;
-                };
-                if (paste) paste.dispatch(this, tr, apply);
-                else apply(tr);
+            dispatchTransaction(tr) {
+                const newState = this.state.apply(tr);
+                // @ts-expect-error
+                this.updateState(newState);
+                thisOnChange();
+                if (tr.docChanged) {
+                    thisOnDocChange();
+                }
+                logTransactionMetrics(tr, logger);
             },
         });
         this.#actions = actions.setActions(

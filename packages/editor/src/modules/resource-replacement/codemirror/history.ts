@@ -45,8 +45,25 @@ function mapEvent(event: HistoryEvent, mapping: ChangeDesc): HistoryEvent {
     });
 }
 
-export class PasteCodeMirrorHistory {
+export class ResourceReplacementHistory {
     readonly compartment = new Compartment();
+
+    retainedTargets(
+        state: EditorState,
+        readIds: (effect: StateEffect<unknown>) => readonly string[],
+    ): ReadonlySet<string> | undefined {
+        const history = state.field(historyField, false) as HistoryState | undefined;
+        const ids = new Set<string>();
+        if (!history) return ids;
+        if (!Array.isArray(history.done) || !Array.isArray(history.undone)) return undefined;
+        for (const event of [...history.done, ...history.undone]) {
+            if (!Array.isArray(event.effects)) return undefined;
+            for (const effect of event.effects) {
+                for (const id of readIds(effect)) ids.add(id);
+            }
+        }
+        return ids;
+    }
 
     tagLast(state: EditorState, effect: StateEffect<unknown>) {
         const history = state.field(historyField, false) as HistoryState | undefined;
@@ -76,7 +93,7 @@ export class PasteCodeMirrorHistory {
             if (existing) event = mapEvent(event, existing);
             existing = event.mapped;
             if (event.changes && owns(event.effects)) {
-                // Undo the patch together with its paste, wherever that paste is in history.
+                // Undo the patch together with its originating change, wherever that change is in history.
                 const mapping = patch;
                 done.unshift(
                     clone(event, {

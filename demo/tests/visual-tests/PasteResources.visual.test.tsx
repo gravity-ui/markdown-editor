@@ -103,7 +103,10 @@ for (const mode of ['wysiwyg', 'markup'] as const) {
 }
 
 for (const mode of ['wysiwyg', 'markup'] as const) {
-    test(`Resource paste ${mode} HTML attachment retains its name`, async ({mount, page}) => {
+    test(`Resource paste ${mode} HTML attachment follows the existing conversion`, async ({
+        mount,
+        page,
+    }) => {
         await mount(<PasteResources mode={mode} />);
         const editor = page.locator(mode === 'wysiwyg' ? '.ProseMirror' : '.cm-content');
         await editor.evaluate((element) => {
@@ -118,6 +121,16 @@ for (const mode of ['wysiwyg', 'markup'] as const) {
                 }),
             );
         });
+        if (mode === 'markup') {
+            await expect(page.locator('[data-testid="events"]')).toBeEmpty();
+            await expect(page.locator('[data-testid="calls"]')).toHaveText('0');
+            await page.getByRole('button', {name: 'Read value'}).click();
+            const value = page.locator('[data-testid="value"]');
+            await expect(value).toContainText('[report.pdf](');
+            await expect(value).toContainText('/old.pdf');
+            await expect(value).not.toContainText('/copied/file');
+            return;
+        }
         await expect(page.locator('[data-testid="events"]')).toHaveText('pending');
         await page.getByRole('button', {name: 'Resolve paste'}).click();
         await expect(page.locator('[data-testid="events"]')).toHaveText('pending,succeeded');

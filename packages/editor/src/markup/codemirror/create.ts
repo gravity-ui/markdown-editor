@@ -8,7 +8,7 @@ import {
     insertTab,
 } from '@codemirror/commands';
 import {syntaxHighlighting} from '@codemirror/language';
-import type {Extension, StateCommand, Transaction} from '@codemirror/state';
+import type {Extension, StateCommand} from '@codemirror/state';
 import {
     EditorView,
     type EditorViewConfig,
@@ -22,10 +22,8 @@ import {InputState} from 'src/utils/input-state';
 
 import {ActionName} from '../../bundle/config/action-names';
 import type {EventMap} from '../../bundle/events';
-import type {Parser} from '../../core/types/parser';
 import type {ReactRenderStorage} from '../../extensions';
 import {type Logger2, globalLogger} from '../../logger';
-import type {PasteController} from '../../modules/paste/controller';
 import {Action as A, formatter as f} from '../../shortcuts';
 import type {Receiver} from '../../utils';
 import {DataTransferType, shouldSkipHtmlConversion} from '../../utils/clipboard';
@@ -59,7 +57,6 @@ import {gravityHighlightStyle, gravityTheme} from './gravity';
 import {MarkdownConverter} from './html-to-markdown/converters';
 import {LoggerFacet} from './logger-facet';
 import {PairingCharactersExtension} from './pairing-chars';
-import {CodeMirrorPaste} from './paste-resources/adapter';
 import {ReactRendererFacet} from './react-facet';
 import {SearchPanelPlugin} from './search-plugin/plugin';
 import {smartReindent} from './smart-reindent';
@@ -99,9 +96,6 @@ export type CreateCodemirrorParams = {
     directiveSyntax: DirectiveSyntaxContext;
     preserveEmptyRows: boolean;
     searchPanel?: boolean;
-    pasteController?: PasteController;
-    pasteParser?: () => Parser;
-    pasteFileLink?: (node: HTMLAnchorElement) => string | undefined;
 };
 
 export function createCodemirror(params: CreateCodemirrorParams) {
@@ -129,17 +123,7 @@ export function createCodemirror(params: CreateCodemirrorParams) {
         searchPanel = true,
     } = params;
 
-    const paste =
-        params.pasteController?.enabled && params.pasteParser
-            ? new CodeMirrorPaste(params.pasteController, params.pasteParser)
-            : undefined;
     const extensions: Extension[] = [gravityTheme, placeholder(placeholderContent)];
-
-    if (params.pasteController?.enabled && params.pasteParser) {
-        extensions.push(
-            new CodeMirrorPaste(params.pasteController, params.pasteParser).extension()
-        );
-    }
 
     if (!disabledExtensions.history) {
         extensions.push(history());
@@ -256,11 +240,7 @@ export function createCodemirror(params: CreateCodemirrorParams) {
                         const parser = new DOMParser();
                         const htmlDoc = parser.parseFromString(htmlContent, 'text/html');
 
-                        const converter = new MarkdownConverter({
-                            fileLink: params.pasteController?.enabled
-                                ? params.pasteFileLink
-                                : undefined,
-                        });
+                        const converter = new MarkdownConverter();
                         parsedMarkdownMarkup = converter.processNode(htmlDoc.body).trim();
                     } catch (e) {
                         // The code is pretty new and there might be random issues we haven't caught yet,
@@ -365,29 +345,17 @@ export function createCodemirror(params: CreateCodemirrorParams) {
         extensions.push(...extraExtensions);
     }
 
-    const view = new EditorView({
+    return new EditorView({
         doc,
         extensions,
         dispatchTransactions: (trs, view) => {
-            const apply = (trs: readonly Transaction[]) => {
-                view.update(trs);
-                onChange();
-                if (trs.some((tr) => tr.docChanged)) {
-                    onDocChange();
-                }
-            };
-            if (paste) paste.dispatch(view, trs, apply);
-            else apply(trs);
+            view.update(trs);
+            onChange();
+            if (trs.some((tr) => tr.docChanged)) {
+                onDocChange();
+            }
         },
     });
-    const unsubscribe = paste?.attach(view);
-    const destroy = view.destroy.bind(view);
-    view.destroy = () => {
-        unsubscribe?.();
-        params.pasteController?.destroy();
-        destroy();
-    };
-    return view;
 }
 
 export function withLogger(action: string, command: StateCommand): StateCommand {

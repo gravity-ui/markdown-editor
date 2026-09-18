@@ -4,10 +4,13 @@
 ///                                              ///
 ////////////////////////////////////////////////////
 
-export {};
+import type {ResourceDescription} from '../modules/resource-replacement/types';
 
 declare module 'prosemirror-model' {
     interface NodeSpec {
+        /** Resource URL metadata. Omit to exclude this node from resource replacement. */
+        resource?: ResourceDescription;
+
         /**
          * Determines whether this node is part of complex block,
          * e.g. yfm-cut, yfm-note, tables, etc...

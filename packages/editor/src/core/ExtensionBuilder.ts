@@ -394,6 +394,11 @@ export class ExtensionBuilder {
         return this;
     }
 
+    /** Names of node specs registered so far, in registration order. */
+    nodeSpecNames(): string[] {
+        return Object.keys(this.#nodeIndex);
+    }
+
     hasNodeSpec(name: string): boolean {
         return Boolean(this.#nodeIndex[name]);
     }

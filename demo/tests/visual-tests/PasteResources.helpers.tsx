@@ -1,23 +1,29 @@
 import {useRef, useState} from 'react';
 
+import {FILE_TOKEN} from '@diplodoc/file-extension';
 import {
     MarkdownEditorView,
-    type PasteOperationEvent,
-    type PasteResourceResolution,
+    type ResourceReplacementEvent,
+    type ResourceReplacementResult,
     useMarkdownEditor,
 } from '@gravity-ui/markdown-editor';
 
 export function PasteResources({mode = 'wysiwyg'}: {mode?: 'wysiwyg' | 'markup'}) {
-    const finish = useRef<(value: PasteResourceResolution) => void>();
-    const replacements = useRef<PasteResourceResolution>({replacements: []});
-    const [events, setEvents] = useState<PasteOperationEvent[]>([]);
+    const finish = useRef<(value: ResourceReplacementResult) => void>();
+    const replacements = useRef<ResourceReplacementResult>({replacements: []});
+    const [events, setEvents] = useState<ResourceReplacementEvent[]>([]);
     const [value, setValue] = useState('');
     const [calls, setCalls] = useState(0);
     const editor = useMarkdownEditor({
         initial: {mode, markup: 'before'},
         markupConfig: {parseHtmlOnPaste: true},
-        paste: {
-            resolvePastedResources: (resources) => {
+        resourceReplacement: {
+            resources: {
+                image: {kind: 'image', urlAttribute: 'src', nameAttribute: 'alt'},
+                [FILE_TOKEN]: {kind: 'file', urlAttribute: 'href', nameAttribute: 'download'},
+            },
+            triggers: ['paste', 'drop'],
+            resolve: (resources) => {
                 setCalls((count) => count + 1);
                 replacements.current = {
                     replacements: resources.map((resource) => ({
@@ -33,7 +39,7 @@ export function PasteResources({mode = 'wysiwyg'}: {mode?: 'wysiwyg' | 'markup'}
                     finish.current = resolve;
                 });
             },
-            onPasteOperationChange: (event) => setEvents((previous) => [...previous, event]),
+            onChange: (event) => setEvents((previous) => [...previous, event]),
         },
     });
     return (
@@ -45,8 +51,8 @@ export function PasteResources({mode = 'wysiwyg'}: {mode?: 'wysiwyg' | 'markup'}
             <button onClick={() => finish.current?.(replacements.current)}>Resolve paste</button>
             <button
                 onClick={() => {
-                    const [pending] = editor.getPendingPasteOperations();
-                    if (pending) editor.cancelPaste(pending.operationId);
+                    const [pending] = editor.getPendingResourceReplacements();
+                    if (pending) editor.cancelResourceReplacement(pending.operationId);
                 }}
             >
                 Cancel paste

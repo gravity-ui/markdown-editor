@@ -27,10 +27,7 @@ export type {HTMLNodeVisitor};
 export class MarkdownConverter implements HTMLNodeVisitor {
     private handler: NodeHandler;
 
-    private readonly fileLink?: (node: HTMLAnchorElement) => string | undefined;
-
-    constructor(options: {fileLink?: (node: HTMLAnchorElement) => string | undefined} = {}) {
-        this.fileLink = options.fileLink;
+    constructor() {
         // Set up the chain of responsibility for handling different node types
         this.handler = this.setupHandlerChain();
     }
@@ -46,8 +43,6 @@ export class MarkdownConverter implements HTMLNodeVisitor {
      * Converts an HTML anchor element to Markdown link syntax.
      */
     visitLink(node: HTMLAnchorElement): string {
-        const fileMarkup = this.fileLink?.(node);
-        if (fileMarkup !== undefined) return fileMarkup;
         const linkText = this.collectTextContent(node);
         const url = node.href || '';
         // Handle links with formatted content vs plain text differently
