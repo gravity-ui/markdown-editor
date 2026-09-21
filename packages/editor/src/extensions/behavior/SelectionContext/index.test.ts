@@ -6,8 +6,9 @@ import {afterEach, describe, expect, it, vi} from 'vitest';
 import {ExtensionsManager} from '../../../core';
 import {BaseSchemaSpecs} from '../../base/specs';
 
-import {SelectionContext} from './index';
 import {TooltipView} from './tooltip';
+
+import {SelectionContext} from './index';
 
 const views: EditorView[] = [];
 
@@ -110,6 +111,8 @@ describe('SelectionContext', () => {
         const {view, show} = setup();
 
         recreatePluginViews(view);
+        show.mockClear(); // the re-created plugin view shows the tooltip for the live selection
+
         pressMouse(view);
         releaseMouse();
 
