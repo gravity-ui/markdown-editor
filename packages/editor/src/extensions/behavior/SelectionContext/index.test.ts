@@ -40,8 +40,7 @@ function setup() {
     const hide = vi.spyOn(TooltipView.prototype, 'hide').mockImplementation(() => {});
 
     const {schema, plugins} = new ExtensionsManager({
-        extensions: (builder) =>
-            builder.use(BaseSchemaSpecs, {}).use(SelectionContext, {config: [[]]}),
+        extensions: (builder) => builder.use(BaseSchemaSpecs, {}).use(SelectionContext, {config}),
     }).build();
 
     const {doc, paragraph: p} = builders(schema);
@@ -129,6 +128,8 @@ describe('SelectionContext', () => {
         const {view, show} = setup();
 
         recreatePluginViews(view);
+        show.mockClear(); // the re-created plugin view shows the tooltip for the live selection
+
         pressMouse(view);
         releaseMouse();
 
