@@ -354,8 +354,8 @@ importers:
   infra/linters:
     dependencies:
       '@gravity-ui/eslint-config':
-        specifier: 4.3.1
-        version: 4.3.1(@types/eslint@9.6.1)(eslint@9.39.2(jiti@2.6.1))(prettier@3.7.4)(typescript@5.9.3)
+        specifier: 4.3.2
+        version: 4.3.2(@types/eslint@9.6.1)(eslint@9.39.2(jiti@2.6.1))(prettier@3.7.4)(typescript@5.9.3)
       '@gravity-ui/prettier-config':
         specifier: 1.1.1
         version: 1.1.1(prettier@3.7.4)
@@ -2306,11 +2306,11 @@ packages:
       react-final-form: ^6.5.3
       react-is: ^17.0.0 || ^18.0.0 || ^19.0.0
 
-  '@gravity-ui/eslint-config@4.3.1':
-    resolution: {integrity: sha512-6S7z5dvu2Ya+jUMCVPCUTA8vlbyxi/gOHKoUH2suNmHrr3fVel/ZU5JEnISQIBCotqHz+bDHYdbW/gbJdMa3hg==}
+  '@gravity-ui/eslint-config@4.3.2':
+    resolution: {integrity: sha512-jdZlIW+EQ/cMOMGktpjakLd4okEqBy0Es3Zm39mNRf/yHBSlQ70xDmdJaw53MnV65bDN+UXy3GCyslFKF364jg==}
     peerDependencies:
       prettier: ^3.0.0
-      typescript: ^5.8.3
+      typescript: '>=4.8.4 <6.1.0'
     peerDependenciesMeta:
       prettier:
         optional: true
@@ -10344,7 +10344,7 @@ snapshots:
       - '@type/react'
       - '@types/react'
 
-  '@gravity-ui/eslint-config@4.3.1(@types/eslint@9.6.1)(eslint@9.39.2(jiti@2.6.1))(prettier@3.7.4)(typescript@5.9.3)':
+  '@gravity-ui/eslint-config@4.3.2(@types/eslint@9.6.1)(eslint@9.39.2(jiti@2.6.1))(prettier@3.7.4)(typescript@5.9.3)':
     dependencies:
       '@babel/core': 7.28.5
       '@babel/eslint-parser': 7.28.5(@babel/core@7.28.5)(eslint@9.39.2(jiti@2.6.1))
@@ -11245,7 +11245,7 @@ snapshots:
       eslint-visitor-keys: 4.2.1
       espree: 10.4.0
       estraverse: 5.3.0
-      picomatch: 4.0.3
+      picomatch: 4.0.7
     transitivePeerDependencies:
       - supports-color
       - typescript
@@ -11681,7 +11681,7 @@ snapshots:
       debug: 4.4.3
       minimatch: 10.2.4
       semver: 7.7.4
-      tinyglobby: 0.2.15
+      tinyglobby: 0.2.17
       ts-api-utils: 2.5.0(typescript@5.9.3)
       typescript: 5.9.3
     transitivePeerDependencies:
@@ -13435,7 +13435,7 @@ snapshots:
       get-tsconfig: 4.13.0
       is-bun-module: 2.0.0
       stable-hash-x: 0.2.0
-      tinyglobby: 0.2.15
+      tinyglobby: 0.2.17
       unrs-resolver: 1.11.1
     optionalDependencies:
       eslint-plugin-import: 2.32.0(@typescript-eslint/parser@8.57.2(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3))(eslint-import-resolver-typescript@4.4.4)(eslint@9.39.2(jiti@2.6.1))
