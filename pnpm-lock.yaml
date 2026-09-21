@@ -629,8 +629,8 @@ importers:
         specifier: 0.21.5
         version: 0.21.5
       esbuild-sass-plugin:
-        specifier: 2.15.0
-        version: 2.15.0(esbuild@0.21.5)
+        specifier: 2.16.1
+        version: 2.16.1(esbuild@0.21.5)
       gulp-cli:
         specifier: 'catalog:'
         version: 3.1.0
@@ -4875,10 +4875,10 @@ packages:
   es6-weak-map@2.0.3:
     resolution: {integrity: sha512-p5um32HOTO1kP+w7PRnB+5lQ43Z6muuMuIMffvDN8ZB4GcnjLBV6zGStpbASIMk4DCAvEaamhe2zhyCb/QXXsA==}
 
-  esbuild-sass-plugin@2.15.0:
-    resolution: {integrity: sha512-T0GCHVfeuGBBgY5k19RbExd7vVuC3lzrK8IZbXOqZftw6N9lTBnZuqKhnhdAJBcu6wek7K/fXJ2zzY6KrcNtAg==}
+  esbuild-sass-plugin@2.16.1:
+    resolution: {integrity: sha512-mBB2aEF0xk7yo+Q9pSUh8xYED/1O2wbAM6IauGkDrqy6pl9SbJNakLeLGXiNpNujWIudu8TJTZCv2L5AQYRXtA==}
     peerDependencies:
-      esbuild: ^0.19.1
+      esbuild: ^0.19.4
 
   esbuild@0.21.5:
     resolution: {integrity: sha512-mg3OPMV4hXywwpoDxu3Qda5xCKQi+vCTZq8S9J/EpkhB2HzKXq4SNFZE3+NK93JYxc8VMSep+lOUSC/RVKaBqw==}
@@ -13299,7 +13299,7 @@ snapshots:
       es6-iterator: 2.0.3
       es6-symbol: 3.1.4
 
-  esbuild-sass-plugin@2.15.0(esbuild@0.21.5):
+  esbuild-sass-plugin@2.16.1(esbuild@0.21.5):
     dependencies:
       esbuild: 0.21.5
       resolve: 1.22.11
