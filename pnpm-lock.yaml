@@ -480,6 +480,12 @@ importers:
       orderedmap:
         specifier: ^2.1.1
         version: 2.1.1
+      postcss:
+        specifier: catalog:linters
+        version: 8.5.10
+      postcss-selector-parser:
+        specifier: ^7.1.1
+        version: 7.1.1
       prosemirror-autocomplete:
         specifier: ^0.4.3
         version: 0.4.3
@@ -661,9 +667,6 @@ importers:
       npm-run-all:
         specifier: ^4.1.5
         version: 4.1.5
-      postcss:
-        specifier: catalog:linters
-        version: 8.5.10
       prettier:
         specifier: catalog:linters
         version: 3.7.4
