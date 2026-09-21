@@ -6,13 +6,7 @@ import {Logger2} from '../logger';
 
 import {ActionsManager} from './ActionsManager';
 import {ExtensionBuilder} from './ExtensionBuilder';
-import type {
-    Extension,
-    ExtensionDeps,
-    ExtensionMarkSpec,
-    ExtensionNodeSpec,
-    ExtensionSpec,
-} from './ExtensionBuilder';
+import type {Extension, ExtensionDeps, ExtensionSpec} from './ExtensionBuilder';
 import {ParserTokensRegistry} from './ParserTokensRegistry';
 import type {SchemaDynamicModifier} from './SchemaDynamicModifier';
 import {SchemaSpecRegistry} from './SchemaSpecRegistry';
@@ -53,8 +47,7 @@ export class ExtensionsManager {
     #parserRegistry;
     #serializerRegistry;
 
-    #nodeViewCreators = new Map<string, (deps: ExtensionDeps) => NodeViewConstructor>();
-    #markViewCreators = new Map<string, (deps: ExtensionDeps) => MarkViewConstructor>();
+    readonly #logger: Logger2.ILogger;
 
     #pmTransformers: TransformFn[] = [];
 
@@ -73,6 +66,7 @@ export class ExtensionsManager {
     #parserDynamicModifier?: MarkdownParserDynamicModifier;
 
     constructor({extensions, options = {}, logger = new Logger2()}: ExtensionsManagerParams) {
+        this.#logger = logger;
         this.#schemaRegistry = new SchemaSpecRegistry(undefined, options.dynamicModifiers?.schema);
         this.#parserRegistry = new ParserTokensRegistry({logger});
         this.#serializerRegistry = new SerializerTokensRegistry();
@@ -125,42 +119,29 @@ export class ExtensionsManager {
         this.#spec = this.#builder.use(this.#extensions).build();
         this.#mdForMarkup = this.#spec.configureMd(this.#mdForMarkup, 'markup');
         this.#mdForText = this.#spec.configureMd(this.#mdForText, 'text');
-        this.#spec.nodes().forEach(this.processNode);
-        this.#spec.marks().forEach(this.processMark);
-    }
-
-    private processNode = (name: string, {spec, fromMd, toMd, view}: ExtensionNodeSpec) => {
-        this.#schemaRegistry.addNode(name, spec);
-
-        this.#parserRegistry.addToken(fromMd.tokenName || name, fromMd.tokenSpec);
-        this.#serializerRegistry.addNode(name, toMd);
-        if (view) {
-            this.#nodeViewCreators.set(name, view);
+        for (const [name, spec] of this.#spec.nodeSpecs) {
+            this.#schemaRegistry.addNode(name, spec);
         }
-    };
-
-    private processMark = (name: string, {spec, fromMd, toMd, view}: ExtensionMarkSpec) => {
-        this.#schemaRegistry.addMark(name, spec);
-        this.#parserRegistry.addToken(fromMd.tokenName || name, fromMd.tokenSpec);
-        this.#serializerRegistry.addMark(name, toMd);
-        if (view) {
-            this.#markViewCreators.set(name, view);
+        for (const [name, spec] of this.#spec.markSpecs) {
+            this.#schemaRegistry.addMark(name, spec);
         }
-    };
 
-    private createParser(schema: Schema, mdInstance: MarkdownIt) {
-        return this.#parserRegistry.createParser(
-            schema,
-            mdInstance,
-            this.#pmTransformers,
-            this.#parserDynamicModifier,
-        );
+        this.validateSpecs();
+
+        for (const [name, spec] of this.#spec.parserSpecs) {
+            this.#parserRegistry.addToken(name, spec);
+        }
+        for (const [name, spec] of this.#spec.nodeSerializers) {
+            this.#serializerRegistry.addNode(name, spec);
+        }
+        for (const [name, spec] of this.#spec.markSerializers) {
+            this.#serializerRegistry.addMark(name, spec);
+        }
     }
 
     private createDeps() {
-        const actions = new ActionsManager();
-
         const schema = this.#schemaRegistry.createSchema();
+        const actions = new ActionsManager();
         const markupParser = this.createParser(schema, this.#mdForMarkup);
         const textParser = this.createParser(schema, this.#mdForText);
         const serializer = this.#serializerRegistry.createSerializer(
@@ -176,15 +157,97 @@ export class ExtensionsManager {
         };
     }
 
+    private createParser(schema: Schema, mdInstance: MarkdownIt) {
+        return this.#parserRegistry.createParser(
+            schema,
+            mdInstance,
+            this.#pmTransformers,
+            this.#parserDynamicModifier,
+        );
+    }
+
+    private validateSpecs() {
+        const parsedNodes = new Set<string>();
+        const parsedMarks = new Set<string>();
+        for (const [tokenName, spec] of this.#spec.parserSpecs) {
+            if (spec.ignore) continue;
+            const entityType = spec.type === 'mark' ? 'mark' : 'node';
+            if (!this.hasSchemaEntity(spec.name, entityType)) {
+                throw new Error(
+                    `Parser spec "${tokenName}" targets unknown ${entityType} "${spec.name}"`,
+                );
+            }
+            (entityType === 'mark' ? parsedMarks : parsedNodes).add(spec.name);
+        }
+
+        this.#spec = {
+            ...this.#spec,
+            nodeSerializers: this.filterSpecsBySchema(
+                this.#spec.nodeSerializers,
+                'node',
+                'serializer',
+            ),
+            markSerializers: this.filterSpecsBySchema(
+                this.#spec.markSerializers,
+                'mark',
+                'serializer',
+            ),
+            nodeViews: this.filterSpecsBySchema(this.#spec.nodeViews, 'node', 'view'),
+            markViews: this.filterSpecsBySchema(this.#spec.markViews, 'mark', 'view'),
+        };
+
+        for (const name of this.#spec.nodeSpecs.keys()) {
+            if (name === this.#schemaRegistry.topNodeName) continue;
+            if (!this.#spec.nodeSerializers.has(name)) {
+                throw new Error(`Missing serializer for node "${name}"`);
+            }
+            if (name !== 'text' && !parsedNodes.has(name)) {
+                this.#logger.warn(`Missing parser spec for node "${name}"`);
+            }
+        }
+        for (const name of this.#spec.markSpecs.keys()) {
+            if (!this.#spec.markSerializers.has(name)) {
+                throw new Error(`Missing serializer for mark "${name}"`);
+            }
+            if (!parsedMarks.has(name)) {
+                this.#logger.warn(`Missing parser spec for mark "${name}"`);
+            }
+        }
+    }
+
+    private filterSpecsBySchema<T>(
+        specs: ReadonlyMap<string, T>,
+        entityType: 'node' | 'mark',
+        specType: 'serializer' | 'view',
+    ): ReadonlyMap<string, T> {
+        const filtered = new Map<string, T>();
+        for (const [name, spec] of specs) {
+            if (this.hasSchemaEntity(name, entityType)) {
+                filtered.set(name, spec);
+            } else {
+                this.#logger.warn(
+                    `Skipping ${entityType} ${specType} "${name}": unknown ${entityType} "${name}"`,
+                );
+            }
+        }
+        return filtered;
+    }
+
+    private hasSchemaEntity(name: string, entityType: 'node' | 'mark'): boolean {
+        return entityType === 'node'
+            ? this.#schemaRegistry.hasNode(name)
+            : this.#schemaRegistry.hasMark(name);
+    }
+
     private createDerived() {
         this.#plugins = this.#spec.plugins(this.#deps);
         Object.assign(this.#actions, this.#spec.actions(this.#deps));
 
-        for (const [name, view] of this.#nodeViewCreators) {
+        for (const [name, view] of this.#spec.nodeViews) {
             this.#nodeViews[name] = view(this.#deps);
         }
 
-        for (const [name, view] of this.#markViewCreators) {
+        for (const [name, view] of this.#spec.markViews) {
             this.#markViews[name] = view(this.#deps);
         }
     }

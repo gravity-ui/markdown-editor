@@ -1,7 +1,6 @@
 import attrsPlugin, {type AttrsOptions} from 'markdown-it-attrs';
 
 import type {ExtensionAuto} from '#core';
-import {noop} from 'src/lodash';
 
 const defaultAttrsOpts: AttrsOptions = {
     allowedAttributes: ['id'],
@@ -23,12 +22,9 @@ export const YfmConfigsSpecs: ExtensionAuto<YfmConfigsSpecsOptions> = (builder, 
     }
 
     // ignore yfm lint token
-    builder
-        .addNodeSpec('__yfm_lint', () => ({}))
-        .addMarkdownTokenParserSpec('__yfm_lint', () => ({
-            name: '__yfm_lint',
-            type: 'node',
-            ignore: true,
-        }))
-        .addNodeSerializerSpec('__yfm_lint', () => noop);
+    builder.addMarkdownTokenParserSpec('__yfm_lint', () => ({
+        name: '__yfm_lint',
+        type: 'node',
+        ignore: true,
+    }));
 };
