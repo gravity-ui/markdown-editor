@@ -5,25 +5,26 @@ import {EditorView} from 'prosemirror-view';
 
 import type {Parser} from '../../../core/types/parser';
 import {ParserFacet} from '../../../core/utils/parser';
-import {resourceKey} from '../controller.utils';
-import {defaultResourceUrls} from '../tests/urls';
+import {resourceKey} from '../../../modules/resource-replacement/controller.utils';
+import {defaultResourceUrls} from '../../../modules/resource-replacement/tests/urls';
 
 import {
     collectAddedRangesInFinalDocument,
     collectResourcesInRanges,
     describeResource,
 } from './collect-resources';
-import {remoteTransactionMeta, resolvedResourceMeta, resourceHistoryKey} from './const';
 import {createResourceDecorations} from './decorations';
 import {changesProtectedResources} from './editing-guard';
-import {applyBatchMeta, mapBatchRanges} from './pending-state';
+import {remoteTransactionMeta, resolvedResourceMeta, resourceHistoryKey} from './meta';
 import {prepareResourceReplacementTransaction} from './prepare-replacements';
+import type {ResourceBatch} from './types';
 import {
+    applyBatchMeta,
     isHistoryTransaction,
     isOriginalLocalDocumentChange,
     isSelectionInCode,
-} from './transactions';
-import type {ResourceBatch} from './types';
+    mapBatchRanges,
+} from './utils';
 
 const schema = new Schema({
     nodes: {

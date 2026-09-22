@@ -1,11 +1,10 @@
 import type {EditorState, Transaction} from 'prosemirror-state';
 
-import type {ResourceReplacementController} from '../controller';
-import type {ResourceRange} from '../controller.utils';
+import type {ResourceReplacementController} from '../../../modules/resource-replacement/controller';
+import type {ResourceRange} from '../../../modules/resource-replacement/controller.utils';
 
 export type ResourceBatch = {id: string; ranges: ResourceRange[]; started: boolean};
 export type ResourceReplacementState = readonly ResourceBatch[];
-export type ResourceReplacementMeta = {type: 'start' | 'release'; id: string};
 
 export type ResourceReplacementOptions = {
     controller: Pick<ResourceReplacementController, 'enabled' | 'busy' | 'start'>;

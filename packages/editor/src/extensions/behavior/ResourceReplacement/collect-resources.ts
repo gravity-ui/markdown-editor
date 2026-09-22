@@ -2,9 +2,12 @@ import type {Node} from 'prosemirror-model';
 import type {EditorState, Transaction} from 'prosemirror-state';
 
 import {getParserFromState} from '../../../core/utils/parser';
-import {type ResourceRange, resourceKey} from '../controller.utils';
-import type {ReplacementResource} from '../types';
-import {isUrlResource} from '../urls';
+import {
+    type ResourceRange,
+    resourceKey,
+} from '../../../modules/resource-replacement/controller.utils';
+import type {ReplacementResource} from '../../../modules/resource-replacement/types';
+import {isUrlResource} from '../../../modules/resource-replacement/urls';
 
 export function collectResourcesInRanges(state: EditorState, ranges: readonly ResourceRange[]) {
     const resources = new Map<number, ResourceRange & {resource: ReplacementResource}>();

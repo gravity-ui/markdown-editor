@@ -41,6 +41,4 @@ export {serializeForClipboard} from './utils/serialize-for-clipboard';
 
 export * from './utils/event-emitter';
 
-export {codeMirrorResourceReplacement} from './modules/resource-replacement/codemirror';
-export type {CodeMirrorResourceReplacementOptions} from './modules/resource-replacement/codemirror';
 export {isCodeMirrorHistoryLocked} from './markup/codemirror/history-lock';

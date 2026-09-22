@@ -2,51 +2,27 @@ import {closeHistory} from 'prosemirror-history';
 import {type EditorState, Plugin, type Transaction} from 'prosemirror-state';
 import {v4 as uuid} from 'uuid';
 
-import type {ExtensionAuto} from '../../../core/ExtensionBuilder';
-
 import {
     collectAddedRangesInFinalDocument,
     collectRequestedUrlKeys,
     collectResourcesInRanges,
 } from './collect-resources';
-import {resolvedResourceMeta, resourceReplacementKey} from './const';
 import {createResourceDecorations} from './decorations';
 import {changesProtectedResources} from './editing-guard';
-import {applyBatchMeta, mapBatchRanges} from './pending-state';
+import {getResourceReplacementMeta, resolvedResourceMeta, setResourceReplacementMeta} from './meta';
+import {resourceReplacementKey} from './plugin-key';
 import {prepareResourceReplacementTransaction} from './prepare-replacements';
+import type {ResourceBatch, ResourceReplacementOptions, ResourceReplacementState} from './types';
 import {
+    applyBatchMeta,
     isHistoryTransaction,
     isOriginalLocalDocumentChange,
     isSelectionInCode,
-} from './transactions';
-import type {
-    ResourceReplacementMeta,
-    ResourceReplacementOptions,
-    ResourceReplacementState,
-} from './types';
-
-export const ResourceReplacement: ExtensionAuto<ResourceReplacementOptions> = (
-    builder,
-    options,
-) => {
-    for (const nodeType of builder.nodeSpecNames()) {
-        builder.overrideNodeSpec(nodeType, (spec) => {
-            const resource = spec._resource;
-            if (
-                resource &&
-                (!resource.kind ||
-                    !resource.valueAttribute ||
-                    !spec.attrs?.[resource.valueAttribute])
-            )
-                throw new Error(`Invalid resource description: ${nodeType}`);
-            return spec;
-        });
-    }
-    builder.addPlugin(() => resourceReplacementPlugin(options), builder.Priority.Lowest);
-};
+    mapBatchRanges,
+} from './utils';
 
 /** Requests start in view.update, only after the editor accepts the insertion. */
-function resourceReplacementPlugin({controller, shouldTrack}: ResourceReplacementOptions) {
+export function resourceReplacementPlugin({controller, shouldTrack}: ResourceReplacementOptions) {
     function shouldTrackResources(tr: Transaction, state: EditorState) {
         return (
             controller.enabled &&
@@ -72,9 +48,7 @@ function resourceReplacementPlugin({controller, shouldTrack}: ResourceReplacemen
         state: {
             init: () => [],
             apply(tr, batches, oldState, state) {
-                const meta = tr.getMeta(resourceReplacementKey) as
-                    | ResourceReplacementMeta
-                    | undefined;
+                const meta = getResourceReplacementMeta(tr);
                 if (!tr.docChanged && !meta) return batches;
 
                 const mappedBatches = mapBatchRanges(batches, tr.mapping);
@@ -101,9 +75,10 @@ function resourceReplacementPlugin({controller, shouldTrack}: ResourceReplacemen
             function releaseBatch(id: string) {
                 if (!lifetime.destroyed && !view.isDestroyed)
                     view.dispatch(
-                        view.state.tr
-                            .setMeta(resourceReplacementKey, {type: 'release', id})
-                            .setMeta('addToHistory', false),
+                        setResourceReplacementMeta(view.state.tr, {type: 'release', id}).setMeta(
+                            'addToHistory',
+                            false,
+                        ),
                     );
             }
 
@@ -120,27 +95,31 @@ function resourceReplacementPlugin({controller, shouldTrack}: ResourceReplacemen
                     throw new Error('Resource replacement was rejected');
             }
 
+            function startBatch(batch: ResourceBatch) {
+                const entries = collectResourcesInRanges(view.state, batch.ranges);
+                const resources = entries.map((item) => item.resource);
+                const urlKeys = collectRequestedUrlKeys(view.state, entries);
+                // Mark the batch before starting a request that may dispatch synchronously.
+                view.dispatch(
+                    setResourceReplacementMeta(closeHistory(view.state.tr), {
+                        type: 'start',
+                        id: batch.id,
+                    }),
+                );
+                const release = () => releaseBatch(batch.id);
+                const started = controller.start({
+                    resources,
+                    release,
+                    apply: (replacements) => applyReplacements(replacements, urlKeys),
+                });
+                if (!started) release();
+            }
+
             return {
                 update() {
                     for (const batch of resourceReplacementKey.getState(view.state) ?? []) {
                         if (batch.started) continue;
-                        const entries = collectResourcesInRanges(view.state, batch.ranges);
-                        const resources = entries.map((item) => item.resource);
-                        const urlKeys = collectRequestedUrlKeys(view.state, entries);
-                        // Mark the batch before starting a request that may dispatch synchronously.
-                        view.dispatch(
-                            closeHistory(view.state.tr).setMeta(resourceReplacementKey, {
-                                type: 'start',
-                                id: batch.id,
-                            }),
-                        );
-                        const release = () => releaseBatch(batch.id);
-                        const started = controller.start({
-                            resources,
-                            release,
-                            apply: (replacements) => applyReplacements(replacements, urlKeys),
-                        });
-                        if (!started) release();
+                        startBatch(batch);
                     }
                 },
                 destroy() {

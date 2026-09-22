@@ -1,11 +1,11 @@
 import type {EditorState} from 'prosemirror-state';
 
 import {getParserFromState} from '../../../core/utils/parser';
-import {resourceKey} from '../controller.utils';
-import {isUrlResource, prepareResourceUrl} from '../urls';
+import {resourceKey} from '../../../modules/resource-replacement/controller.utils';
+import {isUrlResource, prepareResourceUrl} from '../../../modules/resource-replacement/urls';
 
 import {describeResource, isCodeNode} from './collect-resources';
-import {resolvedResourceMeta} from './const';
+import {resolvedResourceMeta} from './meta';
 
 export function prepareResourceReplacementTransaction(
     state: EditorState,

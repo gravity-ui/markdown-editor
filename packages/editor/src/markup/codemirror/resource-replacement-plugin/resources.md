@@ -1,5 +1,21 @@
 # Ресурсы CodeMirror
 
+## Карта файлов
+
+- `index.ts` экспортирует `codeMirrorResourceReplacement`,
+  `createCodeMirrorResourceExtension` и `CodeMirrorResourceReplacementOptions`.
+- `plugin.ts` содержит захват paste/drop, состояние ожидания, подключение
+  обработчиков принятых транзакций, запуск операции и применение ответа.
+- `effects.ts` объявляет аннотации `tracked`, `resolved` и эффект `release`.
+- `utils.ts` извлекает вставленные ресурсы, классифицирует транзакции
+  и готовит текстовую замену.
+
+Общий разбор и преобразование остаются в `modules/resource-replacement/markdown.ts`.
+Блокировка внешней истории использует соседний `history-lock.ts`.
+Глубокие импорты используют этот каталог; старые пути CM-адаптера удалены.
+`codeMirrorResourceReplacement` и его тип параметров доступны из этого каталога,
+без экспорта из корня пакета. В корне остаётся `isCodeMirrorHistoryLocked` для внешней истории.
+
 ## Сбор
 
 Только принятая локальная paste/drop-транзакция запускает сбор. Её добавленные

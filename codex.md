@@ -32,6 +32,14 @@ codeMirrorResourceSupport и типы извлечения исходных ди
 ресурса достаточно обычного расширения схемы, парсера и сериализатора и resources.
 Грамматика файлов и размеров изображений в markup/codemirror/syntax сохранена.
 
+CM-адаптер находится в markup/codemirror/resource-replacement-plugin, PM-адаптер —
+в extensions/behavior/ResourceReplacement. Общий контроллер, публичные типы,
+проверки ответа, URL-операции и markdown.ts остаются в modules/resource-replacement.
+Общий механизм не импортирует адаптеры. Старые пути адаптеров и indicator удалены;
+потребители используют новые расположения без промежуточных реэкспортов совместимости.
+PM-индикатор принадлежит behavior-расширению, общие ImageSkeleton и UploadLabel
+остаются в react-utils. Условия подключения и приоритеты плагинов не меняются.
+
 ## CodeMirror
 
 1. Принять локальную paste/drop-транзакцию и отметить её как незавершённую.

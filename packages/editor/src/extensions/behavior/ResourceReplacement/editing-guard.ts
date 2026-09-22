@@ -2,7 +2,7 @@ import type {Node} from 'prosemirror-model';
 import type {EditorState, Transaction} from 'prosemirror-state';
 import type {StepMap} from 'prosemirror-transform';
 
-import {type ResourceRange, overlaps} from '../controller.utils';
+import {type ResourceRange, overlaps} from '../../../modules/resource-replacement/controller.utils';
 
 import {collectResourcesInRanges} from './collect-resources';
 import type {ResourceReplacementState} from './types';

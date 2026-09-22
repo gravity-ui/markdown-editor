@@ -4,16 +4,15 @@ import {FILE_TOKEN} from '@diplodoc/file-extension';
 import {BundlePreset} from '../../../bundle/wysiwyg-preset';
 import {type Extension, createEditorExtensions} from '../../../core';
 import {ReactRenderStorage} from '../../../extensions';
-import {DirectiveSyntaxContext} from '../../../utils/directive';
-import {resourceKey} from '../controller.utils';
+import {resourceKey} from '../../../modules/resource-replacement/controller.utils';
 import {
     type ResourceMarkdownOptions,
     collectMarkdownResources,
     replaceMarkdownResources,
-} from '../markdown';
+} from '../../../modules/resource-replacement/markdown';
+import {DirectiveSyntaxContext} from '../../../utils/directive';
 
-import {collectInsertedMarkupResources} from './collect-resources';
-import {textChanges} from './prepare-replacements';
+import {collectInsertedMarkupResources, textChanges} from './utils';
 
 function options(extra?: Extension): ResourceMarkdownOptions {
     const {markupParser: parser, serializer} = createEditorExtensions({

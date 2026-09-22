@@ -2,8 +2,8 @@ import {history, redo as nativeRedo, undo as nativeUndo} from 'prosemirror-histo
 import type {Command} from 'prosemirror-state';
 
 import type {Action, ActionSpec, ExtensionAuto, Keymap} from '../../../core';
-import {resourceReplacementKey} from '../../../modules/resource-replacement/prosemirror/const';
 import {withLogAction} from '../../../utils/keymap';
+import {resourceReplacementKey} from '../ResourceReplacement/plugin-key';
 
 const guard =
     (command: Command): Command =>

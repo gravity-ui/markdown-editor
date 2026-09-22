@@ -18,11 +18,14 @@ import {
 import type {TransformFn} from '../core/markdown/ProseMirrorTransformer';
 import type {DynamicModifiers} from '../core/types/dynamicModifiers';
 import type {ReactRenderStorage, RenderStorage} from '../extensions';
+import {createProseMirrorResourceExtension} from '../extensions/behavior/ResourceReplacement';
+import {resourceReplacementKey} from '../extensions/behavior/ResourceReplacement/plugin-key';
 import {i18n} from '../i18n/bundle';
 import {type Logger2, globalLogger} from '../logger';
 import {createCodemirror} from '../markup';
 import {getAutocompleteConfig} from '../markup/codemirror/autocomplete';
 import {historyLocked} from '../markup/codemirror/history-lock';
+import {createCodeMirrorResourceExtension} from '../markup/codemirror/resource-replacement-plugin';
 import {type CodeEditor, Editor as MarkupEditor} from '../markup/editor';
 import {
     type ResourceReplacementControl,
@@ -30,11 +33,6 @@ import {
     type ResourceSpecOverrides,
     type ResourceTrigger,
 } from '../modules/resource-replacement';
-import {resourceReplacementKey} from '../modules/resource-replacement/prosemirror/const';
-import {
-    createCodeMirrorResourceIntegration,
-    createProseMirrorResourceIntegration,
-} from '../modules/resource-replacement/trigger-policy';
 import {type Emitter, type FileUploadHandler, type Receiver, SafeEventEmitter} from '../utils';
 import type {DirectiveSyntaxContext} from '../utils/directive';
 
@@ -297,7 +295,7 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
                         this.#resourceReplacement.triggers.length
                     ) {
                         builder.use(
-                            createProseMirrorResourceIntegration({
+                            createProseMirrorResourceExtension({
                                 controller: this.#resourceReplacement.controller,
                                 triggers: this.#resourceReplacement.triggers,
                             }),
@@ -350,7 +348,7 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
                         ...(this.#markupConfig.extensions ?? []),
                         ...(this.#resourceReplacement.controller &&
                         this.#resourceReplacement.triggers.length
-                            ? createCodeMirrorResourceIntegration({
+                            ? createCodeMirrorResourceExtension({
                                   controller: this.#resourceReplacement.controller,
                                   resources: this.#resourceReplacement.resources,
                                   parser: this.#sharedExtensions.buildDeps().markupParser,

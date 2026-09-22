@@ -4,14 +4,16 @@ import {EditorView} from 'prosemirror-view';
 
 import {ExtensionsManager} from '../../../core/ExtensionsManager';
 import {ParserFacet} from '../../../core/utils/parser';
-import {BaseSchemaSpecs} from '../../../extensions/base/specs';
-import {CodeSpecs} from '../../../extensions/markdown/Code/CodeSpecs';
-import {ImageSpecs} from '../../../extensions/markdown/Image/ImageSpecs';
-import type {ResourceReplacementRequest} from '../controller';
-import {resourceKey} from '../controller.utils';
+import type {ResourceReplacementRequest} from '../../../modules/resource-replacement/controller';
+import {resourceKey} from '../../../modules/resource-replacement/controller.utils';
+import {BaseSchemaSpecs} from '../../base/specs';
+import {CodeSpecs} from '../../markdown/Code/CodeSpecs';
+import {ImageSpecs} from '../../markdown/Image/ImageSpecs';
 
-import {resolvedResourceMeta, resourceHistoryKey, resourceReplacementKey} from './const';
-import {ResourceReplacement} from './extension';
+import {resolvedResourceMeta, resourceHistoryKey} from './meta';
+import {resourceReplacementKey} from './plugin-key';
+
+import {ResourceReplacement} from './index';
 
 const views: EditorView[] = [];
 afterEach(() => {

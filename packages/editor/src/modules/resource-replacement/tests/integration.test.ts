@@ -11,8 +11,8 @@ import {BundlePreset} from '../../../bundle/wysiwyg-preset';
 import {type Extension, createEditorExtensions} from '../../../core';
 import {ReactRenderStorage} from '../../../extensions';
 import {Logger2} from '../../../logger';
+import {codeMirrorResourceReplacement} from '../../../markup/codemirror/resource-replacement-plugin';
 import {DirectiveSyntaxContext} from '../../../utils/directive';
-import {codeMirrorResourceReplacement} from '../codemirror';
 import type {
     ReplacementResource,
     ResourceReplacementConfig,

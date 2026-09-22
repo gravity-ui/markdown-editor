@@ -126,6 +126,8 @@ redo не вызывает повторный `resolve`. Специальног�
 Явно передайте зависимости из своей общей конфигурации расширений:
 
 ```ts
+import {codeMirrorResourceReplacement} from '@gravity-ui/markdown-editor/_/markup/codemirror/resource-replacement-plugin/index.js';
+
 const {markupParser: parser, serializer} = extensionsManager.buildDeps();
 const extension = codeMirrorResourceReplacement({
     parser,
@@ -137,7 +139,8 @@ const extension = codeMirrorResourceReplacement({
 });
 ```
 
-`codeMirrorResourceReplacement` экспортируется из корня пакета. Менеджер можно
+`codeMirrorResourceReplacement` и его тип параметров доступны через прямой импорт
+из каталога плагина; из корня пакета они не экспортируются. Менеджер можно
 создать через `createEditorExtensions` из `@gravity-ui/markdown-editor/core`,
 передав обычные расширения. Парсер без необходимых Specs не заменяет конфигурацию
 редактора. Владелец самостоятельной интеграции уничтожает её контроллер.

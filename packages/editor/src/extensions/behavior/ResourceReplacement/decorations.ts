@@ -2,11 +2,11 @@ import type {Node} from 'prosemirror-model';
 import type {EditorState} from 'prosemirror-state';
 import {Decoration, DecorationSet, type EditorView} from 'prosemirror-view';
 
-import {getReactRendererFromState} from '../../../extensions/behavior/ReactRenderer';
-import {createResourceIndicator, destroyResourceIndicator} from '../indicator';
-import type {ReplacementResource} from '../types';
+import type {ReplacementResource} from '../../../modules/resource-replacement/types';
+import {getReactRendererFromState} from '../ReactRenderer';
 
 import {collectResourcesInRanges} from './collect-resources';
+import {createResourceIndicator, destroyResourceIndicator} from './indicator';
 import type {ResourceReplacementState} from './types';
 
 function calculateIndicatorSize(

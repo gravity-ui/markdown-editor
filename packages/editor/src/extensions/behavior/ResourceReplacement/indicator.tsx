@@ -1,13 +1,12 @@
 import {Portal} from '@gravity-ui/uikit';
 
-import type {ReactRenderer, RendererItem} from '../../extensions/behavior/ReactRenderer';
+import type {ReplacementResource} from '../../../modules/resource-replacement/types';
 import {
     ImageSkeleton,
     createImageSkeletonContainer,
-} from '../../react-utils/components/ImageSkeleton';
-import {UploadLabel} from '../../react-utils/components/UploadLabel';
-
-import type {ReplacementResource} from './types';
+} from '../../../react-utils/components/ImageSkeleton';
+import {UploadLabel} from '../../../react-utils/components/UploadLabel';
+import type {ReactRenderer, RendererItem} from '../ReactRenderer';
 
 const items = new WeakMap<HTMLElement, RendererItem>();
 

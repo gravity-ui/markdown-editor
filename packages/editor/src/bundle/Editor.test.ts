@@ -2,13 +2,13 @@
 import {Transaction} from '@codemirror/state';
 
 import {ReactRenderStorage} from '../extensions';
+import {resourceReplacementKey} from '../extensions/behavior/ResourceReplacement/plugin-key';
 import {Logger2} from '../logger';
 import {
     ResourceReplacementController,
     type ResourceReplacementResult,
     type ResourceSpecOverrides,
 } from '../modules/resource-replacement';
-import {resourceReplacementKey} from '../modules/resource-replacement/prosemirror/const';
 import {DirectiveSyntaxContext} from '../utils/directive';
 
 import {EditorImpl} from './Editor';
