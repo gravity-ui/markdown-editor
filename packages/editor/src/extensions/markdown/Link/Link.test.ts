@@ -6,6 +6,7 @@ import {ExtensionsManager} from '../../../core';
 import {BaseNode, BaseSchemaSpecs} from '../../base/specs';
 import {BoldSpecs, boldMarkName} from '../Bold/BoldSpecs';
 import {BreakNodeName, BreaksSpecs} from '../Breaks/BreaksSpecs';
+import {CodeSpecs, codeMarkName} from '../Code/CodeSpecs';
 import {ImageAttr, ImageSpecs, imageNodeName} from '../Image/ImageSpecs';
 
 import {LinkAttr, LinkSpecs, linkMarkName} from './LinkSpecs';
@@ -22,6 +23,7 @@ const {
             .use(ImageSpecs)
             .use(BreaksSpecs, {})
             .use(BoldSpecs)
+            .use(CodeSpecs)
             .addNodeSpec('anchor', () => ({inline: true, group: 'inline', content: 'text*'}))
             .addMarkdownTokenParserSpec('anchor', () => ({name: 'anchor', type: 'block'}))
             .addNodeSerializerSpec('anchor', () => (state, node) => {
@@ -32,8 +34,8 @@ const {
     options: {mdOpts: {linkify: true}},
 }).buildDeps();
 
-const {doc, p, a, lnk, lnk4, img, sb, hb, bold, anchor} = builders<
-    'doc' | 'p' | 'a' | 'lnk' | 'lnk4' | 'img' | 'sb' | 'hb' | 'bold' | 'anchor'
+const {doc, p, a, lnk, lnk4, img, sb, hb, bold, anchor, code} = builders<
+    'doc' | 'p' | 'a' | 'lnk' | 'lnk4' | 'img' | 'sb' | 'hb' | 'bold' | 'anchor' | 'code'
 >(schema, {
     doc: {nodeType: BaseNode.Doc},
     p: {nodeType: BaseNode.Paragraph},
@@ -41,6 +43,7 @@ const {doc, p, a, lnk, lnk4, img, sb, hb, bold, anchor} = builders<
     sb: {nodeType: BreakNodeName.SoftBreak},
     hb: {nodeType: BreakNodeName.HardBreak},
     bold: {markType: boldMarkName},
+    code: {markType: codeMarkName},
     anchor: {nodeType: 'anchor'},
     img: {
         nodeType: imageNodeName,
@@ -174,6 +177,47 @@ describe('Link extension', () => {
         serialize(
             doc(p(a({href, [LinkAttr.RawLink]: true}, href), bold(' text'))),
             `<${href}> **text**`,
+        );
+    });
+
+    it('should keep a raw link before a whitespace-only marked node', () => {
+        const href = 'https://ya.ru/';
+        const content = doc(p(a({href, [LinkAttr.RawLink]: true}, href), bold(' '), 'text'));
+
+        serialize(content, href + ' text');
+        parse(serializer.serialize(content), doc(p(a({href}, href), ' text')));
+    });
+
+    it('should keep a raw link before marked whitespace at the end', () => {
+        const href = 'https://ya.ru/';
+        serialize(doc(p(a({href, [LinkAttr.RawLink]: true}, href), bold(' '))), href + ' ');
+    });
+
+    it('should keep a raw link before marked whitespace and an image', () => {
+        const href = 'https://ya.ru/';
+        const content = doc(p(a({href, [LinkAttr.RawLink]: true}, href), bold(' '), img()));
+        serialize(content, href + ' ![alttext](/path/to/img.png)');
+        parse(serializer.serialize(content), doc(p(a({href}, href), ' ', img())));
+    });
+
+    it('should wrap a raw link before whitespace in inline code', () => {
+        const href = 'https://ya.ru/';
+        const content = doc(p(a({href, [LinkAttr.RawLink]: true}, href), code(' '), 'text'));
+        serialize(content, `<${href}>\` \`text`);
+        parse(serializer.serialize(content), doc(p(a({href}, href), code(' '), 'text')));
+    });
+
+    it('should preserve surrounding content when removing raw link brackets', () => {
+        const href = 'https://ya.ru/';
+        const content = doc(
+            p('first'),
+            p('before ', a({href, [LinkAttr.RawLink]: true}, href), bold(' '), 'after'),
+            p(a({href, [LinkAttr.RawLink]: true}, href), img()),
+        );
+
+        serialize(
+            content,
+            `first\n\nbefore ${href} after\n\n<${href}>![alttext](/path/to/img.png)`,
         );
     });
 

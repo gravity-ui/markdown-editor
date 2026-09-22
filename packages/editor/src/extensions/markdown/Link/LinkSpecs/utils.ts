@@ -1,3 +1,4 @@
+import type {SerializerState} from '#core';
 import type {Mark, Node} from '#pm/model';
 
 import {BreakNodeName} from '../../Breaks/BreaksSpecs';
@@ -40,4 +41,15 @@ export function isPlainURL(link: Mark, parent: Node, index: number, side: number
 
 export function escapeParenthesesInUrl(url: string): string {
     return url.replaceAll(/\(|\)/g, (p) => '\\' + p);
+}
+
+// TODO: Remove this helper after https://github.com/gravity-ui/markdown-editor/issues/1263 is fixed.
+export function unwrapRawLinkBeforeWhitespace(state: SerializerState, href: string): boolean {
+    // Core may write a marked space before closing the link.
+    const whitespace = state.out.match(/[\t\n\r\p{Z}]+$/u)?.[0];
+    if (!whitespace || !state.out.endsWith(`<${href}${whitespace}`)) return false;
+
+    const start = state.out.length - href.length - whitespace.length - 1;
+    state.out = state.out.slice(0, start) + state.out.slice(start + 1);
+    return true;
 }

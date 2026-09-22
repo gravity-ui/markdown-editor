@@ -1,7 +1,12 @@
-import type {ExtensionAuto} from '#core';
+import type {ExtensionAuto, SerializerState} from '#core';
 
 import {LinkAttr, linkMarkName} from './const';
-import {canSerializeRawLink, escapeParenthesesInUrl, isPlainURL} from './utils';
+import {
+    canSerializeRawLink,
+    escapeParenthesesInUrl,
+    isPlainURL,
+    unwrapRawLinkBeforeWhitespace,
+} from './utils';
 
 export {LinkAttr, linkMarkName, linkType} from './const';
 
@@ -43,19 +48,33 @@ export const LinkSpecs: ExtensionAuto = (builder) => {
             }),
         }))
         .addMarkSerializerSpec(linkMarkName, () => ({
-            open(state, mark, parent, index) {
+            open(state_, mark, parent, index) {
+                // TODO: Remove this saved flag after https://github.com/gravity-ui/markdown-editor/issues/1263 is fixed.
+                const state = state_ as SerializerState & {isRawAutolink?: boolean};
                 // FIXME: Verify and use Node instead of Fragment
                 state.isAutolink = isPlainURL(mark, parent as any, index, 1);
                 if (state.isAutolink) {
-                    if (canSerializeRawLink(mark, parent, index + 1)) return '';
+                    state.isRawAutolink = canSerializeRawLink(mark, parent, index + 1);
+                    if (state.isRawAutolink) return '';
                     return '<';
                 }
                 return '[';
             },
-            close(state, mark, parent, index) {
+            close(state_, mark) {
+                // TODO: Remove this saved flag after https://github.com/gravity-ui/markdown-editor/issues/1263 is fixed.
+                const state = state_ as SerializerState & {isRawAutolink?: boolean};
+                const raw = state.isRawAutolink;
+                state.isRawAutolink = undefined;
                 if (state.isAutolink) {
                     state.isAutolink = undefined;
-                    if (canSerializeRawLink(mark, parent, index)) return '';
+                    if (raw) return '';
+                    // TODO: Remove this workaround after https://github.com/gravity-ui/markdown-editor/issues/1263 is fixed.
+                    if (
+                        mark.attrs[LinkAttr.RawLink] &&
+                        unwrapRawLinkBeforeWhitespace(state, mark.attrs[LinkAttr.Href])
+                    ) {
+                        return '';
+                    }
 
                     return '>';
                 }
