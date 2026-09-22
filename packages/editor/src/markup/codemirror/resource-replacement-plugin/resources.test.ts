@@ -2,7 +2,8 @@ import {EditorState} from '@codemirror/state';
 import {FILE_TOKEN} from '@diplodoc/file-extension';
 
 import {BundlePreset} from '../../../bundle/wysiwyg-preset';
-import {type Extension, createEditorExtensions} from '../../../core';
+import type {Extension} from '../../../core';
+import {createEditorExtensions} from '../../../core/createEditorExtensions';
 import {ReactRenderStorage} from '../../../extensions';
 import {resourceKey} from '../../../modules/resource-replacement/controller.utils';
 import {

@@ -30,7 +30,9 @@ EditorImpl лениво создаёт общий ExtensionsManager. buildDeps �
 resources, controller, shouldTrack и необязательный escapeConfig. Публичные
 codeMirrorResourceSupport и типы извлечения исходных диапазонов удалены. Для нового
 ресурса достаточно обычного расширения схемы, парсера и сериализатора и resources.
-Грамматика файлов и размеров изображений в markup/codemirror/syntax сохранена.
+Сбор и замена ресурсов используют Markdown → ProseMirror parser. Прежние Lezer-правила
+файлов и размеров изображений в markup/codemirror/syntax удалены: resourceReplacement
+они не нужны. PM-грамматика файлов и изображений с размерами сохраняется.
 
 CM-адаптер находится в markup/codemirror/resource-replacement-plugin, PM-адаптер —
 в extensions/behavior/ResourceReplacement. Общий контроллер, публичные типы,

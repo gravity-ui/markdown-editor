@@ -13,8 +13,8 @@ import {
     type ExtensionsManager,
     WysiwygEditor,
     type WysiwygEditorOptions,
-    createEditorExtensions,
 } from '../core';
+import {createEditorExtensions} from '../core/createEditorExtensions';
 import type {TransformFn} from '../core/markdown/ProseMirrorTransformer';
 import type {DynamicModifiers} from '../core/types/dynamicModifiers';
 import type {ReactRenderStorage, RenderStorage} from '../extensions';

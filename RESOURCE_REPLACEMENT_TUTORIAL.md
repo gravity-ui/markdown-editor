@@ -106,12 +106,15 @@ Undo может вернуть старые значения, redo не повт
 Больше нет codeMirrorResourceSupport и CodeMirrorResourceHandler, отдельных
 builtins для поиска значений, ResourceSyntaxMatch/valueRange/serialize(value),
 ресурсных декораций, editing-guard, перемещения диапазонов, ResourceReplacementHistory,
-pasteEvent и invertedEffects. Синтаксис файлов и размеров изображений сохранён как
-общая языковая поддержка в markup/codemirror/syntax.
+pasteEvent и invertedEffects. Прежние Lezer-правила файлов и размеров изображений
+в markup/codemirror/syntax удалены: сбор и замена ресурсов используют Markdown →
+ProseMirror parser. PM-грамматика файлов и изображений с размерами сохраняется.
 
 Самостоятельный CM явно передаёт parser, serializer, resources, controller,
 shouldTrack и необязательные настройки сериализации. Общий парсер и serializer
 можно получить через createEditorExtensions(...).buildDeps() без EditorView.
+Внутренняя фабрика находится в `packages/editor/src/core/createEditorExtensions.ts`;
+потребители импортируют её напрямую, без публичного barrel-экспорта.
 
 ## ProseMirror сохраняет прежние правила
 

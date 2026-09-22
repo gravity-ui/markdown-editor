@@ -163,5 +163,7 @@ value/oldValue/newValue. Серверное копирование этим ре
 Самостоятельный codeMirrorResourceReplacement требует parser, serializer, resources,
 controller, shouldTrack; escapeConfig необязателен. `codeMirrorResourceSupport`,
 CodeMirrorResourceHandler и связанные типы исходных диапазонов удалены. Пользовательский
-ресурс регистрируется обычным расширением парсера и сериализатора. Общая языковая
-грамматика файлов и размеров изображений в markup/codemirror/syntax сохранена.
+ресурс регистрируется обычным расширением парсера и сериализатора. Сбор и замена
+ресурсов используют Markdown → ProseMirror parser. Прежние Lezer-правила файлов
+и размеров изображений в markup/codemirror/syntax удалены как ненужные для
+resourceReplacement; PM-грамматика файлов и изображений с размерами сохраняется.

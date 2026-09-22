@@ -8,8 +8,6 @@ import type {DelimiterType, MarkdownConfig} from '@lezer/markdown';
 import {capitalize} from '../../lodash';
 
 import {DirectiveSyntaxFacet} from './directive-facet';
-import {FileExtension} from './syntax/file';
-import {ImageSizeExtension} from './syntax/image-size';
 
 export const customTags = {
     underline: Tag.define(),
@@ -173,13 +171,7 @@ export function yfmLang({languageData = []}: YfmLangOptions = {}): Extension {
         base: markdownLanguage,
         addKeymap: true,
         completeHTMLTags: false,
-        extensions: [
-            UnderlineExtension,
-            MonospaceExtension,
-            MarkedExtension,
-            ImageSizeExtension,
-            FileExtension,
-        ],
+        extensions: [UnderlineExtension, MonospaceExtension, MarkedExtension],
     });
 
     return [
