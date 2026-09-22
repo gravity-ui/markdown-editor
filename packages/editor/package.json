@@ -239,7 +239,7 @@
     "@markdown-editor/vitest-config": "workspace:*",
     "@vitest/coverage-v8": "catalog:testing",
     "bem-cn-lite": "4.1.0",
-    "dpdm": "3.14.0",
+    "dpdm": "3.15.1",
     "esbuild": "0.21.5",
     "esbuild-sass-plugin": "2.16.1",
     "gulp-cli": "catalog:",
