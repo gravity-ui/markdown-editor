@@ -18,7 +18,7 @@ import {
 import type {TransformFn} from '../core/markdown/ProseMirrorTransformer';
 import type {DynamicModifiers} from '../core/types/dynamicModifiers';
 import type {ReactRenderStorage, RenderStorage} from '../extensions';
-import {createProseMirrorResourceExtension} from '../extensions/behavior/ResourceReplacement';
+import {createConfiguredResourceExtension} from '../extensions/behavior/ResourceReplacement';
 import {resourceReplacementKey} from '../extensions/behavior/ResourceReplacement/plugin-key';
 import {i18n} from '../i18n/bundle';
 import {type Logger2, globalLogger} from '../logger';
@@ -278,29 +278,7 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
                 logger: this.logger.nested({mode: 'wysiwyg'}),
                 extensions: (builder) => {
                     if (this.#extensions) builder.use(this.#extensions);
-                    for (const nodeType of Object.keys(this.#resourceReplacement.resources)) {
-                        if (!builder.hasNodeSpec(nodeType))
-                            throw new Error(`Unknown resource node type: ${nodeType}`);
-                    }
-                    // Unlisted nodes must not inherit resource metadata from extensions.
-                    for (const nodeType of builder.nodeSpecNames()) {
-                        const resource = this.#resourceReplacement.resources[nodeType];
-                        builder.overrideNodeSpec(nodeType, (spec) => ({
-                            ...spec,
-                            _resource: resource || undefined,
-                        }));
-                    }
-                    if (
-                        this.#resourceReplacement.controller &&
-                        this.#resourceReplacement.triggers.length
-                    ) {
-                        builder.use(
-                            createProseMirrorResourceExtension({
-                                controller: this.#resourceReplacement.controller,
-                                triggers: this.#resourceReplacement.triggers,
-                            }),
-                        );
-                    }
+                    builder.use(createConfiguredResourceExtension(this.#resourceReplacement));
                 },
                 pmTransformers: this.#pmTransformers,
                 modifiers: this.#modifiers,

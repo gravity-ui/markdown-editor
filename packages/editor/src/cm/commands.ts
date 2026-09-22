@@ -14,9 +14,7 @@ export const undo: StateCommand = (target) =>
 export const redo: StateCommand = (target) =>
     !target.state.facet(historyLocked) && nativeRedo(target);
 
-/** Number of available undo steps; zero while history is locked. */
 export const undoDepth: typeof nativeUndoDepth = (state) =>
     state.facet(historyLocked) ? 0 : nativeUndoDepth(state);
-/** Number of available redo steps; zero while history is locked. */
 export const redoDepth: typeof nativeRedoDepth = (state) =>
     state.facet(historyLocked) ? 0 : nativeRedoDepth(state);
