@@ -9,7 +9,7 @@ import {ImageSizeExtension} from './syntax/image-size';
 /** Additional Markdown syntax supplied by CodeMirror extensions. */
 export const markdownSyntax = Facet.define<MarkdownConfig>();
 
-// Used when no base language is supplied, including standalone resource replacement.
+// Used when no base language is supplied.
 // Explicit bases (such as yfmLang) already include these rules.
 const defaultMarkdownLanguage = markdown({
     base: markdownLanguage,

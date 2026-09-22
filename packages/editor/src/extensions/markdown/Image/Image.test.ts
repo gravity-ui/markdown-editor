@@ -36,4 +36,26 @@ describe('Image extension', () => {
     it('should parse image with title and alt', () => {
         same('![alt text](img2.png "title text")', doc(p(img2())));
     });
+
+    it.each([
+        ['/image?x=&copy;', '/image?x=&amp;copy;'],
+        ['/image?x=&#65;&y=&#x41;', '/image?x=&amp;#65;&y=&amp;#x41;'],
+        ['/image?x=&amp;', '/image?x=&amp;amp;'],
+        ['/image?a=1&b=2', '/image?a=1&amp;b=2'],
+        ['/image?x=%26copy%3B', '/image?x=%26copy%3B'],
+    ])('should preserve the image URL after serialization: %s', (src, escaped) => {
+        const original = doc(p(img({src})));
+        const markup = serializer.serialize(original);
+
+        expect(markup).toBe(`![](${escaped})`);
+        expect(parser.parse(markup)).toMatchNode(original);
+    });
+
+    it('should preserve ampersands when they are configured as Markdown escape characters', () => {
+        const original = doc(p(img({src: '/image?x=&copy;'})));
+        const markup = serializer.serialize(original, {commonEscape: /[&]/g});
+
+        expect(markup).toBe('![](/image?x=&amp;copy;)');
+        expect(parser.parse(markup)).toMatchNode(original);
+    });
 });

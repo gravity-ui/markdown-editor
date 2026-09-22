@@ -1,9 +1,14 @@
-import {Facet, Transaction, type TransactionSpec} from '@codemirror/state';
+import {type EditorState, Facet, Transaction, type TransactionSpec} from '@codemirror/state';
 import {ViewPlugin} from '@codemirror/view';
 
 export const historyLocked = Facet.define<boolean, boolean>({
     combine: (values) => values.some(Boolean),
 });
+
+/** Read synchronously before an external history engine changes its document. */
+export function isCodeMirrorHistoryLocked(state: EditorState): boolean {
+    return state.facet(historyLocked);
+}
 
 export function isHistoryTransaction(tr: Transaction) {
     return tr.isUserEvent('undo') || tr.isUserEvent('redo');

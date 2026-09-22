@@ -43,7 +43,9 @@ for (const mode of ['wysiwyg', 'markup'] as const) {
                 }),
             );
         });
-        await expect(editor.locator('[data-resource-pending]')).toHaveCount(1);
+        await expect(editor.locator('[data-resource-pending]')).toHaveCount(
+            mode === 'wysiwyg' ? 1 : 0,
+        );
         await page.getByRole('button', {name: 'Read value'}).click();
         const saved = await page.locator('[data-testid="value"]').textContent();
         expect(saved).toMatch(/!\[pasted\]\((?:https?:\/\/[^/]+)?\/assets\/test-image\.jpg\)/);
@@ -107,6 +109,15 @@ for (const mode of ['wysiwyg', 'markup'] as const) {
             await editor.click();
             await page.getByRole('button', {name: 'Undo', exact: true}).click();
             await page.getByRole('button', {name: 'Read value'}).click();
+            if (mode === 'markup') {
+                await expect(page.locator('[data-testid="value"]')).toContainText('typed');
+                await expect(page.locator('[data-testid="value"]')).not.toContainText('?copied');
+                await page.getByRole('button', {name: 'Redo', exact: true}).click();
+                await page.getByRole('button', {name: 'Read value'}).click();
+                await expect(page.locator('[data-testid="value"]')).toContainText('?copied');
+                await expect(page.locator('[data-testid="calls"]')).toHaveText('1');
+                return;
+            }
             await expect(page.locator('[data-testid="value"]')).not.toContainText('typed');
             await expect(page.locator('[data-testid="value"]')).toContainText('?copied');
             await page.getByRole('button', {name: 'Undo', exact: true}).click();
@@ -268,7 +279,7 @@ for (const existingDefinition of [false, true]) {
         const value = page.locator('[data-testid="value"]');
         await expect(value).toContainText('![pasted](/assets/test-image.jpg?copied)');
         await expect(value).toContainText('![typed](/assets/test-image.jpg?copied)');
-        await expect(value).toContainText('[ref]: /assets/test-image.jpg');
+        await expect(value).not.toContainText('[ref]:');
         await expect(page.locator('[data-testid="calls"]')).toHaveText('1');
     });
 }
@@ -297,6 +308,20 @@ for (const mode of ['wysiwyg', 'markup'] as const) {
                 }),
             );
         });
+        if (mode === 'markup') {
+            await expect(editor.locator('[data-resource-pending]')).toHaveCount(0);
+            await expect(page.getByRole('button', {name: 'Undo', exact: true})).toBeDisabled();
+            await editor.press(isMobile && browserName === 'webkit' ? 'Meta+a' : 'ControlOrMeta+a');
+            await editor.press('Backspace');
+            if (isMobile && browserName === 'webkit') await page.waitForTimeout(300);
+            await page.getByRole('button', {name: 'Read value'}).click();
+            await expect(page.locator('[data-testid="value"]')).toBeEmpty();
+            await page.getByRole('button', {name: 'Resolve paste'}).click();
+            await expect(page.locator('[data-testid="events"]')).toHaveText('pending,succeeded');
+            await page.getByRole('button', {name: 'Read value'}).click();
+            await expect(page.locator('[data-testid="value"]')).toBeEmpty();
+            return;
+        }
         await expect(editor.locator('[data-resource-pending]')).toHaveCount(2);
         await expect(editor.locator('[data-resource-pending="image"]')).toBeVisible();
         await expect(editor.locator('[data-resource-pending="file"]')).toContainText('report.pdf');
@@ -307,8 +332,6 @@ for (const mode of ['wysiwyg', 'markup'] as const) {
             const box = await skeleton.boundingBox();
             expect(box?.width).toBeCloseTo(100, 0);
             expect(box?.height).toBeCloseTo(80, 0);
-        } else {
-            await expect(editor.locator('[data-resource-pending="image"]')).toContainText('B');
         }
         await expect(page.getByRole('button', {name: 'Undo', exact: true})).toBeDisabled();
         await page.locator('[data-qa="g-md-settings-button"]').click();
@@ -322,17 +345,9 @@ for (const mode of ['wysiwyg', 'markup'] as const) {
         await page.getByRole('button', {name: 'Read value'}).click();
         const before = await page.locator('[data-testid="value"]').textContent();
         await editor.click();
-        await editor.press(
-            isMobile && browserName === 'webkit' && mode === 'markup'
-                ? 'Meta+a'
-                : 'ControlOrMeta+a',
-        );
+        await editor.press('ControlOrMeta+a');
         await editor.press('Backspace');
-        if (isMobile && browserName === 'webkit' && mode === 'markup') {
-            // CodeMirror defers iOS deletion keys by 250 ms. Let that edit attempt
-            // finish while the resource is still protected, before resolving it.
-            await page.waitForTimeout(300);
-        }
+
         await page.getByRole('button', {name: 'Read value'}).click();
         expect(await page.locator('[data-testid="value"]').textContent()).toBe(before);
         await page.getByRole('button', {name: 'Resolve paste'}).click();

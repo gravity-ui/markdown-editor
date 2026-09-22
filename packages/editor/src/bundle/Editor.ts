@@ -83,7 +83,10 @@ export interface EditorInt
     readonly directiveSyntax: DirectiveSyntaxContext;
     readonly mobile: boolean;
 
-    /** @internal used in demo for dev-tools */
+    /**
+     * Used in demo for dev-tools.
+     * @internal
+     */
     readonly _wysiwygView?: PMEditorView;
 
     readonly currentEditor: CommonEditor;
@@ -350,7 +353,9 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
                             ? createCodeMirrorResourceIntegration({
                                   controller: this.#resourceReplacement.controller,
                                   resources: this.#resourceReplacement.resources,
-                                  urls: this.#sharedExtensions.buildDeps().markupParser,
+                                  parser: this.#sharedExtensions.buildDeps().markupParser,
+                                  serializer: this.#sharedExtensions.buildDeps().serializer,
+                                  escapeConfig: this.#escapeConfig,
                                   triggers: this.#resourceReplacement.triggers,
                               })
                             : []),
@@ -517,7 +522,7 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
     get #resourceReplacementBusy(): boolean {
         if (this.#resourceReplacement.controller?.busy) return true;
         // An accepted insertion can notify consumers before its view starts the request.
-        // Its transient ranges already lock the engine during this notification.
+        // Its pending state already locks the engine during this notification.
         const pmState = this.#wysiwygEditor?.view.state;
         return Boolean(
             (pmState && resourceReplacementKey.getState(pmState)?.length) ||

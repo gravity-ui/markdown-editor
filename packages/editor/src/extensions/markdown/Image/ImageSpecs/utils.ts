@@ -18,7 +18,14 @@ export function imageToMarkdown({renderExtra}: ImageToMarkdownParams = {}): Seri
 
         result += '](';
 
-        if (attrs[ImageAttr.Src]) result += state.esc(attrs[ImageAttr.Src]);
+        const src: string = attrs[ImageAttr.Src];
+        if (src) {
+            // Keep literal entities in the URL from being decoded when Markdown is parsed again.
+            result += src
+                .split('&')
+                .map((part) => state.esc(part))
+                .join('&amp;');
+        }
 
         if (attrs[ImageAttr.Title]) result += ` ${state.quote(attrs[ImageAttr.Title])}`;
 

@@ -1,6 +1,6 @@
 import type {InlineContext} from '@lezer/markdown' with {'resolution-mode': 'import'};
-import parseLinkDestination from 'markdown-it/lib/helpers/parse_link_destination';
-import parseLinkTitle from 'markdown-it/lib/helpers/parse_link_title';
+import parseLinkDestination from 'markdown-it/lib/helpers/parse_link_destination.js';
+import parseLinkTitle from 'markdown-it/lib/helpers/parse_link_title.js';
 
 /** Parse a bracket label and a balanced Markdown destination, without parsing a document. */
 export function inlineDestination(

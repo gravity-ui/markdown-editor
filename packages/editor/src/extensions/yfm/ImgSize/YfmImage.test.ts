@@ -64,6 +64,16 @@ describe('Image extension', () => {
         same('![alt text 2](img4.png "title text 2" =400x300)', doc(p(img4())));
     });
 
+    it('should preserve literal URL entities together with size, alt and title', () => {
+        const original = doc(p(img4({src: '/image?x=&copy;&y=&#65;'})));
+        const markup = serializer.serialize(original);
+
+        expect(markup).toBe(
+            '![alt text 2](/image?x=&amp;copy;&amp;y=&amp;#65; "title text 2" =400x300)',
+        );
+        expect(parser.parse(markup)).toMatchNode(original);
+    });
+
     it('should correctly parse width and height from HTML img element', () => {
         const dom = document.createElement('div');
         dom.innerHTML = '<img src="img.png" width="200" height="100">';

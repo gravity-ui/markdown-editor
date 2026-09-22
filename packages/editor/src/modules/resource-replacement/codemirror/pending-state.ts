@@ -1,40 +1,18 @@
-import {StateField, type Transaction} from '@codemirror/state';
+import {StateField} from '@codemirror/state';
 
 import {historyLocked} from '../../../markup/codemirror/history-lock';
 
-import {release, resolved, tracked} from './const';
-import type {ResourceBatch} from './types';
+import {release, tracked} from './const';
 
-/** Обычные правки снаружи не входят в диапазон; замена должна остаться внутри него. */
-export function mapBatchRanges(batches: readonly ResourceBatch[], tr: Transaction) {
-    const replacement = tr.annotation(resolved);
-    return batches.map((batch) => ({
-        ...batch,
-        ranges: batch.ranges.map((range) => ({
-            ...range,
-            from: tr.changes.mapPos(range.from, replacement ? -1 : 1),
-            to: tr.changes.mapPos(range.to, replacement ? 1 : -1),
-        })),
-    }));
-}
-
-export const pendingField = StateField.define<ResourceBatch[]>({
+/** Includes accepted insertions whose update listener has not started resolve yet. */
+export const pendingField = StateField.define<readonly string[]>({
     create: () => [],
-    provide: (field) => historyLocked.from(field, (batches) => batches.length > 0),
-    update(batches, tr) {
-        const trackedBatch = tr.annotation(tracked);
-        if (
-            !trackedBatch &&
-            (!batches.length ||
-                (!tr.docChanged && !tr.effects.some((effect) => effect.is(release))))
-        )
-            return batches;
-        const remaining = batches.filter(
-            (batch) =>
-                !tr.effects.some((effect) => effect.is(release) && effect.value === batch.id),
-        );
-        const mapped = mapBatchRanges(remaining, tr);
-        if (trackedBatch) mapped.push(trackedBatch);
-        return mapped;
+    provide: (field) => historyLocked.from(field, (operations) => operations.length > 0),
+    update(operations, tr) {
+        for (const effect of tr.effects) {
+            if (effect.is(release)) operations = operations.filter((id) => id !== effect.value);
+        }
+        const id = tr.annotation(tracked);
+        return id ? [...operations, id] : operations;
     },
 });

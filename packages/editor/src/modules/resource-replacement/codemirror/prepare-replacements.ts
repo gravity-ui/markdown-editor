@@ -1,58 +1,23 @@
-import type {EditorState} from '@codemirror/state';
+import type {ChangeSpec} from '@codemirror/state';
 
-import {resourceKey} from '../controller.utils';
-import {prepareResourceUrl} from '../urls';
+/** Replace the changed span while preserving the common prefix and suffix. */
+export function textChanges(before: string, after: string): ChangeSpec[] {
+    if (before === after) return [];
 
-import {collectMarkupResources} from './collect-resources';
-import type {ResourceSyntaxMatch} from './handlers';
-import type {CodeMirrorResourceReplacementOptions} from './options';
+    let from = 0;
+    let oldEnd = before.length;
+    let newEnd = after.length;
+    while (from < oldEnd && from < newEnd && before[from] === after[from]) from++;
+    // Keep surrogate pairs together when the two strings share only their high surrogate.
+    if (from > 0 && /[\uD800-\uDBFF]/.test(before[from - 1])) from--;
 
-/**
- * Готовит изменения всего текущего документа, не применяя их. Подробности — в resources.md.
- * Values are prepared and serialized for every match before the caller dispatches.
- */
-export function prepareResourceChanges(
-    state: EditorState,
-    replacements: ReadonlyMap<string, string>,
-    options: Pick<CodeMirrorResourceReplacementOptions, 'resources' | 'urls'>,
-    requestedUrlKeys: ReadonlySet<string> = new Set(),
-) {
-    const urls = new Map<string, string>();
-    for (const [key, value] of replacements) {
-        if (requestedUrlKeys.has(key)) urls.set(key, prepareResourceUrl(options.urls, value));
+    while (oldEnd > from && newEnd > from && before[oldEnd - 1] === after[newEnd - 1]) {
+        oldEnd--;
+        newEnd--;
     }
-    const changes: Array<{from: number; to: number; insert: string}> = [];
-    // Без ranges: ответ обновляет и вставленные, и ранее существовавшие совпадения.
-    for (const {syntax, resource, isUrl} of collectMarkupResources(state, options)) {
-        const key = resourceKey(resource);
-        let value = replacements.get(key);
-        if (value === undefined) continue;
-        if (isUrl) {
-            value = urls.get(key) ?? prepareResourceUrl(options.urls, value);
-            urls.set(key, value);
-        }
-        const {from, to, insert} = serializeResourceChange(syntax, value);
-        if (state.sliceDoc(from, to) !== insert) changes.push({from, to, insert});
+    if (oldEnd < before.length && /[\uDC00-\uDFFF]/.test(before[oldEnd])) {
+        oldEnd++;
+        newEnd++;
     }
-    // Все позиции относятся к state.doc: изменения применятся вместе, без ручного
-    // сдвига координат и повторного поиска по новым адресам (каскадной замены).
-    return changes;
-}
-
-function serializeResourceChange(syntax: ResourceSyntaxMatch, value: string) {
-    const reference = syntax.reference;
-    const from = reference?.labelTo ?? syntax.valueRange.from;
-    const to = reference ? syntax.range.to : syntax.valueRange.to;
-    let insert = syntax.serialize(value);
-    if (typeof insert !== 'string') throw new Error('Invalid resource serialization');
-    if (reference) {
-        // Заменяем [photo] у изображения на (новый URL "title"). Общее определение
-        // не меняем, чтобы сохранить адрес обычных ссылок на ту же метку.
-        const title = reference.title?.replace(
-            /[&"\\\r\n]/g,
-            (char) => '&#' + char.charCodeAt(0) + ';',
-        );
-        insert = '(' + insert + (title ? ' "' + title + '"' : '') + ')';
-    }
-    return {from, to, insert};
+    return [{from, to: oldEnd, insert: after.slice(from, newEnd)}];
 }

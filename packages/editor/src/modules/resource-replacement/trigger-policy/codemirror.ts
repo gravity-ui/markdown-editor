@@ -1,4 +1,3 @@
-import {syntaxTree} from '@codemirror/language';
 import {Prec, type Transaction} from '@codemirror/state';
 import {EditorView} from '@codemirror/view';
 
@@ -15,13 +14,6 @@ type TransferContext = {
     excludedFromReplacement: boolean;
 };
 
-const isInsertionPositionInCode = ({view, pos}: {view: EditorView; pos: number}) => {
-    for (let node = syntaxTree(view.state).resolveInner(pos, -1); node; node = node.parent!) {
-        if (['FencedCode', 'CodeBlock', 'InlineCode'].includes(node.name)) return true;
-    }
-    return false;
-};
-
 const isUploadingFile = (data: DataTransfer | null) => {
     return Boolean(data?.files.length);
 };
@@ -33,14 +25,8 @@ export function createCodeMirrorResourceIntegration({
     triggers: readonly ResourceTrigger[];
 }) {
     let transferContext: TransferContext | undefined;
-    const captureTransferContext = (
-        view: EditorView,
-        trigger: 'paste' | 'drop',
-        data: DataTransfer | null,
-        pos: number,
-    ) => {
-        const excludedFromReplacement =
-            isInsertionPositionInCode({view, pos}) || isUploadingFile(data);
+    const captureTransferContext = (trigger: 'paste' | 'drop', data: DataTransfer | null) => {
+        const excludedFromReplacement = isUploadingFile(data);
         const context = {
             trigger,
             excludedFromReplacement,
@@ -59,20 +45,9 @@ export function createCodeMirrorResourceIntegration({
                     transferContext = undefined;
                     return false;
                 },
-                paste: (clipboardEvent, view) =>
-                    captureTransferContext(
-                        view,
-                        'paste',
-                        clipboardEvent.clipboardData,
-                        view.state.selection.main.from,
-                    ),
-                drop: (dropEvent, view) =>
-                    captureTransferContext(
-                        view,
-                        'drop',
-                        dropEvent.dataTransfer,
-                        view.posAtCoords({x: dropEvent.clientX, y: dropEvent.clientY}, false),
-                    ),
+                paste: (clipboardEvent) =>
+                    captureTransferContext('paste', clipboardEvent.clipboardData),
+                drop: (dropEvent) => captureTransferContext('drop', dropEvent.dataTransfer),
             }),
         ),
         Prec.highest(

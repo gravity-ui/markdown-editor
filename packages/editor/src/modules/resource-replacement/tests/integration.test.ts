@@ -8,20 +8,17 @@ import {Plugin} from 'prosemirror-state';
 import {ResourceReplacementController} from '..';
 import {EditorImpl} from '../../../bundle/Editor';
 import {BundlePreset} from '../../../bundle/wysiwyg-preset';
-import type {Extension} from '../../../core';
+import {type Extension, createEditorExtensions} from '../../../core';
 import {ReactRenderStorage} from '../../../extensions';
 import {Logger2} from '../../../logger';
 import {DirectiveSyntaxContext} from '../../../utils/directive';
 import {codeMirrorResourceReplacement} from '../codemirror';
-import {collectMarkupResources} from '../codemirror/collect-resources';
 import type {
     ReplacementResource,
     ResourceReplacementConfig,
     ResourceReplacementResult,
     ResourceSpecOverrides,
 } from '../types';
-
-import {defaultResourceUrls} from './urls';
 
 const flush = async () => {
     for (let i = 0; i < 8; i++) await Promise.resolve();
@@ -102,15 +99,10 @@ function setup(
     const dom = cm?.contentDOM ?? pm.dom;
     const value = () => editor.getValue();
     const resources = () => {
-        if (cm) {
-            const prepared = collectMarkupResources(cm.state, {
-                urls: editor.wysiwygEditor.parser,
-                resources: config.resources ?? configuredResources,
-            });
-            return prepared.map(({syntax, resource}) => ({...syntax.range, resource}));
-        }
         const entries: Array<{from: number; to: number; resource: ReplacementResource}> = [];
-        pm.state.doc.descendants((node, from) => {
+        // Positions are only consumed by the ProseMirror-specific assertions.
+        const doc = cm ? editor.wysiwygEditor.parser.parse(cm.state.doc.toString()) : pm.state.doc;
+        doc.descendants((node, from) => {
             const spec = node.type.spec._resource;
             if (spec)
                 entries.push({
@@ -154,7 +146,7 @@ function setup(
 
 describe.each(['wysiwyg', 'markup'] as const)('global replacement in %s', (mode) => {
     test.each(['text/yfm', 'text/plain', 'text/html'])(
-        'accepted %s paste hides only B, replaces A and B, and preserves undo/redo',
+        'accepted %s paste replaces A and B with the mode-specific history',
         async (format) => {
             const t = setup(mode);
             t.append(
@@ -171,7 +163,7 @@ describe.each(['wysiwyg', 'markup'] as const)('global replacement in %s', (mode)
                 '/old.png',
                 '/old.png',
             ]);
-            expect(t.dom.querySelectorAll('[data-resource-pending]')).toHaveLength(1);
+            expect(t.dom.querySelectorAll('[data-resource-pending]')).toHaveLength(t.cm ? 0 : 1);
             if (!t.cm) {
                 expect(t.pm.nodeDOM(t.resources()[0].from)).not.toHaveProperty(
                     'style.display',
@@ -193,7 +185,9 @@ describe.each(['wysiwyg', 'markup'] as const)('global replacement in %s', (mode)
             ]);
             expect(t.dom.querySelectorAll('[data-resource-pending]')).toHaveLength(0);
             t.undo();
-            expect(t.resources().map((item) => item.resource.value)).toEqual(['/new.png']);
+            expect(t.resources().map((item) => item.resource.value)).toEqual(
+                t.cm ? ['/old.png', '/old.png'] : ['/new.png'],
+            );
             t.redo();
             expect(t.resources().map((item) => item.resource.value)).toEqual([
                 '/new.png',
@@ -204,7 +198,7 @@ describe.each(['wysiwyg', 'markup'] as const)('global replacement in %s', (mode)
         },
     );
 
-    test('blocks pending history, all mode changes, and edits intersecting B; allows surrounding text', async () => {
+    test('blocks pending history and mode changes; only PM protects resource edits', async () => {
         const t = setup(mode);
         t.append();
         const initial = t.value();
@@ -217,6 +211,22 @@ describe.each(['wysiwyg', 'markup'] as const)('global replacement in %s', (mode)
             reason: 'settings',
         });
         expect(t.editor.currentMode).toBe(mode);
+        if (t.cm) {
+            const from = t.value().indexOf('![B]');
+            t.edit(from, t.value().length);
+            expect(t.resources()).toHaveLength(1);
+            t.edit(0, 0, 'during ');
+            t.resolve();
+            await flush();
+            expect(t.value()).toContain('during ');
+            expect(t.resources()[0].resource.value).toBe('/new.png');
+            t.undo();
+            expect(t.value()).toContain('during ');
+            expect(t.resources()[0].resource.value).toBe('/old.png');
+            t.editor.setEditorMode('wysiwyg');
+            expect(t.editor.currentMode).toBe('wysiwyg');
+            return;
+        }
         const range = t.resources()[1];
         t.edit(range.from, range.to);
         t.edit(range.from - 1, range.to, 'replacement');
@@ -296,7 +306,7 @@ describe.each(['wysiwyg', 'markup'] as const)('global replacement in %s', (mode)
         expect(t.value()).toContain('[link](/shared)');
         expect(t.value()).toContain('`![code](/shared)`');
         t.undo();
-        expect(t.resources()).toHaveLength(0);
+        expect(t.resources()).toHaveLength(t.cm ? 3 : 0);
         t.redo();
         expect(t.resources().map((item) => item.resource.value)).toEqual([
             '/new',
@@ -321,7 +331,7 @@ describe.each(['wysiwyg', 'markup'] as const)('global replacement in %s', (mode)
                 '/first.png',
                 '/first.png',
             ]);
-            expect(t.dom.querySelectorAll('[data-resource-pending]')).toHaveLength(1);
+            expect(t.dom.querySelectorAll('[data-resource-pending]')).toHaveLength(t.cm ? 0 : 1);
             const before = t.value();
             t.undo();
             expect(t.value()).toBe(before);
@@ -329,6 +339,17 @@ describe.each(['wysiwyg', 'markup'] as const)('global replacement in %s', (mode)
             await flush();
             expect(t.dom.querySelectorAll('[data-resource-pending]')).toHaveLength(0);
             expect(t.value()).not.toContain('/second.png');
+            if (t.cm) {
+                t.undo();
+                expect(t.resources().map((item) => item.resource.value)).toEqual([
+                    '/old.png',
+                    '/old.png',
+                    '/old.png',
+                ]);
+                t.redo();
+                expect(t.callback).toHaveBeenCalledTimes(2);
+                return;
+            }
             t.undo();
             expect(t.resources()).toHaveLength(2);
             t.undo();
@@ -503,20 +524,19 @@ describe.each(['wysiwyg', 'markup'] as const)('global replacement in %s', (mode)
     });
 });
 
-test('Markdown reference images convert occurrences without changing their shared link definition', async () => {
-    const t = setup('markup', '![A][ref] [link][ref]\n\n[ref]: /old.png "ti&amp;tle"');
-    t.append('\n\n![B][pasted]\n\n[pasted]: /old.png "ti&amp;tle"');
+test('Markdown serialization expands references while preserving ordinary link values', async () => {
+    const t = setup('markup', '![A][ref] [link][ref]\n\n[ref]: /old.png "title"');
+    t.append('\n\n![B][pasted]\n\n[pasted]: /old.png "title"');
+    const before = t.value();
     t.resolve();
     await flush();
-    expect(t.value()).toContain('![A](/new.png "ti&#38;tle")');
-    expect(t.value()).toContain('![B](/new.png "ti&#38;tle")');
-    expect(t.value()).toContain('[link][ref]');
-    expect(t.value()).toContain('[ref]: /old.png "ti&amp;tle"');
+    expect(t.value()).toContain('![A](/new.png "title")');
+    expect(t.value()).toContain('![B](/new.png "title")');
+    expect(t.value()).toContain('[link](/old.png "title")');
     t.undo();
-    expect(t.value()).not.toContain('![B]');
-    expect(t.value()).toContain('![A](/new.png');
+    expect(t.value()).toBe(before);
     t.redo();
-    expect(t.value()).toContain('![B](/new.png');
+    expect(t.resources().map((entry) => entry.resource.value)).toEqual(['/new.png', '/new.png']);
 });
 
 test.each(['![Photo][id]', '![id][]', '![id]'])(
@@ -539,20 +559,22 @@ test('Markdown tracks only the new resource in a paste containing an existing re
     expect(t.callback.mock.calls[0][0]).toEqual([
         {kind: 'image', value: '/new-resource.png', name: 'new'},
     ]);
-    expect(t.dom.querySelectorAll('[data-resource-pending]')).toHaveLength(1);
+    expect(t.dom.querySelectorAll('[data-resource-pending]')).toHaveLength(t.cm ? 0 : 1);
     const from = t.value().indexOf('![old][id]');
     t.edit(from, from + '![old][id]'.length);
     t.resolve(result('/new-resource.png', '/copied.png'));
     await flush();
     expect(t.value()).toContain('![new](/copied.png)');
-    expect(t.value()).toContain('[id]: /existing.png');
+    expect(t.value()).not.toContain('[id]:');
 });
 
 test('Markdown uses the selected existing definition when a paste contains a duplicate', () => {
     const t = setup('markup', '[id]: /existing.png\n\n');
     t.append('![Photo][id]\n\n[id]: /pasted.png');
     expect(t.resources()[0].resource.value).toBe('/existing.png');
-    expect(t.callback).not.toHaveBeenCalled();
+    expect(t.callback.mock.calls[0][0]).toEqual([
+        {kind: 'image', value: '/pasted.png', name: 'Photo'},
+    ]);
     expect(t.dom.querySelectorAll('[data-resource-pending]')).toHaveLength(0);
 });
 
@@ -562,13 +584,13 @@ test('Markdown still replaces an untracked reference when another pasted resourc
     expect(t.callback.mock.calls[0][0]).toEqual([
         {kind: 'image', value: '/old.png', name: 'inline'},
     ]);
-    expect(t.dom.querySelectorAll('[data-resource-pending]')).toHaveLength(1);
+    expect(t.dom.querySelectorAll('[data-resource-pending]')).toHaveLength(t.cm ? 0 : 1);
     t.resolve();
     await flush();
     expect(t.value()).toContain('![reference](/new.png) ![inline](/new.png)');
-    expect(t.value()).toContain('[id]: /old.png');
+    expect(t.value()).not.toContain('[id]:');
     t.undo();
-    expect(t.resources()).toHaveLength(0);
+    expect(t.resources().map((entry) => entry.resource.value)).toEqual(['/old.png', '/old.png']);
     t.redo();
     expect(t.resources().map((item) => item.resource.value)).toEqual(['/new.png', '/new.png']);
 });
@@ -617,15 +639,12 @@ test('WYSIWYG preserves a pending indicator when edits move its resource', () =>
     expect(t.dom.querySelector('[data-resource-pending]')).toBe(indicator);
 });
 
-test('Markdown reuses pending decoration ranges when only the selection changes', () => {
+test('Markdown pending resources have no decorations or atomic ranges', () => {
     const t = setup('markup', 'before\n\n');
     t.append('![B](/old.png)');
     const view = t.cm!;
-    const atomic = view.state.facet(CMView.atomicRanges).find((read) => read(view).size > 0)!;
-    const ranges = atomic(view);
-    view.dispatch({selection: {anchor: 1}});
-    expect(atomic(view)).toBe(ranges);
-    expect(view.state.facet(CMView.decorations)).toContain(ranges);
+    expect(t.dom.querySelectorAll('[data-resource-pending]')).toHaveLength(0);
+    expect(view.state.facet(CMView.atomicRanges).every((read) => read(view).size === 0)).toBe(true);
 });
 
 test('WYSIWYG precomputed and rejected states cannot start requests', () => {
@@ -654,12 +673,22 @@ test('CodeMirror standalone precomputation is pure and raw commands respect the 
     );
     let complete!: (result: ResourceReplacementResult) => void;
     const controller = new ResourceReplacementController({resolve: callback});
+    const {markupParser: parser, serializer} = createEditorExtensions({
+        extensions: (builder) =>
+            builder.use(BundlePreset, {
+                preset: 'full',
+                searchPanel: false,
+                directiveSyntax: new DirectiveSyntaxContext('enabled'),
+                reactRenderer: new ReactRenderStorage(),
+            }),
+    }).buildDeps();
     const view = new CMView({
         doc: 'before',
         extensions: [
             cmHistory(),
             codeMirrorResourceReplacement({
-                urls: defaultResourceUrls,
+                parser,
+                serializer,
                 controller,
                 resources: {image: {kind: 'image', valueAttribute: 'src', nameAttribute: 'alt'}},
                 shouldTrack: (tr) => tr.isUserEvent('input.paste'),
@@ -680,7 +709,7 @@ test('CodeMirror standalone precomputation is pure and raw commands respect the 
         complete(result());
         await flush();
         cmUndo(view);
-        expect(view.state.doc.toString()).toBe('before');
+        expect(view.state.doc.toString()).toBe('![B](/old.png)');
         cmRedo(view);
         expect(view.state.doc.toString()).toBe('![B](/new.png)');
     } finally {
@@ -689,33 +718,35 @@ test('CodeMirror standalone precomputation is pure and raw commands respect the 
     }
 });
 
-test('unconfigured resources and code never start operations', () => {
+test('unconfigured resources are skipped; collection inside existing code is approximate', () => {
     const t = setup('markup', '', {resources: {}});
     t.append('![B](/old.png)');
     expect(t.callback).not.toHaveBeenCalled();
     const code = setup('markup', '```md\ninside\n```');
     code.cm!.dispatch({selection: {anchor: 8}});
     paste(code.dom, '![B](/old.png)');
-    expect(code.callback).not.toHaveBeenCalled();
+    expect(code.callback).toHaveBeenCalledTimes(1);
 });
 
-test('Markdown keeps paste history after an earlier undo/redo cycle and a later global replacement', async () => {
+test('Markdown undo and redo of replacements never repeat resolve', async () => {
     const t = setup('markup', 'before');
     t.append(' ![B](/old.png)');
     t.resolve(result('/old.png', '/middle'));
     await flush();
     t.undo();
+    expect(t.resources()[0].resource.value).toBe('/old.png');
     t.redo();
     t.append(' ![C](/middle)');
     t.resolve(result('/middle', '/last'));
     await flush();
     t.undo();
-    expect(t.resources().map((item) => item.resource.value)).toEqual(['/last']);
+    expect(t.resources().map((entry) => entry.resource.value)).toEqual(['/middle', '/middle']);
     t.undo();
-    expect(t.value()).toBe('before');
+    expect(t.resources().map((entry) => entry.resource.value)).toEqual(['/middle']);
     t.redo();
     t.redo();
-    expect(t.resources().map((item) => item.resource.value)).toEqual(['/last', '/last']);
+    expect(t.resources().map((entry) => entry.resource.value)).toEqual(['/last', '/last']);
+    expect(t.callback).toHaveBeenCalledTimes(2);
 });
 
 test('Markdown undo of a resource typed while waiting removes the complete syntax', async () => {
@@ -725,7 +756,9 @@ test('Markdown undo of a resource typed while waiting removes the complete synta
     t.resolve();
     await flush();
     t.undo();
-    expect(t.value()).toBe('before ![B](/new.png)');
+    expect(t.value()).toContain('![typed](/old.png)');
+    t.undo();
+    expect(t.value()).toBe('before ![B](/old.png)');
     t.undo();
     expect(t.value()).toBe('before');
 });
@@ -743,17 +776,19 @@ test('Markdown uses the current definition and succeeds when no old URL matches 
     expect(t.dom.querySelectorAll('[data-resource-pending]')).toHaveLength(0);
 });
 
-test('Markdown discovery and replacement never invoke the WYSIWYG document parser', async () => {
+test('Markdown parses the insertion and current document using the shared parser', async () => {
     const t = setup('markup', 'before');
     const parse = jest.spyOn(t.editor.wysiwygEditor.parser, 'parse');
     try {
-        t.append('![B](/old.png) ![ref][asset]\n\n[asset]: /old.png');
+        t.append('![B](/old.png)');
+        expect(parse).toHaveBeenCalledWith('![B](/old.png)');
         t.edit(0, 0, 'prefix ');
+        const current = t.value();
         t.resolve();
         await flush();
+        expect(parse).toHaveBeenLastCalledWith(current);
+        parse.mockClear();
         t.undo();
-        t.undo();
-        t.redo();
         t.redo();
         expect(parse).not.toHaveBeenCalled();
     } finally {
@@ -779,7 +814,9 @@ test.each(['wysiwyg', 'markup'] as const)(
         expect(t.dom.querySelectorAll('[data-resource-pending]')).toHaveLength(0);
         t.undo();
         t.undo();
-        expect(t.resources().map((item) => item.resource.value)).toEqual(['/new.png']);
+        expect(t.resources().map((item) => item.resource.value)).toEqual(
+            t.cm ? ['/old.png', '/old.png'] : ['/new.png'],
+        );
     },
 );
 
@@ -822,7 +859,7 @@ test('Markdown history preserves unrelated remote edits through multiple pending
     t.undo();
     t.undo();
     expect(t.value()).toContain('remote ');
-    expect(t.resources().map((item) => item.resource.value)).toEqual(['/second']);
+    expect(t.resources().map((item) => item.resource.value)).toEqual(['/old.png', '/old.png']);
     t.redo();
     t.redo();
     expect(t.value()).toContain('remote ');
@@ -858,4 +895,48 @@ test('WYSIWYG collects the accepted normalized insertion', async () => {
     expect(t.value()).toBe('before');
     t.redo();
     expect(t.value()).toContain('/new.png');
+});
+
+test('Markdown serialization errors leave the accepted document intact and unlock the editor', async () => {
+    const t = setup('markup', 'before');
+    t.append();
+    const before = t.value();
+    const serialize = jest
+        .spyOn(t.editor.wysiwygEditor.serializer, 'serialize')
+        .mockImplementation(() => {
+            throw new Error('Cannot serialize resource');
+        });
+    try {
+        t.resolve();
+        await flush();
+        expect(t.value()).toBe(before);
+        expect(t.events.mock.calls.at(-1)[0].status).toBe('failed');
+        expect(t.editor.getPendingResourceReplacements()).toEqual([]);
+        t.undo();
+        expect(t.value()).toBe('before');
+    } finally {
+        serialize.mockRestore();
+    }
+});
+
+test('Markdown remote transactions cannot resolve even when annotated as paste', () => {
+    const t = setup('markup', 'before');
+    t.cm!.dispatch({
+        changes: {from: 0, insert: '![remote](/old.png) '},
+        userEvent: 'input.paste',
+        annotations: CMTransaction.remote.of(true),
+    });
+    expect(t.callback).not.toHaveBeenCalled();
+    expect(t.editor.getPendingResourceReplacements()).toEqual([]);
+});
+
+test('Markdown replaces an existing matching resource but leaves a pasted candidate inside code intact', async () => {
+    const t = setup('markup', '![existing](/old.png)\n\n```md\n\n```');
+    const from = t.value().indexOf('```md') + 6;
+    t.cm!.dispatch({changes: {from, insert: '![code](/old.png)'}, userEvent: 'input.paste'});
+    expect(t.callback).toHaveBeenCalledTimes(1);
+    t.resolve();
+    await flush();
+    expect(t.value()).toContain('![existing](/new.png)');
+    expect(t.value()).toContain('![code](/old.png)');
 });

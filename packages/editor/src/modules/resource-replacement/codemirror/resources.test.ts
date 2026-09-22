@@ -1,357 +1,206 @@
-import {syntaxTreeAvailable} from '@codemirror/language';
 import {EditorState} from '@codemirror/state';
 import {FILE_TOKEN} from '@diplodoc/file-extension';
 
-import {DirectiveSyntaxFacet} from '../../../markup/codemirror/directive-facet';
-import {yfmLang} from '../../../markup/codemirror/yfm';
+import {BundlePreset} from '../../../bundle/wysiwyg-preset';
+import {type Extension, createEditorExtensions} from '../../../core';
+import {ReactRenderStorage} from '../../../extensions';
 import {DirectiveSyntaxContext} from '../../../utils/directive';
 import {resourceKey} from '../controller.utils';
-import {defaultResourceUrls} from '../tests/urls';
+import {
+    type ResourceMarkdownOptions,
+    collectMarkdownResources,
+    replaceMarkdownResources,
+} from '../markdown';
 
-import {fileResourceHandler, imageResourceHandler} from './builtins';
-import {collectInsertedMarkupResources, collectMarkupResources} from './collect-resources';
-import {codeMirrorResourceSupport} from './handlers';
-import {prepareResourceChanges} from './prepare-replacements';
+import {collectInsertedMarkupResources} from './collect-resources';
+import {textChanges} from './prepare-replacements';
 
-const options = {
-    urls: defaultResourceUrls,
-    resources: {
-        image: {kind: 'image', valueAttribute: 'src', nameAttribute: 'alt'},
-        [FILE_TOKEN]: {kind: 'file', valueAttribute: 'href', nameAttribute: 'download'},
-    },
-};
-function state(doc: string, mode: 'disabled' | 'enabled' | 'only' = 'enabled') {
-    return EditorState.create({
-        doc,
-        extensions: [
-            yfmLang(),
-            DirectiveSyntaxFacet.of(new DirectiveSyntaxContext(mode)),
-            codeMirrorResourceSupport(imageResourceHandler),
-            codeMirrorResourceSupport(fileResourceHandler),
-        ],
-    });
+function options(extra?: Extension): ResourceMarkdownOptions {
+    const {markupParser: parser, serializer} = createEditorExtensions({
+        extensions(builder) {
+            builder.use(BundlePreset, {
+                preset: 'full',
+                searchPanel: false,
+                directiveSyntax: new DirectiveSyntaxContext('enabled'),
+                reactRenderer: new ReactRenderStorage(),
+            });
+            if (extra) builder.use(extra);
+        },
+    }).buildDeps();
+    return {
+        parser,
+        serializer,
+        resources: {
+            image: {kind: 'image', valueAttribute: 'src', nameAttribute: 'alt'},
+            [FILE_TOKEN]: {kind: 'file', valueAttribute: 'href', nameAttribute: 'download'},
+        },
+    };
 }
-
-test.each([
-    ['disabled', ['legacy']],
-    ['enabled', ['legacy', 'directive']],
-    ['only', ['directive']],
-] as const)('file syntax respects directive mode %s', (mode, names) => {
-    const prepared = collectMarkupResources(
-        state(
-            '{% file src="/legacy.pdf" name="legacy" %}\n\n:file[directive](/directive.pdf)',
-            mode,
-        ),
-        options,
-    );
-    expect(prepared.map((span) => span.resource.name)).toEqual(names);
-});
+const replacements = (oldValue = '/old.png', newValue = '/new.png', kind = 'image') =>
+    new Map([[resourceKey({kind, value: oldValue}), newValue]]);
 
 test.each([
     '![a](/old.png)',
     '![a](</old.png> "title")',
-    '![a](/old.png =100x200)',
-    '![a](/old.png "title" =50%x200)',
-    ':file[](/old.png "title")',
+    '![a](/old.png "title" =100x200)',
     ':file[a](/old.png)',
     '{% file src="/old.png" name="a" %}',
-])('keeps both construction and URL ranges: %s', (source) => {
-    const prepared = collectMarkupResources(state(source), options);
-    expect(prepared).toHaveLength(1);
-    const span = prepared[0];
-    expect(source.slice(span.syntax.valueRange.from, span.syntax.valueRange.to)).toBe('/old.png');
-    expect(source.slice(span.syntax.range.from, span.syntax.range.to)).toBe(source);
+    '![a][ref]\n\n[ref]: /old.png',
+])('collects configured nodes using the Markdown parser: %s', (source) => {
+    expect(collectMarkdownResources(source, options()).map(({resource}) => resource.value)).toEqual(
+        ['/old.png'],
+    );
 });
 
-test('code and ordinary links do not become resources', () => {
+test('code nodes, code marks and ordinary links are excluded', () => {
+    expect(
+        collectMarkdownResources(
+            '`![a](/inline)`\n\n```md\n![a](/fenced)\n```\n\n    ![a](/indented)\n\n##![a](/mono)##\n\n[link](/link)',
+            options(),
+        ),
+    ).toEqual([]);
+});
+
+test('independent insertions cannot combine into a new Markdown construct', () => {
+    const tr = EditorState.create({doc: 'separator'}).update({
+        changes: [
+            {from: 0, insert: '![label]('},
+            {from: 9, insert: '/old.png)'},
+        ],
+    });
+    expect(collectInsertedMarkupResources(tr, options())).toEqual([]);
+});
+
+test('fragment collection is approximate and does not read surrounding code or definitions', () => {
+    const config = options();
+    const tr = EditorState.create({doc: '```\n\n```'}).update({
+        changes: {from: 4, insert: '![a](/old.png)'},
+    });
+    expect(collectInsertedMarkupResources(tr, config)).toHaveLength(1);
+    expect(replaceMarkdownResources(tr.newDoc.toString(), replacements(), config)).toBeUndefined();
+    const reference = EditorState.create({doc: '[ref]: /old.png\n\n'}).update({
+        changes: {from: 17, insert: '![a][ref]'},
+    });
+    expect(collectInsertedMarkupResources(reference, config)).toEqual([]);
+});
+
+test('replacement is global, preserves attributes, and skips links and code', () => {
+    const config = options();
     const source =
-        '`![a](/inline.png)`\n\n```md\n![a](/fenced.png)\n```\n\n    ![a](/indented.png)\n\n##![a](/monospace.png)##\n\n[link](/link.png)';
-    expect(collectMarkupResources(state(source), options)).toEqual([]);
+        '![a](/old.png "title" =100x200) ![b](/old.png) [link](/old.png) `![code](/old.png)`';
+    const result = replaceMarkdownResources(source, replacements(), config)!;
+    const images: Record<string, unknown>[] = [];
+    config.parser.parse(result).descendants((node) => {
+        if (node.type.name === 'image') images.push({...node.attrs});
+    });
+    expect(images).toEqual([
+        expect.objectContaining({
+            src: '/new.png',
+            alt: 'a',
+            title: 'title',
+            width: '100',
+            height: '200',
+        }),
+        expect.objectContaining({src: '/new.png', alt: 'b'}),
+    ]);
+    expect(result).toContain('[link](/old.png)');
+    expect(result).toContain('`![code](/old.png)`');
 });
 
-test('insertion collection reads only the inserted resource in a large document', () => {
-    const current = state('![existing](/old.png)\n\n'.repeat(200));
-    const tr = current.update({changes: {from: current.doc.length, insert: '![new](/new.png)'}});
-    const read = jest.spyOn(imageResourceHandler, 'read');
-    try {
-        expect(collectInsertedMarkupResources(tr, options).map(({resource}) => resource)).toEqual([
-            {kind: 'image', value: '/new.png', name: 'new'},
-        ]);
-        expect(read).toHaveBeenCalledTimes(1);
-    } finally {
-        read.mockRestore();
-    }
+test('empty, unchanged and absent replacements do not serialize or reformat the source', () => {
+    const config = options();
+    const serialize = jest.spyOn(config.serializer, 'serialize');
+    const source = '#   title\n\n![a](/old.png)';
+    expect(replaceMarkdownResources(source, new Map(), config)).toBeUndefined();
+    expect(
+        replaceMarkdownResources(source, replacements('/old.png', '/old.png'), config),
+    ).toBeUndefined();
+    expect(replaceMarkdownResources(source, replacements('/absent'), config)).toBeUndefined();
+    expect(serialize).not.toHaveBeenCalled();
+});
+
+test('one response does not cascade', () => {
+    const config = options();
+    const changes = new Map([...replacements('/one', '/two'), ...replacements('/two', '/three')]);
+    const result = replaceMarkdownResources('![a](/one) ![b](/two)', changes, config)!;
+    expect(collectMarkdownResources(result, config).map(({resource}) => resource.value)).toEqual([
+        '/two',
+        '/three',
+    ]);
+});
+
+test('all requested URLs are validated even when their nodes were deleted', () => {
+    const config = options();
+    const changes = replacements('/old.png', 'javascript:bad'); // eslint-disable-line no-script-url
+    expect(() =>
+        replaceMarkdownResources('deleted', changes, config, new Set(changes.keys())),
+    ).toThrow('Invalid resource URL');
+});
+
+const asset: Extension = (builder) => {
+    builder.configureMd((md) => {
+        md.inline.ruler.before('text', 'asset', (state, silent) => {
+            const match = /^:asset\[("(?:[^"\\]|\\.)*")\]/.exec(state.src.slice(state.pos));
+            if (!match) return false;
+            if (!silent) state.push('asset', '', 0).attrSet('assetId', JSON.parse(match[1]));
+            state.pos += match[0].length;
+            return true;
+        });
+        return md;
+    });
+    builder.addNode('asset', () => ({
+        spec: {inline: true, group: 'inline', atom: true, attrs: {assetId: {}}},
+        fromMd: {
+            tokenSpec: {
+                name: 'asset',
+                type: 'node',
+                getAttrs: (token) => ({assetId: token.attrGet('assetId')}),
+            },
+        },
+        toMd: (state, node) => state.write(`:asset[${JSON.stringify(node.attrs.assetId)}]`),
+    }));
+};
+
+test('extension specs support opaque IDs without a CodeMirror handler or URL normalization', () => {
+    const config = options(asset);
+    config.resources = {asset: {kind: 'asset', valueAttribute: 'assetId'}};
+    const before = '  A&B/Ж  ';
+    const after = '  B"\\&copy;  ';
+    const source = `:asset[${JSON.stringify(before)}]`;
+    const result = replaceMarkdownResources(source, replacements(before, after, 'asset'), config)!;
+    expect(collectMarkdownResources(result, config)).toEqual([
+        {resource: {kind: 'asset', value: after}, isUrl: false},
+    ]);
+});
+
+test('the same kind/value can address a URL and an opaque ID', () => {
+    const config = options(asset);
+    config.resources = {...config.resources, asset: {kind: 'image', valueAttribute: 'assetId'}};
+    const result = replaceMarkdownResources(
+        '![a](/old.png) :asset["/old.png"]',
+        replacements('/old.png', '/new image.png'),
+        config,
+    )!;
+    expect(collectMarkdownResources(result, config).map(({resource}) => resource.value)).toEqual([
+        '/new%20image.png',
+        '/new image.png',
+    ]);
 });
 
 test.each([
-    ['```md\n', '\n```'],
-    ['`', '`'],
-    ['![existing](', ')'],
-    ['![', '](/outer.png)'],
-])('insertion collection respects syntax outside the inserted range: %s', (before, after) => {
-    const current = state(before + after);
-    const tr = current.update({changes: {from: before.length, insert: '![new](/new.png)'}});
-    expect(collectInsertedMarkupResources(tr, options)).toEqual([]);
-});
-
-test('insertion collection resolves definitions nested in block containers', () => {
-    const source = '> ![new][id]\n>\n> [id]: /new.png';
-    const tr = state('').update({changes: {from: 0, insert: source}});
-    expect(collectInsertedMarkupResources(tr, options).map(({resource}) => resource)).toEqual([
-        {kind: 'image', value: '/new.png', name: 'new'},
-    ]);
-});
-
-test('empty resource configuration needs no language or document parse', () => {
-    expect(
-        collectMarkupResources(EditorState.create({doc: '![a](/a.png)'}), {
-            ...options,
-            resources: {},
-        }),
-    ).toEqual([]);
-});
-
-test('completes an unfinished CM tree before extracting distant resources', () => {
-    const source = 'paragraph\n\n'.repeat(4000) + '![far][asset]\n\n[asset]: /far.png';
-    const current = state(source);
-    expect(syntaxTreeAvailable(current, current.doc.length)).toBe(false);
-    const prepared = collectMarkupResources(current, options);
-    expect(prepared).toHaveLength(1);
-    expect(prepared[0].resource).toEqual({kind: 'image', value: '/far.png', name: 'far'});
-    expect(prepared[0].syntax.range.from).toBe(source.indexOf('![far]'));
-});
-
-test('an edit to a reference definition updates its resource before the transaction is applied', () => {
-    const current = state('![label][id]\n\n[id]: /old.png');
-    expect(collectMarkupResources(current, options)[0].resource.value).toBe('/old.png');
-    const from = current.doc.toString().indexOf('/old.png');
-    const tr = current.update({changes: {from, to: from + 8, insert: '/new.png'}});
-    expect(collectMarkupResources(current, options, tr)[0].resource.value).toBe('/new.png');
-});
-
-test('requires an explicit handler for a configured resource node', () => {
-    const resources = {video: {kind: 'video', valueAttribute: 'src'}};
-    expect(() =>
-        collectMarkupResources(state(':video[/old.mp4]'), {...options, resources}),
-    ).toThrow('No CodeMirror resource handler registered for node: video');
-});
-
-test('does not treat a label as the source URL when metadata selects a different attribute', () => {
-    const resources = {image: {kind: 'image', valueAttribute: 'alt'}};
-    expect(() =>
-        collectMarkupResources(state('![label](/old.png)'), {...options, resources}),
-    ).toThrow('value attribute: alt');
-});
-
-test('standalone integrations can supply URL rules without a document parser', () => {
-    const urls = {
-        normalizeLink: (value: string) =>
-            defaultResourceUrls.normalizeLink(value.replace('/alias.png', '/actual.png')),
-        validateLink: (value: string) =>
-            defaultResourceUrls.validateLink(value) && !value.startsWith('/blocked'),
-    };
-    const current = state('![a](/alias.png) ![b](/blocked.png)');
-    const configured = {
-        ...options,
-        urls,
-    };
-    const prepared = collectMarkupResources(current, configured);
-    expect(prepared).toHaveLength(1);
-    expect(prepared[0].resource.value).toBe('/actual.png');
-    const key = resourceKey(prepared[0].resource);
-    expect(prepareResourceChanges(current, new Map([[key, '/alias.png']]), configured)).toEqual([
-        {...prepared[0].syntax.valueRange, insert: '/actual.png'},
-    ]);
-    expect(() =>
-        prepareResourceChanges(current, new Map([[key, '/blocked.png']]), configured),
-    ).toThrow('Invalid resource URL');
-});
-
-test('insertion collection preserves the order of reference and inline resources', () => {
-    const tr = state('').update({
-        changes: {
-            from: 0,
-            insert: '![reference][id] ![inline](/old.png)\n\n[id]: /old.png',
-        },
-    });
-    expect(collectInsertedMarkupResources(tr, options).map(({resource}) => resource.name)).toEqual([
-        'reference',
-        'inline',
-    ]);
-});
-
-test('replacement normalizes a new URL once and preserves reference label, title and definition', () => {
-    const current = state('![inline](/old.png) ![ref][id]\n\n[id]: /old.png "ti&amp;tle"');
-    const value = '/new file.png?x=1&y=2';
-    const normalizeLink = jest.fn(defaultResourceUrls.normalizeLink);
-    const changes = prepareResourceChanges(
-        current,
-        new Map([[resourceKey({kind: 'image', value: '/old.png'}), value]]),
-        {...options, urls: {...defaultResourceUrls, normalizeLink}},
-    );
-    expect(normalizeLink.mock.calls.filter(([input]) => input === value)).toHaveLength(1);
-    expect(current.update({changes}).newDoc.toString()).toBe(
-        '![inline](/new%20file.png?x=1&amp;y=2) ![ref](/new%20file.png?x=1&amp;y=2 "ti&#38;tle")\n\n[id]: /old.png "ti&amp;tle"',
-    );
-});
-
-test('one replacement escapes Markdown destinations but preserves literal file URLs', () => {
-    const current = state('{% file src="/old.pdf" name="File" %}\n\n:file[File](/old.pdf)');
-    const changes = prepareResourceChanges(
-        current,
-        new Map([[resourceKey({kind: 'file', value: '/old.pdf'}), '/new.pdf?x=1&y=2']]),
-        options,
-    );
-    expect(current.update({changes}).newDoc.toString()).toBe(
-        '{% file src="/new.pdf?x=1&y=2" name="File" %}\n\n:file[File](/new.pdf?x=1&amp;y=2)',
-    );
-});
-
-// This custom syntax stores a JSON string, including its quotes, inside :asset[...].
-const assetSupport = codeMirrorResourceSupport({
-    nodeType: 'asset',
-    valueAttribute: 'assetId',
-    syntaxNodes: ['AssetResource'],
-    syntax: {
-        defineNodes: ['AssetResource'],
-        parseInline: [
-            {
-                name: 'AssetResource',
-                before: 'Link',
-                parse(cx, next, pos) {
-                    if (next !== 58) return -1;
-                    const match = /^:asset\[("(?:[^"\\\r\n]|\\.)*")\]/.exec(cx.slice(pos, cx.end));
-                    if (!match) return -1;
-                    return cx.addElement(cx.elt('AssetResource', pos, pos + match[0].length));
-                },
-            },
-        ],
-    },
-    read({node, doc}) {
-        const valueRange = {from: node.from + 7, to: node.to - 1};
-        return {
-            range: {from: node.from, to: node.to},
-            valueRange,
-            attrs: {assetId: JSON.parse(doc.sliceString(valueRange.from, valueRange.to))},
-            serialize(value) {
-                if (value.includes('\0')) throw new Error('Unsupported asset value');
-                return JSON.stringify(value);
-            },
-        };
-    },
-});
-const assetOptions = {
-    urls: defaultResourceUrls,
-    resources: {asset: {kind: 'image', valueAttribute: 'assetId'}},
-};
-const assetSource = (value: string) => `:asset[${JSON.stringify(value)}]`;
-function assetState(doc: string) {
-    return EditorState.create({doc, extensions: [assetSupport, yfmLang()]});
-}
-
-test('opaque values bypass URL rules and round-trip through their own quoted syntax', () => {
-    const oldValue = ' asset:ABC/123 &amp; %41 \\" ';
-    const newValue = ' asset:XYZ/456 " ] \\ &amp; %20\nnext ';
-    const current = assetState(
-        `${assetSource(oldValue)} ${assetSource(oldValue.toLowerCase())} ${assetSource(oldValue)}`,
-    );
-    const forbidden = jest.fn(() => {
-        throw new Error('URL codec called for an opaque value');
-    });
-    const configured = {...assetOptions, urls: {normalizeLink: forbidden, validateLink: forbidden}};
-    expect(collectMarkupResources(current, configured).map(({resource}) => resource.value)).toEqual(
-        [oldValue, oldValue.toLowerCase(), oldValue],
-    );
-    const changes = prepareResourceChanges(
-        current,
-        new Map([[resourceKey({kind: 'image', value: oldValue}), newValue]]),
-        configured,
-    );
-    const updated = current.update({changes}).state;
-    expect(collectMarkupResources(updated, configured).map(({resource}) => resource.value)).toEqual(
-        [newValue, oldValue.toLowerCase(), newValue],
-    );
-    expect(forbidden).not.toHaveBeenCalled();
-});
-
-test('opaque replacements use original pairs without cascading and skip code', () => {
-    const current = assetState(`${assetSource('A')} ${assetSource('B')} \`${assetSource('A')}\``);
-    const changes = prepareResourceChanges(
-        current,
-        new Map([
-            [resourceKey({kind: 'image', value: 'A'}), 'B'],
-            [resourceKey({kind: 'image', value: 'B'}), 'C'],
-        ]),
-        assetOptions,
-    );
-    expect(current.update({changes}).newDoc.toString()).toBe(
-        `${assetSource('B')} ${assetSource('C')} \`${assetSource('A')}\``,
-    );
-});
-
-test('serialization failure prevents the whole set of source edits from being returned', () => {
-    const source = `${assetSource('A')} ${assetSource('B')}`;
-    const current = assetState(source);
-    expect(() =>
-        prepareResourceChanges(
-            current,
-            new Map([
-                [resourceKey({kind: 'image', value: 'A'}), 'valid'],
-                [resourceKey({kind: 'image', value: 'B'}), '\0'],
-            ]),
-            assetOptions,
-        ),
-    ).toThrow('Unsupported asset value');
-    expect(current.doc.toString()).toBe(source);
-});
-
-test('the same kind/value can address a URL and an id without leaking URL normalization to the id', () => {
-    const current = EditorState.create({
-        doc: `![image](/old.png) ${assetSource('/old.png')}`,
-        extensions: [assetSupport, codeMirrorResourceSupport(imageResourceHandler), yfmLang()],
-    });
-    const changes = prepareResourceChanges(
-        current,
-        new Map([[resourceKey({kind: 'image', value: '/old.png'}), '/new image.png']]),
-        {
-            ...options,
-            resources: {...options.resources, ...assetOptions.resources, [FILE_TOKEN]: false},
-        },
-    );
-    expect(current.update({changes}).newDoc.toString()).toBe(
-        `![image](/new%20image.png) ${assetSource('/new image.png')}`,
-    );
-});
-
-test('custom URL resources opt into URL preparation explicitly', () => {
-    // eslint-disable-next-line no-script-url
-    const invalidUrl = 'javascript:alert(1)';
-    const current = assetState(assetSource('/old.png'));
-    const configured = {
-        ...options,
-        resources: {asset: {...assetOptions.resources.asset, valueType: 'url' as const}},
-    };
-    const key = resourceKey({kind: 'image', value: '/old.png'});
-    const changes = prepareResourceChanges(current, new Map([[key, '/new image.png']]), configured);
-    expect(current.update({changes}).newDoc.toString()).toBe(assetSource('/new%20image.png'));
-    expect(() => prepareResourceChanges(current, new Map([[key, invalidUrl]]), configured)).toThrow(
-        'Invalid resource URL',
-    );
-});
-
-test('still validates URL pairs from the request after their current matches disappear', () => {
-    const key = resourceKey({kind: 'image', value: '/old.png'});
-    // eslint-disable-next-line no-script-url
-    const invalidUrl = 'javascript:alert(1)';
-    expect(() =>
-        prepareResourceChanges(
-            state('text'),
-            new Map([[key, invalidUrl]]),
-            options,
-            new Set([key]),
-        ),
-    ).toThrow('Invalid resource URL');
-    expect(
-        prepareResourceChanges(assetState('text'), new Map([[key, invalidUrl]]), assetOptions),
-    ).toEqual([]);
+    ['prefix old middle old suffix', 'prefix new middle new suffix', 7, 21],
+    ['same', 'same', undefined, undefined],
+    ['', 'new', 0, 0],
+    ['old', '', 0, 3],
+    ['a😀z', 'a😁z', 1, 3],
+    ['a😀z', 'a🨀z', 1, 3],
+])('text replacement preserves common edges: %s → %s', (before, after, from, to) => {
+    const changes = textChanges(before, after);
+    const state = EditorState.create({doc: before});
+    expect(state.update({changes}).newDoc.toString()).toBe(after);
+    if (from === undefined) expect(changes).toEqual([]);
+    else
+        expect(changes).toEqual([
+            {from, to, insert: after.slice(from, after.length - (before.length - to!))},
+        ]);
 });
