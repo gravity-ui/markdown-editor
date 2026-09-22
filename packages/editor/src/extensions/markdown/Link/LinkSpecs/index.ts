@@ -1,20 +1,9 @@
-import type {Mark, Node} from 'prosemirror-model';
-
 import type {ExtensionAuto} from '#core';
-import {markTypeFactory} from 'src/utils/schema';
 
-import {BreakNodeName} from '../../Breaks/BreaksSpecs';
+import {LinkAttr, linkMarkName} from './const';
+import {canSerializeRawLink, escapeParenthesesInUrl, isPlainURL} from './utils';
 
-export const linkMarkName = 'link';
-export const linkType = markTypeFactory(linkMarkName);
-
-export enum LinkAttr {
-    Href = 'href',
-    Title = 'title',
-    // tech attributes
-    IsPlaceholder = 'is-placeholder',
-    RawLink = 'raw-link',
-}
+export {LinkAttr, linkMarkName, linkType} from './const';
 
 export const LinkSpecs: ExtensionAuto = (builder) => {
     builder
@@ -82,41 +71,3 @@ export const LinkSpecs: ExtensionAuto = (builder) => {
             },
         }));
 };
-
-// Keep raw URLs only when linkify cannot include the next content.
-function canSerializeRawLink(mark: Mark, parent: Node, nextIndex: number): boolean {
-    if (!mark.attrs[LinkAttr.RawLink]) return false;
-
-    const next = parent.maybeChild(nextIndex);
-    if (!next) return true;
-
-    if (next.marks.length) return false;
-    // Hard breaks add a backslash that can join the URL.
-    if (next.type.name === BreakNodeName.SoftBreak) return true;
-
-    // Unlike \s, this excludes U+FEFF, which can join the URL.
-    return next.isText && /^[\t\n\r\p{Z}]/u.test(next.text ?? '');
-}
-
-function isPlainURL(link: Mark, parent: Node, index: number, side: number) {
-    if (link.attrs.title || !/^\w+:/.test(link.attrs[LinkAttr.Href])) return false;
-
-    const content = parent.child(index + (side < 0 ? -1 : 0));
-
-    if (
-        !content.isText ||
-        content.text !== link.attrs[LinkAttr.Href] ||
-        content.marks[content.marks.length - 1] !== link
-    )
-        return false;
-
-    if (index === (side < 0 ? 1 : parent.childCount - 1)) return true;
-
-    const next = parent.child(index + (side < 0 ? -2 : 1));
-
-    return !link.isInSet(next.marks);
-}
-
-function escapeParenthesesInUrl(url: string): string {
-    return url.replaceAll(/\(|\)/g, (p) => '\\' + p);
-}
