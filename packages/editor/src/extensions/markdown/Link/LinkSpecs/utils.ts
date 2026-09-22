@@ -3,7 +3,7 @@ import type {Mark, Node} from '#pm/model';
 
 import {BreakNodeName} from '../../Breaks/BreaksSpecs';
 
-import {LinkAttr} from './const';
+import {LinkAttr, leadingWhitespace, trailingWhitespace} from './const';
 
 // Keep raw URLs only when linkify cannot include the next content.
 export function canSerializeRawLink(mark: Mark, parent: Node, nextIndex: number): boolean {
@@ -16,8 +16,7 @@ export function canSerializeRawLink(mark: Mark, parent: Node, nextIndex: number)
     // Hard breaks add a backslash that can join the URL.
     if (next.type.name === BreakNodeName.SoftBreak) return true;
 
-    // Unlike \s, this excludes U+FEFF, which can join the URL.
-    return next.isText && /^[\t\n\r\p{Z}]/u.test(next.text ?? '');
+    return next.isText && leadingWhitespace.test(next.text ?? '');
 }
 
 export function isPlainURL(link: Mark, parent: Node, index: number, side: number) {
@@ -46,7 +45,7 @@ export function escapeParenthesesInUrl(url: string): string {
 // TODO: Remove this helper after https://github.com/gravity-ui/markdown-editor/issues/1263 is fixed.
 export function unwrapRawLinkBeforeWhitespace(state: SerializerState, href: string): boolean {
     // Core may write a marked space before closing the link.
-    const whitespace = state.out.match(/[\t\n\r\p{Z}]+$/u)?.[0];
+    const whitespace = state.out.match(trailingWhitespace)?.[0];
     if (!whitespace || !state.out.endsWith(`<${href}${whitespace}`)) return false;
 
     const start = state.out.length - href.length - whitespace.length - 1;

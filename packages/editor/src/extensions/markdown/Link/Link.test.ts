@@ -107,7 +107,7 @@ describe('Link extension', () => {
         );
     });
 
-    it('should preserve a raw link followed by an image after serialization', () => {
+    it('should wrap a raw link before an image and preserve both after parsing', () => {
         const href = 'https://ya.ru/';
         const content = doc(p(a({href, [LinkAttr.RawLink]: true}, href), img()));
 
@@ -124,7 +124,7 @@ describe('Link extension', () => {
         );
     });
 
-    it.each([' ', '\t', '\n', '\r', '\u00a0', '\u2009', '\u2028', '\u2029'])(
+    it.each([' ', '\t', '\n', '\r', '\v', '\f', '\u00a0', '\u2009', '\u2028', '\u2029'])(
         'should keep a raw link before whitespace %j',
         (space) => {
             const href = 'https://ya.ru/';
@@ -186,6 +186,25 @@ describe('Link extension', () => {
 
         serialize(content, href + ' text');
         parse(serializer.serialize(content), doc(p(a({href}, href), ' text')));
+    });
+
+    it.each(['+', '~', '_'])(
+        'should keep URL character %s before marked whitespace',
+        (character) => {
+            const href = `https://ya.ru/a${character}b`;
+            const content = doc(p(a({href, [LinkAttr.RawLink]: true}, href), bold(' '), 'text'));
+
+            serialize(content, href + ' text');
+            parse(serializer.serialize(content), doc(p(a({href}, href), ' text')));
+        },
+    );
+
+    it.each(['\v', '\f'])('should keep a raw link before marked control whitespace %j', (space) => {
+        const href = 'https://ya.ru/';
+        const content = doc(p(a({href, [LinkAttr.RawLink]: true}, href), bold(space), 'text'));
+
+        serialize(content, href + space + 'text');
+        parse(serializer.serialize(content), doc(p(a({href}, href), space + 'text')));
     });
 
     it('should keep a raw link before marked whitespace at the end', () => {

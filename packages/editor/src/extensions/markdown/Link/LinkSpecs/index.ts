@@ -51,8 +51,7 @@ export const LinkSpecs: ExtensionAuto = (builder) => {
             open(state_, mark, parent, index) {
                 // TODO: Remove this saved flag after https://github.com/gravity-ui/markdown-editor/issues/1263 is fixed.
                 const state = state_ as SerializerState & {isRawAutolink?: boolean};
-                // FIXME: Verify and use Node instead of Fragment
-                state.isAutolink = isPlainURL(mark, parent as any, index, 1);
+                state.isAutolink = isPlainURL(mark, parent, index, 1);
                 if (state.isAutolink) {
                     state.isRawAutolink = canSerializeRawLink(mark, parent, index + 1);
                     if (state.isRawAutolink) return '';
