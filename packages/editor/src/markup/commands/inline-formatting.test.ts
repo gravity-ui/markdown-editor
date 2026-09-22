@@ -136,6 +136,25 @@ describe('inline paragraph formatting', () => {
         expect(editor.state.doc.toString()).toBe(' \t\n\n ');
     });
 
+    it.each([
+        ['abc   \n\ndef', 3, 11, 'abc   \n\n**def**'],
+        ['abc \t \n\ndef', 3, 11, 'abc \t \n\n**def**'],
+        ['abc\n\n   def', 0, 8, '**abc**\n\n   def'],
+        ['abc   def', 3, 6, 'abc   def'],
+    ] as const)('should skip whitespace-only selected parts in %j', (doc, from, to, expected) => {
+        const editor = createEditor(doc, EditorSelection.single(from, to));
+        editor.run(toggleBold);
+
+        expect(editor.state.doc.toString()).toBe(expected);
+    });
+
+    it('should keep two blank lines between paragraphs', () => {
+        const editor = createEditor('First\n\n\nSecond');
+        editor.run(toggleBold);
+
+        expect(editor.state.doc.toString()).toBe('**First**\n\n\n**Second**');
+    });
+
     it('should format only selected parts and keep a backward selection', () => {
         const editor = createEditor('Before first\n\nsecond after', EditorSelection.single(20, 7));
         editor.run(toggleBold);
@@ -212,6 +231,13 @@ describe('inline paragraph formatting', () => {
 
         editor.run(toggleBold);
         expect(editor.state.sliceDoc()).toBe('First\r\n\r\nSecond');
+    });
+
+    it('should keep a single Windows line break inside a paragraph', () => {
+        const editor = createEditor('First\r\nsecond\r\n\r\nThird', undefined, '\r\n');
+        editor.run(toggleBold);
+
+        expect(editor.state.sliceDoc()).toBe('**First\r\nsecond**\r\n\r\n**Third**');
     });
 
     it('should format multiple selections and map their positions', () => {
@@ -316,6 +342,16 @@ describe('inline paragraph formatting', () => {
         editor.run(undo);
 
         expect(editor.state.doc.toString()).toBe('First\n\nSecond');
+    });
+
+    it('should undo marker removal in one step', () => {
+        const doc = '**First**\n\n**Second**';
+        const editor = createEditor(doc);
+        editor.run(toggleBold);
+        editor.run(undo);
+
+        expect(editor.state.doc.toString()).toBe(doc);
+        expect(editor.state.selection).toEqual(EditorSelection.single(0, doc.length));
     });
 
     it.each([

@@ -293,8 +293,8 @@ export function getInlineRanges(doc: Text, range: SelectionRange): {from: number
     iterateOverRangeLines(doc, range, (line) => {
         const from = Math.max(line.from, range.from);
         const to = Math.min(line.to, range.to);
-        // Skip blank lines and a last line with no selected text.
-        if (from >= to || /^[\t ]*$/.test(line.text)) {
+        // Skip selected whitespace and lines with no selected text.
+        if (from >= to || /^[\t ]*$/.test(doc.sliceString(from, to))) {
             part = undefined;
         } else if (part) {
             // A single line break stays inside the same paragraph.
