@@ -151,7 +151,7 @@ test.describe('Link', () => {
         await actions.pressFocused('Enter');
         await actions.pressFocused('ArrowUp');
         await expect(markupPreview).toHaveText(
-            /Lorem ipsum dolor sit ame\s+t,\s+consectetur adipiscing elit\.\s*/,
+            /Lorem ipsum dolor sit amet,\s+consectetur adipiscing elit\.\s*/,
         );
 
         await editor.clickMainToolbarButton('Link');
