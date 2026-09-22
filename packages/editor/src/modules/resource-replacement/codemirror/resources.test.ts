@@ -9,12 +9,9 @@ import {resourceKey} from '../controller.utils';
 import {defaultResourceUrls} from '../urls';
 
 import {fileResourceHandler, imageResourceHandler} from './builtins';
+import {collectInsertedMarkupResources, collectMarkupResources} from './collect-resources';
 import {codeMirrorResourceSupport} from './handlers';
-import {
-    collectInsertedMarkupResources,
-    collectMarkupResources,
-    markupResourceChanges,
-} from './resources';
+import {prepareResourceChanges} from './prepare-replacements';
 
 const options = {
     resources: {
@@ -158,11 +155,11 @@ test('standalone integrations can supply URL rules without a document parser', (
     expect(prepared).toHaveLength(1);
     expect(prepared[0].resource.value).toBe('/actual.png');
     const key = resourceKey(prepared[0].resource);
-    expect(markupResourceChanges(current, new Map([[key, '/alias.png']]), configured)).toEqual([
+    expect(prepareResourceChanges(current, new Map([[key, '/alias.png']]), configured)).toEqual([
         {...prepared[0].syntax.valueRange, insert: '/actual.png'},
     ]);
     expect(() =>
-        markupResourceChanges(current, new Map([[key, '/blocked.png']]), configured),
+        prepareResourceChanges(current, new Map([[key, '/blocked.png']]), configured),
     ).toThrow('Invalid resource URL');
 });
 
@@ -183,7 +180,7 @@ test('replacement normalizes a new URL once and preserves reference label, title
     const current = state('![inline](/old.png) ![ref][id]\n\n[id]: /old.png "ti&amp;tle"');
     const value = '/new file.png?x=1&y=2';
     const normalizeLink = jest.fn(defaultResourceUrls.normalizeLink);
-    const changes = markupResourceChanges(
+    const changes = prepareResourceChanges(
         current,
         new Map([[resourceKey({kind: 'image', value: '/old.png'}), value]]),
         {...options, urls: {...defaultResourceUrls, normalizeLink}},
@@ -196,7 +193,7 @@ test('replacement normalizes a new URL once and preserves reference label, title
 
 test('one replacement escapes Markdown destinations but preserves literal file URLs', () => {
     const current = state('{% file src="/old.pdf" name="File" %}\n\n:file[File](/old.pdf)');
-    const changes = markupResourceChanges(
+    const changes = prepareResourceChanges(
         current,
         new Map([[resourceKey({kind: 'file', value: '/old.pdf'}), '/new.pdf?x=1&y=2']]),
         options,
@@ -258,7 +255,7 @@ test('opaque values bypass URL rules and round-trip through their own quoted syn
     expect(collectMarkupResources(current, configured).map(({resource}) => resource.value)).toEqual(
         [oldValue, oldValue.toLowerCase(), oldValue],
     );
-    const changes = markupResourceChanges(
+    const changes = prepareResourceChanges(
         current,
         new Map([[resourceKey({kind: 'image', value: oldValue}), newValue]]),
         configured,
@@ -272,7 +269,7 @@ test('opaque values bypass URL rules and round-trip through their own quoted syn
 
 test('opaque replacements use original pairs without cascading and skip code', () => {
     const current = assetState(`${assetSource('A')} ${assetSource('B')} \`${assetSource('A')}\``);
-    const changes = markupResourceChanges(
+    const changes = prepareResourceChanges(
         current,
         new Map([
             [resourceKey({kind: 'image', value: 'A'}), 'B'],
@@ -289,7 +286,7 @@ test('serialization failure prevents the whole set of source edits from being re
     const source = `${assetSource('A')} ${assetSource('B')}`;
     const current = assetState(source);
     expect(() =>
-        markupResourceChanges(
+        prepareResourceChanges(
             current,
             new Map([
                 [resourceKey({kind: 'image', value: 'A'}), 'valid'],
@@ -306,7 +303,7 @@ test('the same kind/value can address a URL and an id without leaking URL normal
         doc: `![image](/old.png) ${assetSource('/old.png')}`,
         extensions: [assetSupport, codeMirrorResourceSupport(imageResourceHandler), yfmLang()],
     });
-    const changes = markupResourceChanges(
+    const changes = prepareResourceChanges(
         current,
         new Map([[resourceKey({kind: 'image', value: '/old.png'}), '/new image.png']]),
         {resources: {...options.resources, ...assetOptions.resources, [FILE_TOKEN]: false}},
@@ -324,9 +321,9 @@ test('custom URL resources opt into URL preparation explicitly', () => {
         resources: {asset: {...assetOptions.resources.asset, valueType: 'url' as const}},
     };
     const key = resourceKey({kind: 'image', value: '/old.png'});
-    const changes = markupResourceChanges(current, new Map([[key, '/new image.png']]), configured);
+    const changes = prepareResourceChanges(current, new Map([[key, '/new image.png']]), configured);
     expect(current.update({changes}).newDoc.toString()).toBe(assetSource('/new%20image.png'));
-    expect(() => markupResourceChanges(current, new Map([[key, invalidUrl]]), configured)).toThrow(
+    expect(() => prepareResourceChanges(current, new Map([[key, invalidUrl]]), configured)).toThrow(
         'Invalid resource URL',
     );
 });
@@ -336,9 +333,14 @@ test('still validates URL pairs from the request after their current matches dis
     // eslint-disable-next-line no-script-url
     const invalidUrl = 'javascript:alert(1)';
     expect(() =>
-        markupResourceChanges(state('text'), new Map([[key, invalidUrl]]), options, new Set([key])),
+        prepareResourceChanges(
+            state('text'),
+            new Map([[key, invalidUrl]]),
+            options,
+            new Set([key]),
+        ),
     ).toThrow('Invalid resource URL');
     expect(
-        markupResourceChanges(assetState('text'), new Map([[key, invalidUrl]]), assetOptions),
+        prepareResourceChanges(assetState('text'), new Map([[key, invalidUrl]]), assetOptions),
     ).toEqual([]);
 });

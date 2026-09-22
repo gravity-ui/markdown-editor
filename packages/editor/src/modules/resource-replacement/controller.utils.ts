@@ -40,3 +40,13 @@ export function validateReplacements(
     }
     return replacements;
 }
+
+/** Сохраняет первое вхождение каждой точной пары kind/value, включая его подпись. */
+export function deduplicateResources(resources: readonly ReplacementResource[]) {
+    const unique = new Map<string, ReplacementResource>();
+    for (const resource of resources) {
+        const key = resourceKey(resource);
+        if (!unique.has(key)) unique.set(key, resource);
+    }
+    return [...unique.values()];
+}

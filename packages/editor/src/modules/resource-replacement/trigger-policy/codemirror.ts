@@ -1,5 +1,5 @@
 import {syntaxTree} from '@codemirror/language';
-import {Prec} from '@codemirror/state';
+import {Prec, type Transaction} from '@codemirror/state';
 import {EditorView} from '@codemirror/view';
 
 import {
@@ -12,10 +12,10 @@ import {isResourceTriggerEnabled} from './utils';
 
 type TransferContext = {
     trigger: 'paste' | 'drop';
-    plain: boolean;
+    excludedFromReplacement: boolean;
 };
 
-const isSourceInCode = ({view, pos}: {view: EditorView; pos: number}) => {
+const isInsertionPositionInCode = ({view, pos}: {view: EditorView; pos: number}) => {
     for (let node = syntaxTree(view.state).resolveInner(pos, -1); node; node = node.parent!) {
         if (['FencedCode', 'CodeBlock', 'InlineCode'].includes(node.name)) return true;
     }
@@ -33,16 +33,17 @@ export function createCodeMirrorResourceIntegration({
     triggers: readonly ResourceTrigger[];
 }) {
     let transferContext: TransferContext | undefined;
-    const captureSource = (
+    const captureTransferContext = (
         view: EditorView,
         trigger: 'paste' | 'drop',
         data: DataTransfer | null,
         pos: number,
     ) => {
-        const plain = isSourceInCode({view, pos}) || isUploadingFile(data);
+        const excludedFromReplacement =
+            isInsertionPositionInCode({view, pos}) || isUploadingFile(data);
         const context = {
             trigger,
-            plain,
+            excludedFromReplacement,
         };
         transferContext = context;
         queueMicrotask(() => {
@@ -59,14 +60,14 @@ export function createCodeMirrorResourceIntegration({
                     return false;
                 },
                 paste: (clipboardEvent, view) =>
-                    captureSource(
+                    captureTransferContext(
                         view,
                         'paste',
                         clipboardEvent.clipboardData,
                         view.state.selection.main.from,
                     ),
                 drop: (dropEvent, view) =>
-                    captureSource(
+                    captureTransferContext(
                         view,
                         'drop',
                         dropEvent.dataTransfer,
@@ -83,13 +84,19 @@ export function createCodeMirrorResourceIntegration({
         codeMirrorResourceReplacement({
             ...options,
             shouldTrack: (tr) => {
-                let trigger = transferContext?.trigger;
-                if (tr.isUserEvent('input.drop') || tr.isUserEvent('move.drop')) trigger = 'drop';
-                else if (tr.isUserEvent('input.paste')) trigger = 'paste';
+                const trigger = getTransactionTrigger(tr) ?? transferContext?.trigger;
                 return Boolean(
-                    trigger && !transferContext?.plain && isResourceTriggerEnabled(triggers, trigger),
+                    trigger &&
+                    !transferContext?.excludedFromReplacement &&
+                    isResourceTriggerEnabled(triggers, trigger),
                 );
             },
         }),
     ];
+}
+
+function getTransactionTrigger(tr: Transaction) {
+    if (tr.isUserEvent('input.drop') || tr.isUserEvent('move.drop')) return 'drop';
+    if (tr.isUserEvent('input.paste')) return 'paste';
+    return undefined;
 }

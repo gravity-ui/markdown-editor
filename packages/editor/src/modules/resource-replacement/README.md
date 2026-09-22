@@ -1,43 +1,82 @@
-# Resource replacement
+# Замена ресурсов
 
-This module owns asynchronous replacement of configured string resource values in both editor modes.
-See the [architecture](../../../../../docs/pasted-resources-architecture.md) and
-[configuration guide](../../../../../docs/how-to-resolve-pasted-resources.md).
+Модуль управляет асинхронной заменой настроенных строковых значений ресурсов
+в CodeMirror и ProseMirror. Настройка описана в [руководстве](../../../../../docs/how-to-resolve-pasted-resources.md),
+контракт — в [codex.md](../../../../../codex.md), устройство — в
+[архитектуре](../../../../../docs/pasted-resources-architecture.md).
 
-Пошаговое объяснение на русском: [сбор и замена ресурсов в CodeMirror](./codemirror/resources.md).
-Полный учебный разбор: [учебник в корне проекта](../../../../../RESOURCE_REPLACEMENT_TUTORIAL.md).
+Подробный разбор на русском: [учебник](../../../../../RESOURCE_REPLACEMENT_TUTORIAL.md)
+и [сбор и замена Markdown-ресурсов](./codemirror/resources.md).
 
-- `types.ts`: application configuration, requests, lifecycle events and cancellation.
-- `controller.ts`: request deduplication, concurrent operations, complete-response validation,
-  cancellation and timeout.
-  It has no engine or React dependencies and retains no completed results.
-- `prosemirror/`: accepted insertion collection, temporary protected ranges, decorations and global
-  attribute replacement. No service attributes are added to the schema or serialized document.
-- `codemirror/`: syntax handlers, temporary protected ranges, global source edits, and history amendment.
-  Resource descriptions come directly from configuration. `syntax-tree.ts` reuses CodeMirror's
-  complete tree for the same document or parses the required document in full, without a separate
-  tree cache or constructing the WYSIWYG editor, schema or parser.
-  Paste collection reads resource syntax within inserted ranges; responses scan all current resources.
-- `urls.ts`: explicit URL resource semantics, validation/encoding and Markdown URL utilities.
-  Custom values are opaque by default; `valueType: 'url'` opts in. Built-in image/src and file/href
-  retain URL rules. CodeMirror matches provide `serialize(value)` for their concrete syntax.
-- `indicator.tsx`: presentation shared with file uploads, independent of upload behavior.
-- `integration/`: clipboard/drop trigger policy, plain-text/code/file exclusions.
+## Общая часть
 
-`EditorImpl` owns the controller and cancels it on destruction. It checks `busy` at mode switching
-and updates the UI through an internal callback independent of application lifecycle observers.
-Requests start after accepted view updates. Responses apply atomically to every matching current
-`(kind, value)` pair; temporary ranges never select the global replacements.
+- `types.ts` — конфигурация приложения, ресурсы, ответы и события.
+- `controller.ts` — запуск resolve, ожидание, отмена, таймаут и завершение.
+- `controller.utils.ts` — точный ключ `(kind, value)`, дедупликация, проверка ответа
+  и пересечение диапазонов. При дедупликации сохраняются данные первого вхождения.
+- `urls.ts` — выбор URL-семантики и `prepareResourceUrl`. Непрозрачные значения
+  не нормализуются. Встроенные image/src и file/href используют URL-правила,
+  пользовательские типы включают их через `valueType: 'url'`.
+- `indicator.tsx` — представление ожидающего ресурса и освобождение React-элемента.
+- `trigger-policy/` — связь DOM paste/drop с транзакцией. Контекст события остаётся
+  в замыкании конкретной интеграции; его очистка не стирает контекст нового события.
 
-ProseMirror uses attribute steps with `addToHistory: false`. CodeMirror records originating paste
-ranges in history effects and amends inverse events, separating global changes outside each paste.
-Only this adapter depends on the internal CM history event shape. Completed requests release their
-closures, indicators and protection; there are no generated resource identities, result caches or cross-mode snapshots.
+## Реализации движков
 
-The controller entry point does not load either engine. Engine-specific extensions and metadata
-have separate module entry points. The package root exports configuration and CodeMirror resource
-handler support; the low-level extensions remain internal. Standalone engine owners dispose their
-controllers separately. External histories require their own adapter.
+В `codemirror/` и `prosemirror/` используются одинаковые границы ответственности:
 
-Tests cover both engines, acceptance, protected editing, global matching, concurrent results, history,
-reference syntax, URL escaping and operation cleanup. Tests must run in containers.
+| Файл | Назначение |
+| --- | --- |
+| `extension.ts` | Подключение, последовательность проверок, запуск и завершение операции, dispatch |
+| `transactions.ts` | Определение истории и исходного локального изменения |
+| `collect-resources.ts` | Сбор вхождений в документе и диапазонах вставки |
+| `pending-state.ts` | Сопровождение групп и координат |
+| `editing-guard.ts` | Защита вхождений от редактирования |
+| `decorations.ts` | Создание, обновление и уничтожение представления ожидания |
+| `prepare-replacements.ts` | Подготовка глобальных изменений без dispatch |
+| `const.ts`, `types.ts` | Служебные метки и типы групп |
+
+Проверки реализованы отдельно для каждого движка. PM проверяет каждый шаг, включая
+изменения атрибутов и марок; CM проверяет текстовые диапазоны. Направления отображения
+границ остаются явными. Декорации и защита используют состояние групп, но состояние
+не зависит от представления.
+
+В CodeMirror `handlers.ts` задаёт контракт обработчика, `builtins.ts` читает
+изображения, файлы и определения ссылок. Локальный `syntax-tree.ts` содержит проверку
+исключаемых кодовых веток. Сбор вставки ограничен вставленными диапазонами, применение
+ответа ищет совпадения во всём текущем документе. Обязательный `serialize(value)`
+готовит текст конкретной конструкции. Общие определения ссылок не переписываются.
+
+## Инфраструктура вне модуля
+
+- `markup/codemirror/syntax/` — грамматика файлов и размеров изображений.
+- `markup/codemirror/syntax-tree.ts` — полное дерево нужного документа, без отдельного
+  кэша и без построения редактора ProseMirror.
+- `markup/codemirror/history-lock.ts` — facet блокировки истории и обёртка dispatch
+  для штатных команд, обходящих фильтры транзакций.
+- `react-utils/components/ImageSkeleton` и `UploadLabel` — общие визуальные элементы
+  загрузки и замены. PM-дескриптор загрузки остаётся в её адаптере.
+
+## Порядок работы и гарантии
+
+`EditorImpl` владеет контроллером и отменяет операции при уничтожении. Запросы
+запускаются после принятого обновления. В PM группа помечается `started` до вызова
+контроллера, чтобы синхронный callback не запустил её повторно.
+
+Ответ проверяется целиком. URL-пары исходного запроса проверяются даже после
+исчезновения совпадений. Все изменения и сериализация готовятся до dispatch;
+результат применяется ко всем текущим совпадениям без каскада. URL-подготовка
+не меняет непрозрачный id с той же парой kind/value.
+
+Пустой или частичный ответ завершает всю операцию. Освобождение группы снимает
+индикаторы и защиту даже без изменения документа. Поздние ответы игнорируются.
+Undo/redo и переключение режима заблокированы до завершения операций.
+
+PM применяет атрибутные шаги без отдельного события истории. CM сохраняет диапазоны
+вставки и исправляет её обратные события в `history.ts`. Алгоритм этого файла
+не менялся при рефакторинге; зависимость от внутреннего устройства истории CM
+остаётся изолированной. Полная нормализация старой истории не выполняется.
+
+Публичный API сохранён. Контроллер не зависит от движков и React, не хранит
+завершённые результаты и освобождает замыкания адаптеров после завершения.
+Владельцы самостоятельных интеграций отдельно уничтожают контроллер.

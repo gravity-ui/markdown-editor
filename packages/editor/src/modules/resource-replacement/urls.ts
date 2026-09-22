@@ -21,7 +21,7 @@ export type ResourceLinkCodec = {
 const {normalizeLink, validateLink} = new MarkdownIt('zero');
 export const defaultResourceUrls: ResourceLinkCodec = {normalizeLink, validateLink};
 
-export function validateResourceUrl(urls: ResourceLinkCodec, value: string) {
+export function prepareResourceUrl(urls: ResourceLinkCodec, value: string) {
     const encoded = urls
         .normalizeLink(value)
         .replace(/[\s<>"'()\\]/g, (char) =>

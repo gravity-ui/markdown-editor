@@ -8,7 +8,7 @@ import {isResourceTriggerEnabled} from './utils';
 
 type TransferContext = {trigger: 'paste' | 'drop'; files: boolean};
 
-const triggerOf = (tr: Transaction) => {
+const getTransactionTrigger = (tr: Transaction) => {
     if (tr.getMeta('uiEvent') === 'drop') return 'drop';
     if (tr.getMeta('paste') === true) return 'paste';
     return undefined;
@@ -22,7 +22,7 @@ export function createProseMirrorResourceIntegration({
 }): Extension {
     return (builder) => {
         let transferContext: TransferContext | undefined;
-        const captureSource = ({
+        const captureTransferContext = ({
             trigger,
             data,
         }: {
@@ -46,7 +46,7 @@ export function createProseMirrorResourceIntegration({
                     filterTransaction: (tr) => {
                         if (
                             transferContext &&
-                            triggerOf(tr) === transferContext.trigger &&
+                            getTransactionTrigger(tr) === transferContext.trigger &&
                             !tr.getMeta('appendedTransaction')
                         ) {
                             tr.setMeta(sourceMeta, transferContext);
@@ -57,12 +57,12 @@ export function createProseMirrorResourceIntegration({
                     props: {
                         handleDOMEvents: {
                             paste: (_view, event) =>
-                                captureSource({
+                                captureTransferContext({
                                     trigger: 'paste',
                                     data: event.clipboardData,
                                 }),
                             drop: (_view, event) =>
-                                captureSource({
+                                captureTransferContext({
                                     trigger: 'drop',
                                     data: event.dataTransfer,
                                 }),
@@ -83,7 +83,7 @@ export function createProseMirrorResourceIntegration({
         builder.use(ResourceReplacement, {
             ...options,
             shouldTrack: (tr) => {
-                const trigger = triggerOf(tr);
+                const trigger = getTransactionTrigger(tr);
                 const context = tr.getMeta(sourceMeta) as TransferContext | undefined;
                 return Boolean(
                     trigger && !context?.files && isResourceTriggerEnabled(triggers, trigger),

@@ -1,4 +1,4 @@
-import {resourceKey, validateReplacements} from './controller.utils';
+import {deduplicateResources, validateReplacements} from './controller.utils';
 import type {
     ReplacementResource,
     ResourceReplacementConfig,
@@ -60,15 +60,11 @@ export class ResourceReplacementController implements ResourceReplacementControl
     start(prepared: ResourceReplacementRequest): boolean {
         if (this.destroyed) return false;
         if (!this.options.resolve || !prepared.resources.length) return false;
-        const resources = new Map<string, ReplacementResource>();
-        for (const resource of prepared.resources) {
-            const key = resourceKey(resource);
-            if (!resources.has(key)) resources.set(key, resource);
-        }
+        const resources = deduplicateResources(prepared.resources);
         const operation: Pending = {
             operationId: `resource-replacement-${++nextOperation}`,
             abort: new AbortController(),
-            prepared: {...prepared, resources: [...resources.values()]},
+            prepared: {...prepared, resources},
         };
         this.pending.set(operation.operationId, operation);
         if (this.timeout !== undefined) {
@@ -76,7 +72,7 @@ export class ResourceReplacementController implements ResourceReplacementControl
                 this.finish(operation, 'failed', new Error('Resource replacement timed out'));
             }, this.timeout);
         }
-        this.event({operationId: operation.operationId, status: 'pending'});
+        this.notifyOperationChange({operationId: operation.operationId, status: 'pending'});
         if (this.pending.get(operation.operationId) !== operation) return true;
         this.resolve(operation);
         return true;
@@ -103,7 +99,6 @@ export class ResourceReplacementController implements ResourceReplacementControl
             );
             if (this.pending.get(operation.operationId) !== operation || this.destroyed) return;
             const replacements = validateReplacements(operation.prepared.resources, result);
-            // Не вызывать apply на пустом результате
             operation.prepared.apply(replacements);
             this.finish(operation, 'succeeded');
         } catch (error) {
@@ -130,14 +125,14 @@ export class ResourceReplacementController implements ResourceReplacementControl
             this.reportError(releaseError);
         }
         if (status !== 'succeeded') operation.abort.abort();
-        this.event({
+        this.notifyOperationChange({
             operationId: operation.operationId,
             status,
             ...(error === undefined ? {} : {error}),
         });
     }
 
-    private event(event: ResourceReplacementEvent) {
+    private notifyOperationChange(event: ResourceReplacementEvent) {
         try {
             this.onUpdate();
         } catch (error) {

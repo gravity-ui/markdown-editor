@@ -28,11 +28,11 @@ import {
     type ResourceSpecOverrides,
     type ResourceTrigger,
 } from '../modules/resource-replacement';
+import {resourceReplacementKey} from '../modules/resource-replacement/prosemirror/const';
 import {
     createCodeMirrorResourceIntegration,
     createProseMirrorResourceIntegration,
-} from '../modules/resource-replacement/tigger-policy';
-import {resourceReplacementKey} from '../modules/resource-replacement/prosemirror/const';
+} from '../modules/resource-replacement/trigger-policy';
 import {type Emitter, type FileUploadHandler, type Receiver, SafeEventEmitter} from '../utils';
 import type {DirectiveSyntaxContext} from '../utils/directive';
 

@@ -13,7 +13,7 @@ import {ReactRenderStorage} from '../../../extensions';
 import {Logger2} from '../../../logger';
 import {DirectiveSyntaxContext} from '../../../utils/directive';
 import {codeMirrorResourceReplacement} from '../codemirror';
-import {collectMarkupResources} from '../codemirror/resources';
+import {collectMarkupResources} from '../codemirror/collect-resources';
 import type {
     ReplacementResource,
     ResourceReplacementConfig,
@@ -586,10 +586,10 @@ test.each([
     parsed.descendants((node) => {
         if (node.type.name === 'image') paths.push(node.attrs.src);
     });
-    const {validateResourceUrl} = await import('../urls');
+    const {prepareResourceUrl} = await import('../urls');
     expect(paths).toEqual([
-        validateResourceUrl(t.editor.wysiwygEditor.parser, value),
-        validateResourceUrl(t.editor.wysiwygEditor.parser, value),
+        prepareResourceUrl(t.editor.wysiwygEditor.parser, value),
+        prepareResourceUrl(t.editor.wysiwygEditor.parser, value),
     ]);
 });
 

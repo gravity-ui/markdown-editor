@@ -1,15 +1,17 @@
 import {Portal} from '@gravity-ui/uikit';
 
 import type {ReactRenderer, RendererItem} from '../../extensions/behavior/ReactRenderer';
-import {ImageSkeletonDescriptor} from '../../extensions/yfm/ImgSize/ImagePaste/skeleton';
-import {UploadLabel} from '../../markup/codemirror/files-upload-plugin/widget';
+import {
+    ImageSkeleton,
+    createImageSkeletonContainer,
+} from '../../react-utils/components/ImageSkeleton';
+import {UploadLabel} from '../../react-utils/components/UploadLabel';
 
 import type {ReplacementResource} from './types';
 
 const items = new WeakMap<HTMLElement, RendererItem>();
 
 /** Presentation shared with uploads, without invoking the file upload pipeline. */
-// Нельзя ли переиспользовать существующий
 export function createResourceIndicator(
     resource: ReplacementResource,
     renderer?: ReactRenderer,
@@ -17,11 +19,11 @@ export function createResourceIndicator(
 ) {
     const skeleton =
         imageSize &&
-        new ImageSkeletonDescriptor(0, {
+        createImageSkeletonContainer({
             width: String(imageSize.width),
             height: String(imageSize.height),
         });
-    const dom = skeleton ? skeleton.getDomElem() : document.createElement('span');
+    const dom = skeleton || document.createElement('span');
     dom.dataset.resourcePending = resource.kind;
     dom.contentEditable = 'false';
     dom.setAttribute('role', 'status');
@@ -32,7 +34,7 @@ export function createResourceIndicator(
             renderer.createItem('resource-pending', () => (
                 <Portal container={dom}>
                     {skeleton ? (
-                        skeleton.renderReactElement()
+                        <ImageSkeleton />
                     ) : (
                         <UploadLabel
                             fileName={resource.name || resource.value}

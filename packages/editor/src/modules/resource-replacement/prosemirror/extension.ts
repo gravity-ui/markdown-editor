@@ -3,28 +3,27 @@ import {type EditorState, Plugin, type Transaction} from 'prosemirror-state';
 import {v4 as uuid} from 'uuid';
 
 import type {ExtensionAuto} from '../../../core/ExtensionBuilder';
-import {resourceKey} from '../controller.utils';
-import {isUrlResource} from '../urls';
 
+import {
+    collectAddedRangesInFinalDocument,
+    collectRequestedUrlKeys,
+    collectResourcesInRanges,
+} from './collect-resources';
 import {resolvedResourceMeta, resourceReplacementKey} from './const';
+import {createResourceDecorations} from './decorations';
+import {changesProtectedResources} from './editing-guard';
+import {applyBatchMeta, mapBatchRanges} from './pending-state';
+import {prepareResourceReplacementTransaction} from './prepare-replacements';
+import {
+    isHistoryTransaction,
+    isOriginalLocalDocumentChange,
+    isSelectionInCode,
+} from './transactions';
 import type {
     ResourceReplacementMeta,
     ResourceReplacementOptions,
     ResourceReplacementState,
 } from './types';
-import {
-    applyBatchMeta,
-    changesProtectedResources,
-    collectAddedRangesInFinalDocument,
-    collectResourceDecorations,
-    collectResourcesInRanges,
-    describeResource,
-    isHistoryTransaction,
-    isOriginalLocalDocumentChange,
-    isSelectionInCode,
-    mapBatchRanges,
-    resourceReplacementTransaction,
-} from './utils';
 
 export const ResourceReplacement: ExtensionAuto<ResourceReplacementOptions> = (
     builder,
@@ -48,7 +47,7 @@ export const ResourceReplacement: ExtensionAuto<ResourceReplacementOptions> = (
 
 /** Requests start in view.update, only after the editor accepts the insertion. */
 function resourceReplacementPlugin({controller, shouldTrack}: ResourceReplacementOptions) {
-    function isTracked(tr: Transaction, state: EditorState) {
+    function shouldTrackResources(tr: Transaction, state: EditorState) {
         return (
             controller.enabled &&
             isOriginalLocalDocumentChange(tr) &&
@@ -67,7 +66,7 @@ function resourceReplacementPlugin({controller, shouldTrack}: ResourceReplacemen
             if (!tr.docChanged) return true;
             if (changesProtectedResources(tr, state, batches)) return false;
 
-            if (isTracked(tr, state)) closeHistory(tr);
+            if (shouldTrackResources(tr, state)) closeHistory(tr);
             return true;
         },
         state: {
@@ -80,7 +79,7 @@ function resourceReplacementPlugin({controller, shouldTrack}: ResourceReplacemen
 
                 const mappedBatches = mapBatchRanges(batches, tr.mapping);
                 const result = applyBatchMeta(mappedBatches, meta);
-                if (isTracked(tr, oldState)) {
+                if (shouldTrackResources(tr, oldState)) {
                     const addedRanges = collectAddedRangesInFinalDocument(tr);
                     const ranges = collectResourcesInRanges(state, addedRanges).map(
                         ({from, to}) => ({from, to}),
@@ -93,7 +92,7 @@ function resourceReplacementPlugin({controller, shouldTrack}: ResourceReplacemen
         props: {
             decorations(state) {
                 const batches = resourceReplacementKey.getState(state) ?? [];
-                return collectResourceDecorations(state, batches);
+                return createResourceDecorations(state, batches);
             },
         },
         view(view) {
@@ -113,7 +112,7 @@ function resourceReplacementPlugin({controller, shouldTrack}: ResourceReplacemen
                 urlKeys: ReadonlySet<string>,
             ) {
                 if (lifetime.destroyed || view.isDestroyed) throw new Error('Editor was destroyed');
-                const tr = resourceReplacementTransaction(view.state, replacements, urlKeys);
+                const tr = prepareResourceReplacementTransaction(view.state, replacements, urlKeys);
                 if (!tr) return;
                 if (!view.editable) throw new Error('Editor is no longer editable');
                 view.dispatch(tr);
@@ -127,17 +126,7 @@ function resourceReplacementPlugin({controller, shouldTrack}: ResourceReplacemen
                         if (batch.started) continue;
                         const entries = collectResourcesInRanges(view.state, batch.ranges);
                         const resources = entries.map((item) => item.resource);
-                        const urlKeys = new Set(
-                            entries.flatMap(({from, resource}) => {
-                                const node = view.state.doc.nodeAt(from);
-                                const description = node && describeResource(node);
-                                return node &&
-                                    description &&
-                                    isUrlResource(node.type.name, description)
-                                    ? [resourceKey(resource)]
-                                    : [];
-                            }),
-                        );
+                        const urlKeys = collectRequestedUrlKeys(view.state, entries);
                         // Mark the batch before starting a request that may dispatch synchronously.
                         view.dispatch(
                             closeHistory(view.state.tr).setMeta(resourceReplacementKey, {

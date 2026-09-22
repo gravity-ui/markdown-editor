@@ -39,7 +39,7 @@
 <a id="contract"></a>
 ## 1. Задача и правила
 
-Пользователь вставляет содержимое с уже готовыми адресами ресурсов. Приложение может
+Пользователь вставляет содержимое с уже готовыми строковыми значениями ресурсов: URL или непрозрачными id. Приложение может
 скопировать соответствующие файлы и вернуть новые адреса. Редактор отвечает за обнаружение
 ресурсов, ожидание ответа и применение замен. Само копирование выполняет приложение в `resolve`.
 
@@ -52,7 +52,7 @@
 ```ts
 {
     replacements: [
-        {kind: 'picture', oldPath: '/source/a.png', newPath: '/target/a.png'},
+        {kind: 'picture', oldValue: '/source/a.png', newValue: '/target/a.png'},
     ],
 }
 ```
@@ -64,8 +64,8 @@
 - Загрузка бинарного файла из проводника — отдельный механизм.
 - Ресурсы внутри кода исключаются как из запроса, так и из применения результата.
 - Для одной вставки выполняется один `resolve`; разные вставки могут обрабатываться параллельно.
-- В запросе повторы объединяются по `(kind, path)`.
-- Результат применяется ко всем текущим совпадениям `(kind, path)` в документе.
+- В запросе повторы объединяются по `(kind, value)`.
+- Результат применяется ко всем текущим совпадениям `(kind, value)` в документе.
 - Пока идёт запрос, защищены и показаны с лоадерами только ресурсы исходной вставки.
 - Undo/redo и переключение режима блокируются на время незавершённых операций.
 - Исходные адреса уже находятся в документе. Сохранение во время ожидания может записать их.
@@ -78,7 +78,7 @@
 
 ```text
 Вхождение — конкретная картинка в определённом месте документа.
-Ресурс — пара категории и адреса, например ('picture', '/a.png').
+Ресурс — пара категории и строкового значения, например ('picture', '/a.png').
 Операция — отдельный вызов resolve со своим operationId.
 ```
 
@@ -116,32 +116,45 @@
 
 ### Источник транзакции
 
-Каталог в текущем коде называется именно `tigger-policy`.
+Каталог `trigger-policy` связывает DOM-событие с подходящей транзакцией движка.
 
 | Файл | Роль |
 | --- | --- |
-| [tigger-policy/index.ts](./packages/editor/src/modules/resource-replacement/tigger-policy/index.ts) | Экспорты интеграций |
-| [tigger-policy/utils.ts](./packages/editor/src/modules/resource-replacement/tigger-policy/utils.ts) | Проверка включённого paste/drop |
-| [tigger-policy/codemirror.ts](./packages/editor/src/modules/resource-replacement/tigger-policy/codemirror.ts) | Контекст DOM-события и shouldTrack для CodeMirror |
-| [tigger-policy/prosemirror.ts](./packages/editor/src/modules/resource-replacement/tigger-policy/prosemirror.ts) | Перенос контекста в метаданные транзакции ProseMirror |
+| [trigger-policy/index.ts](./packages/editor/src/modules/resource-replacement/trigger-policy/index.ts) | Экспорты интеграций |
+| [trigger-policy/utils.ts](./packages/editor/src/modules/resource-replacement/trigger-policy/utils.ts) | Проверка включённого paste/drop |
+| [trigger-policy/codemirror.ts](./packages/editor/src/modules/resource-replacement/trigger-policy/codemirror.ts) | Контекст DOM-события и shouldTrack для CodeMirror |
+| [trigger-policy/prosemirror.ts](./packages/editor/src/modules/resource-replacement/trigger-policy/prosemirror.ts) | Перенос контекста в метаданные транзакции ProseMirror |
 
 ### Реализации движков
 
+Одинаковые операции имеют одинаковые имена, но реализации и координаты остаются
+специфичными для движка. Общего адаптера транзакций нет.
+
 | Файл | Роль |
 | --- | --- |
-| [prosemirror/index.ts](./packages/editor/src/modules/resource-replacement/prosemirror/index.ts) | Экспорты расширения и его типов |
-| [prosemirror/types.ts](./packages/editor/src/modules/resource-replacement/prosemirror/types.ts) | Группа диапазонов, start/release, интерфейс зависимостей |
-| [prosemirror/const.ts](./packages/editor/src/modules/resource-replacement/prosemirror/const.ts) | Ключ плагина, служебные метаданные и ключ истории |
-| [prosemirror/extension.ts](./packages/editor/src/modules/resource-replacement/prosemirror/extension.ts) | Подключение плагина, filterTransaction, state.apply, view.update |
-| [prosemirror/utils.ts](./packages/editor/src/modules/resource-replacement/prosemirror/utils.ts) | Сбор узлов, отображение диапазонов, защита, декорации и замена атрибутов |
-| [codemirror/index.ts](./packages/editor/src/modules/resource-replacement/codemirror/index.ts) | Экспорты реализации и поддержки обработчиков |
-| [codemirror/options.ts](./packages/editor/src/modules/resource-replacement/codemirror/options.ts) | controller, resources, urls, shouldTrack |
-| [codemirror/extension.ts](./packages/editor/src/modules/resource-replacement/codemirror/extension.ts) | Состояние, виджеты, фильтр, сбор вставок и применение ответа |
-| [codemirror/handlers.ts](./packages/editor/src/modules/resource-replacement/codemirror/handlers.ts) | Контракт извлечения ресурса из дерева |
-| [codemirror/builtins.ts](./packages/editor/src/modules/resource-replacement/codemirror/builtins.ts) | Чтение встроенных изображений и файлов |
-| [codemirror/syntax-tree.ts](./packages/editor/src/modules/resource-replacement/codemirror/syntax-tree.ts) | Получение полного дерева нужного документа |
-| [codemirror/resources.ts](./packages/editor/src/modules/resource-replacement/codemirror/resources.ts) | Поиск ресурсов и формирование точечных замен |
-| [codemirror/history.ts](./packages/editor/src/modules/resource-replacement/codemirror/history.ts) | Корректировка истории; подробно пока не разобрана |
+| [prosemirror/extension.ts](./packages/editor/src/modules/resource-replacement/prosemirror/extension.ts) | Подключение расширения, принятые обновления, запуск контроллера, apply/release |
+| [prosemirror/transactions.ts](./packages/editor/src/modules/resource-replacement/prosemirror/transactions.ts) | Определение истории и исходного локального изменения средствами движка |
+| [prosemirror/pending-state.ts](./packages/editor/src/modules/resource-replacement/prosemirror/pending-state.ts) | Сопровождение групп и координат, start/release |
+| [prosemirror/editing-guard.ts](./packages/editor/src/modules/resource-replacement/prosemirror/editing-guard.ts) | Защита вхождений от редактирования |
+| [prosemirror/decorations.ts](./packages/editor/src/modules/resource-replacement/prosemirror/decorations.ts) | Декорации ожидания, создание и уничтожение представления |
+| [prosemirror/collect-resources.ts](./packages/editor/src/modules/resource-replacement/prosemirror/collect-resources.ts) | Поиск вхождений в документе и диапазонах вставки |
+| [prosemirror/prepare-replacements.ts](./packages/editor/src/modules/resource-replacement/prosemirror/prepare-replacements.ts) | Подготовка глобальных замен без dispatch |
+| [prosemirror/const.ts](./packages/editor/src/modules/resource-replacement/prosemirror/const.ts) | Служебные метки и ключи |
+| [prosemirror/types.ts](./packages/editor/src/modules/resource-replacement/prosemirror/types.ts) | Типы групп и состояния |
+| [codemirror/extension.ts](./packages/editor/src/modules/resource-replacement/codemirror/extension.ts) | Подключение расширения, принятые обновления, запуск контроллера, apply/release |
+| [codemirror/transactions.ts](./packages/editor/src/modules/resource-replacement/codemirror/transactions.ts) | Определение истории и исходного локального изменения средствами движка |
+| [codemirror/pending-state.ts](./packages/editor/src/modules/resource-replacement/codemirror/pending-state.ts) | Сопровождение групп и координат, start/release |
+| [codemirror/editing-guard.ts](./packages/editor/src/modules/resource-replacement/codemirror/editing-guard.ts) | Защита вхождений от редактирования |
+| [codemirror/decorations.ts](./packages/editor/src/modules/resource-replacement/codemirror/decorations.ts) | Декорации ожидания, создание и уничтожение представления |
+| [codemirror/collect-resources.ts](./packages/editor/src/modules/resource-replacement/codemirror/collect-resources.ts) | Поиск вхождений в документе и диапазонах вставки |
+| [codemirror/prepare-replacements.ts](./packages/editor/src/modules/resource-replacement/codemirror/prepare-replacements.ts) | Подготовка глобальных замен без dispatch |
+| [codemirror/const.ts](./packages/editor/src/modules/resource-replacement/codemirror/const.ts) | Служебные метки и ключи |
+| [codemirror/types.ts](./packages/editor/src/modules/resource-replacement/codemirror/types.ts) | Типы групп и состояния |
+| [codemirror/handlers.ts](./packages/editor/src/modules/resource-replacement/codemirror/handlers.ts) | Публичный контракт и регистрация обработчиков |
+| [codemirror/builtins.ts](./packages/editor/src/modules/resource-replacement/codemirror/builtins.ts) | Чтение встроенных изображений, файлов и определений ссылок |
+| [codemirror/syntax-tree.ts](./packages/editor/src/modules/resource-replacement/codemirror/syntax-tree.ts) | Проверка кодовых веток при чтении ресурсов |
+| [codemirror/history.ts](./packages/editor/src/modules/resource-replacement/codemirror/history.ts) | Корректировка истории, алгоритм оставлен без изменений |
+| [codemirror/options.ts](./packages/editor/src/modules/resource-replacement/codemirror/options.ts) | Зависимости расширения CodeMirror |
 
 Грамматика после переноса находится в языковой поддержке:
 [yfm.ts](./packages/editor/src/markup/codemirror/yfm.ts),
@@ -152,9 +165,18 @@
 Связанные файлы — [history-lock.ts](./packages/editor/src/markup/codemirror/history-lock.ts)
 и [create.ts](./packages/editor/src/markup/codemirror/create.ts).
 
-Во время обсуждения некоторые имена изменились. Бывшие PM `plugin.ts`, `commands.ts`
-и документные утилиты теперь нужно искать по функциям в `extension.ts` и `utils.ts`;
-общие утилиты находятся в `controller.utils.ts`. Грамматики больше нет в `builtins.ts`.
+Полное дерево документа получает инфраструктурная функция
+[completeSyntaxTree](./packages/editor/src/markup/codemirror/syntax-tree.ts).
+Обёртка dispatch для блокировки штатных команд истории находится рядом с
+[historyLocked](./packages/editor/src/markup/codemirror/history-lock.ts).
+Общие визуальные элементы находятся в
+[ImageSkeleton](./packages/editor/src/react-utils/components/ImageSkeleton/index.tsx) и
+[UploadLabel](./packages/editor/src/react-utils/components/UploadLabel/index.tsx).
+
+У ProseMirror прежний `utils.ts` распределён по файлам с конкретными обязанностями.
+У CodeMirror прежний `resources.ts` разделён на сбор ресурсов и подготовку замен.
+Ни сборщики, ни подготовка замен не выполняют dispatch. Состояние групп не зависит
+от декораций; представление и защита читают его. Основной `extension.ts` связывает стадии.
 
 <a id="entry"></a>
 ## 3. Точка входа и владелец операции
@@ -169,7 +191,7 @@ useMarkdownEditor({
         resources: {
             image: {
                 kind: 'picture',
-                urlAttribute: 'src',
+                valueAttribute: 'src',
                 nameAttribute: 'alt',
             },
         },
@@ -177,8 +199,8 @@ useMarkdownEditor({
         resolve: async (resources, {operationId, signal}) => ({
             replacements: resources.map((resource) => ({
                 kind: resource.kind,
-                oldPath: resource.path,
-                newPath: '/copied/a.png',
+                oldValue: resource.value,
+                newValue: '/copied/a.png',
             })),
         }),
     },
@@ -186,7 +208,7 @@ useMarkdownEditor({
 ```
 
 `image` — имя типа узла. `picture` — категория, выбранная приложением.
-Они не обязаны совпадать. `urlAttribute` и `nameAttribute` указывают, какие атрибуты
+Они не обязаны совпадать. `valueAttribute` и `nameAttribute` указывают, какие атрибуты
 читать. Без `nameAttribute` имя не добавится в ресурс, даже если у узла есть подпись.
 
 `ResourceTrigger` допускает и строку `'paste'`, и объект `{name: 'paste'}`.
@@ -264,14 +286,14 @@ type ResourceReplacementRequest = {
 Ключ ресурса вычисляется в `controller.utils.ts`:
 
 ```ts
-JSON.stringify([resource.kind, resource.path])
+JSON.stringify([resource.kind, resource.value])
 ```
 
 Имя в ключ не входит. Для двух ресурсов:
 
 ```ts
-{kind: 'picture', path: '/a.png', name: 'Первая'}
-{kind: 'picture', path: '/a.png', name: 'Вторая'}
+{kind: 'picture', value: '/a.png', name: 'Первая'}
+{kind: 'picture', value: '/a.png', name: 'Вторая'}
 ```
 
 в запрос попадёт первый объект. Имя полезно приложению как подпись, но не определяет,
@@ -284,7 +306,7 @@ JSON.stringify([resource.kind, resource.path])
 ### 4.3. Последовательность start
 
 1. Отказ, если контроллер уничтожен, нет resolve или список ресурсов пуст.
-2. Объединение повторов внутри этой операции.
+2. Объединение повторов внутри этой операции через `deduplicateResources`.
 3. Создание `operationId`, `AbortController` и записи в `pending`.
 4. Создание таймера, только если задан `timeoutMs`.
 5. Уведомление `pending`.
@@ -309,14 +331,14 @@ JSON.stringify([resource.kind, resource.path])
 
 - `replacements` должен быть массивом;
 - обязательные поля должны иметь подходящие строковые значения;
-- каждая пара `(kind, oldPath)` должна принадлежать запросу;
-- повторяющиеся записи для одной пары не должны конфликтовать по `newPath`.
+- каждая пара `(kind, oldValue)` должна принадлежать запросу;
+- повторяющиеся записи для одной пары не должны конфликтовать по `newValue`.
 
 Неизвестная пара или конфликт вызывает ошибку всей операции. Проверка допустимости
 самого нового URL выполняется дальше, при подготовке изменений движком.
-Пустой массив допустим. Текущий код вызывает `apply` и для пустой карты; адаптер
-не создаёт изменений, а операция завершается успехом. Не следует принимать учебную
-пометку-комментарий «не вызывать apply» за уже реализованное условие.
+Пустой массив допустим. Контроллер вызывает `apply` и для пустой карты; адаптер
+не создаёт изменений, а операция завершается успехом. `notifyOperationChange` отдельно
+уведомляет внутренний интерфейс и приложение, изолируя ошибки их callbacks.
 
 ### 4.5. finish и освобождение
 
@@ -324,7 +346,7 @@ JSON.stringify([resource.kind, resource.path])
 нет или она другая, повторного завершения не происходит.
 
 Затем очищается таймер, операция удаляется из pending, вызывается release и отправляется
-финальный статус. Для ошибки или отмены также вызывается abort.
+финальный статус через `notifyOperationChange`. Для ошибки или отмены также вызывается abort.
 Ссылки на prepared заменяются пустыми функциями: даже если внешний resolve игнорирует
 AbortSignal и долго не завершается, он не должен удерживать через операцию замыкания движка.
 
@@ -346,14 +368,14 @@ AbortSignal и долго не завершается, он не должен у
 Регистрация обработчика ресурса не включает операции сама по себе. Для этого нужны
 описание типа в resources, разрешённый триггер и resolve.
 
-### 5.2. Замыкание captureSource
+### 5.2. Замыкание captureTransferContext
 
-В каждой интеграции есть локальный `transferContext`. Функция `captureSource` находится
+В каждой интеграции есть локальный `transferContext`. Функция `captureTransferContext` находится
 внутри фабрики интеграции и меняет именно эту переменную. У разных экземпляров редактора
 контексты независимы.
 
 Если вынести функцию и передавать переменную аргументом, присваивание параметру нового
-объекта не изменит внешнюю переменную. Поэтому во время обсуждения captureSource
+объекта не изменит внешнюю переменную. Поэтому во время обсуждения captureTransferContext
 оставили внутри интеграций.
 
 ```ts
@@ -384,7 +406,7 @@ queueMicrotask(() => {
 Он не превращает DOM handler, transactionExtender и updateListener в одну общую очередь:
 они срабатывают на разных стадиях обновления.
 
-Контекст содержит trigger и `plain`. Последний выставляется для вставки в код или
+Контекст содержит trigger и `excludedFromReplacement`. Последний выставляется для вставки в код или
 при наличии бинарных файлов в DataTransfer. Название не означает, что любая вставка
 через Shift обязательно исключается.
 
@@ -431,7 +453,7 @@ appendedTransaction не должна повторно захватывать и
 ### 6.1. extension.ts, types.ts и const.ts
 
 `ResourceReplacement` проверяет `_resource` каждого типа узла: должны существовать
-kind, urlAttribute и объявление соответствующего атрибута в NodeSpec. Проверка делается
+kind, valueAttribute и объявление соответствующего атрибута в NodeSpec. Проверка делается
 через overrideNodeSpec, чтобы работать с итоговым описанием после настройки расширений.
 Затем регистрируется плагин с низким приоритетом.
 
@@ -456,7 +478,7 @@ type ResourceReplacementMeta = {
 транзакции и ключ стандартной истории. Проверка истории ProseMirror читает метаданные
 по её ключу, а не CodeMirror userEvent.
 
-### 6.2. isTracked: какую транзакцию рассматривать
+### 6.2. shouldTrackResources: какую транзакцию рассматривать
 
 Кандидат должен быть исходным локальным изменением документа. Исключаются:
 служебная замена, история, appendedTransaction, rebased и помеченные удалённые изменения.
@@ -546,7 +568,7 @@ if (changesProtectedResources(tr, state, batches)) return false;
 
 ### 6.6. Декорации и размеры
 
-`collectResourceDecorations` заново читает ресурсы в диапазонах и создаёт две декорации:
+`createResourceDecorations` заново читает ресурсы в диапазонах и создаёт две декорации:
 
 - node decoration скрывает исходное представление (`display: none`);
 - widget decoration показывает индикатор в начале узла.
@@ -561,9 +583,11 @@ if (changesProtectedResources(tr, state, batches)) return false;
 
 ### 6.7. Применение ответа и release
 
-`resourceReplacementTransaction` сначала проверяет все новые адреса правилами парсера
-текущего ProseMirror. Затем обходит текущий документ целиком, исключает код и сопоставляет
-`(kind, path)`. Меняется только указанный атрибут через `setNodeAttribute`.
+`prepareResourceReplacementTransaction` сначала проверяет новые значения URL-пар,
+сохранённых в `urlKeys` при запуске запроса, даже если совпадения уже исчезли.
+Затем обходит текущий документ целиком, исключает код и сопоставляет `(kind, value)`.
+URL-правила также применяются к найденным URL-вхождениям; непрозрачные id сохраняются
+в точности. Меняется только выбранный атрибут через `setNodeAttribute`.
 
 Обход идёт по исходному для этой транзакции документу, поэтому внутри одного ответа
 нет каскада `/a → /b → /c`. Транзакция получает `addToHistory: false` и resolvedResourceMeta.
@@ -587,9 +611,12 @@ view.state.tr
 <a id="indicators"></a>
 ## 7. Общие индикаторы и загрузка файлов
 
-`indicator.tsx` использует `ImageSkeletonDescriptor` из загрузки изображений и
-`UploadLabel` из плагина загрузки CodeMirror. Визуальная часть уже переиспользуется.
-DOM получает contentEditable=false, role=status и подпись name либо path.
+`indicator.tsx` использует общие `ImageSkeleton`, `createImageSkeletonContainer` и
+`UploadLabel` из `react-utils/components`. Загрузка изображений использует тот же
+скелетон через свой `ImageSkeletonDescriptor`; замене ресурсов PM-дескриптор не нужен.
+Классы, DOM и размеры сохранены. Стиль размещения `.cm-file-upload-widget` остаётся
+у загрузчика CodeMirror, общие стили подписи перенесены вместе с компонентом.
+DOM получает contentEditable=false, role=status и подпись name либо value.
 WeakMap связывает DOM с RendererItem; destroyResourceIndicator удаляет этот элемент.
 
 Нередактируемый DOM индикатора защищает его внутреннее содержимое. Он не запрещает
@@ -700,8 +727,8 @@ Transaction filter разрешает resolved-замены, блокирует 
 поэтому здесь нет отдельной проверки изменения атрибутов узла, как у PM.
 
 Стандартные команды истории CM создают транзакции с отключёнными фильтрами. Поэтому
-одного transactionFilter недостаточно: lifetime-плагин дополнительно оборачивает dispatch
-и проверяет готовые undo/redo-транзакции. В create.ts также учитывается historyLocked
+одного transactionFilter недостаточно: `historyLockGuard()` из `markup/codemirror/history-lock.ts` оборачивает dispatch
+и проверяет готовые undo/redo-транзакции. Отдельный lifetime-плагин хранит признак уничтожения. В create.ts также учитывается historyLocked
 для стандартных сочетаний клавиш. При destroy прежний dispatch восстанавливается,
 если текущей обёрткой всё ещё владеет этот плагин.
 
@@ -753,9 +780,9 @@ extensions: [
 вида `==текст==`. У файла разные части: префикс, подпись, адрес, title или атрибуты.
 Короткое подключение FileExtension не отменяет необходимость описать эти правила.
 
-### 9.3. syntax-tree.ts
+### 9.3. Получение полного дерева в markup/codemirror/syntax-tree.ts
 
-`completeResourceTree` берёт parser из language facet. Если полное дерево того же
+`completeSyntaxTree` берёт parser из language facet. Если полное дерево того же
 документа уже доступно, используется syntaxTree(state). Если его нет или нужен новый
 документ транзакции, вызывается parser.parse с DocumentInput.
 
@@ -775,7 +802,7 @@ sliceString и отдаёт chunks до 4096 символов. Отдельно�
 ```ts
 type CodeMirrorResourceHandler = {
     nodeType: string;
-    urlAttribute: string;
+    valueAttribute: string;
     syntax?: MarkdownConfig;
     syntaxNodes: readonly string[];
     read(context: ResourceSyntaxContext): ResourceSyntaxMatch | undefined;
@@ -789,8 +816,10 @@ type CodeMirrorResourceHandler = {
 
 codeMirrorResourceSupport возвращает массив из регистрации handler в facet и,
 если есть handler.syntax, регистрации дополнительной грамматики.
-Результат read содержит полный range, urlRange, attrs и при необходимости сведения
-о ссылочном изображении. urlSyntax отличает буквальные файловые атрибуты от Markdown-адресов.
+Результат read содержит полный range, valueRange, attrs, обязательный `serialize(value)`
+и при необходимости сведения о ссылочном изображении. Сериализатор отвечает за запись
+значения в конкретный синтаксис: например, JSON-экранирование id в кавычках или
+экранирование сущностей в Markdown-адресе. При невозможности записи он бросает ошибку.
 
 ### 9.5. builtins.ts: обычное изображение
 
@@ -798,11 +827,11 @@ codeMirrorResourceSupport возвращает массив из регистр�
 ![Схема](/a.png)
 
 range:    [0, 16)
-urlRange: [9, 15)
+valueRange: [9, 15)
 ```
 
 Image handler читает LinkMark/ResourceLabel для подписи и URL/ResourceURL для адреса.
-urlRange убирает обрамляющие `<...>`, если они есть. imageLabel исключает Markdown-
+Функция `destinationRange` убирает обрамляющие `<...>`, если они есть. imageLabel исключает Markdown-
 разделители из подписи и декодирует экранирование и сущности.
 Получаются `attrs: {src: '/a.png', alt: 'Схема'}`; категорию picture добавит сборщик по настройке.
 
@@ -831,7 +860,7 @@ if (ch === 93 && --depth === 0) break; // ]
 
 При allowSize читается суффикс вроде `=300x200`, затем проверяется финальная `)`.
 Возвращаются labelEnd, urlStart, urlEnd, end и sized. Размер находится за пределами
-urlRange; end указывает после закрывающей скобки, поскольку правая граница не включается.
+valueRange; end указывает после закрывающей скобки, поскольку правая граница не включается.
 
 ### 9.7. file.ts и файловый handler
 
@@ -858,19 +887,20 @@ only исключает старую форму. Грамматическое р
 ### 10.1. Выбор обработчика и проверки
 
 collectMarkupResources выбирает первый подходящий handler по включённой настройке,
-urlAttribute и имени синтаксического узла. Если выбранный handler.read вернул undefined,
+valueAttribute и имени синтаксического узла. Если выбранный handler.read вернул undefined,
 следующий обработчик не вызывается. Это позволяет пользовательскому handler окончательно
 отказаться считать конкретную конструкцию ресурсом.
 
-Сборщик проверяет строковый адрес и допустимость URL, затем координаты:
+Сборщик проверяет строковое значение; допустимость URL проверяется только для
+URL-ресурсов. Затем проверяются наличие сериализатора и координаты:
 
 ```ts
 Number.isInteger(from) && Number.isInteger(to)
     && from >= 0 && to >= from && to <= doc.length
 ```
 
-Для обычного ресурса urlRange должен лежать внутри полного range.
-Неподходящий адрес пропускается, а некорректные координаты вызывают ошибку контракта handler.
+Для обычного ресурса valueRange должен лежать внутри полного range.
+Неподходящее значение пропускается, а некорректные координаты вызывают ошибку контракта handler.
 Это особенно важно для внешних расширений: неверный диапазон нельзя использовать для записи.
 
 Из attrs сборщик читает поля, указанные в конфигурации, и создаёт:
@@ -878,7 +908,7 @@ Number.isInteger(from) && Number.isInteger(to)
 ```ts
 {
     syntax: match,
-    resource: {kind: description.kind, path, /* необязательное name */},
+    resource: {kind: description.kind, value, /* необязательное name */},
 }
 ```
 
@@ -897,7 +927,7 @@ Number.isInteger(from) && Number.isInteger(to)
 [photo]: /a.png "Описание"
 ```
 
-У изображения range находится в первой строке, urlRange — в определении ниже.
+У изображения range находится в первой строке, valueRange — в определении ниже.
 Поэтому обычное требование вложенности диапазонов здесь неприменимо.
 Проверяются definitionRange и labelTo — граница после `![Схема]`.
 
@@ -906,17 +936,20 @@ Number.isInteger(from) && Number.isInteger(to)
 `![Схема][photo]`, а определение уже было в документе, запрос для него не запускается.
 При глобальном применении ответа такого ограничения нет.
 
-### 10.3. markupResourceChanges
+### 10.3. prepareResourceChanges
 
-Сначала проверяются и подготавливаются все новые адреса, даже без текущих совпадений.
-Для каждого создаются literal и markdown формы; во второй `&` превращается в `&amp;`.
-Старый файловый атрибут хранит URL буквально, Markdown декодирует сущности при чтении.
+Сначала проверяются новые значения URL-пар исходного запроса (`requestedUrlKeys`).
+Это нужно и после исчезновения совпадений, например вследствие другого ответа.
+Затем обрабатываются текущие вхождения. URL подготавливаются через `prepareResourceUrl`,
+непрозрачные id остаются точными строками. Для каждого вхождения `syntax.serialize(value)`
+создаёт текст конкретной конструкции. Все вычисления завершаются до dispatch.
+Ошибка подготовки любого вхождения не приводит к частичному изменению документа.
 
 Далее вызывается collectMarkupResources без ranges: ответ ищет совпадения во всём
-актуальном документе. Ключ — пара kind/path. Обычные ссылки и код не становятся целями
+актуальном документе. Ключ — пара kind/value. Обычные ссылки и код не становятся целями
 только из-за совпавшей подстроки адреса.
 
-Обычный ресурс меняется только в urlRange:
+Обычный ресурс меняется только в valueRange:
 
 ```text
 ![Схема](/a.png =300x200)
@@ -948,7 +981,7 @@ state.doc. Разная длина новых адресов не требует
 ResourceLinkCodec содержит normalizeLink и validateLink. Реализация по умолчанию берётся
 из `new MarkdownIt('zero')`. Само создание экземпляра не парсит документ: вызова parse нет.
 
-validateResourceUrl сначала нормализует адрес, затем кодирует символы, которые могут
+prepareResourceUrl сначала нормализует адрес, затем кодирует символы, которые могут
 влиять на синтаксис: пробелы, угловые скобки, кавычки, круглые скобки и обратную косую черту.
 
 ```text
@@ -962,16 +995,17 @@ encodeURIComponent оставляет некоторые символы неза
 Проверяются обе формы:
 
 ```ts
-if (!urls.validateLink(path) || !urls.validateLink(encoded)) {
+if (!urls.validateLink(value) || !urls.validateLink(encoded)) {
     throw new Error('Invalid resource URL');
 }
 return encoded;
 ```
 
-Название функции не отражает всей работы: она и проверяет, и преобразует строку.
-Это уместно для URL, но не должно автоматически применяться к непрозрачным id.
-Предлагаемое обобщение value/oldValue/newValue описано в главе 14 и пока отделено
-от зафиксированной здесь реализации path/oldPath/newPath.
+Название `prepareResourceUrl` отражает и проверку, и преобразование строки.
+Встроенные image/src и FILE_TOKEN/href всегда используют URL-правила независимо от kind.
+Пользовательские типы включают их через `valueType: 'url'`. Остальные значения
+не проходят trim, изменение регистра, нормализацию или URL-кодирование.
+Кодирование для конкретного синтаксиса выполняет CM-сериализатор; это отдельная стадия.
 
 <a id="history"></a>
 ## 12. Применение транзакции и граница истории
@@ -1031,7 +1065,7 @@ mapped и выделения. Адаптер зависит от этой стр
 ### 12.4. pasteEvent и invertedEffects
 
 pasteEvent хранит массив диапазонов исходной вставки. Он **не хранит** соответствие
-oldPath/newPath, имя ресурса или результат resolve.
+oldValue/newValue, имя ресурса или результат resolve.
 
 ```ts
 pasteEvent.of([{from: 10, to: 30}])
@@ -1115,8 +1149,8 @@ remaining: замена A
 
 ```ts
 [
-    {kind: 'picture', path: '/a.png', name: 'Вторая'},
-    {kind: 'picture', path: '/b.png', name: 'Третья'},
+    {kind: 'picture', value: '/a.png', name: 'Вторая'},
+    {kind: 'picture', value: '/b.png', name: 'Третья'},
 ]
 ```
 
@@ -1125,7 +1159,7 @@ remaining: замена A
 ```ts
 {
     replacements: [
-        {kind: 'picture', oldPath: '/a.png', newPath: '/copied/a.png'},
+        {kind: 'picture', oldValue: '/a.png', newValue: '/copied/a.png'},
     ],
 }
 ```
@@ -1168,14 +1202,14 @@ Integration подчёркивает связь DOM-событий с механ
 [MarkupGpt](./packages/editor/src/extensions/additional/GPT/MarkupGpt/index.ts) для CodeMirror
 и [gptExtension](./packages/editor/src/extensions/additional/GPT/gptExtension/gptExtension.ts)
 для ProseMirror, с общими интерфейсными частями выше по дереву.
-Вынос интеграций в behavior был оставлен на будущее. Текущее расположение — tigger-policy.
+Вынос интеграций в behavior был оставлен на будущее. Текущее расположение — trigger-policy.
 
 ### 14.2. Декларативные проверки
 
 Разделять большие проверки на функции с предметными именами полезно, если имя объясняет
 причину отказа: isHistoryTransaction, changesProtectedResources, isSelectionInCode.
-PM-реализация уже получила такой рефакторинг: основные проверки находятся в utils.ts,
-а extension.ts описывает последовательность действий.
+У обоих движков проверки происхождения находятся в `transactions.ts`, защита —
+в `editing-guard.ts`, а `extension.ts` описывает последовательность действий.
 
 Общий isHistoryTransaction для двух движков не устраняет различие протоколов:
 в PM читается мета истории, в CM — userEvent. Отдельные функции с одинаковым смыслом
@@ -1227,7 +1261,7 @@ undo/redo должны оставаться в границах codex.md, без
 Позиция PM-узла относится к структуре документа, а позиция CM — к тексту разметки.
 
 Для лоадера, защиты, проверки принадлежности вставке и точечной замены нужны исходные
-range/urlRange. Их пришлось бы сохранять во время токенизации и проводить через преобразования.
+range/valueRange. Их пришлось бы сохранять во время токенизации и проводить через преобразования.
 Обычные markdown-it tokens не предоставляют готовый диапазон каждого URL; стандартное
 поле map описывает строки. Это требует отдельного механизма соответствия позиций.
 
@@ -1258,48 +1292,41 @@ range/urlRange. Их пришлось бы сохранять во время т
 
 ### 14.8. Ресурс может определяться id, а не URL
 
-Предложен более общий контракт:
+Обобщение уже реализовано и включено в исходный коммит перед этим рефакторингом:
 
 ```ts
 // Описание типа
 {kind: 'asset', valueAttribute: 'assetId', nameAttribute: 'title'}
-
 // Ресурс
 {kind: 'asset', value: 'asset:ABC/123', name: 'Схема'}
-
-// Ответ приложения
-{
-    replacements: [{
-        kind: 'asset',
-        oldValue: 'asset:ABC/123',
-        newValue: 'asset:XYZ/456',
-    }],
-}
+// Ответ
+{replacements: [{kind: 'asset', oldValue: 'asset:ABC/123', newValue: 'asset:XYZ/456'}]}
 ```
 
-Такой переход меняет urlAttribute/path/oldPath/newPath на
-valueAttribute/value/oldValue/newValue. Непрозрачное строковое значение нельзя по умолчанию
-trim-ить, декодировать, менять регистр или пропускать через normalizeLink.
+`resources` остаётся источником настройки. Дедупликация и поиск используют точную
+пару `(kind, value)`. Имя категории не определяет URL-семантику.
 
-Нужно разделить три действия:
+Разделены три стадии:
 
-1. Проверить общий контракт ответа, принадлежность пары запросу и отсутствие конфликтов.
-2. Проверить значение правилами конкретного типа ресурса. Для URL это могут быть правила ссылок;
-   для id — другие правила или отсутствие дополнительной проверки.
-3. Подготовить значение для конкретного места записи: атрибут PM или фрагмент синтаксиса CM.
+1. Контроллер проверяет структуру ответа, принадлежность пары запросу и отсутствие конфликтов.
+2. Адаптер проверяет и подготавливает значения URL-ресурсов; непрозрачные id не нормализует.
+3. ProseMirror записывает атрибут, CodeMirror вызывает `serialize(value)` для конкретной записи.
 
-Отказ от URL-нормализации для id не отменяет экранирование при записи в кавычки или
-другую синтаксическую конструкцию. Также нельзя определять «это URL» по произвольной
-категории kind: приложение может назвать изображение picture.
+У общего id и URL может совпасть kind/value. Подготовленная URL-форма не должна
+подменить исходное значение для id-вхождения. Память о URL-парах запроса сохраняется
+до завершения через `urlKeys`; вся подготовка идёт до изменения документа.
 
-Для этого изменения подготовлен [отдельный промпт](./RESOURCE_REPLACEMENT_VALUE_PROMPT.md).
-Оно не включает отказ от resources,
-изменение лоадеров или новые гарантии истории. Главы выше описывают текущий URL-контракт;
-после реализации обобщения их нужно будет обновить вместе с codex.md.
+### 14.9. Границы согласованного рефакторинга
 
-Для дальнейшего упорядочивания кода подготовлен
-[промпт согласованного рефакторинга](./RESOURCE_REPLACEMENT_REFACTOR_PROMPT.md):
-план и состав исходного коммита обсуждаются до изменений, затем создаётся точка возврата.
+Модуль разделён по ответственности: сбор, подготовка замен, защита, состояние,
+декорации и подключение расширения. Полное дерево и обёртка блокировки истории CM
+перенесены в `markup/codemirror`, общие визуальные элементы — в `react-utils/components`.
+`captureTransferContext` остаётся в замыкании своей интеграции. Разные правила проверки
+кодового контекста события и кодовых веток при обходе не объединяются автоматически.
+
+Алгоритм `codemirror/history.ts` не менялся. Общая блокировка истории ProseMirror,
+которая позволила бы History не читать ключ resourceReplacement, оставлена отдельной задачей.
+Публичный API, лоадеры и защита сохранены. Тесты в рамках рефакторинга не запускались.
 
 <a id="questions"></a>
 ## 15. Вопросы для самопроверки с ответами
@@ -1329,7 +1356,7 @@ image — ключ типа узла, picture — категория из нас
 </details>
 
 <details>
-<summary>4. Два вхождения имеют одинаковые kind/path, но разные имена. Сколько ресурсов уйдёт в resolve и что будет в лоадерах?</summary>
+<summary>4. Два вхождения имеют одинаковые kind/value, но разные имена. Сколько ресурсов уйдёт в resolve и что будет в лоадерах?</summary>
 
 В одной операции уйдёт один ресурс с данными первого вхождения. Если у него нет имени,
 имя второго не подставится. Лоадеры используют данные отдельных вхождений и могут
@@ -1383,7 +1410,7 @@ context сохраняет объект конкретного события. �
 <summary>11. Почему в PM collectResourcesInRanges не объединяет одинаковые URL?</summary>
 
 Его Map имеет ключ from и сохраняет отдельные вхождения для отдельных лоадеров и защиты.
-Дедупликация запросов по kind/path выполняется позже контроллером.
+Дедупликация запросов по kind/value выполняется позже контроллером.
 </details>
 
 <details>
@@ -1415,10 +1442,10 @@ contentEditable=false у индикатора не заменяет фильтр
 </details>
 
 <details>
-<summary>16. Чем range отличается от urlRange?</summary>
+<summary>16. Чем range отличается от valueRange?</summary>
 
-range — вся конструкция ресурса; urlRange — содержимое адреса. У ссылочного изображения
-urlRange находится в общем определении вне range самого изображения.
+range — вся конструкция ресурса; valueRange — содержимое адреса. У ссылочного изображения
+valueRange находится в общем определении вне range самого изображения.
 </details>
 
 <details>
@@ -1429,10 +1456,10 @@ urlRange находится в общем определении вне range с
 </details>
 
 <details>
-<summary>18. Зачем inlineDestination считает вложенность скобок и входит ли размер в urlRange?</summary>
+<summary>18. Зачем inlineDestination считает вложенность скобок и входит ли размер в valueRange?</summary>
 
 Внутренняя ] не должна закрывать внешнюю подпись; экранированные скобки также пропускаются.
-Суффикс =300x200 расположен за пределами urlRange и сохраняется при замене адреса.
+Суффикс =300x200 расположен за пределами valueRange и сохраняется при замене адреса.
 </details>
 
 <details>
@@ -1457,7 +1484,7 @@ collectInsertedMarkupResources не включит её: весь range изоб
 </details>
 
 <details>
-<summary>22. Новые адреса длиннее старых. Нужно ли сдвигать следующие изменения в markupResourceChanges?</summary>
+<summary>22. Новые адреса длиннее старых. Нужно ли сдвигать следующие изменения в prepareResourceChanges?</summary>
 
 Нет. Функция ещё не меняет документ. Все изменения заданы в координатах одного state.doc
 и применяются вместе. По этой же причине нет повторного прохода по новым адресам и каскада.
@@ -1509,7 +1536,7 @@ dispatch отправляет её редактору. После него ад�
 <summary>29. Почему старая картинка изменилась, хотя её не передавали в resolve?</summary>
 
 Запрос составляется из вставки, а ответ применяется ко всем текущим совпадениям пары
-kind/path. Область запроса и область применения намеренно различаются.
+kind/value. Область запроса и область применения намеренно различаются.
 </details>
 
 <details>
@@ -1524,7 +1551,7 @@ kind/path. Область запроса и область применения 
 
 | Термин | Значение в этом модуле |
 | --- | --- |
-| Ресурс | Типизированное значение, в текущем контракте kind/path |
+| Ресурс | Типизированное значение, в текущем контракте kind/value |
 | Вхождение | Конкретное место ресурса в документе |
 | Batch | Группа диапазонов одной принятой вставки внутри движка |
 | Operation | Асинхронная операция контроллера с operationId |
@@ -1543,6 +1570,6 @@ kind/path. Область запроса и область применения 
 Для возвращения к отложенному материалу: сначала вопросы 26–28, затем глава 12.6
 с отдельным разбором history.ts на маленьком документе.
 
-Если реализуется переход к id/value, обновить главы 1, 3, 4, 6, 8–11 и примеры ответа.
+Главы и примеры используют действующий контракт value/oldValue/newValue.
 Отдельно решить источник описаний ресурсов при отказе от resources: это не механическое
 переименование и не обязательная часть обобщения значения.

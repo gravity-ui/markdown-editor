@@ -12,6 +12,7 @@ import type {
     ResourceSourceRange,
     ResourceSyntaxContext,
 } from './handlers';
+import {isCodeSyntaxNode} from './syntax-tree';
 
 // Markdown destinations decode entities; legacy file attributes store the URL literally.
 const markdownDestination = (value: string) => value.replace(/&/g, '&amp;');
@@ -115,8 +116,7 @@ export function collectReferenceDefinitions(tree: Tree, doc: Text, urls: Resourc
     const definitions = new Map<string, ResourceDefinition>();
     tree.iterate({
         enter({node}) {
-            if (['FencedCode', 'CodeBlock', 'InlineCode', 'Monospace'].includes(node.name))
-                return false;
+            if (isCodeSyntaxNode(node)) return false;
             // Definitions are block nodes; paragraph/heading inline content cannot contain them.
             if (node.name !== 'LinkReference') return !node.type.is('LeafBlock');
             const label = node.getChild('LinkLabel'),

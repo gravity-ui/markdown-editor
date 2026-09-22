@@ -8,21 +8,22 @@ import {ParserFacet} from '../../../core/utils/parser';
 import {resourceKey} from '../controller.utils';
 import {defaultResourceUrls} from '../urls';
 
-import {remoteTransactionMeta, resolvedResourceMeta, resourceHistoryKey} from './const';
-import type {ResourceBatch} from './types';
 import {
-    applyBatchMeta,
-    changesProtectedResources,
     collectAddedRangesInFinalDocument,
-    collectResourceDecorations,
     collectResourcesInRanges,
     describeResource,
+} from './collect-resources';
+import {remoteTransactionMeta, resolvedResourceMeta, resourceHistoryKey} from './const';
+import {createResourceDecorations} from './decorations';
+import {changesProtectedResources} from './editing-guard';
+import {applyBatchMeta, mapBatchRanges} from './pending-state';
+import {prepareResourceReplacementTransaction} from './prepare-replacements';
+import {
     isHistoryTransaction,
     isOriginalLocalDocumentChange,
     isSelectionInCode,
-    mapBatchRanges,
-    resourceReplacementTransaction,
-} from './utils';
+} from './transactions';
+import type {ResourceBatch} from './types';
 
 const schema = new Schema({
     nodes: {
@@ -373,7 +374,7 @@ describe('replacement transactions', () => {
             codeBlock(image()),
         );
         const state = stateFor(document);
-        const tr = resourceReplacementTransaction(
+        const tr = prepareResourceReplacementTransaction(
             state,
             new Map([[resourceKey({kind: 'image', value: '/old.png'}), '/new.png']]),
         );
@@ -398,7 +399,7 @@ describe('replacement transactions', () => {
         const state = stateFor(
             doc(p(image(), image({src: '/new.png'}), file(), resource('label'))),
         );
-        const tr = resourceReplacementTransaction(
+        const tr = prepareResourceReplacementTransaction(
             state,
             new Map([
                 [resourceKey({kind: 'image', value: '/old.png'}), '/new.png'],
@@ -430,12 +431,14 @@ describe('replacement transactions', () => {
             replacements: new Map([[resourceKey({kind: 'image', value: '/old.png'}), '/old.png']]),
         },
     ])('returns null for $name', ({replacements}) => {
-        expect(resourceReplacementTransaction(stateFor(doc(p(image()))), replacements)).toBeNull();
+        expect(
+            prepareResourceReplacementTransaction(stateFor(doc(p(image()))), replacements),
+        ).toBeNull();
     });
 
     test('encodes replacement URLs and rejects an invalid response atomically', () => {
         const state = stateFor(doc(p(image(), file())));
-        const encoded = resourceReplacementTransaction(
+        const encoded = prepareResourceReplacementTransaction(
             state,
             new Map([[resourceKey({kind: 'image', value: '/old.png'}), '/a b.png']]),
         );
@@ -445,7 +448,7 @@ describe('replacement transactions', () => {
             // eslint-disable-next-line no-script-url
             [resourceKey({kind: 'file', value: '/old.png'}), 'javascript:alert(1)'],
         ]);
-        expect(() => resourceReplacementTransaction(state, replacements)).toThrow(
+        expect(() => prepareResourceReplacementTransaction(state, replacements)).toThrow(
             'Invalid resource URL',
         );
         expect(state.doc).toMatchNode(doc(p(image(), file())));
@@ -456,7 +459,7 @@ describe('resource decorations', () => {
     test('decorates only batch ranges and keeps widget keys after position shifts', () => {
         const state = stateFor(doc(p(image(), image(), file())));
         const batches = [batch(2, 3, 'image', false), batch(3, 4, 'file')];
-        const decorations = collectResourceDecorations(state, batches).find();
+        const decorations = createResourceDecorations(state, batches).find();
         expect(decorations.map(({from, to}) => ({from, to}))).toEqual([
             {from: 2, to: 2},
             {from: 2, to: 3},
@@ -466,13 +469,13 @@ describe('resource decorations', () => {
         const keys = decorations.filter(({from, to}) => from === to).map(({spec}) => spec.key);
         expect(keys).toEqual(['image:0', 'file:0']);
         const tr = state.tr.insertText('prefix', 1);
-        const shifted = collectResourceDecorations(
+        const shifted = createResourceDecorations(
             state.apply(tr),
             mapBatchRanges(batches, tr.mapping),
         ).find();
         expect(shifted.filter(({from, to}) => from === to).map(({spec}) => spec.key)).toEqual(keys);
         expect(
-            collectResourceDecorations(
+            createResourceDecorations(
                 state,
                 applyBatchMeta(batches, {type: 'release', id: 'image'}),
             ).find(),
@@ -492,7 +495,7 @@ describe('resource decorations', () => {
             const clientWidth = jest.spyOn(view.dom, 'clientWidth', 'get').mockReturnValue(400);
             try {
                 view.setProps({
-                    decorations: () => collectResourceDecorations(state, [batch(1, 2)]),
+                    decorations: () => createResourceDecorations(state, [batch(1, 2)]),
                 });
                 const indicator = view.dom.querySelector<HTMLElement>(
                     '[data-resource-pending="image"]',
@@ -505,7 +508,7 @@ describe('resource decorations', () => {
                     String(expectedHeight),
                 );
                 expect((view.nodeDOM(1) as HTMLElement).style.display).toBe('none');
-                view.setProps({decorations: () => collectResourceDecorations(state, [])});
+                view.setProps({decorations: () => createResourceDecorations(state, [])});
                 expect(view.dom.querySelector('[data-resource-pending]')).toBeNull();
                 expect((view.nodeDOM(1) as HTMLElement).style.display).toBe('');
             } finally {
@@ -548,7 +551,7 @@ test('custom identifiers remain exact even with a URL-like attribute and applica
         {kind: 'image', value: oldValue.toLowerCase(), name: 'Scheme'},
         {kind: 'image', value: oldValue, name: 'Scheme'},
     ]);
-    const tr = resourceReplacementTransaction(
+    const tr = prepareResourceReplacementTransaction(
         state,
         new Map([[resourceKey({kind: 'image', value: oldValue}), newValue]]),
     );
@@ -574,7 +577,7 @@ test('URL preparation cannot leak between an image and an opaque id with the sam
             mixedSchema.nodes.asset.create({src: '/old.png'}),
         ]),
     });
-    const tr = resourceReplacementTransaction(
+    const tr = prepareResourceReplacementTransaction(
         state,
         new Map([[resourceKey({kind: 'asset', value: '/old.png'}), '/new image.png']]),
     );
@@ -588,7 +591,7 @@ test('validates original URL pairs even when another operation removed all curre
     const invalidUrl = 'javascript:alert(1)';
     const state = stateFor(doc(p('text')));
     expect(() =>
-        resourceReplacementTransaction(state, new Map([[key, invalidUrl]]), new Set([key])),
+        prepareResourceReplacementTransaction(state, new Map([[key, invalidUrl]]), new Set([key])),
     ).toThrow('Invalid resource URL');
-    expect(resourceReplacementTransaction(state, new Map([[key, invalidUrl]]))).toBeNull();
+    expect(prepareResourceReplacementTransaction(state, new Map([[key, invalidUrl]]))).toBeNull();
 });
