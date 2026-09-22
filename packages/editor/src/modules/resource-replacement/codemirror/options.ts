@@ -1,17 +1,14 @@
 import type {Transaction} from '@codemirror/state';
-import type {Schema} from 'prosemirror-model';
 
-import type {ResourceReplacementHost} from '../host';
-import type {ResourceReplacementSource} from '../types';
-
-import type {ResourceLinkCodec} from './handlers';
+import type {ResourceReplacementController} from '../controller';
+import type {ResourceSpecOverrides} from '../types';
+import type {ResourceLinkCodec} from '../urls';
 
 export type CodeMirrorResourceReplacementOptions = {
-    host: ResourceReplacementHost;
-    schema: () => Schema;
-    urls: () => ResourceLinkCodec;
+    controller: Pick<ResourceReplacementController, 'enabled' | 'busy' | 'start'>;
+    resources: ResourceSpecOverrides;
+    /** Defaults to Markdown's standard URL rules, independently of WYSIWYG extensions. */
+    urls?: ResourceLinkCodec;
     /** Pure predicate selecting local document changes. */
     shouldTrack: (transaction: Transaction) => boolean;
-    /** Snapshot source metadata while preparing the selected transaction. Must be pure. */
-    getSource?: (transaction: Transaction) => ResourceReplacementSource | undefined;
 };

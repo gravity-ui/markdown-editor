@@ -1,4 +1,6 @@
 /// <reference types="jest" />
+import {Transaction} from '@codemirror/state';
+
 import {ReactRenderStorage} from '../extensions';
 import {Logger2} from '../logger';
 import {
@@ -6,7 +8,7 @@ import {
     type ResourceReplacementResult,
     type ResourceSpecOverrides,
 } from '../modules/resource-replacement';
-import {resourceReplacementKey} from '../modules/resource-replacement/prosemirror/key';
+import {resourceReplacementKey} from '../modules/resource-replacement/prosemirror/const';
 import {DirectiveSyntaxContext} from '../utils/directive';
 
 import {EditorImpl} from './Editor';
@@ -138,6 +140,66 @@ describe('EditorImpl: mutual exclusion between preview and split mode', () => {
 });
 
 describe('EditorImpl: paste resource ownership', () => {
+    test.each(['![label](/old.png)', '![label][ref]\n\n[ref]: /old.png'])(
+        'Markdown resolves %s without initializing WYSIWYG',
+        async (source) => {
+            const extensions = jest.fn();
+            let complete!: (result: ResourceReplacementResult) => void;
+            const resolve = jest.fn(
+                () =>
+                    new Promise<ResourceReplacementResult>((done) => {
+                        complete = done;
+                    }),
+            );
+            const editor = createEditor({
+                initial: {mode: 'markup', markup: 'before'},
+                wysiwygConfig: {extensions},
+                resourceReplacement: {
+                    resources: {
+                        image: {kind: 'picture', valueAttribute: 'src', nameAttribute: 'alt'},
+                    },
+                    triggers: ['paste'],
+                    resolve,
+                },
+            });
+            try {
+                const view = editor.markupEditor.cm;
+                expect(editor._wysiwygView).toBeUndefined();
+                view.dispatch({selection: {anchor: view.state.doc.length}});
+                const event = new Event('paste', {bubbles: true, cancelable: true});
+                Object.defineProperty(event, 'clipboardData', {
+                    value: {
+                        types: ['text/yfm'],
+                        files: [],
+                        getData: (type: string) => (type === 'text/yfm' ? source : ''),
+                    },
+                });
+                view.contentDOM.dispatchEvent(event);
+                expect(resolve).toHaveBeenCalledWith(
+                    [{kind: 'picture', value: '/old.png', name: 'label'}],
+                    expect.any(Object),
+                );
+                expect(editor.getPendingResourceReplacements()).toHaveLength(1);
+                complete({
+                    replacements: [
+                        {
+                            kind: 'picture',
+                            oldValue: '/old.png',
+                            newValue: '/copied image.png?x=1&y=2',
+                        },
+                    ],
+                });
+                for (let i = 0; i < 5; i++) await Promise.resolve();
+                expect(editor.getValue()).toContain('![label](/copied%20image.png?x=1&amp;y=2)');
+                expect(editor.getPendingResourceReplacements()).toHaveLength(0);
+                expect(editor._wysiwygView).toBeUndefined();
+                expect(extensions).not.toHaveBeenCalled();
+            } finally {
+                editor.destroy();
+            }
+        },
+    );
+
     test.each(['wysiwyg', 'markup'] as const)(
         'destroy cancels pending %s operations and ignores late results',
         async (mode) => {
@@ -156,7 +218,9 @@ describe('EditorImpl: paste resource ownership', () => {
                         }),
                 },
                 resourceReplacement: {
-                    resources: {image: {kind: 'image', urlAttribute: 'src', nameAttribute: 'alt'}},
+                    resources: {
+                        image: {kind: 'image', valueAttribute: 'src', nameAttribute: 'alt'},
+                    },
                     triggers: ['paste'],
                     resolve: (_resources, {signal}) => {
                         signals.push(signal);
@@ -195,7 +259,7 @@ describe('EditorImpl: paste resource ownership', () => {
                 ]);
                 for (const resolve of resolutions) {
                     resolve({
-                        replacements: [{kind: 'image', oldPath: '/old.png', newPath: '/new.png'}],
+                        replacements: [{kind: 'image', oldValue: '/old.png', newValue: '/new.png'}],
                     });
                 }
                 for (let i = 0; i < 5; i++) await Promise.resolve();
@@ -254,8 +318,60 @@ describe('EditorImpl: optional paste resources', () => {
 
 describe('EditorImpl: resource configuration from hook options', () => {
     const picture: ResourceSpecOverrides = {
-        image: {kind: 'picture', urlAttribute: 'src', nameAttribute: 'alt'},
+        image: {kind: 'picture', valueAttribute: 'src', nameAttribute: 'alt'},
     };
+    test('resource metadata is preserved without installing a resolver integration', () => {
+        const editor = createEditor({
+            resourceReplacement: {resources: picture, triggers: ['paste']},
+            wysiwygConfig: {
+                extensions: (builder) =>
+                    builder.use(BundlePreset, {
+                        preset: 'full',
+                        searchPanel: false,
+                        directiveSyntax: new DirectiveSyntaxContext('enabled'),
+                        reactRenderer: new ReactRenderStorage(),
+                    }),
+            },
+        });
+        try {
+            const state = editor.wysiwygEditor.view.state;
+            expect(state.schema.nodes.image.spec._resource).toEqual(picture.image);
+            expect(resourceReplacementKey.getState(state)).toBeUndefined();
+            expect(editor.getPendingResourceReplacements()).toEqual([]);
+        } finally {
+            editor.destroy();
+        }
+    });
+
+    test('mode switching stays blocked when beforeEditorModeChange starts a resource operation', () => {
+        const beforeEditorModeChange = jest.fn(() => {
+            const view = editor.markupEditor.cm;
+            view.dispatch({
+                changes: {from: view.state.doc.length, insert: '![image](/old.png)'},
+                annotations: Transaction.userEvent.of('input.paste'),
+            });
+            return undefined;
+        });
+        const editor: EditorImpl = createEditor({
+            initial: {mode: 'markup', markup: 'before\n\n'},
+            experimental: {beforeEditorModeChange},
+            resourceReplacement: {
+                resources: picture,
+                triggers: ['paste'],
+                resolve: () => new Promise(() => {}),
+            },
+        });
+        try {
+            editor.setEditorMode('wysiwyg');
+            expect(beforeEditorModeChange).toHaveBeenCalledTimes(1);
+            expect(editor.getPendingResourceReplacements()).toHaveLength(1);
+            expect(editor.currentMode).toBe('markup');
+            editor.setEditorMode('wysiwyg');
+            expect(beforeEditorModeChange).toHaveBeenCalledTimes(1);
+        } finally {
+            editor.destroy();
+        }
+    });
     const cases: Array<{
         name: string;
         resources: ResourceSpecOverrides | undefined;
@@ -300,7 +416,7 @@ describe('EditorImpl: resource configuration from hook options', () => {
         )('$name ($source)', async ({resources, triggers, expected, source}) => {
             const kind = resources === picture ? 'picture' : 'extension-picture';
             const resolver = jest.fn(async () => ({
-                replacements: [{kind, oldPath: '/old.png', newPath: '/new.png'}],
+                replacements: [{kind, oldValue: '/old.png', newValue: '/new.png'}],
             }));
             const editor = createEditor({
                 initial: {mode, markup: ''},
@@ -316,9 +432,10 @@ describe('EditorImpl: resource configuration from hook options', () => {
                             })
                             .overrideNodeSpec('image', (spec) => ({
                                 ...spec,
-                                resource: {
+                                resource: {owner: 'other-extension'},
+                                _resource: {
                                     kind: 'extension-picture',
-                                    urlAttribute: 'src',
+                                    valueAttribute: 'src',
                                     nameAttribute: 'alt',
                                 },
                             })),
@@ -340,10 +457,15 @@ describe('EditorImpl: resource configuration from hook options', () => {
                 dom.dispatchEvent(event);
                 if (expected)
                     expect(resolver).toHaveBeenCalledWith(
-                        [{kind, path: '/old.png', name: 'label'}],
+                        [{kind, value: '/old.png', name: 'label'}],
                         expect.any(Object),
                     );
                 else expect(resolver).not.toHaveBeenCalled();
+                if (mode === 'wysiwyg') {
+                    const spec = editor.wysiwygEditor.view.state.schema.nodes.image.spec;
+                    expect(spec._resource).toEqual(resources?.image || undefined);
+                    expect(spec.resource).toEqual({owner: 'other-extension'});
+                }
                 for (let i = 0; i < 5; i++) await Promise.resolve();
                 expect(editor.getValue()).toContain(expected ? '/new.png' : '/old.png');
             } finally {

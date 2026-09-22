@@ -8,19 +8,25 @@ import {
     useMarkdownEditor,
 } from '@gravity-ui/markdown-editor';
 
-export function PasteResources({mode = 'wysiwyg'}: {mode?: 'wysiwyg' | 'markup'}) {
+export function PasteResources({
+    mode = 'wysiwyg',
+    initialMarkup = 'before',
+}: {
+    mode?: 'wysiwyg' | 'markup';
+    initialMarkup?: string;
+}) {
     const finish = useRef<(value: ResourceReplacementResult) => void>();
     const replacements = useRef<ResourceReplacementResult>({replacements: []});
     const [events, setEvents] = useState<ResourceReplacementEvent[]>([]);
     const [value, setValue] = useState('');
     const [calls, setCalls] = useState(0);
     const editor = useMarkdownEditor({
-        initial: {mode, markup: 'before'},
+        initial: {mode, markup: initialMarkup},
         markupConfig: {parseHtmlOnPaste: true},
         resourceReplacement: {
             resources: {
-                image: {kind: 'image', urlAttribute: 'src', nameAttribute: 'alt'},
-                [FILE_TOKEN]: {kind: 'file', urlAttribute: 'href', nameAttribute: 'download'},
+                image: {kind: 'image', valueAttribute: 'src', nameAttribute: 'alt'},
+                [FILE_TOKEN]: {kind: 'file', valueAttribute: 'href', nameAttribute: 'download'},
             },
             triggers: ['paste', 'drop'],
             resolve: (resources) => {
@@ -28,8 +34,8 @@ export function PasteResources({mode = 'wysiwyg'}: {mode?: 'wysiwyg' | 'markup'}
                 replacements.current = {
                     replacements: resources.map((resource) => ({
                         kind: resource.kind,
-                        oldPath: resource.path,
-                        newPath:
+                        oldValue: resource.value,
+                        newValue:
                             resource.kind === 'image'
                                 ? '/assets/test-image.jpg?copied'
                                 : '/copied/file',

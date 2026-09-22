@@ -1,188 +1,178 @@
 import type {EditorState, Text, Transaction} from '@codemirror/state';
-import {normalizeReference, unescapeAll} from 'markdown-it/lib/common/utils';
 
-import {validateResourceUrl} from '../prosemirror/document-utils';
-import {resourceKey} from '../tracking';
-import type {ResourceOccurrence} from '../tracking';
+import {type ResourceRange, resourceKey} from '../controller.utils';
 import type {ReplacementResource} from '../types';
+import {defaultResourceUrls, isUrlResource, validateResourceUrl} from '../urls';
 
-import {urlRange} from './builtins';
-import {type ResourceDefinition, type ResourceSyntaxMatch, resourceHandlers} from './handlers';
+import {collectReferenceDefinitions} from './builtins';
+import {type ResourceSyntaxMatch, resourceHandlers} from './handlers';
 import type {CodeMirrorResourceReplacementOptions} from './options';
 import {completeResourceTree} from './syntax-tree';
 
-export type ResourceSpan = {
-    from: number;
-    to: number;
-    range: {from: number; to: number};
-    key: string;
-    occurrences: number[];
-};
-export type ReferenceImage = {
-    from: number;
-    to: number;
-    labelTo: number;
-    occurrence: number;
-    resource: ReplacementResource;
-    replace(path: string): string;
-};
-
-type Match = {syntax: ResourceSyntaxMatch; resource: ReplacementResource};
+type Match = {syntax: ResourceSyntaxMatch; resource: ReplacementResource; isUrl: boolean};
 const excluded = new Set(['FencedCode', 'CodeBlock', 'InlineCode', 'Monospace']);
 
-/** Read source locations directly from the complete incremental CodeMirror syntax tree. */
-export function prepareMarkupResources(
+/** Собирает целиком вставленные ресурсы в координатах нового документа. См. resources.md. */
+export function collectInsertedMarkupResources(
+    tr: Transaction,
+    options: Pick<CodeMirrorResourceReplacementOptions, 'resources' | 'urls'>,
+) {
+    const inserted: ResourceRange[] = [];
+    tr.changes.iterChanges((_from, _to, from, to) => {
+        if (from < to) inserted.push({from, to});
+    });
+    return collectMarkupResources(tr.startState, options, tr, inserted).map(
+        ({syntax, resource, isUrl}) => ({...syntax.range, resource, isUrl}),
+    );
+}
+
+/** Читает ресурсы из дерева: в ranges при сборе вставки, во всём документе при замене. */
+export function collectMarkupResources(
     state: EditorState,
-    options: Pick<CodeMirrorResourceReplacementOptions, 'schema' | 'urls'>,
+    options: Pick<CodeMirrorResourceReplacementOptions, 'resources' | 'urls'>,
     tr?: Transaction,
+    ranges?: readonly ResourceRange[],
 ) {
     const doc = tr?.newDoc ?? state.doc;
+    if (ranges?.length === 0 || !Object.values(options.resources).some(Boolean)) return [];
     const tree = completeResourceTree(state, tr);
-    const schema = options.schema();
-    const urls = options.urls();
+    const {resources} = options;
+    const urls = options.urls ?? defaultResourceUrls;
     const handlers = state.facet(resourceHandlers);
-    const configured = Object.values(schema.nodes).filter((type) => type.spec.resource);
-    for (const type of configured) {
+    for (const [nodeType, description] of Object.entries(resources)) {
+        if (!description) continue;
+        if (!description.kind || !description.valueAttribute)
+            throw new Error(`Invalid resource description: ${nodeType}`);
         if (
             !handlers.some(
                 (handler) =>
-                    handler.nodeType === type.name &&
-                    handler.urlAttribute === type.spec.resource?.urlAttribute,
+                    handler.nodeType === nodeType &&
+                    handler.valueAttribute === description.valueAttribute,
             )
         )
             throw new Error(
-                `No CodeMirror resource handler registered for node: ${type.name} (URL attribute: ${type.spec.resource?.urlAttribute})`,
+                `No CodeMirror resource handler registered for node: ${nodeType} (value attribute: ${description.valueAttribute})`,
             );
     }
-    const definitions = new Map<string, ResourceDefinition>();
-    tree.iterate({
-        enter({node}) {
-            if (excluded.has(node.name)) return false;
-            if (node.name !== 'LinkReference') return true;
-            const label = node.getChild('LinkLabel'),
-                url = node.getChild('URL');
-            if (!label || !url) return false;
-            const id = normalizeReference(doc.sliceString(label.from + 1, label.to - 1));
-            if (definitions.has(id)) return false;
-            const range = urlRange(url, (from, to) => doc.sliceString(from, to));
-            const path = urls.normalizeLink(unescapeAll(doc.sliceString(range.from, range.to)));
-            if (!urls.validateLink(path)) return false;
-            const title = node.getChild('LinkTitle');
-            definitions.set(id, {
-                range: {from: node.from, to: node.to},
-                urlRange: range,
-                path,
-                title: title
-                    ? unescapeAll(doc.sliceString(title.from + 1, title.to - 1))
-                    : undefined,
-            });
-            return false;
-        },
-    });
+    const definitions = collectReferenceDefinitions(tree, doc, urls);
     const matches: Match[] = [];
-    tree.iterate({
-        enter({node}) {
-            if (excluded.has(node.name)) return false;
-            // First registered handler wins, allowing consumers to override built-in syntax support.
-            for (const handler of handlers) {
-                const description = schema.nodes[handler.nodeType]?.spec.resource;
-                if (
-                    !description ||
-                    handler.urlAttribute !== description.urlAttribute ||
-                    !handler.syntaxNodes.includes(node.name)
-                )
-                    continue;
-                const match = handler.read({state, node, doc, definitions, urls});
-                if (!match) return false;
-                const path = match.attrs[description.urlAttribute];
-                if (typeof path !== 'string' || !urls.validateLink(path)) return false;
-                if (
-                    !validRange(match.range, doc) ||
-                    !validRange(match.urlRange, doc) ||
-                    (match.reference
-                        ? !Number.isInteger(match.reference.labelTo) ||
-                          match.reference.labelTo < match.range.from ||
-                          match.reference.labelTo > match.range.to
-                        : match.urlRange.from < match.range.from ||
-                          match.urlRange.to > match.range.to)
-                )
-                    throw new Error(`Invalid resource source range: ${handler.nodeType}`);
-                const name = description.nameAttribute
-                    ? match.attrs[description.nameAttribute]
-                    : undefined;
-                matches.push({
-                    syntax: match,
-                    resource: {
-                        kind: description.kind,
-                        path,
-                        ...(typeof name === 'string' && name ? {name} : {}),
-                    },
-                });
-                return false;
-            }
-            return true;
-        },
-    });
-    const resources: ReplacementResource[] = [];
-    const keys = new Set<string>();
-    const occurrences: ResourceOccurrence[] = [];
-    const spans: ResourceSpan[] = [];
-    const references: ReferenceImage[] = [];
-    matches.forEach(({syntax, resource}, occurrence) => {
-        occurrences.push({kind: resource.kind, path: resource.path});
+    for (const range of ranges ?? [{from: 0, to: doc.length}])
+        tree.iterate({
+            from: range.from,
+            to: range.to,
+            enter({node}) {
+                if (excluded.has(node.name)) return false;
+                // First registered handler wins, allowing consumers to override built-in syntax support.
+                for (const handler of handlers) {
+                    const description = resources[handler.nodeType];
+                    if (
+                        !description ||
+                        handler.valueAttribute !== description.valueAttribute ||
+                        !handler.syntaxNodes.includes(node.name)
+                    )
+                        continue;
+                    if (node.from < range.from || node.to > range.to) return false;
+                    const match = handler.read({state, node, doc, definitions, urls});
+                    // Отказ выбранного обработчика окончателен: к следующему не переходим.
+                    if (!match) return false;
+                    const value = match.attrs[description.valueAttribute];
+                    const isUrl = isUrlResource(handler.nodeType, description);
+                    if (typeof value !== 'string' || (isUrl && !urls.validateLink(value)))
+                        return false;
+                    if (typeof match.serialize !== 'function')
+                        throw new Error(`Missing resource serializer: ${handler.nodeType}`);
+                    if (
+                        !validRange(match.range, doc) ||
+                        !validRange(match.valueRange, doc) ||
+                        (match.reference
+                            ? !validRange(match.reference.definitionRange, doc) ||
+                              !Number.isInteger(match.reference.labelTo) ||
+                              match.reference.labelTo < match.range.from ||
+                              match.reference.labelTo > match.range.to
+                            : match.valueRange.from < match.range.from ||
+                              match.valueRange.to > match.range.to)
+                    )
+                        throw new Error(`Invalid resource source range: ${handler.nodeType}`);
+                    const reference = match.reference;
+                    // Для запуска resolve определение ссылочного изображения тоже должно
+                    // входить во вставку. При поиске по всему документу ranges не передаётся.
+                    if (
+                        ranges &&
+                        (match.range.from < range.from ||
+                            match.range.to > range.to ||
+                            (reference &&
+                                !ranges.some(
+                                    (inserted) =>
+                                        inserted.from <= reference.definitionRange.from &&
+                                        inserted.to >= reference.definitionRange.to,
+                                )))
+                    )
+                        return false;
+                    const name = description.nameAttribute
+                        ? match.attrs[description.nameAttribute]
+                        : undefined;
+                    matches.push({
+                        syntax: match,
+                        isUrl,
+                        resource: {
+                            kind: description.kind,
+                            value,
+                            ...(typeof name === 'string' && name ? {name} : {}),
+                        },
+                    });
+                    return false;
+                }
+                return true;
+            },
+        });
+    return matches;
+}
+
+/**
+ * Готовит изменения всего текущего документа, не применяя их. Подробности — в resources.md.
+ * Values are prepared and serialized for every match before the caller dispatches.
+ */
+export function markupResourceChanges(
+    state: EditorState,
+    replacements: ReadonlyMap<string, string>,
+    options: Pick<CodeMirrorResourceReplacementOptions, 'resources' | 'urls'>,
+    requestedUrlKeys: ReadonlySet<string> = new Set(),
+) {
+    const urls = new Map<string, string>();
+    for (const [key, value] of replacements) {
+        if (requestedUrlKeys.has(key))
+            urls.set(key, validateResourceUrl(options.urls ?? defaultResourceUrls, value));
+    }
+    const changes: Array<{from: number; to: number; insert: string}> = [];
+    // Без ranges: ответ обновляет и вставленные, и ранее существовавшие совпадения.
+    for (const {syntax, resource, isUrl} of collectMarkupResources(state, options)) {
         const key = resourceKey(resource);
-        if (!keys.has(key)) {
-            keys.add(key);
-            resources.push(resource);
+        let value = replacements.get(key);
+        if (value === undefined) continue;
+        if (isUrl) {
+            value =
+                urls.get(key) ?? validateResourceUrl(options.urls ?? defaultResourceUrls, value);
+            urls.set(key, value);
         }
-        if (syntax.reference) {
-            const {labelTo, title} = syntax.reference;
-            references.push({
-                from: syntax.range.from,
-                to: syntax.range.to,
-                labelTo,
-                occurrence,
-                resource,
-                replace(path) {
-                    const url = validateResourceUrl(urls, path);
-                    const escapedTitle = title?.replace(
-                        /[&"\\\r\n]/g,
-                        (char) => '&#' + char.charCodeAt(0) + ';',
-                    );
-                    return (
-                        doc.sliceString(syntax.range.from, labelTo) +
-                        '(' +
-                        url +
-                        (escapedTitle ? ' "' + escapedTitle + '"' : '') +
-                        ')'
-                    );
-                },
-            });
-        } else
-            spans.push({...syntax.urlRange, range: syntax.range, key, occurrences: [occurrence]});
-    });
-    return {
-        references,
-        resources,
-        spans,
-        occurrences,
-        replace(replacements: ReadonlyMap<string, string>) {
-            const edits: Array<{from: number; to: number; insert: string}> = [];
-            for (const span of spans) {
-                const path = replacements.get(span.key);
-                if (path !== undefined)
-                    edits.push({...span, insert: validateResourceUrl(urls, path)});
-            }
-            for (const reference of references) {
-                const path = replacements.get(resourceKey(reference.resource));
-                if (path !== undefined) edits.push({...reference, insert: reference.replace(path)});
-            }
-            let result = doc.toString();
-            for (const edit of edits.sort((a, b) => b.from - a.from))
-                result = result.slice(0, edit.from) + edit.insert + result.slice(edit.to);
-            return result;
-        },
-    };
+        const reference = syntax.reference;
+        const from = reference?.labelTo ?? syntax.valueRange.from;
+        const to = reference ? syntax.range.to : syntax.valueRange.to;
+        let insert = syntax.serialize(value);
+        if (typeof insert !== 'string') throw new Error('Invalid resource serialization');
+        if (reference) {
+            // Заменяем [photo] у изображения на (новый URL "title"). Общее определение
+            // не меняем, чтобы сохранить адрес обычных ссылок на ту же метку.
+            const title = reference.title?.replace(
+                /[&"\\\r\n]/g,
+                (char) => '&#' + char.charCodeAt(0) + ';',
+            );
+            insert = '(' + insert + (title ? ' "' + title + '"' : '') + ')';
+        }
+        if (state.sliceDoc(from, to) !== insert) changes.push({from, to, insert});
+    }
+    // Все позиции относятся к state.doc: изменения применятся вместе, без ручного
+    // сдвига координат и повторного поиска по новым адресам (каскадной замены).
+    return changes;
 }
 
 function validRange(range: {from: number; to: number}, doc: Text) {

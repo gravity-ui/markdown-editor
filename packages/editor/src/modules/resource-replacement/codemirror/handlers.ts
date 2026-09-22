@@ -3,30 +3,37 @@ import type {SyntaxNode} from '@lezer/common';
 import type {MarkdownConfig} from '@lezer/markdown' with {'resolution-mode': 'import'};
 
 import {markdownSyntax} from '../../../markup/codemirror/markdown-syntax';
+import type {ResourceLinkCodec} from '../urls';
+
+export type {ResourceLinkCodec} from '../urls';
 
 /** A half-open source range, in CodeMirror document positions. */
 export type ResourceSourceRange = {from: number; to: number};
 
-export type ResourceLinkCodec = {
-    normalizeLink(url: string): string;
-    validateLink(url: string): boolean;
-};
-
+/** A Markdown link definition; its value is a parsed URL. */
 export type ResourceDefinition = {
     range: ResourceSourceRange;
-    urlRange: ResourceSourceRange;
-    path: string;
+    valueRange: ResourceSourceRange;
+    value: string;
     title?: string;
 };
 
 export type ResourceSyntaxMatch = {
     /** Complete resource syntax, including its delimiters. */
     range: ResourceSourceRange;
-    /** Destination contents only, excluding quotes or angle brackets. */
-    urlRange: ResourceSourceRange;
+    /** Source contents to replace, excluding delimiters handled by the surrounding syntax. */
+    valueRange: ResourceSourceRange;
+    /** Parsed attributes. Opaque values must retain their exact spelling and case. */
     attrs: Readonly<Record<string, unknown>>;
+    /** Pure serialization into valueRange; escape for this syntax or throw if unrepresentable. */
+    serialize(value: string): string;
     /** Reference images replace their own suffix, never the shared definition. */
-    reference?: {labelTo: number; title?: string};
+    reference?: {
+        labelTo: number;
+        title?: string;
+        /** The selected definition must also be inserted to start a replacement request. */
+        definitionRange: ResourceSourceRange;
+    };
 };
 
 export type ResourceSyntaxContext = {
@@ -41,8 +48,8 @@ export type ResourceSyntaxContext = {
 /** An explicit bridge between a schema node and its CodeMirror syntax. */
 export type CodeMirrorResourceHandler = {
     nodeType: string;
-    /** Schema attribute represented by the returned URL range. */
-    urlAttribute: string;
+    /** Schema attribute represented by the returned value range. */
+    valueAttribute: string;
     /** Optional grammar extension installed into the editor's Markdown language. */
     syntax?: MarkdownConfig;
     syntaxNodes: readonly string[];

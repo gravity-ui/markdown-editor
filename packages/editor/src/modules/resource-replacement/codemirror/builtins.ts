@@ -1,21 +1,22 @@
+import type {Text} from '@codemirror/state';
 import {FILE_TOKEN} from '@diplodoc/file-extension';
-import type {SyntaxNode} from '@lezer/common';
-import type {InlineContext, MarkdownConfig} from '@lezer/markdown' with {
-    'resolution-mode': 'import',
-};
+import type {SyntaxNode, Tree} from '@lezer/common';
 import {normalizeReference, unescapeAll} from 'markdown-it/lib/common/utils';
-import parseLinkDestination from 'markdown-it/lib/helpers/parse_link_destination';
-import parseLinkTitle from 'markdown-it/lib/helpers/parse_link_title';
 
 import {DirectiveSyntaxFacet} from '../../../markup/codemirror/directive-facet';
 
 import type {
     CodeMirrorResourceHandler,
+    ResourceDefinition,
+    ResourceLinkCodec,
     ResourceSourceRange,
     ResourceSyntaxContext,
 } from './handlers';
 
-export function urlRange(
+// Markdown destinations decode entities; legacy file attributes store the URL literally.
+const markdownDestination = (value: string) => value.replace(/&/g, '&amp;');
+
+function destinationRange(
     node: SyntaxNode,
     read: (from: number, to: number) => string,
 ): ResourceSourceRange {
@@ -49,28 +50,8 @@ function imageLabel(
 
 export const imageResourceHandler: CodeMirrorResourceHandler = {
     nodeType: 'image',
-    urlAttribute: 'src',
+    valueAttribute: 'src',
     syntaxNodes: ['Image', 'SizedResourceImage'],
-    syntax: {
-        defineNodes: ['SizedResourceImage', 'ResourceURL', 'ResourceLabel'],
-        parseInline: [
-            {
-                name: 'SizedResourceImage',
-                before: 'Image',
-                parse(cx: InlineContext, next: number, pos: number) {
-                    if (next !== 33 || cx.char(pos + 1) !== 91) return -1;
-                    const match = inlineDestination(cx, pos, 2, true);
-                    if (!match?.sized) return -1;
-                    return cx.addElement(
-                        cx.elt('SizedResourceImage', pos, match.end, [
-                            cx.elt('ResourceLabel', pos + 2, match.labelEnd),
-                            cx.elt('ResourceURL', match.urlStart, match.urlEnd),
-                        ]),
-                    );
-                },
-            },
-        ],
-    },
     read({node, doc, definitions, urls}) {
         const read = (from: number, to: number) => doc.sliceString(from, to);
         const marks = node.getChildren('LinkMark');
@@ -81,13 +62,14 @@ export const imageResourceHandler: CodeMirrorResourceHandler = {
         const label = imageLabel(node, labelFrom, labelTo - 1, read);
         const url = node.getChild('URL') ?? node.getChild('ResourceURL');
         if (url) {
-            const range = urlRange(url, read);
-            const path = urls.normalizeLink(unescapeAll(read(range.from, range.to)));
-            if (!urls.validateLink(path)) return undefined;
+            const range = destinationRange(url, read);
+            const value = urls.normalizeLink(unescapeAll(read(range.from, range.to)));
+            if (!urls.validateLink(value)) return undefined;
             return {
                 range: {from: node.from, to: node.to},
-                urlRange: range,
-                attrs: {src: path, alt: label},
+                valueRange: range,
+                serialize: markdownDestination,
+                attrs: {src: value, alt: label},
             };
         }
         const ref = node.getChild('LinkLabel');
@@ -96,91 +78,17 @@ export const imageResourceHandler: CodeMirrorResourceHandler = {
         if (!definition) return undefined;
         return {
             range: {from: node.from, to: node.to},
-            urlRange: definition.urlRange,
-            attrs: {src: definition.path, alt: label},
-            reference: {labelTo, title: definition.title},
+            valueRange: definition.valueRange,
+            serialize: markdownDestination,
+            attrs: {src: definition.value, alt: label},
+            reference: {labelTo, title: definition.title, definitionRange: definition.range},
         };
     },
 };
 
-/** Parse a bracket label and a balanced Markdown destination, without parsing a document. */
-function inlineDestination(cx: InlineContext, pos: number, prefix: number, allowSize = false) {
-    let i = pos + prefix,
-        depth = 1;
-    for (; i < cx.end; i++) {
-        const ch = cx.char(i);
-        if (ch === 92) {
-            i++;
-            continue;
-        }
-        if (ch === 91) depth++;
-        if (ch === 93 && --depth === 0) break;
-    }
-    if (i >= cx.end || cx.char(i + 1) !== 40) return undefined;
-    const start = cx.skipSpace(i + 2);
-    const text = cx.slice(start, cx.end);
-    const dest = parseLinkDestination(text, 0, text.length);
-    if (!dest.ok) return undefined;
-    const urlEnd = start + dest.pos;
-    let end = cx.skipSpace(urlEnd);
-    if (end > urlEnd) {
-        const title = parseLinkTitle(text, end - start, text.length);
-        if (title.ok) end = cx.skipSpace(start + title.pos);
-    }
-    let sized = false;
-    if (allowSize && cx.char(end - 1) === 32 && cx.char(end) === 61) {
-        const size = /^=[\d%]*x[\d%]*/.exec(cx.slice(end, cx.end));
-        if (!size) return undefined;
-        end = cx.skipSpace(end + size[0].length);
-        sized = true;
-    }
-    if (cx.char(end) !== 41) return undefined;
-    return {labelEnd: i, urlStart: start, urlEnd, end: end + 1, sized};
-}
-
-export const fileResourceSyntax: MarkdownConfig = {
-    defineNodes: ['ResourceFile', 'ResourceFileDirective', 'FileResourceURL', 'FileResourceName'],
-    parseInline: [
-        {
-            name: 'ResourceFile',
-            before: 'Link',
-            parse(cx: InlineContext, next: number, pos: number) {
-                if (next === 58 && cx.slice(pos, pos + 6) === ':file[') {
-                    const match = inlineDestination(cx, pos, 6);
-                    if (!match) return -1;
-                    return cx.addElement(
-                        cx.elt('ResourceFileDirective', pos, match.end, [
-                            cx.elt('FileResourceName', pos + 6, match.labelEnd),
-                            cx.elt('FileResourceURL', match.urlStart, match.urlEnd),
-                        ]),
-                    );
-                }
-                if (next !== 123 || cx.slice(pos, pos + 7) !== '{% file') return -1;
-                const text = cx.slice(pos, cx.end);
-                const match = /^\{% file((?:\s*\w+=(?:"[^"]+"|'[^']+')\s)+)\s*%}/.exec(text);
-                if (!match) return -1;
-                const attrs = new Map<string, ResourceSourceRange>();
-                for (const attr of match[0].matchAll(/(\w+)=("[^"]+"|'[^']+')/g)) {
-                    const from = pos + attr.index! + attr[1].length + 2;
-                    attrs.set(attr[1], {from, to: from + attr[2].length - 2});
-                }
-                const src = attrs.get('src'),
-                    name = attrs.get('name');
-                if (!src || !name) return -1;
-                const children = [
-                    cx.elt('FileResourceURL', src.from, src.to),
-                    cx.elt('FileResourceName', name.from, name.to),
-                ].sort((a, b) => a.from - b.from);
-                return cx.addElement(cx.elt('ResourceFile', pos, pos + match[0].length, children));
-            },
-        },
-    ],
-};
-
 export const fileResourceHandler: CodeMirrorResourceHandler = {
     nodeType: FILE_TOKEN,
-    urlAttribute: 'href',
-    syntax: fileResourceSyntax,
+    valueAttribute: 'href',
     syntaxNodes: ['ResourceFile', 'ResourceFileDirective'],
     read({node, doc, urls, state}: ResourceSyntaxContext) {
         const mode = state.facet(DirectiveSyntaxFacet)?.valueFor('yfmFile') ?? 'disabled';
@@ -189,14 +97,47 @@ export const fileResourceHandler: CodeMirrorResourceHandler = {
         const url = node.getChild('FileResourceURL'),
             name = node.getChild('FileResourceName');
         if (!url || !name) return undefined;
-        const range = urlRange(url, (from, to) => doc.sliceString(from, to));
+        const range = destinationRange(url, (from, to) => doc.sliceString(from, to));
         const raw = doc.sliceString(range.from, range.to);
-        const path = urls.normalizeLink(directive ? unescapeAll(raw) : raw);
-        if (!urls.validateLink(path)) return undefined;
+        const value = urls.normalizeLink(directive ? unescapeAll(raw) : raw);
+        if (!urls.validateLink(value)) return undefined;
         return {
             range: {from: node.from, to: node.to},
-            urlRange: range,
-            attrs: {href: path, download: doc.sliceString(name.from, name.to)},
+            valueRange: range,
+            serialize: directive ? markdownDestination : (prepared) => prepared,
+            attrs: {href: value, download: doc.sliceString(name.from, name.to)},
         };
     },
 };
+
+/** Markdown link definitions contain URLs, independently of custom resource values. */
+export function collectReferenceDefinitions(tree: Tree, doc: Text, urls: ResourceLinkCodec) {
+    const definitions = new Map<string, ResourceDefinition>();
+    tree.iterate({
+        enter({node}) {
+            if (['FencedCode', 'CodeBlock', 'InlineCode', 'Monospace'].includes(node.name))
+                return false;
+            // Definitions are block nodes; paragraph/heading inline content cannot contain them.
+            if (node.name !== 'LinkReference') return !node.type.is('LeafBlock');
+            const label = node.getChild('LinkLabel'),
+                url = node.getChild('URL');
+            if (!label || !url) return false;
+            const id = normalizeReference(doc.sliceString(label.from + 1, label.to - 1));
+            if (definitions.has(id)) return false;
+            const range = destinationRange(url, (from, to) => doc.sliceString(from, to));
+            const value = urls.normalizeLink(unescapeAll(doc.sliceString(range.from, range.to)));
+            if (!urls.validateLink(value)) return false;
+            const title = node.getChild('LinkTitle');
+            definitions.set(id, {
+                range: {from: node.from, to: node.to},
+                valueRange: range,
+                value,
+                title: title
+                    ? unescapeAll(doc.sliceString(title.from + 1, title.to - 1))
+                    : undefined,
+            });
+            return false;
+        },
+    });
+    return definitions;
+}

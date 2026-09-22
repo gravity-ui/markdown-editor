@@ -20,20 +20,19 @@ import {i18n} from '../i18n/bundle';
 import {type Logger2, globalLogger} from '../logger';
 import {createCodemirror} from '../markup';
 import {getAutocompleteConfig} from '../markup/codemirror/autocomplete';
+import {historyLocked} from '../markup/codemirror/history-lock';
 import {type CodeEditor, Editor as MarkupEditor} from '../markup/editor';
 import {
     type ResourceReplacementControl,
     ResourceReplacementController,
     type ResourceSpecOverrides,
     type ResourceTrigger,
-    createResourceReplacementHost,
 } from '../modules/resource-replacement';
 import {
-    createCodeMirrorClipboardSource,
     createCodeMirrorResourceIntegration,
-    createProseMirrorClipboardSource,
     createProseMirrorResourceIntegration,
-} from '../modules/resource-replacement/integration';
+} from '../modules/resource-replacement/tigger-policy';
+import {resourceReplacementKey} from '../modules/resource-replacement/prosemirror/const';
 import {type Emitter, type FileUploadHandler, type Receiver, SafeEventEmitter} from '../utils';
 import type {DirectiveSyntaxContext} from '../utils/directive';
 
@@ -118,7 +117,6 @@ type SetEditorModeOptions = Pick<ChangeEditorModeOptions, 'emit'>;
 export type EditorOptions = Pick<
     MarkdownEditorOptions,
     | 'resourceReplacement'
-    | 'id'
     | 'md'
     | 'initial'
     | 'handlers'
@@ -136,10 +134,9 @@ export type EditorOptions = Pick<
 
 /** @internal */
 export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorInt {
-    readonly #editorInstanceId?: string;
-    readonly #resourceSpecOverrides?: ResourceSpecOverrides;
-    #resourceReplacement?: {
-        controller: ResourceReplacementController;
+    readonly #resourceReplacement: {
+        resources: ResourceSpecOverrides;
+        controller?: ResourceReplacementController;
         triggers: readonly ResourceTrigger[];
     };
     #logger: Logger2.ILogger;
@@ -278,28 +275,26 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
                 initialContent: this.#markup,
                 extensions: (builder) => {
                     if (this.#extensions) builder.use(this.#extensions);
-                    for (const nodeType of Object.keys(this.#resourceSpecOverrides ?? {})) {
+                    for (const nodeType of Object.keys(this.#resourceReplacement.resources)) {
                         if (!builder.hasNodeSpec(nodeType))
                             throw new Error(`Unknown resource node type: ${nodeType}`);
                     }
+                    // Unlisted nodes must not inherit resource metadata from extensions.
                     for (const nodeType of builder.nodeSpecNames()) {
-                        const resource = this.#resourceSpecOverrides?.[nodeType];
+                        const resource = this.#resourceReplacement.resources[nodeType];
                         builder.overrideNodeSpec(nodeType, (spec) => ({
                             ...spec,
-                            resource: resource || undefined,
+                            _resource: resource || undefined,
                         }));
                     }
-                    if (this.#editorInstanceId)
-                        builder.use(createProseMirrorClipboardSource(this.#editorInstanceId));
-                    if (this.#resourceReplacement?.triggers.length) {
+                    if (
+                        this.#resourceReplacement.controller &&
+                        this.#resourceReplacement.triggers.length
+                    ) {
                         builder.use(
                             createProseMirrorResourceIntegration({
-                                host: createResourceReplacementHost(
-                                    this.#resourceReplacement.controller,
-                                    'wysiwyg',
-                                ),
+                                controller: this.#resourceReplacement.controller,
                                 triggers: this.#resourceReplacement.triggers,
-                                editorInstanceId: this.#editorInstanceId,
                             }),
                         );
                     }
@@ -337,19 +332,12 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
                     enableNewImageSizeCalculation: this.enableNewImageSizeCalculation,
                     extensions: [
                         ...(this.#markupConfig.extensions ?? []),
-                        ...(this.#editorInstanceId
-                            ? [createCodeMirrorClipboardSource(this.#editorInstanceId)]
-                            : []),
-                        ...(this.#resourceReplacement?.triggers.length
+                        ...(this.#resourceReplacement.controller &&
+                        this.#resourceReplacement.triggers.length
                             ? createCodeMirrorResourceIntegration({
-                                  host: createResourceReplacementHost(
-                                      this.#resourceReplacement.controller,
-                                      'markup',
-                                  ),
-                                  schema: () => this.wysiwygEditor.view.state.schema,
-                                  urls: () => this.wysiwygEditor.parser,
+                                  controller: this.#resourceReplacement.controller,
+                                  resources: this.#resourceReplacement.resources,
                                   triggers: this.#resourceReplacement.triggers,
-                                  editorInstanceId: this.#editorInstanceId,
                               })
                             : []),
                     ],
@@ -416,13 +404,22 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
             mobile = false,
         } = opts;
 
-        this.#editorInstanceId = opts.id;
-        this.#resourceSpecOverrides = opts.resourceReplacement?.resources;
-        if (opts.resourceReplacement?.resolve) {
-            this.#resourceReplacement = {
-                controller: new ResourceReplacementController(opts.resourceReplacement, onError),
-                triggers: opts.resourceReplacement.triggers ?? [],
-            };
+        this.#resourceReplacement = {
+            resources: opts.resourceReplacement?.resources ?? {},
+            triggers: opts.resourceReplacement?.triggers ?? [],
+        };
+        if (
+            opts.resourceReplacement?.resolve &&
+            Object.values(this.#resourceReplacement.resources).some(Boolean)
+        ) {
+            this.#resourceReplacement.controller = new ResourceReplacementController(
+                opts.resourceReplacement,
+                onError,
+                () => {
+                    this.emit('rerender', null);
+                    this.emit('rerender-toolbar', null);
+                },
+            );
         }
         this.#logger = logger;
         this.#modifiers = experimental.preserveMarkupFormatting
@@ -481,15 +478,15 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
     // <--- implements ActionStorage
 
     getPendingResourceReplacements() {
-        return this.#resourceReplacement?.controller.getPendingResourceReplacements() ?? [];
+        return this.#resourceReplacement.controller?.getPendingResourceReplacements() ?? [];
     }
 
     cancelResourceReplacement(operationId: string) {
-        this.#resourceReplacement?.controller.cancelResourceReplacement(operationId);
+        this.#resourceReplacement.controller?.cancelResourceReplacement(operationId);
     }
 
     destroy() {
-        this.#resourceReplacement?.controller.destroy();
+        this.#resourceReplacement.controller?.destroy();
         this.#wysiwygEditor?.destroy();
         this.#markupEditor?.codemirror.destroy();
 
@@ -502,12 +499,26 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
         this.changeEditorMode({mode, reason: 'manually', emit: opts?.emit});
     }
 
+    get #resourceReplacementBusy(): boolean {
+        if (this.#resourceReplacement.controller?.busy) return true;
+        // An accepted insertion can notify consumers before its view starts the request.
+        // Its transient ranges already lock the engine during this notification.
+        const pmState = this.#wysiwygEditor?.view.state;
+        return Boolean(
+            (pmState && resourceReplacementKey.getState(pmState)?.length) ||
+            this.#markupEditor?.cm.state.facet(historyLocked),
+        );
+    }
+
     changeEditorMode({emit = true, ...opts}: ChangeEditorModeOptions): void {
-        if (this.#editorMode === opts.mode) return;
+        if (this.#editorMode === opts.mode || this.#resourceReplacementBusy) return;
 
         if (this.#beforeEditorModeChange?.({mode: opts.mode, reason: opts.reason}) === false) {
             return;
         }
+
+        // The application callback above may have synchronously started a resource operation.
+        if (this.#resourceReplacementBusy) return;
 
         this.logger.event({
             event: 'mode-change',
@@ -516,11 +527,7 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
             reason: opts.reason,
         });
 
-        const resources = this.#resourceReplacement?.controller.snapshot();
         this.currentMode = opts.mode;
-        // Construct the target engine before transferring resource identities.
-        this.currentEditor.getValue();
-        this.#resourceReplacement?.controller.activate(opts.mode, resources);
         this.emit('rerender', null);
 
         if (emit) {

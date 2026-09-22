@@ -28,7 +28,6 @@ export type {
     ResourceTrackingOptions,
     ReplacementResource,
     ResourceReplacementResult,
-    ResourceReplacementSource,
     ResourceReplacementEvent,
     ResourceReplacementStatus,
     ResourceReplacementControl,
@@ -208,8 +207,6 @@ export type MarkdownEditorWysiwygConfig = {
 };
 
 export type MarkdownEditorOptions = {
-    /** Stable clipboard identity supplied by the application. Omit to leave the source unknown. */
-    id?: string;
     /** Asynchronously replace configured resource URLs for the selected triggers. */
     resourceReplacement?: ResourceReplacementConfig;
     /**

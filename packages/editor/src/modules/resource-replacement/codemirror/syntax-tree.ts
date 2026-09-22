@@ -1,8 +1,6 @@
 import {language, syntaxTree, syntaxTreeAvailable} from '@codemirror/language';
 import type {EditorState, Text, Transaction} from '@codemirror/state';
-import {type Input, type Parser, type Tree, TreeFragment} from '@lezer/common';
-
-const trees = new WeakMap<Text, {parser: Parser; tree: Tree}>();
+import type {Input, Tree} from '@lezer/common';
 
 class DocumentInput implements Input {
     readonly lineChunks = false;
@@ -21,29 +19,13 @@ class DocumentInput implements Input {
     }
 }
 
-/** Reuse CM's completed tree, or finish an incremental parse without treating missing nodes as absent. */
+/** Reuse CM's complete tree for the same document, or parse the required document in full. */
 export function completeResourceTree(state: EditorState, tr?: Transaction): Tree {
     const parser = state.facet(language)?.parser;
     if (!parser) throw new Error('Resource replacement requires a Markdown language');
     const doc = tr?.newDoc ?? state.doc;
-    const cached = trees.get(doc);
-    if (cached?.parser === parser) return cached.tree;
-    const previous = trees.get(state.doc);
-    const native = previous?.parser === parser ? previous.tree : syntaxTree(state);
-    const complete = previous?.parser === parser || syntaxTreeAvailable(state, state.doc.length);
-    if ((!tr || !tr.docChanged) && complete) {
-        trees.set(doc, {parser, tree: native});
-        return native;
+    if ((!tr || !tr.docChanged) && syntaxTreeAvailable(state, doc.length)) {
+        return syntaxTree(state);
     }
-    let fragments = TreeFragment.addTree(native, [], !complete);
-    if (tr?.docChanged) {
-        const changes: Array<{fromA: number; toA: number; fromB: number; toB: number}> = [];
-        tr.changes.iterChangedRanges((fromA, toA, fromB, toB) =>
-            changes.push({fromA, toA, fromB, toB}),
-        );
-        fragments = TreeFragment.applyChanges(fragments, changes);
-    }
-    const tree = parser.parse(new DocumentInput(doc), fragments);
-    trees.set(doc, {parser, tree});
-    return tree;
+    return parser.parse(new DocumentInput(doc));
 }

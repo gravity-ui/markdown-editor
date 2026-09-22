@@ -1,7 +1,9 @@
-/** Resource metadata declared on a NodeSpec and shared by both editor modes. */
+/** Resource metadata supplied through resources and shared by both editor modes. */
 export type ResourceDescription = {
     kind: string;
-    urlAttribute: string;
+    valueAttribute: string;
+    /** Opt into URL rules for a custom resource. Built-in image/src and file/href use them implicitly. */
+    valueType?: 'url';
     nameAttribute?: string;
 };
 
@@ -9,14 +11,7 @@ export type ResourceDescription = {
 export type ResourceSpecOverrides = Readonly<Record<string, ResourceDescription | false>>;
 
 /** Content transfers selected for resource replacement. */
-export type ResourceTrigger =
-    | 'paste'
-    | 'drop'
-    | {
-          name: 'paste' | 'drop';
-          /** Allow replacement when source and receiving editor IDs match. Defaults to false. */
-          allowSameOrigin?: boolean;
-      };
+export type ResourceTrigger = 'paste' | 'drop' | {name: 'paste' | 'drop'};
 
 export type ResourceTrackingOptions = {
     /** Applied to NodeSpec at initialization. No defaults: omitted or empty tracks no resources. */
@@ -28,18 +23,13 @@ export type ResourceTrackingOptions = {
 export type ReplacementResource = {
     /** Resource kind supplied by the integration (for example image, file or video). */
     kind: string;
-    /** Relative path or full URL as represented by the parsed resource. */
-    path: string;
+    /** Parsed string value: an opaque identifier or a URL, according to its description. */
+    value: string;
     name?: string;
 };
 
 export type ResourceReplacementResult = {
-    replacements: Array<{kind: ReplacementResource['kind']; oldPath: string; newPath: string}>;
-};
-
-/** Clipboard origin compared with the application-supplied ID of the receiving editor. */
-export type ResourceReplacementSource = {
-    sameEditor: boolean;
+    replacements: Array<{kind: ReplacementResource['kind']; oldValue: string; newValue: string}>;
 };
 
 export type ResourceReplacementStatus = 'pending' | 'succeeded' | 'failed' | 'cancelled';
@@ -56,12 +46,10 @@ export type ResourceReplacementConfig = ResourceTrackingOptions & {
         context: {
             operationId: string;
             signal: AbortSignal;
-            /** Absent when clipboard origin or the receiving editor's ID is unknown. */
-            source?: ResourceReplacementSource;
         },
     ) => Promise<ResourceReplacementResult>;
     onChange?: (event: ResourceReplacementEvent) => void;
-    /** Maximum wait, in milliseconds. Defaults to 120000. Must be finite and positive. */
+    /** Maximum wait, in milliseconds. No timeout if omitted. Must be finite and positive. */
     timeoutMs?: number;
 };
 

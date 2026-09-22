@@ -9,6 +9,8 @@ import {capitalize} from '../../lodash';
 
 import {DirectiveSyntaxFacet} from './directive-facet';
 import {extendedMarkdownLanguage} from './markdown-syntax';
+import {FileExtension} from './syntax/file';
+import {ImageSizeExtension} from './syntax/image-size';
 
 export const customTags = {
     underline: Tag.define(),
@@ -172,7 +174,13 @@ export function yfmLang({languageData = []}: YfmLangOptions = {}): Extension {
         base: markdownLanguage,
         addKeymap: true,
         completeHTMLTags: false,
-        extensions: [UnderlineExtension, MonospaceExtension, MarkedExtension],
+        extensions: [
+            UnderlineExtension,
+            MonospaceExtension,
+            MarkedExtension,
+            ImageSizeExtension,
+            FileExtension,
+        ],
     });
 
     return [

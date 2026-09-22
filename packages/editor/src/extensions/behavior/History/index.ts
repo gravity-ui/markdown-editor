@@ -1,8 +1,16 @@
-import {history, redo, undo} from 'prosemirror-history';
+import {history, redo as nativeRedo, undo as nativeUndo} from 'prosemirror-history';
 import type {Command} from 'prosemirror-state';
 
 import type {Action, ActionSpec, ExtensionAuto, Keymap} from '../../../core';
+import {resourceReplacementKey} from '../../../modules/resource-replacement/prosemirror/const';
 import {withLogAction} from '../../../utils/keymap';
+
+const guard =
+    (command: Command): Command =>
+    (state, dispatch, view) =>
+        !resourceReplacementKey.getState(state)?.length && command(state, dispatch, view);
+const undo = guard(nativeUndo);
+const redo = guard(nativeRedo);
 
 enum HistoryAction {
     Undo = 'undo',

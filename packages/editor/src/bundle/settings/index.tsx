@@ -121,6 +121,7 @@ export type SettingItems = 'mode' | 'toolbar' | 'split';
 type SettingsContentProps = ClassNameProps &
     QAProps & {
         mode: MarkdownEditorMode;
+        modeDisabled?: boolean;
         onClose: () => void;
         onModeChange: (mode: MarkdownEditorMode) => void;
         onShowPreviewChange: (showPreview: boolean) => void;
@@ -139,6 +140,7 @@ const mdHelpPlacement: PopupPlacement = ['bottom', 'bottom-end', 'right-start', 
 
 const SettingsContent: React.FC<SettingsContentProps> = function SettingsContent({
     mode,
+    modeDisabled,
     onClose,
     onModeChange,
     toolbarVisibility,
@@ -164,6 +166,7 @@ const SettingsContent: React.FC<SettingsContentProps> = function SettingsContent
                 <Menu size="l" className={bContent('mode')}>
                     <Menu.Item
                         qa="g-md-settings-mode-wysiwyg"
+                        disabled={modeDisabled}
                         active={mode === 'wysiwyg'}
                         onClick={() => {
                             onModeChange('wysiwyg');
@@ -175,6 +178,7 @@ const SettingsContent: React.FC<SettingsContentProps> = function SettingsContent
                     </Menu.Item>
                     <Menu.Item
                         qa="g-md-settings-mode-markup"
+                        disabled={modeDisabled}
                         active={mode === 'markup'}
                         onClick={() => {
                             onModeChange('markup');

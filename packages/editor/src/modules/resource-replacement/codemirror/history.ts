@@ -1,11 +1,11 @@
 import {historyField} from '@codemirror/commands';
 import {
     type ChangeDesc,
-    type ChangeSet,
+    ChangeSet,
     Compartment,
     type EditorSelection,
-    type EditorState,
     StateEffect,
+    type Text,
     type Transaction,
 } from '@codemirror/state';
 
@@ -45,44 +45,30 @@ function mapEvent(event: HistoryEvent, mapping: ChangeDesc): HistoryEvent {
     });
 }
 
+/** Only the originating paste ranges enter history; no resource identities or result cache. */
+export const pasteEvent = StateEffect.define<Array<{from: number; to: number}>>({
+    map: (ranges, changes) =>
+        ranges.map((range) => ({
+            from: changes.mapPos(range.from, -1),
+            to: changes.mapPos(range.to, 1),
+        })),
+});
+
 export class ResourceReplacementHistory {
     readonly compartment = new Compartment();
 
-    retainedTargets(
-        state: EditorState,
-        readIds: (effect: StateEffect<unknown>) => readonly string[],
-    ): ReadonlySet<string> | undefined {
-        const history = state.field(historyField, false) as HistoryState | undefined;
-        const ids = new Set<string>();
-        if (!history) return ids;
-        if (!Array.isArray(history.done) || !Array.isArray(history.undone)) return undefined;
-        for (const event of [...history.done, ...history.undone]) {
-            if (!Array.isArray(event.effects)) return undefined;
-            for (const effect of event.effects) {
-                for (const id of readIds(effect)) ids.add(id);
-            }
-        }
-        return ids;
-    }
-
-    tagLast(state: EditorState, effect: StateEffect<unknown>) {
-        const history = state.field(historyField, false) as HistoryState | undefined;
-        if (!history?.done?.length) return [];
-        const done = [...history.done];
-        let index = done.length - 1;
-        while (index >= 0 && (!done[index].changes || done[index].changes!.empty)) index--;
-        if (index < 0) return [];
-        done[index] = clone(done[index], {effects: [...done[index].effects, effect]});
-        return [this.compartment.reconfigure(historyField.init(() => clone(history, {done})))];
-    }
-
-    amend(tr: Transaction, owns: (effects: readonly StateEffect<unknown>[]) => boolean) {
+    amend(tr: Transaction) {
         const value = tr.startState.field(historyField, false);
         if (!value) return [];
         const history = value as HistoryState;
         if (!Array.isArray(history.done) || typeof history.addMapping !== 'function')
             throw new Error('Unsupported CodeMirror history implementation');
-        if (!history.done.some((event) => owns(event.effects))) return [];
+        if (
+            !history.done.some((event) =>
+                event.effects.some((effect: StateEffect<unknown>) => effect.is(pasteEvent)),
+            )
+        )
+            return [];
 
         const done: HistoryEvent[] = [];
         let existing: ChangeDesc | undefined;
@@ -92,27 +78,40 @@ export class ResourceReplacementHistory {
             let event: HistoryEvent = history.done[index];
             if (existing) event = mapEvent(event, existing);
             existing = event.mapped;
-            if (event.changes && owns(event.effects)) {
-                // Undo the patch together with its originating change, wherever that change is in history.
+            const owned = event.effects.flatMap((effect) =>
+                effect.is(pasteEvent) ? effect.value : [],
+            );
+            // Typing may insert another resource while waiting. Its inverse deletion
+            // must remove the replacement too, rather than leave an orphaned URL.
+            event.changes?.iterChanges((from, to, _fromB, _toB, insert) => {
+                if (from < to && insert.length === 0) owned.push({from, to});
+            });
+            if (event.changes && owned.length) {
+                const remaining: Array<{
+                    from: number;
+                    to: number;
+                    insert: Text;
+                }> = [];
+                patch.iterChanges((from, to, _fromB, _toB, insert) => {
+                    if (!owned.some((range) => from >= range.from && to <= range.to))
+                        remaining.push({from, to, insert});
+                });
+                const after = ChangeSet.of(remaining, doc.length).map(event.changes, true);
                 const mapping = patch;
                 done.unshift(
                     clone(event, {
-                        changes: patch.invert(doc).compose(event.changes),
+                        changes: patch.invert(doc).compose(event.changes).compose(after),
+                        effects: StateEffect.mapEffects(event.effects, patch),
                         selectionsAfter: event.selectionsAfter.map((selection) =>
                             selection.map(mapping),
                         ),
+                        startSelection: event.startSelection?.map(after),
                         mapped: undefined,
                     }),
                 );
                 doc = event.changes.apply(doc);
-                // Only normalization of previously deferred mappings remains below this event.
-                for (let older = index - 1; older >= 0; older--) {
-                    let item: HistoryEvent = history.done[older];
-                    if (existing) item = mapEvent(item, existing);
-                    existing = item.mapped;
-                    done.unshift(clone(item, {mapped: undefined}));
-                }
-                break;
+                patch = after;
+                continue;
             }
             const mapped = mapEvent(event, patch);
             done.unshift(clone(mapped, {mapped: undefined}));

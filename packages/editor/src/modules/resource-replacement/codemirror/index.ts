@@ -1,5 +1,4 @@
 export {codeMirrorResourceReplacement} from './extension';
-export {pasteHistoryBoundary} from './history-boundary';
 export type {CodeMirrorResourceReplacementOptions} from './options';
 export {codeMirrorResourceSupport} from './handlers';
 export type {

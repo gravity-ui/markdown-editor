@@ -290,8 +290,8 @@ export const Playground = memo<PlaygroundProps>((props) => {
             },
             resourceReplacement: {
                 resources: {
-                    image: {kind: 'image', urlAttribute: 'src', nameAttribute: 'alt'},
-                    [FILE_TOKEN]: {kind: 'file', urlAttribute: 'href', nameAttribute: 'download'},
+                    image: {kind: 'image', valueAttribute: 'src', nameAttribute: 'alt'},
+                    [FILE_TOKEN]: {kind: 'file', valueAttribute: 'href', nameAttribute: 'download'},
                 },
                 triggers: ['paste', 'drop'],
                 async resolve(resources) {
@@ -301,8 +301,8 @@ export const Playground = memo<PlaygroundProps>((props) => {
                     return {
                         replacements: resources.map((resource) => ({
                             kind: resource.kind,
-                            oldPath: resource.path,
-                            newPath:
+                            oldValue: resource.value,
+                            newValue:
                                 resource.kind === 'image'
                                     ? 'https://yt3.googleusercontent.com/oX0kXVZOEVQIflrOamdiDwugECEXvKP-2fzw8Pqmdbp6OFQW5x3N0zydtanhC_UF8WcBd0jLNA=s900-c-k-c0x00ffffff-no-rj'
                                     : 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
