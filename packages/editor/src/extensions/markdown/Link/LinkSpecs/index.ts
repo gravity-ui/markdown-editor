@@ -3,6 +3,8 @@ import type {Mark, Node} from 'prosemirror-model';
 import type {ExtensionAuto} from '#core';
 import {markTypeFactory} from 'src/utils/schema';
 
+import {BreakNodeName} from '../../Breaks/BreaksSpecs';
+
 export const linkMarkName = 'link';
 export const linkType = markTypeFactory(linkMarkName);
 
@@ -56,15 +58,15 @@ export const LinkSpecs: ExtensionAuto = (builder) => {
                 // FIXME: Verify and use Node instead of Fragment
                 state.isAutolink = isPlainURL(mark, parent as any, index, 1);
                 if (state.isAutolink) {
-                    if (mark.attrs[LinkAttr.RawLink]) return '';
+                    if (canSerializeRawLink(mark, parent, index + 1)) return '';
                     return '<';
                 }
                 return '[';
             },
-            close(state, mark) {
+            close(state, mark, parent, index) {
                 if (state.isAutolink) {
                     state.isAutolink = undefined;
-                    if (mark.attrs[LinkAttr.RawLink]) return '';
+                    if (canSerializeRawLink(mark, parent, index)) return '';
 
                     return '>';
                 }
@@ -80,6 +82,21 @@ export const LinkSpecs: ExtensionAuto = (builder) => {
             },
         }));
 };
+
+// Keep raw URLs only when linkify cannot include the next content.
+function canSerializeRawLink(mark: Mark, parent: Node, nextIndex: number): boolean {
+    if (!mark.attrs[LinkAttr.RawLink]) return false;
+
+    const next = parent.maybeChild(nextIndex);
+    if (!next) return true;
+
+    if (next.marks.length) return false;
+    // Hard breaks add a backslash that can join the URL.
+    if (next.type.name === BreakNodeName.SoftBreak) return true;
+
+    // Unlike \s, this excludes U+FEFF, which can join the URL.
+    return next.isText && /^[\t\n\r\p{Z}]/u.test(next.text ?? '');
+}
 
 function isPlainURL(link: Mark, parent: Node, index: number, side: number) {
     if (link.attrs.title || !/^\w+:/.test(link.attrs[LinkAttr.Href])) return false;
