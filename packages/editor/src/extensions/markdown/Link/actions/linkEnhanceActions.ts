@@ -42,7 +42,16 @@ export const addEmptyLink: Command = (state, dispatch) => {
     } else {
         const selectedText = state.doc.textBetween($from.pos, $to.pos);
         const countOfWhitespacesAtEnd = selectedText.length - selectedText.trimEnd().length;
-        tr.setSelection(TextSelection.create(tr.doc, $to.pos - countOfWhitespacesAtEnd - 1));
+        const pos = $to.pos - countOfWhitespacesAtEnd - 1;
+        tr.setSelection(TextSelection.create(tr.doc, pos));
+        // For short selections (e.g. 1 character), the cursor lands at the
+        // left edge of the non-inclusive link mark, so $from.marks() won't
+        // include it and the tooltip won't appear.  Explicitly store the
+        // marks from the adjacent text node so isMarkActive() sees the link.
+        const nodeMarks = tr.doc.resolve(pos).nodeAfter?.marks;
+        if (nodeMarks) {
+            tr.setStoredMarks(nodeMarks);
+        }
     }
     dispatch?.(tr);
     return true;
