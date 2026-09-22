@@ -1,4 +1,5 @@
 import {
+    type ChangeDesc,
     type ChangeSpec,
     EditorSelection,
     type EditorState,
@@ -9,6 +10,7 @@ import {
     type TransactionSpec,
 } from '@codemirror/state';
 
+/** Returns extra line break counts before and after a block based on adjacent lines. */
 export function getBlockExtraLineBreaks(
     state: EditorState,
     {from: fromLine, to: toLine}: {from: Line; to: Line},
@@ -26,6 +28,10 @@ export function getBlockExtraLineBreaks(
     return {before: lineBreaksBefore, after: lineBreaksAfter};
 }
 
+/**
+ * Builds a transaction to replace a full-line selection or insert markup after its last line.
+ * Adds line breaks to separate the markup from nearby text.
+ */
 export function replaceOrInsertAfter(state: EditorState, markup: string): TransactionSpec {
     const selrange = state.selection.main;
     if (isFullLinesSelection(state.doc, selrange)) {
@@ -46,12 +52,17 @@ export function replaceOrInsertAfter(state: EditorState, markup: string): Transa
     }
 }
 
+/** Checks whether the range covers all text on its first and last lines. */
 function isFullLinesSelection(doc: Text, range: SelectionRange): boolean {
     const fromLine = doc.lineAt(range.from);
     const toLine = doc.lineAt(range.to);
     return range.from <= fromLine.from && range.to >= toLine.to;
 }
 
+/**
+ * Creates a command that wraps the full lines of the main selection in block markers.
+ * Adds block spacing and optional markers on each line.
+ */
 export const wrapToBlock = (
     before: string | ((arg: Pick<EditorState, 'lineBreak'>) => string),
     after: string | ((arg: Pick<EditorState, 'lineBreak'>) => string),
@@ -110,13 +121,19 @@ export const wrapToBlock = (
     };
 };
 
+/**
+ * Creates a command that wraps each selected paragraph part in inline markers.
+ * Keeps markers selected, or places an empty cursor between them.
+ */
 export function inlineWrapTo(before: string, after: string = before): StateCommand {
     return ({state, dispatch}) => {
         const trSpec = state.changeByRange((range) => {
-            const changes = state.changes([
-                {from: range.from, insert: before},
-                {from: range.to, insert: after},
-            ]);
+            const changes = state.changes(
+                getInlineRanges(state.doc, range).flatMap(({from, to}) => [
+                    {from, insert: before},
+                    {from: to, insert: after},
+                ]),
+            );
             return {
                 changes,
                 range: range.empty
@@ -126,7 +143,7 @@ export function inlineWrapTo(before: string, after: string = before): StateComma
                           range.goalColumn,
                           range.bidiLevel ?? undefined,
                       )
-                    : range.map(changes),
+                    : mapInlineRange(range, changes),
             };
         });
         dispatch(state.update(trSpec));
@@ -134,6 +151,10 @@ export function inlineWrapTo(before: string, after: string = before): StateComma
     };
 }
 
+/**
+ * Creates a command that toggles inline markers across all selected paragraph parts.
+ * Removes markers when all parts have both; otherwise adds the missing markers.
+ */
 export function toggleInlineMarkupFactory(
     markup: string | {before: string; after?: string},
 ): StateCommand {
@@ -145,29 +166,35 @@ export function toggleInlineMarkupFactory(
     const afterLength = after.length;
 
     return ({state, dispatch}) => {
+        const ranges = state.selection.ranges.map((range) =>
+            getInlineRanges(state.doc, range).map((part) =>
+                getInlineMarkupRange(state, part, before, after),
+            ),
+        );
+        const removeMarkup = ranges.every((parts) =>
+            parts.every((part) => part.hasMarkupBefore && part.hasMarkupAfter),
+        );
+        let rangeIndex = 0;
         const tr: TransactionSpec = state.changeByRange((range) => {
-            const hasMarkupBefore =
-                state.sliceDoc(range.from - beforeLength, range.from) === before;
-            const hasMarkupAfter = state.sliceDoc(range.to, range.to + afterLength) === after;
-
+            const parts = ranges[rangeIndex++];
             const changeSpec: ChangeSpec[] = [];
-            if (hasMarkupBefore && hasMarkupAfter) {
-                changeSpec.push(
-                    {from: range.from - beforeLength, to: range.from, insert: ''},
-                    {from: range.to, to: range.to + afterLength, insert: ''},
-                );
-            } else {
-                if (!hasMarkupBefore) {
-                    changeSpec.push({
-                        from: range.from,
-                        insert: before,
-                    });
-                }
-                if (!hasMarkupAfter) {
-                    changeSpec.push({
-                        from: range.to,
-                        insert: after,
-                    });
+            const selectionBounds = {from: range.from, to: range.to};
+            for (const {from, to, hasMarkupBefore, hasMarkupAfter} of parts) {
+                if (removeMarkup) {
+                    changeSpec.push(
+                        {from: from - beforeLength, to: from, insert: ''},
+                        {from: to, to: to + afterLength, insert: ''},
+                    );
+                } else {
+                    if (!hasMarkupBefore) changeSpec.push({from, insert: before});
+                    if (!hasMarkupAfter) changeSpec.push({from: to, insert: after});
+                    // Include existing edge markers as well as new ones.
+                    if (hasMarkupBefore) {
+                        selectionBounds.from = Math.min(selectionBounds.from, from - beforeLength);
+                    }
+                    if (hasMarkupAfter) {
+                        selectionBounds.to = Math.max(selectionBounds.to, to + afterLength);
+                    }
                 }
             }
 
@@ -176,14 +203,14 @@ export function toggleInlineMarkupFactory(
             return {
                 changes,
                 range:
-                    range.empty && !hasMarkupBefore
+                    range.empty && !parts[0].hasMarkupBefore
                         ? EditorSelection.range(
                               range.anchor + beforeLength,
                               range.head + beforeLength,
                               range.goalColumn,
                               range.bidiLevel ?? undefined,
                           )
-                        : range.map(changes),
+                        : mapInlineRange(range, changes, selectionBounds),
             };
         });
 
@@ -201,6 +228,10 @@ type WrapPerLineOptions = {
     skipEmptyLine?: boolean; // default false
 };
 
+/**
+ * Creates a command that inserts a prefix at the start of each selected line.
+ * Skips empty lines by default, except when the cursor is on an empty line.
+ */
 export const wrapPerLine =
     ({beforeText: before, skipEmptyLine = true}: WrapPerLineOptions): StateCommand =>
     ({state, dispatch}) => {
@@ -226,6 +257,57 @@ export const wrapPerLine =
         return true;
     };
 
+/**
+ * Maps a selection through changes and keeps its direction.
+ * Non-empty selections include insertions at both bounds; bounds use old document positions.
+ */
+export function mapInlineRange(
+    range: SelectionRange,
+    changes: ChangeDesc,
+    bounds: {from: number; to: number} = range,
+): SelectionRange {
+    if (range.empty) return range.map(changes);
+
+    // Include new edge markers so the next command wraps them too.
+    const from = changes.mapPos(bounds.from, -1);
+    const to = changes.mapPos(bounds.to, 1);
+    const backward = range.anchor > range.head;
+    return EditorSelection.range(
+        backward ? to : from,
+        backward ? from : to,
+        range.goalColumn,
+        range.bidiLevel ?? undefined,
+    );
+}
+
+/**
+ * Splits selected text into ranges separated by blank lines, keeping single line breaks.
+ * Returns the cursor range unchanged when the selection is empty.
+ */
+export function getInlineRanges(doc: Text, range: SelectionRange): {from: number; to: number}[] {
+    // Keep an empty range so commands can insert markers around the cursor.
+    if (range.empty) return [{from: range.from, to: range.to}];
+
+    const ranges: {from: number; to: number}[] = [];
+    let part: {from: number; to: number} | undefined;
+    iterateOverRangeLines(doc, range, (line) => {
+        const from = Math.max(line.from, range.from);
+        const to = Math.min(line.to, range.to);
+        // Skip blank lines and a last line with no selected text.
+        if (from >= to || /^[\t ]*$/.test(line.text)) {
+            part = undefined;
+        } else if (part) {
+            // A single line break stays inside the same paragraph.
+            part.to = to;
+        } else {
+            part = {from, to};
+            ranges.push(part);
+        }
+    });
+    return ranges;
+}
+
+/** Calls fn for each line from the range start to its end, including both boundary lines. */
 export function iterateOverRangeLines(doc: Text, range: SelectionRange, fn: (line: Line) => void) {
     const from = doc.lineAt(range.from).number;
     const to = doc.lineAt(range.to).number;
@@ -233,4 +315,33 @@ export function iterateOverRangeLines(doc: Text, range: SelectionRange, fn: (lin
     for (let i = from; i <= to; i++) {
         fn(doc.line(i));
     }
+}
+
+/**
+ * Checks for markers just outside or inside the range edges.
+ * Returns content bounds without these markers and flags for each marker found.
+ */
+function getInlineMarkupRange(
+    state: EditorState,
+    range: {from: number; to: number},
+    before: string,
+    after: string,
+) {
+    let {from, to} = range;
+    // Outer markers may be outside the selection after formatting.
+    let hasMarkupBefore = state.sliceDoc(from - before.length, from) === before;
+    let hasMarkupAfter = state.sliceDoc(to, to + after.length) === after;
+
+    // Markers between paragraphs stay selected. Move the bounds past them.
+    if (!hasMarkupBefore && to - from >= before.length) {
+        hasMarkupBefore = state.sliceDoc(from, from + before.length) === before;
+        if (hasMarkupBefore) from += before.length;
+    }
+    // Check the remaining length so opening and closing markers cannot overlap.
+    if (!hasMarkupAfter && to - from >= after.length) {
+        hasMarkupAfter = state.sliceDoc(to - after.length, to) === after;
+        if (hasMarkupAfter) to -= after.length;
+    }
+
+    return {from, to, hasMarkupBefore, hasMarkupAfter};
 }
