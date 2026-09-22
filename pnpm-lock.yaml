@@ -212,8 +212,8 @@ importers:
         specifier: 7.28.5
         version: 7.28.5(@babel/core@7.28.5)
       '@bem-react/classname':
-        specifier: ^1.6.0
-        version: 1.6.0
+        specifier: ^1.8.0
+        version: 1.8.0
       '@gravity-ui/icons':
         specifier: ^2.12.0
         version: 2.13.0(react@18.2.0)
@@ -737,13 +737,13 @@ importers:
     devDependencies:
       '@diplodoc/page-constructor-extension':
         specifier: catalog:peer-diplodoc
-        version: 0.13.3(@diplodoc/transform@4.76.0(highlight.js@11.11.1)(react@18.2.0))(@gravity-ui/uikit@7.13.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.0.28)(markdown-it@13.0.2)(react-dom@18.2.0(react@18.2.0))(react-is@18.3.1)(react@18.2.0)
+        version: 0.13.3(@diplodoc/transform@4.76.0(@types/markdown-it@13.0.9)(highlight.js@11.11.1)(react@18.2.0))(@gravity-ui/uikit@7.13.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/markdown-it@13.0.9)(@types/react@18.0.28)(markdown-it@13.0.2)(react-dom@18.2.0(react@18.2.0))(react-is@18.3.1)(react@18.2.0)
       '@gravity-ui/markdown-editor':
         specifier: workspace:*
         version: link:../editor
       '@gravity-ui/page-constructor':
         specifier: catalog:peer-gravity
-        version: 7.25.0(@diplodoc/transform@4.76.0(highlight.js@11.11.1)(react@18.2.0))(@gravity-ui/uikit@7.13.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.0.28)(js-yaml@4.1.1)(react-dom@18.2.0(react@18.2.0))(react-is@18.3.1)(react@18.2.0)
+        version: 7.25.0(@diplodoc/transform@4.76.0(@types/markdown-it@13.0.9)(highlight.js@11.11.1)(react@18.2.0))(@gravity-ui/uikit@7.13.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.0.28)(js-yaml@4.1.1)(react-dom@18.2.0(react@18.2.0))(react-is@18.3.1)(react@18.2.0)
       '@gravity-ui/uikit':
         specifier: catalog:peer-gravity
         version: 7.13.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -1418,6 +1418,9 @@ packages:
 
   '@bem-react/classname@1.6.0':
     resolution: {integrity: sha512-SFBwUHMcb7TFFK5ld88+JhecoEun3/kHZ6KvLDjj3w5hv/tfRV8mtGHA8N42uMctXLF4bPEcr96xwXXcRFuweg==}
+
+  '@bem-react/classname@1.8.0':
+    resolution: {integrity: sha512-uazGRFKTMNbGR8KLvEh5qT+aP0yuym+sB+YFFaAyCkFodtjI0SskV6BfkiZ9+E3FloIFYPkwqJ1owxp48WCS9g==}
 
   '@bem-react/classnames@1.5.0':
     resolution: {integrity: sha512-kHa04vgeU0pJbqE/ZDzOn0bRkkVdbo0ZuV2h71h8PtopfDDGzfrgPIn+L6ohW3uF4cbdWUE49sQ0nyVT+O555g==}
@@ -9395,6 +9398,8 @@ snapshots:
 
   '@bem-react/classname@1.6.0': {}
 
+  '@bem-react/classname@1.8.0': {}
+
   '@bem-react/classnames@1.5.0': {}
 
   '@braintree/sanitize-url@7.1.1': {}
@@ -9804,12 +9809,12 @@ snapshots:
       - '@types/react'
       - react-is
 
-  '@diplodoc/page-constructor-extension@0.13.3(@diplodoc/transform@4.76.0(highlight.js@11.11.1)(react@18.2.0))(@gravity-ui/uikit@7.13.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.0.28)(markdown-it@13.0.2)(react-dom@18.2.0(react@18.2.0))(react-is@18.3.1)(react@18.2.0)':
+  '@diplodoc/page-constructor-extension@0.13.3(@diplodoc/transform@4.76.0(@types/markdown-it@13.0.9)(highlight.js@11.11.1)(react@18.2.0))(@gravity-ui/uikit@7.13.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/markdown-it@13.0.9)(@types/react@18.0.28)(markdown-it@13.0.2)(react-dom@18.2.0(react@18.2.0))(react-is@18.3.1)(react@18.2.0)':
     dependencies:
       '@diplodoc/directive': 0.3.3(@types/markdown-it@13.0.9)(markdown-it@13.0.2)
       '@diplodoc/transform': 4.76.0(@types/markdown-it@13.0.9)(highlight.js@11.11.1)(react@18.2.0)
       '@diplodoc/utils': 2.2.2(react@18.2.0)
-      '@gravity-ui/page-constructor': 7.25.0(@diplodoc/transform@4.76.0(highlight.js@11.11.1)(react@18.2.0))(@gravity-ui/uikit@7.13.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.0.28)(js-yaml@4.1.1)(react-dom@18.2.0(react@18.2.0))(react-is@18.3.1)(react@18.2.0)
+      '@gravity-ui/page-constructor': 7.25.0(@diplodoc/transform@4.76.0(@types/markdown-it@13.0.9)(highlight.js@11.11.1)(react@18.2.0))(@gravity-ui/uikit@7.13.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.0.28)(js-yaml@4.1.1)(react-dom@18.2.0(react@18.2.0))(react-is@18.3.1)(react@18.2.0)
       cheerio: 1.0.0
       js-yaml: 4.1.1
       lodash: 4.17.23
@@ -10295,7 +10300,7 @@ snapshots:
 
   '@gravity-ui/components@4.10.0(@gravity-ui/uikit@7.13.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react-dom@18.2.0(react@18.2.0))(react@18.2.0)':
     dependencies:
-      '@bem-react/classname': 1.6.0
+      '@bem-react/classname': 1.8.0
       '@gravity-ui/date-utils': 2.5.6
       '@gravity-ui/i18n': 1.8.0
       '@gravity-ui/icons': 2.13.0(react@18.2.0)
@@ -10307,7 +10312,7 @@ snapshots:
 
   '@gravity-ui/date-components@3.4.2(@gravity-ui/date-utils@2.5.6)(@gravity-ui/uikit@7.13.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.0.28)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)':
     dependencies:
-      '@bem-react/classname': 1.6.0
+      '@bem-react/classname': 1.8.0
       '@gravity-ui/date-utils': 2.5.6
       '@gravity-ui/icons': 2.13.0(react@18.2.0)
       '@gravity-ui/uikit': 7.13.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -10323,7 +10328,7 @@ snapshots:
 
   '@gravity-ui/dynamic-forms@5.13.2(@gravity-ui/uikit@7.13.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.0.28)(final-form@4.20.10)(react-dom@18.2.0(react@18.2.0))(react-final-form@6.5.9(final-form@4.20.10)(react@18.2.0))(react-is@18.3.1)(react@18.2.0)':
     dependencies:
-      '@bem-react/classname': 1.6.0
+      '@bem-react/classname': 1.8.0
       '@gravity-ui/date-components': 3.4.2(@gravity-ui/date-utils@2.5.6)(@gravity-ui/uikit@7.13.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.0.28)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@gravity-ui/date-utils': 2.5.6
       '@gravity-ui/i18n': 1.8.0
@@ -10386,7 +10391,7 @@ snapshots:
 
   '@gravity-ui/page-constructor@7.25.0(@diplodoc/transform@4.75.1(@types/markdown-it@13.0.9)(highlight.js@11.11.1)(react@18.2.0))(@gravity-ui/uikit@7.13.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.0.28)(js-yaml@4.1.1)(react-dom@18.2.0(react@18.2.0))(react-is@18.3.1)(react@18.2.0)':
     dependencies:
-      '@bem-react/classname': 1.6.0
+      '@bem-react/classname': 1.8.0
       '@diplodoc/transform': 4.75.1(@types/markdown-it@13.0.9)(highlight.js@11.11.1)(react@18.2.0)
       '@gravity-ui/components': 4.10.0(@gravity-ui/uikit@7.13.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@gravity-ui/dynamic-forms': 5.13.2(@gravity-ui/uikit@7.13.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.0.28)(final-form@4.20.10)(react-dom@18.2.0(react@18.2.0))(react-final-form@6.5.9(final-form@4.20.10)(react@18.2.0))(react-is@18.3.1)(react@18.2.0)
@@ -10420,9 +10425,9 @@ snapshots:
       - react-dom
       - react-is
 
-  '@gravity-ui/page-constructor@7.25.0(@diplodoc/transform@4.76.0(highlight.js@11.11.1)(react@18.2.0))(@gravity-ui/uikit@7.13.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.0.28)(js-yaml@4.1.1)(react-dom@18.2.0(react@18.2.0))(react-is@18.3.1)(react@18.2.0)':
+  '@gravity-ui/page-constructor@7.25.0(@diplodoc/transform@4.76.0(@types/markdown-it@13.0.9)(highlight.js@11.11.1)(react@18.2.0))(@gravity-ui/uikit@7.13.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.0.28)(js-yaml@4.1.1)(react-dom@18.2.0(react@18.2.0))(react-is@18.3.1)(react@18.2.0)':
     dependencies:
-      '@bem-react/classname': 1.6.0
+      '@bem-react/classname': 1.8.0
       '@diplodoc/transform': 4.76.0(@types/markdown-it@13.0.9)(highlight.js@11.11.1)(react@18.2.0)
       '@gravity-ui/components': 4.10.0(@gravity-ui/uikit@7.13.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@gravity-ui/dynamic-forms': 5.13.2(@gravity-ui/uikit@7.13.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.0.28)(final-form@4.20.10)(react-dom@18.2.0(react@18.2.0))(react-final-form@6.5.9(final-form@4.20.10)(react@18.2.0))(react-is@18.3.1)(react@18.2.0)
@@ -10489,7 +10494,7 @@ snapshots:
 
   '@gravity-ui/uikit@7.13.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0)':
     dependencies:
-      '@bem-react/classname': 1.6.0
+      '@bem-react/classname': 1.8.0
       '@floating-ui/react': 0.27.16(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@gravity-ui/i18n': 1.8.0
       '@gravity-ui/icons': 2.13.0(react@18.2.0)
