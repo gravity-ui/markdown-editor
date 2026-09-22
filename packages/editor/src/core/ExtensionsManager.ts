@@ -64,6 +64,8 @@ export class ExtensionsManager {
     #builder: ExtensionBuilder;
 
     #spec!: ExtensionSpec;
+    #depsBuilt = false;
+    #derivedBuilt = false;
     #deps!: ExtensionDeps;
     #plugins: Plugin[] = [];
     #actions: Record<string, ActionSpec> = {};
@@ -101,9 +103,11 @@ export class ExtensionsManager {
     }
 
     build() {
-        this.processExtensions();
-        this.createDeps();
-        this.createDerived();
+        this.buildDeps();
+        if (!this.#derivedBuilt) {
+            this.createDerived();
+            this.#derivedBuilt = true;
+        }
 
         return {
             ...this.#deps,
@@ -116,8 +120,11 @@ export class ExtensionsManager {
     }
 
     buildDeps() {
-        this.processExtensions();
-        this.createDeps();
+        if (!this.#depsBuilt) {
+            this.processExtensions();
+            this.createDeps();
+            this.#depsBuilt = true;
+        }
         return this.#deps;
     }
 

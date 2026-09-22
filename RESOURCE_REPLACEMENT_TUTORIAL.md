@@ -658,7 +658,13 @@ upload process. Это не превращает загрузочный видж
 
 ### 8.2. options.ts и экспорты
 
-Внутреннее расширение получает controller, resources, необязательный urls и shouldTrack.
+Внутреннее расширение получает controller, resources, обязательный urls и shouldTrack.
+`useMarkdownEditor` передаёт URL-правила общего настроенного парсера автоматически:
+Wiki и Yjs не нужны, расширения Wiki только дополняют конфигурацию. Подготовка схемы
+и парсеров через `ExtensionsManager.buildDeps()` не создаёт WYSIWYG-плагины или
+представление и не переключает режим. При открытии WYSIWYG зависимости переиспользуются.
+Самостоятельная интеграция CodeMirror явно передаёт свой `urls` с методами
+`normalizeLink` и `validateLink`.
 `Pick<ResourceReplacementController, 'enabled' | 'busy' | 'start'>` ограничивает TypeScript-
 интерфейс зависимости, а не создаёт новый объект и не удаляет методы во время выполнения.
 

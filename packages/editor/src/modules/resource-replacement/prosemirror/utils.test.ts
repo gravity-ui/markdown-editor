@@ -6,7 +6,7 @@ import {EditorView} from 'prosemirror-view';
 import type {Parser} from '../../../core/types/parser';
 import {ParserFacet} from '../../../core/utils/parser';
 import {resourceKey} from '../controller.utils';
-import {defaultResourceUrls} from '../urls';
+import {defaultResourceUrls} from '../tests/urls';
 
 import {
     collectAddedRangesInFinalDocument,

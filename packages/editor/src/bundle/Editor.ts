@@ -10,8 +10,10 @@ import type {CommonEditor, MarkupString} from '../common';
 import {
     type ActionStorage,
     type EscapeConfig,
+    type ExtensionsManager,
     WysiwygEditor,
     type WysiwygEditorOptions,
+    createEditorExtensions,
 } from '../core';
 import type {TransformFn} from '../core/markdown/ProseMirrorTransformer';
 import type {DynamicModifiers} from '../core/types/dynamicModifiers';
@@ -148,6 +150,7 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
     #previewVisible: boolean;
     #renderPreview?: RenderPreview;
     #wysiwygEditor?: WysiwygEditor;
+    #extensionsManager?: ExtensionsManager;
     #markupEditor?: MarkupEditor;
     #markupConfig: MarkupConfig;
     #escapeConfig?: EscapeConfig;
@@ -265,14 +268,13 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
         }
     }
 
-    get wysiwygEditor(): WysiwygEditor {
-        if (!this.#wysiwygEditor) {
+    get #sharedExtensions(): ExtensionsManager {
+        if (!this.#extensionsManager) {
             const mdPreset: NonNullable<WysiwygEditorOptions['mdPreset']> =
                 this.#preset === 'zero' || this.#preset === 'commonmark' ? this.#preset : 'default';
-            this.#wysiwygEditor = new WysiwygEditor({
+            this.#extensionsManager = createEditorExtensions({
                 mdPreset,
                 logger: this.logger.nested({mode: 'wysiwyg'}),
-                initialContent: this.#markup,
                 extensions: (builder) => {
                     if (this.#extensions) builder.use(this.#extensions);
                     for (const nodeType of Object.keys(this.#resourceReplacement.resources)) {
@@ -304,6 +306,17 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
                 allowHTML: this.#mdOptions.html,
                 linkify: this.#mdOptions.linkify,
                 linkifyTlds: this.#mdOptions.linkifyTlds,
+            });
+        }
+        return this.#extensionsManager;
+    }
+
+    get wysiwygEditor(): WysiwygEditor {
+        if (!this.#wysiwygEditor) {
+            this.#wysiwygEditor = new WysiwygEditor({
+                extensionsManager: this.#sharedExtensions,
+                logger: this.logger.nested({mode: 'wysiwyg'}),
+                initialContent: this.#markup,
                 escapeConfig: this.#escapeConfig,
                 onChange: () => this.emit('rerender-toolbar', null),
                 onDocChange: () => this.emit('change', null),
@@ -337,6 +350,7 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
                             ? createCodeMirrorResourceIntegration({
                                   controller: this.#resourceReplacement.controller,
                                   resources: this.#resourceReplacement.resources,
+                                  urls: this.#sharedExtensions.buildDeps().markupParser,
                                   triggers: this.#resourceReplacement.triggers,
                               })
                             : []),
@@ -493,6 +507,7 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
         this.#markupEditor = undefined;
         this.#markupEditor = undefined;
         this.#wysiwygEditor = undefined;
+        this.#extensionsManager = undefined;
     }
 
     setEditorMode(mode: EditorMode, opts?: SetEditorModeOptions): void {

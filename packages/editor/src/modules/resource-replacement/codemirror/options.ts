@@ -7,8 +7,8 @@ import type {ResourceLinkCodec} from '../urls';
 export type CodeMirrorResourceReplacementOptions = {
     controller: Pick<ResourceReplacementController, 'enabled' | 'busy' | 'start'>;
     resources: ResourceSpecOverrides;
-    /** Defaults to Markdown's standard URL rules, independently of WYSIWYG extensions. */
-    urls?: ResourceLinkCodec;
+    /** URL rules from the configured Markdown parser. Supplied automatically by useMarkdownEditor. */
+    urls: ResourceLinkCodec;
     /** Pure predicate selecting local document changes. */
     shouldTrack: (transaction: Transaction) => boolean;
 };

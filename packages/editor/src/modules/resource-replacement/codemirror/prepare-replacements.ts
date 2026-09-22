@@ -1,7 +1,7 @@
 import type {EditorState} from '@codemirror/state';
 
 import {resourceKey} from '../controller.utils';
-import {defaultResourceUrls, prepareResourceUrl} from '../urls';
+import {prepareResourceUrl} from '../urls';
 
 import {collectMarkupResources} from './collect-resources';
 import type {ResourceSyntaxMatch} from './handlers';
@@ -19,8 +19,7 @@ export function prepareResourceChanges(
 ) {
     const urls = new Map<string, string>();
     for (const [key, value] of replacements) {
-        if (requestedUrlKeys.has(key))
-            urls.set(key, prepareResourceUrl(options.urls ?? defaultResourceUrls, value));
+        if (requestedUrlKeys.has(key)) urls.set(key, prepareResourceUrl(options.urls, value));
     }
     const changes: Array<{from: number; to: number; insert: string}> = [];
     // Без ranges: ответ обновляет и вставленные, и ранее существовавшие совпадения.
@@ -29,7 +28,7 @@ export function prepareResourceChanges(
         let value = replacements.get(key);
         if (value === undefined) continue;
         if (isUrl) {
-            value = urls.get(key) ?? prepareResourceUrl(options.urls ?? defaultResourceUrls, value);
+            value = urls.get(key) ?? prepareResourceUrl(options.urls, value);
             urls.set(key, value);
         }
         const {from, to, insert} = serializeResourceChange(syntax, value);

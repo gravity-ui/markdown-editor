@@ -35,6 +35,11 @@ export type WysiwygEditorOptions = {
     /** markdown markup */
     initialContent?: string;
     extensions?: Extension;
+    /**
+     * Reuse dependencies prepared before creating the view.
+     * @internal
+     */
+    extensionsManager?: ExtensionsManager;
     /** @default 'default' */
     mdPreset?: PresetName;
     allowHTML?: boolean;
@@ -50,6 +55,41 @@ export type WysiwygEditorOptions = {
     modifiers?: DynamicModifiers[];
     logger?: Logger2.ILogger;
 };
+
+/** Prepare shared schema and Markdown configuration without creating a view or plugins. */
+export function createEditorExtensions({
+    extensions = () => {},
+    allowHTML,
+    mdPreset,
+    linkify,
+    pmTransformers,
+    linkifyTlds,
+    modifiers,
+    logger,
+}: WysiwygEditorOptions): ExtensionsManager {
+    const dynamicModifiersConfig = modifiers
+        ? convertDynamicModifiersConfigs(modifiers)
+        : undefined;
+    const dynamicModifiers = dynamicModifiersConfig
+        ? {
+              schema: new SchemaDynamicModifier(dynamicModifiersConfig.schema),
+              parser: new MarkdownParserDynamicModifier(dynamicModifiersConfig.parser),
+              serializer: new MarkdownSerializerDynamicModifier(dynamicModifiersConfig.serializer),
+          }
+        : undefined;
+
+    return new ExtensionsManager({
+        extensions,
+        options: {
+            // "breaks" affects rendering, but not parsing.
+            mdOpts: {html: allowHTML, linkify, breaks: true, preset: mdPreset},
+            linkifyTlds,
+            pmTransformers,
+            dynamicModifiers,
+        },
+        logger,
+    });
+}
 
 export class WysiwygEditor implements CommonEditor, ActionStorage {
     #view: EditorView;
@@ -80,33 +120,16 @@ export class WysiwygEditor implements CommonEditor, ActionStorage {
         return this.#view;
     }
 
-    constructor({
-        domElem,
-        initialContent = '',
-        extensions = () => {},
-        allowHTML,
-        mdPreset,
-        linkify,
-        pmTransformers,
-        linkifyTlds,
-        escapeConfig,
-        onChange,
-        onDocChange,
-        modifiers,
-        logger = new Logger2(),
-    }: WysiwygEditorOptions) {
-        const dynamicModifiersConfig = modifiers
-            ? convertDynamicModifiersConfigs(modifiers)
-            : undefined;
-        const dynamicModifiers = dynamicModifiersConfig
-            ? {
-                  schema: new SchemaDynamicModifier(dynamicModifiersConfig.schema),
-                  parser: new MarkdownParserDynamicModifier(dynamicModifiersConfig.parser),
-                  serializer: new MarkdownSerializerDynamicModifier(
-                      dynamicModifiersConfig.serializer,
-                  ),
-              }
-            : undefined;
+    constructor(options: WysiwygEditorOptions) {
+        const {
+            domElem,
+            initialContent = '',
+            escapeConfig,
+            onChange,
+            onDocChange,
+            logger = new Logger2(),
+            extensionsManager = createEditorExtensions({...options, logger}),
+        } = options;
 
         const {
             schema,
@@ -117,25 +140,12 @@ export class WysiwygEditor implements CommonEditor, ActionStorage {
             plugins,
             rawActions,
             actions,
-        } = ExtensionsManager.process(
-            extensions,
-            {
-                // "breaks" option only affects the renderer, but not the parser
-                mdOpts: {html: allowHTML, linkify, breaks: true, preset: mdPreset},
-                linkifyTlds,
-                pmTransformers,
-                dynamicModifiers,
-            },
-            logger,
-        );
-
-        plugins.unshift(LoggerFacet.of(logger));
-        plugins.unshift(ParserFacet.of(parser));
+        } = extensionsManager.build();
 
         const state = EditorState.create({
             schema,
             doc: parser.parse(initialContent),
-            plugins,
+            plugins: [ParserFacet.of(parser), LoggerFacet.of(logger), ...plugins],
         });
 
         const thisOnChange = () => this.tryOnChange(onChange);

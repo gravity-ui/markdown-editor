@@ -21,6 +21,15 @@ function createEditor(overrides: Partial<ConstructorParameters<typeof EditorImpl
         preset: 'full',
         directiveSyntax: new DirectiveSyntaxContext(undefined),
         pmTransformers: [],
+        wysiwygConfig: {
+            extensions: (builder) =>
+                builder.use(BundlePreset, {
+                    preset: 'full',
+                    searchPanel: false,
+                    directiveSyntax: new DirectiveSyntaxContext(undefined),
+                    reactRenderer: new ReactRenderStorage(),
+                }),
+        },
         ...overrides,
     });
 }
@@ -143,7 +152,14 @@ describe('EditorImpl: paste resource ownership', () => {
     test.each(['![label](/old.png)', '![label][ref]\n\n[ref]: /old.png'])(
         'Markdown resolves %s without initializing WYSIWYG',
         async (source) => {
-            const extensions = jest.fn();
+            const extensions = jest.fn((builder) =>
+                builder.use(BundlePreset, {
+                    preset: 'full',
+                    searchPanel: false,
+                    directiveSyntax: new DirectiveSyntaxContext(undefined),
+                    reactRenderer: new ReactRenderStorage(),
+                }),
+            );
             let complete!: (result: ResourceReplacementResult) => void;
             const resolve = jest.fn(
                 () =>
@@ -193,7 +209,7 @@ describe('EditorImpl: paste resource ownership', () => {
                 expect(editor.getValue()).toContain('![label](/copied%20image.png?x=1&amp;y=2)');
                 expect(editor.getPendingResourceReplacements()).toHaveLength(0);
                 expect(editor._wysiwygView).toBeUndefined();
-                expect(extensions).not.toHaveBeenCalled();
+                expect(extensions).toHaveBeenCalledTimes(1);
             } finally {
                 editor.destroy();
             }

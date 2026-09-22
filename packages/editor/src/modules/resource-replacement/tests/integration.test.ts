@@ -21,6 +21,8 @@ import type {
     ResourceSpecOverrides,
 } from '../types';
 
+import {defaultResourceUrls} from './urls';
+
 const flush = async () => {
     for (let i = 0; i < 8; i++) await Promise.resolve();
 };
@@ -102,6 +104,7 @@ function setup(
     const resources = () => {
         if (cm) {
             const prepared = collectMarkupResources(cm.state, {
+                urls: editor.wysiwygEditor.parser,
                 resources: config.resources ?? configuredResources,
             });
             return prepared.map(({syntax, resource}) => ({...syntax.range, resource}));
@@ -656,6 +659,7 @@ test('CodeMirror standalone precomputation is pure and raw commands respect the 
         extensions: [
             cmHistory(),
             codeMirrorResourceReplacement({
+                urls: defaultResourceUrls,
                 controller,
                 resources: {image: {kind: 'image', valueAttribute: 'src', nameAttribute: 'alt'}},
                 shouldTrack: (tr) => tr.isUserEvent('input.paste'),

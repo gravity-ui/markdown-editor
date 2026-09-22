@@ -6,7 +6,7 @@ import {DirectiveSyntaxFacet} from '../../../markup/codemirror/directive-facet';
 import {yfmLang} from '../../../markup/codemirror/yfm';
 import {DirectiveSyntaxContext} from '../../../utils/directive';
 import {resourceKey} from '../controller.utils';
-import {defaultResourceUrls} from '../urls';
+import {defaultResourceUrls} from '../tests/urls';
 
 import {fileResourceHandler, imageResourceHandler} from './builtins';
 import {collectInsertedMarkupResources, collectMarkupResources} from './collect-resources';
@@ -14,6 +14,7 @@ import {codeMirrorResourceSupport} from './handlers';
 import {prepareResourceChanges} from './prepare-replacements';
 
 const options = {
+    urls: defaultResourceUrls,
     resources: {
         image: {kind: 'image', valueAttribute: 'src', nameAttribute: 'alt'},
         [FILE_TOKEN]: {kind: 'file', valueAttribute: 'href', nameAttribute: 'download'},
@@ -103,7 +104,10 @@ test('insertion collection resolves definitions nested in block containers', () 
 
 test('empty resource configuration needs no language or document parse', () => {
     expect(
-        collectMarkupResources(EditorState.create({doc: '![a](/a.png)'}), {resources: {}}),
+        collectMarkupResources(EditorState.create({doc: '![a](/a.png)'}), {
+            ...options,
+            resources: {},
+        }),
     ).toEqual([]);
 });
 
@@ -127,16 +131,16 @@ test('an edit to a reference definition updates its resource before the transact
 
 test('requires an explicit handler for a configured resource node', () => {
     const resources = {video: {kind: 'video', valueAttribute: 'src'}};
-    expect(() => collectMarkupResources(state(':video[/old.mp4]'), {resources})).toThrow(
-        'No CodeMirror resource handler registered for node: video',
-    );
+    expect(() =>
+        collectMarkupResources(state(':video[/old.mp4]'), {...options, resources}),
+    ).toThrow('No CodeMirror resource handler registered for node: video');
 });
 
 test('does not treat a label as the source URL when metadata selects a different attribute', () => {
     const resources = {image: {kind: 'image', valueAttribute: 'alt'}};
-    expect(() => collectMarkupResources(state('![label](/old.png)'), {resources})).toThrow(
-        'value attribute: alt',
-    );
+    expect(() =>
+        collectMarkupResources(state('![label](/old.png)'), {...options, resources}),
+    ).toThrow('value attribute: alt');
 });
 
 test('standalone integrations can supply URL rules without a document parser', () => {
@@ -236,7 +240,10 @@ const assetSupport = codeMirrorResourceSupport({
         };
     },
 });
-const assetOptions = {resources: {asset: {kind: 'image', valueAttribute: 'assetId'}}};
+const assetOptions = {
+    urls: defaultResourceUrls,
+    resources: {asset: {kind: 'image', valueAttribute: 'assetId'}},
+};
 const assetSource = (value: string) => `:asset[${JSON.stringify(value)}]`;
 function assetState(doc: string) {
     return EditorState.create({doc, extensions: [assetSupport, yfmLang()]});
@@ -306,7 +313,10 @@ test('the same kind/value can address a URL and an id without leaking URL normal
     const changes = prepareResourceChanges(
         current,
         new Map([[resourceKey({kind: 'image', value: '/old.png'}), '/new image.png']]),
-        {resources: {...options.resources, ...assetOptions.resources, [FILE_TOKEN]: false}},
+        {
+            ...options,
+            resources: {...options.resources, ...assetOptions.resources, [FILE_TOKEN]: false},
+        },
     );
     expect(current.update({changes}).newDoc.toString()).toBe(
         `![image](/new%20image.png) ${assetSource('/new image.png')}`,
@@ -318,6 +328,7 @@ test('custom URL resources opt into URL preparation explicitly', () => {
     const invalidUrl = 'javascript:alert(1)';
     const current = assetState(assetSource('/old.png'));
     const configured = {
+        ...options,
         resources: {asset: {...assetOptions.resources.asset, valueType: 'url' as const}},
     };
     const key = resourceKey({kind: 'image', value: '/old.png'});

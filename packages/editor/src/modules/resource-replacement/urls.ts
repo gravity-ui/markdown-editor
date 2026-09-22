@@ -1,5 +1,4 @@
 import {FILE_TOKEN} from '@diplodoc/file-extension';
-import MarkdownIt from 'markdown-it';
 
 import type {ResourceDescription} from './types';
 
@@ -16,10 +15,6 @@ export type ResourceLinkCodec = {
     normalizeLink(url: string): string;
     validateLink(url: string): boolean;
 };
-
-// Reuse Markdown's URL rules without retaining a parser or creating a WYSIWYG editor.
-const {normalizeLink, validateLink} = new MarkdownIt('zero');
-export const defaultResourceUrls: ResourceLinkCodec = {normalizeLink, validateLink};
 
 export function prepareResourceUrl(urls: ResourceLinkCodec, value: string) {
     const encoded = urls

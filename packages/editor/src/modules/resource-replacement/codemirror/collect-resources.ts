@@ -4,7 +4,7 @@ import type {SyntaxNode} from '@lezer/common';
 import {completeSyntaxTree} from '../../../markup/codemirror/syntax-tree';
 import type {ResourceRange} from '../controller.utils';
 import type {ReplacementResource, ResourceSpecOverrides} from '../types';
-import {defaultResourceUrls, isUrlResource} from '../urls';
+import {isUrlResource} from '../urls';
 
 import {collectReferenceDefinitions} from './builtins';
 import {
@@ -42,7 +42,7 @@ export function collectMarkupResources(
     if (ranges?.length === 0 || !Object.values(options.resources).some(Boolean)) return [];
     const tree = completeSyntaxTree(state, tr);
     const {resources} = options;
-    const urls = options.urls ?? defaultResourceUrls;
+    const urls = options.urls;
     const handlers = state.facet(resourceHandlers);
     validateConfiguredHandlers(resources, handlers);
     const definitions = collectReferenceDefinitions(tree, doc, urls);

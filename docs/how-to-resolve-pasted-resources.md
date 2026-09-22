@@ -98,7 +98,20 @@ The bundle creates a shared controller and passes it directly to each adapter th
 
 The CodeMirror extension likewise accepts a pure `shouldTrack(transaction)` predicate and starts requests in an update listener after acceptance. Temporary resource ranges support only presentation/protection. Its global matching always reparses the current tree. Native CodeMirror history commands bypass transaction filters, so the adapter also guards their dispatch while pending.
 
-CodeMirror receives the `resources` descriptions directly, without creating or consulting a WYSIWYG schema or parser. It uses the standard `markdown-it` URL normalization and validation functions independently of WYSIWYG extension overrides. Standalone CodeMirror integrations can supply an optional `urls: {normalizeLink, validateLink}` object to customize these rules without a document parser.
+`useMarkdownEditor` supplies CodeMirror with the configured markup parser's URL rules automatically. Its preset, Markdown options and `wysiwygConfig.extensions` form one shared configuration. Wiki extensions can add to that configuration; Wiki and Yjs are not required. Consumers do not need additional parser settings for resource replacement.
+
+The shared schema and parsers are prepared lazily, without constructing a ProseMirror document, plugins or view, changing the editor mode, or displaying WYSIWYG. When WYSIWYG is opened, it reuses those dependencies and creates its plugins and view. Extension registration and `configureMd` run once per editor configuration; view-dependent work belongs in plugin/view factories.
+
+Standalone CodeMirror integrations must explicitly supply `urls: {normalizeLink, validateLink}` alongside `controller`, `resources` and `shouldTrack`. Pass the configured markup parser itself or a compatible URL codec. A standalone editor can use standard Markdown rules explicitly:
+
+```ts
+import MarkdownIt from 'markdown-it';
+
+const urls = new MarkdownIt('zero');
+// Pass urls to codeMirrorResourceReplacement({controller, resources, shouldTrack, urls}).
+```
+
+CodeMirror still receives resource descriptions directly and uses its own syntax tree and handlers for source ranges. Sharing URL rules does not replace the CodeMirror grammar or require parsing the document through ProseMirror.
 
 HTML-only attachments retain the existing conversion: in Markdown, `<a class="yfm-file">` becomes an ordinary link, not a resource. Image and file Markdown syntax is supported by built-in handlers. Legacy files use `{% file src="/report.pdf" name="Report" %}`; `:file[Report](/report.pdf)` requires enabling the file directive syntax.
 
