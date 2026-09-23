@@ -1,4 +1,4 @@
-export {redo, redoDepth, undo, undoDepth} from '@codemirror/commands';
+export {redo, redoDepth, undo, undoDepth} from '../../cm/commands';
 
 export * from './blocks';
 export * from './code';
