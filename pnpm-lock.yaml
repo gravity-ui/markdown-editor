@@ -317,8 +317,8 @@ importers:
   infra/gulp-tasks:
     dependencies:
       '@gravity-ui/gulp-utils':
-        specifier: 1.0.3
-        version: 1.0.3(typescript@5.9.3)
+        specifier: 1.1.1
+        version: 1.1.1(typescript@5.9.3)
       '@types/gulp':
         specifier: 4.0.18
         version: 4.0.18
@@ -2328,8 +2328,9 @@ packages:
       typescript:
         optional: true
 
-  '@gravity-ui/gulp-utils@1.0.3':
-    resolution: {integrity: sha512-0TfFGUMsjU8gCBjTD1OuRR9E44AoHHEBxhnrXXaaOREdCtrtAA63hHsoC+MiMnackC885w0ixIcVQOFFkpQidQ==}
+  '@gravity-ui/gulp-utils@1.1.1':
+    resolution: {integrity: sha512-XB7UUyquPDg6BnKLo0fK/ZRHibLJ4FvtdFoOP73bN43gywQFIpak/YFYO72koKjMsv0x22L14fW8SILLtniIOA==}
+    engines: {node: '>=20.19'}
     peerDependencies:
       typescript: '>=5'
 
@@ -10801,14 +10802,17 @@ snapshots:
       - eslint-plugin-import-x
       - supports-color
 
-  '@gravity-ui/gulp-utils@1.0.3(typescript@5.9.3)':
+  '@gravity-ui/gulp-utils@1.1.1(typescript@5.9.3)':
     dependencies:
+      '@gravity-ui/readme-validator': 1.3.0
       plugin-error: 2.0.1
       through2: 4.0.2
       to-through: 3.0.0
       typescript: 5.9.3
       vinyl: 3.0.1
       vinyl-sourcemaps-apply: 0.2.1
+    transitivePeerDependencies:
+      - supports-color
 
   '@gravity-ui/i18n@1.8.0': {}
 
