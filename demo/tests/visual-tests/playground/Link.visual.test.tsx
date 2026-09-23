@@ -147,7 +147,9 @@ test.describe('Link', () => {
 
         await editor.fill('Lorem ipsum dolor sit amet, \nconsectetur adipiscing elit. \n');
 
-        await actions.pressFocused('ArrowUp', 2);
+        await editor.getByTextInContenteditable('Lorem ipsum dolor sit amet,').click();
+        await actions.pressFocused('ControlOrMeta+Home');
+        await actions.pressFocused('ArrowRight', 'Lorem ipsum dolor sit ame'.length);
         await actions.pressFocused('Enter');
         await actions.pressFocused('ArrowUp');
         await expect(markupPreview).toHaveText(

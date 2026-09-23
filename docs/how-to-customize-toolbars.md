@@ -146,6 +146,13 @@ function MyEditor() {
 
 > **Key point:** By providing `toolbarsPreset`, you override the default toolbar configuration. Without it, the editor would use the built-in `'default'` toolbar preset (matching the editor preset name).
 
+### Resource Replacement Indicator
+
+While `resourceReplacement` requests are pending, the main toolbar in both modes automatically
+shows a spinner to the left of the buttons, including with custom toolbar configurations.
+No additional toolbar item or `onChange` handler is required. See the
+[resource replacement guide](how-to-resolve-pasted-resources.md) for details.
+
 ### Conditional Toolbar Items
 
 Sometimes you may want to display different sets of toolbar items depending on certain conditions—for example, user permissions. In such cases, you can implement a getter function that returns the appropriate toolbar configuration based on parameters. Example:
