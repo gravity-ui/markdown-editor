@@ -15,6 +15,8 @@ export const customTags = {
     marked: Tag.define(),
 };
 
+const inlinePunctuation = /[\p{P}\p{S}]/u;
+
 function mdInlineFactory({
     name,
     char,
@@ -40,7 +42,23 @@ function mdInlineFactory({
                     if (next !== char || cx.char(pos + 1) !== char || cx.char(pos + 2) === char)
                         return -1;
 
-                    return cx.addDelimiter(Delim, pos, pos + 2, true, true);
+                    // Keep the current behavior for longer marker runs.
+                    if (cx.char(pos - 1) === char) {
+                        return cx.addDelimiter(Delim, pos, pos + 2, true, true);
+                    }
+
+                    const before = cx.slice(pos - 1, pos);
+                    const after = cx.slice(pos + 2, pos + 3);
+                    const spaceBefore = /\s|^$/.test(before);
+                    const spaceAfter = /\s|^$/.test(after);
+                    const punctuationBefore = inlinePunctuation.test(before);
+                    const punctuationAfter = inlinePunctuation.test(after);
+                    const canOpen =
+                        !spaceAfter && (!punctuationAfter || spaceBefore || punctuationBefore);
+                    const canClose =
+                        !spaceBefore && (!punctuationBefore || spaceAfter || punctuationAfter);
+
+                    return cx.addDelimiter(Delim, pos, pos + 2, canOpen, canClose);
                 },
                 after: 'Emphasis',
             },
