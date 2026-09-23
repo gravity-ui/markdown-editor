@@ -6,6 +6,8 @@
 
 Unit tests use Vitest. Import `describe`, `it`, `expect`, hooks, and `vi` explicitly from `vitest`; globals are disabled.
 
+Test names (`it`, `test`, and parameterized cases) must start with `should `, followed by a base-form verb.
+
 ### Prerequisites
 
 Before each visual test run, start the Podman machine:
