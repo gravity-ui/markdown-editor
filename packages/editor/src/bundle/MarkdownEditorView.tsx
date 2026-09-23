@@ -12,11 +12,11 @@ import {type QAProps, useToaster} from '@gravity-ui/uikit';
 import {ErrorBoundary} from 'react-error-boundary';
 import {useEnsuredForwardedRef, useKey, useUpdate} from 'react-use';
 
-import {type ClassNameProps, cn} from '../classname';
+import type {ClassNameProps} from '../classname';
 import {i18n} from '../i18n/bundle';
 import {globalLogger} from '../logger';
 import type {ToolbarsPreset} from '../modules/toolbars/types';
-import {useBooleanState, useSticky} from '../react-utils';
+import {useSticky} from '../react-utils';
 import {isMac} from '../utils';
 
 import type {Editor, EditorInt} from './Editor';
@@ -25,25 +25,22 @@ import {MarkupEditorView} from './MarkupEditorView';
 import {SplitModeView} from './SplitModeView';
 import {WysiwygEditorView} from './WysiwygEditorView';
 import {useMarkdownEditorContext} from './context';
+import {cnEditorComponent} from './editor-classname';
 import {EditorSettings, type EditorSettingsProps, type SettingItems} from './settings';
 import {stickyCn} from './sticky';
-import type {MToolbarData, MToolbarItemData, WToolbarData, WToolbarItemData} from './toolbar/types';
+import type {ToolbarConfigs} from './toolbar/types';
 import {getToolbarsConfigs} from './toolbar/utils/toolbarsConfigs';
 import type {MarkdownEditorMode} from './types';
 
 import '../styles/styles.scss';
 import './MarkdownEditorView.scss'; // eslint-disable-line import/order
 
-export const cnEditorComponent = cn('editor-component');
 const b = cnEditorComponent;
 
 interface EditorWrapperProps extends QAProps, ToolbarConfigs, Omit<ViewProps, 'editor'> {
     editor: EditorInt;
     editorMode: MarkdownEditorMode;
     isFocused: boolean;
-    showPreview: boolean;
-    toggleShowPreview: () => void;
-    unsetShowPreview: () => void;
 }
 const EditorWrapper = forwardRef<HTMLDivElement, EditorWrapperProps>(
     (
@@ -58,16 +55,14 @@ const EditorWrapper = forwardRef<HTMLDivElement, EditorWrapperProps>(
             markupToolbarConfig: initialMarkupToolbarConfig,
             qa,
             settingsVisible: settingsVisibleProp,
-            showPreview,
             stickyToolbar,
-            toggleShowPreview,
             toolbarsPreset,
-            unsetShowPreview,
             wysiwygHiddenActionsConfig: initialWysiwygHiddenActionsConfig,
             wysiwygToolbarConfig: initialWysiwygToolbarConfig,
         },
         ref,
     ) => {
+        const showPreview = editor.previewVisible;
         const {
             wysiwygToolbarConfig,
             markupToolbarConfig,
@@ -97,9 +92,9 @@ const EditorWrapper = forwardRef<HTMLDivElement, EditorWrapperProps>(
         const onModeChange = useCallback(
             (type: MarkdownEditorMode) => {
                 editor.changeEditorMode({mode: type, reason: 'settings'});
-                unsetShowPreview();
+                editor.changePreviewVisible(false);
             },
-            [editor, unsetShowPreview],
+            [editor],
         );
         const onToolbarVisibilityChange = useCallback(
             (visible: boolean) => {
@@ -109,17 +104,15 @@ const EditorWrapper = forwardRef<HTMLDivElement, EditorWrapperProps>(
         );
         const onSplitModeChange = useCallback(
             (splitModeEnabled: boolean) => {
-                unsetShowPreview();
                 editor.changeSplitModeEnabled({splitModeEnabled});
             },
-            [editor, unsetShowPreview],
+            [editor],
         );
         const onShowPreviewChange = useCallback(
             (showPreviewValue: boolean) => {
-                editor.changeSplitModeEnabled({splitModeEnabled: false});
-                if (showPreviewValue !== showPreview) toggleShowPreview();
+                editor.changePreviewVisible(showPreviewValue);
             },
-            [editor, showPreview, toggleShowPreview],
+            [editor],
         );
         const canRenderPreview = Boolean(
             editor.renderPreview && editorMode === 'markup' && !editor.splitModeEnabled,
@@ -129,10 +122,10 @@ const EditorWrapper = forwardRef<HTMLDivElement, EditorWrapperProps>(
             (e) => canRenderPreview && isPreviewKeyDown(e),
             (e) => {
                 e.preventDefault();
-                onShowPreviewChange(!showPreview);
+                editor.changePreviewVisible();
             },
             {event: 'keydown'},
-            [showPreview, editorMode, onShowPreviewChange, canRenderPreview],
+            [editorMode, editor, canRenderPreview],
         );
 
         useKey(
@@ -141,11 +134,11 @@ const EditorWrapper = forwardRef<HTMLDivElement, EditorWrapperProps>(
                 editor.emit('submit', null);
 
                 if (hidePreviewAfterSubmit) {
-                    onShowPreviewChange(false);
+                    editor.changePreviewVisible(false);
                 }
             },
             {event: 'keydown'},
-            [hidePreviewAfterSubmit, enableSubmitInPreview, showPreview, showPreview],
+            [hidePreviewAfterSubmit, enableSubmitInPreview, showPreview, editor],
         );
 
         const settingsProps = {
@@ -244,25 +237,6 @@ const EditorWrapper = forwardRef<HTMLDivElement, EditorWrapperProps>(
 
 EditorWrapper.displayName = 'EditorWrapper';
 
-type ToolbarConfigs = {
-    /**
-     * @deprecated use `toolbarsPreset` instead
-     */
-    markupToolbarConfig?: MToolbarData;
-    /**
-     * @deprecated use `toolbarsPreset` instead
-     */
-    wysiwygToolbarConfig?: WToolbarData;
-    /**
-     * @deprecated use `toolbarsPreset` instead
-     */
-    markupHiddenActionsConfig?: MToolbarItemData[];
-    /**
-     * @deprecated use `toolbarsPreset` instead
-     */
-    wysiwygHiddenActionsConfig?: WToolbarItemData[];
-};
-
 type ViewProps = {
     editor?: Editor;
     autofocus?: boolean;
@@ -281,7 +255,6 @@ export const MarkdownEditorView = forwardRef<HTMLDivElement, MarkdownEditorViewP
     (props, ref) => {
         const divRef = useEnsuredForwardedRef(ref as React.MutableRefObject<HTMLDivElement>);
         const editorWrapperRef = useRef(null);
-        const [showPreview, , unsetShowPreview, toggleShowPreview] = useBooleanState(false);
 
         const [isMounted, setIsMounted] = useState(false);
         useEffect(() => {
@@ -327,10 +300,10 @@ export const MarkdownEditorView = forwardRef<HTMLDivElement, MarkdownEditorViewP
         const toaster = useToaster();
 
         useEffect(() => {
-            if (showPreview) {
+            if (editor.previewVisible) {
                 divRef.current.focus();
             }
-        }, [divRef, showPreview]);
+        }, [divRef, editor, editor.previewVisible]);
 
         const areSettingsVisible =
             settingsVisible === true ||
@@ -385,11 +358,8 @@ export const MarkdownEditorView = forwardRef<HTMLDivElement, MarkdownEditorViewP
                         qa="g-md-editor-mode"
                         ref={editorWrapperRef}
                         settingsVisible={settingsVisible}
-                        showPreview={showPreview}
                         stickyToolbar={stickyToolbar}
-                        toggleShowPreview={toggleShowPreview}
                         toolbarsPreset={toolbarsPreset}
-                        unsetShowPreview={unsetShowPreview}
                         wysiwygHiddenActionsConfig={wysiwygHiddenActionsConfig}
                         wysiwygToolbarConfig={wysiwygToolbarConfig}
                     />

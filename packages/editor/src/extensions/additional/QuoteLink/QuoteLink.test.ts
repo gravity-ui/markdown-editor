@@ -1,5 +1,6 @@
 import {builders} from 'prosemirror-test-builder';
 import dd from 'ts-dedent';
+import {describe, it} from 'vitest';
 
 import {ExtensionsManager} from '#core';
 import {BlockquoteSpecs} from 'src/extensions/markdown/Blockquote/BlockquoteSpecs';

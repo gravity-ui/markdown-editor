@@ -412,17 +412,20 @@ export const tabsItemMarkup: ToolbarItemMarkup = {
 };
 
 // ---- Math Inline ----
+/** @deprecated Use latexInlineItemView from `@gravity-ui/markdown-editor-latex-extension` */
 export const mathInlineItemView: ToolbarItemView = {
     type: ToolbarDataType.SingleButton,
     title: i18n.bind(null, 'math_inline'),
     icon: icons.functionInline,
     hint: () => `${i18nHint.bind(null, 'math_hint')()} ${i18nHint.bind(null, 'math_hint_katex')()}`,
 };
+/** @deprecated Use latexInlineItemWysiwyg from `@gravity-ui/markdown-editor-latex-extension` */
 export const mathInlineItemWysiwyg: ToolbarItemWysiwyg = {
     exec: (e) => e.actions.addMathInline.run(),
     isActive: (e) => e.actions.addMathInline.isActive(),
     isEnable: (e) => e.actions.addMathInline.isEnable(),
 };
+/** @deprecated Use latexInlineItemMarkup from `@gravity-ui/markdown-editor-latex-extension` */
 export const mathInlineItemMarkup: ToolbarItemMarkup = {
     exec: (e) => wrapToMathInline(e.cm),
     isActive: inactive,
@@ -430,17 +433,20 @@ export const mathInlineItemMarkup: ToolbarItemMarkup = {
 };
 
 // ---- Math Block ----
+/** @deprecated Use latexBlockItemView from `@gravity-ui/markdown-editor-latex-extension` */
 export const mathBlockItemView: ToolbarItemView = {
     type: ToolbarDataType.SingleButton,
     title: i18n.bind(null, 'math_block'),
     icon: icons.functionBlock,
     hint: () => `${i18nHint.bind(null, 'math_hint')()} ${i18nHint.bind(null, 'math_hint_katex')()}`,
 };
+/** @deprecated Use latexBlockItemWysiwyg from `@gravity-ui/markdown-editor-latex-extension` */
 export const mathBlockItemWysiwyg: ToolbarItemWysiwyg = {
     exec: (e) => e.actions.toMathBlock.run(),
     isActive: (e) => e.actions.toMathBlock.isActive(),
     isEnable: (e) => e.actions.toMathBlock.isEnable(),
 };
+/** @deprecated Use latexBlockItemMarkup from `@gravity-ui/markdown-editor-latex-extension` */
 export const mathBlockItemMarkup: ToolbarItemMarkup = {
     exec: (e) => wrapToMathBlock(e.cm),
     isActive: inactive,
@@ -837,6 +843,7 @@ export const codeBlocksListItemView: ToolbarItemView<ToolbarDataType.ListButton>
 };
 
 // ---- Math list ----
+/** @deprecated Use latexListItemView from `@gravity-ui/markdown-editor-latex-extension` */
 export const mathListItemView: ToolbarItemView<ToolbarDataType.ListButton> = {
     type: ToolbarDataType.ListButton,
     icon: icons.functionInline,

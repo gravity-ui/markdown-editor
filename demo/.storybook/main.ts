@@ -50,6 +50,17 @@ const config: StorybookConfig = {
             process: require.resolve('process/browser'),
         };
 
+        config.ignoreWarnings ||= [];
+        config.ignoreWarnings.push(/\.js\.map$/);
+        config.module ||= {};
+        config.module.rules ||= [];
+        config.module.rules.push({
+            test: /\.(js|css)\.map$/,
+            include: /node_modules/,
+            type: 'asset/resource' as const,
+            generator: {emit: false},
+        });
+
         config.watchOptions ||= {};
         config.watchOptions.ignored = /node_modules([\\]+|\/)+(?!@gravity-ui\/markdown-editor)/;
 

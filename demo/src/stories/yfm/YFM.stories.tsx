@@ -87,3 +87,14 @@ export const MermaidDiagram: Story = {
         },
     },
 };
+
+export const YfmPageConstructor: Story = {
+    name: 'YFM Page Constructor',
+    args: {
+        initial: markup.yfmPageConstructor,
+        storyAdditionalControls: {
+            yfmPageConstructorAutoSaveEnabled: true,
+            yfmPageConstructorAutoSaveDelay: 500,
+        },
+    },
+};

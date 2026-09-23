@@ -7,12 +7,8 @@ import {Logger2, globalLogger} from '../logger';
 import {DirectiveSyntaxContext} from '../utils/directive';
 
 import {EditorImpl, type EditorInt} from './Editor';
-import type {
-    MarkdownEditorInstance,
-    MarkdownEditorMode,
-    MarkdownEditorOptions,
-    MarkdownEditorPreset,
-} from './types';
+import type {MarkdownEditorInstance} from './editor-public-types';
+import type {MarkdownEditorMode, MarkdownEditorOptions, MarkdownEditorPreset} from './types';
 import {BundlePreset} from './wysiwyg-preset';
 
 export type UseMarkdownEditorProps = MarkdownEditorOptions;

@@ -1,7 +1,9 @@
-import {Popup, type PopupPlacement} from '@gravity-ui/uikit';
+import {useRef} from 'react';
+
+import {Popup, type PopupPlacement, type PopupProps} from '@gravity-ui/uikit';
 
 import {cn} from '../../../../classname';
-import {LinkForm, type LinkFormProps} from '../../../../forms/LinkForm';
+import {Link, type LinkSubmitParams} from '../../../../forms/Link';
 import {i18n} from '../../../../i18n/widgets';
 import {useElementState} from '../../../../react-utils';
 
@@ -12,7 +14,7 @@ const placement: PopupPlacement = ['bottom-start', 'top-start', 'bottom-end', 't
 
 export type LinkPlaceholderWidgetProps = {
     onCancel: () => void;
-    onSubmit: LinkFormProps['onSubmit'];
+    onSubmit: (params: LinkSubmitParams) => void;
 };
 
 export const LinkPlaceholderWidget: React.FC<LinkPlaceholderWidgetProps> = ({
@@ -20,6 +22,37 @@ export const LinkPlaceholderWidget: React.FC<LinkPlaceholderWidgetProps> = ({
     onSubmit,
 }) => {
     const [anchor, setAnchor] = useElementState();
+    const currentUrlRef = useRef('');
+    const currentTextRef = useRef('');
+
+    const handleUrlChange = (url: string) => {
+        currentUrlRef.current = url;
+    };
+
+    const handleTextChange = (text: string) => {
+        currentTextRef.current = text;
+    };
+
+    const handleSubmit = (params: LinkSubmitParams) => {
+        onSubmit(params);
+    };
+
+    const handleOpenChange: NonNullable<PopupProps['onOpenChange']> = (open, _event, reason) => {
+        if (open) return;
+
+        if (reason === 'escape-key') {
+            onCancel();
+            return;
+        }
+
+        const url = currentUrlRef.current.trim();
+        if (url) {
+            onSubmit({url, text: currentTextRef.current});
+        } else {
+            onCancel();
+        }
+    };
+
     return (
         <>
             <span ref={setAnchor} className={b()}>
@@ -30,11 +63,17 @@ export const LinkPlaceholderWidget: React.FC<LinkPlaceholderWidgetProps> = ({
                 qa="g-md-link-form"
                 open
                 modal
-                onOpenChange={onCancel}
+                onOpenChange={handleOpenChange}
+                className={b('popup')}
                 anchorElement={anchor}
                 placement={placement}
             >
-                <LinkForm autoFocus onSubmit={onSubmit} onCancel={onCancel} />
+                <Link
+                    autoFocus
+                    onSubmit={handleSubmit}
+                    onUrlChange={handleUrlChange}
+                    onTextChange={handleTextChange}
+                />
             </Popup>
         </>
     );

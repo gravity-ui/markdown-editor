@@ -6,21 +6,21 @@ import {Logger2} from '../logger';
 
 import {ActionsManager} from './ActionsManager';
 import {ExtensionBuilder} from './ExtensionBuilder';
-import {ParserTokensRegistry} from './ParserTokensRegistry';
-import type {SchemaDynamicModifier} from './SchemaDynamicModifier';
-import {SchemaSpecRegistry} from './SchemaSpecRegistry';
-import {SerializerTokensRegistry} from './SerializerTokensRegistry';
-import type {MarkdownParserDynamicModifier} from './markdown/MarkdownParser';
-import type {MarkdownSerializerDynamicModifier} from './markdown/MarkdownSerializerDynamicModifier';
-import type {TransformFn} from './markdown/ProseMirrorTransformer';
-import type {ActionSpec} from './types/actions';
 import type {
     Extension,
     ExtensionDeps,
     ExtensionMarkSpec,
     ExtensionNodeSpec,
     ExtensionSpec,
-} from './types/extension';
+} from './ExtensionBuilder';
+import {ParserTokensRegistry} from './ParserTokensRegistry';
+import type {SchemaDynamicModifier} from './SchemaDynamicModifier';
+import {SchemaSpecRegistry} from './SchemaSpecRegistry';
+import {SerializerTokensRegistry} from './SerializerTokensRegistry';
+import type {MarkdownParserDynamicModifier} from './markdown/MarkdownParser';
+import type {MarkdownSerializerDynamicModifier} from './markdown/MarkdownSerializer';
+import type {TransformFn} from './markdown/ProseMirrorTransformer';
+import type {ActionSpec} from './types/actions';
 import type {MarkViewConstructor, NodeViewConstructor} from './types/node-views';
 
 type ExtensionsManagerParams = {

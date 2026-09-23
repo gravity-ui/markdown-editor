@@ -1,4 +1,4 @@
-import type {HTMLNodeVisitor} from './converters';
+import type {HTMLNodeVisitor} from './types';
 
 /**
  * Base handler class implementing the Chain of Responsibility pattern for HTML node processing.

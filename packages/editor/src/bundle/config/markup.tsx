@@ -276,6 +276,7 @@ export const mTabsItemData: MToolbarSingleItemData = {
     isEnable: enable,
 };
 
+/** @deprecated Use mLatexInlineItemData from `@gravity-ui/markdown-editor-latex-extension` */
 export const mMathInlineItemData: ToolbarListButtonItemData<CodeEditor> = {
     id: ActionName.math_inline,
     title: i18n.bind(null, 'math_inline'),
@@ -284,6 +285,7 @@ export const mMathInlineItemData: ToolbarListButtonItemData<CodeEditor> = {
     isActive: inactive,
     isEnable: enable,
 };
+/** @deprecated Use mLatexBlockItemData from `@gravity-ui/markdown-editor-latex-extension` */
 export const mMathBlockItemData: ToolbarListButtonItemData<CodeEditor> = {
     id: ActionName.math_block,
     title: i18n.bind(null, 'math_block'),
@@ -347,6 +349,7 @@ export const mEmojiItemData: MToolbarSingleItemData = {
     isEnable: disable,
 };
 
+/** @deprecated Use mLatexListItem from `@gravity-ui/markdown-editor-latex-extension` */
 export const mMathListItem: MToolbarListItemData = {
     id: 'math',
     type: ToolbarDataType.ListButton,
@@ -485,6 +488,7 @@ export const mCodeListConfig: MToolbarListButtonData = {
     data: [mCodeItemData, mCodeblockItemData],
 };
 
+/** @deprecated Use mLatexListConfig from `@gravity-ui/markdown-editor-latex-extension` */
 export const mMathListConfig: MToolbarListButtonData = {
     icon: icons.functionInline,
     withArrow: true,

@@ -1,14 +1,21 @@
 import isNumber from 'is-number';
 
-import type {SerializerNodeToken} from '../../../../core';
+import type {ExtensionAuto, SerializerNodeToken} from '#core';
 
 import {YfmTableAttr, YfmTableNode} from './const';
 
-export const serializerTokens: Record<YfmTableNode, SerializerNodeToken> = {
+const serializerTokens: Record<YfmTableNode, SerializerNodeToken> = {
     [YfmTableNode.Table]: (state, node) => {
         state.ensureNewLine();
         state.write('#|');
         state.ensureNewLine();
+
+        const headerRows = Number(node.attrs[YfmTableAttr.HeaderRows]) || 0;
+        if (headerRows > 0) {
+            state.write(`|:{header-rows="${headerRows}"}`);
+            state.ensureNewLine();
+        }
+
         state.renderContent(node);
         state.write('|#');
         state.ensureNewLine();
@@ -20,7 +27,9 @@ export const serializerTokens: Record<YfmTableNode, SerializerNodeToken> = {
         const rowspanStack: Record<number, number> = {};
 
         tbody.forEach((trow) => {
-            state.write('||');
+            const firstCellBg = trow.firstChild?.attrs[YfmTableAttr.CellBg];
+            const firstCellAttrs = typeof firstCellBg === 'string' ? `::{bg="${firstCellBg}"}` : '';
+            state.write(`||${firstCellAttrs}`);
             state.ensureNewLine();
             state.write('\n');
 
@@ -39,7 +48,9 @@ export const serializerTokens: Record<YfmTableNode, SerializerNodeToken> = {
                 }
 
                 if (colIndex > 0) {
-                    state.write('|');
+                    const cellBg = td.attrs[YfmTableAttr.CellBg];
+                    const cellAttrs = typeof cellBg === 'string' ? `::{bg="${cellBg}"}` : '';
+                    state.write(cellAttrs ? `|${cellAttrs}` : '|');
                     state.ensureNewLine();
                     state.write('\n');
                 }
@@ -98,4 +109,12 @@ export const serializerTokens: Record<YfmTableNode, SerializerNodeToken> = {
             state.write('\n');
         }
     },
+};
+
+export const YfmTableSerializerSpecs: ExtensionAuto = (builder) => {
+    builder
+        .addNodeSerializerSpec(YfmTableNode.Table, () => serializerTokens[YfmTableNode.Table])
+        .addNodeSerializerSpec(YfmTableNode.Body, () => serializerTokens[YfmTableNode.Body])
+        .addNodeSerializerSpec(YfmTableNode.Row, () => serializerTokens[YfmTableNode.Row])
+        .addNodeSerializerSpec(YfmTableNode.Cell, () => serializerTokens[YfmTableNode.Cell]);
 };

@@ -1,4 +1,5 @@
 import {builders} from 'prosemirror-test-builder';
+import {describe, it} from 'vitest';
 
 import {parseDOM} from '../../../../tests/parse-dom';
 import {createMarkupChecker} from '../../../../tests/sameMarkup';

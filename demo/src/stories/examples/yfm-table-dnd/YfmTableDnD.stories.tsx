@@ -6,6 +6,8 @@ export const Story: StoryObj<typeof component> = {
     args: {
         mobile: false,
         dnd: true,
+        headerRows: true,
+        cellBackground: true,
     },
 };
 Story.storyName = "YFM Table D'n'D";

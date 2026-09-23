@@ -1,4 +1,4 @@
-/* eslint-disable no-console, import/no-extraneous-dependencies, no-undef */
+/* eslint-disable no-console, no-undef */
 const process = require('process');
 
 const {parseDependencyTree, parseCircular, prettyCircular} = require('dpdm');
@@ -9,9 +9,7 @@ if (isNaN(threshold)) {
     process.exit(1);
 }
 
-parseDependencyTree('./src/index.ts', {
-    transform: true,
-}).then((tree) => {
+parseDependencyTree('./src/index.ts', {}).then((tree) => {
     const circulars = parseCircular(tree);
     if (circulars.length > threshold) {
         console.error(prettyCircular(circulars));

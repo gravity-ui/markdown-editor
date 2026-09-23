@@ -2,23 +2,16 @@ import {ActionTooltip, Button, DropdownMenu} from '@gravity-ui/uikit';
 
 import {i18n} from '../../../../i18n/gpt/dialog';
 import type {CommonAnswer, PromptPreset} from '../ErrorScreen/types';
-import type {GptDialogProps} from '../GptDialog/GptDialog';
 import {gptHotKeys} from '../constants';
 import {useGptHotKeys} from '../hooks/useGptHotKeys';
 import {usePresetList} from '../hooks/usePresetList';
+import type {PresetListProps} from '../types';
 
 import {cnGptDialogPresetList} from './classname';
 
 import './Presetlist.scss';
 
-export type PresetListProps<
-    AnswerData extends CommonAnswer = CommonAnswer,
-    PromptData extends unknown = unknown,
-> = {
-    disablePromptPresets: GptDialogProps<AnswerData, PromptData>['disablePromptPresets'];
-    promptPresets: GptDialogProps<AnswerData, PromptData>['promptPresets'];
-    onPresetClick: (data?: PromptData) => void;
-};
+export type {PresetListProps};
 
 type PresetItemType<
     AnswerData extends CommonAnswer = CommonAnswer,

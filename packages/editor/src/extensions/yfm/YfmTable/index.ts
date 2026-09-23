@@ -19,6 +19,8 @@ export {
     yfmTableCellType,
 } from './YfmTableSpecs';
 
+// TODO [MAJOR]: enable by default and remove options: headerRows, cellBackground
+
 export type YfmTableOptions = YfmTableSpecsOptions & {
     /**
      * Enables floating controls for table.
@@ -31,6 +33,22 @@ export type YfmTableOptions = YfmTableSpecsOptions & {
      * @default true
      */
     dnd?: boolean;
+    /**
+     * Enables header rows functionality in table (toggle row as header, visual decoration).
+     * The `controls` property must also be `true`.
+     *
+     * Available with @diplodoc/transform v4.75.0 or higher.
+     * @default false
+     */
+    headerRows?: boolean;
+    /**
+     * Enables cell background color picker for table cells.
+     * The `controls` property must also be `true`.
+     *
+     * Available with @diplodoc/transform v4.75.0 or higher.
+     * @default false
+     */
+    cellBackground?: boolean;
 };
 
 export const YfmTable: ExtensionWithOptions<YfmTableOptions> = (builder, options) => {
@@ -47,7 +65,13 @@ export const YfmTable: ExtensionWithOptions<YfmTableOptions> = (builder, options
     builder.addPlugin(yfmTableTransformPastedPlugin);
 
     if (options.controls !== false) {
-        builder.addPlugin(yfmTableControlsPlugins({dndEnabled: options.dnd !== false}));
+        builder.addPlugin(
+            yfmTableControlsPlugins({
+                dndEnabled: options.dnd !== false,
+                headerRowsEnabled: options.headerRows === true,
+                cellBackgroundEnabled: options.cellBackground === true,
+            }),
+        );
     }
 };
 

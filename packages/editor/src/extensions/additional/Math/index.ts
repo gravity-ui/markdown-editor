@@ -31,11 +31,13 @@ const mathITemplate = 'f(x)=';
 
 // !!! YfmPreset/YfmSpecsPreset does not use or re-export the Math extension
 
+/** @deprecated Use LatexExtensionOptions from `@gravity-ui/markdown-editor-latex-extension` */
 export type MathOptions = Pick<
     MathNodeViewOptions,
     'loadRuntimeScript' | 'sanitize' | 'katexOptions'
 >;
 
+/** @deprecated Use LatexExtension from `@gravity-ui/markdown-editor-latex-extension` */
 export const Math: ExtensionAuto<MathOptions> = (builder, opts) => {
     builder.use(MathSpecs);
 

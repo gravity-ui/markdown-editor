@@ -1,9 +1,9 @@
-import type {SerializerNodeToken} from '../../../../core';
-import {getPlaceholderContent} from '../../../../utils/placeholder';
+import type {ExtensionAuto, SerializerNodeToken} from '#core';
+import {getPlaceholderContent} from 'src/utils/placeholder';
 
 import {CheckboxAttr, CheckboxNode} from './const';
 
-export const serializerTokens: Record<CheckboxNode, SerializerNodeToken> = {
+const serializerTokens: Record<CheckboxNode, SerializerNodeToken> = {
     [CheckboxNode.Checkbox]: (state, node, parent, index) => {
         state.renderInline(node);
 
@@ -40,4 +40,11 @@ export const serializerTokens: Record<CheckboxNode, SerializerNodeToken> = {
 
         state.renderInline(node);
     },
+};
+
+export const CheckboxSerializerSpecs: ExtensionAuto = (builder) => {
+    builder
+        .addNodeSerializerSpec(CheckboxNode.Checkbox, () => serializerTokens[CheckboxNode.Checkbox])
+        .addNodeSerializerSpec(CheckboxNode.Input, () => serializerTokens[CheckboxNode.Input])
+        .addNodeSerializerSpec(CheckboxNode.Label, () => serializerTokens[CheckboxNode.Label]);
 };

@@ -16,6 +16,7 @@ import {
     type ToolbarsPreset,
     type UseMarkdownEditorProps,
     type WysiwygPlaceholderOptions,
+    type YfmMods,
     logger,
     useMarkdownEditor,
     wysiwygToolbarConfigs,
@@ -25,9 +26,15 @@ import type {SettingItems} from '@gravity-ui/markdown-editor/_/bundle/settings/i
 import type {CodeEditor} from '@gravity-ui/markdown-editor/_/markup/index.js';
 import type {Extension} from '@gravity-ui/markdown-editor/cm/state';
 import {FoldingHeading} from '@gravity-ui/markdown-editor/extensions/additional/FoldingHeading/index.js';
-import {Math} from '@gravity-ui/markdown-editor/extensions/additional/Math/index.js';
 import {Mermaid} from '@gravity-ui/markdown-editor/extensions/additional/Mermaid/index.js';
 import {YfmHtmlBlock} from '@gravity-ui/markdown-editor/extensions/additional/YfmHtmlBlock/index.js';
+import {LatexExtension} from '@gravity-ui/markdown-editor-latex-extension';
+import {
+    wLatexBlockItemData,
+    wLatexInlineItemData,
+} from '@gravity-ui/markdown-editor-latex-extension/configs';
+import {YfmPageConstructorExtension} from '@gravity-ui/markdown-editor-page-constructor-extension';
+import {wYfmPageConstructorItemData} from '@gravity-ui/markdown-editor-page-constructor-extension/configs';
 import {Button, DropdownMenu} from '@gravity-ui/uikit';
 
 import {getPlugins} from '../defaults/md-plugins';
@@ -47,9 +54,10 @@ const fileUploadHandler: FileUploadHandler = async (file) => {
 };
 
 const wCommandMenuConfig = wysiwygToolbarConfigs.wCommandMenuConfig.concat(
-    wysiwygToolbarConfigs.wMathInlineItemData,
-    wysiwygToolbarConfigs.wMathBlockItemData,
+    wLatexInlineItemData,
+    wLatexBlockItemData,
     wysiwygToolbarConfigs.wMermaidItemData,
+    wYfmPageConstructorItemData,
     wysiwygToolbarConfigs.wYfmHtmlBlockItemData,
 );
 
@@ -85,6 +93,7 @@ export type PlaygroundProps = {
     markupParseHtmlOnPaste?: boolean;
     style?: React.CSSProperties;
     storyAdditionalControls?: Record<string, any>;
+    yfmMods?: YfmMods;
 } & Pick<UseMarkdownEditorProps, 'experimental' | 'wysiwygConfig'> &
     Pick<
         MarkdownEditorViewProps,
@@ -142,8 +151,10 @@ export const Playground = memo<PlaygroundProps>((props) => {
         markupParseHtmlOnPaste,
         style,
         storyAdditionalControls,
+        yfmMods,
     } = props;
     const [editorMode, setEditorMode] = useState<MarkdownEditorMode>(initialEditor ?? 'wysiwyg');
+    const [previewVisible, setPreviewVisible] = useState(false);
     const [mdRaw, setMdRaw] = useState<MarkupString>(initial || '');
 
     useEffect(() => {
@@ -184,7 +195,7 @@ export const Playground = memo<PlaygroundProps>((props) => {
                 disableMarkdownAttrs: disableMarkdownItAttrs,
                 extensions: (builder) => {
                     builder
-                        .use(Math, {
+                        .use(LatexExtension, {
                             loadRuntimeScript: () => {
                                 import(
                                     /* webpackChunkName: "latex-runtime" */ '@diplodoc/latex-extension/runtime'
@@ -206,6 +217,16 @@ export const Playground = memo<PlaygroundProps>((props) => {
                                 delay: storyAdditionalControls?.mermaidAutoSaveDelay ?? 1000,
                             },
                             theme: {dark: 'dark', light: 'forest'},
+                        })
+                        .use(YfmPageConstructorExtension, {
+                            autoSave: {
+                                enabled:
+                                    storyAdditionalControls?.yfmPageConstructorAutoSaveEnabled ??
+                                    true,
+                                delay:
+                                    storyAdditionalControls?.yfmPageConstructorAutoSaveDelay ??
+                                    1000,
+                            },
                         })
                         .use(FoldingHeading)
                         .use(YfmHtmlBlock, {
@@ -229,6 +250,9 @@ export const Playground = memo<PlaygroundProps>((props) => {
                     if (wysiwygConfig?.extensions) builder.use(wysiwygConfig.extensions);
                 },
                 extensionOptions: {
+                    yfmConfigs: {
+                        mods: yfmMods,
+                    },
                     checkbox: {multiline: true},
                     commandMenu: {actions: wysiwygCommandMenuConfig ?? wCommandMenuConfig},
                     imgSize: {
@@ -238,6 +262,8 @@ export const Playground = memo<PlaygroundProps>((props) => {
                         lineWrapping: {enabled: true},
                     },
                     yfmTable: {
+                        headerRows: true,
+                        cellBackground: true,
                         table_ignoreSplittersInBlockCode: true,
                         table_ignoreSplittersInBlockMath: true,
                         table_ignoreSplittersInInlineCode: true,
@@ -327,6 +353,10 @@ export const Playground = memo<PlaygroundProps>((props) => {
         function onChangeToolbarVisibility({visible}: {visible: boolean}) {
             console.info('Toolbar visible: ' + visible);
         }
+        function onChangePreviewVisible({visible}: {visible: boolean}) {
+            setPreviewVisible(visible);
+            console.info(`Preview visible: ${visible}`);
+        }
 
         mdEditor.on('cancel', onCancel);
         mdEditor.on('submit', onSubmit);
@@ -335,6 +365,7 @@ export const Playground = memo<PlaygroundProps>((props) => {
         mdEditor.on('change-editor-mode', onChangeEditorType);
         mdEditor.on('change-split-mode-enabled', onChangeSplitModeEnabled);
         mdEditor.on('change-toolbar-visibility', onChangeToolbarVisibility);
+        mdEditor.on('change-preview-visible', onChangePreviewVisible);
 
         return () => {
             mdEditor.off('cancel', onCancel);
@@ -344,6 +375,7 @@ export const Playground = memo<PlaygroundProps>((props) => {
             mdEditor.off('change-editor-mode', onChangeEditorType);
             mdEditor.off('change-split-mode-enabled', onChangeSplitModeEnabled);
             mdEditor.off('change-toolbar-visibility', onChangeToolbarVisibility);
+            mdEditor.off('change-preview-visible', onChangePreviewVisible);
         };
     }, [mdEditor]);
 
@@ -407,6 +439,20 @@ export const Playground = memo<PlaygroundProps>((props) => {
                             }}
                         />
                         <DropdownMenu.Item
+                            text="Insert"
+                            action={() => {
+                                mdEditor.insert('> insert');
+                                mdEditor.focus();
+                            }}
+                        />
+                        <DropdownMenu.Item
+                            text="Insert(inline)"
+                            action={() => {
+                                mdEditor.insert('insert(inline)');
+                                mdEditor.focus();
+                            }}
+                        />
+                        <DropdownMenu.Item
                             text="Move cursor to start"
                             action={() => {
                                 mdEditor.moveCursor('start');
@@ -427,6 +473,14 @@ export const Playground = memo<PlaygroundProps>((props) => {
                                 mdEditor.focus();
                             }}
                         />
+                        {editorMode === 'markup' && (
+                            <DropdownMenu.Item
+                                text={`Toggle Preview (${previewVisible ? 'on' : 'off'})`}
+                                action={() => {
+                                    mdEditor.changePreviewVisible();
+                                }}
+                            />
+                        )}
                     </DropdownMenu>
                     {mdEditor.currentMode === 'markup' && (
                         <MoveToLine

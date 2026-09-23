@@ -1,16 +1,22 @@
 import type {NodeSpec} from 'prosemirror-model';
 
-import type {PlaceholderOptions} from '../../../../utils/placeholder';
+import type {ExtensionAuto} from '#core';
+import type {PlaceholderOptions} from 'src/utils/placeholder';
 
 import {NoteAttrs, NoteNode} from './const';
 
-import type {YfmNoteSpecsOptions} from './index';
+export type YfmNoteSchemaOptions = {
+    /**
+     * @deprecated use placeholder option in BehaviorPreset instead.
+     */
+    yfmNoteTitlePlaceholder?: NonNullable<NodeSpec['placeholder']>['content'];
+};
 
 const DEFAULT_TITLE_PLACEHOLDER = 'Note';
 const DEFAULT_CONTENT_PLACEHOLDER = 'Note content';
 
 export const getSchemaSpecs = (
-    opts?: YfmNoteSpecsOptions,
+    opts?: YfmNoteSchemaOptions,
     placeholder?: PlaceholderOptions,
 ): Record<NoteNode, NodeSpec> => ({
     [NoteNode.Note]: {
@@ -85,3 +91,12 @@ export const getSchemaSpecs = (
         complex: 'leaf',
     },
 });
+
+export const YfmNoteSchemaSpecs: ExtensionAuto<YfmNoteSchemaOptions> = (builder, opts) => {
+    const schemaSpecs = getSchemaSpecs(opts, builder.context.get('placeholder'));
+
+    builder
+        .addNodeSpec(NoteNode.Note, () => schemaSpecs[NoteNode.Note])
+        .addNodeSpec(NoteNode.NoteTitle, () => schemaSpecs[NoteNode.NoteTitle])
+        .addNodeSpec(NoteNode.NoteContent, () => schemaSpecs[NoteNode.NoteContent]);
+};

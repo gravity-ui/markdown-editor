@@ -19,8 +19,8 @@ import {
     keymap,
 } from '@codemirror/view';
 
-import type {MarkdownEditorMode} from 'src/bundle';
-import type {EventMap} from 'src/bundle/Editor';
+import type {EventMap} from 'src/bundle/events';
+import type {MarkdownEditorMode} from 'src/bundle/preset-base-types';
 import type {RendererItem} from 'src/extensions';
 import {renderSearchPopup} from 'src/modules/search';
 import type {Receiver} from 'src/utils';

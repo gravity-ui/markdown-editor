@@ -2,23 +2,16 @@ import type MarkdownIt from 'markdown-it';
 import OrderedMap from 'orderedmap';
 import {inputRules} from 'prosemirror-inputrules';
 import {keymap} from 'prosemirror-keymap';
-import type {MarkSpec, NodeSpec} from 'prosemirror-model';
+import type {MarkSpec, NodeSpec, Schema} from 'prosemirror-model';
 import type {Plugin} from 'prosemirror-state';
 
 import type {Logger2} from '../logger';
 
-import type {ActionSpec} from './types/actions';
-import type {
-    Extension,
-    ExtensionDeps,
-    ExtensionMarkSpec,
-    ExtensionNodeSpec,
-    ExtensionSpec,
-    ExtensionWithOptions,
-} from './types/extension';
+import type {ActionSpec, ActionStorage} from './types/actions';
 import type {Keymap} from './types/keymap';
-import type {ParserToken} from './types/parser';
-import type {SerializerMarkToken, SerializerNodeToken} from './types/serializer';
+import type {MarkViewConstructor, NodeViewConstructor} from './types/node-views';
+import type {Parser, ParserToken} from './types/parser';
+import type {Serializer, SerializerMarkToken, SerializerNodeToken} from './types/serializer';
 
 type InputRulesConfig = Parameters<typeof inputRules>[0];
 type ExtensionWithParams = (builder: ExtensionBuilder, ...params: any[]) => void;
@@ -43,9 +36,10 @@ type AddPmKeymapCallback = (deps: ExtensionDeps) => Keymap;
 type AddPmInputRulesCallback = (deps: ExtensionDeps) => InputRulesConfig;
 type AddActionCallback = (deps: ExtensionDeps) => ActionSpec;
 
-type EntityPipelineEntry<EntitySpec, SpecBody> =
+type EntityPipelineEntry<EntitySpec extends ExtensionNodeSpec | ExtensionMarkSpec, SpecBody> =
     | {type: 'addEntity'; name: string; cb: () => EntitySpec; priority: number}
     | {type: 'addEntitySpec'; name: string; cb: () => SpecBody; priority: number}
+    | {type: 'addEntityView'; name: string; cb: NonNullable<EntitySpec['view']>}
     | {type: 'overrideEntitySpec'; name: string; cb: (prev: SpecBody) => SpecBody};
 
 type NodePipelineEntry = EntityPipelineEntry<ExtensionNodeSpec, NodeSpec>;
@@ -92,6 +86,7 @@ function resolveParserPipeline(
     pipeline: ParserPipelineEntry[],
     initialPrimaryTokens: Record<string, string>,
     initialParsers: Record<string, ResolvedParserEntry>,
+    entityNames: ReadonlySet<string>,
 ) {
     const primaryParserToken = {...initialPrimaryTokens};
     const parsers = {...initialParsers};
@@ -117,7 +112,9 @@ function resolveParserPipeline(
 
             if (primaryParserToken[entityName]) {
                 // Extra parser-only token targeting an existing entity
-                extraTokenNames.push(entry.tokenName);
+                if (entityNames.has(entityName)) {
+                    extraTokenNames.push(entry.tokenName);
+                }
             } else {
                 // Primary parser for a granular entity
                 primaryParserToken[entityName] = entry.tokenName;
@@ -236,6 +233,12 @@ function processEntityPipeline<EntitySpec extends ExtensionNodeSpec | ExtensionM
             specs[name] = entry.cb();
             priorityByEntity[name] = entry.priority;
             granularEntities.add(name);
+        } else if (entry.type === 'addEntityView') {
+            if (views[name] !== undefined) {
+                throw new Error(`View for ${entityType} "${name}" is already registered`);
+            }
+            views[name] = entry.cb;
+            modified.add(name);
         } else {
             // overrideEntitySpec
             specs[name] = entry.cb(specs[name]);
@@ -248,6 +251,7 @@ function processEntityPipeline<EntitySpec extends ExtensionNodeSpec | ExtensionM
         parserPipeline,
         initPrimaryTokens,
         initParsers,
+        new Set(Object.keys(specs)),
     );
     for (const tokenName of extraTokenNames) {
         // Inherit priority from the entity this token targets
@@ -303,6 +307,46 @@ function processEntityPipeline<EntitySpec extends ExtensionNodeSpec | ExtensionM
     return map;
 }
 
+export type Extension = (builder: ExtensionBuilder) => void;
+export type ExtensionWithOptions<T> = (builder: ExtensionBuilder, options: T) => void;
+export type ExtensionAuto<T = void> = T extends void ? Extension : ExtensionWithOptions<T>;
+
+export type ExtensionSpec = {
+    configureMd(md: MarkdownIt, parserType: 'text' | 'markup'): MarkdownIt;
+    nodes(): OrderedMap<ExtensionNodeSpec>;
+    marks(): OrderedMap<ExtensionMarkSpec>;
+    plugins(deps: ExtensionDeps): Plugin[];
+    actions(deps: ExtensionDeps): Record<string, ActionSpec>;
+};
+
+export type ExtensionNodeSpec = {
+    spec: NodeSpec;
+    view?: (deps: ExtensionDeps) => NodeViewConstructor;
+    fromMd: {
+        tokenName?: string;
+        tokenSpec: ParserToken;
+    };
+    toMd: SerializerNodeToken;
+};
+
+export type ExtensionMarkSpec = {
+    spec: MarkSpec;
+    view?: (deps: ExtensionDeps) => MarkViewConstructor;
+    fromMd: {
+        tokenName?: string;
+        tokenSpec: ParserToken;
+    };
+    toMd: SerializerMarkToken;
+};
+
+export type ExtensionDeps = {
+    readonly schema: Schema;
+    readonly textParser: Parser;
+    readonly markupParser: Parser;
+    readonly serializer: Serializer;
+    readonly actions: ActionStorage;
+};
+
 export class ExtensionBuilder {
     static createContext(): BuilderContext<WysiwygEditor.Context> {
         return new Map();
@@ -321,8 +365,10 @@ export class ExtensionBuilder {
     // Unified pipelines — preserve registration order across legacy and granular APIs
     #nodePipeline: NodePipelineEntry[] = [];
     #nodeIndex: Record<string, {source: 'addNode' | 'addNodeSpec'}> = {};
+    #nodeViewIndex = new Set<string>();
     #markPipeline: MarkPipelineEntry[] = [];
     #markIndex: Record<string, {source: 'addMark' | 'addMarkSpec'}> = {};
+    #markViewIndex = new Set<string>();
 
     // Parser and serializer pipelines
     #parserPipeline: ParserPipelineEntry[] = [];
@@ -469,6 +515,38 @@ export class ExtensionBuilder {
         }
         this.#markPipeline.push({type: 'addEntitySpec', name, cb, priority});
         this.#markIndex[name] = {source: 'addMarkSpec'};
+        return this;
+    }
+
+    /** Adds a node view factory. The factory runs after the schema is built. */
+    addNodeView(name: string, cb: NonNullable<ExtensionNodeSpec['view']>): this {
+        if (!this.#nodeIndex[name]) {
+            throw new Error(
+                `Cannot add node view "${name}": node is not registered. ` +
+                    `Use addNode() or addNodeSpec() first.`,
+            );
+        }
+        if (this.#nodeViewIndex.has(name)) {
+            throw new Error(`Node view for "${name}" is already registered`);
+        }
+        this.#nodePipeline.push({type: 'addEntityView', name, cb});
+        this.#nodeViewIndex.add(name);
+        return this;
+    }
+
+    /** Adds a mark view factory. The factory runs after the schema is built. */
+    addMarkView(name: string, cb: NonNullable<ExtensionMarkSpec['view']>): this {
+        if (!this.#markIndex[name]) {
+            throw new Error(
+                `Cannot add mark view "${name}": mark is not registered. ` +
+                    `Use addMark() or addMarkSpec() first.`,
+            );
+        }
+        if (this.#markViewIndex.has(name)) {
+            throw new Error(`Mark view for "${name}" is already registered`);
+        }
+        this.#markPipeline.push({type: 'addEntityView', name, cb});
+        this.#markViewIndex.add(name);
         return this;
     }
 

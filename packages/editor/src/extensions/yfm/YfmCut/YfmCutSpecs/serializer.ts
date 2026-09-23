@@ -1,12 +1,12 @@
 import type {Node} from 'prosemirror-model';
 
-import type {SerializerNodeToken} from '../../../../core';
-import {isNodeEmpty} from '../../../../utils/nodes';
-import {getPlaceholderContent} from '../../../../utils/placeholder';
+import type {ExtensionAuto, SerializerNodeToken} from '#core';
+import {isNodeEmpty} from 'src/utils/nodes';
+import {getPlaceholderContent} from 'src/utils/placeholder';
 
 import {CutAttr, CutNode} from './const';
 
-export function getSerializerTokens({
+function getSerializerTokens({
     directiveSyntax,
 }: {
     directiveSyntax?: WysiwygEditor.Context['directiveSyntax'];
@@ -51,3 +51,14 @@ export function getSerializerTokens({
         },
     };
 }
+
+export const YfmCutSerializerSpecs: ExtensionAuto = (builder) => {
+    const serializerTokens = getSerializerTokens({
+        directiveSyntax: builder.context.get('directiveSyntax'),
+    });
+
+    builder
+        .addNodeSerializerSpec(CutNode.Cut, () => serializerTokens[CutNode.Cut])
+        .addNodeSerializerSpec(CutNode.CutTitle, () => serializerTokens[CutNode.CutTitle])
+        .addNodeSerializerSpec(CutNode.CutContent, () => serializerTokens[CutNode.CutContent]);
+};

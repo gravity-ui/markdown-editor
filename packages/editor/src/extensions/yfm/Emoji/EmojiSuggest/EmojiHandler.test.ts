@@ -1,3 +1,5 @@
+import {describe, expect, it, vi} from 'vitest';
+
 import type {AutocompleteAction} from '../../../behavior/Autocomplete';
 
 import {EmojiHandler} from './EmojiHandler';
@@ -30,7 +32,7 @@ describe('EmojiHandler', () => {
                 currentItem: {symbol: '😀', origName: 'smile', name: 'smile'},
             };
 
-            const mockDispatch = jest.fn();
+            const mockDispatch = vi.fn();
             const action = {
                 view: {
                     state: {

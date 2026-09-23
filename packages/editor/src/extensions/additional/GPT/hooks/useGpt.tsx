@@ -3,8 +3,7 @@ import {useCallback, useState} from 'react';
 import type {TextInputProps} from '@gravity-ui/uikit';
 
 import type {CommonAnswer, GptRequestData} from '../ErrorScreen/types';
-import type {GptDialogProps} from '../GptDialog/GptDialog';
-import type {PresetListProps} from '../PresetList/PresetList';
+import type {GptDialogProps, PresetListProps} from '../types';
 import {isEnter} from '../utils';
 
 type UseGptProps<

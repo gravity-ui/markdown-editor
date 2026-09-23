@@ -1,7 +1,8 @@
 import {Ellipsis} from '@gravity-ui/icons';
-import {DropdownMenu, type DropdownMenuItemMixed, Icon, Popup} from '@gravity-ui/uikit';
+import {DropdownMenu, type DropdownMenuItemMixed, Icon} from '@gravity-ui/uikit';
 
 import type {Action} from '../../../../../core';
+import {EditorPopup} from '../../../../../plugins/BaseTooltip/EditorPopup';
 
 import './floating.scss';
 
@@ -12,20 +13,23 @@ export type TableCellFloatingButtonMixed =
 export type TableCellFloatingButtonActions = TableCellFloatingButtonMixed[];
 
 export type TableCellFloatingButtonProps = {
+    editorElement: HTMLElement;
     dom?: Element;
     actions: TableCellFloatingButtonActions;
 };
 
-export const TableCellFloatingButton: React.FC<TableCellFloatingButtonProps> = ({dom, actions}) => {
+export const TableCellFloatingButton: React.FC<TableCellFloatingButtonProps> = ({
+    editorElement,
+    dom,
+    actions,
+}) => {
     if (!dom) {
         return null;
     }
 
     return (
-        <Popup
-            open
-            keepMounted={false}
-            hasArrow={false}
+        <EditorPopup
+            editorElement={editorElement}
             anchorElement={dom}
             offset={{crossAxis: 2, mainAxis: -12}}
             placement="left-start"
@@ -35,7 +39,7 @@ export const TableCellFloatingButton: React.FC<TableCellFloatingButtonProps> = (
                 defaultSwitcherClassName="table-cell-floating-button"
                 items={actions.map(buildMenuItem)}
             />
-        </Popup>
+        </EditorPopup>
     );
 };
 TableCellFloatingButton.displayName = 'TableCellFloatingButton';

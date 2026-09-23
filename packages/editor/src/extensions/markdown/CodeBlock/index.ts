@@ -1,4 +1,4 @@
-import type {Action, ExtensionAuto, Keymap} from '#core';
+import type {Action, ExtensionAuto, ExtensionNodeSpec, Keymap} from '#core';
 import type {NodeType} from '#pm/model';
 import {hasParentNodeOfType} from '#pm/utils';
 import {isFunction} from 'src/lodash';
@@ -6,7 +6,7 @@ import {withLogAction} from 'src/utils/keymap';
 import {textblockTypeInputRule} from 'src/utils/rulebuilders';
 
 import {CodeBlockHighlight, type HighlightLangMap} from './CodeBlockHighlight/CodeBlockHighlight';
-import {CodeBlockSpecs, type CodeBlockSpecsOptions} from './CodeBlockSpecs';
+import {CodeBlockSpecs, type CodeBlockSpecsOptions, codeBlockNodeName} from './CodeBlockSpecs';
 import {newlineInCode, resetCodeblock, setCodeBlockType} from './commands';
 import {cbAction, codeBlockType, lineNumbersOptionsDefault} from './const';
 import {codeBlockPastePlugin} from './plugins/codeBlockPastePlugin';
@@ -14,7 +14,8 @@ import {codeBlockPastePlugin} from './plugins/codeBlockPastePlugin';
 export {resetCodeblock} from './commands';
 export {codeBlockNodeName, CodeBlockNodeAttr, codeBlockType} from './CodeBlockSpecs';
 
-export type CodeBlockOptions = CodeBlockSpecsOptions & {
+export type CodeBlockOptions = Omit<CodeBlockSpecsOptions, 'nodeview'> & {
+    nodeview?: ExtensionNodeSpec['view'];
     codeBlockKey?: string | null;
     langs?: HighlightLangMap;
     /** Configure line wrapping toggle in code block */
@@ -45,7 +46,11 @@ export const CodeBlock: ExtensionAuto<CodeBlockOptions> = (builder, opts) => {
         },
     };
 
-    builder.use(CodeBlockSpecs, optsNormalized);
+    const {nodeview, ...specsOptions} = optsNormalized;
+    builder.use(CodeBlockSpecs, specsOptions);
+    if (nodeview) {
+        builder.addNodeView(codeBlockNodeName, nodeview);
+    }
 
     builder.addKeymap((deps) => {
         const {codeBlockKey} = optsNormalized;

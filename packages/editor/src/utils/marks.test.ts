@@ -1,6 +1,7 @@
 import MarkdownIt from 'markdown-it';
 import {Schema} from 'prosemirror-model';
 import {EditorState, TextSelection} from 'prosemirror-state';
+import {describe, expect, it} from 'vitest';
 
 import type {Parser} from '../core/types/parser';
 import {ParserFacet} from '../core/utils/parser';

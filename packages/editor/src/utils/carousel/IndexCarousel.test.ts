@@ -1,3 +1,5 @@
+import {describe, expect, it} from 'vitest';
+
 import {IndexCarousel} from './IndexCarousel';
 
 describe('IndexCarousel', () => {

@@ -313,6 +313,19 @@ sequenceDiagram
 \`\`\`
 `.trim(),
 
+    yfmPageConstructor: `
+&nbsp;
+
+## YFM Page Constructor (optional feature)
+
+::: page-constructor
+blocks:
+  - type: 'header-block'
+    title: 'Title'
+    description: 'Description'
+:::
+`.trim(),
+
     foldingHeadings: `
 &nbsp;
 

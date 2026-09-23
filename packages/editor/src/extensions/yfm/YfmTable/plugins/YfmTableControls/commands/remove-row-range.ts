@@ -8,6 +8,7 @@ import {
     type VirtualCellPos,
 } from 'src/table-utils/table-desc';
 
+import {YfmTableAttr} from '../../../YfmTableSpecs/const';
 import {yfmTableCellType} from '../../../YfmTableSpecs/utils';
 
 export type RemoveRowRangeParams = {
@@ -75,6 +76,22 @@ export const removeRowRange = (params: RemoveRowRangeParams): Command => {
             }
 
             updateRowspan(tr, tableDesc, diffRowspan);
+
+            // Decrease header-rows count by the number of header rows removed by this range.
+            const prevHeaderRows = tableDesc.base.headerRows;
+            if (prevHeaderRows > 0) {
+                const removedHeaderRows = Math.max(
+                    0,
+                    Math.min(range.endIdx, prevHeaderRows - 1) - range.startIdx + 1,
+                );
+                if (removedHeaderRows > 0) {
+                    tr.setNodeAttribute(
+                        params.tablePos,
+                        YfmTableAttr.HeaderRows,
+                        prevHeaderRows - removedHeaderRows,
+                    );
+                }
+            }
 
             dispatch(tr);
         }

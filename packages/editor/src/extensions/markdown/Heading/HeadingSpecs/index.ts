@@ -17,8 +17,8 @@ export type HeadingSpecsOptions = {
 };
 
 export const HeadingSpecs: ExtensionAuto<HeadingSpecsOptions> = (builder, opts) => {
-    builder.addNode(headingNodeName, () => ({
-        spec: {
+    builder
+        .addNodeSpec(headingNodeName, () => ({
             attrs: {[headingLevelAttr]: {default: 1}, [headingLineNumberAttr]: {default: null}},
             content: '(text | inline)*',
             group: 'block',
@@ -47,14 +47,11 @@ export const HeadingSpecs: ExtensionAuto<HeadingSpecsOptions> = (builder, opts) 
                     DEFAULT_PLACEHOLDER,
                 alwaysVisible: true,
             },
-        },
-        fromMd: {
-            tokenSpec: {
-                name: headingNodeName,
-                type: 'block',
-                getAttrs: (tok) => ({[headingLevelAttr]: Number(tok.tag.slice(1))}),
-            },
-        },
-        toMd: headingToMarkdown(),
-    }));
+        }))
+        .addMarkdownTokenParserSpec(headingNodeName, () => ({
+            name: headingNodeName,
+            type: 'block',
+            getAttrs: (tok) => ({[headingLevelAttr]: Number(tok.tag.slice(1))}),
+        }))
+        .addNodeSerializerSpec(headingNodeName, () => headingToMarkdown());
 };

@@ -10,8 +10,8 @@ export const BoldAttrs = {
 const defaultMarkup = '**';
 
 export const BoldSpecs: ExtensionAuto = (builder) => {
-    builder.addMark(boldMarkName, () => ({
-        spec: {
+    builder
+        .addMarkSpec(boldMarkName, () => ({
             attrs: {[BoldAttrs.Markup]: {default: defaultMarkup}},
             parseDOM: [
                 {tag: 'b'},
@@ -29,18 +29,20 @@ export const BoldSpecs: ExtensionAuto = (builder) => {
             toDOM(mark) {
                 return ['strong', mark.attrs];
             },
-        },
-        fromMd: {
-            tokenSpec: {
-                name: boldMarkName,
-                type: 'mark',
-                getAttrs: (token) => ({
-                    [BoldAttrs.Markup]: token.markup,
-                }),
-            },
-        },
-        toMd: {open: getMarkup, close: getMarkup, mixable: true, expelEnclosingWhitespace: true},
-    }));
+        }))
+        .addMarkdownTokenParserSpec(boldMarkName, () => ({
+            name: boldMarkName,
+            type: 'mark',
+            getAttrs: (token) => ({
+                [BoldAttrs.Markup]: token.markup,
+            }),
+        }))
+        .addMarkSerializerSpec(boldMarkName, () => ({
+            open: getMarkup,
+            close: getMarkup,
+            mixable: true,
+            expelEnclosingWhitespace: true,
+        }));
 };
 
 function getMarkup(_: unknown, mark: Mark): string {

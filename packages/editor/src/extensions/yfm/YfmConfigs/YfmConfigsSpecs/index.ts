@@ -23,9 +23,12 @@ export const YfmConfigsSpecs: ExtensionAuto<YfmConfigsSpecsOptions> = (builder, 
     }
 
     // ignore yfm lint token
-    builder.addNode('__yfm_lint', () => ({
-        spec: {},
-        fromMd: {tokenSpec: {name: '__yfm_lint', type: 'node', ignore: true}},
-        toMd: noop,
-    }));
+    builder
+        .addNodeSpec('__yfm_lint', () => ({}))
+        .addMarkdownTokenParserSpec('__yfm_lint', () => ({
+            name: '__yfm_lint',
+            type: 'node',
+            ignore: true,
+        }))
+        .addNodeSerializerSpec('__yfm_lint', () => noop);
 };

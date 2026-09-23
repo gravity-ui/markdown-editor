@@ -1,6 +1,7 @@
 import type {Node, Schema} from 'prosemirror-model';
 import {EditorState, type Plugin} from 'prosemirror-state';
 import {EditorView} from 'prosemirror-view';
+import {expect} from 'vitest';
 
 import {dispatchPasteEvent} from './dispatch-event';
 

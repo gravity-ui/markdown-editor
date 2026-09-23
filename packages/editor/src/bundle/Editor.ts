@@ -26,6 +26,8 @@ import type {DirectiveSyntaxContext} from '../utils/directive';
 
 import {MarkupManager} from './MarkupManager';
 import {createDynamicModifiers} from './config/dynamicModifiers';
+import type {ChangeEditorModeOptions, MarkdownEditorInstance} from './editor-public-types';
+import type {EventMap, ToolbarActionData} from './events';
 import type {
     MarkdownEditorMode as EditorMode,
     MarkdownEditorPreset as EditorPreset,
@@ -37,23 +39,7 @@ import type {
     MarkdownEditorSplitMode as SplitMode,
 } from './types';
 
-export type ToolbarActionData = {
-    editorMode: EditorMode;
-    id: string;
-    attrs?: {[key: string]: any};
-};
-
-export interface EventMap {
-    change: null;
-    cancel: null;
-    submit: null;
-
-    'toolbar-action': ToolbarActionData;
-
-    'change-editor-mode': {mode: EditorMode};
-    'change-toolbar-visibility': {visible: boolean};
-    'change-split-mode-enabled': {splitModeEnabled: boolean};
-}
+export type {ToolbarActionData, EventMap, ChangeEditorModeOptions};
 
 // internal events
 interface EventMapInt extends EventMap {
@@ -62,18 +48,7 @@ interface EventMapInt extends EventMap {
     'cm-scroll': {event: Event};
 }
 
-export interface Editor extends Receiver<EventMap>, CommonEditor {
-    readonly logger: Logger2.LogReceiver;
-    readonly currentMode: EditorMode;
-    readonly toolbarVisible: boolean;
-
-    setEditorMode(mode: EditorMode, opts?: SetEditorModeOptions): void;
-
-    moveCursor(position: 'start' | 'end' | {line: number}): void;
-
-    /** @internal used in demo for dev-tools */
-    readonly _wysiwygView?: PMEditorView;
-}
+export type Editor = MarkdownEditorInstance;
 
 /** @internal */
 export interface EditorInt
@@ -112,16 +87,14 @@ export interface EditorInt
 
     changeSplitModeEnabled(opts: {splitModeEnabled: boolean}): void;
 
+    readonly previewVisible: boolean;
+
+    changePreviewVisible(visible?: boolean): void;
+
     destroy(): void;
 }
 
 type SetEditorModeOptions = Pick<ChangeEditorModeOptions, 'emit'>;
-
-export type ChangeEditorModeOptions = {
-    mode: EditorMode;
-    reason: 'error-boundary' | 'settings' | 'manually';
-    emit?: boolean;
-};
 
 export type EditorOptions = Pick<
     MarkdownEditorOptions,
@@ -142,6 +115,7 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
     #toolbarVisible: boolean;
     #splitModeEnabled: boolean;
     #splitMode: SplitMode;
+    #previewVisible: boolean;
     #renderPreview?: RenderPreview;
     #wysiwygEditor?: WysiwygEditor;
     #markupEditor?: MarkupEditor;
@@ -227,6 +201,10 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
 
     get splitMode(): SplitMode {
         return this.#splitMode;
+    }
+
+    get previewVisible(): boolean {
+        return this.#previewVisible;
     }
 
     get preset(): EditorPreset {
@@ -372,6 +350,7 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
         this.#toolbarVisible = initial.toolbarVisible ?? true;
         this.#splitMode = (markupConfig.renderPreview && markupConfig.splitMode) ?? false;
         this.#splitModeEnabled = (this.#splitMode && initial.splitModeEnabled) ?? false;
+        this.#previewVisible = false;
         this.#renderPreview = markupConfig.renderPreview;
 
         this.#markup = initial.markup ?? '';
@@ -464,6 +443,14 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
         this.emit('change-split-mode-enabled', opts);
     }
 
+    changePreviewVisible(visible = !this.#previewVisible): void {
+        if (!this.#renderPreview || this.#splitModeEnabled) return;
+        if (this.#previewVisible === visible) return;
+        this.#previewVisible = visible;
+        this.emit('rerender', null);
+        this.emit('change-preview-visible', {visible});
+    }
+
     focus(): void {
         return this.currentEditor.focus();
     }
@@ -492,6 +479,10 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
 
     append(markup: MarkupString): void {
         return this.currentEditor.append(markup);
+    }
+
+    insert(markup: MarkupString): void {
+        return this.currentEditor.insert(markup);
     }
 
     moveCursor(

@@ -8,11 +8,11 @@ export const wait: PlaywrightFixture<WaitFixture> = async ({page}, use) => {
     await use({
         loadersHiddenQASelect: async () => {
             const loader = page.getByTestId('loader');
-            await loader.waitFor({state: 'hidden'});
+            await allMap(loader, (locator) => locator.waitFor({state: 'hidden'}));
         },
         loadersHidden: async () => {
             const loader = page.locator('.g-loader');
-            await loader.waitFor({state: 'hidden'});
+            await allMap(loader, (locator) => locator.waitFor({state: 'hidden'}));
         },
         visible: async (locator: Locator) => {
             await locator.waitFor({state: 'visible'});
@@ -25,3 +25,7 @@ export const wait: PlaywrightFixture<WaitFixture> = async ({page}, use) => {
         },
     });
 };
+
+async function allMap(locator: Locator, callback: (locator: Locator) => Promise<void>) {
+    return Promise.all((await locator.all()).map(callback));
+}

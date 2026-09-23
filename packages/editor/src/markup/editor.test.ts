@@ -1,4 +1,5 @@
 import {EditorView} from '@codemirror/view';
+import {describe, expect, it, vi} from 'vitest';
 
 import {Editor} from './editor';
 
@@ -91,9 +92,39 @@ describe('MarkupContentHandler', () => {
             doc: 'codemirror\ncontent',
         });
         const contentHandler = new Editor(cm);
-        const fn = jest.fn(() => {
+        const fn = vi.fn(() => {
             contentHandler.moveCursor('test' as 'start');
         });
         expect(fn).toThrow();
+    });
+
+    it('should insert at current cursor position', () => {
+        const cm = new EditorView({
+            doc: 'hello world',
+            selection: {anchor: 5},
+        });
+        const contentHandler = new Editor(cm);
+        contentHandler.insert(' inserted');
+        expect(cm.state.sliceDoc()).toBe('hello inserted world');
+    });
+
+    it('should replace selected text on insert', () => {
+        const cm = new EditorView({
+            doc: 'hello world',
+            selection: {anchor: 6, head: 11}, // "world" selected
+        });
+        const contentHandler = new Editor(cm);
+        contentHandler.insert('there');
+        expect(cm.state.sliceDoc()).toBe('hello there');
+    });
+
+    it('should replace selected text with block markup on insert', () => {
+        const cm = new EditorView({
+            doc: 'hello world',
+            selection: {anchor: 6, head: 11}, // "world" selected
+        });
+        const contentHandler = new Editor(cm);
+        contentHandler.insert('> quoted\n\ntext');
+        expect(cm.state.sliceDoc()).toBe('hello > quoted\n\ntext');
     });
 });

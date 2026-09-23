@@ -1,13 +1,16 @@
 import type {Schema} from '#pm/model';
 import {type Command, TextSelection} from '#pm/state';
-import {isEqual, range, uniqWith} from 'src/lodash';
+import {isEqual, uniqWith} from 'src/lodash';
 import {type RealCellPos, type TableCellRealDesc, TableDesc} from 'src/table-utils/table-desc';
 
 import {yfmTableCellType, yfmTableRowType} from '../../../YfmTableSpecs';
+import {YfmTableAttr} from '../../../YfmTableSpecs/const';
+import {getCellBg} from '../utils';
 
 export type InsertEmptyRowParams = {
     tablePos: number;
     rowIndex: number;
+    sourceRowIndex?: number;
 };
 
 export const insertEmptyRow = (params: InsertEmptyRowParams): Command => {
@@ -20,22 +23,27 @@ export const insertEmptyRow = (params: InsertEmptyRowParams): Command => {
 
         if (dispatch) {
             let posToInsert: number;
-            let newCellsCount: number = tableDesc.cols;
+            const newCellBgs: (string | null)[] = [];
             const incrementRowspan: [number, number][] = [];
+            const {sourceRowIndex} = params;
 
             if (rowIdx === 0 || rowIdx === tableDesc.rows) {
                 posToInsert =
                     rowIdx === 0
                         ? tableDesc.getPosForRow(0).from
                         : tableDesc.getPosForRow(tableDesc.rows - 1).to;
+                for (let colIdx = 0; colIdx < tableDesc.cols; colIdx++) {
+                    newCellBgs.push(getBg(tableDesc.base, sourceRowIndex, colIdx));
+                }
             } else {
                 posToInsert = tableDesc.getPosForRow(rowIdx).from;
 
                 for (let colIdx = 0; colIdx < tableDesc.cols; colIdx++) {
                     const cell = tableDesc.base.rowsDesc[rowIdx].cells[colIdx];
                     if (cell.type === 'virtual' && cell.rowspan) {
-                        newCellsCount--;
                         incrementRowspan.push(cell.rowspan);
+                    } else {
+                        newCellBgs.push(getBg(tableDesc.base, sourceRowIndex, colIdx));
                     }
                 }
             }
@@ -46,8 +54,15 @@ export const insertEmptyRow = (params: InsertEmptyRowParams): Command => {
                 const cellPos = tableDesc.getPosForCell(rowIdx, colIdx) as RealCellPos;
                 tr.setNodeAttribute(cellPos.from, 'rowspan', cell.rowspan! + 1);
             }
-            tr.insert(posToInsert, createSimpleRow(state.schema, newCellsCount));
+            tr.insert(posToInsert, createSimpleRow(state.schema, newCellBgs));
             tr.setSelection(TextSelection.near(tr.doc.resolve(posToInsert), 1));
+
+            // If the new row is inserted inside the header-rows block, shrink the block
+            // so the new row and everything below it stop being header rows.
+            if (tableDesc.base.isHeaderRow(rowIdx)) {
+                tr.setNodeAttribute(params.tablePos, YfmTableAttr.HeaderRows, rowIdx);
+            }
+
             dispatch(tr.scrollIntoView());
         }
 
@@ -55,11 +70,17 @@ export const insertEmptyRow = (params: InsertEmptyRowParams): Command => {
     };
 };
 
-const createSimpleRow = (schema: Schema, cols: number) => {
+function getBg(base: TableDesc, sourceRowIndex: number | undefined, colIdx: number): string | null {
+    if (sourceRowIndex === undefined) return null;
+    return getCellBg(base, sourceRowIndex, colIdx);
+}
+
+const createSimpleRow = (schema: Schema, cellBgs: (string | null)[]) => {
     const tr = yfmTableRowType(schema);
     const td = yfmTableCellType(schema);
     return tr.create(
         null,
-        range(0, cols).map(() => td.createAndFill()!),
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        cellBgs.map((bg) => td.createAndFill(bg ? {[YfmTableAttr.CellBg]: bg} : undefined)!),
     );
 };

@@ -1,4 +1,5 @@
 import {builders} from 'prosemirror-test-builder';
+import {afterEach, beforeEach, describe, it, vi} from 'vitest';
 
 import {createMarkupChecker} from '../../../../tests/sameMarkup';
 import {ExtensionsManager} from '../../../core';
@@ -11,11 +12,11 @@ const mockRandomValue = 0.123456789;
 const generatedId = mockRandomValue.toString(36).substr(2, 8);
 
 beforeEach(() => {
-    jest.spyOn(global.Math, 'random').mockReturnValue(mockRandomValue);
+    vi.spyOn(global.Math, 'random').mockReturnValue(mockRandomValue);
 });
 
 afterEach(() => {
-    jest.spyOn(global.Math, 'random').mockRestore();
+    vi.spyOn(global.Math, 'random').mockRestore();
 });
 
 const {
@@ -90,7 +91,7 @@ describe('YfmTabs extension', () => {
                                 id: 'unknown',
                                 class: 'yfm-tab yfm-tab-group active',
                                 role: 'tab',
-                                'aria-controls': generatedId,
+                                'aria-controls': `regular-${generatedId}`,
                                 'aria-selected': 'true',
                                 tabindex: '0',
                                 'data-diplodoc-is-active': 'true',
@@ -104,7 +105,7 @@ describe('YfmTabs extension', () => {
                                 id: 'unknown',
                                 class: 'yfm-tab yfm-tab-group',
                                 role: 'tab',
-                                'aria-controls': generatedId,
+                                'aria-controls': `regular-${generatedId}`,
                                 'aria-selected': 'false',
                                 tabindex: '-1',
                                 'data-diplodoc-is-active': 'false',
@@ -116,7 +117,7 @@ describe('YfmTabs extension', () => {
                     ),
                     tabPanel(
                         {
-                            id: generatedId,
+                            id: `regular-${generatedId}`,
                             class: 'yfm-tab-panel active',
                             role: 'tabpanel',
                             'data-title': 'panel title 1',
@@ -126,7 +127,7 @@ describe('YfmTabs extension', () => {
                     ),
                     tabPanel(
                         {
-                            id: generatedId,
+                            id: `regular-${generatedId}`,
                             class: 'yfm-tab-panel',
                             role: 'tabpanel',
                             'data-title': 'panel title 2',
@@ -168,7 +169,7 @@ describe('YfmTabs extension', () => {
                                     id: 'unknown',
                                     class: 'yfm-tab yfm-tab-group active',
                                     role: 'tab',
-                                    'aria-controls': generatedId,
+                                    'aria-controls': `regular-${generatedId}`,
                                     'aria-selected': 'true',
                                     tabindex: '0',
                                     'data-diplodoc-is-active': 'true',
@@ -180,7 +181,7 @@ describe('YfmTabs extension', () => {
                         ),
                         tabPanel(
                             {
-                                id: generatedId,
+                                id: `regular-${generatedId}`,
                                 class: 'yfm-tab-panel active',
                                 role: 'tabpanel',
                                 'data-title': 'Tab',
@@ -236,7 +237,7 @@ ${'  '}
                             id: null,
                             class: 'yfm-tab yfm-tab-group yfm-vertical-tab',
                             role: 'tab',
-                            'aria-controls': generatedId,
+                            'aria-controls': `radio-${generatedId}`,
                             'aria-selected': 'false',
                             tabindex: '0',
                             'data-diplodoc-is-active': 'false',
@@ -252,7 +253,7 @@ ${'  '}
                     ),
                     tabPanel(
                         {
-                            id: generatedId,
+                            id: `radio-${generatedId}`,
                             class: 'yfm-tab-panel',
                             role: 'tabpanel',
                             'data-title': 'Radio button 1',
@@ -270,7 +271,7 @@ ${'  '}
                                     id: null,
                                     class: 'yfm-tab yfm-tab-group yfm-vertical-tab',
                                     role: 'tab',
-                                    'aria-controls': generatedId,
+                                    'aria-controls': `radio-${generatedId}`,
                                     'aria-selected': 'false',
                                     tabindex: '0',
                                     'data-diplodoc-is-active': 'false',
@@ -286,7 +287,7 @@ ${'  '}
                             ),
                             tabPanel(
                                 {
-                                    id: generatedId,
+                                    id: `radio-${generatedId}`,
                                     class: 'yfm-tab-panel',
                                     role: 'tabpanel',
                                     'data-title': 'Nested radio button 1',
@@ -299,7 +300,7 @@ ${'  '}
                                     id: null,
                                     class: 'yfm-tab yfm-tab-group yfm-vertical-tab',
                                     role: 'tab',
-                                    'aria-controls': generatedId,
+                                    'aria-controls': `radio-${generatedId}`,
                                     'aria-selected': 'false',
                                     tabindex: '-1',
                                     'data-diplodoc-is-active': 'false',
@@ -315,7 +316,7 @@ ${'  '}
                             ),
                             tabPanel(
                                 {
-                                    id: generatedId,
+                                    id: `radio-${generatedId}`,
                                     class: 'yfm-tab-panel',
                                     role: 'tabpanel',
                                     'data-title': 'Nested radio button 2',
@@ -330,7 +331,7 @@ ${'  '}
                             id: null,
                             class: 'yfm-tab yfm-tab-group yfm-vertical-tab',
                             role: 'tab',
-                            'aria-controls': generatedId,
+                            'aria-controls': `radio-${generatedId}`,
                             'aria-selected': 'false',
                             tabindex: '-1',
                             'data-diplodoc-is-active': 'false',
@@ -346,7 +347,7 @@ ${'  '}
                     ),
                     tabPanel(
                         {
-                            id: generatedId,
+                            id: `radio-${generatedId}`,
                             class: 'yfm-tab-panel',
                             role: 'tabpanel',
                             'data-title': 'Radio button 2',

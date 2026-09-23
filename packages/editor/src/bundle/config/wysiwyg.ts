@@ -11,6 +11,7 @@ import type {
 import {i18n as i18nHint} from '../../i18n/hints';
 import {i18n} from '../../i18n/menubar';
 import {Action as A, formatter as f} from '../../shortcuts';
+import type {MarkdownEditorPreset} from '../preset-base-types';
 import {ToolbarDataType} from '../toolbar/types';
 import type {
     WToolbarData,
@@ -26,7 +27,6 @@ import {
     WToolbarTextSelect,
     type WToolbarTextSelectProps,
 } from '../toolbar/wysiwyg/WToolbarTextSelect';
-import type {MarkdownEditorPreset} from '../types';
 
 import {ActionName} from './action-names';
 import {icons} from './icons';
@@ -231,6 +231,7 @@ export const wTabsItemData: WToolbarSingleItemData = {
     isActive: (e) => e.actions.toYfmTabs.isActive(),
     isEnable: (e) => e.actions.toYfmTabs.isEnable(),
 };
+/** @deprecated Use wLatexInlineItemData from `@gravity-ui/markdown-editor-latex-extension` */
 export const wMathInlineItemData: WToolbarSingleItemData = {
     id: ActionName.math_inline,
     type: ToolbarDataType.SingleButton,
@@ -241,6 +242,7 @@ export const wMathInlineItemData: WToolbarSingleItemData = {
     isActive: (e) => e.actions.addMathInline.isActive(),
     isEnable: (e) => e.actions.addMathInline.isEnable(),
 };
+/** @deprecated Use wLatexBlockItemData from `@gravity-ui/markdown-editor-latex-extension` */
 export const wMathBlockItemData: WToolbarSingleItemData = {
     id: ActionName.math_block,
     type: ToolbarDataType.SingleButton,
@@ -321,6 +323,7 @@ export const textContextItemData: SelectionContextItemData = {
     },
 };
 
+/** @deprecated Use wLatexListItem from `@gravity-ui/markdown-editor-latex-extension` */
 export const wMathListItem: WToolbarListItemData = {
     id: 'math',
     type: ToolbarDataType.ListButton,
@@ -404,6 +407,7 @@ export const wCodeListConfig: WToolbarListButtonData = {
     title: i18n.bind(null, 'code'),
     data: [wCodeItemData, wCodeBlockItemData],
 };
+/** @deprecated Use wLatexListConfig from `@gravity-ui/markdown-editor-latex-extension` */
 export const wMathListConfig: WToolbarListButtonData = {
     icon: icons.functionInline,
     withArrow: true,

@@ -6,10 +6,9 @@ import type {
     ToolbarItemWysiwyg,
     ToolbarsPreset,
 } from '../../../modules/toolbars/types';
-import type {MarkdownEditorViewProps} from '../../MarkdownEditorView';
 import type {MarkdownEditorPreset} from '../../types';
 import {ToolbarDataType} from '../types';
-import type {MToolbarData, ToolbarIconData, WToolbarData} from '../types';
+import type {MToolbarData, ToolbarConfigs, ToolbarIconData, WToolbarData} from '../types';
 
 import {flattenPreset} from './flattenPreset';
 
@@ -97,13 +96,7 @@ export const createToolbarConfig = <T extends WToolbarData | MToolbarData>(
 
 interface GetToolbarsConfigsArgs {
     toolbarsPreset?: ToolbarsPreset;
-    props: Pick<
-        MarkdownEditorViewProps,
-        | 'markupToolbarConfig'
-        | 'wysiwygToolbarConfig'
-        | 'wysiwygHiddenActionsConfig'
-        | 'markupHiddenActionsConfig'
-    >;
+    props: ToolbarConfigs;
     preset: MarkdownEditorPreset;
 }
 export const getToolbarsConfigs = ({toolbarsPreset, props, preset}: GetToolbarsConfigsArgs) => {

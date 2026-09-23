@@ -29,6 +29,9 @@ jobs:
           node-version-file: '.nvmrc'
           cache: pnpm
 
+      - name: Install dependencies
+        run: pnpm run ci:deps
+
       - name: Build HTML docs with Diplodoc CLI
         run: pnpm run ci:docs:build
 
@@ -38,7 +41,7 @@ jobs:
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v5
         with:
-          path: ./docs-dist
+          path: ./dist/docs
 
   deploy:
     name: Deploy to GitHub Pages

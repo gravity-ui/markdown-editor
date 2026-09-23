@@ -1,6 +1,6 @@
-import {Popup, type PopupPlacement, type PopupProps} from '@gravity-ui/uikit';
+import type {PopupPlacement, PopupProps} from '@gravity-ui/uikit';
 import type {Mark, MarkType, Node, NodeType} from 'prosemirror-model';
-import {NodeSelection, type PluginView} from 'prosemirror-state';
+import {NodeSelection, type PluginView, TextSelection} from 'prosemirror-state';
 // @ts-ignore // TODO: fix cjs build
 import {findDomRefAtPos, findParentNodeOfType, findSelectedNodeOfType} from 'prosemirror-utils';
 import type {EditorView} from 'prosemirror-view';
@@ -11,6 +11,8 @@ import {
     getReactRendererFromState,
 } from '../../extensions/behavior/ReactRenderer';
 import {ErrorLoggerBoundary} from '../../react-utils/ErrorBoundary';
+
+import {EditorPopup} from './EditorPopup';
 
 import './index.scss';
 
@@ -74,6 +76,8 @@ export class BaseTooltipPluginView implements PluginView {
 
     private readonly idPrefix: string;
     private renderItem?: RendererItem;
+    private selectionUpdate: object | null = null;
+    private popupAnchor: HTMLElement | null = null;
 
     constructor(view: EditorView, options: BaseTooltipPluginOptions) {
         this.view = view;
@@ -92,6 +96,8 @@ export class BaseTooltipPluginView implements PluginView {
 
     destroy() {
         this.destroyed = true;
+        this.selectionUpdate = null;
+        this.stopTrackingViewFocus();
         this.renderItem?.remove();
         this.renderItem = undefined;
     }
@@ -187,6 +193,11 @@ export class BaseTooltipPluginView implements PluginView {
 
     protected render() {
         if (this.destroyed) return;
+        const anchor = this.content && !this.manualHidden ? (this.currentNode?.dom ?? null) : null;
+        if (anchor !== this.popupAnchor) {
+            this.popupAnchor = anchor;
+            this.scheduleTextSelection();
+        }
         this.renderItem = this.renderItem ?? this.createRenderItem();
         this.renderItem.rerender();
     }
@@ -195,9 +206,8 @@ export class BaseTooltipPluginView implements PluginView {
         this.hidePopupManual();
     };
 
-    protected popupOpenChangeHandler: PopupProps['onOpenChange'] = (open, event, reason) => {
+    protected popupOpenChangeHandler: PopupProps['onOpenChange'] = (open, _event, reason) => {
         if (open) return;
-        if (reason === 'focus-out' && (event as FocusEvent).relatedTarget === this.view.dom) return;
         if (this.disableHideOnEscapeKeyDown && reason === 'escape-key') return;
 
         this.hidePopupManual();
@@ -229,6 +239,7 @@ export class BaseTooltipPluginView implements PluginView {
     }
 
     protected hidePopupManual() {
+        this.selectionUpdate = null;
         this.manualHidden = true;
         this.render();
     }
@@ -236,9 +247,8 @@ export class BaseTooltipPluginView implements PluginView {
     protected renderContent(currentNode: BaseTooltipNode): React.ReactNode {
         if (!this.content) return null;
         return (
-            <Popup
-                open
-                hasArrow={false}
+            <EditorPopup
+                editorElement={this.view.dom}
                 anchorElement={currentNode.dom}
                 placement={this.popupPlacement || defaultPlacement}
                 onOpenChange={this.popupOpenChangeHandler}
@@ -253,7 +263,7 @@ export class BaseTooltipPluginView implements PluginView {
                         this.rerenderCb,
                     )}
                 </div>
-            </Popup>
+            </EditorPopup>
         );
     }
 
@@ -263,6 +273,54 @@ export class BaseTooltipPluginView implements PluginView {
                 <ErrorLoggerBoundary>{this.renderContent(this.currentNode)}</ErrorLoggerBoundary>
             ) : null,
         );
+    }
+
+    private scheduleTextSelection() {
+        this.selectionUpdate = null;
+        const view = this.view;
+        const {doc, selection} = view.state;
+        const anchor = this.currentNode?.dom;
+        if (
+            this.destroyed ||
+            this.manualHidden ||
+            !this.content ||
+            !anchor ||
+            !view.hasFocus() ||
+            !(selection instanceof NodeSelection) ||
+            selection.node.isAtom ||
+            view.nodeDOM(selection.from) !== anchor
+        )
+            return;
+
+        const update = {};
+        this.selectionUpdate = update;
+        // Wait until all plugin views finish updating, including synchronous legacy React roots.
+        queueMicrotask(() => {
+            if (this.selectionUpdate !== update) return;
+            this.selectionUpdate = null;
+            if (
+                this.destroyed ||
+                view.isDestroyed ||
+                this.view !== view ||
+                this.manualHidden ||
+                !view.hasFocus() ||
+                view.state.doc !== doc ||
+                !view.state.selection.eq(selection) ||
+                this.currentNode?.dom !== anchor ||
+                view.nodeDOM(selection.from) !== anchor
+            )
+                return;
+
+            // Preserve the existing text selection when a block toolbar opens, without DOM mutations.
+            view.dispatch(
+                view.state.tr.setSelection(
+                    TextSelection.between(
+                        doc.resolve(selection.from + 1),
+                        doc.resolve(selection.to - 1),
+                    ),
+                ),
+            );
+        });
     }
 
     private rerenderCb = () => {

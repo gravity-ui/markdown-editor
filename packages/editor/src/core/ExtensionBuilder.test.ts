@@ -1,9 +1,10 @@
 import {Plugin} from 'prosemirror-state';
+import {describe, expect, it, vi} from 'vitest';
 
 import {Logger2} from '../logger';
 
 import {ExtensionBuilder} from './ExtensionBuilder';
-import type {ExtensionDeps, ExtensionMarkSpec, ExtensionNodeSpec} from './types/extension';
+import type {ExtensionDeps, ExtensionMarkSpec, ExtensionNodeSpec} from './ExtensionBuilder';
 
 const logger = new Logger2().nested({env: 'test'});
 
@@ -19,7 +20,7 @@ describe('ExtensionBuilder', () => {
     });
 
     it('should immediately call added by .use() extension', () => {
-        const mockExtension = jest.fn();
+        const mockExtension = vi.fn();
         const builder = new ExtensionBuilder(logger);
         const options = {a: 1, b: 2, c: 3};
 
@@ -214,7 +215,7 @@ describe('ExtensionBuilder', () => {
 
     describe('granular add methods', () => {
         it('should add node via granular methods', () => {
-            const toMd = jest.fn();
+            const toMd = vi.fn();
             const nodes = new ExtensionBuilder(logger)
                 .addNodeSpec('myNode', () => ({group: 'block'}))
                 .addMarkdownTokenParserSpec('my_node', () => ({
@@ -356,8 +357,8 @@ describe('ExtensionBuilder', () => {
         });
 
         it('should handle multiple parser tokens mapping to the same node', () => {
-            const toMd = jest.fn();
-            const nodes = new ExtensionBuilder(logger)
+            const toMd = vi.fn();
+            const extension = new ExtensionBuilder(logger)
                 .addNodeSpec('code_block', () => ({group: 'block', code: true}))
                 .addMarkdownTokenParserSpec('code_block', () => ({
                     name: 'code_block',
@@ -370,8 +371,10 @@ describe('ExtensionBuilder', () => {
                     noCloseToken: true,
                 }))
                 .addNodeSerializerSpec('code_block', () => toMd)
-                .build()
-                .nodes();
+                .build();
+            const nodes = extension.nodes();
+
+            expect(extension.marks().get('fence')).toBeUndefined();
 
             // Main node entry + parser-only entry for the extra token
             expect(nodes.size).toBe(2);
@@ -393,7 +396,7 @@ describe('ExtensionBuilder', () => {
         it('should handle multiple parser tokens mapping to the same mark', () => {
             const marksList: {name: string; spec: ExtensionMarkSpec}[] = [];
 
-            new ExtensionBuilder(logger)
+            const extension = new ExtensionBuilder(logger)
                 .addMarkSpec('myMark', () => ({}))
                 .addMarkdownTokenParserSpec('em', () => ({
                     name: 'myMark',
@@ -404,9 +407,10 @@ describe('ExtensionBuilder', () => {
                     type: 'mark',
                 }))
                 .addMarkSerializerSpec('myMark', () => ({open: '*', close: '*'}))
-                .build()
-                .marks()
-                .forEach((name, spec) => marksList.push({name, spec}));
+                .build();
+            extension.marks().forEach((name, spec) => marksList.push({name, spec}));
+
+            expect(extension.nodes().get('emphasis')).toBeUndefined();
 
             // Main mark entry + parser-only entry for the extra token
             expect(marksList).toHaveLength(2);
@@ -470,6 +474,72 @@ describe('ExtensionBuilder', () => {
 
             const fence = nodes.get('fence');
             expect(fence!.fromMd.tokenSpec.noCloseToken).toBe(true);
+        });
+
+        it('should keep a parser alias when an override makes it an ignored token', () => {
+            const extension = new ExtensionBuilder(logger)
+                .addNode('code_block', () => ({
+                    spec: {group: 'block'},
+                    fromMd: {tokenSpec: {name: 'code_block', type: 'block'}},
+                    toMd: () => {},
+                }))
+                .addMarkdownTokenParserSpec('fence', () => ({name: 'code_block', type: 'block'}))
+                .overrideMarkdownTokenParserSpec('fence', (prev) => ({
+                    ...prev,
+                    name: '',
+                    ignore: true,
+                }))
+                .build();
+
+            expect(extension.nodes().get('fence')?.fromMd).toEqual({
+                tokenName: 'fence',
+                tokenSpec: {name: '', type: 'block', ignore: true},
+            });
+            expect(extension.marks().get('fence')).toBeUndefined();
+        });
+
+        it('should keep multiple legacy parser aliases in their own entity pipelines', () => {
+            const extension = new ExtensionBuilder(logger)
+                .addMarkdownTokenParserSpec('fence', () => ({
+                    name: 'code_block',
+                    type: 'block',
+                }))
+                .addMarkdownTokenParserSpec('emphasis', () => ({name: 'em', type: 'mark'}))
+                .addMarkdownTokenParserSpec('code_alias', () => ({
+                    name: 'code_block',
+                    type: 'block',
+                }))
+                .addMarkdownTokenParserSpec('em_alias', () => ({name: 'em', type: 'mark'}))
+                .addNode('code_block', () => ({
+                    spec: {group: 'block'},
+                    fromMd: {tokenSpec: {name: 'code_block', type: 'block'}},
+                    toMd: () => {},
+                }))
+                .addMark('em', () => ({
+                    spec: {},
+                    fromMd: {tokenSpec: {name: 'em', type: 'mark'}},
+                    toMd: {open: '*', close: '*'},
+                }))
+                .overrideMarkdownTokenParserSpec('code_alias', (prev) => ({
+                    ...prev,
+                    noCloseToken: true,
+                }))
+                .overrideMarkdownTokenParserSpec('em_alias', (prev) => ({
+                    ...prev,
+                    attrs: {custom: true},
+                }))
+                .build();
+            const nodes = extension.nodes();
+            const marks = extension.marks();
+            const nodeNames: string[] = [];
+            const markNames: string[] = [];
+            nodes.forEach((name) => nodeNames.push(name));
+            marks.forEach((name) => markNames.push(name));
+
+            expect(nodeNames).toEqual(['code_block', 'fence', 'code_alias']);
+            expect(markNames).toEqual(['em', 'emphasis', 'em_alias']);
+            expect(nodes.get('code_alias')!.fromMd.tokenSpec.noCloseToken).toBe(true);
+            expect(marks.get('em_alias')!.fromMd.tokenSpec.attrs).toEqual({custom: true});
         });
 
         it('should allow overrideMarkdownTokenParserSpec on addNode token', () => {
@@ -637,8 +707,8 @@ describe('ExtensionBuilder', () => {
         });
 
         it('should override node serializer on addNode entry', () => {
-            const originalToMd = jest.fn();
-            const newToMd = jest.fn();
+            const originalToMd = vi.fn();
+            const newToMd = vi.fn();
 
             const nodes = new ExtensionBuilder(logger)
                 .addNode('node', () => ({
@@ -686,7 +756,7 @@ describe('ExtensionBuilder', () => {
         });
 
         it('should work with addNode entries when no overrides applied', () => {
-            const toMd = jest.fn();
+            const toMd = vi.fn();
             const nodes = new ExtensionBuilder(logger)
                 .addNode('node', () => ({
                     spec: {group: 'block'},
@@ -759,8 +829,8 @@ describe('ExtensionBuilder', () => {
         });
 
         it('should chain multiple serializer overrides receiving previous result as prev', () => {
-            const firstToMd = jest.fn();
-            const secondToMd = jest.fn();
+            const firstToMd = vi.fn();
+            const secondToMd = vi.fn();
 
             const nodes = new ExtensionBuilder(logger)
                 .addNode('node', () => ({
@@ -890,7 +960,7 @@ describe('ExtensionBuilder', () => {
             // Step 1 adds full spec under 'code_block'.
             // Step 1b finds parserSpecsByEntity['code_block'] and calls map.addToEnd('code_block', parserOnlyEntry),
             // which overwrites the full spec with { spec: {}, toMd: () => { throw } }.
-            const realToMd = jest.fn();
+            const realToMd = vi.fn();
 
             const nodes = new ExtensionBuilder(logger)
                 .addNode('code_block', () => ({
@@ -945,7 +1015,7 @@ describe('ExtensionBuilder', () => {
         });
 
         it('should preserve addNode full spec when overrideNodeSpec is applied', () => {
-            const realToMd = jest.fn();
+            const realToMd = vi.fn();
 
             const nodes = new ExtensionBuilder(logger)
                 .addNode('heading', () => ({
@@ -965,7 +1035,7 @@ describe('ExtensionBuilder', () => {
         });
 
         it('should preserve addNode full spec when overrideMarkdownTokenParserSpec is applied', () => {
-            const realToMd = jest.fn();
+            const realToMd = vi.fn();
 
             const nodes = new ExtensionBuilder(logger)
                 .addNode('image', () => ({
@@ -998,8 +1068,8 @@ describe('ExtensionBuilder', () => {
         });
 
         it('should preserve addNode full spec when overrideNodeSerializerSpec is applied', () => {
-            const originalToMd = jest.fn();
-            const newToMd = jest.fn();
+            const originalToMd = vi.fn();
+            const newToMd = vi.fn();
 
             const nodes = new ExtensionBuilder(logger)
                 .addNode('heading', () => ({
@@ -1388,6 +1458,157 @@ describe('ExtensionBuilder', () => {
         });
     });
 
+    describe('view methods', () => {
+        it('should add views without calling their factories', () => {
+            const nodeView: NonNullable<ExtensionNodeSpec['view']> = () => {
+                throw new Error('Node view factory was called');
+            };
+            const markView: NonNullable<ExtensionMarkSpec['view']> = () => {
+                throw new Error('Mark view factory was called');
+            };
+            const builder = createViewBuilder();
+
+            expect(builder.addMarkView('mark', markView)).toBe(builder);
+            expect(builder.addNodeView('node', nodeView)).toBe(builder);
+
+            const result = builder.build();
+            const nodes = result.nodes();
+            const marks = result.marks();
+
+            expect(nodes.size).toBe(1);
+            expect(marks.size).toBe(1);
+            expect(nodes.get('node')?.view).toBe(nodeView);
+            expect(marks.get('mark')?.view).toBe(markView);
+        });
+
+        it.each(['addNodeView', 'addMarkView'] as const)(
+            'should reject an unknown entity in %s',
+            (method) => {
+                const builder = createViewBuilder();
+
+                expect(() => builder[method]('missing', viewFactory)).toThrow(/not registered/);
+            },
+        );
+
+        it.each([
+            ['addNodeView', 'mark'],
+            ['addMarkView', 'node'],
+        ] as const)('should reject the wrong entity type in %s', (method, name) => {
+            const builder = createViewBuilder();
+
+            expect(() => builder[method](name, viewFactory)).toThrow(/not registered/);
+        });
+
+        it.each([
+            ['addNodeView', 'node'],
+            ['addMarkView', 'mark'],
+        ] as const)('should reject duplicate calls to %s', (method, name) => {
+            const builder = createViewBuilder();
+            builder[method](name, viewFactory);
+
+            expect(() => builder[method](name, viewFactory)).toThrow(/already registered/);
+        });
+
+        it('should keep views after schema, parser, and serializer overrides', () => {
+            const result = createViewBuilder()
+                .addNodeView('node', viewFactory)
+                .addMarkView('mark', viewFactory)
+                .overrideNodeSpec('node', (prev) => ({...prev, atom: true}))
+                .overrideMarkSpec('mark', (prev) => ({...prev, inclusive: false}))
+                .overrideMarkdownTokenParserSpec('node_token', (prev) => ({
+                    ...prev,
+                    noCloseToken: true,
+                }))
+                .overrideMarkdownTokenParserSpec('mark_token', (prev) => ({
+                    ...prev,
+                    noCloseToken: true,
+                }))
+                .overrideNodeSerializerSpec('node', (prev) => prev)
+                .overrideMarkSerializerSpec('mark', (prev) => ({...prev, mixable: true}))
+                .build();
+
+            expect(result.nodes().get('node')).toMatchObject({
+                view: viewFactory,
+                spec: {atom: true},
+                fromMd: {tokenName: 'node_token', tokenSpec: {noCloseToken: true}},
+            });
+            expect(result.marks().get('mark')).toMatchObject({
+                view: viewFactory,
+                spec: {inclusive: false},
+                fromMd: {tokenName: 'mark_token', tokenSpec: {noCloseToken: true}},
+                toMd: {mixable: true},
+            });
+        });
+
+        it('should keep earlier build results unchanged', () => {
+            const builder = createViewBuilder();
+            const before = builder.build();
+            builder.addNodeView('node', viewFactory).addMarkView('mark', viewFactory);
+            const after = builder.build();
+
+            expect(before.nodes().get('node')?.view).toBeUndefined();
+            expect(before.marks().get('mark')?.view).toBeUndefined();
+            expect(after.nodes().get('node')?.view).toBe(viewFactory);
+            expect(after.marks().get('mark')?.view).toBe(viewFactory);
+        });
+
+        it('should add views to legacy entries without changing the original objects', () => {
+            const node: ExtensionNodeSpec = {
+                spec: {group: 'block'},
+                fromMd: {tokenName: 'node_token', tokenSpec: {type: 'node', name: 'node'}},
+                toMd: () => {},
+            };
+            const mark: ExtensionMarkSpec = {
+                spec: {inclusive: false},
+                fromMd: {tokenName: 'mark_token', tokenSpec: {type: 'mark', name: 'mark'}},
+                toMd: {open: '*', close: '*'},
+            };
+            const builder = new ExtensionBuilder(logger)
+                .addNode('node', () => node)
+                .addMark('mark', () => mark);
+            const before = builder.build();
+            const after = builder
+                .addNodeView('node', viewFactory)
+                .addMarkView('mark', viewFactory)
+                .build();
+
+            expect(after.nodes().get('node')).toEqual({...node, view: viewFactory});
+            expect(after.marks().get('mark')).toEqual({...mark, view: viewFactory});
+            expect(before.nodes().get('node')).toBe(node);
+            expect(before.marks().get('mark')).toBe(mark);
+            expect(node.view).toBeUndefined();
+            expect(mark.view).toBeUndefined();
+        });
+
+        it('should reject a view already provided by addNode', () => {
+            const result = new ExtensionBuilder(logger)
+                .addNode('node', () => ({
+                    spec: {},
+                    fromMd: {tokenSpec: {type: 'node', name: 'node'}},
+                    toMd: () => {},
+                    view: viewFactory,
+                }))
+                .addNodeView('node', viewFactory)
+                .build();
+
+            expect(() => result.nodes()).toThrow(/already registered/);
+        });
+
+        it('should reject a view already provided by addMark', () => {
+            const result = new ExtensionBuilder(logger)
+                .addMark('mark', () => ({
+                    spec: {},
+                    fromMd: {tokenSpec: {type: 'mark', name: 'mark'}},
+                    toMd: {open: '*', close: '*'},
+                    view: viewFactory,
+                }))
+                .addMarkView('mark', viewFactory)
+                .build();
+
+            expect(() => result.marks()).toThrow(/already registered/);
+        });
+    });
+
     describe('regression', () => {
         it('should throw when addMarkdownTokenParserSpec tokenName collides with addNode entity owning that token', () => {
             const builder = new ExtensionBuilder(logger)
@@ -1538,3 +1759,17 @@ describe('ExtensionBuilder', () => {
         });
     });
 });
+
+function createViewBuilder() {
+    return new ExtensionBuilder(logger)
+        .addNodeSpec('node', () => ({group: 'block'}))
+        .addMarkdownTokenParserSpec('node_token', () => ({name: 'node', type: 'node'}))
+        .addNodeSerializerSpec('node', () => () => {})
+        .addMarkSpec('mark', () => ({}))
+        .addMarkdownTokenParserSpec('mark_token', () => ({name: 'mark', type: 'mark'}))
+        .addMarkSerializerSpec('mark', () => ({open: '*', close: '*'}));
+}
+
+function viewFactory() {
+    return () => ({dom: document.createElement('span')});
+}

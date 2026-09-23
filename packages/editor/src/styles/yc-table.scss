@@ -1,0 +1,10 @@
+@use './yc-table-cell-bg' as *;
+
+.yfm table th,
+.yfm table td {
+    @each $name, $color in $cell-bg-colors {
+        &.cell-bg-#{$name} {
+            background-color: $color;
+        }
+    }
+}
