@@ -1,14 +1,10 @@
 import {ToolbarName} from '../../../modules/toolbars/constants';
+import type {ContextualToolbarsConfig} from '../../../modules/toolbars/contextual';
 import {commonmark, defaultPreset, full, yfm, zero} from '../../../modules/toolbars/presets';
-import type {
-    ToolbarItem,
-    ToolbarItemMarkup,
-    ToolbarItemWysiwyg,
-    ToolbarsPreset,
-} from '../../../modules/toolbars/types';
-import type {MarkdownEditorPreset} from '../../types';
+import type {ToolbarItem, ToolbarsPreset} from '../../../modules/toolbars/types';
+import type {MarkdownEditorPreset} from '../../preset-base-types';
 import {ToolbarDataType} from '../types';
-import type {MToolbarData, ToolbarConfigs, ToolbarIconData, WToolbarData} from '../types';
+import type {MToolbarData, ToolbarConfigs, WToolbarData, WToolbarItemData} from '../types';
 
 import {flattenPreset} from './flattenPreset';
 
@@ -20,51 +16,23 @@ const defaultPresets: Record<MarkdownEditorPreset, ToolbarsPreset> = {
     full,
 };
 
-interface TransformedItem {
-    type: ToolbarDataType;
-    id: string;
-    title?: string | (() => string);
-    hint?: string | (() => string);
-    icon?: ToolbarIconData;
-    hotkey?: string;
-    withArrow?: boolean;
-    replaceActiveIcon?: true;
-    doNotActivateList?: boolean;
-    preview?: React.ReactNode;
-    wysiwyg?: ToolbarItemWysiwyg<ToolbarDataType>;
-    markup?: ToolbarItemMarkup<ToolbarDataType>;
-}
-
 const transformItem = (
     type: 'wysiwyg' | 'markup',
-    item?: ToolbarItem<ToolbarDataType.SingleButton | ToolbarDataType.ListButton>,
+    item?: ToolbarItem<ToolbarDataType>,
     id = 'unknown',
-): TransformedItem => {
+) => {
     if (!item) {
         console.warn(
             `Toolbar item "${id}" not found, it might not have been added to the items dictionary.`,
         );
-        return {} as TransformedItem;
+        return {};
     }
 
-    const isListButton = item.view.type === ToolbarDataType.ListButton;
-    const isSingleButton = item.view.type === ToolbarDataType.SingleButton;
-
     return {
+        ...item.view,
         type: item.view.type ?? ToolbarDataType.SingleButton,
         id,
-        title: item.view.title,
-        hint: item.view.hint,
-        icon: item.view.icon,
-        hotkey: item.view.hotkey,
-        doNotActivateList: item.view.doNotActivateList,
-        ...(isSingleButton && {preview: (item.view as any).preview}),
-        ...(isListButton && {
-            withArrow: (item.view as any).withArrow,
-            replaceActiveIcon: (item.view as any).replaceActiveIcon,
-        }),
-        ...(type === 'wysiwyg' && item.wysiwyg && {...item.wysiwyg}),
-        ...(type === 'markup' && item.markup && {...item.markup}),
+        ...item[type],
     };
 };
 
@@ -93,6 +61,38 @@ export const createToolbarConfig = <T extends WToolbarData | MToolbarData>(
 
     return toolbarData as T;
 };
+
+export const createSelectionToolbarConfig = (
+    preset: ToolbarsPreset | MarkdownEditorPreset,
+): WToolbarData =>
+    createToolbarConfig<WToolbarData>('wysiwyg', preset, ToolbarName.wysiwygSelection).map(
+        (group) =>
+            group.map((item) =>
+                item.type === ToolbarDataType.ReactComponent
+                    ? {...item, props: {disablePortal: true, ...item.props}}
+                    : item,
+            ),
+    );
+
+export const createSlashToolbarConfig = (
+    preset: ToolbarsPreset | MarkdownEditorPreset,
+): WToolbarItemData[] =>
+    flattenPreset(
+        createToolbarConfig<WToolbarData>('wysiwyg', preset, ToolbarName.wysiwygSlash),
+    ).filter(
+        (item) =>
+            'type' in item &&
+            item.type === ToolbarDataType.SingleButton &&
+            typeof item.exec === 'function' &&
+            typeof item.isEnable === 'function',
+    );
+
+export const getContextualToolbarsConfig = (preset?: ToolbarsPreset): ContextualToolbarsConfig => ({
+    selection: preset?.orders[ToolbarName.wysiwygSelection]
+        ? createSelectionToolbarConfig(preset)
+        : undefined,
+    slash: preset?.orders[ToolbarName.wysiwygSlash] ? createSlashToolbarConfig(preset) : undefined,
+});
 
 interface GetToolbarsConfigsArgs {
     toolbarsPreset?: ToolbarsPreset;
