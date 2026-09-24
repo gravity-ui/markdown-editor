@@ -7,6 +7,7 @@ export default mergeConfig(
     common,
     defineConfig({
         resolve: {
+            mainFields: ['module'],
             alias: {
                 '#core': fileURLToPath(new URL('./src/core', import.meta.url)),
                 '#cm': fileURLToPath(new URL('./src/cm', import.meta.url)),
@@ -17,6 +18,12 @@ export default mergeConfig(
         test: {
             environment: 'jsdom',
             setupFiles: ['./tests/setup.ts'],
+            server: {
+                deps: {
+                    // Use ESM builds so plugin decorations share the editor's ProseMirror classes.
+                    inline: [/prosemirror-(codemark|autocomplete)/],
+                },
+            },
         },
     }),
 );
