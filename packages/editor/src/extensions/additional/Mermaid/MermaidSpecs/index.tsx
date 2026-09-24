@@ -1,17 +1,14 @@
 import {transform} from '@diplodoc/mermaid-extension';
 
-import type {ExtensionAuto, ExtensionNodeSpec} from '#core';
+import type {ExtensionAuto} from '#core';
 import {generateEntityId} from 'src/utils/entity-id';
 
 import {MermaidConsts, defaultMermaidEntityId, mermaidNodeName} from './const';
 export {mermaidNodeName, MermaidConsts} from './const';
 
-export type MermaidSpecsOptions = {
-    /** @deprecated Register the view with builder.addNodeView() after the specs. */
-    nodeView?: ExtensionNodeSpec['view'];
-};
+export type MermaidSpecsOptions = {};
 
-const MermaidSpecsExtension: ExtensionAuto<MermaidSpecsOptions> = (builder, {nodeView}) => {
+const MermaidSpecsExtension: ExtensionAuto<MermaidSpecsOptions> = (builder) => {
     builder
         .configureMd((md) => md.use(transform({runtime: 'mermaid', bundle: false}), {}))
         .addNodeSpec(mermaidNodeName, () => ({
@@ -48,10 +45,6 @@ const MermaidSpecsExtension: ExtensionAuto<MermaidSpecsOptions> = (builder, {nod
             state.write('```');
             state.ensureNewLine();
         });
-
-    if (nodeView) {
-        builder.addNodeView(mermaidNodeName, nodeView);
-    }
 };
 
 export const MermaidSpecs = Object.assign(MermaidSpecsExtension, MermaidConsts);
