@@ -54,6 +54,7 @@ import {DirectiveSyntaxFacet} from './directive-facet';
 import {type FileUploadHandler, FileUploadHandlerFacet} from './files-upload-facet';
 import {FilesUploadPlugin} from './files-upload-plugin';
 import {gravityHighlightStyle, gravityTheme} from './gravity';
+import {historyLocked} from './history-lock';
 import {MarkdownConverter} from './html-to-markdown/converters';
 import {LoggerFacet} from './logger-facet';
 import {PairingCharactersExtension} from './pairing-chars';
@@ -185,7 +186,15 @@ export function createCodemirror(params: CreateCodemirrorParams) {
             ...defaultKeymap.filter(
                 (binding) => !(isMac() && (binding.mac || binding.key) === 'Alt-A'),
             ),
-            ...(disabledExtensions.history ? [] : historyKeymap),
+            ...(disabledExtensions.history
+                ? []
+                : historyKeymap.map((binding) => ({
+                      ...binding,
+                      run:
+                          binding.run &&
+                          ((view: EditorView) =>
+                              !view.state.facet(historyLocked) && binding.run!(view)),
+                  }))),
             ...keymaps,
         ]),
         autocompletion(autocompletionConfig),

@@ -10,17 +10,30 @@ import type {CommonEditor, MarkupString} from '../common';
 import {
     type ActionStorage,
     type EscapeConfig,
+    type ExtensionsManager,
     WysiwygEditor,
     type WysiwygEditorOptions,
 } from '../core';
+import {createEditorExtensionsManager} from '../core/createEditorExtensionsManager';
 import type {TransformFn} from '../core/markdown/ProseMirrorTransformer';
 import type {DynamicModifiers} from '../core/types/dynamicModifiers';
 import type {ReactRenderStorage, RenderStorage} from '../extensions';
+import {
+    createProseMirrorResourceExtension,
+    isProseMirrorHistoryLocked,
+} from '../extensions/behavior/ResourceReplacement';
 import {i18n} from '../i18n/bundle';
 import {type Logger2, globalLogger} from '../logger';
-import {createCodemirror} from '../markup';
+import {createCodemirror, isCodeMirrorHistoryLocked} from '../markup';
 import {getAutocompleteConfig} from '../markup/codemirror/autocomplete';
+import {createCodeMirrorResourceExtension} from '../markup/codemirror/resource-replacement-plugin';
 import {type CodeEditor, Editor as MarkupEditor} from '../markup/editor';
+import {
+    type ResourceReplacementControl,
+    ResourceReplacementController,
+    type ResourceTrigger,
+    validateResourceSchema,
+} from '../modules/resource-replacement';
 import {type Emitter, type FileUploadHandler, type Receiver, SafeEventEmitter} from '../utils';
 import type {DirectiveSyntaxContext} from '../utils/directive';
 
@@ -52,7 +65,13 @@ export type Editor = MarkdownEditorInstance;
 
 /** @internal */
 export interface EditorInt
-    extends CommonEditor, Emitter<EventMapInt>, Receiver<EventMapInt>, ActionStorage, CodeEditor {
+    extends
+        ResourceReplacementControl,
+        CommonEditor,
+        Emitter<EventMapInt>,
+        Receiver<EventMapInt>,
+        ActionStorage,
+        CodeEditor {
     readonly logger: Logger2.ILogger;
     readonly currentMode: EditorMode;
     readonly toolbarVisible: boolean;
@@ -98,7 +117,14 @@ type SetEditorModeOptions = Pick<ChangeEditorModeOptions, 'emit'>;
 
 export type EditorOptions = Pick<
     MarkdownEditorOptions,
-    'md' | 'initial' | 'handlers' | 'experimental' | 'markupConfig' | 'wysiwygConfig' | 'mobile'
+    | 'resourceReplacement'
+    | 'md'
+    | 'initial'
+    | 'handlers'
+    | 'experimental'
+    | 'markupConfig'
+    | 'wysiwygConfig'
+    | 'mobile'
 > & {
     logger: Logger2.ILogger;
     renderStorage: ReactRenderStorage;
@@ -109,6 +135,13 @@ export type EditorOptions = Pick<
 
 /** @internal */
 export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorInt {
+    readonly #resourceReplacement: {
+        controller?: ResourceReplacementController;
+        triggers: readonly ResourceTrigger[];
+        createController?: () => ResourceReplacementController;
+    };
+    #destroying = false;
+    #focusTimer?: ReturnType<typeof setTimeout>;
     #logger: Logger2.ILogger;
     #markup: MarkupString;
     #editorMode: EditorMode;
@@ -118,6 +151,7 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
     #previewVisible: boolean;
     #renderPreview?: RenderPreview;
     #wysiwygEditor?: WysiwygEditor;
+    #extensionsManager?: ExtensionsManager;
     #markupEditor?: MarkupEditor;
     #markupConfig: MarkupConfig;
     #escapeConfig?: EscapeConfig;
@@ -186,7 +220,9 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
             default:
                 throw new Error('Unknown editor mode: ' + newMode);
         }
-        setTimeout(() => {
+        clearTimeout(this.#focusTimer);
+        this.#focusTimer = setTimeout(() => {
+            this.#focusTimer = undefined;
             this.currentEditor.focus();
         }, 30);
     }
@@ -235,20 +271,50 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
         }
     }
 
-    get wysiwygEditor(): WysiwygEditor {
-        if (!this.#wysiwygEditor) {
+    #getOrCreateResourceController() {
+        const replacement = this.#resourceReplacement;
+        if (!replacement.controller && !this.#destroying) {
+            replacement.controller = replacement.createController?.();
+        }
+        return replacement.controller;
+    }
+
+    #getOrCreateExtensionsManager(): ExtensionsManager {
+        if (!this.#extensionsManager) {
+            const controller = this.#getOrCreateResourceController();
+            const {triggers} = this.#resourceReplacement;
+            const extensions = this.#extensions;
             const mdPreset: NonNullable<WysiwygEditorOptions['mdPreset']> =
                 this.#preset === 'zero' || this.#preset === 'commonmark' ? this.#preset : 'default';
-            this.#wysiwygEditor = new WysiwygEditor({
+            this.#extensionsManager = createEditorExtensionsManager({
                 mdPreset,
                 logger: this.logger.nested({mode: 'wysiwyg'}),
-                initialContent: this.#markup,
-                extensions: this.#extensions,
+                extensions: (builder) => {
+                    if (extensions) builder.use(extensions);
+                    if (controller) {
+                        builder.use(createProseMirrorResourceExtension({controller, triggers}));
+                    }
+                },
                 pmTransformers: this.#pmTransformers,
                 modifiers: this.#modifiers,
                 allowHTML: this.#mdOptions.html,
                 linkify: this.#mdOptions.linkify,
                 linkifyTlds: this.#mdOptions.linkifyTlds,
+            });
+        }
+        if (this.#resourceReplacement.controller) {
+            validateResourceSchema(this.#extensionsManager.buildDeps().schema);
+        }
+        return this.#extensionsManager;
+    }
+
+    get wysiwygEditor(): WysiwygEditor {
+        if (!this.#wysiwygEditor) {
+            if (this.#destroying) throw new Error('Editor is being destroyed');
+            this.#wysiwygEditor = new WysiwygEditor({
+                extensionsManager: this.#getOrCreateExtensionsManager(),
+                logger: this.logger.nested({mode: 'wysiwyg'}),
+                initialContent: this.#markup,
                 escapeConfig: this.#escapeConfig,
                 onChange: () => this.emit('rerender-toolbar', null),
                 onDocChange: () => this.emit('change', null),
@@ -257,8 +323,28 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
         return this.#wysiwygEditor;
     }
 
+    #createMarkupExtensions() {
+        const extensions = [...(this.#markupConfig.extensions ?? [])];
+        const controller = this.#getOrCreateResourceController();
+        const {triggers} = this.#resourceReplacement;
+        if (!controller) return extensions;
+
+        const {markupParser, serializer} = this.#getOrCreateExtensionsManager().buildDeps();
+        extensions.push(
+            ...createCodeMirrorResourceExtension({
+                controller,
+                parser: markupParser,
+                serializer,
+                escapeConfig: this.#escapeConfig,
+                triggers,
+            }),
+        );
+        return extensions;
+    }
+
     get markupEditor(): MarkupEditor {
         if (!this.#markupEditor) {
+            if (this.#destroying) throw new Error('Editor is being destroyed');
             this.#markupEditor = new MarkupEditor(
                 createCodemirror({
                     doc: this.#markup,
@@ -275,7 +361,7 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
                     needImageDimensions: this.needToSetDimensionsForUploadedImages,
                     parseHtmlOnPaste: this.#markupConfig.parseHtmlOnPaste,
                     enableNewImageSizeCalculation: this.enableNewImageSizeCalculation,
-                    extensions: this.#markupConfig.extensions,
+                    extensions: this.#createMarkupExtensions(),
                     disabledExtensions: this.#markupConfig.disabledExtensions,
                     keymaps: this.#markupConfig.keymaps,
                     preserveEmptyRows: this.#preserveEmptyRows,
@@ -322,12 +408,12 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
     constructor(opts: EditorOptions) {
         const {logger} = opts;
 
-        super({
-            onError: (error) => {
-                logger.error(error);
-                globalLogger.error(error);
-            },
-        });
+        const onError = (error: unknown) => {
+            logger.error(error);
+            globalLogger.error(error);
+        };
+
+        super({onError});
 
         const {
             md = {},
@@ -339,6 +425,17 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
             mobile = false,
         } = opts;
 
+        this.#resourceReplacement = {
+            triggers: opts.resourceReplacement?.triggers ?? [],
+        };
+        const {resourceReplacement} = opts;
+        if (resourceReplacement?.resolve && this.#resourceReplacement.triggers.length) {
+            this.#resourceReplacement.createController = () =>
+                new ResourceReplacementController(resourceReplacement, onError, () => {
+                    this.emit('rerender', null);
+                    this.emit('rerender-toolbar', null);
+                });
+        }
         this.#logger = logger;
         this.#modifiers = experimental.preserveMarkupFormatting
             ? createDynamicModifiers(
@@ -395,25 +492,61 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
 
     // <--- implements ActionStorage
 
-    destroy() {
-        this.#wysiwygEditor?.destroy();
-        this.#markupEditor?.codemirror.destroy();
+    getPendingResourceReplacements() {
+        return this.#resourceReplacement.controller?.getPendingResourceReplacements() ?? [];
+    }
 
-        this.#markupEditor = undefined;
-        this.#markupEditor = undefined;
-        this.#wysiwygEditor = undefined;
+    cancelResourceReplacement(operationId: string) {
+        this.#resourceReplacement.controller?.cancelResourceReplacement(operationId);
+    }
+
+    destroy() {
+        if (this.#destroying) return;
+        this.#destroying = true;
+        clearTimeout(this.#focusTimer);
+        this.#focusTimer = undefined;
+        try {
+            try {
+                const current =
+                    this.currentMode === 'markup' ? this.#markupEditor : this.#wysiwygEditor;
+                if (current) this.#markup = current.getValue();
+            } finally {
+                // Release pending state while the old views can still accept transactions.
+                this.#resourceReplacement.controller?.destroy();
+                this.#wysiwygEditor?.destroy();
+                this.#markupEditor?.codemirror.destroy();
+            }
+        } finally {
+            this.#resourceReplacement.controller = undefined;
+            this.#markupEditor = undefined;
+            this.#wysiwygEditor = undefined;
+            this.#extensionsManager = undefined;
+            this.#destroying = false;
+        }
     }
 
     setEditorMode(mode: EditorMode, opts?: SetEditorModeOptions): void {
         this.changeEditorMode({mode, reason: 'manually', emit: opts?.emit});
     }
 
+    get #resourceReplacementBusy(): boolean {
+        if (this.#resourceReplacement.controller?.busy) return true;
+        const pmState = this.#wysiwygEditor?.view.state;
+        return Boolean(
+            (pmState && isProseMirrorHistoryLocked(pmState)) ||
+            (this.#markupEditor && isCodeMirrorHistoryLocked(this.#markupEditor.cm.state)),
+        );
+    }
+
     changeEditorMode({emit = true, ...opts}: ChangeEditorModeOptions): void {
-        if (this.#editorMode === opts.mode) return;
+        if (this.#destroying || this.#editorMode === opts.mode || this.#resourceReplacementBusy)
+            return;
 
         if (this.#beforeEditorModeChange?.({mode: opts.mode, reason: opts.reason}) === false) {
             return;
         }
+
+        if (this.#resourceReplacementBusy) return;
 
         this.logger.event({
             event: 'mode-change',
