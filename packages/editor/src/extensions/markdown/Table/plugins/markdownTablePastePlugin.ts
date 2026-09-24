@@ -23,9 +23,14 @@ export const markdownTablePastePlugin = ({textParser}: ExtensionDeps) =>
 
                     event.preventDefault();
                     view.dispatch(
-                        trackTransactionMetrics(view.state.tr.replaceSelection(slice), 'paste', {
-                            clipboardDataFormat: DataTransferType.Text,
-                        }),
+                        trackTransactionMetrics(
+                            view.state.tr
+                                .replaceSelection(slice)
+                                .setMeta('paste', true)
+                                .setMeta('uiEvent', 'paste'),
+                            'paste',
+                            {clipboardDataFormat: DataTransferType.Text},
+                        ),
                     );
 
                     return true;
