@@ -1,4 +1,4 @@
-import type {ExtensionAuto, ExtensionNodeSpec} from '#core';
+import type {ExtensionAuto, NodeViewFactory} from '#core';
 import {nodeTypeFactory} from 'src/utils/schema';
 
 import {TabsNode} from './const';
@@ -14,17 +14,17 @@ export const tabsListType = nodeTypeFactory(TabsNode.TabsList);
 
 export type YfmTabsSpecsOptions = YfmTabsSchemaOptions & {
     /** @deprecated Register the view with builder.addNodeView() after the specs. */
-    tabView?: ExtensionNodeSpec['view'];
+    tabView?: NodeViewFactory;
     /** @deprecated Register the view with builder.addNodeView() after the specs. */
-    tabsListView?: ExtensionNodeSpec['view'];
+    tabsListView?: NodeViewFactory;
     /** @deprecated Register the view with builder.addNodeView() after the specs. */
-    tabPanelView?: ExtensionNodeSpec['view'];
+    tabPanelView?: NodeViewFactory;
     /** @deprecated Register the view with builder.addNodeView() after the specs. */
-    tabsView?: ExtensionNodeSpec['view'];
+    tabsView?: NodeViewFactory;
     /** @deprecated Register the view with builder.addNodeView() after the specs. */
-    vtabView?: ExtensionNodeSpec['view'];
+    vtabView?: NodeViewFactory;
     /** @deprecated Register the view with builder.addNodeView() after the specs. */
-    vtabInputView?: ExtensionNodeSpec['view'];
+    vtabInputView?: NodeViewFactory;
 };
 
 export const YfmTabsSpecs: ExtensionAuto<YfmTabsSpecsOptions> = (builder, opts) => {
