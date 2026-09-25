@@ -14,7 +14,7 @@ catalogs:
     'highlight.js': ^11.8.0
     katex: ^0.16.9
     lowlight: 3.0.0
-    markdown-it: ^13.0.0
+    markdown-it: ^14.2.0
 
   peer-diplodoc:
     '@diplodoc/cut-extension': ^1.1.0
