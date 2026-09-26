@@ -63,13 +63,11 @@ type PluginState = {
 type TinyState = Pick<EditorState, 'doc' | 'selection'>;
 
 class SelectionTooltip implements PluginSpec<PluginState> {
-    private destroyed = false;
-
     private tooltip: TooltipView;
     private editorView: EditorView | null = null;
     private hideTimeoutRef: ReturnType<typeof setTimeout> | null = null;
 
-    private _isMousePressed = false;
+    private pressGate: AbortController | null = null;
 
     constructor(
         actions: ActionStorage,
@@ -105,21 +103,9 @@ class SelectionTooltip implements PluginSpec<PluginState> {
             }),
             handleDOMEvents: {
                 mousedown: (view) => {
-                    const startState: TinyState = {
-                        doc: view.state.doc,
-                        selection: view.state.selection,
-                    };
-                    this._isMousePressed = true;
                     this.cancelTooltipHiding();
                     this.tooltip.hide(view);
-
-                    const onMouseUp = () => {
-                        if (this.destroyed) return;
-                        this._isMousePressed = false;
-                        this.update(view, startState);
-                    };
-
-                    document.addEventListener('mouseup', onMouseUp, {once: true});
+                    this.gateUpdatesUntilPressEnds(view);
                 },
             },
         };
@@ -139,17 +125,62 @@ class SelectionTooltip implements PluginSpec<PluginState> {
         return {
             update: this.update.bind(this),
             destroy: () => {
-                this.destroyed = true;
                 this.cancelTooltipHiding();
                 this.tooltip.destroy();
             },
         };
     }
 
+    /**
+     * A held mouse button moves the selection continuously, so tooltip updates stay gated
+     * until the press ends. Not every press ends with a `mouseup` on the page: a native
+     * context menu (right-click, ctrl+click on macOS) opens during `mousedown` and swallows
+     * the release, and a press that becomes a native drag ends with `dragend` — a keystroke
+     * or a new press ends it too. The gate outlives plugin views on purpose: ProseMirror
+     * re-creates them whenever `state.plugins` changes identity, which a host can do
+     * mid-press.
+     */
+    private gateUpdatesUntilPressEnds(view: EditorView) {
+        this.pressGate?.abort();
+        const gate = new AbortController();
+        this.pressGate = gate;
+
+        const endPress = () => {
+            gate.abort();
+            this.pressGate = null;
+            // Ignore a release whose editor or plugin instance was replaced mid-press
+            if (view.isDestroyed || pluginKey.get(view.state)?.spec !== this) return;
+            // Re-evaluated against the current state, not against the one the press
+            // started with: the press has hidden the tooltip, and a click that leaves the
+            // document and the selection untouched dispatches nothing to bring it back
+            this.update(view);
+        };
+
+        // Capture phase, so that a stopPropagation() on the way up can't strand the gate
+        const options = {capture: true, signal: gate.signal};
+        document.addEventListener(
+            'mouseup',
+            (event) => {
+                // a chorded secondary-button release leaves the primary one held
+                if (event.buttons === 0) endPress();
+            },
+            options,
+        );
+        document.addEventListener('dragend', endPress, options);
+        document.addEventListener(
+            'keydown',
+            (event) => {
+                // an auto-repeat comes from a key held since before the press, e.g. shift-drag
+                if (!event.repeat) endPress();
+            },
+            options,
+        );
+    }
+
     private update(view: EditorView, prevState?: TinyState) {
         this.editorView = view;
 
-        if (this._isMousePressed) return;
+        if (this.pressGate) return;
 
         this.cancelTooltipHiding();
 
