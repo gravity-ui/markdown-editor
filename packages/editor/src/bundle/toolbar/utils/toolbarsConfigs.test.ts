@@ -1,3 +1,5 @@
+import {describe, expect, it} from 'vitest';
+
 import {filterActions} from '../../../extensions/behavior/CommandMenu/handler';
 import {ActionName, ToolbarName} from '../../../modules/toolbars/constants';
 import {textContextItemWisywig} from '../../../modules/toolbars/items';
