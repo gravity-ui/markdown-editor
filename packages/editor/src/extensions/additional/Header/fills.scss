@@ -1,0 +1,15 @@
+// Палитра обложки из макета: насыщенные поверхности, контраст со светлым текстом не ниже 3:1.
+// Значения держать синхронно с `HEADER_FILLS` в HeaderSpecs/const.ts.
+$header-fills: (
+    'blue': #5b7eff,
+    'indigo': #5c4fdb,
+    'purple': #9457eb,
+    'teal': #20928b,
+    'green': #2c9661,
+    'amber': #b87614,
+    'red': #eb475d,
+    'navy': #292657,
+);
+
+$header-text-light: #f1f0f3;
+$header-text-dark: #213061;

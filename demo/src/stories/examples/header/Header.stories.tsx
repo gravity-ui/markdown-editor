@@ -1,0 +1,34 @@
+import type {StoryObj} from '@storybook/react';
+
+import {HeaderDemo as component} from './Header';
+
+type Story = StoryObj<typeof component>;
+
+export const Backgrounds: Story = {args: {markupKey: 'backgrounds'}};
+Backgrounds.storyName = 'Backgrounds';
+
+export const Formats: Story = {args: {markupKey: 'formats'}};
+Formats.storyName = 'Formats';
+
+export const Fills: Story = {args: {markupKey: 'fills'}};
+Fills.storyName = 'Fills';
+
+export const Seeds: Story = {args: {markupKey: 'seeds'}};
+Seeds.storyName = 'Generated shapes';
+
+export const EmptyImage: Story = {args: {markupKey: 'emptyImage'}};
+EmptyImage.storyName = 'Empty image slot';
+
+export const InsideCut: Story = {args: {markupKey: 'insideCut'}};
+InsideCut.storyName = 'Inside cut';
+
+export const UnknownValues: Story = {args: {markupKey: 'unknownValues'}};
+UnknownValues.storyName = 'Unknown attribute values';
+
+export const Empty: Story = {args: {markupKey: 'empty'}};
+Empty.storyName = 'Empty';
+
+export default {
+    title: 'Examples / Header',
+    component,
+};
