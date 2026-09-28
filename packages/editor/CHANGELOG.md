@@ -1,5 +1,19 @@
 # Changelog
 
+## [15.47.1](https://github.com/gravity-ui/markdown-editor/compare/markdown-editor-v15.47.0...markdown-editor-v15.47.1) (2026-09-25)
+
+
+### Bug Fixes
+
+* **core:** keep parser aliases in their entity pipeline ([#1248](https://github.com/gravity-ui/markdown-editor/issues/1248)) ([6ff695e](https://github.com/gravity-ui/markdown-editor/commit/6ff695ef7ef79de00dc2c58e6482db9ca0ccf7c1))
+* **Link:** prevent raw URLs from merging with inline elements ([#1261](https://github.com/gravity-ui/markdown-editor/issues/1261)) ([94ab3a4](https://github.com/gravity-ui/markdown-editor/commit/94ab3a49c883495687bb9cb2a0f956f9ec47b86e))
+* **markup:** format each selected paragraph separately ([#1262](https://github.com/gravity-ui/markdown-editor/issues/1262)) ([fd52b77](https://github.com/gravity-ui/markdown-editor/commit/fd52b77ab4bc56994b2d6da80e042b284eab0e1a))
+
+
+### Refactoring
+
+* **CodeBlock:** use new builder methods to register nodes ([#1255](https://github.com/gravity-ui/markdown-editor/issues/1255)) ([ad17908](https://github.com/gravity-ui/markdown-editor/commit/ad1790818d74b73d74ed653a3933b739f2a2d340))
+
 ## [15.47.0](https://github.com/gravity-ui/markdown-editor/compare/markdown-editor-v15.46.1...markdown-editor-v15.47.0) (2026-09-17)
 
 
