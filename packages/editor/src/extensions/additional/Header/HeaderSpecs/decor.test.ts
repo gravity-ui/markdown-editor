@@ -6,12 +6,8 @@ import {getHeaderShapes} from './decor';
 const attrs = (patch: Record<string, unknown>) => normalizeHeaderAttrs(patch);
 
 describe('header shapes', () => {
-    it('should give no shapes without decor', () => {
-        expect(getHeaderShapes(attrs({decor: 'none'}))).toHaveLength(0);
-    });
-
-    it('should give no shapes over an image', () => {
-        expect(getHeaderShapes(attrs({bg: 'image'}))).toHaveLength(0);
+    it('should give no shapes for a plain fill', () => {
+        expect(getHeaderShapes(attrs({bg: 'fill'}))).toHaveLength(0);
     });
 
     it('should repeat the same layout for the same seed', () => {

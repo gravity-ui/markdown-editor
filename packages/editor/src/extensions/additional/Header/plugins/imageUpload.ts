@@ -2,7 +2,7 @@ import type {EditorView} from 'prosemirror-view';
 
 import type {FileUploadHandler} from 'src/utils/upload';
 
-import {HeaderAttr, HeaderBackground, HeaderText, type HeaderTextValue} from '../HeaderSpecs';
+import {HeaderAttr, HeaderText, type HeaderTextValue} from '../HeaderSpecs';
 import {headerAt, setHeaderAttrs} from '../commands';
 
 const SAMPLE_SIZE = 64;
@@ -79,7 +79,6 @@ export async function uploadHeaderImage(
     if (!url || !headerAt(view.state.doc, pos)) return 'failed';
 
     setHeaderAttrs(pos, {
-        [HeaderAttr.Background]: HeaderBackground.Image,
         [HeaderAttr.Image]: url,
         [HeaderAttr.Text]: tone,
     })(view.state, view.dispatch);

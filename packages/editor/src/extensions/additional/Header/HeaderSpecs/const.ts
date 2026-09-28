@@ -11,7 +11,6 @@ export const HeaderAttr = {
     Background: 'bg',
     Fill: 'fill',
     Fill2: 'fill2',
-    Decor: 'decor',
     Effect: 'effect',
     Image: 'image',
     Text: 'text',
@@ -23,17 +22,13 @@ export const HeaderFormat = {
     Small: 'small',
 } as const;
 
+/** Слой фона: рисуется сам по себе, а под изображением остаётся скрытым. */
 export const HeaderBackground = {
     Fill: 'fill',
+    Shapes: 'shapes',
     Gradient: 'gradient',
     Mesh: 'mesh',
     Pattern: 'pattern',
-    Image: 'image',
-} as const;
-
-export const HeaderDecor = {
-    Shapes: 'shapes',
-    None: 'none',
 } as const;
 
 /** Слой поверх изображения. */
@@ -54,38 +49,44 @@ export const HeaderFill = {
     Blue: 'blue',
     Indigo: 'indigo',
     Purple: 'purple',
+    Violet: 'violet',
     Teal: 'teal',
     Green: 'green',
+    Sky: 'sky',
     Amber: 'amber',
+    Yellow: 'yellow',
+    Sand: 'sand',
     Red: 'red',
     Navy: 'navy',
 } as const;
 
 export type HeaderFormatValue = (typeof HeaderFormat)[keyof typeof HeaderFormat];
 export type HeaderBackgroundValue = (typeof HeaderBackground)[keyof typeof HeaderBackground];
-export type HeaderDecorValue = (typeof HeaderDecor)[keyof typeof HeaderDecor];
 export type HeaderEffectValue = (typeof HeaderEffect)[keyof typeof HeaderEffect];
 export type HeaderTextValue = (typeof HeaderText)[keyof typeof HeaderText];
 export type HeaderFillValue = (typeof HeaderFill)[keyof typeof HeaderFill];
 
-/** Порядок задаёт и сво́тчи тулбара, и выбор цвета генератором. Синхронно с `$header-fills` в fills.scss. */
+/** Порядок задаёт и палитру тулбара, и выбор цвета генератором. Синхронно с `$header-fills` в fills.scss. */
 export const HEADER_FILLS: readonly HeaderFillValue[] = [
     HeaderFill.Blue,
     HeaderFill.Indigo,
     HeaderFill.Purple,
+    HeaderFill.Violet,
     HeaderFill.Teal,
     HeaderFill.Green,
+    HeaderFill.Sky,
     HeaderFill.Amber,
+    HeaderFill.Yellow,
+    HeaderFill.Sand,
     HeaderFill.Red,
     HeaderFill.Navy,
 ];
 
 export const HeaderDefaults = {
     [HeaderAttr.Format]: HeaderFormat.Large,
-    [HeaderAttr.Background]: HeaderBackground.Fill,
+    [HeaderAttr.Background]: HeaderBackground.Shapes,
     [HeaderAttr.Fill]: HeaderFill.Blue,
     [HeaderAttr.Fill2]: HeaderFill.Purple,
-    [HeaderAttr.Decor]: HeaderDecor.Shapes,
     [HeaderAttr.Effect]: HeaderEffect.None,
     [HeaderAttr.Image]: '',
     [HeaderAttr.Text]: HeaderText.Auto,

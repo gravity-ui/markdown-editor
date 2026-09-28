@@ -1,15 +1,59 @@
-// Палитра обложки из макета: насыщенные поверхности, контраст со светлым текстом не ниже 3:1.
+@use 'sass:color';
+@use 'sass:math';
+
+// Палитра обложки: насыщенные и светлые поверхности вперемешку, цвет текста выводится из яркости.
 // Значения держать синхронно с `HEADER_FILLS` в HeaderSpecs/const.ts.
 $header-fills: (
     'blue': #5b7eff,
     'indigo': #5c4fdb,
     'purple': #9457eb,
+    'violet': #b796ff,
     'teal': #20928b,
     'green': #2c9661,
+    'sky': #a5e5f4,
     'amber': #b87614,
+    'yellow': #ffd500,
+    'sand': #ffe597,
     'red': #eb475d,
     'navy': #292657,
 );
 
 $header-text-light: #f1f0f3;
 $header-text-dark: #213061;
+
+@function channel-luminance($value) {
+    $srgb: math.div($value, 255);
+
+    @return if(
+        $srgb <= 0.03928,
+        math.div($srgb, 12.92),
+        math.pow(math.div($srgb + 0.055, 1.055), 2.4)
+    );
+}
+
+@function luminance($fill) {
+    @return 0.2126 * channel-luminance(color.channel($fill, 'red', $space: rgb)) + 0.7152 *
+        channel-luminance(color.channel($fill, 'green', $space: rgb)) + 0.0722 *
+        channel-luminance(color.channel($fill, 'blue', $space: rgb));
+}
+
+@function contrast($one, $two) {
+    $first: luminance($one);
+    $second: luminance($two);
+
+    @return math.div(math.max($first, $second) + 0.05, math.min($first, $second) + 0.05);
+}
+
+/** Цвет текста выбирается по контрасту с заливкой, а не подбирается для каждого цвета вручную. */
+@function text-on($fill) {
+    @return if(
+        contrast($fill, $header-text-light) >= contrast($fill, $header-text-dark),
+        $header-text-light,
+        $header-text-dark
+    );
+}
+
+/** Фигуры и точки узора — тот же тон, что и текст: на светлой заливке белое пятно не видно. */
+@function ink-on($fill, $alpha) {
+    @return color.change(text-on($fill), $alpha: $alpha);
+}

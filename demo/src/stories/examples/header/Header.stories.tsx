@@ -16,9 +16,6 @@ Fills.storyName = 'Fills';
 export const Seeds: Story = {args: {markupKey: 'seeds'}};
 Seeds.storyName = 'Generated shapes';
 
-export const EmptyImage: Story = {args: {markupKey: 'emptyImage'}};
-EmptyImage.storyName = 'Empty image slot';
-
 export const InsideCut: Story = {args: {markupKey: 'insideCut'}};
 InsideCut.storyName = 'Inside cut';
 

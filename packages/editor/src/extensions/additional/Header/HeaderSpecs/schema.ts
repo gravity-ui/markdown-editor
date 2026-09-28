@@ -14,19 +14,9 @@ const attrsSpec: NodeSpec['attrs'] = Object.fromEntries(
 const readDomAttrs = (element: Element) =>
     normalizeHeaderAttrs(
         Object.fromEntries(
-            Object.values(HeaderAttr).map((attr) => [
-                attr,
-                element.getAttribute(`data-${attr}`) ??
-                    (attr === HeaderAttr.Image ? readImageUrl(element) : undefined),
-            ]),
+            Object.values(HeaderAttr).map((attr) => [attr, element.getAttribute(`data-${attr}`)]),
         ),
     );
-
-/** Ссылка живёт в `style`, а не в атрибуте: копипаст между страницами читает её оттуда. */
-function readImageUrl(element: Element): string {
-    const style = (element as HTMLElement).style?.getPropertyValue('--g-md-header-image') ?? '';
-    return style.match(/url\(["']?(.*?)["']?\)/)?.[1] ?? '';
-}
 
 export const getHeaderSchemaSpec = (placeholder?: PlaceholderOptions): NodeSpec => ({
     content: 'text*',

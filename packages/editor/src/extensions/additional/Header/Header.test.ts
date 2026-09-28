@@ -23,7 +23,7 @@ const {doc, p, bq, header} = builders<'doc' | 'p' | 'bq' | 'header'>(schema, {
     header: {nodeType: headerNodeName},
 });
 
-const {same} = createMarkupChecker({parser, serializer});
+const {same, serialize} = createMarkupChecker({parser, serializer});
 
 describe('Header extension', () => {
     it('should parse and serialize a header with the default fill', () => {
@@ -52,29 +52,35 @@ describe('Header extension', () => {
         );
     });
 
-    it('should serialize shapes and seed only where they are drawn', () => {
+    it('should serialize the seed only where shapes are drawn', () => {
         same(
-            '::header[Без фигур]{fill="blue" decor="none"}',
-            doc(header({decor: 'none', seed: 42}, 'Без фигур')),
+            '::header[Без фигур]{bg="fill" fill="blue"}',
+            doc(header({bg: 'fill', seed: 42}, 'Без фигур')),
         );
         same('::header[С фигурами]{fill="blue" seed="42"}', doc(header({seed: 42}, 'С фигурами')));
     });
 
-    it('should serialize image attributes only for the image background', () => {
+    it('should keep the image and its overlay next to the background', () => {
         same(
-            '::header[Фото]{bg="image" effect="dim" image="https://example.com/hero.png" text="light"}',
+            '::header[Фото]{bg="pattern" fill="blue" effect="dim" image="https://example.com/hero.png" text="light"}',
             doc(
                 header(
                     {
-                        bg: 'image',
+                        bg: 'pattern',
                         effect: 'dim',
                         image: 'https://example.com/hero.png',
                         text: 'light',
-                        fill: 'blue',
                     },
                     'Фото',
                 ),
             ),
+        );
+    });
+
+    it('should drop the overlay without an image', () => {
+        serialize(
+            parser.parse('::header[Без снимка]{fill="blue" effect="dim"}'),
+            '::header[Без снимка]{fill="blue"}',
         );
     });
 

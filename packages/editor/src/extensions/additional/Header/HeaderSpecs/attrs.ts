@@ -3,8 +3,6 @@ import {
     HeaderAttr,
     HeaderBackground,
     type HeaderBackgroundValue,
-    HeaderDecor,
-    type HeaderDecorValue,
     HeaderDefaults,
     HeaderEffect,
     type HeaderEffectValue,
@@ -20,7 +18,6 @@ export type HeaderAttrs = {
     [HeaderAttr.Background]: HeaderBackgroundValue;
     [HeaderAttr.Fill]: HeaderFillValue;
     [HeaderAttr.Fill2]: HeaderFillValue;
-    [HeaderAttr.Decor]: HeaderDecorValue;
     [HeaderAttr.Effect]: HeaderEffectValue;
     [HeaderAttr.Image]: string;
     [HeaderAttr.Text]: HeaderTextValue;
@@ -36,7 +33,6 @@ const oneOf =
 
 const toFormat = oneOf(Object.values(HeaderFormat), HeaderDefaults[HeaderAttr.Format]);
 const toBackground = oneOf(Object.values(HeaderBackground), HeaderDefaults[HeaderAttr.Background]);
-const toDecor = oneOf(Object.values(HeaderDecor), HeaderDefaults[HeaderAttr.Decor]);
 const toEffect = oneOf(Object.values(HeaderEffect), HeaderDefaults[HeaderAttr.Effect]);
 const toText = oneOf(Object.values(HeaderText), HeaderDefaults[HeaderAttr.Text]);
 
@@ -58,7 +54,6 @@ export function normalizeHeaderAttrs(raw: Readonly<Record<string, unknown>> = {}
         [HeaderAttr.Background]: toBackground(raw[HeaderAttr.Background]),
         [HeaderAttr.Fill]: toFill(raw[HeaderAttr.Fill], HeaderDefaults[HeaderAttr.Fill]),
         [HeaderAttr.Fill2]: toFill(raw[HeaderAttr.Fill2], HeaderDefaults[HeaderAttr.Fill2]),
-        [HeaderAttr.Decor]: toDecor(raw[HeaderAttr.Decor]),
         [HeaderAttr.Effect]: toEffect(raw[HeaderAttr.Effect]),
         [HeaderAttr.Image]: toImage(raw[HeaderAttr.Image]),
         [HeaderAttr.Text]: toText(raw[HeaderAttr.Text]),
@@ -66,17 +61,14 @@ export function normalizeHeaderAttrs(raw: Readonly<Record<string, unknown>> = {}
     };
 }
 
-/** Второй цвет нужен градиенту и мешу, декор — только поверх заливки, эффект и картинка — только у изображения. */
+/** Второй цвет нужен градиенту и мешу, эффект — только изображению, зерно — только фигурам. */
 export function isAttrUsed(attr: keyof HeaderAttrs, attrs: HeaderAttrs): boolean {
     const bg = attrs[HeaderAttr.Background];
     switch (attr) {
         case HeaderAttr.Fill2:
             return bg === HeaderBackground.Gradient || bg === HeaderBackground.Mesh;
-        case HeaderAttr.Decor:
-            return bg === HeaderBackground.Fill;
         case HeaderAttr.Effect:
-        case HeaderAttr.Image:
-            return bg === HeaderBackground.Image;
+            return hasImage(attrs);
         case HeaderAttr.Seed:
             return hasShapes(attrs);
         default:
@@ -84,10 +76,14 @@ export function isAttrUsed(attr: keyof HeaderAttrs, attrs: HeaderAttrs): boolean
     }
 }
 
+/** Свойство слоя фона: под изображением фигуры остаются в разметке, но не рисуются. */
 export function hasShapes(attrs: HeaderAttrs): boolean {
     const bg = attrs[HeaderAttr.Background];
-    if (bg === HeaderBackground.Mesh) return true;
-    return bg === HeaderBackground.Fill && attrs[HeaderAttr.Decor] === HeaderDecor.Shapes;
+    return bg === HeaderBackground.Shapes || bg === HeaderBackground.Mesh;
+}
+
+export function hasImage(attrs: HeaderAttrs): boolean {
+    return Boolean(attrs[HeaderAttr.Image]);
 }
 
 const SERIALIZED_ATTRS: readonly (keyof HeaderAttrs)[] = [
@@ -95,7 +91,6 @@ const SERIALIZED_ATTRS: readonly (keyof HeaderAttrs)[] = [
     HeaderAttr.Background,
     HeaderAttr.Fill,
     HeaderAttr.Fill2,
-    HeaderAttr.Decor,
     HeaderAttr.Effect,
     HeaderAttr.Image,
     HeaderAttr.Text,

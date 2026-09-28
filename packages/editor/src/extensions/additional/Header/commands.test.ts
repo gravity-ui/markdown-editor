@@ -11,6 +11,7 @@ import {
     exitHeaderForward,
     generateHeaderLook,
     removeHeader,
+    removeHeaderImage,
     setHeaderAttrs,
     toHeader,
 } from './commands';
@@ -62,6 +63,28 @@ describe('Header commands', () => {
         expect(generateHeaderLook(0)(view.state, view.dispatch)).toBe(true);
         expect(view.state.doc.firstChild!.attrs.fill).not.toBe('blue');
         expect(view.state.doc.firstChild!.attrs.seed).toBeGreaterThan(0);
+    });
+
+    it('should take the image away with its overlay and measured tone', () => {
+        const view = viewWith(
+            doc(
+                header(
+                    {image: 'https://example.com/hero.png', effect: 'dim', text: 'light'},
+                    'Заголовок',
+                ),
+            ),
+            1,
+        );
+
+        expect(removeHeaderImage(0)(view.state, view.dispatch)).toBe(true);
+        expect(view.state.doc.firstChild!.attrs.image).toBe('');
+        expect(view.state.doc.firstChild!.attrs.effect).toBe('none');
+        expect(view.state.doc.firstChild!.attrs.text).toBe('auto');
+    });
+
+    it('should refuse to take away a missing image', () => {
+        const view = viewWith(doc(header('Заголовок')), 1);
+        expect(removeHeaderImage(0)(view.state, view.dispatch)).toBe(false);
     });
 
     it('should insert a header instead of an empty paragraph position', () => {

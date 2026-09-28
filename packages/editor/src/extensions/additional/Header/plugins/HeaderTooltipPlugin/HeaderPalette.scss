@@ -1,0 +1,19 @@
+@use '../../fills' as fills;
+
+.g-md-header-palette {
+    padding: 4px;
+
+    &__swatch {
+        display: block;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        box-shadow: inset 0 0 0 1px var(--g-color-line-generic);
+
+        @each $name, $color in fills.$header-fills {
+            &[data-fill='#{$name}'] {
+                background-color: #{$color};
+            }
+        }
+    }
+}

@@ -1,8 +1,14 @@
 import {useCallback, useMemo} from 'react';
 
 import {
+    Aperture,
     ArrowsRotateLeft,
+    BucketPaint,
+    Circles4Square,
+    Dots9,
+    Layers3Diagonal,
     LayoutHeader,
+    Moon,
     Palette,
     Picture,
     Shapes3,
@@ -15,62 +21,65 @@ import type {Node} from '#pm/model';
 import type {EditorView} from '#pm/view';
 import {i18n} from 'src/i18n/header';
 import {typedMemo} from 'src/react-utils/memo';
-import {Toolbar, type ToolbarData, ToolbarDataType} from 'src/toolbar';
+import {Toolbar, type ToolbarData, ToolbarDataType, type ToolbarIconData} from 'src/toolbar';
 import {ToolbarWrapToContext} from 'src/toolbar/ToolbarRerender';
 import type {FileUploadHandler} from 'src/utils/upload';
 
 import {
-    HEADER_FILLS,
     HeaderAttr,
     type HeaderAttrs,
     HeaderBackground,
-    HeaderDecor,
+    type HeaderBackgroundValue,
     HeaderEffect,
+    type HeaderEffectValue,
+    type HeaderFillValue,
     HeaderFormat,
+    type HeaderFormatValue,
 } from '../../HeaderSpecs';
-import {generateHeaderLook, removeHeader, setHeaderAttrs} from '../../commands';
+import {
+    type HeaderPatch,
+    generateHeaderLook,
+    headerAt,
+    removeHeader,
+    removeHeaderImage,
+    setHeaderAttrs,
+} from '../../commands';
 import {uploadHeaderImage} from '../imageUpload';
+
+import {HeaderPalette} from './HeaderPalette';
 
 const ToolbarMemoized = typedMemo(Toolbar);
 
-const FORMAT_LABEL = {
-    [HeaderFormat.Large]: () => i18n('format_large'),
-    [HeaderFormat.Small]: () => i18n('format_small'),
-};
+type AttrItem<T extends string> = {value: T; icon: ToolbarIconData; label: () => string};
 
-const BACKGROUND_LABEL = {
-    [HeaderBackground.Fill]: () => i18n('bg_fill'),
-    [HeaderBackground.Gradient]: () => i18n('bg_gradient'),
-    [HeaderBackground.Mesh]: () => i18n('bg_mesh'),
-    [HeaderBackground.Pattern]: () => i18n('bg_pattern'),
-    [HeaderBackground.Image]: () => i18n('bg_image'),
-};
+const FORMAT_ITEMS: AttrItem<HeaderFormatValue>[] = [
+    {value: HeaderFormat.Large, icon: {data: LayoutHeader}, label: () => i18n('format_large')},
+    {value: HeaderFormat.Small, icon: {data: LayoutHeader}, label: () => i18n('format_small')},
+];
 
-const EFFECT_LABEL = {
-    [HeaderEffect.None]: () => i18n('effect_none'),
-    [HeaderEffect.Blur]: () => i18n('effect_blur'),
-    [HeaderEffect.Dim]: () => i18n('effect_dim'),
-    [HeaderEffect.Gradient]: () => i18n('effect_gradient'),
-};
+const BACKGROUND_ITEMS: AttrItem<HeaderBackgroundValue>[] = [
+    {value: HeaderBackground.Fill, icon: {data: BucketPaint}, label: () => i18n('bg_fill')},
+    {value: HeaderBackground.Shapes, icon: {data: Shapes3}, label: () => i18n('bg_shapes')},
+    {
+        value: HeaderBackground.Gradient,
+        icon: {data: Layers3Diagonal},
+        label: () => i18n('bg_gradient'),
+    },
+    {value: HeaderBackground.Mesh, icon: {data: Circles4Square}, label: () => i18n('bg_mesh')},
+    {value: HeaderBackground.Pattern, icon: {data: Dots9}, label: () => i18n('bg_pattern')},
+];
 
-const FILL_LABEL = {
-    blue: () => i18n('color_blue'),
-    indigo: () => i18n('color_indigo'),
-    purple: () => i18n('color_purple'),
-    teal: () => i18n('color_teal'),
-    green: () => i18n('color_green'),
-    amber: () => i18n('color_amber'),
-    red: () => i18n('color_red'),
-    navy: () => i18n('color_navy'),
-};
-
-const toggleDecor = (pos: number, node: Node) =>
-    setHeaderAttrs(pos, {
-        [HeaderAttr.Decor]:
-            node.attrs[HeaderAttr.Decor] === HeaderDecor.Shapes
-                ? HeaderDecor.None
-                : HeaderDecor.Shapes,
-    });
+/** Слой поверх изображения занимает в меню место фона: под снимком фон всё равно не виден. */
+const EFFECT_ITEMS: AttrItem<HeaderEffectValue>[] = [
+    {value: HeaderEffect.None, icon: {data: Picture}, label: () => i18n('effect_none')},
+    {
+        value: HeaderEffect.Gradient,
+        icon: {data: Layers3Diagonal},
+        label: () => i18n('effect_gradient'),
+    },
+    {value: HeaderEffect.Dim, icon: {data: Moon}, label: () => i18n('effect_dim')},
+    {value: HeaderEffect.Blur, icon: {data: Aperture}, label: () => i18n('effect_blur')},
+];
 
 export type HeaderToolbarProps = {
     node: Node;
@@ -83,21 +92,23 @@ export function HeaderToolbar({node, pos, editorView, fileUploadHandler}: Header
     const posRef = useLatest(pos);
     const nodeRef = useLatest(node);
     const toaster = useToaster();
+    const withImage = Boolean(node.attrs[HeaderAttr.Image]);
 
     const onFocus = useCallback(() => editorView.focus(), [editorView]);
 
     const toolbarData = useMemo<ToolbarData<EditorView>>(() => {
-        const attrOf = <T,>(attr: keyof HeaderAttrs): T => nodeRef.current.attrs[attr] as T;
+        const attrOf = <T = string,>(attr: keyof HeaderAttrs): T =>
+            nodeRef.current.attrs[attr] as T;
+        const canEdit = (view: EditorView) => Boolean(headerAt(view.state.doc, posRef.current));
 
-        const patchItem = (id: string, attr: keyof HeaderAttrs, value: string, title: string) => ({
-            id,
-            title,
-            icon: {data: LayoutHeader},
-            isActive: () => attrOf(attr) === value,
-            isEnable: (view: EditorView) =>
-                setHeaderAttrs(posRef.current, {[attr]: value})(view.state),
+        const listItem = (attr: keyof HeaderAttrs, item: AttrItem<string>, patch: HeaderPatch) => ({
+            id: `header-${attr}-${item.value}`,
+            title: item.label(),
+            icon: item.icon,
+            isActive: () => attrOf(attr) === item.value,
+            isEnable: canEdit,
             exec: (view: EditorView) =>
-                setHeaderAttrs(posRef.current, {[attr]: value})(view.state, view.dispatch),
+                setHeaderAttrs(posRef.current, patch)(view.state, view.dispatch),
         });
 
         return [
@@ -108,79 +119,49 @@ export function HeaderToolbar({node, pos, editorView, fileUploadHandler}: Header
                     icon: {data: LayoutHeader},
                     title: i18n('format'),
                     withArrow: true,
-                    data: Object.values(HeaderFormat).map((value) =>
-                        patchItem(
-                            `header-format-${value}`,
-                            HeaderAttr.Format,
-                            value,
-                            FORMAT_LABEL[value](),
-                        ),
+                    data: FORMAT_ITEMS.map((item) =>
+                        listItem(HeaderAttr.Format, item, {[HeaderAttr.Format]: item.value}),
                     ),
                 },
                 {
                     id: 'header-bg',
                     type: ToolbarDataType.ListButton,
-                    icon: {data: Shapes3},
+                    icon: {data: BucketPaint},
                     title: i18n('background'),
                     withArrow: true,
-                    data: Object.values(HeaderBackground).map((value) =>
-                        patchItem(
-                            `header-bg-${value}`,
-                            HeaderAttr.Background,
-                            value,
-                            BACKGROUND_LABEL[value](),
-                        ),
-                    ),
-                },
-                {
-                    id: 'header-fill',
-                    type: ToolbarDataType.ListButton,
-                    icon: {data: Palette},
-                    title: i18n('color'),
-                    withArrow: true,
-                    data: HEADER_FILLS.map((value) =>
-                        patchItem(
-                            `header-fill-${value}`,
-                            HeaderAttr.Fill,
-                            value,
-                            FILL_LABEL[value](),
-                        ),
-                    ),
-                },
-                {
-                    id: 'header-effect',
-                    type: ToolbarDataType.ListButton,
-                    icon: {data: Picture},
-                    title: i18n('effect'),
-                    withArrow: true,
-                    hideDisabled: true,
-                    data: Object.values(HeaderEffect).map((value) => ({
-                        ...patchItem(
-                            `header-effect-${value}`,
-                            HeaderAttr.Effect,
-                            value,
-                            EFFECT_LABEL[value](),
-                        ),
-                        isEnable: (view: EditorView) =>
-                            attrOf(HeaderAttr.Background) === HeaderBackground.Image &&
-                            setHeaderAttrs(posRef.current, {[HeaderAttr.Effect]: value})(
-                                view.state,
-                            ),
-                    })),
+                    data: withImage
+                        ? EFFECT_ITEMS.map((item) =>
+                              listItem(HeaderAttr.Effect, item, {[HeaderAttr.Effect]: item.value}),
+                          )
+                        : BACKGROUND_ITEMS.map((item) =>
+                              listItem(HeaderAttr.Background, item, {
+                                  [HeaderAttr.Background]: item.value,
+                              }),
+                          ),
                 },
             ],
             [
                 {
-                    id: 'header-decor',
-                    type: ToolbarDataType.SingleButton,
-                    icon: {data: Shapes3},
-                    title: i18n('decor'),
-                    isActive: () => attrOf(HeaderAttr.Decor) === HeaderDecor.Shapes,
-                    isEnable: (view: EditorView) =>
-                        attrOf(HeaderAttr.Background) === HeaderBackground.Fill &&
-                        toggleDecor(posRef.current, nodeRef.current)(view.state),
-                    exec: (view: EditorView) =>
-                        toggleDecor(posRef.current, nodeRef.current)(view.state, view.dispatch),
+                    id: 'header-fill',
+                    type: ToolbarDataType.ButtonPopup,
+                    icon: {data: Palette},
+                    title: i18n('color'),
+                    isActive: () => false,
+                    isEnable: canEdit,
+                    exec: () => {},
+                    renderPopup: ({anchorElement, hide, editor}) => (
+                        <HeaderPalette
+                            value={attrOf<HeaderFillValue>(HeaderAttr.Fill)}
+                            anchorElement={anchorElement}
+                            hide={hide}
+                            onPick={(fill) =>
+                                setHeaderAttrs(posRef.current, {[HeaderAttr.Fill]: fill})(
+                                    editor.state,
+                                    editor.dispatch,
+                                )
+                            }
+                        />
+                    ),
                 },
                 {
                     id: 'header-generate',
@@ -188,19 +169,32 @@ export function HeaderToolbar({node, pos, editorView, fileUploadHandler}: Header
                     icon: {data: ArrowsRotateLeft},
                     title: i18n('generate'),
                     isActive: () => false,
-                    isEnable: (view: EditorView) => generateHeaderLook(posRef.current)(view.state),
+                    // Под снимком новый фон не виден — кроме градиента, который берёт цвет заливки.
+                    isEnable: (view: EditorView) =>
+                        (!withImage || attrOf(HeaderAttr.Effect) === HeaderEffect.Gradient) &&
+                        generateHeaderLook(posRef.current)(view.state),
                     exec: (view: EditorView) =>
                         generateHeaderLook(posRef.current)(view.state, view.dispatch),
                 },
+            ],
+            [
                 {
                     id: 'header-image',
                     type: ToolbarDataType.SingleButton,
                     icon: {data: Picture},
-                    title: i18n('image_add'),
-                    isActive: () => attrOf(HeaderAttr.Background) === HeaderBackground.Image,
-                    isEnable: () => Boolean(fileUploadHandler),
+                    title: withImage ? i18n('image_remove') : i18n('image_add'),
+                    isActive: () => withImage,
+                    isEnable: (view: EditorView) =>
+                        withImage
+                            ? removeHeaderImage(posRef.current)(view.state)
+                            : Boolean(fileUploadHandler),
                     exec: (view: EditorView) => {
+                        if (withImage) {
+                            removeHeaderImage(posRef.current)(view.state, view.dispatch);
+                            return;
+                        }
                         if (!fileUploadHandler) return;
+
                         uploadHeaderImage(view, posRef.current, fileUploadHandler).then(
                             (result) => {
                                 if (result === 'failed') {
@@ -229,7 +223,7 @@ export function HeaderToolbar({node, pos, editorView, fileUploadHandler}: Header
                 },
             ],
         ];
-    }, [fileUploadHandler, nodeRef, posRef, toaster]);
+    }, [fileUploadHandler, nodeRef, posRef, toaster, withImage]);
 
     return (
         <ToolbarWrapToContext editor={editorView}>

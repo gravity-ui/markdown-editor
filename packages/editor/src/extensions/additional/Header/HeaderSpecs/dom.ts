@@ -1,7 +1,7 @@
 import type {DOMOutputSpec, Node} from 'prosemirror-model';
 
-import {type HeaderAttrs, normalizeHeaderAttrs} from './attrs';
-import {HeaderAttr, HeaderBackground, HeaderClassName} from './const';
+import {type HeaderAttrs, hasImage, normalizeHeaderAttrs} from './attrs';
+import {HeaderAttr, HeaderClassName} from './const';
 import {type HeaderShape, getHeaderShapes} from './decor';
 
 const SAFE_SCHEMES = ['http:', 'https:', 'blob:', 'data:image/'];
@@ -51,34 +51,40 @@ export function headerDomAttrs(attrs: HeaderAttrs): Record<string, string> {
         'data-bg': attrs[HeaderAttr.Background],
         'data-fill': attrs[HeaderAttr.Fill],
         'data-fill2': attrs[HeaderAttr.Fill2],
-        'data-decor': attrs[HeaderAttr.Decor],
-        'data-effect': attrs[HeaderAttr.Effect],
         'data-text': attrs[HeaderAttr.Text],
         'data-seed': String(attrs[HeaderAttr.Seed]),
     };
 
-    if (attrs[HeaderAttr.Background] === HeaderBackground.Image) {
-        const url = toCssUrl(attrs[HeaderAttr.Image]);
-        if (url) dom.style = `--g-md-header-image:${url}`;
-        else dom['data-image-empty'] = 'true';
+    const url = toCssUrl(attrs[HeaderAttr.Image]);
+    if (url) {
+        dom['data-image'] = attrs[HeaderAttr.Image];
+        dom['data-effect'] = attrs[HeaderAttr.Effect];
+        dom.style = `--g-md-header-image:${url}`;
     }
 
     return dom;
 }
 
+/** Фигуры принадлежат слою фона, поэтому под изображением не рисуются. */
+function visibleShapes(attrs: HeaderAttrs): HeaderShape[] {
+    return hasImage(attrs) ? [] : getHeaderShapes(attrs);
+}
+
 export function headerToDOM(node: Node): DOMOutputSpec {
     const attrs = normalizeHeaderAttrs(node.attrs);
-    const shapes: DOMOutputSpec[] = getHeaderShapes(attrs).map((shape) => [
+    const shapes: DOMOutputSpec[] = visibleShapes(attrs).map((shape) => [
         'span',
         shapeDomAttrs(shape),
     ]);
-
-    return [
+    const content: DOMOutputSpec = [
         'div',
-        headerDomAttrs(attrs),
-        ['span', decorDomAttrs, ...shapes],
-        ['div', {class: HeaderClassName.Content}, ['div', {class: HeaderClassName.Title}, 0]],
+        {class: HeaderClassName.Content},
+        ['div', {class: HeaderClassName.Title}, 0],
     ];
+
+    if (!shapes.length) return ['div', headerDomAttrs(attrs), content];
+
+    return ['div', headerDomAttrs(attrs), ['span', decorDomAttrs, ...shapes], content];
 }
 
 const renderAttrs = (attrs: Record<string, string>, escape: (value: string) => string) =>
@@ -92,13 +98,14 @@ export function headerHtml(
     title: string,
     escape: (value: string) => string,
 ): string {
-    const shapes = getHeaderShapes(attrs)
+    const shapes = visibleShapes(attrs)
         .map((shape) => `<span${renderAttrs(shapeDomAttrs(shape), escape)}></span>`)
         .join('');
+    const decor = shapes ? `<span${renderAttrs(decorDomAttrs, escape)}>${shapes}</span>` : '';
 
     return (
         `<div${renderAttrs(headerDomAttrs(attrs), escape)}>` +
-        `<span${renderAttrs(decorDomAttrs, escape)}>${shapes}</span>` +
+        decor +
         `<div class="${HeaderClassName.Content}">` +
         `<div class="${HeaderClassName.Title}">${escape(title)}</div>` +
         `</div></div>`

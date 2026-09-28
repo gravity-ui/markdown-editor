@@ -7,7 +7,9 @@ import {
     HEADER_FILLS,
     HeaderAttr,
     type HeaderAttrs,
+    HeaderEffect,
     type HeaderFillValue,
+    HeaderText,
     headerNodeName,
     headerType,
     normalizeHeaderAttrs,
@@ -77,6 +79,14 @@ export const generateHeaderLook =
             [HeaderAttr.Seed]: seed,
         })(state, dispatch);
     };
+
+/** Снимает нижний слой целиком: эффект и замеренный тон относятся только к снимку. */
+export const removeHeaderImage = (pos: number): Command =>
+    setHeaderAttrs(pos, {
+        [HeaderAttr.Image]: '',
+        [HeaderAttr.Effect]: HeaderEffect.None,
+        [HeaderAttr.Text]: HeaderText.Auto,
+    });
 
 export const removeHeader =
     (pos: number): Command =>
