@@ -15,6 +15,18 @@ export class SchemaSpecRegistry {
         this.#dynamicModifier = dynamicModifier;
     }
 
+    get topNodeName(): string {
+        return this.#spec.topNode || 'doc';
+    }
+
+    hasNode(name: string): boolean {
+        return Object.hasOwn(this.#spec.nodes, name);
+    }
+
+    hasMark(name: string): boolean {
+        return Object.hasOwn(this.#spec.marks, name);
+    }
+
     addNode(name: string, spec: NodeSpec) {
         const modifiedSpec = this.#dynamicModifier
             ? this.#dynamicModifier.processNodeSpec(name, spec)

@@ -24,16 +24,14 @@ const {schema} = new ExtensionsManager({
             .use(Blockquote, {})
             .use(CodeBlockSpecs, {})
             .use(YfmTable, {})
-            .addNode('testnode', () => ({
-                spec: {content: `block*`, group: 'block', gapcursor: false},
-                fromMd: {tokenSpec: {name: 'testnode', type: 'block', ignore: true}},
-                toMd: () => {},
+            .addNodeSpec('testnode', () => ({content: `block*`, group: 'block', gapcursor: false}))
+            .addNodeSerializerSpec('testnode', () => () => {})
+            .addNodeSpec('selectContentNode', () => ({
+                content: `block+`,
+                group: 'block',
+                selectAll: 'content',
             }))
-            .addNode('selectContentNode', () => ({
-                spec: {content: `block+`, group: 'block', selectAll: 'content'},
-                fromMd: {tokenSpec: {name: 'selectContentNode', type: 'block', ignore: true}},
-                toMd: () => {},
-            })),
+            .addNodeSerializerSpec('selectContentNode', () => () => {}),
 }).buildDeps();
 
 const {doc, p, bq, codeBlock, table, tbody, tr, td, testnode, selectContentNode} = builders<

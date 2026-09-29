@@ -2,8 +2,7 @@ export type {
     Extension,
     ExtensionAuto,
     ExtensionWithOptions,
-    ExtensionSpec,
-    ExtensionNodeSpec,
-    ExtensionMarkSpec,
+    NodeViewFactory,
+    MarkViewFactory,
     ExtensionDeps,
 } from '../ExtensionBuilder';

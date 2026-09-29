@@ -20,25 +20,25 @@ const CONTAINER_CLASSNAME = editorInEditorNodeName;
 export type EditorInEditorOptions = {};
 
 export const EditorInEditor: ExtensionAuto<EditorInEditorOptions> = (builder) => {
-    builder.addNode(editorInEditorNodeName, () => ({
-        spec: {
+    builder
+        .addNodeSpec(editorInEditorNodeName, () => ({
             attrs: {[EditorInEditorAttr.Markup]: {}},
             atom: true,
             group: 'block',
             toDOM: (node) => ['div', {class: CONTAINER_CLASSNAME, ...node.attrs}, 0],
             parseDOM: [{tag: `div.${CONTAINER_CLASSNAME}`, priority: 100}],
-        },
-        fromMd: {
-            tokenSpec: {
-                name: editorInEditorNodeName,
-                type: 'block',
-            },
-        },
-        toMd: (state, node) => {
+        }))
+        .addMarkdownTokenParserSpec(editorInEditorNodeName, () => ({
+            name: editorInEditorNodeName,
+            type: 'block',
+        }))
+        .addNodeSerializerSpec(editorInEditorNodeName, () => (state, node) => {
             state.closeBlock(node);
-        },
-        view: () => (node, view) => new EditorInEditorNodeView(node, view),
-    }));
+        })
+        .addNodeView(
+            editorInEditorNodeName,
+            () => (node, view) => new EditorInEditorNodeView(node, view),
+        );
 };
 
 class EditorInEditorNodeView implements NodeView {

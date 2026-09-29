@@ -1,4 +1,4 @@
-import type {ExtensionAuto, ExtensionNodeSpec} from '#core';
+import type {ExtensionAuto, NodeViewFactory} from '#core';
 
 import {CheckboxNode} from './const';
 import {CheckboxParserSpecs} from './parser';
@@ -15,11 +15,11 @@ export {
 
 export type CheckboxSpecsOptions = GetSchemaSpecsOptions & {
     /** @deprecated Register the view with builder.addNodeView() after the specs. */
-    inputView?: ExtensionNodeSpec['view'];
+    inputView?: NodeViewFactory;
     /** @deprecated Register the view with builder.addNodeView() after the specs. */
-    labelView?: ExtensionNodeSpec['view'];
+    labelView?: NodeViewFactory;
     /** @deprecated Register the view with builder.addNodeView() after the specs. */
-    checkboxView?: ExtensionNodeSpec['view'];
+    checkboxView?: NodeViewFactory;
 };
 
 export const CheckboxSpecs: ExtensionAuto<CheckboxSpecsOptions> = (builder, opts) => {
