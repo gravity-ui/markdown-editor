@@ -1,4 +1,5 @@
 import './default';
 
 export * from './const';
-export * from './formatter';
+export * from './known-conflicts';
+export * from './registry';
