@@ -6,6 +6,7 @@ import type {MarkupString} from '../common';
 import type {EscapeConfig, Extension} from '../core';
 import type {Logger2} from '../logger';
 import type {CreateCodemirrorParams, YfmLangOptions} from '../markup';
+import type {ResourceReplacementConfig} from '../modules/resource-replacement';
 import type {FileUploadHandler} from '../utils';
 import type {DirectiveSyntaxContext, DirectiveSyntaxOption} from '../utils/directive';
 import type {ParseInsertedUrlAsImage} from '../utils/upload';
@@ -19,6 +20,16 @@ import type {
 } from './preset-base-types';
 import type {ExtensionsOptions as WysiwygPresetExtensionsOptions} from './wysiwyg-preset';
 
+export type {
+    ResourceReplacementConfig,
+    ResourceDescription,
+    ResourceTrigger,
+    ReplacementResource,
+    ResourceReplacementResult,
+    ResourceReplacementEvent,
+    ResourceReplacementStatus,
+    ResourceReplacementControl,
+} from '../modules/resource-replacement';
 export type {
     MarkdownEditorMode,
     MarkdownEditorPreset,
@@ -194,6 +205,8 @@ export type MarkdownEditorWysiwygConfig = {
 };
 
 export type MarkdownEditorOptions = {
+    /** Asynchronously replace configured resource values for the selected triggers. */
+    resourceReplacement?: ResourceReplacementConfig;
     /**
      * A set of plug-in extensions.
      * @default 'full'

@@ -143,6 +143,7 @@ const EditorWrapper = forwardRef<HTMLDivElement, EditorWrapperProps>(
 
         const settingsProps = {
             mode: editorMode,
+            modeDisabled: editor.getPendingResourceReplacements().length > 0,
             onModeChange,
             onShowPreviewChange,
             onSplitModeChange,
