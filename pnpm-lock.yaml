@@ -83,8 +83,8 @@ catalogs:
       specifier: 3.0.0
       version: 3.0.0
     markdown-it:
-      specifier: ^13.0.0
-      version: 13.0.2
+      specifier: ^14.2.0
+      version: 14.3.2
   react:
     '@types/react':
       specifier: 18.0.28
@@ -152,25 +152,25 @@ importers:
     dependencies:
       '@diplodoc/cut-extension':
         specifier: catalog:peer-diplodoc
-        version: 1.1.1(@types/markdown-it@13.0.9)(markdown-it@13.0.2)(react@18.2.0)
+        version: 1.1.1(@types/markdown-it@13.0.9)(markdown-it@14.3.2)(react@18.2.0)
       '@diplodoc/file-extension':
         specifier: catalog:peer-diplodoc
-        version: 0.2.2(@types/markdown-it@13.0.9)(markdown-it@13.0.2)
+        version: 0.2.2(@types/markdown-it@13.0.9)(markdown-it@14.3.2)
       '@diplodoc/folding-headings-extension':
         specifier: catalog:peer-diplodoc
         version: 0.1.2
       '@diplodoc/html-extension':
         specifier: catalog:peer-diplodoc
-        version: 2.9.6(@diplodoc/transform@4.75.1(@types/markdown-it@13.0.9)(highlight.js@11.11.1)(react@18.2.0))(@types/markdown-it@13.0.9)(markdown-it@13.0.2)(react@18.2.0)
+        version: 2.9.6(@diplodoc/transform@4.75.1(@types/markdown-it@13.0.9)(highlight.js@11.11.1)(react@18.2.0))(@types/markdown-it@13.0.9)(markdown-it@14.3.2)(react@18.2.0)
       '@diplodoc/latex-extension':
         specifier: catalog:peer-diplodoc
-        version: 2.0.2(katex@0.16.27)(markdown-it@13.0.2)(react@18.2.0)
+        version: 2.0.2(katex@0.16.27)(markdown-it@14.3.2)(react@18.2.0)
       '@diplodoc/mermaid-extension':
         specifier: catalog:peer-diplodoc
-        version: 2.0.0(markdown-it@13.0.2)(react@18.2.0)
+        version: 2.0.0(markdown-it@14.3.2)(react@18.2.0)
       '@diplodoc/page-constructor-extension':
         specifier: catalog:peer-diplodoc
-        version: 0.13.3(@diplodoc/transform@4.75.1(@types/markdown-it@13.0.9)(highlight.js@11.11.1)(react@18.2.0))(@gravity-ui/uikit@7.13.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/markdown-it@13.0.9)(@types/react@18.0.28)(markdown-it@13.0.2)(react-dom@18.2.0(react@18.2.0))(react-is@18.3.1)(react@18.2.0)
+        version: 0.13.3(@diplodoc/transform@4.75.1(@types/markdown-it@13.0.9)(highlight.js@11.11.1)(react@18.2.0))(@gravity-ui/uikit@7.13.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/markdown-it@13.0.9)(@types/react@18.0.28)(markdown-it@14.3.2)(react-dom@18.2.0(react@18.2.0))(react-is@18.3.1)(react@18.2.0)
       '@diplodoc/quote-link-extension':
         specifier: catalog:peer-diplodoc
         version: 0.1.3(react@18.2.0)
@@ -200,7 +200,7 @@ importers:
         version: 7.13.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       markdown-it:
         specifier: catalog:peers
-        version: 13.0.2
+        version: 14.3.2
     devDependencies:
       '@babel/preset-env':
         specifier: 7.29.7
@@ -464,7 +464,7 @@ importers:
         version: 4.17.23
       markdown-it-attrs:
         specifier: ^4.2.0
-        version: 4.2.0(markdown-it@13.0.2)
+        version: 4.2.0(markdown-it@14.3.2)
       markdown-it-emoji:
         specifier: 2.0.2
         version: 2.0.2
@@ -546,22 +546,22 @@ importers:
     devDependencies:
       '@diplodoc/cut-extension':
         specifier: catalog:peer-diplodoc
-        version: 1.1.1(@types/markdown-it@13.0.9)(markdown-it@13.0.2)(react@18.2.0)
+        version: 1.1.1(@types/markdown-it@13.0.9)(markdown-it@14.3.2)(react@18.2.0)
       '@diplodoc/file-extension':
         specifier: catalog:peer-diplodoc
-        version: 0.2.2(@types/markdown-it@13.0.9)(markdown-it@13.0.2)
+        version: 0.2.2(@types/markdown-it@13.0.9)(markdown-it@14.3.2)
       '@diplodoc/folding-headings-extension':
         specifier: catalog:peer-diplodoc
         version: 0.1.2
       '@diplodoc/html-extension':
         specifier: catalog:peer-diplodoc
-        version: 2.9.6(@diplodoc/transform@4.75.1(@types/markdown-it@13.0.9)(highlight.js@11.8.0)(react@18.2.0))(@types/markdown-it@13.0.9)(markdown-it@13.0.2)(react@18.2.0)
+        version: 2.9.6(@diplodoc/transform@4.75.1(@types/markdown-it@13.0.9)(highlight.js@11.8.0)(react@18.2.0))(@types/markdown-it@13.0.9)(markdown-it@14.3.2)(react@18.2.0)
       '@diplodoc/latex-extension':
         specifier: catalog:peer-diplodoc
-        version: 2.0.2(katex@0.16.27)(markdown-it@13.0.2)(react@18.2.0)
+        version: 2.0.2(katex@0.16.27)(markdown-it@14.3.2)(react@18.2.0)
       '@diplodoc/mermaid-extension':
         specifier: catalog:peer-diplodoc
-        version: 2.0.0(markdown-it@13.0.2)(react@18.2.0)
+        version: 2.0.0(markdown-it@14.3.2)(react@18.2.0)
       '@diplodoc/quote-link-extension':
         specifier: catalog:peer-diplodoc
         version: 0.1.3(react@18.2.0)
@@ -651,7 +651,7 @@ importers:
         version: 3.0.0
       markdown-it:
         specifier: catalog:peers
-        version: 13.0.2
+        version: 14.3.2
       markdown-it-testgen:
         specifier: ^0.1.6
         version: 0.1.6
@@ -737,7 +737,7 @@ importers:
     devDependencies:
       '@diplodoc/page-constructor-extension':
         specifier: catalog:peer-diplodoc
-        version: 0.13.3(@diplodoc/transform@4.78.0(@types/markdown-it@13.0.9)(highlight.js@11.11.1)(react@18.2.0))(@gravity-ui/uikit@7.13.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/markdown-it@13.0.9)(@types/react@18.0.28)(markdown-it@13.0.2)(react-dom@18.2.0(react@18.2.0))(react-is@18.3.1)(react@18.2.0)
+        version: 0.13.3(@diplodoc/transform@4.78.0(@types/markdown-it@13.0.9)(highlight.js@11.11.1)(react@18.2.0))(@gravity-ui/uikit@7.13.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/markdown-it@13.0.9)(@types/react@18.0.28)(markdown-it@14.3.2)(react-dom@18.2.0(react@18.2.0))(react-is@18.3.1)(react@18.2.0)
       '@gravity-ui/markdown-editor':
         specifier: workspace:*
         version: link:../editor
@@ -6393,6 +6393,9 @@ packages:
   linkify-it@4.0.1:
     resolution: {integrity: sha512-C7bfi1UZmoj8+PQx22XyeXCuBlokoyWQL5pWSP+EI6nzRylyThouddufc2c1NDIcP9k5agmN9fLpA7VNJfIiqw==}
 
+  linkify-it@5.0.2:
+    resolution: {integrity: sha512-ONTm2jCMAVZjgQa/Fy1kScXsuOoF5NPTsoFBdE1KVIZ2vAh/r9+Bqo+0jINCBYnavTPQZz38QzFTme79ENoN3Q==}
+
   load-json-file@4.0.0:
     resolution: {integrity: sha512-Kx8hMakjX03tiGTLAIdJ+lL0htKnXjEZN6hk/tozf/WOuYGdZBJrZ+rCJRbVCugsjB3jMLn9746NsQIf5VjBMw==}
     engines: {node: '>=4'}
@@ -6545,6 +6548,10 @@ packages:
     resolution: {integrity: sha512-FtwnEuuK+2yVU7goGn/MJ0WBZMM9ZPgU9spqlFs7/A/pDIUNSOQZhUgOqYCficIuR2QaFnrt8LHqBWsbTAoI5w==}
     hasBin: true
 
+  markdown-it@14.3.2:
+    resolution: {integrity: sha512-sHHjZ5fJKlgrG4qns2YwVcdNep35h5fERrfkD2YNsb9UFk0UIHarbiTaHKVMlPuWAoiilyK8Fv/jAm11slsY7Q==}
+    hasBin: true
+
   markdown-table@3.0.4:
     resolution: {integrity: sha512-wiYz4+JrLyb/DqW2hkFJxP7Vd7JuTDm77fvbM8VfEQdmSMqcImWeeRbHwZjBjIFki/VaMK2BhFi7oUUZeM5bqw==}
 
@@ -6622,6 +6629,9 @@ packages:
 
   mdurl@1.0.1:
     resolution: {integrity: sha512-/sKlQJCBYVY9Ers9hqzKou4H6V5UWc/M59TH2dvkt+84itfnq7uFOMLpOiOS4ujvHP4etln18fmIxA5R5fll0g==}
+
+  mdurl@2.1.0:
+    resolution: {integrity: sha512-1+HBaOx0zi/dQWht8rNv9MYf9qqpqL/kxI0hXImU6Y547zM6Sni8BQibt7ifgMcYtQg41ao3Ivd6cnSM86inpg==}
 
   memfs@3.5.3:
     resolution: {integrity: sha512-UERzLsxzllchadvbPs5aolHh65ISpKpM+ccLbOJ8/vvpBKmAWf+la7dXFy7Mr0ySHbdHrFv5kGFCUHHe6GFEmw==}
@@ -7379,6 +7389,10 @@ packages:
   proxy-from-env@2.1.0:
     resolution: {integrity: sha512-cJ+oHTW1VAEa8cJslgmUZrc+sjRKgAKl3Zyse6+PV38hZe/V6Z14TbCuXcan9F9ghlz4QrFr2c92TNF82UkYHA==}
     engines: {node: '>=10'}
+
+  punycode.js@2.3.1:
+    resolution: {integrity: sha512-uxFIHU0YlHYhDQtV4R9J6a52SLx28BCjT+4ieh7IGbgwVJWO+km431c4yRlREUAsAmt/uMjQUyQHNEPf0M39CA==}
+    engines: {node: '>=6'}
 
   punycode@1.4.1:
     resolution: {integrity: sha512-jmYNElW7yvO7TV33CjSmvSiE2yco3bV2czu/OzDKdMNVZQWfxCblURLhf+47syQRBntjfLdd/H0egrzIG+oaFQ==}
@@ -8403,6 +8417,9 @@ packages:
 
   uc.micro@1.0.6:
     resolution: {integrity: sha512-8Y75pvTYkLJW2hWQHXxoqRgV7qb9B+9vFEtidML+7koHUFapnVJAZ6cKs+Qjz5Aw3aZWHMC6u0wJE3At+nSGwA==}
+
+  uc.micro@2.1.0:
+    resolution: {integrity: sha512-ARDJmphmdvUk6Glw7y9DQ2bFkKBHwQHLi2lsaH6PPmz/Ka9sFOBsBluozhDltWmnv9u/cF6Rt87znRTPV+yp/A==}
 
   ufo@1.6.1:
     resolution: {integrity: sha512-9a4/uxlTWJ4+a5i0ooc1rU7C7YOw3wT+UGqdeNNHWnOF9qcMBgLRS+4IYUqbczewFx4mLEig6gawh7X6mFlEkA==}
@@ -10145,6 +10162,15 @@ snapshots:
       - markdown-it
       - react
 
+  '@diplodoc/cut-extension@1.1.1(@types/markdown-it@13.0.9)(markdown-it@14.3.2)(react@18.2.0)':
+    dependencies:
+      '@diplodoc/directive': 0.3.3(@types/markdown-it@13.0.9)(markdown-it@14.3.2)
+      '@diplodoc/utils': 2.2.2(react@18.2.0)
+    transitivePeerDependencies:
+      - '@types/markdown-it'
+      - markdown-it
+      - react
+
   '@diplodoc/cut-extension@1.1.7(@types/markdown-it@13.0.9)(markdown-it@13.0.2)(react@18.2.0)':
     dependencies:
       '@diplodoc/directive': 0.3.6(@types/markdown-it@13.0.9)(markdown-it@13.0.2)
@@ -10157,6 +10183,13 @@ snapshots:
   '@diplodoc/directive@0.3.3(@types/markdown-it@13.0.9)(markdown-it@13.0.2)':
     dependencies:
       markdown-it-directive: 2.0.6(@types/markdown-it@13.0.9)(markdown-it@13.0.2)
+    transitivePeerDependencies:
+      - '@types/markdown-it'
+      - markdown-it
+
+  '@diplodoc/directive@0.3.3(@types/markdown-it@13.0.9)(markdown-it@14.3.2)':
+    dependencies:
+      markdown-it-directive: 2.0.6(@types/markdown-it@13.0.9)(markdown-it@14.3.2)
     transitivePeerDependencies:
       - '@types/markdown-it'
       - markdown-it
@@ -10182,6 +10215,13 @@ snapshots:
     transitivePeerDependencies:
       - '@types/markdown-it'
 
+  '@diplodoc/file-extension@0.2.2(@types/markdown-it@13.0.9)(markdown-it@14.3.2)':
+    dependencies:
+      '@diplodoc/directive': 0.3.3(@types/markdown-it@13.0.9)(markdown-it@14.3.2)
+      markdown-it: 14.3.2
+    transitivePeerDependencies:
+      - '@types/markdown-it'
+
   '@diplodoc/file-extension@0.2.6(@types/markdown-it@13.0.9)(markdown-it@13.0.2)':
     dependencies:
       '@diplodoc/directive': 0.3.6(@types/markdown-it@13.0.9)(markdown-it@13.0.2)
@@ -10191,10 +10231,10 @@ snapshots:
 
   '@diplodoc/folding-headings-extension@0.1.2': {}
 
-  '@diplodoc/html-extension@2.9.6(@diplodoc/transform@4.75.1(@types/markdown-it@13.0.9)(highlight.js@11.11.1)(react@18.2.0))(@types/markdown-it@13.0.9)(markdown-it@13.0.2)(react@18.2.0)':
+  '@diplodoc/html-extension@2.9.6(@diplodoc/transform@4.75.1(@types/markdown-it@13.0.9)(highlight.js@11.11.1)(react@18.2.0))(@types/markdown-it@13.0.9)(markdown-it@14.3.2)(react@18.2.0)':
     dependencies:
-      '@diplodoc/directive': 0.3.3(@types/markdown-it@13.0.9)(markdown-it@13.0.2)
-      markdown-it: 13.0.2
+      '@diplodoc/directive': 0.3.3(@types/markdown-it@13.0.9)(markdown-it@14.3.2)
+      markdown-it: 14.3.2
       parse5: 8.0.1
     optionalDependencies:
       '@diplodoc/transform': 4.75.1(@types/markdown-it@13.0.9)(highlight.js@11.11.1)(react@18.2.0)
@@ -10202,10 +10242,10 @@ snapshots:
     transitivePeerDependencies:
       - '@types/markdown-it'
 
-  '@diplodoc/html-extension@2.9.6(@diplodoc/transform@4.75.1(@types/markdown-it@13.0.9)(highlight.js@11.8.0)(react@18.2.0))(@types/markdown-it@13.0.9)(markdown-it@13.0.2)(react@18.2.0)':
+  '@diplodoc/html-extension@2.9.6(@diplodoc/transform@4.75.1(@types/markdown-it@13.0.9)(highlight.js@11.8.0)(react@18.2.0))(@types/markdown-it@13.0.9)(markdown-it@14.3.2)(react@18.2.0)':
     dependencies:
-      '@diplodoc/directive': 0.3.3(@types/markdown-it@13.0.9)(markdown-it@13.0.2)
-      markdown-it: 13.0.2
+      '@diplodoc/directive': 0.3.3(@types/markdown-it@13.0.9)(markdown-it@14.3.2)
+      markdown-it: 14.3.2
       parse5: 8.0.1
     optionalDependencies:
       '@diplodoc/transform': 4.75.1(@types/markdown-it@13.0.9)(highlight.js@11.8.0)(react@18.2.0)
@@ -10220,31 +10260,38 @@ snapshots:
     optionalDependencies:
       react: 18.2.0
 
+  '@diplodoc/latex-extension@2.0.2(katex@0.16.27)(markdown-it@14.3.2)(react@18.2.0)':
+    dependencies:
+      katex: 0.16.27
+      markdown-it: 14.3.2
+    optionalDependencies:
+      react: 18.2.0
+
   '@diplodoc/liquid@1.5.2':
     dependencies:
       chalk: 4.1.2
       js-yaml: 4.1.1
 
-  '@diplodoc/mermaid-extension@2.0.0(markdown-it@13.0.2)(react@18.2.0)':
+  '@diplodoc/mermaid-extension@2.0.0(markdown-it@14.3.2)(react@18.2.0)':
     dependencies:
       '@gravity-ui/icons': 2.13.0(react@18.2.0)
       d3: 7.9.0
-      markdown-it: 13.0.2
+      markdown-it: 14.3.2
       mermaid: 11.13.0
       ts-dedent: 2.2.0
     optionalDependencies:
       react: 18.2.0
 
-  '@diplodoc/page-constructor-extension@0.13.3(@diplodoc/transform@4.75.1(@types/markdown-it@13.0.9)(highlight.js@11.11.1)(react@18.2.0))(@gravity-ui/uikit@7.13.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/markdown-it@13.0.9)(@types/react@18.0.28)(markdown-it@13.0.2)(react-dom@18.2.0(react@18.2.0))(react-is@18.3.1)(react@18.2.0)':
+  '@diplodoc/page-constructor-extension@0.13.3(@diplodoc/transform@4.75.1(@types/markdown-it@13.0.9)(highlight.js@11.11.1)(react@18.2.0))(@gravity-ui/uikit@7.13.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/markdown-it@13.0.9)(@types/react@18.0.28)(markdown-it@14.3.2)(react-dom@18.2.0(react@18.2.0))(react-is@18.3.1)(react@18.2.0)':
     dependencies:
-      '@diplodoc/directive': 0.3.3(@types/markdown-it@13.0.9)(markdown-it@13.0.2)
+      '@diplodoc/directive': 0.3.3(@types/markdown-it@13.0.9)(markdown-it@14.3.2)
       '@diplodoc/transform': 4.75.1(@types/markdown-it@13.0.9)(highlight.js@11.11.1)(react@18.2.0)
       '@diplodoc/utils': 2.2.2(react@18.2.0)
       '@gravity-ui/page-constructor': 7.25.0(@diplodoc/transform@4.75.1(@types/markdown-it@13.0.9)(highlight.js@11.11.1)(react@18.2.0))(@gravity-ui/uikit@7.13.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.0.28)(js-yaml@4.1.1)(react-dom@18.2.0(react@18.2.0))(react-is@18.3.1)(react@18.2.0)
       cheerio: 1.0.0
       js-yaml: 4.1.1
       lodash: 4.17.23
-      markdown-it: 13.0.2
+      markdown-it: 14.3.2
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
     transitivePeerDependencies:
@@ -10254,16 +10301,16 @@ snapshots:
       - '@types/react'
       - react-is
 
-  '@diplodoc/page-constructor-extension@0.13.3(@diplodoc/transform@4.78.0(@types/markdown-it@13.0.9)(highlight.js@11.11.1)(react@18.2.0))(@gravity-ui/uikit@7.13.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/markdown-it@13.0.9)(@types/react@18.0.28)(markdown-it@13.0.2)(react-dom@18.2.0(react@18.2.0))(react-is@18.3.1)(react@18.2.0)':
+  '@diplodoc/page-constructor-extension@0.13.3(@diplodoc/transform@4.78.0(@types/markdown-it@13.0.9)(highlight.js@11.11.1)(react@18.2.0))(@gravity-ui/uikit@7.13.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/markdown-it@13.0.9)(@types/react@18.0.28)(markdown-it@14.3.2)(react-dom@18.2.0(react@18.2.0))(react-is@18.3.1)(react@18.2.0)':
     dependencies:
-      '@diplodoc/directive': 0.3.3(@types/markdown-it@13.0.9)(markdown-it@13.0.2)
+      '@diplodoc/directive': 0.3.3(@types/markdown-it@13.0.9)(markdown-it@14.3.2)
       '@diplodoc/transform': 4.78.0(@types/markdown-it@13.0.9)(highlight.js@11.11.1)(react@18.2.0)
       '@diplodoc/utils': 2.2.2(react@18.2.0)
       '@gravity-ui/page-constructor': 7.25.0(@diplodoc/transform@4.78.0(@types/markdown-it@13.0.9)(highlight.js@11.11.1)(react@18.2.0))(@gravity-ui/uikit@7.13.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.0.28)(js-yaml@4.1.1)(react-dom@18.2.0(react@18.2.0))(react-is@18.3.1)(react@18.2.0)
       cheerio: 1.0.0
       js-yaml: 4.1.1
       lodash: 4.17.23
-      markdown-it: 13.0.2
+      markdown-it: 14.3.2
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
     transitivePeerDependencies:
@@ -15325,6 +15372,10 @@ snapshots:
     dependencies:
       uc.micro: 1.0.6
 
+  linkify-it@5.0.2:
+    dependencies:
+      uc.micro: 2.1.0
+
   load-json-file@4.0.0:
     dependencies:
       graceful-fs: 4.2.11
@@ -15433,6 +15484,10 @@ snapshots:
     dependencies:
       markdown-it: 13.0.2
 
+  markdown-it-attrs@4.2.0(markdown-it@14.3.2):
+    dependencies:
+      markdown-it: 14.3.2
+
   markdown-it-deflist@2.1.0: {}
 
   markdown-it-deflist@3.0.1: {}
@@ -15441,6 +15496,11 @@ snapshots:
     dependencies:
       '@types/markdown-it': 13.0.9
       markdown-it: 13.0.2
+
+  markdown-it-directive@2.0.6(@types/markdown-it@13.0.9)(markdown-it@14.3.2):
+    dependencies:
+      '@types/markdown-it': 13.0.9
+      markdown-it: 14.3.2
 
   markdown-it-emoji@2.0.2: {}
 
@@ -15469,6 +15529,15 @@ snapshots:
       linkify-it: 4.0.1
       mdurl: 1.0.1
       uc.micro: 1.0.6
+
+  markdown-it@14.3.2:
+    dependencies:
+      argparse: 2.0.1
+      entities: 4.5.0
+      linkify-it: 5.0.2
+      mdurl: 2.1.0
+      punycode.js: 2.3.1
+      uc.micro: 2.1.0
 
   markdown-table@3.0.4: {}
 
@@ -15586,6 +15655,8 @@ snapshots:
   mdn-data@2.25.0: {}
 
   mdurl@1.0.1: {}
+
+  mdurl@2.1.0: {}
 
   memfs@3.5.3:
     dependencies:
@@ -16655,6 +16726,8 @@ snapshots:
       prosemirror-transform: 1.10.2
 
   proxy-from-env@2.1.0: {}
+
+  punycode.js@2.3.1: {}
 
   punycode@1.4.1: {}
 
@@ -17865,6 +17938,8 @@ snapshots:
   typograf@7.7.0: {}
 
   uc.micro@1.0.6: {}
+
+  uc.micro@2.1.0: {}
 
   ufo@1.6.1: {}
 
