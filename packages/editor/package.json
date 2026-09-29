@@ -208,7 +208,7 @@
     "react-error-boundary": "^3.1.4",
     "react-hotkeys-hook": "^4.5.0",
     "react-use": "catalog:",
-    "ts-dedent": "2.2.0",
+    "ts-dedent": "2.3.0",
     "tslib": "catalog:ts",
     "uuid": "14.0.2"
   },
