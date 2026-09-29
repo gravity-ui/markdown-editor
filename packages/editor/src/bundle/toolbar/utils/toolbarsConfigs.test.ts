@@ -28,7 +28,7 @@ const migrateId = ({id}: {id: string}) => migratedIds[id] ?? id;
 
 describe('Contextual toolbar presets', () => {
     it.each(Object.keys(presets) as MarkdownEditorPreset[])(
-        'preserves the default selection and slash actions for %s',
+        'should preserve the default selection and slash actions for %s',
         (preset) => {
             const selection = createSelectionToolbarConfig(preset);
             expect(selection.map((group) => group.map(({id}) => id))).toEqual(
@@ -40,7 +40,7 @@ describe('Contextual toolbar presets', () => {
         },
     );
 
-    it('preserves heading aliases and previews in the slash toolbar', () => {
+    it('should preserve heading aliases and previews in the slash toolbar', () => {
         const commands = createSlashToolbarConfig('full');
         for (let level = 1; level <= 6; level++) {
             const matches = filterActions(commands, `h${level}`);
@@ -50,7 +50,7 @@ describe('Contextual toolbar presets', () => {
         }
     });
 
-    it('flattens ordered lists and ignores components and markup-only actions in the slash toolbar', () => {
+    it('should flatten list buttons and ignore components and markup-only actions', () => {
         const preset: ToolbarsPreset = {
             items: {
                 ...full.items,
@@ -70,7 +70,7 @@ describe('Contextual toolbar presets', () => {
         ]);
     });
 
-    it('distinguishes omitted contextual orders from explicitly empty toolbars', () => {
+    it('should distinguish omitted contextual orders from explicitly empty toolbars', () => {
         expect(getContextualToolbarsConfig()).toEqual({selection: undefined, slash: undefined});
         expect(getContextualToolbarsConfig({items: {}, orders: {}})).toEqual({
             selection: undefined,
@@ -87,7 +87,7 @@ describe('Contextual toolbar presets', () => {
         ).toEqual({selection: [], slash: []});
     });
 
-    it('skips popup buttons and components nested in slash lists', () => {
+    it('should skip popup buttons and components nested in slash lists', () => {
         const preset: ToolbarsPreset = {
             items: {
                 ...full.items,
@@ -113,7 +113,7 @@ describe('Contextual toolbar presets', () => {
         expect(createSlashToolbarConfig(preset).map(({id}) => id)).toEqual([ActionName.heading1]);
     });
 
-    it('ignores slash list buttons without an explicit item order', () => {
+    it('should ignore slash list buttons without an explicit item order', () => {
         const preset: ToolbarsPreset = {
             items: full.items,
             orders: {[ToolbarName.wysiwygSlash]: [['heading', ActionName.paragraph]]},
@@ -121,7 +121,7 @@ describe('Contextual toolbar presets', () => {
         expect(createSlashToolbarConfig(preset).map(({id}) => id)).toEqual([ActionName.paragraph]);
     });
 
-    it('preserves selection conditions and custom component props', () => {
+    it('should preserve selection conditions and custom component props', () => {
         expect(getContextualToolbarsConfig(full).selection?.[0][1]).toEqual(
             expect.objectContaining({props: {disablePortal: true}}),
         );

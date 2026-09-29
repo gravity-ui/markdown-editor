@@ -7,7 +7,7 @@ test.describe('Contextual toolbar configuration', () => {
         await expect(page.getByRole('heading', {name: 'Error in YFM editor'})).toBeHidden();
     });
 
-    test('uses shared items in the requested selection order and executes an action', async ({
+    test('should use shared items in the requested selection order and execute an action', async ({
         mount,
         editor,
     }) => {
@@ -23,7 +23,7 @@ test.describe('Contextual toolbar configuration', () => {
         );
     });
 
-    test('searches a custom slash alias and executes its command', async ({mount, editor}) => {
+    test('should search a custom slash alias and execute its command', async ({mount, editor}) => {
         await mount(<ContextualToolbars />);
         await editor.fill('');
         await editor.pressSequentially('/topic');
@@ -34,7 +34,7 @@ test.describe('Contextual toolbar configuration', () => {
         await expect(editor.locators.contenteditable).not.toContainText('/topic');
     });
 
-    test('updates an open selection toolbar and restores the legacy fallback', async ({
+    test('should update an open selection toolbar and restore the legacy fallback', async ({
         mount,
         editor,
         page,
@@ -50,7 +50,7 @@ test.describe('Contextual toolbar configuration', () => {
         await expect(toolbar.getByRole('button')).toHaveAttribute('aria-label', 'Italic');
     });
 
-    test('updates an open slash menu without executing the previous configuration', async ({
+    test('should update an open slash menu without executing the previous configuration', async ({
         mount,
         editor,
         page,
@@ -68,7 +68,7 @@ test.describe('Contextual toolbar configuration', () => {
         await expect(editor.locators.contenteditable.locator('h1')).toHaveText('Updated heading');
     });
 
-    test('disables both contextual toolbars with empty orders', async ({mount, editor}) => {
+    test('should disable both contextual toolbars with empty orders', async ({mount, editor}) => {
         await mount(<ContextualToolbars initialConfig="empty" />);
         await editor.press('ControlOrMeta+a');
         await expect(editor.locators.toolbars.selection).toBeHidden();
@@ -78,7 +78,7 @@ test.describe('Contextual toolbar configuration', () => {
         await expect(editor.locators.contenteditable).toHaveText('/h1');
     });
 
-    test('preserves the highlighted slash command when the preset object is replaced', async ({
+    test('should preserve the highlighted slash command when the preset object is replaced', async ({
         mount,
         editor,
         page,
@@ -95,7 +95,7 @@ test.describe('Contextual toolbar configuration', () => {
         await expect(editor.locators.contenteditable.locator('h2')).toHaveCount(0);
     });
 
-    test('enables initially empty legacy menus and restores their disabled state', async ({
+    test('should enable initially empty legacy menus and restore their disabled state', async ({
         mount,
         editor,
         page,
@@ -114,7 +114,7 @@ test.describe('Contextual toolbar configuration', () => {
         await expect(editor.locators.contenteditable).toHaveText('/topic');
     });
 
-    test('closes a filtered slash menu when the replacement preset no longer matches', async ({
+    test('should close a filtered slash menu when the replacement preset no longer matches', async ({
         mount,
         editor,
         page,
@@ -128,7 +128,7 @@ test.describe('Contextual toolbar configuration', () => {
         await expect(editor.locators.contenteditable).toHaveText('/topic');
     });
 
-    test('hides an empty selection popup after evaluating visibility conditions', async ({
+    test('should hide an empty selection popup after evaluating visibility conditions', async ({
         mount,
         editor,
         page,
@@ -142,7 +142,7 @@ test.describe('Contextual toolbar configuration', () => {
         await expect(editor.locators.toolbars.selection.getByRole('button')).toHaveCount(2);
     });
 
-    test('preserves formatting undo and redo across toolbar configuration updates', async ({
+    test('should preserve formatting undo and redo across toolbar configuration updates', async ({
         mount,
         editor,
         page,
@@ -166,7 +166,7 @@ test.describe('Contextual toolbar configuration', () => {
         );
     });
 
-    test('uses the latest contextual preset when first entering WYSIWYG mode', async ({
+    test('should use the latest contextual preset when first entering WYSIWYG mode', async ({
         mount,
         editor,
         page,
@@ -185,7 +185,7 @@ test.describe('Contextual toolbar configuration', () => {
         await expect(editor.locators.toolbars.commandMenu).not.toContainText('Custom heading');
     });
 
-    test('keeps selection conditions at block boundaries and hides menus in code blocks', async ({
+    test('should keep selection conditions at block boundaries and hide menus in code blocks', async ({
         mount,
         editor,
     }) => {
@@ -216,7 +216,7 @@ test.describe('Contextual toolbar configuration', () => {
         await expect(editor.locators.toolbars.commandMenu).toBeHidden();
     });
 
-    test('keeps legacy extension options when contextual orders are omitted', async ({
+    test('should keep legacy extension options when contextual orders are omitted', async ({
         mount,
         editor,
     }) => {
@@ -233,7 +233,7 @@ test.describe('Contextual toolbar configuration', () => {
         await expect(editor.locators.toolbars.commandMenu).not.toContainText('Custom heading');
     });
 
-    test('enables custom contextual actions with the zero editor preset', async ({
+    test('should enable custom contextual actions with the zero editor preset', async ({
         mount,
         editor,
     }) => {
@@ -246,7 +246,7 @@ test.describe('Contextual toolbar configuration', () => {
         await expect(editor.locators.toolbars.commandMenu).not.toContainText('Custom heading');
     });
 
-    test('keeps contextual toolbars disabled on mobile', async ({mount, editor}) => {
+    test('should keep contextual toolbars disabled on mobile', async ({mount, editor}) => {
         await mount(<ContextualToolbars mobile />);
         await editor.press('ControlOrMeta+a');
         await expect(editor.locators.toolbars.selection).toBeHidden();
@@ -255,7 +255,7 @@ test.describe('Contextual toolbar configuration', () => {
         await expect(editor.locators.toolbars.commandMenu).toBeHidden();
     });
 
-    test('closes open contextual toolbars when their orders become empty', async ({
+    test('should close open contextual toolbars when their orders become empty', async ({
         mount,
         editor,
         page,
@@ -275,7 +275,10 @@ test.describe('Contextual toolbar configuration', () => {
         await expect(editor.locators.contenteditable).toHaveText('/topic');
     });
 
-    test('applies contextual overrides after switching editor modes', async ({mount, editor}) => {
+    test('should apply contextual overrides after switching editor modes', async ({
+        mount,
+        editor,
+    }) => {
         await mount(<ContextualToolbars />);
         await editor.switchMode('markup');
         await editor.switchMode('wysiwyg');
@@ -286,7 +289,7 @@ test.describe('Contextual toolbar configuration', () => {
         await expect(editor.locators.toolbars.commandMenu).toContainText('Custom heading');
     });
 
-    test('preserves selection popup controls and slash heading aliases in the full preset', async ({
+    test('should preserve selection popup controls and slash heading aliases in the full preset', async ({
         mount,
         editor,
     }) => {
