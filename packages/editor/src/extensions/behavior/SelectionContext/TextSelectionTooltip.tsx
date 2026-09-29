@@ -1,4 +1,4 @@
-import {useMemo} from 'react';
+import {useEffect, useMemo, useState} from 'react';
 
 import {Popup, type PopupPlacement, type PopupProps, sp} from '@gravity-ui/uikit';
 
@@ -37,7 +37,14 @@ export const TextSelectionTooltip: React.FC<TextSelectionTooltipProps> =
         onClick,
         editorView,
     }) {
-        const conditionKey = calcConditionKey(config, editor, editorView);
+        const [conditionKey, setConditionKey] = useState(() =>
+            calcConditionKey(config, editor, editorView),
+        );
+
+        useEffect(() => {
+            const newKey = calcConditionKey(config, editor, editorView);
+            if (conditionKey !== newKey) setConditionKey(newKey);
+        });
 
         const toolbarData = useMemo<ToolbarData<ActionStorage>>(() => {
             const results = conditionKey.split(KEY_SEP);
