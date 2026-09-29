@@ -4,7 +4,6 @@ import type {EditorView} from 'prosemirror-view';
 import type {ActionStorage} from '../../../core';
 import {isFunction} from '../../../lodash';
 import {type Logger2, globalLogger} from '../../../logger';
-import {contextualToolbarsKey} from '../../../modules/toolbars/contextual';
 import {AutocompletePopupCloser} from '../../../utils/autocomplete-popup';
 import {ArrayCarousel} from '../../../utils/carousel';
 import {
@@ -14,6 +13,7 @@ import {
     closeAutocomplete,
     getAutocompleteState,
 } from '../Autocomplete';
+import {contextualToolbarsKey} from '../ContextualToolbars';
 import {type RendererItem, getReactRendererFromState} from '../ReactRenderer';
 
 import {type CommandMenuComponentProps, render} from './component';

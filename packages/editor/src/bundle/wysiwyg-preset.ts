@@ -8,7 +8,6 @@ import {
 } from '../extensions/behavior/EditorModeKeymap';
 import {BaseNode, YfmHeadingAttr, YfmNoteNode} from '../extensions/specs';
 import {i18n as i18nPlaceholder} from '../i18n/placeholder';
-import {contextualToolbarsPlugin} from '../modules/toolbars/contextual';
 import {CommonMarkPreset, type CommonMarkPresetOptions} from '../presets/commonmark';
 import {DefaultPreset, type DefaultPresetOptions} from '../presets/default';
 import {FullPreset, type FullPresetOptions} from '../presets/full';
@@ -59,7 +58,6 @@ declare global {
 
 export const BundlePreset: ExtensionAuto<BundlePresetOptions> = (builder, opts) => {
     builder.context.set('directiveSyntax', opts.directiveSyntax);
-    if (!opts.mobile) builder.addPlugin(contextualToolbarsPlugin);
 
     const dropCursor: NonNullable<BundlePresetOptions['cursor']>['dropOptions'] = {
         color: 'var(--g-color-line-brand)',

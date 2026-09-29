@@ -16,8 +16,8 @@ import type {EditorProps, EditorView} from 'prosemirror-view';
 
 import type {ActionStorage, ExtensionAuto} from '../../../core';
 import type {Logger2} from '../../../logger';
-import {contextualToolbarsKey} from '../../../modules/toolbars/contextual';
 import {isCodeBlock} from '../../../utils/nodes';
+import {contextualToolbarsKey} from '../ContextualToolbars';
 
 import {type ContextConfig, TooltipView} from './tooltip';
 

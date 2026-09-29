@@ -1,5 +1,5 @@
+import type {ContextualToolbarsConfig} from '../../../extensions/behavior/ContextualToolbars';
 import {ToolbarName} from '../../../modules/toolbars/constants';
-import type {ContextualToolbarsConfig} from '../../../modules/toolbars/contextual';
 import {commonmark, defaultPreset, full, yfm, zero} from '../../../modules/toolbars/presets';
 import type {ToolbarItem, ToolbarsPreset} from '../../../modules/toolbars/types';
 import type {MarkdownEditorPreset} from '../../preset-base-types';

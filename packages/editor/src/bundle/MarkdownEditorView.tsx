@@ -13,9 +13,9 @@ import {ErrorBoundary} from 'react-error-boundary';
 import {useEnsuredForwardedRef, useKey, useUpdate} from 'react-use';
 
 import type {ClassNameProps} from '../classname';
+import {contextualToolbarsKey} from '../extensions/behavior/ContextualToolbars';
 import {i18n} from '../i18n/bundle';
 import {globalLogger} from '../logger';
-import {contextualToolbarsKey} from '../modules/toolbars/contextual';
 import type {ToolbarsPreset} from '../modules/toolbars/types';
 import {useSticky} from '../react-utils';
 import {isMac} from '../utils';
