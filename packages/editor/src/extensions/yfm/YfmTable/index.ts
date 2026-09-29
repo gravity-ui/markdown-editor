@@ -1,10 +1,11 @@
 import type {Action, ExtensionWithOptions} from '../../../core';
 import {goToNextCell} from '../../../table-utils';
 
-import {YfmTableSpecs, type YfmTableSpecsOptions} from './YfmTableSpecs';
+import {YfmTableNode, YfmTableSpecs, type YfmTableSpecsOptions} from './YfmTableSpecs';
 import {createYfmTable} from './actions';
 import {backspaceCommand} from './commands/backspace';
 import {goToNextRow} from './commands/goToNextRow';
+import {createYfmTableGeometry} from './geometry';
 import {yfmTableControlsPlugins} from './plugins/YfmTableControls';
 import {yfmTableTransformPastedPlugin} from './plugins/yfmTableTransformPastedPlugin';
 
@@ -53,6 +54,10 @@ export type YfmTableOptions = YfmTableSpecsOptions & {
 
 export const YfmTable: ExtensionWithOptions<YfmTableOptions> = (builder, options) => {
     builder.use(YfmTableSpecs, options);
+    builder.overrideNodeSpec(YfmTableNode.Table, (spec) => ({
+        ...spec,
+        tableGeometry: createYfmTableGeometry,
+    }));
 
     builder.addKeymap(() => ({
         Tab: goToNextCell('next'),
