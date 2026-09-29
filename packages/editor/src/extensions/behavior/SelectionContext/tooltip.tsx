@@ -25,7 +25,7 @@ export class TooltipView {
 
     private readonly logger: Logger2.ILogger;
     private readonly actions: ActionStorage;
-    private readonly menuConfig: ContextConfig;
+    private menuConfig: ContextConfig;
     private readonly placement: PopupPlacement;
     private readonly onPopupOpenChange: PopupProps['onOpenChange'];
 
@@ -53,8 +53,9 @@ export class TooltipView {
         return this.#isTooltipOpen;
     }
 
-    show(view: EditorView) {
+    show(view: EditorView, config: ContextConfig) {
         this.view = view;
+        this.menuConfig = config;
         this.#isTooltipOpen = true;
         this.visible = true;
         this.anchor ??= this.createVirtualElement(view);

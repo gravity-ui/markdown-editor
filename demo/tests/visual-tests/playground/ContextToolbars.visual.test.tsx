@@ -1,7 +1,14 @@
 import {expect, test} from 'playwright/core';
 import type {CaptureScreenshotParams} from 'playwright/core/types';
 
-import {CommandMenuPlayground, SelectionToolbarPlayground} from './ContextToolbars.helpers';
+import {
+    CommandMenuPlayground,
+    PresetCommandMenuPlayground,
+    PresetOverOptionsCommandMenuPlayground,
+    PresetOverOptionsSelectionToolbarPlayground,
+    PresetSelectionToolbarPlayground,
+    SelectionToolbarPlayground,
+} from './ContextToolbars.helpers';
 
 const mountOptions = {
     hidePlaygroundBlocks: true,
@@ -17,6 +24,8 @@ const screenshotParams: CaptureScreenshotParams = {
     fullPage: true,
     caret: 'hide',
 };
+
+const presetCommands = ['Heading 1', 'Heading 2', 'Quote'];
 
 test.describe('ContextToolbars', () => {
     test.beforeEach(async ({page}) => {
@@ -70,5 +79,79 @@ test.describe('ContextToolbars', () => {
         await wait.timeout(200); // waiting for popup to be positioned
 
         await expectScreenshot(screenshotParams);
+    });
+
+    test('should show selection toolbar from toolbars preset @wysiwyg', async ({
+        mount,
+        editor,
+        wait,
+        expectScreenshot,
+    }) => {
+        await mount(<PresetSelectionToolbarPlayground />, mountOptions);
+        await editor.switchMode('wysiwyg');
+
+        await editor.selectTextIn('p');
+
+        const toolbar = editor.locators.toolbars.selection;
+        await expect(toolbar.getByTestId('g-md-toolbar-text-select')).toBeVisible();
+        await expect(toolbar.getByRole('button', {name: 'Bold', exact: true})).toBeVisible();
+        await expect(toolbar.getByRole('button', {name: 'Italic', exact: true})).toBeVisible();
+        await expect(toolbar.getByLabel('Text color')).toBeVisible();
+
+        await wait.timeout(200); // waiting for popup to be positioned
+
+        await expectScreenshot(screenshotParams);
+    });
+
+    test('should show command menu from toolbars preset @wysiwyg', async ({
+        mount,
+        editor,
+        page,
+        wait,
+        expectScreenshot,
+    }) => {
+        await mount(<PresetCommandMenuPlayground />, mountOptions);
+        await editor.switchMode('wysiwyg');
+
+        await editor.openCommandMenuToolbar();
+
+        const menu = editor.locators.toolbars.commandMenu;
+        await expect(menu.locator('.g-md-command-menu__item-title')).toHaveText(presetCommands);
+
+        // markup preview of the playground is debounced by 500 ms
+        await expect(page.locator('.playground__markup')).toHaveText('/');
+
+        await wait.timeout(200); // waiting for popup to be positioned
+
+        await expectScreenshot(screenshotParams);
+    });
+
+    test('should prefer toolbars preset over the selection context option @wysiwyg', async ({
+        mount,
+        editor,
+    }) => {
+        await mount(<PresetOverOptionsSelectionToolbarPlayground />, mountOptions);
+        await editor.switchMode('wysiwyg');
+
+        await editor.selectTextIn('p');
+
+        const toolbar = editor.locators.toolbars.selection;
+        await expect(toolbar.getByRole('button', {name: 'Bold', exact: true})).toBeVisible();
+        await expect(
+            toolbar.getByRole('button', {name: 'Strikethrough', exact: true}),
+        ).toBeHidden();
+    });
+
+    test('should prefer toolbars preset over the command menu option @wysiwyg', async ({
+        mount,
+        editor,
+    }) => {
+        await mount(<PresetOverOptionsCommandMenuPlayground />, mountOptions);
+        await editor.switchMode('wysiwyg');
+
+        await editor.openCommandMenuToolbar();
+
+        const menu = editor.locators.toolbars.commandMenu;
+        await expect(menu.locator('.g-md-command-menu__item-title')).toHaveText(presetCommands);
     });
 });

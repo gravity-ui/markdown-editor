@@ -546,6 +546,7 @@ export const heading1ItemView: ToolbarItemView = {
     title: i18n.bind(null, 'heading1'),
     icon: icons.h1,
     hotkey: f.toView(A.Heading1),
+    aliases: ['h1'],
     preview: <HeadingPreview level={1} />,
 };
 export const heading1ItemWysiwyg: ToolbarItemWysiwyg = {
@@ -565,6 +566,7 @@ export const heading2ItemView: ToolbarItemView = {
     title: i18n.bind(null, 'heading2'),
     icon: icons.h2,
     hotkey: f.toView(A.Heading2),
+    aliases: ['h2'],
     preview: <HeadingPreview level={2} />,
 };
 export const heading2ItemWysiwyg: ToolbarItemWysiwyg = {
@@ -584,6 +586,7 @@ export const heading3ItemView: ToolbarItemView = {
     title: i18n.bind(null, 'heading3'),
     icon: icons.h3,
     hotkey: f.toView(A.Heading3),
+    aliases: ['h3'],
     preview: <HeadingPreview level={3} />,
 };
 export const heading3ItemWysiwyg: ToolbarItemWysiwyg = {
@@ -603,6 +606,7 @@ export const heading4ItemView: ToolbarItemView = {
     title: i18n.bind(null, 'heading4'),
     icon: icons.h4,
     hotkey: f.toView(A.Heading4),
+    aliases: ['h4'],
     preview: <HeadingPreview level={4} />,
 };
 export const heading4ItemWysiwyg: ToolbarItemWysiwyg = {
@@ -622,6 +626,7 @@ export const heading5ItemView: ToolbarItemView = {
     title: i18n.bind(null, 'heading5'),
     icon: icons.h5,
     hotkey: f.toView(A.Heading5),
+    aliases: ['h5'],
     preview: <HeadingPreview level={5} />,
 };
 export const heading5ItemWysiwyg: ToolbarItemWysiwyg = {
@@ -641,6 +646,7 @@ export const heading6ItemView: ToolbarItemView = {
     title: i18n.bind(null, 'heading6'),
     icon: icons.h6,
     hotkey: f.toView(A.Heading6),
+    aliases: ['h6'],
     preview: <HeadingPreview level={6} />,
 };
 export const heading6ItemWysiwyg: ToolbarItemWysiwyg = {

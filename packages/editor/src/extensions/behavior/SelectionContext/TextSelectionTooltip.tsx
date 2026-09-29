@@ -54,6 +54,8 @@ export const TextSelectionTooltip: React.FC<TextSelectionTooltipProps> =
                 .filter((groupData) => Boolean(groupData.length));
         }, [config, conditionKey]);
 
+        if (!toolbarData.length) return null;
+
         return (
             <Popup
                 open
