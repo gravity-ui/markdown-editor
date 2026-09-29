@@ -83,11 +83,8 @@ export const BundlePreset: ExtensionAuto<BundlePresetOptions> = (builder, opts) 
               }
             : undefined,
         clipboard: {pasteFileHandler: opts.fileUploadHandler, ...opts.clipboard},
-        selectionContext: {
-            config: createSelectionToolbarConfig(opts.preset),
-            ...opts.selectionContext,
-        },
-        commandMenu: {actions: createSlashToolbarConfig(opts.preset), ...opts.commandMenu},
+        selectionContext: {config: createSelectionToolbarConfig('zero'), ...opts.selectionContext},
+        commandMenu: {actions: createSlashToolbarConfig('zero'), ...opts.commandMenu},
         history: {undoKey: f.toPM(A.Undo), redoKey: f.toPM(A.Redo), ...opts.history},
         baseSchema: {
             paragraphKey: f.toPM(A.Text),
@@ -115,6 +112,11 @@ export const BundlePreset: ExtensionAuto<BundlePresetOptions> = (builder, opts) 
     };
     const commonMarkOptions: BehaviorPresetOptions & CommonMarkPresetOptions = {
         ...zeroOptions,
+        selectionContext: {
+            config: createSelectionToolbarConfig('commonmark'),
+            ...opts.selectionContext,
+        },
+        commandMenu: {actions: createSlashToolbarConfig('commonmark'), ...opts.commandMenu},
         breaks: {
             preferredBreak: (opts.mdBreaks ? 'soft' : 'hard') as 'soft' | 'hard',
             ...opts.breaks,
@@ -140,11 +142,18 @@ export const BundlePreset: ExtensionAuto<BundlePresetOptions> = (builder, opts) 
     };
     const defaultOptions: BehaviorPresetOptions & DefaultPresetOptions = {
         ...commonMarkOptions,
+        selectionContext: {
+            config: createSelectionToolbarConfig('default'),
+            ...opts.selectionContext,
+        },
+        commandMenu: {actions: createSlashToolbarConfig('default'), ...opts.commandMenu},
         strike: {strikeKey: f.toPM(A.Strike), ...opts.strike},
     };
     const yfmOptions: BehaviorPresetOptions & YfmPresetOptions = {
         ...defaultOptions,
         yfmConfigs: {disableAttrs: opts.disableMdAttrs, ...opts.yfmConfigs},
+        selectionContext: {config: createSelectionToolbarConfig('yfm'), ...opts.selectionContext},
+        commandMenu: {actions: createSlashToolbarConfig('yfm'), ...opts.commandMenu},
         underline: {underlineKey: f.toPM(A.Underline), ...opts.underline},
         imgSize: {
             imageUploadHandler: opts.fileUploadHandler,
@@ -195,6 +204,8 @@ export const BundlePreset: ExtensionAuto<BundlePresetOptions> = (builder, opts) 
     };
     const fullOptions: BehaviorPresetOptions & FullPresetOptions = {
         ...yfmOptions,
+        selectionContext: {config: createSelectionToolbarConfig('full'), ...opts.selectionContext},
+        commandMenu: {actions: createSlashToolbarConfig('full'), ...opts.commandMenu},
         emoji: {defs: emojiDefs, ...opts.emoji},
     };
 
