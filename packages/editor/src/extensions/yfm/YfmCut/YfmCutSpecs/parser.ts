@@ -1,4 +1,6 @@
-import type {ParserToken} from '../../../../core';
+import {transform as yfmCut} from '@diplodoc/cut-extension';
+
+import type {ExtensionAuto, ParserToken} from '#core';
 
 import {CutAttr, CutNode} from './const';
 
@@ -8,7 +10,7 @@ const getAttrs: ParserToken['getAttrs'] = (tok) => {
     return nodeAttrs;
 };
 
-export const parserTokens: Record<CutNode, ParserToken> = {
+const parserTokens: Record<CutNode, ParserToken> = {
     [CutNode.Cut]: {name: CutNode.Cut, type: 'block', getAttrs},
     [CutNode.CutTitle]: {
         name: CutNode.CutTitle,
@@ -25,4 +27,21 @@ export const parserTokens: Record<CutNode, ParserToken> = {
         },
     },
     [CutNode.CutContent]: {name: CutNode.CutContent, type: 'block'},
+};
+
+export const YfmCutParserSpecs: ExtensionAuto = (builder) => {
+    const directiveSyntax = builder.context.get('directiveSyntax');
+
+    builder
+        .configureMd((md) =>
+            md.use(
+                yfmCut({
+                    bundle: false,
+                    directiveSyntax: directiveSyntax?.mdPluginValueFor('yfmCut'),
+                }),
+            ),
+        )
+        .addMarkdownTokenParserSpec('yfm_cut', () => parserTokens[CutNode.Cut])
+        .addMarkdownTokenParserSpec('yfm_cut_title', () => parserTokens[CutNode.CutTitle])
+        .addMarkdownTokenParserSpec('yfm_cut_content', () => parserTokens[CutNode.CutContent]);
 };

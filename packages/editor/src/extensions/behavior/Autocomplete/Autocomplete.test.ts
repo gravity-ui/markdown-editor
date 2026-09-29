@@ -1,3 +1,5 @@
+import {describe, expect, it, vi} from 'vitest';
+
 import {Logger2} from '../../../logger';
 
 import {MainHandler, type MainHandlerConfig} from './handler';
@@ -17,9 +19,9 @@ describe('Autocomplete', () => {
 
         for (const method of methodsWithAction) {
             it(`should call ${method} only on the right handlers`, () => {
-                const handler1: AutocompleteHandler = {[method]: jest.fn(() => false)};
-                const handler2: AutocompleteHandler = {[method]: jest.fn(() => true)};
-                const handler3: AutocompleteHandler = {[method]: jest.fn(() => true)};
+                const handler1: AutocompleteHandler = {[method]: vi.fn(() => false)};
+                const handler2: AutocompleteHandler = {[method]: vi.fn(() => true)};
+                const handler3: AutocompleteHandler = {[method]: vi.fn(() => true)};
 
                 const trigger1: AutocompleteTrigger = {name: 'trigger1', trigger: '#'};
                 const trigger2: AutocompleteTrigger = {name: 'trigger2', trigger: '#'};
@@ -54,9 +56,9 @@ describe('Autocomplete', () => {
         }
 
         it('should call onDestroy on each handler', () => {
-            const handler1: AutocompleteHandler = {onDestroy: jest.fn()};
-            const handler2: AutocompleteHandler = {onDestroy: jest.fn()};
-            const handler3: AutocompleteHandler = {onDestroy: jest.fn()};
+            const handler1: AutocompleteHandler = {onDestroy: vi.fn()};
+            const handler2: AutocompleteHandler = {onDestroy: vi.fn()};
+            const handler3: AutocompleteHandler = {onDestroy: vi.fn()};
 
             const trigger: AutocompleteTrigger = {name: 'name', trigger: '#'};
             const config: MainHandlerConfig = [

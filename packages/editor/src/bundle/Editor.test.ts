@@ -1,4 +1,5 @@
-/// <reference types="jest" />
+import {describe, expect, it, vi} from 'vitest';
+
 import {ReactRenderStorage} from '../extensions';
 import {Logger2} from '../logger';
 import {DirectiveSyntaxContext} from '../utils/directive';
@@ -28,7 +29,7 @@ function createEditorWithPreview(
 describe('EditorImpl: changePreviewVisible', () => {
     it('should be a no-op when renderPreview is not configured', () => {
         const editor = createEditor();
-        const listener = jest.fn();
+        const listener = vi.fn();
         editor.on('change-preview-visible', listener);
 
         editor.changePreviewVisible(true);
@@ -39,7 +40,7 @@ describe('EditorImpl: changePreviewVisible', () => {
 
     it('should show preview and emit change-preview-visible event', () => {
         const editor = createEditorWithPreview();
-        const listener = jest.fn();
+        const listener = vi.fn();
         editor.on('change-preview-visible', listener);
 
         editor.changePreviewVisible(true);
@@ -51,7 +52,7 @@ describe('EditorImpl: changePreviewVisible', () => {
 
     it('should toggle preview when called without argument', () => {
         const editor = createEditorWithPreview();
-        const listener = jest.fn();
+        const listener = vi.fn();
         editor.on('change-preview-visible', listener);
 
         editor.changePreviewVisible(); // false → true
@@ -70,7 +71,7 @@ describe('EditorImpl: changePreviewVisible', () => {
             initial: {splitModeEnabled: true},
             markupConfig: {renderPreview: () => null, splitMode: 'vertical'},
         });
-        const listener = jest.fn();
+        const listener = vi.fn();
         editor.on('change-preview-visible', listener);
 
         editor.changePreviewVisible(true);
@@ -83,7 +84,7 @@ describe('EditorImpl: changePreviewVisible', () => {
 describe('EditorImpl: changeSplitModeEnabled', () => {
     it('should enable split mode and emit change-split-mode-enabled event', () => {
         const editor = createEditor();
-        const listener = jest.fn();
+        const listener = vi.fn();
         editor.on('change-split-mode-enabled', listener);
 
         editor.changeSplitModeEnabled({splitModeEnabled: true});
@@ -100,7 +101,7 @@ describe('EditorImpl: mutual exclusion between preview and split mode', () => {
             initial: {splitModeEnabled: true},
             markupConfig: {renderPreview: () => null, splitMode: 'vertical'},
         });
-        const splitListener = jest.fn();
+        const splitListener = vi.fn();
         editor.on('change-split-mode-enabled', splitListener);
 
         expect(editor.splitModeEnabled).toBe(true);
@@ -115,8 +116,8 @@ describe('EditorImpl: mutual exclusion between preview and split mode', () => {
 
     it('should not emit events when state does not change', () => {
         const editor = createEditorWithPreview();
-        const previewListener = jest.fn();
-        const splitListener = jest.fn();
+        const previewListener = vi.fn();
+        const splitListener = vi.fn();
         editor.on('change-preview-visible', previewListener);
         editor.on('change-split-mode-enabled', splitListener);
 

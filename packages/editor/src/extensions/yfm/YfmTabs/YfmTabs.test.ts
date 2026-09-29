@@ -1,4 +1,5 @@
 import {builders} from 'prosemirror-test-builder';
+import {afterEach, beforeEach, describe, it, vi} from 'vitest';
 
 import {createMarkupChecker} from '../../../../tests/sameMarkup';
 import {ExtensionsManager} from '../../../core';
@@ -11,11 +12,11 @@ const mockRandomValue = 0.123456789;
 const generatedId = mockRandomValue.toString(36).substr(2, 8);
 
 beforeEach(() => {
-    jest.spyOn(global.Math, 'random').mockReturnValue(mockRandomValue);
+    vi.spyOn(global.Math, 'random').mockReturnValue(mockRandomValue);
 });
 
 afterEach(() => {
-    jest.spyOn(global.Math, 'random').mockRestore();
+    vi.spyOn(global.Math, 'random').mockRestore();
 });
 
 const {

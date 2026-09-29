@@ -2,11 +2,15 @@
 
 ## Testing
 
-**Always run tests in Docker. Never run them locally.**
+**Always run visual (Playwright) tests in Docker. Never run them locally.**
+
+Unit tests use Vitest. Import `describe`, `it`, `expect`, hooks, and `vi` explicitly from `vitest`; globals are disabled.
+
+Test names (`it`, `test`, and parameterized cases) must start with `should `, followed by a base-form verb.
 
 ### Prerequisites
 
-Before each test run, start the Podman machine:
+Before each visual test run, start the Podman machine:
 
 ```bash
 podman machine start
@@ -36,7 +40,7 @@ For more details on filtering and updating snapshots see [`docs/how-to-add-visua
 - `playwright:watch`
 - `playwright:headed`
 
-These run tests outside Docker and produce unreliable results.
+These run visual tests outside Docker and produce unreliable results.
 
 ## Documentation
 
@@ -57,6 +61,6 @@ Project docs live in `docs/`. Read the relevant file before working on the corre
 
 - TypeScript, React 18
 - CodeMirror 6, ProseMirror
-- Jest (unit), Playwright (visual/e2e)
+- Vitest (unit), Playwright (visual/e2e)
 - pnpm + nx monorepo
 - Podman / Docker for containerized test runs

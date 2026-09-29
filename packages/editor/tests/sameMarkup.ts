@@ -1,5 +1,6 @@
 /* eslint-disable no-console */
 import type {Node} from 'prosemirror-model';
+import {expect} from 'vitest';
 
 import type {Parser, Serializer} from '../src/core';
 

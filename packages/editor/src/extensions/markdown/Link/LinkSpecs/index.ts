@@ -1,18 +1,14 @@
-import type {Mark, Node} from 'prosemirror-model';
+import type {ExtensionAuto, SerializerState} from '#core';
 
-import type {ExtensionAuto} from '#core';
-import {markTypeFactory} from 'src/utils/schema';
+import {LinkAttr, linkMarkName} from './const';
+import {
+    canSerializeRawLink,
+    escapeParenthesesInUrl,
+    isPlainURL,
+    unwrapRawLinkBeforeWhitespace,
+} from './utils';
 
-export const linkMarkName = 'link';
-export const linkType = markTypeFactory(linkMarkName);
-
-export enum LinkAttr {
-    Href = 'href',
-    Title = 'title',
-    // tech attributes
-    IsPlaceholder = 'is-placeholder',
-    RawLink = 'raw-link',
-}
+export {LinkAttr, linkMarkName, linkType} from './const';
 
 export const LinkSpecs: ExtensionAuto = (builder) => {
     builder
@@ -52,19 +48,32 @@ export const LinkSpecs: ExtensionAuto = (builder) => {
             }),
         }))
         .addMarkSerializerSpec(linkMarkName, () => ({
-            open(state, mark, parent, index) {
-                // FIXME: Verify and use Node instead of Fragment
-                state.isAutolink = isPlainURL(mark, parent as any, index, 1);
+            open(state_, mark, parent, index) {
+                // TODO: Remove this saved flag after https://github.com/gravity-ui/markdown-editor/issues/1263 is fixed.
+                const state = state_ as SerializerState & {isRawAutolink?: boolean};
+                state.isAutolink = isPlainURL(mark, parent, index, 1);
                 if (state.isAutolink) {
-                    if (mark.attrs[LinkAttr.RawLink]) return '';
+                    state.isRawAutolink = canSerializeRawLink(mark, parent, index + 1);
+                    if (state.isRawAutolink) return '';
                     return '<';
                 }
                 return '[';
             },
-            close(state, mark) {
+            close(state_, mark) {
+                // TODO: Remove this saved flag after https://github.com/gravity-ui/markdown-editor/issues/1263 is fixed.
+                const state = state_ as SerializerState & {isRawAutolink?: boolean};
+                const raw = state.isRawAutolink;
+                state.isRawAutolink = undefined;
                 if (state.isAutolink) {
                     state.isAutolink = undefined;
-                    if (mark.attrs[LinkAttr.RawLink]) return '';
+                    if (raw) return '';
+                    // TODO: Remove this workaround after https://github.com/gravity-ui/markdown-editor/issues/1263 is fixed.
+                    if (
+                        mark.attrs[LinkAttr.RawLink] &&
+                        unwrapRawLinkBeforeWhitespace(state, mark.attrs[LinkAttr.Href])
+                    ) {
+                        return '';
+                    }
 
                     return '>';
                 }
@@ -80,26 +89,3 @@ export const LinkSpecs: ExtensionAuto = (builder) => {
             },
         }));
 };
-
-function isPlainURL(link: Mark, parent: Node, index: number, side: number) {
-    if (link.attrs.title || !/^\w+:/.test(link.attrs[LinkAttr.Href])) return false;
-
-    const content = parent.child(index + (side < 0 ? -1 : 0));
-
-    if (
-        !content.isText ||
-        content.text !== link.attrs[LinkAttr.Href] ||
-        content.marks[content.marks.length - 1] !== link
-    )
-        return false;
-
-    if (index === (side < 0 ? 1 : parent.childCount - 1)) return true;
-
-    const next = parent.child(index + (side < 0 ? -2 : 1));
-
-    return !link.isInSet(next.marks);
-}
-
-function escapeParenthesesInUrl(url: string): string {
-    return url.replaceAll(/\(|\)/g, (p) => '\\' + p);
-}

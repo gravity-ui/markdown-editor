@@ -2,6 +2,7 @@ import MarkdownIt from 'markdown-it';
 import type Token from 'markdown-it/lib/token';
 import {type Node, Schema} from 'prosemirror-model';
 import {schema as baseSchema, builders, doc, br as hardBreak, p} from 'prosemirror-test-builder';
+import {describe, expect, it} from 'vitest';
 
 import {Logger2} from '../../logger';
 import type {Parser} from '../types/parser';

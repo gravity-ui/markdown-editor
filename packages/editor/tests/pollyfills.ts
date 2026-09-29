@@ -2,6 +2,8 @@ import {Blob} from 'node:buffer';
 import {ReadableStream} from 'node:stream/web';
 import {TextDecoder, TextEncoder} from 'node:util';
 
+import {vi} from 'vitest';
+
 Object.assign(global, {Blob, ReadableStream, TextDecoder, TextEncoder});
 
 // fix from https://github.com/jsdom/jsdom/issues/3002
@@ -23,7 +25,7 @@ document.createRange = () => {
     range.getClientRects = () => ({
         length: 0,
         item: () => null,
-        [Symbol.iterator]: jest.fn(),
+        [Symbol.iterator]: vi.fn(),
     });
     return range;
 };

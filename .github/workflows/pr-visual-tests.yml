@@ -8,13 +8,13 @@ jobs:
     name: Visual Tests
     runs-on: ubuntu-latest
     container:
-      image: mcr.microsoft.com/playwright:v1.52.0-jammy
+      image: mcr.microsoft.com/playwright:v1.59.1-jammy
     steps:
       - name: Checkout
         uses: actions/checkout@v6
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@v5
+        uses: pnpm/action-setup@v6
 
       - name: Setup Node
         uses: actions/setup-node@v6

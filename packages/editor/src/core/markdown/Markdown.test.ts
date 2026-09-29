@@ -1,9 +1,6 @@
-/**
- * @jest-environment jsdom
- */
-
 import MarkdownIt from 'markdown-it';
 import * as builder from 'prosemirror-test-builder';
+import {afterEach, beforeEach, describe, expect, it} from 'vitest';
 
 import {createMarkupChecker} from '../../../tests/sameMarkup';
 import {Logger2} from '../../logger';
