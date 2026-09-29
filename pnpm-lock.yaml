@@ -296,8 +296,8 @@ importers:
         specifier: catalog:linters
         version: 16.26.1(typescript@5.9.3)
       ts-dedent:
-        specifier: 2.2.0
-        version: 2.2.0
+        specifier: 2.3.0
+        version: 2.3.0
       typescript:
         specifier: catalog:ts
         version: 5.9.3
@@ -8334,6 +8334,10 @@ packages:
     resolution: {integrity: sha512-q5W7tVM71e2xjHZTlgfTDoPF/SmqKG5hddq9SzR49CH2hayqRKJtQ4mtRlSxKaJlR/+9rEM+mnBHf7I2/BQcpQ==}
     engines: {node: '>=6.10'}
 
+  ts-dedent@2.3.0:
+    resolution: {integrity: sha512-JfJeIHke7y2egdGGgRAvpCwYFUsHlM2gPcrVOxFkznt/4uzQ7HFmvE63iFHVLBJNDuyDOQgijDK/tXH/f6Msjg==}
+    engines: {node: '>=6.10'}
+
   ts-easing@0.2.0:
     resolution: {integrity: sha512-Z86EW+fFFh/IFB1fqQ3/+7Zpf9t2ebOAxNI/V6Wo7r5gqiqtxmgTlQ1qbqQcjLKYeSHPTsEmvlJUDg/EuL0uHQ==}
 
@@ -10219,7 +10223,7 @@ snapshots:
       d3: 7.9.0
       markdown-it: 13.0.2
       mermaid: 11.13.0
-      ts-dedent: 2.2.0
+      ts-dedent: 2.3.0
     optionalDependencies:
       react: 18.2.0
 
@@ -10305,7 +10309,7 @@ snapshots:
       sanitize-html: 2.14.0
       slugify: 1.6.6
       svgo: 3.3.2
-      ts-dedent: 2.2.0
+      ts-dedent: 2.3.0
     optionalDependencies:
       highlight.js: 11.11.1
     transitivePeerDependencies:
@@ -10336,7 +10340,7 @@ snapshots:
       sanitize-html: 2.14.0
       slugify: 1.6.6
       svgo: 3.3.2
-      ts-dedent: 2.2.0
+      ts-dedent: 2.3.0
     optionalDependencies:
       highlight.js: 11.8.0
     transitivePeerDependencies:
@@ -10368,7 +10372,7 @@ snapshots:
       sanitize-html: 2.14.0
       slugify: 1.6.6
       svgo: 3.3.2
-      ts-dedent: 2.2.0
+      ts-dedent: 2.3.0
     optionalDependencies:
       highlight.js: 11.11.1
     transitivePeerDependencies:
@@ -10397,7 +10401,7 @@ snapshots:
       markdown-it-sup: 1.0.0
       node-html-parser: 6.1.13
       openapi-types: 12.1.3
-      ts-dedent: 2.2.0
+      ts-dedent: 2.3.0
       uri-js: 4.4.1
       xml-formatter: 3.7.0
       xml-parser-xo: 4.1.6
@@ -11605,7 +11609,7 @@ snapshots:
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
       storybook: 10.6.0(@types/react@18.0.28)(prettier@3.7.4)(react@18.2.0)
-      ts-dedent: 2.2.0
+      ts-dedent: 2.3.0
       unplugin: 2.3.11
     optionalDependencies:
       '@types/react': 18.0.28
@@ -11634,7 +11638,7 @@ snapshots:
       storybook: 10.6.0(@types/react@18.0.28)(prettier@3.7.4)(react@18.2.0)
       style-loader: 4.0.0(webpack@5.106.2)
       terser-webpack-plugin: 5.4.0(webpack@5.106.2)
-      ts-dedent: 2.2.0
+      ts-dedent: 2.3.0
       webpack: 5.106.2
       webpack-dev-middleware: 6.1.3(webpack@5.106.2)
       webpack-hot-middleware: 2.26.1
@@ -11656,7 +11660,7 @@ snapshots:
       create-storybook: 10.6.0(@types/react@18.0.28)(prettier@3.7.4)(react@18.2.0)
       jscodeshift: 0.15.2(@babel/preset-env@7.29.7(@babel/core@7.28.5))
       storybook: 10.6.0(@types/react@18.0.28)(prettier@3.7.4)(react@18.2.0)
-      ts-dedent: 2.2.0
+      ts-dedent: 2.3.0
     transitivePeerDependencies:
       - '@babel/preset-env'
       - '@types/react'
@@ -11689,7 +11693,7 @@ snapshots:
   '@storybook/core-webpack@10.6.0(storybook@10.6.0(@types/react@18.0.28)(prettier@3.7.4)(react@18.2.0))':
     dependencies:
       storybook: 10.6.0(@types/react@18.0.28)(prettier@3.7.4)(react@18.2.0)
-      ts-dedent: 2.2.0
+      ts-dedent: 2.3.0
 
   '@storybook/global@5.0.0': {}
 
@@ -15618,7 +15622,7 @@ snapshots:
       marked: 16.4.2
       roughjs: 4.6.6
       stylis: 4.3.6
-      ts-dedent: 2.2.0
+      ts-dedent: 2.3.0
       uuid: 11.1.0
 
   micromark-core-commonmark@1.1.0:
@@ -17780,6 +17784,8 @@ snapshots:
       typescript: 5.9.3
 
   ts-dedent@2.2.0: {}
+
+  ts-dedent@2.3.0: {}
 
   ts-easing@0.2.0: {}
 
