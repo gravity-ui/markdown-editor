@@ -1,7 +1,8 @@
-import {toggleMark} from 'prosemirror-commands';
-
 import type {Action, ExtensionAuto} from '../../../core';
-import {createMarkdownInlineMarkAction} from '../../../utils/actions';
+import {
+    createMarkdownInlineMarkAction,
+    createMarkdownInlineMarkCommand,
+} from '../../../utils/actions';
 import {markInputRule} from '../../../utils/inputrules';
 import {withLogAction} from '../../../utils/keymap';
 
@@ -28,7 +29,10 @@ export const Strike: ExtensionAuto<StrikeOptions> = (builder, opts) => {
     if (opts?.strikeKey) {
         const {strikeKey} = opts;
         builder.addKeymap(({schema}) => ({
-            [strikeKey]: withLogAction('strike', toggleMark(strikeType(schema))),
+            [strikeKey]: withLogAction(
+                'strike',
+                createMarkdownInlineMarkCommand(strikeType(schema)),
+            ),
         }));
     }
 };
