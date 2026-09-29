@@ -8,7 +8,7 @@
   "action.align.right": "Вся секция по правому краю",
   "action.align.stretch": "Растягивать секцию на всю ширину",
   "action.remove": "Удалить",
-  "cell.preview": "Превью",
+  "cell.preview": "Предпросмотр",
   "cell.width": "Ширина",
   "cell.width.auto": "Автоматически",
   "cell.remove": "Удалить ячейку"
