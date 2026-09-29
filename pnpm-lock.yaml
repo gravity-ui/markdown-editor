@@ -311,8 +311,8 @@ importers:
   infra/docs-gen:
     dependencies:
       '@diplodoc/cli':
-        specifier: 5.50.4
-        version: 5.50.4(@types/markdown-it@13.0.9)(@types/node@25.2.1)(react@18.2.0)(strip-ansi@7.1.0)
+        specifier: 5.62.0
+        version: 5.62.0(@types/markdown-it@13.0.9)(@types/node@25.2.1)(react@18.2.0)(strip-ansi@7.1.0)
 
   infra/gulp-tasks:
     dependencies:
@@ -1647,18 +1647,18 @@ packages:
     peerDependencies:
       postcss-selector-parser: ^7.0.0
 
-  '@diplodoc/ajv@0.1.5':
-    resolution: {integrity: sha512-SVwu/YLsDpuoBXLBpOVqKaOIwElGCnz/Ik+JRyEujbA1vFv52d89zk9y+Xskuxok9/hl5iBgMTADGNU/T/IexQ==}
-    engines: {npm: '>=11.5.1'}
-    hasBin: true
-
   '@diplodoc/ajv@0.4.4':
     resolution: {integrity: sha512-85JqopX8oWkBXCFQYfcQhkgEzAYDFN5V7vODlKugnj+g/x2ip/Sqz7BUk3u/VzAI7kCm0cr9V532Jo0BJT+z9w==}
     engines: {npm: '>=11.5.1'}
     hasBin: true
 
-  '@diplodoc/cli@5.50.4':
-    resolution: {integrity: sha512-lpnCkynJwj9QPmU019bugOiAFB1R0qzCkLokn//6R133MtiRTQYsp8hIUb68FEL6Pf7glCcOmWXreLknRiXNyA==}
+  '@diplodoc/ajv@0.8.0':
+    resolution: {integrity: sha512-/aWsLH2Y3AQq9oeGCg8Ay/RCOpyPnuv73awAMv6zBqEd7iO/QargjIQqC2OT9zLMxKKs/2Z65D5+z/sCXxMQOg==}
+    engines: {npm: '>=11.5.1'}
+    hasBin: true
+
+  '@diplodoc/cli@5.62.0':
+    resolution: {integrity: sha512-TenTdzcTPNy9fEO36Pz4Ze81TAPFBXnPR69mofjq1Z92E37AGgq0PEp8MZ3CBMbBxgn4XuSkXPDF4z1PhsZY8g==}
     engines: {node: '>=24', npm: '>=11.5.1'}
     hasBin: true
     peerDependencies:
@@ -1676,6 +1676,12 @@ packages:
 
   '@diplodoc/color-extension@0.1.1':
     resolution: {integrity: sha512-213m29bWa5O/dcnYe9MxEqbfm9Cp3uMurRK20ICKahlXa6TZ52NTbcpCbFrOEWA0LcvQjAl0VKZ3eK+pVzRsZw==}
+
+  '@diplodoc/color-extension@1.0.0':
+    resolution: {integrity: sha512-TGeaEatbLH2aN5ehb4cI4xm6YdFUBUCNDjHJVAOG5DS2jai5wsJAWdcni3kgvUfyMFamqBvh/47x5WFdYqjWLQ==}
+    engines: {npm: '>=11.5.1'}
+    peerDependencies:
+      markdown-it: ^13.0.0
 
   '@diplodoc/cut-extension@1.1.1':
     resolution: {integrity: sha512-+D7IPDrLg+ANhVusUA9t7n+sXpGzuoq9Lsr8BzgDBv8KWKD0DLGNfhspHKqi1prVVM8BZadmVR4BLsnTrV3zcA==}
@@ -1731,8 +1737,8 @@ packages:
       react:
         optional: true
 
-  '@diplodoc/liquid@1.5.2':
-    resolution: {integrity: sha512-d9/yv7ERlQRjSmFhwrUCmFsXzNRExxFyoFaEzyn++j0tKBuFsjP4UNchsoodVYBwUkCS16UlMutBY1bM0PDQ6w==}
+  '@diplodoc/liquid@1.5.3':
+    resolution: {integrity: sha512-cbSDI46W/FQnHneOwHni5zotI8GGX7uzDR875BISnU43l9HhblhHL/aH3h5KYmPD6iT6LkWrOdTsP3lFPNcTJg==}
     engines: {npm: '>=11.5.1'}
 
   '@diplodoc/mermaid-extension@2.0.0':
@@ -9039,11 +9045,6 @@ packages:
     engines: {node: '>= 14.6'}
     hasBin: true
 
-  yaml@2.8.2:
-    resolution: {integrity: sha512-mplynKqc1C2hTVYxd0PU2xQAc22TI1vShAYGksCCfxbn/dFwnHTNi1bvYsBTkhdUNtGIf5xNOg938rrSSYvS9A==}
-    engines: {node: '>= 14.6'}
-    hasBin: true
-
   yaml@2.9.1:
     resolution: {integrity: sha512-3NxN8+78OdzbT7C/WjGsyfPAtJaN3FNDsWxv7Y7mcDsT/oOmgW8BpyQQFFBnvZE3j9Y2Sdz1ULFLezL7Eb2yFw==}
     engines: {node: '>= 14.6'}
@@ -10219,20 +10220,20 @@ snapshots:
     dependencies:
       postcss-selector-parser: 7.1.1
 
-  '@diplodoc/ajv@0.1.5':
-    dependencies:
-      js-yaml: 4.1.1
-
   '@diplodoc/ajv@0.4.4':
     dependencies:
       js-yaml: 4.1.1
 
-  '@diplodoc/cli@5.50.4(@types/markdown-it@13.0.9)(@types/node@25.2.1)(react@18.2.0)(strip-ansi@7.1.0)':
+  '@diplodoc/ajv@0.8.0':
     dependencies:
-      '@diplodoc/ajv': 0.1.5
+      js-yaml: 4.1.1
+
+  '@diplodoc/cli@5.62.0(@types/markdown-it@13.0.9)(@types/node@25.2.1)(react@18.2.0)(strip-ansi@7.1.0)':
+    dependencies:
+      '@diplodoc/ajv': 0.8.0
       '@diplodoc/client': 5.14.0
-      '@diplodoc/color-extension': 0.1.1
-      '@diplodoc/liquid': 1.5.2
+      '@diplodoc/color-extension': 1.0.0(markdown-it@13.0.2)
+      '@diplodoc/liquid': 1.5.3
       '@diplodoc/transform': 4.78.0(@types/markdown-it@13.0.9)(highlight.js@11.11.1)(react@18.2.0)
       '@diplodoc/translation': 1.8.0(@types/markdown-it@13.0.9)(highlight.js@11.11.1)(markdown-it@13.0.2)(react@18.2.0)
       '@diplodoc/utils': 2.3.6(react@18.2.0)
@@ -10259,7 +10260,7 @@ snapshots:
       tapable: 2.2.1
       threads: 1.7.0
       ts-dedent: 2.2.0
-      yaml: 2.8.2
+      yaml: 2.9.1
     optionalDependencies:
       strip-ansi: 7.1.0
     transitivePeerDependencies:
@@ -10271,6 +10272,10 @@ snapshots:
   '@diplodoc/client@5.14.0': {}
 
   '@diplodoc/color-extension@0.1.1': {}
+
+  '@diplodoc/color-extension@1.0.0(markdown-it@13.0.2)':
+    dependencies:
+      markdown-it: 13.0.2
 
   '@diplodoc/cut-extension@1.1.1(@types/markdown-it@13.0.9)(markdown-it@13.0.2)(react@18.2.0)':
     dependencies:
@@ -10363,7 +10368,7 @@ snapshots:
     optionalDependencies:
       react: 18.2.0
 
-  '@diplodoc/liquid@1.5.2':
+  '@diplodoc/liquid@1.5.3':
     dependencies:
       chalk: 4.1.2
       js-yaml: 4.1.1
@@ -10538,8 +10543,8 @@ snapshots:
       '@diplodoc/sentenizer': 0.0.11
       '@diplodoc/transform': 4.78.0(@types/markdown-it@13.0.9)(highlight.js@11.11.1)(react@18.2.0)
       '@shellscape/i18n-iso-countries': 7.5.0-shellscape.v1
-      ajv: 8.18.0
-      ajv-keywords: 5.1.0(ajv@8.18.0)
+      ajv: 8.20.0
+      ajv-keywords: 5.1.0(ajv@8.20.0)
       cheerio: 1.0.0
       domhandler: 5.0.3
       fast-xml-parser: 4.5.6
@@ -14758,7 +14763,7 @@ snapshots:
       node-abort-controller: 3.1.1
       schema-utils: 3.3.0
       semver: 7.7.4
-      tapable: 2.3.0
+      tapable: 2.3.3
       typescript: 5.9.3
       webpack: 5.111.1(postcss@8.5.18)
 
@@ -15112,7 +15117,7 @@ snapshots:
       html-minifier-terser: 6.1.0
       lodash: 4.17.23
       pretty-error: 4.0.0
-      tapable: 2.3.0
+      tapable: 2.3.3
     optionalDependencies:
       webpack: 5.111.1(postcss@8.5.18)
 
@@ -18716,8 +18721,6 @@ snapshots:
   yallist@3.1.1: {}
 
   yaml@2.8.0: {}
-
-  yaml@2.8.2: {}
 
   yaml@2.9.1: {}
 
