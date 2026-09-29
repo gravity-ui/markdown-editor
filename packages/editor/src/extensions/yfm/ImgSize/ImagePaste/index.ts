@@ -101,7 +101,12 @@ export const ImagePaste: ExtensionAuto<ImagePasteOptions> = (builder, opts) => {
                                 });
 
                                 const tr = view.state.tr.replaceSelectionWith(imageNode);
-                                view.dispatch(tr.scrollIntoView());
+                                view.dispatch(
+                                    tr
+                                        .scrollIntoView()
+                                        .setMeta('paste', true)
+                                        .setMeta('uiEvent', 'paste'),
+                                );
                                 logger.event({event: 'paste-url-as-image'});
 
                                 loadImageFromUrl(imageUrl)
