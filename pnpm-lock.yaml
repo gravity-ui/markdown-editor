@@ -535,8 +535,8 @@ importers:
         specifier: 'catalog:'
         version: 17.4.0(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       ts-dedent:
-        specifier: 2.2.0
-        version: 2.2.0
+        specifier: 2.3.0
+        version: 2.3.0
       tslib:
         specifier: catalog:ts
         version: 2.8.1
