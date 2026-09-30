@@ -1,5 +1,18 @@
 # Changelog
 
+## [15.48.0](https://github.com/gravity-ui/markdown-editor/compare/markdown-editor-v15.47.1...markdown-editor-v15.48.0) (2026-09-30)
+
+
+### Features
+
+* **toolbars:** support presets for selection and slash menus ([#1228](https://github.com/gravity-ui/markdown-editor/issues/1228)) ([ff4b314](https://github.com/gravity-ui/markdown-editor/commit/ff4b31474e033d3cb21b8b7cb6347db5869edaa5))
+
+
+### Bug Fixes
+
+* **markup:** keep Opt+Shift+0 typable on macOS ([#1294](https://github.com/gravity-ui/markdown-editor/issues/1294)) ([7a84941](https://github.com/gravity-ui/markdown-editor/commit/7a849413b7ec319b947ab6c0c71425d0a7cfdbc9))
+* **toolbar:** prevent overlapping disabled action tooltips ([#1274](https://github.com/gravity-ui/markdown-editor/issues/1274)) ([4a372b1](https://github.com/gravity-ui/markdown-editor/commit/4a372b1af9bd1d9b573df924ec3913ce4fafa721))
+
 ## [15.47.1](https://github.com/gravity-ui/markdown-editor/compare/markdown-editor-v15.47.0...markdown-editor-v15.47.1) (2026-09-25)
 
 
