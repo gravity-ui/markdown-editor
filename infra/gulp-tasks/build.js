@@ -11,6 +11,8 @@ import * as jsSass from 'sass';
 
 const sass = gulpSass(jsSass);
 
+const EXCLUDE_TEST_DIRECTORIES = '!src/**/__tests__/**';
+
 const Module = Object.freeze({
     CJS: 'nodenext',
     ESM: 'esnext',
@@ -37,14 +39,14 @@ export function registerBuildTasks({version, buildDir, nodeModulesDir}) {
 
     gulp.task('json', () => {
         return gulp
-            .src('src/**/*.json')
+            .src(['src/**/*.json', EXCLUDE_TEST_DIRECTORIES])
             .pipe(gulp.dest(BUILD_DIR_CJS))
             .pipe(gulp.dest(BUILD_DIR_ESM));
     });
 
     gulp.task('scss', () => {
         return gulp
-            .src('src/**/*.scss')
+            .src(['src/**/*.scss', EXCLUDE_TEST_DIRECTORIES])
             .pipe(
                 replace(/@(import|use) '~.+'/g, (match) =>
                     match.replace('~', NODE_MODULES_DIR + '/'),
@@ -85,7 +87,11 @@ export function registerBuildTasks({version, buildDir, nodeModulesDir}) {
         ];
 
         return new Promise((resolve) => {
-            gulp.src(['src/**/*.{js,jsx,ts,tsx}', '!src/**/*.test.{js,jsx,ts,tsx}'])
+            gulp.src([
+                'src/**/*.{js,jsx,ts,tsx}',
+                '!src/**/*.test.{js,jsx,ts,tsx}',
+                EXCLUDE_TEST_DIRECTORIES,
+            ])
                 .pipe(sourcemaps.init())
                 .pipe(
                     tsProject({

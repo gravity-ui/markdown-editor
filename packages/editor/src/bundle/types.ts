@@ -64,6 +64,11 @@ export type MarkdownEditorHandlers = {
 
 export type MarkdownEditorExperimentalOptions = {
     /**
+     * Use syntax-aware inline formatting in markup mode.
+     * @default false
+     */
+    structuralInlineFormatting?: boolean;
+    /**
      * If we need to set dimensions for uploaded images
      * @default false
      */

@@ -55,7 +55,7 @@ describe.each(styles)('yfmLang $name', ({name, marker, tag}) => {
         expect(renderer.renderInline(doc)).toBe(doc);
     });
 
-    it.each(['a%s!one%s', '%sone!%sa'])(
+    it.each(['a%s!one%s', '%sone!%sa', 'a%s$one%s', '%sone$%sa'])(
         'should reject invalid punctuation boundaries in %s',
         (source) => {
             const doc = source.replaceAll('%s', marker);
@@ -75,6 +75,23 @@ describe.each(styles)('yfmLang $name', ({name, marker, tag}) => {
         ]);
         expect(renderer.renderInline(doc)).toBe(`«<${tag}>one</${tag}>»`);
     });
+
+    it.each([
+        {source: 'a%s£one two%s', from: 1, to: 13, before: 'a', content: '£one two', after: ''},
+        {source: '%sone two£%sa', from: 0, to: 12, before: '', content: 'one two£', after: 'a'},
+    ])(
+        'should treat a Unicode symbol as text in $source',
+        ({source, from, to, before, content, after}) => {
+            const doc = source.replaceAll('%s', marker);
+
+            expect(renderer.renderInline(doc)).toBe(`${before}<${tag}>${content}</${tag}>${after}`);
+            expect(styleNodes(parse(doc), name)).toEqual([
+                [name, from, to],
+                [`${name}Mark`, from, from + 2],
+                [`${name}Mark`, to - 2, to],
+            ]);
+        },
+    );
 
     it('should accept a style inside a word', () => {
         const doc = `a${marker}b${marker}c`;

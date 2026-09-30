@@ -15,7 +15,8 @@ export const customTags = {
     marked: Tag.define(),
 };
 
-const inlinePunctuation = /[\p{P}\p{S}]/u;
+// Markdown uses Unicode punctuation and all ASCII punctuation.
+const inlinePunctuation = /[\p{P}$+<=>^`|~]/u;
 
 function mdInlineFactory({
     name,

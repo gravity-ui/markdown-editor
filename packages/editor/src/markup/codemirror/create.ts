@@ -41,11 +41,11 @@ import {
     toH5,
     toH6,
     toggleBold,
+    toggleInlineCode,
     toggleItalic,
     toggleStrikethrough,
     toggleUnderline,
     wrapToCodeBlock,
-    wrapToInlineCode,
     wrapToYfmCut,
     wrapToYfmNote,
 } from '../commands';
@@ -55,11 +55,13 @@ import {type FileUploadHandler, FileUploadHandlerFacet} from './files-upload-fac
 import {FilesUploadPlugin} from './files-upload-plugin';
 import {gravityHighlightStyle, gravityTheme} from './gravity';
 import {MarkdownConverter} from './html-to-markdown/converters';
+import {LinkifyFacet} from './linkify-facet';
 import {LoggerFacet} from './logger-facet';
 import {PairingCharactersExtension} from './pairing-chars';
 import {ReactRendererFacet} from './react-facet';
 import {SearchPanelPlugin} from './search-plugin/plugin';
 import {smartReindent} from './smart-reindent';
+import {StructuralInlineFormattingFacet} from './structural-inline-formatting-facet';
 import {type YfmLangOptions, yfmLang} from './yfm';
 
 export type {YfmLangOptions};
@@ -96,6 +98,9 @@ export type CreateCodemirrorParams = {
     keymaps?: readonly KeyBinding[];
     receiver?: Receiver<EventMap>;
     yfmLangOptions?: YfmLangOptions;
+    linkify?: boolean;
+    /** Use syntax-aware inline formatting. @default false */
+    structuralInlineFormatting?: boolean;
     autocompletion?: Autocompletion;
     tooltips?: Tooltips;
     directiveSyntax: DirectiveSyntaxContext;
@@ -117,6 +122,8 @@ export function createCodemirror(params: CreateCodemirrorParams) {
         keymaps = [],
         receiver,
         yfmLangOptions,
+        linkify = false,
+        structuralInlineFormatting,
         extensions: extraExtensions,
         placeholder: placeholderContent,
         autocompletion: autocompletionConfig,
@@ -151,7 +158,7 @@ export function createCodemirror(params: CreateCodemirrorParams) {
             {key: f.toCM(A.Heading4)!, run: withLogger(ActionName.heading4, toH4)},
             {key: f.toCM(A.Heading5)!, run: withLogger(ActionName.heading5, toH5)},
             {key: f.toCM(A.Heading6)!, run: withLogger(ActionName.heading6, toH6)},
-            {key: f.toCM(A.Code)!, run: withLogger(ActionName.code_inline, wrapToInlineCode)},
+            {key: f.toCM(A.Code)!, run: withLogger(ActionName.code_inline, toggleInlineCode)},
             {key: f.toCM(A.CodeBlock)!, run: withLogger(ActionName.code_block, wrapToCodeBlock)},
             {key: f.toCM(A.Cut)!, run: withLogger(ActionName.yfm_cut, wrapToYfmCut)},
             {key: f.toCM(A.Note)!, run: withLogger(ActionName.yfm_note, wrapToYfmNote)},
@@ -198,6 +205,10 @@ export function createCodemirror(params: CreateCodemirrorParams) {
             ? []
             : Prec.highest(keymap.of(completionKeymapWithoutBacktick)),
         yfmLang(yfmLangOptions),
+        LinkifyFacet.of(linkify),
+        structuralInlineFormatting === undefined
+            ? []
+            : StructuralInlineFormattingFacet.of(structuralInlineFormatting),
         ReactRendererFacet.of(reactRenderer),
         DirectiveSyntaxFacet.of(directiveSyntax),
         PairingCharactersExtension,
