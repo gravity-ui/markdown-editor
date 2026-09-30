@@ -83,8 +83,8 @@ catalogs:
       specifier: 3.0.0
       version: 3.0.0
     markdown-it:
-      specifier: ^13.0.0
-      version: 13.0.2
+      specifier: ^14.3.1
+      version: 14.3.2
   react:
     '@types/react':
       specifier: 18.0.28
@@ -152,25 +152,25 @@ importers:
     dependencies:
       '@diplodoc/cut-extension':
         specifier: catalog:peer-diplodoc
-        version: 1.1.1(@types/markdown-it@13.0.9)(markdown-it@13.0.2)(react@18.2.0)
+        version: 1.1.1(@types/markdown-it@13.0.9)(markdown-it@14.3.2)(react@18.2.0)
       '@diplodoc/file-extension':
         specifier: catalog:peer-diplodoc
-        version: 0.2.2(@types/markdown-it@13.0.9)(markdown-it@13.0.2)
+        version: 0.2.2(@types/markdown-it@13.0.9)(markdown-it@14.3.2)
       '@diplodoc/folding-headings-extension':
         specifier: catalog:peer-diplodoc
         version: 0.1.2
       '@diplodoc/html-extension':
         specifier: catalog:peer-diplodoc
-        version: 2.9.6(@diplodoc/transform@4.75.1(@types/markdown-it@13.0.9)(highlight.js@11.11.1)(react@18.2.0))(@types/markdown-it@13.0.9)(markdown-it@13.0.2)(react@18.2.0)
+        version: 2.9.6(@diplodoc/transform@4.75.1(@types/markdown-it@13.0.9)(highlight.js@11.11.1)(react@18.2.0))(@types/markdown-it@13.0.9)(markdown-it@14.3.2)(react@18.2.0)
       '@diplodoc/latex-extension':
         specifier: catalog:peer-diplodoc
-        version: 2.0.2(katex@0.16.47)(markdown-it@13.0.2)(react@18.2.0)
+        version: 2.0.2(katex@0.16.47)(markdown-it@14.3.2)(react@18.2.0)
       '@diplodoc/mermaid-extension':
         specifier: catalog:peer-diplodoc
-        version: 2.0.0(markdown-it@13.0.2)(react@18.2.0)
+        version: 2.0.0(markdown-it@14.3.2)(react@18.2.0)
       '@diplodoc/page-constructor-extension':
         specifier: catalog:peer-diplodoc
-        version: 0.13.3(@diplodoc/transform@4.75.1(@types/markdown-it@13.0.9)(highlight.js@11.11.1)(react@18.2.0))(@gravity-ui/uikit@7.13.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/markdown-it@13.0.9)(@types/react@18.0.28)(markdown-it@13.0.2)(react-dom@18.2.0(react@18.2.0))(react-is@18.3.1)(react@18.2.0)
+        version: 0.13.3(@diplodoc/transform@4.75.1(@types/markdown-it@13.0.9)(highlight.js@11.11.1)(react@18.2.0))(@gravity-ui/uikit@7.13.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/markdown-it@13.0.9)(@types/react@18.0.28)(markdown-it@14.3.2)(react-dom@18.2.0(react@18.2.0))(react-is@18.3.1)(react@18.2.0)
       '@diplodoc/quote-link-extension':
         specifier: catalog:peer-diplodoc
         version: 0.1.3(react@18.2.0)
@@ -200,7 +200,7 @@ importers:
         version: 7.13.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       markdown-it:
         specifier: catalog:peers
-        version: 13.0.2
+        version: 14.3.2
     devDependencies:
       '@babel/preset-env':
         specifier: 7.29.7
@@ -464,7 +464,7 @@ importers:
         version: 4.17.23
       markdown-it-attrs:
         specifier: ^4.2.0
-        version: 4.2.0(markdown-it@13.0.2)
+        version: 4.2.0(markdown-it@14.3.2)
       markdown-it-emoji:
         specifier: 2.0.2
         version: 2.0.2
@@ -546,22 +546,22 @@ importers:
     devDependencies:
       '@diplodoc/cut-extension':
         specifier: catalog:peer-diplodoc
-        version: 1.1.1(@types/markdown-it@13.0.9)(markdown-it@13.0.2)(react@18.2.0)
+        version: 1.1.1(@types/markdown-it@13.0.9)(markdown-it@14.3.2)(react@18.2.0)
       '@diplodoc/file-extension':
         specifier: catalog:peer-diplodoc
-        version: 0.2.2(@types/markdown-it@13.0.9)(markdown-it@13.0.2)
+        version: 0.2.2(@types/markdown-it@13.0.9)(markdown-it@14.3.2)
       '@diplodoc/folding-headings-extension':
         specifier: catalog:peer-diplodoc
         version: 0.1.2
       '@diplodoc/html-extension':
         specifier: catalog:peer-diplodoc
-        version: 2.9.6(@diplodoc/transform@4.75.1(@types/markdown-it@13.0.9)(highlight.js@11.8.0)(react@18.2.0))(@types/markdown-it@13.0.9)(markdown-it@13.0.2)(react@18.2.0)
+        version: 2.9.6(@diplodoc/transform@4.75.1(@types/markdown-it@13.0.9)(highlight.js@11.8.0)(react@18.2.0))(@types/markdown-it@13.0.9)(markdown-it@14.3.2)(react@18.2.0)
       '@diplodoc/latex-extension':
         specifier: catalog:peer-diplodoc
-        version: 2.0.2(katex@0.16.27)(markdown-it@13.0.2)(react@18.2.0)
+        version: 2.0.2(katex@0.16.27)(markdown-it@14.3.2)(react@18.2.0)
       '@diplodoc/mermaid-extension':
         specifier: catalog:peer-diplodoc
-        version: 2.0.0(markdown-it@13.0.2)(react@18.2.0)
+        version: 2.0.0(markdown-it@14.3.2)(react@18.2.0)
       '@diplodoc/quote-link-extension':
         specifier: catalog:peer-diplodoc
         version: 0.1.3(react@18.2.0)
@@ -651,7 +651,7 @@ importers:
         version: 3.0.0
       markdown-it:
         specifier: catalog:peers
-        version: 13.0.2
+        version: 14.3.2
       markdown-it-testgen:
         specifier: ^0.1.6
         version: 0.1.6
@@ -737,7 +737,7 @@ importers:
     devDependencies:
       '@diplodoc/page-constructor-extension':
         specifier: catalog:peer-diplodoc
-        version: 0.13.3(@diplodoc/transform@4.78.0(@types/markdown-it@13.0.9)(highlight.js@11.11.1)(react@18.2.0))(@gravity-ui/uikit@7.13.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/markdown-it@13.0.9)(@types/react@18.0.28)(markdown-it@13.0.2)(react-dom@18.2.0(react@18.2.0))(react-is@18.3.1)(react@18.2.0)
+        version: 0.13.3(@diplodoc/transform@4.78.0(@types/markdown-it@13.0.9)(highlight.js@11.11.1)(react@18.2.0))(@gravity-ui/uikit@7.13.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/markdown-it@13.0.9)(@types/react@18.0.28)(markdown-it@14.3.2)(react-dom@18.2.0(react@18.2.0))(react-is@18.3.1)(react@18.2.0)
       '@gravity-ui/markdown-editor':
         specifier: workspace:*
         version: link:../editor
@@ -2638,21 +2638,25 @@ packages:
     resolution: {integrity: sha512-MBYG58VUTmLW4S2RlYmXJiV6P0P1lkiZXtiaulZOXmP5uCSXiqMgK47k56hq9GTbtW1SpyGgh02lkNdCYTbmLw==}
     cpu: [arm64]
     os: [linux]
+    libc: [glibc]
 
   '@nx/nx-linux-arm64-musl@22.7.2':
     resolution: {integrity: sha512-Wf4VBSJt5gEGdzX6uzZoITEYB/Y3TxjvPNT11NKfRU/m63b8/D8jCeRmr7cBTaMUlNmdH3Lf3G1PuPNGoEZ0Mg==}
     cpu: [arm64]
     os: [linux]
+    libc: [musl]
 
   '@nx/nx-linux-x64-gnu@22.7.2':
     resolution: {integrity: sha512-v3AQyfCkv9k+AWT2hy8hAGaCmFYf+G/bt4KAqnWhmXPWNhxrv9FhvTUcjpY+MY+6v7sKdhJv/3eDvtlLd9FOLg==}
     cpu: [x64]
     os: [linux]
+    libc: [glibc]
 
   '@nx/nx-linux-x64-musl@22.7.2':
     resolution: {integrity: sha512-3SMfMB7ynr8wGGTZP+/ZV7FqkCsOg1Raoka+4EtIPX66bEcBycg8FVg81DbyV+IzuKk3N+8Hl2IeY1W2btPypw==}
     cpu: [x64]
     os: [linux]
+    libc: [musl]
 
   '@nx/nx-win32-arm64-msvc@22.7.2':
     resolution: {integrity: sha512-eTFTTF1JUKXu+PNOGd7KAdqyWyfvFKO/wpqHoq9fjnbjXgCdCg1PaRxHIxA1WT5HFj1iHS6Or+GC1zA1KNt0Sw==}
@@ -2711,48 +2715,56 @@ packages:
     engines: {node: ^20.19.0 || >=22.12.0}
     cpu: [arm64]
     os: [linux]
+    libc: [glibc]
 
   '@oxc-parser/binding-linux-arm64-musl@0.127.0':
     resolution: {integrity: sha512-EoTCZneNFU/P2qrpEM+RHmQwt+CvDkyGESG6qhr7KaegXLZwePfbrkCDfAk8/rhxbDUVGsZILX+2tqPzFtoFWA==}
     engines: {node: ^20.19.0 || >=22.12.0}
     cpu: [arm64]
     os: [linux]
+    libc: [musl]
 
   '@oxc-parser/binding-linux-ppc64-gnu@0.127.0':
     resolution: {integrity: sha512-zALjmZYgxFLHjXeudcDF0xFGNydTAtkAeXAr2EuC17ywCyFxcmQra4w0BMde0Yi/re4Bi4iwEoEXtYN7l6eBLQ==}
     engines: {node: ^20.19.0 || >=22.12.0}
     cpu: [ppc64]
     os: [linux]
+    libc: [glibc]
 
   '@oxc-parser/binding-linux-riscv64-gnu@0.127.0':
     resolution: {integrity: sha512-fPP8M6zQLS7Jz7o9d5ArUSuAuSK3e+WCYVrCpdzeCOejidtZExJ9tjhDrAd3HEPqARBCPmdpqxESPFqy44vkBQ==}
     engines: {node: ^20.19.0 || >=22.12.0}
     cpu: [riscv64]
     os: [linux]
+    libc: [glibc]
 
   '@oxc-parser/binding-linux-riscv64-musl@0.127.0':
     resolution: {integrity: sha512-7IcC4Ao02oGpfnjt+X/oF4U2mllo2qoSkw5xxiXNKL9MCTsTiAC6616beOuehdxGcnz1bRoPC1RQ2f1GQDdN+g==}
     engines: {node: ^20.19.0 || >=22.12.0}
     cpu: [riscv64]
     os: [linux]
+    libc: [musl]
 
   '@oxc-parser/binding-linux-s390x-gnu@0.127.0':
     resolution: {integrity: sha512-pbXIhiNFHoqWeqDNLiJ9JkpHz1IM9k4DXa66x+1GTWMG7iLxtkXgE53iiuKSXwmk3zIYmaPVfBvgcAhS583K4Q==}
     engines: {node: ^20.19.0 || >=22.12.0}
     cpu: [s390x]
     os: [linux]
+    libc: [glibc]
 
   '@oxc-parser/binding-linux-x64-gnu@0.127.0':
     resolution: {integrity: sha512-MYCguB9RvBvlSd6gbuNI7QwiLoCCAlGnlRJFPrzLI6U1/9wkC/WK6LtBAUln55H1Ctqw45PWmqrobKoMhsYQzQ==}
     engines: {node: ^20.19.0 || >=22.12.0}
     cpu: [x64]
     os: [linux]
+    libc: [glibc]
 
   '@oxc-parser/binding-linux-x64-musl@0.127.0':
     resolution: {integrity: sha512-5eY0B/bxf1xIUxb4NOTvOI3KWtBQfPWYyKAzgcrCt0mDibSZygVpO1Pz8bkeiSZ5Jj9+M09dkggG3H8I5d0Uyg==}
     engines: {node: ^20.19.0 || >=22.12.0}
     cpu: [x64]
     os: [linux]
+    libc: [musl]
 
   '@oxc-parser/binding-openharmony-arm64@0.127.0':
     resolution: {integrity: sha512-Gld0ajrFTUXNtdw20fVBuTQx66FA75nIVg+//pPfR3sXkuABB4mTBhl3r9JNzrJpgW//qiwxf0nWXUWGJSL3UQ==}
@@ -2828,41 +2840,49 @@ packages:
     resolution: {integrity: sha512-CUEYvlX1Fk7E9kUMzuswru1J9HLxMwnpDeQGjQuI4ZH+iNCoa2X9T+pvyzrbsgl7WnIeTFTlNlHsRfVdf5g9/g==}
     cpu: [arm64]
     os: [linux]
+    libc: [glibc]
 
   '@oxc-resolver/binding-linux-arm64-musl@11.21.2':
     resolution: {integrity: sha512-ViN1ZibQyxwC67GpoP33oo+S9UyUnkog13vzQb9+v9bCNvrVzJuk0MRdacjtv/9xfRMVF/eqHFyl8YOeykI10Q==}
     cpu: [arm64]
     os: [linux]
+    libc: [musl]
 
   '@oxc-resolver/binding-linux-ppc64-gnu@11.21.2':
     resolution: {integrity: sha512-CU1sCqWnhGqYD5I1HedHk5pujrn7ssDkNB/AEQd/pd3D/EojVSgJUlpbafwIbyhia3PgIfkvdFpRPWSALzVumA==}
     cpu: [ppc64]
     os: [linux]
+    libc: [glibc]
 
   '@oxc-resolver/binding-linux-riscv64-gnu@11.21.2':
     resolution: {integrity: sha512-jWVyZtIHca4Gb96x7dag+y69vlei7ffjrsveLkmf2ZhqEAz6ZSBnY1GWvgZUaZlwZP62A3xD092BW97Q5VGc+g==}
     cpu: [riscv64]
     os: [linux]
+    libc: [glibc]
 
   '@oxc-resolver/binding-linux-riscv64-musl@11.21.2':
     resolution: {integrity: sha512-LF29obFqNgBUgDX7rmUK7M4D0JQG5LxhYzn3xXmECcHU9aQAdWG7NiY052qybtesEdwHQXKNTWYQ7mTsybNvWg==}
     cpu: [riscv64]
     os: [linux]
+    libc: [musl]
 
   '@oxc-resolver/binding-linux-s390x-gnu@11.21.2':
     resolution: {integrity: sha512-+NYcm+cCHBbtdQQ3A4phQTSuVRYnNHz7wrl9XRAPEovcdoqi0mb1K5ZOl+jN54ZD+q1zz3V0vltbFJmzecJKmw==}
     cpu: [s390x]
     os: [linux]
+    libc: [glibc]
 
   '@oxc-resolver/binding-linux-x64-gnu@11.21.2':
     resolution: {integrity: sha512-UQqZDdG2r2HhAOsZEgufkIWHPQ886IUyuJQkoZByvzhW8j51R4UNzGBJFkTiTnLhQnggwJRdJgFWK4uY6ZVIMw==}
     cpu: [x64]
     os: [linux]
+    libc: [glibc]
 
   '@oxc-resolver/binding-linux-x64-musl@11.21.2':
     resolution: {integrity: sha512-3Q9PMRjalWkT6NZ4jfujuqTCFwoWErg3y3BnOgb544B8IMw4PktiwWOigMfOHNRLMghZeJ7hpfpZf4CP7rV7Og==}
     cpu: [x64]
     os: [linux]
+    libc: [musl]
 
   '@oxc-resolver/binding-openharmony-arm64@11.21.2':
     resolution: {integrity: sha512-Eljeq3ndtyKhM+Es8LITi4Zl2htzuRZcrPMF3kMCsrILztvU6AjZ3FuEhHHKobPUB9rMpzLpJP5bDqXI7r+iog==}
@@ -2913,36 +2933,42 @@ packages:
     engines: {node: '>= 10.0.0'}
     cpu: [arm]
     os: [linux]
+    libc: [glibc]
 
   '@parcel/watcher-linux-arm-musl@2.5.1':
     resolution: {integrity: sha512-6E+m/Mm1t1yhB8X412stiKFG3XykmgdIOqhjWj+VL8oHkKABfu/gjFj8DvLrYVHSBNC+/u5PeNrujiSQ1zwd1Q==}
     engines: {node: '>= 10.0.0'}
     cpu: [arm]
     os: [linux]
+    libc: [musl]
 
   '@parcel/watcher-linux-arm64-glibc@2.5.1':
     resolution: {integrity: sha512-LrGp+f02yU3BN9A+DGuY3v3bmnFUggAITBGriZHUREfNEzZh/GO06FF5u2kx8x+GBEUYfyTGamol4j3m9ANe8w==}
     engines: {node: '>= 10.0.0'}
     cpu: [arm64]
     os: [linux]
+    libc: [glibc]
 
   '@parcel/watcher-linux-arm64-musl@2.5.1':
     resolution: {integrity: sha512-cFOjABi92pMYRXS7AcQv9/M1YuKRw8SZniCDw0ssQb/noPkRzA+HBDkwmyOJYp5wXcsTrhxO0zq1U11cK9jsFg==}
     engines: {node: '>= 10.0.0'}
     cpu: [arm64]
     os: [linux]
+    libc: [musl]
 
   '@parcel/watcher-linux-x64-glibc@2.5.1':
     resolution: {integrity: sha512-GcESn8NZySmfwlTsIur+49yDqSny2IhPeZfXunQi48DMugKeZ7uy1FX83pO0X22sHntJ4Ub+9k34XQCX+oHt2A==}
     engines: {node: '>= 10.0.0'}
     cpu: [x64]
     os: [linux]
+    libc: [glibc]
 
   '@parcel/watcher-linux-x64-musl@2.5.1':
     resolution: {integrity: sha512-n0E2EQbatQ3bXhcH2D1XIAANAcTZkQICBPVaxMeaCVBtOpBZpWJuf7LwyWPSBDITb7In8mqQgJ7gH8CILCURXg==}
     engines: {node: '>= 10.0.0'}
     cpu: [x64]
     os: [linux]
+    libc: [musl]
 
   '@parcel/watcher-win32-arm64@2.5.1':
     resolution: {integrity: sha512-RFzklRvmc3PkjKjry3hLF9wD7ppR4AKcWNzH7kXR7GUe0Igb3Nz8fyPwtZCSquGrhU5HhUNDr/mKBqj7tqA2Vw==}
@@ -3056,36 +3082,42 @@ packages:
     engines: {node: ^20.19.0 || >=22.12.0}
     cpu: [arm64]
     os: [linux]
+    libc: [glibc]
 
   '@rolldown/binding-linux-arm64-musl@1.2.11':
     resolution: {integrity: sha512-AskzJUIKRLPxkruR1wLKewGbOw+EYfU/9lOrBFj4AFrEA8hPpKFnODWNu2WLaNs0QNkEb9QIJufmVZZIL/bJlg==}
     engines: {node: ^20.19.0 || >=22.12.0}
     cpu: [arm64]
     os: [linux]
+    libc: [musl]
 
   '@rolldown/binding-linux-ppc64-gnu@1.2.11':
     resolution: {integrity: sha512-qlUGAheh2yh8afH7QBgx0PrRHN85hKnNd78x8MeMhXivuevgd8vgf6/CstOzmNKY/lLTHvNTrPy98cLnAugzJw==}
     engines: {node: ^20.19.0 || >=22.12.0}
     cpu: [ppc64]
     os: [linux]
+    libc: [glibc]
 
   '@rolldown/binding-linux-s390x-gnu@1.2.11':
     resolution: {integrity: sha512-secpEad+0vCbSfn8upFySkDskv+bGPk3THSDS9Y89yc4rb4kzqHp8Dmyd9BkQW4SnhNXBZCl/6CrO//hZahNJQ==}
     engines: {node: ^20.19.0 || >=22.12.0}
     cpu: [s390x]
     os: [linux]
+    libc: [glibc]
 
   '@rolldown/binding-linux-x64-gnu@1.2.11':
     resolution: {integrity: sha512-mOVBT3dPpkWm8XBWPmU4bf+U6dYDLeMo/9ojUmis4N0L5uu10qra5vOyngZ7/PSdoE4G9KvRt4bloRxNjLas7A==}
     engines: {node: ^20.19.0 || >=22.12.0}
     cpu: [x64]
     os: [linux]
+    libc: [glibc]
 
   '@rolldown/binding-linux-x64-musl@1.2.11':
     resolution: {integrity: sha512-Is78i9A8Ui4SqcxUwFJ9uMmjDn58IbVTjFWYdQestFEgeuEmHMLGNriXnVJKkwG2YiZjw8cP0zCTyDMdDGtOOg==}
     engines: {node: ^20.19.0 || >=22.12.0}
     cpu: [x64]
     os: [linux]
+    libc: [musl]
 
   '@rolldown/binding-openharmony-arm64@1.2.11':
     resolution: {integrity: sha512-dUCXneZ87INUMyQ0D+C0HrEBNUPNXHaPmU5GTjyKTJEiussw9Kaj5Ln8UztPe4epV/ffvgNBEadksdYhmW6xJA==}
@@ -3638,41 +3670,49 @@ packages:
     resolution: {integrity: sha512-34gw7PjDGB9JgePJEmhEqBhWvCiiWCuXsL9hYphDF7crW7UgI05gyBAi6MF58uGcMOiOqSJ2ybEeCvHcq0BCmQ==}
     cpu: [arm64]
     os: [linux]
+    libc: [glibc]
 
   '@unrs/resolver-binding-linux-arm64-musl@1.11.1':
     resolution: {integrity: sha512-RyMIx6Uf53hhOtJDIamSbTskA99sPHS96wxVE/bJtePJJtpdKGXO1wY90oRdXuYOGOTuqjT8ACccMc4K6QmT3w==}
     cpu: [arm64]
     os: [linux]
+    libc: [musl]
 
   '@unrs/resolver-binding-linux-ppc64-gnu@1.11.1':
     resolution: {integrity: sha512-D8Vae74A4/a+mZH0FbOkFJL9DSK2R6TFPC9M+jCWYia/q2einCubX10pecpDiTmkJVUH+y8K3BZClycD8nCShA==}
     cpu: [ppc64]
     os: [linux]
+    libc: [glibc]
 
   '@unrs/resolver-binding-linux-riscv64-gnu@1.11.1':
     resolution: {integrity: sha512-frxL4OrzOWVVsOc96+V3aqTIQl1O2TjgExV4EKgRY09AJ9leZpEg8Ak9phadbuX0BA4k8U5qtvMSQQGGmaJqcQ==}
     cpu: [riscv64]
     os: [linux]
+    libc: [glibc]
 
   '@unrs/resolver-binding-linux-riscv64-musl@1.11.1':
     resolution: {integrity: sha512-mJ5vuDaIZ+l/acv01sHoXfpnyrNKOk/3aDoEdLO/Xtn9HuZlDD6jKxHlkN8ZhWyLJsRBxfv9GYM2utQ1SChKew==}
     cpu: [riscv64]
     os: [linux]
+    libc: [musl]
 
   '@unrs/resolver-binding-linux-s390x-gnu@1.11.1':
     resolution: {integrity: sha512-kELo8ebBVtb9sA7rMe1Cph4QHreByhaZ2QEADd9NzIQsYNQpt9UkM9iqr2lhGr5afh885d/cB5QeTXSbZHTYPg==}
     cpu: [s390x]
     os: [linux]
+    libc: [glibc]
 
   '@unrs/resolver-binding-linux-x64-gnu@1.11.1':
     resolution: {integrity: sha512-C3ZAHugKgovV5YvAMsxhq0gtXuwESUKc5MhEtjBpLoHPLYM+iuwSj3lflFwK3DPm68660rZ7G8BMcwSro7hD5w==}
     cpu: [x64]
     os: [linux]
+    libc: [glibc]
 
   '@unrs/resolver-binding-linux-x64-musl@1.11.1':
     resolution: {integrity: sha512-rV0YSoyhK2nZ4vEswT/QwqzqQXw5I6CjoaYMOX0TqBlWhojUf8P94mvI7nuJTeaCkkds3QE4+zS8Ko+GdXuZtA==}
     cpu: [x64]
     os: [linux]
+    libc: [musl]
 
   '@unrs/resolver-binding-wasm32-wasi@1.11.1':
     resolution: {integrity: sha512-5u4RkfxJm+Ng7IWgkzi3qrFOvLvQYnPBmjmZQ8+szTK/b31fQCnleNl1GgEt7nIsZRIf5PLhPwT0WM+q45x/UQ==}
@@ -4345,6 +4385,7 @@ packages:
   clone-buffer@1.0.0:
     resolution: {integrity: sha512-KLLTJWrvwIP+OPfMn0x2PheDEP20RPUcGXj/ERegTgdmPEZylALQldygiqrPPu8P45uNuPs7ckmReLY6v/iA5g==}
     engines: {node: '>= 0.10'}
+    deprecated: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
 
   clone-deep@4.0.1:
     resolution: {integrity: sha512-neHB9xuzh/wk0dIHweyAXv2aPGZIVk3pLMe+/RNzINf17fe0OG96QroktYAUm7SM1PBnzTabaLboqqxDyMU+SQ==}
@@ -6393,24 +6434,28 @@ packages:
     engines: {node: '>= 12.0.0'}
     cpu: [arm64]
     os: [linux]
+    libc: [glibc]
 
   lightningcss-linux-arm64-musl@1.33.0:
     resolution: {integrity: sha512-yiO5ROMuYQgXbC60yjZU5CYSFZGKXL0HFATXt9mHJn1+zW55oCtMI9NfcVhYLMFDL7gV7oBPon/EmMMGg2OvtQ==}
     engines: {node: '>= 12.0.0'}
     cpu: [arm64]
     os: [linux]
+    libc: [musl]
 
   lightningcss-linux-x64-gnu@1.33.0:
     resolution: {integrity: sha512-ar+Ju7LmcN0Jo4FpL4hpFybwNG9/3A/Br5KW2n2jyODg3MEZXaDYADdemoNS+BDNfMgKvylJLj4S5tyRActuAg==}
     engines: {node: '>= 12.0.0'}
     cpu: [x64]
     os: [linux]
+    libc: [glibc]
 
   lightningcss-linux-x64-musl@1.33.0:
     resolution: {integrity: sha512-RYiYbkokw0trfKqqzfF55lginwEPrD3OJDfTuJzFs1MK6iFnDenaz1fqLLtX4ITG3OktJQXOeTaw1awrBAlZPw==}
     engines: {node: '>= 12.0.0'}
     cpu: [x64]
     os: [linux]
+    libc: [musl]
 
   lightningcss-win32-arm64-msvc@1.33.0:
     resolution: {integrity: sha512-1K+MPfLSFVpphzpdbfkhlWk6wBrTObBzS2T6db10PNOZgR9GoVsAWzwNyuhUYYbTp23j+4RrncfujZ4uAzXvwA==}
@@ -6437,6 +6482,9 @@ packages:
 
   linkify-it@4.0.1:
     resolution: {integrity: sha512-C7bfi1UZmoj8+PQx22XyeXCuBlokoyWQL5pWSP+EI6nzRylyThouddufc2c1NDIcP9k5agmN9fLpA7VNJfIiqw==}
+
+  linkify-it@5.0.2:
+    resolution: {integrity: sha512-ONTm2jCMAVZjgQa/Fy1kScXsuOoF5NPTsoFBdE1KVIZ2vAh/r9+Bqo+0jINCBYnavTPQZz38QzFTme79ENoN3Q==}
 
   load-json-file@4.0.0:
     resolution: {integrity: sha512-Kx8hMakjX03tiGTLAIdJ+lL0htKnXjEZN6hk/tozf/WOuYGdZBJrZ+rCJRbVCugsjB3jMLn9746NsQIf5VjBMw==}
@@ -6589,6 +6637,10 @@ packages:
     resolution: {integrity: sha512-FtwnEuuK+2yVU7goGn/MJ0WBZMM9ZPgU9spqlFs7/A/pDIUNSOQZhUgOqYCficIuR2QaFnrt8LHqBWsbTAoI5w==}
     hasBin: true
 
+  markdown-it@14.3.2:
+    resolution: {integrity: sha512-sHHjZ5fJKlgrG4qns2YwVcdNep35h5fERrfkD2YNsb9UFk0UIHarbiTaHKVMlPuWAoiilyK8Fv/jAm11slsY7Q==}
+    hasBin: true
+
   markdown-table@3.0.4:
     resolution: {integrity: sha512-wiYz4+JrLyb/DqW2hkFJxP7Vd7JuTDm77fvbM8VfEQdmSMqcImWeeRbHwZjBjIFki/VaMK2BhFi7oUUZeM5bqw==}
 
@@ -6666,6 +6718,9 @@ packages:
 
   mdurl@1.0.1:
     resolution: {integrity: sha512-/sKlQJCBYVY9Ers9hqzKou4H6V5UWc/M59TH2dvkt+84itfnq7uFOMLpOiOS4ujvHP4etln18fmIxA5R5fll0g==}
+
+  mdurl@2.1.0:
+    resolution: {integrity: sha512-1+HBaOx0zi/dQWht8rNv9MYf9qqpqL/kxI0hXImU6Y547zM6Sni8BQibt7ifgMcYtQg41ao3Ivd6cnSM86inpg==}
 
   memfs@3.5.3:
     resolution: {integrity: sha512-UERzLsxzllchadvbPs5aolHh65ISpKpM+ccLbOJ8/vvpBKmAWf+la7dXFy7Mr0ySHbdHrFv5kGFCUHHe6GFEmw==}
@@ -7477,6 +7532,10 @@ packages:
   proxy-from-env@2.1.0:
     resolution: {integrity: sha512-cJ+oHTW1VAEa8cJslgmUZrc+sjRKgAKl3Zyse6+PV38hZe/V6Z14TbCuXcan9F9ghlz4QrFr2c92TNF82UkYHA==}
     engines: {node: '>=10'}
+
+  punycode.js@2.3.1:
+    resolution: {integrity: sha512-uxFIHU0YlHYhDQtV4R9J6a52SLx28BCjT+4ieh7IGbgwVJWO+km431c4yRlREUAsAmt/uMjQUyQHNEPf0M39CA==}
+    engines: {node: '>=6'}
 
   punycode@1.4.1:
     resolution: {integrity: sha512-jmYNElW7yvO7TV33CjSmvSiE2yco3bV2czu/OzDKdMNVZQWfxCblURLhf+47syQRBntjfLdd/H0egrzIG+oaFQ==}
@@ -8517,6 +8576,9 @@ packages:
 
   uc.micro@1.0.6:
     resolution: {integrity: sha512-8Y75pvTYkLJW2hWQHXxoqRgV7qb9B+9vFEtidML+7koHUFapnVJAZ6cKs+Qjz5Aw3aZWHMC6u0wJE3At+nSGwA==}
+
+  uc.micro@2.1.0:
+    resolution: {integrity: sha512-ARDJmphmdvUk6Glw7y9DQ2bFkKBHwQHLi2lsaH6PPmz/Ka9sFOBsBluozhDltWmnv9u/cF6Rt87znRTPV+yp/A==}
 
   ufo@1.6.1:
     resolution: {integrity: sha512-9a4/uxlTWJ4+a5i0ooc1rU7C7YOw3wT+UGqdeNNHWnOF9qcMBgLRS+4IYUqbczewFx4mLEig6gawh7X6mFlEkA==}
@@ -10192,6 +10254,15 @@ snapshots:
       - markdown-it
       - react
 
+  '@diplodoc/cut-extension@1.1.1(@types/markdown-it@13.0.9)(markdown-it@14.3.2)(react@18.2.0)':
+    dependencies:
+      '@diplodoc/directive': 0.3.3(@types/markdown-it@13.0.9)(markdown-it@14.3.2)
+      '@diplodoc/utils': 2.2.2(react@18.2.0)
+    transitivePeerDependencies:
+      - '@types/markdown-it'
+      - markdown-it
+      - react
+
   '@diplodoc/cut-extension@1.1.7(@types/markdown-it@13.0.9)(markdown-it@13.0.2)(react@18.2.0)':
     dependencies:
       '@diplodoc/directive': 0.3.6(@types/markdown-it@13.0.9)(markdown-it@13.0.2)
@@ -10204,6 +10275,13 @@ snapshots:
   '@diplodoc/directive@0.3.3(@types/markdown-it@13.0.9)(markdown-it@13.0.2)':
     dependencies:
       markdown-it-directive: 2.0.6(@types/markdown-it@13.0.9)(markdown-it@13.0.2)
+    transitivePeerDependencies:
+      - '@types/markdown-it'
+      - markdown-it
+
+  '@diplodoc/directive@0.3.3(@types/markdown-it@13.0.9)(markdown-it@14.3.2)':
+    dependencies:
+      markdown-it-directive: 2.0.6(@types/markdown-it@13.0.9)(markdown-it@14.3.2)
     transitivePeerDependencies:
       - '@types/markdown-it'
       - markdown-it
@@ -10229,6 +10307,13 @@ snapshots:
     transitivePeerDependencies:
       - '@types/markdown-it'
 
+  '@diplodoc/file-extension@0.2.2(@types/markdown-it@13.0.9)(markdown-it@14.3.2)':
+    dependencies:
+      '@diplodoc/directive': 0.3.3(@types/markdown-it@13.0.9)(markdown-it@14.3.2)
+      markdown-it: 14.3.2
+    transitivePeerDependencies:
+      - '@types/markdown-it'
+
   '@diplodoc/file-extension@0.2.6(@types/markdown-it@13.0.9)(markdown-it@13.0.2)':
     dependencies:
       '@diplodoc/directive': 0.3.6(@types/markdown-it@13.0.9)(markdown-it@13.0.2)
@@ -10238,10 +10323,10 @@ snapshots:
 
   '@diplodoc/folding-headings-extension@0.1.2': {}
 
-  '@diplodoc/html-extension@2.9.6(@diplodoc/transform@4.75.1(@types/markdown-it@13.0.9)(highlight.js@11.11.1)(react@18.2.0))(@types/markdown-it@13.0.9)(markdown-it@13.0.2)(react@18.2.0)':
+  '@diplodoc/html-extension@2.9.6(@diplodoc/transform@4.75.1(@types/markdown-it@13.0.9)(highlight.js@11.11.1)(react@18.2.0))(@types/markdown-it@13.0.9)(markdown-it@14.3.2)(react@18.2.0)':
     dependencies:
-      '@diplodoc/directive': 0.3.3(@types/markdown-it@13.0.9)(markdown-it@13.0.2)
-      markdown-it: 13.0.2
+      '@diplodoc/directive': 0.3.3(@types/markdown-it@13.0.9)(markdown-it@14.3.2)
+      markdown-it: 14.3.2
       parse5: 8.0.1
     optionalDependencies:
       '@diplodoc/transform': 4.75.1(@types/markdown-it@13.0.9)(highlight.js@11.11.1)(react@18.2.0)
@@ -10249,10 +10334,10 @@ snapshots:
     transitivePeerDependencies:
       - '@types/markdown-it'
 
-  '@diplodoc/html-extension@2.9.6(@diplodoc/transform@4.75.1(@types/markdown-it@13.0.9)(highlight.js@11.8.0)(react@18.2.0))(@types/markdown-it@13.0.9)(markdown-it@13.0.2)(react@18.2.0)':
+  '@diplodoc/html-extension@2.9.6(@diplodoc/transform@4.75.1(@types/markdown-it@13.0.9)(highlight.js@11.8.0)(react@18.2.0))(@types/markdown-it@13.0.9)(markdown-it@14.3.2)(react@18.2.0)':
     dependencies:
-      '@diplodoc/directive': 0.3.3(@types/markdown-it@13.0.9)(markdown-it@13.0.2)
-      markdown-it: 13.0.2
+      '@diplodoc/directive': 0.3.3(@types/markdown-it@13.0.9)(markdown-it@14.3.2)
+      markdown-it: 14.3.2
       parse5: 8.0.1
     optionalDependencies:
       '@diplodoc/transform': 4.75.1(@types/markdown-it@13.0.9)(highlight.js@11.8.0)(react@18.2.0)
@@ -10267,10 +10352,17 @@ snapshots:
     optionalDependencies:
       react: 18.2.0
 
-  '@diplodoc/latex-extension@2.0.2(katex@0.16.47)(markdown-it@13.0.2)(react@18.2.0)':
+  '@diplodoc/latex-extension@2.0.2(katex@0.16.27)(markdown-it@14.3.2)(react@18.2.0)':
+    dependencies:
+      katex: 0.16.27
+      markdown-it: 14.3.2
+    optionalDependencies:
+      react: 18.2.0
+
+  '@diplodoc/latex-extension@2.0.2(katex@0.16.47)(markdown-it@14.3.2)(react@18.2.0)':
     dependencies:
       katex: 0.16.47
-      markdown-it: 13.0.2
+      markdown-it: 14.3.2
     optionalDependencies:
       react: 18.2.0
 
@@ -10279,26 +10371,26 @@ snapshots:
       chalk: 4.1.2
       js-yaml: 4.1.1
 
-  '@diplodoc/mermaid-extension@2.0.0(markdown-it@13.0.2)(react@18.2.0)':
+  '@diplodoc/mermaid-extension@2.0.0(markdown-it@14.3.2)(react@18.2.0)':
     dependencies:
       '@gravity-ui/icons': 2.13.0(react@18.2.0)
       d3: 7.9.0
-      markdown-it: 13.0.2
+      markdown-it: 14.3.2
       mermaid: 11.13.0
       ts-dedent: 2.3.0
     optionalDependencies:
       react: 18.2.0
 
-  '@diplodoc/page-constructor-extension@0.13.3(@diplodoc/transform@4.75.1(@types/markdown-it@13.0.9)(highlight.js@11.11.1)(react@18.2.0))(@gravity-ui/uikit@7.13.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/markdown-it@13.0.9)(@types/react@18.0.28)(markdown-it@13.0.2)(react-dom@18.2.0(react@18.2.0))(react-is@18.3.1)(react@18.2.0)':
+  '@diplodoc/page-constructor-extension@0.13.3(@diplodoc/transform@4.75.1(@types/markdown-it@13.0.9)(highlight.js@11.11.1)(react@18.2.0))(@gravity-ui/uikit@7.13.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/markdown-it@13.0.9)(@types/react@18.0.28)(markdown-it@14.3.2)(react-dom@18.2.0(react@18.2.0))(react-is@18.3.1)(react@18.2.0)':
     dependencies:
-      '@diplodoc/directive': 0.3.3(@types/markdown-it@13.0.9)(markdown-it@13.0.2)
+      '@diplodoc/directive': 0.3.3(@types/markdown-it@13.0.9)(markdown-it@14.3.2)
       '@diplodoc/transform': 4.75.1(@types/markdown-it@13.0.9)(highlight.js@11.11.1)(react@18.2.0)
       '@diplodoc/utils': 2.2.2(react@18.2.0)
       '@gravity-ui/page-constructor': 7.25.0(@diplodoc/transform@4.75.1(@types/markdown-it@13.0.9)(highlight.js@11.11.1)(react@18.2.0))(@gravity-ui/uikit@7.13.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.0.28)(js-yaml@4.1.1)(react-dom@18.2.0(react@18.2.0))(react-is@18.3.1)(react@18.2.0)
       cheerio: 1.0.0
       js-yaml: 4.1.1
       lodash: 4.17.23
-      markdown-it: 13.0.2
+      markdown-it: 14.3.2
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
     transitivePeerDependencies:
@@ -10308,16 +10400,16 @@ snapshots:
       - '@types/react'
       - react-is
 
-  '@diplodoc/page-constructor-extension@0.13.3(@diplodoc/transform@4.78.0(@types/markdown-it@13.0.9)(highlight.js@11.11.1)(react@18.2.0))(@gravity-ui/uikit@7.13.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/markdown-it@13.0.9)(@types/react@18.0.28)(markdown-it@13.0.2)(react-dom@18.2.0(react@18.2.0))(react-is@18.3.1)(react@18.2.0)':
+  '@diplodoc/page-constructor-extension@0.13.3(@diplodoc/transform@4.78.0(@types/markdown-it@13.0.9)(highlight.js@11.11.1)(react@18.2.0))(@gravity-ui/uikit@7.13.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/markdown-it@13.0.9)(@types/react@18.0.28)(markdown-it@14.3.2)(react-dom@18.2.0(react@18.2.0))(react-is@18.3.1)(react@18.2.0)':
     dependencies:
-      '@diplodoc/directive': 0.3.3(@types/markdown-it@13.0.9)(markdown-it@13.0.2)
+      '@diplodoc/directive': 0.3.3(@types/markdown-it@13.0.9)(markdown-it@14.3.2)
       '@diplodoc/transform': 4.78.0(@types/markdown-it@13.0.9)(highlight.js@11.11.1)(react@18.2.0)
       '@diplodoc/utils': 2.2.2(react@18.2.0)
       '@gravity-ui/page-constructor': 7.25.0(@diplodoc/transform@4.78.0(@types/markdown-it@13.0.9)(highlight.js@11.11.1)(react@18.2.0))(@gravity-ui/uikit@7.13.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.0.28)(js-yaml@4.1.1)(react-dom@18.2.0(react@18.2.0))(react-is@18.3.1)(react@18.2.0)
       cheerio: 1.0.0
       js-yaml: 4.1.1
       lodash: 4.17.23
-      markdown-it: 13.0.2
+      markdown-it: 14.3.2
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
     transitivePeerDependencies:
@@ -15490,6 +15582,10 @@ snapshots:
     dependencies:
       uc.micro: 1.0.6
 
+  linkify-it@5.0.2:
+    dependencies:
+      uc.micro: 2.1.0
+
   load-json-file@4.0.0:
     dependencies:
       graceful-fs: 4.2.11
@@ -15598,6 +15694,10 @@ snapshots:
     dependencies:
       markdown-it: 13.0.2
 
+  markdown-it-attrs@4.2.0(markdown-it@14.3.2):
+    dependencies:
+      markdown-it: 14.3.2
+
   markdown-it-deflist@2.1.0: {}
 
   markdown-it-deflist@3.0.1: {}
@@ -15606,6 +15706,11 @@ snapshots:
     dependencies:
       '@types/markdown-it': 13.0.9
       markdown-it: 13.0.2
+
+  markdown-it-directive@2.0.6(@types/markdown-it@13.0.9)(markdown-it@14.3.2):
+    dependencies:
+      '@types/markdown-it': 13.0.9
+      markdown-it: 14.3.2
 
   markdown-it-emoji@2.0.2: {}
 
@@ -15634,6 +15739,15 @@ snapshots:
       linkify-it: 4.0.1
       mdurl: 1.0.1
       uc.micro: 1.0.6
+
+  markdown-it@14.3.2:
+    dependencies:
+      argparse: 2.0.1
+      entities: 4.5.0
+      linkify-it: 5.0.2
+      mdurl: 2.1.0
+      punycode.js: 2.3.1
+      uc.micro: 2.1.0
 
   markdown-table@3.0.4: {}
 
@@ -15751,6 +15865,8 @@ snapshots:
   mdn-data@2.25.0: {}
 
   mdurl@1.0.1: {}
+
+  mdurl@2.1.0: {}
 
   memfs@3.5.3:
     dependencies:
@@ -16854,6 +16970,8 @@ snapshots:
       prosemirror-transform: 1.10.2
 
   proxy-from-env@2.1.0: {}
+
+  punycode.js@2.3.1: {}
 
   punycode@1.4.1: {}
 
@@ -18075,6 +18193,8 @@ snapshots:
   typograf@7.7.0: {}
 
   uc.micro@1.0.6: {}
+
+  uc.micro@2.1.0: {}
 
   ufo@1.6.1: {}
 
