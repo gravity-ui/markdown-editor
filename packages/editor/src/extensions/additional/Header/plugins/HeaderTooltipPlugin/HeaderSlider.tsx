@@ -6,7 +6,7 @@ import {cn} from 'src/classname';
 
 import './HeaderSlider.scss';
 
-const b = cn('md-header-slider');
+const b = cn('header-slider');
 const placement: PopupPlacement = ['bottom-start', 'top-start'];
 
 export type HeaderSliderProps = {
@@ -15,7 +15,7 @@ export type HeaderSliderProps = {
     min: number;
     max: number;
     step: number;
-    /** Подпись текущего значения: градусы у угла, пиксели у шага. */
+    /** Подпись текущего значения угла в градусах. */
     format: (value: number) => string;
     anchorElement: HTMLElement | null;
     hide: () => void;

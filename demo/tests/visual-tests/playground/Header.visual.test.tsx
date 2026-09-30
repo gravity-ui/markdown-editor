@@ -27,13 +27,31 @@ test('should show every header color and apply the selected fill', async ({mount
     await expect(header).toHaveAttribute('data-fill', 'red');
 });
 
-test('should omit the crop control for a header with an image', async ({mount, page}) => {
+test('should offer image effects beside the image button without framing controls', async ({
+    mount,
+    page,
+}) => {
     await mount(<HeaderDemo markupKey="layers" />);
-    await page.locator('.g-md-header').filter({hasText: 'На всю площадь'}).click();
+    const header = page.locator('.g-md-header').filter({hasText: 'На всю площадь'});
+    await header.click();
 
     const toolbar = page.getByTestId('g-md-toolbar-header');
     await expect(toolbar).toBeVisible();
     await expect(toolbar.getByRole('button', {name: 'Crop'})).toHaveCount(0);
+    await expect(toolbar.getByRole('button', {name: 'Image', exact: true})).toHaveCount(0);
+
+    await toolbar.getByRole('button', {name: 'Image effects'}).click();
+    await page.getByRole('menuitem', {name: 'Dim'}).click();
+    await expect(header).toHaveAttribute('data-effect', 'dim');
+});
+
+test('should omit the step control for a patterned background', async ({mount, page}) => {
+    await mount(<HeaderDemo markupKey="backgrounds" />);
+    await page.locator('.g-md-header').filter({hasText: 'Паттерн'}).click();
+
+    await expect(
+        page.getByTestId('g-md-toolbar-header').getByRole('button', {name: 'Step'}),
+    ).toHaveCount(0);
 });
 
 test('should apply a color to the second gradient fill', async ({mount, page}) => {

@@ -3,24 +3,17 @@ import {useCallback, useMemo} from 'react';
 import {
     Aperture,
     ArrowRotateRight,
-    ArrowsExpand,
-    ArrowsExpandHorizontal,
-    ArrowsExpandVertical,
     ArrowsRotateLeft,
     BucketPaint,
-    ChevronsCollapseUpRight,
+    ChevronDown,
     Circles4Square,
     Dots9,
-    Layers,
     Layers3Diagonal,
-    LayoutCells,
     LayoutHeader,
     Moon,
     Palette,
     Picture,
     Shapes3,
-    Sliders,
-    SquareDashedCircle,
     TrashBin,
 } from '@gravity-ui/icons';
 import {useToaster} from '@gravity-ui/uikit';
@@ -48,15 +41,10 @@ import {
     HeaderEffect,
     type HeaderEffectValue,
     type HeaderFillValue,
-    HeaderFit,
-    type HeaderFitValue,
     HeaderFormat,
     type HeaderFormatValue,
-    HeaderLayer,
-    type HeaderLayerValue,
     hasImage,
     isCovered,
-    isTiled,
     normalizeHeaderAttrs,
 } from '../../HeaderSpecs';
 import {
@@ -77,11 +65,6 @@ const ToolbarMemoized = typedMemo(Toolbar);
 /** Ползунок угла ходит по пятиградусной сетке: полный оборот — это то же, что нулевой угол. */
 const ANGLE_STEP = 5;
 const ANGLE_MAX = 355;
-/** Узор с шагом мельче восьми пикселей сливается, крупнее девяноста шести — рассыпается. */
-const STEP_SLIDER_MIN = 8;
-const STEP_SLIDER_MAX = 96;
-const STEP_SLIDER_STEP = 4;
-
 type AttrItem<T extends string> = {value: T; icon: ToolbarIconData; label: () => string};
 
 const FORMAT_ITEMS: AttrItem<HeaderFormatValue>[] = [
@@ -113,31 +96,6 @@ const EFFECT_ITEMS: AttrItem<HeaderEffectValue>[] = [
     {value: HeaderEffect.Blur, icon: {data: Aperture}, label: () => i18n('effect_blur')},
 ];
 
-const LAYER_ITEMS: AttrItem<HeaderLayerValue>[] = [
-    {value: HeaderLayer.Cover, icon: {data: Picture}, label: () => i18n('layer_cover')},
-    {
-        value: HeaderLayer.Decor,
-        icon: {data: SquareDashedCircle},
-        label: () => i18n('layer_decor'),
-    },
-    {value: HeaderLayer.Tile, icon: {data: LayoutCells}, label: () => i18n('layer_tile')},
-];
-
-const FIT_ITEMS: AttrItem<HeaderFitValue>[] = [
-    {value: HeaderFit.Cover, icon: {data: ArrowsExpand}, label: () => i18n('fit_cover')},
-    {
-        value: HeaderFit.Contain,
-        icon: {data: ChevronsCollapseUpRight},
-        label: () => i18n('fit_contain'),
-    },
-    {
-        value: HeaderFit.Width,
-        icon: {data: ArrowsExpandHorizontal},
-        label: () => i18n('fit_width'),
-    },
-    {value: HeaderFit.Height, icon: {data: ArrowsExpandVertical}, label: () => i18n('fit_height')},
-];
-
 export type HeaderToolbarProps = {
     node: Node;
     pos: number;
@@ -154,11 +112,9 @@ export function HeaderToolbar({node, pos, editorView, fileUploadHandler}: Header
     const background = attrs[HeaderAttr.Background];
     const withImage = hasImage(attrs);
     const withEffects = isCovered(attrs);
-    const tiled = isTiled(attrs);
     const withSecondFill =
         background === HeaderBackground.Gradient || background === HeaderBackground.Mesh;
     const withAngle = background === HeaderBackground.Gradient;
-    const withStep = background === HeaderBackground.Pattern || tiled;
 
     const onFocus = useCallback(() => editorView.focus(), [editorView]);
 
@@ -227,31 +183,6 @@ export function HeaderToolbar({node, pos, editorView, fileUploadHandler}: Header
             });
         }
 
-        if (withStep) {
-            backgroundGroup.push({
-                id: 'header-step',
-                type: ToolbarDataType.ButtonPopup,
-                icon: {data: Sliders},
-                title: i18n('step'),
-                isActive: () => false,
-                isEnable: canEdit,
-                exec: () => {},
-                renderPopup: ({anchorElement, hide, editor}) => (
-                    <HeaderSlider
-                        label={i18n('step')}
-                        value={attrOf<number>(HeaderAttr.Step)}
-                        min={STEP_SLIDER_MIN}
-                        max={STEP_SLIDER_MAX}
-                        step={STEP_SLIDER_STEP}
-                        format={(value) => `${value} px`}
-                        anchorElement={anchorElement}
-                        hide={hide}
-                        onUpdate={(step) => patch(editor, {[HeaderAttr.Step]: step})}
-                    />
-                ),
-            });
-        }
-
         backgroundGroup.push({
             id: 'header-generate',
             type: ToolbarDataType.SingleButton,
@@ -297,18 +228,13 @@ export function HeaderToolbar({node, pos, editorView, fileUploadHandler}: Header
             },
         ];
 
-        if (withImage) {
+        if (withEffects) {
             imageGroup.push({
-                id: 'header-layer',
+                id: 'header-effect',
                 type: ToolbarDataType.ListButton,
-                icon: {data: Layers},
-                title: i18n('image'),
-                withArrow: true,
-                data: [
-                    ...attrList(HeaderAttr.Layer, LAYER_ITEMS),
-                    // Плитка повторяется с шагом, масштаб кадра к ней не относится.
-                    ...(tiled ? [] : attrList(HeaderAttr.Fit, FIT_ITEMS)),
-                ],
+                icon: {data: ChevronDown},
+                title: i18n('image_effect'),
+                data: attrList(HeaderAttr.Effect, EFFECT_ITEMS),
             });
         }
 
@@ -328,9 +254,7 @@ export function HeaderToolbar({node, pos, editorView, fileUploadHandler}: Header
                     icon: {data: BucketPaint},
                     title: i18n('background'),
                     withArrow: true,
-                    data: withEffects
-                        ? attrList(HeaderAttr.Effect, EFFECT_ITEMS)
-                        : attrList(HeaderAttr.Background, BACKGROUND_ITEMS),
+                    data: attrList(HeaderAttr.Background, BACKGROUND_ITEMS),
                 },
             ],
             backgroundGroup,
@@ -353,13 +277,11 @@ export function HeaderToolbar({node, pos, editorView, fileUploadHandler}: Header
         fileUploadHandler,
         nodeRef,
         posRef,
-        tiled,
         toaster,
         withAngle,
         withEffects,
         withImage,
         withSecondFill,
-        withStep,
     ]);
 
     return (
