@@ -17,6 +17,14 @@ const {
     wTextItemData,
 } = wysiwygToolbarConfigs;
 
+// The extension options apply only while the preset omits the contextual orders
+const {
+    [Toolbar.wysiwygSelection]: _selection,
+    [Toolbar.wysiwygSlash]: _slash,
+    ...mainOrders
+} = full.orders;
+const mainOnlyPreset: ToolbarsPreset = {items: full.items, orders: mainOrders};
+
 const toolbarsPreset: ToolbarsPreset = {
     items: full.items,
     orders: {
@@ -41,6 +49,7 @@ export function SelectionToolbarPlayground() {
     return (
         <Playground
             initial="Select this text"
+            toolbarsPreset={mainOnlyPreset}
             wysiwygConfig={{
                 extensionOptions: {
                     selectionContext: {config: [[wItalicItemData, wBoldItemData]]},
@@ -54,6 +63,7 @@ export function CommandMenuPlayground() {
     return (
         <Playground
             initial=""
+            toolbarsPreset={mainOnlyPreset}
             wysiwygConfig={{
                 extensionOptions: {
                     commandMenu: {
