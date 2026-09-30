@@ -1,6 +1,6 @@
 import {useState} from 'react';
 
-import {Palette, Popup, type PopupPlacement, SegmentedRadioGroup} from '@gravity-ui/uikit';
+import {Popup, type PopupPlacement, SegmentedRadioGroup} from '@gravity-ui/uikit';
 
 import {cn} from 'src/classname';
 import {i18n} from 'src/i18n/header';
@@ -9,7 +9,7 @@ import {HEADER_FILLS, HeaderAttr, type HeaderFillValue} from '../../HeaderSpecs'
 
 import './HeaderPalette.scss';
 
-const b = cn('md-header-palette');
+const b = cn('header-palette');
 const placement: PopupPlacement = ['bottom-start', 'top-start'];
 
 const FILL_LABEL: Record<HeaderFillValue, () => string> = {
@@ -81,21 +81,24 @@ export function HeaderPalette({
                         onUpdate={setAttr}
                     />
                 )}
-                <Palette
-                    aria-label={i18n('color')}
-                    multiple={false}
-                    columns={4}
-                    value={[target]}
-                    options={HEADER_FILLS.map((fill) => ({
-                        value: fill,
-                        title: FILL_LABEL[fill](),
-                        content: <span className={b('swatch')} data-fill={fill} />,
-                    }))}
-                    onUpdate={([fill]) => {
-                        if (fill) onPick(attr, fill as HeaderFillValue);
-                        hide();
-                    }}
-                />
+                <div className={b('grid')} role="group" aria-label={i18n('color')}>
+                    {HEADER_FILLS.map((fill) => (
+                        <button
+                            key={fill}
+                            type="button"
+                            className={b('option')}
+                            aria-label={FILL_LABEL[fill]()}
+                            aria-pressed={fill === target}
+                            title={FILL_LABEL[fill]()}
+                            onClick={() => {
+                                onPick(attr, fill);
+                                hide();
+                            }}
+                        >
+                            <span className={b('swatch')} data-fill={fill} />
+                        </button>
+                    ))}
+                </div>
             </div>
         </Popup>
     );

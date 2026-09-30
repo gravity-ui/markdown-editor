@@ -10,7 +10,6 @@ import {
     BucketPaint,
     ChevronsCollapseUpRight,
     Circles4Square,
-    Crop,
     Dots9,
     Layers,
     Layers3Diagonal,
@@ -46,7 +45,6 @@ import {
     type HeaderAttrs,
     HeaderBackground,
     type HeaderBackgroundValue,
-    type HeaderCropValue,
     HeaderEffect,
     type HeaderEffectValue,
     type HeaderFillValue,
@@ -71,7 +69,6 @@ import {
 } from '../../commands';
 import {uploadHeaderImage} from '../imageUpload';
 
-import {HeaderCropGrid} from './HeaderCropGrid';
 import {HeaderPalette} from './HeaderPalette';
 import {HeaderSlider} from './HeaderSlider';
 
@@ -312,26 +309,6 @@ export function HeaderToolbar({node, pos, editorView, fileUploadHandler}: Header
                     // Плитка повторяется с шагом, масштаб кадра к ней не относится.
                     ...(tiled ? [] : attrList(HeaderAttr.Fit, FIT_ITEMS)),
                 ],
-            });
-        }
-
-        if (withImage && !tiled) {
-            imageGroup.push({
-                id: 'header-crop',
-                type: ToolbarDataType.ButtonPopup,
-                icon: {data: Crop},
-                title: i18n('image_crop'),
-                isActive: () => false,
-                isEnable: canEdit,
-                exec: () => {},
-                renderPopup: ({anchorElement, hide, editor}) => (
-                    <HeaderCropGrid
-                        value={attrOf<HeaderCropValue>(HeaderAttr.Crop)}
-                        anchorElement={anchorElement}
-                        hide={hide}
-                        onPick={(crop) => patch(editor, {[HeaderAttr.Crop]: crop})}
-                    />
-                ),
             });
         }
 
