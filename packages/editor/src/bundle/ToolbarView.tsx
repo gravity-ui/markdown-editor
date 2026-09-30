@@ -37,6 +37,7 @@ export type ToolbarViewProps<T> = ClassNameProps &
         children?: React.ReactNode;
         stickyToolbar: boolean;
         toolbarDisplay?: ToolbarDisplay;
+        scrollContainerRef?: React.RefObject<HTMLElement>;
     };
 
 export function ToolbarView<T>({
@@ -50,10 +51,11 @@ export function ToolbarView<T>({
     className,
     children,
     stickyToolbar,
+    scrollContainerRef,
     qa,
 }: ToolbarViewProps<T>) {
     const wrapperRef = useRef<HTMLDivElement>(null);
-    const isStickyActive = useSticky(wrapperRef) && stickyToolbar;
+    const isStickyActive = useSticky(wrapperRef, scrollContainerRef) && stickyToolbar;
 
     const mobile = editor.mobile;
 
