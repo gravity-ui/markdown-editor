@@ -10,9 +10,10 @@ test('should show every header color and apply the selected fill', async ({mount
     const toolbar = page.getByTestId('g-md-toolbar-header');
     await toolbar.getByRole('button', {name: 'Color'}).click();
 
-    const palette = page.getByRole('group', {name: 'Color'});
+    const palette = page.getByRole('grid', {name: 'Color'});
     await expect(palette.getByRole('button')).toHaveCount(12);
-    await expect(palette).toHaveCSS('display', 'grid');
+    await expect(palette.locator('.g-palette__row')).toHaveCount(3);
+    await expect(palette.locator('.g-palette__row').first().getByRole('button')).toHaveCount(4);
     await expect(palette.locator('[data-fill="blue"]')).toHaveCSS(
         'background-color',
         'rgb(91, 126, 255)',
@@ -42,7 +43,7 @@ test('should apply a color to the second gradient fill', async ({mount, page}) =
 
     await page.getByTestId('g-md-toolbar-header').getByRole('button', {name: 'Color'}).click();
     await page.getByRole('radio', {name: 'Secondary'}).click();
-    await page.getByRole('group', {name: 'Color'}).getByRole('button', {name: 'Red'}).click();
+    await page.getByRole('grid', {name: 'Color'}).getByRole('button', {name: 'Red'}).click();
 
     await expect(header).toHaveAttribute('data-fill2', 'red');
 });

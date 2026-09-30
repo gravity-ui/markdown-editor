@@ -7,41 +7,6 @@
 
     padding: 12px;
 
-    &__grid {
-        display: grid;
-        grid-template-columns: repeat(4, 40px);
-        gap: 8px;
-    }
-
-    &__option {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-
-        width: 40px;
-        height: 40px;
-        padding: 0;
-
-        cursor: pointer;
-
-        border: 2px solid transparent;
-        border-radius: 10px;
-        background: none;
-
-        &:hover {
-            background-color: var(--g-color-base-simple-hover);
-        }
-
-        &[aria-pressed='true'] {
-            border-color: var(--g-color-line-brand);
-        }
-
-        &:focus-visible {
-            outline: 2px solid var(--g-color-line-focus);
-            outline-offset: 2px;
-        }
-    }
-
     &__slot {
         display: inline-flex;
         align-items: center;
