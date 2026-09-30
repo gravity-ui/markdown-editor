@@ -10,6 +10,15 @@ Backgrounds.storyName = 'Backgrounds';
 export const Formats: Story = {args: {markupKey: 'formats'}};
 Formats.storyName = 'Formats';
 
+export const Angles: Story = {args: {markupKey: 'angles'}};
+Angles.storyName = 'Gradient angle and tile step';
+
+export const Layers: Story = {args: {markupKey: 'layers'}};
+Layers.storyName = 'Image layers';
+
+export const Crops: Story = {args: {markupKey: 'crops'}};
+Crops.storyName = 'Image fit and crop';
+
 export const Fills: Story = {args: {markupKey: 'fills'}};
 Fills.storyName = 'Fills';
 
