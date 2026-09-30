@@ -30,12 +30,14 @@ const CURATED_DECOR: readonly HeaderShape[] = [
     {size: 0.48, x: -0.07, y: 0.43, opacity: 0.22, duration: 32, delay: -9},
 ];
 
+/** Цвет первой фигуры подставляет `fill2`: раскладка хранит только геометрию. */
 const CURATED_MESH: readonly HeaderShape[] = [
-    {size: 0.57, x: 0.33, y: 0.43, opacity: 0.8, fill: HeaderFill.Teal, duration: 28, delay: 0},
+    {size: 0.57, x: 0.33, y: 0.43, opacity: 0.8, duration: 28, delay: 0},
     {size: 0.48, x: 0.66, y: -0.21, opacity: 0.85, fill: HeaderFill.Red, duration: 34, delay: -11},
     {size: 0.53, x: -0.11, y: -0.29, opacity: 0.9, fill: HeaderFill.Blue, duration: 30, delay: -21},
 ];
 
+/* eslint-disable no-bitwise -- целочисленная арифметика PRNG: без неё числа будут другими */
 export function mulberry32(seed: number): () => number {
     let a = seed | 0;
     return () => {
@@ -45,6 +47,7 @@ export function mulberry32(seed: number): () => number {
         return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
     };
 }
+/* eslint-enable no-bitwise */
 
 const between = (random: () => number, min: number, max: number) => min + random() * (max - min);
 const round = (value: number, digits = 3) => Number(value.toFixed(digits));
@@ -55,7 +58,13 @@ export function getHeaderShapes(attrs: HeaderAttrs): HeaderShape[] {
 
     const mesh = attrs[HeaderAttr.Background] === HeaderBackground.Mesh;
     const seed = attrs[HeaderAttr.Seed];
-    if (!seed) return [...(mesh ? CURATED_MESH : CURATED_DECOR)];
+    if (!seed) {
+        if (!mesh) return [...CURATED_DECOR];
+        // Второй цвет меша виден при любом зерне, иначе он сериализуется и ни на что не влияет.
+        return CURATED_MESH.map((shape, index) =>
+            index === 0 ? {...shape, fill: attrs[HeaderAttr.Fill2]} : {...shape},
+        );
+    }
 
     const random = mulberry32(seed);
     const palette = HEADER_FILLS.filter((fill) => fill !== attrs[HeaderAttr.Fill]);

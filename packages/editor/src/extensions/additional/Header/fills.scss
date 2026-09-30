@@ -45,6 +45,7 @@ $header-text-dark: #213061;
 }
 
 /** Цвет текста выбирается по контрасту с заливкой, а не подбирается для каждого цвета вручную. */
+
 @function text-on($fill) {
     @return if(
         contrast($fill, $header-text-light) >= contrast($fill, $header-text-dark),
@@ -54,6 +55,7 @@ $header-text-dark: #213061;
 }
 
 /** Фигуры и точки узора — тот же тон, что и текст: на светлой заливке белое пятно не видно. */
+
 @function ink-on($fill, $alpha) {
     @return color.change(text-on($fill), $alpha: $alpha);
 }

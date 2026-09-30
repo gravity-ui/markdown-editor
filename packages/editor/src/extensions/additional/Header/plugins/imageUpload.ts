@@ -2,7 +2,13 @@ import type {EditorView} from 'prosemirror-view';
 
 import type {FileUploadHandler} from 'src/utils/upload';
 
-import {HeaderAttr, HeaderText, type HeaderTextValue} from '../HeaderSpecs';
+import {
+    HeaderAttr,
+    HeaderLayer,
+    HeaderText,
+    type HeaderTextValue,
+    normalizeHeaderAttrs,
+} from '../HeaderSpecs';
 import {headerAt, setHeaderAttrs} from '../commands';
 
 const SAMPLE_SIZE = 64;
@@ -76,11 +82,15 @@ export async function uploadHeaderImage(
         return 'failed';
     }
 
-    if (!url || !headerAt(view.state.doc, pos)) return 'failed';
+    const node = headerAt(view.state.doc, pos);
+    if (!url || !node) return 'failed';
+
+    // Замер относится к снимку на всю площадь: под декором и плиткой тон заголовка задаёт заливка.
+    const onCover = normalizeHeaderAttrs(node.attrs)[HeaderAttr.Layer] === HeaderLayer.Cover;
 
     setHeaderAttrs(pos, {
         [HeaderAttr.Image]: url,
-        [HeaderAttr.Text]: tone,
+        ...(onCover ? {[HeaderAttr.Text]: tone} : {}),
     })(view.state, view.dispatch);
 
     return 'done';

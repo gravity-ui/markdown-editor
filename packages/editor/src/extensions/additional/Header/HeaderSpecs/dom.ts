@@ -1,6 +1,6 @@
 import type {DOMOutputSpec, Node} from 'prosemirror-model';
 
-import {type HeaderAttrs, hasImage, normalizeHeaderAttrs} from './attrs';
+import {type HeaderAttrs, isCovered, normalizeHeaderAttrs} from './attrs';
 import {HeaderAttr, HeaderClassName} from './const';
 import {type HeaderShape, getHeaderShapes} from './decor';
 
@@ -43,7 +43,13 @@ const decorDomAttrs = {
     contenteditable: 'false',
 };
 
+/** Величины едут в CSS локальными переменными: правила переопределяют значение, а не само правило. */
 export function headerDomAttrs(attrs: HeaderAttrs): Record<string, string> {
+    const style = [
+        `--g-md-header-angle:${attrs[HeaderAttr.Angle]}deg`,
+        `--g-md-header-step:${attrs[HeaderAttr.Step]}px`,
+    ];
+
     const dom: Record<string, string> = {
         class: HeaderClassName.Root,
         'data-qa': 'header',
@@ -53,21 +59,28 @@ export function headerDomAttrs(attrs: HeaderAttrs): Record<string, string> {
         'data-fill2': attrs[HeaderAttr.Fill2],
         'data-text': attrs[HeaderAttr.Text],
         'data-seed': String(attrs[HeaderAttr.Seed]),
+        'data-angle': String(attrs[HeaderAttr.Angle]),
+        'data-step': String(attrs[HeaderAttr.Step]),
     };
 
     const url = toCssUrl(attrs[HeaderAttr.Image]);
     if (url) {
         dom['data-image'] = attrs[HeaderAttr.Image];
         dom['data-effect'] = attrs[HeaderAttr.Effect];
-        dom.style = `--g-md-header-image:${url}`;
+        dom['data-layer'] = attrs[HeaderAttr.Layer];
+        dom['data-fit'] = attrs[HeaderAttr.Fit];
+        dom['data-crop'] = attrs[HeaderAttr.Crop];
+        style.push(`--g-md-header-image:${url}`);
     }
+
+    dom.style = style.join(';');
 
     return dom;
 }
 
-/** Фигуры принадлежат слою фона, поэтому под изображением не рисуются. */
+/** Фигуры принадлежат слою фона, поэтому под изображением на всю площадь не рисуются. */
 function visibleShapes(attrs: HeaderAttrs): HeaderShape[] {
-    return hasImage(attrs) ? [] : getHeaderShapes(attrs);
+    return isCovered(attrs) ? [] : getHeaderShapes(attrs);
 }
 
 export function headerToDOM(node: Node): DOMOutputSpec {

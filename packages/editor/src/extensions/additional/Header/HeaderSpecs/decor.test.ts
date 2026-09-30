@@ -32,4 +32,9 @@ describe('header shapes', () => {
         expect(getHeaderShapes(attrs({}))).toHaveLength(2);
         expect(getHeaderShapes(attrs({bg: 'mesh'}))).toHaveLength(3);
     });
+
+    it('should colour the first mesh shape with the second fill for any seed', () => {
+        expect(getHeaderShapes(attrs({bg: 'mesh', fill2: 'sand'}))[0].fill).toBe('sand');
+        expect(getHeaderShapes(attrs({bg: 'mesh', fill2: 'sand', seed: 77}))[0].fill).toBe('sand');
+    });
 });

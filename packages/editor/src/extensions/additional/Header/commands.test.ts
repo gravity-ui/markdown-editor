@@ -4,8 +4,8 @@ import {builders} from 'prosemirror-test-builder';
 import {EditorView} from 'prosemirror-view';
 import {describe, expect, it} from 'vitest';
 
-import {getHeaderSchemaSpec} from './HeaderSpecs/schema';
 import {headerNodeName} from './HeaderSpecs/const';
+import {getHeaderSchemaSpec} from './HeaderSpecs/schema';
 import {
     backspaceInHeader,
     exitHeaderForward,
@@ -52,6 +52,14 @@ describe('Header commands', () => {
         expect(setHeaderAttrs(0, {format: 'small'})(view.state, view.dispatch)).toBe(false);
     });
 
+    it('should normalize a value that a command writes', () => {
+        const view = viewWith(doc(header({angle: 110}, 'Заголовок')), 1);
+
+        expect(setHeaderAttrs(0, {angle: 523, step: 9000})(view.state, view.dispatch)).toBe(true);
+        expect(view.state.doc.firstChild!.attrs.angle).toBe(163);
+        expect(view.state.doc.firstChild!.attrs.step).toBe(512);
+    });
+
     it('should refuse to repeat the current attributes', () => {
         const view = viewWith(doc(header({format: 'small'}, 'Заголовок')), 1);
         expect(setHeaderAttrs(0, {format: 'small'})(view.state, view.dispatch)).toBe(false);
@@ -65,11 +73,18 @@ describe('Header commands', () => {
         expect(view.state.doc.firstChild!.attrs.seed).toBeGreaterThan(0);
     });
 
-    it('should take the image away with its overlay and measured tone', () => {
+    it('should take the image away with its frame, overlay and measured tone', () => {
         const view = viewWith(
             doc(
                 header(
-                    {image: 'https://example.com/hero.png', effect: 'dim', text: 'light'},
+                    {
+                        image: 'https://example.com/hero.png',
+                        layer: 'decor',
+                        fit: 'height',
+                        crop: 'right',
+                        effect: 'dim',
+                        text: 'light',
+                    },
                     'Заголовок',
                 ),
             ),
@@ -77,9 +92,44 @@ describe('Header commands', () => {
         );
 
         expect(removeHeaderImage(0)(view.state, view.dispatch)).toBe(true);
-        expect(view.state.doc.firstChild!.attrs.image).toBe('');
-        expect(view.state.doc.firstChild!.attrs.effect).toBe('none');
-        expect(view.state.doc.firstChild!.attrs.text).toBe('auto');
+
+        const {attrs} = view.state.doc.firstChild!;
+        expect(attrs.image).toBe('');
+        expect(attrs.layer).toBe('cover');
+        expect(attrs.fit).toBe('cover');
+        expect(attrs.crop).toBe('center');
+        expect(attrs.effect).toBe('none');
+        expect(attrs.text).toBe('auto');
+    });
+
+    it('should keep the background when the image is taken away', () => {
+        const view = viewWith(
+            doc(
+                header(
+                    {
+                        bg: 'gradient',
+                        fill: 'sand',
+                        fill2: 'teal',
+                        angle: 110,
+                        step: 48,
+                        seed: 77,
+                        image: 'https://example.com/hero.png',
+                    },
+                    'Заголовок',
+                ),
+            ),
+            1,
+        );
+
+        expect(removeHeaderImage(0)(view.state, view.dispatch)).toBe(true);
+
+        const {attrs} = view.state.doc.firstChild!;
+        expect(attrs.bg).toBe('gradient');
+        expect(attrs.fill).toBe('sand');
+        expect(attrs.fill2).toBe('teal');
+        expect(attrs.angle).toBe(110);
+        expect(attrs.step).toBe(48);
+        expect(attrs.seed).toBe(77);
     });
 
     it('should refuse to take away a missing image', () => {

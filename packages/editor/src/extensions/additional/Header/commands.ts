@@ -7,8 +7,11 @@ import {
     HEADER_FILLS,
     HeaderAttr,
     type HeaderAttrs,
+    HeaderCrop,
     HeaderEffect,
     type HeaderFillValue,
+    HeaderFit,
+    HeaderLayer,
     HeaderText,
     headerNodeName,
     headerType,
@@ -80,10 +83,13 @@ export const generateHeaderLook =
         })(state, dispatch);
     };
 
-/** Снимает нижний слой целиком: эффект и замеренный тон относятся только к снимку. */
+/** Снимает слой файла целиком: слой, кадр, дополнение и замеренный тон относятся только к снимку. */
 export const removeHeaderImage = (pos: number): Command =>
     setHeaderAttrs(pos, {
         [HeaderAttr.Image]: '',
+        [HeaderAttr.Layer]: HeaderLayer.Cover,
+        [HeaderAttr.Fit]: HeaderFit.Cover,
+        [HeaderAttr.Crop]: HeaderCrop.Center,
         [HeaderAttr.Effect]: HeaderEffect.None,
         [HeaderAttr.Text]: HeaderText.Auto,
     });

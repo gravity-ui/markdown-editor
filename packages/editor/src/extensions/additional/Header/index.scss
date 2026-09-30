@@ -1,6 +1,25 @@
 @use 'sass:map';
-
 @use './fills' as fills;
+
+// Имена `fit` и `crop` — канонические значения, CSS-величины подставляются здесь.
+$header-fits: (
+    'cover': cover,
+    'contain': contain,
+    'width': 100% auto,
+    'height': auto 100%,
+);
+
+$header-crops: (
+    'center': center,
+    'top': center top,
+    'right': right center,
+    'bottom': center bottom,
+    'left': left center,
+    'top-left': left top,
+    'top-right': right top,
+    'bottom-right': right bottom,
+    'bottom-left': left bottom,
+);
 
 .g-md-header {
     --g-md-header-radius: 16px;
@@ -10,17 +29,22 @@
     --g-md-header-shape: #{fills.ink-on(map.get(fills.$header-fills, 'blue'), 0.9)};
     --g-md-header-dot: #{fills.ink-on(map.get(fills.$header-fills, 'blue'), 0.19)};
     --g-md-header-text: var(--g-md-header-fill-text);
+    --g-md-header-angle: 163deg;
+    --g-md-header-step: 32px;
     --g-md-header-min-height: 300px;
     --g-md-header-padding: 48px;
     --g-md-header-title-size: 32px;
     --g-md-header-title-height: 38px;
 
     position: relative;
+
     display: flex;
-    align-items: center;
     overflow: hidden;
+    align-items: center;
+
     min-height: var(--g-md-header-min-height);
     padding: var(--g-md-header-padding);
+
     border-radius: var(--g-md-header-radius);
     background-color: var(--g-md-header-fill);
 
@@ -54,76 +78,107 @@
 
     &[data-bg='gradient'] {
         background-image: linear-gradient(
-            110deg,
+            var(--g-md-header-angle),
             var(--g-md-header-fill) 0%,
             var(--g-md-header-fill-2) 100%
         );
     }
 
-    // Точка повторяется тайлом, как в макете.
+    // Точка повторяется тайлом с шагом `step`, как в макете.
     &[data-bg='pattern'] {
         background-image: radial-gradient(
-            circle at 14px 14px,
+            circle at 50% 50%,
             var(--g-md-header-dot) 3px,
             transparent 3px
         );
-        background-size: 28px 28px;
+        background-size: var(--g-md-header-step) var(--g-md-header-step);
     }
 
-    // Изображение — нижний слой: заливка и фигуры под ним не видны, поверх ложится эффект.
+    // Изображение — нижний слой: основа остаётся под ним и возвращается, когда файл убирают.
     &[data-image] {
+        @each $name, $position in $header-crops {
+            &[data-crop='#{$name}']::before {
+                background-position: #{$position};
+            }
+        }
+
+        @each $name, $size in $header-fits {
+            &[data-fit='#{$name}']::before {
+                background-size: #{$size};
+            }
+        }
         &::before {
-            content: '';
             position: absolute;
             inset: 0;
+
+            content: '';
+
             background-image: var(--g-md-header-image);
+            background-repeat: no-repeat;
             background-position: center;
             background-size: cover;
         }
 
-        // Затемнение и размытие гасят снимок целиком, поэтому заголовок остаётся светлым.
-        &[data-effect='dim'],
-        &[data-effect='blur'] {
-            --g-md-header-text: #{fills.$header-text-light};
+        // Правило плитки идёт после кадра: у селекторов одна специфичность, решает порядок.
+        &[data-layer='tile']::before {
+            background-repeat: repeat;
+            background-position: left top;
+            background-size: var(--g-md-header-step) var(--g-md-header-step);
         }
 
-        &[data-effect='blur']::before {
-            // Слой растянут за края, иначе размытие обнажает кромку.
-            inset: -32px;
-            filter: blur(19px);
-        }
+        // Дополнение относится только к снимку на всю площадь: декор и плитку основа держит сама.
+        &[data-layer='cover'] {
+            // Затемнение и размытие гасят снимок целиком, поэтому заголовок остаётся светлым.
+            &[data-effect='dim'],
+            &[data-effect='blur'] {
+                --g-md-header-text: #{fills.$header-text-light};
+            }
 
-        &[data-effect='blur']::after {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background-image: linear-gradient(
-                90deg,
-                rgba(20, 23, 31, 0.55) 0%,
-                rgba(20, 23, 31, 0) 62%
-            );
-        }
+            &[data-effect='blur']::before {
+                // Слой растянут за края, иначе размытие обнажает кромку.
+                inset: -32px;
 
-        &[data-effect='dim']::after {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background-color: rgba(0, 0, 0, 0.55);
-        }
+                filter: blur(19px);
+            }
 
-        &[data-effect='gradient'] {
-            // Заголовок лежит на непрозрачной части заливки, поэтому тон считается по ней.
-            --g-md-header-text: var(--g-md-header-fill-text);
-
-            &::after {
-                content: '';
+            &[data-effect='blur']::after {
                 position: absolute;
                 inset: 0;
+
+                content: '';
+
                 background-image: linear-gradient(
                     90deg,
-                    var(--g-md-header-fill) 0%,
-                    transparent 78%
+                    rgba(20, 23, 31, 0.55) 0%,
+                    rgba(20, 23, 31, 0) 62%
                 );
+            }
+
+            &[data-effect='dim']::after {
+                position: absolute;
+                inset: 0;
+
+                content: '';
+
+                background-color: rgba(0, 0, 0, 0.55);
+            }
+
+            &[data-effect='gradient'] {
+                // Заголовок лежит на непрозрачной части заливки, поэтому тон считается по ней.
+                --g-md-header-text: var(--g-md-header-fill-text);
+
+                &::after {
+                    position: absolute;
+                    inset: 0;
+
+                    content: '';
+
+                    background-image: linear-gradient(
+                        90deg,
+                        var(--g-md-header-fill) 0%,
+                        transparent 78%
+                    );
+                }
             }
         }
     }
@@ -131,17 +186,20 @@
 
 .g-md-header__decor {
     position: absolute;
-    inset: 0;
     z-index: 1;
+    inset: 0;
+
     pointer-events: none;
 }
 
 .g-md-header__shape {
     position: absolute;
     aspect-ratio: 1;
+
     border-radius: 50%;
     background-color: var(--g-md-header-shape);
     filter: blur(60px);
+
     animation: g-md-header-drift var(--g-md-header-shape-duration, 28s) ease-in-out
         var(--g-md-header-shape-delay, 0s) infinite alternate;
 
@@ -159,22 +217,25 @@
 .g-md-header__content {
     position: relative;
     z-index: 2;
+
     max-width: 640px;
 }
 
 .g-md-header__title {
     margin: 0;
-    color: var(--g-md-header-text);
 
-    // Общий плейсхолдер рисуется вторичным цветом темы и на заливке теряется.
-    .g-md-placeholder {
-        color: var(--g-md-header-text);
-        opacity: 0.6;
-    }
     font-size: var(--g-md-header-title-size);
     font-weight: 700;
     line-height: var(--g-md-header-title-height);
     letter-spacing: -0.02em;
+
+    color: var(--g-md-header-text);
+
+    // Общий плейсхолдер рисуется вторичным цветом темы и на заливке теряется.
+    .g-md-placeholder {
+        opacity: 0.6;
+        color: var(--g-md-header-text);
+    }
 
     &:focus {
         outline: 0;

@@ -1,14 +1,23 @@
 import {
     HEADER_FILLS,
+    HEADER_FULL_TURN,
+    HEADER_STEP_MAX,
+    HEADER_STEP_MIN,
     HeaderAttr,
     HeaderBackground,
     type HeaderBackgroundValue,
+    HeaderCrop,
+    type HeaderCropValue,
     HeaderDefaults,
     HeaderEffect,
     type HeaderEffectValue,
     type HeaderFillValue,
+    HeaderFit,
+    type HeaderFitValue,
     HeaderFormat,
     type HeaderFormatValue,
+    HeaderLayer,
+    type HeaderLayerValue,
     HeaderText,
     type HeaderTextValue,
 } from './const';
@@ -18,8 +27,13 @@ export type HeaderAttrs = {
     [HeaderAttr.Background]: HeaderBackgroundValue;
     [HeaderAttr.Fill]: HeaderFillValue;
     [HeaderAttr.Fill2]: HeaderFillValue;
+    [HeaderAttr.Angle]: number;
     [HeaderAttr.Effect]: HeaderEffectValue;
     [HeaderAttr.Image]: string;
+    [HeaderAttr.Layer]: HeaderLayerValue;
+    [HeaderAttr.Fit]: HeaderFitValue;
+    [HeaderAttr.Crop]: HeaderCropValue;
+    [HeaderAttr.Step]: number;
     [HeaderAttr.Text]: HeaderTextValue;
     [HeaderAttr.Seed]: number;
 };
@@ -33,16 +47,40 @@ const oneOf =
 
 const toFormat = oneOf(Object.values(HeaderFormat), HeaderDefaults[HeaderAttr.Format]);
 const toBackground = oneOf(Object.values(HeaderBackground), HeaderDefaults[HeaderAttr.Background]);
+const toLayer = oneOf(Object.values(HeaderLayer), HeaderDefaults[HeaderAttr.Layer]);
+const toFit = oneOf(Object.values(HeaderFit), HeaderDefaults[HeaderAttr.Fit]);
+const toCrop = oneOf(Object.values(HeaderCrop), HeaderDefaults[HeaderAttr.Crop]);
 const toEffect = oneOf(Object.values(HeaderEffect), HeaderDefaults[HeaderAttr.Effect]);
 const toText = oneOf(Object.values(HeaderText), HeaderDefaults[HeaderAttr.Text]);
 
 const toFill = (raw: unknown, fallback: HeaderFillValue): HeaderFillValue =>
     HEADER_FILLS.includes(raw as HeaderFillValue) ? (raw as HeaderFillValue) : fallback;
 
-const toSeed = (raw: unknown): number => {
+/** Число приходит строкой из директивы и из DOM, а отсутствующий атрибут — пустотой. */
+const toInteger = (raw: unknown): number | null => {
+    if (raw === null || raw === undefined || raw === '') return null;
     const value = Math.trunc(Number(raw));
-    if (!Number.isFinite(value) || value < 0) return HeaderDefaults[HeaderAttr.Seed];
+    return Number.isFinite(value) ? value : null;
+};
+
+const toSeed = (raw: unknown): number => {
+    const value = toInteger(raw);
+    if (value === null || value < 0) return HeaderDefaults[HeaderAttr.Seed];
     return Math.min(value, MAX_SEED);
+};
+
+/** Угол берётся по модулю оборота: 523° — тот же наклон, что 163°. Отрицательный — в дефолт. */
+const toAngle = (raw: unknown): number => {
+    const value = toInteger(raw);
+    if (value === null || value < 0) return HeaderDefaults[HeaderAttr.Angle];
+    return value % HEADER_FULL_TURN;
+};
+
+/** Шаг плитки ограничен диапазоном: меньше нижней границы узор сливается, больше верхней — исчезает. */
+const toStep = (raw: unknown): number => {
+    const value = toInteger(raw);
+    if (value === null) return HeaderDefaults[HeaderAttr.Step];
+    return Math.min(Math.max(value, HEADER_STEP_MIN), HEADER_STEP_MAX);
 };
 
 const toImage = (raw: unknown): string => (typeof raw === 'string' ? raw.trim() : '');
@@ -54,21 +92,38 @@ export function normalizeHeaderAttrs(raw: Readonly<Record<string, unknown>> = {}
         [HeaderAttr.Background]: toBackground(raw[HeaderAttr.Background]),
         [HeaderAttr.Fill]: toFill(raw[HeaderAttr.Fill], HeaderDefaults[HeaderAttr.Fill]),
         [HeaderAttr.Fill2]: toFill(raw[HeaderAttr.Fill2], HeaderDefaults[HeaderAttr.Fill2]),
+        [HeaderAttr.Angle]: toAngle(raw[HeaderAttr.Angle]),
         [HeaderAttr.Effect]: toEffect(raw[HeaderAttr.Effect]),
         [HeaderAttr.Image]: toImage(raw[HeaderAttr.Image]),
+        [HeaderAttr.Layer]: toLayer(raw[HeaderAttr.Layer]),
+        [HeaderAttr.Fit]: toFit(raw[HeaderAttr.Fit]),
+        [HeaderAttr.Crop]: toCrop(raw[HeaderAttr.Crop]),
+        [HeaderAttr.Step]: toStep(raw[HeaderAttr.Step]),
         [HeaderAttr.Text]: toText(raw[HeaderAttr.Text]),
         [HeaderAttr.Seed]: toSeed(raw[HeaderAttr.Seed]),
     };
 }
 
-/** Второй цвет нужен градиенту и мешу, эффект — только изображению, зерно — только фигурам. */
+/**
+ * Свойства основы остаются применимыми и под изображением: основа возвращается, когда файл убирают.
+ * Свойства файла применимы только при заданной ссылке, дополнение — только к снимку на всю площадь.
+ */
 export function isAttrUsed(attr: keyof HeaderAttrs, attrs: HeaderAttrs): boolean {
     const bg = attrs[HeaderAttr.Background];
     switch (attr) {
         case HeaderAttr.Fill2:
             return bg === HeaderBackground.Gradient || bg === HeaderBackground.Mesh;
-        case HeaderAttr.Effect:
+        case HeaderAttr.Angle:
+            return bg === HeaderBackground.Gradient;
+        case HeaderAttr.Step:
+            return bg === HeaderBackground.Pattern || isTiled(attrs);
+        case HeaderAttr.Layer:
             return hasImage(attrs);
+        case HeaderAttr.Fit:
+        case HeaderAttr.Crop:
+            return hasImage(attrs) && !isTiled(attrs);
+        case HeaderAttr.Effect:
+            return isCovered(attrs);
         case HeaderAttr.Seed:
             return hasShapes(attrs);
         default:
@@ -76,7 +131,7 @@ export function isAttrUsed(attr: keyof HeaderAttrs, attrs: HeaderAttrs): boolean
     }
 }
 
-/** Свойство слоя фона: под изображением фигуры остаются в разметке, но не рисуются. */
+/** Свойство слоя фона: под изображением на всю площадь фигуры остаются в разметке, но не рисуются. */
 export function hasShapes(attrs: HeaderAttrs): boolean {
     const bg = attrs[HeaderAttr.Background];
     return bg === HeaderBackground.Shapes || bg === HeaderBackground.Mesh;
@@ -86,13 +141,28 @@ export function hasImage(attrs: HeaderAttrs): boolean {
     return Boolean(attrs[HeaderAttr.Image]);
 }
 
+/** Файл повторяется плиткой поверх основы: масштаб и кадр к нему не относятся, шаг относится. */
+export function isTiled(attrs: HeaderAttrs): boolean {
+    return hasImage(attrs) && attrs[HeaderAttr.Layer] === HeaderLayer.Tile;
+}
+
+/** Файл занимает всю площадь: основа под ним не видна, дополнение поверх него применяется. */
+export function isCovered(attrs: HeaderAttrs): boolean {
+    return hasImage(attrs) && attrs[HeaderAttr.Layer] === HeaderLayer.Cover;
+}
+
 const SERIALIZED_ATTRS: readonly (keyof HeaderAttrs)[] = [
     HeaderAttr.Format,
     HeaderAttr.Background,
     HeaderAttr.Fill,
     HeaderAttr.Fill2,
+    HeaderAttr.Angle,
     HeaderAttr.Effect,
     HeaderAttr.Image,
+    HeaderAttr.Layer,
+    HeaderAttr.Fit,
+    HeaderAttr.Crop,
+    HeaderAttr.Step,
     HeaderAttr.Text,
     HeaderAttr.Seed,
 ];
