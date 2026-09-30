@@ -11,8 +11,8 @@ import {
 import {
     ActionName as Action,
     ToolbarName as Toolbar,
-} from '@gravity-ui/markdown-editor/_/modules/toolbars/constants.js';
-import {full} from '@gravity-ui/markdown-editor/_/modules/toolbars/presets.js';
+    full,
+} from '@gravity-ui/markdown-editor/toolbars';
 
 const custom: ToolbarsPreset = {
     items: {
