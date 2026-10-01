@@ -13,7 +13,7 @@
     &_editing {
         display: flex;
 
-        padding-top: 0;
+        padding-top: 28px;
 
         border: 0;
     }
@@ -26,8 +26,29 @@
 
     &__menu {
         position: absolute;
+        z-index: 1;
         top: 0;
         right: 0;
+
+        pointer-events: none;
+
+        opacity: 0;
+
+        transition: opacity 0.15s ease;
+    }
+
+    &:hover &__menu,
+    &:focus-within &__menu,
+    &__menu_open {
+        pointer-events: auto;
+
+        opacity: 1;
+    }
+
+    &__mode-popup {
+        padding: 8px;
+
+        background: var(--g-color-base-float);
     }
 
     &__preview {
@@ -79,6 +100,14 @@
 
     &__content {
         flex-grow: 1;
+    }
+
+    @media (hover: none) {
+        &__menu {
+            pointer-events: auto;
+
+            opacity: 1;
+        }
     }
 }
 

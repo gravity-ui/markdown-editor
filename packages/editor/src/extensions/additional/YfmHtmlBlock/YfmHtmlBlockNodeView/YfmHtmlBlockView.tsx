@@ -3,7 +3,7 @@ import {useEffect, useMemo, useRef, useState} from 'react';
 import {getStyles} from '@diplodoc/html-extension';
 import type {IHTMLIFrameElementConfig} from '@diplodoc/html-extension/runtime';
 import {Ellipsis as DotsIcon, Eye} from '@gravity-ui/icons';
-import {Button, Icon, Label, Menu, Popup} from '@gravity-ui/uikit';
+import {Button, Icon, Label, Popup, RadioGroup} from '@gravity-ui/uikit';
 import type {Node} from 'prosemirror-model';
 import type {EditorView} from 'prosemirror-view';
 
@@ -26,6 +26,64 @@ export const cnYfmHtmlBlock = cn('yfm-html-block');
 export const STOP_EVENT_CLASSNAME = 'prosemirror-stop-event';
 
 const b = cnYfmHtmlBlock;
+
+type ViewMode = 'preview' | 'editor' | 'code';
+
+const ModeSwitcher: React.FC<{
+    mode: ViewMode;
+    onModeChange: (mode: ViewMode) => void;
+    onRemove: () => void;
+}> = ({mode, onModeChange, onRemove}) => {
+    const [menuOpen, _openMenu, closeMenu, toggleMenuOpen] = useBooleanState(false);
+    const [anchorElement, setAnchorElement] = useElementState();
+
+    return (
+        <div className={b('menu', {open: menuOpen})}>
+            <Button
+                onClick={toggleMenuOpen}
+                ref={setAnchorElement}
+                size="s"
+                className={STOP_EVENT_CLASSNAME}
+                aria-label={i18n('actions')}
+                aria-expanded={menuOpen}
+            >
+                <Icon data={DotsIcon} />
+            </Button>
+            <Popup
+                anchorElement={anchorElement}
+                open={menuOpen}
+                onOpenChange={closeMenu}
+                placement="bottom-end"
+            >
+                <div className={`${b('mode-popup')} ${STOP_EVENT_CLASSNAME}`}>
+                    <RadioGroup
+                        direction="vertical"
+                        aria-label={i18n('view_mode')}
+                        value={mode}
+                        options={[
+                            {value: 'preview', content: i18n('preview')},
+                            {value: 'editor', content: i18n('editor'), disabled: true},
+                            {value: 'code', content: i18n('code')},
+                        ]}
+                        onUpdate={(value) => {
+                            onModeChange(value as ViewMode);
+                            closeMenu();
+                        }}
+                    />
+                    <Button
+                        view="flat"
+                        onClick={() => {
+                            closeMenu();
+                            onRemove();
+                        }}
+                    >
+                        {i18n('remove')}
+                    </Button>
+                </div>
+            </Popup>
+        </div>
+    );
+};
 
 interface YfmHtmlBlockViewProps {
     html: string;
@@ -194,17 +252,30 @@ const CodeEditMode: React.FC<{
     initialText: string;
     onSave: (v: string) => void;
     onCancel: () => void;
+    onRemove: () => void;
     options: YfmHtmlBlockOptions;
-}> = ({initialText, onSave, onCancel, options: {autoSave}}) => {
-    const {value, handleChange, handleManualSave, isSaveDisabled, isAutoSaveEnabled} = useAutoSave({
-        initialValue: initialText || '\n',
-        onSave,
-        onClose: onCancel,
-        autoSave,
-    });
+}> = ({initialText, onSave, onCancel, onRemove, options: {autoSave}}) => {
+    const {
+        value,
+        handleChange,
+        handleManualSave,
+        hasUnsavedChanges,
+        isSaveDisabled,
+        isAutoSaveEnabled,
+    } = useAutoSave({initialValue: initialText || '\n', onSave, onClose: onCancel, autoSave});
 
     return (
         <div className={b({editing: true})}>
+            <ModeSwitcher
+                mode="code"
+                onModeChange={(mode) => {
+                    if (mode === 'preview') {
+                        if (hasUnsavedChanges) handleManualSave();
+                        else onCancel();
+                    }
+                }}
+                onRemove={onRemove}
+            />
             <div className={b('editor')}>
                 <TextArea
                     controlProps={{
@@ -255,8 +326,17 @@ export const YfmHtmlBlockView: React.FC<{
     const config = useConfig?.();
 
     const [editing, setEditing, unsetEditing] = useSharedEditingState(view, entityKey);
-    const [menuOpen, _openMenu, closeMenu, toggleMenuOpen] = useBooleanState(false);
-    const [anchorElement, setAnchorElement] = useElementState();
+
+    const onRemove = () => {
+        const pos = getPos();
+        if (pos === undefined) return;
+        removeNode({
+            node,
+            pos,
+            tr: view.state.tr,
+            dispatch: view.dispatch,
+        });
+    };
 
     if (editing) {
         return (
@@ -266,6 +346,7 @@ export const YfmHtmlBlockView: React.FC<{
                 onSave={(v) => {
                     onChange({[YfmHtmlBlockConsts.NodeAttrs.srcdoc]: v});
                 }}
+                onRemove={onRemove}
                 options={options}
             />
         );
@@ -295,48 +376,13 @@ export const YfmHtmlBlockView: React.FC<{
             </Label>
             <YfmHtmlBlockPreview html={resultHtml} onClick={setEditing} config={config} />
 
-            <div className={b('menu')}>
-                <Button
-                    onClick={toggleMenuOpen}
-                    ref={setAnchorElement}
-                    size="s"
-                    className={STOP_EVENT_CLASSNAME}
-                    aria-label={i18n('actions')}
-                >
-                    <Icon data={DotsIcon} className={STOP_EVENT_CLASSNAME} />
-                </Button>
-                <Popup
-                    anchorElement={anchorElement}
-                    open={menuOpen}
-                    onOpenChange={closeMenu}
-                    placement="bottom-end"
-                >
-                    <Menu>
-                        <Menu.Item
-                            onClick={() => {
-                                setEditing();
-                                closeMenu();
-                            }}
-                        >
-                            {i18n('edit')}
-                        </Menu.Item>
-                        <Menu.Item
-                            onClick={() => {
-                                const pos = getPos();
-                                if (pos === undefined) return;
-                                removeNode({
-                                    node,
-                                    pos,
-                                    tr: view.state.tr,
-                                    dispatch: view.dispatch,
-                                });
-                            }}
-                        >
-                            {i18n('remove')}
-                        </Menu.Item>
-                    </Menu>
-                </Popup>
-            </div>
+            <ModeSwitcher
+                mode="preview"
+                onModeChange={(mode) => {
+                    if (mode === 'code') setEditing();
+                }}
+                onRemove={onRemove}
+            />
         </div>
     );
 };
