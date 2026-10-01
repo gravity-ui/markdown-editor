@@ -27,6 +27,8 @@ export const PreservedMarkupSpecs: ExtensionAuto = (builder) => {
                 {class: preservedMarkupClassName, contenteditable: 'false'},
                 ['code', node.attrs[preservedMarkupAttr]],
             ],
+            // Plain-text copy and `doc.textContent` carry the markup of the node
+            leafText: (node) => node.attrs[preservedMarkupAttr],
         }))
         .addMarkdownTokenParserSpec(preservedMarkupNodeName, () => ({
             name: preservedMarkupNodeName,

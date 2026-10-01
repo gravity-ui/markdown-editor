@@ -4,8 +4,10 @@ import type Token from 'markdown-it/lib/token';
 import {builders} from 'prosemirror-test-builder';
 import {describe, expect, it} from 'vitest';
 
-import type {Schema} from '#pm/model';
+import type {Node, Schema} from '#pm/model';
+import {EditorState, type Transaction} from '#pm/state';
 
+import {parseDOM} from '../../tests/parse-dom';
 import {createMarkupChecker} from '../../tests/sameMarkup';
 import {DirectiveContext} from '../../tests/utils';
 import {ExtensionsManager} from '../core';
@@ -423,6 +425,46 @@ describe('blockContentSlots', () => {
                 );
             });
 
+            describe('editing', () => {
+                const source = cut('text\n\n![pic](/pic.png)').trimEnd();
+                const edited = (change: (state: EditorState) => Transaction) => {
+                    const state = EditorState.create({doc: parser.parse(source)});
+                    return serializer.serialize(state.apply(change(state)).doc);
+                };
+
+                it('should keep the preserved markup when a neighbour changes', () => {
+                    const markup = edited((state) => {
+                        const {pos, node} = findNode(state.doc, BaseNode.Paragraph);
+                        return state.tr.insertText(' and more', pos + node.nodeSize - 1);
+                    });
+
+                    expect(markup).toContain('text and more');
+                    expect(markup).toContain('![pic](/pic.png)');
+                });
+
+                it('should lose the markup when the node is deleted', () => {
+                    const markup = edited((state) => {
+                        const {pos, node} = findNode(state.doc, preservedMarkupNodeName);
+                        return state.tr.delete(pos, pos + node.nodeSize);
+                    });
+
+                    expect(markup).toContain('text');
+                    expect(markup).not.toContain('![pic](/pic.png)');
+                });
+
+                it('should expose the preserved markup as text of the document', () => {
+                    expect(parser.parse(source).textContent).toContain('![pic](/pic.png)');
+                });
+
+                it('should restore the node from pasted html', () => {
+                    parseDOM(
+                        schema,
+                        `<pre class="${preservedMarkupClassName}"><code>![pic](/pic.png)</code></pre>`,
+                        doc(preserved({[preservedMarkupAttr]: '![pic](/pic.png)'})),
+                    );
+                });
+            });
+
             it('should return a multi-line group to the text on a round trip', () => {
                 same(
                     cut('text\n\n| a | b |\n| - | - |\n| 1 | 2 |').trimEnd(),
@@ -443,6 +485,16 @@ describe('blockContentSlots', () => {
         });
     });
 });
+
+function findNode(doc: Node, name: string): {pos: number; node: Node} {
+    let found: {pos: number; node: Node} | undefined;
+    doc.descendants((node, pos) => {
+        if (!found && node.type.name === name) found = {pos, node};
+        return !found;
+    });
+    if (!found) throw new Error(`node "${name}" is not in the document`);
+    return found;
+}
 
 function nodeBuilders(schema: Schema) {
     return builders<'doc' | 'p' | 'cut' | 'cutTitle' | 'cutContent' | 'preserved', 'a'>(schema, {
