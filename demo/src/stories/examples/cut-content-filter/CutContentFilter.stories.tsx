@@ -1,13 +1,25 @@
-import type {StoryObj} from '@storybook/react';
+import type {Meta, StoryObj} from '@storybook/react';
 
-import {EditorWithCutContentFilter as component} from './Editor';
+import {
+    type EditorWithCutContentFilterProps,
+    EditorWithCutContentFilter as component,
+} from './Editor';
 
 export const Story: StoryObj<typeof component> = {
-    args: {},
+    args: {
+        unmatched: 'drop',
+    },
 };
 Story.storyName = 'Cut Content Filter';
 
-export default {
+const meta: Meta<EditorWithCutContentFilterProps> = {
     title: 'Examples / Cut Content Filter',
     component,
+    argTypes: {
+        unmatched: {
+            control: 'inline-radio',
+            options: ['drop', 'preserve'],
+        },
+    },
 };
+export default meta;

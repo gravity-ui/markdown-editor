@@ -15,32 +15,60 @@ export type BlockContentSlotsParams = {
     /** Routed body: tokens between `<bodyToken>_open` and `<bodyToken>_close` */
     bodyToken: string;
     slots: SlotRule[];
+    /**
+     * `drop` removes a group that no slot matched, `preserve` replaces it with its source markup.
+     * Preserving requires a single slot without a wrapper, so groups keep their place in the body.
+     * @default 'drop'
+     */
+    unmatched?: 'drop' | 'preserve';
 };
+
+/** Token and node type of a group preserved as source markup */
+export const preservedMarkupToken = 'preserved_markup';
+
+export const preservedMarkupClassName = 'g-md-preserved-markup';
 
 export const byType =
     (...types: string[]): SlotMatch =>
     (group) =>
         types.includes(group[0].type);
 
-export function blockContentSlots(md: MarkdownIt, {bodyToken, slots}: BlockContentSlotsParams) {
-    validate(slots);
+export function blockContentSlots(
+    md: MarkdownIt,
+    {bodyToken, slots, unmatched = 'drop'}: BlockContentSlotsParams,
+) {
+    validate(slots, unmatched);
 
     const openType = `${bodyToken}_open`;
     const closeType = `${bodyToken}_close`;
 
+    if (unmatched === 'preserve') {
+        const {rules} = md.renderer;
+        rules[preservedMarkupToken] = (tokens, index) =>
+            `<pre class="${preservedMarkupClassName}"><code>${md.utils.escapeHtml(tokens[index].content)}</code></pre>\n`;
+    }
+
     md.core.ruler.push(`${bodyToken}_slots`, (state) => {
         const {tokens} = state;
+        const source = unmatched === 'preserve' ? state.src.split('\n') : undefined;
+
         for (let i = 0; i < tokens.length; i++) {
             if (tokens[i].type !== openType) continue;
             const close = groupEnd(tokens, i);
             if (tokens[close].type !== closeType) continue;
-            const routed = route(state, tokens.slice(i + 1, close), slots);
+            const routed = route(state, tokens.slice(i + 1, close), slots, source);
             tokens.splice(i + 1, close - i - 1, ...routed);
         }
     });
 }
 
-function route(state: StateCore, body: readonly Token[], slots: SlotRule[]): Token[] {
+function route(
+    state: StateCore,
+    body: readonly Token[],
+    slots: SlotRule[],
+    /** Source lines of the document; without them unmatched groups are dropped */
+    source?: readonly string[],
+): Token[] {
     const buckets: Token[][] = slots.map(() => []);
     const fallback = slots.findIndex((slot) => slot.fallback);
 
@@ -50,6 +78,12 @@ function route(state: StateCore, body: readonly Token[], slots: SlotRule[]): Tok
         i = end + 1;
 
         const matched = slots.findIndex(({match}) => match?.(group));
+        if (matched < 0 && source) {
+            // Preserving is validated to a single slot, so the group keeps its place in the body
+            const preserved = preserve(state, group, source);
+            if (preserved) buckets[0].push(preserved);
+            continue;
+        }
         const index = matched < 0 ? fallback : matched;
         if (index < 0) continue;
         for (const token of group) buckets[index].push(token);
@@ -88,6 +122,22 @@ function route(state: StateCore, body: readonly Token[], slots: SlotRule[]): Tok
     return routed;
 }
 
+function preserve(
+    state: StateCore,
+    group: readonly Token[],
+    source: readonly string[],
+): Token | null {
+    const span = lineSpan(group);
+    if (!span) return null;
+
+    const token = new state.Token(preservedMarkupToken, 'pre', 0);
+    token.block = true;
+    token.level = group[0].level;
+    token.map = span;
+    token.content = source.slice(span[0], span[1]).join('\n').replace(/\n+$/, '');
+    return token;
+}
+
 /** Index of the token closing the group opened at `start`; `start` itself for a self-closing one */
 function groupEnd(tokens: readonly Token[], start: number): number {
     let end = start;
@@ -107,8 +157,12 @@ function lineSpan(tokens: readonly Token[]): [number, number] | null {
     return span;
 }
 
-function validate(slots: SlotRule[]): void {
+function validate(slots: SlotRule[], unmatched: 'drop' | 'preserve'): void {
     if (!slots.length) throw new Error('blockContentSlots: at least one slot is required');
+
+    if (unmatched === 'preserve' && (slots.length > 1 || slots[0].wrap)) {
+        throw new Error('blockContentSlots: preserving needs a single slot without a wrapper');
+    }
 
     const names = new Set<string>();
     let fallbacks = 0;

@@ -1,4 +1,4 @@
-import {memo, useCallback} from 'react';
+import {memo, useCallback, useMemo} from 'react';
 
 import {
     CutNode,
@@ -6,6 +6,11 @@ import {
     type RenderPreview,
     useMarkdownEditor,
 } from '@gravity-ui/markdown-editor';
+import {
+    PreservedMarkupSpecs,
+    preservedMarkupNodeName,
+} from '@gravity-ui/markdown-editor/extensions/additional/PreservedMarkup/index.js';
+import type {BlockContentSlotsParams} from '@gravity-ui/markdown-editor/markdown-it/block-content-slots';
 
 import {PlaygroundLayout} from '../../../components/PlaygroundLayout';
 import {SplitModePreview} from '../../../components/SplitModePreview';
@@ -14,12 +19,15 @@ import {getPlugins} from '../../../defaults/md-plugins';
 import {markup} from './markup';
 import {cutContentSlots} from './slots';
 
-const previewPlugins = [...getPlugins(), cutContentSlots];
-
-export type EditorWithCutContentFilterProps = {};
+export type EditorWithCutContentFilterProps = {
+    unmatched: BlockContentSlotsParams['unmatched'];
+};
 
 export const EditorWithCutContentFilter = memo<EditorWithCutContentFilterProps>(
-    function EditorWithCutContentFilter() {
+    function EditorWithCutContentFilter({unmatched}) {
+        const slotsPlugin = useMemo(() => cutContentSlots(unmatched), [unmatched]);
+        const previewPlugins = useMemo(() => [...getPlugins(), slotsPlugin], [slotsPlugin]);
+
         const renderPreview = useCallback<RenderPreview>(
             ({getValue, md}) => (
                 <SplitModePreview
@@ -29,7 +37,7 @@ export const EditorWithCutContentFilter = memo<EditorWithCutContentFilterProps>(
                     linkify={md.linkify}
                 />
             ),
-            [],
+            [previewPlugins],
         );
 
         const editor = useMarkdownEditor(
@@ -39,15 +47,16 @@ export const EditorWithCutContentFilter = memo<EditorWithCutContentFilterProps>(
                 wysiwygConfig: {
                     extensions: (builder) =>
                         builder
-                            .configureMd(cutContentSlots)
+                            .use(PreservedMarkupSpecs)
+                            .configureMd(slotsPlugin)
                             // Editable content matches what the filter keeps
                             .overrideNodeSpec(CutNode.CutContent, (spec) => ({
                                 ...spec,
-                                content: 'paragraph*',
+                                content: `(paragraph | ${preservedMarkupNodeName})*`,
                             })),
                 },
             },
-            [renderPreview],
+            [slotsPlugin, renderPreview],
         );
 
         return (

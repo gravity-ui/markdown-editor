@@ -4,9 +4,16 @@ import type Token from 'markdown-it/lib/token';
 import {builders} from 'prosemirror-test-builder';
 import {describe, expect, it} from 'vitest';
 
+import type {Schema} from '#pm/model';
+
 import {createMarkupChecker} from '../../tests/sameMarkup';
 import {DirectiveContext} from '../../tests/utils';
 import {ExtensionsManager} from '../core';
+import {
+    PreservedMarkupSpecs,
+    preservedMarkupAttr,
+    preservedMarkupNodeName,
+} from '../extensions/additional/PreservedMarkup';
 import {BaseNode, BaseSchemaSpecs} from '../extensions/base/specs';
 import {
     HeadingSpecs,
@@ -17,7 +24,14 @@ import {
 } from '../extensions/markdown/specs';
 import {CutAttr, CutNode, YfmCutSpecs} from '../extensions/yfm/YfmCut/YfmCutSpecs';
 
-import {type SlotMatch, type SlotRule, blockContentSlots, byType} from './block-content-slots';
+import {
+    type SlotMatch,
+    type SlotRule,
+    blockContentSlots,
+    byType,
+    preservedMarkupClassName,
+    preservedMarkupToken,
+} from './block-content-slots';
 
 const paragraph = byType('paragraph_open');
 
@@ -26,10 +40,10 @@ const paragraphWithoutImage: SlotMatch = (group) =>
 
 const cut = (body: string) => `{% cut "title" %}\n\n${body}\n\n{% endcut %}\n`;
 
-function cutMd(slots: SlotRule[]): MarkdownIt {
+function cutMd(slots: SlotRule[], unmatched?: 'drop' | 'preserve'): MarkdownIt {
     return new MarkdownIt()
         .use(yfmCut({bundle: false}))
-        .use(blockContentSlots, {bodyToken: CutNode.CutContent, slots});
+        .use(blockContentSlots, {bodyToken: CutNode.CutContent, slots, unmatched});
 }
 
 /** Tokens between the first `yfm_cut_content_open` and its own closing token */
@@ -262,6 +276,52 @@ describe('blockContentSlots', () => {
         });
     });
 
+    describe('preserved markup', () => {
+        const slots: SlotRule[] = [{slot: 'content', match: paragraphWithoutImage}];
+        const preserved = (body: string) => cutBody(cutMd(slots, 'preserve').parse(cut(body), {}));
+
+        it('should replace an unmatched group with its source markup', () => {
+            const body = preserved('text\n\n![pic](/pic.png)');
+
+            expect(types(body)).toEqual([
+                'paragraph_open',
+                'inline',
+                'paragraph_close',
+                preservedMarkupToken,
+            ]);
+            expect(body.at(-1)?.content).toBe('![pic](/pic.png)');
+        });
+
+        it('should keep the source of a multi-line group', () => {
+            const body = preserved('- first\n- second\n\ntext');
+
+            expect(body.at(0)?.content).toBe('- first\n- second');
+        });
+
+        it('should keep preserved groups in place', () => {
+            const body = preserved('text\n\n# heading\n\nmore text');
+
+            expect(types(body)).toEqual([
+                'paragraph_open',
+                'inline',
+                'paragraph_close',
+                preservedMarkupToken,
+                'paragraph_open',
+                'inline',
+                'paragraph_close',
+            ]);
+        });
+
+        it('should render the preserved markup as code', () => {
+            const html = cutMd(slots, 'preserve').render(cut('text\n\n![pic](/pic.png)'));
+
+            expect(html).toContain(
+                `<pre class="${preservedMarkupClassName}"><code>![pic](/pic.png)</code></pre>`,
+            );
+            expect(html).not.toContain('<img');
+        });
+    });
+
     describe('scheme validation', () => {
         const use = (slots: SlotRule[]) => () => cutMd(slots);
 
@@ -295,49 +355,108 @@ describe('blockContentSlots', () => {
                 ]),
             ).toThrow('only one fallback slot is allowed');
         });
+
+        it('should reject preserving with several slots', () => {
+            expect(() =>
+                cutMd(
+                    [
+                        {slot: 'content', match: paragraph},
+                        {slot: 'rest', fallback: true},
+                    ],
+                    'preserve',
+                ),
+            ).toThrow('preserving needs a single slot without a wrapper');
+        });
+
+        it('should reject preserving with a wrapper', () => {
+            expect(() =>
+                cutMd([{slot: 'content', wrap: {}, match: paragraph}], 'preserve'),
+            ).toThrow('preserving needs a single slot without a wrapper');
+        });
     });
 
     describe('wysiwyg', () => {
-        const {schema, markupParser: parser, serializer} = buildDeps();
-        const {
-            doc,
-            p,
-            a,
-            cut: cutNode,
-            cutTitle,
-            cutContent,
-        } = builders<'doc' | 'p' | 'cut' | 'cutTitle' | 'cutContent', 'a'>(schema, {
-            doc: {nodeType: BaseNode.Doc},
-            p: {nodeType: BaseNode.Paragraph},
-            a: {markType: linkMarkName},
-            cut: {nodeType: CutNode.Cut},
-            cutTitle: {nodeType: CutNode.CutTitle},
-            cutContent: {nodeType: CutNode.CutContent},
-        });
-        const {parse} = createMarkupChecker({parser, serializer});
+        const cutAttrs = {[CutAttr.Markup]: '{%'};
 
-        const markup = {[CutAttr.Markup]: '{%'};
+        describe('dropped groups', () => {
+            const {schema, markupParser: parser, serializer} = buildDeps();
+            const {doc, p, a, cut: cutNode, cutTitle, cutContent} = nodeBuilders(schema);
+            const {parse} = createMarkupChecker({parser, serializer});
 
-        it('should parse the filtered body into the document', () => {
-            parse(
-                cut('text with [link](/l)\n\n# heading\n\n![pic](/pic.png)'),
-                doc(
-                    cutNode(
-                        markup,
-                        cutTitle('title'),
-                        cutContent(p('text with ', a({href: '/l'}, 'link'))),
+            it('should parse the filtered body into the document', () => {
+                parse(
+                    cut('text with [link](/l)\n\n# heading\n\n![pic](/pic.png)'),
+                    doc(
+                        cutNode(
+                            cutAttrs,
+                            cutTitle('title'),
+                            cutContent(p('text with ', a({href: '/l'}, 'link'))),
+                        ),
                     ),
-                ),
-            );
+                );
+            });
+
+            it('should parse a fully filtered body into an empty cut content', () => {
+                parse(cut('# heading'), doc(cutNode(cutAttrs, cutTitle('title'), cutContent())));
+            });
         });
 
-        it('should parse a fully filtered body into an empty cut content', () => {
-            parse(cut('# heading'), doc(cutNode(markup, cutTitle('title'), cutContent())));
+        describe('preserved groups', () => {
+            const {schema, markupParser: parser, serializer} = buildDeps('preserve');
+            const {doc, p, cut: cutNode, cutTitle, cutContent, preserved} = nodeBuilders(schema);
+            const {same} = createMarkupChecker({parser, serializer});
+
+            it('should return the preserved markup to the text on a round trip', () => {
+                same(
+                    cut('text\n\n![pic](/pic.png)\n\nmore text').trimEnd(),
+                    doc(
+                        cutNode(
+                            cutAttrs,
+                            cutTitle('title'),
+                            cutContent(
+                                p('text'),
+                                preserved({[preservedMarkupAttr]: '![pic](/pic.png)'}),
+                                p('more text'),
+                            ),
+                        ),
+                    ),
+                );
+            });
+
+            it('should return a multi-line group to the text on a round trip', () => {
+                same(
+                    cut('text\n\n| a | b |\n| - | - |\n| 1 | 2 |').trimEnd(),
+                    doc(
+                        cutNode(
+                            cutAttrs,
+                            cutTitle('title'),
+                            cutContent(
+                                p('text'),
+                                preserved({
+                                    [preservedMarkupAttr]: '| a | b |\n| - | - |\n| 1 | 2 |',
+                                }),
+                            ),
+                        ),
+                    ),
+                );
+            });
         });
     });
 });
 
-function buildDeps() {
+function nodeBuilders(schema: Schema) {
+    return builders<'doc' | 'p' | 'cut' | 'cutTitle' | 'cutContent' | 'preserved', 'a'>(schema, {
+        doc: {nodeType: BaseNode.Doc},
+        p: {nodeType: BaseNode.Paragraph},
+        a: {markType: linkMarkName},
+        cut: {nodeType: CutNode.Cut},
+        cutTitle: {nodeType: CutNode.CutTitle},
+        cutContent: {nodeType: CutNode.CutContent},
+        preserved: {nodeType: preservedMarkupNodeName},
+    });
+}
+
+function buildDeps(unmatched: 'drop' | 'preserve' = 'drop') {
     return new ExtensionsManager({
         extensions: (builder) => {
             builder.context.set('directiveSyntax', new DirectiveContext(undefined));
@@ -348,13 +467,18 @@ function buildDeps() {
                 .use(ListsSpecs)
                 .use(ImageSpecs)
                 .use(YfmCutSpecs, {})
+                .use(PreservedMarkupSpecs)
                 .configureMd((md) =>
                     md.use(blockContentSlots, {
                         bodyToken: CutNode.CutContent,
                         slots: [{slot: 'content', match: paragraphWithoutImage}],
+                        unmatched,
                     }),
                 )
-                .overrideNodeSpec(CutNode.CutContent, (spec) => ({...spec, content: 'paragraph*'}));
+                .overrideNodeSpec(CutNode.CutContent, (spec) => ({
+                    ...spec,
+                    content: `(paragraph | ${preservedMarkupNodeName})*`,
+                }));
         },
     }).buildDeps();
 }

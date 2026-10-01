@@ -1,6 +1,7 @@
 export const markup = `# Cut content filter
 
-A cut keeps paragraphs of text and links. Other groups are dropped while parsing, in both modes.
+A cut keeps paragraphs of text and links. The other groups are dropped while parsing, or kept as
+source markup when the control is switched to preserving.
 
 {% cut "Text and links" %}
 

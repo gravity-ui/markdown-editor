@@ -1,5 +1,6 @@
 import {CutNode} from '@gravity-ui/markdown-editor';
 import {
+    type BlockContentSlotsParams,
     type SlotMatch,
     blockContentSlots,
     byType,
@@ -15,8 +16,10 @@ const textParagraph: SlotMatch = (group) =>
     paragraph(group) &&
     group.every(({children}) => (children ?? []).every(({type}) => INLINE_CONTENT.has(type)));
 
-export const cutContentSlots = (md: MarkdownIt) =>
-    md.use(blockContentSlots, {
-        bodyToken: CutNode.CutContent,
-        slots: [{slot: 'content', match: textParagraph}],
-    });
+export const cutContentSlots =
+    (unmatched: BlockContentSlotsParams['unmatched']) => (md: MarkdownIt) =>
+        md.use(blockContentSlots, {
+            bodyToken: CutNode.CutContent,
+            slots: [{slot: 'content', match: textParagraph}],
+            unmatched,
+        });
