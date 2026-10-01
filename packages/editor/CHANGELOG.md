@@ -1,5 +1,13 @@
 # Changelog
 
+## [15.48.1](https://github.com/gravity-ui/markdown-editor/compare/markdown-editor-v15.48.0...markdown-editor-v15.48.1) (2026-10-01)
+
+
+### Bug Fixes
+
+* **bundle:** apply the contextual preset after the renderer subscribes ([#1295](https://github.com/gravity-ui/markdown-editor/issues/1295)) ([880a420](https://github.com/gravity-ui/markdown-editor/commit/880a420e578c672c13e08f8a0728be0aa5059d18))
+* **toolbars:** make the gpt preset button match the old one ([#1310](https://github.com/gravity-ui/markdown-editor/issues/1310)) ([3c37542](https://github.com/gravity-ui/markdown-editor/commit/3c37542c01157526e14d708afb75f0fd3dba3109))
+
 ## [15.48.0](https://github.com/gravity-ui/markdown-editor/compare/markdown-editor-v15.47.1...markdown-editor-v15.48.0) (2026-09-30)
 
 
