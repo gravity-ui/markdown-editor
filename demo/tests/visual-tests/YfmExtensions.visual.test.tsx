@@ -36,18 +36,19 @@ test.describe('Extensions, YFM', () => {
 
         const block = page.locator('.g-md-yfm-html-block');
         await block.hover();
-        await block.getByRole('button', {name: 'Actions'}).click();
+        const toolbar = block.locator('.g-md-yfm-html-block__toolbar');
+        await expect(toolbar).toHaveCSS('opacity', '1');
 
-        const modes = page.getByRole('radiogroup', {name: 'View mode'});
+        const modes = toolbar.getByRole('radiogroup', {name: 'View mode'});
         await expect(modes.getByRole('radio', {name: 'Preview'})).toBeChecked();
         await expect(modes.getByRole('radio', {name: 'Editor'})).toBeDisabled();
-        await modes.getByText('Code').click();
+        await expect(toolbar.getByRole('button', {name: 'Remove'})).toBeVisible();
+        await modes.getByTitle('Code').click();
 
         await expect(block.locator('textarea')).toBeVisible();
         await block.locator('textarea').fill('<p>Updated</p>');
         await block.hover();
-        await block.getByRole('button', {name: 'Actions'}).click();
-        await modes.getByText('Preview').click();
+        await modes.getByTitle('Preview').click();
 
         const preview = block.frameLocator('iframe').locator('p');
         await expect(preview).toHaveText('Updated');

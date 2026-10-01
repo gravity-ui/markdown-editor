@@ -2,8 +2,8 @@ import {useEffect, useMemo, useRef, useState} from 'react';
 
 import {getStyles} from '@diplodoc/html-extension';
 import type {IHTMLIFrameElementConfig} from '@diplodoc/html-extension/runtime';
-import {Ellipsis as DotsIcon, Eye} from '@gravity-ui/icons';
-import {Button, Icon, Label, Popup, RadioGroup} from '@gravity-ui/uikit';
+import {Code, Eye, Pencil, TrashBin} from '@gravity-ui/icons';
+import {Button, Icon, Label} from '@gravity-ui/uikit';
 import type {Node} from 'prosemirror-model';
 import type {EditorView} from 'prosemirror-view';
 
@@ -12,7 +12,7 @@ import {SharedStateKey} from 'src/extensions/behavior/SharedState';
 import {TextAreaFixed as TextArea} from 'src/forms/TextInput';
 import {i18n} from 'src/i18n/common';
 import {debounce} from 'src/lodash';
-import {useAutoSave, useBooleanState, useElementState} from 'src/react-utils/hooks';
+import {useAutoSave} from 'src/react-utils/hooks';
 import {useSharedEditingState} from 'src/react-utils/useSharedEditingState';
 import {removeNode} from 'src/utils/remove-node';
 
@@ -34,53 +34,46 @@ const ModeSwitcher: React.FC<{
     onModeChange: (mode: ViewMode) => void;
     onRemove: () => void;
 }> = ({mode, onModeChange, onRemove}) => {
-    const [menuOpen, _openMenu, closeMenu, toggleMenuOpen] = useBooleanState(false);
-    const [anchorElement, setAnchorElement] = useElementState();
+    const modes = [
+        {value: 'preview', icon: Eye, label: i18n('preview'), disabled: false},
+        {value: 'editor', icon: Pencil, label: i18n('editor'), disabled: true},
+        {value: 'code', icon: Code, label: i18n('code'), disabled: false},
+    ] as const;
+    const radioName = useRef(generateID()).current;
 
     return (
-        <div className={b('menu', {open: menuOpen})}>
+        <div className={`${b('toolbar')} ${STOP_EVENT_CLASSNAME}`}>
+            <div className={b('modes')} role="radiogroup" aria-label={i18n('view_mode')}>
+                {modes.map(({value, icon, label, ...option}) => (
+                    <label
+                        key={value}
+                        className={b('mode', {selected: mode === value, disabled: option.disabled})}
+                        title={label}
+                    >
+                        <input
+                            type="radio"
+                            name={radioName}
+                            value={value}
+                            aria-label={label}
+                            checked={mode === value}
+                            disabled={option.disabled}
+                            onChange={() => onModeChange(value)}
+                        />
+                        <Icon data={icon} size={16} />
+                    </label>
+                ))}
+            </div>
+            <span className={b('toolbar-separator')} aria-hidden="true" />
             <Button
-                onClick={toggleMenuOpen}
-                ref={setAnchorElement}
+                view="flat-danger"
                 size="s"
                 className={STOP_EVENT_CLASSNAME}
-                aria-label={i18n('actions')}
-                aria-expanded={menuOpen}
+                aria-label={i18n('remove')}
+                title={i18n('remove')}
+                onClick={onRemove}
             >
-                <Icon data={DotsIcon} />
+                <Icon data={TrashBin} size={16} />
             </Button>
-            <Popup
-                anchorElement={anchorElement}
-                open={menuOpen}
-                onOpenChange={closeMenu}
-                placement="bottom-end"
-            >
-                <div className={`${b('mode-popup')} ${STOP_EVENT_CLASSNAME}`}>
-                    <RadioGroup
-                        direction="vertical"
-                        aria-label={i18n('view_mode')}
-                        value={mode}
-                        options={[
-                            {value: 'preview', content: i18n('preview')},
-                            {value: 'editor', content: i18n('editor'), disabled: true},
-                            {value: 'code', content: i18n('code')},
-                        ]}
-                        onUpdate={(value) => {
-                            onModeChange(value as ViewMode);
-                            closeMenu();
-                        }}
-                    />
-                    <Button
-                        view="flat"
-                        onClick={() => {
-                            closeMenu();
-                            onRemove();
-                        }}
-                    >
-                        {i18n('remove')}
-                    </Button>
-                </div>
-            </Popup>
         </div>
     );
 };
