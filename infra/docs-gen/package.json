@@ -15,6 +15,7 @@
   },
   "scripts": {
     "build": "node src/generate-docs.mjs && yfm -i ../../tmp/docs-src -o ../../dist/docs",
+    "extract:extensions": "node src/extract-extension-data.mjs",
     "test": "node --test src/*.test.mjs"
   },
   "dependencies": {
