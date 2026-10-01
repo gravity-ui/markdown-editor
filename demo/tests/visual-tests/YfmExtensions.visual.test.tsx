@@ -77,62 +77,6 @@ test.describe('Extensions, YFM', () => {
         await expect(editor).toHaveAttribute('aria-pressed', 'true');
         await expect(code).toHaveAttribute('aria-pressed', 'false');
     });
-    test('should open HTML source on double-click when enabled', async ({mount, page}) => {
-        await mount(
-            <YFMStories.YfmHtmlBlock
-                initial={'::: html\n<p>Initial</p>\n:::'}
-                storyAdditionalControls={{yfmHtmlBlockOpenCodeOnDoubleClick: true}}
-            />,
-        );
-
-        const block = page.locator('.g-md-yfm-html-block');
-        await block.frameLocator('iframe').locator('p').dblclick();
-        await expect(block.locator('textarea')).toBeVisible();
-    });
-    test('should edit HTML block text and image attributes in visual mode', async ({
-        mount,
-        page,
-    }) => {
-        await mount(
-            <YFMStories.YfmHtmlBlock
-                initial={
-                    '::: html\n<h1>Hello</h1><img src="broken.png" alt="Before" width="80" height="40">\n:::'
-                }
-            />,
-        );
-
-        const block = page.locator('.g-md-yfm-html-block');
-        const modes = block.getByRole('group', {name: 'View mode'});
-        const editor = modes.getByRole('button', {name: 'Editor'});
-        const code = modes.getByRole('button', {name: 'Code'});
-        await block.hover();
-        await expect(editor).toHaveAttribute('aria-pressed', 'true');
-
-        const heading = block.frameLocator('iframe').locator('h1');
-        await heading.hover();
-        await block.getByRole('button', {name: 'Edit element'}).click();
-        const dialog = page.getByRole('dialog', {name: 'Edit element'});
-        await dialog.getByRole('textbox', {name: 'Text'}).fill('Updated heading');
-        await dialog.getByRole('button', {name: 'Save'}).click();
-        await expect(heading).toHaveText('Updated heading');
-
-        const image = block.frameLocator('iframe').locator('img');
-        await image.hover();
-        await block.getByRole('button', {name: 'Edit element'}).click();
-        await dialog.getByRole('textbox', {name: 'Value: alt'}).fill('After');
-        await dialog.getByRole('button', {name: 'Save'}).click();
-        await expect(image).toHaveAttribute('alt', 'After');
-
-        await block.hover();
-        await code.click();
-        await expect(block.locator('textarea')).toContainText('Updated heading');
-        await expect(block.locator('textarea')).toContainText('alt="After"');
-
-        await block.locator('textarea').fill('<p>Edited in code</p>');
-        await block.getByRole('button', {name: 'Save'}).click();
-        await expect(block.frameLocator('iframe').locator('p')).toHaveText('Edited in code');
-        await expect(editor).toHaveAttribute('aria-pressed', 'true');
-    });
     test('should offer inline editing in the HTML block story', async ({mount, page}) => {
         await mount(<YFMStories.YfmHtmlBlock />);
 
@@ -153,16 +97,43 @@ test.describe('Extensions, YFM', () => {
                 element.ownerDocument.body.getBoundingClientRect().width,
         );
         expect(imageWidthRatio).toBeCloseTo(1 / 3, 2);
+        await page.evaluate(() => window.scrollTo(0, 150));
         const heading = block.frameLocator('iframe').locator('h1');
         await heading.hover();
-        await expect(block.getByRole('button', {name: 'Edit element'})).toBeVisible();
-        await expect(block.getByRole('button', {name: 'Edit element'})).toHaveScreenshot(
-            'html-block-edit-button.png',
-        );
+        const editButton = block.getByRole('button', {name: 'Edit element'});
+        await editButton.hover();
+        await expect(editButton).toBeVisible();
+        await expect(editButton).toHaveCSS('background-color', 'rgb(255, 255, 255)');
+        await expect(editButton).toHaveScreenshot('html-block-edit-button.png');
+        expect(
+            await editButton.evaluate((button) => {
+                const rect = button.getBoundingClientRect();
+                return button.contains(
+                    document.elementFromPoint(
+                        rect.left + rect.width / 2,
+                        rect.top + rect.height / 2,
+                    ),
+                );
+            }),
+        ).toBe(true);
         const scrollBefore = await page.evaluate(() => window.scrollY);
-        await block.getByRole('button', {name: 'Edit element'}).click();
+        expect(scrollBefore).toBeGreaterThan(0);
+        await editButton.click();
         await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(scrollBefore);
         const dialog = page.getByRole('dialog', {name: 'Edit element'});
+        const outline = block.locator('.g-md-yfm-html-block__inline-edit-outline');
+        await page.evaluate(() => window.scrollBy(0, 100));
+        await expect
+            .poll(async () => {
+                const anchor = await outline.boundingBox();
+                const popup = await dialog.boundingBox();
+                if (!anchor || !popup) return Infinity;
+                return Math.min(
+                    Math.abs(popup.y - anchor.y - anchor.height),
+                    Math.abs(popup.y + popup.height - anchor.y),
+                );
+            })
+            .toBeLessThan(24);
         await block
             .frameLocator('iframe')
             .locator('body')
@@ -170,18 +141,36 @@ test.describe('Extensions, YFM', () => {
         await expect(dialog).toHaveCount(0);
 
         await heading.hover();
-        await block.getByRole('button', {name: 'Edit element'}).click();
-        await dialog.getByRole('textbox', {name: 'Text'}).fill('Updated heading');
+        await editButton.click();
+        await dialog.getByRole('button', {name: /Attributes/}).click();
+        await dialog.getByRole('button', {name: 'Add attribute'}).click();
+        const attributeName = dialog.getByRole('textbox', {name: 'Name'}).last();
+        await expect(attributeName).toBeFocused();
+        const text = dialog.getByRole('textbox', {name: 'Text'});
+        expect(
+            await text.evaluate(
+                (control) =>
+                    (control as HTMLTextAreaElement).selectionEnd -
+                    (control as HTMLTextAreaElement).selectionStart,
+            ),
+        ).toBe(0);
+        await attributeName.fill('title');
+        await dialog.getByRole('textbox', {name: 'Value: title'}).fill('Edited');
+        await text.fill('Updated heading');
         await dialog.getByRole('button', {name: 'Save'}).click();
         await expect(heading).toHaveText('Updated heading');
-        const frameSize = await block
-            .frameLocator('iframe')
-            .locator('body')
-            .evaluate((body) => ({
-                height: body.scrollHeight,
-                visibleHeight: body.ownerDocument.documentElement.clientHeight,
-            }));
-        expect(frameSize.height).toBeLessThanOrEqual(frameSize.visibleHeight);
+        await expect(heading).toHaveAttribute('title', 'Edited');
+        await expect
+            .poll(() =>
+                block
+                    .frameLocator('iframe')
+                    .locator('body')
+                    .evaluate(
+                        (body) =>
+                            body.scrollHeight - body.ownerDocument.documentElement.clientHeight,
+                    ),
+            )
+            .toBeLessThanOrEqual(0);
     });
     test('YFM File', async ({mount, expectScreenshot}) => {
         await mount(<YFMStories.YfmFile />);

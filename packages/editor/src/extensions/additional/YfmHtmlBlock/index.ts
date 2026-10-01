@@ -22,7 +22,7 @@ export interface YfmHtmlBlockOptions extends Omit<
 }
 
 export const YfmHtmlBlock: ExtensionAuto<YfmHtmlBlockOptions> = (builder, options) => {
-    const {useConfig: _, autoSave: __, openCodeOnDoubleClick: ___, ...specOptions} = options;
+    const {useConfig: _, openCodeOnDoubleClick: __, ...specOptions} = options;
     builder
         .use(YfmHtmlBlockSpecs, specOptions)
         .addNodeView(yfmHtmlBlockNodeName, YfmHtmlBlockNodeViewFactory(options));

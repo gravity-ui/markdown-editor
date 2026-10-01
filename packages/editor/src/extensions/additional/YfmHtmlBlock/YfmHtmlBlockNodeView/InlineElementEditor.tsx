@@ -1,4 +1,4 @@
-import {useEffect, useId, useRef, useState} from 'react';
+import {useEffect, useId, useLayoutEffect, useRef, useState} from 'react';
 import type {KeyboardEvent} from 'react';
 
 import {ChevronDown, Plus, TrashBin} from '@gravity-ui/icons';
@@ -40,6 +40,8 @@ export const InlineElementEditor: React.FC<{
     const [attributesOpen, setAttributesOpen] = useState(!initial.canEditText);
     const [error, setError] = useState('');
     const nextId = useRef(attributes.length);
+    const pendingFocusId = useRef<number | null>(null);
+    const initialFocusPending = useRef(true);
     const popupRef = useRef<HTMLDivElement>(null);
     const fieldId = useId();
     const hasChanges =
@@ -57,6 +59,13 @@ export const InlineElementEditor: React.FC<{
     useEffect(() => {
         onDirtyChange(hasChanges);
     }, [hasChanges, onDirtyChange]);
+
+    useLayoutEffect(() => {
+        const id = pendingFocusId.current;
+        if (id === null) return;
+        document.getElementById(`${fieldId}-attribute-${id}`)?.focus({preventScroll: true});
+        pendingFocusId.current = null;
+    }, [attributes, fieldId]);
 
     const updateAttribute = (id: number, patch: Partial<EditableAttribute>) => {
         setError('');
@@ -101,9 +110,10 @@ export const InlineElementEditor: React.FC<{
             returnFocus={false}
             placement={['bottom-start', 'top-start']}
             onTransitionInComplete={() => {
+                if (!initialFocusPending.current) return;
+                initialFocusPending.current = false;
                 const control = popupRef.current?.querySelector<HTMLElement>('textarea, input');
                 control?.focus({preventScroll: true});
-                if (control instanceof HTMLTextAreaElement) control.select();
             }}
             onOpenChange={(open) => {
                 if (!open && !hasChanges) onClose();
@@ -152,6 +162,7 @@ export const InlineElementEditor: React.FC<{
                             {attributes.map((row) => (
                                 <div key={row.id} className={b('inline-edit-attr-row')}>
                                     <TextInput
+                                        id={`${fieldId}-attribute-${row.id}`}
                                         size="s"
                                         controlProps={{
                                             className: STOP_EVENT_CLASSNAME,
@@ -193,12 +204,12 @@ export const InlineElementEditor: React.FC<{
                                 size="s"
                                 width="max"
                                 className={STOP_EVENT_CLASSNAME}
-                                onClick={() =>
-                                    setAttributes((rows) => [
-                                        ...rows,
-                                        {id: nextId.current++, name: '', value: ''},
-                                    ])
-                                }
+                                onClick={() => {
+                                    const id = nextId.current++;
+                                    initialFocusPending.current = false;
+                                    pendingFocusId.current = id;
+                                    setAttributes((rows) => [...rows, {id, name: '', value: ''}]);
+                                }}
                             >
                                 <Icon data={Plus} size={14} />
                                 {i18n('add_attribute')}
