@@ -9,7 +9,6 @@ import type {Node} from 'prosemirror-model';
 import type {EditorView} from 'prosemirror-view';
 
 import {SharedStateKey} from 'src/extensions/behavior/SharedState';
-import {TextAreaFixed as TextArea} from 'src/forms/TextInput';
 import {i18n} from 'src/i18n/common';
 import {debounce} from 'src/lodash';
 import {useAutoSave} from 'src/react-utils/hooks';
@@ -21,6 +20,7 @@ import type {YfmHtmlBlockOptions} from '../index';
 import type {YfmHtmlBlockEntitySharedState} from '../types';
 
 import {FrameInlineEditing} from './FrameInlineEditing';
+import {HtmlSourceEditor} from './HtmlSourceEditor';
 import {STOP_EVENT_CLASSNAME, cnYfmHtmlBlock} from './const';
 
 import './YfmHtmlBlock.scss';
@@ -79,7 +79,7 @@ const ModeSwitcher: React.FC<{
 
 interface YfmHtmlBlockViewProps {
     html: string;
-    onDoubleClick: () => void;
+    onDoubleClick?: () => void;
     config?: IHTMLIFrameElementConfig;
     frameRef: RefObject<HTMLIFrameElement>;
 }
@@ -125,11 +125,9 @@ const YfmHtmlBlockPreview: React.FC<YfmHtmlBlockViewProps> = ({
 
         handleResizeIFrame();
 
-        if (contentWindow) {
+        if (contentWindow && onDoubleClick) {
             const frameDocument = contentWindow.document;
-            frameDocument.addEventListener('dblclick', () => {
-                onDoubleClick();
-            });
+            frameDocument.addEventListener('dblclick', onDoubleClick);
         }
     };
 
@@ -288,14 +286,7 @@ const CodeEditMode: React.FC<{
                 onRemove={onRemove}
             />
             <div className={b('editor')}>
-                <TextArea
-                    controlProps={{
-                        className: STOP_EVENT_CLASSNAME,
-                    }}
-                    value={value}
-                    onUpdate={handleChange}
-                    autoFocus
-                />
+                <HtmlSourceEditor value={value} onUpdate={handleChange} />
 
                 <div className={b('controls')}>
                     <div>
@@ -321,7 +312,14 @@ export const YfmHtmlBlockView: React.FC<{
     options: YfmHtmlBlockOptions;
     view: EditorView;
 }> = ({onChange, node, getPos, view, options}) => {
-    const {useConfig, sanitize, styles, baseTarget = '_parent', head: headContent = ''} = options;
+    const {
+        useConfig,
+        sanitize,
+        styles,
+        baseTarget = '_parent',
+        head: headContent = '',
+        openCodeOnDoubleClick = false,
+    } = options;
     const entityId: string = node.attrs[YfmHtmlBlockConsts.NodeAttrs.EntityId];
     const entityKey = useMemo(
         () => SharedStateKey.define<YfmHtmlBlockEntitySharedState>({name: entityId}),
@@ -384,17 +382,22 @@ export const YfmHtmlBlockView: React.FC<{
             ref={blockRef}
             className={b()}
             tabIndex={-1}
-            onDoubleClick={(event) => {
-                if ((event.target as HTMLElement).closest(`.${STOP_EVENT_CLASSNAME}`)) return;
-                openCode();
-            }}
+            onDoubleClick={
+                openCodeOnDoubleClick
+                    ? (event) => {
+                          if ((event.target as HTMLElement).closest(`.${STOP_EVENT_CLASSNAME}`))
+                              return;
+                          openCode();
+                      }
+                    : undefined
+            }
         >
             <Label className={b('label')} icon={<Icon size={16} data={Pencil} />}>
                 {i18n('editor')}
             </Label>
             <YfmHtmlBlockPreview
                 html={resultHtml}
-                onDoubleClick={openCode}
+                onDoubleClick={openCodeOnDoubleClick ? openCode : undefined}
                 config={config}
                 frameRef={frameRef}
             />

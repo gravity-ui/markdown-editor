@@ -50,7 +50,12 @@ test.describe('Extensions, YFM', () => {
 
         const preview = block.frameLocator('iframe').locator('p');
         await preview.dblclick();
+        await expect(block.locator('textarea')).toHaveCount(0);
+        await code.click();
         await expect(block.locator('textarea')).toBeVisible();
+        await expect(block.locator('.g-md-yfm-html-block__code-body')).toHaveScreenshot(
+            'html-block-code.png',
+        );
         await expect(block.getByText('Code', {exact: true})).toBeVisible();
         await expect(block).toHaveCSS('border-top-width', '1px');
         await expect(editor).toHaveAttribute('aria-pressed', 'false');
@@ -71,6 +76,18 @@ test.describe('Extensions, YFM', () => {
         await expect(preview).toHaveText('Updated');
         await expect(editor).toHaveAttribute('aria-pressed', 'true');
         await expect(code).toHaveAttribute('aria-pressed', 'false');
+    });
+    test('should open HTML source on double-click when enabled', async ({mount, page}) => {
+        await mount(
+            <YFMStories.YfmHtmlBlock
+                initial={'::: html\n<p>Initial</p>\n:::'}
+                storyAdditionalControls={{yfmHtmlBlockOpenCodeOnDoubleClick: true}}
+            />,
+        );
+
+        const block = page.locator('.g-md-yfm-html-block');
+        await block.frameLocator('iframe').locator('p').dblclick();
+        await expect(block.locator('textarea')).toBeVisible();
     });
     test('should edit HTML block text and image attributes in visual mode', async ({
         mount,
@@ -125,6 +142,11 @@ test.describe('Extensions, YFM', () => {
             'aria-pressed',
             'true',
         );
+        const image = block.frameLocator('iframe').locator('img.html-block-demo-image');
+        await expect(image).toBeVisible();
+        await expect
+            .poll(() => image.evaluate((element) => (element as HTMLImageElement).naturalWidth))
+            .toBeGreaterThan(0);
         const heading = block.frameLocator('iframe').locator('h1');
         await heading.hover();
         await expect(block.getByRole('button', {name: 'Edit element'})).toBeVisible();

@@ -1,3 +1,5 @@
+const htmlBlockImageUrl = new URL('./assets/gravity-language-light.webp', import.meta.url).href;
+
 export const markup = {
     textMarks: `
 &nbsp;
@@ -97,9 +99,16 @@ html, body {
     font-size: var(--yfm-html-font-size);
     font-family: var(--yfm-html-font-family);
 }
+.html-block-demo-image {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 12px;
+}
 </style>
 
 <h1>Duis faucibus dignissim posuere</h1>
+<img class="html-block-demo-image" src="${htmlBlockImageUrl}" alt="Гравитация языка и света">
 <p>Nam dui purus, imperdiet ut eros a, volutpat blandit lectus. Morbi tincidunt ipsum erat, non mollis augue gravida ac. Morbi mi ligula, blandit quis magna at, porttitor dapibus nisl. Maecenas vestibulum dolor id sem faucibus rutrum. Nullam lacinia ac purus non auctor. Donec rutrum gravida neque, ac viverra nisi molestie et. Curabitur non mi vitae felis mollis rutrum. Phasellus ornare sem vel nunc pulvinar aliquet. Etiam id viverra libero, a accumsan felis. Interdum et malesuada fames ac ante ipsum primis in faucibus.</p>
 <p>Mauris nisi nunc, elementum non ornare sit amet, vehicula nec dui. Cras rhoncus dui ut sagittis placerat. Integer eu augue sed risus faucibus mattis. Nulla vitae dapibus lectus. Suspendisse nibh lacus, porttitor in posuere at, elementum non ligula. Phasellus porttitor egestas mi non lacinia. Nunc volutpat nisl sit amet venenatis tincidunt. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Vivamus malesuada tortor nec feugiat euismod. Etiam molestie pretium odio, egestas venenatis eros efficitur eget. Ut at dignissim elit.</p>
 <p>Sed congue rhoncus tincidunt. Donec porttitor diam vehicula diam vehicula, vel imperdiet mauris mollis. Sed tincidunt aliquam est eu fermentum. Proin vestibulum bibendum scelerisque. Quisque facilisis neque diam, in aliquam nisl aliquam auctor. Ut at elementum diam, eget tincidunt nulla. Quisque ac ligula eget velit tempor tristique. Aliquam blandit diam magna, et accumsan leo fringilla eget. Phasellus ut lectus urna. Proin ac est et risus elementum consequat. Mauris maximus porttitor massa, in rutrum odio blandit non. Curabitur posuere sem eu nulla efficitur, in placerat diam consectetur. Duis ipsum libero, convallis vel hendrerit sed, bibendum id ipsum. Sed sollicitudin maximus diam, at facilisis ipsum vulputate nec. Morbi eu risus ultricies, bibendum tortor non, interdum sem.</p>
