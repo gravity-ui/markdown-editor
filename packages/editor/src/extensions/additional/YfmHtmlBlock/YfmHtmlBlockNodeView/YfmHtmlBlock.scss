@@ -10,12 +10,6 @@
     border: 1px solid var(--g-color-line-generic);
     border-radius: var(--g-border-radius-m);
 
-    &_editing {
-        display: flex;
-
-        padding-top: 52px;
-    }
-
     &__label {
         position: absolute;
         top: 8px;
@@ -62,7 +56,7 @@
     &__mode-button {
         --g-button-border-radius: var(--g-border-radius-s);
 
-        &_active {
+        &.g-button_selected {
             --g-button-background-color: var(--g-color-base-generic);
             --g-button-background-color-hover: var(--g-color-base-generic-hover);
             --g-button-text-color: var(--g-color-text-primary);
@@ -76,18 +70,6 @@
         margin: 6px 8px;
 
         border-left: 1px solid var(--g-color-line-generic);
-    }
-
-    &__preview {
-        flex: 1;
-    }
-
-    &__error {
-        flex: 1;
-
-        font-family: var(--g-font-family-monospace);
-
-        color: var(--g-color-text-danger);
     }
 
     &__editor {
@@ -179,12 +161,6 @@
         background: transparent;
     }
 
-    &__editor-popover {
-        z-index: 1;
-
-        float: right;
-    }
-
     &__controls {
         display: flex;
         justify-content: end;
@@ -231,7 +207,9 @@
     }
 
     &__inline-edit-button:hover {
-        background: var(--g-color-base-generic-hover);
+        border-color: var(--g-color-line-generic-solid);
+        background: var(--g-color-base-float);
+        box-shadow: 0 3px 12px var(--g-color-sfx-shadow);
     }
 
     &__inline-edit-button:focus-visible {

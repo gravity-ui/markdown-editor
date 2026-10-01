@@ -16,6 +16,10 @@ interface Target {
     button: CSSProperties;
 }
 
+interface Selection extends Target {
+    id: number;
+}
+
 const clamp = (value: number, min: number, max: number) =>
     Math.max(min, Math.min(value, Math.max(min, max)));
 
@@ -26,27 +30,28 @@ export const FrameInlineEditing: React.FC<{
     onCommit: (html: string) => void;
 }> = ({frameRef, blockRef, sourceHtml, onCommit}) => {
     const [hover, setHover] = useState<Target | null>(null);
-    const [selected, setSelected] = useState<Target | null>(null);
+    const [selected, setSelected] = useState<Selection | null>(null);
     const [anchor, setAnchor] = useState<HTMLDivElement | null>(null);
     const selectedRef = useRef(selected);
     const dirtyRef = useRef(false);
+    const nextSelectionId = useRef(0);
     selectedRef.current = selected;
 
     useEffect(() => {
         const frame = frameRef.current;
-        if (!frame) return undefined;
+        const block = blockRef.current;
+        if (!frame || !block) return undefined;
         let frameDocument: Document | null = null;
+        let editableElements: Set<Element> | null = null;
 
         const resolve = (eventTarget: EventTarget | null): Target | null => {
             const body = frame.contentDocument?.body;
-            const block = blockRef.current;
-            if (!body || !block || !eventTarget || !(eventTarget as Node).nodeType) return null;
+            if (!body || !eventTarget || !(eventTarget as Node).nodeType) return null;
             const node = eventTarget as Node;
             const element = (node.nodeType === 1 ? node : node.parentElement) as Element | null;
             const target = element?.closest('svg') ?? element;
             if (!target || target === body || !body.contains(target)) return null;
-            const matching = getMatchingElements(sourceHtml, body);
-            if (!matching?.previewElements.includes(target)) return null;
+            if (!editableElements?.has(target)) return null;
 
             const blockRect = block.getBoundingClientRect();
             const frameRect = frame.getBoundingClientRect();
@@ -69,7 +74,15 @@ export const FrameInlineEditing: React.FC<{
         const onMove = (event: MouseEvent) => {
             if (selectedRef.current) return;
             const target = resolve(event.target);
-            setHover((current) => (current?.element === target?.element ? current : target));
+            setHover((current) =>
+                current?.element === target?.element &&
+                current?.outline.left === target?.outline.left &&
+                current?.outline.top === target?.outline.top &&
+                current?.outline.width === target?.outline.width &&
+                current?.outline.height === target?.outline.height
+                    ? current
+                    : target,
+            );
         };
         const onClick = (event: MouseEvent) => {
             if (selectedRef.current) {
@@ -81,25 +94,44 @@ export const FrameInlineEditing: React.FC<{
             if (!target) return;
             event.preventDefault();
             event.stopPropagation();
-            setSelected(target);
+            setSelected({...target, id: ++nextSelectionId.current});
             setHover(null);
         };
+        const onLeave = () => setHover(null);
+        const reposition = () => {
+            setSelected((current) => {
+                const target = current && resolve(current.element);
+                return target && current ? {...target, id: current.id} : null;
+            });
+            setHover((current) => (current ? resolve(current.element) : null));
+        };
+        const resizeObserver = new ResizeObserver(reposition);
         const connect = () => {
+            resizeObserver.disconnect();
+            resizeObserver.observe(block);
             if (frameDocument) {
                 frameDocument.removeEventListener('mousemove', onMove);
                 frameDocument.removeEventListener('click', onClick, true);
             }
             frameDocument = frame.contentDocument;
+            const body = frameDocument?.body;
+            editableElements = body
+                ? new Set(getMatchingElements(sourceHtml, body)?.previewElements)
+                : null;
             frameDocument?.addEventListener('mousemove', onMove);
             frameDocument?.addEventListener('click', onClick, true);
+            if (body) resizeObserver.observe(body);
             setHover(null);
             setSelected(null);
         };
 
         frame.addEventListener('load', connect);
+        block.addEventListener('mouseleave', onLeave);
         connect();
         return () => {
             frame.removeEventListener('load', connect);
+            block.removeEventListener('mouseleave', onLeave);
+            resizeObserver.disconnect();
             frameDocument?.removeEventListener('mousemove', onMove);
             frameDocument?.removeEventListener('click', onClick, true);
         };
@@ -131,7 +163,7 @@ export const FrameInlineEditing: React.FC<{
                     onClick={(event) => {
                         event.preventDefault();
                         event.stopPropagation();
-                        setSelected(hover);
+                        setSelected({...hover, id: ++nextSelectionId.current});
                         setHover(null);
                     }}
                 >
@@ -140,7 +172,7 @@ export const FrameInlineEditing: React.FC<{
             )}
             {selected && frameRef.current?.contentDocument?.body && (
                 <InlineElementEditor
-                    key={selected.element.tagName + selected.element.getAttributeNames().join(',')}
+                    key={selected.id}
                     sourceHtml={sourceHtml}
                     previewRoot={frameRef.current.contentDocument.body}
                     target={selected.element}
