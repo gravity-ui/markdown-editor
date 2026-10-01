@@ -1,7 +1,7 @@
 import {memo} from 'react';
 
 import {MarkdownEditorView, useMarkdownEditor} from '@gravity-ui/markdown-editor';
-import type {MarkupLineNumbersConfig} from '@gravity-ui/markdown-editor';
+import type {MarkupInitialSelection, MarkupLineNumbersConfig} from '@gravity-ui/markdown-editor';
 
 import {PlaygroundLayout} from '../../../components/PlaygroundLayout';
 
@@ -28,6 +28,7 @@ const longMarkup = [
     '        lineNumbers: {',
     '            enabled: true,',
     '        },',
+    '        initialSelection: {lineFrom: 5, lineTo: 10},',
     '    },',
     '});',
     '```',
@@ -56,6 +57,7 @@ const longMarkup = [
     '| Feature | Option | Default |',
     '|---------|--------|---------|',
     '| Line numbers | `markupConfig.lineNumbers.enabled` | `false` |',
+    '| Initial selection | `markupConfig.initialSelection` | `undefined` |',
     '',
     '### More Text',
     '',
@@ -69,15 +71,20 @@ const longMarkup = [
     '',
     '### Final Section',
     '',
-    'This is the end of the demo document.',
+    'This is the end of the demo document. If `initialSelection.lineFrom` is set',
+    'to a value like 20, the editor should scroll to approximately',
+    'this area of the document on initialization.',
+    '',
+    '> **Tip:** Click anywhere in the editor to clear the initial selection.',
 ].join('\n');
 
 export type MarkupLineNumbersEditorProps = {
     lineNumbers?: MarkupLineNumbersConfig;
+    initialSelection?: MarkupInitialSelection;
 };
 
 export const MarkupLineNumbersEditor = memo<MarkupLineNumbersEditorProps>(
-    function MarkupLineNumbersEditor({lineNumbers}) {
+    function MarkupLineNumbersEditor({lineNumbers, initialSelection}) {
         const editor = useMarkdownEditor(
             {
                 initial: {
@@ -86,6 +93,7 @@ export const MarkupLineNumbersEditor = memo<MarkupLineNumbersEditorProps>(
                 },
                 markupConfig: {
                     lineNumbers,
+                    initialSelection,
                 },
             },
             [],

@@ -13,7 +13,7 @@ export * from './view';
 export * from './utils';
 export * from './bundle';
 
-export type {MarkupLineNumbersConfig} from './bundle/types';
+export type {MarkupInitialSelection, MarkupLineNumbersConfig} from './bundle/types';
 export {DirectiveSyntaxFacet, ReactRendererFacet, getImageDimensions} from './markup';
 export * as MarkupCommands from './markup/commands';
 export * as MarkupHelpers from './markup/commands/helpers';

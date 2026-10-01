@@ -20,6 +20,7 @@ import {i18n} from '../i18n/bundle';
 import {type Logger2, globalLogger} from '../logger';
 import {createCodemirror} from '../markup';
 import {getAutocompleteConfig} from '../markup/codemirror/autocomplete';
+import {applyInitialLineSelection} from '../markup/codemirror/selection';
 import {type CodeEditor, Editor as MarkupEditor} from '../markup/editor';
 import {type Emitter, type FileUploadHandler, type Receiver, SafeEventEmitter} from '../utils';
 import type {DirectiveSyntaxContext} from '../utils/directive';
@@ -62,6 +63,7 @@ export interface EditorInt
     readonly mdOptions: Readonly<MarkdownEditorMdOptions>;
     readonly directiveSyntax: DirectiveSyntaxContext;
     readonly mobile: boolean;
+    readonly markupConfig: MarkupConfig;
     /** @internal used in demo for dev-tools */
     readonly _wysiwygView?: PMEditorView;
 
@@ -81,6 +83,8 @@ export interface EditorInt
     setEditorMode(mode: EditorMode, opts?: SetEditorModeOptions): void;
 
     moveCursor(position: 'start' | 'end' | {line: number}): void;
+
+    applyInitialLineSelection(): void;
 
     changeToolbarVisibility(opts: {visible: boolean}): void;
 
@@ -319,6 +323,10 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
         return this.#mobile;
     }
 
+    get markupConfig(): MarkupConfig {
+        return this.#markupConfig;
+    }
+
     constructor(opts: EditorOptions) {
         const {logger} = opts;
 
@@ -499,6 +507,16 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
         }
 
         return this.currentEditor.moveCursor(position);
+    }
+
+    applyInitialLineSelection(): void {
+        const selection = this.#markupConfig.initialSelection;
+        if (!selection) {
+            return;
+        }
+
+        const view = this.markupEditor.cm;
+        applyInitialLineSelection(view, selection, getTopOffset(view.dom));
     }
 
     private moveCursorToLine(/** 0-based line number */ line: number): void {

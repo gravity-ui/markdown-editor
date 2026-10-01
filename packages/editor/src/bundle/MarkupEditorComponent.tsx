@@ -20,11 +20,12 @@ export const MarkupEditorComponent: React.FC<MarkupEditorComponentProps> =
             const domElem = editor.markupEditor.cm.dom;
             if (ref.current) {
                 ref.current.appendChild(domElem);
+                editor.applyInitialLineSelection();
             }
             return () => {
                 domElem.remove();
             };
-        }, [editor.markupEditor]);
+        }, [editor]);
 
         // update editor after connecting to dom
         useEffect(() => {

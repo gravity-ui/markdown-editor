@@ -28,3 +28,33 @@ export const Disabled: Story = {
     },
 };
 Disabled.storyName = 'Disabled';
+
+export const InitialSelectionSingleLine: Story = {
+    args: {
+        lineNumbers: {
+            enabled: true,
+        },
+        initialSelection: {lineFrom: 20},
+    },
+};
+InitialSelectionSingleLine.storyName = 'Initial Selection: Single Line';
+
+export const InitialSelectionRange: Story = {
+    args: {
+        lineNumbers: {
+            enabled: true,
+        },
+        initialSelection: {lineFrom: 5, lineTo: 10},
+    },
+};
+InitialSelectionRange.storyName = 'Initial Selection: Line Range';
+
+export const SelectionWithoutLineNumbers: Story = {
+    args: {
+        lineNumbers: {
+            enabled: false,
+        },
+        initialSelection: {lineFrom: 5, lineTo: 10},
+    },
+};
+SelectionWithoutLineNumbers.storyName = 'Selection without line numbers';

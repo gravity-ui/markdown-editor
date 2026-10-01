@@ -7,6 +7,7 @@ import type {EscapeConfig, Extension} from '../core';
 import type {Logger2} from '../logger';
 import type {CreateCodemirrorParams, YfmLangOptions} from '../markup/codemirror/create';
 import type {MarkupLineNumbersConfig} from '../markup/codemirror/line-numbers/types';
+import type {MarkupInitialSelection} from '../markup/codemirror/selection';
 import type {FileUploadHandler} from '../utils';
 import type {DirectiveSyntaxContext, DirectiveSyntaxOption} from '../utils/directive';
 import type {ParseInsertedUrlAsImage} from '../utils/upload';
@@ -118,7 +119,7 @@ export type MarkdownEditorExperimentalOptions = {
      */
     preserveMarkupFormatting?: boolean;
 };
-export type {MarkupLineNumbersConfig};
+export type {MarkupInitialSelection, MarkupLineNumbersConfig};
 
 export type MarkdownEditorMarkupConfig = {
     /**
@@ -173,6 +174,11 @@ export type MarkdownEditorMarkupConfig = {
      * @default undefined
      */
     lineNumbers?: MarkupLineNumbersConfig;
+    /**
+     * Initial line range to select and scroll to on mount (0-based, inclusive).
+     * @default undefined
+     */
+    initialSelection?: MarkupInitialSelection;
 };
 
 // do not export this type
