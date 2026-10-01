@@ -29,6 +29,7 @@ export const FrameInlineEditing: React.FC<{
     const [selected, setSelected] = useState<Target | null>(null);
     const [anchor, setAnchor] = useState<HTMLDivElement | null>(null);
     const selectedRef = useRef(selected);
+    const dirtyRef = useRef(false);
     selectedRef.current = selected;
 
     useEffect(() => {
@@ -73,6 +74,7 @@ export const FrameInlineEditing: React.FC<{
         const onClick = (event: MouseEvent) => {
             if (selectedRef.current) {
                 event.preventDefault();
+                if (!dirtyRef.current) setSelected(null);
                 return;
             }
             const target = resolve(event.target);
@@ -104,6 +106,7 @@ export const FrameInlineEditing: React.FC<{
     }, [blockRef, frameRef, sourceHtml]);
 
     const close = () => {
+        dirtyRef.current = false;
         setSelected(null);
         setHover(null);
     };
@@ -124,7 +127,10 @@ export const FrameInlineEditing: React.FC<{
                     className={`${b('inline-edit-button')} ${STOP_EVENT_CLASSNAME}`}
                     style={hover.button}
                     aria-label={i18n('edit_element')}
-                    onClick={() => {
+                    onMouseDown={(event) => event.preventDefault()}
+                    onClick={(event) => {
+                        event.preventDefault();
+                        event.stopPropagation();
                         setSelected(hover);
                         setHover(null);
                     }}
@@ -139,7 +145,9 @@ export const FrameInlineEditing: React.FC<{
                     previewRoot={frameRef.current.contentDocument.body}
                     target={selected.element}
                     anchorElement={anchor}
-                    returnFocus={blockRef}
+                    onDirtyChange={(dirty) => {
+                        dirtyRef.current = dirty;
+                    }}
                     onCommit={onCommit}
                     onClose={close}
                 />

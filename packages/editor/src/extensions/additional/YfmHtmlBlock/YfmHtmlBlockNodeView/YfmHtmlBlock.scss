@@ -14,8 +14,6 @@
         display: flex;
 
         padding-top: 52px;
-
-        border: 0;
     }
 
     &__label {
@@ -118,6 +116,9 @@
 
     &__content {
         flex-grow: 1;
+
+        width: 100%;
+        min-width: 0;
     }
 
     &__inline-edit-outline {
