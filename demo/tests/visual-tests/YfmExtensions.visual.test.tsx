@@ -31,7 +31,7 @@ test.describe('Extensions, YFM', () => {
         await page.waitForTimeout(2000);
         await expectScreenshot();
     });
-    test('should switch HTML block between preview and code', async ({mount, page}) => {
+    test('should switch HTML block between editor, preview and code', async ({mount, page}) => {
         await mount(<YFMStories.YfmHtmlBlock initial={'::: html\n<p>Initial</p>\n:::'} />);
 
         const block = page.locator('.g-md-yfm-html-block');
@@ -40,21 +40,113 @@ test.describe('Extensions, YFM', () => {
         await expect(toolbar).toHaveCSS('opacity', '1');
         await expect(toolbar).toHaveScreenshot('html-block-toolbar.png');
 
-        const modes = toolbar.getByRole('radiogroup', {name: 'View mode'});
-        await expect(modes.getByRole('radio', {name: 'Preview'})).toBeChecked();
-        await expect(modes.getByRole('radio', {name: 'Editor'})).toBeDisabled();
+        const modes = toolbar.getByRole('group', {name: 'View mode'});
+        const eye = modes.getByRole('button', {name: 'Preview'});
+        const code = modes.getByRole('button', {name: 'Code'});
+        await expect(eye).toHaveAttribute('aria-pressed', 'false');
+        await expect(code).toHaveAttribute('aria-pressed', 'false');
+        await expect(modes.getByRole('button', {name: 'Editor'})).toHaveCount(0);
         await expect(toolbar.getByRole('button', {name: 'Remove'})).toBeVisible();
-        await modes.getByRole('radio', {name: 'Code'}).click();
+
+        const preview = block.frameLocator('iframe').locator('p');
+        await preview.dblclick();
+        await expect(block.locator('textarea')).toBeVisible();
+        await expect(eye).toHaveAttribute('aria-pressed', 'false');
+        await expect(code).toHaveAttribute('aria-pressed', 'true');
+        await block.locator('textarea').fill('<p>Discarded from editor</p>');
+        await block.getByRole('button', {name: 'Cancel'}).click();
+        await expect(eye).toHaveAttribute('aria-pressed', 'false');
+        await expect(preview).toHaveText('Initial');
+
+        await block.hover();
+        await eye.click();
+        await expect(eye).toHaveAttribute('aria-pressed', 'true');
+        await preview.dblclick();
+        await expect(code).toHaveAttribute('aria-pressed', 'true');
+        await expect(eye).toHaveAttribute('aria-pressed', 'false');
+        await block.locator('textarea').fill('<p>Discarded from preview</p>');
+        await block.getByRole('button', {name: 'Cancel'}).click();
+        await expect(eye).toHaveAttribute('aria-pressed', 'true');
+        await expect(preview).toHaveText('Initial');
+
+        await block.hover();
+        await code.click();
 
         await expect(block.locator('textarea')).toBeVisible();
         await block.locator('textarea').fill('<p>Updated</p>');
-        await block.hover();
-        await modes.getByRole('radio', {name: 'Preview'}).click();
+        await block.getByRole('button', {name: 'Save'}).click();
 
-        const preview = block.frameLocator('iframe').locator('p');
         await expect(preview).toHaveText('Updated');
-        await preview.dblclick();
-        await expect(block.locator('textarea')).toBeVisible();
+        await expect(eye).toHaveAttribute('aria-pressed', 'false');
+        await expect(code).toHaveAttribute('aria-pressed', 'false');
+        await block.hover();
+        await eye.click();
+        await expect(eye).toHaveAttribute('aria-pressed', 'true');
+        await eye.click();
+        await expect(eye).toHaveAttribute('aria-pressed', 'false');
+    });
+    test('should edit HTML block text and image attributes in visual mode', async ({
+        mount,
+        page,
+    }) => {
+        await mount(
+            <YFMStories.YfmHtmlBlock
+                initial={
+                    '::: html\n<h1>Hello</h1><img src="broken.png" alt="Before" width="80" height="40">\n:::'
+                }
+            />,
+        );
+
+        const block = page.locator('.g-md-yfm-html-block');
+        const modes = block.getByRole('group', {name: 'View mode'});
+        const eye = modes.getByRole('button', {name: 'Preview'});
+        const code = modes.getByRole('button', {name: 'Code'});
+        await block.hover();
+        await expect(eye).toHaveAttribute('aria-pressed', 'false');
+
+        const heading = block.frameLocator('iframe').locator('h1');
+        await heading.hover();
+        await block.getByRole('button', {name: 'Edit element'}).click();
+        const dialog = page.getByRole('dialog', {name: 'Edit element'});
+        await dialog.getByRole('textbox', {name: 'Text'}).fill('Updated heading');
+        await dialog.getByRole('button', {name: 'Save'}).click();
+        await expect(heading).toHaveText('Updated heading');
+
+        const image = block.frameLocator('iframe').locator('img');
+        await image.hover();
+        await block.getByRole('button', {name: 'Edit element'}).click();
+        await dialog.getByRole('textbox', {name: 'Value: alt'}).fill('After');
+        await dialog.getByRole('button', {name: 'Save'}).click();
+        await expect(image).toHaveAttribute('alt', 'After');
+
+        await block.hover();
+        await eye.click();
+        await code.click();
+        await expect(block.locator('textarea')).toContainText('Updated heading');
+        await expect(block.locator('textarea')).toContainText('alt="After"');
+
+        await block.locator('textarea').fill('<p>Edited in code</p>');
+        await block.getByRole('button', {name: 'Save'}).click();
+        await expect(block.frameLocator('iframe').locator('p')).toHaveText('Edited in code');
+        await expect(eye).toHaveAttribute('aria-pressed', 'false');
+    });
+    test('should offer inline editing in the HTML block story', async ({mount, page}) => {
+        await mount(<YFMStories.YfmHtmlBlock />);
+
+        const block = page.locator('.g-md-yfm-html-block').first();
+        await block.hover();
+        await expect(block.getByRole('button', {name: 'Preview'})).toHaveAttribute(
+            'aria-pressed',
+            'false',
+        );
+        const heading = block.frameLocator('iframe').locator('h1');
+        await heading.hover();
+        await expect(block.getByRole('button', {name: 'Edit element'})).toBeVisible();
+        await block.getByRole('button', {name: 'Edit element'}).click();
+        const dialog = page.getByRole('dialog', {name: 'Edit element'});
+        await dialog.getByRole('textbox', {name: 'Text'}).fill('Updated heading');
+        await dialog.getByRole('button', {name: 'Save'}).click();
+        await expect(heading).toHaveText('Updated heading');
     });
     test('YFM File', async ({mount, expectScreenshot}) => {
         await mount(<YFMStories.YfmFile />);

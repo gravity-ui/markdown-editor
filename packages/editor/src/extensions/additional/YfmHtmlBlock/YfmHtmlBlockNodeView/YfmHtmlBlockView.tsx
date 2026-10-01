@@ -1,4 +1,5 @@
 import {useEffect, useMemo, useRef, useState} from 'react';
+import type {RefObject} from 'react';
 
 import {getStyles} from '@diplodoc/html-extension';
 import type {IHTMLIFrameElementConfig} from '@diplodoc/html-extension/runtime';
@@ -7,7 +8,6 @@ import {Button, Icon, Label} from '@gravity-ui/uikit';
 import type {Node} from 'prosemirror-model';
 import type {EditorView} from 'prosemirror-view';
 
-import {cn} from 'src/classname';
 import {SharedStateKey} from 'src/extensions/behavior/SharedState';
 import {TextAreaFixed as TextArea} from 'src/forms/TextInput';
 import {i18n} from 'src/i18n/common';
@@ -20,10 +20,10 @@ import {YfmHtmlBlockConsts} from '../YfmHtmlBlockSpecs/const';
 import type {YfmHtmlBlockOptions} from '../index';
 import type {YfmHtmlBlockEntitySharedState} from '../types';
 
-import './YfmHtmlBlock.scss';
+import {FrameInlineEditing} from './FrameInlineEditing';
+import {STOP_EVENT_CLASSNAME, cnYfmHtmlBlock} from './const';
 
-export const cnYfmHtmlBlock = cn('yfm-html-block');
-export const STOP_EVENT_CLASSNAME = 'prosemirror-stop-event';
+import './YfmHtmlBlock.scss';
 
 const b = cnYfmHtmlBlock;
 
@@ -31,48 +31,37 @@ type ViewMode = 'preview' | 'editor' | 'code';
 
 const ModeSwitcher: React.FC<{
     mode: ViewMode;
-    onModeChange: (mode: ViewMode) => void;
+    onPreviewToggle: () => void;
+    onCode?: () => void;
     onRemove: () => void;
-}> = ({mode, onModeChange, onRemove}) => {
-    const modes = [
-        {value: 'preview', icon: Eye, label: i18n('preview'), disabled: false},
-        {value: 'editor', icon: Pencil, label: i18n('editor'), disabled: true},
-        {value: 'code', icon: Code, label: i18n('code'), disabled: false},
-    ] as const;
+}> = ({mode, onPreviewToggle, onCode, onRemove}) => {
     return (
         <div className={`${b('toolbar')} ${STOP_EVENT_CLASSNAME}`}>
-            <div
-                className={b('modes')}
-                role="radiogroup"
-                aria-label={i18n('view_mode')}
-                tabIndex={-1}
-                onKeyDown={(event) => {
-                    let nextMode: ViewMode | undefined;
-                    if (event.key === 'ArrowRight' || event.key === 'End') nextMode = 'code';
-                    if (event.key === 'ArrowLeft' || event.key === 'Home') nextMode = 'preview';
-                    if (!nextMode) return;
-                    event.preventDefault();
-                    if (nextMode !== mode) onModeChange(nextMode);
-                }}
-            >
-                {modes.map(({value, icon, label, ...option}) => (
-                    <Button
-                        key={value}
-                        view={mode === value ? 'normal' : 'flat'}
-                        size="m"
-                        selected={mode === value}
-                        disabled={option.disabled}
-                        role="radio"
-                        aria-checked={mode === value}
-                        aria-label={label}
-                        tabIndex={mode === value ? 0 : -1}
-                        title={label}
-                        className={STOP_EVENT_CLASSNAME}
-                        onClick={() => onModeChange(value)}
-                    >
-                        <Icon data={icon} size={16} />
-                    </Button>
-                ))}
+            <div className={b('modes')} role="group" aria-label={i18n('view_mode')}>
+                <Button
+                    view={mode === 'preview' ? 'normal' : 'flat'}
+                    size="m"
+                    selected={mode === 'preview'}
+                    aria-pressed={mode === 'preview'}
+                    aria-label={i18n('preview')}
+                    title={i18n('preview')}
+                    className={STOP_EVENT_CLASSNAME}
+                    onClick={onPreviewToggle}
+                >
+                    <Icon data={Eye} size={16} />
+                </Button>
+                <Button
+                    view={mode === 'code' ? 'normal' : 'flat'}
+                    size="m"
+                    selected={mode === 'code'}
+                    aria-pressed={mode === 'code'}
+                    aria-label={i18n('code')}
+                    title={i18n('code')}
+                    className={STOP_EVENT_CLASSNAME}
+                    onClick={onCode}
+                >
+                    <Icon data={Code} size={16} />
+                </Button>
             </div>
             <span className={b('toolbar-separator')} aria-hidden="true" />
             <Button
@@ -91,8 +80,9 @@ const ModeSwitcher: React.FC<{
 
 interface YfmHtmlBlockViewProps {
     html: string;
-    onClick: () => void;
+    onDoubleClick: () => void;
     config?: IHTMLIFrameElementConfig;
+    frameRef: RefObject<HTMLIFrameElement>;
 }
 
 export function generateID() {
@@ -114,8 +104,12 @@ const createLinkCLickHandler = (value: Element, document: Document) => (event: E
     }
 };
 
-const YfmHtmlBlockPreview: React.FC<YfmHtmlBlockViewProps> = ({html, onClick, config}) => {
-    const ref = useRef<HTMLIFrameElement>(null);
+const YfmHtmlBlockPreview: React.FC<YfmHtmlBlockViewProps> = ({
+    html,
+    onDoubleClick,
+    config,
+    frameRef: ref,
+}) => {
     const styles = useRef<Record<string, string>>({});
     const classNames = useRef<string[]>([]);
     const resizeConfig = useRef<Record<string, number>>({});
@@ -135,7 +129,7 @@ const YfmHtmlBlockPreview: React.FC<YfmHtmlBlockViewProps> = ({html, onClick, co
         if (contentWindow) {
             const frameDocument = contentWindow.document;
             frameDocument.addEventListener('dblclick', () => {
-                onClick();
+                onDoubleClick();
             });
         }
     };
@@ -256,27 +250,26 @@ const CodeEditMode: React.FC<{
     initialText: string;
     onSave: (v: string) => void;
     onCancel: () => void;
+    onPreview: () => void;
+    onVisualEdit: () => void;
     onRemove: () => void;
     options: YfmHtmlBlockOptions;
-}> = ({initialText, onSave, onCancel, onRemove, options: {autoSave}}) => {
-    const {
-        value,
-        handleChange,
-        handleManualSave,
-        hasUnsavedChanges,
-        isSaveDisabled,
-        isAutoSaveEnabled,
-    } = useAutoSave({initialValue: initialText || '\n', onSave, onClose: onCancel, autoSave});
+}> = ({initialText, onSave, onCancel, onPreview, onVisualEdit, onRemove, options: {autoSave}}) => {
+    const {value, handleChange, handleManualSave, hasUnsavedChanges, isAutoSaveEnabled} =
+        useAutoSave({initialValue: initialText || '\n', onSave, onClose: onCancel, autoSave});
+
+    const closeWithChanges = () => {
+        if (hasUnsavedChanges) handleManualSave();
+        else onCancel();
+    };
 
     return (
         <div className={b({editing: true})}>
             <ModeSwitcher
                 mode="code"
-                onModeChange={(mode) => {
-                    if (mode === 'preview') {
-                        if (hasUnsavedChanges) handleManualSave();
-                        else onCancel();
-                    }
+                onPreviewToggle={() => {
+                    closeWithChanges();
+                    onPreview();
                 }}
                 onRemove={onRemove}
             />
@@ -297,15 +290,15 @@ const CodeEditMode: React.FC<{
                                 {isAutoSaveEnabled ? i18n('close') : i18n('cancel')}
                             </span>
                         </Button>
-                        {!isAutoSaveEnabled && (
-                            <Button
-                                onClick={handleManualSave}
-                                view={'action'}
-                                disabled={isSaveDisabled}
-                            >
-                                <span className={STOP_EVENT_CLASSNAME}>{i18n('save')}</span>
-                            </Button>
-                        )}
+                        <Button
+                            onClick={() => {
+                                closeWithChanges();
+                                onVisualEdit();
+                            }}
+                            view={'action'}
+                        >
+                            <span className={STOP_EVENT_CLASSNAME}>{i18n('save')}</span>
+                        </Button>
                     </div>
                 </div>
             </div>
@@ -330,6 +323,12 @@ export const YfmHtmlBlockView: React.FC<{
     const config = useConfig?.();
 
     const [editing, setEditing, unsetEditing] = useSharedEditingState(view, entityKey);
+    const [visualEditing, setVisualEditing] = useState(true);
+    const blockRef = useRef<HTMLDivElement>(null);
+    const frameRef = useRef<HTMLIFrameElement>(null);
+    const sourceHtml: string = node.attrs[YfmHtmlBlockConsts.NodeAttrs.srcdoc] ?? '';
+
+    const openCode = () => setEditing();
 
     const onRemove = () => {
         const pos = getPos();
@@ -347,6 +346,8 @@ export const YfmHtmlBlockView: React.FC<{
             <CodeEditMode
                 initialText={node.attrs[YfmHtmlBlockConsts.NodeAttrs.srcdoc]}
                 onCancel={unsetEditing}
+                onPreview={() => setVisualEditing(false)}
+                onVisualEdit={() => setVisualEditing(true)}
                 onSave={(v) => {
                     onChange({[YfmHtmlBlockConsts.NodeAttrs.srcdoc]: v});
                 }}
@@ -366,7 +367,7 @@ export const YfmHtmlBlockView: React.FC<{
     }
 
     const head = `<head>${headContent || additional}</head>`;
-    const body = `<body>${node.attrs[YfmHtmlBlockConsts.NodeAttrs.srcdoc] ?? ''}</body>`;
+    const body = `<body>${sourceHtml}</body>`;
     const html = `<!DOCTYPE html><html>${head}${body}</html>`;
 
     const sanitizeFunction = typeof sanitize === 'function' ? sanitize : sanitize?.body;
@@ -374,17 +375,41 @@ export const YfmHtmlBlockView: React.FC<{
     const resultHtml = sanitizeFunction ? sanitizeFunction(html) : html;
 
     return (
-        <div className={b()} onDoubleClick={setEditing}>
-            <Label className={b('label')} icon={<Icon size={16} data={Eye} />}>
-                {i18n('preview')}
+        <div
+            ref={blockRef}
+            className={b()}
+            tabIndex={-1}
+            onDoubleClick={(event) => {
+                if ((event.target as HTMLElement).closest(`.${STOP_EVENT_CLASSNAME}`)) return;
+                openCode();
+            }}
+        >
+            <Label
+                className={b('label')}
+                icon={<Icon size={16} data={visualEditing ? Pencil : Eye} />}
+            >
+                {i18n(visualEditing ? 'editor' : 'preview')}
             </Label>
-            <YfmHtmlBlockPreview html={resultHtml} onClick={setEditing} config={config} />
+            <YfmHtmlBlockPreview
+                html={resultHtml}
+                onDoubleClick={openCode}
+                config={config}
+                frameRef={frameRef}
+            />
+
+            {visualEditing && (
+                <FrameInlineEditing
+                    frameRef={frameRef}
+                    blockRef={blockRef}
+                    sourceHtml={sourceHtml}
+                    onCommit={(html) => onChange({[YfmHtmlBlockConsts.NodeAttrs.srcdoc]: html})}
+                />
+            )}
 
             <ModeSwitcher
-                mode="preview"
-                onModeChange={(mode) => {
-                    if (mode === 'code') setEditing();
-                }}
+                mode={visualEditing ? 'editor' : 'preview'}
+                onPreviewToggle={() => setVisualEditing((wasVisualEditing) => !wasVisualEditing)}
+                onCode={openCode}
                 onRemove={onRemove}
             />
         </div>

@@ -120,6 +120,122 @@
         flex-grow: 1;
     }
 
+    &__inline-edit-outline {
+        position: absolute;
+        z-index: 21;
+
+        pointer-events: none;
+
+        border: 2px solid var(--g-color-line-focus);
+        border-radius: var(--g-border-radius-s);
+    }
+
+    &__inline-edit-button {
+        position: absolute;
+        z-index: 22;
+
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+
+        width: 28px;
+        height: 28px;
+        padding: 0;
+
+        cursor: pointer;
+
+        color: var(--g-color-text-brand-contrast);
+        border: 2px solid var(--g-color-base-background);
+        border-radius: 50%;
+        background: var(--g-color-base-brand);
+        box-shadow: 0 2px 8px var(--g-color-sfx-shadow);
+    }
+
+    &__inline-edit-button:hover {
+        background: var(--g-color-base-brand-hover);
+    }
+
+    &__inline-edit-popup {
+        display: flex;
+        overflow-y: auto;
+        flex-direction: column;
+        gap: 8px;
+
+        box-sizing: border-box;
+        width: min(420px, 90vw);
+        max-height: min(70dvh, 560px);
+        padding: 12px;
+    }
+
+    &__inline-edit-popup-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+
+        margin-top: 2px;
+    }
+
+    &__inline-edit-field,
+    &__inline-edit-section,
+    &__inline-edit-attrs {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    &__inline-edit-field-label {
+        font-size: var(--g-text-body-1-font-size, 13px);
+
+        color: var(--g-color-text-secondary);
+    }
+
+    &__inline-edit-section {
+        padding-top: 8px;
+
+        border-top: 1px solid var(--g-color-line-generic);
+    }
+
+    &__inline-edit-toggle {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+
+        padding: 0;
+
+        font-size: var(--g-text-body-1-font-size, 13px);
+        cursor: pointer;
+
+        color: var(--g-color-text-secondary);
+        border: none;
+        background: transparent;
+    }
+
+    &__inline-edit-toggle-chevron {
+        transition: transform 0.15s ease;
+    }
+
+    &__inline-edit-toggle-chevron_open {
+        transform: rotate(180deg);
+    }
+
+    &__inline-edit-toggle-count {
+        min-width: 18px;
+        padding: 0 5px;
+
+        font-size: 11px;
+        text-align: center;
+
+        border-radius: 9px;
+        background: var(--g-color-base-generic);
+    }
+
+    &__inline-edit-attr-row {
+        display: grid;
+        align-items: center;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr) auto;
+        gap: 6px;
+    }
+
     @media (hover: none) {
         &__toolbar {
             pointer-events: auto;
