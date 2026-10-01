@@ -38,17 +38,18 @@ test.describe('Extensions, YFM', () => {
         await block.hover();
         const toolbar = block.locator('.g-md-yfm-html-block__toolbar');
         await expect(toolbar).toHaveCSS('opacity', '1');
+        await expect(toolbar).toHaveScreenshot('html-block-toolbar.png');
 
         const modes = toolbar.getByRole('radiogroup', {name: 'View mode'});
         await expect(modes.getByRole('radio', {name: 'Preview'})).toBeChecked();
         await expect(modes.getByRole('radio', {name: 'Editor'})).toBeDisabled();
         await expect(toolbar.getByRole('button', {name: 'Remove'})).toBeVisible();
-        await modes.getByTitle('Code').click();
+        await modes.getByRole('radio', {name: 'Code'}).click();
 
         await expect(block.locator('textarea')).toBeVisible();
         await block.locator('textarea').fill('<p>Updated</p>');
         await block.hover();
-        await modes.getByTitle('Preview').click();
+        await modes.getByRole('radio', {name: 'Preview'}).click();
 
         const preview = block.frameLocator('iframe').locator('p');
         await expect(preview).toHaveText('Updated');

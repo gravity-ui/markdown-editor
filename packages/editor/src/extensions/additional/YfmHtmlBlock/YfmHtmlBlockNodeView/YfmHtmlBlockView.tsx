@@ -39,34 +39,45 @@ const ModeSwitcher: React.FC<{
         {value: 'editor', icon: Pencil, label: i18n('editor'), disabled: true},
         {value: 'code', icon: Code, label: i18n('code'), disabled: false},
     ] as const;
-    const radioName = useRef(generateID()).current;
-
     return (
         <div className={`${b('toolbar')} ${STOP_EVENT_CLASSNAME}`}>
-            <div className={b('modes')} role="radiogroup" aria-label={i18n('view_mode')}>
+            <div
+                className={b('modes')}
+                role="radiogroup"
+                aria-label={i18n('view_mode')}
+                tabIndex={-1}
+                onKeyDown={(event) => {
+                    let nextMode: ViewMode | undefined;
+                    if (event.key === 'ArrowRight' || event.key === 'End') nextMode = 'code';
+                    if (event.key === 'ArrowLeft' || event.key === 'Home') nextMode = 'preview';
+                    if (!nextMode) return;
+                    event.preventDefault();
+                    if (nextMode !== mode) onModeChange(nextMode);
+                }}
+            >
                 {modes.map(({value, icon, label, ...option}) => (
-                    <label
+                    <Button
                         key={value}
-                        className={b('mode', {selected: mode === value, disabled: option.disabled})}
+                        view={mode === value ? 'normal' : 'flat'}
+                        size="m"
+                        selected={mode === value}
+                        disabled={option.disabled}
+                        role="radio"
+                        aria-checked={mode === value}
+                        aria-label={label}
+                        tabIndex={mode === value ? 0 : -1}
                         title={label}
+                        className={STOP_EVENT_CLASSNAME}
+                        onClick={() => onModeChange(value)}
                     >
-                        <input
-                            type="radio"
-                            name={radioName}
-                            value={value}
-                            aria-label={label}
-                            checked={mode === value}
-                            disabled={option.disabled}
-                            onChange={() => onModeChange(value)}
-                        />
                         <Icon data={icon} size={16} />
-                    </label>
+                    </Button>
                 ))}
             </div>
             <span className={b('toolbar-separator')} aria-hidden="true" />
             <Button
                 view="flat-danger"
-                size="s"
+                size="m"
                 className={STOP_EVENT_CLASSNAME}
                 aria-label={i18n('remove')}
                 title={i18n('remove')}
