@@ -11,19 +11,22 @@ export const Formats: Story = {args: {markupKey: 'formats'}};
 Formats.storyName = 'Formats';
 
 export const Angles: Story = {args: {markupKey: 'angles'}};
-Angles.storyName = 'Gradient angle and tile step';
+Angles.storyName = 'Gradient direction and pattern size';
 
 export const Layers: Story = {args: {markupKey: 'layers'}};
 Layers.storyName = 'Image layers';
 
 export const Crops: Story = {args: {markupKey: 'crops'}};
-Crops.storyName = 'Image fit and crop';
+Crops.storyName = 'Image fit and focus';
 
 export const Fills: Story = {args: {markupKey: 'fills'}};
 Fills.storyName = 'Fills';
 
 export const Seeds: Story = {args: {markupKey: 'seeds'}};
-Seeds.storyName = 'Generated shapes';
+Seeds.storyName = 'Shape layouts';
+
+export const Content: Story = {args: {markupKey: 'content'}};
+Content.storyName = 'Title, actions and subtitle';
 
 export const InsideCut: Story = {args: {markupKey: 'insideCut'}};
 InsideCut.storyName = 'Inside cut';

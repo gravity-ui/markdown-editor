@@ -86,7 +86,7 @@ export async function uploadHeaderImage(
     if (!url || !node) return 'failed';
 
     // Замер относится к снимку на всю площадь: под декором и плиткой тон заголовка задаёт заливка.
-    const onCover = normalizeHeaderAttrs(node.attrs)[HeaderAttr.Layer] === HeaderLayer.Cover;
+    const onCover = normalizeHeaderAttrs(node.attrs)[HeaderAttr.Layer] === HeaderLayer.Full;
 
     setHeaderAttrs(pos, {
         [HeaderAttr.Image]: url,

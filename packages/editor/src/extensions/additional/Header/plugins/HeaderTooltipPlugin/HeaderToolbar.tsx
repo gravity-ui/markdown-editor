@@ -2,7 +2,6 @@ import {useCallback, useMemo} from 'react';
 
 import {
     Aperture,
-    ArrowRotateRight,
     ArrowsRotateLeft,
     BucketPaint,
     ChevronDown,
@@ -38,11 +37,18 @@ import {
     type HeaderAttrs,
     HeaderBackground,
     type HeaderBackgroundValue,
+    HeaderDirection,
     HeaderEffect,
     type HeaderEffectValue,
     type HeaderFillValue,
+    HeaderFit,
+    HeaderFocus,
     HeaderFormat,
     type HeaderFormatValue,
+    HeaderLayer,
+    HeaderScale,
+    HeaderShapes,
+    HeaderText,
     hasImage,
     isCovered,
     normalizeHeaderAttrs,
@@ -58,13 +64,9 @@ import {
 import {uploadHeaderImage} from '../imageUpload';
 
 import {HeaderPalette} from './HeaderPalette';
-import {HeaderSlider} from './HeaderSlider';
 
 const ToolbarMemoized = typedMemo(Toolbar);
 
-/** Ползунок угла ходит по пятиградусной сетке: полный оборот — это то же, что нулевой угол. */
-const ANGLE_STEP = 5;
-const ANGLE_MAX = 355;
 type AttrItem<T extends string> = {value: T; icon: ToolbarIconData; label: () => string};
 
 const FORMAT_ITEMS: AttrItem<HeaderFormatValue>[] = [
@@ -88,11 +90,11 @@ const BACKGROUND_ITEMS: AttrItem<HeaderBackgroundValue>[] = [
 const EFFECT_ITEMS: AttrItem<HeaderEffectValue>[] = [
     {value: HeaderEffect.None, icon: {data: Picture}, label: () => i18n('effect_none')},
     {
-        value: HeaderEffect.Gradient,
+        value: HeaderEffect.Fade,
         icon: {data: Layers3Diagonal},
-        label: () => i18n('effect_gradient'),
+        label: () => i18n('effect_fade'),
     },
-    {value: HeaderEffect.Dim, icon: {data: Moon}, label: () => i18n('effect_dim')},
+    {value: HeaderEffect.Darken, icon: {data: Moon}, label: () => i18n('effect_darken')},
     {value: HeaderEffect.Blur, icon: {data: Aperture}, label: () => i18n('effect_blur')},
 ];
 
@@ -114,7 +116,6 @@ export function HeaderToolbar({node, pos, editorView, fileUploadHandler}: Header
     const withEffects = isCovered(attrs);
     const withSecondFill =
         background === HeaderBackground.Gradient || background === HeaderBackground.Mesh;
-    const withAngle = background === HeaderBackground.Gradient;
 
     const onFocus = useCallback(() => editorView.focus(), [editorView]);
 
@@ -132,7 +133,13 @@ export function HeaderToolbar({node, pos, editorView, fileUploadHandler}: Header
                 icon: item.icon,
                 isActive: () => attrOf(attr) === item.value,
                 isEnable: canEdit,
-                exec: (view: EditorView) => patch(view, {[attr]: item.value}),
+                exec: (view: EditorView) =>
+                    patch(view, {
+                        [attr]: item.value,
+                        ...(attr === HeaderAttr.Layer && item.value !== HeaderLayer.Full
+                            ? {[HeaderAttr.Text]: HeaderText.Auto}
+                            : {}),
+                    }),
             }));
 
         const backgroundGroup: ToolbarGroupItemData<EditorView>[] = [
@@ -158,29 +165,62 @@ export function HeaderToolbar({node, pos, editorView, fileUploadHandler}: Header
             },
         ];
 
-        if (withAngle) {
-            backgroundGroup.push({
-                id: 'header-angle',
-                type: ToolbarDataType.ButtonPopup,
-                icon: {data: ArrowRotateRight},
-                title: i18n('angle'),
-                isActive: () => false,
-                isEnable: canEdit,
-                exec: () => {},
-                renderPopup: ({anchorElement, hide, editor}) => (
-                    <HeaderSlider
-                        label={i18n('angle')}
-                        value={attrOf<number>(HeaderAttr.Angle)}
-                        min={0}
-                        max={ANGLE_MAX}
-                        step={ANGLE_STEP}
-                        format={(value) => `${value}°`}
-                        anchorElement={anchorElement}
-                        hide={hide}
-                        onUpdate={(angle) => patch(editor, {[HeaderAttr.Angle]: angle})}
-                    />
+        const optionItems = <T extends string>(
+            attr: keyof HeaderAttrs,
+            values: readonly T[],
+            icon: ToolbarIconData,
+        ) =>
+            values.map((value) => ({
+                value,
+                icon,
+                label: () => i18n(`${attr}_${value}` as Parameters<typeof i18n>[0]),
+            }));
+        const optionGroup = <T extends string>(
+            attr: keyof HeaderAttrs,
+            values: readonly T[],
+            icon: ToolbarIconData,
+            title: string,
+        ): ToolbarGroupItemData<EditorView> => ({
+            id: `header-${attr}`,
+            type: ToolbarDataType.ListButton,
+            icon,
+            title,
+            withArrow: true,
+            data: attrList(attr, optionItems(attr, values, icon)),
+        });
+
+        if (background === HeaderBackground.Gradient) {
+            backgroundGroup.push(
+                optionGroup(
+                    HeaderAttr.Direction,
+                    Object.values(HeaderDirection),
+                    {data: Layers3Diagonal},
+                    i18n('direction'),
                 ),
-            });
+            );
+        }
+        if (background === HeaderBackground.Shapes || background === HeaderBackground.Mesh) {
+            backgroundGroup.push(
+                optionGroup(
+                    HeaderAttr.Shapes,
+                    Object.values(HeaderShapes),
+                    {data: Shapes3},
+                    i18n('shapes'),
+                ),
+            );
+        }
+        if (
+            background === HeaderBackground.Pattern ||
+            (withImage && attrs[HeaderAttr.Layer] === HeaderLayer.Tile)
+        ) {
+            backgroundGroup.push(
+                optionGroup(
+                    HeaderAttr.Scale,
+                    Object.values(HeaderScale),
+                    {data: Dots9},
+                    i18n('scale'),
+                ),
+            );
         }
 
         backgroundGroup.push({
@@ -191,7 +231,7 @@ export function HeaderToolbar({node, pos, editorView, fileUploadHandler}: Header
             isActive: () => false,
             // Под снимком на всю площадь новый фон не виден — кроме градиента, берущего цвет заливки.
             isEnable: (view: EditorView) =>
-                (!withEffects || attrOf(HeaderAttr.Effect) === HeaderEffect.Gradient) &&
+                (!withEffects || attrOf(HeaderAttr.Effect) === HeaderEffect.Fade) &&
                 generateHeaderLook(posRef.current)(view.state),
             exec: (view: EditorView) =>
                 generateHeaderLook(posRef.current)(view.state, view.dispatch),
@@ -237,6 +277,42 @@ export function HeaderToolbar({node, pos, editorView, fileUploadHandler}: Header
                 data: attrList(HeaderAttr.Effect, EFFECT_ITEMS),
             });
         }
+        if (withImage) {
+            imageGroup.push(
+                optionGroup(
+                    HeaderAttr.Layer,
+                    Object.values(HeaderLayer),
+                    {data: Picture},
+                    i18n('layer'),
+                ),
+            );
+            if (attrs[HeaderAttr.Layer] !== HeaderLayer.Tile) {
+                imageGroup.push(
+                    optionGroup(
+                        HeaderAttr.Fit,
+                        Object.values(HeaderFit),
+                        {data: Picture},
+                        i18n('fit'),
+                    ),
+                );
+                imageGroup.push(
+                    optionGroup(
+                        HeaderAttr.Focus,
+                        Object.values(HeaderFocus),
+                        {data: Picture},
+                        i18n('focus'),
+                    ),
+                );
+            }
+            imageGroup.push(
+                optionGroup(
+                    HeaderAttr.Text,
+                    Object.values(HeaderText),
+                    {data: Palette},
+                    i18n('text'),
+                ),
+            );
+        }
 
         return [
             [
@@ -278,7 +354,8 @@ export function HeaderToolbar({node, pos, editorView, fileUploadHandler}: Header
         nodeRef,
         posRef,
         toaster,
-        withAngle,
+        attrs,
+        background,
         withEffects,
         withImage,
         withSecondFill,

@@ -2,7 +2,7 @@ import type {Action, ExtensionAuto} from '#core';
 import type {FileUploadHandler} from 'src/utils/upload';
 
 import {HeaderSpecs} from './HeaderSpecs';
-import {backspaceInHeader, exitHeaderForward, toHeader} from './commands';
+import {backspaceInHeader, enterHeaderContent, exitHeaderForward, toHeader} from './commands';
 import {headerTooltipPlugin} from './plugins/HeaderTooltipPlugin';
 
 import './index.scss';
@@ -31,7 +31,7 @@ export const Header: ExtensionAuto<HeaderOptions> = (builder, opts) => {
 
     builder.addKeymap(
         () => ({
-            Enter: exitHeaderForward,
+            Enter: enterHeaderContent,
             'Mod-Enter': exitHeaderForward,
             Backspace: backspaceInHeader,
             ...(opts.headerKey ? {[opts.headerKey]: toHeader} : {}),

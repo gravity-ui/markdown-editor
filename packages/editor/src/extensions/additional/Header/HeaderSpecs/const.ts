@@ -3,6 +3,9 @@ import {nodeTypeFactory} from 'src/utils/schema';
 export const headerNodeName = 'header';
 export const headerDirectiveName = 'header';
 export const headerTokenName = 'header';
+export const headerTitleName = 'header_title';
+export const headerContentName = 'header_content';
+export const headerActionsName = 'header_actions';
 
 export const headerType = nodeTypeFactory(headerNodeName);
 
@@ -12,15 +15,15 @@ export const HeaderAttr = {
     Background: 'bg',
     Fill: 'fill',
     Fill2: 'fill2',
-    Angle: 'angle',
+    Direction: 'direction',
+    Shapes: 'shapes',
+    Scale: 'scale',
     Effect: 'effect',
     Image: 'image',
     Layer: 'layer',
     Fit: 'fit',
-    Crop: 'crop',
-    Step: 'step',
+    Focus: 'focus',
     Text: 'text',
-    Seed: 'seed',
 } as const;
 
 export const HeaderFormat = {
@@ -39,21 +42,19 @@ export const HeaderBackground = {
 
 /** Какой слой занимает файл автора: нижний на всю площадь, объект поверх основы, повтор поверх основы. */
 export const HeaderLayer = {
-    Cover: 'cover',
-    Decor: 'decor',
+    Full: 'full',
+    Object: 'object',
     Tile: 'tile',
 } as const;
 
 /** Масштаб кадра. */
 export const HeaderFit = {
-    Cover: 'cover',
-    Contain: 'contain',
-    Width: 'width',
-    Height: 'height',
+    Crop: 'crop',
+    Whole: 'whole',
 } as const;
 
 /** Положение кадра. */
-export const HeaderCrop = {
+export const HeaderFocus = {
     Center: 'center',
     Top: 'top',
     Right: 'right',
@@ -69,9 +70,19 @@ export const HeaderCrop = {
 export const HeaderEffect = {
     None: 'none',
     Blur: 'blur',
-    Dim: 'dim',
-    Gradient: 'gradient',
+    Darken: 'darken',
+    Fade: 'fade',
 } as const;
+
+export const HeaderDirection = {Diagonal: 'diagonal', Right: 'right', Down: 'down'} as const;
+export const HeaderShapes = {
+    Diagonal: 'diagonal',
+    Corner: 'corner',
+    Edges: 'edges',
+    Bottom: 'bottom',
+    Scatter: 'scatter',
+} as const;
+export const HeaderScale = {Small: 'small', Medium: 'medium', Large: 'large'} as const;
 
 export const HeaderText = {
     Auto: 'auto',
@@ -98,7 +109,10 @@ export type HeaderFormatValue = (typeof HeaderFormat)[keyof typeof HeaderFormat]
 export type HeaderBackgroundValue = (typeof HeaderBackground)[keyof typeof HeaderBackground];
 export type HeaderLayerValue = (typeof HeaderLayer)[keyof typeof HeaderLayer];
 export type HeaderFitValue = (typeof HeaderFit)[keyof typeof HeaderFit];
-export type HeaderCropValue = (typeof HeaderCrop)[keyof typeof HeaderCrop];
+export type HeaderFocusValue = (typeof HeaderFocus)[keyof typeof HeaderFocus];
+export type HeaderDirectionValue = (typeof HeaderDirection)[keyof typeof HeaderDirection];
+export type HeaderShapesValue = (typeof HeaderShapes)[keyof typeof HeaderShapes];
+export type HeaderScaleValue = (typeof HeaderScale)[keyof typeof HeaderScale];
 export type HeaderEffectValue = (typeof HeaderEffect)[keyof typeof HeaderEffect];
 export type HeaderTextValue = (typeof HeaderText)[keyof typeof HeaderText];
 export type HeaderFillValue = (typeof HeaderFill)[keyof typeof HeaderFill];
@@ -120,24 +134,20 @@ export const HEADER_FILLS: readonly HeaderFillValue[] = [
 ];
 
 /** Полный оборот: угол приводится по модулю, потому что 523° и 163° — один и тот же наклон. */
-export const HEADER_FULL_TURN = 360;
-export const HEADER_STEP_MIN = 4;
-export const HEADER_STEP_MAX = 512;
-
 export const HeaderDefaults = {
     [HeaderAttr.Format]: HeaderFormat.Large,
     [HeaderAttr.Background]: HeaderBackground.Shapes,
     [HeaderAttr.Fill]: HeaderFill.Blue,
     [HeaderAttr.Fill2]: HeaderFill.Purple,
-    [HeaderAttr.Angle]: 163,
+    [HeaderAttr.Direction]: HeaderDirection.Diagonal,
+    [HeaderAttr.Shapes]: HeaderShapes.Diagonal,
+    [HeaderAttr.Scale]: HeaderScale.Medium,
     [HeaderAttr.Effect]: HeaderEffect.None,
     [HeaderAttr.Image]: '',
-    [HeaderAttr.Layer]: HeaderLayer.Cover,
-    [HeaderAttr.Fit]: HeaderFit.Cover,
-    [HeaderAttr.Crop]: HeaderCrop.Center,
-    [HeaderAttr.Step]: 32,
+    [HeaderAttr.Layer]: HeaderLayer.Full,
+    [HeaderAttr.Fit]: HeaderFit.Crop,
+    [HeaderAttr.Focus]: HeaderFocus.Center,
     [HeaderAttr.Text]: HeaderText.Auto,
-    [HeaderAttr.Seed]: 0,
 } as const;
 
 export const HeaderClassName = {
@@ -146,4 +156,5 @@ export const HeaderClassName = {
     Shape: 'g-md-header__shape',
     Content: 'g-md-header__content',
     Title: 'g-md-header__title',
+    Actions: 'g-md-header__actions',
 } as const;

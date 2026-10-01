@@ -7,13 +7,16 @@ import {
     HEADER_FILLS,
     HeaderAttr,
     type HeaderAttrs,
-    HeaderCrop,
     HeaderEffect,
     type HeaderFillValue,
     HeaderFit,
+    HeaderFocus,
     HeaderLayer,
     HeaderText,
+    headerActionsName,
+    headerContentName,
     headerNodeName,
+    headerTitleName,
     headerType,
     normalizeHeaderAttrs,
 } from './HeaderSpecs';
@@ -65,7 +68,7 @@ const pickFrom = <T>(values: readonly T[], exclude: T): T => {
     return rest[Math.floor(Math.random() * rest.length)];
 };
 
-/** Случайность живёт здесь: в разметку уезжают уже готовые значения. */
+/** Новая раскладка выбирается из именованных вариантов. */
 export const generateHeaderLook =
     (pos: number): Command =>
     (state, dispatch) => {
@@ -74,12 +77,13 @@ export const generateHeaderLook =
 
         const fill = pickFrom(HEADER_FILLS, node.attrs[HeaderAttr.Fill] as HeaderFillValue);
         const fill2 = pickFrom(HEADER_FILLS, fill);
-        const seed = 1 + Math.floor(Math.random() * 999_999);
+        const layouts = ['diagonal', 'corner', 'edges', 'bottom', 'scatter'];
+        const shapes = pickFrom(layouts, String(node.attrs[HeaderAttr.Shapes]));
 
         return setHeaderAttrs(pos, {
             [HeaderAttr.Fill]: fill,
             [HeaderAttr.Fill2]: fill2,
-            [HeaderAttr.Seed]: seed,
+            [HeaderAttr.Shapes]: shapes,
         })(state, dispatch);
     };
 
@@ -87,9 +91,9 @@ export const generateHeaderLook =
 export const removeHeaderImage = (pos: number): Command =>
     setHeaderAttrs(pos, {
         [HeaderAttr.Image]: '',
-        [HeaderAttr.Layer]: HeaderLayer.Cover,
-        [HeaderAttr.Fit]: HeaderFit.Cover,
-        [HeaderAttr.Crop]: HeaderCrop.Center,
+        [HeaderAttr.Layer]: HeaderLayer.Full,
+        [HeaderAttr.Fit]: HeaderFit.Crop,
+        [HeaderAttr.Focus]: HeaderFocus.Center,
         [HeaderAttr.Effect]: HeaderEffect.None,
         [HeaderAttr.Text]: HeaderText.Auto,
     });
@@ -119,24 +123,39 @@ export const toHeader: Command = (state, dispatch) => {
     if (!$insert.parent.canReplaceWith($insert.index(), $insert.index(), type)) return false;
 
     if (dispatch) {
-        const tr = state.tr.insert(insertAt, type.create(null));
-        tr.setSelection(TextSelection.near(tr.doc.resolve(insertAt + 1)));
+        const title = state.schema.nodes[headerTitleName].create();
+        const content = state.schema.nodes[headerContentName].create();
+        const actions = state.schema.nodes[headerActionsName].create();
+        const tr = state.tr.insert(insertAt, type.create(null, [title, content, actions]));
+        tr.setSelection(TextSelection.near(tr.doc.resolve(insertAt + 2)));
         dispatch(tr.scrollIntoView());
     }
     return true;
 };
 
-/**
- * Enter внутри обложки иначе делит её надвое: нода — текстовый блок, и `splitBlock` создаёт вторую обложку.
- * Хвостового параграфа в документе может не быть, поэтому он при необходимости создаётся.
- */
+/** Enter в заголовке переводит курсор в первый абзац подзаголовка. */
+export const enterHeaderContent: Command = (state, dispatch) => {
+    const pos = findHeaderPos(state.selection);
+    if (pos === null) return false;
+    const node = headerAt(state.doc, pos);
+    if (!node || !node.firstChild || state.selection.$from.parent.type.name !== headerTitleName)
+        return false;
+    const contentPos = pos + 1 + node.firstChild.nodeSize;
+    if (dispatch) {
+        const tr = state.tr;
+        if (!node.child(1).childCount) tr.insert(contentPos + 1, pType(state.schema).create());
+        tr.setSelection(TextSelection.near(tr.doc.resolve(contentPos + 2)));
+        dispatch(tr.scrollIntoView());
+    }
+    return true;
+};
+
+/** Mod-Enter переводит курсор в абзац после обложки. */
 export const exitHeaderForward: Command = (state, dispatch) => {
     const pos = findHeaderPos(state.selection);
     if (pos === null) return false;
-
     const node = headerAt(state.doc, pos);
     if (!node) return false;
-
     const after = pos + node.nodeSize;
     const next = state.doc.resolve(after).nodeAfter;
 
@@ -158,9 +177,9 @@ export const backspaceInHeader: Command = (state, dispatch) => {
     if (pos === null) return false;
 
     const node = headerAt(state.doc, pos);
-    if (!node || selection.from !== pos + 1) return false;
+    if (!node || selection.from !== pos + 2) return false;
 
-    if (node.content.size > 0) return true;
+    if (node.textContent) return true;
 
     if (dispatch) {
         const tr = state.tr.replaceWith(pos, pos + node.nodeSize, pType(state.schema).create());

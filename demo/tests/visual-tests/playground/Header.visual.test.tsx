@@ -41,17 +41,30 @@ test('should offer image effects beside the image button without framing control
     await expect(toolbar.getByRole('button', {name: 'Image', exact: true})).toHaveCount(0);
 
     await toolbar.getByRole('button', {name: 'Image effects'}).click();
-    await page.getByRole('menuitem', {name: 'Dim'}).click();
-    await expect(header).toHaveAttribute('data-effect', 'dim');
+    await page.getByRole('menuitem', {name: 'Darken'}).click();
+    await expect(header).toHaveAttribute('data-effect', 'darken');
 });
 
-test('should omit the step control for a patterned background', async ({mount, page}) => {
+test('should offer pattern size for a patterned background', async ({mount, page}) => {
     await mount(<HeaderDemo markupKey="backgrounds" />);
     await page.locator('.g-md-header').filter({hasText: 'Паттерн'}).click();
 
     await expect(
-        page.getByTestId('g-md-toolbar-header').getByRole('button', {name: 'Step'}),
-    ).toHaveCount(0);
+        page.getByTestId('g-md-toolbar-header').getByRole('button', {name: 'Pattern size'}),
+    ).toBeVisible();
+});
+
+test('should show the title, subtitle and two actions', async ({mount, page}) => {
+    await mount(<HeaderDemo markupKey="content" />);
+    const header = page.locator('.g-md-header');
+    await expect(header.locator('.g-md-header__title')).toHaveText('Портал команды Вики');
+    await expect(header.locator('.header_content')).toContainText('Релизы, дежурства, контакты.');
+    await expect(header.locator('.g-md-header__action')).toHaveCount(2);
+});
+
+test('should render the complete cover', async ({mount, expectScreenshot}) => {
+    await mount(<HeaderDemo markupKey="content" />);
+    await expectScreenshot();
 });
 
 test('should apply a color to the second gradient fill', async ({mount, page}) => {
