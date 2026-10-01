@@ -1,18 +1,29 @@
 import {
     MarkdownEditorView,
-    markupToolbarConfigs,
+    type ToolbarsPreset,
     useMarkdownEditor,
 } from '@gravity-ui/markdown-editor';
-import {cloneDeep} from '@gravity-ui/markdown-editor/_/lodash.js';
+import {ToolbarName as Toolbar} from '@gravity-ui/markdown-editor/_/modules/toolbars/constants.js';
+import {full} from '@gravity-ui/markdown-editor/_/modules/toolbars/presets.js';
 
 import {PlaygroundLayout} from '../../components/PlaygroundLayout';
 import {useLogs} from '../../hooks/useLogs';
 
 import {initialMdContent} from './content';
-import {ghostPopupExtension, ghostPopupToolbarItem} from './ghostExtension';
+import {ghostPopupExtension, ghostPopupItemMarkup, ghostPopupItemView} from './ghostExtension';
 
-const mToolbarConfig = cloneDeep(markupToolbarConfigs.mToolbarConfig);
-mToolbarConfig.unshift([ghostPopupToolbarItem]);
+const ghost = 'ghost';
+
+const toolbarsPreset: ToolbarsPreset = {
+    items: {
+        ...full.items,
+        [ghost]: {view: ghostPopupItemView, markup: ghostPopupItemMarkup},
+    },
+    orders: {
+        ...full.orders,
+        [Toolbar.markupMain]: [[ghost], ...full.orders[Toolbar.markupMain]],
+    },
+};
 
 export const Ghost = () => {
     const editor = useMarkdownEditor({
@@ -30,7 +41,7 @@ export const Ghost = () => {
                     stickyToolbar
                     settingsVisible
                     editor={editor}
-                    markupToolbarConfig={mToolbarConfig}
+                    toolbarsPreset={toolbarsPreset}
                 />
             )}
         />
