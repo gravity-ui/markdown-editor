@@ -59,6 +59,17 @@
         gap: 2px;
     }
 
+    &__mode-button {
+        --g-button-border-radius: var(--g-border-radius-s);
+
+        &_active {
+            --g-button-background-color: var(--g-color-base-generic);
+            --g-button-background-color-hover: var(--g-color-base-generic-hover);
+            --g-button-text-color: var(--g-color-text-primary);
+            --g-button-text-color-hover: var(--g-color-text-primary);
+        }
+    }
+
     &__toolbar-separator {
         align-self: stretch;
 

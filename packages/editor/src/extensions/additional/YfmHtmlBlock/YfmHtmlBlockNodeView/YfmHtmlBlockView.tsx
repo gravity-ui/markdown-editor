@@ -38,25 +38,25 @@ const ModeSwitcher: React.FC<{
         <div className={`${b('toolbar')} ${STOP_EVENT_CLASSNAME}`}>
             <div className={b('modes')} role="group" aria-label={i18n('view_mode')}>
                 <Button
-                    view={mode === 'editor' ? 'normal' : 'flat'}
+                    view="flat"
                     size="m"
                     selected={mode === 'editor'}
                     aria-pressed={mode === 'editor'}
                     aria-label={i18n('editor')}
                     title={i18n('editor')}
-                    className={STOP_EVENT_CLASSNAME}
+                    className={`${b('mode-button', {active: mode === 'editor'})} ${STOP_EVENT_CLASSNAME}`}
                     onClick={() => onModeChange('editor')}
                 >
                     <Icon data={Pencil} size={16} />
                 </Button>
                 <Button
-                    view={mode === 'code' ? 'normal' : 'flat'}
+                    view="flat"
                     size="m"
                     selected={mode === 'code'}
                     aria-pressed={mode === 'code'}
                     aria-label={i18n('code')}
                     title={i18n('code')}
-                    className={STOP_EVENT_CLASSNAME}
+                    className={`${b('mode-button', {active: mode === 'code'})} ${STOP_EVENT_CLASSNAME}`}
                     onClick={() => onModeChange('code')}
                 >
                     <Icon data={Code} size={16} />
