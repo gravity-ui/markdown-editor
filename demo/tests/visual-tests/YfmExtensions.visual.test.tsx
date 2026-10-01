@@ -146,10 +146,19 @@ test.describe('Extensions, YFM', () => {
         await expect(image).toBeVisible();
         await expect
             .poll(() => image.evaluate((element) => (element as HTMLImageElement).naturalWidth))
-            .toBeGreaterThan(0);
+            .toBe(557);
+        const imageWidthRatio = await image.evaluate(
+            (element) =>
+                element.getBoundingClientRect().width /
+                element.ownerDocument.body.getBoundingClientRect().width,
+        );
+        expect(imageWidthRatio).toBeCloseTo(1 / 3, 2);
         const heading = block.frameLocator('iframe').locator('h1');
         await heading.hover();
         await expect(block.getByRole('button', {name: 'Edit element'})).toBeVisible();
+        await expect(block.getByRole('button', {name: 'Edit element'})).toHaveScreenshot(
+            'html-block-edit-button.png',
+        );
         const scrollBefore = await page.evaluate(() => window.scrollY);
         await block.getByRole('button', {name: 'Edit element'}).click();
         await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(scrollBefore);
