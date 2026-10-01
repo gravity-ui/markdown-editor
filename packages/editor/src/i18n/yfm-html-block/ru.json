@@ -1,0 +1,13 @@
+{
+  "edit_element": "Редактировать элемент",
+  "text": "Текст",
+  "attributes": "Атрибуты",
+  "attribute_name": "Название",
+  "attribute_value": "Значение",
+  "add_attribute": "Добавить атрибут",
+  "remove_attribute": "Удалить атрибут",
+  "invalid_attribute_name": "Некорректное название атрибута или изменилась структура предпросмотра",
+  "edit_target_changed": "Выбранный элемент изменился",
+  "cancel": "Отмена",
+  "save": "Сохранить"
+}

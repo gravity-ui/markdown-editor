@@ -31,7 +31,7 @@ test.describe('Extensions, YFM', () => {
         await page.waitForTimeout(2000);
         await expectScreenshot();
     });
-    test('should switch HTML block between preview and code', async ({mount, page}) => {
+    test('should switch HTML block between visual and code editing', async ({mount, page}) => {
         await mount(<YFMStories.YfmHtmlBlock initial={'::: html\n<p>Initial</p>\n:::'} />);
 
         const block = page.locator('.g-md-yfm-html-block');
@@ -40,21 +40,137 @@ test.describe('Extensions, YFM', () => {
         await expect(toolbar).toHaveCSS('opacity', '1');
         await expect(toolbar).toHaveScreenshot('html-block-toolbar.png');
 
-        const modes = toolbar.getByRole('radiogroup', {name: 'View mode'});
-        await expect(modes.getByRole('radio', {name: 'Preview'})).toBeChecked();
-        await expect(modes.getByRole('radio', {name: 'Editor'})).toBeDisabled();
+        const modes = toolbar.getByRole('group', {name: 'View mode'});
+        const editor = modes.getByRole('button', {name: 'Editor'});
+        const code = modes.getByRole('button', {name: 'Code'});
+        await expect(editor).toHaveAttribute('aria-pressed', 'true');
+        await expect(code).toHaveAttribute('aria-pressed', 'false');
+        await expect(modes.getByRole('button', {name: 'Preview'})).toHaveCount(0);
         await expect(toolbar.getByRole('button', {name: 'Remove'})).toBeVisible();
-        await modes.getByRole('radio', {name: 'Code'}).click();
+
+        const preview = block.frameLocator('iframe').locator('p');
+        await preview.dblclick();
+        await expect(block.locator('textarea')).toHaveCount(0);
+        await code.click();
+        await expect(block.locator('textarea')).toBeVisible();
+        await expect(block.locator('.g-md-yfm-html-block__code-body')).toHaveScreenshot(
+            'html-block-code.png',
+        );
+        await expect(block.getByText('Code', {exact: true})).toBeVisible();
+        await expect(block).toHaveCSS('border-top-width', '1px');
+        await expect(editor).toHaveAttribute('aria-pressed', 'false');
+        await expect(code).toHaveAttribute('aria-pressed', 'true');
+        await block.locator('textarea').fill('<p>Discarded from editor</p>');
+        await block.getByRole('button', {name: 'Cancel'}).click();
+        await expect(block.getByText('Editor', {exact: true})).toBeVisible();
+        await expect(editor).toHaveAttribute('aria-pressed', 'true');
+        await expect(preview).toHaveText('Initial');
+
+        await block.hover();
+        await code.click();
 
         await expect(block.locator('textarea')).toBeVisible();
         await block.locator('textarea').fill('<p>Updated</p>');
-        await block.hover();
-        await modes.getByRole('radio', {name: 'Preview'}).click();
+        await editor.click();
 
-        const preview = block.frameLocator('iframe').locator('p');
         await expect(preview).toHaveText('Updated');
-        await preview.dblclick();
-        await expect(block.locator('textarea')).toBeVisible();
+        await expect(editor).toHaveAttribute('aria-pressed', 'true');
+        await expect(code).toHaveAttribute('aria-pressed', 'false');
+    });
+    test('should offer inline editing in the HTML block story', async ({mount, page}) => {
+        await mount(<YFMStories.YfmHtmlBlock />);
+
+        const block = page.locator('.g-md-yfm-html-block').first();
+        await block.hover();
+        await expect(block.getByRole('button', {name: 'Editor'})).toHaveAttribute(
+            'aria-pressed',
+            'true',
+        );
+        const image = block.frameLocator('iframe').locator('img.html-block-demo-image');
+        await expect(image).toBeVisible();
+        await expect
+            .poll(() => image.evaluate((element) => (element as HTMLImageElement).naturalWidth))
+            .toBe(557);
+        const imageWidthRatio = await image.evaluate(
+            (element) =>
+                element.getBoundingClientRect().width /
+                element.ownerDocument.body.getBoundingClientRect().width,
+        );
+        expect(imageWidthRatio).toBeCloseTo(1 / 3, 2);
+        await page.evaluate(() => window.scrollTo(0, 150));
+        const heading = block.frameLocator('iframe').locator('h1');
+        await heading.hover();
+        const editButton = block.getByRole('button', {name: 'Edit element'});
+        await editButton.hover();
+        await expect(editButton).toBeVisible();
+        await expect(editButton).toHaveCSS('background-color', 'rgb(255, 255, 255)');
+        await expect(editButton).toHaveScreenshot('html-block-edit-button.png');
+        expect(
+            await editButton.evaluate((button) => {
+                const rect = button.getBoundingClientRect();
+                return button.contains(
+                    document.elementFromPoint(
+                        rect.left + rect.width / 2,
+                        rect.top + rect.height / 2,
+                    ),
+                );
+            }),
+        ).toBe(true);
+        const scrollBefore = await page.evaluate(() => window.scrollY);
+        expect(scrollBefore).toBeGreaterThan(0);
+        await editButton.click();
+        await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(scrollBefore);
+        const dialog = page.getByRole('dialog', {name: 'Edit element'});
+        const outline = block.locator('.g-md-yfm-html-block__inline-edit-outline');
+        await page.evaluate(() => window.scrollBy(0, 100));
+        await expect
+            .poll(async () => {
+                const anchor = await outline.boundingBox();
+                const popup = await dialog.boundingBox();
+                if (!anchor || !popup) return Infinity;
+                return Math.min(
+                    Math.abs(popup.y - anchor.y - anchor.height),
+                    Math.abs(popup.y + popup.height - anchor.y),
+                );
+            })
+            .toBeLessThan(24);
+        await block
+            .frameLocator('iframe')
+            .locator('body')
+            .click({position: {x: 1, y: 1}});
+        await expect(dialog).toHaveCount(0);
+
+        await heading.hover();
+        await editButton.click();
+        await dialog.getByRole('button', {name: /Attributes/}).click();
+        await dialog.getByRole('button', {name: 'Add attribute'}).click();
+        const attributeName = dialog.getByRole('textbox', {name: 'Name'}).last();
+        await expect(attributeName).toBeFocused();
+        const text = dialog.getByRole('textbox', {name: 'Text'});
+        expect(
+            await text.evaluate(
+                (control) =>
+                    (control as HTMLTextAreaElement).selectionEnd -
+                    (control as HTMLTextAreaElement).selectionStart,
+            ),
+        ).toBe(0);
+        await attributeName.fill('title');
+        await dialog.getByRole('textbox', {name: 'Value: title'}).fill('Edited');
+        await text.fill('Updated heading');
+        await dialog.getByRole('button', {name: 'Save'}).click();
+        await expect(heading).toHaveText('Updated heading');
+        await expect(heading).toHaveAttribute('title', 'Edited');
+        await expect
+            .poll(() =>
+                block
+                    .frameLocator('iframe')
+                    .locator('body')
+                    .evaluate(
+                        (body) =>
+                            body.scrollHeight - body.ownerDocument.documentElement.clientHeight,
+                    ),
+            )
+            .toBeLessThanOrEqual(0);
     });
     test('YFM File', async ({mount, expectScreenshot}) => {
         await mount(<YFMStories.YfmFile />);
