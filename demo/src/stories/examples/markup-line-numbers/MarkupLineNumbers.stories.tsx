@@ -11,32 +11,20 @@ export default meta;
 
 type Story = StoryObj<typeof MarkupLineNumbersEditor>;
 
-export const InitialSelectionSingleLine: Story = {
+export const Enabled: Story = {
     args: {
         lineNumbers: {
             enabled: true,
-            initialSelection: {lineFrom: 20},
         },
     },
 };
-InitialSelectionSingleLine.storyName = 'Initial Selection: Single Line';
+Enabled.storyName = 'Enabled';
 
-export const InitialSelectionRange: Story = {
-    args: {
-        lineNumbers: {
-            enabled: true,
-            initialSelection: {lineFrom: 5, lineTo: 10},
-        },
-    },
-};
-InitialSelectionRange.storyName = 'Initial Selection: Line Range';
-
-export const WithoutLineNumbers: Story = {
+export const Disabled: Story = {
     args: {
         lineNumbers: {
             enabled: false,
-            initialSelection: {lineFrom: 5, lineTo: 10},
         },
     },
 };
-InitialSelectionRange.storyName = 'Selection without line numbers';
+Disabled.storyName = 'Disabled';
