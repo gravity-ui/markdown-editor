@@ -1,5 +1,5 @@
-import {useId, useRef, useState} from 'react';
-import type {KeyboardEvent, RefObject} from 'react';
+import {useEffect, useId, useRef, useState} from 'react';
+import type {KeyboardEvent} from 'react';
 
 import {ChevronDown, Plus, TrashBin} from '@gravity-ui/icons';
 import {Button, Icon, Popup, TextArea, TextInput} from '@gravity-ui/uikit';
@@ -20,10 +20,10 @@ export const InlineElementEditor: React.FC<{
     previewRoot: HTMLElement;
     target: Element;
     anchorElement: HTMLElement | null;
-    returnFocus: RefObject<HTMLElement>;
+    onDirtyChange: (dirty: boolean) => void;
     onCommit: (html: string) => void;
     onClose: () => void;
-}> = ({sourceHtml, previewRoot, target, anchorElement, returnFocus, onCommit, onClose}) => {
+}> = ({sourceHtml, previewRoot, target, anchorElement, onDirtyChange, onCommit, onClose}) => {
     const [initial] = useState(() => {
         const matching = getMatchingElements(sourceHtml, previewRoot);
         const sourceTarget =
@@ -42,6 +42,21 @@ export const InlineElementEditor: React.FC<{
     const nextId = useRef(attributes.length);
     const popupRef = useRef<HTMLDivElement>(null);
     const fieldId = useId();
+    const hasChanges =
+        text !== initial.text ||
+        attributes.length !== initial.attributes.length ||
+        attributes.some((attribute, index) => {
+            const original = initial.attributes[index];
+            return (
+                attribute.id !== original?.id ||
+                attribute.name !== original.name ||
+                attribute.value !== original.value
+            );
+        });
+
+    useEffect(() => {
+        onDirtyChange(hasChanges);
+    }, [hasChanges, onDirtyChange]);
 
     const updateAttribute = (id: number, patch: Partial<EditableAttribute>) => {
         setError('');
@@ -83,7 +98,7 @@ export const InlineElementEditor: React.FC<{
         <Popup
             open={Boolean(anchorElement)}
             anchorElement={anchorElement}
-            returnFocus={returnFocus}
+            returnFocus={false}
             placement={['bottom-start', 'top-start']}
             onTransitionInComplete={() => {
                 const control = popupRef.current?.querySelector<HTMLElement>('textarea, input');
@@ -91,7 +106,7 @@ export const InlineElementEditor: React.FC<{
                 if (control instanceof HTMLTextAreaElement) control.select();
             }}
             onOpenChange={(open) => {
-                if (!open) onClose();
+                if (!open && !hasChanges) onClose();
             }}
         >
             <div

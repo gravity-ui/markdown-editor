@@ -3,7 +3,7 @@ import type {RefObject} from 'react';
 
 import {getStyles} from '@diplodoc/html-extension';
 import type {IHTMLIFrameElementConfig} from '@diplodoc/html-extension/runtime';
-import {Code, Eye, Pencil, TrashBin} from '@gravity-ui/icons';
+import {Code, Pencil, TrashBin} from '@gravity-ui/icons';
 import {Button, Icon, Label} from '@gravity-ui/uikit';
 import type {Node} from 'prosemirror-model';
 import type {EditorView} from 'prosemirror-view';
@@ -27,28 +27,27 @@ import './YfmHtmlBlock.scss';
 
 const b = cnYfmHtmlBlock;
 
-type ViewMode = 'preview' | 'editor' | 'code';
+type ViewMode = 'editor' | 'code';
 
 const ModeSwitcher: React.FC<{
     mode: ViewMode;
-    onPreviewToggle: () => void;
-    onCode?: () => void;
+    onModeChange: (mode: ViewMode) => void;
     onRemove: () => void;
-}> = ({mode, onPreviewToggle, onCode, onRemove}) => {
+}> = ({mode, onModeChange, onRemove}) => {
     return (
         <div className={`${b('toolbar')} ${STOP_EVENT_CLASSNAME}`}>
             <div className={b('modes')} role="group" aria-label={i18n('view_mode')}>
                 <Button
-                    view={mode === 'preview' ? 'normal' : 'flat'}
+                    view={mode === 'editor' ? 'normal' : 'flat'}
                     size="m"
-                    selected={mode === 'preview'}
-                    aria-pressed={mode === 'preview'}
-                    aria-label={i18n('preview')}
-                    title={i18n('preview')}
+                    selected={mode === 'editor'}
+                    aria-pressed={mode === 'editor'}
+                    aria-label={i18n('editor')}
+                    title={i18n('editor')}
                     className={STOP_EVENT_CLASSNAME}
-                    onClick={onPreviewToggle}
+                    onClick={() => onModeChange('editor')}
                 >
-                    <Icon data={Eye} size={16} />
+                    <Icon data={Pencil} size={16} />
                 </Button>
                 <Button
                     view={mode === 'code' ? 'normal' : 'flat'}
@@ -58,7 +57,7 @@ const ModeSwitcher: React.FC<{
                     aria-label={i18n('code')}
                     title={i18n('code')}
                     className={STOP_EVENT_CLASSNAME}
-                    onClick={onCode}
+                    onClick={() => onModeChange('code')}
                 >
                     <Icon data={Code} size={16} />
                 </Button>
@@ -224,13 +223,25 @@ const YfmHtmlBlockPreview: React.FC<YfmHtmlBlockViewProps> = ({
     }, [html]);
 
     useEffect(() => {
-        if (ref.current) {
-            const resizeObserver = new window.ResizeObserver(
-                debounce(handleResizeIFrame, DEFAULT_DELAY),
-            );
-            resizeObserver.observe(ref.current);
-        }
-    }, [ref.current?.contentWindow?.document?.body]);
+        const frame = ref.current;
+        if (!frame) return undefined;
+        const resizeObserver = new window.ResizeObserver(
+            debounce(handleResizeIFrame, DEFAULT_DELAY),
+        );
+        const observeContent = () => {
+            resizeObserver.disconnect();
+            resizeObserver.observe(frame);
+            const body = frame.contentDocument?.body;
+            if (body) resizeObserver.observe(body);
+            handleResizeIFrame();
+        };
+        frame.addEventListener('load', observeContent);
+        observeContent();
+        return () => {
+            frame.removeEventListener('load', observeContent);
+            resizeObserver.disconnect();
+        };
+    }, [html]);
 
     return (
         <iframe
@@ -240,6 +251,7 @@ const YfmHtmlBlockPreview: React.FC<YfmHtmlBlockViewProps> = ({
             ref={ref}
             title={generateID()}
             frameBorder={0}
+            scrolling="no"
             className={b('content')}
             srcDoc={html}
         />
@@ -250,11 +262,9 @@ const CodeEditMode: React.FC<{
     initialText: string;
     onSave: (v: string) => void;
     onCancel: () => void;
-    onPreview: () => void;
-    onVisualEdit: () => void;
     onRemove: () => void;
     options: YfmHtmlBlockOptions;
-}> = ({initialText, onSave, onCancel, onPreview, onVisualEdit, onRemove, options: {autoSave}}) => {
+}> = ({initialText, onSave, onCancel, onRemove, options: {autoSave}}) => {
     const {value, handleChange, handleManualSave, hasUnsavedChanges, isAutoSaveEnabled} =
         useAutoSave({initialValue: initialText || '\n', onSave, onClose: onCancel, autoSave});
 
@@ -265,11 +275,15 @@ const CodeEditMode: React.FC<{
 
     return (
         <div className={b({editing: true})}>
+            <Label className={b('label')} icon={<Icon size={16} data={Code} />}>
+                {i18n('code')}
+            </Label>
             <ModeSwitcher
                 mode="code"
-                onPreviewToggle={() => {
-                    closeWithChanges();
-                    onPreview();
+                onModeChange={(mode) => {
+                    if (mode === 'editor') {
+                        closeWithChanges();
+                    }
                 }}
                 onRemove={onRemove}
             />
@@ -290,13 +304,7 @@ const CodeEditMode: React.FC<{
                                 {isAutoSaveEnabled ? i18n('close') : i18n('cancel')}
                             </span>
                         </Button>
-                        <Button
-                            onClick={() => {
-                                closeWithChanges();
-                                onVisualEdit();
-                            }}
-                            view={'action'}
-                        >
+                        <Button onClick={closeWithChanges} view={'action'}>
                             <span className={STOP_EVENT_CLASSNAME}>{i18n('save')}</span>
                         </Button>
                     </div>
@@ -323,7 +331,6 @@ export const YfmHtmlBlockView: React.FC<{
     const config = useConfig?.();
 
     const [editing, setEditing, unsetEditing] = useSharedEditingState(view, entityKey);
-    const [visualEditing, setVisualEditing] = useState(true);
     const blockRef = useRef<HTMLDivElement>(null);
     const frameRef = useRef<HTMLIFrameElement>(null);
     const sourceHtml: string = node.attrs[YfmHtmlBlockConsts.NodeAttrs.srcdoc] ?? '';
@@ -346,8 +353,6 @@ export const YfmHtmlBlockView: React.FC<{
             <CodeEditMode
                 initialText={node.attrs[YfmHtmlBlockConsts.NodeAttrs.srcdoc]}
                 onCancel={unsetEditing}
-                onPreview={() => setVisualEditing(false)}
-                onVisualEdit={() => setVisualEditing(true)}
                 onSave={(v) => {
                     onChange({[YfmHtmlBlockConsts.NodeAttrs.srcdoc]: v});
                 }}
@@ -384,11 +389,8 @@ export const YfmHtmlBlockView: React.FC<{
                 openCode();
             }}
         >
-            <Label
-                className={b('label')}
-                icon={<Icon size={16} data={visualEditing ? Pencil : Eye} />}
-            >
-                {i18n(visualEditing ? 'editor' : 'preview')}
+            <Label className={b('label')} icon={<Icon size={16} data={Pencil} />}>
+                {i18n('editor')}
             </Label>
             <YfmHtmlBlockPreview
                 html={resultHtml}
@@ -397,19 +399,18 @@ export const YfmHtmlBlockView: React.FC<{
                 frameRef={frameRef}
             />
 
-            {visualEditing && (
-                <FrameInlineEditing
-                    frameRef={frameRef}
-                    blockRef={blockRef}
-                    sourceHtml={sourceHtml}
-                    onCommit={(html) => onChange({[YfmHtmlBlockConsts.NodeAttrs.srcdoc]: html})}
-                />
-            )}
+            <FrameInlineEditing
+                frameRef={frameRef}
+                blockRef={blockRef}
+                sourceHtml={sourceHtml}
+                onCommit={(html) => onChange({[YfmHtmlBlockConsts.NodeAttrs.srcdoc]: html})}
+            />
 
             <ModeSwitcher
-                mode={visualEditing ? 'editor' : 'preview'}
-                onPreviewToggle={() => setVisualEditing((wasVisualEditing) => !wasVisualEditing)}
-                onCode={openCode}
+                mode="editor"
+                onModeChange={(mode) => {
+                    if (mode === 'code') openCode();
+                }}
                 onRemove={onRemove}
             />
         </div>
