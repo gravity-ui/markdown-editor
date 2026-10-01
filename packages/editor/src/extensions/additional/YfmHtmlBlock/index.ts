@@ -17,14 +17,14 @@ export interface YfmHtmlBlockOptions extends Omit<
         enabled: boolean;
         delay?: number; // по умолчанию 1000ms
     };
+    /** Opens HTML source editing on double-click. Disabled by default. */
+    openCodeOnDoubleClick?: boolean;
 }
 
-export const YfmHtmlBlock: ExtensionAuto<YfmHtmlBlockOptions> = (
-    builder,
-    {useConfig: _, ...options},
-) => {
+export const YfmHtmlBlock: ExtensionAuto<YfmHtmlBlockOptions> = (builder, options) => {
+    const {useConfig: _, autoSave: __, openCodeOnDoubleClick: ___, ...specOptions} = options;
     builder
-        .use(YfmHtmlBlockSpecs, options)
+        .use(YfmHtmlBlockSpecs, specOptions)
         .addNodeView(yfmHtmlBlockNodeName, YfmHtmlBlockNodeViewFactory(options));
 
     builder.addAction(YfmHtmlBlockAction, () => addYfmHtmlBlock);
