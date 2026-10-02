@@ -12,6 +12,8 @@ export const Renderer = memo<RendererProps>(({storage}) => {
     const update = useUpdate();
     useEffect(() => {
         storage.on('update', update);
+        // Include items created after render but before the subscription was installed.
+        update();
         return () => {
             storage.off('update', update);
         };
