@@ -3,6 +3,14 @@ packages:
   - 'infra/*'
   - 'packages/*'
 
+allowBuilds:
+  '@parcel/watcher': set this to true or false
+  es5-ext: set this to true or false
+  esbuild: set this to true or false
+  nx: set this to true or false
+  swiper: set this to true or false
+  unrs-resolver: set this to true or false
+
 catalog:
   '@types/markdown-it': ^13.0.0
   '@types/node': ^24.12.2

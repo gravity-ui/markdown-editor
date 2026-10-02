@@ -17,6 +17,13 @@ const Module = Object.freeze({
 });
 
 /**
+ * `sideEffects` for the ESM build. It must live in `build/esm/package.json`: that file shadows the
+ * package's root `package.json` for every module under `build/esm`, so bundlers never see the root
+ * `sideEffects` field. Patterns are relative to `build/esm`; keep in sync with the root `sideEffects`.
+ */
+const ESM_SIDE_EFFECTS = ['*.css', '*.scss', 'shortcuts/index.js', 'shortcuts/default.js'];
+
+/**
  * Registers build tasks for the project using Gulp.
  * @param {object} config Configuration object
  * @param {string} config.version Version string to embed in the build
@@ -99,7 +106,11 @@ export function registerBuildTasks({version, buildDir, nodeModulesDir}) {
                 .pipe(
                     utils.addVirtualFile({
                         fileName: 'package.json',
-                        text: JSON.stringify({type: module === Module.ESM ? 'module' : 'commonjs'}),
+                        text: JSON.stringify(
+                            module === Module.ESM
+                                ? {type: 'module', sideEffects: ESM_SIDE_EFFECTS}
+                                : {type: 'commonjs'},
+                        ),
                     }),
                 )
                 .pipe(replace('__VERSION__', `'${version}'`))
