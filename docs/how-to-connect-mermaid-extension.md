@@ -6,7 +6,7 @@ To integrate the Mermaid extension in your editor, you will use the specified ve
 
 First to integrate this extension, you need to use the following versions of the packages:
 
-- @gravity-ui/markdown-editor version 13.4.0 or higher
+- @gravity-ui/markdown-editor version 15.48.0 or higher
 - @diplodoc/mermaid-extension version 1.2.3 or higher
 
 ## Usage
@@ -16,7 +16,7 @@ First to integrate this extension, you need to use the following versions of the
 First, ensure that you have all the necessary packages installed. You can use npm or yarn to add them to your project:
 
 ```bash
-npm install @gravity-ui/markdown-editor@^13.4.0
+npm install @gravity-ui/markdown-editor@^15.48.0
 npm install @diplodoc/mermaid-extension@^1.2.3
 ```
 
@@ -130,22 +130,29 @@ builder.use(Mermaid, {
 
 ### 5. Add Buttons to the Toolbar
 
-```ts
-import {
-  mMermaidButton,
-} from '@gravity-ui/markdown-editor/bundle/config/markup';
+Add the button to the [toolbars preset](./how-to-customize-toolbars.md) and pass it to the editor view. The example puts the diagram into the slash menu and extends the built-in `full` preset; the main toolbars come only from the preset, so extend the one matching your editor preset:
 
+```tsx
+import {MarkdownEditorView, type ToolbarsPreset} from '@gravity-ui/markdown-editor';
 import {
-  wMermaidItemData,
-} from '@gravity-ui/markdown-editor';
+  ActionName as Action,
+  ToolbarName as Toolbar,
+  full,
+  mermaidItemView,
+  mermaidItemWysiwyg,
+} from '@gravity-ui/markdown-editor/toolbars';
 
-// add to useMarkdownEditor
-const mdEditor = useMarkdownEditor({
-  // ...
-  extensionOptions: {
-    commandMenu: {actions: [wMermaidItemData]},
+const toolbarsPreset: ToolbarsPreset = {
+  items: {
+    ...full.items,
+    [Action.mermaid]: {view: mermaidItemView, wysiwyg: mermaidItemWysiwyg},
   },
-});
+  orders: {
+    ...full.orders,
+    [Toolbar.wysiwygSlash]: [[...full.orders[Toolbar.wysiwygSlash].flat(), Action.mermaid]],
+  },
+};
 
+<MarkdownEditorView editor={mdEditor} toolbarsPreset={toolbarsPreset} />;
 ```
 
