@@ -25,7 +25,8 @@ async function main() {
     for (const [name, [file]] of Object.entries(entries)) {
         const abs = path.join(root, file);
         if (!fs.existsSync(abs)) {
-            console.log(`${name}: skipped (${file} not found, run \`pnpm build\`)`);
+            failed = true;
+            console.error(`${name}: ${file} not found, run \`pnpm build\``);
             continue;
         }
         const result = await esbuild.build({

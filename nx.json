@@ -11,6 +11,11 @@
         "^build"
       ]
     },
+    "test:view-bundle": {
+      "dependsOn": [
+        "build"
+      ]
+    },
     "lint": {
       "dependsOn": [
         "^build"
