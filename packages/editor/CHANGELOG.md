@@ -1,5 +1,12 @@
 # Changelog
 
+## [15.48.2](https://github.com/gravity-ui/markdown-editor/compare/markdown-editor-v15.48.1...markdown-editor-v15.48.2) (2026-10-02)
+
+
+### Bug Fixes
+
+* do not pull the editor core into view-only bundles ([#1318](https://github.com/gravity-ui/markdown-editor/issues/1318)) ([8611c48](https://github.com/gravity-ui/markdown-editor/commit/8611c48ed20d80ef61f83f9c45bb2cb76c3004f6))
+
 ## [15.48.1](https://github.com/gravity-ui/markdown-editor/compare/markdown-editor-v15.48.0...markdown-editor-v15.48.1) (2026-10-01)
 
 
