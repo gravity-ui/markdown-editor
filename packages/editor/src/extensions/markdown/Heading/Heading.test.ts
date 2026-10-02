@@ -37,6 +37,17 @@ const {doc, b, p, h, h1, h2, h3, h4, h5, h6} = builders<
 const {same} = createMarkupChecker({parser, serializer});
 
 describe('Heading extension', () => {
+    it.each([
+        {text: '1. foo', markup: '# 1. foo'},
+        {text: '# literal', markup: '# # literal'},
+    ])('should preserve block markers inside heading content $text', ({text, markup}) => {
+        same(markup, doc(h1(text)));
+    });
+
+    it('should escape inline YFM markers inside heading content', () => {
+        same(String.raw`# \+\+text\+\+`, doc(h1('++text++')));
+    });
+
     it('should parse h1', () => {
         same('# one', doc(h1('one')));
     });

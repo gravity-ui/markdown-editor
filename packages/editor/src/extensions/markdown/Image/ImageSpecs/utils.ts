@@ -18,9 +18,11 @@ export function imageToMarkdown({renderExtra}: ImageToMarkdownParams = {}): Seri
 
         result += '](';
 
-        if (attrs[ImageAttr.Src]) result += state.esc(attrs[ImageAttr.Src]);
+        if (attrs[ImageAttr.Src]) result += attrs[ImageAttr.Src].replace(/[\\()]/g, '\\$&');
 
-        if (attrs[ImageAttr.Title]) result += ` ${state.quote(attrs[ImageAttr.Title])}`;
+        if (attrs[ImageAttr.Title]) {
+            result += ` "${attrs[ImageAttr.Title].replace(/[\\"]/g, '\\$&')}"`;
+        }
 
         if (renderExtra) result += renderExtra(state, node);
 
