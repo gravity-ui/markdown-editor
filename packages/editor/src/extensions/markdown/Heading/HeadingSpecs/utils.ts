@@ -17,7 +17,7 @@ export function headingToMarkdown({
     return (...args) => {
         const [state, node] = args;
         renderMarkup(...args);
-        state.renderInline(node);
+        state.renderInline(node, false);
         renderAttributes?.(...args);
         state.closeBlock(node);
     };
