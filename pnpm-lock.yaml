@@ -311,8 +311,8 @@ importers:
   infra/docs-gen:
     dependencies:
       '@diplodoc/cli':
-        specifier: 5.62.0
-        version: 5.62.0(@types/markdown-it@13.0.9)(@types/node@25.2.1)(react@18.2.0)(strip-ansi@7.1.0)
+        specifier: 5.63.0
+        version: 5.63.0(@types/markdown-it@13.0.9)(@types/node@25.2.1)(react@18.2.0)(strip-ansi@7.1.0)
 
   infra/gulp-tasks:
     dependencies:
@@ -1645,8 +1645,8 @@ packages:
     engines: {npm: '>=11.5.1'}
     hasBin: true
 
-  '@diplodoc/cli@5.62.0':
-    resolution: {integrity: sha512-TenTdzcTPNy9fEO36Pz4Ze81TAPFBXnPR69mofjq1Z92E37AGgq0PEp8MZ3CBMbBxgn4XuSkXPDF4z1PhsZY8g==}
+  '@diplodoc/cli@5.63.0':
+    resolution: {integrity: sha512-JClOh4gxbZxcNSw/7svHiPHX8+Bgka8kqww3vBdIPUruKywOPpBiJl2N5Su1ZIDtuH6dvaY1BbNJ3ylIGWmAOA==}
     engines: {node: '>=24', npm: '>=11.5.1'}
     hasBin: true
     peerDependencies:
@@ -1751,8 +1751,8 @@ packages:
   '@diplodoc/quote-link-extension@0.1.3':
     resolution: {integrity: sha512-1Q/pNkg7tOFuxhDny2iRxL6dSyXOarKFBzx0RyTjMipKhVFOeonFMT3XoeO34Wns7loi88CTO+jJCsqc3K4BUw==}
 
-  '@diplodoc/sentenizer@0.0.11':
-    resolution: {integrity: sha512-M7D7ggBQtneT+Kk0CD3S905cbOZvxX+gNytSfDAwcgodwn9bdve7OlsSvE78XcDCn122huwgGB2k40188as67w==}
+  '@diplodoc/sentenizer@0.0.12':
+    resolution: {integrity: sha512-vj5umdEC/7LwOWc2em1OZzYsJ0TqLTAVDcyv9AK9QcwJ6+e5CU+5wnXkPBx9d7BY1D9pbcPKF1tYRVDUIPvzag==}
     engines: {npm: '>=11.5.1'}
 
   '@diplodoc/tabs-extension@3.10.0':
@@ -1795,8 +1795,8 @@ packages:
       highlight.js:
         optional: true
 
-  '@diplodoc/translation@1.8.0':
-    resolution: {integrity: sha512-htAhkt98O08m7/j6hp6Li+ZwcpXaiwgrnq62mJwk/HwoAHqxQ5AFTjKphC32kLyTuosf15Ere2DgD7rSCOvpdw==}
+  '@diplodoc/translation@1.10.1':
+    resolution: {integrity: sha512-fk36KlJZn6eWug3OGNupuB2WeDmaQZtQGGx8F70aOVfKyDJnQNylE2j/AB7JeO7sSBejc2Gd+mIvgR5KuQMz7A==}
     engines: {node: '>=24', npm: '>=11.5.1'}
     peerDependencies:
       markdown-it: ^13.0.2
@@ -10134,14 +10134,14 @@ snapshots:
     dependencies:
       js-yaml: 4.1.1
 
-  '@diplodoc/cli@5.62.0(@types/markdown-it@13.0.9)(@types/node@25.2.1)(react@18.2.0)(strip-ansi@7.1.0)':
+  '@diplodoc/cli@5.63.0(@types/markdown-it@13.0.9)(@types/node@25.2.1)(react@18.2.0)(strip-ansi@7.1.0)':
     dependencies:
       '@diplodoc/ajv': 0.8.0
       '@diplodoc/client': 5.14.0
       '@diplodoc/color-extension': 1.0.0(markdown-it@13.0.2)
       '@diplodoc/liquid': 1.5.3
       '@diplodoc/transform': 4.78.0(@types/markdown-it@13.0.9)(highlight.js@11.11.1)(react@18.2.0)
-      '@diplodoc/translation': 1.8.0(@types/markdown-it@13.0.9)(highlight.js@11.11.1)(markdown-it@13.0.2)(react@18.2.0)
+      '@diplodoc/translation': 1.10.1(@types/markdown-it@13.0.9)(highlight.js@11.11.1)(markdown-it@13.0.2)(react@18.2.0)
       '@diplodoc/utils': 2.3.6(react@18.2.0)
       '@gravity-ui/uikit-themer': 1.8.0
       '@inquirer/prompts': 8.5.2(@types/node@25.2.1)
@@ -10333,7 +10333,7 @@ snapshots:
     transitivePeerDependencies:
       - react
 
-  '@diplodoc/sentenizer@0.0.11':
+  '@diplodoc/sentenizer@0.0.12':
     dependencies:
       ramda: 0.28.0
 
@@ -10423,7 +10423,7 @@ snapshots:
       get-root-node-polyfill: 1.0.0
       github-slugger: 1.5.0
       js-yaml: 4.1.1
-      lodash: 4.17.23
+      lodash: 4.18.1
       markdown-it: 13.0.2
       markdown-it-attrs: 4.2.0(markdown-it@13.0.2)
       markdown-it-deflist: 2.1.0
@@ -10441,12 +10441,12 @@ snapshots:
       - '@types/markdown-it'
       - react
 
-  '@diplodoc/translation@1.8.0(@types/markdown-it@13.0.9)(highlight.js@11.11.1)(markdown-it@13.0.2)(react@18.2.0)':
+  '@diplodoc/translation@1.10.1(@types/markdown-it@13.0.9)(highlight.js@11.11.1)(markdown-it@13.0.2)(react@18.2.0)':
     dependencies:
       '@cospired/i18n-iso-languages': 4.2.0
       '@diplodoc/ajv': 0.4.4
       '@diplodoc/directive': 0.4.0(@types/markdown-it@13.0.9)(markdown-it@13.0.2)
-      '@diplodoc/sentenizer': 0.0.11
+      '@diplodoc/sentenizer': 0.0.12
       '@diplodoc/transform': 4.78.0(@types/markdown-it@13.0.9)(highlight.js@11.11.1)(react@18.2.0)
       '@shellscape/i18n-iso-countries': 7.5.0-shellscape.v1
       ajv: 8.20.0
@@ -10456,7 +10456,7 @@ snapshots:
       fast-xml-parser: 4.5.6
       js-yaml: 4.1.1
       json-schema: 0.4.0
-      lodash: 4.17.23
+      lodash: 4.18.1
       markdown-it: 13.0.2
       markdown-it-deflist: 3.0.1
       markdown-it-meta: 0.0.1
@@ -14908,7 +14908,7 @@ snapshots:
     dependencies:
       '@types/html-minifier-terser': 6.1.0
       html-minifier-terser: 6.1.0
-      lodash: 4.17.23
+      lodash: 4.18.1
       pretty-error: 4.0.0
       tapable: 2.3.3
     optionalDependencies:
@@ -16733,7 +16733,7 @@ snapshots:
 
   pretty-error@4.0.0:
     dependencies:
-      lodash: 4.17.23
+      lodash: 4.18.1
       renderkid: 3.0.0
 
   pretty-format@27.5.1:
@@ -17170,7 +17170,7 @@ snapshots:
       css-select: 4.3.0
       dom-converter: 0.2.0
       htmlparser2: 6.1.0
-      lodash: 4.17.23
+      lodash: 4.18.1
       strip-ansi: 6.0.1
 
   replace-ext@1.0.1: {}
