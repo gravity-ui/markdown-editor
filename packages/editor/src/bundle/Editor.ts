@@ -124,6 +124,7 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
     #mdOptions: Readonly<MarkdownEditorMdOptions>;
     #pmTransformers: TransformFn[] = [];
     #preserveEmptyRows: boolean;
+    #structuralInlineFormatting?: boolean;
     #modifiers?: DynamicModifiers[];
 
     readonly #preset: EditorPreset;
@@ -262,6 +263,8 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
             this.#markupEditor = new MarkupEditor(
                 createCodemirror({
                     doc: this.#markup,
+                    linkify: this.#mdOptions.linkify,
+                    structuralInlineFormatting: this.#structuralInlineFormatting,
                     logger: this.logger.nested({mode: 'markup'}),
                     placeholder: this.#markupConfig.placeholder ?? i18n('markup_placeholder'),
                     onCancel: () => this.emit('cancel', null),
@@ -370,6 +373,7 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
         this.#directiveSyntax = opts.directiveSyntax;
         this.#enableNewImageSizeCalculation = Boolean(experimental.enableNewImageSizeCalculation);
         this.#preserveEmptyRows = experimental.preserveEmptyRows || false;
+        this.#structuralInlineFormatting = experimental.structuralInlineFormatting;
         this.#prepareRawMarkup = experimental.prepareRawMarkup;
         this.#escapeConfig = wysiwygConfig.escapeConfig;
         this.#beforeEditorModeChange = experimental.beforeEditorModeChange;
