@@ -17,20 +17,16 @@ const Module = Object.freeze({
 });
 
 /**
- * `sideEffects` for the ESM build. It must live in `build/esm/package.json`: that file shadows the
- * package's root `package.json` for every module under `build/esm`, so bundlers never see the root
- * `sideEffects` field. Patterns are relative to `build/esm`; keep in sync with the root `sideEffects`.
- */
-const ESM_SIDE_EFFECTS = ['*.css', '*.scss', 'shortcuts/index.js', 'shortcuts/default.js'];
-
-/**
  * Registers build tasks for the project using Gulp.
  * @param {object} config Configuration object
  * @param {string} config.version Version string to embed in the build
  * @param {string} config.buildDir Root build output directory
  * @param {string} config.nodeModulesDir Path to node_modules directory
+ * @param {string[]} [config.esmSideEffects] `sideEffects` patterns, relative to `build/esm`, written into
+ * `build/esm/package.json`. That file shadows the package's root `package.json` for every module under
+ * `build/esm`, so bundlers never see the root `sideEffects` field.
  */
-export function registerBuildTasks({version, buildDir, nodeModulesDir}) {
+export function registerBuildTasks({version, buildDir, nodeModulesDir, esmSideEffects}) {
     const BUILD_DIR = buildDir;
     const BUILD_DIR_CJS = path.resolve(BUILD_DIR, 'cjs');
     const BUILD_DIR_ESM = path.resolve(BUILD_DIR, 'esm');
@@ -108,7 +104,7 @@ export function registerBuildTasks({version, buildDir, nodeModulesDir}) {
                         fileName: 'package.json',
                         text: JSON.stringify(
                             module === Module.ESM
-                                ? {type: 'module', sideEffects: ESM_SIDE_EFFECTS}
+                                ? {type: 'module', sideEffects: esmSideEffects}
                                 : {type: 'commonjs'},
                         ),
                     }),
