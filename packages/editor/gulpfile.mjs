@@ -17,6 +17,8 @@ registerBuildTasks({
     version: pkg.version,
     buildDir: BUILD_DIR,
     nodeModulesDir: NODE_MODULES_DIR,
+    // Keep in sync with the `sideEffects` field of package.json (paths here are relative to `build/esm`)
+    esmSideEffects: ['*.css', '*.scss', 'shortcuts/index.js', 'shortcuts/default.js'],
 });
 
 // Generates the AI-agent docs tree (INDEX.md + guides) into build/docs.
