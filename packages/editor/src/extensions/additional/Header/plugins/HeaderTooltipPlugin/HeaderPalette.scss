@@ -1,0 +1,37 @@
+@use '../../fills' as fills;
+
+.g-md-header-palette {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    padding: 12px;
+
+    &__slot {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    // Образец в переключателе мельче, чем в сетке цветов: он подпись, а не цель нажатия.
+    &__slot &__swatch {
+        width: 12px;
+        height: 12px;
+    }
+
+    &__swatch {
+        display: block;
+
+        width: 28px;
+        height: 28px;
+
+        border-radius: 50%;
+        box-shadow: inset 0 0 0 1px var(--g-color-line-generic);
+
+        @each $name, $color in fills.$header-fills {
+            &[data-fill='#{$name}'] {
+                background-color: #{$color};
+            }
+        }
+    }
+}
