@@ -1,5 +1,6 @@
 import {builders} from 'prosemirror-test-builder';
-import {afterEach, beforeEach, describe, it, vi} from 'vitest';
+import dd from 'ts-dedent';
+import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 
 import {createMarkupChecker} from '../../../../tests/sameMarkup';
 import {ExtensionsManager} from '../../../core';
@@ -58,6 +59,47 @@ const {doc, p, bq, tab, tabs, tabPanel, tabsList, rtab, rtabInput, rtabLabel, rt
 const {same} = createMarkupChecker({parser, serializer});
 
 describe('YfmTabs extension', () => {
+    it.each(['tabs', 'tabs radio'])(
+        'should preserve the group in %s during a Markdown round trip',
+        (type) => {
+            const markup = dd`
+                {% list ${type} group=group_1 %}
+
+                - Tab
+
+                  Content
+
+                {% endlist %}
+            `;
+
+            const parsed = parser.parse(markup);
+
+            expect(parsed.firstChild?.attrs['data-diplodoc-group']).toBe('group_1');
+            expect(serializer.serialize(parsed)).toBe(markup);
+        },
+    );
+
+    it.each(['tabs', 'tabs radio'])(
+        'should omit a group with the reserved prefix in %s',
+        (type) => {
+            const markup = dd`
+                {% list ${type} %}
+
+                - Tab
+
+                  Content
+
+                {% endlist %}
+            `;
+            const groupedMarkup = markup.replace(
+                `{% list ${type} %}`,
+                `{% list ${type} group=defaultTabsGroup-shared %}`,
+            );
+
+            expect(serializer.serialize(parser.parse(groupedMarkup))).toBe(markup);
+        },
+    );
+
     it('should parse yfm-tabs', () => {
         const markup = `
 {% list tabs %}
