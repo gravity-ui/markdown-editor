@@ -62,7 +62,6 @@ export interface EditorInt
     readonly mdOptions: Readonly<MarkdownEditorMdOptions>;
     readonly directiveSyntax: DirectiveSyntaxContext;
     readonly mobile: boolean;
-
     /** @internal used in demo for dev-tools */
     readonly _wysiwygView?: PMEditorView;
 
@@ -289,6 +288,7 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
                     directiveSyntax: this.directiveSyntax,
                     receiver: this,
                     searchPanel: this.#markupConfig.searchPanel,
+                    lineNumbers: this.#markupConfig.lineNumbers,
                 }),
             );
         }
