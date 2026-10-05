@@ -23,6 +23,9 @@ export const addEmptyLink: Command = (state, dispatch) => {
     const {$from, $to} = selection;
     // text selection inside one text node
     if ($from.parent !== $to.parent) return false;
+    const selectedText = state.doc.textBetween($from.pos, $to.pos);
+    if (selection instanceof TextSelection && !selectedText.trim()) return false;
+
     let tr = state.tr;
     const toggleResult = toggleMark(linkMarkType, {
         [LinkAttr.Href]: '',
@@ -40,7 +43,6 @@ export const addEmptyLink: Command = (state, dispatch) => {
             tr.setMeta(imageRendererKey, meta);
         }
     } else {
-        const selectedText = state.doc.textBetween($from.pos, $to.pos);
         const countOfWhitespacesAtEnd = selectedText.length - selectedText.trimEnd().length;
         tr.setSelection(TextSelection.create(tr.doc, $to.pos - countOfWhitespacesAtEnd - 1));
     }
