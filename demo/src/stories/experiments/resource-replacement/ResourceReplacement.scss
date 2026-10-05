@@ -1,0 +1,43 @@
+.resource-replacement-demo {
+    width: 100%;
+
+    &__images,
+    &__samples {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 24px;
+    }
+
+    &__images {
+        figure {
+            margin: 0;
+        }
+
+        img {
+            max-width: 100%;
+
+            object-fit: contain;
+        }
+    }
+
+    &__sample {
+        display: flex;
+        flex: 1 1 320px;
+        flex-direction: column;
+        gap: 8px;
+
+        min-width: 0;
+
+        textarea {
+            padding: 8px;
+
+            font-family: var(--g-font-family-monospace);
+            resize: vertical;
+
+            color: var(--g-color-text-primary);
+            border: 1px solid var(--g-color-line-generic);
+            border-radius: 4px;
+            background: var(--g-color-base-generic);
+        }
+    }
+}

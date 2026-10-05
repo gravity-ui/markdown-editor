@@ -1,4 +1,4 @@
-import {useMemo} from 'react';
+import {type ReactNode, useMemo} from 'react';
 
 import {Ellipsis} from '@gravity-ui/icons';
 import {useMeasure} from 'react-use';
@@ -16,12 +16,18 @@ import './FlexToolbar.scss';
 
 const b = cn('flex-toolbar');
 
+export type ToolbarStatus = {
+    width: number;
+    content: ReactNode;
+};
+
 export type FlexToolbarProps<E> = ToolbarProps<E> & {
     dotsTitle: string | (() => string);
     hiddenActions?: ToolbarItemData<E>[];
+    status?: ToolbarStatus;
 };
 
-export function FlexToolbar<E>(props: FlexToolbarProps<E>) {
+export function FlexToolbar<E>({status, ...props}: FlexToolbarProps<E>) {
     useRenderTime((time) => {
         logger.metrics({
             component: 'toolbar',
@@ -68,14 +74,16 @@ export function FlexToolbar<E>(props: FlexToolbarProps<E>) {
 
         return shrinkToolbarData({
             data,
-            availableWidth: width,
+            // Reserve the status width and the existing 8px container gap.
+            availableWidth: width - (status ? status.width + 8 : 0),
             hiddenActions: filteredHiddenAction,
         });
-    }, [data, display, hiddenActions, width]);
+    }, [data, display, hiddenActions, width, status]);
 
     return (
         <div ref={ref} className={b(null, [className])}>
             <div className={b('container')}>
+                {status?.content}
                 <Toolbar {...props} data={items} className={b('bar')} />
                 {dots?.length && (
                     <ToolbarListButton

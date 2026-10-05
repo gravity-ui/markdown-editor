@@ -1,3 +1,5 @@
+##### Getting started / How to resolve pasted resources
+
 # Replacing resources on paste
 
 `resourceReplacement` passes resources from a local paste/drop insertion to the
@@ -143,6 +145,13 @@ its operations.
 Until the response is applied, the document contains the old values. The application
 decides whether saving is allowed at this point. Cancellation does not delete the
 inserted text and does not itself undo copying already performed on the server.
+
+In both modes, a single spinner in the main toolbar indicates pending requests.
+It appears on the left, outside the button groups, before GPT and undo/redo,
+without a label or tooltip; it remains visible during overflow and mobile scrolling.
+This also works with custom toolbar configurations, without an additional item or
+`onChange`. Binary uploads do not activate the spinner. See the
+[toolbar customization guide](https://github.com/gravity-ui/markdown-editor/blob/main/docs/how-to-customize-toolbars.md) for button configuration.
 
 ## CodeMirror: collection, serialization, and history
 

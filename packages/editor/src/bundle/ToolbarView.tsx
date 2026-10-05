@@ -1,4 +1,4 @@
-import {type ComponentProps, useCallback, useLayoutEffect, useMemo, useRef} from 'react';
+import {type ComponentProps, useCallback, useLayoutEffect, useMemo, useRef, useState} from 'react';
 
 import type {QAProps} from '@gravity-ui/uikit';
 
@@ -20,6 +20,7 @@ import {
 
 import type {EditorInt} from './Editor';
 import {stickyCn} from './sticky';
+import {resourceReplacementToolbarStatus} from './toolbar/ResourceReplacementStatus';
 import type {MarkdownEditorMode} from './types';
 
 const MemoizedFlexibleToolbar = typedMemo(FlexToolbar);
@@ -56,6 +57,9 @@ export function ToolbarView<T>({
     const isStickyActive = useSticky(wrapperRef) && stickyToolbar;
 
     const mobile = editor.mobile;
+    const [resourceReplacementPending, setResourceReplacementPending] = useState(
+        () => editor.getPendingResourceReplacements().length > 0,
+    );
 
     const clickHandle = useCallback<NonNullable<FlexToolbarProps<T>['onClick']>>(
         (id, attrs) => editor.emit('toolbar-action', {id, attrs, editorMode}),
@@ -76,11 +80,18 @@ export function ToolbarView<T>({
     }, [editor]);
 
     useLayoutEffect(() => {
+        const updatePending = () => {
+            setResourceReplacementPending(editor.getPendingResourceReplacements().length > 0);
+        };
+
         const onRerender = () => {
             toolbarProviderValue.eventBus.emit('update', null);
+            updatePending();
         };
 
         editor.on('rerender-toolbar', onRerender);
+        updatePending();
+
         return () => {
             editor.off('rerender-toolbar', onRerender);
         };
@@ -102,6 +113,9 @@ export function ToolbarView<T>({
         >
             <ToolbarProvider value={toolbarProviderValue}>
                 <MemoizedFlexibleToolbar
+                    status={
+                        resourceReplacementPending ? resourceReplacementToolbarStatus : undefined
+                    }
                     data={toolbarConfig}
                     hiddenActions={hiddenActionsConfig}
                     editor={toolbarEditor}

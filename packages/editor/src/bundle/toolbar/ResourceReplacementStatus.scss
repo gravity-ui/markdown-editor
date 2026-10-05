@@ -1,0 +1,27 @@
+.g-md-resource-replacement-status {
+    display: inline-flex;
+    flex: 0 0 28px;
+    justify-content: center;
+    align-items: center;
+
+    width: 28px;
+    height: 28px;
+
+    &__icon {
+        display: flex;
+    }
+
+    &__spin {
+        width: 12px;
+        height: 12px;
+
+        background-color: var(--g-button-text-color, var(--g-color-text-primary));
+
+        // Keep UIKit's rotation, with a thinner arc and rounded ends.
+        mask-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 12"%3E%3Cpath d="M6 .75a5.25 5.25 0 0 1 0 10.5" fill="none" stroke="black" stroke-width="1.5" stroke-linecap="round"/%3E%3C/svg%3E');
+
+        .g-spin__inner {
+            display: none;
+        }
+    }
+}
