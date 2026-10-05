@@ -13,6 +13,68 @@ test.describe('Link', () => {
         await editor.switchMode('wysiwyg');
     });
 
+    for (const text of ['a', '1', 'я', ' a ']) {
+        test(`should save a single-character link for ${JSON.stringify(text)} @wysiwyg`, async ({
+            editor,
+            actions,
+            page,
+        }) => {
+            await editor.fill(`before ${text} after`);
+            await editor.press('ControlOrMeta+End');
+            await actions.pressFocused('ArrowLeft', ' after'.length);
+            await actions.pressFocused('Shift+ArrowLeft', text.length);
+            await actions.pressFocused('ControlOrMeta+k');
+
+            await expect(page.locator('.g-md-link-tooltip-view')).toBeVisible();
+            await page.locator('.g-md-link-tooltip-view input').fill('https://example.com');
+            await actions.pressFocused('Enter');
+
+            const link = editor.getBySelectorInContenteditable('a');
+            await expect(link).toHaveText(text.trim());
+            await expect(link).toHaveAttribute('href', 'https://example.com');
+            await expect(page.locator('.g-md-link-tooltip-view')).toBeHidden();
+        });
+    }
+
+    test('should cancel a single-character link without leaving an empty link @wysiwyg', async ({
+        editor,
+        actions,
+        page,
+    }) => {
+        await editor.fill('before a after');
+        await editor.press('ControlOrMeta+End');
+        await actions.pressFocused('ArrowLeft', ' after'.length);
+        await actions.pressFocused('Shift+ArrowLeft');
+        await actions.pressFocused('ControlOrMeta+k');
+        await expect(page.locator('.g-md-link-tooltip-view')).toBeVisible();
+        await actions.pressFocused('Escape');
+
+        await expect(page.locator('.g-md-link-tooltip-view')).toBeHidden();
+        await expect(editor.getBySelectorInContenteditable('a')).toHaveCount(0);
+        await expect(editor.getByTextInContenteditable('before a after')).toBeVisible();
+    });
+
+    for (const text of [' ', '   ', '\u00a0']) {
+        test(`should ignore whitespace-only link selection ${JSON.stringify(text)} @wysiwyg`, async ({
+            editor,
+            actions,
+            page,
+        }) => {
+            await editor.fill(`before${text}after`);
+            await editor.press('ControlOrMeta+End');
+            await actions.pressFocused('ArrowLeft', 'after'.length);
+            await actions.pressFocused('Shift+ArrowLeft', text.length);
+            await editor.assertMainToolbarButtonDisabled('Link');
+            await actions.pressFocused('ControlOrMeta+k');
+
+            await expect(page.locator('.g-md-link-tooltip-view')).toBeHidden();
+            await expect(editor.getBySelectorInContenteditable('a')).toHaveCount(0);
+            await expect(editor.getBySelectorInContenteditable('p')).toHaveText(
+                `before${text}after`,
+            );
+        });
+    }
+
     test('should insert via toolbar @wysiwyg', async ({browserName, editor, actions, wait}) => {
         test.skip(browserName === 'webkit', 'fillFocused does not work correctly in webkit');
 
