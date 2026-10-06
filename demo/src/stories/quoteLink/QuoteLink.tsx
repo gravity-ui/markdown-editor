@@ -7,15 +7,15 @@ import {
     type ToolbarsPreset,
     useMarkdownEditor,
 } from '@gravity-ui/markdown-editor';
-import {ActionName as Action} from '@gravity-ui/markdown-editor/_/bundle/config/action-names.js';
-import {ToolbarName as Toolbar} from '@gravity-ui/markdown-editor/_/modules/toolbars/constants.js';
+import {QuoteLink as QuoteLinkExtension} from '@gravity-ui/markdown-editor/extensions/additional/QuoteLink/index.js';
 import {
+    ActionName as Action,
+    ToolbarName as Toolbar,
+    defaultPreset,
     quoteLinkItemMarkup,
     quoteLinkItemView,
     quoteLinkItemWysiwyg,
-} from '@gravity-ui/markdown-editor/_/modules/toolbars/items.js';
-import {defaultPreset} from '@gravity-ui/markdown-editor/_/modules/toolbars/presets.js';
-import {QuoteLink as QuoteLinkExtension} from '@gravity-ui/markdown-editor/extensions/additional/QuoteLink/index.js';
+} from '@gravity-ui/markdown-editor/toolbars';
 import type {PluginWithParams} from 'markdown-it/lib';
 
 import {PlaygroundLayout} from '../../components/PlaygroundLayout';

@@ -2,14 +2,12 @@ import type {ToolbarsPreset} from '@gravity-ui/markdown-editor';
 import {
     ActionName as Action,
     ToolbarName as Toolbar,
-} from '@gravity-ui/markdown-editor/_/modules/toolbars/constants.js';
-import {
+    full,
     mermaidItemView,
     mermaidItemWysiwyg,
     yfmHtmlBlockItemView,
     yfmHtmlBlockItemWysiwyg,
-} from '@gravity-ui/markdown-editor/_/modules/toolbars/items.js';
-import {full} from '@gravity-ui/markdown-editor/_/modules/toolbars/presets.js';
+} from '@gravity-ui/markdown-editor/toolbars';
 import {
     latexBlockItemView,
     latexBlockItemWysiwyg,
