@@ -50,6 +50,33 @@ describe('Image extension', () => {
     });
 
     it.each([
+        {src: '<a.png', markup: String.raw`![](\<a.png)`, normalized: '%3Ca.png'},
+        {src: '<a.png>', markup: String.raw`![](\<a.png>)`, normalized: '%3Ca.png%3E'},
+        {src: '>a.png', markup: '![](>a.png)', normalized: '%3Ea.png'},
+        {src: 'a>b.png', markup: '![](a>b.png)', normalized: 'a%3Eb.png'},
+    ])('should preserve angle brackets in image destination $src', ({src, markup, normalized}) => {
+        const content = doc(p(img({[ImageAttr.Src]: src})));
+
+        serialize(content, markup);
+        parse(serializer.serialize(content), doc(p(img({[ImageAttr.Src]: normalized}))));
+    });
+
+    it.each([
+        {src: 'foo"bar.png', markup: '![](foo"bar.png)', normalized: 'foo%22bar.png'},
+        {src: '"a.png', markup: '![]("a.png)', normalized: '%22a.png'},
+        {
+            src: String.raw`foo\"bar.png`,
+            markup: String.raw`![](foo\\"bar.png)`,
+            normalized: 'foo%5C%22bar.png',
+        },
+    ])('should normalize a quote in image destination $src', ({src, markup, normalized}) => {
+        const content = doc(p(img({[ImageAttr.Src]: src})));
+
+        serialize(content, markup);
+        parse(serializer.serialize(content), doc(p(img({[ImageAttr.Src]: normalized}))));
+    });
+
+    it.each([
         {
             src: String.raw`https://example.com/a\*b.png`,
             markup: String.raw`![](https://example.com/a\\*b.png)`,

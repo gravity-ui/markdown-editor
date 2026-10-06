@@ -444,10 +444,12 @@ export class MarkdownSerializerState {
             }
 
             // Close the marks that need to be closed
-            if (node || index === parent.childCount) {
-                while (keep < active.length) {
-                    this.text(this.markString(active.pop()!, false, parent, index), false)
-                }
+            while (keep < active.length) {
+                if (!node && index < parent.childCount && (
+                    !active.slice(keep).some(mark => this.getMark(mark.type.name).expelEnclosingWhitespace) ||
+                    this.isMarkAhead(parent, index + 1, active)
+                )) break;
+                this.text(this.markString(active.pop()!, false, parent, index), false)
             }
 
             // Output any previously expelled trailing whitespace outside the marks

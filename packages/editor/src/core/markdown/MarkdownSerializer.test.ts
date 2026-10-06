@@ -22,6 +22,63 @@ const {doc, p, i, b, u, br, sb} = builders(schema, {
 });
 
 describe('MarkdownSerializer overlapping marks', () => {
+    it.each([false, true])(
+        'should close marks before a dropped space with strong first: %s',
+        (strongFirst) => {
+            const orderedSchema = new Schema({
+                nodes: schema.spec.nodes,
+                marks: strongFirst
+                    ? schema.spec.marks
+                          .remove('strong')
+                          .addBefore('em', 'strong', schema.marks.strong.spec)
+                    : schema.spec.marks,
+            });
+            const {
+                doc: document,
+                p: paragraph,
+                i: italic,
+                b: bold,
+            } = builders(orderedSchema, {
+                p: {nodeType: 'paragraph'},
+                i: {markType: 'em'},
+                b: {markType: 'strong'},
+            });
+            const content = document(paragraph(bold(italic('x')), italic(' '), 'y'));
+
+            expect(createSerializer().serialize(content)).toBe('***x*** y');
+        },
+    );
+
+    it('should preserve a custom outer mark while closing inner emphasis', () => {
+        const serializer = createSerializer({unknown: {open: '[', close: ']'}});
+        const content = doc(p(u(i('x')), b(' '), 'y'));
+
+        expect(serializer.serialize(content)).toBe('[*x* ]y');
+    });
+
+    it('should keep a custom inner mark open when outer emphasis continues', () => {
+        const orderedSchema = new Schema({
+            nodes: schema.spec.nodes,
+            marks: schema.spec.marks.remove('em').addBefore('unknown', 'em', schema.marks.em.spec),
+        });
+        const {
+            doc: document,
+            p: paragraph,
+            i: italic,
+            b: bold,
+            u: custom,
+        } = builders(orderedSchema, {
+            p: {nodeType: 'paragraph'},
+            i: {markType: 'em'},
+            b: {markType: 'strong'},
+            u: {markType: 'unknown'},
+        });
+        const serializer = createSerializer({unknown: {open: '[', close: ']'}});
+        const content = document(paragraph(italic(custom('x'), bold(' '), 'y')));
+
+        expect(serializer.serialize(content)).toBe('*[x ]y*');
+    });
+
     it('should keep emphasis open across an expelled whitespace-only mark', () => {
         expect(createSerializer().serialize(doc(p(i('hello'), b(' '), i('world'))))).toBe(
             '*hello world*',

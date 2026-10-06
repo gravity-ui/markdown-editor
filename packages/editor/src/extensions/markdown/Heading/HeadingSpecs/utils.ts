@@ -17,7 +17,10 @@ export function headingToMarkdown({
     return (...args) => {
         const [state, node] = args;
         renderMarkup(...args);
-        state.renderInline(node, false);
+        const escapeHashOnlyHeading =
+            node.content.content.every((child) => child.isText) &&
+            /^#+[ \t]*$/.test(node.textContent);
+        state.renderInline(node, escapeHashOnlyHeading);
         renderAttributes?.(...args);
         state.closeBlock(node);
     };
