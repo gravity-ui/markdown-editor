@@ -39,20 +39,31 @@ it('should regenerate temporary pages for every discovered extension', () => {
             'packages/page-constructor-extension/src/extension/index.ts',
             'export const YfmPageConstructorExtension: ExtensionAuto = () => {};',
         );
+        addSource(
+            root,
+            'packages/page-constructor-extension/src/extension/YfmPageConstructorSpecs/index.tsx',
+            "export {nodeName} from './const'; export const YfmPageConstructorSpecsExtension = Object.assign(() => {}, {});",
+        );
 
-        expect(discoverExtensions(root).map(({name}) => name)).toEqual([
+        const names = discoverExtensions(root).map(({name}) => name);
+        expect(names).toEqual([
             'Bold',
             'Italic',
             'YfmPageConstructorExtension',
+            'YfmPageConstructorSpecsExtension',
         ]);
 
         generateExtensionPages(root);
+        for (const name of names) {
+            expect(readFileSync(join(root, `tmp/docs-gen/stubs/${name}.md`), 'utf8')).toBe(
+                `##### Extensions / ${name}\n\n# ${name}\n`,
+            );
+        }
         const boldPage = join(root, 'tmp/docs-gen/stubs/Bold.md');
-        expect(readFileSync(boldPage, 'utf8')).toContain('# Bold');
 
         writeFileSync(boldPage, '# Edited Bold\n');
         generateExtensionPages(root);
-        expect(readFileSync(boldPage, 'utf8')).toContain('# Bold');
+        expect(readFileSync(boldPage, 'utf8')).toBe('##### Extensions / Bold\n\n# Bold\n');
     } finally {
         rmSync(root, {recursive: true, force: true});
     }

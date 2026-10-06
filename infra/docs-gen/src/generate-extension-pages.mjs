@@ -28,8 +28,10 @@ function readExtension(dir, root, expectedName = basename(dir)) {
 
     if (extension) return extension;
 
-    const indexPath = join(dir, 'index.ts');
-    if (existsSync(indexPath)) {
+    const indexPath = ['index.ts', 'index.tsx']
+        .map((file) => join(dir, file))
+        .find((path) => existsSync(path));
+    if (indexPath) {
         const source = ts.createSourceFile(
             indexPath,
             readFileSync(indexPath, 'utf8'),
@@ -72,11 +74,13 @@ export function discoverExtensions(root = REPO_ROOT) {
         }
     }
 
+    const pageConstructorDir = join(root, 'packages/page-constructor-extension/src/extension');
+    extensions.push(readExtension(pageConstructorDir, root, 'YfmPageConstructorExtension'));
     extensions.push(
         readExtension(
-            join(root, 'packages/page-constructor-extension/src/extension'),
+            join(pageConstructorDir, 'YfmPageConstructorSpecs'),
             root,
-            'YfmPageConstructorExtension',
+            'YfmPageConstructorSpecsExtension',
         ),
     );
     return extensions.sort((a, b) => a.name.localeCompare(b.name));
