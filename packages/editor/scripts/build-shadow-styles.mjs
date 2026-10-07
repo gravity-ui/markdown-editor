@@ -45,9 +45,12 @@ export async function buildShadowStyles(buildDir) {
 }
 
 // `CSSStyleSheet.replaceSync()` drops `@import` rules, so inlined CSS that gains one loses the
-// imported file. The collected CSS contains no `@import` at all, comments included.
+// imported file. The collected CSS contains no `@import` outside comments.
 function assertNoCssImportRules(css) {
-    if (/(?:^|[\s;}])@import\b/m.test(css)) {
+    // Comments are removed first: in `/* text */@import` the rule has no separator in front of it.
+    const withoutComments = css.replace(/\/\*[\s\S]*?\*\//g, '');
+
+    if (/(?:^|[\s;{}])@import\b/m.test(withoutComments)) {
         throw new Error(
             "[shadow-styles] '@import' in cssText: CSSStyleSheet.replaceSync() drops the rule, " +
                 'and the imported file is lost. Add that file to SHADOW_STYLE_IMPORTS instead.',
@@ -77,6 +80,8 @@ function createShadowStylesModule(cssText) {
 // The modules are generated code, and only a round trip proves the embedded CSS survives it.
 async function verifyGeneratedModules(buildDir, cssText) {
     // Node has no `CSSStyleSheet`; the stub records what `replaceSync()` received.
+    // A runtime that provides its own gets it back after the check.
+    const nativeDescriptor = Reflect.getOwnPropertyDescriptor(globalThis, 'CSSStyleSheet');
     globalThis.CSSStyleSheet = class {
         replaceSync(value) {
             this.cssText = value;
@@ -97,6 +102,10 @@ async function verifyGeneratedModules(buildDir, cssText) {
             }
         }
     } finally {
-        delete globalThis.CSSStyleSheet;
+        if (nativeDescriptor) {
+            Object.defineProperty(globalThis, 'CSSStyleSheet', nativeDescriptor);
+        } else {
+            delete globalThis.CSSStyleSheet;
+        }
     }
 }
