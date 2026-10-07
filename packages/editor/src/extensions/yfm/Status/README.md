@@ -26,14 +26,18 @@ the editor and the preview is the same:
 >
 ```
 
-Classes are derived from the attributes, `class` is not stored in the node. The caption is
-displayed in capitals through `text-transform`, the document keeps it as it was typed.
+Classes are derived from the attributes, `class` is not stored in the node.
 
 ### Palette
 
-The fill and the border of every color are the `--g-md-status-<color>-background` and
-`--g-md-status-<color>-border` variables, declared on `.g-root` for the light theme and
-overridden for the dark one. The popover swatches read the same variables as the badge.
+The fill, the border and the caption of every color are the `--g-md-status-<color>-background`,
+`--g-md-status-<color>-border` and `--g-md-status-<color>-text` variables, declared on `.g-root`
+for the light theme and overridden for the dark one. The caption shares the hue of the fill and
+keeps a contrast of at least 4.5:1 against it. The popover swatches read the fill and the border of
+the badge.
+
+The badge is sized in `em`, so it scales with the surrounding text and does not increase the height
+of the line it sits in.
 
 ### Editor
 
