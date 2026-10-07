@@ -163,7 +163,7 @@ export const Playground = memo<PlaygroundProps>((props) => {
             mobile,
             preset: 'full',
             wysiwygConfig: {
-                placeholderOptions: placeholderOptions,
+                placeholderOptions,
                 disableMarkdownAttrs: disableMarkdownItAttrs,
                 extensions: (builder) => {
                     builder
