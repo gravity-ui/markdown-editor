@@ -1,0 +1,12 @@
+{
+  "button": "Status",
+  "placeholder": "Caption",
+  "default_caption": "Status",
+  "color_gray": "Gray",
+  "color_blue": "Blue",
+  "color_green": "Green",
+  "color_yellow": "Yellow",
+  "color_orange": "Orange",
+  "color_red": "Red",
+  "color_violet": "Violet"
+}

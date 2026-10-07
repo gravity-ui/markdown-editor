@@ -1,0 +1,12 @@
+{
+  "button": "Статус",
+  "placeholder": "Подпись",
+  "default_caption": "Статус",
+  "color_gray": "Серый",
+  "color_blue": "Синий",
+  "color_green": "Зелёный",
+  "color_yellow": "Жёлтый",
+  "color_orange": "Оранжевый",
+  "color_red": "Красный",
+  "color_violet": "Фиолетовый"
+}

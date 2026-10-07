@@ -32,6 +32,7 @@ import {
     QuoteLinkIcon,
     RedoIcon,
     SinkIcon,
+    StatusIcon,
     StrikethroughIcon,
     TableIcon,
     TabsIcon,
@@ -84,6 +85,7 @@ type Icon =
     | 'mermaid'
     | 'html'
     | 'foldingHeading'
+    | 'status'
     | 'gpt';
 
 type Icons = Record<Icon, ToolbarIconData>;
@@ -144,6 +146,8 @@ export const icons: Icons = {
     mermaid: {data: MermaidIcon},
 
     foldingHeading: {data: FoldingHeadingIcon},
+
+    status: {data: StatusIcon},
 
     gpt: {data: GPTIcon},
 };

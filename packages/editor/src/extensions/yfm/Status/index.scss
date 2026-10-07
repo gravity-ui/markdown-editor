@@ -1,0 +1,30 @@
+// color name -> uikit hue
+$hues: (
+    'gray': 'cool-grey',
+    'blue': 'blue',
+    'green': 'green',
+    'yellow': 'yellow',
+    'orange': 'orange',
+    'red': 'red',
+    'violet': 'purple',
+);
+
+.g-md-status {
+    display: inline-flex;
+    align-items: center;
+
+    padding: 0 6px;
+
+    white-space: nowrap;
+
+    color: var(--g-color-text-primary);
+    border: 1px solid;
+    border-radius: 4px;
+
+    @each $name, $hue in $hues {
+        &_color_#{$name} {
+            border-color: var(--g-color-private-#{$hue}-200-solid);
+            background-color: var(--g-color-private-#{$hue}-100-solid);
+        }
+    }
+}
