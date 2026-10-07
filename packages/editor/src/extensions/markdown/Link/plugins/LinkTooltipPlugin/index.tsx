@@ -19,10 +19,14 @@ const className = 'pm-link-focus-deco';
 const placement: PopupPlacement = ['bottom-start', 'bottom-end', 'top-start', 'top-end'];
 
 function getTextNode(state: EditorState) {
+    const markType = linkType(state.schema);
+    // A one-character placeholder leaves the cursor at the start of a non-inclusive mark.
+    const nextNode = state.selection.$from.nodeAfter;
+    const nextLink = nextNode && findMark(nextNode, markType);
     if (
         !(state.selection instanceof TextSelection) ||
         !state.selection.empty ||
-        !isMarkActive(state, linkType(state.schema))
+        (!isMarkActive(state, markType) && !nextLink?.attrs[LinkAttr.IsPlaceholder])
     )
         return null;
 
@@ -35,9 +39,9 @@ function getTextNode(state: EditorState) {
     const textNodes = findChildrenByMark(parent?.node, linkType(state.schema));
 
     const textNode = textNodes.find((n: {node: Node; pos: number}) => {
-        const start = n.pos + parent.pos;
+        const start = n.pos + parent.pos + 1;
         const end = start + n.node.nodeSize;
-        return start <= state.selection.from && end >= state.selection.from;
+        return start <= state.selection.from && end > state.selection.from;
     })!;
 
     if (!textNode) return null;
