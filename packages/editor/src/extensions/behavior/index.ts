@@ -14,6 +14,7 @@ import {Search, type SearchOptions} from './Search';
 import {Selection} from './Selection';
 import {SelectionContext, type SelectionContextOptions} from './SelectionContext';
 import {SharedState} from './SharedState';
+import {TableCellSelection} from './TableCellSelection';
 import {WidgetDecoration} from './WidgetDecoration';
 
 export * from './Autocomplete';
@@ -29,6 +30,7 @@ export * from './Selection';
 export * from './SelectionContext';
 export * from './SharedState';
 export * from './WidgetDecoration';
+export * from './TableCellSelection';
 
 export type BehaviorPresetOptions = {
     cursor?: CursorOptions;
@@ -40,6 +42,7 @@ export type BehaviorPresetOptions = {
     search?: SearchOptions;
     commandMenu?: CommandMenuOptions;
     mobile?: boolean;
+    tableCellSelection?: boolean;
 };
 
 export const BehaviorPreset: ExtensionAuto<BehaviorPresetOptions> = (builder, opts) => {
@@ -52,6 +55,8 @@ export const BehaviorPreset: ExtensionAuto<BehaviorPresetOptions> = (builder, op
         .use(Clipboard, opts.clipboard ?? {})
         .use(ReactRendererExtension, opts.reactRenderer)
         .use(WidgetDecoration);
+
+    if (opts.tableCellSelection) builder.use(TableCellSelection);
 
     if (!opts.mobile) {
         builder.use(ContextualToolbars);

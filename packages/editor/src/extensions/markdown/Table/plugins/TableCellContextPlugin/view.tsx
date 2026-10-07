@@ -5,6 +5,7 @@ import {findParentDomRefOfType} from 'prosemirror-utils';
 import type {EditorView} from 'prosemirror-view';
 
 import {ErrorLoggerBoundary} from '../../../../../react-utils/ErrorBoundary';
+import {TableCellSelection} from '../../../../../table-utils/cell-selection/selection';
 import {getReactRendererFromState} from '../../../../behavior/ReactRenderer';
 
 import {TableCellFloatingButton, type TableCellFloatingButtonActions} from './floating';
@@ -12,6 +13,8 @@ import {TableCellFloatingButton, type TableCellFloatingButtonActions} from './fl
 type MixedNodeType = NodeType | NodeType[];
 export class TableCellContextView implements PluginView {
     private static findCellDom(view: EditorView, nodeType: MixedNodeType) {
+        if (view.state.selection instanceof TableCellSelection) return undefined;
+
         return findParentDomRefOfType(nodeType, view.domAtPos.bind(view))(view.state.selection) as
             | Element
             | undefined;
