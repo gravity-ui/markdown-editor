@@ -17,6 +17,7 @@ import {VERSION} from '@gravity-ui/markdown-editor/_/version.js';
 import {WysiwygSelection} from '../../components/PMSelection';
 import {WysiwygDevTools} from '../../components/ProseMirrorDevTools';
 import {SplitModePreviewLazy} from '../../components/SplitModePreviewLazy';
+import {useEditorHandle} from '../../hooks/useEditorHandle';
 import {useLogs} from '../../hooks/useLogs';
 import {block} from '../../utils/cn';
 import {randomDelay} from '../../utils/delay';
@@ -113,6 +114,7 @@ export const Preset = memo<PresetDemoProps>((props) => {
     });
 
     useLogs(mdEditor.logger);
+    useEditorHandle(mdEditor);
 
     useEffect(() => {
         function onChange() {

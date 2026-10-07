@@ -4,6 +4,7 @@ import type {MarkdownEditorInstance} from '@gravity-ui/markdown-editor';
 import {VERSION} from '@gravity-ui/markdown-editor/_/version.js';
 import {useUpdate} from 'react-use';
 
+import {useEditorHandle} from '../hooks/useEditorHandle';
 import {useMarkdownEditorValue} from '../hooks/useMarkdownEditorValue';
 import {block} from '../utils/cn';
 
@@ -32,6 +33,8 @@ export const PlaygroundLayout: React.FC<PlaygroundLayoutProps> = function Playgr
 
     const forceRender = useUpdate();
     const mdMarkup = useMarkdownEditorValue(editor);
+
+    useEditorHandle(editor);
 
     useEffect(() => {
         editor.on('change-editor-mode', forceRender);
