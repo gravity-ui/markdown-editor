@@ -50,10 +50,11 @@ Prettier owns formatting, ESLint owns the rest. Both apply their fixes from one 
 pnpm fix
 ```
 
-Run it after editing code; what it prints is what it could not fix.
+Run it after editing code; what it prints is what it could not fix. `pnpm lint` reports the same problems without touching files, and CI runs it on every pull request.
 
 - Never format code by hand, and never reformat lines you did not change.
 - `pnpm fix` walks the whole repository — commit only the files your change belongs to.
+- An `eslint-disable` comment that no longer suppresses anything is an error. Remove it instead of keeping it for safety.
 - Write code the way the linter wants it from the start: `T[]` instead of `Array<T>`, object shorthand (`{foo}` instead of `{foo: foo}`), inline type imports (`import {type Foo} from './foo'`).
 - Where the linter is silent, follow the file you are editing.
 - Shared rules live in `infra/linters/`; per-package overrides are in the root `eslint.config.mjs`.

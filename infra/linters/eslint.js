@@ -13,6 +13,11 @@ export default defineConfig(
     prettierConfig,
     importOrderConfig,
     {
+        linterOptions: {
+            reportUnusedDisableDirectives: 'error',
+        },
+    },
+    {
         plugins: {
             lodash,
         },
