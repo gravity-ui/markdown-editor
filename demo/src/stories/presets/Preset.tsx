@@ -41,6 +41,7 @@ export type PresetDemoProps = {
     linkifyTlds?: string | string[];
     splitModeOrientation?: 'horizontal' | 'vertical' | false;
     stickyToolbar?: boolean;
+    devTools?: boolean;
     height?: React.CSSProperties['height'];
     toolbarsPreset?: ToolbarsPreset;
     wysiwygConfig?: MarkdownEditorWysiwygConfig;
@@ -57,6 +58,7 @@ export const Preset = memo<PresetDemoProps>((props) => {
         linkifyTlds,
         splitModeOrientation,
         stickyToolbar,
+        devTools = true,
         height,
         toolbarsPreset,
         wysiwygConfig,
@@ -149,7 +151,7 @@ export const Preset = memo<PresetDemoProps>((props) => {
                             settingsVisible={settingsVisible}
                             editor={mdEditor}
                         />
-                        <WysiwygDevTools editor={mdEditor} />
+                        {devTools && <WysiwygDevTools editor={mdEditor} />}
                         <WysiwygSelection editor={mdEditor} className={b('pm-selection')} />
                     </div>
                 </StrictMode>

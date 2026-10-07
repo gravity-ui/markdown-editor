@@ -8,6 +8,7 @@ export const YFMStories: Stories = composeStories(DefaultYFMStories, {
     argsEnhancers: [
         () => ({
             stickyToolbar: false,
+            devTools: false,
         }),
     ],
 });

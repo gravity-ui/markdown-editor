@@ -9,6 +9,7 @@ export type WysiwygDevToolsProps = {
     editor: MarkdownEditorInstance;
 };
 
+/** The toolkit serializes both documents and diffs them on every transaction */
 export function WysiwygDevTools({editor}: WysiwygDevToolsProps) {
     const rerender = useUpdate();
     useEffectOnce(() => {

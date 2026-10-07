@@ -19,6 +19,7 @@ export type RenderFn = (props: {className?: string}) => React.ReactNode;
 export type PlaygroundLayoutProps = {
     title?: string;
     editor: MarkdownEditorInstance;
+    devTools?: boolean;
     view: RenderFn;
     viewHeight?: React.CSSProperties['height'];
     viewWidth?: React.CSSProperties['width'];
@@ -27,7 +28,7 @@ export type PlaygroundLayoutProps = {
 };
 
 export const PlaygroundLayout: React.FC<PlaygroundLayoutProps> = function PlaygroundLayout(props) {
-    const {editor} = props;
+    const {editor, devTools = true} = props;
 
     const forceRender = useUpdate();
     const mdMarkup = useMarkdownEditorValue(editor);
@@ -60,7 +61,7 @@ export const PlaygroundLayout: React.FC<PlaygroundLayoutProps> = function Playgr
                     >
                         {props.view({className: b('editor-view')})}
 
-                        <WysiwygDevTools editor={editor} />
+                        {devTools && <WysiwygDevTools editor={editor} />}
                         <WysiwygSelection editor={editor} className={b('pm-selection')} />
                     </div>
                 </StrictMode>

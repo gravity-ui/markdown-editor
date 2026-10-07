@@ -1,4 +1,13 @@
-import {type CSSProperties, memo, useCallback, useEffect, useMemo, useState} from 'react';
+import {
+    type CSSProperties,
+    Suspense,
+    lazy,
+    memo,
+    useCallback,
+    useEffect,
+    useMemo,
+    useState,
+} from 'react';
 
 import type {EmbeddingMode} from '@diplodoc/html-extension';
 import {htmlBlockDefaultSanitizer} from '@diplodoc/html-extension';
@@ -29,7 +38,6 @@ import {LatexExtension} from '@gravity-ui/markdown-editor-latex-extension';
 import {YfmPageConstructorExtension} from '@gravity-ui/markdown-editor-page-constructor-extension';
 import {Button, DropdownMenu} from '@gravity-ui/uikit';
 
-import {getPlugins} from '../defaults/md-plugins';
 import {playgroundToolbarsPreset} from '../defaults/toolbars';
 import {useLogs} from '../hooks/useLogs';
 import useYfmHtmlBlockStyles from '../hooks/useYfmHtmlBlockStyles';
@@ -38,7 +46,12 @@ import {parseInsertedUrlAsImage} from '../utils/imageUrl';
 import {debouncedUpdateLocation as updateLocation} from '../utils/location';
 
 import {PlaygroundLayout, b} from './PlaygroundLayout';
-import {SplitModePreview} from './SplitModePreview';
+
+// The preview pulls in @diplodoc/transform with all its plugins: highlight.js, katex,
+// page-constructor. Nothing of that is needed until split mode is turned on.
+const SplitModePreview = lazy(() =>
+    import('./SplitModePreview').then(({SplitModePreview: component}) => ({default: component})),
+);
 
 const fileUploadHandler: FileUploadHandler = async (file) => {
     console.info('[Playground] Uploading file: ' + file.name);
@@ -62,6 +75,7 @@ export type PlaygroundProps = {
     splitModeOrientation?: 'horizontal' | 'vertical' | false;
     searchPanel?: boolean;
     stickyToolbar?: boolean;
+    devTools?: boolean;
     initialSplitModeEnabled?: boolean;
     renderPreviewDefined?: boolean;
     height?: CSSProperties['height'];
@@ -107,6 +121,7 @@ export const Playground = memo<PlaygroundProps>((props) => {
         splitModeOrientation,
         searchPanel,
         stickyToolbar,
+        devTools,
         renderPreviewDefined,
         height,
         width,
@@ -135,21 +150,23 @@ export const Playground = memo<PlaygroundProps>((props) => {
 
     const renderPreview = useCallback<RenderPreview>(
         ({getValue, md, directiveSyntax}) => (
-            <SplitModePreview
-                getValue={getValue}
-                allowHTML={md.html}
-                linkify={md.linkify}
-                linkifyTlds={md.linkifyTlds}
-                breaks={md.breaks}
-                needToSanitizeHtml={sanitizeHtml}
-                plugins={getPlugins({
-                    directiveSyntax,
-                    table_ignoreSplittersInBlockMath: true,
-                    table_ignoreSplittersInInlineMath: true,
-                })}
-                disableMarkdownItAttrs={disableMarkdownItAttrs}
-                htmlRuntimeConfig={{disabledModes: disabledHTMLBlockModes}}
-            />
+            <Suspense fallback={null}>
+                <SplitModePreview
+                    getValue={getValue}
+                    allowHTML={md.html}
+                    linkify={md.linkify}
+                    linkifyTlds={md.linkifyTlds}
+                    breaks={md.breaks}
+                    needToSanitizeHtml={sanitizeHtml}
+                    pluginsOptions={{
+                        directiveSyntax,
+                        table_ignoreSplittersInBlockMath: true,
+                        table_ignoreSplittersInInlineMath: true,
+                    }}
+                    disableMarkdownItAttrs={disableMarkdownItAttrs}
+                    htmlRuntimeConfig={{disabledModes: disabledHTMLBlockModes}}
+                />
+            </Suspense>
         ),
         [sanitizeHtml, disabledHTMLBlockModes, disableMarkdownItAttrs],
     );
@@ -354,6 +371,7 @@ export const Playground = memo<PlaygroundProps>((props) => {
         <PlaygroundLayout
             style={style}
             editor={mdEditor}
+            devTools={devTools}
             viewHeight={height}
             viewWidth={width}
             view={({className}) => (
