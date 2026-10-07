@@ -1,15 +1,16 @@
 import {useEffect, useMemo, useRef, useState} from 'react';
-import type {RefObject} from 'react';
+import type {ReactNode, RefObject} from 'react';
 
 import {getStyles} from '@diplodoc/html-extension';
 import type {IHTMLIFrameElementConfig} from '@diplodoc/html-extension/runtime';
-import {Code, Pencil, TrashBin} from '@gravity-ui/icons';
-import {Button, Icon, Label} from '@gravity-ui/uikit';
+import {TrashBin} from '@gravity-ui/icons';
+import {Button, Icon, SegmentedRadioGroup} from '@gravity-ui/uikit';
 import type {Node} from 'prosemirror-model';
 import type {EditorView} from 'prosemirror-view';
 
 import {SharedStateKey} from 'src/extensions/behavior/SharedState';
 import {i18n} from 'src/i18n/common';
+import {i18n as htmlBlockI18n} from 'src/i18n/yfm-html-block';
 import {useAutoSave} from 'src/react-utils/hooks';
 import {useSharedEditingState} from 'src/react-utils/useSharedEditingState';
 import {removeNode} from 'src/utils/remove-node';
@@ -28,42 +29,36 @@ const b = cnYfmHtmlBlock;
 
 type ViewMode = 'editor' | 'code';
 
-const ModeSwitcher: React.FC<{
+const HtmlBlockToolbar: React.FC<{
     mode: ViewMode;
     onModeChange: (mode: ViewMode) => void;
     onRemove: () => void;
-}> = ({mode, onModeChange, onRemove}) => {
-    return (
+    modeSwitchDisabled?: boolean;
+    actions?: ReactNode;
+    actionsRef?: (element: HTMLDivElement | null) => void;
+    panelRef?: (element: HTMLDivElement | null) => void;
+}> = ({mode, onModeChange, onRemove, modeSwitchDisabled, actions, actionsRef, panelRef}) => (
+    <div className={b('header')}>
         <div className={`${b('toolbar')} ${STOP_EVENT_CLASSNAME}`}>
-            <div className={b('modes')} role="group" aria-label={i18n('view_mode')}>
-                <Button
-                    view="flat"
-                    size="m"
-                    selected={mode === 'editor'}
-                    aria-label={i18n('editor')}
-                    title={i18n('editor')}
-                    className={`${b('mode-button')} ${STOP_EVENT_CLASSNAME}`}
-                    onClick={() => onModeChange('editor')}
-                >
-                    <Icon data={Pencil} size={16} />
-                </Button>
-                <Button
-                    view="flat"
-                    size="m"
-                    selected={mode === 'code'}
-                    aria-label={i18n('code')}
-                    title={i18n('code')}
-                    className={`${b('mode-button')} ${STOP_EVENT_CLASSNAME}`}
-                    onClick={() => onModeChange('code')}
-                >
-                    <Icon data={Code} size={16} />
-                </Button>
+            <SegmentedRadioGroup<ViewMode>
+                size="m"
+                value={mode}
+                onUpdate={onModeChange}
+                aria-label={i18n('view_mode')}
+            >
+                <SegmentedRadioGroup.Option value="editor">
+                    {htmlBlockI18n('visual')}
+                </SegmentedRadioGroup.Option>
+                <SegmentedRadioGroup.Option value="code" disabled={modeSwitchDisabled}>
+                    {i18n('code')}
+                </SegmentedRadioGroup.Option>
+            </SegmentedRadioGroup>
+            <div ref={actionsRef} className={b('toolbar-actions')}>
+                {actions}
             </div>
-            <span className={b('toolbar-separator')} aria-hidden="true" />
             <Button
                 view="flat-danger"
                 size="m"
-                className={STOP_EVENT_CLASSNAME}
                 aria-label={i18n('remove')}
                 title={i18n('remove')}
                 onClick={onRemove}
@@ -71,8 +66,15 @@ const ModeSwitcher: React.FC<{
                 <Icon data={TrashBin} size={16} />
             </Button>
         </div>
-    );
-};
+        <div ref={panelRef}>
+            {mode === 'editor' && !modeSwitchDisabled && (
+                <div className={`${b('hint')} ${b('instruction')}`}>
+                    {htmlBlockI18n('select_element')}
+                </div>
+            )}
+        </div>
+    </div>
+);
 
 interface YfmHtmlBlockViewProps {
     html: string;
@@ -183,33 +185,25 @@ const CodeEditMode: React.FC<{
 
     return (
         <div className={b({editing: true})}>
-            <Label className={b('label')} icon={<Icon size={16} data={Code} />}>
-                {i18n('code')}
-            </Label>
-            <ModeSwitcher
+            <HtmlBlockToolbar
                 mode="code"
                 onModeChange={(mode) => {
-                    if (mode === 'editor') {
-                        closeWithChanges();
-                    }
+                    if (mode === 'editor') closeWithChanges();
                 }}
                 onRemove={onRemove}
+                actions={
+                    <>
+                        <Button onClick={onCancel} view="flat">
+                            {isAutoSaveEnabled ? i18n('close') : i18n('cancel')}
+                        </Button>
+                        <Button onClick={closeWithChanges} view="action">
+                            {i18n('save')}
+                        </Button>
+                    </>
+                }
             />
-            <div className={b('editor')}>
+            <div className={b('body')}>
                 <HtmlSourceEditor value={value} onUpdate={handleChange} />
-
-                <div className={b('controls')}>
-                    <div>
-                        <Button onClick={onCancel} view={'flat'}>
-                            <span className={STOP_EVENT_CLASSNAME}>
-                                {isAutoSaveEnabled ? i18n('close') : i18n('cancel')}
-                            </span>
-                        </Button>
-                        <Button onClick={closeWithChanges} view={'action'}>
-                            <span className={STOP_EVENT_CLASSNAME}>{i18n('save')}</span>
-                        </Button>
-                    </div>
-                </div>
             </div>
         </div>
     );
@@ -241,9 +235,14 @@ export const YfmHtmlBlockView: React.FC<{
     const [editing, setEditing, unsetEditing] = useSharedEditingState(view, entityKey);
     const blockRef = useRef<HTMLDivElement>(null);
     const frameRef = useRef<HTMLIFrameElement>(null);
+    const [toolbarActions, setToolbarActions] = useState<HTMLDivElement | null>(null);
+    const [panelContainer, setPanelContainer] = useState<HTMLDivElement | null>(null);
+    const [elementEditing, setElementEditing] = useState(false);
     const sourceHtml: string = node.attrs[YfmHtmlBlockConsts.NodeAttrs.srcdoc] ?? '';
 
-    const openCode = () => setEditing();
+    const openCode = () => {
+        if (!elementEditing) setEditing();
+    };
 
     const onRemove = () => {
         const pos = getPos();
@@ -302,30 +301,35 @@ export const YfmHtmlBlockView: React.FC<{
                     : undefined
             }
         >
-            <Label className={b('label')} icon={<Icon size={16} data={Pencil} />}>
-                {i18n('editor')}
-            </Label>
-            <YfmHtmlBlockPreview
-                html={resultHtml}
-                onDoubleClick={openCodeOnDoubleClick ? openCode : undefined}
-                config={config}
-                frameRef={frameRef}
-            />
-
-            <FrameInlineEditing
-                frameRef={frameRef}
-                blockRef={blockRef}
-                sourceHtml={sourceHtml}
-                onCommit={(nextHtml) => onChange({[YfmHtmlBlockConsts.NodeAttrs.srcdoc]: nextHtml})}
-            />
-
-            <ModeSwitcher
+            <HtmlBlockToolbar
                 mode="editor"
                 onModeChange={(mode) => {
                     if (mode === 'code') openCode();
                 }}
                 onRemove={onRemove}
+                modeSwitchDisabled={elementEditing}
+                actionsRef={setToolbarActions}
+                panelRef={setPanelContainer}
             />
+            <div className={b('body')}>
+                <YfmHtmlBlockPreview
+                    html={resultHtml}
+                    onDoubleClick={openCodeOnDoubleClick ? openCode : undefined}
+                    config={config}
+                    frameRef={frameRef}
+                />
+                <FrameInlineEditing
+                    frameRef={frameRef}
+                    blockRef={blockRef}
+                    sourceHtml={sourceHtml}
+                    toolbarActions={toolbarActions}
+                    panelContainer={panelContainer}
+                    onEditingChange={setElementEditing}
+                    onCommit={(nextHtml) =>
+                        onChange({[YfmHtmlBlockConsts.NodeAttrs.srcdoc]: nextHtml})
+                    }
+                />
+            </div>
         </div>
     );
 };

@@ -2,7 +2,8 @@ import {useEffect, useId, useLayoutEffect, useRef, useState} from 'react';
 import type {KeyboardEvent} from 'react';
 
 import {ChevronDown, Plus, TrashBin} from '@gravity-ui/icons';
-import {Button, Icon, Popup, TextArea, TextInput} from '@gravity-ui/uikit';
+import {Button, Icon, TextArea, TextInput} from '@gravity-ui/uikit';
+import {createPortal} from 'react-dom';
 
 import {i18n} from 'src/i18n/yfm-html-block';
 
@@ -19,11 +20,21 @@ export const InlineElementEditor: React.FC<{
     sourceHtml: string;
     previewRoot: HTMLElement;
     target: Element;
-    anchorElement: HTMLElement | null;
+    toolbarActions: HTMLDivElement | null;
+    panelContainer: HTMLDivElement;
     onDirtyChange: (dirty: boolean) => void;
     onCommit: (html: string) => void;
     onClose: () => void;
-}> = ({sourceHtml, previewRoot, target, anchorElement, onDirtyChange, onCommit, onClose}) => {
+}> = ({
+    sourceHtml,
+    previewRoot,
+    target,
+    toolbarActions,
+    panelContainer,
+    onDirtyChange,
+    onCommit,
+    onClose,
+}) => {
     const [initial] = useState(() => {
         const matching = getMatchingElements(sourceHtml, previewRoot);
         const sourceTarget =
@@ -41,8 +52,7 @@ export const InlineElementEditor: React.FC<{
     const [error, setError] = useState('');
     const nextId = useRef(attributes.length);
     const pendingFocusId = useRef<number | null>(null);
-    const initialFocusPending = useRef(true);
-    const popupRef = useRef<HTMLDivElement>(null);
+    const panelRef = useRef<HTMLDivElement>(null);
     const fieldId = useId();
     const hasChanges =
         text !== initial.text ||
@@ -66,6 +76,12 @@ export const InlineElementEditor: React.FC<{
         document.getElementById(`${fieldId}-attribute-${id}`)?.focus({preventScroll: true});
         pendingFocusId.current = null;
     }, [attributes, fieldId]);
+
+    useEffect(() => {
+        panelRef.current
+            ?.querySelector<HTMLElement>('textarea, input')
+            ?.focus({preventScroll: true});
+    }, []);
 
     const updateAttribute = (id: number, patch: Partial<EditableAttribute>) => {
         setError('');
@@ -103,135 +119,134 @@ export const InlineElementEditor: React.FC<{
         }
     };
 
-    return (
-        <Popup
-            open={Boolean(anchorElement)}
-            anchorElement={anchorElement}
-            returnFocus={false}
-            placement={['bottom-start', 'top-start']}
-            onTransitionInComplete={() => {
-                if (!initialFocusPending.current) return;
-                initialFocusPending.current = false;
-                const control = popupRef.current?.querySelector<HTMLElement>('textarea, input');
-                control?.focus({preventScroll: true});
-            }}
-            onOpenChange={(open) => {
-                if (!open && !hasChanges) onClose();
-            }}
+    return createPortal(
+        <div
+            ref={panelRef}
+            className={`${b('inline-edit-panel')} ${STOP_EVENT_CLASSNAME}`}
+            role="region"
+            aria-labelledby={`${fieldId}-title`}
         >
-            <div
-                ref={popupRef}
-                className={`${b('inline-edit-popup')} ${STOP_EVENT_CLASSNAME}`}
-                role="dialog"
-                aria-label={i18n('edit_element')}
-            >
-                {initial.canEditText && (
-                    <div className={b('inline-edit-field')}>
-                        <label className={b('inline-edit-field-label')} htmlFor={fieldId}>
-                            {i18n('text')}
-                        </label>
-                        <TextArea
-                            id={fieldId}
-                            controlProps={{className: STOP_EVENT_CLASSNAME}}
-                            value={text}
-                            onUpdate={setText}
-                            onKeyDown={onKeyDown}
-                            minRows={4}
-                            maxRows={4}
-                        />
+            <div id={`${fieldId}-title`} className={b('inline-edit-title')}>
+                {i18n('edit_element')}
+                <code>{`<${target.tagName.toLowerCase()}>`}</code>
+            </div>
+            {initial.canEditText && (
+                <div className={b('inline-edit-field')}>
+                    <label className={b('inline-edit-field-label')} htmlFor={fieldId}>
+                        {i18n('text')}
+                    </label>
+                    <TextArea
+                        id={fieldId}
+                        controlProps={{className: STOP_EVENT_CLASSNAME}}
+                        value={text}
+                        onUpdate={setText}
+                        onKeyDown={onKeyDown}
+                        minRows={4}
+                        maxRows={4}
+                    />
+                </div>
+            )}
+            <div className={b('inline-edit-section')}>
+                <button
+                    type="button"
+                    className={`${b('inline-edit-toggle')} ${STOP_EVENT_CLASSNAME}`}
+                    aria-expanded={attributesOpen}
+                    aria-controls={`${fieldId}-attributes`}
+                    onClick={() => setAttributesOpen((open) => !open)}
+                >
+                    <Icon
+                        data={ChevronDown}
+                        size={14}
+                        className={b('inline-edit-toggle-chevron', {open: attributesOpen})}
+                    />
+                    {i18n('attributes')}
+                    <span className={b('inline-edit-toggle-count')}>{attributes.length}</span>
+                </button>
+                {attributesOpen && (
+                    <div id={`${fieldId}-attributes`} className={b('inline-edit-attrs')}>
+                        <div className={b('hint')}>{i18n('attributes_hint')}</div>
+                        {attributes.map((row) => (
+                            <div key={row.id} className={b('inline-edit-attr-row')}>
+                                <TextInput
+                                    id={`${fieldId}-attribute-${row.id}`}
+                                    size="s"
+                                    controlProps={{
+                                        className: STOP_EVENT_CLASSNAME,
+                                        'aria-label': i18n('attribute_name'),
+                                    }}
+                                    value={row.name}
+                                    onUpdate={(name) => updateAttribute(row.id, {name})}
+                                    onKeyDown={onKeyDown}
+                                    placeholder={i18n('attribute_name')}
+                                />
+                                <TextInput
+                                    size="s"
+                                    controlProps={{
+                                        className: STOP_EVENT_CLASSNAME,
+                                        'aria-label': `${i18n('attribute_value')}: ${row.name}`,
+                                    }}
+                                    value={row.value}
+                                    onUpdate={(value) => updateAttribute(row.id, {value})}
+                                    onKeyDown={onKeyDown}
+                                    placeholder={i18n('attribute_value')}
+                                />
+                                <Button
+                                    view="flat"
+                                    size="s"
+                                    className={STOP_EVENT_CLASSNAME}
+                                    aria-label={i18n('remove_attribute')}
+                                    onClick={() =>
+                                        setAttributes((rows) =>
+                                            rows.filter((item) => item.id !== row.id),
+                                        )
+                                    }
+                                >
+                                    <Icon data={TrashBin} size={14} />
+                                </Button>
+                            </div>
+                        ))}
+                        <Button
+                            view="flat"
+                            size="s"
+                            width="max"
+                            className={STOP_EVENT_CLASSNAME}
+                            onClick={() => {
+                                const id = nextId.current++;
+                                pendingFocusId.current = id;
+                                setAttributes((rows) => [...rows, {id, name: '', value: ''}]);
+                            }}
+                        >
+                            <Icon data={Plus} size={14} />
+                            {i18n('add_attribute')}
+                        </Button>
                     </div>
                 )}
-                <div className={b('inline-edit-section')}>
-                    <button
-                        type="button"
-                        className={`${b('inline-edit-toggle')} ${STOP_EVENT_CLASSNAME}`}
-                        aria-expanded={attributesOpen}
-                        aria-controls={`${fieldId}-attributes`}
-                        onClick={() => setAttributesOpen((open) => !open)}
-                    >
-                        <Icon
-                            data={ChevronDown}
-                            size={14}
-                            className={b('inline-edit-toggle-chevron', {open: attributesOpen})}
-                        />
-                        {i18n('attributes')}
-                        <span className={b('inline-edit-toggle-count')}>{attributes.length}</span>
-                    </button>
-                    {attributesOpen && (
-                        <div id={`${fieldId}-attributes`} className={b('inline-edit-attrs')}>
-                            {attributes.map((row) => (
-                                <div key={row.id} className={b('inline-edit-attr-row')}>
-                                    <TextInput
-                                        id={`${fieldId}-attribute-${row.id}`}
-                                        size="s"
-                                        controlProps={{
-                                            className: STOP_EVENT_CLASSNAME,
-                                            'aria-label': i18n('attribute_name'),
-                                        }}
-                                        value={row.name}
-                                        onUpdate={(name) => updateAttribute(row.id, {name})}
-                                        onKeyDown={onKeyDown}
-                                        placeholder={i18n('attribute_name')}
-                                    />
-                                    <TextInput
-                                        size="s"
-                                        controlProps={{
-                                            className: STOP_EVENT_CLASSNAME,
-                                            'aria-label': `${i18n('attribute_value')}: ${row.name}`,
-                                        }}
-                                        value={row.value}
-                                        onUpdate={(value) => updateAttribute(row.id, {value})}
-                                        onKeyDown={onKeyDown}
-                                        placeholder={i18n('attribute_value')}
-                                    />
-                                    <Button
-                                        view="flat"
-                                        size="s"
-                                        className={STOP_EVENT_CLASSNAME}
-                                        aria-label={i18n('remove_attribute')}
-                                        onClick={() =>
-                                            setAttributes((rows) =>
-                                                rows.filter((item) => item.id !== row.id),
-                                            )
-                                        }
-                                    >
-                                        <Icon data={TrashBin} size={14} />
-                                    </Button>
-                                </div>
-                            ))}
-                            <Button
-                                view="flat"
-                                size="s"
-                                width="max"
-                                className={STOP_EVENT_CLASSNAME}
-                                onClick={() => {
-                                    const id = nextId.current++;
-                                    initialFocusPending.current = false;
-                                    pendingFocusId.current = id;
-                                    setAttributes((rows) => [...rows, {id, name: '', value: ''}]);
-                                }}
-                            >
-                                <Icon data={Plus} size={14} />
-                                {i18n('add_attribute')}
-                            </Button>
-                        </div>
-                    )}
-                </div>
-                {error && <div role="alert">{error}</div>}
-                <div className={b('inline-edit-popup-actions')}>
-                    <Button view="flat" size="s" className={STOP_EVENT_CLASSNAME} onClick={onClose}>
-                        {i18n('cancel')}
-                    </Button>
-                    <Button
-                        view="action"
-                        size="s"
-                        className={STOP_EVENT_CLASSNAME}
-                        onClick={commit}
-                    >
-                        {i18n('save')}
-                    </Button>
-                </div>
             </div>
-        </Popup>
+            {error && <div role="alert">{error}</div>}
+            {toolbarActions &&
+                createPortal(
+                    <>
+                        <Button
+                            view="flat"
+                            size="m"
+                            className={STOP_EVENT_CLASSNAME}
+                            onClick={onClose}
+                        >
+                            {i18n('cancel')}
+                        </Button>
+                        <Button
+                            view="action"
+                            size="m"
+                            className={STOP_EVENT_CLASSNAME}
+                            onClick={commit}
+                            disabled={!hasChanges}
+                        >
+                            {i18n('save')}
+                        </Button>
+                    </>,
+                    toolbarActions,
+                )}
+        </div>,
+        panelContainer,
     );
 };

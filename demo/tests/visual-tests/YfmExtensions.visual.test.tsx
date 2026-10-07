@@ -35,57 +35,59 @@ test.describe('Extensions, YFM', () => {
         await mount(<YFMStories.YfmHtmlBlock initial={'::: html\n<p>Initial</p>\n:::'} />);
 
         const block = page.locator('.g-md-yfm-html-block');
-        await block.hover();
         const toolbar = block.locator('.g-md-yfm-html-block__toolbar');
-        await expect(toolbar).toHaveCSS('opacity', '1');
-        await expect(toolbar).toHaveScreenshot('html-block-toolbar.png');
-
-        const modes = toolbar.getByRole('group', {name: 'View mode'});
-        const editor = modes.getByRole('button', {name: 'Editor'});
-        const code = modes.getByRole('button', {name: 'Code'});
-        await expect(editor).toHaveAttribute('aria-pressed', 'true');
-        await expect(code).toHaveAttribute('aria-pressed', 'false');
-        await expect(modes.getByRole('button', {name: 'Preview'})).toHaveCount(0);
+        const modes = toolbar.getByRole('radiogroup', {name: 'View mode'});
+        const visual = modes.getByRole('radio', {name: 'Visual'});
+        const code = modes.getByRole('radio', {name: 'Code'});
+        await expect(visual).toBeChecked();
+        await expect(code).not.toBeChecked();
         await expect(toolbar.getByRole('button', {name: 'Remove'})).toBeVisible();
+        await expect(toolbar).toHaveScreenshot('html-block-toolbar.png');
+        await expect(
+            block.getByText(
+                'Select text or an image in the block to edit its text and attributes.',
+            ),
+        ).toBeVisible();
 
         const preview = block.frameLocator('iframe').locator('p');
         await preview.dblclick();
-        await expect(block.locator('textarea')).toHaveCount(0);
-        await code.click();
-        await expect(block.locator('textarea')).toBeVisible();
+        await expect(block.getByRole('textbox', {name: 'HTML', exact: true})).toHaveCount(0);
+        const cancel = toolbar.getByRole('button', {name: 'Cancel'});
+        if (await cancel.isVisible()) await cancel.click();
+
+        await code.check();
+        const source = block.getByRole('textbox', {name: 'HTML', exact: true});
+        await expect(source).toBeVisible();
         await expect(block.locator('.g-md-yfm-html-block__code-body')).toHaveScreenshot(
             'html-block-code.png',
         );
-        await expect(block.getByText('Code', {exact: true})).toBeVisible();
-        await expect(block).toHaveCSS('border-top-width', '1px');
-        await expect(editor).toHaveAttribute('aria-pressed', 'false');
-        await expect(code).toHaveAttribute('aria-pressed', 'true');
-        await block.locator('textarea').fill('<p>Discarded from editor</p>');
-        await block.getByRole('button', {name: 'Cancel'}).click();
-        await expect(block.getByText('Editor', {exact: true})).toBeVisible();
-        await expect(editor).toHaveAttribute('aria-pressed', 'true');
+        await expect(block).toHaveScreenshot('html-block-code-layout.png');
+        await expect(visual).not.toBeChecked();
+        await expect(code).toBeChecked();
+        await source.fill('<p>Discarded from editor</p>');
+        await cancel.click();
+        await expect(visual).toBeChecked();
         await expect(preview).toHaveText('Initial');
 
-        await block.hover();
-        await code.click();
-
-        await expect(block.locator('textarea')).toBeVisible();
-        await block.locator('textarea').fill('<p>Updated</p>');
-        await editor.click();
-
+        await code.check();
+        await source.fill('<p>Updated</p>');
+        await visual.check();
         await expect(preview).toHaveText('Updated');
-        await expect(editor).toHaveAttribute('aria-pressed', 'true');
-        await expect(code).toHaveAttribute('aria-pressed', 'false');
+        await expect(visual).toBeChecked();
+        await expect(code).not.toBeChecked();
+
+        await code.check();
+        await source.fill('<p>Saved with toolbar</p>');
+        await toolbar.getByRole('button', {name: 'Save', exact: true}).click();
+        await expect(preview).toHaveText('Saved with toolbar');
+        await toolbar.getByRole('button', {name: 'Remove'}).click();
+        await expect(block).toHaveCount(0);
     });
     test('should offer inline editing in the HTML block story', async ({mount, page}) => {
         await mount(<YFMStories.YfmHtmlBlock />);
 
         const block = page.locator('.g-md-yfm-html-block').first();
-        await block.hover();
-        await expect(block.getByRole('button', {name: 'Editor'})).toHaveAttribute(
-            'aria-pressed',
-            'true',
-        );
+        await expect(block.getByRole('radio', {name: 'Visual'})).toBeChecked();
         const image = block.frameLocator('iframe').locator('img.html-block-demo-image');
         await expect(image).toBeVisible();
         await expect
@@ -120,46 +122,28 @@ test.describe('Extensions, YFM', () => {
         expect(scrollBefore).toBeGreaterThan(0);
         await editButton.click();
         await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(scrollBefore);
-        const dialog = page.getByRole('dialog', {name: 'Edit element'});
-        const outline = block.locator('.g-md-yfm-html-block__inline-edit-outline');
-        await page.evaluate(() => window.scrollBy(0, 100));
-        await expect
-            .poll(async () => {
-                const anchor = await outline.boundingBox();
-                const popup = await dialog.boundingBox();
-                if (!anchor || !popup) return Infinity;
-                return Math.min(
-                    Math.abs(popup.y - anchor.y - anchor.height),
-                    Math.abs(popup.y + popup.height - anchor.y),
-                );
-            })
-            .toBeLessThan(24);
-        await block
-            .frameLocator('iframe')
-            .locator('body')
-            .click({position: {x: 1, y: 1}});
-        await expect(dialog).toHaveCount(0);
+
+        const panel = block.getByRole('region', {name: 'Edit element <h1>'});
+        const toolbar = block.locator('.g-md-yfm-html-block__toolbar');
+        await expect(panel.getByRole('textbox', {name: 'Text'})).toBeFocused();
+        await expect(toolbar.getByRole('button', {name: 'Save', exact: true})).toBeDisabled();
+        await expect(toolbar.getByRole('radio', {name: 'Code'})).toBeDisabled();
+        await toolbar.getByRole('button', {name: 'Cancel'}).click();
+        await expect(panel).toHaveCount(0);
 
         await heading.hover();
         await editButton.click();
-        await dialog.getByRole('button', {name: /Attributes/}).click();
-        await dialog.getByRole('button', {name: 'Add attribute'}).click();
-        const attributeName = dialog.getByRole('textbox', {name: 'Name'}).last();
+        await panel.getByRole('button', {name: /Attributes/}).click();
+        await panel.getByRole('button', {name: 'Add attribute'}).click();
+        const attributeName = panel.getByRole('textbox', {name: 'Name', exact: true}).last();
         await expect(attributeName).toBeFocused();
-        const text = dialog.getByRole('textbox', {name: 'Text'});
-        expect(
-            await text.evaluate(
-                (control) =>
-                    (control as HTMLTextAreaElement).selectionEnd -
-                    (control as HTMLTextAreaElement).selectionStart,
-            ),
-        ).toBe(0);
         await attributeName.fill('title');
-        await dialog.getByRole('textbox', {name: 'Value: title'}).fill('Edited');
-        await text.fill('Updated heading');
-        await dialog.getByRole('button', {name: 'Save'}).click();
+        await panel.getByRole('textbox', {name: 'Value: title'}).fill('Edited');
+        await panel.getByRole('textbox', {name: 'Text'}).fill('Updated heading');
+        await toolbar.getByRole('button', {name: 'Save', exact: true}).click();
         await expect(heading).toHaveText('Updated heading');
         await expect(heading).toHaveAttribute('title', 'Edited');
+        await expect(toolbar.getByRole('radio', {name: 'Code'})).toBeEnabled();
         await expect
             .poll(() =>
                 block
@@ -171,6 +155,78 @@ test.describe('Extensions, YFM', () => {
                     ),
             )
             .toBeLessThanOrEqual(0);
+    });
+    test('should group element properties and actions within the HTML block', async ({
+        mount,
+        page,
+    }) => {
+        await mount(
+            <YFMStories.YfmHtmlBlock
+                initial={'::: html\n<p title="Greeting">Initial</p>\n<hr class="divider">\n:::'}
+            />,
+        );
+        const block = page.locator('.g-md-yfm-html-block');
+        const preview = block.frameLocator('iframe');
+        const paragraph = preview.locator('p');
+        const toolbar = block.locator('.g-md-yfm-html-block__toolbar');
+        const panel = block.getByRole('region', {name: /Edit element/});
+        const save = toolbar.getByRole('button', {name: 'Save', exact: true});
+
+        await paragraph.click();
+        await expect(panel).toContainText('<p>');
+        const text = panel.getByRole('textbox', {name: 'Text'});
+        await expect(text).toBeFocused();
+        await panel.getByRole('button', {name: /Attributes/}).click();
+        await expect(panel).toContainText('HTML attributes control links, images and appearance.');
+        await expect(block).toHaveScreenshot('html-block-element-panel.png');
+        await text.fill('Discarded');
+        await toolbar.getByRole('button', {name: 'Cancel'}).press('Enter');
+        await expect(paragraph).toHaveText('Initial');
+
+        await paragraph.click();
+        await text.fill('Updated');
+        await panel.getByRole('button', {name: /Attributes/}).click();
+        const name = panel.getByRole('textbox', {name: 'Name', exact: true});
+        await name.fill('invalid name');
+        await save.click();
+        await expect(panel.getByRole('alert')).toContainText('Invalid attribute name');
+        await expect(paragraph).toHaveText('Initial');
+        await name.fill('title');
+        await panel.getByRole('textbox', {name: 'Value: title'}).fill('Updated title');
+        await save.click();
+        await expect(paragraph).toHaveText('Updated');
+        await expect(paragraph).toHaveAttribute('title', 'Updated title');
+
+        await preview.locator('hr').click();
+        await expect(panel).toContainText('<hr>');
+        await expect(panel.getByRole('textbox', {name: 'Text'})).toHaveCount(0);
+        const classValue = panel.getByRole('textbox', {name: 'Value: class'});
+        await expect(classValue).toBeVisible();
+        await classValue.fill('updated-divider');
+        await classValue.press('Enter');
+        await expect(preview.locator('hr')).toHaveAttribute('class', 'updated-divider');
+
+        await paragraph.click();
+        await text.fill('Discarded with Escape');
+        await text.press('Escape');
+        await expect(panel).toHaveCount(0);
+        await expect(paragraph).toHaveText('Updated');
+    });
+    test('should keep HTML block controls within a narrow viewport', async ({mount, page}) => {
+        await page.setViewportSize({width: 480, height: 800});
+        await mount(
+            <YFMStories.YfmHtmlBlock initial={'::: html\n<p title="Greeting">Initial</p>\n:::'} />,
+        );
+        const block = page.locator('.g-md-yfm-html-block');
+        await block.frameLocator('iframe').locator('p').click();
+        await block.getByRole('button', {name: /Attributes/}).click();
+        await expect(block).toHaveScreenshot('html-block-element-panel-narrow.png');
+        expect(
+            await block.evaluate((element) => element.scrollWidth - element.clientWidth),
+        ).toBeLessThanOrEqual(2);
+        await expect(block.getByRole('button', {name: 'Cancel'})).toBeVisible();
+        await expect(block.getByRole('button', {name: 'Save', exact: true})).toBeVisible();
+        await expect(block.getByRole('button', {name: 'Remove', exact: true})).toBeVisible();
     });
     test('YFM File', async ({mount, expectScreenshot}) => {
         await mount(<YFMStories.YfmFile />);

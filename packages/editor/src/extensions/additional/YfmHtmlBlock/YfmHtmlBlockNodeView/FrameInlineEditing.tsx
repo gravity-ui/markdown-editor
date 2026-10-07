@@ -28,14 +28,30 @@ export const FrameInlineEditing: React.FC<{
     blockRef: RefObject<HTMLDivElement>;
     sourceHtml: string;
     onCommit: (html: string) => void;
-}> = ({frameRef, blockRef, sourceHtml, onCommit}) => {
+    toolbarActions: HTMLDivElement | null;
+    panelContainer: HTMLDivElement | null;
+    onEditingChange: (editing: boolean) => void;
+}> = ({
+    frameRef,
+    blockRef,
+    sourceHtml,
+    onCommit,
+    toolbarActions,
+    panelContainer,
+    onEditingChange,
+}) => {
     const [hover, setHover] = useState<Target | null>(null);
     const [selected, setSelected] = useState<Selection | null>(null);
-    const [anchor, setAnchor] = useState<HTMLDivElement | null>(null);
     const selectedRef = useRef(selected);
     const dirtyRef = useRef(false);
     const nextSelectionId = useRef(0);
     selectedRef.current = selected;
+
+    const isEditing = Boolean(selected);
+    useEffect(() => {
+        onEditingChange(isEditing);
+        return () => onEditingChange(false);
+    }, [isEditing, onEditingChange]);
 
     useEffect(() => {
         const frame = frameRef.current;
@@ -56,16 +72,16 @@ export const FrameInlineEditing: React.FC<{
             const blockRect = block.getBoundingClientRect();
             const frameRect = frame.getBoundingClientRect();
             const targetRect = target.getBoundingClientRect();
-            const left = Math.max(0, frameRect.left + targetRect.left - blockRect.left - 4);
-            const top = Math.max(0, frameRect.top + targetRect.top - blockRect.top - 4);
-            const width = targetRect.width + 8;
+            const left = Math.max(8, frameRect.left + targetRect.left - blockRect.left - 4);
+            const top = Math.max(8, frameRect.top + targetRect.top - blockRect.top - 4);
+            const width = Math.min(targetRect.width + 8, blockRect.width - left - 8);
             const height = targetRect.height + 8;
 
             return {
                 element: target,
                 outline: {left, top, width, height},
                 button: {
-                    left: clamp(left + width - 20, 4, blockRect.width - 28),
+                    left: clamp(left + width - 20, 4, blockRect.width - 36),
                     top: clamp(top - 8, 0, blockRect.height - 28),
                 },
             };
@@ -141,24 +157,20 @@ export const FrameInlineEditing: React.FC<{
         dirtyRef.current = false;
         setSelected(null);
         setHover(null);
+        blockRef.current?.focus({preventScroll: true});
     };
 
     const current = selected ?? hover;
     return (
         <>
-            {current && (
-                <div
-                    ref={selected ? setAnchor : undefined}
-                    className={b('inline-edit-outline')}
-                    style={current.outline}
-                />
-            )}
+            {current && <div className={b('inline-edit-outline')} style={current.outline} />}
             {hover && !selected && (
                 <button
                     type="button"
                     className={`${b('inline-edit-button')} ${STOP_EVENT_CLASSNAME}`}
                     style={hover.button}
                     aria-label={i18n('edit_element')}
+                    title={i18n('edit_element')}
                     onMouseDown={(event) => event.preventDefault()}
                     onClick={(event) => {
                         event.preventDefault();
@@ -170,13 +182,14 @@ export const FrameInlineEditing: React.FC<{
                     <Icon data={Pencil} size={15} />
                 </button>
             )}
-            {selected && frameRef.current?.contentDocument?.body && (
+            {selected && panelContainer && frameRef.current?.contentDocument?.body && (
                 <InlineElementEditor
                     key={selected.id}
                     sourceHtml={sourceHtml}
                     previewRoot={frameRef.current.contentDocument.body}
                     target={selected.element}
-                    anchorElement={anchor}
+                    toolbarActions={toolbarActions}
+                    panelContainer={panelContainer}
                     onDirtyChange={(dirty) => {
                         dirtyRef.current = dirty;
                     }}
