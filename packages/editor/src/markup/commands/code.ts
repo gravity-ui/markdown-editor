@@ -1,13 +1,24 @@
 import {type ChangeSpec, EditorSelection, type StateCommand} from '@codemirror/state';
 
-import {getInlineRanges, mapInlineRange, wrapToBlock} from './helpers';
+import {wrapToBlock} from './helpers';
+import {createInlineCommand} from './inline-formatting';
+import {getInlineRanges, mapInlineRange} from './inline-ranges';
 
 export const wrapToCodeBlock: StateCommand = wrapToBlock(
     ({lineBreak}) => '```' + lineBreak,
     ({lineBreak}) => lineBreak + '```',
 );
 
-export const wrapToInlineCode: StateCommand = ({state, dispatch}) => {
+export const toggleInlineCode: StateCommand = createInlineCommand({
+    spec: {kind: 'code', before: '`', after: '`'},
+    fallback: wrapInlineCodeLegacy,
+});
+
+/** @deprecated Use toggleInlineCode. */
+// TODO: Remove this alias in the next major release.
+export const wrapToInlineCode = toggleInlineCode;
+
+function wrapInlineCodeLegacy({state, dispatch}: Parameters<StateCommand>[0]): boolean {
     const tr = state.changeByRange((range) => {
         const changeSpec: ChangeSpec[] = getInlineRanges(state.doc, range).flatMap(({from, to}) => {
             const content = state.sliceDoc(from, to);
@@ -37,4 +48,4 @@ export const wrapToInlineCode: StateCommand = ({state, dispatch}) => {
     });
     dispatch(state.update(tr));
     return true;
-};
+}
