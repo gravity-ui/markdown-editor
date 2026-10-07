@@ -4,9 +4,8 @@ import {builders} from 'prosemirror-test-builder';
 import {describe, expect, it} from 'vitest';
 
 import {applyCommand} from '../../../../tests/utils';
-import {Colors} from '../Color/const';
 
-import {StatusAttr, statusNodeName, statusNodeSpec} from './StatusSpecs';
+import {StatusAttr, StatusColor, statusNodeName, statusNodeSpec} from './StatusSpecs';
 import {insertStatus, updateStatus} from './commands';
 import {removeEmptyStatusPlugin} from './remove-empty-plugin';
 
@@ -30,7 +29,7 @@ const {doc, paragraph: p, code_block: code, status} = builders(schema);
 
 const grayStatus = (text: string) => ({
     [StatusAttr.Text]: text,
-    [StatusAttr.Color]: Colors.Gray,
+    [StatusAttr.Color]: StatusColor.Gray,
 });
 
 const stateWithCursor = (pmDoc: ReturnType<typeof doc>, pos: number) =>
@@ -69,12 +68,12 @@ describe('Status commands', () => {
         const pmDoc = doc(p(status(grayStatus('Draft'))));
         const {res, tr} = applyCommand(
             stateWithCursor(pmDoc, 1),
-            updateStatus(1, {[StatusAttr.Color]: Colors.Green}),
+            updateStatus(1, {[StatusAttr.Color]: StatusColor.Green}),
         );
 
         expect(res).toBe(true);
         expect(tr.doc).toMatchNode(
-            doc(p(status({[StatusAttr.Text]: 'Draft', [StatusAttr.Color]: Colors.Green}))),
+            doc(p(status({[StatusAttr.Text]: 'Draft', [StatusAttr.Color]: StatusColor.Green}))),
         );
         expect(tr.selection).toBeInstanceOf(NodeSelection);
     });

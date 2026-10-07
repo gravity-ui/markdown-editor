@@ -1,13 +1,11 @@
 import type {NodeType} from 'prosemirror-model';
 import {type Command, type EditorState, NodeSelection} from 'prosemirror-state';
 
-import type {Colors} from '../Color/const';
-
-import {StatusAttr, defaultStatusColor, statusType} from './StatusSpecs';
+import {StatusAttr, type StatusColor, defaultStatusColor, statusType} from './StatusSpecs';
 
 export type StatusAttrs = {
     [StatusAttr.Text]?: string;
-    [StatusAttr.Color]?: Colors;
+    [StatusAttr.Color]?: StatusColor;
 };
 
 const canInsertStatus = (state: EditorState, type: NodeType): boolean => {

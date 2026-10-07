@@ -1,13 +1,67 @@
-// color name -> uikit hue
-$hues: (
-    'gray': 'cool-grey',
-    'blue': 'blue',
-    'green': 'green',
-    'yellow': 'yellow',
-    'orange': 'orange',
-    'red': 'red',
-    'violet': 'purple',
+@use 'sass:map';
+
+// Hue and saturation per color; lightness is fixed per theme, so the row stays even.
+$colors: (
+    'gray': (
+        hue: 220,
+        saturation: 10%,
+    ),
+    'blue': (
+        hue: 222,
+        saturation: 80%,
+    ),
+    'teal': (
+        hue: 185,
+        saturation: 62%,
+    ),
+    'green': (
+        hue: 142,
+        saturation: 55%,
+    ),
+    'lime': (
+        hue: 95,
+        saturation: 62%,
+    ),
+    'yellow': (
+        hue: 50,
+        saturation: 90%,
+    ),
+    'orange': (
+        hue: 26,
+        saturation: 92%,
+    ),
+    'red': (
+        hue: 356,
+        saturation: 80%,
+    ),
+    'magenta': (
+        hue: 318,
+        saturation: 70%,
+    ),
+    'purple': (
+        hue: 268,
+        saturation: 70%,
+    ),
 );
+
+@mixin palette($saturation-scale, $background-lightness, $border-lightness) {
+    @each $name, $color in $colors {
+        $hue: map.get($color, hue);
+        $saturation: map.get($color, saturation) * $saturation-scale;
+
+        --g-md-status-#{$name}-background: #{hsl($hue, $saturation, $background-lightness)};
+        --g-md-status-#{$name}-border: #{hsl($hue, $saturation, $border-lightness)};
+    }
+}
+
+.g-root {
+    @include palette(1, 90%, 70%);
+}
+
+.g-root_theme_dark,
+.g-root_theme_dark-hc {
+    @include palette(0.45, 24%, 42%);
+}
 
 .g-md-status {
     display: inline-flex;
@@ -16,15 +70,34 @@ $hues: (
     padding: 0 6px;
 
     white-space: nowrap;
+    text-transform: uppercase;
 
     color: var(--g-color-text-primary);
     border: 1px solid;
     border-radius: 4px;
 
-    @each $name, $hue in $hues {
+    @each $name in map.keys($colors) {
         &_color_#{$name} {
-            border-color: var(--g-color-private-#{$hue}-200-solid);
-            background-color: var(--g-color-private-#{$hue}-100-solid);
+            border-color: var(--g-md-status-#{$name}-border);
+            background-color: var(--g-md-status-#{$name}-background);
+        }
+    }
+
+    &_swatch {
+        justify-content: center;
+
+        box-sizing: border-box;
+        width: 32px;
+        height: 32px;
+        padding: 0;
+
+        cursor: pointer;
+
+        border-radius: 6px;
+
+        &:focus-visible {
+            outline: 2px solid var(--g-color-line-focus);
+            outline-offset: 1px;
         }
     }
 }

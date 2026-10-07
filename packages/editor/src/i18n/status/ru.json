@@ -4,9 +4,12 @@
   "default_caption": "Статус",
   "color_gray": "Серый",
   "color_blue": "Синий",
+  "color_teal": "Бирюзовый",
   "color_green": "Зелёный",
+  "color_lime": "Салатовый",
   "color_yellow": "Жёлтый",
   "color_orange": "Оранжевый",
   "color_red": "Красный",
-  "color_violet": "Фиолетовый"
+  "color_magenta": "Пурпурный",
+  "color_purple": "Фиолетовый"
 }

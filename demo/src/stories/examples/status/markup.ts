@@ -7,11 +7,14 @@ Every color of the palette:
 
 - :status[Gray]
 - :status[Blue]{color=blue}
+- :status[Teal]{color=teal}
 - :status[Green]{color=green}
+- :status[Lime]{color=lime}
 - :status[Yellow]{color=yellow}
 - :status[Orange]{color=orange}
 - :status[Red]{color=red}
-- :status[Violet]{color=violet}
+- :status[Magenta]{color=magenta}
+- :status[Purple]{color=purple}
 
 > Inside a quote: :status[On review]{color=yellow}
 

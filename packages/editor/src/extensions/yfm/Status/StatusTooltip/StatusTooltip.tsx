@@ -1,28 +1,18 @@
 import {Check} from '@gravity-ui/icons';
-import {Button, Icon, TextInput} from '@gravity-ui/uikit';
+import {Icon, TextInput} from '@gravity-ui/uikit';
 
 import type {Node} from '#pm/model';
+import {TextSelection} from '#pm/state';
 import type {EditorView} from '#pm/view';
 import {cn} from 'src/classname';
 import {i18n} from 'src/i18n/status';
 
-import {Colors} from '../../Color/const';
 import {StatusAttr, normalizeStatusColor, statusCn, statusColors} from '../StatusSpecs';
 import {updateStatus} from '../commands';
 
 import './StatusTooltip.scss';
 
 const b = cn('status-tooltip');
-
-const colorTitleKeys = {
-    [Colors.Gray]: 'color_gray',
-    [Colors.Blue]: 'color_blue',
-    [Colors.Green]: 'color_green',
-    [Colors.Yellow]: 'color_yellow',
-    [Colors.Orange]: 'color_orange',
-    [Colors.Red]: 'color_red',
-    [Colors.Violet]: 'color_violet',
-} as const satisfies Record<Colors, string>;
 
 export type StatusTooltipProps = {
     node: Node;
@@ -37,6 +27,15 @@ export function StatusTooltip({node, pos, view}: StatusTooltipProps) {
     const update = (attrs: Parameters<typeof updateStatus>[1]) =>
         updateStatus(pos, attrs)(view.state, view.dispatch);
 
+    // Moving the selection out of the badge closes the popover.
+    const close = () => {
+        const {state} = view;
+        const selection = TextSelection.near(state.doc.resolve(pos + node.nodeSize));
+
+        view.dispatch(state.tr.setSelection(selection));
+        view.focus();
+    };
+
     return (
         <div className={b()}>
             <TextInput
@@ -45,22 +44,30 @@ export function StatusTooltip({node, pos, view}: StatusTooltipProps) {
                 value={text}
                 placeholder={i18n('placeholder')}
                 onUpdate={(value) => update({[StatusAttr.Text]: value})}
+                onKeyDown={(event) => {
+                    if (event.key === 'Enter') close();
+                }}
             />
             <div className={b('colors')}>
-                {statusColors.map((itemColor) => (
-                    <Button
-                        key={itemColor}
-                        size="s"
-                        view="flat"
-                        selected={itemColor === color}
-                        title={i18n(colorTitleKeys[itemColor])}
-                        onClick={() => update({[StatusAttr.Color]: itemColor})}
-                    >
-                        <span className={statusCn({color: itemColor}, [b('swatch')])}>
-                            {itemColor === color ? <Icon data={Check} size={12} /> : null}
-                        </span>
-                    </Button>
-                ))}
+                {statusColors.map((itemColor) => {
+                    const selected = itemColor === color;
+                    const label = i18n(`color_${itemColor}`);
+
+                    return (
+                        <button
+                            key={itemColor}
+                            type="button"
+                            className={statusCn({color: itemColor, swatch: true})}
+                            title={label}
+                            aria-label={label}
+                            aria-pressed={selected}
+                            tabIndex={selected ? undefined : -1}
+                            onClick={() => update({[StatusAttr.Color]: itemColor})}
+                        >
+                            {selected ? <Icon data={Check} size={16} /> : null}
+                        </button>
+                    );
+                })}
             </div>
         </div>
     );

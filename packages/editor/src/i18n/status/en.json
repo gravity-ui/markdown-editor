@@ -4,9 +4,12 @@
   "default_caption": "Status",
   "color_gray": "Gray",
   "color_blue": "Blue",
+  "color_teal": "Teal",
   "color_green": "Green",
+  "color_lime": "Lime",
   "color_yellow": "Yellow",
   "color_orange": "Orange",
   "color_red": "Red",
-  "color_violet": "Violet"
+  "color_magenta": "Magenta",
+  "color_purple": "Purple"
 }

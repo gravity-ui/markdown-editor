@@ -1,22 +1,11 @@
 .g-md-status-tooltip {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-
-    padding: 8px;
+    padding: 12px;
 
     &__colors {
         display: grid;
-        grid-template-columns: repeat(7, auto);
-        gap: 4px;
-    }
+        grid-template-columns: repeat(5, auto);
+        gap: 8px;
 
-    &__swatch {
-        display: inline-flex;
-        justify-content: center;
-        align-items: center;
-
-        min-width: 20px;
-        min-height: 20px;
+        margin-top: 12px;
     }
 }

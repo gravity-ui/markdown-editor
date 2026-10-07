@@ -10,10 +10,16 @@ import {DirectiveContext} from '../../../../tests/utils';
 import {ExtensionsManager} from '../../../core';
 import {BaseNode, BaseSchemaSpecs} from '../../base/specs';
 import {BlockquoteSpecs, blockquoteNodeName} from '../../markdown/specs';
-import {Colors} from '../Color/const';
 import {CutAttr, CutNode, YfmCutSpecs} from '../YfmCut/YfmCutSpecs';
 
-import {StatusAttr, StatusSpecs, statusColors, statusNodeName, statusPlugin} from './StatusSpecs';
+import {
+    StatusAttr,
+    StatusColor,
+    StatusSpecs,
+    statusColors,
+    statusNodeName,
+    statusPlugin,
+} from './StatusSpecs';
 
 const {
     schema,
@@ -41,9 +47,26 @@ const {doc, p, bq, cut, cutTitle, cutContent, status} = builders<
 const {same, parse, serialize} = createMarkupChecker({parser, serializer});
 
 describe('Status extension', () => {
+    it('should expose ten colors', () => {
+        expect(statusColors).toEqual([
+            'gray',
+            'blue',
+            'teal',
+            'green',
+            'lime',
+            'yellow',
+            'orange',
+            'red',
+            'magenta',
+            'purple',
+        ]);
+    });
+
     it.each(statusColors)('should parse and serialize the %s color', (color) => {
         const markup =
-            color === Colors.Gray ? ':status[In progress]' : `:status[In progress]{color=${color}}`;
+            color === StatusColor.Gray
+                ? ':status[In progress]'
+                : `:status[In progress]{color=${color}}`;
 
         same(markup, doc(p(status({[StatusAttr.Text]: 'In progress', [StatusAttr.Color]: color}))));
     });
@@ -54,7 +77,7 @@ describe('Status extension', () => {
             doc(
                 p(
                     'Task is ',
-                    status({[StatusAttr.Text]: 'done', [StatusAttr.Color]: Colors.Green}),
+                    status({[StatusAttr.Text]: 'done', [StatusAttr.Color]: StatusColor.Green}),
                     ' already',
                 ),
             ),
@@ -63,7 +86,7 @@ describe('Status extension', () => {
 
     it('should fall back to the gray color for an unknown value', () => {
         const node = doc(
-            p(status({[StatusAttr.Text]: 'In progress', [StatusAttr.Color]: Colors.Gray})),
+            p(status({[StatusAttr.Text]: 'In progress', [StatusAttr.Color]: StatusColor.Gray})),
         );
 
         parse(':status[In progress]{color=pink}', node);
@@ -73,7 +96,7 @@ describe('Status extension', () => {
     it('should escape brackets and backslashes in the caption', () => {
         same(
             ':status[a\\] b \\\\ c]',
-            doc(p(status({[StatusAttr.Text]: 'a] b \\ c', [StatusAttr.Color]: Colors.Gray}))),
+            doc(p(status({[StatusAttr.Text]: 'a] b \\ c', [StatusAttr.Color]: StatusColor.Gray}))),
         );
     });
 
@@ -84,7 +107,7 @@ describe('Status extension', () => {
                 p(
                     status({
                         [StatusAttr.Text]: '**bold** _and_ `code`',
-                        [StatusAttr.Color]: Colors.Red,
+                        [StatusAttr.Color]: StatusColor.Red,
                     }),
                 ),
             ),
@@ -94,7 +117,16 @@ describe('Status extension', () => {
     it('should parse the badge inside a quote', () => {
         same(
             '> :status[On review]{color=blue}',
-            doc(bq(p(status({[StatusAttr.Text]: 'On review', [StatusAttr.Color]: Colors.Blue})))),
+            doc(
+                bq(
+                    p(
+                        status({
+                            [StatusAttr.Text]: 'On review',
+                            [StatusAttr.Color]: StatusColor.Blue,
+                        }),
+                    ),
+                ),
+            ),
         );
     });
 
@@ -115,7 +147,7 @@ describe('Status extension', () => {
                         p(
                             status({
                                 [StatusAttr.Text]: 'On review',
-                                [StatusAttr.Color]: Colors.Blue,
+                                [StatusAttr.Color]: StatusColor.Blue,
                             }),
                         ),
                     ),
@@ -126,7 +158,10 @@ describe('Status extension', () => {
 
     it('should render the same html in the markup and wysiwyg modes', () => {
         const markup = ':status[In progress]{color=green}';
-        const node = status({[StatusAttr.Text]: 'In progress', [StatusAttr.Color]: Colors.Green});
+        const node = status({
+            [StatusAttr.Text]: 'In progress',
+            [StatusAttr.Color]: StatusColor.Green,
+        });
         const dom = DOMSerializer.fromSchema(schema).serializeNode(node) as HTMLElement;
 
         expect(dom.outerHTML).toBe(new MarkdownIt().use(statusPlugin).renderInline(markup));
@@ -136,7 +171,7 @@ describe('Status extension', () => {
         parseDOM(
             schema,
             '<p><span class="g-md-status g-md-status_color_green" data-qa="status" data-color="green">Done</span></p>',
-            doc(p(status({[StatusAttr.Text]: 'Done', [StatusAttr.Color]: Colors.Green}))),
+            doc(p(status({[StatusAttr.Text]: 'Done', [StatusAttr.Color]: StatusColor.Green}))),
         );
     });
 
@@ -144,7 +179,7 @@ describe('Status extension', () => {
         parseDOM(
             schema,
             '<p><span class="g-md-status" data-color="pink">Done</span></p>',
-            doc(p(status({[StatusAttr.Text]: 'Done', [StatusAttr.Color]: Colors.Gray}))),
+            doc(p(status({[StatusAttr.Text]: 'Done', [StatusAttr.Color]: StatusColor.Gray}))),
         );
     });
 });

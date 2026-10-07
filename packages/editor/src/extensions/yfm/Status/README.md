@@ -9,8 +9,8 @@ An inline status badge: a short caption in a colored box inside the text.
 ```
 
 The `status` text (inline) directive. The caption is the content in square brackets, the color is
-the `color` attribute. Available colors: `gray`, `blue`, `green`, `yellow`, `orange`, `red`,
-`violet` — the palette of the text color extension.
+the `color` attribute. Available colors: `gray`, `blue`, `teal`, `green`, `lime`, `yellow`,
+`orange`, `red`, `magenta`, `purple`.
 
 The default `gray` color is omitted on serialization: `:status[In progress]`. A missing or unknown
 color becomes `gray`. `\` and `]` in the caption are escaped.
@@ -26,11 +26,19 @@ the editor and the preview is the same:
 >
 ```
 
-Classes are derived from the attributes, `class` is not stored in the node.
+Classes are derived from the attributes, `class` is not stored in the node. The caption is
+displayed in capitals through `text-transform`, the document keeps it as it was typed.
+
+### Palette
+
+The fill and the border of every color are the `--g-md-status-<color>-background` and
+`--g-md-status-<color>-border` variables, declared on `.g-root` for the light theme and
+overridden for the dark one. The popover swatches read the same variables as the badge.
 
 ### Editor
 
-Selecting a badge opens a popover with a caption field and a color grid. A badge with an empty
+Selecting a badge opens a popover with a caption field and a grid of ten swatches. `Enter` in the
+field closes the popover and returns the focus to the editor. A badge with an empty
 caption lives only while it is selected: as soon as the selection leaves it, the badge is removed.
 The `addStatus` action inserts a gray badge with the caption from the `status` keyset and selects
 it.

@@ -12,7 +12,14 @@ import {statusPlugin} from './plugin';
 import {statusNodeSpec} from './schema';
 import {escapeStatusText, normalizeStatusColor} from './utils';
 
-export {StatusAttr, defaultStatusColor, statusCn, statusColors, statusNodeName} from './const';
+export {
+    StatusAttr,
+    StatusColor,
+    defaultStatusColor,
+    statusCn,
+    statusColors,
+    statusNodeName,
+} from './const';
 export {statusPlugin} from './plugin';
 export {statusNodeSpec} from './schema';
 export {normalizeStatusColor} from './utils';
