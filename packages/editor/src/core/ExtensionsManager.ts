@@ -17,6 +17,8 @@ import {ParserTokensRegistry} from './ParserTokensRegistry';
 import type {SchemaDynamicModifier} from './SchemaDynamicModifier';
 import {SchemaSpecRegistry} from './SchemaSpecRegistry';
 import {SerializerTokensRegistry} from './SerializerTokensRegistry';
+import {ExporterRegistry} from './exporters/ExporterRegistry';
+import type {ExporterRegistration} from './exporters/types';
 import type {MarkdownParserDynamicModifier} from './markdown/MarkdownParser';
 import type {MarkdownSerializerDynamicModifier} from './markdown/MarkdownSerializer';
 import type {TransformFn} from './markdown/ProseMirrorTransformer';
@@ -30,6 +32,7 @@ type ExtensionsManagerParams = {
 };
 
 type ExtensionsManagerOptions = {
+    exporters?: readonly ExporterRegistration[];
     mdOpts?: MarkdownIt.Options & {preset?: PresetName};
     linkifyTlds?: string | string[];
     pmTransformers?: TransformFn[];
@@ -48,6 +51,9 @@ export class ExtensionsManager {
     ) {
         return new this({extensions, options, logger}).build();
     }
+
+    readonly #exporterRegistrations: readonly ExporterRegistration[];
+    readonly #logger: Logger2.ILogger;
 
     #schemaRegistry;
     #parserRegistry;
@@ -73,6 +79,11 @@ export class ExtensionsManager {
     #parserDynamicModifier?: MarkdownParserDynamicModifier;
 
     constructor({extensions, options = {}, logger = new Logger2()}: ExtensionsManagerParams) {
+        this.#logger = logger;
+        this.#exporterRegistrations = options.exporters ?? [];
+
+        ExporterRegistry.validateRegistrations(this.#exporterRegistrations);
+
         this.#schemaRegistry = new SchemaSpecRegistry(undefined, options.dynamicModifiers?.schema);
         this.#parserRegistry = new ParserTokensRegistry({logger});
         this.#serializerRegistry = new SerializerTokensRegistry();
@@ -161,6 +172,10 @@ export class ExtensionsManager {
         const actions = new ActionsManager();
 
         const schema = this.#schemaRegistry.createSchema();
+        const exporters = new ExporterRegistry(this.#exporterRegistrations, {
+            schema,
+            logger: this.#logger,
+        });
         const markupParser = this.createParser(schema, this.#mdForMarkup);
         const textParser = this.createParser(schema, this.#mdForText);
         const serializer = this.#serializerRegistry.createSerializer(
@@ -173,6 +188,7 @@ export class ExtensionsManager {
             markupParser,
             textParser,
             serializer,
+            getExporter: (name) => exporters.getExporter(name),
         };
     }
 

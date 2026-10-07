@@ -7,6 +7,7 @@ import type {Plugin} from 'prosemirror-state';
 
 import type {Logger2} from '../logger';
 
+import type {ExporterStorage} from './exporters/types';
 import type {ActionSpec, ActionStorage} from './types/actions';
 import type {Keymap} from './types/keymap';
 import type {MarkViewConstructor, NodeViewConstructor} from './types/node-views';
@@ -339,7 +340,7 @@ export type ExtensionMarkSpec = {
     toMd: SerializerMarkToken;
 };
 
-export type ExtensionDeps = {
+export type ExtensionDeps = ExporterStorage & {
     readonly schema: Schema;
     readonly textParser: Parser;
     readonly markupParser: Parser;
