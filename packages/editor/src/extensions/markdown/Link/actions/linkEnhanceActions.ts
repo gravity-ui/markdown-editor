@@ -23,8 +23,7 @@ export const addEmptyLink: Command = (state, dispatch) => {
     const {$from, $to} = selection;
     // text selection inside one text node
     if ($from.parent !== $to.parent) return false;
-    const selectedText = state.doc.textBetween($from.pos, $to.pos);
-    if (selection instanceof TextSelection && !selectedText.trim()) return false;
+    if (selection instanceof TextSelection && isWhitespaceOnlySelection(selection)) return false;
 
     let tr = state.tr;
     const toggleResult = toggleMark(linkMarkType, {
@@ -43,6 +42,8 @@ export const addEmptyLink: Command = (state, dispatch) => {
             tr.setMeta(imageRendererKey, meta);
         }
     } else {
+        // Preserve inline objects so whitespace before them is not counted as trailing.
+        const selectedText = state.doc.textBetween($from.pos, $to.pos, '', '\uFFFC');
         const countOfWhitespacesAtEnd = selectedText.length - selectedText.trimEnd().length;
         tr.setSelection(TextSelection.create(tr.doc, $to.pos - countOfWhitespacesAtEnd - 1));
     }
@@ -58,3 +59,23 @@ export const linkActionSpec2 = (deps: ExtensionDeps): ActionSpec => ({
     isEnable: addLinkCmd2(deps),
     run: addLinkCmd2(deps),
 });
+
+function isWhitespaceOnlySelection(selection: TextSelection): boolean {
+    const {from, to, $from} = selection;
+    let whitespaceOnly = true;
+
+    $from.doc.nodesBetween(from, to, (node, pos) => {
+        if (!whitespaceOnly) return false;
+        if (node.isText) {
+            const text = node.textContent.slice(Math.max(0, from - pos), to - pos);
+            if (text.trim()) whitespaceOnly = false;
+        } else if (node.isInline) {
+            // Inline objects have content even when textBetween() returns an empty string.
+            if (!node.type.spec.isBreak) whitespaceOnly = false;
+            return false;
+        }
+        return undefined;
+    });
+
+    return whitespaceOnly;
+}
