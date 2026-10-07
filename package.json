@@ -40,7 +40,7 @@
     "lint:js:fix": "eslint --fix './**/*.{js,jsx,mjs,ts,tsx}'",
     "lint:styles:fix": "stylelint --fix './**/*.{css,scss}'",
     "lint:prettier:fix": "prettier --write './**/*.{js,jsx,mjs,ts,tsx,css,scss}'",
-    "fix": "run-s -cs lint:*:fix"
+    "fix:lint": "run-s -cs lint:*:fix"
   },
   "dependencies": {},
   "devDependencies": {
