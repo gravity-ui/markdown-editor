@@ -1,6 +1,8 @@
 export const markup = `
 &nbsp;
 
+Documentation: [gravity-ui.github.io/markdown-editor](https://gravity-ui.github.io/markdown-editor/)
+
 Welcome to the editor! Start typing the character \`/\`
 
 ![Markdown Editor](https://github.com/user-attachments/assets/0b4e5f65-54cf-475f-9c68-557a4e9edb46 =700x)
