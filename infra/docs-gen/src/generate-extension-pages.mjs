@@ -9,6 +9,14 @@ import {extractExtensionNamesFromSource} from './extension-ast.mjs';
 
 const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '../../..');
 const CATEGORIES = ['additional', 'base', 'behavior', 'markdown', 'yfm'];
+const EXTENSION_BLACKLIST = new Set([
+    'BaseInputRules',
+    'BaseKeymap',
+    'BaseStyles',
+    'BehaviorPreset',
+    'ReactRendererExtension',
+    'SharedState',
+]);
 
 function sourceFiles(dir) {
     return readdirSync(dir)
@@ -83,7 +91,9 @@ export function discoverExtensions(root = REPO_ROOT) {
             'YfmPageConstructorSpecsExtension',
         ),
     );
-    return extensions.sort((a, b) => a.name.localeCompare(b.name));
+    return extensions
+        .filter(({name}) => !EXTENSION_BLACKLIST.has(name))
+        .sort((a, b) => a.name.localeCompare(b.name));
 }
 
 /**

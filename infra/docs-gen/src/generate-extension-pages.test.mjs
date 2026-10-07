@@ -36,6 +36,11 @@ it('should regenerate temporary pages for every discovered extension', () => {
         );
         addSource(
             root,
+            'packages/editor/src/extensions/behavior/SharedState/SharedState.ts',
+            'export const SharedState: Extension = () => {};',
+        );
+        addSource(
+            root,
             'packages/page-constructor-extension/src/extension/index.ts',
             'export const YfmPageConstructorExtension: ExtensionAuto = () => {};',
         );
@@ -62,8 +67,16 @@ it('should regenerate temporary pages for every discovered extension', () => {
         const boldPage = join(root, 'tmp/docs-gen/stubs/Bold.md');
 
         writeFileSync(boldPage, '# Edited Bold\n');
+        addSource(
+            root,
+            'packages/editor/src/extensions/markdown/NewThing/index.ts',
+            'export const NewThing: ExtensionAuto = () => {};',
+        );
         generateExtensionPages(root);
         expect(readFileSync(boldPage, 'utf8')).toBe('##### Extensions / Bold\n\n# Bold\n');
+        expect(readFileSync(join(root, 'tmp/docs-gen/stubs/NewThing.md'), 'utf8')).toBe(
+            '##### Extensions / NewThing\n\n# NewThing\n',
+        );
     } finally {
         rmSync(root, {recursive: true, force: true});
     }
