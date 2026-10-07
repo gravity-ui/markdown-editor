@@ -3,8 +3,8 @@
 
     margin-bottom: 15px;
 
-    border: 1px solid var(--g-color-line-generic);
     border-radius: var(--g-border-radius-m);
+    outline: 1px solid var(--g-color-line-generic);
 
     &__header {
         position: sticky;
@@ -22,7 +22,7 @@
         align-items: center;
         gap: 8px;
 
-        padding: 16px;
+        padding: 10px;
     }
 
     &__toolbar-actions {
@@ -35,7 +35,7 @@
 
     &__body {
         min-width: 0;
-        padding: 16px;
+        padding: 10px;
     }
 
     &__code-body {
@@ -55,7 +55,7 @@
     &__code-gutter {
         flex: 0 0 auto;
 
-        padding: 12px 8px 12px 14px;
+        padding: 10px;
 
         font-family: var(--g-font-family-monospace);
         font-size: 13px;
@@ -77,7 +77,7 @@
     }
 
     &__code-frame {
-        padding: 0 14px;
+        padding: 0 10px;
 
         font-family: var(--g-font-family-monospace);
         font-size: 13px;
@@ -89,11 +89,11 @@
         background: var(--g-color-base-generic);
 
         &:first-child {
-            padding-top: 12px;
+            padding-top: 10px;
         }
 
         &:last-child {
-            padding-bottom: 12px;
+            padding-bottom: 10px;
         }
     }
 
@@ -105,7 +105,7 @@
         width: 100%;
         min-width: 0;
         margin: 0;
-        padding: 0 14px;
+        padding: 0 10px;
 
         font-family: var(--g-font-family-monospace);
         font-size: 13px;
@@ -131,12 +131,11 @@
         position: absolute;
         z-index: 1;
 
-        box-sizing: border-box;
-
         pointer-events: none;
 
-        border: 2px solid var(--g-color-line-focus);
         border-radius: var(--g-border-radius-s);
+        outline: 2px solid var(--g-color-line-focus);
+        outline-offset: 4px;
     }
 
     &__inline-edit-button {
@@ -174,12 +173,18 @@
         display: flex;
         overflow-y: auto;
         flex-direction: column;
-        gap: 16px;
+        gap: 10px;
 
-        max-height: min(50dvh, 480px);
-        padding: 16px;
+        box-sizing: border-box;
+        width: min(420px, calc(100vw - 20px));
+        max-height: min(70dvh, 560px);
+        padding: 10px;
+    }
 
-        border-top: 1px solid var(--g-color-line-generic);
+    &__inline-edit-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
     }
 
     &__inline-edit-title {
@@ -197,7 +202,7 @@
     }
 
     &__instruction {
-        padding: 0 16px 16px;
+        padding: 0 10px 10px;
     }
 
     &__inline-edit-field,

@@ -53,7 +53,10 @@ test.describe('Extensions, YFM', () => {
         await preview.dblclick();
         await expect(block.getByRole('textbox', {name: 'HTML', exact: true})).toHaveCount(0);
         const cancel = toolbar.getByRole('button', {name: 'Cancel'});
-        if (await cancel.isVisible()) await cancel.click();
+        const elementCancel = page
+            .getByRole('dialog', {name: /Edit element/})
+            .getByRole('button', {name: 'Cancel'});
+        if (await elementCancel.isVisible()) await elementCancel.click();
 
         await code.check();
         const source = block.getByRole('textbox', {name: 'HTML', exact: true});
@@ -123,12 +126,12 @@ test.describe('Extensions, YFM', () => {
         await editButton.click();
         await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(scrollBefore);
 
-        const panel = block.getByRole('region', {name: 'Edit element <h1>'});
+        const panel = page.getByRole('dialog', {name: 'Edit element <h1>'});
         const toolbar = block.locator('.g-md-yfm-html-block__toolbar');
         await expect(panel.getByRole('textbox', {name: 'Text'})).toBeFocused();
-        await expect(toolbar.getByRole('button', {name: 'Save', exact: true})).toBeDisabled();
+        await expect(panel.getByRole('button', {name: 'Save', exact: true})).toBeDisabled();
         await expect(toolbar.getByRole('radio', {name: 'Code'})).toBeDisabled();
-        await toolbar.getByRole('button', {name: 'Cancel'}).click();
+        await panel.getByRole('button', {name: 'Cancel'}).click();
         await expect(panel).toHaveCount(0);
 
         await heading.hover();
@@ -140,7 +143,7 @@ test.describe('Extensions, YFM', () => {
         await attributeName.fill('title');
         await panel.getByRole('textbox', {name: 'Value: title'}).fill('Edited');
         await panel.getByRole('textbox', {name: 'Text'}).fill('Updated heading');
-        await toolbar.getByRole('button', {name: 'Save', exact: true}).click();
+        await panel.getByRole('button', {name: 'Save', exact: true}).click();
         await expect(heading).toHaveText('Updated heading');
         await expect(heading).toHaveAttribute('title', 'Edited');
         await expect(toolbar.getByRole('radio', {name: 'Code'})).toBeEnabled();
@@ -156,7 +159,7 @@ test.describe('Extensions, YFM', () => {
             )
             .toBeLessThanOrEqual(0);
     });
-    test('should group element properties and actions within the HTML block', async ({
+    test('should edit HTML block element properties beside the selection', async ({
         mount,
         page,
     }) => {
@@ -168,9 +171,8 @@ test.describe('Extensions, YFM', () => {
         const block = page.locator('.g-md-yfm-html-block');
         const preview = block.frameLocator('iframe');
         const paragraph = preview.locator('p');
-        const toolbar = block.locator('.g-md-yfm-html-block__toolbar');
-        const panel = block.getByRole('region', {name: /Edit element/});
-        const save = toolbar.getByRole('button', {name: 'Save', exact: true});
+        const panel = page.getByRole('dialog', {name: /Edit element/});
+        const save = panel.getByRole('button', {name: 'Save', exact: true});
 
         await paragraph.click();
         await expect(panel).toContainText('<p>');
@@ -178,9 +180,9 @@ test.describe('Extensions, YFM', () => {
         await expect(text).toBeFocused();
         await panel.getByRole('button', {name: /Attributes/}).click();
         await expect(panel).toContainText('HTML attributes control links, images and appearance.');
-        await expect(block).toHaveScreenshot('html-block-element-panel.png');
+        await expect(panel).toHaveScreenshot('html-block-element-panel.png');
         await text.fill('Discarded');
-        await toolbar.getByRole('button', {name: 'Cancel'}).press('Enter');
+        await panel.getByRole('button', {name: 'Cancel'}).press('Enter');
         await expect(paragraph).toHaveText('Initial');
 
         await paragraph.click();
@@ -219,14 +221,70 @@ test.describe('Extensions, YFM', () => {
         );
         const block = page.locator('.g-md-yfm-html-block');
         await block.frameLocator('iframe').locator('p').click();
-        await block.getByRole('button', {name: /Attributes/}).click();
-        await expect(block).toHaveScreenshot('html-block-element-panel-narrow.png');
+        const panel = page.getByRole('dialog', {name: /Edit element/});
+        await panel.getByRole('button', {name: /Attributes/}).click();
+        await expect(panel).toHaveScreenshot('html-block-element-panel-narrow.png');
         expect(
             await block.evaluate((element) => element.scrollWidth - element.clientWidth),
         ).toBeLessThanOrEqual(2);
-        await expect(block.getByRole('button', {name: 'Cancel'})).toBeVisible();
-        await expect(block.getByRole('button', {name: 'Save', exact: true})).toBeVisible();
+        await expect(panel.getByRole('button', {name: 'Cancel'})).toBeVisible();
+        await expect(panel.getByRole('button', {name: 'Save', exact: true})).toBeVisible();
         await expect(block.getByRole('button', {name: 'Remove', exact: true})).toBeVisible();
+    });
+    test('should open the HTML block editor beside a paragraph after scrolling', async ({
+        mount,
+        page,
+    }) => {
+        await page.setViewportSize({width: 1100, height: 720});
+        await mount(
+            <YFMStories.YfmHtmlBlock
+                initial={
+                    '::: html\n<div style="height:1600px"></div><p id="lower">Lower paragraph</p><div style="height:500px"></div>\n:::'
+                }
+            />,
+        );
+        const block = page.locator('.g-md-yfm-html-block');
+        const paragraph = block.frameLocator('iframe').locator('#lower');
+        await paragraph.scrollIntoViewIfNeeded();
+        const before = await paragraph.boundingBox();
+        const scrollBefore = await page.evaluate(() => window.scrollY);
+        expect(scrollBefore).toBeGreaterThan(1000);
+        await paragraph.click();
+        const panel = page.getByRole('dialog', {name: 'Edit element <p>'});
+        await expect(panel.getByRole('textbox', {name: 'Text'})).toBeFocused();
+        await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(scrollBefore);
+        expect(await paragraph.boundingBox()).toEqual(before);
+        const outline = block.locator('.g-md-yfm-html-block__inline-edit-outline');
+        await expect(outline).toHaveCSS('outline-style', 'solid');
+        await expect(outline).toHaveCSS('outline-width', '2px');
+        await expect(outline).toHaveCSS('border-top-width', '0px');
+        await expect(block).toHaveCSS('outline-width', '1px');
+        await expect(block).toHaveCSS('border-top-width', '0px');
+        const body = block.locator('.g-md-yfm-html-block__body');
+        for (const side of ['top', 'right', 'bottom', 'left']) {
+            await expect(body).toHaveCSS(`padding-${side}`, '10px');
+            await expect(panel).toHaveCSS(`padding-${side}`, '10px');
+        }
+        const expectNearby = async () => {
+            await expect
+                .poll(async () => {
+                    const target = await paragraph.boundingBox();
+                    const editor = await panel.boundingBox();
+                    if (!target || !editor) return Infinity;
+                    return Math.min(
+                        Math.abs(editor.y - target.y - target.height),
+                        Math.abs(target.y - editor.y - editor.height),
+                    );
+                })
+                .toBeLessThan(24);
+        };
+        await expectNearby();
+        await expect(page).toHaveScreenshot('html-block-local-editor-scrolled.png');
+        await page.evaluate(() => window.scrollBy(0, 100));
+        await expectNearby();
+        await panel.getByRole('textbox', {name: 'Text'}).fill('Edited lower paragraph');
+        await panel.getByRole('button', {name: 'Save', exact: true}).click();
+        await expect(paragraph).toHaveText('Edited lower paragraph');
     });
     test('YFM File', async ({mount, expectScreenshot}) => {
         await mount(<YFMStories.YfmFile />);

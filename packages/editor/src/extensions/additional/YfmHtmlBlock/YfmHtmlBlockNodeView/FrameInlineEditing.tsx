@@ -28,20 +28,11 @@ export const FrameInlineEditing: React.FC<{
     blockRef: RefObject<HTMLDivElement>;
     sourceHtml: string;
     onCommit: (html: string) => void;
-    toolbarActions: HTMLDivElement | null;
-    panelContainer: HTMLDivElement | null;
     onEditingChange: (editing: boolean) => void;
-}> = ({
-    frameRef,
-    blockRef,
-    sourceHtml,
-    onCommit,
-    toolbarActions,
-    panelContainer,
-    onEditingChange,
-}) => {
+}> = ({frameRef, blockRef, sourceHtml, onCommit, onEditingChange}) => {
     const [hover, setHover] = useState<Target | null>(null);
     const [selected, setSelected] = useState<Selection | null>(null);
+    const [anchor, setAnchor] = useState<HTMLDivElement | null>(null);
     const selectedRef = useRef(selected);
     const dirtyRef = useRef(false);
     const nextSelectionId = useRef(0);
@@ -72,10 +63,10 @@ export const FrameInlineEditing: React.FC<{
             const blockRect = block.getBoundingClientRect();
             const frameRect = frame.getBoundingClientRect();
             const targetRect = target.getBoundingClientRect();
-            const left = Math.max(8, frameRect.left + targetRect.left - blockRect.left - 4);
-            const top = Math.max(8, frameRect.top + targetRect.top - blockRect.top - 4);
-            const width = Math.min(targetRect.width + 8, blockRect.width - left - 8);
-            const height = targetRect.height + 8;
+            const left = frameRect.left + targetRect.left - blockRect.left;
+            const top = frameRect.top + targetRect.top - blockRect.top;
+            const width = targetRect.width;
+            const height = targetRect.height;
 
             return {
                 element: target,
@@ -163,7 +154,13 @@ export const FrameInlineEditing: React.FC<{
     const current = selected ?? hover;
     return (
         <>
-            {current && <div className={b('inline-edit-outline')} style={current.outline} />}
+            {current && (
+                <div
+                    ref={selected ? setAnchor : undefined}
+                    className={b('inline-edit-outline')}
+                    style={current.outline}
+                />
+            )}
             {hover && !selected && (
                 <button
                     type="button"
@@ -182,14 +179,13 @@ export const FrameInlineEditing: React.FC<{
                     <Icon data={Pencil} size={15} />
                 </button>
             )}
-            {selected && panelContainer && frameRef.current?.contentDocument?.body && (
+            {selected && anchor && frameRef.current?.contentDocument?.body && (
                 <InlineElementEditor
                     key={selected.id}
                     sourceHtml={sourceHtml}
                     previewRoot={frameRef.current.contentDocument.body}
                     target={selected.element}
-                    toolbarActions={toolbarActions}
-                    panelContainer={panelContainer}
+                    anchorElement={anchor}
                     onDirtyChange={(dirty) => {
                         dirtyRef.current = dirty;
                     }}
