@@ -8,17 +8,20 @@ declare global {
     }
 }
 
-/** Visual tests and the browser console reach the mounted editor through this handle */
+/** Mount order; several editors can be mounted at once */
+const mounted: MarkdownEditorInstance[] = [];
+
+/** Visual tests and the browser console reach the editor mounted last through this handle */
 export function useEditorHandle(editor: MarkdownEditorInstance) {
     useEffect(() => {
-        const previous = window.mdEditor;
+        mounted.push(editor);
         window.mdEditor = editor;
 
         return () => {
-            if (window.mdEditor !== editor) return;
+            const index = mounted.lastIndexOf(editor);
+            if (index !== -1) mounted.splice(index, 1);
 
-            // several editors can be mounted at once, so unmounting hands the handle back
-            window.mdEditor = previous;
+            window.mdEditor = mounted.at(-1);
         };
     }, [editor]);
 }
