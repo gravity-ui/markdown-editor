@@ -29,6 +29,15 @@ jobs:
         run: pnpm run ci:test:visual
         env:
           CI: 'true'
+          VISUAL_TEST_METRICS_PATH: playwright-metrics.json
+
+      - name: Upload Visual Test Metrics
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: playwright-metrics
+          path: ./demo/playwright-metrics.json
+          retention-days: 1
 
       - name: Upload Playwright Report
         if: always()

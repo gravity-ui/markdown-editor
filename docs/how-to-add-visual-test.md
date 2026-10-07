@@ -86,6 +86,24 @@ pnpm run playwright:docker:update --last-failed
 
 Tests use the configuration file `playwright.config.ts`. The build is handled by Vite via `@playwright/experimental-ct-react`. To stabilize tests, `mountFixture` and `expectScreenshotFixture` are used.
 
+### CI test history
+
+Each PR visual test run stores a JSON summary in S3 under `playwright-reports/markdown-editor/visual-test-metrics/`. It records tests taking more than five seconds, including retries, and tests that passed after a retry. The 100 most recent summaries are retained. Each filename contains the GitHub Actions run ID and attempt number.
+
+To download the retained summaries, configure AWS CLI access to the report bucket, install `jq`, and run:
+
+```sh
+mkdir -p visual-test-metrics
+aws s3api list-objects-v2 --bucket playwright-reports \
+  --prefix markdown-editor/visual-test-metrics/ \
+  --endpoint-url=https://storage.yandexcloud.net --output json |
+  jq -r '(.Contents // [] | sort_by(.LastModified) | reverse | .[:100][] | .Key)' |
+  while IFS= read -r key; do
+    aws s3 cp "s3://playwright-reports/$key" visual-test-metrics/ \
+      --endpoint-url=https://storage.yandexcloud.net
+  done
+```
+
 See more: [Playwright Test Components](https://playwright.dev/docs/test-components)
 
 ## Writing Tests

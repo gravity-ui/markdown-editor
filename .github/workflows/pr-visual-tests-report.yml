@@ -52,3 +52,27 @@ jobs:
           number: ${{ steps.pr.outputs.id }}
           header: visual tests report
           message: '[![🎭 Playwright Report](https://img.shields.io/badge/%F0%9F%8E%AD%20Playwright-Report-45ba4b?style=for-the-badge&labelColor=2b3137)](https://storage.yandexcloud.net/playwright-reports/markdown-editor/pulls/${{ steps.pr.outputs.id }}/index.html)'
+
+      - name: Save Visual Test Metrics
+        if: always() && hashFiles('playwright-metrics/playwright-metrics.json') != ''
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.STORYBOOK_S3_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.STORYBOOK_S3_SECRET_KEY }}
+          AWS_DEFAULT_REGION: ru-central1
+          AWS_EC2_METADATA_DISABLED: true
+          METRICS_PREFIX: markdown-editor/visual-test-metrics/
+          RUN_ID: ${{ github.event.workflow_run.id }}
+          RUN_ATTEMPT: ${{ github.event.workflow_run.run_attempt }}
+        run: |
+          set -euo pipefail
+          aws s3 cp playwright-metrics/playwright-metrics.json \
+            "s3://playwright-reports/${METRICS_PREFIX}${RUN_ID}-${RUN_ATTEMPT}.json" \
+            --content-type application/json --endpoint-url=https://storage.yandexcloud.net
+          aws s3api list-objects-v2 --bucket playwright-reports \
+            --prefix "$METRICS_PREFIX" --endpoint-url=https://storage.yandexcloud.net \
+            --output json | jq -r '(.Contents // [] | sort_by(.LastModified) | reverse | .[100:][] | .Key)' |
+            while IFS= read -r key; do
+              aws s3api delete-object --bucket playwright-reports --key "$key" \
+                --endpoint-url=https://storage.yandexcloud.net
+            done
+        shell: bash
