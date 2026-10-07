@@ -13,6 +13,10 @@
         }
     }
 
+    &_withScrollContainer {
+        height: auto;
+    }
+
     &__editor {
         flex-grow: 1;
         gap: 2px;
