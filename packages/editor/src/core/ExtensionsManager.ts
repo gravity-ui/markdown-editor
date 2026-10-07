@@ -18,7 +18,7 @@ import type {SchemaDynamicModifier} from './SchemaDynamicModifier';
 import {SchemaSpecRegistry} from './SchemaSpecRegistry';
 import {SerializerTokensRegistry} from './SerializerTokensRegistry';
 import {ExporterRegistry} from './exporters/ExporterRegistry';
-import type {ExporterRegistration} from './exporters/types';
+import type {ExporterRegistration, ExporterStorage} from './exporters/types';
 import type {MarkdownParserDynamicModifier} from './markdown/MarkdownParser';
 import type {MarkdownSerializerDynamicModifier} from './markdown/MarkdownSerializer';
 import type {TransformFn} from './markdown/ProseMirrorTransformer';
@@ -70,7 +70,7 @@ export class ExtensionsManager {
     #builder: ExtensionBuilder;
 
     #spec!: ExtensionSpec;
-    #deps!: ExtensionDeps;
+    #deps!: ExtensionDeps & ExporterStorage;
     #plugins: Plugin[] = [];
     #actions: Record<string, ActionSpec> = {};
     #nodeViews: Record<string, NodeViewConstructor> = {};

@@ -35,6 +35,6 @@ editor.destroy();
 - Factories run synchronously in configuration order. Registrations cannot change after the build.
 - Names are non-empty, case-sensitive, and not trimmed. Duplicate names fail before any factory runs. Failed factories, invalid `export` methods, and unknown names throw errors.
 
-Extensions use `deps.getExporter<E>(name)`. This function can be destructured. Manually created `ExtensionDeps` objects must provide it.
+Extensions use `deps.getExporter?.<E>(name)`. The method is optional in `ExtensionDeps` until the next major release. Core always provides it; manually created dependencies may omit it. The function can be destructured.
 
 The existing Markdown serializer and `getValue()` keep their behavior. Public `MarkdownEditor` options do not configure exporters.

@@ -76,11 +76,48 @@ export function shouldPreserveObjectResults(
     return {nodeResult, fragmentResult};
 }
 
-export function shouldShareStorageLookup(
-    editor: Core.WysiwygEditor,
+export function shouldRequireEditorLookup(editor: Core.WysiwygEditor) {
+    const storage: Core.ExporterStorage = editor;
+    const publicStorage: PublicPackage.ExporterStorage = editor;
+
+    return {storage, publicStorage};
+}
+
+export function shouldAcceptLegacyExtensionDeps(
+    schema: Schema,
+    textParser: Core.Parser,
+    markupParser: Core.Parser,
+    serializer: Core.Serializer,
+    actions: Core.ActionStorage,
+) {
+    const legacyDeps = {schema, textParser, markupParser, serializer, actions};
+    const deps: Core.ExtensionDeps = legacyDeps;
+    const publicDeps: PublicPackage.ExtensionDeps = legacyDeps;
+
+    return {deps, publicDeps};
+}
+
+export function shouldPreserveConditionalExporterLookup(
     deps: Core.ExtensionDeps,
-): readonly PublicPackage.ExporterStorage[] {
-    return [editor, deps];
+    input: Node | Fragment,
+) {
+    const publicDeps: PublicPackage.ExtensionDeps = deps;
+    const {getExporter} = publicDeps;
+
+    // @ts-expect-error Extension dependencies may omit the exporter lookup.
+    getExporter<TextExporter>('text');
+
+    if (!getExporter) return undefined;
+
+    const exporter: TextExporter = getExporter<TextExporter>('text');
+    const result: string = exporter.export(input);
+    const formatted: string = exporter.export(input, {pretty: true});
+    exporter.clearCache();
+
+    // @ts-expect-error The concrete exporter returns a string.
+    const invalidResult: number = exporter.export(input);
+
+    return {result, formatted, invalidResult};
 }
 
 export type PackageExporterContracts = {
