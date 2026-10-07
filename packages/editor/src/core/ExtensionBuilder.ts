@@ -340,12 +340,14 @@ export type ExtensionMarkSpec = {
     toMd: SerializerMarkToken;
 };
 
-export type ExtensionDeps = ExporterStorage & {
+export type ExtensionDeps = {
     readonly schema: Schema;
     readonly textParser: Parser;
     readonly markupParser: Parser;
     readonly serializer: Serializer;
     readonly actions: ActionStorage;
+    // TODO: Make getExporter required in the next major version.
+    getExporter?: ExporterStorage['getExporter'];
 };
 
 export class ExtensionBuilder {

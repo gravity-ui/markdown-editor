@@ -63,29 +63,29 @@ describe('ExtensionsManager exporters', () => {
 
     it('should provide the same exporter to plugins, actions, and views', () => {
         const exporter: Exporter<number> = {export: (input) => input.childCount};
-        const received: Exporter[] = [];
+        const received: (Exporter | undefined)[] = [];
         const result = new ExtensionsManager({
             options: {exporters: [{name: 'statistics', create: () => exporter}]},
             extensions: (builder) =>
                 builder
                     .use(BaseSchemaSpecs, {})
                     .addPlugin(({getExporter}) => {
-                        received.push(getExporter('statistics'));
+                        received.push(getExporter?.('statistics'));
                         return new Plugin({});
                     })
                     .addAction('statistics', ({getExporter}) => {
-                        received.push(getExporter('statistics'));
+                        received.push(getExporter?.('statistics'));
                         return {isEnable: () => true, run: () => {}};
                     })
                     .addNodeView('paragraph', ({getExporter}) => {
-                        received.push(getExporter('statistics'));
+                        received.push(getExporter?.('statistics'));
                         return () => ({dom: document.createElement('p')});
                     })
                     .addMarkSpec('emphasis', () => ({}))
                     .addMarkdownTokenParserSpec('em', () => ({type: 'mark', name: 'emphasis'}))
                     .addMarkSerializerSpec('emphasis', () => ({open: '*', close: '*'}))
                     .addMarkView('emphasis', ({getExporter}) => {
-                        received.push(getExporter('statistics'));
+                        received.push(getExporter?.('statistics'));
                         return () => ({dom: document.createElement('em')});
                     }),
         }).build();
