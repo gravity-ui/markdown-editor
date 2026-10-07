@@ -1,13 +1,17 @@
+import type {
+    Action,
+    ExtensionAuto,
+    ExtensionDeps,
+    NodeViewConstructor,
+} from '@gravity-ui/markdown-editor';
 import type {MermaidConfig} from 'mermaid' with {'resolution-mode': 'import'};
 
-import type {Action, ExtensionAuto, ExtensionDeps, NodeViewConstructor} from '#core';
-
 import {WMermaidNodeView} from './MermaidNodeView';
-import {MermaidSpecs, mermaidNodeName} from './MermaidSpecs';
+import {MermaidSpecsExtension, mermaidNodeName} from './MermaidSpecs';
 import {MermaidAction} from './MermaidSpecs/const';
 import {addMermaid} from './actions';
 
-export type MermaidOptions = {
+export type MermaidExtensionOptions = {
     loadRuntimeScript: () => void;
     autoSave?: {
         enabled: boolean;
@@ -19,14 +23,16 @@ export type MermaidOptions = {
     };
 };
 
-export const Mermaid: ExtensionAuto<MermaidOptions> = (builder, options) => {
-    builder.use(MermaidSpecs, {}).addNodeView(mermaidNodeName, MermaidNodeViewFactory(options));
+export const MermaidExtension: ExtensionAuto<MermaidExtensionOptions> = (builder, options) => {
+    builder
+        .use(MermaidSpecsExtension, {})
+        .addNodeView(mermaidNodeName, MermaidNodeViewFactory(options));
 
     builder.addAction(MermaidAction, () => addMermaid);
 };
 
 const MermaidNodeViewFactory: (
-    opts: MermaidOptions,
+    opts: MermaidExtensionOptions,
 ) => (deps: ExtensionDeps) => NodeViewConstructor = (options) => () => (node, view, getPos) => {
     return new WMermaidNodeView(node, view, getPos, options);
 };

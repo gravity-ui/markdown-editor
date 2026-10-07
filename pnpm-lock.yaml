@@ -189,6 +189,9 @@ importers:
       '@gravity-ui/markdown-editor-latex-extension':
         specifier: workspace:*
         version: link:../packages/latex-extension
+      '@gravity-ui/markdown-editor-mermaid-extension':
+        specifier: workspace:*
+        version: link:../packages/mermaid-extension
       '@gravity-ui/markdown-editor-page-constructor-extension':
         specifier: workspace:*
         version: link:../packages/page-constructor-extension
@@ -566,9 +569,6 @@ importers:
       '@diplodoc/latex-extension':
         specifier: catalog:peer-diplodoc
         version: 2.0.2(katex@0.16.27)(markdown-it@13.0.2)(react@18.2.0)
-      '@diplodoc/mermaid-extension':
-        specifier: catalog:peer-diplodoc
-        version: 2.0.0(markdown-it@13.0.2)(react@18.2.0)
       '@diplodoc/quote-link-extension':
         specifier: catalog:peer-diplodoc
         version: 0.1.3(react@18.2.0)
@@ -662,9 +662,6 @@ importers:
       markdown-it-testgen:
         specifier: ^0.1.6
         version: 0.1.6
-      mermaid:
-        specifier: 11.17.2
-        version: 11.17.2
       npm-run-all:
         specifier: ^4.1.5
         version: 4.1.5
@@ -729,6 +726,70 @@ importers:
       typescript:
         specifier: catalog:ts
         version: 5.9.3
+
+  packages/mermaid-extension:
+    dependencies:
+      '@gravity-ui/icons':
+        specifier: ^2.12.0
+        version: 2.13.0(react@18.2.0)
+      tslib:
+        specifier: catalog:ts
+        version: 2.8.1
+    devDependencies:
+      '@diplodoc/mermaid-extension':
+        specifier: catalog:peer-diplodoc
+        version: 2.0.0(markdown-it@13.0.2)(react@18.2.0)
+      '@gravity-ui/markdown-editor':
+        specifier: workspace:*
+        version: link:../editor
+      '@gravity-ui/uikit':
+        specifier: catalog:peer-gravity
+        version: 7.13.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+      '@markdown-editor/gulp-tasks':
+        specifier: workspace:*
+        version: link:../../infra/gulp-tasks
+      '@markdown-editor/linters':
+        specifier: workspace:*
+        version: link:../../infra/linters
+      '@markdown-editor/tsconfig':
+        specifier: workspace:*
+        version: link:../../infra/tsconfig
+      '@markdown-editor/vitest-config':
+        specifier: workspace:*
+        version: link:../../infra/vitest-config
+      '@types/react':
+        specifier: catalog:react
+        version: 18.0.28
+      '@types/react-dom':
+        specifier: catalog:react
+        version: 18.0.11
+      gulp-cli:
+        specifier: 'catalog:'
+        version: 3.1.0
+      markdown-it:
+        specifier: catalog:peers
+        version: 13.0.2
+      mermaid:
+        specifier: 11.17.2
+        version: 11.17.2
+      npm-run-all:
+        specifier: ^4.1.5
+        version: 4.1.5
+      react:
+        specifier: catalog:react
+        version: 18.2.0
+      react-dom:
+        specifier: catalog:react
+        version: 18.2.0(react@18.2.0)
+      ts-dedent:
+        specifier: ^2.2.0
+        version: 2.3.0
+      typescript:
+        specifier: catalog:ts
+        version: 5.9.3
+      vitest:
+        specifier: catalog:testing
+        version: 5.0.1(@types/node@25.2.1)(@vitest/coverage-v8@5.0.1)(jsdom@25.0.1)(vite@8.3.1(@types/node@25.2.1)(esbuild@0.28.2)(jiti@2.6.1)(sass@1.105.0)(terser@5.51.2)(yaml@2.9.1))
 
   packages/page-constructor-extension:
     dependencies:

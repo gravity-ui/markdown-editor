@@ -23,9 +23,9 @@ import type {ToolbarActionData} from '@gravity-ui/markdown-editor/_/bundle/Edito
 import type {SettingItems} from '@gravity-ui/markdown-editor/_/bundle/settings/index.js';
 import type {Extension} from '@gravity-ui/markdown-editor/cm/state';
 import {FoldingHeading} from '@gravity-ui/markdown-editor/extensions/additional/FoldingHeading/index.js';
-import {Mermaid} from '@gravity-ui/markdown-editor/extensions/additional/Mermaid/index.js';
 import {YfmHtmlBlock} from '@gravity-ui/markdown-editor/extensions/additional/YfmHtmlBlock/index.js';
 import {LatexExtension} from '@gravity-ui/markdown-editor-latex-extension';
+import {MermaidExtension} from '@gravity-ui/markdown-editor-mermaid-extension';
 import {YfmPageConstructorExtension} from '@gravity-ui/markdown-editor-page-constructor-extension';
 import {Button, DropdownMenu} from '@gravity-ui/uikit';
 
@@ -178,7 +178,7 @@ export const Playground = memo<PlaygroundProps>((props) => {
                                 );
                             },
                         })
-                        .use(Mermaid, {
+                        .use(MermaidExtension, {
                             loadRuntimeScript: () => {
                                 import(
                                     /* webpackChunkName: "mermaid-runtime" */ '@diplodoc/mermaid-extension/runtime'

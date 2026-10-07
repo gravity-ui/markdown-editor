@@ -6,11 +6,8 @@ import {type MarkupString, colorClassName} from '@gravity-ui/markdown-editor';
 import {debounce} from '@gravity-ui/markdown-editor/_/lodash.js';
 import {YfmStaticView} from '@gravity-ui/markdown-editor/view/components/YfmHtml/index.js';
 import {withLatex} from '@gravity-ui/markdown-editor/view/hocs/withLatex/index.js';
-import {
-    type MermaidConfig,
-    withMermaid,
-} from '@gravity-ui/markdown-editor/view/hocs/withMermaid/index.js';
 import {withYfmHtmlBlock} from '@gravity-ui/markdown-editor/view/hocs/withYfmHtml/index.js';
+import {type MermaidConfig, withMermaid} from '@gravity-ui/markdown-editor-mermaid-extension/view';
 import {withYfmPageConstructor} from '@gravity-ui/markdown-editor-page-constructor-extension/view';
 import {useThemeValue} from '@gravity-ui/uikit';
 import type MarkdownIt from 'markdown-it';

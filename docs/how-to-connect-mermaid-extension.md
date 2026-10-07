@@ -2,73 +2,54 @@
 
 ## How to Connect the Mermaid Extension in the Editor
 
-To integrate the Mermaid extension in your editor, you will use the specified versions of the necessary packages. Here’s a detailed guide.
+Mermaid support is shipped as a separate package, `@gravity-ui/markdown-editor-mermaid-extension`. It adds the WYSIWYG node, the toolbar buttons, the markup mode command and the static render HOC.
 
-First to integrate this extension, you need to use the following versions of the packages:
-
-- @gravity-ui/markdown-editor version 15.48.0 or higher
-- @diplodoc/mermaid-extension version 1.2.3 or higher
+Requires `@gravity-ui/markdown-editor` 15.48.2 or higher. The editor no longer includes mermaid starting with version 16.
 
 ## Usage
 
 ### 1. Install the Packages
 
-First, ensure that you have all the necessary packages installed. You can use npm or yarn to add them to your project:
-
 ```bash
-npm install @gravity-ui/markdown-editor@^15.48.0
-npm install @diplodoc/mermaid-extension@^1.2.3
+npm install @gravity-ui/markdown-editor-mermaid-extension
+npm install @gravity-ui/markdown-editor @gravity-ui/uikit @diplodoc/mermaid-extension markdown-it react react-dom
 ```
-
 
 ### 2. Integrate the Plugin in the Transformer
 
-You will need to import and configure the transformers in your editor setup. Below is an example of how to do this:
+The Markdown plugin comes from `@diplodoc/mermaid-extension` and is configured in the transformer:
 
 ```typescript
-import { transform as transformMermaid } from '@diplodoc/mermaid-extension';
+import {transform as transformMermaid} from '@diplodoc/mermaid-extension';
 
-// Define the runtime marker constant
-const MERMAID_RUNTIME = 'mermaid-runtime';
+// Runtime marker, shared with the static render HOC
+export const MERMAID_RUNTIME = 'extension:mermaid';
 
-// Configure the plugins in your transformer setup
 const plugins: PluginWithParams[] = [
-  // Add Mermaid transformer plugin
-  transformMermaid({ bundle: false, runtime: MERMAID_RUNTIME }),
+  transformMermaid({bundle: false, runtime: MERMAID_RUNTIME}),
 
   // Add other plugins as needed
 ];
 ```
 
-### 3. Integrate into Editor
+### 3. Add a Higher-Order Component (HOC) to the Static Render
 
-Ensure that these plugins are integrated into your editor's initialization or configuration file. Below is a simplified example to illustrate how you might set them up with a markdown editor:
+The HOC loads the runtime script and renders the diagrams outside the editor, in split mode and in read-only preview.
 
-```ts
-const editor = new MarkdownEditor({
-  // Editor configuration
-  plugins,
-  // Other configurations
-});
-```
+```tsx
+import {useEffect, useMemo} from 'react';
 
-### 4. Adding a Higher-Order Component (HOC) in Static Render to Load Runtime and Apply Styling Hooks
+import {YfmStaticView} from '@gravity-ui/markdown-editor/view/components/YfmHtml';
+import {
+  type MermaidConfig,
+  withMermaid,
+} from '@gravity-ui/markdown-editor-mermaid-extension/view';
+import {useThemeType} from '@gravity-ui/uikit';
 
-```ts
-import {useEffect} from 'react';
+const Preview = withMermaid({runtime: MERMAID_RUNTIME})(YfmStaticView);
 
-import {YfmHtml} from '@gravity-ui/markdown-editor/view/components/YfmHtml';
-import {useEffect, useState} from 'react';
-
-import {useThemeValue} from '@gravity-ui/uikit';
-
-// HOC
-export const MERMAID_RUNTIME = 'mermaid';
-
-const YfmStaticView = withMermaid({runtime: MERMAID_RUNTIME})(YfmHtml);
-
-// hooks
-export const useMermaidTheme = () => {
+// Keeps the diagram theme in sync with the editor theme
+const useMermaidTheme = () => {
   const theme = useThemeType();
 
   useEffect(() => {
@@ -82,10 +63,8 @@ export const useMermaidTheme = () => {
   return theme;
 };
 
-// render
-const HtmlRenderer = React.forwardRef<HTMLDivElement, HtmlRendererProps>((props, ref) => {
-  // ...
-  const theme = useThemeType(); // your hook for get theme
+const HtmlRenderer = ({html, meta}: HtmlRendererProps) => {
+  const theme = useMermaidTheme();
 
   const mermaidConfig = useMemo<MermaidConfig>(
     () => ({
@@ -95,62 +74,49 @@ const HtmlRenderer = React.forwardRef<HTMLDivElement, HtmlRendererProps>((props,
     [theme],
   );
 
-  useMermaidTheme();
-
-  // ...
-  return (
-    <div>
-      <YfmStaticView
-        html={html}
-        meta={meta}
-        ref={elementRef}
-        mermaidConfig={mermaidConfig}
-
-      />
-      {props.children}
-    </div>
-  );
-});
-
+  return <Preview html={html} meta={meta} mermaidConfig={mermaidConfig} />;
+};
 ```
 
-
-### 5. Integrate the WYSiWYG Extension
+### 4. Integrate the WYSIWYG Extension
 
 ```ts
-import {Mermaid} from '@gravity-ui/markdown-editor/extensions/yfm/Mermaid';
+import {MermaidExtension} from '@gravity-ui/markdown-editor-mermaid-extension';
 
 // ...
-builder.use(Mermaid, {
+builder.use(MermaidExtension, {
   loadRuntimeScript: () => {
     import('@diplodoc/mermaid-extension/runtime');
   },
+  autoSave: {enabled: true, delay: 1000},
+  theme: {dark: 'dark', light: 'forest'},
 });
 ```
 
-### 6. Add Buttons to the Toolbar
+### 5. Add Buttons to the Toolbar
 
 Add the button to the [toolbars preset](./how-to-customize-toolbars.md) and pass the preset to `MarkdownEditorView` through the `toolbarsPreset` prop. The example puts the diagram into the slash menu and extends the built-in `full` preset; the main toolbars come only from the preset, so extend the one matching your editor preset:
 
 ```tsx
 import type {ToolbarsPreset} from '@gravity-ui/markdown-editor';
+import {ToolbarName as Toolbar, full} from '@gravity-ui/markdown-editor/toolbars';
 import {
-  ActionName as Action,
-  ToolbarName as Toolbar,
-  full,
   mermaidItemView,
   mermaidItemWysiwyg,
-} from '@gravity-ui/markdown-editor/toolbars';
+} from '@gravity-ui/markdown-editor-mermaid-extension/configs';
+
+const mermaid = 'mermaid';
 
 const toolbarsPreset: ToolbarsPreset = {
   items: {
     ...full.items,
-    [Action.mermaid]: {view: mermaidItemView, wysiwyg: mermaidItemWysiwyg},
+    [mermaid]: {view: mermaidItemView, wysiwyg: mermaidItemWysiwyg},
   },
   orders: {
     ...full.orders,
-    [Toolbar.wysiwygSlash]: [[...full.orders[Toolbar.wysiwygSlash].flat(), Action.mermaid]],
+    [Toolbar.wysiwygSlash]: [[...full.orders[Toolbar.wysiwygSlash].flat(), mermaid]],
   },
 };
 ```
 
+In markup mode the button runs `mermaidItemMarkup` from the same entry point.

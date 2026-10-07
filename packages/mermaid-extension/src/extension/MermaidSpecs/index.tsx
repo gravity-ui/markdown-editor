@@ -1,9 +1,9 @@
 import {transform} from '@diplodoc/mermaid-extension';
-
-import type {ExtensionAuto, ExtensionNodeSpec} from '#core';
-import {generateEntityId} from 'src/utils/entity-id';
+import type {ExtensionAuto, ExtensionNodeSpec} from '@gravity-ui/markdown-editor';
+import {generateEntityId} from '@gravity-ui/markdown-editor';
 
 import {MermaidConsts, defaultMermaidEntityId, mermaidNodeName} from './const';
+
 export {mermaidNodeName, MermaidConsts} from './const';
 
 export type MermaidSpecsOptions = {
@@ -11,7 +11,7 @@ export type MermaidSpecsOptions = {
     nodeView?: ExtensionNodeSpec['view'];
 };
 
-const MermaidSpecsExtension: ExtensionAuto<MermaidSpecsOptions> = (builder, {nodeView}) => {
+const MermaidSpecsExtensionFn: ExtensionAuto<MermaidSpecsOptions> = (builder, {nodeView}) => {
     builder
         .configureMd((md) => md.use(transform({runtime: 'mermaid', bundle: false}), {}))
         .addNodeSpec(mermaidNodeName, () => ({
@@ -54,4 +54,4 @@ const MermaidSpecsExtension: ExtensionAuto<MermaidSpecsOptions> = (builder, {nod
     }
 };
 
-export const MermaidSpecs = Object.assign(MermaidSpecsExtension, MermaidConsts);
+export const MermaidSpecsExtension = Object.assign(MermaidSpecsExtensionFn, MermaidConsts);
