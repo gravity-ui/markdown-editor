@@ -2,18 +2,20 @@ import {useEffect, useRef, useState} from 'react';
 import type {CSSProperties, RefObject} from 'react';
 
 import {Pencil} from '@gravity-ui/icons';
-import {Icon} from '@gravity-ui/uikit';
+import {Icon, Portal} from '@gravity-ui/uikit';
 
 import {i18n} from 'src/i18n/yfm-html-block';
 
 import {InlineElementEditor} from './InlineElementEditor';
 import {STOP_EVENT_CLASSNAME, cnYfmHtmlBlock as b} from './const';
-import {getMatchingElements} from './textEditing';
+import {getElementAttributes, getMatchingElements} from './textEditing';
 
 interface Target {
     element: Element;
     outline: CSSProperties;
+    anchor: CSSProperties;
     button: CSSProperties;
+    attributes: string;
 }
 
 interface Selection extends Target {
@@ -49,7 +51,7 @@ export const FrameInlineEditing: React.FC<{
         const block = blockRef.current;
         if (!frame || !block) return undefined;
         let frameDocument: Document | null = null;
-        let editableElements: Set<Element> | null = null;
+        let editableElements = new Map<Element, string>();
 
         const resolve = (eventTarget: EventTarget | null): Target | null => {
             const body = frame.contentDocument?.body;
@@ -58,7 +60,7 @@ export const FrameInlineEditing: React.FC<{
             const element = (node.nodeType === 1 ? node : node.parentElement) as Element | null;
             const target = element?.closest('svg') ?? element;
             if (!target || target === body || !body.contains(target)) return null;
-            if (!editableElements?.has(target)) return null;
+            if (!editableElements.has(target)) return null;
 
             const blockRect = block.getBoundingClientRect();
             const frameRect = frame.getBoundingClientRect();
@@ -70,10 +72,17 @@ export const FrameInlineEditing: React.FC<{
 
             return {
                 element: target,
-                outline: {left, top, width, height},
+                attributes: editableElements.get(target) ?? '',
+                anchor: {left, top, width, height},
+                outline: {
+                    left: frameRect.left + targetRect.left - 30,
+                    top: frameRect.top + targetRect.top - 30,
+                    width: width + 60,
+                    height: height + 60,
+                },
                 button: {
-                    left: clamp(left + width - 20, 4, blockRect.width - 36),
-                    top: clamp(top - 8, 0, blockRect.height - 28),
+                    left: frameRect.left + targetRect.left,
+                    top: frameRect.top + targetRect.top,
                 },
             };
         };
@@ -81,15 +90,34 @@ export const FrameInlineEditing: React.FC<{
         const onMove = (event: MouseEvent) => {
             if (selectedRef.current) return;
             const target = resolve(event.target);
-            setHover((current) =>
-                current?.element === target?.element &&
-                current?.outline.left === target?.outline.left &&
-                current?.outline.top === target?.outline.top &&
-                current?.outline.width === target?.outline.width &&
-                current?.outline.height === target?.outline.height
-                    ? current
-                    : target,
-            );
+            const frameRect = frame.getBoundingClientRect();
+            const pointerX = frameRect.left + event.clientX;
+            const pointerY = frameRect.top + event.clientY;
+            setHover((current) => {
+                const left = Number(current?.button.left);
+                const top = Number(current?.button.top);
+                // Keep the card reachable as the pointer approaches it.
+                if (
+                    current &&
+                    pointerX >= left - 24 &&
+                    pointerX <= left + 240 &&
+                    pointerY >= top - 24 &&
+                    pointerY <= top + 80
+                )
+                    return current;
+                if (!target) return null;
+                return {
+                    ...target,
+                    button: {
+                        left: clamp(pointerX + 16, 8, window.innerWidth - 248),
+                        top: clamp(
+                            pointerY + 80 < window.innerHeight ? pointerY + 16 : pointerY - 80,
+                            8,
+                            window.innerHeight - 80,
+                        ),
+                    },
+                };
+            });
         };
         const onClick = (event: MouseEvent) => {
             if (selectedRef.current) {
@@ -110,7 +138,14 @@ export const FrameInlineEditing: React.FC<{
                 const target = current && resolve(current.element);
                 return target && current ? {...target, id: current.id} : null;
             });
-            setHover((current) => (current ? resolve(current.element) : null));
+            setHover((current) => {
+                const target = current && resolve(current.element);
+                return target && current ? {...target, button: current.button} : null;
+            });
+        };
+        const onScroll = () => {
+            onLeave();
+            reposition();
         };
         const resizeObserver = new ResizeObserver(reposition);
         const connect = () => {
@@ -122,9 +157,17 @@ export const FrameInlineEditing: React.FC<{
             }
             frameDocument = frame.contentDocument;
             const body = frameDocument?.body;
-            editableElements = body
-                ? new Set(getMatchingElements(sourceHtml, body)?.previewElements)
-                : null;
+            const matching = body && getMatchingElements(sourceHtml, body);
+            editableElements = new Map(
+                matching
+                    ? matching.previewElements.map((element, index) => [
+                          element,
+                          getElementAttributes(matching.sourceElements[index])
+                              .map(({name, value}) => `${name}="${value}"`)
+                              .join(' · '),
+                      ])
+                    : [],
+            );
             frameDocument?.addEventListener('mousemove', onMove);
             frameDocument?.addEventListener('click', onClick, true);
             if (body) resizeObserver.observe(body);
@@ -134,10 +177,12 @@ export const FrameInlineEditing: React.FC<{
 
         frame.addEventListener('load', connect);
         block.addEventListener('mouseleave', onLeave);
+        window.addEventListener('scroll', onScroll, true);
         connect();
         return () => {
             frame.removeEventListener('load', connect);
             block.removeEventListener('mouseleave', onLeave);
+            window.removeEventListener('scroll', onScroll, true);
             resizeObserver.disconnect();
             frameDocument?.removeEventListener('mousemove', onMove);
             frameDocument?.removeEventListener('click', onClick, true);
@@ -155,11 +200,12 @@ export const FrameInlineEditing: React.FC<{
     return (
         <>
             {current && (
-                <div
-                    ref={selected ? setAnchor : undefined}
-                    className={b('inline-edit-outline')}
-                    style={current.outline}
-                />
+                <Portal>
+                    <div className={b('inline-edit-outline')} style={current.outline} />
+                </Portal>
+            )}
+            {selected && (
+                <div ref={setAnchor} className={b('inline-edit-anchor')} style={selected.anchor} />
             )}
             {hover && !selected && (
                 <button
@@ -167,7 +213,6 @@ export const FrameInlineEditing: React.FC<{
                     className={`${b('inline-edit-button')} ${STOP_EVENT_CLASSNAME}`}
                     style={hover.button}
                     aria-label={i18n('edit_element')}
-                    title={i18n('edit_element')}
                     onMouseDown={(event) => event.preventDefault()}
                     onClick={(event) => {
                         event.preventDefault();
@@ -176,7 +221,15 @@ export const FrameInlineEditing: React.FC<{
                         setHover(null);
                     }}
                 >
-                    <Icon data={Pencil} size={15} />
+                    <Icon data={Pencil} size={16} />
+                    <span className={b('inline-edit-summary')}>
+                        <code>{`<${hover.element.tagName.toLowerCase()}>`}</code>
+                        {hover.attributes && (
+                            <span className={b('inline-edit-summary-attrs')}>
+                                {hover.attributes}
+                            </span>
+                        )}
+                    </span>
                 </button>
             )}
             {selected && anchor && frameRef.current?.contentDocument?.body && (

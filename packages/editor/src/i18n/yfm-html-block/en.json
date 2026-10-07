@@ -11,6 +11,6 @@
   "cancel": "Cancel",
   "save": "Save",
   "visual": "Visual",
-  "select_element": "Select text or an image in the block to edit its text and attributes.",
-  "attributes_hint": "HTML attributes control links, images and appearance."
+  "attributes_hint": "HTML attributes control links, images and appearance.",
+  "attributes_help": "About attributes"
 }

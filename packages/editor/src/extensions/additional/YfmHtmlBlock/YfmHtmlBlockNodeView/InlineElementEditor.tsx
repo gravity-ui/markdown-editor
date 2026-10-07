@@ -1,8 +1,8 @@
 import {useEffect, useId, useLayoutEffect, useRef, useState} from 'react';
 import type {KeyboardEvent} from 'react';
 
-import {ChevronDown, Plus, TrashBin} from '@gravity-ui/icons';
-import {Button, Icon, Popup, TextArea, TextInput} from '@gravity-ui/uikit';
+import {ChevronDown, CircleQuestion, Plus, TrashBin} from '@gravity-ui/icons';
+import {Button, Icon, Popup, TextArea, TextInput, Tooltip} from '@gravity-ui/uikit';
 
 import {i18n} from 'src/i18n/yfm-html-block';
 
@@ -133,44 +133,74 @@ export const InlineElementEditor: React.FC<{
                 </div>
                 {initial.canEditText && (
                     <div className={b('inline-edit-field')}>
-                        <label className={b('inline-edit-field-label')} htmlFor={fieldId}>
-                            {i18n('text')}
-                        </label>
                         <TextArea
                             id={fieldId}
-                            controlProps={{className: STOP_EVENT_CLASSNAME}}
+                            controlProps={{
+                                className: STOP_EVENT_CLASSNAME,
+                                'aria-label': i18n('text'),
+                            }}
                             value={text}
                             onUpdate={setText}
                             onKeyDown={onKeyDown}
                             minRows={4}
-                            maxRows={4}
+                            maxRows={8}
                         />
                     </div>
                 )}
                 <div className={b('inline-edit-section')}>
-                    <button
-                        type="button"
-                        className={`${b('inline-edit-toggle')} ${STOP_EVENT_CLASSNAME}`}
-                        aria-expanded={attributesOpen}
-                        aria-controls={`${fieldId}-attributes`}
-                        onClick={() => setAttributesOpen((open) => !open)}
-                    >
-                        <Icon
-                            data={ChevronDown}
-                            size={14}
-                            className={b('inline-edit-toggle-chevron', {open: attributesOpen})}
-                        />
-                        {i18n('attributes')}
-                        <span className={b('inline-edit-toggle-count')}>{attributes.length}</span>
-                    </button>
+                    <div className={b('inline-edit-attributes-header')}>
+                        <Tooltip content={i18n('attributes_hint')}>
+                            <Button
+                                view="flat-secondary"
+                                size="s"
+                                className={STOP_EVENT_CLASSNAME}
+                                aria-label={i18n('attributes_help')}
+                            >
+                                <Icon data={CircleQuestion} size={16} />
+                            </Button>
+                        </Tooltip>
+                        <button
+                            type="button"
+                            className={`${b('inline-edit-toggle')} ${STOP_EVENT_CLASSNAME}`}
+                            aria-expanded={attributesOpen}
+                            aria-controls={`${fieldId}-attributes`}
+                            onClick={() => setAttributesOpen((open) => !open)}
+                        >
+                            <Icon
+                                data={ChevronDown}
+                                size={14}
+                                className={b('inline-edit-toggle-chevron', {open: attributesOpen})}
+                            />
+                            {i18n('attributes')}
+                            <span className={b('inline-edit-toggle-count')}>
+                                {attributes.length}
+                            </span>
+                        </button>
+                        <Tooltip content={i18n('add_attribute')}>
+                            <Button
+                                view="flat"
+                                size="s"
+                                className={STOP_EVENT_CLASSNAME}
+                                aria-label={i18n('add_attribute')}
+                                onClick={() => {
+                                    const id = nextId.current++;
+                                    initialFocusPending.current = false;
+                                    pendingFocusId.current = id;
+                                    setAttributesOpen(true);
+                                    setAttributes((rows) => [...rows, {id, name: '', value: ''}]);
+                                }}
+                            >
+                                <Icon data={Plus} size={16} />
+                            </Button>
+                        </Tooltip>
+                    </div>
                     {attributesOpen && (
                         <div id={`${fieldId}-attributes`} className={b('inline-edit-attrs')}>
-                            <div className={b('hint')}>{i18n('attributes_hint')}</div>
                             {attributes.map((row) => (
                                 <div key={row.id} className={b('inline-edit-attr-row')}>
                                     <TextInput
                                         id={`${fieldId}-attribute-${row.id}`}
-                                        size="s"
+                                        size="m"
                                         controlProps={{
                                             className: STOP_EVENT_CLASSNAME,
                                             'aria-label': i18n('attribute_name'),
@@ -181,7 +211,7 @@ export const InlineElementEditor: React.FC<{
                                         placeholder={i18n('attribute_name')}
                                     />
                                     <TextInput
-                                        size="s"
+                                        size="m"
                                         controlProps={{
                                             className: STOP_EVENT_CLASSNAME,
                                             'aria-label': `${i18n('attribute_value')}: ${row.name}`,
@@ -206,21 +236,6 @@ export const InlineElementEditor: React.FC<{
                                     </Button>
                                 </div>
                             ))}
-                            <Button
-                                view="flat"
-                                size="s"
-                                width="max"
-                                className={STOP_EVENT_CLASSNAME}
-                                onClick={() => {
-                                    const id = nextId.current++;
-                                    initialFocusPending.current = false;
-                                    pendingFocusId.current = id;
-                                    setAttributes((rows) => [...rows, {id, name: '', value: ''}]);
-                                }}
-                            >
-                                <Icon data={Plus} size={14} />
-                                {i18n('add_attribute')}
-                            </Button>
                         </div>
                     )}
                 </div>

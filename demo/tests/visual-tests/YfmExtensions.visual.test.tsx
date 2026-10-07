@@ -47,7 +47,8 @@ test.describe('Extensions, YFM', () => {
             block.getByText(
                 'Select text or an image in the block to edit its text and attributes.',
             ),
-        ).toBeVisible();
+        ).toHaveCount(0);
+        await expect(toolbar.getByText('HTML', {exact: true})).toBeVisible();
 
         const preview = block.frameLocator('iframe').locator('p');
         await preview.dblclick();
@@ -179,7 +180,16 @@ test.describe('Extensions, YFM', () => {
         const text = panel.getByRole('textbox', {name: 'Text'});
         await expect(text).toBeFocused();
         await panel.getByRole('button', {name: /Attributes/}).click();
-        await expect(panel).toContainText('HTML attributes control links, images and appearance.');
+        await expect(panel.getByText('Text', {exact: true})).toHaveCount(0);
+        await expect(
+            panel.getByText('HTML attributes control links, images and appearance.'),
+        ).toHaveCount(0);
+        await panel.getByRole('button', {name: 'About attributes'}).hover();
+        await expect(page.getByRole('tooltip')).toContainText(
+            'HTML attributes control links, images and appearance.',
+        );
+        await text.hover();
+        await expect(page.getByRole('tooltip')).toHaveCount(0);
         await expect(panel).toHaveScreenshot('html-block-element-panel.png');
         await text.fill('Discarded');
         await panel.getByRole('button', {name: 'Cancel'}).press('Enter');
@@ -254,16 +264,17 @@ test.describe('Extensions, YFM', () => {
         await expect(panel.getByRole('textbox', {name: 'Text'})).toBeFocused();
         await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(scrollBefore);
         expect(await paragraph.boundingBox()).toEqual(before);
-        const outline = block.locator('.g-md-yfm-html-block__inline-edit-outline');
+        const outline = page.locator('.g-md-yfm-html-block__inline-edit-outline');
         await expect(outline).toHaveCSS('outline-style', 'solid');
-        await expect(outline).toHaveCSS('outline-width', '2px');
+        await expect(outline).toHaveCSS('outline-width', '4px');
+        await expect(outline).toHaveCSS('padding', '30px');
         await expect(outline).toHaveCSS('border-top-width', '0px');
         await expect(block).toHaveCSS('outline-width', '1px');
         await expect(block).toHaveCSS('border-top-width', '0px');
         const body = block.locator('.g-md-yfm-html-block__body');
         for (const side of ['top', 'right', 'bottom', 'left']) {
-            await expect(body).toHaveCSS(`padding-${side}`, '10px');
-            await expect(panel).toHaveCSS(`padding-${side}`, '10px');
+            await expect(body).toHaveCSS(`padding-${side}`, '0px');
+            await expect(panel).toHaveCSS(`padding-${side}`, '20px');
         }
         const expectNearby = async () => {
             await expect
@@ -285,6 +296,69 @@ test.describe('Extensions, YFM', () => {
         await panel.getByRole('textbox', {name: 'Text'}).fill('Edited lower paragraph');
         await panel.getByRole('button', {name: 'Save', exact: true}).click();
         await expect(paragraph).toHaveText('Edited lower paragraph');
+    });
+    test('should show HTML block hover details beside the pointer without shifting content', async ({
+        mount,
+        page,
+    }) => {
+        await page.setViewportSize({width: 1100, height: 720});
+        await mount(
+            <YFMStories.YfmHtmlBlock
+                initial={
+                    '::: html\n<p title="Greeting" style="margin:50px">A paragraph with room around it</p>\n:::'
+                }
+            />,
+        );
+        const block = page.locator('.g-md-yfm-html-block');
+        const paragraph = block.frameLocator('iframe').locator('p');
+        const before = await paragraph.boundingBox();
+        if (!before) throw new Error('Paragraph is missing');
+        const pointer = {x: before.x + 20, y: before.y + 8};
+        await page.mouse.move(pointer.x, pointer.y);
+        const details = block.getByRole('button', {name: 'Edit element'});
+        await expect(details).toContainText('<p>');
+        await expect(details).toContainText('title="Greeting"');
+        const infoBox = await details.boundingBox();
+        if (!infoBox) throw new Error('Hover details are missing');
+        expect(infoBox.x).toBeCloseTo(pointer.x + 16);
+        expect(infoBox.y).toBeCloseTo(pointer.y + 16);
+        expect(await paragraph.boundingBox()).toEqual(before);
+        await expect(page.locator('.g-md-yfm-html-block__inline-edit-outline')).toHaveCSS(
+            'padding',
+            '30px',
+        );
+        const halo = await page.locator('.g-md-yfm-html-block__inline-edit-outline').boundingBox();
+        if (!halo) throw new Error('Hover outline is missing');
+        expect(halo.x).toBeCloseTo(before.x - 30);
+        expect(halo.y).toBeCloseTo(before.y - 30);
+        expect(halo.width).toBeCloseTo(before.width + 60);
+        expect(halo.height).toBeCloseTo(before.height + 60);
+        await expect(page).toHaveScreenshot('html-block-hover-details.png');
+        await page.mouse.move(infoBox.x + 8, infoBox.y + 8, {steps: 10});
+        expect(await details.boundingBox()).toEqual(infoBox);
+        await page.mouse.click(infoBox.x + 8, infoBox.y + 8);
+        await expect(page.getByRole('dialog', {name: 'Edit element <p>'})).toBeVisible();
+    });
+    test('should keep HTML block image attributes compact', async ({mount, page}) => {
+        await mount(<YFMStories.YfmHtmlBlock />);
+        const image = page
+            .locator('.g-md-yfm-html-block')
+            .first()
+            .frameLocator('iframe')
+            .locator('img.html-block-demo-image');
+        await image.click();
+        const panel = page.getByRole('dialog', {name: 'Edit element <img>'});
+        await expect(panel.getByRole('textbox', {name: 'Text'})).toHaveCount(0);
+        await expect(panel.locator('.g-md-yfm-html-block__inline-edit-toggle-count')).toHaveText(
+            '3',
+        );
+        const add = panel.getByRole('button', {name: 'Add attribute'});
+        const addBox = await add.boundingBox();
+        if (!addBox) throw new Error('Add attribute button is missing');
+        expect(addBox.width).toBeLessThan(40);
+        await expect(panel).toHaveScreenshot('html-block-image-panel.png');
+        await add.click();
+        await expect(panel.getByRole('textbox', {name: 'Name', exact: true}).last()).toBeFocused();
     });
     test('YFM File', async ({mount, expectScreenshot}) => {
         await mount(<YFMStories.YfmFile />);

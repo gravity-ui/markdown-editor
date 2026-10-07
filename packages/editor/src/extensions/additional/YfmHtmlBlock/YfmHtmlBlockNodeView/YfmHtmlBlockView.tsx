@@ -3,7 +3,7 @@ import type {ReactNode, RefObject} from 'react';
 
 import {getStyles} from '@diplodoc/html-extension';
 import type {IHTMLIFrameElementConfig} from '@diplodoc/html-extension/runtime';
-import {TrashBin} from '@gravity-ui/icons';
+import {Code, TrashBin} from '@gravity-ui/icons';
 import {Button, Icon, SegmentedRadioGroup} from '@gravity-ui/uikit';
 import type {Node} from 'prosemirror-model';
 import type {EditorView} from 'prosemirror-view';
@@ -38,6 +38,10 @@ const HtmlBlockToolbar: React.FC<{
 }> = ({mode, onModeChange, onRemove, modeSwitchDisabled, actions}) => (
     <div className={b('header')}>
         <div className={`${b('toolbar')} ${STOP_EVENT_CLASSNAME}`}>
+            <div className={b('block-title')}>
+                <Icon data={Code} size={16} />
+                <span>HTML</span>
+            </div>
             <SegmentedRadioGroup<ViewMode>
                 size="m"
                 value={mode}
@@ -61,13 +65,6 @@ const HtmlBlockToolbar: React.FC<{
             >
                 <Icon data={TrashBin} size={16} />
             </Button>
-        </div>
-        <div>
-            {mode === 'editor' && (
-                <div className={`${b('hint')} ${b('instruction')}`}>
-                    {htmlBlockI18n('select_element')}
-                </div>
-            )}
         </div>
     </div>
 );
