@@ -44,7 +44,7 @@ These run visual tests outside Docker and produce unreliable results.
 
 ## Code style
 
-Prettier owns formatting, ESLint owns the rest. Both apply their fixes from one command:
+Prettier owns formatting, ESLint and Stylelint own the rest. One command applies the fixes of all three:
 
 ```bash
 pnpm fix:lint
