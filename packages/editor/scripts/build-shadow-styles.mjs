@@ -1,0 +1,102 @@
+import {readFileSync, writeFileSync} from 'node:fs';
+import {createRequire} from 'node:module';
+import {resolve} from 'node:path';
+import {pathToFileURL} from 'node:url';
+
+import {SHADOW_STYLE_IMPORTS} from './shadow-styles-imports.mjs';
+
+const require = createRequire(import.meta.url);
+
+const CREATE_STYLE_SHEET = `function createStyleSheet() {
+    if (typeof CSSStyleSheet === 'undefined') {
+        throw new Error('Constructable stylesheets are not available in this environment.');
+    }
+    const styleSheet = new CSSStyleSheet();
+    styleSheet.replaceSync(cssText);
+    return styleSheet;
+}`;
+
+const TYPE_DECLARATIONS = [
+    'export declare const cssText: string;',
+    'export declare function createStyleSheet(): CSSStyleSheet;',
+    '',
+].join('\n');
+
+/**
+ * Writes `build/shadow-styles.{mjs,cjs,d.mts,d.cts}`, then loads both modules back to verify them.
+ * @param {string} buildDir Build output directory; `styles.css` in it comes from the `scss` task
+ */
+export async function buildShadowStyles(buildDir) {
+    const externalCss = SHADOW_STYLE_IMPORTS.map((cssImport) =>
+        readFileSync(require.resolve(cssImport), 'utf8'),
+    ).join('\n');
+    const cssText = [externalCss, readFileSync(resolve(buildDir, 'styles.css'), 'utf8')].join('\n');
+    assertNoCssImportRules(cssText);
+
+    const {esm, cjs} = createShadowStylesModule(cssText);
+    writeFileSync(resolve(buildDir, 'shadow-styles.mjs'), esm);
+    writeFileSync(resolve(buildDir, 'shadow-styles.cjs'), cjs);
+    // The nearest package.json declares no `type`, so a single `.d.ts` would read as CommonJS
+    // under the `import` condition as well.
+    writeFileSync(resolve(buildDir, 'shadow-styles.d.mts'), TYPE_DECLARATIONS);
+    writeFileSync(resolve(buildDir, 'shadow-styles.d.cts'), TYPE_DECLARATIONS);
+
+    await verifyGeneratedModules(buildDir, cssText);
+}
+
+// `CSSStyleSheet.replaceSync()` drops `@import` rules, so inlined CSS that gains one loses the
+// imported file. The collected CSS contains no `@import` at all, comments included.
+function assertNoCssImportRules(css) {
+    if (/(?:^|[\s;}])@import\b/m.test(css)) {
+        throw new Error(
+            "[shadow-styles] '@import' in cssText: CSSStyleSheet.replaceSync() drops the rule, " +
+                'and the imported file is lost. Add that file to SHADOW_STYLE_IMPORTS instead.',
+        );
+    }
+}
+
+function createShadowStylesModule(cssText) {
+    const cssLiteral = JSON.stringify(cssText);
+
+    return {
+        esm: [`export const cssText = ${cssLiteral};`, '', `export ${CREATE_STYLE_SHEET}`, ''].join(
+            '\n',
+        ),
+        cjs: [
+            `const cssText = ${cssLiteral};`,
+            '',
+            CREATE_STYLE_SHEET,
+            '',
+            'exports.cssText = cssText;',
+            'exports.createStyleSheet = createStyleSheet;',
+            '',
+        ].join('\n'),
+    };
+}
+
+// The modules are generated code, and only a round trip proves the embedded CSS survives it.
+async function verifyGeneratedModules(buildDir, cssText) {
+    // Node has no `CSSStyleSheet`; the stub records what `replaceSync()` received.
+    globalThis.CSSStyleSheet = class {
+        replaceSync(value) {
+            this.cssText = value;
+        }
+    };
+
+    try {
+        const modules = [
+            ['CJS', require(resolve(buildDir, 'shadow-styles.cjs'))],
+            ['ESM', await import(pathToFileURL(resolve(buildDir, 'shadow-styles.mjs')).href)],
+        ];
+
+        for (const [format, module] of modules) {
+            if (module.cssText !== cssText || module.createStyleSheet().cssText !== cssText) {
+                throw new Error(
+                    `[shadow-styles] ${format} cssText differs from the collected CSS.`,
+                );
+            }
+        }
+    } finally {
+        delete globalThis.CSSStyleSheet;
+    }
+}

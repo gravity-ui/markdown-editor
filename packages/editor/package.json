@@ -163,6 +163,16 @@
         "default": "./build/cjs/*"
       }
     },
+    "./shadow-styles": {
+      "import": {
+        "types": "./build/shadow-styles.d.mts",
+        "default": "./build/shadow-styles.mjs"
+      },
+      "require": {
+        "types": "./build/shadow-styles.d.cts",
+        "default": "./build/shadow-styles.cjs"
+      }
+    },
     "./styles/*": "./build/esm/styles/*"
   },
   "main": "build/cjs/index.js",
