@@ -66,5 +66,5 @@ export interface WaitFixture {
 export interface CaptureScreenshotParams extends PageScreenshotOptions {
     nameSuffix?: string;
     component?: Locator | Page;
-    themes?: ReadonlyArray<'light' | 'dark'>;
+    themes?: readonly ('light' | 'dark')[];
 }
