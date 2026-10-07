@@ -1,13 +1,4 @@
-import {
-    type CSSProperties,
-    Suspense,
-    lazy,
-    memo,
-    useCallback,
-    useEffect,
-    useMemo,
-    useState,
-} from 'react';
+import {type CSSProperties, memo, useCallback, useEffect, useMemo, useState} from 'react';
 
 import type {EmbeddingMode} from '@diplodoc/html-extension';
 import {htmlBlockDefaultSanitizer} from '@diplodoc/html-extension';
@@ -46,12 +37,7 @@ import {parseInsertedUrlAsImage} from '../utils/imageUrl';
 import {debouncedUpdateLocation as updateLocation} from '../utils/location';
 
 import {PlaygroundLayout, b} from './PlaygroundLayout';
-
-// The preview pulls in @diplodoc/transform with all its plugins: highlight.js, katex,
-// page-constructor. Nothing of that is needed until split mode is turned on.
-const SplitModePreview = lazy(() =>
-    import('./SplitModePreview').then(({SplitModePreview: component}) => ({default: component})),
-);
+import {SplitModePreviewLazy} from './SplitModePreviewLazy';
 
 const fileUploadHandler: FileUploadHandler = async (file) => {
     console.info('[Playground] Uploading file: ' + file.name);
@@ -150,23 +136,21 @@ export const Playground = memo<PlaygroundProps>((props) => {
 
     const renderPreview = useCallback<RenderPreview>(
         ({getValue, md, directiveSyntax}) => (
-            <Suspense fallback={null}>
-                <SplitModePreview
-                    getValue={getValue}
-                    allowHTML={md.html}
-                    linkify={md.linkify}
-                    linkifyTlds={md.linkifyTlds}
-                    breaks={md.breaks}
-                    needToSanitizeHtml={sanitizeHtml}
-                    pluginsOptions={{
-                        directiveSyntax,
-                        table_ignoreSplittersInBlockMath: true,
-                        table_ignoreSplittersInInlineMath: true,
-                    }}
-                    disableMarkdownItAttrs={disableMarkdownItAttrs}
-                    htmlRuntimeConfig={{disabledModes: disabledHTMLBlockModes}}
-                />
-            </Suspense>
+            <SplitModePreviewLazy
+                getValue={getValue}
+                allowHTML={md.html}
+                linkify={md.linkify}
+                linkifyTlds={md.linkifyTlds}
+                breaks={md.breaks}
+                needToSanitizeHtml={sanitizeHtml}
+                pluginsOptions={{
+                    directiveSyntax,
+                    table_ignoreSplittersInBlockMath: true,
+                    table_ignoreSplittersInInlineMath: true,
+                }}
+                disableMarkdownItAttrs={disableMarkdownItAttrs}
+                htmlRuntimeConfig={{disabledModes: disabledHTMLBlockModes}}
+            />
         ),
         [sanitizeHtml, disabledHTMLBlockModes, disableMarkdownItAttrs],
     );

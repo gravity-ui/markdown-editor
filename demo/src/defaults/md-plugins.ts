@@ -110,5 +110,3 @@ export function getPlugins({
 
     return extendedPlugins;
 }
-
-export const plugins = getPlugins();

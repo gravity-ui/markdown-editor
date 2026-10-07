@@ -16,8 +16,7 @@ import {VERSION} from '@gravity-ui/markdown-editor/_/version.js';
 
 import {WysiwygSelection} from '../../components/PMSelection';
 import {WysiwygDevTools} from '../../components/ProseMirrorDevTools';
-import {SplitModePreview} from '../../components/SplitModePreview';
-import {plugins} from '../../defaults/md-plugins';
+import {SplitModePreviewLazy} from '../../components/SplitModePreviewLazy';
 import {useLogs} from '../../hooks/useLogs';
 import {block} from '../../utils/cn';
 import {randomDelay} from '../../utils/delay';
@@ -69,14 +68,13 @@ export const Preset = memo<PresetDemoProps>((props) => {
 
     const renderPreview = useCallback<RenderPreview>(
         ({getValue, md}) => (
-            <SplitModePreview
+            <SplitModePreviewLazy
                 getValue={getValue}
                 allowHTML={md.html}
                 linkify={md.linkify}
                 linkifyTlds={md.linkifyTlds}
                 breaks={md.breaks}
                 needToSanitizeHtml
-                plugins={plugins}
             />
         ),
         [],
