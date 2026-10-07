@@ -7,12 +7,15 @@ import {
     rmSync,
     writeFileSync,
 } from 'node:fs';
-import {dirname, join, resolve} from 'node:path';
+import {dirname, join, relative, resolve} from 'node:path';
 import process from 'node:process';
 import {fileURLToPath} from 'node:url';
 
+import {generateExtensionPages} from './generate-extension-pages.mjs';
+
 const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '../../..');
 const DOCS_DIR = join(REPO_ROOT, 'docs');
+const EXTENSION_PAGES_DIR = join(REPO_ROOT, 'tmp/docs-gen/stubs');
 const OUT_DIR = join(REPO_ROOT, 'tmp/docs-src');
 const GITHUB_RAW_RE =
     /https:\/\/raw\.githubusercontent\.com\/gravity-ui\/markdown-editor\/(?:refs\/heads\/[^/]+|[^/]+)\/docs\//g;
@@ -65,29 +68,32 @@ function collectDocs() {
         process.exit(1);
     }
 
-    const files = readdirSync(DOCS_DIR)
-        .filter((f) => f.endsWith('.md'))
-        .sort();
     const docs = [];
 
-    for (const file of files) {
-        const content = readFileSync(join(DOCS_DIR, file), 'utf-8');
-        const lines = content.split('\n');
-        const parsed = parseHeader(lines[0]);
+    for (const dir of [DOCS_DIR, EXTENSION_PAGES_DIR]) {
+        const files = readdirSync(dir)
+            .filter((file) => file.endsWith('.md'))
+            .sort();
 
-        if (!parsed) {
-            console.warn(`Skipping ${file}: no ##### header found`);
-            continue;
+        for (const file of files) {
+            const content = readFileSync(join(dir, file), 'utf-8');
+            const lines = content.split('\n');
+            const parsed = parseHeader(lines[0]);
+
+            if (!parsed) {
+                console.warn(`Skipping ${file}: no ##### header found`);
+                continue;
+            }
+
+            const strippedContent = lines.slice(1).join('\n').replace(/^\n+/, '');
+
+            docs.push({
+                sourceFile: dir === EXTENSION_PAGES_DIR ? `extensions/${file}` : file,
+                category: dir === EXTENSION_PAGES_DIR ? 'Extension API' : parsed.category,
+                title: parsed.title,
+                content: strippedContent,
+            });
         }
-
-        const strippedContent = lines.slice(1).join('\n').replace(/^\n+/, '');
-
-        docs.push({
-            sourceFile: file,
-            category: parsed.category,
-            title: parsed.title,
-            content: strippedContent,
-        });
     }
 
     return docs;
@@ -154,6 +160,17 @@ function rewriteAssetUrls(content, doc) {
     return content.replace(GITHUB_RAW_RE, prefix);
 }
 
+/** Rewrites links between source documents after they move into site categories. */
+function rewriteDocLinks(content, doc, docs) {
+    const bySource = new Map(docs.map((target) => [target.sourceFile, target]));
+    return content.replace(/\]\(\.\/([^#)]+\.md)(#[^)]*)?\)/g, (match, source, anchor = '') => {
+        const target = bySource.get(source);
+        if (!target) return match;
+        const href = relative(dirname(computeOutputPath(doc)), computeOutputPath(target));
+        return `](${href}${anchor})`;
+    });
+}
+
 /**
  * Writes stripped markdown content to categorized output paths.
  * @param docs
@@ -163,7 +180,7 @@ function writeDocFiles(docs) {
     for (const doc of docs) {
         const outPath = join(OUT_DIR, computeOutputPath(doc));
         mkdirSync(dirname(outPath), {recursive: true});
-        writeFileSync(outPath, rewriteAssetUrls(doc.content, doc));
+        writeFileSync(outPath, rewriteDocLinks(rewriteAssetUrls(doc.content, doc), doc, docs));
     }
 }
 
@@ -256,6 +273,7 @@ function writeYfmConfig() {
 /** Entry point: cleans output, collects docs, and generates the documentation site. */
 function main() {
     cleanOutDir();
+    generateExtensionPages();
 
     const docs = collectDocs();
     const {categories, topLevel} = groupByCategory(docs);
