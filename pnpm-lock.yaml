@@ -313,6 +313,13 @@ importers:
       '@diplodoc/cli':
         specifier: 5.63.0
         version: 5.63.0(@types/markdown-it@13.0.9)(@types/node@25.2.1)(react@18.2.0)(strip-ansi@7.2.0)
+      typescript:
+        specifier: catalog:ts
+        version: 5.9.3
+    devDependencies:
+      vitest:
+        specifier: catalog:testing
+        version: 5.0.1(@types/node@25.2.1)(@vitest/coverage-v8@5.0.1)(jsdom@25.0.1)(vite@8.3.1(@types/node@25.2.1)(esbuild@0.28.2)(jiti@2.6.1)(sass@1.105.0)(terser@5.51.2)(yaml@2.9.1))
 
   infra/gulp-tasks:
     dependencies:
