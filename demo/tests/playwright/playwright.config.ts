@@ -97,7 +97,7 @@ const config: PlaywrightTestConfig = {
             name: 'chromium',
             use: {
                 ...devices['Desktop Chrome'],
-                deviceScaleFactor: 1,
+                deviceScaleFactor: 2,
             },
         },
     ],
