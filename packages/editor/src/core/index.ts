@@ -1,5 +1,4 @@
 export * from './Editor';
-export * from './ExtensionBuilder';
 export * from './ExtensionsManager';
 export {bindActions} from './utils/actions';
 export {getLoggerFromState} from './utils/logger';
@@ -9,11 +8,12 @@ export type {Keymap} from './types/keymap';
 export type {ActionSpec, Action, ActionStorage, CommandWithAttrs} from './types/actions';
 export type {
     Extension,
+    ExtensionBuilder,
     ExtensionAuto,
     ExtensionWithOptions,
     ExtensionDeps,
-    ExtensionNodeSpec,
-    ExtensionMarkSpec,
+    NodeViewFactory,
+    MarkViewFactory,
 } from './ExtensionBuilder';
 export type {Parser, ParserToken} from './types/parser';
 export type {

@@ -5,6 +5,7 @@
 Let us examine the process of creating an extension based on the Mermaid extension, which enables the insertion and manipulation of Mermaid diagrams.
 
 ### WYSIWYG and Markup Modes
+
 The initial point of focus is the fact that the editor operates in two distinct modes: WYSIWYG (What You See Is What You Get) and markup. The extension of the editor refers to the enhancement of the WYSIWYG functionality. In markup mode, the editor executes the standard conversion of either markdown markup or advanced markdown markup ([YFM](https://diplodoc.com/docs/en/syntax/), for example), depending on the integrated plugins. In the markup mode, we can verify that the plugin functions properly, and that the syntax inputted into the editor is accurately reflected in the preview. It is crucial at this stage to ensure that the markup translates correctly into HTML code.
 
 In our example with the `mermaid` plugin, the code for the markup mode [can be found](https://github.com/gravity-ui/markdown-editor/blob/main/demo/md-plugins.ts#L52) in the `demo/mdplugins.ts` file.
@@ -15,11 +16,11 @@ In our example with the `mermaid` plugin, the code for the markup mode [can be f
 
 #### 1. Create a Specification
 
-Use the granular builder API instead of the deprecated `addNode` method: `addNodeSpec` for the schema, `addMarkdownTokenParserSpec` for parsing Markdown tokens, and `addNodeSerializerSpec` for serialization.
+Register each part separately: `addNodeSpec` for the schema, `addMarkdownTokenParserSpec` for parsing Markdown tokens, and `addNodeSerializerSpec` for serialization.
 
 Register a custom NodeView separately with `addNodeView`, as shown in the next step.
 
-```ts
+````ts
 const MermaidSpecsExtension: ExtensionAuto = (builder) => {
   builder
     .configureMd((md) => md.use(transform({runtime: 'mermaid', bundle: false}), {}))
@@ -52,8 +53,7 @@ const MermaidSpecsExtension: ExtensionAuto = (builder) => {
       state.ensureNewLine();
     });
 };
-
-```
+````
 
 #### 2. Add NodeView
 
@@ -83,7 +83,7 @@ const MermaidExtension: ExtensionAuto<MermaidOptions> = (builder, options) => {
 
 The factory receives the extension dependencies (`schema`, `textParser`, `markupParser`, `serializer`, `actions`) and returns a `NodeViewConstructor`; it runs after the schema is built. Marks are registered the same way with `addMarkView`, which expects a `MarkViewConstructor`.
 
-The node must already be registered by `addNodeSpec` or `addNode`, and it can have only one view — a second registration for the same node throws.
+A node or mark can have only one view; a second registration throws. `ExtensionsManager` checks that each view targets a schema entity of the correct type.
 
 See the [full example of the extension](https://github.com/gravity-ui/markdown-editor/tree/main/src/extensions/yfm/Mermaid/MermaidNodeView) for more details.
 
@@ -91,4 +91,13 @@ See the [full example of the extension](https://github.com/gravity-ui/markdown-e
 
 The extension can be enhanced with [plugins](https://prosemirror.net/docs/guide/#state.plugins) as needed. Check out the [YfmTable extension](https://github.com/gravity-ui/markdown-editor/tree/main/src/extensions/yfm/YfmTable/plugins/YfmTableControls) example, where plugins add a panel (a pop-up window) for working with columns and rows.
 
+### Registration and Validation
 
+Schema specs, Markdown token parsers, serializers, and views are registered independently. Multiple Markdown tokens can target the same schema entity without adding extra nodes or marks to the schema.
+
+- `addNodeSpec` and `addMarkSpec` register schema specs. Mark priority controls the order of marks in the schema; equal priorities keep registration order.
+- `addMarkdownTokenParserSpec` uses a Markdown token name as its key. The returned spec's `name` is the target schema entity; `node` and `block` require a node, and `mark` requires a mark. An ignored token (`ignore: true`) does not need a schema entity or serializer.
+- `addNodeSerializerSpec` and `addMarkSerializerSpec` use schema entity names as keys. Every schema node and mark needs a serializer, except the root node.
+- Duplicate registrations throw immediately. Each `override*` method requires a previous registration in the same collection. Overrides run in registration order and receive the previous result.
+
+`ExtensionsManager` resolves spec callbacks after extensions are registered, then validates their final values against the registered schema specs before creating the ProseMirror schema. Unknown non-ignored parser targets and missing serializers cause a build error. Serializers and views whose target is absent from the corresponding schema collection are skipped with a warning. Skipped view factories are not called. A schema entity without a non-ignored parser spec emits a warning through the configured logger. Root and text nodes are excluded from these warnings because the parser handles them directly.

@@ -24,26 +24,9 @@ export const BaseSchemaSpecs: ExtensionAuto<BaseSchemaSpecsOptions> = (builder, 
         content: 'block+',
     }));
 
-    // TODO: Remove unnecessary token and serializer specs when ExtensionBuilder and ExtensionManager are ready
-    builder
-        .addMarkdownTokenParserSpec(BaseNode.Doc, () => ({
-            name: BaseNode.Doc,
-            type: 'block',
-            ignore: true,
-        }))
-        .addNodeSerializerSpec(BaseNode.Doc, () => () => {
-            throw new Error('Unexpected toMd() call on doc node');
-        });
-
     builder
         .addNodeSpec(BaseNode.Text, () => ({
             group: 'inline',
-        }))
-        // TODO: Remove unnecessary token specs when ExtensionBuilder and ExtensionManager are ready
-        .addMarkdownTokenParserSpec(BaseNode.Text, () => ({
-            name: BaseNode.Text,
-            type: 'node',
-            ignore: true,
         }))
         .addNodeSerializerSpec(BaseNode.Text, () => (state, node, parent) => {
             const {escapeText} = parent.type.spec;
