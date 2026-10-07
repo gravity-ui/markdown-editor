@@ -267,7 +267,7 @@ test.describe('Extensions, YFM', () => {
         const outline = page.locator('.g-md-yfm-html-block__inline-edit-outline');
         await expect(outline).toHaveCSS('outline-style', 'solid');
         await expect(outline).toHaveCSS('outline-width', '4px');
-        await expect(outline).toHaveCSS('padding', '30px');
+        await expect(outline).toHaveCSS('padding', '10px');
         await expect(outline).toHaveCSS('border-top-width', '0px');
         await expect(block).toHaveCSS('outline-width', '1px');
         await expect(block).toHaveCSS('border-top-width', '0px');
@@ -325,14 +325,14 @@ test.describe('Extensions, YFM', () => {
         expect(await paragraph.boundingBox()).toEqual(before);
         await expect(page.locator('.g-md-yfm-html-block__inline-edit-outline')).toHaveCSS(
             'padding',
-            '30px',
+            '10px',
         );
         const halo = await page.locator('.g-md-yfm-html-block__inline-edit-outline').boundingBox();
         if (!halo) throw new Error('Hover outline is missing');
-        expect(halo.x).toBeCloseTo(before.x - 30);
-        expect(halo.y).toBeCloseTo(before.y - 30);
-        expect(halo.width).toBeCloseTo(before.width + 60);
-        expect(halo.height).toBeCloseTo(before.height + 60);
+        expect(halo.x).toBeCloseTo(before.x - 10);
+        expect(halo.y).toBeCloseTo(before.y - 10);
+        expect(halo.width).toBeCloseTo(before.width + 20);
+        expect(halo.height).toBeCloseTo(before.height + 20);
         await expect(page).toHaveScreenshot('html-block-hover-details.png');
         await page.mouse.move(infoBox.x + 8, infoBox.y + 8, {steps: 10});
         expect(await details.boundingBox()).toEqual(infoBox);
@@ -359,6 +359,75 @@ test.describe('Extensions, YFM', () => {
         await expect(panel).toHaveScreenshot('html-block-image-panel.png');
         await add.click();
         await expect(panel.getByRole('textbox', {name: 'Name', exact: true}).last()).toBeFocused();
+    });
+    test('should coalesce HTML block pointer moves and switch nearby targets', async ({
+        mount,
+        page,
+    }) => {
+        await mount(
+            <YFMStories.YfmHtmlBlock
+                initial={'::: html\n<p id="one">One</p><h2 id="two">Two</h2>\n:::'}
+            />,
+        );
+        const block = page.locator('.g-md-yfm-html-block');
+        const paragraph = block.frameLocator('iframe').locator('#one');
+        const measurements = await paragraph.evaluate(async (element) => {
+            const paragraphElement = element;
+            const doc = paragraphElement.ownerDocument;
+            const view = doc.defaultView;
+            const heading = doc.querySelector('#two');
+            if (!view || !heading) throw new Error('Preview is missing');
+            const counts = {one: 0, two: 0};
+            const originalOne = paragraphElement.getBoundingClientRect.bind(paragraphElement);
+            const originalTwo = heading.getBoundingClientRect.bind(heading);
+            paragraphElement.getBoundingClientRect = () => {
+                counts.one++;
+                return originalOne();
+            };
+            heading.getBoundingClientRect = () => {
+                counts.two++;
+                return originalTwo();
+            };
+            const settle = () =>
+                new Promise<void>((resolve) => {
+                    requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
+                });
+            const send = (target: Element, x: number, y: number) => {
+                for (let index = 0; index < 200; index++) {
+                    target.dispatchEvent(
+                        new view.MouseEvent('mousemove', {bubbles: true, clientX: x, clientY: y}),
+                    );
+                }
+            };
+            try {
+                await settle();
+                counts.one = 0;
+                counts.two = 0;
+                const one = originalOne();
+                send(paragraphElement, one.left + 20, one.top + 4);
+                await settle();
+                const initialReads = counts.one;
+                counts.one = 0;
+                send(paragraphElement, one.left + one.width - 20, one.top + 4);
+                await settle();
+                const repeatedReads = counts.one;
+                const two = originalTwo();
+                send(heading, two.right - 20, two.top + 4);
+                await settle();
+                return {initialReads, repeatedReads, newTargetReads: counts.two};
+            } finally {
+                paragraphElement.getBoundingClientRect = originalOne;
+                heading.getBoundingClientRect = originalTwo;
+            }
+        });
+        expect(measurements.initialReads).toBeGreaterThan(0);
+        expect(measurements.initialReads).toBeLessThanOrEqual(2);
+        expect(measurements.repeatedReads).toBe(0);
+        expect(measurements.newTargetReads).toBeGreaterThan(0);
+        expect(measurements.newTargetReads).toBeLessThanOrEqual(2);
+        const details = block.getByRole('button', {name: 'Edit element'});
+        await expect(details).toContainText('<h2>');
+        await expect(details).toContainText('id="two"');
     });
     test('YFM File', async ({mount, expectScreenshot}) => {
         await mount(<YFMStories.YfmFile />);

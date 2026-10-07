@@ -138,13 +138,13 @@
         z-index: 1;
 
         box-sizing: border-box;
-        padding: 30px;
+        padding: 10px;
 
         pointer-events: none;
 
         border-radius: var(--g-border-radius-m);
-        outline: 4px solid color-mix(in sRGB, var(--g-color-line-focus) 30%, transparent);
-        box-shadow: 0 0 10px 2px color-mix(in sRGB, var(--g-color-line-focus) 15%, transparent);
+        outline: 4px solid var(--g-color-line-brand);
+        box-shadow: 0 0 10px 2px var(--g-color-base-selection);
     }
 
     &__inline-edit-button {

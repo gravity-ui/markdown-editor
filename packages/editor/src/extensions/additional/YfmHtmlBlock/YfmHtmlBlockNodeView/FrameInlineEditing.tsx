@@ -22,6 +22,8 @@ interface Selection extends Target {
     id: number;
 }
 
+const HIGHLIGHT_PADDING = 10;
+
 const clamp = (value: number, min: number, max: number) =>
     Math.max(min, Math.min(value, Math.max(min, max)));
 
@@ -53,15 +55,22 @@ export const FrameInlineEditing: React.FC<{
         let frameDocument: Document | null = null;
         let editableElements = new Map<Element, string>();
 
-        const resolve = (eventTarget: EventTarget | null): Target | null => {
+        let pendingMove: MouseEvent | null = null;
+        let animationFrame = 0;
+
+        const getTarget = (eventTarget: EventTarget | null): Element | null => {
             const body = frame.contentDocument?.body;
             if (!body || !eventTarget || !(eventTarget as Node).nodeType) return null;
             const node = eventTarget as Node;
             const element = (node.nodeType === 1 ? node : node.parentElement) as Element | null;
             const target = element?.closest('svg') ?? element;
             if (!target || target === body || !body.contains(target)) return null;
-            if (!editableElements.has(target)) return null;
+            return editableElements.has(target) ? target : null;
+        };
 
+        const resolve = (eventTarget: EventTarget | null): Target | null => {
+            const target = getTarget(eventTarget);
+            if (!target) return null;
             const blockRect = block.getBoundingClientRect();
             const frameRect = frame.getBoundingClientRect();
             const targetRect = target.getBoundingClientRect();
@@ -75,10 +84,10 @@ export const FrameInlineEditing: React.FC<{
                 attributes: editableElements.get(target) ?? '',
                 anchor: {left, top, width, height},
                 outline: {
-                    left: frameRect.left + targetRect.left - 30,
-                    top: frameRect.top + targetRect.top - 30,
-                    width: width + 60,
-                    height: height + 60,
+                    left: frameRect.left + targetRect.left - HIGHLIGHT_PADDING,
+                    top: frameRect.top + targetRect.top - HIGHLIGHT_PADDING,
+                    width: width + HIGHLIGHT_PADDING * 2,
+                    height: height + HIGHLIGHT_PADDING * 2,
                 },
                 button: {
                     left: frameRect.left + targetRect.left,
@@ -87,39 +96,56 @@ export const FrameInlineEditing: React.FC<{
             };
         };
 
-        const onMove = (event: MouseEvent) => {
-            if (selectedRef.current) return;
-            const target = resolve(event.target);
+        const flushMove = () => {
+            animationFrame = 0;
+            const event = pendingMove;
+            pendingMove = null;
+            if (!event || selectedRef.current) return;
+            const element = getTarget(event.target);
             const frameRect = frame.getBoundingClientRect();
             const pointerX = frameRect.left + event.clientX;
             const pointerY = frameRect.top + event.clientY;
             setHover((current) => {
                 const left = Number(current?.button.left);
                 const top = Number(current?.button.top);
-                // Keep the card reachable as the pointer approaches it.
+                // Keep the card reachable without retaining a different hovered element.
                 if (
                     current &&
+                    (!element || current.element === element) &&
                     pointerX >= left - 24 &&
                     pointerX <= left + 240 &&
                     pointerY >= top - 24 &&
                     pointerY <= top + 80
                 )
                     return current;
+                if (!element) return null;
+                const target = current?.element === element ? current : resolve(element);
                 if (!target) return null;
-                return {
-                    ...target,
-                    button: {
-                        left: clamp(pointerX + 16, 8, window.innerWidth - 248),
-                        top: clamp(
-                            pointerY + 80 < window.innerHeight ? pointerY + 16 : pointerY - 80,
-                            8,
-                            window.innerHeight - 80,
-                        ),
-                    },
+                const button = {
+                    left: clamp(pointerX + 16, 8, window.innerWidth - 248),
+                    top: clamp(
+                        pointerY + 80 < window.innerHeight ? pointerY + 16 : pointerY - 80,
+                        8,
+                        window.innerHeight - 80,
+                    ),
                 };
+                if (current === target && button.left === left && button.top === top)
+                    return current;
+                return {...target, button};
             });
         };
+        const cancelMove = () => {
+            cancelAnimationFrame(animationFrame);
+            animationFrame = 0;
+            pendingMove = null;
+        };
+        const onMove = (event: MouseEvent) => {
+            if (selectedRef.current) return;
+            pendingMove = event;
+            if (!animationFrame) animationFrame = requestAnimationFrame(flushMove);
+        };
         const onClick = (event: MouseEvent) => {
+            cancelMove();
             if (selectedRef.current) {
                 event.preventDefault();
                 if (!dirtyRef.current) setSelected(null);
@@ -132,7 +158,10 @@ export const FrameInlineEditing: React.FC<{
             setSelected({...target, id: ++nextSelectionId.current});
             setHover(null);
         };
-        const onLeave = () => setHover(null);
+        const onLeave = () => {
+            cancelMove();
+            setHover(null);
+        };
         const reposition = () => {
             setSelected((current) => {
                 const target = current && resolve(current.element);
@@ -149,6 +178,7 @@ export const FrameInlineEditing: React.FC<{
         };
         const resizeObserver = new ResizeObserver(reposition);
         const connect = () => {
+            cancelMove();
             resizeObserver.disconnect();
             resizeObserver.observe(block);
             if (frameDocument) {
@@ -180,6 +210,7 @@ export const FrameInlineEditing: React.FC<{
         window.addEventListener('scroll', onScroll, true);
         connect();
         return () => {
+            cancelMove();
             frame.removeEventListener('load', connect);
             block.removeEventListener('mouseleave', onLeave);
             window.removeEventListener('scroll', onScroll, true);
