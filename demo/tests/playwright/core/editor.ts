@@ -807,6 +807,22 @@ export class MarkdownEditorPage {
         }, data);
     }
 
+    async dispatchClipboardEvent(type: 'copy' | 'cut'): Promise<PasteData> {
+        return this.locators.contenteditable.evaluate((element, eventType) => {
+            const clipboardData = new DataTransfer();
+            element.dispatchEvent(
+                new ClipboardEvent(eventType, {bubbles: true, cancelable: true, clipboardData}),
+            );
+
+            return Object.fromEntries(
+                Array.from(clipboardData.types, (dataType) => [
+                    dataType,
+                    clipboardData.getData(dataType),
+                ]),
+            ) as PasteData;
+        }, type);
+    }
+
     /**
      * Fills the contenteditable area with the provided text
      */
