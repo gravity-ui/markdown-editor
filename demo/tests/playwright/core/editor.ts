@@ -608,7 +608,7 @@ export class MarkdownEditorPage {
                 );
             }
 
-            // the mode item of the settings menu calls the same two methods
+            // the settings menu hides the preview along with the mode change
             window.mdEditor.setEditorMode(nextMode);
             window.mdEditor.changePreviewVisible(false);
         }, mode);
