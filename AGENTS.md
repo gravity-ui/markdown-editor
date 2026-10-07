@@ -42,6 +42,22 @@ For more details on filtering and updating snapshots see [`docs/how-to-add-visua
 
 These run visual tests outside Docker and produce unreliable results.
 
+## Code style
+
+Prettier owns formatting, ESLint owns the rest. Both apply their fixes from one command:
+
+```bash
+pnpm fix
+```
+
+Run it after editing code; what it prints is what it could not fix.
+
+- Never format code by hand, and never reformat lines you did not change.
+- `pnpm fix` walks the whole repository — commit only the files your change belongs to.
+- Write code the way the linter wants it from the start: `T[]` instead of `Array<T>`, object shorthand (`{foo}` instead of `{foo: foo}`), inline type imports (`import {type Foo} from './foo'`).
+- Where the linter is silent, follow the file you are editing.
+- Shared rules live in `infra/linters/`; per-package overrides are in the root `eslint.config.mjs`.
+
 ## Documentation
 
 Project docs live in `docs/`. Read the relevant file before working on the corresponding area:

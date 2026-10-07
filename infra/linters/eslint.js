@@ -21,12 +21,16 @@ export default defineConfig(
         rules: {
             'lodash/import-scope': [2, 'method'],
             'jsx-a11y/no-autofocus': 'warn',
+            'object-shorthand': 'error',
+            'no-useless-rename': 'error',
         },
     },
     {
         files: ['**/*.ts', '**/*.tsx'],
         rules: {
             '@typescript-eslint/no-import-type-side-effects': 'error',
+
+            '@typescript-eslint/array-type': 'error',
 
             '@typescript-eslint/consistent-type-imports': [
                 2,

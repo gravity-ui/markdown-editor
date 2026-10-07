@@ -112,11 +112,11 @@ export class MarkdownParser implements Parser {
 }
 
 class MarkdownParseState {
-    stack: Array<{
+    stack: {
         type: NodeType;
         attrs?: TokenAttrs | null;
-        content: Array<Node>;
-    }>;
+        content: Node[];
+    }[];
 
     // TODO(major): Store marks per stack frame. Check custom inline node serializers first.
     private marks: readonly Mark[] = Mark.none;
@@ -358,7 +358,7 @@ class MarkdownParseState {
     }
 
     private openNode(type: NodeType, attrs?: TokenAttrs | null) {
-        this.stack.push({type: type, attrs, content: []});
+        this.stack.push({type, attrs, content: []});
     }
 
     private addText(text: string) {
