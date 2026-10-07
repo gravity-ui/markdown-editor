@@ -59,6 +59,7 @@ Read more:
 - [How to write extension](https://gravity-ui.github.io/markdown-editor/develop/extension-creation.html)
 - [How to add GPT extension](https://gravity-ui.github.io/markdown-editor/extensions/gpt.html)
 - [How to add text binding extension in markdown](https://gravity-ui.github.io/markdown-editor/develop/extension-with-popup.html)
+- [How to style the editor inside a shadow root](https://gravity-ui.github.io/markdown-editor/getting-started/shadow-dom-styles.html)
 
 ### Development
 
