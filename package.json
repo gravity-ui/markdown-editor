@@ -37,10 +37,10 @@
     "lint:js": "eslint './**/*.{js,jsx,mjs,ts,tsx}'",
     "lint:styles": "stylelint './**/*.{css,scss}'",
     "lint:prettier": "prettier --check './**/*.{js,jsx,mjs,ts,tsx,css,scss}'",
-    "fix": "run-s -cs fix:*",
-    "fix:js": "eslint --fix './**/*.{js,jsx,mjs,ts,tsx}'",
-    "fix:styles": "stylelint --fix './**/*.{css,scss}'",
-    "fix:prettier": "prettier --write './**/*.{js,jsx,mjs,ts,tsx,css,scss}'"
+    "lint:js:fix": "eslint --fix './**/*.{js,jsx,mjs,ts,tsx}'",
+    "lint:styles:fix": "stylelint --fix './**/*.{css,scss}'",
+    "lint:prettier:fix": "prettier --write './**/*.{js,jsx,mjs,ts,tsx,css,scss}'",
+    "fix": "run-s -cs lint:*:fix"
   },
   "dependencies": {},
   "devDependencies": {
