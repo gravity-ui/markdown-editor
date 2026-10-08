@@ -385,7 +385,9 @@ export class MarkdownSerializerState {
 
             const inner = marks.length && marks[marks.length - 1];
             const noEsc = inner && this.getMark(inner.type.name).escape === false;
-            const len = marks.length - (noEsc ? 1 : 0);
+            let len = marks.length - (noEsc ? 1 : 0);
+            let reorderedNoEsc = false;
+            const whitespaceOnly = node && node.isText && !/\S/.test(node.text ?? '');
 
             // Try to reorder 'mixable' marks, such as em and strong, which
             // in Markdown may be opened and closed in different order, so
@@ -403,12 +405,19 @@ export class MarkdownSerializerState {
                             marks = marks.slice(0, j).concat(mark).concat(marks.slice(j, i)).concat(marks.slice(i + 1, len))
                         }
                         else if (j > i) {
+                            if (noEsc && j > len) reorderedNoEsc = true;
                             marks = marks.slice(0, i).concat(marks.slice(i + 1, j)).concat(mark).concat(marks.slice(j, len))
                         }
                         // eslint-disable-next-line no-labels
                         continue outer;
                     }
                 }
+            }
+
+            // Keep whitespace-only code outside reordered marks.
+            if (reorderedNoEsc && whitespaceOnly) {
+                marks = [];
+                len = 0;
             }
 
             // Find the prefix of the mark set that didn't change
