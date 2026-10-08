@@ -14,6 +14,8 @@ import {
     full,
 } from '@gravity-ui/markdown-editor/toolbars';
 
+import {useEditorHandle} from '../../src/hooks/useEditorHandle';
+
 const custom: ToolbarsPreset = {
     items: {
         ...full.items,
@@ -106,6 +108,8 @@ export function ContextualToolbars({
               }
             : undefined,
     });
+
+    useEditorHandle(editor);
 
     return (
         <div style={{width: 800}}>
