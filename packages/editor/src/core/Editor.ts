@@ -1,4 +1,3 @@
-import type {PresetName} from 'markdown-it';
 import {EditorState} from 'prosemirror-state';
 import {EditorView} from 'prosemirror-view';
 
@@ -7,18 +6,15 @@ import {Logger2} from '../logger';
 
 import type {ActionsManager} from './ActionsManager';
 import {WysiwygContentHandler} from './ContentHandler';
-import type {Extension} from './ExtensionBuilder';
-import {ExtensionsManager} from './ExtensionsManager';
-import {SchemaDynamicModifier} from './SchemaDynamicModifier';
-import {MarkdownParserDynamicModifier} from './markdown/MarkdownParser';
-import {MarkdownSerializerDynamicModifier} from './markdown/MarkdownSerializer';
-import type {TransformFn} from './markdown/ProseMirrorTransformer';
+import type {ExtensionsManager} from './ExtensionsManager';
+import {
+    type EditorExtensionsOptions,
+    createEditorExtensionsManager,
+} from './createEditorExtensionsManager';
 import type {ActionStorage} from './types/actions';
-import type {DynamicModifiers} from './types/dynamicModifiers';
 import type {Parser} from './types/parser';
 import type {Serializer} from './types/serializer';
 import {bindActions} from './utils/actions';
-import {convertDynamicModifiersConfigs} from './utils/dynamicModifiers';
 import {LoggerFacet} from './utils/logger';
 import {logTransactionMetrics} from './utils/metrics';
 import {ParserFacet} from './utils/parser';
@@ -30,25 +26,20 @@ export type EscapeConfig = {
     startOfLineEscape?: RegExp;
 };
 
-export type WysiwygEditorOptions = {
+export type WysiwygEditorOptions = EditorExtensionsOptions & {
     domElem?: Element;
     /** markdown markup */
     initialContent?: string;
-    extensions?: Extension;
-    /** @default 'default' */
-    mdPreset?: PresetName;
-    allowHTML?: boolean;
-    linkify?: boolean;
-    pmTransformers?: TransformFn[];
-    linkifyTlds?: string | string[];
+    /**
+     * Reuse dependencies prepared before creating the view.
+     * @internal
+     */
+    extensionsManager?: ExtensionsManager;
     escapeConfig?: EscapeConfig;
     /** Call on any state change (move cursor, change selection, etc...) */
     onChange?: OnChange;
     /** Call only if document change */
     onDocChange?: OnChange;
-    /** @internal Modifiers adjust the parser and serializer */
-    modifiers?: DynamicModifiers[];
-    logger?: Logger2.ILogger;
 };
 
 export class WysiwygEditor implements CommonEditor, ActionStorage {
@@ -83,7 +74,7 @@ export class WysiwygEditor implements CommonEditor, ActionStorage {
     constructor({
         domElem,
         initialContent = '',
-        extensions = () => {},
+        extensions,
         allowHTML,
         mdPreset,
         linkify,
@@ -94,19 +85,20 @@ export class WysiwygEditor implements CommonEditor, ActionStorage {
         onDocChange,
         modifiers,
         logger = new Logger2(),
+        extensionsManager,
     }: WysiwygEditorOptions) {
-        const dynamicModifiersConfig = modifiers
-            ? convertDynamicModifiersConfigs(modifiers)
-            : undefined;
-        const dynamicModifiers = dynamicModifiersConfig
-            ? {
-                  schema: new SchemaDynamicModifier(dynamicModifiersConfig.schema),
-                  parser: new MarkdownParserDynamicModifier(dynamicModifiersConfig.parser),
-                  serializer: new MarkdownSerializerDynamicModifier(
-                      dynamicModifiersConfig.serializer,
-                  ),
-              }
-            : undefined;
+        const manager =
+            extensionsManager ??
+            createEditorExtensionsManager({
+                extensions,
+                allowHTML,
+                mdPreset,
+                linkify,
+                pmTransformers,
+                linkifyTlds,
+                modifiers,
+                logger,
+            });
 
         const {
             schema,
@@ -117,25 +109,12 @@ export class WysiwygEditor implements CommonEditor, ActionStorage {
             plugins,
             rawActions,
             actions,
-        } = ExtensionsManager.process(
-            extensions,
-            {
-                // "breaks" option only affects the renderer, but not the parser
-                mdOpts: {html: allowHTML, linkify, breaks: true, preset: mdPreset},
-                linkifyTlds,
-                pmTransformers,
-                dynamicModifiers,
-            },
-            logger,
-        );
-
-        plugins.unshift(LoggerFacet.of(logger));
-        plugins.unshift(ParserFacet.of(parser));
+        } = manager.build();
 
         const state = EditorState.create({
             schema,
             doc: parser.parse(initialContent),
-            plugins,
+            plugins: [ParserFacet.of(parser), LoggerFacet.of(logger), ...plugins],
         });
 
         const thisOnChange = () => this.tryOnChange(onChange);
