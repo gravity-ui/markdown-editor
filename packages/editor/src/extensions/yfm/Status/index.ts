@@ -6,7 +6,7 @@ import {isNodeSelection} from '../../../utils/selection';
 
 import {StatusSpecs, statusType} from './StatusSpecs';
 import {statusTooltipPlugin} from './StatusTooltip';
-import {insertStatus} from './commands';
+import {insertStatus, statusKeymap} from './commands';
 import {removeEmptyStatusPlugin} from './remove-empty-plugin';
 
 import './index.scss';
@@ -21,6 +21,7 @@ export const Status: ExtensionAuto = (builder) => {
     builder.use(StatusSpecs);
 
     builder.addPlugin(statusTooltipPlugin).addPlugin(removeEmptyStatusPlugin);
+    builder.addKeymap(() => statusKeymap);
 
     builder.addAction(statusAction, ({schema}) => {
         const type = statusType(schema);

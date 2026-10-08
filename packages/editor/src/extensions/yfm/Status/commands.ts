@@ -1,5 +1,8 @@
 import type {NodeType} from 'prosemirror-model';
-import {type Command, type EditorState, NodeSelection} from 'prosemirror-state';
+import {type Command, type EditorState, NodeSelection, TextSelection} from 'prosemirror-state';
+
+import type {Keymap} from '../../../core';
+import {get$Cursor} from '../../../utils/selection';
 
 import {StatusAttr, type StatusColor, defaultStatusColor, statusType} from './StatusSpecs';
 
@@ -53,3 +56,48 @@ export const updateStatus =
 
         return true;
     };
+
+type Direction = 'left' | 'right';
+
+const findAdjacentStatus = (state: EditorState, dir: Direction) => {
+    const $cursor = get$Cursor(state.selection);
+    const node = dir === 'left' ? $cursor?.nodeBefore : $cursor?.nodeAfter;
+    if (!$cursor || node?.type !== statusType(state.schema)) return null;
+
+    const from = dir === 'left' ? $cursor.pos - node.nodeSize : $cursor.pos;
+    return {from, to: from + node.nodeSize};
+};
+
+const moveCursorPastStatus =
+    (dir: Direction): Command =>
+    (state, dispatch) => {
+        const status = findAdjacentStatus(state, dir);
+        if (!status) return false;
+
+        const pos = dir === 'left' ? status.from : status.to;
+        dispatch?.(state.tr.setSelection(TextSelection.create(state.doc, pos)));
+        return true;
+    };
+
+const selectAdjacentStatus =
+    (dir: Direction): Command =>
+    (state, dispatch) => {
+        const status = findAdjacentStatus(state, dir);
+        if (!status) return false;
+
+        dispatch?.(state.tr.setSelection(NodeSelection.create(state.doc, status.from)));
+        return true;
+    };
+
+export const moveCursorLeftOfStatus = moveCursorPastStatus('left');
+export const moveCursorRightOfStatus = moveCursorPastStatus('right');
+export const selectStatusOnLeft = selectAdjacentStatus('left');
+export const selectStatusOnRight = selectAdjacentStatus('right');
+
+// The popover opens on a node selection, so plain arrows step past the badge.
+export const statusKeymap: Keymap = {
+    ArrowLeft: moveCursorLeftOfStatus,
+    ArrowRight: moveCursorRightOfStatus,
+    'Ctrl-ArrowLeft': selectStatusOnLeft,
+    'Ctrl-ArrowRight': selectStatusOnRight,
+};

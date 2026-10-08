@@ -41,11 +41,18 @@ of the line it sits in.
 
 ### Editor
 
-Selecting a badge opens a popover with a caption field and a grid of ten swatches. `Enter` in the
-field closes the popover and returns the focus to the editor. A badge with an empty
+Selecting a badge opens a popover with a caption field and a grid of ten swatches. `Enter` or
+`Escape` in the field closes the popover and puts the cursor after the badge. A badge with an empty
 caption lives only while it is selected: as soon as the selection leaves it, the badge is removed.
 The `addStatus` action inserts a gray badge with the caption from the `status` keyset and selects
 it.
+
+Keys at the edge of a badge, with the arrow pointing at it:
+
+- `ArrowLeft`, `ArrowRight` move the cursor to the opposite edge of the badge in one step;
+- `Ctrl-ArrowLeft`, `Ctrl-ArrowRight` select the badge and open the popover.
+
+A click on a badge and the insertion of a new one also open the popover.
 
 ### Limitations
 

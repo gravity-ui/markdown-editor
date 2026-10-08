@@ -45,7 +45,7 @@ export function StatusTooltip({node, pos, view}: StatusTooltipProps) {
                 placeholder={i18n('placeholder')}
                 onUpdate={(value) => update({[StatusAttr.Text]: value})}
                 onKeyDown={(event) => {
-                    if (event.key === 'Enter') close();
+                    if (event.key === 'Enter' || event.key === 'Escape') close();
                 }}
             />
             <div className={b('colors')}>

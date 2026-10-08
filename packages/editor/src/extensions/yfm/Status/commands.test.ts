@@ -1,12 +1,22 @@
+import {keydownHandler} from 'prosemirror-keymap';
 import {Schema} from 'prosemirror-model';
 import {EditorState, NodeSelection, TextSelection} from 'prosemirror-state';
 import {builders} from 'prosemirror-test-builder';
+import type {EditorView} from 'prosemirror-view';
 import {describe, expect, it} from 'vitest';
 
 import {applyCommand} from '../../../../tests/utils';
 
 import {StatusAttr, StatusColor, statusNodeName, statusNodeSpec} from './StatusSpecs';
-import {insertStatus, updateStatus} from './commands';
+import {
+    insertStatus,
+    moveCursorLeftOfStatus,
+    moveCursorRightOfStatus,
+    selectStatusOnLeft,
+    selectStatusOnRight,
+    statusKeymap,
+    updateStatus,
+} from './commands';
 import {removeEmptyStatusPlugin} from './remove-empty-plugin';
 
 const schema = new Schema({
@@ -95,6 +105,102 @@ describe('Status commands', () => {
 
         expect(res).toBe(false);
         expect(tr).toBeUndefined();
+    });
+});
+
+describe('Status keyboard navigation', () => {
+    // a|[Draft]|b: 2 is the left edge of the badge, 3 is the right edge.
+    const pmDoc = doc(p('a', status(grayStatus('Draft')), 'b'));
+
+    it.each([
+        ['left', moveCursorLeftOfStatus, 3, 2],
+        ['right', moveCursorRightOfStatus, 2, 3],
+    ])('should move the cursor %s past the badge', (_dir, command, from, to) => {
+        const {res, tr} = applyCommand(stateWithCursor(pmDoc, from), command);
+
+        expect(res).toBe(true);
+        expect(tr.selection).toBeInstanceOf(TextSelection);
+        expect(tr.selection.empty).toBe(true);
+        expect(tr.selection.from).toBe(to);
+    });
+
+    it.each([
+        ['left', selectStatusOnLeft, 3],
+        ['right', selectStatusOnRight, 2],
+    ])('should select the badge on the %s', (_dir, command, from) => {
+        const {res, tr} = applyCommand(stateWithCursor(pmDoc, from), command);
+
+        expect(res).toBe(true);
+        expect(tr.selection).toBeInstanceOf(NodeSelection);
+        expect(tr.selection.from).toBe(2);
+    });
+
+    it.each([
+        ['moveCursorLeftOfStatus', moveCursorLeftOfStatus, 2],
+        ['moveCursorRightOfStatus', moveCursorRightOfStatus, 3],
+        ['selectStatusOnLeft', selectStatusOnLeft, 2],
+        ['selectStatusOnRight', selectStatusOnRight, 3],
+    ])('should return false from %s without a badge on that side', (_name, command, from) => {
+        const {res, tr} = applyCommand(stateWithCursor(pmDoc, from), command);
+
+        expect(res).toBe(false);
+        expect(tr).toBeUndefined();
+    });
+
+    it('should return false for a non-empty text selection', () => {
+        const state = EditorState.create({
+            schema,
+            doc: pmDoc,
+            selection: TextSelection.create(pmDoc, 1, 2),
+        });
+
+        expect(moveCursorRightOfStatus(state)).toBe(false);
+        expect(selectStatusOnRight(state)).toBe(false);
+    });
+
+    const pressKey = (pos: number, init: KeyboardEventInit) => {
+        let state = stateWithCursor(pmDoc, pos);
+        const view = {
+            get state() {
+                return state;
+            },
+            dispatch: (tr) => {
+                state = state.apply(tr);
+            },
+        } as EditorView;
+
+        const handled = keydownHandler(statusKeymap)(view, new KeyboardEvent('keydown', init));
+        return {handled, selection: state.selection};
+    };
+
+    it('should step past the badge on a plain arrow', () => {
+        const {handled, selection} = pressKey(3, {key: 'ArrowLeft'});
+
+        expect(handled).toBe(true);
+        expect(selection).toBeInstanceOf(TextSelection);
+        expect(selection.from).toBe(2);
+    });
+
+    it('should select the badge on Ctrl with an arrow', () => {
+        const {handled, selection} = pressKey(2, {key: 'ArrowRight', ctrlKey: true});
+
+        expect(handled).toBe(true);
+        expect(selection).toBeInstanceOf(NodeSelection);
+        expect(selection.from).toBe(2);
+    });
+
+    it.each([
+        ['Shift', {shiftKey: true}],
+        ['Alt', {altKey: true}],
+        ['Meta', {metaKey: true}],
+    ])('should ignore an arrow with %s', (_name, modifiers) => {
+        expect(pressKey(3, {key: 'ArrowLeft', ...modifiers}).handled).toBe(false);
+        expect(pressKey(2, {key: 'ArrowRight', ...modifiers}).handled).toBe(false);
+    });
+
+    it('should ignore vertical arrows', () => {
+        expect(pressKey(3, {key: 'ArrowUp'}).handled).toBe(false);
+        expect(pressKey(2, {key: 'ArrowDown', ctrlKey: true}).handled).toBe(false);
     });
 });
 
