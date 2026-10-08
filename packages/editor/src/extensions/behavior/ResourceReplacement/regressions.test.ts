@@ -1,9 +1,21 @@
+import {
+    type Extension as CMExtension,
+    EditorState as CMState,
+    Transaction as CMTransaction,
+} from '@codemirror/state';
+import {EditorView as CMView} from '@codemirror/view';
 import {EditorState, Plugin, TextSelection} from 'prosemirror-state';
 import {EditorView} from 'prosemirror-view';
 import {afterEach, describe, expect, test, vi} from 'vitest';
 
 import {ExtensionsManager} from '../../../core/ExtensionsManager';
 import {ParserFacet} from '../../../core/utils/parser';
+import {isCodeMirrorHistoryLocked} from '../../../markup/codemirror/history-lock';
+import {release, resolved} from '../../../markup/codemirror/resource-replacement-plugin/effects';
+import {
+    codeMirrorResourceReplacement,
+    pendingField,
+} from '../../../markup/codemirror/resource-replacement-plugin/plugin';
 import type {ResourceReplacementRequest} from '../../../modules/resource-replacement/controller';
 import {resourceKey} from '../../../modules/resource-replacement/controller.utils';
 import {BaseSchemaSpecs} from '../../base/specs';
@@ -32,7 +44,7 @@ const deps = new ExtensionsManager({
         }));
     },
 }).buildDeps();
-const views: EditorView[] = [];
+const views: Array<EditorView | CMView> = [];
 afterEach(() => views.splice(0).forEach((view) => view.destroy()));
 const replacement = () => new Map([[resourceKey({kind: 'image', value: '/pasted'}), '/new']]);
 function controller() {
@@ -70,6 +82,105 @@ function pm(extra: Plugin[] = [], initial = '![old](/old)') {
             .setMeta('paste', true);
     return {view, control, paste};
 }
+function cm(extra: CMExtension = []) {
+    const control = controller();
+    const view = new CMView({
+        state: CMState.create({
+            doc: 'before',
+            extensions: [
+                codeMirrorResourceReplacement({
+                    controller: control,
+                    parser: deps.markupParser,
+                    serializer: deps.serializer,
+                    shouldProcessTransaction: (tr) => tr.isUserEvent('input.paste'),
+                }),
+                extra,
+            ],
+        }),
+    });
+    views.push(view);
+    const paste = () =>
+        view.dispatch({
+            changes: {from: view.state.doc.length, insert: ' ![pasted](/pasted)'},
+            userEvent: 'input.paste',
+        });
+    return {view, control, paste};
+}
+
+describe('CM cleanup regression', () => {
+    const rejectCleanup = CMState.transactionFilter.of((tr) =>
+        tr.effects.some((effect) => effect.is(release)) ? [] : tr,
+    );
+
+    test('releases only the completed operation under a rejecting filter', () => {
+        const t = cm(rejectCleanup);
+        t.paste();
+        t.paste();
+        const [first, second] = t.view.state.field(pendingField);
+        expect(first).toBeDefined();
+        expect(second).toBeDefined();
+        const state = t.view.state;
+        t.control.requests[0].release();
+        expect(t.view.state.field(pendingField)).toEqual([second]);
+        expect(isCodeMirrorHistoryLocked(t.view.state)).toBe(true);
+        t.control.requests[0].release();
+        expect(t.view.state.field(pendingField)).toEqual([second]);
+        t.control.requests[1].release();
+        expect(t.view.state.field(pendingField)).toEqual([]);
+        expect(isCodeMirrorHistoryLocked(t.view.state)).toBe(false);
+        expect(t.view.state.doc).toBe(state.doc);
+        expect(t.view.state.selection).toBe(state.selection);
+    });
+
+    test.each(['empty', 'declined', 'throw'] as const)(
+        'releases preliminary state when collection/start is %s',
+        (outcome) => {
+            const t = cm(rejectCleanup);
+            t.control.start.mockImplementation((request) => {
+                expect(isCodeMirrorHistoryLocked(t.view.state)).toBe(true);
+                if (outcome === 'empty') expect(request.resources).toEqual([]);
+                if (outcome === 'throw') throw new Error('start failed');
+                return false;
+            });
+            const errors = vi.spyOn(console, 'error').mockImplementation(() => {});
+            try {
+                if (outcome === 'empty')
+                    t.view.dispatch({
+                        changes: {from: 0, insert: 'plain'},
+                        userEvent: 'input.paste',
+                    });
+                else t.paste();
+                expect(t.control.start).toHaveBeenCalledTimes(1);
+                expect(t.view.state.field(pendingField)).toEqual([]);
+                expect(isCodeMirrorHistoryLocked(t.view.state)).toBe(false);
+            } finally {
+                errors.mockRestore();
+            }
+        },
+    );
+
+    test('does not dispatch cleanup to a destroyed view', () => {
+        const t = cm(rejectCleanup);
+        t.paste();
+        t.view.destroy();
+        const dispatch = vi.spyOn(t.view, 'dispatch');
+        t.control.requests[0].release();
+        expect(dispatch).not.toHaveBeenCalled();
+    });
+
+    test('filter false cannot bypass a custom dispatch that drops cleanup', () => {
+        const t = cm(rejectCleanup);
+        t.paste();
+        const state = t.view.state;
+        const dispatch = vi.spyOn(t.view, 'dispatch').mockImplementation(() => {});
+        t.control.requests[0].release();
+        expect(dispatch).toHaveBeenCalledTimes(1);
+        expect(t.view.state).toBe(state);
+        expect(isCodeMirrorHistoryLocked(t.view.state)).toBe(true);
+        dispatch.mockRestore();
+    });
+});
+
 describe('PM cleanup contract', () => {
     test('all filters allow cleanup while preserving another operation and preliminary locks', () => {
         let blocked = false;
@@ -226,6 +337,36 @@ describe('remote history regression', () => {
             expect(t.control.start).not.toHaveBeenCalled();
         },
     );
+    test.each(['undo', 'redo'])('CM filter accepts remote %s while queued', (event) => {
+        const t = cm();
+        const queued = t.view.state.update({
+            changes: {from: 0, insert: '![pasted](/pasted)'},
+            userEvent: 'input.paste',
+        }).state;
+        const remote = queued.update({
+            changes: {from: 0, insert: 'remote'},
+            userEvent: event,
+            annotations: CMTransaction.remote.of(true),
+        });
+        expect(remote.docChanged).toBe(true);
+        expect(
+            queued.update({changes: {from: 0, insert: 'local'}, userEvent: event}).docChanged,
+        ).toBe(false);
+        expect(t.control.start).not.toHaveBeenCalled();
+    });
+    test.each(['undo', 'redo'])('CM dispatch accepts prebuilt remote %s while pending', (event) => {
+        const t = cm();
+        t.paste();
+        const remote = t.view.state.update({
+            changes: {from: 0, insert: 'remote'},
+            userEvent: event,
+            annotations: CMTransaction.remote.of(true),
+            filter: false,
+        });
+        t.view.dispatch(remote);
+        expect(t.view.state.doc.toString()).toContain('remote');
+        expect(t.control.start).toHaveBeenCalledTimes(1);
+    });
 });
 
 describe('service acceptance regression', () => {
@@ -242,6 +383,17 @@ describe('service acceptance regression', () => {
         expect(() => t.control.requests[0].apply(replacement())).not.toThrow();
         expect(t.view.state.doc.nodeAt(1)?.attrs).toMatchObject({src: '/new', alt: 'derived'});
     });
+    test('CM accepts replacement followed by synchronous document change', () => {
+        const t = cm(
+            CMView.updateListener.of((update) => {
+                if (update.transactions.some((tr) => tr.annotation(resolved)))
+                    update.view.dispatch({changes: {from: 0, insert: 'normalized '}});
+            }),
+        );
+        t.paste();
+        expect(() => t.control.requests[0].apply(replacement())).not.toThrow();
+        expect(t.view.state.doc.toString()).toContain('normalized before ![pasted](/new)');
+    });
     test('PM rejects service transaction filtered by another plugin', () => {
         const t = pm([new Plugin({filterTransaction: (tr) => !tr.getMeta(resolvedResourceMeta)})]);
         t.view.dispatch(t.paste());
@@ -249,6 +401,14 @@ describe('service acceptance regression', () => {
             'Resource replacement was rejected',
         );
         expect(t.view.state.doc.nodeAt(1)?.attrs.src).toBe('/pasted');
+    });
+    test('CM rejects service transaction filtered by another extension', () => {
+        const t = cm(CMState.transactionFilter.of((tr) => (tr.annotation(resolved) ? [] : tr)));
+        t.paste();
+        expect(() => t.control.requests[0].apply(replacement())).toThrow(
+            'Resource replacement was rejected',
+        );
+        expect(t.view.state.doc.toString()).toContain('/pasted');
     });
 });
 
@@ -362,22 +522,27 @@ describe('service dispatch contract', () => {
         expect(applied).toHaveBeenCalledTimes(1);
         expect(t.view.state.doc.textContent).toContain('after');
     });
-    test('should reject a PM dispatch that does not apply the transaction', () => {
-        const t = pm();
-        t.view.dispatch(t.paste());
-        const original = t.view.dispatch;
-        t.view.dispatch = vi.fn();
-        try {
-            expect(() => t.control.requests[0].apply(replacement())).toThrow(
-                'Resource replacement was rejected',
-            );
-        } finally {
-            t.view.dispatch = original;
-        }
-    });
-    test('should preserve PM dispatch errors', () => {
-        const t = pm();
-        t.view.dispatch(t.paste());
+    test.each(['PM', 'CM'] as const)(
+        '%s rejects a dispatch that does not apply the transaction',
+        (mode) => {
+            const t = mode === 'PM' ? pm() : cm();
+            if (t.view instanceof EditorView) t.view.dispatch((t as ReturnType<typeof pm>).paste());
+            else (t as ReturnType<typeof cm>).paste();
+            const original = t.view.dispatch;
+            t.view.dispatch = vi.fn();
+            try {
+                expect(() => t.control.requests[0].apply(replacement())).toThrow(
+                    'Resource replacement was rejected',
+                );
+            } finally {
+                t.view.dispatch = original;
+            }
+        },
+    );
+    test.each(['PM', 'CM'] as const)('%s preserves dispatch errors', (mode) => {
+        const t = mode === 'PM' ? pm() : cm();
+        if (t.view instanceof EditorView) t.view.dispatch((t as ReturnType<typeof pm>).paste());
+        else (t as ReturnType<typeof cm>).paste();
         const original = t.view.dispatch;
         t.view.dispatch = () => {
             throw new Error('binding failed');
@@ -388,12 +553,15 @@ describe('service dispatch contract', () => {
             t.view.dispatch = original;
         }
     });
-    test('should reject PM state changes during URL preparation', () => {
-        const t = pm();
-        t.view.dispatch(t.paste());
+    test.each(['PM', 'CM'] as const)('%s rejects state changes during URL preparation', (mode) => {
+        const t = mode === 'PM' ? pm() : cm();
+        if (t.view instanceof EditorView) t.view.dispatch((t as ReturnType<typeof pm>).paste());
+        else (t as ReturnType<typeof cm>).paste();
         const normalize = deps.markupParser.normalizeLink.bind(deps.markupParser);
         const spy = vi.spyOn(deps.markupParser, 'normalizeLink').mockImplementationOnce((value) => {
-            t.view.dispatch(t.view.state.tr.insertText('edit', 1));
+            if (t.view instanceof EditorView)
+                t.view.dispatch(t.view.state.tr.insertText('edit', 1));
+            else t.view.dispatch({changes: {from: 0, insert: 'edit'}});
             return normalize(value);
         });
         try {
@@ -492,6 +660,23 @@ describe('normalization provenance', () => {
     );
 });
 
+test('CM nested dispatch and parallel pastes start each accepted insertion once', () => {
+    const t = cm();
+    t.control.start.mockImplementation((request) => {
+        t.control.requests.push(request);
+        t.view.dispatch({changes: {from: 0, insert: 'nested '}});
+        if (t.control.requests.length === 1) t.paste();
+        request.release();
+        return true;
+    });
+    t.paste();
+    expect(t.control.start).toHaveBeenCalledTimes(2);
+    expect(t.control.requests.map((request) => request.resources)).toEqual([
+        [{kind: 'image', value: '/pasted', name: 'pasted'}],
+        [{kind: 'image', value: '/pasted', name: 'pasted'}],
+    ]);
+});
+
 test.each([remoteTransactionMeta, 'rebased'])(
     'PM remote %s insertion cannot start another resolve',
     (meta) => {
@@ -502,6 +687,48 @@ test.each([remoteTransactionMeta, 'rebased'])(
         expect(t.control.start).toHaveBeenCalledTimes(1);
     },
 );
+
+test('CM remote history array is accepted while a prebuilt local history array is blocked', () => {
+    const t = cm();
+    t.paste();
+    t.view.dispatch([
+        t.view.state.update({
+            changes: {from: 0, insert: 'local'},
+            userEvent: 'undo',
+            filter: false,
+        }),
+    ]);
+    expect(t.view.state.doc.toString()).not.toContain('local');
+    t.view.dispatch([
+        t.view.state.update({
+            changes: {from: 0, insert: 'remote'},
+            userEvent: 'redo',
+            annotations: CMTransaction.remote.of(true),
+            filter: false,
+        }),
+    ]);
+    expect(t.view.state.doc.toString()).toContain('remote');
+    expect(t.control.start).toHaveBeenCalledTimes(1);
+});
+
+test('CM late remote extender excludes paste collection but cannot bypass an earlier history filter', () => {
+    let incoming = false;
+    const t = cm(
+        CMState.transactionExtender.of(() =>
+            incoming ? {annotations: CMTransaction.remote.of(true)} : null,
+        ),
+    );
+    t.paste();
+    incoming = true;
+    t.paste();
+    expect(t.control.start).toHaveBeenCalledTimes(1);
+    const history = t.view.state.update({
+        changes: {from: 0, insert: 'late-remote'},
+        userEvent: 'undo',
+    });
+    expect(history.annotation(CMTransaction.remote)).toBe(true);
+    expect(history.docChanged).toBe(false);
+});
 
 test('PM paste replacing a selected resource with the same immutable node is still an insertion', () => {
     const t = pm();
