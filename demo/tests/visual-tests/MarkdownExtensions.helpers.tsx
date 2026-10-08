@@ -8,6 +8,7 @@ export const MarkdownStories: Stories = composeStories(DefaultMarkdownStories, {
     argsEnhancers: [
         () => ({
             stickyToolbar: false,
+            devTools: false,
         }),
     ],
 });

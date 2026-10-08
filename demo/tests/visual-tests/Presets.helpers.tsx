@@ -8,6 +8,7 @@ export const PresetsStories: Stories = composeStories(DefaultPresetsStories, {
     argsEnhancers: [
         () => ({
             stickyToolbar: false,
+            devTools: false,
         }),
     ],
 });

@@ -8,6 +8,7 @@ const PlaygroundStories: Stories = composeStories(DefaultPlaygroundStories, {
     argsEnhancers: [
         () => ({
             stickyToolbar: false,
+            devTools: false,
         }),
     ],
 });
