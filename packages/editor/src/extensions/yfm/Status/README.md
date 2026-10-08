@@ -50,7 +50,8 @@ it.
 Keys at the edge of a badge, with the arrow pointing at it:
 
 - `ArrowLeft`, `ArrowRight` move the cursor to the opposite edge of the badge in one step;
-- `Ctrl-ArrowLeft`, `Ctrl-ArrowRight` select the badge and open the popover.
+- `Mod-ArrowLeft`, `Mod-ArrowRight` select the badge and open the popover; `Mod` is `Cmd` on
+  macOS and `Ctrl` elsewhere.
 
 A click on a badge and the insertion of a new one also open the popover.
 

@@ -6,6 +6,7 @@ import type {EditorView} from 'prosemirror-view';
 import {describe, expect, it} from 'vitest';
 
 import {applyCommand} from '../../../../tests/utils';
+import {isMac} from '../../../utils/platform';
 
 import {StatusAttr, StatusColor, statusNodeName, statusNodeSpec} from './StatusSpecs';
 import {
@@ -181,8 +182,11 @@ describe('Status keyboard navigation', () => {
         expect(selection.from).toBe(2);
     });
 
-    it('should select the badge on Ctrl with an arrow', () => {
-        const {handled, selection} = pressKey(2, {key: 'ArrowRight', ctrlKey: true});
+    // prosemirror-keymap resolves `Mod-` to `Meta-` on macOS and to `Ctrl-` elsewhere.
+    const modKey: KeyboardEventInit = isMac() ? {metaKey: true} : {ctrlKey: true};
+
+    it('should select the badge on Mod with an arrow', () => {
+        const {handled, selection} = pressKey(2, {key: 'ArrowRight', ...modKey});
 
         expect(handled).toBe(true);
         expect(selection).toBeInstanceOf(NodeSelection);
@@ -192,7 +196,6 @@ describe('Status keyboard navigation', () => {
     it.each([
         ['Shift', {shiftKey: true}],
         ['Alt', {altKey: true}],
-        ['Meta', {metaKey: true}],
     ])('should ignore an arrow with %s', (_name, modifiers) => {
         expect(pressKey(3, {key: 'ArrowLeft', ...modifiers}).handled).toBe(false);
         expect(pressKey(2, {key: 'ArrowRight', ...modifiers}).handled).toBe(false);
@@ -200,7 +203,7 @@ describe('Status keyboard navigation', () => {
 
     it('should ignore vertical arrows', () => {
         expect(pressKey(3, {key: 'ArrowUp'}).handled).toBe(false);
-        expect(pressKey(2, {key: 'ArrowDown', ctrlKey: true}).handled).toBe(false);
+        expect(pressKey(2, {key: 'ArrowDown', ...modKey}).handled).toBe(false);
     });
 });
 

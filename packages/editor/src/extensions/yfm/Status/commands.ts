@@ -98,6 +98,6 @@ export const selectStatusOnRight = selectAdjacentStatus('right');
 export const statusKeymap: Keymap = {
     ArrowLeft: moveCursorLeftOfStatus,
     ArrowRight: moveCursorRightOfStatus,
-    'Ctrl-ArrowLeft': selectStatusOnLeft,
-    'Ctrl-ArrowRight': selectStatusOnRight,
+    'Mod-ArrowLeft': selectStatusOnLeft,
+    'Mod-ArrowRight': selectStatusOnRight,
 };
