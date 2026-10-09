@@ -1734,6 +1734,20 @@ describe('ExtensionBuilder', () => {
             expect(() => builder.build().nodes()).toThrow(/already owned/);
         });
 
+        it('should throw when a mark parser token collides with a token owned by addNode', () => {
+            const builder = new ExtensionBuilder(logger)
+                .addNode('foo', () => ({
+                    spec: {},
+                    fromMd: {tokenSpec: {type: 'block', name: 'foo'}},
+                    toMd: () => {},
+                }))
+                .addMarkdownTokenParserSpec('foo', () => ({name: 'bar', type: 'mark'}))
+                .addMarkSpec('bar', () => ({}))
+                .addMarkSerializerSpec('bar', () => ({open: '', close: ''}));
+
+            expect(() => builder.build().nodes()).toThrow(/already owned/);
+        });
+
         it('should allow addMarkdownTokenParserSpec targeting the same addNode entity (extra parser token)', () => {
             const ext = new ExtensionBuilder(logger)
                 .addNode('code_block', () => ({
