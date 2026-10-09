@@ -1,5 +1,6 @@
 import {builders} from 'prosemirror-test-builder';
 import dedent from 'ts-dedent';
+import {describe, expect, it} from 'vitest';
 
 import {ExtensionsManager} from '#core';
 import {DOMParser, DOMSerializer} from '#pm/model';
@@ -242,7 +243,7 @@ describe('Header extension', () => {
         });
     });
 
-    it('ignores unknown content while retaining valid directives', () => {
+    it('should ignore unknown content while retaining valid directives', () => {
         expect(
             parser.parse(dedent`
             :::header-block
@@ -256,13 +257,13 @@ describe('Header extension', () => {
         ).toMatchNode(doc(header(title('Kept'), description(), actions()), p('After.')));
     });
 
-    it('does not interpret header slots outside a header', () => {
+    it('should not interpret header slots outside a header', () => {
         expect(parser.parse('::header-title[Ordinary text]').firstChild?.type.name).toBe(
             'paragraph',
         );
     });
 
-    it('normalizes action attributes and preserves empty actions', () => {
+    it('should normalize action attributes and preserve empty actions', () => {
         expect(
             parser.parse(':::header-block\n::header-action[] {type=ghost color=neon}\n:::'),
         ).toMatchNode(doc(header(title(), description(), actions(action()))));
@@ -287,7 +288,7 @@ describe('Header extension', () => {
         },
     );
 
-    it('preserves directive slots and actions inside blockquotes', () => {
+    it('should preserve directive slots and actions inside blockquotes', () => {
         const content = header(
             title('Quoted'),
             description('Text'),
@@ -302,7 +303,7 @@ describe('Header extension', () => {
         expect(parser.parse(markup)).toMatchNode(document);
     });
 
-    it('writes nothing for empty slots', () => {
+    it('should write nothing for empty slots', () => {
         expect(serializeHeaderContent({title: '', description: '', actions: []})).toBe('');
     });
 
@@ -316,9 +317,9 @@ describe('Header extension', () => {
 
         it('should omit decor unless the background is a fill', () => {
             expect(serializeHeaderAttrs({decor: HeaderDecor.None})).toBe(' {decor=none}');
-            expect(serializeHeaderAttrs({bg: HeaderBackground.Image, decor: HeaderDecor.None})).toBe(
-                ' {bg=image}',
-            );
+            expect(
+                serializeHeaderAttrs({bg: HeaderBackground.Image, decor: HeaderDecor.None}),
+            ).toBe(' {bg=image}');
         });
 
         it('should quote values that are not bare words', () => {

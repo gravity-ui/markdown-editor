@@ -1,6 +1,7 @@
 import {Schema} from 'prosemirror-model';
 import {EditorState, TextSelection} from 'prosemirror-state';
 import {builders} from 'prosemirror-test-builder';
+import {describe, expect, it} from 'vitest';
 
 import {getSchemaSpecs} from '../HeaderSpecs';
 import {swapHeaderActions} from '../commands';
@@ -39,7 +40,7 @@ function createState() {
 }
 
 describe('Header targets', () => {
-    it('preserves identities and resolves current positions after edits before the targets', () => {
+    it('should preserve identities and resolve current positions after edits before the targets', () => {
         let state = createState();
         const before = getHeaderTargets(state)!;
         const paragraph = p('Before');
@@ -54,7 +55,7 @@ describe('Header targets', () => {
         expect(resolveHeaderTarget(state, before.actions[0].id)?.node.textContent).toBe('First');
     });
 
-    it('preserves identities through header and action attribute changes', () => {
+    it('should preserve identities through header and action attribute changes', () => {
         let state = createState();
         const before = getHeaderTargets(state)!;
         const firstAction = state.doc.nodeAt(before.actions[0].pos)!;
@@ -72,7 +73,7 @@ describe('Header targets', () => {
         expect(resolveHeaderTarget(state, before.actions[0].id)?.node.attrs.href).toBe('/updated');
     });
 
-    it('keeps each action identity through repeated swaps and subsequent edits', () => {
+    it('should keep each action identity through repeated swaps and subsequent edits', () => {
         let state = createState();
         const before = getHeaderTargets(state)!;
         const dispatch = (tr: Parameters<typeof state.apply>[0]) => {
@@ -92,7 +93,7 @@ describe('Header targets', () => {
         expect(resolveHeaderTarget(state, before.actions[0].id)?.node.attrs.href).toBe('/moved');
     });
 
-    it('keeps the second action identity when the first action is deleted', () => {
+    it('should keep the second action identity when the first action is deleted', () => {
         let state = createState();
         const before = getHeaderTargets(state)!;
         state = state.apply(state.tr.delete(before.actions[0].pos, before.actions[1].pos));
@@ -104,7 +105,7 @@ describe('Header targets', () => {
         expect(resolveHeaderTarget(state, before.actions[1].id)?.node.textContent).toBe('Second');
     });
 
-    it('assigns a new identity to a replacement action at the same position', () => {
+    it('should assign a new identity to a replacement action at the same position', () => {
         let state = createState();
         const before = getHeaderTargets(state)!;
         state = state.apply(
@@ -118,7 +119,7 @@ describe('Header targets', () => {
         expect(resolveHeaderTarget(state, before.actions[0].id)).toBeNull();
     });
 
-    it('assigns new identities after a header is replaced at the same position', () => {
+    it('should assign new identities after a header is replaced at the same position', () => {
         let state = createState();
         const before = getHeaderTargets(state)!;
         const tr = state.tr.replaceWith(
@@ -133,7 +134,7 @@ describe('Header targets', () => {
         expect(resolveHeaderTarget(state, before.actions[0].id)).toBeNull();
     });
 
-    it('clears targets when selection leaves the header and creates a fresh session on return', () => {
+    it('should clear targets when selection leaves the header and create a fresh session on return', () => {
         let state = createState();
         const before = getHeaderTargets(state)!;
         state = state.apply(
@@ -149,7 +150,7 @@ describe('Header targets', () => {
         expect(resolveHeaderTarget(state, before.actions[0].id)).toBeNull();
     });
 
-    it('does not transfer identities to another selected header', () => {
+    it('should not transfer identities to another selected header', () => {
         let state = createState();
         const before = getHeaderTargets(state)!;
         const pos = state.doc.content.size;
@@ -160,7 +161,7 @@ describe('Header targets', () => {
         expect(resolveHeaderTarget(state, before.header.id)).toBeNull();
     });
 
-    it('clears targets when the selected header is deleted', () => {
+    it('should clear targets when the selected header is deleted', () => {
         let state = createState();
         const before = getHeaderTargets(state)!;
         state = state.apply(state.tr.delete(0, state.doc.firstChild!.nodeSize));

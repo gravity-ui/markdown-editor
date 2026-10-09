@@ -1,3 +1,5 @@
+import {describe, expect, it} from 'vitest';
+
 import {HeaderBackground, HeaderDefaults} from './const';
 import {headerDomAttrs, toCssUrl} from './dom';
 
@@ -20,13 +22,13 @@ describe('Header image URLs', () => {
         },
     );
 
-    it('encodes CSS delimiters without changing existing URL escapes', () => {
+    it('should encode CSS delimiters without changing existing URL escapes', () => {
         expect(toCssUrl('/a%20b (1)\'"\\\n.png?size=2&crop=1')).toBe(
             'url("/a%20b%20%281%29%27%22%5C%0A.png?size=2&crop=1")',
         );
     });
 
-    it('renders an uploaded object URL without an empty-image placeholder', () => {
+    it('should render an uploaded object URL without an empty-image placeholder', () => {
         const attrs = headerDomAttrs({
             ...HeaderDefaults,
             bg: HeaderBackground.Image,

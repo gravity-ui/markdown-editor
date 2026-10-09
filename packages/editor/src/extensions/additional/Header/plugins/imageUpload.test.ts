@@ -2,6 +2,7 @@ import {Schema} from 'prosemirror-model';
 import {EditorState, TextSelection} from 'prosemirror-state';
 import {builders} from 'prosemirror-test-builder';
 import {EditorView} from 'prosemirror-view';
+import {afterEach, describe, expect, it, vi} from 'vitest';
 
 import type {FileUploadResult} from 'src/utils/upload';
 
@@ -63,7 +64,7 @@ afterEach(() => {
 });
 
 describe('Header image upload', () => {
-    it('updates the original header after edits and selection changes', async () => {
+    it('should update the original header after edits and selection changes', async () => {
         const view = createView();
         const {done, finish} = await beginUpload(view);
         const before = p('Before');
@@ -86,7 +87,7 @@ describe('Header image upload', () => {
         expect(isHeaderImageUploading(view.state, before.nodeSize)).toBe(false);
     });
 
-    it('preserves format changes made during an upload', async () => {
+    it('should preserve format changes made during an upload', async () => {
         const view = createView();
         const {done, finish} = await beginUpload(view);
         view.dispatch(
@@ -106,7 +107,7 @@ describe('Header image upload', () => {
         });
     });
 
-    it('does not update another header after the target is deleted', async () => {
+    it('should not update another header after the target is deleted', async () => {
         const view = createView();
         const {done, finish} = await beginUpload(view);
         view.dispatch(view.state.tr.delete(0, view.state.doc.firstChild!.nodeSize));
@@ -117,7 +118,7 @@ describe('Header image upload', () => {
         expect(isHeaderImageUploading(view.state, 0)).toBe(false);
     });
 
-    it('does not update a replacement header at the same position', async () => {
+    it('should not update a replacement header at the same position', async () => {
         const view = createView();
         const {done, finish} = await beginUpload(view);
         view.dispatch(
@@ -134,11 +135,11 @@ describe('Header image upload', () => {
         expect(isHeaderImageUploading(view.state, 0)).toBe(false);
     });
 
-    it('stops applying changes after the editor is destroyed', async () => {
+    it('should stop applying changes after the editor is destroyed', async () => {
         const view = createView();
         const {done, finish} = await beginUpload(view);
         view.destroy();
-        const dispatch = jest.spyOn(view, 'dispatch');
+        const dispatch = vi.spyOn(view, 'dispatch');
         finish({url: '/uploaded.png'});
         await done;
 
@@ -158,20 +159,20 @@ describe('Header image upload', () => {
         expect(view.state.doc.firstChild!.attrs.image).toBe('');
     });
 
-    it('clears progress when the file chooser is cancelled', async () => {
+    it('should clear progress when the file chooser is cancelled', async () => {
         const view = createView();
-        const handler = jest.fn();
+        const handler = vi.fn();
         await uploadHeaderImage(view, 0, handler, async () => undefined);
 
         expect(handler).not.toHaveBeenCalled();
         expect(isHeaderImageUploading(view.state, 0)).toBe(false);
     });
 
-    it('prevents a second upload to the same header', async () => {
+    it('should prevent a second upload to the same header', async () => {
         const view = createView();
         const {done, finish} = await beginUpload(view);
-        const pickAgain = jest.fn();
-        await uploadHeaderImage(view, 0, jest.fn(), pickAgain);
+        const pickAgain = vi.fn();
+        await uploadHeaderImage(view, 0, vi.fn(), pickAgain);
 
         expect(pickAgain).not.toHaveBeenCalled();
         finish({url: '/uploaded.png'});

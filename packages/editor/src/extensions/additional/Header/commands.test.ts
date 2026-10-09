@@ -3,6 +3,7 @@ import {Schema} from 'prosemirror-model';
 import {EditorState, TextSelection} from 'prosemirror-state';
 import {builders} from 'prosemirror-test-builder';
 import {EditorView} from 'prosemirror-view';
+import {describe, expect, it, vi} from 'vitest';
 
 import {HeaderActionType, HeaderBackground, HeaderFormat, getSchemaSpecs} from './HeaderSpecs';
 import {
@@ -199,7 +200,7 @@ describe('Header commands', () => {
                 header(title(), description(), actions(action({href: '/start'}, '<cursor>Go'))),
             );
             const view = editorAt(pmDoc, pmDoc.tag.cursor);
-            const dispatch = jest.fn();
+            const dispatch = vi.fn();
 
             expect(
                 setHeaderActionAttrs(pmDoc.tag.cursor - 1, {href: '/start'})(view.state, dispatch),
@@ -235,7 +236,7 @@ describe('Header commands', () => {
         const first = action({href: '/first', color: 'green'}, 'First');
         const second = action({href: '/second', type: 'link', color: 'purple'}, 'Second');
 
-        it('swaps complete actions in one undoable change', () => {
+        it('should swap complete actions in one undoable change', () => {
             const document = doc(header(title('Title'), description(), actions(first, second)));
             let state = EditorState.create({
                 schema,
@@ -272,10 +273,10 @@ describe('Header commands', () => {
             view.destroy();
         });
 
-        it('ignores missing headers and incomplete action pairs', () => {
+        it('should ignore missing headers and incomplete action pairs', () => {
             for (const content of [actions(), actions(first)]) {
                 const view = editorAt(doc(header(title(), description(), content)), 2);
-                const dispatch = jest.fn();
+                const dispatch = vi.fn();
                 expect(swapHeaderActions(0)(view.state, dispatch)).toBe(false);
                 expect(swapHeaderActions(999)(view.state, dispatch)).toBe(false);
                 expect(dispatch).not.toHaveBeenCalled();
@@ -285,13 +286,13 @@ describe('Header commands', () => {
     });
 
     describe('keyboard boundaries', () => {
-        it('nextHeaderSlot: title to description', () => {
+        it('should move from the title to the description with nextHeaderSlot', () => {
             const view = editorAt(filled(), 2);
             expect(nextHeaderSlot(view.state, view.dispatch, view)).toBe(true);
             expect(view.state.selection.$from.parent.type.name).toBe('header_block_description');
         });
 
-        it('nextHeaderSlot: description to the first action', () => {
+        it('should move from the description to the first action with nextHeaderSlot', () => {
             const pmDoc = filled();
             const view = editorAt(pmDoc, 9);
             expect(view.state.selection.$from.parent.type.name).toBe('header_block_description');
@@ -299,12 +300,12 @@ describe('Header commands', () => {
             expect(view.state.selection.$from.parent.type.name).toBe('header_block_action');
         });
 
-        it('nextHeaderSlot: stays out of plain paragraphs', () => {
+        it('should keep nextHeaderSlot out of plain paragraphs', () => {
             const view = editorAt(doc(p('plain')), 2);
             expect(nextHeaderSlot(view.state, view.dispatch, view)).toBe(false);
         });
 
-        it('nextHeaderSlot: visits both actions before leaving the header', () => {
+        it('should visit both actions before leaving the header with nextHeaderSlot', () => {
             const pmDoc = doc(
                 header(
                     title('<cursor>Title'),
@@ -322,7 +323,7 @@ describe('Header commands', () => {
             expect(view.state.doc).toMatchNode(pmDoc);
         });
 
-        it('previousHeaderSlot: visits both actions, description and title in reverse', () => {
+        it('should visit both actions, description and title in reverse with previousHeaderSlot', () => {
             const pmDoc = doc(
                 header(
                     title('Title'),
@@ -340,7 +341,7 @@ describe('Header commands', () => {
             expect(view.state.doc).toMatchNode(pmDoc);
         });
 
-        it('nextHeaderSlot: exits after the description when there are no actions', () => {
+        it('should exit after the description when there are no actions with nextHeaderSlot', () => {
             const pmDoc = doc(header(title('Title'), description('<cursor>Text'), actions()));
             const view = editorAt(pmDoc, pmDoc.tag.cursor);
 
@@ -349,27 +350,27 @@ describe('Header commands', () => {
             expect(view.state.doc.firstChild).toMatchNode(pmDoc.child(0));
         });
 
-        it('exitHeaderForward: reuses the paragraph that already follows', () => {
+        it('should reuse the paragraph that already follows with exitHeaderForward', () => {
             const view = editorAt(filled(), 2);
             expect(exitHeaderForward(view.state, view.dispatch, view)).toBe(true);
             expect(view.state.doc.childCount).toBe(2);
             expect(view.state.selection.$from.parent).toMatchNode(p('after'));
         });
 
-        it('exitHeaderForward: creates a paragraph when the header ends the document', () => {
+        it('should create a paragraph with exitHeaderForward when the header ends the document', () => {
             const view = editorAt(doc(header(title('T'), description(), actions())), 2);
             expect(exitHeaderForward(view.state, view.dispatch, view)).toBe(true);
             expect(view.state.doc.childCount).toBe(2);
         });
 
-        it('unwrapHeader: replaces an empty header with a paragraph', () => {
+        it('should replace an empty header with a paragraph with unwrapHeader', () => {
             const view = editorAt(doc(header(title(), description(), actions())), 2);
             expect(unwrapHeader(view.state, view.dispatch, view)).toBe(true);
             expect(view.state.doc).toMatchNode(doc(p()));
             expect(view.state.selection.from).toBe(1);
         });
 
-        it('unwrapHeader: preserves filled content, action URLs and styling', () => {
+        it('should preserve filled content, action URLs and styling with unwrapHeader', () => {
             const pmDoc = doc(
                 header(
                     {fill: 'green'},
@@ -379,14 +380,14 @@ describe('Header commands', () => {
                 ),
             );
             const view = editorAt(pmDoc, 2);
-            const dispatch = jest.fn();
+            const dispatch = vi.fn();
 
             expect(unwrapHeader(view.state, dispatch)).toBe(true);
             expect(dispatch).not.toHaveBeenCalled();
             expect(view.state.doc).toMatchNode(pmDoc);
         });
 
-        it('unwrapHeader: preserves an image-only header', () => {
+        it('should preserve an image-only header with unwrapHeader', () => {
             const pmDoc = doc(
                 header(
                     {bg: HeaderBackground.Image, image: '/cover.png'},
@@ -401,7 +402,7 @@ describe('Header commands', () => {
             expect(view.state.doc).toMatchNode(pmDoc);
         });
 
-        it('unwrapHeader: preserves an action with a URL and no label', () => {
+        it('should preserve an action with a URL and no label with unwrapHeader', () => {
             const pmDoc = doc(header(title(), description(), actions(action({href: '/start'}))));
             const view = editorAt(pmDoc, 2);
 
@@ -409,12 +410,12 @@ describe('Header commands', () => {
             expect(view.state.doc).toMatchNode(pmDoc);
         });
 
-        it('unwrapHeader: only fires at the very start of the title', () => {
+        it('should fire unwrapHeader only at the very start of the title', () => {
             const view = editorAt(filled(), 4);
             expect(unwrapHeader(view.state, view.dispatch, view)).toBe(false);
         });
 
-        it('removeEmptyAction: deletes an empty button instead of merging it', () => {
+        it('should delete an empty button instead of merging it with removeEmptyAction', () => {
             const pmDoc = doc(header(title('T'), description('S'), actions(action('<cursor>'))));
             const view = editorAt(pmDoc, pmDoc.tag.cursor);
             expect(view.state.selection.$from.parent.type.name).toBe('header_block_action');
@@ -423,7 +424,7 @@ describe('Header commands', () => {
             expect(view.state.selection.$from.parent).toMatchNode(description('S'));
         });
 
-        it('removeEmptyAction: leaves a non-empty button alone', () => {
+        it('should leave a non-empty button alone with removeEmptyAction', () => {
             const pmDoc = doc(header(title(), description(), actions(action('<cursor>Keep me'))));
             const view = editorAt(pmDoc, pmDoc.tag.cursor);
             expect(removeEmptyAction(view.state, view.dispatch, view)).toBe(false);
