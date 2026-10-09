@@ -145,6 +145,7 @@ class YfmTable {
     readonly buttonPlusRowLocator;
     readonly buttonPlusColumnLocator;
     readonly cellBgPaletteLocator: Locator;
+    private readonly expect: Expect;
     private readonly tableLocator;
 
     private readonly rowButtonLocator;
@@ -152,7 +153,8 @@ class YfmTable {
     private readonly cellMenus: Readonly<Record<YfmTableCellMenuType, Locator>>;
     private readonly cellMenuActions: Readonly<Record<YfmTableActionKind, Locator>>;
 
-    constructor(page: Page) {
+    constructor(page: Page, expect: Expect) {
+        this.expect = expect;
         this.tableLocator = page.locator('table');
         this.buttonPlusRowLocator = page.getByTestId('g-md-yfm-table-plus-row');
         this.buttonPlusColumnLocator = page.getByTestId('g-md-yfm-table-plus-column');
@@ -246,15 +248,46 @@ class YfmTable {
     }
 
     async selectCellBg(menuType: YfmTableCellMenuType, swatchLabel: string) {
-        await this.openCellBgPalette(menuType);
-        await this.getCellBgSwatchLocator(swatchLabel).click();
+        const swatch = this.getCellBgSwatchLocator(swatchLabel);
+
+        // The palette follows the menu and closes 120 ms after the pointer leaves it: waiting for the
+        // swatch to stand still outlives the palette itself, so the click goes out without that wait.
+        await this.expect(async () => {
+            await this.openCellBgPalette(menuType);
+            await swatch.click({force: true, timeout: 1000});
+        }).toPass({timeout: 5000});
     }
 
+    /**
+     * Clicks the row or column button until the menu is open.
+     * The button appears on cell hover and the click that opens the menu can land on an already replaced one.
+     */
+    async openMenu(menuType: YfmTableCellMenuType) {
+        const menu = this.cellMenus[menuType];
+
+        await this.expect(async () => {
+            await this.menuButton(menuType).click();
+            await this.expect(menu).toBeVisible({timeout: 500});
+        }).toPass({timeout: 5000});
+    }
+
+    /**
+     * Clicks the row or column button until the menu is closed.
+     * A click that lands while the cell background palette is closing leaves the menu open.
+     */
     async closeMenu(menuType: YfmTableCellMenuType) {
-        const button =
-            menuType === 'row' ? this.rowButtonLocator.first() : this.columnButtonLocator.first();
-        await button.click();
-        await this.cellMenus[menuType].waitFor({state: 'hidden'});
+        const menu = this.cellMenus[menuType];
+
+        await this.expect(async () => {
+            await this.menuButton(menuType).click();
+            await this.expect(menu).toBeHidden({timeout: 500});
+        }).toPass({timeout: 5000});
+    }
+
+    private menuButton(menuType: YfmTableCellMenuType) {
+        return menuType === 'row'
+            ? this.rowButtonLocator.first()
+            : this.columnButtonLocator.first();
     }
 }
 
@@ -396,7 +429,7 @@ export class MarkdownEditorPage {
         this.expect = expect;
 
         this.locators = new MarkdownEditorLocators(page);
-        this.yfmTable = new YfmTable(page);
+        this.yfmTable = new YfmTable(page, expect);
         this.colorify = new Colorify(page, expect, this.locators);
         this.yfmNote = new YfmNote(page);
         this.image = new Image(page);
