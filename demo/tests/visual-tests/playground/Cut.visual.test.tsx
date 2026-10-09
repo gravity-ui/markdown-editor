@@ -17,8 +17,9 @@ test.describe('Cut', () => {
 
             await editor.assertAdditionalToolbarButtonDisabled('Cut');
 
+            // The browser moves the caret into the cut content, and the editor state follows on selectionchange
             await editor.press('ArrowDown');
-            await wait.timeout();
+            await editor.assertAdditionalToolbarButtonEnabled('Cut');
             await editor.press('ArrowDown');
 
             await editor.assertAdditionalToolbarButtonDisabled('Cut');
