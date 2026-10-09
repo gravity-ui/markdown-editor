@@ -37,8 +37,12 @@ export function useSticky<T extends HTMLElement>(elemRef: React.RefObject<T>) {
             rafId = null;
             if (!elemRef.current) return;
             const refPageOffset = elemRef.current.getBoundingClientRect().top;
-            const stickyOffset = parseInt(getComputedStyle(elemRef.current).top, 10);
-            const stickyActive = refPageOffset <= stickyOffset;
+            const stickyOffset = parseFloat(getComputedStyle(elemRef.current).top);
+            const scrollContainer = findScrollContainer(elemRef.current);
+            const scrollOffset = scrollContainer
+                ? scrollContainer.getBoundingClientRect().top + scrollContainer.clientTop
+                : 0;
+            const stickyActive = refPageOffset <= scrollOffset + stickyOffset;
 
             if (stickyActive && !stickyRef.current) setSticky(true);
             else if (!stickyActive && stickyRef.current) setSticky(false);
@@ -46,4 +50,25 @@ export function useSticky<T extends HTMLElement>(elemRef: React.RefObject<T>) {
     });
 
     return sticky;
+}
+
+function findScrollContainer(element: HTMLElement): HTMLElement | null {
+    let parent = element.parentElement;
+
+    while (parent && parent !== document.documentElement) {
+        const {overflowY} = getComputedStyle(parent);
+        if (['auto', 'scroll', 'hidden', 'overlay'].includes(overflowY)) {
+            // Body overflow can be propagated to the viewport.
+            if (parent === document.body) {
+                const rootStyle = getComputedStyle(document.documentElement);
+                if (rootStyle.overflowY === 'visible' && rootStyle.overflowX === 'visible') {
+                    return null;
+                }
+            }
+            return parent;
+        }
+        parent = parent.parentElement;
+    }
+
+    return null;
 }
