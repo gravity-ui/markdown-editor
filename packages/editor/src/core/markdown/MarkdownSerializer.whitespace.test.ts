@@ -168,6 +168,46 @@ describe('MarkdownSerializer whitespace', () => {
         expect(serializer.serialize(input)).toBe(expectedMarkup);
         expect(parser.parse(expectedMarkup)).toMatchNode(expectedDoc);
     });
+
+    it('should close emphasis before wholly expelled code whitespace', () => {
+        const {doc, p, em, strong, code, parser, serializer} = createFixture([
+            'strong',
+            'em',
+            'link',
+            'code',
+        ]);
+        const input = doc(p(em('x'), strong(em(code(' ')))));
+        const expectedDoc = doc(p(em('x')));
+        const expectedMarkup = '*x* ';
+
+        expect(serializer.serialize(input)).toBe(expectedMarkup);
+        expect(parser.parse(expectedMarkup)).toMatchNode(expectedDoc);
+    });
+
+    it('should keep continuing emphasis across wholly expelled code whitespace', () => {
+        const {doc, p, em, strong, code, parser, serializer} = createFixture([
+            'strong',
+            'em',
+            'link',
+            'code',
+        ]);
+        const input = doc(p(em('x'), strong(em(code(' '))), em('y')));
+        const expectedDoc = doc(p(em('x y')));
+        const expectedMarkup = '*x y*';
+
+        expect(serializer.serialize(input)).toBe(expectedMarkup);
+        expect(parser.parse(expectedMarkup)).toMatchNode(expectedDoc);
+    });
+
+    it('should keep wholly expelled code whitespace inside a standard link', () => {
+        const {doc, p, em, a, code, parser, serializer} = createFixture();
+        const input = doc(p(a('x'), em(a(code(' '))), 'y'));
+        const expectedDoc = doc(p(a('x '), 'y'));
+        const expectedMarkup = '[x ](foo)y';
+
+        expect(serializer.serialize(input)).toBe(expectedMarkup);
+        expect(parser.parse(expectedMarkup)).toMatchNode(expectedDoc);
+    });
 });
 
 function createFixture(
