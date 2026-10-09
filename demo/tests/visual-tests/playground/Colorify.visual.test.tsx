@@ -148,7 +148,10 @@ test.describe('Colorify', () => {
         test('should escape parentheses', async ({page, expectScreenshot, editor, wait}) => {
             await editor.colorify.assertMainToolbarColorButtonDefault();
 
-            await editor.clickLineEnd('p');
+            await editor.focus();
+            // prosemirror-view restores its own selection 20 ms after focus
+            await wait.timeout(50);
+            await editor.press('ControlOrMeta+End');
             await editor.press('Enter');
 
             await editor.clickMainToolbarButton('Text color', 'Yellow');

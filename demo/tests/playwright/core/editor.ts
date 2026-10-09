@@ -774,23 +774,6 @@ export class MarkdownEditorPage {
     }
 
     /**
-     * Clicks past the end of the first element matching the selector.
-     *
-     * ProseMirror sets its selection from a click itself, while a caret moved by a key press is
-     * restored to the previous selection 20 ms after focus, whenever the DOM observer is late.
-     */
-    async clickLineEnd(selector: string) {
-        const line = this.locators.contenteditable.locator(selector).first();
-        const box = await line.boundingBox();
-
-        if (!box) {
-            throw new Error(`"${selector}" is not visible in the contenteditable area`);
-        }
-
-        await this.page.mouse.click(box.x + box.width - 2, box.y + box.height / 2);
-    }
-
-    /**
      * Presses a key within the contenteditable area
      */
     async press(key: string, times = 1) {
