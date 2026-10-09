@@ -1,0 +1,11 @@
+.g-md-status-tooltip {
+    padding: 12px;
+
+    &__colors {
+        display: grid;
+        grid-template-columns: repeat(5, auto);
+        gap: 8px;
+
+        margin-top: 12px;
+    }
+}
