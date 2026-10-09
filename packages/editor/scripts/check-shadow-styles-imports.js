@@ -3,16 +3,10 @@ const fs = require('node:fs');
 const path = require('node:path');
 const {pathToFileURL} = require('node:url');
 
+const ts = require('typescript');
+
 const SRC_DIR = path.resolve(__dirname, '..', 'src');
 const IMPORTS_MODULE_URL = pathToFileURL(path.resolve(__dirname, 'shadow-styles-imports.mjs')).href;
-
-// A non-relative specifier ending in `.css` — scoped (`@scope/pkg/...`) or not — in an `import` or
-// `export` at the start of a line. A `?query` suffix stays outside the capture group, so
-// `pkg/x.css?inline` is reported as `pkg/x.css`.
-// Out of reach: a specifier without the extension (`pkg/runtime/styles`), a dynamic `import()`, and
-// an import inside a block comment.
-const CSS_IMPORT_RE =
-    /^\s*(?:import|export)\s+(?:[\w*\s{},]+\s+from\s+)?['"]((?:@[^'"\s/]+\/)?[^'"\s.][^'"\s?]*\.css)(?:\?[^'"]*)?['"]/gm;
 
 async function main() {
     const {SHADOW_STYLE_IMPORTS} = await import(IMPORTS_MODULE_URL);
@@ -39,9 +33,32 @@ function collectCssImports(dir) {
     const specs = new Set();
     walk(dir, (filePath) => {
         if (!/\.(?:ts|tsx|js|jsx|mjs|cjs)$/.test(filePath)) return;
-        for (const match of fs.readFileSync(filePath, 'utf8').matchAll(CSS_IMPORT_RE)) {
-            specs.add(match[1]);
+        const source = ts.createSourceFile(
+            filePath,
+            fs.readFileSync(filePath, 'utf8'),
+            ts.ScriptTarget.Latest,
+            true,
+        );
+
+        function visit(node) {
+            let specifier;
+            if (ts.isImportDeclaration(node) || ts.isExportDeclaration(node)) {
+                specifier = node.moduleSpecifier;
+            } else if (
+                ts.isCallExpression(node) &&
+                node.expression.kind === ts.SyntaxKind.ImportKeyword
+            ) {
+                [specifier] = node.arguments;
+            }
+
+            if (specifier && ts.isStringLiteralLike(specifier)) {
+                const spec = specifier.text.split(/[?#]/, 1)[0];
+                if (!/^[./]/.test(spec) && spec.endsWith('.css')) specs.add(spec);
+            }
+            ts.forEachChild(node, visit);
         }
+
+        visit(source);
     });
     return specs;
 }
@@ -54,7 +71,11 @@ function walk(dir, visit) {
     }
 }
 
-main().catch((err) => {
-    console.error(err);
-    process.exit(1);
-});
+module.exports = {collectCssImports};
+
+if (require.main === module) {
+    main().catch((err) => {
+        console.error(err);
+        process.exit(1);
+    });
+}

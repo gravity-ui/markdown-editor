@@ -6,6 +6,7 @@ import {pathToFileURL} from 'node:url';
 import {SHADOW_STYLE_IMPORTS} from './shadow-styles-imports.mjs';
 
 const require = createRequire(import.meta.url);
+let verificationQueue = Promise.resolve();
 
 const CREATE_STYLE_SHEET = `function createStyleSheet() {
     if (typeof CSSStyleSheet === 'undefined') {
@@ -78,15 +79,27 @@ function createShadowStylesModule(cssText) {
 }
 
 // The modules are generated code, and only a round trip proves the embedded CSS survives it.
-async function verifyGeneratedModules(buildDir, cssText) {
+function verifyGeneratedModules(buildDir, cssText) {
+    // Only one verification may install the process-wide stub at a time.
+    const verification = verificationQueue.then(() => verifyModules(buildDir, cssText));
+    verificationQueue = verification.catch(() => {});
+    return verification;
+}
+
+async function verifyModules(buildDir, cssText) {
     // Node has no `CSSStyleSheet`; the stub records what `replaceSync()` received.
     // A runtime that provides its own gets it back after the check.
     const nativeDescriptor = Reflect.getOwnPropertyDescriptor(globalThis, 'CSSStyleSheet');
-    globalThis.CSSStyleSheet = class {
-        replaceSync(value) {
-            this.cssText = value;
-        }
-    };
+    Object.defineProperty(globalThis, 'CSSStyleSheet', {
+        configurable: nativeDescriptor?.configurable ?? true,
+        enumerable: nativeDescriptor?.enumerable ?? false,
+        writable: true,
+        value: class {
+            replaceSync(value) {
+                this.cssText = value;
+            }
+        },
+    });
 
     try {
         const modules = [
