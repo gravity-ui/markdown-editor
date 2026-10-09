@@ -14,6 +14,13 @@ export type UseActionStateReturn = {
 
 export type ToolbarAction<E> = Pick<ToolbarItemData<E>, 'isActive' | 'isEnable'>;
 
+function getActionState<E>(
+    editor: E,
+    {isActive, isEnable}: ToolbarAction<E>,
+): UseActionStateReturn {
+    return {active: isActive(editor), enabled: isEnable(editor)};
+}
+
 export function useActionState<E>(
     editor: E,
     {isActive, isEnable}: ToolbarAction<E>,
@@ -21,23 +28,14 @@ export function useActionState<E>(
     const context = useToolbarContext();
     const eventBus = context?.eventBus;
 
-    const [state, setState] = useState<UseActionStateReturn>({
-        active: false,
-        enabled: true,
-    });
+    const [state, setState] = useState(() => getActionState(editor, {isActive, isEnable}));
     const stateRef = useLatest(state);
 
     useEffect(() => {
         const onUpdate = () => {
-            const newActive = isActive(editor);
-            const newEnabled = isEnable(editor);
-
-            const {active, enabled} = stateRef.current;
-            if (active !== newActive || enabled !== newEnabled) {
-                setState({
-                    active: newActive,
-                    enabled: newEnabled,
-                });
+            const newState = getActionState(editor, {isActive, isEnable});
+            if (!isEqual(stateRef.current, newState)) {
+                setState(newState);
             }
         };
 
@@ -58,22 +56,15 @@ export function useActionsState<E>(editor: E, actions: ToolbarAction<E>[]): UseA
     const context = useToolbarContext();
     const eventBus = context?.eventBus;
 
-    const [state, setState] = useState<UseActionStateReturn[]>(() =>
-        actions.map(() => ({
-            active: false,
-            enabled: true,
-        })),
+    const [state, setState] = useState(() =>
+        actions.map((action) => getActionState(editor, action)),
     );
     const stateRef = useLatest(state);
 
     useEffect(() => {
         const onUpdate = () => {
-            const currentState = stateRef.current;
-            const newState = actions.map(({isActive, isEnable}) => ({
-                active: isActive(editor),
-                enabled: isEnable(editor),
-            }));
-            if (!isEqual(currentState, newState)) {
+            const newState = actions.map((action) => getActionState(editor, action));
+            if (!isEqual(stateRef.current, newState)) {
                 setState(newState);
             }
         };
@@ -90,5 +81,5 @@ export function useActionsState<E>(editor: E, actions: ToolbarAction<E>[]): UseA
 
     return state.length === actions.length
         ? state
-        : actions.map(() => ({active: false, enabled: true}));
+        : actions.map((action) => getActionState(editor, action));
 }
