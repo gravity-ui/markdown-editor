@@ -328,25 +328,16 @@ test.describe('YfmTable', () => {
 
         test('row menu', async ({editor, expectScreenshot}) => {
             await (await editor.yfmTable.getCells()).first().hover();
-            const rowButton = (await editor.yfmTable.getRowButtons()).first();
-            await rowButton.waitFor({state: 'visible'});
-            await rowButton.click();
+            await editor.yfmTable.openMenu('row');
 
-            const menu = editor.yfmTable.getMenuLocator('row');
-            await menu.waitFor({state: 'visible'});
-
-            await expectScreenshot({component: menu});
+            await expectScreenshot({component: editor.yfmTable.getMenuLocator('row')});
         });
 
         test('column menu', async ({editor, expectScreenshot}) => {
             await (await editor.yfmTable.getCells()).first().hover();
-            const columnButton = (await editor.yfmTable.getColumnButtons()).first();
-            await columnButton.waitFor({state: 'visible'});
-            await columnButton.click();
+            await editor.yfmTable.openMenu('column');
 
-            const menu = editor.yfmTable.getMenuLocator('column');
-            await menu.waitFor({state: 'visible'});
-            await expectScreenshot({component: menu});
+            await expectScreenshot({component: editor.yfmTable.getMenuLocator('column')});
         });
 
         test('should remove table', async ({editor}) => {
@@ -354,10 +345,9 @@ test.describe('YfmTable', () => {
                 await editor.yfmTable.getTable(editor.locators.contenteditable)
             ).first();
             const firstCell = (await editor.yfmTable.getCells(tableLocator)).first();
-            const rowButton = (await editor.yfmTable.getRowButtons(tableLocator)).first();
 
             await firstCell.hover();
-            await rowButton.click();
+            await editor.yfmTable.openMenu('row');
             await editor.yfmTable.doCellAction('row', 'remove-table');
 
             await tableLocator.waitFor({state: 'detached'});
@@ -370,10 +360,9 @@ test.describe('YfmTable', () => {
             const rowsLocator = await editor.yfmTable.getRows(tableLocator);
             const cellsLocator = await editor.yfmTable.getCells(tableLocator);
             const firstCell = cellsLocator.first();
-            const rowButton = (await editor.yfmTable.getRowButtons(tableLocator)).first();
 
             await firstCell.hover();
-            await rowButton.click();
+            await editor.yfmTable.openMenu('row');
             await editor.yfmTable.doCellAction('row', 'remove-row');
 
             await expect(rowsLocator).toHaveCount(1);
@@ -391,10 +380,9 @@ test.describe('YfmTable', () => {
             const rowsLocator = await editor.yfmTable.getRows(tableLocator);
             const cellsLocator = await editor.yfmTable.getCells(tableLocator);
             const firstCell = cellsLocator.first();
-            const rowButton = (await editor.yfmTable.getRowButtons(tableLocator)).first();
 
             await firstCell.hover();
-            await rowButton.click();
+            await editor.yfmTable.openMenu('row');
             await editor.yfmTable.doCellAction('row', 'add-row-before');
 
             await expect(rowsLocator).toHaveCount(3);
@@ -416,10 +404,9 @@ test.describe('YfmTable', () => {
             const rowsLocator = await editor.yfmTable.getRows(tableLocator);
             const cellsLocator = await editor.yfmTable.getCells(tableLocator);
             const firstCell = cellsLocator.first();
-            const rowButton = (await editor.yfmTable.getRowButtons(tableLocator)).first();
 
             await firstCell.hover();
-            await rowButton.click();
+            await editor.yfmTable.openMenu('row');
             await editor.yfmTable.doCellAction('row', 'add-row-after');
 
             await expect(rowsLocator).toHaveCount(3);
@@ -535,11 +522,10 @@ test.describe('YfmTable', () => {
             const rowsLocator = await editor.yfmTable.getRows(tableLocator);
             const cellsLocator = await editor.yfmTable.getCells(tableLocator);
             const firstCell = cellsLocator.first();
-            const rowButton = (await editor.yfmTable.getRowButtons(tableLocator)).first();
 
             await editor.yfmTable.focusFirstCell(tableLocator);
             await firstCell.hover();
-            await rowButton.click();
+            await editor.yfmTable.openMenu('row');
             await editor.yfmTable.doCellAction('row', 'header-toggle');
 
             await expect(rowsLocator.nth(0)).toHaveAttribute('data-header', 'true');
@@ -577,13 +563,12 @@ test.describe('YfmTable', () => {
             const rowsLocator = await editor.yfmTable.getRows(tableLocator);
             const cellsLocator = await editor.yfmTable.getCells(tableLocator);
             const firstCell = cellsLocator.first();
-            const rowButton = (await editor.yfmTable.getRowButtons(tableLocator)).first();
 
             await expect(rowsLocator.nth(0)).toHaveAttribute('data-header', 'true');
 
             await editor.yfmTable.focusFirstCell(tableLocator);
             await firstCell.hover();
-            await rowButton.click();
+            await editor.yfmTable.openMenu('row');
             await editor.yfmTable.doCellAction('row', 'header-toggle');
 
             await expect(rowsLocator.nth(0)).not.toHaveAttribute('data-header', 'true');
@@ -619,7 +604,6 @@ test.describe('YfmTable', () => {
             ).first();
             const rowsLocator = await editor.yfmTable.getRows(tableLocator);
             const cellsLocator = await editor.yfmTable.getCells(tableLocator);
-            const rowButton = (await editor.yfmTable.getRowButtons(tableLocator)).first();
 
             await expect(rowsLocator.nth(0)).toHaveAttribute('data-header', 'true');
             await expect(rowsLocator.nth(1)).not.toHaveAttribute('data-header', 'true');
@@ -629,7 +613,7 @@ test.describe('YfmTable', () => {
             // hover the first cell of row 1 (column 0)
             await cellsLocator.nth(2).hover();
             await wait.timeout(200);
-            await rowButton.click();
+            await editor.yfmTable.openMenu('row');
             await editor.yfmTable.doCellAction('row', 'header-toggle');
 
             await expect(rowsLocator.nth(0)).toHaveAttribute('data-header', 'true');
@@ -660,11 +644,10 @@ test.describe('YfmTable', () => {
             const rowsLocator = await editor.yfmTable.getRows(tableLocator);
             const cellsLocator = await editor.yfmTable.getCells(tableLocator);
             const firstCell = cellsLocator.first();
-            const rowButton = (await editor.yfmTable.getRowButtons(tableLocator)).first();
 
             await editor.yfmTable.focusFirstCell(tableLocator);
             await firstCell.hover();
-            await rowButton.click();
+            await editor.yfmTable.openMenu('row');
             await editor.yfmTable.doCellAction('row', 'header-toggle');
 
             await expect(rowsLocator.nth(0)).toHaveAttribute('data-header', 'true');
@@ -702,7 +685,6 @@ test.describe('YfmTable', () => {
             ).first();
             const rowsLocator = await editor.yfmTable.getRows(tableLocator);
             const cellsLocator = await editor.yfmTable.getCells(tableLocator);
-            const rowButton = (await editor.yfmTable.getRowButtons(tableLocator)).first();
             const rowMenu = editor.yfmTable.getMenuLocator('row');
             const headerToggle = editor.yfmTable.getCellActionLocator('row', 'header-toggle');
 
@@ -716,7 +698,7 @@ test.describe('YfmTable', () => {
             // open row menu of row 1 (first cell of row 1 is the 3rd cell overall)
             await cellsLocator.nth(2).hover();
             await wait.timeout(200);
-            await rowButton.click();
+            await editor.yfmTable.openMenu('row');
             await editor.yfmTable.doCellAction('row', 'header-toggle');
 
             await expect(rowsLocator.nth(0)).toHaveAttribute('data-header', 'true');
@@ -727,7 +709,7 @@ test.describe('YfmTable', () => {
             // re-open row menu of row 1 — header toggle should be hidden now
             await cellsLocator.nth(2).hover();
             await wait.timeout(200);
-            await rowButton.click();
+            await editor.yfmTable.openMenu('row');
             await rowMenu.waitFor({state: 'visible'});
             await expect(headerToggle).toBeHidden();
         });
@@ -754,7 +736,6 @@ test.describe('YfmTable', () => {
             ).first();
             const rowsLocator = await editor.yfmTable.getRows(tableLocator);
             const cellsLocator = await editor.yfmTable.getCells(tableLocator);
-            const rowButton = (await editor.yfmTable.getRowButtons(tableLocator)).first();
 
             await expect(rowsLocator.nth(0)).toHaveAttribute('data-header', 'true');
             await expect(rowsLocator.nth(1)).toHaveAttribute('data-header', 'true');
@@ -766,7 +747,7 @@ test.describe('YfmTable', () => {
             // open row menu of row 1 (first cell of row 1 is the 3rd cell overall)
             await cellsLocator.nth(2).hover();
             await wait.timeout(200);
-            await rowButton.click();
+            await editor.yfmTable.openMenu('row');
             await editor.yfmTable.doCellAction('row', 'add-row-before');
 
             await expect(rowsLocator).toHaveCount(5);
@@ -799,7 +780,6 @@ test.describe('YfmTable', () => {
             ).first();
             const rowsLocator = await editor.yfmTable.getRows(tableLocator);
             const cellsLocator = await editor.yfmTable.getCells(tableLocator);
-            const rowButton = (await editor.yfmTable.getRowButtons(tableLocator)).first();
 
             await expect(rowsLocator.nth(0)).toHaveAttribute('data-header', 'true');
             await expect(rowsLocator.nth(1)).toHaveAttribute('data-header', 'true');
@@ -811,7 +791,7 @@ test.describe('YfmTable', () => {
             // Open row menu of row 2 (first cell of row 2 is the 3rd cell overall)
             await cellsLocator.nth(2).hover();
             await wait.timeout(200);
-            await rowButton.click();
+            await editor.yfmTable.openMenu('row');
             await editor.yfmTable.doCellAction('row', 'remove-row');
 
             await expect(rowsLocator).toHaveCount(2);
@@ -844,11 +824,10 @@ test.describe('YfmTable', () => {
             ).first();
             const cellsLocator = await editor.yfmTable.getCells(tableLocator);
             const firstCell = cellsLocator.first();
-            const rowButton = (await editor.yfmTable.getRowButtons(tableLocator)).first();
 
             await editor.yfmTable.focusFirstCell(tableLocator);
             await firstCell.hover();
-            await rowButton.click();
+            await editor.yfmTable.openMenu('row');
             await editor.yfmTable.selectCellBg('row', 'Yellow');
 
             await expect(cellsLocator.nth(0)).toHaveAttribute('data-bg', 'yellow');
@@ -884,11 +863,10 @@ test.describe('YfmTable', () => {
             ).first();
             const cellsLocator = await editor.yfmTable.getCells(tableLocator);
             const firstCell = cellsLocator.first();
-            const columnButton = (await editor.yfmTable.getColumnButtons(tableLocator)).first();
 
             await editor.yfmTable.focusFirstCell(tableLocator);
             await firstCell.hover();
-            await columnButton.click();
+            await editor.yfmTable.openMenu('column');
             await editor.yfmTable.selectCellBg('column', 'Blue');
 
             await expect(cellsLocator.nth(0)).toHaveAttribute('data-bg', 'blue');
@@ -922,13 +900,12 @@ test.describe('YfmTable', () => {
             ).first();
             const cellsLocator = await editor.yfmTable.getCells(tableLocator);
             const firstCell = cellsLocator.first();
-            const rowButton = (await editor.yfmTable.getRowButtons(tableLocator)).first();
 
             await expect(firstCell).toHaveAttribute('data-bg', 'red');
 
             await editor.yfmTable.focusFirstCell(tableLocator);
             await firstCell.hover();
-            await rowButton.click();
+            await editor.yfmTable.openMenu('row');
             await editor.yfmTable.selectCellBg('row', 'No color');
 
             await expect(cellsLocator.nth(0)).not.toHaveAttribute('data-bg');
@@ -950,18 +927,17 @@ test.describe('YfmTable', () => {
             ).first();
             const cellsLocator = await editor.yfmTable.getCells(tableLocator);
             const firstCell = cellsLocator.first();
-            const rowButton = (await editor.yfmTable.getRowButtons(tableLocator)).first();
 
             await editor.yfmTable.focusFirstCell(tableLocator);
             await firstCell.hover();
-            await rowButton.click();
+            await editor.yfmTable.openMenu('row');
             await editor.yfmTable.selectCellBg('row', 'Yellow');
             await editor.yfmTable.closeMenu('row');
 
             await expect(cellsLocator.nth(0)).toHaveAttribute('data-bg', 'yellow');
 
             await firstCell.hover();
-            await rowButton.click();
+            await editor.yfmTable.openMenu('row');
             await editor.yfmTable.selectCellBg('row', 'Green');
 
             await expect(cellsLocator.nth(0)).not.toHaveClass(/cell-bg-yellow/);
@@ -987,14 +963,13 @@ test.describe('YfmTable', () => {
             ).first();
             const cellsLocator = await editor.yfmTable.getCells(tableLocator);
             const firstCell = cellsLocator.first();
-            const rowButton = (await editor.yfmTable.getRowButtons(tableLocator)).first();
 
             await expect(cellsLocator.nth(0)).toHaveAttribute('data-bg', 'yellow');
             await expect(cellsLocator.nth(1)).not.toHaveAttribute('data-bg');
 
             await editor.yfmTable.focusFirstCell(tableLocator);
             await firstCell.hover();
-            await rowButton.click();
+            await editor.yfmTable.openMenu('row');
             await editor.yfmTable.selectCellBg('row', 'Yellow');
 
             await expect(cellsLocator.nth(0)).toHaveAttribute('data-bg', 'yellow');
@@ -1021,14 +996,13 @@ test.describe('YfmTable', () => {
             ).first();
             const cellsLocator = await editor.yfmTable.getCells(tableLocator);
             const firstCell = cellsLocator.first();
-            const columnButton = (await editor.yfmTable.getColumnButtons(tableLocator)).first();
 
             await expect(cellsLocator.nth(0)).toHaveAttribute('data-bg', 'blue');
             await expect(cellsLocator.nth(2)).not.toHaveAttribute('data-bg');
 
             await editor.yfmTable.focusFirstCell(tableLocator);
             await firstCell.hover();
-            await columnButton.click();
+            await editor.yfmTable.openMenu('column');
             await editor.yfmTable.selectCellBg('column', 'Blue');
 
             await expect(cellsLocator.nth(0)).toHaveAttribute('data-bg', 'blue');
@@ -1059,20 +1033,18 @@ test.describe('YfmTable', () => {
             ).first();
             const cellsLocator = await editor.yfmTable.getCells(tableLocator);
             const firstCell = cellsLocator.first();
-            const rowButton = (await editor.yfmTable.getRowButtons(tableLocator)).first();
-            const columnButton = (await editor.yfmTable.getColumnButtons(tableLocator)).first();
 
             await editor.yfmTable.focusFirstCell(tableLocator);
 
             // Paint first row yellow-light
             await firstCell.hover();
-            await rowButton.click();
+            await editor.yfmTable.openMenu('row');
             await editor.yfmTable.selectCellBg('row', 'Light yellow');
             await editor.yfmTable.closeMenu('row');
 
             // Paint first column blue-light (overwrites cell[0][0])
             await firstCell.hover();
-            await columnButton.click();
+            await editor.yfmTable.openMenu('column');
             await editor.yfmTable.selectCellBg('column', 'Light blue');
 
             // cell[0][0] — overwritten to blue-light
@@ -1111,11 +1083,10 @@ test.describe('YfmTable', () => {
             ).first();
             const cellsLocator = await editor.yfmTable.getCells(tableLocator);
             const firstCell = cellsLocator.first();
-            const rowButton = (await editor.yfmTable.getRowButtons(tableLocator)).first();
 
             await editor.yfmTable.focusFirstCell(tableLocator);
             await firstCell.hover();
-            await rowButton.click();
+            await editor.yfmTable.openMenu('row');
             await editor.yfmTable.selectCellBg('row', 'Red');
             await editor.yfmTable.closeMenu('row');
 
@@ -1227,12 +1198,11 @@ test.describe('YfmTable', () => {
             ).first();
             const cellsLocator = await editor.yfmTable.getCells(tableLocator);
             const firstCell = cellsLocator.first();
-            const rowButton = (await editor.yfmTable.getRowButtons(tableLocator)).first();
 
             await editor.yfmTable.focusFirstCell(tableLocator);
             await firstCell.hover(); // first row
             await wait.timeout(200);
-            await rowButton.click();
+            await editor.yfmTable.openMenu('row');
             await editor.yfmTable.doCellAction('row', 'add-row-after');
 
             await expect(cellsLocator).toHaveCount(6);
@@ -1256,12 +1226,11 @@ test.describe('YfmTable', () => {
                 await editor.yfmTable.getTable(editor.locators.contenteditable)
             ).first();
             const cellsLocator = await editor.yfmTable.getCells(tableLocator);
-            const rowButton = (await editor.yfmTable.getRowButtons(tableLocator)).first();
 
             await editor.yfmTable.focusFirstCell(tableLocator);
             await cellsLocator.nth(2).hover(); // second row
             await wait.timeout(200);
-            await rowButton.click();
+            await editor.yfmTable.openMenu('row');
             await editor.yfmTable.doCellAction('row', 'add-row-before');
 
             await expect(cellsLocator).toHaveCount(6);
@@ -1288,12 +1257,11 @@ test.describe('YfmTable', () => {
             ).first();
             const cellsLocator = await editor.yfmTable.getCells(tableLocator);
             const firstCell = cellsLocator.first();
-            const columnButton = (await editor.yfmTable.getColumnButtons(tableLocator)).first();
 
             await editor.yfmTable.focusFirstCell(tableLocator);
             await firstCell.hover(); // first column
             await wait.timeout(200);
-            await columnButton.click();
+            await editor.yfmTable.openMenu('column');
             await editor.yfmTable.doCellAction('column', 'add-column-after');
 
             await expect(cellsLocator).toHaveCount(6);
@@ -1319,12 +1287,11 @@ test.describe('YfmTable', () => {
                 await editor.yfmTable.getTable(editor.locators.contenteditable)
             ).first();
             const cellsLocator = await editor.yfmTable.getCells(tableLocator);
-            const columnButton = (await editor.yfmTable.getColumnButtons(tableLocator)).first();
 
             await editor.yfmTable.focusFirstCell(tableLocator);
             await cellsLocator.nth(1).hover(); // second column
             await wait.timeout(200);
-            await columnButton.click();
+            await editor.yfmTable.openMenu('column');
             await editor.yfmTable.doCellAction('column', 'add-column-before');
 
             await expect(cellsLocator).toHaveCount(6);
