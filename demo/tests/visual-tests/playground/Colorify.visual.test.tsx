@@ -149,7 +149,7 @@ test.describe('Colorify', () => {
             await editor.colorify.assertMainToolbarColorButtonDefault();
 
             await editor.focus();
-            await editor.press('ControlOrMeta+End');
+            await editor.press('ArrowDown');
             await editor.press('Enter');
 
             await editor.clickMainToolbarButton('Text color', 'Yellow');
