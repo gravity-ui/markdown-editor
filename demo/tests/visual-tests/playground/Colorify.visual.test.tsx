@@ -149,8 +149,6 @@ test.describe('Colorify', () => {
             await editor.colorify.assertMainToolbarColorButtonDefault();
 
             await editor.focus();
-            // prosemirror-view restores its own selection 20 ms after focus
-            await wait.timeout(50);
             await editor.press('ControlOrMeta+End');
             await editor.press('Enter');
 
