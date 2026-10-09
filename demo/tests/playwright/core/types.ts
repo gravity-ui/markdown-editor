@@ -61,6 +61,8 @@ export interface WaitFixture {
     visible(selector: Locator): Promise<void>;
     hidden(selector: Locator): Promise<void>;
     timeout(delay?: number): Promise<void>;
+    tooltipsHidden(): Promise<void>;
+    markupPreview(text: string | RegExp): Promise<void>;
 }
 
 export interface CaptureScreenshotParams extends PageScreenshotOptions {
