@@ -1,3 +1,5 @@
+import {beforeEach, describe, expect, it} from 'vitest';
+
 import type {HtmlConstructorTemplate} from '../types';
 
 import {
@@ -65,7 +67,7 @@ beforeEach(() => {
 });
 
 describe('mergeTemplatesById', () => {
-    it('keeps order and overrides duplicates with the later source', () => {
+    it('should keep order and override duplicates with the later source', () => {
         const result = mergeTemplatesById(
             [blockTpl('a', 'option a'), structureTpl('b')],
             [blockTpl('a', 'stored a')],
@@ -76,16 +78,16 @@ describe('mergeTemplatesById', () => {
 });
 
 describe('readStoredTemplates', () => {
-    it('returns an empty array when nothing is stored', () => {
+    it('should return an empty array when nothing is stored', () => {
         expect(readStoredTemplates()).toEqual([]);
     });
 
-    it('ignores malformed json', () => {
+    it('should ignore malformed json', () => {
         window.localStorage.setItem(YFM_HTML_CONSTRUCTOR_STORAGE_KEY, '{not json');
         expect(readStoredTemplates()).toEqual([]);
     });
 
-    it('filters out entries with the wrong shape', () => {
+    it('should filter out entries with the wrong shape', () => {
         window.localStorage.setItem(
             YFM_HTML_CONSTRUCTOR_STORAGE_KEY,
             JSON.stringify([
@@ -111,7 +113,7 @@ describe('readStoredTemplates', () => {
 });
 
 describe('saveTemplates', () => {
-    it('persists templates and merges by id across calls', () => {
+    it('should persist templates and merge by id across calls', () => {
         saveTemplates([blockTpl('a', 'first')]);
         const result = saveTemplates([blockTpl('a', 'second'), structureTpl('b')]);
 
@@ -121,7 +123,7 @@ describe('saveTemplates', () => {
 });
 
 describe('clearStoredTemplates', () => {
-    it('removes saved templates from localStorage', () => {
+    it('should remove saved templates from localStorage', () => {
         saveTemplates([blockTpl('a'), structureTpl('b')]);
 
         expect(clearStoredTemplates()).toEqual([]);

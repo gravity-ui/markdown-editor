@@ -1,3 +1,5 @@
+import {describe, expect, it} from 'vitest';
+
 import {parseTemplates} from '../templates';
 
 import {buildBlockMenuGroups, buildStructureMenuGroups} from './groupTemplates';
@@ -21,7 +23,7 @@ const constructorTemplates = () =>
     `);
 
 describe('HTML Constructor template menus', () => {
-    it('groups one structure with four structure themes by family', () => {
+    it('should group one structure with four structure themes by family', () => {
         expect(buildStructureMenuGroups(constructorTemplates())).toEqual([
             {
                 familyId: 'family-a',
@@ -41,7 +43,7 @@ describe('HTML Constructor template menus', () => {
         ]);
     });
 
-    it('groups six base blocks by family for the active structure', () => {
+    it('should group six base blocks by family for the active structure', () => {
         const groups = buildBlockMenuGroups(constructorTemplates(), 'structure-a');
 
         expect(groups).toHaveLength(1);
@@ -56,7 +58,7 @@ describe('HTML Constructor template menus', () => {
         ]);
     });
 
-    it('attaches block themes and block states to their base block', () => {
+    it('should attach block themes and block states to their base block', () => {
         const groups = buildBlockMenuGroups(constructorTemplates(), 'structure-a');
         const block2 = groups[0]?.items.find((item) => item.block.id === 'block-2');
         const block3 = groups[0]?.items.find((item) => item.block.id === 'block-3');
@@ -67,7 +69,7 @@ describe('HTML Constructor template menus', () => {
         expect(block3?.states.map((state) => state.id)).toEqual(['block-3', 'block-7']);
     });
 
-    it('filters by family, block, state or theme title', () => {
+    it('should filter by family, block, state or theme title', () => {
         expect(
             buildBlockMenuGroups(constructorTemplates(), 'structure-a', 'Block 7')[0]?.items,
         ).toEqual([expect.objectContaining({block: expect.objectContaining({id: 'block-3'})})]);

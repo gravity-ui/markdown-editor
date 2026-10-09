@@ -1,7 +1,9 @@
+import {describe, expect, it} from 'vitest';
+
 import {parseTemplates} from './parse';
 
 describe('parseTemplates', () => {
-    it('parses a single template with id and title', () => {
+    it('should parse a single template with id and title', () => {
         const result = parseTemplates(
             '<template id="hero" title="Hero block"><div>Hello</div></template>',
         );
@@ -9,7 +11,7 @@ describe('parseTemplates', () => {
         expect(result).toEqual([{id: 'hero', title: 'Hero block', content: '<div>Hello</div>'}]);
     });
 
-    it('parses multiple templates at once', () => {
+    it('should parse multiple templates at once', () => {
         const result = parseTemplates(`
             <template id="a" title="First"><p>1</p></template>
             <template id="b" title="Second"><p>2</p></template>
@@ -20,21 +22,21 @@ describe('parseTemplates', () => {
         expect(result[1]).toMatchObject({id: 'b', title: 'Second', content: '<p>2</p>'});
     });
 
-    it('falls back title to id when title is missing', () => {
+    it('should fall back title to id when title is missing', () => {
         const [template] = parseTemplates('<template id="only-id"><span>x</span></template>');
 
         expect(template.id).toBe('only-id');
         expect(template.title).toBe('only-id');
     });
 
-    it('generates an id when it is missing', () => {
+    it('should generate an id when it is missing', () => {
         const [template] = parseTemplates('<template title="No id"><span>x</span></template>');
 
         expect(template.id).toBeTruthy();
         expect(template.title).toBe('No id');
     });
 
-    it('treats input without template tags as a single template', () => {
+    it('should treat input without template tags as a single template', () => {
         const result = parseTemplates('<div class="card">card</div>');
 
         expect(result).toHaveLength(1);
@@ -42,7 +44,7 @@ describe('parseTemplates', () => {
         expect(result[0].id).toBeTruthy();
     });
 
-    it('returns an empty array for blank input', () => {
+    it('should return an empty array for blank input', () => {
         expect(parseTemplates('   ')).toEqual([]);
         expect(parseTemplates('')).toEqual([]);
     });
