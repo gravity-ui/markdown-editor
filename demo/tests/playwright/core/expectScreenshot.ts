@@ -11,6 +11,12 @@ export const expectScreenshot: PlaywrightFixture<ExpectScreenshotFixture> = asyn
     use,
     testInfo,
 ) => {
+    const waitForTheme = (theme: 'light' | 'dark') =>
+        page.waitForFunction(
+            (name) => document.body.classList.contains(`g-root_theme_${name}`),
+            theme,
+        );
+
     const expectScreenshot: ExpectScreenshotFixture = async ({
         fullPage,
         component,
@@ -38,7 +44,7 @@ export const expectScreenshot: PlaywrightFixture<ExpectScreenshotFixture> = asyn
 
         const themes = paramsThemes || defaultParams.themes;
 
-        // Wait for loading of all the images (img[src] skips hidden CM widget buffer elements)
+        // img[src] skips hidden CodeMirror widget buffers
         const locators = await page.locator('img[src]').all();
         await Promise.all(
             locators.map((locator) =>
@@ -50,17 +56,13 @@ export const expectScreenshot: PlaywrightFixture<ExpectScreenshotFixture> = asyn
             ),
         );
 
-        // Wait for lazy CSS chunks (YFM fonts, html-extension styles, etc.) to finish loading,
-        // then wait for the browser to finish loading the font files they declare.
-        // Without networkidle, document.fonts.ready may resolve before lazy chunks inject their
-        // @font-face rules, causing a race where screenshots capture the wrong typeface.
+        // Lazy CSS chunks inject @font-face later, so fonts.ready alone resolves on the wrong set
         await page.waitForLoadState('networkidle');
         await page.evaluate(() => document.fonts.ready);
 
         if (themes?.includes('light')) {
             await page.emulateMedia({colorScheme: 'light'});
-            // sometimes theme doesn't change in webkit without timeout
-            await page.waitForTimeout(100);
+            await waitForTheme('light');
 
             expect(await captureScreenshot()).toMatchSnapshot({
                 name: `${nameScreenshot} light.webp`,
@@ -69,8 +71,7 @@ export const expectScreenshot: PlaywrightFixture<ExpectScreenshotFixture> = asyn
 
         if (themes?.includes('dark')) {
             await page.emulateMedia({colorScheme: 'dark'});
-            // sometimes theme doesn't change in webkit without timeout
-            await page.waitForTimeout(100);
+            await waitForTheme('dark');
 
             expect(await captureScreenshot()).toMatchSnapshot({
                 name: `${nameScreenshot} dark.webp`,
