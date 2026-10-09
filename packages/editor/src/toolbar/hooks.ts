@@ -1,4 +1,4 @@
-import {useEffect, useState} from 'react';
+import {useEffect, useReducer} from 'react';
 
 import {useLatest} from 'react-use';
 
@@ -14,58 +14,32 @@ export type UseActionStateReturn = {
 
 export type ToolbarAction<E> = Pick<ToolbarItemData<E>, 'isActive' | 'isEnable'>;
 
-function getActionState<E>(
-    editor: E,
-    {isActive, isEnable}: ToolbarAction<E>,
-): UseActionStateReturn {
-    return {active: isActive(editor), enabled: isEnable(editor)};
+function getActionsState<E>(editor: E, actions: ToolbarAction<E>[]): UseActionStateReturn[] {
+    return actions.map(({isActive, isEnable}) => ({
+        active: isActive(editor),
+        enabled: isEnable(editor),
+    }));
 }
 
-export function useActionState<E>(
-    editor: E,
-    {isActive, isEnable}: ToolbarAction<E>,
-): UseActionStateReturn {
-    const context = useToolbarContext();
-    const eventBus = context?.eventBus;
-
-    const [state, setState] = useState(() => getActionState(editor, {isActive, isEnable}));
-    const stateRef = useLatest(state);
-
-    useEffect(() => {
-        const onUpdate = () => {
-            const newState = getActionState(editor, {isActive, isEnable});
-            if (!isEqual(stateRef.current, newState)) {
-                setState(newState);
-            }
-        };
-
-        onUpdate();
-
-        if (eventBus) {
-            eventBus.on('update', onUpdate);
-            return () => eventBus.off('update', onUpdate);
-        }
-
-        return undefined;
-    }, [editor, isActive, isEnable, eventBus, stateRef]);
-
-    return state;
+export function useActionState<E>(editor: E, action: ToolbarAction<E>): UseActionStateReturn {
+    return useActionsState(editor, [action])[0];
 }
 
 export function useActionsState<E>(editor: E, actions: ToolbarAction<E>[]): UseActionStateReturn[] {
     const context = useToolbarContext();
     const eventBus = context?.eventBus;
 
-    const [state, setState] = useState(() =>
-        actions.map((action) => getActionState(editor, action)),
-    );
-    const stateRef = useLatest(state);
+    const [, rerender] = useReducer((count: number) => count + 1, 0);
+
+    // Computed during render, so changed props never show the previous state.
+    const state = getActionsState(editor, actions);
+    const latestRef = useLatest({editor, actions, state});
 
     useEffect(() => {
         const onUpdate = () => {
-            const newState = actions.map((action) => getActionState(editor, action));
-            if (!isEqual(stateRef.current, newState)) {
-                setState(newState);
+            const latest = latestRef.current;
+            if (!isEqual(latest.state, getActionsState(latest.editor, latest.actions))) {
+                rerender();
             }
         };
 
@@ -77,9 +51,7 @@ export function useActionsState<E>(editor: E, actions: ToolbarAction<E>[]): UseA
         }
 
         return undefined;
-    }, [actions, editor, eventBus, stateRef]);
+    }, [eventBus, latestRef]);
 
-    return state.length === actions.length
-        ? state
-        : actions.map((action) => getActionState(editor, action));
+    return state;
 }
