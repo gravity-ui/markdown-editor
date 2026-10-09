@@ -18,8 +18,7 @@ test.describe('Strikethrough', () => {
         test('should mark via toolbar @wysiwyg', async ({editor, wait}) => {
             await editor.assertMainToolbarButtonNotSelected('Strikethrough');
 
-            await editor.focus();
-            await editor.press('ArrowDown');
+            await editor.moveCursor('end');
             await editor.press('Enter');
 
             await editor.clickMainToolbarButton('Strikethrough');
@@ -35,8 +34,7 @@ test.describe('Strikethrough', () => {
         test('should mark via input rule @wysiwyg', async ({editor, wait}) => {
             await editor.assertMainToolbarButtonNotSelected('Strikethrough');
 
-            await editor.focus();
-            await editor.press('ArrowDown');
+            await editor.moveCursor('end');
             await editor.press('Enter');
 
             await editor.inputRule('~~next~~');
@@ -55,8 +53,7 @@ test.describe('Strikethrough', () => {
 
             await editor.assertMainToolbarButtonNotSelected('Strikethrough');
 
-            await editor.focus();
-            await editor.press('ArrowDown');
+            await editor.moveCursor('end');
             await editor.press('Enter');
 
             await editor.press('Control+Shift+S');
@@ -74,8 +71,7 @@ test.describe('Strikethrough', () => {
         test('should mark via toolbar @markup', async ({editor, wait}) => {
             await editor.switchMode('markup');
 
-            await editor.focus();
-            await editor.press('ArrowDown');
+            await editor.moveCursor('end');
             await editor.press('Enter');
 
             await editor.clickMainToolbarButton('Strikethrough');
@@ -97,8 +93,7 @@ test.describe('Strikethrough', () => {
 
             await editor.switchMode('wysiwyg');
 
-            await editor.focus();
-            await editor.press('ArrowDown');
+            await editor.moveCursor('end');
             await wait.timeout();
 
             await editor.assertMainToolbarButtonSelected('Strikethrough');
@@ -114,8 +109,7 @@ test.describe('Strikethrough', () => {
         test('should add mark to selected text via toolbar @wysiwyg', async ({editor, wait}) => {
             await editor.assertMainToolbarButtonNotSelected('Strikethrough');
 
-            await editor.focus();
-            await editor.press('ArrowDown');
+            await editor.moveCursor('end');
             await editor.press('Enter');
 
             await editor.pressSequentially('next');
@@ -140,8 +134,7 @@ test.describe('Strikethrough', () => {
         }) => {
             await editor.assertMainToolbarButtonNotSelected('Strikethrough');
 
-            await editor.focus();
-            await editor.press('ArrowDown');
+            await editor.moveCursor('end');
             await editor.press('Enter');
 
             await editor.pressSequentially('next');
@@ -162,8 +155,7 @@ test.describe('Strikethrough', () => {
         });
 
         test('should delete mark to selected text via toolbar @wysiwyg', async ({editor, wait}) => {
-            await editor.focus();
-            await editor.press('ArrowDown');
+            await editor.moveCursor('end');
             await editor.press('Enter');
 
             await editor.inputRule('~~next~~');
