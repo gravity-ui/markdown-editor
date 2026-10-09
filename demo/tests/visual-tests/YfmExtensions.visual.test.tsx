@@ -333,7 +333,9 @@ test.describe('Extensions, YFM', () => {
         expect(halo.y).toBeCloseTo(before.y - 10);
         expect(halo.width).toBeCloseTo(before.width + 20);
         expect(halo.height).toBeCloseTo(before.height + 20);
-        await expect(page).toHaveScreenshot('html-block-hover-details.png');
+        await expect(page).toHaveScreenshot('html-block-hover-details.png', {
+            mask: [page.locator('.playground__version')],
+        });
         await page.mouse.move(infoBox.x + 8, infoBox.y + 8, {steps: 10});
         expect(await details.boundingBox()).toEqual(infoBox);
         await page.mouse.click(infoBox.x + 8, infoBox.y + 8);
