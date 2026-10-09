@@ -224,6 +224,10 @@
     }
 }
 
+.ProseMirror .g-md-header .g-md-placeholder {
+    color: var(--g-md-header-text-secondary);
+}
+
 .g-md-header-actions {
     display: flex;
     flex-wrap: wrap;
