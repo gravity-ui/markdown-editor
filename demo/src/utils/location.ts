@@ -26,7 +26,10 @@ export function updateLocation(str: string) {
 export const debouncedUpdateLocation: (str: string) => void = debounce(updateLocation, 500);
 
 function bytesToBase64(bytes: Uint8Array) {
-    const binString = Array.from(bytes, (byte) => String.fromCodePoint(byte)).join('');
+    let binString = '';
+    for (const byte of bytes) {
+        binString += String.fromCharCode(byte);
+    }
     return btoa(binString);
 }
 
