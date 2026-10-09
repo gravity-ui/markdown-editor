@@ -1,0 +1,14 @@
+@use '../../../styles/mixins' as editor;
+
+.ProseMirror.yfm {
+    .yfm-cut {
+        @include editor.block-border-hover();
+
+        &.yfm-cut-active {
+            border-color: var(--g-color-line-generic);
+        }
+        .yfm-cut-title:focus {
+            outline: 0;
+        }
+    }
+}

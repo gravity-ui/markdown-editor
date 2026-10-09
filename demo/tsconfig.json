@@ -1,0 +1,12 @@
+{
+  "extends": "@markdown-editor/tsconfig/tsconfig",
+  "compilerOptions": {
+    "outDir": "build/esm",
+    "baseUrl": ".",
+    "paths": {
+      "playwright/*": ["./tests/playwright/*"]
+    }
+  },
+  "include": ["src/**/*", "tests/**/*", ".storybook/**/*"],
+  "exclude": ["build"]
+}

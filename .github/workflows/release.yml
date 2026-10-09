@@ -10,17 +10,34 @@ jobs:
   release:
     runs-on: ubuntu-latest
     steps:
-      - name: Release from ${{ github.ref_name }}
-        uses: gravity-ui/release-action@v1
-        with:
-          github-token: ${{ secrets.GRAVITY_UI_BOT_GITHUB_TOKEN }}
-          npm-token: ${{ secrets.GRAVITY_UI_BOT_NPM_TOKEN }}
-          node-version: 18
-          default-branch: ${{ github.ref_name != 'main' && github.ref_name || null }}
-          npm-dist-tag: ${{ github.ref_name != 'main' && 'untagged' || 'latest' }}
-          changelog-types: >
-            [{"type":"feat","section":"Features","hidden":false},
-             {"type":"fix","section":"Bug Fixes","hidden":false},
-             {"type":"refactor","section":"Refactoring","hidden":false},
-             {"type":"perf","section":"Performance Improvements","hidden":false}]
+      - name: Checkout
+        uses: actions/checkout@v6
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version-file: '.nvmrc'
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm run ci:deps
+
+      - name: Run tests
+        shell: bash
+        run: pnpm test
+
+      - name: Release please
+        uses: google-github-actions/release-please-action@v4
+        id: release
+        with:
+          token: ${{ secrets.GRAVITY_UI_BOT_GITHUB_TOKEN }}
+          config-file: .release-please/config.json
+          manifest-file: .release-please/manifest.json
+      
+      - name: Publish version
+        if: steps.release.outputs.releases_created == 'true'
+        shell: bash
+        run: echo "Please run publish workflow manually"

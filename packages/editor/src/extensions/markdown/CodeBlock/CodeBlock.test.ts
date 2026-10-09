@@ -1,0 +1,188 @@
+import {builders} from 'prosemirror-test-builder';
+import {describe, expect, it, vi} from 'vitest';
+
+import {parseDOM} from '../../../../tests/parse-dom';
+import {createMarkupChecker} from '../../../../tests/sameMarkup';
+import {ExtensionsManager} from '../../../core';
+import {DataTransferType} from '../../../utils/clipboard';
+import {BaseNode, BaseSchemaSpecs} from '../../base/specs';
+
+import {CodeBlockNodeAttr, CodeBlockSpecs, codeBlockNodeName} from './CodeBlockSpecs';
+import {getCodeData, isInlineCode} from './handle-paste';
+
+const {
+    schema,
+    markupParser: parser,
+    serializer,
+} = new ExtensionsManager({
+    extensions: (builder) => builder.use(BaseSchemaSpecs, {}).use(CodeBlockSpecs, {}),
+}).buildDeps();
+
+const {doc, p, cb} = builders<'doc' | 'p' | 'cb'>(schema, {
+    doc: {nodeType: BaseNode.Doc},
+    p: {nodeType: BaseNode.Paragraph},
+    cb: {nodeType: codeBlockNodeName},
+});
+
+const {same, parse, serialize} = createMarkupChecker({parser, serializer});
+
+function createMockDataTransfer(data: Record<string, string>): DataTransfer {
+    const types = Object.keys(data);
+    return {
+        types,
+        getData: (type: string) => data[type] || '',
+        setData: vi.fn(),
+        clearData: vi.fn(),
+        setDragImage: vi.fn(),
+        dropEffect: 'none',
+        effectAllowed: 'all',
+        files: [] as unknown as FileList,
+        items: [] as unknown as DataTransferItemList,
+    } as DataTransfer;
+}
+
+describe('CodeBlock extension', () => {
+    it('should parse a code block', () =>
+        same(
+            'Some code:\n\n```\nHere it is\n```\n\nPara',
+            doc(p('Some code:'), cb('Here it is'), p('Para')),
+        ));
+
+    it('parses an intended code block', () =>
+        parse(
+            'Some code:\n\n    Here it is\n\nPara',
+            doc(p('Some code:'), cb('Here it is'), p('Para')),
+        ));
+
+    it('should parse a fenced code block with info string', () =>
+        same(
+            'foo\n\n```javascript\n1\n```',
+            doc(p('foo'), cb({[CodeBlockNodeAttr.Lang]: 'javascript'}, '1')),
+        ));
+
+    it('should parse a fenced code block with multiple new lines at the end', () =>
+        same('```\nsome code\n\n\n\n```', doc(cb('some code\n\n\n'))));
+
+    // TODO: parsed: doc(paragraph("code\nblock"))
+    it.skip('should parse html - pre tag', () => {
+        parseDOM(schema, '<pre><code>code\nblock</code></pre>', doc(cb('code\nblock')));
+    });
+
+    it('should support different markup', () =>
+        same('~~~\n123\n~~~', doc(cb({[CodeBlockNodeAttr.Markup]: '~~~'}, '123'))));
+
+    it('should serialize a code block whose content contains ``` using a longer fence', () =>
+        serialize(
+            doc(cb('foo bar baz\n\n```\n\nbaz bar foo')),
+            '````\nfoo bar baz\n\n```\n\nbaz bar foo\n````',
+        ));
+
+    it('should roundtrip a code block whose content contains ```', () =>
+        same(
+            '````\nfoo bar baz\n\n```\n\nbaz bar foo\n````',
+            doc(cb({[CodeBlockNodeAttr.Markup]: '````'}, 'foo bar baz\n\n```\n\nbaz bar foo')),
+        ));
+
+    it('should serialize a code block whose content contains ```` using an even longer fence', () =>
+        serialize(doc(cb('a\n````\nb')), '`````\na\n````\nb\n`````'));
+
+    it('should serialize a code block whose content contains ~~~ using a longer fence', () =>
+        serialize(
+            doc(cb({[CodeBlockNodeAttr.Markup]: '~~~'}, 'foo bar baz\n\n~~~\n\nbaz bar foo')),
+            '~~~~\nfoo bar baz\n\n~~~\n\nbaz bar foo\n~~~~',
+        ));
+
+    it('should roundtrip a code block whose content contains ~~~', () =>
+        same(
+            '~~~~\nfoo bar baz\n\n~~~\n\nbaz bar foo\n~~~~',
+            doc(cb({[CodeBlockNodeAttr.Markup]: '~~~~'}, 'foo bar baz\n\n~~~\n\nbaz bar foo')),
+        ));
+
+    it('should not extend a backtick fence when content contains only ~~~', () =>
+        same('```\n~~~\n```', doc(cb('~~~'))));
+
+    it('should not extend a tilde fence when content contains only ```', () =>
+        same('~~~\n```\n~~~', doc(cb({[CodeBlockNodeAttr.Markup]: '~~~'}, '```'))));
+});
+
+describe('CodeBlock paste handling', () => {
+    it('should detect inline code for single line text', () => {
+        expect(isInlineCode('const x = 1')).toBe(true);
+        expect(isInlineCode('const x = 1\nconst y = 2')).toBe(false);
+    });
+
+    it('should detect VSCode paste as inline for single line', () => {
+        const data = createMockDataTransfer({
+            [DataTransferType.Text]: 'const x = 1',
+            [DataTransferType.VSCodeData]: '{"version":1}',
+        });
+        const result = getCodeData(data);
+
+        expect(result).toEqual({
+            editor: 'vscode',
+            value: 'const x = 1',
+            inline: true,
+        });
+    });
+
+    it('should detect VSCode paste as block for multiline', () => {
+        const data = createMockDataTransfer({
+            [DataTransferType.Text]: 'const x = 1\nconst y = 2',
+            [DataTransferType.VSCodeData]: '{"version":1}',
+        });
+        const result = getCodeData(data);
+
+        expect(result).toEqual({
+            editor: 'vscode',
+            value: 'const x = 1\nconst y = 2',
+            inline: false,
+        });
+    });
+
+    it('should detect JetBrains paste as inline for single line', () => {
+        const data = createMockDataTransfer({
+            [DataTransferType.Text]: 'const x = 1',
+            [DataTransferType.Html]: '<pre>const x = 1</pre>',
+            [DataTransferType.Rtf]: '{\\rtf1\\fmodern JetBrains Mono}',
+        });
+        const result = getCodeData(data);
+
+        expect(result).toEqual({
+            editor: 'jetbrains',
+            value: 'const x = 1',
+            inline: true,
+        });
+    });
+
+    it('should detect JetBrains paste as block for multiline', () => {
+        const data = createMockDataTransfer({
+            [DataTransferType.Text]: 'const x = 1\nconst y = 2',
+            [DataTransferType.Html]: '<pre>const x = 1\nconst y = 2</pre>',
+            [DataTransferType.Rtf]: '{\\rtf1\\fmodern JetBrains Mono}',
+        });
+        const result = getCodeData(data);
+
+        expect(result).toEqual({
+            editor: 'jetbrains',
+            value: 'const x = 1\nconst y = 2',
+            inline: false,
+        });
+    });
+
+    it('should return null when no code-related data (let ProseMirror handle it)', () => {
+        const data = createMockDataTransfer({
+            [DataTransferType.Text]: 'some text',
+            [DataTransferType.Html]: '<div>some text</div>',
+        });
+        expect(getCodeData(data)).toBeNull();
+    });
+
+    it('should return null for HTML with code tags (let ProseMirror handle it)', () => {
+        const html = '<pre><code>const x = 1;</code></pre>';
+        const data = createMockDataTransfer({
+            [DataTransferType.Text]: 'const x = 1;',
+            [DataTransferType.Html]: html,
+        });
+        expect(getCodeData(data)).toBeNull();
+    });
+});

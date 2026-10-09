@@ -1,0 +1,15 @@
+// TODO [MAJOR]
+// Remove this styles and use styles from @diplodoc/transform.
+// @diplodoc/transform should be updated to v4.68.0 or higher.
+
+.yfm-editor .g-md-checkbox {
+    display: flex;
+
+    &__input[type='checkbox'] {
+        top: 3px;
+
+        align-self: flex-start;
+
+        margin-right: 5px;
+    }
+}

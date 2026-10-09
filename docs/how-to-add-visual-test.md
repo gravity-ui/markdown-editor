@@ -3,44 +3,90 @@
 # Visual Testing with Playwright
 
 ## Description
+
 Visual testing is performed by comparing reference and generated screenshots. Screenshots are taken using `@playwright/test` and `@playwright/experimental-ct-react`.
 
-## Running Tests
+## Setup
 
-Available commands:
+### First-time setup
 
-```shell
-npm run playwright:install              # Install Playwright and browsers
-npm run playwright                      # Run tests
-npm run playwright:update               # Update reference screenshots
-npm run playwright:clear                # Clear test cache
-npm run playwright:report               # Display test results report
-npm run playwright:docker               # Run tests in Docker
-npm run playwright:docker:update        # Update screenshots in Docker
-npm run playwright:docker:clear         # Clear cache in Docker
-npm run playwright:docker:report        # Display test results report in Docker
-```
-Tests use the configuration file `playwright.config.ts`. The build is handled by Vite, available in `@playwright/experimental-ct-react`. The Vite configuration is specified in `ctViteConfig` in `playwright.config.ts`. To stabilize tests, `mountFixture` and `expectScreenshotFixture` are also used.
-
-See more: [Playwright Test Components](https://playwright.dev/docs/test-components)
-
-
-## Running Tests Locally
-
-On the first run, install the required dependencies (Docker or alternatives, Playwright). Run the script `npm run playwright:install`, and during the installation, follow all the instructions provided in the shell.
-
-### Podman example
+Install Podman and configure the machine with enough resources:
 
 ```shell
 brew install podman
 podman machine init
-podman machine set --cpus 2 --memory 8192
+podman machine set --cpus 4 --memory 12288
 podman machine start
 ```
 
+Also install Playwright dependencies:
+
 ```shell
-npm run playwright:docker
+pnpm run playwright:install
 ```
+
+### Before each test run
+
+Start the Podman machine if it's not already running:
+
+```shell
+podman machine start
+```
+
+## Running Tests
+
+> **Always run tests in Docker** to match CI results.
+
+From root of monorepository:
+
+```shell
+pnpm run test:e2e                        # Run all tests in Docker
+pnpm run test:e2e:report                 # Display test results report
+```
+
+From `demo/` subpackage:
+
+```shell
+pnpm run playwright:docker               # Run all tests in Docker
+pnpm run playwright:docker:clear         # Clear cache in Docker
+pnpm run playwright:docker:report        # Display test results report in Docker
+```
+
+### Running a specific test
+
+Use `--grep` to filter by test name (supports substring and regex):
+
+```shell
+# From demo/
+pnpm run playwright:docker --grep 'Punctuation boundaries'
+
+# From root
+pnpm run test:e2e --grep 'Punctuation boundaries'
+```
+
+### Updating screenshots
+
+Update all snapshots:
+
+```shell
+pnpm run playwright:docker:update
+```
+
+Update snapshots for a specific test:
+
+```shell
+pnpm run playwright:docker:update --grep 'Punctuation boundaries'
+```
+
+Update only snapshots that failed in the last run:
+
+```shell
+pnpm run playwright:docker:update --last-failed
+```
+
+Tests use the configuration file `playwright.config.ts`. The build is handled by Vite via `@playwright/experimental-ct-react`. To stabilize tests, `mountFixture` and `expectScreenshotFixture` are used.
+
+See more: [Playwright Test Components](https://playwright.dev/docs/test-components)
 
 ## Writing Tests
 
@@ -78,7 +124,7 @@ Creating tests occurs on a local machine, but using commands with the `:docker` 
 4. To update reference screenshots in Docker, run:
 
   ```shell
-  npm run playwright:docker:update -g "test name"
+  pnpm run playwright:docker:update -g "test name"
   ```
 
 See more: [Command line](https://playwright.dev/docs/test-cli)
@@ -92,7 +138,7 @@ See more: [Command line](https://playwright.dev/docs/test-cli)
 6. Test reports (in Docker) can be viewed using the following command:
 
   ```shell
-  npm run playwright:docker:report
+  pnpm run playwright:docker:report
   ```
 
 ## Writing Complex Tests

@@ -1,0 +1,100 @@
+import {ActionTooltip, Button, DropdownMenu} from '@gravity-ui/uikit';
+
+import {i18n} from '../../../../i18n/gpt/dialog';
+import type {CommonAnswer, PromptPreset} from '../ErrorScreen/types';
+import {gptHotKeys} from '../constants';
+import {useGptHotKeys} from '../hooks/useGptHotKeys';
+import {usePresetList} from '../hooks/usePresetList';
+import type {PresetListProps} from '../types';
+
+import {cnGptDialogPresetList} from './classname';
+
+import './Presetlist.scss';
+
+export type {PresetListProps};
+
+type PresetItemType<
+    AnswerData extends CommonAnswer = CommonAnswer,
+    PromptData extends unknown = unknown,
+> = {
+    preset: PromptPreset<PromptData>;
+    onPresetClick: PresetListProps<AnswerData, PromptData>['onPresetClick'];
+    disablePromptPresets?: PresetListProps['disablePromptPresets'];
+    hotKey: string;
+};
+
+const PresetItem = <
+    AnswerData extends CommonAnswer = CommonAnswer,
+    PromptData extends unknown = unknown,
+>({
+    preset,
+    onPresetClick,
+    disablePromptPresets,
+    hotKey,
+}: PresetItemType<AnswerData, PromptData>) => {
+    useGptHotKeys(
+        hotKey,
+        () => {
+            onPresetClick(preset.data);
+        },
+        {enableOnFormTags: true, enableOnContentEditable: true},
+    );
+
+    return (
+        <ActionTooltip title={preset.display} hotkey={hotKey}>
+            <Button
+                className={cnGptDialogPresetList('preset')}
+                view="normal"
+                size="m"
+                disabled={disablePromptPresets}
+                onClick={() => onPresetClick(preset.data)}
+            >
+                {preset.display}
+            </Button>
+        </ActionTooltip>
+    );
+};
+
+export const PresetList = <
+    AnswerData extends CommonAnswer = CommonAnswer,
+    PromptData extends unknown = unknown,
+>({
+    disablePromptPresets,
+    promptPresets,
+    onPresetClick,
+}: PresetListProps<AnswerData, PromptData>) => {
+    const {presetsContainerRef, visiblePresets, hiddenPresets, showMoreButton, measured} =
+        usePresetList<AnswerData, PromptData>({
+            promptPresets,
+            onPresetClick,
+        });
+
+    return (
+        <div className={cnGptDialogPresetList({measured})} ref={presetsContainerRef}>
+            {visiblePresets.map((preset, index) => (
+                <PresetItem
+                    preset={preset}
+                    key={preset.display}
+                    hotKey={preset.hotKey || gptHotKeys.presetsKey(String(index + 1))}
+                    disablePromptPresets={disablePromptPresets}
+                    onPresetClick={onPresetClick}
+                />
+            ))}
+            {showMoreButton && (
+                <DropdownMenu
+                    switcherWrapperClassName={cnGptDialogPresetList('more-button-wrapper')}
+                    switcher={
+                        <Button
+                            className={cnGptDialogPresetList('more-button')}
+                            view="normal"
+                            size="m"
+                        >
+                            {i18n('more')}
+                        </Button>
+                    }
+                    items={hiddenPresets}
+                />
+            )}
+        </div>
+    );
+};

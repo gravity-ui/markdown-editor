@@ -1,0 +1,36 @@
+import {useBooleanState, useElementState} from '../react-utils/hooks';
+
+import {ToolbarButtonView} from './ToolbarButton';
+import {useActionState} from './hooks';
+import type {ToolbarBaseProps, ToolbarButtonPopupData} from './types';
+
+export type ToolbarButtonPopupProps<E> = ToolbarBaseProps<E> & ToolbarButtonPopupData<E>;
+
+export function ToolbarButtonPopup<E>(props: ToolbarButtonPopupProps<E>) {
+    const {className, editor, renderPopup, disableTooltip, ...buttonProps} = props;
+
+    const [anchorElement, setAnchorElement] = useElementState();
+    const [isOpen, , close, toggle] = useBooleanState(false);
+
+    const {active, enabled} = useActionState(editor, props);
+
+    return (
+        <>
+            <ToolbarButtonView
+                {...buttonProps}
+                ref={setAnchorElement}
+                active={active}
+                enabled={enabled}
+                className={className}
+                onClick={toggle}
+                disableTooltip={disableTooltip || isOpen}
+            />
+            {isOpen &&
+                renderPopup({
+                    ...props,
+                    anchorElement,
+                    hide: close,
+                })}
+        </>
+    );
+}

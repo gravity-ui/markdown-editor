@@ -1,0 +1,30 @@
+.g-md-code-block-toolbar {
+    margin: var(--g-spacing-half);
+}
+
+.g-md-code-tooltip-menu {
+    min-width: 150px;
+
+    border-radius: 4px;
+}
+
+.g-md-code-block__select-popup {
+    width: 175px;
+    max-height: 200px;
+
+    .g-select-filter {
+        border-bottom: 1px solid var(--g-color-line-generic);
+
+        .g-text-input__content {
+            border: none;
+        }
+    }
+
+    .g-md-code-block__select-empty {
+        margin-left: 4px;
+    }
+}
+
+.g-md-code-block__select-button {
+    margin: auto 0;
+}

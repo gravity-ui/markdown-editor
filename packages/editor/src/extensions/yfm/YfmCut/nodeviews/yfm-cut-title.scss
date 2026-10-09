@@ -1,0 +1,26 @@
+.ProseMirror.yfm {
+    .yfm-cut-title > .g-md-yfm-cut-title-inner {
+        cursor: text;
+    }
+
+    // FIXME: Restore the cut-extension mapping after the fix:
+    //  when using <details> and <summary> tags, the click does
+    //  not work correctly on the placeholder
+
+    .yfm-cut-content {
+        display: none;
+        overflow: hidden;
+
+        transition: height 0.3s ease-in-out;
+    }
+
+    .yfm-cut.yfm-cut-open > {
+        .yfm-cut-title:before {
+            transform: translateY(-50%);
+        }
+
+        .yfm-cut-content {
+            display: revert;
+        }
+    }
+}

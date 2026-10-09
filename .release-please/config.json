@@ -1,0 +1,19 @@
+{
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+  "release-type": "node",
+  "bump-minor-pre-major": true,
+  "bump-patch-for-minor-pre-major": true,
+  "separate-pull-requests": true,
+  "bootstrap-sha": "0aaeb738572e33accc35a39caf646bcb1724b834",
+  "changelog-sections": [
+    {"type": "feat", "section": "Features", "hidden": false},
+    {"type": "fix", "section": "Bug Fixes", "hidden": false},
+    {"type": "refactor", "section": "Refactoring", "hidden": false},
+    {"type": "perf", "section": "Performance Improvements", "hidden": false}
+  ],
+  "packages": {
+    "packages/editor": {},
+    "packages/latex-extension": {},
+    "packages/page-constructor-extension": {}
+  }
+}

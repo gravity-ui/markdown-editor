@@ -1,0 +1,10 @@
+{
+  "extends": "@markdown-editor/tsconfig/tsconfig",
+  "compilerOptions": {
+    "outDir": "build/esm",
+    "baseUrl": ".",
+    "paths": {}
+  },
+  "include": ["src/**/*", "tests/**/*"],
+  "exclude": ["build"]
+}
