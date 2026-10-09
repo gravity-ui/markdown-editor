@@ -16,7 +16,7 @@ import {ExtensionsManager} from '../ExtensionsManager';
 import {MarkdownParser} from './MarkdownParser';
 import type {SerializerMarkToken} from './MarkdownSerializer';
 
-describe('MarkdownSerializer code whitespace', () => {
+describe('MarkdownSerializer whitespace', () => {
     it('should preserve a code space after reordering emphasis', () => {
         const {doc, p, strong, a, em, code, parser, serializer} = createFixture();
         const input = doc(
@@ -48,6 +48,73 @@ describe('MarkdownSerializer code whitespace', () => {
         expect(serializer.serialize(input)).toBe(expectedMarkup);
         expect(parser.parse(expectedMarkup)).toMatchNode(expectedDoc);
     });
+
+    it.each(['hard', 'soft'])('should expel whitespace before an unmarked %s break', (kind) => {
+        const {doc, p, em, br, sb, parser, serializer} = createFixture();
+        const breakNode = kind === 'hard' ? br() : sb();
+        const input = doc(p(em('x '), breakNode, em('y')));
+        const expectedDoc =
+            kind === 'hard'
+                ? doc(p(em('x'), ' ', breakNode, em('y')))
+                : doc(p(em('x'), breakNode, em('y')));
+        const expectedMarkup = kind === 'hard' ? '*x* \\\n*y*' : '*x* \n*y*';
+
+        expect(serializer.serialize(input)).toBe(expectedMarkup);
+        expect(parser.parse(expectedMarkup)).toMatchNode(expectedDoc);
+    });
+
+    it('should keep whitespace inside emphasis across a marked hard break', () => {
+        const {doc, p, em, br, parser, serializer} = createFixture();
+        const expectedDoc = doc(p(em('x ', br(), 'y')));
+        const expectedMarkup = '*x \\\ny*';
+
+        expect(serializer.serialize(expectedDoc)).toBe(expectedMarkup);
+        expect(parser.parse(expectedMarkup)).toMatchNode(expectedDoc);
+    });
+
+    it('should keep link whitespace before an unmarked soft break', () => {
+        const {doc, p, em, a, sb, parser, serializer} = createFixture();
+        const expectedDoc = doc(p(em(a('x ')), sb(), em('z')));
+        const expectedMarkup = '*[x ](foo)*\n*z*';
+
+        expect(serializer.serialize(expectedDoc)).toBe(expectedMarkup);
+        expect(parser.parse(expectedMarkup)).toMatchNode(expectedDoc);
+    });
+
+    it('should expel trailing spaces for custom emphasis delimiters', () => {
+        const {doc, p, em, a, sb, parser, serializer} = createFixture(undefined, {
+            em: {
+                open: () => '[',
+                close: () => '](foo)',
+                mixable: true,
+                expelEnclosingWhitespace: true,
+            },
+        });
+        const input = doc(p(em('x '), sb(), em('z')));
+        const expectedDoc = doc(p(a('x'), sb(), a('z')));
+        const expectedMarkup = '[x](foo) \n[z](foo)';
+
+        expect(serializer.serialize(input)).toBe(expectedMarkup);
+        expect(parser.parse(expectedMarkup)).toMatchNode(expectedDoc);
+    });
+
+    it.each(['\u2028', '\u2029'])(
+        'should preserve a %j separator inside heading marks',
+        (space) => {
+            const {doc, p, h1, strong, em, sb, parser, serializer} = createFixture([
+                'strong',
+                'em',
+                'link',
+                'code',
+            ]);
+            const input = doc(h1(strong('z'), strong(em('x' + space)), sb(), strong(em('y'))));
+            const expectedDoc = doc(h1(strong('z', em('x' + space))), p(strong(em('y'))));
+            const expectedMarkup = '# **z*x' + space + '***\n***y***';
+
+            expect(serializer.serialize(input)).toBe(expectedMarkup);
+            expect(parser.parse(expectedMarkup)).toMatchNode(expectedDoc);
+        },
+    );
 });
 
 function createFixture(
