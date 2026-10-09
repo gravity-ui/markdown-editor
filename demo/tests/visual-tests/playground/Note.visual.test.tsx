@@ -13,15 +13,14 @@ test.describe('Note', () => {
     test.describe('insert', () => {
         test('should insert via toolbar @wysiwyg', async ({wait, editor}) => {
             await editor.clickAdditionalToolbarButton('Note');
-            await wait.timeout();
+            await wait.hidden(editor.locators.toolbars.additional);
 
             await editor.assertAdditionalToolbarButtonEnabled('Note');
+            // A menu still closing after an outside click is taken as open by the next assertion
+            await editor.hideToolbarMoreMenu();
 
-            await editor.focus();
-            await wait.timeout();
-
-            // TODO: figure out why we need to press ArrowUp twice in this test
-            await editor.press('ArrowUp', 2);
+            // ArrowUp from the empty note content reaches the empty title only on some runs
+            await editor.getBySelectorInContenteditable('.yfm-note-title').click();
 
             await editor.assertAdditionalToolbarButtonDisabled('Note');
         });

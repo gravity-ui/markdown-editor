@@ -23,9 +23,10 @@ test.describe('File', () => {
             wait,
         }) => {
             await editor.assertAdditionalToolbarButtonEnabled('File');
+            // Key presses made while the menu is open do not always reach the editor
+            await editor.hideToolbarMoreMenu();
 
-            await editor.focus();
-            await editor.press('ArrowDown', 2);
+            await editor.moveCursor('end');
             await editor.press('Enter');
 
             await editor.clickAdditionalToolbarButton('File');
@@ -51,8 +52,7 @@ test.describe('File', () => {
         });
 
         test('should insert via command menu @wysiwyg', async ({page, editor, actions, wait}) => {
-            await editor.focus();
-            await editor.press('ArrowDown', 2);
+            await editor.moveCursor('end');
             await editor.press('Enter');
 
             await editor.openCommandMenuToolbar('fi');
@@ -83,8 +83,7 @@ test.describe('File', () => {
 
         test('should insert via toolbar @markup', async ({editor, wait, actions, page}) => {
             await editor.switchMode('markup');
-            await editor.focus();
-            await editor.press('ArrowDown', 2);
+            await editor.moveCursor('end');
             await editor.press('Enter');
 
             await editor.clickAdditionalToolbarButton('File');
