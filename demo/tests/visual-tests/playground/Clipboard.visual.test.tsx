@@ -83,7 +83,7 @@ test.describe('Clipboard', () => {
             await editor.selectAll();
             const data = await editor.dispatchClipboardEvent('copy');
             expect(data['text/yfm']?.trim()).toBe(emphasisMarkup);
-            await editor.press('ArrowRight');
+            await editor.moveCursor('end');
             await editor.press('Enter');
             await editor.paste(data);
 
