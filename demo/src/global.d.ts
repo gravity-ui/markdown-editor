@@ -22,7 +22,7 @@ declare module 'markdown-it-ins' {
     export = plugin;
 }
 
-declare module '*.html' {
+declare module '*.html?raw' {
     const content: string;
     export default content;
 }
