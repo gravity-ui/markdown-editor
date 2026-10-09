@@ -8,6 +8,7 @@ import type {
     SelectionContextConfig,
     SelectionContextItemData,
 } from '../../extensions/behavior/SelectionContext';
+import {i18n as footnoteI18n} from '../../i18n/footnote';
 import {i18n as i18nHint} from '../../i18n/hints';
 import {i18n} from '../../i18n/menubar';
 import {Action as A, formatter as f} from '../../shortcuts';
@@ -299,6 +300,16 @@ export const wEmojiItemData: WToolbarItemData = {
     isEnable: (e) => e.actions.openEmojiSuggest.isEnable(),
 };
 
+export const wFootnoteItemData: WToolbarSingleItemData = {
+    id: ActionName.footnote,
+    type: ToolbarDataType.SingleButton,
+    title: () => footnoteI18n('title'),
+    icon: icons.note,
+    exec: (editor) => editor.actions.addFootnote.run(),
+    isActive: () => false,
+    isEnable: (editor) => editor.actions.addFootnote.isEnable(),
+};
+
 export const wToggleHeadingFoldingItemData: SelectionContextItemData = {
     id: 'folding-heading',
     type: ToolbarDataType.SingleButton,
@@ -531,6 +542,7 @@ export const wSelectionMenuConfig: SelectionContextConfig = [
             width: 42,
         },
         wLinkItemData,
+        wFootnoteItemData,
     ],
 ];
 
@@ -764,6 +776,7 @@ export const wCommandMenuConfigByPreset: Record<MarkdownEditorPreset, WToolbarIt
         wImageItemData,
         wHruleItemData,
         wEmojiItemData,
+        wFootnoteItemData,
         wFileItemData,
         wTabsItemData,
     ],

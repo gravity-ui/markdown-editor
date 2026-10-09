@@ -1,0 +1,7 @@
+{
+  "title": "Footnote",
+  "marker": "Footnote {{marker}}",
+  "label": "Visible text",
+  "content": "Footnote text (Markdown)",
+  "invalid": "Enter visible text and a nonempty definition. Separate definitions cannot be included."
+}

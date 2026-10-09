@@ -9,6 +9,7 @@ import {WToolbarTextSelect} from '../../bundle/toolbar/wysiwyg/WToolbarTextSelec
 import {showMarkupGpt} from '../../extensions/additional/GPT';
 import {gptHotKeys} from '../../extensions/additional/GPT/constants';
 import {headingType, pType} from '../../extensions/specs';
+import {i18n as footnoteI18n} from '../../i18n/footnote';
 import {i18n as i18nGpt} from '../../i18n/gpt/extension';
 import {i18n as i18nHint} from '../../i18n/hints';
 import {i18n} from '../../i18n/menubar';
@@ -58,6 +59,17 @@ const noop = () => {};
 const inactive = () => false;
 const enable = () => true;
 const disable = () => false;
+
+export const footnoteItemView: ToolbarItemView = {
+    title: () => footnoteI18n('title'),
+    icon: icons.note,
+    aliases: ['footnote', 'сноска'],
+};
+export const footnoteItemWysiwyg: ToolbarItemWysiwyg = {
+    exec: (e) => e.actions.addFootnote.run(),
+    isActive: inactive,
+    isEnable: (e) => e.actions.addFootnote.isEnable(),
+};
 
 // ---- Undo ----
 export const undoItemView: ToolbarItemView = {
