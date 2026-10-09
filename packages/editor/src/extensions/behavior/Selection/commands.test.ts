@@ -247,11 +247,12 @@ describe('Selection arrow commands: findFakeParaPosForTextSelection', () => {
     describe('stack of quotes', () => {
         const initDoc = doc(bq(bq(p('1'))));
 
-        it.each([
-            ['before', 1], // before nested quote
-            ['after', 6], // after nested quote
-        ] as const)('should find a position %s nested quote', (dir, fakePos) => {
-            shouldFindPos(initDoc, dir, 3, fakePos);
+        it('should find a position before nested quote', () => {
+            shouldFindPos(initDoc, 'before', 3, 1);
+        });
+
+        it('should find a position after root quote', () => {
+            shouldFindPos(initDoc, 'after', 3, 7);
         });
 
         it.each([
@@ -259,6 +260,17 @@ describe('Selection arrow commands: findFakeParaPosForTextSelection', () => {
             ['after', 6, 7],
         ] as const)('should find next fake para position %s root quote', (dir, selPos, fakePos) => {
             shouldFindNextPos(initDoc, dir, selPos, fakePos);
+        });
+    });
+
+    describe('nested block containers', () => {
+        const initDoc = doc(bq(bq(p('1')), bq(p('2'))));
+
+        it.each([
+            ['before', 9, 0], // in '2'
+            ['after', 3, 12], // in '1'
+        ] as const)('should skip a position between nested quotes [%s]', (dir, selPos, fakePos) => {
+            shouldFindPos(initDoc, dir, selPos, fakePos);
         });
     });
 
