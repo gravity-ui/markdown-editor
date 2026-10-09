@@ -461,6 +461,12 @@ export class MarkdownSerializerState {
                 }
             }
 
+            if (
+                !node &&
+                noEsc &&
+                active.every((mark) => this.getMark(mark.type.name).expelEnclosingWhitespace)
+            ) keep = 0;
+
             // Close the marks that need to be closed
             while (keep < active.length) {
                 if (!node && index < parent.childCount && (
