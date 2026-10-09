@@ -95,8 +95,8 @@ function toggleColorInSelection(
                 let to = $to.pos;
                 const start = $from.nodeAfter;
                 const end = $to.nodeBefore;
-                const spaceStart = start?.isText ? /^\s*/.exec(start.text)?.[0].length ?? 0 : 0;
-                const spaceEnd = end?.isText ? /\s*$/.exec(end.text)?.[0].length ?? 0 : 0;
+                const spaceStart = start?.text?.match(/^\s*/)?.[0].length ?? 0;
+                const spaceEnd = end?.text?.match(/\s*$/)?.[0].length ?? 0;
 
                 if (from + spaceStart < to) {
                     from += spaceStart;

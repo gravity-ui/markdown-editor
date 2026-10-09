@@ -1,4 +1,5 @@
 import {EditorSelection, EditorState, type Transaction} from '@codemirror/state';
+import {describe, expect, it} from 'vitest';
 
 import {colorify} from './marks';
 
@@ -17,19 +18,22 @@ function runColorify(doc: string, anchor: number, head: number = anchor) {
 }
 
 describe('colorify', () => {
-    it('wraps a plain selection', () => {
+    it('should wrap a plain selection', () => {
         expect(runColorify('text', 0, 4).doc.toString()).toBe('{red}(text)');
     });
 
-    it('unwraps the same color', () => {
+    it('should unwrap the same color', () => {
         expect(runColorify('{red}(text)', 6, 10).doc.toString()).toBe('text');
     });
 
-    it('replaces an existing color wrapper without nesting', () => {
-        expect(runColorify('{blue}(text)', 7, 11).doc.toString()).toBe('{red}(text)');
+    it('should replace an existing color wrapper without nesting', () => {
+        const next = runColorify('{blue}(text)', 7, 11);
+
+        expect(next.doc.toString()).toBe('{red}(text)');
+        expect(next.selection.main).toEqual(EditorSelection.range(6, 10));
     });
 
-    it('inserts a wrapper at the cursor and keeps the cursor inside', () => {
+    it('should insert a wrapper at the cursor and keep the cursor inside', () => {
         const next = runColorify('ab', 1);
 
         expect(next.doc.toString()).toBe('a{red}()b');

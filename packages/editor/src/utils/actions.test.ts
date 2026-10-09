@@ -1,6 +1,7 @@
 import MarkdownIt from 'markdown-it';
 import {Schema} from 'prosemirror-model';
 import {EditorState, TextSelection} from 'prosemirror-state';
+import {describe, expect, it} from 'vitest';
 
 import type {Parser} from '../core/types/parser';
 import {ParserFacet} from '../core/utils/parser';
@@ -108,21 +109,21 @@ function boldValues(state: EditorState) {
 }
 
 describe('createMarkdownInlineMarkAction', () => {
-    it('applies the mark to the whole mixed selection', () => {
+    it('should apply the mark to the whole mixed selection', () => {
         const state = makeState([{text: 'hello', bold: true}, ' world'], 0, 11);
         const next = runAction(state);
 
         expect(everyTextNodeHasBold(next)).toBe(true);
     });
 
-    it('removes the mark from a fully covered selection', () => {
+    it('should remove the mark from a fully covered selection', () => {
         const state = makeState([{text: 'hello', bold: true}], 0, 5);
         const next = runAction(state);
 
         expect(noTextNodeHasBold(next)).toBe(true);
     });
 
-    it('blocks apply on invalid markdown boundaries but still allows removal', () => {
+    it('should block apply on invalid markdown boundaries but still allow removal', () => {
         const blocked = makeState([{text: 'hello', bold: true}, ','], 5, 6);
         expect(runAction(blocked).doc.eq(blocked.doc)).toBe(true);
 
@@ -132,7 +133,7 @@ describe('createMarkdownInlineMarkAction', () => {
 });
 
 describe('createMarkdownInlineMarkCommand', () => {
-    it('matches the action behavior on mixed selections', () => {
+    it('should match the action behavior on mixed selections', () => {
         const state = makeState([{text: 'hello', bold: true}, ' world'], 0, 11);
         const next = runCommand(state);
 
@@ -140,7 +141,7 @@ describe('createMarkdownInlineMarkCommand', () => {
         expect(everyTextNodeHasBold(next.state)).toBe(true);
     });
 
-    it('is blocked by the same markdown boundary guard', () => {
+    it('should be blocked by the same markdown boundary guard', () => {
         const state = makeState([{text: 'hello', bold: true}, ','], 5, 6);
         const next = runCommand(state);
 
@@ -148,7 +149,7 @@ describe('createMarkdownInlineMarkCommand', () => {
         expect(next.state.doc.eq(state.doc)).toBe(true);
     });
 
-    it('still removes the mark when the blocked punctuation is already fully covered', () => {
+    it('should still remove the mark when the blocked punctuation is already fully covered', () => {
         const state = makeState([{text: 'hello,', bold: true}], 5, 6);
         const next = runCommand(state);
 

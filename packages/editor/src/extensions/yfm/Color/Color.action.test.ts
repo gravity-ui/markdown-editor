@@ -1,5 +1,6 @@
 import type {MarkType} from 'prosemirror-model';
 import {EditorState, TextSelection} from 'prosemirror-state';
+import {describe, expect, it} from 'vitest';
 
 import {ExtensionsManager} from '../../../core';
 import type {ActionSpec} from '../../../core/types/actions';
@@ -47,7 +48,7 @@ function run(state: EditorState, attrs?: {color?: string}) {
 }
 
 function colorValues(state: EditorState) {
-    const values: Array<string | undefined> = [];
+    const values: (string | undefined)[] = [];
     state.doc.descendants((node) => {
         if (node.isText) {
             values.push(color.isInSet(node.marks)?.attrs[colorMarkName]);
@@ -62,13 +63,13 @@ function storedColor(state: EditorState) {
 }
 
 describe('Color action', () => {
-    it('adds a stored color mark at the cursor', () => {
+    it('should add a stored color mark at the cursor', () => {
         const next = run(makeState(['hello'], 2, 2), {color: 'red'});
 
         expect(storedColor(next)).toBe('red');
     });
 
-    it('removes the stored color when the same color is chosen at the cursor', () => {
+    it('should remove the stored color when the same color is chosen at the cursor', () => {
         const base = makeState(['hello'], 2, 2);
         const withStored = base.apply(
             base.tr.addStoredMark(color.create({[colorMarkName]: 'red'})),
@@ -77,7 +78,7 @@ describe('Color action', () => {
         expect(storedColor(run(withStored, {color: 'red'}))).toBeUndefined();
     });
 
-    it('replaces the stored color when a different color is chosen at the cursor', () => {
+    it('should replace the stored color when a different color is chosen at the cursor', () => {
         const base = makeState(['hello'], 2, 2);
         const withStored = base.apply(
             base.tr.addStoredMark(color.create({[colorMarkName]: 'blue'})),
@@ -86,44 +87,44 @@ describe('Color action', () => {
         expect(storedColor(run(withStored, {color: 'red'}))).toBe('red');
     });
 
-    it('applies the chosen color to the whole mixed selection', () => {
+    it('should apply the chosen color to the whole mixed selection', () => {
         const next = run(makeState([{text: 'AB', color: 'red'}, 'CD'], 0, 4), {color: 'red'});
 
         expect(colorValues(next)).toEqual(['red']);
     });
 
-    it('removes the color from a fully covered selection', () => {
+    it('should remove the color from a fully covered selection', () => {
         const next = run(makeState([{text: 'ABC', color: 'red'}], 0, 3), {color: 'red'});
 
         expect(colorValues(next)).toEqual([undefined]);
     });
 
-    it('removes the color from a fully covered selection without coloring trailing whitespace', () => {
+    it('should remove the color from a fully covered selection without coloring trailing whitespace', () => {
         const next = run(makeState([{text: 'ABC', color: 'red'}, ' '], 0, 4), {color: 'red'});
 
         expect(colorValues(next)).toEqual([undefined]);
     });
 
-    it('replaces a fully covered selection with a different color', () => {
+    it('should replace a fully covered selection with a different color', () => {
         const next = run(makeState([{text: 'ABC', color: 'blue'}], 0, 3), {color: 'red'});
 
         expect(colorValues(next)).toEqual(['red']);
     });
 
-    it('replaces the color without extending it to trailing whitespace', () => {
+    it('should replace the color without extending it to trailing whitespace', () => {
         const next = run(makeState([{text: 'ABC', color: 'blue'}, ' '], 0, 4), {color: 'red'});
 
         expect(colorValues(next)).toEqual(['red', undefined]);
     });
 
-    it('exposes stored-mark state through isActive and meta', () => {
+    it('should expose stored-mark state through isActive and meta', () => {
         const next = run(makeState(['hello'], 2, 2), {color: 'red'});
 
         expect(isActive(next)).toBe(true);
         expect(meta(next)).toBe('red');
     });
 
-    it('keeps partially colored selections active', () => {
+    it('should keep partially colored selections active', () => {
         const state = makeState([{text: 'AB', color: 'red'}, 'CD'], 0, 4);
 
         expect(isActive(state)).toBe(true);
