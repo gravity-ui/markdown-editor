@@ -15,6 +15,7 @@ import {REPO_ROOT} from './repo-root.mjs';
 
 const DOCS_DIR = join(REPO_ROOT, 'docs');
 const OUT_DIR = join(REPO_ROOT, 'tmp/docs-src');
+const SITE_OUT_DIR = join(REPO_ROOT, 'dist/docs');
 const GITHUB_RAW_RE =
     /https:\/\/raw\.githubusercontent\.com\/gravity-ui\/markdown-editor\/(?:refs\/heads\/[^/]+|[^/]+)\/docs\//g;
 
@@ -56,6 +57,7 @@ function cleanOutDir() {
     if (existsSync(OUT_DIR)) {
         rmSync(OUT_DIR, {recursive: true, force: true});
     }
+    rmSync(SITE_OUT_DIR, {recursive: true, force: true});
     mkdirSync(OUT_DIR, {recursive: true});
 }
 
