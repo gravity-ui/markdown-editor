@@ -167,7 +167,7 @@ test.describe('Colorify', () => {
 
             await editor.pressSequentially(')');
             await page.mouse.move(-1, -1);
-            await expect(page.locator('.playground__markup')).toHaveText(
+            await wait.markupPreview(
                 String.raw`some text
 
 {yellow}(some\(){red}(2, 3){yellow}(\))`,
