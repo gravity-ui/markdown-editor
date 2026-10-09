@@ -11,7 +11,10 @@ const cases = [
 
 test.describe('Gap cursor with nested block toolbars', () => {
     for (const {text, edge, arrow, index} of cases) {
-        test(`${arrow} from ${text} inserts text in the parent`, async ({mount, page}) => {
+        test(`should insert text in the parent after ${arrow} from ${text}`, async ({
+            mount,
+            page,
+        }) => {
             const errors: string[] = [];
             page.on('pageerror', (error) => errors.push(error.message));
             await mount(<GapCursorEditor />);
@@ -50,7 +53,7 @@ test.describe('Gap cursor with nested block toolbars', () => {
         });
     }
 
-    test('continues through the gap to the previous child without inserting a paragraph', async ({
+    test('should continue through the gap to the previous child without inserting a paragraph', async ({
         mount,
         page,
     }) => {
