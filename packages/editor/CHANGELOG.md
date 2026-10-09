@@ -1,5 +1,47 @@
 # Changelog
 
+## [15.48.2](https://github.com/gravity-ui/markdown-editor/compare/markdown-editor-v15.48.1...markdown-editor-v15.48.2) (2026-10-02)
+
+
+### Bug Fixes
+
+* do not pull the editor core into view-only bundles ([#1318](https://github.com/gravity-ui/markdown-editor/issues/1318)) ([8611c48](https://github.com/gravity-ui/markdown-editor/commit/8611c48ed20d80ef61f83f9c45bb2cb76c3004f6))
+
+## [15.48.1](https://github.com/gravity-ui/markdown-editor/compare/markdown-editor-v15.48.0...markdown-editor-v15.48.1) (2026-10-01)
+
+
+### Bug Fixes
+
+* **bundle:** apply the contextual preset after the renderer subscribes ([#1295](https://github.com/gravity-ui/markdown-editor/issues/1295)) ([880a420](https://github.com/gravity-ui/markdown-editor/commit/880a420e578c672c13e08f8a0728be0aa5059d18))
+* **toolbars:** make the gpt preset button match the old one ([#1310](https://github.com/gravity-ui/markdown-editor/issues/1310)) ([3c37542](https://github.com/gravity-ui/markdown-editor/commit/3c37542c01157526e14d708afb75f0fd3dba3109))
+
+## [15.48.0](https://github.com/gravity-ui/markdown-editor/compare/markdown-editor-v15.47.1...markdown-editor-v15.48.0) (2026-09-30)
+
+
+### Features
+
+* **toolbars:** support presets for selection and slash menus ([#1228](https://github.com/gravity-ui/markdown-editor/issues/1228)) ([ff4b314](https://github.com/gravity-ui/markdown-editor/commit/ff4b31474e033d3cb21b8b7cb6347db5869edaa5))
+
+
+### Bug Fixes
+
+* **markup:** keep Opt+Shift+0 typable on macOS ([#1294](https://github.com/gravity-ui/markdown-editor/issues/1294)) ([7a84941](https://github.com/gravity-ui/markdown-editor/commit/7a849413b7ec319b947ab6c0c71425d0a7cfdbc9))
+* **toolbar:** prevent overlapping disabled action tooltips ([#1274](https://github.com/gravity-ui/markdown-editor/issues/1274)) ([4a372b1](https://github.com/gravity-ui/markdown-editor/commit/4a372b1af9bd1d9b573df924ec3913ce4fafa721))
+
+## [15.47.1](https://github.com/gravity-ui/markdown-editor/compare/markdown-editor-v15.47.0...markdown-editor-v15.47.1) (2026-09-25)
+
+
+### Bug Fixes
+
+* **core:** keep parser aliases in their entity pipeline ([#1248](https://github.com/gravity-ui/markdown-editor/issues/1248)) ([6ff695e](https://github.com/gravity-ui/markdown-editor/commit/6ff695ef7ef79de00dc2c58e6482db9ca0ccf7c1))
+* **Link:** prevent raw URLs from merging with inline elements ([#1261](https://github.com/gravity-ui/markdown-editor/issues/1261)) ([94ab3a4](https://github.com/gravity-ui/markdown-editor/commit/94ab3a49c883495687bb9cb2a0f956f9ec47b86e))
+* **markup:** format each selected paragraph separately ([#1262](https://github.com/gravity-ui/markdown-editor/issues/1262)) ([fd52b77](https://github.com/gravity-ui/markdown-editor/commit/fd52b77ab4bc56994b2d6da80e042b284eab0e1a))
+
+
+### Refactoring
+
+* **CodeBlock:** use new builder methods to register nodes ([#1255](https://github.com/gravity-ui/markdown-editor/issues/1255)) ([ad17908](https://github.com/gravity-ui/markdown-editor/commit/ad1790818d74b73d74ed653a3933b739f2a2d340))
+
 ## [15.47.0](https://github.com/gravity-ui/markdown-editor/compare/markdown-editor-v15.46.1...markdown-editor-v15.47.0) (2026-09-17)
 
 

@@ -1,4 +1,4 @@
-import {isMac} from 'src/utils';
+import {isMac} from 'src/utils/platform';
 
 export const supportedImageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'avif', 'bmp'];
 

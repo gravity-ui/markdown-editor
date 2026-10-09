@@ -4,6 +4,7 @@ import type {PlaceholderOptions} from '../../utils/placeholder';
 import {ClicksOnEdges} from './ClicksOnEdges';
 import {Clipboard, type ClipboardOptions} from './Clipboard';
 import {CommandMenu, type CommandMenuOptions} from './CommandMenu';
+import {ContextualToolbars} from './ContextualToolbars';
 import {Cursor, type CursorOptions} from './Cursor';
 import {FilePaste} from './FilePaste';
 import {History, type HistoryOptions} from './History';
@@ -53,6 +54,7 @@ export const BehaviorPreset: ExtensionAuto<BehaviorPresetOptions> = (builder, op
         .use(WidgetDecoration);
 
     if (!opts.mobile) {
+        builder.use(ContextualToolbars);
         builder.use(SelectionContext, opts.selectionContext ?? {});
         if (opts.commandMenu) builder.use(CommandMenu, opts.commandMenu);
         if (opts.search) builder.use(Search, opts.search);

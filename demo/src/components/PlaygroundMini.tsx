@@ -18,6 +18,7 @@ export type PlaygroundMiniProps = Pick<
     | 'splitModeOrientation'
     | 'searchPanel'
     | 'stickyToolbar'
+    | 'devTools'
     | 'initialSplitModeEnabled'
     | 'renderPreviewDefined'
     | 'height'
