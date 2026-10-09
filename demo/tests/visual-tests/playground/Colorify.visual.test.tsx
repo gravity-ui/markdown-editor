@@ -148,8 +148,7 @@ test.describe('Colorify', () => {
         test('should escape parentheses', async ({page, expectScreenshot, editor, wait}) => {
             await editor.colorify.assertMainToolbarColorButtonDefault();
 
-            await editor.focus();
-            await editor.press('ArrowDown');
+            await editor.clickLineEnd('p');
             await editor.press('Enter');
 
             await editor.clickMainToolbarButton('Text color', 'Yellow');
