@@ -450,9 +450,9 @@ export class MarkdownSerializerState {
                     (singleEscapedMark && singleLine && next?.type.spec.isBreak && !mark.isInSet(next.marks))
                 );
             })) {
-                const isolatedEscapingMarks = parent.childCount === 1 && marks.every(mark => {
+                const isolatedEscapingMarks = keep === 0 && marks.every(mark => {
                     const info = this.getMark(mark.type.name);
-                    return info.expelEnclosingWhitespace && info.escape !== false;
+                    return info.expelEnclosingWhitespace && info.escape !== false && !mark.isInSet(next?.marks ?? []);
                 });
                 // Read all lines when ending marks cannot affect adjacent nodes.
                 const trailingWhitespace = (singleEscapedMark || isolatedEscapingMarks) && fromBlockStart
