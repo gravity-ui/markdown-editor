@@ -774,6 +774,23 @@ export class MarkdownEditorPage {
     }
 
     /**
+     * Places the cursor through the editor instance.
+     * A key press right after focus() races with the selection that prosemirror restores on focus.
+     */
+    async moveCursor(position: 'start' | 'end' | {line: number}) {
+        await this.page.evaluate((nextPosition) => {
+            if (!window.mdEditor) {
+                throw new Error(
+                    'window.mdEditor is undefined: the mounted component must call useEditorHandle()',
+                );
+            }
+
+            window.mdEditor.focus();
+            window.mdEditor.moveCursor(nextPosition);
+        }, position);
+    }
+
+    /**
      * Presses a key within the contenteditable area
      */
     async press(key: string, times = 1) {

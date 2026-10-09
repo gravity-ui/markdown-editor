@@ -19,8 +19,7 @@ test.describe('Headings', () => {
         test('should mark via toolbar @wysiwyg', async ({editor, wait}) => {
             await editor.assertMainToolbarButtonNotSelected('Heading');
 
-            await editor.focus();
-            await editor.press('ArrowDown');
+            await editor.moveCursor('end');
             await editor.press('Enter');
 
             await editor.clickMainToolbarButton('Heading', 'Heading 2');
@@ -36,8 +35,7 @@ test.describe('Headings', () => {
         test('should mark via input rule @wysiwyg', async ({editor, wait}) => {
             await editor.assertMainToolbarButtonNotSelected('Heading');
 
-            await editor.focus();
-            await editor.press('ArrowDown');
+            await editor.moveCursor('end');
             await editor.press('Enter');
 
             await editor.inputRule('## next');
@@ -53,8 +51,7 @@ test.describe('Headings', () => {
         test('should mark via toolbar @markup', async ({editor, wait}) => {
             await editor.switchMode('markup');
 
-            await editor.focus();
-            await editor.press('ArrowDown');
+            await editor.moveCursor('end');
             await editor.press('Enter');
 
             await editor.clickMainToolbarButton('Heading', 'Heading 2');
@@ -78,8 +75,7 @@ test.describe('Headings', () => {
 
             await editor.switchMode('wysiwyg');
 
-            await editor.focus();
-            await editor.press('ArrowDown');
+            await editor.moveCursor('end');
             await wait.timeout();
 
             await editor.assertMainToolbarButtonSelected('Heading');
@@ -93,8 +89,7 @@ test.describe('Headings', () => {
         test('should add mark to selected text via toolbar @wysiwyg', async ({editor, wait}) => {
             await editor.assertMainToolbarButtonNotSelected('Heading');
 
-            await editor.focus();
-            await editor.press('ArrowDown');
+            await editor.moveCursor('end');
             await editor.press('Enter');
 
             await editor.pressSequentially('next');
@@ -119,8 +114,7 @@ test.describe('Headings', () => {
         }) => {
             await editor.assertMainToolbarButtonNotSelected('Heading');
 
-            await editor.focus();
-            await editor.press('ArrowDown');
+            await editor.moveCursor('end');
             await editor.press('Enter');
 
             await editor.pressSequentially('next');

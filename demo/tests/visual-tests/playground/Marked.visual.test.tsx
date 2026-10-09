@@ -18,8 +18,7 @@ test.describe('Marked', () => {
         test('should mark via toolbar @wysiwyg', async ({editor, wait}) => {
             await editor.assertMainToolbarButtonNotSelected('Marked');
 
-            await editor.focus();
-            await editor.press('ArrowDown');
+            await editor.moveCursor('end');
             await editor.press('Enter');
 
             await editor.clickMainToolbarButton('Marked');
@@ -35,8 +34,7 @@ test.describe('Marked', () => {
         test('should mark via input rule @wysiwyg', async ({editor, wait}) => {
             await editor.assertMainToolbarButtonNotSelected('Marked');
 
-            await editor.focus();
-            await editor.press('ArrowDown');
+            await editor.moveCursor('end');
             await editor.press('Enter');
 
             await editor.inputRule('==next==');
@@ -52,8 +50,7 @@ test.describe('Marked', () => {
         test('should mark via toolbar @markup', async ({editor, wait}) => {
             await editor.switchMode('markup');
 
-            await editor.focus();
-            await editor.press('ArrowDown');
+            await editor.moveCursor('end');
             await editor.press('Enter');
 
             await editor.clickAdditionalToolbarButton('Marked');
@@ -76,8 +73,7 @@ test.describe('Marked', () => {
 
             await editor.switchMode('wysiwyg');
 
-            await editor.focus();
-            await editor.press('ArrowDown');
+            await editor.moveCursor('end');
             await wait.timeout();
 
             await editor.assertMainToolbarButtonSelected('Marked');
@@ -93,8 +89,7 @@ test.describe('Marked', () => {
         test('should add mark to selected text via toolbar @wysiwyg', async ({editor, wait}) => {
             await editor.assertMainToolbarButtonNotSelected('Marked');
 
-            await editor.focus();
-            await editor.press('ArrowDown');
+            await editor.moveCursor('end');
             await editor.press('Enter');
 
             await editor.pressSequentially('next');
@@ -119,8 +114,7 @@ test.describe('Marked', () => {
         }) => {
             await editor.assertMainToolbarButtonNotSelected('Marked');
 
-            await editor.focus();
-            await editor.press('ArrowDown');
+            await editor.moveCursor('end');
             await editor.press('Enter');
 
             await editor.pressSequentially('next');
@@ -141,8 +135,7 @@ test.describe('Marked', () => {
         });
 
         test('should delete mark to selected text via toolbar @wysiwyg', async ({editor, wait}) => {
-            await editor.focus();
-            await editor.press('ArrowDown');
+            await editor.moveCursor('end');
             await editor.press('Enter');
 
             await editor.inputRule('==next==');
