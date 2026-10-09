@@ -1,10 +1,10 @@
 import type {PluginOptions} from '@diplodoc/html-extension';
 import type {IHTMLIFrameElementConfig} from '@diplodoc/html-extension/runtime';
 
-import type {Action, ExtensionAuto, ExtensionDeps, NodeViewConstructor} from '../../../core';
+import type {Action, ExtensionAuto, ExtensionDeps, NodeViewConstructor} from '#core';
 
 import {WYfmHtmlBlockNodeView} from './YfmHtmlBlockNodeView';
-import {YfmHtmlBlockSpecs} from './YfmHtmlBlockSpecs';
+import {YfmHtmlBlockSpecs, yfmHtmlBlockNodeName} from './YfmHtmlBlockSpecs';
 import {YfmHtmlBlockAction} from './YfmHtmlBlockSpecs/const';
 import {addYfmHtmlBlock} from './actions';
 
@@ -23,10 +23,9 @@ export const YfmHtmlBlock: ExtensionAuto<YfmHtmlBlockOptions> = (
     builder,
     {useConfig: _, ...options},
 ) => {
-    builder.use(YfmHtmlBlockSpecs, {
-        nodeView: YfmHtmlBlockNodeViewFactory(options),
-        ...options,
-    });
+    builder
+        .use(YfmHtmlBlockSpecs, options)
+        .addNodeView(yfmHtmlBlockNodeName, YfmHtmlBlockNodeViewFactory(options));
 
     builder.addAction(YfmHtmlBlockAction, () => addYfmHtmlBlock);
 };

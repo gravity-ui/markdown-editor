@@ -1,4 +1,5 @@
 import {builders} from 'prosemirror-test-builder';
+import {describe, it} from 'vitest';
 
 import {createMarkupChecker} from '../../../../tests/sameMarkup';
 import {ExtensionsManager} from '../../../core';
@@ -22,9 +23,42 @@ const {doc, p, li, ul, ol} = builders<'doc' | 'p' | 'li' | 'ul' | 'ol'>(schema, 
     ol: {nodeType: ListNode.OrderedList},
 });
 
-const {same} = createMarkupChecker({parser, serializer});
+const {same, serialize} = createMarkupChecker({parser, serializer});
 
 describe('Lists extension', () => {
+    it.each([
+        {marker: '.', markup: '0. one\n1. two'},
+        {marker: ')', markup: '0) one\n1) two'},
+    ])('should serialize an ordered list starting at zero with $marker', ({marker, markup}) => {
+        serialize(
+            doc(ol({[ListsAttr.Order]: 0, [ListsAttr.Markup]: marker}, li(p('one')), li(p('two')))),
+            markup,
+        );
+    });
+
+    it.each([
+        {order: 1, marker: '.', markup: '1. one\n2. two'},
+        {order: 1, marker: ')', markup: '1) one\n2) two'},
+        {order: 3, marker: '.', markup: '3. one\n4. two'},
+        {order: 3, marker: ')', markup: '3) one\n4) two'},
+        {order: 9, marker: '.', markup: ' 9. one\n10. two'},
+        {order: 9, marker: ')', markup: ' 9) one\n10) two'},
+    ])(
+        'should preserve ordered list numbering from $order with $marker',
+        ({order, marker, markup}) => {
+            serialize(
+                doc(
+                    ol(
+                        {[ListsAttr.Order]: order, [ListsAttr.Markup]: marker},
+                        li(p('one')),
+                        li(p('two')),
+                    ),
+                ),
+                markup,
+            );
+        },
+    );
+
     it('should parse bullet list (tight)', () => {
         same(
             '* one\n* two',

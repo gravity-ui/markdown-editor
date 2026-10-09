@@ -1,6 +1,7 @@
 import type {NodeSpec} from 'prosemirror-model';
 
-import type {PlaceholderOptions} from '../../../../utils/placeholder';
+import type {ExtensionAuto} from '#core';
+import type {PlaceholderOptions} from 'src/utils/placeholder';
 
 import {NoteAttrs, NoteNode} from './const';
 
@@ -90,3 +91,12 @@ export const getSchemaSpecs = (
         complex: 'leaf',
     },
 });
+
+export const YfmNoteSchemaSpecs: ExtensionAuto<YfmNoteSchemaOptions> = (builder, opts) => {
+    const schemaSpecs = getSchemaSpecs(opts, builder.context.get('placeholder'));
+
+    builder
+        .addNodeSpec(NoteNode.Note, () => schemaSpecs[NoteNode.Note])
+        .addNodeSpec(NoteNode.NoteTitle, () => schemaSpecs[NoteNode.NoteTitle])
+        .addNodeSpec(NoteNode.NoteContent, () => schemaSpecs[NoteNode.NoteContent]);
+};

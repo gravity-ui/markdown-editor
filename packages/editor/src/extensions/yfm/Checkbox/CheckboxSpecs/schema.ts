@@ -1,5 +1,6 @@
 import {Fragment, type NodeSpec, type Schema} from 'prosemirror-model';
 
+import type {ExtensionAuto} from '#core';
 import type {PlaceholderOptions} from 'src/utils/placeholder';
 
 import {CheckboxAttr, CheckboxNode, b, checkboxInputType, checkboxLabelType} from './const';
@@ -142,3 +143,12 @@ function createCheckboxFragment(
         checkboxLabelType(schema).create(null, labelText ? schema.text(labelText) : null),
     ]);
 }
+
+export const CheckboxSchemaSpecs: ExtensionAuto<GetSchemaSpecsOptions> = (builder, opts) => {
+    const schemaSpecs = getSchemaSpecs(opts, builder.context.get('placeholder'));
+
+    builder
+        .addNodeSpec(CheckboxNode.Checkbox, () => schemaSpecs[CheckboxNode.Checkbox])
+        .addNodeSpec(CheckboxNode.Input, () => schemaSpecs[CheckboxNode.Input])
+        .addNodeSpec(CheckboxNode.Label, () => schemaSpecs[CheckboxNode.Label]);
+};

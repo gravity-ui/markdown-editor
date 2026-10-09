@@ -33,6 +33,7 @@ test.describe('CodeBlock', () => {
         await wait.visible(editor.locators.contenteditable.locator('code'));
         await editor.codeBlock.waitForToolbarVisible();
 
+        // The markup preview updates asynchronously and changes the screenshot height.
         await expect(page.locator('.playground__markup')).toHaveText('```\n\n```');
         await expectScreenshot();
     });
@@ -84,7 +85,7 @@ test.describe('CodeBlock', () => {
         test('should add line numbers @wysiwyg', async ({editor, page, wait, expectScreenshot}) => {
             await editor.codeBlock.clickCodeBlockToolbarButton('Line numbers');
             await page.mouse.move(-1, -1);
-            await wait.timeout(100);
+            await wait.markupPreview('~~~js showLineNumbers');
             await expectScreenshot();
         });
 

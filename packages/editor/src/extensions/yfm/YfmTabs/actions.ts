@@ -41,10 +41,10 @@ export const createYfmTabsCommand: Command = (state, dispatch) => {
             [TabAttrs.dataDiplodocKey]: tabId,
         });
 
-        const tabs = yfmTabs.create({[TabsAttrs.dataDiplodocGroup]: generateID()}, [
-            yfmTabsList.create(null, [yfmTab]),
-            yfmTabPanel,
-        ]);
+        const tabs = yfmTabs.create(
+            {[TabsAttrs.dataDiplodocGroup]: generateID('defaultTabsGroup')},
+            [yfmTabsList.create(null, [yfmTab]), yfmTabPanel],
+        );
 
         dispatch(state.tr.replaceSelectionWith(tabs).scrollIntoView());
     }
