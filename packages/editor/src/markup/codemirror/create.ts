@@ -1,4 +1,4 @@
-import {autocompletion} from '@codemirror/autocomplete';
+import {autocompletion, completionKeymap} from '@codemirror/autocomplete';
 import {
     defaultKeymap,
     history,
@@ -8,7 +8,7 @@ import {
     insertTab,
 } from '@codemirror/commands';
 import {syntaxHighlighting} from '@codemirror/language';
-import type {Extension, StateCommand} from '@codemirror/state';
+import {type Extension, Prec, type StateCommand} from '@codemirror/state';
 import {
     EditorView,
     type EditorViewConfig,
@@ -28,6 +28,7 @@ import {Action as A, formatter as f} from '../../shortcuts';
 import type {Receiver} from '../../utils';
 import {DataTransferType, shouldSkipHtmlConversion} from '../../utils/clipboard';
 import type {DirectiveSyntaxContext} from '../../utils/directive';
+import {isMac} from '../../utils/platform';
 import type {ParseInsertedUrlAsImage} from '../../utils/upload';
 import {
     insertEmptyRow,
@@ -67,6 +68,11 @@ type Autocompletion = Parameters<typeof autocompletion>[0];
 type Tooltips = Parameters<typeof tooltips>[0];
 
 const linkRegex = /\[[\s\S]*?]\([\s\S]*?\)/g;
+
+// startCompletion is bound to Opt+` on macOS, and CodeMirror resolves Alt combinations by the
+// produced character, so the binding also matches Opt+Shift+0 — the Russian layout's backtick.
+// Ctrl-Space keeps startCompletion reachable.
+const completionKeymapWithoutBacktick = completionKeymap.filter(({mac}) => mac !== 'Alt-`');
 
 export type CreateCodemirrorParams = {
     doc: EditorViewConfig['doc'];
@@ -171,11 +177,26 @@ export function createCodemirror(params: CreateCodemirrorParams) {
                 shift: insertNewlineKeepIndent,
             },
             indentWithTab,
-            ...defaultKeymap,
+            // Temporary workaround, to be dropped once CodeMirror gives Alt-A a mac override
+            // upstream (tracker: https://code.haverbeke.berlin/codemirror/dev/issues).
+            //
+            // Opt+Shift+A types a printable character on macOS ("Å" on the US layout), and key
+            // resolution there goes by key code for Alt combinations, so a binding on it shadows
+            // the character. Upstream gives every other Alt+letter binding a mac override
+            // (Alt-l -> Ctrl-l, Alt-ArrowLeft -> Ctrl-ArrowLeft); Alt-A, bound to
+            // toggleBlockComment, is the only one left without. Its command stays reachable via
+            // Mod-/, since markdown has no line comment syntax and toggleComment then falls back
+            // to block comments.
+            ...defaultKeymap.filter(
+                (binding) => !(isMac() && (binding.mac || binding.key) === 'Alt-A'),
+            ),
             ...(disabledExtensions.history ? [] : historyKeymap),
             ...keymaps,
         ]),
-        autocompletion(autocompletionConfig),
+        autocompletion({...autocompletionConfig, defaultKeymap: false}),
+        autocompletionConfig?.defaultKeymap === false
+            ? []
+            : Prec.highest(keymap.of(completionKeymapWithoutBacktick)),
         yfmLang(yfmLangOptions),
         ReactRendererFacet.of(reactRenderer),
         DirectiveSyntaxFacet.of(directiveSyntax),

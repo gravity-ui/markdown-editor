@@ -7,23 +7,22 @@ import {
     type ToolbarsPreset,
     useMarkdownEditor,
 } from '@gravity-ui/markdown-editor';
-import {ActionName as Action} from '@gravity-ui/markdown-editor/_/bundle/config/action-names.js';
-import {ToolbarName as Toolbar} from '@gravity-ui/markdown-editor/_/modules/toolbars/constants.js';
+import {QuoteLink as QuoteLinkExtension} from '@gravity-ui/markdown-editor/extensions/additional/QuoteLink/index.js';
 import {
+    ActionName as Action,
+    ToolbarName as Toolbar,
+    defaultPreset,
     quoteLinkItemMarkup,
     quoteLinkItemView,
     quoteLinkItemWysiwyg,
-} from '@gravity-ui/markdown-editor/_/modules/toolbars/items.js';
-import {defaultPreset} from '@gravity-ui/markdown-editor/_/modules/toolbars/presets.js';
-import {QuoteLink as QuoteLinkExtension} from '@gravity-ui/markdown-editor/extensions/additional/QuoteLink/index.js';
+} from '@gravity-ui/markdown-editor/toolbars';
 import type {PluginWithParams} from 'markdown-it/lib';
 
 import {PlaygroundLayout} from '../../components/PlaygroundLayout';
-import {SplitModePreview} from '../../components/SplitModePreview';
-import {plugins as defaultPlugins} from '../../defaults/md-plugins';
+import {SplitModePreviewLazy} from '../../components/SplitModePreviewLazy';
 import {useLogs} from '../../hooks/useLogs';
 
-const plugins: PluginWithParams[] = [...defaultPlugins, quoteLink({bundle: false})];
+const extraPlugins: PluginWithParams[] = [quoteLink({bundle: false})];
 
 const toolbarsPreset: ToolbarsPreset = {
     items: {
@@ -43,14 +42,14 @@ const toolbarsPreset: ToolbarsPreset = {
 export const QuoteLink = memo(() => {
     const renderPreview = useCallback<RenderPreview>(
         ({getValue, md}) => (
-            <SplitModePreview
+            <SplitModePreviewLazy
                 getValue={getValue}
                 allowHTML={md.html}
                 linkify={md.linkify}
                 linkifyTlds={md.linkifyTlds}
                 breaks={md.breaks}
                 needToSanitizeHtml
-                plugins={plugins}
+                extraPlugins={extraPlugins}
             />
         ),
         [],

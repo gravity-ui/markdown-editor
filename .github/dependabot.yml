@@ -13,8 +13,9 @@ updates:
   - package-ecosystem: github-actions
     directory: "/"
     schedule:
-      interval: weekly
-      day: monday
+      interval: monthly
+    cooldown:
+      default-days: 7
     commit-message:
       prefix: "ci(github)"
     groups:
@@ -26,8 +27,9 @@ updates:
   - package-ecosystem: npm
     directory: "/"
     schedule:
-      interval: weekly
-      day: monday
+      interval: monthly
+    cooldown:
+      default-days: 7
     exclude-paths:
       - "demo"
       - "packages/*"
@@ -36,6 +38,16 @@ updates:
       commitlint:
         patterns:
           - "@commitlint/*"
+      react:
+        patterns:
+          - "react"
+          - "react-dom"
+          - "@types/react"
+          - "@types/react-dom"
+      vitest:
+        patterns:
+          - "vitest"
+          - "@vitest/*"
     ignore:
       - dependency-name: "*"
         update-types:
@@ -47,9 +59,14 @@ updates:
   - package-ecosystem: npm
     directory: "/demo"
     schedule:
-      interval: weekly
-      day: monday
+      interval: monthly
+    cooldown:
+      default-days: 7
     groups:
+      babel:
+        patterns:
+          - "@babel/*"
+          - "babel-*"
       storybook:
         patterns:
           - "@storybook/*"
@@ -70,8 +87,9 @@ updates:
     directories:
       - "/packages/*"
     schedule:
-      interval: weekly
-      day: monday
+      interval: monthly
+    cooldown:
+      default-days: 15
     groups:
       prosemirror:
         patterns:
@@ -94,8 +112,19 @@ updates:
     directories:
       - "/infra/*"
     schedule:
-      interval: weekly
-      day: monday
+      interval: monthly
+    cooldown:
+      default-days: 7
+      exclude:
+        - "@diplodoc/*"
+        - "@gravity-ui/*"
+    groups:
+      gulp:
+        patterns:
+          - "gulp"
+          - "gulp-*"
+          - "@types/gulp*"
+          - "@gravity-ui/gulp-utils"
     ignore:
       - dependency-name: "*"
         update-types:

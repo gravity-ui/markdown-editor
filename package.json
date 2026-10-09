@@ -20,7 +20,7 @@
   "scripts": {
     "ci:deps": "pnpm i --frozen-lockfile",
     "ci:demo:build": "nx sb:build @markdown-editor/demo",
-    "ci:docs:build": "node scripts/generate-docs.mjs && npx -y @diplodoc/cli -i ./docs-src -o ./docs-dist",
+    "ci:docs:build": "nx build @markdown-editor/infra/docs-gen",
     "ci:test:visual": "nx playwright @markdown-editor/demo",
     "ci:test:unit": "nx run-many -t test --verbose",
     "ci:test:esbuild": "nx run-many -t test:esbuild --verbose",
@@ -31,16 +31,21 @@
     "typecheck": "nx run-many -t typecheck",
     "test": "nx run-many -t test,test:esbuild,test:circular-deps",
     "test:e2e": "nx playwright:docker @markdown-editor/demo",
+    "test:e2e:ui": "nx playwright:docker:ui @markdown-editor/demo",
     "test:e2e:report": "nx playwright:docker:report @markdown-editor/demo",
     "lint": "run-p -cs lint:*",
     "lint:js": "eslint './**/*.{js,jsx,mjs,ts,tsx}'",
     "lint:styles": "stylelint './**/*.{css,scss}'",
-    "lint:prettier": "prettier --check './**/*.{js,jsx,mjs,ts,tsx,css,scss}'"
+    "lint:prettier": "prettier --check './**/*.{js,jsx,mjs,ts,tsx,css,scss}'",
+    "lint:js:fix": "eslint --fix './**/*.{js,jsx,mjs,ts,tsx}'",
+    "lint:styles:fix": "stylelint --fix './**/*.{css,scss}'",
+    "lint:prettier:fix": "prettier --write './**/*.{js,jsx,mjs,ts,tsx,css,scss}'",
+    "fix:lint": "run-s -c lint:*:fix"
   },
   "dependencies": {},
   "devDependencies": {
-    "@commitlint/cli": "20.5.0",
-    "@commitlint/config-conventional": "20.5.0",
+    "@commitlint/cli": "20.5.3",
+    "@commitlint/config-conventional": "20.5.3",
     "@markdown-editor/linters": "workspace:*",
     "eslint": "catalog:linters",
     "npm-run-all": "^4.1.5",
@@ -48,7 +53,7 @@
     "prettier": "catalog:linters",
     "stylelint": "catalog:linters",
     "typescript": "catalog:ts",
-    "nx": "22.3.3"
+    "nx": "22.7.10"
   },
   "lint-staged": {
     "*.{css,scss}": [

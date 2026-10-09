@@ -1,4 +1,5 @@
 import {builders} from 'prosemirror-test-builder';
+import {describe, it} from 'vitest';
 
 import {createMarkupChecker} from '../../../../../tests/sameMarkup';
 import {ExtensionsManager} from '../../../../core';

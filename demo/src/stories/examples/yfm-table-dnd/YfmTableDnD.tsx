@@ -9,9 +9,16 @@ import {markup} from './markup';
 export type YfmTableDnDDemoProps = {
     mobile: boolean;
     dnd: boolean;
+    headerRows: boolean;
+    cellBackground: boolean;
 };
 
-export const YfmTableDnDDemo = memo<YfmTableDnDDemoProps>(function YfmTableDnDDemo({mobile, dnd}) {
+export const YfmTableDnDDemo = memo<YfmTableDnDDemoProps>(function YfmTableDnDDemo({
+    mobile,
+    dnd,
+    headerRows,
+    cellBackground,
+}) {
     const editor = useMarkdownEditor(
         {
             mobile,
@@ -21,13 +28,18 @@ export const YfmTableDnDDemo = memo<YfmTableDnDDemoProps>(function YfmTableDnDDe
             },
             wysiwygConfig: {
                 extensionOptions: {
+                    yfmConfigs: {
+                        mods: {'no-stripe-table': true},
+                    },
                     yfmTable: {
                         dnd,
+                        headerRows,
+                        cellBackground,
                     },
                 },
             },
         },
-        [mobile, dnd],
+        [mobile, dnd, headerRows, cellBackground],
     );
 
     return (

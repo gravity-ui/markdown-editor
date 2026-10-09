@@ -10,6 +10,7 @@ import {
     TextSelection,
 } from 'prosemirror-state';
 import {doc, eq, li, p, schema, ul} from 'prosemirror-test-builder';
+import {describe, it} from 'vitest';
 
 import {
     liftSelectedListItems,

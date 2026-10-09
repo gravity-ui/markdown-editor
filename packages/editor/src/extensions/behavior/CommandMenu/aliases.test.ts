@@ -1,3 +1,5 @@
+import {describe, expect, it} from 'vitest';
+
 import {
     wHeading1ItemData,
     wHeading2ItemData,

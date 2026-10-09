@@ -1,12 +1,3 @@
-import {
-    textContextItemData,
-    wBoldItemData,
-    wHeading1ItemData,
-    wHeading2ItemData,
-    wItalicItemData,
-    wTextItemData,
-    wToggleHeadingFoldingItemData,
-} from '@gravity-ui/markdown-editor';
 import type {StoryObj} from '@storybook/react';
 
 import {Preset as component} from './Preset';
@@ -37,19 +28,6 @@ export const Full: StoryObj<typeof component> = {
 export const Custom: StoryObj<typeof component> = {
     args: {
         toolbarsPreset: custom,
-        wysiwygConfig: {
-            extensionOptions: {
-                commandMenu: {
-                    actions: [wTextItemData, wHeading1ItemData, wHeading2ItemData],
-                },
-                selectionContext: {
-                    config: [
-                        [wToggleHeadingFoldingItemData, textContextItemData],
-                        [wBoldItemData, wItalicItemData],
-                    ],
-                },
-            },
-        },
     },
 };
 
