@@ -50,7 +50,7 @@ const expectInsideViewport = async (page: Page, locator: Locator) => {
 };
 
 test.describe('HTML Constructor', () => {
-    test('keeps light and dark palette values independent', async ({mount, page}) => {
+    test('should keep light and dark palette values independent', async ({mount, page}) => {
         await mount(<HtmlConstructorFixture />);
         await addBlock(page);
         const toolbar = page.locator('.g-md-yfm-html-constructor__floating-toolbar').first();
@@ -84,7 +84,7 @@ test.describe('HTML Constructor', () => {
         await expect(heading(page)).toHaveText('Alpha beta');
     });
 
-    test('preserves a custom structure draft when replacement is cancelled', async ({
+    test('should preserve a custom structure draft when replacement is cancelled', async ({
         mount,
         page,
     }) => {
@@ -112,7 +112,7 @@ test.describe('HTML Constructor', () => {
     });
 
     for (const dismissal of ['Escape', 'outside click'] as const) {
-        test(`keeps the code cursor and saves on ${dismissal}`, async ({mount, page}) => {
+        test(`should keep the code cursor and save on ${dismissal}`, async ({mount, page}) => {
             const theme = dismissal === 'Escape' ? 'light' : 'dark';
             await mount(<HtmlConstructorFixture theme={theme} />);
             await addBlock(page, theme);
@@ -143,7 +143,7 @@ test.describe('HTML Constructor', () => {
         });
     }
 
-    test('opens inline editing from the keyboard and preserves spaces and IME input', async ({
+    test('should open inline editing from the keyboard and preserve spaces and IME input', async ({
         mount,
         page,
     }) => {
@@ -179,7 +179,7 @@ test.describe('HTML Constructor', () => {
         await expect(content).toBeFocused();
     });
 
-    test('keeps invalid attribute edits recoverable without mutating the preview', async ({
+    test('should keep invalid attribute edits recoverable without mutating the preview', async ({
         mount,
         page,
     }) => {
@@ -212,7 +212,7 @@ test.describe('HTML Constructor', () => {
         expect(errors).toEqual([]);
     });
 
-    test('keeps the picker inside a narrow viewport and opens variants explicitly', async ({
+    test('should keep the picker inside a narrow viewport and open variants explicitly', async ({
         mount,
         page,
     }) => {
