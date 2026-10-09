@@ -440,9 +440,15 @@ export class MarkdownSerializerState {
                 }
             }
 
+            const next = parent.maybeChild(index + 1);
+            const singleLine = node?.isText && !/[\r\n\u2028\u2029]/.test(node.text ?? '');
+            const singleEscapedMark = !noEsc && marks.length === 1;
             if (node && node.isText && marks.some((mark, i) => {
                 const info = this.getMark(mark.type.name);
-                return info && info.expelEnclosingWhitespace && !this.isMarkAhead(parent, index + 1, marks.slice(0, i + 1));
+                return info && info.expelEnclosingWhitespace && (
+                    !this.isMarkAhead(parent, index + 1, marks.slice(0, i + 1)) ||
+                    (singleEscapedMark && singleLine && next?.type.spec.isBreak && !mark.isInSet(next.marks))
+                );
             })) {
                 const [_, rest, trail] = /^(.*?)(\s*)$/m.exec(node.text!)!;
                 if (trail) {
