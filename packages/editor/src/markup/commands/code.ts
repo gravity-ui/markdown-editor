@@ -1,6 +1,6 @@
 import {type ChangeSpec, EditorSelection, type StateCommand} from '@codemirror/state';
 
-import {wrapToBlock} from './helpers';
+import {getInlineRanges, mapInlineRange, wrapToBlock} from './helpers';
 
 export const wrapToCodeBlock: StateCommand = wrapToBlock(
     ({lineBreak}) => '```' + lineBreak,
@@ -9,17 +9,19 @@ export const wrapToCodeBlock: StateCommand = wrapToBlock(
 
 export const wrapToInlineCode: StateCommand = ({state, dispatch}) => {
     const tr = state.changeByRange((range) => {
-        const content = state.sliceDoc(range.from, range.to);
+        const changeSpec: ChangeSpec[] = getInlineRanges(state.doc, range).flatMap(({from, to}) => {
+            const content = state.sliceDoc(from, to);
 
-        const hasBacktick = content.includes('`');
-        const markup = hasBacktick ? '``' : '`';
-        const before = `${markup}${content.startsWith('`') ? ' ' : ''}`;
-        const after = `${content.endsWith('`') ? ' ' : ''}${markup}`;
+            const hasBacktick = content.includes('`');
+            const markup = hasBacktick ? '``' : '`';
+            const before = `${markup}${content.startsWith('`') ? ' ' : ''}`;
+            const after = `${content.endsWith('`') ? ' ' : ''}${markup}`;
 
-        const changeSpec: ChangeSpec[] = [
-            {from: range.from, insert: before},
-            {from: range.to, insert: after},
-        ];
+            return [
+                {from, insert: before},
+                {from: to, insert: after},
+            ];
+        });
         const changes = state.changes(changeSpec);
         return {
             changes,
@@ -30,7 +32,7 @@ export const wrapToInlineCode: StateCommand = ({state, dispatch}) => {
                       range.goalColumn,
                       range.bidiLevel ?? undefined,
                   )
-                : range.map(changes),
+                : mapInlineRange(range, changes),
         };
     });
     dispatch(state.update(tr));

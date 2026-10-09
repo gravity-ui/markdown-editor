@@ -1,6 +1,7 @@
 import type {NodeSpec} from 'prosemirror-model';
 
-import type {PlaceholderOptions} from '../../../../utils/placeholder';
+import type {ExtensionAuto} from '#core';
+import type {PlaceholderOptions} from 'src/utils/placeholder';
 
 import {DeflistAttr, DeflistNode} from './const';
 
@@ -20,7 +21,7 @@ const DEFAULT_PLACEHOLDERS = {
     Desc: 'Definition description',
 };
 
-export const getSchemaSpecs = (
+const getSchemaSpecs = (
     opts?: DeflistSchemaOptions,
     placeholder?: PlaceholderOptions,
 ): Record<DeflistNode, NodeSpec> => ({
@@ -79,3 +80,12 @@ export const getSchemaSpecs = (
         complex: 'leaf',
     },
 });
+
+export const DeflistSchemaSpecs: ExtensionAuto<DeflistSchemaOptions> = (builder, opts) => {
+    const schemaSpecs = getSchemaSpecs(opts, builder.context.get('placeholder'));
+
+    builder
+        .addNodeSpec(DeflistNode.List, () => schemaSpecs[DeflistNode.List])
+        .addNodeSpec(DeflistNode.Term, () => schemaSpecs[DeflistNode.Term])
+        .addNodeSpec(DeflistNode.Desc, () => schemaSpecs[DeflistNode.Desc]);
+};

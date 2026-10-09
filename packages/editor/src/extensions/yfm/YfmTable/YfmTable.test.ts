@@ -2,6 +2,7 @@ import {EditorState} from 'prosemirror-state';
 import {builders} from 'prosemirror-test-builder';
 import {EditorView} from 'prosemirror-view';
 import dd from 'ts-dedent';
+import {describe, expect, it} from 'vitest';
 
 import {dispatchPasteEvent} from '../../../../tests/dispatch-event';
 import {parseDOM} from '../../../../tests/parse-dom';
@@ -544,7 +545,7 @@ nested table
             ||
             |#
 
-            
+
             `;
 
         same(
@@ -594,7 +595,7 @@ nested table
             ||
             |#
 
-            
+
             `;
 
         same(
@@ -611,6 +612,334 @@ nested table
             ),
         );
     });
+
+    it.each([
+        ['cell-align-top-left', 'top-left'],
+        ['cell-align-top-center', 'top-center'],
+        ['cell-align-top-right', 'top-right'],
+        ['cell-align-center', 'center'],
+        ['cell-align-bottom-left', 'bottom-left'],
+        ['cell-align-bottom-center', 'bottom-center'],
+        ['cell-align-bottom-right', 'bottom-right'],
+    ])('should serialize %s as a cell attribute when enabled', (cellAlign, align) => {
+        const {markupParser: tableParser, serializer: tableSerializer} = new ExtensionsManager({
+            extensions: (builder) =>
+                builder.use(BaseSchemaSpecs, {}).use(YfmTableSpecs, {newCellAlignSyntax: true}),
+        }).buildDeps();
+        const tableDoc = doc(
+            table(tbody(tr(td({[YfmTableAttr.CellAlign]: cellAlign}, p('Cell'))))),
+        );
+        const expected = `#|\n||::{align="${align}"}\n\nCell\n\n||\n|#\n\n`;
+
+        expect(tableSerializer.serialize(tableDoc)).toBe(expected);
+        expect(tableParser.parse(expected)).toMatchNodeJson(tableDoc);
+    });
+
+    it.each([{}, {newCellAlignSyntax: false}])(
+        'should keep legacy alignment serialization with options %j',
+        (options) => {
+            const {serializer: tableSerializer} = new ExtensionsManager({
+                extensions: (builder) =>
+                    builder.use(BaseSchemaSpecs, {}).use(YfmTableSpecs, options),
+            }).buildDeps();
+            const tableDoc = doc(
+                table(tbody(tr(td({[YfmTableAttr.CellAlign]: 'cell-align-center'}, p('Cell'))))),
+            );
+            const expected = '#|\n||\n\nCell\n\n{.cell-align-center}\n||\n|#\n\n';
+
+            expect(tableSerializer.serialize(tableDoc)).toBe(expected);
+        },
+    );
+
+    it('should serialize alignment and background in the same cell attributes', () => {
+        const {markupParser: tableParser, serializer: tableSerializer} = new ExtensionsManager({
+            extensions: (builder) =>
+                builder.use(BaseSchemaSpecs, {}).use(YfmTableSpecs, {newCellAlignSyntax: true}),
+        }).buildDeps();
+        const tableDoc = doc(
+            table(
+                tbody(
+                    tr(
+                        td(
+                            {
+                                [YfmTableAttr.CellBg]: 'info',
+                                [YfmTableAttr.CellAlign]: 'cell-align-center',
+                            },
+                            p('First'),
+                        ),
+                        td(
+                            {
+                                [YfmTableAttr.CellBg]: 'warning',
+                                [YfmTableAttr.CellAlign]: 'cell-align-bottom-right',
+                            },
+                            p('Second'),
+                        ),
+                    ),
+                ),
+            ),
+        );
+        const expected = dd`
+            #|
+            ||::{bg="info" align="center"}
+
+            First
+
+            |::{bg="warning" align="bottom-right"}
+
+            Second
+
+            ||
+            |#
+
+
+            `;
+
+        expect(tableSerializer.serialize(tableDoc)).toBe(expected);
+        expect(tableParser.parse(expected)).toMatchNodeJson(tableDoc);
+    });
+
+    it('should place cell attributes after a leading rowspan marker', () => {
+        const {markupParser: tableParser, serializer: tableSerializer} = new ExtensionsManager({
+            extensions: (builder) =>
+                builder.use(BaseSchemaSpecs, {}).use(YfmTableSpecs, {newCellAlignSyntax: true}),
+        }).buildDeps();
+        const tableDoc = doc(
+            table(
+                tbody(
+                    tr(td({[YfmTableAttr.Rowspan]: '2'}, p('First')), td(p('Other'))),
+                    tr(
+                        td(
+                            {
+                                [YfmTableAttr.CellBg]: 'warning',
+                                [YfmTableAttr.CellAlign]: 'cell-align-bottom-right',
+                            },
+                            p('Second'),
+                        ),
+                    ),
+                ),
+            ),
+        );
+        const expected = dd`
+            #|
+            ||
+
+            First
+
+            |
+
+            Other
+
+            ||
+            ||
+
+            ^|::{bg="warning" align="bottom-right"}
+
+            Second
+
+            ||
+            |#
+
+
+            `;
+
+        expect(tableSerializer.serialize(tableDoc)).toBe(expected);
+        expect(tableParser.parse(expected)).toMatchNodeJson(tableDoc);
+    });
+
+    it.each([
+        {
+            name: 'a blockquote',
+            content: bq(p('Cell')),
+            expectedMarkup: dd`
+                #|
+                ||::{align="center"}
+
+                > Cell
+
+                ||
+                |#
+
+
+                `,
+        },
+        {
+            name: 'a nested table',
+            content: table(tbody(tr(td(p('Cell'))))),
+            expectedMarkup: dd`
+                #|
+                ||::{align="center"}
+
+                #|
+                ||
+
+                Cell
+
+                ||
+                |#
+
+                ||
+                |#
+
+
+                `,
+        },
+    ])(
+        'should serialize and parse alignment in cells containing $name',
+        ({content, expectedMarkup}) => {
+            const {markupParser: tableParser, serializer: tableSerializer} = new ExtensionsManager({
+                extensions: (builder) =>
+                    builder
+                        .use(BaseSchemaSpecs, {})
+                        .use(BlockquoteSpecs)
+                        .use(YfmTableSpecs, {newCellAlignSyntax: true}),
+            }).buildDeps();
+            const expectedDoc = doc(
+                table(tbody(tr(td({[YfmTableAttr.CellAlign]: 'cell-align-center'}, content)))),
+            );
+
+            expect(tableSerializer.serialize(expectedDoc)).toBe(expectedMarkup);
+            expect(tableParser.parse(expectedMarkup)).toMatchNodeJson(expectedDoc);
+        },
+    );
+
+    it.each([false, true])(
+        'should serialize edited aligned cells as cell attributes (preserveEmptyRows=%s)',
+        (preserveEmptyRows) => {
+            const {markupParser: tableParser, serializer: tableSerializer} = new ExtensionsManager({
+                extensions: (builder) =>
+                    builder
+                        .use(BaseSchemaSpecs, {preserveEmptyRows})
+                        .use(YfmTableSpecs, {newCellAlignSyntax: true}),
+            }).buildDeps();
+            const markup = dd`
+            #|
+            ||
+            Cell 1
+            {.cell-align-center}
+            | Cell 2 ||
+            || ^ | Cell 10000000000 {.cell-align-center} ||
+            |#
+        `;
+            const state = EditorState.create({doc: tableParser.parse(markup)});
+            const transaction = state.tr;
+            state.doc.descendants((node, pos) => {
+                if (node.text === 'Cell 10000000000') {
+                    transaction.insertText('0', pos + node.nodeSize);
+                }
+            });
+            const expectedDoc = doc(
+                table(
+                    tbody(
+                        tr(
+                            td(
+                                {
+                                    [YfmTableAttr.Rowspan]: '2',
+                                    [YfmTableAttr.CellAlign]: 'cell-align-center',
+                                },
+                                p('Cell 1'),
+                            ),
+                            td(p('Cell 2')),
+                        ),
+                        tr(
+                            td(
+                                {[YfmTableAttr.CellAlign]: 'cell-align-center'},
+                                p('Cell 100000000000'),
+                            ),
+                        ),
+                    ),
+                ),
+            );
+            const expectedMarkup = dd`
+                #|
+                ||::{align="center"}
+
+                Cell 1
+
+                |
+
+                Cell 2
+
+                ||
+                ||
+
+                ^|::{align="center"}
+
+                Cell 100000000000
+
+                ||
+                |#
+
+
+                `;
+            const editedDoc = state.apply(transaction).doc;
+
+            expect(editedDoc).toMatchNodeJson(expectedDoc);
+            expect(tableSerializer.serialize(editedDoc)).toBe(expectedMarkup);
+            expect(tableParser.parse(expectedMarkup)).toMatchNodeJson(expectedDoc);
+        },
+    );
+
+    it.each([false, true])(
+        'should serialize and parse an empty paragraph in an aligned cell (blockquote=%s)',
+        (blockquote) => {
+            const {markupParser: tableParser, serializer: tableSerializer} = new ExtensionsManager({
+                extensions: (builder) =>
+                    builder
+                        .use(BaseSchemaSpecs, {preserveEmptyRows: true})
+                        .use(BlockquoteSpecs)
+                        .use(YfmTableSpecs, {newCellAlignSyntax: true}),
+            }).buildDeps();
+            const markup = dd`
+            #|
+            ||
+            Cell
+
+            &nbsp; {.cell-align-center}
+            ||
+            |#
+        `;
+            const tableNode = table(
+                tbody(
+                    tr(td({[YfmTableAttr.CellAlign]: 'cell-align-center'}, p('Cell'), p('\u00a0'))),
+                ),
+            );
+            const expectedDoc = doc(blockquote ? bq(tableNode) : tableNode);
+            const expectedMarkup = blockquote
+                ? dd`
+                    >\u0020
+                    > #|
+                    > ||::{align="center"}
+                    >\u0020
+                    > Cell
+                    >
+                    > &nbsp;
+                    >\u0020
+                    > ||
+                    > |#
+                    >\u0020
+
+                    `
+                : dd`
+                    #|
+                    ||::{align="center"}
+
+                    Cell
+
+                    &nbsp;
+
+                    ||
+                    |#
+
+
+                    `;
+
+            expect(
+                tableParser.parse(blockquote ? markup.replace(/^/gm, '> ') : markup),
+            ).toMatchNodeJson(expectedDoc);
+            expect(tableSerializer.serialize(expectedDoc)).toBe(expectedMarkup);
+            expect(tableParser.parse(expectedMarkup)).toMatchNodeJson(expectedDoc);
+        },
+    );
 
     it('should preserve cell-align', () => {
         const markup = `
@@ -641,5 +970,87 @@ cell11
                 ),
             ),
         );
+    });
+
+    describe('cell-bg serialization', () => {
+        it('should serialize cell-bg on first cell (same line as ||)', () => {
+            const markup = dd`
+                #|
+                ||::{bg="info"}
+
+                cell11
+
+                ||
+                |#
+
+                
+                `.trimStart();
+
+            same(markup, doc(table(tbody(tr(td({[YfmTableAttr.CellBg]: 'info'}, p('cell11')))))));
+        });
+
+        it('should serialize cell-bg on non-first cell (same line as |)', () => {
+            const markup = dd`
+                #|
+                ||
+
+                cell11
+
+                |::{bg="warning"}
+
+                cell12
+
+                ||
+                |#
+
+                
+                `.trimStart();
+
+            same(
+                markup,
+                doc(
+                    table(
+                        tbody(
+                            tr(
+                                td(p('cell11')),
+                                td({[YfmTableAttr.CellBg]: 'warning'}, p('cell12')),
+                            ),
+                        ),
+                    ),
+                ),
+            );
+        });
+
+        it('should serialize cell-bg on multiple cells', () => {
+            const markup = dd`
+                #|
+                ||::{bg="info"}
+
+                cell11
+
+                |::{bg="danger"}
+
+                cell12
+
+                ||
+                |#
+
+                
+                `.trimStart();
+
+            same(
+                markup,
+                doc(
+                    table(
+                        tbody(
+                            tr(
+                                td({[YfmTableAttr.CellBg]: 'info'}, p('cell11')),
+                                td({[YfmTableAttr.CellBg]: 'danger'}, p('cell12')),
+                            ),
+                        ),
+                    ),
+                ),
+            );
+        });
     });
 });

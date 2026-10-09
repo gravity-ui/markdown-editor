@@ -11,7 +11,9 @@ type YfmTableActionKind =
     | 'add-column-after'
     | 'add-row-before'
     | 'add-row-after'
-    | 'header-toggle';
+    | 'header-toggle'
+    | 'row-cell-bg-open'
+    | 'column-cell-bg-open';
 
 type MarkdownEditorToolbarsLocators = Record<
     'main' | 'additional' | 'selection' | 'commandMenu',
@@ -142,6 +144,7 @@ class YfmNote {
 class YfmTable {
     readonly buttonPlusRowLocator;
     readonly buttonPlusColumnLocator;
+    readonly cellBgPaletteLocator: Locator;
     private readonly tableLocator;
 
     private readonly rowButtonLocator;
@@ -169,7 +172,10 @@ class YfmTable {
             'remove-row': page.getByTestId('g-md-yfm-table-action-remove-row'),
             'remove-table': page.getByTestId('g-md-yfm-table-action-remove-table'),
             'header-toggle': page.getByTestId('g-md-yfm-table-row-header-toggle'),
+            'row-cell-bg-open': page.getByTestId('g-md-yfm-table-row-cell-bg'),
+            'column-cell-bg-open': page.getByTestId('g-md-yfm-table-column-cell-bg'),
         };
+        this.cellBgPaletteLocator = page.locator('.g-md-yfm-table-cell-bg-palette');
     }
 
     getMenuLocator(type: YfmTableCellMenuType) {
@@ -224,6 +230,31 @@ class YfmTable {
         const firstCell = cells.first();
         await firstCell.waitFor({state: 'visible'});
         await firstCell.click();
+    }
+
+    getCellBgSwatchLocator(label: string) {
+        return this.cellBgPaletteLocator.getByLabel(label, {exact: true});
+    }
+
+    async openCellBgPalette(menuType: YfmTableCellMenuType) {
+        const menu = this.cellMenus[menuType];
+        await menu.waitFor({state: 'visible'});
+        const actionKey: YfmTableActionKind =
+            menuType === 'row' ? 'row-cell-bg-open' : 'column-cell-bg-open';
+        await menu.locator(this.cellMenuActions[actionKey]).hover();
+        await this.cellBgPaletteLocator.waitFor({state: 'visible'});
+    }
+
+    async selectCellBg(menuType: YfmTableCellMenuType, swatchLabel: string) {
+        await this.openCellBgPalette(menuType);
+        await this.getCellBgSwatchLocator(swatchLabel).click();
+    }
+
+    async closeMenu(menuType: YfmTableCellMenuType) {
+        const button =
+            menuType === 'row' ? this.rowButtonLocator.first() : this.columnButtonLocator.first();
+        await button.click();
+        await this.cellMenus[menuType].waitFor({state: 'hidden'});
     }
 }
 
@@ -570,8 +601,17 @@ export class MarkdownEditorPage {
     async switchMode(mode: MarkdownEditorMode) {
         if ((await this.getMode()) === mode) return;
 
-        await this.openSettingsPopup();
-        await this.locators.settingsContent.getByTestId(`g-md-settings-mode-${mode}`).click();
+        await this.page.evaluate((nextMode) => {
+            if (!window.mdEditor) {
+                throw new Error(
+                    'window.mdEditor is undefined: the mounted component must call useEditorHandle()',
+                );
+            }
+
+            // the settings menu hides the preview along with the mode change
+            window.mdEditor.setEditorMode(nextMode);
+            window.mdEditor.changePreviewVisible(false);
+        }, mode);
         await this.assertMode(mode);
     }
 
@@ -774,6 +814,22 @@ export class MarkdownEditorPage {
             element.focus();
             element.dispatchEvent(new ClipboardEvent('paste', {clipboardData}));
         }, data);
+    }
+
+    async dispatchClipboardEvent(type: 'copy' | 'cut'): Promise<PasteData> {
+        return this.locators.contenteditable.evaluate((element, eventType) => {
+            const clipboardData = new DataTransfer();
+            element.dispatchEvent(
+                new ClipboardEvent(eventType, {bubbles: true, cancelable: true, clipboardData}),
+            );
+
+            return Object.fromEntries(
+                Array.from(clipboardData.types, (dataType) => [
+                    dataType,
+                    clipboardData.getData(dataType),
+                ]),
+            ) as PasteData;
+        }, type);
     }
 
     /**

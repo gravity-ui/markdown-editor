@@ -1,5 +1,6 @@
 import {builders} from 'prosemirror-test-builder';
 import dd from 'ts-dedent';
+import {describe, it, vi} from 'vitest';
 
 import {createMarkupChecker} from '../../../../tests/sameMarkup';
 import {ExtensionsManager} from '../../../core';
@@ -8,8 +9,8 @@ import {BaseNode, BaseSchemaSpecs, BlockquoteSpecs, blockquoteNodeName} from '..
 import {MermaidSpecs} from './MermaidSpecs';
 import {MermaidAttrs, mermaidNodeName} from './const';
 
-jest.mock<{v4: () => string}>('uuid', () => ({
-    v4: jest.fn().mockReturnValue('eff-000-0ab'),
+vi.mock('uuid', () => ({
+    v4: vi.fn().mockReturnValue('eff-000-0ab'),
 }));
 
 const {

@@ -1,6 +1,8 @@
-import type {NodeSpec} from 'prosemirror-model';
+import {generateID} from '@diplodoc/transform/lib/plugins/utils.js';
+import type {Node, NodeSpec} from 'prosemirror-model';
 
-import type {PlaceholderOptions} from '../../../../utils/placeholder';
+import type {ExtensionAuto} from '#core';
+import type {PlaceholderOptions} from 'src/utils/placeholder';
 
 import {TabAttrs, TabPanelAttrs, TabsAttrs, TabsListAttrs, TabsNode} from './const';
 
@@ -16,7 +18,7 @@ export type YfmTabsSchemaOptions = {
     tabPlaceholder?: NonNullable<NodeSpec['placeholder']>['content'];
 };
 
-export const getSchemaSpecs: (
+const getSchemaSpecs: (
     opts: YfmTabsSchemaOptions,
     placeholder?: PlaceholderOptions,
 ) => Record<TabsNode, NodeSpec> = (opts, placeholder) => ({
@@ -76,14 +78,14 @@ export const getSchemaSpecs: (
     [TabsNode.Tabs]: {
         attrs: {
             [TabsAttrs.class]: {default: 'yfm-tabs'},
-            [TabsAttrs.dataDiplodocGroup]: {default: 'unknown'},
+            [TabsAttrs.dataDiplodocGroup]: {default: null},
             [TabsAttrs.dataDiplodocVariant]: {default: 'regular'},
         },
         content: `${TabsNode.TabsList} ${TabsNode.TabPanel}+`,
         group: 'block',
         parseDOM: [{tag: 'div.yfm-tabs'}],
         toDOM(node) {
-            return ['div', node.attrs, 0];
+            return ['div', getTabsDOMAttrs(node), 0];
         },
         selectable: true,
         selectAll: 'node',
@@ -109,13 +111,13 @@ export const getSchemaSpecs: (
     [TabsNode.RadioTabs]: {
         attrs: {
             [TabsAttrs.class]: {default: 'yfm-tabs yfm-tabs-vertical'},
-            [TabsAttrs.dataDiplodocGroup]: {default: 'unknown'},
+            [TabsAttrs.dataDiplodocGroup]: {default: null},
             [TabsAttrs.dataDiplodocVariant]: {default: 'radio'},
         },
         content: `(${TabsNode.RadioTab} ${TabsNode.TabPanel})+`,
         group: 'block',
         toDOM(node) {
-            return ['div', node.attrs, 0];
+            return ['div', getTabsDOMAttrs(node), 0];
         },
         selectAll: 'node',
         complex: 'root',
@@ -174,3 +176,25 @@ export const getSchemaSpecs: (
         complex: 'leaf',
     },
 });
+
+export const YfmTabsSchemaSpecs: ExtensionAuto<YfmTabsSchemaOptions> = (builder, opts) => {
+    const schemaSpecs = getSchemaSpecs(opts, builder.context.get('placeholder'));
+
+    builder
+        .addNodeSpec(TabsNode.Tab, () => schemaSpecs[TabsNode.Tab])
+        .addNodeSpec(TabsNode.TabsList, () => schemaSpecs[TabsNode.TabsList])
+        .addNodeSpec(TabsNode.TabPanel, () => schemaSpecs[TabsNode.TabPanel])
+        .addNodeSpec(TabsNode.Tabs, () => schemaSpecs[TabsNode.Tabs])
+        .addNodeSpec(TabsNode.RadioTabs, () => schemaSpecs[TabsNode.RadioTabs])
+        .addNodeSpec(TabsNode.RadioTab, () => schemaSpecs[TabsNode.RadioTab])
+        .addNodeSpec(TabsNode.RadioTabInput, () => schemaSpecs[TabsNode.RadioTabInput])
+        .addNodeSpec(TabsNode.RadioTabLabel, () => schemaSpecs[TabsNode.RadioTabLabel]);
+};
+
+function getTabsDOMAttrs(node: Node) {
+    return {
+        ...node.attrs,
+        [TabsAttrs.dataDiplodocGroup]:
+            node.attrs[TabsAttrs.dataDiplodocGroup] ?? generateID('defaultTabsGroup'),
+    };
+}

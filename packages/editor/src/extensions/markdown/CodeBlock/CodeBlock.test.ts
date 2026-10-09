@@ -1,4 +1,5 @@
 import {builders} from 'prosemirror-test-builder';
+import {describe, expect, it, vi} from 'vitest';
 
 import {parseDOM} from '../../../../tests/parse-dom';
 import {createMarkupChecker} from '../../../../tests/sameMarkup';
@@ -23,16 +24,16 @@ const {doc, p, cb} = builders<'doc' | 'p' | 'cb'>(schema, {
     cb: {nodeType: codeBlockNodeName},
 });
 
-const {same, parse} = createMarkupChecker({parser, serializer});
+const {same, parse, serialize} = createMarkupChecker({parser, serializer});
 
 function createMockDataTransfer(data: Record<string, string>): DataTransfer {
     const types = Object.keys(data);
     return {
         types,
         getData: (type: string) => data[type] || '',
-        setData: jest.fn(),
-        clearData: jest.fn(),
-        setDragImage: jest.fn(),
+        setData: vi.fn(),
+        clearData: vi.fn(),
+        setDragImage: vi.fn(),
         dropEffect: 'none',
         effectAllowed: 'all',
         files: [] as unknown as FileList,
@@ -69,6 +70,39 @@ describe('CodeBlock extension', () => {
 
     it('should support different markup', () =>
         same('~~~\n123\n~~~', doc(cb({[CodeBlockNodeAttr.Markup]: '~~~'}, '123'))));
+
+    it('should serialize a code block whose content contains ``` using a longer fence', () =>
+        serialize(
+            doc(cb('foo bar baz\n\n```\n\nbaz bar foo')),
+            '````\nfoo bar baz\n\n```\n\nbaz bar foo\n````',
+        ));
+
+    it('should roundtrip a code block whose content contains ```', () =>
+        same(
+            '````\nfoo bar baz\n\n```\n\nbaz bar foo\n````',
+            doc(cb({[CodeBlockNodeAttr.Markup]: '````'}, 'foo bar baz\n\n```\n\nbaz bar foo')),
+        ));
+
+    it('should serialize a code block whose content contains ```` using an even longer fence', () =>
+        serialize(doc(cb('a\n````\nb')), '`````\na\n````\nb\n`````'));
+
+    it('should serialize a code block whose content contains ~~~ using a longer fence', () =>
+        serialize(
+            doc(cb({[CodeBlockNodeAttr.Markup]: '~~~'}, 'foo bar baz\n\n~~~\n\nbaz bar foo')),
+            '~~~~\nfoo bar baz\n\n~~~\n\nbaz bar foo\n~~~~',
+        ));
+
+    it('should roundtrip a code block whose content contains ~~~', () =>
+        same(
+            '~~~~\nfoo bar baz\n\n~~~\n\nbaz bar foo\n~~~~',
+            doc(cb({[CodeBlockNodeAttr.Markup]: '~~~~'}, 'foo bar baz\n\n~~~\n\nbaz bar foo')),
+        ));
+
+    it('should not extend a backtick fence when content contains only ~~~', () =>
+        same('```\n~~~\n```', doc(cb('~~~'))));
+
+    it('should not extend a tilde fence when content contains only ```', () =>
+        same('~~~\n```\n~~~', doc(cb({[CodeBlockNodeAttr.Markup]: '~~~'}, '```'))));
 });
 
 describe('CodeBlock paste handling', () => {

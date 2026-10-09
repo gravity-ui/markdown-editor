@@ -8,6 +8,7 @@ export enum YfmTableNode {
 export enum YfmTableAttr {
     Colspan = 'colspan',
     Rowspan = 'rowspan',
+    CellBg = 'data-bg',
     CellAlign = 'data-cell-align',
     HeaderRows = 'data-header-rows',
 }

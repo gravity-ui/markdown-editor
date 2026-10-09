@@ -17,15 +17,17 @@ import type {PlaywrightActions} from 'playwright/core/actions';
 import type {MarkdownEditorPage} from './editor';
 import type {DebugHelpers, PlaywrightHelpers} from './helpers';
 
+export interface MountExtraOptions {
+    width?: number | string;
+    rootStyle?: React.CSSProperties;
+    hidePlaygroundBlocks?: boolean;
+    styles?: string;
+}
+
 interface ComponentFixtures {
     mount<HooksConfig>(
         component: JSX.Element,
-        options?: MountOptions<HooksConfig> & {
-            width?: number | string;
-            rootStyle?: React.CSSProperties;
-            hidePlaygroundBlocks?: boolean;
-            styles?: string;
-        },
+        options?: MountOptions<HooksConfig> & MountExtraOptions,
     ): Promise<MountResult>;
 }
 
@@ -45,7 +47,9 @@ export type Fixtures = {
     platform: NodeJS.Platform;
 };
 
-export type MountFixture = ComponentFixtures['mount'];
+// Playwright's own `mount` fixture also accepts a story id, so the overridden fixture has to
+// keep that call signature alongside the component one to stay assignable to the base fixture.
+export type MountFixture = PlaywrightFixtures['mount'];
 
 export interface ExpectScreenshotFixture {
     (props?: CaptureScreenshotParams): Promise<void>;
@@ -57,10 +61,12 @@ export interface WaitFixture {
     visible(selector: Locator): Promise<void>;
     hidden(selector: Locator): Promise<void>;
     timeout(delay?: number): Promise<void>;
+    tooltipsHidden(): Promise<void>;
+    markupPreview(text: string | RegExp): Promise<void>;
 }
 
 export interface CaptureScreenshotParams extends PageScreenshotOptions {
     nameSuffix?: string;
     component?: Locator | Page;
-    themes?: ReadonlyArray<'light' | 'dark'>;
+    themes?: readonly ('light' | 'dark')[];
 }
