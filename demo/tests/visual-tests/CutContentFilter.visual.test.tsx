@@ -1,9 +1,17 @@
+import type {Page} from '@playwright/test';
+
 import {expect, test} from 'playwright/core';
 
 import {CutContentFilter} from './CutContentFilter.helpers';
 
 const CUT_CONTENT = '.yfm-cut-content';
 const PRESERVED = 'pre.g-md-preserved-markup';
+const CUT_WITH_IMAGE =
+    '{% cut "Title" %}\n\nkept text\n\n![pic](/assets/test-image.jpg)\n\n{% endcut %}';
+
+// Typing right after a mode switch can land before CodeMirror reads the selection and prepend the text
+const replaceMarkup = (page: Page) =>
+    page.evaluate((markup) => window.mdEditor?.replace(markup), CUT_WITH_IMAGE);
 
 test.describe('Examples, Cut content filter', () => {
     test.describe('dropped groups', () => {
@@ -59,11 +67,9 @@ test.describe('Examples, Cut content filter', () => {
             await expectScreenshot();
         });
 
-        test('should filter the preview of the markup @markup', async ({editor, wait}) => {
+        test('should filter the preview of the markup @markup', async ({editor, page, wait}) => {
             await editor.switchMode('markup');
-            await editor.fill(
-                '{% cut "Title" %}\n\nkept text\n\n![pic](/assets/test-image.jpg)\n\n{% endcut %}',
-            );
+            await replaceMarkup(page);
             await editor.switchPreview('visible');
 
             const preview = editor.locators.previewContent;
@@ -99,11 +105,13 @@ test.describe('Examples, Cut content filter', () => {
             );
         });
 
-        test('should return the source markup to the preview @markup', async ({editor, wait}) => {
+        test('should return the source markup to the preview @markup', async ({
+            editor,
+            page,
+            wait,
+        }) => {
             await editor.switchMode('markup');
-            await editor.fill(
-                '{% cut "Title" %}\n\nkept text\n\n![pic](/assets/test-image.jpg)\n\n{% endcut %}',
-            );
+            await replaceMarkup(page);
             await editor.switchPreview('visible');
 
             const preview = editor.locators.previewContent;

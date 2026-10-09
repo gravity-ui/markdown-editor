@@ -13,8 +13,7 @@ import {
 import type {BlockContentSlotsParams} from '@gravity-ui/markdown-editor/markdown-it/block-content-slots';
 
 import {PlaygroundLayout} from '../../../components/PlaygroundLayout';
-import {SplitModePreview} from '../../../components/SplitModePreview';
-import {getPlugins} from '../../../defaults/md-plugins';
+import {SplitModePreviewLazy} from '../../../components/SplitModePreviewLazy';
 
 import {markup} from './markup';
 import {cutContentSlots} from './slots';
@@ -26,18 +25,18 @@ export type EditorWithCutContentFilterProps = {
 export const EditorWithCutContentFilter = memo<EditorWithCutContentFilterProps>(
     function EditorWithCutContentFilter({unmatched}) {
         const slotsPlugin = useMemo(() => cutContentSlots(unmatched), [unmatched]);
-        const previewPlugins = useMemo(() => [...getPlugins(), slotsPlugin], [slotsPlugin]);
+        const extraPlugins = useMemo(() => [slotsPlugin], [slotsPlugin]);
 
         const renderPreview = useCallback<RenderPreview>(
             ({getValue, md}) => (
-                <SplitModePreview
+                <SplitModePreviewLazy
                     getValue={getValue}
-                    plugins={previewPlugins}
+                    extraPlugins={extraPlugins}
                     breaks={md.breaks}
                     linkify={md.linkify}
                 />
             ),
-            [previewPlugins],
+            [extraPlugins],
         );
 
         const editor = useMarkdownEditor(
