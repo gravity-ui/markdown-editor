@@ -436,6 +436,9 @@ importers:
       '@diplodoc/color-extension':
         specifier: 0.1.1
         version: 0.1.1
+      '@diplodoc/directive':
+        specifier: ^0.3.4
+        version: 0.3.6(@types/markdown-it@13.0.9)(markdown-it@13.0.2)
       '@diplodoc/utils':
         specifier: ^2.1.0
         version: 2.2.2(react@18.2.0)
@@ -466,6 +469,9 @@ importers:
       is-number:
         specifier: ^7.0.0
         version: 7.0.0
+      js-yaml:
+        specifier: ^4.1.0
+        version: 4.1.1
       lodash:
         specifier: ^4.17.21
         version: 4.17.23
@@ -599,6 +605,9 @@ importers:
       '@markdown-editor/vitest-config':
         specifier: workspace:*
         version: link:../../infra/vitest-config
+      '@types/js-yaml':
+        specifier: ^4.0.9
+        version: 4.0.9
       '@types/jsdom':
         specifier: 21.1.7
         version: 21.1.7
@@ -3479,6 +3488,9 @@ packages:
 
   '@types/js-cookie@2.2.7':
     resolution: {integrity: sha512-aLkWa0C0vO5b4Sr798E26QgOkss68Un0bLjs7u9qxzPT5CG+8DuNTffWES58YzJs3hrVAOs1wonycqEBqNJubA==}
+
+  '@types/js-yaml@4.0.9':
+    resolution: {integrity: sha512-k4MGaQl5TGo/iipqb2UDG2UwjXziSWkh0uysQelTlJpX1qGlpUZYm8PnO4DxG1qBomtJUdYJ6qR6xdIah10JLg==}
 
   '@types/jsdom@21.1.7':
     resolution: {integrity: sha512-yOriVnggzrnQ3a9OKOCxaVuSug3w3/SbOj5i7VwXWZEyUNl3bLF9V3MfxGbZKuwqJOQyRfqXyROBB1CoZLFWzA==}
@@ -12217,6 +12229,8 @@ snapshots:
   '@types/is-number@7.0.3': {}
 
   '@types/js-cookie@2.2.7': {}
+
+  '@types/js-yaml@4.0.9': {}
 
   '@types/jsdom@21.1.7':
     dependencies:
