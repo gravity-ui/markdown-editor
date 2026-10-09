@@ -1,9 +1,11 @@
 import codemark from 'prosemirror-codemark';
-import {toggleMark} from 'prosemirror-commands';
 import {Plugin} from 'prosemirror-state';
 
 import type {Action, ExtensionAuto} from '../../../core';
-import {createMarkdownInlineMarkAction} from '../../../utils/actions';
+import {
+    createMarkdownInlineMarkAction,
+    createMarkdownInlineMarkCommand,
+} from '../../../utils/actions';
 import {withLogAction} from '../../../utils/keymap';
 
 import {CodeSpecs, codeType} from './CodeSpecs';
@@ -24,7 +26,10 @@ export const Code: ExtensionAuto<CodeOptions> = (builder, opts) => {
     if (opts?.codeKey) {
         const {codeKey} = opts;
         builder.addKeymap(({schema}) => ({
-            [codeKey]: withLogAction('code_inline', toggleMark(codeType(schema))),
+            [codeKey]: withLogAction(
+                'code_inline',
+                createMarkdownInlineMarkCommand(codeType(schema)),
+            ),
         }));
     }
 
