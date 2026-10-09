@@ -1,6 +1,6 @@
 import {expect, test} from 'playwright/core';
 
-import {FootnoteEditor} from './Footnote.helpers';
+import {FootnoteEditor, FootnotePreview} from './Footnote.helpers';
 
 test.describe('Footnote', () => {
     for (const theme of ['light', 'dark'] as const) {
@@ -11,7 +11,7 @@ test.describe('Footnote', () => {
         }) => {
             await mount(<FootnoteEditor theme={theme} />);
             const markers = page.locator('.ProseMirror .g-md-footnote__marker');
-            await expect(markers).toHaveText(['1', '*', '2']);
+            await expect(markers).toHaveText(['*', 'selected phrase', '*']);
             await markers.first().focus();
             const tooltip = page.getByRole('tooltip');
             await expect(tooltip).toBeVisible();
@@ -39,7 +39,7 @@ test.describe('Footnote', () => {
             await expect(form).toBeHidden();
             await page.getByRole('button', {name: 'Save document'}).click();
             await expect(page.getByTestId('footnote-markup')).toContainText(
-                ':footnote[**Updated** note]{marker="*"}',
+                '[*custom]: **Updated** note',
             );
         });
     }
@@ -51,10 +51,48 @@ test.describe('Footnote', () => {
         await page.getByText(/^(Footnote|Сноска)$/).click();
         const form = page.locator('.g-md-footnote-editor');
         await expect(form).toBeVisible();
+        await expect(form.locator('input')).toHaveValue('*');
         await form.locator('textarea').fill('Inserted note');
         await form.getByRole('button', {name: /Save|Сохранить/}).click();
         await page.getByRole('button', {name: 'Save document'}).click();
-        await expect(page.getByTestId('footnote-markup')).toHaveText(':footnote[Inserted note]');
+        await expect(page.getByTestId('footnote-markup')).toContainText('[*](*footnote-1)');
+        await expect(page.getByTestId('footnote-markup')).toContainText(
+            '[*footnote-1]: Inserted note',
+        );
+    });
+
+    test('should cancel a new footnote without leaving a reference or definition', async ({
+        mount,
+        page,
+    }) => {
+        await mount(<FootnoteEditor markup="" />);
+        await page.locator('.ProseMirror').pressSequentially('/footnote');
+        await page.getByText(/^(Footnote|Сноска)$/).click();
+        const form = page.locator('.g-md-footnote-editor');
+        await form.getByRole('button', {name: /Cancel|Отменить/}).click();
+        await expect(page.locator('.ProseMirror .g-md-footnote')).toHaveCount(0);
+        await page.getByRole('button', {name: 'Save document'}).click();
+        await expect(page.getByTestId('footnote-markup')).toHaveText('');
+    });
+
+    test('should open shared native terms in preview with Enter and click', async ({
+        mount,
+        page,
+    }) => {
+        await mount(<FootnotePreview />);
+        const terms = page.locator('.yfm-term_title');
+        await expect(terms).toHaveText(['*', 'term']);
+        const definition = page.locator('.yfm-term_dfn');
+        await expect(definition).toBeHidden();
+        await terms.first().focus();
+        await terms.first().press('Enter');
+        await expect(definition).toBeVisible();
+        await expect(definition.locator('strong')).toHaveText('Shared');
+        await page.keyboard.press('Escape');
+        await expect(definition).toBeHidden();
+        await expect(terms.first()).toBeFocused();
+        await terms.last().click();
+        await expect(definition).toBeVisible();
     });
 
     test('should close a hovered tooltip with Escape and include the text in print', async ({

@@ -1,9 +1,15 @@
 import type {ExtensionAuto} from '#core';
-import footnote, {footnoteTokenName} from 'src/markdown-it/footnote';
+import footnote, {
+    footnoteDefinitionTokenName,
+    footnoteReference,
+    footnoteTokenName,
+} from 'src/markdown-it/footnote';
 import {nodeTypeFactory} from 'src/utils/schema';
 
 export const footnoteNodeName = 'footnote';
+export const footnoteDefinitionNodeName = 'footnote_definition';
 export const footnoteType = nodeTypeFactory(footnoteNodeName);
+export const footnoteDefinitionType = nodeTypeFactory(footnoteDefinitionNodeName);
 
 export const FootnoteSpecs: ExtensionAuto = (builder) => {
     builder
@@ -13,56 +19,77 @@ export const FootnoteSpecs: ExtensionAuto = (builder) => {
             group: 'inline',
             atom: true,
             attrs: {
-                content: {default: ''},
-                prefix: {default: ':footnote['},
-                suffix: {default: ']'},
-                marker: {default: null},
+                key: {default: ''},
+                label: {default: '*'},
+                raw: {default: null},
+                original: {default: null},
             },
             parseDOM: [
                 {
                     tag: 'span[data-footnote]',
-                    getAttrs: (dom) => {
-                        try {
-                            const attrs = JSON.parse(dom.getAttribute('data-footnote') ?? 'null');
-                            if (
-                                !attrs ||
-                                typeof attrs.content !== 'string' ||
-                                typeof attrs.prefix !== 'string' ||
-                                typeof attrs.suffix !== 'string' ||
-                                (attrs.marker !== null && typeof attrs.marker !== 'string')
-                            )
-                                return false;
-                            return {
-                                content: attrs.content,
-                                prefix: attrs.prefix,
-                                suffix: attrs.suffix,
-                                marker: attrs.marker,
-                            };
-                        } catch {
-                            return false;
-                        }
-                    },
+                    getAttrs: (dom) => readAttrs(dom, 'data-footnote', ['key', 'label']),
                 },
             ],
             toDOM: (node) => [
                 'span',
                 {class: 'g-md-footnote', 'data-footnote': JSON.stringify(node.attrs)},
-                ['sup', {class: 'g-md-footnote__marker'}, node.attrs.marker ?? '1'],
-                ['span', {class: 'g-md-footnote__content'}, node.attrs.content],
+                node.attrs.label,
             ],
-            leafText: (node) => node.attrs.content,
+            leafText: (node) => node.attrs.label,
         }))
         .addMarkdownTokenParserSpec(footnoteTokenName, () => ({
             name: footnoteNodeName,
             type: 'node',
-            getAttrs: (token) => ({
-                content: token.meta.content,
-                prefix: token.meta.prefix,
-                suffix: token.meta.suffix,
-                marker: token.meta.marker,
-            }),
+            getAttrs: (token) => token.meta,
         }))
         .addNodeSerializerSpec(footnoteNodeName, () => (state, node) => {
-            state.write(node.attrs.prefix + node.attrs.content + node.attrs.suffix);
+            if (node.attrs.original !== null) {
+                if (node.attrs.original.length) state.text(node.attrs.label);
+                return;
+            }
+            state.write(node.attrs.raw ?? footnoteReference(node.attrs.label, node.attrs.key));
+        })
+        .addNodeSpec(footnoteDefinitionNodeName, () => ({
+            group: 'block',
+            atom: true,
+            selectable: false,
+            attrs: {
+                key: {default: ''},
+                content: {default: ''},
+                raw: {default: null},
+                separation: {default: 2},
+            },
+            parseDOM: [
+                {
+                    tag: 'div[data-footnote-definition]',
+                    getAttrs: (dom) =>
+                        readAttrs(dom, 'data-footnote-definition', ['key', 'content']),
+                },
+            ],
+            toDOM: (node) => [
+                'div',
+                {'data-footnote-definition': JSON.stringify(node.attrs), hidden: 'hidden'},
+            ],
+        }))
+        .addMarkdownTokenParserSpec(footnoteDefinitionTokenName, () => ({
+            name: footnoteDefinitionNodeName,
+            type: 'node',
+            getAttrs: (token) => token.meta,
+        }))
+        .addNodeSerializerSpec(footnoteDefinitionNodeName, () => (state, node) => {
+            state.flushClose(node.attrs.separation);
+            state.write(node.attrs.raw ?? `[*${node.attrs.key}]: ${node.attrs.content}`);
+            state.closeBlock(node);
         });
 };
+
+function readAttrs(dom: HTMLElement, attribute: string, strings: string[]) {
+    try {
+        const attrs = JSON.parse(dom.getAttribute(attribute) ?? 'null');
+        if (!attrs || strings.some((key) => typeof attrs[key] !== 'string')) return false;
+        if (attrs.raw !== null && typeof attrs.raw !== 'string') return false;
+        return attrs;
+    } catch {
+        return false;
+    }
+}

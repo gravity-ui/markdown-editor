@@ -1,6 +1,6 @@
 import {useState} from 'react';
 
-import {Button, Portal, TextArea} from '@gravity-ui/uikit';
+import {Button, Portal, TextArea, TextInput} from '@gravity-ui/uikit';
 import MarkdownIt from 'markdown-it';
 import type {Node} from 'prosemirror-model';
 import type {Decoration, EditorView, NodeView} from 'prosemirror-view';
@@ -12,7 +12,7 @@ import {i18n} from 'src/i18n/footnote';
 import {EditorPopup} from 'src/plugins/BaseTooltip/EditorPopup';
 import {generateEntityId} from 'src/utils/entity-id';
 
-import {updateFootnote} from './commands';
+import {cancelFootnote, updateFootnote} from './commands';
 
 const inlineMarkdown = new MarkdownIt({html: false, breaks: true});
 
@@ -22,6 +22,7 @@ export class FootnoteView implements NodeView {
     private readonly tooltip = document.createElement('span');
     private readonly renderItem;
     private node;
+    private content = '';
     private editing = false;
     private hovering = false;
     private focused = false;
@@ -65,14 +66,15 @@ export class FootnoteView implements NodeView {
     update(node: Node, decorations: readonly Decoration[]) {
         if (node.type !== this.node.type) return false;
         this.node = node;
-        const marker =
-            node.attrs.marker ??
-            decorations.find((deco) => deco.spec.footnoteMarker)?.spec.footnoteMarker ??
-            '1';
+        const marker = node.attrs.label;
+        this.dom.classList.toggle('g-md-footnote_star', marker === '*');
+        this.content =
+            decorations.find((deco) => typeof deco.spec.footnoteContent === 'string')?.spec
+                .footnoteContent ?? '';
         this.marker.textContent = marker;
         this.marker.setAttribute('aria-label', i18n('marker', {marker}));
         // Raw HTML is disabled in this MarkdownIt instance.
-        this.tooltip.innerHTML = inlineMarkdown.renderInline(node.attrs.content);
+        this.tooltip.innerHTML = inlineMarkdown.render(this.content);
         this.updateTooltip();
         this.renderItem.rerender();
         return true;
@@ -160,10 +162,22 @@ export class FootnoteView implements NodeView {
         this.renderItem.rerender();
     };
 
-    private save = (content: string) => {
+    private cancel = () => {
+        this.closeEditor();
+        const pos = this.getPos();
+        if (pos !== undefined && this.view.editable)
+            cancelFootnote(pos)(this.view.state, this.view.dispatch);
+    };
+
+    private save = (label: string, content: string) => {
         const pos = this.getPos();
         if (pos === undefined || !this.view.editable) return false;
-        const result = updateFootnote(pos, content, this.deps)(this.view.state, this.view.dispatch);
+        const result = updateFootnote(
+            pos,
+            label,
+            content,
+            this.deps,
+        )(this.view.state, this.view.dispatch);
         if (result) {
             this.closeEditor();
             this.view.focus();
@@ -177,12 +191,13 @@ export class FootnoteView implements NodeView {
                 <EditorPopup
                     editorElement={this.view.dom}
                     anchorElement={this.marker}
-                    onOpenChange={this.closeEditor}
+                    onOpenChange={this.cancel}
                 >
                     <FootnoteForm
-                        content={this.node.attrs.content}
+                        label={this.node.attrs.label}
+                        content={this.content}
                         onSave={this.save}
-                        onCancel={this.closeEditor}
+                        onCancel={this.cancel}
                     />
                 </EditorPopup>
             </Portal>
@@ -191,15 +206,18 @@ export class FootnoteView implements NodeView {
 }
 
 function FootnoteForm({
+    label,
     content,
     onSave,
     onCancel,
 }: {
+    label: string;
     content: string;
-    onSave: (content: string) => boolean;
+    onSave: (label: string, content: string) => boolean;
     onCancel: () => void;
 }) {
     const [value, setValue] = useState(content);
+    const [labelValue, setLabelValue] = useState(label);
     const [invalid, setInvalid] = useState(false);
     return (
         <form
@@ -207,9 +225,14 @@ function FootnoteForm({
             aria-label={i18n('title')}
             onSubmit={(event) => {
                 event.preventDefault();
-                setInvalid(!onSave(value));
+                setInvalid(!onSave(labelValue, value));
             }}
         >
+            <TextInput
+                value={labelValue}
+                onUpdate={setLabelValue}
+                controlProps={{'aria-label': i18n('label')}}
+            />
             <TextArea
                 autoFocus
                 value={value}

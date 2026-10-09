@@ -7,6 +7,7 @@ import {CommonMarkSpecsPreset} from '../../../presets/commonmark-specs';
 import {ReactRenderStorage, ReactRendererExtension} from '../../behavior/ReactRenderer';
 
 import {footnoteType} from './FootnoteSpecs';
+import {footnoteDefinitions} from './definitions';
 
 import {Footnote} from '.';
 
@@ -41,7 +42,7 @@ function mount(markup: string, editable = true) {
 
 describe('Footnote view', () => {
     it('should expose a keyboard marker and an accessible formatted description', () => {
-        mount('Text:footnote[**Bold** and [link](https://example.com)].');
+        mount('Text[*](*note).\n\n[*note]: **Bold** and [link](https://example.com).');
         const marker = document.querySelector<HTMLButtonElement>('.g-md-footnote__marker')!;
         const tooltip = document.querySelector<HTMLElement>('[role="tooltip"]')!;
         expect(marker.tagName).toBe('BUTTON');
@@ -56,7 +57,7 @@ describe('Footnote view', () => {
     });
 
     it('should dismiss a hovered tooltip with Escape outside the marker', () => {
-        mount(':footnote[Text]');
+        mount('[*](*note)\n\n[*note]: Text');
         const note = document.querySelector<HTMLElement>('.g-md-footnote')!;
         const tooltip = note.querySelector<HTMLElement>('[role="tooltip"]')!;
         note.dispatchEvent(new MouseEvent('mouseenter'));
@@ -68,21 +69,36 @@ describe('Footnote view', () => {
         expect(tooltip.hidden).toBe(false);
     });
 
-    it('should update the marker numbers and remove rendered items on destroy', () => {
-        const {view: editor, storage} = mount(':footnote[First]:footnote[Second]');
+    it('should update shared content and remove rendered items on destroy', () => {
+        const {view: editor, storage} = mount('[*](*note)[Again](*note)\n\n[*note]: First');
         expect(
             [...document.querySelectorAll('.g-md-footnote__marker')].map(
                 (element) => element.textContent,
             ),
-        ).toEqual(['1', '2']);
+        ).toEqual(['*', 'Again']);
         editor.dispatch(
-            editor.state.tr.insert(1, footnoteType(editor.state.schema).create({content: 'New'})),
+            editor.state.tr.insert(
+                1,
+                footnoteType(editor.state.schema).create({key: 'note', label: '*'}),
+            ),
         );
         expect(
             [...document.querySelectorAll('.g-md-footnote__marker')].map(
                 (element) => element.textContent,
             ),
-        ).toEqual(['1', '2', '3']);
+        ).toEqual(['*', '*', 'Again']);
+        const definition = footnoteDefinitions(editor.state.doc).get('note')!;
+        editor.dispatch(
+            editor.state.tr.setNodeMarkup(definition.pos, undefined, {
+                ...definition.node.attrs,
+                content: '**Updated**',
+            }),
+        );
+        expect(
+            [...document.querySelectorAll('.g-md-footnote__content strong')].map(
+                (element) => element.textContent,
+            ),
+        ).toEqual(['Updated', 'Updated', 'Updated']);
         expect(storage.getItems()).toHaveLength(3);
         editor.destroy();
         view = undefined;
@@ -90,7 +106,7 @@ describe('Footnote view', () => {
     });
 
     it('should allow reading footnotes without opening an editor in read-only mode', () => {
-        const {storage} = mount(':footnote[Text]', false);
+        const {storage} = mount('[*](*note)\n\n[*note]: Text', false);
         const marker = document.querySelector<HTMLButtonElement>('.g-md-footnote__marker')!;
         marker.focus();
         marker.click();

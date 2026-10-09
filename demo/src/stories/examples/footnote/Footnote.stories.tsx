@@ -7,7 +7,7 @@ export const Footnotes: StoryObj<typeof component> = {
     args: {
         ...args,
         initial:
-            'The rate is 15%:footnote[From 2026: **18%**, see [the report](https://example.com).].\n\nA custom marker:footnote[Source: `report-2025`]{marker="*"}.\n\nAnother note:footnote[Automatically numbered.].',
+            'The rate is 15%[*](*rate).\n\nA [selected phrase](*source) with a note.\n\nAnother reference[*](*rate).\n\n[*rate]: From 2026: **18%**, see [the report](https://example.com).\n\n[*source]: Source: `report-2025`.',
         settingsVisible: false,
         stickyToolbar: false,
     },

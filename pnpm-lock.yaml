@@ -312,7 +312,7 @@ importers:
     dependencies:
       '@diplodoc/cli':
         specifier: 5.63.0
-        version: 5.63.0(@types/markdown-it@13.0.9)(@types/node@25.2.1)(react@18.2.0)(strip-ansi@7.2.0)
+        version: 5.63.0(@types/markdown-it@13.0.9)(@types/node@25.2.1)(react@18.2.0)(strip-ansi@7.2.0)(vitest@5.0.1)
       typescript:
         specifier: catalog:ts
         version: 5.9.3
@@ -436,9 +436,6 @@ importers:
       '@diplodoc/color-extension':
         specifier: 0.1.1
         version: 0.1.1
-      '@diplodoc/directive':
-        specifier: 0.4.0
-        version: 0.4.0(@types/markdown-it@13.0.9)(markdown-it@13.0.2)
       '@diplodoc/utils':
         specifier: ^2.1.0
         version: 2.2.2(react@18.2.0)
@@ -10208,7 +10205,7 @@ snapshots:
     dependencies:
       js-yaml: 4.1.1
 
-  '@diplodoc/cli@5.63.0(@types/markdown-it@13.0.9)(@types/node@25.2.1)(react@18.2.0)(strip-ansi@7.2.0)':
+  '@diplodoc/cli@5.63.0(@types/markdown-it@13.0.9)(@types/node@25.2.1)(react@18.2.0)(strip-ansi@7.2.0)(vitest@5.0.1)':
     dependencies:
       '@diplodoc/ajv': 0.8.0
       '@diplodoc/client': 5.14.0
@@ -10243,6 +10240,7 @@ snapshots:
       yaml: 2.9.1
     optionalDependencies:
       strip-ansi: 7.2.0
+      vitest: 5.0.1(@types/node@25.2.1)(@vitest/coverage-v8@5.0.1)(jsdom@25.0.1)(vite@8.3.1(@types/node@25.2.1)(esbuild@0.28.2)(jiti@2.6.1)(sass@1.105.0)(terser@5.51.2)(yaml@2.9.1))
     transitivePeerDependencies:
       - '@types/markdown-it'
       - '@types/node'

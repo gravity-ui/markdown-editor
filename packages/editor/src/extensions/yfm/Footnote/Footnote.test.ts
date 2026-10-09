@@ -1,3 +1,4 @@
+import term from '@diplodoc/transform/lib/plugins/term';
 import MarkdownIt from 'markdown-it';
 import {DOMParser, DOMSerializer} from 'prosemirror-model';
 import {EditorState, TextSelection} from 'prosemirror-state';
@@ -5,168 +6,169 @@ import {describe, expect, it} from 'vitest';
 
 import {applyCommand} from '../../../../tests/utils';
 import {ExtensionsManager} from '../../../core';
-import footnote from '../../../markdown-it/footnote';
 import {CommonMarkSpecsPreset} from '../../../presets/commonmark-specs';
 import {FullSpecsPreset} from '../../../presets/full-specs';
 
 import {FootnoteSpecs, footnoteType} from './FootnoteSpecs';
-import {insertFootnote, updateFootnote} from './commands';
-import {footnoteNumbering} from './numbering';
+import {cancelFootnote, insertFootnote, updateFootnote} from './commands';
+import {footnoteDefinitionPlugin, footnoteDefinitions} from './definitions';
 
 const deps = new ExtensionsManager({
     extensions: (builder) => builder.use(CommonMarkSpecsPreset, {}).use(FootnoteSpecs),
 }).buildDeps();
 const {markupParser: parser, serializer, schema} = deps;
+const source = 'Before[*](*note)after\n\n[*note]: **Bold** and [link](https://example.com)';
 
 describe('Footnote', () => {
     it.each([
-        'Rate:footnote[Source].',
-        ':footnote[]',
-        ':footnote[**Bold**, _italic_, `code`, and [link](https://example.com)]',
-        ':footnote[Source]{marker="*"}',
-        ':footnote[Source]{marker=\'†\' unknown="value"}',
-        ':footnote[escaped \\] bracket]{marker="1" data-extra="kept"}',
-        '**before :footnote[**inside**] after**',
-        'A:footnote[first] B:footnote[second]',
-    ])('should preserve directive syntax: %s', (markup) => {
+        source,
+        '[selected phrase](*note)\n\n[*note]: Source',
+        '[*](*note) and [again](*note)\n\n[*note]: Shared',
+        '[a \\] bracket](*note)\n\n[*note]: Text',
+        '[**literal**](*note)\n\n[*note]: Text',
+        '**before [*](*note) after**\n\n[*note]: Text',
+        '[*unused]: Unused',
+        '[*](*note)\n\n[*note]: First\n\n[*note]: Duplicate',
+        '[*](*note)\n\n[*note]: First\n[*other]: Other',
+        '[*](*note)\n\n[*note]: First line\nSecond line',
+        '[*](*note)\n\n[*note]:    Extra spaces',
+    ])('should preserve native term syntax: %s', (markup) => {
         const doc = parser.parse(markup);
         expect(serializer.serialize(doc)).toBe(markup);
         expect(parser.parse(serializer.serialize(doc)).eq(doc)).toBe(true);
     });
 
-    it('should parse inline content without consuming surrounding text', () => {
-        const doc = parser.parse('Before:footnote[**note**]{marker="*"}after');
-        const note = doc.firstChild!.child(1);
-        expect(note.type).toBe(footnoteType(schema));
-        expect(note.attrs).toEqual({
-            content: '**note**',
-            prefix: ':footnote[',
-            suffix: ']{marker="*"}',
-            marker: '*',
-        });
-        expect(doc.firstChild!.lastChild!.text).toBe('after');
+    it('should parse a reference without consuming surrounding text', () => {
+        const paragraph = parser.parse(source).firstChild!;
+        expect(paragraph.child(1).type).toBe(footnoteType(schema));
+        expect(paragraph.child(1).attrs.key).toBe('note');
+        expect(paragraph.child(1).attrs.label).toBe('*');
+        expect(paragraph.lastChild!.text).toBe('after');
     });
 
-    it('should leave unregistered directives and missing content as text', () => {
-        const doc = parser.parse(':unknown[text] :footnote :footnote(id)');
-        expect(doc.firstChild!.childCount).toBe(1);
-        expect(doc.textContent).toBe(':unknown[text] :footnote :footnote(id)');
+    it('should preserve missing and empty definitions as ordinary text', () => {
+        for (const markup of ['[label](*missing)', '[*empty]:']) {
+            const doc = parser.parse(markup);
+            expect(doc.firstChild!.childCount).toBe(1);
+            expect(doc.firstChild!.firstChild!.isText).toBe(true);
+            expect(doc.textContent).toBe(markup);
+        }
     });
 
-    it('should preserve footnotes when copying the document through DOM', () => {
-        const doc = parser.parse(':footnote[**text**]{unknown="kept"}');
+    it('should preserve references and definitions when copying a document through DOM', () => {
+        const doc = parser.parse(source);
         const host = document.createElement('div');
         host.append(DOMSerializer.fromSchema(schema).serializeFragment(doc.content));
         expect(DOMParser.fromSchema(schema).parse(host).eq(doc)).toBe(true);
     });
 
-    it('should include footnotes in the full specs preset', () => {
+    it('should include native terms in the full specs preset', () => {
         const full = new ExtensionsManager({
             extensions: (builder) => builder.use(FullSpecsPreset, {color: {}}),
         }).buildDeps();
-        expect(full.markupParser.parse(':footnote[note]').firstChild!.firstChild!.type.name).toBe(
-            'footnote',
-        );
+        expect(full.markupParser.parse(source).firstChild!.child(1).type.name).toBe('footnote');
     });
 
-    it('should insert an empty footnote at the cursor', () => {
-        const state = EditorState.create({doc: parser.parse('text')});
-        const {res, tr} = applyCommand(state, insertFootnote(deps));
+    it('should insert a star and restore an empty selection on cancel', () => {
+        let state = EditorState.create({doc: parser.parse('text')});
+        const {res, tr} = applyCommand(state, insertFootnote());
         expect(res).toBe(true);
-        expect(serializer.serialize(tr.doc)).toBe(':footnote[]text');
         expect(tr.selection.toJSON()).toEqual({type: 'node', anchor: 1});
-        expect(insertFootnote(deps)(state)).toBe(true);
+        expect(tr.doc.firstChild!.firstChild!.attrs.label).toBe('*');
+        expect(serializer.serialize(tr.doc)).toBe('text');
+        state = state.apply(tr);
+        const cancelled = applyCommand(state, cancelFootnote(1));
+        expect(cancelled.res).toBe(true);
+        expect(serializer.serialize(cancelled.tr.doc)).toBe('text');
     });
 
-    it('should convert formatted inline selection into a footnote', () => {
+    it('should retain selected text and its uniform formatting', () => {
         let state = EditorState.create({doc: parser.parse('Before **source** after')});
         state = state.apply(state.tr.setSelection(TextSelection.create(state.doc, 8, 14)));
-        const {res, tr} = applyCommand(state, insertFootnote(deps));
-        expect(res).toBe(true);
-        expect(serializer.serialize(tr.doc)).toBe('Before :footnote[**source**] after');
+        state = state.apply(applyCommand(state, insertFootnote()).tr);
+        expect(state.doc.firstChild!.child(1).attrs.label).toBe('source');
+        const saved = applyCommand(state, updateFootnote(8, 'source', 'Explanation', deps));
+        expect(saved.res).toBe(true);
+        expect(serializer.serialize(saved.tr.doc)).toBe(
+            'Before **[source](*footnote-1)** after\n\n[*footnote-1]: Explanation',
+        );
+        const cancelled = applyCommand(state, cancelFootnote(8));
+        expect(serializer.serialize(cancelled.tr.doc)).toBe('Before **source** after');
     });
 
-    it('should reject selections across blocks and inside code blocks', () => {
-        const state = EditorState.create({doc: parser.parse('one\n\ntwo')});
-        const selected = state.apply(state.tr.setSelection(TextSelection.create(state.doc, 1, 7)));
-        expect(insertFootnote(deps)(selected)).toBe(false);
-        const code = EditorState.create({doc: parser.parse('```\ncode\n```')});
-        expect(insertFootnote(deps)(code)).toBe(false);
-    });
-
-    it('should update content and preserve the original parameters', () => {
-        const state = EditorState.create({
-            doc: parser.parse(':footnote[old]{marker=\'*\' unknown="kept"}'),
-        });
-        const {res, tr} = applyCommand(state, updateFootnote(1, '**new**', deps));
-        expect(res).toBe(true);
-        expect(serializer.serialize(tr.doc)).toBe(
-            ':footnote[**new**]{marker=\'*\' unknown="kept"}',
+    it('should reject mixed formatting, cross-block selections and code', () => {
+        let state = EditorState.create({doc: parser.parse('one **two**\n\nthree')});
+        state = state.apply(state.tr.setSelection(TextSelection.create(state.doc, 1, 8)));
+        expect(insertFootnote()(state)).toBe(false);
+        state = state.apply(state.tr.setSelection(TextSelection.create(state.doc, 1, 12)));
+        expect(insertFootnote()(state)).toBe(false);
+        expect(insertFootnote()(EditorState.create({doc: parser.parse('```\ncode\n```')}))).toBe(
+            false,
         );
     });
 
-    it('should reject updates that break the directive syntax', () => {
-        const state = EditorState.create({doc: parser.parse(':footnote[old]')});
-        expect(updateFootnote(1, 'unmatched ] bracket', deps)(state)).toBe(false);
-        expect(updateFootnote(2, 'text', deps)(state)).toBe(false);
-        expect(serializer.serialize(state.doc)).toBe(':footnote[old]');
+    it('should save a new definition with a unique key', () => {
+        let state = EditorState.create({doc: parser.parse('[*footnote-1]: Existing')});
+        state = state.apply(
+            state.tr.insert(0, schema.nodes.paragraph.create(null, schema.text('text'))),
+        );
+        state = state.apply(state.tr.setSelection(TextSelection.create(state.doc, 1)));
+        state = state.apply(applyCommand(state, insertFootnote()).tr);
+        expect(state.doc.firstChild!.firstChild!.attrs.key).toBe('footnote-2');
+        const {res, tr} = applyCommand(state, updateFootnote(1, '*', 'New note', deps));
+        expect(res).toBe(true);
+        expect(footnoteDefinitions(tr.doc).get('footnote-2')?.node.attrs.content).toBe('New note');
+        expect(parser.parse(serializer.serialize(tr.doc)).eq(tr.doc)).toBe(true);
     });
 
-    it('should renumber automatic markers after insertions and deletions', () => {
-        const plugin = footnoteNumbering();
+    it('should update shared definitions without duplicating or renumbering references', () => {
+        const plugin = footnoteDefinitionPlugin();
         let state = EditorState.create({
-            doc: parser.parse(':footnote[A]:footnote[B]{marker="*"}:footnote[C]'),
+            doc: parser.parse('[first](*note) [second](*note)\n\n[*note]: Old'),
             plugins: [plugin],
         });
-        const markers = () =>
-            plugin
-                .getState(state)!
-                .find()
-                .map((decoration) => decoration.spec.footnoteMarker);
-        expect(markers()).toEqual(['1', '*', '2']);
-        state = state.apply(state.tr.insert(1, footnoteType(schema).create({content: 'new'})));
-        expect(markers()).toEqual(['1', '2', '*', '3']);
-        state = state.apply(state.tr.delete(1, 2));
-        expect(markers()).toEqual(['1', '*', '2']);
-        expect(serializer.serialize(state.doc)).toBe(
-            ':footnote[A]:footnote[B]{marker="*"}:footnote[C]',
-        );
-    });
-
-    it('should number footnotes across headings and nested blocks', () => {
-        const plugin = footnoteNumbering();
-        const state = EditorState.create({
-            doc: parser.parse('# Title:footnote[heading]\n\n> Quote:footnote[quote]'),
-            plugins: [plugin],
-        });
+        state = state.apply(applyCommand(state, updateFootnote(1, 'First', '**New**', deps)).tr);
         expect(
             plugin
                 .getState(state)!
                 .find()
-                .map((decoration) => decoration.spec.footnoteMarker),
-        ).toEqual(['1', '2']);
-    });
-
-    it('should render inline formatting and restart numbering for each preview', () => {
-        const md = new MarkdownIt({html: false}).use(footnote);
-        const source =
-            ':footnote[**bold** _italic_ `code` [link](https://example.com)]:footnote[text]{marker="*"}:footnote[last]';
-        const html = md.render(source);
-        expect(html).toContain('<strong>bold</strong>');
-        expect(html).toContain('<em>italic</em>');
-        expect(html).toContain('<code>code</code>');
-        expect(html).toContain('<a href="https://example.com">link</a>');
-        expect(html).toMatch(/>1<\/sup>.*>\*<\/sup>.*>2<\/sup>/);
-        expect(md.render(source)).toBe(html);
-    });
-
-    it('should escape custom markers and prevent unsafe links in previews', () => {
-        const md = new MarkdownIt({html: false}).use(footnote);
-        const html = md.render(
-            ':footnote[[link](javascript:alert(1)) <script>alert(1)</script>]{marker="<img>"}',
+                .map((deco) => deco.spec.footnoteContent),
+        ).toEqual(['**New**', '**New**']);
+        expect(serializer.serialize(state.doc)).toBe(
+            '[First](*note) [second](*note)\n\n[*note]: **New**',
         );
-        expect(html).not.toContain('<script>');
-        expect(html).not.toContain('href="javascript:');
-        expect(html).toContain('&lt;img&gt;');
+        expect(parser.parse(serializer.serialize(state.doc)).eq(state.doc)).toBe(true);
+    });
+
+    it('should reject empty content and definitions that consume other blocks', () => {
+        const state = EditorState.create({doc: parser.parse(source)});
+        for (const content of [
+            '',
+            '   ',
+            'Text\n\nAnother paragraph',
+            'Text\n[*other]: Definition',
+        ]) {
+            expect(updateFootnote(7, '*', content, deps)(state)).toBe(false);
+        }
+        expect(updateFootnote(7, '', 'Text', deps)(state)).toBe(false);
+        expect(updateFootnote(1, '*', 'Text', deps)(state)).toBe(false);
+    });
+
+    it('should escape edited labels while retaining ordinary links and native preview formatting', () => {
+        const state = EditorState.create({doc: parser.parse(source)});
+        const saved = applyCommand(
+            state,
+            updateFootnote(7, 'a [bracket] \\ path', '**Text**', deps),
+        );
+        expect(saved.res).toBe(true);
+        const md = new MarkdownIt({html: false}).use(term, {});
+        const html = md.render(serializer.serialize(saved.tr.doc));
+        expect(html).toContain('class="yfm yfm-term_title"');
+        expect(html).toContain('a [bracket] \\ path');
+        expect(html).toContain('<strong>Text</strong>');
+        expect(md.render(source)).toContain('href="https://example.com"');
+        expect(
+            md.render('[*](*n)\n\n[*n]: <script>text</script> [link](javascript:alert(1))'),
+        ).not.toContain('<script>');
     });
 });

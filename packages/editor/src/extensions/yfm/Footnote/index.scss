@@ -7,14 +7,17 @@
         padding: 0 2px;
 
         font: inherit;
-        font-size: 0.75em;
         line-height: 1;
         cursor: pointer;
-        vertical-align: super;
 
         color: var(--g-color-text-link);
         border: none;
         background: none;
+    }
+
+    &_star &__marker {
+        font-size: 0.75em;
+        vertical-align: super;
     }
 
     &__content {
@@ -38,24 +41,23 @@
         box-shadow: var(--g-color-sfx-shadow);
         overflow-wrap: anywhere;
 
+        p {
+            margin: 0;
+        }
+
         &[hidden] {
             display: none;
         }
-    }
-
-    & > sup + .g-md-footnote__content {
-        display: none;
-    }
-
-    &:hover > sup + &__content,
-    &:focus-within > sup + &__content {
-        display: inline-block;
     }
 }
 
 .g-md-footnote-editor {
     width: 320px;
     padding: 12px;
+
+    .g-text-area {
+        margin-top: 8px;
+    }
 
     &__actions {
         display: flex;

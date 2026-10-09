@@ -3,8 +3,10 @@ import {useState} from 'react';
 import {MarkdownEditorView, useMarkdownEditor} from '@gravity-ui/markdown-editor';
 import {Button, ThemeProvider} from '@gravity-ui/uikit';
 
+import {SplitModePreview} from '../../src/components/SplitModePreview';
+
 const initialMarkup =
-    'Before:footnote[**Formatted** text and a [link](https://example.com)].\n\nCustom:footnote[Custom marker]{marker="*"}.\n\nAfter:footnote[Second automatic note].';
+    'Before[*](*first).\n\nA [selected phrase](*custom).\n\nAfter[*](*second).\n\n[*first]: **Formatted** text and a [link](https://example.com).\n\n[*custom]: Custom marker\n\n[*second]: Another note';
 
 export function FootnoteEditor({
     theme = 'light',
@@ -25,5 +27,17 @@ export function FootnoteEditor({
                 </output>
             </div>
         </ThemeProvider>
+    );
+}
+
+export function FootnotePreview() {
+    return (
+        <div style={{width: 700, padding: 100}}>
+            <SplitModePreview
+                getValue={() =>
+                    'One[*](*same). Another[term](*same).\n\n[*same]: **Shared** explanation and a [link](https://example.com).'
+                }
+            />
+        </div>
     );
 }
