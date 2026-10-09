@@ -64,6 +64,8 @@ export const HeaderPopover = forwardRef<
         if (reason === 'submit' && [...drafts.current].some((draft) => !draft.validate()))
             return false;
         closing.current = true;
+        // Commits return focus to the active control; focus lost with the unmounted popup hides the toolbar.
+        if (reason === 'submit') editorView.focus();
         let valid = true;
         for (const draft of [...drafts.current]) {
             if (reason === 'cancel') draft.cancel();
@@ -75,7 +77,6 @@ export const HeaderPopover = forwardRef<
         }
         onClose();
         if (reason === 'cancel') anchor?.focus();
-        if (reason === 'submit') editorView.focus();
         return true;
     };
     useImperativeHandle(ref, () => ({close}));

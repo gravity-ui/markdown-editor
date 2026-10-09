@@ -122,7 +122,6 @@ export function HeaderToolbar({
     const addAction = (type: HeaderActionTypeValue) => {
         if (!popover.current?.close('submit')) return;
         addHeaderAction(pos, {type})(editorView.state, editorView.dispatch);
-        focus();
     };
     const data: ToolbarData<EditorView> = [
         [
@@ -178,9 +177,9 @@ export function HeaderToolbar({
                             <FillPalette
                                 value={attrs.fill}
                                 onSelect={(fill) => {
+                                    focus();
                                     update({fill});
                                     close();
-                                    focus();
                                 }}
                             />
                         </div>
