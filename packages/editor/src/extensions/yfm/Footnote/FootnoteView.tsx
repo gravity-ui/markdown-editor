@@ -1,4 +1,4 @@
-import {useState} from 'react';
+import {useEffect, useRef, useState} from 'react';
 
 import {Button, Portal, TextArea, TextInput} from '@gravity-ui/uikit';
 import MarkdownIt from 'markdown-it';
@@ -218,6 +218,11 @@ function FootnoteForm({
     const [value, setValue] = useState(content);
     const [labelValue, setLabelValue] = useState(label);
     const [invalid, setInvalid] = useState(false);
+    const contentRef = useRef<HTMLTextAreaElement>(null);
+    useEffect(() => {
+        // The popup is initially mounted before its position is calculated.
+        contentRef.current?.focus({preventScroll: true});
+    }, []);
     return (
         <form
             className="g-md-footnote-editor"
@@ -233,7 +238,7 @@ function FootnoteForm({
                 controlProps={{'aria-label': i18n('label')}}
             />
             <TextArea
-                autoFocus
+                controlRef={contentRef}
                 value={value}
                 onUpdate={setValue}
                 rows={3}

@@ -61,6 +61,32 @@ test.describe('Footnote', () => {
         );
     });
 
+    test('should keep the popup next to its marker when opening in a scrolled document', async ({
+        mount,
+        page,
+    }) => {
+        await mount(<FootnoteEditor />, {rootStyle: {paddingTop: 1200, paddingBottom: 1200}});
+        const marker = page.locator('.ProseMirror .g-md-footnote__marker').nth(1);
+        await marker.scrollIntoViewIfNeeded();
+        const scrollY = await page.evaluate(() => window.scrollY);
+        expect(scrollY).toBeGreaterThan(0);
+        await marker.click();
+        const form = page.locator('.g-md-footnote-editor');
+        await expect(form.locator('textarea')).toBeFocused();
+        await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(scrollY);
+        await expect
+            .poll(async () => {
+                const anchor = await marker.boundingBox();
+                const popup = await form.boundingBox();
+                if (!anchor || !popup) return Infinity;
+                return Math.min(
+                    Math.abs(popup.y - anchor.y - anchor.height),
+                    Math.abs(anchor.y - popup.y - popup.height),
+                );
+            })
+            .toBeLessThan(20);
+    });
+
     test('should cancel a new footnote without leaving a reference or definition', async ({
         mount,
         page,
