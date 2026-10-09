@@ -7,6 +7,7 @@ import {
     type Transaction,
 } from 'prosemirror-state';
 import {builders} from 'prosemirror-test-builder';
+import {describe, expect, it} from 'vitest';
 
 import {ExtensionsManager} from '../../../core';
 import {get$Cursor, isNodeSelection} from '../../../utils/selection';

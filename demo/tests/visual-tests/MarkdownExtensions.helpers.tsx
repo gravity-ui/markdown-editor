@@ -1,13 +1,8 @@
-import {composeStories} from '@storybook/react';
-
 import * as DefaultMarkdownStories from '../../src/stories/markdown/Markdown.stories';
 
-type Stories = ReturnType<typeof composeStories<typeof DefaultMarkdownStories>>;
+import {composeStories} from './utils/compose-stories';
 
-export const MarkdownStories: Stories = composeStories(DefaultMarkdownStories, {
-    argsEnhancers: [
-        () => ({
-            stickyToolbar: false,
-        }),
-    ],
+export const MarkdownStories = composeStories(DefaultMarkdownStories, {
+    stickyToolbar: false,
+    devTools: false,
 });

@@ -1,6 +1,7 @@
 import {Schema} from 'prosemirror-model';
 import {EditorState} from 'prosemirror-state';
 import {builders} from 'prosemirror-test-builder';
+import {describe, expect, it, vi} from 'vitest';
 
 import {applyCommand} from '../../../tests/utils';
 import {TableRole} from '../const';
@@ -106,7 +107,7 @@ describe('table-utils: commands', () => {
                 doc: doc(p('lol')),
             });
 
-            const dispatch = jest.fn();
+            const dispatch = vi.fn();
             const res = transpose(state, dispatch);
 
             expect(res).toBe(false);

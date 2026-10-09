@@ -1,10 +1,16 @@
+import checkboxPlugin from '@diplodoc/transform/lib/plugins/checkbox/index.js';
 import type Token from 'markdown-it/lib/token';
 
-import type {ParserToken} from '#core';
+import type {ExtensionAuto, ParserToken} from '#core';
 
-import {CheckboxAttr, CheckboxNode} from '../const';
-
-import {CHECKBOX_CLOSE_TOKEN, CHECKBOX_OPEN_TOKEN} from './const';
+import {
+    CHECKBOX_CLOSE_TOKEN,
+    CHECKBOX_OPEN_TOKEN,
+    CheckboxAttr,
+    CheckboxNode,
+    b,
+    idPrefix,
+} from './const';
 
 const getCheckboxAttrs: ParserToken['getAttrs'] = (token, tokens, index) => {
     const tight = checkboxIsTight(tokens, index);
@@ -15,7 +21,7 @@ const getCheckboxAttrs: ParserToken['getAttrs'] = (token, tokens, index) => {
 
 const getAttrs: ParserToken['getAttrs'] = (tok) => (tok.attrs ? Object.fromEntries(tok.attrs) : {});
 
-export const parserTokens: Record<CheckboxNode, ParserToken> = {
+const parserTokens: Record<CheckboxNode, ParserToken> = {
     [CheckboxNode.Checkbox]: {
         name: CheckboxNode.Checkbox,
         type: 'block',
@@ -48,3 +54,11 @@ function checkboxIsTight(tokens: Token[], index: number): boolean | null {
 
     return closeTokenEndLine === nextOpenTokenStartLine;
 }
+
+export const CheckboxParserSpecs: ExtensionAuto = (builder) => {
+    builder
+        .configureMd((md) => md.use(checkboxPlugin, {idPrefix, divClass: b(null, 'checkbox')}))
+        .addMarkdownTokenParserSpec('checkbox', () => parserTokens[CheckboxNode.Checkbox])
+        .addMarkdownTokenParserSpec('checkbox_input', () => parserTokens[CheckboxNode.Input])
+        .addMarkdownTokenParserSpec('checkbox_label', () => parserTokens[CheckboxNode.Label]);
+};

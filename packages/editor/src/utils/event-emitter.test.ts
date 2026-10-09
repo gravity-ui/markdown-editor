@@ -1,3 +1,5 @@
+import {describe, expect, it, vi} from 'vitest';
+
 import {EventEmitter, SafeEventEmitter} from './event-emitter';
 
 describe('EventEmitter', () => {
@@ -8,7 +10,7 @@ describe('EventEmitter', () => {
 
     it('should emit an event for one listener', () => {
         const eventObj = {flag: false};
-        const listener = jest.fn();
+        const listener = vi.fn();
         const emitter = new EventEmitter();
         emitter.on('event0', listener);
         emitter.emit('event0', eventObj);
@@ -18,8 +20,8 @@ describe('EventEmitter', () => {
 
     it('should emit event for multiple listeners', () => {
         const eventObj = {test: 1};
-        const listener0 = jest.fn();
-        const listener1 = jest.fn();
+        const listener0 = vi.fn();
+        const listener1 = vi.fn();
         const emitter = new EventEmitter();
         emitter.on('event', listener0);
         emitter.on('event', listener1);
@@ -31,8 +33,8 @@ describe('EventEmitter', () => {
     });
 
     it('should emit an event only for listeners subscribed to this type of event', () => {
-        const listener0 = jest.fn();
-        const listener1 = jest.fn();
+        const listener0 = vi.fn();
+        const listener1 = vi.fn();
         const emitter = new EventEmitter();
         emitter.on('event0', listener0);
         emitter.on('event1', listener1);
@@ -42,7 +44,7 @@ describe('EventEmitter', () => {
     });
 
     it('should remove listeners', () => {
-        const listener = jest.fn();
+        const listener = vi.fn();
         const emitter = new EventEmitter();
         emitter.on('event', listener);
         emitter.off('event', listener);
@@ -51,7 +53,7 @@ describe('EventEmitter', () => {
     });
 
     it('safe emitter should catch errors in listeners', () => {
-        const onError = jest.fn();
+        const onError = vi.fn();
         const emitter = new SafeEventEmitter({onError});
         emitter.on('event', () => {
             throw new Error('test error');

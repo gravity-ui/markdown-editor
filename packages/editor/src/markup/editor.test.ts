@@ -1,4 +1,5 @@
 import {EditorView} from '@codemirror/view';
+import {describe, expect, it, vi} from 'vitest';
 
 import {Editor} from './editor';
 
@@ -91,7 +92,7 @@ describe('MarkupContentHandler', () => {
             doc: 'codemirror\ncontent',
         });
         const contentHandler = new Editor(cm);
-        const fn = jest.fn(() => {
+        const fn = vi.fn(() => {
             contentHandler.moveCursor('test' as 'start');
         });
         expect(fn).toThrow();

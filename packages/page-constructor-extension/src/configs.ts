@@ -1,1 +1,5 @@
-export {wYfmPageConstructorItemData} from './extension/toolbar';
+export {
+    pageConstructorItemView,
+    pageConstructorItemWysiwyg,
+    wYfmPageConstructorItemData,
+} from './extension/toolbar';
