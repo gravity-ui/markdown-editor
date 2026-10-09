@@ -455,7 +455,7 @@ export class MarkdownSerializerState {
                     return info.expelEnclosingWhitespace && info.escape !== false && !mark.isInSet(next?.marks ?? []);
                 });
                 // Read all lines when ending marks cannot affect adjacent nodes.
-                const trailingWhitespace = (singleEscapedMark || isolatedEscapingMarks) && fromBlockStart
+                const trailingWhitespace = (singleEscapedMark || isolatedEscapingMarks)
                     ? /^([\s\S]*\S)?(\s*)$/ : /^(.*?)(\s*)$/m;
                 const [_, rest = '', trail] = trailingWhitespace.exec(node.text!)!;
                 if (trail) {
