@@ -54,6 +54,7 @@ test.describe('YfmTable', () => {
 
             await page.mouse.move(-50, -50);
 
+            await expect(page.locator('.g-tooltip')).toBeHidden();
             await expectScreenshot();
         });
 

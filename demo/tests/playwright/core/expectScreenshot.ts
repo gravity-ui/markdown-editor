@@ -59,8 +59,9 @@ export const expectScreenshot: PlaywrightFixture<ExpectScreenshotFixture> = asyn
 
         if (themes?.includes('light')) {
             await page.emulateMedia({colorScheme: 'light'});
-            // sometimes theme doesn't change in webkit without timeout
-            await page.waitForTimeout(100);
+            await page.waitForFunction(() =>
+                document.body.classList.contains('g-root_theme_light'),
+            );
 
             expect(await captureScreenshot()).toMatchSnapshot({
                 name: `${nameScreenshot} light.webp`,
@@ -69,8 +70,7 @@ export const expectScreenshot: PlaywrightFixture<ExpectScreenshotFixture> = asyn
 
         if (themes?.includes('dark')) {
             await page.emulateMedia({colorScheme: 'dark'});
-            // sometimes theme doesn't change in webkit without timeout
-            await page.waitForTimeout(100);
+            await page.waitForFunction(() => document.body.classList.contains('g-root_theme_dark'));
 
             expect(await captureScreenshot()).toMatchSnapshot({
                 name: `${nameScreenshot} dark.webp`,

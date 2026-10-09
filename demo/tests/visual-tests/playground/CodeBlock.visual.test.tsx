@@ -82,10 +82,12 @@ test.describe('CodeBlock', () => {
             await expectScreenshot();
         });
 
-        test('should add line numbers @wysiwyg', async ({editor, page, wait, expectScreenshot}) => {
+        test('should add line numbers @wysiwyg', async ({editor, page, expectScreenshot}) => {
             await editor.codeBlock.clickCodeBlockToolbarButton('Line numbers');
             await page.mouse.move(-1, -1);
-            await wait.timeout(100);
+            await expect(page.locator('.playground__markup')).toContainText(
+                '~~~js showLineNumbers',
+            );
             await expectScreenshot();
         });
 

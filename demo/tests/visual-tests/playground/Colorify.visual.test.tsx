@@ -149,7 +149,7 @@ test.describe('Colorify', () => {
             await editor.colorify.assertMainToolbarColorButtonDefault();
 
             await editor.focus();
-            await editor.press('ArrowDown');
+            await editor.press('ControlOrMeta+End');
             await editor.press('Enter');
 
             await editor.clickMainToolbarButton('Text color', 'Yellow');
@@ -167,7 +167,11 @@ test.describe('Colorify', () => {
 
             await editor.pressSequentially(')');
             await page.mouse.move(-1, -1);
-            await wait.timeout(400);
+            await expect(page.locator('.playground__markup')).toHaveText(
+                String.raw`some text
+
+{yellow}(some\(){red}(2, 3){yellow}(\))`,
+            );
 
             await expectScreenshot({nameSuffix: 'wysiwyg'});
 
