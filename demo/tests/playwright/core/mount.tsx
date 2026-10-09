@@ -1,9 +1,18 @@
+import type {MountOptions} from '@playwright/experimental-ct-react';
 import dd from 'ts-dedent';
 
-import type {MountFixture, PlaywrightFixture} from './types';
+import type {MountExtraOptions, MountFixture, PlaywrightFixture} from './types';
 
 export const mount: PlaywrightFixture<MountFixture> = async ({mount: baseMount}, use) => {
-    const mount: MountFixture = async (component, options) => {
+    const mount = (async (
+        component: string | JSX.Element,
+        options?: MountOptions<unknown> & MountExtraOptions,
+    ) => {
+        // A story id is mounted by Playwright itself; only components get the screenshot wrapper.
+        if (typeof component === 'string') {
+            return await baseMount(component, options);
+        }
+
         return await baseMount(
             <div
                 style={{
@@ -40,7 +49,7 @@ export const mount: PlaywrightFixture<MountFixture> = async ({mount: baseMount},
             </div>,
             options,
         );
-    };
+    }) as MountFixture;
 
     await use(mount);
 };

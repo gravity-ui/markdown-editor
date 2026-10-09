@@ -107,6 +107,7 @@ test.describe('Note', () => {
             page,
             wait,
         }) => {
+            const selection = page.locator('.playground__pm-selection');
             const markup = dd`
                 ## YFM Note
 
@@ -142,10 +143,14 @@ test.describe('Note', () => {
                 },
             });
 
+            await expect(selection).toContainText('TextSelection');
+            const nestedSelection = await selection.innerText();
             await editor.yfmNote.clickYfmNoteToolbarButton('Alert');
             await page.mouse.move(-1, -1);
             await wait.timeout(500);
 
+            await expect(editor.locators.contenteditable).toBeFocused();
+            await expect(selection).toHaveText(nestedSelection, {useInnerText: true});
             await expectScreenshot({nameSuffix: 'nested-note-is-alert'});
 
             const parentNote = page.getByText('Parent note title').first().locator('..');
@@ -159,10 +164,14 @@ test.describe('Note', () => {
             });
             await wait.timeout();
 
+            await expect(selection).toContainText('TextSelection');
+            const parentSelection = await selection.innerText();
             await editor.yfmNote.clickYfmNoteToolbarButton('Note');
             await page.mouse.move(-1, -1);
             await wait.timeout(500);
 
+            await expect(editor.locators.contenteditable).toBeFocused();
+            await expect(selection).toHaveText(parentSelection, {useInnerText: true});
             await expectScreenshot({nameSuffix: 'parent-note-is-info'});
         });
     });

@@ -1,11 +1,11 @@
 import '@diplodoc/cut-extension/runtime';
 import {chainCommands} from 'prosemirror-commands';
 
-import type {Action, ExtensionAuto} from '../../../core';
-import {nodeInputRule} from '../../../utils/inputrules';
-import {withLogAction} from '../../../utils/keymap';
+import type {Action, ExtensionAuto} from '#core';
+import {nodeInputRule} from 'src/utils/inputrules';
+import {withLogAction} from 'src/utils/keymap';
 
-import {YfmCutSpecs, type YfmCutSpecsOptions} from './YfmCutSpecs';
+import {CutNode, YfmCutSpecs, type YfmCutSpecsOptions} from './YfmCutSpecs';
 import {createYfmCut, toYfmCut} from './actions/toYfmCut';
 import {backToCutTitle, exitFromCutTitle, liftEmptyBlockFromCut, removeCut} from './commands';
 import {cutType} from './const';
@@ -28,18 +28,19 @@ export type YfmCutOptions = Pick<
 };
 
 export const YfmCut: ExtensionAuto<YfmCutOptions> = (builder, opts) => {
-    builder.use(YfmCutSpecs, {
-        ...opts,
-        // @ts-expect-error
-        cutView:
+    builder
+        .use(YfmCutSpecs, opts)
+        .addNodeView(
+            CutNode.Cut,
+            // @ts-expect-error
             // FIX: ignore mutation and don't rerender node when yfm.js open or close cut
             () => () => ({
                 ignoreMutation(mutation) {
                     return mutation instanceof MutationRecord && mutation.type === 'attributes';
                 },
             }),
-        cutTitleView: () => (node) => new YfmCutTitleNodeView(node),
-    });
+        )
+        .addNodeView(CutNode.CutTitle, () => (node) => new YfmCutTitleNodeView(node));
 
     builder
         .addPlugin(cutActivePlugin)

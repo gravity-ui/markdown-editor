@@ -132,7 +132,10 @@ export class TableDesc {
         }
         // <--- validation
 
-        const desc = new this(rows.length, rows[0].cells.length, rows, baseOffset);
+        const rawHeaderRows = Number(table.attrs['data-header-rows']) || 0;
+        const headerRows = Math.max(0, Math.min(rawHeaderRows, rows.length));
+
+        const desc = new this(rows.length, rows[0].cells.length, rows, baseOffset, headerRows);
         this.__cache.set(table, desc);
         return desc;
     }
@@ -146,11 +149,16 @@ export class TableDesc {
         readonly cols: number,
         readonly rowsDesc: readonly TableRowDesc[],
         readonly baseOffset: number,
+        readonly headerRows: number,
         /* eslint-enable @typescript-eslint/parameter-properties */
     ) {}
 
     bind(pos: number) {
         return new TableDescBinded(pos, this);
+    }
+
+    isHeaderRow(rowIdx: number): boolean {
+        return this.headerRows > 0 && rowIdx >= 0 && rowIdx < this.headerRows;
     }
 
     rowHasVirtualCells(rowIndex: number): boolean {

@@ -15,6 +15,7 @@ import {
 } from 'src/table-utils/table-desc';
 
 import {YfmTableNode} from '../../../YfmTableSpecs';
+import {YfmTableAttr} from '../../../YfmTableSpecs/const';
 import {clearAllSelections, selectDraggedColumn, selectDraggedRow} from '../plugins/dnd-plugin';
 import {hideHoverDecos} from '../plugins/focus-plugin-key';
 import {getSelectedCellsForColumns, getSelectedCellsForRows} from '../utils';
@@ -201,6 +202,7 @@ class YfmTableRowDnDHandler extends YfmTableDnDAbstractHandler {
     canDrag(): boolean {
         const res = this._getTableDescAndCellInfo();
         if (!res) return false;
+        if (res.tableDesc.base.isHeaderRow(res.cellInfo.row)) return false;
         const rowRange = res.tableDesc.base.getRowRangeByRowIdx(res.cellInfo.row);
         return rowRange.safeTopBoundary && rowRange.safeBottomBoundary;
     }
@@ -210,6 +212,8 @@ class YfmTableRowDnDHandler extends YfmTableDnDAbstractHandler {
         if (!info) return;
 
         const {tableDesc, cellInfo} = info;
+        if (tableDesc.base.isHeaderRow(cellInfo.row)) return;
+
         const rowRanges = tableDesc.base.getRowRanges();
         const currRowRange = tableDesc.base.getRowRangeByRowIdx(cellInfo.row);
         if (!currRowRange.safeTopBoundary || !currRowRange.safeBottomBoundary) return;
@@ -379,7 +383,33 @@ class YfmTableRowDnDHandler extends YfmTableDnDAbstractHandler {
             return;
         }
 
+        const insertIdx = ((): number => {
+            const total = info.tableDesc.base.rows;
+            for (let i = 0; i < total; i++) {
+                const {from, to} = info.tableDesc.getPosForRow(i);
+                if (point === from) return i;
+                if (point === to) return i + 1;
+            }
+            return -1;
+        })();
+
+        const tablePos = info.tableDesc.pos;
+        const prevHeaderRows = info.tableDesc.base.headerRows;
+        const nextHeaderRows = ((): number => {
+            if (prevHeaderRows <= 0 || insertIdx < 0) return prevHeaderRows;
+            const from = draggedRange.startIdx;
+            const to = draggedRange.endIdx + 1;
+            // dragged downwards
+            if (insertIdx > to && from < prevHeaderRows) return from;
+            // dragged upwards into (or above) the header block
+            if (insertIdx < from && insertIdx < prevHeaderRows) return insertIdx;
+            return prevHeaderRows;
+        })();
+
         const {tr} = this._editorView.state;
+        if (nextHeaderRows !== prevHeaderRows) {
+            tr.setNodeAttribute(tablePos, YfmTableAttr.HeaderRows, nextHeaderRows);
+        }
         const fragment = tr.doc.slice(rangeFrom, rangeTo, false).content;
         if (point > rangeFrom) {
             tr.insert(point, fragment);

@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 import {JSDOM} from 'jsdom';
+import {beforeEach, describe, expect, it} from 'vitest';
 
 import {MarkdownConverter} from '../converters';
 

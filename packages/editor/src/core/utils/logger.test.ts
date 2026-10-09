@@ -1,5 +1,6 @@
 import {Schema} from 'prosemirror-model';
 import {EditorState} from 'prosemirror-state';
+import {describe, expect, it, vi} from 'vitest';
 
 import type {Logger2} from '../../logger';
 
@@ -15,15 +16,15 @@ const schema = new Schema({
 });
 
 const mockLogger: Logger2.ILogger = {
-    log: jest.fn(),
-    warn: jest.fn(),
-    error: jest.fn(),
-    event: jest.fn(),
-    action: jest.fn(),
-    metrics: jest.fn(),
-    on: jest.fn(),
-    off: jest.fn(),
-    nested: jest.fn().mockReturnThis(),
+    log: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+    event: vi.fn(),
+    action: vi.fn(),
+    metrics: vi.fn(),
+    on: vi.fn(),
+    off: vi.fn(),
+    nested: vi.fn().mockReturnThis(),
 };
 
 describe('getLoggerFromState', () => {

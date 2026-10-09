@@ -26,8 +26,11 @@
         border-color: var(--g-color-line-brand);
         box-shadow: 0 8px 20px 1px var(--g-color-sfx-shadow);
 
-        & > tbody > tr > td {
-            border-color: var(--g-color-line-brand);
+        & > tbody > tr {
+            & > th,
+            & > td {
+                border-color: var(--g-color-line-brand);
+            }
         }
     }
 }
@@ -42,6 +45,7 @@
 }
 
 .yfm.ProseMirror table {
+    th,
     td {
         $selectedCell: 'g-md-yfm-table-selected-cell';
 
@@ -51,7 +55,6 @@
             overflow: unset;
 
             border-color: var(--g-color-line-brand);
-            background-color: var(--g-color-base-selection);
 
             &::after {
                 position: absolute;

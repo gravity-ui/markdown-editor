@@ -1,4 +1,5 @@
 import type {SanitizeOptions} from '@diplodoc/transform/lib/sanitize.js';
+import {describe, expect, it} from 'vitest';
 
 import {getSanitizeYfmHtmlBlock, getYfmHtmlBlockOptions} from './utils'; // update the path accordingly
 

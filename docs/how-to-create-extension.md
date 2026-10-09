@@ -15,48 +15,42 @@ In our example with the `mermaid` plugin, the code for the markup mode [can be f
 
 #### 1. Create a Specification
 
-The specification should include the fields `fromMd`, `toMd`, and `spec`.
+Use the granular builder API instead of the deprecated `addNode` method: `addNodeSpec` for the schema, `addMarkdownTokenParserSpec` for parsing Markdown tokens, and `addNodeSerializerSpec` for serialization.
 
-You can also add a `view` field, for example, if rendering through React is required.
-
+Register a custom NodeView separately with `addNodeView`, as shown in the next step.
 
 ```ts
-const MermaidSpecsExtension: ExtensionAuto<MermaidSpecsOptions> = (builder, {nodeView}) => {
+const MermaidSpecsExtension: ExtensionAuto = (builder) => {
   builder
     .configureMd((md) => md.use(transform({runtime: 'mermaid', bundle: false}), {}))
-    .addNode(mermaidNodeName, () => ({
-      fromMd: {
-        tokenSpec: {
-          name: mermaidNodeName,
-          type: 'node',
-          getAttrs: ({content}) => ({content}),
-        },
+    .addNodeSpec(mermaidNodeName, () => ({
+      selectable: true,
+      atom: true,
+      group: 'block',
+      attrs: {
+        [MermaidConsts.NodeAttrs.content]: {default: ''},
+        [MermaidConsts.NodeAttrs.class]: {default: 'mermaid'},
+        [MermaidConsts.NodeAttrs.newCreated]: {default: null},
       },
-      spec: {
-        selectable: true,
-        atom: true,
-        group: 'block',
-        attrs: {
-          [MermaidConsts.NodeAttrs.content]: {default: ''},
-          [MermaidConsts.NodeAttrs.class]: {default: 'mermaid'},
-          [MermaidConsts.NodeAttrs.newCreated]: {default: null},
-        },
-        parseDOM: [],
-        toDOM(node) {
-          return ['div', node.attrs];
-        },
-        dnd: {props: {offset: [8, 1]}},
+      parseDOM: [],
+      toDOM(node) {
+        return ['div', node.attrs];
       },
-      toMd: (state, node) => {
-        state.write('```mermaid\n');
-        state.ensureNewLine();
-        state.write(node.attrs.content);
-        state.ensureNewLine();
-        state.write('```');
-        state.ensureNewLine();
-      },
-      view: nodeView,
-    }));
+      dnd: {props: {offset: [8, 1]}},
+    }))
+    .addMarkdownTokenParserSpec(mermaidNodeName, () => ({
+      name: mermaidNodeName,
+      type: 'node',
+      getAttrs: ({content}) => ({content}),
+    }))
+    .addNodeSerializerSpec(mermaidNodeName, () => (state, node) => {
+      state.write('```mermaid\n');
+      state.ensureNewLine();
+      state.write(node.attrs.content);
+      state.ensureNewLine();
+      state.write('```');
+      state.ensureNewLine();
+    });
 };
 
 ```
@@ -73,6 +67,23 @@ export class WMermaidNodeView implements NodeView {
   // ...
 }
 ```
+
+Register the NodeView with `addNodeView` in the extension that uses the specifications:
+
+```ts
+const MermaidExtension: ExtensionAuto<MermaidOptions> = (builder, options) => {
+  builder
+    .use(MermaidSpecsExtension)
+    .addNodeView(
+      mermaidNodeName,
+      () => (node, view, getPos) => new WMermaidNodeView(node, view, getPos, options),
+    );
+};
+```
+
+The factory receives the extension dependencies (`schema`, `textParser`, `markupParser`, `serializer`, `actions`) and returns a `NodeViewConstructor`; it runs after the schema is built. Marks are registered the same way with `addMarkView`, which expects a `MarkViewConstructor`.
+
+The node must already be registered by `addNodeSpec` or `addNode`, and it can have only one view — a second registration for the same node throws.
 
 See the [full example of the extension](https://github.com/gravity-ui/markdown-editor/tree/main/src/extensions/yfm/Mermaid/MermaidNodeView) for more details.
 

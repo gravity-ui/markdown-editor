@@ -10,7 +10,7 @@ cd "$REPO_ROOT"
 echo "Running in $(pwd)"
 
 IMAGE_NAME="mcr.microsoft.com/playwright"
-IMAGE_TAG="v1.52.0-jammy" # This version have to be synchronized with playwright version from package.json
+IMAGE_TAG="v1.62.1-jammy" # This version have to be synchronized with playwright version from package.json
 
 PNPM_STORE_CACHE_DIR="$HOME/.cache/markdown-editor-playwright-docker-pnpm-store"
 NODE_MODULES_CACHE_DIR="$HOME/.cache/markdown-editor-playwright-docker-node-modules"
@@ -20,7 +20,7 @@ command_exists() {
 }
 
 run_command() {
-  $CONTAINER_TOOL run --rm --network host -it -w /work \
+  $CONTAINER_TOOL run --rm -it -w /work \
     --platform linux/arm64 \
     --ipc=host \
     -v $(pwd):/work \
@@ -28,6 +28,7 @@ run_command() {
     -v "$PNPM_STORE_CACHE_DIR:/root/.local/share/pnpm/store" \
     -e IS_DOCKER=1 \
     -e NODE_OPTIONS="--max-old-space-size=8192" \
+    -p 8082:8082 \
     "$IMAGE_NAME:$IMAGE_TAG" \
     /bin/bash -c "$*"
 }
