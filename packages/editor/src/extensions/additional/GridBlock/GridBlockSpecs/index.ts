@@ -17,6 +17,13 @@ const readBlocks = (node: Node): GridBlock[] => {
     return Array.isArray(value) ? value : [];
 };
 
+const escapeHtml = (value: string) =>
+    value
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+
 const indent = (text: string, by = '  ') =>
     text
         .split('\n')
@@ -26,12 +33,12 @@ const indent = (text: string, by = '  ') =>
 /** Assembles the static HTML the prototype writes into a YFM HTML block. */
 export const buildGridHtml = (node: Node): string => {
     const containerCss: string = node.attrs[GridBlockConsts.NodeAttrs.containerCss] || '';
-    const containerStyle = containerCss.trim() ? ` style="${containerCss.trim()}"` : '';
+    const containerStyle = containerCss.trim() ? ` style="${escapeHtml(containerCss.trim())}"` : '';
 
     const blocks = readBlocks(node)
         .map((block, i) => {
-            const style = block.css.trim() ? ` style="${block.css.trim()}"` : '';
-            const text = block.text ?? '';
+            const style = block.css.trim() ? ` style="${escapeHtml(block.css.trim())}"` : '';
+            const text = escapeHtml(block.text ?? '');
             return indent(`<div class="block-${i + 1}"${style}>${text}</div>`);
         })
         .join('\n');
