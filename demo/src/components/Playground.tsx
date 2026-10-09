@@ -12,32 +12,24 @@ import {
     type MarkupString,
     NumberInput,
     type RenderPreview,
-    type ToolbarGroupData,
     type ToolbarsPreset,
     type UseMarkdownEditorProps,
     type WysiwygPlaceholderOptions,
     type YfmMods,
     logger,
     useMarkdownEditor,
-    wysiwygToolbarConfigs,
 } from '@gravity-ui/markdown-editor';
 import type {ToolbarActionData} from '@gravity-ui/markdown-editor/_/bundle/Editor.js';
 import type {SettingItems} from '@gravity-ui/markdown-editor/_/bundle/settings/index.js';
-import type {CodeEditor} from '@gravity-ui/markdown-editor/_/markup/index.js';
 import type {Extension} from '@gravity-ui/markdown-editor/cm/state';
 import {FoldingHeading} from '@gravity-ui/markdown-editor/extensions/additional/FoldingHeading/index.js';
 import {Mermaid} from '@gravity-ui/markdown-editor/extensions/additional/Mermaid/index.js';
 import {YfmHtmlBlock} from '@gravity-ui/markdown-editor/extensions/additional/YfmHtmlBlock/index.js';
 import {LatexExtension} from '@gravity-ui/markdown-editor-latex-extension';
-import {
-    wLatexBlockItemData,
-    wLatexInlineItemData,
-} from '@gravity-ui/markdown-editor-latex-extension/configs';
 import {YfmPageConstructorExtension} from '@gravity-ui/markdown-editor-page-constructor-extension';
-import {wYfmPageConstructorItemData} from '@gravity-ui/markdown-editor-page-constructor-extension/configs';
 import {Button, DropdownMenu} from '@gravity-ui/uikit';
 
-import {getPlugins} from '../defaults/md-plugins';
+import {playgroundToolbarsPreset} from '../defaults/toolbars';
 import {useLogs} from '../hooks/useLogs';
 import useYfmHtmlBlockStyles from '../hooks/useYfmHtmlBlockStyles';
 import {randomDelay} from '../utils/delay';
@@ -45,21 +37,13 @@ import {parseInsertedUrlAsImage} from '../utils/imageUrl';
 import {debouncedUpdateLocation as updateLocation} from '../utils/location';
 
 import {PlaygroundLayout, b} from './PlaygroundLayout';
-import {SplitModePreview} from './SplitModePreview';
+import {SplitModePreviewLazy} from './SplitModePreviewLazy';
 
 const fileUploadHandler: FileUploadHandler = async (file) => {
     console.info('[Playground] Uploading file: ' + file.name);
     await randomDelay(1000, 3000);
     return {url: URL.createObjectURL(file)};
 };
-
-const wCommandMenuConfig = wysiwygToolbarConfigs.wCommandMenuConfig.concat(
-    wLatexInlineItemData,
-    wLatexBlockItemData,
-    wysiwygToolbarConfigs.wMermaidItemData,
-    wYfmPageConstructorItemData,
-    wysiwygToolbarConfigs.wYfmHtmlBlockItemData,
-);
 
 export type PlaygroundProps = {
     mobile?: boolean;
@@ -77,13 +61,12 @@ export type PlaygroundProps = {
     splitModeOrientation?: 'horizontal' | 'vertical' | false;
     searchPanel?: boolean;
     stickyToolbar?: boolean;
+    devTools?: boolean;
     initialSplitModeEnabled?: boolean;
     renderPreviewDefined?: boolean;
     height?: CSSProperties['height'];
     width?: CSSProperties['width'];
     markupConfigExtensions?: Extension[];
-    wysiwygCommandMenuConfig?: wysiwygToolbarConfigs.WToolbarItemData[];
-    markupToolbarConfig?: ToolbarGroupData<CodeEditor>[];
     toolbarsPreset?: ToolbarsPreset;
     onChangeEditorType?: (mode: MarkdownEditorMode) => void;
     onChangeSplitModeEnabled?: (splitModeEnabled: boolean) => void;
@@ -95,15 +78,7 @@ export type PlaygroundProps = {
     storyAdditionalControls?: Record<string, any>;
     yfmMods?: YfmMods;
 } & Pick<UseMarkdownEditorProps, 'experimental' | 'wysiwygConfig'> &
-    Pick<
-        MarkdownEditorViewProps,
-        | 'markupHiddenActionsConfig'
-        | 'wysiwygHiddenActionsConfig'
-        | 'markupToolbarConfig'
-        | 'wysiwygToolbarConfig'
-        | 'enableSubmitInPreview'
-        | 'hidePreviewAfterSubmit'
-    >;
+    Pick<MarkdownEditorViewProps, 'enableSubmitInPreview' | 'hidePreviewAfterSubmit'>;
 
 logger.setLogger({
     // eslint-disable-next-line no-console
@@ -132,15 +107,13 @@ export const Playground = memo<PlaygroundProps>((props) => {
         splitModeOrientation,
         searchPanel,
         stickyToolbar,
+        devTools,
         renderPreviewDefined,
         height,
         width,
         wysiwygConfig,
         toolbarsPreset,
-        wysiwygToolbarConfig,
-        wysiwygCommandMenuConfig,
         markupConfigExtensions,
-        markupToolbarConfig,
         placeholderOptions,
         enableSubmitInPreview,
         hidePreviewAfterSubmit,
@@ -163,18 +136,18 @@ export const Playground = memo<PlaygroundProps>((props) => {
 
     const renderPreview = useCallback<RenderPreview>(
         ({getValue, md, directiveSyntax}) => (
-            <SplitModePreview
+            <SplitModePreviewLazy
                 getValue={getValue}
                 allowHTML={md.html}
                 linkify={md.linkify}
                 linkifyTlds={md.linkifyTlds}
                 breaks={md.breaks}
                 needToSanitizeHtml={sanitizeHtml}
-                plugins={getPlugins({
+                pluginsOptions={{
                     directiveSyntax,
                     table_ignoreSplittersInBlockMath: true,
                     table_ignoreSplittersInInlineMath: true,
-                })}
+                }}
                 disableMarkdownItAttrs={disableMarkdownItAttrs}
                 htmlRuntimeConfig={{disabledModes: disabledHTMLBlockModes}}
             />
@@ -191,7 +164,7 @@ export const Playground = memo<PlaygroundProps>((props) => {
             mobile,
             preset: 'full',
             wysiwygConfig: {
-                placeholderOptions: placeholderOptions,
+                placeholderOptions,
                 disableMarkdownAttrs: disableMarkdownItAttrs,
                 extensions: (builder) => {
                     builder
@@ -254,7 +227,6 @@ export const Playground = memo<PlaygroundProps>((props) => {
                         mods: yfmMods,
                     },
                     checkbox: {multiline: true},
-                    commandMenu: {actions: wysiwygCommandMenuConfig ?? wCommandMenuConfig},
                     imgSize: {
                         parseInsertedUrlAsImage,
                     },
@@ -383,6 +355,7 @@ export const Playground = memo<PlaygroundProps>((props) => {
         <PlaygroundLayout
             style={style}
             editor={mdEditor}
+            devTools={devTools}
             viewHeight={height}
             viewWidth={width}
             view={({className}) => (
@@ -391,9 +364,7 @@ export const Playground = memo<PlaygroundProps>((props) => {
                     className={className}
                     qa="demo-md-editor"
                     stickyToolbar={Boolean(stickyToolbar)}
-                    toolbarsPreset={toolbarsPreset}
-                    wysiwygToolbarConfig={wysiwygToolbarConfig}
-                    markupToolbarConfig={markupToolbarConfig}
+                    toolbarsPreset={toolbarsPreset ?? playgroundToolbarsPreset}
                     settingsVisible={settingsVisible}
                     editor={mdEditor}
                     enableSubmitInPreview={enableSubmitInPreview}
