@@ -24,6 +24,7 @@ export type PlaygroundMiniProps = Pick<
     | 'height'
     | 'width'
     | 'initial'
+    | 'syncMarkupToUrl'
     | 'onChangeEditorType'
     | 'onChangeSplitModeEnabled'
     | 'directiveSyntax'

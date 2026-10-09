@@ -5,4 +5,5 @@ import {composeStories} from './utils/compose-stories';
 export const MarkdownStories = composeStories(DefaultMarkdownStories, {
     stickyToolbar: false,
     devTools: false,
+    syncMarkupToUrl: false,
 });
