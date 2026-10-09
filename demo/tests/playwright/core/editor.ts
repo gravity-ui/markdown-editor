@@ -145,14 +145,17 @@ class YfmTable {
     readonly buttonPlusRowLocator;
     readonly buttonPlusColumnLocator;
     readonly cellBgPaletteLocator: Locator;
+    private readonly expect: Expect;
     private readonly tableLocator;
 
     private readonly rowButtonLocator;
     private readonly columnButtonLocator;
     private readonly cellMenus: Readonly<Record<YfmTableCellMenuType, Locator>>;
+    private readonly openCellMenus: Readonly<Record<YfmTableCellMenuType, Locator>>;
     private readonly cellMenuActions: Readonly<Record<YfmTableActionKind, Locator>>;
 
-    constructor(page: Page) {
+    constructor(page: Page, expect: Expect) {
+        this.expect = expect;
         this.tableLocator = page.locator('table');
         this.buttonPlusRowLocator = page.getByTestId('g-md-yfm-table-plus-row');
         this.buttonPlusColumnLocator = page.getByTestId('g-md-yfm-table-plus-column');
@@ -162,6 +165,14 @@ class YfmTable {
         this.cellMenus = {
             row: page.getByTestId('g-md-yfm-table-row-menu'),
             column: page.getByTestId('g-md-yfm-table-column-menu'),
+        };
+        // The popup status changes on click, before the open or close transition ends.
+        const openPopup = page.locator(
+            '[data-floating-ui-status="initial"], [data-floating-ui-status="open"]',
+        );
+        this.openCellMenus = {
+            row: openPopup.filter({has: this.cellMenus.row}),
+            column: openPopup.filter({has: this.cellMenus.column}),
         };
         this.cellMenuActions = {
             'add-column-after': page.getByTestId('g-md-yfm-table-action-add-column-after'),
@@ -246,15 +257,43 @@ class YfmTable {
     }
 
     async selectCellBg(menuType: YfmTableCellMenuType, swatchLabel: string) {
-        await this.openCellBgPalette(menuType);
-        await this.getCellBgSwatchLocator(swatchLabel).click();
+        const swatch = this.getCellBgSwatchLocator(swatchLabel);
+
+        // The palette follows the menu and closes 120 ms after the pointer leaves it: waiting for the
+        // swatch to stand still outlives the palette itself, so the click goes out without that wait.
+        await this.expect(async () => {
+            await this.openCellBgPalette(menuType);
+            await swatch.click({force: true, timeout: 1000});
+        }).toPass({timeout: 5000});
+    }
+
+    async openMenu(menuType: YfmTableCellMenuType) {
+        await this.toggleMenu(menuType, true);
     }
 
     async closeMenu(menuType: YfmTableCellMenuType) {
-        const button =
-            menuType === 'row' ? this.rowButtonLocator.first() : this.columnButtonLocator.first();
-        await button.click();
-        await this.cellMenus[menuType].waitFor({state: 'hidden'});
+        await this.toggleMenu(menuType, false);
+    }
+
+    /**
+     * The button appears on cell hover and a click can land on an already replaced one,
+     * and a click that lands while the cell background palette is closing leaves the menu open.
+     * A retry clicks only when the popup status still differs from the requested one.
+     */
+    private async toggleMenu(menuType: YfmTableCellMenuType, open: boolean) {
+        await this.expect(async () => {
+            const isOpen = (await this.openCellMenus[menuType].count()) > 0;
+            if (isOpen !== open) {
+                await this.menuButton(menuType).click();
+            }
+            await this.expect(this.cellMenus[menuType]).toBeVisible({visible: open, timeout: 500});
+        }).toPass({timeout: 5000});
+    }
+
+    private menuButton(menuType: YfmTableCellMenuType) {
+        return menuType === 'row'
+            ? this.rowButtonLocator.first()
+            : this.columnButtonLocator.first();
     }
 }
 
@@ -396,7 +435,7 @@ export class MarkdownEditorPage {
         this.expect = expect;
 
         this.locators = new MarkdownEditorLocators(page);
-        this.yfmTable = new YfmTable(page);
+        this.yfmTable = new YfmTable(page, expect);
         this.colorify = new Colorify(page, expect, this.locators);
         this.yfmNote = new YfmNote(page);
         this.image = new Image(page);
