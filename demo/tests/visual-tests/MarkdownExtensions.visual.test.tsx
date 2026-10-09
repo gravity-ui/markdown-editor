@@ -1,4 +1,4 @@
-import {test} from 'playwright/core';
+import {expect, test} from 'playwright/core';
 
 import {MarkdownStories} from './MarkdownExtensions.helpers';
 
@@ -56,7 +56,7 @@ test.describe('Extensions, Markdown', () => {
             hidePlaygroundBlocks: true,
             styles: '.cm-editor { height: auto !important; } .cm-scroller { overflow: visible !important; }',
         });
-        await page.waitForTimeout(300);
+        await expect(page.getByTestId('demo-md-preview')).toContainText('monospace');
         await expectScreenshot();
     });
 });
