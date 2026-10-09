@@ -175,16 +175,21 @@ Let's create a button for the markup toolbar.
 
 import {Ghost} from '@gravity-ui/icons';
 
-import {ToolbarDataType} from '@gravity-ui/markdown-editor';
-import {MToolbarSingleItemData} from '@gravity-ui/markdown-editor/bundle/config/markup';
+import {
+    ToolbarDataType,
+    type ToolbarItemMarkup,
+    type ToolbarItemView,
+} from '@gravity-ui/markdown-editor';
 
 import {showGhostPopup} from './commands';
 
-export const ghostPopupToolbarItem: MToolbarSingleItemData = {
-    id: 'ghost',
+export const ghostPopupItemView: ToolbarItemView = {
     type: ToolbarDataType.SingleButton,
     title: 'Show ghost',
     icon: {data: Ghost},
+};
+
+export const ghostPopupItemMarkup: ToolbarItemMarkup = {
     exec: (e) => showGhostPopup(e.cm),
     isActive: () => false,
     isEnable: () => true,
@@ -217,17 +222,29 @@ export const hideGhostPopup = (view: EditorView) => {
 
 ```
 
-Everything is ready, all that remains is to connect the extension to the editor.
+Everything is ready, all that remains is to connect the extension to the editor. The `@gravity-ui/markdown-editor/toolbars` entry point is available starting with version 15.48.0.
 
-```ts
+```tsx
 
-import {markupToolbarConfigs, useMarkdownEditor} from '@gravity-ui/markdown-editor';
+import {
+    MarkdownEditorView,
+    type ToolbarsPreset,
+    useMarkdownEditor,
+} from '@gravity-ui/markdown-editor';
+import {ToolbarName as Toolbar, full} from '@gravity-ui/markdown-editor/toolbars';
 import {ghostPopupExtension} from './ghostExtension';
-import {ghostPopupToolbarItem} from './toolbar';
+import {ghostPopupItemMarkup, ghostPopupItemView} from './toolbar';
 
-const mToolbarConfig = [...markupToolbarConfigs.mToolbarConfig,];
-
-mToolbarConfig.mToolbarConfig.push(ghostPopupToolbarItem);
+const toolbarsPreset: ToolbarsPreset = {
+    items: {
+        ...full.items,
+        ghost: {view: ghostPopupItemView, markup: ghostPopupItemMarkup},
+    },
+    orders: {
+        ...full.orders,
+        [Toolbar.markupMain]: [['ghost'], ...full.orders[Toolbar.markupMain]],
+    },
+};
 
 const mdEditor = useMarkdownEditor({
     // ...
@@ -240,7 +257,7 @@ const mdEditor = useMarkdownEditor({
 return <MarkdownEditorView
     ...
     // Add a button to the toolbar
-    markupToolbarConfig={mToolbarConfig}
+    toolbarsPreset={toolbarsPreset}
     editor={mdEditor}
     ...
 />
