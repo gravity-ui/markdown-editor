@@ -1,0 +1,11 @@
+{
+  "name": "@markdown-editor/tsconfig",
+  "version": "0.0.0",
+  "private": true,
+  "files": [
+    "tsconfig.json"
+  ],
+  "dependencies": {
+    "@gravity-ui/tsconfig": "1.0.0"
+  }
+}

@@ -1,0 +1,131 @@
+# To get started with Dependabot version updates, you'll need to specify which
+# package ecosystems to update and where the package manifests are located.
+# Please see the documentation for all configuration options:
+# https://docs.github.com/github/administering-a-repository/configuration-options-for-dependency-updates
+
+# Note: Dependabot security updates are enabled automatically by GitHub
+# when dependabot.yml exists. Security updates create PRs for vulnerabilities
+# independently of the regular update schedule above.
+
+version: 2
+updates:
+  # GitHub Actions
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: monthly
+    cooldown:
+      default-days: 7
+    commit-message:
+      prefix: "ci(github)"
+    groups:
+      github-actions:
+        patterns:
+          - "actions/*"
+
+  # npm — root
+  - package-ecosystem: npm
+    directory: "/"
+    schedule:
+      interval: monthly
+    cooldown:
+      default-days: 7
+    exclude-paths:
+      - "demo"
+      - "packages/*"
+      - "infra/*"
+    groups:
+      commitlint:
+        patterns:
+          - "@commitlint/*"
+      react:
+        patterns:
+          - "react"
+          - "react-dom"
+          - "@types/react"
+          - "@types/react-dom"
+      vitest:
+        patterns:
+          - "vitest"
+          - "@vitest/*"
+    ignore:
+      - dependency-name: "*"
+        update-types:
+          - "version-update:semver-major"
+      - dependency-name: "@diplodoc/*"
+      - dependency-name: "@gravity-ui/*"
+
+  # npm — demo
+  - package-ecosystem: npm
+    directory: "/demo"
+    schedule:
+      interval: monthly
+    cooldown:
+      default-days: 7
+    groups:
+      babel:
+        patterns:
+          - "@babel/*"
+          - "babel-*"
+      storybook:
+        patterns:
+          - "@storybook/*"
+          - "storybook"
+      playwright:
+        patterns:
+          - "@playwright/*"
+          - "playwright"
+    ignore:
+      - dependency-name: "*"
+        update-types:
+          - "version-update:semver-major"
+      - dependency-name: "@diplodoc/*"
+      - dependency-name: "@gravity-ui/*"
+
+  # npm — packages/*
+  - package-ecosystem: npm
+    directories:
+      - "/packages/*"
+    schedule:
+      interval: monthly
+    cooldown:
+      default-days: 15
+    groups:
+      prosemirror:
+        patterns:
+          - "orderedmap"
+          - "prosemirror-*"
+      codemirror:
+        patterns:
+          - "@lezer/*"
+          - "@codemirror/*"
+          - "codemirror"
+    ignore:
+      - dependency-name: "*"
+        update-types:
+          - "version-update:semver-major"
+      - dependency-name: "@diplodoc/*"
+      - dependency-name: "@gravity-ui/*"
+
+  # npm — infra/*
+  - package-ecosystem: npm
+    directories:
+      - "/infra/*"
+    schedule:
+      interval: monthly
+    cooldown:
+      default-days: 7
+      exclude:
+        - "@diplodoc/*"
+        - "@gravity-ui/*"
+    groups:
+      gulp:
+        patterns:
+          - "gulp"
+          - "gulp-*"
+          - "@types/gulp*"
+          - "@gravity-ui/gulp-utils"
+    ignore:
+      - dependency-name: "*"
+        update-types:
+          - "version-update:semver-major"

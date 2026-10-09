@@ -1,0 +1,12 @@
+@use './constants' as const;
+
+.g-md-search-card {
+    $b: &;
+
+    width: const.$width;
+
+    &__row#{$b}__row {
+        --gc-form-row-label-width: 86px;
+        --gc-form-row-field-height: 36px;
+    }
+}

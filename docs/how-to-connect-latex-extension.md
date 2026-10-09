@@ -1,10 +1,12 @@
-## How to Connect the Latex Extensions in the Editor
+##### Extensions / Latex extension
+
+## How to Connect the Latex Extension in the Editor
 
 To integrate the LaTeX extension in your editor, you will use the specified versions of the necessary packages. Here’s a detailed guide:
 
 First to integrate this extension, you need to use the following versions of the packages:
 
-- @gravity-ui/markdown-editor version 13.4.0 or higher
+- @gravity-ui/markdown-editor version 15.48.0 or higher
 - @diplodoc/latex-extension version 1.1.0 or higher
 
 ## Usage
@@ -14,7 +16,7 @@ First to integrate this extension, you need to use the following versions of the
 First, ensure that you have all the necessary packages installed. You can use npm or yarn to add them to your project:
 
 ```bash
-npm install @gravity-ui/markdown-editor@^13.4.0
+npm install @gravity-ui/markdown-editor@^15.48.0
 npm install @diplodoc/latex-extension@^1.1.0
 ```
 
@@ -101,26 +103,34 @@ builder.use(Math, {
 });
 ```
 
-### 5. Add Buttons to the Toolbar
+### 6. Add Buttons to the Toolbar
 
-```ts
+Add the buttons to the [toolbars preset](./how-to-customize-toolbars.md) and pass the preset to `MarkdownEditorView` through the `toolbarsPreset` prop. The example puts both formulas into the slash menu and extends the built-in `full` preset; the main toolbars come only from the preset, so extend the one matching your editor preset:
+
+```tsx
+import type {ToolbarsPreset} from '@gravity-ui/markdown-editor';
 import {
-  mMathListItem,
-} from '@gravity-ui/markdown-editor/bundle/config/markup';
+  ActionName as Action,
+  ToolbarName as Toolbar,
+  full,
+  mathBlockItemView,
+  mathBlockItemWysiwyg,
+  mathInlineItemView,
+  mathInlineItemWysiwyg,
+} from '@gravity-ui/markdown-editor/toolbars';
 
-import {
-  wMathBlockItemData,
-  wMathInlineItemData,
-} from '@gravity-ui/markdown-editor';
-
-// add to useMarkdownEditor
-const mdEditor = useMarkdownEditor({
-  // ...
-  extensionOptions: {
-    commandMenu: {actions: [wMathInlineItemData, wMathBlockItemData]},
+const toolbarsPreset: ToolbarsPreset = {
+  items: {
+    ...full.items,
+    [Action.mathInline]: {view: mathInlineItemView, wysiwyg: mathInlineItemWysiwyg},
+    [Action.mathBlock]: {view: mathBlockItemView, wysiwyg: mathBlockItemWysiwyg},
   },
-});
-
-
+  orders: {
+    ...full.orders,
+    [Toolbar.wysiwygSlash]: [
+      [...full.orders[Toolbar.wysiwygSlash].flat(), Action.mathInline, Action.mathBlock],
+    ],
+  },
+};
 ```
 

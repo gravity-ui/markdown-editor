@@ -1,15 +1,18 @@
+##### Extensions / GPT
+
 ## How to connect GPT extensions to editor
 
 First to integrate this extension, you need to use the following versions of the packages:
 
-    @gravity-ui/markdown-editor version 13.18.0 or higher
+    @gravity-ui/markdown-editor version 15.48.0 or higher
 
 
 Features:
 
-<img src="./assets/gifs/custom-prompt-preset-gpt.gif" width="470"/>
+<img src="https://raw.githubusercontent.com/gravity-ui/markdown-editor/refs/heads/main/docs/assets/gifs/custom-prompt-preset-gpt.gif" width="470"/>
 
-<img src="./assets/gifs/prompt-preset-gpt.gif" width="470"/>
+
+<img src="https://raw.githubusercontent.com/gravity-ui/markdown-editor/refs/heads/main/docs/assets/gifs/prompt-preset-gpt.gif" width="470"/>
 
 ### 1. Add extension usage and extensions props
 
@@ -17,14 +20,23 @@ Features:
 import React from 'react';
 
 import {
-    gptExtension,
     MarkdownEditorView,
+    gptExtension,
+    mGptExtension,
     useMarkdownEditor,
 } from '@gravity-ui/markdown-editor';
 
 export const Editor: React.FC<EditorProps> = (props) => {
+    // add a plugin to the markup mode
+    const markupGptExtension = mGptExtension(gptWidgetProps);
+
     const mdEditor = useMarkdownEditor({
         // ...
+
+        markupConfig: {
+            extensions: markupGptExtension,
+        },
+
         extraExtensions: (builder) =>
             builder.use(
                 ...
@@ -39,7 +51,7 @@ export const Editor: React.FC<EditorProps> = (props) => {
         ...
         editor={mdEditor}
     />
-};         
+};
 ```
 ### 2. Implementation ```gptWidgetProps```
 
@@ -123,100 +135,93 @@ export const gptWidgetProps: GptWidgetOptions = {
     },
     onLike: async () => {}, // function to track feedback for good
     onDislike: async () => {}, // and bad GPT answers
-};          
+};
 ```
-### 3. Add extension to menubar and toolbar and command menu config for editor
+### 3. Add the GPT button to the toolbars
 
-Add in tool bar
+The button is declared once in the [toolbars preset](./how-to-customize-toolbars.md) and placed into every toolbar that needs it: the main toolbars of both modes, the selection toolbar and the slash menu. The example extends the built-in `full` preset; the main toolbars come only from the preset, so extend the one matching your editor preset. The button in the markup toolbar works through `mGptExtension` from step 1.
 
-```ts
+```tsx
+import {MarkdownEditorView, type ToolbarsPreset} from '@gravity-ui/markdown-editor';
 import {
-    ...
-    wGptToolbarItem,
-    wysiwygToolbarConfigs,
-} from '@gravity-ui/markdown-editor';
+    ActionName as Action,
+    ToolbarName as Toolbar,
+    full,
+    gptItemMarkup,
+    gptItemView,
+    gptItemWysiwyg,
+} from '@gravity-ui/markdown-editor/toolbars';
 
-import {cloneDeep} from '@gravity-ui/markdown-editor/_/lodash';
+const toolbarsPreset: ToolbarsPreset = {
+    items: {
+        ...full.items,
+        [Action.gpt]: {view: gptItemView, wysiwyg: gptItemWysiwyg, markup: gptItemMarkup},
+    },
+    orders: {
+        ...full.orders,
+        [Toolbar.wysiwygMain]: [[Action.gpt], ...full.orders[Toolbar.wysiwygMain]],
+        [Toolbar.markupMain]: [[Action.gpt], ...full.orders[Toolbar.markupMain]],
+        [Toolbar.wysiwygSelection]: [[Action.gpt], ...full.orders[Toolbar.wysiwygSelection]],
+        [Toolbar.wysiwygSlash]: [[Action.gpt, ...full.orders[Toolbar.wysiwygSlash].flat()]],
+    },
+};
 
 export const Editor: React.FC<EditorProps> = (props) => {
-    ...
-    const wToolbarConfig = cloneDeep(wysiwygToolbarConfigs.wToolbarConfig);
-    wToolbarConfig.unshift([wGptToolbarItem]);
-
     ...
 
     return <MarkdownEditorView
         ...
-        wysiwygToolbarConfig={wToolbarConfig}
-        ...
+        editor={mdEditor}
+        toolbarsPreset={toolbarsPreset}
     />
-};
-```
-Add in menu bar
-
-```ts
-export const Editor: React.FC<EditorProps> = (props) => {
-    ...
-    const wSelectionMenuConfig = [[wGptToolbarItem], ...wysiwygToolbarConfigs.wSelectionMenuConfig];
-
-    const mdEditor = useMarkdownEditor({
-        ...
-        extensionOptions: {
-            selectionContext: {config: wSelectionMenuConfig},
-        },
-        ...
-    })
-    ...
-};
-```
-
-Add in command menu config (/)
-
-```ts
-export const Editor: React.FC<EditorProps> = (props) => {
-    ...
-    const wCommandMenuConfig = wysiwygToolbarConfigs.wCommandMenuConfig // main commands
-    wCommandMenuConfig.unshift(wysiwygToolbarConfigs.wGptItemData); // add GPT command
-
-    const mdEditor = useMarkdownEditor({
-        ...
-        extensionOptions: {
-            ...
-            commandMenu: {actions: wCommandMenuConfig},
-        },
-    })
-    ...
 };
 ```
 ### 4. Done, You can use the extension!
 
 Вelow is an example of all code in one place
 
-```ts
+```tsx
 import React from 'react';
 
 import {
-    gptExtension,
     MarkdownEditorView,
-    wGptToolbarItem,
-    wysiwygToolbarConfigs,
+    type ToolbarsPreset,
+    gptExtension,
+    mGptExtension,
     useMarkdownEditor,
 } from '@gravity-ui/markdown-editor';
-import {cloneDeep} from '@gravity-ui/markdown-editor/_/lodash';
+import {
+    ActionName as Action,
+    ToolbarName as Toolbar,
+    full,
+    gptItemMarkup,
+    gptItemView,
+    gptItemWysiwyg,
+} from '@gravity-ui/markdown-editor/toolbars';
 
 import {gptWidgetProps} from './gptWidgetProps';
 
+const toolbarsPreset: ToolbarsPreset = {
+    items: {
+        ...full.items,
+        [Action.gpt]: {view: gptItemView, wysiwyg: gptItemWysiwyg, markup: gptItemMarkup},
+    },
+    orders: {
+        ...full.orders,
+        [Toolbar.wysiwygMain]: [[Action.gpt], ...full.orders[Toolbar.wysiwygMain]],
+        [Toolbar.markupMain]: [[Action.gpt], ...full.orders[Toolbar.markupMain]],
+        [Toolbar.wysiwygSelection]: [[Action.gpt], ...full.orders[Toolbar.wysiwygSelection]],
+        [Toolbar.wysiwygSlash]: [[Action.gpt, ...full.orders[Toolbar.wysiwygSlash].flat()]],
+    },
+};
+
 export const Editor: React.FC<EditorProps> = (props) => {
-    const wToolbarConfig = cloneDeep(wysiwygToolbarConfigs.wToolbarConfig);
-    wToolbarConfig.unshift([wGptToolbarItem]);
-
-    const wSelectionMenuConfig = [[wGptToolbarItem], ...wysiwygToolbarConfigs.wSelectionMenuConfig];
-
-    const wCommandMenuConfig = wysiwygToolbarConfigs.wCommandMenuConfig // main commands
-    wCommandMenuConfig.unshift(wysiwygToolbarConfigs.wGptItemData); // add GPT command
-
     const mdEditor = useMarkdownEditor({
         // ...
+        // the markup mode button needs the markup extension
+        markupConfig: {
+            extensions: mGptExtension(gptWidgetProps),
+        },
         extraExtensions: (builder) => {
             builder.use(
                 ...
@@ -226,16 +231,12 @@ export const Editor: React.FC<EditorProps> = (props) => {
                 gptWidgetProps,
             );
         },
-        extensionOptions: {
-            selectionContext: {config: wSelectionMenuConfig},
-            commandMenu: {actions: wCommandMenuConfig},
-        },
     });
 
     return <MarkdownEditorView
         ...
-        wysiwygToolbarConfig={wToolbarConfig}
         editor={mdEditor}
+        toolbarsPreset={toolbarsPreset}
         ...
     />
 };

@@ -1,0 +1,69 @@
+# This workflow is used to publish the packages to npm.
+# This workflow must be run manually after the release workflow is run.
+
+name: Publish
+
+on:
+  # Manually trigger the publish workflow
+  workflow_dispatch:
+    inputs:
+      package:
+        description: 'Package to publish'
+        required: true
+        type: choice
+        default: 'packages/editor'
+        options:
+          - 'packages/editor'
+          - 'packages/latex-extension'
+          - 'packages/page-constructor-extension'
+      tag:
+        description: 'Publish with tag'
+        required: true
+        type: choice
+        default: 'untagged'
+        options:
+          - untagged
+          - latest
+      dry_run:
+        description: 'Dry run'
+        required: true
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+  id-token: write  # Required for OIDC
+
+jobs:
+  publish:
+    name: Publish
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version-file: '.nvmrc'
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm run ci:deps
+
+      - name: Configure npm authentication
+        shell: bash
+        run: echo "//registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}" > ~/.npmrc
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GRAVITY_UI_BOT_NPM_TOKEN }}
+
+      - name: Publish package
+        shell: bash
+        run: pnpm publish ${{ github.event.inputs.package }} --tag ${{ github.event.inputs.tag }} --access public --report-summary --no-git-checks --dry-run ${{ github.event.inputs.dry_run }}
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GRAVITY_UI_BOT_NPM_TOKEN }}
+          NPM_CONFIG_PROVENANCE: true

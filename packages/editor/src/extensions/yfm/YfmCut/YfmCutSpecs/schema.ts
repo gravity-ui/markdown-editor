@@ -1,0 +1,101 @@
+import type {ExtensionAuto} from '#core';
+import type {NodeSpec} from '#pm/model';
+import type {PlaceholderOptions} from 'src/utils/placeholder';
+
+import {CutAttr, CutNode, YfmCutClassName} from './const';
+
+export type YfmCutSchemaOptions = {
+    /**
+     * @deprecated use placeholder option in BehaviorPreset instead.
+     */
+    yfmCutTitlePlaceholder?: NonNullable<NodeSpec['placeholder']>['content'];
+    /**
+     * @deprecated use placeholder option in BehaviorPreset instead.
+     */
+    yfmCutContentPlaceholder?: NonNullable<NodeSpec['placeholder']>['content'];
+};
+
+const DEFAULT_PLACEHOLDERS = {
+    Title: 'Cut title',
+    Content: 'Cut content',
+};
+
+export const getSchemaSpecs = (
+    opts?: YfmCutSchemaOptions,
+    placeholder?: PlaceholderOptions,
+): Record<CutNode, NodeSpec> => ({
+    [CutNode.Cut]: {
+        attrs: {class: {default: YfmCutClassName.Cut}, [CutAttr.Markup]: {default: null}},
+        content: `${CutNode.CutTitle} ${CutNode.CutContent}`,
+        group: 'block yfm-cut',
+        parseDOM: [
+            {
+                tag: `.${YfmCutClassName.Cut}`,
+                getAttrs: (node) => ({[CutAttr.Markup]: node.getAttribute(CutAttr.Markup)}),
+            },
+        ],
+        toDOM(node) {
+            return ['div', node.attrs, 0];
+        },
+        selectable: true,
+        allowSelection: true,
+        selectAll: 'node',
+        defining: true,
+        complex: 'root',
+    },
+
+    [CutNode.CutTitle]: {
+        attrs: {
+            [CutAttr.Class]: {default: YfmCutClassName.Title},
+            [CutAttr.Line]: {default: null},
+        },
+        content: 'inline*',
+        group: 'block yfm-cut',
+        parseDOM: [{tag: `.${YfmCutClassName.Title}`}],
+        toDOM(node) {
+            return ['div', node.attrs, 0];
+        },
+        placeholder: {
+            content:
+                placeholder?.[CutNode.CutTitle] ??
+                opts?.yfmCutTitlePlaceholder ??
+                DEFAULT_PLACEHOLDERS.Title,
+            alwaysVisible: true,
+        },
+        definingAsContext: true,
+        selectable: false,
+        allowSelection: false,
+        complex: 'leaf',
+    },
+
+    [CutNode.CutContent]: {
+        attrs: {class: {default: YfmCutClassName.Content}},
+        content: '(block | paragraph)+',
+        group: 'block yfm-cut',
+        parseDOM: [{tag: `.${YfmCutClassName.Content}`}],
+        toDOM(node) {
+            return ['div', node.attrs, 0];
+        },
+        placeholder: {
+            content:
+                placeholder?.[CutNode.CutContent] ??
+                opts?.yfmCutContentPlaceholder ??
+                DEFAULT_PLACEHOLDERS.Content,
+            alwaysVisible: true,
+        },
+        definingAsContext: true,
+        selectable: false,
+        allowSelection: false,
+        selectAll: 'content',
+        complex: 'leaf',
+    },
+});
+
+export const YfmCutSchemaSpecs: ExtensionAuto<YfmCutSchemaOptions> = (builder, opts) => {
+    const schemaSpecs = getSchemaSpecs(opts, builder.context.get('placeholder'));
+
+    builder
+        .addNodeSpec(CutNode.Cut, () => schemaSpecs[CutNode.Cut])
+        .addNodeSpec(CutNode.CutTitle, () => schemaSpecs[CutNode.CutTitle])
+        .addNodeSpec(CutNode.CutContent, () => schemaSpecs[CutNode.CutContent]);
+};

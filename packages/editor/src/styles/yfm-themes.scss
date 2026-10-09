@@ -1,0 +1,34 @@
+@use '@diplodoc/themes/lib/gravity/light.scss' as yfm-light;
+@use '@diplodoc/themes/lib/gravity/dark.scss' as yfm-dark;
+@use '@diplodoc/themes/lib/gravity/light-hc.scss' as yfm-light-hc;
+@use '@diplodoc/themes/lib/gravity/dark-hc.scss' as yfm-dark-hc;
+
+.g-root_theme_light .yfm {
+    @include yfm-light.gravity-colors-for-diplodoc-light();
+}
+
+.g-root_theme_light-hc .yfm {
+    @include yfm-light-hc.gravity-colors-for-diplodoc-light-hc();
+}
+
+.g-root_theme_dark .yfm {
+    @include yfm-dark.gravity-colors-for-diplodoc-dark();
+
+    table[sticky-header] {
+        & th::before {
+            background: var(--yfm-color-base);
+        }
+    }
+
+    .yfm-cut-title:before {
+        background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNiAxNiI+PHBhdGggc3Ryb2tlPSJyZ2JhKDI1NSwgMjU1LCAyNTUsIDAuNykiIGZpbGw9Im5vbmUiIGQ9Ik0zIDZsNSA1IDUtNSI+PC9wYXRoPjwvc3ZnPg==');
+    }
+
+    .yfm-tabs-accordion .yfm-tab:after {
+        background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNiAxNiI+PHBhdGggc3Ryb2tlPSJyZ2JhKDI1NSwgMjU1LCAyNTUsIDAuNykiIGZpbGw9Im5vbmUiIGQ9Ik0zIDZsNSA1IDUtNSI+PC9wYXRoPjwvc3ZnPg==');
+    }
+}
+
+.g-root_theme_dark-hc .yfm {
+    @include yfm-dark-hc.gravity-colors-for-diplodoc-dark-hc();
+}

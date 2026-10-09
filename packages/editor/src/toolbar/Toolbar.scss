@@ -1,0 +1,15 @@
+.g-md-toolbar {
+    display: flex;
+
+    &__group-separator {
+        margin: 6px 8px;
+
+        border-left: 1px solid var(--g-color-line-generic);
+    }
+
+    &_display {
+        &_scroll {
+            overflow: auto;
+        }
+    }
+}

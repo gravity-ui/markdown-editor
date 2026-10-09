@@ -1,0 +1,10 @@
+.g-md-search-popup {
+    --g-popup-border-width: 0;
+    --g-popup-border-radius: 16px;
+    border-radius: 16px; // for old uikit
+
+    &_compact {
+        --g-popup-border-radius: var(--g-border-radius-l);
+        border-radius: var(--g-border-radius-l); // for old uikit
+    }
+}

@@ -1,0 +1,49 @@
+import type Token from 'markdown-it/lib/token';
+
+import type {ExtensionAuto, ParserToken} from '#core';
+
+import {ListNode, ListsAttr} from './const';
+
+const parserTokens: Record<ListNode, ParserToken> = {
+    [ListNode.ListItem]: {
+        name: ListNode.ListItem,
+        type: 'block',
+        getAttrs: (token) => ({
+            [ListsAttr.Markup]: token.markup,
+            [ListsAttr.Line]: token.attrGet('data-line'),
+        }),
+    },
+
+    [ListNode.BulletList]: {
+        name: ListNode.BulletList,
+        type: 'block',
+        getAttrs: (token, tokens, i) => ({
+            [ListsAttr.Tight]: listIsTight(tokens, i),
+            [ListsAttr.Markup]: token.markup,
+        }),
+    },
+
+    [ListNode.OrderedList]: {
+        name: ListNode.OrderedList,
+        type: 'block',
+        getAttrs: (token, tokens, i) => ({
+            [ListsAttr.Order]: Number(token.attrGet('start')) || 1,
+            [ListsAttr.Tight]: listIsTight(tokens, i),
+            [ListsAttr.Markup]: token.markup,
+        }),
+    },
+};
+
+function listIsTight(tokens: Token[], i: number) {
+    while (++i < tokens.length) {
+        if (tokens[i].type !== 'list_item_open') return tokens[i].hidden;
+    }
+    return false;
+}
+
+export const ListsParserSpecs: ExtensionAuto = (builder) => {
+    builder
+        .addMarkdownTokenParserSpec('list_item', () => parserTokens[ListNode.ListItem])
+        .addMarkdownTokenParserSpec('bullet_list', () => parserTokens[ListNode.BulletList])
+        .addMarkdownTokenParserSpec('ordered_list', () => parserTokens[ListNode.OrderedList]);
+};

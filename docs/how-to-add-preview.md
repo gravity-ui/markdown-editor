@@ -1,3 +1,5 @@
+##### Getting started / Preview
+
 ## How to Add Preview for Markup Mode
 
 ### Add a Preview component

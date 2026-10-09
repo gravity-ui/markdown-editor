@@ -1,0 +1,48 @@
+.g-md-editor-settings {
+    display: flex;
+    flex-wrap: nowrap;
+
+    &__separator {
+        z-index: 0;
+
+        margin: 6px 4px;
+
+        border-left: 1px solid var(--g-color-line-generic);
+    }
+}
+
+.g-md-settings-content {
+    width: 300px;
+
+    &__mode {
+        border-start-start-radius: inherit;
+        border-start-end-radius: inherit;
+    }
+
+    &__mode-help {
+        position: relative;
+        top: 8px;
+
+        float: right;
+    }
+
+    &__separator {
+        border-bottom: 1px solid var(--g-color-line-generic);
+    }
+
+    &__check-box {
+        .g-control-label__text {
+            margin-left: calc(var(--g-spacing-2) + var(--g-spacing-half));
+        }
+    }
+
+    &__version {
+        position: absolute;
+        bottom: 0px;
+        left: 50%;
+
+        opacity: 0.03;
+
+        transform: translateX(-50%);
+    }
+}

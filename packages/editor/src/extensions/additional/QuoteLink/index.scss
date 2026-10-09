@@ -1,0 +1,41 @@
+.yfm-quote-link {
+    --yfm-quote-link-background: var(--g-color-private-black-50-solid);
+    --yfm-quote-link-background-hover: var(--g-color-base-simple-hover);
+}
+
+.g-root_theme_dark,
+.g-root_theme_dark-hc {
+    .yfm-quote-link {
+        --yfm-quote-link-background: var(--g-color-private-white-100-solid);
+    }
+}
+
+.yfm-cut:not(.yfm-cut-active) .yfm-cut-content:has(> .yfm-quote-link) {
+    padding: 0;
+
+    > .yfm-quote-link {
+        padding-top: var(--g-spacing-2);
+        padding-left: var(--g-spacing-7);
+    }
+}
+
+.yfm-editor {
+    .yfm-quote-link {
+        background-color: var(--yfm-quote-link-background);
+
+        // return the image settings button and clipboard button positions
+        .g-md-img-settings-button {
+            position: absolute;
+            z-index: 2;
+        }
+
+        // return the button icon position
+        .g-button__icon-inner {
+            position: absolute;
+        }
+
+        p {
+            max-width: unset;
+        }
+    }
+}

@@ -1,0 +1,114 @@
+import type {NodeSpec} from 'prosemirror-model';
+
+import type {ExtensionAuto} from '#core';
+import {TableRole} from 'src/table-utils';
+
+import {CellAlign, TableAttrs, TableNode} from '../const';
+
+const schemaSpecs: Record<TableNode, NodeSpec> = {
+    [TableNode.Table]: {
+        group: 'block',
+        content: `${TableNode.Head} ${TableNode.Body}`,
+        isolating: true,
+        parseDOM: [{tag: 'table'}],
+        toDOM() {
+            return ['table', 0];
+        },
+        selectable: true,
+        allowSelection: true,
+        selectAll: 'node',
+        tableRole: TableRole.Table,
+        complex: 'root',
+    },
+
+    [TableNode.Head]: {
+        group: 'block',
+        content: TableNode.Row,
+        isolating: true,
+        parseDOM: [{tag: 'thead'}],
+        toDOM() {
+            return ['thead', 0];
+        },
+        tableRole: TableRole.Body,
+        selectable: false,
+        allowSelection: false,
+        complex: 'inner',
+    },
+
+    [TableNode.Body]: {
+        group: 'block',
+        content: `${TableNode.Row}+`,
+        isolating: true,
+        parseDOM: [{tag: 'tbody'}],
+        toDOM() {
+            return ['tbody', 0];
+        },
+        tableRole: TableRole.Body,
+        selectable: false,
+        allowSelection: false,
+        complex: 'inner',
+    },
+
+    [TableNode.Row]: {
+        group: 'block',
+        attrs: {[TableAttrs.Line]: {default: null}},
+        content: `(${TableNode.HeaderCell}|${TableNode.DataCell})+`,
+        isolating: true,
+        parseDOM: [{tag: 'tr'}],
+        toDOM(node) {
+            return ['tr', node.attrs, 0];
+        },
+        tableRole: TableRole.Row,
+        selectable: false,
+        allowSelection: false,
+        complex: 'inner',
+    },
+
+    [TableNode.HeaderCell]: cellTemplate('th'),
+
+    [TableNode.DataCell]: cellTemplate('td'),
+};
+
+function cellTemplate(tag: 'th' | 'td'): NodeSpec {
+    return {
+        attrs: {[TableAttrs.CellAlign]: {default: CellAlign.Left}},
+        group: 'block',
+        content: '(text | inline)*',
+        isolating: true,
+        parseDOM: [
+            {
+                tag,
+                getAttrs(dom) {
+                    if (!(dom as Element).hasAttribute(TableAttrs.CellAlign)) return null;
+                    return {
+                        [TableAttrs.CellAlign]: (dom as Element).getAttribute(TableAttrs.CellAlign),
+                    };
+                },
+            },
+        ],
+        toDOM({attrs}) {
+            return [
+                tag,
+                {
+                    ...attrs,
+                    style: `text-align:${attrs[TableAttrs.CellAlign]}`,
+                },
+                0,
+            ];
+        },
+        tableRole: TableRole.Cell,
+        selectable: false,
+        allowSelection: false,
+        complex: 'leaf',
+    };
+}
+
+export const TableSchemaSpecs: ExtensionAuto = (builder) => {
+    builder
+        .addNodeSpec(TableNode.Table, () => schemaSpecs[TableNode.Table])
+        .addNodeSpec(TableNode.Head, () => schemaSpecs[TableNode.Head])
+        .addNodeSpec(TableNode.Body, () => schemaSpecs[TableNode.Body])
+        .addNodeSpec(TableNode.Row, () => schemaSpecs[TableNode.Row])
+        .addNodeSpec(TableNode.HeaderCell, () => schemaSpecs[TableNode.HeaderCell])
+        .addNodeSpec(TableNode.DataCell, () => schemaSpecs[TableNode.DataCell]);
+};
