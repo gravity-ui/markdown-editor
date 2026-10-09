@@ -14,7 +14,7 @@ export type ToolbarBaseProps<E> = ClassNameProps &
     };
 
 export type ToolbarIconData = Pick<IconProps, 'data' | 'size'>;
-export type ToolbarGroupData<E> = Array<ToolbarGroupItemData<E>>;
+export type ToolbarGroupData<E> = ToolbarGroupItemData<E>[];
 export type ToolbarData<E> = ToolbarGroupData<E>[];
 export type ToolbarDisplay = 'shrink' | 'scroll';
 

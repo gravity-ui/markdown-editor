@@ -36,12 +36,16 @@
     "lint": "run-p -cs lint:*",
     "lint:js": "eslint './**/*.{js,jsx,mjs,ts,tsx}'",
     "lint:styles": "stylelint './**/*.{css,scss}'",
-    "lint:prettier": "prettier --check './**/*.{js,jsx,mjs,ts,tsx,css,scss}'"
+    "lint:prettier": "prettier --check './**/*.{js,jsx,mjs,ts,tsx,css,scss}'",
+    "lint:js:fix": "eslint --fix './**/*.{js,jsx,mjs,ts,tsx}'",
+    "lint:styles:fix": "stylelint --fix './**/*.{css,scss}'",
+    "lint:prettier:fix": "prettier --write './**/*.{js,jsx,mjs,ts,tsx,css,scss}'",
+    "fix:lint": "run-s -c lint:*:fix"
   },
   "dependencies": {},
   "devDependencies": {
-    "@commitlint/cli": "20.5.0",
-    "@commitlint/config-conventional": "20.5.0",
+    "@commitlint/cli": "20.5.3",
+    "@commitlint/config-conventional": "20.5.3",
     "@markdown-editor/linters": "workspace:*",
     "eslint": "catalog:linters",
     "npm-run-all": "^4.1.5",
@@ -49,7 +53,7 @@
     "prettier": "catalog:linters",
     "stylelint": "catalog:linters",
     "typescript": "catalog:ts",
-    "nx": "22.3.3"
+    "nx": "22.7.10"
   },
   "lint-staged": {
     "*.{css,scss}": [

@@ -76,37 +76,35 @@ test.describe('Clipboard', () => {
             editor,
             expectScreenshot,
             wait,
+            page,
         }) => {
             await editor.paste(emphasisMarkup);
             await editor.press(keys.selectAll);
-            await editor.press(keys.copy);
+            const data = await editor.dispatchClipboardEvent('copy');
+            expect(data['text/yfm']?.trim()).toBe(emphasisMarkup);
             await editor.press('ArrowRight');
             await editor.press('Enter');
-            await editor.press(keys.paste);
+            await editor.paste(data);
 
+            await expect
+                .poll(() => page.evaluate(() => window.mdEditor?.getValue().trim()))
+                .toBe(`${emphasisMarkup}\n\n${emphasisMarkup}`);
             await wait.timeout(500);
             await expectScreenshot();
         });
 
         test.describe('Copy', () => {
-            test('should set data to clipboard buffer', async ({
-                editor,
-                helpers,
-                browserName,
-                platform,
-            }) => {
+            test('should set data to clipboard buffer', async ({editor, browserName, platform}) => {
                 test.skip(
                     browserName === 'webkit' && platform === 'linux',
                     'Skip in webkit on linux, see https://github.com/microsoft/playwright/issues/34307',
                 );
 
                 await editor.paste('## Lorem *ipsum* __dolor__ ~~sit~~ amet');
-                await editor.press(helpers.keys.selectAll);
-                await editor.press(helpers.keys.copy);
+                await editor.selectTextIn();
+                const data = await editor.dispatchClipboardEvent('copy');
 
-                const data = await helpers.getClipboardData();
-
-                expect(data).toStrictEqual({
+                expect(data).toMatchObject({
                     'text/plain': 'Lorem ipsum dolor sit amet',
                     'text/html':
                         '<h2 data-pm-slice="1 1 []">Lorem <em data-markup="*">ipsum</em> <strong data-markup="__">dolor</strong> <strike>sit</strike> amet</h2>',
@@ -115,24 +113,17 @@ test.describe('Clipboard', () => {
         });
 
         test.describe('Cut', () => {
-            test('should set data to clipboard buffer', async ({
-                editor,
-                helpers,
-                browserName,
-                platform,
-            }) => {
+            test('should set data to clipboard buffer', async ({editor, browserName, platform}) => {
                 test.skip(
                     browserName === 'webkit' && platform === 'linux',
                     'Skip in webkit on linux, see https://github.com/microsoft/playwright/issues/34307',
                 );
 
                 await editor.paste('## Lorem _ipsum_ **dolor** ~~sit~~ amet');
-                await editor.press(helpers.keys.selectAll);
-                await editor.press(helpers.keys.cut);
+                await editor.selectTextIn();
+                const data = await editor.dispatchClipboardEvent('cut');
 
-                const data = await helpers.getClipboardData();
-
-                expect(data).toStrictEqual({
+                expect(data).toMatchObject({
                     'text/plain': 'Lorem ipsum dolor sit amet',
                     'text/html':
                         '<h2 data-pm-slice="1 1 []">Lorem <em data-markup="_">ipsum</em> <strong data-markup="**">dolor</strong> <strike>sit</strike> amet</h2>',

@@ -1,9 +1,8 @@
 import type MarkdownIt from 'markdown-it';
 
+import type {ExtensionAuto} from '#core';
 import color from 'src/markdown-it/color';
-
-import type {ExtensionAuto} from '../../../../core';
-import {markTypeFactory} from '../../../../utils/schema';
+import {markTypeFactory} from 'src/utils/schema';
 
 import {colorClassName, colorMarkName, domColorAttr} from './const';
 
@@ -27,80 +26,76 @@ export const ColorSpecs: ExtensionAuto<ColorSpecsOptions> = (builder, opts) => {
 
     builder
         .configureMd((md) => md.use(mdPlugin, {defaultClassName: colorClassName, inline: false}))
-        .addMark(colorMarkName, () => ({
-            spec: {
-                attrs: {[colorMarkName]: {}},
-                parseDOM: [
-                    {
-                        tag: `span`,
-                        preserveWhitespace: false,
-                        getAttrs(node) {
-                            if (typeof node === 'string') return false;
+        .addMarkSpec(colorMarkName, () => ({
+            attrs: {[colorMarkName]: {}},
+            parseDOM: [
+                {
+                    tag: `span`,
+                    preserveWhitespace: false,
+                    getAttrs(node) {
+                        if (typeof node === 'string') return false;
 
-                            for (const className of Array.from(node.classList)) {
-                                const color = getColorName(className);
-                                if (color && (validateClassNameColorName?.(color) ?? true)) {
-                                    return {
-                                        [colorMarkName]: color,
-                                    };
-                                }
-                            }
-
-                            return false;
-                        },
-                    },
-                    {
-                        style: 'color',
-                        preserveWhitespace: false,
-                        getAttrs(node) {
-                            if (typeof node !== 'string') return false;
-
-                            const color = parseStyleColorValue?.(node);
-                            if (color) {
+                        for (const className of Array.from(node.classList)) {
+                            const color = getColorName(className);
+                            if (color && (validateClassNameColorName?.(color) ?? true)) {
                                 return {
                                     [colorMarkName]: color,
                                 };
                             }
+                        }
 
-                            return false;
-                        },
-                    },
-                ],
-                toDOM(node) {
-                    const colorValue = node.attrs[colorMarkName];
-
-                    return [
-                        'span',
-                        {
-                            class: [colorClassName, `${colorClassName}--${colorValue}`].join(' '),
-                            [domColorAttr]: colorValue,
-                        },
-                        0,
-                    ];
-                },
-            },
-            fromMd: {
-                tokenSpec: {
-                    name: colorMarkName,
-                    type: 'mark',
-                    getAttrs(token) {
-                        return {
-                            [colorMarkName]: token.info,
-                        };
+                        return false;
                     },
                 },
-            },
-            toMd: {
-                open: (state, mark) => {
-                    state.escapeCharacters = ['(', ')'];
-                    return `{${mark.attrs[colorMarkName]}}(`;
+                {
+                    style: 'color',
+                    preserveWhitespace: false,
+                    getAttrs(node) {
+                        if (typeof node !== 'string') return false;
+
+                        const color = parseStyleColorValue?.(node);
+                        if (color) {
+                            return {
+                                [colorMarkName]: color,
+                            };
+                        }
+
+                        return false;
+                    },
                 },
-                close: (state) => {
-                    state.escapeCharacters = undefined;
-                    return `)`;
-                },
-                mixable: true,
-                expelEnclosingWhitespace: true,
+            ],
+            toDOM(node) {
+                const colorValue = node.attrs[colorMarkName];
+
+                return [
+                    'span',
+                    {
+                        class: [colorClassName, `${colorClassName}--${colorValue}`].join(' '),
+                        [domColorAttr]: colorValue,
+                    },
+                    0,
+                ];
             },
+        }))
+        .addMarkdownTokenParserSpec('color', () => ({
+            name: colorMarkName,
+            type: 'mark',
+            getAttrs(token) {
+                return {
+                    [colorMarkName]: token.info,
+                };
+            },
+        }))
+        .addMarkSerializerSpec(colorMarkName, () => ({
+            open: (state, mark) => {
+                state.escapeCharacters = ['(', ')'];
+                return `{${mark.attrs[colorMarkName]}}(`;
+            },
+            close: (state) => {
+                state.escapeCharacters = undefined;
+                return `)`;
+            },
+            mixable: true,
+            expelEnclosingWhitespace: true,
         }));
 };

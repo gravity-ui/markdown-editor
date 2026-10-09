@@ -127,7 +127,7 @@ class YfmTableNewView implements NodeView {
         const tableDesc = this._getTableDesc();
         if (!tableDesc) return;
 
-        insertEmptyRow({tablePos: tableDesc.pos, rowIndex: rowIdx + 1})(
+        insertEmptyRow({tablePos: tableDesc.pos, rowIndex: rowIdx + 1, sourceRowIndex: rowIdx})(
             this._view.state,
             this._view.dispatch,
         );
@@ -141,10 +141,11 @@ class YfmTableNewView implements NodeView {
         const tableDesc = this._getTableDesc();
         if (!tableDesc) return;
 
-        insertEmptyColumn({tablePos: tableDesc.pos, colIndex: colIdx + 1})(
-            this._view.state,
-            this._view.dispatch,
-        );
+        insertEmptyColumn({
+            tablePos: tableDesc.pos,
+            colIndex: colIdx + 1,
+            sourceColIndex: colIdx,
+        })(this._view.state, this._view.dispatch);
 
         this._view.focus();
     };

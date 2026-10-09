@@ -1,3 +1,5 @@
+import {describe, expect, it} from 'vitest';
+
 import {ExtensionsManager} from '../../core';
 import {SchemaDynamicModifier} from '../../core/SchemaDynamicModifier';
 import {MarkdownParserDynamicModifier} from '../../core/markdown/MarkdownParser';

@@ -1,4 +1,5 @@
 import {builders} from 'prosemirror-test-builder';
+import {describe, it} from 'vitest';
 
 import {createMarkupChecker} from '../../../../tests/sameMarkup';
 import {ExtensionsManager} from '../../../core';
@@ -26,7 +27,7 @@ const {doc, p, img, img2} = builders<'doc' | 'p' | 'img' | 'img2'>(schema, {
     },
 });
 
-const {same} = createMarkupChecker({parser, serializer});
+const {same, parse, serialize} = createMarkupChecker({parser, serializer});
 
 describe('Image extension', () => {
     it('should parse image', () => {
@@ -35,5 +36,79 @@ describe('Image extension', () => {
 
     it('should parse image with title and alt', () => {
         same('![alt text](img2.png "title text")', doc(p(img2())));
+    });
+
+    it.each([
+        {src: 'foo):', markup: String.raw`![](foo\):)`},
+        {src: '(foo', markup: String.raw`![](\(foo)`},
+        {
+            src: 'https://example.com/+_file/#~anchor',
+            markup: '![](https://example.com/+_file/#~anchor)',
+        },
+    ])('should preserve image destination $src', ({src, markup}) => {
+        same(markup, doc(p(img({[ImageAttr.Src]: src}))));
+    });
+
+    it.each([
+        {src: '<a.png', markup: String.raw`![](\<a.png)`, normalized: '%3Ca.png'},
+        {src: '<a.png>', markup: String.raw`![](\<a.png>)`, normalized: '%3Ca.png%3E'},
+        {src: '>a.png', markup: '![](>a.png)', normalized: '%3Ea.png'},
+        {src: 'a>b.png', markup: '![](a>b.png)', normalized: 'a%3Eb.png'},
+    ])('should preserve angle brackets in image destination $src', ({src, markup, normalized}) => {
+        const content = doc(p(img({[ImageAttr.Src]: src})));
+
+        serialize(content, markup);
+        parse(serializer.serialize(content), doc(p(img({[ImageAttr.Src]: normalized}))));
+    });
+
+    it.each([
+        {src: 'foo"bar.png', markup: '![](foo"bar.png)', normalized: 'foo%22bar.png'},
+        {src: '"a.png', markup: '![]("a.png)', normalized: '%22a.png'},
+        {
+            src: String.raw`foo\"bar.png`,
+            markup: String.raw`![](foo\\"bar.png)`,
+            normalized: 'foo%5C%22bar.png',
+        },
+    ])('should normalize a quote in image destination $src', ({src, markup, normalized}) => {
+        const content = doc(p(img({[ImageAttr.Src]: src})));
+
+        serialize(content, markup);
+        parse(serializer.serialize(content), doc(p(img({[ImageAttr.Src]: normalized}))));
+    });
+
+    it.each([
+        {
+            src: String.raw`https://example.com/a\*b.png`,
+            markup: String.raw`![](https://example.com/a\\*b.png)`,
+            normalized: 'https://example.com/a%5C*b.png',
+        },
+        {
+            src: String.raw`foo\(bar`,
+            markup: String.raw`![](foo\\\(bar)`,
+            normalized: 'foo%5C(bar',
+        },
+    ])(
+        'should preserve a literal backslash in image destination $src',
+        ({src, markup, normalized}) => {
+            const content = doc(p(img({[ImageAttr.Src]: src})));
+
+            serialize(content, markup);
+            parse(serializer.serialize(content), doc(p(img({[ImageAttr.Src]: normalized}))));
+        },
+    );
+
+    it('should preserve quotes and parentheses in an image title', () => {
+        same(
+            String.raw`![](img.png "He said \"it's ((fine))\"")`,
+            doc(p(img({[ImageAttr.Title]: 'He said "it\'s ((fine))"'}))),
+        );
+    });
+
+    it.each([
+        {title: String.raw`say \"hello"`, markup: String.raw`![](img.png "say \\\"hello\"")`},
+        {title: String.raw`path\part`, markup: String.raw`![](img.png "path\\part")`},
+        {title: 'ends\\', markup: String.raw`![](img.png "ends\\")`},
+    ])('should preserve literal backslashes in an image title $title', ({title, markup}) => {
+        same(markup, doc(p(img({[ImageAttr.Title]: title}))));
     });
 });

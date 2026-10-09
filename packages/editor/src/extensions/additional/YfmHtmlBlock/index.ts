@@ -1,12 +1,12 @@
 import type {PluginOptions} from '@diplodoc/html-extension';
 import type {IHTMLIFrameElementConfig} from '@diplodoc/html-extension/runtime';
 
-import type {Action, ExtensionAuto, ExtensionDeps, NodeViewConstructor} from '../../../core';
+import type {Action, ExtensionAuto, ExtensionDeps, NodeViewConstructor} from '#core';
 
 import type {YfmHtmlConstructorExtensionOptions} from '../YfmHtmlConstructor/types';
 
 import {WYfmHtmlBlockNodeView} from './YfmHtmlBlockNodeView';
-import {YfmHtmlBlockSpecs} from './YfmHtmlBlockSpecs';
+import {YfmHtmlBlockSpecs, yfmHtmlBlockNodeName} from './YfmHtmlBlockSpecs';
 import {YfmHtmlBlockAction} from './YfmHtmlBlockSpecs/const';
 import {addYfmHtmlBlock} from './actions';
 import type {YfmHtmlBlockTemplatesOptions} from './templates';
@@ -35,23 +35,15 @@ export interface YfmHtmlBlockOptions extends Omit<
     editablePreview?: boolean;
 }
 
-export const YfmHtmlBlock: ExtensionAuto<YfmHtmlBlockOptions> = (
-    builder,
-    extensionOptions,
-) => {
-    const {
-        useConfig: _,
-        constructor: constructorOptions,
-        ...options
-    } = extensionOptions;
+export const YfmHtmlBlock: ExtensionAuto<YfmHtmlBlockOptions> = (builder, extensionOptions) => {
+    const {useConfig: _, constructor: constructorOptions, ...options} = extensionOptions;
     const nodeViewOptions = Object.prototype.hasOwnProperty.call(extensionOptions, 'constructor')
         ? {...options, constructor: constructorOptions}
         : options;
 
-    builder.use(YfmHtmlBlockSpecs, {
-        nodeView: YfmHtmlBlockNodeViewFactory(nodeViewOptions),
-        ...options,
-    });
+    builder
+        .use(YfmHtmlBlockSpecs, options)
+        .addNodeView(yfmHtmlBlockNodeName, YfmHtmlBlockNodeViewFactory(nodeViewOptions));
 
     builder.addAction(YfmHtmlBlockAction, () => addYfmHtmlBlock);
 };

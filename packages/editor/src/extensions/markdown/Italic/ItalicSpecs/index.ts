@@ -10,8 +10,8 @@ export const ItalicAttrs = {
 const defaultMarkup = '*';
 
 export const ItalicSpecs: ExtensionAuto = (builder) => {
-    builder.addMark(italicMarkName, () => ({
-        spec: {
+    builder
+        .addMarkSpec(italicMarkName, () => ({
             attrs: {[ItalicAttrs.Markup]: {default: defaultMarkup}},
             parseDOM: [
                 {tag: 'i'},
@@ -26,18 +26,20 @@ export const ItalicSpecs: ExtensionAuto = (builder) => {
             toDOM(mark) {
                 return ['em', mark.attrs];
             },
-        },
-        toMd: {open: getMarkup, close: getMarkup, mixable: true, expelEnclosingWhitespace: true},
-        fromMd: {
-            tokenSpec: {
-                name: italicMarkName,
-                type: 'mark',
-                getAttrs: (token) => ({
-                    [ItalicAttrs.Markup]: token.markup,
-                }),
-            },
-        },
-    }));
+        }))
+        .addMarkdownTokenParserSpec(italicMarkName, () => ({
+            name: italicMarkName,
+            type: 'mark',
+            getAttrs: (token) => ({
+                [ItalicAttrs.Markup]: token.markup,
+            }),
+        }))
+        .addMarkSerializerSpec(italicMarkName, () => ({
+            open: getMarkup,
+            close: getMarkup,
+            mixable: true,
+            expelEnclosingWhitespace: true,
+        }));
 };
 
 function getMarkup(_: unknown, mark: Mark): string {

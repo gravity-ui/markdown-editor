@@ -20,7 +20,6 @@ export const CellBgPalette: React.FC<CellBgPaletteProps> = function YfmTableCell
     onSelect,
 }) {
     const handleClick = (swatchValue: string) => {
-        if (swatchValue === value || (swatchValue === NO_COLOR_VALUE && !value)) return;
         onSelect(swatchValue === NO_COLOR_VALUE ? null : swatchValue);
     };
 
