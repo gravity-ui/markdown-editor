@@ -385,7 +385,9 @@ export class MarkdownSerializerState {
 
             const inner = marks.length && marks[marks.length - 1];
             const noEsc = inner && this.getMark(inner.type.name).escape === false;
-            const len = marks.length - (noEsc ? 1 : 0);
+            let len = marks.length - (noEsc ? 1 : 0);
+            let reorderedNoEsc = false;
+            const whitespaceOnly = node && node.isText && !/\S/.test(node.text ?? '');
 
             // Try to reorder 'mixable' marks, such as em and strong, which
             // in Markdown may be opened and closed in different order, so
@@ -403,12 +405,19 @@ export class MarkdownSerializerState {
                             marks = marks.slice(0, j).concat(mark).concat(marks.slice(j, i)).concat(marks.slice(i + 1, len))
                         }
                         else if (j > i) {
+                            if (noEsc && j > len) reorderedNoEsc = true;
                             marks = marks.slice(0, i).concat(marks.slice(i + 1, j)).concat(mark).concat(marks.slice(j, len))
                         }
                         // eslint-disable-next-line no-labels
                         continue outer;
                     }
                 }
+            }
+
+            // Keep whitespace-only code outside reordered marks.
+            if (reorderedNoEsc && whitespaceOnly) {
+                marks = [];
+                len = 0;
             }
 
             // Find the prefix of the mark set that didn't change
@@ -431,17 +440,36 @@ export class MarkdownSerializerState {
                 }
             }
 
+            const next = parent.maybeChild(index + 1);
+            const singleLine = node?.isText && !/[\r\n\u2028\u2029]/.test(node.text ?? '');
+            const singleEscapedMark = !noEsc && marks.length === 1;
             if (node && node.isText && marks.some((mark, i) => {
                 const info = this.getMark(mark.type.name);
-                return info && info.expelEnclosingWhitespace && !this.isMarkAhead(parent, index + 1, marks.slice(0, i + 1));
+                return info && info.expelEnclosingWhitespace && (
+                    !this.isMarkAhead(parent, index + 1, marks.slice(0, i + 1)) ||
+                    (singleEscapedMark && singleLine && next?.type.spec.isBreak && !mark.isInSet(next.marks))
+                );
             })) {
-                const [_, rest, trail] = /^(.*?)(\s*)$/m.exec(node.text!)!;
+                const isolatedEscapingMarks = keep === 0 && marks.every(mark => {
+                    const info = this.getMark(mark.type.name);
+                    return info.expelEnclosingWhitespace && info.escape !== false && !mark.isInSet(next?.marks ?? []);
+                });
+                // Read all lines when ending marks cannot affect adjacent nodes.
+                const trailingWhitespace = (singleEscapedMark || isolatedEscapingMarks)
+                    ? /^([\s\S]*\S)?(\s*)$/ : /^(.*?)(\s*)$/m;
+                const [_, rest = '', trail] = trailingWhitespace.exec(node.text!)!;
                 if (trail) {
                     trailing = trail;
                     node = rest ? (node as any).withText(rest) : null;
                     if (!node) marks = active;
                 }
             }
+
+            if (
+                !node &&
+                noEsc &&
+                active.every((mark) => this.getMark(mark.type.name).expelEnclosingWhitespace)
+            ) keep = 0;
 
             // Close the marks that need to be closed
             while (keep < active.length) {
