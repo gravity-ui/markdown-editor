@@ -1,7 +1,7 @@
 import {EditorState, TextSelection} from 'prosemirror-state';
 import {builders} from 'prosemirror-test-builder';
 import {EditorView} from 'prosemirror-view';
-import {describe, expect, it} from 'vitest';
+import {describe, expect, it, onTestFinished} from 'vitest';
 
 import {ExtensionsManager} from '../../../core';
 import {BaseNode, BaseSchema} from '../../base/BaseSchema';
@@ -31,6 +31,7 @@ function createView() {
             plugins: [gapCursor()],
         }),
     });
+    onTestFinished(() => view.destroy());
     view.dispatch(
         view.state.tr.setSelection(new GapCursorSelection(view.state.doc.resolve(gapCursorPos))),
     );
