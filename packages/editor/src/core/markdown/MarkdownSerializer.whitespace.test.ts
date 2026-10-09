@@ -209,6 +209,50 @@ describe('MarkdownSerializer whitespace', () => {
         expect(parser.parse(expectedMarkup)).toMatchNode(expectedDoc);
     });
 
+    it.each(['\u2028', '\u2029'])(
+        'should expel heading emphasis whitespace across separator %j',
+        (separator) => {
+            const {doc, h1, em, parser, serializer} = createFixture();
+            const input = doc(h1(em(`x${separator}y `)));
+            const expectedDoc = doc(h1(em(`x${separator}y`)));
+            const expectedMarkup = `# *x${separator}y* `;
+
+            expect(serializer.serialize(input)).toBe(expectedMarkup);
+            expect(parser.parse(expectedMarkup)).toMatchNode(expectedDoc);
+        },
+    );
+
+    it.each(['\u2028', '\u2029'])(
+        'should expel nested heading emphasis whitespace across separator %j',
+        (separator) => {
+            const {doc, h1, em, strong, parser, serializer} = createFixture();
+            const input = doc(h1(em(strong(`x${separator}y `))));
+            const expectedDoc = doc(h1(em(strong(`x${separator}y`))));
+            const expectedMarkup = `# ***x${separator}y*** `;
+
+            expect(serializer.serialize(input)).toBe(expectedMarkup);
+            expect(parser.parse(expectedMarkup)).toMatchNode(expectedDoc);
+        },
+    );
+
+    it('should keep multiline heading whitespace inside a standard link', () => {
+        const {doc, h1, em, a, parser, serializer} = createFixture();
+        const expectedDoc = doc(h1(em(a('x\u2028y '))));
+        const expectedMarkup = '# *[x\u2028y ](foo)*';
+
+        expect(serializer.serialize(expectedDoc)).toBe(expectedMarkup);
+        expect(parser.parse(expectedMarkup)).toMatchNode(expectedDoc);
+    });
+
+    it('should keep multiline heading whitespace inside inline code', () => {
+        const {doc, h1, em, code, parser, serializer} = createFixture();
+        const expectedDoc = doc(h1(em(code('x\u2028y '))));
+        const expectedMarkup = '# *`x\u2028y `*';
+
+        expect(serializer.serialize(expectedDoc)).toBe(expectedMarkup);
+        expect(parser.parse(expectedMarkup)).toMatchNode(expectedDoc);
+    });
+
     it.each([
         {markOrder: ['em', 'strong', 'link', 'code']},
         {markOrder: ['strong', 'em', 'link', 'code']},
