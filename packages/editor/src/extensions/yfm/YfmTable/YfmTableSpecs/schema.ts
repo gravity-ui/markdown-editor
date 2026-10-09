@@ -1,5 +1,7 @@
 import type {NodeSpec} from 'prosemirror-model';
 
+import type {ExtensionAuto} from '#core';
+
 import {TableRole} from '../../../../table-utils';
 import type {PlaceholderOptions} from '../../../../utils/placeholder';
 
@@ -115,3 +117,13 @@ export const getSchemaSpecs = (
         complex: 'leaf',
     },
 });
+
+export const YfmTableSchemaSpecs: ExtensionAuto<YfmTableSchemaOptions> = (builder, opts) => {
+    const schemaSpecs = getSchemaSpecs(opts, builder.context.get('placeholder'));
+
+    builder
+        .addNodeSpec(YfmTableNode.Table, () => schemaSpecs[YfmTableNode.Table])
+        .addNodeSpec(YfmTableNode.Body, () => schemaSpecs[YfmTableNode.Body])
+        .addNodeSpec(YfmTableNode.Row, () => schemaSpecs[YfmTableNode.Row])
+        .addNodeSpec(YfmTableNode.Cell, () => schemaSpecs[YfmTableNode.Cell]);
+};

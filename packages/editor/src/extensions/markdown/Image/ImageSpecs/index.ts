@@ -1,5 +1,5 @@
-import type {ExtensionAuto} from '../../../../core';
-import {nodeTypeFactory} from '../../../../utils/schema';
+import type {ExtensionAuto} from '#core';
+import {nodeTypeFactory} from 'src/utils/schema';
 
 import {ImageAttr, imageNodeName} from './const';
 import {imageToMarkdown} from './utils';
@@ -10,8 +10,8 @@ export {imageToMarkdown, type ImageToMarkdownParams} from './utils';
 export const imageType = nodeTypeFactory(imageNodeName);
 
 export const ImageSpecs: ExtensionAuto = (builder) => {
-    builder.addNode(imageNodeName, () => ({
-        spec: {
+    builder
+        .addNodeSpec(imageNodeName, () => ({
             inline: true,
             attrs: {
                 [ImageAttr.Src]: {},
@@ -37,19 +37,16 @@ export const ImageSpecs: ExtensionAuto = (builder) => {
             toDOM(node) {
                 return ['img', node.attrs];
             },
-        },
-        fromMd: {
-            tokenSpec: {
-                name: imageNodeName,
-                type: 'node',
-                getAttrs: (tok) => ({
-                    [ImageAttr.Src]: tok.attrGet('src'),
-                    [ImageAttr.Title]: tok.attrGet('title') || null,
-                    [ImageAttr.Loading]: tok.attrGet(ImageAttr.Loading) || null,
-                    [ImageAttr.Alt]: tok.children?.[0]?.content || null,
-                }),
-            },
-        },
-        toMd: imageToMarkdown(),
-    }));
+        }))
+        .addMarkdownTokenParserSpec(imageNodeName, () => ({
+            name: imageNodeName,
+            type: 'node',
+            getAttrs: (tok) => ({
+                [ImageAttr.Src]: tok.attrGet('src'),
+                [ImageAttr.Title]: tok.attrGet('title') || null,
+                [ImageAttr.Loading]: tok.attrGet(ImageAttr.Loading) || null,
+                [ImageAttr.Alt]: tok.children?.[0]?.content || null,
+            }),
+        }))
+        .addNodeSerializerSpec(imageNodeName, () => imageToMarkdown());
 };

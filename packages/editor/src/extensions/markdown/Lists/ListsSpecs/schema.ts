@@ -1,8 +1,10 @@
 import type {NodeSpec} from 'prosemirror-model';
 
+import type {ExtensionAuto} from '#core';
+
 import {ListNode, ListsAttr, Markup} from './const';
 
-export const schemaSpecs: Record<ListNode, NodeSpec> = {
+const schemaSpecs: Record<ListNode, NodeSpec> = {
     [ListNode.ListItem]: {
         attrs: {
             [ListsAttr.Markup]: {default: null},
@@ -78,4 +80,11 @@ export const schemaSpecs: Record<ListNode, NodeSpec> = {
         allowSelection: false,
         complex: 'root',
     },
+};
+
+export const ListsSchemaSpecs: ExtensionAuto = (builder) => {
+    builder
+        .addNodeSpec(ListNode.ListItem, () => schemaSpecs[ListNode.ListItem])
+        .addNodeSpec(ListNode.BulletList, () => schemaSpecs[ListNode.BulletList])
+        .addNodeSpec(ListNode.OrderedList, () => schemaSpecs[ListNode.OrderedList]);
 };

@@ -100,7 +100,7 @@ export const SearchPanelPlugin = (params: SearchPanelPluginParams) =>
 
                     return renderSearchPopup({
                         open: true,
-                        anchor: anchor,
+                        anchor,
                         state: this.searchState,
                         onClose: this.handleClose,
                         onChange: this.handleChange,

@@ -73,7 +73,7 @@ export const ToolbarButtonView = forwardRef<HTMLButtonElement, ToolbarButtonView
                         description={hintText}
                         title={titleText}
                         hotkey={hotkey}
-                        disabled={disableTooltip}
+                        disabled={disableTooltip || !hideHintWhenDisabled}
                     >
                         {(__, refForTooltip) => (
                             <Button

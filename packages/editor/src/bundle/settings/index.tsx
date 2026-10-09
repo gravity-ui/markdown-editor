@@ -78,7 +78,7 @@ export const EditorSettings = memo<EditorSettingsProps>(function EditorSettings(
                             <Icon data={Eye} />
                         </Button>
                     </ActionTooltip>
-                    {settingsVisible && <div className={bSettings('separator')} />}
+                    {areSettingsVisible && <div className={bSettings('separator')} />}
                 </>
             )}
             {areSettingsVisible && (

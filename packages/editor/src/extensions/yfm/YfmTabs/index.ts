@@ -1,9 +1,9 @@
 import '@diplodoc/tabs-extension/runtime';
 import {chainCommands} from 'prosemirror-commands';
 
-import type {Action, ExtensionAuto} from '../../../core';
+import type {Action, ExtensionAuto} from '#core';
 
-import {YfmTabsSpecs} from './YfmTabsSpecs';
+import {TabsNode, YfmTabsSpecs} from './YfmTabsSpecs';
 import {createYfmTabs} from './actions';
 import {
     dragAutoSwitch,
@@ -22,12 +22,12 @@ export {TabsNode, tabType, tabsType, tabsListType, tabPanelType} from './YfmTabs
 const actionName = 'toYfmTabs';
 
 export const YfmTabs: ExtensionAuto = (builder) => {
-    builder.use(YfmTabsSpecs, {
-        tabView: () => tabView,
-        tabPanelView: () => tabPanelView,
-        vtabView: () => vtabView,
-        vtabInputView: () => vtabInputView,
-    });
+    builder
+        .use(YfmTabsSpecs, {})
+        .addNodeView(TabsNode.Tab, () => tabView)
+        .addNodeView(TabsNode.TabPanel, () => tabPanelView)
+        .addNodeView(TabsNode.RadioTab, () => vtabView)
+        .addNodeView(TabsNode.RadioTabInput, () => vtabInputView);
 
     builder.addKeymap(
         () => ({

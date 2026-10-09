@@ -28,7 +28,6 @@ const ctViteConfig: ViteInlineConfig = {
     css: {
         preprocessorOptions: {
             scss: {
-                api: 'modern-compiler',
                 loadPaths: [resolve(__dirname, '../../node_modules')],
             },
         },

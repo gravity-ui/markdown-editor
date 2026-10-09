@@ -9,12 +9,13 @@ import {
 import type {Node} from '@gravity-ui/markdown-editor/pm/model';
 import {builders} from '@gravity-ui/markdown-editor/pm/test-builder';
 import dd from 'ts-dedent';
+import {describe, expect, it, vi} from 'vitest';
 
 import {YfmPageConstructorSpecsExtension} from './extension/YfmPageConstructorSpecs';
 import {YfmPageConstructorAttrs, yfmPageConstructorNodeName} from './extension/const';
 
-jest.mock('@gravity-ui/markdown-editor', () => {
-    const actual = jest.requireActual('@gravity-ui/markdown-editor');
+vi.mock(import('@gravity-ui/markdown-editor'), async (importOriginal) => {
+    const actual = await importOriginal();
     return {
         ...actual,
         generateEntityId: (name = 'entity') => `${name}-eff-000-0ab`,

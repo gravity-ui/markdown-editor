@@ -1,5 +1,6 @@
 import {EditorState} from 'prosemirror-state';
 import {builders} from 'prosemirror-test-builder';
+import {describe, expect, it} from 'vitest';
 
 import {ExtensionsManager} from 'src/core';
 import {BaseNode, BaseSchemaSpecs} from 'src/extensions/base/specs';
