@@ -208,6 +208,51 @@ describe('MarkdownSerializer whitespace', () => {
         expect(serializer.serialize(input)).toBe(expectedMarkup);
         expect(parser.parse(expectedMarkup)).toMatchNode(expectedDoc);
     });
+
+    it.each([
+        {markOrder: ['em', 'strong', 'link', 'code']},
+        {markOrder: ['strong', 'em', 'link', 'code']},
+    ])('should expel isolated multiline whitespace with $markOrder marks', ({markOrder}) => {
+        const {doc, p, em, strong, sb, parser, serializer} = createFixture(markOrder);
+        const input = doc(p(em(strong('x\ny '))));
+        const expectedDoc = doc(p(em(strong('x', sb(), 'y'))));
+        const expectedMarkup = '***x\ny*** ';
+
+        expect(serializer.serialize(input)).toBe(expectedMarkup);
+        expect(parser.parse(expectedMarkup)).toMatchNode(expectedDoc);
+    });
+
+    it('should expel isolated multiline whitespace with custom strong delimiters', () => {
+        const {doc, p, em, strong, sb, parser, serializer} = createFixture(undefined, {
+            strong: {open: '__', close: '__', mixable: true, expelEnclosingWhitespace: true},
+        });
+        const input = doc(p(em(strong('x\ny '))));
+        const expectedDoc = doc(p(em(strong('x', sb(), 'y'))));
+        const expectedMarkup = '*__x\ny__* ';
+
+        expect(serializer.serialize(input)).toBe(expectedMarkup);
+        expect(parser.parse(expectedMarkup)).toMatchNode(expectedDoc);
+    });
+
+    it('should keep isolated multiline whitespace inside a standard link', () => {
+        const {doc, p, em, strong, a, sb, parser, serializer} = createFixture();
+        const input = doc(p(em(strong(a('x\ny ')))));
+        const expectedDoc = doc(p(em(strong(a('x', sb(), 'y ')))));
+        const expectedMarkup = '***[x\ny ](foo)***';
+
+        expect(serializer.serialize(input)).toBe(expectedMarkup);
+        expect(parser.parse(expectedMarkup)).toMatchNode(expectedDoc);
+    });
+
+    it('should keep isolated multiline whitespace inside inline code', () => {
+        const {doc, p, em, strong, code, parser, serializer} = createFixture();
+        const input = doc(p(em(strong(code('x\ny ')))));
+        const expectedDoc = doc(p(em(strong(code('x y ')))));
+        const expectedMarkup = '***`x\ny `***';
+
+        expect(serializer.serialize(input)).toBe(expectedMarkup);
+        expect(parser.parse(expectedMarkup)).toMatchNode(expectedDoc);
+    });
 });
 
 function createFixture(
