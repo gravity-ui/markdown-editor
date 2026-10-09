@@ -1,5 +1,19 @@
 # Changelog
 
+## [15.49.0](https://github.com/gravity-ui/markdown-editor/compare/markdown-editor-v15.48.2...markdown-editor-v15.49.0) (2026-10-09)
+
+
+### Features
+
+* **core:** apply compatible updates to parser and serializer from prosemirror-markdown upstream ([#1317](https://github.com/gravity-ui/markdown-editor/issues/1317)) ([2f0729e](https://github.com/gravity-ui/markdown-editor/commit/2f0729e6e28192179e95737142a7ad78a78eec8a))
+* **toolbars:** add a public entry point for presets and items ([#1299](https://github.com/gravity-ui/markdown-editor/issues/1299)) ([f3c4c95](https://github.com/gravity-ui/markdown-editor/commit/f3c4c958982016826f89fb7b01ed61b3b451263c))
+* **YfmTable:** add a flag to serialize cell alignment in the new syntax ([#1323](https://github.com/gravity-ui/markdown-editor/issues/1323)) ([dfb9379](https://github.com/gravity-ui/markdown-editor/commit/dfb9379752135d619208ea6c08c856f6c7395908))
+
+
+### Bug Fixes
+
+* **YfmTabs:** preserve groups when serializing to Markdown ([#1322](https://github.com/gravity-ui/markdown-editor/issues/1322)) ([9e0caef](https://github.com/gravity-ui/markdown-editor/commit/9e0caef497b592c255b9d9fd9c5f37d198ed751b))
+
 ## [15.48.2](https://github.com/gravity-ui/markdown-editor/compare/markdown-editor-v15.48.1...markdown-editor-v15.48.2) (2026-10-02)
 
 
