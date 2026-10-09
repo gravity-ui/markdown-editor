@@ -10,7 +10,7 @@ import {
     TextSelection,
 } from 'prosemirror-state';
 import {doc, eq, li, p, schema, ul} from 'prosemirror-test-builder';
-import {describe, it} from 'vitest';
+import {describe, expect, it} from 'vitest';
 
 import {
     liftSelectedListItems,
@@ -105,19 +105,19 @@ function getPlannedBlockTexts(docNode: Node) {
 }
 
 describe('planSelectedListBlocks', () => {
-    it('plans a single selected item as one block', () => {
+    it('should plan a single selected item as one block', () => {
         expect(getPlannedBlockTexts(doc(ul(li(p('11')), li(p('2<a><b>2')), li(p('33')))))).toEqual([
             ['22'],
         ]);
     });
 
-    it('plans a flat sibling group as one contiguous block', () => {
+    it('should plan a flat sibling group as one contiguous block', () => {
         expect(
             getPlannedBlockTexts(doc(ul(li(p('aa')), li(p('b<a>b')), li(p('c<b>c')), li(p('dd'))))),
         ).toEqual([['bb', 'cc']]);
     });
 
-    it('plans downward staircase selections as separate list-level blocks', () => {
+    it('should plan downward staircase selections as separate list-level blocks', () => {
         expect(
             getPlannedBlockTexts(
                 doc(
@@ -140,7 +140,7 @@ describe('planSelectedListBlocks', () => {
         ).toEqual([['bb'], ['cc']]);
     });
 
-    it('plans upward staircase selections from inner items back to outer siblings', () => {
+    it('should plan upward staircase selections from inner items back to outer siblings', () => {
         expect(
             getPlannedBlockTexts(
                 doc(
@@ -163,7 +163,7 @@ describe('planSelectedListBlocks', () => {
         ).toEqual([['ss'], ['zz']]);
     });
 
-    it('plans mixed multi-level selections by expanding nested tails into sibling runs', () => {
+    it('should plan mixed multi-level selections by expanding nested tails into sibling runs', () => {
         expect(
             getPlannedBlockTexts(
                 doc(
@@ -315,7 +315,7 @@ describe('sinkSelectedListItems', () => {
             ),
         ));
 
-    it('sinks reverse staircase selections from the innermost item outward', () =>
+    it('should sink reverse staircase selections from the innermost item outward', () =>
         apply(
             doc(
                 ul(
@@ -390,21 +390,21 @@ describe('sinkSelectedListItems', () => {
 describe('liftSelectedListItems', () => {
     const lift = liftSelectedListItems(schema.nodes.list_item);
 
-    it('lifts a top-level list item into a paragraph', () =>
+    it('should lift a top-level list item into a paragraph', () =>
         apply(
             doc(ul(li(p('first')), li(p('s<a><b>econd'))), p('text')),
             lift,
             doc(ul(li(p('first'))), p('second'), p('text')),
         ));
 
-    it('lifts a nested list item out by one level', () =>
+    it('should lift a nested list item out by one level', () =>
         apply(
             doc(ul(li(p('one'), ul(li(p('t<a><b>wo')))))),
             lift,
             doc(ul(li(p('one')), li(p('two')))),
         ));
 
-    it('keeps the original selection when lifting reverse staircase blocks', () =>
+    it('should keep the original selection when lifting reverse staircase blocks', () =>
         apply(
             doc(
                 ul(
@@ -434,7 +434,7 @@ describe('liftSelectedListItems', () => {
             ),
         ));
 
-    it('keeps a multi-block lift in one history step with stable selection on undo', () => {
+    it('should keep a multi-block lift in one history step with stable selection on undo', () => {
         const docNode = doc(
             ul(
                 li(p('aa')),
