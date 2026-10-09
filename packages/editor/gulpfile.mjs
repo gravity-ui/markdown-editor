@@ -6,6 +6,8 @@ import {buildDocs} from '@gravity-ui/readme-validator';
 import {series, task} from '@markdown-editor/gulp-tasks';
 import {registerBuildTasks} from '@markdown-editor/gulp-tasks/build';
 
+import {buildShadowStyles} from './scripts/build-shadow-styles.mjs';
+
 import pkg from './package.json' with {type: 'json'};
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -13,12 +15,16 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const BUILD_DIR = resolve('build');
 const NODE_MODULES_DIR = resolve(__dirname, 'node_modules');
 
+task('shadow-styles', () => buildShadowStyles(BUILD_DIR));
+
 registerBuildTasks({
     version: pkg.version,
     buildDir: BUILD_DIR,
     nodeModulesDir: NODE_MODULES_DIR,
     // Keep in sync with the `sideEffects` field of package.json (paths here are relative to `build/esm`)
     esmSideEffects: ['*.css', '*.scss', 'shortcuts/index.js', 'shortcuts/default.js'],
+    // `shadow-styles` reads build/styles.css, produced by `scss`.
+    finalTasks: ['shadow-styles'],
 });
 
 // Generates the AI-agent docs tree (INDEX.md + guides) into build/docs.

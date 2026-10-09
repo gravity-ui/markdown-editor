@@ -1,4 +1,7 @@
-body :has(.g-md-resizable_resizing) {
+// A shadow root cannot select the outer `body`, so the host carries the cursor.
+
+body :has(.g-md-resizable_resizing),
+:host:has(.g-md-resizable_resizing) {
     cursor: col-resize;
 }
 
