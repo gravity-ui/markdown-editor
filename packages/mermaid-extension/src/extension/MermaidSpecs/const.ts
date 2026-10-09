@@ -1,5 +1,4 @@
-import {entityIdAttr} from 'src/utils/entity-id';
-import {nodeTypeFactory} from 'src/utils/schema';
+import {entityIdAttr, nodeTypeFactory} from '@gravity-ui/markdown-editor';
 
 export enum MermaidAttrs {
     // @ts-expect-error error TS18055

@@ -20,7 +20,7 @@ export function withMermaid(opts: WithMermaidOptions) {
     return <T extends {html: string}>(
         Component: ComponentType<T & RefAttributes<HTMLDivElement>>,
     ) =>
-        forwardRef<HTMLDivElement, T & WithMermaidProps>(function WithLatex(props, ref) {
+        forwardRef<HTMLDivElement, T & WithMermaidProps>(function WithMermaid(props, ref) {
             const {meta, html, mermaidConfig} = props;
 
             const renderMermaid = useMermaid();

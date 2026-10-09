@@ -85,7 +85,7 @@ The factory receives the extension dependencies (`schema`, `textParser`, `markup
 
 The node must already be registered by `addNodeSpec` or `addNode`, and it can have only one view — a second registration for the same node throws.
 
-See the [full example of the extension](https://github.com/gravity-ui/markdown-editor/tree/main/src/extensions/yfm/Mermaid/MermaidNodeView) for more details.
+See the [full example of the extension](https://github.com/gravity-ui/markdown-editor/tree/main/packages/mermaid-extension/src/extension/MermaidNodeView) for more details.
 
 #### 3. Add Plugins
 

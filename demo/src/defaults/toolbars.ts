@@ -3,8 +3,6 @@ import {
     ActionName as Action,
     ToolbarName as Toolbar,
     full,
-    mermaidItemView,
-    mermaidItemWysiwyg,
     yfmHtmlBlockItemView,
     yfmHtmlBlockItemWysiwyg,
 } from '@gravity-ui/markdown-editor/toolbars';
@@ -15,10 +13,15 @@ import {
     latexInlineItemWysiwyg,
 } from '@gravity-ui/markdown-editor-latex-extension/configs';
 import {
+    mermaidItemView,
+    mermaidItemWysiwyg,
+} from '@gravity-ui/markdown-editor-mermaid-extension/configs';
+import {
     pageConstructorItemView,
     pageConstructorItemWysiwyg,
 } from '@gravity-ui/markdown-editor-page-constructor-extension/configs';
 
+const mermaid = 'mermaid';
 const pageConstructor = 'pageConstructor';
 
 export const playgroundToolbarsPreset: ToolbarsPreset = {
@@ -26,7 +29,7 @@ export const playgroundToolbarsPreset: ToolbarsPreset = {
         ...full.items,
         [Action.mathInline]: {view: latexInlineItemView, wysiwyg: latexInlineItemWysiwyg},
         [Action.mathBlock]: {view: latexBlockItemView, wysiwyg: latexBlockItemWysiwyg},
-        [Action.mermaid]: {view: mermaidItemView, wysiwyg: mermaidItemWysiwyg},
+        [mermaid]: {view: mermaidItemView, wysiwyg: mermaidItemWysiwyg},
         [pageConstructor]: {view: pageConstructorItemView, wysiwyg: pageConstructorItemWysiwyg},
         [Action.htmlBlock]: {view: yfmHtmlBlockItemView, wysiwyg: yfmHtmlBlockItemWysiwyg},
     },
@@ -37,7 +40,7 @@ export const playgroundToolbarsPreset: ToolbarsPreset = {
                 ...full.orders[Toolbar.wysiwygSlash].flat(),
                 Action.mathInline,
                 Action.mathBlock,
-                Action.mermaid,
+                mermaid,
                 pageConstructor,
                 Action.htmlBlock,
             ],

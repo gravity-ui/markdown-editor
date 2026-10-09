@@ -1,15 +1,14 @@
-import type {ActionSpec} from '#core';
-import {SharedStateKey} from 'src/extensions/behavior/SharedState/utils';
-import {generateEntityId} from 'src/utils/entity-id';
+import type {ActionSpec} from '@gravity-ui/markdown-editor';
+import {SharedStateKey, generateEntityId} from '@gravity-ui/markdown-editor';
 
-import {MermaidConsts} from './MermaidSpecs';
+import {MermaidConsts} from './MermaidSpecs/const';
 import type {MermaidEntitySharedState} from './types';
 
 export const addMermaid: ActionSpec = {
     isEnable(state) {
         return state.selection.empty;
     },
-    run(state, dispatch, _view) {
+    run(state, dispatch) {
         const newEntityId = generateEntityId(MermaidConsts.NodeName);
         const sharedKey = SharedStateKey.define<MermaidEntitySharedState>({name: newEntityId});
 

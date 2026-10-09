@@ -25,7 +25,6 @@ import {
     ListBlIcon,
     ListOlIcon,
     MarkIcon,
-    MermaidIcon,
     MonoIcon,
     NoteIcon,
     QuoteIcon,
@@ -81,7 +80,6 @@ type Icon =
     | 'functionBlock'
     | 'emoji'
     | 'tabs'
-    | 'mermaid'
     | 'html'
     | 'foldingHeading'
     | 'gpt';
@@ -141,7 +139,6 @@ export const icons: Icons = {
     emoji: {data: EmojiIcon},
 
     tabs: {data: TabsIcon},
-    mermaid: {data: MermaidIcon},
 
     foldingHeading: {data: FoldingHeadingIcon},
 

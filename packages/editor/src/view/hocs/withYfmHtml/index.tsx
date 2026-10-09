@@ -4,8 +4,7 @@ import type {HTMLRuntimeConfig} from '@diplodoc/html-extension';
 import {useDiplodocEmbeddedContentController} from '@diplodoc/html-extension/react';
 import type {IHTMLIFrameElementConfig} from '@diplodoc/html-extension/runtime';
 
-import type {PluginRuntime, TransformMeta} from '../withMermaid/types';
-
+import type {PluginRuntime, TransformMeta} from './types';
 import {useYfmHtmlBlockRuntime} from './useYfmHtmlBlockRuntime';
 
 export {DEFAULT_HTML_RUNTIME_CONFIG} from './useYfmHtmlBlockRuntime';

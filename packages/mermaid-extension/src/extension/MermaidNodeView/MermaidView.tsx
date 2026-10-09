@@ -1,35 +1,36 @@
 import {useEffect, useMemo, useState} from 'react';
 
 import {Ellipsis as DotsIcon} from '@gravity-ui/icons';
+import {
+    SharedStateKey,
+    cn,
+    removeNode,
+    useAutoSave,
+    useBooleanState,
+    useElementState,
+    useSharedEditingState,
+} from '@gravity-ui/markdown-editor';
+import {DelayedTextArea} from '@gravity-ui/markdown-editor/_/react-utils/components/DelayedTextArea.js';
+import type {Node} from '@gravity-ui/markdown-editor/pm/model';
+import type {EditorView} from '@gravity-ui/markdown-editor/pm/view';
 import {Button, Icon, Loader, Menu, Overlay, Popup, useThemeType} from '@gravity-ui/uikit';
 import type {Mermaid} from 'mermaid' with {'resolution-mode': 'import'};
-import type {Node} from 'prosemirror-model';
-import type {EditorView} from 'prosemirror-view';
 
-import {SharedStateKey} from 'src/extensions/behavior/SharedState';
-import {DelayedTextArea} from 'src/react-utils/components/DelayedTextArea';
-import {useSharedEditingState} from 'src/react-utils/useSharedEditingState';
-
-import {cn} from '../../../../classname';
-import {i18n} from '../../../../i18n/common';
-import {useAutoSave, useBooleanState, useElementState} from '../../../../react-utils';
-import {removeNode} from '../../../../utils';
+import {i18n} from '../../i18n';
 import {MermaidConsts} from '../MermaidSpecs/const';
-import type {MermaidOptions} from '../index';
+import type {MermaidExtensionOptions} from '../index';
 import type {MermaidEntitySharedState} from '../types';
-
-export const cnMermaid = cn('Mermaid');
-
-export const STOP_EVENT_CLASSNAME = 'prosemirror-stop-event';
 
 import './Mermaid.scss';
 
-const b = cnMermaid;
+export const STOP_EVENT_CLASSNAME = 'prosemirror-stop-event';
+
+const b = cn('Mermaid');
 
 const MermaidPreview: React.FC<{
     mermaidInstance: Mermaid | null;
     text: string;
-    options: MermaidOptions;
+    options: MermaidExtensionOptions;
 }> = ({mermaidInstance, text = '', options}) => {
     const [svg, setSvg] = useState<string>();
     const [updating, setUpdating] = useState(false);
@@ -100,7 +101,7 @@ const DiagramEditMode: React.FC<{
     mermaidInstance: Mermaid | null;
     onSave: (v: string) => void;
     onCancel: () => void;
-    options: MermaidOptions;
+    options: MermaidExtensionOptions;
 }> = ({initialText, onSave, onCancel, mermaidInstance, options}) => {
     const {value, handleChange, handleManualSave, isSaveDisabled, isAutoSaveEnabled} = useAutoSave({
         initialValue: initialText || '',
@@ -153,12 +154,12 @@ export const MermaidView: React.FC<{
     getMermaidInstance: () => Mermaid;
     node: Node;
     getPos: () => number | undefined;
-    options: MermaidOptions;
+    options: MermaidExtensionOptions;
 }> = ({onChange, node, getPos, view, getMermaidInstance, options}) => {
-    const enitityId: string = node.attrs[MermaidConsts.NodeAttrs.EntityId];
+    const entityId: string = node.attrs[MermaidConsts.NodeAttrs.EntityId];
     const entityKey = useMemo(
-        () => SharedStateKey.define<MermaidEntitySharedState>({name: enitityId}),
-        [enitityId],
+        () => SharedStateKey.define<MermaidEntitySharedState>({name: entityId}),
+        [entityId],
     );
 
     const [editing, setEditing, unsetEditing] = useSharedEditingState(view, entityKey);

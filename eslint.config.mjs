@@ -61,6 +61,23 @@ export default defineConfig(
         },
     },
     {
+        files: ['./packages/mermaid-extension/**/*'],
+        languageOptions: {
+            parserOptions: {
+                project: './packages/mermaid-extension/tsconfig.json',
+                tsconfigRootDir: import.meta.dirname,
+            },
+        },
+        settings: {
+            'import/resolver': {
+                typescript: {
+                    alwaysTryTypes: true,
+                    project: './packages/mermaid-extension/tsconfig.json',
+                },
+            },
+        },
+    },
+    {
         files: ['./packages/page-constructor-extension/**/*'],
         languageOptions: {
             parserOptions: {

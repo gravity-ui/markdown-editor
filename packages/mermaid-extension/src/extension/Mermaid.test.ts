@@ -1,17 +1,43 @@
-import {builders} from 'prosemirror-test-builder';
+import type {Parser, Serializer} from '@gravity-ui/markdown-editor';
+import {
+    BaseNode,
+    BaseSchemaSpecs,
+    BlockquoteSpecs,
+    ExtensionsManager,
+    blockquoteNodeName,
+} from '@gravity-ui/markdown-editor';
+import type {Node} from '@gravity-ui/markdown-editor/pm/model';
+import {builders} from '@gravity-ui/markdown-editor/pm/test-builder';
 import dd from 'ts-dedent';
-import {describe, it, vi} from 'vitest';
+import {describe, expect, it, vi} from 'vitest';
 
-import {createMarkupChecker} from '../../../../tests/sameMarkup';
-import {ExtensionsManager} from '../../../core';
-import {BaseNode, BaseSchemaSpecs, BlockquoteSpecs, blockquoteNodeName} from '../../specs';
+import {MermaidSpecsExtension} from './MermaidSpecs';
+import {MermaidAttrs, mermaidNodeName} from './MermaidSpecs/const';
 
-import {MermaidSpecs} from './MermaidSpecs';
-import {MermaidAttrs, mermaidNodeName} from './const';
+vi.mock(import('@gravity-ui/markdown-editor'), async (importOriginal) => {
+    const actual = await importOriginal();
+    return {
+        ...actual,
+        generateEntityId: (name = 'entity') => `${name}-eff-000-0ab`,
+    };
+});
 
-vi.mock('uuid', () => ({
-    v4: vi.fn().mockReturnValue('eff-000-0ab'),
-}));
+function createMarkupChecker({parser, serializer}: {parser: Parser; serializer: Serializer}) {
+    function parse(text: string, doc: Node) {
+        expect(parser.parse(text).toJSON()).toEqual(doc.toJSON());
+    }
+
+    function serialize(doc: Node, text: string) {
+        expect(serializer.serialize(doc)).toBe(text);
+    }
+
+    function same(text: string, doc: Node) {
+        parse(text, doc);
+        serialize(doc, text);
+    }
+
+    return {same, parse, serialize};
+}
 
 const {
     schema,
@@ -19,7 +45,7 @@ const {
     serializer,
 } = new ExtensionsManager({
     extensions: (builder) =>
-        builder.use(BaseSchemaSpecs, {}).use(BlockquoteSpecs).use(MermaidSpecs, {}),
+        builder.use(BaseSchemaSpecs, {}).use(BlockquoteSpecs).use(MermaidSpecsExtension, {}),
 }).buildDeps();
 
 const {doc, mermaid, quote} = builders<'doc' | 'mermaid' | 'quote'>(schema, {

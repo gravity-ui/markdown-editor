@@ -16,7 +16,6 @@ import {
     insertBlockquoteLink,
     insertHRule,
     insertLink,
-    insertMermaidDiagram,
     insertYfmHtmlBlock,
     insertYfmTable,
     insertYfmTabs,
@@ -467,23 +466,6 @@ export const yfmHtmlBlockItemWysiwyg: ToolbarItemWysiwyg = {
 };
 export const yfmHtmlBlockItemMarkup: ToolbarItemMarkup = {
     exec: (e) => insertYfmHtmlBlock(e.cm),
-    isActive: inactive,
-    isEnable: enable,
-};
-
-// ---- Mermaid ----
-export const mermaidItemView: ToolbarItemView = {
-    type: ToolbarDataType.SingleButton,
-    title: i18n.bind(null, 'mermaid'),
-    icon: icons.mermaid,
-};
-export const mermaidItemWysiwyg: ToolbarItemWysiwyg = {
-    exec: (e) => e.actions.createMermaid.run(),
-    isActive: (e) => e.actions.createMermaid.isActive(),
-    isEnable: (e) => e.actions.createMermaid.isEnable(),
-};
-export const mermaidItemMarkup: ToolbarItemMarkup = {
-    exec: (e) => insertMermaidDiagram(e.cm),
     isActive: inactive,
     isEnable: enable,
 };
