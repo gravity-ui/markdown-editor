@@ -733,9 +733,7 @@ export const full: ToolbarsPreset = {
             ],
             [Action.imagePopup, Action.filePopup, Action.table, Action.checkbox],
         ],
-        [Toolbar.wysiwygHidden]: [
-            [Action.horizontalRule, Action.emoji, Action.tabs, Action.footnote],
-        ],
+        [Toolbar.wysiwygHidden]: [[Action.horizontalRule, Action.emoji, Action.tabs]],
         [Toolbar.markupHidden]: [[Action.horizontalRule, Action.emoji, Action.tabs]],
     },
 };
