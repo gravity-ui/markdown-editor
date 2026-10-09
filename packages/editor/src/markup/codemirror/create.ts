@@ -1,4 +1,4 @@
-import {autocompletion} from '@codemirror/autocomplete';
+import {autocompletion, completionKeymap} from '@codemirror/autocomplete';
 import {
     defaultKeymap,
     history,
@@ -8,7 +8,7 @@ import {
     insertTab,
 } from '@codemirror/commands';
 import {syntaxHighlighting} from '@codemirror/language';
-import type {Extension, StateCommand} from '@codemirror/state';
+import {type Extension, Prec, type StateCommand} from '@codemirror/state';
 import {
     EditorView,
     type EditorViewConfig,
@@ -68,6 +68,11 @@ type Autocompletion = Parameters<typeof autocompletion>[0];
 type Tooltips = Parameters<typeof tooltips>[0];
 
 const linkRegex = /\[[\s\S]*?]\([\s\S]*?\)/g;
+
+// startCompletion is bound to Opt+` on macOS, and CodeMirror resolves Alt combinations by the
+// produced character, so the binding also matches Opt+Shift+0 — the Russian layout's backtick.
+// Ctrl-Space keeps startCompletion reachable.
+const completionKeymapWithoutBacktick = completionKeymap.filter(({mac}) => mac !== 'Alt-`');
 
 export type CreateCodemirrorParams = {
     doc: EditorViewConfig['doc'];
@@ -188,7 +193,10 @@ export function createCodemirror(params: CreateCodemirrorParams) {
             ...(disabledExtensions.history ? [] : historyKeymap),
             ...keymaps,
         ]),
-        autocompletion(autocompletionConfig),
+        autocompletion({...autocompletionConfig, defaultKeymap: false}),
+        autocompletionConfig?.defaultKeymap === false
+            ? []
+            : Prec.highest(keymap.of(completionKeymapWithoutBacktick)),
         yfmLang(yfmLangOptions),
         ReactRendererFacet.of(reactRenderer),
         DirectiveSyntaxFacet.of(directiveSyntax),

@@ -19,6 +19,8 @@ export type HeadingSpecsOptions = {
 export const HeadingSpecs: ExtensionAuto<HeadingSpecsOptions> = (builder, opts) => {
     builder
         .addNodeSpec(headingNodeName, () => ({
+            // TODO(major): Add number validation for heading level.
+            // Check other extensions for missing attribute validation.
             attrs: {[headingLevelAttr]: {default: 1}, [headingLineNumberAttr]: {default: null}},
             content: '(text | inline)*',
             group: 'block',

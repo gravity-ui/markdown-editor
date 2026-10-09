@@ -6,6 +6,7 @@ import {createMarkupChecker} from '../../../../tests/sameMarkup';
 import {ExtensionsManager} from '../../../core';
 import {BaseNode, BaseSchemaSpecs} from '../../base/specs';
 import {BoldSpecs, boldMarkName} from '../Bold/BoldSpecs';
+import {ImageAttr, ImageSpecs, imageNodeName} from '../Image/ImageSpecs';
 
 import {HeadingSpecs} from './HeadingSpecs';
 import {headingLevelAttr, headingNodeName} from './const';
@@ -15,11 +16,12 @@ const {
     markupParser: parser,
     serializer,
 } = new ExtensionsManager({
-    extensions: (builder) => builder.use(BaseSchemaSpecs, {}).use(HeadingSpecs, {}).use(BoldSpecs),
+    extensions: (builder) =>
+        builder.use(BaseSchemaSpecs, {}).use(HeadingSpecs, {}).use(BoldSpecs).use(ImageSpecs),
 }).buildDeps();
 
-const {doc, b, p, h, h1, h2, h3, h4, h5, h6} = builders<
-    'doc' | 'p' | 'h' | 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6',
+const {doc, b, p, h, h1, h2, h3, h4, h5, h6, img} = builders<
+    'doc' | 'p' | 'h' | 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'img',
     'b'
 >(schema, {
     doc: {nodeType: BaseNode.Doc},
@@ -32,11 +34,41 @@ const {doc, b, p, h, h1, h2, h3, h4, h5, h6} = builders<
     h4: {nodeType: headingNodeName, [headingLevelAttr]: 4},
     h5: {nodeType: headingNodeName, [headingLevelAttr]: 5},
     h6: {nodeType: headingNodeName, [headingLevelAttr]: 6},
+    img: {nodeType: imageNodeName, [ImageAttr.Src]: 'a.png'},
 });
 
-const {same} = createMarkupChecker({parser, serializer});
+const {same, parse, serialize} = createMarkupChecker({parser, serializer});
 
 describe('Heading extension', () => {
+    it('should keep a hash before an image without extra escaping', () => {
+        same('# #![](a.png)', doc(h1('#', img())));
+    });
+
+    it.each(['#', '##', '###'])(
+        'should preserve a heading with only hash characters %s',
+        (text) => {
+            same('# \\' + text, doc(h1(text)));
+        },
+    );
+
+    it('should keep hash text before trailing heading spaces', () => {
+        const content = doc(h1('# '));
+
+        serialize(content, String.raw`# \# `);
+        parse(serializer.serialize(content), doc(h1('#')));
+    });
+
+    it.each([
+        {text: '1. foo', markup: '# 1. foo'},
+        {text: '# literal', markup: '# # literal'},
+    ])('should preserve block markers inside heading content $text', ({text, markup}) => {
+        same(markup, doc(h1(text)));
+    });
+
+    it('should escape inline YFM markers inside heading content', () => {
+        same(String.raw`# \+\+text\+\+`, doc(h1('++text++')));
+    });
+
     it('should parse h1', () => {
         same('# one', doc(h1('one')));
     });

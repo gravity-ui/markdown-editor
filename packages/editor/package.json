@@ -1,6 +1,6 @@
 {
   "name": "@gravity-ui/markdown-editor",
-  "version": "15.47.0",
+  "version": "15.48.2",
   "description": "Markdown wysiwyg and markup editor",
   "license": "MIT",
   "repository": {
@@ -91,6 +91,16 @@
       "require": {
         "types": "./build/cjs/extensions/*",
         "default": "./build/cjs/extensions/*"
+      }
+    },
+    "./toolbars": {
+      "import": {
+        "types": "./build/esm/modules/toolbars/index.d.ts",
+        "default": "./build/esm/modules/toolbars/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/modules/toolbars/index.d.ts",
+        "default": "./build/cjs/modules/toolbars/index.js"
       }
     },
     "./view": {
@@ -209,9 +219,9 @@
     "react-error-boundary": "^3.1.4",
     "react-hotkeys-hook": "^4.5.0",
     "react-use": "catalog:",
-    "ts-dedent": "2.2.0",
+    "ts-dedent": "2.3.0",
     "tslib": "catalog:ts",
-    "uuid": "14.0.0"
+    "uuid": "14.0.2"
   },
   "devDependencies": {
     "@diplodoc/cut-extension": "catalog:peer-diplodoc",
@@ -241,7 +251,7 @@
     "@vitest/coverage-v8": "catalog:testing",
     "bem-cn-lite": "4.1.0",
     "dpdm": "3.15.1",
-    "esbuild": "0.28.1",
+    "esbuild": "0.28.2",
     "esbuild-sass-plugin": "2.16.1",
     "gulp-cli": "catalog:",
     "highlight.js": "catalog:peers",
@@ -251,7 +261,7 @@
     "lowlight": "catalog:peers",
     "markdown-it": "catalog:peers",
     "markdown-it-testgen": "^0.1.6",
-    "mermaid": "11.13.0",
+    "mermaid": "11.17.2",
     "npm-run-all": "^4.1.5",
     "postcss": "catalog:linters",
     "prettier": "catalog:linters",
