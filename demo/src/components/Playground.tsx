@@ -29,7 +29,9 @@ import {LatexExtension} from '@gravity-ui/markdown-editor-latex-extension';
 import {YfmPageConstructorExtension} from '@gravity-ui/markdown-editor-page-constructor-extension';
 import {Button, DropdownMenu} from '@gravity-ui/uikit';
 
+import {htmlBlockTemplates} from '../defaults/html-templates';
 import {playgroundToolbarsPreset} from '../defaults/toolbars';
+import {seedYfmHtmlConstructorTemplates} from '../defaults/yfm-html-constructor';
 import {useLogs} from '../hooks/useLogs';
 import useYfmHtmlBlockStyles from '../hooks/useYfmHtmlBlockStyles';
 import {randomDelay} from '../utils/delay';
@@ -44,6 +46,8 @@ const fileUploadHandler: FileUploadHandler = async (file) => {
     await randomDelay(1000, 3000);
     return {url: URL.createObjectURL(file)};
 };
+
+seedYfmHtmlConstructorTemplates();
 
 export type PlaygroundProps = {
     mobile?: boolean;
@@ -210,6 +214,19 @@ export const Playground = memo<PlaygroundProps>((props) => {
                                     storyAdditionalControls?.yfmHtmlBlockAutoSaveEnabled ?? true,
                                 delay: storyAdditionalControls?.yfmHtmlBlockAutoSaveDelay ?? 1000,
                             },
+                            templates: {
+                                items: htmlBlockTemplates,
+                                showButton: true,
+                                allowAdd: true,
+                            },
+                            constructor: {
+                                scopeStyles: true,
+                                templates: {
+                                    showButton: true,
+                                    allowAdd: true,
+                                },
+                            },
+                            editablePreview: true,
                             head: `
                         <base target="_blank" />
                         <style>
