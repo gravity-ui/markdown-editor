@@ -31,7 +31,7 @@ test.describe('Clipboard', () => {
 
         await editor.switchMode('wysiwyg');
         await editor.paste(emphasisMarkup);
-        await editor.press(keys.selectAll);
+        await editor.selectAll();
         await editor.press(keys.copy);
 
         await editor.switchMode('markup');
@@ -39,7 +39,9 @@ test.describe('Clipboard', () => {
 
         await editor.press(keys.paste);
 
-        await page.waitForTimeout(500);
+        await expect
+            .poll(() => page.evaluate(() => window.mdEditor?.getValue().trim()))
+            .toBe(emphasisMarkup);
         await expectScreenshot();
     });
 
@@ -54,7 +56,7 @@ test.describe('Clipboard', () => {
 
         await editor.switchMode('markup');
         await editor.paste(emphasisMarkup);
-        await editor.press(keys.selectAll);
+        await editor.selectAll();
         await editor.press(keys.copy);
 
         await editor.switchMode('wysiwyg');
@@ -72,17 +74,16 @@ test.describe('Clipboard', () => {
         });
 
         test('should copy and paste with preserve markup', async ({
-            helpers: {keys},
             editor,
             expectScreenshot,
             wait,
             page,
         }) => {
             await editor.paste(emphasisMarkup);
-            await editor.press(keys.selectAll);
+            await editor.selectAll();
             const data = await editor.dispatchClipboardEvent('copy');
             expect(data['text/yfm']?.trim()).toBe(emphasisMarkup);
-            await editor.press('ArrowRight');
+            await editor.moveCursor('end');
             await editor.press('Enter');
             await editor.paste(data);
 

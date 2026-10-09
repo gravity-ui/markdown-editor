@@ -889,6 +889,19 @@ export class MarkdownEditorPage {
     }
 
     /**
+     * Selects all content with the keyboard.
+     * Chromium selects natively in wysiwyg mode, and prosemirror accepts the selection
+     * on a later selectionchange event; the selection toolbar appears after that.
+     */
+    async selectAll() {
+        await this.press('ControlOrMeta+A');
+
+        if ((await this.getMode()) === 'wysiwyg') {
+            await this.expect(this.locators.toolbars.selection).toBeVisible();
+        }
+    }
+
+    /**
      * Fills the contenteditable area with the provided text
      */
     async fill(text: string) {
