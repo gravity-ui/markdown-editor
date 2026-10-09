@@ -151,6 +151,7 @@ class YfmTable {
     private readonly rowButtonLocator;
     private readonly columnButtonLocator;
     private readonly cellMenus: Readonly<Record<YfmTableCellMenuType, Locator>>;
+    private readonly openCellMenus: Readonly<Record<YfmTableCellMenuType, Locator>>;
     private readonly cellMenuActions: Readonly<Record<YfmTableActionKind, Locator>>;
 
     constructor(page: Page, expect: Expect) {
@@ -164,6 +165,14 @@ class YfmTable {
         this.cellMenus = {
             row: page.getByTestId('g-md-yfm-table-row-menu'),
             column: page.getByTestId('g-md-yfm-table-column-menu'),
+        };
+        // The popup status changes on click, before the open or close transition ends.
+        const openPopup = page.locator(
+            '[data-floating-ui-status="initial"], [data-floating-ui-status="open"]',
+        );
+        this.openCellMenus = {
+            row: openPopup.filter({has: this.cellMenus.row}),
+            column: openPopup.filter({has: this.cellMenus.column}),
         };
         this.cellMenuActions = {
             'add-column-after': page.getByTestId('g-md-yfm-table-action-add-column-after'),
@@ -258,29 +267,26 @@ class YfmTable {
         }).toPass({timeout: 5000});
     }
 
-    /**
-     * Clicks the row or column button until the menu is open.
-     * The button appears on cell hover and the click that opens the menu can land on an already replaced one.
-     */
     async openMenu(menuType: YfmTableCellMenuType) {
-        const menu = this.cellMenus[menuType];
+        await this.toggleMenu(menuType, true);
+    }
 
-        await this.expect(async () => {
-            await this.menuButton(menuType).click();
-            await this.expect(menu).toBeVisible({timeout: 500});
-        }).toPass({timeout: 5000});
+    async closeMenu(menuType: YfmTableCellMenuType) {
+        await this.toggleMenu(menuType, false);
     }
 
     /**
-     * Clicks the row or column button until the menu is closed.
-     * A click that lands while the cell background palette is closing leaves the menu open.
+     * The button appears on cell hover and a click can land on an already replaced one,
+     * and a click that lands while the cell background palette is closing leaves the menu open.
+     * A retry clicks only when the popup status still differs from the requested one.
      */
-    async closeMenu(menuType: YfmTableCellMenuType) {
-        const menu = this.cellMenus[menuType];
-
+    private async toggleMenu(menuType: YfmTableCellMenuType, open: boolean) {
         await this.expect(async () => {
-            await this.menuButton(menuType).click();
-            await this.expect(menu).toBeHidden({timeout: 500});
+            const isOpen = (await this.openCellMenus[menuType].count()) > 0;
+            if (isOpen !== open) {
+                await this.menuButton(menuType).click();
+            }
+            await this.expect(this.cellMenus[menuType]).toBeVisible({visible: open, timeout: 500});
         }).toPass({timeout: 5000});
     }
 
