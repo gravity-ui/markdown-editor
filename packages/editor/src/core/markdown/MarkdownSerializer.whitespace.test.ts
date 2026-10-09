@@ -212,6 +212,50 @@ describe('MarkdownSerializer whitespace', () => {
     it.each([
         {markOrder: ['em', 'strong', 'link', 'code']},
         {markOrder: ['strong', 'em', 'link', 'code']},
+    ])(
+        'should expel multiline emphasis whitespace after unmarked text with $markOrder',
+        ({markOrder}) => {
+            const {doc, p, em, strong, sb, parser, serializer} = createFixture(markOrder);
+            const input = doc(p('z ', em(strong('x\ny '))));
+            const expectedDoc = doc(p('z ', em(strong('x', sb(), 'y'))));
+            const expectedMarkup = 'z ***x\ny*** ';
+
+            expect(serializer.serialize(input)).toBe(expectedMarkup);
+            expect(parser.parse(expectedMarkup)).toMatchNode(expectedDoc);
+        },
+    );
+
+    it.each([
+        {markOrder: ['em', 'strong', 'link', 'code']},
+        {markOrder: ['strong', 'em', 'link', 'code']},
+    ])(
+        'should expel multiline emphasis whitespace before unmarked text with $markOrder',
+        ({markOrder}) => {
+            const {doc, p, em, strong, sb, parser, serializer} = createFixture(markOrder);
+            const input = doc(p(em(strong('x\ny ')), 'z'));
+            const expectedDoc = doc(p(em(strong('x', sb(), 'y')), ' z'));
+            const expectedMarkup = '***x\ny*** z';
+
+            expect(serializer.serialize(input)).toBe(expectedMarkup);
+            expect(parser.parse(expectedMarkup)).toMatchNode(expectedDoc);
+        },
+    );
+
+    it('should expel multiline whitespace after unmarked text with custom delimiters', () => {
+        const {doc, p, em, strong, sb, parser, serializer} = createFixture(undefined, {
+            strong: {open: '__', close: '__', mixable: true, expelEnclosingWhitespace: true},
+        });
+        const input = doc(p('z ', em(strong('x\ny '))));
+        const expectedDoc = doc(p('z ', em(strong('x', sb(), 'y'))));
+        const expectedMarkup = 'z *__x\ny__* ';
+
+        expect(serializer.serialize(input)).toBe(expectedMarkup);
+        expect(parser.parse(expectedMarkup)).toMatchNode(expectedDoc);
+    });
+
+    it.each([
+        {markOrder: ['em', 'strong', 'link', 'code']},
+        {markOrder: ['strong', 'em', 'link', 'code']},
     ])('should expel isolated multiline whitespace with $markOrder marks', ({markOrder}) => {
         const {doc, p, em, strong, sb, parser, serializer} = createFixture(markOrder);
         const input = doc(p(em(strong('x\ny '))));
