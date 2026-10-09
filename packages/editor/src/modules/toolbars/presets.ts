@@ -31,6 +31,8 @@ import {
     fileItemView,
     fileItemWysiwyg,
     filePopupItemView,
+    footnoteItemView,
+    footnoteItemWysiwyg,
     heading1ItemMarkup,
     heading1ItemView,
     heading1ItemWysiwyg,
@@ -593,6 +595,7 @@ export const yfm: ToolbarsPreset = {
 export const full: ToolbarsPreset = {
     items: {
         ...yfm.items,
+        [Action.footnote]: {view: footnoteItemView, wysiwyg: footnoteItemWysiwyg},
         [Action.foldingHeading]: {
             view: toggleHeadingFoldingItemView,
             wysiwyg: toggleHeadingFoldingItemWysiwyg,
@@ -626,7 +629,7 @@ export const full: ToolbarsPreset = {
                 Action.mark,
                 Action.codeInline,
             ],
-            [Action.colorify, Action.link],
+            [Action.colorify, Action.link, Action.footnote],
         ],
         [Toolbar.wysiwygSlash]: [
             [
@@ -651,6 +654,7 @@ export const full: ToolbarsPreset = {
                 Action.image,
                 Action.horizontalRule,
                 Action.emoji,
+                Action.footnote,
                 Action.file,
                 Action.tabs,
             ],
@@ -729,7 +733,9 @@ export const full: ToolbarsPreset = {
             ],
             [Action.imagePopup, Action.filePopup, Action.table, Action.checkbox],
         ],
-        [Toolbar.wysiwygHidden]: [[Action.horizontalRule, Action.emoji, Action.tabs]],
+        [Toolbar.wysiwygHidden]: [
+            [Action.horizontalRule, Action.emoji, Action.tabs, Action.footnote],
+        ],
         [Toolbar.markupHidden]: [[Action.horizontalRule, Action.emoji, Action.tabs]],
     },
 };

@@ -1,0 +1,6 @@
+{
+  "title": "Footnote",
+  "marker": "Footnote {{marker}}",
+  "content": "Footnote text (Markdown)",
+  "invalid": "Check brackets and inline Markdown in the footnote."
+}

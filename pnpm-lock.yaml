@@ -436,6 +436,9 @@ importers:
       '@diplodoc/color-extension':
         specifier: 0.1.1
         version: 0.1.1
+      '@diplodoc/directive':
+        specifier: 0.4.0
+        version: 0.4.0(@types/markdown-it@13.0.9)(markdown-it@13.0.2)
       '@diplodoc/utils':
         specifier: ^2.1.0
         version: 2.2.2(react@18.2.0)
