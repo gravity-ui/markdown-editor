@@ -26,3 +26,11 @@ export type {NodeViewConstructor, MarkViewConstructor} from './types/node-views'
 
 export type {MarkdownParserDynamicModifierConfig} from './markdown/MarkdownParser';
 export type {MarkdownSerializerDynamicModifierConfig} from './markdown/MarkdownSerializerDynamicModifier';
+
+export type {
+    Exporter,
+    ExporterFactory,
+    ExporterFactoryContext,
+    ExporterRegistration,
+    ExporterStorage,
+} from './exporters/types';
