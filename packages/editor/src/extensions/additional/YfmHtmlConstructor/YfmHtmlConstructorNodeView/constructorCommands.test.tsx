@@ -3,6 +3,7 @@ import {EditorState} from 'prosemirror-state';
 import {EditorView} from 'prosemirror-view';
 import {type Root, createRoot} from 'react-dom/client';
 import {act} from 'react-dom/test-utils';
+import {afterAll, afterEach, beforeAll, beforeEach, expect, it, vi} from 'vitest';
 
 import {YfmHtmlConstructorConsts} from '../YfmHtmlConstructorSpecs/const';
 import {emptyHtmlConstructorStructure, readBlocks, readStructure} from '../model';
@@ -71,7 +72,7 @@ afterEach(() => {
     host.remove();
 });
 
-it('keeps command identities and edits the latest document after an external change', () => {
+it('should keep command identities and edit the latest document after an external change', () => {
     const original = commands;
     onChange({blocks: [block('first'), block('external')]});
     act(() => root.render(<Probe />));
@@ -83,7 +84,7 @@ it('keeps command identities and edits the latest document after an external cha
     expect(blocks[1]).toEqual(block('external'));
 });
 
-it('applies consecutive changes without waiting for a React render', () => {
+it('should apply consecutive changes without waiting for a React render', () => {
     commands.addBlock(block('second'));
     commands.patchStructure({content: '<h1>Intro</h1>'});
     commands.patchBlock('second', {content: '<p>Updated second</p>'});
@@ -92,7 +93,7 @@ it('applies consecutive changes without waiting for a React render', () => {
     expect(readBlocks(node)[1].content).toBe('<p>Updated second</p>');
 });
 
-it('preserves block CSS on an HTML edit and replaces it on a combined CSS edit', () => {
+it('should preserve block CSS on an HTML edit and replace it on a combined CSS edit', () => {
     commands.commitCode({html: '<div class="g-md-hc-block g-md-hc-block-1"><p>Edited</p></div>'});
     expect(readBlocks(view.state.doc.firstChild!)[0]).toMatchObject({
         id: 'first',
@@ -106,7 +107,7 @@ it('preserves block CSS on an HTML edit and replaces it on a combined CSS edit',
     expect(readBlocks(node)[0].content).toBe('<p>Edited</p>');
 });
 
-it('duplicates the current node with independent block and entity IDs', () => {
+it('should duplicate the current node with independent block and entity IDs', () => {
     commands.addBlock(block('external'));
     commands.duplicate();
     const original = view.state.doc.child(0);
@@ -118,10 +119,10 @@ it('duplicates the current node with independent block and entity IDs', () => {
     expect(readBlocks(copy).map(({id}) => id)).not.toEqual(readBlocks(original).map(({id}) => id));
 });
 
-it('ignores retained commands after the constructor is removed', () => {
+it('should ignore retained commands after the constructor is removed', () => {
     commands.remove();
     position = undefined;
-    const dispatch = jest.spyOn(view, 'dispatch');
+    const dispatch = vi.spyOn(view, 'dispatch');
     commands.patchStructure({content: 'Detached'});
     commands.addBlock(block('late'));
     commands.duplicate();

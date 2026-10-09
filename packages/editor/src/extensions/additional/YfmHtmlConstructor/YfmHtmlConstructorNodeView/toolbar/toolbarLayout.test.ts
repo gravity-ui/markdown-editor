@@ -1,3 +1,5 @@
+import {expect, it} from 'vitest';
+
 import {type ToolbarAction, splitToolbarActions} from './useToolbarLayout';
 
 const actions: ToolbarAction[] = [
@@ -11,15 +13,15 @@ const actions: ToolbarAction[] = [
 ];
 const widths = Object.fromEntries(actions.map(({id}) => [id, 32]));
 
-it('keeps actions visible until their widths are measured', () => {
+it('should keep actions visible until their widths are measured', () => {
     expect(splitToolbarActions(actions, {}, 100)).toEqual({visible: actions, hidden: []});
 });
 
-it('keeps the full toolbar when it fits exactly', () => {
+it('should keep the full toolbar when it fits exactly', () => {
     expect(splitToolbarActions(actions, widths, 282)).toEqual({visible: actions, hidden: []});
 });
 
-it('reserves space for the overflow button and its group separator', () => {
+it('should reserve space for the overflow button and its group separator', () => {
     const fitting = splitToolbarActions(actions, widths, 246);
     const narrower = splitToolbarActions(actions, widths, 245);
     expect(fitting.hidden.map(({id}) => id)).toEqual(['duplicate', 'delete']);
@@ -32,7 +34,7 @@ it('reserves space for the overflow button and its group separator', () => {
     ]);
 });
 
-it('moves all actions into overflow on a very narrow block and restores them on resize', () => {
+it('should move all actions into overflow on a very narrow block and restore them on resize', () => {
     expect(splitToolbarActions(actions, widths, 60)).toEqual({visible: [], hidden: actions});
     expect(splitToolbarActions(actions, widths, 400)).toEqual({visible: actions, hidden: []});
 });

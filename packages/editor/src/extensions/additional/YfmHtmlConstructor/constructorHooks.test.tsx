@@ -1,5 +1,6 @@
 import {type Root, createRoot} from 'react-dom/client';
 import {act} from 'react-dom/test-utils';
+import {afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi} from 'vitest';
 
 import {useConfirm} from './YfmHtmlConstructorNodeView/useConfirm';
 import {
@@ -23,7 +24,7 @@ afterAll(() => {
 });
 
 beforeEach(() => {
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
     window.localStorage.clear();
     setHtmlConstructorPreference('compactCodeView', true);
     container = document.createElement('div');
@@ -35,7 +36,7 @@ afterEach(() => {
     act(() => root?.unmount());
     root = null;
     container.remove();
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
 });
 
 const PreferenceProbe = () => {
@@ -44,7 +45,7 @@ const PreferenceProbe = () => {
 };
 
 describe('constructor preferences', () => {
-    it('updates every mounted consumer and follows storage changes from another tab', () => {
+    it('should update every mounted consumer and follow storage changes from another tab', () => {
         act(() =>
             root?.render(
                 <>
@@ -78,9 +79,9 @@ describe('constructor preferences', () => {
         expect(container.textContent).toBe('compactcompact');
     });
 
-    it('keeps the selected preference when persistence fails', () => {
+    it('should keep the selected preference when persistence fails', () => {
         act(() => root?.render(<PreferenceProbe />));
-        jest.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+        vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
             throw new DOMException('Storage is full', 'QuotaExceededError');
         });
 
@@ -98,9 +99,9 @@ describe('constructor preferences', () => {
         expect(getHtmlConstructorPreferences().compactCodeView).toBe(false);
     });
 
-    it('removes the shared storage listener after the last consumer unmounts', () => {
-        const add = jest.spyOn(window, 'addEventListener');
-        const remove = jest.spyOn(window, 'removeEventListener');
+    it('should remove the shared storage listener after the last consumer unmounts', () => {
+        const add = vi.spyOn(window, 'addEventListener');
+        const remove = vi.spyOn(window, 'removeEventListener');
         act(() =>
             root?.render(
                 <>
@@ -127,7 +128,7 @@ describe('constructor confirmations', () => {
         return null;
     };
 
-    it('cancels a replaced request and resolves the remaining request on unmount', async () => {
+    it('should cancel a replaced request and resolve the remaining request on unmount', async () => {
         act(() => root?.render(<ConfirmationProbe />));
         let first: Promise<boolean> = Promise.resolve(true);
         let second: Promise<boolean> = Promise.resolve(true);
@@ -142,7 +143,7 @@ describe('constructor confirmations', () => {
         await expect(second).resolves.toBe(false);
     });
 
-    it('cancels requests made through a callback retained after unmount', async () => {
+    it('should cancel requests made through a callback retained after unmount', async () => {
         act(() => root?.render(<ConfirmationProbe />));
         const confirm = confirmation.confirm;
         act(() => root?.unmount());

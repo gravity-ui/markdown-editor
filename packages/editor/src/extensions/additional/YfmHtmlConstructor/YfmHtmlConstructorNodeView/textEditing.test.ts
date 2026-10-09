@@ -1,3 +1,5 @@
+import {describe, expect, it} from 'vitest';
+
 import {
     applyElementAttributes,
     editElementHtml,
@@ -14,7 +16,7 @@ import {
 } from './textEditing';
 
 describe('YfmHtmlConstructor inline editing', () => {
-    it('lists non-empty text nodes in document order', () => {
+    it('should list non-empty text nodes in document order', () => {
         const root = document.createElement('div');
         root.innerHTML = '<h2>Title</h2>\n  \n<p>Body <strong>bold</strong></p>';
 
@@ -25,7 +27,7 @@ describe('YfmHtmlConstructor inline editing', () => {
         ]);
     });
 
-    it('updates a text node value in place', () => {
+    it('should update a text node value in place', () => {
         const root = document.createElement('div');
         root.innerHTML = '<p>Hello</p>';
 
@@ -35,7 +37,7 @@ describe('YfmHtmlConstructor inline editing', () => {
         expect(root.innerHTML).toBe('<p>Updated</p>');
     });
 
-    it('updates link text and href while preserving other attributes', () => {
+    it('should update link text and href while preserving other attributes', () => {
         const root = document.createElement('div');
         root.innerHTML = '<a href="before.html" class="action">Before</a>';
 
@@ -45,7 +47,7 @@ describe('YfmHtmlConstructor inline editing', () => {
         expect(root.innerHTML).toBe('<a href="after.html" class="action">After</a>');
     });
 
-    it('updates image src while preserving other attributes', () => {
+    it('should update image src while preserving other attributes', () => {
         const root = document.createElement('div');
         root.innerHTML = '<img src="before.png" alt="Preview" class="hero">';
 
@@ -56,7 +58,7 @@ describe('YfmHtmlConstructor inline editing', () => {
     });
 
     describe('universal element editing', () => {
-        it('lists every attribute as ordered name/value pairs', () => {
+        it('should list every attribute as ordered name/value pairs', () => {
             const root = document.createElement('div');
             root.innerHTML = '<a href="x.html" title="Tip" class="cta">Go</a>';
 
@@ -69,7 +71,7 @@ describe('YfmHtmlConstructor inline editing', () => {
             ]);
         });
 
-        it('reconciles attributes: updates, adds and removes', () => {
+        it('should reconcile attributes: updates, adds and removes', () => {
             const root = document.createElement('div');
             root.innerHTML = '<a href="old.html" class="cta">Go</a>';
 
@@ -82,7 +84,7 @@ describe('YfmHtmlConstructor inline editing', () => {
             expect(root.innerHTML).toBe('<a href="new.html" title="Added">Go</a>');
         });
 
-        it('ignores attribute entries with an empty name', () => {
+        it('should ignore attribute entries with an empty name', () => {
             const root = document.createElement('div');
             root.innerHTML = '<span class="x">Hi</span>';
 
@@ -95,7 +97,7 @@ describe('YfmHtmlConstructor inline editing', () => {
             expect(root.innerHTML).toBe('<span class="x">Hi</span>');
         });
 
-        it('rejects invalid attribute names without changing existing attributes', () => {
+        it('should reject invalid attribute names without changing existing attributes', () => {
             const element = document.createElement('a');
             element.setAttribute('href', 'before.html');
             element.setAttribute('class', 'action');
@@ -109,7 +111,7 @@ describe('YfmHtmlConstructor inline editing', () => {
             expect(element.outerHTML).toBe('<a href="before.html" class="action"></a>');
         });
 
-        it('stages text and attribute edits without replacing the live popup anchor', () => {
+        it('should stage text and attribute edits without replacing the live popup anchor', () => {
             const root = document.createElement('div');
             root.innerHTML = '<p class="before">Hello <strong>world</strong></p>';
             const element = root.querySelector('p')!;
@@ -124,7 +126,7 @@ describe('YfmHtmlConstructor inline editing', () => {
             expect(root.firstElementChild).toBe(element);
         });
 
-        it('rejects the whole edit when an attribute name is invalid', () => {
+        it('should reject the whole edit when an attribute name is invalid', () => {
             const root = document.createElement('div');
             root.innerHTML = '<p class="before">Original</p>';
 
@@ -137,7 +139,7 @@ describe('YfmHtmlConstructor inline editing', () => {
             expect(root.innerHTML).toBe('<p class="before">Original</p>');
         });
 
-        it('rejects edits to a replaced target', () => {
+        it('should reject edits to a replaced target', () => {
             const root = document.createElement('div');
             root.innerHTML = '<p>Before</p>';
             const target = root.firstElementChild!;
@@ -147,7 +149,7 @@ describe('YfmHtmlConstructor inline editing', () => {
             expect(root.innerHTML).toBe('<p>After</p>');
         });
 
-        it('finds keyboard targets inside wrappers and skips hidden markup', () => {
+        it('should find keyboard targets inside wrappers and skip hidden markup', () => {
             const root = document.createElement('div');
             root.innerHTML =
                 '<style>p {color: red}</style><div hidden>Hidden</div><section><h2>Title</h2></section>';
@@ -155,14 +157,14 @@ describe('YfmHtmlConstructor inline editing', () => {
             expect(getFirstEditableElement(root)).toBe(root.querySelector('h2'));
         });
 
-        it('allows keyboard editing when a block contains only media', () => {
+        it('should allow keyboard editing when a block contains only media', () => {
             const root = document.createElement('div');
             root.innerHTML = '<img src="hero.png">';
 
             expect(getFirstEditableElement(root)).toBe(root.querySelector('img'));
         });
 
-        it('detects an editable direct text node', () => {
+        it('should detect an editable direct text node', () => {
             const root = document.createElement('div');
             root.innerHTML = '<a href="x">Click <b>here</b></a>';
 
@@ -173,7 +175,7 @@ describe('YfmHtmlConstructor inline editing', () => {
             expect(node?.nodeValue).toBe('Click ');
         });
 
-        it('allows authoring text in an empty leaf element', () => {
+        it('should allow authoring text in an empty leaf element', () => {
             const root = document.createElement('div');
             root.innerHTML = '<button></button>';
 
@@ -187,7 +189,7 @@ describe('YfmHtmlConstructor inline editing', () => {
             expect(root.innerHTML).toBe('<button>Press me</button>');
         });
 
-        it('reports no editable text for media and wrappers', () => {
+        it('should report no editable text for media and wrappers', () => {
             const root = document.createElement('div');
             root.innerHTML =
                 '<img src="a.png"><div><span>child</span></div><svg viewBox="0 0 1 1"></svg>';
@@ -203,7 +205,7 @@ describe('YfmHtmlConstructor inline editing', () => {
             expect(getEditableTextNode(svg).canEdit).toBe(false);
         });
 
-        it('treats small SVGs as icons and large ones as images', () => {
+        it('should treat small SVGs as icons and large ones as images', () => {
             const root = document.createElement('div');
             root.innerHTML =
                 '<svg width="24" height="24"></svg><svg width="240" height="240"></svg>';
@@ -216,7 +218,7 @@ describe('YfmHtmlConstructor inline editing', () => {
             expect(isIconSizedSvg(large)).toBe(false);
         });
 
-        it('replaces an inline svg glyph and returns the new element', () => {
+        it('should replace an inline svg glyph and return the new element', () => {
             const root = document.createElement('div');
             root.innerHTML =
                 '<svg class="icon" width="20" height="20" role="img" aria-label="Calendar"><path d="M0 0"/></svg>';

@@ -1,4 +1,5 @@
 import {builders} from 'prosemirror-test-builder';
+import {describe, expect, it} from 'vitest';
 
 import {ExtensionsManager} from '../../../core';
 import {BaseNode, BaseSchemaSpecs} from '../../specs';

@@ -1,3 +1,5 @@
+import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
+
 import type {HtmlConstructorTemplate} from '../types';
 
 import {
@@ -62,15 +64,15 @@ const themeTpl = (id: string, title = id, family?: string): HtmlConstructorTempl
 });
 
 beforeEach(() => {
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
     window.localStorage.clear();
     clearStoredTemplates();
 });
 
-afterEach(() => jest.restoreAllMocks());
+afterEach(() => vi.restoreAllMocks());
 
 describe('mergeTemplatesById', () => {
-    it('keeps order and overrides duplicates with the later source', () => {
+    it('should keep order and override duplicates with the later source', () => {
         const result = mergeTemplatesById(
             [blockTpl('a', 'option a'), structureTpl('b')],
             [blockTpl('a', 'stored a')],
@@ -81,16 +83,16 @@ describe('mergeTemplatesById', () => {
 });
 
 describe('readStoredTemplates', () => {
-    it('returns an empty array when nothing is stored', () => {
+    it('should return an empty array when nothing is stored', () => {
         expect(readStoredTemplates()).toEqual([]);
     });
 
-    it('ignores malformed json', () => {
+    it('should ignore malformed json', () => {
         window.localStorage.setItem(YFM_HTML_CONSTRUCTOR_STORAGE_KEY, '{not json');
         expect(readStoredTemplates()).toEqual([]);
     });
 
-    it('filters out entries with the wrong shape', () => {
+    it('should filter out entries with the wrong shape', () => {
         window.localStorage.setItem(
             YFM_HTML_CONSTRUCTOR_STORAGE_KEY,
             JSON.stringify([
@@ -116,7 +118,7 @@ describe('readStoredTemplates', () => {
 });
 
 describe('saveTemplates', () => {
-    it('persists templates and merges by id across calls', () => {
+    it('should persist templates and merge by id across calls', () => {
         saveTemplates([blockTpl('a', 'first')]);
         const result = saveTemplates([blockTpl('a', 'second'), structureTpl('b')]);
 
@@ -124,9 +126,9 @@ describe('saveTemplates', () => {
         expect(readStoredTemplates()).toEqual([blockTpl('a', 'second'), structureTpl('b')]);
     });
 
-    it('keeps successive imports in memory when writes fail, then persists on retry', () => {
+    it('should keep successive imports in memory when writes fail, then persist on retry', () => {
         saveTemplates([blockTpl('stored')]);
-        const write = jest.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+        const write = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
             throw new DOMException('Storage is full', 'QuotaExceededError');
         });
 
@@ -142,8 +144,8 @@ describe('saveTemplates', () => {
         );
     });
 
-    it('shares templates even when access to localStorage is denied', () => {
-        jest.spyOn(window, 'localStorage', 'get').mockImplementation(() => {
+    it('should share templates even when access to localStorage is denied', () => {
+        vi.spyOn(window, 'localStorage', 'get').mockImplementation(() => {
             throw new DOMException('Storage is blocked', 'SecurityError');
         });
 
@@ -155,7 +157,7 @@ describe('saveTemplates', () => {
 });
 
 describe('clearStoredTemplates', () => {
-    it('removes saved templates from localStorage', () => {
+    it('should remove saved templates from localStorage', () => {
         saveTemplates([blockTpl('a'), structureTpl('b')]);
 
         expect(clearStoredTemplates()).toEqual([]);
@@ -163,9 +165,9 @@ describe('clearStoredTemplates', () => {
         expect(window.localStorage.getItem(YFM_HTML_CONSTRUCTOR_STORAGE_KEY)).toBeNull();
     });
 
-    it('does not resurrect cleared templates when removing persisted data fails', () => {
+    it('should not resurrect cleared templates when removing persisted data fails', () => {
         saveTemplates([blockTpl('old')]);
-        jest.spyOn(Storage.prototype, 'removeItem').mockImplementation(() => {
+        vi.spyOn(Storage.prototype, 'removeItem').mockImplementation(() => {
             throw new DOMException('Storage is blocked', 'SecurityError');
         });
 
@@ -177,9 +179,9 @@ describe('clearStoredTemplates', () => {
 });
 
 describe('template subscriptions', () => {
-    it('notifies all active subscribers on import and clear', () => {
-        const first = jest.fn();
-        const second = jest.fn();
+    it('should notify all active subscribers on import and clear', () => {
+        const first = vi.fn();
+        const second = vi.fn();
         const unsubscribeFirst = subscribeStoredTemplates(first);
         const unsubscribeSecond = subscribeStoredTemplates(second);
 
@@ -197,8 +199,8 @@ describe('template subscriptions', () => {
         }
     });
 
-    it('refreshes templates after another tab saves or clears localStorage', () => {
-        const listener = jest.fn();
+    it('should refresh templates after another tab saves or clears localStorage', () => {
+        const listener = vi.fn();
         const unsubscribe = subscribeStoredTemplates(listener);
 
         try {

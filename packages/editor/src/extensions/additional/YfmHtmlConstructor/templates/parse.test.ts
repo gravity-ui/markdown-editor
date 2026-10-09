@@ -1,6 +1,8 @@
 import {readFileSync} from 'node:fs';
 import path from 'node:path';
 
+import {describe, expect, it} from 'vitest';
+
 import type {
     HtmlConstructorBlockTemplate,
     HtmlConstructorStructureTemplate,
@@ -20,14 +22,14 @@ const gravityUiLandingFixture = path.resolve(
 );
 
 describe('parseRawBlock', () => {
-    it('keeps the root element verbatim instead of unwrapping it', () => {
+    it('should keep the root element verbatim instead of unwrapping it', () => {
         expect(parseRawBlock('<div>какой-то текст</div>')).toEqual({
             css: '',
             content: '<div>какой-то текст</div>',
         });
     });
 
-    it('trims and keeps plain text', () => {
+    it('should trim and keep plain text', () => {
         expect(parseRawBlock('  Plain text  ')).toEqual({
             css: '',
             content: 'Plain text',
@@ -36,7 +38,7 @@ describe('parseRawBlock', () => {
 });
 
 describe('parseTemplateBlock', () => {
-    it('extracts top-level styles and removes nested styles', () => {
+    it('should extract top-level styles and remove nested styles', () => {
         expect(
             parseTemplateBlock(
                 '<style>& { padding: 12px; }</style><section><style>strong { color: red; }</style><strong>Text</strong></section>',
@@ -49,7 +51,7 @@ describe('parseTemplateBlock', () => {
 });
 
 describe('parseTemplates', () => {
-    it('parses the Gravity UI landing template pack', () => {
+    it('should parse the Gravity UI landing template pack', () => {
         const result = parseTemplates(readFileSync(gravityUiLandingFixture, 'utf8'));
 
         expect(result.filter((template) => template.type === 'family')).toHaveLength(1);
@@ -58,7 +60,7 @@ describe('parseTemplates', () => {
         expect(result.filter((template) => template.type === 'theme')).toHaveLength(8);
     });
 
-    it('parses families, structures, blocks and themes', () => {
+    it('should parse families, structures, blocks and themes', () => {
         const result = parseTemplates(`
             <template type="family" id="marketing" title="Marketing">
                 <style>.cover { color: red; }</style>
@@ -110,7 +112,7 @@ describe('parseTemplates', () => {
         });
     });
 
-    it('sorts structures, blocks and themes by priority then declaration index', () => {
+    it('should sort structures, blocks and themes by priority then declaration index', () => {
         const result = parseTemplates(`
             <template type="structure" id="b" priority="10"></template>
             <template type="structure" id="a" priority="-1"></template>
@@ -146,7 +148,7 @@ describe('parseTemplates', () => {
         ).toEqual(['theme-a', 'theme-b']);
     });
 
-    it('accepts the optional version attribute on any template type', () => {
+    it('should accept the optional version attribute on any template type', () => {
         const result = parseTemplates(`
             <template type="family" id="wikib2b" title="WikiB2b" version="1.0.0"></template>
             <template type="structure" id="page" family="wikib2b" version="2.1.0"></template>
@@ -156,7 +158,7 @@ describe('parseTemplates', () => {
         expect(result[1]).toMatchObject({type: 'structure', id: 'page', version: '2.1.0'});
     });
 
-    it('captures arbitrary data-* metadata on a family template', () => {
+    it('should capture arbitrary data-* metadata on a family template', () => {
         const [family] = parseTemplates(`
             <template
                 type="family"
@@ -174,7 +176,7 @@ describe('parseTemplates', () => {
         });
     });
 
-    it('parses none preset with explicitly enabled template controls', () => {
+    it('should parse none preset with explicitly enabled template controls', () => {
         const [template] = parseTemplates(`
             <template
                 type="block"
@@ -219,7 +221,7 @@ describe('parseTemplates', () => {
         expect(() => parseTemplates(input)).toThrow(HtmlConstructorTemplateParseError);
     });
 
-    it('returns an empty array for blank input', () => {
+    it('should return an empty array for blank input', () => {
         expect(parseTemplates('   ')).toEqual([]);
         expect(parseTemplates('')).toEqual([]);
     });

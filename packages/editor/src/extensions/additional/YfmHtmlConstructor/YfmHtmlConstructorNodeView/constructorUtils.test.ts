@@ -1,4 +1,5 @@
 import type {Node} from 'prosemirror-model';
+import {describe, expect, it} from 'vitest';
 
 import {buildYfmHtmlConstructorHtml} from '../YfmHtmlConstructorSpecs';
 import {
@@ -47,7 +48,7 @@ const templates = () =>
     `);
 
 describe('YfmHtmlConstructor utils', () => {
-    it('enables all toolbar controls for default or missing settings', () => {
+    it('should enable all toolbar controls for default or missing settings', () => {
         expect(getEnabledHtmlConstructorSettings(undefined)).toEqual({
             hasBackground: true,
             hasRound: true,
@@ -76,7 +77,7 @@ describe('YfmHtmlConstructor utils', () => {
         });
     });
 
-    it('enables only explicit toolbar controls for none preset', () => {
+    it('should enable only explicit toolbar controls for none preset', () => {
         expect(
             getEnabledHtmlConstructorSettings({
                 hasBackground: true,
@@ -97,13 +98,13 @@ describe('YfmHtmlConstructor utils', () => {
         });
     });
 
-    it('finds direct blocks for a structure without block states', () => {
+    it('should find direct blocks for a structure without block states', () => {
         expect(
             getDirectStructureBlocks(templates(), 'landing').map((template) => template.id),
         ).toEqual(['hero', 'card']);
     });
 
-    it('replaces current constructor state when applying a structure', () => {
+    it('should replace current constructor state when applying a structure', () => {
         const all = templates();
         const structure = all.find(
             (template) => template.type === 'structure' && template.id === 'landing',
@@ -129,7 +130,7 @@ describe('YfmHtmlConstructor utils', () => {
         expect(result.blocks).toMatchObject([{templateId: 'hero'}, {templateId: 'card'}]);
     });
 
-    it('creates a block instance with selected block theme css', () => {
+    it('should create a block instance with selected block theme css', () => {
         const all = templates();
         const block = all.find((template) => template.type === 'block' && template.id === 'card');
         const theme = all.find(
@@ -151,7 +152,7 @@ describe('YfmHtmlConstructor utils', () => {
         expect(result.css).toContain('.g-md-hc-block { background: #000; }');
     });
 
-    it('builds preview css using g-md-hc wrappers for ampersand selectors', () => {
+    it('should build preview css using g-md-hc wrappers for ampersand selectors', () => {
         const all = templates();
         const structure = all.find(
             (template) => template.type === 'structure' && template.id === 'landing',
@@ -176,7 +177,7 @@ describe('YfmHtmlConstructor utils', () => {
         ).toContain('.g-md-hc-block.g-md-hc-block-1 { padding: 12px; }');
     });
 
-    it('serializes quick styles to structure and block wrappers', () => {
+    it('should serialize quick styles to structure and block wrappers', () => {
         const html = buildYfmHtmlConstructorHtml({
             attrs: {
                 structure: {
@@ -211,7 +212,7 @@ describe('YfmHtmlConstructor utils', () => {
         );
     });
 
-    it('does not scope styles by default', () => {
+    it('should not scope styles by default', () => {
         const node = {
             attrs: {
                 'data-entity-id': 'yfm_html_constructor-abc',
@@ -227,7 +228,7 @@ describe('YfmHtmlConstructor utils', () => {
         expect(html).toContain('.g-md-hc-block.g-md-hc-block-1 { padding: 12px; }');
     });
 
-    it('scopes per-instance css and wraps markup when scopeStyles is enabled', () => {
+    it('should scope per-instance css and wrap markup when scopeStyles is enabled', () => {
         const node = {
             attrs: {
                 'data-entity-id': 'yfm_html_constructor-abc',
@@ -254,7 +255,7 @@ describe('YfmHtmlConstructor utils', () => {
         expect(html).toMatch(/\.g-md-hc-structure,\s*\n\s*\.g-md-hc-block \{/);
     });
 
-    it('derives a stable scope from the entity id', () => {
+    it('should derive a stable scope from the entity id', () => {
         const make = (id: string) =>
             buildYfmHtmlConstructorHtml(
                 {
@@ -271,7 +272,7 @@ describe('YfmHtmlConstructor utils', () => {
         expect(make('yfm_html_constructor-one')).not.toBe(make('yfm_html_constructor-two'));
     });
 
-    it('clones block instances with a new runtime id and preserved data', () => {
+    it('should clone block instances with a new runtime id and preserved data', () => {
         const block = {
             id: 'block',
             templateId: 'card',
@@ -286,7 +287,7 @@ describe('YfmHtmlConstructor utils', () => {
         expect(result.id).not.toBe(block.id);
     });
 
-    it('regenerates element ids and their references when cloning a block', () => {
+    it('should regenerate element ids and their references when cloning a block', () => {
         const block = {
             id: 'block',
             css: '',
@@ -307,11 +308,11 @@ describe('YfmHtmlConstructor utils', () => {
         expect(result.content).toContain(`href="#${newInputId}"`);
     });
 
-    it('leaves content without ids untouched', () => {
+    it('should leave content without ids untouched', () => {
         expect(regenerateHtmlIds('<article>Card</article>')).toBe('<article>Card</article>');
     });
 
-    it('replaces block state while preserving runtime id and quick style', () => {
+    it('should replace block state while preserving runtime id and quick style', () => {
         const all = templates();
         const state = all.find(
             (template) => template.type === 'block' && template.id === 'card-alt',
@@ -348,7 +349,7 @@ describe('YfmHtmlConstructor utils', () => {
         expect(result.css).toContain('.g-md-hc-block { background: #000; }');
     });
 
-    it('replaces structure and block themes without accumulating previous theme css', () => {
+    it('should replace structure and block themes without accumulating previous theme css', () => {
         const all = templates();
         const structure = all.find(
             (template) => template.type === 'structure' && template.id === 'landing',
@@ -417,7 +418,7 @@ describe('YfmHtmlConstructor utils', () => {
         expect(nextBlock.css).not.toContain('old block theme');
     });
 
-    it('assembles the full structure document with locked-free inner block markup', () => {
+    it('should assemble the full structure document with locked-free inner block markup', () => {
         const structure = {css: '', content: '<header>Intro</header>', themeIds: []};
         const blocks = [
             {id: 'a', css: '', content: '<section>One</section>', themeIds: []},
@@ -435,7 +436,7 @@ describe('YfmHtmlConstructor utils', () => {
         expect(html).not.toContain('g-md-hc-structure');
     });
 
-    it('round-trips structure document html preserving block identity and css', () => {
+    it('should round-trip structure document html preserving block identity and css', () => {
         const structure = {css: '', content: '<header>Intro</header>', themeIds: []};
         const blocks = [
             {id: 'a', css: '& { color: red; }', content: '<section>One</section>', themeIds: []},
@@ -452,7 +453,7 @@ describe('YfmHtmlConstructor utils', () => {
         ]);
     });
 
-    it('edits block markup and drops blocks removed from the document', () => {
+    it('should edit block markup and drop blocks removed from the document', () => {
         const blocks = [
             {id: 'a', css: 'a-css', content: '<section>One</section>', themeIds: []},
             {id: 'b', css: 'b-css', content: '<section>Two</section>', themeIds: []},
@@ -470,7 +471,7 @@ describe('YfmHtmlConstructor utils', () => {
         expect(result.blocks[0]?.content).toBe('<section>Edited</section>');
     });
 
-    it('treats non-block markup as structure content', () => {
+    it('should treat non-block markup as structure content', () => {
         const result = parseStructureHtml(
             '<header>Hi</header><div class="g-md-hc-block g-md-hc-block-1"><p>Body</p></div>',
             {css: '', content: '', themeIds: []},
@@ -482,7 +483,7 @@ describe('YfmHtmlConstructor utils', () => {
         expect(result.blocks[0]?.content).toBe('<p>Body</p>');
     });
 
-    it('preserves the surviving block metadata when the first wrapper is deleted', () => {
+    it('should preserve the surviving block metadata when the first wrapper is deleted', () => {
         const blocks = [
             {id: 'a', css: 'a-css', content: '<p>One</p>', themeIds: ['a-theme']},
             {id: 'b', css: 'b-css', content: '<p>Two</p>', themeIds: ['b-theme']},
@@ -497,7 +498,7 @@ describe('YfmHtmlConstructor utils', () => {
         expect(result.blocks).toEqual([{...blocks[1], content: '<p>Edited</p>'}]);
     });
 
-    it('keeps block identity and styles when wrappers are reordered', () => {
+    it('should keep block identity and styles when wrappers are reordered', () => {
         const blocks = [
             {id: 'a', css: 'a-css', content: '<p>One</p>', themeIds: []},
             {id: 'b', css: 'b-css', content: '<p>Two</p>', themeIds: []},
@@ -513,7 +514,7 @@ describe('YfmHtmlConstructor utils', () => {
         expect(result.blocks).toEqual([blocks[1], blocks[0]]);
     });
 
-    it('gives duplicated wrappers distinct block identities', () => {
+    it('should give duplicated wrappers distinct block identities', () => {
         const block = {id: 'a', css: 'a-css', content: '<p>One</p>', themeIds: []};
         const wrapper = '<div class="g-md-hc-block g-md-hc-block-1"><p>One</p></div>';
 
@@ -527,7 +528,7 @@ describe('YfmHtmlConstructor utils', () => {
         expect(result.blocks[1]?.id).not.toBe(block.id);
     });
 
-    it('preserves SVG, comments and escaped text outside block wrappers', () => {
+    it('should preserve SVG, comments and escaped text outside block wrappers', () => {
         const content =
             'Text &lt;strong&gt; &amp; symbols<!-- keep -->' +
             '<svg viewBox="0 0 10 10"><path d="M0 0h10v10"></path></svg>';
@@ -538,7 +539,7 @@ describe('YfmHtmlConstructor utils', () => {
         expect(result.blocks).toEqual([]);
     });
 
-    it('assembles the combined structure stylesheet with resolved selectors', () => {
+    it('should assemble the combined structure stylesheet with resolved selectors', () => {
         const structure = {css: '.g-md-hc-structure { display: grid; }', content: '', themeIds: []};
         const blocks = [{id: 'a', css: '& { padding: 12px; }', content: '', themeIds: []}];
 
@@ -548,14 +549,14 @@ describe('YfmHtmlConstructor utils', () => {
         expect(css).toContain('.g-md-hc-block.g-md-hc-block-1 { padding: 12px; }');
     });
 
-    it('keeps incomplete CSS available in the structure code editor', () => {
+    it('should keep incomplete CSS available in the structure code editor', () => {
         const structure = {css: '& { color:', content: '', themeIds: []};
         const blocks = [{id: 'a', css: '& { padding:', content: '', themeIds: []}];
 
         expect(assembleStructureCss(structure, blocks)).toBe('& { color:\n\n& { padding:');
     });
 
-    it('keeps valid preview styles when another stylesheet is incomplete', () => {
+    it('should keep valid preview styles when another stylesheet is incomplete', () => {
         const structure = {css: '& { display: grid; }', content: '', themeIds: []};
         const blocks = [
             {id: 'a', css: '& { color:', content: '', themeIds: []},
@@ -571,7 +572,7 @@ describe('YfmHtmlConstructor utils', () => {
         expect(buildPreviewCss({structure, blocks})).not.toContain('color:');
     });
 
-    it('applies border quick style patches from the combined border dropdown', () => {
+    it('should apply border quick style patches from the combined border dropdown', () => {
         expect(
             getNextQuickStyle(
                 {background: {light: '#ffffff'}},
@@ -591,7 +592,7 @@ describe('YfmHtmlConstructor utils', () => {
     });
 
     describe('themed colors', () => {
-        it('sets a color for one theme without touching the other', () => {
+        it('should set a color for one theme without touching the other', () => {
             expect(setThemedColor(undefined, 'light', '#ffffff')).toEqual({light: '#ffffff'});
             expect(setThemedColor({light: '#ffffff'}, 'dark', '#1c1c20')).toEqual({
                 light: '#ffffff',
@@ -599,14 +600,14 @@ describe('YfmHtmlConstructor utils', () => {
             });
         });
 
-        it('clears a theme and drops the entry when both sides are empty', () => {
+        it('should clear a theme and drop the entry when both sides are empty', () => {
             expect(setThemedColor({light: '#ffffff', dark: '#1c1c20'}, 'dark', undefined)).toEqual({
                 light: '#ffffff',
             });
             expect(setThemedColor({light: '#ffffff'}, 'light', undefined)).toBeUndefined();
         });
 
-        it('serializes themed colors to light/dark CSS variables', () => {
+        it('should serialize themed colors to light/dark CSS variables', () => {
             const html = buildYfmHtmlConstructorHtml({
                 attrs: {
                     structure: {css: '', content: '', themeIds: []},
@@ -630,13 +631,13 @@ describe('YfmHtmlConstructor utils', () => {
             );
         });
 
-        it('normalizes a legacy bare color string to both themes', () => {
+        it('should normalize a legacy bare color string to both themes', () => {
             expect(normalizeHtmlConstructorQuickStyle({background: '#ffffff'})).toEqual({
                 background: {light: '#ffffff', dark: '#ffffff'},
             });
         });
 
-        it('normalizes the themed object shape and ignores invalid colors', () => {
+        it('should normalize the themed object shape and ignore invalid colors', () => {
             expect(
                 normalizeHtmlConstructorQuickStyle({
                     background: {light: '#ffffff', dark: 'not-a-color'},
