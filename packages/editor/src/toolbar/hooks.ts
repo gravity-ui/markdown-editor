@@ -1,6 +1,4 @@
-import {useEffect, useReducer} from 'react';
-
-import {useLatest} from 'react-use';
+import {useEffect, useLayoutEffect, useReducer, useRef} from 'react';
 
 import {isEqual} from 'src/lodash';
 
@@ -33,7 +31,11 @@ export function useActionsState<E>(editor: E, actions: ToolbarAction<E>[]): UseA
 
     // Computed during render, so changed props never show the previous state.
     const state = getActionsState(editor, actions);
-    const latestRef = useLatest({editor, actions, state});
+    const latestRef = useRef({editor, actions, state});
+    // Published after commit, so an abandoned render never becomes the listener snapshot.
+    useLayoutEffect(() => {
+        latestRef.current = {editor, actions, state};
+    });
 
     useEffect(() => {
         const onUpdate = () => {
@@ -51,7 +53,7 @@ export function useActionsState<E>(editor: E, actions: ToolbarAction<E>[]): UseA
         }
 
         return undefined;
-    }, [eventBus, latestRef]);
+    }, [eventBus]);
 
     return state;
 }
