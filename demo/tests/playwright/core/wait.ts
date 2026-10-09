@@ -1,3 +1,4 @@
+import {expect} from '@playwright/experimental-ct-react';
 import type {Locator} from '@playwright/test';
 
 import type {PlaywrightFixture, WaitFixture} from './types';
@@ -22,6 +23,12 @@ export const wait: PlaywrightFixture<WaitFixture> = async ({page}, use) => {
         },
         timeout: async (delay = DEFAULT_DELAY) => {
             await page.waitForTimeout(delay);
+        },
+        tooltipsHidden: async () => {
+            await expect(page.locator('.g-tooltip')).toHaveCount(0);
+        },
+        markupPreview: async (text: string | RegExp) => {
+            await expect(page.locator('.playground__markup')).toContainText(text);
         },
     });
 };
