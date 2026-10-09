@@ -198,6 +198,9 @@ importers:
       '@gravity-ui/uikit':
         specifier: catalog:peer-gravity
         version: 7.13.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+      lz-string:
+        specifier: 1.5.0
+        version: 1.5.0
       markdown-it:
         specifier: catalog:peers
         version: 13.0.2
@@ -220,6 +223,9 @@ importers:
       '@markdown-editor/tsconfig':
         specifier: workspace:*
         version: link:../infra/tsconfig
+      '@markdown-editor/vitest-config':
+        specifier: workspace:*
+        version: link:../infra/vitest-config
       '@playwright/experimental-ct-react':
         specifier: 1.62.1
         version: 1.62.1(@types/node@24.12.2)(esbuild@0.28.2)(jiti@2.6.1)(sass@1.105.0)(terser@5.51.2)(vite@8.3.1(@types/node@24.12.2)(esbuild@0.28.2)(jiti@2.6.1)(sass@1.105.0)(terser@5.51.2)(yaml@2.9.1))(yaml@2.9.1)
@@ -304,6 +310,9 @@ importers:
       url:
         specifier: 0.11.4
         version: 0.11.4
+      vitest:
+        specifier: catalog:testing
+        version: 5.0.1(@types/node@24.12.2)(@vitest/coverage-v8@5.0.1)(jsdom@25.0.1)(vite@8.3.1(@types/node@24.12.2)(esbuild@0.28.2)(jiti@2.6.1)(sass@1.105.0)(terser@5.51.2)(yaml@2.9.1))
       webpack:
         specifier: ^5.111.1
         version: 5.111.1(esbuild@0.28.2)(postcss@8.5.18)
@@ -12509,6 +12518,15 @@ snapshots:
     dependencies:
       '@vitest/istanbul-lib-coverage': 1.0.1
 
+  '@vitest/mocker@5.0.1(vite@8.3.1(@types/node@24.12.2)(esbuild@0.28.2)(jiti@2.6.1)(sass@1.105.0)(terser@5.51.2)(yaml@2.9.1))':
+    dependencies:
+      '@jridgewell/trace-mapping': 0.3.31
+      '@vitest/spy': 5.0.1
+      estree-walker: 3.0.3
+      magic-string: 1.4.1
+    optionalDependencies:
+      vite: 8.3.1(@types/node@24.12.2)(esbuild@0.28.2)(jiti@2.6.1)(sass@1.105.0)(terser@5.51.2)(yaml@2.9.1)
+
   '@vitest/mocker@5.0.1(vite@8.3.1(@types/node@25.2.1)(esbuild@0.28.2)(jiti@2.6.1)(sass@1.105.0)(terser@5.51.2)(yaml@2.9.1))':
     dependencies:
       '@jridgewell/trace-mapping': 0.3.31
@@ -18426,6 +18444,29 @@ snapshots:
       sass: 1.105.0
       terser: 5.51.2
       yaml: 2.9.1
+
+  vitest@5.0.1(@types/node@24.12.2)(@vitest/coverage-v8@5.0.1)(jsdom@25.0.1)(vite@8.3.1(@types/node@24.12.2)(esbuild@0.28.2)(jiti@2.6.1)(sass@1.105.0)(terser@5.51.2)(yaml@2.9.1)):
+    dependencies:
+      '@types/chai': 5.2.3
+      '@vitest/mocker': 5.0.1(vite@8.3.1(@types/node@24.12.2)(esbuild@0.28.2)(jiti@2.6.1)(sass@1.105.0)(terser@5.51.2)(yaml@2.9.1))
+      chai: 6.2.2
+      es-module-lexer: 2.3.2
+      expect-type: 1.4.0
+      magic-string: 1.4.1
+      obug: 2.2.1
+      picomatch: 4.0.7
+      std-env: 4.2.0
+      tinybench: 6.1.4
+      tinyexec: 1.3.0
+      tinyglobby: 0.2.17
+      vite: 8.3.1(@types/node@24.12.2)(esbuild@0.28.2)(jiti@2.6.1)(sass@1.105.0)(terser@5.51.2)(yaml@2.9.1)
+      why-is-node-running: 2.3.0
+    optionalDependencies:
+      '@types/node': 24.12.2
+      '@vitest/coverage-v8': 5.0.1(vitest@5.0.1)
+      jsdom: 25.0.1
+    transitivePeerDependencies:
+      - msw
 
   vitest@5.0.1(@types/node@25.2.1)(@vitest/coverage-v8@5.0.1)(jsdom@25.0.1)(vite@8.3.1(@types/node@25.2.1)(esbuild@0.28.2)(jiti@2.6.1)(sass@1.105.0)(terser@5.51.2)(yaml@2.9.1)):
     dependencies:

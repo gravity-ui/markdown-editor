@@ -1,11 +1,18 @@
-import {debounce} from '@gravity-ui/markdown-editor/_/lodash.js';
+import {compressToEncodedURIComponent, decompressFromEncodedURIComponent} from 'lz-string';
 
 const QKEY = 'markup';
+const COMPRESSED_PREFIX = 'lz:';
 
 export function parseLocation() {
     try {
-        const b64Markup = new URLSearchParams(parent.location.search).get(QKEY);
-        return b64Markup ? fromBase64(b64Markup) : null;
+        const markup = new URLSearchParams(parent.location.search).get(QKEY);
+        if (markup === null) return null;
+        if (markup.startsWith(COMPRESSED_PREFIX)) {
+            return (
+                decompressFromEncodedURIComponent(markup.slice(COMPRESSED_PREFIX.length)) || null
+            );
+        }
+        return fromBase64(markup);
     } catch (e) {
         console.error('[Parse Location] ' + e);
         return null;
@@ -15,15 +22,19 @@ export function parseLocation() {
 export function updateLocation(str: string) {
     try {
         const b64Markup = toBase64(str);
+        const compressedMarkup = COMPRESSED_PREFIX + compressToEncodedURIComponent(str);
         const url = new URL(parent.location.toString());
-        url.searchParams.set(QKEY, b64Markup);
-        parent.history.replaceState({}, '', url.toString());
+        url.searchParams.set(
+            QKEY,
+            encodeURIComponent(compressedMarkup).length < encodeURIComponent(b64Markup).length
+                ? compressedMarkup
+                : b64Markup,
+        );
+        parent.history.replaceState(parent.history.state, '', url.toString());
     } catch (e) {
         console.error('[Update Location]' + e);
     }
 }
-
-export const debouncedUpdateLocation: (str: string) => void = debounce(updateLocation, 500);
 
 function bytesToBase64(bytes: Uint8Array) {
     let binString = '';

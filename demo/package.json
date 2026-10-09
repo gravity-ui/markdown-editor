@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
+    "test": "vitest run",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "sb:start": "storybook dev -p 8888 -c .storybook",
     "sb:build": "storybook build -c .storybook -o storybook-static",
@@ -37,6 +38,7 @@
     "@gravity-ui/markdown-editor-page-constructor-extension": "workspace:*",
     "@gravity-ui/page-constructor": "catalog:peer-gravity",
     "@gravity-ui/uikit": "catalog:peer-gravity",
+    "lz-string": "1.5.0",
     "markdown-it": "catalog:peers"
   },
   "devDependencies": {
@@ -45,6 +47,8 @@
     "@babel/preset-typescript": "7.29.7",
     "@bem-react/classname": "^1.8.0",
     "@gravity-ui/icons": "^2.12.0",
+    "@markdown-editor/tsconfig": "workspace:*",
+    "@markdown-editor/vitest-config": "workspace:*",
     "@playwright/experimental-ct-react": "1.62.1",
     "@playwright/test": "1.62.1",
     "@storybook/addon-docs": "10.6.0",
@@ -57,7 +61,6 @@
     "@types/node": "catalog:",
     "@types/react": "catalog:react",
     "@types/react-dom": "catalog:react",
-    "@markdown-editor/tsconfig": "workspace:*",
     "eslint": "catalog:linters",
     "lowlight": "catalog:peers",
     "npm-run-all": "^4.1.5",
@@ -74,6 +77,7 @@
     "ts-dedent": "2.3.0",
     "typescript": "catalog:ts",
     "url": "0.11.4",
+    "vitest": "catalog:testing",
     "webpack": "^5.111.1"
   },
   "nx": {
