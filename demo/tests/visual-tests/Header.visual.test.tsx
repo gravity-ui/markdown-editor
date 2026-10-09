@@ -31,7 +31,8 @@ test.describe('Extensions, Header', () => {
     });
 
     test('Fill pattern', async ({mount, expectScreenshot}) => {
-        await mount(<HeaderStories.Decor />);
+        // The pattern is hidden in blocks narrower than 560px.
+        await mount(<HeaderStories.Decor />, {width: 800});
         await expectScreenshot();
     });
 
