@@ -12,16 +12,16 @@ import {i18n as i18nTemplates} from 'src/i18n/yfm-html-block';
 import {debounce} from 'src/lodash';
 import {useAutoSave} from 'src/react-utils/hooks';
 
+import {CodeEditorPane} from '../../YfmHtmlConstructor/YfmHtmlConstructorNodeView/SettingsPopups';
+import {
+    YfmHtmlConstructorEditor,
+    type YfmHtmlConstructorEditorState,
+} from '../../YfmHtmlConstructor/YfmHtmlConstructorNodeView/YfmHtmlConstructorView';
 import {
     YfmHtmlConstructorConsts,
     buildYfmHtmlConstructorHtml,
     emptyHtmlConstructorStructure,
 } from '../../YfmHtmlConstructor/YfmHtmlConstructorSpecs';
-import {
-    YfmHtmlConstructorEditor,
-    type YfmHtmlConstructorEditorState,
-} from '../../YfmHtmlConstructor/YfmHtmlConstructorNodeView/YfmHtmlConstructorView';
-import {CodeEditorPane} from '../../YfmHtmlConstructor/YfmHtmlConstructorNodeView/SettingsPopups';
 import {normalizeHtmlConstructorQuickStyle} from '../../YfmHtmlConstructor/quickStyle';
 import {normalizeHtmlConstructorTemplateSettings} from '../../YfmHtmlConstructor/settings';
 import type {HtmlConstructorBlock, HtmlConstructorStructure} from '../../YfmHtmlConstructor/types';
@@ -65,7 +65,10 @@ const readSharedTab = (state?: YfmHtmlBlockEntitySharedState): YfmHtmlBlockTab =
     return 'preview';
 };
 
-const readConstructorStructure = (node: Node, fallbackContent: string): HtmlConstructorStructure => {
+const readConstructorStructure = (
+    node: Node,
+    fallbackContent: string,
+): HtmlConstructorStructure => {
     const value = node.attrs[YfmHtmlBlockConsts.NodeAttrs.constructorStructure];
     if (!value || typeof value !== 'object') {
         return {...emptyHtmlConstructorStructure(), content: fallbackContent};

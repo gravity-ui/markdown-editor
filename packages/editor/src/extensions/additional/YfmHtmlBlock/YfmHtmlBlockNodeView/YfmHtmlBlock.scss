@@ -19,8 +19,8 @@
 
     &__header {
         display: flex;
-        align-items: center;
         justify-content: space-between;
+        align-items: center;
         gap: 8px;
 
         min-width: 0;
@@ -101,8 +101,8 @@
     }
 
     &__editor {
-        flex: 1;
         overflow: hidden;
+        flex: 1;
 
         width: 100%;
 

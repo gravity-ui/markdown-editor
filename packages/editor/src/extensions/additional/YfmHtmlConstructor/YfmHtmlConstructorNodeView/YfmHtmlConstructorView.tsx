@@ -193,11 +193,9 @@ export const YfmHtmlConstructorEditor: FC<{
         setStructurePanel((current) => (current === panel ? null : panel));
     };
 
-    const setStructure = (next: HtmlConstructorStructure) =>
-        onChange({structure: next, blocks});
+    const setStructure = (next: HtmlConstructorStructure) => onChange({structure: next, blocks});
 
-    const setBlocks = (next: HtmlConstructorBlock[]) =>
-        onChange({structure, blocks: next});
+    const setBlocks = (next: HtmlConstructorBlock[]) => onChange({structure, blocks: next});
 
     const structureEditing = useInlineHtmlEditing({
         onCommit: (content) => setStructure({...structure, content}),
