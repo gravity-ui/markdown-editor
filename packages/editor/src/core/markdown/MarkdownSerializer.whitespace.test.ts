@@ -81,6 +81,32 @@ describe('MarkdownSerializer whitespace', () => {
         expect(parser.parse(expectedMarkup)).toMatchNode(expectedDoc);
     });
 
+    it('should preserve multiline whitespace inside a standard link', () => {
+        const {doc, p, a, em, sb, parser, serializer} = createFixture();
+        const input = doc(p(a('x\ny\n '), sb(), em('z')));
+        const expectedDoc = doc(p(a('x', sb(), 'y', sb()), sb(), em('z')));
+        const expectedMarkup = '[x\ny\n ](foo)\n*z*';
+
+        expect(serializer.serialize(input)).toBe(expectedMarkup);
+        expect(parser.parse(expectedMarkup)).toMatchNode(expectedDoc);
+    });
+
+    it('should expel all trailing whitespace when the link spec requests it', () => {
+        const {doc, p, a, em, sb, parser, serializer} = createFixture(undefined, {
+            link: {
+                open: () => '[',
+                close: () => '](foo)',
+                expelEnclosingWhitespace: true,
+            },
+        });
+        const input = doc(p(a('x\ny\n '), sb(), em('z')));
+        const expectedDoc = doc(p(a('x', sb(), 'y')), p(em('z')));
+        const expectedMarkup = '[x\ny](foo)\n \n*z*';
+
+        expect(serializer.serialize(input)).toBe(expectedMarkup);
+        expect(parser.parse(expectedMarkup)).toMatchNode(expectedDoc);
+    });
+
     it('should expel trailing spaces for custom emphasis delimiters', () => {
         const {doc, p, em, a, sb, parser, serializer} = createFixture(undefined, {
             em: {
@@ -115,6 +141,33 @@ describe('MarkdownSerializer whitespace', () => {
             expect(parser.parse(expectedMarkup)).toMatchNode(expectedDoc);
         },
     );
+
+    it('should expel multiline emphasis whitespace after an ending link', () => {
+        const {doc, p, a, em, sb, parser, serializer} = createFixture();
+        const input = doc(p(a('x'), em('y\nz ')));
+        const expectedDoc = doc(p(a('x'), em('y', sb(), 'z')));
+        const expectedMarkup = '[x](foo)*y\nz* ';
+
+        expect(serializer.serialize(input)).toBe(expectedMarkup);
+        expect(parser.parse(expectedMarkup)).toMatchNode(expectedDoc);
+    });
+
+    it('should keep multiline whitespace inside a custom non-escaping mark', () => {
+        const {doc, p, em, code, sb, parser, serializer} = createFixture(undefined, {
+            code: {
+                open: () => '`',
+                close: () => '`',
+                escape: false,
+                expelEnclosingWhitespace: true,
+            },
+        });
+        const input = doc(p('z', code('x\ny\n '), sb(), em('w')));
+        const expectedDoc = doc(p('z', code('x y  '), sb(), em('w')));
+        const expectedMarkup = 'z`x\ny\n `\n*w*';
+
+        expect(serializer.serialize(input)).toBe(expectedMarkup);
+        expect(parser.parse(expectedMarkup)).toMatchNode(expectedDoc);
+    });
 });
 
 function createFixture(

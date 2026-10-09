@@ -450,7 +450,10 @@ export class MarkdownSerializerState {
                     (singleEscapedMark && singleLine && next?.type.spec.isBreak && !mark.isInSet(next.marks))
                 );
             })) {
-                const [_, rest, trail] = /^(.*?)(\s*)$/m.exec(node.text!)!;
+                // Read all lines only for one escaping mark in a block.
+                const trailingWhitespace = singleEscapedMark && fromBlockStart
+                    ? /^([\s\S]*\S)?(\s*)$/ : /^(.*?)(\s*)$/m;
+                const [_, rest = '', trail] = trailingWhitespace.exec(node.text!)!;
                 if (trail) {
                     trailing = trail;
                     node = rest ? (node as any).withText(rest) : null;
