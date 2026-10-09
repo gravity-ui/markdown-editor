@@ -14,7 +14,7 @@ Another reference[*](*rate).
 [*source]: Source: `report-2025`.
 ```
 
-References sharing a key use the same explanation. Editing the explanation updates every reference. Labels use plain text; uniformly formatted selections retain their outer formatting. Mixed formatting, links and code cannot be converted into a term label.
+All visible labels, including text and `*`, render as superscript footnote markers in WYSIWYG and preview. References sharing a key use the same explanation. Editing the explanation updates every reference. Labels use plain text; uniformly formatted selections retain their outer formatting. Mixed formatting, links and code cannot be converted into a term label.
 
 Hover or focus a reference in WYSIWYG to read the explanation; Escape closes the tooltip. Cancel restores the original selection. Definitions, including unused and duplicate definitions, are preserved during Markdown conversion; the first definition of a key is used. Definitions follow the native parser's default rules: a blank line ends the explanation.
 

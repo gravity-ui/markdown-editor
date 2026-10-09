@@ -7,17 +7,14 @@
         padding: 0 2px;
 
         font: inherit;
+        font-size: 0.75em;
         line-height: 1;
         cursor: pointer;
+        vertical-align: super;
 
         color: var(--g-color-text-link);
         border: none;
         background: none;
-    }
-
-    &_star &__marker {
-        font-size: 0.75em;
-        vertical-align: super;
     }
 
     &__content {
@@ -49,6 +46,12 @@
             display: none;
         }
     }
+}
+
+.yfm .yfm-term_title {
+    font-size: 0.75em;
+    line-height: 1;
+    vertical-align: super;
 }
 
 .g-md-footnote-editor {

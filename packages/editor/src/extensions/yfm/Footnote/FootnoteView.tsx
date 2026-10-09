@@ -67,7 +67,6 @@ export class FootnoteView implements NodeView {
         if (node.type !== this.node.type) return false;
         this.node = node;
         const marker = node.attrs.label;
-        this.dom.classList.toggle('g-md-footnote_star', marker === '*');
         this.content =
             decorations.find((deco) => typeof deco.spec.footnoteContent === 'string')?.spec
                 .footnoteContent ?? '';

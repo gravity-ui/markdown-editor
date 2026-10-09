@@ -82,6 +82,8 @@ test.describe('Footnote', () => {
         await mount(<FootnotePreview />);
         const terms = page.locator('.yfm-term_title');
         await expect(terms).toHaveText(['*', 'term']);
+        await expect(terms.first()).toHaveCSS('vertical-align', 'super');
+        await expect(terms.last()).toHaveCSS('vertical-align', 'super');
         const definition = page.locator('.yfm-term_dfn');
         await expect(definition).toBeHidden();
         await terms.first().focus();
