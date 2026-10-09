@@ -1,9 +1,12 @@
 import type {
     TableCellRealDesc,
     TableColumnRange,
+    TableDesc,
     TableDescBinded,
     TableRowRange,
 } from 'src/table-utils/table-desc';
+
+import {YfmTableAttr} from '../../YfmTableSpecs/const';
 
 import type {SelectedCellPos} from './plugins/dnd-plugin';
 
@@ -67,4 +70,23 @@ function getSelectedCellPos(
     }
 
     return cell;
+}
+
+export function getCellBg(tableDesc: TableDesc, rowIdx: number, colIdx: number): string | null {
+    const cell = tableDesc.rowsDesc[rowIdx]?.cells[colIdx];
+    if (!cell) return null;
+
+    if (cell.type === 'real') {
+        return cell.node.attrs[YfmTableAttr.CellBg] ?? null;
+    }
+
+    const ref = cell.rowspan ?? cell.colspan;
+    if (!ref) return null;
+
+    const realCell = tableDesc.rowsDesc[ref[0]]?.cells[ref[1]];
+    if (realCell?.type === 'real') {
+        return realCell.node.attrs[YfmTableAttr.CellBg] ?? null;
+    }
+
+    return null;
 }

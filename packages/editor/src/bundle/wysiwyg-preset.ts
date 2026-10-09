@@ -17,9 +17,12 @@ import {Action as A, formatter as f} from '../shortcuts';
 import type {DirectiveSyntaxContext} from '../utils/directive';
 import type {FileUploadHandler} from '../utils/upload';
 
-import {wCommandMenuConfigByPreset, wSelectionMenuConfigByPreset} from './config/wysiwyg';
 import {emojiDefs} from './emoji';
 import type {MarkdownEditorPreset, WysiwygPlaceholderOptions} from './preset-base-types';
+import {
+    createSelectionToolbarConfig,
+    createSlashToolbarConfig,
+} from './toolbar/utils/toolbarsConfigs';
 
 const DEFAULT_IGNORED_KEYS = ['Tab', 'Shift-Tab'] as const;
 
@@ -80,8 +83,8 @@ export const BundlePreset: ExtensionAuto<BundlePresetOptions> = (builder, opts) 
               }
             : undefined,
         clipboard: {pasteFileHandler: opts.fileUploadHandler, ...opts.clipboard},
-        selectionContext: {config: wSelectionMenuConfigByPreset.zero, ...opts.selectionContext},
-        commandMenu: {actions: wCommandMenuConfigByPreset.zero, ...opts.commandMenu},
+        selectionContext: {config: createSelectionToolbarConfig('zero'), ...opts.selectionContext},
+        commandMenu: {actions: createSlashToolbarConfig('zero'), ...opts.commandMenu},
         history: {undoKey: f.toPM(A.Undo), redoKey: f.toPM(A.Redo), ...opts.history},
         baseSchema: {
             paragraphKey: f.toPM(A.Text),
@@ -110,10 +113,10 @@ export const BundlePreset: ExtensionAuto<BundlePresetOptions> = (builder, opts) 
     const commonMarkOptions: BehaviorPresetOptions & CommonMarkPresetOptions = {
         ...zeroOptions,
         selectionContext: {
-            config: wSelectionMenuConfigByPreset.commonmark,
+            config: createSelectionToolbarConfig('commonmark'),
             ...opts.selectionContext,
         },
-        commandMenu: {actions: wCommandMenuConfigByPreset.commonmark, ...opts.commandMenu},
+        commandMenu: {actions: createSlashToolbarConfig('commonmark'), ...opts.commandMenu},
         breaks: {
             preferredBreak: (opts.mdBreaks ? 'soft' : 'hard') as 'soft' | 'hard',
             ...opts.breaks,
@@ -139,15 +142,18 @@ export const BundlePreset: ExtensionAuto<BundlePresetOptions> = (builder, opts) 
     };
     const defaultOptions: BehaviorPresetOptions & DefaultPresetOptions = {
         ...commonMarkOptions,
-        selectionContext: {config: wSelectionMenuConfigByPreset.default, ...opts.selectionContext},
-        commandMenu: {actions: wCommandMenuConfigByPreset.default, ...opts.commandMenu},
+        selectionContext: {
+            config: createSelectionToolbarConfig('default'),
+            ...opts.selectionContext,
+        },
+        commandMenu: {actions: createSlashToolbarConfig('default'), ...opts.commandMenu},
         strike: {strikeKey: f.toPM(A.Strike), ...opts.strike},
     };
     const yfmOptions: BehaviorPresetOptions & YfmPresetOptions = {
         ...defaultOptions,
         yfmConfigs: {disableAttrs: opts.disableMdAttrs, ...opts.yfmConfigs},
-        selectionContext: {config: wSelectionMenuConfigByPreset.yfm, ...opts.selectionContext},
-        commandMenu: {actions: wCommandMenuConfigByPreset.yfm, ...opts.commandMenu},
+        selectionContext: {config: createSelectionToolbarConfig('yfm'), ...opts.selectionContext},
+        commandMenu: {actions: createSlashToolbarConfig('yfm'), ...opts.commandMenu},
         underline: {underlineKey: f.toPM(A.Underline), ...opts.underline},
         imgSize: {
             imageUploadHandler: opts.fileUploadHandler,
@@ -198,8 +204,8 @@ export const BundlePreset: ExtensionAuto<BundlePresetOptions> = (builder, opts) 
     };
     const fullOptions: BehaviorPresetOptions & FullPresetOptions = {
         ...yfmOptions,
-        selectionContext: {config: wSelectionMenuConfigByPreset.full, ...opts.selectionContext},
-        commandMenu: {actions: wCommandMenuConfigByPreset.full, ...opts.commandMenu},
+        selectionContext: {config: createSelectionToolbarConfig('full'), ...opts.selectionContext},
+        commandMenu: {actions: createSlashToolbarConfig('full'), ...opts.commandMenu},
         emoji: {defs: emojiDefs, ...opts.emoji},
     };
 

@@ -1,0 +1,28 @@
+{
+  "name": "@markdown-editor/docs-gen",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "nx": {
+    "name": "@markdown-editor/infra/docs-gen",
+    "targets": {
+      "build": {
+        "outputs": [
+          "{workspaceRoot}/dist/docs"
+        ]
+      }
+    }
+  },
+  "scripts": {
+    "build": "node src/generate-docs.mjs && yfm -i ../../tmp/docs-src -o ../../dist/docs",
+    "generate:extensions": "node src/generate-extension-pages.mjs",
+    "test": "vitest run src/*.test.mjs"
+  },
+  "dependencies": {
+    "@diplodoc/cli": "5.63.0",
+    "typescript": "catalog:ts"
+  },
+  "devDependencies": {
+    "vitest": "catalog:testing"
+  }
+}

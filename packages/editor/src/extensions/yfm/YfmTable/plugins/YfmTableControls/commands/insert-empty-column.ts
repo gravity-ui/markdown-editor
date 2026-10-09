@@ -8,10 +8,13 @@ import {
 } from 'src/table-utils/table-desc';
 
 import {yfmTableCellType} from '../../../YfmTableSpecs';
+import {YfmTableAttr} from '../../../YfmTableSpecs/const';
+import {getCellBg} from '../utils';
 
 export type InsertEmptyColumnParams = {
     tablePos: number;
     colIndex: number;
+    sourceColIndex?: number;
 };
 
 export const insertEmptyColumn = (params: InsertEmptyColumnParams): Command => {
@@ -23,28 +26,43 @@ export const insertEmptyColumn = (params: InsertEmptyColumnParams): Command => {
         const colIdx = Math.min(Math.max(params.colIndex, 0), tableDesc.cols);
 
         if (dispatch) {
-            const posToInsert: number[] = [];
+            const cellsToInsert: {pos: number; bg: string | null}[] = [];
             const incrementColspan: [number, number][] = [];
+            const {sourceColIndex} = params;
 
             if (colIdx === 0) {
-                posToInsert.push(
-                    ...tableDesc.getPosForColumn(0).map((pos) => getCellPos(pos, 'start')),
-                );
+                tableDesc.getPosForColumn(0).forEach((pos, rowIdx) => {
+                    cellsToInsert.push({
+                        pos: getCellPos(pos, 'start'),
+                        bg:
+                            typeof sourceColIndex === 'number'
+                                ? getCellBg(tableDesc.base, rowIdx, sourceColIndex)
+                                : null,
+                    });
+                });
             } else if (colIdx === tableDesc.cols) {
-                posToInsert.push(
-                    ...tableDesc
-                        .getPosForColumn(tableDesc.cols - 1)
-                        .map((pos) => getCellPos(pos, 'end')),
-                );
+                tableDesc.getPosForColumn(tableDesc.cols - 1).forEach((pos, rowIdx) => {
+                    cellsToInsert.push({
+                        pos: getCellPos(pos, 'end'),
+                        bg:
+                            typeof sourceColIndex === 'number'
+                                ? getCellBg(tableDesc.base, rowIdx, sourceColIndex)
+                                : null,
+                    });
+                });
             } else {
                 for (let rowIdx = 0; rowIdx < tableDesc.rows; rowIdx++) {
                     const cell = tableDesc.base.rowsDesc[rowIdx].cells[colIdx];
                     if (cell.type === 'virtual' && cell.colspan && cell.colspan[1] !== colIdx) {
                         incrementColspan.push(cell.colspan);
                     } else {
-                        posToInsert.push(
-                            getCellPos(tableDesc.getPosForCell(rowIdx, colIdx), 'start'),
-                        );
+                        cellsToInsert.push({
+                            pos: getCellPos(tableDesc.getPosForCell(rowIdx, colIdx), 'start'),
+                            bg:
+                                typeof sourceColIndex === 'number'
+                                    ? getCellBg(tableDesc.base, rowIdx, sourceColIndex)
+                                    : null,
+                        });
                     }
                 }
             }
@@ -56,10 +74,13 @@ export const insertEmptyColumn = (params: InsertEmptyColumnParams): Command => {
                 const cellPos = tableDesc.getPosForCell(rowIdx, colIdx) as RealCellPos;
                 tr.setNodeAttribute(cellPos.from, 'colspan', cell.colspan! + 1);
             }
-            for (const pos of posToInsert) {
-                tr.insert(tr.mapping.map(pos), td.createAndFill()!);
+            for (const {pos, bg} of cellsToInsert) {
+                tr.insert(
+                    tr.mapping.map(pos),
+                    td.createAndFill(bg ? {[YfmTableAttr.CellBg]: bg} : undefined)!,
+                );
             }
-            tr.setSelection(TextSelection.near(tr.doc.resolve(posToInsert[0]), 1));
+            tr.setSelection(TextSelection.near(tr.doc.resolve(cellsToInsert[0].pos), 1));
             dispatch(tr.scrollIntoView());
         }
 

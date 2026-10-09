@@ -6,8 +6,8 @@ import {
 } from '@diplodoc/file-extension';
 import type {Node} from 'prosemirror-model';
 
-import type {Extension} from '../../../../core';
-import {nodeTypeFactory} from '../../../../utils/schema';
+import type {Extension} from '#core';
+import {nodeTypeFactory} from 'src/utils/schema';
 
 import {
     KNOWN_ATTRS,
@@ -16,6 +16,7 @@ import {
     YfmFileAttr,
     fileNodeAttrsSpec,
     yfmFileNodeName,
+    yfmFileTokenName,
 } from './const';
 
 export {yfmFileNodeName, YfmFileAttr} from './const';
@@ -41,8 +42,8 @@ export const YfmFileSpecs: Extension = (builder) => {
             }),
         ),
     );
-    builder.addNode(yfmFileNodeName, () => ({
-        spec: {
+    builder
+        .addNodeSpec(yfmFileNodeName, () => ({
             group: 'inline',
             inline: true,
             attrs: fileNodeAttrsSpec,
@@ -76,20 +77,17 @@ export const YfmFileSpecs: Extension = (builder) => {
                 a.append(node.attrs[FileHtmlAttr.Download]);
                 return a;
             },
-        },
-        fromMd: {
-            tokenName: yfmFileNodeName,
-            tokenSpec: {
-                name: yfmFileNodeName,
-                type: 'node',
-                getAttrs: (tok) => {
-                    const attrs = Object.fromEntries(tok.attrs || []);
-                    attrs[YfmFileAttr.Markup] = tok.markup;
-                    return attrs;
-                },
+        }))
+        .addMarkdownTokenParserSpec(yfmFileTokenName, () => ({
+            name: yfmFileNodeName,
+            type: 'node',
+            getAttrs: (tok) => {
+                const attrs = Object.fromEntries(tok.attrs || []);
+                attrs[YfmFileAttr.Markup] = tok.markup;
+                return attrs;
             },
-        },
-        toMd: (state, node) => {
+        }))
+        .addNodeSerializerSpec(yfmFileNodeName, () => (state, node) => {
             if (
                 directiveContext?.shouldSerializeToDirective(
                     'yfmFile',
@@ -113,8 +111,7 @@ export const YfmFileSpecs: Extension = (builder) => {
                 .join(' ');
 
             state.write(`${FILE_MARKUP_PREFIX}${attrsStr} %}`);
-        },
-    }));
+        });
 };
 
 function serializeToDirective(node: Node): string {

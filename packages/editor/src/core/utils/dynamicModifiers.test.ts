@@ -1,3 +1,5 @@
+import {describe, expect, it, vi} from 'vitest';
+
 import type {
     DynamicModifiers,
     ParserNodeAttrsModifier,
@@ -9,12 +11,12 @@ import type {
 import {convertDynamicModifiersConfigs} from './dynamicModifiers';
 
 describe('convertDynamicModifiersConfigs', () => {
-    test('should create parserToken config correctly', () => {
+    it('should create parserToken config correctly', () => {
         const modifiers: ParserTokenModifier[] = [
             {
                 type: 'parserToken',
                 tokenName: 'bold',
-                process: jest.fn(),
+                process: vi.fn(),
             },
         ];
 
@@ -25,12 +27,12 @@ describe('convertDynamicModifiersConfigs', () => {
         expect(result.parser['bold'].processToken?.[0]).toBe(modifiers[0].process);
     });
 
-    test('should create parserNodeAttrs config correctly', () => {
+    it('should create parserNodeAttrs config correctly', () => {
         const modifiers: ParserNodeAttrsModifier[] = [
             {
                 type: 'parserNodeAttrs',
                 tokenName: 'link',
-                process: jest.fn(),
+                process: vi.fn(),
             },
         ];
 
@@ -41,12 +43,12 @@ describe('convertDynamicModifiersConfigs', () => {
         expect(result.parser['link'].processNodeAttrs?.[0]).toBe(modifiers[0].process);
     });
 
-    test('should create serializerNode config correctly', () => {
+    it('should create serializerNode config correctly', () => {
         const modifiers: SerializerNodeModifier[] = [
             {
                 type: 'serializerNode',
                 nodeName: 'paragraph',
-                process: jest.fn(),
+                process: vi.fn(),
             },
         ];
 
@@ -57,7 +59,7 @@ describe('convertDynamicModifiersConfigs', () => {
         expect(result.serializer['paragraph'].processNode?.[0]).toBe(modifiers[0].process);
     });
 
-    test('should create schemaNodeSpec config correctly', () => {
+    it('should create schemaNodeSpec config correctly', () => {
         const modifiers: SchemaNodeSpecModifier[] = [
             {
                 type: 'schemaNodeSpec',
@@ -72,22 +74,22 @@ describe('convertDynamicModifiersConfigs', () => {
         expect(result.schema['image'].allowedAttrs).toEqual(['src', 'alt']);
     });
 
-    test('should combine multiple modifiers correctly', () => {
+    it('should combine multiple modifiers correctly', () => {
         const modifiers: DynamicModifiers[] = [
             {
                 type: 'parserToken',
                 tokenName: 'bold',
-                process: jest.fn(),
+                process: vi.fn(),
             },
             {
                 type: 'parserNodeAttrs',
                 tokenName: 'link',
-                process: jest.fn(),
+                process: vi.fn(),
             },
             {
                 type: 'serializerNode',
                 nodeName: 'paragraph',
-                process: jest.fn(),
+                process: vi.fn(),
             },
             {
                 type: 'schemaNodeSpec',

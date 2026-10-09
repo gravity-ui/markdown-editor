@@ -1,9 +1,6 @@
-/**
- * @jest-environment jsdom
- */
-
 import MarkdownIt from 'markdown-it';
 import * as builder from 'prosemirror-test-builder';
+import {afterEach, beforeEach, describe, expect, it} from 'vitest';
 
 import {createMarkupChecker} from '../../../tests/sameMarkup';
 import {Logger2} from '../../logger';
@@ -212,9 +209,8 @@ describe('markdown (from prosemirror-markdown)', () => {
 
     it("doesn't escape characters in code", () => same('foo`*`', doc(p('foo', code('*')))));
 
-    // todo: requires smarter startOfLine escape – don't escape `\d+.` without trailing space
-    it.skip('does not escape list markers without space after them', () =>
-        same('1.2kg', doc(p('1.2kg'))));
+    it('should preserve conservative escaping for a decimal', () =>
+        same('1\\.2kg', doc(p('1.2kg'))));
 
     // todo: requires removing `+` from defaultEsc in esc()
     it.skip("doesn't escape +++", () => same('+++', doc(p('+++'))));
@@ -235,14 +231,12 @@ describe('markdown (from prosemirror-markdown)', () => {
         same('\\###', doc(p('###')));
     });
 
-    // todo: requires smarter startOfLine escape for # – only escape #{1,6} followed by space or EOL
-    it.skip('does not escape ATX heading markers without space after them', () => {
-        same('#hashtag', doc(p('#hashtag')));
+    it('should preserve conservative escaping for a hashtag', () => {
+        same('\\#hashtag', doc(p('#hashtag')));
     });
 
-    // todo: requires smarter startOfLine escape for # – only escape #{1,6} followed by space or EOL
-    it.skip('does not escape ATX heading markers consisting of more than 6 in a sequence', () => {
-        same('#######', doc(p('#######')));
+    it('should preserve conservative escaping for seven hash characters', () => {
+        same('\\#######', doc(p('#######')));
     });
 });
 

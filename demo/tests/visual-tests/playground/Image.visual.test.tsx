@@ -140,7 +140,6 @@ test.describe('Images', () => {
 
     test.describe('specific', () => {
         test('should change image size @wysiwyg', async ({
-            wait,
             editor,
             page,
             actions,
@@ -160,20 +159,19 @@ test.describe('Images', () => {
             await editor.switchMode('markup');
             await editor.clearContent();
             await editor.fill(markup);
-            await wait.timeout();
 
             await expect(editor.getByTextInContenteditable('some text')).toBeVisible();
             await expect(editor.getByTextInContenteditable('/assets/test-image.jpg')).toBeVisible();
 
             await editor.switchMode('wysiwyg');
-            await wait.timeout(500);
+            await expect(
+                editor.getBySelectorInContenteditable('.g-md-resizable img'),
+            ).toBeVisible();
 
             await page.mouse.move(400, 400);
             await editor.image.clickImageSettingsButton();
-            await wait.timeout(500);
 
             await editor.image.clickImageSettingsMenu('Edit');
-            await wait.timeout(500);
 
             await actions.fillFocused('Title');
             await actions.pressFocused('Tab', 2);
@@ -184,14 +182,18 @@ test.describe('Images', () => {
             await expectScreenshot({nameSuffix: 'edit-popup'});
 
             await actions.pressFocused('Enter');
-            await wait.timeout(500);
+            await expect(editor.getBySelectorInContenteditable('.g-md-resizable img')).toHaveCSS(
+                'width',
+                '400px',
+            );
+            await expect(page.locator('.playground__markup')).toContainText(
+                '![Markdown Editor](/assets/test-image.jpg "Title" =400x)',
+            );
 
             await page.mouse.move(-1, -1);
             await expectScreenshot();
-            await wait.timeout();
 
             await editor.switchMode('markup');
-            await wait.timeout(500);
 
             await expect(
                 editor.getByTextInContenteditable(

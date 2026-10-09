@@ -78,6 +78,10 @@ export class Editor implements CommonEditor, CodeEditor {
         this.#cm.dispatch({changes: {from: doc.length, insert}});
     }
 
+    insert(markup: MarkupString): void {
+        this.#cm.dispatch(this.#cm.state.replaceSelection(markup));
+    }
+
     moveCursor(position: 'start' | 'end'): void {
         let pos: number;
         switch (position) {
