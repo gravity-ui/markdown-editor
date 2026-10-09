@@ -102,9 +102,17 @@ The lookup uses the first matching marker in the document.
 With several editors, it can read a toolbar from another editor.
 Keep this in mind when you add custom toolbar styles.
 
-### Move to a line
+### Move the cursor to a line
 
-`moveToLine` leaves space above the target line.
+Use `editor.moveCursor({line})` to move the cursor to a line.
+Line numbers start at `0`.
+For example, move to the first line:
+
+```ts
+editor.moveCursor({line: 0});
+```
+
+The editor leaves space above the target line.
 This space helps keep the line below the toolbar.
 
 The internal `getTopOffset` helper adds:
@@ -131,7 +139,7 @@ The helper does not check the active state or measure the toolbar height.
 - `useSticky` uses `parseInt`, so it drops the decimal part of the top value.
   A value with a decimal part, such as `8.5px`, can give the wrong active state.
 - With `top: auto`, `useSticky` returns `false`.
-- In WYSIWYG mode, `moveToLine` scrolls the window.
+- In WYSIWYG mode, moving the cursor to a line scrolls the window.
   It does not scroll a separate container.
 
 ## Check a problem
