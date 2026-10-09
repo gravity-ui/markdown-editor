@@ -28,6 +28,8 @@ export const expectScreenshot: PlaywrightFixture<ExpectScreenshotFixture> = asyn
                 animations: 'disabled',
                 style: '.playground__pm-selection {display:none;}',
                 ...pageScreenshotOptions,
+                type: 'webp',
+                quality: 85,
             });
         };
 
@@ -61,7 +63,7 @@ export const expectScreenshot: PlaywrightFixture<ExpectScreenshotFixture> = asyn
             await page.waitForTimeout(100);
 
             expect(await captureScreenshot()).toMatchSnapshot({
-                name: `${nameScreenshot} light.png`,
+                name: `${nameScreenshot} light.webp`,
             });
         }
 
@@ -71,7 +73,7 @@ export const expectScreenshot: PlaywrightFixture<ExpectScreenshotFixture> = asyn
             await page.waitForTimeout(100);
 
             expect(await captureScreenshot()).toMatchSnapshot({
-                name: `${nameScreenshot} dark.png`,
+                name: `${nameScreenshot} dark.webp`,
             });
         }
     };

@@ -19,11 +19,10 @@ import {
 import type {PluginWithParams} from 'markdown-it/lib';
 
 import {PlaygroundLayout} from '../../components/PlaygroundLayout';
-import {SplitModePreview} from '../../components/SplitModePreview';
-import {plugins as defaultPlugins} from '../../defaults/md-plugins';
+import {SplitModePreviewLazy} from '../../components/SplitModePreviewLazy';
 import {useLogs} from '../../hooks/useLogs';
 
-const plugins: PluginWithParams[] = [...defaultPlugins, quoteLink({bundle: false})];
+const extraPlugins: PluginWithParams[] = [quoteLink({bundle: false})];
 
 const toolbarsPreset: ToolbarsPreset = {
     items: {
@@ -43,14 +42,14 @@ const toolbarsPreset: ToolbarsPreset = {
 export const QuoteLink = memo(() => {
     const renderPreview = useCallback<RenderPreview>(
         ({getValue, md}) => (
-            <SplitModePreview
+            <SplitModePreviewLazy
                 getValue={getValue}
                 allowHTML={md.html}
                 linkify={md.linkify}
                 linkifyTlds={md.linkifyTlds}
                 breaks={md.breaks}
                 needToSanitizeHtml
-                plugins={plugins}
+                extraPlugins={extraPlugins}
             />
         ),
         [],

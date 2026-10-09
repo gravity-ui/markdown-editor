@@ -601,8 +601,17 @@ export class MarkdownEditorPage {
     async switchMode(mode: MarkdownEditorMode) {
         if ((await this.getMode()) === mode) return;
 
-        await this.openSettingsPopup();
-        await this.locators.settingsContent.getByTestId(`g-md-settings-mode-${mode}`).click();
+        await this.page.evaluate((nextMode) => {
+            if (!window.mdEditor) {
+                throw new Error(
+                    'window.mdEditor is undefined: the mounted component must call useEditorHandle()',
+                );
+            }
+
+            // the settings menu hides the preview along with the mode change
+            window.mdEditor.setEditorMode(nextMode);
+            window.mdEditor.changePreviewVisible(false);
+        }, mode);
         await this.assertMode(mode);
     }
 

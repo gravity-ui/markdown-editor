@@ -76,14 +76,19 @@ test.describe('Clipboard', () => {
             editor,
             expectScreenshot,
             wait,
+            page,
         }) => {
             await editor.paste(emphasisMarkup);
             await editor.press(keys.selectAll);
-            await editor.press(keys.copy);
+            const data = await editor.dispatchClipboardEvent('copy');
+            expect(data['text/yfm']?.trim()).toBe(emphasisMarkup);
             await editor.press('ArrowRight');
             await editor.press('Enter');
-            await editor.press(keys.paste);
+            await editor.paste(data);
 
+            await expect
+                .poll(() => page.evaluate(() => window.mdEditor?.getValue().trim()))
+                .toBe(`${emphasisMarkup}\n\n${emphasisMarkup}`);
             await wait.timeout(500);
             await expectScreenshot();
         });
