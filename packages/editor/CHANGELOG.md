@@ -1,5 +1,76 @@
 # Changelog
 
+## [15.48.2](https://github.com/gravity-ui/markdown-editor/compare/markdown-editor-v15.48.1...markdown-editor-v15.48.2) (2026-10-02)
+
+
+### Bug Fixes
+
+* do not pull the editor core into view-only bundles ([#1318](https://github.com/gravity-ui/markdown-editor/issues/1318)) ([8611c48](https://github.com/gravity-ui/markdown-editor/commit/8611c48ed20d80ef61f83f9c45bb2cb76c3004f6))
+
+## [15.48.1](https://github.com/gravity-ui/markdown-editor/compare/markdown-editor-v15.48.0...markdown-editor-v15.48.1) (2026-10-01)
+
+
+### Bug Fixes
+
+* **bundle:** apply the contextual preset after the renderer subscribes ([#1295](https://github.com/gravity-ui/markdown-editor/issues/1295)) ([880a420](https://github.com/gravity-ui/markdown-editor/commit/880a420e578c672c13e08f8a0728be0aa5059d18))
+* **toolbars:** make the gpt preset button match the old one ([#1310](https://github.com/gravity-ui/markdown-editor/issues/1310)) ([3c37542](https://github.com/gravity-ui/markdown-editor/commit/3c37542c01157526e14d708afb75f0fd3dba3109))
+
+## [15.48.0](https://github.com/gravity-ui/markdown-editor/compare/markdown-editor-v15.47.1...markdown-editor-v15.48.0) (2026-09-30)
+
+
+### Features
+
+* **toolbars:** support presets for selection and slash menus ([#1228](https://github.com/gravity-ui/markdown-editor/issues/1228)) ([ff4b314](https://github.com/gravity-ui/markdown-editor/commit/ff4b31474e033d3cb21b8b7cb6347db5869edaa5))
+
+
+### Bug Fixes
+
+* **markup:** keep Opt+Shift+0 typable on macOS ([#1294](https://github.com/gravity-ui/markdown-editor/issues/1294)) ([7a84941](https://github.com/gravity-ui/markdown-editor/commit/7a849413b7ec319b947ab6c0c71425d0a7cfdbc9))
+* **toolbar:** prevent overlapping disabled action tooltips ([#1274](https://github.com/gravity-ui/markdown-editor/issues/1274)) ([4a372b1](https://github.com/gravity-ui/markdown-editor/commit/4a372b1af9bd1d9b573df924ec3913ce4fafa721))
+
+## [15.47.1](https://github.com/gravity-ui/markdown-editor/compare/markdown-editor-v15.47.0...markdown-editor-v15.47.1) (2026-09-25)
+
+
+### Bug Fixes
+
+* **core:** keep parser aliases in their entity pipeline ([#1248](https://github.com/gravity-ui/markdown-editor/issues/1248)) ([6ff695e](https://github.com/gravity-ui/markdown-editor/commit/6ff695ef7ef79de00dc2c58e6482db9ca0ccf7c1))
+* **Link:** prevent raw URLs from merging with inline elements ([#1261](https://github.com/gravity-ui/markdown-editor/issues/1261)) ([94ab3a4](https://github.com/gravity-ui/markdown-editor/commit/94ab3a49c883495687bb9cb2a0f956f9ec47b86e))
+* **markup:** format each selected paragraph separately ([#1262](https://github.com/gravity-ui/markdown-editor/issues/1262)) ([fd52b77](https://github.com/gravity-ui/markdown-editor/commit/fd52b77ab4bc56994b2d6da80e042b284eab0e1a))
+
+
+### Refactoring
+
+* **CodeBlock:** use new builder methods to register nodes ([#1255](https://github.com/gravity-ui/markdown-editor/issues/1255)) ([ad17908](https://github.com/gravity-ui/markdown-editor/commit/ad1790818d74b73d74ed653a3933b739f2a2d340))
+
+## [15.47.0](https://github.com/gravity-ui/markdown-editor/compare/markdown-editor-v15.46.1...markdown-editor-v15.47.0) (2026-09-17)
+
+
+### Features
+
+* **core:** add builder methods to register node and mark views ([#1238](https://github.com/gravity-ui/markdown-editor/issues/1238)) ([fef6dea](https://github.com/gravity-ui/markdown-editor/commit/fef6deaa311a6cc506133dd6e783b477e8ffed37))
+
+
+### Bug Fixes
+
+* preserve block tooltip anchors during selection ([#1221](https://github.com/gravity-ui/markdown-editor/issues/1221)) ([89d4c4f](https://github.com/gravity-ui/markdown-editor/commit/89d4c4f0ea16314a8e3e5046b4f634159f4b77a6))
+
+
+### Refactoring
+
+* **Checkbox:** use new builder methods to register nodes ([#1244](https://github.com/gravity-ui/markdown-editor/issues/1244)) ([2d1890e](https://github.com/gravity-ui/markdown-editor/commit/2d1890e6c5d27f24bd9dcff4e763f767aee3ac02))
+* **Color:** use new builder methods to register marks ([#1230](https://github.com/gravity-ui/markdown-editor/issues/1230)) ([e47e909](https://github.com/gravity-ui/markdown-editor/commit/e47e9090244f20d53ae45a9eb53d061818463b46))
+* **Emoji:** use new builder methods to register nodes ([#1231](https://github.com/gravity-ui/markdown-editor/issues/1231)) ([c6bde5a](https://github.com/gravity-ui/markdown-editor/commit/c6bde5a4743e0a68883d7bd39c6927fcfc6e6770))
+* **Mermaid:** use new builder methods to register nodes ([#1246](https://github.com/gravity-ui/markdown-editor/issues/1246)) ([81a47d3](https://github.com/gravity-ui/markdown-editor/commit/81a47d329ae2099634ea2a5c33b72559b22e3313))
+* **QuoteLink:** use new builder methods to register nodes ([#1233](https://github.com/gravity-ui/markdown-editor/issues/1233)) ([20c5ba0](https://github.com/gravity-ui/markdown-editor/commit/20c5ba01fb12c1ccf46c34566ab74edddba52bdc))
+* **Video:** use new builder methods to register nodes ([#1232](https://github.com/gravity-ui/markdown-editor/issues/1232)) ([2ad1334](https://github.com/gravity-ui/markdown-editor/commit/2ad1334066f6c4121eb6a4b644f0cf32ff7c9627))
+* **YfmConfigs:** use new builder methods to register nodes ([#1237](https://github.com/gravity-ui/markdown-editor/issues/1237)) ([0241035](https://github.com/gravity-ui/markdown-editor/commit/0241035053299d537d429acbf7ea9e53b500708d))
+* **YfmCut:** use new builder methods to register nodes ([#1243](https://github.com/gravity-ui/markdown-editor/issues/1243)) ([9ecde31](https://github.com/gravity-ui/markdown-editor/commit/9ecde31a269e419b48680137acd68b772e40b8cc))
+* **YfmFile:** use new builder methods to register nodes ([#1234](https://github.com/gravity-ui/markdown-editor/issues/1234)) ([56354b4](https://github.com/gravity-ui/markdown-editor/commit/56354b4e9482641af27e60e94aa3c224f5b77bbf))
+* **YfmHtmlBlock:** use new builder methods to register nodes ([#1245](https://github.com/gravity-ui/markdown-editor/issues/1245)) ([047c0e7](https://github.com/gravity-ui/markdown-editor/commit/047c0e77d48aa4996c1342f0553f306bdb8fc638))
+* **YfmNote:** use new builder methods to register nodes ([#1236](https://github.com/gravity-ui/markdown-editor/issues/1236)) ([58376bb](https://github.com/gravity-ui/markdown-editor/commit/58376bb7c582fe6f2c9ff4cb2b8eded8b7c588eb))
+* **YfmTable:** use new builder methods to register nodes ([#1235](https://github.com/gravity-ui/markdown-editor/issues/1235)) ([0a2a680](https://github.com/gravity-ui/markdown-editor/commit/0a2a680af38b6441a21e7caba546dad774e2ae72))
+* **YfmTabs:** use new builder methods to register nodes ([#1247](https://github.com/gravity-ui/markdown-editor/issues/1247)) ([26cc40d](https://github.com/gravity-ui/markdown-editor/commit/26cc40d30c13022e7d111955d4b03aefb949e4a9))
+
 ## [15.46.1](https://github.com/gravity-ui/markdown-editor/compare/markdown-editor-v15.46.0...markdown-editor-v15.46.1) (2026-09-15)
 
 

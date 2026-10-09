@@ -2,13 +2,15 @@
 
 ## Testing
 
-**Always run tests in Docker. Never run them locally.**
+**Always run visual (Playwright) tests in Docker. Never run them locally.**
 
 Unit tests use Vitest. Import `describe`, `it`, `expect`, hooks, and `vi` explicitly from `vitest`; globals are disabled.
 
+Test names (`it`, `test`, and parameterized cases) must start with `should `, followed by a base-form verb.
+
 ### Prerequisites
 
-Before each test run, start the Podman machine:
+Before each visual test run, start the Podman machine:
 
 ```bash
 podman machine start
@@ -38,7 +40,24 @@ For more details on filtering and updating snapshots see [`docs/how-to-add-visua
 - `playwright:watch`
 - `playwright:headed`
 
-These run tests outside Docker and produce unreliable results.
+These run visual tests outside Docker and produce unreliable results.
+
+## Code style
+
+Prettier owns formatting, ESLint and Stylelint own the rest. One command applies the fixes of all three:
+
+```bash
+pnpm fix:lint
+```
+
+It covers `*.{js,jsx,mjs,ts,tsx,css,scss}` across the whole repository. Its output lists every file Prettier went through along with the problems that need a human. `pnpm lint` reports the problems alone, without touching files, and is what CI runs on every pull request.
+
+- Never format code by hand, and never reformat lines you did not change.
+- Read `git status` after a fix run and commit only the files your change belongs to.
+- An `eslint-disable` comment that no longer suppresses anything is an error. Remove it instead of keeping it for safety.
+- Write code the way the linter wants it from the start: `T[]` instead of `Array<T>`, object shorthand (`{foo}` instead of `{foo: foo}`), inline type imports (`import {type Foo} from './foo'`).
+- Where the linter is silent, follow the file you are editing.
+- Shared rules live in `infra/linters/`; per-package overrides are in the root `eslint.config.mjs`.
 
 ## Documentation
 

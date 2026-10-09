@@ -54,4 +54,47 @@ describe('markup editor keymap on macOS', () => {
 
         view.destroy();
     });
+
+    it('should leave Opt+Shift+0 to the browser: it types "`" on the Russian layout', () => {
+        const view = createView('text');
+        view.focus();
+
+        // Alt combinations resolve by the produced character, so this event reaches the
+        // "Alt-`" binding of completionKeymap (startCompletion) and the backtick is lost.
+        const event = new KeyboardEvent('keydown', {
+            key: '`',
+            code: 'Digit0',
+            keyCode: 48,
+            altKey: true,
+            shiftKey: true,
+            bubbles: true,
+            cancelable: true,
+        });
+
+        view.contentDOM.dispatchEvent(event);
+
+        expect(event.defaultPrevented).toBe(false);
+
+        view.destroy();
+    });
+
+    it('should keep Ctrl+Space bound to completion', () => {
+        const view = createView('text');
+        view.focus();
+
+        const event = new KeyboardEvent('keydown', {
+            key: ' ',
+            code: 'Space',
+            keyCode: 32,
+            ctrlKey: true,
+            bubbles: true,
+            cancelable: true,
+        });
+
+        view.contentDOM.dispatchEvent(event);
+
+        expect(event.defaultPrevented).toBe(true);
+
+        view.destroy();
+    });
 });

@@ -13,6 +13,7 @@ const names = [
     'emoji',
     'file',
     'filePopup',
+    'foldingHeading',
     'gpt',
     'heading1',
     'heading2',
@@ -47,6 +48,7 @@ const names = [
     'strike',
     'table',
     'tabs',
+    'text',
     'underline',
     'undo',
     /** @deprecated use block */

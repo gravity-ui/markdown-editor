@@ -146,8 +146,9 @@ test.describe('Link', () => {
         const markupPreview = page.locator('.playground__markup');
 
         await editor.fill('Lorem ipsum dolor sit amet, \nconsectetur adipiscing elit. \n');
+        await wait.timeout(300);
 
-        await actions.pressFocused('ArrowUp', 2);
+        await actions.pressFocused('ArrowUp');
         await actions.pressFocused('Enter');
         await actions.pressFocused('ArrowUp');
         await expect(markupPreview).toHaveText(
@@ -161,6 +162,7 @@ test.describe('Link', () => {
         await actions.fillFocused('gravity-ui.com');
 
         await page.mouse.move(0, 0);
+        await wait.tooltipsHidden();
         await expectScreenshot({nameSuffix: 'form-with-url'});
 
         await page.mouse.click(0, 0);
