@@ -360,7 +360,7 @@ describe('MarkdownSerializer whitespace research', () => {
             expect(parser.parse(text)).toMatchNode(input);
         });
 
-        it.fails('should preserve multiline linked text after reordered code whitespace', () => {
+        it('should preserve multiline linked text after reordered code whitespace', () => {
             const text = serializer.serialize(
                 doc(
                     p(
