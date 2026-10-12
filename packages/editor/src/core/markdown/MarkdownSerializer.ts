@@ -432,7 +432,8 @@ export class MarkdownSerializerState {
                 const info = this.getMark(mark.type.name);
                 return info && info.expelEnclosingWhitespace && !active.some((m, i) => i < keep && m.eq(mark));
             })) {
-                const [_, lead, rest] = /^(\s*)([\s\S]*?)(?:[\r\n\u2028\u2029]\s*)?$/.exec(node.text!)!;
+                const [_, lead, content = '', tail] = /^(\s*)([\s\S]*\S)?(\s*)$/.exec(node.text!)!;
+                const rest = content + tail.split(/[\r\n\u2028\u2029]/, 1)[0];
                 if (lead) {
                     leading += lead;
                     node = rest ? (node as any).withText(rest) : null;
