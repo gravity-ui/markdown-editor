@@ -49,6 +49,86 @@ describe('MarkdownSerializer whitespace', () => {
         expect(parser.parse(expectedMarkup)).toMatchNode(expectedDoc);
     });
 
+    it.each([
+        {kind: 'hard', markOrder: ['em', 'strong', 'link', 'code']},
+        {kind: 'soft', markOrder: ['em', 'strong', 'link', 'code']},
+        {kind: 'hard', markOrder: ['strong', 'em', 'link', 'code']},
+        {kind: 'soft', markOrder: ['strong', 'em', 'link', 'code']},
+    ])(
+        'should expel nested emphasis whitespace before $kind breaks with $markOrder',
+        ({kind, markOrder}) => {
+            const {doc, p, em, strong, br, sb, parser, serializer} = createFixture(markOrder);
+            const breakNode = kind === 'hard' ? br() : sb();
+            const input = doc(p(em(strong('x ')), breakNode, em(strong('y'))));
+            const expectedDoc =
+                kind === 'hard'
+                    ? doc(p(em(strong('x')), ' ', breakNode, em(strong('y'))))
+                    : doc(p(em(strong('x')), breakNode, em(strong('y'))));
+            const expectedMarkup = kind === 'hard' ? '***x*** \\\n***y***' : '***x***\n***y***';
+
+            expect(serializer.serialize(input)).toBe(expectedMarkup);
+            expect(parser.parse(expectedMarkup)).toMatchNode(expectedDoc);
+        },
+    );
+
+    it.each(['hard', 'soft'])('should preserve %s breaks after expelling two spaces', (kind) => {
+        const {doc, p, em, strong, br, sb, parser, serializer} = createFixture();
+        const breakNode = kind === 'hard' ? br() : sb();
+        const input = doc(p(em(strong('x  ')), breakNode, em(strong('y'))));
+        const expectedDoc =
+            kind === 'hard'
+                ? doc(p(em(strong('x')), '  ', breakNode, em(strong('y'))))
+                : doc(p(em(strong('x')), breakNode, em(strong('y'))));
+        const expectedMarkup = kind === 'hard' ? '***x***  \\\n***y***' : '***x***\n***y***';
+
+        expect(serializer.serialize(input)).toBe(expectedMarkup);
+        expect(parser.parse(expectedMarkup)).toMatchNode(expectedDoc);
+    });
+
+    it.each(['hard', 'soft'])(
+        'should keep nested link whitespace before unmarked %s breaks',
+        (kind) => {
+            const {doc, p, em, strong, a, br, sb, parser, serializer} = createFixture();
+            const breakNode = kind === 'hard' ? br() : sb();
+            const expectedDoc = doc(p(em(strong(a('x '))), breakNode, em(strong(a('y')))));
+            const expectedMarkup =
+                kind === 'hard'
+                    ? '***[x ](foo)***\\\n***[y](foo)***'
+                    : '***[x ](foo)***\n***[y](foo)***';
+
+            expect(serializer.serialize(expectedDoc)).toBe(expectedMarkup);
+            expect(parser.parse(expectedMarkup)).toMatchNode(expectedDoc);
+        },
+    );
+
+    it.each(['hard', 'soft'])(
+        'should keep nested inline code whitespace before unmarked %s breaks',
+        (kind) => {
+            const {doc, p, em, strong, code, br, sb, parser, serializer} = createFixture();
+            const breakNode = kind === 'hard' ? br() : sb();
+            const expectedDoc = doc(p(em(strong(code('x '))), breakNode, em(strong(code('y')))));
+            const expectedMarkup =
+                kind === 'hard' ? '***`x `***\\\n***`y`***' : '***`x `***\n***`y`***';
+
+            expect(serializer.serialize(expectedDoc)).toBe(expectedMarkup);
+            expect(parser.parse(expectedMarkup)).toMatchNode(expectedDoc);
+        },
+    );
+
+    it.each(['hard', 'soft'])(
+        'should keep nested emphasis whitespace across marked %s breaks',
+        (kind) => {
+            const {doc, p, em, strong, br, sb, parser, serializer} = createFixture();
+            const breakNode = kind === 'hard' ? br() : sb();
+            const input = doc(p(em(strong('x ', breakNode, 'y'))));
+            const expectedDoc = kind === 'hard' ? input : doc(p(em(strong('x', breakNode, 'y'))));
+            const expectedMarkup = kind === 'hard' ? '***x \\\ny***' : '***x \ny***';
+
+            expect(serializer.serialize(input)).toBe(expectedMarkup);
+            expect(parser.parse(expectedMarkup)).toMatchNode(expectedDoc);
+        },
+    );
+
     it.each(['hard', 'soft'])('should expel whitespace before an unmarked %s break', (kind) => {
         const {doc, p, em, br, sb, parser, serializer} = createFixture();
         const breakNode = kind === 'hard' ? br() : sb();
@@ -57,7 +137,7 @@ describe('MarkdownSerializer whitespace', () => {
             kind === 'hard'
                 ? doc(p(em('x'), ' ', breakNode, em('y')))
                 : doc(p(em('x'), breakNode, em('y')));
-        const expectedMarkup = kind === 'hard' ? '*x* \\\n*y*' : '*x* \n*y*';
+        const expectedMarkup = kind === 'hard' ? '*x* \\\n*y*' : '*x*\n*y*';
 
         expect(serializer.serialize(input)).toBe(expectedMarkup);
         expect(parser.parse(expectedMarkup)).toMatchNode(expectedDoc);
@@ -101,7 +181,7 @@ describe('MarkdownSerializer whitespace', () => {
         });
         const input = doc(p(a('x\ny\n '), sb(), em('z')));
         const expectedDoc = doc(p(a('x', sb(), 'y')), p(em('z')));
-        const expectedMarkup = '[x\ny](foo)\n \n*z*';
+        const expectedMarkup = '[x\ny](foo)\n\n*z*';
 
         expect(serializer.serialize(input)).toBe(expectedMarkup);
         expect(parser.parse(expectedMarkup)).toMatchNode(expectedDoc);
@@ -118,7 +198,7 @@ describe('MarkdownSerializer whitespace', () => {
         });
         const input = doc(p(em('x '), sb(), em('z')));
         const expectedDoc = doc(p(a('x'), sb(), a('z')));
-        const expectedMarkup = '[x](foo) \n[z](foo)';
+        const expectedMarkup = '[x](foo)\n[z](foo)';
 
         expect(serializer.serialize(input)).toBe(expectedMarkup);
         expect(parser.parse(expectedMarkup)).toMatchNode(expectedDoc);

@@ -432,7 +432,7 @@ export class MarkdownSerializerState {
                 const info = this.getMark(mark.type.name);
                 return info && info.expelEnclosingWhitespace && !active.some((m, i) => i < keep && m.eq(mark));
             })) {
-                const [_, lead, rest] = /^(\s*)(.*)$/m.exec(node.text!)!;
+                const [_, lead, rest] = /^(\s*)([\s\S]*?)(?:[\r\n\u2028\u2029]\s*)?$/.exec(node.text!)!;
                 if (lead) {
                     leading += lead;
                     node = rest ? (node as any).withText(rest) : null;
@@ -443,11 +443,12 @@ export class MarkdownSerializerState {
             const next = parent.maybeChild(index + 1);
             const singleLine = node?.isText && !/[\r\n\u2028\u2029]/.test(node.text ?? '');
             const singleEscapedMark = !noEsc && marks.length === 1;
+            const expellingMarksOnly = !noEsc && marks.every(mark => this.getMark(mark.type.name).expelEnclosingWhitespace);
             if (node && node.isText && marks.some((mark, i) => {
                 const info = this.getMark(mark.type.name);
                 return info && info.expelEnclosingWhitespace && (
                     !this.isMarkAhead(parent, index + 1, marks.slice(0, i + 1)) ||
-                    (singleEscapedMark && singleLine && next?.type.spec.isBreak && !mark.isInSet(next.marks))
+                    (expellingMarksOnly && singleLine && next?.type.spec.isBreak && !mark.isInSet(next.marks))
                 );
             })) {
                 const isolatedEscapingMarks = keep === 0 && marks.every(mark => {
@@ -459,7 +460,8 @@ export class MarkdownSerializerState {
                     ? /^([\s\S]*\S)?(\s*)$/ : /^(.*?)(\s*)$/m;
                 const [_, rest = '', trail] = trailingWhitespace.exec(node.text!)!;
                 if (trail) {
-                    trailing = trail;
+                    // Keep spaces from turning a soft break into a hard break.
+                    trailing = next?.type.name === 'soft_break' ? trail.replace(/ +$/, '') : trail;
                     node = rest ? (node as any).withText(rest) : null;
                     if (!node) marks = active;
                 }
