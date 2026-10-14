@@ -1,4 +1,5 @@
 import type {PresetName} from 'markdown-it';
+import type {Node, Schema} from 'prosemirror-model';
 import {EditorState} from 'prosemirror-state';
 import {EditorView} from 'prosemirror-view';
 
@@ -61,6 +62,14 @@ export class WysiwygEditor implements CommonEditor, ActionStorage, ExporterStora
     #actions: ActionsManager;
     #contentHandler: ContentHandler;
     #escapeConfig?: EscapeConfig;
+
+    get doc(): Node {
+        return this.#view.state.doc;
+    }
+
+    get schema(): Schema {
+        return this.#view.state.schema;
+    }
 
     get dom() {
         return this.#view.dom;

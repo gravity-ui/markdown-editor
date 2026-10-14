@@ -18,8 +18,8 @@ describe('WysiwygEditor exporters', () => {
         try {
             const exporter = editor.getExporter<Exporter<number>>('statistics');
 
-            expect(exporter.export(editor.view.state.doc)).toBe(1);
-            expect(exporter.export(editor.view.state.doc.content)).toBe(1);
+            expect(exporter.export(editor.doc)).toBe(1);
+            expect(exporter.export(editor.doc.content)).toBe(1);
             expect(editor.getExporter('statistics')).toBe(exporter);
             expect(create).toHaveBeenCalledTimes(1);
         } finally {
@@ -54,11 +54,11 @@ describe('WysiwygEditor exporters', () => {
         });
         try {
             expect(editor.getValue()).toBe('\\!text\\@value');
-            expect(editor.serializer.serialize(editor.view.state.doc)).toBe('!text@value');
+            expect(editor.serializer.serialize(editor.doc)).toBe('!text@value');
             expect(exportDocument).not.toHaveBeenCalled();
-            expect(
-                editor.getExporter<Exporter<string>>('custom').export(editor.view.state.doc),
-            ).toBe('new format');
+            expect(editor.getExporter<Exporter<string>>('custom').export(editor.doc)).toBe(
+                'new format',
+            );
         } finally {
             editor.destroy();
         }
