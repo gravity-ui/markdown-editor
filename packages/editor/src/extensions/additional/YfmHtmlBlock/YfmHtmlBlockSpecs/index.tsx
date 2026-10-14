@@ -1,6 +1,6 @@
 import {type PluginOptions, transform} from '@diplodoc/html-extension';
 
-import type {ExtensionAuto, ExtensionNodeSpec} from '#core';
+import type {ExtensionAuto, NodeViewFactory} from '#core';
 import {generateEntityId} from 'src/utils/entity-id';
 
 import {YfmHtmlBlockConsts, defaultYfmHtmlBlockEntityId} from './const';
@@ -12,7 +12,7 @@ export interface YfmHtmlBlockSpecsOptions extends Omit<
     'runtimeJsPath' | 'containerClasses' | 'bundle' | 'embeddingMode'
 > {
     /** @deprecated Register the view with builder.addNodeView() after the specs. */
-    nodeView?: ExtensionNodeSpec['view'];
+    nodeView?: NodeViewFactory;
 }
 
 const YfmHtmlBlockSpecsExtension: ExtensionAuto<YfmHtmlBlockSpecsOptions> = (

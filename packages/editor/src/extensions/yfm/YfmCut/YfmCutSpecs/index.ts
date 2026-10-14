@@ -1,4 +1,4 @@
-import type {ExtensionAuto, ExtensionNodeSpec} from '#core';
+import type {ExtensionAuto, NodeViewFactory} from '#core';
 
 import {CutNode} from './const';
 import {YfmCutParserSpecs} from './parser';
@@ -18,11 +18,11 @@ declare global {
 
 export type YfmCutSpecsOptions = YfmCutSchemaOptions & {
     /** @deprecated Register the view with builder.addNodeView() after the specs. */
-    cutView?: ExtensionNodeSpec['view'];
+    cutView?: NodeViewFactory;
     /** @deprecated Register the view with builder.addNodeView() after the specs. */
-    cutTitleView?: ExtensionNodeSpec['view'];
+    cutTitleView?: NodeViewFactory;
     /** @deprecated Register the view with builder.addNodeView() after the specs. */
-    cutContentView?: ExtensionNodeSpec['view'];
+    cutContentView?: NodeViewFactory;
 };
 
 export const YfmCutSpecs: ExtensionAuto<YfmCutSpecsOptions> = (builder, opts) => {

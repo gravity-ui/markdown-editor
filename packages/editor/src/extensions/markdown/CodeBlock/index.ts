@@ -1,4 +1,4 @@
-import type {Action, ExtensionAuto, ExtensionNodeSpec, Keymap} from '#core';
+import type {Action, ExtensionAuto, Keymap, NodeViewFactory} from '#core';
 import type {NodeType} from '#pm/model';
 import {hasParentNodeOfType} from '#pm/utils';
 import {isFunction} from 'src/lodash';
@@ -15,7 +15,7 @@ export {resetCodeblock} from './commands';
 export {codeBlockNodeName, CodeBlockNodeAttr, codeBlockType} from './CodeBlockSpecs';
 
 export type CodeBlockOptions = Omit<CodeBlockSpecsOptions, 'nodeview'> & {
-    nodeview?: ExtensionNodeSpec['view'];
+    nodeview?: NodeViewFactory;
     codeBlockKey?: string | null;
     langs?: HighlightLangMap;
     /** Configure line wrapping toggle in code block */

@@ -1,5 +1,4 @@
 import type MarkdownIt from 'markdown-it';
-import OrderedMap from 'orderedmap';
 import {inputRules} from 'prosemirror-inputrules';
 import {keymap} from 'prosemirror-keymap';
 import type {MarkSpec, NodeSpec, Schema} from 'prosemirror-model';
@@ -29,32 +28,10 @@ type ConfigureMdParams = {
 };
 
 type ConfigureMdCallback = (md: MarkdownIt) => MarkdownIt;
-type AddPmNodeCallback = () => ExtensionNodeSpec;
-type AddPmMarkCallback = () => ExtensionMarkSpec;
 type AddPmPluginCallback = (deps: ExtensionDeps) => Plugin | Plugin[];
 type AddPmKeymapCallback = (deps: ExtensionDeps) => Keymap;
 type AddPmInputRulesCallback = (deps: ExtensionDeps) => InputRulesConfig;
 type AddActionCallback = (deps: ExtensionDeps) => ActionSpec;
-
-type EntityPipelineEntry<EntitySpec extends ExtensionNodeSpec | ExtensionMarkSpec, SpecBody> =
-    | {type: 'addEntity'; name: string; cb: () => EntitySpec; priority: number}
-    | {type: 'addEntitySpec'; name: string; cb: () => SpecBody; priority: number}
-    | {type: 'addEntityView'; name: string; cb: NonNullable<EntitySpec['view']>}
-    | {type: 'overrideEntitySpec'; name: string; cb: (prev: SpecBody) => SpecBody};
-
-type NodePipelineEntry = EntityPipelineEntry<ExtensionNodeSpec, NodeSpec>;
-type MarkPipelineEntry = EntityPipelineEntry<ExtensionMarkSpec, MarkSpec>;
-
-type ParserPipelineEntry =
-    | {type: 'addParserSpec'; tokenName: string; cb: () => ParserToken}
-    | {type: 'overrideParserSpec'; tokenName: string; cb: (prev: ParserToken) => ParserToken};
-
-type SerializerPipelineEntry<SerializerToken> =
-    | {type: 'addSerializer'; name: string; cb: () => SerializerToken}
-    | {type: 'overrideSerializer'; name: string; cb: (prev: SerializerToken) => SerializerToken};
-
-type NodeSerializerPipelineEntry = SerializerPipelineEntry<SerializerNodeToken>;
-type MarkSerializerPipelineEntry = SerializerPipelineEntry<SerializerMarkToken>;
 
 enum Priority {
     Highest = 1_000_000,
@@ -80,263 +57,25 @@ declare global {
     }
 }
 
-type ResolvedParserEntry = {tokenName: string; tokenSpec: ParserToken};
-
-function resolveParserPipeline(
-    pipeline: ParserPipelineEntry[],
-    initialPrimaryTokens: Record<string, string>,
-    initialParsers: Record<string, ResolvedParserEntry>,
-    entityNames: ReadonlySet<string>,
-) {
-    const primaryParserToken = {...initialPrimaryTokens};
-    const parsers = {...initialParsers};
-    const extraTokenNames: string[] = [];
-    const overriddenTokens = new Set<string>();
-
-    for (const entry of pipeline) {
-        if (entry.type === 'addParserSpec') {
-            const tokenSpec = entry.cb();
-            const entityName = tokenSpec.name;
-
-            if (primaryParserToken[entityName] === entry.tokenName) {
-                // Same-name token for addNode/addMark entity — skip, already covered
-                continue;
-            }
-
-            if (entry.tokenName in initialParsers) {
-                throw new Error(
-                    `Parser token "${entry.tokenName}" is already owned by an entity registered via addNode/addMark. ` +
-                        `Use overrideMarkdownTokenParserSpec() to modify it, or choose a different tokenName.`,
-                );
-            }
-
-            if (primaryParserToken[entityName]) {
-                // Extra parser-only token targeting an existing entity
-                if (entityNames.has(entityName)) {
-                    extraTokenNames.push(entry.tokenName);
-                }
-            } else {
-                // Primary parser for a granular entity
-                primaryParserToken[entityName] = entry.tokenName;
-            }
-            parsers[entry.tokenName] = {tokenName: entry.tokenName, tokenSpec};
-        } else {
-            // overrideParserSpec
-            const existing = parsers[entry.tokenName];
-            if (existing) {
-                parsers[entry.tokenName] = {
-                    tokenName: existing.tokenName,
-                    tokenSpec: entry.cb(existing.tokenSpec),
-                };
-                overriddenTokens.add(entry.tokenName);
-            }
-        }
-    }
-
-    return {parsers, primaryParserToken, extraTokenNames, overriddenTokens};
-}
-
-function resolveSerializerPipeline<T>(
-    pipeline: SerializerPipelineEntry<T>[],
-    initialSerializers: Record<string, T>,
-): {serializers: Record<string, T>; overriddenNames: Set<string>} {
-    const serializers = {...initialSerializers};
-    const overriddenNames = new Set<string>();
-    for (const entry of pipeline) {
-        if (entry.type === 'addSerializer') {
-            serializers[entry.name] = entry.cb();
-        } else {
-            serializers[entry.name] = entry.cb(serializers[entry.name]);
-            overriddenNames.add(entry.name);
-        }
-    }
-    return {serializers, overriddenNames};
-}
-
-function validateGranularSpecs(
-    granularNames: Set<string>,
-    entityType: 'node' | 'mark',
-    primaryParserToken: Record<string, string>,
-    serializers: Record<string, unknown>,
-): void {
-    for (const name of granularNames) {
-        if (!primaryParserToken[name]) {
-            throw new Error(
-                `Incomplete ${entityType} spec for "${name}": missing parser spec. ` +
-                    `Use addMarkdownTokenParserSpec() to register a parser for this ${entityType}.`,
-            );
-        }
-        if (!serializers[name]) {
-            throw new Error(
-                `Incomplete ${entityType} spec for "${name}": missing serializer. ` +
-                    `Use add${entityType === 'node' ? 'Node' : 'Mark'}SerializerSpec() to register a serializer for this ${entityType}.`,
-            );
-        }
-    }
-}
-
-function buildParserOnlyNodeEntry(resolved: ResolvedParserEntry): ExtensionNodeSpec {
-    return {
-        spec: {},
-        fromMd: {tokenName: resolved.tokenName, tokenSpec: resolved.tokenSpec},
-        toMd: () => {
-            throw new Error(`Unexpected toMd() call on parser-only node "${resolved.tokenName}"`);
-        },
-    };
-}
-
-function buildParserOnlyMarkEntry(resolved: ResolvedParserEntry): ExtensionMarkSpec {
-    return {
-        spec: {},
-        fromMd: {tokenName: resolved.tokenName, tokenSpec: resolved.tokenSpec},
-        toMd: {open: '', close: ''},
-    };
-}
-
-function processEntityPipeline<EntitySpec extends ExtensionNodeSpec | ExtensionMarkSpec>(
-    entityType: 'node' | 'mark',
-    entityPipeline: EntityPipelineEntry<EntitySpec, EntitySpec['spec']>[],
-    parserPipeline: ParserPipelineEntry[],
-    serializerPipeline: SerializerPipelineEntry<EntitySpec['toMd']>[],
-    buildParserOnlyEntry: (resolved: ResolvedParserEntry) => EntitySpec,
-): OrderedMap<EntitySpec> {
-    const order: {name: string; priority: number}[] = [];
-    const specs: Record<string, EntitySpec['spec']> = {};
-    const initParsers: Record<string, ResolvedParserEntry> = {};
-    const initSerializers: Record<string, EntitySpec['toMd']> = {};
-    const views: Record<string, EntitySpec['view']> = {};
-    const granularEntities = new Set<string>();
-    const initPrimaryTokens: Record<string, string> = {};
-    const priorityByEntity: Record<string, number> = {};
-    // Originals from addEntity — preserved as-is in assembly when no overrides were applied.
-    // This keeps reference identity (and any extra fields) for unmodified entries.
-    const originals: Record<string, EntitySpec> = {};
-    const modified = new Set<string>();
-
-    // Pass 1: entityPipeline → specs, order, raw parsers/serializers from addEntity
-    for (const entry of entityPipeline) {
-        const {name} = entry;
-
-        if (entry.type === 'addEntity') {
-            const base = entry.cb();
-            const tokenName = base.fromMd.tokenName ?? name;
-            order.push({name, priority: entry.priority});
-            specs[name] = base.spec;
-            initParsers[tokenName] = {tokenName, tokenSpec: base.fromMd.tokenSpec};
-            initPrimaryTokens[name] = tokenName;
-            priorityByEntity[name] = entry.priority;
-            initSerializers[name] = base.toMd;
-            views[name] = base.view;
-            originals[name] = base;
-        } else if (entry.type === 'addEntitySpec') {
-            order.push({name, priority: entry.priority});
-            specs[name] = entry.cb();
-            priorityByEntity[name] = entry.priority;
-            granularEntities.add(name);
-        } else if (entry.type === 'addEntityView') {
-            if (views[name] !== undefined) {
-                throw new Error(`View for ${entityType} "${name}" is already registered`);
-            }
-            views[name] = entry.cb;
-            modified.add(name);
-        } else {
-            // overrideEntitySpec
-            specs[name] = entry.cb(specs[name]);
-            modified.add(name);
-        }
-    }
-
-    // Pass 2: parserPipeline → fill/override parsers, add extra parser-only entries
-    const {parsers, primaryParserToken, extraTokenNames, overriddenTokens} = resolveParserPipeline(
-        parserPipeline,
-        initPrimaryTokens,
-        initParsers,
-        new Set(Object.keys(specs)),
-    );
-    for (const tokenName of extraTokenNames) {
-        // Inherit priority from the entity this token targets
-        const entityName = parsers[tokenName]?.tokenSpec.name;
-        const priority = entityName ? (priorityByEntity[entityName] ?? 0) : 0;
-        order.push({name: tokenName, priority});
-    }
-    // Map primary-token overrides back to their owning addEntity names
-    for (const entityName of Object.keys(originals)) {
-        if (overriddenTokens.has(initPrimaryTokens[entityName])) {
-            modified.add(entityName);
-        }
-    }
-
-    // Pass 3: serializerPipeline → fill/override serializers
-    const {serializers, overriddenNames: overriddenSerializers} = resolveSerializerPipeline(
-        serializerPipeline,
-        initSerializers,
-    );
-    for (const name of overriddenSerializers) {
-        modified.add(name);
-    }
-
-    validateGranularSpecs(granularEntities, entityType, primaryParserToken, serializers);
-
-    if (entityType === 'mark') {
-        // The order of marks in schema is important when serializing pm-document to DOM or markup
-        // https://discuss.prosemirror.net/t/marks-priority/4463
-        order.sort((a, b) => b.priority - a.priority);
-    }
-
-    // Assemble
-    let map = OrderedMap.from<EntitySpec>({});
-    for (const {name} of order) {
-        // Fast path: unmodified addEntity registrations keep their original object reference.
-        if (originals[name] && !modified.has(name)) {
-            map = map.addToEnd(name, originals[name]);
-            continue;
-        }
-        const parserKey = primaryParserToken[name] ?? name;
-        map = map.addToEnd(
-            name,
-            serializers[name]
-                ? ({
-                      spec: specs[name] ?? {},
-                      fromMd: parsers[parserKey],
-                      toMd: serializers[name],
-                      ...(views[name] !== undefined && {view: views[name]}),
-                  } as EntitySpec)
-                : buildParserOnlyEntry(parsers[name]),
-        );
-    }
-    return map;
-}
-
 export type Extension = (builder: ExtensionBuilder) => void;
 export type ExtensionWithOptions<T> = (builder: ExtensionBuilder, options: T) => void;
 export type ExtensionAuto<T = void> = T extends void ? Extension : ExtensionWithOptions<T>;
 
+export type NodeViewFactory = (deps: ExtensionDeps) => NodeViewConstructor;
+export type MarkViewFactory = (deps: ExtensionDeps) => MarkViewConstructor;
+
+/** @internal */
 export type ExtensionSpec = {
+    readonly nodeSpecs: ReadonlyMap<string, NodeSpec>;
+    readonly markSpecs: ReadonlyMap<string, MarkSpec>;
+    readonly parserSpecs: ReadonlyMap<string, ParserToken>;
+    readonly nodeSerializers: ReadonlyMap<string, SerializerNodeToken>;
+    readonly markSerializers: ReadonlyMap<string, SerializerMarkToken>;
+    readonly nodeViews: ReadonlyMap<string, NodeViewFactory>;
+    readonly markViews: ReadonlyMap<string, MarkViewFactory>;
     configureMd(md: MarkdownIt, parserType: 'text' | 'markup'): MarkdownIt;
-    nodes(): OrderedMap<ExtensionNodeSpec>;
-    marks(): OrderedMap<ExtensionMarkSpec>;
     plugins(deps: ExtensionDeps): Plugin[];
     actions(deps: ExtensionDeps): Record<string, ActionSpec>;
-};
-
-export type ExtensionNodeSpec = {
-    spec: NodeSpec;
-    view?: (deps: ExtensionDeps) => NodeViewConstructor;
-    fromMd: {
-        tokenName?: string;
-        tokenSpec: ParserToken;
-    };
-    toMd: SerializerNodeToken;
-};
-
-export type ExtensionMarkSpec = {
-    spec: MarkSpec;
-    view?: (deps: ExtensionDeps) => MarkViewConstructor;
-    fromMd: {
-        tokenName?: string;
-        tokenSpec: ParserToken;
-    };
-    toMd: SerializerMarkToken;
 };
 
 export type ExtensionDeps = {
@@ -362,21 +101,13 @@ export class ExtensionBuilder {
     #plugins: {cb: AddPmPluginCallback; priority: number}[] = [];
     #actions: [string, AddActionCallback][] = [];
 
-    // Unified pipelines — preserve registration order across legacy and granular APIs
-    #nodePipeline: NodePipelineEntry[] = [];
-    #nodeIndex: Record<string, {source: 'addNode' | 'addNodeSpec'}> = {};
-    #nodeViewIndex = new Set<string>();
-    #markPipeline: MarkPipelineEntry[] = [];
-    #markIndex: Record<string, {source: 'addMark' | 'addMarkSpec'}> = {};
-    #markViewIndex = new Set<string>();
-
-    // Parser and serializer pipelines
-    #parserPipeline: ParserPipelineEntry[] = [];
-    #parserIndex = new Set<string>();
-    #nodeSerializerPipeline: NodeSerializerPipelineEntry[] = [];
-    #nodeSerializerIndex = new Set<string>();
-    #markSerializerPipeline: MarkSerializerPipelineEntry[] = [];
-    #markSerializerIndex = new Set<string>();
+    #nodeSpecs = new SpecRegistry<NodeSpec>('Node spec');
+    #markSpecs = new SpecRegistry<MarkSpec>('Mark spec');
+    #parserSpecs = new SpecRegistry<ParserToken>('Parser spec');
+    #nodeSerializers = new SpecRegistry<SerializerNodeToken>('Node serializer');
+    #markSerializers = new SpecRegistry<SerializerMarkToken>('Mark serializer');
+    #nodeViews = new Map<string, NodeViewFactory>();
+    #markViews = new Map<string, MarkViewFactory>();
 
     readonly context: BuilderContext<WysiwygEditor.Context>;
 
@@ -408,61 +139,11 @@ export class ExtensionBuilder {
     }
 
     hasNodeSpec(name: string): boolean {
-        return Boolean(this.#nodeIndex[name]);
+        return this.#nodeSpecs.has(name);
     }
 
     hasMarkSpec(name: string): boolean {
-        return Boolean(this.#markIndex[name]);
-    }
-
-    /**
-     * @deprecated Will be removed in the next major version.
-     * Use addNodeSpec() + addMarkdownTokenParserSpec() + addNodeSerializerSpec() instead.
-     */
-    addNode(name: string, cb: AddPmNodeCallback): this {
-        if (this.#nodeIndex[name]?.source === 'addNode') {
-            throw new Error(`ProseMirror node with this name "${name}" already exist`);
-        }
-        if (this.#nodeIndex[name]?.source === 'addNodeSpec') {
-            throw new Error(
-                `Node with name "${name}" already registered via addNodeSpec. ` +
-                    `Cannot use addNode for a node that already has granular registrations.`,
-            );
-        }
-        if (this.#nodeSerializerIndex.has(name)) {
-            throw new Error(
-                `Node serializer for "${name}" already registered via addNodeSerializerSpec. ` +
-                    `Cannot use addNode for a node that already has granular registrations.`,
-            );
-        }
-        this.#nodePipeline.push({type: 'addEntity', name, cb, priority: 0});
-        this.#nodeIndex[name] = {source: 'addNode'};
-        return this;
-    }
-
-    /**
-     * @deprecated Will be removed in the next major version.
-     * Use addMarkSpec() + addMarkdownTokenParserSpec() + addMarkSerializerSpec() instead.
-     */
-    addMark(name: string, cb: AddPmMarkCallback, priority = DEFAULT_PRIORITY): this {
-        if (this.#markIndex[name]?.source === 'addMark') {
-            throw new Error(`ProseMirror mark with this name "${name}" already exist`);
-        }
-        if (this.#markIndex[name]?.source === 'addMarkSpec') {
-            throw new Error(
-                `Mark with name "${name}" already registered via addMarkSpec. ` +
-                    `Cannot use addMark for a mark that already has granular registrations.`,
-            );
-        }
-        if (this.#markSerializerIndex.has(name)) {
-            throw new Error(
-                `Mark serializer for "${name}" already registered via addMarkSerializerSpec. ` +
-                    `Cannot use addMark for a mark that already has granular registrations.`,
-            );
-        }
-        this.#markPipeline.push({type: 'addEntity', name, cb, priority});
-        this.#markIndex[name] = {source: 'addMark'};
-        return this;
+        return this.#markSpecs.has(name);
     }
 
     addPlugin(cb: AddPmPluginCallback, priority = DEFAULT_PRIORITY): this {
@@ -491,125 +172,55 @@ export class ExtensionBuilder {
     }
 
     addNodeSpec(name: string, cb: () => NodeSpec): this {
-        if (this.#nodeIndex[name]?.source === 'addNodeSpec') {
-            throw new Error(`Node spec with name "${name}" already registered via addNodeSpec`);
-        }
-        if (this.#nodeIndex[name]?.source === 'addNode') {
-            throw new Error(
-                `Node with name "${name}" already registered via addNode. Use overrideNodeSpec to modify it.`,
-            );
-        }
-        this.#nodePipeline.push({type: 'addEntitySpec', name, cb, priority: 0});
-        this.#nodeIndex[name] = {source: 'addNodeSpec'};
+        this.#nodeSpecs.add(name, cb);
         return this;
     }
 
     addMarkSpec(name: string, cb: () => MarkSpec, priority = DEFAULT_PRIORITY): this {
-        if (this.#markIndex[name]?.source === 'addMarkSpec') {
-            throw new Error(`Mark spec with name "${name}" already registered via addMarkSpec`);
-        }
-        if (this.#markIndex[name]?.source === 'addMark') {
-            throw new Error(
-                `Mark with name "${name}" already registered via addMark. Use overrideMarkSpec to modify it.`,
-            );
-        }
-        this.#markPipeline.push({type: 'addEntitySpec', name, cb, priority});
-        this.#markIndex[name] = {source: 'addMarkSpec'};
+        this.#markSpecs.add(name, cb, priority);
         return this;
     }
 
-    /** Adds a node view factory. The factory runs after the schema is built. */
-    addNodeView(name: string, cb: NonNullable<ExtensionNodeSpec['view']>): this {
-        if (!this.#nodeIndex[name]) {
-            throw new Error(
-                `Cannot add node view "${name}": node is not registered. ` +
-                    `Use addNode() or addNodeSpec() first.`,
-            );
-        }
-        if (this.#nodeViewIndex.has(name)) {
+    /** Adds a node view factory. The factory runs after the dependencies are built. */
+    addNodeView(name: string, cb: NodeViewFactory): this {
+        if (this.#nodeViews.has(name)) {
             throw new Error(`Node view for "${name}" is already registered`);
         }
-        this.#nodePipeline.push({type: 'addEntityView', name, cb});
-        this.#nodeViewIndex.add(name);
+        this.#nodeViews.set(name, cb);
         return this;
     }
 
-    /** Adds a mark view factory. The factory runs after the schema is built. */
-    addMarkView(name: string, cb: NonNullable<ExtensionMarkSpec['view']>): this {
-        if (!this.#markIndex[name]) {
-            throw new Error(
-                `Cannot add mark view "${name}": mark is not registered. ` +
-                    `Use addMark() or addMarkSpec() first.`,
-            );
-        }
-        if (this.#markViewIndex.has(name)) {
+    /** Adds a mark view factory. The factory runs after the dependencies are built. */
+    addMarkView(name: string, cb: MarkViewFactory): this {
+        if (this.#markViews.has(name)) {
             throw new Error(`Mark view for "${name}" is already registered`);
         }
-        this.#markPipeline.push({type: 'addEntityView', name, cb});
-        this.#markViewIndex.add(name);
+        this.#markViews.set(name, cb);
         return this;
     }
 
     addMarkdownTokenParserSpec(tokenName: string, cb: () => ParserToken): this {
-        if (this.#parserIndex.has(tokenName)) {
-            throw new Error(
-                `Parser spec for token "${tokenName}" already registered via addMarkdownTokenParserSpec`,
-            );
-        }
-        this.#parserPipeline.push({type: 'addParserSpec', tokenName, cb});
-        this.#parserIndex.add(tokenName);
+        this.#parserSpecs.add(tokenName, cb);
         return this;
     }
 
     addNodeSerializerSpec(name: string, cb: () => SerializerNodeToken): this {
-        if (this.#nodeSerializerIndex.has(name)) {
-            throw new Error(
-                `Node serializer for "${name}" already registered via addNodeSerializerSpec`,
-            );
-        }
-        if (this.#nodeIndex[name]?.source === 'addNode') {
-            throw new Error(
-                `Node with name "${name}" already registered via addNode. Use overrideNodeSerializerSpec to modify it.`,
-            );
-        }
-        this.#nodeSerializerPipeline.push({type: 'addSerializer', name, cb});
-        this.#nodeSerializerIndex.add(name);
+        this.#nodeSerializers.add(name, cb);
         return this;
     }
 
     addMarkSerializerSpec(name: string, cb: () => SerializerMarkToken): this {
-        if (this.#markSerializerIndex.has(name)) {
-            throw new Error(
-                `Mark serializer for "${name}" already registered via addMarkSerializerSpec`,
-            );
-        }
-        if (this.#markIndex[name]?.source === 'addMark') {
-            throw new Error(
-                `Mark with name "${name}" already registered via addMark. Use overrideMarkSerializerSpec to modify it.`,
-            );
-        }
-        this.#markSerializerPipeline.push({type: 'addSerializer', name, cb});
-        this.#markSerializerIndex.add(name);
+        this.#markSerializers.add(name, cb);
         return this;
     }
 
     overrideNodeSpec(name: string, cb: (prev: NodeSpec) => NodeSpec): this {
-        if (!this.#nodeIndex[name]) {
-            throw new Error(
-                `Cannot override node spec "${name}": not registered. Use addNode() or addNodeSpec() first.`,
-            );
-        }
-        this.#nodePipeline.push({type: 'overrideEntitySpec', name, cb});
+        this.#nodeSpecs.override(name, cb);
         return this;
     }
 
     overrideMarkSpec(name: string, cb: (prev: MarkSpec) => MarkSpec): this {
-        if (!this.#markIndex[name]) {
-            throw new Error(
-                `Cannot override mark spec "${name}": not registered. Use addMark() or addMarkSpec() first.`,
-            );
-        }
-        this.#markPipeline.push({type: 'overrideEntitySpec', name, cb});
+        this.#markSpecs.override(name, cb);
         return this;
     }
 
@@ -617,17 +228,7 @@ export class ExtensionBuilder {
         tokenName: string,
         cb: (prev: ParserToken) => ParserToken,
     ): this {
-        if (
-            !this.#parserIndex.has(tokenName) &&
-            !this.#nodeIndex[tokenName] &&
-            !this.#markIndex[tokenName]
-        ) {
-            throw new Error(
-                `Cannot override parser spec for token "${tokenName}": not registered. ` +
-                    `Use addMarkdownTokenParserSpec(), addNode(), or addMark() first.`,
-            );
-        }
-        this.#parserPipeline.push({type: 'overrideParserSpec', tokenName, cb});
+        this.#parserSpecs.override(tokenName, cb);
         return this;
     }
 
@@ -635,12 +236,7 @@ export class ExtensionBuilder {
         name: string,
         cb: (prev: SerializerNodeToken) => SerializerNodeToken,
     ): this {
-        if (this.#nodeIndex[name]?.source !== 'addNode' && !this.#nodeSerializerIndex.has(name)) {
-            throw new Error(
-                `Cannot override node serializer "${name}": not registered. Use addNode() or addNodeSerializerSpec() first.`,
-            );
-        }
-        this.#nodeSerializerPipeline.push({type: 'overrideSerializer', name, cb});
+        this.#nodeSerializers.override(name, cb);
         return this;
     }
 
@@ -648,26 +244,24 @@ export class ExtensionBuilder {
         name: string,
         cb: (prev: SerializerMarkToken) => SerializerMarkToken,
     ): this {
-        if (this.#markIndex[name]?.source !== 'addMark' && !this.#markSerializerIndex.has(name)) {
-            throw new Error(
-                `Cannot override mark serializer "${name}": not registered. Use addMark() or addMarkSerializerSpec() first.`,
-            );
-        }
-        this.#markSerializerPipeline.push({type: 'overrideSerializer', name, cb});
+        this.#markSerializers.override(name, cb);
         return this;
     }
 
+    /** @internal */
     build(): ExtensionSpec {
         const confMd = this.#confMdCbs.slice();
-        const nodePipeline = this.#nodePipeline.slice();
-        const markPipeline = this.#markPipeline.slice();
-        const parserPipeline = this.#parserPipeline.slice();
-        const nodeSerializerPipeline = this.#nodeSerializerPipeline.slice();
-        const markSerializerPipeline = this.#markSerializerPipeline.slice();
         const plugins = this.#plugins.slice();
         const actions = this.#actions.slice();
 
         return {
+            nodeSpecs: this.#nodeSpecs.resolve(),
+            markSpecs: this.#markSpecs.resolve(true),
+            parserSpecs: this.#parserSpecs.resolve(),
+            nodeSerializers: this.#nodeSerializers.resolve(),
+            markSerializers: this.#markSerializers.resolve(),
+            nodeViews: new Map(this.#nodeViews),
+            markViews: new Map(this.#markViews),
             configureMd: (md, parserType) =>
                 confMd.reduce((pMd, {cb, params}) => {
                     if (parserType === 'text' && params.text) {
@@ -678,22 +272,6 @@ export class ExtensionBuilder {
                     }
                     return pMd;
                 }, md),
-            nodes: () =>
-                processEntityPipeline<ExtensionNodeSpec>(
-                    'node',
-                    nodePipeline,
-                    parserPipeline,
-                    nodeSerializerPipeline,
-                    buildParserOnlyNodeEntry,
-                ),
-            marks: () =>
-                processEntityPipeline<ExtensionMarkSpec>(
-                    'mark',
-                    markPipeline,
-                    parserPipeline,
-                    markSerializerPipeline,
-                    buildParserOnlyMarkEntry,
-                ),
             plugins: (deps) => {
                 return plugins
                     .sort((a, b) => b.priority - a.priority)
@@ -713,5 +291,56 @@ export class ExtensionBuilder {
                     {} as Record<string, ActionSpec>,
                 ),
         };
+    }
+}
+
+type SpecOperation<T> =
+    | {type: 'add'; name: string; cb: () => T}
+    | {type: 'override'; name: string; cb: (prev: T) => T};
+
+class SpecRegistry<T> {
+    readonly #label: string;
+    readonly #priorities = new Map<string, number>();
+    readonly #pipeline: SpecOperation<T>[] = [];
+
+    constructor(label: string) {
+        this.#label = label;
+    }
+
+    has(name: string): boolean {
+        return this.#priorities.has(name);
+    }
+
+    add(name: string, cb: () => T, priority = 0): void {
+        if (this.has(name)) {
+            throw new Error(`${this.#label} "${name}" is already registered`);
+        }
+        this.#priorities.set(name, priority);
+        this.#pipeline.push({type: 'add', name, cb});
+    }
+
+    override(name: string, cb: (prev: T) => T): void {
+        if (!this.has(name)) {
+            throw new Error(
+                `Cannot override ${this.#label.toLowerCase()} "${name}": not registered`,
+            );
+        }
+        this.#pipeline.push({type: 'override', name, cb});
+    }
+
+    resolve(sortByPriority = false): ReadonlyMap<string, T> {
+        const specs = new Map<string, T>();
+        for (const entry of this.#pipeline) {
+            specs.set(
+                entry.name,
+                entry.type === 'add' ? entry.cb() : entry.cb(specs.get(entry.name)!),
+            );
+        }
+        if (sortByPriority) {
+            return new Map(
+                [...specs].sort(([a], [b]) => this.#priorities.get(b)! - this.#priorities.get(a)!),
+            );
+        }
+        return specs;
     }
 }
