@@ -7,6 +7,7 @@ import type {Plugin} from 'prosemirror-state';
 
 import type {Logger2} from '../logger';
 
+import type {ExporterStorage} from './exporters/types';
 import type {ActionSpec, ActionStorage} from './types/actions';
 import type {Keymap} from './types/keymap';
 import type {MarkViewConstructor, NodeViewConstructor} from './types/node-views';
@@ -345,6 +346,8 @@ export type ExtensionDeps = {
     readonly markupParser: Parser;
     readonly serializer: Serializer;
     readonly actions: ActionStorage;
+    // TODO: Make getExporter required in the next major version.
+    getExporter?: ExporterStorage['getExporter'];
 };
 
 export class ExtensionBuilder {
