@@ -272,8 +272,10 @@ class YfmTable {
     async selectCellBg(menuType: YfmTableCellMenuType, swatchLabel: string) {
         const swatch = this.getCellBgSwatchLocator(swatchLabel);
 
-        // The palette follows the menu and closes 120 ms after the pointer leaves it: waiting for the
-        // swatch to stand still outlives the palette itself, so the click goes out without that wait.
+        // force skips the actionability checks only; the click is still a real pointer click.
+        // The palette follows the menu and closes 120 ms after the pointer leaves the menu item.
+        // The wait for the swatch to stand still outlives the palette, so the click goes out without it.
+        // A click that misses the swatch leaves the cell background unchanged, and the test fails on it.
         await this.expect(async () => {
             await this.openCellBgPalette(menuType);
             await swatch.click({force: true, timeout: 1000});

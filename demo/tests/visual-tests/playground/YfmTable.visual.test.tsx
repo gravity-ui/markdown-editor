@@ -428,10 +428,9 @@ test.describe('YfmTable', () => {
             const rowsLocator = await editor.yfmTable.getRows(tableLocator);
             const cellsLocator = await editor.yfmTable.getCells(tableLocator);
             const firstCell = cellsLocator.first();
-            const collumnButton = (await editor.yfmTable.getColumnButtons(tableLocator)).first();
 
             await firstCell.hover();
-            await collumnButton.click();
+            await editor.yfmTable.openMenu('column');
             await editor.yfmTable.doCellAction('column', 'remove-column');
 
             await expect(rowsLocator).toHaveCount(2);
@@ -446,10 +445,9 @@ test.describe('YfmTable', () => {
             const rowsLocator = await editor.yfmTable.getRows(tableLocator);
             const cellsLocator = await editor.yfmTable.getCells(tableLocator);
             const firstCell = cellsLocator.first();
-            const collumnButton = (await editor.yfmTable.getColumnButtons(tableLocator)).first();
 
             await firstCell.hover();
-            await collumnButton.click();
+            await editor.yfmTable.openMenu('column');
             await editor.yfmTable.doCellAction('column', 'add-column-before');
 
             await expect(rowsLocator).toHaveCount(2);
@@ -471,10 +469,9 @@ test.describe('YfmTable', () => {
             const rowsLocator = await editor.yfmTable.getRows(tableLocator);
             const cellsLocator = await editor.yfmTable.getCells(tableLocator);
             const firstCell = cellsLocator.first();
-            const collumnButton = (await editor.yfmTable.getColumnButtons(tableLocator)).first();
 
             await firstCell.hover();
-            await collumnButton.click();
+            await editor.yfmTable.openMenu('column');
             await editor.yfmTable.doCellAction('column', 'add-column-after');
 
             await expect(rowsLocator).toHaveCount(2);
