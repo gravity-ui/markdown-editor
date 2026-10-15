@@ -19,7 +19,7 @@ test.describe('Colorify', () => {
         test('should mark via toolbar @wysiwyg', async ({editor, wait}) => {
             await editor.colorify.assertMainToolbarColorButtonDefault();
 
-            await editor.moveCursor('end');
+            await editor.clickLastBlockAndPressEnd();
             await editor.press('Enter');
 
             await editor.clickMainToolbarButton('Text color', 'Yellow');
@@ -35,7 +35,7 @@ test.describe('Colorify', () => {
         test('should mark via toolbar @markup', async ({editor, wait}) => {
             await editor.switchMode('markup');
 
-            await editor.moveCursor('end');
+            await editor.clickLastBlockAndPressEnd();
             await editor.press('Enter');
 
             await editor.clickMainToolbarButton('Text color', 'Yellow');
@@ -58,7 +58,7 @@ test.describe('Colorify', () => {
 
             await editor.switchMode('wysiwyg');
 
-            await editor.moveCursor('end');
+            await editor.clickLastBlockAndPressEnd();
             await wait.timeout();
 
             await editor.colorify.assertMainToolbarColorButtonNotDefault();
@@ -74,7 +74,7 @@ test.describe('Colorify', () => {
         test('should add mark to selected text via toolbar @wysiwyg', async ({editor, wait}) => {
             await editor.colorify.assertMainToolbarColorButtonDefault();
 
-            await editor.moveCursor('end');
+            await editor.clickLastBlockAndPressEnd();
             await editor.press('Enter');
 
             await editor.pressSequentially('next');
@@ -99,7 +99,7 @@ test.describe('Colorify', () => {
         }) => {
             await editor.colorify.assertMainToolbarColorButtonDefault();
 
-            await editor.moveCursor('end');
+            await editor.clickLastBlockAndPressEnd();
             await editor.press('Enter');
 
             await editor.pressSequentially('next');
@@ -143,7 +143,7 @@ test.describe('Colorify', () => {
         test('should escape parentheses', async ({page, expectScreenshot, editor, wait}) => {
             await editor.colorify.assertMainToolbarColorButtonDefault();
 
-            await editor.moveCursor('end');
+            await editor.clickLastBlockAndPressEnd();
             await editor.press('Enter');
 
             await editor.clickMainToolbarButton('Text color', 'Yellow');

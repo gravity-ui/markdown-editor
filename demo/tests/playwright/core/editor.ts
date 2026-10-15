@@ -1,5 +1,7 @@
 import type {DataTransferType, MarkdownEditorMode} from '@gravity-ui/markdown-editor';
 import {SearchQA} from '@gravity-ui/markdown-editor/_/modules/search/qa.js';
+import type {EditorView as CMEditorView} from '@gravity-ui/markdown-editor/cm/view';
+import type {EditorView as PMEditorView} from '@gravity-ui/markdown-editor/pm/view';
 import type {Expect, Locator, Page} from '@playwright/test';
 
 type YfmTableCellMenuType = 'row' | 'column';
@@ -774,20 +776,28 @@ export class MarkdownEditorPage {
     }
 
     /**
-     * Places the cursor through the editor instance.
-     * A key press right after focus() races with the selection that prosemirror restores on focus.
+     * Clicks the last block and presses ControlOrMeta+End.
+     * The editor state follows the browser caret asynchronously, and prosemirror restores its own
+     * selection 20 ms after focus: a key pressed in that window is lost.
+     * The key is pressed again until the editor state places the caret at the end.
      */
-    async moveCursor(position: 'start' | 'end' | {line: number}) {
-        await this.page.evaluate((nextPosition) => {
-            if (!window.mdEditor) {
-                throw new Error(
-                    'window.mdEditor is undefined: the mounted component must call useEditorHandle()',
-                );
-            }
+    async clickLastBlockAndPressEnd() {
+        await this.locators.contenteditable
+            .locator(':scope > :not(.ProseMirror-widget)')
+            .last()
+            .click();
 
-            window.mdEditor.focus();
-            window.mdEditor.moveCursor(nextPosition);
-        }, position);
+        await this.expect(async () => {
+            await this.press('ControlOrMeta+End');
+            await this.expect.poll(() => this.isCaretAtEnd(), {timeout: 500}).toBe(true);
+        }).toPass({timeout: 5000});
+    }
+
+    /**
+     * Waits until the editor state places a collapsed caret at the end of the document.
+     */
+    async waitForCaretAtEnd() {
+        await this.expect.poll(() => this.isCaretAtEnd()).toBe(true);
     }
 
     /**
@@ -894,5 +904,42 @@ export class MarkdownEditorPage {
         await this.focus();
         await this.locators.contenteditable.press('Meta+F');
         await this.searchPanel.waitForVisible();
+    }
+
+    /**
+     * Reads the caret from the editor state. The editor views are read only, not changed.
+     */
+    private isCaretAtEnd() {
+        return this.page.evaluate(() => {
+            const editor = window.mdEditor as
+                | {
+                      currentMode: MarkdownEditorMode;
+                      _wysiwygView: PMEditorView;
+                      markupEditor: {cm: CMEditorView};
+                  }
+                | undefined;
+            if (!editor) {
+                throw new Error(
+                    'window.mdEditor is undefined: the mounted component must call useEditorHandle()',
+                );
+            }
+
+            if (editor.currentMode === 'markup') {
+                const {doc, selection} = editor.markupEditor.cm.state;
+                return selection.main.empty && selection.main.head === doc.length;
+            }
+
+            const {doc, selection} = editor._wysiwygView.state;
+            // The last caret position is the end of the last textblock
+            let end = doc.content.size;
+            let node = doc.lastChild;
+            while (node) {
+                end -= 1;
+                if (node.isTextblock) break;
+                node = node.lastChild;
+            }
+
+            return Boolean(node) && selection.empty && selection.head === end;
+        });
     }
 }
