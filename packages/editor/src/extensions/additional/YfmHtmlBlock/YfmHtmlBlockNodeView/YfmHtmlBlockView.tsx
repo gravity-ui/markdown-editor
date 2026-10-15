@@ -304,11 +304,17 @@ export const YfmHtmlBlockView: React.FC<{
             <div className={b('body')}>
                 <YfmHtmlBlockPreview
                     html={resultHtml}
-                    onDoubleClick={openCodeOnDoubleClick ? openCode : undefined}
+                    onDoubleClick={
+                        openCodeOnDoubleClick &&
+                        (!options.elementEditingMode || options.elementEditingMode === 'properties')
+                            ? openCode
+                            : undefined
+                    }
                     config={config}
                     frameRef={frameRef}
                 />
                 <FrameInlineEditing
+                    mode={options.elementEditingMode}
                     frameRef={frameRef}
                     blockRef={blockRef}
                     sourceHtml={sourceHtml}

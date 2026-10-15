@@ -266,7 +266,10 @@ test.describe('Extensions, YFM', () => {
         expect(await paragraph.boundingBox()).toEqual(before);
         const outline = page.locator('.g-md-yfm-html-block__inline-edit-outline');
         await expect(outline).toHaveCSS('outline-style', 'solid');
-        await expect(outline).toHaveCSS('outline-width', '4px');
+        await expect(outline).toHaveCSS('outline-width', '2px');
+        await expect(outline).toHaveCSS('outline-color', 'rgb(136, 204, 255)');
+        await expect(outline).toHaveCSS('border-radius', '0px');
+        await expect(outline).toHaveCSS('box-shadow', 'none');
         await expect(outline).toHaveCSS('padding', '10px');
         await expect(outline).toHaveCSS('border-top-width', '0px');
         await expect(block).toHaveCSS('outline-width', '1px');
@@ -430,6 +433,133 @@ test.describe('Extensions, YFM', () => {
         const details = block.getByRole('button', {name: 'Edit element'});
         await expect(details).toContainText('<h2>');
         await expect(details).toContainText('id="two"');
+    });
+    for (const [variant, Story] of [
+        ['inline', YFMStories.YfmHtmlBlockInlineSource],
+        ['overlay', YFMStories.YfmHtmlBlockOverlaySource],
+    ] as const) {
+        test(`should edit ${variant} HTML source at the clicked text position`, async ({
+            mount,
+            page,
+        }) => {
+            await mount(
+                <Story
+                    initial={
+                        '::: html\n<p title="Greeting">Тестовый текст &amp; текст с изображением</p><p id="sibling">Unchanged</p>\n:::'
+                    }
+                />,
+            );
+            const block = page.locator('.g-md-yfm-html-block');
+            const paragraph = block.frameLocator('iframe').locator('p').first();
+            const dialog = page.getByRole('dialog', {name: 'Edit element <p>'});
+            const input = dialog.getByRole('textbox', {name: 'HTML', exact: true});
+            await paragraph.click();
+            await expect(dialog).toHaveCount(0);
+            const point = await paragraph.evaluate((element) => {
+                const node = element.firstChild!;
+                const range = element.ownerDocument.createRange();
+                range.setStart(node, node.textContent!.indexOf('с изображением'));
+                range.collapse(true);
+                const caret = range.getBoundingClientRect();
+                const rect = element.getBoundingClientRect();
+                return {x: caret.left - rect.left, y: caret.top - rect.top + caret.height / 2};
+            });
+            await paragraph.dblclick({position: point});
+            await expect(input).toBeFocused();
+            await expect(input).toHaveValue(
+                '<p title="Greeting">Тестовый текст &amp; текст с изображением</p>',
+            );
+            expect(
+                await input.evaluate((element: HTMLTextAreaElement) =>
+                    element.value.slice(element.selectionStart),
+                ),
+            ).toBe('с изображением</p>');
+            await expect(paragraph).toHaveCSS(
+                'visibility',
+                variant === 'inline' ? 'hidden' : 'visible',
+            );
+            await expect(dialog.getByRole('button', {name: 'Cancel'})).toBeInViewport();
+            await expect(dialog.getByRole('button', {name: 'Save', exact: true})).toBeInViewport();
+            await expect(dialog).toHaveScreenshot(`html-block-${variant}-source.png`);
+            await input.fill('<p>Discarded</p>');
+            await input.press('Escape');
+            await expect(paragraph).toHaveText('Тестовый текст & текст с изображением');
+            await expect(paragraph).toBeVisible();
+            await paragraph.dblclick();
+            await input.fill('<p title="Updated">Updated <strong>HTML</strong></p>');
+            await input.press('Control+Enter');
+            await expect(paragraph).toHaveText('Updated HTML');
+            await expect(paragraph).toHaveAttribute('title', 'Updated');
+            await expect(paragraph.locator('strong')).toHaveText('HTML');
+            await expect(block.frameLocator('iframe').locator('#sibling')).toHaveText('Unchanged');
+            await expect(block.getByRole('radio', {name: 'Code'})).toBeEnabled();
+        });
+
+        test(`should edit image attributes in ${variant} HTML source`, async ({mount, page}) => {
+            await mount(<Story />);
+            const block = page.locator('.g-md-yfm-html-block').first();
+            const image = block.frameLocator('iframe').locator('img.html-block-demo-image');
+            await image.dblclick();
+            const dialog = page.getByRole('dialog', {name: 'Edit element <img>'});
+            const input = dialog.getByRole('textbox', {name: 'HTML', exact: true});
+            await expect(input).toBeFocused();
+            await expect(input).toHaveValue(/<img /);
+            await input.fill(
+                (await input.inputValue()).replace('alt="', 'title="Edited image" alt="'),
+            );
+            await dialog.getByRole('button', {name: 'Save', exact: true}).click();
+            await expect(image).toHaveAttribute('title', 'Edited image');
+            await expect(image).toBeVisible();
+        });
+
+        test(`should keep ${variant} source editing beside a scrolled element`, async ({
+            mount,
+            page,
+        }) => {
+            await page.setViewportSize({width: 480, height: 800});
+            await mount(
+                <Story
+                    initial={
+                        '::: html\n<div style="height:1400px"></div><p id="lower">Lower text</p><div style="height:500px"></div>\n:::'
+                    }
+                />,
+            );
+            const block = page.locator('.g-md-yfm-html-block');
+            const paragraph = block.frameLocator('iframe').locator('#lower');
+            await paragraph.scrollIntoViewIfNeeded();
+            const scrollBefore = await page.evaluate(() => window.scrollY);
+            await paragraph.dblclick();
+            const dialog = page.getByRole('dialog', {name: 'Edit element <p>'});
+            const input = dialog.getByRole('textbox', {name: 'HTML', exact: true});
+            await expect(input).toBeFocused();
+            await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(scrollBefore);
+            const box = await dialog.boundingBox();
+            expect(box!.x).toBeGreaterThanOrEqual(0);
+            expect(box!.x + box!.width).toBeLessThanOrEqual(480);
+            await expect(block.getByRole('radio', {name: 'Code'})).toBeDisabled();
+            await input.fill('<p id="lower">Saved after scrolling</p>');
+            await dialog.getByRole('button', {name: 'Save', exact: true}).click();
+            await expect(paragraph).toHaveText('Saved after scrolling');
+        });
+    }
+
+    test('should show element details only in the hover overlay story', async ({mount, page}) => {
+        await mount(
+            <YFMStories.YfmHtmlBlockOverlaySource
+                initial={'::: html\n<p title="Greeting">Hover here</p>\n:::'}
+            />,
+        );
+        const block = page.locator('.g-md-yfm-html-block');
+        const paragraph = block.frameLocator('iframe').locator('p');
+        await paragraph.hover();
+        const details = block.locator('.g-md-yfm-html-block__inline-edit-details');
+        await expect(details).toContainText('<p>');
+        await expect(details).toContainText('title="Greeting"');
+        await paragraph.click();
+        await expect(page.getByRole('dialog')).toHaveCount(0);
+        await paragraph.dblclick();
+        await expect(page.getByRole('dialog')).toBeVisible();
+        await expect(details).toHaveCount(0);
     });
     test('YFM File', async ({mount, expectScreenshot}) => {
         await mount(<YFMStories.YfmFile />);

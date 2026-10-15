@@ -205,6 +205,8 @@ export const Playground = memo<PlaygroundProps>((props) => {
                         .use(YfmHtmlBlock, {
                             useConfig: useYfmHtmlBlockStyles,
                             sanitize: htmlBlockDefaultSanitizer,
+                            elementEditingMode:
+                                storyAdditionalControls?.yfmHtmlBlockElementEditingMode,
                             openCodeOnDoubleClick:
                                 storyAdditionalControls?.yfmHtmlBlockOpenCodeOnDoubleClick ?? false,
                             autoSave: {
