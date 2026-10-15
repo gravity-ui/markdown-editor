@@ -5,6 +5,17 @@ import type {EditorView as PMEditorView} from '@gravity-ui/markdown-editor/pm/vi
 import type {Expect, Locator, Page} from '@playwright/test';
 
 type YfmTableCellMenuType = 'row' | 'column';
+
+type EditorSelectionState = {
+    /** Selection type as prosemirror serializes it: text, node, all */
+    type: string;
+    from: number;
+    to: number;
+    head: number;
+    empty: boolean;
+    /** The last caret position in the document, null when the document ends with a leaf block */
+    end: number | null;
+};
 type YfmTableActionKind =
     | 'remove-table'
     | 'remove-column'
@@ -906,16 +917,22 @@ export class MarkdownEditorPage {
         await this.searchPanel.waitForVisible();
     }
 
+    private async isCaretAtEnd() {
+        const {empty, head, end} = await this.readSelection();
+        return empty && end !== null && head === end;
+    }
+
     /**
-     * Reads the caret from the editor state. The editor views are read only, not changed.
+     * The only place that reads the editor state: tests observe it and never change it.
+     * There is no public selection API, so the internal editor views are read.
      */
-    private isCaretAtEnd() {
+    private readSelection(): Promise<EditorSelectionState> {
         return this.page.evaluate(() => {
             const editor = window.mdEditor as
                 | {
                       currentMode: MarkdownEditorMode;
-                      _wysiwygView: PMEditorView;
-                      markupEditor: {cm: CMEditorView};
+                      _wysiwygView?: PMEditorView;
+                      markupEditor?: {cm?: CMEditorView};
                   }
                 | undefined;
             if (!editor) {
@@ -925,11 +942,32 @@ export class MarkdownEditorPage {
             }
 
             if (editor.currentMode === 'markup') {
-                const {doc, selection} = editor.markupEditor.cm.state;
-                return selection.main.empty && selection.main.head === doc.length;
+                const cm = editor.markupEditor?.cm;
+                if (!cm) {
+                    throw new Error(
+                        'window.mdEditor.markupEditor.cm is undefined: the markup editor view is not available',
+                    );
+                }
+
+                const {main} = cm.state.selection;
+                return {
+                    type: 'text',
+                    from: main.from,
+                    to: main.to,
+                    head: main.head,
+                    empty: main.empty,
+                    end: cm.state.doc.length,
+                };
             }
 
-            const {doc, selection} = editor._wysiwygView.state;
+            const view = editor._wysiwygView;
+            if (!view) {
+                throw new Error(
+                    'window.mdEditor._wysiwygView is undefined: the wysiwyg editor view is not available',
+                );
+            }
+
+            const {doc, selection} = view.state;
             // The last caret position is the end of the last textblock
             let end = doc.content.size;
             let node = doc.lastChild;
@@ -939,7 +977,14 @@ export class MarkdownEditorPage {
                 node = node.lastChild;
             }
 
-            return Boolean(node) && selection.empty && selection.head === end;
+            return {
+                type: selection.toJSON().type,
+                from: selection.from,
+                to: selection.to,
+                head: selection.head,
+                empty: selection.empty,
+                end: node ? end : null,
+            };
         });
     }
 }
