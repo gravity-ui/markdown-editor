@@ -1,6 +1,23 @@
+import type {Page} from '@playwright/test';
+
 import {expect, test} from 'playwright/core';
 
 import {EditorPopupSelection} from './EditorPopupSelection.helpers';
+
+// Code block languages load asynchronously and their transaction would enter the probe log
+async function waitForLangs(page: Page) {
+    await expect
+        .poll(
+            async () =>
+                JSON.parse(await page.getByTestId('selection-probe').innerText()).langsLoaded,
+            {
+                // A loading error is caught by the plugin and leaves the flag unset
+                message: 'Code block languages did not load: the plugin reported no loaded state',
+                timeout: 10_000,
+            },
+        )
+        .toBe(true);
+}
 
 for (const legacy of [false, true]) {
     test.describe(`Editor popup selection (${legacy ? 'legacy root' : 'createRoot'})`, () => {
@@ -14,6 +31,7 @@ for (const legacy of [false, true]) {
                 await mount(
                     <EditorPopupSelection legacy={legacy} startsWithNote={startsWithNote} />,
                 );
+                await waitForLangs(page);
                 const editor = page.locator('.ProseMirror');
                 const note = editor.locator('.yfm-note');
                 const menu = page.getByTestId('g-md-toolbar-yfm-note');
@@ -72,6 +90,7 @@ for (const legacy of [false, true]) {
                 const errors: string[] = [];
                 page.on('pageerror', (error) => errors.push(error.message));
                 await mount(<EditorPopupSelection legacy={legacy} />);
+                await waitForLangs(page);
                 await page.locator('.ProseMirror').getByText('Before', {exact: true}).click();
                 await page.getByRole('button', {name: 'Reset probe'}).dispatchEvent('click');
                 await page.getByRole('button', {name: `Select note then ${action}`}).click();
