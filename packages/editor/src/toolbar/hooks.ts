@@ -1,6 +1,4 @@
-import {useEffect, useState} from 'react';
-
-import {useLatest} from 'react-use';
+import {useEffect, useLayoutEffect, useReducer, useRef} from 'react';
 
 import {isEqual} from 'src/lodash';
 
@@ -14,67 +12,36 @@ export type UseActionStateReturn = {
 
 export type ToolbarAction<E> = Pick<ToolbarItemData<E>, 'isActive' | 'isEnable'>;
 
-export function useActionState<E>(
-    editor: E,
-    {isActive, isEnable}: ToolbarAction<E>,
-): UseActionStateReturn {
-    const context = useToolbarContext();
-    const eventBus = context?.eventBus;
+function getActionsState<E>(editor: E, actions: ToolbarAction<E>[]): UseActionStateReturn[] {
+    return actions.map(({isActive, isEnable}) => ({
+        active: isActive(editor),
+        enabled: isEnable(editor),
+    }));
+}
 
-    const [state, setState] = useState<UseActionStateReturn>({
-        active: false,
-        enabled: true,
-    });
-    const stateRef = useLatest(state);
-
-    useEffect(() => {
-        const onUpdate = () => {
-            const newActive = isActive(editor);
-            const newEnabled = isEnable(editor);
-
-            const {active, enabled} = stateRef.current;
-            if (active !== newActive || enabled !== newEnabled) {
-                setState({
-                    active: newActive,
-                    enabled: newEnabled,
-                });
-            }
-        };
-
-        onUpdate();
-
-        if (eventBus) {
-            eventBus.on('update', onUpdate);
-            return () => eventBus.off('update', onUpdate);
-        }
-
-        return undefined;
-    }, [editor, isActive, isEnable, eventBus, stateRef]);
-
-    return state;
+export function useActionState<E>(editor: E, action: ToolbarAction<E>): UseActionStateReturn {
+    return useActionsState(editor, [action])[0];
 }
 
 export function useActionsState<E>(editor: E, actions: ToolbarAction<E>[]): UseActionStateReturn[] {
     const context = useToolbarContext();
     const eventBus = context?.eventBus;
 
-    const [state, setState] = useState<UseActionStateReturn[]>(() =>
-        actions.map(() => ({
-            active: false,
-            enabled: true,
-        })),
-    );
-    const stateRef = useLatest(state);
+    const [, rerender] = useReducer((count: number) => count + 1, 0);
+
+    // Computed during render, so changed props never show the previous state.
+    const state = getActionsState(editor, actions);
+    const latestRef = useRef({editor, actions, state});
+    // Published after commit, so an abandoned render never becomes the listener snapshot.
+    useLayoutEffect(() => {
+        latestRef.current = {editor, actions, state};
+    });
 
     useEffect(() => {
         const onUpdate = () => {
-            const currentState = stateRef.current;
-            const newState = actions.map(({isActive, isEnable}) => ({
-                active: isActive(editor),
-                enabled: isEnable(editor),
-            }));
-            if (!isEqual(currentState, newState)) {
-                setState(newState);
+            const latest = latestRef.current;
+            if (!isEqual(latest.state, getActionsState(latest.editor, latest.actions))) {
+                rerender();
             }
         };
 
@@ -86,9 +53,7 @@ export function useActionsState<E>(editor: E, actions: ToolbarAction<E>[]): UseA
         }
 
         return undefined;
-    }, [actions, editor, eventBus, stateRef]);
+    }, [eventBus]);
 
-    return state.length === actions.length
-        ? state
-        : actions.map(() => ({active: false, enabled: true}));
+    return state;
 }
