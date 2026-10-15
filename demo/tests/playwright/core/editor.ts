@@ -7,7 +7,7 @@ import type {Expect, Locator, Page} from '@playwright/test';
 type YfmTableCellMenuType = 'row' | 'column';
 
 type EditorSelectionState = {
-    /** Selection type as prosemirror serializes it: text, node, all */
+    /** Serialized selection type (text, node, all), or the class name when the selection has no JSON form */
     type: string;
     from: number;
     to: number;
@@ -978,7 +978,11 @@ export class MarkdownEditorPage {
             }
 
             return {
-                type: selection.toJSON().type,
+                // The gap cursor selection of the editor has no JSON form
+                type:
+                    typeof selection.toJSON === 'function'
+                        ? selection.toJSON().type
+                        : selection.constructor.name,
                 from: selection.from,
                 to: selection.to,
                 head: selection.head,
