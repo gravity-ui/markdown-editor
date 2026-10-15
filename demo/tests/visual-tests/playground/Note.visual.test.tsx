@@ -1,8 +1,16 @@
+import type {Locator} from '@playwright/test';
 import dd from 'ts-dedent';
 
 import {expect, test} from 'playwright/core';
 
 import {Playground} from './Playground.helpers';
+
+// A point right of the last character of a single-line text block
+async function endOfText(locator: Locator) {
+    const box = await locator.boundingBox();
+    if (!box) throw new Error('The text block is not visible');
+    return {x: box.width - 1, y: box.height / 2};
+}
 
 test.describe('Note', () => {
     test.beforeEach(async ({editor, mount}) => {
@@ -132,15 +140,18 @@ test.describe('Note', () => {
             await editor.switchMode('wysiwyg');
             await wait.timeout();
 
-            const nestedNote = page.getByText('Nested note title').first().locator('..');
-            await wait.visible(nestedNote);
+            const nestedTitle = page.getByText('Nested note title').first();
+            const nestedContent = page.getByText('Add content for nested note').first();
+            await wait.visible(nestedTitle);
 
-            await nestedNote.click({
-                position: {
-                    x: 10,
-                    y: 10,
-                },
+            // A click on the note edge selects the whole note, and the toolbar turns that into
+            // a text selection only when the click is short, so the text of the note is selected instead
+            await nestedTitle.click({position: {x: 1, y: 10}});
+            await nestedContent.click({
+                modifiers: ['Shift'],
+                position: await endOfText(nestedContent),
             });
+            await editor.waitForTextSelectionInside(nestedTitle, 'yfm_note');
 
             await expect(selection).toContainText('TextSelection');
             const nestedSelection = await selection.innerText();
@@ -152,16 +163,15 @@ test.describe('Note', () => {
             await expect(selection).toHaveText(nestedSelection, {useInnerText: true});
             await expectScreenshot({nameSuffix: 'nested-note-is-alert'});
 
-            const parentNote = page.getByText('Parent note title').first().locator('..');
-            await wait.visible(parentNote);
+            const parentTitle = page.getByText('Parent note title').first();
+            await wait.visible(parentTitle);
 
-            await parentNote.click({
-                position: {
-                    x: 10,
-                    y: 10,
-                },
+            await parentTitle.click({position: {x: 1, y: 10}});
+            await nestedContent.click({
+                modifiers: ['Shift'],
+                position: await endOfText(nestedContent),
             });
-            await wait.timeout();
+            await editor.waitForTextSelectionInside(parentTitle, 'yfm_note');
 
             await expect(selection).toContainText('TextSelection');
             const parentSelection = await selection.innerText();
