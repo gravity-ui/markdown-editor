@@ -151,7 +151,7 @@ test.describe('Bullet lists', () => {
 
         test('should sink list item @wysiwyg', async ({editor, expectScreenshot, wait}) => {
             await editor.assertMainToolbarButtonDisabled('List', 'Sink item');
-            await editor.moveCursor('end');
+            await editor.clickLastBlockAndPressEnd();
             await editor.press('ArrowUp');
 
             await editor.assertMainToolbarButtonEnabled('List', 'Sink item');
@@ -168,7 +168,7 @@ test.describe('Bullet lists', () => {
             await wait.timeout(500);
 
             await editor.assertMainToolbarButtonDisabled('List', 'Lift item');
-            await editor.moveCursor('end');
+            await editor.clickLastBlockAndPressEnd();
             await editor.press('ArrowUp');
 
             await editor.assertMainToolbarButtonEnabled('List', 'Lift item');
@@ -342,7 +342,7 @@ test.describe('Ordered lists', () => {
 
         test('should sink list item @wysiwyg', async ({editor, expectScreenshot, wait}) => {
             await editor.assertMainToolbarButtonDisabled('List', 'Sink item');
-            await editor.moveCursor('end');
+            await editor.clickLastBlockAndPressEnd();
             await editor.press('ArrowUp');
 
             await editor.assertMainToolbarButtonEnabled('List', 'Sink item');
@@ -356,7 +356,7 @@ test.describe('Ordered lists', () => {
 
         test('should lift list item @wysiwyg', async ({editor, expectScreenshot, wait}) => {
             await editor.assertMainToolbarButtonDisabled('List', 'Lift item');
-            await editor.moveCursor('end');
+            await editor.clickLastBlockAndPressEnd();
             await editor.press('ArrowUp');
 
             await editor.assertMainToolbarButtonEnabled('List', 'Lift item');
