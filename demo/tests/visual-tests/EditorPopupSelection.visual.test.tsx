@@ -10,6 +10,11 @@ async function waitForLangs(page: Page) {
         .poll(
             async () =>
                 JSON.parse(await page.getByTestId('selection-probe').innerText()).langsLoaded,
+            {
+                // A loading error is caught by the plugin and leaves the flag unset
+                message: 'Code block languages did not load: the plugin reported no loaded state',
+                timeout: 10_000,
+            },
         )
         .toBe(true);
 }
