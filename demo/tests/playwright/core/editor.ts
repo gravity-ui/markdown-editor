@@ -1,8 +1,21 @@
 import type {DataTransferType, MarkdownEditorMode} from '@gravity-ui/markdown-editor';
 import {SearchQA} from '@gravity-ui/markdown-editor/_/modules/search/qa.js';
+import type {EditorView as CMEditorView} from '@gravity-ui/markdown-editor/cm/view';
+import type {EditorView as PMEditorView} from '@gravity-ui/markdown-editor/pm/view';
 import type {Expect, Locator, Page} from '@playwright/test';
 
 type YfmTableCellMenuType = 'row' | 'column';
+
+type EditorSelectionState = {
+    /** Serialized selection type (text, node, all), or the class name when the selection has no JSON form */
+    type: string;
+    from: number;
+    to: number;
+    head: number;
+    empty: boolean;
+    /** The last caret position in the document, null when the document ends with a leaf block */
+    end: number | null;
+};
 type YfmTableActionKind =
     | 'remove-table'
     | 'remove-column'
@@ -774,6 +787,31 @@ export class MarkdownEditorPage {
     }
 
     /**
+     * Clicks the last block and presses ControlOrMeta+End.
+     * The editor state follows the browser caret asynchronously, and prosemirror restores its own
+     * selection 20 ms after focus: a key pressed in that window is lost.
+     * The key is pressed again until the editor state places the caret at the end.
+     */
+    async clickLastBlockAndPressEnd() {
+        await this.locators.contenteditable
+            .locator(':scope > :not(.ProseMirror-widget)')
+            .last()
+            .click();
+
+        await this.expect(async () => {
+            await this.press('ControlOrMeta+End');
+            await this.expect.poll(() => this.isCaretAtEnd(), {timeout: 500}).toBe(true);
+        }).toPass({timeout: 5000});
+    }
+
+    /**
+     * Waits until the editor state places a collapsed caret at the end of the document.
+     */
+    async waitForCaretAtEnd() {
+        await this.expect.poll(() => this.isCaretAtEnd()).toBe(true);
+    }
+
+    /**
      * Presses a key within the contenteditable area
      */
     async press(key: string, times = 1) {
@@ -877,5 +915,80 @@ export class MarkdownEditorPage {
         await this.focus();
         await this.locators.contenteditable.press('Meta+F');
         await this.searchPanel.waitForVisible();
+    }
+
+    private async isCaretAtEnd() {
+        const {empty, head, end} = await this.readSelection();
+        return empty && end !== null && head === end;
+    }
+
+    /**
+     * The only place that reads the editor state: tests observe it and never change it.
+     * There is no public selection API, so the internal editor views are read.
+     */
+    private readSelection(): Promise<EditorSelectionState> {
+        return this.page.evaluate(() => {
+            const editor = window.mdEditor as
+                | {
+                      currentMode: MarkdownEditorMode;
+                      _wysiwygView?: PMEditorView;
+                      markupEditor?: {cm?: CMEditorView};
+                  }
+                | undefined;
+            if (!editor) {
+                throw new Error(
+                    'window.mdEditor is undefined: the mounted component must call useEditorHandle()',
+                );
+            }
+
+            if (editor.currentMode === 'markup') {
+                const cm = editor.markupEditor?.cm;
+                if (!cm) {
+                    throw new Error(
+                        'window.mdEditor.markupEditor.cm is undefined: the markup editor view is not available',
+                    );
+                }
+
+                const {main} = cm.state.selection;
+                return {
+                    type: 'text',
+                    from: main.from,
+                    to: main.to,
+                    head: main.head,
+                    empty: main.empty,
+                    end: cm.state.doc.length,
+                };
+            }
+
+            const view = editor._wysiwygView;
+            if (!view) {
+                throw new Error(
+                    'window.mdEditor._wysiwygView is undefined: the wysiwyg editor view is not available',
+                );
+            }
+
+            const {doc, selection} = view.state;
+            // The last caret position is the end of the last textblock
+            let end = doc.content.size;
+            let node = doc.lastChild;
+            while (node) {
+                end -= 1;
+                if (node.isTextblock) break;
+                node = node.lastChild;
+            }
+
+            return {
+                // The gap cursor selection of the editor has no JSON form
+                type:
+                    typeof selection.toJSON === 'function'
+                        ? selection.toJSON().type
+                        : selection.constructor.name,
+                from: selection.from,
+                to: selection.to,
+                head: selection.head,
+                empty: selection.empty,
+                end: node ? end : null,
+            };
+        });
     }
 }
