@@ -83,7 +83,9 @@ test.describe('Clipboard', () => {
             await editor.selectAll();
             const data = await editor.dispatchClipboardEvent('copy');
             expect(data['text/yfm']?.trim()).toBe(emphasisMarkup);
-            await editor.moveCursor('end');
+            // The browser collapses the selection, and the editor state follows on selectionchange
+            await editor.press('ArrowRight');
+            await editor.waitForCaretAtEnd();
             await editor.press('Enter');
             await editor.paste(data);
 
