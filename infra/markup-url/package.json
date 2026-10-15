@@ -1,0 +1,38 @@
+{
+  "name": "@markdown-editor/markup-url",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./build/esm/index.d.ts",
+      "default": "./build/esm/index.js"
+    }
+  },
+  "scripts": {
+    "clean": "rm -rf build",
+    "build": "tsc -p tsconfig.build.json",
+    "test": "vitest run",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "lz-string": "1.5.0"
+  },
+  "devDependencies": {
+    "@markdown-editor/tsconfig": "workspace:*",
+    "@markdown-editor/vitest-config": "workspace:*",
+    "@types/node": "catalog:",
+    "typescript": "catalog:ts",
+    "vitest": "catalog:testing"
+  },
+  "nx": {
+    "targets": {
+      "build": {
+        "outputs": [
+          "{projectRoot}/build"
+        ],
+        "cache": true
+      }
+    }
+  }
+}

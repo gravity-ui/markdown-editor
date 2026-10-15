@@ -217,6 +217,9 @@ importers:
       '@gravity-ui/icons':
         specifier: ^2.12.0
         version: 2.13.0(react@18.2.0)
+      '@markdown-editor/markup-url':
+        specifier: workspace:*
+        version: link:../infra/markup-url
       '@markdown-editor/tsconfig':
         specifier: workspace:*
         version: link:../infra/tsconfig
@@ -262,9 +265,6 @@ importers:
       lowlight:
         specifier: catalog:peers
         version: 3.0.0
-      lz-string:
-        specifier: 1.5.0
-        version: 1.5.0
       npm-run-all:
         specifier: ^4.1.5
         version: 4.1.5
@@ -315,7 +315,7 @@ importers:
     dependencies:
       '@diplodoc/cli':
         specifier: 5.63.0
-        version: 5.63.0(@types/markdown-it@13.0.9)(@types/node@25.2.1)(react@18.2.0)(strip-ansi@7.2.0)
+        version: 5.63.0(@types/markdown-it@13.0.9)(@types/node@25.2.1)(react@18.2.0)(strip-ansi@7.2.0)(vitest@5.0.1)
       typescript:
         specifier: catalog:ts
         version: 5.9.3
@@ -394,6 +394,28 @@ importers:
       stylelint:
         specifier: catalog:linters
         version: 16.26.1(typescript@5.9.3)
+
+  infra/markup-url:
+    dependencies:
+      lz-string:
+        specifier: 1.5.0
+        version: 1.5.0
+    devDependencies:
+      '@markdown-editor/tsconfig':
+        specifier: workspace:*
+        version: link:../tsconfig
+      '@markdown-editor/vitest-config':
+        specifier: workspace:*
+        version: link:../vitest-config
+      '@types/node':
+        specifier: 'catalog:'
+        version: 24.12.2
+      typescript:
+        specifier: catalog:ts
+        version: 5.9.3
+      vitest:
+        specifier: catalog:testing
+        version: 5.0.1(@types/node@24.12.2)(@vitest/coverage-v8@5.0.1)(jsdom@25.0.1)(vite@8.3.1(@types/node@24.12.2)(esbuild@0.28.2)(jiti@2.6.1)(sass@1.105.0)(terser@5.51.2)(yaml@2.9.1))
 
   infra/tsconfig:
     dependencies:
@@ -10208,7 +10230,7 @@ snapshots:
     dependencies:
       js-yaml: 4.1.1
 
-  '@diplodoc/cli@5.63.0(@types/markdown-it@13.0.9)(@types/node@25.2.1)(react@18.2.0)(strip-ansi@7.2.0)':
+  '@diplodoc/cli@5.63.0(@types/markdown-it@13.0.9)(@types/node@25.2.1)(react@18.2.0)(strip-ansi@7.2.0)(vitest@5.0.1)':
     dependencies:
       '@diplodoc/ajv': 0.8.0
       '@diplodoc/client': 5.14.0
@@ -10243,6 +10265,7 @@ snapshots:
       yaml: 2.9.1
     optionalDependencies:
       strip-ansi: 7.2.0
+      vitest: 5.0.1(@types/node@25.2.1)(@vitest/coverage-v8@5.0.1)(jsdom@25.0.1)(vite@8.3.1(@types/node@25.2.1)(esbuild@0.28.2)(jiti@2.6.1)(sass@1.105.0)(terser@5.51.2)(yaml@2.9.1))
     transitivePeerDependencies:
       - '@types/markdown-it'
       - '@types/node'
