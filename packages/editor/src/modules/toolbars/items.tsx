@@ -33,6 +33,7 @@ import {
     toH6,
     toOrderedList,
     toggleBold,
+    toggleInlineCode,
     toggleItalic,
     toggleMarked,
     toggleMonospace,
@@ -43,7 +44,6 @@ import {
     wrapToBlockquote,
     wrapToCheckbox,
     wrapToCodeBlock,
-    wrapToInlineCode,
     wrapToMathBlock,
     wrapToMathInline,
     wrapToYfmCut,
@@ -344,7 +344,7 @@ export const codeItemWysiwyg: ToolbarItemWysiwyg = {
     isEnable: (e) => e.actions.code.isEnable(),
 };
 export const codeItemMarkup: ToolbarItemMarkup = {
-    exec: (e) => wrapToInlineCode(e.cm),
+    exec: (e) => toggleInlineCode(e.cm),
     isActive: inactive,
     isEnable: enable,
 };

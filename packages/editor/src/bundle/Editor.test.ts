@@ -1,7 +1,9 @@
+import {EditorSelection} from '@codemirror/state';
 import {describe, expect, it, vi} from 'vitest';
 
 import {ReactRenderStorage} from '../extensions';
 import {Logger2} from '../logger';
+import {toggleBold} from '../markup/commands';
 import {DirectiveSyntaxContext} from '../utils/directive';
 
 import {EditorImpl} from './Editor';
@@ -128,5 +130,27 @@ describe('EditorImpl: mutual exclusion between preview and split mode', () => {
 
         expect(previewListener).not.toHaveBeenCalled();
         expect(splitListener).not.toHaveBeenCalled();
+    });
+});
+
+describe('EditorImpl: inline formatting', () => {
+    it.each([
+        ['omitted', undefined, '**- one\n- two**'],
+        ['disabled', false, '**- one\n- two**'],
+        ['enabled', true, '- **one**\n- **two**'],
+    ] as const)('should format list items with the flag %s', (_name, enabled, expected) => {
+        const editor = createEditor({
+            initial: {mode: 'markup', markup: '- one\n- two'},
+            experimental: enabled === undefined ? undefined : {structuralInlineFormatting: enabled},
+        });
+        try {
+            const view = editor.cm;
+            view.dispatch({selection: EditorSelection.single(0, view.state.doc.length)});
+            toggleBold(view);
+
+            expect(editor.getValue()).toBe(expected);
+        } finally {
+            editor.destroy();
+        }
     });
 });
