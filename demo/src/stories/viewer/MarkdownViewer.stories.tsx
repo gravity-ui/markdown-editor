@@ -1,17 +1,11 @@
 import type {StoryObj} from '@storybook/react';
 
-import {markup} from '../../defaults/content';
+import {MarkdownViewerDemo} from './MarkdownViewerDemo';
 
-import {Viewer} from './MarkdownViewer';
-
-export const Story: StoryObj<typeof Viewer> = {
-    args: {
-        markdown: markup,
-    },
-};
+export const Story: StoryObj<typeof MarkdownViewerDemo> = {};
 Story.storyName = 'Markdown Viewer';
 
 export default {
     title: 'Viewer / Markdown Viewer',
-    component: Viewer,
+    component: MarkdownViewerDemo,
 };
