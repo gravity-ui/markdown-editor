@@ -28,6 +28,10 @@
   "nx": {
     "targets": {
       "build": {
+        "dependsOn": [
+          "clean",
+          "^build"
+        ],
         "outputs": [
           "{projectRoot}/build"
         ],
