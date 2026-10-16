@@ -1,7 +1,7 @@
 {
   "name": "@gravity-ui/markdown-viewer",
   "version": "0.0.0",
-  "description": "Viewer for markdown content from @gravity-ui/markdown-editor",
+  "description": "React viewer for prepared HTML with composable extensions",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -20,8 +20,13 @@
     "lint:js": "eslint './**/*.{js,jsx,mjs,ts,tsx}'",
     "lint:styles": "stylelint './**/*.{css,scss}' --allow-empty-input",
     "lint:prettier": "prettier --check './**/*.{js,jsx,mjs,ts,tsx,css,scss}'",
-    "test": "exit 0",
-    "prepublishOnly": "nx lint && nx clean && nx build"
+    "test": "run-p --continue-on-error test:**",
+    "prepublishOnly": "nx lint && nx clean && nx build",
+    "test:react18": "VIEWER_REACT_VERSION=18 vitest run",
+    "test:react19": "VIEWER_REACT_VERSION=19 vitest run",
+    "test:package": "pnpm build && node tests/package-imports.mjs",
+    "test:types:react18": "tsc -p tests/types/tsconfig.json --noEmit",
+    "test:types:react19": "tsc -p tests/types/tsconfig.react19.json --noEmit"
   },
   "exports": {
     ".": {
@@ -47,22 +52,25 @@
     "tslib": "catalog:ts"
   },
   "devDependencies": {
-    "@gravity-ui/uikit": "catalog:peer-gravity",
+    "@gravity-ui/uikit": "^7.51.1",
     "@markdown-editor/gulp-tasks": "workspace:*",
     "@markdown-editor/linters": "workspace:*",
     "@markdown-editor/tsconfig": "workspace:*",
     "@types/react": "catalog:react",
     "@types/react-dom": "catalog:react",
     "gulp-cli": "catalog:",
-    "npm-run-all": "^4.1.5",
     "react": "catalog:react",
     "react-dom": "catalog:react",
-    "typescript": "catalog:ts"
+    "typescript": "catalog:ts",
+    "@markdown-editor/vitest-config": "workspace:*",
+    "vitest": "catalog:testing",
+    "jsdom": "25.0.1",
+    "@markdown-viewer-tests/react19": "workspace:*"
   },
   "peerDependencies": {
-    "@gravity-ui/uikit": "^7.1.0",
-    "react": "^16.14.0 || ^17.0.0 || ^18.0.0 || ^19.0.0",
-    "react-dom": "^16.14.0 || ^17.0.0 || ^18.0.0 || ^19.0.0"
+    "@gravity-ui/uikit": "^7.51.1",
+    "react": "^18.0.0 || ^19.0.0",
+    "react-dom": "^18.0.0 || ^19.0.0"
   },
   "sideEffects": [
     "*.css",

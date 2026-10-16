@@ -25,7 +25,7 @@
     "ci:test:unit": "nx run-many -t test --verbose",
     "ci:test:esbuild": "nx run-many -t test:esbuild --verbose",
     "ci:test:circular-deps": "nx run-many -t test:circular-deps --verbose",
-    "start": "nx sb:start @markdown-editor/demo",
+    "start": "nx clean-deps @markdown-editor/demo && nx sb:start @markdown-editor/demo",
     "clean": "nx run-many -t clean",
     "build": "nx run-many -t build",
     "typecheck": "nx run-many -t typecheck",
