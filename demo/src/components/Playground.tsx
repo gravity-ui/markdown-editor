@@ -34,7 +34,7 @@ import {useLogs} from '../hooks/useLogs';
 import useYfmHtmlBlockStyles from '../hooks/useYfmHtmlBlockStyles';
 import {randomDelay} from '../utils/delay';
 import {parseInsertedUrlAsImage} from '../utils/imageUrl';
-import {debouncedUpdateLocation as updateLocation} from '../utils/location';
+import {updateLocation} from '../utils/location';
 
 import {PlaygroundLayout, b} from './PlaygroundLayout';
 import {SplitModePreviewLazy} from './SplitModePreviewLazy';
@@ -48,6 +48,7 @@ const fileUploadHandler: FileUploadHandler = async (file) => {
 export type PlaygroundProps = {
     mobile?: boolean;
     initial?: MarkupString;
+    syncMarkupToUrl?: boolean;
     allowHTML?: boolean;
     settingsVisible?: boolean | SettingItems[];
     initialEditor?: MarkdownEditorMode;
@@ -94,6 +95,7 @@ export const Playground = memo<PlaygroundProps>((props) => {
     const {
         mobile,
         initial,
+        syncMarkupToUrl = true,
         initialEditor,
         initialSplitModeEnabled,
         settingsVisible,
@@ -131,8 +133,10 @@ export const Playground = memo<PlaygroundProps>((props) => {
     const [mdRaw, setMdRaw] = useState<MarkupString>(initial || '');
 
     useEffect(() => {
-        updateLocation(mdRaw);
-    }, [mdRaw]);
+        if (!syncMarkupToUrl) return undefined;
+        const timeout = setTimeout(() => updateLocation(mdRaw), 500);
+        return () => clearTimeout(timeout);
+    }, [mdRaw, syncMarkupToUrl]);
 
     const renderPreview = useCallback<RenderPreview>(
         ({getValue, md, directiveSyntax}) => (
