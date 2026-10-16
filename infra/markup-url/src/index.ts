@@ -24,24 +24,14 @@ export function decodeMarkup(value: string): string | null {
     }
 }
 
-function bytesToBase64(bytes: Uint8Array) {
-    let binString = '';
-    for (const byte of bytes) {
-        binString += String.fromCharCode(byte);
+function toBase64(markup: string) {
+    let binary = '';
+    for (const byte of new TextEncoder().encode(markup)) {
+        binary += String.fromCharCode(byte);
     }
-    return btoa(binString);
+    return btoa(binary);
 }
 
-function toBase64(str: string) {
-    return bytesToBase64(new TextEncoder().encode(str));
-}
-
-function base64ToBytes(base64: string) {
-    const binString = atob(base64);
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    return Uint8Array.from(binString, (m) => m.codePointAt(0)!);
-}
-
-function fromBase64(str: string) {
-    return new TextDecoder().decode(base64ToBytes(str));
+function fromBase64(value: string) {
+    return new TextDecoder().decode(Uint8Array.from(atob(value), (char) => char.charCodeAt(0)));
 }

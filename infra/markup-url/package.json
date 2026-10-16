@@ -21,7 +21,6 @@
   "devDependencies": {
     "@markdown-editor/tsconfig": "workspace:*",
     "@markdown-editor/vitest-config": "workspace:*",
-    "@types/node": "catalog:",
     "typescript": "catalog:ts",
     "vitest": "catalog:testing"
   },

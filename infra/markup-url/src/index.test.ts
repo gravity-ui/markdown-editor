@@ -1,5 +1,3 @@
-import {Buffer} from 'node:buffer';
-
 import {compressToEncodedURIComponent} from 'lz-string';
 import {describe, expect, it} from 'vitest';
 
@@ -9,7 +7,7 @@ const html =
     '{% html %}\n' + '<div class="example">Привет 🌍</div>\n'.repeat(200) + '{% endhtml %}';
 const samples = ['', 'a', '# Heading\n\nSome **bold** text.', 'Привет 世界 🌍', '\0\n\r\t', html];
 
-const toBase64 = (markup: string) => Buffer.from(markup).toString('base64');
+const toBase64 = (markup: string) => btoa(String.fromCharCode(...new TextEncoder().encode(markup)));
 
 describe('markup url', () => {
     it.each(samples)('should restore markup after encoding (%#)', (markup) => {
