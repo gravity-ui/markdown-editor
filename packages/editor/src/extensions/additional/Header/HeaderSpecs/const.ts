@@ -12,6 +12,11 @@ export const headerType = nodeTypeFactory(headerNodeName);
 /** Порядок повторяет порядок сериализации: так таблицу атрибутов проще сверять с разметкой. */
 export const HeaderAttr = {
     Format: 'format',
+    Align: 'align',
+    Vertical: 'vertical',
+    Fixed: 'fixed',
+    Title: 'title',
+    Description: 'description',
     Background: 'bg',
     Fill: 'fill',
     Fill2: 'fill2',
@@ -28,11 +33,13 @@ export const HeaderAttr = {
 
 export const HeaderFormat = {
     Large: 'large',
+    Medium: 'medium',
     Small: 'small',
 } as const;
 
 /** Слой фона: рисуется сам по себе, а под изображением на всю площадь остаётся скрытым. */
 export const HeaderBackground = {
+    Surface: 'surface',
     Fill: 'fill',
     Shapes: 'shapes',
     Gradient: 'gradient',
@@ -43,6 +50,8 @@ export const HeaderBackground = {
 /** Какой слой занимает файл автора: нижний на всю площадь, объект поверх основы, повтор поверх основы. */
 export const HeaderLayer = {
     Full: 'full',
+    Left: 'left',
+    Right: 'right',
     Object: 'object',
     Tile: 'tile',
 } as const;
@@ -88,6 +97,8 @@ export const HeaderText = {
     Auto: 'auto',
     Light: 'light',
     Dark: 'dark',
+    Primary: 'primary',
+    Brand: 'brand',
 } as const;
 
 export const HeaderFill = {
@@ -135,7 +146,12 @@ export const HEADER_FILLS: readonly HeaderFillValue[] = [
 
 /** Полный оборот: угол приводится по модулю, потому что 523° и 163° — один и тот же наклон. */
 export const HeaderDefaults = {
-    [HeaderAttr.Format]: HeaderFormat.Large,
+    [HeaderAttr.Format]: HeaderFormat.Medium,
+    [HeaderAttr.Align]: 'left',
+    [HeaderAttr.Vertical]: 'center',
+    [HeaderAttr.Fixed]: 'true',
+    [HeaderAttr.Title]: 'true',
+    [HeaderAttr.Description]: 'true',
     [HeaderAttr.Background]: HeaderBackground.Shapes,
     [HeaderAttr.Fill]: HeaderFill.Blue,
     [HeaderAttr.Fill2]: HeaderFill.Purple,

@@ -18,6 +18,11 @@ export type HeaderAttrs = {-readonly [K in keyof typeof HeaderDefaults]: string}
 
 const choices = {
     [HeaderAttr.Format]: Object.values(HeaderFormat),
+    [HeaderAttr.Align]: ['left', 'center', 'right'],
+    [HeaderAttr.Vertical]: ['top', 'center', 'bottom'],
+    [HeaderAttr.Fixed]: ['true', 'false'],
+    [HeaderAttr.Title]: ['true', 'false'],
+    [HeaderAttr.Description]: ['true', 'false'],
     [HeaderAttr.Background]: Object.values(HeaderBackground),
     [HeaderAttr.Fill]: HEADER_FILLS,
     [HeaderAttr.Fill2]: HEADER_FILLS,
@@ -33,6 +38,11 @@ const choices = {
 
 const ATTR_ORDER = [
     HeaderAttr.Format,
+    HeaderAttr.Align,
+    HeaderAttr.Vertical,
+    HeaderAttr.Fixed,
+    HeaderAttr.Title,
+    HeaderAttr.Description,
     HeaderAttr.Background,
     HeaderAttr.Fill,
     HeaderAttr.Fill2,

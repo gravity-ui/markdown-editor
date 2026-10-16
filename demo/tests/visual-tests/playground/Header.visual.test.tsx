@@ -78,3 +78,79 @@ test('should apply a color to the second gradient fill', async ({mount, page}) =
 
     await expect(header).toHaveAttribute('data-fill2', 'red');
 });
+
+test('should render the redesigned cover with its local image', async ({
+    mount,
+    page,
+    expectScreenshot,
+}) => {
+    await page.setViewportSize({width: 1200, height: 900});
+    await mount(<HeaderDemo markupKey="design" />, {width: 1100});
+    const header = page.locator('.g-md-header');
+    await expect(header.locator('.g-md-header__action')).toHaveCount(3);
+    const image = await header.evaluate(
+        (element) => getComputedStyle(element, '::after').backgroundImage,
+    );
+    expect(image).not.toContain('figma.com');
+    const imageUrl = /url\("([^"]+)"\)/.exec(image)?.[1];
+    expect(imageUrl).toBeTruthy();
+    if (!imageUrl) throw new Error('Cover image URL is missing');
+    expect((await page.request.get(imageUrl)).ok()).toBe(true);
+    await expectScreenshot({component: page.locator('.playground__editor')});
+});
+
+test('should apply settings and preserve hidden text', async ({mount, page, expectScreenshot}) => {
+    await page.emulateMedia({colorScheme: 'dark'});
+    await page.setViewportSize({width: 1200, height: 900});
+    await mount(<HeaderDemo markupKey="design" />, {width: 1100});
+    const header = page.locator('.g-md-header');
+    await header.locator('.g-md-header__title').click();
+    await page
+        .getByTestId('g-md-toolbar-header')
+        .getByRole('button', {name: 'Block settings'})
+        .click();
+    const settings = page.getByRole('dialog', {name: 'Block settings'});
+    await settings.getByRole('radio', {name: 'L', exact: true}).check();
+    await expect(header).toHaveAttribute('data-format', 'large');
+    await settings.getByRole('switch', {name: 'Title', exact: true}).press('Space');
+    await expect(header.locator('.g-md-header__title')).toBeHidden();
+    await settings.getByRole('switch', {name: 'Title', exact: true}).press('Space');
+    await expect(header.locator('.g-md-header__title')).toHaveText('Your title');
+    await settings.getByRole('textbox', {name: 'Button 1: Text', exact: true}).fill('Read more');
+    await expect(header.locator('.g-md-header__action').first()).toHaveText('Read more');
+    await expectScreenshot({component: settings, themes: ['dark']});
+});
+
+test('should render three cover sizes', async ({mount, page, expectScreenshot}) => {
+    await page.setViewportSize({width: 1200, height: 1400});
+    await mount(<HeaderDemo markupKey="designSizes" />, {width: 1100});
+    await expectScreenshot();
+});
+
+test('should keep the image beside the text at different alignments', async ({
+    mount,
+    page,
+    expectScreenshot,
+}) => {
+    await page.setViewportSize({width: 1200, height: 1400});
+    await mount(<HeaderDemo markupKey="designLayouts" />, {width: 1100});
+    await expectScreenshot();
+});
+
+test('should stack the image below the text on narrow screens', async ({mount, page}) => {
+    await page.setViewportSize({width: 400, height: 900});
+    await mount(<HeaderDemo markupKey="design" />, {width: 340});
+    const header = page.locator('.g-md-header');
+    await expect(header).toHaveCSS('flex-direction', 'column');
+    const geometry = await header.evaluate((element) => {
+        const content = element.querySelector('.g-md-header__content');
+        if (!content) throw new Error('Cover content is missing');
+        return {
+            content: content.getBoundingClientRect().width,
+            header: element.getBoundingClientRect().width,
+            image: getComputedStyle(element, '::after').height,
+        };
+    });
+    expect(geometry.content).toBeLessThanOrEqual(geometry.header);
+    expect(geometry.image).toBe('200px');
+});

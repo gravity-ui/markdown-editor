@@ -188,3 +188,50 @@ export const backspaceInHeader: Command = (state, dispatch) => {
     }
     return true;
 };
+
+export const setHeaderAction =
+    (
+        pos: number,
+        index: number,
+        action: {text: string; href: string; type: string; color: string} | null,
+    ): Command =>
+    (state, dispatch) => {
+        const node = headerAt(state.doc, pos);
+        if (!node || index < 0 || index > 2) return false;
+        if (action && !/^https?:[/]*$/i.test(action.href.trim())) {
+            try {
+                const {protocol} = new URL(action.href, 'https://example.com');
+                if (!['http:', 'https:', 'mailto:', 'tel:'].includes(protocol)) return false;
+            } catch {
+                return false;
+            }
+        }
+        const actions = node.child(2);
+        if (index > actions.childCount || (!action && index === actions.childCount)) return false;
+        if (dispatch) {
+            const children: Node[] = [];
+            actions.forEach((child) => children.push(child));
+            if (action) {
+                const {text, href, type, color} = action;
+                children.splice(
+                    index,
+                    index < children.length ? 1 : 0,
+                    state.schema.nodes.header_action.create(
+                        {href, type, color},
+                        text ? state.schema.text(text) : null,
+                    ),
+                );
+            } else {
+                children.splice(index, 1);
+            }
+            const start = pos + 1 + node.child(0).nodeSize + node.child(1).nodeSize;
+            dispatch(
+                state.tr.replaceWith(
+                    start,
+                    start + actions.nodeSize,
+                    actions.type.create(null, children),
+                ),
+            );
+        }
+        return true;
+    };

@@ -1,6 +1,6 @@
 # Header
 
-Обложка страницы с заголовком, подзаголовком и двумя действиями.
+Обложка страницы с заголовком, подзаголовком и тремя действиями.
 
 ```md
 :::header[Портал команды Вики]{bg="gradient" fill="indigo" fill2="purple"}
@@ -14,25 +14,25 @@
 :::
 ```
 
-Заголовок — одна строка простого текста. Содержимое обложки — абзацы. Заголовки, таблицы и другие блоки отбрасываются. Первые два `::action` попадают в слот действий независимо от положения в разметке. Перед листовой директивой после абзаца нужна пустая строка.
+Заголовок — одна строка простого текста. Содержимое обложки — абзацы. Заголовки, таблицы и другие блоки отбрасываются. Первые три `::action` попадают в слот действий независимо от положения в разметке. Перед листовой директивой после абзаца нужна пустая строка.
 
 ## Параметры
 
-| Параметр    | Значения                                                 | По умолчанию | Применяется                  |
-| ----------- | -------------------------------------------------------- | ------------ | ---------------------------- |
-| `format`    | `large`, `small`                                         | `large`      | всегда                       |
-| `bg`        | `fill`, `shapes`, `gradient`, `mesh`, `pattern`          | `shapes`     | всегда                       |
-| `fill`      | 12 цветов палитры                                        | `blue`       | всегда                       |
-| `fill2`     | те же цвета                                              | `purple`     | `gradient`, `mesh`           |
-| `direction` | `diagonal`, `right`, `down`                              | `diagonal`   | `gradient`                   |
-| `shapes`    | `diagonal`, `corner`, `edges`, `bottom`, `scatter`       | `diagonal`   | `shapes`, `mesh`             |
-| `scale`     | `small`, `medium`, `large`                               | `medium`     | `pattern`, `layer="tile"`    |
-| `image`     | адрес изображения                                        | пусто        | всегда                       |
-| `layer`     | `full`, `object`, `tile`                                 | `full`       | задано `image`               |
-| `fit`       | `crop`, `whole`                                          | `crop`       | задано `image`, кроме `tile` |
-| `focus`     | `center`, `top`, `right`, `bottom`, `left` и четыре угла | `center`     | задано `image`, кроме `tile` |
-| `effect`    | `none`, `darken`, `blur`, `fade`                         | `none`       | `layer="full"`               |
-| `text`      | `auto`, `light`, `dark`                                  | `auto`       | всегда                       |
+| Параметр    | Значения                                                   | По умолчанию | Применяется                  |
+| ----------- | ---------------------------------------------------------- | ------------ | ---------------------------- |
+| `format`    | `small`, `medium`, `large`                                 | `medium`     | всегда                       |
+| `bg`        | `surface`, `fill`, `shapes`, `gradient`, `mesh`, `pattern` | `shapes`     | всегда                       |
+| `fill`      | 12 цветов палитры                                          | `blue`       | всегда                       |
+| `fill2`     | те же цвета                                                | `purple`     | `gradient`, `mesh`           |
+| `direction` | `diagonal`, `right`, `down`                                | `diagonal`   | `gradient`                   |
+| `shapes`    | `diagonal`, `corner`, `edges`, `bottom`, `scatter`         | `diagonal`   | `shapes`, `mesh`             |
+| `scale`     | `small`, `medium`, `large`                                 | `medium`     | `pattern`, `layer="tile"`    |
+| `image`     | адрес изображения                                          | пусто        | всегда                       |
+| `layer`     | `full`, `left`, `right`, `object`, `tile`                  | `full`       | задано `image`               |
+| `fit`       | `crop`, `whole`                                            | `crop`       | задано `image`, кроме `tile` |
+| `focus`     | `center`, `top`, `right`, `bottom`, `left` и четыре угла   | `center`     | задано `image`, кроме `tile` |
+| `effect`    | `none`, `darken`, `blur`, `fade`                           | `none`       | `layer="full"`               |
+| `text`      | `auto`, `light`, `dark`, `primary`, `brand`                | `auto`       | всегда                       |
 
 Цвет `fill` записывается всегда. Другие значения по умолчанию и неприменимые параметры не сериализуются. Неизвестный параметр отбрасывается, неизвестное значение заменяется значением по умолчанию.
 
@@ -53,3 +53,13 @@ builder.use(Header, {fileUploadHandler, headerKey: 'Mod-Alt-h'});
 `fileUploadHandler` использует общий контракт загрузки файлов редактора. Без него кнопка загрузки выключена. Блок не входит в пресеты.
 
 Enter в заголовке переводит курсор в подзаголовок. Mod-Enter переводит курсор в абзац после обложки. Backspace в начале пустой обложки заменяет её абзацем.
+
+## Расположение
+
+`format="small|medium|large"` задаёт минимальную высоту 216, 280 или 420 пикселей.
+`align="left|center|right"` и `vertical="top|center|bottom"` задают выравнивание содержимого.
+`fixed="false"` позволяет тексту занимать доступную ширину.
+`title="false"` и `description="false"` скрывают текст, сохраняя его в разметке.
+`layer="left|right"` размещает изображение рядом с текстом.
+`bg="surface"` использует поверхность текущей темы.
+Панель настроек управляет расположением, видимостью текста и тремя кнопками.

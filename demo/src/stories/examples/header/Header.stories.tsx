@@ -4,6 +4,10 @@ import {HeaderDemo as component} from './Header';
 
 type Story = StoryObj<typeof component>;
 
+export const Design: Story = {args: {markupKey: 'design'}};
+export const DesignSizes: Story = {args: {markupKey: 'designSizes'}};
+export const DesignLayouts: Story = {args: {markupKey: 'designLayouts'}};
+
 export const Backgrounds: Story = {args: {markupKey: 'backgrounds'}};
 Backgrounds.storyName = 'Backgrounds';
 

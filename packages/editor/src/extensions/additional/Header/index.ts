@@ -1,6 +1,7 @@
 import type {Action, ExtensionAuto} from '#core';
 import type {FileUploadHandler} from 'src/utils/upload';
 
+import {HeaderActionView} from './HeaderActionView';
 import {HeaderSpecs} from './HeaderSpecs';
 import {backspaceInHeader, enterHeaderContent, exitHeaderForward, toHeader} from './commands';
 import {headerTooltipPlugin} from './plugins/HeaderTooltipPlugin';
@@ -20,6 +21,7 @@ const headerAction = 'toHeader';
 
 export const Header: ExtensionAuto<HeaderOptions> = (builder, opts) => {
     builder.use(HeaderSpecs);
+    builder.addNodeView('header_action', () => (node, view) => new HeaderActionView(node, view));
 
     builder.addPlugin(() => headerTooltipPlugin(opts.fileUploadHandler));
 

@@ -13,6 +13,7 @@ import {
     Palette,
     Picture,
     Shapes3,
+    Sliders,
     TrashBin,
 } from '@gravity-ui/icons';
 import {useToaster} from '@gravity-ui/uikit';
@@ -64,17 +65,20 @@ import {
 import {uploadHeaderImage} from '../imageUpload';
 
 import {HeaderPalette} from './HeaderPalette';
+import {HeaderSettings} from './HeaderSettings';
 
 const ToolbarMemoized = typedMemo(Toolbar);
 
 type AttrItem<T extends string> = {value: T; icon: ToolbarIconData; label: () => string};
 
 const FORMAT_ITEMS: AttrItem<HeaderFormatValue>[] = [
+    {value: HeaderFormat.Medium, icon: {data: LayoutHeader}, label: () => i18n('format_medium')},
     {value: HeaderFormat.Large, icon: {data: LayoutHeader}, label: () => i18n('format_large')},
     {value: HeaderFormat.Small, icon: {data: LayoutHeader}, label: () => i18n('format_small')},
 ];
 
 const BACKGROUND_ITEMS: AttrItem<HeaderBackgroundValue>[] = [
+    {value: HeaderBackground.Surface, icon: {data: BucketPaint}, label: () => i18n('bg_surface')},
     {value: HeaderBackground.Fill, icon: {data: BucketPaint}, label: () => i18n('bg_fill')},
     {value: HeaderBackground.Shapes, icon: {data: Shapes3}, label: () => i18n('bg_shapes')},
     {
@@ -317,6 +321,25 @@ export function HeaderToolbar({node, pos, editorView, fileUploadHandler}: Header
         return [
             [
                 {
+                    id: 'header-settings',
+                    type: ToolbarDataType.ButtonPopup,
+                    icon: {data: Sliders},
+                    title: i18n('settings'),
+                    isActive: () => false,
+                    isEnable: canEdit,
+                    exec: () => {},
+                    renderPopup: ({anchorElement, hide}) => (
+                        <HeaderSettings
+                            node={nodeRef.current}
+                            pos={posRef.current}
+                            editorView={editorView}
+                            anchorElement={anchorElement}
+                            fileUploadHandler={fileUploadHandler}
+                            hide={hide}
+                        />
+                    ),
+                },
+                {
                     id: 'header-format',
                     type: ToolbarDataType.ListButton,
                     icon: {data: LayoutHeader},
@@ -350,6 +373,7 @@ export function HeaderToolbar({node, pos, editorView, fileUploadHandler}: Header
             ],
         ];
     }, [
+        editorView,
         fileUploadHandler,
         nodeRef,
         posRef,

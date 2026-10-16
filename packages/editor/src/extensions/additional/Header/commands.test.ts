@@ -18,6 +18,7 @@ import {
     generateHeaderLook,
     removeHeader,
     removeHeaderImage,
+    setHeaderAction,
     setHeaderAttrs,
     toHeader,
 } from './commands';
@@ -126,5 +127,77 @@ describe('Header commands', () => {
         const view = viewWith(doc(cover('Заголовок'), paragraph('Текст')), 2);
         expect(removeHeader(0)(view.state, view.dispatch)).toBe(true);
         expect(view.state.doc.firstChild?.type.name).toBe('paragraph');
+    });
+});
+
+describe('Header action editing', () => {
+    it('should add, edit and remove actions without changing the title', () => {
+        const view = viewWith(doc(cover('Title')), 2);
+        for (let index = 0; index < 3; index++) {
+            expect(
+                setHeaderAction(0, index, {
+                    text: `Button ${index}`,
+                    href: '/page',
+                    type: 'button',
+                    color: 'brand',
+                })(view.state, view.dispatch),
+            ).toBe(true);
+        }
+        expect(view.state.doc.firstChild?.child(2).childCount).toBe(3);
+        expect(
+            setHeaderAction(0, 1, {text: 'Edited', href: '/other', type: 'link', color: 'default'})(
+                view.state,
+                view.dispatch,
+            ),
+        ).toBe(true);
+        expect(view.state.doc.firstChild?.child(2).child(1).textContent).toBe('Edited');
+        expect(setHeaderAction(0, 0, null)(view.state, view.dispatch)).toBe(true);
+        expect(view.state.doc.firstChild?.child(2).firstChild?.textContent).toBe('Edited');
+        expect(view.state.doc.firstChild?.firstChild?.textContent).toBe('Title');
+        view.destroy();
+    });
+    it('should reject unsafe action links and invalid action positions', () => {
+        const view = viewWith(doc(cover('Title')), 2);
+        const action = {
+            text: 'Button',
+            href: ['javascript', 'alert(1)'].join(':'),
+            type: 'button',
+            color: 'brand',
+        };
+        expect(setHeaderAction(0, 0, action)(view.state, view.dispatch)).toBe(false);
+        expect(setHeaderAction(0, -1, {...action, href: '/page'})(view.state, view.dispatch)).toBe(
+            false,
+        );
+        expect(setHeaderAction(0, 3, {...action, href: '/page'})(view.state, view.dispatch)).toBe(
+            false,
+        );
+        expect(view.state.doc.firstChild?.child(2).childCount).toBe(0);
+        view.destroy();
+    });
+});
+
+describe('Header link drafts', () => {
+    it('should allow typing an incomplete HTTPS address', () => {
+        const view = viewWith(doc(cover('Title')), 2);
+        expect(
+            setHeaderAction(0, 0, {text: 'Button', href: 'https:', type: 'button', color: 'brand'})(
+                view.state,
+                view.dispatch,
+            ),
+        ).toBe(true);
+        expect(view.state.doc.firstChild?.child(2).firstChild?.attrs.href).toBe('https:');
+        view.destroy();
+    });
+    it('should reject an unsafe scheme containing control characters', () => {
+        const view = viewWith(doc(cover('Title')), 2);
+        expect(
+            setHeaderAction(0, 0, {
+                text: 'Button',
+                href: ['java\nscript', 'alert(1)'].join(':'),
+                type: 'button',
+                color: 'brand',
+            })(view.state, view.dispatch),
+        ).toBe(false);
+        view.destroy();
     });
 });

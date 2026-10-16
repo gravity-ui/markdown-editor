@@ -1,3 +1,10 @@
+import designImage from './cover.png';
+
+const designActions =
+    '::action[Button](https://example.com){color="brand"}\n\n::action[Button](https://example.com)\n\n::action[Button](https://example.com){type="link"}';
+const designText =
+    'Everything that you dreamed of can be brought to life exactly at the moment when you decide to win.';
+
 const image = 'https://storage.yandexcloud.net/gravity-ui/markdown-editor/header-cover.png';
 const decor =
     "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 240'><circle cx='120' cy='120' r='108' fill='white' fill-opacity='0.22'/></svg>";
@@ -9,6 +16,29 @@ const cover = (title: string, attrs: string, content = '') =>
 const covers = (...items: string[]) => items.join('\n\n');
 
 export const markup = {
+    design: cover(
+        'Your title',
+        `bg="surface" image="${designImage}" layer="right"`,
+        `${designText}\n\n${designActions}`,
+    ),
+    designSizes: covers(
+        ...['small', 'medium', 'large'].map((format) =>
+            cover(
+                'Your title',
+                `format="${format}" bg="surface" image="${designImage}" layer="right"`,
+                `${designText}\n\n${designActions}`,
+            ),
+        ),
+    ),
+    designLayouts: covers(
+        ...['left', 'right', 'full'].map((layer) =>
+            cover(
+                'Your title',
+                `bg="surface" image="${designImage}" layer="${layer}" text="${layer === 'full' ? 'light' : 'primary'}"`,
+                `${designText}\n\n${designActions}`,
+            ),
+        ),
+    ),
     empty: cover('', 'fill="blue"'),
     formats: covers(
         cover('Портал команды Вики', 'fill="blue"', 'Релизы, дежурства, контакты.'),

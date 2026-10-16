@@ -59,7 +59,7 @@ describe('Header extension', () => {
         expect(node?.child(1).textContent).toBe('Текст');
     });
 
-    it('should keep at most two actions', () => {
+    it('should keep at most three actions', () => {
         const markup = [
             ':::header[Заголовок]',
             '',
@@ -69,9 +69,11 @@ describe('Header extension', () => {
             '',
             '::action[Три](/three)',
             '',
+            '::action[Четыре](/four)',
+            '',
             ':::',
         ].join('\n');
-        expect(parser.parse(markup).firstChild?.child(2).childCount).toBe(2);
+        expect(parser.parse(markup).firstChild?.child(2).childCount).toBe(3);
     });
 
     it('should normalize unsupported parameter values', () => {
@@ -139,5 +141,25 @@ describe('Header extension', () => {
         ].join('\n');
         const restored = parser.parse(serializer.serialize(parser.parse(markup)));
         expect(restored.firstChild?.firstChild?.textContent).toBe('Портал [Вики] & помощь');
+    });
+});
+
+describe('Header layout persistence', () => {
+    it('should preserve layout and hidden content through Markdown and DOM round trips', () => {
+        const markup =
+            ':::header[Title]{format="large" align="right" vertical="bottom" fixed="false" title="false" description="false" image="https://example.com/image.png" layer="left"}\n\nDescription\n\n::action[Button](/page)\n\n:::';
+        const doc = parser.parse(markup);
+        const restored = parser.parse(serializer.serialize(doc));
+        expect(restored.eq(doc)).toBe(true);
+        expect(restored.firstChild?.attrs).toMatchObject({
+            format: 'large',
+            align: 'right',
+            vertical: 'bottom',
+            fixed: 'false',
+            title: 'false',
+            description: 'false',
+            layer: 'left',
+        });
+        parseDOM(schema, new MarkdownIt().use(headerDirective).render(markup), doc);
     });
 });

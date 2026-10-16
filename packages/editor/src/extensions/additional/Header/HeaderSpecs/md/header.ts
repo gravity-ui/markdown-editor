@@ -28,7 +28,7 @@ export const headerDirective = (md: MarkdownIt) => {
             [headerContentName]: ['paragraph_open'],
             [headerActionsName]: ['action'],
         },
-        {[headerActionsName]: 2},
+        {[headerActionsName]: 3},
     );
 
     registerLeafBlockDirective(md, 'action', (state, params) => {
