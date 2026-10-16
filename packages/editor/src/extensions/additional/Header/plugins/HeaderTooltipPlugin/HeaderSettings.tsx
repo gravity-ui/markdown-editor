@@ -99,7 +99,14 @@ export function HeaderSettings({
                     value,
                     content: i18n(`${prefix}_${value}` as Label),
                 }))}
-                onUpdate={([value]) => patch({[attr]: value})}
+                onUpdate={([value]) =>
+                    patch({
+                        [attr]: value,
+                        ...(attr === HeaderAttr.Fill
+                            ? {[HeaderAttr.Background]: HeaderBackground.Fill}
+                            : {}),
+                    })
+                }
             />,
         );
     const actions = current.child(2);

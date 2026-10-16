@@ -102,5 +102,8 @@
   "close": "Close",
   "bg_surface": "Surface",
   "image": "Image",
-  "file": "File"
+  "file": "File",
+  "copy": "Copy",
+  "copy_error": "Could not copy the block",
+  "block_actions": "Block actions"
 }

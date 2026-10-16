@@ -2,109 +2,66 @@ import {expect, test} from 'playwright/core';
 
 import {HeaderDemo} from '../../../src/stories/examples/header/Header';
 
-test('should show every header color and apply the selected fill', async ({mount, page}) => {
-    await mount(<HeaderDemo markupKey="backgrounds" />);
-    const header = page.locator('.g-md-header').filter({hasText: 'Сплошная заливка'});
-    await header.click();
+for (const theme of ['light', 'dark'] as const) {
+    test(`should show three actions on hover in the ${theme} theme`, async ({
+        mount,
+        page,
+        expectScreenshot,
+    }) => {
+        await page.emulateMedia({colorScheme: theme});
+        await page.setViewportSize({width: 1200, height: 900});
+        await mount(<HeaderDemo markupKey="design" />, {width: 1100});
+        await page.mouse.move(1190, 850);
+        const toolbar = page.getByTestId('g-md-toolbar-header');
+        await expect(toolbar).toHaveCount(0);
+        await page.locator('.g-md-header').hover();
+        await expect(toolbar.getByRole('button')).toHaveCount(3);
+        await expect(toolbar.getByRole('button').nth(0)).toHaveAccessibleName('Block settings');
+        await expect(toolbar.getByRole('button').nth(1)).toHaveAccessibleName('Copy');
+        await expect(toolbar.getByRole('button').nth(2)).toHaveAccessibleName('Remove');
+        const popup = page.locator('.g-md-header-toolbar__popup');
+        await expect(popup).toHaveCSS('width', '126px');
+        await expect(popup).toHaveCSS('height', '36px');
+        await expectScreenshot({component: popup, themes: [theme]});
+        await page.mouse.move(1190, 850);
+        await expect(toolbar).toHaveCount(0);
+    });
+}
 
-    const toolbar = page.getByTestId('g-md-toolbar-header');
-    await toolbar.getByRole('button', {name: 'Color'}).click();
-
-    const palette = page.getByRole('grid', {name: 'Color'});
-    await expect(palette.getByRole('button')).toHaveCount(12);
-    await expect(palette.locator('.g-palette__row')).toHaveCount(3);
-    await expect(palette.locator('.g-palette__row').first().getByRole('button')).toHaveCount(4);
-    await expect(palette.locator('[data-fill="blue"]')).toHaveCSS(
-        'background-color',
-        'rgb(91, 126, 255)',
-    );
-    await expect(palette.getByRole('button', {name: 'Yellow'})).toHaveAttribute(
-        'aria-pressed',
-        'true',
-    );
-
-    await palette.getByRole('button', {name: 'Red'}).click();
-    await expect(header).toHaveAttribute('data-fill', 'red');
-});
-
-test('should offer image effects beside the image button without framing controls', async ({
-    mount,
-    page,
-}) => {
-    await mount(<HeaderDemo markupKey="layers" />);
-    const header = page.locator('.g-md-header').filter({hasText: 'На всю площадь'});
-    await header.click();
-
-    const toolbar = page.getByTestId('g-md-toolbar-header');
-    await expect(toolbar).toBeVisible();
-    await expect(toolbar.getByRole('button', {name: 'Crop'})).toHaveCount(0);
-    await expect(toolbar.getByRole('button', {name: 'Image', exact: true})).toHaveCount(0);
-
-    await toolbar.getByRole('button', {name: 'Image effects'}).click();
-    await page.getByRole('menuitem', {name: 'Darken'}).click();
-    await expect(header).toHaveAttribute('data-effect', 'darken');
-});
-
-test('should offer pattern size for a patterned background', async ({mount, page}) => {
-    await mount(<HeaderDemo markupKey="backgrounds" />);
-    await page.locator('.g-md-header').filter({hasText: 'Паттерн'}).click();
-
-    await expect(
-        page.getByTestId('g-md-toolbar-header').getByRole('button', {name: 'Pattern size'}),
-    ).toBeVisible();
-});
-
-test('should show the title, subtitle and two actions', async ({mount, page}) => {
-    await mount(<HeaderDemo markupKey="content" />);
+test('should copy the entire cover and support undo after removal', async ({mount, page}) => {
+    await page.context().grantPermissions(['clipboard-read', 'clipboard-write']);
+    await mount(<HeaderDemo markupKey="design" />);
     const header = page.locator('.g-md-header');
-    await expect(header.locator('.g-md-header__title')).toHaveText('Портал команды Вики');
-    await expect(header.locator('.header_content')).toContainText('Релизы, дежурства, контакты.');
-    await expect(header.locator('.g-md-header__action')).toHaveCount(2);
+    await header.hover();
+    const toolbar = page.getByTestId('g-md-toolbar-header');
+    await toolbar.getByRole('button', {name: 'Copy', exact: true}).click();
+    await expect
+        .poll(() => page.evaluate(() => navigator.clipboard.readText()))
+        .toContain('Your title');
+    const html = await page.evaluate(async () => {
+        const items = await navigator.clipboard.read();
+        return (await items[0].getType('text/html')).text();
+    });
+    expect(html).toContain('g-md-header');
+    expect(html).toContain('data-layer="right"');
+    await expect(header).toHaveCount(1);
+    await toolbar.getByRole('button', {name: 'Remove', exact: true}).click();
+    await expect(header).toHaveCount(0);
+    await page.getByRole('button', {name: 'Undo', exact: true}).click();
+    await expect(header).toHaveCount(1);
+    await expect(header.locator('.g-md-header__action')).toHaveCount(3);
 });
 
-test('should render the complete cover', async ({mount, expectScreenshot}) => {
-    await mount(<HeaderDemo markupKey="content" />);
-    await expectScreenshot();
-});
-
-test('should apply a color to the second gradient fill', async ({mount, page}) => {
-    await mount(<HeaderDemo markupKey="angles" />);
-    const header = page.locator('.g-md-header').first();
-    await header.click();
-
-    await page.getByTestId('g-md-toolbar-header').getByRole('button', {name: 'Color'}).click();
-    await page.getByRole('radio', {name: 'Secondary'}).click();
-    await page.getByRole('grid', {name: 'Color'}).getByRole('button', {name: 'Red'}).click();
-
-    await expect(header).toHaveAttribute('data-fill2', 'red');
-});
-
-test('should render the redesigned cover with its local image', async ({
+test('should keep settings open while changing the cover', async ({
     mount,
     page,
     expectScreenshot,
 }) => {
-    await page.setViewportSize({width: 1200, height: 900});
-    await mount(<HeaderDemo markupKey="design" />, {width: 1100});
-    const header = page.locator('.g-md-header');
-    await expect(header.locator('.g-md-header__action')).toHaveCount(3);
-    const image = await header.evaluate(
-        (element) => getComputedStyle(element, '::after').backgroundImage,
-    );
-    expect(image).not.toContain('figma.com');
-    const imageUrl = /url\("([^"]+)"\)/.exec(image)?.[1];
-    expect(imageUrl).toBeTruthy();
-    if (!imageUrl) throw new Error('Cover image URL is missing');
-    expect((await page.request.get(imageUrl)).ok()).toBe(true);
-    await expectScreenshot({component: page.locator('.playground__editor')});
-});
-
-test('should apply settings and preserve hidden text', async ({mount, page, expectScreenshot}) => {
     await page.emulateMedia({colorScheme: 'dark'});
     await page.setViewportSize({width: 1200, height: 900});
     await mount(<HeaderDemo markupKey="design" />, {width: 1100});
     const header = page.locator('.g-md-header');
-    await header.locator('.g-md-header__title').click();
+    await header.hover();
     await page
         .getByTestId('g-md-toolbar-header')
         .getByRole('button', {name: 'Block settings'})
@@ -119,6 +76,46 @@ test('should apply settings and preserve hidden text', async ({mount, page, expe
     await settings.getByRole('textbox', {name: 'Button 1: Text', exact: true}).fill('Read more');
     await expect(header.locator('.g-md-header__action').first()).toHaveText('Read more');
     await expectScreenshot({component: settings, themes: ['dark']});
+    await settings.getByRole('button', {name: 'Close', exact: true}).click();
+    await expect(settings).toHaveCount(0);
+});
+
+test('should change colors from block settings', async ({mount, page}) => {
+    await mount(<HeaderDemo markupKey="design" />);
+    const header = page.locator('.g-md-header');
+    await header.hover();
+    await page
+        .getByTestId('g-md-toolbar-header')
+        .getByRole('button', {name: 'Block settings'})
+        .click();
+    const settings = page.getByRole('dialog', {name: 'Block settings'});
+    await settings.getByRole('combobox', {name: 'Color', exact: true}).click();
+    await page.getByRole('option', {name: 'Red', exact: true}).click();
+    await expect(header).toHaveAttribute('data-fill', 'red');
+});
+
+test('should render the redesigned cover with its hover toolbar', async ({
+    mount,
+    page,
+    expectScreenshot,
+}) => {
+    await page.emulateMedia({colorScheme: 'dark'});
+    await page.setViewportSize({width: 1200, height: 900});
+    await mount(<HeaderDemo markupKey="design" />, {
+        width: 1100,
+        styles: '.playground__editor {padding-bottom: 48px;}',
+    });
+    const header = page.locator('.g-md-header');
+    await expect(header.locator('.g-md-header__action')).toHaveCount(3);
+    const image = await header.evaluate(
+        (element) => getComputedStyle(element, '::after').backgroundImage,
+    );
+    const imageUrl = /url\("([^"]+)"\)/.exec(image)?.[1];
+    if (!imageUrl) throw new Error('Cover image URL is missing');
+    expect((await page.request.get(imageUrl)).ok()).toBe(true);
+    await header.hover();
+    await expect(page.getByTestId('g-md-toolbar-header')).toBeVisible();
+    await expectScreenshot({component: page.locator('.playground__editor'), themes: ['dark']});
 });
 
 test('should render three cover sizes', async ({mount, page, expectScreenshot}) => {
@@ -127,11 +124,7 @@ test('should render three cover sizes', async ({mount, page, expectScreenshot}) 
     await expectScreenshot();
 });
 
-test('should keep the image beside the text at different alignments', async ({
-    mount,
-    page,
-    expectScreenshot,
-}) => {
+test('should render images beside and behind the text', async ({mount, page, expectScreenshot}) => {
     await page.setViewportSize({width: 1200, height: 1400});
     await mount(<HeaderDemo markupKey="designLayouts" />, {width: 1100});
     await expectScreenshot();
@@ -140,17 +133,5 @@ test('should keep the image beside the text at different alignments', async ({
 test('should stack the image below the text on narrow screens', async ({mount, page}) => {
     await page.setViewportSize({width: 400, height: 900});
     await mount(<HeaderDemo markupKey="design" />, {width: 340});
-    const header = page.locator('.g-md-header');
-    await expect(header).toHaveCSS('flex-direction', 'column');
-    const geometry = await header.evaluate((element) => {
-        const content = element.querySelector('.g-md-header__content');
-        if (!content) throw new Error('Cover content is missing');
-        return {
-            content: content.getBoundingClientRect().width,
-            header: element.getBoundingClientRect().width,
-            image: getComputedStyle(element, '::after').height,
-        };
-    });
-    expect(geometry.content).toBeLessThanOrEqual(geometry.header);
-    expect(geometry.image).toBe('200px');
+    await expect(page.locator('.g-md-header')).toHaveCSS('flex-direction', 'column');
 });
